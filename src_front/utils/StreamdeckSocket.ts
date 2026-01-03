@@ -3,6 +3,7 @@ import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import { ref } from "vue";
 import Utils from "./Utils";
+import PublicAPI from "./PublicAPI";
 
 /**
 * Created : 26/02/2025
@@ -79,6 +80,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 				this.connected.value = true;
 				isManualConnect = false;
 				if(this._isMainApp) this.broadcast("ON_FLAG_MAIN_APP", Utils.getUUID());
+				PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {enabled:false});
 				resolve(true);
 			};
 

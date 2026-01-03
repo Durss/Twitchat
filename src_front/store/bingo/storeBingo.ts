@@ -5,6 +5,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IBingoActions, type IBingoGetters, type IBingoState } from '../StoreProxy';
+import PublicAPI from '@/utils/PublicAPI';
 
 export const storeBingo = defineStore('bingo', {
 	state: () => ({
@@ -53,9 +54,13 @@ export const storeBingo = defineStore('bingo', {
 				message = message.replace(/\{GOAL\}/gi, goal as string);
 				MessengerProxy.instance.sendMessage(message);
 			}
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
-		stopBingo() { this.data = null; },
+		stopBingo() {
+			this.data = null;
+			PublicAPI.instance.broadcastGlobalStates();
+		},
 
 		checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void {
 			if(!this.data) return;
