@@ -1,6 +1,6 @@
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import type VoiceAction from '@/utils/voice/VoiceAction'
+import VoiceAction from '@/utils/voice/VoiceAction'
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'
@@ -10,6 +10,7 @@ import Utils from '@/utils/Utils'
 import VoicemodEvent from '@/utils/voice/VoicemodEvent'
 import StoreProxy from '../StoreProxy'
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
+import Config from '@/utils/Config'
 
 export const storeVoice = defineStore('voice', {
 	state: () => ({
@@ -34,9 +35,22 @@ export const storeVoice = defineStore('voice', {
 
 
 	getters: {
-	} as IVoiceGetters
-	& ThisType<UnwrapRef<IVoiceState> & _StoreWithGetters<IVoiceGetters> & PiniaCustomProperties>
-	& _GettersTree<IVoiceState>,
+		voiceBotConfigured: ():boolean => {
+			if(Config.instance.OBS_DOCK_CONTEXT) return false;
+			const actions = Object.keys(VoiceAction);
+			type VAKeys = keyof typeof VoiceAction;
+			//Search for global labels
+			for (let i = 0; i < actions.length; i++) {
+				const a = actions[i];
+				if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
+				const id:string = a as string;
+				const action = StoreProxy.voice.voiceActions.find(v=> v.id == id);
+				// if(action && !action?.sentences) {
+				if(!action?.sentences) return false;
+			}
+			return true;
+		}
+	},
 
 
 
