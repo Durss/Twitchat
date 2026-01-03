@@ -135,6 +135,10 @@ function extractEventsFromType(type, checker) {
 		// Get description from JSDoc
 		const description = ts.displayPartsToString(prop.getDocumentationComment(checker));
 		
+		// Get @answer tag if present
+		const answerTag = jsDocTags.find(tag => tag.name === 'answer');
+		const answerEvent = answerTag ? ts.displayPartsToString(answerTag.text).trim() : null;
+		
 		// Get the event name
 		const eventName = prop.getName();
 		
@@ -147,7 +151,8 @@ function extractEventsFromType(type, checker) {
 		events.push({
 			name: eventName,
 			description: description.trim(),
-			type: typeString
+			type: typeString,
+			answerEvent: answerEvent
 		});
 	}
 	
@@ -345,61 +350,94 @@ function generateMarkdown(events) {
 	
 	// Generate documentation for each section
 	if (onEvents.length > 0) {
-		markdown += `# Events you can receive\n<details>\n<summary>Events fired by Twitchat that can be listened to.</summary>\n\n`;
+		markdown += `# Events you can receive\nEvents fired by Twitchat that you can listen to.\n\n`;
+		markdown += generateSectionTableOfContents(onEvents);
+		markdown += `\n\n`
 		for (const event of onEvents) {
-			markdown += formatEvent(event, '###');
+			markdown += formatEvent(event, '####');
 		}
-		markdown += `</details>\n\n`;
+		markdown += `\n\n`
 	}
 	
 	if (setEvents.length > 0) {
-		markdown += `# Actions you can perform\n<details>\n<summary>Actions you can request Twitchat to perform.</summary>\n\n`;
+		markdown += `# Actions you can perform\nActions you can request Twitchat to perform.\n\n`;
+		markdown += generateSectionTableOfContents(setEvents);
+		markdown += `\n\n`
 		for (const event of setEvents) {
-			markdown += formatEvent(event, '##');
+			markdown += formatEvent(event, '####');
 		}
-		markdown += `</details>\n\n`;
+		markdown += `\n\n`
 	}
 	
 	if (getEvents.length > 0) {
-		markdown += `# Requesting data\n<details>\n<summary>Data you can request from Twitchat.</summary>\n\n`;
+		markdown += `# Requesting data\nData you can request from Twitchat.\n\n`;
+		markdown += generateSectionTableOfContents(getEvents);
+		markdown += `\n\n`
 		for (const event of getEvents) {
-			markdown += formatEvent(event, '##');
+			markdown += formatEvent(event, '####');
 		}
-		markdown += `</details>\n\n`;
+		markdown += `\n\n`
 	}
 	
 	if (otherEvents.length > 0) {
-		markdown += `# Other Events\n<details>\n<summary>Other events that don't follow the standard naming convention</summary>\n\n`;
+		markdown += `# Other Events\nOther events that don't follow the standard naming convention\n\n`;
+		markdown += generateSectionTableOfContents(otherEvents);
+		markdown += `\n\n`
 		for (const event of otherEvents) {
-			markdown += formatEvent(event, '##');
+			markdown += formatEvent(event, '####');
 		}
-		markdown += `</details>\n\n`;
+		markdown += `\n\n`
 	}
 	
 	return markdown;
 }
 
 /**
+ * Generate table of contents for a section
+ */
+function generateSectionTableOfContents(events) {
+	let toc = '';
+	
+	for (const event of events) {
+		toc += `- [${event.name}](#${createAnchor(event.name)})\n`;
+	}
+	
+	toc += '\n\n';
+	return toc;
+}
+
+/**
+ * Create a markdown anchor from event name
+ * GitHub preserves underscores in anchors, so we only replace other special chars
+ */
+function createAnchor(eventName) {
+	return eventName.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
+}
+
+/**
  * Format a single event as markdown
  */
 function formatEvent(event, headingLevel = '##') {
-	let result = `${headingLevel} **${event.name}**\n`;
+	let result = `${headingLevel} ${event.name}\n`;
 	
 	if (event.description) {
 		result += `${event.description}  \n`;
 	}
 	
-	result += `<details>\n<summary>JSON params</summary>\n\n`;
-	
-	if (event.type === 'undefined') {
-		result += '```\n-none-\n```\n\n';
-	} else {
-		result += '```typescript\n';
-		result += event.type + '\n';
-		result += '```\n\n';
+	// Add answer link if present
+	if (event.answerEvent) {
+		result += `Receive answer with: [${event.answerEvent}](#${createAnchor(event.answerEvent)})  \n`;
 	}
 	
-	result += `</details>\n\n`;
+	if (event.type !== 'undefined') {
+		result += `<details>\n<summary>JSON parameters</summary>\n\n`;
+		result += '```typescript\n';
+		result += 'type ' + event.name + ' = ' + event.type + '\n';
+		result += '```\n\n';
+		result += `</details>`;
+	}
+	
+	result += `\n\n`
 	
 	return result;
 }
