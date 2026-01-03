@@ -16,6 +16,7 @@ export default class PublicAPI extends EventDispatcher {
 	private static _instance:PublicAPI;
 
 	private _bc!:BroadcastChannel;
+	private _isMainApp:boolean = false;
 	private _idsDone = new Set<string>();
 
 	constructor() {
@@ -43,6 +44,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * Initializes the public API
 	 */
 	public async initialize(isMainApp:boolean):Promise<void> {
+		this._isMainApp = isMainApp;
 
 		if(typeof BroadcastChannel != "undefined") {
 			this._bc = new BroadcastChannel("twitchat");
@@ -121,6 +123,7 @@ export default class PublicAPI extends EventDispatcher {
 	}
 
 	public broadcastGlobalStates():void {
+		if(this._isMainApp == false) return;
 		const states:TwitchatEventMap["ON_GLOBAL_STATES"] = {
 			activeCountdowns: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "countdown").map(({overlayParams, placeholderKey, ...rest}) => rest),
 			activeTimers: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "timer").map(({overlayParams, placeholderKey, ...rest}) => rest),
@@ -141,6 +144,8 @@ export default class PublicAPI extends EventDispatcher {
 			hasActiveRaffle: StoreProxy.raffle.raffleList.filter(v=>!v.ghost).length > 0,
 			hasActiveRaffleWithEntries: StoreProxy.raffle.raffleList.filter(v=>!v.ghost && v.entries.filter(w=>!v.winners || v.winners?.findIndex(x => x.id === w.id) === -1).length > 0).length > 0,
 			chatColConfs: StoreProxy.params.chatColumnStates,
+			animatedTextList:StoreProxy.animatedText.animatedTextList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
+			bingoGridList:StoreProxy.bingoGrid.gridList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
 		}
 		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}
