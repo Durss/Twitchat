@@ -989,15 +989,15 @@ Triggered when chat poll progress updates
 		 * Poll choices
 		 */
 		choices: {
-			id: any;
+			id: string;
 			/**
 			 * Text of the choice
 			 */
-			label: any;
+			label: string;
 			/**
 			 * Number of "votes", represents the total channel points spent on it
 			 */
-			votes: any;
+			votes: number;
 		}[];
 		/**
 		 * Poll duration in seconds
@@ -1015,15 +1015,15 @@ Triggered when chat poll progress updates
 		 * Winning choice
 		 */
 		winner?: {
-			id: any;
+			id: string;
 			/**
 			 * Text of the choice
 			 */
-			label: any;
+			label: string;
 			/**
 			 * Number of "votes", represents the total channel points spent on it
 			 */
-			votes: any;
+			votes: number;
 		};
 		/**
 		 * Permissions params
@@ -2332,17 +2332,106 @@ Response to GET_GLOBAL_STATES
 	/**
 	 * List of active timer and their state
 	 */
-	activeTimers: string[];
+	activeTimers: {
+		id: string;
+		/**
+		 * Is the default timer/countdown
+		 * These are static instances that cannot be deleted
+		 * for use with the /timer and /countdown commands
+		 */
+		isDefault: boolean;
+		/**
+		 * Date in ms the timer/countdown has been started at
+		 */
+		startAt_ms?: number;
+		/**
+		 * Date in ms the countdown has ended
+		 */
+		endAt_ms?: number;
+		/**
+		 * Duration added to the timer/countdown
+		 */
+		offset_ms: number;
+		/**
+		 * Duration the countdown has been paused for
+		 */
+		pauseDuration_ms: number;
+		/**
+		 * Is timer/countdown paused
+		 */
+		paused: boolean;
+		/**
+		 * Date in ms the timer/countdown has been paused at
+		 */
+		pausedAt_ms?: number;
+		/**
+		 * Duration of the countdown in ms
+		 */
+		duration_ms: number;
+		/**
+		 * Is timer/countdown enabled
+		 */
+		enabled: boolean;
+		/**
+		 * Type of entry, timer or countdown
+		 */
+		type: "timer"|"countdown";
+	}[];
 	/**
 	 * List of active countdowns and their state
 	 */
-	activeCountdowns: string[];
+	activeCountdowns: {
+		id: string;
+		/**
+		 * Is the default timer/countdown
+		 * These are static instances that cannot be deleted
+		 * for use with the /timer and /countdown commands
+		 */
+		isDefault: boolean;
+		/**
+		 * Date in ms the timer/countdown has been started at
+		 */
+		startAt_ms?: number;
+		/**
+		 * Date in ms the countdown has ended
+		 */
+		endAt_ms?: number;
+		/**
+		 * Duration added to the timer/countdown
+		 */
+		offset_ms: number;
+		/**
+		 * Duration the countdown has been paused for
+		 */
+		pauseDuration_ms: number;
+		/**
+		 * Is timer/countdown paused
+		 */
+		paused: boolean;
+		/**
+		 * Date in ms the timer/countdown has been paused at
+		 */
+		pausedAt_ms?: number;
+		/**
+		 * Duration of the countdown in ms
+		 */
+		duration_ms: number;
+		/**
+		 * Is timer/countdown enabled
+		 */
+		enabled: boolean;
+		/**
+		 * Type of entry, timer or countdown
+		 */
+		type: "timer"|"countdown";
+	}[];
 	/**
 	 * Current counter values
 	 */
 	counterValues: {
-		[key: string]: number;
-	};
+		id: string;
+		value: number;
+	}[];
 	/**
 	 * Current emergency mode state
 	 */
@@ -2352,9 +2441,9 @@ Response to GET_GLOBAL_STATES
 	 */
 	ttsSpeaking: boolean;
 	/**
-	 * Can the user perform auto shoutouts
+	 * Last raider's name
 	 */
-	canAutoShoutout: boolean;
+	lastRaiderName: string;
 	/**
 	 * Is the viewers count visible on chat bar
 	 */
@@ -2371,6 +2460,44 @@ Response to GET_GLOBAL_STATES
 	 * Is voice control enabled
 	 */
 	voiceControlEnabled: boolean;
+	/**
+	 * Is viewer count visible
+	 */
+	showViewerCount: boolean;
+	/**
+	 * Is message merging enabled
+	 */
+	messageMergeEnabled: boolean;
+	/**
+	 * Is there a message highlighted
+	 */
+	isMessageHighlighted: boolean;
+	/**
+	 * Is there an active poll
+	 */
+	hasActivePoll: boolean;
+	/**
+	 * Is there an active prediction
+	 */
+	hasActivePrediction: boolean;
+	/**
+	 * Is there an active bingo
+	 */
+	hasActiveBingo: boolean;
+	/**
+	 * Is there an active raffle
+	 */
+	hasActiveRaffle: boolean;
+	/**
+	 * Is there an active raffle with at least one entry
+	 */
+	hasActiveRaffleWithEntries: boolean;
+	/**
+	 * Chat columns configurations
+	 */
+	chatColConfs: {
+		paused: boolean;
+	}[];
 }
 ```
 
@@ -3081,15 +3208,15 @@ If no active poll, body is undefined
 		 * Poll choices
 		 */
 		choices: {
-			id: any;
+			id: string;
 			/**
 			 * Text of the choice
 			 */
-			label: any;
+			label: string;
 			/**
 			 * Number of "votes", represents the total channel points spent on it
 			 */
-			votes: any;
+			votes: number;
 		}[];
 		/**
 		 * Poll duration in seconds
@@ -3107,15 +3234,15 @@ If no active poll, body is undefined
 		 * Winning choice
 		 */
 		winner?: {
-			id: any;
+			id: string;
 			/**
 			 * Text of the choice
 			 */
-			label: any;
+			label: string;
 			/**
 			 * Number of "votes", represents the total channel points spent on it
 			 */
-			votes: any;
+			votes: number;
 		};
 		/**
 		 * Defines if it's the first event of the poll
@@ -3787,6 +3914,41 @@ Receive list of all timers and countdowns
 		 * Timer type
 		 */
 		type: "timer"|"countdown";
+	} & {
+		/**
+		 * Is the default timer/countdown
+		 * These are static instances that cannot be deleted
+		 * for use with the /timer and /countdown commands
+		 */
+		isDefault: boolean;
+		/**
+		 * Date in ms the timer/countdown has been started at
+		 */
+		startAt_ms?: number;
+		/**
+		 * Date in ms the countdown has ended
+		 */
+		endAt_ms?: number;
+		/**
+		 * Duration added to the timer/countdown
+		 */
+		offset_ms: number;
+		/**
+		 * Duration the countdown has been paused for
+		 */
+		pauseDuration_ms: number;
+		/**
+		 * Is timer/countdown paused
+		 */
+		paused: boolean;
+		/**
+		 * Date in ms the timer/countdown has been paused at
+		 */
+		pausedAt_ms?: number;
+		/**
+		 * Duration of the countdown in ms
+		 */
+		duration_ms: number;
 	}[];
 }
 ```
@@ -4092,6 +4254,22 @@ Twitchat completed initialization and is ready.
 
 ```
 -none-
+```
+
+</details>
+
+### **ON_VOICE_CONTROL_STATE_CHANGE**
+Triggered when voice control state is updated  
+<details>
+<summary>JSON params</summary>
+
+```typescript
+{
+	/**
+	 * Voice control enabled state
+	 */
+	enabled: boolean;
+}
 ```
 
 </details>
@@ -4531,22 +4709,6 @@ First select a message with SET_CHAT_FEED_SELECT
 ## **SET_CHAT_FEED_SELECT_CHOOSING_ACTION**
 Open action chooser for the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
-<details>
-<summary>JSON params</summary>
-
-```typescript
-{
-	/**
-	 * Column index
-	 */
-	colIndex: number;
-}
-```
-
-</details>
-
-## **SET_CHAT_FEED_UNPAUSE**
-Resume auto-scrolling in a chat feed  
 <details>
 <summary>JSON params</summary>
 
@@ -6401,8 +6563,9 @@ Set voice bot enabled/disabled state
 {
 	/**
 	 * Enable or disable voice control
+	 * Omit to toggle current state
 	 */
-	enabled: boolean;
+	enabled?: boolean;
 }
 ```
 

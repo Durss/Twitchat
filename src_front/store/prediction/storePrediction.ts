@@ -82,6 +82,7 @@ export const storePrediction = defineStore('prediction', {
 			}
 
 			this.data = data;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {
@@ -95,6 +96,7 @@ export const storePrediction = defineStore('prediction', {
 				PublicAPI.instance.broadcast("ON_PREDICTION_PROGRESS", {prediction: this.data});
 			}
 			PublicAPI.instance.broadcast("ON_PREDICTION_OVERLAY_CONFIGS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcastGlobalStates();
 		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions

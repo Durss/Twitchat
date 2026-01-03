@@ -1,10 +1,10 @@
-import { Event } from './EventDispatcher';
 import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePrediction";
 import type { LabelItemData } from "@/types/ILabelOverlayData";
 import type { TriggerActionCountDataAction } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import { Event } from './EventDispatcher';
 
 /**
 * Created : 14/04/2022
@@ -35,6 +35,16 @@ export type TwitchatEventMap = {
 	SET_VOICE_CONTROL_STATE: {
 		/**
 		 * Enable or disable voice control
+		 * Omit to toggle current state
+		 */
+		enabled?: boolean;
+	};
+	/**
+	 * Triggered when voice control state is updated
+	 */
+	ON_VOICE_CONTROL_STATE_CHANGE: {
+		/**
+		 * Voice control enabled state
 		 */
 		enabled: boolean;
 	};
@@ -104,15 +114,6 @@ export type TwitchatEventMap = {
 	 * Pause auto-scrolling in a chat feed
 	 */
 	SET_CHAT_FEED_PAUSE: {
-		/**
-		 * Column index
-		 */
-		colIndex: number;
-	};
-	/**
-	 * Resume auto-scrolling in a chat feed
-	 */
-	SET_CHAT_FEED_UNPAUSE: {
 		/**
 		 * Column index
 		 */
@@ -807,7 +808,7 @@ export type TwitchatEventMap = {
 		/**
 		 * List of timers and countdowns
 		 */
-		timerList: {
+		timerList: ({
 			/**
 			 * Timer ID
 			 */
@@ -824,7 +825,7 @@ export type TwitchatEventMap = {
 			 * Timer type
 			 */
 			type: 'timer' | 'countdown';
-		}[];
+		} & Pick<TwitchatDataTypes.TimerData, "isDefault"|"startAt_ms"|"endAt_ms"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"duration_ms">)[];
 	};
 
 	/**
@@ -1843,15 +1844,15 @@ export type TwitchatEventMap = {
 		/**
 		 * List of active timer and their state
 		 */
-		activeTimers: string[];
+		activeTimers: Pick<TwitchatDataTypes.TimerData, "id"|"duration_ms"|"enabled"|"endAt_ms"|"isDefault"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"startAt_ms"|"type">[];
 		/**
 		 * List of active countdowns and their state
 		 */
-		activeCountdowns: string[];
+		activeCountdowns: Pick<TwitchatDataTypes.TimerData, "id"|"duration_ms"|"enabled"|"endAt_ms"|"isDefault"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"startAt_ms"|"type">[];
 		/**
 		 * Current counter values
 		 */
-		counterValues: { [counterId: string]: number };
+		counterValues: { id:string, value: number }[];
 		/**
 		 * Current emergency mode state
 		 */
@@ -1861,9 +1862,9 @@ export type TwitchatEventMap = {
 		 */
 		ttsSpeaking: boolean;
 		/**
-		 * Can the user perform auto shoutouts
+		 * Last raider's name
 		 */
-		canAutoShoutout: boolean;
+		lastRaiderName: string | undefined;
 		/**
 		 * Is the viewers count visible on chat bar
 		 */
@@ -1880,6 +1881,44 @@ export type TwitchatEventMap = {
 		 * Is voice control enabled
 		 */
 		voiceControlEnabled: boolean;
+		/**
+		 * Is viewer count visible
+		 */
+		showViewerCount: boolean;
+		/**
+		 * Is message merging enabled
+		 */
+		messageMergeEnabled: boolean;
+		/**
+		 * Is there a message highlighted
+		 */
+		isMessageHighlighted: boolean;
+		/**
+		 * Is there an active poll
+		 */
+		hasActivePoll: boolean;
+		/**
+		 * Is there an active prediction
+		 */
+		hasActivePrediction: boolean;
+		/**
+		 * Is there an active bingo
+		 */
+		hasActiveBingo: boolean;
+		/**
+		 * Is there an active raffle
+		 */
+		hasActiveRaffle: boolean;
+		/**
+		 * Is there an active raffle with at least one entry
+		 */
+		hasActiveRaffleWithEntries: boolean;
+		/**
+		 * Chat columns configurations
+		 */
+		chatColConfs:{
+			paused: boolean;
+		}[]
 	};
 
 	/**
