@@ -384,6 +384,7 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener("SET_MERGE_TOGGLE", ()=> {
 				StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
+				StoreProxy.params.updateParams();
 			});
 
 			/**
@@ -510,6 +511,11 @@ export const storeMain = defineStore("main", {
 					sChat.highlightChatMessageOverlay();
 				}
 			});
+
+			/**
+			 * Called when requesting global states (for stream deck buttons states)
+			 */
+			PublicAPI.instance.addEventListener("GET_GLOBAL_STATES", ()=> PublicAPI.instance.broadcastGlobalStates());
 
 			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
@@ -817,8 +823,7 @@ export const storeMain = defineStore("main", {
 
 		async executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null) {
 			this.chatAlert = message;
-			await Utils.promisedTimeout(50);
-			this.chatAlert = null;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		showOutdatedDataVersionAlert():void { this.outdatedDataVersion = true; },

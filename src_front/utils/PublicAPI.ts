@@ -1,9 +1,12 @@
+import StoreProxy from "@/store/StoreProxy";
 import type { JsonObject } from "type-fest";
 import { EventDispatcher } from "../events/EventDispatcher";
 import TwitchatEvent, { type TwitchatEventMap } from "../events/TwitchatEvent";
 import OBSWebsocket from "./OBSWebsocket";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 import Utils from "./Utils";
+import VoiceController from "./voice/VoiceController";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
 * Created : 14/04/2022
@@ -106,7 +109,40 @@ export default class PublicAPI extends EventDispatcher {
 				StreamdeckSocket.instance.broadcast(type, eventId, data);
 			}
 		}
-		
+		switch(type) {
+			case "ON_VOICE_CONTROL_STATE_CHANGE":
+			case "ON_TIMER_LIST":
+			case "ON_COUNTER_UPDATE":
+			case "ON_CHAT_COLUMNS_COUNT":
+			case "ON_EMERGENCY_MODE_CHANGED":
+				PublicAPI.instance.broadcastGlobalStates();
+				break;
+		}
+	}
+
+	public broadcastGlobalStates():void {
+		const states:TwitchatEventMap["ON_GLOBAL_STATES"] = {
+			activeCountdowns: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "countdown").map(({overlayParams, placeholderKey, ...rest}) => rest),
+			activeTimers: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "timer").map(({overlayParams, placeholderKey, ...rest}) => rest),
+			lastRaiderName: StoreProxy.stream.lastRaider?.login,
+			emergencyMode: StoreProxy.emergency.emergencyStarted,
+			censorshipEnabled: StoreProxy.params.appearance.censorDeletedMessages.value as boolean,
+			counterValues: StoreProxy.counters.counterList.filter(v=>v.perUser === false).map(v=>({id:v.id, value:v.value})),
+			hasActiveChatAlert: StoreProxy.main.chatAlert != null,
+			moderationToolsVisible: StoreProxy.params.features.showModTools.value as boolean,
+			ttsSpeaking: StoreProxy.tts.speaking,
+			voiceControlEnabled: StoreProxy.voice.voiceBotConfigured && VoiceController.instance.started.value,
+			showViewerCount: StoreProxy.params.appearance.showViewersCount.value as boolean,
+			messageMergeEnabled: StoreProxy.params.features.mergeConsecutive.value as boolean,
+			isMessageHighlighted: StoreProxy.chat.highlightedMessageId != null,
+			hasActivePoll: StoreProxy.poll.data != null,
+			hasActivePrediction: StoreProxy.prediction.data != null,
+			hasActiveBingo: StoreProxy.bingo.data != null,
+			hasActiveRaffle: StoreProxy.raffle.raffleList.filter(v=>!v.ghost).length > 0,
+			hasActiveRaffleWithEntries: StoreProxy.raffle.raffleList.filter(v=>!v.ghost && v.entries.filter(w=>!v.winners || v.winners?.findIndex(x => x.id === w.id) === -1).length > 0).length > 0,
+			chatColConfs: StoreProxy.params.chatColumnStates,
+		}
+		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}
 
 	public override addEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {

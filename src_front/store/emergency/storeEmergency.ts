@@ -70,7 +70,7 @@ export const storeEmergency = defineStore('emergency', {
 			 * Called when emergency mode is started or stoped
 			 */
 			PublicAPI.instance.addEventListener("SET_EMERGENCY_MODE", (e)=> {
-				let enabled = e.data!.enabled;
+				let enabled = e.data?.enabled;
 				//If no forced state is specified, just toggle the state
 				if(!e.data || enabled === undefined) enabled = !this.emergencyStarted;
 				if(e.data?.promptConfirmation === true) {

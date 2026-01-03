@@ -254,7 +254,21 @@ function typeToFormattedString(type, checker, indent = 0, visited = new Set()) {
 		
 		// Add properties
 		for (const prop of properties) {
-			const propType = checker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration);
+			// Try to get the type of the property from the type itself first
+			// This works better with utility types like Pick<> and Omit<>
+			let propType;
+			try {
+				propType = checker.getTypeOfPropertyOfType(type, prop.getName());
+			} catch (e) {
+				// Fallback to the old method
+				propType = null;
+			}
+			
+			// If that didn't work, fall back to getting it from the symbol
+			if (!propType) {
+				propType = checker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration);
+			}
+			
 			const propName = prop.getName();
 			const optional = (prop.flags & ts.SymbolFlags.Optional) ? '?' : '';
 			
