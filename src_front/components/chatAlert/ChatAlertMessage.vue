@@ -1,5 +1,5 @@
 <template>
-	<div class="chatalertmessage" @click="message = null" v-if="message" v-tooltip="$t('global.close')">
+	<div class="chatalertmessage" @click="$store.main.executeChatAlert(null)" v-if="message" v-tooltip="$t('global.close')">
 		<div class="user">{{ $t("global.chat_alert_title", {USER:message.user.displayName}) }}</div>
 		<div class="message">
 			<ChatMessageChunksParser :chunks="chunks" :channel="message.channel_id" :platform="message.platform" />
@@ -39,10 +39,14 @@ class ChatAlertMessage extends Vue {
 			if(message && this.$store.main.chatAlertParams.message === true
 			&& this.$store.params.features.alertMode.value === true) {
 				this.message = message;
+			}else if(!message) {
+				this.message = null;
 			}
 		})
 
-		this.apiCloseHandler = () => this.message = null;
+		this.apiCloseHandler = () => {
+			this.$store.main.executeChatAlert(null)
+		};
 
 		PublicAPI.instance.addEventListener("SET_HIDE_CHAT_ALERT", this.apiCloseHandler);
 	}

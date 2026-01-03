@@ -65,9 +65,11 @@ export default class VoiceController {
 	public async start(remoteControlMode:boolean):Promise<void> {
 		this.remoteControlMode = remoteControlMode;
 		if(this.started.value) return;
+
 		if(this.recognition) {
 			this.started.value = true;
 			this.recognition.start();
+			PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {enabled:true});
 			return;
 		}
 		
@@ -128,11 +130,14 @@ export default class VoiceController {
 
 		this.recognition.start();
 		this.started.value = true;
+		PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {enabled:true});
 	}
 
 	public stop():void {
 		this.started.value = false;
 		this.recognition.stop();
+
+		PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {enabled:false});
 	}
 
 	public dispose():void {
@@ -164,7 +169,9 @@ export default class VoiceController {
 		});
 
 		PublicAPI.instance.addEventListener("SET_VOICE_CONTROL_STATE", (data)=> {
-			if(data.data.enabled === true) {
+			let enable = data.data.enabled;
+			if(enable === undefined) enable = !this.started.value;
+			if(enable) {
 				this.start(this.remoteControlMode);
 			}else{
 				this.stop();
@@ -242,6 +249,8 @@ export default class VoiceController {
 			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast("SET_GREET_FEED_READ", {messageCount:10}, true, true); return;
 			case VoiceAction.START_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:true, promptConfirmation:true}, true, true); return;
 			case VoiceAction.STOP_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:false}, true, true); return;
+			case VoiceAction.CHAT_FEED_PAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE", {colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_UNPAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE", {colIndex:0}, true, true); return;
 		}
 		if(action != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone ++;
