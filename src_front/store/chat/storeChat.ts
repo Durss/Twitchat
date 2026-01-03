@@ -1346,7 +1346,7 @@ export const storeChat = defineStore('chat', {
 							&& await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 								if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 									//Execute alert
-									sMain.chatAlert = message;
+									sMain.executeChatAlert(message);
 
 									//Execute trigger
 									const trigger:TwitchatDataTypes.MessageChatAlertData = {
@@ -1492,6 +1492,8 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.users.untrackUser(localMess.user);
 							}
 						}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
+
+						PublicAPI.instance.broadcastGlobalStates();
 
 						break;
 					}
@@ -2447,6 +2449,7 @@ export const storeChat = defineStore('chat', {
 				});
 			}
 
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		async flagSuspiciousMessage(messageId:string, flaggedChans:string[], retryCount?:number):Promise<void> {

@@ -878,7 +878,7 @@ export default class MessengerProxy {
 				answers:[],
 				message_size:0,
 			}
-			StoreProxy.main.chatAlert = messageData;
+			StoreProxy.main.executeChatAlert(messageData);
 
 			//Execute trigger
 			const trigger:TwitchatDataTypes.MessageChatAlertData = {

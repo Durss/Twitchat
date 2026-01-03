@@ -132,7 +132,6 @@ class VoiceTriggerList extends Vue {
 
 		this.triggerHandler = (e) => this.onTrigger(e as any);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_UNPAUSE", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.triggerHandler);
@@ -147,7 +146,6 @@ class VoiceTriggerList extends Vue {
 
 	public beforeUnmount():void {
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_UNPAUSE", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.triggerHandler);

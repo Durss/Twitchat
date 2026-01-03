@@ -711,6 +711,7 @@ export const storeRaffle = defineStore('raffle', {
 			DataStore.set(DataStore.RAFFLES_RUNNING, this.raffleList.filter(v=>{
 				return v.mode != "sub" &&  v.mode != "manual" && v.mode != "values"
 			}));
+			PublicAPI.instance.broadcastGlobalStates();
 		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions
