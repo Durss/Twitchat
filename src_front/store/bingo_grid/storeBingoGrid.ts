@@ -128,6 +128,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			});
 
 			/**
+			 * Relay to set grid visibility from Stream Deck socket
+			 */
+			PublicAPI.instance.addEventListener("SET_BINGO_GRID_CONFIGS_VISIBILITY_FROM_SD", async (event)=>{
+				if(!event.data) return;
+				PublicAPI.instance.broadcast("SET_BINGO_GRID_CONFIGS_VISIBILITY", event.data);
+			});
+
+			/**
 			 * Called when a user's bingo count changes on a grid
 			 */
 			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event)=>{

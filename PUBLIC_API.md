@@ -2498,6 +2498,40 @@ Response to GET_GLOBAL_STATES
 	chatColConfs: {
 		paused: boolean;
 	}[];
+	/**
+	 * List of animated texts overlays
+	 */
+	animatedTextList: {
+		/**
+		 * Animated text ID
+		 */
+		id: string;
+		/**
+		 * Animated text name
+		 */
+		name: string;
+		/**
+		 * Is the animated text enabled ?
+		 */
+		enabled: boolean;
+	}[];
+	/**
+	 * List of bingo grids overlays
+	 */
+	bingoGridList: {
+		/**
+		 * Animated text ID
+		 */
+		id: string;
+		/**
+		 * Animated text name
+		 */
+		name: string;
+		/**
+		 * Is the animated text enabled ?
+		 */
+		enabled: boolean;
+	}[];
 }
 ```
 
@@ -4406,6 +4440,27 @@ Reject latest message held by automod
 
 ```
 -none-
+```
+
+</details>
+
+## **SET_BINGO_GRID_CONFIGS_VISIBILITY**
+Set bingo grid visibility  
+<details>
+<summary>JSON params</summary>
+
+```typescript
+{
+	/**
+	 * Bingo grid ID to change visibility of
+	 */
+	id: string;
+	/**
+	 * Show or hide the bingo grid
+	 * Omit to toggle current visibility
+	 */
+	show?: boolean;
+}
 ```
 
 </details>
