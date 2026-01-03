@@ -253,6 +253,10 @@ class MessageList extends Vue {
 		watch(()=>this.$store.tiktok.connected, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 		watch(()=>YoutubeHelper.instance.connected, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 		watch(()=>this.config, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
+		watch(()=>this.lockScroll, ()=> {
+			this.$store.params.chatColumnStates[this.config.order].paused = this.lockScroll;
+			PublicAPI.instance.broadcastGlobalStates();
+		});
 
 		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -271,7 +275,6 @@ class MessageList extends Vue {
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
@@ -306,7 +309,6 @@ class MessageList extends Vue {
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
@@ -898,7 +900,6 @@ class MessageList extends Vue {
 	| {type:"SET_CHAT_FEED_READ", data:TwitchatEventMap["SET_CHAT_FEED_READ"]}
 	| {type:"SET_CHAT_FEED_READ_ALL", data:TwitchatEventMap["SET_CHAT_FEED_READ_ALL"]}
 	| {type:"SET_CHAT_FEED_PAUSE", data:TwitchatEventMap["SET_CHAT_FEED_PAUSE"]}
-	| {type:"SET_CHAT_FEED_UNPAUSE", data:TwitchatEventMap["SET_CHAT_FEED_UNPAUSE"]}
 	| {type:"SET_CHAT_FEED_SCROLL", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL"]}
 	| {type:"SET_CHAT_FEED_SCROLL_BOTTOM", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_BOTTOM"]}
 	| {type:"SET_CHAT_FEED_SCROLL_UP", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_UP"]}
@@ -976,12 +977,8 @@ class MessageList extends Vue {
 			}
 
 			case "SET_CHAT_FEED_PAUSE": {
-				this.lockScroll = true;
-				break;
-			}
-
-			case "SET_CHAT_FEED_UNPAUSE": {
-				this.unPause();
+				if(this.lockScroll) this.unPause();
+				else this.lockScroll = !this.lockScroll;
 				break;
 			}
 

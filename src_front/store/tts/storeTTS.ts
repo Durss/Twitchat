@@ -7,6 +7,7 @@ import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import type { JsonObject } from 'type-fest';
+import PublicAPI from '@/utils/PublicAPI';
 
 export const storeTTS = defineStore('tts', {
 	state: () => ({
@@ -112,6 +113,11 @@ export const storeTTS = defineStore('tts', {
 				Utils.mergeRemoteObject(JSON.parse(tts), (this.params as unknown) as JsonObject);
 				TTSUtils.instance.enabled = this.params.enabled;
 			}
+		},
+
+		setSpeakingState(speaking:boolean):void {
+			this.speaking = speaking;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes) {

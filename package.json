@@ -25,7 +25,7 @@
 		"check-circular-dependencies": "dpdm ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
 		"analyse": "esbuild src_front/main.ts --bundle --analyze",
-		"genapi": "node ./scripts/generatePublicApiEvents.mjs"
+		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs"
 	},
 	"dependencies": {
 		"@fastify/cors": "^11.2.0",
