@@ -122,6 +122,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private bingoUpdateHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_CONFIGS">) => void;
 	private bingoViewerHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">) => void;
 	private leaderboardHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_LEADER_BOARD">) => void;
+	private visibilityHandler!:(e:TwitchatEvent<"SET_BINGO_GRID_CONFIGS_VISIBILITY">) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
 	private debugScale = 1;//Reduce to add margin around grid for cleaner screen capture
@@ -171,9 +172,11 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
 		this.leaderboardHandler = (e) => this.onLeaderboard(e);
+		this.visibilityHandler = (e) => this.onVisibilityChange(e);
 		PublicAPI.instance.addEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
 		PublicAPI.instance.addEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
 		PublicAPI.instance.addEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.addEventListener("SET_BINGO_GRID_CONFIGS_VISIBILITY", this.visibilityHandler);
 
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
@@ -187,6 +190,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
 		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
 		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.removeEventListener("SET_BINGO_GRID_CONFIGS_VISIBILITY", this.visibilityHandler);
 	}
 
 	/**
@@ -217,6 +221,15 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				PublicAPI.instance.broadcast("ON_BINGO_GRID_HEAT_CLICK", {id:this.bingo!.id, entryId:id, click:event});
 			}
 		}
+	}
+
+	private onVisibilityChange(e:Parameters<typeof this.visibilityHandler>[0]):void {
+		if(!e.data) return;
+		if(e.data.id != this.id) return;
+
+		let show = e.data.show;
+		if(show === undefined) show = !this.gridOpened;
+		this.openCloseGrid(show);
 	}
 
 	/**
