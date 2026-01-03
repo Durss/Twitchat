@@ -329,7 +329,7 @@
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
-						v-if="voiceBotConfigured"
+						v-if="$store.voice.voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						v-tooltip="{touch:'hold', content:voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')}"
 						@click="toggleVoiceBot()" />
@@ -592,21 +592,6 @@ export class ChatForm extends Vue {
 	}
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started.value; }
-	public get voiceBotConfigured():boolean {
-		if(Config.instance.OBS_DOCK_CONTEXT) return false;
-		const actions = Object.keys(VoiceAction);
-		type VAKeys = keyof typeof VoiceAction;
-		//Search for global labels
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
-			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
-			const id:string = a as string;
-			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
-			// if(action && !action?.sentences) {
-			if(!action?.sentences) return false;
-		}
-		return true;
-	}
 
 	public get chatHighlightEnabled():boolean {
 		return this.$store.chat.highlightedMessageId != null;

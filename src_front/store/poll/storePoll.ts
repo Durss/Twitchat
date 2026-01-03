@@ -81,6 +81,7 @@ export const storePoll = defineStore('poll', {
 			}
 
 			this.data = data;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		setOverlayParams(params:PollOverlayParamStoreData):void {
@@ -94,6 +95,7 @@ export const storePoll = defineStore('poll', {
 				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", {poll: this.data});
 			}
 			PublicAPI.instance.broadcast("ON_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcastGlobalStates();
 		}
 	} as IPollActions
 	& ThisType<IPollActions
