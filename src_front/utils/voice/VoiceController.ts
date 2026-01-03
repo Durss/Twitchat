@@ -240,8 +240,6 @@ export default class VoiceController {
 	private triggerAction(action:string, data?:JsonObject):void {
 		if(!action) return;
 
-		// console.log("TRIGGER ACTION", action, data);
-		
 		switch(action) {
 			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_UP", {scrollBy:500, colIndex:0}, true, true); return;
 			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_DOWN", {scrollBy:500, colIndex:0}, true, true); return;
