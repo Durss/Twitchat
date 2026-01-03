@@ -247,6 +247,7 @@ export const storeParams = defineStore('params', {
 				}
 			}
 		],
+		chatColumnStates:[],
 		goxlrConfig: {
 			enabled:false,
 			ip:"127.0.0.1",
@@ -303,16 +304,18 @@ export const storeParams = defineStore('params', {
 				this.chatColumnsConfig = JSON.parse(chatColConfs);
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 					this.chatColumnsConfig[i]!.id = Utils.getUUID();
+					this.chatColumnStates[i] = { paused:false }
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
 			}
-
+			
 			//If no col is defined to receive the "greet them" section, force it
 			if(this.chatColumnsConfig.findIndex(v=>v.showGreetHere === true) == -1) {
 				let col = this.chatColumnsConfig.find(v=>v.showPanelsHere === true);
 				if(!col) {
 					col = this.chatColumnsConfig[0]!;
 					col.showPanelsHere = true;
+					this.chatColumnStates[0] = { paused:false }
 				}
 				col.showGreetHere = true;
 			}
@@ -365,6 +368,7 @@ export const storeParams = defineStore('params', {
 					}
 				}
 			}
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig {
@@ -444,11 +448,13 @@ export const storeParams = defineStore('params', {
 			if(after) {
 				const index = this.chatColumnsConfig.findIndex(v=>v.order==after.order);
 				this.chatColumnsConfig.splice(index+1, 0, col);
+				this.chatColumnStates.splice(index+1, 0, { paused:false });
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 					this.chatColumnsConfig[i]!.order = i;
 				}
 			}else{
 				this.chatColumnsConfig.push(col);
+				this.chatColumnStates.push({ paused:false });
 			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 
@@ -466,6 +472,7 @@ export const storeParams = defineStore('params', {
 				const e = this.chatColumnsConfig[i]!;
 				if(e == column) {
 					this.chatColumnsConfig.splice(i, 1);
+					this.chatColumnStates.splice(i, 1);
 					decrement = true;
 					i--;
 				}else
