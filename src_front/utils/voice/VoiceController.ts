@@ -241,14 +241,14 @@ export default class VoiceController {
 		if(!action) return;
 
 		switch(action) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_UP", {scrollBy:500, colIndex:0}, true, true); return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_DOWN", {scrollBy:500, colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL", {scrollBy:-500, colIndex:0, mode:'pixels'}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL", {scrollBy:500, colIndex:0, mode:'pixels'}, true, true); return;
 			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast("SET_CHAT_FEED_READ", {count:10, colIndex:0}, true, true); return;
 			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast("SET_GREET_FEED_READ", {messageCount:10}, true, true); return;
 			case VoiceAction.START_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:true, promptConfirmation:true}, true, true); return;
 			case VoiceAction.STOP_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:false}, true, true); return;
-			case VoiceAction.CHAT_FEED_PAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE", {colIndex:0}, true, true); return;
-			case VoiceAction.CHAT_FEED_UNPAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE", {colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_PAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE_STATE", {colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_UNPAUSE:		PublicAPI.instance.broadcast("SET_CHAT_FEED_PAUSE_STATE", {colIndex:0}, true, true); return;
 		}
 		if(action != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone ++;
