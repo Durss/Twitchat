@@ -1078,6 +1078,7 @@ class MessageList extends Vue {
 					}
 					clearTimeout(this.selectionTimeout);
 					this.selectionTimeout = window.setTimeout(()=>{
+						if(this.selectedItem) this.selectedItem.classList.remove("selectedChildMessage");
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
@@ -1152,6 +1153,7 @@ class MessageList extends Vue {
 			case "SET_CHAT_FEED_SELECT_CHOOSING_ACTION": {
 				clearTimeout(this.selectionTimeout);
 				this.selectionTimeout = window.setTimeout(()=>{
+					if(this.selectedItem) this.selectedItem.classList.remove("selectedChildMessage");
 					this.selectedItem = null;
 					this.selectedMessage = null;
 					this.selectionDate = 0;

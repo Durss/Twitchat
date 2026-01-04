@@ -45,7 +45,7 @@ export const storeCommon = defineStore('common', {
 				// if(sOBS) sOBS.connectionEnabled = true;
 				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
-			StreamdeckSocket.instance.connect(undefined, authenticated);
+			StreamdeckSocket.instance.connect(undefined, undefined, authenticated).catch(()=>{/*ignore*/});
 		},
 
 		alert(message:string, isCritical:boolean = false, showContact:boolean = false) {
