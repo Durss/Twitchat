@@ -2714,6 +2714,7 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
+				secretKey: {type:"string", maxLength:50},
 			}
 		}
 	}

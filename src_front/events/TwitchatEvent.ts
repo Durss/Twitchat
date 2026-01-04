@@ -1972,7 +1972,26 @@ export type TwitchatEventMap = {
 	/**
 	 * @private
 	 */
-	ON_FLAG_MAIN_APP: undefined;
+	SET_STREAMDECK_AUTHENTICATE: {
+		/**
+		 * Declare as an actual twitchat instance.
+		 * If more than one is declared a warning will be shown on PI of the SD
+		 */
+		isMainApp: boolean;
+		/**
+		 * Secret key.
+		 * Key is provided by SD, Twitchat must give it back to SD to validate connection.
+		 * This avoids risks of unauthorized connections.
+		 */
+		secretKey: string;
+	};
+	/**
+	 * Sent by SD to inform Twitchat about authentication result
+	 * @private
+	 */
+	ON_STREAMDECK_AUTHENTICATION_RESULT: {
+		success: boolean;
+	};
 	/**
 	 * Live text when using speech-to-text
 	 * @private

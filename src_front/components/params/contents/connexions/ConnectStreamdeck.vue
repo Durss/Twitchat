@@ -14,38 +14,43 @@
 
 		<section v-if="connected">
 			<div class="connected card-item primary"><icon name="checkmark" />{{ $t("streamdeck.connected") }}</div>
+			<TTButton icon="offline" alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
 		</section>
 
-		<section v-if="error">
-			<div class="card-item alert message error" @click="error = false">{{ $t("streamdeck.connect_failed") }}</div>
-		</section>
-
-		<section v-if="connecting">
-			<icon name="loader" class="loader" />
-		</section>
-
-		<section>
-			<ToggleBlock :title="$t('global.advanced_params')" small :open="false">
-				<form @submit.prevent="connect()">
-					<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" noBackground />
-					<TTButton type="submit" :disabled="connecting" icon="online">{{ $t("global.connect") }}</TTButton>
-	
-					<div v-if="securityWarning" class="card-item secondary security">
-						<h2>
-							<icon name="info" />
-							<i18n-t scope="global" keypath="streamdeck.connect_form.info">
-								<template #URL><a :href="`https://${param_ip.value}:30386`" target="_blank">https://{{ param_ip.value }}:30386</a></template>
-							</i18n-t>
-						</h2>
-						<ul>
-							<li><img class="logo" src="@/assets/icons/logo-chrome.svg"><img class="logo" src="@/assets/icons/logo-vivaldi.svg"><img class="logo" src="@/assets/icons/logo-edge.svg"><img class="logo" src="@/assets/icons/logo-brave.svg"> — <span v-html="$t('streamdeck.connect_form.chromium', { IP: param_ip.value })"></span></li>
-							<li><img class="logo" src="@/assets/icons/logo-firefox.svg"> — <span v-html="$t('streamdeck.connect_form.firefox', { IP: param_ip.value })"></span></li>
-							<li><img class="logo" src="@/assets/icons/logo-opera.svg"> — <span v-html="$t('streamdeck.connect_form.opera', { IP: param_ip.value })"></span></li>
-							<li><img class="logo" src="@/assets/icons/logo-safari.svg"> — <span v-html="$t('streamdeck.connect_form.safari', { IP: param_ip.value })"></span></li>
-						</ul>
-					</div>
-				</form>
-			</ToggleBlock>
+		<section v-else>
+			<form @submit.prevent="connect()">
+				<div class="card-item secretKeyHolder">
+					<ParamItem :paramData="param_secretKey" v-model="param_secretKey.value" noBackground />
+					<ToggleBlock class="secretKeyDetails" :title="$t('streamdeck.connect_form.findSecretKey')" small noTitleColor :open="false">
+						<span class="info">{{ $t('streamdeck.connect_form.findSecretKey_details') }}</span>
+						<img src="@/assets/img/streamdeck_credentials.png" />
+					</ToggleBlock>
+				</div>
+				
+				<!-- <icon v-if="connecting" name="loader" class="loader" /> -->
+				<div class="card-item alert message error" v-if="error" @click="error = ''">{{ $t(`streamdeck.error_messages.${error}`) }}</div>
+				
+				<TTButton type="submit" icon="online" :loading="connecting" :disabled="!param_secretKey.value">{{ $t("global.connect") }}</TTButton>
+				
+				<ToggleBlock :title="$t('global.advanced_params')" small :open="false">
+						<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" noBackground />
+		
+						<div v-if="securityWarning" class="card-item secondary security">
+							<h2>
+								<icon name="info" />
+								<i18n-t scope="global" keypath="streamdeck.connect_form.info">
+									<template #URL><a :href="`https://${param_ip.value}:30386`" target="_blank">https://{{ param_ip.value }}:30386</a></template>
+								</i18n-t>
+							</h2>
+							<ul>
+								<li><img class="logo" src="@/assets/icons/logo-chrome.svg"><img class="logo" src="@/assets/icons/logo-vivaldi.svg"><img class="logo" src="@/assets/icons/logo-edge.svg"><img class="logo" src="@/assets/icons/logo-brave.svg"> — <span v-html="$t('streamdeck.connect_form.chromium', { IP: param_ip.value })"></span></li>
+								<li><img class="logo" src="@/assets/icons/logo-firefox.svg"> — <span v-html="$t('streamdeck.connect_form.firefox', { IP: param_ip.value })"></span></li>
+								<li><img class="logo" src="@/assets/icons/logo-opera.svg"> — <span v-html="$t('streamdeck.connect_form.opera', { IP: param_ip.value })"></span></li>
+								<li><img class="logo" src="@/assets/icons/logo-safari.svg"> — <span v-html="$t('streamdeck.connect_form.safari', { IP: param_ip.value })"></span></li>
+							</ul>
+						</div>
+				</ToggleBlock>
+			</form>
 		</section>
 	</div>
 </template>
@@ -72,10 +77,11 @@ import Utils from '@/utils/Utils';
 })
 class ConnectStreamdeck extends Vue implements IParameterContent {
 	
-	public error:boolean = false;
+	public error:string = "";
 	public connecting:boolean = false;
 	public securityWarning:boolean = false;
 	public param_ip:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"127.0.0.1", label:"IP"};
+	public param_secretKey:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"global.key", icon:"key", longText:false };
 
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get subcontentOBS():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
@@ -85,23 +91,28 @@ class ConnectStreamdeck extends Vue implements IParameterContent {
 
 	public mounted():void {
 		this.param_ip.value = StreamdeckSocket.instance.ip;
+		this.param_secretKey.value = StreamdeckSocket.instance.secretKey;
 		this.onIpChange();
 	}
 
 	public async connect():Promise<void> {
-		this.error = false;
+		this.error = '';
 		this.connecting = true;
-		await Utils.promisedTimeout(100);
-		StreamdeckSocket.instance.connect(this.param_ip.value).then((res) => {
-			if(!res) this.error = true;
-			else this.error = false;
-		}).catch(() => {
-			this.error = true;
+		await Utils.promisedTimeout(250);
+		StreamdeckSocket.instance.connect(this.param_secretKey.value, this.param_ip.value).then((res) => {
+			if(!res) this.error = "UNKNOWN_ERROR";
+			else this.error = '';
+		}).catch((reason) => {
+			this.error = reason;
 		}).finally(() => {
 			this.connecting = false;
 		});
 	}
 
+	public disconnect():void {
+		console.log("Disconnecting from Streamdeck");
+		StreamdeckSocket.instance.disconnect();
+	}
 
 	public onIpChange():void {
 		this.securityWarning = (this.param_ip.value.trim() != "127.0.0.1" && this.param_ip.value.trim() != "localhost")
@@ -177,6 +188,21 @@ export default toNative(ConnectStreamdeck);
 		::v-deep(mark) {
 			padding: 0;
 			font-weight: normal;
+		}
+	}
+
+	.secretKeyHolder {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.secretKeyDetails {
+			width: fit-content;
+			max-width: 400px;
+			align-self: center;
+
+			.info {
+				font-size: .8em;
+			}
 		}
 	}
 }
