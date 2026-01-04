@@ -4,13 +4,19 @@
 		"download_bt":"Download Stream Deck™ plugin",
 		"connected":"Stream Deck connected",
 		"connecting":"connecting to Stream Deck...",
-		"connect_failed":"Failed connecting to Stream Deck",
 		"connect_form":{
 			"info":"To allow connection, open {URL} then, depending on your browser:",
 			"chromium":"click \"<mark>advanced</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
 			"firefox":"click \"<mark>Advanced...</mark>\", then \"<mark>Accept the Risk and Continue</mark>\"",
 			"opera":"click \"<mark>Help me understand</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
-			"safari":"click \"<mark>Visit this website</mark>\""
+			"safari":"click \"<mark>Visit this website</mark>\"",
+			"findSecretKey":"Where can i find the key?",
+			"findSecretKey_details":"Open Stream Deck app, add a Twitchat action to a button, You'll find the secret key on the button's settings."
+		},
+		"error_messages":{
+			"AUTH_FAILED":"Invalid secret key",
+			"CONNECT_FAILED":"Failed connecting with Stream Deck",
+			"UNKNOWN_ERROR":"Failed connecting with Stream Deck"
 		}
 	}
 }

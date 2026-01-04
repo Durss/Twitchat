@@ -120,6 +120,9 @@ export class ToggleBlock extends Vue {
 	public noArrow!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public noTitleColor!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public editableTitle!:boolean;
 
 	@Prop({type:Number, default: 100})
@@ -153,6 +156,7 @@ export class ToggleBlock extends Vue {
 		if(this.noBackground !== false)	res.push("noBackground");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
+		if(this.noTitleColor !== false)	res.push("noTitleColor");
 		return res;
 	}
 
@@ -536,6 +540,39 @@ export default toNative(ToggleBlock);
 		.content {
 			padding: .5em;
 			// margin-left: 1.4em;
+		}
+
+		&.primary {
+			.title {
+				color: var(--color-primary);
+			}
+			.arrowBt .icon {
+				color: var(--color-primary);
+			}
+		}
+		&.premium {
+			.title {
+				color: var(--color-premium);
+			}
+			.arrowBt .icon {
+				color: var(--color-premium);
+			}
+		}
+		&.error, &.alert {
+			.title {
+				color: var(--color-alert);
+			}
+			.arrowBt .icon {
+				color: var(--color-alert);
+			}
+		}
+		&.noTitleColor {
+			.title {
+				color: var(--color-text);
+			}
+			.arrowBt .icon {
+				color: var(--color-text);
+			}
 		}
 	}
 
