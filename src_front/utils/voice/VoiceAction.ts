@@ -58,16 +58,16 @@ export default class VoiceAction {
 	public static CHAT_FEED_READ_ALL:keyof TwitchatEventMap = "SET_CHAT_FEED_READ_ALL";
 	public static CHAT_FEED_READ_ALL_ICON:string = "read";
 
-	public static CHAT_FEED_PAUSE:keyof TwitchatEventMap = "SET_CHAT_FEED_PAUSE";
+	public static CHAT_FEED_PAUSE:keyof TwitchatEventMap = "SET_CHAT_FEED_PAUSE_STATE";
 	public static CHAT_FEED_PAUSE_ICON:string = "pause";
 
-	public static CHAT_FEED_UNPAUSE:string = "SET_CHAT_FEED_PAUSE";
+	public static CHAT_FEED_UNPAUSE:keyof TwitchatEventMap = "SET_CHAT_FEED_PAUSE_STATE";
 	public static CHAT_FEED_UNPAUSE_ICON:string = "pause";
 
-	public static CHAT_FEED_SCROLL_UP:keyof TwitchatEventMap = "SET_CHAT_FEED_SCROLL_UP";
+	public static CHAT_FEED_SCROLL_UP:keyof TwitchatEventMap = "SET_CHAT_FEED_SCROLL";
 	public static CHAT_FEED_SCROLL_UP_ICON:string = "scrollUp";
 
-	public static CHAT_FEED_SCROLL_DOWN:keyof TwitchatEventMap = "SET_CHAT_FEED_SCROLL_DOWN";
+	public static CHAT_FEED_SCROLL_DOWN:keyof TwitchatEventMap = "SET_CHAT_FEED_SCROLL";
 	public static CHAT_FEED_SCROLL_DOWN_ICON:string = "scrollDown";
 
 	public static START_EMERGENCY = "START_EMERGENCY";

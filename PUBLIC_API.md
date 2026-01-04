@@ -4380,13 +4380,11 @@ Actions you can request Twitchat to perform.
 - [SET_BINGO_GRID_OVERLAY_PRESENCE](#set_bingo_grid_overlay_presence)
 - [SET_BINGO_TOGGLE](#set_bingo_toggle)
 - [SET_CENSOR_DELETED_MESSAGES_TOGGLE](#set_censor_deleted_messages_toggle)
-- [SET_CHAT_FEED_PAUSE](#set_chat_feed_pause)
+- [SET_CHAT_FEED_PAUSE_STATE](#set_chat_feed_pause_state)
 - [SET_CHAT_FEED_READ](#set_chat_feed_read)
 - [SET_CHAT_FEED_READ_ALL](#set_chat_feed_read_all)
 - [SET_CHAT_FEED_SCROLL](#set_chat_feed_scroll)
 - [SET_CHAT_FEED_SCROLL_BOTTOM](#set_chat_feed_scroll_bottom)
-- [SET_CHAT_FEED_SCROLL_DOWN](#set_chat_feed_scroll_down)
-- [SET_CHAT_FEED_SCROLL_UP](#set_chat_feed_scroll_up)
 - [SET_CHAT_FEED_SELECT](#set_chat_feed_select)
 - [SET_CHAT_FEED_SELECT_ACTION_BAN](#set_chat_feed_select_action_ban)
 - [SET_CHAT_FEED_SELECT_ACTION_CANCEL](#set_chat_feed_select_action_cancel)
@@ -4520,17 +4518,22 @@ Toggle current bingo display (NOT bingo GRID!)
 Toggle censorship of deleted messages  
 
 
-#### SET_CHAT_FEED_PAUSE
+#### SET_CHAT_FEED_PAUSE_STATE
 Pause auto-scrolling in a chat feed  
 <details>
 <summary>JSON parameters</summary>
 
 ```typescript
-type SET_CHAT_FEED_PAUSE = {
+type SET_CHAT_FEED_PAUSE_STATE = {
 	/**
 	 * Column index
 	 */
 	colIndex: number;
+	/**
+	 * Force paused state
+	 * Omit to toggle current state
+	 */
+	pause?: boolean;
 }
 ```
 
@@ -4588,6 +4591,11 @@ type SET_CHAT_FEED_SCROLL = {
 	 * Column index
 	 */
 	colIndex: number;
+	/**
+	 * Scroll mode.
+	 * Scroll by messages or by pixels.
+	 */
+	mode: "messages"|"pixels";
 }
 ```
 
@@ -4600,46 +4608,6 @@ Scroll a chat feed to the bottom
 
 ```typescript
 type SET_CHAT_FEED_SCROLL_BOTTOM = {
-	/**
-	 * Column index
-	 */
-	colIndex: number;
-}
-```
-
-</details>
-
-#### SET_CHAT_FEED_SCROLL_DOWN
-Scroll a chat feed down  
-<details>
-<summary>JSON parameters</summary>
-
-```typescript
-type SET_CHAT_FEED_SCROLL_DOWN = {
-	/**
-	 * Number of pixels to scroll by
-	 */
-	scrollBy: number;
-	/**
-	 * Column index
-	 */
-	colIndex: number;
-}
-```
-
-</details>
-
-#### SET_CHAT_FEED_SCROLL_UP
-Scroll a chat feed up  
-<details>
-<summary>JSON parameters</summary>
-
-```typescript
-type SET_CHAT_FEED_SCROLL_UP = {
-	/**
-	 * Number of pixels to scroll by
-	 */
-	scrollBy: number;
 	/**
 	 * Column index
 	 */

@@ -272,11 +272,9 @@ class MessageList extends Vue {
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE_STATE", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
@@ -306,11 +304,9 @@ class MessageList extends Vue {
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE_STATE", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
@@ -897,11 +893,9 @@ class MessageList extends Vue {
 	| {type:"SET_CHAT_FEED_SELECT", data:TwitchatEventMap["SET_CHAT_FEED_SELECT"]}
 	| {type:"SET_CHAT_FEED_READ", data:TwitchatEventMap["SET_CHAT_FEED_READ"]}
 	| {type:"SET_CHAT_FEED_READ_ALL", data:TwitchatEventMap["SET_CHAT_FEED_READ_ALL"]}
-	| {type:"SET_CHAT_FEED_PAUSE", data:TwitchatEventMap["SET_CHAT_FEED_PAUSE"]}
+	| {type:"SET_CHAT_FEED_PAUSE_STATE", data:TwitchatEventMap["SET_CHAT_FEED_PAUSE_STATE"]}
 	| {type:"SET_CHAT_FEED_SCROLL", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL"]}
 	| {type:"SET_CHAT_FEED_SCROLL_BOTTOM", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_BOTTOM"]}
-	| {type:"SET_CHAT_FEED_SCROLL_UP", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_UP"]}
-	| {type:"SET_CHAT_FEED_SCROLL_DOWN", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_DOWN"]}
 	| {type:"SET_CHAT_FEED_SELECT_ACTION_CANCEL", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_CANCEL"]}
 	| {type:"SET_CHAT_FEED_SELECT_ACTION_DELETE", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_DELETE"]}
 	| {type:"SET_CHAT_FEED_SELECT_ACTION_BAN", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_BAN"]}
@@ -911,7 +905,7 @@ class MessageList extends Vue {
 	| {type:"SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT"]}
 ): Promise<void> {
 		let count = e.type == "SET_CHAT_FEED_READ" && (e.data.count && !isNaN(e.data.count as number)) ? e.data.count : 0;
-		let scrollBy = (e.type == "SET_CHAT_FEED_SCROLL" || e.type == "SET_CHAT_FEED_SCROLL_UP" || e.type == "SET_CHAT_FEED_SCROLL_DOWN") && (e.data.scrollBy && !isNaN(e.data.scrollBy as number)) ? e.data.scrollBy : 100;
+		let scrollBy = (e.type == "SET_CHAT_FEED_SCROLL") && (e.data.scrollBy && !isNaN(e.data.scrollBy as number)) ? e.data.scrollBy : 100;
 		if(typeof scrollBy == "string") scrollBy = parseInt(scrollBy);
 		const col = (e.data?.colIndex || 0);
 		if(col != this.config.order) return;
@@ -974,9 +968,13 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "SET_CHAT_FEED_PAUSE": {
-				if(this.lockScroll) this.unPause();
-				else this.lockScroll = !this.lockScroll;
+			case "SET_CHAT_FEED_PAUSE_STATE": {
+				let pause = e.data.pause;
+				if(pause === undefined) pause = !this.lockScroll;
+				if(pause != this.lockScroll) {
+					if(!pause) this.unPause();
+					else this.lockScroll = true;
+				}
 				break;
 			}
 
@@ -984,44 +982,26 @@ class MessageList extends Vue {
 				this.lockScroll = true;
 				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
-				scrollBy *= this.virtualMessageHeight;
 				this.virtualScrollY += scrollBy;
 				if(this.virtualScrollY < 0) this.virtualScrollY = 0;
 				if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
 
-				messagesHolder.scrollBy(0, scrollBy);
-				await this.onScroll(scrollBy);
-				break;
-			}
 
-			case "SET_CHAT_FEED_SCROLL_UP": {
-				this.lockScroll = true;
-				const el = this.$refs.chatMessageHolder as HTMLDivElement;
-				gsap.to(el, { scrollTop: el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut" });
-				break;
-			}
-
-			case "SET_CHAT_FEED_SCROLL_DOWN": {
-				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
-				const vScroll = messagesHolder.scrollTop + scrollBy;
-
-				// if(vScroll > maxScroll - 2) {
-				// 	messagesHolder.scrollTop = maxScroll;
-				// 	await this.onScroll(scrollBy);
-				// 	if(this.pendingMessages.length == 0) {
-				// 		this.unPause();
-				// 	}
-				// }else{
+				if(e.data.mode == "messages") {
+					scrollBy *= this.virtualMessageHeight;
+					messagesHolder.scrollBy(0, scrollBy);
+					await this.onScroll(scrollBy);
+				}else{
+					console.log("Scrolling by:", scrollBy);
 					gsap.to(messagesHolder, {
-						scrollTop: vScroll, duration: .5, ease: "power1.inOut", onUpdate:()=>{
+						scrollTop: messagesHolder.scrollTop + scrollBy, duration: .5, ease: "power1.inOut", onUpdate:()=>{
 						}, onComplete: () => {
 							if(Math.abs(messagesHolder.scrollTop - maxScroll) < 10){
 								if (this.pendingMessages.length === 0) this.unPause();
 							}
 						}
 					});
-				// }
+				}
 				break;
 			}
 

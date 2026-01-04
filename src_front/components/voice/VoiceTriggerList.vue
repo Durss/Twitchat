@@ -131,9 +131,8 @@ class VoiceTriggerList extends Vue {
 		}, {deep:true});
 
 		this.triggerHandler = (e) => this.onTrigger(e as any);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
-		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE_STATE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ", this.triggerHandler);
 		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ_ALL", this.triggerHandler);
@@ -145,9 +144,8 @@ class VoiceTriggerList extends Vue {
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE_STATE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ", this.triggerHandler);
 		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ_ALL", this.triggerHandler);
