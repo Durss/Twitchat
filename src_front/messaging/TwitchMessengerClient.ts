@@ -648,7 +648,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
 		let prepaidMonths = this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1);
-		let isNewMultimonth = tags["msg-param-multimonth-tenure"]!==true;
+		let isNewMultimonth = tags["msg-param-multimonth-tenure"] === false;
 		if(!isNewMultimonth || (prepaidMonths != 3 && prepaidMonths != 6)) prepaidMonths = 1;
 		const res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",

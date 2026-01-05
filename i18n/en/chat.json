@@ -239,7 +239,6 @@
 			"sub_duration": "Subscribed for {COUNT} month. | Subscribed for {COUNT} months.",
 			"sub_streak": "{COUNT} month streak | {COUNT} months streak",
 			"sub_prepaid": "Subscribed for {COUNT} months in advance.",
-			"sub_prepaid_disclaimer": "Due to a months-old bug on Twitch, this information may be incorrect.",
 			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to the community: {LIST}",
 			"sub_gift_total": "They gifted {COUNT} sub on this channel. | They gifted {COUNT} subs on this channel.",
 			"sub_gift_months": "{USER} gifted {MONTHS} months of Tier {TIER} to {LIST}",
