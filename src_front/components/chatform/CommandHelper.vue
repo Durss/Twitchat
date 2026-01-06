@@ -1,86 +1,90 @@
 <template>
 	<div :class="classes">
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('poll');"
-				icon="poll"
-				:disabled="!canCreatePoll"
-				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" :disabled="!canCreatePoll" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('pred');"
-				icon="prediction"
-				:disabled="!canCreatePrediction"
-				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" :disabled="!canCreatePrediction" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('raffle');"
-				icon="ticket">{{$t('cmdmenu.raffle')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('raffle')" @click="onTogglePin('raffle')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('bingo');"
-				icon="bingo">{{$t('cmdmenu.bingo')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('bingo')" @click="onTogglePin('bingo')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('bingo_grid');"
-				icon="bingo_grid"
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'cmdhelper.bingo_grid'}">{{$t('cmdmenu.bingo_grid')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('bingo_grid')" @click="onTogglePin('bingo_grid')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('qnaForm');"
-				icon="qna"
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('qna')" @click="onTogglePin('qna')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('chatPoll');"
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.chat_poll'}"
-				icon="chatPoll">{{$t('cmdmenu.chatPoll')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('chatPoll')" @click="onTogglePin('chatPoll')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('chatsuggForm');"
-				icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('timer');"
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
-				icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="clearChat();"
-				icon="clearChat"
-				:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('clearChat')" @click="onTogglePin('clearChat')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('streamInfo');"
-				icon="info"
-				:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('streamInfo')" @click="onTogglePin('streamInfo')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="openModal('extensions');"
-				icon="extension"
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('extensions')" @click="onTogglePin('extensions')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
-				icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('chatters')" @click="onTogglePin('chatters')" /> -->
-		</div>
-		<div class="menuItem">
-			<TTButton @click.capture="$emit('update:showRewards', true); close()"
-				icon="channelPoints"
-				:disabled="!hasChannelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
-			<!-- <TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" :disabled="!hasChannelPoints" /> -->
+		<div class="grid">
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('poll');"
+					icon="poll"
+					:disabled="!canCreatePoll"
+					v-tooltip="hasChannelPoints? $t('cmdmenu.poll') : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('pred');"
+					icon="prediction"
+					:disabled="!canCreatePrediction"
+					v-tooltip="hasChannelPoints? $t('cmdmenu.prediction') : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('raffle');"
+					v-tooltip="$t('cmdmenu.raffle')" icon="ticket">{{$t('cmdmenu.raffle')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('bingo');"
+					v-tooltip="$t('cmdmenu.bingo')" icon="bingo">{{$t('cmdmenu.bingo')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('bingo_grid');"
+					icon="bingo_grid"
+					v-tooltip="$t('cmdmenu.bingo_grid')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'cmdhelper.bingo_grid'}">{{$t('cmdmenu.bingo_grid')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('quizForm');"
+					icon="quiz"
+					v-tooltip="$t('cmdmenu.quiz')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V17, id:'cmdhelper.quiz'}">{{$t('cmdmenu.quiz')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('qnaForm');"
+					icon="qna"
+					v-tooltip="$t('cmdmenu.qna')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('chatPoll');"
+					v-tooltip="$t('cmdmenu.chatPoll')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.chat_poll'}"
+					icon="chatPoll">{{$t('cmdmenu.chatPoll')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('chatsuggForm');"
+					v-tooltip="$t('cmdmenu.suggestions')"
+					icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('timer');"
+					v-tooltip="$t('cmdmenu.timer')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
+					icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="clearChat();"
+					icon="clearChat"
+					v-tooltip="$t('cmdmenu.chat')"
+					:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('streamInfo');"
+					icon="info"
+					v-tooltip="$t('cmdmenu.info')"
+					:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="openModal('extensions');"
+					icon="extension"
+					v-tooltip="$t('cmdmenu.extensions')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
+					v-tooltip="$t('cmdmenu.chatters')"
+					icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="$emit('update:showRewards', true); close()"
+					icon="channelPoints"
+					v-tooltip="hasChannelPoints? $t('cmdmenu.rewards') : $t('cmdmenu.not_affiliate')"
+					:disabled="!hasChannelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
+			</div>
 		</div>
 
 		<TTButton @click.capture="openModal('twitchatAnnouncement');"
@@ -451,6 +455,12 @@ export default toNative(CommandHelper);
 	overflow-x: hidden;
 	color: var(--color-text);
 
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+		gap: .5em;
+	}
+
 	.menuItem {
 		display: flex;
 		flex-direction: row;
@@ -556,6 +566,51 @@ export default toNative(CommandHelper);
 		.commercial {
 			.button:nth-last-child(2) {
 				display: none;
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.commandhelper {
+		.grid{
+			gap: .25em;
+			grid-template-columns: repeat(auto-fit, minmax(calc(50% - .5em), 1fr));
+			.menuItem {
+				.button {
+					flex-direction: column;
+					::v-deep(.label) {
+						font-size: .9em;
+					}
+					::v-deep(.icon) {
+						width: 1.5em;
+						height: 1.5em;
+						max-width: unset;
+						max-height: unset;
+					}
+				}
+			}
+		}
+	}
+}
+
+@media only screen and (min-width: 501px) {
+	.commandhelper {
+		.menuItem {
+			.button {
+				flex-direction: column;
+				gap: .5em;
+				padding: .25em;
+				::v-deep(.label) {
+					font-size: .6em;
+					overflow-wrap: anywhere;
+				}
+				::v-deep(.icon) {
+					width: 1.7em;
+					height: 1.7em;
+					max-width: unset;
+					max-height: unset;
+				}
 			}
 		}
 	}
