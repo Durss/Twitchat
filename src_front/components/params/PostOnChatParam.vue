@@ -179,7 +179,7 @@ class PostOnChatParam extends Vue {
 		await this.$nextTick();
 
 		const me = this.$store.auth.twitch.user;
-		let rawMessage = this.textParam.value.normalize("ON_NFC");
+		let rawMessage = this.textParam.value.normalize("NFC");
 
 		if(this.placeholders) {
 			for (const p of this.placeholders) {

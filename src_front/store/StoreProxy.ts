@@ -85,6 +85,7 @@ export default class StoreProxy {
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
 	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
 	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
+	public static quiz: IQuizState & IQuizGetters & IQuizActions & { $state: IQuizState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -3922,4 +3923,29 @@ export interface IEndingCreditsActions {
 	 * Save current ending credits params
 	 */
 	saveParams():Promise<void>;
+}
+
+
+
+
+
+export interface IQuizState {
+	/**
+	 * True when exporting selected settings
+	 */
+	quizList:TwitchatDataTypes.QuizParams;
+}
+
+export interface IQuizGetters {
+}
+
+export interface IQuizActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Save current ending credits params
+	 */
+	saveConfigs():Promise<void>;
 }

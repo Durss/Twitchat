@@ -80,6 +80,7 @@ export default class Config {
 	public NEW_FLAGS_DATE_V16_1 = new Date("05 15 2025 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime()
+	public NEW_FLAGS_DATE_V17 = new Date("03 05 2026 01:00:00").getTime()
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -251,6 +252,22 @@ export default class Config {
 	 * Maximum number of custom trains for premium users
 	 */
 	public MAX_CUSTOM_TRAIN_PREMIUM = 10;
+	/**
+	 * Maximum number of quizs
+	 */
+	public MAX_QUIZ = 1;
+	/**
+	 * Maximum number of quizs for premium users
+	 */
+	public MAX_QUIZ_PREMIUM = 10;
+	/**
+	 * Maximum number of quizs
+	 */
+	public MAX_QUESTIONS_PER_QUIZ = 20;
+	/**
+	 * Maximum number of quizs for premium users
+	 */
+	public MAX_QUESTIONS_PER_QUIZ_PREMIUM = 100;
 
 	private _serverConfig!:ServerConfig;
 

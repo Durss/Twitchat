@@ -5,7 +5,7 @@
 		"raffle":"Tirage au sort",
 		"bingo":"Bingo",
 		"bingo_grid":"Grilles de Bingo",
-		"qna":"Questions/réponses",
+		"qna":"Questions / réponses",
 		"suggestions":"Demander des suggestions",
 		"timer":"Minuteurs",
 		"chat":"Effacer le tchat",
@@ -27,6 +27,7 @@
 		"chatters": "Chatters",
 		"rewards": "Récompenses",
 		"chatPoll": "Sondage de tchat",
+		"quiz": "Quiz",
 		"not_affiliate": "Vous devez être Affilié·e ou Partenaire Twitch"
 	}
 }
