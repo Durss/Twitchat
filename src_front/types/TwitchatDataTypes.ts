@@ -9,7 +9,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory" | "quizForm";
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
@@ -4026,6 +4026,45 @@ export namespace TwitchatDataTypes {
 		channelId?:string;
 	}
 
+	export type QuizParams = {
+		/**
+		 * Quiz title
+		 */
+		title:string
+		timePerQuestion_s:number;
+	} & {
+		/**
+		 * Quiz mode.
+		 * chill: earn 1 point per correct answer
+		 * speed: earn more points for faster answers
+		 * majority: no good answer. The most voted answer wins
+		 */
+		mode:"chill"|"speed";
+		questionList: {
+			question:string;
+			duration_s?:number
+			answers:{
+				title:string;
+				correct:boolean;
+			}[];
+		}[];
+	} & {
+		/**
+		 * Quiz mode.
+		 * chill: earn 1 point per correct answer
+		 * speed: earn more points for faster answers
+		 * majority: no good answer. The most voted answer wins
+		 */
+		mode:"majority";
+		questionList: {
+			question:string;
+			duration_s?:number
+			answers:{
+				title:string;
+			}[];
+		}[];
+	}
+
 	/**
 	 * Defines the pinnable menu items
 	 * 
@@ -4046,6 +4085,7 @@ export namespace TwitchatDataTypes {
 		| "clearChat"
 		| "chatters"
 		| "rewards"
+		| "quiz"
 		| `trigger:${string}`;
 	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string, label?:string}[] = [
 		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
@@ -4054,6 +4094,7 @@ export namespace TwitchatDataTypes {
 		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"",	 labelKey:"cmdmenu.raffle"},
 		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
 		{id:"bingo_grid",	isModal:true,	icon:"bingo_grid", 		modalId:"bingo_grid",	modelValueName:"",	 labelKey:"cmdmenu.bingo_grid"},
+		{id:"quiz",			isModal:true,	icon:"quiz", 			modalId:"quizForm", 	modelValueName:"",	 labelKey:"cmdmenu.quiz"},
 		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
 		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
 		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},

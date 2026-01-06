@@ -54,6 +54,7 @@
 			<QnaForm				class="popin" v-if="$store.params.currentModal == 'qnaForm'" @close="$store.params.closeModal()" />
 			<QnaList				class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
 			<GroqHistory			class="popin" v-if="$store.params.currentModal == 'groqHistory'" @close="$store.params.closeModal()" />
+			<QuizForm				class="popin" v-if="$store.params.currentModal == 'quizForm'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -224,6 +225,7 @@ import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
 import PublicAPI from '@/utils/PublicAPI';
 import type { TwitchatEventMap } from '@/events/TwitchatEvent';
+import QuizForm from '@/components/chatform/quiz/QuizForm.vue';
 
 @Component({
 	components:{
@@ -237,6 +239,7 @@ import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 		HeatLogs,
 		PollForm,
 		PinsList,
+		QuizForm,
 		Changelog,
 		TimerForm,
 		GreetThem,
