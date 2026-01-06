@@ -4,29 +4,7 @@
 	"env": {},
 	"args": "--pm2",
 	"merge_logs": true,
-	"vizion": true,
 	"autorestart": true,
-	"instance_var": "NODE_APP_INSTANCE",
-	"pmx": true,
-	"detached": true,
-	"automation": true,
-	"treekill": true,
-	"username": "root",
 	"windowsHide": true,
-	"kill_retry_time": 100,
-	"write": true,
-	"ignore_watch": [
-		"node_modules",
-		"static",
-		"src_back",
-		"src_front",
-		"userData",
-		".git",
-		"donors.json"
-	],
-	"watch": [
-		"./src_labels",
-		"./i18n"
-	],
 	"exec_mode": "fork"
 }
