@@ -7,6 +7,7 @@ node_modules
 /userData_fake_production
 /updates_graphics
 /data
+static/labels.json
 env.conf
 tsconfig.tsbuildinfo
 .tsbuildinfo
