@@ -100,6 +100,7 @@ class StreamInfoForm extends AbstractSidePanel {
 		this.param_savePreset.children = [this.param_namePreset];
 
 		this.populate();
+		this.open();
 	}
 
 	/**
