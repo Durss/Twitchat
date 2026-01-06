@@ -125,6 +125,7 @@ export default class DataStoreCommon {
 	public static CENSOR_VIEWER_COUNT:string = "censorViewerCount";
 	public static STREAM_SOCKET_SECRET:string = "streamSocketSecret";
 	public static STREAMDECK_PARAMS:string = "streamDeckParams";
+	public static QUIZ_CONFIGS:string = "quizConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
