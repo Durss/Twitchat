@@ -920,10 +920,25 @@ Receive bitswall overlay configuration
 
 ```typescript
 type ON_BITSWALL_OVERLAY_CONFIGS = {
+	/**
+	 * Cheermotes size
+	 */
 	size: number;
-	break: boolean;
+	/**
+	 * Opacity of the cheermotes (0 to 1)
+	 */
 	opacity: number;
+	/**
+	 * Can cheermote be broken by clicking them ?
+	 */
+	break: boolean;
+	/**
+	 * Can cheermotes be broken only by the sender ?
+	 */
 	break_senderOnly: boolean;
+	/**
+	 * Duration after which the cheermote automatically breaks (in seconds)
+	 */
 	break_durations?: {
 		1: number;
 		100: number;
