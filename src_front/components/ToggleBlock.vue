@@ -19,7 +19,7 @@
 					:no-html="true"
 					@click.stop
 					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle;"
-					@blur="localTitle = (localTitle === '')? titleDefault : localTitle; editingTitle=false;"
+					@blur="localTitle = (localTitle.trim() === '')? titleDefault : localTitle; editingTitle=false;"
 					@input="limitLabelSize()"
 					@mouseover="editingTitle=true" />
 				<Icon name="edit" />
@@ -199,7 +199,7 @@ export class ToggleBlock extends Vue {
 			// 	console.log("okokok", this.localTitle);
 			// 	this.$emit("update:title", '');
 			// }else{
-				this.$emit("update:title", this.localTitle);
+				this.$emit("update:title", this.localTitle.trim());
 			// }
 		})
 
@@ -282,7 +282,7 @@ export class ToggleBlock extends Vue {
 			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 			await this.$nextTick();
 			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.localTitle.length, caretIndex-1));
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.max(0,Math.min(this.localTitle.length, caretIndex-1)));
 		}else{
 			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 		}

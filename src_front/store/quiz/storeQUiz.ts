@@ -3,6 +3,8 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
+import StoreProxy from '../StoreProxy';
 
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
@@ -24,6 +26,8 @@ export const storeQuiz = defineStore('quiz', {
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.quizList = data.quizList ?? [];
+			}else{
+				this.quizList = [];
 			}
 		},
 
@@ -34,6 +38,47 @@ export const storeQuiz = defineStore('quiz', {
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
 		},
+
+		addQuiz():TwitchatDataTypes.QuizParams {
+			const data:TwitchatDataTypes.QuizParams = {
+				id:Utils.getUUID(),
+				enabled:true,
+				title:"",
+				mode:"classic",
+				questionList:[],
+				durationPerQuestion_s:30,
+				loosePointsOnFail:false,
+			}
+			this.quizList.push(data);
+			this.saveData(data.id);
+			return data;
+		},
+		
+		removeQuiz(id:string):void{
+			const t = StoreProxy.i18n.t;
+			StoreProxy.main.confirm(t("quiz.form.delete_confirm.title"), t("quiz.form.delete_confirm.description"))
+			.then(()=>{
+				this.quizList = this.quizList.filter(g => g.id !== id);
+				this.saveData();
+			}).catch(()=>{})
+		},
+		
+		duplicateQuiz(id:string):void{
+			const source = this.quizList.find(g => g.id === id);
+			if(!source) return;
+			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
+			clone.id = Utils.getUUID();
+			this.quizList.push(clone)
+			this.saveData(id);
+		},
+		
+		saveData(quizId?:string):void {
+			const data:IStoreData = {
+				quizList:this.quizList,
+			};
+			DataStore.set(DataStore.QUIZ_CONFIGS, data);
+		},
+		
 	} as IQuizActions
 	& ThisType<IQuizActions
 		& UnwrapRef<IQuizState>

@@ -224,10 +224,19 @@ export default class KofiController extends AbstractController {
 						url.searchParams.append("url", webhookPath);
 						let success = false;
 						try {
+							// Filter out array-valued headers that node-fetch doesn't support
+							const filteredHeaders: Record<string, string> = {};
+							for (const [key, value] of Object.entries(request.headers)) {
+								if (typeof value === 'string') {
+									filteredHeaders[key] = value;
+								}else{
+									filteredHeaders[key] = value.toString();
+								}
+							}
 							let res = await fetch(url, {
 								method: request.method,
 								headers: {
-									...request.headers,
+									...filteredHeaders,
 									host: url.host,
 								},
 								body: new URLSearchParams(request.body as URLSearchParams).toString(),

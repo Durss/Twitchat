@@ -4008,10 +4008,25 @@ export namespace TwitchatDataTypes {
 	 * Contains params about the bits wall overlay
 	 */
 	export interface BitsWallOverlayData {
+		/**
+		 * Cheermotes size
+		 */
 		size:number;
-		break:boolean;
+		/**
+		 * Opacity of the cheermotes (0 to 1)
+		*/
 		opacity:number;
+		/**
+		 * Can cheermote be broken by clicking them ?
+		 */
+		break:boolean;
+		/**
+		 * Can cheermotes be broken only by the sender ?
+		 */
 		break_senderOnly:boolean;
+		/**
+		 * Duration after which the cheermote automatically breaks (in seconds)
+		 */
 		break_durations?:{1:number, 100:number, 1000:number, 5000:number, 10000:number};
 	}
 
@@ -4026,44 +4041,91 @@ export namespace TwitchatDataTypes {
 		channelId?:string;
 	}
 
+	/**
+	 * Contains quiz parameters
+	 */
 	export type QuizParams = {
+		/**
+		 * Quiz ID
+		 */
+		id:string;
 		/**
 		 * Quiz title
 		 */
 		title:string
-		timePerQuestion_s:number;
-	} & {
+		/**
+		 * Number of seconds to answer
+		 */
+		durationPerQuestion_s:number;
+		/**
+		 * If true, users that answer wrong will loose points
+		 */
+		loosePointsOnFail:boolean;
+		/**
+		 * If true, the faster the answer, the more points earned
+		 */
+		timeBasedScoring:boolean;
+		/**
+		 * Is the quiz enabled ?
+		 * Can be false after user stops being premium and is required to disable
+		 * entries if they have more than the maximum allowed
+		 */
+		enabled:boolean;
+	} & ({
 		/**
 		 * Quiz mode.
-		 * chill: earn 1 point per correct answer
-		 * speed: earn more points for faster answers
-		 * majority: no good answer. The most voted answer wins
+		 * classic: earn points by answering questions correctly
 		 */
-		mode:"chill"|"speed";
+		mode:"classic";
+		/**
+		 * List of questions
+		 */
 		questionList: {
+			/**
+			 * Question text
+			 */
 			question:string;
-			duration_s?:number
+			/**
+			 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?:number;
+			/**
+			 * Possible answers for this question
+			 */
 			answers:{
 				title:string;
-				correct:boolean;
+				/**
+				 * Is this the answer correct ?
+				 */
+				correct?:boolean;
 			}[];
 		}[];
-	} & {
+	} | {
 		/**
 		 * Quiz mode.
-		 * chill: earn 1 point per correct answer
-		 * speed: earn more points for faster answers
-		 * majority: no good answer. The most voted answer wins
+		 * majority: earn points by being part of the most popular answer
 		 */
 		mode:"majority";
+		/**
+		 * List of questions
+		 */
 		questionList: {
+			/**
+			 * Question text
+			 */
 			question:string;
+			/**
+			 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
 			duration_s?:number
+			/**
+			 * Possible answers for this question
+			 */
 			answers:{
 				title:string;
 			}[];
 		}[];
-	}
+	})
 
 	/**
 	 * Defines the pinnable menu items

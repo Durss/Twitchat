@@ -56,7 +56,7 @@ export default class StreamelementsController extends AbstractController {
 
 		try {
 			const slRes = await fetch(url, {method:"POST", headers});
-			const json = await slRes.json();
+			const json = await slRes.json() as {access_token:string, refresh_token:string};
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
