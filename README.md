@@ -272,19 +272,19 @@ Here is the expected file structure:\
 <br>
 
 # Localization
-# Adding new language
+## Adding new language
 Just create a new folder under the `i18n` folder with the ISO 639-1 code of the language.\
 Read the next section to know how to translate labels
 
-# Translating labels
+## Translating labels
 To make localization as easy as possible, a dedicated interface has been made that lists all available categories and labels with the possibility to edit them.\
 Any update on this interface triggers a rebuild of the compiled file as well as an update on any twitchat page opened on the same browser.\
 \
 The interface is only accessible to adminitrators and can be found here:\
-[localhost:8081/labels](https://localhost:8081/labels)\
-To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.\
+[localhost:8081/labels](http://localhost:8081/labels)\
+To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.
 
-# Adding new labels
+## Adding new labels
 If you need to add new labels, you'll have to edit JSON sources.\
 All label files can be found under `i18n` folder.\
 They are splitted by language then by sections.\
@@ -328,6 +328,13 @@ This will output this JSON file:
 	}
 }
 ```
+
+## Get live updates of labels
+Start watcher with:
+```
+pm2 start labels-pm2.json
+```
+Any manual update on JSON will propagate to the frontend if you're connected as an admin.
 <br>
 <br>
 <br>

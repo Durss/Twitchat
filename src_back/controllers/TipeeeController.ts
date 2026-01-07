@@ -58,7 +58,7 @@ export default class TipeeeController extends AbstractController {
 
 		try {
 			const query = await fetch("https://api.tipeeestream.com/oauth/v2/token", {method:"POST", headers, body});
-			const json = await query.json();
+			const json = await query.json() as {access_token:string, refresh_token:string, expires_in:number};
 			const accessToken = json.access_token;
 			const refreshToken = json.refresh_token;
 			const expiresIn = json.expires_in;
@@ -101,7 +101,7 @@ export default class TipeeeController extends AbstractController {
 
 		try {
 			const query = await fetch(url, {method:"POST", headers, body});
-			const json = await query.json();
+			const json = await query.json() as {access_token:string, refresh_token:string};
 			const accessToken = json.access_token;
 			const refreshToken = json.refresh_token;
 
