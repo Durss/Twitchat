@@ -55,7 +55,7 @@ export default class TwitchUtils {
 		url.searchParams.set("scope", "");
 		let result = await fetch(url, options)
 		if(result.status == 200) {
-			let json =await result.json();
+			let json = await result.json()as {access_token:string, expires_in:number, token_type:string};
 			this._credentialToken = json.access_token;
 			this._token_invalidation_date = Date.now() + (json.expires_in - 60000);
 			return json.access_token;
@@ -154,7 +154,7 @@ export default class TwitchUtils {
 			}
 		}
 		if(result.status == 200) {
-			return (await result.json()).data;
+			return (await result.json() as {data: TwitchUserInfos[]}).data;
 		}
 		return false;
 	}
@@ -183,7 +183,7 @@ export default class TwitchUtils {
 				}
 			});
 			if (res.status == 200) {
-				const json: { data: ModeratedUser[], pagination?: { cursor?: string } } = await res.json();
+				const json = await res.json() as { data: ModeratedUser[], pagination?: { cursor?: string } };
 				list = list.concat(json.data);
 				cursor = null;
 				if (json.pagination?.cursor) {
@@ -223,7 +223,7 @@ export default class TwitchUtils {
 				}
 			});
 			if (res.status == 200) {
-				const json: { data: ModeratorUser[], pagination?: { cursor?: string } } = await res.json();
+				const json = await res.json() as { data: ModeratorUser[], pagination?: { cursor?: string } };
 				list = list.concat(json.data);
 				cursor = null;
 				if (json.pagination?.cursor) {

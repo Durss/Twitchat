@@ -43,11 +43,11 @@ export default class StreamlabsController extends AbstractController {
 		};
 		try {
 			const socketRes = await fetch("https://streamlabs.com/api/v2.0/socket/token", {method:"GET", headers});
-			const socketJson = await socketRes.json();
+			const socketJson = await socketRes.json() as {socket_token:string};
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
-			.send(JSON.stringify({success:socketJson.socket_token, socketToken:socketJson.socket_token}));
+			.send(JSON.stringify({success:!!socketJson.socket_token, socketToken:socketJson.socket_token}));
 		}catch(error) {
 			console.log(error)
 			response.header('Content-Type', 'application/json')
@@ -80,7 +80,7 @@ export default class StreamlabsController extends AbstractController {
 
 		const slRes = await fetch("https://streamlabs.com/api/v2.0/token", {method:"POST", headers, body:JSON.stringify(body)});
 		try {
-			const json = await slRes.json();
+			const json = await slRes.json() as {access_token:string, refresh_token:string, expires_in:number};
 			const accessToken = json.access_token;
 			const headers = {
 				"accept": "application/json",
@@ -88,7 +88,7 @@ export default class StreamlabsController extends AbstractController {
 				"Authorization":"Bearer "+accessToken,
 			};
 			const socketRes = await fetch("https://streamlabs.com/api/v2.0/socket/token", {method:"GET", headers});
-			const socketJson = await socketRes.json();
+			const socketJson = await socketRes.json() as {socket_token:string};
 
 			response.header('Content-Type', 'application/json')
 			.status(200)

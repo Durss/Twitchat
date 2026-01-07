@@ -62,25 +62,26 @@ import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
+import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
+import { storeChatPoll } from './store/chat_poll/storeChatPoll';
 import { storeCommon } from './store/common/storeCommon';
+import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
 import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
+import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
+import { storeExporter } from './store/exporter/storeExporter';
+import { storeGroq } from './store/groq/storeGroq';
 import { storeLabels } from './store/labels/storeLabels';
 import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storePlayability } from './store/playability/storePlayability';
+import { storeQuiz } from './store/quiz/storeQUiz';
 import { storeSammi } from './store/sammi/storeSammi';
 import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
+import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
 import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
-import { storeGroq } from './store/groq/storeGroq';
-import { storeChatPoll } from './store/chat_poll/storeChatPoll';
-import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
-import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
-import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
-import { storeExporter } from './store/exporter/storeExporter';
-import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
 
 window.setInitMessage("Booting app...");
 
@@ -266,7 +267,7 @@ function buildApp() {
 	StoreProxy.default.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.users = (storeUsers() as unknown) as StoreProxy.IUsersState & StoreProxy.IUsersGetters & StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset:()=>void };
-	StoreProxy.default.voice = storeVoice();
+	StoreProxy.default.voice = (storeVoice() as unknown) as StoreProxy.IVoiceState & StoreProxy.IVoiceGetters & StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset:()=>void };
 	StoreProxy.default.debug = storeDebug();
 	StoreProxy.default.accessibility = storeAccessibility();
 	StoreProxy.default.admin = storeAdmin();
@@ -304,6 +305,7 @@ function buildApp() {
 	StoreProxy.default.exporter = storeExporter();
 	StoreProxy.default.groq = storeGroq();
 	StoreProxy.default.endingCredits = storeEndingCredits();
+	StoreProxy.default.quiz = storeQuiz();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

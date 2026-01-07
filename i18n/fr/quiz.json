@@ -2,7 +2,17 @@
 	"quiz": {
 		"form":{
 			"title": "Quiz",
-			"subtitle": "Créez votre propre quiz interactif !"
+			"subtitle": "Créez votre propre quiz interactif !",
+			"add_bt": "Créer un quiz",
+			"delete_confirm": {
+				"description": "Le quiz sera supprimé\nCette action est irréversible.",
+				"title": "Supprimer le quiz ?"
+			},
+			"default_title": "Mon Quiz",
+			"install_title": "Installer l'overlay",
+			"param_duration": "Durée par question ({VALUE} secondes)",
+			"param_time_based_scoring": "Plus de points pour les réponses rapides",
+			"param_loose_on_fail": "Perdre des points en cas d'erreur (les mauvaises réponses retirent des points)"
 		}
 	}
 }
