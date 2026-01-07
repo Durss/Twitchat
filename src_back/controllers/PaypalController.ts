@@ -72,7 +72,14 @@ export default class PaypalController extends AbstractController {
 							},
 							body: data
 						})
-						.then(res => res.json())
+						.then(res => res.json() as unknown as {
+							id:string,
+							status:string,
+							details:{
+								description:string,
+								issue:string
+							}[]
+						})
 						.then(json => {
 							return json;
 						});
@@ -129,7 +136,21 @@ export default class PaypalController extends AbstractController {
 							},
 							body: JSON.stringify(order_data_json),
 						})
-						.then(res => res.json())
+						.then(res => res.json() as unknown as {
+							id:string,
+							status:string,
+							purchase_units:{
+								payments:{
+									captures:{
+										seller_receivable_breakdown:any
+									}[]
+								}
+							}[],
+							payer:{
+								payer_id:string,
+								email_address:string
+							}
+						})
 						.then(json => {
 							return json;
 						});
@@ -180,7 +201,7 @@ export default class PaypalController extends AbstractController {
 					},
 					body: JSON.stringify(params),
 				});
-				const jsonRemote = await resRemote.json();
+				const jsonRemote = await resRemote.json() as {success:boolean, id?:string};
 				if(!jsonRemote.success) {
 					//Failed adding user to list :(
 					Logger.error("Failed adding user \""+twitchUser.login+"\" to remote donor list ("+params.amount+"€)");
@@ -227,7 +248,7 @@ export default class PaypalController extends AbstractController {
 					'Authorization': `Bearer ${token}`
 				},
 			})
-			.then(res => res.json())
+			.then(res => res.json() as unknown as PaypalOrder)
 			.then(json => {
 				return json;
 			});
@@ -249,7 +270,7 @@ export default class PaypalController extends AbstractController {
 			},
 			body: data
 		})
-		.then(res => res.json())
+		.then(res => res.json() as unknown as {access_token:string})
 		.then(json => {
 			return json.access_token;
 		})
