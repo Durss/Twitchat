@@ -40,16 +40,16 @@
 		"fastify": "^4.29.1",
 		"fastify-raw-body": "^4.3.0",
 		"fastify-sse-v2": "^4.2.1",
-		"googleapis": "^128.0.0",
+		"googleapis": "^170.0.0",
 		"jsonwebtoken": "^9.0.3",
 		"mime-types": "^3.0.2",
-		"node-fetch": "^2.7.0"
+		"node-fetch": "^3.3.2"
 	},
 	"devDependencies": {
 		"@babel/plugin-proposal-decorators": "^7.28.0",
 		"@babel/plugin-transform-class-properties": "^7.27.1",
 		"@babel/preset-env": "^7.28.5",
-		"@imengyu/vue3-context-menu": "^1.5.2",
+		"@imengyu/vue3-context-menu": "^1.5.3",
 		"@intlify/unplugin-vue-i18n": "6.0.8",
 		"@popperjs/core": "^2.11.8",
 		"@rollup/plugin-commonjs": "^26.0.3",
@@ -91,7 +91,7 @@
 		"obs-websocket-js": "^5.0.7",
 		"pinia": "^2.3.1",
 		"pixi.js": "^7.4.3",
-		"rollup": "^4.54.0",
+		"rollup": "^4.55.1",
 		"rollup-plugin-typescript2": "^0.36.0",
 		"split-type": "^0.3.4",
 		"three": "^0.158.0",
