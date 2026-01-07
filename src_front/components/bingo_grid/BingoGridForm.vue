@@ -372,7 +372,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Create a new grid
 	 */
 	public addGrid():void {
-		const grid = this.$store.bingoGrid.addGrid();
+		this.$store.bingoGrid.addGrid();
 		this.initParams();
 	}
 
