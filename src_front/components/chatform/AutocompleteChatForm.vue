@@ -21,6 +21,7 @@
 			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needAdmin" class="image small" name="lock_fit" alt="user" v-tooltip="$t('global.cmd_admin')" />
 			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" name="twitch" alt="user" v-tooltip="$t('global.cmd_twitch')" />
 			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needModerator" class="image small" name="mod" alt="user" v-tooltip="$t('global.cmd_mod')" />
+			<Icon v-if="i.type == 'slashCommand' && i.isTrigger" class="image trigger" name="broadcast" />
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -348,9 +349,10 @@ class AutocompleteChatForm extends Vue {
 
 						res.push({
 							type:t.type == TriggerTypes.CHAT_COMMAND? "chatCommand" : "slashCommand",
-							label:t.chatCommand + paramsTxt,
+							label:t.chatCommand + paramsTxt.replace(/\{/g, "[").replace(/\}/g, "]"),
 							cmd:t.chatCommand + paramsTxt,
 							infos:t.name ?? "",
+							isTrigger:true,
 							id:t.id,
 							disabled:!t.enabled,
 							tooltipKey:t.enabled? "" : this.$t("chat.form.trigger_cmd_disabled_tt"),
@@ -418,6 +420,7 @@ interface CommandItem {
 	disabled?:boolean;
 	tooltipKey?:string;
 	rawCmd?:TwitchatDataTypes.CommandData;
+	isTrigger?:boolean;
 }
 export default toNative(AutocompleteChatForm);
 </script>
@@ -517,7 +520,6 @@ export default toNative(AutocompleteChatForm);
 		}
 
 		.image {
-			width: 1.75em;
 			height: 1.5em;
 			padding: .2em;
 			object-fit: fill;

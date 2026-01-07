@@ -360,7 +360,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
+		if(cmd == "/raid" && (!params[0] || params[0] == "[user]")) {
 			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes])) {
 				//If starting a raid with /raid without specifying a user
 				//open live followings list
@@ -373,7 +373,7 @@ export default class MessengerProxy {
 			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS]) && hasChannelPoints) {
 				//Open poll form
 				const title = params.join(" ");
-				if(title != "title") {
+				if(title != "[title]") {
 					StoreProxy.main.tempStoreValue = title;
 				}
 				StoreProxy.params.openModal("poll")
@@ -384,7 +384,7 @@ export default class MessengerProxy {
 		if(cmd == "/chatpoll") {
 			//Open chat poll form
 			const title = params.join(" ");
-			if(title != "title") {
+			if(title != "[title]") {
 				StoreProxy.main.tempStoreValue = title;
 			}
 			StoreProxy.params.openModal("chatPoll")
@@ -395,7 +395,7 @@ export default class MessengerProxy {
 			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS]) && hasChannelPoints) {
 				//Open prediction form
 				const title = params.join(" ");
-				if(title != "title") {
+				if(title != "[title]") {
 					StoreProxy.main.tempStoreValue = title;
 				}
 				StoreProxy.params.openModal("pred")
