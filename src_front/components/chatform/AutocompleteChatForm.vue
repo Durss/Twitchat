@@ -142,9 +142,12 @@ class AutocompleteChatForm extends Vue {
 				this.$emit("close");
 				break;
 			case "Enter": {
-				e.preventDefault();
-				e.stopPropagation();
-				this.selectItem(this.filteredItems[this.selectedIndex]);
+				const item = this.filteredItems[this.selectedIndex];
+				if(item) {
+					e.preventDefault();
+					e.stopPropagation();
+					this.selectItem(item);
+				}
 				break;
 			}
 		}

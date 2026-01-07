@@ -745,6 +745,7 @@ export class ChatForm extends Vue {
 
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
+				const nextChar = newVal.charAt(i+1);
 				const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
 				if(/\s/gi.test(currentChar)) {
 					this.autoCompleteSearch = "";
@@ -756,7 +757,7 @@ export class ChatForm extends Vue {
 				((currentChar == "/" || currentChar == "!") && carretPos == 1) ||
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
-					this.autoCompleteEmotes = currentChar == ":" && !isCmd;//Avoid autocompleting emotes in /countdown cmd
+					this.autoCompleteEmotes = currentChar == ":" && /[a-z0-9]/i.test(nextChar) && !isCmd;//Avoid autocompleting emotes in /countdown cmd
 					this.autoCompleteCommands = currentChar == "/" || currentChar == "!";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
@@ -1270,7 +1271,7 @@ export class ChatForm extends Vue {
 
 		//Force autocomplete close.
 		//Due to async rendering the watcher might detect search update before
-		//the selectionRange is effective wich may cause the autocomplete open
+		//the selectionRange is effective which may cause the autocomplete open
 		//Here we ensure it stays closed
 		this.autoCompleteSearch = "";
 	}
