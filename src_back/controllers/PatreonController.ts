@@ -183,7 +183,7 @@ export default class PatreonController extends AbstractController {
 			const result = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + webhook.webhookID, { method: "DELETE", headers });
 			if (result.status == 429) {
 				Logger.warn("[PATREON][USER] Rate limited disconnectUser for user " + patreonAuth.twitchUser.login + ", retrying in a few seconds");
-				const json: { errors: { retry_after_seconds: number }[] } = await result.json();
+				const json = await result.json() as { errors: { retry_after_seconds: number }[] };
 				let delay = (json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0].retry_after_seconds * 1000;
 				await Utils.promisedTimeout(delay);
 				return this.disconnectUser(request, response);
@@ -228,20 +228,26 @@ export default class PatreonController extends AbstractController {
 		const result = await fetch(url, options);
 		if (result.status == 429) {
 			Logger.warn("[PATREON][USER] Rate limited getUserIsMember for user " + patreonAuth.twitchUser.login + ", retrying in a few seconds");
-			const json: { errors: { retry_after_seconds: number }[] } = await result.json();
+			const json = await result.json() as { errors: { retry_after_seconds: number }[] };
 			let delay = (json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0].retry_after_seconds * 1000;
 			await Utils.promisedTimeout(delay);
 			return this.getUserIsMember(request, response);
 		} else {
-			const json = await result.json();
+			const json = await result.json() as { error?: string } | {
+				data: {
+					relationships: {
+						memberships: { data: { id: string, type: string}[]}
+					}
+				};
+			}
 
-			if (json.error) {
+			if ("error" in json) {
 				response.header('Content-Type', 'application/json');
 				response.status(500);
 				response.send({ success: false, message: json.error });
-			} else {
+			} else if("data" in json) {
 				const localMemberList: PatreonMember[] = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8"));
-				const remoteMembershipList = json.data.relationships.memberships.data as { id: string, type: string }[];
+				const remoteMembershipList = json.data.relationships.memberships.data;
 
 				//Check if remote patreon user is registered as a member locally
 				let isMember = Config.credentials.admin_ids.includes(patreonAuth.twitchUser.user_id);
@@ -366,7 +372,7 @@ export default class PatreonController extends AbstractController {
 			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 
 			const result = await fetch(url, { method: "POST", headers: { "User-Agent": this.userAgent } });
-			const json = await result.json();
+			const json = await result.json() as { error?: string } & PatreonToken;
 
 			if (json.error) {
 				Logger.error("[PATREON][SERVICE] authentication failed [invalid refresh token]");
@@ -454,7 +460,7 @@ export default class PatreonController extends AbstractController {
 			return;
 		}
 
-		const json = await result.json();
+		const json = await result.json() as { error?: string } & PatreonToken;
 
 		if (json.error) {
 			response.header('Content-Type', 'application/json');
@@ -701,7 +707,7 @@ export default class PatreonController extends AbstractController {
 			throw ("Error");
 
 		} else {
-			const json: CampaignResponse = await result.json();
+			const json = await result.json() as CampaignResponse;
 			if (json.errors) {
 				Logger.error("[PATREON] campaign list failed");
 				console.log(json.errors[0].detail);
@@ -754,7 +760,7 @@ export default class PatreonController extends AbstractController {
 		if (result.status != 200) {
 			if (result.status == 429) {
 				Logger.warn("[PATREON] Rate limited loadCampaignMembers for campaign " + campaignId + ", retrying in a few seconds");
-				const json: { errors: { retry_after_seconds: number }[] } = await result.json();
+				const json = await result.json() as { errors: { retry_after_seconds: number }[] };
 				let delay = (json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0].retry_after_seconds * 1000;
 				await Utils.promisedTimeout(delay);
 				return this.loadCampaignMembers(accessToken, campaignId, offset, memberList);
@@ -764,7 +770,7 @@ export default class PatreonController extends AbstractController {
 			}
 			return { success: false, error: ["Status " + result.status.toString()] };
 		} else {
-			const json: PatreonMemberships = await result.json();
+			const json = await result.json() as PatreonMemberships;
 			if (json.errors) {
 				return { success: false, error: json.errors.map(v => v.detail) };
 			} else {
@@ -806,7 +812,7 @@ export default class PatreonController extends AbstractController {
 		if (result.status != 200) {
 			return { success: false };
 		}
-		const json: PatreonMemberships = await result.json();
+		const json = await result.json() as PatreonMemberships;
 		if (json.errors) {
 			return { success: false, error: json.errors.map(v => v.detail) };
 		} else {
@@ -900,7 +906,7 @@ export default class PatreonController extends AbstractController {
 			const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
 			if (resultWebhook.status == 429) {
 				Logger.warn("[PATREON][USER] Rate limited createUserWebhook for user " + patreonAuth.twitchUser.login + ", retrying in a few seconds");
-				const json: { errors: { retry_after_seconds: number }[] } = await resultWebhook.json();
+				const json = await resultWebhook.json() as { errors: { retry_after_seconds: number }[] };
 				let delay = (json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0].retry_after_seconds * 1000;
 				await Utils.promisedTimeout(delay);
 				return this.createUserWebhook(request, response, patreonAuth);
@@ -974,7 +980,7 @@ export default class PatreonController extends AbstractController {
 		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", { method: "GET", headers });
 		if (resultWebhook.status == 429) {
 			Logger.warn("[PATREON][USER] Rate limited getUserWebhook for user " + patreonAuth.twitchUser.login + ", retrying in a few seconds");
-			const json: { errors: { retry_after_seconds: number }[] } = await resultWebhook.json();
+			const json = await resultWebhook.json() as { errors: { retry_after_seconds: number }[] };
 			let delay = (json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0].retry_after_seconds * 1000;
 			await Utils.promisedTimeout(delay);
 			return this.getUserWebhook(request, response, patreonAuth);
@@ -1012,7 +1018,7 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
 		const result = await fetch(url, { method: "POST", headers: { "User-Agent": this.userAgent } });
-		const json = await result.json();
+		const json = await result.json() as PatreonToken & { error?: string };
 
 		let success = true;
 		let jsonTokens: Record<string, string> = {};
