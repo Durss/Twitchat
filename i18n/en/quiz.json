@@ -2,7 +2,17 @@
 	"quiz": {
 		"form":{
 			"title": "Quiz",
-			"subtitle": "Create your own interactive quiz!"
+			"subtitle": "Create your own interactive quiz!",
+			"add_bt": "Create a quiz",
+			"delete_confirm": {
+				"description": "Quiz will be deleted\nThis cannot be undone.",
+				"title": "Delete quiz?"
+			},
+			"default_title": "My Quiz",
+			"install_title": "Install overlay",
+			"param_duration": "Duration per question ({VALUE} seconds)",
+			"param_time_based_scoring": "Time-based scoring (more points for faster answers)",
+			"param_loose_on_fail": "Lose points on fail (wrong answers removes points)"
 		}
 	}
 }
