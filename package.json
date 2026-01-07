@@ -41,10 +41,10 @@
 		"fastify": "^5.7.4",
 		"fastify-raw-body": "^5.0.0",
 		"fastify-sse-v2": "^4.2.1",
-		"googleapis": "^128.0.0",
+		"googleapis": "^170.0.0",
 		"jsonwebtoken": "^9.0.3",
 		"mime-types": "^3.0.2",
-		"node-fetch": "^2.7.0"
+		"node-fetch": "^3.3.2"
 	},
 	"devDependencies": {
 		"@babel/plugin-proposal-decorators": "^7.28.6",
