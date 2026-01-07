@@ -1,8 +1,8 @@
 <template>
 	<div class="overlaydistort">
-		<div class="instructions">
+		<!-- <div class="instructions">
 			<img src="@/assets/img/shader_warning.png"/>
-		</div>
+		</div> -->
 		<DistortionLiquid :params="distortionData" v-if="distortionData && distortionData.effect == 'liquid'" />
 		<DistortionExpand :params="distortionData" v-if="distortionData && distortionData.effect == 'expand'" />
 		<DistortionHeart :params="distortionData" v-if="distortionData && distortionData.effect == 'heart'" />
