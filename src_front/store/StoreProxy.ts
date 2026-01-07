@@ -3933,7 +3933,7 @@ export interface IQuizState {
 	/**
 	 * True when exporting selected settings
 	 */
-	quizList:TwitchatDataTypes.QuizParams;
+	quizList:TwitchatDataTypes.QuizParams[];
 }
 
 export interface IQuizGetters {
@@ -3948,4 +3948,23 @@ export interface IQuizActions {
 	 * Save current ending credits params
 	 */
 	saveConfigs():Promise<void>;
+	/**
+	 * Create a new quiz
+	 * @param payload
+	 */
+	addQuiz():TwitchatDataTypes.QuizParams;
+	/**
+	 * Delete a quiz
+	 */
+	removeQuiz(id:string):void;
+	/**
+	 * Duplicates given quiz
+	 * @param id
+	 */
+	duplicateQuiz(id:string):void;
+	/**
+	 * Saves data to server
+	 * @param quizId quiz ID. This will broadcast update to overlay
+	 */
+	saveData(quizId?:string):Promise<void>
 }

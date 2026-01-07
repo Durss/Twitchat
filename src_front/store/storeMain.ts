@@ -628,7 +628,7 @@ export const storeMain = defineStore("main", {
 								const delta = Math.round((index2 - index1)/encoderParams.step);
 								//Scroll chat column
 								if(j == 0) {
-									PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL", { colIndex:i, scrollBy:delta }, true);
+									PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL", { colIndex:i, scrollBy:delta, mode:'pixels' }, true);
 								}else{
 									PublicAPI.instance.broadcast("SET_CHAT_FEED_READ", { colIndex:i, count:delta }, true);
 								}
@@ -689,6 +689,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.heat.populateData();
 			StoreProxy.groq.populateData();
 			StoreProxy.kofi.populateData();
+			StoreProxy.quiz.populateData();
 			StoreProxy.voice.populateData();
 			StoreProxy.music.populateData();
 			StoreProxy.lumia.populateData();
