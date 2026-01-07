@@ -261,7 +261,7 @@ export default class TiltifyController extends AbstractController {
 
 		try {
 			const slRes = await fetch(url, {method:"POST", headers});
-			const token = await slRes.json();
+			const token = await slRes.json() as AuthToken;
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
