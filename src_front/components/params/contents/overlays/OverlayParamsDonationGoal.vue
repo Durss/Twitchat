@@ -718,16 +718,15 @@ export default toNative(OverlayParamsDonationGoal);
 
 			.copyIdBt {
 				position: absolute;
-				top: 0;
-				left: 0;
+				top: -.5em;
+				left: -.5em;
 				z-index: 1;
 				border-radius: var(--border-radius);
-				transform: translate(-25%, -25%);
 				opacity: 0;
 			}
 
 			&:hover {
-				background-color: var(--background-color-fader);
+				background-color: var(--background-color-secondary);
 				.copyIdBt {
 					opacity: 1;
 				}
