@@ -442,7 +442,6 @@ import Utils from '@/utils/Utils';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';

@@ -78,7 +78,7 @@ class PlaceholderField extends Vue {
 	}
 
 	public focusInput():void {
-		(this.$refs["input"] as typeof contenteditable).$el.focus();
+		(this.$refs["input"] as typeof ContentEditable).$el.focus();
 	}
 
 }
