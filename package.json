@@ -7,6 +7,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
+		"devAll": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run lande && npm run front/build && npm run server/build",
 		"front/watch": "vite --host",
 		"front/watch-force": "vite --host --force",
@@ -14,6 +15,7 @@
 		"server/watch": "tsc -w -p ./src_back/tsconfig.json",
 		"server/build": "tsc -p ./src_back/tsconfig.json",
 		"server/start": "pm2 start bootstrap-pm2.json",
+		"labels/start": "pm2 start labels-pm2.json",
 		"lande": "npx rollup --config lande.config.js",
 		"patch": "npm run versionUpgrade patch",
 		"minor": "npm run versionUpgrade minor",
@@ -100,7 +102,6 @@
 		"vite": "^6.4.1",
 		"vite-plugin-package-version": "^1.1.0",
 		"vue": "^3.3.9",
-		"vue-contenteditable": "^4.1.0",
 		"vue-country-flag-next": "^2.3.2",
 		"vue-draggable-plus": "^0.6.1",
 		"vue-facing-decorator": "^4.0.1",

@@ -4,7 +4,7 @@
 		<div class="infos" :style="styles">
 			<img :src="icon" alt="reward icon">
 
-			<contenteditable class="cost" tag="p"
+			<ContentEditable class="cost" tag="p"
 				:no-nl="true"
 				:no-html="true"
 				v-model="localCost"
@@ -19,7 +19,7 @@
 		</div>
 
 		<div class="ctas">
-			<contenteditable class="title" tag="p"
+			<ContentEditable class="title" tag="p"
 				:no-nl="true"
 				:no-html="true"
 				v-model="localTitle"
@@ -41,7 +41,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type * as CMTypes from "@imengyu/vue3-context-menu";
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { h, type RendererElement, type RendererNode, type CSSProperties, type VNode } from 'vue';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
@@ -54,7 +54,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	components:{
 		Icon,
 		TTButton,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["transfer", "edit", "delete"],
 })

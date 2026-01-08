@@ -114,7 +114,7 @@
 								:class="getEntryClasses(element)"
 								:style="{width:'calc('+(1/bingo.cols*100)+'% - 3px)'}"
 								@click="focusLabel(element.id)">
-									<contenteditable class="cell" tag="div"
+									<ContentEditable class="cell" tag="div"
 										v-model="element.label"
 										:contenteditable="true"
 										:no-html="true"
@@ -146,7 +146,7 @@
 
 									<TTButton @click="$store.bingoGrid.removeCustomCell(bingo.id, item.id)" alert icon="trash" />
 
-									<contenteditable class="label" tag="div"
+									<ContentEditable class="label" tag="div"
 										v-model="item.label"
 										:contenteditable="true"
 										:no-html="true"
@@ -230,7 +230,7 @@
 <script lang="ts">
 import { type TriggerActionBingoGridData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
@@ -260,7 +260,7 @@ import Config from "@/utils/Config";
 		ToggleButton,
 		PermissionsForm,
 		PostOnChatParam,
-		contenteditable,
+		ContentEditable,
 		OverlayInstaller,
 	},
 	emits:["close"]
