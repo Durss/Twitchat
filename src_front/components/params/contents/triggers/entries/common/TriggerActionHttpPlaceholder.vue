@@ -36,13 +36,13 @@
 import TTButton from '@/components/TTButton.vue';
 import type { IHttpPlaceholder } from '@/types/TriggerActionDataTypes';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import PlaceholderField from '@/components/PlaceholderField.vue';
 
 @Component({
 	components:{
 		TTButton,
-		contenteditable,
+		ContentEditable,
 		PlaceholderField,
 	},
 	emits:[],
