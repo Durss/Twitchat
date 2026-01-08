@@ -11,7 +11,7 @@
 		background-color: var(--background-color-fader);
 		transition: all .2s;
 		margin: -@padding;
-		margin-bottom: 0;
+		margin-bottom: .5em;
 		gap: .5em;
 		padding: .5em;
 		
@@ -23,6 +23,10 @@
 			border-top-right-radius: 50%;
 			border-bottom-right-radius: 50%;
 			border-left: none;
+			&.normalSize {
+				height: 1.5em;
+				margin: 0;
+			}
 		}
 		& > .title {
 			align-self: center;
