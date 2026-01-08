@@ -3940,7 +3940,7 @@ export interface IQuizActions {
 	 * Create a new quiz
 	 * @param payload
 	 */
-	addQuiz():TwitchatDataTypes.QuizParams;
+	addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams;
 	/**
 	 * Delete a quiz
 	 */

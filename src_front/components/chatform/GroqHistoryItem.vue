@@ -14,7 +14,7 @@
 			<div class="date">{{ date }}</div>
 
 			<form @submit.prevent="onSubmit">
-				<contenteditable class="input input-field" tag="p"
+				<ContentEditable class="input input-field" tag="p"
 					v-model="newPrompt"
 					:no-nl="false"
 					:no-html="true"
@@ -31,7 +31,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -42,7 +42,7 @@ import TTButton from '../TTButton.vue';
 		TTButton,
 		ToggleBlock,
 		ClearButton,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["close"],
 })

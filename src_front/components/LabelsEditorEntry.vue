@@ -21,7 +21,7 @@
 		<TTButton v-if="uselessLabel" icon="trash" alert light class="deleteBt" @click.stop="deleteLabel()" />
 		<strong class="key">{{path[path.length-1]}}</strong>
 		<div class="form">
-			<contenteditable class="text" tag="div"
+			<ContentEditable class="text" tag="div"
 				:key="'label_'+path.join()"
 				:contenteditable="true"
 				v-model="labelValue"
@@ -45,7 +45,7 @@ import StoreProxy from '@/store/StoreProxy';
 import type { RemoveIndexSignature } from '@intlify/core-base';
 import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import CountryFlag from 'vue-country-flag-next';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
@@ -56,7 +56,7 @@ import TTButton from './TTButton.vue';
 	components:{
 		TTButton,
 		CountryFlag,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["change", "delete"]
 })
