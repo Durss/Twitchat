@@ -3,7 +3,7 @@
 		<div class="progress">
 			<div class="holder back">
 				<div class="level">
-					<contenteditable tag="div" class="editableField"
+					<ContentEditable tag="div" class="editableField"
 						v-model="localLevelName"
 						:class="{isEmpty: (levelName || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -14,7 +14,7 @@
 				</div>
 				<div class="infoHolder">
 					<div class="record" v-if="showIncomingRecord && !showLevelUp && !isRecord"></div>
-					<contenteditable tag="div" class="title editableField"
+					<ContentEditable tag="div" class="title editableField"
 						v-model="localTitle"
 						:class="{isEmpty: (localTitle || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -30,7 +30,7 @@
 			</div>
 			<div class="fillHolder">
 				<div class="level">
-					<contenteditable tag="div" class="editableField"
+					<ContentEditable tag="div" class="editableField"
 						v-model="localLevelName"
 						:class="{isEmpty: (levelName || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -45,7 +45,7 @@
 			</div>
 			<div class="holder">
 				<div class="level">
-					<contenteditable tag="div" class="editableField"
+					<ContentEditable tag="div" class="editableField"
 						v-model="localLevelName"
 						:class="{isEmpty: (levelName || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -56,7 +56,7 @@
 				</div>
 				<div class="infoHolder">
 					<!-- <div class="title">{{ title }}</div> -->
-					<contenteditable tag="div" class="title editableField"
+					<ContentEditable tag="div" class="title editableField"
 						v-model="localTitle"
 						:class="{isEmpty: (localTitle || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -76,7 +76,7 @@
 			<div class="approaching" v-if="showApproaching !== false">
 				<div class="content">
 					<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote">
-					<contenteditable tag="div" class="title editableField"
+					<ContentEditable tag="div" class="title editableField"
 						v-model="localTitleApproaching"
 						:class="{isEmpty: (localTitleApproaching || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -124,7 +124,7 @@
 								opacity: i.alpha,
 							}">
 					</div>
-					<contenteditable tag="div" ref="title" class="title editableField"
+					<ContentEditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleLevelUp"
 						:class="{isEmpty: (localTitleLevelUp || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -152,7 +152,7 @@
 								opacity: i.alpha,
 							}">
 					</div>
-					<contenteditable tag="div" ref="title" class="title editableField"
+					<ContentEditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleRecord"
 						:class="{isEmpty: (localTitleRecord || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -180,7 +180,7 @@
 								opacity: i.alpha,
 							}">
 					</div>
-					<contenteditable tag="div" ref="title" class="title editableField"
+					<ContentEditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleSuccess"
 						:class="{isEmpty: (localTitleSuccess || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -196,7 +196,7 @@
 			<div class="fail" v-if="showFail_local !== false">
 				<div class="content">
 					<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
-					<contenteditable tag="div" ref="title" class="title editableField"
+					<ContentEditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleFail"
 						:class="{isEmpty: (localTitleFail || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -213,7 +213,7 @@
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import Utils from '@/utils/Utils';
 import Icon from '@/components/Icon.vue';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
@@ -222,7 +222,7 @@ import TrophyIcon from "@/assets/icons/sub.svg?raw"
 @Component({
 	components:{
 		Icon,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:[
 		"lock",

@@ -1,6 +1,6 @@
 <template>
 	<div class="durationform input-field">
-		<contenteditable class="input" v-if="showDays"
+		<ContentEditable class="input" v-if="showDays"
 			tag="span"
 			ref="inputD"
 			v-model="days"
@@ -14,7 +14,7 @@
 
 		<p class="split days" v-if="showDays">{{ $t("global.date_days") }}</p>
 
-		<contenteditable class="input" v-if="showHours"
+		<ContentEditable class="input" v-if="showHours"
 			tag="span"
 			ref="inputH"
 			v-model="hours"
@@ -28,7 +28,7 @@
 
 		<p class="split" v-if="showHours">h</p>
 
-		<contenteditable class="input" v-if="showMinutes"
+		<ContentEditable class="input" v-if="showMinutes"
 			tag="span"
 			ref="inputM"
 			v-model="minutes"
@@ -42,7 +42,7 @@
 
 		<p class="split" v-if="showMinutes">m</p>
 
-		<contenteditable class="input"
+		<ContentEditable class="input"
 			tag="span"
 			ref="inputS"
 			v-model="seconds"
@@ -63,12 +63,12 @@
 <script lang="ts">
 import Utils from '@/utils/Utils';
 import { watch, type ComponentPublicInstance } from 'vue';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["update:modelValue", "change"],
 })

@@ -39,15 +39,16 @@ export const storeQuiz = defineStore('quiz', {
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
 		},
 
-		addQuiz():TwitchatDataTypes.QuizParams {
-			const data:TwitchatDataTypes.QuizParams = {
+		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
+			let data:TwitchatDataTypes.QuizParams = {
 				id:Utils.getUUID(),
 				enabled:true,
 				title:"",
-				mode:"classic",
+				mode,
 				questionList:[],
 				durationPerQuestion_s:30,
 				loosePointsOnFail:false,
+				timeBasedScoring:false,
 			}
 			this.quizList.push(data);
 			this.saveData(data.id);
