@@ -4041,7 +4041,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains quiz parameters
 	 */
-	export type QuizParams = {
+	export type QuizParams<Mode = "classic" | "majority"> = {
 		/**
 		 * Quiz ID
 		 */
@@ -4050,6 +4050,10 @@ export namespace TwitchatDataTypes {
 		 * Quiz title
 		 */
 		title:string
+		/**
+		 * Quiz mode.
+		 */
+		mode:Mode;
 		/**
 		 * Number of seconds to answer
 		 */
@@ -4079,6 +4083,10 @@ export namespace TwitchatDataTypes {
 		 */
 		questionList: {
 			/**
+			 * Question ID
+			 */
+			id:string;
+			/**
 			 * Question text
 			 */
 			question:string;
@@ -4089,7 +4097,14 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Possible answers for this question
 			 */
-			answers:{
+			answerList:{
+				/**
+				 * Answer ID
+				 */
+				id:string;
+				/**
+				 * Answer text
+				 */
 				title:string;
 				/**
 				 * Is this the answer correct ?
@@ -4108,6 +4123,10 @@ export namespace TwitchatDataTypes {
 		 */
 		questionList: {
 			/**
+			 * Question ID
+			 */
+			id:string;
+			/**
 			 * Question text
 			 */
 			question:string;
@@ -4118,7 +4137,14 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Possible answers for this question
 			 */
-			answers:{
+			answerList:{
+				/**
+				 * Answer ID
+				 */
+				id:string;
+				/**
+				 * Answer text
+				 */
 				title:string;
 			}[];
 		}[];

@@ -2747,15 +2747,17 @@ const UserDataSchema = {
 											type: "object",
 											additionalProperties: false,
 											properties: {
+												id: { type: "string", maxLength:50 },
 												question: { type: "string" },
 												duration_s: { type: "integer" },
 												loosePointsOnFail: { type: "number" },
-												answers: {
+												answerList: {
 													type: "array",
 													items: {
 														type: "object",
 														additionalProperties: false,
 														properties: {
+															id: { type: "string", maxLength:50 },
 															title: { type: "string" },
 															correct: { type: "boolean" }
 														}
@@ -2775,14 +2777,16 @@ const UserDataSchema = {
 											type: "object",
 											additionalProperties: false,
 											properties: {
+												id: { type: "string", maxLength:50 },
 												question: { type: "string" },
 												duration_s: { type: "integer" },
-												answers: {
+												answerList: {
 													type: "array",
 													items: {
 														type: "object",
 														additionalProperties: false,
 														properties: {
+															id: { type: "string", maxLength:50 },
 															title: { type: "string" }
 														}
 													}
