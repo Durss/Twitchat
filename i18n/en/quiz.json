@@ -4,6 +4,11 @@
 			"title": "Quiz",
 			"subtitle": "Create your own interactive quiz!",
 			"add_bt": "Create a quiz",
+			"addQuestion_bt": "Add question",
+			"addAnswer_bt": "Add answer",
+			"answer_correct": "Correct answer",
+			"answer_wrong": "Wrong answer",
+			"deleteQuestionbt_tt": "Delete the question",
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
 				"title": "Delete quiz?"
@@ -12,7 +17,22 @@
 			"install_title": "Install overlay",
 			"param_duration": "Duration per question ({VALUE} seconds)",
 			"param_time_based_scoring": "Time-based scoring (more points for faster answers)",
-			"param_loose_on_fail": "Lose points on fail (wrong answers removes points)"
+			"param_loose_on_fail": "Lose points on fail\n(wrong answers removes points)",
+			"question_placeholder": "question...",
+			"answer_placeholder": "answer...",
+			"answers": "Answers",
+			"param_answer_duration": "Duration",
+			"premium_limit": "You reached the maximum quiz count you can create.",
+			"questionList": "Question list",
+			"non_premium_limit": "@:quiz.form.premium_limit \nBecome a premium member to create up to {MAX} quizzes.",
+			"mode_classic": {
+				"title": "Classic mode",
+				"description": "One question, up to 6 answers, 1 or more correct answers.\n\nViewers earn points for every correct answers."
+			},
+			"mode_majority": {
+				"title": "Majority mode",
+				"description": "One question, up to 4 answers, ONLY wrong answers.\n\nViewers must guess which answer will receive the most votes."
+			}
 		}
 	}
 }
