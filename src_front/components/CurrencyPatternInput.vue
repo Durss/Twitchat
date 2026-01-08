@@ -3,7 +3,7 @@
 		<Icon name="coin" />
 		<span class="label">{{ $t("global.currency_pattern") }}</span>
 		<div class="form input-field">
-			<contenteditable tag="div" class="input"
+			<ContentEditable tag="div" class="input"
 				v-model="prefix"
 				:contenteditable="true"
 				:no-nl="true"
@@ -12,7 +12,7 @@
 
 			<span class="label">42</span>
 
-			<contenteditable tag="div" class="input"
+			<ContentEditable tag="div" class="input"
 				v-model="suffix"
 				:contenteditable="true"
 				:no-nl="true"
@@ -25,13 +25,13 @@
 <script lang="ts">
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
-import contenteditable from 'vue-contenteditable';
 import Utils from '@/utils/Utils';
+import ContentEditable from '@/components/ContentEditable.vue';
 
 @Component({
 	components:{
 		Icon,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["update:modelValue", "change"],
 })
