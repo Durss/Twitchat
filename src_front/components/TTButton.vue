@@ -122,7 +122,7 @@ export class TTButton extends Vue {
 	public get classes():string[] {
 		let list =  ["button"]
 		if(!this.$slots.default) list.push("noTitle");
-		if(this.primary !== false) list.push("primary");
+		if(this.primary !== false || this.copySuccess) list.push("primary");
 		if(this.twitch !== false) list.push("twitch");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
@@ -175,13 +175,13 @@ export class TTButton extends Vue {
 			}catch(e) {
 				this.copyFail = true;
 			}
-			await Utils.promisedTimeout(3000);
+			await Utils.promisedTimeout(2000);
 			this.copySuccess = false;
 			this.copyFail = false;
 		}
 	}
 
-	public onRelease(event:MouseEvent):void {
+	public onRelease(_event:MouseEvent):void {
 		if(this.disabled || this.loading || this.noBounce !== false) return;
 		gsap.fromTo(this.$el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
 	}

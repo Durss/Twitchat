@@ -544,7 +544,7 @@ export class ParamItem extends Vue {
 		}
 		if(!txt) return "";
 		//Puts anything that's between parenthesis inside <span> elements
-		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
+		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='smallText'>$1</span>");
 	}
 
 	public get placeholder():string {
@@ -1199,7 +1199,7 @@ export default toNative(ParamItem);
 			flex-grow: 1;
 		}
 
-		:deep(.small) {
+		:deep(.smallText) {
 			font-size: .75em;
 			font-style: italic;
 		}
