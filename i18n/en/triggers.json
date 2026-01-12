@@ -1239,7 +1239,8 @@
 			},
 			"HYPE_TRAIN_COOLDOWN": {
 				"label": "Hype train cooldown",
-				"description": "Actions to execute when a hype train can, be started again"
+				"description": "Actions to execute when a hype train can, be started again",
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"TIMEOUT": {
 				"label": "User timed out",

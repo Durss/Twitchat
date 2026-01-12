@@ -630,7 +630,6 @@ export default class TwitchUtils {
 
 	/**
 	 * Get the latest hype train info
-	 * not used as it contains no much info and is super restrictive..
 	 */
 	public static async getHypeTrains(channelId: string): Promise<TwitchDataTypes.HypeTrain[]> {
 		if (!this.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) return [];
@@ -639,7 +638,7 @@ export default class TwitchUtils {
 			method: "GET",
 			headers: this.headers,
 		}
-		const url = new URL(Config.instance.TWITCH_API_PATH + "hypetrain/events");
+		const url = new URL(Config.instance.TWITCH_API_PATH + "hypetrain/status");
 		url.searchParams.set("broadcaster_id", channelId);
 		const res = await this.callApi(url, options);
 		const json = await res.json();

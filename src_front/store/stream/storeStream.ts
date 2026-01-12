@@ -1110,6 +1110,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		async scheduleHypeTrainCooldownAlert():Promise<void> {
+			/*
 			const [train] = await TwitchUtils.getHypeTrains(StoreProxy.auth.twitch.user.id);
 			if(train && train.event_data.cooldown_end_time) {
 				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
@@ -1130,6 +1131,7 @@ export const storeStream = defineStore('stream', {
 					ignoreHypeTrainCooldown = true;
 				}, remainingTime);
 			}
+				*/
 		},
 
 		async grabCurrentStreamVOD():Promise<void> {

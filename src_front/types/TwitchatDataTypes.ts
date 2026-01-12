@@ -3226,7 +3226,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
 		{type:TwitchatMessageType.HYPE_TRAIN_SUMMARY,					labelKey:"chat.filters.message_types.hype_train_summary",					icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
-		{type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
+		// {type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
 		{type:TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,				labelKey:"chat.filters.message_types.community_boost_complete",				icon:"boost",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
@@ -4069,6 +4069,7 @@ export namespace TwitchatDataTypes {
 
 	/**
 	 * Represents a hype train cooldown message
+	 * @deprecated twich removed possibility to get this info
 	 */
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;

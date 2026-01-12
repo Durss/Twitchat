@@ -163,31 +163,43 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface HypeTrain {
-		id: string;
-		event_type: string;
-		event_timestamp: Date;
-		version: string;
-		event_data: {
+		current: {
 			id: string;
-			expires_at: string;
+			broadcaster_user_id: string;
+			broadcaster_user_login: string;
+			broadcaster_user_name: string;
+			level: number;
+			total: number;
+			progress: number;
+			goal: number;
+			top_contributions: Array<{
+				user_id: string;
+				user_login: string;
+				user_name: string;
+				type: string;
+				total: number;
+			}>
+			shared_train_participants: Array<{
+				broadcaster_user_id: string;
+				broadcaster_user_login: string;
+				broadcaster_user_name: string;
+			}>
 			started_at: string;
-			broadcaster_id: string;
-			cooldown_end_time: string;
-			level: number;//Highest level reached
-			total: number;//Total score for the current elvel
-			goal: number;//Goal value for current level
-			last_contribution: {
-				total: number;// number of BITS or SUBS score (tier 1=500, tier 2=1000, tier 3=2500)
-				type: "BITS" | "SUBS";
-				user: string;//user ID
-			};
-			top_contributions: {
-				total: number;// number of BITS or SUBS score (tier 1=500, tier 2=1000, tier 3=2500)
-				type: "BITS" | "SUBS";
-				user: string;
-			};
-		};
+			expires_at: string;
+			type: string;
+		}
+		all_time_high: {
+			level: number;
+			total: number;
+			achieved_at: string;
+		}
+		shared_all_time_high: {
+			level: number;
+			total: number;
+			achieved_at: string;
+		}
 	}
+
 
 	export interface Prediction {
 		id: string;

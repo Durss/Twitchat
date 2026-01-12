@@ -1044,7 +1044,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION );
@@ -1070,7 +1070,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
 				break;
