@@ -3961,7 +3961,7 @@ export interface IQuizActions {
 	 * Duplicates given quiz
 	 * @param id
 	 */
-	duplicateQuiz(id:string):void;
+	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
 	/**
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
