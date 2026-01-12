@@ -89,6 +89,7 @@ export default toNative(TimerCountDownInfo);
 	display: flex;
 	flex-direction: row;
 	position: relative;
+	margin: 0 .5em;
 
 	.timer {
 		width: 100%;
