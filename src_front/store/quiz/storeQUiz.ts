@@ -64,13 +64,20 @@ export const storeQuiz = defineStore('quiz', {
 			}).catch(()=>{})
 		},
 		
-		duplicateQuiz(id:string):void{
+		duplicateQuiz(id:string):TwitchatDataTypes.QuizParams | undefined {
 			const source = this.quizList.find(g => g.id === id);
 			if(!source) return;
 			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
 			clone.id = Utils.getUUID();
+			clone.questionList.forEach(q => {
+				q.id = Utils.getUUID();
+				q.answerList.forEach(a => {
+					a.id = Utils.getUUID();
+				});
+			});
 			this.quizList.push(clone)
 			this.saveData(id);
+			return clone;
 		},
 		
 		saveData(quizId?:string):void {
