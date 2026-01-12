@@ -82,6 +82,7 @@
 					<template #right_actions>
 						<div class="rightActions">
 							<TTButton @click.stop="duplicateQuiz(quiz.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxQuizReached" />
+							<TTButton @click.stop :copy="quiz.id" icon="id" v-tooltip="$t('global.copy_id')" />
 							<TTButton @click.stop="$store.quiz.removeQuiz(quiz.id)" icon="trash" alert />
 						</div>
 					</template>
@@ -110,33 +111,39 @@
 								<TTButton @click.stop :copy="question.id" icon="id" v-tooltip="$t('global.copy_id')" class="copyIdBt" small />
 
 								<div class="question">
-									<ParamItem :paramData="param_question[question.id]" v-model="question.question" @blur="save(quiz)" noBackground>
-										<template #composite>
-											<div class="durationOverride">
-												<TTButton v-if="!durationOverrideState[question.id]"
-													@click="durationOverrideState[question.id] = true"
-													icon="countdown"
-													small
-													transparent>{{ question.duration_s? question.duration_s + 's' : '' }}</TTButton>
-												<ParamItem v-else class="durationForm"
-													:paramData="param_answerDuration[question.id]"
+									<div class="questionHolder">
+										<ParamItem :paramData="param_question[question.id]" v-model="question.question" @blur="save(quiz)" noBackground />
+										
+										<div class="durationOverride" v-tooltip="$t('quiz.form.durationOverride_tt')">
+											<TTButton v-if="!durationOverrideState[question.id]"
+												@click="setCustomDuration(question)"
+												icon="countdown"
+												:primary="question.duration_s && question.duration_s > 0"
+												:transparent="!question.duration_s">{{ question.duration_s? question.duration_s+'s' : '' }}</TTButton>
+											<span v-else class="durationForm">
+												<ContentEditable tag="span"
 													v-model="question.duration_s"
-													@blur="durationOverrideState[question.id] = false"
-													@change="save(quiz)"
-													noBackground />
-											</div>
-										</template>
-									</ParamItem>
+													v-autofocus
+													:min="5"
+													:max="600"
+													:contenteditable="true"
+													numeric
+													@blur="durationOverrideState[question.id] = false" />s
+											</span>
+											<!-- <TTButton class="deleteBt" icon="cross" @click="deleteAnswer(quiz, question.id, answer.id)" small primary /> -->
+										</div>
+									</div>
 									
-									<strong class="answersTitle">{{ $t("quiz.form.answers") }}</strong>
+									<strong class="answersTitle">{{ quiz.mode == 'classic'? $t("quiz.form.answers") : $t("quiz.form.answers_majority") }}</strong>
 
 									<div class="answerList">
 										<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
 											<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
-												@click="answer.correct = !answer.correct"
+												@click="tickAnswer(question.answerList, answer)"
 												v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
 												:icon="answer.correct? 'checkmark' : 'cross'"
 												:primary="answer.correct"
+												:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
 												noBounce />
 											<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
 											<TTButton class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
@@ -169,6 +176,7 @@
 import AbstractSidePanel from '@/components/AbstractSidePanel';
 import Checkbox from '@/components/Checkbox.vue';
 import ClearButton from '@/components/ClearButton.vue';
+import ContentEditable from '@/components/ContentEditable.vue';
 import OverlayInstaller from '@/components/params/contents/overlays/OverlayInstaller.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import Splitter from '@/components/Splitter.vue';
@@ -190,6 +198,7 @@ import { Component, toNative } from 'vue-facing-decorator';
 		ToggleBlock,
 		ToggleButton,
 		VueDraggable,
+		ContentEditable,
 		OverlayInstaller,
 	},
 	emits:[],
@@ -330,10 +339,49 @@ class QuizForm extends AbstractSidePanel {
 	}
 
 	/**
-	 * Check if answer has correct property (classic mode)
+	 * Check if answer is from a classic quiz
 	 */
 	public isClassicQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
 		return mode === "classic";
+	}
+
+	/**
+	 * Check if question is from a classic quiz
+	 */
+	public isClassicQuizQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
+		return mode === "classic";
+	}
+
+	/**
+	 * Clears custom duration for question or sets it to default value
+	 * @param question 
+	 */
+	public setCustomDuration(question: TwitchatDataTypes.QuizParams["questionList"][number]): void {
+		if(question.duration_s) {
+			delete question.duration_s;
+		} else {
+			question.duration_s = 30;
+			this.durationOverrideState[question.id] = true;
+		}
+		this.save(this.$store.quiz.quizList.find(q=> q.questionList.includes(question))!);
+	}
+
+	/**
+	 * Ticks/Unticks answer correctness
+	 * If trying to untick the only correct answer, ignore and keep it ticked
+	 * @param answerList 
+	 */
+	public tickAnswer(answerList: TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"],
+	answer:TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number]): void {
+		if(answer.correct) {
+			//Untick
+			const correctAnswers = answerList.filter(a=> a.correct);
+			if(correctAnswers.length > 1) {
+				answer.correct = !answer.correct;
+			}
+		}else{
+			answer.correct = !answer.correct;
+		}
 	}
 
 	/**
@@ -381,7 +429,7 @@ export default toNative(QuizForm);
 		.card-item {
 			flex-grow: 1;
 			flex-basis: calc(50% - 1em);
-			min-width: 170px;
+			min-width: 195px;
 			display: flex;
 			flex-direction: column;
 			.body {
@@ -501,14 +549,42 @@ export default toNative(QuizForm);
 					display: none;
 				}
 
-				.durationOverride {
-					position: absolute;
-					top: .2em;
-					right: .25em;
-					font-size: .5em;
+				.questionHolder {
+					display: flex;
+					flex-direction: row;
+					align-items: stretch;
+					background-color: var(--background-color-fader);
+					border-radius: var(--border-radius);
 
-					.durationForm {
-						width: 100px;
+					.paramitem {
+						flex-grow: 1;
+						::v-deep(input),
+						::v-deep(textarea) {
+							background: transparent;
+						}
+					}
+
+					.durationOverride {
+						display: flex;
+						.button {
+							height: 100%;
+							min-height: 100%;
+							padding-left: .5em;
+							padding-right: .5em;
+							border-top-left-radius: 0;
+							border-bottom-left-radius: 0;
+							gap: .25em;
+							::v-deep(.label) {
+								font-size: .7em;
+							}
+						}
+	
+						.durationForm {
+							margin-top: .1em;
+							padding: .25em .5em;
+							font-size: .8em;
+							align-self: center;
+						}
 					}
 				}
 				
@@ -520,8 +596,9 @@ export default toNative(QuizForm);
 					display: none;
 					// transition: display .25s allow-discrete;
 					&>* {
-						width: calc(50% - .5em);
 						flex-grow: 1;
+						flex-basis: calc(50% - .5em);
+						min-width: 170px;
 					}
 					.answer {
 						display: flex;
@@ -529,6 +606,9 @@ export default toNative(QuizForm);
 						flex-direction: row;
 						.correctToggle, .deleteBt {
 							flex-shrink: 0;
+						}
+						&>.paramitem {
+							flex-grow: 1;
 						}
 						&>* {
 							border-radius: 0;

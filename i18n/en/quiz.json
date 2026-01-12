@@ -9,6 +9,7 @@
 			"answer_correct": "Correct answer",
 			"answer_wrong": "Wrong answer",
 			"deleteQuestionbt_tt": "Delete the question",
+			"durationOverride_tt": "Custom duration for this question",
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
 				"title": "Delete quiz?"
@@ -21,6 +22,7 @@
 			"question_placeholder": "question...",
 			"answer_placeholder": "answer...",
 			"answers": "Answers",
+			"answers_majority": "Wrong answers only",
 			"param_answer_duration": "Duration",
 			"premium_limit": "You reached the maximum quiz count you can create.",
 			"questionList": "Question list",
