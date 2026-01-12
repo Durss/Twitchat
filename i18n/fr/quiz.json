@@ -9,6 +9,7 @@
 			"answer_correct": "Bonne réponse",
 			"answer_wrong": "Mauvaise réponse",
 			"deleteQuestionbt_tt": "Supprimer la question",
+			"durationOverride_tt": "Durée personnalisée pour cette question",
 			"delete_confirm": {
 				"description": "Le quiz sera supprimé\nCette action est irréversible.",
 				"title": "Supprimer le quiz ?"
@@ -19,8 +20,9 @@
 			"param_time_based_scoring": "Plus de points pour les réponses rapides",
 			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
 			"question_placeholder": "question...",
-			"answer_placeholder": "answer...",
+			"answer_placeholder": "réponse...",
 			"answers": "Réponses",
+			"answers_majority": "Fausses réponses uniquement",
 			"param_answer_duration": "Durée",
 			"premium_limit": "Vous avez atteint le nombre maximum de quizs que vous pouvez créer.",
 			"questionList": "Liste de questions",
@@ -31,7 +33,7 @@
 			},
 			"mode_majority": {
 				"title": "Mode majoritaire",
-				"description": "Une question, jusqu'à 4 réponses, SEULEMENT des mauvaises réponses.\n\nLes spectateurices doivent deviner quelle réponse recevra le plus de votes."
+				"description": "Une question, jusqu'à 4 réponses, SEULEMENT des mauvaises réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
 			}
 		}
 	}
