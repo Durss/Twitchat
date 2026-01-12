@@ -7,7 +7,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
-		"devAll": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
+		"devall": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run lande && npm run front/build && npm run server/build",
 		"front/watch": "vite --host",
 		"front/watch-force": "vite --host --force",
