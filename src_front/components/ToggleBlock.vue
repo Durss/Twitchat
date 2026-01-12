@@ -8,7 +8,7 @@
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
-				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
+				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false && noTitleColor == false? 'light': small === true && noTitleColor == false? 'secondary' : ''"
 				/>
 
 			<div class="title editableTitle" v-if="editableTitle !== false">
@@ -518,10 +518,10 @@ export default toNative(ToggleBlock);
 				background-color: var(--color-dark-fadest);
 			}
 			.title {
-				gap: .25em;
+				gap: 0;
 				text-align: left;
-				align-items: center;
-				flex-direction: row;
+				align-items: flex-start;
+				flex-direction: column;
 				line-height: 1.25em;
 				text-shadow: var(--text-shadow-contrast);
 			}
@@ -543,34 +543,22 @@ export default toNative(ToggleBlock);
 		}
 
 		&.primary {
-			.title {
-				color: var(--color-primary);
-			}
-			.arrowBt .icon {
+			.header {
 				color: var(--color-primary);
 			}
 		}
 		&.premium {
-			.title {
-				color: var(--color-premium);
-			}
-			.arrowBt .icon {
+			.header {
 				color: var(--color-premium);
 			}
 		}
 		&.error, &.alert {
-			.title {
-				color: var(--color-alert);
-			}
-			.arrowBt .icon {
+			.header {
 				color: var(--color-alert);
 			}
 		}
 		&.noTitleColor {
-			.title {
-				color: var(--color-text);
-			}
-			.arrowBt .icon {
+			.header {
 				color: var(--color-text);
 			}
 		}

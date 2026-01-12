@@ -68,7 +68,7 @@
 				v-model:title="quiz.title"
 				:titleDefault="$t('quiz.form.default_title')"
 				:titleMaxLengh="30"
-				:open="false"
+				:open="autoOpenID === quiz.id"
 				:key="quiz.id"
 				@update:title="save(quiz)">
 
@@ -97,7 +97,7 @@
 						<ParamItem :paramData="param_looseOnFail[quiz.id]" v-model="quiz.loosePointsOnFail" @change="save(quiz)" />
 						<ParamItem :paramData="param_timeBasedScore[quiz.id]" v-model="quiz.timeBasedScoring" @change="save(quiz)" />
 						
-						<Splitter>{{ $t("quiz.form.questionList") }}</Splitter>
+						<Splitter><icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
 						
 						<VueDraggable v-if="!showQuizTypeForm" class="questionList"
 						v-model="quiz.questionList"
@@ -130,29 +130,36 @@
 													numeric
 													@blur="durationOverrideState[question.id] = false" />s
 											</span>
-											<!-- <TTButton class="deleteBt" icon="cross" @click="deleteAnswer(quiz, question.id, answer.id)" small primary /> -->
 										</div>
 									</div>
 									
-									<strong class="answersTitle">{{ quiz.mode == 'classic'? $t("quiz.form.answers") : $t("quiz.form.answers_majority") }}</strong>
-
-									<div class="answerList">
-										<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
-											<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
-												@click="tickAnswer(question.answerList, answer)"
-												v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
-												:icon="answer.correct? 'checkmark' : 'cross'"
-												:primary="answer.correct"
-												:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
-												noBounce />
-											<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
-											<TTButton class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
+									<ToggleBlock
+									:icons="quiz.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
+									class="answersBlock"
+									:subtitle="quiz.mode == 'majority'? $t('quiz.form.answers_majority_subtitle') : ''"
+									:title="quiz.mode == 'classic'? $t('quiz.form.answers', {COUNT: question.answerList.length}) : $t('quiz.form.answers_majority', {COUNT: question.answerList.length}	)"
+									noTitleColor
+									small
+									:open="autoOpenID === question.id">
+										<div class="answerList">
+											<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
+												<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
+													@click="tickAnswer(question.answerList, answer)"
+													v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
+													:icon="answer.correct? 'checkmark' : 'cross'"
+													:primary="answer.correct"
+													:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
+													noBounce />
+												<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
+												<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
+											</div>
+											
+											<TTButton :sortable="false" :draggable="false" class="addBt" v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
+												@click="addAnswer(quiz, question.id)"
+												primary
+												icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
 										</div>
-										
-										<TTButton :sortable="false" :draggable="false" class="addBt" v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
-											@click="addAnswer(quiz, question.id)"
-											icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
-									</div>
+									</ToggleBlock>
 								</div>
 
 								<TTButton class="deleteBt"
@@ -163,7 +170,7 @@
 							</div>
 						</VueDraggable>
 
-						<TTButton @click="addQuestion(quiz)" icon="add">{{ $t("quiz.form.addQuestion_bt") }}</TTButton>
+						<TTButton @click="addQuestion(quiz)" icon="add" primary>{{ $t("quiz.form.addQuestion_bt") }}</TTButton>
 
 					</div>
 				</ToggleBlock>
@@ -214,6 +221,7 @@ class QuizForm extends AbstractSidePanel {
 	public durationOverrideState: Record<string, boolean> = {}
 
 	public showQuizTypeForm:boolean = false;
+	public autoOpenID:string|null = null;
 
 	public get maxQuizReached():boolean {
 		if(this.$store.auth.isPremium) {
@@ -242,7 +250,8 @@ class QuizForm extends AbstractSidePanel {
 	 * Create a new quiz
 	 */
 	public addQuiz(type: TwitchatDataTypes.QuizParams["mode"]):void {
-		this.$store.quiz.addQuiz(type);
+		const quiz = this.$store.quiz.addQuiz(type);
+		this.autoOpenID = quiz.id;
 		this.initParams();
 		this.showQuizTypeForm = false;
 	}
@@ -251,7 +260,8 @@ class QuizForm extends AbstractSidePanel {
 	 * Duplicate given quiz ID
 		*/
 	public duplicateQuiz(id:string):void {
-		this.$store.quiz.duplicateQuiz(id)
+		const quiz = this.$store.quiz.duplicateQuiz(id)
+		this.autoOpenID = quiz?.id ?? null;
 		this.initParams();
 	}
 
@@ -275,6 +285,7 @@ class QuizForm extends AbstractSidePanel {
 					{id:Utils.getUUID(), title:""},
 				],
 			};
+			this.autoOpenID = question.id;
 			quiz.questionList.push(question);
 		}else{
 			const question:TwitchatDataTypes.QuizParams<"majority">["questionList"][number] = {
@@ -285,6 +296,7 @@ class QuizForm extends AbstractSidePanel {
 					{id:Utils.getUUID(), title:""},
 				],
 			};
+			this.autoOpenID = question.id;
 			quiz.questionList.push(question);
 		}
 		this.initParams();
@@ -492,6 +504,11 @@ export default toNative(QuizForm);
 
 		.splitter {
 			margin: 1em 0;
+			.icon {
+				height: 1em;
+				margin-right: .25em;
+				vertical-align: middle;
+			}
 		}
 
 		.questionList {
@@ -539,16 +556,6 @@ export default toNative(QuizForm);
 				flex-direction: column;
 				flex: 1;
 
-				&:hover  {
-					.answerList, .answersTitle {
-						display: flex;
-					}
-				}
-
-				.answersTitle {
-					display: none;
-				}
-
 				.questionHolder {
 					display: flex;
 					flex-direction: row;
@@ -587,14 +594,25 @@ export default toNative(QuizForm);
 						}
 					}
 				}
+
+				.answersBlock {
+					::v-deep(.header) {
+						.title {
+							font-size: 1rem;
+						}
+						&>.icon {
+							width: 2em;
+							height: 2em;
+							flex-shrink: 0;
+						}
+					}
+				}
 				
 				.answerList {
 					gap: .5em;
 					display: flex;
 					flex-direction: row;
 					flex-wrap: wrap;
-					display: none;
-					// transition: display .25s allow-discrete;
 					&>* {
 						flex-grow: 1;
 						flex-basis: calc(50% - .5em);
