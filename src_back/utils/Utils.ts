@@ -2,6 +2,7 @@ import Config from "./Config.js";
 import * as fs from "fs";
 import * as crypto from "crypto";
 import fetch from "node-fetch";
+import jwt from 'jsonwebtoken';
 
 /**
 * Created : 20/07/2023
@@ -152,4 +153,39 @@ export default class Utils {
 			})
 		})
 	}
+
+	/**
+	 * Verify given twitch extension token is valid
+	 * @param token 
+	 * @returns 
+	 */
+	public static verifyTwitchExtensionJWT(token: string): TwitchJWTPayload {
+		const secret = Buffer.from(Config.credentials.twitchExtension_client_secret, 'base64');
+		try {
+			const payload = jwt.verify(token, secret) as TwitchJWTPayload;
+
+			return payload;
+		} catch (error) {
+			if (error instanceof jwt.TokenExpiredError) {
+				throw new Error('JWT token has expired');
+			}
+			if (error instanceof jwt.JsonWebTokenError) {
+				throw new Error('Invalid JWT token');
+			}
+			throw error;
+		}
+	}
+}
+
+export interface TwitchJWTPayload {
+	exp: number;
+	opaque_user_id: string;
+	user_id?: string;
+	channel_id: string;
+	role: 'broadcaster' | 'moderator' | 'viewer' | 'external';
+	is_unlinked?: boolean;
+	pubsub_perms?: {
+		listen?: string[];
+		send?: string[];
+	};
 }

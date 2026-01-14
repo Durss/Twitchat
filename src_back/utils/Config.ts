@@ -430,6 +430,9 @@ interface Credentials {
 	twitch_client_secret: string;
 	twitch_redirect_uri: string;
 	twitch_scopes: string[];
+	
+	twitchExtension_client_id: string;
+	twitchExtension_client_secret: string;
 
 	spotify_client_id: string;
 	spotify_client_secret: string;

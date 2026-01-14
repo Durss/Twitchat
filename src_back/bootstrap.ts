@@ -29,7 +29,7 @@ import UserController from './controllers/UserController.js';
 import Config from "./utils/Config.js";
 import I18n from './utils/I18n.js';
 import Logger from './utils/Logger.js';
-
+import TwitchExtensionController from './controllers/TwitchExtensionController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -99,6 +99,7 @@ server.register(fastifyFormbody)
 	new BingoGridController(server).initialize();
 	new RemoteModController(server).initialize();
 	new TiltifyController(server).initialize();
+	new TwitchExtensionController(server).initialize();
 	
 	//Start server
 	start();
