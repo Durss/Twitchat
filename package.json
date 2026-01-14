@@ -73,7 +73,7 @@
 		"@types/tmi.js": "^1.8.6",
 		"@typescript-eslint/eslint-plugin": "^8.38.0",
 		"@typescript-eslint/parser": "^8.38.0",
-		"@vitejs/plugin-vue": "^6.0.3",
+		"@vitejs/plugin-vue": "^5.2.4",
 		"@vue/eslint-config-typescript": "^14.6.0",
 		"@vue/tsconfig": "^0.5.1",
 		"concurrently": "^7.6.0",
