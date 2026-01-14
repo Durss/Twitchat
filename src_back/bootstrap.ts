@@ -28,6 +28,7 @@ import {FastifySSEPlugin} from 'fastify-sse-v2';
 import AdminController from './controllers/AdminController.js';
 import RemoteModController from './controllers/RemoteModController.js';
 import TiltifyController from './controllers/TiltifyController.js';
+import TwitchExtensionController from './controllers/TwitchExtensionController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -94,6 +95,7 @@ server.register(FastifySSEPlugin)
 	new BingoGridController(server).initialize();
 	new RemoteModController(server).initialize();
 	new TiltifyController(server).initialize();
+	new TwitchExtensionController(server).initialize();
 	
 	//Start server
 	start();
