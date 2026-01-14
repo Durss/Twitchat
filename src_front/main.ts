@@ -74,7 +74,7 @@ import { storeGroq } from './store/groq/storeGroq';
 import { storeLabels } from './store/labels/storeLabels';
 import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storePlayability } from './store/playability/storePlayability';
-import { storeQuiz } from './store/quiz/storeQUiz';
+import { storeQuiz } from './store/quiz/storeQuiz';
 import { storeSammi } from './store/sammi/storeSammi';
 import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
 import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';

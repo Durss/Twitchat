@@ -31,6 +31,8 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
 	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
+	public static TWITCHEXT_CLICK = "TWITCHEXT_CLICK" as const;
+	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -149,6 +151,19 @@ export type EventTypeMap = {
 	};
 	SERVER_UPDATE: {
 		delay:number;
+	};
+	TWITCHEXT_CLICK: {
+		px: number;
+		py: number;
+		alt: boolean;
+		ctrl: boolean;
+		shift: boolean;
+		user_id?: string;
+	};
+	TWITCHEXT_QUIZ_ANSWER: {
+		questionId: string;
+		answerId: string;
+		user_id?: string;
 	};
 }
 
