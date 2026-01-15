@@ -26,12 +26,12 @@ export default class BingoGridController extends AbstractController {
 	* GETTER / SETTERS *
 	********************/
 
-	private getViewerGrid(streamerId:string, bingoId:string, viewerId:string):IGridCacheData|null {
+	private getViewerGrid(streamerId:string, bingoId:string, viewerId:string):IGridCacheData|void {
 		const file = Config.BINGO_VIEWER_FILE(streamerId, bingoId, viewerId);
 		if(fs.existsSync(file)) {
 			return JSON.parse(fs.readFileSync(file, "utf-8"));
 		}
-		return null
+		return
 	}
 
 	private saveViewerGrid(streamerId:string, bingoId:string, viewerId:string, data:IGridCacheData):void {
@@ -48,7 +48,7 @@ export default class BingoGridController extends AbstractController {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public async initialize():Promise<void> {
+	public initialize():BingoGridController {
 		this.server.get('/api/bingogrid', async (request, response) => await this.getBingoGrid(request, response));
 		this.server.put('/api/bingogrid', async (request, response) => await this.streamerGridUpdate(request, response));
 		this.server.post('/api/bingogrid/tickStates', async (request, response) => await this.updateTickStates(request, response));
@@ -77,7 +77,68 @@ export default class BingoGridController extends AbstractController {
 			}
 			parseFolder(Config.BINGO_ROOT);
 		},24*60*60*1000)
+
+		return this;
 	}
+
+	/**
+	 * Gets grid definition of a streamer
+	 * @param uid
+	 * @param gridId if ommitted, gets all active grids of the streamer
+	 * @returns
+	 */
+	public async getStreamerGrid(uid:string, gridId?:string):Promise<IGridCacheData | void> {
+		const cacheKey = uid+"/"+gridId;
+		let cache = this.cachedBingoGrids[cacheKey];
+		if(!cache || Date.now() - cache.date > 5000) {
+			//Get users' data
+			const userFilePath = Config.USER_DATA_PATH + uid+".json";
+			const found = fs.existsSync(userFilePath);
+			if(found){
+				const users = await TwitchUtils.getUsers(undefined, [uid]);
+				const username = users && users.length > 0? users[0].display_name : "???";
+				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {bingoGrids:{gridList:IGridCacheData["data"]}};
+				if(!data.bingoGrids) {
+					return;
+				}
+				if(!gridId) {
+					cache = this.cachedBingoGrids[cacheKey] = {
+						date:Date.now(),
+						ownerId:uid,
+						ownerName:username,
+						data:data.bingoGrids.gridList.filter(v=>v.enabled).map(g=>{
+							return {
+								id:g.id,
+								enabled:g.enabled,
+								title:g.title,
+								entries:g.entries,
+								rows:g.rows,
+								cols:g.cols,
+								additionalEntries:g.additionalEntries
+							}
+						})};
+				}
+				//TODO strongly type user data for safer read here
+				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId);
+				if(grid) {
+					const data:IGridCacheData["data"] = [
+						{
+							id:gridId,
+							enabled:grid.enabled,
+							title:grid.title,
+							entries:grid.entries,
+							rows:grid.rows,
+							cols:grid.cols,
+							additionalEntries:grid.additionalEntries
+						}
+					];
+					cache = this.cachedBingoGrids[cacheKey] = {date:Date.now(), ownerId:uid, ownerName:username, data};
+				}
+			}
+		}
+		return cache;
+	}
+
 
 
 
@@ -100,7 +161,7 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		const gridCache = await this.getStreamerGrid(uid, gridId);
-		if(!gridCache || !gridCache.data.enabled) {
+		if(!gridCache || !gridCache.data[0].enabled) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
 			response.send(JSON.stringify({success:false, error:"Grid or user not found, or grid disabled", errorCode:"NOT_FOUND"}));
@@ -108,7 +169,7 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		let originalGrid = JSON.parse(JSON.stringify(gridCache)) as typeof gridCache;
-		let data = originalGrid.data;
+		let data = originalGrid.data[0];
 		let multiplayerMode = false;
 
 		if(super.getUserPremiumState(uid) != "no") {
@@ -119,7 +180,7 @@ export default class BingoGridController extends AbstractController {
 				const cached = this.getViewerGrid(uid, gridId, user.user_id);
 				//Return cached data
 				if(cached) {
-					data = cached.data;
+					data = cached.data[0];
 
 				//Generate user's grid
 				}else{
@@ -127,14 +188,14 @@ export default class BingoGridController extends AbstractController {
 						//Don't shuffle broadcaster so their public grid is the same
 						//as the overlay one
 						try {
-							this.shuffleGridEntries(data);
+							this.shuffleGridEntries(data[0]);
 						}catch(error) {
 							Logger.error("Failed shuffling bingo entries for user", user.login);
 						}
 					}
 
 					this.saveViewerGrid(uid, gridId, user.user_id, {
-						data,
+						data:data[0],
 						ownerId:uid,
 						ownerName:originalGrid.ownerName,
 						date:Date.now(),
@@ -144,7 +205,7 @@ export default class BingoGridController extends AbstractController {
 		}else{
 			//user not authenticated, shuffle entries
 			try {
-				this.shuffleGridEntries(data);
+				this.shuffleGridEntries(data[0]);
 			}catch(error) {
 				Logger.error("Failed shuffling bingo entries");
 				console.log(error);
@@ -169,7 +230,7 @@ export default class BingoGridController extends AbstractController {
 		// if(user.user_id)
 
 		const body:any = request.body;
-		const gridRef:IGridCacheData["data"] = body.grid;
+		const gridRef:IGridCacheData["data"][number] = body.grid;
 		const gridid:string = body.gridid;
 		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridid);
 		const cachedGrid = await this.getStreamerGrid(user.user_id, gridid);
@@ -187,12 +248,12 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		const files = fs.readdirSync(folder);
-		cachedGrid.data.enabled = gridRef.enabled;
-		cachedGrid.data.entries = gridRef.entries;
-		cachedGrid.data.cols = gridRef.cols;
-		cachedGrid.data.rows = gridRef.rows;
-		cachedGrid.data.title = gridRef.title;
-		cachedGrid.data.additionalEntries = gridRef.additionalEntries;
+		cachedGrid.data[0].enabled = gridRef.enabled;
+		cachedGrid.data[0].entries = gridRef.entries;
+		cachedGrid.data[0].cols = gridRef.cols;
+		cachedGrid.data[0].rows = gridRef.rows;
+		cachedGrid.data[0].title = gridRef.title;
+		cachedGrid.data[0].additionalEntries = gridRef.additionalEntries;
 
 		if(!gridRef.enabled || forceNewGridGen) {
 			//Grid disabled or asking to fully rebuild them
@@ -208,7 +269,7 @@ export default class BingoGridController extends AbstractController {
 				const [viewerId] = file.split(".");
 				const grid:typeof gridRef = JSON.parse(JSON.stringify(gridRef));//Clone to avoid all users from having same grid ref
 				const cachedGrid = JSON.parse(fs.readFileSync(folder+"/"+file, "utf-8")) as IGridCacheData;
-				const sortedKeysPrev = cachedGrid.data.entries.map(v=> v.id).concat((cachedGrid.data.additionalEntries || []).map(v=>v.id))
+				const sortedKeysPrev = cachedGrid.data[0].entries.map(v=> v.id).concat((cachedGrid.data[0].additionalEntries || []).map(v=>v.id))
 				.sort((a,b) => {
 					if(a < b) return -1;
 					if(a > b) return 1;
@@ -225,8 +286,8 @@ export default class BingoGridController extends AbstractController {
 				//If cells mismatch, replace the grid after shuffling entries
 				const forceNewGridGen_local = forceNewGridGen
 				|| sortedKeysNew.join(",") != sortedKeysPrev.join(",")
-				|| cachedGrid.data.cols != grid.cols
-				|| cachedGrid.data.rows != grid.rows;
+				|| cachedGrid.data[0].cols != grid.cols
+				|| cachedGrid.data[0].rows != grid.rows;
 				if(forceNewGridGen_local) {
 					if(user.user_id != viewerId) {
 						//Don't shuffle broadcaster so their public grid is the same
@@ -238,12 +299,12 @@ export default class BingoGridController extends AbstractController {
 					grid.entries.forEach(v=> v.check = false);
 					(grid.additionalEntries || []).forEach(v=> v.check = false);
 
-					cachedGrid.data = grid;
+					cachedGrid.data[0] = grid;
 					cachedGrid.date = Date.now();
 				}else{
 					//Only update labels
-					cachedGrid.data.title = grid.title;
-					cachedGrid.data.entries.forEach(cell=>{
+					cachedGrid.data[0].title = grid.title;
+					cachedGrid.data[0].entries.forEach(cell=>{
 						const newCell = grid.entries.find(v=>v.id == cell.id);
 						if(newCell) {
 							cell.label = newCell.label;
@@ -254,10 +315,10 @@ export default class BingoGridController extends AbstractController {
 				}
 
 				//Update enabled state to viewers cache
-				cachedGrid.data.enabled = grid.enabled;
+				cachedGrid.data[0].enabled = grid.enabled;
 				this.saveViewerGrid(user.user_id, gridid, viewerId, cachedGrid);
 
-				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {grid:cachedGrid.data, force:forceNewGridGen_local});
+				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {grid:cachedGrid.data[0], force:forceNewGridGen_local});
 			})
 		}
 
@@ -314,9 +375,9 @@ export default class BingoGridController extends AbstractController {
 		const grid = await this.getViewerGrid(uid, gridId, user.user_id);
 		if(grid) {
 			//Count actual possible number of bingo
-			const rows = grid.data.rows;
-			const cols = grid.data.cols;
-			const states = grid.data.entries.map(v=>v.check);
+			const rows = grid.data[0].rows;
+			const cols = grid.data[0].cols;
+			const states = grid.data[0].entries.map(v=>v.check);
 			let maxBingoCount = 0;
 			//Check filled cols count
 			for (let x = 0; x < cols; x++) {
@@ -433,7 +494,11 @@ export default class BingoGridController extends AbstractController {
 	 * Shuffles a grid items
 	 * @param grid
 	 */
-	private shuffleGridEntries(grid:IGridCacheData["data"]):void {
+	private shuffleGridEntries(grid:IGridCacheData["data"][number]):void {
+		if(!grid) {
+			Logger.warn("Cannot shuffle undefined grid");
+			return;
+		}
 		if(grid.additionalEntries && grid.additionalEntries.length > 0) {
 			//Randomly switch main entries with additional entries
 			for (let i = 0; i < grid.entries.length; i++) {
@@ -454,46 +519,6 @@ export default class BingoGridController extends AbstractController {
 			[grid.entries[i], grid.entries[j]] = [grid.entries[j], grid.entries[i]];
 		}
 	}
-
-	/**
-	 * Gets grid definition of a streamer
-	 * @param uid
-	 * @param gridId
-	 * @returns
-	 */
-	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData|null> {
-		const cacheKey = uid+"/"+gridId;
-		let cache = this.cachedBingoGrids[cacheKey];
-		if(!cache || Date.now() - cache.date > 5000) {
-			//Get users' data
-			const userFilePath = Config.USER_DATA_PATH + uid+".json";
-			let found = fs.existsSync(userFilePath);
-			if(found){
-				const users = await TwitchUtils.getUsers(undefined, [uid]);
-				const username = users && users.length > 0? users[0].display_name : "???";
-				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {bingoGrids:{gridList:IGridCacheData["data"][]}};
-				if(!data.bingoGrids) {
-					return null;
-				}
-				//TODO strongly type user data for safer read here
-				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId);
-				found = grid != undefined;
-				if(found && grid) {
-					const data:IGridCacheData["data"] = {
-						enabled:grid.enabled,
-						title:grid.title,
-						entries:grid.entries,
-						rows:grid.rows,
-						cols:grid.cols,
-						additionalEntries:grid.additionalEntries
-					};
-					cache = this.cachedBingoGrids[cacheKey] = {date:Date.now(), ownerId:uid, ownerName:username, data};
-				}
-			}
-		}
-		return cache;
-	}
-
 	/**
 	 * Updates the tick states of the given grid's cells
 	 * @param streamerId
@@ -506,10 +531,10 @@ export default class BingoGridController extends AbstractController {
 			//Update cache
 			for (const cellId in states) {
 				const state = states[cellId];
-				let entry = cache.data.entries.find(v=>v.id === cellId);
+				let entry = cache.data[0].entries.find(v=>v.id === cellId);
 				if(entry) entry.check = state;
-				if(cache.data.additionalEntries) {
-					entry = cache.data.additionalEntries.find(v=>v.id === cellId);
+				if(cache.data[0].additionalEntries) {
+					entry = cache.data[0].additionalEntries.find(v=>v.id === cellId);
 					if(entry) entry.check = state;
 				}
 			}
@@ -522,7 +547,7 @@ export default class BingoGridController extends AbstractController {
 					const viewerId = file.split(".")[0];
 					const cache = JSON.parse(fs.readFileSync(folder+"/"+file, "utf-8")) as IGridCacheData;
 					cache.date = Date.now();
-					const grid = cache.data;
+					const grid = cache.data[0];
 					for (const cellId in states) {
 						const state = states[cellId];
 						let entry = grid.entries.find(v=>v.id === cellId);
@@ -557,6 +582,6 @@ interface IGridCacheData {
 			check:boolean;
 			label:string;
 		}[];
-		additionalEntries?:IGridCacheData["data"]["entries"],
-	};
+		additionalEntries?:IGridCacheData["data"][number]["entries"],
+	}[];
 }
