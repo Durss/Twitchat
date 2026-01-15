@@ -96,10 +96,10 @@ server.register(fastifyFormbody)
 	new StreamelementsController(server).initialize();
 	new KofiController(server).initialize();
 	new TipeeeController(server).initialize();
-	new BingoGridController(server).initialize();
 	new RemoteModController(server).initialize();
 	new TiltifyController(server).initialize();
-	new TwitchExtensionController(server).initialize();
+	const bingoController = new BingoGridController(server).initialize();
+	new TwitchExtensionController(server).initialize(bingoController);
 	
 	//Start server
 	start();
