@@ -441,17 +441,17 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						gsap.fromTo(firstCheck, {opacity:0}, {opacity:.8, duration:.25});
 						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
 						gsap.fromTo(firstCheck, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
-						await Utils.promisedTimeout(150);
+						await Utils.promisedTimeout(100);
 						this.popClouds(cell);
-						await Utils.promisedTimeout(250);
-
+						
 					}else {
 						//Animate checkmark hide
 						gsap.killTweensOf(firstCheck);
-						gsap.to(firstCheck,
-							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
-						await Utils.promisedTimeout(350);
-						entry.check = false;
+						gsap.to(firstCheck, {transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.150});
+						setTimeout(() => {
+							entry.check = false;
+						}, 150);
+						await Utils.promisedTimeout(50);
 					}
 				}
 			}else if(entry.check) {
@@ -602,7 +602,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			delay += .4;
 		});
 
-		await Utils.promisedTimeout(delay * 1000 + 500);
+		await Utils.promisedTimeout(delay * 1000);
 	}
 
 	/**
