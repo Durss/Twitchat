@@ -3,11 +3,16 @@ import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import SSEController from "./SSEController.js";
 import Logger from "../utils/Logger.js";
+import { createHash } from "node:crypto";
+import Config from "../utils/Config.js";
+import BingoGridController from "./BingoGridController.js";
 
 /**
 * Created : 10/06/2023 
 */
 export default class TwitchExtensionController extends AbstractController {
+
+	private _bingoController:BingoGridController;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -22,8 +27,11 @@ export default class TwitchExtensionController extends AbstractController {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public async initialize():Promise<void> {
-		this.server.post('/api/twitch/extension/click', async (request, response) => await this.postClickEvent(request, response));
+	public async initialize(bingoController:BingoGridController):Promise<void> {
+		this._bingoController = bingoController;
+		this.server.decorateRequest('twitchExtensionUser', null);
+		this.server.get('/api/twitch/extension/bingo', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getBingoGrids(request, response));
+		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
 	}
 	
 	
@@ -32,8 +40,33 @@ export default class TwitchExtensionController extends AbstractController {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	/**
+	 * Verify signature of Twitchat API call
+	 * @param request 
+	 * @param reply 
+	 * @returns 
+	 */
+	private async authHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
+		const headerToken = request.headers.authorization;
+		const headerHash = request.headers['x-twitchat-verify'];
+		const hash = createHash('sha512')
+			.update(Config.credentials.twitchat_api_secret + ':' + headerToken)
+			.digest('hex');
 
-	public async postClickEvent(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		if (hash !== headerHash) {
+			reply.status(401).send({ error: 'Invalid request signature' });
+			return;
+		}
+
+		request.twitchExtensionUser = Utils.verifyTwitchExtensionJWT(headerToken);
+	}
+
+	/**
+	 * Receive a click event from extension
+	 * @param request 
+	 * @param response 
+	 */
+	private async postClickEvent(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const params = request.body as {
 			px: number;
 			py: number;
@@ -43,14 +76,13 @@ export default class TwitchExtensionController extends AbstractController {
 		};
 		
 		try {
-			const token = Utils.verifyTwitchExtensionJWT(request.headers.authorization);
-			SSEController.sendToUser(token.channel_id, "TWITCHEXT_CLICK", {
+			SSEController.sendToUser(request.twitchExtensionUser.channel_id, "TWITCHEXT_CLICK", {
 				px: params.px,
 				py: params.py,
 				alt: params.alt,
 				ctrl: params.ctrl,
 				shift: params.shift,
-				user_id: token.user_id,
+				user_id: request.twitchExtensionUser.user_id,
 			});
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -62,5 +94,17 @@ export default class TwitchExtensionController extends AbstractController {
 			response.send(JSON.stringify({success:false, message:'unauthorized'}));
 		}
 
+	}
+
+	/**
+	 * Request bingo grids from streamer
+	 * @param request 
+	 * @param response 
+	 */
+	private async getBingoGrids(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const info = await this._bingoController.getStreamerGrid(request.twitchExtensionUser.channel_id);
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, user:info ? {login:info.ownerName, id:info.ownerId} : null, gridList: info ? info.data : []}));
 	}
 }
