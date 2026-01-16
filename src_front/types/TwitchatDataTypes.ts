@@ -4075,6 +4075,18 @@ export namespace TwitchatDataTypes {
 		 * entries if they have more than the maximum allowed
 		 */
 		enabled:boolean;
+		/**
+		 * Current question ID
+		 */
+		currentQuestionId:string;
+		/**
+		 * UTC date at which the quiz started
+		 */
+		quizStarted_at:string;
+		/**
+		 * UTC date at which the current question started
+		 */
+		questionStarted_at:string;
 	} & ({
 		/**
 		 * Quiz mode.
