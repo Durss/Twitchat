@@ -30,6 +30,7 @@ import Config from "./utils/Config.js";
 import I18n from './utils/I18n.js';
 import Logger from './utils/Logger.js';
 import TwitchExtensionController from './controllers/TwitchExtensionController.js';
+import QuizController from './controllers/QuizController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -99,7 +100,8 @@ server.register(fastifyFormbody)
 	new RemoteModController(server).initialize();
 	new TiltifyController(server).initialize();
 	const bingoController = new BingoGridController(server).initialize();
-	new TwitchExtensionController(server).initialize(bingoController);
+	const quizController = new QuizController(server).initialize();
+	new TwitchExtensionController(server).initialize(bingoController, quizController);
 	
 	//Start server
 	start();

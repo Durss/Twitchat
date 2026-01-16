@@ -49,7 +49,10 @@ export const storeQuiz = defineStore('quiz', {
 				durationPerQuestion_s:30,
 				loosePointsOnFail:false,
 				timeBasedScoring:false,
-			}
+				currentQuestionId:"",
+				quizStarted_at:"",
+				questionStarted_at:"",
+			};
 			this.quizList.push(data);
 			this.saveData(data.id);
 			return data;
