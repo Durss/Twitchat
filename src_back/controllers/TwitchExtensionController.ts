@@ -6,6 +6,7 @@ import Logger from "../utils/Logger.js";
 import { createHash } from "node:crypto";
 import Config from "../utils/Config.js";
 import BingoGridController from "./BingoGridController.js";
+import QuizController from "./QuizController.js";
 
 /**
 * Created : 10/06/2023 
@@ -13,6 +14,7 @@ import BingoGridController from "./BingoGridController.js";
 export default class TwitchExtensionController extends AbstractController {
 
 	private _bingoController:BingoGridController;
+	private _quizController:QuizController;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -27,9 +29,11 @@ export default class TwitchExtensionController extends AbstractController {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public async initialize(bingoController:BingoGridController):Promise<void> {
+	public async initialize(bingoController:BingoGridController, quizController:QuizController):Promise<void> {
 		this._bingoController = bingoController;
+		this._quizController = quizController;
 		this.server.decorateRequest('twitchExtensionUser', null);
+		this.server.get('/api/twitch/extension/streamerstate', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getStreamerState(request, response));
 		this.server.get('/api/twitch/extension/bingo', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getBingoGrids(request, response));
 		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
 	}
@@ -105,6 +109,19 @@ export default class TwitchExtensionController extends AbstractController {
 		const info = await this._bingoController.getStreamerGrid(request.twitchExtensionUser.channel_id);
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, user:info ? {login:info.ownerName, id:info.ownerId} : null, gridList: info ? info.data : []}));
+		response.send(JSON.stringify({success:true, user:info ? {id:info.ownerId, login:info.ownerName} : null, gridList: info ? info.data : []}));
+	}
+
+	/**
+	 * Request a streamer's state
+	 * @param request 
+	 * @param response 
+	 */
+	private async getStreamerState(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const bingos = await this._bingoController.getStreamerGrid(request.twitchExtensionUser.channel_id);
+		const quizs = await this._quizController.getStreamerQuizs(request.twitchExtensionUser.channel_id);
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, bingos, quizs}));
 	}
 }
