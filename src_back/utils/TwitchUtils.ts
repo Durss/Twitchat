@@ -12,6 +12,7 @@ export default class TwitchUtils {
 	private static _tokenToUserCache:{[token:string]:TwitchToken} = {};
 	private static _moderatorsCache:{[token:string]:ModeratorUser[]} = {};
 	private static _moderatedChansCache:{[token:string]:ModeratedUser[]} = {};
+	private static _uidToUser:{[uidOrLogin:string]:TwitchUserInfos} = {};
 	
 	constructor() {
 	
@@ -55,7 +56,7 @@ export default class TwitchUtils {
 		url.searchParams.set("scope", "");
 		let result = await fetch(url, options)
 		if(result.status == 200) {
-			let json = await result.json()as {access_token:string, expires_in:number, token_type:string};
+			let json = await result.json() as {access_token:string, expires_in:number, token_type:string};
 			this._credentialToken = json.access_token;
 			this._token_invalidation_date = Date.now() + (json.expires_in - 60000);
 			return json.access_token;
@@ -111,6 +112,12 @@ export default class TwitchUtils {
 	 * @returns 
 	 */
 	public static async getUsers(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUserInfos[]|false> {
+		this._uidToUser = {};
+		const allCached = (logins ? logins : ids)?.map(idOrLogin => this._uidToUser[idOrLogin]).filter(v => !!v);
+		if(allCached.length > 0) {
+			return allCached;
+		}
+
 		await this.getClientCredentialToken();//This will refresh the token if necessary
 
 		const url = new URL("https://api.twitch.tv/helix/users");
@@ -154,7 +161,12 @@ export default class TwitchUtils {
 			}
 		}
 		if(result.status == 200) {
-			return (await result.json() as {data: TwitchUserInfos[]}).data;
+			const results = (await result.json() as {data: TwitchUserInfos[]}).data;
+			results.forEach(user => {
+				this._uidToUser[user.id] = user;
+				this._uidToUser[user.login] = user;
+			});
+			return results;
 		}
 		return false;
 	}

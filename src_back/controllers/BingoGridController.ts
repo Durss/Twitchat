@@ -88,6 +88,9 @@ export default class BingoGridController extends AbstractController {
 	 * @returns
 	 */
 	public async getStreamerGrid(uid:string, gridId?:string):Promise<IGridCacheData | void> {
+		//Validate UID and gridId to prevent path traversal
+		if(!uid || !/^[0-9]+$/.test(uid) || !gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) return
+
 		const cacheKey = uid+"/"+gridId;
 		let cache = this.cachedBingoGrids[cacheKey];
 		if(!cache || Date.now() - cache.date > 5000) {
