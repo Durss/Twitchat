@@ -138,6 +138,7 @@ import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import * as Sentry from "@sentry/vue";
 
 @Component({
 	components: {
@@ -1596,6 +1597,14 @@ class MessageList extends Vue {
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
 		//Do nothing if feature isn't enabled
 		if (this.$store.params.features.markAsRead.value !== true) return;
+
+		if(!m.date) {
+			Sentry.captureMessage("[CHAT] Message missing date when trying to mark it as read", {
+				level: "warning",
+				extra: { message: m, fromClick: event != null }
+			});
+			return;
+		}
 
 		if (event) {
 			let target = event.target as HTMLElement;
