@@ -56,13 +56,17 @@ class Icon extends Vue {
 
 	private async loadImage():Promise<void> {
 		if(this.disposed) return;
+		// Couldn't figure out why but there are quite many sentry issues
+		// about this.$store being undefined here
+		const cacheMap = this.$store?.common?.iconCache || {};
+
 		// this.$store.common.iconCache = {};//Disable cache for debug
-		let cache = this.$store.common.iconCache[this.name];
+		let cache = cacheMap[this.name];
 		
 		//Icon is pending for loading, wait for it
 		if(cache && typeof cache != "string") {
 			await cache;
-			cache = this.$store.common.iconCache[this.name];
+			cache = cacheMap[this.name];
 		}
 
 		//If icon is loaded, load it from cache
@@ -77,7 +81,7 @@ class Icon extends Vue {
 			if(/undefined$/.test(url)) {
 				throw("icon not found");
 			}
-			this.$store.common.iconCache[this.name] = fetch(url)
+			cacheMap[this.name] = fetch(url)
 			.then(async (imgRes) => {
 				if(imgRes.status <200 || imgRes.status > 204) {
 					this.error = true;
@@ -88,7 +92,7 @@ class Icon extends Vue {
 					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
 					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
 					.replace(/>\s+</g, '><');//cleanup spaces between tags
-					this.$store.common.iconCache[this.name] = this.svg;
+					cacheMap[this.name] = this.svg;
 				}
 			});
 		}catch(error) {
