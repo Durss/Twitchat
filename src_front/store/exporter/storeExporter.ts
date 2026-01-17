@@ -319,7 +319,7 @@ export const storeExporter = defineStore('Exporter', {
 				}
 			}catch(e) {
 				console.error("Error importing triggers:", e);
-				Sentry.captureException("Failed importing triggers", { attachments: [{ filename: "imported_data", data: JSON.stringify(data) }] });
+				Sentry.captureException("Failed importing triggers", { attachments: [{ filename: "imported_data.json", data: JSON.stringify(data) }] });
 			}
 		}
 	} as IExporterActions

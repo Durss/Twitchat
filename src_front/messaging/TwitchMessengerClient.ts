@@ -1239,8 +1239,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							const chanName = channel || StoreProxy.auth.twitch.user.login;
 							this.notice("error", chanName, StoreProxy.i18n.t("error.irc_auth_failure", {CHANNEL:chanName}));
 							this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
+						}else{
+							Sentry.captureMessage("Received a notice with missing channel ID: "+ parsed.raw, "warning");
 						}
-						Sentry.captureMessage("Received a notice with missing channel ID: "+ parsed.raw, "warning");
 					}
 				}
 				break;

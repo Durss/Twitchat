@@ -422,11 +422,13 @@ function buildApp() {
 			environment:{"beta.twitchat.fr":"beta", "twitchat.fr":"prod"}[document.location.hostname] || document.location.hostname,
 			tracesSampleRate: 1.0,
 			ignoreErrors: [
+							"[-]",//Custom tag to ignore errors coming from specific parts of the app
 							"reading 'innerText'",//When emptying a content-editable field
 							"venmo",//When opening paypal popup
 							"Detected popup close",//When closing paypal popup
 							"OBS is not ready",//If trying to connect to OBS when OBS-ws is booting
-							"This is likely a Vue internals bug"//Dev potential exception
+							"This is likely a Vue internals bug",//Dev potential exception
+							"Connection error",//websocket connection attempts
 						],
 		});
 	}

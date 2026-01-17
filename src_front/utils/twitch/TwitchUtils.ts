@@ -338,8 +338,14 @@ export default class TwitchUtils {
 			});
 
 			const result = await this.callApi(url, { headers: this.headers });
-			const json = await result.json();
-			streams = streams.concat(json.data);
+			if(result.status == 200) {
+				try {
+					const json = await result.json();
+					streams = streams.concat(json.data);
+				}catch(error) {
+					Sentry.captureException("[TWITCH] Failed fetching current stream info", { attachments: [{ filename: "server_result.json", data: await result.text() }] });
+				}
+			}
 		}
 		return streams;
 	}
@@ -3792,7 +3798,7 @@ export default class TwitchUtils {
 	 * @param attemptCount
 	 */
 	private static async onRateLimit(headers: Headers): Promise<void> {
-		Sentry.captureException("Twitch API quota exceeded", { attachments: [{ filename: "logs_history", data: JSON.stringify({ uid: this.uid, history: this.callHistory }) }] });
+		Sentry.captureException("[TWITCH] Twitch API quota exceeded", { attachments: [{ filename: "logs_history.json", data: JSON.stringify({ uid: this.uid, history: this.callHistory }) }] });
 		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now() / 1000).toString()) * 1000 + 1000;
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 	}
@@ -3827,7 +3833,7 @@ export default class TwitchUtils {
 				return new Response(error.message, { status: 499 });
 			}else{
 				console.log(error);
-				Sentry.captureException("Twitch API call error for endpoint " + input, { originalException: error as Error });
+				Sentry.captureException("[TWITCH] Twitch API call error for endpoint " + input, { originalException: error as Error });
 				return new Response(error.message, { status: 500 });
 			}
 		}

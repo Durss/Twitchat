@@ -187,18 +187,20 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "status");
 		url.searchParams.append("mine", "true");
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200) {
-			const json = await res.json() as YoutubeChannelInfo;
-			this._userData = json.items[0];
-			const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title, undefined, true, true, true);
-			user.avatarPath = this._userData.snippet.thumbnails.default.url || this._userData.snippet.thumbnails.medium.url;
-			const chanInfos = user.channelInfo[this._userData.id];
-			chanInfos.is_broadcaster = true;
-			chanInfos.is_moderator = true;
-			Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-			StoreProxy.auth.youtube.user = user;
-		}
+		try {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200) {
+				const json = await res.json() as YoutubeChannelInfo;
+				this._userData = json.items[0];
+				const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title, undefined, true, true, true);
+				user.avatarPath = this._userData.snippet.thumbnails.default.url || this._userData.snippet.thumbnails.medium.url;
+				const chanInfos = user.channelInfo[this._userData.id];
+				chanInfos.is_broadcaster = true;
+				chanInfos.is_moderator = true;
+				Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+				StoreProxy.auth.youtube.user = user;
+			}
+		}catch(error){}
 	}
 
 	/**
@@ -220,103 +222,106 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "statistics");
 		url.searchParams.append("part", "monetizationDetails");
 		url.searchParams.append("broadcastType", "all");
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200) {
-			const json = await res.json() as YoutubeLiveBroadcast;
-			Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-			//Sort by life cycle status importance
-			const items = json.items.sort((a,b)=> {
-				if(a.status.lifeCycleStatus == "live" && b.status.lifeCycleStatus != "live") return -1;
-				if(a.status.lifeCycleStatus != "live" && b.status.lifeCycleStatus == "live") return 1;
-				if(a.status.lifeCycleStatus == "liveStarting" && b.status.lifeCycleStatus != "liveStarting") return -1;
-				if(a.status.lifeCycleStatus != "liveStarting" && b.status.lifeCycleStatus == "liveStarting") return 1;
-				if(a.status.lifeCycleStatus == "ready" && b.status.lifeCycleStatus != "ready") return -1;
-				if(a.status.lifeCycleStatus != "ready" && b.status.lifeCycleStatus == "ready") return 1;
-				if(a.status.lifeCycleStatus == "testStarting" && b.status.lifeCycleStatus != "testStarting") return -1;
-				if(a.status.lifeCycleStatus != "testStarting" && b.status.lifeCycleStatus == "testStarting") return 1;
-				if(a.status.lifeCycleStatus == "testing" && b.status.lifeCycleStatus != "testing") return -1;
-				if(a.status.lifeCycleStatus != "testing" && b.status.lifeCycleStatus == "testing") return 1;
-				return 0;
-			})
-			//Filter out past broadcast that got closed
-			.filter(v=> v.status.recordingStatus == "recording" || v.status.recordingStatus == "notRecording");
+		try {
 
-			json.items.forEach(v=> {
-				this._liveIdToChanId[v.snippet.liveChatId] = v.snippet.channelId;
-			})
-
-			//Get first item corresponding to a live running or coming.
-			//Prioritise items with higher "live" status meaning
-			let item = items.find(v=>v.status.lifeCycleStatus == "live");
-			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "liveStarting");
-			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "ready");
-			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testing");
-			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testStarting");
-			if(item) {
-				const liveId = item.snippet.liveChatId;
-				this.liveFound = true;
-				if(this._currentLiveChatIds.indexOf(liveId) == -1) {
-					this._currentLiveChatIds.push(liveId);
-				}
-				this.availableLiveBroadcasts = items;
-				this._lastMessageDate = Date.now();
-				const messageNotification:TwitchatDataTypes.MessageCustomData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					channel_id:this._userData!.id,
-					platform:"youtube",
-					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
-					icon:"youtube",
-					user:{name:"YouTube", color:"#ff0000"},
-					message:StoreProxy.i18n.t("chat.youtube.connected_to", {TITLE:item.snippet.title}),
-					col:0,
-				};
-				StoreProxy.chat.addMessage(messageNotification);
-				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-				//Start polling messages
-				this.getMessages();
-				clearTimeout(this._viewerCountInterval);
-				this._viewerCountInterval = window.setInterval(()=> {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200) {
+				const json = await res.json() as YoutubeLiveBroadcast;
+				Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+				//Sort by life cycle status importance
+				const items = json.items.sort((a,b)=> {
+					if(a.status.lifeCycleStatus == "live" && b.status.lifeCycleStatus != "live") return -1;
+					if(a.status.lifeCycleStatus != "live" && b.status.lifeCycleStatus == "live") return 1;
+					if(a.status.lifeCycleStatus == "liveStarting" && b.status.lifeCycleStatus != "liveStarting") return -1;
+					if(a.status.lifeCycleStatus != "liveStarting" && b.status.lifeCycleStatus == "liveStarting") return 1;
+					if(a.status.lifeCycleStatus == "ready" && b.status.lifeCycleStatus != "ready") return -1;
+					if(a.status.lifeCycleStatus != "ready" && b.status.lifeCycleStatus == "ready") return 1;
+					if(a.status.lifeCycleStatus == "testStarting" && b.status.lifeCycleStatus != "testStarting") return -1;
+					if(a.status.lifeCycleStatus != "testStarting" && b.status.lifeCycleStatus == "testStarting") return 1;
+					if(a.status.lifeCycleStatus == "testing" && b.status.lifeCycleStatus != "testing") return -1;
+					if(a.status.lifeCycleStatus != "testing" && b.status.lifeCycleStatus == "testing") return 1;
+					return 0;
+				})
+				//Filter out past broadcast that got closed
+				.filter(v=> v.status.recordingStatus == "recording" || v.status.recordingStatus == "notRecording");
+	
+				json.items.forEach(v=> {
+					this._liveIdToChanId[v.snippet.liveChatId] = v.snippet.channelId;
+				})
+	
+				//Get first item corresponding to a live running or coming.
+				//Prioritise items with higher "live" status meaning
+				let item = items.find(v=>v.status.lifeCycleStatus == "live");
+				if(!item) item = items.find(v=>v.status.lifeCycleStatus == "liveStarting");
+				if(!item) item = items.find(v=>v.status.lifeCycleStatus == "ready");
+				if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testing");
+				if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testStarting");
+				if(item) {
+					const liveId = item.snippet.liveChatId;
+					this.liveFound = true;
+					if(this._currentLiveChatIds.indexOf(liveId) == -1) {
+						this._currentLiveChatIds.push(liveId);
+					}
+					this.availableLiveBroadcasts = items;
+					this._lastMessageDate = Date.now();
+					const messageNotification:TwitchatDataTypes.MessageCustomData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						channel_id:this._userData!.id,
+						platform:"youtube",
+						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+						icon:"youtube",
+						user:{name:"YouTube", color:"#ff0000"},
+						message:StoreProxy.i18n.t("chat.youtube.connected_to", {TITLE:item.snippet.title}),
+						col:0,
+					};
+					StoreProxy.chat.addMessage(messageNotification);
+					Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+					//Start polling messages
+					this.getMessages();
+					clearTimeout(this._viewerCountInterval);
+					this._viewerCountInterval = window.setInterval(()=> {
+						this.refreshViewerCount();
+					}, 1000*60);
 					this.refreshViewerCount();
-				}, 1000*60);
-				this.refreshViewerCount();
+				}else{
+					Logger.instance.log("youtube", {log:"No live found matching required criterias", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+					this.liveFound = false;
+					this._currentLiveChatIds = [];
+					this.availableLiveBroadcasts = [];
+					//Search again in 1min
+					this._pollMessageTimeout = window.setTimeout(()=> this.getCurrentLiveBroadcast(), 5000);
+				}
+				return json;
 			}else{
-				Logger.instance.log("youtube", {log:"No live found matching required criterias", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-				this.liveFound = false;
-				this._currentLiveChatIds = [];
-				this.availableLiveBroadcasts = [];
-				//Search again in 1min
-				this._pollMessageTimeout = window.setTimeout(()=> this.getCurrentLiveBroadcast(), 5000);
-			}
-			return json;
-		}else{
-			const txt = await res.text();
-			if(res.status == 401) {
-				Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:txt, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-				if(await this.refreshToken()) {
-					await Utils.promisedTimeout(1000);
-					return this.getCurrentLiveBroadcast();
-				}
-			}else if(res.status == 403) {
-				try {
-					const json = JSON.parse(txt);
-					const reason = json.error.errors[0].reason;
-					Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-					if(reason === "liveStreamingNotEnabled") {
-						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
-						return null;
-					}
-					if(reason == "quotaExceeded") {
-						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-						return null;
-					}
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
-				}catch(error){
+				const txt = await res.text();
+				if(res.status == 401) {
 					Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:txt, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+					if(await this.refreshToken()) {
+						await Utils.promisedTimeout(1000);
+						return this.getCurrentLiveBroadcast();
+					}
+				}else if(res.status == 403) {
+					try {
+						const json = JSON.parse(txt);
+						const reason = json.error.errors[0].reason;
+						Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+						if(reason === "liveStreamingNotEnabled") {
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
+							return null;
+						}
+						if(reason == "quotaExceeded") {
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+							return null;
+						}
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+					}catch(error){
+						Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:txt, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+					}
+					return null;
 				}
-				return null;
 			}
-		}
+		}catch(error){}
 		return null;
 	}
 
@@ -333,33 +338,35 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "statistics");
 		url.searchParams.append("broadcastType", "all");
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200) {
-			const json = await res.json() as YoutubeLiveBroadcast;
-			Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-			//Sort by life cycle status importance
-			const items = json.items;
-			this._viewerCount = items.map(v=> {
-				return {
-					count: parseInt(v.statistics.concurrentViewers),
-					id: v.snippet.liveChatId,
-					title: v.snippet.title,
+		try {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200) {
+				const json = await res.json() as YoutubeLiveBroadcast;
+				Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
+				//Sort by life cycle status importance
+				const items = json.items;
+				this._viewerCount = items.map(v=> {
+					return {
+						count: parseInt(v.statistics.concurrentViewers),
+						id: v.snippet.liveChatId,
+						title: v.snippet.title,
+					}
+				})
+				let total = this._viewerCount.reduce((acc, v) => acc + v.count, 0);
+				StoreProxy.labels.updateLabelValue("VIEWER_COUNT_YOUTUBE", total);
+	
+				StoreProxy.stream.currentStreamInfo["youtube"] = {//Super dirty """user""" ID I know :3. It should be an actual ID instead of "youtube"
+					category:"",
+					lastSoDoneDate:0,
+					live:true,
+					started_at:0,
+					tags:[],
+					title:"",
+					viewers:total,
+					previewUrl:"",
 				}
-			})
-			let total = this._viewerCount.reduce((acc, v) => acc + v.count, 0);
-			StoreProxy.labels.updateLabelValue("VIEWER_COUNT_YOUTUBE", total);
-
-			StoreProxy.stream.currentStreamInfo["youtube"] = {//Super dirty """user""" ID I know :3. It should be an actual ID instead of "youtube"
-				category:"",
-				lastSoDoneDate:0,
-				live:true,
-				started_at:0,
-				tags:[],
-				title:"",
-				viewers:total,
-				previewUrl:"",
 			}
-		}
+		}catch(error){}
 	}
 
 	/**
@@ -818,27 +825,29 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet,contentDetails,statistics,liveStreamingDetails");
 		url.searchParams.append("id", videoID);
 
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200 || res.status == 204) {
-			const json = await res.json();
-			if(json.items?.length > 0) {
-				const liveID = json.items[0].liveStreamingDetails?.activeLiveChatId || "";
-				if(liveID) {
-					this._currentLiveChatIds.push(liveID);
-					this._lastMessageDate = Date.now();
-					this._liveIdToChanId[liveID] = json.items[0].snippet.channelId;
-					this.getMessages();
-					Logger.instance.log("youtube", {log:"Success connecting to live "+liveID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
-					return true;
+		try {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200 || res.status == 204) {
+				const json = await res.json();
+				if(json.items?.length > 0) {
+					const liveID = json.items[0].liveStreamingDetails?.activeLiveChatId || "";
+					if(liveID) {
+						this._currentLiveChatIds.push(liveID);
+						this._lastMessageDate = Date.now();
+						this._liveIdToChanId[liveID] = json.items[0].snippet.channelId;
+						this.getMessages();
+						Logger.instance.log("youtube", {log:"Success connecting to live "+liveID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
+						return true;
+					}else{
+						Logger.instance.log("youtube", {log:"Failed getting livechat ID from video ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
+					}
 				}else{
-					Logger.instance.log("youtube", {log:"Failed getting livechat ID from video ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
+					Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
 				}
 			}else{
-				Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
+				Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID+". Status:"+ res.status, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
 			}
-		}else{
-			Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID+". Status:"+ res.status, credits:this._creditsUsed, liveID:this._currentLiveChatIds});
-		}
+		}catch(error){}
 		return false;
 	}
 
@@ -854,15 +863,17 @@ export default class YoutubeHelper {
 				url.searchParams.append("id", id);
 			});
 
-			const res = await fetch(url, {method:"GET", headers:this.headers});
-			if(res.status >= 200 && res.status <= 204) {
-				const json = await res.json() as YoutubeChannelInfo;
-				json.items.forEach(ytUser => {
-					const user = StoreProxy.users.getUserFrom("youtube", this._userData?.id || ytUser.id, ytUser.id, ytUser.snippet.title, ytUser.snippet.title, undefined, false, false, false, false);
-					user.avatarPath = ytUser.snippet.thumbnails.default.url || ytUser.snippet.thumbnails.medium.url;
-					users.push(user);
-				});
-			}
+			try {
+				const res = await fetch(url, {method:"GET", headers:this.headers});
+				if(res.status >= 200 && res.status <= 204) {
+					const json = await res.json() as YoutubeChannelInfo;
+					json.items.forEach(ytUser => {
+						const user = StoreProxy.users.getUserFrom("youtube", this._userData?.id || ytUser.id, ytUser.id, ytUser.snippet.title, ytUser.snippet.title, undefined, false, false, false, false);
+						user.avatarPath = ytUser.snippet.thumbnails.default.url || ytUser.snippet.thumbnails.medium.url;
+						users.push(user);
+					});
+				}
+			}catch(error){}
 		}
 		return users;
 	}

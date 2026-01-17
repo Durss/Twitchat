@@ -12,6 +12,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
+import * as Sentry from "@sentry/vue";
 
 let refreshTokenTO:number = -1;
 
@@ -249,6 +250,9 @@ export const storeAuth = defineStore('auth', {
 					name:userRes.login,
 					platform:"twitch",
 				}
+
+				// Log user info to Sentry in case I need to reach them to solve an issue
+				Sentry.setUser({id: this.twitch.user.id, username: this.twitch.user.displayName});
 
 				//Use an anonymous method to avoid blocking loading while
 				//all twitch tags are loading
