@@ -130,8 +130,8 @@ class ChatSuggestionState extends AbstractSidePanel {
 					if(entry) {
 						this.poll.winners.push( entry );
 						//Scroll back to top
-						const doneList = (this.$refs["selected"] as ComponentPublicInstance[]).map(v=>v.$el);
-						if(doneList.length > 0) {
+						const doneList = (this.$refs["selected"] as ComponentPublicInstance[]|undefined)?.map(v=>v.$el);
+						if(doneList && doneList.length > 0) {
 							doneList[doneList.length-1].scrollIntoView();
 						}
 					}
