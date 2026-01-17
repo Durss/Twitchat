@@ -9,6 +9,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IStreamlabsActions, IStreamlabsGetters, IStreamlabsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import * as Sentry from '@sentry/vue';
 
 
 let socket:WebSocket|undefined = undefined;
@@ -606,30 +607,50 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			const idsDone:Record<string, boolean> = {}
 			let prevValue = this.charityTeam.amountRaisedPersonnal_cents;
 			let lastTip:StreamlabsCharityDonationHistoryEntry|undefined = undefined;
+			let attempts = 0;
 			do {
 				hasResults = false;
-				const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations?page="+pageIndex+"&ck="+Date.now());
-				if(donationsRes.status == 200) {
-					const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
-					hasResults = donationsJSON.length > 0;
-					lastPageTotal = 0;
-					if(hasResults) {
-						let filtered = donationsJSON.filter(v => {
-							if(idsDone[v.id] == true) return false
-							idsDone[v.id] = true;
-							return v.member && (v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
-							|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase())
-						});
-						filtered.forEach(v => {
-							total += v.donation.converted_amount;
-							lastPageTotal += v.donation.converted_amount;
-						});
-						if(filtered.length > 0) {
-							lastTip = filtered.pop();
+				try {
+					const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations?page="+pageIndex+"&ck="+Date.now());
+					if(donationsRes.status == 200) {
+						attempts = 0;
+						const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
+						hasResults = donationsJSON.length > 0;
+						lastPageTotal = 0;
+						if(hasResults) {
+							let filtered = donationsJSON.filter(v => {
+								if(idsDone[v.id] == true) return false
+								idsDone[v.id] = true;
+								return v.member && (v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
+								|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase())
+							});
+							filtered.forEach(v => {
+								total += v.donation.converted_amount;
+								lastPageTotal += v.donation.converted_amount;
+							});
+							if(filtered.length > 0) {
+								lastTip = filtered.pop();
+							}
 						}
 					}
+					pageIndex ++;
+				}catch(e) {
+					attempts ++;
+					console.error("Error while fetching Streamlabs Charity donations page "+pageIndex, e);
+					if(attempts >= 50) {
+						Sentry.captureMessage("Failed to fetch Streamlabs Charity donations after 50 attempts", {
+							level:"info",
+							extra:{
+								team:{
+									id: this.charityTeam.id,
+									title: this.charityTeam.title,
+								},
+								pageIndex,
+							}
+						})
+						break;
+					}
 				}
-				pageIndex ++;
 			}while(hasResults);
 
 			//Cache all previous pages result (last one excluded) to avoid calling them all again
