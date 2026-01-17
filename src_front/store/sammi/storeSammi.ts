@@ -21,7 +21,7 @@ export const storeSammi = defineStore('sammi', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			const json = DataStore.get(DataStore.SAMMI_CONFIGS);
 			if(json) {
 				const pass = DataStore.get(DataStore.SAMMI_API_PASSWORD);

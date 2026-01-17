@@ -105,7 +105,6 @@ export default class DataStoreCommon {
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 	public static AUTOCONNECT_CHANS:string = "autoconnectChans";
 	public static DONATION_GOALS:string = "donationGoals";
-	public static TILTIFY:string = "tiltify";
 	public static TILTIFY_TOKEN:string = "tiltifyToken";
 	public static RAFFLES_RUNNING:string = "rafflesRunning";
 	public static TIKTOK_CONFIGS:string = "tiktokConfigs";

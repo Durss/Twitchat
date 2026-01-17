@@ -9,6 +9,7 @@ import DataStore from '../DataStore';
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import * as Sentry from "@sentry/vue";
 
 let ready = false;
 let readyResolver:() => void;
@@ -70,7 +71,7 @@ export const storeLabels = defineStore('labels', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			LabelItemPlaceholderList.forEach(p => {
 				this.placeholders[p.tag] = {
 					value: p.type == "number"? 0 : "",
@@ -194,10 +195,12 @@ export const storeLabels = defineStore('labels', {
 				const [user] = await TwitchUtils.getUserInfo([userId]);
 				if(user) value = user.profile_image_url;
 			}
-			if(this.placeholders[key]!.value != value) {
-				this.placeholders[key]!.value = value;
+			if(this.placeholders[key] && this.placeholders[key].value != value) {
+				this.placeholders[key].value = value;
 				this.broadcastPlaceholders();
 				this.saveData();
+			}else if(this.placeholders[key] === undefined) {
+				Sentry.captureMessage("[LABELS] Trying to update unknown label placeholder: "+key);
 			}
 		},
 

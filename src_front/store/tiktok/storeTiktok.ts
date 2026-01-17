@@ -32,7 +32,7 @@ export const storeTiktok = defineStore('tiktok', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			const json = DataStore.get(DataStore.TIKTOK_CONFIGS);
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;

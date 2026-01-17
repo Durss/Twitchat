@@ -27,7 +27,7 @@ export const storeStreamerbot = defineStore('streamerbot', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			const json = DataStore.get(DataStore.STREAMERBOT_CONFIGS);
 			if(json) {
 				const pass = DataStore.get(DataStore.STREAMERBOT_WS_PASSWORD);

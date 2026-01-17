@@ -29,7 +29,7 @@ export const storeKofi = defineStore('kofi', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			const json = DataStore.get(DataStore.KOFI_CONFIGS);
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;

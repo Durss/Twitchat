@@ -532,12 +532,12 @@ export default class Database {
 			this._messageStore.transaction.onerror = (event) => {
 				const version = this._db.version;
 				Sentry.captureException(event);
-				Sentry.captureMessage("Groq table creation error. DB version: "+version);
+				Sentry.captureMessage("Message table creation error. DB version: "+version);
 			}
 			this._messageStore.transaction.onabort = (event) => {
 				const version = this._db.version;
 				Sentry.captureException(event);
-				Sentry.captureMessage("Groq table creation aborted. DB version: "+version);
+				Sentry.captureMessage("Message table creation aborted. DB version: "+version);
 			}
 		}
 	}

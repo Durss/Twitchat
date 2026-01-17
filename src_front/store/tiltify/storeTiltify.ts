@@ -32,22 +32,20 @@ export const storeTiltify = defineStore('tiltify', {
 
 
 	actions: {
-		async populateData():Promise<void> {
+		populateData():void {
 			const tokenJSON = DataStore.get(DataStore.TILTIFY_TOKEN);
-			const paramsJSON = DataStore.get(DataStore.TILTIFY);
-			if(paramsJSON) {
-				const parameters = JSON.parse(paramsJSON) as TiltifyStoreData;
-			}
 			if(tokenJSON) {
 				const token = JSON.parse(tokenJSON) as TiltifyToken;
-				const result = await ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:token.refresh_token}, false);
-				if(result.json.token) {
-					this.token = result.json.token;
-					this.onAuthenticated();
-				}else{
-					DataStore.remove(DataStore.TILTIFY_TOKEN);
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.tiltify_connect_failed"));
-				}
+				ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:token.refresh_token}, false)
+				.then(result => {
+					if(result.json.token) {
+						this.token = result.json.token;
+						this.onAuthenticated();
+					}else{
+						DataStore.remove(DataStore.TILTIFY_TOKEN);
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.tiltify_connect_failed"));
+					}
+				})
 			}
 
 			SSEHelper.instance.addEventListener(SSEEvent.TILTIFY_EVENT, (event) => {

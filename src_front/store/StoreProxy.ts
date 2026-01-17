@@ -2887,7 +2887,7 @@ export interface IKofiActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Connects to Ko-fi
 	 */
@@ -3127,7 +3127,7 @@ export interface ILabelsActions {
 	/**
 	 * Populates data from storage
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Get a label by its tag
 	 */
@@ -3250,7 +3250,7 @@ export interface ITiltifyActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Get the oAuth URL for streamlabs
 	 */
@@ -3299,7 +3299,7 @@ export interface ITiktokActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Initiate connection to tikfinity socket
 	 */
@@ -3338,7 +3338,7 @@ export interface IStreamerbotActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Connect with SB
 	 */
@@ -3379,7 +3379,7 @@ export interface ISammiActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():Promise<void>;
+	populateData():void;
 	/**
 	 * Connect with Sammi
 	 */
