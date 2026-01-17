@@ -164,8 +164,8 @@
 			"countdownPause": "Met le compte à rebours en pause",
 			"countdownUnpause": "Relance le compte à rebours",
 			"search": "Recherche un message",
-			"userinfo": "Ouvre un profil utilisateur",
-			"userfromid": "Recherche un profil utilisateur par son ID",
+			"userinfo": "Ouvre un profil utilisateurice",
+			"userfromid": "Recherche un profil utilisateurice par son ID",
 			"raffle": "Lance un tirage au sort",
 			"bingo": "Lance un bingo",
 			"raid": "Lance un raid",
@@ -217,7 +217,7 @@
 			"pin": "Envoyer un message et l'épingler",
 			"clear": "Effacer le tchat",
 			"greetduration": "Définir la durée de conservation des messages de la section \" @:greet.title \"",
-			"betamigrate": "Migre les données utilisateur de la beta vers la prod",
+			"betamigrate": "Migre les données utilisateurice de la beta vers la prod",
 			"streamTitle": "Modifier le titre du stream",
 			"streamCategory": "Modifier la category du stream",
 			"streamTags": "Modifier les tags du stream",
@@ -227,7 +227,11 @@
 			"discord": "Envoyer un message sur Discord",
 			"warn": "Envoyer un avertissement",
 			"giftpremium": "Offrir un abonnement premium",
-			"ungiftpremium": "Retire l'abonnement premium offert"
+			"ungiftpremium": "Retire l'abonnement premium offert",
+			"monitor": "Surveiller les messages d'un utilisateurice",
+			"unmonitor": "Arrêter de surveiller les messages d'un utilisateurice",
+			"restrict": "Restreindre la discussion d'un utilisateurice",
+			"unrestrict": "Autoriser à nouveau la discussion d'un utilisateurice"
 		}
 	}
 }

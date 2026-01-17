@@ -132,13 +132,16 @@ Create a `data/credentials/credentials.json` file and set the following content 
 		"moderator:manage:shield_mode",
 		"moderator:manage:unban_requests",
 		"clips:edit",
+		"channel:manage:clips",
 		"channel:read:ads",
 		"channel:manage:ads",
+		"channel:read:charity",
 		"moderator:manage:blocked_terms",
 		"moderator:manage:warnings",
 		"moderator:read:moderators",
 		"moderator:read:vips",
 		"moderator:read:suspicious_users",
+		"moderator:manage:suspicious_users",
 		"bits:read"
 	],
 

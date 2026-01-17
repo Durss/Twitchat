@@ -2092,6 +2092,18 @@ export interface IUsersActions {
 	 * Defines custom trigger placeholers
 	 */
 	setTriggerPlaceholders():void;
+	/**
+	 * Flag user as restricted
+	 */
+	flagRestrictedUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void;
+	/**
+	 * Flag user as suspicious
+	 */
+	flagSuspiciousUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void;
+	/**
+	 * unflag user (remove restricted/suspicious)
+	 */
+	unflagUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void;
 }
 
 

@@ -227,7 +227,11 @@
 			"discord": "Send a message to discord",
 			"warn": "Send a warning to the given user",
 			"giftpremium": "Gift premium membership to given user",
-			"ungiftpremium": "Removes gifted premium membership from given user"
+			"ungiftpremium": "Removes gifted premium membership from given user",
+			"monitor": "Monitor user messages",
+			"unmonitor": "Unmonitor user messages",
+			"restrict": "Restrict user chatting",
+			"unrestrict": "Unrestrict user from chatting"
 		}
 	}
 }

@@ -1729,9 +1729,9 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async suspiciousUserMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserMessage):Promise<void> {
+		const channelId = event.broadcaster_user_id;
+		const userData = StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		if(event.low_trust_status == "restricted") {
-			const channelId = event.broadcaster_user_id;
-			const userData = StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 			const chunks = TwitchUtils.parseMessageToChunks(event.message.text);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:event.message.message_id,
@@ -1752,8 +1752,10 @@ export default class EventSub {
 			const users = await TwitchUtils.getUserInfo(event.shared_ban_channel_ids);
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);
+			StoreProxy.users.flagRestrictedUser(channelId, userData);
 		}else{
 			StoreProxy.chat.flagSuspiciousMessage(event.message.message_id, event.shared_ban_channel_ids || []);
+			StoreProxy.users.flagSuspiciousUser(channelId, userData);
 		}
 	}
 
@@ -1763,13 +1765,22 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async suspiciousUserStateUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserStateUpdate):Promise<void> {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		if(event.low_trust_status == "restricted") {
+			StoreProxy.users.flagRestrictedUser(event.broadcaster_user_id, user);
+		}else if(event.low_trust_status == "active_monitoring") {
+			StoreProxy.users.flagSuspiciousUser(event.broadcaster_user_id, user);
+		}else{
+			StoreProxy.users.unflagUser(event.broadcaster_user_id, user);
+		}
+		
 		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
 			channel_id:event.broadcaster_user_id,
 			type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
-			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			user,
 			moderator:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false),
 			restricted:event.low_trust_status == "restricted",
 			monitored:event.low_trust_status == "active_monitoring",

@@ -227,7 +227,8 @@
 			"channel:read:ads":"Read ad break info",
 			"channel:manage:ads":"Snooze an incoming ad break",
 			"moderator:manage:warnings":"Send warning to users",
-			"moderator:read:suspicious_users":"Suspicious/restricted messages",
+			"moderator:read:suspicious_users":"Get Suspicious/restricted users states",
+			"moderator:manage:suspicious_users":"Manage suspicious/restricted users states",
 			"channel:read:charity":"Read your Twitch charity campaigns"
 		},
 		"permissions": {

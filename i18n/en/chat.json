@@ -367,12 +367,18 @@
 			"to43200_aria": "Timeout for 12 hours",
 			"to1w": "1w",
 			"to1w_aria": "Timeout for 1 week",
-			"banBt": "Ban",
-			"blockBt": "Block",
+			"banBt": "Ban {USER}",
+			"blockBt": "Block {USER}",
+			"unblockBt": "Unblock {USER}",
+			"unbanBt": "Unban {USER}",
 			"ban_confirm_title": "Ban {USER}",
 			"ban_confirm_desc": "Are you sure you want to ban this user?",
 			"block_confirm_title": "Block {USER}",
-			"block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
+			"block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers.",
+			"monitorBt": "Monitor {USER}",
+			"unmonitorBt": "Stop monitoring {USER}",
+			"restrictBt": "Restrict {USER}",
+			"unrestrictBt": "Unrestrict {USER}"
 		},
 		"context_menu": {
 			"profile": "Profile",
@@ -384,7 +390,7 @@
 			"shoutout": "Shoutout user",
 			"answer": "Answer",
 			"quote": "Quote",
-			"tts": "Read with TTS",
+			"tts": "Read message with TTS",
 			"tts_all": "Read all messages with TTS",
 			"tts_all_start": "Read all their messages with TTS",
 			"tts_all_stop": "Stop reading their messages",
@@ -410,7 +416,12 @@
 			"warn_user": "Warn user",
 			"shared_qna": "Add to Q&A session",
 			"spoil": "Flag as spoiler",
-			"whisper": "Send whisper"
+			"whisper": "Send whisper",
+			"suspicious": "Monitor user",
+			"restrict": "Restrict user",
+			"unsuspicious": "Stop monitoring user",
+			"unrestrict": "Unrestrict user",
+			"more_options": "More options..."
 		},
 		"custom_badge": {
 			"label": {

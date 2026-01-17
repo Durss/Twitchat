@@ -85,7 +85,13 @@
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 
-				<ChatModTools v-if="isTwitchProfile && canModerate" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
+				<ChatModTools v-if="isTwitchProfile && canModerate" class="modActions"
+				:messageData="fakeModMessage"
+				:canDelete="false"
+				:canMonitor="fakeModMessage?.user.channelInfo[fakeModMessage.channel_id] && fakeModMessage?.platform == 'twitch'"
+				canBlock
+				v-show="!manageBadges && !manageUserNames"
+				@actionComplete="loadHistory(user.id)" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
@@ -591,7 +597,7 @@ class UserCard extends AbstractSidePanel {
 				this.$store.users.loadUserPronouns(user);
 				this.fakeModMessage = {
 					id:Utils.getUUID(),
-					platform:"twitch",
+					platform:this.platform,
 					date:Date.now(),
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					user,
@@ -756,7 +762,7 @@ class UserCard extends AbstractSidePanel {
 	/**
 	 * Build the message history chunk by chunk
 	 */
-	private loadHistory(uid:string):void {
+	public loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
 			"following",

@@ -533,7 +533,7 @@ export const storeUsers = defineStore('users', {
 
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			let user!:TwitchatDataTypes.TwitchatUser;
-			this.blockedUsers[platform][uid] = true;
+			this.blockedUsers[platform][uid] = false;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform) {
@@ -1275,6 +1275,19 @@ export const storeUsers = defineStore('users', {
 			TriggerTypes.REWARD_REDEEM].forEach(v=>{
 				setTriggerEventPlaceholderValues(v, USER_CUSTOM_BADGES, values);
 			});
+		},
+
+		flagRestrictedUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
+			user.channelInfo[channelId].is_restricted = true;
+		},
+		
+		flagSuspiciousUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
+			user.channelInfo[channelId].is_suspicious = true;
+		},
+		
+		unflagUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
+			delete user.channelInfo[channelId].is_suspicious;
+			delete user.channelInfo[channelId].is_restricted;
 		},
 
 	} as IUsersActions

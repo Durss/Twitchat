@@ -227,7 +227,8 @@
 			"channel:read:ads":"Savoir quand une publicité va être lancée",
 			"channel:manage:ads":"Reporter une publicité en appproche",
 			"moderator:manage:warnings":"Envoyez des avertissements",
-			"moderator:read:suspicious_users":"Messages suspects/restreints",
+			"moderator:read:suspicious_users":"Connaître l'état suspect/restreint des utilisateurices",
+			"moderator:manage:suspicious_users":"Gérer l'état suspect/restreint des utilisateurices",
 			"channel:read:charity":"Read your Twitch Charity campaigns"
 		},
 		"permissions": {

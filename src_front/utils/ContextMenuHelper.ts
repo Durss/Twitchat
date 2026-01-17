@@ -58,6 +58,7 @@ export default class ContextMenuHelper {
 		const t		= StoreProxy.i18n.t;
 		const myUID	= (message.platform == "youtube"? StoreProxy.auth.youtube.user?.id : StoreProxy.auth.twitch.user?.id) || "";
 		const options:MenuItem[]= [];
+		const moreOptions:MenuItem[] = [];
 		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
 		let highlightIndex = -1;
@@ -141,13 +142,13 @@ export default class ContextMenuHelper {
 
 			//Track/untrack user
 			if(user.is_tracked) {
-				options.push({
+				moreOptions.push({
 							label: t("chat.context_menu.untrack"),
 							icon: this.getIcon("icons/magnet.svg"),
 							onClick: () => StoreProxy.users.untrackUser(user),
 						});
 			}else{
-				options.push({
+				moreOptions.push({
 							label: t("chat.context_menu.track"),
 							icon: this.getIcon("icons/magnet.svg"),
 							onClick: () => StoreProxy.users.trackUser(user),
@@ -185,14 +186,14 @@ export default class ContextMenuHelper {
 			//Save/unsave
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				if(message.is_saved) {
-					options.push({
+					moreOptions.push({
 								label: t("chat.context_menu.unsave"),
 								icon: this.getIcon("icons/save.svg"),
 								onClick: () => StoreProxy.chat.unsaveMessage(message),
 							});
 
 				}else{
-					options.push({
+					moreOptions.push({
 								label: t("chat.context_menu.save"),
 								icon: this.getIcon("icons/save.svg"),
 								onClick: () => StoreProxy.chat.saveMessage(message),
@@ -203,7 +204,7 @@ export default class ContextMenuHelper {
 			//TTS actions
 			if(StoreProxy.tts.params.enabled) {
 				//Read message
-				options.push({
+				moreOptions.push({
 							label: t("chat.context_menu.tts"),
 							icon: this.getIcon("icons/tts.svg"),
 							onClick: () => StoreProxy.tts.ttsReadMessage(message),
@@ -213,13 +214,13 @@ export default class ContextMenuHelper {
 				const username = user.login.toLowerCase();
 				const permissions: TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
 				if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
-					options.push({
+					moreOptions.push({
 								label: t("chat.context_menu.tts_all_start"),
 								icon: this.getIcon("icons/tts.svg"),
 								onClick: () => StoreProxy.tts.ttsReadUser(user, true),
 							});
 				} else {
-					options.push({
+					moreOptions.push({
 								label: t("chat.context_menu.tts_all_stop"),
 								icon: this.getIcon("icons/tts.svg"),
 								onClick: () => StoreProxy.tts.ttsReadUser(user, false),
@@ -265,11 +266,22 @@ export default class ContextMenuHelper {
 			if(canModerateMessage) {
 				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
 
-				options.push({
+				moreOptions.push({
 					label: t("chat.context_menu.spoil"),
 					icon: this.getIcon("icons/spoiler.svg"),
 					onClick: () => StoreProxy.chat.flagAsSpoiler(m),
 				});
+			}
+
+			options.push(
+				{
+					label: t("chat.context_menu.more_options"),
+					children:moreOptions
+				});
+
+			//Moderation actions
+			if(canModerateMessage) {
+				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
 
 				//Add splitter after previous item
 				options[options.length-1].divided = true;
@@ -295,46 +307,16 @@ export default class ContextMenuHelper {
 			//User moderation actions
 			if(canModerateUser) {
 
+				const moreModerationOptions:MenuItem[] = [];
+
 				let classesMod = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesMod += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
 
-				const classesBlock = "alert";
-				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesMod += " disabled";
-				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
+				let classesBlock = "alert";
+				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
+				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBlock += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
-
-				if(message.platform == "twitch") {
-					options.push({
-						label: t("chat.context_menu.warn_user"),
-						icon: this.getIcon("icons/alert.svg"),
-						customClass:classesMod,
-						onClick: () => {
-							if(!TwitchUtils.requestScopes([TwitchScopes.CHAT_WARNING])) return;
-							TwitchUtils.sendWarning(tMessage.user.id, t("chat.warn_chatter.default_reason"), message.channel_id);
-						},
-					});
-
-					options.push({
-						label: t("chat.context_menu.add_blocked_terms"),
-						icon: this.getIcon("icons/block.svg"),
-						customClass:classesMod,
-						onClick: () => {
-							if(!TwitchUtils.requestScopes([TwitchScopes.BLOCKED_TERMS])) return;
-							const str = (tMessage.message_chunks || []).map(v=>{
-								if(v.type == "cheermote" || v.type == "emote" || v.type == "url") {
-									return "*";
-								}else
-								if(v.type == "text" || v.type == "user" || v.type == "highlight") {
-									return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-								}
-								return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-							}).join("");
-
-							TwitchUtils.addBanword(str);
-						},
-					});
-				}
 
 				//Timeout
 				options.push(
@@ -449,8 +431,53 @@ export default class ContextMenuHelper {
 
 				//Block/unblock user
 				if(message.platform == "twitch") {
+					if(channelInfo.is_restricted || channelInfo.is_suspicious) {
+						moreModerationOptions.push({
+									label: channelInfo.is_restricted? t("chat.context_menu.unrestrict") : t("chat.context_menu.unsuspicious"),
+									icon: channelInfo.is_restricted? this.getIcon("icons/unlock.svg") :this.getIcon("icons/shield.svg"),
+									customClass:classesMod,
+									onClick: () => {
+										if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return
+										
+										if(message.fake === true) {
+											StoreProxy.users.unflagUser(tMessage.channel_id, tMessage.user);
+										}else{
+											TwitchUtils.unsetSuspiciousUser(tMessage.channel_id, tMessage.user.id);
+										}
+									},
+								});
+					}else {
+						
+						moreModerationOptions.push({
+									label: t("chat.context_menu.suspicious"),
+									icon: this.getIcon("icons/show.svg"),
+									customClass:classesMod,
+									onClick: () => {
+										if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return
+										if(message.fake === true) {
+											StoreProxy.users.flagRestrictedUser(tMessage.channel_id, tMessage.user);
+										}else{
+											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "ACTIVE_MONITORING");
+										}
+									},
+								});
+						moreModerationOptions.push({
+									label: t("chat.context_menu.restrict"),
+									icon: this.getIcon("icons/lock_fit.svg"),
+									customClass:classesMod,
+									onClick: () => {
+										if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return
+										if(message.fake === true) {
+											StoreProxy.users.flagSuspiciousUser(tMessage.channel_id, tMessage.user);
+										}else{
+											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "RESTRICTED");
+										}
+									},
+								});
+					}
+
 					if(tMessage.user.is_blocked) {
-						options.push({
+						moreModerationOptions.push({
 									label: t("chat.context_menu.unblock"),
 									icon: this.getIcon("icons/unblock.svg"),
 									customClass:classesBlock,
@@ -461,13 +488,53 @@ export default class ContextMenuHelper {
 									},
 								});
 					}else{
-						options.push({
+						moreModerationOptions.push({
 									label: t("chat.context_menu.block"),
 									icon: this.getIcon("icons/block.svg"),
 									customClass:classesBlock,
 									onClick: () => this.blockUser(tMessage),
 								});
 					}
+				}
+
+				if(message.platform == "twitch") {
+					moreModerationOptions.push({
+						label: t("chat.context_menu.warn_user"),
+						icon: this.getIcon("icons/alert.svg"),
+						customClass:classesMod,
+						onClick: () => {
+							if(!TwitchUtils.requestScopes([TwitchScopes.CHAT_WARNING])) return;
+							TwitchUtils.sendWarning(tMessage.user.id, t("chat.warn_chatter.default_reason"), message.channel_id);
+						},
+					});
+
+					moreModerationOptions.push({
+						label: t("chat.context_menu.add_blocked_terms"),
+						icon: this.getIcon("icons/block.svg"),
+						customClass:classesMod,
+						onClick: () => {
+							if(!TwitchUtils.requestScopes([TwitchScopes.BLOCKED_TERMS])) return;
+							const str = (tMessage.message_chunks || []).map(v=>{
+								if(v.type == "cheermote" || v.type == "emote" || v.type == "url") {
+									return "*";
+								}else
+								if(v.type == "text" || v.type == "user" || v.type == "highlight") {
+									return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+								}
+								return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+							}).join("");
+
+							TwitchUtils.addBanword(str);
+						},
+					});
+				}
+
+				if(moreModerationOptions.length > 0) {
+					options.push({
+						label: t("chat.context_menu.more_options"),
+						customClass:"alert",
+						children: moreModerationOptions,
+					});
 				}
 			}
 

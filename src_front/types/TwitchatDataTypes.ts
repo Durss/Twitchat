@@ -1884,6 +1884,14 @@ export namespace TwitchatDataTypes {
 		 * Defines if the user should be moded back after their timeout completes
 		 */
 		autoRemod?:boolean;
+		/**
+		 * Is the user restricted in the channel?
+		 */
+		is_restricted?:boolean;
+		/**
+		 * Is the user suspicious in the channel?
+		 */
+		is_suspicious?:boolean;
 	}
 
 	/**

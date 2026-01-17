@@ -596,6 +596,21 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/monitor") {
+			TwitchUtils.setSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "ACTIVE_MONITORING")
+			return true;
+		}else
+
+		if(cmd == "/restrict") {
+			TwitchUtils.setSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "RESTRICTED")
+			return true;
+		}else
+
+		if(cmd == "/unmonitor" || cmd == "/unrestrict") {
+			TwitchUtils.unsetSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""))
+			return true;
+		}else
+
 		if(cmd == "/bingo") {
 			//Open bingo form
 			const payload:TwitchatDataTypes.BingoConfig = {

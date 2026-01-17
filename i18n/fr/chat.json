@@ -367,12 +367,18 @@
 			"to43200_aria": "Bannir pour 12 heures",
 			"to1w": "1w",
 			"to1w_aria": "Bannir pour 1 semaine",
-			"banBt": "Ban",
-			"blockBt": "Block",
+			"banBt": "Bannir {USER}",
+			"blockBt": "Bloquer {USER}",
+			"unblockBt": "Débloquer {USER}",
+			"unbanBt": "Débannir {USER}",
 			"ban_confirm_title": "Bannir {USER}",
 			"ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
 			"block_confirm_title": "Bloquer {USER}",
-			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
+			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers.",
+			"monitorBt": "Surveiller {USER}",
+			"unmonitorBt": "Ne plus surveiller {USER}",
+			"restrictBt": "Restreindre {USER}",
+			"unrestrictBt": "Ne plus restreindre {USER}"
 		},
 		"context_menu": {
 			"profile": "Profil",
@@ -384,7 +390,7 @@
 			"shoutout": "Faire un shoutout",
 			"answer": "Répondre",
 			"quote": "Citer",
-			"tts": "Lire via TTS",
+			"tts": "Lire message via TTS",
 			"tts_all": "Lire tous ses messages via TTS",
 			"tts_all_start": "Lire tous ses messages via TTS",
 			"tts_all_stop": "Arrêter de lire ses messages",
@@ -410,7 +416,12 @@
 			"warn_user": "Envoyer un avertissement",
 			"shared_qna": "Enregister question/réponse",
 			"spoil": "Marquer comme spoiler",
-			"whisper": "Message privé"
+			"whisper": "Message privé",
+			"suspicious": "Surveiller",
+			"restrict": "Restreindre",
+			"unsuspicious": "Ne plus surveiller",
+			"unrestrict": "Ne plus restreindre",
+			"more_options": "Plus d'options..."
 		},
 		"custom_badge": {
 			"label": {

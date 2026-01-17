@@ -3162,6 +3162,72 @@ export default class TwitchUtils {
 		return [];
 	}
 
+	/**
+	 * Sets a suspicious/restrected status on given user on given channel
+	 */
+	public static async setSuspiciousUser(channelId:string, userId:string, status:"ACTIVE_MONITORING"|"RESTRICTED"): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return false;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/suspicious_users");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("user_id", userId);
+		url.searchParams.append("status", status);
+
+		const res = await this.callApi(url, {
+			method: "POST",
+			headers: this.headers,
+			body: JSON.stringify({user_id: userId, status}),
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {
+											data:{
+												user_id: string
+												broadcaster_id: string
+												moderator_id: string
+												updated_at: string
+												status: string
+												types: Array<string>
+											}[]};
+			return json.data.length > 0;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.setSuspiciousUser(channelId, userId, status);
+		}
+		return false;
+	}
+
+	/**
+	 * Removes a suspicious/restrected status from given user on given channel
+	 */
+	public static async unsetSuspiciousUser(channelId:string, userId:string): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return false;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/suspicious_users");
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("user_id", userId);
+
+		const res = await this.callApi(url, {
+			method: "DELETE",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {
+											data:{
+												user_id: string
+												broadcaster_id: string
+												moderator_id: string
+												updated_at: string
+												status: string
+												types: Array<string>
+											}[]};
+			return json.data.length > 0;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.unsetSuspiciousUser(channelId, userId);
+		}
+		return false;
+	}
+
 
 
 
@@ -3229,25 +3295,25 @@ export default class TwitchUtils {
 			if (setId === "predictions") {
 				title = i18n.t("global.badges.prediction", { "VALUE": versionID.replace("-", " ") });
 			} else
-				//If it's the sub-gift badge, use the ID as the number of gifts
-				if (setId === "sub-gifter") {
-					title = i18n.t("global.badges.subgift", { "COUNT": versionID });
-				} else
-					//If it's the bits badge, use the ID as the number of bits
-					if (setId === "bits") {
-						title = i18n.t("global.badges.bits", { "COUNT": versionID });
-					} else
-						//If it's the moments badge, use the ID as the number of moments
-						if (setId === "moments") {
-							title = i18n.t("global.badges.moments", { "COUNT": versionID });
-						} else {
-							//Use the set ID as the title after.
-							//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
-							//then replace dashes and remaining underscores by spaces to make a sort of readable title
-							//Don't replace _X if X isn't a number because of the "no_audio" and "no_sound"
-							//badge codes
-							title = setId.replace(/_[0-9]+/gi, "").replace(/(-|_)/g, " ");
-						}
+			//If it's the sub-gift badge, use the ID as the number of gifts
+			if (setId === "sub-gifter") {
+				title = i18n.t("global.badges.subgift", { "COUNT": versionID });
+			} else
+			//If it's the bits badge, use the ID as the number of bits
+			if (setId === "bits") {
+				title = i18n.t("global.badges.bits", { "COUNT": versionID });
+			} else
+			//If it's the moments badge, use the ID as the number of moments
+			if (setId === "moments") {
+				title = i18n.t("global.badges.moments", { "COUNT": versionID });
+			} else {
+				//Use the set ID as the title after.
+				//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
+				//then replace dashes and remaining underscores by spaces to make a sort of readable title
+				//Don't replace _X if X isn't a number because of the "no_audio" and "no_sound"
+				//badge codes
+				title = setId.replace(/_[0-9]+/gi, "").replace(/(-|_)/g, " ");
+			}
 		return title;
 	}
 
