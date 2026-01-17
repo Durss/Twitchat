@@ -64,6 +64,9 @@ export default class Database {
 					return;
 				}
 				this._db = (event.target as any)?.result;
+				this._db.onclose = (e) => { this._ready = false; console.log("[DB] close event"); }
+				this._db.onabort = (e) => { this._ready = false; console.log("[DB] abort event"); }
+				this._db.onerror = (e) => { this._ready = false; console.log("[DB] error event"); }
 				if(this._versionUpgraded) {
 					// await this.clearMessages();
 					// await this.clearGroqHistory();
@@ -95,6 +98,9 @@ export default class Database {
 			this._dbConnection.onupgradeneeded = (event) => {
 				this._ready = false;
 				this._db = (event.target as any)?.result;
+				this._db.onclose = (e) => { this._ready = false; console.log("[DB] close event"); }
+				this._db.onabort = (e) => { this._ready = false; console.log("[DB] abort event"); }
+				this._db.onerror = (e) => { this._ready = false; console.log("[DB] error event"); }
 				this.createMessageTable();
 				this.createGroqTable();
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
