@@ -55,7 +55,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 		broadcastStates(id?:string):void {
 			for (const entry of this.customTrainList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
-				const state = this.customTrainStates[entry.id];
+				const state = this.customTrainStates[entry.id]!;
 				PublicAPI.instance.broadcast("ON_CUSTOM_TRAIN_DATA", {configs:entry, state});
 			}
 		},
