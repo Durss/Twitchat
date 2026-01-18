@@ -252,7 +252,7 @@ class MessageList extends Vue {
 		watch(()=>YoutubeHelper.instance.connected, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 		watch(()=>this.config, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 		watch(()=>this.lockScroll, ()=> {
-			this.$store.params.chatColumnStates[this.config.order].paused = this.lockScroll;
+			this.$store.params.chatColumnStates[this.config.order]!.paused = this.lockScroll;
 			PublicAPI.instance.broadcastGlobalStates();
 		});
 
