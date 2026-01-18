@@ -32,7 +32,7 @@ let greetedUsersInitialized:boolean = false;
 let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number, ignore:boolean}} = {};
 let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
-let parsedMessageIds:Record<string, boolean> = {};
+let parsedMessageIds = new Set<string>();
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -1021,8 +1021,12 @@ export const storeChat = defineStore('chat', {
 									// Consider tiktok messages as "own" because there's no auth
 									&& message.platform !== "tiktok";
 
-			if(parsedMessageIds[message.id]) return;
-			parsedMessageIds[message.id] = true;
+			if(parsedMessageIds.has(message.id)) return;
+			parsedMessageIds.add(message.id);
+			if (parsedMessageIds.size > 1000) {
+				const first = parsedMessageIds.values().next().value;
+				if(first) parsedMessageIds.delete(first);
+			}
 
 			try {
 

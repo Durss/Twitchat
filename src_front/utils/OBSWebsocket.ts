@@ -34,7 +34,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}[]}} = {};
 	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
 	private sceneToCaching:{[key:string]:boolean} = {};
-	private cachedScreenshots:{[key:string]:{ts:number, screen:string}} = {};
+	private cachedScreenshots = new Map<string, {ts:number, screen:string}>();
 
 	constructor() {
 		super();
@@ -953,15 +953,21 @@ export default class OBSWebSocket extends EventDispatcher {
 	public async getScreenshot(sourceName?:string):Promise<string> {
 		if(!this.connected) return "";
 		if(!sourceName) sourceName = await this.getCurrentScene();
+		const cached = this.cachedScreenshots.get(sourceName);
 		//If there's an cached image recent enough, send it back
-		if(Date.now() - this.cachedScreenshots[sourceName]!.ts < 100) return this.cachedScreenshots[sourceName]!.screen;
+		if(cached && (Date.now() - cached.ts < 100)) return cached.screen;
 
 		//Request for a fresh new screenshot
 		const res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
 		//Cache it
-		this.cachedScreenshots[sourceName] = {
+		this.cachedScreenshots.set(sourceName, {
 			ts:Date.now(),
 			screen:res.imageData,
+		});
+		if(this.cachedScreenshots.size > 100) {
+			//Purge old entries
+			const key = this.cachedScreenshots.keys().next().value;
+			if(key) this.cachedScreenshots.delete(key);
 		}
 		return res.imageData;
 	}

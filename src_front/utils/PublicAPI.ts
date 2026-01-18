@@ -14,7 +14,7 @@ export default class PublicAPI extends EventDispatcher {
 	private static _instance:PublicAPI;
 
 	private _bc!:BroadcastChannel;
-	private _idsDone:{[key:string]:boolean} = {};
+	private _idsDone = new Set<string>();
 
 	constructor() {
 		super();
@@ -28,9 +28,7 @@ export default class PublicAPI extends EventDispatcher {
 			PublicAPI._instance = new PublicAPI();
 			//@ts-ignore
 			// window.broadcast = (a, b, c) => PublicAPI._instance.broadcast(a,b,c);
-			//@ts-ignore
-			// window.gsap = gsap;
-			}
+		}
 		return PublicAPI._instance;
 	}
 
@@ -68,7 +66,10 @@ export default class PublicAPI extends EventDispatcher {
 	public async broadcast<T extends JsonObject>(type:TwitchatEventType|TwitchatActionType, data?:T, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("[PUBLIC API] Broadcasting", type, data);
 		const eventId = Utils.getUUID();
-		if(!broadcastToSelf) this._idsDone[eventId] = true;//Avoid receiving self-broadcast events
+		if(!broadcastToSelf) {
+			this._idsDone.add(eventId);//Avoid receiving self-broadcast events
+			this.limitCacheSize();
+		}
 
 		let dataClone:JsonObject | undefined = undefined;
 		if(data) dataClone = JSON.parse(JSON.stringify(data));
@@ -140,10 +141,18 @@ export default class PublicAPI extends EventDispatcher {
 		if(event.type == undefined) return;
 
 		if(event.id){
-			if(this._idsDone[event.id] === true) return;
-			this._idsDone[event.id] = true;
+			if(this._idsDone.has(event.id)) return;
+			this._idsDone.add(event.id);
+			this.limitCacheSize();
 		}
 		this.dispatchEvent(new TwitchatEvent(event.type, event.data));
+	}
+
+	private limitCacheSize():void {
+		if (this._idsDone.size > 1000) {
+			const first = this._idsDone.values().next().value;
+			if(first) this._idsDone.delete(first);
+		}
 	}
 }
 
