@@ -208,7 +208,7 @@ export default class DataStoreCommon {
 	 * Save user's data server side
 	 * @returns
 	 */
-	public static async save(force:boolean = false, delay:number = 1500):Promise<void> {
+	public static async save(_force:boolean = false):Promise<void> {
 		//override if necessary
 	}
 
@@ -318,7 +318,7 @@ export default class DataStoreCommon {
 	 * @param save 	schedule a save to the server
 	 * @returns
 	 */
-	public static async set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):Promise<void> {
+	public static async set(key:string, value:JsonValue|unknown, save = true):Promise<void> {
 		if(key == this.SYNC_DATA_TO_SERVER) {
 			this.syncToServer = value as boolean;
 			if(!this.dataImported) {
@@ -332,7 +332,7 @@ export default class DataStoreCommon {
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
 
-		if(save) this.save(false, saveDelay);
+		if(save) this.save();
 	}
 
 	/**

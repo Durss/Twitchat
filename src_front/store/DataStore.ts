@@ -19,6 +19,8 @@ export default class DataStore extends DataStoreCommon{
 	protected static saveTO:number = -1;
 	private static abortQuery:AbortController|null = null;
 	private static savePromiseResolver:Function|null = null;
+	private static isSaving:boolean = false;
+	private static pendingSave:boolean = false;
 
 
 	/********************
@@ -36,7 +38,7 @@ export default class DataStore extends DataStoreCommon{
 	 * Save user's data server side
 	 * @returns
 	 */
-	static override async save(force:boolean = false, delay:number = 1500):Promise<void> {
+	static override async save(force:boolean = false):Promise<void> {
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
 			if(!this.dataImported) return;//Don't export anything before importing data first
@@ -45,17 +47,30 @@ export default class DataStore extends DataStoreCommon{
 			if(StoreProxy.main.offlineMode) return;
 		}
 
-		if(this.savePromiseResolver) {
-			clearTimeout(this.saveTO);
-			this.savePromiseResolver();
+		//If a save is currently in progress (API call running), mark that we need
+		//another save after it completes, don't try to abort and restart
+		if(this.isSaving) {
+			this.pendingSave = true;
+			return;
 		}
 
-		//Abort current save if any
-		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("new save");
+		//Clear any pending debounce timeout and resolve its promise
+		if(this.saveTO !== -1) {
+			clearTimeout(this.saveTO);
+			this.saveTO = -1;
+		}
+		if(this.savePromiseResolver) {
+			this.savePromiseResolver();
+			this.savePromiseResolver = null;
+		}
 
 		return new Promise((resolve) => {
 			this.savePromiseResolver = resolve;
 			this.saveTO = window.setTimeout(async () => {
+				this.saveTO = -1;
+				this.isSaving = true;
+				this.savePromiseResolver = null;
+
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 
 				//Do not save sensitive and useless data to server
@@ -80,6 +95,7 @@ export default class DataStore extends DataStoreCommon{
 				this.abortQuery = new AbortController();
 				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force}, false, undefined, undefined, this.abortQuery!.signal);
 				this.abortQuery = null;
+
 				if(saveRes.status == 409) {
 					StoreProxy.main.showOutdatedDataVersionAlert();
 				}
@@ -90,9 +106,16 @@ export default class DataStore extends DataStoreCommon{
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;
+
+				this.isSaving = false;
 				resolve();
-				this.savePromiseResolver = null;
-			}, force? 0 : delay);
+
+				//If another save was requested while we were saving, trigger it now
+				if(this.pendingSave) {
+					this.pendingSave = false;
+					this.save();
+				}
+			}, force? 0 : 1500);
 		});
 	}
 
