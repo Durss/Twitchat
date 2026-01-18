@@ -198,7 +198,6 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		console.log(list)
 		this.userPLaceholders = list;
 		this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}

@@ -50,7 +50,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(sessionJSON) {
 				const json = JSON.parse(sessionJSON) as StreamlabsStoreData;
 				this.accessToken = json.accessToken;
-				this.charityTeam = json.charityTeam as typeof this.charityTeam || null;
+				this.charityTeam = json.charityTeam;
 				if(this.accessToken) {
 					isAutoInit = true;
 					const result = await ApiHelper.call("streamlabs/socketToken", "GET", {accessToken:this.accessToken}, false);
@@ -373,80 +373,89 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				memberId = parsedUrl.searchParams.get("member") || "";
 			}catch(error) {}
 
-			const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
-			if(teamRes.status != 200) return false;
-			const prevValues = [];
-			if(this.charityTeam) {
-				prevValues.push(this.charityTeam.currency);
-				prevValues.push(this.charityTeam.amountRaised_cents);
-				prevValues.push(this.charityTeam.amountRaisedPersonnal_cents);
+			try {
+				const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
+				if(teamRes.status != 200) {
+					this.syncingCampaign = false;
+					throw new Error("Failed fetching charity team data");
+				}
+				const prevValues = [];
+				if(this.charityTeam) {
+					prevValues.push(this.charityTeam.currency);
+					prevValues.push(this.charityTeam.amountRaised_cents);
+					prevValues.push(this.charityTeam.amountRaisedPersonnal_cents);
+				}
+	
+				const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
+				if(!this.charityTeam) {
+					this.charityTeam = {
+						id:teamJSON.id,
+						teamURL:url,
+						title:teamJSON.display_name,
+						amountGoal_cents:teamJSON.campaign.goal.amount,
+						amountRaised_cents:teamJSON.amount_raised,
+						amountRaisedPersonnal_cents:0,
+						currency:teamJSON.goal.currency,
+						campaignId:teamJSON.campaign.id,
+						pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=`+memberId,
+						cause:{
+							id:teamJSON.campaign.causable.id,
+							title:teamJSON.campaign.causable.display_name,
+							description:teamJSON.campaign.causable.description,
+							website:teamJSON.campaign.causable.page_settings.website_url,
+						}
+					};
+				}else{
+					this.charityTeam.amountGoal_cents = teamJSON.campaign.goal.amount;
+					this.charityTeam.amountRaised_cents = teamJSON.amount_raised;
+				}
+	
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_GOAL", this.charityTeam.amountGoal_cents/100);
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar?.url || "");
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
+				
+				this.syncingCampaign = false;
+				this.syncingLeaderboard = true;
+	
+				let leaderboardAmountCents = 0;
+	
+				//Get personnal raised amount from leaderboard
+				const leaderBoardRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/leaderboards");
+				if(teamRes.status == 200) {
+					const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
+					const myName = StoreProxy.auth.twitch.user.displayNameOriginal.toLowerCase();
+					leaderboardAmountCents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
+					// this.charityTeam.amountRaisedPersonnal_cents = leaderboardAmountCents;
+				}
+	
+				//Keep only the highest value between current and leadeboard amounts
+				this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, leaderboardAmountCents);
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
+	
+				const newValues = [];
+				if(this.charityTeam) {
+					newValues.push(this.charityTeam.currency);
+					newValues.push(this.charityTeam.amountRaised_cents);
+					newValues.push(this.charityTeam.amountRaisedPersonnal_cents);
+				}
+	
+				//Check if a value changed
+				if(prevValues.join(",") != newValues.join(",")) {
+					this.saveData();
+					StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", this.charityTeam.campaignId);
+				}
+	
+				StoreProxy.donationGoals.broadcastData();
+				this.syncingLeaderboard = false;
+	
+				//Start full resync
+				this.resyncFromDonationList();
+			}catch(error){
+				this.charityTeam = null;
+				this.syncingCampaign = false;
+				return false;
 			}
-
-			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
-			if(!this.charityTeam) {
-				this.charityTeam = {
-					id:teamJSON.id,
-					teamURL:url,
-					title:teamJSON.display_name,
-					amountGoal_cents:teamJSON.campaign.goal.amount,
-					amountRaised_cents:teamJSON.amount_raised,
-					amountRaisedPersonnal_cents:0,
-					currency:teamJSON.goal.currency,
-					campaignId:teamJSON.campaign.id,
-					pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=`+memberId,
-					cause:{
-						id:teamJSON.campaign.causable.id,
-						title:teamJSON.campaign.causable.display_name,
-						description:teamJSON.campaign.causable.description,
-						website:teamJSON.campaign.causable.page_settings.website_url,
-					}
-				};
-			}else{
-				this.charityTeam.amountGoal_cents = teamJSON.campaign.goal.amount;
-				this.charityTeam.amountRaised_cents = teamJSON.amount_raised;
-			}
-
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_GOAL", this.charityTeam.amountGoal_cents/100);
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar?.url || "");
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
-			
-			this.syncingCampaign = false;
-			this.syncingLeaderboard = true;
-
-			let leaderboardAmountCents = 0;
-
-			//Get personnal raised amount from leaderboard
-			const leaderBoardRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/leaderboards");
-			if(teamRes.status == 200) {
-				const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
-				const myName = StoreProxy.auth.twitch.user.displayNameOriginal.toLowerCase();
-				leaderboardAmountCents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
-				// this.charityTeam.amountRaisedPersonnal_cents = leaderboardAmountCents;
-			}
-
-			//Keep only the highest value between current and leadeboard amounts
-			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, leaderboardAmountCents);
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
-
-			const newValues = [];
-			if(this.charityTeam) {
-				newValues.push(this.charityTeam.currency);
-				newValues.push(this.charityTeam.amountRaised_cents);
-				newValues.push(this.charityTeam.amountRaisedPersonnal_cents);
-			}
-
-			//Check if a value changed
-			if(prevValues.join(",") != newValues.join(",")) {
-				this.saveData();
-				StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", this.charityTeam.campaignId);
-			}
-
-			StoreProxy.donationGoals.broadcastData();
-			this.syncingLeaderboard = false;
-
-			//Start full resync
-			this.resyncFromDonationList();
 
 			return true;
 		},
