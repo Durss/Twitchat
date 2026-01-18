@@ -415,7 +415,9 @@ export const storeRaffle = defineStore('raffle', {
 		},
 
 		async pickWinner(sessionId:string, forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
-			if(forcedData) this.raffleList.push(forcedData);
+			if(forcedData && !this.raffleList.find(v => v.sessionId === forcedData.sessionId)) {
+				this.raffleList.push(forcedData);
+			}
 			const data = forcedData ?? this.raffleList.find(v=>v.sessionId === sessionId);
 			if(!data) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
@@ -705,7 +707,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		saveData():void {
 			DataStore.set(DataStore.RAFFLES_RUNNING, this.raffleList.filter(v=>{
-				return v.mode != "sub" &&  v.mode != "manual" && v.mode != "values"
+				return v.mode != "sub" && v.mode != "manual" && v.mode != "values" && v.ghost !== true
 			}));
 		}
 	} as IRaffleActions
