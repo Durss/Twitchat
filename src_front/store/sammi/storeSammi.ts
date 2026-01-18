@@ -67,10 +67,12 @@ export const storeSammi = defineStore('sammi', {
 			});
 			if(this.password) options.headers = { "Authorization": this.password };
 
-			const query = await fetch(url, options);
-			if(query.status == 200) {
-				return true;
-			}
+			try {
+				const query = await fetch(url, options);
+				if(query.status == 200) {
+					return true;
+				}
+			}catch(error) {}
 			return false;
 		},
 		
