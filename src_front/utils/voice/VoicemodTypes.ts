@@ -65,7 +65,7 @@ export namespace VoicemodTypes {
 		isCustom: boolean
 		enabled: boolean
 		showProLogo: boolean
-		sounds: Sound[]
+		sounds: (Sound|undefined)[]
 	}
 
 	export interface Sound {

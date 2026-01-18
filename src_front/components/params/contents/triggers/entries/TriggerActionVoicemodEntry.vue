@@ -114,7 +114,10 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 
 		//Add an entry per sound
 		let soundList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-		soundList = VoicemodWebSocket.instance.soundboards.reduce((result:VoicemodTypes.Sound[], item) => result.concat(item.sounds), []).map(v=>{
+		soundList = VoicemodWebSocket.instance.soundboards
+		.flatMap(soundboard => soundboard.sounds)
+		.filter(v => !!v)
+		.map(v=>{
 			let id = Utils.getUUID();
 			this.soundListItemIDToData[id] = {type:"id",value:v.id};
 			return {

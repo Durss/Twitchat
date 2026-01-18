@@ -238,6 +238,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
 			for (const board of this._soundsboards) {
 				for (const sound of board.sounds) {
+					if(!sound) continue;
 					//Check if the requested name is exactly the same
 					if(rawName == sound.name) {
 						//As this exactly matches the requested name, we can stop searching
