@@ -426,37 +426,37 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		await this.$nextTick();
 
 		//Animate new checks display
-		for (const entry of this.bingo.entries) {
+		for (let i = 0; i < this.bingo.entries.length; i++) {
+			const entry = this.bingo.entries[i]!;
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
 			if(!checks) continue;
-			const firstCheck = checks[0];
-			if(!firstCheck) continue;
 			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
 			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
-				if(checks?.length > 0 && firstCheck.nodeName != "#comment") {
+				const checkmark = checks[0];
+				if(checkmark && checkmark.nodeName != "#comment") {
 					const angle = (Math.random()-Math.random()) * 25;
 					if(entry.check && forcedCellsState[entry.id] !== true) {
 						//Animate checkmark display
-						gsap.killTweensOf(firstCheck);
-						gsap.fromTo(firstCheck, {opacity:0}, {opacity:.8, duration:.25});
+						gsap.killTweensOf(checkmark);
+						gsap.fromTo(checkmark, {opacity:0}, {opacity:.8, duration:.25});
 						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-						gsap.fromTo(firstCheck, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
-						await Utils.promisedTimeout(100);
+						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+						await Utils.promisedTimeout(150);
 						this.popClouds(cell);
-						
+						await Utils.promisedTimeout(250);
+
 					}else {
 						//Animate checkmark hide
-						gsap.killTweensOf(firstCheck);
-						gsap.to(firstCheck, {transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.150});
-						setTimeout(() => {
-							entry.check = false;
-						}, 150);
-						await Utils.promisedTimeout(50);
+						gsap.killTweensOf(checkmark);
+						gsap.to(checkmark,
+							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
+						await Utils.promisedTimeout(350);
+						entry.check = false;
 					}
 				}
-			}else if(entry.check) {
+			}else if(entry.check && checks[0]) {
 				//Force display of the cell
-				gsap.set(firstCheck, {opacity:.8});
+				gsap.set(checks[0]!, {opacity:.8});
 			}
 			this.prevCheckStates[entry.id] = entry.check;
 		}
