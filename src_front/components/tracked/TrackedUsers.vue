@@ -74,8 +74,7 @@ class TrackedUsers extends AbstractSidePanel {
 		const messageList = this.$store.chat.messages;
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"];
 		// for (let i = messageList.length-1; i > Math.max(0, messageList.length-100); i--) {
-		for (let i = 0; i < messageList.length; i++) {
-			const mess = messageList[i];
+		for (const mess of messageList) {
 			if(!allowedTypes.includes(mess.type)) continue;
 			if(mess.type == "shoutout" && mess.user.id == uid) {
 				list.push(mess);
@@ -110,7 +109,7 @@ class TrackedUsers extends AbstractSidePanel {
 		this.updateListHandler = (e:GlobalEvent) => this.onUpdateList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
 		this.onUpdateList();
-		this.selectUser(this.trackedUsers[0]);
+		this.selectUser(this.trackedUsers[0]!);
 	}
 
 	public mounted():void {
@@ -130,8 +129,7 @@ class TrackedUsers extends AbstractSidePanel {
 
 	private onUpdateList():void {
 		const res = [];
-		for (let i = 0; i < this.$store.users.users.length; i++) {
-			const u = this.$store.users.users[i];
+		for (const u of this.$store.users.users) {
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUsers = res;

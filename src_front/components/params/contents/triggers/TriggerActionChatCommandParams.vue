@@ -117,7 +117,7 @@ class TriggerActionChatCommandParams extends Vue {
 		let aliases:string[] = [];
 		if(this.triggerData.chatCommandAliases) {
 			for (let i = 0; i < this.triggerData.chatCommandAliases.length; i++) {
-				this.triggerData.chatCommandAliases[i] = this.triggerData.chatCommandAliases[i].trim().replace(/\s+/g, '').toLowerCase();
+				this.triggerData.chatCommandAliases[i] = this.triggerData.chatCommandAliases[i]!.trim().replace(/\s+/g, '').toLowerCase();
 			}
 			aliases = this.triggerData.chatCommandAliases.concat().filter(v=>v.length > 0);
 		}
@@ -132,12 +132,12 @@ class TriggerActionChatCommandParams extends Vue {
 		//Check if any other trigger contain the same command
 		let cmdListLocal = aliases.concat();
 		if(mainCmd) cmdListLocal.push(mainCmd);
-		for (let i = 0; i < triggers.length; i++) {
-			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
-			&& triggers[i].id != this.triggerData.id) {
+		for (const trigger of triggers) {
+			if(trigger.type == TriggerTypes.CHAT_COMMAND
+			&& trigger.id != this.triggerData.id) {
 				//Create an array with main command and aliases concatenated
-				let cmdList = triggers[i].chatCommandAliases?.concat() ?? [];
-				if(triggers[i].chatCommand) cmdList.push(triggers[i].chatCommand!);
+				let cmdList = trigger.chatCommandAliases?.concat() ?? [];
+				if(trigger.chatCommand) cmdList.push(trigger.chatCommand!);
 				cmdList.map(v=>v.toLowerCase());
 
 				//Check if trigger contains the main command of the current trigger

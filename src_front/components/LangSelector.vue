@@ -59,20 +59,19 @@ class LangSelector extends Vue {
 		return sublangs.map(v=> { return {label:v[1] as string, value:v}}); 
 	}
 
-	public getISOFromLang(l:string):string { return l.split("-")[1]; }
+	public getISOFromLang(l:string):string { return l.split("-")[1]!; }
 
 	public mounted():void {
 		//Pre-select language from "lang" param
-		this.langLocal.label = Languages[0][0] as string;
+		this.langLocal.label = Languages[0]![0] as string;
 		if(this.lang) {
-			for (let i = 0; i < Languages.length; i++) {
-				const l = Languages[i];
+			for (const l of Languages) {
 				for (let j = 1; j < l.length; j++) {
-					const sl = l[j];
-					if(sl[0].toLowerCase() == this.lang.toLowerCase()) {
+					const sl = l[j]!;
+					if(sl[0]!.toLowerCase() == this.lang.toLowerCase()) {
 						this.langLocal.label = l[0] as string;
 						if(l.length>1) {
-							this.sublangLocal.label = sl[1];
+							this.sublangLocal.label = sl[1]!;
 						}
 						break;
 					}
@@ -91,8 +90,8 @@ class LangSelector extends Vue {
 	public onChange(resetSubList:boolean = false):void {
 		if(resetSubList) {
 			if(this.subLanguages.length > 0) {
-				this.sublangLocal.label = this.subLanguages[0].label;
-				this.sublangLocal.value = this.subLanguages[0].value;
+				this.sublangLocal.label = this.subLanguages[0]!.label;
+				this.sublangLocal.value = this.subLanguages[0]!.value;
 			}else{
 				this.sublangLocal.label = "";
 				this.sublangLocal.value = [];
@@ -102,7 +101,7 @@ class LangSelector extends Vue {
 			this.$emit("update:lang", "");
 		}else
 		if(!this.sublangLocal.label) {
-			this.$emit("update:lang", this.langLocal.value[1][0]);
+			this.$emit("update:lang", this.langLocal.value[1]![0]);
 		}else{
 			this.$emit("update:lang", this.sublangLocal.value[0]);
 		}

@@ -93,11 +93,11 @@
 						</div>
 
 						<ParamItem  :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
-							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify' || overlay.dataSource == 'twitch_charity') && (param_campaignId[overlay.id].listValues || []).length > 0"
+							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify' || overlay.dataSource == 'twitch_charity') && (param_campaignId[overlay.id]!.listValues || []).length > 0"
 							:childLevel="1" noBackground />
 
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
-							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id]!.listValues || []).length > 0" :childLevel="1" noBackground />
 
 						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'twitch_charity' && $store.twitchCharity.currentCharity != null">
 							<div class="holder">
@@ -352,7 +352,7 @@ class OverlayParamsDonationGoal extends Vue {
 
 		this.param_goal_secret[goal.id]	= {type:"boolean", value:false, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
 
-		this.param_maxDisplayedEntries[overlay.id].max = overlay.goalList.length;
+		this.param_maxDisplayedEntries[overlay.id]!.max = overlay.goalList.length;
 
 		overlay.goalList.push(goal);
 
@@ -364,7 +364,7 @@ class OverlayParamsDonationGoal extends Vue {
 	 */
 	public removeGoal(overlay:TwitchatDataTypes.DonationGoalOverlayConfig, goalId:string):void {
 		for (let i = 0; i < overlay.goalList.length; i++) {
-			const goal = overlay.goalList[i];
+			const goal = overlay.goalList[i]!;
 			if(goal.id != goalId) continue;
 			overlay.goalList.splice(i, 1);
 			i--;
@@ -439,8 +439,8 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_dataSource[id]			= {type:"list", value:overlay.dataSource, labelKey:"donation_goals.param_dataSource", icon:"charity", editCallback:(data)=> {
 				switch(data.value) {
 					case "streamlabs_charity": {
-						this.param_campaignId[id].listValues = [];
-						this.param_campaignId[id].icon = "streamlabs";
+						this.param_campaignId[id]!.listValues = [];
+						this.param_campaignId[id]!.icon = "streamlabs";
 						break;
 					}
 
@@ -452,8 +452,8 @@ class OverlayParamsDonationGoal extends Vue {
 								label:c.name,
 							});
 						})
-						this.param_campaignId[id].listValues = list;
-						this.param_campaignId[id].icon = "tiltify";
+						this.param_campaignId[id]!.listValues = list;
+						this.param_campaignId[id]!.icon = "tiltify";
 						break;
 					}
 
@@ -467,7 +467,7 @@ class OverlayParamsDonationGoal extends Vue {
 								label:c.name,
 							});
 						})
-						this.param_counterId[id].listValues = list;
+						this.param_counterId[id]!.listValues = list;
 					}
 				}
 			}};

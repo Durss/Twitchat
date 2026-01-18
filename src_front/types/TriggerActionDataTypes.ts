@@ -2885,8 +2885,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
-	for (let i = 0; i < counters.length; i++) {
-		const c = counters[i];
+	for (const c of counters) {
 		if(c.placeholderKey) {
 			counterPlaceholders.push({category:"counter", tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey.toUpperCase(), descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter__.value", numberParsable:true, isUserID:false, globalTag:true, example:(c.value || 123).toString()} as ITriggerPlaceholder<TwitchatDataTypes.CounterData, string, "__counter__">);
 		}
@@ -2894,8 +2893,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	const values = StoreProxy.values.valueList;
 	const valuePlaceholders:ITriggerPlaceholder<any>[] = [];
-	for (let i = 0; i < values.length; i++) {
-		const v = values[i];
+	for (const v of values) {
 		if(v.placeholderKey) {
 			valuePlaceholders.push({category:"value", tag:VALUE_PLACEHOLDER_PREFIX + v.placeholderKey.toUpperCase(), descKey:'triggers.placeholders.value_global_value', descReplacedValues:{"NAME":v.name}, pointer:"__value__.value", numberParsable:true, isUserID:false, globalTag:true, example:"Lorem ipsum"} as ITriggerPlaceholder<TwitchatDataTypes.ValueData, string, "__value__">);
 		}
@@ -2903,8 +2901,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	const timers = StoreProxy.timers.timerList;
 	const timersPlaceholders:ITriggerPlaceholder<any>[] = [];
-	for (let i = 0; i < timers.length; i++) {
-		const t = timers[i];
+	for (const t of timers) {
 		if(t.placeholderKey) {
 			const prefix = t.type == "timer"? STOPWATCH_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
 			const tagBase = prefix + t.placeholderKey.toUpperCase();

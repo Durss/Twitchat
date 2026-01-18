@@ -95,14 +95,14 @@
 
 								<template v-if="element.slotType == 'subs'">
 									<div class="card-item tierList" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}">
-										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground v-if="param_showAllActiveSubs[element.id].value != true && param_showAllActiveSubgifters[element.id].value != true" />
+										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground v-if="param_showAllActiveSubs[element.id]!.value != true && param_showAllActiveSubgifters[element.id]!.value != true" />
 										<ParamItem :paramData="param_showSubsT1[element.id]"	v-model="element.showSubsT1" noBackground />
 										<ParamItem :paramData="param_showSubsT2[element.id]"	v-model="element.showSubsT2" noBackground />
 										<ParamItem :paramData="param_showSubsT3[element.id]"	v-model="element.showSubsT3" noBackground />
 									</div>
 									<ParamItem :paramData="param_showAllActiveSubs[element.id]"			v-model="element.showAllSubs" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}" />
 									<ParamItem :paramData="param_showAllActiveSubgifters[element.id]"	v-model="element.showAllSubgifters" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}" />
-									<template v-if="param_showAllActiveSubs[element.id].value !== true && param_showAllActiveSubgifters[element.id].value !== true">
+									<template v-if="param_showAllActiveSubs[element.id]!.value !== true && param_showAllActiveSubgifters[element.id]!.value !== true">
 										<ParamItem :paramData="param_showSubs[element.id]"				v-model="element.showSubs" />
 										<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
 										<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
@@ -180,7 +180,7 @@
 										<ParamItem v-if="element.slotType == 'powerups'" :childLevel="1" :paramData="param_sortByAmounts[element.id]" v-model="element.sortByAmounts" noBackground />
 								</ParamItem>
 
-								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount && (element.slotType != 'subs' || param_showAllActiveSubs[element.id].value !== true)"
+								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount && (element.slotType != 'subs' || param_showAllActiveSubs[element.id]!.value !== true)"
 									class="amounts" :paramData="param_showAmounts[element.id]"
 									v-model="element.showAmounts"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -412,7 +412,7 @@ class OverlayParamsCredits extends Vue {
 		}else{
 
 			for (let i = 0; i < this.$store.endingCredits.overlayData.slots.length; i++) {
-				const slot = this.$store.endingCredits.overlayData.slots[i];
+				const slot = this.$store.endingCredits.overlayData.slots[i]!;
 				const defaultSlot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType);
 				if(!defaultSlot) {
 					//Remove deleted slot
@@ -432,8 +432,7 @@ class OverlayParamsCredits extends Vue {
 				}
 			}
 
-			for (let i = 0; i < this.$store.endingCredits.overlayData.slots.length; i++) {
-				const slot = this.$store.endingCredits.overlayData.slots[i];
+			for (const slot of this.$store.endingCredits.overlayData.slots) {
 				this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType)!, slot);
 			}
 		}
@@ -557,8 +556,7 @@ class OverlayParamsCredits extends Vue {
 				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
 			}
 			let children:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchDataTypes.Reward>[] = [];
-			for (let j = 0; j < rewards.length; j++) {
-				const r = rewards[j];
+			for (const r of rewards) {
 				children.push({type:'boolean', value:entry.rewardIds!.includes(r.id), iconURL:r.image?.url_1x, label:r.title, storage:r, editCallback:(data)=> {
 					if(data.value === true && !entry.rewardIds!.includes(data.storage!.id)) {
 						entry.rewardIds!.push(data.storage!.id);
@@ -708,8 +706,7 @@ class OverlayParamsCredits extends Vue {
 			}
 			let children:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, IPatreonTier>[] = [];
 			const tierList = StoreProxy.patreon.tierList;
-			for (let j = 0; j < tierList.length; j++) {
-				const tier = tierList[j];
+			for (const tier of tierList) {
 				//Skip "free" tier
 				if(tier.attributes.amount_cents == 0) continue;
 				children.push({

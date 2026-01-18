@@ -199,7 +199,7 @@ class LabelsEditorEntry extends Vue {
 		let path:string[] = [];
 		const chunks = this.path;
 		for (let i = 0; i < chunks.length; i++) {
-			const key = chunks[i];
+			const key = chunks[i]!;
 			path.push(key);
 			// If not the last chunk (i.e. not the label itself)
 			if(i < chunks.length-1) {

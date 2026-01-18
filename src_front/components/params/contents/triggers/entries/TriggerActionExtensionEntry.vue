@@ -91,7 +91,7 @@ class TriggerActionExtensionEntry extends AbstractTriggerActionEntry {
 				}
 			}
 			this.param_slot.listValues = list;
-			this.param_slot.value = list[0].value;
+			this.param_slot.value = list[0]!.value;
 			this.onChangeSlot();
 		}else{
 			this.param_slot.listValues = [];

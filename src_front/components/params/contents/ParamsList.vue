@@ -131,8 +131,7 @@ class ParamsList extends Vue implements IParameterContent {
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
 		if(this.filteredParams?.length > 0) {
-			for (let i = 0; i < this.filteredParams.length; i++) {
-				const p = this.filteredParams[i];
+			for (const p of this.filteredParams) {
 				res[(p.id as number)?.toString()] = p;
 			}
 
@@ -249,8 +248,8 @@ class ParamsList extends Vue implements IParameterContent {
 
 	private computeMissingScopeStates():void {
 		for (const key in this.params) {
-			const p = this.params[key];
-			const id = this.params[key].id!;
+			const p = this.params[key]!;
+			const id = this.params[key]!.id!;
 			if(p.twitch_scopes) {
 				this.missingScopeStates[id] = !TwitchUtils.hasScopes(p.twitch_scopes);
 			}else{

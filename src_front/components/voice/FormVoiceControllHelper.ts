@@ -29,7 +29,7 @@ export default class FormVoiceControllHelper {
 	}
 
 	private get currentInput():HTMLInputElement|null {
-		return this.voiceInputs[this.tabIndex-1];
+		return this.voiceInputs[this.tabIndex-1]!;
 	}
 
 	public dispose():void {
@@ -134,8 +134,7 @@ export default class FormVoiceControllHelper {
 		const actionList = e.data as {id:string, value:string}[];
 		this.tabIndex = this.originalTabIndex;
 		this.setFocus();
-		for (let i = 0; i < actionList.length; i++) {
-			const a = actionList[i];
+		for (const a of actionList) {
 			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value));
 		}
 	}

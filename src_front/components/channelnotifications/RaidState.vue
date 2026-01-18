@@ -126,6 +126,7 @@ class RaidState extends Vue {
 
 	public getBanDuration(user:TwitchatDataTypes.TwitchatUser):string {
 		const chanInfo = user.channelInfo[this.$store.auth.twitch.user.id];
+		if(!chanInfo || !chanInfo.banEndDate) return "???";
 		const remaining = chanInfo.banEndDate! - Date.now();
 		return Utils.formatDuration(remaining)+"s";
 	}
@@ -144,7 +145,7 @@ class RaidState extends Vue {
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
 			const liveInfos = await TwitchUtils.getCurrentStreamInfo([this.user.id]);
 			this.targetChannelOffline = liveInfos.length == 0;
-			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0];
+			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0]!;
 			this.raidingLatestRaid = latestRaid && latestRaid.uid === raid.user.id;
 			this.isOwnRaid = this.$store.auth.twitch.user.id == raid.channel_id;
 			if(!this.isOwnRaid) {
@@ -157,8 +158,7 @@ class RaidState extends Vue {
 		const bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		const timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		//Check for banned and timedout users still connected to the chat
-		for (let i = 0; i < userlist.length; i++) {
-			const u = userlist[i];
+		for (const u of userlist) {
 			//User online?
 			if(u.platform === "twitch") {
 				if(u.channelInfo[me.id]?.is_banned === true) {

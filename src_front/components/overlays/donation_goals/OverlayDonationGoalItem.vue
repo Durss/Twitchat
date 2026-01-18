@@ -255,7 +255,7 @@ class OverlayDonationGoalItem extends Vue {
 		await this.$nextTick();
 		for (let i = 0; i < this.particles.length; i++) {
 			const index = i%this.particles.length;
-			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
+			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index]!;
 			gsap.killTweensOf(particle);
 			gsap.set(particle, {opacity:0});
 		}
@@ -272,7 +272,7 @@ class OverlayDonationGoalItem extends Vue {
 
 		const shines = this.$refs.shines as HTMLDivElement[];
 		for (let i = 0; i < shines.length; i++) {
-			const shine = shines[i];
+			const shine = shines[i]!;
 			gsap.fromTo(shine, {opacity:Math.random()*.5+.5, left:-(Math.random()*100 + 100)+"%"}, {left:"100%", duration:.5 + Math.random()*.8, ease:"sine.inOut", delay:.5})
 		}
 
@@ -283,8 +283,8 @@ class OverlayDonationGoalItem extends Vue {
 		for (let i = 0; i < this.particles.length; i++) {
 			const index = i%this.particles.length;
 			const percent = i/this.particles.length;
-			const params = this.particles[index];
-			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
+			const params = this.particles[index]!;
+			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index]!;
 			gsap.killTweensOf(particle);
 
 			// params.a = percent*Math.PI*2;

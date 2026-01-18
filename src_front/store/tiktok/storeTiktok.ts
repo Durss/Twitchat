@@ -126,7 +126,7 @@ export const storeTiktok = defineStore('tiktok', {
 					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber, false);
 					user.avatarPath = json.data.profilePictureUrl || (json.data.userDetails.profilePictureUrls? json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ] : "");
 					if(json.data.userBadges?.length > 0) {
-						const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()];
+						const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()]!;
 						chanInfo.is_subscriber = true;
 						chanInfo.badges = json.data.userBadges
 						.filter(b=>b.url != undefined)
@@ -138,7 +138,7 @@ export const storeTiktok = defineStore('tiktok', {
 							}
 						})
 						if(json.data.userBadges.find(b=>b.type == "pm_mt_moderator_im")) {
-							const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()];
+							const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()]!;
 							chanInfo.is_moderator = true;
 							chanInfo.badges.push({
 								icon:{sd:"mod"},
@@ -297,7 +297,7 @@ export const storeTiktok = defineStore('tiktok', {
 
 				case "like": {
 					if(debouncedLikes[user!.id]) {
-						clearTimeout(debouncedLikes[user!.id].to);
+						clearTimeout(debouncedLikes[user!.id]!.to);
 					}else{
 						debouncedLikes[user!.id] = {count:0, to:-1}
 					}
@@ -309,14 +309,14 @@ export const storeTiktok = defineStore('tiktok', {
 							date:Date.now(),
 							type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
 							user:user!,
-							count:debouncedLikes[user!.id].count,
+							count:debouncedLikes[user!.id]!.count,
 							streamLikeCount:json.data.totalLikeCount,
 						};
 						StoreProxy.chat.addMessage(message);
 						delete debouncedLikes[user!.id];
 					}, 5000);
-					debouncedLikes[user!.id].count += json.data.likeCount;
-					debouncedLikes[user!.id].to = to;
+					debouncedLikes[user!.id]!.count += json.data.likeCount;
+					debouncedLikes[user!.id]!.to = to;
 					return;
 				}
 

@@ -70,8 +70,7 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 				const channelId = StoreProxy.auth.twitch.user.id
 				let fakeStartDate = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
 				if(!fakeStartDate) fakeStartDate = Date.now() - (60 * 60000);
-				for (let i = 0; i < result.slots.length; i++) {
-					const slot = result.slots[i];
+				for (const slot of result.slots) {
 					if(slot.slotType !== "text") continue;
 					slot.text = (slot.text || "").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
 					slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());

@@ -126,7 +126,7 @@ class TriggerActionHeatParams extends Vue {
 			const id = this.triggerData.heatAreaIds![i];
 			let found = false;
 			for (let j = 0; j < screenList.length; j++) {
-				if(screenList[j].areas.findIndex(v=>v.id==id) > -1) {
+				if(screenList[j]!.areas.findIndex(v=>v.id==id) > -1) {
 					found = true;
 				}
 			}
@@ -163,7 +163,7 @@ class TriggerActionHeatParams extends Vue {
 		switch(this.param_clickSource.value) {
 			case "obs": {
 				this.triggerData.heatAreaIds = undefined;
-				this.triggerData.heatObsSource = this.param_obsSources.listValues && this.param_obsSources.listValues.length > 0? this.param_obsSources.listValues[0].value : "";
+				this.triggerData.heatObsSource = this.param_obsSources.listValues && this.param_obsSources.listValues.length > 0? this.param_obsSources.listValues[0]!.value : "";
 				break;
 			}
 			case "area": {

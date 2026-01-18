@@ -94,13 +94,11 @@ export default class TwitchUtils {
 			const json = await result.json();
 			const list: TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
 			const hashmap: { [key: string]: { [key: string]: TwitchatDataTypes.TwitchatUserBadge } } = {};
-			for (let i = 0; i < list.length; i++) {
-				const s = list[i];
+			for (const s of list) {
 				if (!hashmap[s.set_id]) hashmap[s.set_id] = {};
-				for (let j = 0; j < s.versions.length; j++) {
-					const v = s.versions[j];
+				for (const v of s.versions) {
 					const title = this.getBadgeTitle(s.set_id, v.id);
-					hashmap[s.set_id][v.id] = {
+					hashmap[s.set_id]![v.id] = {
 						icon: {
 							sd: v.image_url_1x,
 							hd: v.image_url_4x,
@@ -136,13 +134,11 @@ export default class TwitchUtils {
 			const json = await result.json();
 			const list: TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
 			const hashmap: { [key: string]: { [key: string]: TwitchatDataTypes.TwitchatUserBadge } } = {};
-			for (let i = 0; i < list.length; i++) {
-				const s = list[i];
+			for (const s of list) {
 				if (!hashmap[s.set_id]) hashmap[s.set_id] = {};
-				for (let j = 0; j < s.versions.length; j++) {
-					const v = s.versions[j];
+				for (const v of s.versions) {
 					const title = this.getBadgeTitle(s.set_id, v.id);
-					hashmap[s.set_id][v.id] = {
+					hashmap[s.set_id]![v.id] = {
 						icon: {
 							sd: v.image_url_1x,
 							hd: v.image_url_4x,
@@ -465,8 +461,8 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json: { data: TwitchDataTypes.Poll[] } = await res.json();
 		if (res.status == 200) {
-			if (json.data.length > 0 && json.data[0].status == "ACTIVE") {
-				const src = json.data[0];
+			if (json.data.length > 0 && json.data[0]!.status == "ACTIVE") {
+				const src = json.data[0]!;
 				const choices: TwitchatDataTypes.MessagePollDataChoice[] = [];
 				src.choices.forEach(v => {
 					choices.push({
@@ -695,7 +691,7 @@ export default class TwitchUtils {
 				//Dedupe emotes. Current API has a bug that returns broadcaster's emotes twice
 				let emotesParsed: { [key: string]: boolean } = {};
 				for (let i = 0; i < emotesTwitch.length; i++) {
-					const emote = emotesTwitch[i];
+					const emote = emotesTwitch[i]!;
 					if (emotesParsed[emote.id] === true) {
 						emotesTwitch.splice(i, 1);
 						i--;
@@ -1114,8 +1110,7 @@ export default class TwitchUtils {
 			const uids = json.data.map(x => x.user_id);
 			const users = await this.getUserInfo(uids);
 			users.forEach(u => {
-				for (let i = 0; i < json.data.length; i++) {
-					const s = json.data[i];
+				for (const s of json.data) {
 					if (s.user_id == u.id) {
 						s.user_info = u;
 						break;
@@ -1220,7 +1215,7 @@ export default class TwitchUtils {
 		});
 		if (res.status == 200) {
 			const json: { data: TwitchDataTypes.Follower[], pagination?: { cursor?: string } } = await res.json();
-			return json.data[0];
+			return json.data[0]!;
 		}
 		return null;
 	}
@@ -1349,9 +1344,9 @@ export default class TwitchUtils {
 
 		const validDurations = [30, 60, 90, 120, 150, 180];
 		//Invalid duration, force it to 30s
-		if (!duration || isNaN(duration)) duration = validDurations[0];
+		if (!duration || isNaN(duration)) duration = validDurations[0]!;
 		//Find the closest available duration to the one requested
-		duration = validDurations.find(v => v >= duration) ?? validDurations[validDurations.length - 1];
+		duration = validDurations.find(v => v >= duration) ?? validDurations[validDurations.length - 1]!;
 
 		const options = {
 			method: "POST",
@@ -1481,9 +1476,9 @@ export default class TwitchUtils {
 			//Ex: "Valheim" bring "Valley" first, then "Valheim"
 			const list = json.data as TwitchDataTypes.StreamCategory[];
 			for (let i = 0; i < list.length; i++) {
-				if (list[i].name.toLowerCase() === search.toLowerCase()) {
+				if (list[i]!.name.toLowerCase() === search.toLowerCase()) {
 					const match = list.splice(i, 1);
-					list.unshift(match[0]);
+					list.unshift(match[0]!);
 				}
 			}
 			return list;
@@ -2022,7 +2017,7 @@ export default class TwitchUtils {
 					non_moderator_chat_delay_duration: number,
 				}[]
 			} = await res.json();
-			const data = json.data[0];
+			const data = json.data[0]!;
 			return {
 				chatDelay: data.non_moderator_chat_delay === false ? undefined : data.non_moderator_chat_delay_duration as number,
 				emotesOnly: data.emote_mode === true,
@@ -2206,7 +2201,7 @@ export default class TwitchUtils {
 
 		let user!: TwitchDataTypes.UserInfo;
 		try {
-			user = (await this.getUserInfo(undefined, [channel]))[0];
+			user = (await this.getUserInfo(undefined, [channel]))[0]!;
 		} catch (error) {
 			StoreProxy.common.alert("User " + channel + " not found");
 			return false;
@@ -2277,7 +2272,7 @@ export default class TwitchUtils {
 
 		if (!toId && toLogin) {
 			try {
-				toId = (await this.getUserInfo(undefined, [toLogin]))[0].id;
+				toId = (await this.getUserInfo(undefined, [toLogin]))[0]!.id;
 			} catch (error) {
 				StoreProxy.common.alert("User \"" + toLogin + "\" not found");
 				return false;
@@ -2404,7 +2399,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 202) {
 			const json: { data: TwitchDataTypes.EventsubSubscription[] } = await res.json();
-			return json.data[0].id;
+			return json.data[0]!.id;
 		} else
 		if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
@@ -2503,10 +2498,9 @@ export default class TwitchUtils {
 			userLang += "-" + userLang;
 		}
 
-		for (let i = 0; i < list.length; i++) {
-			const t = list[i];
-			let label = t.localization_names[userLang];
-			if (!label) label = t.localization_names["en-us"];
+		for (const t of list) {
+			let label = t.localization_names[userLang]!;
+			if (!label) label = t.localization_names["en-us"]!;
 			result.push({ id: t.tag_id, label });
 		}
 
@@ -2606,9 +2600,9 @@ export default class TwitchUtils {
 		//If followers listing has been granted, list them
 		if (TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			followers = await TwitchUtils.getFollowers(null, 100);
-			for (let i = 0; i < followers.length; i++) {
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name, undefined, true, false);
-				user.channelInfo[channelId].following_date_ms = new Date(followers[i].followed_at).getTime();
+			for (const follower of followers) {
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, follower.user_id, follower.user_login, follower.user_name, undefined, true, false);
+				if(user.channelInfo[channelId]) user.channelInfo[channelId]!.following_date_ms = new Date(follower.followed_at).getTime();
 				this.fakeUsersCache.push(user);
 			}
 		}
@@ -2640,13 +2634,12 @@ export default class TwitchUtils {
 		const count = Math.min(20, additional.length);
 		while (this.fakeUsersCache.length < count) {
 			const [entry] = additional.splice(Math.floor(Math.random() * additional.length), 1);
-			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry.id, entry.login, entry.displayName, undefined, false, false));
+			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry!.id, entry!.login, entry!.displayName, undefined, false, false));
 		}
 
 		//Get users that are missing avatars
 		const missingAvatars: TwitchatDataTypes.TwitchatUser[] = [];
-		for (let i = 0; i < this.fakeUsersCache.length; i++) {
-			const u = this.fakeUsersCache[i];
+		for (const u of this.fakeUsersCache) {
 			if (!u.avatarPath) missingAvatars.push(u);
 		}
 
@@ -2909,8 +2902,8 @@ export default class TwitchUtils {
 				const json: { data: Omit<TwitchDataTypes.Emote, "images">[], template: string, pagination?: { cursor?: string } } = await res.json();
 
 				list = list.concat(json.data.map(v => {
-					let format = v.format[v.format.length - 1];
-					let theme = v.theme_mode.indexOf(StoreProxy.common.theme) > -1 ? StoreProxy.common.theme : v.theme_mode[0];
+					let format = v.format[v.format.length - 1]!;
+					let theme = v.theme_mode.indexOf(StoreProxy.common.theme) > -1 ? StoreProxy.common.theme : v.theme_mode[0]!;
 					return {
 						emote_set_id: v.emote_set_id,
 						emote_type: v.emote_type,
@@ -2921,9 +2914,9 @@ export default class TwitchUtils {
 						scale: v.scale,
 						theme_mode: v.theme_mode,
 						images: {
-							url_1x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[0]),
-							url_2x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[1]),
-							url_4x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[2]),
+							url_1x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[0]!),
+							url_2x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[1]!),
+							url_4x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[2]!),
 						},
 					}
 				}));
@@ -3136,7 +3129,7 @@ export default class TwitchUtils {
 		});
 		if (res.status == 200 || res.status == 204) {
 			const json = await res.json() as {data:TwitchDataTypes.VOD[]};
-			return json.data[0];
+			return json.data[0]!;
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers);
 			return this.getVODInfo(vodID);
@@ -3265,8 +3258,8 @@ export default class TwitchUtils {
 			scopes = [scopes];
 		}
 
-		for (let i = 0; i < scopes.length; i++) {
-			if (this.scopes.indexOf(scopes[i]) == -1) {
+		for (const scope of scopes) {
+			if (this.scopes.indexOf(scope) == -1) {
 				return false;
 			}
 		}
@@ -3365,10 +3358,9 @@ export default class TwitchUtils {
 			if (emotes) {
 				const ranges: number[][] | undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v => v.split("-").map(v => parseInt(v)));
 				if (ranges) {
-					for (let i = 0; i < ranges.length; i++) {
-						const range = ranges[i];
-						for (let j = range[0]; j <= range[1]; j++) {
-							protectedRanges[j] = true;
+					for (const range of ranges) {
+						for (let j = range[0]!; j <= range[1]!; j++) {
+							protectedRanges[j]! = true;
 						}
 					}
 				}
@@ -3391,8 +3383,8 @@ export default class TwitchUtils {
 					//Parce all words and check if they match an existing emote.
 					//If so, keep it aside for faster parsing after
 					const chunks = message.split(/\s/);
-					for (let i = 0; i < chunks.length; i++) {
-						const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
+					for (const chunk of chunks) {
+						const txt = chunk.replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
 						if (emoteListHashmap[txt]) {
 							emoteList.push(emoteListHashmap[txt]);
 						}
@@ -3401,7 +3393,7 @@ export default class TwitchUtils {
 					//Parse found emotes
 					const tagsDone: { [key: string]: boolean } = {};
 					for (let i = 0; i < emoteList.length; i++) {
-						const e = emoteList[i];
+						const e = emoteList[i]!;
 						const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 						if (tagsDone[name]) continue;
 						tagsDone[name] = true;
@@ -3414,7 +3406,7 @@ export default class TwitchUtils {
 							let tmpTag = e.id + ":";
 							let emoteCount = 0;
 							for (let j = 0; j < matches.length; j++) {
-								const start = (matches[j].index as number);
+								const start = (matches[j]!.index as number);
 								const end = start + e.code.length - 1;
 								const range = getProtectedRange(fakeTag);
 
@@ -3464,15 +3456,13 @@ export default class TwitchUtils {
 			//Parse raw emotes data
 			const chunks = (emotes as string).split("/");
 			if (chunks.length > 0) {
-				for (let i = 0; i < chunks.length; i++) {
-					const c = chunks[i];
+				for (const c of chunks) {
 					if (c.indexOf(":") == -1) continue;
-					const id = c.split(":")[0];
-					const positions = c.split(":")[1].split(",");
-					for (let j = 0; j < positions.length; j++) {
-						const p = positions[j];
-						const begin = parseInt(p.split("-")[0]);
-						const end = parseInt(p.split("-")[1]);
+					const id = c.split(":")[0]!;
+					const positions = c.split(":")[1]!.split(",");
+					for (const p of positions) {
+						const begin = parseInt(p.split("-")[0]!);
+						const end = parseInt(p.split("-")[1]!);
 						if (isNaN(begin) || isNaN(end)) continue;
 						emotesList.push({ id, begin, end });
 					}
@@ -3487,8 +3477,7 @@ export default class TwitchUtils {
 
 			let cursor = 0;
 			//Convert emotes to image tags
-			for (let i = 0; i < emotesList.length; i++) {
-				const e = emotesList[i];
+			for (const e of emotesList) {
 				if (cursor < e.begin) {
 					result.push({ type: "text", value: Array.from(message).slice(cursor, e.begin).join("") });
 				}
@@ -3514,7 +3503,7 @@ export default class TwitchUtils {
 							if (stvE) {
 								const rootURL = stvE.host.url + "/";
 								const urls = stvE.host.files.filter(v => v.format == "WEBP");
-								result.push({ type: "emote", value: "7TV: " + code, emote: rootURL + urls[0].name, emoteHD: rootURL + urls[urls.length - 1].name });
+								result.push({ type: "emote", value: "7TV: " + code, emote: rootURL + urls[0]!.name, emoteHD: rootURL + urls[urls.length - 1]!.name });
 							} else {
 								result.push({ type: "text", value: code });
 							}
@@ -3533,7 +3522,7 @@ export default class TwitchUtils {
 		//Parse URL chunks
 		if(parseLinks) {
 			for (let i = 0; i < result.length; i++) {
-				const chunk = result[i];
+				const chunk = result[i]!;
 				if (chunk.type == "text") {
 					result.splice(i, 1);//Remove source chunk
 					const res = (chunk.value || "").split(/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
@@ -3570,7 +3559,7 @@ export default class TwitchUtils {
 		//only for twitch as we cannot retrive the actual user profile for other platforms
 		if(platform == "twitch") {
 			for (let i = 0; i < result.length; i++) {
-				const chunk = result[i];
+				const chunk = result[i]!;
 				if (chunk.type == "text") {
 					result.splice(i, 1);//Remove source chunk
 					const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
@@ -3614,8 +3603,7 @@ export default class TwitchUtils {
 	 */
 	public static messageChunksToHTML(chunks: TwitchatDataTypes.ParseMessageChunk[], cleanupHTML:boolean = true): string {
 		let message_html = "";
-		for (let i = 0; i < chunks.length; i++) {
-			const v = chunks[i];
+		for (const v of chunks) {
 			const label = !cleanupHTML? v.value : v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 			if (v.type == "text") {
 				message_html += label;
@@ -3638,8 +3626,7 @@ export default class TwitchUtils {
 	 */
 	public static async eventsubFragmentsToTwitchatChunks(fragments: TwitchEventSubDataTypes.MessageFragments, channelId:string):Promise<TwitchatDataTypes.ParseMessageChunk[]> {
 		let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
-		for (let i = 0; i < fragments.length; i++) {
-			const f = fragments[i];
+		for (const f of fragments) {
 			switch(f.type) {
 				default:
 				case "text":{
@@ -3699,12 +3686,11 @@ export default class TwitchUtils {
 		}
 
 		//Parse all cheermotes
-		for (let i = 0; i < cheermotes.length; i++) {
-			const list = cheermotes[i];
+		for (const list of cheermotes) {
 			const reg = new RegExp("(" + list.prefix + "[0-9]+)", "gi");
 			//Parse all text chunks
 			for (let j = 0; j < chunks.length; j++) {
-				const chunk = chunks[j];
+				const chunk = chunks[j]!;
 				//It's a text node, check if the current cheermote is there
 				if (chunk.type == "text") {
 					reg.lastIndex = 0;
@@ -3730,10 +3716,10 @@ export default class TwitchUtils {
 						if (isCheermote) {
 							//Search for the lower nearest existing tier with the specified value
 							const bitsCount = parseInt(v.toLowerCase().replace(list.prefix.toLowerCase(), ""));
-							let tiers = list.tiers[list.tiers.length - 1];
+							let tiers = list.tiers[list.tiers.length - 1]!;
 							for (let k = 0; k < list.tiers.length; k++) {
-								if (list.tiers[k].min_bits > bitsCount) {
-									tiers = list.tiers[k - 1];
+								if (list.tiers[k]!.min_bits > bitsCount) {
+									tiers = list.tiers[k - 1]!;
 									break;
 								}
 							}
@@ -3759,10 +3745,9 @@ export default class TwitchUtils {
 	 * //TODO allow mentions starting with "@"
 	 */
 	public static highlightChunks(chunks: TwitchatDataTypes.ParseMessageChunk[], words: string[]): TwitchatDataTypes.ParseMessageChunk[] {
-		for (let i = 0; i < words.length; i++) {
-			const word = words[i].toLowerCase();
-			for (let j = 0; j < chunks.length; j++) {
-				const chunk = chunks[j];
+		for (const word of words) {
+			let j = 0;
+			for (const chunk of chunks) {
 				if (chunk.type != "text") continue;
 				if (chunk.value.toLowerCase().indexOf(word) == -1) continue;
 
@@ -3786,6 +3771,7 @@ export default class TwitchUtils {
 					chunks.splice(j, 0, node);
 					j++
 				});
+				j++;
 			}
 		}
 		return chunks;

@@ -41,14 +41,14 @@
 									@mouseover="initTooltip($event, item.id, 'followbot.ban_tt')"
 									alert
 									icon="ban"
-									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
+									v-if="item.user.channelInfo[item.channel_id]!.is_banned !== true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unban(item)"
 									@mouseover="initTooltip($event, item.id, 'followbot.unban_tt')"
 									icon="unban"
-									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
+									v-if="item.user.channelInfo[item.channel_id]!.is_banned === true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
@@ -56,7 +56,7 @@
 									@mouseover="initTooltip($event, item.id, 'followbot.unfollow_tt')"
 									alert
 									icon="unfollow"
-									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
+									v-if="item.user.channelInfo[item.channel_id]!.is_following == true" />
 
 								<Button small type="link"
 									target="_blank"
@@ -129,8 +129,7 @@ class EmergencyFollowsListModal extends Vue {
 			const list = this.$store.emergency.follows;
 			const reg = new RegExp(this.search, "gi");
 			this.followers = [];
-			for (let i = 0; i < list.length; i++) {
-				const f = list[i];
+			for (const f of list) {
 				reg.lastIndex = 0;
 				if(reg.test(f.user.displayNameOriginal)) {
 					this.followers.push( f );
@@ -172,10 +171,10 @@ class EmergencyFollowsListModal extends Vue {
 	}
 
 	public async unfollow(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		if(follow.user.channelInfo[follow.channel_id].is_following != true) return;
+		if(follow.user.channelInfo[follow.channel_id]!.is_following != true) return;
 		follow.loading = true;
 		await TwitchUtils.blockUser(follow.user, "spam");
-		follow.user.channelInfo[follow.channel_id].is_following = false;
+		follow.user.channelInfo[follow.channel_id]!.is_following = false;
 		await TwitchUtils.unblockUser(follow.user);
 		follow.loading = false;
 	}
@@ -192,7 +191,7 @@ class EmergencyFollowsListModal extends Vue {
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
 				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
-				await this.ban(list[i]);
+				await this.ban(list[i]!);
 			}
 			this.batchActionInProgress = false;
 		}).catch(()=>{});
@@ -206,7 +205,7 @@ class EmergencyFollowsListModal extends Vue {
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
 				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
-				await this.unfollow(list[i]);
+				await this.unfollow(list[i]!);
 			}
 			this.batchActionInProgress = false;
 		}).catch(()=>{});
@@ -228,11 +227,12 @@ class EmergencyFollowsListModal extends Vue {
 		let csv = "Date, User ID, Login, Unfollowed, Banned\n";
 		const len = this.followers.length;
 		for (let i = 0; i < len; i++) {
-			csv += this.followers[i].date;
-			csv += "," + this.followers[i].user.id;
-			csv += "," + this.followers[i].user.login;
-			csv += "," + (this.followers[i].user.channelInfo[this.followers[i].channel_id].is_following === true? 0 : 1);
-			csv += "," + (this.followers[i].user.channelInfo[this.followers[i].channel_id].is_banned === true? 1 : 0);
+			const follower = this.followers[i]!;
+			csv += follower.date;
+			csv += "," + follower.user.id;
+			csv += "," + follower.user.login;
+			csv += "," + (follower.user.channelInfo[follower.channel_id]!.is_following === true? 0 : 1);
+			csv += "," + (follower.user.channelInfo[follower.channel_id]!.is_banned === true? 1 : 0);
 			if(i < len -1) csv += "\n";
 		}
 

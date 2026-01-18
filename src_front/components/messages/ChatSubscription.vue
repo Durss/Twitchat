@@ -158,7 +158,7 @@ class ChatSubscription extends AbstractChatMessage {
 	}
 
 	public get totalSubgifts():number|undefined {
-		return this.messageData.user.channelInfo[this.messageData.channel_id].totalSubgifts;
+		return this.messageData.user.channelInfo[this.messageData.channel_id]!.totalSubgifts;
 	}
 	
 	public get giftRecipients():TwitchatDataTypes.TwitchatUser[] {

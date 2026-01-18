@@ -129,7 +129,7 @@ class ChatTrackAddedToQueue extends AbstractChatMessage {
 
 		const list = (trigger.permissions.usersRefused || []);
 		for (let i = 0; i < list.length; i++) {
-			const u = list[i];
+			const u = list[i]!;
 			if(u.toLowerCase() == this.messageData.user.login.toLowerCase()) {
 				list.splice(i, 1);
 				i--;

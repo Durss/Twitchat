@@ -91,7 +91,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			if(ip.indexOf("ws") == 0) {
 				const [_protocol, _ip] = ip.split("//");
-				ip = _ip;
+				ip = _ip!;
 				protocol = _protocol+"//";
 			}
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
@@ -246,8 +246,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		});
 
 		//Get groups' items
-		for (let i = 0; i < items.length; i++) {
-			const entry = items[i];
+		for (const entry of items) {
 			if(entry.item.isGroup) {
 				//Load group's children
 				const groupList = await this.obs.call("GetGroupSceneItemList", {sceneName:entry.item.sourceName});
@@ -308,11 +307,11 @@ export default class OBSWebSocket extends EventDispatcher {
 		//Dedupe results
 		const itemsDone:{[key:string]:boolean} = {};
 		for (let i = 0; i < sources.length; i++) {
-			if(itemsDone[sources[i].sourceName] === true) {
+			if(itemsDone[sources[i]!.sourceName] === true) {
 				sources.splice(i, 1)!
 				i--;
 			}
-			itemsDone[sources[i].sourceName] = true;
+			itemsDone[sources[i]!.sourceName] = true;
 		}
 
 		return sources;
@@ -344,8 +343,8 @@ export default class OBSWebSocket extends EventDispatcher {
 		//If current scene is cached, just send back cached data
 		const cache = this.sceneDisplayRectsCache[currentScene];
 		if(cache && Date.now()-cache.ts < 30000) {
-			this.log("return cached data", this.sceneDisplayRectsCache[currentScene].value);
-			return this.sceneDisplayRectsCache[currentScene].value;
+			this.log("return cached data", this.sceneDisplayRectsCache[currentScene]!.value);
+			return this.sceneDisplayRectsCache[currentScene]!.value;
 		}
 
 		//If caching is in progress from a previous request, wait a little
@@ -390,8 +389,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		}
 
 		//Parse all scene items
-		for (let j = 0; j < sceneList.length; j++) {
-			const scene = sceneList[j];
+		for (const scene of sceneList) {
 
 			if(scenesDone[scene.name] == true) continue;
 			scenesDone[scene.name] = true;
@@ -406,8 +404,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			}
 			const items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
 			//Parse all scene sources
-			for (let i=0; i < items.length; i++) {
-				const source = items[i];
+			for (const source of items) {
 				sourceDone[source.item.sourceName] = true;
 
 				//Ignore invisible items
@@ -678,10 +675,10 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
 		if(items.length > 0) {
-			for (let i = 0; i < items.length; i++) {
+			for (const item of items) {
 				await this.obs.call("SetSceneItemEnabled", {
-					sceneName:items[i].scene,
-					sceneItemId:items[i].source.sceneItemId,
+					sceneName:item.scene,
+					sceneItemId:item.source.sceneItemId,
 					sceneItemEnabled:visible
 				});
 			}
@@ -701,14 +698,14 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
 		if(items.length > 0) {
-			for (let i = 0; i < items.length; i++) {
+			for (const item of items) {
 				const res = await this.obs.call("GetSceneItemEnabled", {
-					sceneName:items[i].scene,
-					sceneItemId:items[i].source.sceneItemId,
+					sceneName:item.scene,
+					sceneItemId:item.source.sceneItemId,
 				});
 				await this.obs.call("SetSceneItemEnabled", {
-					sceneName:items[i].scene,
-					sceneItemId:items[i].source.sceneItemId,
+					sceneName:item.scene,
+					sceneItemId:item.source.sceneItemId,
 					sceneItemEnabled:!res.sceneItemEnabled
 				});
 			}
@@ -733,8 +730,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		}catch(error){
 			//If source isn't found, search for groups recursively to also check within them
 			const sources = await this.getSources();
-			for (let i = 0; i < sources.length; i++) {
-				const s = sources[i];
+			for (const s of sources) {
 				if(s.isGroup || s.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 					const res = await this.searchSceneItemId(sourceName, s.sourceName);
 					if(res) return res;
@@ -777,15 +773,13 @@ export default class OBSWebSocket extends EventDispatcher {
 				items = (res.sceneItems as unknown) as OBSSourceItem[];
 			}
 
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.sourceName == sourceName) {
 					result.push( {scene:target, source:item} );
 				}
 			}
 
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.isGroup) {
 					//Search on sub group
 					const list = await getSourceListOn(item.sourceName, true);
@@ -960,7 +954,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		if(!this.connected) return "";
 		if(!sourceName) sourceName = await this.getCurrentScene();
 		//If there's an cached image recent enough, send it back
-		if(Date.now() - this.cachedScreenshots[sourceName]?.ts < 100) return this.cachedScreenshots[sourceName].screen;
+		if(Date.now() - this.cachedScreenshots[sourceName]!.ts < 100) return this.cachedScreenshots[sourceName]!.screen;
 
 		//Request for a fresh new screenshot
 		const res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
@@ -990,8 +984,7 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
 		//Check if the source we're about to create already exists somewhere
-		for (let i = 0; i < inputList.inputs.length; i++) {
-			const input = inputList.inputs[i];
+		for (const input of inputList.inputs) {
 			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
 			//Ignore local file sources
 			if(inputConf.inputSettings.is_local_file === true || !inputConf.inputSettings.url) continue;
@@ -1199,8 +1192,7 @@ export default class OBSWebSocket extends EventDispatcher {
 				}
 			}
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.sceneItemId == e.sceneItemId) {
 					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
 					break;
@@ -1213,7 +1205,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			for (const key in this.sceneSourceCache) {
 				const [scene, source] = key.split(this.sceneCacheKeySplitter);
 				if(source == e.oldInputName) {
-					this.sceneSourceCache[ scene + this.sceneCacheKeySplitter + e.inputName ] = this.sceneSourceCache[key];
+					this.sceneSourceCache[ scene + this.sceneCacheKeySplitter + e.inputName ] = this.sceneSourceCache[key]!;
 					delete this.sceneSourceCache[key];
 				}
 			}
@@ -1225,7 +1217,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			for (const key in this.sceneSourceCache) {
 				const [scene, source] = key.split(this.sceneCacheKeySplitter);
 				if(scene == e.oldSceneName) {
-					this.sceneSourceCache[ e.sceneName + this.sceneCacheKeySplitter + source ] = this.sceneSourceCache[key];
+					this.sceneSourceCache[ e.sceneName + this.sceneCacheKeySplitter + source ] = this.sceneSourceCache[key]!;
 					delete this.sceneSourceCache[key];
 				}
 			}

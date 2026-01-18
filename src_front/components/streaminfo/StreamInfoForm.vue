@@ -215,7 +215,8 @@ class StreamInfoForm extends AbstractSidePanel {
 		this.loading = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
 		let [streamInfos] = await TwitchUtils.getCurrentStreamInfo([channelId]);
-		const [channelInfos] = await TwitchUtils.getChannelInfo([channelId]);
+		const result = await TwitchUtils.getChannelInfo([channelId]);
+		const channelInfos = result[0];
 		try {
 			let title:string = "";
 			let gameId:string = "";
@@ -224,15 +225,15 @@ class StreamInfoForm extends AbstractSidePanel {
 				title = streamInfos.title;
 				gameId = streamInfos.game_id;
 				tags = streamInfos.tags;
-			}else{
+			}else if(channelInfos){
 				//Fallback to channel info if we're not live
 				title = channelInfos.title;
 				gameId = channelInfos.game_id;
 				tags = channelInfos.tags;
 			}
 			this.title = title;
-			this.branded = channelInfos.is_branded_content === true;
-			this.labels = channelInfos.content_classification_labels.filter(v=>v != "MatureGame").map(v=> { return {id:v, enabled:true}});
+			this.branded = channelInfos?.is_branded_content === true;
+			this.labels = channelInfos?.content_classification_labels.filter(v=>v != "MatureGame").map(v=> { return {id:v, enabled:true}}) || [];
 			this.tags = tags.concat();
 			if(gameId) {
 				const game = await TwitchUtils.getCategoryByID(gameId);

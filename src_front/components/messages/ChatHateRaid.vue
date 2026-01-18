@@ -76,8 +76,7 @@ class ChatHateRaid extends AbstractChatMessage {
 
 	public async unblockTerms():Promise<void> {
 		this.unblocking = true;
-		for (let i = 0; i < this.messageData.terms.length; i++) {
-			const term = this.messageData.terms[i];
+		for (const term of this.messageData.terms) {
 			const res = await TwitchUtils.removeBanword(term.id);
 			if(res) term.unblocked = true;
 		}
@@ -87,9 +86,8 @@ class ChatHateRaid extends AbstractChatMessage {
 
 	public async banHaters():Promise<void> {
 		this.banning = true;
-		for (let i = 0; i < this.messageData.haters.length; i++) {
-			const user = this.messageData.haters[i];
-			if(user.channelInfo[this.messageData.channel_id].is_banned) continue;
+		for (const user of this.messageData.haters) {
+			if(user.channelInfo[this.messageData.channel_id]!.is_banned) continue;
 			await Utils.promisedTimeout(100);
 			await TwitchUtils.banUser(user, this.messageData.channel_id, undefined, "You have been banned because you took part  what appears to be a hate raid");
 		}

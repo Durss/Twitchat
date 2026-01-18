@@ -173,7 +173,7 @@ export default class AbstractChatMessage extends Vue {
 		if(this.messageData.hasMention && params.highlightMentions.value === true) {
 			color = params.highlightMentions_color.value as string;
 		}else
-		if(chanInfo.is_raider && params.raidHighlightUser.value === true) {
+		if(chanInfo && chanInfo.is_raider && params.raidHighlightUser.value === true) {
 			color = params.raidHighlightUser_color.value as string;
 			//Watch for change to remove border when raider highlight
 			//duration has complete for this user
@@ -181,16 +181,16 @@ export default class AbstractChatMessage extends Vue {
 				this.applyStyles();
 			});
 		}else
-		if(chanInfo.is_moderator && params.highlightMods.value === true) {
+		if(chanInfo && chanInfo.is_moderator && params.highlightMods.value === true) {
 			color = params.highlightMods_color.value as string;
 		}else
-		if(chanInfo.is_vip && params.highlightVips.value === true) {
+		if(chanInfo && chanInfo.is_vip && params.highlightVips.value === true) {
 			color = params.highlightVips_color.value as string;
 		}else
 		if(this.messageData.user.is_partner && params.highlightPartners.value === true) {
 			color = params.highlightPartners_color.value as string;
 		}else
-		if(chanInfo.is_subscriber && params.highlightSubs.value === true) {
+		if(chanInfo && chanInfo.is_subscriber && params.highlightSubs.value === true) {
 			color = params.highlightSubs_color.value as string;
 		}
 		if(color) {

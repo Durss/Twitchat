@@ -271,8 +271,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 
 		//Prefill form from storage
 		const list = [];
-		for (let i = 0; i < this.obsSources.length; i++) {
-			const el = this.obsSources[i];
+		for (const el of this.obsSources) {
 			if((this.$store.emergency.params.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
 				list.push(el);
 			}

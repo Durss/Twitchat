@@ -63,8 +63,8 @@ class ChatPredictionResult extends AbstractChatMessage {
 	public getOutcomePercent(o:TwitchatDataTypes.MessagePredictionDataOutcome):number {
 		let totalVotes = 0;
 		if(this.messageData) {
-			for (let i = 0; i < this.messageData.outcomes.length; i++) {
-				totalVotes += this.messageData.outcomes[i].votes;
+			for (const e of this.messageData.outcomes) {
+				totalVotes += e.votes;
 			}
 		}
 		return Math.round(o.votes/Math.max(1,totalVotes) * 100);

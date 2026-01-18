@@ -26,7 +26,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiHelper.call("admin/beta/user", "POST", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user", "POST", {uid:users[0]!.id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -60,7 +60,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiHelper.call("admin/beta/user", "DELETE", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user", "DELETE", {uid:users[0]!.id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -123,7 +123,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiHelper.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0]!.id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -157,7 +157,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiHelper.call("admin/premium", "POST", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/premium", "POST", {uid:users[0]!.id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -191,7 +191,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiHelper.call("admin/premium", "DELETE", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/premium", "DELETE", {uid:users[0]!.id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {

@@ -363,7 +363,7 @@ export const storeMain = defineStore("main", {
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 				const list = StoreProxy.raffle.raffleList;
 				if(list.length == 0) return true;
-				StoreProxy.raffle.pickWinner(list[0].sessionId || "");
+				StoreProxy.raffle.pickWinner(list[0]!.sessionId || "");
 			});
 
 			/**
@@ -637,9 +637,11 @@ export const storeMain = defineStore("main", {
 				const configs = [StoreProxy.params.goxlrConfig.chatScrollSources, StoreProxy.params.goxlrConfig.chatReadMarkSources];
 				for (let j = 0; j < configs.length; j++) {
 					const config = configs[j];
+					if(!config) continue;
 					const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
 					for (let i = 0; i < config.length; i++) {
 						const column = config[i];
+						if(!column) continue;
 						if(column[0] == indexToButtonId[e.fxIndex!]
 						&& column[1] == e.encoderId!) {
 							const key = e.fxIndex+"_"+e.encoderId+"_"+e.encoderValue;
@@ -647,7 +649,7 @@ export const storeMain = defineStore("main", {
 							const value = e.encoderValue!;
 							const encoderParams = GoXLRSocket.instance.getEncoderPossibleValues(id);
 							const resetValue = encoderParams.values[Math.round(encoderParams.values.length/2)]
-							if(value !== resetValue) {
+							if(value !== resetValue && resetValue) {
 								const prevValue = e.prevEncoderValue!;
 								const index1 = encoderParams.values.indexOf(prevValue);
 								const index2 = encoderParams.values.indexOf(value);
@@ -888,13 +890,17 @@ export const storeMain = defineStore("main", {
 				if (!triggers) return;
 				for (let i = 0; i < triggers.length; i++) {
 					const triggerNew = triggers[i];
+					if(!triggerNew) continue;
 					const triggerOld = triggersBackup.find(v => v.id == triggerNew.id);
 					if (!triggerNew.actions) continue
 					if (!triggerOld?.actions) continue
 					for (let j = 0; j < triggerNew.actions.length; j++) {
 						const actionNew = triggerNew.actions[j];
 						const actionNext = triggerNew.actions[j + 1];
+						if(!actionNew) continue;
 						const actionOld = triggerOld?.actions.find(v => v.id == actionNew.id);
+						if(!actionNew) continue;
+						if(!actionOld) continue;
 						// If it's an http action and its backup has outputPlaceholderList items
 						if (actionNew.type == "http"
 						&& actionOld && actionOld.type == "http"
@@ -905,7 +911,7 @@ export const storeMain = defineStore("main", {
 							
 							// IF it has no JSON placeholder just reuse the same placeholder
 							if (!actionNew.outputPlaceholder && jsonPlaceholders.length === 0) {
-								actionNew.outputPlaceholder = actionOld.outputPlaceholderList[0].placeholder;
+								actionNew.outputPlaceholder = actionOld.outputPlaceholderList[0]?.placeholder;
 								saveRightAway = true;
 								// console.log("FIX RIGHT AWAY", actionNew.id)
 								continue;

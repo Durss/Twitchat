@@ -282,7 +282,7 @@ class OverlayChatHighlight extends Vue {
 		if(minutes == 0) {
 			this.dateLabel = "";
 		}else{
-			let label = (minutes <= 1)? singular : plural;
+			let label = (minutes <= 1)? singular! : plural!;
 			this.dateLabel = label.replace("{MIN}", minutes.toString());
 		}
 		this.dateTimeout = window.setTimeout(()=>this.updateDate(), 1000);

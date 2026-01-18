@@ -66,7 +66,7 @@ class VoiceGlobalCommands extends Vue {
 		const data:VoiceAction[] = [];
 		let allDone = true;
 		for (let i = 0; i < this.items.length; i++) {
-			const item = this.items[i];
+			const item = this.items[i]!;
 			data.push({
 				id:this.itemIDs[i],
 				sentences:item.value,

@@ -87,8 +87,7 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 	public get showAction():boolean {
 		if(this.action.counters.length === 0) return true;
 		let deleteBatchActions = 0;
-		for (let i = 0; i < this.action.counters.length; i++) {
-			const cid = this.action.counters[i];
+		for (const cid of this.action.counters) {
 			if(this.action.userAction
 			&& this.action.userAction[cid] === "delete") deleteBatchActions ++;
 		}
@@ -164,8 +163,7 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 
 		//Populate action list from types definition
 		let actionList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-		for (let i = 0; i < TriggerActionCountDataActionList.length; i++) {
-			const value = TriggerActionCountDataActionList[i];
+		for (const value of TriggerActionCountDataActionList) {
 			actionList.push({value, labelKey:"triggers.actions.count.action_"+value.toLowerCase()});
 		}
 		this.param_action.listValues = actionList;
@@ -180,8 +178,7 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 	 */
 	private updatePerUserCounterSources():void {
 		//Init per-user counter sources if necessary
-		for (let i = 0; i < this.selectedPerUserCounters.length; i++) {
-			const c = this.selectedPerUserCounters[i];
+		for (const c of this.selectedPerUserCounters) {
 			if(!this.action.counterUserSources) {
 				this.action.counterUserSources = {};
 			}

@@ -204,8 +204,7 @@ export default class TriggerUtils {
 		}
 
 		//Search for custom placeholders defined on previous actions (eg: random value action)
-		for (let i = 0; i < triggerData.actions.length; i++) {
-			const a = triggerData.actions[i];
+		for (const a of triggerData.actions) {
 			//If it's current action, stop there
 			if(a.id == action.id) break;
 			//If it's on a different condition, placeholder won't be shared, skip it
@@ -251,8 +250,7 @@ export default class TriggerUtils {
 						)
 					}
 
-					for (let i = 0; i < placeholders.length; i++) {
-						const ph = placeholders[i];
+					for (const ph of placeholders) {
 						//If a static placeholder already exists with the same name, remove it.
 						//Dynamic placeholder have priority over them.
 						const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == ph.toLowerCase());
@@ -301,8 +299,7 @@ export default class TriggerUtils {
 
 			if(a.type == "json_extract") {
 				if(a.jsonExtractData.outputPlaceholderList && a.jsonExtractData.outputPlaceholderList.length > 0) {
-					for (let i = 0; i < a.jsonExtractData.outputPlaceholderList.length; i++) {
-						const ph = a.jsonExtractData.outputPlaceholderList[i];
+					for (const ph of a.jsonExtractData.outputPlaceholderList) {
 						if(!ph.placeholder || ph.placeholder.length === 0) continue;
 						placeholdersList.push({
 							tag:ph.placeholder.toUpperCase(),

@@ -39,14 +39,14 @@ class OverlayHeatDebug extends Vue {
 			const rects = JSON.parse(event.detail.rects) as number[][];
 			const colors = ["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"];
 			for (let i = 0; i < rects.length; i++) {
-				const rect = rects[i];
+				const rect = rects[i]!;
 				ctx.beginPath();
 				// ctx.lineWidth = Math.random() * 20;
 				ctx.lineWidth = 4;
-				ctx.strokeStyle = colors[i%colors.length];
-				ctx.moveTo(rect[0], rect[1]);
+				ctx.strokeStyle = colors[i%colors.length]!;
+				ctx.moveTo(rect[0]!, rect[1]!);
 				for (let j = 2; j < rect.length; j += 2) {
-					ctx.lineTo(rect[j], rect[j+1]);
+					ctx.lineTo(rect[j]!, rect[j+1]!);
 				}
 				ctx.closePath();
 				ctx.stroke();

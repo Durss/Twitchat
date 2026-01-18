@@ -142,7 +142,7 @@ class ChannelSwitcher extends Vue {
 
 	public beforeMount():void {
 		if(this.channels.findIndex(v => v.user.id === this.modelValue) == -1) {
-			this.currentChannelId = this.channels[0].user.id;
+			this.currentChannelId = this.channels[0]!.user.id;
 		}else{
 			this.currentChannelId = this.modelValue;
 		}
@@ -200,7 +200,10 @@ class ChannelSwitcher extends Vue {
 		event.preventDefault();
 		let index = this.channels.findIndex(v=>v.user.id == this.currentChannelId);
 		index = (++index)%this.channels.length;
-		this.onSelectChannel(this.channels[index].user.id, this.channels[index].user.login, this.channels[index].platform);
+		const channel = this.channels[index];
+		if(channel) {
+			this.onSelectChannel(channel.user.id, channel.user.login, channel.platform);
+		}
 	}
 
 	/**
@@ -208,9 +211,12 @@ class ChannelSwitcher extends Vue {
 	 */
 	public disconnect(user:TwitchatDataTypes.TwitchatUser):void {
 		if(this.$store.stream.currentChatChannel.id === user.id) {
-			this.$store.stream.currentChatChannel.id = this.channels[0].user.id;
-			this.$store.stream.currentChatChannel.name = this.channels[0].user.login;
-			this.$store.stream.currentChatChannel.platform = this.channels[0].platform;
+			const channel = this.channels[0];
+			if(channel) {
+				this.$store.stream.currentChatChannel.id = channel.user.id;
+				this.$store.stream.currentChatChannel.name = channel.user.login;
+				this.$store.stream.currentChatChannel.platform = channel.platform;
+			}
 		}
 		this.$store.stream.disconnectFromExtraChan(user);
 	}

@@ -206,7 +206,7 @@ class DonorBadge extends Vue {
 		this.prevTs = ts;
 
 		for (let i = 0; i < this.stars.length; i++) {
-			const s = this.stars[i];
+			const s = this.stars[i]!;
 			s.x += s.vx;//Do not multiply by timescale. If perfs are low the hearts run out of screen
 			s.y += s.vy * timeScale;
 			s.r += s.vr * timeScale;

@@ -139,8 +139,8 @@ class PollRenderer extends Vue {
 		let maxVotes = 0;
 		let totalVotes = 0;
 		for (let i = 0; i < this.entries.length; i++) {
-			totalVotes += this.entries[i].votes;
-			maxVotes = Math.max(maxVotes, this.entries[i].votes);
+			totalVotes += this.entries[i]!.votes;
+			maxVotes = Math.max(maxVotes, this.entries[i]!.votes);
 		}
 		if(totalVotes == 0) {
 			if(this.mode == "list") return 0;
@@ -159,7 +159,7 @@ class PollRenderer extends Vue {
 			let items = this.$refs.bar as HTMLElement[] || HTMLElement;
 			if(!Array.isArray(items)) items = [items];
 			const minWidth = parseInt(this.$el.minWidth || "300");
-			const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
+			const width = Math.max(minWidth, items[0]!.getBoundingClientRect().width);
 
 			gsap.killTweensOf(this.$el);
 			gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});

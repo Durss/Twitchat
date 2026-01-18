@@ -483,7 +483,7 @@ export default class GoXLRSocket extends EventDispatcher {
 		}else
 		if (json.id && this._idToPromiseResolver[json.id]) {
 			//Resolve related promise
-			this._idToPromiseResolver[json.id](json.data);
+			this._idToPromiseResolver[json.id]!(json.data);
 			delete this._idToPromiseResolver[json.id];
 		}
 		if(json.id && json.data?.Patch) {
@@ -492,7 +492,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				const path = patch.path as string;
 				const chunks = path.split("/");
 				for (let j = 0; j < chunks.length; j++) {
-					const c = chunks[j];
+					const c = chunks[j]!;
 
 					//Handle profile update
 					if(c == "profile_name") {
@@ -597,13 +597,14 @@ export default class GoXLRSocket extends EventDispatcher {
 				return
 			}
 
-			this._deviceId = Object.keys(result.Status.mixers ?? {})[0];
-			if(!this._deviceId) {
+			const deviceId = Object.keys(result.Status.mixers ?? {})[0];
+			if(!deviceId) {
 				console.error("🎤 No GoXLR device found");
 				console.log(result);
 				this.connected = true;
 				return
 			}
+			this._deviceId = deviceId;
 
 			console.log("🎤 GoXLR device ID is", this._deviceId);
 			const mixer = result.Status.mixers[this._deviceId];
@@ -657,7 +658,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				this._initResolver(true);
 			}
 			this._status = reactive(result.Status)!;
-			this.status = this._status? this._status.mixers[this._deviceId] : null;
+			this.status = this._status && this._status.mixers[this._deviceId]? this._status.mixers[this._deviceId]! : null;
 			if(this.status) {
 				this.isGoXLRMini = this.status?.hardware.device_type == "Mini";
 				this.fxEnabled = this.status.effects.is_enabled || false;

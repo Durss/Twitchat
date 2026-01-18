@@ -221,8 +221,8 @@ class ConnectDiscord extends Vue implements IParameterContent {
 			}
 			index --;
 			if(index < 0) index = 0;
-			inputs[index].focus();
-			inputs[index].select();
+			inputs[index]!.focus();
+			inputs[index]!.select();
 			event.stopPropagation();
 			event.preventDefault();
 			//Define new code as a concatenation of all inputs values
@@ -247,8 +247,8 @@ class ConnectDiscord extends Vue implements IParameterContent {
 		let index = inputs.findIndex(v=>v === event.target);
 		index ++;
 		if(index > inputs.length-1) index = 0;
-		inputs[index].focus();
-		inputs[index].select();
+		inputs[index]!.focus();
+		inputs[index]!.select();
 
 		//Define new code as a concatenation of all inputs values
 		this.code = inputs.map(v=>v.value).join("").substring(0, this.codeLength);

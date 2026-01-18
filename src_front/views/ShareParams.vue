@@ -104,7 +104,7 @@ class ShareParams extends Vue {
 				this.csrfToken = data.csrf;
 				const res = await TwitchUtils.getUserInfo([data.uid]);
 				if(res && res.length > 0) {
-					this.remoteUser = res[0];
+					this.remoteUser = res[0]!;
 				}
 			}
 		}

@@ -72,7 +72,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	public onSelectVoice():void {
 		this.action.voiceID = "";
 		this.action.placeholder = "";
-		let data = this.voiceListItemIDToData[this.voiceItemID];
+		let data = this.voiceListItemIDToData[this.voiceItemID]!;
 		if(data.type == "id") {
 			this.action.voiceID = data.value;
 		}else{
@@ -86,7 +86,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	public onSelectSound():void {
 		this.action.soundID = "";
 		this.action.placeholder = "";
-		let data = this.soundListItemIDToData[this.soundItemID];
+		let data = this.soundListItemIDToData[this.soundItemID]!;
 		if(data.type == "id") {
 			this.action.soundID = data.value;
 			VoicemodWebSocket.instance.playSound(undefined, data.value);
@@ -131,8 +131,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 			voiceList.push({label:"═══════ Placeholders ═══════", value:"", disabled:true});
 			soundList.push({label:"═══════ Placeholders ═══════", value:"", disabled:true});
 
-			for (let i = 0; i < ph.length; i++) {
-				const p = ph[i];
+			for (const p of ph) {
 				let id = Utils.getUUID();
 				this.voiceListItemIDToData[id] = {type:"placeholder",value:p.tag};
 				this.soundListItemIDToData[id] = {type:"placeholder",value:p.tag};
@@ -145,8 +144,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 
 		//Prefill input depending on selected data type
 		this.param_voiceList.listValues = voiceList;
-		for (let i = 0; i < voiceList.length; i++) {
-			const v = voiceList[i];
+		for (const v of voiceList) {
 
 			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
 
@@ -168,8 +166,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 
 		//Prefill input depending on selected data type
 		this.param_soundsList.listValues = soundList;
-		for (let i = 0; i < soundList.length; i++) {
-			const v = soundList[i];
+		for (const v of soundList) {
 
 			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
 

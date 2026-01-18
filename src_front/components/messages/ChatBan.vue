@@ -91,7 +91,7 @@ class ChatBan extends AbstractChatMessage {
 		}
 		this.$store.accessibility.setAriaPolite(aria);
 
-		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id].is_banned
+		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id]!.is_banned
 						&& this.messageData.platform != "youtube"
 						&& super.canModerateUser(this.messageData.user, this.messageData.channel_id);
 	}

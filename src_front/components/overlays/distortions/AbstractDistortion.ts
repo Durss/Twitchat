@@ -61,8 +61,8 @@ export default class AbstractDistortion extends Vue {
 		document.body.removeEventListener("click", this.clickHandler);
 
 		while(this.items.length > 0) {
-			gsap.killTweensOf(this.items[0], undefined, false);
-			this.removeItem(this.items[0]);
+			gsap.killTweensOf(this.items[0]!, undefined, false);
+			this.removeItem(this.items[0]!);
 		}
 
 		renderer.domElement.remove();
@@ -232,7 +232,7 @@ export default class AbstractDistortion extends Vue {
 			// materialOverlay/blendSrcAlpha	= THREE.OneFactor,
 			// materialOverlay/blendDstAlpha	= THREE.OneMinusSrcAlphaFactor,
 			// materialOverlay/blending	= THREE.AdditiveBlending,
-			materialOverlay.uniforms.texture1.value = textureOverlay;
+			materialOverlay.uniforms.texture1!.value = textureOverlay;
 
 			// Create an InstancedMesh for overlay
 			instancedShadowMesh = new THREE.InstancedMesh(geometry, materialOverlay, this.maxInstances);
@@ -262,7 +262,7 @@ export default class AbstractDistortion extends Vue {
 		// let screenW = this.screenToWorld(window.innerWidth,0).x;
 
 		for (let i = 0; i < this.items.length; i++) {
-			const item = this.items[i];
+			const item = this.items[i]!;
 			if(!this.computeItem(item)) {
 				this.removeItem(item);
 				i--;
@@ -281,7 +281,7 @@ export default class AbstractDistortion extends Vue {
 			matrix.makeTranslation(item.x, item.y, 0);
 			matrix.multiply(rotationMatrix);
 			matrix.scale(new THREE.Vector3(item.scale, item.scale, 1));
-			instancedDistortMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
+			instancedDistortMesh.geometry.attributes.uvOffset!.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
 
 			instancedDistortMesh.setMatrixAt(i, matrix);
 			if(this.hasOverlay) {
@@ -291,17 +291,17 @@ export default class AbstractDistortion extends Vue {
 				matrix2.makeTranslation(item.x, item.y, 0);
 				matrix2.scale(new THREE.Vector3(item.scale, item.scale, 1));
 				// frame = Math.round(frame/2);
-				instancedShadowMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
+				instancedShadowMesh.geometry.attributes.uvOffset!.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
 				instancedShadowMesh.setMatrixAt(i, matrix2);
 			}
 
 		}
 
 		instancedDistortMesh.instanceMatrix.needsUpdate = true;
-		instancedDistortMesh.geometry.attributes.uvOffset.needsUpdate = true;
+		instancedDistortMesh.geometry.attributes.uvOffset!.needsUpdate = true;
 		if(this.hasOverlay) {
 			instancedShadowMesh.instanceMatrix.needsUpdate = true;
-			instancedShadowMesh.geometry.attributes.uvOffset.needsUpdate = true;
+			instancedShadowMesh.geometry.attributes.uvOffset!.needsUpdate = true;
 		}
 
 		// Render the scene
@@ -353,11 +353,11 @@ export default class AbstractDistortion extends Vue {
 	protected addItem(data:IDistortItem):number {
 		const index = this.items.length;
 		instancedDistortMesh.count ++;
-		instancedDistortMesh.geometry.attributes.uvOffset.setXY(index, 0, 0);
+		instancedDistortMesh.geometry.attributes.uvOffset!.setXY(index, 0, 0);
 		instancedDistortMesh.setMatrixAt(index, new THREE.Matrix4());
 		if(this.hasOverlay) {
 			instancedShadowMesh.count ++;
-			instancedShadowMesh.geometry.attributes.uvOffset.setXY(index, 0, 0);
+			instancedShadowMesh.geometry.attributes.uvOffset!.setXY(index, 0, 0);
 			instancedShadowMesh.setMatrixAt(index, new THREE.Matrix4());
 		}
 		this.items.push(data);

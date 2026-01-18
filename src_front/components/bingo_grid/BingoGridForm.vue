@@ -189,7 +189,7 @@
 							</div>
 						</ParamItem>
 
-						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" v-model="param_chatCmd_toggle[bingo.id].value" @change="save(bingo)">
+						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" v-model="param_chatCmd_toggle[bingo.id]!.value" @change="save(bingo)">
 							<div class="parameter-child">
 								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
 								<div class="instructions">
@@ -353,17 +353,17 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Save data to storage
 	 */
 	public save(grid:TwitchatDataTypes.BingoGridConfig, broadcastUpdate:boolean = false, playWinSound:boolean = false):void {
-		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
+		if(this.param_chatCmd_toggle[grid.id]!.value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
-		if(!this.param_chatCmd_toggle[grid.id].value) {
+		if(!this.param_chatCmd_toggle[grid.id]!.value) {
 			delete grid.chatCmd;
 		}
 		this.$store.bingoGrid.saveData(grid.id, undefined, broadcastUpdate);
 
 		if(playWinSound && grid.winSoundVolume) {
 			const audio = new Audio(this.$asset("sounds/win.mp3"));
-			audio.volume = this.param_winSoundVolume[grid.id].value/100;
+			audio.volume = this.param_winSoundVolume[grid.id]!.value/100;
 			audio.play();
 		}
 	}
@@ -424,7 +424,7 @@ class BingoGridForm extends AbstractSidePanel {
 	public onSortEnd(grid:TwitchatDataTypes.BingoGridConfig):void {
 		this.isDragging = false;
 		let items = grid.entries.filter(v=>v.lock !== true);
-		this.lockedItems[grid.id].forEach(item => {
+		this.lockedItems[grid.id]!.forEach(item => {
 			items.splice(item.index, 0, item.data);
 		})
 		grid.entries = items;
@@ -439,9 +439,9 @@ class BingoGridForm extends AbstractSidePanel {
 		const entries = grid.entries;
 		this.lockedItems[grid.id] = [];
 		for (let i = 0; i < entries.length; i++) {
-			const entry = entries[i];
+			const entry = entries[i]!;
 			if(entry.lock === true) {
-				this.lockedItems[grid.id].push({
+				this.lockedItems[grid.id]!.push({
 					index:i,
 					data:entry,
 				})
@@ -453,7 +453,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Called when clicking a cell to reroute focus to editable element
 	 */
 	public focusLabel(id:string):void {
-		((this.$refs["label_"+id] as ComponentPublicInstance[])[0].$el as HTMLElement).focus();
+		((this.$refs["label_"+id] as ComponentPublicInstance[])[0]!.$el as HTMLElement).focus();
 	}
 
 	/**
@@ -464,7 +464,7 @@ class BingoGridForm extends AbstractSidePanel {
 	}
 
 	public async renderPreview(id:string, rawMessage:string):Promise<void> {
-		const prevState = this.param_showMessage[id];
+		const prevState = this.param_showMessage[id]!;
 		this.param_showMessage[id] = false;
 		await this.$nextTick();
 		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
@@ -473,15 +473,15 @@ class BingoGridForm extends AbstractSidePanel {
 			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
 		}
 
-		rawMessage = rawMessage.replace(/\{WINNERS\}/gi, this.param_chatAnnouncement[id]!.placeholderList![0].example!);
+		rawMessage = rawMessage.replace(/\{WINNERS\}/gi, this.param_chatAnnouncement[id]!.placeholderList![0]!.example!);
 
 		const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
 		const message_html = TwitchUtils.messageChunksToHTML(chunks);
 
-		this.param_messagePreview[id].message = rawMessage;
-		this.param_messagePreview[id].message_chunks = chunks;
-		this.param_messagePreview[id].message_html = message_html;
-		this.param_messagePreview[id].twitch_announcementColor = announcementColor;
+		this.param_messagePreview[id]!.message = rawMessage;
+		this.param_messagePreview[id]!.message_chunks = chunks;
+		this.param_messagePreview[id]!.message_html = message_html;
+		this.param_messagePreview[id]!.twitch_announcementColor = announcementColor;
 		this.param_showMessage[id] = prevState;
 	}
 

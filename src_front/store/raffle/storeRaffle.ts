@@ -278,7 +278,7 @@ export const storeRaffle = defineStore('raffle', {
 					//Check if can join from chat command
 					if(!canJoin && raffle.command && TwitchatDataTypes.IsTranslatableMessage[message.type]) {
 						const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
-						const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
+						const cmd = (typedMessage.message || "").trim().split(" ")[0]!.toLowerCase();
 						if(cmd == raffle.command.trim().toLowerCase()) canJoin = true;
 					}
 				}else
@@ -460,7 +460,7 @@ export const storeRaffle = defineStore('raffle', {
 						const user = userListEntry.user;
 						const entry = userListEntry.entry;
 						const channel_id = userListEntry.channel_id;
-						user.channelInfo[channel_id].is_subscriber = true;
+						user.channelInfo[channel_id]!.is_subscriber = true;
 						//Sub tier 3
 						if(data.subT3Ratio > 0
 							&& v.tier == "3000")	entry.score += data.subT3Ratio ?? 0;
@@ -478,7 +478,7 @@ export const storeRaffle = defineStore('raffle', {
 							const gifter = userList.find(w=>w.user.id == v.gifter_id);
 							if(gifter) {
 								const user = sUsers.getUserFrom(gifter.user.platform, channel_id, v.gifter_id, v.gifter_login, v.gifter_name);
-								if(user) user.channelInfo[channel_id].is_gifter = true;
+								if(user) user.channelInfo[channel_id]!.is_gifter = true;
 							}
 						}
 					})
@@ -489,14 +489,14 @@ export const storeRaffle = defineStore('raffle', {
 					const channel_id	= v.channel_id;
 					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 					//Apply VIP ratio
-					if(data.vipRatio > 0 && user.channelInfo[channel_id].is_vip)		v.entry.score += data.vipRatio;
+					if(data.vipRatio > 0 && user.channelInfo[channel_id]!.is_vip)		v.entry.score += data.vipRatio;
 					//Apply sub gifter ratio
-					if(data.subgiftRatio > 0 && user.channelInfo[channel_id].is_gifter)	v.entry.score += data.subgiftRatio;
+					if(data.subgiftRatio > 0 && user.channelInfo[channel_id]!.is_gifter)	v.entry.score += data.subgiftRatio;
 					//Apply follower ratio
 					if(data.followRatio > 0) {
 						//If user follow state isn't loaded yet, get it
-						if(user.channelInfo[channel_id].is_following === null) await sUsers.checkFollowerState(user, channel_id);
-						if(user.channelInfo[channel_id].is_following === true) v.entry.score += data.followRatio;
+						if(user.channelInfo[channel_id]!.is_following === null) await sUsers.checkFollowerState(user, channel_id);
+						if(user.channelInfo[channel_id]!.is_following === true) v.entry.score += data.followRatio;
 					}
 					//Apply sub T1 ratio (value comes from IRC).
 					//If there's a T2 or T3 ratio, don't apply the T1 ratio here, we already got it before
@@ -505,7 +505,7 @@ export const storeRaffle = defineStore('raffle', {
 					if(data.subRatio > 0
 					&& (!data.subT2Ratio || data.subT2Ratio == 0)
 					&& (!data.subT3Ratio || data.subT3Ratio == 0)
-					&& user.channelInfo[channel_id].is_subscriber)	v.entry.score += data.subRatio;
+					&& user.channelInfo[channel_id]!.is_subscriber)	v.entry.score += data.subRatio;
 				}
 			}
 
@@ -585,10 +585,10 @@ export const storeRaffle = defineStore('raffle', {
 								id:Utils.getUUID(),
 								joinCount:1,
 								label:userData.display_name,
-								score:parseInt(users[key].value) || 1,
+								score:parseInt(users[key]!.value) || 1,
 								user:{
 									id:userData.id,
-									platform:users[key].platform || "twitch",
+									platform:users[key]!.platform || "twitch",
 									channel_id,
 								}
 							})
@@ -615,9 +615,7 @@ export const storeRaffle = defineStore('raffle', {
 				let list = [];
 				//Ponderate votes by adding one user many times if their
 				//score is greater than 1
-				for (let i = 0; i < data.entries.length; i++) {
-					const u = data.entries[i];
-
+				for (const u of data.entries) {
 					//Remove entries that already won
 					if(data.winners?.findIndex(v => v.id === u.id) > -1) continue;
 

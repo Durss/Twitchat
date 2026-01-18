@@ -30,7 +30,7 @@ export default class Config {
 	public GET_CURRENT_AUTO_SKIN_CONFIG() {
 		const now = new Date();
 		for(const key in this.AUTO_SKIN_CONFIGS) {
-			const config = this.AUTO_SKIN_CONFIGS[key];
+			const config = this.AUTO_SKIN_CONFIGS[key]!;
 			if(now >= config.dateStart && now <= config.dateEnd) {
 				return config;
 			}

@@ -129,8 +129,7 @@ class ParamsAutomod extends Vue implements IParameterContent {
 		if(this.testClean.length == 0) return [];
 
 		let matchingRules:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
-		for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
-			const f = this.automodData.keywordsFilters[i];
+		for (const f of this.automodData.keywordsFilters) {
 			if(f.regex.trim().length === 0) continue;
 			let reg!:RegExp, valid:boolean = true;
 			try {
@@ -202,7 +201,7 @@ class ParamsAutomod extends Vue implements IParameterContent {
 	public deleteRule(rule:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.$confirm(this.$t("automod.delete_confirm_title"), this.$t("automod.delete_confirm_description")).then(()=> {
 			for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
-				const f = this.automodData.keywordsFilters[i];
+				const f = this.automodData.keywordsFilters[i]!;
 				if(f.id == rule.id) {
 					this.automodData.keywordsFilters.splice(i,1);
 					i--;

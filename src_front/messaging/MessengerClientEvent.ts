@@ -51,7 +51,6 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"WATCH_STREAK", data:TwitchatDataTypes.MessageWatchStreakData);
 	constructor(type:"REFRESH_TOKEN");
-
 	constructor(...params:any[]) {
 		super(params[0]);
 		this.data = params[1];

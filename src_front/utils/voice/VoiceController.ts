@@ -90,8 +90,8 @@ export default class VoiceController {
 			this.tempText = "";
 			let tempText_loc = "";
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
-				if(event.results[i].isFinal) {
-					const finalText = event.results[i][0].transcript.replace(this.lastTriggerKey, "");
+				if(event.results[i]!.isFinal) {
+					const finalText = event.results[i]![0]!.transcript.replace(this.lastTriggerKey, "");
 					if(this.remoteControlMode) {
 						this.finalText = tempText_loc;
 						PublicAPI.instance.broadcast(TwitchatEvent.REMOTE_FINAL_TEXT_EVENT, {text:finalText})
@@ -101,7 +101,7 @@ export default class VoiceController {
 					return;
 				}else{
 					this.finalText = "";
-					tempText_loc += event.results[i][0].transcript;
+					tempText_loc += event.results[i]![0]!.transcript;
 				}
 			}
 
@@ -189,7 +189,7 @@ export default class VoiceController {
 			if(index > -1) {
 				this.lastTriggerKey = key;
 				// str = str.replace(key, "");
-				const action = this.hashmap[key];
+				const action = this.hashmap[key]!;
 				//Make sure event is broadcasted only once
 				if(this.lastTriggerAction?.id !== action.id) {
 					this.lastTriggerAction = action;
@@ -210,7 +210,7 @@ export default class VoiceController {
 		const regChunks:string[] = [];
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
-			if(!a.id) continue;
+			if(!a || !a.id) continue;
 			const sentences = a.sentences?.split(/\r|\n/gi);
 			sentences?.forEach(v => {
 				const key = v.trim().toLowerCase();
@@ -276,12 +276,12 @@ export default class VoiceController {
 			this.splitRegGlobalActions.lastIndex = 0;//reset regexp pointer
 			const chunks = tempText_loc.split(this.splitRegGlobalActions);
 			console.log(chunks);
-			for (let i = 0; i < chunks.length; i++) {
-				const v = chunks[i].trim();
+			for (const chunk of chunks) {
+				const v = chunk.trim();
 				let matchAction = false;
 				for (const key in this.hashmapGlobalActions) {
-					if(v?.toLowerCase() == (this.hashmapGlobalActions[key].sentences || "___").toLowerCase()) {
-						actionsList.push({id:this.hashmapGlobalActions[key].id as TwitchatActionType});
+					if(v?.toLowerCase() == (this.hashmapGlobalActions[key]!.sentences || "___").toLowerCase()) {
+						actionsList.push({id:this.hashmapGlobalActions[key]!.id as TwitchatActionType});
 						matchAction = true;
 						break;
 					}
@@ -296,10 +296,9 @@ export default class VoiceController {
 		}
 		
 		if(hasGlobalAction) {
-			console.log(actionsList);
 			//If there's just one global action, send it the normal way
 			if(actionsList.length ==1) {
-				const a = actionsList[0];
+				const a = actionsList[0]!;
 				this.triggerAction(a.id, a.value as JsonObject);
 			}else{
 				//There are more than one action including global one(s), send them

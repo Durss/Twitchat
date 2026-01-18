@@ -108,7 +108,7 @@ class GroqHistoryItem extends Vue {
 	 */
 	public deanonymizeUsers(text:string):string {
 		for (const login in this.entry.userMap) {
-			const anon = this.entry.userMap[login];
+			const anon = this.entry.userMap[login]!;
 			const reg = new RegExp(anon.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "gi");
 			text = text.replace(reg, login);
 		}

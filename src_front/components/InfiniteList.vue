@@ -99,7 +99,7 @@ class InfiniteList extends Vue {
 	public getStyles(i:number):(CSSProperties | undefined){
 		return {
 			height: this.itemSize + "px",
-			top: this.items[i].py + "px",
+			top: this.items[i]!.py + "px",
 		};
 	}
 
@@ -208,7 +208,7 @@ class InfiniteList extends Vue {
 		if(e.type == "mousemove" || e.type == "mousedown") {
 			this.mouseY = (e as MouseEvent).clientY;
 		}else{
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
+			this.mouseY = (e as TouchEvent).touches[0]!.clientY;
 		}
 	}
 
@@ -262,8 +262,8 @@ class InfiniteList extends Vue {
 				if(dataIndex < 0) dataIndex += this.dataset.length;
 			}
 			
-			this.items[i].py = py;
-			this.items[i].data = dataIndex < this.dataset.length? this.dataset[dataIndex] : null;
+			this.items[i]!.py = py;
+			this.items[i]!.data = dataIndex < this.dataset.length? this.dataset[dataIndex] : null;
 		}
 
 		if(this.draggingList) {

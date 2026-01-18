@@ -255,8 +255,7 @@ class ParamsExporter extends Vue {
 		})
 		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
 			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.type == "folder") {
 					const children = buildItem(item.children || []);
 					res.push({type:"folder",
@@ -277,8 +276,7 @@ class ParamsExporter extends Vue {
 			return res;
 		}
 		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
-		for (let i = 0; i < this.triggerList.length; i++) {
-			const t = this.triggerList[i];
+		for (const t of this.triggerList) {
 			if(!idToHasFolder[t.id]) {
 				idToHasFolder[t.id] = true;
 				this.folderTriggerList.push(t);

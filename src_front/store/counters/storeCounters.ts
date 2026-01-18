@@ -45,16 +45,17 @@ export const storeCounters = defineStore('counters', {
 
 		updateCounter(data:TwitchatDataTypes.CounterData):void {
 			for (let i = 0; i < this.counterList.length; i++) {
-				if(this.counterList[i].id == data.id) {
+				const counter = this.counterList[i]!;
+				if(counter.id == data.id) {
 					if(data.perUser) {
 						//Backup users to the new instance
-						data.users = this.counterList[i].users;
+						data.users = counter.users;
 					}else{
 						delete data.users;
 					}
 					//If placeholder has been updated, update it on all triggers
-					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (this.counterList[i].placeholderKey ?? "").toLowerCase()) {
-						StoreProxy.triggers.renameCounterPlaceholder(this.counterList[i].placeholderKey, data.placeholderKey);
+					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (counter.placeholderKey ?? "").toLowerCase()) {
+						StoreProxy.triggers.renameCounterPlaceholder(counter.placeholderKey, data.placeholderKey);
 					}
 					//Delete old, add new
 					this.counterList.splice(i, 1, data);
@@ -82,8 +83,8 @@ export const storeCounters = defineStore('counters', {
 					const list = counter.users ?? {};
 					let users = Object.keys(list).map(v=> ({uid:v, value:list[v]}));
 					users.sort((a,b)=>{
-						if(a.value.value > b.value.value) return -1;
-						if(a.value.value < b.value.value) return 1;
+						if(a.value!.value > b.value!.value) return -1;
+						if(a.value!.value < b.value!.value) return 1;
 						return 0;
 					})
 					//Only keep top 20 users to avoid clogging WS tunnel
@@ -104,14 +105,14 @@ export const storeCounters = defineStore('counters', {
 										//Avatar is missing, get it from twitch
 										const data = await TwitchUtils.getUserInfo([res.id]);
 										if(data?.length > 0) {
-											res.avatarPath = data[0].profile_image_url;
+											res.avatarPath = data[0]!.profile_image_url;
 										}
 									}
 									//Add user to leaderboard
 									counter!.leaderboard!.push({
 										avatar:res.avatarPath!,
 										login:res.displayNameOriginal,
-										points:v.value.value
+										points:v.value!.value
 									})
 								}
 								//All users ready, broadcast change
@@ -138,7 +139,7 @@ export const storeCounters = defineStore('counters', {
 
 		delCounter(data:TwitchatDataTypes.CounterData):void {
 			for (let i = 0; i < this.counterList.length; i++) {
-				if(this.counterList[i].id == data.id) {
+				if(this.counterList[i]!.id == data.id) {
 					this.counterList.splice(i, 1);
 					break;
 				}
@@ -147,8 +148,7 @@ export const storeCounters = defineStore('counters', {
 
 			//Delete triggers related to the deleted counter
 			const triggers = StoreProxy.triggers.triggerList;
-			for (let i = 0; i < triggers.length; i++) {
-				const t = triggers[i];
+			for (const t of triggers) {
 				if(t.counterId === data.id){
 					StoreProxy.triggers.deleteTrigger(t.id);
 				}
@@ -165,7 +165,7 @@ export const storeCounters = defineStore('counters', {
 				if(user) {
 					if(user.temporary || user.errored) return 0;
 					if(!c.users[user.id]) c.users[user.id] = {login:user.login, value:0, platform:user.platform};
-					counterValue = c.users[user.id].value || 0;
+					counterValue = c.users[user.id]!.value || 0;
 				}else if(userId && c.users[userId]) {
 					counterValue = c.users[userId].value || 0;
 				}
@@ -210,7 +210,7 @@ export const storeCounters = defineStore('counters', {
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
 				c.users![uid] = {
-					login: user?.login || c.users![uid].login,
+					login: user?.login || c.users![uid]!.login,
 					platform: c.users![uid]?.platform || user?.platform || "twitch",
 					value:parseFloat(counterValue.toString())//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 				}
@@ -255,9 +255,8 @@ export const storeCounters = defineStore('counters', {
 		},
 
 		deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
-			for (let i = 0; i < this.counterList.length; i++) {
-				if(this.counterList[i].id == id) {
-					const entry = this.counterList[i];
+			for (const entry of this.counterList) {
+				if(entry.id == id) {
 					if(entry.perUser) {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
@@ -271,9 +270,8 @@ export const storeCounters = defineStore('counters', {
 		},
 
 		deleteAllCounterEntries(id:string):void {
-			for (let i = 0; i < this.counterList.length; i++) {
-				if(this.counterList[i].id == id) {
-					const entry = this.counterList[i];
+			for (const entry of this.counterList) {
+				if(entry.id == id) {
 					entry.users = {};
 				}
 			}

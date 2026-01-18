@@ -138,8 +138,7 @@ class TTUserList extends AbstractSidePanel {
 				const offset7days = Date.now() - 7 * 24 * 60 * 60 * 1000;
 				const offset30days = Date.now() - 30 * 24 * 60 * 60 * 1000;
 				this.users = users.sort((a, b) => b.date - a.date);
-				for (let i = 0; i < users.length; i++) {
-					const c = users[i];
+				for (const c of users) {
 					const date = c.date;
 					if(date > offset24h) this.activeLast24h++;
 					if(date > offset7days) this.activeLast7days++;
@@ -161,7 +160,7 @@ class TTUserList extends AbstractSidePanel {
 		const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
 		let i = 0;
 		for (; i < this.users.length; i++) {
-			const u = this.users[i];
+			const u = this.users[i]!;
 			if(u.date < limit) break;
 		}
 
@@ -176,10 +175,9 @@ class TTUserList extends AbstractSidePanel {
 		let users = this.users.splice(0, chunk);
 		const ids = users.map(u => u.id).filter( v => parseInt(v).toString() == v);
 		const channels = await TwitchUtils.getUserInfo(ids);
-		for (let i = 0; i < channels.length; i++) {
-			const c = channels[i];
+		for (const c of channels) {
 			const index = users.findIndex(u => u.id == c.id);
-			users[index].user = c;
+			users[index]!.user = c;
 		}
 		this.usersSpool = this.usersSpool.concat(users);
 		this.loading = false;

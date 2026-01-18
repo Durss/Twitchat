@@ -35,12 +35,12 @@
 						v-if="$store.auth.isPremium || entry.enabled || $store.customTrain.customTrainList.filter(v=>v.enabled).length < $config.MAX_CUSTOM_TRAIN" />
 
 					<template v-if="train2Timer[entry.id]">
-						<div v-tooltip="train2Timer[entry.id].tooltip"
+						<div v-tooltip="train2Timer[entry.id]!.tooltip"
 						class="timer"
-						:class="{cooldown: train2Timer[entry.id].cooldown}"
-						@click.stop="train2Timer[entry.id].cooldown? $store.customTrain.resetCooldown(entry.id) : null">
+						:class="{cooldown: train2Timer[entry.id]!.cooldown}"
+						@click.stop="train2Timer[entry.id]!.cooldown? $store.customTrain.resetCooldown(entry.id) : null">
 							<Icon name="timer" class="icon" />
-							<div class="value">{{ train2Timer[entry.id].timer }}</div>
+							<div class="value">{{ train2Timer[entry.id]!.timer }}</div>
 						</div>
 					</template>
 				</template>
@@ -194,7 +194,7 @@
 							editable
 							/>
 						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
-						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="param_levelAmounts[entry.id].value" @change="onChange(entry, true)" :childLevel="1" noBackground/>
+						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="param_levelAmounts[entry.id]!.value" @change="onChange(entry, true)" :childLevel="1" noBackground/>
 						<div class="offset info">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:entry.levelAmounts.length})}}</div>
 						<i18n-t scope="global" class="card-item premium plz" tag="div"
 						keypath="overlay.customTrain.param_levelAmounts_plz"
@@ -433,9 +433,9 @@ class OverlayParamsCustomTrain extends Vue {
 	 */
 	public onChange(entry:TwitchatDataTypes.CustomTrainData, rebuildRecord:boolean = false):void {
 		//Make sure user doesn't hack this value
-		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id].max!), 0);
+		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id]!.max!), 0);
 
-		const levels = (this.param_levelAmounts[entry.id].value.match(/(\d|\.)+/g) || [])
+		const levels = (this.param_levelAmounts[entry.id]!.value.match(/(\d|\.)+/g) || [])
 				.filter(v=> !isNaN(parseFloat(v)))
 				.map(v=>parseFloat(v))
 				.sort((a,b)=>a - b);
@@ -563,9 +563,7 @@ class OverlayParamsCustomTrain extends Vue {
 		for (const id in this.$store.customTrain.customTrainStates) {
 			const state = this.$store.customTrain.customTrainStates[id];
 		}
-		for (let i = 0; i < this.$store.customTrain.customTrainList.length; i++) {
-			const train = this.$store.customTrain.customTrainList[i];
-
+		for (const train of this.$store.customTrain.customTrainList) {
 			const date = train.coolDownEnd_at > Date.now() ? train.coolDownEnd_at : train.expires_at;
 			if(date > Date.now()) {
 				const isCooldown = date == train.coolDownEnd_at;
@@ -585,7 +583,7 @@ class OverlayParamsCustomTrain extends Vue {
 	 */
 	private rebuildRecordsMap():void {
 		for (const id in this.$store.customTrain.customTrainList) {
-			const entry = this.$store.customTrain.customTrainList[id];
+			const entry = this.$store.customTrain.customTrainList[id]!;
 			const record = Utils.getAllTimeRecord(entry);
 			if(record) this.train2Record[entry.id] = record;
 		}

@@ -149,15 +149,15 @@ class OverlaysRaffleWheel extends Vue {
 			//Only keep necessary items count
 			//This could be done with way less steps but it wouldn't handle
 			//high volume of data. This is made to handle 100 thousands of items
-			const tmpList = [];
+			const tmpList:TwitchatDataTypes.EntryItem[] = [];
 			const indexPicked:{[key:string]:boolean} = {};
 			let failSafe = 0;
 			let count = tmpList.length;
 			while(count < expectedSize) {
 				let index = Math.floor(Math.random() * list.length);
-				if(indexPicked[index] !== true && list[index].id != this.winnerData.id) {
+				if(indexPicked[index] !== true && list[index]!.id != this.winnerData.id) {
 					indexPicked[index] = true;
-					tmpList.push( list[index] );
+					tmpList.push( list[index]! );
 					count ++;
 				}
 				if(++failSafe == 1000000) {
@@ -200,7 +200,7 @@ class OverlaysRaffleWheel extends Vue {
 
 		if(this.stars.length > 0) {
 			for (let i = 0; i < this.stars.length; i++) {
-				const s = this.stars[i];
+				const s = this.stars[i]!;
 				s.x += s.vx;//Do not multiply by timescale. If perfs are low the hearts run out of screen
 				s.y += s.vy * timeScale;
 				s.r += s.vr * timeScale;
@@ -270,12 +270,12 @@ class OverlaysRaffleWheel extends Vue {
 		&& this.prevBiggestItem != biggestItem
 		&& this.prevBiggestItem.classList.contains("selected")) {
 			this.prevBiggestItem.classList.remove("selected");
-			this.prevBiggestItem.getElementsByClassName("wheel-item")[0].classList.remove("selected");
+			this.prevBiggestItem.getElementsByClassName("wheel-item")[0]!.classList.remove("selected");
 		}
 		if(biggestItem) {
 			if(this.scrollOffset > this.endOffset*.8) {
 				biggestItem.classList.add("selected");
-				biggestItem.getElementsByClassName("wheel-item")[0].classList.add("selected");
+				biggestItem.getElementsByClassName("wheel-item")[0]!.classList.add("selected");
 			}
 			this.prevBiggestItem = biggestItem;
 		}

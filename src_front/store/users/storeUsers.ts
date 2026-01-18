@@ -157,7 +157,7 @@ export const storeUsers = defineStore('users', {
 			const users = await TwitchUtils.getModerators();
 			moderatorsCache[channelId] = {};
 			users.forEach(v => {
-				moderatorsCache[channelId][v.user_id] = true;
+				moderatorsCache[channelId]![v.user_id] = true;
 			});
 		},
 
@@ -267,25 +267,25 @@ export const storeUsers = defineStore('users', {
 
 			if(channelId) {
 				//Init channel data for this user if not already existing
-				if(!user.channelInfo[channelId]) {
+				if(!user.channelInfo[channelId]!) {
 					let following_date_ms = 0;
 					let is_following:boolean|null = channelId == user.id || forcedFollowState===true;
 					if(!is_following) {
 						if(this.myFollowers[platform][user.id] !== undefined) {
 							is_following = true;
-							following_date_ms = this.myFollowers[platform][user.id];
+							following_date_ms = this.myFollowers[platform][user.id]!;
 						}else{
 							is_following = null;
 						}
 					}
-					user.channelInfo[channelId] = {
+					user.channelInfo[channelId]! = {
 						online:false,
 						is_new:false,
 						following_date_ms,
 						is_following,
 						is_raider:false,
 						is_banned:false,
-						is_vip:this.myVIPs[platform][user.id],
+						is_vip:this.myVIPs[platform][user.id]!,
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
 						is_broadcaster:channelId == user.id,
 						is_subscriber:forcedSubscriberState,
@@ -301,7 +301,7 @@ export const storeUsers = defineStore('users', {
 
 			if(loadExtras && !user.temporary && user.platform == "twitch") {
 				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
-				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
+				if(channelId && user.id && user.channelInfo[channelId]!.is_following == null) this.checkFollowerState(user, channelId);
 			}
 
 			if(!user.displayName) user.displayName = this.tmpDisplayName;
@@ -328,7 +328,7 @@ export const storeUsers = defineStore('users', {
 
 					//Remove items that might have been fullfilled externally
 					for (let i = 0; i < batch.length; i++) {
-						const item = batch[i];
+						const item = batch[i]!;
 						if(!item.user.temporary && !needCreationDate) {
 							if(item.cb) item.cb(item.user);
 							batch.splice(i,1);
@@ -395,11 +395,11 @@ export const storeUsers = defineStore('users', {
 								for (const chan in moderatorsCache) {
 									if(!userLocal.channelInfo[chan]) continue;
 
-									const cache = moderatorsCache[chan];
+									const cache = moderatorsCache[chan]!;
 									userLocal.channelInfo[chan].is_moderator = cache && cache[userLocal.id] === true;
 								}
 								//Check follower state
-								if(batchItem.channelId && userLocal.id && userLocal.channelInfo[batchItem.channelId].is_following == null) {
+								if(batchItem.channelId && userLocal.id && userLocal.channelInfo[batchItem.channelId]!.is_following == null) {
 									this.checkFollowerState(userLocal, batchItem.channelId);
 								}
 							}
@@ -460,46 +460,42 @@ export const storeUsers = defineStore('users', {
 			try {
 				const blockedUsers = await TwitchUtils.getBlockedUsers();
 				for (let i = 0; i < blockedUsers.length; i++) {
-					this.blockedUsers["twitch"][ blockedUsers[i].user_id ] = true;
+					this.blockedUsers["twitch"][ blockedUsers[i]!.user_id ] = true;
 				}
 			}catch(error) {/*ignore*/}
 		},
 
 		flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_moderator = true;
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+					u.channelInfo[channelId]!.is_moderator = true;
 					break;
 				}
 			}
 		},
 
 		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_moderator = false;
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+					u.channelInfo[channelId]!.is_moderator = false;
 					break;
 				}
 			}
 		},
 
 		flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_vip = true;
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+					u.channelInfo[channelId]!.is_vip = true;
 					break;
 				}
 			}
 		},
 
 		flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_vip = false;
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+					u.channelInfo[channelId]!.is_vip = false;
 					break;
 				}
 			}
@@ -508,10 +504,9 @@ export const storeUsers = defineStore('users', {
 		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			let user!:TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = true;
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
+			for (const u of userList) {
 				if(u.id === uid && platform == u.platform) {
-					user = userList[i];
+					user = u;
 					user.is_blocked = true;
 					break;
 				}
@@ -534,10 +529,9 @@ export const storeUsers = defineStore('users', {
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			let user!:TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = false;
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
+			for (const u of userList) {
 				if(u.id === uid && platform == u.platform) {
-					user = userList[i];
+					user = u;
 					user.is_blocked = false;
 					break;
 				}
@@ -560,9 +554,8 @@ export const storeUsers = defineStore('users', {
 		async flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number, moderator?:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			let bannedUser:TwitchatDataTypes.TwitchatUser|null = null;
 			//Search user
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
 					bannedUser = u;
 					break;
 				}
@@ -576,7 +569,7 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Check if user is already banned
-			if(!bannedUser || bannedUser.channelInfo[channelId].is_banned) {
+			if(!bannedUser || bannedUser.channelInfo[channelId]!.is_banned) {
 				// Ignore if user is already banned.
 				// As we listen from 2 sources of bans on Eventsub to get more accurate timeout
 				// info missing from the main source of moderation info, we can get
@@ -586,34 +579,34 @@ export const storeUsers = defineStore('users', {
 
 			const banEndDate = Date.now() + (duration_s || 0) * 1000;
 			//User already perma banned, stop there
-			if(bannedUser.channelInfo[channelId].is_banned && !duration_s) return;
+			if(bannedUser.channelInfo[channelId]!.is_banned && !duration_s) return;
 			//If already temporary banned and ban end is less than 2s
 			//away from the expected one, stop there
-			if(bannedUser.channelInfo[channelId].is_banned
-				&& bannedUser.channelInfo[channelId].banEndDate
-				&& Math.abs(banEndDate - bannedUser.channelInfo[channelId].banEndDate!) < 2) return;
+			if(bannedUser.channelInfo[channelId]!.is_banned
+				&& bannedUser.channelInfo[channelId]!.banEndDate
+				&& Math.abs(banEndDate - bannedUser.channelInfo[channelId]!.banEndDate!) < 2) return;
 
-			bannedUser.channelInfo[channelId].is_banned = true;
-			if(bannedUser.channelInfo[channelId].is_moderator === true
+			bannedUser.channelInfo[channelId]!.is_banned = true;
+			if(bannedUser.channelInfo[channelId]!.is_moderator === true
 			&& StoreProxy.params.features.autoRemod.value == true) {
 				//When banned or timed out, twitch removes the moderator role
 				//This flag reminds us to flag them back as mod when timeout completes
 				//Only for our own channel
-				bannedUser.channelInfo[channelId].autoRemod = (channelId == StoreProxy.auth.twitch.user.id);
+				bannedUser.channelInfo[channelId]!.autoRemod = (channelId == StoreProxy.auth.twitch.user.id);
 			}
-			bannedUser.channelInfo[channelId].is_moderator = false;
+			bannedUser.channelInfo[channelId]!.is_moderator = false;
 			//Set ban state
 			if(duration_s) {
-				bannedUser.channelInfo[channelId].banEndDate = banEndDate;
+				bannedUser.channelInfo[channelId]!.banEndDate = banEndDate;
 			}else{
-				delete bannedUser.channelInfo[channelId].banEndDate;
+				delete bannedUser.channelInfo[channelId]!.banEndDate;
 			}
 
 			//Get ban reason from twitch
 			if(platform == "twitch") {
 				const res = await TwitchUtils.getBannedUsers(channelId, [bannedUser.id]);
 				if(res.length > 0) {
-					bannedUser.channelInfo[channelId].banReason = res[0].reason;
+					bannedUser.channelInfo[channelId]!.banReason = res[0]!.reason;
 				}
 			}
 			if(unbanFlagTimeouts[uid]) {
@@ -627,13 +620,12 @@ export const storeUsers = defineStore('users', {
 					if(platform == "twitch") {
 						//If requested to re grant mod role after a moderator timeout completes, do it
 						if(StoreProxy.params.features.autoRemod.value == true) {
-							for (let i = 0; i < userList.length; i++) {
-								const u = userList[i];
+							for (const u of userList) {
 								if(u.id === uid
 								&& platform == u.platform
 								&& platform == "twitch"
-								&& u.channelInfo[channelId].autoRemod === true) {
-									u.channelInfo[channelId].autoRemod = false;
+								&& u.channelInfo[channelId]!.autoRemod === true) {
+									u.channelInfo[channelId]!.autoRemod = false;
 									TwitchUtils.addRemoveModerator(false, channelId, u);
 									break;
 								}
@@ -659,7 +651,7 @@ export const storeUsers = defineStore('users', {
 					//Get creation date of the user if not already existing
 					if(!bannedUser.created_at_ms && platform == "twitch") {
 						const res = await TwitchUtils.getUserInfo([uid]);
-						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0].created_at).getTime();
+						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0]!.created_at).getTime();
 					}
 
 					//Get history of the user to be logged to discord
@@ -668,7 +660,7 @@ export const storeUsers = defineStore('users', {
 					const messages = StoreProxy.chat.messages;
 					let message = "";
 					for (let i = messages.length-1; i > Math.max(0, messages.length - 500); i--) {
-						const m = messages[i];
+						const m = messages[i]!;
 						let labelCode = "";
 						let params:{[key:string]:string} = {DATE:Utils.formatDate(new Date(m.date))};
 						if((m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
@@ -729,7 +721,7 @@ export const storeUsers = defineStore('users', {
 						history.unshift(message);
 					}
 					//Format first message sent
-					const followDate = bannedUser.channelInfo[channelId].following_date_ms;
+					const followDate = bannedUser.channelInfo[channelId]!.following_date_ms;
 					const followDateStr = followDate? Utils.formatDate(new Date(followDate), true) : t('discord.log_pattern.not_following');
 					const createDateStr = bannedUser.created_at_ms? Utils.formatDate(new Date(bannedUser.created_at_ms!)) : "-";
 					let error = "";
@@ -744,7 +736,7 @@ export const storeUsers = defineStore('users', {
 						}, undefined, undefined, undefined, false);
 					})
 					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id, CHANNEL_NAME:channel.displayNameOriginal, CHANNEL_ID:channelId});
-					if(bannedUser.channelInfo[channelId].banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId].banReason+"`";
+					if(bannedUser.channelInfo[channelId]!.banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId]!.banReason+"`";
 
 					if(sDiscord.banLogThread == true) {
 						//Send in a thread
@@ -818,7 +810,7 @@ export const storeUsers = defineStore('users', {
 					type:platform === "twitch"? TwitchatDataTypes.TwitchatMessageType.BAN : TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN,
 					user:bannedUser,
 					moderator,
-					reason: bannedUser.channelInfo[channelId].banReason,
+					reason: bannedUser.channelInfo[channelId]!.banReason,
 				};
 				if(duration_s) m.duration_s = duration_s;
 				StoreProxy.chat.addMessage(m);
@@ -827,9 +819,8 @@ export const storeUsers = defineStore('users', {
 
 		async flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, moderator?:TwitchatDataTypes.TwitchatUser, silentUnban:boolean = false):Promise<void> {
 			let unbannedUser:TwitchatDataTypes.TwitchatUser|undefined;
-			for (let i = 0; i < userList.length; i++) {
-				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
+			for (const u of userList) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
 					unbannedUser = u;
 					break;
 				}
@@ -843,10 +834,10 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Already unbanned or user not found, ignore
-			if(!unbannedUser || !unbannedUser.channelInfo[channelId].is_banned) return;
+			if(!unbannedUser || !unbannedUser.channelInfo[channelId]!.is_banned) return;
 
-			unbannedUser.channelInfo[channelId].is_banned = false;
-			delete unbannedUser.channelInfo[channelId].banEndDate;
+			unbannedUser.channelInfo[channelId]!.is_banned = false;
+			delete unbannedUser.channelInfo[channelId]!.banEndDate;
 
 			if(unbanFlagTimeouts[uid]) {
 				clearTimeout(unbanFlagTimeouts[uid]);
@@ -868,13 +859,13 @@ export const storeUsers = defineStore('users', {
 
 		flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void{
 			for (let i = 0; i < users.length; i++) {
-				users[i].channelInfo[channelId].online = true;
+				users[i]!.channelInfo[channelId]!.online = true;
 			}
 		},
 
 		flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void{
 			for (let i = 0; i < users.length; i++) {
-				users[i].channelInfo[channelId].online = false;
+				users[i]!.channelInfo[channelId]!.online = false;
 			}
 		},
 
@@ -882,28 +873,28 @@ export const storeUsers = defineStore('users', {
 		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "platform">, channelId:string):Promise<boolean> {
 			if(channelId != StoreProxy.auth.twitch.user?.id) {
 				//Only get follower state for our own chan, ignore others as it not possible anymore
-				user.channelInfo[channelId].is_following = true;
+				user.channelInfo[channelId]!.is_following = true;
 				return true;
 			}
 			//If that's us, flag as a follower;
-			if(user.channelInfo[channelId]?.is_broadcaster) {
-				user.channelInfo[channelId].is_following = true;
+			if(user.channelInfo[channelId]!?.is_broadcaster) {
+				user.channelInfo[channelId]!.is_following = true;
 				return true;
 			}
 			if(user.id) {
-				if(user.channelInfo[channelId].is_following == null && user.platform == "twitch") {
+				if(user.channelInfo[channelId]!.is_following == null && user.platform == "twitch") {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
 						const res = await TwitchUtils.getFollowerState(user.id);
 						if(res != null) {
-							user.channelInfo[channelId].is_following = true;
-							user.channelInfo[channelId].following_date_ms = new Date(res.followed_at).getTime();
+							user.channelInfo[channelId]!.is_following = true;
+							user.channelInfo[channelId]!.following_date_ms = new Date(res.followed_at).getTime();
 						}else{
-							user.channelInfo[channelId].is_following = false;
+							user.channelInfo[channelId]!.is_following = false;
 						}
 						return true;
 					}catch(error){
-						// user.channelInfo[channelId].is_following = false;
+						// user.channelInfo[channelId]!.is_following = false;
 					}
 				}
 			}
@@ -938,7 +929,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
-			user.channelInfo[channelId].is_following = true;
+			user.channelInfo[channelId]!.is_following = true;
 			this.myFollowers[user.platform][user.id] = Date.now();
 		},
 
@@ -970,11 +961,11 @@ export const storeUsers = defineStore('users', {
 					if(list.length === 0) return;
 
 					for (let i = parseOffset; i < list.length; i++) {
-						hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
+						hashmap[list[i]!.user_id] = new Date(list[i]!.followed_at).getTime();
 					}
 					parseOffset = list.length;
 					this.myFollowers["twitch"] = hashmap;
-					await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true, undefined, undefined, false);
+					await this.getUserFrom("twitch", uid, list[0]!.user_id, list[0]!.user_login, list[0]!.user_name, undefined, true, undefined, undefined, false);
 				})
 			}catch(error) {}
 		},
@@ -1055,7 +1046,7 @@ export const storeUsers = defineStore('users', {
 								//to the maximum one because this line won't be executed
 								soDate -= Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
 							}
-							user.channelInfo[channelId].lastShoutout = soDate;
+							user.channelInfo[channelId]!.lastShoutout = soDate;
 							//Set the last SO date offset for this channel to now
 							StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate = Date.now();
 						}
@@ -1089,8 +1080,8 @@ export const storeUsers = defineStore('users', {
 				let cooldown = -elapsed;
 				//Compute cooldowns for every pending shoutouts
 				for (let i = 0; i < list.length; i++) {
-					const so = list[i];
-					const userLastSoDate = so.user.channelInfo[channelId].lastShoutout || 0;
+					const so = list[i]!;
+					const userLastSoDate = so.user.channelInfo[channelId]!.lastShoutout || 0;
 					const virtualElapsed = Date.now() - userLastSoDate + cooldown;
 
 					//Compute minimum cooldown to wait for this SO
@@ -1108,7 +1099,7 @@ export const storeUsers = defineStore('users', {
 							//SO failed
 							if(!result) {
 								//Update last SO date for this user to update its cooldown
-								so.user.channelInfo[channelId].lastShoutout = Date.now();
+								so.user.channelInfo[channelId]!.lastShoutout = Date.now();
 								//Bring it back to bottom
 								list.push(so);
 								//Force timers refresh
@@ -1162,7 +1153,7 @@ export const storeUsers = defineStore('users', {
 				id = Utils.getUUID();
 				this.customBadgeList.push({id, img});
 			}else{
-				id = this.customBadgeList[existingIndex].id;
+				id = this.customBadgeList[existingIndex]!.id;
 			}
 
 			this.saveCustomBadges();
@@ -1172,7 +1163,7 @@ export const storeUsers = defineStore('users', {
 		updateCustomBadgeImage(badgeId:string, img:string):void {
 			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
 			if(index > -1) {
-				this.customBadgeList[index].img = img;
+				this.customBadgeList[index]!.img = img;
 			}
 			this.saveCustomBadges();
 		},
@@ -1180,9 +1171,9 @@ export const storeUsers = defineStore('users', {
 		updateCustomBadgeName(badgeId:string, name:string):void {
 			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
 			if(index > -1) {
-				this.customBadgeList[index].name = name;
+				this.customBadgeList[index]!.name = name;
 				if(name.length === 0) {
-					delete this.customBadgeList[index].name;
+					delete this.customBadgeList[index]!.name;
 				}
 			}
 			this.saveCustomBadges();
@@ -1192,10 +1183,10 @@ export const storeUsers = defineStore('users', {
 			//Remove any reference of the badge from the users
 			const userBadges = this.customUserBadges;
 			for (const uid in userBadges) {
-				const index = userBadges[uid].findIndex(v=> v.id == badgeId);
+				const index = userBadges[uid]!.findIndex(v=> v.id == badgeId);
 				if(index > -1) {
-					userBadges[uid].splice(index, 1);
-					if(userBadges[uid].length == 0) {
+					userBadges[uid]!.splice(index, 1);
+					if(userBadges[uid]!.length == 0) {
 						delete userBadges[uid];
 					}
 				}
@@ -1278,16 +1269,16 @@ export const storeUsers = defineStore('users', {
 		},
 
 		flagRestrictedUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
-			user.channelInfo[channelId].is_restricted = true;
+			user.channelInfo[channelId]!.is_restricted = true;
 		},
 		
 		flagSuspiciousUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
-			user.channelInfo[channelId].is_suspicious = true;
+			user.channelInfo[channelId]!.is_suspicious = true;
 		},
 		
 		unflagUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
-			delete user.channelInfo[channelId].is_suspicious;
-			delete user.channelInfo[channelId].is_restricted;
+			delete user.channelInfo[channelId]!.is_suspicious;
+			delete user.channelInfo[channelId]!.is_restricted;
 		},
 
 	} as IUsersActions

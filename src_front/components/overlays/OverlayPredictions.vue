@@ -115,8 +115,8 @@ class OverlayPredictions extends AbstractOverlay {
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i].votes;
-				maxVotes = Math.max(maxVotes, this.prediction.outcomes[i].votes);
+				totalVotes += this.prediction.outcomes[i]!.votes;
+				maxVotes = Math.max(maxVotes, this.prediction.outcomes[i]!.votes);
 			}
 			if(totalVotes == 0) {
 				if(this.listMode) return 0;
@@ -225,7 +225,7 @@ class OverlayPredictions extends AbstractOverlay {
 		let items = this.$refs.bar as HTMLElement[] | HTMLElement;
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "300");
-		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
+		const width = Math.max(minWidth, items[0]!.getBoundingClientRect().width);
 		const duration = .5;
 
 		gsap.killTweensOf(this.$el);

@@ -605,7 +605,7 @@ export class ParamItem extends Vue {
 				value = "00:00:00";
 			}
 			const [h,m,s] = value.split(":").map(v=>parseInt(v));
-			this.paramData.value = (h * 3600 + m * 60 + s) || 0;
+			this.paramData.value = (h! * 3600 + m! * 60 + s!) || 0;
 		}else{
 			this.paramData.value = value;
 
@@ -727,8 +727,7 @@ export class ParamItem extends Vue {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
 			let found;
-			for (let i = 0; i < this.paramData.listValues.length; i++) {
-				const entry = this.paramData.listValues[i];
+			for (const entry of this.paramData.listValues) {
 				if(entry.group) {
 					const v = entry.group.find(v=>v.value === this.paramData.value);
 					if(v) {
@@ -741,7 +740,7 @@ export class ParamItem extends Vue {
 				}
 			}
 			if(!found) {
-				this.paramData.value = this.paramData.listValues[0].value;
+				this.paramData.value = this.paramData.listValues[0]!.value;
 			}
 			this.updateSelectedListValue();
 		}

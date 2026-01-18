@@ -11,11 +11,11 @@
 
 	<div :class="classes(true)"
 	v-else-if="triggerList.length === 1"
-	@click="$emit('select', triggerList[0].id)">
-		<img class="icon" :src="triggerList[0].iconURL" v-if="triggerList[0].iconURL" :style="{backgroundColor:triggerList[0].iconBG}">
-		<Icon class="icon" :name="triggerList[0].icon" v-else-if="triggerList[0].icon" />
+	@click="$emit('select', triggerList[0]!.id)">
+		<img class="icon" :src="triggerList[0]!.iconURL" v-if="triggerList[0]!.iconURL" :style="{backgroundColor:triggerList[0]!.iconBG}">
+		<Icon class="icon" :name="triggerList[0]!.icon" v-else-if="triggerList[0]!.icon" />
 		<Icon class="icon trash" name="trash" />
-		<span class="label">{{ triggerList[0].label }}</span>
+		<span class="label">{{ triggerList[0]!.label }}</span>
 	</div>
 
 	<div v-else class="card-item alert deletedTrigger">{{ $t("triggers.missing_trigger") }}</div>

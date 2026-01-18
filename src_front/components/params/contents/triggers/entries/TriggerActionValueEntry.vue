@@ -90,8 +90,7 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 	public get showAction():boolean {
 		if(this.action.values.length === 0) return true;
 		let deleteBatchActions = 0;
-		for (let i = 0; i < this.action.values.length; i++) {
-			const cid = this.action.values[i];
+		for (const cid of this.action.values) {
 			if(this.action.userAction
 			&& this.action.userAction[cid] === "delete") deleteBatchActions ++;
 		}
@@ -175,8 +174,7 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 	 */
 	private updatePerUserValueSources():void {
 		//Init per-user value sources if necessary
-		for (let i = 0; i < this.selectedPerUserValue.length; i++) {
-			const c = this.selectedPerUserValue[i];
+		for (const c of this.selectedPerUserValue) {
 			if(!this.action.valueUserSources) {
 				this.action.valueUserSources = {};
 			}

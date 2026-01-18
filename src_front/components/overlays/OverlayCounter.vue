@@ -148,8 +148,7 @@ class OverlayCounter extends AbstractOverlay {
 	private setCounterData(data:TwitchatDataTypes.CounterData):void {
 		if(this.counter && this.counter.leaderboard && data.leaderboard) {
 			//Diff old/new values and highlight updated items
-			for (let i = 0; i < this.counter.leaderboard.length; i++) {
-				const prevUser = this.counter.leaderboard[i];
+			for (const prevUser of this.counter.leaderboard) {
 				let newUser = data.leaderboard.find(v=>v.login == prevUser.login);
 				if(!newUser || newUser.points == prevUser.points) continue;
 				gsap.fromTo("#user"+prevUser.login, {outlineWidth:7}, {outlineWidth:0, duration:.5, ease:"sine.inOut"});

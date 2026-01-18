@@ -83,8 +83,7 @@ class ChatMessageChunksParser extends Vue {
 		}
 
 		let isSpoiler = false;
-		for (let i = 0; i < chunks.length; i++) {
-			const chunk = chunks[i];
+		for (const chunk of chunks) {
 			if(chunk.type == "text" && chunk.value == "||") {
 				isSpoiler = !isSpoiler;
 				chunk.spoilerTag = true;

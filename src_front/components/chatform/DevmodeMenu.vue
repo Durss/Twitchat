@@ -305,7 +305,7 @@ class DevmodeMenu extends Vue {
 						if(index < 0) index = ranges.length - 1;
 						// m.bits = Utils.pickRand(ranges);
 						// index = ranges.findIndex(v=> v === m.bits);
-						m.pinDuration_ms = durations[index] * 1000;
+						m.pinDuration_ms = durations[index]! * 1000;
 						m.pinLevel = index;
 						m.pinned = true;
 						// this.$store.chat.addMessage(m);
@@ -318,9 +318,9 @@ class DevmodeMenu extends Vue {
 					const level = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
 					m.twitch_hypeChat = {
 						level,
-						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
+						amount:[1.2,6,12,24,60,120,240,360,480,600][level]!,
 						currency:Utils.pickRand(["EUR","USD","CHF", "GBP"]),
-						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
+						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]!,
 					};
 					break;
 				}
@@ -341,7 +341,7 @@ class DevmodeMenu extends Vue {
 					const m = (message as TwitchatDataTypes.MessageSubscriptionData);
 					m.gift_recipients = recipients;
 					m.is_gift = true;
-					m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
+					m.user.channelInfo[m.channel_id]!.totalSubgifts = Math.round(Math.random()*100);
 					for (let i = 0; i < count; i++) {
 						recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
 					}
@@ -471,7 +471,9 @@ class DevmodeMenu extends Vue {
 		const channelId = this.$store.auth.twitch.user.id;
 		const userMap = new Map<string, TwitchatDataTypes.TwitchatUser>();
 		for (let i = 0; i < messages.length; i++) {
-			const [name, message] = messages[i].split(":");
+			const chunks = messages[i]!.split(":");
+			const name = chunks[0]!;
+			const message = chunks[1]!;
 			const user = userMap.get(name) ?? {
 				id:Utils.getUUID(),
 				displayName:name,
@@ -572,7 +574,7 @@ class DevmodeMenu extends Vue {
 				m.gift_recipients = recipients;
 				m.is_gift = true;
 				m.tier = 1;
-				m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
+				m.user.channelInfo[m.channel_id]!.totalSubgifts = Math.round(Math.random()*100);
 				for (let i = 0; i < count; i++) {
 					recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
 				}
@@ -599,7 +601,7 @@ class DevmodeMenu extends Vue {
 				m.gift_recipients = recipients;
 				m.is_gift = true;
 				m.tier = 1;
-				m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
+				m.user.channelInfo[m.channel_id]!.totalSubgifts = Math.round(Math.random()*100);
 				for (let i = 0; i < count; i++) {
 					const user = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true))
 					let newUser = await this.$store.users.getUserFrom("twitch", secondaryChan.id, user.id, user.login, user.displayNameOriginal);
@@ -668,7 +670,7 @@ class DevmodeMenu extends Vue {
 			const users:TwitchatDataTypes.TwitchatUser[] = [];
 			const list = StoreProxy.users.users;
 			for (let i = 0; i < list.length; i++) {
-				users.push(list[i]);
+				users.push(list[i]!);
 				if(Math.random() > .3) break;
 			}
 

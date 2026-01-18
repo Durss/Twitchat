@@ -302,11 +302,10 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				});
 
 				//Force display of already ticked entries
-				for (let i = 0; i < this.bingo.entries.length; i++) {
-					const entry = this.bingo.entries[i];
+				for (const entry of this.bingo.entries) {
 					if(entry.check) {
 						const checks = this.$refs["check_"+entry.id] as HTMLDivElement[];
-						if(checks) gsap.set(checks[0], {opacity:.8});
+						if(checks) gsap.set(checks[0]!, {opacity:.8});
 					}
 				}
 				this.pushEvent({type:"open"});
@@ -392,12 +391,11 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		//their display would be animated.
 		//This makes sure new cheks are not visible before it's their turn
 		//to be animated
-		for (let i = 0; i < this.bingo.entries.length; i++) {
-			const entry = this.bingo.entries[i];
+		for (const entry of this.bingo.entries) {
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
 			if(checks && this.prevCheckStates[entry.id] != entry.check) {
 				if(entry.check) {
-					gsap.set(checks[0], {opacity:0});
+					gsap.set(checks[0]!, {opacity:0});
 				}else{
 					forcedCellsState[entry.id] = true;
 					entry.check = true;
@@ -410,29 +408,29 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		await this.$nextTick();
 
 		//Animate new checks display
-		for (let i = 0; i < this.bingo.entries.length; i++) {
-			const entry = this.bingo.entries[i];
+		for (const entry of this.bingo.entries) {
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
 			if(!checks) continue;
+			const firstCheck = checks[0];
+			if(!firstCheck) continue;
 			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
 			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
-				if(checks?.length > 0 && checks[0].nodeName != "#comment") {
-					const checkmark = checks[0];
+				if(checks?.length > 0 && firstCheck.nodeName != "#comment") {
 					const angle = (Math.random()-Math.random()) * 25;
 					if(entry.check && forcedCellsState[entry.id] !== true) {
 						//Animate checkmark display
-						gsap.killTweensOf(checks[0]);
-						gsap.fromTo(checkmark, {opacity:0}, {opacity:.8, duration:.25});
+						gsap.killTweensOf(firstCheck);
+						gsap.fromTo(firstCheck, {opacity:0}, {opacity:.8, duration:.25});
 						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+						gsap.fromTo(firstCheck, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
 						await Utils.promisedTimeout(150);
 						this.popClouds(cell);
 						await Utils.promisedTimeout(250);
 
 					}else {
 						//Animate checkmark hide
-						gsap.killTweensOf(checks[0]);
-						gsap.to(checkmark,
+						gsap.killTweensOf(firstCheck);
+						gsap.to(firstCheck,
 							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
 						await Utils.promisedTimeout(350);
 						entry.check = false;
@@ -440,7 +438,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				}
 			}else if(entry.check) {
 				//Force display of the cell
-				gsap.set(checks[0], {opacity:.8});
+				gsap.set(firstCheck, {opacity:.8});
 			}
 			this.prevCheckStates[entry.id] = entry.check;
 		}
@@ -487,11 +485,11 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				if (x === y
 				|| (x < 0 && x === -y)
 				|| (x > 0 && x === 1-y)){
-					delta = [-delta[1], delta[0]]
+					delta = [-delta[1]!, delta[0]!]
 				}
 
-				x += delta[0];
-				y += delta[1];
+				x += delta[0]!;
+				y += delta[1]!;
 			}
 
 			const cells = this.$refs.cell as HTMLElement[];
@@ -595,7 +593,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private getCellByCoords(x:number, y:number):{data:TwitchatDataTypes.BingoGridConfig["entries"][number], holder:HTMLElement} {
 		const bingo = this.bingo!;
-		const data = bingo.entries[x + y*bingo.cols];
+		const data = bingo.entries[x + y*bingo.cols]!;
 		const holder = document.querySelector("[data-cellid=\""+data.id+"\"]") as HTMLElement;
 		return {data, holder};
 	}
@@ -634,7 +632,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		const stars = this.$refs.stars as SVGElement[];
 		const bounds = ref.getBoundingClientRect();
 		for (let i = 0; i < 10; i++) {
-			const star = stars[(this.starIndex++)%stars.length]
+			const star = stars[(this.starIndex++)%stars.length]!
 			const left = bounds.x + bounds.width/2;
 			const top = bounds.y + bounds.height/2;
 			const angle = (Math.random()-Math.random()) * 250;
@@ -666,13 +664,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const existingIndex = this.pendingEvents.findIndex(v=> v.type == "user" && v.userBingo!.user.id == data.userBingo?.user.id);
 			//If iser already exists, is not the current one playing (>0) and
 			//their new bingo count is greater than the scheduled one, replace
-			if(existingIndex > 0 && this.pendingEvents[existingIndex].userBingo!.count < data.userBingo!.count) {
+			if(existingIndex > 0 && this.pendingEvents[existingIndex]!.userBingo!.count < data.userBingo!.count) {
 				this.pendingEvents[existingIndex] = data;
 			}
 		}else if(data.type == "update") { {
 			//Remove any pending updates to keep only the new one
 			for (let i = 1; i < this.pendingEvents.length; i++) {
-				const event = this.pendingEvents[i];
+				const event = this.pendingEvents[i]!;
 				if(event.type == "update") {
 					this.pendingEvents.splice(i, 1);
 					i--;
@@ -694,6 +692,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async execNextEvent():Promise<void> {
 		const item = this.pendingEvents[0];
+		if(!item) return;
 		clearTimeout(this.innactivityTimeout);
 		switch(item.type) {
 			case "open": {
@@ -844,7 +843,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 			delay = duration;
 			//Close background only if next event isn't a user one
-			if(this.pendingEvents.length <= 1 || this.pendingEvents[1].type!="user"){
+			if(this.pendingEvents.length <= 1 || this.pendingEvents[1]!.type!="user"){
 				gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
 				gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
 				delay += duration * .8;

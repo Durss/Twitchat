@@ -108,8 +108,8 @@ class Extensions extends AbstractSidePanel {
 			const slotType =  key as keyof typeof listEnabled;
 			const section = listEnabled[slotType];
 			for (const slotId in section) {
-				if(section[slotId].active) {
-					const eId = section[slotId].id;
+				if(section[slotId]!.active) {
+					const eId = section[slotId]!.id;
 					idToActive[eId] = true;
 					idToSlotType[eId] = {
 						index: slotId,
@@ -123,8 +123,7 @@ class Extensions extends AbstractSidePanel {
 		const items:ExtensionItem[] = list.map(v=> {
 			const slotOptions:ExtensionItem["slotOptions"] = [];
 			let count = 0;
-			for (let i = 0; i < v.type.length; i++) {
-				const slotType = v.type[i];
+			for (const slotType of v.type) {
 				if(slotType == "mobile") continue;//Ignore mobile slots as they're automatic
 
 				if(count > 0) {
@@ -138,9 +137,9 @@ class Extensions extends AbstractSidePanel {
 			}
 			const res:ExtensionItem = {
 				data:v,
-				enabled:idToActive[v.id],
-				enabledType:idToSlotType[v.id]?.type,
-				enabledIndex:idToSlotType[v.id]?.index,
+				enabled:idToActive[v.id]!,
+				enabledType:idToSlotType[v.id]?.type || "panel",
+				enabledIndex:idToSlotType[v.id]?.index || "",
 				selectedValue:idToSlotType[v.id]?.type? idToSlotType[v.id]?.type+'_'+idToSlotType[v.id]?.index : "",
 				slotOptions,
 				loading:false,
@@ -169,7 +168,7 @@ class Extensions extends AbstractSidePanel {
 		ext.loading = true;
 		const chunks = ext.selectedValue.split("_");//Dirty way of extracting index and type :(
 		const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
-		const slotIndex = chunks[1];
+		const slotIndex = chunks[1]!;
 		if(await TwitchUtils.updateExtension(ext.data.id, ext.data.version, enable, slotIndex, slotType)) {
 			ext.enabled = enable;
 		}else{

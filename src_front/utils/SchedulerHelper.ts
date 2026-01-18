@@ -47,8 +47,7 @@ export default class SchedulerHelper {
 		this._started = true;
 		const triggers:TriggerData[] = StoreProxy.triggers.triggerList;
 		//Schedule all schedule triggers
-		for (let i = 0; i < triggers.length; i++) {
-			const t = triggers[i];
+		for (const t of triggers) {
 			if(t.type == TriggerTypes.SCHEDULE) {
 				this.scheduleTrigger(t);
 			}
@@ -59,8 +58,8 @@ export default class SchedulerHelper {
 	 * Called when a messages is sent on tchat (not from twitchat)
 	 */
 	public incrementMessageCount():void {
-		for (let i = 0; i < this._pendingSchedules.length; i++) {
-			this._pendingSchedules[i].messageCount++;
+		for (const e of this._pendingSchedules) {
+			e.messageCount++;
 		}
 	}
 
@@ -71,7 +70,7 @@ export default class SchedulerHelper {
 	 */
 	public unscheduleTrigger(trigger:TriggerData):void {
 		for (let i = 0; i < this._pendingSchedules.length; i++) {
-			const element = this._pendingSchedules[i];
+			const element = this._pendingSchedules[i]!;
 			if(element.trigger.id == trigger.id) {
 				this._pendingSchedules.splice(i, 1);
 				i--;
@@ -112,8 +111,7 @@ export default class SchedulerHelper {
 			}
 
 			case TriggerScheduleTypes.SPECIFIC_DATES:{
-				for (let i = 0; i < trigger.scheduleParams.dates.length; i++) {
-					const d = trigger.scheduleParams.dates[i];
+				for (const d of trigger.scheduleParams.dates) {
 					const date = new Date(d.value);
 					if(d.daily===true || d.monthly===true || d.yearly===true) date.setDate(new Date().getDate());
 					if(d.monthly===true || d.yearly===true) date.setMonth(new Date().getMonth());
@@ -152,8 +150,7 @@ export default class SchedulerHelper {
 	 * Resets the ad schedule
 	 */
 	public resetAdSchedule(message:TwitchatDataTypes.MessageChatData):void {
-		for (let i = 0; i < this._pendingSchedules.length; i++) {
-			const e = this._pendingSchedules[i];
+		for (const e of this._pendingSchedules) {
 			//Search for the ad schedule
 			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 				const nextDate = e.date;
@@ -244,7 +241,7 @@ export default class SchedulerHelper {
 		// console.log("1 > ", Date.now() - s);
 
 		for (let i = 0; i < this._pendingSchedules.length; i++) {
-			const e = this._pendingSchedules[i];
+			const e = this._pendingSchedules[i]!;
 			const schedule = e.trigger.scheduleParams;
 
 			if(!schedule) continue;

@@ -198,7 +198,7 @@ class RaffleState extends Vue {
 
 	public beforeMount():void {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
-		this.raffleData			= this.availableRaffleList.length > 0? this.availableRaffleList[0] : null;
+		this.raffleData			= this.availableRaffleList.length > 0? this.availableRaffleList[0]! : null;
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 	}
@@ -221,7 +221,7 @@ class RaffleState extends Vue {
 			//If there are other raffles, switch to previous one
 			if(this.availableRaffleList.length > 0) {
 				if(--index < 0) index = this.availableRaffleList.length-1;
-				this.raffleData = this.availableRaffleList[index];
+				this.raffleData = this.availableRaffleList[index]!;
 			}else{
 				this.raffleData = null;
 			}
@@ -315,7 +315,7 @@ class RaffleState extends Vue {
 		gsap.to([holder,cmdHolder], {opacity:0, x:-10, duration:.1, onComplete:()=>{
 			let index = this.availableRaffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			let newIndex = (++index) % this.availableRaffleList.length;
-			this.raffleData = this.availableRaffleList[newIndex];
+			this.raffleData = this.availableRaffleList[newIndex]!;
 			gsap.fromTo([holder,cmdHolder], {x:10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}
@@ -329,7 +329,7 @@ class RaffleState extends Vue {
 			let index = this.availableRaffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			let newIndex = index - 1;
 			if(newIndex < 0) newIndex = this.availableRaffleList.length -1;
-			this.raffleData = this.availableRaffleList[newIndex];
+			this.raffleData = this.availableRaffleList[newIndex]!;
 			gsap.fromTo([holder,cmdHolder], {x:-10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}

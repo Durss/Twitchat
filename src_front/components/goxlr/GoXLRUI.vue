@@ -200,8 +200,7 @@ class GoXLRUI extends Vue {
 		}
 		
 		//Set "disabled" class to buttons not on the "allowedButtons" list
-		for (let i = 0; i < GoXLRTypes.ButtonTypes.length; i++) {
-			const bt = GoXLRTypes.ButtonTypes[i];
+		for (const bt of GoXLRTypes.ButtonTypes) {
 			const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
 			if(!item) continue;
 			if(this.allowedButtons.indexOf(bt) == -1) {

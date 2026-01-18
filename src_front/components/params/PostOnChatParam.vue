@@ -182,8 +182,7 @@ class PostOnChatParam extends Vue {
 		let rawMessage = this.textParam.value.normalize("NFC");
 
 		if(this.placeholders) {
-			for (let i = 0; i < this.placeholders.length; i++) {
-				const p = this.placeholders[i];
+			for (const p of this.placeholders) {
 				if(p.private === true) continue;
 				if(p.example != undefined) {
 					rawMessage = rawMessage.replace(new RegExp("\{"+p.tag+"\}", "gi"), p.example);

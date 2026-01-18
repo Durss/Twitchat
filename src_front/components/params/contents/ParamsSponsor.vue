@@ -106,7 +106,7 @@ class ParamsSponsor extends Vue implements IParameterContent {
 		if(this.animate !== false) {
 			const refs = ["head","instructions","patrick","premium","button"];
 			for (let i = 0; i < refs.length; i++) {
-				let el = this.$refs[refs[i]];
+				let el = this.$refs[refs[i]!];
 				let list:unknown[] = [];
 				if(!Array.isArray( el )) {
 					list = [el];

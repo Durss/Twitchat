@@ -65,12 +65,12 @@ class TriggerActionSlashCommandParams extends Vue {
 		this.formatError = mainCmd.indexOf("/") != 0;
 
 		//Check if any other trigger contain the same command
-		for (let i = 0; i < triggers.length; i++) {
-			if(triggers[i].type == TriggerTypes.SLASH_COMMAND
-			&& triggers[i].id != this.triggerData.id
-			&& triggers[i].chatCommand) {
+		for (const trigger of triggers) {
+			if(trigger.type == TriggerTypes.SLASH_COMMAND
+			&& trigger.id != this.triggerData.id
+			&& trigger.chatCommand) {
 				//Check if there's a command conflict
-				if(triggers[i].chatCommand?.toLowerCase() === mainCmd) {
+				if(trigger.chatCommand?.toLowerCase() === mainCmd) {
 					this.cmdNameConflict = true;
 					break;
 				}
@@ -79,9 +79,8 @@ class TriggerActionSlashCommandParams extends Vue {
 
 		//Check if a global slash command exists with the same name
 		const globalCmds = this.$store.chat.commands;
-		for (let i = 0; i < globalCmds.length; i++) {
-			const entry = globalCmds[i];
-			if(entry.cmd.split(" ")[0].toLowerCase() === mainCmd) {
+		for (const entry of globalCmds) {
+			if(entry.cmd.split(" ")[0]!.toLowerCase() === mainCmd) {
 				this.cmdNameConflict = true;
 				break;
 			}

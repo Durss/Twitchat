@@ -105,11 +105,11 @@ class TwitchatAnnouncement extends AbstractSidePanel {
 	public param_heatOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_heatOnly", icon:"heat"};
 
 	public getAnnouncementTitle(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchatDataTypes.ParseMessageChunk[] {
-		return TwitchUtils.parseMessageToChunks(a.title[this.$i18n.locale], undefined, true);
+		return TwitchUtils.parseMessageToChunks(a.title[this.$i18n.locale]!, undefined, true);
 	}
 
 	public getAnnouncementMessage(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchatDataTypes.ParseMessageChunk[] {
-		return TwitchUtils.parseMessageToChunks(a.text[this.$i18n.locale], undefined, true);
+		return TwitchUtils.parseMessageToChunks(a.text[this.$i18n.locale]!, undefined, true);
 	}
 
 	public beforeMount():void {

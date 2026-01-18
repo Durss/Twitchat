@@ -140,7 +140,7 @@ class StreamSummary extends AbstractSidePanel {
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
 		if(res.length > 0) {
-			dateOffset = new Date(res[0].started_at).getTime();
+			dateOffset = new Date(res[0]!.started_at).getTime();
 			
 			this.durationInterval = window.setInterval(()=> {
 				this.streamDuration = Utils.formatDuration(Date.now() - dateOffset!);
@@ -155,11 +155,11 @@ class StreamSummary extends AbstractSidePanel {
 		this.noData = true;
 		
 		for (let i = messages.length-1; i >= 0; i--) {
-			const m = messages[i];
+			const m = messages[i]!;
 			if(dateOffset && m.date < dateOffset) break;
 			//If more than 4h past between the 2 messages, consider it's a different stream and stop there
 			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
-				this.streamDuration = Utils.formatDuration(messages[messages.length - 1].date - m.date);
+				this.streamDuration = Utils.formatDuration(messages[messages.length - 1]!.date - m.date);
 				break;
 			}
 			prevDate = m.date;
@@ -230,11 +230,11 @@ class StreamSummary extends AbstractSidePanel {
 					if(!userActivities[uid]) userActivities[uid] = this.getEmptyUserActivities(m.message.user);
 					const hc = m.message.twitch_hypeChat!;
 					if(!this.hypeChats[hc.currency]) this.hypeChats[hc.currency] = 0;
-					this.hypeChats[hc.currency] += hc.amount;
+					this.hypeChats[hc.currency]! += hc.amount;
 					this.hypeChatCount ++;
 					userActivities[uid].hypeChatCount ++;
 					if(!userActivities[uid].hypeChats[hc.currency]) userActivities[uid].hypeChats[hc.currency] = 0;
-					userActivities[uid].hypeChats[hc.currency] += hc.amount;
+					userActivities[uid].hypeChats[hc.currency]! += hc.amount;
 					userActivities[uid].sortValue += Math.ceil(hc.amount/4) * 250;
 					this.noData = false;
 					break;
@@ -329,7 +329,7 @@ class StreamSummary extends AbstractSidePanel {
 
 		let list:UserActivities[] = [];
 		for (const uid in userActivities) {
-			list.push(userActivities[uid]);
+			list.push(userActivities[uid]!);
 		}
 		list = list.sort((a,b)=>{
 			return b.sortValue - a.sortValue;
@@ -400,8 +400,7 @@ class StreamSummary extends AbstractSidePanel {
 			csv += this.toDuration;
 		}else{
 			csv = "userID, userLogin, messCount, charCount, emoteCount, subPrime, subT1, subT2, subT3, subgift, bits, rewards, channelPointCount, raidCount, raidViewerCount, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
-			for (let i = 0; i < this.userList.length; i++) {
-				const user = this.userList[i];
+			for (const user of this.userList) {
 				csv += user.user.id+", ";
 				csv += user.user.login+", ";
 				csv += user.messCount+", ";

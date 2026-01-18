@@ -89,7 +89,7 @@ class GroqSummaryFilterForm extends Vue {
 		const now = Date.now();
 		let filtered:TwitchatDataTypes.MessageChatData[] = [];
 		for (let i = this.messageList.length-1; i > -1; i--) {
-			const m = this.messageList[i];
+			const m = this.messageList[i]!;
 			if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 			if(m.channelSource && !this.selectedChannels.includes(m.channelSource.name)) continue;
 			if(!m.channelSource && !this.selectedChannels.includes(me.login)) continue;
@@ -112,7 +112,7 @@ class GroqSummaryFilterForm extends Vue {
 		const me = this.$store.auth.twitch.user;
 		const chans:Map<string, NonNullable<TwitchatDataTypes.AbstractTwitchatMessage["channelSource"]>> = new Map();
 		for (let i = this.messageList.length-1; i > -1; i--) {
-			const m = this.messageList[i];
+			const m = this.messageList[i]!;
 			if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 			if(m.channelSource) chans.set(m.channelSource.name, m.channelSource);
 			else chans.set(me.login, {color:me.color || "#ffffff", name:me.login, pic:me.avatarPath});

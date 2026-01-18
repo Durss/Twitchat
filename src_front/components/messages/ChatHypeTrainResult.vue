@@ -126,8 +126,7 @@ class ChatHypeTrainResult extends AbstractChatMessage {
 
 	public getConductorSubCount():number {
 		let count = 0;
-		for (let i = 0; i < this.messageData.activities.length; i++) {
-			const element = this.messageData.activities[i];
+		for (const element of this.messageData.activities) {
 			if(element.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
 			&& element.user.id === this.messageData.train.conductor_subs!.user.id) {
 				if(element.is_gift) count += element.gift_count || 1;
@@ -139,8 +138,7 @@ class ChatHypeTrainResult extends AbstractChatMessage {
 
 	public mounted():void {
 		this.reachPercent = Math.round(this.messageData.train.currentValue / this.messageData.train.goal * 100);
-		for (let i = 0; i < this.messageData.activities.length; i++) {
-			const el = this.messageData.activities[i];
+		for (const el of this.messageData.activities) {
 			switch(el.type) {
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
 					if(el.tier == "prime") this.primes ++;

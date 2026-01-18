@@ -483,7 +483,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			if(forceFilterEntry && this.action.filterName && !list.find(v=>v.value == this.action.filterName)) {
 				list.push({label:this.action.filterName, value:this.action.filterName})
 			}
-			this.param_filter_conf.value = this.action.filterName || list[0].value;
+			this.param_filter_conf.value = this.action.filterName || list[0]!.value;
 			if(list.length > 1 && this.action.obsAction != "screenshot") {
 				this.param_filter_conf.listValues = list;
 				this.param_source_conf.children = [this.param_filter_conf];

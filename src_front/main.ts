@@ -211,7 +211,7 @@ function buildApp() {
 		const urlParams = new URLSearchParams()
 		if(params) {
 			for (let i = 0; i < params.length; i++) {
-				urlParams.append(params[i].k, params[i].v);
+				urlParams.append(params[i]!.k, params[i]!.v);
 			}
 		}
 		if(port) urlParams.append("obs_port", port);
@@ -227,7 +227,7 @@ function buildApp() {
 	 */
 	const placeDropdown = (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => {
 		dropdownList.style.width = params.width;
-		const popper = createPopper(component.$refs.toggle, dropdownList, { placement: "top" })
+		const popper = createPopper(component.$refs.toggle!, dropdownList, { placement: "top" })
 		return () => popper.destroy()
 	}
 

@@ -187,7 +187,7 @@ class Changelog extends Vue {
 	/**
 	 * Get currently displayed item data
 	 */
-	public get currentItem():TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]; }
+	public get currentItem():TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]!; }
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
 	public get hasEmoteScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]); }
@@ -353,11 +353,11 @@ class Changelog extends Vue {
 		this.$nextTick().then(()=> {
 			const list = document.getElementsByClassName("carousel__pagination-item");
 			for (let i = 0; i < list.length; i++) {
-				if(this.items[i].p === true) {
-					list[i].classList.add("premium");
+				if(this.items[i]!.p === true) {
+					list[i]!.classList.add("premium");
 				}
-				if(this.items[i].i === "donate") {
-					list[i].classList.add("rainbow");
+				if(this.items[i]!.i === "donate") {
+					list[i]!.classList.add("rainbow");
 				}
 			}
 		})

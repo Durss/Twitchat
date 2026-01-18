@@ -70,7 +70,7 @@ class AnchorsMenu extends Vue {
 
 	public selectItem(item:TwitchatDataTypes.AnchorData):void {
 		for (let i = 0; i < this.items.length; i++) {
-			this.items[i].selected = false;
+			this.items[i]!.selected = false;
 		}
 
 		if(item.selected !== true) {

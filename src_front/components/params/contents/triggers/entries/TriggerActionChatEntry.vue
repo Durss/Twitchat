@@ -46,7 +46,7 @@ class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 		if(!this.action.text) return false;
 		const cmds = this.triggerData.chatCommandAliases?.concat() ?? [];
 		if(this.triggerData.chatCommand) cmds.push(this.triggerData.chatCommand);
-		const cmd = this.action.text.split(" ")[0].toLowerCase();
+		const cmd = this.action.text.split(" ")[0]!.toLowerCase();
 		for (let i = 0; i < cmds.length; i++) {
 			if(cmds[i] == cmd) return true;
 		}

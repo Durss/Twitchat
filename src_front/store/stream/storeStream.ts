@@ -114,7 +114,8 @@ export const storeStream = defineStore('stream', {
 					let categoryId = "";
 					if(v.length == 0){
 						//Fallback to channel info
-						const [chanInfos] = await TwitchUtils.getChannelInfo([channelId])
+						const result = await TwitchUtils.getChannelInfo([channelId])
+						const chanInfos = result[0]!;
 						infos.live		= false;
 						infos.title		= chanInfos.title;
 						infos.tags		= chanInfos.tags;
@@ -123,14 +124,15 @@ export const storeStream = defineStore('stream', {
 						infos.previewUrl= "";
 						categoryId		= chanInfos.game_id;
 					}else{
+						const info		= v[0]!;
 						infos.live		= true;
-						infos.title		= v[0].title;
-						infos.tags		= v[0].tags;
-						infos.category	= v[0].game_name;
-						infos.viewers	= v[0].viewer_count;
-						infos.started_at= new Date(v[0].started_at).getTime();
-						infos.previewUrl= v[0].thumbnail_url.replace("{width}", "1920").replace("{height}", "1080");
-						categoryId		= v[0].game_id;
+						infos.title		= info.title;
+						infos.tags		= info.tags;
+						infos.category	= info.game_name;
+						infos.viewers	= info.viewer_count;
+						infos.started_at= new Date(info.started_at).getTime();
+						infos.previewUrl= info.thumbnail_url.replace("{width}", "1920").replace("{height}", "1080");
+						categoryId		= info.game_id;
 					}
 
 					if(StoreProxy.auth.twitch.user.id == channelId) {
@@ -237,8 +239,7 @@ export const storeStream = defineStore('stream', {
 				const offset = data.approached_at;
 				const activities:(TwitchatDataTypes.MessageSubscriptionData|TwitchatDataTypes.MessageCheerData)[] = [];
 				//Search for all the sub and cheer events within the hype train time frame
-				for (let i = 0; i < StoreProxy.chat.messages.length; i++) {
-					const m = StoreProxy.chat.messages[i];
+				for (const m of StoreProxy.chat.messages) {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 					|| m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						//If message is within the train time frame and on the proper channel
@@ -399,7 +400,7 @@ export const storeStream = defineStore('stream', {
 					StoreProxy.chat.addMessage(message);
 				}, remainingTime - ms);
 				//Keep timeout's ref so we can clear it whenever needed
-				commercialTimeouts[channelId].push(to);
+				commercialTimeouts[channelId]!.push(to);
 			});
 
 			//Force ad start a little before the timer completes
@@ -665,7 +666,7 @@ export const storeStream = defineStore('stream', {
 				//Fake "show all current subs" content
 				const fakeUsers = await TwitchUtils.getFakeUsers();
 				for (let i = 0; i < Math.min(fakeUsers.length, 20); i++) {
-					const user = fakeUsers[i];
+					const user = fakeUsers[i]!;
 					const subData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] | TwitchatDataTypes.StreamSummaryData["subs"][number] = {
 						uid:user.id,
 						login:user.displayNameOriginal,
@@ -688,14 +689,14 @@ export const storeStream = defineStore('stream', {
 			}else{
 				//Filter out messages based on the stream duration
 				for (let i = StoreProxy.chat.messages.length-1; i >= 0; i--) {
-					const m = StoreProxy.chat.messages[i];
+					const m = StoreProxy.chat.messages[i]!;
 					if(dateOffset && m.date < dateOffset) break;
 					//Ignore messages not from our own chan
 					if(m.channel_id != channelId && m.platform != "tiktok") continue;
 
 					//If more than 4h past between the 2 messages, consider it's a different stream and stop there
 					if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
-						result.streamDuration = messages[messages.length - 1].date - m.date;
+						result.streamDuration = messages[messages.length - 1]!.date - m.date;
 						break;
 					}
 					messages.push(m);
@@ -728,6 +729,7 @@ export const storeStream = defineStore('stream', {
 							result.subs.push(subData);
 							if(sub.is_gift){
 								const subgiftData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] = uidToSubgift[sub.gifter_id] || {
+									platform:"twitch",
 									uid:sub.gifter_id,
 									login:sub.gifter_name,
 									tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
@@ -746,8 +748,7 @@ export const storeStream = defineStore('stream', {
 				}
 			}
 
-			for (let i = 0; i < messages.length; i++) {
-				const m = messages[i];
+			for (const m of messages) {
 				let userLogin:string = "";
 				let userChaninfo:TwitchatDataTypes.UserChannelInfo | null = null;
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
@@ -761,7 +762,7 @@ export const storeStream = defineStore('stream', {
 				|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION
 				) {
 					userLogin = m.user.login;
-					userChaninfo = m.user.channelInfo[channelId];
+					userChaninfo = m.user.channelInfo[channelId]!;
 				}
 
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.KOFI
@@ -901,11 +902,11 @@ export const storeStream = defineStore('stream', {
 								tos: 0,
 								tosDuration: 0,
 							};
-							result.chatters.push(chatters[m.user.id]);
+							result.chatters.push(chatters[m.user.id]!);
 						}
 
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							chatters[m.user.id].count ++;
+							chatters[m.user.id]!.count ++;
 							if(m.twitch_gigantifiedEmote) {
 								result.powerups.push({
 									login:m.user.displayNameOriginal,
@@ -923,10 +924,10 @@ export const storeStream = defineStore('stream', {
 						}else
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.BAN) {
 							if(m.duration_s !!= undefined) {
-								chatters[m.user.id].tos ++;
-								chatters[m.user.id].tosDuration += m.duration_s;
+								chatters[m.user.id]!.tos ++;
+								chatters[m.user.id]!.tosDuration += m.duration_s;
 							}else{
-								chatters[m.user.id].bans ++;
+								chatters[m.user.id]!.bans ++;
 							}
 						}
 						break;
@@ -1068,8 +1069,7 @@ export const storeStream = defineStore('stream', {
 
 				result.premiumWarningSlots = {};
 				//Parse "text" slots placeholders and remove premium-only slots
-				for (let i = 0; i < result.params.slots.length; i++) {
-					const slot = result.params.slots[i];
+				for (const slot of result.params.slots) {
 					//Remove premium-only slots if not premium
 					if(!isPremium && !simulate
 					&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
@@ -1090,7 +1090,7 @@ export const storeStream = defineStore('stream', {
 		async connectToExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			const colors = ["#e04e00","#2eb200","#0500d6","#d600ab","#00d6d3","#e0ae00"]
 							.filter(color=> !this.connectedTwitchChans.map(channel=>channel.color).includes(color));
-			this.connectedTwitchChans.push({user, color:colors[0]});
+			this.connectedTwitchChans.push({user, color:colors[0]!});
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			EventSub.instance.connectToChannel(user);
 		},
@@ -1136,9 +1136,10 @@ export const storeStream = defineStore('stream', {
 
 		async grabCurrentStreamVOD():Promise<void> {
 			try {
-				const [currentStreamInfo] = await TwitchUtils.getCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+				const result = await TwitchUtils.getCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+				if(result.length === 0) return;
 				// Get current VOD's URL for trigger's placeholder
-				const vod = await TwitchUtils.getVODInfo(currentStreamInfo.id);
+				const vod = await TwitchUtils.getVODInfo(result[0]!.id);
 				if(vod) {
 					StoreProxy.stream.currentVODUrl = vod.url;
 				}

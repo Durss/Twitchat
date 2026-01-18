@@ -49,7 +49,7 @@ class ChatYoutubeSuperChat extends AbstractChatMessage {
 		const fill = this.$refs.fill as HTMLDivElement;
 		if(!fill) return;
 		
-		const duration_m = Math.min(300,[0,0,2,5,10,30,60,120,180,240,300][this.messageData.tier-1]);
+		const duration_m = Math.min(300,[0,0,2,5,10,30,60,120,180,240,300][this.messageData.tier-1]!);
 		
 		const duration_s = duration_m * 60;
 		const remainingDuration = Math.max(0, duration_s - (Date.now() - this.messageData.date)/1000);

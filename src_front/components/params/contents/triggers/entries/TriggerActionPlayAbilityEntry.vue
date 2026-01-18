@@ -22,7 +22,7 @@
 						<div>{{ $t("playability.hints_trigger_1") }}</div>
 						<div>{{ $t("playability.hints_trigger_2") }}</div>
 					</div>
-					<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground :key="param_values[index].storage!" />
+					<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground :key="param_values[index]!.storage!" />
 				</div>
 				<TTButton class="deleteBt" icon="trash" @click="deleteOutput(index)" alert />
 			</div>
@@ -92,10 +92,11 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 
 	public addOutput():void {
 		if(this.availableOutputs.length > 0) {
+			const output = this.availableOutputs[0]!;
 			this.action.playabilityData!.outputs.push({
-				code:this.availableOutputs[0].storage!.code,
-				type:this.availableOutputs[0].storage!.type,
-				value:this.availableOutputs[0].storage!.value,
+				code:output.storage!.code,
+				type:output.storage!.type,
+				value:output.storage!.value,
 			});
 			this.buildOutputFields();
 			this.buildValueFields(this.action.playabilityData!.outputs.length - 1);
@@ -109,23 +110,24 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 	public buildOutputFields():void {
 		for (let index = 0; index < this.action.playabilityData!.outputs.length; index++) {
 			if(index < this.param_outputs.length) continue;
+			const output = this.availableOutputs[0]!;
 			this.param_outputs[index] = {
-				value:this.availableOutputs[0].storage!.type,
+				value:output.storage!.type,
 				type:"list",
 				listValues: this.availableOutputs,
-				storage:this.availableOutputs[0].storage!,
+				storage:output.storage!,
 			};
 		}
 	}
 
 	public buildValueFields(resetValueIndex?:number):void {
 		for (let index = 0; index < this.action.playabilityData!.outputs.length; index++) {
-			const output = this.action.playabilityData!.outputs[index];
+			const output = this.action.playabilityData!.outputs[index]!;
 			const outputType = output.type = this.availableOutputs.find(v=>v.storage?.code === output.code)?.storage?.type || "mouseButton";
 
 			if(["keyboard", "mouseButton", "button"].includes(outputType)) {
 				if(index == resetValueIndex) {
-					this.action.playabilityData!.outputs[index].value = true;
+					this.action.playabilityData!.outputs[index]!.value = true;
 				}
 				this.param_values[index] = {
 					value:true,
@@ -140,7 +142,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 
 			if(["axis"].includes(outputType)) {
 				if(index == resetValueIndex) {
-					this.action.playabilityData!.outputs[index].value = 0;
+					this.action.playabilityData!.outputs[index]!.value = 0;
 				}
 				this.param_values[index] = {
 					value:0,
@@ -154,7 +156,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 
 			if(["trigger"].includes(outputType)) {
 				if(index == resetValueIndex) {
-					this.action.playabilityData!.outputs[index].value = 1;
+					this.action.playabilityData!.outputs[index]!.value = 1;
 				}
 				this.param_values[index] = {
 					value:1,
@@ -167,7 +169,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 			}else{
 
 				if(index == resetValueIndex) {
-					this.action.playabilityData!.outputs[index].value = 1;
+					this.action.playabilityData!.outputs[index]!.value = 1;
 				}
 				this.param_values[index] = {
 					value:1,

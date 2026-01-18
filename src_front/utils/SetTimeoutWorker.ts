@@ -59,7 +59,7 @@ export default class SetTimeoutWorker {
 			const message = event.data;
 			if (message.type === "timeoutMessage") {
 				if(!this._idToCallback[message.data]) return;
-				this._idToCallback[message.data]();
+				this._idToCallback[message.data]!();
 			}
 		};
 

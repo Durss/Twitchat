@@ -98,15 +98,15 @@ class TriggerConditionList extends Vue {
 	}
 
 	public cleanEmptyConditionNodes(group:TriggerConditionGroup):void {
-		if(group.conditions.length == 1 && group.conditions[0].type == "group") {
+		if(group.conditions.length == 1 && group.conditions[0]!.type == "group") {
 			//Group contains only one item, bring them to parent
-			let subgroup:TriggerConditionGroup = group.conditions[0];
+			let subgroup:TriggerConditionGroup = group.conditions[0]!;
 			group.conditions = subgroup.conditions;
 			group.operator = subgroup.operator;
 
 		}else{
 			for (let i = 0; i < group.conditions.length; i++) {
-				const node = group.conditions[i];
+				const node = group.conditions[i]!;
 				if(node.type == "group") {
 					if(node.conditions.length === 0) {
 						//Sub group is empty, delete it

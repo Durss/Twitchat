@@ -182,7 +182,7 @@ class AutocompleteChatForm extends Vue {
 			case "Tab":{
 				e.preventDefault();
 				e.stopPropagation();
-				this.selectItem(this.filteredItems[this.selectedIndex]);
+				this.selectItem(this.filteredItems[this.selectedIndex]!);
 				break;
 			}
 			default: return;
@@ -193,9 +193,9 @@ class AutocompleteChatForm extends Vue {
 
 		this.selectedIndex = this.selectedIndex%len;
 		if(this.selectedIndex < 0) this.selectedIndex = len-1;
-		let el = this.$refs["item_"+this.filteredItems[this.selectedIndex].id] as HTMLElement[];
+		let el = this.$refs["item_"+this.filteredItems[this.selectedIndex]!.id] as HTMLElement[];
 		if(el.length > 0) {
-			el[0].scrollIntoView({block: "center", inline: "nearest"});
+			el[0]!.scrollIntoView({block: "center", inline: "nearest"});
 		}
 	}
 
@@ -224,7 +224,7 @@ class AutocompleteChatForm extends Vue {
 			if(this.users) {
 				const users = sUsers.users;
 				for (let j = 0; j < users.length; j++) {
-					const userName = users[j].displayNameOriginal;
+					const userName = users[j]!.displayNameOriginal;
 					if(userName.toLowerCase().indexOf(s) == 0) {
 						res.push({
 							type:"user",
@@ -272,8 +272,7 @@ class AutocompleteChatForm extends Vue {
 				}
 
 				if(emotes) {
-					for (let j = 0; j < emotes.length; j++) {
-						const e = emotes[j];
+					for (const e of emotes) {
 						if(e.code.toLowerCase().indexOf(s) > -1) {
 							res.push({
 								type:"emote",
@@ -337,8 +336,7 @@ class AutocompleteChatForm extends Vue {
 				}
 
 				//Search on custom slash commands in the triggers
-				for (let i = 0; i < this.triggerCommands.length; i++) {
-					const t = this.triggerCommands[i];
+				for (const t of this.triggerCommands) {
 					if(!t.enabled) continue;
 					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
 						const params = t.chatCommandParams ?? [];

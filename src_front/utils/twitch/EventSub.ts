@@ -99,7 +99,7 @@ export default class EventSub {
 					}
 					if(disconnectPrevious) {
 						this.sessionID = payload.session.id;
-						console.log("EVENTSUB : Create subscriptions");
+						console.log("[EVENTSUB] Create subscriptions");
 						this.connectToChannel( StoreProxy.auth.twitch.user );
 					}
 				}
@@ -128,7 +128,7 @@ export default class EventSub {
 					const subscriptions = this.chanSubscriptions[payload.subscription.condition.broadcaster_user_id];
 					if(!subscriptions) break;
 					for (let i = 0; i < subscriptions.length; i++) {
-						const sub = subscriptions[i];
+						const sub = subscriptions[i]!;
 						if(sub.topic == payload.subscription.type) {
 							subscriptions.splice(i, 1);
 							i--;
@@ -138,13 +138,13 @@ export default class EventSub {
 				}
 
 				default: {
-					console.warn(`Unknown eventsub message type: ${message.metadata.message_type}`);
+					console.warn(`[EVENTSUB] Unknown eventsub message type: ${message.metadata.message_type}`);
 				}
 			}
 		};
 
 		this.socket.onclose = (event) => {
-			console.log("EVENTSUB : OnClose");
+			console.log("[EVENTSUB] : OnClose");
 			//Twitch asked us to reconnect socket at a new URL, which we did
 			//but disconnection of the old socket (current one) wasn't done.
 			if(event.code == 4004) return;
@@ -163,7 +163,7 @@ export default class EventSub {
 		};
 
 		this.socket.onerror = (error) => {
-			console.log(error);
+			console.log("[EVENTSUB] : OnError", error);
 		};
 	}
 
@@ -412,7 +412,7 @@ export default class EventSub {
 	 */
 	public async disconnectRemoteChan(channel:TwitchatDataTypes.TwitchatUser):Promise<void> {
 		if(!this.chanSubscriptions[channel.id]) return;
-		this.chanSubscriptions[channel.id].forEach(entry => {
+		this.chanSubscriptions[channel.id]!.forEach(entry => {
 			TwitchUtils.eventsubDeleteSubscriptions(entry.id);
 		})
 		delete this.chanSubscriptions[channel.id];
@@ -470,7 +470,7 @@ export default class EventSub {
 		TwitchUtils.eventsubSubscribe(channelId, uid, this.sessionID, topic, version, condition)
 		.then(res => {
 			if(res !== false) {
-				this.chanSubscriptions[channelId].push({id:res, uid, topic});
+				this.chanSubscriptions[channelId]!.push({id:res, uid, topic});
 			}
 		});
 	}
@@ -743,7 +743,7 @@ export default class EventSub {
 			viewers = streamInfos.viewer_count;
 		}else{
 			const [chanInfo] = await TwitchUtils.getChannelInfo([event.broadcaster_user_id])
-			tags = chanInfo.tags;
+			tags = chanInfo!.tags;
 		}
 
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
@@ -846,9 +846,8 @@ export default class EventSub {
 		if(this.lastRecentFollowers.length > 1) {
 			//duration between 2 follow events to consider them as a follow streak
 			const minDuration = 500;
-			let dateOffset:number = this.lastRecentFollowers[0].followed_at;
-			for (let i = 1; i < this.lastRecentFollowers.length; i++) {
-				const f = this.lastRecentFollowers[i];
+			let dateOffset:number = this.lastRecentFollowers[0]!.followed_at;
+			for (const f of this.lastRecentFollowers) {
 				//more than the minDuration has past, reset the streak
 				if(f.followed_at - dateOffset > minDuration) {
 					this.lastRecentFollowers = [];
@@ -871,8 +870,7 @@ export default class EventSub {
 		//If emergency mode is enabled and we asked to automatically block
 		//any new followser during that time, do it
 		if(StoreProxy.emergency.emergencyStarted === true) {
-			for (let i = 0; i < this.lastRecentFollowers.length; i++) {
-				const followData = this.lastRecentFollowers[i];
+			for (const followData of this.lastRecentFollowers) {
 				StoreProxy.emergency.addEmergencyFollower(followData);
 			}
 			this.lastRecentFollowers = [];
@@ -974,7 +972,7 @@ export default class EventSub {
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name, undefined, undefined, false, undefined, false);
-			user.channelInfo[event.to_broadcaster_user_id].is_raider = true;
+			user.channelInfo[event.to_broadcaster_user_id]!.is_raider = true;
 
 			//Check current live info
 			const [currentStream] = await TwitchUtils.getCurrentStreamInfo([event.from_broadcaster_user_id]);
@@ -1183,8 +1181,8 @@ export default class EventSub {
 				const [chanInfo] = await TwitchUtils.getChannelInfo([event.broadcaster_user_id]);
 				message.info.started_at = Date.now();
 				message.info.live = true;
-				message.info.title = chanInfo.title;
-				message.info.category = chanInfo.game_name;
+				message.info.title = chanInfo!.title;
+				message.info.category = chanInfo!.game_name;
 				message.info.previewUrl = "";
 			}
 			StoreProxy.stream.setStreamStart(event.broadcaster_user_id, message.info.started_at);
@@ -1217,8 +1215,8 @@ export default class EventSub {
 		const [stream] = await TwitchUtils.getCurrentStreamInfo([user.id]);
 		if(!stream) {
 			const [channel] = await TwitchUtils.getChannelInfo([user.id]);
-			title = channel.title;
-			category = channel.game_name;
+			title = channel!.title;
+			category = channel!.game_name;
 		}else{
 			title = stream.title;
 			category = stream.game_name;
@@ -1250,7 +1248,7 @@ export default class EventSub {
 			if(!list) list = [];
 			const index = list.findIndex(v=>v.user.id === user.id);
 			//Set the last SO date of the user
-			user.channelInfo[channel_id].lastShoutout = Date.now();
+			user.channelInfo[channel_id]!.lastShoutout = Date.now();
 			if(index > -1) {
 				//Update existing item
 				list.splice(index, 1);
@@ -1354,8 +1352,8 @@ export default class EventSub {
 			this.debouncedAutomodTerms = [];
 
 			for (const key in grouped) {
-				const group = grouped[key];
-				const ref = group[0];
+				const group = grouped[key]!;
+				const ref = group[0]!;
 				const message:TwitchatDataTypes.MessageBlockedTermsData = {
 					channel_id:ref.broadcaster_user_id,
 					date:Date.now(),
@@ -1391,8 +1389,7 @@ export default class EventSub {
 		const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 		const words:string[] = [];
 		let charCount = 0;
-		for (let i = 0; i < event.message.fragments.length; i++) {
-			const el = event.message.fragments[i];
+		for (const el of event.message.fragments) {
 			let automodChunk = false;
 			if(event.automod) {
 				automodChunk = event.automod.boundaries.findIndex(v=>v.start_pos <= charCount && v.end_pos >= charCount) > -1;
@@ -1470,7 +1467,7 @@ export default class EventSub {
 
 				//Load user's avatar if not already available
 				if(!raidedUSer.avatarPath) {
-					const res = (await TwitchUtils.getUserInfo([raidedUSer.id]))[0];
+					const res = (await TwitchUtils.getUserInfo([raidedUSer.id]))[0]!;
 					raidedUSer.avatarPath = res.profile_image_url;
 				}
 
@@ -1678,7 +1675,7 @@ export default class EventSub {
 			}
 
 			default: {
-				console.log("Unhandled moderation event from eventsub");
+				console.log("[EVENTSUB] Unhandled moderation event from eventsub");
 				console.log(event);
 			}
 		}
@@ -1809,8 +1806,7 @@ export default class EventSub {
 		//votes instead of simply using what EventSub gives us.
 		if(topic == "channel.prediction.progress") {
 			const typedEvent = event as TwitchEventSubDataTypes.PredictionProgressEvent;
-			for (let i = 0; i < typedEvent.outcomes.length; i++) {
-				const c = typedEvent.outcomes[i];
+			for (const c of typedEvent.outcomes) {
 				totalPoints += c.channel_points;
 				totalUsers += c.users;
 				let outcome = outcomes.find(v=>v.id === c.id);
@@ -1827,8 +1823,7 @@ export default class EventSub {
 				}
 			}
 		}else{
-			for (let i = 0; i < event.outcomes.length; i++) {
-				const c = event.outcomes[i];
+			for (const c of event.outcomes) {
 				if(outcomes.findIndex(v=>v.id === c.id) > -1) continue;
 				outcomes.push({
 					id: c.id,
@@ -1885,12 +1880,11 @@ export default class EventSub {
 		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 		let winner!:TwitchatDataTypes.MessagePollDataChoice;
 		let winnerValue = -1;
-		for (let i = 0; i < event.choices.length; i++) {
-			const c = event.choices[i];
+		for (const c of event.choices) {
 			let votes = 0
 			if(topic != "channel.poll.begin") {
-				const typedEvent = event as TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent;
-				votes = typedEvent.choices[i].votes;
+				const typedChoice = c as TwitchEventSubDataTypes.PollEndEvent["choices"][number];
+				votes = typedChoice.votes;
 			}
 			const entry:TwitchatDataTypes.MessagePollDataChoice = { id: c.id, label: c.title, votes };
 			if(entry.votes > winnerValue) {
@@ -1931,7 +1925,7 @@ export default class EventSub {
 			const messageList = StoreProxy.chat.messages;
 			for (let index = messageList.length-1; index > Math.max(0, messageList.length-50); index--) {
 				//Message found, stop there
-				if(messageList[index].id === event.message_id) return
+				if(messageList[index]!.id === event.message_id) return
 			}
 			if(event.cheer) {
 				const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
@@ -1981,7 +1975,7 @@ export default class EventSub {
 					let messageList = StoreProxy.chat.messages;
 					//Search for original message the user answered to
 					for (let i = messageList.length-1; i >= Math.max(0, messageList.length-1000); i--) {
-						let m = messageList[i];
+						let m = messageList[i]!;
 						if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 						if(m.id === event.reply.parent_message_id) {
 							if(!m.answers) m.answers = [];

@@ -157,7 +157,7 @@ function requestInitialInfo():void {
  */
 function parsePlaceholders(src:string):string {
 	for (const tag in placeholders) {
-		const placeholder = placeholders[tag];
+		const placeholder = placeholders[tag]!;
 		const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		let replacement = placeholder.value?.toString() ?? "";
 		if(placeholder.type == "duration"
@@ -199,19 +199,20 @@ function onMessage(message:IEnvelope<unknown>):void {
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS) {
 		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
-		for (const tag in data) {
-			placeholders[tag] = data[tag];
-			if(data[tag].type == "duration"
-			|| data[tag].type == "date"
-			|| data[tag].type == "time"
-			|| data[tag].type == "hours"
-			|| data[tag].type == "minutes"
-			|| data[tag].type == "seconds"
-			|| data[tag].type == "day"
-			|| data[tag].type == "month"
-			|| data[tag].type == "year"
-			|| data[tag].type == "datetime") {
-				timerPlaceholder.push({tag, params:data[tag]});
+		for (const key in data) {
+			const tag = data[key]!
+			placeholders[key] = tag;
+			if(tag.type == "duration"
+			|| tag.type == "date"
+			|| tag.type == "time"
+			|| tag.type == "hours"
+			|| tag.type == "minutes"
+			|| tag.type == "seconds"
+			|| tag.type == "day"
+			|| tag.type == "month"
+			|| tag.type == "year"
+			|| tag.type == "datetime") {
+				timerPlaceholder.push({tag: key, params:tag});
 			}
 		}
 
@@ -304,7 +305,7 @@ function renderValue():void {
 	timerOffsets = {};
 	mustRefreshRegularly = false;
 	if(parameters.mode == "placeholder") {
-		const phRef = placeholders[parameters.placeholder];
+		const phRef = placeholders[parameters.placeholder]!;
 		if(phRef.type == "image"){
 			html = "<img src=\""+parsePlaceholders("{"+value+"}")+"\" onload=\""+setScrollSpeed()+"\">";
 		}else{
@@ -315,7 +316,7 @@ function renderValue():void {
 	}else if(parameters.mode == "html") {
 		html = parsePlaceholders(value);
 		for (let i = 0; i < timerPlaceholder.length; i++) {
-			const ph = timerPlaceholder[i];
+			const ph = timerPlaceholder[i]!;
 			mustRefreshRegularly = timerPlaceholder.findIndex(v=>v.tag.toLowerCase() === ph.tag.toLowerCase()) > -1;
 			if(mustRefreshRegularly) break;
 		}
@@ -439,7 +440,7 @@ function setScrollSpeed(attempts = 0) {
 			//Try again
 			window.setTimeout(()=>setScrollSpeed(++attempts), 60);
 		}else{
-			const phType:LabelItemPlaceholder["type"] = parameters!.mode == "placeholder"? placeholders[parameters!.placeholder].type : "string";
+			const phType:LabelItemPlaceholder["type"] = parameters!.mode == "placeholder"? placeholders[parameters!.placeholder]!.type : "string";
 			const ratio = phType == "image"? .5 : 20/parameters!.fontSize;
 			const duration = bounds.width/30 * ratio;
 			node.style.animationDuration = (duration/speed)+"s";

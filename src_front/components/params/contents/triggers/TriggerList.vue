@@ -75,8 +75,7 @@ class TriggerList extends Vue {
 	public get debug():string {
 		function buildItem(items:(TriggerListEntry|TriggerListFolderEntry)[]):any[] {
 			const res:any[] = []
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.type == "folder") {
 					const children = buildItem(item.items || []);
 					res.push({label:item.label, items:children});
@@ -139,9 +138,7 @@ class TriggerList extends Vue {
 		let triggerBuildIndex = 0;
 		let flatList:TriggerListEntry[] = [];
 
-		for (let i = 0; i < triggerList.length; i++) {
-			const trigger = triggerList[i];
-
+		for (const trigger of triggerList) {
 			//Parse trigger
 			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
@@ -159,8 +156,7 @@ class TriggerList extends Vue {
 			const done:any = {};
 			function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
 				const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
-				for (let i = 0; i < items.length; i++) {
-					const item = items[i];
+				for (const item of items) {
 					if(item.type == "folder") {
 						const children = buildItem(item.children || []);
 						res.push({type:"folder",

@@ -44,7 +44,7 @@ class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
 		];
 		this.show_conf.labelKey		= "triggers.actions.highlight.param_visibility";
 		this.message_conf.labelKey	= "triggers.actions.highlight.param_message";
-		this.show_conf.value		= this.showHideValues[1].value;
+		this.show_conf.value		= this.showHideValues[1]!.value;
 		this.show_conf.listValues	= this.showHideValues;
 		if(this.action.show == undefined) this.action.show = true;
 		if(this.action.text == undefined) this.action.text = "";

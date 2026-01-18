@@ -303,7 +303,7 @@ class TriggerActionList extends Vue {
 
 			//Remove all sorted actions from the original trigger data
 			for (let i = 0; i < this.triggerData.actions.length; i++) {
-				const item = this.triggerData.actions[i];
+				const item = this.triggerData.actions[i]!;
 				if(value.findIndex(v=> v.id == item.id) == -1) continue;
 				this.triggerData.actions.splice(i, 1);
 				i--;
@@ -531,7 +531,7 @@ class TriggerActionList extends Vue {
 			const list = this.selectedActions;
 			this.$confirm(this.$t("triggers.delete_actions_confirm")).then(async ()=> {
 				for (let i = 0; i < this.triggerData.actions.length; i++) {
-					const t = this.triggerData.actions[i];
+					const t = this.triggerData.actions[i]!;
 					if(list.find(v=> v == t.id)) {
 						this.triggerData.actions.splice(i, 1);
 						i--;
@@ -542,8 +542,7 @@ class TriggerActionList extends Vue {
 
 		if(e.key == "c" && metaKey && this.selectedActions.length > 0) {
 			const clipboar:TriggerActionTypes[] = [];
-			for (let i = 0; i < this.triggerData.actions.length; i++) {
-				const a = this.triggerData.actions[i];
+			for (const a of this.triggerData.actions) {
 				if(this.selectedActions.includes(a.id)) {
 					clipboar.push(a);
 				}

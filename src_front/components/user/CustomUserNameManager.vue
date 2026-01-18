@@ -45,7 +45,7 @@ class CustomUserNameManager extends Vue {
 		const customUsernames = this.$store.users.customUsernames;
 		this.itemList = [];
 		for (const uid in customUsernames) {
-			const u = customUsernames[uid];
+			const u = customUsernames[uid]!;
 			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
 		}
 		if(this.itemList.length == 0){

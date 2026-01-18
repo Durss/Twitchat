@@ -65,19 +65,19 @@
 							<div class="userList" v-else>
 								<template v-if="Object.keys(entry.value.users ?? {}).length > 0">
 									<div class="search">
-										<input type="text" :placeholder="$t('values.form.search')" v-model="entry.search[entry.value.id]" @input="searchUser(entry)">
+										<input type="text" :placeholder="$t('values.form.search')" v-model="entry.search[entry.value.id]!" @input="searchUser(entry)">
 										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.value.id] === true" />
 									</div>
 
-									<TTButton class="resetBt" v-if="entry.search[entry.value.id].length === 0"
+									<TTButton class="resetBt" v-if="entry.search[entry.value.id]!.length === 0"
 										secondary
 										@click="resetUsers(entry)">{{ $t('values.form.reset_all_users') }}</TTButton>
 
-									<TTButton class="clearBt" v-if="entry.search[entry.value.id].length === 0"
+									<TTButton class="clearBt" v-if="entry.search[entry.value.id]!.length === 0"
 										alert
 										@click="clearUsers(entry)">{{ $t('values.form.clear_all_users') }}</TTButton>
 
-									<TTButton class="loadAllBt" v-if="entry.search[entry.value.id].length === 0 && entry.idToAllLoaded[entry.value.id] !== true"
+									<TTButton class="loadAllBt" v-if="entry.search[entry.value.id]!.length === 0 && entry.idToAllLoaded[entry.value.id] !== true"
 										@click="loadUsers(entry)"
 										:loading="entry.idToLoading[entry.value.id]">{{ $t('values.form.load_all_users') }}</TTButton>
 
@@ -188,8 +188,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			const values = this.$store.values.valueList;
 			const name = this.param_title.value.toLowerCase();
 			let exists = false;
-			for (let i = 0; i < values.length; i++) {
-				const c = values[i];
+			for (const c of values) {
 				if(c.id == this.editedValue?.id) continue;
 				if(c.name.toLowerCase() === name) {
 					exists = true;
@@ -208,8 +207,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			const values = this.$store.values.valueList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
 			let exists = false;
-			for (let i = 0; i < values.length; i++) {
-				const c = values[i];
+			for (const c of values) {
 				if(c.id == this.editedValue?.id) continue;
 				if(c.placeholderKey.toLowerCase() === placeholder) {
 					exists = true;
@@ -235,8 +233,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			placeholderKey = Utils.slugify(this.param_title.value).toUpperCase();
 			//Load all placeholders
 			let hashmap:{[key:string]:boolean} = {};
-			for (let i = 0; i < this.valueEntries.length; i++) {
-				const c = this.valueEntries[i];
+			for (const c of this.valueEntries) {
 				if(this.editedValue && c.value.id == this.editedValue.id) continue;
 				hashmap[c.value.placeholderKey] = true;
 			}
@@ -349,11 +346,11 @@ class ParamsValues extends Vue implements IParameterContent {
 	 */
 	public searchUser(entry:ValueEntry):void {
 		const value = entry.value;
-		const search = entry.search[value.id].toLowerCase();
+		const search = entry.search[value.id]!.toLowerCase();
 
 		let preloadedUsers = entry.idToUsers[value.id];
 		entry.idToNoResult[value.id] = false;
-		if(entry.search[value.id].length == 0) {
+		if(entry.search[value.id]!.length == 0) {
 			if(entry.idToAllLoaded[value.id] !== true) delete entry.idToUsers[value.id];
 			else if(preloadedUsers) preloadedUsers.forEach(v=> v.hide = false);
 			return;
@@ -362,8 +359,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		//In this case, just search there instead of polling from twitch API
 		if(entry.idToAllLoaded[value.id] === true && preloadedUsers && preloadedUsers.length > 1) {
 			let hasResult = false;
-			for (let i = 0; i < preloadedUsers.length; i++) {
-				const u = preloadedUsers[i];
+			for (const u of preloadedUsers) {
 				u.hide = false;
 				if(u.user.login.indexOf(search) == -1 && u.user.login.toLowerCase().indexOf(search) == -1) {
 					u.hide = true;
@@ -384,16 +380,18 @@ class ParamsValues extends Vue implements IParameterContent {
 		//Search from "login" property if it exists
 		if(value.users) {
 			for (const key in value.users) {
+				const user = value.users[key];
 				//If entry has a login and login matches search
-				if(value.users[key].login
-				&& value.users[key].login!.toLowerCase().indexOf(search) > -1) {
+				if(user
+				&& user.login
+				&& user.login!.toLowerCase().indexOf(search) > -1) {
 					entry.idToUsers[value.id]!.push({
 						hide:false,
-						param:reactive({type:"string", value:value.users[key].value, maxLength:100000}),
-						platform:value.users[key].platform,
+						param:reactive({type:"string", value:user.value, maxLength:100000}),
+						platform:user.platform,
 						user:{
 							id:key,
-							login:value.users[key].login!,
+							login:user.login!,
 						},
 					});
 				}
@@ -404,18 +402,16 @@ class ParamsValues extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = window.setTimeout(async () => {
 			const users = await TwitchUtils.getUserInfo(undefined, [search]);
-			let found = false;
 			if(users.length > 0) {
-				const u = users[0];
+				const u = users[0]!;
 				if(value.users![u.id] != undefined) {
-					found = true;
 					//If user isn't already in the results
 					//and user is in the value users
 					if((entry.value.users || {})[u.id]) {
 						const existingIndex = (entry.idToUsers[value.id] ||[]).findIndex(v=>v.user.id === u.id);
 						const userEntry:UserEntry = {
 							hide:false,
-							param:reactive({type:"string", value:(value.users && value.users[u.id])? value.users![u.id].value : "", maxLength:100000}),
+							param:reactive({type:"string", value:(value.users && value.users[u.id])? value.users![u.id]!.value : "", maxLength:100000}),
 							platform:"twitch",
 							user:{
 								id:u.id,
@@ -451,7 +447,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 
 		//Get Twitch users
-		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "twitch"));
+		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v]!.platform == "twitch"));
 		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			twitchUsers.forEach((u) => {
@@ -480,7 +476,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		}
 
 		//Get YouTube users
-		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "youtube");
+		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
 			if(YoutubeHelper.instance.connected) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
@@ -530,7 +526,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		}
 
 		for (const uid in valueItem.value.users) {
-			const user = valueItem.value.users[uid];
+			const user = valueItem.value.users[uid]!;
 			//If entry does not exists in the loaded list, push it
 			if(entries.findIndex(v => v.user.id == uid) === -1) {
 				const value = user.value || "";
@@ -564,13 +560,13 @@ class ParamsValues extends Vue implements IParameterContent {
 		.then(()=>{
 			//Reset value data
 			for (const key in entry.value.users!) {
-				entry.value.users[key].value = "";
+				entry.value.users![key]!.value = "";
 			}
 
 			//Reset view data
 			if(entry.idToUsers[entry.value.id]) {
 				for (let i = 0; i < entry.idToUsers[entry.value.id]!.length; i++) {
-					const u = entry.idToUsers[entry.value.id]![i];
+					const u = entry.idToUsers[entry.value.id]![i]!;
 					u.param.value = "";
 				}
 			}
@@ -603,7 +599,7 @@ class ParamsValues extends Vue implements IParameterContent {
 	public onSortItems():void {
 		const idToIndex:{[id:string]:number} = {};
 		this.valueEntries.forEach((entry, index)=> idToIndex[entry.value.id] = index);
-		this.$store.values.valueList.sort((a,b)=> idToIndex[a.id] - idToIndex[b.id]);
+		this.$store.values.valueList.sort((a,b)=> idToIndex[a.id]! - idToIndex[b.id]!);
 	}
 
 	/**
@@ -633,8 +629,7 @@ class ParamsValues extends Vue implements IParameterContent {
 				}
 		});
 
-		for (let i = 0; i < this.valueEntries.length; i++) {
-			const element = this.valueEntries[i];
+		for (const element of this.valueEntries) {
 			element.sortType[element.value.id] = "points";
 			element.sortDirection[element.value.id] = -1;
 			element.search[element.value.id] = "";

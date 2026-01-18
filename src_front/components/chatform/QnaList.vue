@@ -91,7 +91,7 @@ class QnaList extends AbstractSidePanel {
 
 	public get currentSession():TwitchatDataTypes.QnaSession|null {
 		if(this.$store.qna.activeSessions.length == 0) return null;
-		return this.$store.qna.activeSessions[this.currentSessionIndex];
+		return this.$store.qna.activeSessions[this.currentSessionIndex]!;
 	}
 
 	public get pageCount():number {

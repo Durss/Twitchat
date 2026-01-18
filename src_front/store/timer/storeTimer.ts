@@ -107,8 +107,7 @@ export const storeTimer = defineStore('timer', {
 					this.broadcastStates(event.data.id);
 				}else{
 					//Broadcast default timers states
-					for (let i = 0; i < this.timerList.length; i++) {
-						const entry = this.timerList[i];
+					for (const entry of this.timerList) {
 						if(!entry.isDefault) continue;
 						this.broadcastStates(entry.id);
 					}
@@ -117,8 +116,7 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		broadcastStates(id?:string) {
-			for (let i = 0; i < this.timerList.length; i++) {
-				const entry = this.timerList[i];
+			for (const entry of this.timerList) {
 				if(id && entry.id !== id) continue;
 
 				if(entry.type === "timer") {
@@ -245,7 +243,7 @@ export const storeTimer = defineStore('timer', {
 			if(!entry || !entry.startAt_ms || entry.paused) return;
 			entry.paused = true;
 			entry.pausedAt_ms = Date.now();
-			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 			this.broadcastStates();
 			this.saveData();
 		},
@@ -331,7 +329,7 @@ export const storeTimer = defineStore('timer', {
 		resetTimer(id:string) {
 			const entry = this.timerList.find(t=> t.id === id);
 			if(!entry) return;
-			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 			if(entry.startAt_ms) {
 				if(entry.type == "timer") {
 					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
@@ -354,11 +352,10 @@ export const storeTimer = defineStore('timer', {
 			DataStore.set(DataStore.TIMERS_CONFIGS, data);
 
 			// Schedule countdown ends
-			for (let i = 0; i < this.timerList.length; i++) {
-				const entry = this.timerList[i];
+			for (const entry of this.timerList) {
 				if(entry.type != "countdown") continue;
 				if(countdownTO[entry.id]) {
-					SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+					SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 					delete countdownTO[entry.id];
 				}
 				if(entry.paused || !entry.startAt_ms) continue;

@@ -679,7 +679,7 @@ export default class TTSUtils {
 				if(!message.raffleData.winners) return "";
 				if(message.raffleData.winners.length === 0) return "";
 
-				const txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0].label);
+				const txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0]!.label);
 				return txt;
 			}
 
@@ -794,7 +794,7 @@ export default class TTSUtils {
 	private async readNextMessage():Promise<void> {
 		if(this._pendingMessages.length === 0 || !this._enabled) return;
 
-		const messageEntry = this._pendingMessages[0];
+		const messageEntry = this._pendingMessages[0]!;
 		let skipMessage = false;
 
 		//Message deleted?
@@ -899,7 +899,7 @@ export default class TTSUtils {
 	private cleanupPrevIDs(id:string):void {
 		//Only clean after the first one as it's the one currently playing
 		for (let i = 1; i < this._pendingMessages.length; i++) {
-			const m = this._pendingMessages[i];
+			const m = this._pendingMessages[i]!;
 			if(m.id === id) {
 				this._pendingMessages.splice(i, 1);
 				i--;

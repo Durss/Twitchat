@@ -51,9 +51,10 @@ class HeatOverlayClick extends Vue {
 
 		this.param_cooldown
 		for (let i = 0; i < this.overlayTypes.length; i++) {
-			const code = this.overlayTypes[i];
-			this.param_cooldown[code] = {type:"number", value:this.$store.chat.botMessages[this.botMessageKeys[i]].cooldown || 10, min:0, max:3600, labelKey:"heat.param_cooldown", icon:"timer"};
-			this.param_allowAnon[code] = {type:"boolean", value:this.$store.chat.botMessages[this.botMessageKeys[i]].allowAnon === true, labelKey:"heat.param_anon", icon:"anon", tooltipKey:"heat.anonymous"};
+			const code = this.overlayTypes[i]!;
+			const botMessageKey = this.botMessageKeys[i]!;
+			this.param_cooldown[code] = {type:"number", value:this.$store.chat.botMessages[botMessageKey].cooldown || 10, min:0, max:3600, labelKey:"heat.param_cooldown", icon:"timer"};
+			this.param_allowAnon[code] = {type:"boolean", value:this.$store.chat.botMessages[botMessageKey].allowAnon === true, labelKey:"heat.param_anon", icon:"anon", tooltipKey:"heat.anonymous"};
 		}
 	}
 

@@ -204,8 +204,7 @@ class OverlayParamsLabels extends Vue {
 			let values:typeof this.param_labelValue[string]["listValues"] = [];
 			let prevCat = "";
 			let group:TwitchatDataTypes.ParameterDataListValue<string> = {value:"", group:[]};
-			for (let i = 0; i < this.placeholders.length; i++) {
-				const entry = this.placeholders[i];
+			for (const entry of this.placeholders) {
 				entry.globalTag = true;
 				if(entry.category != prevCat) {
 					if(group.value) values.push(group);

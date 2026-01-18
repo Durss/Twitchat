@@ -24,7 +24,7 @@
 
 					<div class="field" v-for="(a, index) in answers.length" :key="index">
 						<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
-						<div class="len">{{answers[index].length}}/25</div>
+						<div class="len">{{answers[index]!.length}}/25</div>
 					</div>
 
 					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
@@ -117,7 +117,7 @@ class PollForm extends AbstractSidePanel {
 				this.param_duration.value = this.action.pollData.voteDuration;
 				this.title = this.action.pollData.title;
 				for (let i = 0; i < this.action.pollData.answers.length; i++) {
-					this.answers[i] = this.action.pollData.answers[i];
+					this.answers[i] = this.action.pollData.answers[i]!;
 				}
 			}else{
 				this.onValueChange();

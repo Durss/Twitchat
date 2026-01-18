@@ -113,7 +113,7 @@ export const storeEmergency = defineStore('emergency', {
 					const usersNames = this.params.toUsers;
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
-							userToPrevModState[channelId][u.id] = u.channelInfo[channelId].is_moderator === true;
+							userToPrevModState[channelId]![u.id] = u.channelInfo[channelId]!.is_moderator === true;
 							TwitchUtils.banUser(u, channelId, 30 * 60, "Timed out because the emergency mode has been triggered on Twitchat");
 						}, undefined, undefined, undefined, false);
 					}
@@ -121,8 +121,7 @@ export const storeEmergency = defineStore('emergency', {
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
 				if(this.params.obsScene) OBSWebsocket.instance.setCurrentScene(this.params.obsScene);
 				if(this.params.obsSources) {
-					for (let i = 0; i < this.params.obsSources.length; i++) {
-						const s = this.params.obsSources[i];
+					for (const s of this.params.obsSources) {
 						OBSWebsocket.instance.setSourceState(s, false);
 					}
 				}
@@ -147,7 +146,7 @@ export const storeEmergency = defineStore('emergency', {
 						await StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, async (u)=> {
 							await TwitchUtils.unbanUser(u, channelId);
 							//Reset mod role if user was a mod before
-							if(userToPrevModState[channelId][u.id] === true) {
+							if(userToPrevModState[channelId]![u.id] === true) {
 								delete userToPrevModState[channelId];
 								TwitchUtils.addRemoveModerator(false, channelId, u);
 							}
@@ -155,8 +154,7 @@ export const storeEmergency = defineStore('emergency', {
 					}
 				}
 				if(this.params.obsSources) {
-					for (let i = 0; i < this.params.obsSources.length; i++) {
-						const s = this.params.obsSources[i];
+					for (const s of this.params.obsSources) {
 						OBSWebsocket.instance.setSourceState(s, true);
 					}
 				}
@@ -188,7 +186,7 @@ export const storeEmergency = defineStore('emergency', {
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd?:string):Promise<void> {
 			if(!this.params.enabled) return;
-			if(!cmd) cmd = (message.message || "").trim().split(" ")[0].toLowerCase();
+			if(!cmd) cmd = (message.message || "").trim().split(" ")[0]!.toLowerCase();
 			if(cmd?.length < 2) return;
 
 			//check if its a command to start the emergency mode

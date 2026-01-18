@@ -76,8 +76,8 @@ class OBSBrowserSources extends Vue {
 
 	public async refreshAllSource():Promise<void> {
 		this.refreshingAll = true;
-		for (let i = 0; i < this.sources.length; i++) {
-			await this.refreshSource(this.sources[i]);
+		for (const source of this.sources) {
+			await this.refreshSource(source);
 		}
 		this.refreshingAll = false;
 	}

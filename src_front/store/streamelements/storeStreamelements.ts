@@ -207,7 +207,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					try {
 						let codeLength = 0;
 						for (; codeLength < event.data.length; codeLength++) {
-							if(!/[0-9]/.test(event.data[codeLength])) break;
+							if(!/[0-9]/.test(event.data[codeLength]!)) break;
 						}
 						const code = event.data.substring(0, codeLength);
 						//Welcome message

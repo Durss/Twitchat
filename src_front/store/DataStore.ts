@@ -60,14 +60,14 @@ export default class DataStore extends DataStoreCommon{
 
 				//Do not save sensitive and useless data to server
 				for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
-					delete data[ this.UNSYNCED_DATA[i] ];
+					delete data[ this.UNSYNCED_DATA[i]! ];
 				}
 
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
 				if(automod) {
 					for (let i = 0; i < automod.keywordsFilters.length; i++) {
-						if(!automod.keywordsFilters[i].serverSync) {
+						if(!automod.keywordsFilters[i]!.serverSync) {
 							automod.keywordsFilters.splice(i,1);
 							i--;
 						}
@@ -131,14 +131,14 @@ export default class DataStore extends DataStoreCommon{
 
 			//Do not save sensitive and useless data to server
 			for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
-				delete data[ this.UNSYNCED_DATA[i] ];
+				delete data[ this.UNSYNCED_DATA[i]! ];
 			}
 
 			//Remove automod items the user asked not to sync to server
 			const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
 			if(automod) {
 				for (let i = 0; i < automod.keywordsFilters.length; i++) {
-					if(!automod.keywordsFilters[i].serverSync) {
+					if(!automod.keywordsFilters[i]!.serverSync) {
 						automod.keywordsFilters.splice(i,1);
 						i--;
 					}
@@ -312,12 +312,11 @@ export default class DataStore extends DataStoreCommon{
 		}
 
 		const backup:{[key:string]:JsonValue} = {};
-		for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
-			const key = this.UNSYNCED_DATA[i];
+		for (const key of this.UNSYNCED_DATA) {
 			if(!items[key]) continue;
 			backup[key] = items[key];
 		}
-		backup[this.DATA_VERSION] = items[this.DATA_VERSION];
+		backup[this.DATA_VERSION] = items[this.DATA_VERSION]!;
 
 		const json = await this.migrateData(items);//Migrate remote data if necessary
 
@@ -375,8 +374,7 @@ export default class DataStore extends DataStoreCommon{
 				if(t.rewardId && t.type != TriggerTypes.REWARD_REDEEM) {
 					delete t.rewardId;//Compensate for migration mistake. Useless data
 				}
-				for (let i = 0; i < t.actions.length; i++) {
-					const a = t.actions[i];
+				for (const a of t.actions) {
 					//Remove old "0 second" delays not properly cleaned up
 					if(a.delay != undefined && a.type != "delay") {
 						delete a.delay;
@@ -403,7 +401,7 @@ export default class DataStore extends DataStoreCommon{
 
 		if(botMessages) {
 			for (const key in botMessages) {
-				const m = botMessages[key];
+				const m = botMessages[key]!;
 				if(m.message == null) m.message = StoreProxy.i18n.tm("params.botMessages."+key);
 				if(m.enabled != true && m.enabled != false) m.enabled = false;
 			}
@@ -428,7 +426,7 @@ export default class DataStore extends DataStoreCommon{
 					delete t.rewardId;//Compensate for migration mistake. Useless data
 				}
 				for (let i = 0; i < t.actions.length; i++) {
-					const a = t.actions[i];
+					const a = t.actions[i]!;
 					//Remove old "0 second" delays not properly cleaned up
 					if(a.delay != undefined && a.type != "delay") {
 						delete a.delay;
@@ -483,8 +481,7 @@ export default class DataStore extends DataStoreCommon{
 	private static cleanupHeatTriggerActions(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
 		if(triggers) {
-			for (let i = 0; i < triggers.length; i++) {
-				const trigger = triggers[i];
+			for (const trigger of triggers) {
 				if(trigger.type == TriggerTypes.HEAT_CLICK) {
 					if(trigger.heatClickSource == "obs") {
 						delete trigger.heatAreaIds;
@@ -510,7 +507,7 @@ export default class DataStore extends DataStoreCommon{
 			chatCols.forEach(c => {
 				c.filters.music_added_to_queue = false;
 			});
-			chatCols[0].filters.music_added_to_queue = true;
+			chatCols[0]!.filters.music_added_to_queue = true;
 
 			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
@@ -551,8 +548,8 @@ export default class DataStore extends DataStoreCommon{
 						name = "channelpoints-reward";
 					}
 					if(count[name] === undefined) count[name] = 0;
-					if(count[name] > 0) name +="_"+count[name];
-					count[name] ++;
+					if(count[name]! > 0) name +="_"+count[name];
+					count[name]! ++;
 
 					t.queue = name;
 					console.log("Set queue to", name);
@@ -620,7 +617,7 @@ export default class DataStore extends DataStoreCommon{
 			//Cleanup any trigger from the root tree if it
 			//exists within a folder
 			for (let i = 0; i < tree.length; i++) {
-				const item = tree[i];
+				const item = tree[i]!;
 				//Check if current item exists within a folder
 				if(item.type == "trigger" && isInFolder[item.triggerId!] === true) {
 					console.log("Remove", item.triggerId);
@@ -929,7 +926,7 @@ export default class DataStore extends DataStoreCommon{
 
 		for (const trigger of triggers) {
 			for (let i = 0; i < trigger.actions.length; i++) {
-				const action = trigger.actions[i];
+				const action = trigger.actions[i]!;
 
 				// Handle HTTP Call actions
 				if(action.type === "http") {
@@ -938,10 +935,10 @@ export default class DataStore extends DataStoreCommon{
 					// If it has complex JSON extraction, migrate it
 					if(httpAction.outputPlaceholderList) {
 						if(httpAction.outputPlaceholderList.length > 0) {
-							if(httpAction.outputPlaceholderList.length === 1 && httpAction.outputPlaceholderList[0].type === 'text') {
+							if(httpAction.outputPlaceholderList.length === 1 && httpAction.outputPlaceholderList[0]!.type === 'text') {
 								// If it only has a single text output, keep it as is
-								if(httpAction.outputPlaceholderList[0].placeholder) {
-									httpAction.outputPlaceholder = httpAction.outputPlaceholderList[0].placeholder;
+								if(httpAction.outputPlaceholderList[0]!.placeholder) {
+									httpAction.outputPlaceholder = httpAction.outputPlaceholderList[0]!.placeholder;
 								}
 							}else{
 								// Filter only JSON placeholders for the extract action
@@ -1020,8 +1017,7 @@ export default class DataStore extends DataStoreCommon{
 		if(!triggers || !Array.isArray(triggers)) return;
 
 		for (const trigger of triggers) {
-			for (let i = 0; i < trigger.actions.length; i++) {
-				const action = trigger.actions[i];
+			for (const action of trigger.actions) {
 				if(action.type === "http" || action.type === "groq") {
 					if('outputPlaceholderList' in action && action.outputPlaceholderList) {
 						// Remove any empty output placeholders

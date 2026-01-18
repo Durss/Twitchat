@@ -95,7 +95,7 @@ class ChatReward extends AbstractChatMessage {
 		});
 		
 		const finalList:{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] = Object.keys(idCountDictionary).map((id) => {
-			return { count: idCountDictionary[id], vo: res.find(r => r.reward.id === id)! };
+			return { count: idCountDictionary[id]!, vo: res.find(r => r.reward.id === id)! };
 		});
 
 		finalList.sort((a,b)=>{
@@ -126,7 +126,7 @@ class ChatReward extends AbstractChatMessage {
 		}
 		if(!message) return false;
 		return this.refundableIds[message.reward.id] != undefined
-			&& !this.refundableIds[message.reward.id].should_redemptions_skip_request_queue
+			&& !this.refundableIds[message.reward.id]!.should_redemptions_skip_request_queue
 			&& message.redeemId != undefined
 			&& message.refund !== true;
 	}

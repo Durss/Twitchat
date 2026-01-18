@@ -281,8 +281,7 @@ class Parameters extends Vue {
 
 		//Check if any entry from the "menuEntries" is missing from the final
 		//list. Add them to the beginning if so.
-		for (let i = 0; i < this.menuEntries.length; i++) {
-			const item = this.menuEntries[i];
+		for (const item of this.menuEntries) {
 			if(this.pinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
 			if(this.unpinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
 			//Missing item, add it to the top
@@ -390,7 +389,7 @@ class Parameters extends Vue {
 		for (const categoryID in this.$store.params.$state) {
 			const category = this.$store.params.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData<unknown>};
 			for (const prop in category) {
-				const data:TwitchatDataTypes.ParameterData<unknown> = category[prop];
+				const data:TwitchatDataTypes.ParameterData<unknown> = category[prop]!;
 
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;
@@ -402,9 +401,10 @@ class Parameters extends Vue {
 				if(label && new RegExp(safeSearch, "gi").test(label)) {
 					if(data.parent) {
 						for (const key in category) {
-							if(category[key].id == data.parent && IDsDone[category[key].id as number] !== true) {
-								IDsDone[category[key].id as number] = true;
-								this.filteredParams.push(category[key]);
+							const prop = category[key]!;
+							if(prop.id == data.parent && IDsDone[prop.id as number] !== true) {
+								IDsDone[prop.id as number] = true;
+								this.filteredParams.push(prop);
 							}
 						}
 					}else{

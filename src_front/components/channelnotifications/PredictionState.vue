@@ -84,7 +84,7 @@ class PredictionState extends Vue {
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i].votes;
+				totalVotes += this.prediction.outcomes[i]!.votes;
 			}
 		}
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);

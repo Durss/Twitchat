@@ -97,12 +97,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						//Go through getUserFrom() that will init the channelInfo property for later use
 						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal, undefined, undefined, false, undefined, false)
 						//Flag self as mod of that channel
-						me.channelInfo[channel.id].is_moderator = true;
+						me.channelInfo[channel.id]!.is_moderator = true;
 					}
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name, undefined, undefined, false, undefined, false);//Preload user to storage
-				u.channelInfo[channel.id].online = true;
-				u.channelInfo[channel.id].is_broadcaster = true;
+				u.channelInfo[channel.id]!.online = true;
+				u.channelInfo[channel.id]!.is_broadcaster = true;
 
 				//Init stream info
 				if(!StoreProxy.stream.currentStreamInfo[channel.id]) {
@@ -305,61 +305,61 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/warn":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.CHAT_WARNING])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.sendWarning(user.id, chunks.splice(1).join(" "), channelId);
 					return false;
 				}
 				case "/ban":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));
 					return false;
 				}
 				case "/unban": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.unbanUser(user, channelId);
 					return false;
 				}
 				case "/block":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.blockUser(user);
 					return false;
 				}
 				case "/unblock": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.unblockUser(user);
 					return false;
 				}
 				case "/timeout":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]) || 600, chunks.splice(2).join(" "));
+					const user = await getUserFromLogin(chunks[0]!, channelId);
+					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]!) || 600, chunks.splice(2).join(" "));
 					return false;
 				}
 				case "/untimeout": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.unbanUser(user, channelId);
 					return false;
 				}
 				case "/vip": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.addRemoveVIP(false, channelId, user);
 					return false;
 				}
 				case "/unvip": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.addRemoveVIP(true, channelId, user);
 					return false;
 				}
 				case "/mod": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.addRemoveModerator(false, channelId, user);
 					return false;
 				}
@@ -397,14 +397,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/unmod": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return false;
-					const user = await getUserFromLogin(chunks[0], channelId);
+					const user = await getUserFromLogin(chunks[0]!, channelId);
 					if(user) return await TwitchUtils.addRemoveModerator(true, channelId, user);
 					return false;
 				}
 				case "/commercial": {
 					if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return false;
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
-					const duration = parseInt(chunks[0]);
+					const duration = parseInt(chunks[0]!);
 					StoreProxy.stream.startCommercial(channelId, duration, noConfirmCommercial);
 					return true;
 				}
@@ -418,7 +418,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/delete":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return false;
-					return await TwitchUtils.deleteMessages(channelId, chunks[0]);
+					return await TwitchUtils.deleteMessages(channelId, chunks[0]!);
 				}
 				case "/clear":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return false;
@@ -426,7 +426,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/color":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
-					return await TwitchUtils.setColor(chunks[0]);
+					return await TwitchUtils.setColor(chunks[0]!);
 				}
 				case "/emoteonly":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
@@ -438,7 +438,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/followers":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
-					return await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])});
+					return await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0]!)});
 				}
 				case "/followersoff":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
@@ -446,7 +446,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/slow":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
-					return await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])});
+					return await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0]!)});
 				}
 				case "/slowoff":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
@@ -474,7 +474,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 											TwitchScopes.CHAT_WARNING,
 											TwitchScopes.READ_MODERATORS,
 											TwitchScopes.READ_VIPS])) return false;
-					return await TwitchUtils.raidChannel(chunks[0].replace(/^@/, "").toLowerCase());
+					return await TwitchUtils.raidChannel(chunks[0]!.replace(/^@/, "").toLowerCase());
 				}
 				case "/unraid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
@@ -482,7 +482,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/clip":  {
 					let title = "";
-					let duration = parseInt(chunks[0]);
+					let duration = parseInt(chunks[0]!);
 					if(isNaN(duration)) {
 						if(chunks.length > 0) {
 							title = chunks.join(" ");
@@ -496,7 +496,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/whisper":
 				case "/w": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_MANAGE])) return false;
-					const login = chunks[0].replace(/^@/, "").toLowerCase();
+					const login = chunks[0]!.replace(/^@/, "").toLowerCase();
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
 				case "/marker":  {
@@ -552,11 +552,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//Load bots list
 			const res = await fetch('https://api.twitchinsights.net/v1/bots/all');
 			const json = await res.json();
-			(json.bots as string[][]).forEach(b => hashmap[ b[0].toLowerCase() ] = true);
+			(json.bots as string[][]).forEach(b => hashmap[ b[0]!.toLowerCase() ] = true);
 		}catch(error) {
 			//Fallback in case twitchinsights dies someday
 			["streamelements", "nightbot", "wizebot", "kikettebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
-			.forEach(b => hashmap[ b[0].toLowerCase() ] = true);
+			.forEach(b => hashmap[ b[0]!.toLowerCase() ] = true);
 			Logger.instance.log("irc", {info:"Failed loading bots list, using a static one"});
 		}
 		StoreProxy.users.setBotsMap("twitch", hashmap);
@@ -590,33 +590,33 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isBroadcaster	= tags.badges?.broadcaster != undefined;
 		const isPartner		= tags.badges?.partner != undefined;
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true, isSub);
+		const channelInfo	= user.channelInfo[channelId]!;
 
 		// user.channelInfo[channelId].online	= true;
 		delete user.temporary;//Avoids useless server call
 
 		if(tags.color)		user.color = tags.color;
-		if(isMod)			user.channelInfo[channelId].is_moderator = true;
-		if(isVip)			user.channelInfo[channelId].is_vip = true;
-		if(isSub)			user.channelInfo[channelId].is_subscriber = true;
-		if(isSubGifter)		user.channelInfo[channelId].is_gifter = true;
-		if(isBroadcaster)	user.channelInfo[channelId].is_broadcaster = true;
+		if(isMod)			channelInfo.is_moderator = true;
+		if(isVip)			channelInfo.is_vip = true;
+		if(isSub)			channelInfo.is_subscriber = true;
+		if(isSubGifter)		channelInfo.is_gifter = true;
+		if(isBroadcaster)	channelInfo.is_broadcaster = true;
 		if(isPartner) {
 			user.is_partner		= true;
 			user.is_affiliate	= true;
 		}
 
 		if(tags.badges && tags["room-id"]) {
-			user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
+			channelInfo.badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
 		}else{
 			//Cleanup badges from the user
-			user.channelInfo[channelId].badges = [];
+			channelInfo.badges = [];
 		}
 		return user;
 	}
 
 	private getChannelID(login:string):string {
-		login = login.replace("#", "");
-		return this._channelLoginToId[login];
+		return this._channelLoginToId[ login.replace("#", "") ]!;
 	}
 
 	/**
@@ -631,7 +631,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
 		const user		= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login);
-		const wasOnline	= user.channelInfo[channelId].online === true;
+		const wasOnline	= user.channelInfo[channelId]!.online === true;
 		// user.channelInfo[channelId].online = true;
 		return {user, wasOnline};
 	}
@@ -778,13 +778,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				const user = await this._remoteIdToPromise[chanId];
 
 				this._remoteIdToUser[chanId] = user;
-				this._remoteChanToColor[chanId] = this._remoteChanColors[this._remoteChanColorPointer];
+				this._remoteChanToColor[chanId] = this._remoteChanColors[this._remoteChanColorPointer]!;
 				this._remoteChanColorPointer ++;
 			}
 
 			//Define remote channel info
 			data.channelSource = {
-				color:this._remoteChanToColor[chanId],
+				color:this._remoteChanToColor[chanId]!,
 				pic:this._remoteIdToUser[chanId].avatarPath,
 				name:this._remoteIdToUser[chanId].login,
 			}
@@ -802,7 +802,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const messages = StoreProxy.chat.messages;
 			//Search for original message the user answered to
 			for (let i = messages.length-1; i >= Math.max(0, messages.length-1000); i--) {
-				let m = messages[i];
+				let m = messages[i]!;
 				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 				if(m.id === tags["reply-parent-msg-id"]) {
 					if(!m.answers) m.answers = [];
@@ -1105,11 +1105,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const channel_id = this.getChannelID(channel);
 			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);
-			if(!user.channelInfo[channel_id].is_banned
+			const chanInfo = user.channelInfo[channel_id]!;
+			if(!chanInfo.is_banned
 			//if user is TOed and it's a perma ban
-			|| (user.channelInfo[channel_id].banEndDate && !isTO)
+			|| (chanInfo.banEndDate && !isTO)
 			//if user is perma banned and it's a TO
-			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
+			|| (!chanInfo.banEndDate && isTO)) {
 				//Flag as banned. This also populates the ban reason of the user
 				await StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 			}
@@ -1129,7 +1130,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const params = parsed.params as string[];
 					const tags = parsed.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
-					this.onMessage(params[0], tags, params[1], false);
+					this.onMessage(params[0]!, tags, params[1]!, false);
 				}else
 
 				//Handle viewer milestone (AKA consecutive watched streams)
@@ -1190,7 +1191,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					// console.log("User", user);
 					// console.log("Channel", channelId);
 					// console.log("Total", total);
-					user.channelInfo[channelId].totalSubgifts = total;
+					user.channelInfo[channelId]!.totalSubgifts = total;
 				}
 				break;
 			}
@@ -1218,13 +1219,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					"slow_on": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON,
 					"slow_off": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF,
 				}
-				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = msgIdToNoticeId[msgid] || TwitchatDataTypes.TwitchatNoticeType.GENERIC;
+				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = msgIdToNoticeId[msgid!] || TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
-					if(msgid.indexOf("bad_delete_message_error") > -1) {
+					if(msgid!.indexOf("bad_delete_message_error") > -1) {
 						message = StoreProxy.i18n.t("error.delete_message")
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}
-					if(msgid.indexOf("authentication failed") > -1) {
+					if(msgid!.indexOf("authentication failed") > -1) {
 						message = StoreProxy.i18n.t("error.irc_reconect");
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;

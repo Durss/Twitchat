@@ -34,7 +34,7 @@ export default class FFZUtils {
 		const res:TwitchatDataTypes.Emote[] = [];
 		const emotesDone:{[key:string]:boolean} = {};
 		for (const key in this.globalEmotesHashmaps) {
-			const e = this.globalEmotesHashmaps[key];
+			const e = this.globalEmotesHashmaps[key]!;
 			if(emotesDone[e.id]) continue;
 			emotesDone[e.id] = true;
 			res.push({
@@ -53,7 +53,7 @@ export default class FFZUtils {
 		for (const chanId in this.channelEmotesHashmaps) {
 			const chan = this.channelEmotesHashmaps[chanId];
 			for (const key in chan) {
-				const e = chan[key];
+				const e = chan[key]!;
 				if(emotesDone[e.id]) continue;
 				emotesDone[e.id] = true;
 				res.push({
@@ -101,8 +101,7 @@ export default class FFZUtils {
 		const allEmotes:FFZEmote[] = [];
 		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
-		for (let i = 0; i < chunks.length; i++) {
-			const txt = chunks[i];
+		for (const txt of chunks) {
 			if(this.globalEmotesHashmaps[txt]) {
 				const emote = this.globalEmotesHashmaps[txt];
 				if(emote && emotesDone[emote.name] !== true) {
@@ -112,7 +111,7 @@ export default class FFZUtils {
 			}
 			//TODO parse only the emotes from the channel the message was posted to
 			for (const key in this.channelEmotesHashmaps) {
-				const emote = this.channelEmotesHashmaps[key][txt];
+				const emote = this.channelEmotesHashmaps[key]![txt];
 				if(emote && emotesDone[emote.name] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.name] = true;
@@ -122,7 +121,7 @@ export default class FFZUtils {
 
 		//Parse global emotes
 		for (let i = 0; i < allEmotes.length; i++) {
-			const e = allEmotes[i];
+			const e = allEmotes[i]!;
 			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 			const matches = [...message.matchAll(new RegExp(name, "gi"))];
 			if(matches && matches.length > 0) {
@@ -133,7 +132,7 @@ export default class FFZUtils {
 				let tmpTag = "FFZ_"+e.id+":";
 				let emoteCount = 0;
 				for (let j = 0; j < matches.length; j++) {
-					const start = (matches[j].index as number);
+					const start = (matches[j]!.index as number);
 					const end = start+e.name.length-1;
 
 					if(protectedRanges[start] === true) continue;
@@ -169,7 +168,7 @@ export default class FFZUtils {
 			return this.globalEmotesHashmaps[code];
 		}
 		for (const key in this.channelEmotesHashmaps) {
-			const list = this.channelEmotesHashmaps[key];
+			const list = this.channelEmotesHashmaps[key]!;
 			if(list[code]) {
 				return list[code];
 			}
@@ -185,7 +184,7 @@ export default class FFZUtils {
 		if(!this.emotesLoaded) {
 			await this.loadGlobalEmotes();
 			for (let i = 0; i < this.channelList.length; i++) {
-				await this.loadChannelEmotes( this.channelList[i] );
+				await this.loadChannelEmotes( this.channelList[i]! );
 			}
 		}
 		this.enabled = true;
@@ -238,7 +237,7 @@ export default class FFZUtils {
 				}
 				this.channelEmotesHashmaps[channelId] = {};
 				emotes.forEach(e => {
-					this.channelEmotesHashmaps[channelId][e.name] = e;
+					this.channelEmotesHashmaps[channelId]![e.name] = e;
 				});
 			}
 		}catch(error) {

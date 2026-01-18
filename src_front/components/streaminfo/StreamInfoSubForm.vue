@@ -151,7 +151,7 @@ class StreamInfoSubForm extends Vue {
 	 */
 	public onTagsUpdate():void {
 		for (let i = 0; i < this.localTags.length; i++) {
-			this.localTags[i] = this.sanitizeTag(this.localTags[i]);
+			this.localTags[i] = this.sanitizeTag(this.localTags[i]!);
 		}
 		console.log(">", this.localTags);
 		this.$emit('update:tags', this.localTags.filter(v=>v.trim().length > 0))
@@ -163,7 +163,7 @@ class StreamInfoSubForm extends Vue {
 	public onLabelsUpdate():void {
 		const labels:{id:string, enabled:boolean}[] = [];
 		for (let i = 0; i < this.param_labels.length; i++) {
-			labels.push( {id:this.param_labels[i].storage!, enabled:this.param_labels[i].value === true});
+			labels.push( {id:this.param_labels[i]!.storage!, enabled:this.param_labels[i]!.value === true});
 		}
 		this.$emit('update:labels', labels);
 	}
@@ -196,8 +196,7 @@ class StreamInfoSubForm extends Vue {
 			this.loadingLabels = true;
 			//Load classification labels from Twitch
 			const res = await TwitchUtils.getContentClassificationLabels();
-			for (let i = 0; i < res.length; i++) {
-				const label = res[i];
+			for (const label of res) {
 				//This label is automatically set from game selection, no need to make it selectable
 				if(label.id == "MatureGame") continue;
 				this.param_labels.push({value:false, type:"boolean", storage:label.id, label:label.name, tooltip:label.description})
@@ -205,9 +204,9 @@ class StreamInfoSubForm extends Vue {
 		}
 
 		//Set classification label states
-		for (let i = 0; i < this.param_labels.length; i++) {
-			if(labels.find(v=>v.id === this.param_labels[i].storage!)?.enabled === true) {
-				this.param_labels[i].value = true;
+		for (const label of this.param_labels) {
+			if(labels.find(v=>v.id === label.storage!)?.enabled === true) {
+				label.value = true;
 			}
 		}
 

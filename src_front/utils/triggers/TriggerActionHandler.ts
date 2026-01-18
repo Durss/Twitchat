@@ -113,7 +113,7 @@ export default class TriggerActionHandler {
 				}
 
 				if(message.message) {
-					const cmd = message.message.trim().split(" ")[0].toLowerCase();
+					const cmd = message.message.trim().split(" ")[0]!.toLowerCase();
 					await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmd, undefined, forcedTriggerId);
 					//In case a command is declared with spaces included, attempt to execute it
 					const cmdall = message.message.trim().toLowerCase();
@@ -1019,11 +1019,13 @@ export default class TriggerActionHandler {
 			}
 
 			for (let i = 0; i < keys.length; i++) {
-				keys[i] = keys[i].toLowerCase();
-				if(!this.triggerType2Triggers[ keys[i] ]) {
-					this.triggerType2Triggers[ keys[i] ] = [];
+				let key = keys[i];
+				if(!key) continue;
+				keys[i] = key = key.toLowerCase();
+				if(!this.triggerType2Triggers[ key ]) {
+					this.triggerType2Triggers[ key ] = [];
 				}
-				this.triggerType2Triggers[ keys[i] ]!.push(t);
+				this.triggerType2Triggers[ key ]!.push(t);
 			}
 		}
 	}
@@ -1035,6 +1037,7 @@ export default class TriggerActionHandler {
 	private cleanupTriggers(triggers:TriggerData[]):void {
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
+			if(!t) continue
 			let found = false;
 			for (const key in TriggerTypes) {
 				if(t.type === TriggerTypes[key as TriggerTypesKey]
@@ -1114,6 +1117,7 @@ export default class TriggerActionHandler {
 			for (let i = 1; i < callStack.stack.length; i++) {
 				const prev = callStack.stack[i-1];
 				const curr = callStack.stack[i];
+				if(!prev || !curr) continue;
 				delayAvg += curr.date - prev.date;
 			}
 			delayAvg /= callStack.stack.length;
@@ -1214,10 +1218,12 @@ export default class TriggerActionHandler {
 
 			if(eventBusy) {
 				const queueItem = queue[queue.length-2];
-				const prom = queueItem?.promise;
-				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete: "+ queueItem.name});
-				if(prom) await prom;
-				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process: "+ queueItem.name});
+				if(queueItem) {
+					const prom = queueItem?.promise;
+					log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete: "+ queueItem.name});
+					if(prom) await prom;
+					log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process: "+ queueItem.name});
+				}
 			}
 		}
 
@@ -1257,8 +1263,9 @@ export default class TriggerActionHandler {
 					log.entries.push({date:Date.now(), type:"message", value:"Checking if "+message.user.login+" is on cooldown or not"});
 					//User cooldown
 					const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
-					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
-						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
+					const cooldown = this.userCooldowns[key];
+					if(cooldown && cooldown > 0 && cooldown > now) {
+						const remaining_s = Utils.formatDuration(cooldown - now + 1000) + "s";
 						if(message.user.id == message.channel_id) {
 							log.entries.push({date:Date.now(), type:"message", value:"ℹ️ You're on cooldown for "+remaining_s+" but because you're the streamer, cooldown does not apply"});
 						}else{
@@ -1277,10 +1284,13 @@ export default class TriggerActionHandler {
 				}
 
 				//Global cooldown
-				if(canExecute && trigger.cooldown
-				&& this.globalCooldowns[triggerId] > 0
-				&& this.globalCooldowns[triggerId] > now) {
-					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
+				const globalCooldown = this.globalCooldowns[triggerId];
+				if(canExecute
+				&& trigger.cooldown
+				&& globalCooldown
+				&& globalCooldown > 0
+				&& globalCooldown > now) {
+					const remaining_s = Utils.formatDuration(globalCooldown - now + 1000) + "s";
 					if(message.user.id == message.channel_id) {
 						log.entries.push({date:Date.now(), type:"message", value:"ℹ️ Trigger is on global cooldown for "+remaining_s+" but because you're the streamer, cooldown does not apply"});
 					}else{
@@ -1321,7 +1331,7 @@ export default class TriggerActionHandler {
 				//Add all params in the dynamic placeholders
 				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
 					const param = trigger.chatCommandParams[i];
-					if(!dynamicPlaceholders[param.tag.toUpperCase()]) {
+					if(param && !dynamicPlaceholders[param.tag.toUpperCase()]) {
 						dynamicPlaceholders[param.tag.toUpperCase()] = params[i] || "";
 						log.entries.push({date:Date.now(), type:"message", value:"Add dynamic placeholder \"{"+param.tag.toUpperCase()+"}\" => \""+params[i]+"\""});
 					}
@@ -1564,6 +1574,7 @@ export default class TriggerActionHandler {
 											}else{
 												for (let i = 0; i < items.length; i++) {
 													const item = items[i];
+													if(!item) continue;
 													const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
 													type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
 													const result:ReducedType = {};
@@ -1640,7 +1651,7 @@ export default class TriggerActionHandler {
 															getModifier = function(a:number[]) {
 																return function(value:number) {
 																	a.push(value);
-																	return a[0];
+																	return a[0]!;
 																};
 															},
 															vars = tween.vars.css || tween.vars,
@@ -1649,7 +1660,7 @@ export default class TriggerActionHandler {
 																//Only keep source transform compatible keys
 																if(["positionX","positionY","rotation","scaleX","scaleY"].includes(p)) {
 																	results[p] = [];
-																	modifiers[p] = getModifier(results[p]);
+																	modifiers[p] = getModifier(results[p]!);
 																}
 															}
 															vars.modifiers = modifiers;
@@ -1667,19 +1678,22 @@ export default class TriggerActionHandler {
 														const values = summarizeTweenValues(tween);
 														const frames:RequestBatchRequest[] = [];
 														const keys = Object.keys(values);
-														for (let i = 0; i < values[keys[0]].length; i++) {
-															let transform:{[key:string]:number} = {};
-															for (const key in values) {
-																transform[key] = values[key][i];
+														const firstKey = keys[0];
+														if(firstKey) {
+															for (let i = 0; i < values[firstKey]!.length; i++) {
+																let transform:{[key:string]:number} = {};
+																for (const key in values) {
+																	transform[key] = values[key]![i]!;
+																}
+																frames.push({
+																	requestType:"SetSceneItemTransform",
+																	requestData: {sceneName:item.scene, sceneItemId:item.source.sceneItemId, sceneItemTransform:transform}
+																});
+																frames.push({
+																	requestType:"Sleep",
+																	requestData:{sleepFrames:1},
+																})
 															}
-															frames.push({
-																requestType:"SetSceneItemTransform",
-																requestData: {sceneName:item.scene, sceneItemId:item.source.sceneItemId, sceneItemTransform:transform}
-															});
-															frames.push({
-																requestType:"Sleep",
-																requestData:{sleepFrames:1},
-															})
 														}
 
 														//Make OBS execute animation frames
@@ -1869,10 +1883,12 @@ export default class TriggerActionHandler {
 							if(!user.displayName || !user.avatarPath || !user.login) {
 								//Get user info
 								const [twitchUser] = await TwitchUtils.getUserInfo([user.id]);
-								user.avatarPath = twitchUser.profile_image_url;
-								//Populate more info just in case some are missing
-								user.login = twitchUser.login;
-								user.displayName = twitchUser.display_name;
+								if(twitchUser) {
+									user.avatarPath = twitchUser.profile_image_url;
+									//Populate more info just in case some are missing
+									user.login = twitchUser.login;
+									user.displayName = twitchUser.display_name;
+								}
 							}
 							logStep.messages.push({date:Date.now(), value:"Loaded user \""+user.displayName+"\""});
 						}
@@ -1904,11 +1920,11 @@ export default class TriggerActionHandler {
 						let clipId = "";
 						if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 							const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"<']+)/i);
-							clipId = matches? matches[1] : "";
+							clipId = matches && matches[1]? matches[1]! : "";
 						}else
 						if(/clips\.twitch\.tv\//gi.test(text)) {
 							const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
-							clipId = matches? matches[1] : "";
+							clipId = matches && matches[1]? matches[1]! : "";
 						}
 						let message_id = Utils.getUUID();
 						if(clipId) {
@@ -2324,6 +2340,7 @@ export default class TriggerActionHandler {
 							if(step.customHeaders === true) {
 								for (let i = 0; i < (step.headers || []).length; i++) {
 									const h = step.headers![i];
+									if(!h) continue;
 									const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, h.value, subEvent);
 									headers[h.key] = value;
 								}
@@ -2382,7 +2399,7 @@ export default class TriggerActionHandler {
 							if(json && step.jsonExtractData.outputPlaceholderList && step.jsonExtractData.outputPlaceholderList.length > 0) {
 								for (let i = 0; i < step.jsonExtractData.outputPlaceholderList.length; i++) {
 									const ph = step.jsonExtractData.outputPlaceholderList[i];
-									if(!ph.placeholder || ph.placeholder.length === 0) continue;
+									if(!ph || !ph.placeholder || ph.placeholder.length === 0) continue;
 
 									// if(ph.type == "text") {
 									// 	logStep.messages.push({date:Date.now(), value:"Store full JSON content to placeholder {"+ph.placeholder+"}"});
@@ -2463,9 +2480,10 @@ export default class TriggerActionHandler {
 					const ids = step.counters;
 					let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
 					for (const c of StoreProxy.counters.counterList) {
-						action = step.userAction? step.userAction[c.id] : "update";
+						action = step.userAction && step.userAction[c.id]? step.userAction[c.id]! : "update";
 						if(ids.indexOf(c.id) > -1) {
 							//Check if we can update the counter
+							const counterSource = c.perUser && step.counterUserSources && step.counterUserSources[c.id] ? step.counterUserSources[c.id]! : undefined;
 							if(c.enabled == false && !isPremium) {
 								const logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 								logStep.messages.push({date:Date.now(), value:logMessage});
@@ -2475,14 +2493,13 @@ export default class TriggerActionHandler {
 							//Check if this step requests that this counter should update a user
 							//different than the default one (the one executing the command)
 							if(c.perUser
-							&& step.counterUserSources
-							&& step.counterUserSources[c.id]
-							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
-							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
-							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
-								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
+							&& counterSource
+							&& counterSource != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
+							&& counterSource != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
+							&& counterSource != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
+								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+counterSource.toUpperCase()+"}\"..."})
 
-								const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
+								const users = await this.extractUserFromPlaceholder(channel_id, counterSource, dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
@@ -2542,9 +2559,11 @@ export default class TriggerActionHandler {
 								const list = StoreProxy.users.users
 								for (let i = 0; i < list.length; i++) {
 									const user = list[i];
-									if(user.channelInfo[channel_id]
+									if(!user) continue;
+									const chanInfo = user.channelInfo[channel_id];
+									if(chanInfo
 									//If user is online or their last acitivity on chat was less than 10min ago
-									&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+									&& (chanInfo.online || Date.now() - (chanInfo.lastActivityDate || 0) < 10 * 60000)) {
 										if(action == "delete") {
 											StoreProxy.counters.deleteCounterEntry(c.id, undefined, user.id);
 										}else{
@@ -2601,8 +2620,9 @@ export default class TriggerActionHandler {
 					const ids = step.values;
 					let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
 					for (const v of StoreProxy.values.valueList) {
-						action = step.userAction? step.userAction[v.id] : "update";
+						action = step.userAction && step.userAction[v.id]? step.userAction[v.id]! : "update";
 						if(ids.indexOf(v.id) > -1) {
+							const valueSource = v.perUser && step.valueUserSources && step.valueUserSources[v.id] ? step.valueUserSources[v.id]! : undefined;
 							if(v.enabled == false && !isPremium) {
 								const logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+step.newValue;
 								logStep.messages.push({date:Date.now(), value:logMessage});
@@ -2612,16 +2632,16 @@ export default class TriggerActionHandler {
 							//Check if this step requests that this value should update a user
 							//different than the default one (the one executing the command)
 							if(v.perUser
-							&& step.valueUserSources
-							&& step.valueUserSources[v.id]
-							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
-							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
-							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
-								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
+							&& valueSource
+							&& valueSource != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
+							&& valueSource != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
+							&& valueSource != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
+								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+valueSource.toUpperCase()+"}\"..."})
 								
-								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
+								const users = await this.extractUserFromPlaceholder(channel_id, valueSource, dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
+									if(!user) continue;
 									const text = await this.parsePlaceholders(
 										dynamicPlaceholders,
 										actionPlaceholders,
@@ -2706,10 +2726,12 @@ export default class TriggerActionHandler {
 								const list = StoreProxy.users.users
 								for (let i = 0; i < list.length; i++) {
 									const user = list[i];
-									if(user.channelInfo[channel_id]
+									if(!user) continue;
+									const chanInfo = user.channelInfo[channel_id];
+									if(chanInfo
 									//If user is online or their last acitivity on chat was less than 10min ago
-									&& (user.channelInfo[channel_id].online
-									|| Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+									&& (chanInfo.online
+									|| Date.now() - (chanInfo.lastActivityDate || 0) < 10 * 60000)) {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, undefined, user.id);
 										}else{
@@ -2819,7 +2841,7 @@ export default class TriggerActionHandler {
 						//If requesting to ignore disabled triggers, filter them out
 						//Testing with "!== false" because the prop was added later and might be
 						//missing and I want it to be "true" by default
-						if(step.skipDisabled !== false) triggers = triggers.filter(t => hashmap[t].enabled);
+						if(step.skipDisabled !== false) triggers = triggers.filter(t => hashmap[t]?.enabled);
 						if(triggers.length === 0) {
 							logStep.messages.push({date:Date.now(), value:"Empty trigger list or all triggers disabled"});
 						}else{
@@ -2851,13 +2873,19 @@ export default class TriggerActionHandler {
 						const source = (step.mode == "counter")?
 										StoreProxy.counters.counterList.find(v=>v.id == sourceID)
 										: StoreProxy.values.valueList.find(v=>v.id == sourceID);
-						if(source && source.users && step.valueCounterPlaceholders) {
-							if(Object.keys(source.users).length > 0) {
-								uid = Utils.pickRand(Object.keys(source.users));
+						const users = source?.users;
+						if(source && users && step.valueCounterPlaceholders) {
+							if(Object.keys(users).length > 0) {
+								uid = Utils.pickRand(Object.keys(users));
 
 								//Attempt to load user name.
 								await new Promise<void>(async (resolve, reject)=>{
-									const platform = source.users![uid].platform;
+									const userInfo = users[uid];
+									if(!userInfo) {
+										resolve();
+										return;
+									}
+									const platform = userInfo.platform;
 									let resolved = false;
 									if(platform === "twitch") {
 										StoreProxy.users.getUserFrom("twitch", channel_id, uid, undefined, undefined, (user)=>{
@@ -2889,7 +2917,7 @@ export default class TriggerActionHandler {
 								log.error = true;
 							}
 
-							value = (source.users[uid]?.value ?? 0).toString();
+							value = (users[uid]?.value ?? 0).toString();
 							if(step.valueCounterPlaceholders.userId) {
 								dynamicPlaceholders[step.valueCounterPlaceholders.userId]	= uid;
 								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.userId+"}\" with value \""+uid+"\""});
@@ -3067,7 +3095,7 @@ export default class TriggerActionHandler {
 										let id:string|null = null;
 										if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
 											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-											id = chunks[2];
+											id = chunks[2] || '';
 										}
 
 										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
@@ -3084,7 +3112,7 @@ export default class TriggerActionHandler {
 												id:playlist.id,
 												title:playlist.name,
 												url:playlist.external_urls?.spotify,
-												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
+												cover:playlist.images && playlist.images.length > 0? playlist.images[0]!.url : "",
 											};
 											
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
@@ -3135,8 +3163,8 @@ export default class TriggerActionHandler {
 										const tracks = await SpotifyHelper.instance.searchTrack(m);
 										if(tracks && tracks.length > 0) {
 											switch(step.musicSelectionType) {
-												case "2": track = tracks.length > 1? tracks[1] : tracks.pop()!; break;
-												case "3": track = tracks.length > 2? tracks[2] : tracks.pop()!; break;
+												case "2": track = tracks.length > 1? tracks[1]! : tracks.pop()!; break;
+												case "3": track = tracks.length > 2? tracks[2]! : tracks.pop()!; break;
 												case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
 												case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
 												case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
@@ -3147,7 +3175,7 @@ export default class TriggerActionHandler {
 												case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
 												case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
 												default:
-												case "1": track = tracks[0]; break;
+												case "1": track = tracks[0]!; break;
 											}
 										}
 										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});
@@ -3168,9 +3196,9 @@ export default class TriggerActionHandler {
 												trackData = {
 													id:track.id,
 													title:track.name,
-													artist:track.artists[0].name,
+													artist:track.artists[0]?.name || "",
 													album:track.album.name,
-													cover:track.album.images[0].url,
+													cover:track.album.images[0]?.url || "",
 													duration:track.duration_ms,
 													url:track.external_urls.spotify,
 												};
@@ -3281,7 +3309,7 @@ export default class TriggerActionHandler {
 								let id:string|null = null;
 								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
 									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-									id = chunks[2];
+									id = chunks[2] || "";
 								}
 								const success = await SpotifyHelper.instance.startPlaylist(id, m);
 								logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Start playlist: "+success});
@@ -3317,7 +3345,8 @@ export default class TriggerActionHandler {
 					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
 						const badges = StoreProxy.users.customUserBadges;
 						users = Object.keys(badges).map(uid => {
-							return {id:uid, platform:badges[uid].length > 0? badges[uid][0].platform : null};
+							const badge = badges[uid];
+							return {id:uid, platform:badge && badge.length > 0? badge[0]!.platform : null};
 						}).filter(v=>v.platform != null);
 					}else{
 						users = await this.extractUserFromPlaceholder(channel_id, step.customBadgeUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
@@ -3325,6 +3354,7 @@ export default class TriggerActionHandler {
 					if(users) {
 						for (let i = 0; i < users.length; i++) {
 							const user = users[i];
+							if(!user) continue;
 
 							step.customBadgeAdd.forEach(badgeId=> {
 								if(StoreProxy.users.giveCustomBadge(user.id, user.platform!, badgeId, channel_id)) {
@@ -3370,7 +3400,7 @@ export default class TriggerActionHandler {
 					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
 						const names = StoreProxy.users.customUsernames;
 						Object.keys(names).forEach(uid => {
-							users.push({id:uid, platform:names[uid].platform});
+							users.push({id:uid, platform:names[uid]!.platform});
 						});
 						if(users.length > 0) {
 							logStep.messages.push({date:Date.now(), value:"✔ Set "+users.length+" entries to \""+newUsername+"\""});
@@ -3382,7 +3412,7 @@ export default class TriggerActionHandler {
 					}
 
 					for (let i = 0; i < users.length; i++) {
-						const user = users[i];
+						const user = users[i]!;
 						if(StoreProxy.users.setCustomUsername(user.id, newUsername, channel_id, user.platform)) {
 							logStep.messages.push({date:Date.now(), value:"✔ Set #"+user.id+" username to \""+newUsername+"\""});
 						}else{
@@ -3400,7 +3430,7 @@ export default class TriggerActionHandler {
 					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
 					const actions = (JSON.parse(JSON.stringify(step.customMessage?.actions)) || []) as NonNullable<typeof step.customMessage.actions>;
 					for (let i = 0; i < actions.length; i++) {
-						const a = actions[i];
+						const a = actions[i]!;
 						if(a.label) {
 							a.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a.label, subEvent);
 						}
@@ -3734,7 +3764,7 @@ export default class TriggerActionHandler {
 						args.__source = Object.keys(TriggerTypes).find(k=>TriggerTypes[k as keyof typeof TriggerTypes] == trigger.type) || "";
 						if(step.streamerbotData.params) {
 							for (let i = 0; i < step.streamerbotData.params.length; i++) {
-								const param = step.streamerbotData.params[i];
+								const param = step.streamerbotData.params[i]!;
 								let key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.key || "", subEvent)
 								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
 								args[key] = value;
@@ -3775,7 +3805,7 @@ export default class TriggerActionHandler {
 						const args:{[key:string]:string} = {};
 						if(step.mixitupData.params) {
 							for (let i = 0; i < step.mixitupData.params.length; i++) {
-								const param = step.mixitupData.params[i];
+								const param = step.mixitupData.params[i]!;
 								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
 								args[i.toString()] = value.replace(/\|/g, "│");//Replace pipes by an alternative equivalent. This is to avoid issues with Mix It Up using it as a parameter delimiter
 							}
@@ -3797,7 +3827,7 @@ export default class TriggerActionHandler {
 					}else{
 						StoreProxy.playability.execOutputs(step.playabilityData.outputs);
 						for (let i = 0; i < step.playabilityData.outputs.length; i++) {
-							const element = step.playabilityData.outputs[i];
+							const element = step.playabilityData.outputs[i]!;
 							logStep.messages.push({date:Date.now(), value:"✔ Simulate PlayAbility output: "+element.code+" to "+element.value});
 						}
 					}
@@ -3899,7 +3929,7 @@ export default class TriggerActionHandler {
 					const clone = JSON.parse(JSON.stringify(step.chatPollData)) as typeof step.chatPollData;
 					clone.title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, clone.title, subEvent);
 					for (let i = 0; i < clone.choices.length; i++) {
-						const entry = clone.choices[i];
+						const entry = clone.choices[i]!;
 						entry.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, entry.label, subEvent);
 					}
 					clone.started_at = Date.now();
@@ -4275,7 +4305,7 @@ export default class TriggerActionHandler {
 									if(user && user.id) userIdForValueCounterGetters = user.id;
 								}
 								if(userIdForValueCounterGetters && counter.users && counter.users[userIdForValueCounterGetters]) {
-									value = counter.users[userIdForValueCounterGetters].value.toString();
+									value = counter.users[userIdForValueCounterGetters]!.value.toString();
 								}else{
 									value = "0";
 								}
@@ -4302,7 +4332,7 @@ export default class TriggerActionHandler {
 									if(user && user.id) userIdForValueCounterGetters = user.id;
 								}
 								if(userIdForValueCounterGetters && valueEntry.users && valueEntry.users[userIdForValueCounterGetters]) {
-									value = valueEntry.users[userIdForValueCounterGetters].value.toString();
+									value = valueEntry.users[userIdForValueCounterGetters]!.value.toString();
 								}else{
 									value = "";
 								}
@@ -4325,7 +4355,7 @@ export default class TriggerActionHandler {
 							case "spotify_is_playing": value = SpotifyHelper.instance.isPlaying? "true" : "false"; break;
 							case "playlist.title": value = SpotifyHelper.instance.currentPlaylist?.name || ""; break;
 							case "playlist.url": value = SpotifyHelper.instance.currentPlaylist?.external_urls.spotify || ""; break;
-							case "playlist.cover": value = SpotifyHelper.instance.currentPlaylist?.images[0].url || ""; break;
+							case "playlist.cover": value = SpotifyHelper.instance.currentPlaylist?.images[0]?.url || ""; break;
 						}
 
 					/**
@@ -4401,7 +4431,7 @@ export default class TriggerActionHandler {
 								sub:"is_subscriber",
 							}
 							const key = keyToProp[propVal];
-							value = (user.channelInfo[message.channel_id][keyToProp[propVal]] === true)? "true" : "false";
+							value = (key && user.channelInfo[message.channel_id]?.[key] === true)? "true" : "false";
 							// if(key == "is_broadcaster" && value === undefined)
 						}else {
 							value = "false";
@@ -4416,10 +4446,11 @@ export default class TriggerActionHandler {
 						//Dynamically search for the requested prop's value within the object
 						const rebuilt:string[] = [];
 						chunks: for (let i = 0; i < chunks.length; i++) {
-							rebuilt.push(chunks[i])
-							root = (root as {[key:string]:unknown})[chunks[i]];
+							const chunk = chunks[i]!;
+							rebuilt.push(chunk)
+							root = (root as {[key:string]:unknown})[chunk];
 							if(Array.isArray(root) && i < chunks.length - 1) {
-								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]]).join(", ");
+								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]!]).join(", ");
 								break chunks;
 							}
 						}
@@ -4498,7 +4529,7 @@ export default class TriggerActionHandler {
 			try {
 				//Dynamically search for the requested prop's value within the object
 				for (let i = 0; i < chunks.length-1; i++) {
-					root = (root as {[key:string]:unknown})[chunks[i]];
+					root = (root as {[key:string]:unknown})[chunks[i]!];
 				}
 				const u = root as TwitchatDataTypes.TwitchatUser;
 				if(u && u.id && u.login) {
@@ -4561,7 +4592,7 @@ export default class TriggerActionHandler {
 			const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
 			const channel_id:string = StoreProxy.auth.twitch.user.id;
 			for (let i = 0; i < channels.length; i++) {
-				const c = channels[i];
+				const c = channels[i]!;
 				liveChannels[c.user_id] = {
 					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name, undefined, undefined, false, undefined, false),
 					category:c.game_name,
@@ -4595,11 +4626,11 @@ export default class TriggerActionHandler {
 							id:Utils.getUUID(),
 							platform:"twitch",
 							type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
-							info: this.liveChannelCache[uid],
+							info: this.liveChannelCache[uid]!,
 							channel_id,
 						}
-						this.liveChannelCache[uid].viewers = 0;
-						this.liveChannelCache[uid].live = false;
+						this.liveChannelCache[uid]!.viewers = 0;
+						this.liveChannelCache[uid]!.live = false;
 						StoreProxy.chat.addMessage(message);
 						dateOffset ++;
 					}
@@ -4614,7 +4645,7 @@ export default class TriggerActionHandler {
 							id:Utils.getUUID(),
 							platform:"twitch",
 							type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-							info: liveChannels[uid],
+							info: liveChannels[uid]!,
 							channel_id,
 						}
 						StoreProxy.chat.addMessage(message);

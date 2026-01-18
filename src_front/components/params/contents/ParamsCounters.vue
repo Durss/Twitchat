@@ -91,15 +91,15 @@
 										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.counter.id] === true" />
 									</div>
 
-									<TTButton class="resetBt" v-if="entry.search[entry.counter.id].length === 0"
+									<TTButton class="resetBt" v-if="entry.search[entry.counter.id]!.length === 0"
 										secondary
 										@click="resetUsers(entry)">{{ $t('counters.form.reset_all_users') }}</TTButton>
 
-									<TTButton class="clearBt" v-if="entry.search[entry.counter.id].length === 0"
+									<TTButton class="clearBt" v-if="entry.search[entry.counter.id]!.length === 0"
 										alert
 										@click="clearUsers(entry)">{{ $t('counters.form.clear_all_users') }}</TTButton>
 
-									<TTButton class="loadAllBt" v-if="entry.search[entry.counter.id].length === 0 && entry.idToAllLoaded[entry.counter.id] !== true"
+									<TTButton class="loadAllBt" v-if="entry.search[entry.counter.id]!.length === 0 && entry.idToAllLoaded[entry.counter.id] !== true"
 										@click="loadUsers(entry)"
 										:loading="entry.idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</TTButton>
 
@@ -249,8 +249,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			const counters = this.$store.counters.counterList;
 			const name = this.param_title.value.toLowerCase();
 			let exists = false;
-			for (let i = 0; i < counters.length; i++) {
-				const c = counters[i];
+			for (const c of counters) {
 				if(c.id == this.editedCounter?.id) continue;
 				if(c.name.toLowerCase() === name) {
 					exists = true;
@@ -269,8 +268,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			const counters = this.$store.counters.counterList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
 			let exists = false;
-			for (let i = 0; i < counters.length; i++) {
-				const c = counters[i];
+			for (const c of counters) {
 				if(c.id == this.editedCounter?.id) continue;
 				if(c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
 					exists = true;
@@ -303,8 +301,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			placeholderKey = Utils.slugify(this.param_title.value).toUpperCase();
 			//Load all placeholders
 			let hashmap:{[key:string]:boolean} = {};
-			for (let i = 0; i < this.counterEntries.length; i++) {
-				const c = this.counterEntries[i];
+			for (const c of this.counterEntries) {
 				if(this.editedCounter && c.counter.id == this.editedCounter.id) continue;
 				hashmap[c.counter.placeholderKey] = true;
 			}
@@ -346,7 +343,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		let diff = 0;
 		this.timeoutEdit = window.setTimeout(() => {
 			if(userEntry) {
-				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ].value;
+				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ]!.value;
 			}else{
 				diff = entry.param.value - entry.counter.value;
 			}
@@ -426,7 +423,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public searchUser(entry:CounterEntry):void {
 		const counter = entry.counter;
-		const search = entry.search[counter.id].toLowerCase();
+		const search = entry.search[counter.id]!.toLowerCase();
 		let preloadedUsers = entry.idToUsers[counter.id];
 		entry.idToNoResult[counter.id] = false;
 		if(search.length == 0) {
@@ -438,8 +435,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		//In this case, just search there instead of polling from twitch API
 		if(entry.idToAllLoaded[counter.id] === true && preloadedUsers && preloadedUsers.length > 1) {
 			let hasResult = false;
-			for (let i = 0; i < preloadedUsers.length; i++) {
-				const u = preloadedUsers[i];
+			for (const u of preloadedUsers) {
 				u.hide = false;
 				if(u.user.login.indexOf(search) == -1 && u.user.login.toLowerCase().indexOf(search) == -1) {
 					u.hide = true;
@@ -460,16 +456,17 @@ class ParamsCounters extends Vue implements IParameterContent {
 		//Search from "login" property if it exists
 		if(counter.users) {
 			for (const key in counter.users) {
+				const user = counter.users[key]!;
 				//If entry has a login and login matches search
-				if(counter.users[key].login
-				&& counter.users[key].login!.toLowerCase().indexOf(search) > -1) {
+				if(user.login
+				&& user.login!.toLowerCase().indexOf(search) > -1) {
 					entry.idToUsers[counter.id]!.push({
 						hide:false,
-						param:reactive({type:"number", value:counter.users[key].value, min:counter.min || undefined, max:counter.max || undefined}),
-						platform:counter.users[key].platform,
+						param:reactive({type:"number", value:user.value, min:counter.min || undefined, max:counter.max || undefined}),
+						platform:user.platform,
 						user:{
 							id:key,
-							login:counter.users[key].login!,
+							login:user.login!,
 						},
 					});
 				}
@@ -480,16 +477,14 @@ class ParamsCounters extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = window.setTimeout(async () => {
 			const users = await TwitchUtils.getUserInfo(undefined, [search]);
-			let found = false;
 			if(users.length > 0) {
-				const u = users[0];
+				const u = users[0]!;
 				if(counter.users![u.id] != undefined) {
-					found = true;
 					//If user isn't already in the results
 					//and user is in the counter users
 					if((entry.counter.users || {})[u.id]) {
 						const existingIndex = (entry.idToUsers[counter.id] ||[]).findIndex(v=>v.user.id === u.id);
-						const value = (counter.users && counter.users[u.id])? counter.users![u.id].value : 0;
+						const value = (counter.users && counter.users[u.id])? counter.users![u.id]!.value : 0;
 						const userEntry:UserEntry = {
 							hide:false,
 							param:reactive({type:"number", value:value, min:counter.min || undefined, max:counter.max || undefined}),
@@ -525,7 +520,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		let entries:UserEntry[] = [];
 		let loginUpdated:boolean = false;
 
-		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v].platform == "twitch"));
+		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "twitch"));
 		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			twitchUsers.forEach((u) => {
@@ -553,7 +548,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			});
 		}
 
-		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v].platform == "youtube");
+		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
 			if(YoutubeHelper.instance.connected) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
@@ -602,7 +597,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		}
 
 		for (const uid in counterItem.counter.users) {
-			const user = counterItem.counter.users[uid];
+			const user = counterItem.counter.users[uid]!;
 			//If entry does not exists in the loaded list, push it
 			if(entries.findIndex(v => v.user.id == uid) === -1) {
 				entries.push({
@@ -637,13 +632,12 @@ class ParamsCounters extends Vue implements IParameterContent {
 			//Reset counter data
 			let value:number = entry.counter.min != false? entry.counter.min : 0;
 			for (const key in entry.counter.users!) {
-				entry.counter.users[key].value = value;
+				entry.counter.users[key]!.value = value;
 			}
 
 			//Reset view data
 			if(entry.idToUsers[entry.counter.id]) {
-				for (let i = 0; i < entry.idToUsers[entry.counter.id]!.length; i++) {
-					const u = entry.idToUsers[entry.counter.id]![i];
+				for (const u of entry.idToUsers[entry.counter.id]!) {
 					u.param.value = 0;
 				}
 			}
@@ -678,7 +672,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public sortOn(entry:CounterEntry, type?:"name"|"points"):void {
 		if(type) {
-			if(entry.sortType[entry.counter.id] == type) entry.sortDirection[entry.counter.id] = -entry.sortDirection[entry.counter.id] as 1|-1;
+			if(entry.sortType[entry.counter.id] == type) entry.sortDirection[entry.counter.id] = -entry.sortDirection[entry.counter.id]! as 1|-1;
 			else entry.sortType[entry.counter.id] = type;
 		}
 
@@ -686,13 +680,13 @@ class ParamsCounters extends Vue implements IParameterContent {
 		if(users) {
 			users.sort((a,b)=> {
 				if(entry.sortType[entry.counter.id] == "name") {
-					if(a.user.login.toLowerCase() > b.user.login.toLowerCase()) return entry.sortDirection[entry.counter.id];
-					if(a.user.login.toLowerCase() < b.user.login.toLowerCase()) return -entry.sortDirection[entry.counter.id];
+					if(a.user.login.toLowerCase() > b.user.login.toLowerCase()) return entry.sortDirection[entry.counter.id]!;
+					if(a.user.login.toLowerCase() < b.user.login.toLowerCase()) return -entry.sortDirection[entry.counter.id]!;
 					return 0;
 				}
 				if(entry.sortType[entry.counter.id] == "points") {
-					if(a.param.value > b.param.value) return entry.sortDirection[entry.counter.id];
-					if(a.param.value < b.param.value) return -entry.sortDirection[entry.counter.id];
+					if(a.param.value > b.param.value) return entry.sortDirection[entry.counter.id]!;
+					if(a.param.value < b.param.value) return -entry.sortDirection[entry.counter.id]!;
 					return 0;
 				}
 				return 0;
@@ -721,7 +715,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public onSortItems():void {
 		const idToIndex:{[id:string]:number} = {};
 		this.counterEntries.forEach((entry, index)=> idToIndex[entry.counter.id] = index);
-		this.$store.counters.counterList.sort((a,b)=> idToIndex[a.id] - idToIndex[b.id]);
+		this.$store.counters.counterList.sort((a,b)=> idToIndex[a.id]! - idToIndex[b.id]!);
 	}
 
 	/**
@@ -753,8 +747,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 				}
 		});
 
-		for (let i = 0; i < this.counterEntries.length; i++) {
-			const element = this.counterEntries[i];
+		for (const element of this.counterEntries) {
 			element.sortType[element.counter.id] = "points";
 			element.sortDirection[element.counter.id] = -1;
 			element.search[element.counter.id] = "";

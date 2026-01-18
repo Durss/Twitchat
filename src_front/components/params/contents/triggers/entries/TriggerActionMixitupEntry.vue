@@ -136,7 +136,7 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 			list.push({
 				value: "",
 				label: groupName,
-				group: grouped[groupName]
+				group: grouped[groupName]!
 					.sort((a, b) => a.Name.localeCompare(b.Name))
 					.map(action => {
 						if(action.ID === this.action.mixitupData!.commandId) {

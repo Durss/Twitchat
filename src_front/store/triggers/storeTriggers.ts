@@ -40,7 +40,7 @@ export const storeTriggers = defineStore('triggers', {
 			const done:{[key:string]:boolean} = {};
 			const res = [];
 			for (const key in this.triggerList) {
-				const queue = this.triggerList[key].queue;
+				const queue = this.triggerList[key]!.queue;
 				if(queue && !done[queue] && typeof queue == "string") {
 					done[queue] = true;
 					res.push(queue)
@@ -158,8 +158,7 @@ export const storeTriggers = defineStore('triggers', {
 			//Add trigger to requested folder if necessary
 			if(parentId) {
 				const addToTreeItem = (items:TriggerTreeItemData[])=>{
-					for (let i = 0; i < items.length; i++) {
-						const elem = items[i];
+					for (const elem of items) {
 						if(elem.id === parentId) {
 							if(!elem.children) elem.children = [];
 							elem.children.push({id:Utils.getUUID(), type:"trigger", triggerId:data.id});
@@ -203,8 +202,7 @@ export const storeTriggers = defineStore('triggers', {
 				//Add trigger to requested folder if necessary
 				if(parentId) {
 					const addToTreeItem = (items:TriggerTreeItemData[])=>{
-						for (let i = 0; i < items.length; i++) {
-							const elem = items[i];
+						for (const elem of items) {
 							if(elem.id === parentId) {
 								if(!elem.children) elem.children = [];
 								elem.children.push({id:Utils.getUUID(), type:"trigger", triggerId:clone.id});
@@ -321,12 +319,10 @@ export const storeTriggers = defineStore('triggers', {
 		renameOBSSource(oldName:string, newName:string):void {
 			//Search for any trigger linked to the renamed source or any
 			//trigger action controling that source and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
+			for (const t of this.triggerList) {
 				if(t.obsSource === oldName) t.obsSource = newName;
 				if(t.obsInput === oldName) t.obsInput = newName;
-				for (let j = 0; j < t.actions.length; j++) {
-					const a = t.actions[j];
+				for (const a of t.actions) {
 					if(a.type == "obs") {
 						if(a.sourceName == oldName) a.sourceName = newName;
 					}
@@ -338,8 +334,7 @@ export const storeTriggers = defineStore('triggers', {
 		renameOBSScene(oldName:string, newName:string):void {
 			//Search for any trigger linked to the renamed scene and any
 			//trigger action controling that scene and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
+			for (const t of this.triggerList) {
 				if(t.obsScene === oldName) t.obsInput = newName;
 			}
 			this.saveTriggers();
@@ -347,11 +342,9 @@ export const storeTriggers = defineStore('triggers', {
 
 		renameOBSFilter(sourceName:string, oldName:string, newName:string):void {
 			//Search for any trigger action controling that filter and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
+			for (const t of this.triggerList) {
 				if(t.obsFilter === oldName) t.obsFilter = newName;
-				for (let j = 0; j < t.actions.length; j++) {
-					const a = t.actions[j];
+				for (const a of t.actions) {
 					if(a.type == "obs" && a.sourceName == sourceName) {
 						if(a.filterName == oldName) a.filterName = newName;
 					}

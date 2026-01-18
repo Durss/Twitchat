@@ -74,7 +74,7 @@ export default class Utils {
 	 */
 	public static pickRand<T>(a:T[], removeFromSource:boolean = false):T {
 		const index = Math.floor(Math.random() * a.length);
-		const res = a[index];
+		const res = a[index]!;
 		if(removeFromSource) a.splice(index, 1);
 		return res;
 	}
@@ -86,7 +86,7 @@ export default class Utils {
 	public static shuffle<T>(a: T[]): T[] {
 		for (let i = a.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
-			[a[i], a[j]] = [a[j], a[i]];
+			[a[i]!, a[j]!] = [a[j]!, a[i]!];
 		}
 		return a;
 	}
@@ -290,6 +290,8 @@ export default class Utils {
 	 */
 	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "platform" | "id" | "login" | "channelInfo">, channelId:string, logToConsole:boolean = false):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
+		if(!chanInfo) return false;
+
 		if(logToConsole) {
 			console.log("checkPermissions", permissions, user, channelId, chanInfo);
 		}
@@ -400,24 +402,24 @@ export default class Utils {
 		// increment each column in the first row
 		let j:number;
 		for(j = 0; j <= a.length; j++){
-			matrix[0][j] = j;
+			matrix[0]![j] = j;
 		}
 
 		// Fill in the rest of the matrix
 		for(i = 1; i <= b.length; i++){
 			for(j = 1; j <= a.length; j++){
 				if(b.charAt(i-1) == a.charAt(j-1)){
-					matrix[i][j] = matrix[i-1][j-1];
+					matrix[i]![j] = matrix[i-1]![j-1]!;
 				} else {
-					matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
-						Math.min(matrix[i][j-1] + 1, // insertion
-							matrix[i-1][j] + 1)); // deletion
+					matrix[i]![j] = Math.min(matrix[i-1]![j-1]! + 1, // substitution
+						Math.min(matrix[i]![j-1]! + 1, // insertion
+							matrix[i-1]![j]! + 1)); // deletion
 				}
 			}
 		}
 
 		// Logger.log("Levenshtein",a,b,matrix[b.length][a.length])
-		return matrix[b.length][a.length];
+		return matrix[b.length]![a.length]!;
 	}
 
 	/**
@@ -619,10 +621,9 @@ export default class Utils {
 	private static diacriticsMap:any = null;
 	private static initDiacritics():void {
 		this.diacriticsMap = {};
-		for (let i = 0; i < this.defaultDiacriticsRemovalMap.length; i++) {
-			const letters = this.defaultDiacriticsRemovalMap[i].letters;
-			for (let j = 0; j < letters.length; j++) {
-				this.diacriticsMap[letters[j]] = this.defaultDiacriticsRemovalMap[i].base;
+		for (const letters of this.defaultDiacriticsRemovalMap) {
+			for (const letter of letters.letters) {
+				this.diacriticsMap[letter] = letters.base;
 			}
 		}
 	}
@@ -688,10 +689,10 @@ export default class Utils {
 		const py = point.y;
 
 		for (let i = 0; i < n; i++) {
-			const x1 = polygon[i].x;
-			const y1 = polygon[i].y;
-			const x2 = polygon[(i + 1) % n].x;
-			const y2 = polygon[(i + 1) % n].y;
+			const x1 = polygon[i]!.x;
+			const y1 = polygon[i]!.y;
+			const x2 = polygon[(i + 1) % n]!.x;
+			const y2 = polygon[(i + 1) % n]!.y;
 
 			if ((y1 <= py && py < y2) || (y2 <= py && py < y1)) {
 				if (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1) {
@@ -772,9 +773,9 @@ export default class Utils {
 		const [major1, minor1, patch1] = v1.split(".").map(Number);
 		const [major2, minor2, patch2] = v2.split(".").map(Number);
 
-		if (major1 !== major2) return major1 > major2;
-		if (minor1 !== minor2) return minor1 > minor2;
-		return patch1 > patch2;
+		if (major1 !== major2) return major1! > major2!;
+		if (minor1 !== minor2) return minor1! > minor2!;
+		return patch1! > patch2!;
 	}
 
 	/**
@@ -970,9 +971,9 @@ export default class Utils {
 			let goal = levels[0] || 0;
 			let i = 0;
 			for (i = 1; i < levels.length; i++) {
-				const level = levels[i];
+				const level = levels[i]!;
 				if(level > train.allTimeRecord.amount || i === levels.length - 1) {
-					offset = levels[i-1];
+					offset = levels[i-1]!;
 					goal = level - offset;
 					break;
 				}

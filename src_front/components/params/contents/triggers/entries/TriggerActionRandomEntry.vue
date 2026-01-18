@@ -312,7 +312,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 		if(this.buildIndex >= this.action.list.length) return;
 
 		for (let i = this.buildIndex; i < Math.min(this.buildIndex+10, this.action.list.length); i++) {
-			const item = this.action.list[i];
+			const item = this.action.list[i]!;
 			this.itemChunks.push(TwitchUtils.parseMessageToChunks(item, undefined, true));
 		}
 		this.buildIndex += 10;
@@ -337,7 +337,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	}
 
 	public onChangeListItem(index:number):void {
-		this.itemChunks[index] = TwitchUtils.parseMessageToChunks(this.action.list[index], undefined, true);
+		this.itemChunks[index] = TwitchUtils.parseMessageToChunks(this.action.list[index]!, undefined, true);
 	}
 
 }

@@ -47,12 +47,12 @@
 			<div class="ctas">
 				<TTButton icon="shuffle" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
 				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.form.reset_bt')"></TTButton>
-				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id].length > 0"
+				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id]!.length > 0"
 				icon="leaderboard"
 				small
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'bingogrid_leaderboard'}"
 				v-tooltip="$t('bingo_grid.form.leaderBoard.open_bt_tt')"
-				@click="openLeaderBoard(grid)">{{ $t("bingo_grid.form.leaderBoard.open_bt", {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}, Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length) }}</TTButton>
+				@click="openLeaderBoard(grid)">{{ $t("bingo_grid.form.leaderBoard.open_bt", {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]!).length}, Object.keys($store.bingoGrid.viewersBingoCount[grid.id]!).length) }}</TTButton>
 			</div>
 		</div>
 
@@ -67,7 +67,7 @@
 		<Icon name="leaderboard" />
 		<div class="list">
 			<div class="entry"
-			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>b.count-a.count)"
+			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID]!.sort((a,b)=>b.count-a.count)"
 			:key="entry.user.id">
 				<img class="avatar" :src="entry.user.avatarPath" alt="avatar">
 				<a class="name" @click="openUserCard(entry.user)">{{ entry.user.displayName }}</a>

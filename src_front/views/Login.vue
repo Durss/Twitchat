@@ -342,7 +342,7 @@ class Login extends Vue {
 	 * Redirect user after auth complete
 	 */
 	private redirect():void {
-		let redirect:string = "";
+		let redirect:string|undefined = undefined;
 		const routeRedirect = this.$router.currentRoute.value.params?.redirect;
 		if(Array.isArray(routeRedirect)) redirect = routeRedirect[0];
 		else redirect = routeRedirect;

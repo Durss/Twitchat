@@ -173,9 +173,9 @@ class PlaceholderSelector extends Vue {
 		if(list.length === 0) return [];
 
 		const categories:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[] = [];
-		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0].category!, entries:[list[0]]};
+		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0]!.category!, entries:[list[0]!]};
 		for (let i = 1; i < list.length; i++) {
-			const el = list[i];
+			const el = list[i]!;
 			if(el.category != currentCategory.key) {
 				categories.push(currentCategory);
 				currentCategory = {key:el.category!, entries:[]};

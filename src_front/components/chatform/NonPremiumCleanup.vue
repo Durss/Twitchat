@@ -298,10 +298,11 @@ class NonPremiumCleanup extends Vue {
 
 	public get userBadges():TwitchatDataTypes.TwitchatUser[] {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
-		const badges = this.$store.users.customUserBadges;
-		for (const uid in badges) {
-			if(badges[uid]?.length > 0) {
-				res.push(this.$store.users.getUserFrom(badges[uid][0].platform, badges[uid][0].channel, uid as string));
+		const customUserBadges = this.$store.users.customUserBadges;
+		for (const uid in customUserBadges) {
+			const userBadges = customUserBadges[uid];
+			if(userBadges && userBadges?.length > 0) {
+				res.push(this.$store.users.getUserFrom(userBadges[0]!.platform, userBadges[0]!.channel, uid));
 			}
 		}
 		return res;
@@ -311,7 +312,7 @@ class NonPremiumCleanup extends Vue {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
 		const user = this.$store.users.customUsernames;
 		for (const uid in user) {
-			res.push(this.$store.users.getUserFrom(user[uid].platform, user[uid].channel, uid as string));
+			res.push(this.$store.users.getUserFrom(user[uid]!.platform, user[uid]!.channel, uid));
 		}
 		return res;
 	}
@@ -355,8 +356,7 @@ class NonPremiumCleanup extends Vue {
 
 		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
 			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
+			for (const item of items) {
 				if(item.type == "folder") {
 					const children = buildItem(item.children || []);
 					res.push({type:"folder",
@@ -377,8 +377,7 @@ class NonPremiumCleanup extends Vue {
 			return res;
 		}
 		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
-		for (let i = 0; i < this.triggerList.length; i++) {
-			const t = this.triggerList[i];
+		for (const t of this.triggerList) {
 			if(!idToHasFolder[t.id]) {
 				idToHasFolder[t.id] = true;
 				this.folderTriggerList.push(t);

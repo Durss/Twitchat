@@ -215,8 +215,8 @@ class CommandHelper extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 
-		watch(()=>this.$store.stream.commercial[uid].prevAdStart_at, ()=>{
-			this.adCooldown = this.$store.stream.commercial[uid].prevAdStart_at - Date.now();
+		watch(()=>this.$store.stream.commercial[uid]!.prevAdStart_at, ()=>{
+			this.adCooldown = this.$store.stream.commercial[uid]!.prevAdStart_at - Date.now();
 		});
 
 		const channelId = this.$store.auth.twitch.user.id;
@@ -224,7 +224,7 @@ class CommandHelper extends Vue {
 			this.populateSettings();
 		}, {deep:true});
 
-		this.adCooldown = Math.max(0, this.$store.stream.commercial[uid].prevAdStart_at - Date.now());
+		this.adCooldown = Math.max(0, this.$store.stream.commercial[uid]!.prevAdStart_at - Date.now());
 		this.adCooldownInterval = window.setInterval(()=>{
 			if(this.adCooldown === 0) return;
 			this.adCooldown -= 1000;

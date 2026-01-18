@@ -64,7 +64,7 @@ class ConnectTwitchBot extends Vue {
 		const chanId = this.$store.auth.twitch.user.id;
 		this.$store.users.getUserFrom("twitch", chanId, this.$store.twitchBot.userInfos?.user_id, this.$store.twitchBot.userInfos?.login, undefined, async (user)=>{
 			if(await TwitchUtils.addRemoveModerator(false, chanId, user)) {
-				user.channelInfo[chanId].is_moderator = true;
+				user.channelInfo[chanId]!.is_moderator = true;
 			}
 			this.checkRoles();
 		});
@@ -75,7 +75,7 @@ class ConnectTwitchBot extends Vue {
 		const chanId = this.$store.auth.twitch.user.id;
 		this.$store.users.getUserFrom("twitch", chanId, this.$store.twitchBot.userInfos?.user_id, this.$store.twitchBot.userInfos?.login, undefined, async (user)=>{
 			if(await TwitchUtils.addRemoveVIP(false, chanId, user)) {
-				user.channelInfo[chanId].is_vip = true;
+				user.channelInfo[chanId]!.is_vip = true;
 			}
 			this.checkRoles();
 		});
@@ -85,9 +85,9 @@ class ConnectTwitchBot extends Vue {
 		this.loadingRole = true;
 		const chanId = this.$store.auth.twitch.user.id;
 		this.$store.users.getUserFrom("twitch", chanId, this.$store.twitchBot.userInfos?.user_id, this.$store.twitchBot.userInfos?.login, undefined, async (user)=>{
-			if(!user.channelInfo[chanId].is_broadcaster
-			&& !user.channelInfo[chanId].is_vip
-			&& !user.channelInfo[chanId].is_moderator) {
+			if(!user.channelInfo[chanId]!.is_broadcaster
+			&& !user.channelInfo[chanId]!.is_vip
+			&& !user.channelInfo[chanId]!.is_moderator) {
 				this.missingRole = true;
 			}else{
 				this.missingRole = false;

@@ -23,7 +23,7 @@
 
 		<template v-if="selectedSectionLabels">
 			<div class="card-item progress"
-			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
+			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey]!.done }}/{{ progresses[selectedSectionKey]!.total }} ({{ (progresses[selectedSectionKey]!.done/progresses[selectedSectionKey]!.total * 100).toFixed(0) }}%)</div>
 
 			<div class="labels card-item">
 				<div class="header">
@@ -40,7 +40,7 @@
 						/>
 				</template>
 			</div>
-			<div class="floatingActions" v-if="progresses[selectedSectionKey].done < progresses[selectedSectionKey].total">
+			<div class="floatingActions" v-if="progresses[selectedSectionKey]!.done < progresses[selectedSectionKey]!.total">
 				<TTButton icon="down" alert @click="nextError()"></TTButton>
 			</div>
 		</template>
@@ -57,7 +57,7 @@
 						:path="value"
 						@change="saveSection(value[0])"
 						/>
-					<TTButton icon="newtab" @click="onSelectSection(value[0], value)"></TTButton>
+					<TTButton icon="newtab" @click="onSelectSection(value[0]!, value)"></TTButton>
 				</div>
 			</div>
 		</template>
@@ -106,7 +106,7 @@ class LabelsEditor extends Vue {
 
 	public getProgressClasses(section:string):string[] {
 		const res:string[] = [];
-		const progress = this.progresses[section];
+		const progress = this.progresses[section]!;
 		if(progress.done/progress.total < .9) res.push("alert");
 		else if(progress.done/progress.total < 1) res.push("secondary");
 		else if(progress.done/progress.total > 1) res.push("premium");
@@ -153,11 +153,11 @@ class LabelsEditor extends Vue {
 							if (typeof mergedJSON[key] === 'object' && typeof json2[key] === 'object') {
 								mergedJSON[key] = mergeJSON(mergedJSON[key] as JsonObject, json2[key] as JsonObject);
 							} else {
-								mergedJSON[key] = json2[key];
+								mergedJSON[key] = json2[key]!;
 							}
 						}
 					} else {
-						mergedJSON[key] = json2[key];
+						mergedJSON[key] = json2[key]!;
 					}
 				}
 			}
@@ -221,7 +221,7 @@ class LabelsEditor extends Vue {
 		for (let h = 0; h < sections.length; h++) {
 			let total = 0;
 			let done = 0;
-			const section = sections[h];
+			const section = sections[h]!;
 			let keys = buildPaths(ref[section as keyof typeof ref], [section])
 						.concat(buildPaths(labels[section as keyof typeof ref], [section]));
 			let keysDone:{[key:string]:boolean} = {};
@@ -234,7 +234,7 @@ class LabelsEditor extends Vue {
 
 			for (let i = 0; i < keys.length; i++) {
 				total ++;
-				let chunks = keys[i];
+				let chunks = keys[i]!;
 				let rootLabels:typeof labels | null = labels;
 				let rootRef = ref;
 				for (let j = 0; j < chunks.length; j++) {
@@ -261,9 +261,9 @@ class LabelsEditor extends Vue {
 	public nextError():void {
 		this.currentErrorIndex ++;
 		const list = document.getElementsByClassName("missingLabel");
-		const item = list[this.currentErrorIndex % list.length];
+		const item = list[this.currentErrorIndex % list.length]!;
 		const bounds = item.getBoundingClientRect();
-		const holder = document.body.getElementsByClassName("app")[0];//Yup. Absolutely dirty.
+		const holder = document.body.getElementsByClassName("app")[0]!;//Yup. Absolutely dirty.
 		gsap.to(holder, {duration:.5, scrollTo:{y:bounds.top + holder.scrollTop - document.body.clientHeight/2.5}});
 		gsap.fromTo(item, {scaleY:1.5, filter:"brightness(2)"}, {duration:.25, scaleY:1, filter:"brightness(1)", clearProps:"filter,scaleY", delay:.5, immediateRender:false});
 	}

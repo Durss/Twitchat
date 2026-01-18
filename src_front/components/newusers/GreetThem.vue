@@ -108,8 +108,8 @@ class NewUsers extends Vue {
 	public get autoDeleteOptions():{seconds:number, label:string}[]{
 		const durations = [60, 120, 180, 240, 300, 600 ,900 ,1200, 1800, 3600];
 		const res:{seconds:number, label:string}[] = [];
-		for (let i = 0; i < durations.length; i++) {
-			res.unshift({seconds:durations[i], label:Math.round(durations[i]/60).toString()+"m"});
+		for (const duration of durations) {
+			res.unshift({seconds:duration, label:Math.round(duration/60).toString()+"m"});
 		}
 		const v = this.$store.params.greetThemAutoDelete
 		if(!durations.includes(v)) {
@@ -143,7 +143,7 @@ class NewUsers extends Vue {
 
 			const clearTimeoffset = Date.now() - delay * 1000;
 			for (let i = 0; i < this.messages.length; i++) {
-				const m = this.messages[i];
+				const m = this.messages[i]!;
 				if(m.date < clearTimeoffset) {
 					this.messages.splice(i, 1);
 					i--;
@@ -220,7 +220,7 @@ class NewUsers extends Vue {
 
 		//remove from displayed messages
 		for (let i = this.messages.length-1; i >= 0; i--) {
-			const m = this.messages[i];
+			const m = this.messages[i]!;
 			if(m.id == data.message.id) {
 				this.messages.splice(i, 1);
 				break;
@@ -261,7 +261,7 @@ class NewUsers extends Vue {
 	 */
 	public deleteMessage(m:TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData, index:number, singleMode = false):void {
 		if(singleMode) {
-			let el = (this.$refs["message"] as ComponentPublicInstance[])[index];
+			let el = (this.$refs["message"] as ComponentPublicInstance[])[index]!;
 			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);
 			this.messages.splice(index, 1);
 		}else{
@@ -300,7 +300,7 @@ class NewUsers extends Vue {
 
 		this.overIndex = index;
 		let items = (this.$refs.messageList as HTMLElement).querySelectorAll<HTMLElement>(".messageListItem");
-		for (let i = 0; i <= index; i++) {
+		for (const item of items) {
 			//Why the hell do I use inline styles this way instead of
 			//doing it the Vue way by simply updating a prop set
 			//to the component so it automatically updates when updating
@@ -308,7 +308,7 @@ class NewUsers extends Vue {
 			//Because it's drastically faster this way. There's a huge
 			//rendering pipeline performance issue i couldn't solve
 			//by any other method.
-			items[i].style.opacity = ".3";
+			item.style.opacity = ".3";
 
 		}
 	}
@@ -320,7 +320,7 @@ class NewUsers extends Vue {
 		if(e.type == "mousemove") {
 			this.mouseY = (e as MouseEvent).clientY;
 		}else{
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
+			this.mouseY = (e as TouchEvent).touches[0]!.clientY;
 		}
 	}
 
@@ -330,8 +330,8 @@ class NewUsers extends Vue {
 	public onMouseOut():void {
 		this.overIndex = -1;
 		let items = this.$refs.message as ComponentPublicInstance[];
-		for (let i = 0; i < items.length; i++) {
-			(items[i].$el as HTMLDivElement).removeAttribute("style");
+		for (const item of items) {
+			(item.$el as HTMLDivElement).removeAttribute("style");
 		}
 	}
 

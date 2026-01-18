@@ -59,8 +59,8 @@ export default class ContextMenuHelper {
 		const myUID	= (message.platform == "youtube"? StoreProxy.auth.youtube.user?.id : StoreProxy.auth.twitch.user?.id) || "";
 		const options:MenuItem[]= [];
 		const moreOptions:MenuItem[] = [];
-		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
-		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		const px = e.type == "touchstart"? (e as TouchEvent).touches[0]!.clientX : (e as MouseEvent).x;
+		const py = e.type == "touchstart"? (e as TouchEvent).touches[0]!.clientY : (e as MouseEvent).y;
 		let highlightIndex = -1;
 		const menu	= reactive({
 			theme: 'mac '+StoreProxy.common.theme,
@@ -162,8 +162,8 @@ export default class ContextMenuHelper {
 				icon: this.getIcon("icons/highlight.svg"),
 				disabled:true,
 			});
-			options[highlightIndex].onClick = () => {
-				if(options[highlightIndex].customClass == "no_overlay") {
+			options[highlightIndex]!.onClick = () => {
+				if(options[highlightIndex]!.customClass == "no_overlay") {
 					//Open parameters if overlay is not found
 					StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 				}else{
@@ -239,8 +239,7 @@ export default class ContextMenuHelper {
 			const qnaSessions = StoreProxy.qna.activeSessions;//.filter(v => v.shareWithMods);
 			if(qnaSessions.length > 0) {
 				const children:MenuItem[] = [];
-				for (let i = 0; i < qnaSessions.length; i++) {
-					const session = qnaSessions[i];
+				for (const session of qnaSessions) {
 
 					let label = session.command;
 					if(session.ownerId != StoreProxy.auth.twitch.user.id) {
@@ -284,7 +283,7 @@ export default class ContextMenuHelper {
 				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
 
 				//Add splitter after previous item
-				options[options.length-1].divided = true;
+				options[options.length-1]!.divided = true;
 
 				//Delete message
 				if(m.deleted !== true) {
@@ -316,7 +315,7 @@ export default class ContextMenuHelper {
 				let classesBlock = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBlock += " disabled";
-				if(!canModerateMessage) options[options.length-1].divided = true;
+				if(!canModerateMessage) options[options.length-1]!.divided = true;
 
 				//Timeout
 				options.push(
@@ -386,7 +385,7 @@ export default class ContextMenuHelper {
 						});
 
 				//Ban/unban user
-				if(channelInfo.is_banned) {
+				if(channelInfo && channelInfo.is_banned) {
 					options.push({
 								label: t("chat.context_menu.unban"),
 								icon: this.getIcon("icons/unban.svg"),
@@ -431,7 +430,7 @@ export default class ContextMenuHelper {
 
 				//Block/unblock user
 				if(message.platform == "twitch") {
-					if(channelInfo.is_restricted || channelInfo.is_suspicious) {
+					if(channelInfo && (channelInfo.is_restricted || channelInfo.is_suspicious)) {
 						moreModerationOptions.push({
 									label: channelInfo.is_restricted? t("chat.context_menu.unrestrict") : t("chat.context_menu.unsuspicious"),
 									icon: channelInfo.is_restricted? this.getIcon("icons/unlock.svg") :this.getIcon("icons/shield.svg"),
@@ -542,7 +541,7 @@ export default class ContextMenuHelper {
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
 			&& StoreProxy.discord.quickActions?.length > 0) {
 				//Add splitter after previous option
-				if(options.length > 0) options[options.length-1].divided = true;
+				if(options.length > 0) options[options.length-1]!.divided = true;
 
 				const list = StoreProxy.discord.quickActions;
 				const children:MenuItem[] = [];
@@ -572,8 +571,8 @@ export default class ContextMenuHelper {
 				icon: this.getIcon("icons/highlight.svg"),
 				disabled:true,
 			});
-			options[highlightIndex].onClick = () => {
-				if(options[highlightIndex].customClass == "no_overlay") {
+			options[highlightIndex]!.onClick = () => {
+				if(options[highlightIndex]!.customClass == "no_overlay") {
 					//Open parameters if overlay is not found
 					StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 				}else{
@@ -622,7 +621,7 @@ export default class ContextMenuHelper {
 
 		//Update "highlight message" state according to overlay presence
 		this.getHighlightOverPresence().then(res => {
-			const item = menu.items[highlightIndex] as MenuItem;
+			const item = menu.items[highlightIndex]! as MenuItem;
 			if(!item) return;
 			item.label = t("chat.context_menu.highlight");
 			item.disabled = false;
@@ -642,11 +641,11 @@ export default class ContextMenuHelper {
 			const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 			if(text.length >= 4) {
 				LandeWorker.instance.lande(text, (langs)=>{
-					const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
+					const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
 					//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
 					//Also force english if first returned lang is Affrikaan and second is english.
 					//It detects most inglish messages as Afrikaan.
-					const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+					const lang = (langs[0]![1] < .6 || (langs[0]![0] == "afr" && langs[1]![0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 					const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[])[0];
 					if(lang.iso1 != langTarget && lang && !spokenLanguages.includes(lang.iso1)) {
 						options.push({
@@ -706,7 +705,7 @@ export default class ContextMenuHelper {
 			}
 			if(optionAdded) {
 				//Add splitter after previous item if any
-				if(entryCount > 0) options[entryCount-1].divided = true;
+				if(entryCount > 0) options[entryCount-1]!.divided = true;
 			}
 		}
 
@@ -833,7 +832,7 @@ export default class ContextMenuHelper {
 	 * Translates a message
 	 */
 	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
-		const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[])[0];
+		const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[])[0]!;
 		ApiHelper.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.status == 401) {
@@ -887,9 +886,9 @@ export default class ContextMenuHelper {
 		if(items.length === 0) return;
 		const children:MenuItem[] = [];
 		for (let i = 0; i < items.length; i++) {
-			const trigger = items[i];
+			const trigger = items[i]!;
 			if(i===0) {
-				options[options.length-1].divided = true;
+				options[options.length-1]!.divided = true;
 			}
 			children.push({
 				label: trigger.name || trigger.chatCommand,
@@ -905,7 +904,7 @@ export default class ContextMenuHelper {
 			return (a.label! as string).toLowerCase().localeCompare((b.label! as string).toLowerCase());
 		});
 		if(options.length > 0) {
-			options[options.length-1].divided = true;
+			options[options.length-1]!.divided = true;
 		}
 		options.push({
 			label: "Triggers",

@@ -6,7 +6,7 @@
 		<TimerCountDownInfoEntry class="timer"
 		v-if="activeTimers.length > 0"
 		:timer="activeTimers[0]"
-		:label="idToLabel[activeTimers[0].id]">
+		:label="idToLabel[activeTimers[0]!.id]">
 			<div v-if="activeTimers.length > 1" class="more">
 				<div class="arrow">▲</div>
 				<div class="label">+{{ activeTimers.length-1 }}</div>
@@ -55,7 +55,7 @@ class TimerCountDownInfo extends Vue {
 		return this.$store.timers.timerList.filter(t => t.startAt_ms).sort((a,b)=> {
 			if(a.paused && !b.paused) return 1;
 			if(!a.paused && b.paused) return -1;
-			return durationsCache[a.id] - durationsCache[b.id]
+			return durationsCache[a.id]! - durationsCache[b.id]!;
 		});
 	}
 

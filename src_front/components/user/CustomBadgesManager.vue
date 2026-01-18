@@ -103,7 +103,7 @@ class CustomBadgesManager extends Vue {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
 		const userBadges = this.$store.users.customUserBadges;
 		for (const uid in userBadges) {
-			if(userBadges[uid].findIndex(v=> v.id == badgeId) > -1) {
+			if(userBadges[uid]!.findIndex(v=> v.id == badgeId) > -1) {
 				const user = this.userList.find(v=>v.id == uid);
 				if(user) res.push(user);
 			}
@@ -117,14 +117,14 @@ class CustomBadgesManager extends Vue {
 		const channelId = this.$store.auth.twitch.user.id;
 		this.userList = [];
 		uids.forEach(id=> {
-			if(userBadges[id].length === 0) return;
-			this.userList.push(this.$store.users.getUserFrom(userBadges[id][0].platform, channelId, id));
+			if(userBadges[id]!.length === 0) return;
+			this.userList.push(this.$store.users.getUserFrom(userBadges[id]![0]!.platform, channelId, id));
 		});
 		this.loading = false;
 
 		watch(()=>this.badgeName, ()=> this.onUpdateName());
 
-		this.selectBadge(this.$store.users.customBadgeList[0].id);
+		this.selectBadge(this.$store.users.customBadgeList[0]!.id);
 	}
 
 	/**
@@ -137,7 +137,7 @@ class CustomBadgesManager extends Vue {
 		const files = input.files;
 		if(!files || files.length == 0) return;
 
-		Utils.fileToBase64Img(files[0]).then(base64Img=> {
+		Utils.fileToBase64Img(files[0]!).then(base64Img=> {
 			this.$store.users.createCustomBadge(base64Img);
 		});
 	}
@@ -152,7 +152,7 @@ class CustomBadgesManager extends Vue {
 		const files = input.files;
 		if(!files || files.length == 0) return;
 
-		Utils.fileToBase64Img(files[0]).then(base64Img=> {
+		Utils.fileToBase64Img(files[0]!).then(base64Img=> {
 			this.$store.users.updateCustomBadgeImage(this.selectedBadgeId, base64Img);
 			input.value = "";
 		});
@@ -179,7 +179,7 @@ class CustomBadgesManager extends Vue {
 			this.$store.users.deleteCustomBadge(badgeId);
 			this.$nextTick().then(()=>{
 				if(this.$store.users.customBadgeList.length > 0) {
-					this.selectedBadgeId = this.$store.users.customBadgeList[0].id;
+					this.selectedBadgeId = this.$store.users.customBadgeList[0]!.id;
 				}else{
 					this.selectedBadgeId = "";
 				}

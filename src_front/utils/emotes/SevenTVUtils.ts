@@ -34,7 +34,7 @@ export default class SevenTVUtils {
 		const res:TwitchatDataTypes.Emote[] = [];
 		const emotesDone:{[key:string]:boolean} = {};
 		for (const key in this.globalEmotesHashmaps) {
-			const e = this.globalEmotesHashmaps[key];
+			const e = this.globalEmotesHashmaps[key]!;
 			if(emotesDone[e.id]) continue;
 			emotesDone[e.id] = true;
 			const rootURL = e.host.url+"/";
@@ -44,9 +44,9 @@ export default class SevenTVUtils {
 				code: e.name,
 				is_public:false,
 				images: {
-					url_1x: (rootURL + urls[0].name) || "",
-					url_2x: (rootURL + urls[1].name) || (rootURL + urls[0].name) || "",
-					url_4x: rootURL + urls[urls.length-1].name,
+					url_1x: (rootURL + urls[0]!.name) || "",
+					url_2x: (rootURL + urls[1]!.name) || (rootURL + urls[0]!.name) || "",
+					url_4x: rootURL + urls[urls.length-1]!.name,
 				},
 				platform:"twitch",
 				source:"7TV"
@@ -55,7 +55,7 @@ export default class SevenTVUtils {
 		for (const chanId in this.channelEmotesHashmaps) {
 			const chan = this.channelEmotesHashmaps[chanId];
 			for (const key in chan) {
-				const e = chan[key];
+				const e = chan[key]!;
 				if(emotesDone[e.id]) continue;
 				emotesDone[e.id] = true;
 				const rootURL = e.host.url+"/";
@@ -65,9 +65,9 @@ export default class SevenTVUtils {
 					code: e.name,
 					is_public:false,
 					images: {
-						url_1x: (rootURL + urls[0].name) || "",
-						url_2x: (rootURL + urls[1].name) || (rootURL + urls[0].name) || "",
-						url_4x: rootURL + urls[urls.length-1].name,
+						url_1x: (rootURL + urls[0]!.name) || "",
+						url_2x: (rootURL + urls[1]!.name) || (rootURL + urls[0]!.name) || "",
+						url_4x: rootURL + urls[urls.length-1]!.name,
 					},
 					platform:"twitch",
 					source:"7TV"
@@ -106,8 +106,7 @@ export default class SevenTVUtils {
 		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
 
-		for (let i = 0; i < chunks.length; i++) {
-			const txt = chunks[i];
+		for (const txt of chunks) {
 			if(this.globalEmotesHashmaps[txt]) {
 				const emote = this.globalEmotesHashmaps[txt];
 				if(emote && emotesDone[emote.name] !== true) {
@@ -117,7 +116,7 @@ export default class SevenTVUtils {
 			}
 			//TODO parse only the emotes from the channel the message was posted to
 			for (const key in this.channelEmotesHashmaps) {
-				const emote = this.channelEmotesHashmaps[key][txt];
+				const emote = this.channelEmotesHashmaps[key]![txt];
 				if(emote && emotesDone[emote.name] !== true) {
 					allEmotes.push( emote );
 					emotesDone[emote.name] = true;
@@ -127,7 +126,7 @@ export default class SevenTVUtils {
 
 		//Parse global emotes
 		for (let i = 0; i < allEmotes.length; i++) {
-			const e = allEmotes[i];
+			const e = allEmotes[i]!;
 			if(!e.name) continue;//apparently some emotes have no name...
 			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");//Escape regexp specific chars
 			const matches = [...message.matchAll(new RegExp(name, "gi"))];
@@ -139,7 +138,7 @@ export default class SevenTVUtils {
 				let tmpTag = "7TV_"+e.id+":";
 				let emoteCount = 0;
 				for (let j = 0; j < matches.length; j++) {
-					const start = (matches[j].index as number);
+					const start = (matches[j]!.index as number);
 					const end = start+e.name.length-1;
 
 					if(protectedRanges[start] === true) continue;
@@ -175,7 +174,7 @@ export default class SevenTVUtils {
 			return this.globalEmotesHashmaps[code];
 		}
 		for (const key in this.channelEmotesHashmaps) {
-			const list = this.channelEmotesHashmaps[key];
+			const list = this.channelEmotesHashmaps[key]!;
 			if(list[code]) return list[code];
 		}
 		return null;
@@ -189,7 +188,7 @@ export default class SevenTVUtils {
 		if(!this.emotesLoaded) {
 			await this.loadGlobalEmotes();
 			for (let i = 0; i < this.channelList.length; i++) {
-				await this.loadChannelEmotes( this.channelList[i] );
+				await this.loadChannelEmotes( this.channelList[i]! );
 			}
 		}
 		this.enabled = true;
@@ -228,7 +227,7 @@ export default class SevenTVUtils {
 			this.channelEmotesHashmaps[channelId] = {};
 			json.emote_set.emotes.forEach(e => {
 				e.data.name = e.name;
-				this.channelEmotesHashmaps[channelId][e.name] = e.data;
+				this.channelEmotesHashmaps[channelId]![e.name] = e.data;
 			});
 		}catch(error) {
 			//

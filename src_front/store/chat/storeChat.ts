@@ -753,7 +753,7 @@ export const storeChat = defineStore('chat', {
 			const findAndFlagAutomod = (accept:boolean) => {
 				//Only search within the last 1000 messages
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
-					const mess = messageList[i];
+					const mess = messageList[i]!;
 					if(mess.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !mess.twitch_automod) continue;
 					this.automodAction(accept, mess);
 					break;
@@ -766,7 +766,7 @@ export const storeChat = defineStore('chat', {
 			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event)=>{
 				//Only search within the last 1000 messages
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
-					const mess = messageList[i];
+					const mess = messageList[i]!;
 					if(mess.id == event.data?.messageId && mess.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						mess.spoiler = true;
 						break;
@@ -787,7 +787,7 @@ export const storeChat = defineStore('chat', {
 			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE_ANSWER, (event)=>{
 				if(!event.data) return;
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
-					const message = messageList[i];
+					const message = messageList[i]!;
 					if(message.id == event.data.messageId && message.type == TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
 						message.answer = event.data.answer;
 						Database.instance.updateMessage(message);
@@ -803,7 +803,7 @@ export const storeChat = defineStore('chat', {
 				if(res.length === 0) return;
 				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
 					id:Utils.getUUID(),
-					date:messageList.length > 0? messageList[0].date-.1 : Date.now(),
+					date:messageList.length > 0? messageList[0]!.date-.1 : Date.now(),
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 					channel_id:StoreProxy.auth.twitch.user.id,
@@ -822,7 +822,7 @@ export const storeChat = defineStore('chat', {
 
 				//Parse all history
 				for (let i = res.length-1; i >= 0; i--) {
-					const m = res[i];
+					const m = res[i]!;
 
 					//Filter only entries for our own channel
 					// if(m.channel_id != uid) continue;
@@ -965,7 +965,7 @@ export const storeChat = defineStore('chat', {
 
 			//Check if current ad has alrady been sent within the last 50 message
 			for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 50); i--) {
-				const mess = messageList[i];
+				const mess = messageList[i]!;
 				if(mess.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
 				if(mess.adType == adType) return;//Avoid sending 2 consecutive ad of the same type
 			}
@@ -1049,7 +1049,7 @@ export const storeChat = defineStore('chat', {
 					if(Array.isArray(greetedUsersExpire_at)) greetedUsersExpire_at = {};
 					const now = Date.now();
 					for (const key in greetedUsersExpire_at) {
-						if(greetedUsersExpire_at[key] < now - 24 * 60 * 60 * 1000) {
+						if(greetedUsersExpire_at[key]! < now - 24 * 60 * 60 * 1000) {
 							//Old entry, delete it
 							delete greetedUsersExpire_at[key];
 						}
@@ -1076,13 +1076,13 @@ export const storeChat = defineStore('chat', {
 					if(text.length >= 4 && spokenLanguages.length > 0) {
 						//Check language of the message from the worker
 						LandeWorker.instance.lande(text, (langs)=>{
-							const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
+							const iso3 = langs[0]![0] as keyof typeof TranslatableLanguagesMap;
 							//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
 							//Also force english if first returned lang is Affrikaan and second is english.
 							//It detects most english messages as Afrikaan.
-							const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+							const lang = (langs[0]![1] < .6 || (langs[0]![0] == "afr" && langs[1]![0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 							if(lang && !spokenLanguages.includes(lang.iso1)) {
-								const langTarget = (sParams.features.autoTranslateLang.value as string[])[0];
+								const langTarget = (sParams.features.autoTranslateLang.value as string[])[0]!;
 								if(lang.iso1 != langTarget) {
 									ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
 									.then(res=>{
@@ -1113,7 +1113,7 @@ export const storeChat = defineStore('chat', {
 							const to = message.user.id == sAuth.twitch.user.id? message.to : message.user;
 							const from = message.user.id == sAuth.twitch.user.id? message.user : message.to;
 							if(!this.whispers[to.id]) this.whispers[to.id] = {from, to, messages:[]};
-							this.whispers[to.id].messages.push(message);
+							this.whispers[to.id]!.messages.push(message);
 							this.whispersUnreadCount ++;
 							const wsUser = {
 								id:message.user.id,
@@ -1167,7 +1167,7 @@ export const storeChat = defineStore('chat', {
 							const len = messageList.length;
 							const end = Math.max(0, len - 30);
 							for (let i = len-1; i > end; i--) {
-								const m = messageList[i];
+								const m = messageList[i]!;
 								if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
 								if(message.type != m.type) continue;
 								if(m.user.id != message.user.id) continue;
@@ -1227,14 +1227,14 @@ export const storeChat = defineStore('chat', {
 								if(/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
 									SchedulerHelper.instance.resetAdSchedule(message);
 								}
-								if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
+								if(!message.user.channelInfo[message.channel_id]!.is_broadcaster) {
 									SchedulerHelper.instance.incrementMessageCount();
 								}
 
 								//Detect hate raid.
 								if(sParams.features.antiHateRaid.value === true && Date.now() > this.securityRaidGraceEndDate) {
 									const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
-									if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
+									if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id]!.is_new) {
 										//It's a first time chatter, log their message
 										if(!antiHateRaidCounter[key]) {
 											antiHateRaidCounter[key] = {
@@ -1319,7 +1319,7 @@ export const storeChat = defineStore('chat', {
 										//Cleanup old cache to free memory
 										let expiredSince = Date.now() - 5*60*1000;
 										for (const key in antiHateRaidCounter) {
-											const element = antiHateRaidCounter[key];
+											const element = antiHateRaidCounter[key]!;
 											if(element.date < expiredSince) delete antiHateRaidCounter[key];
 										}
 									}else if(antiHateRaidCounter[key]) {
@@ -1340,7 +1340,7 @@ export const storeChat = defineStore('chat', {
 							}
 
 							//If it's a text message and user isn't a follower, broadcast to WS
-							if(message.user.channelInfo[message.channel_id].is_following === false) {
+							if(message.user.channelInfo[message.channel_id]!.is_following === false) {
 								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
 							}
 
@@ -1357,7 +1357,7 @@ export const storeChat = defineStore('chat', {
 							//If it's the first message all time of the user
 							if(message.twitch_isFirstMessage) {
 								//Flag user as new chatter
-								message.user.channelInfo[message.channel_id].is_new = true;
+								message.user.channelInfo[message.channel_id]!.is_new = true;
 								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 							}
 
@@ -1404,10 +1404,9 @@ export const storeChat = defineStore('chat', {
 								const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
 								const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
 								for (let i = 0; i < matches.length; i++) {
-									const match = matches[i].replace("@", "").toLowerCase();
+									const match = matches[i]!.replace("@", "").toLowerCase();
 									// console.log("Search for message from ", match);
-									for (let j = messages.length-1; j >= 0; j--) {
-										const m = messages[j];
+									for (const m of messages) {
 										//Not a user message, ignore it
 										if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 										//If message is too old, stop there
@@ -1447,7 +1446,7 @@ export const storeChat = defineStore('chat', {
 
 							//If it's a new user and "autospoil new users" option is enabled,
 							//set the message as a spoiler
-							if(message.user.channelInfo[message.channel_id].is_new === true
+							if(message.user.channelInfo[message.channel_id]!.is_new === true
 							&& this.spoilerParams.autoSpoilNewUsers === true
 							&& message.user.noAutospoil !== true) {
 								message.spoiler = true;
@@ -1512,14 +1511,14 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("RAID_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("RAID_COUNT", message.viewers);
 						}
-						message.user.channelInfo[message.channel_id].is_raider = true;
+						message.user.channelInfo[message.channel_id]!.is_raider = true;
 						if(sParams.appearance.raidHighlightUser.value
 						&& sParams.appearance.raidHighlightUserTrack.value === true) {
 							StoreProxy.users.trackUser(message.user);
 						}
 						window.setTimeout(()=> {
 							const localMess = message as TwitchatDataTypes.MessageRaidData;
-							localMess.user.channelInfo[localMess.channel_id].is_raider = false;
+							localMess.user.channelInfo[localMess.channel_id]!.is_raider = false;
 							if(sParams.appearance.raidHighlightUser.value
 							&& sParams.appearance.raidHighlightUserTrack.value === true) {
 								StoreProxy.users.untrackUser(localMess.user);
@@ -1566,7 +1565,7 @@ export const storeChat = defineStore('chat', {
 							if(message.eventType == "merch") {
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
-								StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
+								StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0]!.name || "");
 								StoreProxy.customTrain.registerActivity(message.id, "kofi", message.amount);
 							}
 						}
@@ -1709,7 +1708,7 @@ export const storeChat = defineStore('chat', {
 						if(message.is_gift && message.gift_recipients) {
 							// Attempt to merge subgift messages
 							for (let i = subgiftHistory.length-1; i >= 0; i--) {
-								const subgiftHistoryEntry = subgiftHistory[i];
+								const subgiftHistoryEntry = subgiftHistory[i]!;
 								let baseLog = {
 									uid_ref:subgiftHistoryEntry.user.id,
 									uid_new:message.user.id,
@@ -1829,8 +1828,7 @@ export const storeChat = defineStore('chat', {
 					//Users joined, check if any need to be autobanned
 					case TwitchatDataTypes.TwitchatMessageType.JOIN: {
 						if(!isFromRemoteChan) {
-							for (let i = 0; i < message.users.length; i++) {
-								const user = message.users[i];
+							for (const user of message.users) {
 								const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
 								if(rule != null) {
 									if(user.platform == "twitch") {
@@ -1890,7 +1888,7 @@ export const storeChat = defineStore('chat', {
 							const maxIndex = Math.max(0, messageList.length - 100);
 							let postMessage = true;
 							for (let i = messageList.length-1; i >= maxIndex; i--) {
-								const m = messageList[i];
+								const m = messageList[i]!;
 								//Found a follow event, delete it
 								if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 								&& m.followbot === true
@@ -2026,7 +2024,7 @@ export const storeChat = defineStore('chat', {
 				// If it's a message, check if it's a command
 				if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
 					const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
-					const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
+					const cmd = (typedMessage.message || "").trim().split(" ")[0]!.toLowerCase();
 
 					//If a raffle is in progress, check if the user can enter
 					sRaffle.checkRaffleJoin(typedMessage as TwitchatDataTypes.ChatMessageTypes);
@@ -2069,13 +2067,13 @@ export const storeChat = defineStore('chat', {
 					|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 					|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 					|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-						if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
+						if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id]!.is_banned) {
 							//Check if nickname passes the automod
 							const rule = sAutomod.isMessageAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
 							if(rule) {
 								//User blocked by automod
 								if(message.user.platform == "twitch") {
-									message.user.channelInfo[message.channel_id].is_banned = true;
+									message.user.channelInfo[message.channel_id]!.is_banned = true;
 									TwitchUtils.banUser(message.user, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 								}
 								//Post message on chat to alert the streamer
@@ -2246,7 +2244,7 @@ export const storeChat = defineStore('chat', {
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) {
 			//Start from most recent messages to find it faster
 			for (let i = messageList.length-1; i > -1; i--) {
-				const m = messageList[i];
+				const m = messageList[i]!;
 				if(messageID == m.id && !m.deleted) {
 					this.deleteMessage(m, deleter, callEndpoint);
 					break;
@@ -2323,7 +2321,7 @@ export const storeChat = defineStore('chat', {
 
 		delUserMessages(uid:string, channelId:string) {
 			for (let i = messageList.length-1; i >= 0; i--) {
-				const m = messageList[i];
+				const m = messageList[i]!;
 				//If we reached messages older than 2h, stop there, there's no much point in
 				//spending process for that old messages
 				if(Date.now() - m.date > 2 * 60000) break;
@@ -2358,7 +2356,7 @@ export const storeChat = defineStore('chat', {
 
 		delChannelMessages(channelId:string):void {
 			for (let i = 0; i < messageList.length; i++) {
-				const m = messageList[i];
+				const m = messageList[i]!;
 				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.channel_id == channelId && !mTyped.cleared) {
@@ -2437,11 +2435,14 @@ export const storeChat = defineStore('chat', {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
 					//Get user info
-					const [twitchUser] = await TwitchUtils.getUserInfo([message.user.id]);
-					message.user.avatarPath = twitchUser.profile_image_url;
-					//Populate more info just in case some are missing
-					message.user.login = twitchUser.login;
-					message.user.displayNameOriginal = twitchUser.display_name;
+					const result = await TwitchUtils.getUserInfo([message.user.id]);
+					const twitchUser = result?.[0];
+					if(twitchUser) {
+						message.user.avatarPath = twitchUser.profile_image_url;
+						//Populate more info just in case some are missing
+						message.user.login = twitchUser.login;
+						message.user.displayNameOriginal = twitchUser.display_name;
+					}
 				}
 
 				const info:TwitchatDataTypes.ChatHighlightInfo = {
@@ -2480,8 +2481,7 @@ export const storeChat = defineStore('chat', {
 		},
 
 		async flagSuspiciousMessage(messageId:string, flaggedChans:string[], retryCount?:number):Promise<void> {
-			for (let i = 0; i < messageList.length; i++) {
-				const message = messageList[i];
+			for (const message of messageList) {
 				if(message.id == messageId && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(flaggedChans?.length > 0) {
 						const users = await TwitchUtils.getUserInfo(flaggedChans);
@@ -2507,8 +2507,8 @@ export const storeChat = defineStore('chat', {
 
 		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void {
 			const user = message.user;
-			const has5hPassed = (user.channelInfo[message.channel_id].lastActivityDate || 0) + (5 * 60 * 60 * 1000) < Date.now();
-			user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+			const has5hPassed = (user.channelInfo[message.channel_id]!.lastActivityDate || 0) + (5 * 60 * 60 * 1000) < Date.now();
+			user.channelInfo[message.channel_id]!.lastActivityDate = Date.now();
 
 			//Don't greet again if less than 5h have passed since last activity
 			//this makes it so if a stream lasts for more than 8h, a user that
@@ -2522,7 +2522,7 @@ export const storeChat = defineStore('chat', {
 			if(user.is_blocked === true) return;
 
 			//Don't greet a user already greeted
-			if(greetedUsersExpire_at[user.id] && greetedUsersExpire_at[user.id] > Date.now()) return;
+			if(greetedUsersExpire_at[user.id] && greetedUsersExpire_at[user.id]! > Date.now()) return;
 
 			//Ignore bots
 			if(StoreProxy.users.knownBots[message.platform][user.login.toLowerCase()] === true) return;
@@ -2535,10 +2535,9 @@ export const storeChat = defineStore('chat', {
 		resetGreetingHistory():void {
 			const users = StoreProxy.users.users;
 			//Reset last activity date of all users on all channels
-			for (let i = 0; i < users.length; i++) {
-				const u = users[i];
+			for (const u of users) {
 				for (const chan in u.channelInfo) {
-					u.channelInfo[chan].lastActivityDate = 0;
+					u.channelInfo[chan]!.lastActivityDate = 0;
 				}
 			}
 			greetedUsersExpire_at = {};
@@ -2547,8 +2546,7 @@ export const storeChat = defineStore('chat', {
 		},
 
 		cleanupDonationRelatedMessages():void {
-			for (let i = 0; i < messageList.length; i++) {
-				const m = messageList[i];
+			for (const m of messageList) {
 				if(m.type !== TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
 				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
 				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
@@ -2613,7 +2611,7 @@ export const storeChat = defineStore('chat', {
 			}else
 			if(message_parent_id) {
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
-					const mess = messageList[i];
+					const mess = messageList[i]!;
 					if(mess.id == message_parent_id && TwitchatDataTypes.IsTranslatableMessage[mess.type]) {
 						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
 						break;

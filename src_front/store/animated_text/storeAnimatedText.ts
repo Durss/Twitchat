@@ -41,8 +41,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 					this.broadcastStates(event.data.id);
 				}else{
 					//Broadcast all states
-					for (let i = 0; i < this.animatedTextList.length; i++) {
-						const entry = this.animatedTextList[i];
+					for (const entry of this.animatedTextList) {
 						this.broadcastStates(entry.id);
 					}
 				}
@@ -70,8 +69,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 		},
 
 		broadcastStates(id?:string) {
-			for (let i = 0; i < this.animatedTextList.length; i++) {
-				const entry = this.animatedTextList[i];
+			for (const entry of this.animatedTextList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
 				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CONFIGS, entry);
 			}

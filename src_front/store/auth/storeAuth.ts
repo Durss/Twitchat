@@ -227,7 +227,7 @@ export const storeAuth = defineStore('auth', {
 							is_moderator:true,
 						}
 					}else{
-						this.twitch.user.channelInfo[chan.broadcaster_id].is_moderator = true;
+						this.twitch.user.channelInfo[chan.broadcaster_id]!.is_moderator = true;
 					}
 				});
 
@@ -270,7 +270,7 @@ export const storeAuth = defineStore('auth', {
 					const loadFollowers = async ()=>{
 						const res = await TwitchUtils.getLastFollowers(uid);
 						if(res.followers.length > 0) {
-							const last = res.followers[0];
+							const last = res.followers[0]!;
 							StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name, (user)=>{
 								StoreProxy.labels.updateLabelValue("FOLLOWER_ID", user.id);
 								StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", user.displayNameOriginal);
@@ -310,7 +310,7 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.getModerators().then(async res=> {
 					res.forEach(u=> {
 						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
-						user.channelInfo[this.twitch.user.id].is_moderator = true;
+						user.channelInfo[this.twitch.user.id]!.is_moderator = true;
 					})
 				});
 
@@ -318,7 +318,7 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.getVIPs().then(async res=> {
 					res.forEach(u=> {
 						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
-						user.channelInfo[this.twitch.user.id].is_vip = true;
+						user.channelInfo[this.twitch.user.id]!.is_vip = true;
 					})
 				});
 
@@ -365,7 +365,7 @@ export const storeAuth = defineStore('auth', {
 			this.features					= res.json.data.features || [];
 			StoreProxy.discord.discordLinked= res.json.data.discordLinked === true;
 			if(res.json.data.patreonLinked) StoreProxy.patreon.loadMemberState();
-			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
+			this.twitch.user.channelInfo[user.id]!.following_date_ms = user.created_at_ms || 0;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {
 			// 	this.twitch.user.donor.earlyDonor =
@@ -376,8 +376,8 @@ export const storeAuth = defineStore('auth', {
 			//Async loading of followers count to define if user is exempt
 			//from ads or not
 			const followers	= await TwitchUtils.getFollowersCount([this.twitch.user.id]);
-			this.noAd		= followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
-			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]);
+			this.noAd		= followers[this.twitch.user.id]! < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]!);
 		},
 
 		twitch_updateAuthScopes(code:string):Promise<boolean> {

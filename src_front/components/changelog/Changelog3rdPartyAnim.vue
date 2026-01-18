@@ -62,7 +62,7 @@ class Changelog3rdPartyAnim extends Vue {
 
 		window.setTimeout(async ()=> {
 			for (let i = 0; i < items.length; i++) {
-				const el = items[i];
+				const el = items[i]!;
 				await Utils.promisedTimeout(200);
 
 				const boundsParent = target.getBoundingClientRect();

@@ -94,10 +94,9 @@ export const storeHeat = defineStore('heat', {
 		},
 
 		saveScreens():void {
-			for (let i = 0; i < this.screenList.length; i++) {
-				const screen = this.screenList[i];
+			for (const screen of this.screenList) {
 				for (let j = 0; j < screen.areas.length; j++) {
-					const a = screen.areas[j];
+					const a = screen.areas[j]!;
 					if(a.points.length == 0) {
 						screen.areas.splice(j, 1);
 						j--;
@@ -197,15 +196,13 @@ export const storeHeat = defineStore('heat', {
 			//Parse all custom areas
 			const screens = StoreProxy.heat.screenList;
 			const obsScene = StoreProxy.common.currentOBSScene;
-			for (let i = 0; i < screens.length; i++) {
-				const s = screens[i];
+			for (const s of screens) {
 				//Screen disabled, ignore it
 				if(!s.enabled) continue;
 				//Check if requested OBS scene is active
 				if(s.activeOBSScene && s.activeOBSScene != obsScene) continue;
 				//Parse all areas
-				for (let j = 0; j < s.areas.length; j++) {
-					const a = s.areas[j];
+				for (const a of s.areas) {
 					const isInside = Utils.isPointInsidePolygon({x:event.coordinates.x, y:event.coordinates.y}, a.points);
 					//If click is inside the area, execute the trigger
 					if(isInside){
@@ -252,6 +249,7 @@ export const storeHeat = defineStore('heat', {
 					alert:false,
 				}
 			}
+			const chaninfo = user.channelInfo[channelId]!;
 			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
 				requestType:"emit_event",
 				vendorName:"obs-browser",
@@ -268,13 +266,13 @@ export const storeHeat = defineStore('heat', {
 						rotation:0,
 						scaleX:0,
 						scaleY:0,
-						isBroadcaster:user.channelInfo[channelId].is_broadcaster,
-						isSub:user.channelInfo[channelId].is_subscriber || false,
-						isBan:user.channelInfo[channelId].is_banned,
-						isMod:user.channelInfo[channelId].is_moderator,
-						isVip:user.channelInfo[channelId].is_vip,
-						isFollower:user.channelInfo[channelId].is_following || false,
-						followDate:user.channelInfo[channelId].following_date_ms,
+						isBroadcaster:chaninfo.is_broadcaster,
+						isSub:chaninfo.is_subscriber || false,
+						isBan:chaninfo.is_banned,
+						isMod:chaninfo.is_moderator,
+						isVip:chaninfo.is_vip,
+						isFollower:chaninfo.is_following || false,
+						followDate:chaninfo.following_date_ms,
 						testMode:event.testMode || false,
 						alt:event.alt || false,
 						ctrl:event.ctrl || false,
@@ -286,8 +284,7 @@ export const storeHeat = defineStore('heat', {
 			};
 
 			//Check if a distortion targetting current OBS scene exists
-			for (let j = 0; j < this.distortionList.length; j++) {
-				const d = this.distortionList[j];
+			for (const d of this.distortionList) {
 
 				//Ignore disabled and trigger-only distortions
 				if(!d.enabled || d.triggerOnly) continue;
@@ -309,8 +306,7 @@ export const storeHeat = defineStore('heat', {
 
 			// Parse all available OBS sources
 			const distortionRerouted:{[key:string]:boolean} = {};
-			mainloop:for (let i = 0; i < rects.sources.length; i++) {
-				const rect = rects.sources[i];
+			mainloop:for (const rect of rects.sources) {
 				const x = rects.canvas.width * px;
 				const y = rects.canvas.height * py;
 				const bounds = rect.transform;
@@ -354,8 +350,7 @@ export const storeHeat = defineStore('heat', {
 				log.targets.push({obsSource:rect.source.sourceName || rect.sceneName, x:percentX, y:percentY});
 
 				//If a distortion targets the current element, reroute events to its related browser source
-				for (let j = 0; j < this.distortionList.length; j++) {
-					const d = this.distortionList[j];
+				for (const d of this.distortionList) {
 					//If distortion has already been triggered, avoid potential other triggers
 					if(distortionRerouted[d.id] === true) {
 						continue mainloop;
@@ -473,7 +468,7 @@ export const storeHeat = defineStore('heat', {
 
 		async deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):Promise<void> {
 			for (let i = 0; i < this.distortionList.length; i++) {
-				const d = this.distortionList[i];
+				const d = this.distortionList[i]!;
 				if(d.id == data.id) {
 					this.distortionList.splice(i,1);
 				}

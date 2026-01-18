@@ -111,7 +111,7 @@ class VoiceTriggerList extends Vue {
 		this.actions = JSON.parse(JSON.stringify(this.$store.voice.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
-			const a = this.actions[i];
+			const a = this.actions[i]!;
 			if(!a.id) continue;
 			//ignore global commands
 			if(VoiceAction[a.id+"_IS_GLOBAL" as VAKeys] === true) {
@@ -176,7 +176,7 @@ class VoiceTriggerList extends Vue {
 
 	public isOpen(id:string|undefined):boolean {
 		if(!id) return true;
-		return this.openStates[id];
+		return this.openStates[id]!;
 	}
 
 	public getActionIDs(action?:VoiceAction):{label:string, value:string}[] {
@@ -188,7 +188,7 @@ class VoiceTriggerList extends Vue {
 
 		//Remove actions that are already in use
 		for (let i = 0; i < this.actions.length; i++) {
-			const a = this.actions[i];
+			const a = this.actions[i]!;
 			//If it's a new action that has no selection done yet
 			if(!a.id || a == action) continue;
 
@@ -238,9 +238,8 @@ class VoiceTriggerList extends Vue {
 	 */
 	public onTrigger(e:TwitchatEvent):void {
 		const el = this.$refs[e.type] as ComponentPublicInstance[] | undefined;
-		if(el && el.length > 0 && el[0].$el != null) {
-			const div = (el[0].$el as HTMLDivElement).getElementsByClassName("header")[0];
-			console.log(div);
+		if(el && el.length > 0 && el[0]!.$el != null) {
+			const div = (el[0]!.$el as HTMLDivElement).getElementsByClassName("header")[0]!;
 			gsap.fromTo(div,
 				{paddingTop:"1em", paddingBottom:"1em", filter:"brightness(3)"},
 				{paddingTop:".25em", paddingBottom:".25em", filter:"brightness(1)", duration:1}

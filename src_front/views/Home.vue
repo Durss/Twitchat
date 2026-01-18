@@ -69,7 +69,7 @@
 				</div>
 			</div>
 
-			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">
+			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0]!)">
 				<div>{{ $t("home.features.title") }}</div>
 				<Icon name="arrowDown" alt="scroll down" class="icon" />
 			</div>
@@ -207,7 +207,7 @@ class Home extends Vue {
 		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
-			let el = this.$refs[refs[i]] as HTMLElement | ComponentPublicInstance;
+			let el = this.$refs[refs[i]!] as HTMLElement | ComponentPublicInstance;
 			if ((el as ComponentPublicInstance).$el) el = (el as ComponentPublicInstance).$el as HTMLElement;
 			const delay = i*.1+.5;
 			gsap.fromTo(el, {opacity:0, y:-20, scale:.85},
@@ -244,7 +244,7 @@ class Home extends Vue {
 					gsap.set(icon, {scale:0});
 				}
 			}
-			anchors.push({div, label: this.sections[i].title, icon:this.sections[i].icon, selected:false});
+			anchors.push({div, label: this.sections[i]!.title, icon:this.sections[i]!.icon, selected:false});
 		}
 		this.anchors = anchors;
 	}
@@ -280,15 +280,14 @@ class Home extends Vue {
 	}
 
 	private showItem(entries: IntersectionObserverEntry[]):void {
-		for (let i = 0; i < entries.length; i++) {
-			const e = entries[i];
+		for (const e of entries) {
 			const target = e.target as HTMLElement;
 			if(e.isIntersecting) {
 				if(!target.dataset["done"]) {
 					target.dataset["done"] = "1";
 
-					gsap.to(target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
-					gsap.to(target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
+					gsap.to(target.getElementsByClassName("infos")[0]!, {duration:1, opacity:1, y:0, ease:"back.out(2)"});
+					gsap.to(target.getElementsByClassName("icon")[0]!, {duration:1, scale:1, ease:"back.out(3)"});
 					const screen = target.getElementsByClassName("screen")[0];
 
 					if(screen) {
@@ -318,8 +317,7 @@ class Home extends Vue {
 		const center = window.innerHeight / 2;
 		let closestPosToCenter = 99999999;
 		let closestToCenter:TwitchatDataTypes.AnchorData|null = null;
-		for (let i = 0; i < this.anchors.length; i++) {
-			const a = this.anchors[i];
+		for (const a of this.anchors) {
 			const bounds = a.div.getBoundingClientRect();
 			const py = bounds.top + bounds.height * .5;
 			const dist = Math.abs(py - center);
@@ -333,8 +331,8 @@ class Home extends Vue {
 
 		//Make letters move up
 		const letters = this.$refs.letter as HTMLImageElement[];
-		for (let i = 0; i < letters.length; i++) {
-			const l = letters[i];
+		let i = 0
+		for (const l of letters) {
 			const pageH = this.$el.offsetHeight;
 			if(this.letterParams.length <= i) {
 				this.letterParams.push({
@@ -346,12 +344,13 @@ class Home extends Vue {
 				})
 				l.style.left = (Math.random()*document.body.offsetWidth)+"px";
 			}
-			const param = this.letterParams[i];
+			const param = this.letterParams[i]!;
 			if(param.y < - pageH - 200) param.y = 200;
 			param.y = param.y - i*.1;
 			if(i %2 == 0) param.r += .01 * i * timeScale;
 			else  param.r -= .01 * i * timeScale;
 			gsap.set(l, {y:param.y, x:param.x, rotate:param.r+"deg", scale:param.s, opacity:param.o})
+			i++;
 		}
 	}
 }

@@ -95,8 +95,8 @@
 
 							<template v-if="entry.type == 'countdown'">
 								<ParamItem :paramData="param_duration[entry.id]"
-								v-model="param_duration[entry.id].value"
-								@change="entry.duration_ms = param_duration[entry.id].value * 1000" />
+								v-model="param_duration[entry.id]!.value"
+								@change="entry.duration_ms = param_duration[entry.id]!.value * 1000" />
 							</template>
 
 							<div class="card-item placeholder"
@@ -202,8 +202,7 @@ class ParamsTimer extends Vue implements IParameterContent {
 	 * Builds up local timer list
 	 */
 	public buildParams():void {
-		for (let i = 0; i < this.$store.timers.timerList.length; i++) {
-			const element = this.$store.timers.timerList[i];
+		for (const element of this.$store.timers.timerList) {
 			if(this.param_duration[element.id] != undefined) continue;
 			this.param_duration[element.id] = {type:"duration", value:(element.duration_ms || 60000)/1000, min:0, max:Number.MAX_SAFE_INTEGER, icon:"countdown", labelKey:"timers.form.param_duration"};
 			this.timer2PlaceholderError[element.id] = false;
@@ -224,8 +223,7 @@ class ParamsTimer extends Vue implements IParameterContent {
 	 * Refreshes the running timers values
 	 */
 	public refreshTimers():void {
-		for (let i = 0; i < this.$store.timers.timerList.length; i++) {
-			const element = this.$store.timers.timerList[i];
+		for (const element of this.$store.timers.timerList) {
 			this.timer2Duration[element.id] = this.$store.timers.getTimerComputedValue(element.id);
 		}
 	}
@@ -237,11 +235,9 @@ class ParamsTimer extends Vue implements IParameterContent {
 		this.$store.timers.timerList.forEach(t=>{
 			this.timer2PlaceholderError[t.id] = false;
 		});
-		for (let i = 0; i < this.$store.timers.timerList.length; i++) {
-			const t = this.$store.timers.timerList[i];
+		for (const t of this.$store.timers.timerList) {
 			if(!t.placeholderKey) continue;
-			for (let j = 0; j < this.$store.timers.timerList.length; j++) {
-				const t2 = this.$store.timers.timerList[j];
+			for (const t2 of this.$store.timers.timerList) {
 				if(t2.id == t.id) continue;
 				if(t2.type != t.type) continue;
 				if(t2.placeholderKey && t2.placeholderKey.toUpperCase() == t.placeholderKey.toUpperCase()) {

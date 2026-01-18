@@ -317,8 +317,7 @@ class ChatMessage extends AbstractChatMessage {
 		if(this.$store.params.appearance.showBadges.value === true
 		&& this.$store.params.appearance.minimalistBadges.value === true
 		&& this.badges) {
-			for (let i = 0; i < this.badges.length; i++) {
-				const b = this.badges[i];
+			for (const b of this.badges) {
 				switch(b.id) {
 					case "predictions": {
 						const color = (b.version ?? "").indexOf("pink") > -1? "pink" : "blue";
@@ -398,7 +397,7 @@ class ChatMessage extends AbstractChatMessage {
 	public beforeMount() {
 		super.beforeMount()
 		// console.log("Create message");
-		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
+		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id]!;
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
 		this.localMessageChunks = JSON.parse(JSON.stringify(this.messageData.message_chunks));
 
@@ -413,7 +412,7 @@ class ChatMessage extends AbstractChatMessage {
 			//Remove "raider" badge from the view when removed from data
 			watch(()=> this.channelInfo.is_raider, () =>{
 				for (let i = 0; i < this.infoBadges.length; i++) {
-					const b = this.infoBadges[i];
+					const b = this.infoBadges[i]!;
 					if(b.type == TwitchatDataTypes.MessageBadgeDataType.RAIDER) {
 						this.infoBadges.splice(i,1);
 						break;
@@ -525,11 +524,11 @@ class ChatMessage extends AbstractChatMessage {
 		let text = this.messageData.message_html;
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"<']+)/i);
-			clipId = matches? matches[1] : "";
+			clipId = matches? matches[1]! : "";
 		}else
 		if(/clips\.twitch\.tv\//gi.test(text)) {
 			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
-			clipId = matches? matches[1] : "";
+			clipId = matches? matches[1]! : "";
 		}
 
 		if(clipId != "") {
@@ -647,7 +646,7 @@ class ChatMessage extends AbstractChatMessage {
 		if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
 			const clipSrcPath = await TwitchUtils.getClipsSrcPath([this.clipInfo!.id]);
 			if(clipSrcPath.length > 0) {
-				data.clip!.mp4 = clipSrcPath[0].landscape_download_url;
+				data.clip!.mp4 = clipSrcPath[0]!.landscape_download_url;
 			}
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);

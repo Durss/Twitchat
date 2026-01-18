@@ -123,7 +123,7 @@ class SearchUserForm extends Vue {
 		if(this.selectedindex < 0) this.selectedindex = this.users.length - 1;
 		if(this.selectedindex >= this.users.length) this.selectedindex = 0;
 		if(event.key == 'Enter') {
-			this.selectUser(this.users[this.selectedindex]);
+			this.selectUser(this.users[this.selectedindex]!);
 		}
 	}
 

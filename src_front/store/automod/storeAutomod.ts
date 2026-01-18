@@ -54,8 +54,7 @@ export const storeAutomod = defineStore('automod', {
 
 				const messClean = UnicodeUtils.instance.normalizeAlphaNum(mess).toLowerCase().trim();
 				let messLeet = "";
-				for (let i = 0; i < rules.length; i++) {
-					const r = rules[i];
+				for (const r of rules) {
 					if(!r.enabled || !r.regex.trim() || r.regex.trim().length < 2) continue;//Rule disabled, skip it
 
 					//Check if reg is valid

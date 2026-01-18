@@ -116,7 +116,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
 
 				//Ignore banned users (but not timed out ones)
-				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id];
+				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id]!;
 				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
 
 				const allowed = await Utils.checkPermissions(grid.heatClickPermissions, user, data.click.channelId);
@@ -139,7 +139,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login, undefined, undefined, false, undefined, false);
 
 				//Ignore banned users (but not timed out ones)
-				const chanInfo = user.channelInfo[channelId];
+				const chanInfo = user.channelInfo[channelId]!;
 				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
 
 				//Force avatar loading if not available
@@ -148,7 +148,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					if(userDetails) user.avatarPath = userDetails.profile_image_url;
 				}
 				if(!this.viewersBingoCount[event.data.gridId]) this.viewersBingoCount[event.data.gridId] = [];
-				const list = this.viewersBingoCount[event.data.gridId];
+				const list = this.viewersBingoCount[event.data.gridId]!;
 				let entry = list.find(v=>v.user.id === user.id);
 				let isNewBingo = false;
 				if(!entry) {
@@ -165,13 +165,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				}
 
 				//Sort viewers by bingo count
-				const prevCount = this.viewersBingoCount[event.data.gridId].length;
+				const prevCount = this.viewersBingoCount[event.data.gridId]!.length;
 				this.viewersBingoCount[event.data.gridId] = list.filter(v=>v.count > 0);
 				//Force leaderboard close if there were bingos before and there are none now
 				//In this case the "hide leaderboard" button is not accessible anymore on the
 				//UI because the "leader board" section is only there when there is at least
 				//one person on the leaderboar.
-				if(this.viewersBingoCount[event.data.gridId].length == 0 && prevCount > 0) {
+				if(this.viewersBingoCount[event.data.gridId]!.length == 0 && prevCount > 0) {
 					this.hideLeaderboard(event.data.gridId);
 				}
 
@@ -208,7 +208,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								//which should be the highest one
 								const userDone:{[uid:string]:boolean} = {};
 								for (let i = chatAnnounceStack.length-1; i > -1; i--) {
-									const entry = chatAnnounceStack[i];
+									const entry = chatAnnounceStack[i]!;
 									if(userDone[entry.user.id] === true) {
 										chatAnnounceStack.splice(i, 1);
 										continue;
@@ -225,7 +225,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 									//Make sure to split users so messages are not longer than 500 chars
 									for (let i = 0; i < chatAnnounceStack.length; i++) {
 										let message = prefix;
-										message += chatAnnounceStack[0].user.displayNameOriginal+" (x"+chatAnnounceStack[0].count+")";
+										message += chatAnnounceStack[0]!.user.displayNameOriginal+" (x"+chatAnnounceStack[0]!.count+")";
 										messageLength += message.length;
 										if(messageLength < 500) {
 											i--;
@@ -271,7 +271,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					let entry = grid.entries.filter(v=>!!v).find(v=>v.id==cellId);
 					if(!entry && grid.additionalEntries) entry = grid.additionalEntries.find(v=>v.id==cellId);
 					if(!entry) continue
-					entry.check = eventData.states[cellId];
+					entry.check = eventData.states[cellId]!;
 				}
 				this.saveData(grid.id);
 			});
@@ -332,12 +332,12 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			//Randomly switch main entries with additional entries
 			if(grid.additionalEntries && grid.additionalEntries.length > 0) {
 				for (let i = 0; i < grid.entries.length; i++) {
-					const entry = grid.entries[i];
+					const entry = grid.entries[i]!;
 					//Don't switch locked cells
 					if(entry.lock) continue;
 					if(Math.random() > .4) {
 						const index = Math.floor(Math.random() * grid.additionalEntries.length);
-						grid.entries.splice(i, 1, grid.additionalEntries[index]);
+						grid.entries.splice(i, 1, grid.additionalEntries[index]!);
 						grid.additionalEntries[index] = entry;
 					}
 				}
@@ -347,8 +347,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const entries = grid.entries.filter(v=>!!v);
 			for (let i = entries.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
-				if(entries[i].lock || entries[j].lock) continue;
-				[entries[i], entries[j]] = [entries[j], entries[i]];
+				if(entries[i]!.lock || entries[j]!.lock) continue;
+				[entries[i]!, entries[j]!] = [entries[j]!, entries[i]!];
 			}
 			grid.entries = entries;
 
@@ -369,9 +369,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const grid = this.gridList.find(g => g.id === id);
 				if(!grid) return;
 				const entries = grid.entries.filter(v=>!!v);
-				for (let i = 0; i < entries.length; i++) {
-					if(entries[i].lock) continue;
-					entries[i].label = "";
+				for (const entry of entries) {
+					if(entry.lock) continue;
+					entry.label = "";
 				}
 				this.saveData(id);
 			}).catch(()=>{})
@@ -488,14 +488,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						for (let x = 0; x < grid.cols; x++) {
 							let allTicked = true;
 							for (let y = 0; y < grid.rows; y++) {
-								allTicked &&= newStates[x + y*grid.cols];
+								allTicked &&= newStates[x + y*grid.cols]!;
 							}
 							if(allTicked) newVerticalBingos.push(x);
 						}
 						for (let x = 0; x < grid.cols; x++) {
 							let allTicked = true;
 							for (let y = 0; y < grid.rows; y++) {
-								allTicked &&= prevStates[x + y*grid.cols];
+								allTicked &&= prevStates[x + y*grid.cols]!;
 							}
 							if(allTicked) prevVerticalBingos.push(x);
 						}
@@ -503,14 +503,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						for (let y = 0; y < grid.rows; y++) {
 							let allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= newStates[x + y*grid.cols];
+								allTicked &&= newStates[x + y*grid.cols]!;
 							}
 							if(allTicked) newHorizontalBingos.push(y);
 						}
 						for (let y = 0; y < grid.rows; y++) {
 							let allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= prevStates[x + y*grid.cols];
+								allTicked &&= prevStates[x + y*grid.cols]!;
 							}
 							if(allTicked) prevHorizontalBingos.push(y);
 						}
@@ -520,24 +520,24 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							//Top left to bottom right
 							let allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= newStates[x + x*grid.cols];
+								allTicked &&= newStates[x + x*grid.cols]!;
 							}
 							if(allTicked) newDiagonalBingos.push(0);
 							allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
+								allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols]!;
 							}
 							if(allTicked) newDiagonalBingos.push(1);
 
 							//Bottom left to top right
 							allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= prevStates[x + x*grid.cols];
+								allTicked &&= prevStates[x + x*grid.cols]!;
 							}
 							if(allTicked) prevDiagonalBingos.push(0);
 							allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
-								allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
+								allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols]!;
 							}
 							if(allTicked) prevDiagonalBingos.push(1);
 						}
@@ -554,7 +554,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								const index = grid.entries.findIndex(e => e.id == cellId);
 								x = index%grid.cols;
 								y = Math.floor(index/grid.cols);
-								label = grid.entries[index].label;
+								label = grid.entries[index]!.label;
 							}
 							return {
 								id:Utils.getUUID(),
@@ -677,8 +677,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		},
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
-			for (let i = 0; i < this.gridList.length; i++) {
-				const grid = this.gridList[i];
+			for (const grid of this.gridList) {
 				//Check if it's a grid's command
 				if(grid.enabled
 				&& grid.chatCmd
@@ -688,12 +687,12 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					if(!allowed) continue;
 
 					const [xStrt, yStrt] = (message.message || "").toLowerCase().replace(cmd, "").trim().split(":");
-					const x = (parseInt(xStrt) || 0)-1;
-					const y = (parseInt(yStrt) || 0)-1;
+					const x = (parseInt(xStrt!) || 0)-1;
+					const y = (parseInt(yStrt!) || 0)-1;
 					// console.log("Tick", x+1, y+1);
 					if(x >= 0 && x < grid.cols
 					&& y >= 0 && y < grid.rows){
-						const cell = grid.entries[x+y*grid.cols];
+						const cell = grid.entries[x+y*grid.cols]!;
 						this.toggleCell(grid.id, cell.id);
 					}
 				}

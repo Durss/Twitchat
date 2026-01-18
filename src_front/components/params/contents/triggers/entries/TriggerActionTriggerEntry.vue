@@ -101,7 +101,7 @@ class TriggerActionTriggerEntry extends Vue {
 	private buildDependencyLoop():void {
 		const links = this.recursiveLoopCheck(this.triggerData);
 		if(links.length > 0) {
-			links.push(links[0]);
+			links.push(links[0]!);
 			this.dependencyLoopInfos = links.map(v => {
 				return TriggerUtils.getTriggerDisplayInfo(v)
 			});
@@ -117,8 +117,7 @@ class TriggerActionTriggerEntry extends Vue {
 
 		if(!base.actions) return [];
 
-		for (let i = 0; i < base.actions.length; i++) {
-			const a = base.actions[i];
+		for (const a of base.actions) {
 			//Ignore if it's not related to the current action
 			//This avoids showing a dependency loop an another action of
 			//the current trigger if it's not the source of the looped dependency

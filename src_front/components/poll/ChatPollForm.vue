@@ -23,8 +23,8 @@
 					<label for="poll_answer">{{ $t("chatPoll.form.answers") }}</label>
 
 					<div class="field" v-for="(a, index) in choices.length" :key="index">
-						<input type="text" id="poll_answer" v-model="choices[index].label" maxlength="50" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
-						<div class="len">{{choices[index].label.length}}/50</div>
+						<input type="text" id="poll_answer" v-model="choices[index]!.label" maxlength="50" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
+						<div class="len">{{choices[index]!.label.length}}/50</div>
 					</div>
 
 					<div class="card-item premium" v-if="showPremiumLimit">
@@ -120,7 +120,7 @@ class ChatPollForm extends AbstractSidePanel {
 				this.param_duration.value = this.action.chatPollData.duration_s;
 				this.permissions = this.action.chatPollData.permissions;
 				for (let i = 0; i < this.action.chatPollData.choices.length; i++) {
-					this.choices[i] = {...this.action.chatPollData.choices[i]};
+					this.choices[i] = {...this.action.chatPollData.choices[i]!};
 				}
 			}else{
 				this.onValueChange();
@@ -150,7 +150,7 @@ class ChatPollForm extends AbstractSidePanel {
 		watch(()=>this.choices, ()=> {
 			let emptyCount = 0;
 			for (let i = 0; i < this.choices.length; i++) {
-				if(this.choices[i].label.length === 0) emptyCount++;
+				if(this.choices[i]!.label.length === 0) emptyCount++;
 			}
 			const maxEntries = this.$store.auth.isPremium? Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM : Config.instance.MAX_CHAT_POLL_ENTRIES;
 			if(emptyCount == 0 && this.choices.length < maxEntries) {
@@ -162,7 +162,7 @@ class ChatPollForm extends AbstractSidePanel {
 			}else if(emptyCount > 1 && this.choices.length > 2) {
 				while(emptyCount > 1) {
 					for (let i = 0; i < this.choices.length; i++) {
-						if(this.choices[i].label.length === 0) {
+						if(this.choices[i]!.label.length === 0) {
 							this.choices.splice(i, 1);
 							emptyCount--;
 							break;

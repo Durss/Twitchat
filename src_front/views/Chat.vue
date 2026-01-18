@@ -656,7 +656,7 @@ class Chat extends Vue {
 				const prediction = this.$store.prediction.data;
 				if(!prediction) return;
 				try {
-					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
+					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0]!.id, true);
 				}catch(error) {
 					this.$store.common.alert(this.$t("error.twitch_prediction_delete"))
 				}
@@ -677,7 +677,7 @@ class Chat extends Vue {
 					//command to stop current raffle
 					const list = this.$store.raffle.raffleList;
 					if(list.length == 0) return true;
-					this.$store.raffle.stopRaffle(list[0].sessionId || "");
+					this.$store.raffle.stopRaffle(list[0]!.sessionId || "");
 				}).catch(()=>{});
 				break;
 			}
@@ -869,8 +869,7 @@ class Chat extends Vue {
 	public expandCol(col:TwitchatDataTypes.ChatColumnsConfig):void{
 		const colList = this.$store.params.chatColumnsConfig;
 		let totalSize = 0;
-		for (let i = 0; i < colList.length; i++) {
-			const c = colList[i];
+		for (const c of colList) {
 			totalSize += c.size;
 		}
 
@@ -888,8 +887,7 @@ class Chat extends Vue {
 		let col = this.$store.params.addChatColumn(ref);
 		const colList = this.$store.params.chatColumnsConfig;
 		let totalSize = 0;
-		for (let i = 0; i < colList.length; i++) {
-			const c = colList[i];
+		for (const c of colList) {
 			totalSize += c.size;
 		}
 
@@ -903,7 +901,7 @@ class Chat extends Vue {
 		this.$nextTick().then(()=>{
 			//Scroll to to the new col
 			let colHolder = this.$refs["column_"+col.id] as HTMLDivElement[];
-			let bounds = colHolder[0].getBoundingClientRect();
+			let bounds = colHolder[0]!.getBoundingClientRect();
 
 			let scrollTo = this.splitViewVertical? {y:bounds.top + bounds.height - holder.offsetHeight} : {x:bounds.left + bounds.width - holder.offsetWidth};
 			gsap.to(holder, {duration:.75, ease:"sine.inOut", scrollTo});
@@ -926,8 +924,8 @@ class Chat extends Vue {
 			this.mouseX = e.clientX;
 			this.mouseY = e.clientY;
 		}else if("touches" in e) {
-			this.mouseX = e.touches[0].clientX;
-			this.mouseY = e.touches[0].clientY;
+			this.mouseX = e.touches[0]!.clientX;
+			this.mouseY = e.touches[0]!.clientY;
 		}
 	}
 
@@ -945,6 +943,7 @@ class Chat extends Vue {
 			const c = cols[i];
 			if(c == this.draggedCol) {
 				const el = (this.$refs["column_"+c.id] as HTMLDivElement[])[0];
+				if(!el) continue;
 				const bounds = el.getBoundingClientRect();
 				if(this.splitViewVertical) {
 					c.size = Math.max(215, this.mouseY - bounds.top + 7) / holderBounds.height;
@@ -959,7 +958,7 @@ class Chat extends Vue {
 			//first one as it's confusing people.
 			//But for more than 2 cols I'd like to keep the resize capabilities
 			//on all cols including the last.
-			cols[1].size = 1 - cols[0].size;
+			cols[1]!.size = 1 - cols[0]!.size;
 		}
 
 		//For some reason few people achieve to make negative width col.
@@ -988,7 +987,7 @@ class Chat extends Vue {
 		let indexPanels = 0;
 		let indexGreet = 0;
 		for (let i = 0; i < cols.length; i++) {
-			const c = cols[i];
+			const c = cols[i]!;
 			if(c.showPanelsHere == true) {
 				colId = c.id;
 				indexPanels = i;
@@ -1005,11 +1004,11 @@ class Chat extends Vue {
 			//Fallback to last col if none is selected
 			indexPanels = cols.length-1;
 			indexGreet = cols.length-1;
-			selectedCol = (this.$refs["column_"+cols[indexPanels].id] as HTMLDivElement[])[0];
+			selectedCol = (this.$refs["column_"+cols[indexPanels]!.id] as HTMLDivElement[])[0];
 		}
 		this.greetColIndexTarget = indexGreet;
 		this.panelsColIndexTarget = indexPanels;
-		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
+		this.panelsColumnTarget = selectedCol!.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
 
 	private computeChatFormHeight():void {

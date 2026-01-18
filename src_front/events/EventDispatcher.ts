@@ -32,8 +32,8 @@ export class EventDispatcher {
 
 	public hasEventListener(type:string, listener:(e:Event)=>void):boolean {
 		let exists = false;
-		for (let i = 0; i < this._listeners.length; i++) {
-			if (this._listeners[i].type === type && this._listeners[i].listener === listener) {
+		for (const listenerObj of this._listeners) {
+			if (listenerObj.type === type && listenerObj.listener === listener) {
 				exists = true;
 			}
 		}
@@ -51,16 +51,17 @@ export class EventDispatcher {
 
 	public removeEventListener (typeStr:string, listenerFunc:(e:Event)=>void):void {
 		for (let i = 0; i < this._listeners.length; i++) {
-			if (this._listeners[i].type === typeStr && this._listeners[i].listener === listenerFunc) {
+			const listener = this._listeners[i]!;
+			if (listener.type === typeStr && listener.listener === listenerFunc) {
 				this._listeners.splice(i, 1);
 			}
 		}
 	}
 
 	public dispatchEvent (evt:Event):void {
-		for (let i = 0; i < this._listeners.length; i++) {
-			if (this._listeners[i].type === evt.type) {
-				this._listeners[i].listener.call(this, evt);
+		for (const listenerObj of this._listeners) {
+			if (listenerObj.type === evt.type) {
+				listenerObj.listener.call(this, evt);
 			}
 		}
 	}

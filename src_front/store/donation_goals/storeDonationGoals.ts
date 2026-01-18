@@ -104,8 +104,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		broadcastData(overlayId?:string):void {
-			for (let i = 0; i < this.overlayList.length; i++) {
-				const overlay = this.overlayList[i];
+			for (const overlay of this.overlayList) {
 				if(overlayId && overlay.id != overlayId) continue;
 
 				let goal = 0;
@@ -164,8 +163,8 @@ export const storeDonationGoals = defineStore('donationGoals', {
 
 				const currentStepIndex = overlay.goalList.concat().sort((a,b) => a.amount - b.amount).findLastIndex(v=>v.amount <= raisedTotal);
 				if(donationGoalStatesCache[overlay.id] != currentStepIndex) {
-					if(donationGoalStatesCache[overlay.id] < currentStepIndex) {
-						const currentStep = overlay.goalList[currentStepIndex];
+					if(donationGoalStatesCache[overlay.id]! < currentStepIndex) {
+						const currentStep = overlay.goalList[currentStepIndex]!;
 						const triggerEvent:TwitchatDataTypes.MessageGoalStepCompleteData = {
 							channel_id:StoreProxy.auth.twitch.user.id,
 							date:Date.now(),
@@ -186,8 +185,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void {
-			for (let i = 0; i < this.overlayList.length; i++) {
-				const overlay = this.overlayList[i];
+			for (const overlay of this.overlayList) {
 				if(overlay.dataSource == platform) {
 					if( platform == "streamlabs_charity"
 					|| platform == "twitch_charity"
@@ -201,8 +199,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void {
-			for (let i = 0; i < this.overlayList.length; i++) {
-				const overlay = this.overlayList[i];
+			for (const overlay of this.overlayList) {
 				if(overlay.dataSource == platform
 				&& (!campaignId || !overlay.campaignId || overlay.campaignId == campaignId)) {
 					PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username, amount, overlayId:overlay.id});

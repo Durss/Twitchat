@@ -155,14 +155,14 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 
 		//Build hashmap for faster access
 		for (const key in storeParams.commandToVoiceID) {
-			this.voiceIdToCommand[ storeParams.commandToVoiceID[key] ] = key;
+			this.voiceIdToCommand[ storeParams.commandToVoiceID[key]! ] = key;
 		}
 
 		this.loadTotal = this.voices.length;
 		this.loadCount = 0;
 		let prevBatchIndex = 0;
 		for (let i = 0; i < this.loadTotal; i++) {
-			const v = this.voices[i];
+			const v = this.voices[i]!;
 			const batchIndex = Math.floor(i / 20);
 			if(prevBatchIndex !== batchIndex) {
 				prevBatchIndex = batchIndex;
@@ -179,8 +179,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	public saveData():void {
 		let commandToVoiceID:{[key:string]:string} = {};
 
-		for (let i = 0; i < this.voiceParams.length; i++) {
-			const p = this.voiceParams[i];
+		for (const p of this.voiceParams) {
 			const cmd = p.value.trim().toLowerCase();
 			if(cmd.length > 0) {
 				commandToVoiceID[cmd] = p.storage!.id;

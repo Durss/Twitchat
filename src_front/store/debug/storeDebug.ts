@@ -103,7 +103,7 @@ export const storeDebug = defineStore('debug', {
 						if(messageList.length > 0 && Math.random() < .1) {
 							for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
 								const om = messageList[i];
-								if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && Math.random() < .2) {
+								if(om && om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && Math.random() < .2) {
 									m.answersTo = om;
 									om.answers.push(m);
 									break;
@@ -145,8 +145,9 @@ export const storeDebug = defineStore('debug', {
 						m.is_gift = true;
 						m.gift_count = Math.floor(Math.random() * 20) + 1;
 						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
-						m.is_targetedSubgift = m.gift_count === 1,
-						fakeUser.channelInfo[user.id].totalSubgifts = m.gift_count;
+						m.is_targetedSubgift = m.gift_count === 1;
+						const chanInfo = fakeUser.channelInfo[user.id];
+						if(chanInfo) chanInfo.totalSubgifts = m.gift_count;
 					}else if(Math.random() > .8) {
 						m.is_giftUpgrade = true;
 					}
@@ -158,12 +159,17 @@ export const storeDebug = defineStore('debug', {
 					let bits = 0;
 					const cheerList:string[] = [];
 					do {
-						for (const key in TwitchUtils.cheermoteCache[uid]) {
-							const cheer = TwitchUtils.cheermoteCache[uid][key];
+						const cache = TwitchUtils.cheermoteCache[uid];
+						if(!cache) break;
+						for (const key in cache) {
+							const cheer = cache[key];
+							if(!cheer) continue;
 							const count = cheer.tiers.length;
 							for (let i = 0; i < count; i++) {
 								if(Math.random() > .98) {
-									const value = cheer.tiers[i].min_bits + Math.floor(Math.random()*cheer.tiers[i].min_bits * .99);
+									const tier = cheer.tiers[i];
+									if(!tier) continue;
+									const value = tier.min_bits + Math.floor(Math.random()*tier.min_bits * .99);
 									bits += value;
 									cheerList.push(cheer.prefix+value);
 								}
@@ -446,12 +452,16 @@ export const storeDebug = defineStore('debug', {
 					const conductor_bits = Utils.pickRand(fakeUsers);
 					//Load avatars if necessary
 					if(!conductor_subs.avatarPath) {
-						const profile = await TwitchUtils.getUserInfo([conductor_subs.id]);
-						conductor_subs.avatarPath = profile[0].profile_image_url;
+						const profile = (await TwitchUtils.getUserInfo([conductor_subs.id]))[0];
+						if(profile) {
+							conductor_subs.avatarPath = profile.profile_image_url;
+						}
 					}
 					if(!conductor_bits.avatarPath) {
-						const profile = await TwitchUtils.getUserInfo([conductor_bits.id]);
-						conductor_bits.avatarPath = profile[0].profile_image_url;
+						const profile = (await TwitchUtils.getUserInfo([conductor_bits.id]))[0];
+						if(profile) {
+							conductor_bits.avatarPath = profile.profile_image_url;
+						}
 					}
 
 					const currentValue = Math.round(sum * Math.random());
@@ -714,7 +724,7 @@ export const storeDebug = defineStore('debug', {
 					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
 					const x = Math.round(Math.random()*grid.cols);
 					const y = Math.round(Math.random()*grid.rows);
-					const label = grid.entries[x*y].label || "";
+					const label = grid.entries[x*y]?.label || "";
 					const m:TwitchatDataTypes.MessageBingoGridData = {
 						platform:"twitchat",
 						type,
@@ -849,6 +859,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
 					const stream = streamInfoCache || (await TwitchUtils.getChannelInfo([user.id]))[0];
+					if(!stream) break;
 					streamInfoCache = stream;
 					const m:TwitchatDataTypes.MessageShoutoutData = {
 						platform:"twitch",
@@ -1312,9 +1323,9 @@ export const storeDebug = defineStore('debug', {
 					const level = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
 					userMessage.twitch_hypeChat = {
 						level,
-						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
+						amount:[1.2,6,12,24,60,120,240,360,480,600][level] || 1,
 						currency:Utils.pickRand(["EUR","USD","CHF","CA","GBP"]),
-						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
+						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level] || 30
 					}
 					const m:TwitchatDataTypes.MessageHypeChatData = {
 						platform:"twitch",
@@ -1680,8 +1691,8 @@ export const storeDebug = defineStore('debug', {
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						youtube_liveId:Utils.getUUID(),
-						amount:[1,2,5,10,20,50,100][tier-1],
-						amountDisplay:"$"+[1,2,5,10,20,50,100][tier-1],
+						amount:[1,2,5,10,20,50,100][tier-1] || 1,
+						amountDisplay:"$"+([1,2,5,10,20,50,100][tier-1] || 1),
 						currency:"$",
 						tier,
 					};
@@ -1702,8 +1713,8 @@ export const storeDebug = defineStore('debug', {
 						user:fakeUser,
 						channel_id:uid,
 						youtube_liveId:Utils.getUUID(),
-						amount:[1,2,5,10,20,50,100][tier-1],
-						amountDisplay:"$"+[1,2,5,10,20,50,100][tier-1],
+						amount:[1,2,5,10,20,50,100][tier-1] || 1,
+						amountDisplay:"$"+([1,2,5,10,20,50,100][tier-1] || 1),
 						currency:"$",
 						tier,
 						sticker_url:StickerList[stickerId] || "",
@@ -1949,7 +1960,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP: {
-					const train = StoreProxy.customTrain.customTrainList[0]
+					const train = StoreProxy.customTrain.customTrainList[0];
 					const amount = Math.round(Math.random()*100);
 					const amountLeft = Math.round(Math.random()*100);
 					const m:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
@@ -1960,10 +1971,10 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitchat",
 						trainId:train?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
 						trainName:train?.title || "My custom train",
-						amount,
-						amountFormatted: Utils.formatCurrency(amount, train.currency || "USD"),
+							amount,
+						amountFormatted: Utils.formatCurrency(amount, train?.currency || "USD"),
 						amountLeft,
-						amountLeftFormatted: Utils.formatCurrency(amountLeft, train.currency || "USD"),
+						amountLeftFormatted: Utils.formatCurrency(amountLeft, train?.currency || "USD"),
 						isRecord:Math.random() > .95,
 						level:Math.ceil(Math.random()*15),
 						percent: Math.round(Math.random()*100),
@@ -1985,7 +1996,7 @@ export const storeDebug = defineStore('debug', {
 						trainId:train?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
 						trainName:train?.title || "My custom train",
 						amount,
-						amountFormatted: Utils.formatCurrency(amount, train.currency || "USD"),
+						amountFormatted: Utils.formatCurrency(amount, train?.currency || "USD"),
 						isRecord:Math.random() > .95,
 						level:Math.ceil(Math.random()*15),
 						percent: Math.round(Math.random()*100),
@@ -2328,8 +2339,10 @@ export const storeDebug = defineStore('debug', {
 				];
 
 				for (let i = 0; i < spamTypes.length; i++) {
-					for (let j = 0; j < spamTypes[i].probability; j++) {
-						ponderatedRandomList.push(spamTypes[i].type);
+					const entry = spamTypes[i];
+					if(!entry || !entry.probability) continue;
+					for (let j = 0; j < entry.probability; j++) {
+						ponderatedRandomList.push(entry.type);
 					}
 				}
 			}
@@ -2357,7 +2370,9 @@ export const storeDebug = defineStore('debug', {
 								const users:TwitchatDataTypes.TwitchatUser[] = [];
 								const list = StoreProxy.users.users;
 								for (let i = 0; i < list.length; i++) {
-									users.push(list[i]);
+									const entry = list[i];
+									if(!entry) continue;
+									users.push(entry);
 									if(Math.random() > .3) break;
 								}
 								data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })

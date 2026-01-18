@@ -45,8 +45,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 					this.broadcastStates(event.data.id);
 				}else{
 					//Broadcast all states
-					for (let i = 0; i < this.customTrainList.length; i++) {
-						const entry = this.customTrainList[i];
+					for (const entry of this.customTrainList) {
 						this.broadcastStates(entry.id);
 					}
 				}
@@ -56,8 +55,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 		},
 
 		broadcastStates(id?:string):void {
-			for (let i = 0; i < this.customTrainList.length; i++) {
-				const entry = this.customTrainList[i];
+			for (const entry of this.customTrainList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
 				const state = this.customTrainStates[entry.id];
 				PublicAPI.instance.broadcast(TwitchatEvent.CUSTOM_TRAIN_STATE, {configs:entry, state:state as unknown as JsonObject});
@@ -133,8 +131,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				console.warn("CustomTrain: Ignoring invalid activity amount", amount, "from platform", platform);
 				return;
 			}
-			for (let i = 0; i < this.customTrainList.length; i++) {
-				const train = this.customTrainList[i];
+			for (const train of this.customTrainList) {
 				// Train disabled, ignore it
 				if(!train.enabled) continue;
 				// Platform not enabled, ignore it
@@ -156,6 +153,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				// Schedule train end
 				const scheduleEnd = (isMissedTrain:boolean = false) => {
 					const state = this.customTrainStates[train.id];
+					if(!state) return;
 					if(state.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
 					state.timeoutRef = SetTimeoutWorker.instance.create(()=> {
 						// Function called when train ends
@@ -246,9 +244,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 					let goal = levels[0] || 0;
 					let i = 0;
 					for (i = 1; i < levels.length; i++) {
-						const level = levels[i];
+						const level = levels[i]!;
 						if(level > state.amount || i === levels.length - 1) {
-							offset = levels[i-1];
+							offset = levels[i-1]!;
 							goal = level - offset;
 							break;
 						}
@@ -256,8 +254,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 					return {index:i, offset, goal}
 				}
 
-				if(this.customTrainStates[train.id].activities.length == 0
-				|| this.customTrainStates[train.id].activities.length + 1 == train.approachEventCount) {
+				const trainState = this.customTrainStates[train.id]!;
+				if(trainState.activities.length == 0
+				|| trainState.activities.length + 1 == train.approachEventCount) {
 					// static cooldown to get approaching train or to start it
 					train.expires_at = Date.now() + APPROACHING_TIMEOUT_PER_ACTION;
 					scheduleEnd(true);
@@ -267,8 +266,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 				const prevLevel = currentLevel();
 
 				// Register activity
-				this.customTrainStates[train.id].amount += amount;
-				this.customTrainStates[train.id].activities.push({
+				trainState.amount += amount;
+				trainState.activities.push({
 					id:Utils.getUUID(),
 					platform,
 					amount,
@@ -279,11 +278,11 @@ export const storeCustomTrain = defineStore('customTrain', {
 				// New all time record ?
 				if(!train.testing // Don't register if testing a fake train
 				&& train.allTimeRecord
-				&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
+				&& trainState.amount > train.allTimeRecord.amount) {
 					const levels = train.levelAmounts.concat();
 					levels.unshift(0);
 
-					train.allTimeRecord.amount = this.customTrainStates[train.id].amount;
+					train.allTimeRecord.amount = trainState.amount;
 					train.allTimeRecord.date = Date.now();
 				}
 
@@ -292,7 +291,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				if(newLevel.index !== prevLevel.index) {
 					train.expires_at = Date.now() + train.levelsDuration_s * 1000;
 					scheduleEnd();
-					const amountLeft = Math.ceil(train.levelAmounts[newLevel.index-1] - this.customTrainStates[train.id].amount);
+					const amountLeft = Math.ceil(train.levelAmounts[newLevel.index-1]! - trainState.amount);
 					const amountLeftFormatted = Utils.formatCurrency(amountLeft, train.currency);
 
 					// if(prevLevel.index > 0) {
@@ -304,13 +303,13 @@ export const storeCustomTrain = defineStore('customTrain', {
 							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP,
 							trainId:train.id,
 							trainName:train.title,
-							amount:this.customTrainStates[train.id].amount,
-							amountFormatted:Utils.formatCurrency(this.customTrainStates[train.id].amount, train.currency),
+							amount:trainState.amount,
+							amountFormatted:Utils.formatCurrency(trainState.amount, train.currency),
 							amountLeft,
 							amountLeftFormatted,
 							level:newLevel.index,
-							percent:Math.floor((this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal * 100),
-							isRecord:train.allTimeRecord?.amount === this.customTrainStates[train.id].amount,
+							percent:Math.floor((trainState.amount - newLevel.offset) / newLevel.goal * 100),
+							isRecord:train.allTimeRecord?.amount === trainState.amount,
 						};
 
 						StoreProxy.chat.addMessage(message);
@@ -353,34 +352,35 @@ export const storeCustomTrain = defineStore('customTrain', {
 			await Utils.promisedTimeout(250);
 			if(simulationIDLocal !== simulationID) return;
 			const levels = train.levelAmounts.concat();
+			const firstLevel = levels[0] || 0;
 
 			// Fill required event counts with 1/4 of the first level amount
 			for (let i = 0; i < train.approachEventCount; i++) {
-				this.registerActivity("", "trigger", levels[0]/4/train.approachEventCount);
+				this.registerActivity("", "trigger", firstLevel/4/train.approachEventCount);
 			}
 
 			await Utils.promisedTimeout(500);
 			// Fill another 1/4 of the first level amount for the trigger event count
 			let remaining = Math.max(1, train.triggerEventCount - train.approachEventCount);
 			for (let i = 0; i < remaining; i++) {
-				this.registerActivity("", "trigger", levels[0]/4/remaining);
+				this.registerActivity("", "trigger", firstLevel/4/remaining);
 				await Utils.promisedTimeout(500);
 				if(simulationIDLocal !== simulationID) return;
 			}
 
 			// Fill the rest of the first level
 			await Utils.promisedTimeout(3000);
-			this.registerActivity("", "trigger", levels[0]/4);
+			this.registerActivity("", "trigger", firstLevel/4);
 			await Utils.promisedTimeout(3000);
 			if(simulationIDLocal !== simulationID) return;
-			this.registerActivity("", "trigger", levels[0]/4);
+			this.registerActivity("", "trigger", firstLevel/4);
 			await Utils.promisedTimeout(5000);
 			if(simulationIDLocal !== simulationID) return;
 			await Utils.promisedTimeout(26000);
 			this.registerActivity("", "trigger", 500);
 			for (let i = 1; i < Math.min(levels.length, 3); i++) {
 				let splits = Math.ceil(Math.random() * 5 + 1);
-				const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
+				const goal = levels[i]! - levels[i-1]! * (Math.random() * 0.75 + .25);
 				for (let i = 0; i < splits; i++) {
 					if(simulationIDLocal !== simulationID) return;
 					this.registerActivity("", "trigger", goal/splits);

@@ -67,14 +67,14 @@ export default class UnicodeUtils {
 	private normalizeText(src:string, charTable:{[key:string]:string}, exceptions:string):string {
 		let u:string[] = [];
 		for (let t = this.gSplitter.splitGraphemes(src), m = 0; m < t.length; m++) {
-			const a = t[m];
+			const a = t[m]!;
 			if (exceptions.indexOf(a) != -1) {
 				u.push(a);
 				continue
 			}
 			let found = false;
 			for (const key in charTable) {
-				if (charTable[key].indexOf(a) != -1) {
+				if (charTable[key]!.indexOf(a) != -1) {
 					u.push(key);
 					found = true;
 					break

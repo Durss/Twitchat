@@ -106,8 +106,8 @@ export default class SpotifyHelper {
 		}
 
 		const grantedScopes = this._token.scope.split(" ");
-		for (let i = 0; i < scopes.length; i++) {
-			if (grantedScopes.indexOf(scopes[i]) == -1) {
+		for (const scope of scopes) {
+			if (grantedScopes.indexOf(scope) == -1) {
 				return false;
 			}
 		}
@@ -341,7 +341,7 @@ export default class SpotifyHelper {
 			if(tracks.items.length == 0) {
 				return null;
 			}else{
-				return tracks.items[0];
+				return tracks.items[0]!;
 			}
 		}catch(error) {
 			StoreProxy.music.spotifyConsecutiveErrors ++;
@@ -511,9 +511,9 @@ export default class SpotifyHelper {
 		}
 
 		if(json.item) {
-			let cover = json.item.images?.length > 0? json.item.images[0].url : "";
-			if(json.item.show && json.item.show.images?.length > 0) cover = json.item.show.images[0].url;
-			else if(json.item.album && json.item.album.images?.length > 0) cover = json.item.album.images[0].url;
+			let cover = json.item.images?.length > 0? json.item.images[0]!.url : "";
+			if(json.item.show && json.item.show.images?.length > 0) cover = json.item.show.images[0]!.url;
+			else if(json.item.album && json.item.album.images?.length > 0) cover = json.item.album.images[0]!.url;
 			this.currentTrack = {
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists.map(a=>a.name).join(", "),
@@ -679,8 +679,7 @@ export default class SpotifyHelper {
 
 		let minDist = 10;
 		let selected:SearchPlaylistItem|null = null;
-		for (let i = 0; i < this._playlistsCache.length; i++) {
-			const p = this._playlistsCache[i];
+		for (const p of this._playlistsCache) {
 			if(id === p.id ) return p;
 			if(name){
 				const dist = Utils.levenshtein(name, p.name);
@@ -738,7 +737,7 @@ export default class SpotifyHelper {
 	public getPendingTracksForUser(user:TwitchatDataTypes.TwitchatUser):number {
 		let count = 0;
 		for (const id in this._trackIdToRequest) {
-			const request = this._trackIdToRequest[id];
+			const request = this._trackIdToRequest[id]!;
 			if(request.skip !== true && request.user.id == user.id) count ++;
 		}
 		return count;

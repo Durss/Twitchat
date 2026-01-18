@@ -183,7 +183,7 @@ class BingoGridView extends Vue {
 		let a = [...this.entries, ...this.additionalEntries].filter(v=>new RegExp(this.search.trim(),'gi').test(v.label))
 		for (let i = a.length - 1; i > 0; i--) {
 			const j = Math.floor(this.seededRnd() * (i + 1));
-			[a[i], a[j]] = [a[j], a[i]];
+			[a[i]!, a[j]!] = [a[j]!, a[i]!];
 		}
 		return a;
 	}
@@ -344,14 +344,14 @@ class BingoGridView extends Vue {
 			for (let x = 0; x < this.cols; x++) {
 				let allTicked = true;
 				for (let y = 0; y < this.rows; y++) {
-					allTicked &&= newStates[x + y*this.cols];
+					allTicked &&= newStates[x + y*this.cols]!;
 				}
 				if(allTicked) newVerticalBingos.push(x);
 			}
 			for (let x = 0; x < this.cols; x++) {
 				let allTicked = true;
 				for (let y = 0; y < this.rows; y++) {
-					allTicked &&= prevStates[x + y*this.cols];
+					allTicked &&= prevStates[x + y*this.cols]!;
 				}
 				if(allTicked) prevVerticalBingos.push(x);
 			}
@@ -359,14 +359,14 @@ class BingoGridView extends Vue {
 			for (let y = 0; y < this.rows; y++) {
 				let allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= newStates[x + y*this.cols];
+					allTicked &&= newStates[x + y*this.cols]!;
 				}
 				if(allTicked) newHorizontalBingos.push(y);
 			}
 			for (let y = 0; y < this.rows; y++) {
 				let allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= prevStates[x + y*this.cols];
+					allTicked &&= prevStates[x + y*this.cols]!;
 				}
 				if(allTicked) prevHorizontalBingos.push(y);
 			}
@@ -376,24 +376,24 @@ class BingoGridView extends Vue {
 				//Top left to bottom right
 				let allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= newStates[x + x*this.cols];
+					allTicked &&= newStates[x + x*this.cols]!;
 				}
 				if(allTicked) newDiagonalBingos.push(0);
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= prevStates[x + x*this.cols];
+					allTicked &&= prevStates[x + x*this.cols]!;
 				}
 				if(allTicked) prevDiagonalBingos.push(0);
 
 				//Bottom left to top right
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= newStates[x + (this.cols - 1 - x)*this.cols];
+					allTicked &&= newStates[x + (this.cols - 1 - x)*this.cols]!;
 				}
 				if(allTicked) newDiagonalBingos.push(1);
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= prevStates[x + (this.cols - 1 - x)*this.cols];
+					allTicked &&= prevStates[x + (this.cols - 1 - x)*this.cols]!;
 				}
 				if(allTicked) prevDiagonalBingos.push(1);
 			}
@@ -505,11 +505,11 @@ class BingoGridView extends Vue {
 				|| (x < 0 && x === -y)
 				|| (x > 0 && x === 1-y)){
 					// change direction
-					delta = [-delta[1], delta[0]]
+					delta = [-delta[1]!, delta[0]!];
 				}
 
-				x += delta[0];
-				y += delta[1];
+				x += delta[0]!;
+				y += delta[1]!;
 			}
 
 			const cells = this.$refs.cell as HTMLElement[];
@@ -532,7 +532,7 @@ class BingoGridView extends Vue {
 	 * @param index
 	 */
 	private getCellByCoords(x:number, y:number):{data:TwitchatDataTypes.BingoGridConfig["entries"][number], holder:HTMLElement} {
-		const data = this.entries[x + y*this.cols];
+		const data = this.entries[x + y*this.cols]!;
 		const holder = document.querySelector("[data-cellid=\""+data.id+"\"]") as HTMLElement;
 		return {data, holder};
 	}
@@ -545,7 +545,7 @@ class BingoGridView extends Vue {
 		const stars = this.$refs.stars as SVGElement[];
 		const bounds = ref.getBoundingClientRect();
 		for (let i = 0; i < 10; i++) {
-			const star = stars[(this.starIndex++)%stars.length]
+			const star = stars[(this.starIndex++)%stars.length]!;
 			const left = bounds.x + bounds.width/2;
 			const top = bounds.y + bounds.height/2;
 			const angle = (Math.random()-Math.random()) * 250;
@@ -596,7 +596,7 @@ class BingoGridView extends Vue {
 		let allExisting = true;
 		//Check if one of the current entries is missing from the new grid
 		for (let i = 0; i < this.entries.length; i++) {
-			const entry = this.entries[i];
+			const entry = this.entries[i]!;
 			const source1 = data.grid.entries.find(w => w.id == entry.id);
 			const source2 = (data.grid.additionalEntries || []).find(w => w.id == entry.id);
 			if(!source1 && !source2){
@@ -619,13 +619,13 @@ class BingoGridView extends Vue {
 		if(!e.data) return;
 		const states = e.data.states;
 		for (const cellId in states) {
-			let cell = this.entries.find(cell => cell.id == cellId);
-			if(!cell && this.isModerator) cell = this.additionalEntries.find(cell => cell.id == cellId);
+			let cell = this.entries.find(cell => cell.id == cellId)!;
+			if(!cell && this.isModerator) cell = this.additionalEntries.find(cell => cell.id == cellId)!;
 			if(!cell) continue;
 
 			if(this.isModerator) {
 				cell.enabled = true;
-				cell.check = states[cellId];
+				cell.check = states[cellId]!;
 			}else{
 				//If state was disabled but is now enabled, play a sound
 				if(cell.enabled != states[cellId] && states[cellId]) this.playNotification();
@@ -663,8 +663,7 @@ class BingoGridView extends Vue {
 		let title:string = "Bingo - "+this.title;
 		if(this.$store.public.authenticated && !this.isModerator) {
 			let untickedCells = 0;
-			for (let i = 0; i < this.entries.length; i++) {
-				const entry = this.entries[i];
+			for (const entry of this.entries) {
 				if(entry.enabled && !entry.check) untickedCells ++;
 			}
 			if(untickedCells > 0) title = "("+untickedCells+") "+title;

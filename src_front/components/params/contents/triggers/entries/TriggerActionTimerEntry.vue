@@ -57,7 +57,7 @@ class TriggerActionTimerEntry extends AbstractTriggerActionEntry {
 		if(!this.action.timerData){
 			this.action.timerData = {
 				action:"start",
-				timerId:this.$store.timers.timerList[0].id,
+				timerId:this.$store.timers.timerList[0]!.id,
 			}
 		}
 

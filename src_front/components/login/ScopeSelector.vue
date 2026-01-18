@@ -77,8 +77,7 @@ class ScopeSelector extends Vue {
 
 	public mounted(): void {
 		watch(()=>this.params_all.value, ()=> {
-			for (let i = 0; i < this.param_items.length; i++) {
-				const p = this.param_items[i];
+			for (const p of this.param_items) {
 				if(p.disabled === true) continue;
 				p.value = this.params_all.value;
 			}
@@ -95,12 +94,10 @@ class ScopeSelector extends Vue {
 		clearTimeout(this.debounce);
 		this.debounce = window.setTimeout(()=> {
 			const scopes:string[] = [];
-			for (let i = 0; i < this.param_items.length; i++) {
-				const p = this.param_items[i];
+			for (const p of this.param_items) {
 				if(p.value === true) scopes.push(...p.storage || []);
 			}
-			for (let i = 0; i < this.param_items_requested.length; i++) {
-				const p = this.param_items_requested[i];
+			for (const p of this.param_items_requested) {
 				if(p.value === true) scopes.push(...p.storage || []);
 			}
 			this.$emit("update", scopes);
@@ -120,9 +117,9 @@ class ScopeSelector extends Vue {
 
 		const mandatory = Config.instance.MANDATORY_TWITCH_SCOPES;
 		const userScopes = this.$store.auth.twitch.scopes ?? [];
-		for (let i = 0; i < mandatory.length; i++) {
-			if(userScopes.indexOf(mandatory[i]) == -1) {
-				userScopes.unshift(mandatory[i]);
+		for (const m of mandatory) {
+			if(userScopes.indexOf(m) == -1) {
+				userScopes.unshift(m);
 			}
 		}
 
@@ -137,15 +134,15 @@ class ScopeSelector extends Vue {
 						|| userScopes.length < mandatory.length)
 						&& (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
-		for (let i = 0; i < scopes.length; i++) {
-			const localScopes:TwitchScopesString[] = scopes[i].split("+") as TwitchScopesString[];
+		for (const scope of scopes) {
+			const localScopes:TwitchScopesString[] = scope.split("+") as TwitchScopesString[];
 			const requested = localScopes.filter(s=> this.requestedScopes.indexOf(s) > -1);
 			if(requested.length > 0) {
 				requestedList.push({
 					labelKey:"global.twitch_scopes."+localScopes[0],
 					type:"boolean",
 					value:true,
-					icon:TwitchScope2Icon[localScopes[0]],
+					icon:TwitchScope2Icon[localScopes[0]!],
 					iconTheme:"light",
 					storage:localScopes,
 				});
@@ -157,7 +154,7 @@ class ScopeSelector extends Vue {
 					labelKey:"global.twitch_scopes."+localScopes[0],
 					type:"boolean",
 					value:selected,
-					icon:TwitchScope2Icon[localScopes[0]],
+					icon:TwitchScope2Icon[localScopes[0]!],
 					iconTheme:"light",
 					disabled,
 					storage:localScopes,

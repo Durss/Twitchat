@@ -95,18 +95,17 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 			events.push( {labelKey:v.labelKey, value:v.value} );
 		});
 
-		this.param_actions.value		= this.action.musicAction? this.action.musicAction : events[0].value;
+		this.param_actions.value		= this.action.musicAction? this.action.musicAction : events[0]!.value;
 		this.param_actions.listValues	= events;
 
 		let selections:TwitchatDataTypes.ParameterDataListValue<TriggerActionMusicEntryDataSelection>[] = []
-		for (let i = 0; i < TriggerActionMusicEntryDataSelectionList.length; i++) {
-			const element = TriggerActionMusicEntryDataSelectionList[i];
+		for (const element of TriggerActionMusicEntryDataSelectionList) {
 			selections.push({
 				value:element,
 				labelKey:"triggers.actions.music.param_selection_options."+element,
 			})
 		}
-		this.param_selection.value		= this.action.musicSelectionType? this.action.musicSelectionType : selections[0].value;
+		this.param_selection.value		= this.action.musicSelectionType? this.action.musicSelectionType : selections[0]!.value;
 		this.param_selection.listValues	= selections;
 
 		if(this.action.playlistAddToEnd === undefined) this.action.playlistAddToEnd = true;

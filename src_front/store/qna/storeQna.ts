@@ -68,7 +68,7 @@ export const storeQna = defineStore('qna', {
 				const moderator = await StoreProxy.users.getUserFrom("twitch", me.id, data.moderatorId, undefined, undefined, undefined, undefined, false, undefined, false);
 
 				//Make sure user is a moderator
-				if(!moderator.channelInfo[me.id].is_moderator) return;
+				if(!moderator.channelInfo[me.id]!.is_moderator) return;
 
 				switch(data.action) {
 					case "add_message": {
@@ -99,14 +99,14 @@ export const storeQna = defineStore('qna', {
 				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
 				console.log("Highlighting", event.data?.qnaId, session);
 				if(session) {
-					this.highlightEntry(session.messages[0]);
+					this.highlightEntry(session.messages[0]!);
 				}
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SKIP, (event:TwitchatEvent<{qnaId:string}>) => {
 				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
 				if(session) {
-					this.removeMessageFromSession(session.messages[0], session);
+					this.removeMessageFromSession(session.messages[0]!, session);
 				}
 			});
 
@@ -159,7 +159,7 @@ export const storeQna = defineStore('qna', {
 		stopSession(id:string):void{
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
-			const session = this.activeSessions[index];
+			const session = this.activeSessions[index]!;
 			session.open = false;
 
 			//Execute related triggers
@@ -168,7 +168,7 @@ export const storeQna = defineStore('qna', {
 				date:Date.now(),
 				id:Utils.getUUID(),
 				platform:"twitchat",
-				qnaSession:this.activeSessions[index],
+				qnaSession:this.activeSessions[index]!,
 				type:TwitchatDataTypes.TwitchatMessageType.QNA_STOP,
 			};
 			StoreProxy.chat.addMessage(m);
@@ -180,7 +180,7 @@ export const storeQna = defineStore('qna', {
 		deleteSession(id:string):void{
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
-			const [session] = this.activeSessions.splice(index, 1);
+			const session = this.activeSessions.splice(index, 1)[0]!;
 
 			//Execute related triggers
 			const m:TwitchatDataTypes.MessageQnaDeleteData = {
@@ -203,8 +203,7 @@ export const storeQna = defineStore('qna', {
 			if(session.messages.find(v=>v.message.id === message.id)) return;//Message already added
 
 			let chunks = (JSON.parse(JSON.stringify(message.message_chunks)) || []) as NonNullable<typeof message.message_chunks>;
-			for (let i = 0; i < chunks.length; i++) {
-				const c = chunks[i];
+			for (const c of chunks) {
 				if(c.type == "text") {
 					c.value = c.value.replace(session.command, "");
 					break;
@@ -277,7 +276,7 @@ export const storeQna = defineStore('qna', {
 				const typedMessage = message as TwitchatDataTypes.MessageChatData;
 				if(!typedMessage.answersTo) return;
 				message = typedMessage.answersTo;
-				cmd = (typedMessage.answersTo.message || "").trim().split(" ")[0].toLowerCase();
+				cmd = (typedMessage.answersTo.message || "").trim().split(" ")[0]!.toLowerCase();
 				session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
 				upvoteMode = true;
 			}
@@ -286,7 +285,7 @@ export const storeQna = defineStore('qna', {
 				if(upvoteMode) {
 					const index = session.messages.findIndex(v => v.message.id == message.id);
 					if(index > -1) {
-						session.messages[index].votes ++;
+						session.messages[index]!.votes ++;
 					}
 					if(session.shareWithMods && session.ownerId == StoreProxy.auth.twitch.user.id) {
 						this.shareSessionsWithMods();
@@ -310,9 +309,9 @@ export const storeQna = defineStore('qna', {
 			deleteSpool.push(messageID);
 			deleteDebounce = window.setTimeout(() => {
 				for (let i = 0; i < this.activeSessions.length; i++) {
-					const session = this.activeSessions[i];
+					const session = this.activeSessions[i]!;
 					for (let j = 0; j < session.messages.length; j++) {
-						const m = session.messages[j];
+						const m = session.messages[j]!;
 						const poolIndex = deleteSpool.indexOf(m.message.id);
 						if(poolIndex > -1) {
 							session.messages.splice(j, 1);

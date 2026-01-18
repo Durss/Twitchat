@@ -262,9 +262,8 @@ class ParamsDonate extends Vue {
 		const url = "https://www.paypal.com/sdk/js?client-id="+Config.instance.PAYPAL_CLIENT_ID+"&commit=true&components=buttons&enable-funding=venmo&currency="+this.currency;
 		const scripts = document.getElementsByTagName("script");
 		let existingScript = false;
-		for (let i = 0; i < scripts.length; i++) {
-			const node = scripts[i];
-			if(node.src.indexOf("paypal.com/sdk") > -1) {
+		for (const script of scripts) {
+			if(script.src.indexOf("paypal.com/sdk") > -1) {
 				existingScript = true;
 			}
 		}
@@ -466,9 +465,9 @@ class ParamsDonate extends Vue {
 				heartScale = 0;
 				heartScale2 = 0;
 			}
-			heart[0].style.transform = "translate(0.5em, .2em) scale("+heartScale2+") rotate(40deg)";
-			heart[1].style.transform = "translate(-0.5em, .2em) scale("+heartScale2+") rotate(-40deg)";
-			heart[2].style.transform = "scale("+heartScale+")";
+			heart[0]!.style.transform = "translate(0.5em, .2em) scale("+heartScale2+") rotate(40deg)";
+			heart[1]!.style.transform = "translate(-0.5em, .2em) scale("+heartScale2+") rotate(-40deg)";
+			heart[2]!.style.transform = "scale("+heartScale+")";
 		}else{
 			heart.forEach(v => v.style.transform = "scale(0)");
 		}

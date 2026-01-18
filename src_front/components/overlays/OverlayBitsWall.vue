@@ -145,7 +145,7 @@ class OverlayBitsWall extends AbstractOverlay {
 		}
 
 		while(engine.world.bodies.length > 0) {
-			const b = engine.world.bodies[0];
+			const b = engine.world.bodies[0]!;
 			Matter.Composite.remove(engine.world, b);
 		}
 		this.disposed = true;
@@ -200,7 +200,7 @@ class OverlayBitsWall extends AbstractOverlay {
 			if(this.disposed) return;
 			const scaleOffset = data.pinned? ((data.pinLevel || -1) + 1) / 8 + 1 : 1;
 			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
-			const scale = scales[index] * scaleOffset;
+			const scale = scales[index]! * scaleOffset;
 			
 			this.createCheermote({guid: Utils.getUUID(),index, scale, scaleOriginal:scale, scale_prev:scale, uid:data.user.id, destroyed:false});
 		}
@@ -392,11 +392,9 @@ class OverlayBitsWall extends AbstractOverlay {
 			[{x:36.25, y:0}, {x:36.25, y:128}, {x:145, y:64}],
 		];
 		
-		const density = [.001, .002, .003, .004, .005][index];
-		const frictionAir = [.05, .01, .01, .001, .0][index];
-		const velocity = [10, 20, 30, 40, 50][index];
-		const restitution = [.25, .15, .1, .05, .01][index];
-		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][index || 0];
+		const velocity = [10, 20, 30, 40, 50][index]!;
+		const restitution = [.25, .15, .1, .05, .01][index]!;
+		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][index || 0]!;
 		const margin = document.body.clientWidth / 10;
 		const px = Math.random() * (this.sceneWidth - margin * 2) + margin;
 		const body = Matter.Bodies.fromVertices(px, -200 - Math.random() * 200, path, {
@@ -593,10 +591,10 @@ class OverlayBitsWall extends AbstractOverlay {
 		const rescale = this.globalScale != this.globalScale_prev;
 
 		for (let i = 1; i < engine.world.bodies.length; i++) {
-			const body = engine.world.bodies[i];
+			const body = engine.world.bodies[i]!;
 
 			if(body.label  == "cheermote") {
-				const data = bodyId2Data[body.id];
+				const data = bodyId2Data[body.id]!;
 				
 				const w = body.bounds.max.x - body.bounds.min.x;
 				if(body.position.y > vph + 800
@@ -617,7 +615,7 @@ class OverlayBitsWall extends AbstractOverlay {
 					const scale = data.scale * this.globalScale;
 					const index = data.index;
 					const angle = body.angle - Math.PI/2;
-					const offset = offsets[index] * scale;
+					const offset = offsets[index]! * scale;
 					data.spriteTexture.scale.set(scale, scale);
 					data.spriteTexture.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
 					data.spriteTexture.rotation = body.angle;
@@ -626,7 +624,7 @@ class OverlayBitsWall extends AbstractOverlay {
 					const scale = data.scale * this.globalScale;
 					const index = data.index;
 					const angle = body.angle - Math.PI/2;
-					const offset = offsets[index] * scale;
+					const offset = offsets[index]! * scale;
 					data.spriteDisplace.scale.set(scale, scale);
 					data.spriteDisplace.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
 					data.spriteDisplace.rotation = body.angle;

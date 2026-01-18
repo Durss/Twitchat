@@ -249,15 +249,15 @@ class TriggerCreateForm extends Vue {
 		}
 
 		//Extract available trigger categories
-		let currCat = triggerTypeList[0].trigger!.category;
+		let currCat = triggerTypeList[0]!.trigger!.category;
 		let catEvents:TriggerTypeDefinition[] = [];
 		for (let i = 0; i < triggerTypeList.length; i++) {
-			const ev = triggerTypeList[i];
+			const ev = triggerTypeList[i]!;
 			if(!ev.trigger) continue;
 			if(ev.trigger.category != currCat || i === triggerTypeList.length-1) {
 				if(i === triggerTypeList.length-1) catEvents.push(ev.trigger);
 				const cat:TriggerCategory = {
-					category:catEvents[0].category,
+					category:catEvents[0]!.category,
 					events:catEvents,
 				};
 				this.eventCategories.push(cat);
@@ -461,7 +461,7 @@ class TriggerCreateForm extends Vue {
 
 				//Load filters for all items
 				for (let i = 0; i < list.length; i++) {
-					const item = list[i];
+					const item = list[i]!;
 					let filters = await OBSWebsocket.instance.getSourceFilters(item.value);
 					if(filters.length === 0) {
 						list.splice(i, 1);

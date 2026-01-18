@@ -146,7 +146,7 @@ export default class MessengerProxy {
 		const d = e.data as TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData;
 		if(e.type === MessengerClientEvent.JOIN) {
 			for (let i = 0; i < d.users.length; i++) {
-				this.joinSpool.push({user:d.users[i], channelId:d.channel_id});
+				this.joinSpool.push({user:d.users[i]!, channelId:d.channel_id});
 			}
 
 			clearTimeout(this.joinSpoolTimeout);
@@ -155,23 +155,23 @@ export default class MessengerProxy {
 
 				//Split join events by channels
 				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
-				for (let i = 0; i < this.joinSpool.length; i++) {
-					const entry = this.joinSpool[i];
+				for (const entry of this.joinSpool) {
 					if(!channels[entry.channelId]) channels[entry.channelId] = [];
-					channels[entry.channelId].push(entry.user);
+					channels[entry.channelId]!.push(entry.user);
 				}
 
 				//Send one message per channel
 				for (const channel in channels) {
-					this.onMessage(new MessengerClientEvent("JOIN", {
+					const joinData:TwitchatDataTypes.MessageJoinData = {
 						platform:d.platform,
 						type:TwitchatDataTypes.TwitchatMessageType.JOIN,
 						id:Utils.getUUID(),
 						channel_id:channel,
 						date:Date.now(),
-						users:channels[channel],
-					}));
-					StoreProxy.users.flagOnlineUsers(channels[channel], channel);
+						users:channels[channel]!,
+					};
+					this.onMessage(new MessengerClientEvent("JOIN", joinData));
+					StoreProxy.users.flagOnlineUsers(channels[channel]!, channel);
 				}
 
 				this.joinSpool = [];
@@ -179,7 +179,7 @@ export default class MessengerProxy {
 		}
 
 		if(e.type === MessengerClientEvent.LEAVE) {
-			this.leaveSpool.push({user:d.users[0], channelId:d.channel_id});
+			this.leaveSpool.push({user:d.users[0]!, channelId:d.channel_id});
 
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = window.setTimeout(()=> {
@@ -188,23 +188,23 @@ export default class MessengerProxy {
 
 					//Split leave events by channels
 					const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
-					for (let i = 0; i < this.leaveSpool.length; i++) {
-						const entry = this.leaveSpool[i];
+					for (const entry of this.leaveSpool) {
 						if(!channels[entry.channelId]) channels[entry.channelId] = [];
-						channels[entry.channelId].push(entry.user);
+						channels[entry.channelId]!.push(entry.user);
 					}
 
 					//Send one message per channel
 					for (const channel in channels) {
-						this.onMessage(new MessengerClientEvent("LEAVE", {
+						const joinData:TwitchatDataTypes.MessageLeaveData = {
 							platform:d.platform,
 							type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
 							id:Utils.getUUID(),
 							channel_id:channel,
 							date:Date.now(),
-							users:channels[channel],
-						}));
-						StoreProxy.users.flagOfflineUsers(channels[channel], channel);
+							users:channels[channel]!,
+						};
+						this.onMessage(new MessengerClientEvent("LEAVE", joinData));
+						StoreProxy.users.flagOfflineUsers(channels[channel]!, channel);
 					}
 
 					this.leaveSpool = [];
@@ -239,8 +239,7 @@ export default class MessengerProxy {
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
 		const triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
-		for (let i = 0; i < triggerCommands.length; i++) {
-			const t = triggerCommands[i];
+		for (const t of triggerCommands) {
 			if(cmd == t.chatCommand!.toLowerCase()) {
 				if(!chunks) chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 				const messageData:TwitchatDataTypes.MessageChatData = {
@@ -269,7 +268,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/countdown") {
 			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			entry.duration_ms = duration * 1000;
 			StoreProxy.timers.timerStart(entry.id);
 			return true;
@@ -277,14 +276,14 @@ export default class MessengerProxy {
 
 		if(cmd == "/countdownadd") {
 			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownremove") {
 			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
 			return true;
 		}else
@@ -315,14 +314,14 @@ export default class MessengerProxy {
 
 		if(cmd == "/timeradd") {
 			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/timerremove") {
 			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
 			return true;
 		}else
@@ -425,7 +424,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/so" || cmd == "/shoutout") {
 			//Make a shoutout
-			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
+			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
 				await StoreProxy.users.shoutout(StoreProxy.stream.currentChatChannel.id, user);
 			});
 			return true;
@@ -448,7 +447,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/userinfo" || cmd == "/user") {
-			if(!params[0]) {
+			if(!params[0]!) {
 				const notice:TwitchatDataTypes.MessageNoticeData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -460,7 +459,7 @@ export default class MessengerProxy {
 				}
 				StoreProxy.chat.addMessage(notice);
 			}else{
-				let username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+				let username = params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 				if(params.length > 1) {
 					const channelRef = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[1]);
 					channelId = channelRef.id;
@@ -472,11 +471,11 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/userfromid") {
-			const res = await TwitchUtils.getUserInfo([params[0]]);
+			const res = await TwitchUtils.getUserInfo([params[0]!]);
 			if(res.length === 0) {
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
 			}else{
-				const userInfo = res[0];
+				const userInfo = res[0]!;
 				const user = StoreProxy.users.getUserFrom("twitch", me.id, userInfo.id, userInfo.login, userInfo.display_name);
 				StoreProxy.users.openUserCard(user, channelId, "twitch");
 			}
@@ -489,7 +488,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/ttsoff" || cmd == "/tts") {
-			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+			const username = params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
 				const res = await TwitchUtils.getUserInfo(undefined, [username]);
 				if(res.length == 0) {
@@ -504,7 +503,7 @@ export default class MessengerProxy {
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{
-					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name, undefined, undefined, false, undefined, false);
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0]!.login, res[0]!.display_name, undefined, undefined, false, undefined, false);
 					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
 				}
 			}catch(error) {}
@@ -517,12 +516,12 @@ export default class MessengerProxy {
 		}else
 
 		if(isAdmin && cmd == "/betaadd") {
-			StoreProxy.admin.addBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			StoreProxy.admin.addBetaUser(params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
 		if(isAdmin && cmd == "/betadel") {
-			StoreProxy.admin.removeBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			StoreProxy.admin.removeBetaUser(params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
@@ -532,17 +531,17 @@ export default class MessengerProxy {
 		}else
 
 		if(isAdmin && cmd == "/betamigrate") {
-			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			StoreProxy.admin.migrateUserDataToProd(params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
 		if(isAdmin && cmd == "/giftpremium") {
-			StoreProxy.admin.giftPremium(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			StoreProxy.admin.giftPremium(params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
 		if(isAdmin && cmd == "/ungiftpremium") {
-			StoreProxy.admin.ungiftPremium(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			StoreProxy.admin.ungiftPremium(params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
@@ -557,7 +556,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/greetduration") {
-			const duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]!);
 			StoreProxy.params.setGreetThemAutoDelete(duration);
 			return true;
 		}else
@@ -565,7 +564,7 @@ export default class MessengerProxy {
 		if(cmd == "/startraffle") {
 			const list = StoreProxy.raffle.raffleList;
 			if(list.length == 0) return true;
-			await StoreProxy.raffle.pickWinner(list[0].sessionId || "");
+			await StoreProxy.raffle.pickWinner(list[0]!.sessionId || "");
 			return true;
 		}else
 
@@ -582,7 +581,7 @@ export default class MessengerProxy {
 		if(cmd == "/setstreamcategory") {
 			const categories = await TwitchUtils.searchCategory(params.join(" "));
 			if(categories.length > 0) {
-				await TwitchUtils.setStreamInfos(channelId, undefined, categories[0].id);
+				await TwitchUtils.setStreamInfos(channelId, undefined, categories[0]!.id);
 			}
 			return true;
 		}else
@@ -597,17 +596,17 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/monitor") {
-			TwitchUtils.setSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "ACTIVE_MONITORING")
+			TwitchUtils.setSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "ACTIVE_MONITORING")
 			return true;
 		}else
 
 		if(cmd == "/restrict") {
-			TwitchUtils.setSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "RESTRICTED")
+			TwitchUtils.setSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "RESTRICTED")
 			return true;
 		}else
 
 		if(cmd == "/unmonitor" || cmd == "/unrestrict") {
-			TwitchUtils.unsetSuspiciousUser(channelId, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, ""))
+			TwitchUtils.unsetSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""))
 			return true;
 		}else
 
@@ -623,8 +622,8 @@ export default class MessengerProxy {
 			};
 			if(params[0] == "number") {
 				if(params.length < 3
-				|| parseInt(params[1]).toString() != params[1]
-				|| parseInt(params[2]).toString() != params[2]){
+				|| parseInt(params[1]!).toString() != params[1]
+				|| parseInt(params[2]!).toString() != params[2]){
 					StoreProxy.common.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}else{
@@ -641,7 +640,7 @@ export default class MessengerProxy {
 					StoreProxy.common.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}
-				if(params.length > 2 && parseInt(params[1]).toString() === params[1]) {
+				if(params.length > 2 && parseInt(params[1]!).toString() === params[1]) {
 					payload.customValueTolerance = Math.min(5, Math.max(0, parseInt(params[1]))) ?? 3;
 					payload.customValue = params.slice(2).join(" ");
 				}else{
@@ -705,13 +704,13 @@ export default class MessengerProxy {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
 			if(params[0] && params[0] != "true" && params[0] != "false") {
-				user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
+				user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]!);
 				if(!user) return true;
 			}
 			const done = params[0] === "true" || params[1] === "true";
-			if(done) user.channelInfo[channelId].lastShoutout = Date.now();
+			if(done) user.channelInfo[channelId]!.lastShoutout = Date.now();
 			const userInfos = await TwitchUtils.getUserInfo([user.id]);
-			user.avatarPath = userInfos[0].profile_image_url;
+			user.avatarPath = userInfos[0]!.profile_image_url;
 			if(!StoreProxy.users.pendingShoutouts[channelId]) {
 				StoreProxy.users.pendingShoutouts[channelId] = [];
 			}
@@ -728,11 +727,11 @@ export default class MessengerProxy {
 			for (let i = 0; i < 10; i++) {
 				const user = Utils.pickRand(fakeUsers);
 				const userInfos = await TwitchUtils.getUserInfo([user.id]);
-				user.avatarPath = userInfos[0].profile_image_url;
+				user.avatarPath = userInfos[0]!.profile_image_url;
 				if(!StoreProxy.users.pendingShoutouts[channelId]) {
 					StoreProxy.users.pendingShoutouts[channelId] = [];
 					//Set the SO date offset for this user to now
-					user.channelInfo[channelId].lastShoutout = Date.now();
+					user.channelInfo[channelId]!.lastShoutout = Date.now();
 				}
 				StoreProxy.users.pendingShoutouts[channelId]!.push({
 					id:Utils.getUUID(),
@@ -760,8 +759,8 @@ export default class MessengerProxy {
 			clearInterval(this.spamInterval);
 
 			const incMode = params[0] == "inc";
-			let count = parseInt(params[0]);
-			const countMode = params.length > 0 && count.toString().length == params[0].length;
+			let count = parseInt(params[0]!);
+			const countMode = params.length > 0 && count.toString().length == params[0]!.length;
 			let spamDelay = cmd == "/megaspam"? 50 : 200;
 			//Check if spamming only a specific count of messages
 			if(countMode) {
@@ -786,13 +785,13 @@ export default class MessengerProxy {
 				const users = await TwitchUtils.getFakeUsers();
 				channelSources.push({
 					color:"#e04e00",
-					name:users[0].displayName,
-					pic:users[0].avatarPath,
+					name:users[0]!.displayName,
+					pic:users[0]!.avatarPath,
 				});
 				channelSources.push({
 					color:"#2eb200",
-					name:users[1].displayName,
-					pic:users[1].avatarPath,
+					name:users[1]!.displayName,
+					pic:users[1]!.avatarPath,
 				});
 				params.shift();
 			}
@@ -825,7 +824,7 @@ export default class MessengerProxy {
 						//Force a specific reward via "/spam reward {REWARD_ID}"
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {
-							const rewardId = params[1];
+							const rewardId = params[1]!;
 							const reward = StoreProxy.rewards.rewardList.find(v=>v.id == rewardId);
 							if(reward) {
 								m.reward = {
@@ -884,7 +883,7 @@ export default class MessengerProxy {
 		}else
 
 		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {
-			const count = parseInt(params[0]) || 1;
+			const count = parseInt(params[0]!) || 1;
 			for (let i = 0; i < count; i++) {
 				StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
 			}
@@ -916,13 +915,13 @@ export default class MessengerProxy {
 			}else{
 				let users:TwitchDataTypes.UserInfo[] = [];
 				try {
-					users = await TwitchUtils.getUserInfo(undefined, [params[0]]);
+					users = await TwitchUtils.getUserInfo(undefined, [params[0]!]);
 				}catch(error) {}
 
 				if(users.length == 0) {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
-					const res = await ApiHelper.call("user/data", "GET", {uid:users[0].id}, false);
+					const res = await ApiHelper.call("user/data", "GET", {uid:users[0]!.id}, false);
 					if(res.status === 200) {
 						if(cmd === "/loaduserdata") {
 							DataStore.loadFromJSON(res.json.data);
@@ -979,7 +978,7 @@ export default class MessengerProxy {
 		const chunks = param.split(/[^a-z0-9_]+/gi).filter(v => v != "");
 		let duration = 0;
 		for(let i = 0; i < chunks.length; i++) {
-			const value = parseInt(chunks[i]);
+			const value = parseInt(chunks[i]!);
 			let coeff = chunks.length - i;
 			if(coeff > 1) coeff = Math.pow(60, coeff-1);
 			duration += value * coeff;

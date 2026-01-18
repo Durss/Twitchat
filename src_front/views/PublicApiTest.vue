@@ -152,8 +152,8 @@ class PublicApiTest extends Vue {
 					if(obj) {
 						obj.active = true;
 						obj.data = e.data;
+						this.eventList.unshift(obj);//Bring to top
 					}
-					this.eventList.unshift(obj);//Bring to top
 				}catch(error) {
 					console.log(error)
 				}

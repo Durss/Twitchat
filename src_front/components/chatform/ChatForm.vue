@@ -557,12 +557,12 @@ export class ChatForm extends Vue {
 	}
 
 	public get announcementTitle():TwitchatDataTypes.ParseMessageChunk[] {
-		const title = this.announcement!.title[this.$i18n.locale] || this.announcement!.title["en"];
+		const title = this.announcement!.title[this.$i18n.locale] || this.announcement!.title["en"]!;
 		return TwitchUtils.parseMessageToChunks(title, undefined, true);
 	}
 
 	public get announcementMessage():TwitchatDataTypes.ParseMessageChunk[] {
-		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"];
+		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"]!;
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
@@ -574,8 +574,7 @@ export class ChatForm extends Vue {
 
 	public get isActiveTimer():boolean {
 		const defaults = this.$store.timers.timerList
-		for (let i = 0; i < defaults.length; i++) {
-			const entry = defaults[i];
+		for (const entry of defaults) {
 			if(entry.startAt_ms) return true;
 		}
 
@@ -609,7 +608,7 @@ export class ChatForm extends Vue {
 	public get whispersAvailable():boolean {
 		const whispers = this.$store.chat.whispers;
 		for (const key in whispers) {
-			if (whispers[key].messages.length > 0) return true;
+			if (whispers[key]!.messages.length > 0) return true;
 		}
 		return false;
 	}
@@ -666,8 +665,7 @@ export class ChatForm extends Vue {
 	public get pinnedMenuItems() {
 		const items = this.$store.params.pinnedMenuItems;
 		const result:{item:typeof TwitchatDataTypes.PinnableMenuItems[number], icon:string, tooltip:string}[] = [];
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
+		for (const item of items) {
 			const menuItem = this.getPinnedMenuItemFromId(item);
 			if(!menuItem) continue;
 			if(!this.getMenuItemEnabled(menuItem)) continue;
@@ -816,8 +814,7 @@ export class ChatForm extends Vue {
 			const res = await fetch(Config.instance.API_PATH+"/announcements", options);
 			if(res.status == 200) {
 				const json:TwitchatDataTypes.TwitchatAnnouncementData[] = await res.json() || [];
-				for (let i = 0; i < json.length; i++) {
-					const a = json[i];
+				for (const a of json) {
 					//Check if announcement already read
 					if(history[a.id] === true) continue;
 					//Check if version is valid
@@ -838,7 +835,7 @@ export class ChatForm extends Vue {
 					if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
 					//Allow only important alerts if requested
 					if(onlyImportant && a.important !== true) continue;
-					this.announcement = json[i];
+					this.announcement = a;
 				}
 				let historyUpdated = false;
 				//Remove ids from old deleted messages to avoid keeping useless data on localstorage
@@ -910,9 +907,7 @@ export class ChatForm extends Vue {
 		let onlineCount = 0;
 		const chanId = this.$store.stream.currentChatChannel.id;
 		const users = this.$store.users.users;
-		for (let i = 0; i < users.length; i++) {
-			const u = users[i];
-
+		for (const u of users) {
 			if(!u.channelInfo[chanId]) continue;
 			if(u.channelInfo[chanId].online === true) {
 				onlineCount ++;
@@ -955,7 +950,7 @@ export class ChatForm extends Vue {
 
 		if(cmd == "/cypherkey") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
-			this.$store.main.setCypherKey(params[0]);
+			this.$store.main.setCypherKey(params[0]!);
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
 			noticeMessage = "Cypher key successfully configured !";
 			this.message = "";
@@ -1066,7 +1061,7 @@ export class ChatForm extends Vue {
 		if(cmd == "/__import__") {
 			this.loading = true;
 			try {
-				const result = await ApiHelper.call("user/settingsPreset", "GET", {name:params[0]}, false);
+				const result = await ApiHelper.call("user/settingsPreset", "GET", {name:params[0]!}, false);
 				if(result.json.success) {
 					this.$emit("update:showSettingsImport", result.json.data);
 				}else{
@@ -1290,7 +1285,7 @@ export class ChatForm extends Vue {
 				this.sendHistoryIndex += e.key == "ArrowUp"? -1 : 1;
 				this.sendHistoryIndex = Math.min(this.sendHistory.length, Math.max(0, this.sendHistoryIndex));
 				if(this.sendHistoryIndex >= this.sendHistory.length) this.message = "";
-				else this.message = this.sendHistory[this.sendHistoryIndex];
+				else this.message = this.sendHistory[this.sendHistoryIndex]!;
 			}
 		}
 		if(e.key == "ArrowUp" || e.key == "ArrowDown") e.preventDefault();
@@ -1406,8 +1401,7 @@ export class ChatForm extends Vue {
 	 */
 	private onUpdateTrackedUserList():void {
 		const res = [];
-		for (let i = 0; i < this.$store.users.users.length; i++) {
-			const u = this.$store.users.users[i];
+		for (const u of this.$store.users.users) {
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUserCount = res.length;

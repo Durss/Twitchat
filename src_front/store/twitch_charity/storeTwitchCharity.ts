@@ -23,7 +23,10 @@ export const storeTwitchCharity = defineStore('switchcharity', {
 
 	actions: {
 		async populateData():Promise<void> {
-			[this.currentCharity] = await TwitchUtils.getCharityList(StoreProxy.auth.twitch.user.id);
+			const result = await TwitchUtils.getCharityList(StoreProxy.auth.twitch.user.id);
+			if(result && result.length > 0) {
+				this.currentCharity = result[0]!;
+			}
 			this.updateLabels();
 		},
 

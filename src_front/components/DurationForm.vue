@@ -159,7 +159,7 @@ class DurationForm extends Vue {
 					index += dir;
 					if(index > inputs.length-1) index = 0;
 					if(index < 0) index = inputs.length-1;
-					(inputs[index].$el as HTMLSpanElement).focus();
+					(inputs[index]!.$el as HTMLSpanElement).focus();
 				}
 			}
 		}

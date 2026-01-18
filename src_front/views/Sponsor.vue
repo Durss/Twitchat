@@ -47,7 +47,7 @@ class Sponsor extends Vue {
 	public async mounted():Promise<void> {
 		const refs = ["backBt"];
 		for (let i = 0; i < refs.length; i++) {
-			let el = this.$refs[refs[i]] as HTMLElement | ComponentPublicInstance;
+			let el = this.$refs[refs[i]!] as HTMLElement | ComponentPublicInstance;
 			if((el as ComponentPublicInstance).$el) el = (el as ComponentPublicInstance).$el as HTMLElement;
 			const delay = i*.1+.5;
 			gsap.fromTo(el, {opacity:0, y:-20, scale:.85},

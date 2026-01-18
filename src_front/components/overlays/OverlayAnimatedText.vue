@@ -273,8 +273,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 				case "typewriter": {
 					let delay = 0;
-					for (let i = 0; i < chars.length; i++) {
-						const char = chars[i];
+					for (const char of chars) {
 						char.style.opacity = "0";
 						window.setTimeout(()=>{
 							char.style.opacity = "1";
@@ -311,7 +310,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				case "bounce": {
 					chars.forEach(v=>v.style.transformOrigin = "bottom center");
 					for (let i = 0; i < chars.length; i++) {
-						const char = chars[i];
+						const char = chars[i]!;
 						gsap.fromTo(
 							char,
 							{ y: "-100%", scaleX:1-amp/2*.5, scaleY: 2*amp, opacity: 0 },
@@ -516,8 +515,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 						let placed = Array(chars.length).fill(false);
 						for (let i = 0; i < chars.length; i++) {
 							// if(i < chars.length-1) continue
-							const char = chars[i];
-							const target = points[i];
+							const char = chars[i]!;
+							const target = points[i]!;
 							let currX = parseFloat(char.style.left) + bounds.left;
 							let currY = parseFloat(char.style.top) + bounds.top;
 
@@ -581,26 +580,26 @@ class OverlayAnimatedText extends AbstractOverlay {
 						};
 					});
 					chars.forEach((char, index) => {
-						const point = points[index]
+						const point = points[index]!;
 						char.style.left = point.x+"px";
 						char.style.top = point.y+"px";
 						char.style.position = "fixed";
 						char.style.willChange = "transform";
 					});
 
-					const lastCharBounds = chars[chars.length-1].getBoundingClientRect().width;
+					const lastCharBounds = chars[chars.length-1]!.getBoundingClientRect().width;
 					const renderFrame = () => {
 						this.raf = requestAnimationFrame(() => renderFrame());
 						scroll += scrollSpeed*(sizeRatio/2+1);
 
 						for (let i = 0; i < chars.length; i++) {
 							// if(i == 1) break;
-							const char = chars[i];
-							const target = points[i];
+							const char = chars[i]!;
+							const target = points[i]!;
 							let currX = parseFloat(char.style.left) + bounds.left;
 							let currY = parseFloat(char.style.top) + bounds.top;
-							currX = points[i].x + (Math.cos(target.angle+Math.PI)+1)/2 * ((2-amp) + (amp*4+10)) - scroll;
-							currY = points[i].y + Math.sin(target.angle) * amp * 10 * Math.pow(sizeRatio,2);
+							currX = points[i]!.x + (Math.cos(target.angle+Math.PI)+1)/2 * ((2-amp) + (amp*4+10)) - scroll;
+							currY = points[i]!.y + Math.sin(target.angle) * amp * 10 * Math.pow(sizeRatio,2);
 							target.angle += target.freq;
 							char.style.left = `${currX - bounds.left}px`;
 							char.style.top = `${currY - bounds.top}px`;
@@ -671,8 +670,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 				case "typewriter": {
 					let maxDelay = 0;
-					for (let i = 0; i < chars.length; i++) {
-						const char = chars[i];
+					for (const char of chars) {
 						const delay = ads * (Math.random() * Math.random() * .5);
 						maxDelay = Math.max(maxDelay, delay);
 						window.setTimeout(()=>{
@@ -705,7 +703,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				case "bounce": {
 					chars.forEach(v=>v.style.transformOrigin = "bottom center");
 					for (let i = 0; i < chars.length; i++) {
-						const char = chars[i];
+						const char = chars[i]!;
 						let delay = i * 0.05 * ads + .1 * ads;
 						gsap.to(
 							char,
@@ -776,8 +774,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 				case "neon": {
 					let maxDelay = 0;
-					for (let i = 0; i < chars.length; i++) {
-						const char = chars[i];
+					for (const char of chars) {
 						const delay = ads * (Math.random() * Math.random() * .5);
 						maxDelay = Math.max(maxDelay, delay);
 						window.setTimeout(()=>{
@@ -843,7 +840,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						};
 					});
 					chars.forEach((char, index) => {
-						const point = points[index]
+						const point = points[index]!;
 						char.style.left = point.x+"px";
 						char.style.top = point.y+"px";
 						char.style.position = "fixed";
@@ -856,8 +853,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 						let placed = Array(chars.length).fill(false);
 						for (let i = 0; i < chars.length; i++) {
 							// if(i == 1) break;
-							const char = chars[i];
-							const target = points[i];
+							const char = chars[i]!;
+							const target = points[i]!;
 							let currX = parseFloat(char.style.left) + bounds.left;
 							let currY = parseFloat(char.style.top) + bounds.top;
 							currX += Math.cos(target.dir) * target.speed;

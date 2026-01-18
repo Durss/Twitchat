@@ -155,7 +155,7 @@ export const storeTipeee = defineStore('tipeee', {
 					try {
 						let codeLength = 0;
 						for (; codeLength < event.data.length; codeLength++) {
-							if(!/[0-9]/.test(event.data[codeLength])) break;
+							if(!/[0-9]/.test(event.data[codeLength]!)) break;
 						}
 						const code = event.data.substring(0, codeLength);
 						const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), "") || "{}");

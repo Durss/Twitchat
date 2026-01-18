@@ -28,21 +28,21 @@
 								<strong>{{ $t('triggers.actions.common.action_http') }}</strong>
 							</template>
 							<template #TRIGGER_NAME>
-								<mark v-tooltip="currentTrigger.tooltip">{{ currentTrigger.triggerInfo?.label }}</mark>
+								<mark v-tooltip="currentTrigger!.tooltip">{{ currentTrigger!.triggerInfo?.label }}</mark>
 							</template>
 						</i18n-t>
 						<TriggerActionEntry
 							noHeaderOptions
 							class="httpAction"
 							:readonly="false"
-							:action="currentTrigger.action"
+							:action="currentTrigger!.action"
 							:index="0"
 							:obsScenes="[]"
 							:obsSources="[]"
 							:obsInputs="[]"
 							:rewards="[]"
 							:extensions="[]"
-							:triggerData="currentTrigger.trigger" />
+							:triggerData="currentTrigger!.trigger" />
 						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
 						<span class="gap"></span>
 						<span v-html="$t('migrationFix.change2')"></span>
@@ -50,27 +50,27 @@
 							noHeaderOptions
 							class="jsonAction"
 							:readonly="false"
-							:action="currentTrigger.jsonAction"
+							:action="currentTrigger!.jsonAction"
 							:index="0"
 							:obsScenes="[]"
 							:obsSources="[]"
 							:obsInputs="[]"
 							:rewards="[]"
 							:extensions="[]"
-							:triggerData="currentTrigger.trigger" />
+							:triggerData="currentTrigger!.trigger" />
 						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
 					</div>
 
 					<Splitter theme="secondary">{{ $t('migrationFix.splitter_summary') }}</Splitter>
 					<div class="summary">
 						<ul>
-							<li>{{ $t('migrationFix.summary.call') }}<mark>{{ currentTrigger.action.url }}</mark></li>
-							<li>{{ $t('migrationFix.summary.save') }}<mark>{{ currentTrigger.action.outputPlaceholder }}</mark></li>
+							<li>{{ $t('migrationFix.summary.call') }}<mark>{{ currentTrigger!.action.url }}</mark></li>
+							<li>{{ $t('migrationFix.summary.save') }}<mark>{{ currentTrigger!.action.outputPlaceholder }}</mark></li>
 							<li>
-								<span>{{ $t('migrationFix.summary.extract') }}<mark>{{ currentTrigger.action.outputPlaceholder }}</mark></span>
+								<span>{{ $t('migrationFix.summary.extract') }}<mark>{{ currentTrigger!.action.outputPlaceholder }}</mark></span>
 								<ul>
 									<i18n-t scope="global" keypath="migrationFix.summary.json" tag="li"
-									v-for="p in currentTrigger.jsonAction.jsonExtractData.outputPlaceholderList" :key="p.placeholder">
+									v-for="p in currentTrigger!.jsonAction.jsonExtractData.outputPlaceholderList" :key="p.placeholder">
 										<template #JSON_PATH>
 											<mark>{{ p.path }}</mark>
 										</template>
@@ -168,13 +168,13 @@ class MigrationFixerModal extends Vue {
 
 	public acceptChanges():void {
 		const triggerList = this.$store.triggers.triggerList;
-		const entry = this.$store.main.httpMigrationFixData[this.triggerIndex];
+		const entry = this.$store.main.httpMigrationFixData[this.triggerIndex]!;
 
 		const trigger = triggerList.find(t => t.id == entry.triggerId);
 		if(trigger) {
 			const action = trigger.actions.find(t => t.id == entry.httpActionId) as TriggerActionHTTPCallData;
 			action.outputPlaceholder = "HTTP_RESULT";
-			trigger.actions.splice(trigger.actions.indexOf(action)+1, 0, this.triggers[this.triggerIndex].jsonAction);
+			trigger.actions.splice(trigger.actions.indexOf(action)+1, 0, this.triggers[this.triggerIndex]!.jsonAction);
 			this.$store.triggers.saveTriggers();
 			DataStore.save(true);
 		}

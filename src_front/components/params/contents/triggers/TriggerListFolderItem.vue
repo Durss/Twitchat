@@ -204,14 +204,14 @@ class TriggerListFolderItem extends Vue {
 		//We keep track of the number of over/leaved child to know if we're
 		//still over the element or not
 		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		this.dragCounter[entry.id] ++;
+		this.dragCounter[entry.id]! ++;
 		(event.currentTarget as HTMLElement).classList.add("over");
 	}
 
 	public onDragLeave(event:MouseEvent, entry:TriggerListFolderEntry):void {
 		if(this.draggedEntry == entry) return;
 		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		if(--this.dragCounter[entry.id] < 1) {
+		if(--this.dragCounter[entry.id]! < 1) {
 			this.dragCounter[entry.id] = 0;
 			(event.currentTarget as HTMLElement).classList.remove("over");
 		}

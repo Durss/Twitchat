@@ -382,7 +382,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				//Split first and second word with a space, split the next words with a dot.
 				const chunks = login.split(" ");
 				if(chunks.length > 1) {
-					login = chunks.map((v,i)=> i == 0? v+" " : v[0].toUpperCase()+".").join("");
+					login = chunks.map((v,i)=> i == 0? v+" " : v[0]!.toUpperCase()+".").join("");
 					login = login.substring(0, login.length-1);
 					v.login = login;
 				}
@@ -428,11 +428,11 @@ class OverlayEndingCredits extends AbstractOverlay {
 			if(params.uniqueUsers === true) {
 				let usersDoneStickers:{[login:string]:typeof tmp[number]} = {};
 				for (let i = 0; i < tmp.length; i++) {
-					const item = tmp[i];
+					const item = tmp[i]!;
 					if(!usersDoneStickers[item.login]) usersDoneStickers[item.login] = item;
 					else if(item.stickerUrl) {
-						usersDoneStickers[item.login].amount += item.amount;
-						usersDoneStickers[item.login].stickerUrlList.push(item.stickerUrl);
+						usersDoneStickers[item.login]!.amount += item.amount;
+						usersDoneStickers[item.login]!.stickerUrlList.push(item.stickerUrl);
 						tmp.splice(i,1);
 						i--;
 					}
@@ -467,22 +467,22 @@ class OverlayEndingCredits extends AbstractOverlay {
 			let usersDoneGifts:{[login:string]:typeof tmp[number]} = {};
 			let imageDoneGifts:{[key:string]:true} = {};
 			for (let i = 0; i < tmp.length; i++) {
-				const item = tmp[i];
+				const item = tmp[i]!;
 				const dedupeKey = item.imageUrl+"____"+item.uid;
 
 				if(!usersDoneGifts[item.login]) usersDoneGifts[item.login] = item;
 				else if(item.imageUrl) {
-					usersDoneGifts[item.login].count += item.count;
-					usersDoneGifts[item.login].amount += item.amount;
+					usersDoneGifts[item.login]!.count += item.count;
+					usersDoneGifts[item.login]!.amount += item.amount;
 					//Only show the same gift once for the same user if merging gifts by users
 					if(imageDoneGifts[dedupeKey] != true) {
-						usersDoneGifts[item.login].imageUrlList.push(item.imageUrl);
+						usersDoneGifts[item.login]!.imageUrlList.push(item.imageUrl);
 					}
 					tmp.splice(i,1);
 					i--;
 				}
 				imageDoneGifts[dedupeKey] = true;
-				usersDoneGifts[item.login].cumulatedAmount += item.amount * item.count;
+				usersDoneGifts[item.login]!.cumulatedAmount += item.amount * item.count;
 			}
 		}
 		res = tmp;
@@ -558,10 +558,10 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(params.uniqueUsers === true) {
 			let usersDoneEmote:{[login:string]:typeof emotes[number]} = {};
 			for (let i = 0; i < emotes.length; i++) {
-				const item = emotes[i];
+				const item = emotes[i]!;
 				if(!usersDoneEmote[item.login]) usersDoneEmote[item.login] = item;
 				else if(item.emoteUrl) {
-					usersDoneEmote[item.login].emoteUrlList.push(item.emoteUrl);
+					usersDoneEmote[item.login]!.emoteUrlList.push(item.emoteUrl);
 					emotes.splice(i,1);
 					i--;
 				}
@@ -569,10 +569,10 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 			let usersDoneAnims:{[login:string]:typeof anims[number]} = {};
 			for (let i = 0; i < anims.length; i++) {
-				const item = anims[i];
+				const item = anims[i]!;
 				if(!usersDoneAnims[item.login]) usersDoneAnims[item.login] = item;
 				else {
-					usersDoneAnims[item.login].count ++;
+					usersDoneAnims[item.login]!.count ++;
 					anims.splice(i,1);
 					i--;
 				}
@@ -615,8 +615,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 				}
 				done[v.reward.id] = res.push(entry) -1 ;
 			}
-			let index = done[v.reward.id];
-			const entry = res[index];
+			let index = done[v.reward.id]!;
+			const entry = res[index]!;
 			entry.total ++;
 			//Save all users linked to the current entry to the main reward entry
 			let user = entry.users.find(w=>v.uid == w.uid);
@@ -644,8 +644,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 	public getMonthsDurationlabel(duration:number):string {
 		const [singular, plural] = this.data!.labels.sub_duration.split(" | ");
-		let template = singular;
-		if(duration > 1 && plural) template = plural;
+		let template = singular!;
+		if(duration > 1 && plural) template = plural!;
 		return template.replace(/\{MONTHS\}/gi, duration.toString());
 	}
 
@@ -695,7 +695,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	 * @param item
 	 */
 	public getEntryCountForSlot(item:TwitchatDataTypes.EndingCreditsSlotParams):number {
-		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id];
+		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id]!;
 		let count = 0;
 		switch(item.slotType) {
 			case "hypechats": count = this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
@@ -889,15 +889,14 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 		const result:T[] = [];
 		const keyToUniqueItem:{[key:string]:T} = {};
-		for (let i = 0; i < values.length; i++) {
-			const v = values[i];
-			const key = v[mergeKey];
+		for (const v of values) {
+			const key = v[mergeKey] as string;
 			const val = v[valueKey];
-			if(keyToUniqueItem[key as string] != undefined) {
-				(keyToUniqueItem[key as string][valueKey] as number) += val as number;
+			if(keyToUniqueItem[key] != undefined) {
+				(keyToUniqueItem[key]![valueKey] as number) += val as number;
 			}else{
 				const clone = JSON.parse(JSON.stringify(v));
-				keyToUniqueItem[key as string] = clone;
+				keyToUniqueItem[key] = clone;
 				result.push(clone);
 			}
 		}
@@ -963,7 +962,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			closestItemIndex = closestItemIndex % lists.length;
 			if(closestItemIndex < 0) closestItemIndex = lists.length + closestItemIndex;
 			//Animate holder's position
-			const bounds = lists[closestItemIndex].getBoundingClientRect();
+			const bounds = lists[closestItemIndex]!.getBoundingClientRect();
 			const tween = {y:0};
 			const offset = this.posY;
 			gsap.to(tween, {y:bounds.y - targetYPos, duration: 1, ease:"sine.inOut", onUpdate:()=>{
@@ -1062,7 +1061,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				const vh = document.body.clientHeight;
 				let py = vh + 300;
 				emotes.forEach((imgTag, index)=>{
-					const props = this.powerUpEmoteProps[index];
+					const props = this.powerUpEmoteProps[index]!;
 					const behind = props.behind;
 					let px = Math.random() * (vw - 112*props.scale) + 112*props.scale*.5;
 					imgTag.style.left = px + "px";
@@ -1275,11 +1274,11 @@ class OverlayEndingCredits extends AbstractOverlay {
 			powerups = Utils.shuffle(powerups).splice(0, 50);
 
 			for (let i = 0; i < powerups.length; i++) {
-				if(!powerups[i].emoteUrl) continue;
+				if(!powerups[i]!.emoteUrl) continue;
 				const behind = Math.random()>.2;
 				const maxSpeed = behind? .5 : 1;
 				this.powerUpEmoteProps.push({
-					image:powerups[i].emoteUrl!,
+					image:powerups[i]!.emoteUrl!,
 					behind,
 					angle:(Math.random()-Math.random()) * 360,
 					speedRatio:Math.random()*maxSpeed+.75,

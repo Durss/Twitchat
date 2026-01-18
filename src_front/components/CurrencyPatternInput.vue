@@ -46,8 +46,8 @@ class CurrencyPatternInput extends Vue {
 	public mounted(){
 		const match = this.modelValue.trim().match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
 		if(match){
-			this.prefix = match[1];
-			this.suffix = match[2];
+			this.prefix = match[1]!;
+			this.suffix = match[2]!;
 		}
 	}
 

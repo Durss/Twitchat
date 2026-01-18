@@ -46,9 +46,8 @@ export const storeValues = defineStore('values', {
 
 		editValueParams(id:string, data:Partial<TwitchatDataTypes.ValueData>):void {
 			let prevValue = "";
-			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i].id == id) {
-					const d = this.valueList[i];
+			for (const d of this.valueList) {
+				if(d!.id == id) {
 					prevValue = d.value;
 					if(data.value) d.value = data.value;
 					if(data.name) d.name = data.name;
@@ -86,14 +85,14 @@ export const storeValues = defineStore('values', {
 				if(num !== null && !isNaN(num)) value = num.toString();
 			}
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i].id == id) {
-					const entry = this.valueList[i];
+				if(this.valueList[i]!.id == id) {
+					const entry = this.valueList[i]!;
 
 					if(entry.perUser) {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
 						if(uid) {
-							prevValue = entry.users![uid]?.value;
+							prevValue = entry.users![uid]?.value || "";
 							entry.users![uid] = {
 								value: value,
 								platform: user?.platform || entry.users![uid]?.platform || "twitch",
@@ -135,8 +134,8 @@ export const storeValues = defineStore('values', {
 
 		deleteValueEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i].id == id) {
-					const entry = this.valueList[i];
+				if(this.valueList[i]!.id == id) {
+					const entry = this.valueList[i]!;
 					if(entry.perUser) {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
@@ -151,7 +150,7 @@ export const storeValues = defineStore('values', {
 
 		delValue(data:TwitchatDataTypes.ValueData):void {
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i].id == data.id) {
+				if(this.valueList[i]!.id == data.id) {
 					this.valueList.splice(i, 1);
 					break;
 				}
@@ -160,8 +159,7 @@ export const storeValues = defineStore('values', {
 
 			// Delete triggers related to the deleted value
 			const triggers = StoreProxy.triggers.triggerList;
-			for (let i = 0; i < triggers.length; i++) {
-				const t = triggers[i];
+			for (const t of triggers) {
 				if(t.valueId === data.id){
 					StoreProxy.triggers.deleteTrigger(t.id);
 				}

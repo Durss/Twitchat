@@ -52,7 +52,7 @@ class ChatPollState extends Vue {
 		let totalVotes = 0;
 		if(this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {
-				totalVotes += this.poll.choices[i].votes;
+				totalVotes += this.poll.choices[i]!.votes;
 			}
 		}
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);

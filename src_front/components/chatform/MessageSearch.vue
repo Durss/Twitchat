@@ -94,8 +94,7 @@ class MessageSearch extends AbstractSidePanel {
 
 		const list = this.$store.chat.messages.concat();
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (let i = 0; i < list.length; i++) {
-			const m = list[i];
+		for (const m of list) {
 			if(m.type != "message") continue;
 			//Remove any HTML tag to avoid wrong search results
 			const text = Utils.stripHTMLTags(m.message);

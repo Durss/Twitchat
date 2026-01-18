@@ -34,7 +34,7 @@
 								:tabindex="index + 2"
 								:placeholder="$t('prediction.form.answer_placeholder')"
 								@change="onValueChange()">
-							<div class="len">{{answers[index].length}}/25</div>
+							<div class="len">{{answers[index]!.length}}/25</div>
 						</div>
 						<TTButton :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
 							icon="cross"
@@ -122,13 +122,13 @@ class PredictionForm extends AbstractSidePanel {
 	}
 
 	public get canSubmit():boolean {
-		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;
+		return this.title.length > 1 && this.answers[0]!.length > 0 && this.answers[1]!.length > 0;
 	}
 
 	public get filledCount():number {
 		let filledCount = 0;
 		for (let i = 0; i < this.answers.length; i++) {
-			if(this.answers[i].length > 0) filledCount++;
+			if(this.answers[i]!.length > 0) filledCount++;
 		}
 		return filledCount;
 	}
@@ -136,7 +136,7 @@ class PredictionForm extends AbstractSidePanel {
 	public getAnswerClasses(index:number):string[] {
 		const res = ["answer"];
 		if(this.filledCount < 3 && index == 1) res.push("red");
-		if(index > 1 && this.answers[index].length==0) res.push("disabled");
+		if(index > 1 && this.answers[index]!.length==0) res.push("disabled");
 		return res;
 	}
 
@@ -155,7 +155,7 @@ class PredictionForm extends AbstractSidePanel {
 				this.param_duration.value = this.action.predictionData.voteDuration;
 				this.title = this.action.predictionData.title;
 				for (let i = 0; i < this.action.predictionData.answers.length; i++) {
-					this.answers[i] = this.action.predictionData.answers[i];
+					this.answers[i] = this.action.predictionData.answers[i]!;
 				}
 			}else{
 				this.onValueChange();
@@ -190,14 +190,14 @@ class PredictionForm extends AbstractSidePanel {
 		watch(()=>this.answers, ()=> {
 			let emptyCount = 0;
 			for (let i = 0; i < this.answers.length; i++) {
-				if(this.answers[i].length === 0) emptyCount++;
+				if(this.answers[i]!.length === 0) emptyCount++;
 			}
 			if(emptyCount == 0 && this.answers.length < Config.instance.MAX_PREDICTION_OUTCOMES) {
 				this.answers.push("");
 			}else if(emptyCount > 1 && this.answers.length > 2) {
 				while(emptyCount > 1) {
 					for (let i = 0; i < this.answers.length; i++) {
-						if(this.answers[i].length === 0) {
+						if(this.answers[i]!.length === 0) {
 							this.answers.splice(i, 1);
 							emptyCount--;
 							break;

@@ -56,7 +56,7 @@ class ChatChatPollResult extends AbstractChatMessage {
 		let totalVotes = 0;
 		if(this.messageData.poll.choices) {
 			for (let i = 0; i < this.messageData.poll.choices.length; i++) {
-				totalVotes += this.messageData.poll.choices[i].votes;
+				totalVotes += this.messageData.poll.choices[i]!.votes;
 			}
 		}
 		const percent = o.votes/Math.max(1,totalVotes);
@@ -67,8 +67,7 @@ class ChatChatPollResult extends AbstractChatMessage {
 
 	public beforeMount(): void {
 		let max = 0;
-		for (let i = 0; i < this.messageData.poll.choices.length; i++) {
-			const e = this.messageData.poll.choices[i];
+		for (const e of this.messageData.poll.choices) {
 			if(e.votes >= max) max = e.votes;
 		}
 		this.maxVotesValue = max;

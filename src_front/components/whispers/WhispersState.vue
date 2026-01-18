@@ -7,7 +7,7 @@
 
 		<div class="content" v-if="isConversation">
 			<div class="messageList" ref="messageList">
-				<div v-for="m in $store.chat.whispers[selectedUserId].messages" :key="m.id" :class="messageClasses(m)">
+				<div v-for="m in $store.chat.whispers[selectedUserId]!.messages" :key="m.id" :class="messageClasses(m)">
 					<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{getTime(m)}}</span>
 					<div class="text">
 						<ChatMessageChunksParser :chunks="m.message_chunks" :channel="m.channel_id" :platform="m.platform" />
@@ -78,17 +78,17 @@ class WhispersState extends AbstractSidePanel {
 
 	public get currentUser():TwitchatDataTypes.TwitchatUser {
 		//TODO Is this thing necessary?
-		return this.$store.chat.whispers[this.selectedUserId].messages.find(v=> v.user.id == this.selectedUserId)!.user;
+		return this.$store.chat.whispers[this.selectedUserId]!.messages.find(v=> v.user.id == this.selectedUserId)!.user;
 	}
 
 	public getCorrespondant(uid:string):TwitchatDataTypes.TwitchatUser {
-		const whispers = this.$store.chat.whispers[uid];
+		const whispers = this.$store.chat.whispers[uid]!;
 		const me = this.$store.auth.twitch.user.id;
 		return whispers.to.id == me? whispers.from : whispers.to;
 	}
 
 	public beforeMount():void {
-		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0];
+		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0]!;
 		this.$store.chat.whispersUnreadCount = 0;
 		watch(()=>this.selectedUserId, async ()=>{
 			//Force scroll for a few frames in case there are
@@ -138,7 +138,7 @@ class WhispersState extends AbstractSidePanel {
 	public deleteWhispers(uid:string):void {
 		this.$store.chat.closeWhispers(uid);
 		if(this.selectedUserId == uid && this.isConversation) {
-			this.selectedUserId = Object.keys(this.$store.chat.whispers)[0];
+			this.selectedUserId = Object.keys(this.$store.chat.whispers)[0]!;
 		}
 		if(!this.isConversation) this.close();
 	}

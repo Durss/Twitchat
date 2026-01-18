@@ -16,10 +16,10 @@
 						@click.prevent="openUserCard(u)"
 						v-for="u in currentChan.users[key]" :key="u.id">
 							<Icon name="unfollow" v-if="canListFollowers && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
-							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
-								<Icon v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
+							<div v-if="currentChanId && u.channelInfo[currentChanId]!.is_banned" class="icon">
+								<Icon v-if="currentChanId && u.channelInfo[currentChanId]!.banEndDate"
 									name="timeout"
-									v-tooltip="getBanDuration(u.channelInfo[currentChanId])" />
+									v-tooltip="getBanDuration(u.channelInfo[currentChanId]!)" />
 								<Icon v-else name="ban" v-tooltip="$t('userlist.banned_tt')" />
 							</div>
 							<span>{{u.displayName}}</span>
@@ -67,7 +67,7 @@ class UserList extends Vue {
 	public channels:{[key:string]:ChannelUserList} = {};
 	public currentChanId:string = "";
 
-	public get currentChan():ChannelUserList { return this.channels[this.currentChanId]; }
+	public get currentChan():ChannelUserList { return this.channels[this.currentChanId]!; }
 	public get canListFollowers():boolean { return this.$store.params.appearance.highlightNonFollowers.value === true && TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	private debounceTo:number = -1;
@@ -80,7 +80,7 @@ class UserList extends Vue {
 		validIds.push(this.$store.auth.twitch.user.id);
 
 		for (const uid in this.channels) {
-			const chan = this.channels[uid];
+			const chan = this.channels[uid]!;
 			
 			//Not connected to chan anymore? Skip entry
 			if(validIds.findIndex(v=>v == uid) == -1) continue;
@@ -91,7 +91,7 @@ class UserList extends Vue {
 	}
 
 	public getRole(key:string):string {
-		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
+		return (this.$tm("userlist.roles") as {[key:string]:string})[key]!;
 	}
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
@@ -179,11 +179,11 @@ class UserList extends Vue {
 			const userList = this.$store.users.users;
 			
 			const channels:{[key:string]:ChannelUserList} = {};
-			for (let i = 0; i < userList.length; i++) {
-				const user = userList[i];
+			for (const user of userList) {
 			
 				for (const chan in user.channelInfo) {
-					if(user.channelInfo[chan].online && user.temporary !== true && user.errored !== true) {
+					const chanInfo = user.channelInfo[chan];
+					if(chanInfo && chanInfo.online && user.temporary !== true && user.errored !== true) {
 						if(!channels[chan]) {
 							channels[chan] = {
 								channelId:chan,
@@ -199,10 +199,10 @@ class UserList extends Vue {
 							}
 						}
 						const chanData = channels[chan];
-						if(user.channelInfo[chan].is_broadcaster) chanData.users.broadcaster = [user];
+						if(chanInfo && chanInfo.is_broadcaster) chanData.users.broadcaster = [user];
 						else if(user.is_bot) chanData.users.bots.push(user);
-						else if(user.channelInfo[chan].is_moderator) chanData.users.mods.push(user);
-						else if(user.channelInfo[chan].is_vip) chanData.users.vips.push(user);
+						else if(chanInfo && chanInfo.is_moderator) chanData.users.mods.push(user);
+						else if(chanInfo && chanInfo.is_vip) chanData.users.vips.push(user);
 						//Removed because not accurate as I don't load subscriber state everytime.
 						//To date, the subscriber state is only given when user talks on chat
 						// else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
@@ -213,7 +213,7 @@ class UserList extends Vue {
 	
 			for (const chan in channels) {
 				//Sort users by their names
-				const chanData = channels[chan].users;
+				const chanData = channels[chan]!.users;
 				type keys = keyof typeof chanData;
 				for (const cat in chanData) {
 					chanData[cat as keys].sort((a,b) => {

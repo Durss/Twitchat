@@ -116,9 +116,9 @@ class ParamsDonorList extends Vue {
 		const res:{uid:string, v:number, login:string, index:number}[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = {
-							uid:items[i].uid,
-							v:items[i].v,
-							login:users.find(v => v.id === items[i].uid)?.display_name || this.$t("donor.anon"),
+							uid:items[i]!.uid,
+							v:items[i]!.v,
+							login:users.find(v => v.id === items[i]!.uid)?.display_name || this.$t("donor.anon"),
 							index:res.length + this.itemList.length,
 						};
 			res.push(item)
@@ -132,15 +132,15 @@ class ParamsDonorList extends Vue {
 		const meUID = StoreProxy.auth.twitch.user.id;
 		this.mePos = -1;
 		for (let i = 0; i < this.localList.length; i++) {
-			const e = this.localList[i];
+			const e = this.localList[i]!;
 			if(!lvl2Count[e.v]) lvl2Count[e.v] = 0;
-			lvl2Count[e.v] ++;
+			lvl2Count[e.v]! ++;
 			if(e.uid === meUID) this.mePos = i;
 		}
 
 		const res:{level:number, count:number}[] = [];
 		for (const level in lvl2Count) {
-			res.push({level:parseInt(level), count:lvl2Count[level]});
+			res.push({level:parseInt(level), count:lvl2Count[level]!});
 		}
 		this.badges = res.reverse();
 	}

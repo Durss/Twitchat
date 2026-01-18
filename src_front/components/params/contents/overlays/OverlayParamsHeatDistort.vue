@@ -127,8 +127,10 @@ class OverlayParamsHeatDistort extends Vue {
 		});
 
 		this.$nextTick().then(()=> {
-			const holder = this.$refs["distortion_"+id] as ComponentPublicInstance[];
-			gsap.from(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.out", clearProps:"all"});
+			const holdeList = this.$refs["distortion_"+id] as ComponentPublicInstance[];
+			const holder = holdeList[0];
+			if(!holder) return;
+			gsap.from(holder.$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.out", clearProps:"all"});
 		})
 	}
 
@@ -182,8 +184,10 @@ class OverlayParamsHeatDistort extends Vue {
 	}
 
 	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
-		const holder = this.$refs["distortion_"+data.id] as ComponentPublicInstance[];
-		gsap.to(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
+		const holdeList = this.$refs["distortion_"+data.id] as ComponentPublicInstance[];
+		const holder = holdeList[0];
+		if(!holder) return;
+		gsap.to(holder.$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
 			(async()=> {
 				this.$store.heat.deleteDistorsion(data);
 			})();

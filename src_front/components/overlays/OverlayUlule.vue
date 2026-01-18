@@ -64,8 +64,8 @@ class OverlayUlule extends Vue {
 				if(goals) {
 					let customGoals = goals.split(/[^a-z0-9_]+/gi).map(v=> parseInt(v)).filter(v=> !isNaN(v)).sort((a,b)=>a-b);
 					for (let i = 1; i < customGoals.length; i++) {
-						const g = customGoals[i];
-						const gP = customGoals[i-1];
+						const g = customGoals[i]!;
+						const gP = customGoals[i-1]!;
 						if(gP <= this.value && g > this.value) {
 							this.currentGoal = g;
 							break;

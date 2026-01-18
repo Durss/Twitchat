@@ -303,7 +303,7 @@ export const storeParams = defineStore('params', {
 			if(chatColConfs) {
 				this.chatColumnsConfig = JSON.parse(chatColConfs);
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
-					this.chatColumnsConfig[i].id = Utils.getUUID();
+					this.chatColumnsConfig[i]!.id = Utils.getUUID();
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
 			}
@@ -312,7 +312,7 @@ export const storeParams = defineStore('params', {
 			if(this.chatColumnsConfig.findIndex(v=>v.showGreetHere === true) == -1) {
 				let col = this.chatColumnsConfig.find(v=>v.showPanelsHere === true);
 				if(!col) {
-					col = this.chatColumnsConfig[0];
+					col = this.chatColumnsConfig[0]!;
 					col.showPanelsHere = true;
 				}
 				col.showGreetHere = true;
@@ -371,7 +371,7 @@ export const storeParams = defineStore('params', {
 		addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig {
 			let order = 0;
 			if(this.chatColumnsConfig?.length > 0) {
-				order = this.chatColumnsConfig[this.chatColumnsConfig.length-1].order + 1;
+				order = this.chatColumnsConfig[this.chatColumnsConfig.length-1]!.order + 1;
 			}
 			const col:TwitchatDataTypes.ChatColumnsConfig = {
 				id:Utils.getUUID(),
@@ -446,7 +446,7 @@ export const storeParams = defineStore('params', {
 				const index = this.chatColumnsConfig.findIndex(v=>v.order==after.order);
 				this.chatColumnsConfig.splice(index+1, 0, col);
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
-					this.chatColumnsConfig[i].order = i;
+					this.chatColumnsConfig[i]!.order = i;
 				}
 			}else{
 				this.chatColumnsConfig.push(col);
@@ -464,7 +464,7 @@ export const storeParams = defineStore('params', {
 
 			let decrement = false;
 			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
-				const e = this.chatColumnsConfig[i];
+				const e = this.chatColumnsConfig[i]!;
 				if(e == column) {
 					this.chatColumnsConfig.splice(i, 1);
 					decrement = true;
@@ -474,8 +474,8 @@ export const storeParams = defineStore('params', {
 			}
 			//Move "greet them" and "panels" to the last col if they were enabled
 			//on the deleted col
-			if(column.showPanelsHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showPanelsHere = true;
-			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showGreetHere = true;
+			if(column.showPanelsHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1]!.showPanelsHere = true;
+			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1]!.showGreetHere = true;
 
 			this.saveChatColumnConfs();
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
@@ -483,8 +483,7 @@ export const storeParams = defineStore('params', {
 
 		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void {
 			const newPos = column.order + direction;
-			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
-				const c = this.chatColumnsConfig[i];
+			for (const c of this.chatColumnsConfig) {
 				if(c.order == newPos) {
 					c.order -= direction;
 					break;

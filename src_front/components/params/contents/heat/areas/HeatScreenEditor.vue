@@ -171,9 +171,9 @@ class HeatScreenEditor extends Vue {
 
 		const [areaIndex, pointIndex] = this.getSegmentUnderPoint(event.x, event.y);
 
-		if(areaIndex > -1) {
+		if(areaIndex && pointIndex && areaIndex > -1) {
 			console.log("INTERSECTION FOUND");
-			this.currentArea = this.screen.areas[areaIndex];
+			this.currentArea = this.screen.areas[areaIndex]!;
 			this.currentPointIndex = pointIndex;
 			this.currentArea.points.splice(pointIndex, 0, {x, y});
 
@@ -304,11 +304,10 @@ class HeatScreenEditor extends Vue {
 
 			if(addX != 0 || addY != 0) {
 				if(this.currentPointIndex > -1) {
-					this.currentArea.points[this.currentPointIndex].x += addX;
-					this.currentArea.points[this.currentPointIndex].y += addY;
+					this.currentArea.points[this.currentPointIndex]!.x += addX;
+					this.currentArea.points[this.currentPointIndex]!.y += addY;
 				}else {
-					for (let i = 0; i < this.currentArea.points.length; i++) {
-						const point = this.currentArea.points[i];
+					for (const point of this.currentArea.points) {
 						point.x += addX;
 						point.y += addY;
 					}
@@ -347,7 +346,7 @@ class HeatScreenEditor extends Vue {
 		const [areaIndex, pointIndex] = this.getSegmentUnderPoint(event.x, event.y);
 
 		this.editMode = null;
-		if(areaIndex > -1 && pointIndex > -1) this.editMode = "append";
+		if(areaIndex && pointIndex && areaIndex > -1 && pointIndex > -1) this.editMode = "append";
 
 		if(this.draggedPoint) {
 			//Move a single point
@@ -369,8 +368,7 @@ class HeatScreenEditor extends Vue {
 			if(centroid.y + offsetY > bounds.height) offsetY += bounds.height - (centroid.y + offsetY);
 
 			//Move all points
-			for (let i = 0; i < this.draggedArea.points.length; i++) {
-				const point = this.draggedArea.points[i];
+			for (const point of this.draggedArea.points) {
 				point.x += offsetX/bounds.width;
 				point.y += offsetY/bounds.height;
 			}
@@ -395,12 +393,12 @@ class HeatScreenEditor extends Vue {
 		let minDist = Number.MAX_SAFE_INTEGER;
 
 		for (let i = 0; i < this.screen.areas.length; i++) {
-			const area = this.screen.areas[i];
+			const area = this.screen.areas[i]!;
 			//Parse all points going 1 beyond to also check segment between last and first point
 			for (let j = 1; j < area.points.length+1; j++) {
-				const prevP = area.points[j-1];
+				const prevP = area.points[j-1]!;
 				//Make sure we loop the index to check segment between last and first point
-				const point = area.points[j % area.points.length];
+				const point = area.points[j % area.points.length]!;
 				//Compute size of the segment
 				const dist = Math.sqrt(Math.pow(point.x * 1920 - prevP.x * 1920, 2) + Math.pow(point.y * 1080 - prevP.y * 1080, 2));
 				//Compute distance between start point and cusrsor
@@ -427,8 +425,8 @@ class HeatScreenEditor extends Vue {
 		let cy = 0;
 		const n = points.length;
 		for (let i = 0; i < n; i++) {
-			cx += points[i].x;
-			cy += points[i].y;
+			cx += points[i]!.x;
+			cy += points[i]!.y;
 		}
 		cx /= n;
 		cy /= n;

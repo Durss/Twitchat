@@ -41,9 +41,9 @@
 						<mark class="game">{{s.game_name}}</mark>
 
 						<div class="roomSettings">
-							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
-							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
-							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id]!.subOnly == true">{{ $t("raid.sub_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id]!.followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id]!.emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
 							<mark class="info" v-if="s.user_id === lastRaidedUserID">{{ $t("raid.last_raided_user") }}</mark>
 							<mark class="info" v-if="getLastRaidElapsedDuration(s.user_id)">{{ $t("raid.last_raid_date", {DATE:getLastRaidElapsedDuration(s.user_id)}) }}</mark>
 						</div>
@@ -107,7 +107,7 @@ class LiveFollowings extends AbstractSidePanel {
 
 	public get lastRaidedUserID():string {
 		if(this.$store.stream.raidHistory.length == 0) return "";
-		return this.sortedRaidHistory[0].uid;
+		return this.sortedRaidHistory[0]!.uid;
 	}
 
 	public get sortedRaidHistory() {
@@ -175,14 +175,14 @@ class LiveFollowings extends AbstractSidePanel {
 			await this.$nextTick();
 			const cards = this.$refs.streamCard as HTMLDivElement[] || [];
 			for (let i = 0; i < cards.length; i++) {
-				gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
+				gsap.from(cards[i]!, {duration:.25, opacity:0, y:-20, delay:i*.02})
 			}
 
 			for (let i = 0; i < res.length; i++) {
 				if(this.disposed) break;
-				TwitchUtils.getRoomSettings(res[i].user_id).then(roomSettings => {
+				TwitchUtils.getRoomSettings(res[i]!.user_id).then(roomSettings => {
 					if(roomSettings) {
-						this.roomSettings[res[i].user_id] = roomSettings;
+						this.roomSettings[res[i]!.user_id] = roomSettings;
 					}
 				});
 				// const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);

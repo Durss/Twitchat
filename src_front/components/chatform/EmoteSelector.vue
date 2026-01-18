@@ -151,10 +151,8 @@ class EmoteSelector extends Vue {
 	public get filteredEmotes():TwitchatDataTypes.Emote[] {
 		let res:TwitchatDataTypes.Emote[] = [];
 		const s = this.filter.toLowerCase();
-		for (let i = 0; i < this.filteredUsers.length; i++) {
-			const u = this.filteredUsers[i];
-			for (let j = 0; j < u.emotes.length; j++) {
-				const e = u.emotes[j];
+		for (const u of this.filteredUsers) {
+			for (const e of u.emotes) {
 				if(e.code.toLowerCase().indexOf(s) > -1) {
 					res.push(e);
 				}
@@ -201,8 +199,7 @@ class EmoteSelector extends Vue {
 			const tmpList = await TwitchUtils.getUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
 
-			for (let i = 0; i < tmpList.length; i++) {
-				const u = tmpList[i];
+			for (const u of tmpList) {
 				const user = this.$store.users.getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
 				user.avatarPath = tmpList.find(v=>v.id == user.id)!.profile_image_url;
 				userList.push(user);
@@ -215,7 +212,7 @@ class EmoteSelector extends Vue {
 			//Build a fast access object to know the index of a user from their ID.
 			const uidToIndex:{[key:string]:number} = {};
 			for (let i = 0; i < userList.length; i++) {
-				uidToIndex[ userList[i].id ] = i;
+				uidToIndex[ userList[i]!.id ] = i;
 			}
 
 			//Add global emotes
@@ -240,9 +237,8 @@ class EmoteSelector extends Vue {
 
 			//Build emotes list for each sorted user
 			const sets:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
-			for (let i = 0; i < emotes.length; i++) {
-				const e = emotes[i];
-				const index = uidToIndex[e.owner!.id];
+			for (const e of emotes) {
+				const index = uidToIndex[e.owner!.id]!;
 				if(!sets[ index ]) {
 					sets[ index ] = {
 						user:userList.find(v => v.id == e.owner!.id)!,
@@ -364,7 +360,7 @@ class EmoteSelector extends Vue {
 	 */
 	public scrollTo(user:TwitchatDataTypes.TwitchatUser):void {
 		const [holder] = this.$refs["user_"+user.id] as  HTMLDivElement[];
-		holder.scrollIntoView();
+		holder!.scrollIntoView();
 	}
 
 	/**
@@ -424,7 +420,7 @@ class EmoteSelector extends Vue {
 	private buildNextUser():void {
 		if(this.buildOffset >= this.users.length) return;
 
-		const u = this.users[this.buildOffset];
+		const u = this.users[this.buildOffset]!;
 		this.buildTimeout = window.setTimeout(()=>{
 			this.buildOffset ++;
 			this.buildNextUser();

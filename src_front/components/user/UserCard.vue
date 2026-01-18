@@ -391,10 +391,11 @@ class UserCard extends AbstractSidePanel {
 		if(!this.user) return [];
 		let res:{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] = [];
 		for (const uid in this.user!.channelInfo) {
-			if(this.user.channelInfo[uid].is_banned !== true) continue;
+			const chanInfo = this.user!.channelInfo[uid];
+			if(!chanInfo || chanInfo.is_banned !== true) continue;
 			let entry:{user:TwitchatDataTypes.TwitchatUser, duration?:number} = {user:this.$store.users.getUserFrom(this.platform, uid, uid)}
-			if(this.user.channelInfo[uid].banEndDate) {
-				const duration = this.user.channelInfo[uid].banEndDate! - Date.now();
+			if(chanInfo.banEndDate) {
+				const duration = chanInfo.banEndDate! - Date.now();
 				if(duration > 0) entry.duration = duration;
 			}
 			res.push(entry)
@@ -540,7 +541,7 @@ class UserCard extends AbstractSidePanel {
 			const loadFromLogin = user.login != this.$store.users.tmpDisplayName && !user.errored && !user.temporary;
 			const users = await TwitchUtils.getUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
-				const u = users[0];
+				const u = users[0]!;
 				const chanInfo = user.channelInfo[this.channel!.id];
 				user.login = u.login;
 				user.displayName = u.display_name;
@@ -563,20 +564,20 @@ class UserCard extends AbstractSidePanel {
 				if(chanInfo && chanInfo.badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
-					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
+					user.channelInfo[this.channel!.id]!.badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
 				}
-				if(chanInfo) this.badges = user.channelInfo[this.channel!.id].badges;
+				if(chanInfo) this.badges = user.channelInfo[this.channel!.id]!.badges;
 
 				//Async loading of data
 				TwitchUtils.getCurrentStreamInfo([u.id]).then(v=> {
-					this.currentStream = v[0];
+					this.currentStream = v[0]!;
 				});
 				if(chanInfo?.is_banned) {
 					this.banReason = chanInfo?.banReason || "";
 				}else{
 					TwitchUtils.getBannedUsers(this.channel!.id, [u.id]).then(res=> {
 						if(res.length > 0) {
-							this.banReason = res[0].reason;
+							this.banReason = res[0]!.reason;
 						}
 					});
 				}
@@ -590,7 +591,7 @@ class UserCard extends AbstractSidePanel {
 				});
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 					TwitchUtils.getSubscriptionState([u.id]).then(v=> {
-						this.subState = v.length > 0 ? v[0] : null;
+						this.subState = v.length > 0 ? v[0]! : null;
 						this.subStateLoaded = true;
 					});
 				}
@@ -781,8 +782,7 @@ class UserCard extends AbstractSidePanel {
 			"tiktok_gift",
 			"tiktok_sub",
 		]
-		for (let i = this.$store.chat.messages.length-1; i > 0; i--) {
-			const mess = this.$store.chat.messages[i];
+		for (const mess of this.$store.chat.messages) {
 			if(!allowedTypes.includes(mess.type)) continue;
 
 			if(mess.type == "shoutout" && mess.user.id == uid) {

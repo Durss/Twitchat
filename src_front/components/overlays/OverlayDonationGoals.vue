@@ -230,31 +230,31 @@ class OverlayDonationGoals extends AbstractOverlay {
 	 */
 	private buildLocalParams():void {
 		let offset = 0;
-		for (let i = 0; i < this.state!.params.goalList.length; i++) {
-			const g = this.state!.params.goalList[i];
-			const target = Math.min(1, Math.max(0, (this.localRaised-offset)/(g.amount-offset)));
-			if(this.goalToParams[g.id]) {
-				this.goalToParams[g.id].percent = target;
-				this.goalToParams[g.id].goalItem = g;
+		for (const goal of this.state!.params.goalList) {
+			const target = Math.min(1, Math.max(0, (this.localRaised-offset)/(goal.amount-offset)));
+			const params = this.goalToParams[goal.id];
+			if(params) {
+				params.percent = target;
+				params.goalItem = goal;
 			}else{
-				this.goalToParams[g.id] = {
+				this.goalToParams[goal.id] = {
 					percent:target,
 					hidePercent:0,
 					completed_at:0,
 					visible:true,
-					goalItem:g,
+					goalItem:goal,
 					distanceToCurrentIndex:0,
 					closing:false,
 				}
 			}
-			offset = g.amount;
+			offset = goal.amount;
 		}
 
 		//Find current goal
 		this.currentIndex = -1;
 		for (let i = 0; i < this.state!.params.goalList.length; i++) {
-			const g = this.state!.params.goalList[i];
-			const p = this.goalToParams[g.id];
+			const g = this.state!.params.goalList[i]!;
+			const p = this.goalToParams[g.id]!;
 			if(p.percent >= 1) continue;
 			this.currentIndex = i;
 			break;
@@ -263,8 +263,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 		//Compute distances to current goal
 		//Used to only show the N next items to current goal
 		for (let i = 0; i < this.state!.params.goalList.length; i++) {
-			const g = this.state!.params.goalList[i];
-			const p = this.goalToParams[g.id];
+			const g = this.state!.params.goalList[i]!;
+			const p = this.goalToParams[g.id]!;
 			p.distanceToCurrentIndex = i - this.currentIndex;
 		}
 	}
@@ -278,14 +278,14 @@ class OverlayDonationGoals extends AbstractOverlay {
 		this.currentAlert = this.poolAlerts[0]!;
 		await this.$nextTick();
 		let holder = this.$refs.notification as HTMLElement | ComponentPublicInstance[];
-		if(Array.isArray(holder)) holder = holder[0].$el as HTMLElement;
+		if(Array.isArray(holder)) holder = holder[0]!.$el as HTMLElement;
 		
 		//Show notification
 		gsap.fromTo(holder, {y:"100%"}, {y:"0%", duration:.15, ease:"sine.out", onComplete:()=>{
 			let showDuration = Math.max(.15, 10 - Math.pow(this.poolAlerts.length, .75));
 			//Holder might have changed between show and hide
 			let holder = this.$refs.notification as HTMLElement | ComponentPublicInstance[];
-			if(Array.isArray(holder) && holder.length > 0) holder = holder[0].$el as HTMLElement;
+			if(Array.isArray(holder) && holder.length > 0) holder = holder[0]!.$el as HTMLElement;
 			if(!holder) return;
 			//Hide notification
 			gsap.fromTo(holder, {y:"0%"}, {y:"100%", duration:.15, delay:showDuration, ease:"sine.out",

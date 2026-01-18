@@ -57,8 +57,7 @@ class TriggerActionHttpPlaceholder extends Vue {
 	 * @param item
 	 */
 	public isDuplicate(item:IHttpPlaceholder):boolean {
-		for (let i = 0; i < this.placeholderList.length; i++) {
-			const entry = this.placeholderList[i];
+		for (const entry of this.placeholderList) {
 			if(entry === item) continue;
 			if(entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim()) return true;
 		}

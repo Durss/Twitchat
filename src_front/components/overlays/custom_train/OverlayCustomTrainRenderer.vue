@@ -426,7 +426,7 @@ class OverlayCustomTrainRenderer extends Vue {
 			v.setAttribute("style", "fill: "+this.recordColorText+";")
 		})
 		let [x,y,w,h] = svgElement.getAttribute("viewBox")?.split(" ").map(v=>parseFloat(v)) || [0,0,0,0];
-		w *= 1.25;
+		if(w) w *= 1.25;
 		// h *= 1.5;
 		svgElement.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
 

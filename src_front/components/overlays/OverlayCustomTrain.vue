@@ -97,9 +97,9 @@ class OverlayCustomTrain extends AbstractOverlay {
 		let goal = levels[0] || 0;
 		let i = 0;
 		for (i = 1; i < levels.length; i++) {
-			const level = levels[i];
+			const level = levels[i]!;
 			if(level > this.state.amount || i === levels.length - 1) {
-				offset = levels[i-1];
+				offset = levels[i-1]!;
 				goal = level - offset;
 				break;
 			}

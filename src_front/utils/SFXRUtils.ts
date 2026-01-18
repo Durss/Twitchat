@@ -119,7 +119,7 @@ export default class SFXRUtils {
 			let parsed = "";
 			// If a sharable URL is given, extract the sound data
 			if(data.indexOf("http") === 0) {
-				parsed = data.split("#")[1];
+				parsed = data.split("#")[1]!;
 			}
 			if(!parsed) {
 				// Check if it's a JSON string and parse it

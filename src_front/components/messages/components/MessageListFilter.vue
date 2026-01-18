@@ -373,8 +373,7 @@ export class MessageListFilter extends Vue {
 
 		this.filters = [];
 		const filterList = TwitchatDataTypes.MessageListFilterTypes;
-		for (let i = 0; i < filterList.length; i++) {
-			const f = filterList[i];
+		for (const f of filterList) {
 			const children:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
 			const paramData:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]> = {type:"boolean",
 								value:this.config.filters[f.type] ?? true,
@@ -394,8 +393,7 @@ export class MessageListFilter extends Vue {
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const entries = TwitchatDataTypes.MessageListChatMessageFilterTypes;
-				for (let i = 0; i < entries.length; i++) {
-					const entry = entries[i];
+				for (const entry of entries) {
 					let type = entry.type;
 					if(this.config.messageFilters[type] == undefined) {
 						this.config.messageFilters[type] = true;
@@ -748,11 +746,11 @@ export class MessageListFilter extends Vue {
 	public toggleAll():void {
 		const select = this.param_toggleAll.value;
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
-		for (let i = 0; i < this.filters.length; i++) {
-			const type = this.filters[i].storage?.type;
+		for (const filter of this.filters) {
+			const type = filter.storage?.type;
 			// Avoid enabling join/leave messages from "all" toggle
 			if(select && (type === "join" || type === "leave"))	continue;
-			this.filters[i].value = select;
+			filter.value = select;
 		}
 
 		for (const key in this.config.messageFilters) {
@@ -819,8 +817,8 @@ export class MessageListFilter extends Vue {
 				dataCast.twitch_isRestricted = true;
 				const users:TwitchatDataTypes.TwitchatUser[] = [];
 				const list = this.$store.users.users;
-				for (let i = 0; i < list.length; i++) {
-					users.push(list[i]);
+				for (const user of list) {
+					users.push(user);
 					if(Math.random() > .3) break;
 				}
 
@@ -864,7 +862,7 @@ export class MessageListFilter extends Vue {
 			let olderKey:string | null = null;
 			for (const key in this.config.channelIDs) {
 				const entry = this.config.channelIDs[key];
-				if(entry.date > olderDate) {
+				if(entry && entry.date > olderDate) {
 					olderKey = key;
 					olderDate = entry.date;
 				}
@@ -907,16 +905,15 @@ export class MessageListFilter extends Vue {
 			let selectedPanelIndex = -1;
 			let selectedGreetIndex = -1;
 			const cols = this.$store.params.chatColumnsConfig;
-			for (let i = 0; i < cols.length; i++) {
-				const col = cols[i];
-				if(col.showPanelsHere === true) selectedPanelIndex = i;
-				if(col.showGreetHere === true) selectedGreetIndex = i;
+			for (const col of cols) {
+				if(col.showPanelsHere === true) selectedPanelIndex = cols.indexOf(col);
+				if(col.showGreetHere === true) selectedGreetIndex = cols.indexOf(col);
 			}
-			if(selectedPanelIndex == -1) {
+			if(selectedPanelIndex == -1 && selectedPanelIndex < cols.length) {
 				selectedPanelIndex = (this.config.order == cols.length-1)? 0 : cols.length-1;
-				cols[selectedPanelIndex].showPanelsHere = true;
+				cols[selectedPanelIndex]!.showPanelsHere = true;
 			}
-			if(selectedGreetIndex == -1) cols[selectedGreetIndex].showGreetHere = true;
+			if(selectedGreetIndex == -1) cols[0]!.showGreetHere = true;
 		});
 
 		//Delay save to avoid UI lag during toggle
@@ -958,8 +955,8 @@ export class MessageListFilter extends Vue {
 		await this.$nextTick();
 
 		//Unselect all
-		for (let i = 0; i < this.filters.length; i++) {
-			this.filters[i].value = false;
+		for (const filter of this.filters) {
+			filter.value = false;
 		}
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
 		const ids:typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"][] = [];
@@ -1141,7 +1138,7 @@ export class MessageListFilter extends Vue {
 		if(!this.touchMode) {
 			this.mouseY = (e as MouseEvent).clientY;
 		}else{
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
+			this.mouseY = (e as TouchEvent).touches[0]?.clientY || 0;
 		}
 	}
 
@@ -1191,8 +1188,7 @@ export class MessageListFilter extends Vue {
 	 */
 	private checkForMissingScopes():void {
 		let missingScopes:TwitchScopesString[] = [];
-		for (let i = 0; i < this.filters.length; i++) {
-			const f = this.filters[i];
+		for (const f of this.filters) {
 			//Keep missing scopes
 			if(f.twitch_scopes && f.value === true) {
 				f.twitch_scopes.forEach(s => {
@@ -1208,8 +1204,7 @@ export class MessageListFilter extends Vue {
 		if(this.filters.find(v=>{
 			return v.storage?.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
 		})?.value=== true) {
-			for (let i = 0; i < this.messageFilters.length; i++) {
-				const f = this.messageFilters[i];
+			for (const f of this.messageFilters) {
 				//Keep missing scopes
 				if(f.twitch_scopes && f.value === true) {
 					f.twitch_scopes.forEach(s => {
@@ -1229,6 +1224,7 @@ export class MessageListFilter extends Vue {
 		//remains in the list in such case and low risks this happens
 		for (let i = list.length-1; i > Math.max(0, list.length - 100); i--) {
 			const m = list[i];
+			if(!m) continue;
 			if(m.col == this.config.order && m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
 				//Message found, delete it
 				this.$store.chat.deleteMessage(m);

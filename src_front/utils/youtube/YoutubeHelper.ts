@@ -106,8 +106,8 @@ export default class YoutubeHelper {
 	 */
 	public hasScopes(scopes:YoutubeScopesString[]):boolean {
 		if(!this._token) return false;
-		for (let i = 0; i < scopes.length; i++) {
-			if(this._token.scope.split(" ").indexOf(scopes[i]) == -1) {
+		for (const scope of scopes) {
+			if(this._token.scope.split(" ").indexOf(scope) == -1) {
 				return false;
 			}
 		}
@@ -191,10 +191,10 @@ export default class YoutubeHelper {
 			const res = await fetch(url, {method:"GET", headers:this.headers});
 			if(res.status == 200) {
 				const json = await res.json() as YoutubeChannelInfo;
-				this._userData = json.items[0];
+				this._userData = json.items[0]!;
 				const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title, undefined, true, true, true);
 				user.avatarPath = this._userData.snippet.thumbnails.default.url || this._userData.snippet.thumbnails.medium.url;
-				const chanInfos = user.channelInfo[this._userData.id];
+				const chanInfos = user.channelInfo[this._userData.id]!;
 				chanInfos.is_broadcaster = true;
 				chanInfos.is_moderator = true;
 				Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
@@ -388,8 +388,8 @@ export default class YoutubeHelper {
 		
 		let maxDelay = 1000;
 		for (let i = 0; i < this._currentLiveChatIds.length; i++) {
-			const liveId = this._currentLiveChatIds[i];
-			const pageToken = this._lastMessagePage[liveId];
+			const liveId = this._currentLiveChatIds[i]!;
+			const pageToken = this._lastMessagePage[liveId]!;
 			if(!this._currentLiveChatIds) {
 				Logger.instance.log("youtube", {log:"Tried to get messages but missing live broadcast ID.", credits: this._creditsUsed, liveID:this._currentLiveChatIds})
 				return;
@@ -418,12 +418,12 @@ export default class YoutubeHelper {
 					const json = await res.json() as YoutubeMessages;
 					let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
 					for (; i < json.items.length; i++) {
-						const m = json.items[i];
+						const m = json.items[i]!;
 
 						//Message already registered? Skip it
 						if(idsDone[m.id]) continue;
 
-						const data = await this.parseMessage(m, this._liveIdToChanId[liveId], liveId);
+						const data = await this.parseMessage(m, this._liveIdToChanId[liveId]!, liveId);
 						if(data) {
 							StoreProxy.chat.addMessage(data);
 						}
@@ -496,8 +496,8 @@ export default class YoutubeHelper {
 			{delay:60*60, add:60*2},
 		];
 		const elapsedTime = Math.round((Date.now() - this._lastMessageDate)/1000);
-		const closestDelayEntry = delays.find(({ delay }) => delay >= elapsedTime) || delays[delays.length - 1];
-		const additionalDelay = delays[Math.max(delays.indexOf(closestDelayEntry) - 1, 0)].add;
+		const closestDelayEntry = delays.find(({ delay }) => delay >= elapsedTime) || delays[delays.length - 1]!;
+		const additionalDelay = delays[Math.max(delays.indexOf(closestDelayEntry) - 1, 0)]!.add;
 
 		//Log any delay change
 		if(additionalDelay != this._lastMessageDelay) {
@@ -650,7 +650,7 @@ export default class YoutubeHelper {
 
 		const res = await fetch(url, {method:"POST", headers:this.headers, body});
 		if(res.status == 200) {
-			StoreProxy.users.flagBanned("youtube", this._liveIdToChanId[liveId], userId, duration_s);
+			StoreProxy.users.flagBanned("youtube", this._liveIdToChanId[liveId]!, userId, duration_s);
 			const json = await res.json();
 			this._uidToBanID[userId] = json.id
 			return json.id;
@@ -688,7 +688,7 @@ export default class YoutubeHelper {
 		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"User unbaned successfully", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-			StoreProxy.users.flagUnbanned("youtube", this._liveIdToChanId[liveId], userId);
+			StoreProxy.users.flagUnbanned("youtube", this._liveIdToChanId[liveId]!, userId);
 		}else{
 			Logger.instance.log("youtube", {log:"An error occured when trying to unban the user", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
@@ -816,7 +816,7 @@ export default class YoutubeHelper {
 		const extractID = (url:string):string|false => {
 			let regExp = /(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*)/g;
 			let matches = [...url.matchAll(regExp)];
-			return (matches.length > 0 && matches[0].length > 0 && matches[0][1].length==11)? matches[0][1].toString() : false;
+			return (matches.length > 0 && matches[0]!.length > 0 && matches[0]![1]!.length==11)? matches[0]![1]!.toString() : false;
 		}
 		const videoID = extractID(videoUrl);
 		if(!videoID) return false;
@@ -977,7 +977,7 @@ export default class YoutubeHelper {
 		const message_chunks = m.snippet.displayMessage? this.parseMessageChunks(m.snippet.displayMessage) : [];
 		const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 		const user = await StoreProxy.users.getUserFrom("youtube", channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
-		const chanInfos = user.channelInfo[channelId];
+		const chanInfos = user.channelInfo[channelId]!;
 		try {
 			chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
 			chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;

@@ -16,8 +16,8 @@
 					<div>Value</div>
 				</div>
 				<div v-for="(a, index) in action.headers" class="header">
-					<input type="text" v-model="action.headers![index].key">
-					<ParamItem :paramData="getParamHeaderValue(index)" placeholdersAsPopout v-model="action.headers![index].value" noBackground />
+					<input type="text" v-model="action.headers![index]!.key">
+					<ParamItem :paramData="getParamHeaderValue(index)" placeholdersAsPopout v-model="action.headers![index]!.value" noBackground />
 					<TTButton class="deleteBt" icon="trash" @click="delHeader(index)" alert />
 				</div>
 				<TTButton class="addBt" icon="add" v-if="(action.headers || []).length < 20" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</TTButton>
@@ -113,7 +113,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	}
 
 	public getParamHeaderValue(index:number):TwitchatDataTypes.ParameterData<string> {
-		if(this.param_headerValues.length>index) return this.param_headerValues[index];
+		if(this.param_headerValues.length>index) return this.param_headerValues[index]!;
 		const param:TwitchatDataTypes.ParameterData<string> = {type:'string', value:"", placeholderList:this.placeholderList};
 		this.param_headerValues[index] = param;
 		return param;

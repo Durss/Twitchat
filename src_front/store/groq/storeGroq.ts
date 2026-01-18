@@ -15,7 +15,7 @@ const CLOSE_TAG = "⟧";
 
 const getAnonUserName = (login:string, userMap:{[login:string]:string}):string => {
 	const key = Object.keys(userMap).find( v => v.toLowerCase() === login.toLowerCase())
-	let username = userMap[key || ""];
+	let username = userMap[key || ""]!;
 	if(!key) {
 		username = OPEN_TAG + Object.keys(userMap).length + CLOSE_TAG;
 		userMap[login] = username;
@@ -137,7 +137,7 @@ export const storeGroq = defineStore('groq', {
 
 					//Replace usernames of the usermap with their anon equivalent
 					for (const key in userMap) {
-						preprompt = preprompt.replace(key, userMap[key]);
+						preprompt = preprompt.replace(key, userMap[key]!);
 					}
 
 					// Replace mentions in the form of @xxx with anonymized versions
@@ -165,8 +165,7 @@ export const storeGroq = defineStore('groq', {
 				let userMap:{[login:string]:string} = {};
 				// Merge consecutive messages from same users to reduce token usage
 				const splitter = " — ";
-				for (let i = 0; i < sortedList.length; i++) {
-					const m = sortedList[i];
+				for (const m of sortedList) {
 					let anonUser = getAnonUserName(m.user.displayNameOriginal, userMap);
 					if(currentUser != anonUser) {
 						currentUser = anonUser;
@@ -180,7 +179,7 @@ export const storeGroq = defineStore('groq', {
 
 				//Replace usernames of the usermap with their anon equivalent
 				for (const key in userMap) {
-					mainPrompt = mainPrompt.replace(key, userMap[key]);
+					mainPrompt = mainPrompt.replace(key, userMap[key]!);
 				}
 
 				// Replace mentions in the form of @xxx with anonymized versions
@@ -288,7 +287,7 @@ export const storeGroq = defineStore('groq', {
 			}
 			try {
 				let result = await groq.chat.completions.create(options);
-				return result.choices[0].message.content || "";
+				return result.choices[0]!.message.content || "";
 			}catch(error) {
 				console.error(error);
 				return false;

@@ -74,13 +74,13 @@ class TriggerActionScheduleParams extends Vue {
 		let events:TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
-				type:events[1].value as TriggerScheduleTypesValue,
+				type:events[1]!.value as TriggerScheduleTypesValue,
 				repeatDuration:30 * 60,
 				repeatMinMessages:100,
 				dates:[],
 			}
 		}
-		this.param_action.value						= this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
+		this.param_action.value						= this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0]!.value;
 		this.param_action.listValues				= events;
 		const duration								= this.triggerData.scheduleParams!.repeatDuration;
 		const minMess								= this.triggerData.scheduleParams!.repeatMinMessages;

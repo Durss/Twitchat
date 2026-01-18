@@ -236,10 +236,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		if(name) {
 			const rawName = name;
 			name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
-			for (let i = 0; i < this._soundsboards.length; i++) {
-				const board = this._soundsboards[i];
-				for (let j = 0; j < board.sounds.length; j++) {
-					const sound = board.sounds[j];
+			for (const board of this._soundsboards) {
+				for (const sound of board.sounds) {
 					//Check if the requested name is exactly the same
 					if(rawName == sound.name) {
 						//As this exactly matches the requested name, we can stop searching
@@ -449,8 +447,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param voice
 	 */
 	private async populateImageProp(voice:VoicemodTypes.Voice):Promise<void> {
-		for (let i = 0; i < this.voices.length; i++) {
-			const v = this.voices[i];
+		for (const v of this.voices) {
 			if(v.id == voice.id) {
 				try {
 					const img = await this.getBitmapForVoice(v.id);

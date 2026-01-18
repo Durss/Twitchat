@@ -60,7 +60,7 @@ export default class SetIntervalWorker {
 			const message = event.data;
 			if (message.type === "intervalMessage") {
 				if(!this._idToCallback[message.data]) return;
-				this._idToCallback[message.data]();
+				this._idToCallback[message.data]!();
 			}
 		};
 		

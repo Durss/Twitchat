@@ -47,12 +47,12 @@
 					</template>
 
 					<div class="ctaForm">
-						<ParamItem :paramData="actionParams[index].label" v-model="element.label" noBackground />
-						<ParamItem :paramData="actionParams[index].icon" v-model="element.icon" noBackground />
-						<ParamItem :paramData="actionParams[index].theme" v-model="element.theme" noBackground />
-						<ParamItem :paramData="actionParams[index].actionType" v-model="element.actionType" noBackground>
-							<ParamItem :paramData="actionParams[index].url" v-model="element.url" v-if="element.actionType == 'url'" noBackground class="child" />
-							<ParamItem :paramData="actionParams[index].message" v-model="element.message" v-else-if="element.actionType == 'message'" noBackground class="child" />
+						<ParamItem :paramData="actionParams[index]!.label" v-model="element.label" noBackground />
+						<ParamItem :paramData="actionParams[index]!.icon" v-model="element.icon" noBackground />
+						<ParamItem :paramData="actionParams[index]!.theme" v-model="element.theme" noBackground />
+						<ParamItem :paramData="actionParams[index]!.actionType" v-model="element.actionType" noBackground>
+							<ParamItem :paramData="actionParams[index]!.url" v-model="element.url" v-if="element.actionType == 'url'" noBackground class="child" />
+							<ParamItem :paramData="actionParams[index]!.message" v-model="element.message" v-else-if="element.actionType == 'message'" noBackground class="child" />
 							<SimpleTriggerList class="child list" v-else-if="!element.triggerId" @select="(id:string) => element.triggerId = id" />
 							<SimpleTriggerList class="child" v-else :filteredItemId="element.triggerId" @click="element.triggerId = ''" />
 						</ParamItem>
@@ -118,8 +118,7 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	public get messageData():TwitchatDataTypes.MessageCustomData {
 		const chunks = TwitchUtils.parseMessageToChunks(this.action.customMessage.message || "", undefined, true);
 		const actions = (JSON.parse(JSON.stringify(this.action.customMessage.actions)) || []) as NonNullable<typeof this.action.customMessage.actions>;
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
+		for (const a of actions) {
 			if(a.label) {
 				a.label = a.label.replace(/\{.*?\}/gi, "***");
 			}
@@ -257,7 +256,7 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 		this.param_user.placeholderList = list;
 		this.param_message.placeholderList = list;
 		for (let i = 0; i < this.actionParams.length; i++) {
-			this.actionParams[i].message.placeholderList = list;
+			this.actionParams[i]!.message.placeholderList = list;
 		}
 	}
 

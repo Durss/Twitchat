@@ -386,10 +386,10 @@ class ComponentList extends Vue {
 	}
 
 	public async reloadIcon(index:number):Promise<void> {
-		let prevName = this.iconList[index];
+		let prevName = this.iconList[index]!;
 		this.iconList[index] = "";
 		await this.$nextTick();
-		this.iconList[index] = prevName;
+		this.iconList[index]! = prevName;
 	}
 
 	/**
@@ -413,7 +413,7 @@ class ComponentList extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 		for (let i = 0; i < this.progresses.length; i++) {
-			this.progresses[i] += .00003;
+			this.progresses[i]! += .00003;
 		}
 	}
 

@@ -234,9 +234,9 @@ export default class DataStoreCommon {
 		//(should think of a generic way of doing this..)
 		if(automod && automod.keywordsFilters && automod.keywordsFilters.length > 0) {
 			for (let i = 0; i < automod.keywordsFilters.length; i++) {
-				const el = automod.keywordsFilters[i];
+				const el = automod.keywordsFilters[i]!;
 				if(!el.serverSync) {
-					automodRulesBackup.push( automod.keywordsFilters.splice(i, 1)[0] );
+					automodRulesBackup.push( automod.keywordsFilters.splice(i, 1)[0]! );
 					i--;
 					if(i < 0) break;
 				}
@@ -275,7 +275,7 @@ export default class DataStoreCommon {
 		if(automodRulesBackup.length > 0) {
 			automod = JSON.parse(this.get(DataStoreCommon.AUTOMOD_PARAMS));
 			for (let i = 0; i < automodRulesBackup.length; i++) {
-				automod.keywordsFilters.push(automodRulesBackup[i]);
+				automod.keywordsFilters.push(automodRulesBackup[i]!);
 			}
 			this.set(DataStoreCommon.AUTOMOD_PARAMS, automod);
 		}
