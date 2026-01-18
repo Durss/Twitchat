@@ -94,7 +94,7 @@ export const storeStreamerbot = defineStore('streamerbot', {
 			args.longtime = args.time + ":" + date.getSeconds().toString().padStart(2, "0");
 			args.unixtime = Math.round(date.getTime()/1000);
 			args.eventSource = "Twitchat";
-			socket.doAction({id}, args);
+			if(socket.ready) socket.doAction({id}, args);
 		},
 		
 		saveConfigs():void {
