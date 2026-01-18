@@ -1146,7 +1146,9 @@ const UserDataSchema = {
 				type: "object",
 				additionalProperties: false,
 				properties: {
-					id: {type:"string", maxLength:100},
+					id: {
+						anyOf: [{type:"string", maxLength:100}, { type: "null" }],
+					},
 					sentences: {type:"string", maxLength:100000},
 				}
 			},
@@ -1870,7 +1872,7 @@ const UserDataSchema = {
 					minItems:0,
 					maxItems:10,
 					items:{
-							anyOf: [{
+						anyOf: [{
 								type:"array",
 								minItems:0,
 								maxItems:2,
