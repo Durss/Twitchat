@@ -78,7 +78,7 @@ export const storeTiktok = defineStore('tiktok', {
 				socket.onerror = (e) => {
 					this.connected = false;
 					initResolver(false);
-					reject("[Tiktok] Socket error");
+					reject("[-][Tiktok] Socket error");
 				}
 			});
 		},
