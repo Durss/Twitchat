@@ -619,7 +619,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.showLevelUp_local = !this.showRecord_local;
 		await this.$nextTick();
 		if(!this.showLevelUp_local) return; //This flag can be set back to false when reaching new record
-		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		const labelHolder = (this.$refs.title as typeof ContentEditable).$el as HTMLElement;
 		this.localTitleLevelUp = "100%"
 		labelHolder.classList.add("big");
 		await this.animateLabelSlowmo(labelHolder);
@@ -642,7 +642,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		await Utils.promisedTimeout(500);
 		this.showRecord_local = true;
 		await this.$nextTick();
-		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		const labelHolder = (this.$refs.title as typeof ContentEditable).$el as HTMLElement;
 		await this.animateLabelPaused(labelHolder);
 		this.percent_local		=
 		this.easedPercent		= this.percent;
@@ -657,7 +657,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.showRecord_local = false;
 		this.showLevelUp_local = false;
 		await this.$nextTick();
-		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		const labelHolder = (this.$refs.title as typeof ContentEditable).$el as HTMLElement;
 		this.localTitleSuccess = this.titleSuccess;
 		await this.animateLabelSlowmo(labelHolder);
 		this.localTitleSuccess = this.titleSuccessSummary.replace('{LEVEL}', this.localLevelIndex.toString()).replace('{PERCENT}', Math.floor(this.percent_local*100).toString());
@@ -672,7 +672,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.showRecord_local = false;
 		this.showLevelUp_local = false;
 		await this.$nextTick();
-		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		const labelHolder = (this.$refs.title as typeof ContentEditable).$el as HTMLElement;
 		this.localTitleSuccess = this.titleFail;
 		await this.animateLabelPaused(labelHolder, false, 10000);
 		this.$emit("close");
