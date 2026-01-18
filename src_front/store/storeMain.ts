@@ -767,10 +767,9 @@ export const storeMain = defineStore("main", {
 				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
 			}
 
-			//Reload devmode state
-			this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
-
 			Database.instance.connect().then(async ()=> {
+				//Reload devmode state
+				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 				try {
 					await StoreProxy.chat.preloadMessageHistory();
 					await StoreProxy.groq.preloadMessageHistory();

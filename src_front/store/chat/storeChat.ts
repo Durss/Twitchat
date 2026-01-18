@@ -2135,8 +2135,8 @@ export const storeChat = defineStore('chat', {
 				messageList.push( message );
 				if(saveToDB && StoreProxy.params.features.saveHistory.value === true && message.fake !== true) {
 					Database.instance.addMessage(message).catch((error)=>{
-						console.error("Database addMessage() error");
-						console.log(error);
+						console.error("Database addMessage() error with reason:", error);
+						console.log(message);
 					});
 					//If user isn't fully loaded yet, wait for it to be loaded
 					if("user" in message && message.user) {
