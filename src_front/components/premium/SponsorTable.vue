@@ -103,7 +103,8 @@ class SponsorTable extends Vue {
 
 		this.currentRowIndex = Math.max(29, Math.min(this.entries.length-1, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
-		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0]!;
+		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
+		if(!item) return;
 		const boundsList = list.getBoundingClientRect();
 		const boundsItem = item.getBoundingClientRect();
 		const height = boundsItem.bottom - boundsList.top;
