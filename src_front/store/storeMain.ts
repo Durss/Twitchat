@@ -234,10 +234,6 @@ export const storeMain = defineStore("main", {
 				sVoice.voiceText.finalText = e.data!.text;
 			});
 
-			if(!authenticate) {
-				StoreProxy.common.initialize(authenticate);
-			}
-
 			callback(null);
 		},
 
@@ -248,11 +244,9 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
-			const sTimer = StoreProxy.timers;
 			const sStream = StoreProxy.stream;
-			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
-			SSEHelper.instance.initialize();
+			SSEHelper.instance.initialize(true);
 			this.initHttpMigrationFixer();
 
 			//Once SSE is connected, request any stream we're a mod for to

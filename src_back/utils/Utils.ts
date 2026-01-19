@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as crypto from "crypto";
 import fetch from "node-fetch";
 import jwt from 'jsonwebtoken';
+import { Abortable } from "events";
 
 /**
 * Created : 20/07/2023
@@ -99,9 +100,9 @@ export default class Utils {
 		}
 
 		const [ivHex, encryptedHex, authTagHex] = encryptedText.split(':');
-		const ivUint8 = new Uint8Array(Buffer.from(ivHex, 'hex'));
-		const encryptedUint8 = new Uint8Array(Buffer.from(encryptedHex, 'hex'));
-		const authTagUint8 = new Uint8Array(Buffer.from(authTagHex, 'hex'));
+		const ivUint8 = new Uint8Array(Buffer.from(ivHex!, 'hex'));
+		const encryptedUint8 = new Uint8Array(Buffer.from(encryptedHex!, 'hex'));
+		const authTagUint8 = new Uint8Array(Buffer.from(authTagHex!, 'hex'));
 
 		const decipher = crypto.createDecipheriv('aes-256-gcm', keyUint8, ivUint8);
 		decipher.setAuthTag(Buffer.from(authTagUint8));
@@ -174,6 +175,32 @@ export default class Utils {
 			}
 			throw error;
 		}
+	}
+
+	/**
+	 * Use in place of fs.promises.readFile as it's much more efficient.
+	 * fs.promises.readFile is very slow
+	 * @see https://stackoverflow.com/questions/63971379/why-is-fs-readfilesync-faster-than-await-fspromises-readfile
+	 * @param path 
+	 * @param encoding 
+	 * @returns 
+	 */
+	public static readFileAsync(path: string, encoding: {
+		encoding?: BufferEncoding;
+		flag?: string;
+		signal?: AbortSignal
+	}|BufferEncoding): Promise<string> {
+		return new Promise((resolve, reject) => {
+			fs.readFile(path, encoding, (err, data) => {
+				if (err) {
+					reject(err);
+				} else if(typeof data === 'string') {
+					resolve(data);
+				}else{
+					reject(new Error("Data is not a string"));
+				}
+			});
+		});
 	}
 }
 
