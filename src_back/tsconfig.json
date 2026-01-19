@@ -4,9 +4,9 @@
 		"target": "esnext",
 		"moduleResolution": "nodenext",
 		"strict": true,
-		"noImplicitAny": false,
+		"noImplicitAny": true,
 		"noImplicitThis": false,
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"importHelpers": false,
 		"experimentalDecorators": true,
 		"sourceMap": false,
@@ -16,6 +16,8 @@
 		"outDir": "../server",
 		"skipLibCheck": true,
 		"incremental": true,
+		"noUncheckedIndexedAccess": true,
+		"noPropertyAccessFromIndexSignature": true,
 		"tsBuildInfoFile": "../server/.tsbuildinfo",
 		"paths": {
 			"@/*": [
