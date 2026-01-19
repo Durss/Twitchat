@@ -1,7 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { LRUCache } from "lru-cache";
 import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as fs from "fs";
+import TwitchExtensionController from "./TwitchExtensionController.js";
 
 /**
 * Created : 16/01/2026 
@@ -9,11 +11,15 @@ import * as fs from "fs";
 export default class QuizController extends AbstractController {
 
 	/**
-	 * Stores streamers grid cache
-	 * Key has the following format:
-	 * "[uid]/[quizId]"
+	 * LRU cache for streamer quizzes with automatic eviction
+	 * Key format: "[uid]/[quizId]"
 	 */
-	private cachedBingoGrids:{[uidGridId:string]:IQuizCacheData} = {}
+	private cachedQuizzes = new LRUCache<string, IQuizCacheData>({
+		max: 500,
+		ttl: 1000 * 60 * 5, // 5 minutes TTL
+	});
+
+	private extensionController!:TwitchExtensionController;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -22,6 +28,10 @@ export default class QuizController extends AbstractController {
 	/********************
 	* GETTER / SETTERS *
 	********************/
+
+	public setTwitchExtensionController(controller:TwitchExtensionController):void {
+		this.extensionController = controller;
+	}
 	
 	
 	
@@ -35,26 +45,30 @@ export default class QuizController extends AbstractController {
 	}
 
 	public getStreamerQuizs(uid:string, quizId?:string):IQuizCacheData|null {
-		//Validate UID and gridId to prevent path traversal
+		//Validate UID and quizId to prevent path traversal
 		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return null
 
 		const cacheKey = uid+"/"+quizId;
-		let cache = this.cachedBingoGrids[cacheKey];
-		if(!cache || Date.now() - cache.date > 5000) {
-			//Get users' data
-			const userFilePath = Config.USER_DATA_PATH + uid+".json";
-			const found = fs.existsSync(userFilePath);
-			if(found){
-				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {quizConfigs:{quizList:QuizParams[]}};
-				cache = {
-					date: Date.now(),
-					ownerId: uid,
-					data:quizId? [data.quizConfigs.quizList.find(quiz => quiz.id === quizId)!] : data.quizConfigs.quizList,
-				}
-				this.cachedBingoGrids[cacheKey] = cache;
+		
+		// Check LRU cache first
+		let cache = this.cachedQuizzes.get(cacheKey);
+		if(cache) return cache;
+		
+		// Cache miss - load from disk
+		const userFilePath = Config.USER_DATA_PATH + uid+".json";
+		const found = fs.existsSync(userFilePath);
+		if(found){
+			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {quizConfigs:{quizList:QuizParams[]}};
+			cache = {
+				date: Date.now(),
+				ownerId: uid,
+				data:quizId? [data.quizConfigs.quizList.find(quiz => quiz.id === quizId)!] : data.quizConfigs.quizList,
 			}
+			this.cachedQuizzes.set(cacheKey, cache);
+			return cache;
 		}
-		return cache ?? null;
+		
+		return null;
 	}
 	
 	
@@ -69,16 +83,8 @@ export default class QuizController extends AbstractController {
 		const uid:string = (request.query as any).uid;
 		const quizId:string = (request.query as any).quizid;
 		
-		//Validate UID and gridId to prevent path traversal
-		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) {
-			response.header('Content-Type', 'application/json');
-			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid user ID or grid ID", errorCode:"INVALID_PARAMS"}));
-			return;
-		}
-
-		const cache = this.getStreamerQuizs(uid, quizId);
-		if(!cache) {
+		const quiz = this.getStreamerQuizs(uid, quizId);
+		if(!quiz) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
 			response.send(JSON.stringify({success:false, error:"Quiz not found", errorCode:"QUIZ_NOT_FOUND"}));
@@ -87,7 +93,7 @@ export default class QuizController extends AbstractController {
 		
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:cache.data}));
+		response.send(JSON.stringify({success:true, data:quiz.data}));
 
 		return;
 	}
