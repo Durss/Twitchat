@@ -10,7 +10,7 @@
 					<template #WHY>(<a href="#" @click.prevent="why=true">{{ $t("outdated_data.why_bt") }}</a>)</template>
 				</i18n-t>
 				<div class="buttonList vertical">
-					<TTButton class="uploadBt" icon="upload" :loading="saving" @click="confirm = true">{{ $t("outdated_data.erase_bt") }}</TTButton>
+					<TTButton class="uploadBt" icon="upload" :loading="saving" @click="confirm = true" alert>{{ $t("outdated_data.erase_bt") }}</TTButton>
 					<a href="#" @click.prevent="readOnly = true">{{ $t("outdated_data.readOnly_bt") }}</a>
 				</div>
 			</div>
@@ -89,6 +89,11 @@ export default toNative(OutdatedDataVersionAlert);
 
 <style scoped lang="less">
 .outdateddataversionalert{
+	z-index: 10;
+	.holder {
+		max-width: 620px;
+		border: 3px solid var(--color-secondary);
+	}
 	.content {
 		p {
 			white-space: pre-line;

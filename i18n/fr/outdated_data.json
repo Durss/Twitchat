@@ -2,7 +2,7 @@
 	"outdated_data":{
 		"title": "Données désynchronisées",
 		"description":"Les données actuelles sont plus anciennes que celles enregistrées sur le serveur, probablement parce que vous avez lancé Twitchat plusieurs fois ce qui est très FORTEMENT déconseillé {WHY}.\n\nFermez cette page ou remplacez les données du serveur par celles actuelles.",
-		"why_description":"Si Twitchat est ouvert plusieurs fois, les Triggers, le TTS, le mode d'urgence, etc., tout sera exécuté autant de fois que Twitchat est lancé.\n\nTwitch a des quotas d'API élevés, mais tout de même limités. Selon l'activité de votre chat et les options que vous avez activées, vous pourriez atteindre ces limites, ce qui pourrait être source de problèmes.",
+		"why_description":"Si Twitchat est ouvert plusieurs fois, les Triggers, le TTS, le mode d'urgence, etc., tout sera exécuté autant de fois que Twitchat est lancé.\n\nTwitchat ne synchronise pas les données entre plusieurs instances. Si vous modifiez quelque chose d'un côté, puis de l'autre, la seconde sauvegarde écrasera les première smodifications.\n\nTwitch a des quotas d'API élevés, mais tout de même limités. Selon l'activité de votre chat et les options que vous avez activées, vous pourriez atteindre ces limites, ce qui pourrait être source de problèmes.\n\nEnfin, il est impossible pour Twitchat de fonctionner correctement au-delà de 3 instances simultanés. Ceci correspond au maximum de connexions simultanées à un service Twitch. Au délà Twitch coupera l'une ou l'autre des connexions.",
 		"why_bt":"pourquoi ?",
 		"erase_bt": "Remplacer par les données actuelles",
 		"readOnly_bt": "continuer en mode lecture seule",

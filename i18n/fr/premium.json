@@ -102,7 +102,7 @@
 
 		"cleanup": {
 			"title":"Limitations non-premium",
-			"description":"Vous n'êtes pas membre premium et avez créé plus d'éléments de certains types que le maximum autorisé. Désactivez/supprimez des entrées ou devenez membre Premium pour tous les conserver",
+			"description":"Vous n'êtes pas ou plus membre premium et avez créé plus d'éléments de\ncertains types que le maximum autorisé.\nDésactivez des entrées ou devenez membre Premium pour tous les conserver.",
 			"custom_usernames":"Pseudo personnalisés",
 			"custom_username_remove":"Supprimer le pseudo<br>personnalisé",
 			"custom_badges":"Badges personnalisés",
