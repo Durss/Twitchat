@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import Config from "../utils/Config.js";
 import BingoGridController from "./BingoGridController.js";
 import QuizController from "./QuizController.js";
+import fetch from "node-fetch";
 
 /**
  * The extension code itself isn't part of this repository.
@@ -35,15 +36,37 @@ export default class TwitchExtensionController extends AbstractController {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public async initialize(bingoController:BingoGridController, quizController:QuizController):Promise<void> {
+	public initialize(bingoController:BingoGridController, quizController:QuizController):TwitchExtensionController {
 		this._bingoController = bingoController;
 		this._quizController = quizController;
 		this.server.decorateRequest('twitchExtensionUser', null);
 		this.server.get('/api/twitch/extension/streamerstate', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getStreamerState(request, response));
-		this.server.get('/api/twitch/extension/bingo', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getBingoGrids(request, response));
 		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
+		return this;
 	}
-	
+
+	/**
+	 * Notify all clients of a streamer that extension state has been updated
+	 * @param channelId 
+	 */
+	public async notifyStateUpdate(channelId:string):Promise<void> {
+		const url = Config.credentials.twitchat_api_path + "twitchat/stateUpdate";
+		const hash = createHash('sha512')
+			.update(Config.credentials.twitchat_api_secret + ':' + channelId)
+			.digest('hex');
+		console.log("Notify state update to Twitchat API for channel "+channelId);
+		const res = await fetch(url, {
+			method: 'POST',
+			headers:{
+				'Content-Type': 'application/json',
+				'x-twitchat-verify': hash,
+			},
+			body: JSON.stringify({
+				channelId,
+			}),
+		});
+		console.log("Twitchat API response:", res.status, await res.text());
+	}
 	
 	
 	
@@ -107,27 +130,21 @@ export default class TwitchExtensionController extends AbstractController {
 	}
 
 	/**
-	 * Request bingo grids from streamer
-	 * @param request 
-	 * @param response 
-	 */
-	private async getBingoGrids(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const info = await this._bingoController.getStreamerGrid(request.twitchExtensionUser!.channel_id);
-		response.header('Content-Type', 'application/json');
-		response.status(200);
-		response.send(JSON.stringify({success:true, user:info ? {id:info.ownerId, login:info.ownerName} : null, gridList: info ? info.data : []}));
-	}
-
-	/**
 	 * Request a streamer's state
 	 * @param request 
 	 * @param response 
 	 */
 	private async getStreamerState(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const bingos = await this._bingoController.getStreamerGrid(request.twitchExtensionUser!.channel_id);
-		const quizs = await this._quizController.getStreamerQuizs(request.twitchExtensionUser!.channel_id);
+		const state = await this.getStreamerStateData(request.twitchExtensionUser!.channel_id, request.twitchExtensionUser!.user_id);
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, bingos, quizs}));
+		response.send(JSON.stringify({success:true, state}));
+	}
+
+	private async getStreamerStateData(streamerId:string, viewerId?:string):Promise<{bingos:any, quizs:any}> {
+		// const bingos = await this._bingoController.getStreamerGrid(streamerId);
+		const bingos = await this._bingoController.getViewerGridList(streamerId, viewerId);
+		const quizs = await this._quizController.getStreamerQuizs(streamerId);
+		return {bingos, quizs:quizs?.data}
 	}
 }

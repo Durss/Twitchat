@@ -7,6 +7,7 @@ import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import SSEController, { SSECode as SSETopic } from "./SSEController.js";
+import TwitchExtensionController from "./TwitchExtensionController.js";
 
 /**
 * Created : 01/06/2024
@@ -14,17 +15,17 @@ import SSEController, { SSECode as SSETopic } from "./SSEController.js";
 export default class BingoGridController extends AbstractController {
 
 	/**
-	 * LRU cache for streamer grids with automatic eviction
-	 * Key format: "[uid]/[gridId]"
+	 * LRU cache for channel grids with automatic eviction
+	 * Key format: "[channelId]/[gridId]"
 	 */
-	private streamerGridsCache = new LRUCache<string, IStreamerGridsCacheData>({
+	private channelGridsCache = new LRUCache<string, IStreamerGridsCacheData>({
 		max: 500,
 		ttl: 1000 * 60 * 5, // 5 minutes TTL
 	});
 
 	/**
 	 * LRU cache for viewer grids (in-memory with periodic disk flush)
-	 * Key format: "[streamerId]/[bingoId]/[viewerId]"
+	 * Key format: "[channelId]/[bingoId]/[viewerId]"
 	 */
 	private viewerGridCache = new LRUCache<string, IViewerGridCacheData>({
 		max: 10000,
@@ -41,6 +42,8 @@ export default class BingoGridController extends AbstractController {
 	 */
 	private refreshingGrids = new Map<string, Promise<IStreamerGridsCacheData | void>>();
 
+	private extensionController!:TwitchExtensionController;
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
@@ -48,6 +51,14 @@ export default class BingoGridController extends AbstractController {
 	/********************
 	* GETTER / SETTERS *
 	********************/
+
+	public setTwitchExtensionController(controller:TwitchExtensionController):void {
+		this.extensionController = controller;
+	}
+
+	private getCacheKey(uid:string, gridId?:string):string {
+		return gridId ? `${uid}/${gridId}` : uid;
+	}
 
 	/**
 	 * Gets a viewer's cached grid (memory first, then disk)
@@ -69,6 +80,113 @@ export default class BingoGridController extends AbstractController {
 			// File doesn't exist or is corrupt
 			return undefined;
 		}
+	}
+
+	/**
+	 * Gets grid definition of a channel
+	 * @param channelId
+	 * @param gridId if ommitted, gets all active grids of the channel
+	 * @returns
+	 */
+	public async getChannelGrids(channelId:string, gridId?:string):Promise<IStreamerGridsCacheData | void> {
+		// Validate UID and gridId to prevent path traversal
+		if(!channelId || !/^[0-9]+$/.test(channelId) || (gridId && !/^[a-zA-Z0-9_-]+$/.test(gridId))) return;
+
+		const cacheKey = this.getCacheKey(channelId, gridId);
+
+		// Return cached if available (TTL managed by LRU cache)
+		const cached = this.channelGridsCache.get(cacheKey);
+		if(cached) return cached;
+
+		// Prevent cache stampede - reuse in-flight request
+		const existing = this.refreshingGrids.get(cacheKey);
+		if(existing) return existing;
+
+		// Start new refresh
+		const promise = this.refreshChannelGrid(channelId, gridId);
+		this.refreshingGrids.set(cacheKey, promise);
+
+		try {
+			return await promise;
+		} finally {
+			this.refreshingGrids.delete(cacheKey);
+		}
+	}
+
+	/**
+	 * Gets grid definition of a viewer
+	 * @param uid
+	 * @param gridId if ommitted, gets all active grids of the streamer
+	 * @returns
+	 */
+	public async getViewerGridList(channelId:string, uid?:string):Promise<IViewerGridCacheData[] | void> {
+		// Validate UID and gridId to prevent path traversal
+		if((uid && !/^[0-9]+$/.test(uid)) || !channelId || !/^[0-9]+$/.test(channelId)) return;
+
+		console.log("Get viewer grid list for channel", channelId, "and user", uid);
+
+		const gridList = await this.getChannelGrids(channelId);
+		const isStreamerPremium = await super.getUserPremiumState(channelId) != "no";
+		const users = await TwitchUtils.getUsers(undefined, [channelId]);
+		const ownerName = users && users.length > 0 ? users[0]!.display_name : "anonymous";
+		const result = new Array<IViewerGridCacheData>();
+
+		if(!gridList) return;
+
+		for(const grid of gridList.data) {
+			const gridId = grid.id;
+
+			let data = grid;
+			if(uid && isStreamerPremium) {
+				const cached = await this.getViewerGrid(channelId, gridId, uid);
+				//Return cached data
+				if(cached) {
+					data = cached.data;
+
+					const cache:IViewerGridCacheData = {
+						data,
+						ownerId:channelId,
+						ownerName,
+						date:Date.now(),
+					};
+
+					result.push(cache);
+
+				//Generate user's grid
+				}else{
+					data = JSON.parse(JSON.stringify(grid)) as typeof grid
+					//Don't shuffle broadcaster so their public grid is the same
+					//as the overlay one
+					if(channelId != uid) {
+						try {
+							this.shuffleGridEntries(data);
+						}catch(error) {
+							Logger.error("Failed shuffling bingo entries for user", uid);
+						}
+					}
+
+					const cache:IViewerGridCacheData = {
+						data,
+						ownerId:channelId,
+						ownerName,
+						date:Date.now(),
+					};
+
+					this.saveViewerGrid(channelId, gridId, uid, cache);
+					
+					result.push(cache);
+				}
+			}else{
+				result.push({
+					data,
+					ownerId:channelId,
+					ownerName,
+					date:Date.now(),
+				});
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -117,6 +235,7 @@ export default class BingoGridController extends AbstractController {
 	public initialize():BingoGridController {
 		this.server.get('/api/bingogrid', async (request, response) => await this.getBingoGrid(request, response));
 		this.server.put('/api/bingogrid', async (request, response) => await this.streamerGridUpdate(request, response));
+		this.server.delete('/api/bingogrid', async (request, response) => await this.streamerGridDelete(request, response));
 		this.server.post('/api/bingogrid/tickStates', async (request, response) => await this.updateTickStates(request, response));
 		this.server.post('/api/bingogrid/bingo', async (request, response) => await this.sendBingoCount(request, response));
 		this.server.post('/api/bingogrid/shuffle', async (request, response) => await this.shuffleEntries(request, response));
@@ -157,41 +276,11 @@ export default class BingoGridController extends AbstractController {
 	}
 
 	/**
-	 * Gets grid definition of a streamer
-	 * @param uid
-	 * @param gridId if ommitted, gets all active grids of the streamer
-	 * @returns
+	 * Actually loads the channel grid from disk (called during cache refresh)
 	 */
-	public async getStreamerGrid(uid:string, gridId?:string):Promise<IStreamerGridsCacheData | void> {
-		// Validate UID and gridId to prevent path traversal
-		if(!uid || !/^[0-9]+$/.test(uid) || (gridId && !/^[a-zA-Z0-9_-]+$/.test(gridId))) return;
-
-		const cacheKey = uid+"/"+gridId;
-
-		// Return cached if available (TTL managed by LRU cache)
-		const cached = this.streamerGridsCache.get(cacheKey);
-		if(cached) return cached;
-
-		// Prevent cache stampede - reuse in-flight request
-		const existing = this.refreshingGrids.get(cacheKey);
-		if(existing) return existing;
-
-		// Start new refresh
-		const promise = this.refreshStreamerGrid(uid, gridId, cacheKey);
-		this.refreshingGrids.set(cacheKey, promise);
-
-		try {
-			return await promise;
-		} finally {
-			this.refreshingGrids.delete(cacheKey);
-		}
-	}
-
-	/**
-	 * Actually loads the streamer grid from disk (called during cache refresh)
-	 */
-	private async refreshStreamerGrid(uid:string, gridId:string|undefined, cacheKey:string):Promise<IStreamerGridsCacheData | void> {
-		const userFilePath = Config.USER_DATA_PATH + uid+".json";
+	private async refreshChannelGrid(channelId:string, gridId?:string):Promise<IStreamerGridsCacheData | void> {
+		const userFilePath = Config.USER_DATA_PATH + channelId+".json";
+		const cacheKey = this.getCacheKey(channelId, gridId);
 
 		try {
 			await fs.promises.access(userFilePath);
@@ -200,7 +289,7 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		try {
-			const users = await TwitchUtils.getUsers(undefined, [uid]);
+			const users = await TwitchUtils.getUsers(undefined, [channelId]);
 			const username = users && users.length > 0 ? users[0]!.display_name : "???";
 			const fileContent = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
 			const data = JSON.parse(fileContent) as { bingoGrids: { gridList: IStreamerGridsCacheData["data"] } };
@@ -214,7 +303,7 @@ export default class BingoGridController extends AbstractController {
 			if(!gridId) {
 				cache = {
 					date: Date.now(),
-					ownerId: uid,
+					ownerId: channelId,
 					ownerName: username,
 					data: data.bingoGrids.gridList.filter(v => v.enabled).map(g => ({
 						id: g.id,
@@ -226,7 +315,7 @@ export default class BingoGridController extends AbstractController {
 						additionalEntries: g.additionalEntries
 					}))
 				};
-				this.streamerGridsCache.set(cacheKey, cache);
+				this.channelGridsCache.set(cacheKey, cache);
 				return cache;
 			}
 
@@ -234,7 +323,7 @@ export default class BingoGridController extends AbstractController {
 			if(grid) {
 				cache = {
 					date: Date.now(),
-					ownerId: uid,
+					ownerId: channelId,
 					ownerName: username,
 					data: [{
 						id: gridId,
@@ -246,7 +335,7 @@ export default class BingoGridController extends AbstractController {
 						additionalEntries: grid.additionalEntries
 					}]
 				};
-				this.streamerGridsCache.set(cacheKey, cache);
+				this.channelGridsCache.set(cacheKey, cache);
 				return cache;
 			}
 		} catch(error) {
@@ -276,7 +365,7 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
-		const gridCache = await this.getStreamerGrid(uid, gridId);
+		const gridCache = await this.getChannelGrids(uid, gridId);
 		if(!gridCache || !gridCache.data || !gridCache.data[0]?.enabled) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -354,24 +443,68 @@ export default class BingoGridController extends AbstractController {
 	private async streamerGridUpdate(request:FastifyRequest, response:FastifyReply, forceNewGridGen:boolean = false) {
 		const user = await super.twitchUserGuard(request, response, false);
 		if(!user) return;
-		// if(user.user_id)
 
-		const body:any = request.body;
-		const gridRef:IStreamerGridsCacheData["data"][number] = body.grid;
-		const gridid:string = body.gridid;
-		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridid);
-		const cachedGrid = await this.getStreamerGrid(user.user_id, gridid);
-		if(!cachedGrid) {
+		const body = request.body as { grid: Omit<IStreamerGridsCacheData["data"][number], "id">, gridid: string };
+		const gridId:string = body.gridid;
+		const gridRef:IStreamerGridsCacheData["data"][number] = {id:gridId, ...body.grid};
+
+		if(!gridRef) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"No grid data provided", errorCode:"NO_DATA"}));
+			return;
+		}
+
+		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridId);
+		const cachedGrids = await this.getChannelGrids(user.user_id);
+		if(!cachedGrids) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
 			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
 			return;
+		}
+		console.log("# >>>>>", cachedGrids.data.map(g => g.id));
+
+		// If updated grid already exists
+		const cached = cachedGrids.data.find(g => g.id == gridId);
+		if(gridId && cached) {
+			// Update cached grid definition
+			cached.cols = gridRef.cols;
+			cached.rows = gridRef.rows;
+			cached.title = gridRef.title;
+			cached.entries = gridRef.entries;
+			cached.enabled = gridRef.enabled;
+			cached.additionalEntries = gridRef.additionalEntries;
+			
+			const cacheAllKey = this.getCacheKey(user.user_id);
+			this.channelGridsCache.set(cacheAllKey, cachedGrids);
+			console.log("1 Set all channel grids cache for", cachedGrids.data.map(g => g.id));
+			
+			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+			const clone = {...cachedGrids};
+			clone.data = clone.data.filter(g => g.id == gridId);
+			this.channelGridsCache.set(cacheOneKey, clone);
+		}else{
+			// Add new grid to existing cache
+			cachedGrids.data.push(gridRef);
+			console.log("### ADD GRID TO CACHE:");
+			console.log(gridRef)
+			const cacheAllKey = this.getCacheKey(user.user_id);
+			this.channelGridsCache.set(cacheAllKey, cachedGrids);
+			console.log("2 Set all channel grids cache for", cachedGrids.data.map(g => g.id));
+
+			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+			const clone = {...cachedGrids};
+			clone.data = [gridRef];
+			this.channelGridsCache.set(cacheOneKey, clone);
 		}
 
 		let files: string[];
 		try {
 			files = await fs.promises.readdir(folder);
 		} catch {
+			this.extensionController.notifyStateUpdate(user.user_id);
+			
 			// Folder doesn't exist, no cache to update
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -379,20 +512,12 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
-		const cached = cachedGrid.data[0]!;
-		cached.enabled = gridRef.enabled;
-		cached.entries = gridRef.entries;
-		cached.cols = gridRef.cols;
-		cached.rows = gridRef.rows;
-		cached.title = gridRef.title;
-		cached.additionalEntries = gridRef.additionalEntries;
-
 		if(!gridRef.enabled || forceNewGridGen) {
 			// Grid disabled or asking to fully rebuild them
 			// Clear memory caches for all viewers of this grid
 			for(const file of files) {
 				const [viewerId] = file.split(".");
-				const cacheKey = `${user.user_id}/${gridid}/${viewerId}`;
+				const cacheKey = `${user.user_id}/${gridId}/${viewerId}`;
 				this.viewerGridCache.delete(cacheKey);
 				this.dirtyViewerGrids.delete(cacheKey);
 			}
@@ -412,16 +537,9 @@ export default class BingoGridController extends AbstractController {
 				const viewerId = chunks[0]!;
 				const grid:typeof gridRef = JSON.parse(JSON.stringify(gridRef)); // Clone to avoid all users from having same grid ref
 
-				// Try memory cache first, then disk
-				let viewerCachedGrid = await this.getViewerGrid(user.user_id, gridid, viewerId);
+				let viewerCachedGrid = await this.getViewerGrid(user.user_id, gridId, viewerId);
 				if(!viewerCachedGrid) {
-					// Try reading directly from disk as fallback
-					try {
-						const content = await Utils.readFileAsync(folder+"/"+file, "utf-8");
-						viewerCachedGrid = JSON.parse(content) as IViewerGridCacheData;
-					} catch {
-						return; // Skip this file if unreadable
-					}
+					return; // No file found and no cache to update
 				}
 
 				const sortedKeysPrev = viewerCachedGrid.data.entries.map(v=> v.id).concat((viewerCachedGrid.data.additionalEntries || []).map(v=>v.id))
@@ -438,15 +556,15 @@ export default class BingoGridController extends AbstractController {
 					return 0;
 				});
 
-				// If cells mismatch, replace the grid after shuffling entries
+				// Check if cells have been added/removed or if grid size changed
 				const forceNewGridGen_local = forceNewGridGen
 				|| sortedKeysNew.join(",") != sortedKeysPrev.join(",")
 				|| viewerCachedGrid.data.cols != grid.cols
 				|| viewerCachedGrid.data.rows != grid.rows;
 
 				if(forceNewGridGen_local) {
+					// Don't shuffle broadcaster so their public grid is the same as the overlay one
 					if(user.user_id != viewerId) {
-						// Don't shuffle broadcaster so their public grid is the same as the overlay one
 						this.shuffleGridEntries(grid);
 					}
 
@@ -459,8 +577,20 @@ export default class BingoGridController extends AbstractController {
 				} else {
 					// Only update labels
 					viewerCachedGrid.data.title = grid.title;
+					const allEntries = grid.entries.concat(grid.additionalEntries || []);
+
+					// Update main entries
 					viewerCachedGrid.data.entries.forEach(cell=>{
-						const newCell = grid.entries.find(v=>v.id == cell.id);
+						const newCell = allEntries.find(v=>v.id == cell.id);
+						if(newCell) {
+							cell.label = newCell.label;
+							cell.lock = newCell.lock;
+							cell.check = newCell.check;
+						}
+					});
+					// Update additional entries if any
+					viewerCachedGrid.data.additionalEntries?.forEach(cell=>{
+						const newCell = allEntries.find(v=>v.id == cell.id);
 						if(newCell) {
 							cell.label = newCell.label;
 							cell.lock = newCell.lock;
@@ -471,15 +601,63 @@ export default class BingoGridController extends AbstractController {
 
 				// Update enabled state to viewers cache
 				viewerCachedGrid.data.enabled = grid.enabled;
-				this.saveViewerGrid(user.user_id, gridid, viewerId, viewerCachedGrid);
+				this.saveViewerGrid(user.user_id, gridId, viewerId, viewerCachedGrid);
 
 				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {grid:viewerCachedGrid.data, force:forceNewGridGen_local});
 			}));
 		}
+		
+		// Refresh both the specific grid cache AND the all-grids cache
+		await this.refreshChannelGrid(user.user_id, gridId);
+		await this.refreshChannelGrid(user.user_id);
+		this.extensionController.notifyStateUpdate(user.user_id);
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send({success:true});
+	}
+
+	/**
+	 * Called when a streamer deletes a grid
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
+	private async streamerGridDelete(request:FastifyRequest, response:FastifyReply) {
+		const user = await super.twitchUserGuard(request, response, false);
+		if(!user) return;
+
+		try {
+			const body = request.query as {gridId:string};
+			const gridId:string = body.gridId;
+			const folder = Config.BINGO_GRID_ROOT(user.user_id, gridId);
+			
+			await fs.promises.rm(folder, { recursive: true, force: true });
+
+			const cachedGrids = await this.getChannelGrids(user.user_id);
+			if(cachedGrids) {
+				console.log(">>>>>", cachedGrids.data.map(g => g.id));
+				cachedGrids.data = cachedGrids.data.filter(g => g.id != gridId);
+				console.log("Updated cached grids after deletion:", cachedGrids.data.map(g => g.id));
+				const cacheAllKey = this.getCacheKey(user.user_id);
+				this.channelGridsCache.set(cacheAllKey, cachedGrids);
+
+				console.log("Deleted cached grid for", user.user_id, "grid", gridId);
+				const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+				this.channelGridsCache.delete(cacheOneKey);
+
+				this.extensionController.notifyStateUpdate(user.user_id);
+			}
+	
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send({success:true});
+		}catch(error) {
+			Logger.error("Failed deleting bingo grid:", String(error));
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send({success:false, error:"failed to delete grid", errorCode:"GRID_DELETE_FAILED"});
+		}
 	}
 
 	/**
@@ -618,7 +796,7 @@ export default class BingoGridController extends AbstractController {
 		const uid:string = body.uid;
 		const gridId:string = body.gridid;
 		const states:{[cellId:string]:boolean} = body.states;
-		const grid = await this.getStreamerGrid(uid, gridId);
+		const grid = await this.getChannelGrids(uid, gridId);
 		if(!grid) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -691,7 +869,7 @@ export default class BingoGridController extends AbstractController {
 	 * @param states
 	 */
 	private async setTickStates(streamerId:string, gridId:string, states:{[cellId:string]:boolean}):Promise<void> {
-		const cache = await this.getStreamerGrid(streamerId, gridId);
+		const cache = await this.getChannelGrids(streamerId, gridId);
 		if(cache) {
 			const grid = cache.data.find(v=>v.id == gridId);
 			if(!grid) {
@@ -751,7 +929,7 @@ export default class BingoGridController extends AbstractController {
 	}
 }
 interface IGrid {
-	id?:string;
+	id:string;
 	enabled:boolean;
 	title:string;
 	rows:number;
