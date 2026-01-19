@@ -60,7 +60,7 @@ export default class KofiController extends AbstractController {
 
 		this.hashmapInverseCache = {};
 		for (const key in this.hashmapCache) {
-			const v = this.hashmapCache[key];
+			const v = this.hashmapCache[key]!;
 			this.hashmapInverseCache[v.twitch] = key;
 		}
 
@@ -94,7 +94,7 @@ export default class KofiController extends AbstractController {
 			}, 24 * 3600 * 1000);
 
 			const user = this.hashmapCache[data.verification_token];
-			if(!user || super.getUserPremiumState(user.twitch) === "no") {
+			if(!user || await super.getUserPremiumState(user.twitch) === "no") {
 				response.header('Content-Type', 'application/json')
 				.status(200)
 				.send("ok");
@@ -228,9 +228,9 @@ export default class KofiController extends AbstractController {
 							const filteredHeaders: Record<string, string> = {};
 							for (const [key, value] of Object.entries(request.headers)) {
 								if (typeof value === 'string') {
-									filteredHeaders[key] = value;
+									filteredHeaders[key] = value!;
 								}else{
-									filteredHeaders[key] = value.toString();
+									filteredHeaders[key] = value!.toString();
 								}
 							}
 							let res = await fetch(url, {
@@ -331,7 +331,7 @@ export default class KofiController extends AbstractController {
 		const guard = await super.twitchUserGuard(request, response);
 		if(guard === false) return;
 		try {
-			const token = this.hashmapInverseCache[guard.user_id];
+			const token = this.hashmapInverseCache[guard.user_id]!;
 			delete this.hashmapCache[token];
 			delete this.hashmapInverseCache[guard.user_id];
 			fs.writeFileSync(Config.KO_FI_USERS, JSON.stringify(this.hashmapCache), "utf-8");

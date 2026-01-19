@@ -555,18 +555,6 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"tenor/search": {
-		GET: {
-			parameters: {
-				search:string;
-			},
-			response: {
-				success:boolean;
-				message?:string;
-				data: TenorGif[];
-			}
-		}
-	};
 	"paypal/create_order": {
 		POST: {
 			parameters: {

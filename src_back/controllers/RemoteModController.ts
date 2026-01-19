@@ -50,10 +50,10 @@ export default class RemoteModController extends AbstractController {
 		if(!user) return;
 
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		channels.forEach(chan => {
-			if(this.getUserPremiumState(chan.broadcaster_id) == "no") return;
-			SSEController.sendToUser(chan.broadcaster_id, SSECode.SHARED_MOD_INFO_REQUEST);
-		});
+		for(const channel of channels) {
+			if(await this.getUserPremiumState(channel.broadcaster_id) == "no") return;
+			SSEController.sendToUser(channel.broadcaster_id, SSECode.SHARED_MOD_INFO_REQUEST);
+		}
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -163,7 +163,7 @@ export default class RemoteModController extends AbstractController {
 
 		//Make sure user is a mod and broadcaster is premium
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || this.getUserPremiumState(body.ownerId) === "no") {
+		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || await this.getUserPremiumState(body.ownerId) === "no") {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
 			response.send(JSON.stringify({success:false, error:"cannot remotely add a message to a private Q&A session", errorCode:"PRIVATE_QNA_SESSION"}));
@@ -274,7 +274,7 @@ export default class RemoteModController extends AbstractController {
 		}
 
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || this.getUserPremiumState(body.ownerId) === "no") {
+		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || await this.getUserPremiumState(body.ownerId) === "no") {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
 			response.send(JSON.stringify({success:false, error:"invalid parameters", errorCode:"INVALID_PARAMETERS"}));
