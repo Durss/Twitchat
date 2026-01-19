@@ -7,9 +7,9 @@
 			<h1 v-if="!error && !loading && title">{{ title }}</h1>
 		</div>
 
-		<Icon v-if="loading" name="loader" class="loader" />
+		<Icon v-if="loading" name="loader" class="holder loader" />
 
-		<div v-else-if="error || !gridEnabled" class="notFound">
+		<div v-else-if="error || !gridEnabled" class="holder notFound">
 			<Icon name="emote"/>
 			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
 		</div>
@@ -743,6 +743,7 @@ export default toNative(BingoGridView);
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 	}
 
 	.grid {
