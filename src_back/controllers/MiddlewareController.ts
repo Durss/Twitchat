@@ -7,7 +7,7 @@ import * as path from "path";
 import * as mime from "mime-types";
 import cors from '@fastify/cors'
 import fastifyStatic from "@fastify/static";
-import fastifyRateLimit from "@fastify/rate-limit";
+import fastifyRateLimit, { errorResponseBuilderContext } from "@fastify/rate-limit";
 
 /**
 * Created : 22/02/2023
@@ -48,7 +48,7 @@ export default class MiddlewareController extends AbstractController {
 				'x-ratelimit-reset': true,
 				'retry-after': false
 			},
-			allowList: (request, key) => {
+			allowList: (request:FastifyRequest, _key:string) => {
 				//Apply stricter rate limit to auth endpoints
 				if(/\/api\/auth\/*/.test(request.url)) {
 					return false; //Force rate limiting on auth endpoints
@@ -58,10 +58,10 @@ export default class MiddlewareController extends AbstractController {
 					|| request.url == "/api/configs"
 					|| request.url == "/api/sse/register";
 			},
-			onBanReach: (request, key) => {
+			onBanReach: (request:FastifyRequest, _key:string) => {
 				this.expandCustomRateLimitDuration(request);
 			},
-			errorResponseBuilder: (request, context) => {
+			errorResponseBuilder: (_request:FastifyRequest, _context:errorResponseBuilderContext) => {
 				return {
 					code: 429,
 					error: 'Too Many Requests',
@@ -248,10 +248,10 @@ export default class MiddlewareController extends AbstractController {
 			this.customRateLimit[this.getIp(request)] = Date.now() + 5000;
 			this.customRateLimitAttempts[this.getIp(request)] = 0;
 		}
-		const attempts = ++this.customRateLimitAttempts[this.getIp(request)];
+		const attempts = ++this.customRateLimitAttempts[this.getIp(request)]!;
 
 		//Make custom rate limit duration exponential if user keeps trying
-		this.customRateLimit[this.getIp(request)] += Math.pow(attempts,3) * 1000;
-		return this.customRateLimit[this.getIp(request)];
+		this.customRateLimit[this.getIp(request)]! += Math.pow(attempts,3) * 1000;
+		return this.customRateLimit[this.getIp(request)]!;
 	}
 }

@@ -43,7 +43,6 @@ import { storeValues } from '@/store/values/storeValues';
 import { storeVoice } from '@/store/voice/storeVoice';
 import { storeYoutube } from '@/store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import { createPopper } from '@popperjs/core';
@@ -82,6 +81,7 @@ import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
+import Config from './utils/Config';
 
 window.setInitMessage("Booting app...");
 
