@@ -249,7 +249,7 @@ export default class GoogleController extends AbstractController {
 		const userInfo = (await TwitchUtils.getUserFromToken(request.headers.authorization || ""))!;
 
 		if(this._translationCache.has(params.text)) {
-			const translation = this._translationCache.get(params.text);
+			const translation = this._translationCache.get(params.text)!;
 			Logger.info("Load translation from cache:", translation);
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -263,9 +263,9 @@ export default class GoogleController extends AbstractController {
 			}
 		}
 
-		if(this._userTotranslations[userInfo.user_id].date == dateTs
-		&& this._userTotranslations[userInfo.user_id].count >= Config.maxTranslationsPerDay) {
-			Logger.warn("Maximum daily translations reached for "+userInfo.login+" #"+userInfo.user_id+" with "+this._userTotranslations[userInfo.user_id].count+" translations");
+		if(this._userTotranslations[userInfo.user_id]!.date == dateTs
+		&& this._userTotranslations[userInfo.user_id]!.count >= Config.maxTranslationsPerDay) {
+			Logger.warn("Maximum daily translations reached for "+userInfo.login+" #"+userInfo.user_id+" with "+this._userTotranslations[userInfo.user_id]!.count+" translations");
 			response.header('Content-Type', 'application/json');
 			response.status(429);
 			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"QUOTA_REACHED"}));
@@ -290,7 +290,7 @@ export default class GoogleController extends AbstractController {
 			return;
 		}
 
-		this._userTotranslations[userInfo.user_id].count ++;
+		this._userTotranslations[userInfo.user_id]!.count ++;
 
 		try {
 
@@ -305,22 +305,22 @@ export default class GoogleController extends AbstractController {
 			//Google typing is wrong. Fixing that mistake with this dirty typing
 			const data = res.data as {data:translate_v2.Schema$TranslationsListResponse};
 			if(data.data.translations) {
-				const translation = data.data.translations[0].translatedText;
+				const translation = data.data.translations[0]!.translatedText ?? "";
 				if(translation == params.text) {
 					Logger.success("Translate success with no change:", translation);
 					response.header('Content-Type', 'application/json');
 					response.status(204);
 					response.send(JSON.stringify({success:true, data:{translation:""}}));
+					this._translationCache.set(params.text, translation);
+					setTimeout(() => {
+						this._translationCache.delete(params.text);
+					}, 2147483647 ); //Cache for as much time as node allows (about 24 days)
 				}else{
 					Logger.success("Translate success:", translation);
 					response.header('Content-Type', 'application/json');
 					response.status(200);
 					response.send(JSON.stringify({success:true, data:{translation}}));
 				}
-				this._translationCache.set(params.text, translation);
-				setTimeout(() => {
-					this._translationCache.delete(params.text);
-				}, 2147483647 ); //Cache for as much time as node allows (about 24 days)
 			}else{
 				Logger.error("Translate failed");
 				response.header('Content-Type', 'application/json');

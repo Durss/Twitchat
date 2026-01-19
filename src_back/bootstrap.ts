@@ -21,7 +21,6 @@ import SSEController from './controllers/SSEController.js';
 import SpotifyController from './controllers/SpotifyController.js';
 import StreamelementsController from './controllers/StreamelementsController.js';
 import StreamlabsController from './controllers/StreamlabsController.js';
-import TenorController from './controllers/TenorController.js';
 import TiltifyController from './controllers/TiltifyController.js';
 import TipeeeController from './controllers/TipeeeController.js';
 import UluleController from './controllers/UluleController.js';
@@ -88,7 +87,6 @@ server.register(fastifyFormbody)
 	new AdminController(server).initialize();
 	new UluleController(server).initialize();
 	new PatreonController(server).initialize();
-	new TenorController(server).initialize();
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();

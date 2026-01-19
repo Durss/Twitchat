@@ -36,7 +36,7 @@ export default class QuizController extends AbstractController {
 
 	public getStreamerQuizs(uid:string, quizId?:string):IQuizCacheData|null {
 		//Validate UID and gridId to prevent path traversal
-		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return
+		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return null
 
 		const cacheKey = uid+"/"+quizId;
 		let cache = this.cachedBingoGrids[cacheKey];
@@ -49,12 +49,12 @@ export default class QuizController extends AbstractController {
 				cache = {
 					date: Date.now(),
 					ownerId: uid,
-					data:quizId? [data.quizConfigs.quizList.find(quiz => quiz.id === quizId)] : data.quizConfigs.quizList,
+					data:quizId? [data.quizConfigs.quizList.find(quiz => quiz.id === quizId)!] : data.quizConfigs.quizList,
 				}
 				this.cachedBingoGrids[cacheKey] = cache;
 			}
 		}
-		return cache;
+		return cache ?? null;
 	}
 	
 	
@@ -78,6 +78,13 @@ export default class QuizController extends AbstractController {
 		}
 
 		const cache = this.getStreamerQuizs(uid, quizId);
+		if(!cache) {
+			response.header('Content-Type', 'application/json');
+			response.status(404);
+			response.send(JSON.stringify({success:false, error:"Quiz not found", errorCode:"QUIZ_NOT_FOUND"}));
+			return;
+		}
+		
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data:cache.data}));

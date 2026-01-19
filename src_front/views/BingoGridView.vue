@@ -742,6 +742,7 @@ export default toNative(BingoGridView);
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 	}
 
 	.grid {

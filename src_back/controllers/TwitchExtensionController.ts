@@ -9,12 +9,18 @@ import BingoGridController from "./BingoGridController.js";
 import QuizController from "./QuizController.js";
 
 /**
+ * The extension code itself isn't part of this repository.
+ * At this time, the extension code is part of a dedicated private repository.
+ * Not sure yet if it will be made public later.
+ * 
+ * This controller handles API requests made by the "Twichat Companion" Twitch Extension.
+ * 
 * Created : 10/06/2023 
 */
 export default class TwitchExtensionController extends AbstractController {
 
-	private _bingoController:BingoGridController;
-	private _quizController:QuizController;
+	private _bingoController!:BingoGridController;
+	private _quizController!:QuizController;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -51,7 +57,7 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @returns 
 	 */
 	private async authHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
-		const headerToken = request.headers.authorization;
+		const headerToken = request.headers.authorization!;
 		const headerHash = request.headers['x-twitchat-verify'];
 		const hash = createHash('sha512')
 			.update(Config.credentials.twitchat_api_secret + ':' + headerToken)
@@ -80,13 +86,13 @@ export default class TwitchExtensionController extends AbstractController {
 		};
 		
 		try {
-			SSEController.sendToUser(request.twitchExtensionUser.channel_id, "TWITCHEXT_CLICK", {
+			SSEController.sendToUser(request.twitchExtensionUser!.channel_id, "TWITCHEXT_CLICK", {
 				px: params.px,
 				py: params.py,
 				alt: params.alt,
 				ctrl: params.ctrl,
 				shift: params.shift,
-				user_id: request.twitchExtensionUser.user_id,
+				user_id: request.twitchExtensionUser!.user_id,
 			});
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -106,7 +112,7 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response 
 	 */
 	private async getBingoGrids(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const info = await this._bingoController.getStreamerGrid(request.twitchExtensionUser.channel_id);
+		const info = await this._bingoController.getStreamerGrid(request.twitchExtensionUser!.channel_id);
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, user:info ? {id:info.ownerId, login:info.ownerName} : null, gridList: info ? info.data : []}));
@@ -118,8 +124,8 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response 
 	 */
 	private async getStreamerState(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const bingos = await this._bingoController.getStreamerGrid(request.twitchExtensionUser.channel_id);
-		const quizs = await this._quizController.getStreamerQuizs(request.twitchExtensionUser.channel_id);
+		const bingos = await this._bingoController.getStreamerGrid(request.twitchExtensionUser!.channel_id);
+		const quizs = await this._quizController.getStreamerQuizs(request.twitchExtensionUser!.channel_id);
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, bingos, quizs}));
