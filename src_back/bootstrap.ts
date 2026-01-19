@@ -99,7 +99,10 @@ server.register(fastifyFormbody)
 	new TiltifyController(server).initialize();
 	const bingoController = new BingoGridController(server).initialize();
 	const quizController = new QuizController(server).initialize();
-	new TwitchExtensionController(server).initialize(bingoController, quizController);
+	const extensionController = new TwitchExtensionController(server).initialize(bingoController, quizController);
+
+	bingoController.setTwitchExtensionController(extensionController);
+	quizController.setTwitchExtensionController(extensionController);
 	
 	//Start server
 	start();
