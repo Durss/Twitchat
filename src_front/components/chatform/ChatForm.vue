@@ -971,12 +971,6 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(isAdmin && cmd == "/tenorgifload") {
-			console.log(this.$store.chat.messages);
-			console.log(await ApiHelper.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
-			this.message = "";
-		}else
-
 		if(cmd == "/adslogs") {
 			Logger.instance.download("ads");
 			this.message = "";
