@@ -407,7 +407,7 @@ export default class Config {
 
 		//Get the data from hashmap
 		if (map[this.envName] != undefined) return map[this.envName];
-		return map[Object.keys(map)[0]];
+		return map[Object.keys(map)[0]!];
 	}
 }
 

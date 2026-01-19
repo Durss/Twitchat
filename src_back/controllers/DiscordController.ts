@@ -62,7 +62,7 @@ export default class DiscordController extends AbstractController {
 		setInterval(()=> {
 			const now = Date.now();
 			for (let i = 0; i < this._pendingTokens.length; i++) {
-				const token = this._pendingTokens[i];
+				const token = this._pendingTokens[i]!;
 				if(now > token.expires_at) {
 					this._pendingTokens.splice(i, 1);
 					i--;
@@ -106,7 +106,7 @@ export default class DiscordController extends AbstractController {
 	private buildTwitchHashmap():void {
 		DiscordController._twitchId2GuildId = {};
 		for (const guild in DiscordController._guildId2TwitchId) {
-			const entry = DiscordController._guildId2TwitchId[guild];
+			const entry = DiscordController._guildId2TwitchId[guild]!;
 			DiscordController._twitchId2GuildId[entry.twitchUID] = entry;
 		}
 	}
@@ -120,7 +120,7 @@ export default class DiscordController extends AbstractController {
 
 		let entry:TwitchatGuild2Twitch|undefined;
 		for (const guild in DiscordController._guildId2TwitchId) {
-			if(DiscordController._guildId2TwitchId[guild].twitchUID == user.user_id){
+			if(DiscordController._guildId2TwitchId[guild]!.twitchUID == user.user_id){
 				entry = DiscordController._guildId2TwitchId[guild];
 				break;
 			}
@@ -208,9 +208,9 @@ export default class DiscordController extends AbstractController {
 			threadCreated = true;
 			//merge histories together until it reaches max chars count for 1 message
 			let merge = "";
-			let mergeHistory:string[] = [params.history[0]];//First message contains user info
+			let mergeHistory:string[] = [params.history[0]!];//First message contains user info
 			for (let i = 1; i < params.history.length; i++) {
-				const h = params.history[i];
+				const h = params.history[i]!;
 				if((merge+h).length < 1900) {
 					merge += "\n"+h;
 				}else{
@@ -344,7 +344,7 @@ export default class DiscordController extends AbstractController {
 		if(user == false) return;
 
 		for (const guild in DiscordController._guildId2TwitchId) {
-			if(DiscordController._guildId2TwitchId[guild].twitchUID == user.user_id){
+			if(DiscordController._guildId2TwitchId[guild]!.twitchUID == user.user_id){
 				delete DiscordController._guildId2TwitchId[guild];
 				fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 				this.buildTwitchHashmap();
@@ -509,7 +509,7 @@ export default class DiscordController extends AbstractController {
 			//Add 1 minute to the expiration date
 			token.expires_at += this._tokenValidityDuration;
 		}
-		const result:{[key:string]:any} = { success:status == 200 }
+		const result:{success:boolean, guildName?:string, errorCode?:string, channelName?:string} = { success:status == 200 }
 		if(result.success) {
 			result.guildName = token.guildName;
 		}else{
@@ -733,15 +733,13 @@ export default class DiscordController extends AbstractController {
 		const missingCmds:SlashCommandBuilder[] = [];
 		const removedCmds:SlashCommandDefinition[] = [];
 		//Check which commands should be removed
-		for (let i = 0; i < existingCmds.length; i++) {
-			const cmd = existingCmds[i];
+		for (const cmd of existingCmds) {
 			if(commandList.findIndex(v => v.name == cmd.name && v.options.length == cmd.options.length) == -1) {
 				removedCmds.push(cmd);
 			}
 		}
 		//Define which commands are missing
-		for (let i = 0; i < commandList.length; i++) {
-			const cmd = commandList[i];
+		for (const cmd of commandList) {
 			if(existingCmds.findIndex(v => v.name == cmd.name && v.options.length == cmd.options.length) == -1) {
 				missingCmds.push(cmd);
 			}
@@ -749,8 +747,7 @@ export default class DiscordController extends AbstractController {
 		//Define which commands should be removed
 		if(removedCmds.length > 0) {
 			Logger.warn("Removing commands "+removedCmds.map(v=>v.name).join(", "));
-			for (let i = 0; i < removedCmds.length; i++) {
-				const cmd = removedCmds[i];
+			for (const cmd of removedCmds) {
 				if(appCommandMode) {
 					await this._rest.delete(Routes.applicationCommand(Config.credentials.discord_client_id, cmd.id));
 				}else{
@@ -819,7 +816,7 @@ export default class DiscordController extends AbstractController {
 										locale:command.locale,
 										expires_at:Date.now() + this._tokenValidityDuration,
 										guildName:guildDetails.name,
-										userId:users[0].id,
+										userId:users[0]!.id,
 										channelName:command.channel.name,
 										guildId:command.guild_id,
 										guildChannelID:command.channel_id,
@@ -907,7 +904,7 @@ export default class DiscordController extends AbstractController {
 
 				const style = command.data.options.find(v=>v.name == "style")?.value || "message";
 				const confirm = command.data.name == "ask"
-				const guild = DiscordController._twitchId2GuildId[uid];
+				const guild = DiscordController._twitchId2GuildId[uid]!;
 
 				let quote = "";
 				let highlightColor = "";
