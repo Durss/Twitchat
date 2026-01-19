@@ -15,6 +15,7 @@ import StoreProxy, { type IBingoGridActions, type IBingoGridGetters, type IBingo
 let saveCountPending:number = 0;
 let debounceSave:number = -1;
 let debounceShuffle:number = -1;
+let debounceBroadcast:number = -1;
 let debounceChatAnnounce:number = -1
 let tickDebounce:{[key:string]:number} = {};
 let chatAnnounceStack:{user:TwitchatDataTypes.TwitchatUser, count:number}[] = [];
@@ -326,6 +327,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			.then(()=>{
 				this.gridList = this.gridList.filter(g => g.id !== id);
 				this.saveData();
+				ApiHelper.call("bingogrid", "DELETE", {gridId:id});
 			}).catch(()=>{})
 		},
 
@@ -617,18 +619,21 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					}
 
 					if(StoreProxy.auth.isPremium && broadcastToViewers) {
-						//Debounce this call as it will fire an event to every connected viewer
-						ApiHelper.call("bingogrid", "PUT", {
-							gridid:grid.id,
-							grid:{
-								cols:grid.cols,
-								rows:grid.rows,
-								title:grid.title,
-								entries:grid.entries,
-								enabled:grid.enabled,
-								additionalEntries:grid.additionalEntries,
-							}
-						});
+						window.clearTimeout(debounceBroadcast);
+						debounceBroadcast = window.setTimeout(() => {
+							//Debounce this call as it will fire an event to every connected viewer
+							ApiHelper.call("bingogrid", "PUT", {
+								gridid:grid.id,
+								grid:{
+									cols:grid.cols,
+									rows:grid.rows,
+									title:grid.title,
+									entries:grid.entries,
+									enabled:grid.enabled,
+									additionalEntries:grid.additionalEntries,
+								}
+							});
+						}, 3000);
 					}
 				}
 
