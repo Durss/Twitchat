@@ -133,17 +133,16 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchChannelModerateV2Scopes, TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
+import { watch } from 'vue';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
-import DataStore from '@/store/DataStore';
-import { watch } from 'vue';
 import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{

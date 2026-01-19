@@ -7,7 +7,7 @@
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
-			maxLength="3"
+			:maxLength="3"
 			@keydown="onKeyDown($event, 'd')"
 			@focus="onFocus($event)"
 			@blur="clamp('d'); onChange()" />
@@ -21,7 +21,7 @@
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
-			maxLength="2"
+			:maxLength="2"
 			@keydown="onKeyDown($event, 'h')"
 			@focus="onFocus($event)"
 			@blur="clamp('h'); onChange()" />
@@ -35,7 +35,7 @@
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
-			maxLength="9"
+			:maxLength="9"
 			@keydown="onKeyDown($event, 'm')"
 			@focus="onFocus($event)"
 			@blur="clamp('m'); onChange()" />
@@ -51,7 +51,7 @@
 			:no-nl="true"
 			:no-html="true"
 			:id="id"
-			maxLength="9"
+			:maxLength="9"
 			@keydown="onKeyDown($event, 's')"
 			@focus="onFocus($event)"
 			@blur="clamp('s'); onChange()" />

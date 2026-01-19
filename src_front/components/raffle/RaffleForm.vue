@@ -213,7 +213,8 @@
 				:aria-label="$t('raffle.subs.startBt_aria')"
 				icon="sub"
 				v-if="triggerMode === false"
-				:loading="pickingEntry">
+				:loading="pickingEntry"
+				:disabled="subsFiltered.length == 0">
 					<i18n-t scope="global" keypath="raffle.subs.startBt">
 						<template #COUNT>
 							<i class="small">({{ subsFiltered.length }} subs)</i>
@@ -725,9 +726,10 @@ class RaffleForm extends AbstractSidePanel {
 
 		//Sub mode specifics
 		if(this.localData.mode == "sub") {
-			let subs = Utils.shuffle(await TwitchUtils.getSubsList(false));
+			this.subs = Utils.shuffle(await TwitchUtils.getSubsList(false));
+			if(this.subsFiltered.length == 0) return;
 			let interval = window.setInterval(()=> {
-				this.winnerTmp = Utils.pickRand(subs).user_name;
+				this.winnerTmp = Utils.pickRand(this.subsFiltered).user_name;
 			}, 70)
 			this.winner = null;
 			this.pickingEntry = true;
