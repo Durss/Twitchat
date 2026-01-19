@@ -5,16 +5,6 @@
 			<img src="@/assets/icons/bingo_logo.svg" alt="logo" class="logo">
 			
 			<h1 v-if="!error && !loading && title">{{ title }}</h1>
-		</div>
-
-		<Icon v-if="loading" name="loader" class="holder loader" />
-
-		<div v-else-if="error || !gridEnabled" class="holder notFound">
-			<Icon name="emote"/>
-			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
-		</div>
-
-		<div class="holder" v-else >
 
 			<template v-if="multiplayerMode">
 				<TTButton @click.capture.prevent="generateCSRF(true)"
@@ -44,7 +34,16 @@
 				</div>
 				-->
 			</template>
+		</div>
 
+		<Icon v-if="loading" name="loader" class="holder loader" />
+
+		<div v-else-if="error || !gridEnabled" class="holder notFound">
+			<Icon name="emote"/>
+			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
+		</div>
+
+		<div class="holder" v-else >
 			<div v-if="sseError" class="card-item error" @click="sseError = false">
 				<Icon class="icon" name="alert" />
 				<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
@@ -101,16 +100,16 @@
 					</div>
 				</div>
 			</template>
-		</div>
-
-		<div class="stars">
-			<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
-			v-for="i in 100"
-			ref="stars"
-			class="star"><path style="fill:currentColor" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
-				c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
-				c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
-				c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
+	
+			<div class="stars">
+				<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
+				v-for="i in 100"
+				ref="stars"
+				class="star"><path style="fill:currentColor" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
+					c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
+					c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
+					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
+			</div>
 		</div>
 
 		<i18n-t scope="global" keypath="bingo_grid.state.footer" class="footer" tag="div">
@@ -689,11 +688,12 @@ export default toNative(BingoGridView);
 	align-items: center;
 
 	.head {
-		gap: 0;
+		gap: .5em;
 		display: flex;
 		flex-direction: column;
 		margin: 2em auto 0 auto;
 		align-items: center;
+		width: 100%;
 		.logo {
 			height: 5em;
 			display: block;
@@ -743,7 +743,6 @@ export default toNative(BingoGridView);
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
 	}
 
 	.grid {
@@ -764,7 +763,6 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: min(800px, 95%);
 			gap: 5px;
 			// overflow: hidden;
 			.cell {
@@ -784,6 +782,7 @@ export default toNative(BingoGridView);
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
 				min-width: 70px;
+				max-width: 150px;
 				// transition: background-color .25s,  box-shadow .25s, transform .25s;
 				&:not(.disabled):hover {
 					background-color: var(--background-color-fader);
