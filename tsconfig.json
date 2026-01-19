@@ -17,8 +17,9 @@
 		"forceConsistentCasingInFileNames": true,
 		"useDefineForClassFields": true,
 		"sourceMap": true,
-		"ignoreDeprecations": "5.0",
+		"noImplicitAny": true,
 		"noUncheckedIndexedAccess": true,
+		"suppressImplicitAnyIndexErrors": false,
 		"baseUrl": ".",
 		"types": [
 			"vite/client",

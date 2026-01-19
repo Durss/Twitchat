@@ -113,7 +113,7 @@ export default class TwitchUtils {
 	 */
 	public static async getUsers(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUserInfos[]|false> {
 		this._uidToUser = {};
-		const allCached = (logins ? logins : ids)?.map(idOrLogin => this._uidToUser[idOrLogin]).filter(v => !!v);
+		const allCached = (logins ? logins : ids)?.map(idOrLogin => this._uidToUser[idOrLogin]).filter(v => !!v)!;
 		if(allCached.length > 0) {
 			return allCached;
 		}
