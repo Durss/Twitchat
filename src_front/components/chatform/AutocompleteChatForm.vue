@@ -185,7 +185,8 @@ class AutocompleteChatForm extends Vue {
 			case "Tab":{
 				e.preventDefault();
 				e.stopPropagation();
-				this.selectItem(this.filteredItems[this.selectedIndex]!);
+				const selectedItem = this.filteredItems[this.selectedIndex];
+				if(selectedItem) this.selectItem(selectedItem);
 				break;
 			}
 			default: return;
