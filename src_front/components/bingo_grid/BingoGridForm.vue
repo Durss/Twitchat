@@ -135,7 +135,7 @@
 							<div class="ctas">
 								<TTButton @click="$store.bingoGrid.shuffleGrid(bingo.id)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
 								<TTButton @click="$store.bingoGrid.resetCheckStates(bingo.id)" icon="refresh">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
-								<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.clear_labels_bt") }}</TTButton>
+								<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash" alert>{{ $t("bingo_grid.form.clear_labels_bt") }}</TTButton>
 							</div>
 						</VueDraggable>
 
