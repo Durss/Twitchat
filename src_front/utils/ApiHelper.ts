@@ -967,6 +967,16 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		}
+		DELETE: {
+			parameters: {
+				gridId:string;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
 	};
 	"bingogrid/tickStates": {
 		POST: {
