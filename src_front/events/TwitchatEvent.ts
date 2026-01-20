@@ -471,23 +471,6 @@ export type TwitchatEventMap = {
 		show?: boolean;
 	}
 	/**
-	 * Triggered when a heat click occurs on a bingo grid cell
-	 */
-	ON_BINGO_GRID_HEAT_CLICK: {
-		/**
-		 * Bingo grid ID to get parameters for
-		 */
-		id: string;
-		/**
-		 * Cell entry ID that was clicked
-		 */
-		entryId: string;
-		/**
-		 * Heat click data
-		 */
-		click: TwitchatDataTypes.HeatClickData;
-	};
-	/**
 	 * Triggered when a viewer completes a bingo
 	 */
 	ON_BINGO_GRID_VIEWER_EVENT: {
