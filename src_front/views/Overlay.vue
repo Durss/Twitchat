@@ -105,7 +105,6 @@ class Overlay extends Vue {
 		const py = event.detail.y * document.body.clientHeight;
 
 		const player = this.$refs.music as ComponentPublicInstance;
-		const bingoGrid = this.$refs.bingoGrid as OverlayBingoGridClass;
 
 		//Check if it matches the player's bounds
 		if(this.overlay === "unified" && player) {
@@ -116,18 +115,6 @@ class Overlay extends Vue {
 			py >= bounds.top &&
 			py <= bounds.bottom) {
 				PublicAPI.instance.broadcast("ON_MUSIC_PLAYER_HEAT_CLICK", event.detail);
-			}
-		}
-
-		//Check if clicking on bingo grid to tick cells
-		if(bingoGrid) {
-			const bounds = bingoGrid.$el.getBoundingClientRect();
-			// Check if the point is over the player
-			if(px >= bounds.left &&
-			px <= bounds.right &&
-			py >= bounds.top &&
-			py <= bounds.bottom) {
-				bingoGrid.onHeatClick(event.detail, px, py);
 			}
 		}
 	}
