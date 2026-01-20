@@ -368,7 +368,6 @@ class StreamSummary extends AbstractSidePanel {
 		let csv = "";
 		
 		if(globalData) {
-			console.log("ON_OK");
 			csv = "messCount, charCount, emoteCount, chatterCount, subT1Count, subT2Count, subT3Count, subPrimeCount, subgiftCount, bitsCount, followCount, rewardCount, channelPointCount, raidCount, raidViewerCount, hypeTrainCount, pollCount, predictionCount, bingoCount, raffleCount, outShoutout, inShoutout, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
 			csv += this.messCount+", ";
 			csv += this.charCount+", ";

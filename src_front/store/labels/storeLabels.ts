@@ -189,7 +189,7 @@ export const storeLabels = defineStore('labels', {
 			}
 
 			//Load avatar if the one given is empty
-			if(userId && !value && key.indexOf("ON__AVATAR")) {
+			if(userId && !value && key.indexOf("_AVATAR")) {
 				const [user] = await TwitchUtils.getUserInfo([userId]);
 				if(user) value = user.profile_image_url;
 			}

@@ -4129,7 +4129,7 @@ export default class TriggerActionHandler {
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
-				if(placeholder.pointer.indexOf("ON___")==0) {
+				if(placeholder.pointer.indexOf("__")==0) {
 					const pointer = placeholder.pointer.toLowerCase();
 					/**
 					 * If the placeholder requests for the current stream info
