@@ -655,7 +655,7 @@ export default class Utils {
 				this.mergeRemoteObject(v as JsonObject, local[key] as JsonObject);
 
 			}else{
-				if(log) console.log("ON_REPLACE");
+				if(log) console.log("REPLACE");
 				if(log) console.log(local[key]);
 				if(log) console.log(v);
 				local[key] = v;
