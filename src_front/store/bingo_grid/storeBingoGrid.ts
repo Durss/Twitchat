@@ -103,32 +103,6 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			});
 
 			/**
-			 * Get notified when clicking on a grid via heat
-			 */
-			PublicAPI.instance.addEventListener("ON_BINGO_GRID_HEAT_CLICK", async (event)=>{
-				if(!event.data) return;
-				const data = event.data;
-				const grid = this.gridList.find(g => g.id === (data.id || ""));
-				//Ignore heat click if grid is disabled or heat interaction is disabled
-				if(!grid || !grid.enabled || !grid.heatClick) return;
-
-				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
-
-				//Ignore banned users (but not timed out ones)
-				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id]!;
-				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
-
-				const allowed = await Utils.checkPermissions(grid.heatClickPermissions, user, data.click.channelId);
-				if(!allowed) {
-					console.log("User not allowed to click !");
-				}else{
-					const entry = grid.entries.find(e => e.id === (event.data?.entryId || ""));
-					if(!entry) return;
-					this.toggleCell(grid.id, entry.id);
-				}
-			});
-
-			/**
 			 * Relay to set grid visibility from Stream Deck socket
 			 */
 			PublicAPI.instance.addEventListener("SET_BINGO_GRID_CONFIGS_VISIBILITY_FROM_SD", async (event)=>{
@@ -291,7 +265,6 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				textColor:"#000000",
 				enabled:true,
 				showGrid:true,
-				heatClick:false,
 				winSoundVolume:100,
 				textSize:20,
 				cols:5,
@@ -300,11 +273,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				backgroundAlpha:0,
 				backgroundColor:"#000000",
 				autoShowHide:false,
+				chatAnnouncementEnabled:true,
 				chatAnnouncement:StoreProxy.i18n.t("bingo_grid.form.param_chatAnnouncement_default"),
 				overlayAnnouncement:true,
-				chatAnnouncementEnabled:true,
 				overlayAnnouncementPermissions:Utils.getDefaultPermissions(),
+				chatCmd:undefined,
 				chatCmdPermissions:Utils.getDefaultPermissions(true, true, false, false, false, false),
+				heatClick:false,
 				heatClickPermissions:Utils.getDefaultPermissions(true, true, false, false, false, false),
 			}
 			const len = data.cols*data.rows;
