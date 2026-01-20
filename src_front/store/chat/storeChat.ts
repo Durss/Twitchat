@@ -2064,9 +2064,6 @@ export const storeChat = defineStore('chat', {
 					//Handle Voicemod commands
 					sVoice.handleChatCommand(typedMessage, cmd);
 
-					//Handle bingo grid commands
-					sBingoGrid.handleChatCommand(typedMessage, cmd);
-
 					//Handle chat poll commands
 					sChatPoll.handleChatCommand(typedMessage, cmd);
 				}
