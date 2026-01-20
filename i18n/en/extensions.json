@@ -9,6 +9,15 @@
 		"type_mobile":"Mobile",
 		"type_component":"Component",
 		"update_error":"Something went wrong when updating the extension",
-		"scope_grant":"Twitchat requires a missing authorization to manage your extensions"
+		"scope_grant":"Twitchat requires a missing authorization to manage your extensions",
+		"installer": {
+			"loading":"Loading Twitch extension status...",
+			"install":"Install \"Twichat Companion\" extension on your channel to let your viewers play.",
+			"installBt":"Install extension",
+			"enable":"\"Twichat Companion\" extension is installed but not enabled on your channel!",
+			"enableBt":"Enable extension",
+			"enableError":"An error occurred while enabling the extension",
+			"ready":"The \"Twichat Companion\" extension is active on your channel!"
+		}
 	}
 }
