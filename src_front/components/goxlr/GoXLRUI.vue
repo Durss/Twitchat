@@ -99,7 +99,6 @@ class GoXLRUI extends Vue {
 	 * @param e 
 	 */
 	public onGoXLREvent(e:GoXLRSocketEvent):void {
-		console.log('EVENT', e);
 		const holder = this.$refs.svgHolder as HTMLDivElement;
 		switch(e.type) {
 			//A button is pressed or release, set its highlight state accordingly
@@ -107,7 +106,6 @@ class GoXLRUI extends Vue {
 			case GoXLRSocketEvent.BUTTON_RELEASED: {
 				const bt = e.buttonId!;
 				const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
-				console.log("ON_ITEM", item);
 				if(!item) return;
 				if(e.type == GoXLRSocketEvent.BUTTON_PRESSED) {
 					item.classList.add("highlight");
@@ -159,7 +157,7 @@ class GoXLRUI extends Vue {
 					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("SamplerSelect") || v == id);
 				}
 
-				// const fullID = ids.join("ON__") as GoXLRTypes.ButtonTypesData;
+				// const fullID = ids.join("__") as GoXLRTypes.ButtonTypesData;
 				const index = this.selectedButtons.indexOf(id);
 				if(index == -1) {
 					this.selectedButtons.push(id);
