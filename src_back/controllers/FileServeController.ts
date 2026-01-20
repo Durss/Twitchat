@@ -114,6 +114,7 @@ export default class FileServeController extends AbstractController {
 				tiltify_client_id:Config.credentials.tiltify_client_id,
 				tiltify_scopes:Config.credentials.tiltify_scopes,
 
+				twitchExtension_version:Config.credentials.twitchExtension_version,
 				twitchExtension_client_id:Config.credentials.twitchExtension_client_id
 			};
 
