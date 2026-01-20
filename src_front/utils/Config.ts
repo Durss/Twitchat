@@ -369,6 +369,10 @@ export default class Config {
 	/**
 	 * Twitch Extension ID
 	 */
+	public get TWITCH_EXTENSION_VERSION():string { return this._serverConfig.twitchExtension_version; }
+	/**
+	 * Twitch Extension ID
+	 */
 	public get TWITCH_EXTENSION_ID():string { return this._serverConfig.twitchExtension_client_id; }
 
 	/**
@@ -499,5 +503,6 @@ export interface ServerConfig {
 	tipeee_redirect_uri:string;
 	tiltify_client_id:string;
 	tiltify_scopes:string;
+	twitchExtension_version:string;
 	twitchExtension_client_id:string;
 }
