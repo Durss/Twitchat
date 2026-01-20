@@ -119,6 +119,24 @@
 		}
 	}
 
+	&.light {
+		background-color: var(--color-light);
+		color: var(--color-dark);
+		
+		&.primary {
+			color: var(--color-primary);
+		}
+		&.secondary {
+			color: var(--color-secondary);
+		}
+		&.alert {
+			color: var(--color-alert);
+		}
+		&.premium {
+			color: var(--color-premium);
+		}
+	}
+
 	&.dark {
 		@scale:2px;
 		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3) !important;

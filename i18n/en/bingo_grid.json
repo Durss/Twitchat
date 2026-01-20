@@ -33,7 +33,7 @@
 			"param_chatAnnouncementEnabled": "Announce viewers' bingos on chat",
 			"param_chatAnnouncement": "Message to send on chat",
 			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
-			"overlayParams_title": "Overlay settings",
+			"overlayParams_title": "Stream overlay settings",
 			"send_chat_url_tt": "Send to chat",
 			"winners_placeholder": "Viewers that got bingos",
 			"add_cellBt": "Add",
