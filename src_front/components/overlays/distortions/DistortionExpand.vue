@@ -39,7 +39,6 @@ class DistortionExpand extends AbstractDistortion {
 		}
 		gsap.fromTo(item, {scale:0}, {scale, angle:0, ease:Elastic.easeOut, duration:1});
 		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false, onComplete:()=>{
-			console.log("ON_COMPLETE");
 			this.removeItem(item);
 		}});
 		return item;

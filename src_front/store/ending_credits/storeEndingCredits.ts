@@ -58,7 +58,6 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 		async saveParams():Promise<void> {
 			clearTimeout(debounce);
 			debounce = window.setTimeout(async() => {
-				console.log("ON_SAVE")
 				this.overlayData.fontTitle = this.overlayData.fontTitle ?? "Inter";
 				this.overlayData.fontEntry = this.overlayData.fontEntry ?? "Inter";
 	
