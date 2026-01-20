@@ -883,7 +883,7 @@ export const storeMain = defineStore("main", {
 
 							// If there are JSON placeholders and next action isn't a json_extract
 							if((!actionNext || actionNext.type != "json_extract") && jsonPlaceholders.length > 0) {
-								// console.log("ON_MIGRATE", triggerNew.name || triggerNew.chatCommand);
+								// console.log("MIGRATE", triggerNew.name || triggerNew.chatCommand);
 								// console.log("Must set output to HTTP_RESULT")
 								// console.log("Must add JSON extract action at position", j + 1, "with", actionOld.outputPlaceholderList);
 								this.httpMigrationFixData.push({
