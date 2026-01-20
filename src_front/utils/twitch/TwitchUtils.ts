@@ -3485,7 +3485,7 @@ export default class TwitchUtils {
 					result.push({ type: "text", value: Array.from(message).slice(cursor, e.begin).join("") });
 				}
 				const code = Array.from(message).slice(e.begin, e.end + 1).join("").trim();
-				if (e.id.indexOf("ON_BTTV_") == 0) {
+				if (e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if (bttvE) {
 						result.push({ type: "emote", value: "BTTV: " + code, emote: "https://cdn.betterttv.net/emote/" + bttvE.id + "/1x", emoteHD: "https://cdn.betterttv.net/emote/" + bttvE.id + "/3x" });
@@ -3493,7 +3493,7 @@ export default class TwitchUtils {
 						result.push({ type: "text", value: code });
 					}
 				} else
-					if (e.id.indexOf("ON_FFZ_") == 0) {
+					if (e.id.indexOf("FFZ_") == 0) {
 						const ffzE = FFZUtils.instance.getEmoteFromCode(code);
 						if (ffzE) {
 							result.push({ type: "emote", value: "FFZ: " + code, emote: ffzE.urls[1], emoteHD: ffzE.urls[4] });
