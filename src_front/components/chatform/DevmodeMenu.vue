@@ -560,7 +560,7 @@ class DevmodeMenu extends Vue {
 	 */
 	public async simulateFollowbotItem(): Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		const login = lorem.generateWords(Math.round(Math.random() * 2) + 1).split(" ").join("ON__");
+		const login = lorem.generateWords(Math.round(Math.random() * 2) + 1).split(" ").join("__");
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const uid = Math.round(Math.random() * 99999999999).toString();
 		const message: TwitchatDataTypes.MessageFollowingData = {
