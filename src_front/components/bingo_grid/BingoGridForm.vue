@@ -55,28 +55,25 @@
 							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" />
 						</div>
 
-						<div class="card-item share">
-							<label>
-								<Icon name="share"/>
-								<span>{{ $t("bingo_grid.form.share") }}</span>
-							</label>
-							<div class="urlHolder">
-								<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
-								<TTButton icon="whispers" transparent v-if="!sendingOnChat[bingo.id]" @click="sendChatURL(bingo.id)" v-tooltip="$t('bingo_grid.form.send_chat_url_tt')" />
-								<Icon name="loader" v-else class="loader" />
-								<TTButton icon="copy" transparent :copy="getPublicURL(bingo.id)" v-tooltip="$t('global.copy')" />
-							</div>
-							<div class="info" v-if="!$store.auth.isPremium">
-								<Icon name="premium" />
-								<span>{{ $t("bingo_grid.form.premium_multiplayer") }}</span>
-								<TTButton @click="openPremium()" icon="premium" light premium>{{ $t("premium.become_premiumBt") }}</TTButton>
-							</div>
+						<ExtensionInstaller/>
 
-							<div v-else-if="viewerCount > 1000" class="perfAlert">
-								<img class="icon" src="@/assets/img/worried_face.svg" alt="worried face">
-								<p>{{ $t("bingo_grid.form.perf_alert") }}</p>
+						<ToggleBlock :icons="['overlay']" :title="$t('bingo_grid.form.overlayParams_title')" :open="false">
+							<div class="overlayParams">
+								<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
+		
+								<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
+		
+								<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
+		
+								<ParamItem :paramData="param_backgroundColor[bingo.id]" v-model="bingo.backgroundColor" @change="save(bingo)" />
+		
+								<ParamItem :paramData="param_backgroundAlpha[bingo.id]" v-model="bingo.backgroundAlpha" @change="save(bingo)" />
+		
+								<ParamItem :paramData="param_winSoundVolume[bingo.id]" @change="save(bingo, false, true)" v-model="bingo.winSoundVolume"></ParamItem>
+		
+								<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 							</div>
-						</div>
+						</ToggleBlock>
 
 						<div class="card-item sizes">
 							<label>
@@ -89,16 +86,6 @@
 								<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo, true)" noBackground />
 							</div>
 						</div>
-
-						<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
-
-						<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
-
-						<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
-
-						<ParamItem :paramData="param_backgroundColor[bingo.id]" v-model="bingo.backgroundColor" @change="save(bingo)" />
-
-						<ParamItem :paramData="param_backgroundAlpha[bingo.id]" v-model="bingo.backgroundAlpha" @change="save(bingo)" />
 
 						<VueDraggable
 						class="card-item entryList"
@@ -120,8 +107,8 @@
 										:no-html="true"
 										:no-nl="false"
 										:ref="'label_'+element.id"
-										@blur="save(bingo, true)"
-										@input="limitLabelSize(element)" />
+										:maxLength="60"
+										@blur="save(bingo, true)" />
 
 									<ClearButton class="lockBt"
 										v-tooltip="$t('bingo_grid.form.lock_bt_tt')"
@@ -152,15 +139,11 @@
 										:no-html="true"
 										:no-nl="false"
 										:ref="'additionallabel_'+item.id"
-										@blur="save(bingo, true)"
-										@input="limitLabelSize(item)" />
+										:maxLength="60"
+										@blur="save(bingo, true)" />
 								</div>
 							</div>
 						</ParamItem>
-
-						<ParamItem :paramData="param_winSoundVolume[bingo.id]" @change="save(bingo, false, true)" v-model="bingo.winSoundVolume"></ParamItem>
-
-						<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 
 						<ParamItem :paramData="param_overlayAnnouncement[bingo.id]" v-model="bingo.overlayAnnouncement" @change="save(bingo)">
 							<div class="parameter-child">
@@ -188,38 +171,6 @@
 								</ParamItem>
 							</div>
 						</ParamItem>
-
-						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" v-model="param_chatCmd_toggle[bingo.id]!.value" @change="save(bingo)">
-							<div class="parameter-child">
-								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
-								<div class="instructions">
-									<Icon name="info" />
-									<i18n-t scope="global" keypath="bingo_grid.form.chat_cmd_usage">
-										<template #CMD>
-											<mark>{{ bingo.chatCmd }} X:Y</mark>
-										</template>
-									</i18n-t>
-								</div>
-								<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
-									<PermissionsForm v-model="bingo.chatCmdPermissions"></PermissionsForm>
-								</ToggleBlock>
-							</div>
-						</ParamItem>
-
-						<ParamItem :paramData="param_heat_toggle[bingo.id]" v-model="bingo.heatClick" @change="save(bingo)">
-							<div class="parameter-child">
-								<div class="instructions">
-									<Icon name="info" />
-									<span>{{ $t("bingo_grid.form.heat_usage") }}</span>
-								</div>
-
-								<TTButton class="heatButton" icon="heat" @click="openHeatParams()" secondary small>{{ $t("overlay.heatDistort.install_heat_link") }}</TTButton>
-
-								<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
-									<PermissionsForm v-model="bingo.heatClickPermissions"></PermissionsForm>
-								</ToggleBlock>
-							</div>
-						</ParamItem>
 					</div>
 				</ToggleBlock>
 			</VueDraggable>
@@ -228,9 +179,13 @@
 </template>
 
 <script lang="ts">
+import ContentEditable from '@/components/ContentEditable.vue';
 import { type TriggerActionBingoGridData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ContentEditable from '@/components/ContentEditable.vue';
+import Config from "@/utils/Config";
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { reactive, type ComponentPublicInstance } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
@@ -239,15 +194,11 @@ import PermissionsForm from '../PermissionsForm.vue';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import Utils from '@/utils/Utils';
-import ChatMessage from '../messages/ChatMessage.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import MessengerProxy from '@/messaging/MessengerProxy';
-import { reactive, type ComponentPublicInstance } from 'vue';
-import Config from "@/utils/Config";
+import ExtensionInstaller from '../params/contents/overlays/ExtensionInstaller.vue';
 
 @Component({
 	components:{
@@ -262,6 +213,7 @@ import Config from "@/utils/Config";
 		PostOnChatParam,
 		ContentEditable,
 		OverlayInstaller,
+		ExtensionInstaller,
 	},
 	emits:["close"]
 })
@@ -330,15 +282,6 @@ class BingoGridForm extends AbstractSidePanel {
 		return baseURL + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
 	}
 
-	public async sendChatURL(gridId:string):Promise<void> {
-		this.sendingOnChat[gridId] = true;
-		const uid = this.$store.auth.twitch.user.id;
-		const url = document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
-		await  MessengerProxy.instance.sendMessage(url, ["twitch"]);
-		await Utils.promisedTimeout(250);
-		this.sendingOnChat[gridId] = false;
-	}
-
 	public async beforeMount():Promise<void> {
 		this.initParams();
 	}
@@ -392,33 +335,6 @@ class BingoGridForm extends AbstractSidePanel {
 	}
 
 	/**
-	 * Limit the size of the label.
-	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item
-	 */
-	public async limitLabelSize(entry:TwitchatDataTypes.BingoGridConfig["entries"][0]):Promise<void> {
-		const maxLength = 60;
-		const sel = window.getSelection();
-		if(sel && sel.rangeCount > 0) {
-			//Save caret index
-			var range = sel.getRangeAt(0);
-			let caretIndex = range.startOffset;
-			await this.$nextTick();
-			//Limit label's size
-			entry.label = entry.label.substring(0, maxLength);
-			await this.$nextTick();
-
-			//Reset caret to previous position
-			// if(range.endContainer instanceof HTMLElement) {
-			// 	range.endContainer.innerText
-			// }
-			if(caretIndex > 0 && range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(entry.label.length-1, caretIndex-1));
-		}else{
-			entry.label = entry.label.substring(0, maxLength);
-		}
-	}
-
-	/**
 	 * Called after sorting items
 	 */
 	public onSortEnd(grid:TwitchatDataTypes.BingoGridConfig):void {
@@ -454,13 +370,6 @@ class BingoGridForm extends AbstractSidePanel {
 	 */
 	public focusLabel(id:string):void {
 		((this.$refs["label_"+id] as ComponentPublicInstance[])[0]!.$el as HTMLElement).focus();
-	}
-
-	/**
-	 * Open heat params
-	 */
-	public openHeatParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public async renderPreview(id:string, rawMessage:string):Promise<void> {
@@ -625,7 +534,7 @@ export default toNative(BingoGridForm);
 		}
 	}
 
-	.sizes, .install, .share {
+	.sizes, .install {
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
@@ -646,75 +555,10 @@ export default toNative(BingoGridForm);
 			flex-direction: row;
 			align-items: center;
 		}
-		&.install, &.share {
+		&.install {
 			flex-direction: column;
 		}
-		&.share {
-			background-color: var(--color-premium-fader);
-			.perfAlert {
-				gap: 1em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				// background: white;
-				// color: var(--color-premium);
-				// font-weight: normal;
-				font-weight: bold;
-				line-height: 1.2em;
-				font-size: .9em;
-				white-space: pre-line;
-				.icon {
-					transform-origin: center;
-					font-size: 4em;
-					animation: scaleInOut .15s infinite ease-in-out;
-				}
 
-				@keyframes scaleInOut {
-					0%, 100% { transform: scale(1) rotate(0); }
-					50% { transform: scale(1.1) rotate(5deg); }
-				}
-			}
-		}
-
-		.info {
-			font-weight: normal;
-			padding: .5em;
-			border-radius: var(--border-radius);
-			background-color: var(--color-premium);
-			.icon {
-				margin-right: .5em;
-				vertical-align: middle;
-			}
-			.button {
-				display: flex;
-				margin: 0 auto;
-				margin-top: .5em;
-			}
-		}
-
-		.urlHolder {
-			background-color: var(--grayout);
-			padding: .25em;
-			padding-right: 0;
-			border-radius: var(--border-radius);
-			display: flex;
-			max-width: 100%;
-			flex-direction: row;
-			align-items: center;
-			.button {
-				flex-shrink: 0;
-			}
-			.url {
-				text-wrap: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 100%;
-			}
-			.loader {
-				flex-shrink: 0;
-				margin: .2em;
-			}
-		}
 	}
 
 	.ctas {
@@ -768,16 +612,6 @@ export default toNative(BingoGridForm);
 		border-radius: var(--border-radius);
 	}
 
-	.cmdField {
-		:deep(.inputHolder) {
-			flex-basis: 200px;
-		}
-	}
-
-	.heatButton {
-		margin: auto;
-	}
-
 	.additionalItemList {
 		margin-top: .5em;
 		gap: .25em;
@@ -800,6 +634,12 @@ export default toNative(BingoGridForm);
 				border-bottom-right-radius: 0;
 			}
 		}
+	}
+
+	.overlayParams {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

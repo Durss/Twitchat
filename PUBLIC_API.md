@@ -116,7 +116,6 @@ Events fired by Twitchat that you can listen to.
 - [ON_ANIMATED_TEXT_HIDE_COMPLETE](#on_animated_text_hide_complete)
 - [ON_ANIMATED_TEXT_SHOW_COMPLETE](#on_animated_text_show_complete)
 - [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
-- [ON_BINGO_GRID_HEAT_CLICK](#on_bingo_grid_heat_click)
 - [ON_BINGO_GRID_LEADER_BOARD](#on_bingo_grid_leader_board)
 - [ON_BINGO_GRID_VIEWER_EVENT](#on_bingo_grid_viewer_event)
 - [ON_BITS](#on_bits)
@@ -649,124 +648,6 @@ type ON_BINGO_GRID_CONFIGS = {
 	 * 1 => bottom-left to top-right
 	 */
 	newDiagonalBingos?: 0|1[];
-}
-```
-
-</details>
-
-#### ON_BINGO_GRID_HEAT_CLICK
-Triggered when a heat click occurs on a bingo grid cell  
-<details>
-<summary>JSON parameters</summary>
-
-```typescript
-type ON_BINGO_GRID_HEAT_CLICK = {
-	/**
-	 * Bingo grid ID to get parameters for
-	 */
-	id: string;
-	/**
-	 * Cell entry ID that was clicked
-	 */
-	entryId: string;
-	/**
-	 * Heat click data
-	 */
-	click: {
-		/**
-		 * Click ID
-		 */
-		id: string;
-		/**
-		 * Channel ID the click occured on
-		 */
-		channelId: string;
-		/**
-		 * Is the click anonymous ?
-		 */
-		anonymous: boolean;
-		/**
-		 * ID of the user who clicked
-		 */
-		uid: string;
-		/**
-		 * Login of the user who clicked
-		 */
-		login: string;
-		/**
-		 * Normalized X position (0 to 1) of the click
-		 */
-		x: number;
-		/**
-		 * Normalized Y position (0 to 1) of the click
-		 */
-		y: number;
-		/**
-		 * Is the user a subscriber ?
-		 */
-		isSub: boolean;
-		/**
-		 * Is the user banned ?
-		 */
-		isBan: boolean;
-		/**
-		 * Is the user a moderator ?
-		 */
-		isMod: boolean;
-		/**
-		 * Is the user a VIP ?
-		 */
-		isVip: boolean;
-		/**
-		 * Is the user the broadcaster ?
-		 */
-		isBroadcaster: boolean;
-		/**
-		 * Is the user a follower ?
-		 */
-		isFollower: boolean;
-		/**
-		 * Date at which the user followed the channel (if isFollower is true)
-		 */
-		followDate: number;
-		/**
-		 * Is it a test click ?
-		 * Sent from settings => connections => heat => click on preview
-		 */
-		testMode: boolean;
-		/**
-		 * Was alt keys pressed ?
-		 */
-		alt: boolean;
-		/**
-		 * Was ctrl key pressed ?
-		 */
-		ctrl: boolean;
-		/**
-		 * Was shift key pressed ?
-		 */
-		shift: boolean;
-		/**
-		 * Sha256 of the clicked browser source URL
-		 */
-		page: string;
-		/**
-		 * Optional Twitchat overlay ID sent for some specific overlays
-		 */
-		twitchatOverlayID: string;
-		/**
-		 * X scale of the browser source
-		 */
-		scaleX: number;
-		/**
-		 * Y scale of the browser source
-		 */
-		scaleY: number;
-		/**
-		 * Rotation angle of the browser source in degrees
-		 */
-		rotation: number;
-	};
 }
 ```
 
@@ -3250,6 +3131,14 @@ type ON_POLL_PROGRESS = {
 					 * Defines if the user should be moded back after their timeout completes
 					 */
 					autoRemod?: boolean;
+					/**
+					 * Is the user restricted in the channel?
+					 */
+					is_restricted?: boolean;
+					/**
+					 * Is the user suspicious in the channel?
+					 */
+					is_suspicious?: boolean;
 				};
 			};
 			/**
@@ -3576,6 +3465,14 @@ type ON_PREDICTION_PROGRESS = {
 					 * Defines if the user should be moded back after their timeout completes
 					 */
 					autoRemod?: boolean;
+					/**
+					 * Is the user restricted in the channel?
+					 */
+					is_restricted?: boolean;
+					/**
+					 * Is the user suspicious in the channel?
+					 */
+					is_suspicious?: boolean;
 				};
 			};
 			/**
@@ -4949,6 +4846,14 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 				 * Defines if the user should be moded back after their timeout completes
 				 */
 				autoRemod?: boolean;
+				/**
+				 * Is the user restricted in the channel?
+				 */
+				is_restricted?: boolean;
+				/**
+				 * Is the user suspicious in the channel?
+				 */
+				is_suspicious?: boolean;
 			};
 		};
 		/**
@@ -5157,6 +5062,14 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 				 * Defines if the user should be moded back after their timeout completes
 				 */
 				autoRemod?: boolean;
+				/**
+				 * Is the user restricted in the channel?
+				 */
+				is_restricted?: boolean;
+				/**
+				 * Is the user suspicious in the channel?
+				 */
+				is_suspicious?: boolean;
 			};
 		};
 		/**
