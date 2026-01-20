@@ -366,6 +366,10 @@ export default class Config {
 	 * Tiltify scopes
 	 */
 	public get TILTIFY_SCOPES():string { return this._serverConfig.tiltify_scopes; }
+	/**
+	 * Twitch Extension ID
+	 */
+	public get TWITCH_EXTENSION_ID():string { return this._serverConfig.twitchExtension_client_id; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -495,4 +499,5 @@ export interface ServerConfig {
 	tipeee_redirect_uri:string;
 	tiltify_client_id:string;
 	tiltify_scopes:string;
+	twitchExtension_client_id:string;
 }

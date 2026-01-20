@@ -208,21 +208,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 
 	/**
-	 * Called when clicking overlay via heat
+	 * Show/hide bingo grid from Public API
 	 */
-	public onHeatClick(event:TwitchatDataTypes.HeatClickData, x:number, y:number):void {
-		let element = document.elementFromPoint(x, y) as HTMLElement;
-		if(element) {
-			while(!element.dataset["cellid"] && element != document.body) {
-				element = element.parentElement as HTMLElement;
-			}
-			if(element != document.body) {
-				const id = element.dataset["cellid"] || "";
-				PublicAPI.instance.broadcast("ON_BINGO_GRID_HEAT_CLICK", {id:this.bingo!.id, entryId:id, click:event});
-			}
-		}
-	}
-
 	private onVisibilityChange(e:Parameters<typeof this.visibilityHandler>[0]):void {
 		if(!e.data) return;
 		if(e.data.id != this.id) return;
