@@ -710,7 +710,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const user = this.getUserFromTags(tags, channel_id);
 
 			const data:TwitchatDataTypes.MessageWhisperData = {
-				id:tags.id!,
+				id:tags.id? tags.id : channel_id + tags["message-id"],
 				type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
 				to: StoreProxy.auth.twitch.user,
 				platform:"twitch",

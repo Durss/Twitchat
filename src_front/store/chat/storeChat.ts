@@ -1021,11 +1021,17 @@ export const storeChat = defineStore('chat', {
 									// Consider tiktok messages as "own" because there's no auth
 									&& message.platform !== "tiktok";
 
-			if(parsedMessageIds.has(message.id)) return;
-			parsedMessageIds.add(message.id);
-			if (parsedMessageIds.size > 1000) {
-				const first = parsedMessageIds.values().next().value;
-				if(first) parsedMessageIds.delete(first);
+			// It seems that every so often, Twitch doesn't provide a message ID for some messages.
+			// in this case we skip duplicate checks as we have no way to know if it's a duplicate or not.
+			if(message.id) {
+				// Check for duplicate message
+				if(parsedMessageIds.has(message.id)) return;
+	
+				parsedMessageIds.add(message.id);
+				if (parsedMessageIds.size > 1000) {
+					const first = parsedMessageIds.values().next().value;
+					if(first) parsedMessageIds.delete(first);
+				}
 			}
 
 			try {
