@@ -113,6 +113,8 @@ export default class FileServeController extends AbstractController {
 
 				tiltify_client_id:Config.credentials.tiltify_client_id,
 				tiltify_scopes:Config.credentials.tiltify_scopes,
+
+				twitchExtension_client_id:Config.credentials.twitchExtension_client_id
 			};
 
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;
