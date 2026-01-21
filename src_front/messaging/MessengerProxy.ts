@@ -596,17 +596,26 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/monitor") {
-			TwitchUtils.setSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "ACTIVE_MONITORING")
+			const [user] = await TwitchUtils.getUserInfo(undefined, [params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "")]);
+			if(user) {
+				TwitchUtils.setSuspiciousUser(channelId, user.id, "ACTIVE_MONITORING")
+			}
 			return true;
 		}else
 
 		if(cmd == "/restrict") {
-			TwitchUtils.setSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""), "RESTRICTED")
+			const [user] = await TwitchUtils.getUserInfo(undefined, [params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "")]);
+			if(user) {
+				TwitchUtils.setSuspiciousUser(channelId, user.id, "RESTRICTED")
+			}
 			return true;
 		}else
 
 		if(cmd == "/unmonitor" || cmd == "/unrestrict") {
-			TwitchUtils.unsetSuspiciousUser(channelId, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, ""))
+			const [user] = await TwitchUtils.getUserInfo(undefined, [params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "")]);
+			if(user) {
+				TwitchUtils.unsetSuspiciousUser(channelId, user.id);
+			}
 			return true;
 		}else
 
