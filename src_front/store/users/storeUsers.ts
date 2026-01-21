@@ -1270,9 +1270,11 @@ export const storeUsers = defineStore('users', {
 
 		flagRestrictedUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
 			user.channelInfo[channelId]!.is_restricted = true;
+			user.channelInfo[channelId]!.is_suspicious = false;
 		},
 		
 		flagSuspiciousUser(channelId:string, user:TwitchatDataTypes.TwitchatUser):void {
+			user.channelInfo[channelId]!.is_restricted = false;
 			user.channelInfo[channelId]!.is_suspicious = true;
 		},
 		

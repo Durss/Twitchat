@@ -3169,8 +3169,6 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/suspicious_users");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("user_id", userId);
-		url.searchParams.append("status", status);
 
 		const res = await this.callApi(url, {
 			method: "POST",

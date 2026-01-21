@@ -31,12 +31,41 @@
 		
 		<template v-if="canMonitor === true">
 			<Icon v-if="loading_sus" name="loader" />
-			<Icon v-else-if="channelInfo?.is_suspicious" class="offsetDown" name="hide" alt="unsuspicious" v-tooltip="$t('chat.mod_tools.unmonitorBt', {USER: messageData.user.displayNameOriginal})" @click.stop="unflagUser()"/>
-			<Icon v-else name="show" alt="suspicious" class="offsetDown" v-tooltip="$t('chat.mod_tools.monitorBt', {USER: messageData.user.displayNameOriginal})" @click.stop="flagUser('monitor')" />
+			<Icon v-else-if="channelInfo?.is_suspicious && !channelInfo?.is_restricted"
+				class="offsetDown"
+				:name="susIcon"
+				alt="unsuspicious"
+				v-tooltip="$t('chat.mod_tools.unmonitorBt', {USER: messageData.user.displayNameOriginal})"
+				@click.stop="unflagUser()"
+				@mouseover="susIcon = 'hide'"
+				@mouseout="susIcon = 'show'"/>
+			<Icon v-else
+				class="offsetDown"
+				:name="susIcon"
+				alt="suspicious"
+				v-tooltip="$t('chat.mod_tools.monitorBt', {USER: messageData.user.displayNameOriginal})"
+				@click.stop="flagUser('monitor')"
+				@mouseover="susIcon = 'show'"
+				@mouseout="susIcon = 'hide'" />
 			
 			<Icon v-if="loading_sus" name="loader" />
-			<Icon v-else-if="channelInfo?.is_restricted" class="offsetUp" name="unlock" alt="unsuspicious" v-tooltip="$t('chat.mod_tools.unrestrictBt', {USER: messageData.user.displayNameOriginal})" @click.stop="unflagUser()"/>
-			<Icon v-else name="lock" alt="suspicious" class="offsetUp" v-tooltip="$t('chat.mod_tools.restrictBt', {USER: messageData.user.displayNameOriginal})" @click.stop="flagUser('restrict')" />
+			<Icon v-else-if="channelInfo?.is_restricted"
+				class="offsetUp"
+				:name="restrictIcon"
+				alt="unrestrict"
+				v-tooltip="$t('chat.mod_tools.unrestrictBt', {USER: messageData.user.displayNameOriginal})"
+				@click.stop="unflagUser()"
+				@mouseover="restrictIcon = 'unlock'"
+				@mouseout="restrictIcon = 'lock'"/>
+
+			<Icon v-else
+				class="offsetUp"
+				:name="restrictIcon"
+				alt="restrict"
+				v-tooltip="$t('chat.mod_tools.restrictBt', {USER: messageData.user.displayNameOriginal})"
+				@click.stop="flagUser('restrict')"
+				@mouseover="restrictIcon = 'lock'"
+				@mouseout="restrictIcon = 'unlock'" />
 		</template>
 	</div>
 </template>
@@ -46,10 +75,11 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import TTButton from '../../TTButton.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import { gsap } from 'gsap/gsap-core';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
+import TTButton from '../../TTButton.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -79,11 +109,18 @@ class ChatModTools extends Vue {
 	public loading_ban = false;
 	public loading_sus = false;
 	public loading_delete = false;
+	public susIcon = "show";
+	public restrictIcon = "unlock";
 
 	private closeTimeout = 0;
 
 	public get channelInfo() {
 		return this.messageData.user?.channelInfo[this.messageData.channel_id];
+	}
+
+	public mounted():void {
+		this.susIcon = this.channelInfo?.is_suspicious ? "hide" : "show";
+		this.restrictIcon = this.channelInfo?.is_restricted ? "lock" : "unlock";
 	}
 
 	public banUser():void {
@@ -234,15 +271,23 @@ class ChatModTools extends Vue {
 	public async flagUser(mode:"restrict"|"monitor"):Promise<void> {
 		if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_SUSPICIOUS_USERS])) return;
 		this.loading_sus = true;
+		const state = mode == "restrict" ? "RESTRICTED" : "ACTIVE_MONITORING";
 		try {
-			if(mode == "monitor"){
-				await TwitchUtils.setSuspiciousUser(this.messageData.channel_id, this.messageData.user.id, "ACTIVE_MONITORING");
+			const success = await TwitchUtils.setSuspiciousUser(this.messageData.channel_id, this.messageData.user.id, state);
+			if(!success) throw new Error("probably trying to set same state");
+			if(mode == "restrict"){
+				this.$store.users.flagRestrictedUser(this.messageData.channel_id, this.messageData.user);
 			}else{
-				await TwitchUtils.setSuspiciousUser(this.messageData.channel_id, this.messageData.user.id, "RESTRICTED");
+				this.$store.users.flagSuspiciousUser(this.messageData.channel_id, this.messageData.user);
 			}
 		}catch(err) {
+			await TwitchUtils.unsetSuspiciousUser(this.messageData.channel_id, this.messageData.user.id);
 		}
+		this.$store.users.flagSuspiciousUser(this.messageData.channel_id, this.messageData.user);
 		this.loading_sus = false;
+		this.$emit("actionComplete");
+		// Give some time for EventSub to send update message
+		await Utils.promisedTimeout(500);
 		this.$emit("actionComplete");
 	}
 	
@@ -253,7 +298,11 @@ class ChatModTools extends Vue {
 			await TwitchUtils.unsetSuspiciousUser(this.messageData.channel_id, this.messageData.user.id);
 		}catch(err) {
 		}
+		this.$store.users.unflagUser(this.messageData.channel_id, this.messageData.user);
 		this.loading_sus = false;
+		this.$emit("actionComplete");
+		// Give some time for EventSub to send update message
+		await Utils.promisedTimeout(500);
 		this.$emit("actionComplete");
 	}
 }
@@ -272,16 +321,24 @@ export default toNative(ChatModTools);
 		height: 1em;
 		width: 1em;
 		cursor: pointer;
-
 		&.offsetUp {
 			position: relative;
 			top: -2px;
+			cursor: pointer;
+			* {
+				pointer-events: none;
+			}
 		}
 		&.offsetDown {
 			position: relative;
 			top: 1px;
+			cursor: pointer;
+			* {
+				pointer-events: none;
+			}
 		}
 	}
+
 
 	.toOptions {
 		overflow: hidden;

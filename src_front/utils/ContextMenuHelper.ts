@@ -456,7 +456,11 @@ export default class ContextMenuHelper {
 										if(message.fake === true) {
 											StoreProxy.users.flagRestrictedUser(tMessage.channel_id, tMessage.user);
 										}else{
-											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "ACTIVE_MONITORING");
+											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "ACTIVE_MONITORING").then(success=> {
+												if(!success) {
+													TwitchUtils.unsetSuspiciousUser(tMessage.channel_id, tMessage.user.id);
+												}
+											});
 										}
 									},
 								});
@@ -469,7 +473,11 @@ export default class ContextMenuHelper {
 										if(message.fake === true) {
 											StoreProxy.users.flagSuspiciousUser(tMessage.channel_id, tMessage.user);
 										}else{
-											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "RESTRICTED");
+											TwitchUtils.setSuspiciousUser(tMessage.channel_id, tMessage.user.id, "RESTRICTED").then(success=> {
+												if(!success) {
+													TwitchUtils.unsetSuspiciousUser(tMessage.channel_id, tMessage.user.id);
+												}
+											});
 										}
 									},
 								});
