@@ -447,7 +447,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/userinfo" || cmd == "/user") {
-			if(!params[0]!) {
+			if(!params[0]) {
 				const notice:TwitchatDataTypes.MessageNoticeData = {
 					id:Utils.getUUID(),
 					date:Date.now(),

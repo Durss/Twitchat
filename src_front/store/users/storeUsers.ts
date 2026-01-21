@@ -267,7 +267,7 @@ export const storeUsers = defineStore('users', {
 
 			if(channelId) {
 				//Init channel data for this user if not already existing
-				if(!user.channelInfo[channelId]!) {
+				if(!user.channelInfo[channelId]) {
 					let following_date_ms = 0;
 					let is_following:boolean|null = channelId == user.id || forcedFollowState===true;
 					if(!is_following) {
@@ -467,7 +467,7 @@ export const storeUsers = defineStore('users', {
 
 		flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId]!.is_moderator = true;
 					break;
 				}
@@ -476,7 +476,7 @@ export const storeUsers = defineStore('users', {
 
 		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId]!.is_moderator = false;
 					break;
 				}
@@ -485,7 +485,7 @@ export const storeUsers = defineStore('users', {
 
 		flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId]!.is_vip = true;
 					break;
 				}
@@ -494,7 +494,7 @@ export const storeUsers = defineStore('users', {
 
 		flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId]!.is_vip = false;
 					break;
 				}
@@ -555,7 +555,7 @@ export const storeUsers = defineStore('users', {
 			let bannedUser:TwitchatDataTypes.TwitchatUser|null = null;
 			//Search user
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					bannedUser = u;
 					break;
 				}
@@ -820,7 +820,7 @@ export const storeUsers = defineStore('users', {
 		async flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, moderator?:TwitchatDataTypes.TwitchatUser, silentUnban:boolean = false):Promise<void> {
 			let unbannedUser:TwitchatDataTypes.TwitchatUser|undefined;
 			for (const u of userList) {
-				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]!) {
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					unbannedUser = u;
 					break;
 				}
@@ -871,31 +871,32 @@ export const storeUsers = defineStore('users', {
 
 		//Check if user is following
 		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "platform">, channelId:string):Promise<boolean> {
+			const chanInfo = user.channelInfo[channelId];
+			if(!chanInfo) return false;
+			
 			if(channelId != StoreProxy.auth.twitch.user?.id) {
 				//Only get follower state for our own chan, ignore others as it not possible anymore
-				user.channelInfo[channelId]!.is_following = true;
+				chanInfo.is_following = true;
 				return true;
 			}
 			//If that's us, flag as a follower;
-			if(user.channelInfo[channelId]!?.is_broadcaster) {
-				user.channelInfo[channelId]!.is_following = true;
+			if(chanInfo.is_broadcaster) {
+				chanInfo.is_following = true;
 				return true;
 			}
-			if(user.id) {
-				if(user.channelInfo[channelId]!.is_following == null && user.platform == "twitch") {
-					try {
-						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
-						const res = await TwitchUtils.getFollowerState(user.id);
-						if(res != null) {
-							user.channelInfo[channelId]!.is_following = true;
-							user.channelInfo[channelId]!.following_date_ms = new Date(res.followed_at).getTime();
-						}else{
-							user.channelInfo[channelId]!.is_following = false;
-						}
-						return true;
-					}catch(error){
-						// user.channelInfo[channelId]!.is_following = false;
+			if(chanInfo.is_following == null && user.platform == "twitch") {
+				try {
+					// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
+					const res = await TwitchUtils.getFollowerState(user.id);
+					if(res != null) {
+						chanInfo.is_following = true;
+						chanInfo.following_date_ms = new Date(res.followed_at).getTime();
+					}else{
+						chanInfo.is_following = false;
 					}
+					return true;
+				}catch(error){
+					// user.channelInfo[channelId]!.is_following = false;
 				}
 			}
 			return false;
