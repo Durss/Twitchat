@@ -424,7 +424,7 @@ export default class DiscordController extends AbstractController {
 		}catch(error:unknown) {
 			const typedError = error as {code:number, message:string};
 			Logger.error("Unable to send message image to discord")
-			console.log(typedError.message);
+			console.log(typedError.code, typedError.message);
 			if(typedError.code == 50001) {
 				const channels = await this._rest.get(Routes.guildChannels(guild.guildID)) as {id:string, name:string}[];
 				const channel = channels.find(v=>v.id == guild.logChanTarget);

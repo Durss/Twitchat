@@ -42,6 +42,7 @@ export default class TwitchExtensionController extends AbstractController {
 		this.server.decorateRequest('twitchExtensionUser', null);
 		this.server.get('/api/twitch/extension/streamerstate', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getStreamerState(request, response));
 		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
+		this.server.post('/api/twitch/extension/bingoCount', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postBingoCount(request, response));
 		return this;
 	}
 
@@ -126,7 +127,38 @@ export default class TwitchExtensionController extends AbstractController {
 			response.status(401);
 			response.send(JSON.stringify({success:false, message:'unauthorized'}));
 		}
+	}
 
+	/**
+	 * Receive a bingo count event from extension
+	 * @param request 
+	 * @param response 
+	 */
+	private async postBingoCount(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		// Reject anonymous users
+		if(!request.twitchExtensionUser!.user_id) return;
+
+		const params = request.body as {
+			count:number;
+			gridId:string;
+		};
+		
+		try {
+			this._bingoController.setBingoCount(
+				request.twitchExtensionUser!.channel_id,
+				request.twitchExtensionUser!.user_id,
+				params.gridId,
+				params.count
+			);
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true}));
+		}catch(error) {
+			Logger.error(error)
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({success:false, message:'unauthorized'}));
+		}
 	}
 
 	/**
@@ -142,7 +174,6 @@ export default class TwitchExtensionController extends AbstractController {
 	}
 
 	private async getStreamerStateData(streamerId:string, viewerId?:string):Promise<{bingos:any, quizs:any}> {
-		// const bingos = await this._bingoController.getStreamerGrid(streamerId);
 		const bingos = await this._bingoController.getViewerGridList(streamerId, viewerId);
 		const quizs = await this._quizController.getStreamerQuizs(streamerId);
 		return {bingos, quizs:quizs?.data}

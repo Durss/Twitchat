@@ -189,6 +189,63 @@ export default class BingoGridController extends AbstractController {
 		return result;
 	}
 
+	public async setBingoCount(streamerId:string, viewerId:string, gridId:string, count:number, login?:string):Promise<boolean> {
+		const grid = await this.getViewerGrid(streamerId, gridId, viewerId);
+		if(grid) {
+			//Count actual possible number of bingo
+			const rows = grid.data.rows;
+			const cols = grid.data.cols;
+			const states = grid.data.entries.map(v=>v.check);
+			let maxBingoCount = 0;
+			//Check filled cols count
+			for (let x = 0; x < cols; x++) {
+				let allTicked = true;
+				for (let y = 0; y < rows; y++) {
+					if(!states[x+y*cols]) {
+						allTicked = false;
+						break;
+					}
+				}
+				if(allTicked) maxBingoCount ++;
+			}
+			//Check filled rows count
+			for (let y = 0; y < rows; y++) {
+				let allTicked = true;
+				for (let x = 0; x < cols; x++) {
+					if(!states[x+y*cols]) {
+						allTicked = false;
+						break;
+					}
+				}
+				if(allTicked) maxBingoCount ++;
+			}
+			//Check filled diagonals count
+			if(cols == rows) {
+				let allTicked1 = true;
+				let allTicked2 = true;
+				for (let x = 0; x < cols; x++) {
+					if(!states[x+x*cols]) {
+						allTicked1 = false;
+					}
+					if(!states[(rows-x-1)+x*cols]) {
+						allTicked2 = false;
+					}
+				}
+				if(allTicked1) maxBingoCount ++;
+				if(allTicked2) maxBingoCount ++;
+			}
+
+			// console.log(user.login+" has "+count+"/"+maxBingoCount+" bingos");
+
+			//Limit bingo count to the maximum possible so users cannot cheat
+			//by simply sending 999999 as the count.
+			count = Math.min(maxBingoCount, count);
+			SSEController.sendToUser(streamerId, SSETopic.BINGO_GRID_BINGO_COUNT, {gridId:gridId, uid: viewerId, login, count});
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Saves a viewer's grid to memory cache and marks for disk flush
 	 */
@@ -463,7 +520,6 @@ export default class BingoGridController extends AbstractController {
 			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
 			return;
 		}
-		console.log("# >>>>>", cachedGrids.data.map(g => g.id));
 
 		// If updated grid already exists
 		const cached = cachedGrids.data.find(g => g.id == gridId);
@@ -478,7 +534,6 @@ export default class BingoGridController extends AbstractController {
 			
 			const cacheAllKey = this.getCacheKey(user.user_id);
 			this.channelGridsCache.set(cacheAllKey, cachedGrids);
-			console.log("1 Set all channel grids cache for", cachedGrids.data.map(g => g.id));
 			
 			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
 			const clone = {...cachedGrids};
@@ -487,11 +542,8 @@ export default class BingoGridController extends AbstractController {
 		}else{
 			// Add new grid to existing cache
 			cachedGrids.data.push(gridRef);
-			console.log("### ADD GRID TO CACHE:");
-			console.log(gridRef)
 			const cacheAllKey = this.getCacheKey(user.user_id);
 			this.channelGridsCache.set(cacheAllKey, cachedGrids);
-			console.log("2 Set all channel grids cache for", cachedGrids.data.map(g => g.id));
 
 			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
 			const clone = {...cachedGrids};
@@ -636,13 +688,10 @@ export default class BingoGridController extends AbstractController {
 
 			const cachedGrids = await this.getChannelGrids(user.user_id);
 			if(cachedGrids) {
-				console.log(">>>>>", cachedGrids.data.map(g => g.id));
 				cachedGrids.data = cachedGrids.data.filter(g => g.id != gridId);
-				console.log("Updated cached grids after deletion:", cachedGrids.data.map(g => g.id));
 				const cacheAllKey = this.getCacheKey(user.user_id);
 				this.channelGridsCache.set(cacheAllKey, cachedGrids);
 
-				console.log("Deleted cached grid for", user.user_id, "grid", gridId);
 				const cacheOneKey = this.getCacheKey(user.user_id, gridId);
 				this.channelGridsCache.delete(cacheOneKey);
 
@@ -661,7 +710,7 @@ export default class BingoGridController extends AbstractController {
 	}
 
 	/**
-	 * Called when streamer ticks a cell
+	 * Called when streamer ticks a cell from twitchat
 	 *
 	 * @param {*} request
 	 * @param {*} response
@@ -670,6 +719,7 @@ export default class BingoGridController extends AbstractController {
 		const user = await super.twitchUserGuard(request, response, false);
 		if(!user) return;
 
+		console.log("UPDATE TICK STATES")
 		const body:any = request.body;
 		const gridId:string = body.gridid;
 		const states:{[cellId:string]:boolean} = body.states;
@@ -705,61 +755,12 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = body.gridid;
 		let count:number = body.count;
 
-		const grid = await this.getViewerGrid(uid, gridId, user.user_id);
-		if(grid) {
-			//Count actual possible number of bingo
-			const rows = grid.data.rows;
-			const cols = grid.data.cols;
-			const states = grid.data.entries.map(v=>v.check);
-			let maxBingoCount = 0;
-			//Check filled cols count
-			for (let x = 0; x < cols; x++) {
-				let allTicked = true;
-				for (let y = 0; y < rows; y++) {
-					if(!states[x+y*cols]) {
-						allTicked = false;
-						break;
-					}
-				}
-				if(allTicked) maxBingoCount ++;
-			}
-			//Check filled rows count
-			for (let y = 0; y < rows; y++) {
-				let allTicked = true;
-				for (let x = 0; x < cols; x++) {
-					if(!states[x+y*cols]) {
-						allTicked = false;
-						break;
-					}
-				}
-				if(allTicked) maxBingoCount ++;
-			}
-			//Check filled diagonals count
-			if(cols == rows) {
-				let allTicked1 = true;
-				let allTicked2 = true;
-				for (let x = 0; x < cols; x++) {
-					if(!states[x+x*cols]) {
-						allTicked1 = false;
-					}
-					if(!states[(rows-x-1)+x*cols]) {
-						allTicked2 = false;
-					}
-				}
-				if(allTicked1) maxBingoCount ++;
-				if(allTicked2) maxBingoCount ++;
-			}
+		const success = await this.setBingoCount(uid, user.user_id, gridId, count, user.login)
 
-			// console.log(user.login+" has "+count+"/"+maxBingoCount+" bingos");
-
-			//Limit bingo count to the maximum possible so users cannot cheat
-			//by simply sending 999999 as the count.
-			count = Math.min(maxBingoCount, count);
-
+		if(success) {
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send({success:true, count});
-			SSEController.sendToUser(uid, SSETopic.BINGO_GRID_BINGO_COUNT, {gridId:gridId, uid:user.user_id, login:user.login, count});
 		}else{
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -778,7 +779,7 @@ export default class BingoGridController extends AbstractController {
 	}
 
 	/**
-	 * Called when a mod ticks cells
+	 * Called when a streamer or mod ticks cells from the public page
 	 *
 	 * @param {*} request
 	 * @param {*} response
@@ -925,6 +926,7 @@ export default class BingoGridController extends AbstractController {
 				// Send new states to viewer
 				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_CELL_STATES, {gridId, states});
 			}));
+			this.extensionController.notifyStateUpdate(streamerId);
 		}
 	}
 }
