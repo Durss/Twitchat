@@ -232,14 +232,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 		if(newLeaderboard) this.leaderboard = newLeaderboard;
 		else{
-			//Close leaderboard
-			const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
-			gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
-				this.leaderboard = null;
-				if(this.pendingEvents.length === 0) {
-					this.openCloseGrid(false);
-				}
-			}});
+			this.hideLeaderBoard();
 			return;
 		}
 
@@ -268,6 +261,20 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 
 	/**
+	 * Hide leaderboard with animation
+	 */
+	private hideLeaderBoard():void {
+		const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
+		if(!leaderboardHolder) return;
+		gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
+			this.leaderboard = null;
+			if(this.pendingEvents.length === 0) {
+				this.openCloseGrid(false);
+			}
+		}});
+	}
+
+	/**
 	 * Called when a user wins a bingo
 	 */
 	private async onBingoViewer(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">):Promise<void> {
@@ -289,6 +296,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.error = true;
 				return;
 			}
+
+			this.hideLeaderBoard();
 
 			if(animate) {
 				this.bingo = data.bingo;
@@ -418,11 +427,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
 			if(!checks) continue;
 			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
+			let localCheck = entry.check;
 			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
 				const checkmark = checks[0];
 				if(checkmark && checkmark.nodeName != "#comment") {
 					const angle = (Math.random()-Math.random()) * 25;
-					if(entry.check && forcedCellsState[entry.id] !== true) {
+					if(localCheck && forcedCellsState[entry.id] !== true) {
 						//Animate checkmark display
 						gsap.killTweensOf(checkmark);
 						gsap.fromTo(checkmark, {opacity:0}, {opacity:.8, duration:.25});
@@ -430,22 +440,24 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
 						await Utils.promisedTimeout(150);
 						this.popClouds(cell);
-						await Utils.promisedTimeout(250);
+						await Utils.promisedTimeout(100);
 
 					}else {
 						//Animate checkmark hide
 						gsap.killTweensOf(checkmark);
 						gsap.to(checkmark,
-							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
-						await Utils.promisedTimeout(350);
-						entry.check = false;
+							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35, onComplete:()=>{
+								entry.check = false;
+							}});
+						localCheck = false;
+						await Utils.promisedTimeout(60);
 					}
 				}
-			}else if(entry.check && checks[0]) {
+			}else if(localCheck && checks[0]) {
 				//Force display of the cell
 				gsap.set(checks[0]!, {opacity:.8});
 			}
-			this.prevCheckStates[entry.id] = entry.check;
+			this.prevCheckStates[entry.id] = localCheck;
 		}
 
 		if((data.newVerticalBingos || []).length > 0
@@ -625,7 +637,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const x = (Math.random()-Math.random()) * bounds.width;
 			const y = (Math.random()-Math.random()) * bounds.height;
 			gsap.killTweensOf(cloud);
-			gsap.to(cloud, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:.5, ease:"sine.out"});
+			gsap.to(cloud, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:.35, ease:"sine.out"});
 		});
 	}
 
