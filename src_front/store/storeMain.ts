@@ -553,6 +553,13 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Listen for highlighted message to show up the "close highlighted message" button
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
+				sChat.highlightChatMessageOverlay();
+			});
+
+			/**
 			 * Called when a user clicks on the stream
 			 * Detects for a few twitch overlay being clicked as well as all the custom areas
 			 */

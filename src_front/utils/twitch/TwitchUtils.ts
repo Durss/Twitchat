@@ -1750,8 +1750,9 @@ export default class TwitchUtils {
 			const createdDate = Date.now();
 			const interval = window.setInterval(async () => {
 				const clip = await TwitchUtils.getClipById(message.clipID);
+				const hasManageScope = TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS]);
 				const [clipSrcPath] = await TwitchUtils.getClipsSrcPath([message.clipID]);
-				if (clip && clipSrcPath) {
+				if (clip && (clipSrcPath || !hasManageScope)) {
 					clearInterval(interval);
 					const clipData:TwitchatDataTypes.ClipInfo = {
 						url: clip.embed_url,

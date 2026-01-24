@@ -85,7 +85,6 @@ class ChatMessageClipPending extends AbstractChatMessage {
 
 	public async highlight():Promise<void> {
 		this.highlighting = true;
-		console.log(this.messageData.clipData)
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip:this.messageData.clipData,
 			date:this.messageData.date,

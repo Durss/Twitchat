@@ -180,19 +180,20 @@ class OverlayChatHighlight extends Vue {
 		clearTimeout(this.dateTimeout);
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
-
+		
 		this.iFrameInitTimeout = window.setTimeout(async ()=> {
 			this.loadingClip = false;
 			await this.$nextTick();
 			this.showCurrent();
 			const startTime = Date.now();
 			const duration = this.clipData!.duration;
+			clearInterval(this.progressBarInterval);
 			this.progressBarInterval = window.setInterval(()=> {
 				this.clipPercent = (Date.now() - startTime) / (duration*1000);
 				
 				if(this.clipPercent >= 1) {
 					clearInterval(this.progressBarInterval);
-					PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {}, true);
+					PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, {}, true);
 				}
 			}, 50);
 		}, 500);
@@ -206,12 +207,13 @@ class OverlayChatHighlight extends Vue {
 		let video = this.$refs.video as HTMLVideoElement;
 		const duration = this.clipData!.duration;
 		video.play();
+		clearInterval(this.progressBarInterval);
 		this.progressBarInterval = window.setInterval(()=> {
 			this.clipPercent = video.currentTime/duration;
 			
 			if(this.clipPercent >= 1) {
 				clearInterval(this.progressBarInterval);
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {}, true);
+				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, {}, true);
 			}
 		}, 50);
 	}
