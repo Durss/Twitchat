@@ -90,8 +90,8 @@ export type EventTypeMap = {
 	BINGO_GRID_BINGO_COUNT: {
 			gridId:string;
 			uid:string;
-			login:string;
 			count:number;
+			login?:string;
 		};
 	BINGO_GRID_CELL_STATES: {
 			gridId:string;
