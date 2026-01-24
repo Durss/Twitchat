@@ -103,7 +103,7 @@ class ChatMessageClipPending extends AbstractChatMessage {
 		
 		const exists = await Utils.getHighlightOverPresence();
 		if(exists) {
-			PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
+			PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", clipInfo);
 			this.$store.chat.highlightedMessageId = this.messageData.id;
 		}else{
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
