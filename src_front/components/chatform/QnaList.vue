@@ -122,7 +122,7 @@ class QnaList extends AbstractSidePanel {
 		super.open();
 
 		//Check if highlight overlay exists
-		this.getHighlightOverPresence().then(res => {
+		Utils.getHighlightOverPresence().then(res => {
 			this.overlayAvailable = res;
 			this.highlightLoading = false;
 		});
@@ -195,24 +195,6 @@ class QnaList extends AbstractSidePanel {
 		}
 	}
 
-	/**
-	 * Check if the "chat highlight" overlay exists or not
-	 */
-	private getHighlightOverPresence():Promise<boolean> {
-		return new Promise((resolve, reject)=> {
-			const timeout = window.setTimeout(() =>{
-				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
-				clearTimeout(timeout)
-				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
-		})
-	}
 }
 export default toNative(QnaList);
 </script>

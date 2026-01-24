@@ -432,7 +432,7 @@ export default toNative(OverlayChatHighlight);
 			min-height: 10px;
 			flex-shrink: 0;
 			background-color: var(--color-primary);
-			transition: width .5s linear;
+			transition: width .05s linear;
 			position: absolute;
 			left: 0;
 			bottom: 0;

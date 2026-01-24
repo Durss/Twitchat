@@ -126,7 +126,7 @@ class ParamsList extends Vue implements IParameterContent {
 	private buildInterval:number = -1;
 	private buildBatch:number = 15;
 
-	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};

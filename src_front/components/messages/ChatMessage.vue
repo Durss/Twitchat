@@ -533,7 +533,7 @@ class ChatMessage extends AbstractChatMessage {
 
 		if(clipId != "") {
 			this.clipHighlightLoading = true;
-			super.getHighlightOverPresence().then(res => {
+			Utils.getHighlightOverPresence().then(res => {
 				this.highlightOverlayAvailable = res;
 				this.clipHighlightLoading = false;
 			});
@@ -623,7 +623,7 @@ class ChatMessage extends AbstractChatMessage {
 	 * Send a clip to the overlay
 	 */
 	public async clipHighlight():Promise<void> {
-		super.getHighlightOverPresence().then(res => {
+		Utils.getHighlightOverPresence().then(res => {
 			this.highlightOverlayAvailable = res;
 		});
 		if(!this.highlightOverlayAvailable) {

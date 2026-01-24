@@ -132,7 +132,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 		};
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
@@ -206,7 +206,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 			this.$store.emergency.setEmergencyParams(this.finalData);
 		}, {deep:true});
 
-		watch(()=> OBSWebsocket.instance.connected, () => {
+		watch(()=> OBSWebsocket.instance.connected.value, () => {
 			this.listOBSScenes();
 			this.listOBSSources();
 		});
@@ -235,7 +235,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 	 * List OBS Scenes
 	 */
 	private async listOBSScenes():Promise<void> {
-		if(!OBSWebsocket.instance.connected) return;
+		if(!OBSWebsocket.instance.connected.value) return;
 
 		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 		const res = await OBSWebsocket.instance.getScenes();

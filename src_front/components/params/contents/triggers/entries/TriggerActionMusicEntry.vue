@@ -79,7 +79,7 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 	public param_maxPerUser:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"user", labelKey:"triggers.actions.music.param_limit_perUser" };
 	public param_maxPerUser_value:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:0, max:99, icon:"number", labelKey:"triggers.actions.music.param_max_perUser"};
 
-	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
 	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
 	public get showPlaylistInput():boolean { return this.param_actions.value == TriggerMusicTypes.START_PLAYLIST || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
 	public get isPlaylistEditAction():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }

@@ -385,7 +385,6 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						clipID:"",
-						clipPublicUrl:"",
 						clipUrl:"",
 						loading:true,
 						error:false,

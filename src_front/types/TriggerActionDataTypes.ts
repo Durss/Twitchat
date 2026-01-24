@@ -2519,7 +2519,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.CLIP_CREATED] = [
-		{tag:"CLIP", descKey:'triggers.placeholders.clip_url', pointer:"clipPublicUrl", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageClipCreate>,
+		{tag:"CLIP", descKey:'triggers.placeholders.clip_url', pointer:"clipUrl", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageClipCreate>,
 	];
 
 	map[TriggerTypes.GOXLR_FX_DISABLED] =
@@ -2996,7 +2996,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 
 		//If a music service is available, concat the music service helpers
-		if(SpotifyHelper.instance.connected && entry.findIndex(v=>v.tag == "CURRENT_TRACK_ARTIST") == -1) {
+		if(SpotifyHelper.instance.connected.value && entry.findIndex(v=>v.tag == "CURRENT_TRACK_ARTIST") == -1) {
 			entry.push(
 				{category:"music", tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"__current_track__.artist", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko"} as ITriggerPlaceholder<TwitchatDataTypes.MusicTrackDataKeys, string, "__current_track__">,
 				{category:"music", tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"__current_track__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko march"} as ITriggerPlaceholder<TwitchatDataTypes.MusicTrackDataKeys, string, "__current_track__">,
@@ -3011,7 +3011,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 
 		//If a goxlr is connected concat available placeholder
-		if(GoXLRSocket.instance.connected && entry.findIndex(v=>v.tag == "GOXLR_COUGH") == -1) {
+		if(GoXLRSocket.instance.connected.value && entry.findIndex(v=>v.tag == "GOXLR_COUGH") == -1) {
 			entry.push(
 				{category:"goxlr", tag:"GOXLR_COUGH", descKey:'triggers.placeholders.goxlr_cough', pointer:"__goxlr__.cough", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 				{category:"goxlr", tag:"GOXLR_PROFILE", descKey:'triggers.placeholders.goxlr_profile', pointer:"__goxlr__.profile", numberParsable:false, isUserID:false, globalTag:true, example:"true"},

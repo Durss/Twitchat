@@ -9,11 +9,11 @@
 			<Icon name="loader" alt="loading" class="loader"/>
 		</div>
 
-		<div v-else-if="!error">
+		<div class="holder" v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button small @click.stop="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
-				<Button small type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
+				<Button small :loading="highlighting" @click.stop="highlight()" icon="highlight">{{ $t('global.moderation_action.clip_created_highlightBt') }}</Button>
+				<Button small type="link" :href="messageData.clipUrl" target="_blank" icon="newtab">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
 			</div>
 		</div>
 
@@ -24,13 +24,13 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
 import type { JsonObject } from 'type-fest';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -45,6 +45,7 @@ class ChatMessageClipPending extends AbstractChatMessage {
 	
 	public error:boolean =  false;
 	public loading:boolean =  true;
+	public highlighting:boolean =  false;
 	
 	public interval:number = -1;
 
@@ -83,24 +84,23 @@ class ChatMessageClipPending extends AbstractChatMessage {
 	}
 
 	public async highlight():Promise<void> {
-		let clip:TwitchatDataTypes.ClipInfo|undefined = undefined;
-		let infos = await TwitchUtils.getClipById(this.messageData.clipID);
-		if(infos) {
-			clip = {
-				duration:infos.duration,
-				url:infos.embed_url,
-				// mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
-			}
-		}
+		this.highlighting = true;
+		console.log(this.messageData.clipData)
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
-			clip,
+			clip:this.messageData.clipData,
 			date:this.messageData.date,
 			message_id:this.messageData.id,
 			params:this.$store.chat.chatHighlightOverlayParams,
 			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-		this.$store.chat.highlightedMessageId = this.messageData.id;
+		const exists = await Utils.getHighlightOverPresence();
+		if(exists) {
+			PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+			this.$store.chat.highlightedMessageId = this.messageData.id;
+		}else{
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
+		}
+		this.highlighting = false;
 	}
 
 }
@@ -109,12 +109,24 @@ export default toNative(ChatMessageClipPending);
 
 <style scoped lang="less">
 .chatmessageclippending{
+
+	.holder {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		flex: 1;
+		.message{
+			flex: 1;
+		}
+	}
+	
 	.ctas {
 		margin-top: .25em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: 1em;
+		gap: .5em;
+		row-gap: .25em;
 	}
 
 	.loading {

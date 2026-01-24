@@ -83,7 +83,7 @@ export default class PublicAPI extends EventDispatcher {
 			console.error(error);
 		}
 
-		if(!OBSWebsocket.instance.connected || onlyLocal) {
+		if(!OBSWebsocket.instance.connected.value || onlyLocal) {
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, dataClone));
@@ -103,7 +103,7 @@ export default class PublicAPI extends EventDispatcher {
 	private listenOBS(isMainApp:boolean):Promise<void> {
 		return new Promise((resolve,reject):void => {
 			//OBS api not ready yet, wait for it
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				const connectHandler = () => {
 					OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, connectHandler);
 					if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);

@@ -1,7 +1,7 @@
 import StoreProxy from '@/store/StoreProxy';
 import { OBSWebSocket as ObsWS } from 'obs-websocket-js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import { reactive } from 'vue';
+import { ref } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
@@ -15,7 +15,7 @@ export default class OBSWebSocket extends EventDispatcher {
 
 	private static _instance:OBSWebSocket;
 
-	public connected:boolean = false;
+	public connected = ref<boolean>(false);
 	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
 	//As this class is also used on the "overlay" page, importing TriggerType would
 	//drastically enlarge its bundle size because TriggerActionDataTypes as dependencies to
@@ -45,7 +45,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	********************/
 	static get instance():OBSWebSocket {
 		if(!OBSWebSocket._instance) {
-			OBSWebSocket._instance = reactive(new OBSWebSocket()) as OBSWebSocket;
+			OBSWebSocket._instance = new OBSWebSocket();
 			OBSWebSocket._instance.initialize();
 		}
 		return OBSWebSocket._instance;
@@ -63,10 +63,10 @@ export default class OBSWebSocket extends EventDispatcher {
 	 */
 	public async disconnect():Promise<void> {
 		this.autoReconnect = false;
-		if(this.connected) {
+		if(this.connected.value) {
 			this.obs.disconnect();
 		}
-		this.connected = false;
+		this.connected.value = false;
 	}
 
 	/**
@@ -78,7 +78,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async connect(port:string = "4455", pass:string = "", autoReconnect = true, ip = "127.0.0.1", forceConnect:boolean = false):Promise<boolean> {
-		if(this.connected) return true;
+		if(this.connected.value) return true;
 
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
@@ -96,10 +96,10 @@ export default class OBSWebSocket extends EventDispatcher {
 			}
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
-			if(!this.connected) {
+			if(!this.connected.value) {
 				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_CONNECTED));
 			}
-			this.connected = true;
+			this.connected.value = true;
 		}catch(error) {
 			console.log(error);
 			if(this.autoReconnect) {
@@ -173,7 +173,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * Start OBS stream
 	 */
 	public async startStreaming():Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		const status = await this.obs.call("GetStreamStatus");
 		if(!status.outputActive) {
 			await this.obs.call("StartStream");
@@ -184,7 +184,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * Stop OBS stream
 	 */
 	public async stopStreaming():Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		const status = await this.obs.call("GetStreamStatus");
 		if(status.outputActive) {
 			await this.obs.call("StopStream");
@@ -196,7 +196,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param data
 	 */
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:JsonObject, retryCount:number = 0):Promise<void> {
-		if(!this.connected) {
+		if(!this.connected.value) {
 			//Try again
 			if(retryCount == 30) return;
 			window.setTimeout(()=> this.broadcast(type, eventId, data, ++retryCount), 1000);
@@ -217,7 +217,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		currentPreviewSceneName: string;
 		scenes: {sceneIndex:number, sceneName:string}[];
 	}> {
-		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
+		if(!this.connected.value) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 
 		const res = await this.obs.call("GetSceneList") as {
 			currentProgramSceneName: string;
@@ -237,7 +237,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getSceneItems(sceneName:string):Promise<{item:OBSSourceItem, children:OBSSourceItem[]}[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 
 		//Get scene's items
 		const list = await this.obs.call("GetSceneItemList", {sceneName});
@@ -263,7 +263,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getSources(currentSceneOnly:boolean = false):Promise<OBSSourceItem[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		const scenesResult = await this.getScenes();
 		let sceneList:OBSSceneItemParented[] = scenesResult.scenes;
 		if(currentSceneOnly) {
@@ -335,7 +335,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getSourcesDisplayRects():Promise<{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}> {
-		if(!this.connected) return {canvas:{width:1920, height:1080}, sources:[]};
+		if(!this.connected.value) return {canvas:{width:1920, height:1080}, sources:[]};
 		const currentScene  = await this.getCurrentScene();
 
 		this.log("Requesting display rects");
@@ -529,7 +529,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param transform
 	 */
 	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		//Rmove props not supported by obs-websocket. like width/height.
 		const filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
 			const typedKey = (key as unknown) as keyof SourceTransform;
@@ -549,7 +549,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getInputs():Promise<OBSInputItem[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		return ((await this.obs.call("GetInputList")).inputs as unknown) as OBSInputItem[];
 	}
 
@@ -561,7 +561,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	public async getAudioSources():Promise<{
 		inputs: JsonArray;
 	}> {
-		if(!this.connected) return {inputs:[]};
+		if(!this.connected.value) return {inputs:[]};
 
 		const kinds = await this.getInputKindList();
 		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
@@ -575,7 +575,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	public async getInputKindList():Promise<{
 		inputKinds: string[];
 	}> {
-		if(!this.connected) return {inputKinds:[]};
+		if(!this.connected.value) return {inputKinds:[]};
 
 		return await this.obs.call("GetInputKindList");
 	}
@@ -587,7 +587,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getSourceFilters(sourceName:string):Promise<OBSFilter[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 
 		const res = await this.obs.call("GetSourceFilterList", {sourceName});
 		return (res.filters as unknown) as OBSFilter[];
@@ -600,7 +600,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async setCurrentScene(name:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		await this.obs.call("SetCurrentProgramScene", {sceneName:name});
 	}
@@ -611,7 +611,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async getCurrentScene():Promise<string> {
-		if(!this.connected) return "";
+		if(!this.connected.value) return "";
 		let scene = "";
 		try {
 			const res = await this.obs.call("GetCurrentProgramScene");
@@ -627,7 +627,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param text
 	 */
 	public async setTextSourceContent(sourceName:string, text:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
 	}
@@ -640,7 +640,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param visible
 	 */
 	public async setFilterState(sourceName:string, filterName:string, visible:boolean):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
 		await Utils.promisedTimeout(50);
@@ -654,7 +654,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param visible
 	 */
 	public async toggleFilterState(sourceName:string, filterName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		const res = await this.obs.call("GetSourceFilterList", {sourceName});
 		const filter = res.filters.find(filter=> filter.filterName === filterName);
@@ -671,7 +671,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param visible
 	 */
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
 		if(items.length > 0) {
@@ -694,7 +694,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param visible
 	 */
 	public async toggleSourceState(sourceName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
 		if(items.length > 0) {
@@ -806,7 +806,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
 	}
@@ -818,7 +818,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param url
 	 */
 	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
 		if(!/https?:\/\.*/i?.test(url) && !/.*:\/\/.*/gi.test(url)) {
@@ -837,7 +837,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param url
 	 */
 	public async setBrowserSourceCSS(sourceName:string, css:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, css}
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
@@ -852,7 +852,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		inputSettings: T | JsonObject;
 		inputKind: string;
 	}> {
-		if(!this.connected) return {
+		if(!this.connected.value) return {
 			inputSettings: {},
 			inputKind: "",
 		};
@@ -867,7 +867,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async getSceneItemTransform(sceneName:string, sceneItemId:number):Promise<SourceTransform> {
-		if(!this.connected) return {
+		if(!this.connected.value) return {
 			alignment: 0,
 			boundsAlignment: 0,
 			boundsHeight: 0,
@@ -899,7 +899,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param url
 	 */
 	public async setMediaSourceURL(sourceName:string, url:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
 	}
@@ -910,7 +910,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async replayMedia(sourceName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
 	}
 
@@ -920,7 +920,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async stopMedia(sourceName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP'});
 	}
 
@@ -930,7 +930,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async nextMedia(sourceName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT'});
 	}
 
@@ -940,7 +940,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async prevMedia(sourceName:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS'});
 	}
 
@@ -951,7 +951,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @param sourceName
 	 */
 	public async getScreenshot(sourceName?:string):Promise<string> {
-		if(!this.connected) return "";
+		if(!this.connected.value) return "";
 		if(!sourceName) sourceName = await this.getCurrentScene();
 		const cached = this.cachedScreenshots.get(sourceName);
 		//If there's an cached image recent enough, send it back
@@ -1066,7 +1066,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * Get available hotkeys
 	 */
 	public async getHotkeys():Promise<string[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		const res = await this.obs.call("GetHotkeyList");
 		return res.hotkeys;
 	}
@@ -1077,7 +1077,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns The value of the persisted key
 	 */
 	public async getPersistedValue(key:string):Promise<JsonValue> {
-		if(!this.connected) return "";
+		if(!this.connected.value) return "";
 		const res = await this.obs.call("GetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key});
 		return res.slotValue;
 	}
@@ -1089,7 +1089,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns
 	 */
 	public async setPersistedValue(key:string, value:JsonValue):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		await this.obs.call("SetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key, slotValue:value});
 	}
 	
@@ -1100,7 +1100,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * @returns 
 	 */
 	public async setColorSourceColor(sourceName:string, color:number):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		//Convert from 0xAARRGGBB to 0xAABBGGRR
 		color = ((color & 0xFF00FF00) | ((color & 0xFF) << 16) | ((color >> 16) & 0xFF));
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{color}});
@@ -1113,10 +1113,10 @@ export default class OBSWebSocket extends EventDispatcher {
 		this.obs = new ObsWS();
 
 		this.obs.addListener("ConnectionClosed", ()=> {
-			if(this.connected) {
+			if(this.connected.value) {
 				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_DISCONNECTED));
 			}
-			this.connected = false;
+			this.connected.value = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
 				this.reconnectTimeout = window.setTimeout(()=> {

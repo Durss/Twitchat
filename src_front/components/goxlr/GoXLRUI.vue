@@ -54,7 +54,7 @@ class GoXLRUI extends Vue {
 	public async mounted():Promise<void> {
 		this.selectedButtons = this.modelValue;
 		
-		const name = GoXLRSocket.instance.isGoXLRMini? "goxlrMini" : "goxlr";
+		const name = GoXLRSocket.instance.isGoXLRMini.value? "goxlrMini" : "goxlr";
 		const imgRes = await fetch(this.$asset("goxlr/"+name+".svg"));
 		if(imgRes.status <200 || imgRes.status > 204) {
 			this.error = true;

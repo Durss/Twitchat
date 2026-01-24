@@ -31,7 +31,7 @@ class OBSScenes extends Vue {
 	public sceneParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, {sceneIndex:number, sceneName:string}>[] = [];
 
 	public mounted():void {
-		watch(()=> OBSWebsocket.instance.connected, () => {
+		watch(()=> OBSWebsocket.instance.connected.value, () => {
 			this.listScenes();
 		});
 		this.listScenes();

@@ -168,8 +168,9 @@
 			"user_restricted": "{USER} a été ajouté·e aux personnes restreintes par {MODERATOR}",
 			"user_unflagged": "{USER} a été retiré·e des personnes surveillées par {MODERATOR}",
 			"clip_creating": "Patientez pendant la création du clip",
-			"clip_created": "Le clip a été créé et est en attente de publication.",
-			"clip_created_publishBt": "Editer le clip",
+			"clip_created": "Le clip a été créé.",
+			"clip_created_publishBt": "Ouvrir le clip",
+			"clip_created_highlightBt": "Mettre en avant le clip",
 			"ban_reason": "Manually banned from Twitchat"
 		},
 		"dev_mode": {

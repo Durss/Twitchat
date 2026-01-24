@@ -175,7 +175,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		//List all available trigger types
 		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList().concat();
 		this.eventsCount = events.length;
-		if(OBSWebsocket.instance.connected) {
+		if(OBSWebsocket.instance.connected.value) {
 			this.listOBSScenes();
 			this.listOBSSources();
 		}
@@ -224,8 +224,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 		//Check for OBS connection change event.
 		//if connection has been established, load scenes and sources
-		watch(()=>OBSWebsocket.instance.connected, async ()=> {
-			if(OBSWebsocket.instance.connected) {
+		watch(()=>OBSWebsocket.instance.connected.value, async ()=> {
+			if(OBSWebsocket.instance.connected.value) {
 				await this.listOBSScenes();
 				await this.listOBSSources();
 			}

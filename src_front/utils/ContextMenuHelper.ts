@@ -628,7 +628,7 @@ export default class ContextMenuHelper {
 
 
 		//Update "highlight message" state according to overlay presence
-		this.getHighlightOverPresence().then(res => {
+		Utils.getHighlightOverPresence().then(res => {
 			const item = menu.items[highlightIndex]! as MenuItem;
 			if(!item) return;
 			item.label = t("chat.context_menu.highlight");
@@ -863,25 +863,6 @@ export default class ContextMenuHelper {
 			Database.instance.updateMessage(message as TwitchatDataTypes.ChatMessageTypes);
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.no_translation"));
 		});
-	}
-
-	/**
-	 * Check if the "chat highlight" overlay exists or not
-	 */
-	private getHighlightOverPresence():Promise<boolean> {
-		return new Promise((resolve, reject)=> {
-			const timeout = window.setTimeout(() =>{
-				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}, 1000)
-			const handler = (e:TwitchatEvent)=> {
-				clearTimeout(timeout)
-				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
-		})
 	}
 
 	/**

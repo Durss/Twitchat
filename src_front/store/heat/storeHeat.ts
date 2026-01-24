@@ -215,7 +215,7 @@ export const storeHeat = defineStore('heat', {
 			}
 
 			//If OBS websocket is not connected, stop there
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				Logger.instance.log("heat", log);
 				return;
 			}

@@ -3,7 +3,7 @@ import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
-import { reactive } from "vue";
+import { ref } from "vue";
 
 /**
 * Created : 06/07/2023 
@@ -12,10 +12,10 @@ export default class GoXLRSocket extends EventDispatcher {
 
 	private static _instance:GoXLRSocket;
 	
-	public connected: boolean = false;
-	public status:GoXLRTypes.Mixer|null = null; 
-	public isGoXLRMini:boolean = false; 
-	public fxEnabled:boolean = false; 
+	public connected = ref<boolean>(false);
+	public status = ref<GoXLRTypes.Mixer|null>(null); 
+	public isGoXLRMini = ref<boolean>(false); 
+	public fxEnabled = ref<boolean>(false); 
 	
 	private _initResolver!: Function;
 	private _connecting!: boolean;
@@ -43,7 +43,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	********************/
 	static get instance():GoXLRSocket {
 		if(!GoXLRSocket._instance) {
-			GoXLRSocket._instance = reactive(new GoXLRSocket()) as GoXLRSocket;
+			GoXLRSocket._instance = new GoXLRSocket();
 			GoXLRSocket._instance.initialize();
 		}
 		return GoXLRSocket._instance;
@@ -83,7 +83,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			return Promise.reject("not premium");
 		}
 
-		if(this.connected) return Promise.resolve(true);
+		if(this.connected.value) return Promise.resolve(true);
 		if(this._connecting && this._connectingPromise) return this._connectingPromise;
 		this._connecting = true;
 		StoreProxy.params.setGoXLRConnectParams(ip, port);
@@ -101,11 +101,11 @@ export default class GoXLRSocket extends EventDispatcher {
 			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
 
 			this._socket.onclose = (e) => {
-				if(this.connected) {
+				if(this.connected.value) {
 					console.log("🎤 GoXLR connection lost");
 				}
 				this._connecting = false;
-				this.connected = false;
+				this.connected.value = false;
 				this._connectingPromise = null;
 				rebuildPlaceholdersCache();
 				if(this._autoReconnect) {
@@ -134,12 +134,12 @@ export default class GoXLRSocket extends EventDispatcher {
 	 */
 	public disconnect():void {
 		this._autoReconnect = false;
-		if(this.connected) {
+		if(this.connected.value) {
 			this._socket.close();
 		}
 		this._status = null;
 		this._connecting = false;
-		this.connected = false;
+		this.connected.value = false;
 	}
 
 	/**
@@ -165,8 +165,8 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param inputId 
 	 */
 	public getInputVolume(inputId:keyof GoXLRTypes.Volumes):number {
-		if(!this.status) return 0;
-		return this.status!.levels.volumes[inputId];
+		if(!this.status.value) return 0;
+		return this.status.value.levels.volumes[inputId];
 	}
 
 	/**
@@ -507,7 +507,7 @@ export default class GoXLRSocket extends EventDispatcher {
 					//Handle FX enable/disable
 					if(c == "effects" && chunks[j+1] === "is_enabled") {
 						const isEnabled = patch.value == true;
-						this.fxEnabled = isEnabled;
+						this.fxEnabled.value = isEnabled;
 						this._toggleStates.EffectFx = isEnabled;
 						const type = isEnabled? GoXLRSocketEvent.FX_ENABLED : GoXLRSocketEvent.FX_DISABLED;
 						this.dispatchEvent(new GoXLRSocketEvent(type, this._currentFXIndex));
@@ -546,7 +546,7 @@ export default class GoXLRSocket extends EventDispatcher {
 					//Handle fader value update
 					if(c == "levels" && chunks[j+1] === "volumes") {
 						const input = chunks[j+2] as GoXLRTypes.InputTypesData
-						this.status!.levels.volumes[input] = patch.value;
+						if(this.status.value) this.status.value.levels.volumes[input] = patch.value;
 						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.FADER_VOLUME, input, patch.value));
 					}else
 
@@ -593,7 +593,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			if(result.Error || !result.Status) {
 				console.error("🎤 No GoXLR device found");
 				console.log(result);
-				this.connected = true;
+				this.connected.value = true;
 				return
 			}
 
@@ -601,7 +601,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			if(!deviceId) {
 				console.error("🎤 No GoXLR device found");
 				console.log(result);
-				this.connected = true;
+				this.connected.value = true;
 				return
 			}
 			this._deviceId = deviceId;
@@ -653,16 +653,16 @@ export default class GoXLRSocket extends EventDispatcher {
 			//If no status was loaded yet, execute init promise resolver
 			if(!this._status) {
 				this._connecting = false;
-				this.connected = true;
+				this.connected.value = true;
 				this._autoReconnect = true;
 				this._initResolver(true);
 			}
-			this._status = reactive(result.Status)!;
-			this.status = this._status && this._status.mixers[this._deviceId]? this._status.mixers[this._deviceId]! : null;
-			if(this.status) {
-				this.isGoXLRMini = this.status?.hardware.device_type == "Mini";
-				this.fxEnabled = this.status.effects.is_enabled || false;
-				this._currentProfile = this.status.profile_name;
+			this._status = result.Status;
+			this.status.value = this._status && this._status.mixers[this._deviceId]? this._status.mixers[this._deviceId]! : null;
+			if(this.status.value) {
+				this.isGoXLRMini.value = this.status.value.hardware.device_type == "Mini";
+				this.fxEnabled.value = this.status.value.effects.is_enabled || false;
+				this._currentProfile = this.status.value.profile_name;
 			}
 			this._profileList = this._status.files.profiles;
 		});

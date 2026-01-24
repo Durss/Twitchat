@@ -7,18 +7,18 @@ import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
-import { reactive } from "vue";
-import ApiHelper from "../ApiHelper";
+import { ref } from "vue";
 import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyScopesString, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
+import ApiHelper from "../ApiHelper";
 
 /**
 * Created : 23/05/2022
 */
 export default class SpotifyHelper {
 
-	public connected:boolean = false;
-	public currentTrack:TwitchatDataTypes.MusicTrackData|null = null;
-	public currentPlaylist:PlaylistCachedIdItem|null = null;
+	public connected = ref(false);
+	public currentTrack = ref<TwitchatDataTypes.MusicTrackData|null>(null);
+	public currentPlaylist = ref<PlaylistCachedIdItem|null>(null);
 
 	private static _instance:SpotifyHelper;
 	private _isPlaying = false;
@@ -42,7 +42,7 @@ export default class SpotifyHelper {
 	********************/
 	static get instance():SpotifyHelper {
 		if(!SpotifyHelper._instance) {
-			SpotifyHelper._instance = reactive(new SpotifyHelper()) as SpotifyHelper;
+			SpotifyHelper._instance = new SpotifyHelper();
 		}
 		return SpotifyHelper._instance;
 	}
@@ -89,7 +89,7 @@ export default class SpotifyHelper {
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
-		this.connected = false;
+		this.connected.value = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
 		rebuildPlaceholdersCache();
 	}
@@ -195,7 +195,7 @@ export default class SpotifyHelper {
 		}catch(error) {
 			StoreProxy.common.alert("Spotify authentication failed");
 			console.log(error);
-			this.connected = false;
+			this.connected.value = false;
 			rebuildPlaceholdersCache();
 			StoreProxy.music.spotifyConsecutiveErrors ++;
 			throw(error);
@@ -240,7 +240,7 @@ export default class SpotifyHelper {
 			}
 			if(!refreshSuccess){
 				StoreProxy.music.spotifyConsecutiveErrors ++;
-				this.connected = false;
+				this.connected.value = false;
 				rebuildPlaceholdersCache();
 				throw("refresh token failed");
 			}
@@ -454,7 +454,7 @@ export default class SpotifyHelper {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 
 		clearTimeout(this._getTrackTimeout);
 
@@ -505,16 +505,16 @@ export default class SpotifyHelper {
 
 		if(json.context && json.context?.type == "playlist") {
 			const playlist = await this.getPlaylistById(json.context.uri.split(":").pop() || "");
-			this.currentPlaylist = playlist;
+			this.currentPlaylist.value = playlist;
 		}else{
-			this.currentPlaylist = null;
+			this.currentPlaylist.value = null;
 		}
 
 		if(json.item) {
 			let cover = json.item.images?.length > 0? json.item.images[0]!.url : "";
 			if(json.item.show && json.item.show.images?.length > 0) cover = json.item.show.images[0]!.url;
 			else if(json.item.album && json.item.album.images?.length > 0) cover = json.item.album.images[0]!.url;
-			this.currentTrack = {
+			this.currentTrack.value = {
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists.map(a=>a.name).join(", "),
 				album:json.item.album? json.item.album.name : "",
@@ -524,7 +524,7 @@ export default class SpotifyHelper {
 				id:json.item.id,
 			};
 			this._isPlaying = json.is_playing && json.item != null;
-			const request = this._trackIdToRequest[this.currentTrack.id];
+			const request = this._trackIdToRequest[this.currentTrack.value.id];
 
 			//If requested to skip this track
 			if(request && request.skip === true) {
@@ -532,7 +532,7 @@ export default class SpotifyHelper {
 				//Next "getCurrentTrack" calls may return the same track due to API caching
 				//which would execute multiple nextTrack() actions until spotify returns
 				//the actual new track
-				delete this._trackIdToRequest[this.currentTrack.id];
+				delete this._trackIdToRequest[this.currentTrack.value.id];
 				await this.nextTrack();
 				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 500);
 				return;
@@ -542,27 +542,27 @@ export default class SpotifyHelper {
 				let trackChanged = false;
 				//Check if track has changed
 				if(!this._lastTrackInfo
-				|| this._lastTrackInfo?.track.duration != this.currentTrack.duration
-				|| this._lastTrackInfo?.track.title != this.currentTrack.title
-				|| this._lastTrackInfo?.track.artist != this.currentTrack.artist) {
+				|| this._lastTrackInfo?.track.duration != this.currentTrack.value.duration
+				|| this._lastTrackInfo?.track.title != this.currentTrack.value.title
+				|| this._lastTrackInfo?.track.artist != this.currentTrack.value.artist) {
 					trackChanged = true;
 					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 						platform:"twitchat",
-						track:this.currentTrack,
+						track:this.currentTrack.value,
 						channel_id:StoreProxy.auth.twitch.user.id,
 						userOrigin:request?.user,
 						searchTerms:request?.search,
 					};
 					StoreProxy.chat.addMessage(message);
-					delete this._trackIdToRequest[this.currentTrack.id];
+					delete this._trackIdToRequest[this.currentTrack.value.id];
 
-					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
-					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
-					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
-					StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
+					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.value.title);
+					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.value.artist);
+					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.value.album);
+					StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.value.cover);
 					this.resyncQueue();
 
 				}
@@ -572,11 +572,11 @@ export default class SpotifyHelper {
 				|| Math.abs(json.progress_ms - (this._lastTrackInfo?.progress || -100000)) > 10000) {
 					//Broadcast to the overlays
 					const apiData = {
-						trackName: this.currentTrack.title,
-						artistName: this.currentTrack.artist,
-						trackDuration: this.currentTrack.duration,
+						trackName: this.currentTrack.value.title,
+						artistName: this.currentTrack.value.artist,
+						trackDuration: this.currentTrack.value.duration,
 						trackPlaybackPos: json.progress_ms,
-						cover: this.currentTrack.cover,
+						cover: this.currentTrack.value.cover,
 						params: StoreProxy.music.musicPlayerParams,
 						skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 					}
@@ -584,7 +584,7 @@ export default class SpotifyHelper {
 				}
 
 				this._lastTrackInfo = {
-					track:this.currentTrack,
+					track:this.currentTrack.value,
 					progress:json.progress_ms,
 				};
 
@@ -613,7 +613,7 @@ export default class SpotifyHelper {
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
-						track:this.currentTrack,
+						track:this.currentTrack.value,
 						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
@@ -787,7 +787,7 @@ export default class SpotifyHelper {
 			"Content-Type":"application/json",
 			"Authorization":"Bearer "+this._token.access_token,
 		}
-		this.connected = this._token? this._token.expires_at > Date.now() : false;
+		this.connected.value = this._token? this._token.expires_at > Date.now() : false;
 		rebuildPlaceholdersCache();
 
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {

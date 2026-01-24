@@ -46,8 +46,8 @@ class OBSAudioSourceForm extends Vue {
 		this.obsAllowed_audioSources.labelKey	= "obs.microphone_source";
 		this.obsAllowed_muteCommand.labelKey	= "obs.microphone_mute";
 		this.obsAllowed_unmuteCommand.labelKey	= "obs.microphone_unmute";
-		watch(()=> OBSWebsocket.instance.connected, () => { 
-			if(OBSWebsocket.instance.connected) {
+		watch(()=> OBSWebsocket.instance.connected.value, () => { 
+			if(OBSWebsocket.instance.connected.value) {
 				this.listAudioSources();
 			}
 		})

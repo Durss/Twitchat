@@ -45,7 +45,7 @@ class ParamsVoiceBot extends Vue implements IParameterContent {
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get voiceApiAvailable():boolean { return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT; }
 	public get voicePageUrl():string {
 		let url = document.location.origin;

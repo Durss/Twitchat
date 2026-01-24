@@ -566,7 +566,7 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected.value; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 

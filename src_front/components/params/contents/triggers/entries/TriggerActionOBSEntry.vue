@@ -201,7 +201,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	private filters:OBSFilter[] = [];
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get showPlaceholderWarning():boolean {

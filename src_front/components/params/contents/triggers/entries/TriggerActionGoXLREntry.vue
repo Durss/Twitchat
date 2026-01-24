@@ -51,7 +51,7 @@ class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 	public beforeMount():void {
 		this.param_action.listValues = TriggerActionGoXLRDataActionList
 						//Remove "large" GoXLR features if connected one is a mini model
-						.filter(v=>v.mini === true || !GoXLRSocket.instance.isGoXLRMini )
+						.filter(v=>v.mini === true || !GoXLRSocket.instance.isGoXLRMini.value )
 						.map(v=>{ return {value:v.code, labelKey:"triggers.actions.goxlr.action_"+v.code}});
 
 		this.param_fxPreset.listValues = [0,1,2,3,4,5].map(v=>{ return {value:v, labelKey:"triggers.actions.goxlr.param_fxPreset"+(v+1)}});

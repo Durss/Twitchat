@@ -46,8 +46,8 @@ class ChangelogLabels extends Vue {
 	}
 
 	public get currentTrack():string {
-		if(SpotifyHelper.instance.currentTrack) {
-			return SpotifyHelper.instance.currentTrack.title;
+		if(SpotifyHelper.instance.currentTrack.value) {
+			return SpotifyHelper.instance.currentTrack.value.title;
 		}
 		return "Bohemian Rhapsody"
 	}

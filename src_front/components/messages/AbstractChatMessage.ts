@@ -204,25 +204,6 @@ export default class AbstractChatMessage extends Vue {
 	}
 
 	/**
-	 * Check if the "chat highlight" overlay exists or not
-	 */
-	protected getHighlightOverPresence():Promise<boolean> {
-		return new Promise((resolve, reject)=> {
-			const timeout = window.setTimeout(() =>{
-				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}, 1000)
-			const handler = (e:TwitchatEvent)=> {
-				clearTimeout(timeout)
-				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
-		})
-	}
-
-	/**
 	 * Open the context menu on right click on desktop or long press on mobile
 	 * 
 	 * @param e 

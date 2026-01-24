@@ -59,7 +59,7 @@ class GoXLRConnectForm extends Vue {
 	public param_ip:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"127.0.0.1", label:"IP"};
 	public param_port:TwitchatDataTypes.ParameterData<number> = {type:"number", value:14564, label:"Port"};
 
-	public get connected():boolean { return GoXLRSocket.instance.connected; }
+	public get connected():boolean { return GoXLRSocket.instance.connected.value; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
 
@@ -77,7 +77,7 @@ class GoXLRConnectForm extends Vue {
 			console.log(error);
 			this.error = true;
 		}
-		const state = GoXLRSocket.instance.status;
+		const state = GoXLRSocket.instance.status.value;
 		if(state) {
 			this.fxEnabled = state.effects.is_enabled;
 			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));

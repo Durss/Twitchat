@@ -109,7 +109,7 @@ class ConnectOBS extends Vue implements IParameterContent {
 		const ip = DataStore.get(DataStore.OBS_IP);
 
 		if(port != undefined || pass != undefined || ip != undefined) {
-			this.connected = OBSWebsocket.instance.connected;
+			this.connected = OBSWebsocket.instance.connected.value;
 			this.openConnectForm = !this.connected;
 		}else{
 			this.openConnectForm = true;
@@ -121,8 +121,8 @@ class ConnectOBS extends Vue implements IParameterContent {
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
-		watch(()=> OBSWebsocket.instance.connected, () => {
-			this.connected = OBSWebsocket.instance.connected;
+		watch(()=> OBSWebsocket.instance.connected.value, () => {
+			this.connected = OBSWebsocket.instance.connected.value;
 			if(!this.connected) this.openConnectForm = true;
 		});
 	}

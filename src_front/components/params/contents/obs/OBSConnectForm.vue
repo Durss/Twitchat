@@ -73,11 +73,11 @@ class OBSConnectForm extends Vue {
 		if(ip) this.obsIP_conf.value = ip;
 
 		if(port && ip) {
-			this.connected = OBSWebsocket.instance.connected;
+			this.connected = OBSWebsocket.instance.connected.value;
 		}
 
-		watch(()=> OBSWebsocket.instance.connected, () => { 
-			this.connected = OBSWebsocket.instance.connected;
+		watch(()=> OBSWebsocket.instance.connected.value, () => { 
+			this.connected = OBSWebsocket.instance.connected.value;
 		});
 		
 		//@ts-ignore

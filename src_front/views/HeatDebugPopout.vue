@@ -35,10 +35,10 @@ class HeatDebugPopout extends Vue {
 
 	public mounted():void {
 		this.isPopout = this.$route.name == "heatDebug";
-		if(OBSWebsocket.instance.connected){
+		if(OBSWebsocket.instance.connected.value){
 			this.refreshImage();
 		}else{
-			watch(()=>OBSWebsocket.instance.connected, ()=>{
+			watch(()=>OBSWebsocket.instance.connected.value, ()=>{
 				this.refreshImage();
 			});
 		}
@@ -97,7 +97,7 @@ class HeatDebugPopout extends Vue {
 		}
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public goFullscreen():void {
 		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;

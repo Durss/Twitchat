@@ -94,7 +94,7 @@ class OverlayInstaller extends Vue {
 
 	private successTO:number = -1;
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; };
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; };
 	public get obsSourceName():string {
 		if(this.customSourceName) return this.customSourceName
 		let name = "Twitchat_"+this.type;

@@ -1,10 +1,10 @@
+import type { IChatState } from "@/store/StoreProxy";
 import Config from "@/utils/Config";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
-import type { IChatState } from "@/store/StoreProxy";
 
 export namespace TwitchatDataTypes {
 
@@ -4511,13 +4511,9 @@ export namespace TwitchatDataTypes {
 	export interface MessageClipCreate extends AbstractTwitchatMessage {
 		type:"clip_pending_publication" | "clip_creation_complete";
 		/**
-		 * Path to clip edition
+		 * Clip URL
 		 */
 		clipUrl:string;
-		/**
-		 * Path to public clip video
-		 */
-		clipPublicUrl:string;
 		/**
 		 * ID of the clip
 		 */
@@ -4534,6 +4530,10 @@ export namespace TwitchatDataTypes {
 		 * Details about the clip
 		 */
 		clipData?:ClipInfo;
+		/**
+		 * CLip title
+		 */
+		clipTitle?:string;
 	}
 
 	/**

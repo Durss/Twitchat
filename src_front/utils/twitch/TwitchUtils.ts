@@ -1724,7 +1724,6 @@ export default class TwitchUtils {
 			platform: "twitch",
 			type: TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION,
 			clipUrl: "",
-			clipPublicUrl: "",
 			clipID: "",
 			error: false,
 			loading: true,
@@ -1743,22 +1742,26 @@ export default class TwitchUtils {
 		
 		const res = await this.callApi(url, options);
 		if (res.status > 200 && res.status < 204) {
-			const json = await res.json();
-			message.clipUrl = json.data[0].edit_url;
-			message.clipID = json.data[0].id;
+			const json = await res.json() as { data: { id: string, edit_url: string }[] };
+			const clipCreationData = json.data[0]!;
+			message.clipUrl = clipCreationData.edit_url;
+			message.clipID = clipCreationData.id;
 
 			const createdDate = Date.now();
 			const interval = window.setInterval(async () => {
 				const clip = await TwitchUtils.getClipById(message.clipID);
-				if (clip) {
+				const [clipSrcPath] = await TwitchUtils.getClipsSrcPath([message.clipID]);
+				if (clip && clipSrcPath) {
 					clearInterval(interval);
-					const clipData = {
+					const clipData:TwitchatDataTypes.ClipInfo = {
 						url: clip.embed_url,
+						mp4: clipSrcPath?.landscape_download_url,
 						// mp4: clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 						duration: clip.duration,
 					};
 					message.clipData = clipData;
 					message.loading = false;
+					message.clipUrl = clip.url;
 					Database.instance.updateMessage(message);
 
 					//Send a message dedicated to the creation complete to execute related
@@ -1768,9 +1771,9 @@ export default class TwitchUtils {
 						date: Date.now(),
 						platform: "twitch",
 						type: TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE,
-						clipUrl: json.data[0].edit_url,
-						clipPublicUrl: clip.url,
-						clipID: json.data[0].id,
+						clipUrl: clip.url,
+						clipTitle: clip.title,
+						clipID: clipCreationData.id,
 						error: false,
 						loading: false,
 						clipData,
@@ -1780,9 +1783,10 @@ export default class TwitchUtils {
 				}
 
 				//If after 15s the clip is still not returned by the API, consider it failed
-				if (Date.now() - createdDate > 15000) {
+				if (Date.now() - createdDate > 60000) {
 					message.error = true;
 					message.loading = false;
+					Database.instance.updateMessage(message);
 					clearInterval(interval);
 				}
 			}, 1000);
@@ -1837,6 +1841,30 @@ export default class TwitchUtils {
 			}
 			return null;
 		}
+	}
+
+	/**
+	 * Gets clips download URLs
+	 */
+	public static async getClipsSrcPath(clipIds:string[]): Promise<TwitchDataTypes.ClipDL[]> {
+		if (!this.hasScopes([TwitchScopes.MANAGE_CLIPS])) return [];
+		const url = new URL(Config.instance.TWITCH_API_PATH + "clips/downloads");
+		url.searchParams.append("editor_id", this.uid);
+		url.searchParams.append("clip_id", clipIds.join(","));
+		url.searchParams.append("broadcaster_id", this.uid);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.ClipDL[]};
+			return json.data;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.getClipsSrcPath(clipIds);
+		}
+		return [];
 	}
 
 	/**
@@ -3135,30 +3163,6 @@ export default class TwitchUtils {
 			return this.getVODInfo(vodID);
 		}
 		return null;
-	}
-
-	/**
-	 * Gets clips download URLs
-	 */
-	public static async getClipsSrcPath(clipIds:string[]): Promise<TwitchDataTypes.ClipDL[]> {
-		if (!this.hasScopes([TwitchScopes.MANAGE_CLIPS])) return [];
-		const url = new URL(Config.instance.TWITCH_API_PATH + "clips/downloads");
-		url.searchParams.append("editor_id", this.uid);
-		url.searchParams.append("clip_id", clipIds.join(","));
-		url.searchParams.append("broadcaster_id", this.uid);
-
-		const res = await this.callApi(url, {
-			method: "GET",
-			headers: this.headers,
-		});
-		if (res.status == 200 || res.status == 204) {
-			const json = await res.json() as {data:TwitchDataTypes.ClipDL[]};
-			return json.data;
-		} else if (res.status == 429) {
-			await this.onRateLimit(res.headers);
-			return this.getClipsSrcPath(clipIds);
-		}
-		return [];
 	}
 
 	/**

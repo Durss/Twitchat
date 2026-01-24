@@ -2,6 +2,8 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
 import {evaluate as MathEval} from 'mathjs';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import PublicAPI from './PublicAPI';
 
 /**
  * Created by Durss
@@ -1132,5 +1134,25 @@ export default class Utils {
 			}catch(error) {}
 		}
 		return null;
+	}
+
+	/**
+	 * Check if highlight overlay exists
+	 * @returns 
+	 */
+	public static async getHighlightOverPresence():Promise<boolean> {
+		return new Promise((resolve, reject)=> {
+			const timeout = window.setTimeout(() =>{
+				resolve(false);
+				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			}, 1000)
+			let handler = (e:TwitchatEvent)=> {
+				clearTimeout(timeout)
+				resolve(true);
+				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			}
+			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+		})
 	}
 }
