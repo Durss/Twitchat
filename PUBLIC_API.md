@@ -122,6 +122,7 @@ Events fired by Twitchat that you can listen to.
 - [ON_BITSWALL_OVERLAY_CONFIGS](#on_bitswall_overlay_configs)
 - [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)
 - [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)
+- [ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE](#on_chat_highlight_overlay_close)
 - [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)
 - [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)
 - [ON_CHAT_POLL_PROGRESS](#on_chat_poll_progress)
@@ -851,6 +852,11 @@ type ON_CHAT_COLUMNS_COUNT = {
 ```
 
 </details>
+
+#### ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE
+Sent by chat highlight overlay when a clip completes playing to
+request main app to close the highlight  
+
 
 #### ON_CHAT_POLL_OVERLAY_CONFIGS
 Receive chat poll overlay configuration  
