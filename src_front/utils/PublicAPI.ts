@@ -6,7 +6,6 @@ import OBSWebsocket from "./OBSWebsocket";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 import Utils from "./Utils";
 import VoiceController from "./voice/VoiceController";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
 * Created : 14/04/2022
@@ -76,7 +75,7 @@ export default class PublicAPI extends EventDispatcher {
 	): Promise<void> {
 
 		const [data, broadcastToSelf = false, onlyLocal = false] =
-			(args.length && typeof args[0] === "object")
+			(args.length && typeof args[0] === "object" || args[0] === undefined)
 				? [args[0] as TwitchatEventMap[Event], args[1] ?? false, args[2] ?? false]
 				: [undefined, args[0] as boolean, args[1] as boolean];
 
@@ -179,7 +178,7 @@ export default class PublicAPI extends EventDispatcher {
 	* PRIVATE METHODS *
 	*******************/
 	private listenOBS(isMainApp:boolean):Promise<void> {
-		return new Promise((resolve,reject):void => {
+		return new Promise((resolve, _reject):void => {
 			//OBS api not ready yet, wait for it
 			if(!OBSWebsocket.instance.connected.value) {
 				const connectHandler = () => {
@@ -196,9 +195,7 @@ export default class PublicAPI extends EventDispatcher {
 			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false));
 			OBSWebsocket.instance.socket.on("CustomEvent", (eventData:JsonObject) => {
 				const eventDataTyped = eventData as unknown as IEnvelope;
-				if(eventDataTyped.data) {
-					this.onMessage(eventDataTyped, true);
-				}
+				this.onMessage(eventDataTyped, true);
 			});
 		});
 	}
@@ -224,7 +221,6 @@ export default class PublicAPI extends EventDispatcher {
 	 * @returns
 	 */
 	private onMessage(event:IEnvelope, checkOrigin:boolean = false):void {
-		// console.log("[PUBLIC API] On message", event);
 		if(checkOrigin && event.origin != "twitchat") return;
 		if(event.type == undefined) return;
 
