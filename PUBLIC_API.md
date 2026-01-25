@@ -123,9 +123,11 @@ Events fired by Twitchat that you can listen to.
 - [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)
 - [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)
 - [ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE](#on_chat_highlight_overlay_close)
+- [ON_CHAT_POLL_INFO](#on_chat_poll_info)
 - [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)
 - [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)
 - [ON_CHAT_POLL_PROGRESS](#on_chat_poll_progress)
+- [ON_CHAT_POLL_RESULT](#on_chat_poll_result)
 - [ON_COUNTDOWN_COMPLETE](#on_countdown_complete)
 - [ON_COUNTDOWN_START](#on_countdown_start)
 - [ON_COUNTER_LIST](#on_counter_list)
@@ -858,6 +860,40 @@ Sent by chat highlight overlay when a clip completes playing to
 request main app to close the highlight  
 
 
+#### ON_CHAT_POLL_INFO
+Receive current chat poll info.
+Call GET_CHAT_POLL_INFO to get this data  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_CHAT_POLL_INFO = {
+	/**
+	 * Poll title
+	 */
+	title: string;
+	/**
+	 * List of poll choices with their number of votes
+	 */
+	choices: {
+		/**
+		 * Choice title
+		 */
+		title: string;
+		/**
+		 * Number of votes for this choice
+		 */
+		votes: number;
+	}[];
+	/**
+	 * Duration of the poll in seconds
+	 */
+	duration: number;
+}
+```
+
+</details>
+
 #### ON_CHAT_POLL_OVERLAY_CONFIGS
 Receive chat poll overlay configuration  
 <details>
@@ -1026,6 +1062,35 @@ type ON_CHAT_POLL_PROGRESS = {
 		 */
 		maxVotePerUser: number;
 	};
+}
+```
+
+</details>
+
+#### ON_CHAT_POLL_RESULT
+Triggerd when a chat poll ends  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_CHAT_POLL_RESULT = {
+	/**
+	 * Poll title
+	 */
+	title: string;
+	/**
+	 * List of poll choices with their number of votes
+	 */
+	choices: {
+		/**
+		 * Choice title
+		 */
+		title: string;
+		/**
+		 * Number of votes for this choice
+		 */
+		votes: number;
+	}[];
 }
 ```
 
@@ -4314,6 +4379,8 @@ Actions you can request Twitchat to perform.
 - [SET_CHAT_HIGHLIGHT_OVERLAY_CLIP](#set_chat_highlight_overlay_clip)
 - [SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE](#set_chat_highlight_overlay_message)
 - [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)
+- [SET_CHAT_POLL_START](#set_chat_poll_start)
+- [SET_CHAT_POLL_STOP](#set_chat_poll_stop)
 - [SET_CLEAR_CHAT_HIGHLIGHT](#set_clear_chat_highlight)
 - [SET_COUNTDOWN_ADD](#set_countdown_add)
 - [SET_COUNTER_ADD](#set_counter_add)
@@ -5115,6 +5182,38 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 
 #### SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
 Advertise for highlight overlay presence  
+
+
+#### SET_CHAT_POLL_START
+Start a chat poll  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_CHAT_POLL_START = {
+	/**
+	 * Poll title
+	 */
+	title: string;
+	/**
+	 * List of poll choices
+	 */
+	choices: string[];
+	/**
+	 * Duration of the poll in seconds
+	 */
+	duration: number;
+	/**
+	 * Maximum answers a user can vote for
+	 */
+	maxVotePerUser: number;
+}
+```
+
+</details>
+
+#### SET_CHAT_POLL_STOP
+Triggerd when a chat poll ends  
 
 
 #### SET_CLEAR_CHAT_HIGHLIGHT
@@ -6447,6 +6546,7 @@ Data you can request from Twitchat.
 - [GET_BITSWALL_OVERLAY_PRESENCE](#get_bitswall_overlay_presence)
 - [GET_CHAT_COLUMNS_COUNT](#get_chat_columns_count)
 - [GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#get_chat_highlight_overlay_presence)
+- [GET_CHAT_POLL_INFO](#get_chat_poll_info)
 - [GET_CHAT_POLL_OVERLAY_CONFIGS](#get_chat_poll_overlay_configs)
 - [GET_CHAT_POLL_OVERLAY_PRESENCE](#get_chat_poll_overlay_presence)
 - [GET_COUNTER](#get_counter)
@@ -6540,6 +6640,11 @@ Receive answer with: [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)
 #### GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
 Request current chat highlight overlay presence  
 Receive answer with: [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)  
+
+
+#### GET_CHAT_POLL_INFO
+Request for current chat poll info  
+Receive answer with: [ON_CHAT_POLL_INFO](#on_chat_poll_info)  
 
 
 #### GET_CHAT_POLL_OVERLAY_CONFIGS
