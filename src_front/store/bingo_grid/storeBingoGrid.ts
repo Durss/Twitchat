@@ -306,7 +306,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}).catch(()=>{})
 		},
 
-		shuffleGrid(id:string):void {
+		async shuffleGrid(id:string):Promise<void> {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 
@@ -336,12 +336,15 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			grid.entries = entries;
 
 			clearTimeout(debounceShuffle);
-			debounceShuffle = window.setTimeout(() => {
-				this.saveData(id, undefined, false);
-				if(StoreProxy.auth.isPremium) {
-					ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
-				}
-			}, 600);
+			return new Promise<void>((resolve) => {
+				debounceShuffle = window.setTimeout(async () => {
+					this.saveData(id, undefined, false);
+					if(StoreProxy.auth.isPremium) {
+						await ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
+					}
+					resolve();
+				}, 600);
+			});
 		},
 
 		resetLabels(id:string):void {
@@ -360,7 +363,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}).catch(()=>{})
 		},
 
-		resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):void {
+		async resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):Promise<void> {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 			//Reset diff array
@@ -392,7 +395,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const states:{[cellId:string]:boolean} = {};
 			grid.entries.forEach(v=> states[v.id] = v.check);
 			if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
-			if(StoreProxy.auth.isPremium && callEndpoint) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+			if(StoreProxy.auth.isPremium && callEndpoint) await ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {

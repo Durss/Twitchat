@@ -56,8 +56,12 @@ export default class BingoGridController extends AbstractController {
 		this.extensionController = controller;
 	}
 
-	private getCacheKey(uid:string, gridId?:string):string {
-		return gridId ? `${uid}/${gridId}` : uid;
+	private getChannelGridCacheKey(channelId:string, gridId?:string):string {
+		return gridId ? `${channelId}/${gridId}` : channelId;
+	}
+
+	private getViewerGridCacheKey(channelId:string, bingoId:string, viewerId:string):string {
+		return `${channelId}/${bingoId}/${viewerId}`;
 	}
 
 	/**
@@ -65,7 +69,7 @@ export default class BingoGridController extends AbstractController {
 	 */
 	private async getViewerGrid(streamerId:string, bingoId:string, viewerId:string):Promise<IViewerGridCacheData|void> {
 		// Check memory cache first
-		const cacheViewerKey = `${streamerId}/${bingoId}/${viewerId}`;
+		const cacheViewerKey = this.getViewerGridCacheKey(streamerId, bingoId, viewerId);
 		const cachedViewer = this.viewerGridCache.get(cacheViewerKey);
 		if(cachedViewer) return cachedViewer;
 
@@ -92,7 +96,7 @@ export default class BingoGridController extends AbstractController {
 		// Validate UID and gridId to prevent path traversal
 		if(!channelId || !/^[0-9]+$/.test(channelId) || (gridId && !/^[a-zA-Z0-9_-]+$/.test(gridId))) return;
 
-		const cacheKey = this.getCacheKey(channelId, gridId);
+		const cacheKey = this.getChannelGridCacheKey(channelId, gridId);
 
 		// Return cached if available (TTL managed by LRU cache)
 		const cached = this.channelGridsCache.get(cacheKey);
@@ -250,7 +254,7 @@ export default class BingoGridController extends AbstractController {
 	 * Saves a viewer's grid to memory cache and marks for disk flush
 	 */
 	private saveViewerGrid(streamerId:string, bingoId:string, viewerId:string, data:IViewerGridCacheData):void {
-		const cacheKey = `${streamerId}/${bingoId}/${viewerId}`;
+		const cacheKey = this.getViewerGridCacheKey(streamerId, bingoId, viewerId);
 		this.viewerGridCache.set(cacheKey, data);
 		this.dirtyViewerGrids.add(cacheKey);
 	}
@@ -337,7 +341,7 @@ export default class BingoGridController extends AbstractController {
 	 */
 	private async refreshChannelGrid(channelId:string, gridId?:string):Promise<IStreamerGridsCacheData | void> {
 		const userFilePath = Config.USER_DATA_PATH + channelId+".json";
-		const cacheKey = this.getCacheKey(channelId, gridId);
+		const cacheKey = this.getChannelGridCacheKey(channelId, gridId);
 
 		try {
 			await fs.promises.access(userFilePath);
@@ -532,20 +536,20 @@ export default class BingoGridController extends AbstractController {
 			cached.enabled = gridRef.enabled;
 			cached.additionalEntries = gridRef.additionalEntries;
 			
-			const cacheAllKey = this.getCacheKey(user.user_id);
+			const cacheAllKey = this.getChannelGridCacheKey(user.user_id);
 			this.channelGridsCache.set(cacheAllKey, cachedGrids);
 			
-			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+			const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 			const clone = {...cachedGrids};
 			clone.data = clone.data.filter(g => g.id == gridId);
 			this.channelGridsCache.set(cacheOneKey, clone);
 		}else{
 			// Add new grid to existing cache
 			cachedGrids.data.push(gridRef);
-			const cacheAllKey = this.getCacheKey(user.user_id);
+			const cacheAllKey = this.getChannelGridCacheKey(user.user_id);
 			this.channelGridsCache.set(cacheAllKey, cachedGrids);
 
-			const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+			const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 			const clone = {...cachedGrids};
 			clone.data = [gridRef];
 			this.channelGridsCache.set(cacheOneKey, clone);
@@ -555,9 +559,30 @@ export default class BingoGridController extends AbstractController {
 		try {
 			files = await fs.promises.readdir(folder);
 		} catch {
+			// Folder doesn't exist - but we may still have dirty grids in memory
+			// that need to be cleared (happens when shuffling twice quickly)
+			if(forceNewGridGen || !gridRef.enabled) {
+				const dirtyPrefix = `${user.user_id}/${gridId}/`;
+				const viewersToNotify = new Set<string>();
+				
+				for(const dirtyKey of this.dirtyViewerGrids) {
+					if(dirtyKey.startsWith(dirtyPrefix)) {
+						const viewerId = dirtyKey.substring(dirtyPrefix.length);
+						this.viewerGridCache.delete(dirtyKey);
+						this.dirtyViewerGrids.delete(dirtyKey);
+						viewersToNotify.add(viewerId);
+					}
+				}
+				
+				// Notify viewers that were only in memory
+				viewersToNotify.forEach(viewerId => {
+					SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {force:true});
+				});
+			}
+
 			this.extensionController.notifyStateUpdate(user.user_id);
 			
-			// Folder doesn't exist, no cache to update
+			// Folder doesn't exist, no disk cache to update
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true, error:"no cache to update", errorCode:"NO_CACHE"}));
@@ -566,20 +591,38 @@ export default class BingoGridController extends AbstractController {
 
 		if(!gridRef.enabled || forceNewGridGen) {
 			// Grid disabled or asking to fully rebuild them
-			// Clear memory caches for all viewers of this grid
+			// Collect all viewer IDs to notify (from disk files AND dirty memory cache)
+			const viewersToNotify = new Set<string>();
+
+			// Clear memory caches for viewers with files on disk
 			for(const file of files) {
 				const [viewerId] = file.split(".");
-				const cacheKey = `${user.user_id}/${gridId}/${viewerId}`;
-				this.viewerGridCache.delete(cacheKey);
-				this.dirtyViewerGrids.delete(cacheKey);
+				if(viewerId) {
+					const cacheKey = this.getViewerGridCacheKey(user.user_id, gridId, viewerId);
+					this.viewerGridCache.delete(cacheKey);
+					this.dirtyViewerGrids.delete(cacheKey);
+					viewersToNotify.add(viewerId);
+				}
 			}
+
+			// Also clear viewers that are in memory but not yet flushed to disk
+			const dirtyPrefix = `${user.user_id}/${gridId}/`;
+			for(const dirtyKey of this.dirtyViewerGrids) {
+				if(dirtyKey.startsWith(dirtyPrefix)) {
+					const viewerId = dirtyKey.substring(dirtyPrefix.length);
+					this.viewerGridCache.delete(dirtyKey);
+					this.dirtyViewerGrids.delete(dirtyKey);
+					viewersToNotify.add(viewerId);
+				}
+			}
+
 			try {
 				await fs.promises.rm(folder, { recursive: true, force: true });
 			} catch { /* ignore */ }
-			files.forEach(file => {
-				const chunks = file.split(".");
-				const uid = chunks[0]!;
-				SSEController.sendToUser(uid, SSETopic.BINGO_GRID_UPDATE, {force:true});
+
+			// Notify all affected viewers
+			viewersToNotify.forEach(viewerId => {
+				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {force:true});
 			});
 
 		} else {
@@ -689,10 +732,10 @@ export default class BingoGridController extends AbstractController {
 			const cachedGrids = await this.getChannelGrids(user.user_id);
 			if(cachedGrids) {
 				cachedGrids.data = cachedGrids.data.filter(g => g.id != gridId);
-				const cacheAllKey = this.getCacheKey(user.user_id);
+				const cacheAllKey = this.getChannelGridCacheKey(user.user_id);
 				this.channelGridsCache.set(cacheAllKey, cachedGrids);
 
-				const cacheOneKey = this.getCacheKey(user.user_id, gridId);
+				const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 				this.channelGridsCache.delete(cacheOneKey);
 
 				this.extensionController.notifyStateUpdate(user.user_id);
