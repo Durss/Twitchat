@@ -961,6 +961,85 @@ export type TwitchatEventMap = {
 	 * Triggered when chat poll progress updates
 	 */
 	ON_CHAT_POLL_PROGRESS: { poll: TwitchatDataTypes.ChatPollData } | undefined;
+	/**
+	 * Start a chat poll
+	 */
+	SET_CHAT_POLL_START: {
+		/**
+		 * Poll title
+		 */
+		title:string;
+		/**
+		 * List of poll choices
+		 */
+		choices:string[];
+		/**
+		 * Duration of the poll in seconds
+		 */
+		duration:number;
+		/**
+		 * Maximum answers a user can vote for
+		 */
+		maxVotePerUser:number;
+	};
+	/**
+	 * Triggerd when a chat poll ends
+	 */
+	SET_CHAT_POLL_STOP: undefined;
+	/**
+	 * Triggerd when a chat poll ends
+	 */
+	ON_CHAT_POLL_RESULT: {
+		/**
+		 * Poll title
+		 */
+		title:string;
+		/**
+		 * List of poll choices with their number of votes
+		 */
+		choices:{
+			/**
+			 * Choice title
+			 */
+			title:string;
+			/**
+			 * Number of votes for this choice
+			 */
+			votes:number;
+		}[];
+	};
+	/**
+	 * Request for current chat poll info
+	 * @answer ON_CHAT_POLL_INFO
+	 */
+	GET_CHAT_POLL_INFO: undefined
+	/**
+	 * Receive current chat poll info.
+	 * Call GET_CHAT_POLL_INFO to get this data
+	 */
+	ON_CHAT_POLL_INFO: {
+		/**
+		 * Poll title
+		 */
+		title:string;
+		/**
+		 * List of poll choices with their number of votes
+		 */
+		choices:{
+			/**
+			 * Choice title
+			 */
+			title:string;
+			/**
+			 * Number of votes for this choice
+			 */
+			votes:number;
+		}[];
+		/**
+		 * Duration of the poll in seconds
+		 */
+		duration:number;
+	}
 
 	/**
 	 * A chat message has been deleted

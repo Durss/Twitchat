@@ -76,6 +76,42 @@ export const storeChatPoll = defineStore('chatPoll', {
 			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_CONFIGS", ()=> {
 				this.broadcastState();
 			});
+
+			/**
+			 * Start a new poll from Public API
+			 */
+			PublicAPI.instance.addEventListener("SET_CHAT_POLL_START", (event)=> {
+				if(!event.data.choices || !event.data.choices.length) return;
+				this.setCurrentPoll({
+					choices: event.data.choices.map((label:string) => ({id:Utils.getUUID(), label, votes:0})),
+					duration_s: event.data.duration || 60,
+					maxVotePerUser: event.data.maxVotePerUser || 1,
+					permissions: Utils.getDefaultPermissions(),
+					started_at: Date.now(),
+					title: event.data.title,
+					votes: {},
+				});
+			});
+
+			/**
+			 * Stop any currently running poll from public API
+			 */
+			PublicAPI.instance.addEventListener("SET_CHAT_POLL_STOP", ()=> {
+				this.setCurrentPoll(null);
+			});
+
+			/**
+			 * Stop any currently running poll from public API
+			 */
+			PublicAPI.instance.addEventListener("GET_CHAT_POLL_INFO", ()=> {
+				if(!this.data) return;
+				
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_INFO", {
+					title: this.data.title,
+					choices: this.data.choices.map(v=>{return {title: v.label, votes: v.votes}}),
+					duration: this.data.duration_s,
+				});
+			});
 		},
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
@@ -175,6 +211,10 @@ export const storeChatPoll = defineStore('chatPoll', {
 
 				//Clear overlay
 				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", undefined);
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_RESULT", {
+					title: this.data.title,
+					choices: this.data.choices.map(v=>{return {title: v.label, votes: v.votes}}),
+				});
 			}
 
 			this.data = data;
