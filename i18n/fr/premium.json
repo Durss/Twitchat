@@ -44,6 +44,7 @@
 				["Groupes de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["Quiz", "MAX_QUIZ", "MAX_QUIZ", "MAX_QUIZ_PREMIUM"],
 				["OVERLAY: Grilles de bingo", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS_PREMIUM"],
 				["OVERLAY: Donation goals", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS_PREMIUM"],
 				["OVERLAY: Distorsions intéractives", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
@@ -101,7 +102,7 @@
 
 		"cleanup": {
 			"title":"Limitations non-premium",
-			"description":"Vous n'êtes pas membre premium et avez créé plus d'éléments de certains types que le maximum autorisé. Désactivez/supprimez des entrées ou devenez membre Premium pour tous les conserver",
+			"description":"Vous n'êtes pas ou plus membre premium et avez créé plus d'éléments de\ncertains types que le maximum autorisé.\nDésactivez des entrées ou devenez membre Premium pour tous les conserver.",
 			"custom_usernames":"Pseudo personnalisés",
 			"custom_username_remove":"Supprimer le pseudo<br>personnalisé",
 			"custom_badges":"Badges personnalisés",

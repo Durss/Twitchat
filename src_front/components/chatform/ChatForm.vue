@@ -324,7 +324,7 @@
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
-						v-if="voiceBotConfigured"
+						v-if="$store.voice.voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						v-tooltip="{touch:'hold', content:voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')}"
 						@click="toggleVoiceBot()" />
@@ -418,7 +418,6 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
@@ -433,7 +432,6 @@ import Utils from '@/utils/Utils';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
@@ -513,7 +511,7 @@ export class ChatForm extends Vue {
 	private announcementInterval:number = -1;
 	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
-	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private creditsOverlayPresenceHandler!:() => void;
 
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -581,21 +579,7 @@ export class ChatForm extends Vue {
 		return false;
 	}
 
-	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
-	public get voiceBotConfigured():boolean {
-		if(Config.instance.OBS_DOCK_CONTEXT) return false;
-		const actions = Object.keys(VoiceAction);
-		type VAKeys = keyof typeof VoiceAction;
-		//Search for global labels
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
-			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
-			const id:string = VoiceAction[a as VAKeys] as string;
-			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
-			if(!action?.sentences) return false;
-		}
-		return true;
-	}
+	public get voiceBotStarted():boolean { return VoiceController.instance.started.value; }
 
 	public get chatHighlightEnabled():boolean {
 		return this.$store.chat.highlightedMessageId != null;
@@ -705,11 +689,11 @@ export class ChatForm extends Vue {
 			this.sendHistory = JSON.parse(history) as string[];
 			this.sendHistoryIndex = this.sendHistory.length;
 		}
-		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
-		this.creditsOverlayPresenceHandler = (e:TwitchatEvent) => this.onCreditsOverlayPresence();
+		this.updateTrackedUserListHandler = (_e:GlobalEvent) => this.onUpdateTrackedUserList();
+		this.creditsOverlayPresenceHandler = () => this.onCreditsOverlayPresence();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
 		window.setTimeout(()=> {
@@ -771,7 +755,7 @@ export class ChatForm extends Vue {
 		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
@@ -829,7 +813,7 @@ export class ChatForm extends Vue {
 					//Check patreon only condition
 					if(a.patreonOnly === true && !this.$store.patreon.isMember) continue;
 					//Check patreon only condition
-					if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
+					if(a.heatOnly === true && !HeatSocket.instance.connected.value) continue;
 					//Check if within date frame
 					if(Date.now() < new Date(a.dateStart).getTime()) continue;
 					if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
@@ -969,12 +953,6 @@ export class ChatForm extends Vue {
 			//App version
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
 			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
-			this.message = "";
-		}else
-
-		if(isAdmin && cmd == "/tenorgifload") {
-			console.log(this.$store.chat.messages);
-			console.log(await ApiHelper.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 
@@ -1191,7 +1169,7 @@ export class ChatForm extends Vue {
 	 * Start the voice bot
 	 */
 	public toggleVoiceBot():void {
-		if(VoiceController.instance.started) {
+		if(VoiceController.instance.started.value) {
 			VoiceController.instance.stop();
 		}else{
 			VoiceController.instance.start(false);

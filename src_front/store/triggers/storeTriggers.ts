@@ -1,21 +1,22 @@
+import SSEEvent from '@/events/SSEEvent';
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type SettingsExportData, type SocketParams } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type SocketParams, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
+import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
 
 let discordCmdUpdateDebounce:number = -1;
 let wasDiscordCmds = false;
@@ -137,6 +138,42 @@ export const storeTriggers = defineStore('triggers', {
 				})
 				TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
 			});
+
+			PublicAPI.instance.addEventListener("SET_EXECUTE_TRIGGER", (e) => {
+				const trigger = this.triggerList.find(v=>v.id == e.data.id);
+				if(trigger) {
+					const me = StoreProxy.auth.twitch.user;
+					const fakeMessage:TwitchatDataTypes.MessageChatData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						channel_id:me.id,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						message:"",
+						message_chunks:[],
+						message_html:"",
+						message_size:0,
+						user:me,
+						is_short:false,
+						answers:[],
+					}
+					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+				}
+			});
+			PublicAPI.instance.addEventListener("SET_TRIGGER_STATE", (e) => {
+				const id = e.data.id;
+				const action = e.data.forcedState;
+				const trigger = this.triggerList.find(v=>v.id == id);
+				if(trigger) {
+					switch(action){
+						case true:	trigger.enabled = true; break;
+						case false:	trigger.enabled = false; break;
+						default:	trigger.enabled = !trigger.enabled; break;
+					}
+				}
+				this.saveTriggers();
+			});
+			PublicAPI.instance.addEventListener("GET_TRIGGER_LIST", () => this.broadcastTriggerList());
 		},
 
 		openTriggerEdition(data:TriggerData) {
@@ -314,6 +351,7 @@ export const storeTriggers = defineStore('triggers', {
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);
 			this.computeTriggerTreeEnabledStates();
+			this.broadcastTriggerList();
 		},
 
 		renameOBSSource(oldName:string, newName:string):void {
@@ -426,6 +464,17 @@ export const storeTriggers = defineStore('triggers', {
 			}
 
 			parseItem(this.triggerTree);
+		},
+
+		broadcastTriggerList():void {
+			const triggers = this.triggerList.map(v=> {
+				return {
+					id:v.id,
+					name:TriggerUtils.getTriggerDisplayInfo(v).label,
+					disabled: v.enabled === false,
+				}
+			});
+			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", {triggerList: triggers});
 		},
 
 	} as ITriggersActions

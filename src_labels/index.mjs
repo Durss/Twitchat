@@ -87,7 +87,17 @@ async function processLabels() {
 processLabels().catch(error => console.error("Error processing labels:", error));
 
 if (process.argv.includes("--pm2")) {
-	//avoid infinite reboot in pm2 execution context
-	//PM2 will watch for label files change and restart the script automatically
+	// Watch for changes and recompile automatically
+	const watchDir = path.join(__dirname, "../i18n/");
+	console.log("\x1b[33m Watching for label changes... \x1b[0m");
+	
+	fs.watch(watchDir, { recursive: true }, (eventType, filename) => {
+		if (filename && filename.endsWith('.json')) {
+			console.log(`\x1b[36m Detected change in ${filename}, recompiling... \x1b[0m`);
+			processLabels().catch(error => console.error("Error processing labels:", error));
+		}
+	});
+	
+	// Keep the process alive
 	process.stdin.resume();
 }

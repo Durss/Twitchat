@@ -1141,18 +1141,54 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static async getHighlightOverPresence():Promise<boolean> {
-		return new Promise((resolve, reject)=> {
+		return new Promise((resolve, _reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
+			let handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+			PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
+	}
+	
+	/**
+	 * Converts a JSON object to a printable TypeScript type definition
+	 */
+	public static jsonToTS(
+	json: any,
+	typeName = "",
+	indent = 2
+	): string {
+	function inferType(value: any, level: number): string {
+		const pad = " ".repeat(level * indent);
+
+		if (value === null) return "null";
+
+		if (Array.isArray(value)) {
+		if (value.length === 0) return "any[]";
+		return `${inferType(value[0], level)}[]`;
+		}
+
+		if (typeof value === "object") {
+		const entries = Object.entries(value)
+			.map(
+			([key, val]) =>
+				`${pad}${" ".repeat(indent)}${key}: ${inferType(val, level + 1)};`
+			)
+			.join("\n");
+
+		return `{\n${entries}\n${pad}}`;
+		}
+
+		return typeof value;
+	}
+
+	const prefix = typeName ? `type ${typeName} = ` : "";
+	return `${prefix}${inferType(json, 0)};`;
 	}
 }

@@ -98,8 +98,8 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import PlacementSelector from '@/components/PlacementSelector.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -107,11 +107,10 @@ import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
@@ -139,7 +138,7 @@ class OverlayParamsHighlight extends Vue {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
@@ -158,7 +157,7 @@ class OverlayParamsHighlight extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
@@ -170,7 +169,7 @@ class OverlayParamsHighlight extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public async testOverlay():Promise<void> {

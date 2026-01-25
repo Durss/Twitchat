@@ -48,7 +48,7 @@ export default class AuthController extends AbstractController {
 	 * @param {*} response 
 	 */
 	private async twitchAuth(request:FastifyRequest, response:FastifyReply) {
-		const params = URL.parse(request.url, true).query;
+		const params = URL.parse(request.url, true).query as {code?:string};
 		
 		let url = "https://id.twitch.tv/oauth2/token";
 		url += "?client_id="+Config.credentials.twitch_client_id;
@@ -139,7 +139,7 @@ export default class AuthController extends AbstractController {
 	 * @param {*} response 
 	 */
 	private async getCSRFToken(request:FastifyRequest, response:FastifyReply) {
-		const params = URL.parse(request.url, true).query;
+		const params = URL.parse(request.url, true).query as {withRef?:string};
 		const tokenData:CSRFToken = {date:Date.now()};
 
 		//If asking to share data with another account, store ref account to token
@@ -162,16 +162,16 @@ export default class AuthController extends AbstractController {
 	}
 
 	/**
-	 * Frefresh a twitch access token
+	 * Refresh a twitch access token
 	 * 
 	 * @param {*} request 
 	 * @param {*} response 
 	 */
 	private async refreshToken(request:FastifyRequest, response:FastifyReply, logUser:boolean = false) {
-		const params = URL.parse(request.url, true).query;
+		const params = URL.parse(request.url, true).query as {token:string};
 		//Someone's spamming endpoint with "undefined" token.
 		//I suspect them messing up with my API.
-		if(params.token === "undefined") {
+		if(!params.token || params.token === "undefined") {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send(JSON.stringify({message:'error', success:false}));
@@ -184,10 +184,10 @@ export default class AuthController extends AbstractController {
 		url += "&refresh_token="+params.token;
 		url += "&grant_type=refresh_token";
 		
-		let json;
+		let json:{access_token?:string};
 		try {
 			const res = await fetch(url, {method:"POST"});
-			json = await res.json();
+			json = await res.json() as typeof json;
 		}catch(error) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);

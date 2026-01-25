@@ -191,7 +191,7 @@ const UserDataSchema = {
 					items:{
 						type: "object",
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							label: { type: "string", maxLength:300 },
 							score: { type: "number" },
 							joinCount: { type: "number" },
@@ -1987,8 +1987,6 @@ const UserDataSchema = {
 							currency: {type:"string", maxLength:5},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
-							customHTML: {type:"boolean"},
-							htmlTemplate: {type:"string", maxLength:5000},
 							text: {type:"string", maxLength:1000},
 							rewardIds: {
 								type:"array",
@@ -2364,7 +2362,7 @@ const UserDataSchema = {
 						items:{
 							type: "object",
 							properties: {
-								id: { type: "string" },
+								id: { type: "string", maxLength:50 },
 								label: { type: "string", maxLength:300 },
 								score: { type: "number" },
 								joinCount: { type: "number" },
@@ -2420,7 +2418,7 @@ const UserDataSchema = {
 						items:{
 							type: "object",
 							properties: {
-								id: { type: "string" },
+								id: { type: "string", maxLength:50 },
 								label: { type: "string", maxLength:300 },
 								score: { type: "number" },
 								joinCount: { type: "number" },
@@ -2563,7 +2561,7 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							isDefault: { type: "boolean" },
 							title: { type: "string" },
@@ -2609,7 +2607,7 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							title: { type: "string", maxLength:30 },
 							animStyle: { type: "string", maxLength:20 },
@@ -2637,7 +2635,7 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							testing: { type: "boolean" },
 							title: { type: "string" },
@@ -2705,6 +2703,103 @@ const UserDataSchema = {
 				},
 			}
 		},
+
+		streamDeckParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				ip: {type:"string", maxLength:100},
+				secretKey: {type:"string", maxLength:50},
+			}
+		},
+
+		quizConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				quizList: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string", maxLength:50 },
+							title: { type: "string", maxLength:100 },
+							durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
+							mode: { type: "string" },
+							loosePointsOnFail: { type: "boolean" },
+							timeBasedScoring: { type: "boolean" },
+							enabled: { type: "boolean" },
+							questionList: { type: "array" }
+						},
+						oneOf: [
+							{
+								properties: {
+									mode: { const: "classic" },
+									questionList: {
+										type: "array",
+										minItems: 0,
+										maxItems: 100,
+										items: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: { type: "string", maxLength:50 },
+												question: { type: "string" },
+												duration_s: { type: "integer" },
+												loosePointsOnFail: { type: "number" },
+												answerList: {
+													type: "array",
+													items: {
+														type: "object",
+														additionalProperties: false,
+														properties: {
+															id: { type: "string", maxLength:50 },
+															title: { type: "string" },
+															correct: { type: "boolean" }
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							{
+								properties: {
+									mode: { const: "majority" },
+									questionList: {
+										type: "array",
+										items: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: { type: "string", maxLength:50 },
+												question: { type: "string" },
+												duration_s: { type: "integer" },
+												answerList: {
+													type: "array",
+													items: {
+														type: "object",
+														additionalProperties: false,
+														properties: {
+															id: { type: "string", maxLength:50 },
+															title: { type: "string" }
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						]
+					}
+				}
+			}
+		}
 	}
 }
 

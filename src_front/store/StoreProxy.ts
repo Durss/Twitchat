@@ -85,6 +85,7 @@ export default class StoreProxy {
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
 	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
 	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
+	public static quiz: IQuizState & IQuizGetters & IQuizActions & { $state: IQuizState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -226,9 +227,8 @@ export interface IMainActions {
 	 * @param data
 	 * @param yesLabel
 	 * @param noLabel
-	 * @param STTOrigin is open from speech recognition ? If so, voice commands are displayed
 	 */
-	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
+	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string): Promise<T|undefined>;
 	/**
 	 * Close confirm window
 	 */
@@ -517,7 +517,7 @@ export interface IBingoGridActions {
 	 * Shuffle given grid entries
 	 * @param id
 	 */
-	shuffleGrid(id:string):void;
+	shuffleGrid(id:string):Promise<void>;
 	/**
 	 * Resets given grid entries label
 	 * @param id
@@ -529,7 +529,7 @@ export interface IBingoGridActions {
 	 * @param forcedState
 	 * @param callEndpoint
 	 */
-	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):void;
+	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -1127,6 +1127,15 @@ export interface IParamsState {
 	 */
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 	/**
+	 * Live status of each chat column
+	 */
+	chatColumnStates:{
+		/**
+		 * Is chat autoscroll paused?
+		 */
+		paused:boolean
+	}[];
+	/**
 	 * GoXLR configurations
 	 */
 	goxlrConfig: TwitchatDataTypes.GoXLRParams;
@@ -1628,7 +1637,11 @@ export interface ITimerActions {
 	 * Gets current timer/countdown computed value
 	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
+	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string};
+	/**
+	 * Broadcasts the timer list on Public API
+	 */
+	broadcastTimerList():void;
 }
 
 
@@ -1755,6 +1768,10 @@ export interface ITriggersActions {
 	 * trigger will be flagged as disabled
 	 */
 	computeTriggerTreeEnabledStates():void;
+	/**
+	 * Broadcasts current trigger list on Public API
+	 */
+	broadcastTriggerList():void;
 }
 
 
@@ -1780,6 +1797,11 @@ export interface ITTSActions {
 	 */
 	populateData():void;
 	/**
+	 * Updates speaking state
+	 * @param speaking 
+	 */
+	setSpeakingState(speaking:boolean):void;
+	/**
 	 * Read a message via TTS
 	 * @param message
 	 */
@@ -1787,9 +1809,9 @@ export interface ITTSActions {
 	/**
 	 * Start/stop reading any incoming message of a user
 	 * @param user
-	 * @param read
+	 * @param forceRead
 	 */
-	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean):void
+	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, forceRead?:boolean):void
 	/**
 	 * Set text to speech params
 	 * @param params
@@ -2137,6 +2159,7 @@ export interface IVoiceState {
 }
 
 export interface IVoiceGetters {
+	voiceBotConfigured:boolean;
 }
 
 export interface IVoiceActions {
@@ -2612,6 +2635,10 @@ export interface IQnaActions {
 	 * Broadcasts Q&A list to public API
 	 */
 	broadcastQnaList():void
+	/**
+	 * Broadcasts Q&A list on Public API
+	 */
+	broadcastQnAList():void;
 }
 
 
@@ -3896,4 +3923,48 @@ export interface IEndingCreditsActions {
 	 * Save current ending credits params
 	 */
 	saveParams():Promise<void>;
+}
+
+
+
+
+
+export interface IQuizState {
+	/**
+	 * True when exporting selected settings
+	 */
+	quizList:TwitchatDataTypes.QuizParams[];
+}
+
+export interface IQuizGetters {
+}
+
+export interface IQuizActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Save current ending credits params
+	 */
+	saveConfigs():Promise<void>;
+	/**
+	 * Create a new quiz
+	 * @param payload
+	 */
+	addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams;
+	/**
+	 * Delete a quiz
+	 */
+	removeQuiz(id:string):void;
+	/**
+	 * Duplicates given quiz
+	 * @param id
+	 */
+	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
+	/**
+	 * Saves data to server
+	 * @param quizId quiz ID. This will broadcast update to overlay
+	 */
+	saveData(quizId?:string):Promise<void>
 }

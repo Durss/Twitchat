@@ -74,12 +74,11 @@ class OverlayPredictions extends AbstractOverlay {
 		placement:"bl",
 	};
 
-	private updateDebounce:number = -1;
 	private parametersReceived:boolean = false;
-	private pendingData:TwitchatEvent|null = null;
-	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
-	private updateParametersHandler!:(e:TwitchatEvent)=>void;
-	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
+	private pendingData:TwitchatEvent<"ON_PREDICTION_PROGRESS">|null = null;
+	private updatePredictionHandler!:(e:TwitchatEvent<"ON_PREDICTION_PROGRESS">)=>void;
+	private updateParametersHandler!:(e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">)=>void;
+	private requestPresenceHandler!:()=>void;
 
 	public get listMode():boolean {
 		return this.parameters.listMode
@@ -128,29 +127,29 @@ class OverlayPredictions extends AbstractOverlay {
 	}
 
 	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
 
-		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
-		this.updatePredictionHandler = (e:TwitchatEvent)=>this.onUpdatePrediction(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE); }
+		this.updateParametersHandler = (e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">)=>this.onUpdateParams(e);
+		this.updatePredictionHandler = (e:TwitchatEvent<"ON_PREDICTION_PROGRESS">)=>this.onUpdatePrediction(e);
+		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_PROGRESS, this.updatePredictionHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTION_PROGRESS", this.updatePredictionHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTION_OVERLAY_CONFIGS", this.updateParametersHandler);
+		PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public beforeUnmount():void {
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_PROGRESS, this.updatePredictionHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTION_PROGRESS", this.updatePredictionHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTION_OVERLAY_CONFIGS", this.updateParametersHandler);
+		PublicAPI.instance.removeEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
+		PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_CONFIGS");
 	}
 
-	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
+	public async onUpdatePrediction(e:TwitchatEvent<"ON_PREDICTION_PROGRESS">):Promise<void> {
 		if(!this.parametersReceived) {
 			//overlay's parameters not received yet, put data aside
 			//onUpdatePrediction() will be called by onUpdateParams() afterwards
@@ -159,57 +158,52 @@ class OverlayPredictions extends AbstractOverlay {
 			return;
 		}
 
-		//Debounce updates as twitch is a little spammy when resolving a prediction
-		// clearTimeout(this.updateDebounce);
+		const prediction = e.data?.prediction;
+		
+		if(prediction && prediction.winner){
+			this.prediction = prediction;
+			this.showWinner = true;
+			if(!this.show) await this.open();
+			const progressBar = this.$refs.progress as HTMLElement;
+			if(progressBar) {
+				gsap.killTweensOf(progressBar);
+				gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:"none", width:"0%", onComplete:()=>{
+					this.close();
+				}});
+			}
+		}else if(!prediction) {
+			if(!this.showWinner) this.close();
+		}else{
+			const opening	= this.prediction == null || this.prediction.id != prediction.id;
+			const show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
+			this.showWinner	= false;
+			this.prediction	= prediction;
+			if(show) {
+				this.show = true;
+				if(opening) {
+					this.open();
+					await this.$nextTick();
+				}
 
-		// this.updateDebounce = window.setTimeout(async ()=>{
-			const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-			
-			if(prediction && prediction.winner){
-				this.prediction = prediction;
-				this.showWinner = true;
-				if(!this.show) await this.open();
 				const progressBar = this.$refs.progress as HTMLElement;
 				if(progressBar) {
+					const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
+					const percentDone = timeSpent / (prediction.duration_s * 1000);
+					const percentRemaining = 1 - percentDone;
+					const duration = prediction.duration_s * percentRemaining;
 					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:"none", width:"0%", onComplete:()=>{
-						this.close();
+					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:"none", width:"0%", onComplete:()=>{
+						if(this.parameters.hideUntilResolved !== false) this.close(true);
 					}});
 				}
-			}else if(!prediction) {
-				if(!this.showWinner) this.close();
 			}else{
-				const opening	= this.prediction == null || this.prediction.id != prediction.id;
-				const show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
-				this.showWinner	= false;
-				this.prediction	= prediction;
-				if(show) {
-					this.show = true;
-					if(opening) {
-						this.open();
-						await this.$nextTick();
-					}
-
-					const progressBar = this.$refs.progress as HTMLElement;
-					if(progressBar) {
-						const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
-						const percentDone = timeSpent / (prediction.duration_s * 1000);
-						const percentRemaining = 1 - percentDone;
-						const duration = prediction.duration_s * percentRemaining;
-						gsap.killTweensOf(progressBar);
-						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:"none", width:"0%", onComplete:()=>{
-							if(this.parameters.hideUntilResolved !== false) this.close(true);
-						}});
-					}
-				}else{
-					this.close(true);
-				}
+				this.close(true);
 			}
-		// }, 500);
+		}
 	}
 
-	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
-		this.parameters = ((e.data as unknown) as {parameters:PredictionOverlayParamStoreData}).parameters;
+	public async onUpdateParams(e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">):Promise<void> {
+		this.parameters = e.data.parameters;
 		this.parametersReceived = true;
 		if(this.pendingData) {
 			this.onUpdatePrediction(this.pendingData);

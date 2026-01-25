@@ -555,18 +555,6 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"tenor/search": {
-		GET: {
-			parameters: {
-				search:string;
-			},
-			response: {
-				success:boolean;
-				message?:string;
-				data: TenorGif[];
-			}
-		}
-	};
 	"paypal/create_order": {
 		POST: {
 			parameters: {
@@ -972,6 +960,16 @@ type ApiEndpoints =  {
 						check: boolean;
 					}[];
 				};
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+		DELETE: {
+			parameters: {
+				gridId:string;
 			};
 			response: {
 				success:boolean;

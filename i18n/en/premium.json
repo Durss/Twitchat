@@ -44,6 +44,7 @@
 				["Custom Heat zone groups", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Counters", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["Quiz", "MAX_QUIZ", "MAX_QUIZ", "MAX_QUIZ_PREMIUM"],
 				["OVERLAY: Bingo grids", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS_PREMIUM"],
 				["OVERLAY: Donation goals", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS_PREMIUM"],
 				["OVERLAY: Interactive distortion", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
@@ -101,7 +102,7 @@
 
 		"cleanup": {
 			"title":"Non-Premium limits",
-			"description":"You are not a Premium member and have more than some maximum allowed items. Disable/Delete some entries or become premium to keep them all.",
+			"description":"You are not a Premium member and have more than some maximum allowed items.\nDisable some entries or become premium to keep them all.",
 			"custom_usernames":"Custom usernames",
 			"custom_username_remove":"Remove custom username",
 			"custom_badges":"Custom badges",

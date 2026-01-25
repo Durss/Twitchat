@@ -1,18 +1,22 @@
 {
 	"streamdeck":{
-		"header":"A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button",
-		"step_1":{
-			"install":"This plugin needs {OBS_VERSION}"
+		"header":"The Stream Deck™ plugin allows you to control Twitchat with the push of a button",
+		"download_bt":"Download Stream Deck™ plugin",
+		"connected":"Stream Deck connected",
+		"connecting":"connecting to Stream Deck...",
+		"connect_form":{
+			"info":"To allow connection, open {URL} then, depending on your browser:",
+			"chromium":"click \"<mark>advanced</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
+			"firefox":"click \"<mark>Advanced...</mark>\", then \"<mark>Accept the Risk and Continue</mark>\"",
+			"opera":"click \"<mark>Help me understand</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
+			"safari":"click \"<mark>Visit this website</mark>\"",
+			"findSecretKey":"Where can i find the key?",
+			"findSecretKey_details":"Open Stream Deck app, add a Twitchat action to a button, You'll find the secret key on the button's settings."
 		},
-		
-		"step_2":"Download Stream Deck™ plugin",
-		
-		"step_3":"Head over the {TAB_LINK} and set the OBS-Websocket credentials to link Twitchat with OBS.",
-		"step_3_tab_link":"OBS tab",
-		
-		"step_4_1":"On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.",
-		"step_4_2":"You should be prompted to set OBS-Websocket credentials:",
-		
-		"step_5":"Once everything is done you should be able to control Twitchat from your Stream Deck™ 🥳🎉"
+		"error_messages":{
+			"AUTH_FAILED":"Invalid secret key",
+			"CONNECT_FAILED":"Failed connecting with Stream Deck",
+			"UNKNOWN_ERROR":"Failed connecting with Stream Deck"
+		}
 	}
 }

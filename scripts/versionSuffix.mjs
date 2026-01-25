@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 
 const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-const suffix = branch == "beta"? "-beta" : "";
+const suffix = branch == "beta" || branch == "v17"? "-beta" : "";
 
 //Version upgrade type major, minor or patch
 const upgradeType = args[0] || "minor";

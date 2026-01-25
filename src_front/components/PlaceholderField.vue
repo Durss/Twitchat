@@ -4,7 +4,7 @@
 			<span class="prefix" v-if="prefix">{{ prefix }}</span>
 			<p :class="{inputHolder:true, empty:modelValue.length === 0}">
 				<span class="placeholder" v-if="modelValue.length === 0">{{ placeholder }}</span>
-				<contenteditable tag="span" ref="input"
+				<ContentEditable tag="span" ref="input"
 					:class="{input:true}"
 					:contenteditable="true"
 					:no-nl="true"
@@ -20,11 +20,11 @@
 <script lang="ts">
 import { watch } from 'vue';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 
 @Component({
 	components:{
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["update:modelValue", "change", "blur"],
 })
@@ -78,7 +78,7 @@ class PlaceholderField extends Vue {
 	}
 
 	public focusInput():void {
-		(this.$refs["input"] as typeof contenteditable).$el.focus();
+		(this.$refs["input"] as typeof ContentEditable).$el.focus();
 	}
 
 }

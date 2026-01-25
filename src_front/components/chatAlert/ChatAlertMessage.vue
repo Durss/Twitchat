@@ -1,5 +1,5 @@
 <template>
-	<div class="chatalertmessage" @click="message = null" v-if="message" v-tooltip="$t('global.close')">
+	<div class="chatalertmessage" @click="$store.main.executeChatAlert(null)" v-if="message" v-tooltip="$t('global.close')">
 		<div class="user">{{ $t("global.chat_alert_title", {USER:message.user.displayName}) }}</div>
 		<div class="message">
 			<ChatMessageChunksParser :chunks="chunks" :channel="message.channel_id" :platform="message.platform" />
@@ -9,11 +9,10 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
+import { watch } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -40,16 +39,20 @@ class ChatAlertMessage extends Vue {
 			if(message && this.$store.main.chatAlertParams.message === true
 			&& this.$store.params.features.alertMode.value === true) {
 				this.message = message;
+			}else if(!message) {
+				this.message = null;
 			}
 		})
 
-		this.apiCloseHandler = () => this.message = null;
+		this.apiCloseHandler = () => {
+			this.$store.main.executeChatAlert(null)
+		};
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
+		PublicAPI.instance.addEventListener("SET_HIDE_CHAT_ALERT", this.apiCloseHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
+		PublicAPI.instance.removeEventListener("SET_HIDE_CHAT_ALERT", this.apiCloseHandler);
 	}
 
 }

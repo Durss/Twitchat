@@ -1,7 +1,6 @@
 import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 import HeatEvent from '@/events/HeatEvent';
 import SSEEvent from '@/events/SSEEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, rebuildPlaceholdersCache, type IHttpPlaceholder, type TriggerActionChatData, type TriggerCallStack, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -216,28 +215,24 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when labels editor updated labels
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.LABELS_UPDATE, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("ON_LABELS_UPDATE", ()=> {
 				this.reloadLabels(true);
 			});
 
 			//Listen for twitchat API event
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
+			PublicAPI.instance.addEventListener("ON_STT_TEXT_UPDATE", (e)=> {
 				sVoice.voiceText.tempText = e.data!.text;
 				sVoice.voiceText.finalText = "";
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
+			PublicAPI.instance.addEventListener("ON_STT_RAW_TEXT_UPDATE", (e)=> {
 				sVoice.voiceText.rawTempText = e.data!.text;
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent<{text:string}>)=> {
+			PublicAPI.instance.addEventListener("ON_STT_SPEECH_END", (e)=> {
 				sVoice.voiceText.finalText = e.data!.text;
 			});
-
-			if(!authenticate) {
-				StoreProxy.common.initialize(authenticate);
-			}
 
 			callback(null);
 		},
@@ -249,11 +244,9 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
-			const sTimer = StoreProxy.timers;
 			const sStream = StoreProxy.stream;
-			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
-			SSEHelper.instance.initialize();
+			SSEHelper.instance.initialize(true);
 			this.initHttpMigrationFixer();
 
 			//Once SSE is connected, request any stream we're a mod for to
@@ -335,7 +328,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when doing a shoutout to the latest raider
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", ()=> {
 				const raider = sStream.lastRaider;
 				if(raider) {
 					const me = StoreProxy.auth.twitch.user;
@@ -346,21 +339,11 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when emergency mode is started or stoped
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent<{enabled:boolean}>)=> {
-				let enabled = e.data!.enabled;
-				//If no JSON is specified, just toggle the state
-				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
-				sEmergency.setEmergencyMode(enabled)
-			});
-
-			/**
 			 * Called when asking to pick a raffle winner from stream deck
 			 * //TODO see if I can adapt the SD button to the new system allowing
 			 * to create multiple raffles in parallel
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("SET_RAFFLE_PICK_WINNER", ()=> {
 				const list = StoreProxy.raffle.raffleList;
 				if(list.length == 0) return true;
 				StoreProxy.raffle.pickWinner(list[0]!.sessionId || "");
@@ -369,79 +352,50 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when requesting ad break overlay parameters
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("GET_AD_BREAK_OVERLAY_CONFIGS", ()=> {
 				const data = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);
 				if(!data) return;
 				const ad = StoreProxy.stream.getCommercialInfo(StoreProxy.auth.twitch.user.id);
-				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, JSON.parse(data));
-				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (ad as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_CONFIGS", JSON.parse(data));
+				PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", ad);
 			});
 
 			/**
 			 * Called when requesting bits wall overlay parameters
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("GET_BITSWALL_OVERLAY_CONFIGS", ()=> {
 				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
 				if(!data) return;
 				const json = JSON.parse(data) as TwitchatDataTypes.BitsWallOverlayData;
 				if(!sAuth.isPremium) {
 					json.break_durations = {1:10, 100:20, 1000:30, 5000:40, 10000:50};
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (json as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_CONFIGS", json);
 			});
 
 			/**
 			 * Called when asking to toggle message merging
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("SET_MERGE_TOGGLE", ()=> {
 				StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
-			});
-
-			/**
-			 * Called when asking to toggle message merging
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_COMPLETE, (e:TwitchatEvent)=> {
-				const message:TwitchatDataTypes.MessageCreditsCompleteData = {
-					channel_id:StoreProxy.auth.twitch.user.id,
-					date:Date.now(),
-					id:Utils.getUUID(),
-					platform:"twitchat",
-					type:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE,
-				}
-				TriggerActionHandler.instance.execute(message);
-			});
-
-			/**
-			 * Called when requesting stream summary data
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_SUMMARY_DATA, async (e:TwitchatEvent<{offset:number, includeParams:boolean}>)=> {
-				try {
-					const d = e.data!;
-					const summary = await StoreProxy.stream.getSummary(d.offset, d.includeParams === true);
-					PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject)
-				}catch(error) {
-					console.error("An error occured when computing summary data");
-					console.error(error);
-				}
+				StoreProxy.params.updateParams();
 			});
 
 			/**
 			 * Called when requesting a distortion overlay's data
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_DISTORT_OVERLAY_PARAMETERS, async (e:TwitchatEvent<{distortionID:string}>)=> {
-				const distortionID = e.data!.distortionID;
+			PublicAPI.instance.addEventListener("GET_DISTORT_OVERLAY_CONFIGS", async (e)=> {
+				const distortionID = e.data!.id;
 				const params = StoreProxy.heat.distortionList.find(v=>v.id == distortionID);
-
-				const json = {
-					params:(params as unknown) as JsonObject
+				if(params) {
+					PublicAPI.instance.broadcast("ON_DISTORT_OVERLAY_CONFIGS", {params});
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, json);
 			});
 
 			/**
 			 * Called when music player is clicked on the unified overlay
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, async (e:TwitchatEvent<TwitchatDataTypes.HeatClickData>)=> {
+			PublicAPI.instance.addEventListener("ON_MUSIC_PLAYER_HEAT_CLICK", async (e)=> {
 				const data = e.data!;
 				//Init trigger data
 				const action: TriggerActionChatData = {
@@ -513,7 +467,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when pushing custom messages on Twitchat
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_CHAT_MESSAGE, (e:TwitchatEvent<TwitchatDataTypes.MessageCustomDataAPI>)=> {
+			PublicAPI.instance.addEventListener("SET_SEND_CUSTOM_CHAT_MESSAGE", (e)=> {
 				const data = e.data!;
 				const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 				const chunksQuote = !data.quote? [] : TwitchUtils.parseMessageToChunks(data.quote, undefined, true);
@@ -544,7 +498,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
+			PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", (e)=> {
 				if(e.data?.message_id) {
 					sChat.highlightedMessageId = e.data?.message_id || null;
 				}else{
@@ -553,9 +507,14 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Called when requesting global states (for stream deck buttons states)
+			 */
+			PublicAPI.instance.addEventListener("GET_GLOBAL_STATES", ()=> PublicAPI.instance.broadcastGlobalStates());
+
+			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
+			PublicAPI.instance.addEventListener("ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE", ()=> {
 				sChat.highlightChatMessageOverlay();
 			});
 
@@ -663,9 +622,9 @@ export const storeMain = defineStore("main", {
 								const delta = Math.round((index2 - index1)/encoderParams.step);
 								//Scroll chat column
 								if(j == 0) {
-									PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:delta }, true);
+									PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL", { colIndex:i, scrollBy:delta, mode:'pixels' }, true);
 								}else{
-									PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, { col:i, count:delta }, true);
+									PublicAPI.instance.broadcast("SET_CHAT_FEED_READ", { colIndex:i, count:delta }, true);
 								}
 								// let resetValue = prevValue;
 								// let resetValue = encoderParams.values[Math.round(encoderParams.values.length/2)];
@@ -724,6 +683,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.heat.populateData();
 			StoreProxy.groq.populateData();
 			StoreProxy.kofi.populateData();
+			StoreProxy.quiz.populateData();
 			StoreProxy.voice.populateData();
 			StoreProxy.music.populateData();
 			StoreProxy.lumia.populateData();
@@ -787,14 +747,13 @@ export const storeMain = defineStore("main", {
 			});
 		},
 
-		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {
+		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string): Promise<T|undefined> {
 			return <Promise<T|undefined>>new Promise((resolve, reject) => {
 				this.confirmData = {
 					title,
 					description,
 					yesLabel,
 					noLabel,
-					STTOrigin,
 					confirmCallback : () => {
 						resolve(data);
 					},
@@ -859,8 +818,7 @@ export const storeMain = defineStore("main", {
 
 		async executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null) {
 			this.chatAlert = message;
-			await Utils.promisedTimeout(50);
-			this.chatAlert = null;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		showOutdatedDataVersionAlert():void { this.outdatedDataVersion = true; },

@@ -72,7 +72,14 @@ export default class PaypalController extends AbstractController {
 							},
 							body: data
 						})
-						.then(res => res.json())
+						.then(res => res.json() as unknown as {
+							id:string,
+							status:string,
+							details:{
+								description:string,
+								issue:string
+							}[]
+						})
 						.then(json => {
 							return json;
 						});
@@ -80,8 +87,8 @@ export default class PaypalController extends AbstractController {
 			let errorCode = "";
 			const success = json.status == "CREATED";
 			if(!success) {
-				errorMessage = json.details[0].description || "unknown error";
-				errorCode = json.details[0].issue;
+				errorMessage = json.details[0]!.description || "unknown error";
+				errorCode = json.details[0]!.issue;
 			}
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -114,8 +121,8 @@ export default class PaypalController extends AbstractController {
 				'intent': order.intent,
 				'purchase_units': [{
 					'amount': {
-						'currency_code': order.purchase_units[0].amount.currency_code,
-						'value': order.purchase_units[0].amount.value
+						'currency_code': order.purchase_units[0]!.amount.currency_code,
+						'value': order.purchase_units[0]!.amount.value
 					}
 				}]
 			};
@@ -129,14 +136,28 @@ export default class PaypalController extends AbstractController {
 							},
 							body: JSON.stringify(order_data_json),
 						})
-						.then(res => res.json())
+						.then(res => res.json() as unknown as {
+							id:string,
+							status:string,
+							purchase_units:{
+								payments:{
+									captures:{
+										seller_receivable_breakdown:any
+									}[]
+								}
+							}[],
+							payer:{
+								payer_id:string,
+								email_address:string
+							}
+						})
 						.then(json => {
 							return json;
 						});
 
 			if(json.status == "COMPLETED") {
 				//Checkout succeed
-				const payment = json.purchase_units[0].payments.captures[0].seller_receivable_breakdown;
+				const payment = json.purchase_units[0]!.payments.captures[0]!.seller_receivable_breakdown;
 				const params:{
 					twitchUID:string,
 					twitchLogin:string,
@@ -157,7 +178,7 @@ export default class PaypalController extends AbstractController {
 				if(giftedUserId) {
 					const result = await TwitchUtils.getUsers(undefined, [giftedUserId]);
 					if(result && result.length > 0) {
-						giftedUser = result[0];
+						giftedUser = result[0]!;
 						params.gifterUID	= params.twitchUID;
 						params.gifterLogin	= params.twitchLogin;
 						params.twitchUID	= giftedUser.id;
@@ -180,7 +201,7 @@ export default class PaypalController extends AbstractController {
 					},
 					body: JSON.stringify(params),
 				});
-				const jsonRemote = await resRemote.json();
+				const jsonRemote = await resRemote.json() as {success:boolean, id?:string};
 				if(!jsonRemote.success) {
 					//Failed adding user to list :(
 					Logger.error("Failed adding user \""+twitchUser.login+"\" to remote donor list ("+params.amount+"€)");
@@ -227,7 +248,7 @@ export default class PaypalController extends AbstractController {
 					'Authorization': `Bearer ${token}`
 				},
 			})
-			.then(res => res.json())
+			.then(res => res.json() as unknown as PaypalOrder)
 			.then(json => {
 				return json;
 			});
@@ -249,7 +270,7 @@ export default class PaypalController extends AbstractController {
 			},
 			body: data
 		})
-		.then(res => res.json())
+		.then(res => res.json() as unknown as {access_token:string})
 		.then(json => {
 			return json.access_token;
 		})

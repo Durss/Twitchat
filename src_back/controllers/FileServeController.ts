@@ -53,7 +53,7 @@ export default class FileServeController extends AbstractController {
 	* PRIVATE METHODS *
 	*******************/
 
-	private getScript(request:FastifyRequest, response:FastifyReply):void {
+	private getScript(_request:FastifyRequest, response:FastifyReply):void {
 		Logger.info("Serving script for cache bypass")
 		const assets = path.join(Config.PUBLIC_ROOT, "assets");
 		const files = fs.readdirSync(assets).filter(v => /main-.*\.js$/gi.test(v));
@@ -80,7 +80,7 @@ export default class FileServeController extends AbstractController {
 		}
 	}
 
-	private getConfigs(request:FastifyRequest, response:FastifyReply):void {
+	private getConfigs(_request:FastifyRequest, response:FastifyReply):void {
 		let config = this.config_cache;
 		if(!config) {
 			const json = {
@@ -113,6 +113,9 @@ export default class FileServeController extends AbstractController {
 
 				tiltify_client_id:Config.credentials.tiltify_client_id,
 				tiltify_scopes:Config.credentials.tiltify_scopes,
+
+				twitchExtension_version:Config.credentials.twitchExtension_version,
+				twitchExtension_client_id:Config.credentials.twitchExtension_client_id
 			};
 
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;
@@ -128,7 +131,7 @@ export default class FileServeController extends AbstractController {
 		response.send(config);
 	}
 
-	private getAnnouncements(request:FastifyRequest, response:FastifyReply):void {
+	private getAnnouncements(_request:FastifyRequest, response:FastifyReply):void {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(AdminController.announcements_cache);

@@ -7,7 +7,7 @@
 				<ClearButton @click="close()" v-if="!$store.main.nonPremiumLimitExceeded" />
 			</div>
 			<div class="content">
-				<span class="subtitle">{{ $t('premium.cleanup.description') }}</span>
+				<span class="header">{{ $t('premium.cleanup.description') }}</span>
 				<TTButton icon="premium" class="premiumBt" big premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 
 				<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :alert="!triggersOK" :open="!triggersOK"
@@ -513,6 +513,12 @@ export default toNative(NonPremiumCleanup);
 		.completeBt {
 			flex-shrink: 0;
 			margin: auto;
+		}
+
+		.header {
+			line-height: 1.2em;
+			margin: 0 auto;
+			white-space: pre-line;
 		}
 	}
 

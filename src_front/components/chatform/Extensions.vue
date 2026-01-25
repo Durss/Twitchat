@@ -202,6 +202,7 @@ export default toNative(Extensions);
 
 	.spinner {
 		height: 2em;
+		margin: 0 auto;
 	}
 
 	.head {

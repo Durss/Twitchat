@@ -45,8 +45,8 @@
 			</template>
 
 			<div class="ctas">
-				<TTButton icon="shuffle" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
-				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.form.reset_bt')"></TTButton>
+				<TTButton icon="shuffle" :loading="loading" @click="shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
+				<TTButton icon="refresh" :loading="loading" @click="untickAll(grid.id)" v-tooltip="$t('bingo_grid.form.reset_bt')"></TTButton>
 				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id]!.length > 0"
 				icon="leaderboard"
 				small
@@ -99,6 +99,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 class BingoGridControls extends Vue {
 
 	public search:string = "";
+	public loading:boolean = false;
 	public leaderBoardID:string = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
@@ -144,6 +145,24 @@ class BingoGridControls extends Vue {
 	 */
 	public hideLeaderboard():void {
 		this.$store.bingoGrid.hideLeaderboard(this.leaderBoardID);
+	}
+
+	/**
+	 * Shuffles the grid
+	 */
+	public async shuffleGrid(gridId:string):Promise<void> {
+		this.loading = true;
+		await this.$store.bingoGrid.shuffleGrid(gridId);
+		this.loading = false;
+	}
+
+	/**
+	 * Unticks all cells in the grid
+	 */
+	public async untickAll(gridId:string):Promise<void> {
+		this.loading = true;
+		await this.$store.bingoGrid.resetCheckStates(gridId)
+		this.loading = false;
 	}
 
 	/**

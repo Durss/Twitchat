@@ -53,10 +53,10 @@ class OverlayPoll extends AbstractOverlay {
 	};
 
 	private parametersReceived:boolean = false;
-	private pendingData:TwitchatEvent|null = null;
-	private updatePollHandler!:(e:TwitchatEvent)=>void;
-	private updateParametersHandler!:(e:TwitchatEvent)=>void;
-	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
+	private pendingData:TwitchatEvent<"ON_POLL_PROGRESS">|null = null;
+	private updatePollHandler!:(e:TwitchatEvent<"ON_POLL_PROGRESS">)=>void;
+	private updateParametersHandler!:(e:TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">)=>void;
+	private requestPresenceHandler!:()=>void;
 
 	public get listMode():boolean {
 		return this.parameters.listMode
@@ -64,29 +64,29 @@ class OverlayPoll extends AbstractOverlay {
 	}
 
 	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
 
-		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
-		this.updatePollHandler = (e:TwitchatEvent)=>this.onUpdatePoll(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE); }
+		this.updateParametersHandler = (e:TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">)=>this.onUpdateParams(e);
+		this.updatePollHandler = (e:TwitchatEvent<"ON_POLL_PROGRESS">)=>this.onUpdatePoll(e);
+		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
+		PublicAPI.instance.addEventListener("ON_POLL_OVERLAY_CONFIGS", this.updateParametersHandler);
+		PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public beforeUnmount():void {
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
+		PublicAPI.instance.removeEventListener("ON_POLL_OVERLAY_CONFIGS", this.updateParametersHandler);
+		PublicAPI.instance.removeEventListener("GET_POLLS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
+		PublicAPI.instance.broadcast("GET_POLLS_OVERLAY_CONFIGS");
 	}
 
-	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
+	public async onUpdatePoll(e:TwitchatEvent<"ON_POLL_PROGRESS">):Promise<void> {
 		if(!this.parametersReceived) {
 			// overlay's parameters not received yet, put data aside
 			// onUpdatePoll() will be called by onUpdateParams() afterwards
@@ -95,7 +95,7 @@ class OverlayPoll extends AbstractOverlay {
 			return;
 		}
 
-		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.MessagePollData}).poll;
+		const poll = e.data?.poll;
 		if(!poll) {
 			// No poll given when a poll was displayed, request close
 			if(this.poll) {
@@ -111,8 +111,8 @@ class OverlayPoll extends AbstractOverlay {
 		}
 	}
 
-	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
-		this.parameters = ((e.data as unknown) as {parameters:PollOverlayParamStoreData}).parameters;
+	public async onUpdateParams(e:TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">):Promise<void> {
+		this.parameters = e.data.parameters;
 		this.parametersReceived = true;
 		if(this.pendingData) {
 			this.onUpdatePoll(this.pendingData);

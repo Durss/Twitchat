@@ -21,7 +21,6 @@ import SSEController from './controllers/SSEController.js';
 import SpotifyController from './controllers/SpotifyController.js';
 import StreamelementsController from './controllers/StreamelementsController.js';
 import StreamlabsController from './controllers/StreamlabsController.js';
-import TenorController from './controllers/TenorController.js';
 import TiltifyController from './controllers/TiltifyController.js';
 import TipeeeController from './controllers/TipeeeController.js';
 import UluleController from './controllers/UluleController.js';
@@ -29,7 +28,8 @@ import UserController from './controllers/UserController.js';
 import Config from "./utils/Config.js";
 import I18n from './utils/I18n.js';
 import Logger from './utils/Logger.js';
-
+import TwitchExtensionController from './controllers/TwitchExtensionController.js';
+import QuizController from './controllers/QuizController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -87,7 +87,6 @@ server.register(fastifyFormbody)
 	new AdminController(server).initialize();
 	new UluleController(server).initialize();
 	new PatreonController(server).initialize();
-	new TenorController(server).initialize();
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();
@@ -96,9 +95,14 @@ server.register(fastifyFormbody)
 	new StreamelementsController(server).initialize();
 	new KofiController(server).initialize();
 	new TipeeeController(server).initialize();
-	new BingoGridController(server).initialize();
 	new RemoteModController(server).initialize();
 	new TiltifyController(server).initialize();
+	const bingoController = new BingoGridController(server).initialize();
+	const quizController = new QuizController(server).initialize();
+	const extensionController = new TwitchExtensionController(server).initialize(bingoController, quizController);
+
+	bingoController.setTwitchExtensionController(extensionController);
+	quizController.setTwitchExtensionController(extensionController);
 	
 	//Start server
 	start();

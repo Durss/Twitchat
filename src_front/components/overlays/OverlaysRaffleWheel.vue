@@ -70,8 +70,8 @@ class OverlaysRaffleWheel extends Vue {
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private resizeHandler!:()=>void;
-	private startWheelHandler!:(e:TwitchatEvent)=>void;
-	private wheelPresenceHandler!:(e:TwitchatEvent)=>void;
+	private startWheelHandler!:(e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">)=>void;
+	private wheelPresenceHandler!:()=>void;
 
 	public get listStyles():{[key:string]:string|number} {
 		return {
@@ -99,13 +99,13 @@ class OverlaysRaffleWheel extends Vue {
 		this.resizeHandler();
 		window.addEventListener("resize", this.resizeHandler);
 
-		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_PRESENCE");
 
-		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
-		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE); }
+		this.startWheelHandler = (e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">)=>this.onStartWheel(e);
+		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_START", this.startWheelHandler);
+		PublicAPI.instance.addEventListener("GET_WHEEL_OVERLAY_PRESENCE", this.wheelPresenceHandler);
 
 		//Populate with fake data
 		/*
@@ -125,8 +125,8 @@ class OverlaysRaffleWheel extends Vue {
 		this.rafID ++;
 		gsap.killTweensOf(this);
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_START", this.startWheelHandler);
+		PublicAPI.instance.removeEventListener("GET_WHEEL_OVERLAY_PRESENCE", this.wheelPresenceHandler);
 	}
 
 	/**
@@ -281,20 +281,19 @@ class OverlaysRaffleWheel extends Vue {
 		}
 	}
 
-	public async onStartWheel(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as TwitchatDataTypes.WheelData;
-		const winner = data.items.find(v=>v.id == data.winner);
+	public async onStartWheel(e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">):Promise<void> {
+		const winner = e.data.items.find(v=>v.id == e.data.winner);
 		if(!winner) {
-			console.log("Invalid winner ID", data.winner);
+			console.log("Invalid winner ID", e.data.winner);
 			return;
 		}
 
-		this.sessionId = data.sessionId;
+		this.sessionId = e.data.sessionId;
 		this.winnerData = winner;
 		this.itemList = [];
-		this.skin = data.skin || "";
+		this.skin = e.data.skin || "";
 		await this.$nextTick();//Let vue unmount the component
-		this.itemList = data.items;
+		this.itemList = e.data.items;
 		this.listDisplayed = false;
 		gsap.killTweensOf(this);
 		this.populate();
@@ -328,8 +327,7 @@ class OverlaysRaffleWheel extends Vue {
 						}});
 
 		//Tell twitchat animation completed
-		const data = (this.winnerData as unknown) as JsonObject;
-		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data, sessionId:this.sessionId, delay:5000});
+		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner:this.winnerData, sessionId:this.sessionId, delay:5000});
 	}
 
 	public burstStars(heart:HTMLDivElement):void {

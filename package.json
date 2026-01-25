@@ -1,12 +1,13 @@
 {
 	"name": "twitchat",
-	"version": "16.13.1",
+	"version": "16.13.0-beta",
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
 	"type": "module",
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
+		"devall": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run lande && npm run front/build && npm run server/build",
 		"front/watch": "vite --host",
 		"front/watch-force": "vite --host --force",
@@ -14,6 +15,7 @@
 		"server/watch": "tsc -w -p ./src_back/tsconfig.json",
 		"server/build": "tsc -p ./src_back/tsconfig.json",
 		"server/start": "pm2 start bootstrap-pm2.json",
+		"labels/start": "pm2 start labels-pm2.json",
 		"lande": "npx rollup --config lande.config.js",
 		"patch": "npm run versionUpgrade patch",
 		"minor": "npm run versionUpgrade minor",
@@ -24,7 +26,8 @@
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
-		"analyse": "esbuild src_front/main.ts --bundle --analyze"
+		"analyse": "esbuild src_front/main.ts --bundle --analyze",
+		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs"
 	},
 	"dependencies": {
 		"@fastify/cors": "^8.5.0",
@@ -40,10 +43,11 @@
 		"fastify": "^4.29.1",
 		"fastify-raw-body": "^4.3.0",
 		"fastify-sse-v2": "^4.2.1",
-		"googleapis": "^128.0.0",
+		"googleapis": "^170.0.0",
 		"jsonwebtoken": "^9.0.3",
+		"lru-cache": "^11.2.4",
 		"mime-types": "^3.0.2",
-		"node-fetch": "^2.7.0"
+		"node-fetch": "^3.3.2"
 	},
 	"devDependencies": {
 		"@babel/plugin-proposal-decorators": "^7.28.6",
@@ -70,7 +74,7 @@
 		"@types/tmi.js": "^1.8.6",
 		"@typescript-eslint/eslint-plugin": "^8.38.0",
 		"@typescript-eslint/parser": "^8.38.0",
-		"@vitejs/plugin-vue": "^6.0.3",
+		"@vitejs/plugin-vue": "^5.2.4",
 		"@vue/eslint-config-typescript": "^14.6.0",
 		"@vue/tsconfig": "^0.5.1",
 		"concurrently": "^7.6.0",
@@ -100,7 +104,6 @@
 		"vite": "^6.4.1",
 		"vite-plugin-package-version": "^1.1.0",
 		"vue": "^3.3.9",
-		"vue-contenteditable": "^4.1.0",
 		"vue-country-flag-next": "^2.3.2",
 		"vue-draggable-plus": "^0.6.1",
 		"vue-facing-decorator": "^4.0.1",

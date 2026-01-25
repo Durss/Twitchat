@@ -8,18 +8,18 @@
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
-				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
+				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false && noTitleColor == false? 'light': small === true && noTitleColor == false? 'secondary' : ''"
 				/>
 
 			<div class="title editableTitle" v-if="editableTitle !== false">
-				<contenteditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
+				<ContentEditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
 					v-model="localTitle"
 					:contenteditable="editingTitle"
 					:no-nl="true"
 					:no-html="true"
 					@click.stop
 					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle;"
-					@blur="localTitle = (localTitle === '')? titleDefault : localTitle; editingTitle=false;"
+					@blur="localTitle = (localTitle.trim() === '')? titleDefault : localTitle; editingTitle=false;"
 					@input="limitLabelSize()"
 					@mouseover="editingTitle=true" />
 				<Icon name="edit" />
@@ -51,7 +51,7 @@
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import type { CSSProperties } from 'vue';
-import contenteditable from 'vue-contenteditable';
+import ContentEditable from '@/components/ContentEditable.vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
 
@@ -68,7 +68,7 @@ import Icon from './Icon.vue';
 	name:"ToggleBlock",
 	components:{
 		Icon,
-		contenteditable,
+		ContentEditable,
 	},
 	emits:["startDrag", "update:title", "update:open"],
 })
@@ -120,6 +120,9 @@ export class ToggleBlock extends Vue {
 	public noArrow!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public noTitleColor!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public editableTitle!:boolean;
 
 	@Prop({type:Number, default: 100})
@@ -132,7 +135,7 @@ export class ToggleBlock extends Vue {
 	public localOpen = false;
 	public localTitle = "";
 	//This flag i used as a workaround for a contenteditable issue.
-	//When an element is set as contenteditable, clicking anywhere "near"
+	//When an element is set as ContentEditable, clicking anywhere "near"
 	//it gives it focus. Even if it's 1000px away, as long as it's the
 	//closest editable element, it'll get focus.
 	//To warkaround this, we enable the contenteditable only after
@@ -153,6 +156,7 @@ export class ToggleBlock extends Vue {
 		if(this.noBackground !== false)	res.push("noBackground");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
+		if(this.noTitleColor !== false)	res.push("noTitleColor");
 		return res;
 	}
 
@@ -195,7 +199,7 @@ export class ToggleBlock extends Vue {
 			// 	console.log("okokok", this.localTitle);
 			// 	this.$emit("update:title", '');
 			// }else{
-				this.$emit("update:title", this.localTitle);
+				this.$emit("update:title", this.localTitle.trim());
 			// }
 		})
 
@@ -278,7 +282,7 @@ export class ToggleBlock extends Vue {
 			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 			await this.$nextTick();
 			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.localTitle.length, caretIndex-1));
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.max(0,Math.min(this.localTitle.length, caretIndex-1)));
 		}else{
 			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 		}
@@ -514,10 +518,10 @@ export default toNative(ToggleBlock);
 				background-color: var(--color-dark-fadest);
 			}
 			.title {
-				gap: .25em;
+				gap: 0;
 				text-align: left;
-				align-items: center;
-				flex-direction: row;
+				align-items: flex-start;
+				flex-direction: column;
 				line-height: 1.25em;
 				text-shadow: var(--text-shadow-contrast);
 			}
@@ -536,6 +540,27 @@ export default toNative(ToggleBlock);
 		.content {
 			padding: .5em;
 			// margin-left: 1.4em;
+		}
+
+		&.primary {
+			.header {
+				color: var(--color-primary);
+			}
+		}
+		&.premium {
+			.header {
+				color: var(--color-premium);
+			}
+		}
+		&.error, &.alert {
+			.header {
+				color: var(--color-alert);
+			}
+		}
+		&.noTitleColor {
+			.header {
+				color: var(--color-text);
+			}
 		}
 	}
 
