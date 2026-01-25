@@ -92,7 +92,6 @@ export default class SFXRUtils {
 	 */
 	public static async playSFXRFromString(data:Exclude<typeof JSFXRSoundPreset[number], "custom"> | string, volume:number = 100, autoLoadScripts:boolean = true): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
 		if(autoLoadScripts) {
-			console.log("Preloading JSFXR scripts before playing sound");
 			try {
 				// Ensure scripts are loaded before proceeding
 				await SFXRUtils.loadScripts();
@@ -109,13 +108,11 @@ export default class SFXRUtils {
 		let audio!: AudioBufferSourceNode
 
 		if(JSFXRSoundPreset.includes(data as typeof JSFXRSoundPreset[number])) {
-			console.log("Playing SFXR sound from preset:", data);
 			const params = window.jsfxr.sfxr.generate(data as typeof JSFXRSoundPreset[number]);
 			params.sound_vol = (params.sound_vol ||.25) * volume / 100;
 			audio = window.jsfxr.sfxr.play(params);
 			duration_s = audio.buffer?.duration || 0.1;
 		}else{
-			console.log("Playing SFXR sound from string data:", data);
 			let parsed = "";
 			// If a sharable URL is given, extract the sound data
 			if(data.indexOf("http") === 0) {
