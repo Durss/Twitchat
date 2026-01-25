@@ -517,7 +517,7 @@ export interface IBingoGridActions {
 	 * Shuffle given grid entries
 	 * @param id
 	 */
-	shuffleGrid(id:string):void;
+	shuffleGrid(id:string):Promise<void>;
 	/**
 	 * Resets given grid entries label
 	 * @param id
@@ -529,7 +529,7 @@ export interface IBingoGridActions {
 	 * @param forcedState
 	 * @param callEndpoint
 	 */
-	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):void;
+	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
