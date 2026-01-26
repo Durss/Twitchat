@@ -552,9 +552,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							let label = "";
 							if(cellId) {
 								const index = grid.entries.findIndex(e => e.id == cellId);
-								x = index%grid.cols;
-								y = Math.floor(index/grid.cols);
-								label = grid.entries[index]!.label;
+								if(grid.entries[index]) {
+									x = index%grid.cols;
+									y = Math.floor(index/grid.cols);
+									label = grid.entries[index]!.label;
+								}else if(grid.additionalEntries) {
+									const index = grid.additionalEntries.findIndex(e => e.id == cellId);
+									label = grid.additionalEntries[index]!.label;
+								}
 							}
 							return {
 								id:Utils.getUUID(),
