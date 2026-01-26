@@ -35,6 +35,7 @@ export namespace TwitchatDataTypes {
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
 		VOICEMOD: "voicemod",
+		STREAMFOG: "streamfog",
 		TWITCHBOT: "twitchbot",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
