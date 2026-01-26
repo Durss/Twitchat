@@ -48,7 +48,21 @@ export const storeTiktok = defineStore('tiktok', {
 			clearTimeout(reconnectTimeout);
 			return new Promise<boolean>((resolve, reject) => {
 				initResolver = resolve;
-				socket = new WebSocket(`ws://${this.ip}:${this.port}/`);
+
+				this.ip = (this.ip || "").trim();
+				this.port = this.port || 0
+				let protocol = (this.ip == "127.0.0.1" || this.ip == "localhost") ? "ws://" : "wss://";
+				if(this.ip.indexOf("ws") == 0) {
+					const [_protocol, _ip] = this.ip.split("//");
+					this.ip = _ip!;
+					protocol = _protocol+"//";
+				}
+				if(this.ip.indexOf("http") == 0) {
+					this.ip = this.ip.split("//")[1]!;
+				}
+				const portValue = this.port && this.port.toString()?.length > 0 && this.port.toString() != "0"? ":"+this.port : "";
+				
+				socket = new WebSocket(protocol + this.ip + portValue);
 
 				socket.onopen = () => {
 					// console.log('🎤 TikTok connection succeed');
