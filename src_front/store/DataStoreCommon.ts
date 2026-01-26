@@ -124,7 +124,8 @@ export default class DataStoreCommon {
 	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
 	public static CENSOR_VIEWER_COUNT:string = "censorViewerCount";
 	public static STREAM_SOCKET_SECRET:string = "streamSocketSecret";
-	public static STREAMDECK_PARAMS:string = "streamDeckParams";
+	public static STREAMDECK_CONFIGS:string = "streamDeckConfigs";
+	public static STREAMFOG_CONFIGS:string = "streamFogConfigs";
 	public static QUIZ_CONFIGS:string = "quizConfigs";
 
 	protected static store:Storage;
