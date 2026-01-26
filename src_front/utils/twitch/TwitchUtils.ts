@@ -3748,9 +3748,12 @@ export default class TwitchUtils {
 	 * //TODO allow mentions starting with "@"
 	 */
 	public static highlightChunks(chunks: TwitchatDataTypes.ParseMessageChunk[], words: string[]): TwitchatDataTypes.ParseMessageChunk[] {
-		for (const word of words) {
-			let j = 0;
-			for (const chunk of chunks) {
+		for (let i = 0; i < words.length; i++) {
+			if(!words[i]) continue;
+			const word = words[i]!.toLowerCase();
+			for (let j = 0; j < chunks.length; j++) {
+				const chunk = chunks[j];
+				if(!chunk) continue;
 				if (chunk.type != "text") continue;
 				if (chunk.value.toLowerCase().indexOf(word) == -1) continue;
 
@@ -3774,7 +3777,6 @@ export default class TwitchUtils {
 					chunks.splice(j, 0, node);
 					j++
 				});
-				j++;
 			}
 		}
 		return chunks;

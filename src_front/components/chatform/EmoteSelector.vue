@@ -39,7 +39,7 @@
 		</div>
 
 		<div class="list" v-if="filteredUsers.length > 0 && !filter">
-			<div class="userEtry" v-for="u, index in filteredUsers" :key="u.user.id" :ref="'user_'+u.user.id" @click.ctrl="logEntry(u)">
+			<div class="userEtry" v-for="u, index in filteredUsers" :key="u.user.id" :ref="'user_'+u.user.id">
 				<div class="sticky">
 					<img class="icon" :src="u.user.avatarPath" alt="profile pic">
 					<div class="title">{{u.user.displayName}}</div>
@@ -333,7 +333,6 @@ class EmoteSelector extends Vue {
 	}
 
 	public beforeUnmount():void {
-		console.log("EmoteSelector unmount");
 		clearTimeout(this.buildTimeout);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
@@ -370,10 +369,6 @@ class EmoteSelector extends Vue {
 		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
 	}
 
-	public logEntry(entry:typeof this.users[number]):void {
-		console.log(entry);
-	}
-
 	private open():void {
 		if(this.popoutMode !== false) return;
 		const ref = this.$el as HTMLDivElement;
@@ -393,12 +388,10 @@ class EmoteSelector extends Vue {
 		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
 		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
 			this.$emit("close");
-			console.log("closed")
 		}});
 	}
 
 	private onClick(e:MouseEvent):void {
-		console.log("click", e.target);
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
 		while(target != document.body && target != ref && target) {
