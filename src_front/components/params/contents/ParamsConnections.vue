@@ -107,6 +107,13 @@
 			</button>
 
 			<button class="card-item"
+			:class="{connected:$store.streamfog.connected}"
+			@click="subContent='streamfog'">
+				<Icon name="streamfog" />
+				<p>Streamfog</p>
+			</button>
+
+			<button class="card-item"
 			:class="{connected:heatConnected}"
 			@click="subContent='heat'">
 				<Icon name="heat" />
@@ -211,6 +218,7 @@
 	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
 	<ConnectGroq v-else-if="subContent == 'groq'" />
 	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
+	<ConnectStreamfog v-else-if="subContent == 'streamfog'" />
 
 </template>
 
@@ -251,6 +259,7 @@ import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
 import ConnectGroq from './connexions/ConnectGroq.vue';
 import ConnectStreamSocket from './connexions/ConnectStreamSocket.vue';
 import StreamdeckSocket from '@/utils/StreamdeckSocket';
+import ConnectStreamfog from './connexions/ConnectStreamfog.vue';
 
 @Component({
 	components:{
@@ -270,6 +279,7 @@ import StreamdeckSocket from '@/utils/StreamdeckSocket';
 		ConnectYoutube,
 		ConnectMixitup,
 		ConnectVoicemod,
+		ConnectStreamfog,
 		ConnectWebsocket,
 		ConnectTwitchBot,
 		ConnectStreamdeck,

@@ -21,6 +21,7 @@ import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { Lense, Video } from "./streamfog/storeStreamfog";
 
 /**
 * Created : 23/09/2022
@@ -86,6 +87,7 @@ export default class StoreProxy {
 	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
 	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
 	public static quiz: IQuizState & IQuizGetters & IQuizActions & { $state: IQuizState, $reset: () => void };
+	public static streamfog: IStreamfogState & IStreamfogGetters & IStreamfogActions & { $state: IStreamfogState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -3967,4 +3969,57 @@ export interface IQuizActions {
 	 * @param quizId quiz ID. This will broadcast update to overlay
 	 */
 	saveData(quizId?:string):Promise<void>
+}
+
+
+
+
+
+export interface IStreamfogState {
+	connected:boolean;
+	invalidID:boolean;
+	connecting:boolean;
+	userId:string;
+	lensesList:Lense[]
+	userLensesList:Lense[]
+	videoList:Video[]
+}
+
+export interface IStreamfogGetters {
+}
+
+export interface IStreamfogActions {
+	/**
+	 * Populates the store from user's data
+	 * @param data
+	 */
+	populateData():void;
+	/**
+	 * Connect to streamfog
+	 */
+	connect(userId:string, isReconnect?:boolean):Promise<true|string>;
+	/**
+	 * Lists all lenses available
+	 */
+	listAllLenses():Promise<Lense[]|false>
+	/**
+	 * Lists user lenses
+	 */
+	listUserLenses():Promise<boolean>
+	/**
+	 * Activate given lense for given duration (optional)
+	 */
+	activateLense(lenseId:string, duration_ms?:number):Promise<boolean>
+	/**
+	 * Deactivate any currently active lense
+	 */
+	deactivateLense():Promise<boolean>;
+	/**
+	 * Enables playing a video animation
+	 */
+	playVideoAnimation(videoId:string):Promise<boolean>
+	/**
+	 * Saves current data to server
+	 */
+	saveData():void;
 }
