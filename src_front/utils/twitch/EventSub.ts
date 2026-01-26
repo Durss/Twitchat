@@ -683,6 +683,7 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS:
 			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END: {
 				this.hypeTrainEvent(topic, payload.event as TwitchEventSubDataTypes.HypeTrainStartEvent | TwitchEventSubDataTypes.HypeTrainProgressEvent | TwitchEventSubDataTypes.HypeTrainEndEvent);
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				break;
 			}
 		}

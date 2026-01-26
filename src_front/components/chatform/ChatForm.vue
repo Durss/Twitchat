@@ -110,6 +110,11 @@
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
 							@keydown="onKeyDown">
+
+						<ButtonNotification
+							icon="send"
+							v-if="message.length > 0"
+							@click="sendMessage()" />
 					</div>
 				</div>
 
@@ -458,6 +463,7 @@ import GroqChannelAction from './GroqChannelAction.vue';
 import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { SettingsExportData } from '@/types/TriggerActionDataTypes';
+import ClearButton from '../ClearButton.vue';
 
 @Component({
 	components:{

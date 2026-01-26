@@ -330,15 +330,15 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: {
-					const value = Math.ceil(Math.random()*20+10)*1000;
-					const currentValue = Math.round(value*Math.random());
+					const goal = Math.ceil(Math.random()*20+10)*1000;
+					const currentValue = Math.round(goal*Math.random());
 					const level = Math.ceil(Math.random()*10);
 					const train:TwitchatDataTypes.HypeTrainStateData = {
 						channel_id:uid,
 						level,
 						currentValue,
 						total: currentValue,
-						goal:value,
+						goal,
 						approached_at:Date.now() - 3 * 60000,
 						started_at:Date.now() - Math.round(Math.random() * 2 * 60000),
 						updated_at:Date.now(),
@@ -359,7 +359,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						train,
 						level,
-						percent:Math.round(currentValue/value * 100),
+						percent:Math.round(currentValue/goal * 100),
 					};
 					data = m;
 					break;
@@ -463,7 +463,8 @@ export const storeDebug = defineStore('debug', {
 						}
 					}
 
-					const currentValue = Math.round(sum * Math.random());
+					const goal = Math.ceil(Math.random()*20+10)*1000;
+					const currentValue = Math.round(goal*Math.random());
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -476,7 +477,7 @@ export const storeDebug = defineStore('debug', {
 							started_at:approached_at + 30000,
 							updated_at:approached_at + 30000,
 							ends_at:approached_at + 30000,
-							goal:100,
+							goal,
 							currentValue,
 							total: currentValue,
 							level:Math.round(sum/8000),
