@@ -2705,12 +2705,20 @@ const UserDataSchema = {
 			}
 		},
 
-		streamDeckParams: {
+		streamDeckConfigs: {
 			type:"object",
 			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				secretKey: {type:"string", maxLength:50},
+			}
+		},
+
+		streamfogConfigs: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				userId: {type:"string", maxLength:50},
 			}
 		},
 

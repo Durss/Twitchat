@@ -82,6 +82,7 @@ import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import Config from './utils/Config';
+import { storeStreamfog } from './store/streamfog/storeStreamfog';
 
 window.setInitMessage("Booting app...");
 
@@ -306,6 +307,7 @@ function buildApp() {
 	StoreProxy.default.groq = storeGroq();
 	StoreProxy.default.endingCredits = storeEndingCredits();
 	StoreProxy.default.quiz = storeQuiz();
+	StoreProxy.default.streamfog = storeStreamfog();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
