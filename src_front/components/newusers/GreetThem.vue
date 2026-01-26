@@ -64,6 +64,7 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
 import MessageItem from '../messages/MessageItem.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -143,8 +144,8 @@ class NewUsers extends Vue {
 
 			const clearTimeoffset = Date.now() - delay * 1000;
 			for (let i = 0; i < this.messages.length; i++) {
-				const m = this.messages[i]!;
-				if(m.date < clearTimeoffset) {
+				const m = this.messages[i];
+				if(m && m.date < clearTimeoffset) {
 					this.messages.splice(i, 1);
 					i--;
 				}
@@ -154,14 +155,12 @@ class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		// if(!Config.instance.IS_PROD) {
-		// 	const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-		// 	this.messages = this.messages.concat(history);
-		// }
-
-		// watch(()=>this.localMessages, (v)=>{
-		// 	console.log("update");
-		// }, {deep:true})
+		/*
+		if(!Config.instance.IS_PROD) {
+			const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+			this.messages = this.messages.concat(history);
+		}
+		//*/
 
 		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
@@ -300,7 +299,9 @@ class NewUsers extends Vue {
 
 		this.overIndex = index;
 		let items = (this.$refs.messageList as HTMLElement).querySelectorAll<HTMLElement>(".messageListItem");
-		for (const item of items) {
+		for (let i = 0; i <= index; i++) {
+			const item = items[i];
+			if(!item) continue;
 			//Why the hell do I use inline styles this way instead of
 			//doing it the Vue way by simply updating a prop set
 			//to the component so it automatically updates when updating
