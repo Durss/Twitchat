@@ -22,7 +22,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 
 	constructor() {
 		super();
-		const params:StoreData = JSON.parse(DataStore.get(DataStore.STREAMDECK_PARAMS) || '{}');
+		const params:StoreData = JSON.parse(DataStore.get(DataStore.STREAMDECK_CONFIGS) || '{}');
 		if(params?.secretKey) {
 			this._secretKey = params.secretKey;
 		}
@@ -75,9 +75,9 @@ export default class StreamdeckSocket extends EventDispatcher {
 						ip: (this.ip && this.ip != "127.0.0.1")? this.ip : "",
 						secretKey: this._secretKey || ""
 					}
-					DataStore.set(DataStore.STREAMDECK_PARAMS, data);
+					DataStore.set(DataStore.STREAMDECK_CONFIGS, data);
 				}else{
-					DataStore.remove(DataStore.STREAMDECK_PARAMS);
+					DataStore.remove(DataStore.STREAMDECK_CONFIGS);
 				}
 			}
 			this._socket = new WebSocket(address);
