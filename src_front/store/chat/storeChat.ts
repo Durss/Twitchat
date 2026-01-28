@@ -45,6 +45,7 @@ export const storeChat = defineStore('chat', {
 		messageMode: "message",
 		spamingFakeMessages: false,
 		securityRaidGraceEndDate: 0,
+		pendingAutomodMessages:[],
 
 		botMessages: {
 			raffleStart: {
@@ -749,17 +750,13 @@ export const storeChat = defineStore('chat', {
 				Utils.mergeRemoteObject(JSON.parse(botMessages), (this.botMessages as unknown) as JsonObject, false);
 			}
 
-			const findAndFlagAutomod = (accept:boolean) => {
-				//Only search within the last 1000 messages
-				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
-					const mess = messageList[i]!;
-					if(mess.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !mess.twitch_automod) continue;
-					this.automodAction(accept, mess);
-					break;
-				}
+			const actOnLastAutomod = (accept:boolean) => {
+				if(this.pendingAutomodMessages.length === 0) return;
+				const message = this.pendingAutomodMessages.pop()!;
+				this.automodAction(accept, message);
 			};
-			PublicAPI.instance.addEventListener("SET_AUTOMOD_ACCEPT", ()=> findAndFlagAutomod(true));
-			PublicAPI.instance.addEventListener("SET_AUTOMOD_REJECT", ()=> findAndFlagAutomod(false));
+			PublicAPI.instance.addEventListener("SET_AUTOMOD_ACCEPT", ()=> actOnLastAutomod(true));
+			PublicAPI.instance.addEventListener("SET_AUTOMOD_REJECT", ()=> actOnLastAutomod(false));
 
 			//Listen for moderator event spoiling messages remotely
 			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event)=>{
@@ -1231,6 +1228,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
 								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_AVATAR", message.user.avatarPath || "", message.user.id);
 							}
+
 							//Reset ad schedule if necessary
 							if(!isFromRemoteChan) {
 								if(/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
@@ -1361,6 +1359,13 @@ export const storeChat = defineStore('chat', {
 							//If it's the first message today for this user
 							if(message.todayFirst === true) {
 								PublicAPI.instance.broadcast("ON_MESSAGE_FIRST_TODAY", wsMessage);
+							}
+
+							//If message is automodded
+							if(message.twitch_automod) {
+								PublicAPI.instance.broadcast("ON_AUTOMOD_MESSAGE_HELD", wsMessage);
+								this.pendingAutomodMessages.push(message);
+								PublicAPI.instance.broadcastGlobalStates();
 							}
 
 							//If it's the first message all time of the user
@@ -2266,6 +2271,17 @@ export const storeChat = defineStore('chat', {
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			if(message.fake) {
 				message.deleted = true;
+
+				console.log(message.type)
+				//Don't keep automod accept/reject message
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.twitch_automod) {
+					const i = messageList.findIndex(v=>v.id === message.id);
+					messageList.splice(i, 1);
+					console.log("REMOVE")
+					Database.instance.deleteMessage(message);
+				}
+
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 				return;
 			}
 			message.deleted = true;
@@ -2568,15 +2584,18 @@ export const storeChat = defineStore('chat', {
 			}
 		},
 
-		async automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+		async automodAction(accept:boolean, message:TwitchatDataTypes.MessageChatData):Promise<void> {
 			let success = await TwitchUtils.automodAction(accept, message.id);
 			if(!success) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.mod_message"));
-			}else {
-				//Delete the message.
-				//If the message was allowed, twitch will send it back, no need to keep it.
-				this.deleteMessage(message);
 			}
+			//Delete the message.
+			//If the message was allowed, twitch will send it back, no need to keep it.
+			this.deleteMessage(message);
+
+			const index = this.pendingAutomodMessages.findIndex(v=>v.id == message.id);
+			if(index != -1) this.pendingAutomodMessages.splice(index, 1);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		async flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>{

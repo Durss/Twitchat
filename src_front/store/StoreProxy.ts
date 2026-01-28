@@ -647,6 +647,10 @@ export interface IChatState {
 	 * should be disabled.
 	 */
 	securityRaidGraceEndDate:number;
+	/**
+	 * Pending automod messages to be reviewed by the user
+	 */
+	pendingAutomodMessages:TwitchatDataTypes.MessageChatData[];
 }
 
 export interface IChatGetters {
@@ -785,7 +789,7 @@ export interface IChatActions {
 	/**
 	 * Accepts or rejects given automoded messages
 	 */
-	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	automodAction(accept:boolean, message:TwitchatDataTypes.MessageChatData):Promise<void>;
 	/**
 	 * Flag a message as a spoiler
 	 * @param message
