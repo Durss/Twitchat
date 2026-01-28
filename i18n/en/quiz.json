@@ -28,13 +28,18 @@
 			"premium_limit": "You reached the maximum quiz count you can create.",
 			"questionList": "Question list",
 			"non_premium_limit": "@:quiz.form.premium_limit \nBecome a premium member to create up to {MAX} quizzes.",
+			"createBt": "Create",
 			"mode_classic": {
 				"title": "Classic mode",
 				"description": "One question, up to 6 answers, 1 or more correct answers.\n\nViewers earn points for every correct answers."
 			},
+			"mode_freeAnswer": {
+				"title": "Free answer mode",
+				"description": "One question, viewers can answer freely from chat or on the Twitchat extension."
+			},
 			"mode_majority": {
 				"title": "Majority mode",
-				"description": "One question, up to 4 answers, ONLY wrong answers.\n\nViewers must guess which answer will receive the most votes."
+				"description": "One question, up to 4 answers answers. ONLY WRONG answers\n\nViewers must guess which answer will receive the most votes."
 			}
 		}
 	}
