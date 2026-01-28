@@ -123,6 +123,7 @@ export default class PublicAPI extends EventDispatcher {
 
 	public broadcastGlobalStates():void {
 		if(this._isMainApp == false) return;
+		const lastAutomod = StoreProxy.chat.pendingAutomodMessages[ StoreProxy.chat.pendingAutomodMessages.length -1 ];
 		const states:TwitchatEventMap["ON_GLOBAL_STATES"] = {
 			activeCountdowns: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "countdown").map(({overlayParams, placeholderKey, ...rest}) => rest),
 			activeTimers: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "timer").map(({overlayParams, placeholderKey, ...rest}) => rest),
@@ -145,6 +146,15 @@ export default class PublicAPI extends EventDispatcher {
 			chatColConfs: StoreProxy.params.chatColumnStates,
 			animatedTextList:StoreProxy.animatedText.animatedTextList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
 			bingoGridList:StoreProxy.bingoGrid.gridList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
+			pendingAutomodMessage: !lastAutomod? null : {
+					channel: lastAutomod.channel_id,
+					message: lastAutomod.message,
+					user: {
+						id: lastAutomod.user.id,
+						login: lastAutomod.user.login,
+						displayName: lastAutomod.user.displayName,
+					}
+				},
 		}
 		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}
