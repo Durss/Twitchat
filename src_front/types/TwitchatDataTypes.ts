@@ -4045,7 +4045,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains quiz parameters
 	 */
-	export type QuizParams<Mode = "classic" | "majority"> = {
+	export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 		/**
 		 * Quiz ID
 		 */
@@ -4088,6 +4088,13 @@ export namespace TwitchatDataTypes {
 		 * UTC date at which the current question started
 		 */
 		questionStarted_at:string;
+		/**
+		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+		 * 0 = exact match
+		 * ...
+		 * 5 = very tolerant
+		 */
+		toleranceLevel?:0|1|2|3|4|5;
 	} & ({
 		/**
 		 * Quiz mode.
@@ -4163,6 +4170,41 @@ export namespace TwitchatDataTypes {
 				 */
 				title:string;
 			}[];
+		}[];
+	} | {
+		/**
+		 * Quiz mode.
+		 * freeAnswer: viewers must type the answer on chat or extension
+		 */
+		mode:"freeAnswer";
+		/**
+		 * List of questions
+		 */
+		questionList: {
+			/**
+			 * Question ID
+			 */
+			id:string;
+			/**
+			 * Question text
+			 */
+			question:string;
+			/**
+			 * Expected answer
+			 */
+			answer:string
+			/**
+			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?:number
+			/**
+			 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+			 * Overrides the global quiz tolerance level.
+			 * 0 = exact match
+			 * ...
+			 * 5 = very tolerant
+			 */
+			toleranceLevel?:0|1|2|3|4|5;
 		}[];
 	})
 

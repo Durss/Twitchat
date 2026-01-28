@@ -1615,7 +1615,7 @@
 				"description": "Actions à exécuter lorsqu'un don est reçu pour la cagnotte Streamlabs Charity"
 			},
 			"KOFI_DONATION": {
-				"label": "Don reçu sur on Ko-fi",
+				"label": "Don reçu sur Ko-fi",
 				"description": "Actions à exécuter lorsque vous recevez un don sur Ko-fi"
 			},
 			"KOFI_MERCH": {

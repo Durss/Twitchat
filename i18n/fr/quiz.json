@@ -28,13 +28,18 @@
 			"premium_limit": "Vous avez atteint le nombre maximum de quizs que vous pouvez créer.",
 			"questionList": "Liste de questions",
 			"non_premium_limit": "@:quiz.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} quizs.",
+			"createBt": "Créer",
 			"mode_classic": {
 				"title": "Mode classique",
 				"description": "Une question, jusqu'à 6 réponses, 1 ou plusieurs bonnes réponses.\n\nLes spectateurices gagnent des points pour chaque bonne réponse."
 			},
+			"mode_freeAnswer": {
+				"title": "Mode réponse libre",
+				"description": "Une question, les spectateurices peuvent répondre librement dans le tchat ou dans l'extension Twitchat."
+			},
 			"mode_majority": {
 				"title": "Mode majoritaire",
-				"description": "Une question, jusqu'à 4 réponses, SEULEMENT des mauvaises réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
+				"description": "Une question, jusqu'à 4 réponses, UNIQUEMENT des MAUVAISES réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
 			}
 		}
 	}
