@@ -207,7 +207,10 @@ export default class EventSub {
 		const globalOffset = Date.now() - new Date(train[0] as string).getTime();
 		let dateOffset = new Date(train[0] as string).getTime();
 		for (let i = 1; i < train.length; i++) {
-			const entry = JSON.parse(JSON.stringify(train[i]));
+			const entry = JSON.parse(JSON.stringify(train[i])) as string
+								| {topic:"channel.hype_train.begin" , data:TwitchEventSubDataTypes.HypeTrainStartEvent}
+								| {topic:"channel.hype_train.progress" , data:TwitchEventSubDataTypes.HypeTrainProgressEvent}
+								| {topic:"channel.hype_train.end" , data:TwitchEventSubDataTypes.HypeTrainEndEvent};
 			if(typeof entry == "string") {
 				const ts = new Date(entry).getTime();
 				const wait = (ts - dateOffset) * timeScale;
@@ -2130,7 +2133,7 @@ export default class EventSub {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id: event.broadcaster_user_id,
 			level: event.level,
-			currentValue: 0,
+			currentValue: storeTrain?.currentValue || 0,
 			total: event.total || 0,
 			goal: storeTrain?.goal || 0,
 			approached_at: dateStart,
