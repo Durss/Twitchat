@@ -40,7 +40,17 @@
 							</div>
 							<div class="body">
 								<div class="content">{{ $t("quiz.form.mode_classic.description") }}</div>
-								<TTButton @click="addQuiz('classic')" icon="add" primary>Create</TTButton>
+								<TTButton @click="addQuiz('classic')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
+							</div>
+						</div>
+						<div class="card-item">
+							<div class="header">
+								<icon class="normalSize" name="quiz_freeAnwser" />
+								<span class="title">{{ $t("quiz.form.mode_freeAnswer.title") }}</span>
+							</div>
+							<div class="body">
+								<div class="content">{{ $t("quiz.form.mode_freeAnswer.description") }}</div>
+								<TTButton @click="addQuiz('freeAnswer')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
 							</div>
 						</div>
 						<div class="card-item">
@@ -50,7 +60,7 @@
 							</div>
 							<div class="body">
 								<div class="content">{{ $t("quiz.form.mode_majority.description") }}</div>
-								<TTButton @click="addQuiz('majority')" icon="add" primary>Create</TTButton>
+								<TTButton @click="addQuiz('majority')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
 							</div>
 						</div>
 					</div>
@@ -75,7 +85,7 @@
 					<template #left_actions>
 						<div class="leftActions">
 							<ToggleButton v-model="quiz.enabled" @click.native.stop @change="save(quiz)" v-if="$store.auth.isPremium || quiz.enabled || $store.quiz.quizList.filter(v=>v.enabled).length < $config.MAX_QUIZ" />
-							<icon class="normalSize" :name="`quiz_${quiz.mode}`" v-tooltip="$t('quiz.form.mode_'+quiz.mode+'.title')" />
+							<icon :name="`quiz_${quiz.mode}`" v-tooltip="$t('quiz.form.mode_'+quiz.mode+'.title')" />
 						</div>
 					</template>
 
@@ -115,8 +125,8 @@
 										<ParamItem :paramData="param_question[question.id]" v-model="question.question" @blur="save(quiz)" noBackground />
 										
 										<div class="durationOverride" v-tooltip="$t('quiz.form.durationOverride_tt')">
-											<TTButton v-if="!durationOverrideState[question.id]"
-												@click="setCustomDuration(question)"
+											<TTButton v-if="!durationOverrideState[question.id] && isClassicOrMajorityQuizQuestion(quiz.mode, question)"
+												@click="setCustomDuration(quiz.id, question)"
 												icon="countdown"
 												:primary="question.duration_s && question.duration_s > 0"
 												:transparent="!question.duration_s">{{ question.duration_s? question.duration_s+'s' : '' }}</TTButton>
@@ -133,36 +143,42 @@
 										</div>
 									</div>
 									
-									<ToggleBlock
-									:icons="quiz.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
-									class="answersBlock"
-									:subtitle="quiz.mode == 'majority'? $t('quiz.form.answers_majority_subtitle') : ''"
-									:title="quiz.mode == 'classic'? $t('quiz.form.answers', {COUNT: question.answerList.length}) : $t('quiz.form.answers_majority', {COUNT: question.answerList.length}	)"
-									noTitleColor
-									small
-									:open="autoOpenID === question.id">
-										<div class="answerList">
-											<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
-												<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
-													@click="tickAnswer(question.answerList, answer)"
-													v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
-													:icon="answer.correct? 'checkmark' : 'cross'"
-													:primary="answer.correct"
-													:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
-													noBounce />
-												<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
-												<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
+									<template v-if="quiz.mode == 'freeAnswer'">
+										TODO
+									</template>
+									<template v-else-if="isClassicOrMajorityQuizQuestion(quiz.mode, question)">
+										<ToggleBlock
+										:icons="quiz.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
+										class="answersBlock"
+										:subtitle="quiz.mode == 'majority'? $t('quiz.form.answers_majority_subtitle') : ''"
+										:title="quiz.mode == 'classic'? $t('quiz.form.answers', {COUNT: question.answerList.length}) : $t('quiz.form.answers_majority', {COUNT: question.answerList.length}	)"
+										noTitleColor
+										small
+										:open="autoOpenID === question.id">
+											<div class="answerList">
+												<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
+													<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
+														@click="tickAnswer(question.answerList, answer)"
+														v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
+														:icon="answer.correct? 'checkmark' : 'cross'"
+														:primary="answer.correct"
+														:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
+														noBounce />
+													<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
+													<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
+												</div>
+												
+												<TTButton :sortable="false" :draggable="false" class="addBt" v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
+													@click="addAnswer(quiz, question.id)"
+													primary
+													icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
 											</div>
-											
-											<TTButton :sortable="false" :draggable="false" class="addBt" v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
-												@click="addAnswer(quiz, question.id)"
-												primary
-												icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
-										</div>
-									</ToggleBlock>
+										</ToggleBlock>
+									</template>
 								</div>
 
 								<TTButton class="deleteBt"
+									v-if="quiz.mode != 'freeAnswer'"
 									icon="trash"
 									v-tooltip="$t('quiz.form.deleteQuestionbt_tt')"
 									@click="deleteQuestion(quiz, question.id)"
@@ -287,7 +303,8 @@ class QuizForm extends AbstractSidePanel {
 			};
 			this.autoOpenID = question.id;
 			quiz.questionList.push(question);
-		}else{
+
+		}else if(quiz.mode == "majority") {
 			const question:TwitchatDataTypes.QuizParams<"majority">["questionList"][number] = {
 				id: Utils.getUUID(),
 				question: "",
@@ -298,12 +315,21 @@ class QuizForm extends AbstractSidePanel {
 			};
 			this.autoOpenID = question.id;
 			quiz.questionList.push(question);
+
+		}else if(quiz.mode == "freeAnswer") {
+			const question:TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] = {
+				id: Utils.getUUID(),
+				question: "",
+				answer:"",
+			};
+			this.autoOpenID = question.id;
+			quiz.questionList.push(question);
 		}
 		this.initParams();
 		this.save(quiz);
 	}
 
-	public deleteQuestion(quiz:TwitchatDataTypes.QuizParams, questionId:string):void {
+	public deleteQuestion(quiz:TwitchatDataTypes.QuizParams<"classic"|"majority">, questionId:string):void {
 		quiz.questionList = quiz.questionList.filter(v=>v.id != questionId);
 		this.initParams();
 		this.save(quiz);
@@ -360,22 +386,22 @@ class QuizForm extends AbstractSidePanel {
 	/**
 	 * Check if question is from a classic quiz
 	 */
-	public isClassicQuizQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
-		return mode === "classic";
+	public isClassicOrMajorityQuizQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][number] {
+		return mode === "classic" || mode === "majority";
 	}
 
 	/**
 	 * Clears custom duration for question or sets it to default value
 	 * @param question 
 	 */
-	public setCustomDuration(question: TwitchatDataTypes.QuizParams["questionList"][number]): void {
+	public setCustomDuration(quizId:string, question: TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][number]): void {
 		if(question.duration_s) {
 			delete question.duration_s;
 		} else {
 			question.duration_s = 30;
 			this.durationOverrideState[question.id] = true;
 		}
-		this.save(this.$store.quiz.quizList.find(q=> q.questionList.includes(question))!);
+		this.save(this.$store.quiz.quizList.find(q=> q.id === quizId)!);
 	}
 
 	/**
@@ -416,12 +442,15 @@ class QuizForm extends AbstractSidePanel {
 					this.param_answerDuration[id] = {type:"number", value:0, labelKey:"quiz.form.param_answer_duration", icon:"timer"};
 					this.durationOverrideState[id] = false;
 				}
-				question.answerList.forEach(answer=> {
-					const id = answer.id;
-					if(!this.param_answer[id]) {
-						this.param_answer[id] = {type:"string", value:"", placeholderKey:"quiz.form.answer_placeholder"};
-					}
-				});
+
+				if(this.isClassicOrMajorityQuizQuestion(quiz.mode, question)) {
+					question.answerList.forEach(answer=> {
+						const id = answer.id;
+						if(!this.param_answer[id]) {
+							this.param_answer[id] = {type:"string", value:"", placeholderKey:"quiz.form.answer_placeholder"};
+						}
+					});
+				}
 			});
 
 		});
@@ -499,6 +528,7 @@ export default toNative(QuizForm);
 			}
 			&>.icon {
 				height: 1.5em;
+				max-width: 2em;
 			}
 		}
 
