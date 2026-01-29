@@ -534,6 +534,7 @@ const UserDataSchema = {
 								method: {type:"string", maxLength:10},
 								browserEventName: {type:"string", maxLength:100},
 								browserEventParams: {type:"string", maxLength:10000},
+								recordChapterName: {type:"string", maxLength:100},
 								sendAsBody: {type:"boolean"},
 								customHeaders: {type:"boolean"},
 								interpretMaths: {type:"boolean"},
