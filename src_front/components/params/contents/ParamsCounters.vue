@@ -60,20 +60,20 @@
 					:title="entry.counter.name">
 
 						<template #right_actions>
-							<div class="actions">
+							<!-- <div class="actions"> -->
 								<template v-if="entry.counter.enabled !== false">
 									<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
 									<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
 									<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
 									<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-									<TTButton class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+									<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
 								</template>
-								<div class="toggle" v-else @click="toggleCounterState(entry.counter)">
+								<div class="toggle" v-else @click.stop @change="toggleCounterState(entry.counter)">
 									<ToggleButton v-model="entry.counter.enabled" />
 								</div>
-								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteCounter(entry)" />
-								<TTButton class="actionBt" @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							</div>
+								<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
+								<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+							<!-- </div> -->
 						</template>
 
 						<div class="content">
@@ -702,6 +702,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
 		if(!this.canCreateCounters) {
 			this.$store.common.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
+			counter.enabled = false;
 		}else{
 			counter.enabled = true;
 			this.$store.counters.saveCounters();
@@ -831,39 +832,22 @@ export default toNative(ParamsCounters);
 		width: calc(100% - 2em);
 		max-width: 400px;
 		margin: auto;
-		.actions {
-			gap: .25em;
+		.toggle {
+			background-color: var(--color-alert);
+			height: 100%;
 			display: flex;
-			flex-direction: row;
 			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
+			padding: 0 .5em;
+			&:hover {
+				background-color: var(--color-alert-light);
 			}
-			.toggle {
-				background-color: var(--color-alert);
-				height: 100%;
-				display: flex;
-				align-items: center;
-				padding: 0 .5em;
-				&:hover {
-					background-color: var(--color-alert-light);
-				}
-				* {
-					pointer-events: none;
-				}
+			* {
+				pointer-events: none;
 			}
-			.icon {
-				height: 1em;
-				margin-left: .5em;
-			}
+		}
+		.icon {
+			height: 1em;
+			margin-left: .5em;
 		}
 		:deep(h2) {
 			text-align: left;
@@ -875,7 +859,8 @@ export default toNative(ParamsCounters);
 			display: flex;
 			flex-direction: row;
 			cursor: default;
-			img {
+			align-self: center;
+			.icon {
 				height: 1em;
 			}
 		}

@@ -343,7 +343,6 @@ export default toNative(TriggerListFolderItem);
 		display: flex;
 		flex-direction: row;
 		align-self: stretch;
-		margin: -1em 0;
 		align-items: center;
 		z-index: 1;
 		&>.icon {
@@ -361,6 +360,7 @@ export default toNative(TriggerListFolderItem);
 			:deep(.content) {
 				height: 100%;
 				.holder, .inputHolder {
+					border-radius: 0;
 					align-self: stretch;
 					height: 100%;
 				}

@@ -19,14 +19,14 @@
 				/>
 
 				<template v-if="!isDonor">
-					<ToggleBlock class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
+					<ToggleBlock class="tip" noTitleColor :open="false" :title="$t('params.ad_bot_info_title')" small>
 						<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
 
 					<div class="card-item dark disableinstructions">
 						<p v-html="$t('params.ad_disable_info')"></p>
 						<TTButton @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</TTButton>
-						<TTButton @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</TTButton>
+						<TTButton @click="openPremium()" light premium icon="premium">{{ $t('premium.become_premiumBt') }}</TTButton>
 					</div>
 				</template>
 			</div>
