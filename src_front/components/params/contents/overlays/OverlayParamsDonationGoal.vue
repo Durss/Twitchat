@@ -42,11 +42,9 @@
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="duplicateGrid(overlay.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
-						<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
-						<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="duplicateGrid(overlay.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
+					<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
+					<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
 				</template>
 
 				<div class="form">
@@ -634,25 +632,6 @@ export default toNative(OverlayParamsDonationGoal);
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-			}
-		}
-
-		.leftActions {
-			align-self: stretch;
-		}
-
-		.rightActions, .leftActions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			flex-shrink: 0;
-			.button {
-				margin: -.5em 0;
-				align-self: stretch;
-				border-radius: 0;
-				flex-shrink: 0;
-				padding: 0 .5em;
 			}
 		}
 
