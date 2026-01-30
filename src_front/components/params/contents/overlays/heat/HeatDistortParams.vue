@@ -34,7 +34,7 @@
 		</template>
 
 		<template #right_actions>
-			<TTButton class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
+			<TTButton icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
 
 		<div class="heatdistortparams">
@@ -272,10 +272,6 @@ export default toNative(HeatDistortParams);
 		list-style-position: inside;
 		margin-left: 1em;
 	}
-}
-.deleteBt {
-	margin: -.5em 0;
-	border-radius: 0;
 }
 .distortionEntry {
 	transition: opacity .25s;

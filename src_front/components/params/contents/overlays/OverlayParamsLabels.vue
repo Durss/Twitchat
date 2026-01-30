@@ -32,16 +32,12 @@
 			@update:title="save(label)">
 
 				<template #left_actions>
-					<div class="leftActions">
-						<ToggleButton v-model="label.enabled" @click.native.stop @change="save(label)" v-if="$store.auth.isPremium || label.enabled || $store.labels.labelList.filter(v=>v.enabled).length < $config.MAX_LABELS" />
-					</div>
+					<ToggleButton v-model="label.enabled" @click.native.stop @change="save(label)" v-if="$store.auth.isPremium || label.enabled || $store.labels.labelList.filter(v=>v.enabled).length < $config.MAX_LABELS" />
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="duplicateLabel(label)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
-						<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="duplicateLabel(label)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
+					<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
 				</template>
 
 				<div class="form">
@@ -249,25 +245,6 @@ export default toNative(OverlayParamsLabels);
 			.button {
 				margin-top: .5em;
 			}
-		}
-	}
-
-	.leftActions {
-		align-self: stretch;
-	}
-
-	.rightActions, .leftActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
 		}
 	}
 
