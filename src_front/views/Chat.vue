@@ -486,6 +486,12 @@ class Chat extends Vue {
 			this.$store.chat.emoteSelectorCache = [];
 		})
 
+		watch(()=> this.$store.auth.isPremium, (newValue) => {
+			if(!newValue) {
+				this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
+			}
+		})
+
 		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
