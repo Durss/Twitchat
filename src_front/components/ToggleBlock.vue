@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="">
 		<div class="header" @click.stop="toggle()">
-			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<button type="button" class="arrowBt" v-if="noArrow === false && small !== false"><Icon name="arrowRight" /></button>
 			<slot name="left_actions"></slot>
 
@@ -36,9 +35,11 @@
 
 			<div class="rightSlot">
 				<slot name="right_actions"></slot>
-
-				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
 			</div>
+			
+			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
+
+			<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
 		</div>
 		<div class="content" v-if="localOpen" ref="content">
 			<slot></slot>
@@ -311,26 +312,31 @@ export default toNative(ToggleBlock);
 
 	.header {
 		text-align: center;
-		padding: .25em .5em;
+		// padding: .25em .5em;
 		overflow: hidden;
 		cursor: pointer;
 		background-color: var(--toggle-block-header-background);
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
 		border-bottom: 2px solid var(--color-dark-fader);
-		gap: .5em;
+		// gap: .5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		transition: background-color .25s;
 		color: var(--color-text);
 		position: relative;
+		overflow-x: auto;
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
 			gap: 0;
+			flex-shrink: 0;
+			flex-basis: 50%;
+			min-width: 200px;
+			margin: .25em 0;
 			h2 {
 				word-break: break-all;
 			}
@@ -342,6 +348,10 @@ export default toNative(ToggleBlock);
 		}
 		&:hover {
 			background-color: var(--toggle-block-header-background-hover);
+		}
+
+		&>*:first-child {
+			margin-left: .5em;
 		}
 
 		.customBg {
@@ -364,8 +374,9 @@ export default toNative(ToggleBlock);
 			justify-content: center;
 			flex-wrap: wrap;
 			flex-grow: 1;
-			.icon {
-				height: 1em;
+			margin: 0;
+			&>.icon {
+				height: .7em;
 				vertical-align: middle;
 				pointer-events: none;
 			}
@@ -379,7 +390,7 @@ export default toNative(ToggleBlock);
 				border-radius: var(--border-radius);
 
 				&.label {
-					padding-right: 2em;
+					padding-right: 1.25em;
 					// word-break: break-word;
 					line-height: 1.2em;
 					&:hover, &:active, &:focus {
@@ -396,7 +407,7 @@ export default toNative(ToggleBlock);
 				}
 			}
 			&>.icon {
-				margin-left: -1.5em;
+				margin-left: -1em;
 				flex-shrink: 0;
 			}
 			h3 {
@@ -409,22 +420,34 @@ export default toNative(ToggleBlock);
 			flex-direction: row;
 			align-self: stretch;
 			flex-shrink: 0;
+			align-items: center;
+		}
+		::v-deep(.button) {
+			border-radius: 0 !important;
+			align-self: stretch;
+			flex-shrink: 0;
 		}
 
 		.arrowBt {
 			color: inherit;
-			transition: transform .25s;
-			transform: rotate(90deg);
 			flex-grow: 0;
-			flex-shrink: 1;
-			height: 1em;
-			width: 1em;
-			align-self: center;
-			margin-left: .5em;
 			flex-shrink: 0;
+			height: 1em;
+			width: 1.5em;
+			align-self: stretch;
+			position: sticky;
+			right: 0;
+			bottom: 0;
+			margin: 0;
+			padding-right: 0 .25em;
+			background-color: var(--toggle-block-header-background);
+			min-height: auto;
+			height: auto;
 			.icon {
 				display: inline-block;
 				height: 1em;
+				transform: rotate(90deg);
+				transition: transform .25s;
 			}
 		}
 
@@ -445,7 +468,9 @@ export default toNative(ToggleBlock);
 			border-bottom-left-radius: var(--border-radius);
 			border-bottom-right-radius: var(--border-radius);
 			.arrowBt {
-				transform: rotate(0deg);
+				.icon{
+					transform: rotate(0deg);
+				}
 			}
 		}
 	}
@@ -463,6 +488,9 @@ export default toNative(ToggleBlock);
 			&:hover {
 				background-color: var(--color-alert-light);
 			}
+			.arrowBt{
+				background-color: var(--color-alert);
+			}
 		}
 	}
 
@@ -473,6 +501,9 @@ export default toNative(ToggleBlock);
 			background-color: var(--color-premium);
 			&:hover {
 				background-color: var(--color-premium-light);
+			}
+			.arrowBt{
+				background-color: var(--color-premium);
 			}
 		}
 	}
@@ -485,6 +516,9 @@ export default toNative(ToggleBlock);
 			&:hover {
 				background-color: var(--color-primary-light);
 			}
+			.arrowBt{
+				background-color: var(--color-primary);
+			}
 		}
 	}
 
@@ -495,6 +529,9 @@ export default toNative(ToggleBlock);
 			background-color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-secondary-light);
+			}
+			.arrowBt{
+				background-color: var(--color-secondary);
 			}
 		}
 	}
@@ -524,6 +561,9 @@ export default toNative(ToggleBlock);
 				flex-direction: column;
 				line-height: 1.25em;
 				text-shadow: var(--text-shadow-contrast);
+			}
+			.arrowBt {
+				background-color: transparent;
 			}
 		}
 
