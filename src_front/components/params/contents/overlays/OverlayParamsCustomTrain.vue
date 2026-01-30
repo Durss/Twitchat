@@ -46,10 +46,8 @@
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-						<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
-					</div>
+					<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+					<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
 				</template>
 
 				<div class="content">
@@ -666,21 +664,6 @@ export default toNative(OverlayParamsCustomTrain);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-		}
-	}
-
-	.rightActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
 		}
 	}
 

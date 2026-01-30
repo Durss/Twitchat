@@ -39,23 +39,23 @@
 				:titleMaxLengh="50"
 				@update:title="$store.timers.saveData()">
 					<template #left_actions>
+						<ToggleButton v-model="entry.enabled"
+							@change="$store.timers.saveData()"
+							@click.stop
+							v-if="!entry.isDefault && (entry.enabled || canCreateTimers)" />
 						<Icon name="timer" class="timerTypeIcon" v-if="entry.type == 'timer'" />
 						<Icon name="countdown" class="timerTypeIcon" v-if="entry.type == 'countdown'" />
 						<div class="timerValue" :class="{paused:entry.paused}" v-if="entry.startAt_ms">{{ timer2Duration[entry.id]?.duration_str }}</div>
 					</template>
 
 					<template #right_actions>
-						<div class="actions" v-if="!entry.isDefault">
-							<ToggleButton v-model="entry.enabled"
-								@change="$store.timers.saveData()"
-								@click.stop
-								v-if="entry.enabled || canCreateTimers" />
-							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
-						</div>
-						<div class="actions" v-else>
-							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-						</div>
+						<template v-if="!entry.isDefault">
+							<TTButton @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+							<TTButton alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
+						</template>
+						<template v-else>
+							<TTButton @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+						</template>
 					</template>
 
 					<div class="content">
@@ -287,26 +287,9 @@ export default toNative(ParamsTimer);
 			}
 		}
 
-		.actions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
-			}
-		}
-
 		.timerTypeIcon {
 			width: 1em;
+			margin-left: .5em;
 			z-index: 1;
 		}
 
@@ -318,10 +301,11 @@ export default toNative(ParamsTimer);
 			border-radius: 0;
 			align-self: stretch;
 			align-items: center;
-			margin: -.25em 0;
-			margin-left: -2em;
+			margin-left: -6em;
 			padding: 0 .5em;
-			padding-left: 2em;
+			padding-left: 6.25em;
+			z-index: 0;
+			font-size: .75em;
 
 			&.paused {
 				background-color: var(--color-secondary-fader);

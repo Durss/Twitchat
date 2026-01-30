@@ -10,6 +10,16 @@
 			"answer_wrong": "Mauvaise réponse",
 			"deleteQuestionbt_tt": "Supprimer la question",
 			"durationOverride_tt": "Durée personnalisée pour cette question",
+			"toleranceOverride_tt": "Tolérance personnalisée pour cette question",
+			"tolerances":{
+				"undefined":"         🗑️",
+				"none":"😠 Aucune",
+				"very_low":"🧐 Très basse",
+				"low":"🤨 Basse",
+				"medium":"😉 Moyenne",
+				"high":"🤪 Haute",
+				"very_high":"🤡 Très haute"
+			},
 			"delete_confirm": {
 				"description": "Le quiz sera supprimé\nCette action est irréversible.",
 				"title": "Supprimer le quiz ?"
@@ -19,6 +29,7 @@
 			"param_duration": "Durée par question ({VALUE} secondes)",
 			"param_time_based_scoring": "Score basé sur le temps\n(plus de points pour les réponses rapides)",
 			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
+			"param_tolerance": "Tolérance orthographique",
 			"question_placeholder": "question...",
 			"answer_placeholder": "réponse...",
 			"answers": "{COUNT} Réponses",
