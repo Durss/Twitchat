@@ -86,11 +86,11 @@ class BingoForm extends AbstractSidePanel {
 
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];
 	public mode:"num"|"emote"|"custom" = "num";
-	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999, labelKey:"bingo.form.min_value"};
-	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999, labelKey:"bingo.form.max_value"};
+	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", icon:"min", min:0, max:999999999, labelKey:"bingo.form.min_value"};
+	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", icon:"max", min:0, max:999999999, labelKey:"bingo.form.max_value"};
 	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.form.custom_placeholder", labelKey:"bingo.form.custom_value", icon:"whispers"};
 	// public customValueTolerance:TwitchatDataTypes.ParameterData<number|undefined> = {value:0, type:"slider", min:0, max: 100, labelKey:"bingo.form.custom_value_tolerance"};
-	public customValueTolerance:TwitchatDataTypes.ParameterData<number> = {value:0, type:"list", labelKey:"bingo.form.custom_value_tolerance"};
+	public customValueTolerance:TwitchatDataTypes.ParameterData<number> = {value:0, type:"list", icon:"spelling", labelKey:"bingo.form.custom_value_tolerance"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {

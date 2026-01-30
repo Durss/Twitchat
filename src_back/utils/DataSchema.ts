@@ -2748,6 +2748,9 @@ const UserDataSchema = {
 									timeBasedScoring: { type: "boolean" },
 									enabled: { type: "boolean" },
 									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									currentQuestionId: { type: "integer", minimum:0, maximum:1000 },
+									questionStarted_at: { type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 									questionList: {
 										type: "array",
 										minItems: 0,

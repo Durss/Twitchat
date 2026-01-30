@@ -235,7 +235,7 @@ class ParamsAutomod extends Vue implements IParameterContent {
 		this.keywordToValid[data.id]		= true;
 		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:30};
 		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
-		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
+		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false, icon:"anon"};
 		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency"};
 		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime"};
 	}

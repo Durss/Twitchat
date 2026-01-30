@@ -34,10 +34,9 @@
 			:key="entry.id"
 			@update:title="onChange(entry)">
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="$store.animatedText.deleteAnimatedText(entry.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="$store.animatedText.deleteAnimatedText(entry.id)" icon="trash" alert />
 				</template>
+				
 				<template #left_actions>
 					<ToggleButton v-model="entry.enabled" @change="onChange(entry)" @click.stop
 						v-if="$store.auth.isPremium || entry.enabled || $store.animatedText.animatedTextList.filter(v=>v.enabled).length < $config.MAX_ANIMATED_TEXT" />
@@ -221,21 +220,6 @@ export default toNative(OverlayParamsAnimatedText);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-		}
-	}
-
-	.rightActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
 		}
 	}
 

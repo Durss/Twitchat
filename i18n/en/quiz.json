@@ -10,6 +10,16 @@
 			"answer_wrong": "Wrong answer",
 			"deleteQuestionbt_tt": "Delete the question",
 			"durationOverride_tt": "Custom duration for this question",
+			"toleranceOverride_tt": "Custom tolerance for this question",
+			"tolerances":{
+				"undefined":"        🗑️",
+				"none":"😠 None",
+				"very_low":"🧐 Very low",
+				"low":"🤨 Low",
+				"medium":"😉 Medium",
+				"high":"🤪 High",
+				"very_high":"🤡 Very high"
+			},
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
 				"title": "Delete quiz?"
@@ -19,6 +29,7 @@
 			"param_duration": "Duration per question ({VALUE} seconds)",
 			"param_time_based_scoring": "Time-based scoring\n(more points for faster answers)",
 			"param_loose_on_fail": "Lose points on fail\n(wrong answers remove points)",
+			"param_tolerance": "Spelling tolerance",
 			"question_placeholder": "question...",
 			"answer_placeholder": "answer...",
 			"answers": "{COUNT} Answers",
