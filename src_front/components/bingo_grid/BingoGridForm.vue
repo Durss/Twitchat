@@ -37,16 +37,12 @@
 				@update:title="save(bingo, true)">
 
 					<template #left_actions>
-						<div class="leftActions">
-							<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo, true)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
-						</div>
+						<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo, true)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
 					</template>
 
 					<template #right_actions>
-						<div class="rightActions">
-							<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
-							<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
-						</div>
+						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
+						<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
 					</template>
 
 					<div class="form">
@@ -575,25 +571,6 @@ export default toNative(BingoGridForm);
 	}
 	.flip-list-leave-to {
 		display: none !important;
-	}
-
-	.leftActions {
-		align-self: stretch;
-	}
-
-	.rightActions, .leftActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
-		}
 	}
 
 	.parameter-child {

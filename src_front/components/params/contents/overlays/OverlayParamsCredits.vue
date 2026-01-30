@@ -50,14 +50,8 @@
 							</template>
 
 							<template #right_actions>
-								<div class="rightActions">
-									<!-- <TTButton v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
-									icon="premium" premium
-									v-tooltip="$t('premium.become_premiumBt')"
-									@click.prevent="openPremium()" /> -->
-									<TTButton class="scrollBt" icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" v-tooltip="$t('overlay.credits.scroll_tt')" />
-									<TTButton class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
-								</div>
+								<TTButton icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" v-tooltip="$t('overlay.credits.scroll_tt')" />
+								<TTButton icon="trash" @click.stop="deleteSlot(element)" alert />
 							</template>
 
 							<div class="content">
@@ -812,6 +806,7 @@ export default toNative(OverlayParamsCredits);
 				gap: .5em;
 				display: flex;
 				flex-direction: row;
+				align-items: center;
 				.icon {
 					height: 1em;
 					min-width: 1em;
@@ -864,25 +859,6 @@ export default toNative(OverlayParamsCredits);
 				}
 				&>.icon {
 					margin-left: -1.5em;
-				}
-			}
-			.rightActions {
-				gap: .25em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-					flex-shrink: 0;
-				.maxItems {
-					width: 4.5em;
-					:deep(input) {
-						text-align: center;
-					}
-				}
-				.deleteBt, .scrollBt {
-					margin: -.5em 0;
-					align-self: stretch;
-					border-radius: 0;
-					flex-shrink: 0;
 				}
 			}
 			.content {

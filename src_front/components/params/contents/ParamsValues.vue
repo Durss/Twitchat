@@ -49,11 +49,9 @@
 					:title="entry.value.name">
 
 						<template #right_actions>
-							<div class="actions">
-								<TTButton class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
-								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteValue(entry)" />
-								<TTButton class="actionBt" @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							</div>
+							<TTButton v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
+							<TTButton alert icon="trash" @click.stop="deleteValue(entry)" />
+							<TTButton @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 						</template>
 
 						<div class="content">
@@ -710,23 +708,6 @@ export default toNative(ParamsValues);
 		width: calc(100% - 2em);
 		max-width: 400px;
 		margin: auto;
-		.actions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
-			}
-		}
 		:deep(h2) {
 			text-align: left;
 			margin-right: 1em;

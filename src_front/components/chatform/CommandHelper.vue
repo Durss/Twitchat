@@ -581,6 +581,8 @@ export default toNative(CommandHelper);
 					flex-direction: column;
 					::v-deep(.label) {
 						font-size: .9em;
+						display: flex;
+						align-items: center;
 					}
 					::v-deep(.icon) {
 						width: 1.5em;
@@ -599,16 +601,17 @@ export default toNative(CommandHelper);
 		.menuItem {
 			.button {
 				flex-direction: column;
-				gap: .5em;
+				gap: .25em;
 				padding: .25em;
 				::v-deep(.label) {
 					font-size: .6em;
 					overflow-wrap: anywhere;
+					display: flex;
+					align-items: center;
 				}
 				::v-deep(.icon) {
-					width: 1.7em;
 					height: 1.7em;
-					max-width: unset;
+					max-width: 1.7em;
 					max-height: unset;
 				}
 			}

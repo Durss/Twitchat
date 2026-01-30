@@ -183,7 +183,7 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
-	public MAX_COUNTERS = 20;
+	public MAX_COUNTERS = 1;
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */

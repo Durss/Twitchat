@@ -47,21 +47,19 @@
 		:class="classes"
 		:icons="icons? icons : []">
 			<template #left_actions>
-				<div class="actionList">
-					<TTButton small
-						icon="dragZone"
-						class="action orderBt"
-						v-if="noHeaderOptions === false && readonly === false"
-						v-tooltip="$t('triggers.reorder_tt')"
-						data-noselect
-						@click.stop
-						/>
-					<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
-				</div>
+				<TTButton small
+					icon="dragZone"
+					class="action orderBt"
+					v-if="noHeaderOptions === false && readonly === false"
+					v-tooltip="$t('triggers.reorder_tt')"
+					data-noselect
+					@click.stop
+					/>
+				<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
 			</template>
 			<template #right_actions>
-				<div class="actionList">
-					<TTButton small
+				<!-- <div class="actionList"> -->
+					<TTButton
 						icon="merge"
 						class="action"
 						@click.stop="addCondition()"
@@ -69,7 +67,7 @@
 						v-tooltip="$t('triggers.condition.add_tt')"
 						/>
 
-					<TTButton small
+					<TTButton
 						icon="copy"
 						class="action"
 						@click.stop="$emit('duplicate')"
@@ -77,14 +75,14 @@
 						v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 						/>
 
-					<TTButton small alert
+					<TTButton alert
 						icon="trash"
 						class="action delete"
 						@click.stop="$emit('delete')"
 						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('global.delete')"
 					/>
-				</div>
+				<!-- </div> -->
 			</template>
 
 			<div v-if="action.type===null" class="typeSelector">
@@ -938,22 +936,17 @@ export default toNative(TriggerActionEntry);
 		}
 	}
 
-	.actionList {
-		display: flex;
-		align-self: stretch;
-		align-items: center;
-		.action {
-			border-radius: 0;
-			padding: .5em;
-			align-self: stretch;
-			box-shadow: unset;
-			&.orderBt {
-				cursor: grab;
-				&:active {
-					cursor: grabbing;
-				}
-			}
+	.orderBt {
+		cursor: grab;
+		margin-left: 0 !important;
+		padding: 0 .5em !important;
+		&:active {
+			cursor: grabbing;
 		}
+	}
+
+	.togglebutton {
+		margin-right: .5em;
 	}
 
 	.typeSelector {
