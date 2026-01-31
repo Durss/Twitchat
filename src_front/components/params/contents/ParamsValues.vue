@@ -50,13 +50,15 @@
 					:title="entry.value.name">
 
 						<template #left_actions>
-							<ToggleButton v-model="entry.value.enabled" @click.stop
+							<ToggleButton v-model="entry.value.enabled"
+								@click.stop
+								@change="$store.values.saveValues()"
 								v-if="($store.auth.isPremium && entry.value.enabled === false)
 								|| (!$store.auth.isPremium && (entry.value.enabled == true || canEnableMore))" />
 						</template>
 
 						<template #right_actions>
-							<TTButton v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
+							<TTButton v-tooltip="$t('values.editBt')" data-close-popout icon="edit" @click.stop="editValue(entry.value)" />
 							<TTButton @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							<TTButton alert icon="trash" @click.stop="deleteValue(entry)" />
 						</template>

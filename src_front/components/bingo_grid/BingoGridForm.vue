@@ -40,7 +40,7 @@
 					</template>
 
 					<template #right_actions>
-						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
+						<TTButton @click.stop="duplicateGrid(bingo.id)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
 						<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
 					</template>
 

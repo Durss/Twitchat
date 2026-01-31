@@ -5,7 +5,8 @@
 		"header_link_overlay": "affichez-les",
 		"addBt": "Créer un minuteur",
 		"overlayBt": "Configurer les overlays",
-		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs.\nDevenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.\nOu désactivez / supprimez des minuteurs pour en créer de nouveaux.",
+		"nonpremium_limit": "Vous avez créé le maximum de {MAX} minuteurs.\nDevenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.",
+		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs.",
 		"default_timer_title": "Chronomètre par défaut",
 		"default_countdown_title": "Compte à rebours par défaut",
 		"delete_confirm": {
