@@ -6,6 +6,7 @@
 		"editBt":"Editer la valeur",
 		"max_values_reached":"You reached the maximum of {COUNT} values that can be created",
 		"user_not_found": "personne introuvable",
+		"premium_cannot_enable":"Vous ne pouvez pas réactiver cette valeur. Vous avez atteint le maximum de {MAX} valeurs actives. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} valeurs.",
 
 		"form":{
 			"name":"Nom",

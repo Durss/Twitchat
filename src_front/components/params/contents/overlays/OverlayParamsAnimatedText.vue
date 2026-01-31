@@ -14,10 +14,7 @@
 
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length >= $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
 
-			<div class="card-item premium maximumReached" v-else>
-				<div>{{ $t("overlay.animatedText.non_premium_limit", {MAX:$config.MAX_ANIMATED_TEXT_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.animatedText.non_premium_limit" :max="$config.MAX_ANIMATED_TEXT" :maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -78,6 +75,7 @@ import ParamItem from '../../ParamItem.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import TTButton from '../../../TTButton.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -88,6 +86,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 		VueDraggable,
 		ToggleButton,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	}
 })
 class OverlayParamsAnimatedText extends Vue {
@@ -221,15 +220,6 @@ export default toNative(OverlayParamsAnimatedText);
 			flex-direction: row;
 			align-items: center;
 		}
-	}
-
-	.maximumReached {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-		white-space: pre-line;
 	}
 }
 </style>
