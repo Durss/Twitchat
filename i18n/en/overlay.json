@@ -656,7 +656,7 @@
 			"header": "Create custom hype trains linked to tips from external platforms",
 			"add_bt": "Create custom train",
 			"default_title":"Hype Train",
-			"premium_limit": "You reached the maximum number of custom trains you can create",
+			"premium_limit": "You reached the maximum number of {MAX} custom trains you can create",
 			"non_premium_limit":"You reached the maximum number of {MAX} custom trains.\nBecome premium to create up to {MAX_PREMIUM} custom trains.",
 			"simulate_bt": "Simulate fake Train",
 			"state_cooldown_tt": "Train is on cooldown\nClick to reset.",

@@ -656,7 +656,7 @@
 			"header": "Créer des trains de la hype personnalisés liés aux dons sur des plateformes externes",
 			"add_bt": "Créer un train personnalisé",
 			"default_title": "Train de la hype",
-			"premium_limit": "Vous avez atteint le nombre maximum de trains personnalisés que vous pouvez créer",
+			"premium_limit": "Vous avez atteint le nombre maximum de {MAX} trains personnalisés que vous pouvez créer",
 			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} trains personnalisés.\nDevenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
 			"simulate_bt": "Simuler un faux train",
 			"state_cooldown_tt": "Le train est en cooldown\nCliquez pour réinitialiser.",

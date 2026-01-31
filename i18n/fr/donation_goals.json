@@ -45,7 +45,7 @@
 		"import_streamlabs_step2": "Collez l'URL ci-dessous puis importez les objectifs de dons",
 		"import_streamlabs_complete": "Les objectifs ont été importé depuis Streamlabs Charity et ajoutés à la liste de vos objectifs",
 		"delete_confirm": {
-			"description": "L'overlay d'objectifs sera supprimé\nThis cannot be undone.",
+			"description": "L'overlay d'objectifs sera supprimé\nCette action est irréversible.",
 			"title": "Supprimer les objectifs ?"
 		}
 	}

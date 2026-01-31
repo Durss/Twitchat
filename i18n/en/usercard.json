@@ -39,7 +39,7 @@
 		},
 		"replace_badge_file":"Replace image",
 		"badge_disabled":"You disabled this badge because you were not a Premium member anymore.",
-		"badge_diusabled_notPremium":"You can only have {MAX} active custom badges. Delete other badges to reactivate it or become a Premium member to create up to {MAX_PREMIUM} custom badges.",
+		"badge_nonPremium_limit":"You reached the limit of {MAX} custom badges. Become a Premium member to create up to {MAX_PREMIUM} custom badges.",
 		"badge_users":"Users associated to this badge",
 		"badge_users_none":"none",
 		"badge_users_reactivate":"Reactivate badge",

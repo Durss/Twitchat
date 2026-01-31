@@ -123,7 +123,7 @@ import Checkbox from '@/components/Checkbox.vue';
 import Icon from '@/components/Icon.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import SSEEvent from '@/events/SSEEvent';
 import DataStoreCommon from '@/store/DataStoreCommon';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';

@@ -7,7 +7,7 @@
 		<div class="obsSceneName" v-if="screen.activeOBSScene"><Icon name="obs" />{{ screen.activeOBSScene }}</div>
 
 		<div class="enableBt" v-if="selectAreaMode === false && canEnable">
-			<ToggleButton v-model="screen.enabled" @change="$emit('update')" :alert="!screen.enabled" />
+			<ToggleButton v-model="screen.enabled" @click.stop @change="$emit('update')" :alert="!screen.enabled" />
 		</div>
 		
 		<div class="ctas" v-if="selectAreaMode === false && renderOnly == false">
