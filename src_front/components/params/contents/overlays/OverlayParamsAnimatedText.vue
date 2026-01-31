@@ -8,13 +8,14 @@
 		</i18n-t>
 
 		<section>
-			<TTButton class="addBt"
-			v-if="($store.auth.isPremium && $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT_PREMIUM) || $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT"
+			<TTButton class="addBt" v-if="!maxReached"
 			@click="addEntry()" icon="add">{{ $t("overlay.animatedText.add_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length >= $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
-
-			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.animatedText.non_premium_limit" :max="$config.MAX_ANIMATED_TEXT" :maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM" />
+			<PremiumLimitMessage v-else
+				label="overlay.animatedText.non_premium_limit"
+				premiumLabel="overlay.animatedText.premium_limit"
+				:max="$config.MAX_ANIMATED_TEXT"
+				:maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -99,6 +100,12 @@ class OverlayParamsAnimatedText extends Vue {
 	public param_colorHighlights:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+
+	public get maxReached():boolean {
+		const count = this.$store.animatedText.animatedTextList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_ANIMATED_TEXT_PREMIUM : this.$config.MAX_ANIMATED_TEXT;
+		return count >= max;
+	}
 		
 	public beforeMount():void {
 		this.testText = this.$t('overlay.animatedText.test_default');

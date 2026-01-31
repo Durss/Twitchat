@@ -8,15 +8,22 @@
 		<Icon class="loader" name="loader" v-if="loading" />
 		
 		<template v-else>
+			<PremiumLimitMessage v-if="!canCreateBadge"
+				premiumLabel="usercard.badge_premium_limit"
+				label="usercard.badge_nonPremium_limit"
+				:max="$config.MAX_CUSTOM_BADGES"
+				:maxPremium="$config.MAX_CUSTOM_BADGES_PREMIUM" />
+
 			<div class="badgeList">
-				<Button class="addBt" v-tooltip="$t('usercard.add_badgeBt_tt')"
+				<TTButton class="addBt" v-tooltip="$t('usercard.add_badgeBt_tt')"
+				v-if="canCreateBadge"
 				type="file"
 				accept="image/*"
 				transparent
 				theme="secondary"
 				@change="onAddBadgeFile">
 					<template #icon><Icon name="add" theme="secondary" /></template>
-				</Button>
+				</TTButton>
 
 				<button :class="getBadgeClasses(badge.id)" v-for="badge in badgesList" :key="badge.id"
 				@click="selectBadge(badge.id)"><img :src="badge.img"></button>
@@ -24,23 +31,19 @@
 
 			<template v-if="selectedBadgeId">
 				
-				<div class="card-item secondary disabledInfo" v-if="!$store.auth.isPremium && selectedBadge?.enabled === false">
+				<div class="card-item secondary disabledInfo" v-if="selectedBadge?.enabled === false">
 					<div>{{ $t("usercard.badge_disabled") }}</div>
-					<i18n-t scope="global" keypath="usercard.badge_diusabled_notPremium" v-if="!canEnableABadge">
-						<template #MAX>{{ $config.MAX_CUSTOM_BADGES }}</template>
-						<template #MAX_PREMIUM>{{ $config.MAX_CUSTOM_BADGES_PREMIUM }}</template>
-					</i18n-t>
-					<div v-else class="enableToggle">
+					<div class="enableToggle" v-if="$store.auth.isPremium">
 						<label for="reactivate_badge" @click="selectedBadge!.enabled = !selectedBadge!.enabled; saveBadges()">{{ $t("usercard.badge_users_reactivate") }}</label>
-						<ToggleButton secondary id="reactivate_badge" v-model="selectedBadge!.enabled" @change="saveBadges()" />
+						<ToggleButton id="reactivate_badge" v-model="selectedBadge!.enabled" @change="saveBadges()" />
 					</div>
 				</div>
 				
 				<input class="badgeName" type="text" v-model="badgeName" :placeholder="$t('usercard.badge_name_placeholder')" maxlength="50">
 
 				<div class="ctas">
-					<Button icon="trash" alert @click="deleteBadge(selectedBadgeId)">{{ $t("usercard.delete_badge") }}</Button>
-					<Button icon="upload" type="file" @change="onSelectBadgeFile">{{ $t("usercard.replace_badge_file") }}</Button>
+					<TTButton icon="trash" alert @click="deleteBadge(selectedBadgeId)">{{ $t("usercard.delete_badge") }}</TTButton>
+					<TTButton icon="upload" type="file" @change="onSelectBadgeFile">{{ $t("usercard.replace_badge_file") }}</TTButton>
 				</div>
 	
 				<h2>{{ $t("usercard.badge_users") }}</h2>
@@ -64,11 +67,13 @@ import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
 import ToggleButton from '../ToggleButton.vue';
 import Config from '@/utils/Config';
+import PremiumLimitMessage from '../params/PremiumLimitMessage.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ToggleButton,
+		PremiumLimitMessage
 	},
 	emits:["close"],
 })
@@ -82,7 +87,8 @@ class CustomBadgesManager extends Vue {
 
 	public get badgesList() { return this.$store.users.customBadgeList; }
 	public get selectedBadge() { return this.$store.users.customBadgeList.find(v=>v.id == this.selectedBadgeId); }
-	public get canEnableABadge() { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
+	public get canEnableABadge() { return this.$store.auth.isPremium || this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
+	public get canCreateBadge() { return this.$store.users.customBadgeList.length < (this.$store.auth.isPremium? Config.instance.MAX_CUSTOM_BADGES_PREMIUM : Config.instance.MAX_CUSTOM_BADGES); }
 
 	/**
 	 * Get classes for the given badge ID
@@ -92,7 +98,7 @@ class CustomBadgesManager extends Vue {
 		const res = ["badge"];
 		const badge = this.$store.users.customBadgeList.find(v=>v.id == badgeId);
 		if(this.selectedBadgeId == badgeId) res.push("selected");
-		if(badge && badge.enabled === false && !this.$store.auth.isPremium) res.push("disabled");
+		if(badge && badge.enabled === false) res.push("disabled");
 		return res;
 	}
 
@@ -282,8 +288,12 @@ export default toNative(CustomBadgesManager);
 			}
 
 			&.disabled {
-				outline: 1px dashed var(--color-text);
-				opacity: .35;
+				outline: 2px dashed var(--color-alert);
+				background-color: transparent;
+				background-image: repeating-linear-gradient(-45deg, var(--color-alert), var(--color-alert) 5px, transparent 5px, transparent 10px);
+				img {
+					opacity: .35;
+				}
 			}
 		}
 	
