@@ -63,6 +63,7 @@
 						icon="merge"
 						class="action"
 						@click.stop="addCondition()"
+						data-close-popout
 						v-if="!action.conditionList && noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.condition.add_tt')"
 						/>
@@ -71,6 +72,7 @@
 						icon="copy"
 						class="action"
 						@click.stop="$emit('duplicate')"
+						data-close-popout
 						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 						/>
