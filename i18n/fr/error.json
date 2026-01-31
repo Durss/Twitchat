@@ -65,7 +65,7 @@
 		"max_custom_badges": "Vous avez atteint le maximum de {COUNT} badges personnalisés que vous pouvez créer. Devenez premium pour en créer jusqu'à 100.",
 		"max_custom_badges_given": "Vous avez atteint le maximum de {COUNT} utilisateurices avec un badge personnalisé. Devenez premium pour attribuer des badges personnalisés jusqu'à 10000 utilisateurices.",
 		"max_custom_heat_screen": "Vous avez atteint le maximum de {COUNT} écrans heat personnalisés. Devenez premium pour en créer jusqu'à 100.",
-		"max_values": "Vous avez atteint le maximum de {COUNT} valeurs. Devenez premium pour en créer jusqu'à 100.",
+		"max_values": "Vous avez atteint le maximum de {MAX} valeurs. Devenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
 		"paypal": {
 			"GIFTED_USER_NOT_FOUND": "Le profile Twitch auquel vous souhaitez faire un cadeau est introuvable.",
 			"paypal_sdk_init_failed": "L'initialization du SDK Paypal a échouée.",

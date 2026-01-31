@@ -15,10 +15,7 @@
 
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.donationGoals.overlayList.length > $config.MAX_DONATION_GOALS_PREMIUM">{{ $t("donation_goals.premium_limit") }}</div>
 
-			<div class="premium" v-else>
-				<div>{{ $t("donation_goals.non_premium_limit", {MAX:$config.MAX_DONATION_GOALS_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="donation_goals.non_premium_limit" :max="$config.MAX_DONATION_GOALS" :maxPremium="$config.MAX_DONATION_GOALS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="overlayList"
@@ -217,6 +214,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 import DurationForm from '@/components/DurationForm.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -228,6 +226,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		DurationForm,
 		VueDraggable,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })
@@ -566,14 +565,6 @@ export default toNative(OverlayParamsDonationGoal);
 
 	.createForm {
 		text-align: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			.button {
-				margin-top: .5em;
-			}
-		}
 	}
 
 	.form, .goalItemList {

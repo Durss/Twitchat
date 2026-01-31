@@ -34,6 +34,12 @@
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V17, id:'cmdhelper.quiz'}">{{$t('cmdmenu.quiz')}}</TTButton>
 			</div>
 			<div class="menuItem">
+				<TTButton @click.capture="openModal('timer');"
+					v-tooltip="$t('cmdmenu.timer')"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
+					icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
+			</div>
+			<div class="menuItem">
 				<TTButton @click.capture="openModal('qnaForm');"
 					icon="qna"
 					v-tooltip="$t('cmdmenu.qna')"
@@ -49,12 +55,6 @@
 				<TTButton @click.capture="openModal('chatsuggForm');"
 					v-tooltip="$t('cmdmenu.suggestions')"
 					icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
-			</div>
-			<div class="menuItem">
-				<TTButton @click.capture="openModal('timer');"
-					v-tooltip="$t('cmdmenu.timer')"
-					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
-					icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
 			</div>
 			<div class="menuItem">
 				<TTButton @click.capture="clearChat();"
@@ -75,15 +75,15 @@
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</TTButton>
 			</div>
 			<div class="menuItem">
-				<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
-					v-tooltip="$t('cmdmenu.chatters')"
-					icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
-			</div>
-			<div class="menuItem">
 				<TTButton @click.capture="$emit('update:showRewards', true); close()"
 					icon="channelPoints"
 					v-tooltip="hasChannelPoints? $t('cmdmenu.rewards') : $t('cmdmenu.not_affiliate')"
 					:disabled="!hasChannelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
+			</div>
+			<div class="menuItem">
+				<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
+					v-tooltip="$t('cmdmenu.chatters')"
+					icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
 			</div>
 		</div>
 

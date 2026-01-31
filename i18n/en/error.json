@@ -65,7 +65,7 @@
 		"max_custom_badges": "You've reached the maximum of {COUNT} custom badges you can create. Become premium to create up to 100 custom badges.",
 		"max_custom_badges_given": "You've reached the maximum of {COUNT} users with custom badges. Become premium to give custom badges to up to 10000 users.",
 		"max_custom_heat_screen": "You've reached the maximum of {COUNT} custom heat screens. Become premium to create up to 100 custom screens.",
-		"max_values": "You've reached the maximum of {COUNT} values. Become premium to create up to 100 values.",
+		"max_values": "You've reached the maximum of {MAX} values. Become premium to create up to {MAX_PREMIUM} values.",
 		"paypal": {
 			"GIFTED_USER_NOT_FOUND": "The user you're making the gift to was not found.",
 			"paypal_sdk_init_failed": "Paypal SDK initialization failed.",

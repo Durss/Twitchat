@@ -10,10 +10,7 @@
 
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.customTrain.customTrainList.length >= $config.MAX_CUSTOM_TRAIN_PREMIUM">{{ $t("overlay.customTrain.premium_limit") }}</div>
 
-			<div class="card-item premium maximumReached" v-else>
-				<div>{{ $t("overlay.customTrain.non_premium_limit", {MAX:$config.MAX_CUSTOM_TRAIN_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.customTrain.non_premium_limit" :max="$config.MAX_CUSTOM_TRAIN" :maxPremium="$config.MAX_CUSTOM_TRAIN_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -322,6 +319,7 @@ import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import Utils from '@/utils/Utils';
 import { watch, type ComponentPublicInstance } from 'vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -335,6 +333,7 @@ import { watch, type ComponentPublicInstance } from 'vue';
 		OverlayInstaller,
 		CurrencyPatternInput,
 		OverlayCustomTrainRenderer,
+		PremiumLimitMessage,
 	}
 })
 class OverlayParamsCustomTrain extends Vue {
