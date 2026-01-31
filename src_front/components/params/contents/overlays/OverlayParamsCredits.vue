@@ -50,7 +50,7 @@
 							</template>
 
 							<template #right_actions>
-								<TTButton icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" v-tooltip="$t('overlay.credits.scroll_tt')" />
+								<TTButton icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" data-close-popout v-tooltip="$t('overlay.credits.scroll_tt')" />
 								<TTButton icon="trash" @click.stop="deleteSlot(element)" alert />
 							</template>
 
@@ -941,6 +941,9 @@ export default toNative(OverlayParamsCredits);
 			}
 			&.premium {
 				border-color: var(--color-premium-extralight);
+				&>:deep(.header) {
+					color: var(--color-text);
+				}
 				.paramitem {
 					background-color: var(--color-light-fadest);
 				}

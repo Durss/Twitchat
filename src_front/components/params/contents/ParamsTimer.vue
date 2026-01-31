@@ -14,11 +14,14 @@
 		</div>
 
 		<section class="ctas">
-			<TTButton icon="add" v-if="canCreateTimers" @click="$store.timers.createTimer(); buildParams()">{{ $t('timers.addBt') }}</TTButton>
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("timers.premium_limit", {MAX:$config.MAX_TIMERS, MAX_PREMIUM:$config.MAX_TIMERS_PREMIUM})}}</span>
-				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</div>
+			<TTButton icon="add" v-if="!maxReached" @click="$store.timers.createTimer(); buildParams()">{{ $t('timers.addBt') }}</TTButton>
+			
+			<PremiumLimitMessage v-else
+				label="timers.nonpremium_limit"
+				premiumLabel="timers.premium_limit"
+				:max="$config.MAX_TIMERS"
+				:maxPremium="$config.MAX_TIMERS_PREMIUM" />
+				
 			<TTButton icon="overlay" @click="openOverlays()">{{ $t('timers.overlayBt') }}</TTButton>
 		</section>
 
@@ -39,10 +42,10 @@
 				:titleMaxLengh="50"
 				@update:title="$store.timers.saveData()">
 					<template #left_actions>
-						<ToggleButton small v-model="entry.enabled"
+						<ToggleButton v-model="entry.enabled" @click.stop
 							@change="$store.timers.saveData()"
-							@click.stop
-							v-if="!entry.isDefault && (entry.enabled || canCreateTimers)" />
+							v-if="!entry.isDefault && (($store.auth.isPremium && entry.enabled === false)
+							|| (!$store.auth.isPremium && (entry.enabled == true || canEnableMore)))" />
 						<Icon name="timer" class="timerTypeIcon" v-if="entry.type == 'timer'" />
 						<Icon name="countdown" class="timerTypeIcon" v-if="entry.type == 'countdown'" />
 						<div class="timerValue" :class="{paused:entry.paused}" v-if="entry.startAt_ms">{{ timer2Duration[entry.id]?.duration_str }}</div>
@@ -136,6 +139,7 @@ import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import PremiumLimitMessage from '../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -147,6 +151,7 @@ import type IParameterContent from './IParameterContent';
 		ToggleButton,
 		SwitchButton,
 		PlaceholderField,
+		PremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -163,10 +168,17 @@ class ParamsTimer extends Vue implements IParameterContent {
 
 	private refreshInterval = -1;
 
-	public get canCreateTimers():boolean {
-		if(this.$store.auth.isPremium) return this.$store.timers.timerList.length < this.$config.MAX_TIMERS_PREMIUM;
-		const count = this.$store.timers.timerList.filter(v=>v.enabled != false).length - 2;
-		return count < this.$config.MAX_TIMERS;
+	public get maxReached():boolean {
+		const count = this.$store.timers.timerList.filter(v=>!v.isDefault).length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_TIMERS_PREMIUM : this.$config.MAX_TIMERS;
+		return count >= max;
+	}
+
+	public get canEnableMore():boolean {
+		if(this.$store.auth.isPremium) return false;
+		const count = this.$store.timers.timerList.filter(v=>v.enabled != false && !v.isDefault).length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_TIMERS_PREMIUM : this.$config.MAX_TIMERS;
+		return count < max;
 	}
 
 	public openTriggers():void {
@@ -256,15 +268,6 @@ export default toNative(ParamsTimer);
 <style scoped lang="less">
 .paramstimer{
 
-	.premiumLimit {
-		white-space: pre-line;
-		.button {
-			display: flex;
-			margin: auto;
-			margin-top: .5em;
-		}
-	}
-
 	.ctas {
 		align-items: center;
 	}
@@ -289,7 +292,10 @@ export default toNative(ParamsTimer);
 
 		.timerTypeIcon {
 			width: 1em;
-			margin-left: .5em;
+			z-index: 1;
+		}
+
+		.togglebutton {
 			z-index: 1;
 		}
 
@@ -301,7 +307,7 @@ export default toNative(ParamsTimer);
 			border-radius: 0;
 			align-self: stretch;
 			align-items: center;
-			margin-left: -6em;
+			margin-left: -6.5em;
 			padding: 0 .5em;
 			padding-left: 6.25em;
 			z-index: 0;
