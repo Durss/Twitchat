@@ -14,12 +14,9 @@
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="canCreateCounters">{{ $t('counters.addBt') }}</TTButton>
-
-			<div class="card-item premium premiumLimit" v-else-if="$store.auth.isPremium">
-				<span>{{$t("counters.nonpremium_limit", {MAX:$config.MAX_COUNTERS, MAX_PREMIUM:$config.MAX_COUNTERS_PREMIUM})}}</span>
-				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</div>
+			<TTButton icon="add" @click="showForm = true" v-if="$store.auth.isPremium || $store.counters.counterList.length < $config.MAX_COUNTERS">{{ $t('counters.addBt') }}</TTButton>
+			
+			<ParamPremiumLimitMessage v-else-if="!$store.auth.isPremium" labelKey="counters.nonpremium_limit" :max="$config.MAX_COUNTERS" :maxPremium="$config.MAX_COUNTERS_PREMIUM"></ParamPremiumLimitMessage>
 
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS_PREMIUM})}}</span>
@@ -59,21 +56,20 @@
 					:key="entry.counter.id"
 					:title="entry.counter.name">
 
+						<template #left_actions>
+							<ToggleButton v-model="entry.counter.enabled" @click.stop v-if="entry.counter.enabled || canCreateCounters" />
+						</template>
+
 						<template #right_actions>
-							<!-- <div class="actions"> -->
-								<template v-if="entry.counter.enabled !== false">
-									<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
-									<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
-									<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
-									<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-									<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
-								</template>
-								<div class="toggle" v-else @click.stop @change="toggleCounterState(entry.counter)">
-									<ToggleButton v-model="entry.counter.enabled" />
-								</div>
-								<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
-								<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							<!-- </div> -->
+							<template v-if="entry.counter.enabled !== false">
+								<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
+								<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
+								<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
+								<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+								<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+							</template>
+							<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+							<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
 						</template>
 
 						<div class="content">
@@ -169,6 +165,7 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import ParamPremiumLimitMessage from '../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -179,6 +176,7 @@ import type IParameterContent from './IParameterContent';
 		InfiniteList,
 		ToggleButton,
 		OverlayCounter,
+		ParamPremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -224,7 +222,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public get canCreateCounters():boolean {
 		if(this.$store.auth.isPremium) return true;
 		const count = this.$store.counters.counterList.filter(v=>v.enabled != false).length;
-		return count < this.$config.MAX_COUNTERS;
+		return count <= this.$config.MAX_COUNTERS;
 	}
 
 	public openTriggers():void {
@@ -283,13 +281,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public onNavigateBack(): boolean { return false; }
-
-	/**
-	 * Opens the premium page
-	 */
-	public openPremium():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
 
 	/**
 	 * Create a new counter
@@ -695,21 +686,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	/**
-	 * A counter can be disabled if the user created more counters than allowed
-	 * if not also premium. In which case they're invited to disable some counters.
-	 * @param counter
-	 */
-	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
-		if(!this.canCreateCounters) {
-			this.$store.common.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
-			counter.enabled = false;
-		}else{
-			counter.enabled = true;
-			this.$store.counters.saveCounters();
-		}
-	}
-
-	/**
 	 * Called when counters are sorted
 	 * Applies the sorting to original cata array
 	 */
@@ -814,11 +790,6 @@ export default toNative(ParamsCounters);
 
 	.premiumLimit {
 		text-align: center;
-		.button {
-			display: flex;
-			margin: auto;
-			margin-top: .5em;
-		}
 	}
 
 	.entryList {

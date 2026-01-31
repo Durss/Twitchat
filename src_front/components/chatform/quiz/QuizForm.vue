@@ -618,7 +618,6 @@ export default toNative(QuizForm);
 		.modeIcon {
 			height: 1.5em;
 			max-width: 2em;
-			margin-left: .5em;
 		}
 
 		.questionList {
