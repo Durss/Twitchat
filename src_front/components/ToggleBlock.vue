@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="">
-		<div class="header" @click.stop="toggle()">
+		<div class="header" ref="header" @click.stop="toggle()">
 			<button type="button" class="arrowBt" v-if="noArrow === false && small !== false"><Icon name="arrowRight" /></button>
 			<slot name="left_actions"></slot>
 
@@ -33,7 +33,15 @@
 
 			<slot name="title"></slot>
 
-			<div class="rightSlot">
+			<div class="rightSlot" ref="rightSlot" :class="{collapsed: showCollapsedMenu}">
+				<slot name="right_actions"></slot>
+			</div>
+
+			<button v-if="showCollapsedMenu" type="button" class="collapsedMenuBt" @click.stop="toggleCollapsedMenu($event)">
+				<Icon name="settings" />
+			</button>
+
+			<div class="collapsedMenuPopout" v-if="collapsedMenuOpen">
 				<slot name="right_actions"></slot>
 			</div>
 			
@@ -135,16 +143,20 @@ export class ToggleBlock extends Vue {
 	public closing = false;
 	public localOpen = false;
 	public localTitle = "";
-	//This flag i used as a workaround for a contenteditable issue.
+	//This flag is used as a workaround for a contenteditable issue.
 	//When an element is set as ContentEditable, clicking anywhere "near"
 	//it gives it focus. Even if it's 1000px away, as long as it's the
 	//closest editable element, it'll get focus.
 	//To warkaround this, we enable the contenteditable only after
 	//rolling over the title.
 	public editingTitle = false;
+	public showCollapsedMenu = false;
+	public collapsedMenuOpen = false;
 
 	private dragCount:number = 0;
 	private toggleTimeout:number = -1;
+	private resizeObserver:ResizeObserver | null = null;
+	private boundCloseMenu:((e:MouseEvent) => void) | null = null;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
@@ -213,6 +225,103 @@ export class ToggleBlock extends Vue {
 		watch(() => this.open, () => {
 			this.toggle(this.open);
 		})
+
+		// Setup resize observer to detect overflow
+		this.setupResizeObserver();
+
+		// Close collapsed menu when clicking outside
+		this.boundCloseMenu = this.closeCollapsedMenu.bind(this);
+		document.addEventListener('click', this.boundCloseMenu);
+	}
+
+	public beforeUnmount():void {
+		if (this.resizeObserver) {
+			this.resizeObserver.disconnect();
+		}
+		if (this.boundCloseMenu) {
+			document.removeEventListener('click', this.boundCloseMenu);
+		}
+	}
+
+	/**
+	 * Setup resize observer to detect when header overflows
+	 */
+	private setupResizeObserver():void {
+		this.resizeObserver = new ResizeObserver(() => {
+			this.checkOverflow();
+		});
+		const header = this.$refs.header as HTMLElement;
+		if (header) {
+			this.resizeObserver.observe(header);
+		}
+		// Check initially after a short delay to let slots render
+		this.$nextTick(() => {
+			setTimeout(() => this.checkOverflow(), 100);
+		});
+	}
+
+	/**
+	 * Check if the header content overflows and if there are 2+ buttons
+	 */
+	private checkOverflow():void {
+		const header = this.$refs.header as HTMLElement;
+		const rightSlot = this.$refs.rightSlot as HTMLElement;
+		
+		if (!header || !rightSlot) return;
+
+		// Count interactive elements (buttons, .button class elements) in right slot
+		const buttons = rightSlot.querySelectorAll('button, .button, [role="button"]');
+		const buttonCount = buttons.length;
+
+		// If less than 2 buttons, no need for collapsed menu
+		if (buttonCount < 2) {
+			this.showCollapsedMenu = false;
+			this.collapsedMenuOpen = false;
+			return;
+		}
+
+		// Temporarily show the rightSlot to measure overflow correctly
+		const wasCollapsed = this.showCollapsedMenu;
+		if (wasCollapsed) {
+			rightSlot.style.display = 'flex';
+		}
+
+		// Check if header would overflow (scrollWidth > clientWidth)
+		const wouldOverflow = header.scrollWidth > header.clientWidth;
+
+		// Restore display state
+		if (wasCollapsed) {
+			rightSlot.style.display = '';
+		}
+
+		// Show collapsed menu if overflow and 2+ buttons
+		this.showCollapsedMenu = wouldOverflow;
+		
+		// Close the popout if we no longer need collapsed menu
+		if (!this.showCollapsedMenu) {
+			this.collapsedMenuOpen = false;
+		}
+	}
+
+	/**
+	 * Toggle the collapsed menu popout
+	 */
+	public toggleCollapsedMenu(event: Event):void {
+		event.stopPropagation();
+		this.collapsedMenuOpen = !this.collapsedMenuOpen;
+	}
+
+	/**
+	 * Close the collapsed menu when clicking outside
+	 */
+	private closeCollapsedMenu(event: MouseEvent):void {
+		const target = event.target as HTMLElement;
+		const menuBt = this.$el?.querySelector('.collapsedMenuBt');
+		const popout = this.$el?.querySelector('.collapsedMenuPopout');
+		const clickedOnMenu = menuBt?.contains(target) || popout?.contains(target);
+		if (!clickedOnMenu) {
+			this.collapsedMenuOpen = false;
+		}
 	}
 
 	/**
@@ -314,6 +423,7 @@ export default toNative(ToggleBlock);
 		text-align: center;
 		// padding: .25em .5em;
 		overflow: hidden;
+		overflow-x: auto;
 		cursor: pointer;
 		background-color: var(--toggle-block-header-background);
 		border-top-left-radius: var(--border-radius);
@@ -326,7 +436,6 @@ export default toNative(ToggleBlock);
 		transition: background-color .25s;
 		color: var(--color-text);
 		position: relative;
-		overflow-x: auto;
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
@@ -335,7 +444,7 @@ export default toNative(ToggleBlock);
 			gap: 0;
 			flex-shrink: 0;
 			flex-basis: 50%;
-			min-width: 200px;
+			// min-width: 200px;
 			margin: .25em 0;
 			h2 {
 				word-break: break-all;
@@ -421,7 +530,51 @@ export default toNative(ToggleBlock);
 			align-self: stretch;
 			flex-shrink: 0;
 			align-items: center;
+			&.collapsed {
+				display: none;
+			}
 		}
+
+		
+		.collapsedMenuBt {
+			color: inherit;
+			padding: 0 .5em;
+			align-self: stretch;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			// background-color: transparent;
+			&:hover {
+				background-color: var(--color-dark-fadest);
+			}
+			.icon {
+				height: 1em;
+				// width: 1em;
+			}
+		}
+
+		.collapsedMenuPopout {
+			position: absolute;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			margin: 0;
+			z-index: 10;
+			background-color: var(--background-color-secondary);
+			border-radius: var(--border-radius);
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+			display: flex;
+			flex-direction: row;
+			// min-width: max-content;
+			// overflow: hidden;
+			
+			::v-deep(button), ::v-deep(.button) {
+				// width: 100%;
+				justify-content: center;
+			}
+		}
+
 		::v-deep(.button) {
 			border-radius: 0 !important;
 			align-self: stretch;
@@ -435,12 +588,10 @@ export default toNative(ToggleBlock);
 			height: 1em;
 			width: 1.5em;
 			align-self: stretch;
-			position: sticky;
 			right: 0;
 			bottom: 0;
 			margin: 0;
 			padding-right: 0 .25em;
-			background-color: var(--toggle-block-header-background);
 			min-height: auto;
 			height: auto;
 			.icon {
@@ -491,6 +642,9 @@ export default toNative(ToggleBlock);
 			.arrowBt{
 				background-color: var(--color-alert);
 			}
+			.collapsedMenuHolder .collapsedMenuBt:hover {
+				background-color: var(--color-alert-light);
+			}
 		}
 	}
 
@@ -504,6 +658,9 @@ export default toNative(ToggleBlock);
 			}
 			.arrowBt{
 				background-color: var(--color-premium);
+			}
+			.collapsedMenuHolder .collapsedMenuBt:hover {
+				background-color: var(--color-premium-light);
 			}
 		}
 	}
@@ -519,6 +676,9 @@ export default toNative(ToggleBlock);
 			.arrowBt{
 				background-color: var(--color-primary);
 			}
+			.collapsedMenuHolder .collapsedMenuBt:hover {
+				background-color: var(--color-primary-light);
+			}
 		}
 	}
 
@@ -532,6 +692,9 @@ export default toNative(ToggleBlock);
 			}
 			.arrowBt{
 				background-color: var(--color-secondary);
+			}
+			.collapsedMenuHolder .collapsedMenuBt:hover {
+				background-color: var(--color-secondary-light);
 			}
 		}
 	}

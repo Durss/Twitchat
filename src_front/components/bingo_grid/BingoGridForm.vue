@@ -37,7 +37,7 @@
 				@update:title="save(bingo, true)">
 
 					<template #left_actions>
-						<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo, true)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
+						<ToggleButton small v-model="bingo.enabled" @click.native.stop @change="save(bingo, true)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
 					</template>
 
 					<template #right_actions>
