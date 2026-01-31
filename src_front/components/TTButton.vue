@@ -120,7 +120,7 @@ export class TTButton extends Vue {
 	}
 
 	public get classes():string[] {
-		let list =  ["button"]
+		let list =  ["button", "type-"+this.type];
 		if(!this.$slots.default) list.push("noTitle");
 		if(this.primary !== false || this.copySuccess) list.push("primary");
 		if(this.twitch !== false) list.push("twitch");
@@ -209,6 +209,10 @@ export default toNative(TTButton);
 	text-decoration: none !important;
 	font-size: 1rem;
 	color: var(--color-text);
+
+	&:not(.type-file)>* {
+		pointer-events: none;
+	}
 
 	.clickArea {
 		position: absolute;
