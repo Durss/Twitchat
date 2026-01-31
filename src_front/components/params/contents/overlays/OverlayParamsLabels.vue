@@ -35,7 +35,7 @@
 				</template>
 
 				<template #right_actions>
-					<TTButton @click.stop="duplicateLabel(label)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
+					<TTButton @click.stop="duplicateLabel(label)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
 					<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
 				</template>
 

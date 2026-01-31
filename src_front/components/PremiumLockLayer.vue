@@ -1,7 +1,7 @@
 <template>
 	<div class="premiumlocklayer" v-if="!$store.auth.isPremium">
 		<Icon name="premium" class="icon" />
-		<Button icon="premium" @click="openPremium()" premium>{{$t('premium.become_premiumBt')}}</Button>
+		<Button icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</Button>
 	</div>
 </template>
 
@@ -39,7 +39,8 @@ export default toNative(PremiumLockLayer);
 	width: 100%;
 	height: 100%;
 	z-index: 1;
-	// background-color: var(--color-premium-fadest);
+	background-color: transparent;
+	background-image: repeating-linear-gradient(-45deg, var(--color-premium-fadest), var(--color-premium-fadest) 10px, transparent 10px, transparent 20px);
 	cursor: not-allowed;
 	& > * {
 		position: absolute;
@@ -57,6 +58,7 @@ export default toNative(PremiumLockLayer);
 		}
 	}
 	&>.icon {
+		color: var(--color-light);
 		height: 1.75em;
 		width: 1.75em;
 		transition: opacity .25s;
