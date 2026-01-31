@@ -5,12 +5,14 @@
 
 		<section>
 			<TTButton class="addBt"
-			v-if="($store.auth.isPremium && $store.customTrain.customTrainList.length < $config.MAX_CUSTOM_TRAIN_PREMIUM) || $store.customTrain.customTrainList.length < $config.MAX_CUSTOM_TRAIN"
+			v-if="!maxTrainsReached"
 			@click="addEntry()" icon="add">{{ $t("overlay.customTrain.add_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.customTrain.customTrainList.length >= $config.MAX_CUSTOM_TRAIN_PREMIUM">{{ $t("overlay.customTrain.premium_limit") }}</div>
-
-			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.customTrain.non_premium_limit" :max="$config.MAX_CUSTOM_TRAIN" :maxPremium="$config.MAX_CUSTOM_TRAIN_PREMIUM" />
+			<PremiumLimitMessage v-else
+				label="overlay.customTrain.non_premium_limit"
+				premiumLabel="overlay.customTrain.premium_limit"
+				:max="$config.MAX_CUSTOM_TRAIN"
+				:maxPremium="$config.MAX_CUSTOM_TRAIN_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -366,6 +368,11 @@ class OverlayParamsCustomTrain extends Vue {
 	private clickHandler!:(e:MouseEvent)=>void;
 	private keyHandler!:(e:KeyboardEvent)=>void;
 	private refreshInterval:number = -1;
+
+	public get maxTrainsReached():boolean {
+		const max = this.$store.auth.isPremium ? this.$config.MAX_CUSTOM_TRAIN_PREMIUM : this.$config.MAX_CUSTOM_TRAIN;
+		return this.$store.customTrain.customTrainList.length >= max;
+	}
 
 	public beforeMount():void {
 		this.initParams();

@@ -2,20 +2,16 @@
 	<div class="overlayparamsdonationgoal overlayParamsSection">
 		<div class="header">{{ $t("donation_goals.header") }}</div>
 
-		<!-- <a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
-			<Icon name="newtab" theme="light" />
-		</a> -->
-
 		<div class="createForm">
 			<TTButton class="addBt"
-			v-if="$store.auth.isPremium || $store.donationGoals.overlayList.length < $config.MAX_DONATION_GOALS"
+			v-if="!maxOverlaysReached"
 			@click="addGrid()" icon="add">{{ $t("donation_goals.create_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.donationGoals.overlayList.length > $config.MAX_DONATION_GOALS_PREMIUM">{{ $t("donation_goals.premium_limit") }}</div>
-
-			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="donation_goals.non_premium_limit" :max="$config.MAX_DONATION_GOALS" :maxPremium="$config.MAX_DONATION_GOALS_PREMIUM" />
+			<PremiumLimitMessage v-else
+				label="donation_goals.non_premium_limit"
+				premiumLabel="donation_goals.premium_limit"
+				:max="$config.MAX_DONATION_GOALS"
+				:maxPremium="$config.MAX_DONATION_GOALS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="overlayList"
@@ -256,11 +252,8 @@ class OverlayParamsDonationGoal extends Vue {
 	private prevSimulatedAmount = 0;
 
 	public get maxOverlaysReached():boolean {
-		if(this.$store.auth.isPremium) {
-			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS_PREMIUM;
-		}else{
-			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS;
-		}
+		const max = this.$store.auth.isPremium ? this.$config.MAX_DONATION_GOALS_PREMIUM : this.$config.MAX_DONATION_GOALS;
+		return this.$store.donationGoals.overlayList.length >= max;
 	}
 
 	/**

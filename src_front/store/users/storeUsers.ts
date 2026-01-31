@@ -1148,7 +1148,7 @@ export const storeUsers = defineStore('users', {
 			if(existingIndex == -1) {
 				//User can create up to 3 custom badges if not premium
 				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= Config.instance.MAX_CUSTOM_BADGES) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges", {COUNT:Config.instance.MAX_CUSTOM_BADGES}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges", {MAX:Config.instance.MAX_CUSTOM_BADGES, MAX_PREMIUM:Config.instance.MAX_CUSTOM_BADGES_PREMIUM}));
 					return false;
 				}
 				id = Utils.getUUID();
@@ -1207,7 +1207,7 @@ export const storeUsers = defineStore('users', {
 			if(this.customUserBadges[userId].findIndex(v => v.id == badgeId) == -1) {
 				//User can give badges to 30 users max if not premium
 				if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {MAX:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION, MAX_PREMIUM:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM}));
 					return false;
 				}
 				this.customUserBadges[userId].push({id:badgeId, platform:platform, channel:channelId!});
