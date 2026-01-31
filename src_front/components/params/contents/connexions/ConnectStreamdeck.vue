@@ -57,7 +57,7 @@
 
 <script lang="ts">
 import Splitter from '@/components/Splitter.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StreamdeckSocket from '@/utils/StreamdeckSocket';
