@@ -20,6 +20,8 @@
 		"need_OBS_connectBt":"Lier OBS",
 		"max_screen_reached":"Vous avez atteint le maximum de {COUNT} écrans Heat que vous pouvez créer",
 		"anonymous_info":"IMPORTANT : Par défaut les clicks envoyés par Heat sont anonymes. Pour ne pas être anonymes, les viewers doivent accorder l'accès à leur ID en cliquant l'icône Heat sur votre stream comme ci-dessous :",
+		"nonpremium_limit": "Vous avez créé le nombre maximum de {MAX} écrans Heat. Devenez premium pour créer jusqu'à {MAX_PREMIUM} écrans Heat.",
+		"premium_limit": "Vous avez créé le nombre maximum de {MAX} écrans Heat.",
 		"logs":{
 			"title":"Logs de clicks heat",
 			"subtitle":"Retrouvez les détails des clicks heat",

@@ -9,6 +9,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICountersActions, ICountersGetters, ICountersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import Config from '@/utils/Config';
 
 const broadcastTimeoutDebounce:{[key:string]:number} = {};
 
@@ -64,6 +65,12 @@ export const storeCounters = defineStore('counters', {
 		},
 
 		addCounter(data:TwitchatDataTypes.CounterData):void {
+			const max = StoreProxy.auth.isPremium ? Config.instance.MAX_COUNTERS_PREMIUM : Config.instance.MAX_COUNTERS;
+			const label = StoreProxy.auth.isPremium ? "counters.premium_limit" : "counters.nonpremium_limit";
+			if(this.counterList.length >= max) {
+				StoreProxy.common.alert(StoreProxy.i18n.t(label, {MAX:Config.instance.MAX_COUNTERS, MAX_PREMIUM:Config.instance.MAX_COUNTERS_PREMIUM}));
+				return;
+			}
 			this.counterList.push(data);
 			this.saveCounters()
 			rebuildPlaceholdersCache();

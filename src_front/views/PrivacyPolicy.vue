@@ -583,7 +583,7 @@ class PrivacyPolicy extends Vue {
 	public deleteData():void {
 		this.deletingData = true;
 		this.$confirm("Delete your data?",
-		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>This cannot be undone</strong>!")
+		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>Cette action est irréversible</strong>!")
 		.then(()=> {
 			ApiHelper.call("user/data", "DELETE").then(()=>{
 				this.deletingData = false;

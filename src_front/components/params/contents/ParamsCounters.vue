@@ -14,13 +14,13 @@
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="$store.auth.isPremium || $store.counters.counterList.length < $config.MAX_COUNTERS">{{ $t('counters.addBt') }}</TTButton>
-			
-			<ParamPremiumLimitMessage v-else-if="!$store.auth.isPremium" labelKey="counters.nonpremium_limit" :max="$config.MAX_COUNTERS" :maxPremium="$config.MAX_COUNTERS_PREMIUM"></ParamPremiumLimitMessage>
+			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{ $t('counters.addBt') }}</TTButton>
 
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS_PREMIUM})}}</span>
-			</div>
+			<PremiumLimitMessage v-else
+				label="counters.nonpremium_limit"
+				premiumLabel="counters.premium_limit"
+				:max="$config.MAX_COUNTERS"
+				:maxPremium="$config.MAX_COUNTERS_PREMIUM" />
 		</section>
 
 		<section class="card-item primary examples" v-if="!showForm && counterEntries.length == 0">
@@ -57,7 +57,9 @@
 					:title="entry.counter.name">
 
 						<template #left_actions>
-							<ToggleButton v-model="entry.counter.enabled" @click.stop v-if="entry.counter.enabled || canCreateCounters" />
+							<ToggleButton v-model="entry.counter.enabled" @click.stop
+								v-if="($store.auth.isPremium && entry.counter.enabled === false)
+								|| (!$store.auth.isPremium && (entry.counter.enabled == true || canEnableMore))" />
 						</template>
 
 						<template #right_actions>
@@ -165,7 +167,7 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
-import ParamPremiumLimitMessage from '../PremiumLimitMessage.vue';
+import PremiumLimitMessage from '../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -176,7 +178,7 @@ import ParamPremiumLimitMessage from '../PremiumLimitMessage.vue';
 		InfiniteList,
 		ToggleButton,
 		OverlayCounter,
-		ParamPremiumLimitMessage,
+		PremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -219,10 +221,17 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", maxLength:20, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
-	public get canCreateCounters():boolean {
-		if(this.$store.auth.isPremium) return true;
+	public get maxReached():boolean {
+		const count = this.$store.counters.counterList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+		return count >= max;
+	}
+
+	public get canEnableMore():boolean {
+		if(this.$store.auth.isPremium) return false;
 		const count = this.$store.counters.counterList.filter(v=>v.enabled != false).length;
-		return count <= this.$config.MAX_COUNTERS;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+		return count < max;
 	}
 
 	public openTriggers():void {
@@ -241,7 +250,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
-
 
 		watch(()=> this.param_title.value, ()=> {
 			const counters = this.$store.counters.counterList;

@@ -25,11 +25,12 @@
 				</template>
 				<template #footer>
 					<TTButton class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></TTButton>
-					<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
-					<template v-else>
-						<div class="card-item secondary">{{ $t("error.max_custom_heat_screen", {COUNT:maxScreens}) }}</div>
-						<TTButton class="item premiumBt" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-					</template>
+				
+					<PremiumLimitMessage v-else
+						label="heat.nonpremium_limit"
+						premiumLabel="heat.premium_limit"
+						:max="$config.MAX_CUSTOM_HEAT_SCREENS"
+						:maxPremium="$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM" />
 				</template>
 			</draggable>
 
@@ -48,6 +49,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
 import draggable from 'vuedraggable';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -56,6 +58,7 @@ import draggable from 'vuedraggable';
 		ToggleBlock,
 		HeatScreenEditor,
 		HeatScreenPreview,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })

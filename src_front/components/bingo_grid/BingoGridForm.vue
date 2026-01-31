@@ -11,12 +11,14 @@
 		<div class="content">
 			<div class="createForm">
 				<TTButton class="addBt"
-				v-if="$store.auth.isPremium || $store.bingoGrid.gridList.length < $config.MAX_BINGO_GRIDS"
+				v-if="!maxGridReached"
 				@click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
 
-				<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.bingoGrid.gridList.length > $config.MAX_BINGO_GRIDS_PREMIUM">{{ $t("bingo_grid.form.premium_limit") }}</div>
-
-				<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="bingo_grid.form.non_premium_limit" :max="$config.MAX_BINGO_GRIDS" :maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM" />
+				<PremiumLimitMessage v-else
+					label="bingo_grid.form.non_premium_limit"
+					premiumLabel="bingo_grid.form.premium_limit"
+					:max="$config.MAX_BINGO_GRIDS"
+					:maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM" />
 			</div>
 
 			<VueDraggable class="gridList"
