@@ -6,7 +6,7 @@
 		"add_goal_bt": "Add goal",
 		"simulate_bt": "Set fake progress",
 		"premium_limit": "You reached the maximum goals you can create.",
-		"non_premium_limit": "@:donation_goals.premium_limit \nBecome a premium member to create up to {MAX} goals.",
+		"non_premium_limit": "@:donation_goals.premium_limit \nBecome a premium member to create up to {MAX_PREMIUM} goals.",
 		"default_title": "Goals",
 		"tiltify_not_connected": "Please connect Twitchat with Tiltify",
 		"tiltify_no_campaign": "Your Tiltify account is not part of any fundra$ campaign",

@@ -40,7 +40,7 @@
 			"chat_cmd_usage":"Utilisez la commande {CMD}",
 			"heat_usage":"@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",
-			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} grilles de bingo.",
+			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX_PREMIUM} grilles de bingo.",
 			"share": "Partagez cette grille à vos viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",

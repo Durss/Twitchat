@@ -11,10 +11,7 @@
 
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.labels.labelList.length < $config.MAX_LABELS_PREMIUM">{{ $t("overlay.labels.premium_limit") }}</div>
 
-			<div class="premium" v-else>
-				<div>{{ $t("overlay.labels.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.labels.non_premium_limit" :max="$config.MAX_LABELS" :maxPremium="$config.MAX_LABELS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="labelList"
@@ -92,6 +89,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ParamItem } from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -102,6 +100,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		ToggleButton,
 		VueDraggable,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })
@@ -237,15 +236,6 @@ export default toNative(OverlayParamsLabels);
 .overlayparamslabels{
 	.createForm {
 		text-align: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			white-space: pre-line;
-			.button {
-				margin-top: .5em;
-			}
-		}
 	}
 
 	.labelList, .form {
