@@ -1,647 +1,625 @@
 <template>
-	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="">
-		<div class="header" ref="header" @click.stop="toggle()">
-			<button type="button" class="arrowBt" v-if="noArrow === false && small !== false"><Icon name="arrowRight" /></button>
-			<slot name="left_actions"></slot>
+	<div :class="rootClasses" :style="rootStyles" @dragenter="onDragEnter" @dragleave="onDragLeave" @drop.prevent>
+		<div class="header" ref="headerRef" @click="toggle()">
+			<!-- Small mode: arrow on left -->
+			<button v-if="small && !noArrow" type="button" class="arrow" :class="{ open: isOpen && !isClosing }">
+				<Icon name="arrowRight" />
+			</button>
 
-			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
-				class="icon"
+			<!-- Left actions slot -->
+			<slot name="left_actions" />
+
+			<!-- Icons -->
+			<Icon
+				v-for="icon in displayIcons"
+				:key="icon"
 				:name="icon"
-				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false && noTitleColor == false? 'light': small === true && noTitleColor == false? 'secondary' : ''"
-				/>
+				:theme="iconTheme"
+				class="headerIcon"
+			/>
 
-			<div class="title editableTitle" v-if="editableTitle !== false">
-				<ContentEditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
-					v-model="localTitle"
-					:contenteditable="editingTitle"
+			<!-- Title section -->
+			<div v-if="editableTitle" class="titleSection editable" :class="{ singleLine: isSingleLineMode }">
+				<ContentEditable
+					ref="titleEditRef"
+					tag="h2"
+					class="titleText"
+					:class="{ default: displayTitle === titleDefault }"
+					:contenteditable="isEditingTitle"
+					:model-value="displayTitle"
 					:no-nl="true"
 					:no-html="true"
 					@click.stop
-					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle;"
-					@blur="localTitle = (localTitle.trim() === '')? titleDefault : localTitle; editingTitle=false;"
-					@input="limitLabelSize()"
-					@mouseover="editingTitle=true" />
-				<Icon name="edit" />
-				<h3 v-if="subtitle">{{ subtitle }}</h3>
+					@focus="onTitleFocus"
+					@blur="onTitleBlur"
+					@update:model-value="onTitleInput"
+					@mouseover="isEditingTitle = true"
+				/>
+				<Icon name="edit" class="editIcon" />
+				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
-			<div class="title" v-else-if="title || titleDefault || subtitle">
-				<h2 v-if="title">{{ title }}</h2>
-				<h2 v-else-if="titleDefault">{{ titleDefault }}</h2>
-				<h3 v-if="subtitle">{{ subtitle }}</h3>
+			<div v-else-if="title || titleDefault || subtitle" ref="titleRef" class="titleSection" :class="{ singleLine: isSingleLineMode }">
+				<h2 class="titleText">{{ title || titleDefault }}</h2>
+				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
-			<slot name="title"></slot>
+			<!-- Hidden element for measuring natural title height at fixed width -->
+			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">{{ title || titleDefault }}</div>
 
-			<div class="rightSlot" ref="rightSlot" :class="{collapsed: showCollapsedMenu}">
-				<slot name="right_actions"></slot>
-				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
+			<!-- Custom title slot -->
+			<slot name="title" />
+
+			<!-- Right actions (hidden when collapsed) -->
+			<div ref="rightActionsRef" class="rightActions" :class="{ hidden: actionsCollapsed }">
+				<slot name="right_actions" />
 			</div>
 
-			<template v-if="showCollapsedMenu">
-				<button type="button" class="collapsedMenuBt" @click.stop="toggleCollapsedMenu($event)">
-					<Icon name="settings" />
-				</button>
-				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
-			</template>
+			<!-- Collapsed actions button -->
+			<button
+				v-if="actionsCollapsed"
+				type="button"
+				class="collapseToggle"
+				@click.stop="actionsMenuOpen = !actionsMenuOpen"
+			>
+				<Icon name="settings" />
+			</button>
 
-			<div class="collapsedMenuPopout" v-if="collapsedMenuOpen">
-				<slot name="right_actions"></slot>
+			<!-- Default mode: arrow on right -->
+			<button v-if="!small && !noArrow" type="button" class="arrow right" :class="{ open: isOpen && !isClosing }">
+				<Icon name="arrowRight" />
+			</button>
+
+			<!-- Collapsed actions popout -->
+			<div v-if="actionsMenuOpen" class="actionsPopout" @click.stop>
+				<slot name="right_actions" />
 			</div>
-			
-			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
+
+			<!-- Custom background color overlay -->
+			<div v-if="customColor" class="customBg" :style="{ backgroundColor: customColor }" />
 		</div>
-		<div class="content" v-if="localOpen" ref="content">
-			<slot></slot>
-			<slot name="content"></slot>
+
+		<!-- Collapsible content -->
+		<div v-if="contentVisible" ref="contentRef" class="content">
+			<slot />
+			<slot name="content" />
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from '@vue/runtime-core';
+<script setup lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type CSSProperties } from 'vue';
 import { gsap } from 'gsap/gsap-core';
-import type { CSSProperties } from 'vue';
-import ContentEditable from '@/components/ContentEditable.vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
+import ContentEditable from './ContentEditable.vue';
 
-/**
- * To add actions on the right or left of the header
- * use the template tag like this :
- * 	<ToggleBlock>
- * 		<template #right_actions>...</template>
- * 		<template #left_actions>...</template>
- * 	</ToggleBlock>
- */
+// Props
+const props = withDefaults(defineProps<{
+	icons?: string[];
+	title?: string;
+	titleDefault?: string;
+	subtitle?: string;
+	open?: boolean;
+	error?: boolean;
+	alert?: boolean;
+	primary?: boolean;
+	secondary?: boolean;
+	premium?: boolean;
+	small?: boolean;
+	medium?: boolean;
+	disabled?: boolean;
+	noBackground?: boolean;
+	noArrow?: boolean;
+	noTitleColor?: boolean;
+	editableTitle?: boolean;
+	titleMaxLength?: number;
+	customColor?: string;
+}>(), {
+	icons: () => [],
+	open: true,
+	error: false,
+	alert: false,
+	primary: false,
+	secondary: false,
+	premium: false,
+	small: false,
+	medium: false,
+	disabled: false,
+	noBackground: false,
+	noArrow: false,
+	noTitleColor: false,
+	editableTitle: false,
+	titleMaxLength: 100,
+	customColor: '',
+});
 
-@Component({
-	name:"ToggleBlock",
-	components:{
-		Icon,
-		ContentEditable,
+// Emits
+const emit = defineEmits<{
+	'update:open': [value: boolean];
+	'update:title': [value: string];
+}>();
+
+// Template refs
+const headerRef = useTemplateRef<HTMLElement>('headerRef');
+const contentRef = useTemplateRef<HTMLElement>('contentRef');
+const rightActionsRef = useTemplateRef<HTMLElement>('rightActionsRef');
+const titleRef = useTemplateRef<HTMLElement>('titleRef');
+const titleMeasureRef = useTemplateRef<HTMLElement>('titleMeasureRef');
+const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>('titleEditRef');
+
+// State
+const isOpen = ref(props.open);
+const isClosing = ref(false);
+const contentVisible = ref(props.open);
+const localTitle = ref(props.title || props.titleDefault || '');
+const isEditingTitle = ref(false);
+const actionsCollapsed = ref(false);
+const actionsMenuOpen = ref(false);
+const isSingleLineMode = ref(false);
+
+// Drag state
+let dragCount = 0;
+let dragTimeout: number | undefined;
+
+// Observers
+let resizeObserver: ResizeObserver | null = null;
+
+// Computed
+const hasThemedHeader = computed(() =>
+	(props.error || props.alert || props.primary || props.secondary || props.premium) && !props.small
+);
+
+const iconTheme = computed(() => {
+	if (props.noTitleColor) return '';
+	if (hasThemedHeader.value) return 'light';
+	if (props.small) return 'secondary';
+	return '';
+});
+
+const displayIcons = computed(() => {
+	const icons = [...props.icons];
+	if (props.error) icons.push('automod');
+	return icons;
+});
+
+const displayTitle = computed(() => localTitle.value || props.titleDefault || '');
+
+const rootClasses = computed(() => [
+	'toggleblock2',
+	{
+		closed: !isOpen.value || isClosing.value,
+		error: props.error,
+		alert: props.alert,
+		primary: props.primary,
+		secondary: props.secondary,
+		premium: props.premium,
+		small: props.small,
+		medium: props.medium && !props.small,
+		noBackground: props.noBackground,
+		noTitleColor: props.noTitleColor,
 	},
-	emits:["startDrag", "update:title", "update:open"],
-})
-export class ToggleBlock extends Vue {
+]);
 
-	@Prop({type:Array, default:[]})
-	public icons!:string[];
+const rootStyles = computed<CSSProperties>(() => {
+	if (!props.customColor) return {};
+	return { backgroundColor: `${props.customColor}20` };
+});
 
-	@Prop()
-	public title!:string;
+// Methods
+async function toggle(forcedState?: boolean): Promise<void> {
+	const targetState = forcedState ?? !isOpen.value;
+	if (targetState === isOpen.value) return;
+	if (props.disabled && targetState) return;
 
-	@Prop()
-	public titleDefault!:string;
+	gsap.killTweensOf(contentRef.value);
 
-	@Prop({type:String, default:""})
-	public subtitle!:string;
-
-	@Prop({type:Boolean, default:true})
-	public open!:boolean;
-
-	@Prop({type:Boolean, default:false})
-	public error!:boolean;
-
-	@Prop({type:Boolean, default:false})
-	public small!:boolean;
-
-	@Prop({type:Boolean, default:false})
-	public medium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public primary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public disabled!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noBackground!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noArrow!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noTitleColor!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public editableTitle!:boolean;
-
-	@Prop({type:Number, default: 100})
-	public titleMaxLengh!:number;
-
-	@Prop({type:String, default: ""})
-	public customColor!:string;
-
-	public closing = false;
-	public localOpen = false;
-	public localTitle = "";
-	//This flag is used as a workaround for a contenteditable issue.
-	//When an element is set as ContentEditable, clicking anywhere "near"
-	//it gives it focus. Even if it's 1000px away, as long as it's the
-	//closest editable element, it'll get focus.
-	//To warkaround this, we enable the contenteditable only after
-	//rolling over the title.
-	public editingTitle = false;
-	public showCollapsedMenu = false;
-	public collapsedMenuOpen = false;
-
-	private dragCount:number = 0;
-	private toggleTimeout:number = -1;
-	private resizeObserver:ResizeObserver | null = null;
-	private boundCloseMenu:((e:MouseEvent) => void) | null = null;
-
-	public get classes():string[] {
-		let res = ["toggleblock"];
-		if(!this.localOpen || this.closing)res.push("closed");
-		if(this.error !== false)		res.push("error");
-		if(this.primary !== false)		res.push("primary");
-		if(this.secondary !== false)	res.push("secondary");
-		if(this.alert !== false)		res.push("alert");
-		if(this.premium !== false)		res.push("premium");
-		if(this.noBackground !== false)	res.push("noBackground");
-		if(this.small !== false)		res.push("small");
-		else if(this.medium !== false)	res.push("medium");
-		if(this.noTitleColor !== false)	res.push("noTitleColor");
-		return res;
-	}
-
-	public get bgStyles():CSSProperties {
-		const res:CSSProperties = {};
-		if(this.customColor) {
-			res.backgroundColor = this.customColor;
-		}
-		return res;
-	}
-
-	public get contentStyles():CSSProperties {
-		const res:CSSProperties = {};
-		if(this.customColor) {
-			// const hsl = Utils.rgb2hsl(parseInt(this.customColor.replace("#", ""), 16));
-			// const maxL = .4;
-			// if(hsl.l > maxL) {
-			// 	res.color = "#000000";
-			// }else{
-			// 	res.color = "#ffffff";
-			// }
-			res.backgroundColor = this.customColor+"20";
-		}
-		return res;
-	}
-
-	public get localIcons():string[] {
-		const icons = this.icons.concat();
-		if(this.error) icons.push("automod");
-		return icons;
-	}
-
-	public beforeMount():void {
-		this.localOpen = this.open;
-		this.localTitle = this.title || this.titleDefault;
-
-		watch(()=>this.localTitle, ()=>{
-			// if(!this.localTitle || this.title == this.titleDefault) {
-			// 	this.localTitle = this.titleDefault;
-			// 	console.log("okokok", this.localTitle);
-			// 	this.$emit("update:title", '');
-			// }else{
-				this.$emit("update:title", this.localTitle.trim());
-			// }
-		})
-
-		watch(()=>this.localOpen, ()=>{
-			this.$emit("update:open", this.localOpen);
-		})
-	}
-
-	public mounted():void {
-		watch(() => this.open, () => {
-			this.toggle(this.open);
-		})
-
-		// Setup resize observer to detect overflow
-		this.setupResizeObserver();
-
-		// Close collapsed menu when clicking outside
-		this.boundCloseMenu = this.closeCollapsedMenu.bind(this);
-		document.addEventListener('click', this.boundCloseMenu);
-	}
-
-	public beforeUnmount():void {
-		if (this.resizeObserver) {
-			this.resizeObserver.disconnect();
-		}
-		if (this.boundCloseMenu) {
-			document.removeEventListener('click', this.boundCloseMenu);
-		}
-	}
-
-	/**
-	 * Setup resize observer to detect when header overflows
-	 */
-	private setupResizeObserver():void {
-		this.resizeObserver = new ResizeObserver(() => {
-			this.checkOverflow();
+	if (targetState) {
+		// Opening
+		isOpen.value = true;
+		contentVisible.value = true;
+		await nextTick();
+		gsap.from(contentRef.value, {
+			height: 0,
+			paddingTop: 0,
+			paddingBottom: 0,
+			duration: 0.25,
+			ease: 'sine.inOut',
+			clearProps: 'all',
 		});
-		const header = this.$refs.header as HTMLElement;
-		if (header) {
-			this.resizeObserver.observe(header);
-		}
-		// Check initially after a short delay to let slots render
-		this.$nextTick(() => {
-			setTimeout(() => this.checkOverflow(), 100);
+	} else {
+		// Closing
+		isClosing.value = true;
+		gsap.to(contentRef.value, {
+			height: 0,
+			paddingTop: 0,
+			paddingBottom: 0,
+			duration: 0.25,
+			ease: 'sine.inOut',
+			clearProps: 'all',
+			onComplete: () => {
+				isOpen.value = false;
+				contentVisible.value = false;
+				isClosing.value = false;
+			},
 		});
 	}
-
-	/**
-	 * Check if the header content overflows and if there are 2+ buttons
-	 */
-	private async checkOverflow():Promise<void> {
-		const header = this.$refs.header as HTMLElement;
-		const rightSlot = this.$refs.rightSlot as HTMLElement;
-		
-		if (!header || !rightSlot) return;
-
-		// Count interactive elements (buttons, .button class elements) in right slot
-		const buttons = rightSlot.querySelectorAll('button, .button, [role="button"]');
-		const buttonCount = buttons.length;
-
-		// If less than 2 buttons, no need for collapsed menu
-		if (buttonCount < 2) {
-			this.showCollapsedMenu = false;
-			this.collapsedMenuOpen = false;
-			return;
-		}
-
-		// Temporarily show the rightSlot to measure overflow correctly
-		const wasCollapsed = this.showCollapsedMenu;
-		this.showCollapsedMenu = false;
-		if (wasCollapsed) {
-			rightSlot.style.display = 'flex';
-		}
-		await this.$nextTick();
-
-		// Check if header would overflow (scrollWidth > clientWidth)
-		const wouldOverflow = header.scrollWidth > header.clientWidth;
-
-		// Restore display state
-		if (wasCollapsed) {
-			rightSlot.style.display = '';
-		}
-
-		// Show collapsed menu if overflow and 2+ buttons
-		this.showCollapsedMenu = wouldOverflow;
-		
-		// Close the popout if we no longer need collapsed menu
-		if (!this.showCollapsedMenu) {
-			this.collapsedMenuOpen = false;
-		}
-	}
-
-	/**
-	 * Toggle the collapsed menu popout
-	 */
-	public toggleCollapsedMenu(event: Event):void {
-		event.stopPropagation();
-		this.collapsedMenuOpen = !this.collapsedMenuOpen;
-	}
-
-	/**
-	 * Close the collapsed menu when clicking outside
-	 */
-	private closeCollapsedMenu(event: MouseEvent):void {
-		const target = event.target as HTMLElement;
-		const menuBt = this.$el?.querySelector('.collapsedMenuBt');
-		const popout = this.$el?.querySelector('.collapsedMenuPopout');
-		const clickedOnMenu = menuBt?.contains(target) || popout?.contains(target);
-		if (!clickedOnMenu) {
-			this.collapsedMenuOpen = false;
-		}
-	}
-
-	/**
-	 * Toggles open state
-	 * @param forcedState
-	 */
-	public async toggle(forcedState?:boolean):Promise<void> {
-		if(forcedState === this.localOpen) return;
-		if(this.disabled !== false && (forcedState == true || !this.localOpen)) return;
-
-		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
-		let open = !this.localOpen;
-		this.closing = !open;
-		if(forcedState !== undefined) {
-			open = forcedState;
-			if(open == this.localOpen) return;//Already in the proper state, ignore
-		}
-		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
-		if(!open) {
-			params.onComplete = ()=>{ this.localOpen = this.closing = false; };
-			gsap.to(this.$refs.content as HTMLDivElement, params);
-		}else {
-			this.localOpen = true;
-			await this.$nextTick();
-			gsap.from(this.$refs.content as HTMLDivElement, params);
-		}
-	}
-
-	/**
-	 * Called when dragging something over the block.
-	 * Schedules its opening a few milliseconds after in case we
-	 * can drag something inside
-	 */
-	public scheduleToggle():void {
-		return;
-		this.dragCount ++;
-		clearTimeout(this.toggleTimeout);
-		this.toggleTimeout = window.setTimeout(() => {
-			this.toggle(true);
-		}, 750);
-	}
-
-
-	/**
-	 * Cancel a scheduled toggle
-	 * @see scheduleToggle()
-	 */
-	public cancelToggle():void {
-		return;
-		if(--this.dragCount < 1) {
-			clearTimeout(this.toggleTimeout);
-		}
-	}
-
-	/**
-	 * Limit the size of the label.
-	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item
-	 */
-	public async limitLabelSize():Promise<void> {
-		const sel = window.getSelection();
-		if(sel && sel.rangeCount > 0) {
-			//Save caret index
-			var range = sel.getRangeAt(0);
-			let caretIndex = range.startOffset;
-			await this.$nextTick();
-			//Limit label's size
-			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
-			await this.$nextTick();
-			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.max(0,Math.min(this.localTitle.length, caretIndex-1)));
-		}else{
-			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
-		}
-	}
-
 }
-export default toNative(ToggleBlock);
+
+function onTitleFocus(): void {
+	if (localTitle.value === props.titleDefault) {
+		localTitle.value = '';
+	}
+}
+
+function onTitleBlur(): void {
+	if (!localTitle.value.trim()) {
+		localTitle.value = props.titleDefault || '';
+	}
+	isEditingTitle.value = false;
+}
+
+function onTitleInput(value: string | number): void {
+	const str = String(value).substring(0, props.titleMaxLength);
+	localTitle.value = str;
+}
+
+const MIN_TITLE_WIDTH_COLLAPSE = 150; // Width below which actions collapse
+const MIN_TITLE_WIDTH_EXPAND = 200;   // Width above which actions can expand (hysteresis)
+
+function checkActionsOverflow(): void {
+	const actions = rightActionsRef.value;
+	const titleSection = titleRef.value || (titleEditRef.value as any)?.$el?.parentElement;
+	if (!actions) return;
+
+	const buttons = actions.querySelectorAll('button, .button, [role="button"]');
+	if (buttons.length < 2) {
+		actionsCollapsed.value = false;
+		actionsMenuOpen.value = false;
+		return;
+	}
+
+	// If title section exists, check width with hysteresis to prevent oscillation
+	if (titleSection) {
+		const titleWidth = titleSection.getBoundingClientRect().width;
+		
+		if (actionsCollapsed.value) {
+			// Currently collapsed: only expand if we have plenty of space
+			if (titleWidth > MIN_TITLE_WIDTH_EXPAND) {
+				actionsCollapsed.value = false;
+				actionsMenuOpen.value = false;
+			}
+		} else {
+			// Currently expanded: collapse if title is too narrow
+			if (titleWidth < MIN_TITLE_WIDTH_COLLAPSE) {
+				actionsCollapsed.value = true;
+			}
+		}
+	}
+}
+
+function checkTitleOverflow(): void {
+	const measureEl = titleMeasureRef.value;
+	if (!measureEl) return;
+
+	// Measure element has fixed width and natural wrapping
+	// This tells us if the text CONTENT needs more than 2 lines
+	const style = getComputedStyle(measureEl);
+	const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2 || 20;
+	const maxTwoLineHeight = lineHeight * 2.3;
+
+	const needsSingleLine = measureEl.scrollHeight > maxTwoLineHeight;
+	isSingleLineMode.value = needsSingleLine;
+}
+
+function onDragEnter(): void {
+	dragCount++;
+	clearTimeout(dragTimeout);
+	dragTimeout = window.setTimeout(() => toggle(true), 750);
+}
+
+function onDragLeave(): void {
+	if (--dragCount < 1) {
+		clearTimeout(dragTimeout);
+	}
+}
+
+function closeActionsMenuOnClickOutside(event: MouseEvent): void {
+	if (!actionsMenuOpen.value) return;
+	const target = event.target as HTMLElement;
+	const popout = headerRef.value?.querySelector('.actionsPopout');
+	const toggleBtn = headerRef.value?.querySelector('.collapseToggle');
+	if (!popout?.contains(target) && !toggleBtn?.contains(target)) {
+		actionsMenuOpen.value = false;
+	}
+}
+
+// Watchers
+watch(() => props.open, (newVal) => toggle(newVal));
+
+watch(isOpen, (newVal) => emit('update:open', newVal));
+
+watch(localTitle, (newVal) => {
+	emit('update:title', newVal.trim());
+	// Re-check title overflow when title changes
+	nextTick(() => checkTitleOverflow());
+});
+
+watch(() => props.title, (newVal) => {
+	if (newVal !== undefined) localTitle.value = newVal;
+});
+
+// Lifecycle
+onMounted(() => {
+	// Observer for both title overflow and actions collapse
+	resizeObserver = new ResizeObserver(() => {
+		checkTitleOverflow();
+		checkActionsOverflow();
+	});
+
+	// Observe header for size changes
+	if (headerRef.value) resizeObserver.observe(headerRef.value);
+
+	// Observe title section if it exists
+	const titleSection = titleRef.value || (titleEditRef.value as any)?.$el?.parentElement;
+	if (titleSection) resizeObserver.observe(titleSection);
+
+	// Initial checks
+	nextTick(() => {
+		setTimeout(() => {
+			checkTitleOverflow();
+			checkActionsOverflow();
+		}, 100);
+	});
+
+	document.addEventListener('click', closeActionsMenuOnClickOutside);
+});
+
+onUnmounted(() => {
+	resizeObserver?.disconnect();
+	clearTimeout(dragTimeout);
+	document.removeEventListener('click', closeActionsMenuOnClickOutside);
+});
+
+// Expose toggle for external use
+defineExpose({ toggle });
 </script>
 
 <style scoped lang="less">
-.toggleblock{
+.toggleblock2 {
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
 
-	//Set emote sizes only for top-level icons
-	&:deep(.header) {
-		&>.icon, &>.rightSlot>.icon {
-			height: 1em;
-			width: 1.5em;
-			object-fit: fill;
-			display: block;
-			margin:auto;
-			flex-shrink: 0;
-		}
+	&:not(.small) {
+		.emboss();
 	}
 
+	// Header
 	.header {
-		text-align: center;
-		// padding: .25em .5em;
-		overflow: hidden;
-		overflow-x: auto;
-		cursor: pointer;
-		background-color: var(--toggle-block-header-background);
-		border-top-left-radius: var(--border-radius);
-		border-top-right-radius: var(--border-radius);
-		border-bottom: 2px solid var(--color-dark-fader);
-		gap: .5em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		transition: background-color .25s;
-		color: var(--color-text);
 		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0;
+		padding-left: 0.5em;
+		cursor: pointer;
+		overflow: hidden;
+		border-radius: var(--border-radius) var(--border-radius) 0 0;
+		border-bottom: 2px solid var(--color-dark-fader);
+		background-color: var(--toggle-block-header-background);
+		color: var(--color-text);
+		transition: background-color 0.25s;
 
-		&::-webkit-scrollbar {
-			height: 5px;
-		}
-		&::-webkit-scrollbar-track {
-			background: transparent;
-			background-color: var(--color-dark);
-		}
-
-		&::-webkit-scrollbar-thumb {
-			border-radius: 20px;
-			background-color: var(--color-dark-extralight);
-		}
-		.title {
-			font-size: 1.2em;
-			flex-grow: 1;
-			display: flex;
-			flex-direction: column;
-			gap: 0;
-			flex-shrink: 0;
-			flex-basis: 50%;
-			// min-width: 200px;
-			margin: .25em 0;
-			h2 {
-				word-break: break-all;
-			}
-			h3 {
-				font-size: .8em;
-				font-weight: normal;
-				font-style: italic;
-			}
-		}
 		&:hover {
 			background-color: var(--toggle-block-header-background-hover);
 		}
+	}
 
-		&>*:first-child {
-			margin-left: .5em;
+	// Arrow button
+	.arrow {
+		flex-shrink: 0;
+		width: 1.5em;
+		align-self: stretch;
+		color: inherit;
+		.icon {
+			height: 1em;
+			transition: transform 0.25s;
+		}
+		&.open .icon {
+			transform: rotate(90deg);
+		}
+		&.right {
+			margin-left: -.5em;
+		}
+	}
+
+	// Header icons
+	.headerIcon {
+		flex-shrink: 0;
+		height: 1em;
+		width: 1.5em;
+		object-fit: fill;
+	}
+
+	:deep(.icon) {
+		height: 1em;
+	}
+
+	// Hidden element for measuring title at reference width
+	.titleMeasure {
+		position: absolute;
+		visibility: hidden;
+		pointer-events: none;
+		width: 300px; // Fixed reference width for measurement
+		word-break: break-word;
+		white-space: normal;
+		font-size: 1.2em;
+	}
+
+	// Title section
+	.titleSection {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		margin: 0.25em 0;
+		font-size: 1.2em;
+		min-width: 100px;
+
+		.titleText {
+			word-break: break-word;
 		}
 
-		.customBg {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			top: 0;
-			left: 0;
-			opacity: .3;
-			z-index: 0;
-		}
-		*:not(.customBg) {
-			z-index: 1;
+		.subtitle {
+			font-size: 0.8em;
+			font-weight: normal;
+			font-style: italic;
 		}
 
-		.editableTitle {
-			display: inline-flex;
+		// When title would exceed 2 lines, switch to single-line scrollable
+		&.singleLine .titleText {
+			white-space: nowrap;
+			overflow-x: auto;
+			overflow-y: hidden;
+
+			&::-webkit-scrollbar {
+				height: 4px;
+			}
+			&::-webkit-scrollbar-track {
+				background-color: transparent;
+			}
+			&::-webkit-scrollbar-thumb {
+				border-radius: 20px;
+				background-color: var(--color-dark-extralight);
+			}
+		}
+
+		// Editable title styles
+		&.editable {
 			flex-direction: row;
+			flex-wrap: wrap;
 			align-items: center;
 			justify-content: center;
-			flex-wrap: wrap;
-			flex-grow: 1;
-			margin: 0;
-			&>.icon {
-				height: .7em;
-				vertical-align: middle;
-				pointer-events: none;
-			}
-			.label {
+
+			.titleText {
 				cursor: text;
 				min-width: 50px;
 				width: fit-content;
 				font-weight: bold;
-				// flex-grow: 1;
-				padding: .25em .5em;
+				padding: 0.25em 0.5em;
+				padding-right: 1.25em;
 				border-radius: var(--border-radius);
+				line-height: 1.2em;
 
-				&.label {
-					padding-right: 1.25em;
-					// word-break: break-word;
-					line-height: 1.2em;
-					&:hover, &:active, &:focus {
-						.bevel();
-						background-color: var(--color-text-inverse-fader);
-						// border: 1px double var(--color-light);
-						// border-style: groove;
-					}
+				&:hover,
+				&:focus {
+					.bevel();
+					background-color: var(--color-text-inverse-fader);
 				}
+
 				&.default {
-					opacity: .8;
+					opacity: 0.8;
 					font-style: italic;
 					font-weight: normal;
 				}
 			}
-			&>.icon {
+
+			.editIcon {
+				height: 0.7em;
 				margin-left: -1em;
+				pointer-events: none;
 				flex-shrink: 0;
 			}
-			h3 {
+
+			.subtitle {
 				flex: 1 1 100%;
 			}
 		}
+	}
 
-		.rightSlot {
-			display: flex;
-			flex-direction: row;
-			align-self: stretch;
-			flex-shrink: 0;
-			align-items: center;
-			&.collapsed {
-				display: none;
-			}
+	// Right actions
+	.rightActions {
+		display: flex;
+		align-items: center;
+		align-self: stretch;
+		flex-shrink: 0;
+
+		&.hidden {
+			display: none;
 		}
 
-		
-		.collapsedMenuBt {
-			color: inherit;
-			padding: 0 .5em;
-			align-self: stretch;
-			flex-shrink: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			margin-right: -.5em;
-			// background-color: transparent;
-			&:hover {
-				background-color: var(--color-dark-fadest);
-			}
-			.icon {
-				height: 1em;
-				// width: 1em;
-			}
-		}
-
-		.collapsedMenuPopout {
-			position: absolute;
-			right: 0;
-			top: 0;
-			bottom: 0;
-			margin: 0;
-			z-index: 10;
-			background-color: var(--background-color-secondary);
-			border-radius: var(--border-radius);
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-			display: flex;
-			flex-direction: row;
-			// min-width: max-content;
-			// overflow: hidden;
-			
-			::v-deep(button), ::v-deep(.button) {
-				// width: 100%;
-				justify-content: center;
-			}
-		}
-
-		::v-deep(.button) {
+		:deep(.button) {
 			border-radius: 0 !important;
 			align-self: stretch;
 			flex-shrink: 0;
 		}
-
-		.arrowBt {
-			color: inherit;
-			flex-grow: 0;
-			flex-shrink: 0;
-			width: 1.5em;
-			align-self: stretch;
-			.icon {
-				height: 1em;
-				transform: rotate(90deg);
-				transition: transform .25s;
-			}
-		}
-
 	}
 
+	// Collapse toggle button
+	.collapseToggle {
+		flex-shrink: 0;
+		padding: 0 0.5em;
+		align-self: stretch;
+		display: flex;
+		align-items: center;
+		color: inherit;
+
+		&:hover {
+			background-color: var(--color-dark-fadest);
+		}
+
+		.icon {
+			height: 1em;
+		}
+	}
+
+	// Actions popout
+	.actionsPopout {
+		position: absolute;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		z-index: 10;
+		display: flex;
+		background-color: var(--background-color-secondary);
+		border-radius: var(--border-radius);
+		box-shadow: -5px 0px 5px rgba(0, 0, 0, .5);
+
+		:deep(button),
+		:deep(.button) {
+			justify-content: center;
+			border-radius: 0;
+		}
+	}
+
+	// Custom background overlay
+	.customBg {
+		position: absolute;
+		inset: 0;
+		opacity: 0.3;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.header > *:not(.customBg) {
+		z-index: 1;
+	}
+
+	// Content
 	.content {
-		// .bevel();
+		padding: 0.5em;
 		overflow: hidden;
-		// margin: 0 .5em .5em .5em;
-		padding: .5em;
 		color: var(--color-text);
-		// background-color: var(--color-dark-fadest);
 	}
 
-	&.closed {
-		.header {
-			border-bottom: none;
-			border-bottom-left-radius: var(--border-radius);
-			border-bottom-right-radius: var(--border-radius);
-			.arrowBt {
-				.icon{
-					transform: rotate(0deg);
-				}
-			}
-		}
-	}
-
-	&:not(.small) {
-		.emboss();
+	// Closed state
+	&.closed .header {
+		border-bottom: none;
 		border-radius: var(--border-radius);
 	}
 
-	&.error, &.alert{
+	// ===== Themes =====
+	&.error,
+	&.alert {
 		background-color: var(--color-alert-fadest);
 		.header {
 			color: var(--color-light);
@@ -649,33 +627,14 @@ export default toNative(ToggleBlock);
 			&:hover {
 				background-color: var(--color-alert-light);
 			}
-			.arrowBt{
-				background-color: var(--color-alert);
-			}
-			.collapsedMenuHolder .collapsedMenuBt:hover {
-				background-color: var(--color-alert-light);
-			}
+		}
+		.arrow,
+		.collapseToggle:hover {
+			background-color: var(--color-alert);
 		}
 	}
 
-	&.premium{
-		background-color: var(--color-premium-fadest);
-		.header {
-			color: var(--color-light);
-			background-color: var(--color-premium);
-			&:hover {
-				background-color: var(--color-premium-light);
-			}
-			.arrowBt{
-				background-color: var(--color-premium);
-			}
-			.collapsedMenuHolder .collapsedMenuBt:hover {
-				background-color: var(--color-premium-light);
-			}
-		}
-	}
-
-	&.primary{
+	&.primary {
 		background-color: var(--color-primary-fadest);
 		.header {
 			color: var(--color-light);
@@ -683,16 +642,14 @@ export default toNative(ToggleBlock);
 			&:hover {
 				background-color: var(--color-primary-light);
 			}
-			.arrowBt{
-				background-color: var(--color-primary);
-			}
-			.collapsedMenuHolder .collapsedMenuBt:hover {
-				background-color: var(--color-primary-light);
-			}
+		}
+		.arrow,
+		.collapseToggle:hover {
+			background-color: var(--color-primary);
 		}
 	}
 
-	&.secondary{
+	&.secondary {
 		background-color: var(--color-secondary-fadest);
 		.header {
 			color: var(--color-light);
@@ -700,80 +657,89 @@ export default toNative(ToggleBlock);
 			&:hover {
 				background-color: var(--color-secondary-light);
 			}
-			.arrowBt{
-				background-color: var(--color-secondary);
-			}
-			.collapsedMenuHolder .collapsedMenuBt:hover {
-				background-color: var(--color-secondary-light);
-			}
+		}
+		.arrow,
+		.collapseToggle:hover {
+			background-color: var(--color-secondary);
 		}
 	}
 
-	&.medium {
-		&>.header {
-			font-size: .8em;
+	&.premium {
+		background-color: var(--color-premium-fadest);
+		.header {
+			color: var(--color-light);
+			background-color: var(--color-premium);
+			&:hover {
+				background-color: var(--color-premium-light);
+			}
+		}
+		.arrow,
+		.collapseToggle:hover {
+			background-color: var(--color-premium);
 		}
 	}
 
+	// ===== Sizes =====
+	&.medium > .header {
+		font-size: 0.8em;
+	}
 
 	&.small {
+		background-color: transparent;
+
 		.header {
 			padding: 0;
+			font-size: 0.7em;
 			background-color: transparent;
-			border-bottom-left-radius: var(--border-radius);
 			border-bottom: none;
+			border-radius: var(--border-radius);
 			color: var(--color-secondary);
-			font-size: .7em;
+
 			&:hover {
 				background-color: var(--color-dark-fadest);
 			}
-			.title {
-				gap: 0;
-				text-align: left;
-				align-items: flex-start;
-				flex-direction: column;
-				line-height: 1.25em;
-				text-shadow: var(--text-shadow-contrast);
-			}
-			.arrowBt {
-				background-color: transparent;
-			}
 		}
 
-		&.closed {
+		.titleSection {
+			text-align: left;
+			align-items: flex-start;
+			line-height: 1.25em;
+			text-shadow: var(--text-shadow-contrast);
+		}
+
+		.arrow {
 			background-color: transparent;
-			.header {
-				border-radius: var(--border-radius);
-				&:hover {
-					background-color: var(--color-dark-fadest);
-				}
-			}
 		}
 
 		.content {
-			padding: .5em;
-			// margin-left: 1.4em;
+			padding: 0.5em;
 		}
 
-		&.primary {
-			.header {
-				color: var(--color-primary);
+		// Small + theme = colored text only
+		&.primary .header {
+			color: var(--color-primary);
+			background-color: transparent;
+			&:hover {
+				background-color: var(--color-dark-fadest);
 			}
 		}
-		&.premium {
-			.header {
-				color: var(--color-premium);
+		&.premium .header {
+			color: var(--color-premium);
+			background-color: transparent;
+			&:hover {
+				background-color: var(--color-dark-fadest);
 			}
 		}
-		&.error, &.alert {
-			.header {
-				color: var(--color-alert);
+		&.error .header,
+		&.alert .header {
+			color: var(--color-alert);
+			background-color: transparent;
+			&:hover {
+				background-color: var(--color-dark-fadest);
 			}
 		}
-		&.noTitleColor {
-			.header {
-				color: var(--color-text);
-			}
+		&.noTitleColor .header {
+			color: var(--color-text);
 		}
 	}
 
