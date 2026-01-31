@@ -11,11 +11,10 @@
 		"user_tt": "Par viewer",
 		"examples": "Exemples :",
 		"user_not_found": "personne introuvable",
-		"premium_cannot_enable":"Vous ne pouvez pas réactiver ce compteur. Vous avez atteint le maximum de {MAX} compteurs actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
 		"connect_youtube":"Twitchat n'est pas connecté à YouTube.\nLe nom des viewers YouTube ne peut être récupéré.",
 		"connect_youtubeBt":"Connect YouTube.",
-		"nonpremium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.",
-		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs.",
+		"nonpremium_limit": "Vous avez créé le maximum de {MAX} compteurs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
+		"premium_limit": "Vous avez créé le maximum de {MAX} compteurs.",
 		"form": {
 			"name": "Nom",
 			"value": "Valeur",

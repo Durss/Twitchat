@@ -11,15 +11,13 @@
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="$store.auth.isPremium || $store.values.valueList.length < $config.MAX_VALUES" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_create'}">{{ $t('values.addBt') }}</TTButton>
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
-			
-			<ParamPremiumLimitMessage v-else-if="!$store.auth.isPremium" labelKey="error.max_values" :max="$config.MAX_VALUES" :maxPremium="$config.MAX_VALUES_PREMIUM"></ParamPremiumLimitMessage>
-			
-			<template v-else>
-				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
-				<TTButton slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</template>
+			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{ $t('values.addBt') }}</TTButton>
+
+			<PremiumLimitMessage v-else
+				label="values.nonpremium_limit"
+				premiumLabel="values.premium_limit"
+				:max="$config.MAX_VALUES"
+				:maxPremium="$config.MAX_VALUES_PREMIUM" />
 		</section>
 
 		<section class="card-item" v-if="showForm">
@@ -52,7 +50,9 @@
 					:title="entry.value.name">
 
 						<template #left_actions>
-							<ToggleButton v-model="entry.value.enabled" @click.stop v-if="entry.value.enabled || canCreateValues" />
+							<ToggleButton v-model="entry.value.enabled" @click.stop
+								v-if="($store.auth.isPremium && entry.value.enabled === false)
+								|| (!$store.auth.isPremium && (entry.value.enabled == true || canEnableMore))" />
 						</template>
 
 						<template #right_actions>
@@ -135,21 +135,20 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
 import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { reactive, watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
-import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import draggable from 'vuedraggable';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import ToggleButton from '@/components/ToggleButton.vue';
-import ParamPremiumLimitMessage from '../PremiumLimitMessage.vue';
+import TTButton from '@/components/TTButton.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import { reactive, watch } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import draggable from 'vuedraggable';
+import ParamItem from '../ParamItem.vue';
+import PremiumLimitMessage from '../PremiumLimitMessage.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -159,7 +158,7 @@ import ParamPremiumLimitMessage from '../PremiumLimitMessage.vue';
 		ToggleBlock,
 		ToggleButton,
 		InfiniteList,
-		ParamPremiumLimitMessage,
+		PremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -177,8 +176,18 @@ class ParamsValues extends Vue implements IParameterContent {
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"values.form.value_user", icon:"user"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", maxLength:20, labelKey:"values.form.placholder", icon:"broadcast", tooltipKey:"values.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
-	public get maxValues():number { return this.$store.auth.isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
-	public get canCreateValues():boolean { return this.$store.values.valueList.filter(v=>v.enabled !== false).length < this.maxValues; }
+	public get maxReached():boolean {
+		const count = this.$store.values.valueList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_VALUES_PREMIUM : this.$config.MAX_VALUES;
+		return count >= max;
+	}
+
+	public get canEnableMore():boolean {
+		if(this.$store.auth.isPremium) return false;
+		const count = this.$store.values.valueList.filter(v=>v.enabled != false).length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_VALUES_PREMIUM : this.$config.MAX_VALUES;
+		return count < max;
+	}
 
 	public openTriggers():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);

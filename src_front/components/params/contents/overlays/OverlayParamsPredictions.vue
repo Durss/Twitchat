@@ -110,7 +110,7 @@
 <script lang="ts">
 import PlacementSelector from '@/components/PlacementSelector.vue';
 import CSSPollsVarStyles from './CSSPollsVarStyles.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TTButton } from '@/components/TTButton.vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
