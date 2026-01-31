@@ -72,14 +72,19 @@ export const storeQuiz = defineStore('quiz', {
 			if(!source) return;
 			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
 			clone.id = Utils.getUUID();
+			function isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
+				return mode === "freeAnswer";
+			}
 			clone.questionList.forEach(q => {
 				q.id = Utils.getUUID();
-				q.answerList.forEach(a => {
-					a.id = Utils.getUUID();
-				});
+				if(!isFreeAnswerQuestion(clone.mode, q)) {
+					q.answerList.forEach(a => {
+						a.id = Utils.getUUID();
+					});
+				}
 			});
 			this.quizList.push(clone)
-			this.saveData(id);
+			this.saveData(clone.id);
 			return clone;
 		},
 		
