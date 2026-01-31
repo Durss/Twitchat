@@ -6,12 +6,14 @@
 		<div class="createForm">
 
 			<TTButton class="addBt"
-			v-if="$store.auth.isPremium || $store.labels.labelList.length < $config.MAX_LABELS"
+			v-if="!maxLabelsReached"
 			@click="addLabel()" icon="add">{{ $t("overlay.labels.addBt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.labels.labelList.length < $config.MAX_LABELS_PREMIUM">{{ $t("overlay.labels.premium_limit") }}</div>
-
-			<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="overlay.labels.non_premium_limit" :max="$config.MAX_LABELS" :maxPremium="$config.MAX_LABELS_PREMIUM" />
+			<PremiumLimitMessage v-else
+				label="overlay.labels.non_premium_limit"
+				premiumLabel="overlay.labels.premium_limit"
+				:max="$config.MAX_LABELS"
+				:maxPremium="$config.MAX_LABELS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="labelList"
@@ -81,7 +83,7 @@
 <script lang="ts">
 import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import { type LabelItemData } from '@/types/ILabelOverlayData';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -120,11 +122,8 @@ class OverlayParamsLabels extends Vue {
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get maxLabelsReached():boolean {
-		if(this.$store.auth.isPremium) {
-			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS_PREMIUM;
-		}else{
-			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS;
-		}
+		const max = this.$store.auth.isPremium ? this.$config.MAX_LABELS_PREMIUM : this.$config.MAX_LABELS;
+		return this.$store.labels.labelList.length >= max;
 	}
 
 	public beforeMount():void {
