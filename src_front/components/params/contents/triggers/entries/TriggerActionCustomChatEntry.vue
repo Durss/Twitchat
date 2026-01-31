@@ -27,23 +27,18 @@
 				<ToggleBlock :title="element.label || 'action'" :icons="element.icon? [element.icon] : []" :open="false" medium:open="false" class="actison">
 
 					<template #left_actions>
-						<div class="actionList">
-							<Button small
-								icon="dragZone"
-								class="orderBt"
-								v-tooltip="$t('triggers.reorder_tt')"
-								@click.stop
-							/>
-						</div>
+						<Button small
+							icon="dragZone"
+							class="orderBt"
+							v-tooltip="$t('triggers.reorder_tt')"
+							@click.stop />
 					</template>
 
 					<template #right_actions>
-						<div class="actionList">
-							<Button small alert
-								icon="trash"
-								@click="deleteAction(index)"
-								v-tooltip="$t('global.delete')"/>
-						</div>
+						<Button small alert
+							icon="trash"
+							@click="deleteAction(index)"
+							v-tooltip="$t('global.delete')"/>
 					</template>
 
 					<div class="ctaForm">
@@ -319,20 +314,20 @@ export default toNative(TriggerActionCustomChatEntry);
 			flex-direction: column;
 		}
 	}
-	.actionList {
-		align-self: stretch;
-		margin: -.5em 0;
-		justify-self: stretch;
-		flex-shrink: 0;
-		button {
-			height: 100%;
-			border-radius: 0;
-			padding: 0 .5em;
-		}
-		.orderBt {
-			box-shadow: unset;
-			margin-left: -.5em;
-		}
-	}
+	// .actionList {
+	// 	align-self: stretch;
+	// 	margin: -.5em 0;
+	// 	justify-self: stretch;
+	// 	flex-shrink: 0;
+	// 	button {
+	// 		height: 100%;
+	// 		border-radius: 0;
+	// 		padding: 0 .5em;
+	// 	}
+	// 	.orderBt {
+	// 		box-shadow: unset;
+	// 		margin-left: -.5em;
+	// 	}
+	// }
 }
 </style>
