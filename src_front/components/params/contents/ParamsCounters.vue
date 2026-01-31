@@ -57,7 +57,9 @@
 					:title="entry.counter.name">
 
 						<template #left_actions>
-							<ToggleButton v-model="entry.counter.enabled" @click.stop
+							<ToggleButton v-model="entry.counter.enabled"*
+								@click.stop
+								@change="$store.counters.saveCounters()"
 								v-if="($store.auth.isPremium && entry.counter.enabled === false)
 								|| (!$store.auth.isPremium && (entry.counter.enabled == true || canEnableMore))" />
 						</template>
@@ -68,7 +70,7 @@
 								<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
 								<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
 								<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-								<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+								<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" data-close-popout />
 							</template>
 							<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />

@@ -27,24 +27,20 @@
 			@update:open="$emit('change', $event)"
 			@update:title="$emit('change', $event)">
 				<template #left_actions>
-					<div class="blockActions">
-						<ParamItem class="colorSelector"
-							v-if="noEdit === false"
-							@click.stop
-							v-tooltip="$t('triggers.folder_color')"
-							:paramData="folder.color"
-							v-model="folder.color.value"
-							@change="$emit('change', $event)" />
-						<Icon name="broadcast" />
-						<div class="count">x{{ countTriggerItems(folder) }}</div>
-					</div>
+					<ParamItem class="colorSelector"
+						v-if="noEdit === false"
+						@click.stop
+						v-tooltip="$t('triggers.folder_color')"
+						:paramData="folder.color"
+						v-model="folder.color.value"
+						@change="$emit('change', $event)" />
+					<Icon name="broadcast" />
+					<div class="count">x{{ countTriggerItems(folder) }}</div>
 				</template>
 				<template #right_actions>
-					<div class="blockActions" v-if="selectMode === false">
-						<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" />
-						<TTButton class="deleteBt" icon="add" v-if="noEdit === false" @click.stop="addTrigger(folder)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
-						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
-					</div>
+					<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" data-close-popout />
+					<TTButton class="deleteBt" icon="add" v-if="noEdit === false" @click.stop="addTrigger(folder)" data-close-popout v-tooltip="$t('triggers.add_triggerBt')" transparent></TTButton>
+					<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
 				</template>
 
 				<div :class="folder.enabled === false && selectMode === false? 'childList disabled' : 'childList'">
@@ -334,24 +330,12 @@ export default toNative(TriggerListFolderItem);
 			}
 		}
 	}
-	.blockActions {
-		gap: .5em;
-		display: flex;
-		flex-direction: row;
-		align-self: stretch;
-		align-items: center;
-		z-index: 1;
-		&>.icon {
-			height: 1em;
-		}
-		.count {
-			font-style: italic;
-		}
 		.colorSelector {
 			padding: 0;
 			height: 100%;
 			width: 1em;
 			margin-left: -.5em;
+			margin-right: .25em;
 			box-shadow: 2px 0 2px rgba(0, 0, 0, .2);
 			:deep(.content) {
 				height: 100%;
@@ -362,10 +346,5 @@ export default toNative(TriggerListFolderItem);
 				}
 			}
 		}
-		.deleteBt{
-			height: 100%;
-			border-radius: 0;
-		}
-	}
 }
 </style>

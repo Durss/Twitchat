@@ -7,7 +7,9 @@
 			</button>
 
 			<!-- Left actions slot -->
-			<slot name="left_actions" />
+			<div class="leftActions">
+				<slot name="left_actions" />
+			</div>
 
 			<!-- Icons -->
 			<Icon
@@ -71,7 +73,7 @@
 			</button>
 
 			<!-- Collapsed actions popout -->
-			<div v-if="actionsMenuOpen" class="actionsPopout" @click.stop>
+			<div v-if="actionsMenuOpen" class="actionsPopout" @click.capture="detectPopoutClose">
 				<slot name="right_actions" />
 			</div>
 
@@ -264,7 +266,7 @@ function onTitleInput(value: string | number): void {
 }
 
 const MIN_TITLE_WIDTH_COLLAPSE = 150; // Width below which actions collapse
-const MIN_TITLE_WIDTH_EXPAND = 200;   // Width above which actions can expand (hysteresis)
+const MIN_TITLE_WIDTH_EXPAND = 205;   // Width above which actions can expand (hysteresis)
 
 function checkActionsOverflow(): void {
 	const actions = rightActionsRef.value;
@@ -330,6 +332,16 @@ function closeActionsMenuOnClickOutside(event: MouseEvent): void {
 	const toggleBtn = headerRef.value?.querySelector('.collapseToggle');
 	if (!popout?.contains(target) && !toggleBtn?.contains(target)) {
 		actionsMenuOpen.value = false;
+	}
+}
+
+function detectPopoutClose(e:MouseEvent): void {
+	if((e.target as HTMLElement).dataset.closePopout !== undefined) {
+		// Give time to actual button click to be processed before closing
+		// As we're listening on capture phase, the button click will happen after this
+		setTimeout(() => {
+			actionsMenuOpen.value = false;
+		}, 20);
 	}
 }
 
@@ -554,6 +566,21 @@ defineExpose({ toggle });
 		}
 	}
 
+	// Left actions
+	.leftActions {
+		display: flex;
+		align-items: center;
+		align-self: stretch;
+		flex-shrink: 0;
+		gap: 0.25em;
+
+		:deep(.button) {
+			border-radius: 0 !important;
+			align-self: stretch;
+			flex-shrink: 0;
+		}
+	}
+
 	// Collapse toggle button
 	.collapseToggle {
 		flex-shrink: 0;
@@ -628,7 +655,6 @@ defineExpose({ toggle });
 				background-color: var(--color-alert-light);
 			}
 		}
-		.arrow,
 		.collapseToggle:hover {
 			background-color: var(--color-alert);
 		}
@@ -643,7 +669,6 @@ defineExpose({ toggle });
 				background-color: var(--color-primary-light);
 			}
 		}
-		.arrow,
 		.collapseToggle:hover {
 			background-color: var(--color-primary);
 		}
@@ -658,7 +683,6 @@ defineExpose({ toggle });
 				background-color: var(--color-secondary-light);
 			}
 		}
-		.arrow,
 		.collapseToggle:hover {
 			background-color: var(--color-secondary);
 		}
@@ -673,7 +697,6 @@ defineExpose({ toggle });
 				background-color: var(--color-premium-light);
 			}
 		}
-		.arrow,
 		.collapseToggle:hover {
 			background-color: var(--color-premium);
 		}
