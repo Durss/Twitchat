@@ -16,10 +16,7 @@
 
 				<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.bingoGrid.gridList.length > $config.MAX_BINGO_GRIDS_PREMIUM">{{ $t("bingo_grid.form.premium_limit") }}</div>
 
-				<div class="premium" v-else>
-					<div>{{ $t("bingo_grid.form.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
-					<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-				</div>
+				<PremiumLimitMessage v-else="!$store.auth.isPremium" labelKey="bingo_grid.form.non_premium_limit" :max="$config.MAX_BINGO_GRIDS" :maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM" />
 			</div>
 
 			<VueDraggable class="gridList"
@@ -195,6 +192,7 @@ import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import ExtensionInstaller from '../params/contents/overlays/ExtensionInstaller.vue';
+import PremiumLimitMessage from '../params/PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -210,6 +208,7 @@ import ExtensionInstaller from '../params/contents/overlays/ExtensionInstaller.v
 		ContentEditable,
 		OverlayInstaller,
 		ExtensionInstaller,
+		PremiumLimitMessage,
 	},
 	emits:["close"]
 })
@@ -455,14 +454,6 @@ export default toNative(BingoGridForm);
 
 	.createForm {
 		text-align: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			.button {
-				margin-top: .5em;
-			}
-		}
 	}
 
 	.gridList {
