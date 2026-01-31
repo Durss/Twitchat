@@ -35,7 +35,7 @@
 				</template>
 
 				<template #right_actions>
-					<TTButton @click.stop="duplicateGrid(overlay.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
+					<TTButton @click.stop="duplicateGrid(overlay.id)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
 					<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
 					<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
 				</template>

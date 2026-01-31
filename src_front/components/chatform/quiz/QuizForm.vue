@@ -88,7 +88,7 @@
 					</template>
 
 					<template #right_actions>
-						<TTButton @click.stop="duplicateQuiz(quiz.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxQuizReached" />
+						<TTButton @click.stop="duplicateQuiz(quiz.id)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxQuizReached" />
 						<TTButton @click.stop :copy="quiz.id" icon="id" v-tooltip="$t('global.copy_id')" />
 						<TTButton @click.stop="$store.quiz.removeQuiz(quiz.id)" icon="trash" alert />
 					</template>
