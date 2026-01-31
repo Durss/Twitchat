@@ -35,19 +35,21 @@
 
 			<div class="rightSlot" ref="rightSlot" :class="{collapsed: showCollapsedMenu}">
 				<slot name="right_actions"></slot>
+				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
 			</div>
 
-			<button v-if="showCollapsedMenu" type="button" class="collapsedMenuBt" @click.stop="toggleCollapsedMenu($event)">
-				<Icon name="settings" />
-			</button>
+			<template v-if="showCollapsedMenu">
+				<button type="button" class="collapsedMenuBt" @click.stop="toggleCollapsedMenu($event)">
+					<Icon name="settings" />
+				</button>
+				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
+			</template>
 
 			<div class="collapsedMenuPopout" v-if="collapsedMenuOpen">
 				<slot name="right_actions"></slot>
 			</div>
 			
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
-
-			<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
 		</div>
 		<div class="content" v-if="localOpen" ref="content">
 			<slot></slot>
@@ -263,7 +265,7 @@ export class ToggleBlock extends Vue {
 	/**
 	 * Check if the header content overflows and if there are 2+ buttons
 	 */
-	private checkOverflow():void {
+	private async checkOverflow():Promise<void> {
 		const header = this.$refs.header as HTMLElement;
 		const rightSlot = this.$refs.rightSlot as HTMLElement;
 		
@@ -282,9 +284,11 @@ export class ToggleBlock extends Vue {
 
 		// Temporarily show the rightSlot to measure overflow correctly
 		const wasCollapsed = this.showCollapsedMenu;
+		this.showCollapsedMenu = false;
 		if (wasCollapsed) {
 			rightSlot.style.display = 'flex';
 		}
+		await this.$nextTick();
 
 		// Check if header would overflow (scrollWidth > clientWidth)
 		const wouldOverflow = header.scrollWidth > header.clientWidth;
@@ -429,13 +433,26 @@ export default toNative(ToggleBlock);
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
 		border-bottom: 2px solid var(--color-dark-fader);
-		// gap: .5em;
+		gap: .5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		transition: background-color .25s;
 		color: var(--color-text);
 		position: relative;
+
+		&::-webkit-scrollbar {
+			height: 5px;
+		}
+		&::-webkit-scrollbar-track {
+			background: transparent;
+			background-color: var(--color-dark);
+		}
+
+		&::-webkit-scrollbar-thumb {
+			border-radius: 20px;
+			background-color: var(--color-dark-extralight);
+		}
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
@@ -544,6 +561,7 @@ export default toNative(ToggleBlock);
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			margin-right: -.5em;
 			// background-color: transparent;
 			&:hover {
 				background-color: var(--color-dark-fadest);
@@ -585,17 +603,9 @@ export default toNative(ToggleBlock);
 			color: inherit;
 			flex-grow: 0;
 			flex-shrink: 0;
-			height: 1em;
 			width: 1.5em;
 			align-self: stretch;
-			right: 0;
-			bottom: 0;
-			margin: 0;
-			padding-right: 0 .25em;
-			min-height: auto;
-			height: auto;
 			.icon {
-				display: inline-block;
 				height: 1em;
 				transform: rotate(90deg);
 				transition: transform .25s;
