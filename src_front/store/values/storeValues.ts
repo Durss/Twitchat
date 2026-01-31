@@ -34,9 +34,10 @@ export const storeValues = defineStore('values', {
 		},
 
 		addValue(data:TwitchatDataTypes.ValueData):void {
-			//User can create up to 3 values if not premium
-			if(!StoreProxy.auth.isPremium && this.valueList.length >= Config.instance.MAX_VALUES) {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.max_values", {COUNT:Config.instance.MAX_VALUES}));
+			const max = StoreProxy.auth.isPremium ? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES;
+			const label = StoreProxy.auth.isPremium ? "values.premium_limit" : "values.nonpremium_limit";
+			if(this.valueList.length >= max) {
+				StoreProxy.common.alert(StoreProxy.i18n.t(label, {MAX:Config.instance.MAX_VALUES, MAX_PREMIUM:Config.instance.MAX_VALUES_PREMIUM}));
 				return;
 			}
 			this.valueList.push(data);
