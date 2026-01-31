@@ -5,7 +5,8 @@
 		"header_link_overlay": "display them",
 		"addBt": "Create timer",
 		"overlayBt": "Configure overlays",
-		"premium_limit": "You created the maximum number of {MAX} timers.\nBecome premium to create up to {MAX_PREMIUM} timers.\nOr disable / delete some timers to create new ones.",
+		"nonpremium_limit": "You created the maximum number of {MAX} timers.\nBecome premium to create up to {MAX_PREMIUM} timers.",
+		"premium_limit": "You created the maximum number of {MAX} timers.",
 		"default_timer_title": "Default timer",
 		"default_countdown_title": "Default countdown",
 		"delete_confirm": {
