@@ -83,18 +83,14 @@
 				@update:title="save(quiz)">
 
 					<template #left_actions>
-						<div class="leftActions">
-							<ToggleButton v-model="quiz.enabled" @click.native.stop @change="save(quiz)" v-if="$store.auth.isPremium || quiz.enabled || $store.quiz.quizList.filter(v=>v.enabled).length < $config.MAX_QUIZ" />
-							<icon :name="`quiz_${quiz.mode}`" v-tooltip="$t('quiz.form.mode_'+quiz.mode+'.title')" />
-						</div>
+						<ToggleButton small v-model="quiz.enabled" @click.native.stop @change="save(quiz)" v-if="$store.auth.isPremium || quiz.enabled || $store.quiz.quizList.filter(v=>v.enabled).length < $config.MAX_QUIZ" />
+						<icon class="modeIcon" :name="`quiz_${quiz.mode}`" v-tooltip="$t('quiz.form.mode_'+quiz.mode+'.title')" />
 					</template>
 
 					<template #right_actions>
-						<div class="rightActions">
-							<TTButton @click.stop="duplicateQuiz(quiz.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxQuizReached" />
-							<TTButton @click.stop :copy="quiz.id" icon="id" v-tooltip="$t('global.copy_id')" />
-							<TTButton @click.stop="$store.quiz.removeQuiz(quiz.id)" icon="trash" alert />
-						</div>
+						<TTButton @click.stop="duplicateQuiz(quiz.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxQuizReached" />
+						<TTButton @click.stop :copy="quiz.id" icon="id" v-tooltip="$t('global.copy_id')" />
+						<TTButton @click.stop="$store.quiz.removeQuiz(quiz.id)" icon="trash" alert />
 					</template>
 
 					<div class="form">
@@ -610,27 +606,6 @@ export default toNative(QuizForm);
 		display: flex;
 		flex-direction: column;
 
-		.rightActions, .leftActions {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			&.leftActions {
-				gap: .25em;
-			}
-			flex-shrink: 0;
-			.button {
-				margin: -.5em 0;
-				align-self: stretch;
-				border-radius: 0;
-				flex-shrink: 0;
-				padding: 0 .5em;
-			}
-			&>.icon {
-				height: 1.5em;
-				max-width: 2em;
-			}
-		}
-
 		.splitter {
 			margin: 1em 0;
 			.icon {
@@ -638,6 +613,12 @@ export default toNative(QuizForm);
 				margin-right: .25em;
 				vertical-align: middle;
 			}
+		}
+
+		.modeIcon {
+			height: 1.5em;
+			max-width: 2em;
+			margin-left: .5em;
 		}
 
 		.questionList {

@@ -39,7 +39,7 @@
 				:titleMaxLengh="50"
 				@update:title="$store.timers.saveData()">
 					<template #left_actions>
-						<ToggleButton v-model="entry.enabled"
+						<ToggleButton small v-model="entry.enabled"
 							@change="$store.timers.saveData()"
 							@click.stop
 							v-if="!entry.isDefault && (entry.enabled || canCreateTimers)" />
