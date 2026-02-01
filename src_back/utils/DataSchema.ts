@@ -2761,7 +2761,7 @@ const UserDataSchema = {
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
-												question: { type: "string" },
+												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
 												loosePointsOnFail: { type: "number" },
 												answerList: {
@@ -2771,7 +2771,7 @@ const UserDataSchema = {
 														additionalProperties: false,
 														properties: {
 															id: { type: "string", maxLength:50 },
-															title: { type: "string" },
+															title: { type: "string", maxLength:130 },
 															correct: { type: "boolean" }
 														}
 													}
@@ -2802,7 +2802,7 @@ const UserDataSchema = {
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
-												question: { type: "string" },
+												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
 												answerList: {
 													type: "array",
@@ -2811,7 +2811,7 @@ const UserDataSchema = {
 														additionalProperties: false,
 														properties: {
 															id: { type: "string", maxLength:50 },
-															title: { type: "string" }
+															title: { type: "string", maxLength:130 }
 														}
 													}
 												}
@@ -2841,10 +2841,10 @@ const UserDataSchema = {
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
-												question: { type: "string" },
+												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
 												toleranceLevel: { type: "integer", minimum:0, maximum:5 },
-												answer: { type: "string" },
+												answer: { type: "string", maxLength:130 },
 											}
 										}
 									}

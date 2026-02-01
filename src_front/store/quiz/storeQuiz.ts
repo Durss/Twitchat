@@ -39,14 +39,6 @@ export const storeQuiz = defineStore('quiz', {
 			});
 		},
 
-		
-		async saveConfigs():Promise<void> {
-			const data:IStoreData = {
-				quizList:[],
-			};
-			DataStore.set(DataStore.QUIZ_CONFIGS, data);
-		},
-
 		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
 			let data:TwitchatDataTypes.QuizParams = {
 				id:Utils.getUUID(),
@@ -101,6 +93,14 @@ export const storeQuiz = defineStore('quiz', {
 				quizList:this.quizList,
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
+			if(quizId){
+				const quiz = this.quizList.filter(q=>q.id===quizId)[0];
+				if(quiz) PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+			}else{
+				for (const quiz of this.quizList) {
+					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+				}
+			}
 		},
 		
 	} as IQuizActions
