@@ -1913,6 +1913,40 @@ export type TwitchatEventMap = {
 	};
 
 	/**
+	 * Request quiz overlay presence
+	 * @answer ON_QUIZ_OVERLAY_PRESENCE
+	 */
+	GET_QUIZ_OVERLAY_PRESENCE: {
+		/**
+		 * Quiz ID to get presence of
+		 */
+		quizId: string;
+	};
+	/**
+	 * Advertise for quiz overlay presence
+	 */
+	ON_QUIZ_OVERLAY_PRESENCE: {
+		/**
+		 * Quiz ID that advertiszes its presence
+		 */
+		quizId: string;
+	};
+	/**
+	 * Request quiz overlay configuration
+	 * @answer ON_QUIZ_CONFIGS
+	 */
+	GET_QUIZ_CONFIGS: {
+		/**
+		 * Quiz ID to get configs for
+		 */
+		quizId: string;
+	};
+	/**
+	 * Receive quiz overlay configuration
+	 */
+	ON_QUIZ_CONFIGS: TwitchatDataTypes.QuizParams;
+	
+	/**
 	 * Requests for global states
 	 * @answer ON_GLOBAL_STATES
 	 */
