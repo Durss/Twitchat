@@ -20,12 +20,11 @@
 					v-if="$store.auth.isPremium || $store.quiz.quizList.length < $config.MAX_QUIZ"
 					@click="showQuizTypeForm = true" icon="add">{{ $t("quiz.form.add_bt") }}</TTButton>
 	
-					<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.quiz.quizList.length > $config.MAX_QUIZ_PREMIUM">{{ $t("quiz.form.premium_limit") }}</div>
-	
-					<div class="premium" v-else>
-						<div>{{ $t("quiz.form.non_premium_limit", {MAX:$config.MAX_QUIZ_PREMIUM}) }}</div>
-						<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-					</div>
+					<PremiumLimitMessage v-else
+						label="quiz.form.non_premium_limit"
+						premiumLabel="quiz.form.premium_limit"
+						:max="$config.MAX_QUIZ"
+						:maxPremium="$config.MAX_QUIZ_PREMIUM" />
 				</template>
 
 				<template v-if="showQuizTypeForm">
@@ -107,7 +106,7 @@
 						<Splitter><icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
 						
 						<div class="importForm">
-							<TTButton icon="download">{{ $t("quiz.form.import_bt") }}</TTButton>
+							<TTButton icon="download" type="file" accept=".csv" @update:file="(file:File) => onCSVImport(quiz, file)">{{ $t("quiz.form.import_bt") }}</TTButton>
 							<TTButton icon="info" noBounce primary v-tooltip="$t('quiz.form.import_'+quiz.mode+'_tt')"></TTButton>
 						</div>
 
@@ -146,7 +145,7 @@
 										</div>
 									</div>
 									
-									<div class="singleAnswer" v-if="quiz.mode == 'freeAnswer' && isFreeAnswerQuestion(quiz.mode, question)">
+									<div class="singleAnswer" v-if="isFreeAnswerQuestion(quiz.mode, question)">
 										<ParamItem :paramData="param_answer[question.id]" v-model="question.answer" @blur="save(quiz)" noBackground />
 										
 										<div class="toleranceOverride" v-tooltip="$t('quiz.form.toleranceOverride_tt')">
@@ -192,7 +191,8 @@
 													<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
 												</div>
 												
-												<TTButton :sortable="false" :draggable="false" class="addBt" v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
+												<TTButton :sortable="false" :draggable="false" class="addBt"
+													v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
 													@click="addAnswer(quiz, question.id)"
 													primary
 													icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
@@ -202,7 +202,6 @@
 								</div>
 
 								<TTButton class="deleteBt"
-									v-if="quiz.mode != 'freeAnswer'"
 									icon="trash"
 									v-tooltip="$t('quiz.form.deleteQuestionbt_tt')"
 									@click="deleteQuestion(quiz, question.id)"
@@ -210,7 +209,13 @@
 							</div>
 						</VueDraggable>
 
-						<TTButton @click="addQuestion(quiz)" icon="add" primary>{{ $t("quiz.form.addQuestion_bt") }}</TTButton>
+						<TTButton @click="addQuestion(quiz)" v-if="quiz.questionList.length < maxQuestionCount" icon="add" primary>{{ $t("quiz.form.addQuestion_bt") }}</TTButton>
+						
+						<PremiumLimitMessage v-else
+							label="quiz.form.nonpremium_question_limit"
+							premiumLabel="quiz.form.premium_question_limit"
+							:max="$config.MAX_QUESTIONS_PER_QUIZ"
+							:maxPremium="$config.MAX_QUESTIONS_PER_QUIZ_PREMIUM" />
 
 					</div>
 				</ToggleBlock>
@@ -226,6 +231,7 @@ import ClearButton from '@/components/ClearButton.vue';
 import ContentEditable from '@/components/ContentEditable.vue';
 import OverlayInstaller from '@/components/params/contents/overlays/OverlayInstaller.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import PremiumLimitMessage from '@/components/params/PremiumLimitMessage.vue';
 import Splitter from '@/components/Splitter.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
@@ -248,6 +254,7 @@ import { Component, toNative } from 'vue-facing-decorator';
 		VueDraggable,
 		ContentEditable,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })
@@ -272,6 +279,10 @@ class QuizForm extends AbstractSidePanel {
 		}else{
 			return this.$store.quiz.quizList.length >= this.$config.MAX_QUIZ;
 		}
+	}
+
+	public get maxQuestionCount():number {
+		return this.$store.auth.isPremium ? this.$config.MAX_QUESTIONS_PER_QUIZ_PREMIUM : this.$config.MAX_QUESTIONS_PER_QUIZ;
 	}
 
 	public async beforeMount():Promise<void> {
@@ -356,8 +367,8 @@ class QuizForm extends AbstractSidePanel {
 		this.save(quiz);
 	}
 
-	public deleteQuestion(quiz:TwitchatDataTypes.QuizParams<"classic"|"majority">, questionId:string):void {
-		quiz.questionList = quiz.questionList.filter(v=>v.id != questionId);
+	public deleteQuestion(quiz:TwitchatDataTypes.QuizParams, questionId:string):void {
+		quiz.questionList = quiz.questionList.filter(v=>v.id != questionId) as typeof quiz.questionList;
 		this.initParams();
 		this.save(quiz);
 	}
@@ -500,6 +511,57 @@ class QuizForm extends AbstractSidePanel {
 	}
 
 	/**
+	 * Called when importing a CSV file
+	 * @param file 
+	 */
+	public onCSVImport(quiz: TwitchatDataTypes.QuizParams, file: File):void {
+		if(file.type != "text/csv" && !file.name.endsWith(".csv")) {
+			this.$store.common.alert(this.$t("quiz.form.import_invalid_file"));
+			return;
+		}
+		console.log("Importing CSV file:", file);
+		file.text().then(content=> {
+			const questions = content.split("\n").map(line=> line.split(";")).filter(line=> line.length > 0);
+			questions.forEach(line=> {
+				const questionText = line[0]!.trim();
+				const answersText = line.slice(1);
+				if(answersText.length < 2) return; //Need at least 2 answers
+				
+				if(quiz.mode == "classic" || quiz.mode == "majority") {
+					const question:TwitchatDataTypes.QuizParams["questionList"][number] = {
+						id: Utils.getUUID(),
+						question: questionText,
+						answerList: [],
+					};
+
+					answersText.forEach((answerText, index)=> {
+						const answer:TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][number]["answerList"][number] = {
+							id: Utils.getUUID(),
+							title: answerText.trim(),
+						};
+						//Flag 1st answer as correct for classic quizes
+						if(quiz.mode == "classic" && this.isClassicQuizAnswer(quiz.mode, answer)) {
+							answer.correct = index === 0;
+						}
+						question.answerList.push(answer);
+					});
+
+					quiz.questionList.push(question);
+				}else if(quiz.mode == "freeAnswer") {
+					const question:TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] = {
+						id: Utils.getUUID(),
+						question: questionText,
+						answer: answersText[0]!.trim(),
+					};
+					quiz.questionList.push(question);
+				}
+			});
+			this.initParams();
+			this.save(quiz);
+		});
+	}
+
+	/**
 	 * Create parameters for a quiz entry
 	 * @param id
 	 */
@@ -529,7 +591,7 @@ class QuizForm extends AbstractSidePanel {
 			quiz.questionList.forEach(question=> {
 				const id = question.id;
 				if(!this.param_question[id]) {
-					this.param_question[id] = {type:"string", value:"", placeholderKey:"quiz.form.question_placeholder"};
+					this.param_question[id] = {type:"string", value:"", maxLength:300, placeholderKey:"quiz.form.question_placeholder"};
 					this.param_answerDuration[id] = {type:"number", value:0, labelKey:"quiz.form.param_answer_duration", icon:"timer"};
 					this.durationOverrideState[id] = false;
 				}
@@ -538,7 +600,7 @@ class QuizForm extends AbstractSidePanel {
 					question.answerList.forEach(answer=> {
 						const id = answer.id;
 						if(!this.param_answer[id]) {
-							this.param_answer[id] = {type:"string", value:"", placeholderKey:"quiz.form.answer_placeholder"};
+							this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};
 						}
 					});
 				}
@@ -546,7 +608,7 @@ class QuizForm extends AbstractSidePanel {
 				if(this.isFreeAnswerQuestion(quiz.mode, question)) {
 					const id = question.id;
 					if(!this.param_answer[id]) {
-						this.param_answer[id] = {type:"string", value:"", placeholderKey:"quiz.form.answer_placeholder"};
+						this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};
 					}
 				}
 			});
@@ -596,14 +658,6 @@ export default toNative(QuizForm);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			.button {
-				margin-top: .5em;
-			}
-		}
 	}
 
 	.quizList {
