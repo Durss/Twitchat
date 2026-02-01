@@ -106,6 +106,11 @@
 						
 						<Splitter><icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
 						
+						<div class="importForm">
+							<TTButton icon="download">{{ $t("quiz.form.import_bt") }}</TTButton>
+							<TTButton icon="info" noBounce primary v-tooltip="$t('quiz.form.import_'+quiz.mode+'_tt')"></TTButton>
+						</div>
+
 						<VueDraggable v-if="!showQuizTypeForm" class="questionList"
 						v-model="quiz.questionList"
 						:group="{name:'questionList_'+quiz.id}"
@@ -154,12 +159,12 @@
 													question.toleranceLevel == undefined?
 													'' :
 													{
-														"0": '😠',
-														"1": '🧐',
-														"2": '🤨',
-														"3": '😉',
-														"4": '🤪',
-														"5": '🤡',
+														"0": $t('quiz.form.tolerances.none').split(' ')[0],
+														"1": $t('quiz.form.tolerances.very_low').split(' ')[0],
+														"2": $t('quiz.form.tolerances.low').split(' ')[0],
+														"3": $t('quiz.form.tolerances.medium').split(' ')[0],
+														"4": $t('quiz.form.tolerances.high').split(' ')[0],
+														"5": $t('quiz.form.tolerances.very_high').split(' ')[0],
 													}[question.toleranceLevel]
 												}}</TTButton>
 										</div>
@@ -845,6 +850,25 @@ export default toNative(QuizForm);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+		}
+	}
+
+	.importForm {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+
+		&>.button {
+			border-radius: 0;
+		}
+
+		&>.button:first-child {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+		&>.button:last-child {
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
 		}
 	}
 	
