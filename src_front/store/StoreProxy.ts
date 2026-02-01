@@ -3951,10 +3951,6 @@ export interface IQuizActions {
 	 */
 	populateData():Promise<void>;
 	/**
-	 * Save current ending credits params
-	 */
-	saveConfigs():Promise<void>;
-	/**
 	 * Create a new quiz
 	 * @param payload
 	 */
