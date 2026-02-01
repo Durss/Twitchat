@@ -18,11 +18,11 @@
 		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
 		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
 		<OverlayCustomTrain v-else-if="overlay=='customtrain'" />
+		<OverlayQuiz v-else-if="overlay=='quiz'" />
 	</div>
 </template>
 
 <script lang="ts">
-import { type OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
@@ -46,9 +46,11 @@ const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/compo
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
 const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayCustomTrain.vue')});
+const OverlayQuiz = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayQuiz.vue')});
 
 @Component({
 	components:{
+		OverlayQuiz,
 		OverlayPoll,
 		OverlayUlule,
 		OverlayTimer,
