@@ -5,6 +5,7 @@ import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
+import PublicAPI from '@/utils/PublicAPI';
 
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
@@ -29,6 +30,13 @@ export const storeQuiz = defineStore('quiz', {
 			}else{
 				this.quizList = [];
 			}
+
+			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (e) => {
+				const quiz = this.quizList.find(v=>v.id === e.data.quizId);
+				if(quiz) {
+					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+				}
+			});
 		},
 
 		

@@ -13,7 +13,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "quiz";
 
 	export const ParamDeepSections = {
 		AD: "ad",
