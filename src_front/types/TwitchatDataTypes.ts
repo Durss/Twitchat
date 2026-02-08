@@ -11,7 +11,7 @@ export namespace TwitchatDataTypes {
 
 	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory" | "quizForm";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid" | "quiz";
 
 	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "quiz";
 
@@ -4207,6 +4207,39 @@ export namespace TwitchatDataTypes {
 			toleranceLevel?:0|1|2|3|4|5;
 		}[];
 	})
+
+	/**
+	 * Contains current state for any live quiz
+	 * Stores users votes and scores
+	 */
+	export type QuizState = {
+		/**
+		 * Users list that played this quiz
+		 */
+		users:{[userId:string]:{
+			/**
+			 * User name
+			 */
+			name:string;
+			/**
+			 * User score
+			 */
+			score:number;
+		}};
+		/**
+		 * Votes for each questions.
+		 */
+		questionVotes:{[questionId:string]:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * Can be either an answer ID or a raw text answer for "freeAnswer" mode
+			 */
+			answer:string
+		}[]};
+	}
 
 	/**
 	 * Defines the pinnable menu items

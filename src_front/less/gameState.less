@@ -14,6 +14,12 @@
 	max-height: 50vh;
 	overflow: auto;
 
+	*::-webkit-scrollbar-thumb {
+		cursor: pointer;
+		border-radius: 20px;
+		background-color: rgba(255, 255, 255, .5);
+	}
+
 	&>.title {
 		display: flex;
 		flex-direction: row;
@@ -22,9 +28,11 @@
 		width: calc(100% - 1em - 10px);
 		word-break: break-word;
 		text-align: center;
+		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 		img, .icon {
 			width: 1em;
 			margin-right: .25em;
+			filter: drop-shadow(1px 1px rgba(0, 0, 0, 0.5))
 		}
 		.highlight {
 			font-size: .8em;

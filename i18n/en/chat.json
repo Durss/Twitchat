@@ -58,6 +58,7 @@
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "YouTube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
 			"bingoGridBt_aria": "Bingo grids",
+			"quizBt_aria": "Quiz",
 			"groqBt_aria": "Groq answers",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
