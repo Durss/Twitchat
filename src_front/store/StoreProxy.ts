@@ -3940,6 +3940,11 @@ export interface IQuizState {
 	 * True when exporting selected settings
 	 */
 	quizList:TwitchatDataTypes.QuizParams[];
+	/**
+	 * Stores current states of live quizes.
+	 * Contains users votes.
+	 */
+	liveStates:{[quizId:string]: TwitchatDataTypes.QuizState};
 }
 
 export interface IQuizGetters {
@@ -3964,6 +3969,14 @@ export interface IQuizActions {
 	 * @param id
 	 */
 	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
+	/**
+	 * Registers an answer to a quiz question
+	 * @param quizId 
+	 * @param questionId 
+	 * @param answerId 
+	 * @param answerText 
+	 */
+	handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>
 	/**
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
