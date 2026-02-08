@@ -1261,7 +1261,7 @@ export default class EventSub {
 
 			if(StoreProxy.params.features.chatShoutout.value === true){
 				let message = StoreProxy.chat.botMessages.shoutout.message;
-				message = message.replace(/\{USER\}/gi, user.displayName);
+				message = message.replace(/\{USER\}/gi, user.displayNameOriginal);
 				message = message.replace(/\{URL\}/gi, "twitch.tv/"+user.login);
 				message = message.replace(/\{TITLE\}/gi, title);
 				message = message.replace(/\{CATEGORY\}/gi, category);
