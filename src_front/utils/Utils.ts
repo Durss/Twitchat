@@ -1164,31 +1164,174 @@ export default class Utils {
 	typeName = "",
 	indent = 2
 	): string {
-	function inferType(value: any, level: number): string {
-		const pad = " ".repeat(level * indent);
+		function inferType(value: any, level: number): string {
+			const pad = " ".repeat(level * indent);
 
-		if (value === null) return "null";
+			if (value === null) return "null";
 
-		if (Array.isArray(value)) {
-		if (value.length === 0) return "any[]";
-		return `${inferType(value[0], level)}[]`;
+			if (Array.isArray(value)) {
+			if (value.length === 0) return "any[]";
+			return `${inferType(value[0], level)}[]`;
+			}
+
+			if (typeof value === "object") {
+			const entries = Object.entries(value)
+				.map(
+				([key, val]) =>
+					`${pad}${" ".repeat(indent)}${key}: ${inferType(val, level + 1)};`
+				)
+				.join("\n");
+
+			return `{\n${entries}\n${pad}}`;
+			}
+
+			return typeof value;
 		}
 
-		if (typeof value === "object") {
-		const entries = Object.entries(value)
-			.map(
-			([key, val]) =>
-				`${pad}${" ".repeat(indent)}${key}: ${inferType(val, level + 1)};`
-			)
-			.join("\n");
-
-		return `{\n${entries}\n${pad}}`;
-		}
-
-		return typeof value;
+		const prefix = typeName ? `type ${typeName} = ` : "";
+		return `${prefix}${inferType(json, 0)};`;
 	}
 
-	const prefix = typeName ? `type ${typeName} = ` : "";
-	return `${prefix}${inferType(json, 0)};`;
+	
+
+	/**
+	 * Adjectives – short, universally understandable words.
+	 * Many are language-agnostic or easily recognizable across cultures.
+	 */
+	private static readonly ADJECTIVES: string[] = [
+		"Brave", "Bright", "Calm", "Clever", "Cool",
+		"Cosmic", "Cozy", "Crisp", "Cute", "Daring",
+		"Deep", "Eager", "Epic", "Fair", "Fancy",
+		"Fast", "Fiery", "Fine", "Fleet", "Fresh",
+		"Gentle", "Giant", "Glad", "Golden", "Grand",
+		"Great", "Happy", "Hardy", "Hasty", "Icy",
+		"Jade", "Jazzy", "Jolly", "Keen", "Kind",
+		"Lively", "Lone", "Lucky", "Magic", "Mega",
+		"Merry", "Mighty", "Mild", "Mini", "Misty",
+		"Moody", "Neat", "Noble", "Nifty", "Odd",
+		"Pale", "Plush", "Polar", "Prime", "Proud",
+		"Pure", "Quick", "Quiet", "Rapid", "Rare",
+		"Royal", "Rusty", "Sandy", "Sharp", "Shiny",
+		"Silent", "Silver", "Slick", "Slim", "Sly",
+		"Small", "Smart", "Snowy", "Soft", "Solar",
+		"Spicy", "Steamy", "Steel", "Still", "Stone",
+		"Storm", "Sunny", "Super", "Sure", "Sweet",
+		"Swift", "Tall", "Tame", "Tidy", "Tiny",
+		"Tough", "True", "Vast", "Vivid", "Warm",
+		"Wavy", "Wild", "Wise", "Witty", "Zany",
+		"Zen", "Agile", "Ample", "Azure", "Blaze",
+		"Bold", "Brisk", "Cedar", "Chief", "Chill",
+		"Coral", "Cyber", "Dawn", "Dizzy", "Dream",
+		"Dusty", "Elder", "Ember", "Faint", "Fern",
+		"Fizzy", "Foggy", "Frost", "Frosty", "Fuzzy",
+		"Giddy", "Gleam", "Glow", "Grace", "Grim",
+		"Gusty", "Hazy", "Honey", "Humid", "Hyper",
+		"Inner", "Iron", "Ivory", "Jumpy", "Junior",
+		"Lemon", "Light", "Lilac", "Lunar", "Maple",
+		"Mango", "Marsh", "Mauve", "Metro", "Mint",
+		"Misty", "Mocha", "Mossy", "Muted", "Navy",
+		"Neon", "Night", "Nimble", "Nova", "Olive",
+		"Opal", "Orbit", "Peach", "Pearl", "Perky",
+		"Pixel", "Plaza", "Plum", "Prism", "Pulse",
+		"Rift", "Robin", "Rocky", "Rose", "Rouge",
+		"Sage", "Satin", "Snowy", "Sonic", "Spark",
+		"Spry", "Starry", "Stark", "Suave", "Swirl",
+		"Terra", "Tiger", "Titan", "Topaz", "Tropic",
+		"Tulip", "Turbo", "Ultra", "Urban", "Vapor",
+		"Velvet", "Vibe", "Violet", "Vista", "Vital",
+		"Vivid", "Volt", "Wacky", "Windy", "Wistful",
+		"Woody", "Yonder", "Young", "Zappy", "Zippy",
+	];
+
+	/**
+	 * Nouns – mostly animals and nature words, fun and recognizable.
+	 */
+	private static readonly NOUNS: string[] = [
+		"Panda", "Falcon", "Tiger", "Wolf", "Otter",
+		"Fox", "Eagle", "Dolphin", "Bear", "Hawk",
+		"Lynx", "Raven", "Shark", "Cobra", "Crane",
+		"Drake", "Gecko", "Heron", "Ibis", "Koala",
+		"Lemur", "Moose", "Newt", "Oriole", "Puma",
+		"Quail", "Robin", "Sloth", "Toad", "Viper",
+		"Whale", "Yak", "Zebra", "Ant", "Bison",
+		"Cat", "Dove", "Elk", "Finch", "Goat",
+		"Horse", "Iguana", "Jaguar", "Kite", "Lark",
+		"Mole", "Nymph", "Owl", "Pike", "Ram",
+		"Seal", "Trout", "Urchin", "Vole", "Wren",
+		"Alpaca", "Badger", "Crab", "Dingo", "Egret",
+		"Frog", "Gull", "Hyena", "Impala", "Jay",
+		"Kiwi", "Lion", "Mink", "Narwhal", "Ocelot",
+		"Parrot", "Quetzal", "Raccoon", "Squid", "Toucan",
+		"Unicorn", "Vulture", "Walrus", "Xerus", "Yeti",
+		"Zephyr", "Beetle", "Cicada", "Darter", "Ermine",
+		"Ferret", "Gibbon", "Hornet", "Jackal", "Kelp",
+		"Llama", "Mantis", "Osprey", "Puffin", "Raptor",
+		"Salmon", "Tern", "Stork", "Wombat", "Flame",
+		"Frost", "Storm", "Cloud", "Comet", "Flare",
+		"Nova", "Orbit", "Pixel", "Prism", "Pulse",
+		"Reef", "Ridge", "River", "Spark", "Star",
+		"Stone", "Tide", "Trail", "Wave", "Blaze",
+		"Bloom", "Breeze", "Brook", "Canyon", "Cedar",
+		"Cliff", "Coral", "Creek", "Crest", "Crystal",
+		"Delta", "Dune", "Echo", "Fern", "Fjord",
+		"Flint", "Gem", "Glen", "Grove", "Harbor",
+		"Haven", "Heath", "Jade", "Lake", "Leaf",
+		"Maple", "Marsh", "Mesa", "Mist", "Moss",
+		"Oasis", "Oak", "Peak", "Pine", "Pond",
+		"Quartz", "Rain", "Reed", "Rock", "Sage",
+		"Sand", "Shell", "Sky", "Snow", "Spruce",
+		"Summit", "Thorn", "Vale", "Willow", "Birch",
+		"Bolt", "Ember", "Gale", "Haze", "Isle",
+		"Jet", "Lava", "Meadow", "Nebula", "Plume",
+		"Ripple", "Shade", "Spire", "Vapor", "Zenith",
+	];
+	/**
+	 * Generates a human-readable name from an opaque ID using a deterministic hash function.
+	 * The same ID will always produce the same name, and different IDs will likely produce different names.
+	 * @param id 
+	 * @returns 
+	 */
+	public static getNameFromOpaqueId(id: string): string {
+		function fnv1a(str: string): number {
+			let hash = 0x811c9dc5; // FNV offset basis
+			for (let i = 0; i < str.length; i++) {
+				hash ^= str.charCodeAt(i);
+				hash = Math.imul(hash, 0x01000193); // FNV prime
+			}
+			return hash >>> 0; // ensure unsigned
+		}
+		const hash = fnv1a(id);
+
+		const adjIdx = hash % this.ADJECTIVES.length;
+		const nounIdx = Math.floor(hash / this.ADJECTIVES.length) % this.NOUNS.length;
+		const suffix = Math.floor(hash / (this.ADJECTIVES.length * this.NOUNS.length)) % 100;
+
+		const adj = this.ADJECTIVES[adjIdx] as string;
+		const noun = this.NOUNS[nounIdx] as string;
+		const name = adj + noun + String(suffix).padStart(2, "0");
+		return name;
+	}
+
+	
+
+	/**
+	 * Check if answer is from a classic quiz
+	 */
+	public static isClassicQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
+		return mode === "classic";
+	}
+
+	/**
+	 * Check if answer is from a majority quiz
+	 */
+	public static isMajorityQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"majority">["questionList"][number]["answerList"][number] {
+		return mode === "majority";
+	}
+
+	/**
+	 * Check if question is from a free answer quiz
+	 */
+	public static isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
+		return mode === "freeAnswer";
 	}
 }
