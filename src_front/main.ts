@@ -83,6 +83,7 @@ import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import Config from './utils/Config';
 import { storeStreamfog } from './store/streamfog/storeStreamfog';
+import Utils from './utils/Utils';
 
 window.setInitMessage("Booting app...");
 
@@ -329,12 +330,6 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
-	.provide("$config", Config.instance)
-	.provide("$asset", asset)
-	.provide("$store", StoreProxy.default)
-	.provide("$confirm", confirm)
-	.provide("$overlayURL", overlayURL)
-	.provide("$placeDropdown", placeDropdown)
 	.directive('autofocus', {
 		mounted(el:HTMLDivElement, binding:unknown) {
 			if((binding as {[key:string]:boolean}).value !== false) {
@@ -401,6 +396,7 @@ function buildApp() {
 		}
 	});
 	app.config.globalProperties.$asset = asset;
+	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$overlayURL = overlayURL;
