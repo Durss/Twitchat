@@ -43,6 +43,7 @@ export default class TwitchExtensionController extends AbstractController {
 		this.server.get('/api/twitch/extension/streamerstate', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getStreamerState(request, response));
 		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
 		this.server.post('/api/twitch/extension/bingoCount', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postBingoCount(request, response));
+		this.server.post('/api/twitch/extension/quiz/answer', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postQuizAnswer(request, response));
 		return this;
 	}
 
@@ -116,7 +117,7 @@ export default class TwitchExtensionController extends AbstractController {
 				alt: params.alt,
 				ctrl: params.ctrl,
 				shift: params.shift,
-				user_id: request.twitchExtensionUser!.user_id,
+				userId: request.twitchExtensionUser!.user_id,
 			});
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -150,6 +151,42 @@ export default class TwitchExtensionController extends AbstractController {
 				params.gridId,
 				params.count
 			);
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true}));
+		}catch(error) {
+			Logger.error(error)
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({success:false, message:'unauthorized'}));
+		}
+	}
+
+	/**
+	 * Receive a quiz answer
+	 * @param request 
+	 * @param response 
+	 */
+	private async postQuizAnswer(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		// Reject anonymous users
+		// if(!request.twitchExtensionUser!.user_id) return;
+
+		const params = request.body as {
+			quizId: string;
+			questionId: string;
+			answerId: string;
+			answerText?: string;
+		};
+		
+		try {
+			SSEController.sendToUser(request.twitchExtensionUser!.channel_id, "TWITCHEXT_QUIZ_ANSWER", {
+				quizId: params.quizId,
+				questionId: params.questionId,
+				answerId: params.answerId,
+				answerText: params.answerText,
+				userId: request.twitchExtensionUser!.user_id,
+				opaqueUserId: request.twitchExtensionUser!.opaque_user_id,
+			})
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true}));

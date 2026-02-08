@@ -9,6 +9,7 @@
 				<BingoState class="content" v-else-if="showBingo" />
 				<HypeTrainState class="content" v-else-if="showHypeTrain" />
 				<RaidState class="content" v-else-if="showRaid" />
+				<QuizState class="content" v-else-if="showQuiz" />
 			</transition>
 
 			<ClearButton class="closeBt clearButton" v-if="showClose"
@@ -30,9 +31,11 @@ import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import ChatPollState from './ChatPollState.vue';
+import QuizState from './QuizState.vue';
 
 @Component({
 	components:{
+		QuizState,
 		PollState,
 		RaidState,
 		BingoState,
@@ -56,6 +59,7 @@ class ChannelNotifications extends AbstractSidePanel {
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
+	public get showQuiz():boolean { return this.currentContent == 'quiz' && this.$store.quiz.quizList.filter(v=>v.enabled).length > 0; }
 
 	public get showClose():boolean {
 		return (this.showPoll
@@ -64,6 +68,7 @@ class ChannelNotifications extends AbstractSidePanel {
 			|| this.showBingo
 			|| this.showRaffle
 			|| this.showRaid
+			|| this.showQuiz
 			|| this.showHypeTrain
 			|| this.$store.chat.searchMessages != "")
 		;
