@@ -145,11 +145,11 @@
 										</div>
 									</div>
 									
-									<div class="singleAnswer" v-if="isFreeAnswerQuestion(quiz.mode, question)">
+									<div class="singleAnswer" v-if="$utils.isFreeAnswerQuestion(quiz.mode, question)">
 										<ParamItem :paramData="param_answer[question.id]" v-model="question.answer" @blur="save(quiz)" noBackground />
 										
 										<div class="toleranceOverride" v-tooltip="$t('quiz.form.toleranceOverride_tt')">
-											<TTButton v-if="isFreeAnswerQuestion(quiz.mode, question)"
+											<TTButton v-if="$utils.isFreeAnswerQuestion(quiz.mode, question)"
 												icon="spelling"
 												tabindex="-1"
 												@click="(e:MouseEvent|TouchEvent) => selectCustomTolerance(e, quiz.id, question)"
@@ -169,7 +169,7 @@
 										</div>
 									</div>
 
-									<template v-else-if="isClassicOrMajorityQuizQuestion(quiz.mode, question)">
+									<template v-else-if="!$utils.isFreeAnswerQuestion(quiz.mode, question)">
 										<ToggleBlock
 										:icons="quiz.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
 										class="answersBlock"
@@ -180,12 +180,12 @@
 										:open="autoOpenID === question.id">
 											<div class="answerList">
 												<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
-													<TTButton v-if="isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
+													<TTButton v-if="$utils.isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
 														@click="tickAnswer(question.answerList, answer)"
 														v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
 														:icon="answer.correct? 'checkmark' : 'cross'"
 														:primary="answer.correct"
-														:disabled="isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
+														:disabled="$utils.isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> $utils.isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
 														noBounce />
 													<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
 													<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
@@ -415,27 +415,6 @@ class QuizForm extends AbstractSidePanel {
 	}
 
 	/**
-	 * Check if answer is from a classic quiz
-	 */
-	public isClassicQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
-		return mode === "classic";
-	}
-
-	/**
-	 * Check if question is from a classic or majority quiz
-	 */
-	public isClassicOrMajorityQuizQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][number] {
-		return mode === "classic" || mode === "majority";
-	}
-
-	/**
-	 * Check if question is from a free answer quiz
-	 */
-	public isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
-		return mode === "freeAnswer";
-	}
-
-	/**
 	 * Clears custom duration for question or sets it to default value
 	 * @param question 
 	 */
@@ -540,7 +519,7 @@ class QuizForm extends AbstractSidePanel {
 							title: answerText.trim(),
 						};
 						//Flag 1st answer as correct for classic quizes
-						if(quiz.mode == "classic" && this.isClassicQuizAnswer(quiz.mode, answer)) {
+						if(quiz.mode == "classic" && Utils.isClassicQuizAnswer(quiz.mode, answer)) {
 							answer.correct = index === 0;
 						}
 						question.answerList.push(answer);
@@ -596,16 +575,14 @@ class QuizForm extends AbstractSidePanel {
 					this.durationOverrideState[id] = false;
 				}
 
-				if(this.isClassicOrMajorityQuizQuestion(quiz.mode, question)) {
+				if(!Utils.isFreeAnswerQuestion(quiz.mode, question)) {
 					question.answerList.forEach(answer=> {
 						const id = answer.id;
 						if(!this.param_answer[id]) {
 							this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};
 						}
 					});
-				}
-
-				if(this.isFreeAnswerQuestion(quiz.mode, question)) {
+				} else {
 					const id = question.id;
 					if(!this.param_answer[id]) {
 						this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};

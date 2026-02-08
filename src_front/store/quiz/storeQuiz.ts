@@ -1,15 +1,17 @@
 import DataStore from '@/store/DataStore';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
+import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
-import PublicAPI from '@/utils/PublicAPI';
 
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
 		quizList: [],
+		liveStates: {},
 	} as IQuizState),
 
 
@@ -37,6 +39,13 @@ export const storeQuiz = defineStore('quiz', {
 					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
 				}
 			});
+
+			SSEHelper.instance.addEventListener("TWITCHEXT_QUIZ_ANSWER", async (e)=> {
+				const eventData = e.data
+				if(!eventData) return;
+
+				this.handleAnswer(eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
+			})
 		},
 
 		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
@@ -101,6 +110,80 @@ export const storeQuiz = defineStore('quiz', {
 					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
 				}
 			}
+		},
+
+		async handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
+			const quiz = this.quizList.filter(q=>q.id === quizId)[0];
+			if(!quiz) return;
+			const question = quiz.questionList.filter(q=>q.id === questionId)[0];
+			if(!question) return;
+			const uid = userId || opaqueUserId;
+			if(!uid) return;
+
+			let data = this.liveStates[quizId];
+			if(!data) {
+				data = this.liveStates[quizId] = {
+					questionVotes: {},
+					users: {},
+				}
+			}
+
+			let score:number = 0;
+			if(Utils.isFreeAnswerQuestion(quiz.mode, question)) {
+				const tolerancePercent = Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
+				// Max tolerance level accepts half of the answer to differ
+				const levensteinTolerance = tolerancePercent * question.answer.length / 2;
+				if(levensteinTolerance > 0) {
+					if(Utils.levenshtein(answerText ?? "", question.answer) <= levensteinTolerance) {
+						score = 1;
+					}else{
+						score = -1;
+					}
+				}else{
+					score = answerText === question.answer ? 1 : -1;
+				}
+			}else{
+				const answer = question.answerList.filter(a=>a.id === answerId)[0];
+				if(answer && Utils.isClassicQuizAnswer(quiz.mode, answer) && answer.correct) {
+					score = 1;
+				}else{
+					// for majority quiz we can only get score once everyone has voted.
+				}
+			}
+			// Apply speed multiplicator if any
+			let speedMult = quiz.timeBasedScoring ? Date.now() - new Date(quiz.questionStarted_at).getTime() : 1;
+			score *= speedMult;
+			// Avoid loosing points if the quiz isn't configured for it
+			if(score <= 0 && !quiz.loosePointsOnFail) {
+				score = 0;
+			}
+
+			let userData = data.users[uid];
+			if(!userData) {
+				let name = "";
+				if(userId) {
+					// User isn't anonymous, grab their name from the Twitch API
+					name = await new Promise(resolve => {
+						StoreProxy.users.getUserFrom(
+							"twitch",
+							StoreProxy.auth.twitch.user.id, userId,
+							undefined,
+							undefined,
+							(user)=> resolve(user.displayNameOriginal)
+						);
+					})
+					if(!name) name = "#" + userId;
+				}else{
+					// User is anonymous, get random name
+					name = Utils.getNameFromOpaqueId(uid);
+				}
+				userData = data.users[uid] = {
+					name,
+					score: 0,
+				}
+			}
+
+			userData.score += score
 		},
 		
 	} as IQuizActions
