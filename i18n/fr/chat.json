@@ -77,7 +77,8 @@
 			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
 			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
 			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !",
-			"loading_emotes": "Chargement des emotes..."
+			"loading_emotes": "Chargement des emotes...",
+			"quizBt_aria": "Quiz"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -582,26 +583,26 @@
 		"youtube_subgift": {
 			"title": "{USER} a offert {COUNT} abonnements {TIER} à {LIST}"
 		},
-		"tiktok_sub":{
+		"tiktok_sub": {
 			"new": "{USER} s'est abonné"
 		},
-		"tiktok_like":{
+		"tiktok_like": {
 			"new": "{USER} a envoyé {COUNT} likes"
 		},
-		"tiktok_gift":{
+		"tiktok_gift": {
 			"new": "{USER} a envoyé x{COUNT} {IMAGE}"
 		},
-		"tiktok_share":{
+		"tiktok_share": {
 			"new": "{USER} a partagé le stream"
 		},
-		"suspended_trigger_stack":{
+		"suspended_trigger_stack": {
 			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
 			"resumeBt": "Relancer",
 			"callstack": "Historique d'exécution :"
 		},
 		"tts": {
-			"elevenlabs_credits_empty":"Vous avez dépensé tous vos crédits EleventLabs.",
-			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
+			"elevenlabs_credits_empty": "Vous avez dépensé tous vos crédits EleventLabs.",
+			"elevenlabs_credits_almost_empty": "Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
 		},
 		"private_mod_message": {
 			"accepted": "accepté",

@@ -318,6 +318,15 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification class="quiz"
+						icon="quiz"
+						v-if="$store.quiz.quizList.filter(v=>v.enabled).length > 0"
+						:aria-label="$t('chat.form.quizBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.quizBt_aria')}"
+						@click="openNotifications('quiz')" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification class="groq"
 						icon="groq"
 						v-if="$store.groq.enabled && $store.groq.connected && $store.groq.answerHistory.length > 0"
@@ -492,6 +501,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 		"update:showShoutout",
 		"update:showCredits",
 		"update:showBingoGrid",
+		"update:showQuiz",
 		"update:showGroqHistory",
 		"update:showGazaFunds",
 		"update:showChatUsers",
@@ -1491,6 +1501,7 @@ export default toNative(ChatForm);
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,.5);
 		background-color: var(--background-color-secondary);
 		padding: .25em;
+		flex-wrap: wrap;
 
 		.sortableItems {
 			display: flex;
