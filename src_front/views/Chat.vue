@@ -291,6 +291,7 @@ class Chat extends Vue {
 	public buildIndex = 0;
 	public showQna = false;
 	public showPins = false;
+	public showQuiz = false;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
