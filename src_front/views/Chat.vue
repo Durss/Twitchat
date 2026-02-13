@@ -21,9 +21,7 @@
 						v-if="$store.params.chatColumnsConfig.length > 1
 						&& (c.order == 0 || $store.params.chatColumnsConfig.length > 2)"
 						@dblclick="expandCol(c)"
-						@pointerdown="startDrag($event, c)">
-						<div class="grip"></div>
-					</div>
+						@pointerdown="startDrag($event, c)"/>
 				</div>
 			</div>
 		</div>
@@ -1083,33 +1081,18 @@ export default toNative(Chat);
 						overflow: hidden;
 					}
 					.dragBt {
-						padding: 3px 0;
+						padding: 6px 0;
 						cursor: ns-resize;
 						width: 100%;
-						.grip {
-							position: relative;
-							left: unset;
+						&::before {
 							top: 50%;
+							left: 0;
 							width: 100%;
 							height: 1px;
-							background: var(--color-dark-extralight);
+						}
+						&:hover {
 							&::before {
-								height: 5px;
-								width: 40px;
-								background: linear-gradient(90deg,
-												var(--color-dark-extralight) 30%,
-												var(--color-dark) 30%,
-												var(--color-dark) 35%,
-												var(--color-dark-extralight) 35%,
-												var(--color-dark-extralight) 45%,
-												var(--color-dark) 45%,
-												var(--color-dark) 50%,
-												var(--color-dark-extralight) 50%,
-												var(--color-dark-extralight) 60%,
-												var(--color-dark) 60%,
-												var(--color-dark) 65%,
-												var(--color-dark-extralight) 65%,
-											);
+								transform: scaleY(5);
 							}
 						}
 					}
@@ -1156,40 +1139,28 @@ export default toNative(Chat);
 				}
 
 				.dragBt {
-					padding: 0 3px;
 					cursor: ew-resize;
 					user-select: none;
 					z-index: 2;
 					height: 100%;
-					flex-basis: 14px;
-					.grip {
-						position: relative;
+					flex-basis: 1px;
+					padding: 0 6px;
+					position: relative;
+					&::before {
+						top: 0;
 						left: 50%;
-						height: 100%;
+						display: block;
+						position: absolute;
 						width: 1px;
-						background: var(--color-dark-extralight);
+						height: 100%;
+						content:"";
+						background: var(--color-dark-light);
+						transition: all .25s ease;
+					}
+					&:hover {
 						&::before {
-							content:"";
-							position: absolute;
-							.center();
-							display: block;
-							width: 5px;
-							height: 40px;
-							background: var(--color-dark-light);
-							background: linear-gradient(0deg,
-											var(--color-dark-extralight) 30%,
-											var(--color-dark) 30%,
-											var(--color-dark) 35%,
-											var(--color-dark-extralight) 35%,
-											var(--color-dark-extralight) 45%,
-											var(--color-dark) 45%,
-											var(--color-dark) 50%,
-											var(--color-dark-extralight) 50%,
-											var(--color-dark-extralight) 60%,
-											var(--color-dark) 60%,
-											var(--color-dark) 65%,
-											var(--color-dark-extralight) 65%,
-										);
+							background: var(--color-dark-extralight);
+							transform: scaleX(5);
 						}
 					}
 				}
