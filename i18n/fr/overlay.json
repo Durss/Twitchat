@@ -15,6 +15,7 @@
 		"title_settings": "Configurations",
 		"install_instructions_title": "Instructions",
 		"overlay_not_configured": "Overlay non configuré ou masqué",
+		"css_colors": "Exemple de CSS pour changer les couleurs à définir dans les paramètres de la source navigateur OBS",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
@@ -25,7 +26,7 @@
 		"raffle": {
 			"title": "Roue animée",
 			"head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
-			"css": "Changez l'apparence de la roue via ces sélecteurs CSS",
+			"css": "Changez l'apparence de la roue via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
 			"testBt": "Lancer une animation de test"
 		},
@@ -33,7 +34,7 @@
 			"header": "Créez des minuteurs, contrôlez-les depuis les Triggers, et affichez leur état sur votre stream",
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
 			"default_title": "Mon minuteur",
-			"css": "Changez l'apparence via ces sélecteurs CSS",
+			"css": "Changez l'apparence via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"createTimer_bt": "Editer les minuteurs",
 			"param_style": "Style d'affichage",
 			"param_style_text":"Texte",
@@ -56,7 +57,7 @@
 			"head": "Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
 			"head_empty": "Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
 			"createBt": "Créer un compteur",
-			"css": "Changez l'apparence des compteurs via ces sélecteurs CSS",
+			"css": "Changez l'apparence des compteurs via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"css_example": {
 				"simple": "Compteur simple",
 				"progress": "Barre de progression",
@@ -66,14 +67,14 @@
 		"highlight": {
 			"title": "Mettre en avant",
 			"instruction": "Affiche un message ou un clip sur votre stream.",
-			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
+			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"message_pos": "Position du message",
 			"testBt": "Tester",
 			"alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 		"music_common": {
 			"music": "Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
-			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
+			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"no_scroll": "Désactiver le défilement",
 			"open_from_left": "Ouvrir depuis la gauche",
 			"auto_hide": "Conserver le lecteur visible quand rien ne joue",
@@ -97,7 +98,7 @@
 		},
 		"ulule": {
 			"title": "Ulule",
-			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS",
+			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"description": "Affichez une barre de progression pour votre projet {LINK}.",
 			"description_link": "Ulule",
 			"project_name": "URL de votre projet Ulule",
@@ -109,7 +110,7 @@
 		"credits": {
 			"title": "Crédits de fin",
 			"head": "Affichez des crédits de fin de stream",
-			"css": "Changez l'apparence des crédits via ces sélecteurs CSS",
+			"css": "Changez l'apparence des crédits via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"slot_list": "Sections",
 			"add_slotBt": "Ajouter une section",
 			"param_timing": "Timing de défilement",
@@ -316,7 +317,7 @@
 		},
 		"adBreak": {
 			"title": "Indicateur de publicité",
-			"css": "Changez l'apparence des éléments via ces sélecteurs CSS",
+			"css": "Changez l'apparence des éléments via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"description": "Affichez un décompte avant qu'une publicité soit lancée ou un décompte avant la fin d'une publicité en cours.\nLes {DASHBOARD_LINK} doivent être activées sur votre chaîne.",
 			"description_link": "publicités mid-roll planifiées",
 			"param_showApproaching": "Afficher lorsqu'une publicité arrive",
@@ -354,7 +355,7 @@
 		"predictions": {
 			"title": "Prédictions",
 			"head": "Afficher la prédiction en cours sur votre stream",
-			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS",
+			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"testBt": "Tester",
 			"param_listMode": "Afficher sous forme de liste",
 			"param_listModeOnlyMore2": "Uniquement s'il y a plus de 2 items",
@@ -372,7 +373,7 @@
 		"polls": {
 			"title": "Sondage",
 			"head": "Afficher le sondage en cours sur votre stream",
-			"css": "Changez l'apparence du sondage via ces sélecteurs CSS",
+			"css": "Changez l'apparence du sondage via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"testBt": "Tester",
 			"param_listMode": "Afficher sous forme de liste",
 			"param_listModeOnlyMore2": "Uniquement s'il y a plus de 2 choix",

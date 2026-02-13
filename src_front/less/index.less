@@ -286,7 +286,13 @@ body.demoMode {
 }
 
 pre {
-	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
+	font-family: 'Courier New', Courier, monospace, var(--font-inter), Helvetica, Arial, sans-serif;
+	font-size: .9em;
+
+	.comment {
+		font-family: var(--font-inter), Helvetica, Arial, sans-serif !important;
+		color: var(--color-text-fade);
+	}
 }
 
 *:focus:not(:focus-visible) {

@@ -13,6 +13,7 @@
 			<OverlayInstaller type="chatPoll" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<CSSPollsVarStyles />
 				<div class="cssHead">{{ $t("overlay.chatPoll.css") }}</div>
 				<ul class="cssStructure">
 
@@ -107,6 +108,7 @@ import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ParamItem } from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import CSSPollsVarStyles from './CSSPollsVarStyles.vue';
 
 @Component({
 	components:{
@@ -114,6 +116,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		ParamItem,
 		ToggleBlock,
 		OverlayInstaller,
+		CSSPollsVarStyles,
 		PlacementSelector,
 	},
 	emits:[],

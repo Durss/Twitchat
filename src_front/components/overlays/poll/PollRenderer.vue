@@ -103,6 +103,9 @@ class PollRenderer extends Vue {
 	@Prop({type:Number, required:true})
 	public startedAt!: number;
 
+	@Prop({type:String, required:false})
+	public winningId!: string;
+
 	// Do not show poll on build so it doesn't show up when starting a poll
 	// while requesting to only show the result
 	public showContent:boolean = false;
@@ -119,7 +122,10 @@ class PollRenderer extends Vue {
 		});
 	}
 
-	public getWinClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
+	public getWinClasses(c:TwitchatDataTypes.MessagePollDataChoice | TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
+		if(this.winningId) {
+			return c.id == this.winningId? ["win"] : [];
+		}
 		let res:string[] = [];
 		if(this.showWinner) {
 			let max = 0;
@@ -129,13 +135,13 @@ class PollRenderer extends Vue {
 		return res;
 	}
 
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):CSSProperties {
+	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice | TwitchatDataTypes.MessagePredictionDataOutcome):CSSProperties {
 		return {
 			backgroundSize: `${this.getPercent(c, true)}% 100%`,
 		}
 	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice, barSizeTarget:boolean = false):number {
+	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice | TwitchatDataTypes.MessagePredictionDataOutcome, barSizeTarget:boolean = false):number {
 		let maxVotes = 0;
 		let totalVotes = 0;
 		for (let i = 0; i < this.entries.length; i++) {
@@ -236,6 +242,8 @@ export default toNative(PollRenderer);
 	--color2: #f50e9b;
 	--color2-fade: #f50e9b33;
 	--colorProgress: var(--color1);
+	--value-text: var(--color-light);
+	--value-bg: rgba(0, 0, 0, .5);
 
 	background-color: var(--color-light);
 	position: absolute;
@@ -265,6 +273,7 @@ export default toNative(PollRenderer);
 		overflow: hidden;
 		word-break: break-word;
 		max-width: 300px;
+		line-height: 1.2em;
 	}
 
 	.battle {
@@ -286,6 +295,7 @@ export default toNative(PollRenderer);
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
+					line-height: 1.2em;
 				}
 			}
 			.outcomeTitle:first-child:nth-last-child(2),
@@ -370,6 +380,10 @@ export default toNative(PollRenderer);
 				h2 {
 					margin-bottom: .25em;
 					word-break: break-word;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					line-height: 1.2em;
 				}
 				.bar {
 					min-height: 1em;
@@ -377,7 +391,7 @@ export default toNative(PollRenderer);
 					border-radius: var(--border-radius);
 					padding: .25em .5em;
 					font-size: 1em;
-					color: var(--color-light);
+					color: var(--value-text);
 					transition: background-size .3s;
 					background: linear-gradient(to right, var(--color1) 100%, var(--color1) 100%);
 					background-color: var(--color1-fade);
@@ -402,7 +416,7 @@ export default toNative(PollRenderer);
 	.details{
 		display: flex;
 		flex-direction: row;
-		color:var(--color-light);
+		color:var(--value-text);
 		justify-content: center;
 
 		.percent, .votes, .points {
@@ -411,7 +425,7 @@ export default toNative(PollRenderer);
 			align-items: center;
 			padding: .4em .5em;
 			border-radius: var(--border-radius);
-			background-color: rgba(0, 0, 0, .5);
+			background-color: var(--value-bg);
 			font-size: .8em;
 			flex-shrink: 0;
 			font-variant-numeric: tabular-nums;

@@ -652,9 +652,6 @@ export default toNative(TriggerActionOBSEntry);
 		padding: .5em;
 		border-radius: var(--border-radius);
 		margin-top: .25em;
-		pre {
-			font-family: 'Courier New', Courier, monospace;
-		}
 	}
 
 	/* Keywords */

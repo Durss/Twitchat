@@ -16,6 +16,7 @@
 			<OverlayInstaller type="predictions" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<CSSPollsVarStyles />
 				<div class="cssHead">{{ $t("overlay.predictions.css") }}</div>
 				<ul class="cssStructure">
 
@@ -119,6 +120,7 @@ import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import { ParamItem } from '../../ParamItem.vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import PlacementSelector from '@/components/PlacementSelector.vue';
+import CSSPollsVarStyles from './CSSPollsVarStyles.vue';
 
 @Component({
 	components:{
@@ -126,6 +128,7 @@ import PlacementSelector from '@/components/PlacementSelector.vue';
 		ParamItem,
 		ToggleBlock,
 		OverlayInstaller,
+		CSSPollsVarStyles,
 		PlacementSelector,
 	},
 	emits:[],
@@ -216,7 +219,7 @@ class OverlayParamsPredictions extends Vue {
 			v.votes = 0;
 		});
 		predi.isFake = true;
-		predi.duration_s = 15;
+		predi.duration_s = this.param_showOnlyResult.value? 0 : 15;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		const winnerBackup = predi.winner;
@@ -233,26 +236,30 @@ class OverlayParamsPredictions extends Vue {
 
 		let pendingDuration = 2000;
 		if(this.param_showOnlyResult.value == true) {
+			console.log("Direct fake votes!")
 			fakeVotes();
 			pendingDuration = 0;
 			predi.duration_s = 0;
 		}else{
+			console.log("Multiple fake votes!")
 			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
 		}
-
+		
 		clearTimeout(this.simulateEndTimeout);
+		console.log("End in", predi.duration_s * 1000, "ms with pending duration", pendingDuration);
 		this.simulateEndTimeout = window.setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
 			predi.pendingAnswer = true;
 			this.$store.prediction.setPrediction(predi);
 
-			this.simulateEndTimeout = window.setTimeout(()=>{
+			this.simulateEndTimeout = window.setTimeout( async ()=>{
+				console.log("Show winner");
 				predi.winner = winnerBackup;
 				this.$store.prediction.setPrediction(predi);
-				this.simulateEndTimeout = window.setTimeout(()=>{
-					this.$store.prediction.setPrediction(null);
-					this.testing = false;
-				}, this.param_resultDuration.value * 1000);
+				await this.$nextTick();
+				console.log("Test ended, clearing prediction");
+				this.$store.prediction.setPrediction(null);
+				this.testing = false;
 			}, pendingDuration)
 		}, predi.duration_s * 1000);
 

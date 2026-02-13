@@ -1,40 +1,21 @@
 <template>
-	<div :class="classes" id="holder" v-if="show && prediction && parameters">
-		<div id="progress" class="progress" ref="progress" v-show="parameters.showTimer"></div>
-		<h1 id="title" v-if="parameters.showTitle">{{ prediction?.title }}</h1>
-		<div id="list" class="list" v-if="listMode">
-			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in prediction.outcomes" ref="bar">
-				<h2 id="list_choice_label" v-if="parameters.showLabels">{{c.label}}</h2>
-				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
-					<div class="details" id="list_choice_bar_details">
-						<span id="list_choice_bar_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
-						<span id="list_choice_bar_details_points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div id="line" class="battle" v-else ref="holder">
-			<div id="line_labelList" class="labels" v-if="parameters.showLabels">
-				<h2 id="line_labelList_label" class="outcomeTitle"
-				:class="getWinClasses(c)"
-				v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
-					{{ c.label }}
-				</h2>
-			</div>
-			<div class="chunks" id="line_bar" ref="bar">
-				<div id="line_bar_item" class="chunk"
-				:class="getWinClasses(c)"
-				v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
-					<div class="details" id="line_bar_item_details">
-						<span id="line_bar_item_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="line_bar_item_details_votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
-						<span id="line_bar_item_details_points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	<PollRenderer v-if="prediction && parameters"
+		:open="show"
+		:showTimer="parameters.showTimer"
+		:showLabels="parameters.showLabels"
+		:showPercent="parameters.showPercent"
+		:showVoters="parameters.showVoters"
+		:showVotes="parameters.showVotes"
+		:showWinner="showWinner"
+		:title="parameters.showTitle? prediction.title : ''"
+		:duration="prediction.duration_s * 1000"
+		:startedAt="prediction.started_at"
+		:resultDuration_s="parameters.resultDuration_s"
+		:placement="parameters.placement"
+		:mode="listMode? 'list' : 'line'"
+		:entries="prediction.outcomes"
+		:winningId="prediction.winner?.id"
+		/>
 </template>
 
 <script lang="ts">
@@ -43,14 +24,14 @@ import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePr
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
-import { gsap } from 'gsap/gsap-core';
+import PollRenderer from './poll/PollRenderer.vue';
 @Component({
 	components:{
 		Icon,
+		PollRenderer,
 	},
 	emits:[],
 })
@@ -74,7 +55,6 @@ class OverlayPredictions extends AbstractOverlay {
 		placement:"bl",
 	};
 
-	private updateDebounce:number = -1;
 	private parametersReceived:boolean = false;
 	private pendingData:TwitchatEvent|null = null;
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
@@ -93,38 +73,6 @@ class OverlayPredictions extends AbstractOverlay {
 		];
 		if(this.showWinner) res.push("win");
 		return res;
-	}
-
-	public getWinClasses(c:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
-		let res:string[] = [];
-		if(this.prediction?.winner
-		&& this.prediction.winner.id == c.id) {
-			res.push("win");
-		}
-		return res;
-	}
-
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):CSSProperties {
-		return {
-			backgroundSize: `${this.getPercent(c, true)}% 100%`,
-		}
-	}
-
-	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome, barSizeTarget:boolean = false):number {
-		let maxVotes = 0;
-		let totalVotes = 0;
-		if(this.prediction) {
-			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i]!.votes;
-				maxVotes = Math.max(maxVotes, this.prediction.outcomes[i]!.votes);
-			}
-			if(totalVotes == 0) {
-				if(this.listMode) return 0;
-				return 100/this.prediction.outcomes.length;
-			}
-		}
-		if(this.listMode && barSizeTarget) totalVotes = maxVotes;
-		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
 	public async mounted():Promise<void> {
@@ -152,60 +100,27 @@ class OverlayPredictions extends AbstractOverlay {
 
 	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
 		if(!this.parametersReceived) {
-			//overlay's parameters not received yet, put data aside
-			//onUpdatePrediction() will be called by onUpdateParams() afterwards
+			// overlay's parameters not received yet, put data aside
+			// onUpdatePrediction() will be called by onUpdateParams() afterwards
 			this.pendingData = e;
 			this.requestInfo();
 			return;
 		}
 
-		//Debounce updates as twitch is a little spammy when resolving a prediction
-		// clearTimeout(this.updateDebounce);
-
-		// this.updateDebounce = window.setTimeout(async ()=>{
-			const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-			
-			if(prediction && prediction.winner){
-				this.prediction = prediction;
-				this.showWinner = true;
-				if(!this.show) await this.open();
-				const progressBar = this.$refs.progress as HTMLElement;
-				if(progressBar) {
-					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:"none", width:"0%", onComplete:()=>{
-						this.close();
-					}});
-				}
-			}else if(!prediction) {
-				if(!this.showWinner) this.close();
-			}else{
-				const opening	= this.prediction == null || this.prediction.id != prediction.id;
-				const show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
-				this.showWinner	= false;
-				this.prediction	= prediction;
-				if(show) {
-					this.show = true;
-					if(opening) {
-						this.open();
-						await this.$nextTick();
-					}
-
-					const progressBar = this.$refs.progress as HTMLElement;
-					if(progressBar) {
-						const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
-						const percentDone = timeSpent / (prediction.duration_s * 1000);
-						const percentRemaining = 1 - percentDone;
-						const duration = prediction.duration_s * percentRemaining;
-						gsap.killTweensOf(progressBar);
-						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:"none", width:"0%", onComplete:()=>{
-							if(this.parameters.hideUntilResolved !== false) this.close(true);
-						}});
-					}
-				}else{
-					this.close(true);
-				}
+		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
+		if(!prediction) {
+			// Empty prediction received. Hide current prediction if any
+			if(this.prediction) {
+				this.showWinner = this.parameters.resultDuration_s > 0;
+				this.show = true;
+				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
+				this.show = false;
 			}
-		// }, 500);
+		}else{
+			this.show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
+			this.showWinner	= false;
+			this.prediction	= prediction;
+		}
 	}
 
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
@@ -214,66 +129,9 @@ class OverlayPredictions extends AbstractOverlay {
 		if(this.pendingData) {
 			this.onUpdatePrediction(this.pendingData);
 			this.pendingData = null;
-		}
-	}
-
-	private async open():Promise<void> {
-		this.show = true;
-		await this.$nextTick();
-
-		let labels = this.$refs.labels as HTMLElement
-		let items = this.$refs.bar as HTMLElement[] | HTMLElement;
-		if(!Array.isArray(items)) items = [items];
-		const minWidth = parseInt(this.$el.minWidth || "300");
-		const width = Math.max(minWidth, items[0]!.getBoundingClientRect().width);
-		const duration = .5;
-
-		gsap.killTweensOf(this.$el);
-		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration, ease:"back.out", clearProps:true});
-
-		if(labels) {
-			labels.removeAttribute("style");
-			gsap.killTweensOf(labels);
-			gsap.fromTo(labels, {width:0}, {ease:"back.out", duration, width, clearProps:true});
-		}
-
-		if(this.listMode) {
-			items.forEach(item=>{
-				item.removeAttribute("style");
-			});
-			gsap.killTweensOf(items);
-			// gsap.from(items, {y:"-50px", scaleY:0, ease:"back.out", delay:.1, duration:.5, stagger:.1, clearProps:true});
-			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration, width, stagger:.05,
-						onComplete:(item)=>{
-							(items as HTMLElement[]).forEach(item=>{
-								item.style.width = width+"px";
-								item.style.minWidth = width+"px";
-							});
-						}});
 		}else{
-			const holder = this.$refs.holder as HTMLElement;
-			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration, clearProps:true});
+			this.show = this.parameters.showOnlyResult !== true && (!this.prediction?.pendingAnswer || (this.prediction?.pendingAnswer && this.parameters.hideUntilResolved === false));
 		}
-		await Utils.promisedTimeout((duration + .25 * items.length) * 1000)
-	}
-
-	public async close(isTemporaryClose:boolean = false):Promise<void> {
-		if(!isTemporaryClose) {
-			if(this.show === false) {
-				this.show = true;
-				await this.open();
-			}
-		}
-		const progressBar = this.$refs.progress as HTMLElement;
-		gsap.killTweensOf(progressBar);
-		if(progressBar) progressBar.style.width = "0%";
-
-		gsap.killTweensOf(this.$el);
-		gsap.to(this.$el, {scale:0, duration:.5, ease:"back.in", onComplete:()=>{
-			this.show = false;
-			this.showWinner = false;
-			this.prediction = null;
-		}});
 	}
 }
 export default toNative(OverlayPredictions);

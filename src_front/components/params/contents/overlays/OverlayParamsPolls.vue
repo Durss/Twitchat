@@ -16,9 +16,9 @@
 			<OverlayInstaller type="polls" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<CSSPollsVarStyles />
 				<div class="cssHead">{{ $t("overlay.polls.css") }}</div>
 				<ul class="cssStructure">
-
 					<li>#holder { ... }
 						<ul>
 							<li>#progress { ... }</li>
@@ -116,6 +116,7 @@ import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import { ParamItem } from '../../ParamItem.vue';
 import PlacementSelector from '@/components/PlacementSelector.vue';
 import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
+import CSSPollsVarStyles from './CSSPollsVarStyles.vue';
 
 @Component({
 	components:{
@@ -123,6 +124,7 @@ import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 		ParamItem,
 		ToggleBlock,
 		OverlayInstaller,
+		CSSPollsVarStyles,
 		PlacementSelector,
 	},
 	emits:[],

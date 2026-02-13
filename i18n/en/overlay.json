@@ -15,6 +15,7 @@
 		"title_settings": "Settings",
 		"install_instructions_title": "Instructions",
 		"overlay_not_configured": "Overlay not configured or hidden",
+		"css_colors": "CSS example to change colors. Set this on your OBS browser source parameters.",
 		"connection": {
 			"title": "The overlays need you to {OBS} or {DOCK}",
 			"obsBt": "connect with OBS",
@@ -25,7 +26,7 @@
 		"raffle": {
 			"title": "Animated wheel",
 			"head": "Shows an animated wheel when doing a raffle.",
-			"css": "You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
+			"css": "You can change the appearance of the wheel using these CSS selectors on the OBS browser source parameters.",
 			"start": "To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
 			"testBt": "Start a test animation"
 		},
@@ -33,7 +34,7 @@
 			"header": "Create timers, control them from Triggers, and display their status on your stream",
 			"default_timer": "This overlay is tied with {CMD} commands",
 			"default_title": "My timer",
-			"css": "Change the appearance of the timer with these CSS selectors",
+			"css": "Change the appearance of the timer using these CSS selectors on the OBS browser source parameters.",
 			"createTimer_bt": "Edit timers",
 			"param_style": "Overlay style",
 			"param_style_text":"Text",
@@ -53,10 +54,10 @@
 		},
 		"counters": {
 			"title": "Counters",
-			"head": "Add any of your counters to your stream by setting hteir URL on a browser source",
+			"head": "Add any of your counters to your stream by setting their URL on a browser source",
 			"head_empty": "Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
 			"createBt": "Create a counter",
-			"css": "Change counters appearance via those CSS selectors",
+			"css": "Change counters appearance using these CSS selectors on the OBS browser source parameters.",
 			"css_example": {
 				"simple": "Simple counter",
 				"progress": "Progression bar",
@@ -66,14 +67,14 @@
 		"highlight": {
 			"title": "Message highlight",
 			"instruction": "Shows a user's message or a clip on your stream.",
-			"css": "You can change the appearance of the message by overriding these CSS IDs on OBS browser source params",
+			"css": "You can change the appearance of the message using these CSS selectors on the OBS browser source parameters.",
 			"message_pos": "Message position",
 			"testBt": "Send test message",
 			"alternative_tool": "Check out {URL} for a dedicated tool doing this with much more options"
 		},
 		"music_common": {
 			"music": "Display currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.",
-			"css": "You can change the appearance of the player by overriding these CSS IDs on OBS browser source params",
+			"css": "You can change the appearance of the player using these CSS selectors on the OBS browser source parameters.",
 			"no_scroll": "Disable scrolling",
 			"open_from_left": "Open from left",
 			"auto_hide": "Keep player visible if nothing is playing",
@@ -97,7 +98,7 @@
 		},
 		"ulule": {
 			"title": "Ulule",
-			"css": "You can change the appearance of the progress bar by overriding these CSS IDs on OBS browser source params",
+			"css": "You can change the appearance of the progress bar using these CSS selectors on the OBS browser source parameters.",
 			"description": "Integrate a progress bar for your {LINK} project.",
 			"description_link": "Ulule",
 			"project_name": "URL of your Ulule project",
@@ -109,7 +110,7 @@
 		"credits": {
 			"title": "Ending credits",
 			"head": "Shows a rolling ending credits.",
-			"css": "You can change the appearance of the credits by overriding these CSS values on OBS browser source params",
+			"css": "You can change the appearance of the credits using these CSS selectors on the OBS browser source parameters.",
 			"slot_list": "Sections",
 			"add_slotBt": "Add a category",
 			"param_timing": "Scroll timing",
@@ -316,7 +317,7 @@
 		},
 		"adBreak": {
 			"title": "Ad-break indicator",
-			"css": "You can change the appearance of the elements bar by overriding these CSS IDs on OBS browser source params",
+			"css": "You can change the appearance of the elements bar using these CSS selectors on the OBS browser source parameters.",
 			"description": "Show when an ad-break is coming or running.\n{DASHBOARD_LINK} must be enabled on your channel.",
 			"description_link": "Mid-roll schedule",
 			"param_showApproaching": "Show when an ad is coming",
@@ -354,7 +355,7 @@
 		"predictions": {
 			"title": "Predictions",
 			"head": "Show current prediction on your stream",
-			"css": "You can change the appearance of the prediction by overriding these CSS values on OBS browser source params",
+			"css": "You can change the appearance of the prediction using these CSS selectors on the OBS browser source parameters.",
 			"testBt": "Test",
 			"param_listMode": "Show outcomes as list",
 			"param_listModeOnlyMore2": "Only if there are more than 2 outcomes",
@@ -372,7 +373,7 @@
 		"polls": {
 			"title": "Polls",
 			"head": "Show current poll on your stream",
-			"css": "You can change the appearance of the poll by overriding these CSS values on OBS browser source params",
+			"css": "You can change the appearance of the poll using these CSS selectors on the OBS browser source parameters.",
 			"testBt": "Test",
 			"param_listMode": "Show choices as list",
 			"param_listModeOnlyMore2": "Only if there are more than 2 choices",
