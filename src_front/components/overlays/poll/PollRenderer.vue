@@ -217,7 +217,9 @@ class PollRenderer extends Vue {
 				gsap.killTweensOf(progressBar);
 				if (progressBar) {
 					progressBar.removeAttribute("style");
-					gsap.fromTo(progressBar, {width:"100%"}, {duration, ease:"none", width:"0%", onComplete:resolve});
+					gsap.fromTo(progressBar, {width:"100%"}, {duration, ease:"none", width:"0%", onComplete:()=> {
+						resolve();
+					}});
 				}
 			}else {
 				resolve();

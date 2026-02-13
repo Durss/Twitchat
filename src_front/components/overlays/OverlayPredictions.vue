@@ -108,6 +108,12 @@ class OverlayPredictions extends AbstractOverlay {
 		}
 
 		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
+		if(prediction && this.prediction && prediction.id != this.prediction.id) {
+			// New prediction started while another one is still active. Close previous one
+			this.showWinner = false;
+			this.show = false;
+			await Utils.promisedTimeout(1000);
+		}
 		if(!prediction) {
 			// Empty prediction received. Hide current prediction if any
 			if(this.prediction) {
