@@ -53,12 +53,6 @@
 					"description":"Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
 				},
 				{
-					"icon":"spotify",
-					"image":"musicPlayer.png",
-					"title":"Spotify",
-					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
-				},
-				{
 					"icon":"pin",
 					"video":"save.webm",
 					"title":"Enregistrez des messages",
@@ -134,7 +128,7 @@
 					"icon":"broadcast",
 					"image":"triggers.png",
 					"title":"Actions automatisées",
-					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
+					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
 				},
 				{
 					"icon":"params",

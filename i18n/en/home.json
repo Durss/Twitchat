@@ -53,12 +53,6 @@
 					"description":"Control <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> from Twitchat and automate actions when effect is changed"
 				},
 				{
-					"icon":"spotify",
-					"image":"musicPlayer.png",
-					"title":"Spotify",
-					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
-				},
-				{
 					"icon":"pin",
 					"video":"save.webm",
 					"title":"Save messages",
@@ -134,7 +128,7 @@
 					"icon":"broadcast",
 					"image":"triggers.png",
 					"title":"Automate actions",
-					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat, control Spotify, create commands, react to channel points events, subs, cheers, polls, predictions, ..."
+					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat, create commands, react to channel points events, subs, cheers, polls, predictions, ..."
 				},
 				{
 					"icon":"params",
