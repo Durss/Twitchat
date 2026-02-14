@@ -99,12 +99,12 @@
 				<p>Discord</p>
 			</button>
 
-			<button class="card-item"
+			<!-- <button class="card-item"
 			:class="{connected:spotifyConnected}"
 			@click="subContent='spotify'">
 				<Icon name="spotify" />
 				<p>Spotify</p>
-			</button>
+			</button> -->
 
 			<button class="card-item"
 			:class="{connected:heatConnected}"

@@ -1305,7 +1305,8 @@
 			},
 			"MUSIC_START": {
 				"label": "Music starts playing",
-				"description": "Actions to execute when a music starts playing"
+				"description": "Actions to execute when a music starts playing",
+				"disabled_reason": "Spotify killed their API to gatekeep for big companies. In addition to being pro-Trump/ICE/military/AI. Fuck them 🖕"
 			},
 			"MUSIC_STOP": {
 				"label": "Music stops playing",

@@ -72,9 +72,6 @@
 				<img src="@/assets/img/overlays/ending_credits.jpg" alt="Ending Credits">
 				<span>Ending Credits</span>
 			</button>
-			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg" alt="music">
-				<span>Music player</span>
-			</button>
 			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}">
 				<img src="@/assets/img/overlays/interractive_distortions.jpg" alt="Interactive distortions">
 				<span>Interactive distortions</span>
@@ -99,6 +96,9 @@
 			</button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule">
 				<span>Ulule</span>
+			</button>
+			<button class="item disabled"><img src="@/assets/img/overlays/spotify.jpg" alt="music" v-tooltip="$t('triggers.events.MUSIC_START.disabled_reason')">
+				<span>Spotify player</span>
 			</button>
 		</div>
 
@@ -291,6 +291,19 @@ export default toNative(ParamsOverlays);
 				width: calc(100% - 2em);
 				color: var(--color-text);
 				transform: translateX(-50%);
+			}
+
+			&.disabled {
+				cursor: default;
+				&:hover {
+					filter: none;
+				}
+				img {
+					filter: grayscale(100%) brightness(0.75);
+				}
+				span {
+					color: var(--color-text-fader);
+				}
 			}
 		}
 		:deep(.newFlag) {

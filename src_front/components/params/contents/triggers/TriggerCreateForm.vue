@@ -35,13 +35,14 @@
 					<span class="label">{{ $t(c.category.labelKey) }}</span>
 				</div>
 
-				<i18n-t scope="global" tag="div" class="card-item alert require"
+				<!-- <i18n-t scope="global" tag="div" class="card-item alert require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !search"
 				keypath="triggers.music.require">
 					<template #URL>
 						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
 					</template>
-				</i18n-t>
+				</i18n-t> -->
+				<div class="card-item alert" v-if="!musicServiceAvailable && isMusicCategory(c.category) && !search">{{ $t("triggers.events.MUSIC_START.disabled_reason") }}</div>
 
 				<i18n-t scope="global" tag="div" class="card-item alert require"
 				v-if="!obsConnected && isOBSCategory(c.category) && !search"

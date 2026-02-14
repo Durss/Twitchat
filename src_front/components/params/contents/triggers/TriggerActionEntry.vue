@@ -43,6 +43,7 @@
 		:error="isError"
 		:open="opened"
 		:title="title"
+		:alert="action.type=='music'"
 		:subtitle="subtitle"
 		:class="classes"
 		:icons="icons? icons : []">
@@ -185,10 +186,10 @@
 						:disabled="!$store.tts.params.enabled"
 						v-tooltip="$store.tts.params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</TTButton>
 
-					<TTButton class="button" @click.capture="selectActionType('music')"
+					<!-- <TTButton class="button" @click.capture="selectActionType('music')"
 						icon="spotify"
 						:disabled="!spotifyConnected"
-						v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</TTButton>
+						v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</TTButton> -->
 
 					<TTButton class="button" @click.capture="selectActionType('voicemod')"
 						icon="voicemod"
@@ -301,9 +302,10 @@
 				</div>
 			</div>
 
+			<template v-else-if="action.type=='music'">{{ $t('triggers.events.MUSIC_START.disabled_reason') }}</template>
+			<!-- <TriggerActionMusicEntry v-else-if="action.type=='music'" :action="action" :triggerData="triggerData" /> -->
 			<TriggerActionChatEntry v-else-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
 			<TriggerActionOBSEntry v-else-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
-			<TriggerActionMusicEntry v-else-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTTSEntry v-else-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
 			<TriggerActionBingoGridEntry v-else-if="action.type=='bingoGrid'" :action="action" :triggerData="triggerData" />
 			<TriggerActionVoicemodEntry v-else-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />

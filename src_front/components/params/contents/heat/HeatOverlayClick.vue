@@ -35,7 +35,7 @@ import PostOnChatParam from '../../PostOnChatParam.vue';
 })
 class HeatOverlayClick extends Vue {
 	
-	public overlayTypes:OverlayKey[] = ["spotify", "ulule"];
+	public overlayTypes:OverlayKey[] = ["ulule"];//["spotify", "ulule"];
 	public botMessageKeys:TwitchatDataTypes.BotMessageField[] = ["heatSpotify", "heatUlule"];
 	public placeholders:Partial<{[key in OverlayKey]:TwitchatDataTypes.PlaceholderEntry[]}> = {};
 	public param_cooldown:Partial<{[key in OverlayKey]:TwitchatDataTypes.ParameterData<number>}> = {};

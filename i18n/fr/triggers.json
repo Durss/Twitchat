@@ -1305,7 +1305,8 @@
 			},
 			"MUSIC_START": {
 				"label": "Début de lecture d'une musique",
-				"description": "Actions à exécuter lorsqu'une musique commence à jouer"
+				"description": "Actions à exécuter lorsqu'une musique commence à jouer",
+				"disabled_reason": "Spotify ont anéanti leur API pour la réserver aux grosses entreprises. En plus d'être pro trump/ICE/militaires/IA. Qu'ils aillent se faire foutre 🖕"
 			},
 			"MUSIC_STOP": {
 				"label": "Lecture de musique mise en pause",

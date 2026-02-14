@@ -56,15 +56,15 @@
 				type="link">{{ $t('tips.api.readBt') }}</TTButton>
 		</div>
 
-		<div v-if="tipIndex===7" class="entry">
+		<!-- <div v-if="tipIndex===7" class="entry">
 			<Icon name="music" alt="music" class="icon" theme="light" />
 			<h1>{{ $t('tips.music.title') }}</h1>
 			<div v-html="$t('tips.music.info_1')"></div>
 			<div>{{ $t('tips.music.info_2') }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentSpotify)" >{{ $t('tips.tryBt') }}</TTButton>
-		</div>
+		</div> -->
 
-		<div v-if="tipIndex===8" class="entry">
+		<div v-if="tipIndex===7" class="entry">
 			<Icon name="overlay" alt="overlay" class="icon" theme="light" />
 			<h1>{{ $t('tips.overlays.title') }}</h1>
 			<div v-html="$t('tips.overlays.info_1')"></div>
@@ -72,7 +72,7 @@
 			<TTButton primary light @click.stop="openParamPage(contentOverlays)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 
-		<div v-if="tipIndex===9" class="entry">
+		<div v-if="tipIndex===8" class="entry">
 			<Icon name="countdown" alt="timer" class="icon" theme="light" />
 			<h1>{{ $t('tips.countdown.title') }}</h1>
 			<i18n-t scope="global" tag="div" keypath="tips.countdown.info_1">
@@ -82,7 +82,7 @@
 			<TTButton primary light icon="countdown" @click.stop="openModal('timer')">{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 
-		<div v-if="tipIndex===10" class="entry">
+		<div v-if="tipIndex===9" class="entry">
 			<Icon name="obs" alt="obs dock" class="icon" theme="light" />
 			<h1>{{ $t('tips.dock.title') }}</h1>
 			<div v-html="$t('tips.dock.info_1')"></div>
@@ -90,7 +90,7 @@
 			<img src="@/assets/img/obs_dock.png" alt="obs dock screen">
 		</div>
 
-		<div v-if="tipIndex===11" class="entry">
+		<div v-if="tipIndex===10" class="entry">
 			<Icon name="highlight" alt="chat highlight" class="icon" theme="light" />
 			<h1>{{ $t('tips.highlight.title') }}</h1>
 			<div>{{ $t('tips.highlight.info') }}</div>

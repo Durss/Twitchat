@@ -16,7 +16,6 @@ import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -321,7 +320,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Connect to Spotify (won't do anything if no credentials are available)
 			 */
-			SpotifyHelper.instance.connect();
+			// SpotifyHelper.instance.connect();// Fuck off Spotify 🖕🖕🖕
 
 			/**
 			 * Init cypher secret feature
