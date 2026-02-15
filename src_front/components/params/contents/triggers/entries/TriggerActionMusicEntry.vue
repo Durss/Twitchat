@@ -105,6 +105,11 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 				labelKey:"triggers.actions.music.param_selection_options."+element,
 			})
 		}
+		// Spotify limited search from 50 to 10 results.
+		// If a selection type is no more available, fallback to largest available "top10"
+		if(this.action.musicSelectionType && !TriggerActionMusicEntryDataSelectionList.includes(this.action.musicSelectionType)) {
+			this.action.musicSelectionType = TriggerActionMusicEntryDataSelectionList[TriggerActionMusicEntryDataSelectionList.length - 1]!;
+		}
 		this.param_selection.value		= this.action.musicSelectionType? this.action.musicSelectionType : selections[0]!.value;
 		this.param_selection.listValues	= selections;
 

@@ -409,7 +409,7 @@ function buildApp() {
 		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	if(document.location.hostname != "localhost") {
+	if(Config.instance.IS_PROD) {
 		Sentry.init({
 			app,
 			debug:false,

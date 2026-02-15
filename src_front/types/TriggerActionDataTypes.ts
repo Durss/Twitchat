@@ -864,7 +864,7 @@ export interface TriggerActionVoicemodData extends TriggerActionData{
 	placeholder:string
 }
 
-export const TriggerActionMusicEntryDataSelectionList = ["1","2","3","top3","top5","top10","top15","top20","top25","top30","top40","top50"] as const;
+export const TriggerActionMusicEntryDataSelectionList = ["1","2","3","top3","top5","top10"] as const;
 export type TriggerActionMusicEntryDataSelection = typeof TriggerActionMusicEntryDataSelectionList[number];
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";

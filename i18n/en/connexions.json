@@ -6,7 +6,7 @@
 			"how_to":"To use it you'll have to {URL} and fill-in the values below:",
 			"how_to_read":"READ THIS TUTORIAL",
 			"usage":"Connect with Spotify to control it from the Triggers or display currently playing track from the Overlays.",
-			"usage_premium":"Controlling playback requires a Spotify Premium subscription!",
+			"usage_premium":"Requires a Spotify Premium subscription!",
 			"usage_connected":"You can now display the currently playing track thanks to the dedicated {OVERLAY} or allow your viewers to control playback by creating {TRIGGERS}.",
 			"usage_connected_overlay":"overlay",
 			"usage_connected_triggers":"triggers",

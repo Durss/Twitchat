@@ -171,6 +171,7 @@ class Login extends Vue {
 			this.authenticating = true;
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
+			console.log(">>>>", code, csrfToken);
 			if(code) {
 				const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken!});
 				if(!res.json.success) {

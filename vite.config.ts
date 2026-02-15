@@ -21,6 +21,14 @@ export default defineConfig({
 	publicDir: "static",
 	server: {
 		port: 8081,
+		allowedHosts: ['dev.twitchat.fr', 'localhost'],
+		proxy: {
+			'/api': {
+				target: 'http://localhost:3018',
+				changeOrigin: true,
+				secure: false,
+			},
+		},
 	},
 
 	plugins: [

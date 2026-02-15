@@ -175,7 +175,7 @@
 		let errorCount = 0;
 		function onLoadError(error, script) {
 			const SERVER_PORT = 3018;
-			const IS_PROD = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
+			const IS_PROD = !["localhost", "127.0.0.1", "dev.twitchat.fr"].includes(document.location.hostname);
 			let API_PATH = document.location.origin+"/api";
 			if(!IS_PROD) {
 				API_PATH = document.location.protocol+"//"+document.location.hostname+":"+SERVER_PORT+"/api";

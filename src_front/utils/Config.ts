@@ -45,7 +45,7 @@ export default class Config {
 	/**
 	 * Is Twitchat running on a production server ?
 	 */
-	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "127.0.0.1" && document.location.hostname != "192.168.1.10";
+	public IS_PROD:boolean = !["localhost", "127.0.0.1", "dev.twitchat.fr"].includes(document.location.hostname);
 	/**
 	 * Heat extension URL
 	 */
@@ -272,7 +272,7 @@ export default class Config {
 	 * Path to twitchat's API
 	 */
 	public get API_PATH():string {
-		if(!this.IS_PROD) {
+		if(!this.IS_PROD && document.location.protocol == "http:") {
 			return document.location.protocol+"//"+document.location.hostname+":"+this.SERVER_PORT+"/api";
 		}else{
 			return document.location.protocol+"//"+document.location.hostname+"/api";

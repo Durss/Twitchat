@@ -6,7 +6,7 @@
 			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
 			"how_to_read":"LIS CE TUTORIEL",
 			"usage":"Connectez Spotify puis contrôlez-le depuis les Triggers ou affichez le morceau en cours de lecture depuis les Overlays.",
-			"usage_premium":"Contrôler la lecture nécessite un compte Spotify Premium !",
+			"usage_premium":"Nécessite un compte Spotify Premium !",
 			"usage_connected":"Vous pouvez afficher le morceau en cours de lecture grâce à {OVERLAY} dédié ou permettre à vos viewers de contrôler la lecture en créant des {TRIGGERS}.",
 			"usage_connected_overlay":"l'overlay",
 			"usage_connected_triggers":"triggers",

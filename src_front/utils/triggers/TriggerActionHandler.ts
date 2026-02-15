@@ -3177,19 +3177,14 @@ export default class TriggerActionHandler {
 										const tracks = await SpotifyHelper.instance.searchTrack(m);
 										if(tracks && tracks.length > 0) {
 											switch(step.musicSelectionType) {
+												case "1": track = tracks[0]!; break;
 												case "2": track = tracks.length > 1? tracks[1]! : tracks.pop()!; break;
 												case "3": track = tracks.length > 2? tracks[2]! : tracks.pop()!; break;
 												case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
 												case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
-												case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
-												case "top15": track = Utils.pickRand(tracks.splice(0, 15)); break;
-												case "top20": track = Utils.pickRand(tracks.splice(0, 20)); break;
-												case "top25": track = Utils.pickRand(tracks.splice(0, 25)); break;
-												case "top30": track = Utils.pickRand(tracks.splice(0, 30)); break;
-												case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
-												case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
+												case "top10":
 												default:
-												case "1": track = tracks[0]!; break;
+													 track = Utils.pickRand(tracks.splice(0, 10)); break;
 											}
 										}
 										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});

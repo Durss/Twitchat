@@ -294,7 +294,7 @@ export default class SpotifyHelper {
 		}
 		const url = new URL("https://api.spotify.com/v1/search");
 		url.searchParams.set("type", "track");
-		url.searchParams.set("limit", "50");
+		url.searchParams.set("limit", "10");
 		url.searchParams.set("q", name);
 		const res = await fetch(url, options);
 		if(res.status == 401) {
@@ -415,7 +415,7 @@ export default class SpotifyHelper {
 				position
 			})
 		}
-		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/tracks", options);
+		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/items", options);
 		if(res.status <= 204 && res.status >= 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
