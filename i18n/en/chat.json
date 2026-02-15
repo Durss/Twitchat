@@ -50,7 +50,7 @@
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:",
 			"quoting": "Quoting {USER}:",
-			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :(",
+			"spotify_down": "Spotify connection failed. Make sure you have an active Spotify Premium subscription.",
 			"creditsBt_aria": "Ending credits",
 			"qnaBt_aria": "Question & Answer",
 			"trainBt_aria": "Hype train",
