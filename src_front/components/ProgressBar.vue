@@ -80,6 +80,7 @@ export default toNative(ProgressBar);
 	background: @bg;
 	position: relative;
 	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
+	flex-shrink: 0;
 
 	.fill {
 		box-shadow: @shadow;

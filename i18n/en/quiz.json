@@ -59,6 +59,12 @@
 				"title": "Majority mode",
 				"description": "One question, up to 4 answers answers. ONLY WRONG answers\n\nViewers must guess which answer will receive the most votes."
 			}
+		},
+		"state": {
+			"start_bt": "Start quiz",
+			"showAnswer_bt": "Reveal answer",
+			"nextQuestion_bt": "Next question",
+			"questionIndex": "Question {INDEX}/{TOTAL}"
 		}
 	}
 }

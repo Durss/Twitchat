@@ -1,4 +1,4 @@
-import { Locale, LocaleString } from "discord.js";
+import { Locale } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import Config from "./Config.js";
