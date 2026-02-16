@@ -54,7 +54,7 @@ import { gsap } from 'gsap/gsap-core';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
-import { createApp, type DirectiveBinding, type VNode } from "vue";
+import { createApp } from "vue";
 import CountryFlag from 'vue-country-flag-next';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
@@ -84,6 +84,10 @@ import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import Config from './utils/Config';
 import { storeStreamfog } from './store/streamfog/storeStreamfog';
 import Utils from './utils/Utils';
+import { vAutofocus } from './directives/autofocus';
+import { vClick2Select } from './directives/click2Select';
+import { vNewflag } from './directives/newflag';
+import { stickyTopShadow } from './directives/stickyTopShadow';
 
 window.setInitMessage("Booting app...");
 
@@ -330,71 +334,10 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
-	.directive('autofocus', {
-		mounted(el:HTMLDivElement, binding:unknown) {
-			if((binding as {[key:string]:boolean}).value !== false) {
-				//Disabling scroll avoids breaking layout when opening
-				//a ChannelNotifications content that has an autofocus element.
-				//In such case, if the focus is given during the opening
-				//transition, it completely breaks the chat layout, adding
-				//lots of space under the chat and activities.
-				//The "preventScroll" flag avoids this.
-				el.focus({preventScroll:true});
-				if(el.tagName.toLowerCase() == "input" || el.tagName.toLowerCase() == "textarea") {
-					const typedEl = el as HTMLInputElement;
-					if(typedEl.type =="number") {
-						typedEl.focus();
-					}else{
-						typedEl.setSelectionRange(typedEl.value.length, typedEl.value.length);
-					}
-				}
-			}
-		}
-	})
-	.directive('click2Select', {
-		mounted(el:HTMLElement, binding:unknown) {
-			if((binding as {[key:string]:boolean}).value !== false) {
-				el.style.cursor = "default";
-				el.addEventListener("click", ()=> {
-					if(el.nodeName === "INPUT") {
-						(el as HTMLInputElement).select();
-					}else{
-						el.ownerDocument?.getSelection()?.selectAllChildren(el);
-					}
-				});
-			}
-		}
-	})
-	.directive('newflag', {
-		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string, duration?:number}>, vnode:VNode<any, any, { [key: string]: any; }>) {
-			if(binding && binding.value) {
-				//date : contains the date at which something has been flagged as new
-				//id : id of the item flaged as new
-				//duration : duration during which the item should be flaged as new (1 month by default)
-				const {date, id, duration} = binding.value;
-				const maxDuration = duration || 30 * 24 * 60 * 60000;
-				//Flag as new only for 1 month
-				if(Date.now() - date > maxDuration) return;
-
-				//Don't flag is already marked as read
-				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-				if(flagsDone.includes(id)) return;
-
-				el.classList.add("newFlag");
-
-				el.addEventListener("click", ()=>{
-					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-					if(!flagsDone.includes(id)) {
-						flagsDone.push(id);
-						DataStore.set(DataStore.NEW_FLAGS, flagsDone);
-					}
-					el.classList.remove("newFlag");
-				});
-			}
-		},
-		beforeUnmount(el:HTMLElement, binding:unknown) {
-		}
-	});
+	.directive('stickyTopShadow', stickyTopShadow)
+	.directive('autofocus', vAutofocus)
+	.directive('click2Select', vClick2Select)
+	.directive('newflag', vNewflag);
 	app.config.globalProperties.$asset = asset;
 	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;

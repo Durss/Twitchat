@@ -176,6 +176,7 @@ export default class TwitchExtensionController extends AbstractController {
 			questionId: string;
 			answerId: string;
 			answerText?: string;
+			speed?: string;
 		};
 		
 		try {

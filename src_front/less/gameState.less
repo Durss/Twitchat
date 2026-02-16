@@ -14,21 +14,21 @@
 	max-height: 50vh;
 	overflow: auto;
 
-	*::-webkit-scrollbar-thumb {
-		cursor: pointer;
-		border-radius: 20px;
-		background-color: rgba(255, 255, 255, .5);
-	}
-
 	&>.title {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
-		width: calc(100% - 1em - 10px);
+		width: calc(100% + 1.25em);
 		word-break: break-word;
 		text-align: center;
 		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+		position: sticky;
+		top: -.7em;
+		z-index: 1;
+		background-color: var(--color-primary);
+		margin: 0 -1em;
+		transition: all .25s ease;
 		img, .icon {
 			width: 1em;
 			margin-right: .25em;
@@ -38,6 +38,12 @@
 			font-size: .8em;
 			color: var(--color-secondary);
 		}
+	}
+
+	.is-stuck {
+		box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+		padding-top: .25em;
+		padding-bottom: .25em;
 	}
 
 	.highlight:not(.button) {
@@ -70,8 +76,22 @@
 		}
 	}
 
-	&::-webkit-scrollbar-thumb {
-		background-color: var(--color-primary-light);
+	*::-webkit-scrollbar-thumb {
+		cursor: pointer;
+		border-radius: 20px;
+		background-color: rgba(255, 255, 255, .5);
 	}
 
 }
+
+/* experimental enhancement */
+// @supports (container-type: scroll-state) {
+// 	.title { container-type: scroll-state; }
+
+// 	@container scroll-state(stuck: top) {
+// 		.title {
+// 			box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+// 			padding: .25em;
+// 		}
+// 	}
+// }

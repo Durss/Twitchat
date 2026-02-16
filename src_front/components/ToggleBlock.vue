@@ -184,10 +184,15 @@ const displayIcons = computed(() => {
 	return icons;
 });
 
-const displayTitle = computed(() => localTitle.value || props.titleDefault || '');
+const displayTitle = computed(() => {
+	// When editing, show actual localTitle (even if empty) to allow clearing default
+	if (isEditingTitle.value) return localTitle.value;
+	// When not editing, fallback to default if localTitle is empty
+	return localTitle.value || props.titleDefault || '';
+});
 
 const rootClasses = computed(() => [
-	'toggleblock2',
+	'toggleblock',
 	{
 		closed: !isOpen.value || isClosing.value,
 		error: props.error,
@@ -251,6 +256,14 @@ function onTitleFocus(): void {
 	if (localTitle.value === props.titleDefault) {
 		localTitle.value = '';
 	}
+	const el = titleEditRef.value?.$el;
+	if (el) {
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		const sel = window.getSelection();
+		sel?.removeAllRanges();
+		sel?.addRange(range);
+	}
 }
 
 function onTitleBlur(): void {
@@ -270,7 +283,7 @@ const MIN_TITLE_WIDTH_EXPAND = 205;   // Width above which actions can expand (h
 
 function checkActionsOverflow(): void {
 	const actions = rightActionsRef.value;
-	const titleSection = titleRef.value || (titleEditRef.value as any)?.$el?.parentElement;
+	const titleSection = titleRef.value || titleEditRef.value?.$el?.parentElement;
 	if (!actions) return;
 
 	const buttons = actions.querySelectorAll('button, .button, [role="button"]');
@@ -372,7 +385,7 @@ onMounted(() => {
 	if (headerRef.value) resizeObserver.observe(headerRef.value);
 
 	// Observe title section if it exists
-	const titleSection = titleRef.value || (titleEditRef.value as any)?.$el?.parentElement;
+	const titleSection = titleRef.value || titleEditRef.value?.$el?.parentElement;
 	if (titleSection) resizeObserver.observe(titleSection);
 
 	// Initial checks
@@ -397,7 +410,7 @@ defineExpose({ toggle });
 </script>
 
 <style scoped lang="less">
-.toggleblock2 {
+.toggleblock {
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
 
@@ -464,7 +477,7 @@ defineExpose({ toggle });
 		width: 300px; // Fixed reference width for measurement
 		word-break: break-word;
 		white-space: normal;
-		font-size: 1.2em;
+		font-size: 1.1em;
 	}
 
 	// Title section
@@ -520,7 +533,7 @@ defineExpose({ toggle });
 				padding: 0.25em 0.5em;
 				padding-right: 1.25em;
 				border-radius: var(--border-radius);
-				line-height: 1.2em;
+				line-height: 1.1em;
 
 				&:hover,
 				&:focus {
