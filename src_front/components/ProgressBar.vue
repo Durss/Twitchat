@@ -98,7 +98,7 @@ export default toNative(ProgressBar);
 		background-color: var(--color-primary);
 		color: var(--color-light);
 		top: 0;
-		font-size: 15px;
+		font-size: .9em;
 		padding: 2px 5px;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);

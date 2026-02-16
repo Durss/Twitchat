@@ -220,7 +220,9 @@
 						icon="raid"
 						v-if="$store.stream.currentRaid != null"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raidBt_aria')}"
-						@click="openNotifications('raid')" />
+						@click="openNotifications('raid')">
+						<span class="time">{{ remainingRaidTime }}</span>
+					</ButtonNotification>
 				</transition>
 
 				<transition name="blink">
@@ -525,11 +527,13 @@ export class ChatForm extends Vue {
 	public trackedUserCount = 0;
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
+	public remainingRaidTime:string = "";
 	public onlineUsersTooltip:string = "";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 	public triggerImportData:SettingsExportData | null = null;
 
 	private announcementInterval:number = -1;
+	private raidIntervalUpdate:number = -1;
 	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	private creditsOverlayPresenceHandler!:() => void;
@@ -771,13 +775,22 @@ export class ChatForm extends Vue {
 			}
 		});
 
+		watch(()=>this.$store.stream.currentRaid, (newVal) => {
+			if(newVal) {
+				this.raidIntervalUpdate = window.setInterval(() => {
+					this.remainingRaidTime = Utils.formatDuration(newVal!.timerDuration_s * 1000 - (newVal!.startedAt - Date.now()), true);
+				}, 1000);
+			}
+		}, {immediate:true});
+
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
 	}
 
 	public beforeUnmount():void {
-		clearTimeout(this.announcementInterval);
+		window.clearInterval(this.raidIntervalUpdate);
+		window.clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
@@ -1526,6 +1539,7 @@ export default toNative(ChatForm);
 
 		.addPinBt {
 			width: 0px;
+			padding: 0;
 			max-width: 0px;
 			min-width: 0px;
 			transition: width 0.2s, max-width 0.2s, min-width 0.2s;
@@ -1832,6 +1846,10 @@ export default toNative(ChatForm);
 		&.slide-leave-to {
 			transform: translate(-50%, 0);
 		}
+	}
+
+	.time {
+		font-family: var(--font-roboto);
 	}
 
 }

@@ -1,19 +1,22 @@
 <template>
 	<div class="rafflestate gameStateWindow" v-if="raffleData">
-		<h1 class="title" v-stickyTopShadow>
-			<Icon name="ticket" />
-			<span>{{ $t('raffle.state_title') }}</span>
-			<div class="methods" ref="methods">
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title">
+				<Icon name="ticket" />
+				<span>{{ $t('raffle.state_title') }}</span>
 				<mark v-if="raffleData.mode == 'chat' && raffleData.command">{{raffleData.command}}</mark>
 				<mark v-if="raffleData.mode == 'chat' && raffleData.reward_id"><Icon name="channelPoints" />{{rewardName}}</mark>
 				<mark v-if="raffleData.mode == 'tips'"><Icon name="coin" />{{tipPlatforms.join(" ")}}</mark>
-			</div>
-		</h1>
-		<div class="content" ref="content">
-			<ProgressBar class="progress" secondary
+			</h1>
+
+			<ProgressBar secondary v-if="timerPercent < 1"
 				:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
 				:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 			/>
+			
+			<slot />
+		</div>
+		<div class="body" ref="content">
 
 			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10"><Icon name="alert" />{{$t("raffle.state_many_raffles", {COUNT:$store.raffle.raffleList.length})}}</div>
 
@@ -37,20 +40,7 @@
 				</i18n-t>
 			</div>
 
-			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
-				<div class="entries">
-					<template v-for="w in raffleData.winners" :key="w.label">
-						<TTButton v-if="w.user" small light
-						type="link"
-						target="_blank"
-						:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
-						@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
-						<div class="entry" v-else>{{ w.label }}</div>
-					</template>
-				</div>
-			</div>
-
-			<div class="ctas">
+			<div class="actions">
 				<TTButton icon="cross"
 					highlight
 					alert
@@ -67,9 +57,23 @@
 					light
 					:loading="picking"
 					:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
-
-				<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" noBackground @change="$store.raffle.saveData()" />
 			</div>
+
+			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+				<div class="entries">
+					<template v-for="w in raffleData.winners.concat().reverse()" :key="w.label">
+						<TTButton v-if="w.user" small light
+							type="link"
+							target="_blank"
+							:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
+							@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
+							
+						<div class="entry" v-else>{{ w.label }}</div>
+					</template>
+				</div>
+			</div>
+
+			<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" @change="$store.raffle.saveData()" />
 
 			<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
 				<div>{{ $t("raffle.state_overlay_not_found") }}</div>
@@ -352,27 +356,10 @@ export default toNative(RaffleState);
 
 	.title {
 		flex-wrap: wrap;
-		gap: .5em;
 		row-gap: .25em;
-		.methods {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: center;
-			.icon {
-				height: 1em;
-				margin-right: .5em;
-				vertical-align: bottom;
-			}
-
-			mark {
-				font-size: .7em;
-			}
-		}
 	}
 
-	.content>.entries {
+	.body>.entries {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -403,27 +390,20 @@ export default toNative(RaffleState);
 				color: var(--color-primary);
 				background-color: var(--color-light);
 				border-radius: var(--border-radius);
-				font-weight: normal;
 				font-size: .8rem;
+				font-weight: normal;
 			}
 		}
 	}
 
-	.ctas {
-		gap: 1em;
-		row-gap: .5em;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		.small {
-			font-size: .8em;
-		}
+	.small {
+		font-size: .8em;
+		background-color: rgba(0, 0, 0, .25);
 	}
 
 	.overlayStatus {
 		.bevel();
-		background-color: var(--grayout-fadest);
+		background-color: rgba(0, 0, 0, .25);
 		font-size: .85em;
 		gap: .5em;
 		padding: .5em;
@@ -443,12 +423,28 @@ export default toNative(RaffleState);
 		}
 	}
 
-	.content {
+	.body {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
 		width: 100%;
+	}
+
+	.winners {
+		.count {
+			font-style: italic;
+			font-weight: normal;
+			font-size: .8em;
+		}
+		.entries {
+			padding: 5px;//Makes sure box-filter isn't cut
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: .5em;
+		}
 	}
 }
 </style>
