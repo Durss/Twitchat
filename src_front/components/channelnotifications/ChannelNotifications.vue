@@ -2,82 +2,98 @@
 	<div class="channelnotifications">
 		<div ref="content" class="holder">
 			<transition name="slide">
-				<PollState class="content" v-if="showPoll" />
-				<ChatPollState class="content" v-else-if="showChatPoll" />
-				<PredictionState class="content" v-else-if="showPrediction" />
-				<RaffleState class="content" v-else-if="showRaffle" />
-				<BingoState class="content" v-else-if="showBingo" />
-				<HypeTrainState class="content" v-else-if="showHypeTrain" />
-				<RaidState class="content" v-else-if="showRaid" />
-				<QuizState class="content" v-else-if="showQuiz" />
+				<component class="content" :is="component" v-if="component">
+					<ClearButton class="closeBt clearButton"
+						aria-label="close"
+						@click="$emit('close')" />
+				</component>
 			</transition>
-
-			<ClearButton class="closeBt clearButton" v-if="showClose"
-				aria-label="close"
-				@click="$emit('close')" />
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeBingo as useStoreBingo } from '@/store/bingo/storeBingo';
+import { storeChat as useStoreChat } from '@/store/chat/storeChat';
+import { storePoll as useStorePoll } from '@/store/poll/storePoll';
+import { storePrediction as useStorePrediction } from '@/store/prediction/storePrediction';
+import { storeQuiz as useStoreQuiz } from '@/store/quiz/storeQuiz';
+import { storeRaffle as useStoreRaffle } from '@/store/raffle/storeRaffle';
+import { storeStream as useStoreStream } from '@/store/stream/storeStream';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
+import { computed } from 'vue';
 import ClearButton from '../ClearButton.vue';
 import BingoState from './BingoState.vue';
+import ChatPollState from './ChatPollState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
+import QuizState from './QuizState.vue';
 import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
-import ChatPollState from './ChatPollState.vue';
-import QuizState from './QuizState.vue';
 
-@Component({
-	components:{
-		QuizState,
-		PollState,
-		RaidState,
-		BingoState,
-		ClearButton,
-		RaffleState,
-		ChatPollState,
-		HypeTrainState,
-		PredictionState,
-	},
-	emits:['close'],
-})
-class ChannelNotifications extends AbstractSidePanel {
+const props = defineProps<{
+	currentContent: TwitchatDataTypes.NotificationTypes;
+}>();
 
-	@Prop
-	public currentContent!:TwitchatDataTypes.NotificationTypes;
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public get showRaid():boolean { return this.currentContent == 'raid' && this.$store.stream.currentRaid != undefined; }
-	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && this.$store.poll.data?.isFake != true; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatPoll' && this.$store.chatPoll.data != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
-	public get showQuiz():boolean { return this.currentContent == 'quiz' && this.$store.quiz.quizList.filter(v=>v.enabled).length > 0; }
+const storePoll = useStorePoll();
+const storePrediction = useStorePrediction();
+const storeChat = useStoreChat();
+const storeBingo = useStoreBingo();
+const storeRaffle = useStoreRaffle();
+const storeStream = useStoreStream();
+const storeQuiz = useStoreQuiz();
 
-	public get showClose():boolean {
-		return (this.showPoll
-			|| this.showPrediction
-			|| this.showChatPoll
-			|| this.showBingo
-			|| this.showRaffle
-			|| this.showRaid
-			|| this.showQuiz
-			|| this.showHypeTrain
-			|| this.$store.chat.searchMessages != "")
-		;
+const component = computed(() => {
+	switch(props.currentContent) {
+		case "poll": {
+			if(storePoll.data?.id != null && storePoll.data?.isFake != true) {
+				return PollState;
+			}
+		}
+		case "prediction": {
+			if(storePrediction.data?.id != null && storePrediction.data?.isFake != true) {
+				return PredictionState;
+			}
+		}
+		case "chatPoll": {
+			if(storeChat.data != null) {
+				return ChatPollState;
+			}
+		}
+		case "bingo": {
+			if(storeBingo.data != null) {
+				return BingoState;
+			}
+		}
+		case "raffle": {
+			if(storeRaffle.raffleList != null && storeRaffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0) {
+				return RaffleState;
+			}
+		}
+		case "raid": {
+			if(storeStream.currentRaid != undefined) {
+				return RaidState;
+			}
+		}
+		case "quiz": {
+			if(storeQuiz.quizList.filter(v=>v.enabled).length > 0) {
+				return QuizState;
+			}
+		}
+		case "train": {
+			if(storeStream.hypeTrain != undefined) {
+				return HypeTrainState;
+			}
+		}
 	}
+	return null;
+});
 
-	public mounted():void {
-	}
-}
-export default toNative(ChannelNotifications);
 </script>
 
 <style scoped lang="less">
@@ -95,10 +111,10 @@ export default toNative(ChannelNotifications);
 		}
 		.closeBt {
 			position: absolute;
-			top:10px;
-			right:10px;
-			width: 1.5em;
-			height: 1.5em;
+			top:.5em;
+			right:.25em;
+			width: 1.25em;
+			height: 1.25em;
 			padding: 0;
 			z-index: 1;
 			color: #ffffff;
@@ -107,14 +123,11 @@ export default toNative(ChannelNotifications);
 		.slide-enter-from,
 		.slide-leave-to {
 			&.slide-leave-to {
-				// filter: brightness(.1);
 				opacity: .2;
 			}
 			max-height: 0;
 			padding-top: 0;
 			padding-bottom: 0;
-			// margin-bottom: -100%;
-			// transform: translateY(100%);
 		}
 	}
 }
