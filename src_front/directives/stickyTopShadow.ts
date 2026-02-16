@@ -19,7 +19,7 @@ export const stickyTopShadow: Directive<ElWithState, StickyOptions | undefined> 
     if (!scrollContainer) return;
 
     // Read the CSS `top` value of the sticky element (e.g. -.7em → pixels)
-    const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
+    // const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
 
     // Compute the element's natural position within the scrollable content
     // using getBoundingClientRect (works regardless of offsetParent chain).
@@ -32,7 +32,7 @@ export const stickyTopShadow: Directive<ElWithState, StickyOptions | undefined> 
     const onScroll = () => {
       // Element is stuck once the container has scrolled past
       // the element's natural resting position minus its sticky top.
-      const stuck = scrollContainer.scrollTop >= naturalOffset - stickyTop;
+      const stuck = scrollContainer.scrollTop >= 10;// - stickyTop;
       el.classList.toggle(className, stuck);
     };
 

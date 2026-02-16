@@ -1,25 +1,29 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title" v-stickyTopShadow><Icon name="chatPoll" /><span>{{poll.title}}</span></h1>
-
-		<ProgressBar
-			secondary
-			:percent="progressPercent"
-			:duration="poll.duration_s*1000" />
-
-		<div class="choices">
-			<div v-for="(c, index) in poll.choices"
-				:key="index"
-				:style="getAnswerStyles(c)"
-				:class="getAnswerClasses(c)"
-			>
-				<div class="label">{{c.label}}</div>
-				<div class="percent">{{getPercent(c)}}% ({{c.votes}})</div>
-			</div>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="chatPoll" />{{poll.title.substring(0, 50)}}</h1>
+			<ProgressBar
+				secondary
+				:percent="progressPercent"
+				:duration="poll.duration_s*1000" />
+			<slot />
 		</div>
 
-		<div class="item actions">
-			<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
+		<div class="body">
+			<div class="choices">
+				<div v-for="(c, index) in poll.choices"
+					:key="index"
+					:style="getAnswerStyles(c)"
+					:class="getAnswerClasses(c)"
+				>
+					<div class="label">{{c.label}}</div>
+					<div class="percent">{{getPercent(c)}}% ({{c.votes}})</div>
+				</div>
+			</div>
+	
+			<div class="actions">
+				<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
+			</div>
 		</div>
 	</div>
 </template>
@@ -104,12 +108,6 @@ export default toNative(ChatPollState);
 
 <style scoped lang="less">
 .pollstate{
-	.title > span {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		display: inline-block;
-	}
 	.creator {
 		font-size: .8em;
 		text-align: center;
