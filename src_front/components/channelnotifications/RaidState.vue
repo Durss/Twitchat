@@ -1,6 +1,6 @@
 <template>
 	<div class="raidstate gameStateWindow" v-if="user">
-		<div class="head">
+		<div class="head" v-stickyTopShadow>
 			<a v-if="user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank" class="link">
 				<img :src="user.avatarPath" alt="avatar" class="avatar">
 
@@ -256,6 +256,14 @@ export default toNative(RaidState);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		position: sticky;
+		top: -1em;
+		z-index: 1;
+		width: calc(100% + 2em);
+		background-color: var(--color-primary);
+		margin: 0 -1em;
+		transition: all .25s ease;
+		padding: 0 .5em;
 		.link {
 			position: relative;
 			margin-bottom: .5em;

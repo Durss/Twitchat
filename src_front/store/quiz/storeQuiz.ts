@@ -142,12 +142,14 @@ export const storeQuiz = defineStore('quiz', {
 				}else{
 					score = answerText === question.answer ? 1 : -1;
 				}
-			}else{
+			}else if(answerId) {
 				const answer = question.answerList.filter(a=>a.id === answerId)[0];
 				if(answer && Utils.isClassicQuizAnswer(quiz.mode, answer) && answer.correct) {
 					score = 1;
 				}else{
 					// for majority quiz we can only get score once everyone has voted.
+					data.questionVotes[question.id] = data.questionVotes[question.id] || [];
+					data.questionVotes[question.id]!.push({uid, answer: answerId});
 				}
 			}
 			// Apply speed multiplicator if any
@@ -184,6 +186,41 @@ export const storeQuiz = defineStore('quiz', {
 			}
 
 			userData.score += score
+		},
+
+		startNextQuestion(quizId:string):void {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz) return
+			quiz.questionStarted_at = new Date().toISOString();
+			const index = quiz.questionList.findIndex(q=>q.id === quiz.currentQuestionId);
+			if(index < quiz.questionList.length - 1) {
+				quiz.currentQuestionId = quiz.questionList[index + 1]!.id;
+			}else{
+				quiz.currentQuestionId = "";
+				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this, only for testing
+				//TODO: quiz ended, do whatever needs to be done at that moment
+			}
+			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+		},
+
+		revealAnswer(quizId:string):void {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz) return
+			const votes: {[answerId:string]: number} = {};
+			const liveData = this.liveStates[quizId];
+			if(liveData) {
+				const question = quiz.questionList.find(q=>q.id === quiz.currentQuestionId);
+				if(question && !Utils.isFreeAnswerQuestion(quiz.mode, question)) {
+					question.answerList.forEach(a => {
+						votes[a.id] = 0;
+					});
+					const answers = liveData.questionVotes[question.id] || [];
+					for (const answer of answers) {
+						votes[answer.answer]! ++;
+					}
+				}
+			}
+			PublicAPI.instance.broadcast("ON_QUIZ_REVEAL_ANSWER", {quizId, votes});
 		},
 		
 	} as IQuizActions

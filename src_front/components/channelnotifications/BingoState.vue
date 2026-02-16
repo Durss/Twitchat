@@ -1,6 +1,6 @@
 <template>
 	<div class="bingostate gameStateWindow">
-		<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
+		<h1 class="title" v-stickyTopShadow><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
 
 		<div class="card-item goal" v-if="bingoData.guessNumber">
 			<strong class="guess">{{bingoData.numberValue}}</strong>
