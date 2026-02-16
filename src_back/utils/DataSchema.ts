@@ -2748,9 +2748,9 @@ const UserDataSchema = {
 									timeBasedScoring: { type: "boolean" },
 									enabled: { type: "boolean" },
 									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
-									quizStarted_at: { type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
-									currentQuestionId: { type: "integer", minimum:0, maximum:1000 },
-									questionStarted_at: { type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
 									questionList: {
 										type: "array",
 										minItems: 0,
@@ -2792,6 +2792,9 @@ const UserDataSchema = {
 									timeBasedScoring: { type: "boolean" },
 									enabled: { type: "boolean" },
 									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
 									questionList: {
 										type: "array",
 										minItems: 0,
@@ -2831,6 +2834,9 @@ const UserDataSchema = {
 									timeBasedScoring: { type: "boolean" },
 									enabled: { type: "boolean" },
 									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
 									questionList: {
 										type: "array",
 										minItems: 0,

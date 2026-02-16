@@ -3976,12 +3976,22 @@ export interface IQuizActions {
 	 * @param answerId 
 	 * @param answerText 
 	 */
-	handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>
+	handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
 	/**
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
 	 */
-	saveData(quizId?:string):Promise<void>
+	saveData(quizId?:string):Promise<void>;
+	/**
+	 * Starts the next question of given quiz ID
+	 * @param quizId 
+	 */
+	startNextQuestion(quizId:string):void;
+	/**
+	 * Reveal answer for current question of given quiz ID
+	 * @param quizId 
+	 */
+	revealAnswer(quizId:string):void;
 }
 
 

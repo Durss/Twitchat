@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<h1 class="title"><Icon name="prediction" />{{prediction.title}}</h1>
+		<h1 class="title" v-stickyTopShadow><Icon name="prediction" />{{prediction.title}}</h1>
 
 		<ProgressBar class="progress"
 			secondary
