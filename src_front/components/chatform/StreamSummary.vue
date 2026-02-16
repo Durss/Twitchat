@@ -135,7 +135,6 @@ class StreamSummary extends AbstractSidePanel {
 	private durationInterval:number = -1;
 
 	public async beforeMount():Promise<void> {
-
 		const res = await TwitchUtils.getCurrentStreamInfo([this.$store.auth.twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
@@ -353,6 +352,10 @@ class StreamSummary extends AbstractSidePanel {
 		this.loading = false;
 	}
 
+	public mounted(): void {
+		this.open();
+	}
+
 	public beforeUnmount():void {
 		clearInterval(this.durationInterval);
 	}
@@ -497,6 +500,7 @@ export default toNative(StreamSummary);
 .streamsummary{
 	.spinner {
 		height: 2em;
+		margin: auto;
 	}
 
 	.content {
