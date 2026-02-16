@@ -1945,6 +1945,19 @@ export type TwitchatEventMap = {
 	 * Receive quiz overlay configuration
 	 */
 	ON_QUIZ_CONFIGS: TwitchatDataTypes.QuizParams;
+	/**
+	 * Request to reveal the answer of given quiz ID
+	 */
+	ON_QUIZ_REVEAL_ANSWER: {
+		/**
+		 * Quiz ID to get configs for
+		 */
+		quizId: string;
+		/**
+		 * Answers votes
+		 */
+		votes: {[answerId: string]: number};
+	};
 	
 	/**
 	 * Requests for global states

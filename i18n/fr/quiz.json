@@ -59,6 +59,12 @@
 				"title": "Mode majoritaire",
 				"description": "Une question, jusqu'à 4 réponses, UNIQUEMENT des MAUVAISES réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
 			}
+		},
+		"state": {
+			"start_bt": "Démarrer le quiz",
+			"showAnswer_bt": "Révéler réponse",
+			"nextQuestion_bt": "Question suivante",
+			"questionIndex": "Question {INDEX}/{TOTAL}"
 		}
 	}
 }
