@@ -19,6 +19,7 @@ export default class SpotifyHelper {
 	public connected = ref(false);
 	public currentTrack = ref<TwitchatDataTypes.MusicTrackData|null>(null);
 	public currentPlaylist = ref<PlaylistCachedIdItem|null>(null);
+	public rateLimitedUntil = ref(0);
 
 	private static _instance:SpotifyHelper;
 	private _isPlaying = false;
@@ -186,6 +187,7 @@ export default class SpotifyHelper {
 
 		try {
 			const res = await fetch("https://accounts.spotify.com/api/token", options);
+			if(this.handleRateLimit(res)) return;
 			if(res.status==200) {
 				json = await res.json();
 			}else{
@@ -230,6 +232,7 @@ export default class SpotifyHelper {
 		try {
 			const res = await fetch("https://accounts.spotify.com/api/token", options);
 			let refreshSuccess = false;
+			if(this.handleRateLimit(res)) return;
 			if(res.status == 200) {
 				json = await res.json();
 				if(json.access_token) {
@@ -267,6 +270,7 @@ export default class SpotifyHelper {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/tracks/"+encodeURIComponent(id), options);
+		if(this.handleRateLimit(res)) return null;
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
@@ -297,6 +301,7 @@ export default class SpotifyHelper {
 		url.searchParams.set("limit", "10");
 		url.searchParams.set("q", name);
 		const res = await fetch(url, options);
+		if(this.handleRateLimit(res)) return null;
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
@@ -328,6 +333,7 @@ export default class SpotifyHelper {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=playlist&q="+encodeURIComponent(name), options);
+		if(this.handleRateLimit(res)) return null;
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
@@ -364,6 +370,7 @@ export default class SpotifyHelper {
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(track.uri), options);
+		if(this.handleRateLimit(res)) return false;
 		if(res.status <= 204 && res.status >= 200) {
 			if(user) {
 				this._trackIdToRequest[track.id] = {user, search:searchTerms};
@@ -376,9 +383,6 @@ export default class SpotifyHelper {
 			//Try again
 			if(!isRetry) return await this.addToQueue(track, true, user, searchTerms);
 			else return false;
-		}else
-		if(res.status == 409) {
-			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
@@ -416,6 +420,7 @@ export default class SpotifyHelper {
 			})
 		}
 		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/items", options);
+		if(this.handleRateLimit(res)) return false;
 		if(res.status <= 204 && res.status >= 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
@@ -425,9 +430,6 @@ export default class SpotifyHelper {
 			//Try again
 			if(!isRetry) return await this.addToPlaylist(track, playlistId, true);
 			else return false;
-		}else
-		if(res.status == 409) {
-			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
@@ -464,6 +466,7 @@ export default class SpotifyHelper {
 		let res!:Response;
 		try {
 			res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", options);
+			if(this.handleRateLimit(res)) return;
 			if(res.status > 401) throw("error");
 		}catch(error) {
 			//API crashed, try again 5s later
@@ -641,6 +644,7 @@ export default class SpotifyHelper {
 		const url = new URL("https://api.spotify.com/v1/playlists/"+id);
 		url.searchParams.set("fields", "name,description,href,id,public,external_urls,uri,images,tracks.total");
 		const res = await fetch(url, options);
+		if(this.handleRateLimit(res)) return null;
 		try {
 			json = await res.json();
 		}catch(error) {
@@ -666,6 +670,7 @@ export default class SpotifyHelper {
 			let json:JsonObject;
 			do {
 				const res = await fetch("https://api.spotify.com/v1/me/playlists?limit="+limit+"&offset="+offset, options);
+				if(this.handleRateLimit(res)) break;
 				try {
 					json = await res.json();
 				}catch(error) {
@@ -809,6 +814,7 @@ export default class SpotifyHelper {
 		}
 		if(body) options.body = JSON.stringify(body);
 		const res = await fetch("https://api.spotify.com/v1/"+path, options);
+		if(this.handleRateLimit(res)) return false;
 		if(res.status == 401) {
 			await this.refreshToken();
 			return false;
@@ -827,9 +833,6 @@ export default class SpotifyHelper {
 				StoreProxy.music.spotifyConsecutiveErrors ++;
 				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
-		}else
-		if(res.status == 409) {
-			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
@@ -854,6 +857,7 @@ export default class SpotifyHelper {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode", options);
+		if(this.handleRateLimit(res)) return null;
 		if(res.status == 401) {
 			await this.refreshToken();
 			return null;
@@ -874,6 +878,7 @@ export default class SpotifyHelper {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue", options);
+		if(this.handleRateLimit(res)) return;
 		if(res.status == 401) {
 			await this.refreshToken();
 			return;
@@ -892,6 +897,26 @@ export default class SpotifyHelper {
 		}catch(error){
 
 		}
+	}
+
+	/**
+	 * Return true if query got rate limited and set the "rateLimitedUntil" ref to when the limit will be lifted
+	 * @param res 
+	 * @returns 
+	 */
+	private handleRateLimit(res:Response):boolean {
+		if(this.rateLimitedUntil.value > Date.now()) {
+			//Still rate limited, do not execute this query
+			return true;
+		}
+		if(res.status == 429) {
+			const retryAfter = res.headers.get("Retry-After");
+			if(retryAfter) {
+				this.rateLimitedUntil.value = Date.now() + parseInt(retryAfter) * 1000;
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

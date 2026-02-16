@@ -41,7 +41,6 @@
 		"shoutout_not_mod": "You're not a moderator on this channel",
 		"spotify": {
 			"no_device": "[SPOTIFY] You must first start playing something on Spotify for Twitchat to be able to control it.",
-			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"
 		},
 		"message_send": "Woops... something went wrong when sending the message :(",

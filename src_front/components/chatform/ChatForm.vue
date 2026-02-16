@@ -341,6 +341,11 @@
 				</transition>
 
 				<transition name="blink">
+					<Icon class="error" name="spotify" v-if="spotifyRateLimited"
+					v-tooltip="{touch:'hold', content:$t('chat.form.spotify_rate_limited', {DURATION: spotifyRateLimitedDurationFormated}), showOnCreate:true, hideOnClick: 'toggle'}" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
 						icon="debug"
 						@click="$emit('update:showDevMenu',true);"
@@ -464,6 +469,7 @@ import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { SettingsExportData } from '@/types/TriggerActionDataTypes';
 import ClearButton from '../ClearButton.vue';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 @Component({
 	components:{
@@ -682,6 +688,10 @@ export class ChatForm extends Vue {
 		}
 		return result;
 	}
+
+	public get spotifyRateLimited():boolean { return SpotifyHelper.instance.rateLimitedUntil.value > Date.now(); }
+
+	public get spotifyRateLimitedDurationFormated():string { return Utils.formatDuration(SpotifyHelper.instance.rateLimitedUntil.value - Date.now()); }
 
 	public pinDisableState(item:typeof this.pinnedMenuItems[number]):{disabled:boolean, scopes:TwitchScopesString[]} {
 		let disabled = false;

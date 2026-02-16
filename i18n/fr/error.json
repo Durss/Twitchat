@@ -41,7 +41,6 @@
 		"shoutout_not_mod": "Vous n'êtes pas modérateurice sur cette chaîne",
 		"spotify": {
 			"no_device": "[SPOTIFY] Afin que Twitchat puisse contrôler Spotify vous devez d'abord lancer une lecture manuellement.",
-			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
 		},
 		"message_send": "Une erreur est survenue lors de l'envoi du message :(",

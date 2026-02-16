@@ -51,6 +51,7 @@
 			"reply_to": "Replying to {USER}:",
 			"quoting": "Quoting {USER}:",
 			"spotify_down": "Spotify connection failed. Make sure you have an active Spotify Premium subscription.",
+			"spotify_rate_limited": "Spotify API quota reached. Please wait for {DURATION}.\nThis is due to Spotify butchering their API. Fuck them",
 			"creditsBt_aria": "Ending credits",
 			"qnaBt_aria": "Question & Answer",
 			"trainBt_aria": "Hype train",

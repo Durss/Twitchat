@@ -51,6 +51,7 @@
 			"reply_to": "Réponse à {USER} :",
 			"quoting": "Citer {USER} :",
 			"spotify_down": "Connexion à Spotify impossible. Assurez-vous d'avoir un abonnement Spotify Premium",
+			"spotify_rate_limited": "Quota d'API Spotify atteint. Veuillez attendre {DURATION}.\nCeci est dû à Spotify qui ont saccagé leur API. Vous pouvez les haïr :)",
 			"creditsBt_aria": "Générique de fin",
 			"bingoGridBt_aria": "Grilles de bingo",
 			"groqBt_aria": "Réponses Groq",
