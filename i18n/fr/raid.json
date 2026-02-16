@@ -1,6 +1,6 @@
 {
 	"raid": {
-		"raiding": "Raid vers {USER} avec {VIEWERS} personnes dans {TIMER}",
+		"viewers": "Viewers",
 		"copy_logins": "Copier les logins",
 		"banned_users": "Vous pouvez prévenir les modérateur·ices de {USER} que les personnes bannies suivantes risquent d'arriver sur sa chaîne:",
 		"banned_users_title": "1 personne bannie chez vous risque de se joindre au raid |{COUNT} personnes bannies chez vous risquent de se joindre au raid",
@@ -15,6 +15,7 @@
 		"raid_liveBt": "Chaînes en live",
 		"raid_historyBt": "Historique de raids",
 		"remote_chat": "Se connecter au tchat de {USER}",
+		"cancel_raid": "Annuler le raid",
 		"target_channel_previous_raid": "Votre dernier raid était sur cette chaîne.",
 		"target_channel_offline": "La chaîne que vous êtes sur le point de raid n'est pas en ligne !"
 	}
