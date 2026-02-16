@@ -1,6 +1,6 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title"><Icon name="poll" />{{poll.title}}</h1>
+		<h1 class="title" v-stickyTopShadow><Icon name="poll" />{{poll.title}}</h1>
 
 		<ProgressBar class="progress"
 			secondary

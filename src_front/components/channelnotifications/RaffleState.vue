@@ -1,6 +1,6 @@
 <template>
 	<div class="rafflestate gameStateWindow" v-if="raffleData">
-		<h1 class="title">
+		<h1 class="title" v-stickyTopShadow>
 			<Icon name="ticket" />
 			<span>{{ $t('raffle.state_title') }}</span>
 			<div class="methods" ref="methods">
@@ -351,7 +351,6 @@ export default toNative(RaffleState);
 	gap: .5em;
 
 	.title {
-		width: 100%;
 		flex-wrap: wrap;
 		gap: .5em;
 		row-gap: .25em;
