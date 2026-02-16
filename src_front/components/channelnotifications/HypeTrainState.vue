@@ -6,25 +6,27 @@
 				<img :src="user.avatarPath?.replace('300x300', '50x50')" class="avatar hide" onload="this.classList.remove('hide')">
 			</a>
 		</div>
-		<div class="fill" :style="{width: (100 - roundProgressPercent)+'%'}"></div>
-		<div class="head">
-			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="trainData.type == 'golden_kappa'" />
-			<img src="@/assets/img/coin.png" alt="golden kappa" class="icon coin" v-if="trainData.type == 'treasure'" />
-			<Icon name="train" alt="train" class="icon" v-else />
 
+		<div class="fill" :style="{width: (100 - roundProgressPercent)+'%'}"></div>
+		
+		<div class="head" v-stickyTopShadow>
 			<template v-if="trainData.state == 'APPROACHING'">
-				<h1 v-if="trainData.type == 'treasure'">{{ $t("train.treasure_approaching") }}</h1>
-				<h1 v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_approaching") }}</h1>
-				<h1 v-else>{{ $t("train.hype_approaching") }}</h1>
+				<h1 v-if="trainData.type == 'treasure'"><HypeTrainStateIcon />{{ $t("train.treasure_approaching") }}</h1>
+				<h1 v-else-if="trainData.type == 'golden_kappa'"><HypeTrainStateIcon />{{ $t("train.golden_approaching") }}</h1>
+				<h1 v-else><HypeTrainStateIcon />{{ $t("train.hype_approaching") }}</h1>
 			</template>
 
-			<i18n-t scope="global" tag="h1" v-else-if="trainProgress"
-			:keypath="trainData.type == 'treasure'?'train.treasure_progress': trainData.type == 'golden_kappa'?'train.golden_progress':'train.hype_progress'">
-				<template #LEVEL>{{ trainData.level }}</template>
-				<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
-			</i18n-t>
+			<h1 v-else-if="trainProgress">
+				<HypeTrainStateIcon />
+				<i18n-t scope="global"
+				:keypath="trainData.type == 'treasure'?'train.treasure_progress': trainData.type == 'golden_kappa'?'train.golden_progress':'train.hype_progress'">
+					<template #LEVEL>{{ trainData.level }}</template>
+					<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
+				</i18n-t>
+			</h1>
 
 			<h1 v-else-if="trainData.state == 'COMPLETED'">
+				<HypeTrainStateIcon />
 				<span v-if="trainData.type == 'treasure'">{{ $t("train.treasure_complete") }}</span>
 				<span v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_complete") }}</span>
 				<span v-else>{{ $t("train.hype_complete") }}</span>
@@ -36,47 +38,51 @@
 			</h1>
 
 			<template v-else-if="trainData.state == 'EXPIRED'">
+				<HypeTrainStateIcon />
 				<h1 v-if="trainData.type == 'treasure'">{{ $t("train.treasure_cancel") }}</h1>
 				<h1 v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_cancel") }}</h1>
 				<h1 v-else>{{ $t("train.hype_cancel") }}</h1>
 			</template>
+			
+			<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
+				class="progressBar"
+				secondary
+				:duration="timerDuration"
+				:percent="timerPercent"
+			/>
+			<slot />
 		</div>
 
-		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
-			class="progressBar"
-			secondary
-			:duration="timerDuration"
-			:percent="timerPercent"
-		/>
-
-		<div v-if="trainData.isAllTimeRecord" class="record"><Icon name="leaderboard" />{{ $t("train.all_time_record") }}</div>
-
-		<div class="content conductors">
-			<a @click.stop="openUserCard(conductor_subs!.user)"
-			v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
-				<Icon name="sub" class="icon" />
-				<img :src="conductor_subs.user.avatarPath" class="avatar">
-				<span class="userlink">{{conductor_subs.user.displayName}}</span>
-
-				<!-- <i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
-					<template #COUNT>
-						<span class="count">{{ getConductorSubCount() }}</span>
-					</template>
-				</i18n-t> -->
-			</a>
-
-			<a @click.stop="openUserCard(conductor_bits!.user)"
-			v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
-				<Icon name="bits" class="icon" />
-				<img :src="conductor_bits.user.avatarPath" class="avatar">
-				<span class="userlink">{{conductor_bits.user.displayName}}</span>
-
-				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="conductor_bits.amount">
-					<template #COUNT>
-						<span class="count">{{ conductor_bits.amount }}</span>
-					</template>
-				</i18n-t>
-			</a>
+		<div class="body">
+			<div v-if="trainData.isAllTimeRecord" class="record"><Icon name="leaderboard" />{{ $t("train.all_time_record") }}</div>
+	
+			<div class="content conductors">
+				<a @click.stop="openUserCard(conductor_subs!.user)"
+				v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
+					<Icon name="sub" class="icon" />
+					<img :src="conductor_subs.user.avatarPath" class="avatar">
+					<span class="userlink">{{conductor_subs.user.displayName}}</span>
+	
+					<!-- <i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
+						<template #COUNT>
+							<span class="count">{{ getConductorSubCount() }}</span>
+						</template>
+					</i18n-t> -->
+				</a>
+	
+				<a @click.stop="openUserCard(conductor_bits!.user)"
+				v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
+					<Icon name="bits" class="icon" />
+					<img :src="conductor_bits.user.avatarPath" class="avatar">
+					<span class="userlink">{{conductor_bits.user.displayName}}</span>
+	
+					<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="conductor_bits.amount">
+						<template #COUNT>
+							<span class="count">{{ conductor_bits.amount }}</span>
+						</template>
+					</i18n-t>
+				</a>
+			</div>
 		</div>
 	</div>
 </template>
@@ -88,10 +94,12 @@ import { gsap } from 'gsap/gsap-core';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import ProgressBar from '../ProgressBar.vue';
+import HypeTrainStateIcon from './HypeTrainStateIcon.vue';
 
 @Component({
 	components:{
 		ProgressBar,
+		HypeTrainStateIcon,
 	}
 })
 class HypeTrainState extends Vue {
@@ -223,8 +231,9 @@ export default toNative(HypeTrainState);
 	.sharedUsers {
 		position: absolute;
 		top: 0;
-		transform: translateY(-50%);
-		z-index: 1;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 2;
 		a {
 			width: 30px;
 			height: 30px;
@@ -243,30 +252,13 @@ export default toNative(HypeTrainState);
 		top: 0;
 		right: 0;
 		height: 100%;
-		background-color: #00000018;
+		background-color: #00000020;
 		transition: width .5s;
+		pointer-events: none;
 	}
 
 	.head {
-		z-index: 1;
-		display: flex;
-		flex-direction: row;
-		gap: .5em;
-		row-gap: .25em;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-
-		h1 {
-			display: flex;
-			flex-direction: row;
-			gap: .5em;
-			row-gap: .25em;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-		}
+		z-index: 2;
 
 		.subtitle {
 			font-size: .9em;
@@ -274,7 +266,8 @@ export default toNative(HypeTrainState);
 		}
 
 		&>.icon {
-			height: 2em;
+			max-width: 1.5em;
+			height: 1.5em;
 			margin-right: .5em;
 			&.kappa,
 			&.coin {
@@ -306,6 +299,10 @@ export default toNative(HypeTrainState);
 			// text-shadow: var(--text-shadow-contrast);
 			letter-spacing: 1px;
 		}
+	}
+
+	.body {
+		z-index: 1;
 	}
 
 	&.golden_kappa {
