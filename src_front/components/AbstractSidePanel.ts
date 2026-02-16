@@ -2,7 +2,8 @@ import { gsap } from "gsap";
 import { ComponentBase, Vue } from 'vue-facing-decorator';
 
 @ComponentBase({
-    name: "AbstractSidePanel"
+    name: "AbstractSidePanel",
+	emits: ["close"],
 })
 export default class AbstractSidePanel extends Vue {
 

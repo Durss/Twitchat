@@ -10,13 +10,17 @@
 							v-if="timeRemaining > 0"
 							:style="{ strokeDashoffset: circleOffsetAngle }" />
 					</svg>
-					<span class="timer-text" v-if="timeRemaining > 0">{{ timeRemaining }}</span>
+					<transition name="scale">
+						<div class="timer-text" v-if="timeRemaining > 0">{{ Math.round(timeRemaining / 1000) }}</div>
+					</transition>
 				</div>
 			</div>
-			<ul v-if="!isFreeAnswerQuestion(currentQuestion)" class="answers" :key="currentQuestion.id">
-				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item">
+			<ul v-if="!Utils.isFreeAnswerQuestion(quizData!.mode, currentQuestion)" class="answers" :key="currentQuestion.id">
+				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
+				:class="{ good: isGoodAnswer(answer), revealed: showAnswers }">
 					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 					<span class="answer">{{ answer.title }}</span>
+					<span class="votes" v-if="showAnswers">{{ answersVotes[answer.id] ? `(${answersVotes[answer.id]} votes)` : "" }}</span>
 				</li>
 			</ul>
 		</div>
@@ -34,9 +38,11 @@ import Utils from '@/utils/Utils';
 
 const route = useRoute();
 const quizData = ref<TwitchatDataTypes.QuizParams|null>(null);
+const showAnswers = ref(false);
 const quizId = route.query.twitchat_overlay_id as string ?? "";
-const timeRemaining = ref(30);
+const timeRemaining = ref(3000);
 const seed = parseInt(quizId.replace(/[^0-9]/g, ''), 16) || Date.now();
+const answersVotes = ref<{[answerId: string]: number}>({});
 let timerInterval: number | null = null;
 
 const currentQuestion = computed(()=> {
@@ -47,7 +53,7 @@ const currentQuestion = computed(()=> {
 });
 
 const answerList = computed(()=> {
-	if(currentQuestion.value && !isFreeAnswerQuestion(currentQuestion.value)) {
+	if(currentQuestion.value && !Utils.isFreeAnswerQuestion(quizData.value!.mode, currentQuestion.value)) {
 		const seededRnd = Utils.seededRandom(seed);
 		let a = currentQuestion.value.answerList.concat();
 		for (let i = a.length - 1; i > 0; i--) {
@@ -63,7 +69,7 @@ const duration = computed(()=> {
 });
 
 const circleOffsetAngle = computed(() => {
-	const progress = timeRemaining.value / duration.value;
+	const progress = Math.round(((timeRemaining.value/1000) / duration.value) * 100) / 100;
 	return 2 * Math.PI * 45 * (1 - progress);
 });
 
@@ -74,11 +80,22 @@ function startTimer() {
 	timeRemaining.value = new Date(started_at).getTime() - Date.now() + duration.value * 1000;
 	timerInterval = window.setInterval(() => {
 		if (timeRemaining.value > 0) {
-			timeRemaining.value--;
+			timeRemaining.value-=1000;
 		} else {
 			if (timerInterval) clearInterval(timerInterval);
 		}
 	}, 1000);
+}
+
+function isGoodAnswer(answer:TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][0]["answerList"][0]):boolean {
+	if(!quizData.value || !currentQuestion.value) return false;
+	if(Utils.isClassicQuizAnswer(quizData.value.mode, answer)) {
+		return answer.correct == true;
+	}else if(Utils.isMajorityQuizAnswer(quizData.value.mode, answer)) {
+		const maxVotes = Math.max(...Object.values(answersVotes.value));
+		return answersVotes.value[answer.id] == maxVotes && maxVotes > 0;
+	}
+	return false;
 }
 
 watch(currentQuestion, (newQuestion) => {
@@ -95,14 +112,24 @@ function onConnect() {
 function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRESENCE", { quizId }); }
 
 /**
- * Check if question is from a free answer quiz
+ * Called when a quiz config is updated. Update local data.
+ * Called when starting quiz, starting next question, etc...
  */
-function isFreeAnswerQuestion(_question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
-	return quizData.value?.mode === "freeAnswer";
+function onQuizConfigs(e:TwitchatEvent<"ON_QUIZ_CONFIGS">) {
+	// Ignore if its not for local quiz ID
+	if(e.data.id != quizId) return
+	quizData.value = e.data;
+	showAnswers.value = false;
 }
 
-function onQuizConfigs(e:TwitchatEvent<"ON_QUIZ_CONFIGS">) {
-	quizData.value = e.data;
+/**
+ * Called when asking to reveal the answers.
+ */
+function onQuizRevealAnswer(e:TwitchatEvent<"ON_QUIZ_REVEAL_ANSWER">) {
+	if(e.data.quizId != quizId) return;
+	if(!currentQuestion.value) return;
+	showAnswers.value = true;
+	answersVotes.value = e.data.votes;
 }
 
 useOverlayConnector(onConnect);
@@ -110,12 +137,14 @@ useOverlayConnector(onConnect);
 PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", onConnect);
 PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 PublicAPI.instance.addEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
+PublicAPI.instance.addEventListener("ON_QUIZ_REVEAL_ANSWER", onQuizRevealAnswer);
 
 onBeforeUnmount(() => {
 	if (timerInterval) clearInterval(timerInterval);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_CONFIGS", onConnect);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
+	PublicAPI.instance.removeEventListener("ON_QUIZ_REVEAL_ANSWER", onQuizRevealAnswer);
 });
 
 </script>
@@ -196,11 +225,18 @@ onBeforeUnmount(() => {
 				position: absolute;
 				top: 50%;
 				left: 50%;
-				transform: translate(-50%, -50%);
 				font-size: 1.8em;
 				font-weight: 800;
 				color: #ffffff;
 				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+				transition: transform .35s;
+				transform-origin: center;
+				transform: translate(-50%, -50%) scale(1);
+
+				&.scale-enter-from,
+				&.scale-leave-to {
+					transform: translate(-50%, -50%) scale(0);
+				}
 			}
 		}
 	}
@@ -245,6 +281,19 @@ onBeforeUnmount(() => {
 				box-shadow: 0 6px 20px var(--color-dark-fade);
 				background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary-dark));
 			}
+
+			&.revealed.good {
+				background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-dark));
+				box-shadow: 0 4px 16px rgba(0, 100, 0, 0.5);
+			}
+
+			&.revealed:not(.good) {
+				opacity: 0.7;
+				background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary-dark));
+				.index {
+					background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+				}
+			}
 			
 			.index {
 				flex-shrink: 0;
@@ -272,8 +321,15 @@ onBeforeUnmount(() => {
 				word-break: break-word;
 				margin-top: .25em;
 			}
+
+			.votes {
+				font-size: 0.9em;
+				color: #ffffff;
+				text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+			}
 		}
 	}
+	
 }
 
 @keyframes slideUp {
