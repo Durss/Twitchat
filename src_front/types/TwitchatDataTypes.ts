@@ -368,7 +368,7 @@ export namespace TwitchatDataTypes {
 	export interface IRoomSettings {
 		subOnly?:boolean;
 		emotesOnly?:boolean;
-		followOnly?:number|false;
+		followOnly?:number|boolean;
 		chatDelay?:number;
 		slowMode?:number;
 	}
