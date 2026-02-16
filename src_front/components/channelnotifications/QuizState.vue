@@ -1,33 +1,40 @@
 <template>
 	<div class="quizstate gameStateWindow" v-if="currentQuiz">
-		<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
-		
-		<ProgressBar v-if="currentQuiz.questionStarted_at && progressPercent < 1"
-			class="progress"
-			secondary
-			:percent="progressPercent"
-			:duration="questionDuration" />
-
-		<div class="subtitle">{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</div>
-		
-		<div class="ctas">
-			<TTButton icon="test" light secondary small @click="fakeVote()">fake votes</TTButton>
-			<template v-if="!currentQuestion">
-				<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
-			</template>
-			<template v-else>
-				<TTButton icon="checkmark" light @click="store.revealAnswer(currentQuiz.id)">{{ $t('quiz.state.showAnswer_bt') }}</TTButton>
-				<TTButton icon="next" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
-			</template>
+		<div class="head" v-stickyTopShadow>
+			<div class="subHolder">
+				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
+				<div class="subtitle">{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</div>
+			</div>
+			
+			<ProgressBar v-if="currentQuiz.questionStarted_at && progressPercent < 1"
+				class="progress"
+				secondary
+				:percent="progressPercent"
+				:duration="questionDuration" />
+			
+			<slot />
 		</div>
 
-		<div class="question">{{ currentQuestion?.question }}</div>
-		<div class="answers" v-if="!$utils.isFreeAnswerQuestion(currentQuiz.mode, currentQuestion)">
-			<div class="answer"
-			:class="{selected:$utils.isClassicQuizAnswer(currentQuiz.mode, answer)? answer.correct : false}"
-			v-for="(answer, index) in currentQuestion?.answerList">
-				<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
-				<span class="label">{{ answer.title }}</span>
+		<div class="body">
+			<div class="actions">
+				<TTButton icon="test" light secondary small @click="fakeVote()">fake votes</TTButton>
+				<template v-if="!currentQuestion">
+					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
+				</template>
+				<template v-else>
+					<TTButton icon="checkmark" light @click="store.revealAnswer(currentQuiz.id)">{{ $t('quiz.state.showAnswer_bt') }}</TTButton>
+					<TTButton icon="next" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
+				</template>
+			</div>
+	
+			<div class="question">{{ currentQuestion?.question }}</div>
+			<div class="answers" v-if="!$utils.isFreeAnswerQuestion(currentQuiz.mode, currentQuestion)">
+				<div class="answer"
+				:class="{selected:$utils.isClassicQuizAnswer(currentQuiz.mode, answer)? answer.correct : false}"
+				v-for="(answer, index) in currentQuestion?.answerList">
+					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
+					<span class="label">{{ answer.title }}</span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -79,29 +86,25 @@ onBeforeUnmount(() => {
 
 <style scoped lang="less">
 .quizstate{
-	.subtitle {
-		font-size: 0.9em;
-		opacity: 0.8;
-		margin-bottom: .5em;
-		font-style: italic;
-	}
-	.ctas {
-		gap: .25em;
+	.subHolder {
 		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
+		flex-direction: column;
+		align-items: center;
+		.subtitle {
+			font-size: 0.9em;
+			opacity: 0.8;
+			font-style: italic;
+		}
 	}
 	.progress{
 		z-index: 1;
 	}
 	.question {
-		font-weight: 500;
-		line-height: 1.2em;
+		line-height: 1.1em;
 		padding: .5em .75em;
 		margin-top: .5em;
 		border-radius: .5em;
-		background-color: var(--grayout-fader);
+		background-color: rgba(0, 0, 0, .25);
 	}
 	.answers {
 		gap: .5em;
@@ -115,9 +118,9 @@ onBeforeUnmount(() => {
 			gap: .5em;
 			max-width: 40%;
 			padding: .25em .5em;
-			border: 1px solid var(--grayout);
+			border: 1px solid transparent;
 			border-radius: .5em;
-			background-color: var(--grayout-fadest);
+			background-color: rgba(0, 0, 0, .25);
 			transition: all .15s;
 			
 			.index {
@@ -136,11 +139,10 @@ onBeforeUnmount(() => {
 				// Explicit line-height avoids sub-pixel rounding mismatches between
 				// scrollHeight and clientHeight that cause spurious scrollbars
 				// when line-height is "normal" (browser-computed fractional value).
-				line-height: 1.3em;
+				line-height: 1.25em;
 			}
 
-			& {
-			// &.selected {
+			&.selected {
 				border-color: var(--color-light);
 				.index {
 					opacity: 1;

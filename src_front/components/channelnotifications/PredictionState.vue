@@ -1,44 +1,52 @@
 <template>
 	<div :class="classes">
-		<h1 class="title" v-stickyTopShadow><Icon name="prediction" />{{prediction.title}}</h1>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="prediction" />{{prediction.title}}</h1>
+	
+			<ProgressBar class="progress"
+				secondary
+				:percent="progressPercent"
+				:duration="prediction.duration_s*1000"
+				v-if="!prediction.pendingAnswer" />
 
-		<ProgressBar class="progress"
-			secondary
-			:percent="progressPercent"
-			:duration="prediction.duration_s*1000"
-			v-if="!prediction.pendingAnswer" />
+			<slot />
+		</div>
 
-		<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
-
-		<div class="choices">
-			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
-				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
-				<TTButton class="winBt"
-					secondary
-					@click="setOutcome(c)"
-					icon="checkmark"
-					v-if="prediction.pendingAnswer && canAnswer"
-					:loading="loading" />
-
-				<div class="bar" :style="getAnswerStyles(c)">
-					<div>{{c.label}}</div>
-					<div class="details">
-						<span class="percent">{{getPercent(c)}}%</span>
-						<span class="votes"><Icon name="user" alt="user" class="icon" />{{c.voters}}</span>
-						<span class="points"><Icon name="channelPoints" alt="channelPoints" class="icon" />{{c.votes}}</span>
+		<div class="body">
+			<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
+	
+			<div class="choices">
+				<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
+					<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
+					<TTButton class="winBt"
+						secondary
+						@click="setOutcome(c)"
+						icon="checkmark"
+						v-if="prediction.pendingAnswer && canAnswer"
+						:loading="loading" />
+	
+					<div class="bar" :style="getAnswerStyles(c)">
+						<div>{{c.label}}</div>
+						<div class="details">
+							<span class="percent">{{getPercent(c)}}%</span>
+							<span class="votes"><Icon name="user" alt="user" class="icon" />{{c.voters}}</span>
+							<span class="points"><Icon name="channelPoints" alt="channelPoints" class="icon" />{{c.votes}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
+	
+			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+			v-if="prediction.creator && prediction.creator.id != me.id">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard()">{{prediction.creator.displayName}}</a>
+				</template>
+			</i18n-t>
+	
+			<div class="actions">
+				<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</TTButton>
+			</div>
 		</div>
-
-		<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
-		v-if="prediction.creator && prediction.creator.id != me.id">
-			<template #USER>
-				<a class="userlink" @click.stop="openUserCard()">{{prediction.creator.displayName}}</a>
-			</template>
-		</i18n-t>
-
-		<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</TTButton>
 	</div>
 </template>
 
@@ -172,16 +180,17 @@ export default toNative(PredictionState);
 		align-self: stretch;
 		margin-left: 1em;
 		color: var(--color-light);
-		margin-top: -1em;
-		margin-bottom: -.5em;
-		z-index: 1;
+		margin-top: -1.25em;
+		margin-bottom: -.25em;
 		pointer-events: none;
 		.arrow {
 			display: inline;
 			font-size: 25px;
 			display: inline-block;
 			margin-right: -10px;
+			margin-left: -7px;
 			position: relative;
+			top: -5px;
 			animation: slide .5s infinite ease-in-out alternate-reverse;
 			transform: rotate(-40deg);
 			transform-origin: bottom right;

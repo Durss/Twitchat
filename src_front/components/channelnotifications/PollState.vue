@@ -1,32 +1,37 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title" v-stickyTopShadow><Icon name="poll" />{{poll.title}}</h1>
-
-		<ProgressBar class="progress"
-			secondary
-			:percent="progressPercent"
-			:duration="poll.duration_s*1000" />
-
-		<div class="choices">
-			<div v-for="(c, index) in poll.choices"
-				:key="index"
-				:style="getAnswerStyles(c)"
-				:class="getAnswerClasses(c)"
-			>
-				<div>{{c.label}}</div>
-				<div>{{getPercent(c)}}% ({{c.votes}})</div>
-			</div>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="poll" />{{poll.title}}</h1>
+			<ProgressBar class="progress"
+				secondary
+				:percent="progressPercent"
+				:duration="poll.duration_s*1000" />
+			<slot />
 		</div>
 
-		<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
-		v-if="poll.creator && poll.creator.id != me.id">
-			<template #USER>
-				<a class="userlink" @click.stop="openUserCard()">{{poll.creator.displayName}}</a>
-			</template>
-		</i18n-t>
 
-		<div class="item actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
-			<TTButton alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</TTButton>
+		<div class="body">
+			<div class="choices">
+				<div v-for="(c, index) in poll.choices"
+					:key="index"
+					:style="getAnswerStyles(c)"
+					:class="getAnswerClasses(c)"
+				>
+					<div>{{c.label}}</div>
+					<div>{{getPercent(c)}}% ({{c.votes}})</div>
+				</div>
+			</div>
+	
+			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+			v-if="poll.creator && poll.creator.id != me.id">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard()">{{poll.creator.displayName}}</a>
+				</template>
+			</i18n-t>
+	
+			<div class="actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
+				<TTButton alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</TTButton>
+			</div>
 		</div>
 	</div>
 </template>

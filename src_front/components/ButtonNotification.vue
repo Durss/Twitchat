@@ -47,6 +47,7 @@ export default toNative(ButtonNotification);
 	justify-content: center;
 	border-radius: var(--border-radius);
 	position: relative;
+	padding: .2em;
 
 	&::before {
 		//Offset "new flag" so it's closer to the icon

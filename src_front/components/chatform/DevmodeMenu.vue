@@ -713,7 +713,7 @@ class DevmodeMenu extends Vue {
 			user,
 			viewerCount: 42,
 			startedAt:Date.now(),
-			timerDuration_s:90,
+			timerDuration_s:900,
 		};
 		StoreProxy.stream.setRaiding(m);
 	}
