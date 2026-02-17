@@ -27,88 +27,85 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { Languages } from '@/Languages';
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { watch, ref, computed, onMounted, getCurrentInstance } from 'vue';
 import CountryFlag from 'vue-country-flag-next';
 
-@Component({
-	components:{
-		CountryFlag,
-	},
-	emits:["update:lang"]
-})
-class LangSelector extends Vue {
+const props = defineProps<{
+	lang?: string;
+}>();
 
-	@Prop
-	public lang!:string;
+const emit = defineEmits<{
+	'update:lang': [value: string];
+}>();
 
-	public langLocal:{label:string, value:string[][]} = {label:"", value:[]};
-	public sublangLocal:{label:string, value:string[]} = {label:"", value:[]};
+const instance = getCurrentInstance();
+const $placeDropdown = instance?.appContext.config.globalProperties.$placeDropdown;
 
-	public get languages():{label: string, value: (string | string[])[]}[] {
-		return Languages.map(v=> { return {label:v[0] as string, value:v}});
+const langLocal = ref<{label: string, value: string[][]}>({label: "", value: []});
+const sublangLocal = ref<{label: string, value: string[]}>({label: "", value: []});
+
+const languages = computed(() => {
+	return Languages.map(v => { return {label: v[0] as string, value: v}});
+});
+
+const subLanguages = computed(() => {
+	if(!langLocal.value) return [];
+	const lang = Languages.find(v => v[0] == langLocal.value.label);
+	if(!lang) return [];
+	const sublangs = lang.slice(1) as string[][];
+	return sublangs.map(v => { return {label: v[1] as string, value: v}}); 
+});
+
+function getISOFromLang(l: string): string { 
+	return l.split("-")[1]!; 
+}
+
+/**
+ * Called when selecting a lang or sublang from a list
+ */
+function onChange(resetSubList: boolean = false): void {
+	if(resetSubList) {
+		if(subLanguages.value.length > 0) {
+			sublangLocal.value.label = subLanguages.value[0]!.label;
+			sublangLocal.value.value = subLanguages.value[0]!.value;
+		}else{
+			sublangLocal.value.label = "";
+			sublangLocal.value.value = [];
+		}
 	}
-	
-	public get subLanguages():{label:string, value:(string[])}[] {
-		if(!this.langLocal) return [];
-		const lang = Languages.find(v=>v[0]==this.langLocal.label);
-		if(!lang) return [];
-		const sublangs = lang.slice(1) as string[][];
-		return sublangs.map(v=> { return {label:v[1] as string, value:v}}); 
+	if(!langLocal.value) {
+		emit("update:lang", "");
+	}else
+	if(!sublangLocal.value.label) {
+		emit("update:lang", langLocal.value.value[1]![0]!);
+	}else{
+		emit("update:lang", sublangLocal.value.value[0]!);
 	}
+}
 
-	public getISOFromLang(l:string):string { return l.split("-")[1]!; }
-
-	public mounted():void {
-		//Pre-select language from "lang" param
-		this.langLocal.label = Languages[0]![0] as string;
-		if(this.lang) {
-			for (const l of Languages) {
-				for (let j = 1; j < l.length; j++) {
-					const sl = l[j]!;
-					if(sl[0]!.toLowerCase() == this.lang.toLowerCase()) {
-						this.langLocal.label = l[0] as string;
-						if(l.length>1) {
-							this.sublangLocal.label = sl[1]!;
-						}
-						break;
+onMounted(() => {
+	//Pre-select language from "lang" param
+	langLocal.value.label = Languages[0]![0] as string;
+	if(props.lang) {
+		for (const l of Languages) {
+			for (let j = 1; j < l.length; j++) {
+				const sl = l[j]!;
+				if(sl[0]!.toLowerCase() == props.lang.toLowerCase()) {
+					langLocal.value.label = l[0] as string;
+					if(l.length > 1) {
+						sublangLocal.value.label = sl[1]!;
 					}
+					break;
 				}
 			}
 		}
-
-		watch(()=>this.langLocal, ()=> { this.onChange(true); });
-		watch(()=>this.sublangLocal, ()=> { this.onChange(); });
 	}
 
-	/**
-	 * Called when selecting a lang o rsublang from a list
-	 * @param resetSubList 
-	 */
-	public onChange(resetSubList:boolean = false):void {
-		if(resetSubList) {
-			if(this.subLanguages.length > 0) {
-				this.sublangLocal.label = this.subLanguages[0]!.label;
-				this.sublangLocal.value = this.subLanguages[0]!.value;
-			}else{
-				this.sublangLocal.label = "";
-				this.sublangLocal.value = [];
-			}
-		}
-		if(!this.langLocal) {
-			this.$emit("update:lang", "");
-		}else
-		if(!this.sublangLocal.label) {
-			this.$emit("update:lang", this.langLocal.value[1]![0]);
-		}else{
-			this.$emit("update:lang", this.sublangLocal.value[0]);
-		}
-	}
-
-}
-export default toNative(LangSelector);
+	watch(() => langLocal.value, () => { onChange(true); });
+	watch(() => sublangLocal.value, () => { onChange(); });
+});
 </script>
 
 <style scoped lang="less">
