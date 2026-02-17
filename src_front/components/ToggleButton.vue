@@ -9,82 +9,68 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import { watch, ref, computed, onBeforeMount } from 'vue';
 import Icon from "@/components/Icon.vue"
 
-@Component({
-	components:{
-		Icon,
-	},
-	emits: ['update:modelValue', 'change'],
-})
-class ToggleButton extends Vue {
+const props = withDefaults(defineProps<{
+	inputId?: string;
+	big?: boolean;
+	small?: boolean;
+	secondary?: boolean;
+	alert?: boolean;
+	premium?: boolean;
+	modelValue?: boolean;
+	noCheckmark?: boolean;
+	loading?: boolean;
+	inverseState?: boolean;
+	disabled?: boolean;
+}>(), {
+	inputId: "",
+	big: false,
+	small: false,
+	secondary: false,
+	alert: false,
+	premium: false,
+	modelValue: false,
+	noCheckmark: false,
+	loading: false,
+	inverseState: false,
+	disabled: false,
+});
 
-	@Prop({default:"", type:String})
-	public inputId!:string;
+const emit = defineEmits<{
+	'update:modelValue': [value: boolean];
+	'change': [value: boolean];
+}>();
 
-	@Prop({type:Boolean, default: false})
-	public big!:boolean;
+const localValue = ref(false);
 
-	@Prop({type:Boolean, default: false})
-	public small!:boolean;
+const classes = computed(() => {
+	let res = ["togglebutton"];
+	if(props.big !== false) res.push("big");
+	if(props.small !== false) res.push("small");
+	if(props.secondary !== false) res.push("secondary");
+	if(props.alert !== false) res.push("alert");
+	if(props.premium !== false) res.push("premium");
+	if(props.noCheckmark !== false) res.push("noCheckmark");
+	if(props.disabled !== false) res.push("disabled");
+	if((props.inverseState === false && localValue.value) || (props.inverseState !== false && !localValue.value)) res.push("selected");
+	return res;
+});
 
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public modelValue!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noCheckmark!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public loading!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public inverseState!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public disabled!:boolean;
-
-	public localValue:boolean = false;
-
-	public get classes():string[] {
-		let res = ["togglebutton"];
-		if(this.big !== false) res.push("big");
-		if(this.small !== false) res.push("small");
-		if(this.secondary !== false) res.push("secondary");
-		if(this.alert !== false) res.push("alert");
-		if(this.premium !== false) res.push("premium");
-		if(this.noCheckmark !== false) res.push("noCheckmark");
-		if(this.disabled !== false) res.push("disabled");
-		if((this.inverseState === false && this.localValue) || (this.inverseState !== false && !this.localValue)) res.push("selected");
-		return res;
-	}
-
-	public beforeMount():void {
-		this.localValue = this.modelValue;
-		watch(()=>this.modelValue, ()=>{
-			this.localValue = this.modelValue;
-		})
-	}
-
-	public onChange():void {
-		if(this.disabled) return;
-		this.$emit('update:modelValue', this.localValue);
-		this.$emit('change', this.localValue);
-	}
-
+function onChange(): void {
+	if(props.disabled) return;
+	emit('update:modelValue', localValue.value);
+	emit('change', localValue.value);
 }
-export default toNative(ToggleButton);
+
+onBeforeMount(() => {
+	localValue.value = props.modelValue;
+	watch(() => props.modelValue, () => {
+		localValue.value = props.modelValue;
+	})
+});
 </script>
 
 <style scoped lang="less">

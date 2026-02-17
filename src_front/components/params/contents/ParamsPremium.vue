@@ -36,7 +36,7 @@ import SponsorTable from '@/components/premium/SponsorTable.vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import { gsap } from 'gsap/gsap-core';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
