@@ -59,12 +59,6 @@
 					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
 				},
 				{
-					"icon":"pin",
-					"video":"save.webm",
-					"title":"Enregistrez des messages",
-					"description":"Mettez des messages de côté pour les retrouver plus tard"
-				},
-				{
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Commande de spoil",

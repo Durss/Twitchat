@@ -14,7 +14,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import Utils from '@/utils/Utils';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{

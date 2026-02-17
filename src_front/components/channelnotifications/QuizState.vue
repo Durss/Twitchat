@@ -43,7 +43,7 @@
 <script lang="ts" setup>
 import { storeQuiz } from '@/store/quiz/storeQuiz';
 import { computed, onBeforeUnmount, ref } from 'vue';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';

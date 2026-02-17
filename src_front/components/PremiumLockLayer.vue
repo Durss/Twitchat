@@ -5,30 +5,14 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { storeParams } from '@/store/params/storeParams';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from './TTButton.vue';
-import Icon from './Icon.vue';
 
-@Component({
-	components:{
-		Icon,
-		Button: TTButton,
-	},
-	emits:[],
-})
-class PremiumLockLayer extends Vue {
-
-	/**
-	 * Open premium section
-	 */
-	 public openPremium():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
+const store = storeParams();
+function openPremium(): void {
+	store.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(PremiumLockLayer);
 </script>
 
 <style scoped lang="less">
