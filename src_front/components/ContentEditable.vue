@@ -75,10 +75,6 @@ function moveCaretTo(position: number) {
 		sel?.addRange(range)
 	}
 }
-defineExpose({
-	focus,
-	moveCaretTo,
-})
 
 function currentContent() {
 	if (elementRef$.value == null) {

@@ -6,29 +6,23 @@
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script lang="ts" setup>
+import { computed } from 'vue';
 
-@Component({
-	components:{}
-})
-class Splitter extends Vue {
 
-	@Prop({type:String, default:""})
-	public theme!:string;
+const props = defineProps<{
+	theme?: "dark" | "light" | "primary" | "secondary" | "alert";
+}>();
 
-	public get classes():string[] {
-		let res = ["splitter"];
-		if(this.theme == "dark") res.push("dark");
-		if(this.theme == "light") res.push("light");
-		if(this.theme == "primary") res.push("primary");
-		if(this.theme == "secondary") res.push("secondary");
-		if(this.theme == "alert") res.push("alert");
-		return res;
-	}
-
-}
-export default toNative(Splitter);
+const classes = computed(() => {
+	let res = ["splitter"];
+	if(props.theme == "dark") res.push("dark");
+	if(props.theme == "light") res.push("light");
+	if(props.theme == "primary") res.push("primary");
+	if(props.theme == "secondary") res.push("secondary");
+	if(props.theme == "alert") res.push("alert");
+	return res;
+});
 </script>
 
 <style scoped lang="less">

@@ -47,7 +47,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{

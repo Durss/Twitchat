@@ -8,6 +8,7 @@
 				:contenteditable="true"
 				:no-nl="true"
 				:no-html="true"
+				:maxLength="10"
 				@input="onChange" />
 
 			<span class="label">42</span>
@@ -17,48 +18,45 @@
 				:contenteditable="true"
 				:no-nl="true"
 				:no-html="true"
+				:maxLength="10"
 				@input="onChange" />
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Icon from './Icon.vue';
 import Utils from '@/utils/Utils';
 import ContentEditable from '@/components/ContentEditable.vue';
 
-@Component({
-	components:{
-		Icon,
-		ContentEditable,
-	},
-	emits:["update:modelValue", "change"],
-})
-class CurrencyPatternInput extends Vue {
+const props = withDefaults(defineProps<{
+	modelValue?: string;
+}>(), {
+	modelValue: '',
+});
 
-	@Prop({type:String, default:''})
-	public modelValue!: string;
+const emit = defineEmits<{
+	'update:modelValue': [value: string];
+	'change': [value: string];
+}>();
 
-	public prefix: string = '';
-	public suffix: string = '';
+const prefix = ref('');
+const suffix = ref('');
 
-	public mounted(){
-		const match = this.modelValue.trim().match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
-		if(match){
-			this.prefix = match[1]!;
-			this.suffix = match[2]!;
-		}
-	}
-
-	public onChange(){
-		const pattern = this.prefix + Utils.CURRENCY_AMOUNT_TOKEN + this.suffix;
-		this.$emit('update:modelValue', pattern);
-		this.$emit('change', pattern);
-	}
-
+function onChange() {
+	const pattern = prefix.value + Utils.CURRENCY_AMOUNT_TOKEN + suffix.value;
+	emit('update:modelValue', pattern);
+	emit('change', pattern);
 }
-export default toNative(CurrencyPatternInput);
+
+onMounted(() => {
+	const match = props.modelValue.trim().match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
+	if(match) {
+		prefix.value = match[1]!;
+		suffix.value = match[2]!;
+	}
+});
 </script>
 
 <style scoped lang="less">

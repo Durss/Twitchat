@@ -39,45 +39,40 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { onBeforeMount, ref, watch } from 'vue';
 
-@Component({
-	components:{},
-	emits:["update:modelValue", "change"],
-})
-class PlacementSelector extends Vue {
+const props = withDefaults(defineProps<{
+	modelValue: TwitchatDataTypes.ScreenPosition;
+	sidesOnly?: boolean;
+}>(), {
+	sidesOnly: false,
+});
 
-	@Prop
-	public modelValue!:TwitchatDataTypes.ScreenPosition;
+const placement = ref<TwitchatDataTypes.ScreenPosition>("bl");
+const emit = defineEmits<{
+	'update:modelValue': [value: TwitchatDataTypes.ScreenPosition];
+	'change': [value: TwitchatDataTypes.ScreenPosition];
+}>();
 
-	@Prop({default:false, type:Boolean})
-	public sidesOnly!:boolean;
-	
-	public placement:TwitchatDataTypes.ScreenPosition = "bl";
+onBeforeMount(() => {
+	placement.value = props.modelValue;
+});
 
-	public beforeMount():void {
-		this.placement = this.modelValue;
-		
-		watch(() => this.placement, ()=> {
-			this.$emit("update:modelValue", this.placement);
-			this.$emit("change", this.placement);
-		})
+watch(() => placement.value, () => {
+	emit("update:modelValue", placement.value);
+	emit("change", placement.value);
+});
 
-		watch(() => this.sidesOnly, ()=> {
-			if(this.sidesOnly !== false) {
-				const list:TwitchatDataTypes.ScreenPosition[] = ["tl", "bl", "br","tr","m"];
-				if(list.includes(this.modelValue)) {
-					this.placement = "t";
-				}
-			}
-		})
+watch(() => props.sidesOnly, () => {
+	if(props.sidesOnly !== false) {
+		const list:TwitchatDataTypes.ScreenPosition[] = ["tl", "bl", "br","tr","m"];
+		if(list.includes(props.modelValue)) {
+			placement.value = "t";
+		}
 	}
-
-}
-export default toNative(PlacementSelector);
+})
 </script>
 
 <style scoped lang="less">

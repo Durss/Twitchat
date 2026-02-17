@@ -5,70 +5,66 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Utils from '@/utils/Utils';
 import type { CSSProperties } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { computed, ref } from 'vue';
 
-@Component({
-	components:{}
-})
-class ProgressBar extends Vue {
-
-	@Prop({type:Number,default:0})
-	public percent!:number;
-
-	@Prop({ type:Number, default:1})
-	public duration!:number;//In ms
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	public get timeLeft():string { return Utils.formatDuration(this.duration * Math.max(0, Math.min(1, (1-this.percent)))) }
-
-	public get elapsedPercent():number { return Math.max(0, Math.min(1, (1-this.percent))); }
-
-	public get classes():string[] {
-		const list = ["progressbar"];
-		if(this.secondary !== false) list.push("secondary");
-		if(this.premium !== false) list.push("premium");
-		if(this.alert !== false) list.push("alert");
-		return list;
-	}
-
-	public get barStyles():CSSProperties {
-		return {
-			transform: `scaleX(${this.elapsedPercent*100}%)`,
-		}
-	}
-
-	public get timerStyles():CSSProperties {
-		if(this.$refs.timer) {
-			let parent = (this.$el as HTMLElement).getBoundingClientRect();
-			let bounds = (this.$refs.timer as HTMLElement).getBoundingClientRect();
-			let barSize = this.elapsedPercent * parent.width;
-			let px = barSize - bounds.width;
-			let offset = -px / bounds.width;
-			if(px < 0) px -= barSize - bounds.width;
-			return {
-				right:"auto",
-				transform: "translateX("+px+"px)",
-				backgroundPositionX: offset > 0? (offset*100)+"%" : "0%"
-			}
-		}else{
-			return {
-				right: (this.percent*100)+"%",
-			}
-		}
-	}
+interface Props {
+	percent?: number;
+	duration?: number;
+	secondary?: boolean;
+	premium?: boolean;
+	alert?: boolean;
 }
-export default toNative(ProgressBar);
+
+const props = withDefaults(defineProps<Props>(), {
+	percent: 0,
+	duration: 1,
+	secondary: false,
+	premium: false,
+	alert: false,
+});
+
+const timer = ref<HTMLElement>();
+
+const timeLeft = computed(() => Utils.formatDuration(props.duration * Math.max(0, Math.min(1, (1-props.percent)))));
+
+const elapsedPercent = computed(() => Math.max(0, Math.min(1, (1-props.percent))));
+
+const classes = computed(() => {
+	const list = ["progressbar"];
+	if(props.secondary !== false) list.push("secondary");
+	if(props.premium !== false) list.push("premium");
+	if(props.alert !== false) list.push("alert");
+	return list;
+});
+
+const barStyles = computed<CSSProperties>(() => {
+	return {
+		transform: `scaleX(${elapsedPercent.value*100}%)`,
+	}
+});
+
+const timerStyles = computed<CSSProperties>(() => {
+	if(timer.value) {
+		const parent = timer.value.parentElement!.getBoundingClientRect();
+		const bounds = timer.value.getBoundingClientRect();
+		const barSize = elapsedPercent.value * parent.width;
+		let px = barSize - bounds.width;
+		const offset = -px / bounds.width;
+		if(px < 0) px -= barSize - bounds.width;
+		return {
+			right:"auto",
+			transform: "translateX("+px+"px)",
+			backgroundPositionX: offset > 0? (offset*100)+"%" : "0%"
+		}
+	}else{
+		return {
+			right: (props.percent*100)+"%",
+		}
+	}
+});
 </script>
 
 <style scoped lang="less">

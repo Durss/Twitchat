@@ -4,12 +4,13 @@
 
 		<div class="toggleHolder">
 			<div class="dash"></div>
-			<ToggleButton class="toggle" v-model="selected"
-			noCheckmark
-			:big="big"
-			:small="small"
-			:secondary="secondary"
-			:alert="alert" @change="setState(selected? values[1] : values[0])" />
+			<ToggleButton class="toggle"
+				v-model="selected"
+				noCheckmark
+				:big="big"
+				:small="small"
+				:secondary="secondary"
+				:alert="alert" @change="setState(selected? values[1] : values[0])" />
 			<div class="dash"></div>
 		</div>
 
@@ -17,77 +18,69 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts" generic="T">
+import { watch, ref, computed, onBeforeMount } from 'vue';
 import Icon from './Icon.vue';
 import ToggleButton from './ToggleButton.vue';
 
-@Component({
-	components:{
-		Icon,
-		ToggleButton,
-	},
-	emits: ['update:modelValue', 'change'],
-})
-class SwitchButton extends Vue {
-	@Prop({type:Array, default:["",""]})
-	public labels!:string[];
-
-	@Prop({type:Array, default:["",""]})
-	public icons!:string[];
-
-	@Prop({type:Array, default: [true, false]})
-	public values!:unknown[];
-
-	@Prop({type:Boolean, default: false})
-	public big!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public small!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({default: false})
-	public modelValue!:unknown;
-
-	public localValue:unknown = false;
-	public selected:boolean = false;
-
-	public get classes():string[] {
-		let res = ["switchbutton"];
-		if(this.big !== false) res.push("big");
-		if(this.small !== false) res.push("small");
-		if(this.secondary !== false) res.push("secondary");
-		if(this.alert !== false) res.push("alert");
-		if(this.localValue == this.values[1]) res.push("selected");
-		return res;
-	}
-
-	public beforeMount():void {
-		if(this.modelValue != this.values[0] && this.modelValue !== this.values[1]) {
-			this.setState(this.values[0])
-		}else{
-			this.localValue = this.modelValue;
-			this.selected = this.localValue === this.values[1];
-		}
-		watch(()=>this.modelValue, ()=>{
-			this.localValue = this.modelValue;
-			this.selected = this.localValue === this.values[1];
-		});
-	}
-
-	public setState(value:unknown):void {
-		this.$emit("update:modelValue", value);
-		this.$emit('change');
-	}
-
+interface Props {
+	labels?: string[];
+	icons?: string[];
+	values?: [T, T];
+	big?: boolean;
+	small?: boolean;
+	secondary?: boolean;
+	alert?: boolean;
+	modelValue?: T;
 }
-export default toNative(SwitchButton);
+
+const props = withDefaults(defineProps<Props>(), {
+	labels: () => ["", ""],
+	icons: () => ["", ""],
+	values: () => [true as T, false as T],
+	big: false,
+	small: false,
+	secondary: false,
+	alert: false,
+});
+
+const emit = defineEmits<{
+	'update:modelValue': [value: T];
+	'change': [];
+}>();
+
+const localValue = ref<T>();
+const selected = ref(false);
+
+const classes = computed(() => {
+	let res = ["switchbutton"];
+	if(props.big !== false) res.push("big");
+	if(props.small !== false) res.push("small");
+	if(props.secondary !== false) res.push("secondary");
+	if(props.alert !== false) res.push("alert");
+	if(localValue.value == props.values[1]) res.push("selected");
+	return res;
+});
+
+function setState(value: T): void {
+	localValue.value = value;
+	selected.value = value === props.values[1];
+	emit("update:modelValue", value);
+	emit('change');
+}
+
+onBeforeMount(() => {
+	if(props.modelValue != props.values[0] && props.modelValue !== props.values[1]) {
+		setState(props.values[0]);
+	}else{
+		localValue.value = props.modelValue ?? props.values[0];
+		selected.value = localValue.value === props.values[1];
+	}
+	watch(() => props.modelValue, () => {
+		localValue.value = props.modelValue ?? props.values[0];
+		selected.value = localValue.value === props.values[1];
+	});
+});
 </script>
 
 <style scoped lang="less">

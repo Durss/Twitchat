@@ -27,7 +27,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import TimerCountDownInfoEntry from './TimerCountDownInfoEntry.vue';
 
 @Component({

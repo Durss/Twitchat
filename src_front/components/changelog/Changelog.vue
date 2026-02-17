@@ -32,8 +32,8 @@
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
 
-				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" :mouseDrag="items.length > 1"
-					@slide-start="onSlideStart">
+				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true"
+					:mouseDrag="items.length > 1" @slide-start="onSlideStart">
 					<template #addons v-if="items.length > 1">
 						<Navigation />
 						<Pagination />
@@ -49,7 +49,8 @@
 								<div class="version">{{$t('changelog.version',
 									{
 										VERSION: appVersion.split('.').filter(v => v !=
-									'0').join('.')}) }}</div>
+											'0').join('.')
+									})}}</div>
 							</div>
 							<ul class="toc">
 								<li v-for="(item, index) in items.filter(v => v.l)">
@@ -139,7 +140,7 @@ import { gsap } from 'gsap/gsap-core';
 import { toNative, Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import TTButton, { TTButton as TTButtonClass } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';

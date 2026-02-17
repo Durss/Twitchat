@@ -90,10 +90,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type CSSProperties } from 'vue';
 import { gsap } from 'gsap/gsap-core';
-import Icon from './Icon.vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type CSSProperties } from 'vue';
 import ContentEditable from './ContentEditable.vue';
+import Icon from './Icon.vue';
 
 // Props
 const props = withDefaults(defineProps<{
@@ -404,9 +404,6 @@ onUnmounted(() => {
 	clearTimeout(dragTimeout);
 	document.removeEventListener('click', closeActionsMenuOnClickOutside);
 });
-
-// Expose toggle for external use
-defineExpose({ toggle });
 </script>
 
 <style scoped lang="less">

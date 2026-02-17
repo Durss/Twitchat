@@ -29,7 +29,7 @@ import Utils from '@/utils/Utils';
 import DataStoreCommon from '@/store/DataStoreCommon';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Icon from '@/components/Icon.vue';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{

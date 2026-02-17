@@ -2,7 +2,7 @@
 	<div class="tabmenu">
 		<div v-for="item, index in items"
 		:class="value == item.value? 'tabItem tabSelected' : 'tabItem'">
-			<Button class="tabButton" @click="setValue(item.value)"
+			<TTButton class="tabButton" @click="setValue(item.value)"
 				autoHideLabel
 				v-tooltip="item.tooltip"
 				:icon="item.icon"
@@ -12,7 +12,7 @@
 				:secondary="themes && themes.length > index && themes[index] == 'secondary' || secondary"
 				:alert="themes && themes.length > index && themes[index] == 'alert' || alert"
 				:premium="themes && themes.length > index && themes[index] == 'premium' || premium"
-				:selected="value == item.value">{{ item.label }}</Button>
+				:selected="value == item.value">{{ item.label }}</TTButton>
 			
 			<Transition name="slide">
 				<div class="selectionChip" v-if="value == item.value"></div>
@@ -21,100 +21,82 @@
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts" generic="T">
+import { ref, computed, onMounted } from 'vue';
 import TTButton from './TTButton.vue';
 
-@Component({
-	components:{
-		Button: TTButton,
-	},
-	emits:["update:modelValue", "change"],
-})
-class TabMenu extends Vue {
+const props = withDefaults(defineProps<{
+	big?: boolean;
+	small?: boolean;
+	secondary?: boolean;
+	primary?: boolean;
+	alert?: boolean;
+	premium?: boolean;
+	values?: T[];
+	labels?: string[];
+	icons?: string[];
+	tooltips?: string[];
+	themes?: string[];
+	modelValue?: T;
+}>(), {
+	big: false,
+	small: false,
+	secondary: false,
+	primary: false,
+	alert: false,
+	premium: false,
+	values: () => [],
+	labels: () => [],
+	icons: () => [],
+	tooltips: () => [],
+	themes: () => [],
+});
 
-	@Prop({type:Boolean, default: false})
-	public big!:boolean;
+const emit = defineEmits<{
+	'update:modelValue': [value: T | undefined];
+	'change': [value: T | undefined];
+}>();
 
-	@Prop({type:Boolean, default: false})
-	public small!:boolean;
+const value = ref<T | undefined>();
 
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public primary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Array, default:[]})
-	public values!:unknown[];
-
-	@Prop({type:Array<String>, default:[]})
-	public labels!:string[];
-
-	@Prop({type:Array<String>, default:[]})
-	public icons!:string[];
-
-	@Prop({type:Array<String>, default:[]})
-	public tooltips!:string[];
-
-	@Prop({type:Array<String>, default:[]})
-	public themes!:string[];
-
-	@Prop()
-	public modelValue!:unknown;
-
-	public value:unknown = null;
-
-	public get items():{value:unknown, label?:string, icon?:string, tooltip?:string}[] {
-		let res:{value:unknown, label?:string, icon?:string, tooltip?:string}[] = [];
-		let maxLength = Math.max(this.labels.length, this.icons.length, this.values.length);
-		for (let i = 0; i < maxLength; i++) {
-			let label:string|undefined = undefined;
-			let icon:string|undefined = undefined;
-			let tooltip:string|undefined = undefined;
-			let value:unknown = null;
-			if(i < this.labels.length) label = this.labels[i];
-			if(i < this.icons.length) icon = this.icons[i];
-			if(i < this.values.length) value = this.values[i];
-			if(i < this.tooltips.length) tooltip = this.tooltips[i];
-			res.push({value, label, icon, tooltip})
-		}
-		return res;
+const items = computed(() => {
+	let res: {value: T | undefined, label?: string, icon?: string, tooltip?: string}[] = [];
+	let maxLength = Math.max(props.labels.length, props.icons.length, props.values.length);
+	for (let i = 0; i < maxLength; i++) {
+		let label: string | undefined = undefined;
+		let icon: string | undefined = undefined;
+		let tooltip: string | undefined = undefined;
+		let itemValue: T | undefined = undefined;
+		if(i < props.labels.length) label = props.labels[i];
+		if(i < props.icons.length) icon = props.icons[i];
+		if(i < props.values.length) itemValue = props.values[i];
+		if(i < props.tooltips.length) tooltip = props.tooltips[i];
+		res.push({value: itemValue, label, icon, tooltip})
 	}
+	return res;
+});
 
-	public mounted():void {
-		this.value = this.modelValue;
-		if(this.value === undefined) this.value = this.values[0];
-		if(this.modelValue != this.value) {
-			this.$emit("update:modelValue", this.value);
-			this.$emit("change", this.value);
-		}
-	}
-
-	public setValue(value:unknown):void{
-		this.value = value;
-		this.$emit("update:modelValue", value);
-		this.$emit("change", value);
-	}
-
+function setValue(newValue: T | undefined): void {
+	value.value = newValue;
+	emit("update:modelValue", newValue);
+	emit("change", newValue);
 }
-export default toNative(TabMenu);
+
+onMounted(() => {
+	value.value = props.modelValue;
+	if(value.value === undefined) value.value = props.values[0];
+	if(props.modelValue != value.value) {
+		emit("update:modelValue", value.value);
+		emit("change", value.value);
+	}
+});
 </script>
 
 <style scoped lang="less">
 .tabmenu{
 	display: flex;
 	flex-direction: row;
-	// flex-wrap: wrap;
 	row-gap: 5px;
-	//overflow-x: auto;
-	//overflow-y: hidden;
 	overflow: hidden;
 
 	.tabItem {
@@ -170,7 +152,6 @@ export default toNative(TabMenu);
 
 		.slide-enter-from,
 		.slide-leave-to {
-			// transform: translateY(-100%);
 			height:0;
 		}
 	}

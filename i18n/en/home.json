@@ -59,12 +59,6 @@
 					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
 				},
 				{
-					"icon":"pin",
-					"video":"save.webm",
-					"title":"Save messages",
-					"description":"Save any message and find them back in a dedicated list"
-				},
-				{
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Spoiler command",
