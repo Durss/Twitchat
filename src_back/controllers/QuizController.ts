@@ -44,6 +44,12 @@ export default class QuizController extends AbstractController {
 		return this;
 	}
 
+	/**
+	 * Get quizs for a streamer, optionally filtered by quizId
+	 * @param uid Streamer UID
+	 * @param quizId Optional quiz ID to filter by
+	 * @returns Quiz cache data or null if not found
+	 */
 	public getStreamerQuizs(uid:string, quizId?:string):IQuizCacheData|null {
 		//Validate UID and quizId to prevent path traversal
 		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return null
@@ -106,7 +112,7 @@ interface IQuizCacheData {
 }
 
 
-type QuizParams<Mode = "classic" | "majority"> = {
+type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 	/**
 	 * Quiz ID
 	 */
@@ -149,6 +155,13 @@ type QuizParams<Mode = "classic" | "majority"> = {
 	 * UTC date at which the current question started
 	 */
 	questionStarted_at:string;
+	/**
+	 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+	 * 0 = exact match
+	 * ...
+	 * 5 = very tolerant
+	 */
+	toleranceLevel?:0|1|2|3|4|5;
 } & ({
 	/**
 	 * Quiz mode.
@@ -224,5 +237,40 @@ type QuizParams<Mode = "classic" | "majority"> = {
 			 */
 			title:string;
 		}[];
+	}[];
+} | {
+	/**
+	 * Quiz mode.
+	 * freeAnswer: viewers must type the answer on chat or extension
+	 */
+	mode:"freeAnswer";
+	/**
+	 * List of questions
+	 */
+	questionList: {
+		/**
+		 * Question ID
+		 */
+		id:string;
+		/**
+		 * Question text
+		 */
+		question:string;
+		/**
+		 * Expected answer
+		 */
+		answer?:string
+		/**
+		 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+		 */
+		duration_s?:number
+		/**
+		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+		 * Overrides the global quiz tolerance level.
+		 * 0 = exact match
+		 * ...
+		 * 5 = very tolerant
+		 */
+		toleranceLevel?:0|1|2|3|4|5;
 	}[];
 })

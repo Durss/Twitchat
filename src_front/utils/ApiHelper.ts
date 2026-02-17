@@ -1,6 +1,7 @@
 import StoreProxy, { type IAuthState } from "@/store/StoreProxy";
+import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
-import type { TenorGif } from "@/types/TenorDataTypes";
+import type { SettingsExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { UluleTypes } from "@/types/UluleTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -8,8 +9,6 @@ import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
-import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
-import type { TriggerData, SettingsExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 13/07/2023
@@ -129,7 +128,7 @@ type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 type AvailableMethods<E extends keyof ApiEndpoints> = Extract<keyof ApiEndpoints[E], HttpMethod>;
 
 
-type ApiEndpoints =  {
+type ApiEndpoints = {
 	"auth/twitch": {
 		GET: {
 			parameters: {
@@ -1191,20 +1190,35 @@ type ApiEndpoints =  {
 				success:boolean;
 				error?:string;
 				errorCode?:string;
-			}
+			};
 		}
 	};
 	"tiltify/token/refresh": {
 		POST: {
 			parameters: {
 				refreshToken:string;
-			},
+			};
 			response: {
 				success:boolean;
 				token?:TiltifyToken;
 				error?:string;
 				errorCode?:string;
-			}
+			};
+		}
+	};
+	"quiz/revealAnswer": {
+		POST: {
+			parameters: {
+				quizId:string;
+				questionId:string;
+				votes:{[answerId:string]:number};
+				correctAnswerIds:string[];
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			};
 		}
 	};
 }

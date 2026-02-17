@@ -205,15 +205,32 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response 
 	 */
 	private async getStreamerState(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const state = await this.getStreamerStateData(request.twitchExtensionUser!.channel_id, request.twitchExtensionUser!.user_id);
-		response.header('Content-Type', 'application/json');
-		response.status(200);
-		response.send(JSON.stringify({success:true, state}));
-	}
-
-	private async getStreamerStateData(streamerId:string, viewerId?:string):Promise<{bingos:any, quizs:any}> {
+		const streamerId = request.twitchExtensionUser!.channel_id;
+		const viewerId = request.twitchExtensionUser!.user_id;
 		const bingos = await this._bingoController.getViewerGridList(streamerId, viewerId);
 		const quizs = await this._quizController.getStreamerQuizs(streamerId);
-		return {bingos, quizs:quizs?.data}
+		
+		if(quizs) {
+			// Strip out correct answers from quizs
+			quizs.data.forEach(quiz => {
+				if(quiz.mode == "classic") {
+					quiz.questionList.forEach(question => {
+						question.answerList.forEach(answer => {
+							delete answer.correct;
+						});
+					});
+				}else 
+				if(quiz.mode == "freeAnswer") {
+					quiz.questionList.forEach(question => {
+						delete question.answer
+					});
+				}
+			});
+		}
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, data:{bingos, quizs:quizs?.data}}));
 	}
+
 }
