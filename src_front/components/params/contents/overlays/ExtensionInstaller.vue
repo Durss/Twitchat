@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
