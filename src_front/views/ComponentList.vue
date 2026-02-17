@@ -1,6 +1,7 @@
 <template>
 	<div class="componentlist">
 		<Splitter>Message parsing</Splitter>
+		<AppLangSelector />
 		<div class="card-item section message">
 			<ChatMessageChunksParser :chunks="messageChunks" v-if="messageChunks" channel="29961813" platform="twitch" />
 		</div>
@@ -16,64 +17,64 @@
 			</div>
 
 			<div class="list">
-				<Button href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary :disabled="disabled" :loading="loading" :selected="selected">Primary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" primary :disabled="disabled" :loading="loading" :selected="selected">Primary</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" premium :disabled="disabled" :loading="loading" :selected="selected">Alert</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected">Primary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected">Primary icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected">Alert icon</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</TTButton>
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</TTButton>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected" />
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected" />
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected" />
 			</div>
 
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</TTButton>
+			<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</TTButton>
+			<TTButton href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</TTButton>
 		</div>
 
 		<Splitter>Switch buttons</Splitter>
@@ -230,7 +231,7 @@
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" alert />
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" premium />
 			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" />
-			<Button class="restartBt" @click="resetProgressbars()" icon="refresh">Restart</Button>
+			<TTButton class="restartBt" @click="resetProgressbars()" icon="refresh">Restart</TTButton>
 		</div>
 
 		<Splitter>Sliders</Splitter>
@@ -269,10 +270,28 @@
 			</div>
 		</div>
 
+		<Splitter>Placeholder</Splitter>
+
+		<div class="card-item section center">
+			<PlaceholderField v-model="placeholderTest" prefix="TEST_" label="Placeholder" placeholder="name..." />
+		</div>
+
+		<Splitter>Permissions</Splitter>
+
+		<div class="card-item section center">
+			<PermissionsForm v-model="permissions" />
+		</div>
+
+		<Splitter>Currency</Splitter>
+
+		<div class="card-item section center">
+			<CurrencyPatternInput v-model="currency" />
+		</div>
+
 		<Splitter>Parameters</Splitter>
 
 		<div class="card-item section params">
-			<ParamItem :paramData="param_bool" />
+			<ParamItem :paramData="param_bool" v-model="param_bool.value" />
 			<ParamItem :paramData="param_color" />
 			<ParamItem :paramData="param_slider" />
 			<ParamItem :paramData="param_text" />
@@ -323,12 +342,16 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import ToggleButton from '@/components/ToggleButton.vue';
-import DurationForm from '@/components/DurationForm.vue';
+import PlaceholderField from '@/components/PlaceholderField.vue';
+import Utils from '@/utils/Utils';
+import PermissionsForm from '@/components/PermissionsForm.vue';
+import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
+import AppLangSelector from '@/components/AppLangSelector.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		Slider,
 		TabMenu,
 		Checkbox,
@@ -338,7 +361,10 @@ import DurationForm from '@/components/DurationForm.vue';
 		ProgressBar,
 		SwitchButton,
 		ToggleButton,
-		DurationForm,
+		AppLangSelector,
+		PermissionsForm,
+		PlaceholderField,
+		CurrencyPatternInput,
 		ChatMessageChunksParser,
 	},
 	emits:[],
@@ -347,12 +373,16 @@ class ComponentList extends Vue {
 
 	public type:"button"|"link" = "button";
 	public time:number = 0;
+	public currency = "${AMOUNT}€";
+	public lang:string = "fr";
+	public placeholderTest:string = "";
 	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
 	public disabled:boolean = false;
 	public progresses:number[] = [];
 	public iconList:string[] = [];
+	public permissions = Utils.getDefaultPermissions(false, false, true, false, true, true);
 	public messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 
 	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enabled"};
@@ -542,6 +572,10 @@ export default toNative(ComponentList);
 		&>* {
 			width: 600px;
 		}
+	}
+	.center {
+		align-items: center;
+		justify-content: center;
 	}
 }
 </style>

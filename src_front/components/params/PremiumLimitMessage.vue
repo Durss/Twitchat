@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';

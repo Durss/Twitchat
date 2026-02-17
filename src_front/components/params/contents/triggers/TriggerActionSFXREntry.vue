@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { JSFXRSoundPreset } from '@/types/jsfxr';
 import type { TriggerActionSFXRData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';

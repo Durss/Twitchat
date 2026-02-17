@@ -4,38 +4,26 @@
 	</button>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
+<script lang="ts" setup>
+import { onBeforeMount, ref } from 'vue';
 
-@Component({
-	components:{
-		Icon,
-	},
-	emits:[],
-})
-class ClearButton extends Vue {
+const props = withDefaults(defineProps<{
+	theme?: string;
+	small?: boolean;
+	icon?: string;
+}>(), {
+	theme: "",
+	small: false,
+	icon: "cross",
+});
+const classes = ref<string[]>([]);
 
-	@Prop({type:String, default:""})
-	public theme!:string;
-
-	@Prop({type:Boolean, default:false})
-	public small!:boolean;
-
-	@Prop({type:String, default:"cross"})
-	public icon!:string;
-
-	public classes:string[] = [];
-
-	public beforeMount():void {
-		this.classes.push("clearbutton");
-		if(this.small !== false)  {
-			this.classes.push("small");
-		}
+onBeforeMount(() => {
+	classes.value.push("clearbutton");
+	if(props.small !== false)  {
+		classes.value.push("small");
 	}
-
-}
-export default toNative(ClearButton);
+});
 </script>
 
 <style scoped lang="less">

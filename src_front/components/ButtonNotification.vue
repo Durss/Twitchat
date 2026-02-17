@@ -1,40 +1,36 @@
 <template>
 	<div class="buttonnotification" :class="{disabled}" @click="onClick($event)" v-newflag="newflag">
 		<Icon :name="icon" class="icon" v-if="icon" />
-		<span class="label" v-if="$slots.default != undefined"><slot></slot></span>
+		<span class="label" v-if="slots.default != undefined"><slot></slot></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { gsap } from 'gsap';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { getCurrentInstance, useSlots } from 'vue';
+import Icon from './Icon.vue';
 
-@Component({
-	components:{},
-	emits:[],
-})
-class ButtonNotification extends Vue {
+const props = withDefaults(defineProps<{
+	icon?: string;
+	count?: number;
+	disabled?: boolean;
+	newflag?: {date: number, id: string};
+}>(), {
+	count: 0,
+	disabled: false,
+});
 
-	@Prop()
-	public icon!:string;
+const instance = getCurrentInstance();
+const slots = useSlots();
 
-	@Prop({type:Number, default:0})
-	public count!:number;
-
-	@Prop({type:Boolean, default:false})
-	public disabled!:boolean;
-
-	@Prop({type:Object})
-	public newflag!:{date:number, id:string};
-
-	public onClick(event:MouseEvent):void {
-		gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
-		gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
+function onClick(event: MouseEvent): void {
+	const el = instance?.proxy?.$el;
+	if (el) {
+		gsap.fromTo(el, {scaleX: .7}, {duration: 1.4, scale: 1, clearProps: "scaleX", ease: "elastic.out(2)"});
+		gsap.fromTo(el, {scaleY: .7}, {duration: 1.2, scale: 1, clearProps: "all", ease: "elastic.out(2)", delay: .05});
 	}
-
 }
-export default toNative(ButtonNotification);
 </script>
 
 <style scoped lang="less">
