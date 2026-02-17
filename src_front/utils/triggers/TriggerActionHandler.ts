@@ -3177,6 +3177,7 @@ export default class TriggerActionHandler {
 										const tracks = await SpotifyHelper.instance.searchTrack(m);
 										if(tracks && tracks.length > 0) {
 											switch(step.musicSelectionType) {
+												case undefined:
 												case "1": track = tracks[0]!; break;
 												case "2": track = tracks.length > 1? tracks[1]! : tracks.pop()!; break;
 												case "3": track = tracks.length > 2? tracks[2]! : tracks.pop()!; break;
