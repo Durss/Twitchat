@@ -1,3 +1,4 @@
+import { LRUCache } from "lru-cache";
 import fetch from "node-fetch";
 import Config from "./Config.js";
 import Logger from "./Logger.js";
@@ -9,10 +10,14 @@ export default class TwitchUtils {
 
 	private static _credentialToken:string|null;
 	private static _token_invalidation_date:number;
-	private static _tokenToUserCache:{[token:string]:TwitchToken} = {};
-	private static _moderatorsCache:{[token:string]:ModeratorUser[]} = {};
-	private static _moderatedChansCache:{[token:string]:ModeratedUser[]} = {};
-	private static _uidToUser:{[uidOrLogin:string]:TwitchUserInfos} = {};
+	/** token → validated user info – 10 min TTL */
+	private static _tokenToUserCache    = new LRUCache<string, TwitchToken>({ max: 1_000, ttl: 10 * 60 * 1000 });
+	/** token → moderator list – 1 h TTL */
+	private static _moderatorsCache     = new LRUCache<string, ModeratorUser[]>({ max: 1_000, ttl: 60 * 60 * 1000 });
+	/** token → moderated-channels list – 1 h TTL */
+	private static _moderatedChansCache = new LRUCache<string, ModeratedUser[]>({ max: 1_000, ttl: 60 * 60 * 1000 });
+	/** uid or login → user profile – 1 h TTL */
+	private static _uidToUser           = new LRUCache<string, TwitchUserInfos>({ max: 10_000, ttl: 60 * 60 * 1000 });
 	
 	constructor() {
 	
@@ -75,7 +80,8 @@ export default class TwitchUtils {
 	 */
 	public static async getUserFromToken(token?:string):Promise<TwitchToken|null> {
 		if(!token) return null;
-		if(this._tokenToUserCache[token]) return this._tokenToUserCache[token];
+		const cached = this._tokenToUserCache.get(token);
+		if(cached) return cached;
 
 		//Check access token validity
 		const options = {
@@ -93,11 +99,7 @@ export default class TwitchUtils {
 		
 		if(result.status == 200) {
 			const json = await result.json() as TwitchToken;
-			this._tokenToUserCache[token] = json;
-			//Keep result in cache for 10min
-			setTimeout(()=> {
-				delete this._tokenToUserCache[token];
-			}, 10 * 60 * 1000);
+			this._tokenToUserCache.set(token, json);
 			return json;
 		}else{
 			return null;
@@ -112,9 +114,9 @@ export default class TwitchUtils {
 	 * @returns 
 	 */
 	public static async getUsers(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUserInfos[]|false> {
-		this._uidToUser = {};
-		const allCached = (logins ? logins : ids)?.map(idOrLogin => this._uidToUser[idOrLogin]).filter(v => !!v)!;
-		if(allCached.length > 0) {
+		const keys = logins ?? ids ?? [];
+		const allCached = keys.map(k => this._uidToUser.get(k)).filter((v): v is TwitchUserInfos => !!v);
+		if(allCached.length === keys.length && keys.length > 0) {
 			return allCached;
 		}
 
@@ -163,8 +165,8 @@ export default class TwitchUtils {
 		if(result.status == 200) {
 			const results = (await result.json() as {data: TwitchUserInfos[]}).data;
 			results.forEach(user => {
-				this._uidToUser[user.id] = user;
-				this._uidToUser[user.login] = user;
+				this._uidToUser.set(user.id, user);
+				this._uidToUser.set(user.login, user);
 			});
 			return results;
 		}
@@ -175,9 +177,8 @@ export default class TwitchUtils {
 	 * Get a list of channels the given user token is a moderator on.
 	 */
 	public static async getModeratedChannels(userId:string, token:string): Promise<ModeratedUser[]> {
-		if(this._moderatedChansCache[token]) {
-			return this._moderatedChansCache[token];
-		}
+		const cached = this._moderatedChansCache.get(token);
+		if(cached) return cached;
 		const url = new URL("https://api.twitch.tv/helix/moderation/channels");
 		url.searchParams.append("user_id", userId);
 		url.searchParams.append("first", "100");
@@ -204,11 +205,7 @@ export default class TwitchUtils {
 			} else if (res.status == 500) break;
 		} while (cursor != null);
 
-		this._moderatedChansCache[token] = list;
-		//Cleanup cache after a few minutes
-		setTimeout(()=>{
-			delete this._moderatedChansCache[token];
-		}, 60 * 60 * 1000);
+		this._moderatedChansCache.set(token, list);
 		return list;
 	}
 
@@ -216,9 +213,8 @@ export default class TwitchUtils {
 	 * Get a list of moderators on given channel
 	 */
 	public static async getModerators(channelId:string, token:string): Promise<ModeratorUser[]> {
-		if(this._moderatorsCache[token]) {
-			return this._moderatorsCache[token];
-		}
+		const cached = this._moderatorsCache.get(token);
+		if(cached) return cached;
 		const url = new URL("https://api.twitch.tv/helix/moderation/moderators");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("first", "100");
@@ -243,10 +239,7 @@ export default class TwitchUtils {
 				}
 			} else if (res.status == 500) break;
 		} while (cursor != null)
-		//Cleanup cache after a few minutes
-		setTimeout(()=>{
-			delete this._moderatorsCache[token];
-		}, 60 * 60 * 1000);
+		this._moderatorsCache.set(token, list);
 		return list;
 	}
 	
