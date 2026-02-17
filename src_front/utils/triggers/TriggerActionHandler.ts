@@ -5,8 +5,7 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
-import jsonpath from "jsonpath";
-import { evaluate as MathEval } from 'mathjs';
+import { JSONPath } from "jsonpath-plus";
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
@@ -2420,7 +2419,7 @@ export default class TriggerActionHandler {
 									// 	dynamicPlaceholders[ph.placeholder] = jsonContent;
 									// }else
 									if(ph.type == "json") {
-										const results = jsonpath.query(json, ph.path);
+										const results = JSONPath({path: ph.path, json});
 										if(results.length == 0) {
 											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
 											log.error = true;

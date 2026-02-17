@@ -468,7 +468,6 @@ import GroqChannelAction from './GroqChannelAction.vue';
 import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { SettingsExportData } from '@/types/TriggerActionDataTypes';
-import ClearButton from '../ClearButton.vue';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 @Component({

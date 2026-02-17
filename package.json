@@ -32,7 +32,7 @@
 		"@fastify/multipart": "^9.4.0",
 		"@fastify/rate-limit": "^10.3.0",
 		"@fastify/static": "^9.0.0",
-		"ajv": "^8.17.1",
+		"ajv": "^8.18.0",
 		"core-js": "^3.47.0",
 		"discord-interactions": "^3.4.0",
 		"discord.js": "^14.25.1",
@@ -61,7 +61,7 @@
 		"@types/dom-screen-wake-lock": "^1.0.3",
 		"@types/dompurify": "^3.2.0",
 		"@types/gsap": "^3.0.0",
-		"@types/jsonpath": "^0.2.4",
+
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/matter-js": "^0.19.8",
 		"@types/mime-types": "^3.0.1",
@@ -71,18 +71,18 @@
 		"@typescript-eslint/eslint-plugin": "^8.38.0",
 		"@typescript-eslint/parser": "^8.38.0",
 		"@vitejs/plugin-vue": "^6.0.3",
-		"@vue/eslint-config-typescript": "^14.6.0",
+		"@vue/eslint-config-typescript": "^14.7.0",
 		"@vue/tsconfig": "^0.5.1",
 		"concurrently": "^7.6.0",
 		"dom-to-image-more": "^3.7.2",
 		"dpdm": "^3.14.0",
-		"eslint": "^9.39.2",
+		"eslint": "^10.0.0",
 		"eslint-plugin-vue": "^10.7.0",
 		"grapheme-splitter": "^1.0.4",
 		"groq-sdk": "^0.9.1",
 		"gsap": "^3.14.2",
 		"isomorphic-dompurify": "^1.13.0",
-		"jsonpath": "^1.2.1",
+		"jsonpath-plus": "^10.3.0",
 		"lande": "^1.0.10",
 		"less": "^4.5.1",
 		"lorem-ipsum": "^2.0.8",
@@ -114,6 +114,7 @@
 		"vuedraggable": "^4.1.0"
 	},
 	"overrides": {
-		"undici": "^6.23.0"
+		"undici": "^6.23.0",
+		"ajv": "^8.18.0"
 	}
 }
