@@ -7,8 +7,7 @@
 	:to="to"
 	:href="type=='link'? to : null"
 	@click="onClick($event)"
-	@mouseup="onRelease($event)"
-	v-model="modelValue">
+	@mouseup="onRelease($event)">
 		<span class="background"></span>
 		<Icon v-if="copySuccess" name="checkmark" />
 
@@ -30,164 +29,125 @@
 	</component>
 </template>
 
-<script lang="ts">
-import { watch } from '@vue/runtime-core';
+<script setup lang="ts">
+import { watch, ref, computed, onBeforeMount, useSlots, getCurrentInstance, useTemplateRef } from 'vue';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
 import Utils from '@/utils/Utils';
 
-@Component({
-	components:{
-		Icon,
-	},
-	emits: ['click', 'update:modelValue', 'update:file'],
-	expose: ['value'],
-})
-export class TTButton extends Vue {
+const props = withDefaults(defineProps<{
+	icon?: string;
+	loading?: boolean;
+	type?: "link" | "button" | "file";
+	target?: string;
+	to?: unknown;
+	big?: boolean;
+	small?: boolean;
+	primary?: boolean;
+	secondary?: boolean;
+	alert?: boolean;
+	premium?: boolean;
+	twitch?: boolean;
+	light?: boolean;
+	transparent?: boolean;
+	selected?: boolean;
+	disabled?: boolean;
+	modelValue?: boolean;
+	noBounce?: boolean;
+	accept?: string;
+	copy?: string;
+	file?: string;
+}>(), {
+	loading: false,
+	type: 'button',
+	big: false,
+	small: false,
+	primary: false,
+	secondary: false,
+	alert: false,
+	premium: false,
+	twitch: false,
+	light: false,
+	transparent: false,
+	selected: false,
+	disabled: false,
+	modelValue: false,
+	noBounce: false,
+	accept: "image/*",
+	copy: "",
+});
 
-	@Prop
-	public icon!:string;
+const emit = defineEmits<{
+	'click': [event: MouseEvent];
+	'update:file': [file: File];
+}>();
 
-	@Prop({type:Boolean, default: false})
-	public loading!:boolean;
+const slots = useSlots();
+const instance = getCurrentInstance();
 
-	@Prop({type:String, default:'button'})
-	public type!:string;
+const copySuccess = ref(false);
+const copyFail = ref(false);
+const browseRef = useTemplateRef("browse");
 
-	@Prop
-	public target!:string;
+const nodeType = computed(() => {
+	if(props.to) return "router-link";
+	if(props.type == "link") return "a";
+	return "button";
+});
 
-	@Prop
-	public to!:unknown;
+const classes = computed(() => {
+	let list =  ["button", "type-"+props.type];
+	if(!slots.default) list.push("noTitle");
+	if(props.primary !== false || copySuccess.value) list.push("primary");
+	if(props.twitch !== false) list.push("twitch");
+	if(props.secondary !== false) list.push("secondary");
+	if(props.alert !== false) list.push("alert");
+	if(props.premium !== false) list.push("premium");
+	if(props.light !== false) list.push("light");
+	if(props.transparent !== false) list.push("transparent");
+	if(props.big !== false) list.push("big");
+	if(props.small !== false) list.push("small");
+	if(props.selected !== false) list.push("selected");
+	if(props.loading !== false) list.push("disabled", "loading");
+	else if(props.disabled !== false) list.push("disabled");
+	return list;
+});
 
-	@Prop({type:Boolean, default: false})
-	public big!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public small!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public primary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public twitch!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public light!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public transparent!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public selected!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public disabled!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public modelValue!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noBounce!:boolean;
-
-	@Prop({type:String, default: "image/*"})
-	public accept!:string;
-
-	@Prop({type:String, default: ""})
-	public copy!:string;
-
-	@Prop
-	public file!:string;
-
-	public checked = false;
-	public copySuccess = false;
-	public copyFail = false;
-
-	public get nodeType():string {
-		if(this.to) return "router-link";
-		if(this.type == "link") return "a";
-		return "button";
+function onBrowseFile(): void {
+	let input = browseRef.value;
+	if(input?.files && input.files[0]) {
+		emit('update:file', input.files[0])
 	}
-
-	public get classes():string[] {
-		let list =  ["button", "type-"+this.type];
-		if(!this.$slots.default) list.push("noTitle");
-		if(this.primary !== false || this.copySuccess) list.push("primary");
-		if(this.twitch !== false) list.push("twitch");
-		if(this.secondary !== false) list.push("secondary");
-		if(this.alert !== false) list.push("alert");
-		if(this.premium !== false) list.push("premium");
-		if(this.light !== false) list.push("light");
-		if(this.transparent !== false) list.push("transparent");
-		if(this.big !== false) list.push("big");
-		if(this.small !== false) list.push("small");
-		if(this.selected !== false) list.push("selected");
-		if(this.loading !== false) list.push("disabled", "loading");
-		else if(this.disabled !== false) list.push("disabled");
-		return list;
-	}
-
-	public beforeMount():void {
-		this.checked = this.modelValue;
-
-		watch(() => this.checked, (val:boolean) => {
-			this.$emit("update:modelValue", val);
-		});
-
-		watch(() => this.modelValue, (val:boolean) => {
-			this.checked = val;
-		});
-	}
-
-	public onBrowseFile():void {
-		let input:HTMLInputElement = this.$refs.browse as HTMLInputElement;
-		if(input.files) {
-			this.$emit('update:file', input.files[0])
-		}
-	}
-
-	public resetBrowse():void {
-		(this.$refs.browse as HTMLFormElement).value = null;
-	}
-
-	public async onClick(event:MouseEvent):Promise<void> {
-		if(this.disabled !== false || this.loading) {
-			event.preventDefault();
-			event.stopPropagation();
-			return;
-		}
-		this.$emit("click", event);
-
-		if(this.copy) {
-			try {
-				await Utils.copyToClipboard(this.copy);
-				this.copySuccess = true;
-			}catch(e) {
-				this.copyFail = true;
-			}
-			await Utils.promisedTimeout(2000);
-			this.copySuccess = false;
-			this.copyFail = false;
-		}
-	}
-
-	public onRelease(_event:MouseEvent):void {
-		if(this.disabled || this.loading || this.noBounce !== false) return;
-		gsap.fromTo(this.$el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
-	}
-
 }
-export default toNative(TTButton);
+
+async function onClick(event: MouseEvent): Promise<void> {
+	if(props.disabled !== false || props.loading) {
+		event.preventDefault();
+		event.stopPropagation();
+		return;
+	}
+	emit("click", event);
+
+	if(props.copy) {
+		try {
+			await Utils.copyToClipboard(props.copy);
+			copySuccess.value = true;
+		}catch(e) {
+			copyFail.value = true;
+		}
+		await Utils.promisedTimeout(2000);
+		copySuccess.value = false;
+		copyFail.value = false;
+	}
+}
+
+function onRelease(_event: MouseEvent): void {
+	if(props.disabled || props.loading || props.noBounce !== false) return;
+	const el = instance?.proxy?.$el;
+	if (el) {
+		gsap.fromTo(el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
+	}
+}
 </script>
 
 <style lang="less" scoped>
