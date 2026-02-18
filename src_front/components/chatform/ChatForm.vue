@@ -1456,7 +1456,7 @@ export default toNative(ChatForm);
 	margin: auto;
 	position: relative;
 	opacity: 1;
-	z-index: 2;
+	z-index: 5;
 	transition: opacity .25s;
 	color: var(--color-text);
 

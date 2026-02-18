@@ -3952,7 +3952,7 @@ export interface IQuizState {
 	 * Stores current states of live quizes.
 	 * Contains users votes.
 	 */
-	liveStates:{[quizId:string]: TwitchatDataTypes.QuizState};
+	liveState:TwitchatDataTypes.QuizState|null;
 }
 
 export interface IQuizGetters {
@@ -3996,10 +3996,20 @@ export interface IQuizActions {
 	 */
 	startNextQuestion(quizId:string):void;
 	/**
+	 * Resets given quiz
+	 * @param quizId 
+	 */
+	resetQuiz(quizId:string):void;
+	/**
 	 * Reveal answer for current question of given quiz ID
 	 * @param quizId 
 	 */
 	revealAnswer(quizId:string):void;
+	/**
+	 * Broadcasts given quiz state to overlays and extension
+	 * @param quizId 
+	 */
+	broadcastQuizState(quizId:string):void;
 }
 
 

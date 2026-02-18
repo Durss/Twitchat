@@ -27,15 +27,17 @@
 				</template>
 			</div>
 	
-			<div class="question">{{ currentQuestion?.question }}</div>
-			<div class="answers" v-if="!$utils.isFreeAnswerQuestion(currentQuiz.mode, currentQuestion)">
-				<div class="answer"
-				:class="{selected:$utils.isClassicQuizAnswer(currentQuiz.mode, answer)? answer.correct : false}"
-				v-for="(answer, index) in currentQuestion?.answerList">
-					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
-					<span class="label">{{ answer.title }}</span>
+			<template v-if="currentQuestion">
+				<div class="question">{{ currentQuestion.question }}</div>
+				<div class="answers" v-if="!$utils.isFreeAnswerQuestion(currentQuiz.mode, currentQuestion)">
+					<div class="answer"
+					:class="{selected:$utils.isClassicQuizAnswer(currentQuiz.mode, answer)? answer.correct : false}"
+					v-for="(answer, index) in currentQuestion.answerList">
+						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
+						<span class="label">{{ answer.title }}</span>
+					</div>
 				</div>
-			</div>
+			</template>
 		</div>
 	</div>
 </template>
@@ -58,8 +60,8 @@ const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.find
 const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
 
-// if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
-// if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
+if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
+if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
 
 let rafId:number;
 function renderFrame():void {
