@@ -4078,10 +4078,6 @@ export namespace TwitchatDataTypes {
 		 */
 		enabled:boolean;
 		/**
-		 * Current question ID
-		 */
-		currentQuestionId:string;
-		/**
 		 * UTC date at which the quiz started
 		 */
 		quizStarted_at:string;
@@ -4089,6 +4085,18 @@ export namespace TwitchatDataTypes {
 		 * UTC date at which the current question started
 		 */
 		questionStarted_at:string;
+		/**
+		 * Current question ID
+		 */
+		currentQuestionId:string;
+		/**
+		 * Is the current question revealed to users?
+		 */
+		currentQuestionRevealed?:boolean;
+		/**
+		 * Votes for the current question.
+		 */
+		currentQuestionVotes?:{[answerId:string]:number};
 		/**
 		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 		 * 0 = exact match
@@ -4214,6 +4222,7 @@ export namespace TwitchatDataTypes {
 	 * Stores users votes and scores
 	 */
 	export type QuizState = {
+		quizId:string;
 		/**
 		 * Users list that played this quiz
 		 */

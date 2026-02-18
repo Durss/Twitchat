@@ -58,6 +58,10 @@
 			"mode_majority": {
 				"title": "Mode majoritaire",
 				"description": "Une question, jusqu'à 4 réponses, UNIQUEMENT des MAUVAISES réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
+			},
+			"live_progress_warning":{
+				"title": "Quiz en cours",
+				"description": "Si vous activez ce quiz vous perdrez la progression du qui {NAME}"
 			}
 		},
 		"state": {
