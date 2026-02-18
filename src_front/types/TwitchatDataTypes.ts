@@ -388,6 +388,7 @@ export namespace TwitchatDataTypes {
 			"multiChatAvatar" |
 			"multiChatColor" |
 			"sharedChatHide" |
+			"hideAnswersTo" |
 			"highlightusernames" |
 			"highlightMods" |
 			"highlightMods_color" |

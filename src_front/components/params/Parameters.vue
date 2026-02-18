@@ -217,7 +217,7 @@ class Parameters extends Vue {
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
 	private menuEntries:MenuEntry[] = [
 		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16_12, id:'params_chatfeatures_2'}},
-		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16_5, id:'params_chatappearance_2'}},
+		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:1771444874612, id:'params_chatappearance_3'}},
 		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_overlays_4'}},
 		{pinned:true, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNECTIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_connexion_2'}},
 		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16_12, id:'paramsparams_triggers_3'}},

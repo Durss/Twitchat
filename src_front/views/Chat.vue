@@ -1079,14 +1079,14 @@ export default toNative(Chat);
 					.subHolder {
 						height: calc(100% - 14px);//14px => dragbar height
 						overflow: hidden;
+						min-width: auto;
+						min-height: 0;
 					}
 					.dragBt {
 						padding: 6px 0;
 						cursor: ns-resize;
 						width: 100%;
 						&::before {
-							top: 50%;
-							left: 0;
 							width: 100%;
 							height: 1px;
 						}
@@ -1131,6 +1131,7 @@ export default toNative(Chat);
 					display: flex;
 					flex-direction: column;
 					width: 100%;
+					min-width: 0;
 					position: relative;
 					.messages {
 						flex-grow: 1;
@@ -1143,12 +1144,11 @@ export default toNative(Chat);
 					user-select: none;
 					z-index: 2;
 					height: 100%;
-					flex-basis: 1px;
+					flex-basis: 10px;
+					flex-shrink: 0;
 					padding: 0 6px;
 					position: relative;
 					&::before {
-						top: 0;
-						left: 50%;
 						display: block;
 						position: absolute;
 						width: 1px;

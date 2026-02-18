@@ -66,6 +66,7 @@ export const storeParams = defineStore('params', {
 			multiChatAvatar: 			{type:"boolean", value:false, labelKey:"params.multiChatAvatar", id:47, icon:"avatar", example:"multichat.png", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_multiChatAvatar'}}},
 			multiChatColor: 			{type:"boolean", value:false, labelKey:"params.multiChatColor", id:51, icon:"color", parent:47},
 			sharedChatHide: 			{type:"boolean", value:false, labelKey:"params.sharedChatHide", id:49, icon:"sharedChat", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V15, id:'params_sharedChat'}}},
+			hideAnswersTo: 				{type:"boolean", value:false, labelKey:"params.hideAnswersTo", id:52, icon:"user", example:"hideAnswersTo.png", storage:{vnew:{date:1771444874612, id:'params_hideAnswersTo'}}},
 			highlightusernames: 		{type:"boolean", value:true, labelKey:"params.highlightusernames", id:44, icon:"user", example:"clickable_mentions.png", storage:{vnew:{date:1693519200000, id:'params_chathighlightmentions'}}},
 			highlightMods: 				{type:"boolean", value:false, labelKey:"params.highlightMods", id:9, icon:"mod"},
 			highlightMods_color:		{type:"color", value:"#00a865", labelKey:"params.highlightColor", id:29, parent:9},

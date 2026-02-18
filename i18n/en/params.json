@@ -43,6 +43,7 @@
 		"multiChatAvatar": "Show channels profile pic next to messages from other channels",
 		"multiChatColor": "Also show a background color",
 		"sharedChatHide": "Only show messages from my own channel during a shared chat session",
+		"hideAnswersTo": "Hide the message to which a message replies",
 		"highlightusernames": "Make {'@'}mentions clickable",
 		"highlightMods": "Highlight Mods",
 		"highlightVips": "Highlight VIPs",

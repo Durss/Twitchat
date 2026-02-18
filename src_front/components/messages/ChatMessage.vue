@@ -3,6 +3,26 @@
 	@contextmenu="onContextMenu($event, messageData, $el)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
+		<div class="answersTo" :class="{expand:expandAnswer}"
+		v-if="messageData.type == 'message' && messageData.directlyAnswersTo && $store.params.appearance.hideAnswersTo.value === false"
+		@click.stop="expandAnswer = !expandAnswer">
+			<icon name="reply" />
+			<a :href="getProfilePage(messageData.directlyAnswersTo.user)" target="_blank"
+				@click.stop.prevent="openUserCard(messageData.directlyAnswersTo.user, messageData.channel_id, messageData.platform)"
+				@mouseenter="hoverNickName($event)"
+				@mouseleave="outNickName($event)"
+				data-login
+				class="login" :style="getLoginStyles(messageData.directlyAnswersTo.user)">{{messageData.directlyAnswersTo.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.directlyAnswersTo.user.login}})</i></a>
+
+			<ChatMessageChunksParser
+				:forceSpoiler="messageData.directlyAnswersTo.spoiler == true"
+				:containsSpoiler="messageData.directlyAnswersTo.containsSpoiler == true"
+				:largeEmote="false"
+				:chunks="messageData.directlyAnswersTo.message_chunks"
+				:channel="messageData.directlyAnswersTo.channel_id"
+				:platform="messageData.directlyAnswersTo.platform" />
+		</div>
+
 		<div class="gradientBg" v-if="messageData.type=='message' && messageData.twitch_animationId == 'rainbow-eclipse'"></div>
 		<div class="noiseBg" v-if="messageData.type=='message' && messageData.twitch_animationId == 'cosmic-abyss'">
 			<img src="@/assets/img/chat_animation/cosmic-abyss_1.jpg" alt="cosmic abyss background 1">
@@ -92,7 +112,7 @@
 				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></a>
 			<template v-if="recipient">
 				<span> ➔ </span>
-				<a :href="getProfilePage(messageData.user)" target="_blank"
+				<a :href="getProfilePage(recipient)" target="_blank"
 					class="login"
 					:style="getLoginStyles(recipient)"
 					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id, messageData.platform)">{{recipient.displayName}}</a>
@@ -222,6 +242,7 @@ class ChatMessage extends AbstractChatMessage {
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public showTools:boolean = false;
+	public expandAnswer:boolean = false;
 	public automodReasons = "";
 	public hypeChat:TwitchatDataTypes.HypeChatData|null = null;
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
@@ -1265,6 +1286,22 @@ export default toNative(ChatMessage);
 		justify-content: center;
 		gap: .5em;
 		margin-top: .5em;
+	}
+
+	.answersTo {
+		margin-left: .5em;
+		margin-bottom: 4px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		opacity: .75;
+		font-size: .9em;
+		cursor: default;
+		&.expand {
+			white-space: unset;
+			overflow: visible;
+			text-overflow: unset;
+		}
 	}
 }
 </style>
