@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "16.13.4",
+	"version": "16.13.5",
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
@@ -61,7 +61,6 @@
 		"@types/dom-screen-wake-lock": "^1.0.3",
 		"@types/dompurify": "^3.2.0",
 		"@types/gsap": "^3.0.0",
-
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/matter-js": "^0.19.8",
 		"@types/mime-types": "^3.0.1",
