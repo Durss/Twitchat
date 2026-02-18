@@ -7,11 +7,12 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import ApiHelper from '@/utils/ApiHelper';
 
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
 		quizList: [],
-		liveStates: {},
+		liveState: null,
 	} as IQuizState),
 
 
@@ -29,6 +30,7 @@ export const storeQuiz = defineStore('quiz', {
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.quizList = data.quizList ?? [];
+				this.liveState = data.liveState ?? null;
 			}else{
 				this.quizList = [];
 			}
@@ -36,7 +38,7 @@ export const storeQuiz = defineStore('quiz', {
 			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (e) => {
 				const quiz = this.quizList.find(v=>v.id === e.data.quizId);
 				if(quiz) {
-					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+					this.broadcastQuizState(quiz.id);
 				}
 			});
 
@@ -46,6 +48,49 @@ export const storeQuiz = defineStore('quiz', {
 
 				this.handleAnswer(eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
 			})
+		},
+		
+		async saveData(quizId?:string):Promise<void> {
+			const quiz = quizId ? this.quizList.find(q=>q.id === quizId) : undefined;
+			
+			// Are we saving a specifc quiz that's enabled?
+			if(quiz?.enabled) {
+				// Are we about to lose live quiz progress?
+				if(quiz?.enabled && this.liveState && this.liveState.quizId !== quizId) {
+					const t = StoreProxy.i18n.t;
+					const activeQuiz = this.quizList.find(q=>q.id === this.liveState!.quizId);
+					try {
+						await StoreProxy.main.confirm(t("quiz.form.live_progress_warning.title"), t("quiz.form.live_progress_warning.description", { NAME: activeQuiz?.title }));
+					}catch(error) {
+						// User cancelled, disable the quiz
+						quiz.enabled = false;
+						return;
+					}
+					this.liveState = null;
+				}
+				
+				// Disable all other quizzes
+				this.quizList.forEach(q => {
+					if(q.id === quizId) {
+						q.enabled = q.enabled;
+					}else{
+						q.enabled = false;
+					}
+				})
+			}
+			const data:IStoreData = {
+				quizList:this.quizList,
+				liveState:this.liveState,
+			};
+			DataStore.set(DataStore.QUIZ_CONFIGS, data);
+			if(quizId){
+				const quiz = this.quizList.filter(q=>q.id===quizId)[0];
+				if(quiz) this.broadcastQuizState(quizId);
+			}else{
+				for (const quiz of this.quizList) {
+					this.broadcastQuizState(quiz.id);
+				}
+			}
 		},
 
 		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
@@ -96,21 +141,6 @@ export const storeQuiz = defineStore('quiz', {
 			this.saveData(clone.id);
 			return clone;
 		},
-		
-		saveData(quizId?:string):void {
-			const data:IStoreData = {
-				quizList:this.quizList,
-			};
-			DataStore.set(DataStore.QUIZ_CONFIGS, data);
-			if(quizId){
-				const quiz = this.quizList.filter(q=>q.id===quizId)[0];
-				if(quiz) PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
-			}else{
-				for (const quiz of this.quizList) {
-					PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
-				}
-			}
-		},
 
 		async handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
 			const quiz = this.quizList.filter(q=>q.id === quizId)[0];
@@ -120,9 +150,9 @@ export const storeQuiz = defineStore('quiz', {
 			const uid = userId || opaqueUserId;
 			if(!uid) return;
 
-			let data = this.liveStates[quizId];
-			if(!data) {
-				data = this.liveStates[quizId] = {
+			if(!this.liveState) {
+				this.liveState = {
+					quizId,
 					questionVotes: {},
 					users: {},
 				}
@@ -148,8 +178,8 @@ export const storeQuiz = defineStore('quiz', {
 					score = 1;
 				}else{
 					// for majority quiz we can only get score once everyone has voted.
-					data.questionVotes[question.id] = data.questionVotes[question.id] || [];
-					data.questionVotes[question.id]!.push({uid, answer: answerId});
+					this.liveState.questionVotes[question.id] = this.liveState.questionVotes[question.id] || [];
+					this.liveState.questionVotes[question.id]!.push({uid, answer: answerId});
 				}
 			}
 			// Apply speed multiplicator if any
@@ -160,7 +190,7 @@ export const storeQuiz = defineStore('quiz', {
 				score = 0;
 			}
 
-			let userData = data.users[uid];
+			let userData = this.liveState.users[uid];
 			if(!userData) {
 				let name = "";
 				if(userId) {
@@ -179,7 +209,7 @@ export const storeQuiz = defineStore('quiz', {
 					// User is anonymous, get random name
 					name = Utils.getNameFromOpaqueId(uid);
 				}
-				userData = data.users[uid] = {
+				userData = this.liveState.users[uid] = {
 					name,
 					score: 0,
 				}
@@ -191,37 +221,59 @@ export const storeQuiz = defineStore('quiz', {
 		startNextQuestion(quizId:string):void {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
+			delete quiz.currentQuestionRevealed;
+			delete quiz.currentQuestionVotes;
 			quiz.questionStarted_at = new Date().toISOString();
 			const index = quiz.questionList.findIndex(q=>q.id === quiz.currentQuestionId);
 			if(index < quiz.questionList.length - 1) {
 				quiz.currentQuestionId = quiz.questionList[index + 1]!.id;
 			}else{
 				quiz.currentQuestionId = "";
-				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this, only for testing
+				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this. Only here for testing to loop back to 1st question
 				//TODO: quiz ended, do whatever needs to be done at that moment
 			}
-			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+			this.broadcastQuizState(quizId);
+		},
+
+		resetQuiz(quizId:string):void {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz) return
+			quiz.currentQuestionId = "";
+			quiz.currentQuestionRevealed = false;
+			quiz.currentQuestionVotes = {};
+			if(this.liveState?.quizId == quizId) this.liveState = null;
+			this.broadcastQuizState(quizId);
 		},
 
 		revealAnswer(quizId:string):void {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
 			const votes: {[answerId:string]: number} = {};
-			const liveData = this.liveStates[quizId];
-			if(liveData) {
+			if(this.liveState) {
 				const question = quiz.questionList.find(q=>q.id === quiz.currentQuestionId);
 				if(question && !Utils.isFreeAnswerQuestion(quiz.mode, question)) {
 					question.answerList.forEach(a => {
 						votes[a.id] = 0;
 					});
-					const answers = liveData.questionVotes[question.id] || [];
+					const answers = this.liveState.questionVotes[question.id] || [];
 					for (const answer of answers) {
 						votes[answer.answer]! ++;
 					}
 				}
 			}
-			PublicAPI.instance.broadcast("ON_QUIZ_REVEAL_ANSWER", {quizId, votes});
+			quiz.currentQuestionRevealed = true;
+			quiz.currentQuestionVotes = votes;
+			this.broadcastQuizState(quizId);
 		},
+
+		broadcastQuizState(quizId:string):void {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz || !quiz.enabled) return
+			ApiHelper.call("quiz/broadcast", "PUT", {
+				quiz: quiz,
+			});
+			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+		}
 		
 	} as IQuizActions
 	& ThisType<IQuizActions
@@ -237,5 +289,6 @@ if(import.meta.hot) {
 }
 
 interface IStoreData {
-	quizList:TwitchatDataTypes.QuizParams[];
+	quizList: TwitchatDataTypes.QuizParams[];
+	liveState: TwitchatDataTypes.QuizState | null;
 }

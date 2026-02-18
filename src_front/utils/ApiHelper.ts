@@ -1206,13 +1206,10 @@ type ApiEndpoints = {
 			};
 		}
 	};
-	"quiz/revealAnswer": {
-		POST: {
+	"quiz/broadcast": {
+		PUT: {
 			parameters: {
-				quizId:string;
-				questionId:string;
-				votes:{[answerId:string]:number};
-				correctAnswerIds:string[];
+				quiz:TwitchatDataTypes.QuizParams;
 			};
 			response: {
 				success:boolean;
