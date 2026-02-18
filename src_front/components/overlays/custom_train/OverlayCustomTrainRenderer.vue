@@ -9,6 +9,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="10"
 						@input="onChangeLevelName()" />
 					<span>{{localLevelIndex}}</span>
 				</div>
@@ -20,6 +21,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitle()" />
 					<div class="progress">
 						<div class="time">{{ timeLeft }}</div>
@@ -36,6 +38,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="10"
 						@input="onChangeLevelName()" />
 					<span>{{localLevelIndex}}</span>
 				</div>
@@ -51,6 +54,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="10"
 						@input="onChangeLevelName()" />
 					<span>{{localLevelIndex}}</span>
 				</div>
@@ -62,6 +66,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitle()" />
 					<div class="progress">
 						<div class="time">{{ timeLeft }}</div>
@@ -82,6 +87,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitleApproaching()" />
 					<div class="events" v-if="eventCount < 6">
 						<div class="wrapper">
@@ -130,6 +136,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitleLevelUp()" />
 				</div>
 				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="levelUpEmote" alt="emote">
@@ -158,6 +165,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitleRecord()" />
 				</div>
 				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="recordEmote" alt="emote">
@@ -186,6 +194,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitleSuccess()" />
 				</div>
 				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="successEmote" alt="emote">
@@ -202,6 +211,7 @@
 						:contenteditable="editable !== false"
 						:no-nl="true"
 						:no-html="true"
+						:maxlength="100"
 						@input="onChangeTitleFail()" />
 				</div>
 			</div>

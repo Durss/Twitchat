@@ -577,6 +577,7 @@ class ChatMessage extends AbstractChatMessage {
 	 * Accept or reject an automoded chat message
 	 */
 	public async modMessage(accept:boolean):Promise<void> {
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
 		this.automodInProgress = true;
 		this.$store.chat.automodAction(accept, this.messageData);
 		this.automodInProgress = false;

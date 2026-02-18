@@ -1317,10 +1317,6 @@ class MessageList extends Vue {
 
 		//Show older messages if near the top
 		}else if(messageHolder.scrollTop < scrollPageOffset) {
-			//Make sure we don't reach the top.
-			//If we did the list would keep scrolling up until reaching the first message unless
-			//we bring it back just a little like this
-			// messageHolder.scrollTop = this.virtualScrollY = scrollPageOffset + 2;
 			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
