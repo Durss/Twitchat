@@ -58,6 +58,10 @@
 			"mode_majority": {
 				"title": "Majority mode",
 				"description": "One question, up to 4 answers answers. ONLY WRONG answers\n\nViewers must guess which answer will receive the most votes."
+			},
+			"live_progress_warning":{
+				"title": "Quiz in progress",
+				"description": "If you enable this quiz, you will lose the progress of the quiz {NAME}"
 			}
 		},
 		"state": {
