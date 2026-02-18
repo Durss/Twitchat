@@ -40,6 +40,7 @@ export default class QuizController extends AbstractController {
 	******************/
 	public initialize():QuizController {
 		this.server.get('/api/quiz', async (request, response) => await this.getQuiz(request, response));
+		this.server.put('/api/broadcast', async (request, response) => await this.putBroadcastQuiz(request, response));
 
 		return this;
 	}
@@ -54,7 +55,7 @@ export default class QuizController extends AbstractController {
 		//Validate UID and quizId to prevent path traversal
 		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return null
 
-		const cacheKey = uid+"/"+quizId;
+		const cacheKey = this.getCacheKey(uid, quizId);
 		
 		// Check LRU cache first
 		let cache = this.cachedQuizzes.get(cacheKey);
@@ -86,7 +87,9 @@ export default class QuizController extends AbstractController {
 	 * Get a quiz definition
 	 */
 	private async getQuiz(request:FastifyRequest, response:FastifyReply) {
-		const uid:string = (request.query as any).uid;
+		const user = await super.twitchUserGuard(request, response);
+		if(!user) return;
+		const uid:string = user.user_id;
 		const quizId:string = (request.query as any).quizid;
 		
 		const quiz = this.getStreamerQuizs(uid, quizId);
@@ -103,6 +106,47 @@ export default class QuizController extends AbstractController {
 
 		return;
 	}
+
+	private getCacheKey(uid:string, quizId:string):string {
+		return uid+"/"+quizId;
+	}
+
+	/**
+	 * Saves given quiz to cache and tell all extension viewers it's been updated 
+	 * @param request 
+	 * @param response 
+	 */
+	private async putBroadcastQuiz(request:FastifyRequest, response:FastifyReply) {
+		const user = await super.twitchUserGuard(request, response);
+		if(!user) return;
+		const quiz:QuizParams = (request.body as any).quiz;
+		const uid:string = user.user_id;
+		const quizId = quiz.id;
+		
+		// Validate UID and quizId
+		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid UID or quiz ID", errorCode:"INVALID_PARAMS"}));
+			return;
+		}
+		
+		// Update cache
+		const cacheKey = this.getCacheKey(uid, quizId);
+		const cacheData:IQuizCacheData = {
+			date: Date.now(),
+			ownerId: uid,
+			data: [quiz]
+		};
+		this.cachedQuizzes.set(cacheKey, cacheData);
+		
+		// Broadcast to extension viewers
+		this.extensionController.notifyStateUpdate(uid);
+		
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
+	}
 }
 
 interface IQuizCacheData {
@@ -112,8 +156,8 @@ interface IQuizCacheData {
 }
 
 
-type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
-	/**
+export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
+		/**
 	 * Quiz ID
 	 */
 	id:string;
@@ -144,10 +188,6 @@ type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 	 */
 	enabled:boolean;
 	/**
-	 * Current question ID
-	 */
-	currentQuestionId:string;
-	/**
 	 * UTC date at which the quiz started
 	 */
 	quizStarted_at:string;
@@ -155,6 +195,18 @@ type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 	 * UTC date at which the current question started
 	 */
 	questionStarted_at:string;
+	/**
+	 * Current question ID
+	 */
+	currentQuestionId:string;
+	/**
+	 * Is the current question revealed to users?
+	 */
+	currentQuestionRevealed?:boolean;
+	/**
+	 * Votes for the current question.
+	 */
+	currentQuestionVotes?:{[answerId:string]:number};
 	/**
 	 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 	 * 0 = exact match
