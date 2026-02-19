@@ -1386,6 +1386,15 @@ class MessageList extends Vue {
 			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
 		}
 
+		// Record scroll anchor position before any DOM changes.
+		// This is used after the loop to compensate scrollTop for newly
+		// prepended content, preventing a runaway scroll-to-top feedback loop.
+		const messageHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+		const prevScrollTop = messageHolder.scrollTop;
+		const anchorDomId = 'message_' + lastId + '_' + this.config.order;
+		const anchorEl = document.getElementById(anchorDomId);
+		const anchorOffsetBefore = anchorEl ? anchorEl.offsetTop : 0;
+
 		//Add 8 messages
 		let addCount = 8;
 		let messageCountToAdd = addCount;
@@ -1411,6 +1420,19 @@ class MessageList extends Vue {
 
 		if(messageAdded) {
 			removed.forEach(v=> this.pendingMessages.unshift( v ));
+
+			// Wait for DOM to reflect the prepended messages, then adjust
+			// scrollTop so the user's visual position stays stable.
+			// Without this, scrollTop stays near 0 after prepending, which
+			// triggers another showPrevMessage() on the next renderFrame(),
+			// creating a runaway loop that scrolls all the way to the first message.
+			await this.$nextTick();
+			const anchorElAfter = document.getElementById(anchorDomId);
+			if(anchorElAfter && messageHolder) {
+				const delta = anchorElAfter.offsetTop - anchorOffsetBefore;
+				messageHolder.scrollTop = prevScrollTop + delta;
+				this.virtualScrollY = messageHolder.scrollTop;
+			}
 		}else if(removed){
 			//We reached the first message of the history, stop there and put messages
 			//back to avoid emptying the list if we keep scrolling up
