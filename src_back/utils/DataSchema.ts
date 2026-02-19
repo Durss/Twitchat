@@ -1271,6 +1271,7 @@ const UserDataSchema = {
 		"p:autoTranslate": {type:"boolean"},
 		"p:autoTranslateFirst": {type:"boolean"},
 		"p:manyRepliesAlert": {type:"boolean"},
+		"p:hideAnswersTo": {type:"boolean"},
 		"p:manyRepliesAlertThreshold": {type:"integer", minimum:1, maximum:20},
 		"p:autoTranslateLang":{
 			type:"array",
