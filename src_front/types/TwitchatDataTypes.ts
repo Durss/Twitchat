@@ -410,6 +410,7 @@ export namespace TwitchatDataTypes {
 			"highlight1stToday" |
 			"highlight1stToday_color" |
 			"highlightNonFollowers" |
+			"helloBadge" |
 			"firstUserBadge" |
 			"recentAccountUserBadge" |
 			"translateNames" |
@@ -424,6 +425,7 @@ export namespace TwitchatDataTypes {
 			"sevenTVEmotes" |
 			"showBadges" |
 			"minimalistBadges" |
+			"fadeAnswers" |
 			"displayTime" |
 			"displayTimeRelative" |
 			"dyslexicFont" |

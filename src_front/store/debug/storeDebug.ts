@@ -106,6 +106,9 @@ export const storeDebug = defineStore('debug', {
 								if(om && om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && Math.random() < .2) {
 									m.answersTo = om;
 									om.answers.push(m);
+									if(Math.random() < .35) {
+										m.directlyAnswersTo = om;
+									}
 									break;
 								}
 							}

@@ -1257,6 +1257,7 @@ const UserDataSchema = {
 		"p:censorDeletedMessages": {type:"boolean"},
 		"p:saveHistory": {type:"boolean"},
 		"p:highlightusernames": {type:"boolean"},
+		"p:helloBadge": {type:"boolean"},
 		"p:recentAccountUserBadge": {type:"boolean"},
 		"p:mergeConsecutive": {type:"boolean"},
 		"p:mergeConsecutive_maxSize": {type:"integer", minimum:1, maximum:500},

@@ -278,8 +278,9 @@ class ChatMessage extends AbstractChatMessage {
 		if(this.disableConversation !== false)	res.push("disableConversation");
 		if(!this.lightMode && message.cyphered)	res.push("cyphered");
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
-
+		
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(message.directlyAnswersTo && this.$store.params.appearance.fadeAnswers.value === false) res.push("fade");
 			if(message.cleared)	res.push("cleared");
 			if(message.deleted)	res.push("deleted");
 			if(message.twitch_animationId)	res.push("animation_"+message.twitch_animationId);
@@ -423,13 +424,10 @@ class ChatMessage extends AbstractChatMessage {
 		this.localMessageChunks = JSON.parse(JSON.stringify(this.messageData.message_chunks));
 
 		const mess			= this.messageData;
-		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 		let highlightedWords:string[] = this.highlightedWords.concat();
-
-		if(mess.cyphered) infoBadges.push({type:"cyphered"});
+		watch(()=> this.$store.params.appearance.helloBadge.value, () => this.updateBadges());
 
 		if(this.channelInfo.is_raider) {
-			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RAIDER});
 			//Remove "raider" badge from the view when removed from data
 			watch(()=> this.channelInfo.is_raider, () =>{
 				for (let i = 0; i < this.infoBadges.length; i++) {
@@ -442,41 +440,12 @@ class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		//Creation date is loaded asynchronously, watch for it if requested
-		if(this.$store.params.appearance.recentAccountUserBadge.value === true) {
-			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
-				//Don't show the warning for ourself
-				if(mess.user.id == this.$store.auth.twitch.user.id) return;
-
-				const age = Date.now() - (mess.user.created_at_ms || 0);
-				if(age < 14 * 24 * 60 * 60000) {
-					let label = Utils.elapsedDuration(mess.user.created_at_ms || 0);
-					list.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_ACCOUNT, label, tooltipLabelParams:{DURATION:label}});
-				}
-			}
-			setRecentBadge(infoBadges);
-			if(this.messageData.user.created_at_ms == undefined) {
-				watch(()=>mess.user.created_at_ms, () => setRecentBadge(this.infoBadges))
-			}
-		}
-
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
 			this.showModToolsPreCalc = false;
 
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.isAd = this.messageData.is_ad === true;
-			//Add twitchat's automod badge
-			if(mess.automod) {
-				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
-			}
-
-			//Add "first day on your chat" badge
-			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
-			&& this.$store.params.appearance.firstUserBadge.value === true) {
-				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
-			}
 			//Manage twitch automod content
 			if(mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
@@ -497,24 +466,6 @@ class ChatMessage extends AbstractChatMessage {
 
 			watch(()=> mess.twitch_isSuspicious, () => this.updateSuspiciousState());
 			watch(()=> mess.is_saved, () => this.updateSavedState());
-
-			if(mess.twitch_isRestricted)				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
-			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
-			if((mess.twitch_watchStreak || 0) > 0)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WATCH_STREAK, label:mess.twitch_watchStreak!.toString()});
-			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
-			if(mess.twitch_gigantifiedEmote
-			|| mess.twitch_animationId )				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.POWER_UP});
-
-			if(mess.todayFirst === true
-			&& mess.twitch_isFirstMessage !== true
-			// && mess.twitch_isPresentation !== true
-			&& mess.twitch_isReturning !== true
-			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
-
-			if(mess.twitch_hypeChat) {
-				let currency = {EUR:"€",USD:"$", GBP:"£"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
-				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
-			}
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
@@ -580,10 +531,10 @@ class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
 		this.$store.accessibility.setAriaPolite(this.messageData.message);
 		this.updateSuspiciousState();
+		this.updateBadges();
 	}
 
 	/**
@@ -783,6 +734,72 @@ class ChatMessage extends AbstractChatMessage {
 			}
 		}
 	}
+
+	private updateBadges():void {
+		const mess = this.messageData;
+		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
+
+		if(mess.cyphered) infoBadges.push({type:"cyphered"});
+
+		if(this.channelInfo.is_raider) {
+			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RAIDER});
+		}
+
+		//Creation date is loaded asynchronously, watch for it if requested
+		if(this.$store.params.appearance.recentAccountUserBadge.value === true) {
+			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
+				//Don't show the warning for ourself
+				if(mess.user.id == this.$store.auth.twitch.user.id) return;
+
+				const age = Date.now() - (mess.user.created_at_ms || 0);
+				if(age < 14 * 24 * 60 * 60000) {
+					let label = Utils.elapsedDuration(mess.user.created_at_ms || 0);
+					list.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_ACCOUNT, label, tooltipLabelParams:{DURATION:label}});
+				}
+			}
+			setRecentBadge(infoBadges);
+			if(this.messageData.user.created_at_ms == undefined) {
+				watch(()=>mess.user.created_at_ms, () => setRecentBadge(this.infoBadges))
+			}
+			
+			//Define message badges (these are different from user badges!)
+			if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
+			} else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
+				//Add twitchat's automod badge
+				if(mess.automod) {
+					infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
+				}
+
+				//Add "first day on your chat" badge
+				if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
+				&& this.$store.params.appearance.firstUserBadge.value === true) {
+					infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
+				}
+
+				if(mess.twitch_isRestricted)				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
+				if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
+				if((mess.twitch_watchStreak || 0) > 0)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WATCH_STREAK, label:mess.twitch_watchStreak!.toString()});
+				if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
+				if(mess.twitch_gigantifiedEmote
+				|| mess.twitch_animationId )				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.POWER_UP});
+
+				if(mess.todayFirst === true
+				&& mess.twitch_isFirstMessage !== true
+				// && mess.twitch_isPresentation !== true
+				&& mess.twitch_isReturning !== true
+				&& this.$store.params.appearance.helloBadge.value === true
+				&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
+
+				if(mess.twitch_hypeChat) {
+					let currency = {EUR:"€",USD:"$", GBP:"£"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
+					infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
+				}
+			}
+
+			this.infoBadges = infoBadges;
+		}
+	}
 }
 export default toNative(ChatMessage);
 </script>
@@ -949,6 +966,14 @@ export default toNative(ChatMessage);
 			.message, &.messageChild.deleted {
 				text-decoration: none;
 			}
+		}
+	}
+
+	&.fade:not(.deleted) {
+		opacity: .35;
+		transition: opacity .2s;
+		&:hover{
+			opacity: 1;
 		}
 	}
 
@@ -1297,6 +1322,7 @@ export default toNative(ChatMessage);
 		opacity: .75;
 		font-size: .9em;
 		cursor: default;
+		width: calc(100% - 1em);
 		&.expand {
 			white-space: unset;
 			overflow: visible;
