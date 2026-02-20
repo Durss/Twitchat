@@ -117,7 +117,7 @@ class OverlayTimer extends AbstractOverlay {
 
 		if(this.$refs.timer) gsap.killTweensOf(this.$refs.timer as HTMLDivElement);
 
-		if(e.type == "TIMER_START") {
+		if(e.type == "ON_TIMER_START") {
 			this.timerData = data;
 			const wasVisible = this.timerValue != "";
 			this.computeValues();
@@ -152,7 +152,7 @@ class OverlayTimer extends AbstractOverlay {
 
 		if(this.$refs.countdown) gsap.killTweensOf(this.$refs.countdown as HTMLDivElement);
 
-		if(e.type == "COUNTDOWN_START") {
+		if(e.type == "ON_COUNTDOWN_START") {
 			this.countdownData = e.data;
 			const wasVisible = this.countdownValue != "";
 			this.computeValues();
