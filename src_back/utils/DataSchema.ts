@@ -1273,6 +1273,7 @@ const UserDataSchema = {
 		"p:autoTranslateFirst": {type:"boolean"},
 		"p:manyRepliesAlert": {type:"boolean"},
 		"p:hideAnswersTo": {type:"boolean"},
+		"p:fadeAnswers": {type:"boolean"},
 		"p:manyRepliesAlertThreshold": {type:"integer", minimum:1, maximum:20},
 		"p:autoTranslateLang":{
 			type:"array",
@@ -2651,7 +2652,7 @@ const UserDataSchema = {
 							textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							currency: { type: "string" },
 							approachEventCount: { type: "number", minimum:2, maximum:5 },
-							triggerEventCount: { type: "number", minimum:2, maximum:5 },
+							triggerEventCount: { type: "number", minimum:2, maximum:11 },
 							cooldownDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							levelsDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							expires_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
