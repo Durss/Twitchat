@@ -54,6 +54,7 @@ import ParamItem from '../../ParamItem.vue';
 import DataStore from '@/store/DataStore';
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import OverlayInstaller from './OverlayInstaller.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -72,7 +73,7 @@ class OverlayParamsUlule extends Vue {
 	
 	public get overlayUrl():string {
 		let project = this.param_project.value.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
-		let url = this.$overlayURL("ulule", [{k:"project", v:project}, {k:"goals", v:this.param_goals.value}, {k:"currency", v:this.param_currency.value}, {k:"title", v:this.param_title.value}]);
+		let url = Utils.overlayURL("ulule", [{k:"project", v:project}, {k:"goals", v:this.param_goals.value}, {k:"currency", v:this.param_currency.value}, {k:"title", v:this.param_title.value}]);
 		return url;
 	}
 

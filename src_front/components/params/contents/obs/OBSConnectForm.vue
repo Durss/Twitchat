@@ -38,7 +38,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -63,7 +63,7 @@ class OBSConnectForm extends Vue {
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", maxLength:100, labelKey:"obs.form_ip" };
 
 	public get connected():boolean {
-		return OBSWebsocket.instance.connected.value;
+		return OBSWebSocket.instance.connected.value;
 	}
 
 		
@@ -86,7 +86,7 @@ class OBSConnectForm extends Vue {
 		this.loading = true;
 		this.connectSuccess = false;
 		this.connectError = false;
-		const connected = await OBSWebsocket.instance.connect(
+		const connected = await OBSWebSocket.instance.connect(
 							this.obsPort_conf.value.toString(),
 							this.obsPass_conf.value,
 							false,
@@ -106,7 +106,7 @@ class OBSConnectForm extends Vue {
 	}
 
 	public async disconnect():Promise<void> {
-		OBSWebsocket.instance.disconnect();
+		OBSWebSocket.instance.disconnect();
 	}
 
 	/**

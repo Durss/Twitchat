@@ -100,7 +100,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
@@ -234,7 +234,7 @@ class OverlayParamsBitswall extends Vue {
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
 		if(this.param_cristalEffect.value !== true) return;
 
-		let filterTarget = await OBSWebsocket.instance.getCurrentScene();
+		let filterTarget = await OBSWebSocket.instance.getCurrentScene();
 
 		const filterSettings = {
 			"effect": "displacement_map_source",
@@ -253,13 +253,13 @@ class OverlayParamsBitswall extends Vue {
 						filterSettings
 					};
 		try {
-			await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+			await OBSWebSocket.instance.socket.call("CreateSourceFilter", params);
 		}catch(error) {
 			this.shaderstasticError = true;
 			//Remove browser source created before
-			const sceneItem = await OBSWebsocket.instance.searchSceneItemId(data.sourceName, filterTarget);
+			const sceneItem = await OBSWebSocket.instance.searchSceneItemId(data.sourceName, filterTarget);
 			if(sceneItem) {
-				await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:filterTarget});
+				await OBSWebSocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:filterTarget});
 			}
 
 			await this.$nextTick();
