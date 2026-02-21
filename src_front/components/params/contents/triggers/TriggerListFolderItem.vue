@@ -10,7 +10,7 @@
 	:emptyInsertThreshold="0"
 	:disabled="noEdit !== false"
 	@start="dragging = true"
-	@end="dragging = false; onChange($event)">
+	@end="onDragEnd()">
 		<template #item="{element: folder, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
 			<ToggleBlock class="folder" v-if="folder.type == 'folder'"
 			medium
@@ -21,7 +21,7 @@
 			:ref="'folder_'+folder.id"
 			:titleDefault="'folder'"
 			@dragstart="startDrag(folder)"
-			@drop="onDrop(folder)"
+			@drop="onDrop($event, folder)"
 			@dragenter="onDragEnter($event, folder)"
 			@dragleave="onDragLeave($event, folder)"
 			@update:open="$emit('change', $event)"
@@ -43,7 +43,7 @@
 					<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
 				</template>
 
-				<div :class="folder.enabled === false && selectMode === false? 'childList disabled' : 'childList'">
+				<div @drop.stop :class="folder.enabled === false && selectMode === false? 'childList disabled' : 'childList'">
 					<TriggerListFolderItem
 						:class="!folder.items || folder.items.length == 0? 'emptyChildren' : ''"
 						v-model:items="folder.items"
@@ -135,6 +135,7 @@ class TriggerListFolderItem extends Vue {
 	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 
 	private draggedEntry:TriggerListEntry|TriggerListFolderEntry|null = null;
+	private droppedOnFolder:boolean = false;
 	public dragCounter:{[id:string]:number} = {};
 
 	public beforeMount():void {
@@ -143,8 +144,21 @@ class TriggerListFolderItem extends Vue {
 	}
 
 	public onChange(e?:{moved:{element:TriggerListEntry|TriggerListFolderEntry}, newIndex:number, oldIndex:number}):void {
-		this.$emit('change', e);
 		this.$emit("update:items", this.localItems);
+		this.$emit('change', e);
+	}
+
+	/**
+	 * Called when vuedraggable ends a drag.
+	 * Skips saving if onDrop already handled the move (drop onto folder header).
+	 */
+	public onDragEnd():void {
+		this.dragging = false;
+		if(this.droppedOnFolder) {
+			this.droppedOnFolder = false;
+		}else{
+			this.onChange();
+		}
 	}
 
 	/**
@@ -178,16 +192,29 @@ class TriggerListFolderItem extends Vue {
 	}
 
 	/**
-	 * Called when starting to drag an item
-	 * @param entry
+	 * Called when an item is dropped onto a folder header.
+	 * Defers array modification to nextTick so vuedraggable finishes first.
+	 * @param event
+	 * @param folder
 	 */
-	public onDrop(folder:TriggerListFolderEntry):void {
+	public onDrop(event:Event, folder:TriggerListFolderEntry):void {
 		if(!this.dragging) return;
 		if(!this.draggedEntry) return;
 		if(this.draggedEntry == folder) return;
-		this.items.splice(this.items.findIndex(v=>v.id == this.draggedEntry!.id), 1);
-		folder.items.push(this.draggedEntry);
+
+		event.stopPropagation();
+		const entry = this.draggedEntry;
 		this.draggedEntry = null;
+		this.droppedOnFolder = true;
+
+		this.$nextTick(() => {
+			const index = this.localItems.findIndex(v => v.id === entry.id);
+			if(index !== -1) {
+				this.localItems.splice(index, 1);
+				folder.items.push(entry);
+			}
+			this.onChange();
+		});
 	}
 
 	public onDragEnter(event:MouseEvent, entry:TriggerListFolderEntry):void {
