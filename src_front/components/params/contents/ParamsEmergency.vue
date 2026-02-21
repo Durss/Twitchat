@@ -83,7 +83,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebSocket, { type OBSSourceItem } from '@/utils/OBSWebSocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
@@ -132,7 +132,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 		};
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
@@ -206,7 +206,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 			this.$store.emergency.setEmergencyParams(this.finalData);
 		}, {deep:true});
 
-		watch(()=> OBSWebsocket.instance.connected.value, () => {
+		watch(()=> OBSWebSocket.instance.connected.value, () => {
 			this.listOBSScenes();
 			this.listOBSSources();
 		});
@@ -235,10 +235,10 @@ class ParamsEmergency extends Vue implements IParameterContent {
 	 * List OBS Scenes
 	 */
 	private async listOBSScenes():Promise<void> {
-		if(!OBSWebsocket.instance.connected.value) return;
+		if(!OBSWebSocket.instance.connected.value) return;
 
 		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-		const res = await OBSWebsocket.instance.getScenes();
+		const res = await OBSWebSocket.instance.getScenes();
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};
 			list.push({label:scene.sceneName, value:scene.sceneName});
@@ -259,7 +259,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 	 */
 	private async listOBSSources():Promise<void> {
 		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
+			this.obsSources = await OBSWebSocket.instance.getSources();
 		}catch(error){
 			//
 		}

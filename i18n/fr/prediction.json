@@ -16,7 +16,8 @@
       "outcome_confirm_title": "Confirmer ?",
       "outcome_confirm_desc": "Confirmez-vous le résultat \"{CHOICE}\" ?",
       "delete_title": "Supprimer la prédiction",
-      "delete_desc": "Voulez-vous vraiment supprimer cette prédiction ? Les participant·es seront remboursé·es."
+      "delete_desc": "Voulez-vous vraiment supprimer cette prédiction ? Les participant·es seront remboursé·es.",
+      "overlay_name": "de Prédiction"
     }
   }
 }

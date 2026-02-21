@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import TTButton from '../../TTButton.vue';
@@ -45,7 +45,7 @@ class ParamsVoiceBot extends Vue implements IParameterContent {
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get voiceApiAvailable():boolean { return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT; }
 	public get voicePageUrl():string {
 		let url = document.location.origin;

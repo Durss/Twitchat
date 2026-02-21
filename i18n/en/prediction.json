@@ -16,7 +16,8 @@
       "outcome_confirm_title": "Confirm choice?",
       "outcome_confirm_desc": "Do you confirm \"{CHOICE}\"?",
       "delete_title": "Delete Prediction",
-      "delete_desc": "Are you sure you want to delete this prediction? Users will be refund."
+      "delete_desc": "Are you sure you want to delete this prediction? Users will be refund.",
+      "overlay_name": "Prediction"
     }
   }
 }

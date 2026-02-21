@@ -15,7 +15,8 @@
 			"closeConfirm": {
 				"title": "Terminer le sondage",
 				"message": "Êtes-vous sûr de vouloir terminer le sondage ?"
-			}
+			},
+			"overlay_name":"de Sondage"
 		}
 	}
 }

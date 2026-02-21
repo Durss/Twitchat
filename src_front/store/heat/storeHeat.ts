@@ -4,7 +4,7 @@ import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/ty
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { LogHeat } from '@/utils/Logger';
 import Logger from '@/utils/Logger';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -214,16 +214,16 @@ export const storeHeat = defineStore('heat', {
 			}
 
 			//If OBS websocket is not connected, stop there
-			if(!OBSWebsocket.instance.connected.value) {
+			if(!OBSWebSocket.instance.connected.value) {
 				Logger.instance.log("heat", log);
 				return;
 			}
 
-			OBSWebsocket.instance.log("Heat click");
+			OBSWebSocket.instance.log("Heat click");
 
 			//OBS websocket is connected, check which sources are under pointer.
 			//Checks for clickable overlays (spotify, ulule) as well as triggers related to sources
-			const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
+			const rects = await OBSWebSocket.instance.getSourcesDisplayRects();
 			const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
 			const ululeRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"ulule"}}).href;
 			const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
@@ -294,14 +294,14 @@ export const storeHeat = defineStore('heat', {
 				//Ignore distortions not linked to a scene
 				// if(d.obsItemPath.sceneName != StoreProxy.common.currentOBSScene) continue;
 
-				OBSWebsocket.instance.log("Reroute click from scene \""+d.obsItemPath.sceneName+"\" to overlay ID \""+d.id+"\"");
+				OBSWebSocket.instance.log("Reroute click from scene \""+d.obsItemPath.sceneName+"\" to overlay ID \""+d.id+"\"");
 				const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventDataTemplate;
 				clickClone.requestData.event_data.twitchatOverlayID = d.id;
 				clickClone.requestData.event_data.x = event.coordinates.x;
 				clickClone.requestData.event_data.y = event.coordinates.y;
 				clickClone.requestData.event_data.scaleX = 1;
 				clickClone.requestData.event_data.scaleY = 1;
-				OBSWebsocket.instance.socket.call("CallVendorRequest", {
+				OBSWebSocket.instance.socket.call("CallVendorRequest", {
 					requestType: clickClone.requestType,
 					vendorName: clickClone.vendorName,
 					requestData: clickClone.requestData as unknown as JsonObject
@@ -322,7 +322,7 @@ export const storeHeat = defineStore('heat', {
 				const polygon = [tl, tr, br, bl];
 				const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
-				OBSWebsocket.instance.log("Is click inside source \""+rect.source.sourceName+"\"? "+isInside);
+				OBSWebSocket.instance.log("Is click inside source \""+rect.source.sourceName+"\"? "+isInside);
 
 				//Click is outside OBS source, ingore it
 				if(!isInside) continue;
@@ -374,8 +374,8 @@ export const storeHeat = defineStore('heat', {
 						distortionRerouted[d.id] = true;
 						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
-						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
-						OBSWebsocket.instance.socket.call("CallVendorRequest", {
+						OBSWebSocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
+						OBSWebSocket.instance.socket.call("CallVendorRequest", {
 							requestType: clickClone.requestType,
 							vendorName: clickClone.vendorName,
 							requestData: clickClone.requestData as unknown as JsonObject
@@ -388,7 +388,7 @@ export const storeHeat = defineStore('heat', {
 				//all necessary info about the click
 				//If it's a spotify or ulule overlay execute any requested action
 				if(rect.source.inputKind == "browser_source") {
-					const settings = await OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(rect.source.sourceName);
+					const settings = await OBSWebSocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(rect.source.sourceName);
 					let url:string = settings.inputSettings.url as string;
 					const isLocalFile = settings.inputSettings.is_local_file === true;
 					if(isLocalFile) {
@@ -407,7 +407,7 @@ export const storeHeat = defineStore('heat', {
 					clickClone.requestData.event_data.page = await Utils.sha256(url);
 					clickClone.requestData.event_data.twitchatOverlayID = overlayID;
 					//Send click info to browser source
-					OBSWebsocket.instance.socket.call("CallVendorRequest", {
+					OBSWebSocket.instance.socket.call("CallVendorRequest", {
 						requestType: clickClone.requestType,
 						vendorName: clickClone.vendorName,
 						requestData: clickClone.requestData as unknown as JsonObject
@@ -466,7 +466,7 @@ export const storeHeat = defineStore('heat', {
 				]
 				rectPoints.push(points);
 			});
-			OBSWebsocket.instance.socket.call("CallVendorRequest", {
+			OBSWebSocket.instance.socket.call("CallVendorRequest", {
 				requestType:"emit_event",
 				vendorName:"obs-browser",
 				requestData:{
@@ -499,9 +499,9 @@ export const storeHeat = defineStore('heat', {
 			if(data.browserSourceName) {
 				//The browser source is registered on the value object, remove it
 				try {
-					const res = await OBSWebsocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
+					const res = await OBSWebSocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
 					if(res.sceneItemId) {
-						await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+						await OBSWebSocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
 					}
 				}catch(error) {
 					console.log("No source found on given scene for given ID", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName});
@@ -510,21 +510,21 @@ export const storeHeat = defineStore('heat', {
 				//The browser is unknown because user created the overlay manualy
 				//Get the filter's params to extract the browser source name
 				//TODO
-				// const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
+				// const filters = await OBSWebSocket.instance.getSourceFilters(sourceName);
 				// if(filters.length == 0) return;
 				// const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
 				// console.log(filter);
-				// await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+				// await OBSWebSocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
 				// if(filter) {
 				// 	const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
-				// 	OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+				// 	OBSWebSocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
 				// 		console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
 				// 	});
 				// }
 			}
 
 			if(data.filterName) {
-				OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+				OBSWebSocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
 					console.log("No filter found with given name on given source", {filterName:data.filterName, sourceName});
 				});
 			}

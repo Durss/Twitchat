@@ -1,8 +1,8 @@
+import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { evaluate as MathEval } from 'mathjs';
 import type { JsonObject } from 'type-fest';
-import {evaluate as MathEval} from 'mathjs';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import PublicAPI from './PublicAPI';
 
 /**
@@ -1312,8 +1312,30 @@ export default class Utils {
 		return name;
 	}
 
+	/**
+	 * Get URL for given overlay ID and params
+	 * @param id 
+	 * @param params 
+	 * @returns 
+	 */
+	public static overlayURL(id:string, params?:{k:string, v:string}[]):string {
+		const port = DataStore.get(DataStore.OBS_PORT);
+		const pass = DataStore.get(DataStore.OBS_PASS);
+		const ip = DataStore.get(DataStore.OBS_IP);
+		const urlParams = new URLSearchParams()
+		if(params) {
+			for (const p of params) {
+				urlParams.append(p.k, p.v);
+			}
+		}
+		if(port) urlParams.append("obs_port", port);
+		if(pass) urlParams.append("obs_pass", pass);
+		if(ip) urlParams.append("obs_ip", ip);
+		let suffix = urlParams.toString()
+		if(suffix) suffix = "?" + suffix;
+		return document.location.origin + StoreProxy.router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
+	}
 	
-
 	/**
 	 * Check if answer is from a classic quiz
 	 */

@@ -3,7 +3,7 @@
 		<div class="head" v-stickyTopShadow>
 			<div class="subHolder">
 				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
-				<div class="subtitle">{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</div>
+				<div class="subtitle" v-if="currentQuestion">{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</div>
 			</div>
 			
 			<ProgressBar v-if="currentQuiz.questionStarted_at && progressPercent < 1"
@@ -38,17 +38,22 @@
 					</div>
 				</div>
 			</template>
+
+			<OverlayPresenceChecker
+				:overlayName="$t('quiz.form.overlay_name')"
+				:overlayType="'quiz'" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { storeQuiz } from '@/store/quiz/storeQuiz';
-import { computed, onBeforeUnmount, ref } from 'vue';
-import TTButton from '../TTButton.vue';
-import ProgressBar from '../ProgressBar.vue';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { computed, onBeforeUnmount, ref } from 'vue';
+import ProgressBar from '../ProgressBar.vue';
+import TTButton from '../TTButton.vue';
+import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 const store = storeQuiz();
 const progressPercent = ref(0);
@@ -60,8 +65,8 @@ const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.find
 const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
 
-if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
-if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
+// if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
+// if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
 
 let rafId:number;
 function renderFrame():void {

@@ -101,8 +101,7 @@
 		"state_users_cumulated": "0 ticket | 1 ticket | {COUNT} tickets",
 		"state_pickBt": "Tirer au sort",
 		"state_stopBt": "Clore le tirage",
-		"state_overlay_not_visible": "L'overlay de tirage au sort est masqué",
-		"state_overlay_not_found": "L'overlay de tirage au sort n'existe pas sur la scène OBS actuelle",
-		"state_many_raffles": "Vous avez {COUNT} tirages au sort en cours.\nUtilisez les flèches sur les côtés pour consulter les autres tirages et en fermer."
+		"state_many_raffles": "Vous avez {COUNT} tirages au sort en cours.\nUtilisez les flèches sur les côtés pour consulter les autres tirages et en fermer.",
+		"overlay_name": "de Tirage au sort"
 	}
 }

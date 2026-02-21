@@ -57,11 +57,11 @@ import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSSourceItem } from '@/utils/OBSWebSocket';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import { watch } from 'vue';
 import Utils from '@/utils/Utils';
 
@@ -89,7 +89,7 @@ class TriggerActionHeatParams extends Vue {
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public beforeMount():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];

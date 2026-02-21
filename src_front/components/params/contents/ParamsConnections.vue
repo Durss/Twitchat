@@ -224,7 +224,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -302,7 +302,7 @@ class ParamsConnections extends Vue implements IParameterContent {
 	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value }
 	public get heatConnected():boolean { return HeatSocket.instance.connected.value }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value }
 	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected.value }
 	public get streamdeckConnected():boolean { return StreamdeckSocket.instance.connected.value }
 

@@ -62,7 +62,8 @@
 			"live_progress_warning":{
 				"title": "Quiz en cours",
 				"description": "Si vous activez ce quiz vous perdrez la progression du qui {NAME}"
-			}
+			},
+			"overlay_name": "de Quiz"
 		},
 		"state": {
 			"start_bt": "Démarrer le quiz",

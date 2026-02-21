@@ -11,7 +11,8 @@
 			"allowMultiVote":"Allow users to vote for {VALUE} answer max|Allow users to vote for {VALUE} answers max"
 		},
 		"state":{
-			"endBt":"End poll"
+			"endBt":"End poll",
+			"overlay_name":"Chat Poll"
 		}
 	}
 }
