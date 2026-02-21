@@ -280,7 +280,7 @@ class ChatMessage extends AbstractChatMessage {
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
 		
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(message.directlyAnswersTo && this.$store.params.appearance.fadeAnswers.value === false) res.push("fade");
+			if(message.directlyAnswersTo && this.$store.params.appearance.fadeAnswers.value === true) res.push("fade");
 			if(message.cleared)	res.push("cleared");
 			if(message.deleted)	res.push("deleted");
 			if(message.twitch_animationId)	res.push("animation_"+message.twitch_animationId);
