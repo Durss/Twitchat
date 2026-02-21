@@ -1356,4 +1356,16 @@ export default class Utils {
 	public static isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
 		return mode === "freeAnswer";
 	}
+
+	/**
+	 * Search for a query in a string, ignoring diacritics
+	 * @param src 
+	 * @param query 
+	 * @returns 
+	 */
+	public static search(src:string, query:string):boolean {
+		const normalizedSrc = src.normalize("NFD").toLowerCase().replace(/\p{M}/gu, "");
+		const normalizedQuery = query.normalize("NFD").toLowerCase().replace(/\p{M}/gu, "");
+		return normalizedSrc.includes(normalizedQuery);
+	}
 }

@@ -7,20 +7,20 @@
 					<svg class="timer-svg" viewBox="0 0 100 100">
 						<circle class="timer-bg" cx="50" cy="50" r="45" />
 						<circle class="timer-progress" cx="50" cy="50" r="45" 
-							v-if="timeRemaining > 0"
+							v-if="!revealAnswers && timeRemaining > 0"
 							:style="{ strokeDashoffset: circleOffsetAngle }" />
 					</svg>
 					<transition name="scale">
-						<div class="timer-text" v-if="timeRemaining > 0">{{ Math.round(timeRemaining / 1000) }}</div>
+						<div class="timer-text" v-if="!revealAnswers && timeRemaining > 0">{{ Math.round(timeRemaining / 1000) }}</div>
 					</transition>
 				</div>
 			</div>
 			<ul v-if="!Utils.isFreeAnswerQuestion(quizData!.mode, currentQuestion)" class="answers" :key="currentQuestion.id">
 				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
-				:class="{ good: isGoodAnswer(answer), revealed: showAnswers }">
+				:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
 					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 					<span class="answer">{{ answer.title }}</span>
-					<span class="votes" v-if="showAnswers">{{ answersVotes[answer.id] ? `(${answersVotes[answer.id]} votes)` : "" }}</span>
+					<span class="votes" v-if="revealAnswers">{{ answersVotes[answer.id] ? `(${answersVotes[answer.id]} votes)` : "" }}</span>
 				</li>
 			</ul>
 		</div>
@@ -40,7 +40,7 @@ const timeRemaining = ref(3000);
 const answersVotes = ref<{[answerId: string]: number}>({});
 let timerInterval: number | null = null;
 
-const showAnswers = computed(()=> {
+const revealAnswers = computed(()=> {
 	return quizData.value?.currentQuestionRevealed ?? false;
 });
 const currentQuestion = computed(()=> {
