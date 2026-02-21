@@ -1,3 +1,4 @@
+import type { JsonObject } from 'type-fest';
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
@@ -7,7 +8,6 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
 import { JSONPath } from "jsonpath-plus";
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
-import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
@@ -16,8 +16,9 @@ import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
-import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
+import { default as OBSWebSocket, type SourceTransform } from "../OBSWebSocket";
 import PublicAPI from "../PublicAPI";
+import SFXRUtils from "../SFXRUtils";
 import TTSUtils from "../TTSUtils";
 import TriggerUtils from "../TriggerUtils";
 import Utils from "../Utils";
@@ -28,8 +29,6 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
-import OBSWebSocket from "../OBSWebsocket";
-import SFXRUtils from "../SFXRUtils";
 
 /**
 * Created : 22/04/2022
@@ -1466,7 +1465,7 @@ export default class TriggerActionHandler {
 
 						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+sourceName+"\""});
 
-						if(!OBSWebsocket.instance.connected.value) {
+						if(!OBSWebSocket.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 							log.error = true;
 							logStep.error = true;
@@ -1476,7 +1475,7 @@ export default class TriggerActionHandler {
 								try {
 									const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update text to \""+text+"\""});
-									await OBSWebsocket.instance.setTextSourceContent(sourceName, text);
+									await OBSWebSocket.instance.setTextSourceContent(sourceName, text);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1485,7 +1484,7 @@ export default class TriggerActionHandler {
 								try {
 									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update browser source URL to \""+url+"\""});
-									await OBSWebsocket.instance.setBrowserSourceURL(sourceName, url);
+									await OBSWebSocket.instance.setBrowserSourceURL(sourceName, url);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1494,7 +1493,7 @@ export default class TriggerActionHandler {
 								try {
 									const css = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserSourceCss as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update browser source CSS"});
-									await OBSWebsocket.instance.setBrowserSourceCSS(sourceName, css);
+									await OBSWebSocket.instance.setBrowserSourceCSS(sourceName, css);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1503,7 +1502,7 @@ export default class TriggerActionHandler {
 								try {
 									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true);
 									logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
-									await OBSWebsocket.instance.setMediaSourceURL(sourceName, url);
+									await OBSWebSocket.instance.setMediaSourceURL(sourceName, url);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1512,7 +1511,7 @@ export default class TriggerActionHandler {
 								try {
 									if(step.colorSource_mode === "color") {
 										logStep.messages.push({date:Date.now(), value:"Update color source to \""+step.colorSource_color+"\" "+step.colorSource_alpha+"%"});
-										await OBSWebsocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
+										await OBSWebSocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
 									}else{
 										const colorStr = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.colorSource_color+"}", subEvent)).replace(/[^0-9a-f]/gi, "");
 										let colorNum = parseInt(colorStr.padStart(8, "ff"), 16) >>> 0;
@@ -1522,7 +1521,7 @@ export default class TriggerActionHandler {
 											logStep.error = true;
 										}else{
 											logStep.messages.push({date:Date.now(), value:"Update color source to \""+colorStr+"\" (src: \""+step.colorSource_color+"\")"});
-											await OBSWebsocket.instance.setColorSourceColor(sourceName, colorNum);
+											await OBSWebSocket.instance.setColorSourceColor(sourceName, colorNum);
 										}
 									}
 								}catch(error) {
@@ -1534,9 +1533,9 @@ export default class TriggerActionHandler {
 								try {
 									logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
 									if(step.action == "toggle_visibility"){
-										await OBSWebsocket.instance.toggleFilterState(sourceName, step.filterName);
+										await OBSWebSocket.instance.toggleFilterState(sourceName, step.filterName);
 									}else{
-										await OBSWebsocket.instance.setFilterState(sourceName, step.filterName, step.action === "show");
+										await OBSWebSocket.instance.setFilterState(sourceName, step.filterName, step.action === "show");
 									}
 								}catch(error) {
 									console.error(error);
@@ -1552,20 +1551,20 @@ export default class TriggerActionHandler {
 								}
 								try {
 									switch(action) {
-										case "hide": await OBSWebsocket.instance.setSourceState(sourceName, false); break;
-										case "show": await OBSWebsocket.instance.setSourceState(sourceName, true); break;
-										case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(sourceName); break;
-										case "replay": await OBSWebsocket.instance.replayMedia(sourceName); break;
-										case "stop": await OBSWebsocket.instance.stopMedia(sourceName); break;
-										case "mute": await OBSWebsocket.instance.setMuteState(sourceName, true); break;
-										case "next": await OBSWebsocket.instance.nextMedia(sourceName); break;
-										case "prev": await OBSWebsocket.instance.prevMedia(sourceName); break;
-										case "unmute": await OBSWebsocket.instance.setMuteState(sourceName, false); break;
-										case "switch_to": await OBSWebsocket.instance.setCurrentScene(sourceName); break;
+										case "hide": await OBSWebSocket.instance.setSourceState(sourceName, false); break;
+										case "show": await OBSWebSocket.instance.setSourceState(sourceName, true); break;
+										case "toggle_visibility": await OBSWebSocket.instance.toggleSourceState(sourceName); break;
+										case "replay": await OBSWebSocket.instance.replayMedia(sourceName); break;
+										case "stop": await OBSWebSocket.instance.stopMedia(sourceName); break;
+										case "mute": await OBSWebSocket.instance.setMuteState(sourceName, true); break;
+										case "next": await OBSWebSocket.instance.nextMedia(sourceName); break;
+										case "prev": await OBSWebSocket.instance.prevMedia(sourceName); break;
+										case "unmute": await OBSWebSocket.instance.setMuteState(sourceName, false); break;
+										case "switch_to": await OBSWebSocket.instance.setCurrentScene(sourceName); break;
 										case "move":
 										case "rotate":
 										case "resize": {
-											const items = await OBSWebsocket.instance.getSourceOnCurrentScene(sourceName);
+											const items = await OBSWebSocket.instance.getSourceOnCurrentScene(sourceName);
 											if(!items || items.length == 0) {
 												logStep.messages.push({date:Date.now(), value:"❌ source \""+sourceName+"\" not found"});
 												log.error = true;
@@ -1574,7 +1573,7 @@ export default class TriggerActionHandler {
 												for (let i = 0; i < items.length; i++) {
 													const item = items[i];
 													if(!item) continue;
-													const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
+													const transform = await OBSWebSocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
 													type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
 													const result:ReducedType = {};
 													if(action == "move") {
@@ -1696,9 +1695,9 @@ export default class TriggerActionHandler {
 														}
 
 														//Make OBS execute animation frames
-														OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
+														OBSWebSocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 													}else{
-														await OBSWebsocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, result);
+														await OBSWebSocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, result);
 													}
 												}
 											}
@@ -1707,15 +1706,14 @@ export default class TriggerActionHandler {
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
 										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
-											const handler = (e:TwitchatEvent) => {
-												const d = e.data as {inputName:string};
-												if(d.inputName != sourceName) return;
+											const handler = (e:TwitchatEvent<"ON_OBS_PLAYBACK_ENDED">) => {
+												if(e.data.inputName != sourceName) return;
 												logStep.messages.push({date:Date.now(), value:"Media \""+sourceName+"\" playing complete."});
-												OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+												OBSWebSocket.instance.removeEventListener("ON_OBS_PLAYBACK_ENDED", handler);
 												resolve();
 											}
 											logStep.messages.push({date:Date.now(), value:"Handler created..."});
-											OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+											OBSWebSocket.instance.addEventListener("ON_OBS_PLAYBACK_ENDED", handler);
 										})
 									}
 								}catch(error:any) {
@@ -1734,40 +1732,40 @@ export default class TriggerActionHandler {
 					}else
 
 					if(step.obsAction == "startstream") {
-						OBSWebsocket.instance.startStreaming();
+						OBSWebSocket.instance.startStreaming();
 					}else
 
 					if(step.obsAction == "stopstream") {
-						OBSWebsocket.instance.stopStreaming();
+						OBSWebSocket.instance.stopStreaming();
 					}else
 
 					if(step.obsAction == "startrecord") {
-						await OBSWebsocket.instance.socket.call("StartRecord");
+						await OBSWebSocket.instance.socket.call("StartRecord");
 					}else
 
 					if(step.obsAction == "pauserecord") {
-						await OBSWebsocket.instance.socket.call("PauseRecord");
+						await OBSWebSocket.instance.socket.call("PauseRecord");
 					}else
 
 					if(step.obsAction == "resumerecord") {
-						await OBSWebsocket.instance.socket.call("ResumeRecord");
+						await OBSWebSocket.instance.socket.call("ResumeRecord");
 					}else
 
 					if(step.obsAction == "stoprecord") {
-						await OBSWebsocket.instance.socket.call("StopRecord");
+						await OBSWebSocket.instance.socket.call("StopRecord");
 					}else
 
 					if(step.obsAction == "startvirtualcam") {
-						await OBSWebsocket.instance.socket.call("StartVirtualCam");
+						await OBSWebSocket.instance.socket.call("StartVirtualCam");
 					}else
 
 					if(step.obsAction == "stopvirtualcam") {
-						await OBSWebsocket.instance.socket.call("StopVirtualCam");
+						await OBSWebSocket.instance.socket.call("StopVirtualCam");
 					}else
 
 					if(step.obsAction == "createchapter") {
 						const chapterName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.recordChapterName || "", subEvent);
-						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName});
+						await OBSWebSocket.instance.socket.call("CreateRecordChapter", {chapterName});
 					}else
 
 					if(step.obsAction == "emitevent") {
@@ -1780,11 +1778,11 @@ export default class TriggerActionHandler {
 								event_data:{data:params},
 							}
 						};
-						OBSWebsocket.instance.socket.call("CallVendorRequest", event);
+						OBSWebSocket.instance.socket.call("CallVendorRequest", event);
 					}else
 
 					if(step.obsAction == "hotKey" && step.hotKeyAction) {
-						await OBSWebsocket.instance.socket.call("TriggerHotkeyByName", {hotkeyName:step.hotKeyAction});
+						await OBSWebSocket.instance.socket.call("TriggerHotkeyByName", {hotkeyName:step.hotKeyAction});
 					}else
 
 					if(step.obsAction == "screenshot") {
@@ -1806,11 +1804,11 @@ export default class TriggerActionHandler {
 									log.error = true;
 									logStep.error = true;
 								}else{
-									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:sourceName, imageFilePath:path, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+									await OBSWebSocket.instance.socket.call("SaveSourceScreenshot", {sourceName:sourceName, imageFilePath:path, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
 								}
 							}else
 							if(step.screenshotImgMode == "get") {
-								const res = await OBSWebsocket.instance.socket.call("GetSourceScreenshot", {sourceName:sourceName, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+								const res = await OBSWebSocket.instance.socket.call("GetSourceScreenshot", {sourceName:sourceName, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
 								if(step.screenshotImgSavePlaceholder) {
 									dynamicPlaceholders[step.screenshotImgSavePlaceholder] = res.imageData;
 									logStep.messages.push({date:Date.now(), value:"Saved screenshot image to placeholder \""+step.screenshotImgSavePlaceholder+"\""});
@@ -1822,7 +1820,7 @@ export default class TriggerActionHandler {
 					if(step.obsAction == "getPersistedData") {
 						logStep.messages.push({date:Date.now(), value:"Get persisted data \""+step.persistedDataKey+"\" from OBS"});
 						const key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataKey || "", subEvent);
-						const value = await OBSWebsocket.instance.getPersistedValue(key);
+						const value = await OBSWebSocket.instance.getPersistedValue(key);
 						dynamicPlaceholders[step.persistedDataPlaceholder || ""] = value?.toString() || "";
 					}else
 
@@ -1830,7 +1828,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"Set persisted data \""+step.persistedDataKey+"\" to \""+step.persistedDataValue+"\" in OBS"});
 						const key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataKey || "", subEvent);
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataValue || "", subEvent);
-						await OBSWebsocket.instance.setPersistedValue(key, value);
+						await OBSWebSocket.instance.setPersistedValue(key, value);
 					}
 				}else
 
@@ -1955,7 +1953,7 @@ export default class TriggerActionHandler {
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							}
 							logStep.messages.push({date:Date.now(), value:"Highlight clip ID \""+clipId+"\""});
-							PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+							PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", data);
 
 						}else{
 							//Highlight user message as text
@@ -1968,11 +1966,11 @@ export default class TriggerActionHandler {
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
 							logStep.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
-							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+							PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", info);
 						}
 						StoreProxy.chat.highlightedMessageId = message_id;
 					}else{
-						PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
+						PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", undefined)
 						StoreProxy.chat.highlightedMessageId = null;
 					}
 				}else
@@ -2463,7 +2461,7 @@ export default class TriggerActionHandler {
 						json[tag.toLowerCase()] = value;
 					}
 					try {
-						if(WebsocketTrigger.instance.connected) {
+						if(WebsocketTrigger.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+JSON.stringify(json)});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
@@ -3260,7 +3258,7 @@ export default class TriggerActionHandler {
 
 							//A track has been found and added
 							if(trackData) {
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (trackData as unknown) as JsonObject);
+								PublicAPI.instance.broadcast("ON_TRACK_ADDED_TO_QUEUE", trackData);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
@@ -3523,12 +3521,7 @@ export default class TriggerActionHandler {
 						alt = step.heatClickData.alt;
 						shift = step.heatClickData.shift;
 					}
-					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
-						requestType:"emit_event",
-						vendorName:"obs-browser",
-						requestData:{
-							event_name:"heat-click",
-							event_data: {
+					const event_data:TwitchatDataTypes.HeatClickData = {
 								id:Utils.getUUID(),
 								anonymous:true,
 								x:parseFloat(x)/100,
@@ -3552,12 +3545,18 @@ export default class TriggerActionHandler {
 								rotation:1,
 								scaleX:1,
 								scaleY:1,
-							}
+							};
+					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:JsonObject}} = {
+						requestType:"emit_event",
+						vendorName:"obs-browser",
+						requestData:{
+							event_name:"heat-click",
+							event_data: (event_data as unknown) as JsonObject
 						}
 					};
 					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
-					if(OBSWebsocket.instance.connected.value) {
-						OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
+					if(OBSWebSocket.instance.connected.value) {
+						OBSWebSocket.instance.socket.call("CallVendorRequest", clickEventData);
 					}
 				}else
 
@@ -4017,7 +4016,7 @@ export default class TriggerActionHandler {
 						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
 						if(step.sfxr.playOnOverlay) {
 							logStep.messages.push({date:Date.now(), value:"Tell the overlay to play the sound effect"});
-							PublicAPI.instance.broadcast(TwitchatEvent.PLAY_SFXR, {params:data, volume})
+							PublicAPI.instance.broadcast("SET_PLAY_SFXR", {params:data, volume})
 							// Mute local playing but still play it so trigger is properly paused while the
 							// sound is playing if user requested it
 							volume = 0;

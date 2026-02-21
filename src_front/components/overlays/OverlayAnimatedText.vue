@@ -34,9 +34,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 	public strongColor:string = "inherit";
 
 	private id:string = "";
-	private configHandler!:(e:TwitchatEvent<TwitchatDataTypes.AnimatedTextData>)=>void;
-	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoHide?:boolean, bypassAll?:boolean}>)=>void;
-	private closeHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string}>)=>void;
+	private configHandler!:(e:TwitchatEvent<"ON_ANIMATED_TEXT_CONFIGS">)=>void;
+	private textHandler!:(e:TwitchatEvent<"SET_ANIMATED_TEXT_CONTENT">)=>void;
+	private closeHandler!:(e:TwitchatEvent<"ON_ANIMATED_TEXT_CLOSE">)=>void;
 	private currentEntry:NonNullable<Parameters<typeof this.textHandler>[0]["data"]>|null = null;
 	private messageQueue:(typeof this.currentEntry)[] = [];
 	private raf = -1;
@@ -52,9 +52,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 		this.closeHandler = (e)=>this.onClose(e);
 		this.configHandler = (e)=>this.onConfig(e);
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_SET, this.textHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_CLOSE, this.closeHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_CONFIGS, this.configHandler);
+		PublicAPI.instance.addEventListener("SET_ANIMATED_TEXT_CONTENT", this.textHandler);
+		PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_CLOSE", this.closeHandler);
+		PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_CONFIGS", this.configHandler);
 	}
 
 	public mounted(): void {
@@ -69,16 +69,16 @@ class OverlayAnimatedText extends AbstractOverlay {
 		clearTimeout(this.autoHideTO);
 		cancelAnimationFrame(this.raf);
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_SET, this.textHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_CLOSE, this.closeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_CONFIGS, this.configHandler);
+		PublicAPI.instance.removeEventListener("SET_ANIMATED_TEXT_CONTENT", this.textHandler);
+		PublicAPI.instance.removeEventListener("ON_ANIMATED_TEXT_CLOSE", this.closeHandler);
+		PublicAPI.instance.removeEventListener("ON_ANIMATED_TEXT_CONFIGS", this.configHandler);
 		this.split?.chars?.forEach(char=> {
 			gsap.killTweensOf(char);
 		})
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_ANIMATED_TEXT_CONFIGS, {id:this.id});
+		PublicAPI.instance.broadcast("GET_ANIMATED_TEXT_CONFIGS", {id:this.id});
 	}
 
 	/**
@@ -125,7 +125,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * @param e
 	 */
 	public onText(e:Parameters<typeof this.textHandler>[0]):void {
-		if(!e.data || e.data.overlayId != this.id) return;
+		if(!e.data || e.data.id != this.id) return;
 		if(e.data.bypassAll) {
 			this.stopAll();
 			this.messageQueue = [];
@@ -139,9 +139,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * @param e
 	 */
 	public async onClose(e:Parameters<typeof this.closeHandler>[0]):Promise<void> {
-		if(!e.data || e.data.overlayId != this.id) return;
+		if(!e.data || e.data.id != this.id) return;
 		await this.hideText();
-		PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:e.data.queryId});
+		PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_HIDE_COMPLETE", {queryId:e.data.queryId});
 	}
 
 	/**
@@ -152,7 +152,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 		if(this.currentEntry) {
 			await this.hideText();
-			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:this.currentEntry.queryId});
+			PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_HIDE_COMPLETE", {queryId:this.currentEntry.queryId});
 			this.currentEntry = null;
 		}
 
@@ -194,12 +194,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 				// Close text
 				await this.hideText();
 				this.currentEntry = null;
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:entry.queryId});
+				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_HIDE_COMPLETE", {queryId:entry.queryId});
 				// Next text in queue
 				this.next();
 			}, (textLen || 0) * 100);
 		}else{
-			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, {queryId:entry.queryId});
+			PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_SHOW_COMPLETE", {queryId:entry.queryId});
 			if(this.messageQueue.length > 0) this.next();
 		}
 	}

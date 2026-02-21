@@ -1,4 +1,4 @@
-import { Locale, LocaleString } from "discord.js";
+import { Locale } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import Config from "./Config.js";
@@ -30,14 +30,16 @@ export default class I18n {
 	/**
 	 * Get available languages
 	 */
-	public get discordLanguages():{discord:Locale, labels:string}[] {
-		let result:{discord:Locale, labels:string}[] = [];
+	public get discordLanguages():{discord:`${Locale}`, labels:string}[] {
+		let result:{discord:`${Locale}`, labels:string}[] = [];
 		const langs = Object.keys(this._labels);
-		langs.forEach(lang=> {
+		langs.forEach((lang)=> {
 			const code = I18n.instance.get(lang, "global.lang");
 			for (const key in Locale) {
-				if(Locale[key] === code || Locale[key] == lang) {
-					result.push({discord:Locale[key], labels:lang});
+				// @ts-expect-error ignore no implicit any
+				const locale = Locale[key] as `${Locale}`;
+				if(locale === code || locale == lang) {
+					result.push({discord:locale, labels:lang});
 				}
 			}
 		});

@@ -212,7 +212,6 @@ class DevmodeMenu extends Vue {
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "no_message": {
-					console.log("OKOKO");
 					(message as TwitchatDataTypes.MessageCheerData).message = "";
 					(message as TwitchatDataTypes.MessageCheerData).message_size = 0;
 					(message as TwitchatDataTypes.MessageCheerData).message_html = "";
@@ -531,7 +530,7 @@ class DevmodeMenu extends Vue {
 	 */
 	public async simulateFollowbotItem():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("__");
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const uid = Math.round(Math.random()*99999999999).toString();
 		const message:TwitchatDataTypes.MessageFollowingData = {
@@ -714,7 +713,7 @@ class DevmodeMenu extends Vue {
 			user,
 			viewerCount: 42,
 			startedAt:Date.now(),
-			timerDuration_s:90,
+			timerDuration_s:900,
 		};
 		StoreProxy.stream.setRaiding(m);
 	}

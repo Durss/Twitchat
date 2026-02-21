@@ -1,23 +1,22 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Logger from '@/utils/Logger';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
-import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
-import EventSub from '@/utils/twitch/EventSub';
-import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Logger from '@/utils/Logger';
+import OBSWebSocket from '@/utils/OBSWebSocket';
+import PublicAPI from '@/utils/PublicAPI';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import TriggerUtils from '@/utils/TriggerUtils';
+import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import EventSub from '@/utils/twitch/EventSub';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 let hypeTrainCooldownTo = "";
@@ -93,6 +92,33 @@ export const storeStream = defineStore('stream', {
 			}, 60 * 60 * 1000)
 			this.scheduleHypeTrainCooldownAlert();
 			this.grabCurrentStreamVOD()
+
+			/**
+			 * Called when asking to toggle message merging
+			 */
+			PublicAPI.instance.addEventListener("ON_ENDING_CREDITS_COMPLETE", ()=> {
+				const message:TwitchatDataTypes.MessageCreditsCompleteData = {
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE,
+				}
+				TriggerActionHandler.instance.execute(message);
+			});
+
+			/**
+			 * Called when requesting stream summary data
+			 */
+			PublicAPI.instance.addEventListener("GET_ENDING_CREDITS_DATA", async (e)=> {
+				try {
+					const summary = await this.getSummary(e.data?.dateOffset, e.data?.includeOverlayParams === true);
+					PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary)
+				}catch(error) {
+					console.error("An error occured when computing summary data");
+					console.error(error);
+				}
+			});
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -213,7 +239,7 @@ export const storeStream = defineStore('stream', {
 				//Cut OBS stream if requested
 				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
 					window.setTimeout(() => {
-						OBSWebsocket.instance.stopStreaming();
+						OBSWebSocket.instance.stopStreaming();
 					}, 2000);
 				}
 			}
@@ -270,7 +296,7 @@ export const storeStream = defineStore('stream', {
 
 				window.setTimeout(()=> {
 					//Hide hype train popin
-					StoreProxy.stream.setHypeTrain(undefined);
+					this.setHypeTrain(undefined);
 				}, 5000)
 			}
 		},
@@ -465,7 +491,7 @@ export const storeStream = defineStore('stream', {
 				});
 			}
 
-			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
+			PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
 		},
 
 		async startCommercial(channelId:string, duration:number, noConfirm:boolean = false):Promise<void> {
@@ -501,7 +527,7 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
+		async getSummary(dateOffset:number|undefined = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
 			const uid2TikTokShare:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokShares"][number]} = {};
@@ -540,9 +566,8 @@ export const storeStream = defineStore('stream', {
 				}
 			};
 
-			let dateOffset:number|undefined = offset;
 			//No custom offset defined, use the actual start of stream
-			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
+			if(!dateOffset) dateOffset  = this.currentStreamInfo[channelId]?.started_at;
 
 			const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 			let parameters:TwitchatDataTypes.EndingCreditsParams|null = null;
@@ -1062,9 +1087,9 @@ export const storeStream = defineStore('stream', {
 			if(includeParams && parameters!=null) {
 				result.params = parameters;
 
-				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
+				const startDateBackup = this.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {
-					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
+					this.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
 				}
 
 				result.premiumWarningSlots = {};
@@ -1081,7 +1106,7 @@ export const storeStream = defineStore('stream', {
 					slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 				}
 
-				StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;
+				this.currentStreamInfo[channelId]!.started_at = startDateBackup;
 			}
 
 			return result;
@@ -1141,7 +1166,7 @@ export const storeStream = defineStore('stream', {
 				// Get current VOD's URL for trigger's placeholder
 				const vod = await TwitchUtils.getVODInfo(result[0]!.id);
 				if(vod) {
-					StoreProxy.stream.currentVODUrl = vod.url;
+					this.currentVODUrl = vod.url;
 				}
 			}catch(error) {}
 		}

@@ -1,18 +1,22 @@
 {
 	"streamdeck":{
-		"header":"Un plugin Stream Deck™ vous permet de contrôler Twitchat facilement",
-		"step_1":{
-			"install":"Ce plugin requiert {OBS_VERSION}"
+		"header":"Le plugin Stream Deck™ vous permet de contrôler Twitchat facilement",
+		"download_bt":"Télécharger le plugin Stream Deck™",
+		"connected":"Stream Deck connecté",
+		"connecting":"connexion au Stream Deck...",
+		"connect_form":{
+			"info":"Pour autoriser la connexion, ouvrez {URL} puis, selon votre navigateur :",
+			"chromium":"cliquez sur \"<mark>Avancé</mark>\", puis sur \"<mark>Continuer vers {IP} (non sécurisé)</mark>\"",
+			"firefox":"cliquez sur \"<mark>Avancé...</mark>\", puis sur \"<mark>Accepter le risque et poursuivre</mark>\"",
+			"opera":"cliquez sur \"<mark>Aidez-moi à comprendre</mark>\", puis sur \"<mark>Continuer vers {IP} (non sécurisé)</mark>\"",
+			"safari":"cliquez sur \"<mark>Visiter ce site web</mark>\"",
+			"findSecretKey":"Où trouver cette clé?",
+			"findSecretKey_details":"Ouvrez l'app Stream Deck, ajoutez une action Twitchat sur un bouton, vous trouverez la clé secrète dans les paramètres du bouton."
 		},
-		
-		"step_2":"Télécharger le plugin Stream Deck™",
-		
-		"step_3":"Rendez-vous dans la {TAB_LINK} et renseignez-y les paramètres de connexion à OBS-Websocket pour lier Twitchat à OBS.",
-		"step_3_tab_link":"section OBS",
-		
-		"step_4_1":"Sur votre application Stream Deck™, ajoutez n'importe quelle action Twitchat à un bouton et regardez le panneau de paramètres.",
-		"step_4_2":"Vous devriez être invité·e à y renseigner les identifiants OBS-Websocket :",
-		
-		"step_5":"Vous devriez maintenant pouvoir contrôler Twitchat depuis votre Stream Deck™ 🥳🎉"
+		"error_messages":{
+			"AUTH_FAILED":"Clé secrète invalide",
+			"CONNECT_FAILED":"Échec de la connexion au Stream Deck",
+			"UNKNOWN_ERROR":"Échec de la connexion au Stream Deck"
+		}
 	}
 }

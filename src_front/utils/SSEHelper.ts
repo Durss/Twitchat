@@ -13,7 +13,8 @@ export default class SSEHelper extends EventDispatcher {
 	private _failCount = 0;
 	private _expectedPingInterval = 110*1000;
 	private _pingFailTimeout:number = -1;
-	private _reconnectDelay = 0
+	private _reconnectDelay = 0;
+	private _isMainApp = false;
 
 	constructor() {
 		super();
@@ -37,8 +38,9 @@ export default class SSEHelper extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public initialize():void {
+	public initialize(isMainApp:boolean):void {
 		if(this._sse) return;
+		this._isMainApp = isMainApp;
 		this.connect();
 	}
 
@@ -55,7 +57,7 @@ export default class SSEHelper extends EventDispatcher {
 	 * Open SSE pipe
 	 */
 	private connect():void {
-		console.log("Connecting to SSE");
+		console.log("[SSE] Connecting...");
 		if(this._sse) {
 			this._sse.onmessage = null;
 			this._sse.onopen = null;
@@ -63,25 +65,30 @@ export default class SSEHelper extends EventDispatcher {
 			this._sse.close();
 		}
 
-		this._sse = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+ApiHelper.accessToken);
+		this._sse = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+ApiHelper.accessToken+(this._isMainApp ? "&mainApp=true" : ""));
 		this._sse.onmessage = (event) => this.onMessage(event);
-		this._sse.onopen = (event) => {
+		this._sse.onopen = (_event) => {
 			this._failCount = 0;
+			console.log("[SSE] ✅ Connected");
 			//randomize event so not everyone potentially spams server after rebooting it
 			window.setTimeout(() => {
 				this.dispatchEvent(new SSEEvent(SSEEvent.ON_CONNECT));
 			}, Math.random()*5000);
 		}
-		this._sse.onerror = (event) => {
-			console.log("ERROR");
-			console.log(event);
+		this._sse.onerror = (_event) => {
+			console.log("[SSE] ❌ Connection closed...");
+			this._sse.close();
+			// console.log("ERROR");
+			// console.log(event);
 			if(++this._failCount === 5) {
 				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
 			}
+			const delay = this._reconnectDelay || Math.random()*5000;
+			console.log("[SSE] ⌛ Reconnect in " + delay + "ms");
 			window.setTimeout(() => {
 				this._reconnectDelay = 0;
 				this.connect();
-			}, this._reconnectDelay || Math.random()*5000);
+			}, delay);
 		};
 
 		window.addEventListener("beforeunload", ()=>{

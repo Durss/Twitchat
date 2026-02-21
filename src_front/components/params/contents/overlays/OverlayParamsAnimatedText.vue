@@ -8,16 +8,14 @@
 		</i18n-t>
 
 		<section>
-			<TTButton class="addBt"
-			v-if="($store.auth.isPremium && $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT_PREMIUM) || $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT"
+			<TTButton class="addBt" v-if="!maxReached"
 			@click="addEntry()" icon="add">{{ $t("overlay.animatedText.add_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length >= $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
-
-			<div class="card-item premium maximumReached" v-else>
-				<div>{{ $t("overlay.animatedText.non_premium_limit", {MAX:$config.MAX_ANIMATED_TEXT_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else
+				label="overlay.animatedText.non_premium_limit"
+				premiumLabel="overlay.animatedText.premium_limit"
+				:max="$config.MAX_ANIMATED_TEXT"
+				:maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -34,10 +32,9 @@
 			:key="entry.id"
 			@update:title="onChange(entry)">
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="$store.animatedText.deleteAnimatedText(entry.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="$store.animatedText.deleteAnimatedText(entry.id)" icon="trash" alert />
 				</template>
+				
 				<template #left_actions>
 					<ToggleButton v-model="entry.enabled" @change="onChange(entry)" @click.stop
 						v-if="$store.auth.isPremium || entry.enabled || $store.animatedText.animatedTextList.filter(v=>v.enabled).length < $config.MAX_ANIMATED_TEXT" />
@@ -79,6 +76,7 @@ import ParamItem from '../../ParamItem.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import TTButton from '../../../TTButton.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -89,6 +87,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 		VueDraggable,
 		ToggleButton,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	}
 })
 class OverlayParamsAnimatedText extends Vue {
@@ -101,6 +100,12 @@ class OverlayParamsAnimatedText extends Vue {
 	public param_colorHighlights:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+
+	public get maxReached():boolean {
+		const count = this.$store.animatedText.animatedTextList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_ANIMATED_TEXT_PREMIUM : this.$config.MAX_ANIMATED_TEXT;
+		return count >= max;
+	}
 		
 	public beforeMount():void {
 		this.testText = this.$t('overlay.animatedText.test_default');
@@ -222,30 +227,6 @@ export default toNative(OverlayParamsAnimatedText);
 			flex-direction: row;
 			align-items: center;
 		}
-	}
-
-	.rightActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
-		}
-	}
-
-	.maximumReached {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-		white-space: pre-line;
 	}
 }
 </style>

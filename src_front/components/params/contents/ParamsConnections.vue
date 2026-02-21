@@ -86,7 +86,7 @@
 			</button>
 
 			<button class="card-item"
-			:class="{noConnectInfo:true}"
+			:class="{connected:streamdeckConnected}"
 			@click="subContent='streamdeck'">
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
@@ -104,6 +104,13 @@
 			@click="subContent='spotify'">
 				<Icon name="spotify" />
 				<p>Spotify</p>
+			</button>
+
+			<button class="card-item"
+			:class="{connected:$store.streamfog.connected}"
+			@click="subContent='streamfog'">
+				<Icon name="streamfog" />
+				<p>Streamfog</p>
 			</button>
 
 			<button class="card-item"
@@ -211,12 +218,13 @@
 	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
 	<ConnectGroq v-else-if="subContent == 'groq'" />
 	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
+	<ConnectStreamfog v-else-if="subContent == 'streamfog'" />
 
 </template>
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -250,6 +258,8 @@ import ConnectYoutube from './connexions/ConnectYoutube.vue';
 import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
 import ConnectGroq from './connexions/ConnectGroq.vue';
 import ConnectStreamSocket from './connexions/ConnectStreamSocket.vue';
+import StreamdeckSocket from '@/utils/StreamdeckSocket';
+import ConnectStreamfog from './connexions/ConnectStreamfog.vue';
 
 @Component({
 	components:{
@@ -269,6 +279,7 @@ import ConnectStreamSocket from './connexions/ConnectStreamSocket.vue';
 		ConnectYoutube,
 		ConnectMixitup,
 		ConnectVoicemod,
+		ConnectStreamfog,
 		ConnectWebsocket,
 		ConnectTwitchBot,
 		ConnectStreamdeck,
@@ -286,13 +297,14 @@ class ParamsConnections extends Vue implements IParameterContent {
 	public allowHighlight:boolean = true;
 	public subContent:TwitchatDataTypes.ParamDeepSectionsStringType|"" = "";
 
-	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected; }
-	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected.value; }
-	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value; }
-	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
-	public get heatConnected():boolean { return HeatSocket.instance.connected; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
-	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected.value }
+	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected.value }
+	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value }
+	public get heatConnected():boolean { return HeatSocket.instance.connected.value }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value }
+	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected.value }
+	public get streamdeckConnected():boolean { return StreamdeckSocket.instance.connected.value }
 
 	public async beforeMount():Promise<void> {
 		await this.$nextTick();

@@ -12,15 +12,13 @@
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import type { JsonObject } from "type-fest";
-import PublicAPI from '@/utils/PublicAPI';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Slider from '../Slider.vue';
-import Icon from '../Icon.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import PublicAPI from '@/utils/PublicAPI';
 import { gsap } from 'gsap/gsap-core';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
+import Slider from '../Slider.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -69,7 +67,7 @@ class EndingCreditsControls extends Vue {
 				sub_duration:"",
 			}
 		}
-		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 	}
 
 	public mounted():void {
@@ -84,22 +82,22 @@ class EndingCreditsControls extends Vue {
 
 	public async start():Promise<void> {
 		const summary = await this.$store.stream.getSummary(undefined, true);
-		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 	}
 
 	public prev():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {prev:true});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {prev:true});
 	}
 
 	public next():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {next:true});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {next:true});
 	}
 
 	public onSpeed():void {
 		if(this.ignoreSpeedchange) return;
 		const sign = this.speed < 0? -1 : 1;
 		const speed = 100 / (1 + Math.exp(-.1 * (Math.abs(this.speed)*10 - 50))) * sign;
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {speed:this.speed == 0? 0 : speed/5});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {speed:this.speed == 0? 0 : speed/5});
 	}
 
 	public onStopDragSlider():void {

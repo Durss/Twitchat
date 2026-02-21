@@ -1107,7 +1107,7 @@ export default toNative(UserCard);
 				gap: 0;
 				display: flex;
 				flex-direction: row;
-				* {
+				&>* {
 					border-radius: 0;
 					&:first-child {
 						border-top-left-radius: var(--border-radius);

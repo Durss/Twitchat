@@ -1,15 +1,13 @@
-import TwitchatEvent from "@/events/TwitchatEvent";
+import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
+import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
-import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
-import MessengerProxy from "@/messaging/MessengerProxy";
 
 let simulationID = 0;
 const APPROACHING_TIMEOUT_PER_ACTION = 10 * 60_000;
@@ -40,7 +38,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 			/**
 			 * Called when animatedtext overlay requests for a animatedtext info
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CUSTOM_TRAIN_STATE, (event:TwitchatEvent<{ id?:string }>)=> {
+			PublicAPI.instance.addEventListener("GET_CUSTOM_TRAIN_DATA", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -57,8 +55,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 		broadcastStates(id?:string):void {
 			for (const entry of this.customTrainList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
-				const state = this.customTrainStates[entry.id];
-				PublicAPI.instance.broadcast(TwitchatEvent.CUSTOM_TRAIN_STATE, {configs:entry, state:state as unknown as JsonObject});
+				const state = this.customTrainStates[entry.id]!;
+				PublicAPI.instance.broadcast("ON_CUSTOM_TRAIN_DATA", {configs:entry, state});
 			}
 		},
 

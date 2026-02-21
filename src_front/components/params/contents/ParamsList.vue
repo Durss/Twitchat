@@ -88,7 +88,7 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
@@ -126,7 +126,7 @@ class ParamsList extends Vue implements IParameterContent {
 	private buildInterval:number = -1;
 	private buildBatch:number = 15;
 
-	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get isOBSConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
@@ -341,7 +341,6 @@ export default toNative(ParamsList);
 					padding: .25em .5em;
 					border-radius: .5em;
 					font-size: .8em;
-					background: red;
 				}
 			}
 

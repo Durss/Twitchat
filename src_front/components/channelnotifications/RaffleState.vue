@@ -1,19 +1,22 @@
 <template>
 	<div class="rafflestate gameStateWindow" v-if="raffleData">
-		<h1 class="title">
-			<Icon name="ticket" />
-			<span>{{ $t('raffle.state_title') }}</span>
-			<div class="methods" ref="methods">
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title">
+				<Icon name="ticket" />
+				<span>{{ $t('raffle.state_title') }}</span>
 				<mark v-if="raffleData.mode == 'chat' && raffleData.command">{{raffleData.command}}</mark>
 				<mark v-if="raffleData.mode == 'chat' && raffleData.reward_id"><Icon name="channelPoints" />{{rewardName}}</mark>
 				<mark v-if="raffleData.mode == 'tips'"><Icon name="coin" />{{tipPlatforms.join(" ")}}</mark>
-			</div>
-		</h1>
-		<div class="content" ref="content">
-			<ProgressBar class="progress" secondary
+			</h1>
+
+			<ProgressBar secondary v-if="timerPercent < 1"
 				:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
 				:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 			/>
+			
+			<slot />
+		</div>
+		<div class="body" ref="content">
 
 			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10"><Icon name="alert" />{{$t("raffle.state_many_raffles", {COUNT:$store.raffle.raffleList.length})}}</div>
 
@@ -37,20 +40,7 @@
 				</i18n-t>
 			</div>
 
-			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
-				<div class="entries">
-					<template v-for="w in raffleData.winners" :key="w.label">
-						<TTButton v-if="w.user" small light
-						type="link"
-						target="_blank"
-						:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
-						@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
-						<div class="entry" v-else>{{ w.label }}</div>
-					</template>
-				</div>
-			</div>
-
-			<div class="ctas">
+			<div class="actions">
 				<TTButton icon="cross"
 					highlight
 					alert
@@ -67,19 +57,27 @@
 					light
 					:loading="picking"
 					:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
-
-				<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" noBackground @change="$store.raffle.saveData()" />
 			</div>
 
-			<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
-				<div>{{ $t("raffle.state_overlay_not_found") }}</div>
-				<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" light />
+			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+				<div class="entries">
+					<template v-for="w in raffleData.winners.concat().reverse()" :key="w.label">
+						<TTButton v-if="w.user" small light
+							type="link"
+							target="_blank"
+							:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
+							@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
+							
+						<div class="entry" v-else>{{ w.label }}</div>
+					</template>
+				</div>
 			</div>
 
-			<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
-				<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
-				<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
-			</div>
+			<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" @change="$store.raffle.saveData()" />
+
+			<OverlayPresenceChecker
+				:overlayName="$t('raffle.overlay_name')"
+				:overlayType="'raffle'" />
 		</div>
 
 		<TTButton transparent icon="left" v-if="availableRaffleList.length > 1" class="prevRaffleBt" @click="prevRaffle()" />
@@ -88,17 +86,17 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket, {type OBSSourceItem} from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { gsap } from 'gsap/gsap-core';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
-import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import { gsap } from 'gsap/gsap-core';
 import ParamItem from '../params/ParamItem.vue';
-import Icon from '../Icon.vue';
+import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 
 @Component({
@@ -108,6 +106,7 @@ import Icon from '../Icon.vue';
 		ParamItem,
 		ProgressBar,
 		OverlayInstaller,
+		OverlayPresenceChecker,
 	},
 	emits:["close"]
 })
@@ -115,9 +114,6 @@ class RaffleState extends Vue {
 
 	public picking:boolean = false;
 	public disposed:boolean = false;
-	public overlayFound:boolean = false;
-	public sourceVisible:boolean = false;
-	public checkingOverlay:boolean = false;
 	public transitionDirection:"left"|"right" = "right";
 	public timerPercent:number = 0;
 	public raffleData:TwitchatDataTypes.RaffleData | null = null;
@@ -125,9 +121,8 @@ class RaffleState extends Vue {
 	public param_autoClose:TwitchatDataTypes.ParameterData<boolean> = {value:true, type:"boolean", labelKey:"raffle.params.param_autoClose", icon:"trash"};
 
 	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
-	private overlaySource:OBSSourceItem|null = null;
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public get canPick():boolean {
 		if(!this.raffleData) return false;
@@ -200,12 +195,11 @@ class RaffleState extends Vue {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
 		this.raffleData			= this.availableRaffleList.length > 0? this.availableRaffleList[0]! : null;
 		//Check if wheel's overlay exists
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
 	}
 
 	public mounted():void {
 		this.renderFrame();
-		this.checkOverlay();
 	}
 
 	public beforeUnmount():void {
@@ -259,54 +253,6 @@ class RaffleState extends Vue {
 		this.picking = false;
 	}
 
-	public async showOverlay():Promise<void> {
-		if(this.overlaySource) {
-			this.checkingOverlay = true;
-			await OBSWebsocket.instance.socket.call("SetSceneItemEnabled", {sceneItemEnabled:true, sceneItemId:this.overlaySource.sceneItemId, sceneName:this.overlaySource.sceneName!});
-			this.checkOverlay();
-		}
-	}
-
-	public async checkOverlay():Promise<void> {
-		if(!this.obsConnected) return;
-
-		const res = await OBSWebsocket.instance.getSources(true);
-		const urlRef = new URL(this.$overlayURL("wheel"));
-		this.overlayFound = false;
-		this.checkingOverlay = res.length > 0;
-		let remainingCount = res.length;
-		res.forEach(source=> {
-			if(source.inputKind != "browser_source") {
-				this.checkingOverlay = (--remainingCount) > 0;
-				return;
-			}
-
-			OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(source.sourceName).then(async (res) => {
-				const localFile = res.inputSettings.is_local_file === true;
-				let url = "";
-				if(localFile) {
-					url = res.inputSettings.local_file as string || "";
-				}else{
-					url = res.inputSettings.url as string || "";
-				}
-				url = url.toLowerCase();
-				if(url.indexOf(document.location.host.toLowerCase()) > -1
-				&& url.indexOf(urlRef.pathname.toLowerCase()) > -1) {
-					this.overlayFound = true;
-					if(source.sceneName) {
-						const visibleRes = await OBSWebsocket.instance.socket.call("GetSceneItemEnabled", {
-							sceneName:source.sceneName,
-							sceneItemId:source.sceneItemId,
-						});
-						this.overlaySource = source;
-						this.sourceVisible ||= visibleRes.sceneItemEnabled;
-					}
-				}
-				this.checkingOverlay = (--remainingCount) > 0;
-			});
-		})
-	}
-
 	public async nextRaffle():Promise<void> {
 		if(!this.raffleData) return;
 
@@ -352,29 +298,11 @@ export default toNative(RaffleState);
 	gap: .5em;
 
 	.title {
-		width: 100%;
 		flex-wrap: wrap;
-		gap: .5em;
 		row-gap: .25em;
-		.methods {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: center;
-			.icon {
-				height: 1em;
-				margin-right: .5em;
-				vertical-align: bottom;
-			}
-
-			mark {
-				font-size: .7em;
-			}
-		}
 	}
 
-	.content>.entries {
+	.body>.entries {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -405,33 +333,15 @@ export default toNative(RaffleState);
 				color: var(--color-primary);
 				background-color: var(--color-light);
 				border-radius: var(--border-radius);
-				font-weight: normal;
 				font-size: .8rem;
+				font-weight: normal;
 			}
 		}
 	}
 
-	.ctas {
-		gap: 1em;
-		row-gap: .5em;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		.small {
-			font-size: .8em;
-		}
-	}
-
-	.overlayStatus {
-		.bevel();
-		background-color: var(--grayout-fadest);
-		font-size: .85em;
-		gap: .5em;
-		padding: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+	.small {
+		font-size: .8em;
+		background-color: rgba(0, 0, 0, .25);
 	}
 
 	.nextRaffleBt, .prevRaffleBt {
@@ -445,12 +355,28 @@ export default toNative(RaffleState);
 		}
 	}
 
-	.content {
+	.body {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
 		width: 100%;
+	}
+
+	.winners {
+		.count {
+			font-style: italic;
+			font-weight: normal;
+			font-size: .8em;
+		}
+		.entries {
+			padding: 5px;//Makes sure box-filter isn't cut
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: .5em;
+		}
 	}
 }
 </style>

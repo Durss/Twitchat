@@ -596,18 +596,20 @@ mark {
 }
 
 *::-webkit-scrollbar {
-	width: 10px;
+	width: 7px;
 	height: 10px;
 }
 
 *::-webkit-scrollbar-track {
 	background: transparent;
 	background-color: var(--color-dark-fadest);
+	border-radius: 20px;
 }
 
 *::-webkit-scrollbar-thumb {
+	cursor: pointer;
 	border-radius: 20px;
-	background-color: var(--color-dark-extralight);
+	background-color: var(--color-text-fade);
 }
 
 body.light {

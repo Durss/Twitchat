@@ -55,7 +55,7 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -90,7 +90,7 @@ class NewUsers extends Vue {
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private publicApiEventHandler!:(e:TwitchatEvent<{count?:number}>)=> void;
+	private publicApiEventHandler!:(e:unknown)=> void;
 	private deleteMessageHandler!:(e:GlobalEvent)=> void;
 	private addMessageHandler!:(e:GlobalEvent)=> void;
 
@@ -162,7 +162,7 @@ class NewUsers extends Vue {
 		}
 		//*/
 
-		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
+		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);
@@ -172,8 +172,8 @@ class NewUsers extends Vue {
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ_ALL", this.publicApiEventHandler);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
@@ -185,8 +185,8 @@ class NewUsers extends Vue {
 		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ_ALL", this.publicApiEventHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
@@ -230,19 +230,19 @@ class NewUsers extends Vue {
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private onPublicApiEvent(e:TwitchatEvent<{count?:number}>):void {
-		const data = e.data!;
+	private onPublicApiEvent(e: {type:"GREET_FEED_READ", data:TwitchatEventMap["SET_GREET_FEED_READ"]}
+	| {type:"GREET_FEED_READ_ALL", data:TwitchatEventMap["SET_GREET_FEED_READ_ALL"]}):void {
 		let readCount = 0;
 		switch(e.type) {
-			case TwitchatEvent.GREET_FEED_READ: {
-				if(data && !isNaN(data.count as number)) {
-					readCount = data.count as number;
+			case "GREET_FEED_READ": {
+				if(e.data && !isNaN(e.data.messageCount)) {
+					readCount = e.data.messageCount;
 				}else{
 					readCount = 1;
 				}
 				break;
 			}
-			case TwitchatEvent.GREET_FEED_READ_ALL: {
+			case "GREET_FEED_READ_ALL": {
 				readCount = this.messages.length
 				break;
 			}

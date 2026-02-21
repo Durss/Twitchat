@@ -1,6 +1,5 @@
+import TwitchatEvent, { type TwitchatEventMap } from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
-import type { TwitchatActionType } from '@/events/TwitchatEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { gsap } from 'gsap/gsap-core';
 
@@ -21,8 +20,8 @@ export default class FormVoiceControllHelper {
 	private voiceInputs:HTMLInputElement[] = [];
 	private prevField:HTMLInputElement|null = null;
 	private prevFieldValue:string = "";
-	private voiceActionHandler!:(e:TwitchatEvent)=>void;
-	private batchVoiceActionHandler!:(e:TwitchatEvent)=>void;
+	private voiceActionHandler!:(e:unknown)=>void;
+	private batchVoiceActionHandler!:(e:unknown)=>void;
 
 	constructor(private target:HTMLDivElement, private closeCallback:()=>void, private submitCallback:()=>void) {
 		this.initialize();
@@ -33,27 +32,27 @@ export default class FormVoiceControllHelper {
 	}
 
 	public dispose():void {
-		PublicAPI.instance.removeEventListener(VoiceAction.ERASE, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.NEXT, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.CANCEL, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.SPEECH_END, this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_ERASE", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_SUBMIT", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_PREVIOUS", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_NEXT", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_CANCEL", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_TEXT_UPDATE", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_SPEECH_END", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_ACTION_BATCH", this.batchVoiceActionHandler);
 	}
 
 	private initialize():void {
-		this.voiceActionHandler = (e:TwitchatEvent) => this.onVoiceAction(e);
-		this.batchVoiceActionHandler = (e:TwitchatEvent) => this.onBatchVoiceAction(e);
-		PublicAPI.instance.addEventListener(VoiceAction.ERASE, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.SUBMIT, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.PREVIOUS, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.NEXT, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.CANCEL, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.TEXT_UPDATE, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.SPEECH_END, this.voiceActionHandler);
-		PublicAPI.instance.addEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
+		this.voiceActionHandler = (e) => this.onVoiceAction(e as any);
+		this.batchVoiceActionHandler = (e) => this.onBatchVoiceAction(e as any);
+		PublicAPI.instance.addEventListener("ON_STT_ERASE", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_SUBMIT", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_PREVIOUS", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_NEXT", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_CANCEL", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_TEXT_UPDATE", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_SPEECH_END", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_ACTION_BATCH", this.batchVoiceActionHandler);
 		
 		this.updateVoiceInputList();
 		this.voiceInputs.forEach(v => {
@@ -85,25 +84,32 @@ export default class FormVoiceControllHelper {
 		this.currentInput.dispatchEvent(new Event("input"));
 	}
 
-	private onVoiceAction(e:TwitchatEvent):void {
+	private onVoiceAction(
+	e:{type:"ON_STT_ERASE", data:TwitchatEventMap["ON_STT_ERASE"]}
+	| {type:"ON_STT_SUBMIT", data:TwitchatEventMap["ON_STT_SUBMIT"]}
+	| {type:"ON_STT_PREVIOUS", data:TwitchatEventMap["ON_STT_PREVIOUS"]}
+	| {type:"ON_STT_NEXT", data:TwitchatEventMap["ON_STT_NEXT"]}
+	| {type:"ON_STT_CANCEL", data:TwitchatEventMap["ON_STT_CANCEL"]}
+	| {type:"ON_STT_TEXT_UPDATE", data:TwitchatEventMap["ON_STT_TEXT_UPDATE"]}
+	| {type:"ON_STT_SPEECH_END", data:TwitchatEventMap["ON_STT_SPEECH_END"]}):void {
 		
 		switch(e.type) {
-			case VoiceAction.CANCEL: this.closeCallback(); break;
-			case VoiceAction.SPEECH_END: {
+			case "ON_STT_CANCEL": this.closeCallback(); break;
+			case "ON_STT_SPEECH_END": {
 				this.originalTabIndex = this.tabIndex;
 				break;
 			}
-			case VoiceAction.ERASE: {
+			case "ON_STT_ERASE": {
 				if(this.currentInput) {
 					this.currentInput.value = "";
 					this.currentInput.dispatchEvent(new Event("input"));
 				}
 				break;
 			}
-			case VoiceAction.SUBMIT: this.submitCallback(); break;
-			case VoiceAction.PREVIOUS: this.tabIndex --; break;
-			case VoiceAction.NEXT: this.tabIndex ++; break;
-			case VoiceAction.TEXT_UPDATE: {
+			case "ON_STT_SUBMIT": this.submitCallback(); break;
+			case "ON_STT_PREVIOUS": this.tabIndex --; break;
+			case "ON_STT_NEXT": this.tabIndex ++; break;
+			case "ON_STT_TEXT_UPDATE": {
 				const text = (e.data as {text:string}).text as string;
 				this.onText(text);
 				return;
@@ -130,12 +136,13 @@ export default class FormVoiceControllHelper {
 		}
 	}
 
-	private onBatchVoiceAction(e:TwitchatEvent):void {
-		const actionList = e.data as {id:string, value:string}[];
+	private onBatchVoiceAction(e:TwitchatEvent<"ON_STT_ACTION_BATCH">):void {
+		const actionList = e.data;
 		this.tabIndex = this.originalTabIndex;
 		this.setFocus();
 		for (const a of actionList) {
-			this.onVoiceAction(new TwitchatEvent(a.id as TwitchatActionType, a.value));
+			// @ts-ignore gave up on typing this in the middle of massive refactoring T_T
+			this.onVoiceAction(new TwitchatEvent(a.id, a.value));
 		}
 	}
 

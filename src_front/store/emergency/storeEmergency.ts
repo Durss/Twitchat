@@ -1,16 +1,15 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import type {JsonObject} from 'type-fest';
 
 const userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
 
@@ -67,6 +66,22 @@ export const storeEmergency = defineStore('emergency', {
 				this.reloadFollowbotList(JSON.parse(emergencyFollows));
 			}
 
+			/**
+			 * Called when emergency mode is started or stoped
+			 */
+			PublicAPI.instance.addEventListener("SET_EMERGENCY_MODE", (e)=> {
+				let enabled = e.data?.enabled;
+				//If no forced state is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !this.emergencyStarted;
+				if(e.data?.promptConfirmation === true) {
+					StoreProxy.main.confirm(StoreProxy.i18n.t("emergency.enable_confirm"), undefined, undefined, undefined, undefined).then(()=>{
+						this.setEmergencyMode(true);
+					}).catch(()=>{});
+				}else{
+					this.setEmergencyMode(enabled)
+				}
+			});
+
 		},
 
 		setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData) {
@@ -119,10 +134,10 @@ export const storeEmergency = defineStore('emergency', {
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
-				if(this.params.obsScene) OBSWebsocket.instance.setCurrentScene(this.params.obsScene);
+				if(this.params.obsScene) OBSWebSocket.instance.setCurrentScene(this.params.obsScene);
 				if(this.params.obsSources) {
 					for (const s of this.params.obsSources) {
-						OBSWebsocket.instance.setSourceState(s, false);
+						OBSWebSocket.instance.setSourceState(s, false);
 					}
 				}
 			}else {
@@ -155,14 +170,14 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.obsSources) {
 					for (const s of this.params.obsSources) {
-						OBSWebsocket.instance.setSourceState(s, true);
+						OBSWebSocket.instance.setSourceState(s, true);
 					}
 				}
 				TriggerActionHandler.instance.emergencyMode = false;
 			}
 
 			//Broadcast to any connected peers
-			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
+			PublicAPI.instance.broadcast("ON_EMERGENCY_MODE_CHANGED", {enabled:enable});
 		},
 
 		ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {

@@ -1,14 +1,12 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import * as Sentry from "@sentry/vue";
 
 let ready = false;
@@ -96,11 +94,11 @@ export const storeLabels = defineStore('labels', {
 				}
 			}
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
+			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_PLACEHOLDERS", ()=>{
 				this.broadcastPlaceholders();
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
+			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_CONFIGS", (e)=> {
 				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
@@ -233,7 +231,7 @@ export const storeLabels = defineStore('labels', {
 						value:ph.value,
 					}
 					if(list[key].value === undefined) {
-						if(ph.placeholder.type == "date", ph.placeholder.type == "datetime" || ph.placeholder.type == "time") {
+						if(ph.placeholder.type == "date" || ph.placeholder.type == "datetime" || ph.placeholder.type == "time") {
 							list[key].value = Date.now();
 						}else if(ph.placeholder.type == "image" || ph.placeholder.type == "string") {
 							list[key].value = "";
@@ -242,7 +240,7 @@ export const storeLabels = defineStore('labels', {
 						}
 					}
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, list);
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_PLACEHOLDERS", list);
 			}, 100);
 		},
 
@@ -251,9 +249,9 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject, exists:true, isValid:(!!validTag || data.mode == "html")});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data, exists:true, isValid:(!!validTag || data.mode == "html")});
 			}else{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, exists:false});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data:null, exists:false});
 			}
 		},
 

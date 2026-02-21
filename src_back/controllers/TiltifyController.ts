@@ -109,7 +109,7 @@ export default class TiltifyController extends AbstractController {
 					//Force existing campaign ID if testing so it actually
 					//does something on Twitchat
 					for (const id in this.fact2UidMap) {
-						if(this.fact2UidMap[id].type != "campaign") continue;
+						if(this.fact2UidMap[id]!.type != "campaign") continue;
 						data.campaignId = id;
 						break;
 					}
@@ -145,14 +145,14 @@ export default class TiltifyController extends AbstractController {
 					//Force existing cause ID if testing so it actually
 					//does something on Twitchat
 					for (const id in this.fact2UidMap) {
-						if(this.fact2UidMap[id].type != "cause") continue;
+						if(this.fact2UidMap[id]!.type != "cause") continue;
 						data.causeId = id;
 						break;
 					}
 				}
 
 				//Send info to connected users
-				const fact = this.fact2UidMap[data.causeId];
+				const fact = this.fact2UidMap[data.causeId]!;
 				(fact.users || []).forEach(uid=>{
 					SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
 				});
@@ -215,16 +215,16 @@ export default class TiltifyController extends AbstractController {
 			this.subscribeToCampaign(c.id);
 			//Register campaign
 			if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
-			if(!this.fact2UidMap[c.id].users.includes(twitchUser.user_id)) {
-				this.fact2UidMap[c.id].users.push(twitchUser.user_id);
+			if(!this.fact2UidMap[c.id]!.users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.id]!.users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 			//Register cause
 			//"public:direct:fact_updated" webhook event only gives a cause ID, not
 			//a campaign ID, that's why we need this association
 			if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
-			if(!this.fact2UidMap[c.cause_id].users.includes(twitchUser.user_id)) {
-				this.fact2UidMap[c.cause_id].users.push(twitchUser.user_id);
+			if(!this.fact2UidMap[c.cause_id]!.users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.cause_id]!.users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 		});
@@ -261,7 +261,7 @@ export default class TiltifyController extends AbstractController {
 
 		try {
 			const slRes = await fetch(url, {method:"POST", headers});
-			const token = await slRes.json();
+			const token = await slRes.json() as AuthToken;
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
@@ -315,18 +315,18 @@ export default class TiltifyController extends AbstractController {
 				this.unsubscribeFromCampaign(c.id);
 				//Register campaign
 				if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
-				const factIndex = this.fact2UidMap[c.id].users.findIndex(v=>v === twitchUser.user_id);
+				const factIndex = this.fact2UidMap[c.id]!.users.findIndex(v=>v === twitchUser.user_id);
 				if(factIndex > -1) {
-					this.fact2UidMap[c.id].users.splice(factIndex, 1);
+					this.fact2UidMap[c.id]!.users.splice(factIndex, 1);
 					mapUpdated = true;
 				}
 				//Unregister cause
 				//"public:direct:fact_updated" webhook event only gives a cause ID, not
 				//a campaign ID, that's why we need this association
 				if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
-				const causeIndex = this.fact2UidMap[c.cause_id].users.findIndex(v=>v === twitchUser.user_id);
+				const causeIndex = this.fact2UidMap[c.cause_id]!.users.findIndex(v=>v === twitchUser.user_id);
 				if(causeIndex > -1) {
-					this.fact2UidMap[c.cause_id].users.splice(causeIndex, 1);
+					this.fact2UidMap[c.cause_id]!.users.splice(causeIndex, 1);
 					mapUpdated = true;
 				}
 			});

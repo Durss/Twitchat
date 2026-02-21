@@ -61,8 +61,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 	private autoHideTimeout:number = -1;
 	private poolAlerts:IAlertItem[] = [];
 	
-	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number, skin:"default"|string}>) => void;
-	private donationHandler!:(e:TwitchatEvent<{overlayId:string, username:string, amount:string}>) => void;
+	private overlayParamsHandler!:(e:TwitchatEvent<"ON_DONATION_GOALS_OVERLAY_CONFIGS">) => void;
+	private donationHandler!:(e:TwitchatEvent<"ON_DONATION_EVENT">) => void;
 	
 	public get color():string { return this.state!.params.color || "#000000"; }
 	
@@ -84,13 +84,13 @@ class OverlayDonationGoals extends AbstractOverlay {
 		if(this.id) {
 			this.overlayParamsHandler = (e) => this.onOverlayParams(e);
 			this.donationHandler = (e) => this.onDonation(e);
-			PublicAPI.instance.addEventListener(TwitchatEvent.DONATION_EVENT, this.donationHandler);
-			PublicAPI.instance.addEventListener(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, this.overlayParamsHandler);
+			PublicAPI.instance.addEventListener("ON_DONATION_EVENT", this.donationHandler);
+			PublicAPI.instance.addEventListener("ON_DONATION_GOALS_OVERLAY_CONFIGS", this.overlayParamsHandler);
 		}
 
 		//@ts-ignore
 		window.raise = (amount:number)=>{
-			this.onOverlayParams(new TwitchatEvent("DONATION_GOALS_OVERLAY_PARAMS", {
+			this.onOverlayParams(new TwitchatEvent("ON_DONATION_GOALS_OVERLAY_CONFIGS", {
 				...this.state!,
 				raisedPersonnal:this.state!.raisedPersonnal + amount,
 			}));
@@ -98,20 +98,20 @@ class OverlayDonationGoals extends AbstractOverlay {
 		
 		//@ts-ignore
 		window.donationEvent = (amount:string, username:string)=>{
-			this.onDonation(new TwitchatEvent("DONATION_EVENT", {amount, username, overlayId:this.id}));
+			this.onDonation(new TwitchatEvent("ON_DONATION_EVENT", {amount, username, overlayId:this.id}));
 		}
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.DONATION_EVENT, this.donationHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, this.overlayParamsHandler);
+		PublicAPI.instance.removeEventListener("ON_DONATION_EVENT", this.donationHandler);
+		PublicAPI.instance.removeEventListener("ON_DONATION_GOALS_OVERLAY_CONFIGS", this.overlayParamsHandler);
 	}
 
 	/**
 	 * Requests donation goal params
 	 */
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_DONATION_GOALS_OVERLAY_PARAMS, {overlayId:this.id});
+		PublicAPI.instance.broadcast("GET_DONATION_GOALS_OVERLAY_CONFIGS", {id:this.id});
 	}
 
 	/**

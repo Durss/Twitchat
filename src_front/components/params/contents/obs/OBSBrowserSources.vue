@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
+import OBSWebSocket, { type OBSInputItem } from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -38,7 +38,7 @@ class OBSBrowserSources extends Vue {
 	public sources:{loading:boolean, success:boolean, source:OBSInputItem, url:string, localFile:boolean}[] = [];
 
 	public async mounted():Promise<void> {
-		const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
+		const res = await OBSWebSocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
 		const sources = (res.inputs as unknown) as OBSInputItem[];
 		this.sources = sources
 						.filter(v=> v.inputKind == "browser_source")
@@ -47,7 +47,7 @@ class OBSBrowserSources extends Vue {
 						});
 
 		this.sources.forEach(v=> {
-			OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName).then(res => {
+			OBSWebSocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName).then(res => {
 				v.localFile = res.inputSettings.is_local_file === true;
 				if(v.localFile) {
 					v.url = res.inputSettings.local_file as string || "";
@@ -65,7 +65,7 @@ class OBSBrowserSources extends Vue {
 
 	public async refreshSource(entry:typeof this.sources[0]):Promise<void> {
 		entry.loading = true;
-		await OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.inputName, propertyName:"refreshnocache"});
+		await OBSWebSocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.inputName, propertyName:"refreshnocache"});
 		await Utils.promisedTimeout(200);
 		entry.loading = false;
 		entry.success = true;

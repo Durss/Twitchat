@@ -1,12 +1,15 @@
 <template>
 	<div class="paramsdiscordquickactions">
 		<TTButton primary icon="add" @click="$store.discord.addQuickAction()">{{ $t("discord.quick_actions_addBt") }}</TTButton>
-		<ToggleBlock medium :title="a.data.name || (a.data.message||'').substring(0,20) || '- '+$t('global.edit')+' -'" v-for="a in quickActions" :key="a.data.id" :open="false">
+		<ToggleBlock medium
+		editableTitle
+		v-model:title="a.data.name"
+		:titleDefault="$t('global.edit')"
+		v-for="a in quickActions" :key="a.data.id" :open="false">
 			<template #left_actions>
 				<TTButton class="deleteBt" icon="trash" alert @click.stop="$store.discord.delQuickAction(a.data)" />
 			</template>
 			<div class="entry">
-				<ParamItem :key="'name_'+a.data.id" class="param" @change="$emit('change')" :paramData='a.name' v-model="a.data.name"></ParamItem>
 				<ParamItem :key="'message_'+a.data.id" class="param" @change="$emit('change')" :paramData='a.message' v-model="a.data.message"></ParamItem>
 				<ParamItem :key="'channelId_'+a.data.id" class="param" @change="$emit('change')" :paramData='a.channel' v-model="a.data.channelId"></ParamItem>
 			</div>
@@ -38,13 +41,11 @@ class ParamsDiscordQuickActions extends Vue {
 	public pram_channel:TwitchatDataTypes.ParameterData<string>[] = [];
 
 	public get quickActions():{data:TwitchatDataTypes.DiscordQuickActionData,
-	name:TwitchatDataTypes.ParameterData<string>,
 	message:TwitchatDataTypes.ParameterData<string>,
 	channel:TwitchatDataTypes.ParameterData<string>}[] {
 		return (this.$store.discord.quickActions || []).map(a => {
 			return reactive({
 				data:a,
-				name: {type:"string", value:a.name, labelKey:"discord.quick_actions_name", maxLength:20},
 				message: {type:"string", value:a.message||'', labelKey:"discord.quick_actions_message", placeholderList:this.placeholders, longText:true, maxLength:2000},
 				channel: {type:"list", value:a.channelId||'', listValues:this.discordChans, labelKey:"discord.quick_actions_channel"},
 			})
@@ -75,9 +76,8 @@ export default toNative(ParamsDiscordQuickActions);
 	flex-direction: column;
 	align-items: center;
 	.deleteBt {
-		margin: -.25em -.5em;
-		margin-right: 0;
 		border-radius: 0;
+		margin-left: 0 !important;
 		padding-left: .4em;
 	}
 

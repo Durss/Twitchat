@@ -1,55 +1,56 @@
 <template>
 	<div class="bingogridview">
 
-		<a href="/"><img src="@/assets/logo.svg" alt="logo" class="logo"></a>
+		<div class="head">
+			<img src="@/assets/icons/bingo_logo.svg" alt="logo" class="logo">
+			
+			<h1 v-if="!error && !loading && title">{{ title }}</h1>
 
-		<Icon v-if="loading" name="loader" class="loader" />
+			<template v-if="multiplayerMode">
+				<TTButton @click.capture.prevent="generateCSRF(true)"
+					v-if="!$store.public.authenticated"
+					icon="twitch"
+					class="authBt"
+					big
+					:loading="generatingCSRF"
+					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+					bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
 
-		<div v-else-if="error || !gridEnabled" class="notFound">
+				<TTButton v-else icon="offline" @click="unauth()" alert small>{{ $t("global.disconnect") }} - {{ $store.public.twitchLogin }}</TTButton>
+			</template>
+
+			<template v-if="isModerator && multiplayerMode">
+				<div class="card-item moderator">
+					<Icon class="icon" name="mod" />
+					<span>{{ $t("bingo_grid.state.mod_info") }}</span>
+				</div>
+
+				<SwitchButton :icons="['bingo_grid', 'list']" :labels="[$t('bingo_grid.state.grid'), $t('bingo_grid.state.list')]" :values="['grid', 'list']" v-model="template" />
+
+				<!--
+				<div class="actions">
+					<TTButton icon="shuffle" @click="shuffle()">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
+					<TTButton icon="refresh" @click="reset()">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
+				</div>
+				-->
+			</template>
+		</div>
+
+		<Icon v-if="loading" name="loader" class="holder loader" />
+
+		<div v-else-if="error || !gridEnabled" class="holder notFound">
 			<Icon name="emote"/>
 			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
 		</div>
 
-		<template v-else >
-			<div class="grid">
+		<div class="holder" v-else >
+			<div v-if="sseError" class="card-item error" @click="sseError = false">
+				<Icon class="icon" name="alert" />
+				<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
+			</div>
 
-				<template v-if="multiplayerMode">
-					<TTButton @click.capture.prevent="generateCSRF(true)"
-						v-if="!$store.public.authenticated"
-						icon="twitch"
-						class="authBt"
-						:loading="generatingCSRF"
-						v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-						bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
-
-					<TTButton v-else icon="offline" @click="unauth()" alert small>{{ $t("global.disconnect") }} - {{ $store.public.twitchLogin }}</TTButton>
-				</template>
-
-				<h1>{{ title }}</h1>
-
-				<template v-if="isModerator && multiplayerMode">
-					<div class="card-item moderator">
-						<Icon class="icon" name="mod" />
-						<span>{{ $t("bingo_grid.state.mod_info") }}</span>
-					</div>
-
-					<SwitchButton :icons="['bingo_grid', 'list']" :labels="[$t('bingo_grid.public.grid'), $t('bingo_grid.public.list')]" :values="['grid', 'list']" v-model="template" />
-
-					<!--
-					<div class="actions">
-						<TTButton icon="shuffle" @click="shuffle()">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
-						<TTButton icon="refresh" @click="reset()">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
-					</div>
-					-->
-				</template>
-
-				<div v-if="sseError" class="card-item error" @click="sseError = false">
-					<Icon class="icon" name="alert" />
-					<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
-				</div>
-
+			<div class="grid" v-if="template == 'grid'">
 				<div class="cells"
-				v-if="template == 'grid'"
 				ref="cellsHolder"
 				:style="{aspectRatio: cols/rows,
 				gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
@@ -66,6 +67,25 @@
 						</button>
 					</TransitionGroup>
 				</div>
+
+			</div>
+
+			<div class="listTemplate" v-else>
+				<div class="card-item">
+					<form @submit.prevent="">
+						<input type="text" v-model="search"
+						@keydown.capture="onKeyUp($event)"
+						:placeholder="$t('global.search_placeholder')">
+					</form>
+
+					<div class="list">
+						<Checkbox class="entry" :class="entry.check? 'checked' : ''"
+							v-for="entry in sortedEntries"
+							:key="entry.id"
+							v-model="entry.check"
+							@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+					</div>
+				</div>
 			</div>
 
 			<template v-if="isModerator && multiplayerMode">
@@ -79,35 +99,22 @@
 							@click="tickCell(entry)">{{ entry.label }}</Checkbox>
 					</div>
 				</div>
-
-				<div class="card-item listTemplate"
-				v-if="template == 'list'">
-					<form @submit.prevent="">
-						<input type="text" v-model="search"
-						@keydown.capture="onKeyUp($event)"
-						:placeholder="$t('global.search_placeholder')">
-					</form>
-
-					<div class="list">
-						<Checkbox class="entry" :class="entry.check? 'checked' : ''"
-							v-for="entry in shuffledEntries"
-							:key="entry.id"
-							v-model="entry.check"
-							@click="tickCell(entry)">{{ entry.label }}</Checkbox>
-					</div>
-				</div>
 			</template>
-		</template>
-
-		<div class="stars">
-			<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
-			v-for="i in 100"
-			ref="stars"
-			class="star"><path style="fill:currentColor" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
-				c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
-				c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
-				c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
+	
+			<div class="stars">
+				<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
+				v-for="i in 100"
+				ref="stars"
+				class="star"><path style="fill:currentColor" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
+					c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
+					c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
+					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
+			</div>
 		</div>
+
+		<i18n-t scope="global" keypath="bingo_grid.state.footer" class="footer" tag="div">
+			<template #LINK><a href="/">Twitchat</a></template>
+		</i18n-t>
 	</div>
 </template>
 
@@ -116,7 +123,7 @@ import Checkbox from '@/components/Checkbox.vue';
 import Icon from '@/components/Icon.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import SSEEvent from '@/events/SSEEvent';
 import DataStoreCommon from '@/store/DataStoreCommon';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -171,7 +178,6 @@ class BingoGridView extends Vue {
 	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
 	private sseFailedConnectingHandler!:(e:SSEEvent<"FAILED_CONNECT">) => void;
-	private seededRnd = Utils.seededRandom(Date.now());
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
@@ -179,13 +185,9 @@ class BingoGridView extends Vue {
 		return res;
 	}
 
-	public get shuffledEntries():typeof this.entries[number][] {
+	public get sortedEntries():typeof this.entries[number][] {
 		let a = [...this.entries, ...this.additionalEntries].filter(v=>new RegExp(this.search.trim(),'gi').test(v.label))
-		for (let i = a.length - 1; i > 0; i--) {
-			const j = Math.floor(this.seededRnd() * (i + 1));
-			[a[i]!, a[j]!] = [a[j]!, a[i]!];
-		}
-		return a;
+		return a.sort((a,b)=> a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
 	}
 
 	public async mounted():Promise<void> {
@@ -282,16 +284,16 @@ class BingoGridView extends Vue {
 				this.additionalEntries	= infos.json.data.additionalEntries || [];
 				this.entries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
-					v.check = this.isModerator? v.check : false;
+					v.check = this.isModerator && infos.json.multiplayerMode? v.check : false;
 				});
 				this.additionalEntries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
-					v.check = this.isModerator? v.check : false;
+					v.check = this.isModerator && infos.json.multiplayerMode? v.check : false;
 				});
 				this.loading = false;
 				if(this.gridEnabled) this.animateOpen();
 				if(this.$store.public.authenticated && infos.json.multiplayerMode) {
-					SSEHelper.instance.initialize();
+					SSEHelper.instance.initialize(false);
 				}
 			}else{
 				this.error = true;
@@ -678,19 +680,26 @@ export default toNative(BingoGridView);
 .bingogridview{
 	color: var(--color-text);
 	// min-width: 100vw;
-	// min-height: 100vh;
+	min-height: 99vh;
 	width: 100%;
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 
-	.logo {
-		height: 4em;
+	.head {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		margin: 2em auto 0 auto;
-		display: block;
-		max-height: 10vh;
+		align-items: center;
+		width: 100%;
+		.logo {
+			height: 5em;
+			display: block;
+		}
 	}
+
 
 	.loader {
 		height: 4em;
@@ -727,12 +736,22 @@ export default toNative(BingoGridView);
 		flex-wrap: wrap;
 	}
 
+	.holder {
+		flex: 1;
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
 	.grid {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
+		// flex: 1;
 
 		.ctas {
 			gap: .5em;
@@ -744,7 +763,6 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: min(800px, 95%);
 			gap: 5px;
 			// overflow: hidden;
 			.cell {
@@ -764,6 +782,7 @@ export default toNative(BingoGridView);
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
 				min-width: 70px;
+				max-width: 150px;
 				// transition: background-color .25s,  box-shadow .25s, transform .25s;
 				&:not(.disabled):hover {
 					background-color: var(--background-color-fader);
@@ -814,10 +833,6 @@ export default toNative(BingoGridView);
 		display: none !important;
 	}
 
-	.authBt {
-		background-color: red;
-	}
-
 	.additional {
 		strong {
 			font-size: 1.15em;
@@ -832,27 +847,34 @@ export default toNative(BingoGridView);
 	}
 
 	.listTemplate {
-		gap: .5em;
+		flex: 1;
 		display: flex;
-		flex-direction: column;
-		input {
-			width: auto;
-			margin: auto;
-			display: block;
-		}
-		.list {
+		align-items: center;
+
+		.card-item {
 			gap: .5em;
-			column-gap: 2em;
-			display: grid;
-			align-items: flex-start;
-			grid-template-columns: repeat(2, 1fr);
-			.entry {
-				max-width: 30vw;
-				&.checked {
-					font-weight: bold;
-				}
-				&:not(.checked) {
-					opacity: .8;
+			display: flex;
+			flex-direction: column;
+	
+			input {
+				width: auto;
+				margin: auto;
+				display: block;
+			}
+			.list {
+				gap: .5em;
+				column-gap: 2em;
+				display: grid;
+				align-items: flex-start;
+				grid-template-columns: repeat(2, 1fr);
+				.entry {
+					max-width: 30vw;
+					&.checked {
+						font-weight: bold;
+					}
+					&:not(.checked) {
+						opacity: .8;
+					}
 				}
 			}
 		}
@@ -870,6 +892,10 @@ export default toNative(BingoGridView);
 			margin-top: .5em;
 			opacity: .5;
 		}
+	}
+	
+	.footer {
+		font-style: italic;
 	}
 }
 

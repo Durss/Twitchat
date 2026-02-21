@@ -1,0 +1,75 @@
+{
+	"quiz": {
+		"form":{
+			"title": "Quiz",
+			"subtitle": "Create your own interactive quiz!",
+			"add_bt": "Create a quiz",
+			"import_bt": "Import questions from CSV",
+			"import_classic_tt": "One question per line.\nColumn 1: question\nColumns 2: correct answer\nColumns 3,4,5: wrong answers.",
+			"import_majority_tt": "One question per line.\nColumn 1: question\nColumns 2,3,4,5: wrong answers.",
+			"import_freeAnswer_tt": "One question per line.\nColumn 1: question\nColumn 2: correct answer",
+			"import_invalid_file": "Invalid file format. Please upload a CSV file with the correct structure.",
+			"addQuestion_bt": "Add question",
+			"addAnswer_bt": "Add answer",
+			"answer_correct": "Correct answer",
+			"answer_wrong": "Wrong answer",
+			"deleteQuestionbt_tt": "Delete the question",
+			"durationOverride_tt": "Custom duration for this question",
+			"toleranceOverride_tt": "Custom tolerance for this question",
+			"premium_limit": "You reached the limit of {MAX} quizzes you can create.",
+			"non_premium_limit": "You reached the limit of {MAX} quiz you can create.\nBecome a premium member to create up to {MAX_PREMIUM} quizzes.",
+			"premium_question_limit": "You reached the limit of {MAX} questions you can add.",
+			"nonpremium_question_limit": "You reached the limit of {MAX} questions you can add.\nBecome a premium to add up to {MAX_PREMIUM} questions.",
+			"tolerances":{
+				"undefined":"        🗑️",
+				"none":"😠 None",
+				"very_low":"🧐 Very low",
+				"low":"🤨 Low",
+				"medium":"😁 Medium",
+				"high":"🤪 High",
+				"very_high":"🤡 Very high"
+			},
+			"delete_confirm": {
+				"description": "Quiz will be deleted\nThis cannot be undone.",
+				"title": "Delete quiz?"
+			},
+			"default_title": "My Quiz",
+			"install_title": "Install overlay",
+			"param_duration": "Duration per question ({VALUE} seconds)",
+			"param_time_based_scoring": "Time-based scoring\n(more points for faster answers)",
+			"param_loose_on_fail": "Lose points on fail\n(wrong answers remove points)",
+			"param_tolerance": "Spelling tolerance",
+			"question_placeholder": "question...",
+			"answer_placeholder": "answer...",
+			"answers": "{COUNT} Answers",
+			"answers_majority": "{COUNT} Answers",
+			"answers_majority_subtitle": "(wrong answers only)",
+			"param_answer_duration": "Duration",
+			"questionList": "Question list",
+			"createBt": "Create",
+			"mode_classic": {
+				"title": "Classic mode",
+				"description": "One question, up to 6 answers, 1 or more correct answers.\n\nViewers earn points for every correct answers."
+			},
+			"mode_freeAnswer": {
+				"title": "Free answer mode",
+				"description": "One question, viewers can answer freely from chat or on the Twitchat extension."
+			},
+			"mode_majority": {
+				"title": "Majority mode",
+				"description": "One question, up to 4 answers answers. ONLY WRONG answers\n\nViewers must guess which answer will receive the most votes."
+			},
+			"live_progress_warning":{
+				"title": "Quiz in progress",
+				"description": "If you enable this quiz, you will lose the progress of the quiz {NAME}"
+			},
+			"overlay_name": "Quiz"
+		},
+		"state": {
+			"start_bt": "Start quiz",
+			"showAnswer_bt": "Reveal answer",
+			"nextQuestion_bt": "Next question",
+			"questionIndex": "Question {INDEX}/{TOTAL}"
+		}
+	}
+}

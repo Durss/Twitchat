@@ -135,7 +135,6 @@ class StreamSummary extends AbstractSidePanel {
 	private durationInterval:number = -1;
 
 	public async beforeMount():Promise<void> {
-
 		const res = await TwitchUtils.getCurrentStreamInfo([this.$store.auth.twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
@@ -353,6 +352,10 @@ class StreamSummary extends AbstractSidePanel {
 		this.loading = false;
 	}
 
+	public mounted(): void {
+		this.open();
+	}
+
 	public beforeUnmount():void {
 		clearInterval(this.durationInterval);
 	}
@@ -368,7 +371,6 @@ class StreamSummary extends AbstractSidePanel {
 		let csv = "";
 		
 		if(globalData) {
-			console.log("OK");
 			csv = "messCount, charCount, emoteCount, chatterCount, subT1Count, subT2Count, subT3Count, subPrimeCount, subgiftCount, bitsCount, followCount, rewardCount, channelPointCount, raidCount, raidViewerCount, hypeTrainCount, pollCount, predictionCount, bingoCount, raffleCount, outShoutout, inShoutout, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
 			csv += this.messCount+", ";
 			csv += this.charCount+", ";
@@ -498,6 +500,7 @@ export default toNative(StreamSummary);
 .streamsummary{
 	.spinner {
 		height: 2em;
+		margin: auto;
 	}
 
 	.content {

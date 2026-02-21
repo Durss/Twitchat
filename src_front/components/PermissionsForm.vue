@@ -13,90 +13,84 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { watch, reactive, computed, onBeforeMount, onMounted } from 'vue';
 import ParamItem from './params/ParamItem.vue';
 
-@Component({
-	components:{
-		ParamItem
-	},
-	emits:["update:modelValue"],
-})
-class PermissionsForm extends Vue {
-	@Prop
-	public modelValue!:TwitchatDataTypes.PermissionsData;
-	
-	public param_broadcaster:TwitchatDataTypes.ParameterData<boolean>		= { type:"boolean", labelKey:"global.permissions.broadcaster", value:true, icon:"broadcaster" };
-	public param_mods:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.mods", value:true, icon:"mod" };
-	public param_vips:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.vips", value:false, icon:"vip" };
-	public param_subs:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.subs", value:false, icon:"sub" };
-	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"integer", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer" };
-	public param_all:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.all", value:false, icon:"user" };
-	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark", maxLength:40 };
-	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross", maxLength:40 };
-	public param_followers:TwitchatDataTypes.ParameterData<boolean, unknown, number> = { type:"boolean", labelKey:"global.permissions.follow", value:false, icon:"follow", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS] };
+const props = defineProps<{
+	modelValue: TwitchatDataTypes.PermissionsData;
+}>();
 
-	public get noSelection():boolean {
-		return this.modelValue.mods === false
-		&& this.modelValue.vips === false
-		&& this.modelValue.subs === false
-		&& this.modelValue.all === false
-		&& this.modelValue.follower === false
-		&& this.modelValue.broadcaster === false
-		&& this.modelValue.usersAllowed.length === 0;
-	}
+const emit = defineEmits<{
+	'update:modelValue': [value: TwitchatDataTypes.PermissionsData];
+}>();
 
-	public beforeMount():void {
-		if(this.modelValue.follower === undefined) this.modelValue.follower = false;
-		this.param_followers.children	= [this.param_followers_ms];
-		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
+const param_broadcaster = reactive<TwitchatDataTypes.ParameterData<boolean>>({ type: "boolean", labelKey: "global.permissions.broadcaster", value: true, icon: "broadcaster" });
+const param_mods = reactive<TwitchatDataTypes.ParameterData<boolean>>({ type: "boolean", labelKey: "global.permissions.mods", value: true, icon: "mod" });
+const param_vips = reactive<TwitchatDataTypes.ParameterData<boolean>>({ type: "boolean", labelKey: "global.permissions.vips", value: false, icon: "vip" });
+const param_subs = reactive<TwitchatDataTypes.ParameterData<boolean>>({ type: "boolean", labelKey: "global.permissions.subs", value: false, icon: "sub" });
+const param_followers_ms = reactive<TwitchatDataTypes.ParameterData<number>>({ type: "integer", labelKey: "global.permissions.follow_duration", value: 0, min: 0, max: 50000, icon: "timer" });
+const param_all = reactive<TwitchatDataTypes.ParameterData<boolean>>({ type: "boolean", labelKey: "global.permissions.all", value: false, icon: "user" });
+const param_allowed = reactive<TwitchatDataTypes.ParameterData<string, string>>({ type: "editablelist", labelKey: "global.permissions.users_allowed", placeholderKey: "global.permissions.users_placeholder", value: "", icon: "checkmark", maxLength: 40 });
+const param_refused = reactive<TwitchatDataTypes.ParameterData<string, string>>({ type: "editablelist", labelKey: "global.permissions.users_refused", placeholderKey: "global.permissions.users_placeholder", value: "", icon: "cross", maxLength: 40 });
+const param_followers = reactive<TwitchatDataTypes.ParameterData<boolean, unknown, number>>({ type: "boolean", labelKey: "global.permissions.follow", value: false, icon: "follow", twitch_scopes: [TwitchScopes.LIST_FOLLOWERS] });
 
-		watch(()=>this.param_followers_ms.value, ()=> {
-			this.modelValue.follower_duration_ms = this.param_followers_ms.value * 24 * 60 * 60 * 1000;
-			this.$emit('update:modelValue', this.modelValue);
-		}) 
+const noSelection = computed(() => {
+	return props.modelValue.mods === false
+	&& props.modelValue.vips === false
+	&& props.modelValue.subs === false
+	&& props.modelValue.all === false
+	&& props.modelValue.follower === false
+	&& props.modelValue.broadcaster === false
+	&& props.modelValue.usersAllowed.length === 0;
+});
 
-		//As this data has been added afterwards, it's missing from the existing data.
-		//I force it to "true" if not defined as I think it makes the more sense.
-		this.param_followers.value = this.modelValue.follower !== false;
+onBeforeMount(() => {
+	if(props.modelValue.follower === undefined) props.modelValue.follower = false;
+	param_followers.children = [param_followers_ms];
+	param_followers_ms.value = (props.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
 
-		watch(()=>this.param_all.value, ()=>{
-			// if(this.param_all.value === true) {
-			// 	this.modelValue.mods = true;
-			// 	this.modelValue.vips = true;
-			// 	this.modelValue.subs = true;
-			// 	this.modelValue.follower = true;
-			// }
+	watch(() => param_followers_ms.value, () => {
+		props.modelValue.follower_duration_ms = param_followers_ms.value * 24 * 60 * 60 * 1000;
+		emit('update:modelValue', props.modelValue);
+	}) 
+
+	//As this data has been added afterwards, it's missing from the existing data.
+	//I force it to "true" if not defined as I think it makes the more sense.
+	param_followers.value = props.modelValue.follower !== false;
+
+	watch(() => param_all.value, () => {
+		// if(param_all.value === true) {
+		// 	props.modelValue.mods = true;
+		// 	props.modelValue.vips = true;
+		// 	props.modelValue.subs = true;
+		// 	props.modelValue.follower = true;
+		// }
+	});
+});
+
+onMounted(() => {
+	let hasChanged = false;
+	if(props.modelValue.usersAllowed) {
+		props.modelValue.usersAllowed.forEach((v, i) => {
+			const trimmed = v.slice(0, param_allowed.maxLength!);
+			props.modelValue.usersAllowed[i] = trimmed;
+			hasChanged ||= trimmed !== v;
 		});
 	}
-
-	public mounted():void {
-		let hasChanged = false;
-		if(this.modelValue.usersAllowed) {
-			this.modelValue.usersAllowed.forEach((v, i)=> {
-				const trimmed = v.slice(0, this.param_allowed.maxLength!);
-				this.modelValue.usersAllowed[i] = trimmed;
-				hasChanged ||= trimmed !== v;
-			});
-		}
-		if(this.modelValue.usersRefused) {
-			this.modelValue.usersRefused.forEach((v, i)=> {
-				const trimmed = v.slice(0, this.param_refused.maxLength!);
-				this.modelValue.usersRefused[i] = trimmed;
-				hasChanged ||= trimmed !== v;
-			});
-		}
-		if(hasChanged) {
-			this.$emit('update:modelValue', this.modelValue);
-		}
+	if(props.modelValue.usersRefused) {
+		props.modelValue.usersRefused.forEach((v, i) => {
+			const trimmed = v.slice(0, param_refused.maxLength!);
+			props.modelValue.usersRefused[i] = trimmed;
+			hasChanged ||= trimmed !== v;
+		});
 	}
-
-}
-export default toNative(PermissionsForm);
+	if(hasChanged) {
+		emit('update:modelValue', props.modelValue);
+	}
+});
 </script>
 
 <style scoped lang="less">

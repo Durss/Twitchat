@@ -133,8 +133,8 @@ import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import { type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionObsSourceDataAction, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import { default as OBSWebsocket, default as OBSWebSocket, type OBSInputItem } from '@/utils/OBSWebsocket';
+import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
+import { default as OBSWebSocket, type OBSInputItem } from '@/utils/OBSWebSocket';
 import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
@@ -201,7 +201,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	private filters:OBSFilter[] = [];
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get showPlaceholderWarning():boolean {
@@ -406,7 +406,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 */
 	private onActionChange():void {
 		if(this.action.obsAction == "hotKey") {
-			OBSWebsocket.instance.getHotkeys().then((list) => {
+			OBSWebSocket.instance.getHotkeys().then((list) => {
 				const disallowList = [
 					"libobs",
 					"ObsBrowser",
@@ -470,7 +470,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		if(this.param_source_conf.value != "") {
 			try {
 				//the replace() is rather dirty... i made it so all items starts with their type, "source_xxx", "input_xxx", "scene_xxx"...
-				this.filters = await OBSWebsocket.instance.getSourceFilters(this.param_source_conf.value.replace(/^[a-z]+_/gi, ""));
+				this.filters = await OBSWebSocket.instance.getSourceFilters(this.param_source_conf.value.replace(/^[a-z]+_/gi, ""));
 			}catch(error) {
 				this.filters = []
 			}

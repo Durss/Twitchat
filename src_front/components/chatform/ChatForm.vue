@@ -220,7 +220,9 @@
 						icon="raid"
 						v-if="$store.stream.currentRaid != null"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raidBt_aria')}"
-						@click="openNotifications('raid')" />
+						@click="openNotifications('raid')">
+						<span class="time">{{ remainingRaidTime }}</span>
+					</ButtonNotification>
 				</transition>
 
 				<transition name="blink">
@@ -318,6 +320,15 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification class="quiz"
+						icon="quiz"
+						v-if="$store.quiz.quizList.filter(v=>v.enabled).length > 0"
+						:aria-label="$t('chat.form.quizBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.quizBt_aria')}"
+						@click="openNotifications('quiz')" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification class="groq"
 						icon="groq"
 						v-if="$store.groq.enabled && $store.groq.connected && $store.groq.answerHistory.length > 0"
@@ -329,7 +340,7 @@
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
-						v-if="voiceBotConfigured"
+						v-if="$store.voice.voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						v-tooltip="{touch:'hold', content:voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')}"
 						@click="toggleVoiceBot()" />
@@ -428,7 +439,6 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
@@ -443,7 +453,6 @@ import Utils from '@/utils/Utils';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
@@ -459,7 +468,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
@@ -494,6 +503,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 		"update:showShoutout",
 		"update:showCredits",
 		"update:showBingoGrid",
+		"update:showQuiz",
 		"update:showGroqHistory",
 		"update:showGazaFunds",
 		"update:showChatUsers",
@@ -517,14 +527,16 @@ export class ChatForm extends Vue {
 	public trackedUserCount = 0;
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
+	public remainingRaidTime:string = "";
 	public onlineUsersTooltip:string = "";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 	public triggerImportData:SettingsExportData | null = null;
 
 	private announcementInterval:number = -1;
+	private raidIntervalUpdate:number = -1;
 	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
-	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private creditsOverlayPresenceHandler!:() => void;
 
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -577,7 +589,7 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected.value; }
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebSocket.instance.connected.value; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
@@ -592,21 +604,7 @@ export class ChatForm extends Vue {
 		return false;
 	}
 
-	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
-	public get voiceBotConfigured():boolean {
-		if(Config.instance.OBS_DOCK_CONTEXT) return false;
-		const actions = Object.keys(VoiceAction);
-		type VAKeys = keyof typeof VoiceAction;
-		//Search for global labels
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
-			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
-			const id:string = VoiceAction[a as VAKeys] as string;
-			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
-			if(!action?.sentences) return false;
-		}
-		return true;
-	}
+	public get voiceBotStarted():boolean { return VoiceController.instance.started.value; }
 
 	public get chatHighlightEnabled():boolean {
 		return this.$store.chat.highlightedMessageId != null;
@@ -720,11 +718,11 @@ export class ChatForm extends Vue {
 			this.sendHistory = JSON.parse(history) as string[];
 			this.sendHistoryIndex = this.sendHistory.length;
 		}
-		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
-		this.creditsOverlayPresenceHandler = (e:TwitchatEvent) => this.onCreditsOverlayPresence();
+		this.updateTrackedUserListHandler = (_e:GlobalEvent) => this.onUpdateTrackedUserList();
+		this.creditsOverlayPresenceHandler = () => this.onCreditsOverlayPresence();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
 		window.setTimeout(()=> {
@@ -777,16 +775,25 @@ export class ChatForm extends Vue {
 			}
 		});
 
+		watch(()=>this.$store.stream.currentRaid, (newVal) => {
+			if(newVal) {
+				this.raidIntervalUpdate = window.setInterval(() => {
+					this.remainingRaidTime = Utils.formatDuration(newVal!.timerDuration_s * 1000 - (newVal!.startedAt - Date.now()), true);
+				}, 1000);
+			}
+		}, {immediate:true});
+
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
 	}
 
 	public beforeUnmount():void {
-		clearTimeout(this.announcementInterval);
+		window.clearInterval(this.raidIntervalUpdate);
+		window.clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
@@ -844,7 +851,7 @@ export class ChatForm extends Vue {
 					//Check patreon only condition
 					if(a.patreonOnly === true && !this.$store.patreon.isMember) continue;
 					//Check patreon only condition
-					if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
+					if(a.heatOnly === true && !HeatSocket.instance.connected.value) continue;
 					//Check if within date frame
 					if(Date.now() < new Date(a.dateStart).getTime()) continue;
 					if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
@@ -984,12 +991,6 @@ export class ChatForm extends Vue {
 			//App version
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
 			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
-			this.message = "";
-		}else
-
-		if(isAdmin && cmd == "/tenorgifload") {
-			console.log(this.$store.chat.messages);
-			console.log(await ApiHelper.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 
@@ -1206,7 +1207,7 @@ export class ChatForm extends Vue {
 	 * Start the voice bot
 	 */
 	public toggleVoiceBot():void {
-		if(VoiceController.instance.started) {
+		if(VoiceController.instance.started.value) {
 			VoiceController.instance.stop();
 		}else{
 			VoiceController.instance.start(false);
@@ -1455,7 +1456,7 @@ export default toNative(ChatForm);
 	margin: auto;
 	position: relative;
 	opacity: 1;
-	z-index: 2;
+	z-index: 5;
 	transition: opacity .25s;
 	color: var(--color-text);
 
@@ -1503,16 +1504,23 @@ export default toNative(ChatForm);
 			}
 		}
 	}
+
+	.leftForm:hover ~ .inputForm {
+		margin-right: -2em;
+	}
+
 	.holder {
 		position: absolute;
 		width: 100%;
 		display: flex;
 		flex-direction: row;
 		position: relative;
+		justify-content: center;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,.5);
 		background-color: var(--background-color-secondary);
 		padding: .25em;
+		flex-wrap: wrap;
 
 		.sortableItems {
 			display: flex;
@@ -1537,9 +1545,11 @@ export default toNative(ChatForm);
 
 		.addPinBt {
 			width: 0px;
+			padding: 0;
 			max-width: 0px;
 			min-width: 0px;
-			transition: width 0.2s, max-width 0.2s, min-width 0.2s;
+			z-index: 1;
+			transition: width 0.2s, max-width 0.2s, min-width 0.2s, margin-right 0.2s;
 		}
 
 		.inputForm {
@@ -1549,6 +1559,7 @@ export default toNative(ChatForm);
 			justify-content: center;
 			flex-wrap: wrap;
 			flex-grow: 1;
+			transition: all 0.2s;
 
 			.loader {
 				height: 1em;
@@ -1845,6 +1856,10 @@ export default toNative(ChatForm);
 		}
 	}
 
+	.time {
+		font-family: var(--font-roboto);
+	}
+
 }
 
 // Keep it outside chatform scope
@@ -1882,6 +1897,31 @@ export default toNative(ChatForm);
 			.rightForm {
 				order:3;
 			}
+		}
+	
+		.leftForm:hover ~ .inputForm {
+			margin-right: unset;
+		}
+
+		.leftForm {
+			.addPinBt {
+				background-color: var(--background-color-secondary);
+				filter: drop-shadow(5px 0 2px rgba(0,0,0,.25));
+			}
+			&:hover,
+			&:focus-within {
+				.addPinBt {
+					margin-right: -2em;
+				}
+			}
+		}
+		.rightForm::before{
+			content: "";
+			width: 1px;
+			height: 1em;
+			display: block;
+			position: relative;
+			background: var(--color-text-fader);
 		}
 	}
 }

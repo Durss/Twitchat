@@ -186,7 +186,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import ParamsDonorList from './ParamsDonorList.vue';
 import SearchUserForm from '@/components/params/contents/donate/SearchUserForm.vue'
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
@@ -769,7 +769,6 @@ export default toNative(ParamsDonate);
 
 				.mouthBg {
 					background-color: #ffdd67;
-					// background-color: red;
 					border-radius: .5em;
 					position: absolute;
 					top: 2em;

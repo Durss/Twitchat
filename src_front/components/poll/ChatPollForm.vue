@@ -64,9 +64,9 @@ import ClearButton from '../ClearButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
 import PermissionsForm from '../PermissionsForm.vue';
-import { ToggleBlock } from '../ToggleBlock.vue';
 import TTButton from '../TTButton.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
@@ -81,9 +81,6 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	emits:['close']
 })
 class ChatPollForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public voiceControl!:boolean;
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;

@@ -47,44 +47,44 @@
 		:class="classes"
 		:icons="icons? icons : []">
 			<template #left_actions>
-				<div class="actionList">
-					<TTButton small
-						icon="dragZone"
-						class="action orderBt"
-						v-if="noHeaderOptions === false && readonly === false"
-						v-tooltip="$t('triggers.reorder_tt')"
-						data-noselect
-						@click.stop
-						/>
-					<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
-				</div>
+				<TTButton small
+					icon="dragZone"
+					class="action orderBt"
+					v-if="noHeaderOptions === false && readonly === false"
+					v-tooltip="$t('triggers.reorder_tt')"
+					data-noselect
+					@click.stop
+					/>
+				<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
 			</template>
 			<template #right_actions>
-				<div class="actionList">
-					<TTButton small
+				<!-- <div class="actionList"> -->
+					<TTButton
 						icon="merge"
 						class="action"
 						@click.stop="addCondition()"
+						data-close-popout
 						v-if="!action.conditionList && noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.condition.add_tt')"
 						/>
 
-					<TTButton small
+					<TTButton
 						icon="copy"
 						class="action"
 						@click.stop="$emit('duplicate')"
+						data-close-popout
 						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 						/>
 
-					<TTButton small alert
+					<TTButton alert
 						icon="trash"
 						class="action delete"
 						@click.stop="$emit('delete')"
 						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('global.delete')"
 					/>
-				</div>
+				<!-- </div> -->
 			</template>
 
 			<div v-if="action.type===null" class="typeSelector">
@@ -359,8 +359,8 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCustomTrainData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
@@ -501,12 +501,12 @@ class TriggerActionEntry extends Vue {
 	public canEditStreamInfo:boolean = false;
 		
 	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected.value; }
 	public get discordEnabled():boolean { return this.$store.discord.discordLinked === true; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected.value; }
-	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get wsConnected():boolean { return WebsocketTrigger.instance.connected.value; }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get canAnimateText():boolean { return this.$store.animatedText.animatedTextList.length > 0; }
 	public get canControlCustomTrain():boolean { return this.$store.customTrain.customTrainList.length > 0; }
@@ -938,22 +938,17 @@ export default toNative(TriggerActionEntry);
 		}
 	}
 
-	.actionList {
-		display: flex;
-		align-self: stretch;
-		align-items: center;
-		.action {
-			border-radius: 0;
-			padding: .5em;
-			align-self: stretch;
-			box-shadow: unset;
-			&.orderBt {
-				cursor: grab;
-				&:active {
-					cursor: grabbing;
-				}
-			}
+	.orderBt {
+		cursor: grab;
+		margin-left: 0 !important;
+		padding: 0 .5em !important;
+		&:active {
+			cursor: grabbing;
 		}
+	}
+
+	.togglebutton {
+		margin-right: .5em;
 	}
 
 	.typeSelector {

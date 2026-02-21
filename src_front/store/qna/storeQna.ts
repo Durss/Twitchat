@@ -1,17 +1,16 @@
+import SSEEvent from '@/events/SSEEvent';
+import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+import Config from '@/utils/Config';
+import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
-import Utils from '@/utils/Utils';
-import Config from '@/utils/Config';
 import StoreProxy from '../StoreProxy';
-import MessengerProxy from '@/messaging/MessengerProxy';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
-import ApiHelper from '@/utils/ApiHelper';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let shareDebounce = -1;
 let deleteDebounce = -1;
@@ -95,24 +94,22 @@ export const storeQna = defineStore('qna', {
 				}
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_HIGHLIGHT, (event:TwitchatEvent<{qnaId:string}>) => {
-				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
-				console.log("Highlighting", event.data?.qnaId, session);
+			PublicAPI.instance.addEventListener("SET_QNA_HIGHLIGHT", (event) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.id);
 				if(session) {
 					this.highlightEntry(session.messages[0]!);
 				}
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SKIP, (event:TwitchatEvent<{qnaId:string}>) => {
-				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
+			PublicAPI.instance.addEventListener("SET_QNA_SKIP", (event) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.id);
 				if(session) {
 					this.removeMessageFromSession(session.messages[0]!, session);
 				}
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SESSION_GET_ALL, (event:TwitchatEvent) => {
+			PublicAPI.instance.addEventListener("GET_QNA_SESSION_LIST", () => {
 				this.broadcastQnaList();
-
 			});
 		},
 
@@ -354,8 +351,8 @@ export const storeQna = defineStore('qna', {
 		},
 
 		broadcastQnaList():void {
-			PublicAPI.instance.broadcast(TwitchatEvent.QNA_SESSION_LIST, {qnaSessions:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
-		}
+			PublicAPI.instance.broadcast("ON_QNA_SESSION_LIST", {sessionList:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
+		},
 
 
 	} as IQnaActions

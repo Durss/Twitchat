@@ -97,17 +97,15 @@
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import type { JsonObject } from 'type-fest';
 import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 
@@ -179,11 +177,11 @@ class OverlayParamsBitswall extends Vue {
 			this.checkingOverlayAtStart = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>{
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE);
+			PublicAPI.instance.broadcast("GET_BITSWALL_OVERLAY_PRESENCE");
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
 			this.subcheckTimeout = window.setTimeout(()=>{
@@ -194,14 +192,14 @@ class OverlayParamsBitswall extends Vue {
 
 		watch(()=>this.parameters, ()=> {
 			DataStore.set(DataStore.BITS_WALL_PARAMS, this.parameters);
-			PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (this.parameters as unknown) as JsonObject);
+			PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_CONFIGS", this.parameters);
 		}, {deep:true});
 	}
 
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public openHeat():void {
@@ -222,9 +220,9 @@ class OverlayParamsBitswall extends Vue {
 			bits:Utils.pickRand([115, 410, 715, 1510, 5210, 18410]),
 			pinned:pinLevel > -1,
 			pinLevel:pinLevel - 1,
-		} as JsonObject;
+		};
 
-		PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
+		PublicAPI.instance.broadcast("ON_BITS", wsMessage);
 	}
 
 	/**
@@ -236,7 +234,7 @@ class OverlayParamsBitswall extends Vue {
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
 		if(this.param_cristalEffect.value !== true) return;
 
-		let filterTarget = await OBSWebsocket.instance.getCurrentScene();
+		let filterTarget = await OBSWebSocket.instance.getCurrentScene();
 
 		const filterSettings = {
 			"effect": "displacement_map_source",
@@ -255,13 +253,13 @@ class OverlayParamsBitswall extends Vue {
 						filterSettings
 					};
 		try {
-			await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+			await OBSWebSocket.instance.socket.call("CreateSourceFilter", params);
 		}catch(error) {
 			this.shaderstasticError = true;
 			//Remove browser source created before
-			const sceneItem = await OBSWebsocket.instance.searchSceneItemId(data.sourceName, filterTarget);
+			const sceneItem = await OBSWebSocket.instance.searchSceneItemId(data.sourceName, filterTarget);
 			if(sceneItem) {
-				await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:filterTarget});
+				await OBSWebSocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:filterTarget});
 			}
 
 			await this.$nextTick();

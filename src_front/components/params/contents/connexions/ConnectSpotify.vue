@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';

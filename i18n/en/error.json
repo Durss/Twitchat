@@ -61,11 +61,9 @@
 		"patreon_denied": "You refused to grant access to your Patreon profile",
 		"patreon_disconected": "Your Patreon account has been disconected",
 		"badge_file_loading_failed": "Something went wrong loading the given image",
-		"max_custom_usernames": "You've reached the maximum of {COUNT} custom user name count you can set. Become premium to set up to 10000 custom user names.",
-		"max_custom_badges": "You've reached the maximum of {COUNT} custom badges you can create. Become premium to create up to 100 custom badges.",
-		"max_custom_badges_given": "You've reached the maximum of {COUNT} users with custom badges. Become premium to give custom badges to up to 10000 users.",
-		"max_custom_heat_screen": "You've reached the maximum of {COUNT} custom heat screens. Become premium to create up to 100 custom screens.",
-		"max_values": "You've reached the maximum of {COUNT} values. Become premium to create up to 100 values.",
+		"max_custom_usernames": "You've reached the maximum of {MAX} custom user name count you can set. Become premium to set up to {MAX_PREMIUM} custom user names.",
+		"max_custom_badges": "You've reached the maximum of {MAX} custom badges you can create. Become premium to create up to {MAX_PREMIUM} custom badges.",
+		"max_custom_badges_given": "You've reached the maximum of {MAX} users with custom badges. Become premium to give custom badges to up to {MAX_PREMIUM} users.",
 		"paypal": {
 			"GIFTED_USER_NOT_FOUND": "The user you're making the gift to was not found.",
 			"paypal_sdk_init_failed": "Paypal SDK initialization failed.",
@@ -125,6 +123,7 @@
 		"spoil_action": "Something went wrong when asking to spoil the message on streamer's chat",
 		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it.",
 		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account",
-		"streamSocket_connect_failed": "Could not connect with Twitch extension.\nMake sure you installed it on your channel and that you set proper secret."
+			"streamSocket_connect_failed": "Could not connect with Twitch extension.\nMake sure you installed it on your channel and that you set proper secret.",
+			"streamFog_connect_failed": "Could not connect with Streamfog."
 	}
 }

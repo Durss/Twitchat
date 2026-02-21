@@ -5,7 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
-import OBSWebsocket from "@/utils/OBSWebsocket";
+import OBSWebSocket from "@/utils/OBSWebSocket";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { TwitchChannelModerateV2Scopes, TwitchScopes } from "@/utils/twitch/TwitchScopes";
@@ -14,6 +14,7 @@ import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
+import TTSUtils from "@/utils/TTSUtils";
 /**
 * Created : 26/09/2022
 */
@@ -355,7 +356,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/__stopobsstream__") {
-			OBSWebsocket.instance.stopStreaming();
+			OBSWebSocket.instance.stopStreaming();
 			return true;
 		}else
 
@@ -487,7 +488,31 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/ttsoff" || cmd == "/tts") {
+		if(cmd == "/tts") {
+			const message = params.join(" ").trim();
+			if(!message) return false;
+
+			const uid = StoreProxy.auth.twitch.user.id;
+			const chunks = TwitchUtils.parseMessageToChunks(message);
+			const m:TwitchatDataTypes.MessageChatData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitchat",
+				channel_id: uid,
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				user: StoreProxy.users.getUserFrom("twitch", uid, uid),
+				message: message,
+				message_chunks: chunks,
+				message_html: TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
+				answers: [],
+				is_short:false,
+			};
+			TTSUtils.instance.readNow(m);
+			return true
+		}else
+
+		if(cmd == "/ttsuser") {
 			const username = params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
 				const res = await TwitchUtils.getUserInfo(undefined, [username]);
@@ -504,7 +529,7 @@ export default class MessengerProxy {
 					StoreProxy.chat.addMessage(notice);
 				}else{
 					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0]!.login, res[0]!.display_name, undefined, undefined, false, undefined, false);
-					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
+					StoreProxy.tts.ttsReadUser(user);
 				}
 			}catch(error) {}
 			return true;
@@ -569,7 +594,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/clearobscache") {
-			await OBSWebsocket.instance.clearSourceTransformCache();
+			await OBSWebSocket.instance.clearSourceTransformCache();
 			return true;
 		}else
 
@@ -876,7 +901,7 @@ export default class MessengerProxy {
 				answers:[],
 				message_size:0,
 			}
-			StoreProxy.main.chatAlert = messageData;
+			StoreProxy.main.executeChatAlert(messageData);
 
 			//Execute trigger
 			const trigger:TwitchatDataTypes.MessageChatAlertData = {

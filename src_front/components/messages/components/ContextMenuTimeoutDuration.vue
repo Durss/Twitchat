@@ -6,7 +6,7 @@
 <template>
 	<form :class="classes" @click="onClick()" @submit.prevent="">
 		<div class="field" @keyup.enter.capture="timeoutUser"><input type="text" v-model="duration">s</div>
-		<button @click="timeoutUser" class="submit" type="submit"><Icon name="checkmark" alt="check" theme="light" /></button>
+		<button @click="timeoutUser" class="submit" type="submit"><span class="icon" v-html="CheckmarkIcon" /></button>
 	</form>
 </template>
 
@@ -17,10 +17,10 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import ContextMenu from "@imengyu/vue3-context-menu";
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import CheckmarkIcon from '@/assets/icons/checkmark.svg?raw';
 
 @Component({
 	components:{
-		Icon,
 	},
 	emits:[],
 })
@@ -35,6 +35,10 @@ class ContextMenuTimeoutDuration extends Vue {
 	public duration:number = 600;
 	public classes:string[] = [];
 	public disabled:boolean = false;
+
+	public get CheckmarkIcon():string {
+		return CheckmarkIcon;
+	}
 
 	public mounted():void {
 		this.disabled = !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]);
@@ -112,8 +116,21 @@ export default toNative(ContextMenuTimeoutDuration);
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		padding: .25em;
+		color: var(--color-text);
 		.icon {
 			height: .8em;
+			display: inline-block;
+			:deep(svg) {
+				width: auto;
+				height: 100%;
+				max-width: 100%;
+				max-height: 100%;
+				object-fit: cover;
+				display: block;
+				* {
+					fill: currentColor !important;
+				}
+			}
 		}
 	}
 }

@@ -2,23 +2,16 @@
 	<div class="overlayparamsdonationgoal overlayParamsSection">
 		<div class="header">{{ $t("donation_goals.header") }}</div>
 
-		<!-- <a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
-			<Icon name="newtab" theme="light" />
-		</a> -->
-
 		<div class="createForm">
 			<TTButton class="addBt"
-			v-if="$store.auth.isPremium || $store.donationGoals.overlayList.length < $config.MAX_DONATION_GOALS"
+			v-if="!maxOverlaysReached"
 			@click="addGrid()" icon="add">{{ $t("donation_goals.create_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.donationGoals.overlayList.length > $config.MAX_DONATION_GOALS_PREMIUM">{{ $t("donation_goals.premium_limit") }}</div>
-
-			<div class="premium" v-else>
-				<div>{{ $t("donation_goals.non_premium_limit", {MAX:$config.MAX_DONATION_GOALS_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else
+				label="donation_goals.non_premium_limit"
+				premiumLabel="donation_goals.premium_limit"
+				:max="$config.MAX_DONATION_GOALS"
+				:maxPremium="$config.MAX_DONATION_GOALS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="overlayList"
@@ -42,11 +35,9 @@
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="duplicateGrid(overlay.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
-						<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
-						<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="duplicateGrid(overlay.id)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
+					<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
+					<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
 				</template>
 
 				<div class="form">
@@ -219,6 +210,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 import DurationForm from '@/components/DurationForm.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -230,6 +222,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		DurationForm,
 		VueDraggable,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })
@@ -259,11 +252,8 @@ class OverlayParamsDonationGoal extends Vue {
 	private prevSimulatedAmount = 0;
 
 	public get maxOverlaysReached():boolean {
-		if(this.$store.auth.isPremium) {
-			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS_PREMIUM;
-		}else{
-			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS;
-		}
+		const max = this.$store.auth.isPremium ? this.$config.MAX_DONATION_GOALS_PREMIUM : this.$config.MAX_DONATION_GOALS;
+		return this.$store.donationGoals.overlayList.length >= max;
 	}
 
 	/**
@@ -568,14 +558,6 @@ export default toNative(OverlayParamsDonationGoal);
 
 	.createForm {
 		text-align: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			.button {
-				margin-top: .5em;
-			}
-		}
 	}
 
 	.form, .goalItemList {
@@ -634,25 +616,6 @@ export default toNative(OverlayParamsDonationGoal);
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-			}
-		}
-
-		.leftActions {
-			align-self: stretch;
-		}
-
-		.rightActions, .leftActions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			flex-shrink: 0;
-			.button {
-				margin: -.5em 0;
-				align-self: stretch;
-				border-radius: 0;
-				flex-shrink: 0;
-				padding: 0 .5em;
 			}
 		}
 
@@ -718,16 +681,15 @@ export default toNative(OverlayParamsDonationGoal);
 
 			.copyIdBt {
 				position: absolute;
-				top: 0;
-				left: 0;
+				top: -.5em;
+				left: -.5em;
 				z-index: 1;
 				border-radius: var(--border-radius);
-				transform: translate(-25%, -25%);
 				opacity: 0;
 			}
 
 			&:hover {
-				background-color: var(--background-color-fader);
+				background-color: var(--background-color-secondary);
 				.copyIdBt {
 					opacity: 1;
 				}

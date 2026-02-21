@@ -1,6 +1,5 @@
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
-import TwitchatEvent from "@/events/TwitchatEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import Database from "@/store/Database";
@@ -12,7 +11,6 @@ import { h, reactive, type RendererElement, type RendererNode, type VNode } from
 import ApiHelper from "./ApiHelper";
 import Config from "./Config";
 import LandeWorker from "./LandeWorker";
-import PublicAPI from "./PublicAPI";
 import TriggerUtils from "./TriggerUtils";
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";

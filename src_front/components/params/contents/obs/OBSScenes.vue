@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -31,7 +31,7 @@ class OBSScenes extends Vue {
 	public sceneParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, {sceneIndex:number, sceneName:string}>[] = [];
 
 	public mounted():void {
-		watch(()=> OBSWebsocket.instance.connected.value, () => {
+		watch(()=> OBSWebSocket.instance.connected.value, () => {
 			this.listScenes();
 		});
 		this.listScenes();
@@ -46,7 +46,7 @@ class OBSScenes extends Vue {
 
 	private async listScenes():Promise<void> {
 		this.sceneParams = []
-		const res = await OBSWebsocket.instance.getScenes();
+		const res = await OBSWebSocket.instance.getScenes();
 		const storedScenes = this.$store.obs.sceneCommands;
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};

@@ -2,12 +2,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 
 const countdownTO:Record<string, string> = {};
 const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
@@ -102,7 +102,7 @@ export const storeTimer = defineStore('timer', {
 			/**
 			 * Called when timer overlay requests for a timer info
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
+			PublicAPI.instance.addEventListener("GET_TIMER", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -113,6 +113,27 @@ export const storeTimer = defineStore('timer', {
 					}
 				}
 			});
+
+
+			const timerAddHandler = (event:TwitchatEvent<"SET_TIMER_ADD" | "SET_COUNTDOWN_ADD">)=> {
+				const durationStr = event.data?.value ?? "0";
+				const type:TwitchatDataTypes.TimerData["type"] = event.type == "SET_TIMER_ADD" ? "timer" : "countdown";
+				const defaultTimer = this.timerList.find(v=>v.type == type && v.isDefault);
+				const timerId = event.data?.id || defaultTimer?.id;
+				const timer = this.timerList.find(v=>v.id == timerId);
+				const durationMs = isNaN(parseInt(durationStr))? 0 : parseFloat(durationStr) * 1000;
+				if(!timer) return;
+				if(durationMs > 0) {
+					this.timerAdd(timer.id, durationMs);
+				}else{
+					this.timerRemove(timer.id, -durationMs);
+				}
+			}
+
+			PublicAPI.instance.addEventListener("SET_TIMER_ADD", timerAddHandler);
+			PublicAPI.instance.addEventListener("SET_COUNTDOWN_ADD", timerAddHandler);
+
+			PublicAPI.instance.addEventListener("GET_TIMER_LIST", ()=> this.broadcastTimerList());
 		},
 
 		broadcastStates(id?:string) {
@@ -120,11 +141,11 @@ export const storeTimer = defineStore('timer', {
 				if(id && entry.id !== id) continue;
 
 				if(entry.type === "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+					PublicAPI.instance.broadcast("ON_TIMER_START", entry);
 				}
 
 				if(entry.type === "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_START", entry);
 				}
 			}
 		},
@@ -143,7 +164,7 @@ export const storeTimer = defineStore('timer', {
 				startAt_ms:0,
 				offset_ms:0,
 				pauseDuration_ms:0,
-				duration_ms:0,
+				duration_ms:60_000,
 				overlayParams: getDefaultStyle(),
 			}
 			this.timerList.push(data);
@@ -206,7 +227,7 @@ export const storeTimer = defineStore('timer', {
 			}
 			if(message) StoreProxy.chat.addMessage(message);
 
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -217,9 +238,8 @@ export const storeTimer = defineStore('timer', {
 				entry.offset_ms += duration;
 			}else if(entry.type == "countdown") {
 				entry.duration_ms += duration;
-				this.broadcastStates();
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -234,7 +254,7 @@ export const storeTimer = defineStore('timer', {
 				entry.duration_ms -= duration;
 				if(entry.duration_ms < 0) entry.duration_ms = 0;
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -244,7 +264,7 @@ export const storeTimer = defineStore('timer', {
 			entry.paused = true;
 			entry.pausedAt_ms = Date.now();
 			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -259,7 +279,7 @@ export const storeTimer = defineStore('timer', {
 					entry.pauseDuration_ms += Date.now() - (entry.pausedAt_ms || 0);
 				}
 				entry.pausedAt_ms = 0;
-				this.broadcastStates();
+				this.broadcastStates(id);
 				this.saveData();
 			}else{
 				this.timerStart(id);
@@ -289,7 +309,7 @@ export const storeTimer = defineStore('timer', {
 						stopped:true,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
 					break;
 				}
 				case "countdown":{
@@ -316,7 +336,7 @@ export const storeTimer = defineStore('timer', {
 						finalDuration_str,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 					break;
 				}
 			}
@@ -332,9 +352,9 @@ export const storeTimer = defineStore('timer', {
 			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 			if(entry.startAt_ms) {
 				if(entry.type == "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
 				}else if(entry.type == "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 				}
 			}
 			delete entry.pausedAt_ms
@@ -364,6 +384,7 @@ export const storeTimer = defineStore('timer', {
 					this.timerStop(entry.id);
 				}, this.getTimerComputedValue(entry.id).duration_ms);
 			}
+			this.broadcastTimerList();
 		},
 
 		getTimerComputedValue(id:string):{duration_ms:number, duration_str:string} {
@@ -402,6 +423,25 @@ export const storeTimer = defineStore('timer', {
 			}
 
 			return {duration_ms:0, duration_str:""}
+		},
+
+		broadcastTimerList() {
+			PublicAPI.instance.broadcast("ON_TIMER_LIST", {
+				timerList:this.timerList.map(c=> ({
+					id:c.id,
+					title:c.title,
+					enabled:c.enabled,
+					type:c.type,
+					duration_ms:c.duration_ms,
+					offset_ms:c.offset_ms,
+					paused:c.paused,
+					pauseDuration_ms:c.pauseDuration_ms,
+					startAt_ms:c.startAt_ms,
+					endAt_ms:c.endAt_ms,
+					pausedAt_ms:c.pausedAt_ms,
+					isDefault:c.isDefault,
+				}
+			))});
 		}
 	} as ITimerActions
 	& ThisType<ITimerActions

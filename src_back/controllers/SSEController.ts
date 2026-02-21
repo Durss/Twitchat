@@ -16,7 +16,7 @@ declare module 'fastify' {
 */
 export default class SSEController extends AbstractController {
 
-	private static uidToResponse:{[key:string]:{pingTimeout?:NodeJS.Timeout, connection:FastifyReply}[]} = {};
+	private static uidToResponse:{[key:string]:{pingTimeout?:NodeJS.Timeout, connection:FastifyReply, isMainApp:boolean}[]} = {};
 
 	constructor(public server:FastifyInstance) {
 		super();
@@ -46,7 +46,7 @@ export default class SSEController extends AbstractController {
 				console.log("Sending SERVER_UPDATE to", uid);
 				SSEController.sendToUser(uid, "SERVER_UPDATE", {delay: 5000 + i * 50});
 			});
-			Logger.info("Sent SERVER_UPDATE to", keys.length, "users");
+			Logger.info("Sent SERVER_UPDATE to", keys.length.toString(), "users");
 
 			await Utils.promisedTimeout(3000);
 			if (options.cleanup) console.log('clean');
@@ -77,7 +77,6 @@ export default class SSEController extends AbstractController {
 				exitHandler({}, 0);
 			}
 		});
-
 	}
 
 	/**
@@ -97,7 +96,7 @@ export default class SSEController extends AbstractController {
 	}
 
 	public static countUserConnexions(uid:string):number {
-		return this.uidToResponse[uid]? this.uidToResponse[uid].length : 0;
+		return this.uidToResponse[uid]? this.uidToResponse[uid].filter(v=>v.isMainApp).length : 0;
 	}
 
 
@@ -114,7 +113,7 @@ export default class SSEController extends AbstractController {
 	 */
 	private async postRegisterSSE(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		response.sse({id:"connecting", data:JSON.stringify({success:true, code:SSECode.CONNECTING})});
-		const queryParams = request.query as any;
+		const queryParams = request.query as {token: string, mainApp?:string};
 		const userInfo = await TwitchUtils.getUserFromToken(queryParams.token);
 		if(!userInfo) {
 			response.sse({id:"error", data:JSON.stringify({success:true, code:SSECode.AUTHENTICATION_FAILED})});
@@ -122,28 +121,34 @@ export default class SSEController extends AbstractController {
 		}
 
 		if(!SSEController.uidToResponse[userInfo.user_id]) SSEController.uidToResponse[userInfo.user_id] = [];
-		const params:typeof SSEController.uidToResponse["string"][number] = {connection:response};
-		SSEController.uidToResponse[userInfo.user_id].push(params);
+		const params:typeof SSEController.uidToResponse["string"][number] = {connection:response, isMainApp: !!queryParams.mainApp};
+		SSEController.uidToResponse[userInfo.user_id]!.push(params);
 		SSEController.schedulePing(params);
 
-		response.sse({id:"connect", data:JSON.stringify({success:true, code:SSECode.CONNECTED})});
+		request.socket.on('close', ()=>this.closeConnection(userInfo.user_id, response));
+		request.socket.on('connectionAttemptFailed', () => this.closeConnection(userInfo.user_id, response))
+		request.socket.on('connectionAttemptTimeout', () => this.closeConnection(userInfo.user_id, response))
+		request.socket.on('timeout', () => this.closeConnection(userInfo.user_id, response))
+		request.socket.on('end', () => this.closeConnection(userInfo.user_id, response))
 
-		request.socket.on('close', ()=>{
-			const connexions = SSEController.uidToResponse[userInfo.user_id];
-			if(!connexions) return;
-			for (let i = 0; i < connexions.length; i++) {
-				const params = connexions[i];
-				if(params.connection == response) {
-					//Stop ping
-					clearInterval(params.pingTimeout)
-					connexions.splice(i, 1);
-					i--;
-				}
+		response.sse({id:"connect", data:JSON.stringify({success:true, code:SSECode.CONNECTED})});
+	}
+
+	private closeConnection(uid:string, response:FastifyReply):void {
+		const connexions = SSEController.uidToResponse[uid];
+		if(!connexions) return;
+		for (let i = 0; i < connexions.length; i++) {
+			const params = connexions[i]!;
+			if(params.connection == response) {
+				//Stop ping
+				clearInterval(params.pingTimeout)
+				connexions.splice(i, 1);
+				i--;
 			}
-			if(connexions.length === 0) {
-				delete SSEController.uidToResponse[userInfo.user_id];
-			}
-		});
+		}
+		if(connexions.length === 0) {
+			delete SSEController.uidToResponse[uid];
+		}
 	}
 
 	/**
@@ -164,28 +169,30 @@ export default class SSEController extends AbstractController {
 }
 
 export const SSECode = {
-	PING:"PING" as const,
-	CONNECTED:"CONNECTED" as const,
-	CONNECTING:"CONNECTING" as const,
-	KO_FI_EVENT:"KO_FI_EVENT" as const,
-	KO_FI_DELETE_WEBHOOK:"KO_FI_DELETE_WEBHOOK" as const,
-	KO_FI_FAILED_WEBHOOK:"KO_FI_FAILED_WEBHOOK" as const,
-	NOTIFICATION:"NOTIFICATION" as const,
-	TRIGGER_SLASH_COMMAND:"TRIGGER_SLASH_COMMAND" as const,
-	AUTHENTICATION_FAILED:"AUTHENTICATION_FAILED" as const,
-	BINGO_GRID_CELL_STATES:"BINGO_GRID_CELL_STATES" as const,
-	BINGO_GRID_BINGO_COUNT:"BINGO_GRID_BINGO_COUNT" as const,
-	BINGO_GRID_UPDATE:"BINGO_GRID_UPDATE" as const,
-	BINGO_GRID_UNTICK_ALL:"BINGO_GRID_UNTICK_ALL" as const,
-	BINGO_GRID_MODERATOR_TICK:"BINGO_GRID_MODERATOR_TICK" as const,
-	SHARED_MOD_INFO_REQUEST:"SHARED_MOD_INFO_REQUEST" as const,
-	QNA_STATE:"QNA_STATE" as const,
-	QNA_ACTION:"QNA_ACTION" as const,
-	LABELS_UPDATE:"LABELS_UPDATE" as const,
-	SPOIL_MESSAGE:"SPOIL_MESSAGE" as const,
-	TILTIFY_EVENT:"TILTIFY_EVENT" as const,
-	PATREON_MEMBER_CREATE:"PATREON_MEMBER_CREATE" as const,
-	PRIVATE_MOD_MESSAGE:"PRIVATE_MOD_MESSAGE" as const,
-	SERVER_UPDATE:"SERVER_UPDATE" as const,
-	PRIVATE_MOD_MESSAGE_ANSWER:"PRIVATE_MOD_MESSAGE_ANSWER" as const,
-}
+	PING:"PING",
+	CONNECTED:"CONNECTED",
+	CONNECTING:"CONNECTING",
+	KO_FI_EVENT:"KO_FI_EVENT",
+	KO_FI_DELETE_WEBHOOK:"KO_FI_DELETE_WEBHOOK",
+	KO_FI_FAILED_WEBHOOK:"KO_FI_FAILED_WEBHOOK",
+	NOTIFICATION:"NOTIFICATION",
+	TRIGGER_SLASH_COMMAND:"TRIGGER_SLASH_COMMAND",
+	AUTHENTICATION_FAILED:"AUTHENTICATION_FAILED",
+	BINGO_GRID_CELL_STATES:"BINGO_GRID_CELL_STATES",
+	BINGO_GRID_BINGO_COUNT:"BINGO_GRID_BINGO_COUNT",
+	BINGO_GRID_UPDATE:"BINGO_GRID_UPDATE",
+	BINGO_GRID_UNTICK_ALL:"BINGO_GRID_UNTICK_ALL",
+	BINGO_GRID_MODERATOR_TICK:"BINGO_GRID_MODERATOR_TICK",
+	SHARED_MOD_INFO_REQUEST:"SHARED_MOD_INFO_REQUEST",
+	QNA_STATE:"QNA_STATE",
+	QNA_ACTION:"QNA_ACTION",
+	LABELS_UPDATE:"LABELS_UPDATE",
+	SPOIL_MESSAGE:"SPOIL_MESSAGE",
+	TILTIFY_EVENT:"TILTIFY_EVENT",
+	PATREON_MEMBER_CREATE:"PATREON_MEMBER_CREATE",
+	PRIVATE_MOD_MESSAGE:"PRIVATE_MOD_MESSAGE",
+	SERVER_UPDATE:"SERVER_UPDATE",
+	PRIVATE_MOD_MESSAGE_ANSWER:"PRIVATE_MOD_MESSAGE_ANSWER",
+	TWITCHEXT_CLICK:"TWITCHEXT_CLICK",
+	TWITCHEXT_QUIZ_ANSWER:"TWITCHEXT_QUIZ_ANSWER",
+} as const

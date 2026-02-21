@@ -1,14 +1,13 @@
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import { type UnwrapRef } from 'vue';
-import type { IEndingCreditsActions, IEndingCreditsGetters, IEndingCreditsState } from '../StoreProxy';
-import DataStore from '../DataStore';
-import Utils from '@/utils/Utils';
-import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '../StoreProxy';
-import TriggerUtils from '@/utils/TriggerUtils';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TriggerUtils from '@/utils/TriggerUtils';
+import Utils from '@/utils/Utils';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from "type-fest";
+import { type UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
+import type { IEndingCreditsActions, IEndingCreditsGetters, IEndingCreditsState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 let debounce:number = -1;
 
@@ -59,7 +58,6 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 		async saveParams():Promise<void> {
 			clearTimeout(debounce);
 			debounce = window.setTimeout(async() => {
-				console.log("SAVE")
 				this.overlayData.fontTitle = this.overlayData.fontTitle ?? "Inter";
 				this.overlayData.fontEntry = this.overlayData.fontEntry ?? "Inter";
 	
@@ -78,7 +76,7 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 						slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 					}
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (result as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("ON_ENDING_CREDITS_CONFIGS", result);
 			}, 50);
 		}
 	} as IEndingCreditsActions

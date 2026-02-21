@@ -6,7 +6,7 @@
 		"add_goal_bt": "Ajouter un objectif",
 		"simulate_bt": "Simuler la progression",
 		"premium_limit": "Vous avez atteint le maxium de goals que vous pouvez créer.",
-		"non_premium_limit": "@:donation_goals.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} goals.",
+		"non_premium_limit": "@:donation_goals.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX_PREMIUM} goals.",
 		"default_title": "Objectifs",
 		"tiltify_not_connected": "Veuillez connecter Twitchat à Tiltify",
 		"tiltify_no_campaign": "Votre compte Tiltify n'est lié à aucune campagne de récolte de dons",
@@ -45,7 +45,7 @@
 		"import_streamlabs_step2": "Collez l'URL ci-dessous puis importez les objectifs de dons",
 		"import_streamlabs_complete": "Les objectifs ont été importé depuis Streamlabs Charity et ajoutés à la liste de vos objectifs",
 		"delete_confirm": {
-			"description": "L'overlay d'objectifs sera supprimé\nThis cannot be undone.",
+			"description": "L'overlay d'objectifs sera supprimé\nCette action est irréversible.",
 			"title": "Supprimer les objectifs ?"
 		}
 	}

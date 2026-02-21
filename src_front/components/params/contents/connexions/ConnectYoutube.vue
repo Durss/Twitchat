@@ -25,7 +25,7 @@
 						</div>
 					</div>
 				</template>
-				<template v-else>
+				<template v-else-if="!refreshing">
 					<div class="card-item secondary noLive">{{ $t("connexions.youtube.no_live") }}</div>
 				</template>
 
@@ -105,7 +105,7 @@ class ConnectYoutube extends Vue {
 	public param_scope_read:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"whispers", value:true, labelKey:"connexions.youtube.scope_read", disabled:true};
 	public param_scope_moderate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"mod", value:false, labelKey:"connexions.youtube.scope_moderate"};
 
-	public get connected():boolean { return YoutubeHelper.instance.connected && !this.requestNewScopes; }
+	public get connected():boolean { return YoutubeHelper.instance.connected.value && !this.requestNewScopes; }
 	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveChatIds; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
 

@@ -15,7 +15,8 @@
 			"closeConfirm": {
 				"title": "End Poll",
 				"message": "Are you sure you want to end the poll?"
-			}
+			},
+			"overlay_name":"Poll"
 		}
 	}
 }

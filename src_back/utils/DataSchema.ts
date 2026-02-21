@@ -131,6 +131,7 @@ const UserDataSchema = {
 							joinCount: { type: "number" },
 							user: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									id: { type: "string", maxLength:100 },
 									channel_id: { type: "string", maxLength:100 },
@@ -139,6 +140,7 @@ const UserDataSchema = {
 							},
 							tip: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									amount: {
 										anyOf:[
@@ -190,13 +192,15 @@ const UserDataSchema = {
 					maxItems:1000,
 					items:{
 						type: "object",
+						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							label: { type: "string", maxLength:300 },
 							score: { type: "number" },
 							joinCount: { type: "number" },
 							user: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									id: { type: "string", maxLength:100 },
 									channel_id: { type: "string", maxLength:100 },
@@ -205,6 +209,7 @@ const UserDataSchema = {
 							},
 							tip: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									amount: {
 										anyOf:[
@@ -294,17 +299,15 @@ const UserDataSchema = {
 				},
 				votes: {
 					type:"object",
-					additionalProperties: true,
-					patternProperties: {
-						".{0,100}": {
-							type: "object",
-							additionalProperties: false,
-							properties: {
-								platform: {type:"string", maxLength:15},
-								index:{type:"number", minimum:0, maximum:1000},
-							}
-						},
-					}
+					propertyNames: { maxLength: 100 },
+					additionalProperties: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							platform: {type:"string", maxLength:15},
+							index:{type:"number", minimum:0, maximum:1000},
+						}
+					},
 				},
 			}
 		}
@@ -316,6 +319,7 @@ const UserDataSchema = {
 		obsConnectionEnabled: {type:"boolean"},
 		obsConf_muteUnmute: {
 			type:"object",
+			additionalProperties: false,
 			properties: {
 				audioSourceName:{type:"string", maxLength:500},
 				muteCommand:{type:"string", maxLength:500},
@@ -419,6 +423,7 @@ const UserDataSchema = {
 									},
 					scheduleParams: {
 						type:"object",
+						additionalProperties: false,
 						properties: {
 							type: {type:"string", maxLength:10},
 							repeatDuration: {type:"number", minimum:0, maximum:48*60000},
@@ -442,6 +447,7 @@ const UserDataSchema = {
 					},
 					cooldown: {
 						type:"object",
+						additionalProperties: false,
 						properties: {
 							global: {type:"integer", minimum:0, maximum:60*60*12},
 							user: {type:"integer", minimum:0, maximum:60*60*12},
@@ -1602,10 +1608,7 @@ const UserDataSchema = {
 				voiceIndicator: {type:"boolean"},
 				commandToVoiceID:{
 					type:"object",
-					additionalProperties: true,
-					patternProperties: {
-						".*": {type:"string", maxLength:100},
-					}
+					additionalProperties: {type:"string", maxLength:100},
 				},
 				chatCmdPerms:{ $ref: "defs.json#/definitions/permissions" },
 			}
@@ -1683,32 +1686,24 @@ const UserDataSchema = {
 					},
 					filters:{
 						type:"object",
-						additionalProperties: true,
-						patternProperties: {
-							".*": { type:"boolean" }
-						}
+						additionalProperties: { type:"boolean" },
 					},
 					messageFilters:{
 						type:"object",
-						additionalProperties: true,
-						patternProperties: {
-							".*": { type:"boolean" }
-						}
+						additionalProperties: { type:"boolean" },
 					},
 					channelIDs: {
 						type:"object",
-						additionalProperties: true,
+						propertyNames: { minLength: 1, maxLength: 100 },
 						maxProperties:100,
-						patternProperties: {
-							".{1,100}": {
-								type:"object",
-								additionalProperties: false,
-								properties: {
-									platform: { type:"string", maxLength:30 },
-									date: { type:"number", minimum:0, maximum:4121027331000 },
-								}
+						additionalProperties: {
+							type:"object",
+							additionalProperties: false,
+							properties: {
+								platform: { type:"string", maxLength:30 },
+								date: { type:"number", minimum:0, maximum:4121027331000 },
 							}
-						}
+						},
 					},
 				}
 			}
@@ -1730,22 +1725,19 @@ const UserDataSchema = {
 					perUser: {type:"boolean"},
 					users: {
 						type:"object",
-						additionalProperties: true,
-						patternProperties: {
-							".*": {
-								anyOf: [
-									{type:"string", maxLength:100000},
-									{
-										type:"object",
-										additionalProperties: false,
-										properties:{
-											login: {type:"string", maxLength:100},
-											platform: {type:"string", maxLength:40},
-											value: {type:"string", maxLength:100000},
-										}
+						additionalProperties: {
+							anyOf: [
+								{type:"string", maxLength:100000},
+								{
+									type:"object",
+									additionalProperties: false,
+									properties:{
+										login: {type:"string", maxLength:100},
+										platform: {type:"string", maxLength:40},
+										value: {type:"string", maxLength:100000},
 									}
-								],
-							}
+								}
+							],
 						}
 					}
 				}
@@ -1781,22 +1773,19 @@ const UserDataSchema = {
 					perUser: {type:"boolean"},
 					users: {
 						type:"object",
-						additionalProperties: true,
-						patternProperties: {
-							".*": {
-								anyOf: [
-									{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-									{
-										type:"object",
-										additionalProperties: false,
-										properties:{
-											login: {type:"string", maxLength:100},
-											platform: {type:"string", maxLength:40},
-											value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-										}
+						additionalProperties: {
+							anyOf: [
+								{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								{
+									type:"object",
+									additionalProperties: false,
+									properties:{
+										login: {type:"string", maxLength:100},
+										platform: {type:"string", maxLength:40},
+										value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 									}
-								],
-							}
+								}
+							],
 						}
 					}
 				}
@@ -1991,8 +1980,6 @@ const UserDataSchema = {
 							currency: {type:"string", maxLength:5},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
-							customHTML: {type:"boolean"},
-							htmlTemplate: {type:"string", maxLength:5000},
 							text: {type:"string", maxLength:1000},
 							rewardIds: {
 								type:"array",
@@ -2266,15 +2253,12 @@ const UserDataSchema = {
 				},
 				cachedValues: {
 					type:"object",
-					additionalProperties: true,
-					patternProperties: {
-						".*": {
-							anyOf:[
-								{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								{type:"string", maxLength:10000},
-							]
-						},
-					}
+					additionalProperties: {
+						anyOf:[
+							{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"string", maxLength:10000},
+						]
+					},
 				},
 			}
 		},
@@ -2347,6 +2331,7 @@ const UserDataSchema = {
 			maxItems:20,
 			items:{
 				type: "object",
+				additionalProperties: false,
 				properties: {
 					sessionId: { type: "string" },
 					mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
@@ -2367,13 +2352,15 @@ const UserDataSchema = {
 						maxItems:1000,
 						items:{
 							type: "object",
+							additionalProperties: false,
 							properties: {
-								id: { type: "string" },
+								id: { type: "string", maxLength:50 },
 								label: { type: "string", maxLength:300 },
 								score: { type: "number" },
 								joinCount: { type: "number" },
 								user: {
 									type: "object",
+									additionalProperties: false,
 									properties: {
 										id: { type: "string", maxLength:100 },
 										channel_id: { type: "string", maxLength:100 },
@@ -2382,6 +2369,7 @@ const UserDataSchema = {
 								},
 								tip: {
 									type: "object",
+									additionalProperties: false,
 									properties: {
 										amount: {
 											anyOf:[
@@ -2411,25 +2399,36 @@ const UserDataSchema = {
 					tip_streamelements: { type: "boolean" },
 					tip_tipeee: { type: "boolean" },
 					tip_tiltify: { type: "boolean" },
+					tip_twitchCharity: { type: "boolean" },
 					tip_kofi_minAmount: { type: "number", minimum:0, maximum:999999 },
 					tip_streamlabs_minAmount: { type: "number", minimum:0, maximum:999999 },
 					tip_streamlabsCharity_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_streamlements_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamelements_minAmount: { type: "number", minimum:0, maximum:999999 },
 					tip_tipeee_minAmount: { type: "number", minimum:0, maximum:999999 },
 					tip_tiltify_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_twitchCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
+					tip_kofi_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_streamlabs_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_streamlabsCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_streamelements_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_tipeee_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_tiltify_ponderate: {type:"integer", minimum:0, maximum:999999},
+					tip_twitchCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
 					winners: {
 						type:"array",
 						minItems:0,
 						maxItems:1000,
 						items:{
 							type: "object",
+							additionalProperties: false,
 							properties: {
-								id: { type: "string" },
+								id: { type: "string", maxLength:50 },
 								label: { type: "string", maxLength:300 },
 								score: { type: "number" },
 								joinCount: { type: "number" },
 								user: {
 									type: "object",
+									additionalProperties: false,
 									properties: {
 										id: { type: "string", maxLength:100 },
 										channel_id: { type: "string", maxLength:100 },
@@ -2438,6 +2437,7 @@ const UserDataSchema = {
 								},
 								tip: {
 									type: "object",
+									additionalProperties: false,
 									properties: {
 										amount: {
 											anyOf:[
@@ -2453,9 +2453,11 @@ const UserDataSchema = {
 					},
 					messages: {
 						type: "object",
+						additionalProperties: false,
 						properties: {
 							raffleStart: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									enabled: { type: "boolean" },
 									message: { type: "string", maxLength:500 }
@@ -2463,6 +2465,7 @@ const UserDataSchema = {
 							},
 							raffleJoin: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									enabled: { type: "boolean" },
 									message: { type: "string", maxLength:500 }
@@ -2470,6 +2473,7 @@ const UserDataSchema = {
 							},
 							raffleWinner: {
 								type: "object",
+								additionalProperties: false,
 								properties: {
 									enabled: { type: "boolean" },
 									message: { type: "string", maxLength:500 }
@@ -2567,10 +2571,10 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							isDefault: { type: "boolean" },
-							title: { type: "string" },
+							title: { type: "string", maxLength:50 },
 							type: { enum: ["timer", "countdown"] },
 							placeholderKey: { type: "string", maxLength:50 },
 							startAt_ms: { type: "number", nullable: true },
@@ -2613,7 +2617,7 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							title: { type: "string", maxLength:30 },
 							animStyle: { type: "string", maxLength:20 },
@@ -2641,16 +2645,16 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							id: { type: "string" },
+							id: { type: "string", maxLength:50 },
 							enabled: { type: "boolean" },
 							testing: { type: "boolean" },
-							title: { type: "string" },
-							levelName: { type: "string" },
-							colorFill: { type: "string" },
-							colorBg: { type: "string" },
-							textFont: { type: "string" },
+							title: { type: "string", maxLength:30 },
+							levelName: { type: "string", maxLength:10 },
+							colorFill: { type: "string", maxLength:10 },
+							colorBg: { type: "string", maxLength:10 },
+							textFont: { type: "string", maxLength:100 },
 							textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
-							currency: { type: "string" },
+							currency: { type: "string", maxLength:10 },
 							approachEventCount: { type: "number", minimum:2, maximum:5 },
 							triggerEventCount: { type: "number", minimum:2, maximum:11 },
 							cooldownDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
@@ -2658,22 +2662,22 @@ const UserDataSchema = {
 							expires_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							coolDownEnd_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							postLevelUpOnChat: { type: "boolean" },
-							postLevelUpChatMessage: { type: "string" },
+							postLevelUpChatMessage: { type: "string", maxLength:500 },
 							postSuccessOnChat: { type: "boolean" },
-							postSuccessChatMessage: { type: "string" },
-							levelUpLabel: { type: "string" },
-							approachingLabel: { type: "string" },
-							approachingEmote: { type: "string" },
-							failedLabel: { type: "string" },
-							failedEmote: { type: "string" },
-							successLabel: { type: "string" },
-							successLabelSummary: { type: "string" },
-							successEmote: { type: "string" },
-							recordLabel: { type: "string" },
-							recordEmote: { type: "string" },
-							recordColorFill: { type: "string" },
-							recordColorBg: { type: "string" },
-							levelUpEmote: { type: "string" },
+							postSuccessChatMessage: { type: "string", maxLength:500 },
+							levelUpLabel: { type: "string", maxLength:100 },
+							approachingLabel: { type: "string", maxLength:100 },
+							approachingEmote: { type: "string", maxLength:300 },
+							failedLabel: { type: "string", maxLength:100 },
+							failedEmote: { type: "string", maxLength:300 },
+							successLabel: { type: "string", maxLength:100 },
+							successLabelSummary: { type: "string", maxLength:200 },
+							successEmote: { type: "string", maxLength:300 },
+							recordLabel: { type: "string", maxLength:100 },
+							recordEmote: { type: "string", maxLength:300 },
+							recordColorFill: { type: "string", maxLength:10 },
+							recordColorBg: { type: "string", maxLength:10 },
+							levelUpEmote: { type: "string", maxLength:300 },
 							levelAmounts: {
 											type:"array",
 											minItems:0,
@@ -2707,6 +2711,197 @@ const UserDataSchema = {
 						}
 					}
 				},
+			}
+		},
+
+		streamDeckConfigs: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				ip: {type:"string", maxLength:100},
+				secretKey: {type:"string", maxLength:50},
+			}
+		},
+
+		quizConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				quizList: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type: "object",
+						discriminator: { propertyName: "mode" },
+						oneOf: [
+							{
+								additionalProperties: false,
+								properties: {
+									id: { type: "string", maxLength:50 },
+									title: { type: "string", maxLength:100 },
+									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
+									mode: { const: "classic" },
+									loosePointsOnFail: { type: "boolean" },
+									timeBasedScoring: { type: "boolean" },
+									enabled: { type: "boolean" },
+									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
+									questionList: {
+										type: "array",
+										minItems: 0,
+										maxItems: 100,
+										items: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: { type: "string", maxLength:50 },
+												question: { type: "string", maxLength:300 },
+												duration_s: { type: "integer" },
+												loosePointsOnFail: { type: "number" },
+												answerList: {
+													type: "array",
+													items: {
+														type: "object",
+														additionalProperties: false,
+														properties: {
+															id: { type: "string", maxLength:50 },
+															title: { type: "string", maxLength:130 },
+															correct: { type: "boolean" }
+														}
+													}
+												}
+											}
+										}
+									}
+								},
+								required: ["mode"]
+							},
+							{
+								additionalProperties: false,
+								properties: {
+									id: { type: "string", maxLength:50 },
+									title: { type: "string", maxLength:100 },
+									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
+									mode: { const: "majority" },
+									loosePointsOnFail: { type: "boolean" },
+									timeBasedScoring: { type: "boolean" },
+									enabled: { type: "boolean" },
+									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
+									questionList: {
+										type: "array",
+										minItems: 0,
+										maxItems: 100,
+										items: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: { type: "string", maxLength:50 },
+												question: { type: "string", maxLength:300 },
+												duration_s: { type: "integer" },
+												answerList: {
+													type: "array",
+													items: {
+														type: "object",
+														additionalProperties: false,
+														properties: {
+															id: { type: "string", maxLength:50 },
+															title: { type: "string", maxLength:130 }
+														}
+													}
+												}
+											}
+										}
+									}
+								},
+								required: ["mode"]
+							},
+							{
+								additionalProperties: false,
+								properties: {
+									id: { type: "string", maxLength:50 },
+									title: { type: "string", maxLength:100 },
+									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
+									mode: { const: "freeAnswer" },
+									loosePointsOnFail: { type: "boolean" },
+									timeBasedScoring: { type: "boolean" },
+									enabled: { type: "boolean" },
+									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+									quizStarted_at: { type: "string", maxLength:150 },
+									currentQuestionId: { type: "string", maxLength:50 },
+									questionStarted_at: { type: "string", maxLength:150 },
+									questionList: {
+										type: "array",
+										minItems: 0,
+										maxItems: 100,
+										items: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												id: { type: "string", maxLength:50 },
+												question: { type: "string", maxLength:300 },
+												duration_s: { type: "integer" },
+												toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+												answer: { type: "string", maxLength:130 },
+											}
+										}
+									}
+								},
+								required: ["mode"]
+							}
+						]
+					}
+				},
+				liveState: {
+					type: "object",
+					nullable: true,
+					additionalProperties: false,
+					properties: {
+						quizId: { type: "string", maxLength: 50 },
+						users: {
+							type: "object",
+							propertyNames: { maxLength: 50 },
+							additionalProperties: {
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									name: { type: "string", maxLength: 100 },
+									score: { type: "number" },
+								},
+							},
+						},
+						questionVotes: {
+							type: "object",
+							propertyNames: { maxLength: 50 },
+							additionalProperties: {
+								type: "array",
+								minItems: 0,
+								maxItems: 100000,
+								items: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										uid: { type: "string", maxLength: 50 },
+										answer: { type: "string", maxLength: 500 },
+									},
+								},
+							},
+						},
+					},
+				}
+			}
+		},
+
+		streamFogConfigs: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				userId: {type:"string", maxLength:50},
 			}
 		},
 	}

@@ -1,6 +1,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import { reactive } from "vue";
+import { reactive, type Reactive } from "vue";
 import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
 
 /**
@@ -8,7 +8,7 @@ import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
  */
 export default class Config {
 
-	private static _instance:Config;
+	private static _instance:Reactive<Config>;
 
 	/**
 	 * Defines automatic skin changes based on Streamlabs Charity teams and dates
@@ -80,6 +80,7 @@ export default class Config {
 	public NEW_FLAGS_DATE_V16_1 = new Date("05 15 2025 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime()
+	public NEW_FLAGS_DATE_V17 = new Date("03 05 2026 01:00:00").getTime()
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -251,6 +252,22 @@ export default class Config {
 	 * Maximum number of custom trains for premium users
 	 */
 	public MAX_CUSTOM_TRAIN_PREMIUM = 10;
+	/**
+	 * Maximum number of quizs
+	 */
+	public MAX_QUIZ = 1;
+	/**
+	 * Maximum number of quizs for premium users
+	 */
+	public MAX_QUIZ_PREMIUM = 10;
+	/**
+	 * Maximum number of quizs
+	 */
+	public MAX_QUESTIONS_PER_QUIZ = 20;
+	/**
+	 * Maximum number of quizs for premium users
+	 */
+	public MAX_QUESTIONS_PER_QUIZ_PREMIUM = 100;
 
 	private _serverConfig!:ServerConfig;
 
@@ -261,9 +278,9 @@ export default class Config {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():Config {
+	static get instance():Reactive<Config> {
 		if(!Config._instance) {
-			Config._instance = reactive(new Config()) as Config;
+			Config._instance = reactive(new Config());
 		}
 		return Config._instance;
 	}
@@ -349,6 +366,14 @@ export default class Config {
 	 * Tiltify scopes
 	 */
 	public get TILTIFY_SCOPES():string { return this._serverConfig.tiltify_scopes; }
+	/**
+	 * Twitch Extension ID
+	 */
+	public get TWITCH_EXTENSION_VERSION():string { return this._serverConfig.twitchExtension_version; }
+	/**
+	 * Twitch Extension ID
+	 */
+	public get TWITCH_EXTENSION_ID():string { return this._serverConfig.twitchExtension_client_id; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -478,4 +503,6 @@ export interface ServerConfig {
 	tipeee_redirect_uri:string;
 	tiltify_client_id:string;
 	tiltify_scopes:string;
+	twitchExtension_version:string;
+	twitchExtension_client_id:string;
 }

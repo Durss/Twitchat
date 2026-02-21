@@ -14,16 +14,13 @@
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="canCreateCounters">{{ $t('counters.addBt') }}</TTButton>
+			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{ $t('counters.addBt') }}</TTButton>
 
-			<div class="card-item premium premiumLimit" v-else-if="$store.auth.isPremium">
-				<span>{{$t("counters.nonpremium_limit", {MAX:$config.MAX_COUNTERS, MAX_PREMIUM:$config.MAX_COUNTERS_PREMIUM})}}</span>
-				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</div>
-
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS_PREMIUM})}}</span>
-			</div>
+			<PremiumLimitMessage v-else
+				label="counters.nonpremium_limit"
+				premiumLabel="counters.premium_limit"
+				:max="$config.MAX_COUNTERS"
+				:maxPremium="$config.MAX_COUNTERS_PREMIUM" />
 		</section>
 
 		<section class="card-item primary examples" v-if="!showForm && counterEntries.length == 0">
@@ -59,21 +56,24 @@
 					:key="entry.counter.id"
 					:title="entry.counter.name">
 
+						<template #left_actions>
+							<ToggleButton v-model="entry.counter.enabled"*
+								@click.stop
+								@change="$store.counters.saveCounters()"
+								v-if="($store.auth.isPremium && entry.counter.enabled === false)
+								|| (!$store.auth.isPremium && (entry.counter.enabled == true || canEnableMore))" />
+						</template>
+
 						<template #right_actions>
-							<div class="actions">
-								<template v-if="entry.counter.enabled !== false">
-									<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
-									<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
-									<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
-									<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-									<TTButton class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
-								</template>
-								<div class="toggle" v-else @click="toggleCounterState(entry.counter)">
-									<ToggleButton v-model="entry.counter.enabled" />
-								</div>
-								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteCounter(entry)" />
-								<TTButton class="actionBt" @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							</div>
+							<template v-if="entry.counter.enabled !== false">
+								<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
+								<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
+								<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
+								<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+								<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" data-close-popout />
+							</template>
+							<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+							<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
 						</template>
 
 						<div class="content">
@@ -169,6 +169,7 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import PremiumLimitMessage from '../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -179,6 +180,7 @@ import type IParameterContent from './IParameterContent';
 		InfiniteList,
 		ToggleButton,
 		OverlayCounter,
+		PremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -221,10 +223,17 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", maxLength:20, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
-	public get canCreateCounters():boolean {
-		if(this.$store.auth.isPremium) return true;
+	public get maxReached():boolean {
+		const count = this.$store.counters.counterList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+		return count >= max;
+	}
+
+	public get canEnableMore():boolean {
+		if(this.$store.auth.isPremium) return false;
 		const count = this.$store.counters.counterList.filter(v=>v.enabled != false).length;
-		return count < this.$config.MAX_COUNTERS;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+		return count < max;
 	}
 
 	public openTriggers():void {
@@ -243,7 +252,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
-
 
 		watch(()=> this.param_title.value, ()=> {
 			const counters = this.$store.counters.counterList;
@@ -283,13 +291,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public onNavigateBack(): boolean { return false; }
-
-	/**
-	 * Opens the premium page
-	 */
-	public openPremium():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
 
 	/**
 	 * Create a new counter
@@ -550,7 +551,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
-			if(YoutubeHelper.instance.connected) {
+			if(YoutubeHelper.instance.connected.value) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
 					youtubeUsers.forEach((user) => {
@@ -695,20 +696,6 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	/**
-	 * A counter can be disabled if the user created more counters than allowed
-	 * if not also premium. In which case they're invited to disable some counters.
-	 * @param counter
-	 */
-	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
-		if(!this.canCreateCounters) {
-			this.$store.common.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
-		}else{
-			counter.enabled = true;
-			this.$store.counters.saveCounters();
-		}
-	}
-
-	/**
 	 * Called when counters are sorted
 	 * Applies the sorting to original cata array
 	 */
@@ -813,11 +800,6 @@ export default toNative(ParamsCounters);
 
 	.premiumLimit {
 		text-align: center;
-		.button {
-			display: flex;
-			margin: auto;
-			margin-top: .5em;
-		}
 	}
 
 	.entryList {
@@ -831,39 +813,22 @@ export default toNative(ParamsCounters);
 		width: calc(100% - 2em);
 		max-width: 400px;
 		margin: auto;
-		.actions {
-			gap: .25em;
+		.toggle {
+			background-color: var(--color-alert);
+			height: 100%;
 			display: flex;
-			flex-direction: row;
 			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
+			padding: 0 .5em;
+			&:hover {
+				background-color: var(--color-alert-light);
 			}
-			.toggle {
-				background-color: var(--color-alert);
-				height: 100%;
-				display: flex;
-				align-items: center;
-				padding: 0 .5em;
-				&:hover {
-					background-color: var(--color-alert-light);
-				}
-				* {
-					pointer-events: none;
-				}
+			* {
+				pointer-events: none;
 			}
-			.icon {
-				height: 1em;
-				margin-left: .5em;
-			}
+		}
+		.icon {
+			height: 1em;
+			margin-left: .5em;
 		}
 		:deep(h2) {
 			text-align: left;
@@ -875,7 +840,8 @@ export default toNative(ParamsCounters);
 			display: flex;
 			flex-direction: row;
 			cursor: default;
-			img {
+			align-self: center;
+			.icon {
 				height: 1em;
 			}
 		}

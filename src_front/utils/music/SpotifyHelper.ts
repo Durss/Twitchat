@@ -1,4 +1,3 @@
-import TwitchatEvent from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
@@ -583,7 +582,7 @@ export default class SpotifyHelper {
 						params: StoreProxy.music.musicPlayerParams,
 						skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 					}
-					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
+					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
 				}
 
 				this._lastTrackInfo = {
@@ -606,8 +605,8 @@ export default class SpotifyHelper {
 					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_COVER", "");
 
-					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
-						params: (StoreProxy.music.musicPlayerParams as unknown) as JsonObject,
+					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", {
+						params: StoreProxy.music.musicPlayerParams,
 					});
 
 					//Broadcast to the triggers
@@ -754,7 +753,7 @@ export default class SpotifyHelper {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>{
+		PublicAPI.instance.addEventListener("GET_CURRENT_TRACK", ()=>{
 			if(!this._lastTrackInfo) return;
 			const apiData = {
 				trackName: this._lastTrackInfo.track.title,
@@ -765,7 +764,7 @@ export default class SpotifyHelper {
 				params: StoreProxy.music.musicPlayerParams,
 				skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
+			PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
 		});
 	}
 

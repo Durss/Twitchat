@@ -6,15 +6,14 @@
 		<div class="createForm">
 
 			<TTButton class="addBt"
-			v-if="$store.auth.isPremium || $store.labels.labelList.length < $config.MAX_LABELS"
+			v-if="!maxLabelsReached"
 			@click="addLabel()" icon="add">{{ $t("overlay.labels.addBt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.labels.labelList.length < $config.MAX_LABELS_PREMIUM">{{ $t("overlay.labels.premium_limit") }}</div>
-
-			<div class="premium" v-else>
-				<div>{{ $t("overlay.labels.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else
+				label="overlay.labels.non_premium_limit"
+				premiumLabel="overlay.labels.premium_limit"
+				:max="$config.MAX_LABELS"
+				:maxPremium="$config.MAX_LABELS_PREMIUM" />
 		</div>
 
 		<VueDraggable class="labelList"
@@ -32,16 +31,12 @@
 			@update:title="save(label)">
 
 				<template #left_actions>
-					<div class="leftActions">
-						<ToggleButton v-model="label.enabled" @click.native.stop @change="save(label)" v-if="$store.auth.isPremium || label.enabled || $store.labels.labelList.filter(v=>v.enabled).length < $config.MAX_LABELS" />
-					</div>
+					<ToggleButton v-model="label.enabled" @click.native.stop @change="save(label)" v-if="$store.auth.isPremium || label.enabled || $store.labels.labelList.filter(v=>v.enabled).length < $config.MAX_LABELS" />
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="duplicateLabel(label)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
-						<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
-					</div>
+					<TTButton @click.stop="duplicateLabel(label)" data-close-popout icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
+					<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
 				</template>
 
 				<div class="form">
@@ -88,7 +83,7 @@
 <script lang="ts">
 import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import { type LabelItemData } from '@/types/ILabelOverlayData';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -96,6 +91,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ParamItem } from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -106,6 +102,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		ToggleButton,
 		VueDraggable,
 		OverlayInstaller,
+		PremiumLimitMessage,
 	},
 	emits:[],
 })
@@ -125,11 +122,8 @@ class OverlayParamsLabels extends Vue {
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get maxLabelsReached():boolean {
-		if(this.$store.auth.isPremium) {
-			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS_PREMIUM;
-		}else{
-			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS;
-		}
+		const max = this.$store.auth.isPremium ? this.$config.MAX_LABELS_PREMIUM : this.$config.MAX_LABELS;
+		return this.$store.labels.labelList.length >= max;
 	}
 
 	public beforeMount():void {
@@ -241,34 +235,6 @@ export default toNative(OverlayParamsLabels);
 .overlayparamslabels{
 	.createForm {
 		text-align: center;
-		.premium {
-			background-color: var(--color-premium);
-			border-radius: var(--border-radius);
-			padding: .5em;
-			white-space: pre-line;
-			.button {
-				margin-top: .5em;
-			}
-		}
-	}
-
-	.leftActions {
-		align-self: stretch;
-	}
-
-	.rightActions, .leftActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
-		}
 	}
 
 	.labelList, .form {

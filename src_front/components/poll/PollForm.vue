@@ -6,7 +6,7 @@
 		</div>
 
 		<div class="content">
-			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
+			<VoiceGlobalCommandsHelper v-if="voiceController" class="voiceHelper" />
 
 			<div class="presets" v-if="pollHistory.length > 0">
 				<TTButton @click="selectPreset(item)" v-for="item in pollHistory" v-tooltip="'•'+item.options.join('\n•')+'\n('+item.duration+'s)'">{{item.title}}</TTButton>
@@ -61,6 +61,7 @@ import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
 import DataStore from '@/store/DataStore';
+import VoiceController from '@/utils/voice/VoiceController';
 
 @Component({
 	components:{
@@ -73,9 +74,6 @@ import DataStore from '@/store/DataStore';
 	emits:['close']
 })
 class PollForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public voiceControl!:boolean;
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -98,7 +96,7 @@ class PollForm extends AbstractSidePanel {
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public pollHistory:{title:string, duration:number, options:string[], channelPoints:number}[] = [];
 
-	private voiceController!:FormVoiceControllHelper;
+	public voiceController!:FormVoiceControllHelper;
 
 	public async beforeMount():Promise<void> {
 
@@ -140,8 +138,8 @@ class PollForm extends AbstractSidePanel {
 	}
 
 	public async mounted():Promise<void> {
-		watch(()=>this.voiceControl, ()=>{
-			if(this.voiceControl && !this.voiceController) {
+		watch(()=>VoiceController.instance.started.value, ()=>{
+			if(VoiceController.instance.started.value && !this.voiceController) {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});

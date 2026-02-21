@@ -63,9 +63,9 @@ class OverlayChatHighlight extends Vue {
 	public params:TwitchatDataTypes.ChatHighlightParams|null = null;
 	public loadingClip:boolean = true;
 
-	private showMessageHandler!:(e:TwitchatEvent)=>void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
-	private showClipHandler!:(e:TwitchatEvent)=>void;
+	private showMessageHandler!:(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE">)=>void;
+	private overlayPresenceHandler!:(e:TwitchatEvent<"GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE">)=>void;
+	private showClipHandler!:(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_CLIP">)=>void;
 	private dateOffset:number = 0;
 	private clipPercent:number = 0;
 	private dateTimeout:number = -1;
@@ -97,10 +97,10 @@ class OverlayChatHighlight extends Vue {
 		// 		"position":"bl"
 		// 	}
 		// };
-		// this.onShowMessage(new TwitchatEvent(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, json));
+		// this.onShowMessage(new TwitchatEvent("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", json));
 
 		//Display a debug clip
-		// this.onShowClip(new TwitchatEvent(TwitchatEvent.SHOW_CLIP,{
+		// this.onShowClip(new TwitchatEvent("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP",{
 		// 	params:{position:"bl"},
 		// 	clip:{
 		// 		"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
@@ -122,25 +122,25 @@ class OverlayChatHighlight extends Vue {
 		// 	}
 		// }));
 		
-		this.showMessageHandler = (e:TwitchatEvent)=>this.onShowMessage(e);
-		this.showClipHandler = (e:TwitchatEvent)=>this.onShowClip(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE); }
+		this.showMessageHandler = (e)=>this.onShowMessage(e);
+		this.showClipHandler = (e)=>this.onShowClip(e);
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, this.showMessageHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE, this.overlayPresenceHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SHOW_CLIP, this.showClipHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", this.showMessageHandler);
+		PublicAPI.instance.addEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", this.showClipHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, this.showMessageHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE, this.overlayPresenceHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOW_CLIP, this.showClipHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", this.showMessageHandler);
+		PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", this.showClipHandler);
 	}
 
-	private async onShowMessage(e:TwitchatEvent):Promise<void> {
+	private async onShowMessage(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE">):Promise<void> {
 		await this.hideCurrent();
 
-		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		const data = e.data;
 		
 		if(!data) return;
 		
@@ -158,22 +158,18 @@ class OverlayChatHighlight extends Vue {
 			await this.$nextTick();
 			this.showCurrent();
 		}
-
-		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CONFIRM);
 	}
 
-	private async onShowClip(e:TwitchatEvent):Promise<void> {
+	private async onShowClip(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_CLIP">):Promise<void> {
 		await this.hideCurrent();
 		this.loadingClip = true;
 
-		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		const data = e.data;
 		this.clipData = data.clip!;
 		this.params = data.params!;
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;
-
-		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CONFIRM);
 	}
 
 	public onIFrameLoaded(e:unknown):void {
@@ -193,7 +189,7 @@ class OverlayChatHighlight extends Vue {
 				
 				if(this.clipPercent >= 1) {
 					clearInterval(this.progressBarInterval);
-					PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, {}, true);
+					PublicAPI.instance.broadcast("ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE");
 				}
 			}, 50);
 		}, 500);
@@ -213,7 +209,7 @@ class OverlayChatHighlight extends Vue {
 			
 			if(this.clipPercent >= 1) {
 				clearInterval(this.progressBarInterval);
-				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CLOSE, {}, true);
+				PublicAPI.instance.broadcast("ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE");
 			}
 		}, 50);
 	}

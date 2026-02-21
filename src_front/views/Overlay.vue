@@ -18,17 +18,16 @@
 		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
 		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
 		<OverlayCustomTrain v-else-if="overlay=='customtrain'" />
+		<OverlayQuiz v-else-if="overlay=='quiz'" />
 	</div>
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Utils from '@/utils/Utils';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
 import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
-import { type OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 const OverlayBitsWall = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBitsWall.vue')})
 const OverlayHeatDebug = defineAsyncComponent({loader: () => import('../components/overlays/OverlayHeatDebug.vue')});
 const OverlayEndingCredits = defineAsyncComponent({loader: () => import('../components/overlays/OverlayEndingCredits.vue')});
@@ -47,9 +46,11 @@ const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/compo
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
 const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayCustomTrain.vue')});
+const OverlayQuiz = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayQuiz.vue')});
 
 @Component({
 	components:{
+		OverlayQuiz,
 		OverlayPoll,
 		OverlayUlule,
 		OverlayTimer,
@@ -106,7 +107,6 @@ class Overlay extends Vue {
 		const py = event.detail.y * document.body.clientHeight;
 
 		const player = this.$refs.music as ComponentPublicInstance;
-		const bingoGrid = this.$refs.bingoGrid as OverlayBingoGridClass;
 
 		//Check if it matches the player's bounds
 		if(this.overlay === "unified" && player) {
@@ -116,19 +116,7 @@ class Overlay extends Vue {
 			px <= bounds.right &&
 			py >= bounds.top &&
 			py <= bounds.bottom) {
-				PublicAPI.instance.broadcast(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, event.detail);
-			}
-		}
-
-		//Check if clicking on bingo grid to tick cells
-		if(bingoGrid) {
-			const bounds = bingoGrid.$el.getBoundingClientRect();
-			// Check if the point is over the player
-			if(px >= bounds.left &&
-			px <= bounds.right &&
-			py >= bounds.top &&
-			py <= bounds.bottom) {
-				bingoGrid.onHeatClick(event.detail, px, py);
+				PublicAPI.instance.broadcast("ON_MUSIC_PLAYER_HEAT_CLICK", event.detail);
 			}
 		}
 	}

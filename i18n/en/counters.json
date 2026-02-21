@@ -1,0 +1,51 @@
+{
+	"counters": {
+		"header": "Create custom counters, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your stream.",
+		"header_link_trigger": "the triggers",
+		"header_link_overlay": "display them",
+		"addBt": "Create counter",
+		"editBt": "Edit counter",
+		"min_tt":"Min",
+		"max_tt":"Max",
+		"loop_tt":"Loop value",
+		"user_tt":"Per user",
+		"examples":"Examples :",
+		"user_not_found":"user not found",
+		"connect_youtube":"Twitchat is not connected with YouTube.\nYouTube user info cannot be retrieved.",
+		"connect_youtubeBt":"Connect YouTube.",
+		"nonpremium_limit": "You created the maximum number of {MAX} counters. Become premium to create up to {MAX_PREMIUM} counters. Or disable / delete some counters to create new ones.",
+		"premium_limit": "You created the maximum number of {MAX} counters.",
+		"form": {
+			"name": "Name",
+			"value": "Value",
+			"more": "More options",
+			"placholder": "Custom placeholder name {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder_tt": "This value will allow you<br>to get this counter's value<br>in any trigger action",
+			"placholder_conflict": "Another counter already uses this placeholder",
+			"name_conflict": "Another counter with the same name already exists",
+			"value_min": "Min value",
+			"value_max": "Max value",
+			"value_loop": "Loop value when reaching min or max",
+			"value_user": "Every user has their own counter",
+			"load_all_users": "Load all users",
+			"clear_all_users": "Delete all users",
+			"reset_all_users": "Reset all users",
+			"no_users": "no user yet",
+			"search":"Search user...",
+			"sort_name":"Name",
+			"sort_points":"Points"
+		},
+		"delete_confirm": {
+			"title": "Delete?",
+			"desc": "Counter's data will be lost."
+		},
+		"reset_users_confirm":{
+			"title": "Reset?",
+			"desc": "Reset all users to zero?"
+		},
+		"delete_users_confirm":{
+			"title": "Delete?",
+			"desc": "Delete all users?"
+		}
+	}
+}

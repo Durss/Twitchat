@@ -1,8 +1,8 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 import HeatEvent from "@/events/HeatEvent";
 import StoreProxy from "@/store/StoreProxy";
-import { reactive } from "vue";
-import OBSWebsocket from "../OBSWebsocket";
+import { ref } from "vue";
+import OBSWebSocket from "../OBSWebSocket";
 
 /**
 * Created : 21/06/2023 
@@ -15,7 +15,7 @@ export default class HeatSocket extends EventDispatcher {
 	private socketIndex:number = 0;
 	private reconnectTimeout:number = -1;
 
-	public connected:boolean = false;
+	public connected = ref(false)
 	
 	constructor() {
 		super();
@@ -26,7 +26,7 @@ export default class HeatSocket extends EventDispatcher {
 	********************/
 	static get instance():HeatSocket {
 		if(!HeatSocket._instance) {
-			HeatSocket._instance = reactive(new HeatSocket()) as HeatSocket;
+			HeatSocket._instance = new HeatSocket()
 			HeatSocket._instance.initialize();
 		}
 		return HeatSocket._instance;
@@ -56,7 +56,7 @@ export default class HeatSocket extends EventDispatcher {
 			this.ws.addEventListener('open', () => {
 				if(localSocketIndex != this.socketIndex) {console.log("IGNORE OPEN"); return;}
 				
-				this.connected = true;
+				this.connected.value = true;
 				console.log(`Connection open to Heat API server, channel ${channelId}.`);
 			});
 	
@@ -85,7 +85,7 @@ export default class HeatSocket extends EventDispatcher {
 	
 				if(localSocketIndex != this.socketIndex) {console.log("IGNORE ERROR"); return;}
 				
-				this.connected = false;
+				this.connected.value = false;
 			});
 	
 			// Handle close and reconnect.
@@ -95,7 +95,7 @@ export default class HeatSocket extends EventDispatcher {
 	
 				if(localSocketIndex != this.socketIndex) {console.log("IGNORE CLOSE"); return;}
 	
-				this.connected = false;
+				this.connected.value = false;
 				this.ws = null
 				this.reconnectTimeout = window.setTimeout(() => { this.connect(channelId); }, 1000)
 			});
@@ -123,7 +123,7 @@ export default class HeatSocket extends EventDispatcher {
 	public disconnect():void {
 		if(!this.ws) return;
 
-		this.connected = false;
+		this.connected.value = false;
 		this.socketIndex ++;
 		this.ws.close();
 		this.ws = null;
@@ -145,7 +145,7 @@ export default class HeatSocket extends EventDispatcher {
 		};
 		//@ts-ignore
 		window.clearOBSCache = ():void => {
-			OBSWebsocket.instance.clearSourceTransformCache();
+			OBSWebSocket.instance.clearSourceTransformCache();
 		};
 	}
 }

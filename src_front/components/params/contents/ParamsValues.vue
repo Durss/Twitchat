@@ -11,12 +11,13 @@
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="canCreateValues" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_create'}">{{ $t('values.addBt') }}</TTButton>
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
-			<template v-else>
-				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
-				<TTButton slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</template>
+			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{ $t('values.addBt') }}</TTButton>
+
+			<PremiumLimitMessage v-else
+				label="values.nonpremium_limit"
+				premiumLabel="values.premium_limit"
+				:max="$config.MAX_VALUES"
+				:maxPremium="$config.MAX_VALUES_PREMIUM" />
 		</section>
 
 		<section class="card-item" v-if="showForm">
@@ -48,12 +49,18 @@
 					:key="entry.value.id"
 					:title="entry.value.name">
 
+						<template #left_actions>
+							<ToggleButton v-model="entry.value.enabled"
+								@click.stop
+								@change="$store.values.saveValues()"
+								v-if="($store.auth.isPremium && entry.value.enabled === false)
+								|| (!$store.auth.isPremium && (entry.value.enabled == true || canEnableMore))" />
+						</template>
+
 						<template #right_actions>
-							<div class="actions">
-								<TTButton class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
-								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteValue(entry)" />
-								<TTButton class="actionBt" @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							</div>
+							<TTButton v-tooltip="$t('values.editBt')" data-close-popout icon="edit" @click.stop="editValue(entry.value)" />
+							<TTButton @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+							<TTButton alert icon="trash" @click.stop="deleteValue(entry)" />
 						</template>
 
 						<div class="content">
@@ -130,19 +137,20 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
 import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { reactive, watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
-import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import draggable from 'vuedraggable';
+import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import { reactive, watch } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import draggable from 'vuedraggable';
+import ParamItem from '../ParamItem.vue';
+import PremiumLimitMessage from '../PremiumLimitMessage.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -150,7 +158,9 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 		draggable,
 		ParamItem,
 		ToggleBlock,
+		ToggleButton,
 		InfiniteList,
+		PremiumLimitMessage,
 	},
 	emits:[]
 })
@@ -168,8 +178,18 @@ class ParamsValues extends Vue implements IParameterContent {
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"values.form.value_user", icon:"user"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", maxLength:20, labelKey:"values.form.placholder", icon:"broadcast", tooltipKey:"values.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
-	public get maxValues():number { return this.$store.auth.isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
-	public get canCreateValues():boolean { return this.$store.values.valueList.length < this.maxValues; }
+	public get maxReached():boolean {
+		const count = this.$store.values.valueList.length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_VALUES_PREMIUM : this.$config.MAX_VALUES;
+		return count >= max;
+	}
+
+	public get canEnableMore():boolean {
+		if(this.$store.auth.isPremium) return false;
+		const count = this.$store.values.valueList.filter(v=>v.enabled != false).length;
+		const max = this.$store.auth.isPremium ? this.$config.MAX_VALUES_PREMIUM : this.$config.MAX_VALUES;
+		return count < max;
+	}
 
 	public openTriggers():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
@@ -478,7 +498,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		//Get YouTube users
 		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
-			if(YoutubeHelper.instance.connected) {
+			if(YoutubeHelper.instance.connected.value) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
 					youtubeUsers.forEach((user) => {
@@ -710,23 +730,6 @@ export default toNative(ParamsValues);
 		width: calc(100% - 2em);
 		max-width: 400px;
 		margin: auto;
-		.actions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
-			}
-		}
 		:deep(h2) {
 			text-align: left;
 			margin-right: 1em;

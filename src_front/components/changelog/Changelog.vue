@@ -124,7 +124,7 @@ import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import TTButton, {TTButton as TTButtonClass} from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';

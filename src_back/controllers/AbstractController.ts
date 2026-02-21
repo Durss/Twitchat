@@ -4,6 +4,7 @@ import Config from '../utils/Config.js';
 import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import type { PatreonMember } from "./PatreonController.js";
 import Logger from "../utils/Logger.js";
+import Utils from "../utils/Utils.js";
 
 /**
 * Created : 14/12/2022
@@ -56,14 +57,14 @@ export default class AbstractController {
 		if(fs.existsSync(Config.earlyDonors)) {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
-				AbstractController._earlyDonors[uids[i]] = true;
+				AbstractController._earlyDonors[uids[i]!] = true;
 			}
 		}
 
 		if(fs.existsSync(Config.giftedPremium)) {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.giftedPremium, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
-				AbstractController._giftedPremium[uids[i]] = true;
+				AbstractController._giftedPremium[uids[i]!] = true;
 			}
 		}
 
@@ -134,7 +135,7 @@ export default class AbstractController {
 		if(userInfo === false) return false;
 		let uid = userInfo.user_id;
 
-		if(this.getUserPremiumState(uid) === "no") {
+		if(await this.getUserPremiumState(uid) === "no") {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
 			response.send(JSON.stringify({message:"You're not allowed to call this premium-only endpoint", errorCode:"NOT_PREMIUM", success:false}));
@@ -147,7 +148,7 @@ export default class AbstractController {
 	 * Get if given user ID is premium or not
 	 * @param uid
 	 */
-	protected getUserPremiumState(uid:string):typeof this.premiumState_cache[number]["type"] {
+	protected async getUserPremiumState(uid:string):Promise<typeof this.premiumState_cache[number]["type"]> {
 		const cache = this.premiumState_cache[uid];
 		if(cache != undefined && cache.date < Date.now()) return cache.type;
 		let premiumType:typeof this.premiumState_cache[number]["type"] = "no";
@@ -163,12 +164,12 @@ export default class AbstractController {
 		}
 
 		//Check if user is part of active patreon members
-		if(premiumType == "no" && fs.existsSync(Config.twitch2Patreon)) {
+		if(premiumType == "no" && await fs.promises.access(Config.twitch2Patreon).then(() => true).catch(() => false)) {
 			//Get patreon member ID from twitch user ID
-			const jsonMap = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8"));
+			const jsonMap = JSON.parse(await Utils.readFileAsync(Config.twitch2Patreon, "utf-8"));
 			const memberID = jsonMap[uid];
 			//Get if user is part of the active patreon members
-			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
+			const members = JSON.parse(await Utils.readFileAsync(Config.patreonMembers, "utf-8")) as PatreonMember[];
 			if(members.findIndex(v=>v.id === memberID) > -1) {
 				premiumType = "temporary";
 			}
@@ -180,7 +181,7 @@ export default class AbstractController {
 			const json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
 			const isDonor = json.hasOwnProperty(uid);
 			if(isDonor) {
-				donorAmount = json[uid];
+				donorAmount = json[uid]!;
 			}
 			if(donorAmount >= Config.lifetimeDonorThreshold) {
 				premiumType = "lifetime";
@@ -269,7 +270,7 @@ export default class AbstractController {
 		const dict = AbstractController._dataSharing;
 		for (const sharing in dict) {
 			if(sharing == uid) {
-				res.push(dict[sharing]);
+				res.push(dict[sharing]!);
 			}
 			if(dict[sharing] === uid) {
 				res.push(sharing);
