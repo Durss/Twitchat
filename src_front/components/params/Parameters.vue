@@ -737,6 +737,7 @@ export default toNative(Parameters);
 @media only screen and (max-width: 800px) {
 	.parameters {
 		max-height: var(--vh);
+		z-index: 5;
 		.head {
 			height: 3em;
 			border-bottom: 1px solid var(--color-dark-extralight);

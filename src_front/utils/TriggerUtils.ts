@@ -62,7 +62,7 @@ export default class TriggerUtils {
 	}
 
 	/**
-	 * Gets the label of a trigger
+	 * Gets info about a trigger
 	 * @param trigger
 	 */
 	public static getTriggerDisplayInfo(trigger:TriggerData) {
