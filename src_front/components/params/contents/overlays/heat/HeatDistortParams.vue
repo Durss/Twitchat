@@ -68,7 +68,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
@@ -139,19 +139,19 @@ class HeatDistortParams extends Vue {
 		this.refreshState();
 
 		this.obsEventHandler = ()=> this.refreshState();
-		OBSWebsocket.instance.socket.on("SceneItemCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneItemRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("InputNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SourceFilterRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SourceFilterCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneItemCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneItemRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("InputNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SourceFilterRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SourceFilterCreated", this.obsEventHandler);
 	}
 
 	public beforeUnmount():void{
-		OBSWebsocket.instance.socket.off("SceneItemCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneItemRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("InputNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SourceFilterRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SourceFilterCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneItemCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneItemRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("InputNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SourceFilterRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SourceFilterCreated", this.obsEventHandler);
 	}
 
 	public openHeat():void {
@@ -185,7 +185,7 @@ class HeatDistortParams extends Vue {
 			if(this.modelValue.obsItemPath.source.name) filterTarget = this.modelValue.obsItemPath.source.name;
 			else if(this.modelValue.obsItemPath.groupName) filterTarget = this.modelValue.obsItemPath.groupName;
 			else if(this.modelValue.obsItemPath.sceneName) filterTarget = this.modelValue.obsItemPath.sceneName;
-			const filters = await OBSWebsocket.instance.getSourceFilters(filterTarget);
+			const filters = await OBSWebSocket.instance.getSourceFilters(filterTarget);
 			const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
 			this.overlayInstalled = filter != undefined;
 		}, 100);

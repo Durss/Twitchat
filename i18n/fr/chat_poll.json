@@ -11,7 +11,8 @@
 			"allowMultiVote":"Permettre aux viewers de voter pour {VALUE} réponse maximum|Permettre aux viewers de voter pour {VALUE} réponses maximum"
 		},
 		"state":{
-			"endBt":"Terminer le sondage"
+			"endBt":"Terminer le sondage",
+			"overlay_name":"de Sondage de Tchat"
 		}
 	}
 }

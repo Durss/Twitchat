@@ -14,8 +14,8 @@ export default class QuizController extends AbstractController {
 	 * LRU cache for streamer quizzes with automatic eviction
 	 * Key format: "[uid]/[quizId]"
 	 */
-	private cachedQuizzes = new LRUCache<string, IQuizCacheData>({
-		max: 500,
+	private cachedQuizzes = new LRUCache<string, QuizParams>({
+		max: 10000,
 		ttl: 1000 * 60 * 5, // 5 minutes TTL
 	});
 
@@ -40,7 +40,7 @@ export default class QuizController extends AbstractController {
 	******************/
 	public initialize():QuizController {
 		this.server.get('/api/quiz', async (request, response) => await this.getQuiz(request, response));
-		this.server.put('/api/broadcast', async (request, response) => await this.putBroadcastQuiz(request, response));
+		this.server.put('/api/quiz/broadcast', async (request, response) => await this.putBroadcastQuiz(request, response));
 
 		return this;
 	}
@@ -51,31 +51,25 @@ export default class QuizController extends AbstractController {
 	 * @param quizId Optional quiz ID to filter by
 	 * @returns Quiz cache data or null if not found
 	 */
-	public getStreamerQuizs(uid:string, quizId?:string):IQuizCacheData|null {
-		//Validate UID and quizId to prevent path traversal
-		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) return null
+	public getStreamerQuiz(uid:string, quizId?:string):QuizParams|undefined {
+		//Validate UID and quizId (if provided) to prevent path traversal
+		if(!uid || !/^[0-9]+$/.test(uid)) return undefined;
+		if(quizId && !/^[a-zA-Z0-9_-]+$/.test(quizId)) return undefined;
 
-		const cacheKey = this.getCacheKey(uid, quizId);
-		
 		// Check LRU cache first
-		let cache = this.cachedQuizzes.get(cacheKey);
-		if(cache) return cache;
+		if(this.cachedQuizzes.has(uid)) return this.cachedQuizzes.get(uid);
 		
-		// Cache miss - load from disk
+		// No cache found, load user data from disk and generate cache
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		const found = fs.existsSync(userFilePath);
 		if(found){
 			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {quizConfigs:{quizList:QuizParams[]}};
-			cache = {
-				date: Date.now(),
-				ownerId: uid,
-				data:quizId? [data.quizConfigs.quizList.find(quiz => quiz.id === quizId)!] : data.quizConfigs.quizList,
-			}
-			this.cachedQuizzes.set(cacheKey, cache);
-			return cache;
+			// Get requested quiz (must be enabled) or first enabled one if no quizId provided
+			const quiz = data.quizConfigs.quizList.find(q => q.enabled && (!quizId || q.id === quizId));
+			return this.setCache(uid, quiz);
 		}
-		
-		return null;
+
+		return this.setCache(uid, undefined);
 	}
 	
 	
@@ -92,7 +86,7 @@ export default class QuizController extends AbstractController {
 		const uid:string = user.user_id;
 		const quizId:string = (request.query as any).quizid;
 		
-		const quiz = this.getStreamerQuizs(uid, quizId);
+		const quiz = this.getStreamerQuiz(uid, quizId);
 		if(!quiz) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -102,13 +96,9 @@ export default class QuizController extends AbstractController {
 		
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:quiz.data}));
+		response.send(JSON.stringify({success:true, data:quiz}));
 
 		return;
-	}
-
-	private getCacheKey(uid:string, quizId:string):string {
-		return uid+"/"+quizId;
 	}
 
 	/**
@@ -131,28 +121,41 @@ export default class QuizController extends AbstractController {
 			return;
 		}
 		
-		// Update cache
-		const cacheKey = this.getCacheKey(uid, quizId);
-		const cacheData:IQuizCacheData = {
-			date: Date.now(),
-			ownerId: uid,
-			data: [quiz]
-		};
-		this.cachedQuizzes.set(cacheKey, cacheData);
-		
-		// Broadcast to extension viewers
-		this.extensionController.notifyStateUpdate(uid);
+		this.setCache(uid, quiz);
 		
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true}));
 	}
-}
 
-interface IQuizCacheData {
-	date:number;
-	ownerId:string;
-	data:QuizParams[];
+	/**
+	 * Updates quiz cache and broadcast it to extension viewers
+	 */
+	private setCache(uid:string, quiz?:QuizParams):QuizParams|undefined {
+		if(quiz) {
+			// Don't include correct answers in the cached quiz to prevent cheating by inspecting network traffic
+			if(quiz.mode == "classic") {
+				quiz.questionList.forEach(question => {
+					question.answerList.forEach(answer => {
+						// Don't delete correct answer if question is currently revealed
+						if(quiz.currentQuestionRevealed && quiz.currentQuestionId === question.id) return;
+						delete answer.correct;
+					});
+				});
+			}else 
+			if(quiz.mode == "freeAnswer") {
+				quiz.questionList.forEach(question => {
+					// Don't delete correct answer if question is currently revealed
+					if(quiz.currentQuestionRevealed && quiz.currentQuestionId === question.id) return;
+					delete question.answer
+				});
+			}
+		}
+		this.cachedQuizzes.set(uid, quiz);
+		this.extensionController.notifyStateUpdate(uid);
+
+		return quiz;
+	}
 }
 
 

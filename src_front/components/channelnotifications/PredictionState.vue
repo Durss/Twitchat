@@ -46,6 +46,10 @@
 			<div class="actions">
 				<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</TTButton>
 			</div>
+			
+			<OverlayPresenceChecker
+				:overlayName="$t('prediction.state.overlay_name')"
+				:overlayType="'prediction'" />
 		</div>
 	</div>
 </template>
@@ -57,12 +61,14 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import Icon from '../Icon.vue';
+import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ProgressBar,
+		OverlayPresenceChecker,
 	}
 })
 class PredictionState extends Vue {
@@ -180,7 +186,7 @@ export default toNative(PredictionState);
 		align-self: stretch;
 		margin-left: 1em;
 		color: var(--color-light);
-		margin-top: -1.25em;
+		margin-top: -.8em;
 		margin-bottom: -.25em;
 		pointer-events: none;
 		.arrow {
