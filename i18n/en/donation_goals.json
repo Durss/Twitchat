@@ -1,5 +1,6 @@
 {
 	"donation_goals": {
+		"search_terms":["donation goals", "goals", "donation"],
 		"header": "Create donation, followers or subscribers goals",
 		"install_title": "Install overlay",
 		"create_bt": "New goals",

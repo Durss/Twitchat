@@ -18,7 +18,7 @@
 			</template>
 		</i18n-t>
 
-		<TriggerSearchForm class="searchForm" :debounceDelay="100" v-else-if="subtriggerList.length == 0" v-model="search" />
+		<SearchForm class="searchForm" :debounceDelay="100" v-else-if="subtriggerList.length == 0" v-model="search" />
 
 		<div class="card-item noResult" v-if="search && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 
@@ -115,13 +115,13 @@ import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 import { ANY_VALUE } from '../../../../types/TriggerActionDataTypes';
-import TriggerSearchForm from './TriggerSearchForm.vue';
+import SearchForm from '../SearchForm.vue';
 
 @Component({
 	components:{
 		TTButton:TTButton,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
 		ToggleBlock,
-		TriggerSearchForm,
+		SearchForm,
 		TriggerActionList,
 	},
 	emits:["selectTrigger", "updateHeader"],
