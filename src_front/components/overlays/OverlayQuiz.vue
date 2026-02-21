@@ -30,21 +30,19 @@
 <script setup lang="ts">
 import PublicAPI from '@/utils/PublicAPI';
 import { useOverlayConnector } from './composables/useOverlayConnector';
-import { useRoute } from 'vue-router';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 
-const route = useRoute();
 const quizData = ref<TwitchatDataTypes.QuizParams|null>(null);
-const showAnswers = ref(false);
-const quizId = route.query.twitchat_overlay_id as string ?? "";
 const timeRemaining = ref(3000);
-const seed = parseInt(quizId.replace(/[^0-9]/g, ''), 16) || Date.now();
 const answersVotes = ref<{[answerId: string]: number}>({});
 let timerInterval: number | null = null;
 
+const showAnswers = computed(()=> {
+	return quizData.value?.currentQuestionRevealed ?? false;
+});
 const currentQuestion = computed(()=> {
 	if(!quizData.value) return null;
 	let quizId = quizData.value.currentQuestionId ?? quizData.value.questionList[0]?.id;
@@ -54,6 +52,7 @@ const currentQuestion = computed(()=> {
 
 const answerList = computed(()=> {
 	if(currentQuestion.value && !Utils.isFreeAnswerQuestion(quizData.value!.mode, currentQuestion.value)) {
+		const seed = parseInt(currentQuestion.value!.id.replace(/[^0-9]/g, '').substring(0, 4), 16) || Date.now();
 		const seededRnd = Utils.seededRandom(seed);
 		let a = currentQuestion.value.answerList.concat();
 		for (let i = a.length - 1; i > 0; i--) {
@@ -105,46 +104,29 @@ watch(currentQuestion, (newQuestion) => {
 });
 
 function onConnect() {
-	PublicAPI.instance.broadcast("GET_QUIZ_CONFIGS", { quizId });
+	PublicAPI.instance.broadcast("GET_QUIZ_CONFIGS");
 	advertizePresence();
 }
 
-function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRESENCE", { quizId }); }
+function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRESENCE"); }
 
 /**
  * Called when a quiz config is updated. Update local data.
  * Called when starting quiz, starting next question, etc...
  */
 function onQuizConfigs(e:TwitchatEvent<"ON_QUIZ_CONFIGS">) {
-	// Ignore if its not for local quiz ID
-	if(e.data.id != quizId) return
 	quizData.value = e.data;
-	showAnswers.value = false;
-}
-
-/**
- * Called when asking to reveal the answers.
- */
-function onQuizRevealAnswer(e:TwitchatEvent<"ON_QUIZ_REVEAL_ANSWER">) {
-	if(e.data.quizId != quizId) return;
-	if(!currentQuestion.value) return;
-	showAnswers.value = true;
-	answersVotes.value = e.data.votes;
 }
 
 useOverlayConnector(onConnect);
 
-PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", onConnect);
 PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 PublicAPI.instance.addEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
-PublicAPI.instance.addEventListener("ON_QUIZ_REVEAL_ANSWER", onQuizRevealAnswer);
 
 onBeforeUnmount(() => {
 	if (timerInterval) clearInterval(timerInterval);
-	PublicAPI.instance.removeEventListener("GET_QUIZ_CONFIGS", onConnect);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
-	PublicAPI.instance.removeEventListener("ON_QUIZ_REVEAL_ANSWER", onQuizRevealAnswer);
 });
 
 </script>

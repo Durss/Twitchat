@@ -95,7 +95,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import type { SourceTransform } from '@/utils/OBSWebsocket';
+import type { SourceTransform } from '@/utils/OBSWebSocket';
 
 @Component({
 	components:{

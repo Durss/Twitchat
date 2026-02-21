@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ToggleBlock from '../components/ToggleBlock.vue';
 import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
@@ -43,7 +43,7 @@ class RemoteVoiceControl extends Vue {
 	public connectSuccess:boolean = false;
 	public showStorageModal:boolean = false;
 
-	public get connected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get connected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public mounted():void {
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;

@@ -32,6 +32,10 @@
 			<div class="actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
 				<TTButton alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</TTButton>
 			</div>
+			
+			<OverlayPresenceChecker
+				:overlayName="$t('poll.state.overlay_name')"
+				:overlayType="'poll'" />
 		</div>
 	</div>
 </template>
@@ -43,12 +47,14 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import Icon from '../Icon.vue';
+import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ProgressBar,
+		OverlayPresenceChecker,
 	}
 })
 class PollState extends Vue {

@@ -25,7 +25,7 @@
 		"front/typecheck": "vue-tsc --noEmit",
 		"server/typecheck": "tsc --noEmit -p ./src_back/tsconfig.json",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-		"check-circular-dependencies": "dpdm ./src_front/main.ts",
+		"check-circular-dependencies": "dpdm --transform ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
 		"analyse": "esbuild src_front/main.ts --bundle --analyze",
 		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs"
