@@ -66,7 +66,7 @@ import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import { watch, type ComponentPublicInstance } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -86,7 +86,7 @@ class OverlayParamsHeatDistort extends Vue {
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get isPremium():boolean{ return this.$store.auth.isPremium; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 	public get premiumCount():number{ return Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM; }
@@ -169,13 +169,13 @@ class OverlayParamsHeatDistort extends Vue {
 						filterSettings
 					};
 		try {
-			await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+			await OBSWebSocket.instance.socket.call("CreateSourceFilter", params);
 		}catch(error) {
 			this.shaderstasticError = true;
 			//Remove browser source created before
-			const sceneItem = await OBSWebsocket.instance.searchSceneItemId(sourceName, vo.obsItemPath.sceneName);
+			const sceneItem = await OBSWebSocket.instance.searchSceneItemId(sourceName, vo.obsItemPath.sceneName);
 			if(sceneItem) {
-				await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:vo.obsItemPath.sceneName});
+				await OBSWebSocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:vo.obsItemPath.sceneName});
 			}
 
 			await this.$nextTick();

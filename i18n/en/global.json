@@ -251,6 +251,8 @@
 			"complete_copied": "Message copied to clipboard.\r\nPress CTRL+V on discord, paint, ...",
 			"complete_discord": "Message sent to Discord",
 			"error": "An error has occured while exporting message :("
-		}
+		},
+		"state_overlay_not_visible": "{NAME} overlay is not visible",
+		"state_overlay_not_found": "{NAME} overlay does not exist on current OBS scene"
 	}
 }

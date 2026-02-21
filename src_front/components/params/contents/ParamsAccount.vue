@@ -71,7 +71,7 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -191,7 +191,7 @@ class ParamsAccount extends Vue implements IParameterContent {
 			this.$store.prediction.$reset();
 			this.$store.donationGoals.$reset();
 			this.$store.streamelements.$reset();
-			OBSWebsocket.instance.disconnect();
+			OBSWebSocket.instance.disconnect();
 			VoicemodWebSocket.instance.disconnect();
 			TTSUtils.instance.enabled = false;
 			TriggerActionHandler.instance.populate([]);

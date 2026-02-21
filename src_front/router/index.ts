@@ -2,13 +2,13 @@ import StoreProxy from '@/store/StoreProxy'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import Utils from '@/utils/Utils'
 import type { SpotifyAuthResult } from '@/types/spotify/SpotifyDataTypes'
-import Chat from '@/views/Chat.vue'
-import Home from '@/views/Home.vue'
-import Logout from '@/views/Logout.vue'
-import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 
+const Chat = () => import('@/views/Chat.vue');
+const Home = () => import('@/views/Home.vue');
+const Logout = () => import('@/views/Logout.vue');
+const Sponsor = () => import('@/views/Sponsor.vue');
 const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const LabelsEditor = () => import('@/views/LabelsEditor.vue');

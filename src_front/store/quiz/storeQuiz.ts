@@ -9,6 +9,7 @@ import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
 
+let broadcastDebounceTO = -1;
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
 		quizList: [],
@@ -36,10 +37,7 @@ export const storeQuiz = defineStore('quiz', {
 			}
 
 			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (e) => {
-				const quiz = this.quizList.find(v=>v.id === e.data.quizId);
-				if(quiz) {
-					this.broadcastQuizState(quiz.id);
-				}
+				this.broadcastQuizState(true);
 			});
 
 			SSEHelper.instance.addEventListener("TWITCHEXT_QUIZ_ANSWER", async (e)=> {
@@ -83,20 +81,13 @@ export const storeQuiz = defineStore('quiz', {
 				liveState:this.liveState,
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
-			if(quizId){
-				const quiz = this.quizList.filter(q=>q.id===quizId)[0];
-				if(quiz) this.broadcastQuizState(quizId);
-			}else{
-				for (const quiz of this.quizList) {
-					this.broadcastQuizState(quiz.id);
-				}
-			}
+			this.broadcastQuizState();
 		},
 
 		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
 			let data:TwitchatDataTypes.QuizParams = {
 				id:Utils.getUUID(),
-				enabled:true,
+				enabled:this.quizList.length === 0,
 				title:"",
 				mode,
 				questionList:[],
@@ -232,7 +223,7 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this. Only here for testing to loop back to 1st question
 				//TODO: quiz ended, do whatever needs to be done at that moment
 			}
-			this.broadcastQuizState(quizId);
+			this.broadcastQuizState();
 		},
 
 		resetQuiz(quizId:string):void {
@@ -242,7 +233,7 @@ export const storeQuiz = defineStore('quiz', {
 			quiz.currentQuestionRevealed = false;
 			quiz.currentQuestionVotes = {};
 			if(this.liveState?.quizId == quizId) this.liveState = null;
-			this.broadcastQuizState(quizId);
+			this.broadcastQuizState();
 		},
 
 		revealAnswer(quizId:string):void {
@@ -263,16 +254,23 @@ export const storeQuiz = defineStore('quiz', {
 			}
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionVotes = votes;
-			this.broadcastQuizState(quizId);
+			this.broadcastQuizState();
 		},
 
-		broadcastQuizState(quizId:string):void {
-			const quiz = this.quizList.find(v=>v.id === quizId);
-			if(!quiz || !quiz.enabled) return
-			ApiHelper.call("quiz/broadcast", "PUT", {
-				quiz: quiz,
-			});
+		broadcastQuizState(overlayOnly?:boolean):void {
+			const quiz = this.quizList.find(v=>v.enabled);
+			if(!quiz) return
+			console.log("Broadcasting quiz state", quiz);
 			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+			if(overlayOnly) return;
+			
+			// Debounce server broadcast
+			window.clearTimeout(broadcastDebounceTO);
+			broadcastDebounceTO = window.setTimeout(()=>{
+				ApiHelper.call("quiz/broadcast", "PUT", {
+					quiz: quiz,
+				});
+			}, 1500);
 		}
 		
 	} as IQuizActions

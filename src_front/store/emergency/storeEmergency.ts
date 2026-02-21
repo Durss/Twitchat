@@ -1,6 +1,6 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -134,10 +134,10 @@ export const storeEmergency = defineStore('emergency', {
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
-				if(this.params.obsScene) OBSWebsocket.instance.setCurrentScene(this.params.obsScene);
+				if(this.params.obsScene) OBSWebSocket.instance.setCurrentScene(this.params.obsScene);
 				if(this.params.obsSources) {
 					for (const s of this.params.obsSources) {
-						OBSWebsocket.instance.setSourceState(s, false);
+						OBSWebSocket.instance.setSourceState(s, false);
 					}
 				}
 			}else {
@@ -170,7 +170,7 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.obsSources) {
 					for (const s of this.params.obsSources) {
-						OBSWebsocket.instance.setSourceState(s, true);
+						OBSWebSocket.instance.setSourceState(s, true);
 					}
 				}
 				TriggerActionHandler.instance.emergencyMode = false;

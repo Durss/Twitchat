@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { storeBingo as useStoreBingo } from '@/store/bingo/storeBingo';
-import { storeChat as useStoreChat } from '@/store/chat/storeChat';
+import { storeChatPoll as useStoreChatPoll } from '@/store/chat_poll/storeChatPoll';
 import { storePoll as useStorePoll } from '@/store/poll/storePoll';
 import { storePrediction as useStorePrediction } from '@/store/prediction/storePrediction';
 import { storeQuiz as useStoreQuiz } from '@/store/quiz/storeQuiz';
@@ -42,7 +42,7 @@ const emit = defineEmits<{
 
 const storePoll = useStorePoll();
 const storePrediction = useStorePrediction();
-const storeChat = useStoreChat();
+const storeChatPoll = useStoreChatPoll();
 const storeBingo = useStoreBingo();
 const storeRaffle = useStoreRaffle();
 const storeStream = useStoreStream();
@@ -54,41 +54,49 @@ const component = computed(() => {
 			if(storePoll.data?.id != null && storePoll.data?.isFake != true) {
 				return PollState;
 			}
+			break;
 		}
 		case "prediction": {
 			if(storePrediction.data?.id != null && storePrediction.data?.isFake != true) {
 				return PredictionState;
 			}
+			break;
 		}
 		case "chatPoll": {
-			if(storeChat.data != null) {
+			if(storeChatPoll.data != null) {
 				return ChatPollState;
 			}
+			break;
 		}
 		case "bingo": {
 			if(storeBingo.data != null) {
 				return BingoState;
 			}
+			break;
 		}
 		case "raffle": {
 			if(storeRaffle.raffleList != null && storeRaffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0) {
 				return RaffleState;
 			}
+			break;
 		}
 		case "raid": {
 			if(storeStream.currentRaid != undefined) {
 				return RaidState;
 			}
+			break;
 		}
 		case "quiz": {
 			if(storeQuiz.quizList.filter(v=>v.enabled).length > 0) {
 				return QuizState;
 			}
+			break;
 		}
 		case "train": {
 			if(storeStream.hypeTrain != undefined) {
 				return HypeTrainState;
 			}
+			break;
 		}
 	}
 	return null;
