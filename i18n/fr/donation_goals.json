@@ -1,5 +1,6 @@
 {
 	"donation_goals": {
+		"search_terms":["donation goals", "objectifs", "dons", "goal"],
 		"header": "Créez des objectifs de dons, followers ou subs",
 		"install_title": "Installer l'overlay",
 		"create_bt": "Créer des objectifs",
