@@ -468,7 +468,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
@@ -589,7 +589,7 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected.value; }
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebSocket.instance.connected.value; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
@@ -1504,12 +1504,18 @@ export default toNative(ChatForm);
 			}
 		}
 	}
+
+	.leftForm:hover ~ .inputForm {
+		margin-right: -2em;
+	}
+
 	.holder {
 		position: absolute;
 		width: 100%;
 		display: flex;
 		flex-direction: row;
 		position: relative;
+		justify-content: center;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,.5);
 		background-color: var(--background-color-secondary);
@@ -1542,7 +1548,8 @@ export default toNative(ChatForm);
 			padding: 0;
 			max-width: 0px;
 			min-width: 0px;
-			transition: width 0.2s, max-width 0.2s, min-width 0.2s;
+			z-index: 1;
+			transition: width 0.2s, max-width 0.2s, min-width 0.2s, margin-right 0.2s;
 		}
 
 		.inputForm {
@@ -1552,6 +1559,7 @@ export default toNative(ChatForm);
 			justify-content: center;
 			flex-wrap: wrap;
 			flex-grow: 1;
+			transition: all 0.2s;
 
 			.loader {
 				height: 1em;
@@ -1889,6 +1897,31 @@ export default toNative(ChatForm);
 			.rightForm {
 				order:3;
 			}
+		}
+	
+		.leftForm:hover ~ .inputForm {
+			margin-right: unset;
+		}
+
+		.leftForm {
+			.addPinBt {
+				background-color: var(--background-color-secondary);
+				filter: drop-shadow(5px 0 2px rgba(0,0,0,.25));
+			}
+			&:hover,
+			&:focus-within {
+				.addPinBt {
+					margin-right: -2em;
+				}
+			}
+		}
+		.rightForm::before{
+			content: "";
+			width: 1px;
+			height: 1em;
+			display: block;
+			position: relative;
+			background: var(--color-text-fader);
 		}
 	}
 }

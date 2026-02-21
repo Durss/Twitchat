@@ -206,29 +206,6 @@ function buildApp() {
 	}
 
 	/**
-	 * Gets an overlay's URL
-	 * @param id overlay ID
-	 * @returns
-	 */
-	const overlayURL = (id:string, params?:{k:string, v:string}[]):string => {
-		const port = DataStore.get(DataStore.OBS_PORT);
-		const pass = DataStore.get(DataStore.OBS_PASS);
-		const ip = DataStore.get(DataStore.OBS_IP);
-		const urlParams = new URLSearchParams()
-		if(params) {
-			for (let i = 0; i < params.length; i++) {
-				urlParams.append(params[i]!.k, params[i]!.v);
-			}
-		}
-		if(port) urlParams.append("obs_port", port);
-		if(pass) urlParams.append("obs_pass", pass);
-		if(ip) urlParams.append("obs_ip", ip);
-		let suffix = urlParams.toString()
-		if(suffix) suffix = "?" + suffix;
-		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
-	}
-
-	/**
 	 * Global helper to place a dropdown list
 	 */
 	const placeDropdown = (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => {
@@ -342,7 +319,6 @@ function buildApp() {
 	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
-	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	app.config.globalProperties.$store = StoreProxy.default;
 

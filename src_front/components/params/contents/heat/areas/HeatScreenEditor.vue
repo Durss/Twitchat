@@ -44,7 +44,7 @@ import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
@@ -90,7 +90,7 @@ class HeatScreenEditor extends Vue {
 		return res;
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public async beforeMount():Promise<void> {
 		if(this.screen.areas.length == 0) {
@@ -108,7 +108,7 @@ class HeatScreenEditor extends Vue {
 		document.addEventListener("pointerup", this.mouseUpHandler);
 		document.addEventListener("pointermove", this.mouseMoveHandler);
 
-		watch(()=>OBSWebsocket.instance.connected.value, ()=>{
+		watch(()=>OBSWebSocket.instance.connected.value, ()=>{
 			this.populateOBSScenes();
 		});
 		this.populateOBSScenes();
@@ -126,8 +126,8 @@ class HeatScreenEditor extends Vue {
 
 		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
 
-		if(OBSWebsocket.instance.connected.value){
-			const scenes = await OBSWebsocket.instance.getScenes();
+		if(OBSWebSocket.instance.connected.value){
+			const scenes = await OBSWebSocket.instance.getScenes();
 			scenes.scenes.forEach(v=> {
 				this.params_target.listValues!.push({value:v.sceneName, label:v.sceneName});
 			});
@@ -441,9 +441,9 @@ class HeatScreenEditor extends Vue {
 		if(this.disposed) return;
 		const area = (this.$refs.background as HTMLDivElement);
 		//@ts-ignore
-		if(area && this.params_showOBS.value == true && OBSWebsocket.instance.connected.value) {
+		if(area && this.params_showOBS.value == true && OBSWebSocket.instance.connected.value) {
 			const scene = this.params_target.value? this.params_target.value : undefined;
-			const image = await OBSWebsocket.instance.getScreenshot(scene);
+			const image = await OBSWebSocket.instance.getScreenshot(scene);
 			area.style.backgroundImage = "url("+image+")";
 		}
 

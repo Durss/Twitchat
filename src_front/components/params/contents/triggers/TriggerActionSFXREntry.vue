@@ -51,7 +51,7 @@ import ParamItem from '../../ParamItem.vue';
 import AbstractTriggerActionEntry from './entries/AbstractTriggerActionEntry';
 import OverlayInstaller from '../overlays/OverlayInstaller.vue';
 import Config from '@/utils/Config';
-import OBSWebSocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 
 @Component({
 	components:{

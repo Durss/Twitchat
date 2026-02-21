@@ -1,9 +1,9 @@
 import type { IChatState } from "@/store/StoreProxy";
 import Config from "@/utils/Config";
-import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
+import type { OBSItemPath } from "@/utils/OBSWebSocket";
 
 export namespace TwitchatDataTypes {
 
