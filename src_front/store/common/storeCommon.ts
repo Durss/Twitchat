@@ -1,4 +1,4 @@
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -43,7 +43,7 @@ export const storeCommon = defineStore('common', {
 			//If OBS params are on URL, connect
 			if(port != null && ip != null) {
 				// if(sOBS) sOBS.connectionEnabled = true;
-				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
+				await OBSWebSocket.instance.connect(port, pass ?? "", true, ip);
 			}
 			StreamdeckSocket.instance.connect(undefined, undefined, authenticated).catch(()=>{/*ignore*/});
 		},

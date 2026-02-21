@@ -4,7 +4,7 @@ import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Logger from '@/utils/Logger';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
@@ -239,7 +239,7 @@ export const storeStream = defineStore('stream', {
 				//Cut OBS stream if requested
 				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
 					window.setTimeout(() => {
-						OBSWebsocket.instance.stopStreaming();
+						OBSWebSocket.instance.stopStreaming();
 					}, 2000);
 				}
 			}

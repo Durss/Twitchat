@@ -101,8 +101,7 @@
 		"state_users_cumulated": "{COUNT} tickets",
 		"state_pickBt": "Pick a winner",
 		"state_stopBt": "Close Raffle",
-		"state_overlay_not_visible": "Raffle overlay is not visible",
-		"state_overlay_not_found": "Raffle overlay does not exist on current OBS scene",
-		"state_many_raffles": "You have {COUNT} raffles running, you may want to close some of them.\nUse arrows on the side to navigate through them."
+		"state_many_raffles": "You have {COUNT} raffles running, you may want to close some of them.\nUse arrows on the side to navigate through them.",
+		"overlay_name": "Raffle"
 	}
 }

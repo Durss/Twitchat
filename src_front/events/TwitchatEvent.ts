@@ -3,7 +3,7 @@ import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePr
 import type { LabelItemData } from "@/types/ILabelOverlayData";
 import type { TriggerActionCountDataAction } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSSourceItem } from '@/utils/OBSWebSocket';
 import { Event } from './EventDispatcher';
 
 /**
@@ -1916,48 +1916,20 @@ export type TwitchatEventMap = {
 	 * Request quiz overlay presence
 	 * @answer ON_QUIZ_OVERLAY_PRESENCE
 	 */
-	GET_QUIZ_OVERLAY_PRESENCE: {
-		/**
-		 * Quiz ID to get presence of
-		 */
-		quizId: string;
-	};
+	GET_QUIZ_OVERLAY_PRESENCE:void;
 	/**
 	 * Advertise for quiz overlay presence
 	 */
-	ON_QUIZ_OVERLAY_PRESENCE: {
-		/**
-		 * Quiz ID that advertiszes its presence
-		 */
-		quizId: string;
-	};
+	ON_QUIZ_OVERLAY_PRESENCE:void;
 	/**
 	 * Request quiz overlay configuration
 	 * @answer ON_QUIZ_CONFIGS
 	 */
-	GET_QUIZ_CONFIGS: {
-		/**
-		 * Quiz ID to get configs for
-		 */
-		quizId: string;
-	};
+	GET_QUIZ_CONFIGS:void;
 	/**
 	 * Receive quiz overlay configuration
 	 */
 	ON_QUIZ_CONFIGS: TwitchatDataTypes.QuizParams;
-	/**
-	 * Request to reveal the answer of given quiz ID
-	 */
-	ON_QUIZ_REVEAL_ANSWER: {
-		/**
-		 * Quiz ID to get configs for
-		 */
-		quizId: string;
-		/**
-		 * Answers votes
-		 */
-		votes: {[answerId: string]: number};
-	};
 	
 	/**
 	 * Requests for global states

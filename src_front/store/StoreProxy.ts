@@ -3998,10 +3998,9 @@ export interface IQuizActions {
 	 */
 	revealAnswer(quizId:string):void;
 	/**
-	 * Broadcasts given quiz state to overlays and extension
-	 * @param quizId 
+	 * Broadcasts currently enabled quiz state to overlays
 	 */
-	broadcastQuizState(quizId:string):void;
+	broadcastQuizState(overlayOnly?:boolean):void;
 }
 
 

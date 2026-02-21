@@ -129,7 +129,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
@@ -153,6 +153,7 @@ import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue'
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
 import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -185,13 +186,13 @@ class ParamsOverlays extends Vue implements IParameterContent {
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
-	public get overlayUrl():string { return this.$overlayURL("unified"); }
+	public get overlayUrl():string { return Utils.overlayURL("unified"); }
 
 	public get classes():string[] {
 		const res = ["paramsoverlays", "parameterContent"];

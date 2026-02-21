@@ -106,8 +106,8 @@ import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
 import { ANY_COUNTER, ANY_OBS_SCENE, TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -151,7 +151,7 @@ class TriggerCreateForm extends Vue {
 
 	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected.value; }
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public get hasCounterOrValue():boolean { return this.$store.counters.counterList.length > 0 || this.$store.values.valueList.length > 0; }
 
@@ -386,7 +386,7 @@ class TriggerCreateForm extends Vue {
 		}else
 
 		if(e.value == TriggerTypes.OBS_SCENE) {
-			if(!OBSWebsocket.instance.connected.value) {
+			if(!OBSWebSocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -416,7 +416,7 @@ class TriggerCreateForm extends Vue {
 
 		if(e.value == TriggerTypes.OBS_SOURCE_OFF
 		|| e.value == TriggerTypes.OBS_SOURCE_ON) {
-			if(!OBSWebsocket.instance.connected.value) {
+			if(!OBSWebSocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -438,7 +438,7 @@ class TriggerCreateForm extends Vue {
 
 		if(e.value == TriggerTypes.OBS_FILTER_OFF
 		|| e.value == TriggerTypes.OBS_FILTER_ON) {
-			if(!OBSWebsocket.instance.connected.value) {
+			if(!OBSWebSocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -462,7 +462,7 @@ class TriggerCreateForm extends Vue {
 				//Load filters for all items
 				for (let i = 0; i < list.length; i++) {
 					const item = list[i]!;
-					let filters = await OBSWebsocket.instance.getSourceFilters(item.value);
+					let filters = await OBSWebSocket.instance.getSourceFilters(item.value);
 					if(filters.length === 0) {
 						list.splice(i, 1);
 						i--;
@@ -494,7 +494,7 @@ class TriggerCreateForm extends Vue {
 		|| e.value == TriggerTypes.OBS_PLAYBACK_PREVIOUS
 		|| e.value == TriggerTypes.OBS_PLAYBACK_STARTED
 		|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
-			if(!OBSWebsocket.instance.connected.value) {
+			if(!OBSWebSocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{

@@ -24,6 +24,10 @@
 			<div class="actions">
 				<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
 			</div>
+			
+			<OverlayPresenceChecker
+				:overlayName="$t('chatPoll.state.overlay_name')"
+				:overlayType="'chatPoll'" />
 		</div>
 	</div>
 </template>
@@ -34,12 +38,14 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
+import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ProgressBar,
+		OverlayPresenceChecker,
 	}
 })
 class ChatPollState extends Vue {

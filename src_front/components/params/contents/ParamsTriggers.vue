@@ -102,8 +102,8 @@ import TTButton from '@/components/TTButton.vue';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
@@ -174,7 +174,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		//List all available trigger types
 		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList().concat();
 		this.eventsCount = events.length;
-		if(OBSWebsocket.instance.connected) {
+		if(OBSWebSocket.instance.connected) {
 			this.listOBSScenes();
 			this.listOBSSources();
 		}
@@ -201,9 +201,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 			await this.listOBSSources();
 			await this.listOBSSources();
 		};
-		OBSWebsocket.instance.addEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.addEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.addEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.addEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 
 
 		let debounceTimeout = -1;
@@ -223,8 +223,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 		//Check for OBS connection change event.
 		//if connection has been established, load scenes and sources
-		watch(()=>OBSWebsocket.instance.connected.value, async ()=> {
-			if(OBSWebsocket.instance.connected.value) {
+		watch(()=>OBSWebSocket.instance.connected.value, async ()=> {
+			if(OBSWebSocket.instance.connected.value) {
 				await this.listOBSScenes();
 				await this.listOBSSources();
 			}
@@ -238,9 +238,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	public beforeUnmount():void {
-		OBSWebsocket.instance.removeEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.removeEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.removeEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebSocket.instance.removeEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 	}
 
 	/**
@@ -299,8 +299,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		let sources:OBSSourceItem[] = [];
 		let inputs:OBSInputItem[] = [];
 		try {
-			sources = await OBSWebsocket.instance.getSources();
-			inputs = await OBSWebsocket.instance.getInputs();
+			sources = await OBSWebSocket.instance.getSources();
+			inputs = await OBSWebSocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
 			this.$store.common.alert(this.$t('error.obs_sources_loading'));
@@ -331,7 +331,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public async listOBSScenes():Promise<void> {
 		let scenes:OBSSceneItem[] = [];
 		try {
-			scenes = (await OBSWebsocket.instance.getScenes()).scenes
+			scenes = (await OBSWebSocket.instance.getScenes()).scenes
 		}catch(error) {
 			this.obsScenes = [];
 			this.$store.common.alert(this.$t('error.obs_scenes_loading'));

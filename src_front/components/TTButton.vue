@@ -30,10 +30,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, onBeforeMount, useSlots, getCurrentInstance, useTemplateRef } from 'vue';
-import { gsap } from 'gsap/gsap-core';
-import Icon from './Icon.vue';
 import Utils from '@/utils/Utils';
+import { gsap } from 'gsap/gsap-core';
+import { computed, getCurrentInstance, ref, useSlots, useTemplateRef } from 'vue';
+import Icon from './Icon.vue';
 
 const props = withDefaults(defineProps<{
 	icon?: string;

@@ -166,7 +166,7 @@ import TTButton from '@/components/TTButton.vue';
 import { TriggerSubTypeLabel, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
