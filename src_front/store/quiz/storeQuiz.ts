@@ -181,6 +181,7 @@ export const storeQuiz = defineStore('quiz', {
 				score = 0;
 			}
 
+			// Get or create user data
 			let userData = this.liveState.users[uid];
 			if(!userData) {
 				let name = "";
@@ -252,6 +253,7 @@ export const storeQuiz = defineStore('quiz', {
 					}
 				}
 			}
+			quiz.questionStarted_at = new Date(0).toISOString();
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionVotes = votes;
 			this.broadcastQuizState();
