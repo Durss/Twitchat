@@ -47,13 +47,14 @@ watch(search, () => {
 		emit('update:modelValue', "");
 		return;
 	}
-	searchDebouncing.value = true;
+	const delay = props.debounceDelay ?? 300;
+	searchDebouncing.value = delay > 0;
 	debounceTimeout = window.setTimeout(() => {
 		searchDebouncing.value = false;
 		debouncedSearch.value = search.value;
 		hasSearch.value = true;
 		emit('update:modelValue', search.value);
-	}, props.debounceDelay ?? 300);
+	}, delay);
 });
 
 onBeforeUnmount(() => {

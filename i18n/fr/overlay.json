@@ -24,6 +24,12 @@
 			"dock_tutorial": "Dans OBS, ouvrez <strong>Docks</strong> => <strong>Docks internet personnalisés</strong> puis ajoutez Twitchat comme ceci"
 		},
 		"raffle": {
+			"search_terms": [
+				"roue animée",
+				"tirage au sort",
+				"roue",
+				"spin"
+			],
 			"title": "Roue animée",
 			"head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -31,14 +37,20 @@
 			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
+			"search_terms": [
+				"minuteurs",
+				"minuteur",
+				"compte à rebours",
+				"chronomètre"
+			],
 			"header": "Créez des minuteurs, contrôlez-les depuis les Triggers, et affichez leur état sur votre stream",
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
 			"default_title": "Mon minuteur",
 			"css": "Changez l'apparence via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"createTimer_bt": "Editer les minuteurs",
 			"param_style": "Style d'affichage",
-			"param_style_text":"Texte",
-			"param_style_bar":"Barre de progression",
+			"param_style_text": "Texte",
+			"param_style_bar": "Barre de progression",
 			"param_showIcon": "Afficher l'icône",
 			"param_bgColor": "Couleur de fond",
 			"param_bgEnabled": "Afficher le fond",
@@ -49,10 +61,16 @@
 			"param_progressStyle": "Type de progression",
 			"param_progressStyle_empty": "Vider",
 			"param_progressStyle_fill": "Remplir",
-			"premium_limit":"Vous avez atteint le nombre maximum de minuteurs que vous pouvez créer.",
-			"non_premium_limit":"Vous avez atteint le nombre maximum de minuteurs.\nDevenez premium pour définir jusqu'à {MAX} minuteurs."
+			"premium_limit": "Vous avez atteint le nombre maximum de minuteurs que vous pouvez créer.",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de minuteurs.\nDevenez premium pour définir jusqu'à {MAX} minuteurs."
 		},
 		"counters": {
+			"search_terms": [
+				"compteurs",
+				"compte",
+				"classement",
+				""
+			],
 			"title": "Compteurs",
 			"head": "Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
 			"head_empty": "Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
@@ -65,6 +83,12 @@
 			}
 		},
 		"highlight": {
+			"search_terms": [
+				"mise en avant",
+				"message en avant",
+				"highlight",
+				"chat"
+			],
 			"title": "Mettre en avant",
 			"instruction": "Affiche un message ou un clip sur votre stream.",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -73,6 +97,13 @@
 			"alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 		"music_common": {
+			"search_terms": [
+				"lecteur de musique",
+				"musique",
+				"morceau",
+				"playlist",
+				"player"
+			],
 			"music": "Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"no_scroll": "Désactiver le défilement",
@@ -97,6 +128,12 @@
 			"connectBt": "Connecter Spotify"
 		},
 		"ulule": {
+			"search_terms": [
+				"ulule",
+				"crowdfunding",
+				"projet",
+				"financement"
+			],
 			"title": "Ulule",
 			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"description": "Affichez une barre de progression pour votre projet {LINK}.",
@@ -108,6 +145,12 @@
 			"project_goals_tt": "Si vous avez plusieurs paliers de dons, spécifiez-les ici afin que la barre de progression ne reste pas pleine lorsque l'objectif principal est atteint."
 		},
 		"credits": {
+			"search_terms": [
+				"crédits de fin",
+				"générique",
+				"credits",
+				"end"
+			],
 			"title": "Crédits de fin",
 			"head": "Affichez des crédits de fin de stream",
 			"css": "Changez l'apparence des crédits via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -277,6 +320,13 @@
 			"param_showSubsTiktok": "Show Tiktok subs"
 		},
 		"heatDistort": {
+			"search_terms": [
+				"Distorsion de source OBS",
+				"distortion",
+				"obs",
+				"shadertastic",
+				"heat"
+			],
 			"title": "Distorsion de source OBS",
 			"description": "Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
 			"install": "Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
@@ -311,6 +361,11 @@
 			}
 		},
 		"tts": {
+			"search_terms": [
+				"text to speech",
+				"tts",
+				"synthèse vocale"
+			],
 			"title": "Text to speech",
 			"description": "Permet de lire les messages dans un overlay pour mieux contrôler l'audio."
 		},
@@ -338,6 +393,13 @@
 			"testBt": "Tester"
 		},
 		"bitswall": {
+			"search_terms": [
+				"mur de bits",
+				"bits wall",
+				"bits",
+				"cheer",
+				"cheermote"
+			],
 			"title": "Bits wall",
 			"head": "Les bits reçus tomberont sur votre stream.\nLes viewers peuvent \"casser\" les bits en plus petits en les cliquant via l'extension Heat.",
 			"testBt": "Envoyer des bits",
@@ -352,6 +414,9 @@
 			"param_durations": "Durées avant destruction des cheermotes"
 		},
 		"predictions": {
+			"search_terms": [
+				"prédictions"
+			],
 			"title": "Prédictions",
 			"head": "Afficher la prédiction en cours sur votre stream",
 			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -370,6 +435,9 @@
 			"param_resultDuration": "Durée d'affichage du résultat"
 		},
 		"polls": {
+			"search_terms": [
+				"sondages"
+			],
 			"title": "Sondage",
 			"head": "Afficher le sondage en cours sur votre stream",
 			"css": "Changez l'apparence du sondage via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -386,6 +454,11 @@
 			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
 		},
 		"chatPoll": {
+			"search_terms": [
+				"sondage de tchat",
+				"chat poll",
+				"tchat poll"
+			],
 			"title": "Sondage de tchat",
 			"head": "Afficher le sondage de tchat en cours sur votre stream.\nPour démarrer un sondage de tchat, utilisez la commande {CMD} ou le menu{MENU}en bas de l'écran.",
 			"css": "@:overlay.polls.css",
@@ -400,12 +473,25 @@
 			"param_placement": "@:overlay.polls.param_placement",
 			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
 			"param_resultDuration": "@:overlay.polls.param_resultDuration",
-			"non_premium_limit":"Vous avez atteint le nombre maximum de réponses.\nDevenez premium pour définir jusqu'à {MAX} réponses."
+			"non_premium_limit": "Vous avez atteint le nombre maximum de réponses.\nDevenez premium pour définir jusqu'à {MAX} réponses."
 		},
 		"bingo_grid": {
+			"search_terms": [
+				"grille de bingo",
+				"bingo grid",
+				"bingo",
+				"case",
+				"cocher"
+			],
 			"head": "Afficher des grilles de bingo interactives"
 		},
 		"labels": {
+			"search_terms": [
+				"labels",
+				"label",
+				"valeurs",
+				"info"
+			],
 			"head": "Afficher des valeurs sur votre stream",
 			"addBt": "Créer un nouveau label",
 			"premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer",
@@ -429,69 +515,55 @@
 			"placeholders": {
 				"COUNTER": "Compteur - {NAME}",
 				"VALUE": "Valeur - {NAME}",
-
 				"SUB_COUNT": "Subs - total",
 				"SUB_POINTS": "Subs - points (ne sont PAS les points partner+)",
-
 				"SUB_ID": "Sub - ID utilisateur·ice",
 				"SUB_NAME": "Sub - Pseudo",
 				"SUB_AVATAR": "Sub - Avatar",
 				"SUB_TIER": "Sub - Niveau",
-
 				"SUBGIFT_ID": "Subgift - ID utilisateur·ice",
 				"SUBGIFT_NAME": "Subgift - Pseudo",
 				"SUBGIFT_AVATAR": "Subgift - Avatar",
 				"SUBGIFT_TIER": "Subgift - Niveau",
 				"SUBGIFT_COUNT": "Subgift - Nombre",
-
 				"CHEER_ID": "Bits reçus - ID utilisateur·ice",
 				"CHEER_NAME": "Bits reçus - Pseudo",
 				"CHEER_AVATAR": "Bits reçus - Avatar",
 				"CHEER_AMOUNT": "Bits reçus - Montant",
-
 				"COMBO_ID": "Bits de Combo reçus - ID utilisateur·ice",
 				"COMBO_NAME": "Bits de Combo reçus - Pseudo",
 				"COMBO_AVATAR": "Bits de Combo reçus - Avatar",
 				"COMBO_AMOUNT": "Bits de Combo reçus - Montant",
-
 				"FOLLOWER_COUNT": "Followers - total",
-
 				"FOLLOWER_ID": "Follower - ID utilisateur·ice",
 				"FOLLOWER_NAME": "Follower - Pseudo",
 				"FOLLOWER_AVATAR": "Follower - Avatar",
-
 				"FOLLOWER_GENERIC_ID": "Follower - ID utilisateur·ice",
 				"FOLLOWER_GENERIC_NAME": "Follower - Pseudo",
 				"FOLLOWER_GENERIC_AVATAR": "Follower - Avatar",
-
 				"REWARD_ID": "Points de chaîne - ID utilisateur·ice",
 				"REWARD_NAME": "Points de chaîne - Pseudo",
 				"REWARD_AVATAR": "Points de chaîne - Avatar",
 				"REWARD_TITLE": "Points de chaîne - Titre",
 				"REWARD_ICON": "Points de chaîne - Icône",
 				"REWARD_MESSAGE": "Points de chaîne - Message",
-
 				"RAID_ID": "Raid reçu - ID utilisateur·ice",
 				"RAID_NAME": "Raid reçu - Pseudo",
 				"RAID_AVATAR": "Raid reçu - Avatar",
 				"RAID_COUNT": "Raid reçu - Viewers",
-
 				"WATCH_STREAK_ID": "Visionnages consécutifs - ID utilisateur·ice",
 				"WATCH_STREAK_NAME": "Visionnages consécutifs - Pseudo",
 				"WATCH_STREAK_AVATAR": "Visionnages consécutifs - Avatar",
 				"WATCH_STREAK_COUNT": "Visionnages consécutifs - Nombre",
-
 				"KOFI_TIP_NAME": "Don - Pseudo",
 				"KOFI_TIP_AMOUNT": "Don - Montant",
 				"KOFI_MERCH_USER": "Merch - Pseudo",
 				"KOFI_MERCH_NAME": "Merch - Article",
 				"KOFI_MERCH_AMOUNT": "Merch - Prix",
-
 				"STREAMLABS_TIP_NAME": "Don - Pseudo",
 				"STREAMLABS_TIP_AMOUNT": "Don - Montant",
 				"STREAMLABS_MERCH_USER": "Merch - Pseudo",
 				"STREAMLABS_MERCH_NAME": "Merch - Article",
-
 				"STREAMLABS_CHARITY_NAME": "Nom de la campagne",
 				"STREAMLABS_CHARITY_IMAGE": "Image de la campagne",
 				"STREAMLABS_CHARITY_RAISED": "Montant récolté global",
@@ -499,72 +571,56 @@
 				"STREAMLABS_CHARITY_LAST_TIP_USER": "Dernier·e donnateurice",
 				"STREAMLABS_CHARITY_LAST_TIP_AMOUNT": "Montant du dernier don",
 				"STREAMLABS_CHARITY_RAISED_PERSONNAL": "Montant récolté perso",
-
 				"STREAMELEMENTS_TIP_NAME": "Dernier·e donnateurice",
 				"STREAMELEMENTS_TIP_AMOUNT": "Montant du dernier don",
-
 				"TILTIFY_LAST_TIP_USER": "Dernier·e donnateurice",
 				"TILTIFY_LAST_TIP_AMOUNT": "Montant du dernier don",
-
 				"TIPEEE_TIP_NAME": "Dernier·e donnateurice",
 				"TIPEEE_TIP_AMOUNT": "Montant du dernier don",
-
 				"SUB_YOUTUBE_ID": "Sub - ID utilisateur·ice",
 				"SUB_YOUTUBE_NAME": "Sub - Pseudo",
 				"SUB_YOUTUBE_AVATAR": "Sub - Avatar",
 				"SUB_YOUTUBE_TIER": "Sub - Niveau",
-
 				"SUB_GENERIC_ID": "Sub - ID utilisateur·ice",
 				"SUB_GENERIC_NAME": "Sub - Pseudo",
 				"SUB_GENERIC_AVATAR": "Sub - Avatar",
 				"SUB_GENERIC_TIER": "Sub - Niveau",
-
 				"SUBGIFT_YOUTUBE_ID": "Subgift - ID utilisateur·ice",
 				"SUBGIFT_YOUTUBE_NAME": "Subgift - Pseudo",
 				"SUBGIFT_YOUTUBE_AVATAR": "Subgift - Avatar",
 				"SUBGIFT_YOUTUBE_TIER": "Subgift - Niveau",
 				"SUBGIFT_YOUTUBE_COUNT": "Subgift - Nombre",
-
 				"FOLLOWER_YOUTUBE_USER": "YouTube Follower - Pseudo",
 				"FOLLOWER_YOUTUBE_AVATAR": "YouTube Follower - Avatar",
-
 				"SUBGIFT_GENERIC_ID": "Subgift - ID utilisateur·ice",
 				"SUBGIFT_GENERIC_NAME": "Subgift - Pseudo",
 				"SUBGIFT_GENERIC_AVATAR": "Subgift - Avatar",
 				"SUBGIFT_GENERIC_TIER": "Subgift - Niveau",
 				"SUBGIFT_GENERIC_COUNT": "Subgift - Nombre",
-
 				"SUPER_CHAT_ID": "Super chat - ID utilisateur·ice",
 				"SUPER_CHAT_NAME": "Super chat - Pseudo",
 				"SUPER_CHAT_AVATAR": "Super chat - Avatar",
 				"SUPER_CHAT_AMOUNT": "Super chat - Montant",
-
 				"SUPER_STICKER_ID": "Super sticker - ID utilisateur·ice",
 				"SUPER_STICKER_NAME": "Super sticker - Pseudo",
 				"SUPER_STICKER_AVATAR": "Super sticker - Avatar",
 				"SUPER_STICKER_AMOUNT": "Super sticker - Montant",
 				"SUPER_STICKER_IMAGE": "Super sticker - Image",
-
 				"VOICEMOD_EFFECT_TITLE": "Nom de l'effet",
 				"VOICEMOD_EFFECT_ICON": "Icône de l'effet",
-
 				"MUSIC_TITLE": "Titre",
 				"MUSIC_ARTIST": "Artiste",
 				"MUSIC_ALBUM": "Album",
 				"MUSIC_COVER": "Image",
-
 				"DATE": "Date formattée",
 				"TIME": "Heure formatted",
 				"DATE_TIME": "Date et heures formattées",
-
 				"DAY": "Jour",
 				"MONTH": "Mois",
 				"YEAR": "Année",
-
 				"HOURS": "Heure",
 				"MINUTES": "Minute",
 				"SECONDS": "Seconde",
-
 				"STREAM_DURATION": "Durée du stream en cours",
 				"STREAM_TITLE": "Titre du stream en cours",
 				"VIEWER_COUNT": "Viewers total",
@@ -573,7 +629,6 @@
 				"VIEWER_COUNT_TIKTOK": "Viewers TikTok",
 				"STREAM_CATEGORY_NAME": "Catégorie du stream - Titre",
 				"STREAM_CATEGORY_COVER": "Catégorie du stream - Image",
-
 				"TWITCH_CHARITY_NAME": "Nom de la campagne",
 				"TWITCH_CHARITY_IMAGE": "Image de la campagne",
 				"TWITCH_CHARITY_RAISED": "Montant récolté",
@@ -581,29 +636,24 @@
 				"TWITCH_CHARITY_LAST_TIP_USER": "Dernier·e donnateurice",
 				"TWITCH_CHARITY_LAST_TIP_AMOUNT": "Dernier don",
 				"TWITCH_CHARITY_LAST_TIP_AVATAR": "Avatar du dernier don",
-
 				"POWER_UP_GIANTIFIED_ID": "Power-up Emote gigantisée - ID utilisateur·ice",
 				"POWER_UP_GIANTIFIED_NAME": "Power-up Emote gigantisée - Pseudo",
 				"POWER_UP_GIANTIFIED_AVATAR": "Power-up Emote gigantisée - Avatar",
 				"POWER_UP_GIANTIFIED_CODE": "Power-up Emote gigantisée - Code",
 				"POWER_UP_GIANTIFIED_IMAGE": "Power-up Emote gigantisée - Image",
-
 				"POWER_UP_CELEBRATION_ID": "Power-up Célébration - ID utilisateur·ice",
 				"POWER_UP_CELEBRATION_NAME": "Power-up Célébration - Pseudo",
 				"POWER_UP_CELEBRATION_AVATAR": "Power-up Célébration - Avatar",
 				"POWER_UP_CELEBRATION_CODE": "Power-up Célébration - Code",
 				"POWER_UP_CELEBRATION_IMAGE": "Power-up Célébration - Image",
-
 				"POWER_UP_MESSAGE_ID": "Power-up Message - ID utilisateur·ice",
 				"POWER_UP_MESSAGE_NAME": "Power-up Message - Pseudo",
 				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - Avatar",
-
 				"PATREON_USER": "Pseudo de l'abonné·e",
 				"PATREON_TITLE": "Titre de l'abonnement",
 				"PATREON_AMOUNT": "Montant de l'abonnement",
 				"PATREON_AVATAR": "Avatar de l'abonné·e",
 				"PATREON_MEMBER_COUNT": "Nombre total de membres actifs",
-
 				"TIKTOK_FOLLOWER_USER": "Follower - Pseudo",
 				"TIKTOK_FOLLOWER_AVATAR": "Follower - Avatar",
 				"TIKTOK_LIKE_TOTAL": "Like - Likes total du stream",
@@ -622,13 +672,18 @@
 			}
 		},
 		"animatedText": {
+			"search_terms": [
+				"texte animé",
+				"animated text",
+				"text animation"
+			],
 			"header": "Affiche du texte animé sur ton stream\nContrôle-le depuis les {TRIGGERS}",
 			"add_bt": "Créer un overlay",
-			"default_title":"Texte animé",
-			"premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.",
-			"non_premium_limit":"Vous avez atteint le nombre maximum de {MAX} overlay de textes animés que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
-			"test_bt":"Tester",
-			"test_default":"Coucou depuis <b>Twitchat</b> !",
+			"default_title": "Texte animé",
+			"premium_limit": "Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} overlay de textes animés que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX_PREMIUM}.",
+			"test_bt": "Tester",
+			"test_default": "Coucou depuis <b>Twitchat</b> !",
 			"param_animDurationScale": "Vitesse de l'animation",
 			"param_animStrength": "Amplitude de l'animation",
 			"param_animStyle": "Type d'animation",
@@ -653,6 +708,13 @@
 			}
 		},
 		"customTrain": {
+			"search_terms": [
+				"train de la hype personnalisé",
+				"custom hype train",
+				"train de la hype",
+				"hype train",
+				"train"
+			],
 			"header": "Créer des trains de la hype personnalisés liés aux dons sur des plateformes externes",
 			"add_bt": "Créer un train personnalisé",
 			"default_title": "Train de la hype",
@@ -667,7 +729,6 @@
 				"title": "Supprimer l'entrée",
 				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
 			},
-
 			"param_colorFill": "Remplissage",
 			"param_colorBg": "Fond",
 			"param_recordColorFill": "Remplissage",
@@ -701,7 +762,7 @@
 			"param_successLabel_summary": "Niveau {'{'}LEVEL{'}'} atteint à {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 Nouveau record absolu 🏆",
 			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train",
-			"allTimeRecord_title":"Record absolu le {DATE}, niveau {LEVEL} à {PERCENT} avec {AMOUNT}"
+			"allTimeRecord_title": "Record absolu le {DATE}, niveau {LEVEL} à {PERCENT} avec {AMOUNT}"
 		}
 	}
 }

@@ -4,9 +4,9 @@
 			v-if="!triggerId && folderTriggerList.length > 0"
 			@click="addFolder()"
 			v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'triggers_folder'}">{{ $t('triggers.create_folder') }}</TTButton>
-		<TriggerSearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
+		<SearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
 			<Checkbox class="searchActions" v-model="searchInActions">{{ $t('triggers.search_in_actions') }}</Checkbox>
-		</TriggerSearchForm>
+		</SearchForm>
 		<TriggerListFolderItem
 			v-model:items="filteredTriggerList"
 			:rewards="rewards"
@@ -19,8 +19,6 @@
 			@testTrigger="$emit('testTrigger',$event)"
 			@createTrigger="$emit('createTrigger',$event)"
 			@select="$emit('select', $event)" />
-		<!-- <pre class="debug">{{ debug }}</pre> -->
-		<!-- <pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre> -->
 	</div>
 </template>
 
@@ -38,19 +36,19 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import Icon from '@/components/Icon.vue';
 import TriggerListFolderItem from './TriggerListFolderItem.vue';
 import TriggerListItem from './TriggerListItem.vue';
-import TriggerSearchForm from './TriggerSearchForm.vue';
 import Checkbox from '@/components/Checkbox.vue';
+import SearchForm from '../SearchForm.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		Checkbox,
+		SearchForm,
 		ToggleBlock,
 		ToggleButton,
 		TriggerListItem,
 		TriggerListFolderItem,
-		TriggerSearchForm,
 	},
 	emits:["select", "testTrigger","createTrigger"],
 })
