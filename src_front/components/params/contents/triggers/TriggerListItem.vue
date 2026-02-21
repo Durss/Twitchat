@@ -7,7 +7,7 @@
 
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
-		v-tooltip="{content:tooltipText,placement:'left',theme:triggerTypeDef?.disabled? 'alert' : 'twitchat'}">
+		v-tooltip="{content:tooltipText,placement:'auto',theme:triggerTypeDef?.disabled? 'alert' : 'twitchat'}">
 			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
 			<div class="label">
@@ -16,7 +16,7 @@
 				<span class="triggerId"
 					v-click2Select
 					v-if="$store.main.devmode && over && selectMode === false"
-					@click.stop="">{{ entryData.trigger.id }}</span>
+					@click.stop="">{{  }}</span>
 			</div>
 		</button>
 
@@ -33,6 +33,12 @@
 			v-model="selected"
 			:aria-label="entryData.trigger.enabled? 'trigger selected' : 'trigger unselected'"/>
 		</div>
+
+		<TTButton v-if="noEdit === false && $store.main.devmode"
+		v-tooltip="$t('global.copy')"
+		class="copyIdBt"
+		transparent icon="id"
+		:copy="entryData.trigger.id" />
 
 		<button class="testBt" @click="$emit('testTrigger',entryData.trigger)"
 		v-if="noEdit === false && toggleMode === false"
@@ -63,11 +69,11 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
 import TriggerUtils from '@/utils/TriggerUtils';
 import { watch } from 'vue';
-// import Checkbox from '@/components/Checkbox.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
-		// Checkbox,
+		TTButton,
 		ToggleButton,
 	},
 	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
@@ -92,16 +98,15 @@ class TriggerListItem extends Vue {
 	public over:boolean = false;
 	public selected:boolean = false;
 	public tooltipText:string = "";
-	public triggerDisplayInfo:ReturnType<typeof TriggerUtils.getTriggerDisplayInfo>|undefined = undefined
 	public triggerTypeDef:TriggerTypeDefinition|undefined = undefined;
 	
 	public beforeMount(): void {
 		this.triggerTypeDef = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
-		this.triggerDisplayInfo = TriggerUtils.getTriggerDisplayInfo(this.entryData.trigger);
+		const info = TriggerUtils.getTriggerDisplayInfo(this.entryData.trigger);
 		const event = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
 		if(this.triggerTypeDef?.disabled === true && this.triggerTypeDef.disabledReasonLabelKey) this.tooltipText = this.$t(this.triggerTypeDef.disabledReasonLabelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
 		else if(!event) this.tooltipText = "unknown category"
-		else this.tooltipText = this.$t(this.triggerDisplayInfo.descriptionKey ||event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
+		else this.tooltipText = this.$t(info.descriptionKey ||event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
 
 		this.selected = this.$store.exporter.selectedTriggerIDs.includes(this.entryData.trigger.id);
 
@@ -126,7 +131,7 @@ export default toNative(TriggerListItem);
 	min-height: 1.5em;
 	position: relative;
 	transition: background-color .1s;
-	// overflow: hidden;
+	overflow: hidden;
 
 	&:hover {
 		background-color: var(--background-color-fader);
@@ -177,6 +182,12 @@ export default toNative(TriggerListItem);
 		padding: 0 .5em;
 		border-left: 1px solid var(--color-dark-light);
 	}
+	.copyIdBt {
+		padding: 0;
+		width: 1.5em;
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
 	.deleteBt, .testBt, .duplicateBt {
 		color: var(--color-text);
 		flex-shrink: 0;
@@ -191,21 +202,6 @@ export default toNative(TriggerListItem);
 			.icon {
 				opacity: .35;
 			}
-		}
-	}
-	
-
-	.triggerId {
-		.bevel();
-		cursor: help !important;
-		font-size: .8em;
-		font-family: 'Courier New', Courier, monospace;
-		opacity: .75;
-		padding: 2px 5px;
-		&::before {
-			content: "ID: ";
-			font-family: Inter;
-			font-weight: bold;
 		}
 	}
 }

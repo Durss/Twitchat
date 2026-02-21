@@ -18,9 +18,7 @@
 			</template>
 		</i18n-t>
 
-		<div class="card-item searchForm" v-else-if="subtriggerList.length == 0">
-			<input v-model="search" @input="onSearch()" :placeholder="$t('global.search_placeholder')" v-autofocus>
-		</div>
+		<TriggerSearchForm class="searchForm" :debounceDelay="100" v-else-if="subtriggerList.length == 0" v-model="search" />
 
 		<div class="card-item noResult" v-if="search && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 
@@ -117,11 +115,13 @@ import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 import { ANY_VALUE } from '../../../../types/TriggerActionDataTypes';
+import TriggerSearchForm from './TriggerSearchForm.vue';
 
 @Component({
 	components:{
 		TTButton:TTButton,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
 		ToggleBlock,
+		TriggerSearchForm,
 		TriggerActionList,
 	},
 	emits:["selectTrigger", "updateHeader"],
@@ -197,6 +197,9 @@ class TriggerCreateForm extends Vue {
 		watch(()=>this.$store.auth.newScopesToRequest, () => {
 			this.populate();
 		});
+		watch(()=>this.search, () => {
+			this.onSearch();
+		})
 	}
 
 	/**
@@ -749,10 +752,6 @@ export default toNative(TriggerCreateForm);
 
 	.searchForm {
 		margin-bottom: 1em;
-		input {
-			text-align: center;
-			width: 100%;
-		}
 	}
 
 	.noResult {

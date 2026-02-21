@@ -34,6 +34,7 @@
 		"triggers_list_raw": "Liste",
 		"triggers_list_cat": "Catégories",
 		"create_folder": "Créer un dossier",
+		"search_in_actions": "Rechercher dans les actions",
 		"create_counterBt": "Créez des compteurs",
 		"trigger_queue": "File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
