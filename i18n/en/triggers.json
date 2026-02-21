@@ -34,6 +34,7 @@
 		"triggers_list_raw": "Raw list",
 		"triggers_list_cat": "Categories",
 		"create_folder": "Create folder",
+		"search_in_actions": "Search in actions",
 		"create_counterBt": "Create counters",
 		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",

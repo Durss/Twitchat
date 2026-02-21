@@ -2859,6 +2859,7 @@ const UserDataSchema = {
 				},
 				liveState: {
 					type: "object",
+					nullable: true,
 					additionalProperties: false,
 					properties: {
 						quizId: { type: "string", maxLength: 50 },
