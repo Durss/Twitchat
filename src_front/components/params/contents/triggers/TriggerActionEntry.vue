@@ -359,8 +359,8 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCustomTrainData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebSocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
@@ -501,7 +501,7 @@ class TriggerActionEntry extends Vue {
 	public canEditStreamInfo:boolean = false;
 		
 	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected.value; }
 	public get discordEnabled():boolean { return this.$store.discord.discordLinked === true; }

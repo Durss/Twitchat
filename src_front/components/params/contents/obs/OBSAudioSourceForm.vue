@@ -17,8 +17,8 @@
 import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { OBSInputItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { OBSInputItem } from '@/utils/OBSWebSocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -46,8 +46,8 @@ class OBSAudioSourceForm extends Vue {
 		this.obsAllowed_audioSources.labelKey	= "obs.microphone_source";
 		this.obsAllowed_muteCommand.labelKey	= "obs.microphone_mute";
 		this.obsAllowed_unmuteCommand.labelKey	= "obs.microphone_unmute";
-		watch(()=> OBSWebsocket.instance.connected.value, () => { 
-			if(OBSWebsocket.instance.connected.value) {
+		watch(()=> OBSWebSocket.instance.connected.value, () => { 
+			if(OBSWebSocket.instance.connected.value) {
 				this.listAudioSources();
 			}
 		})
@@ -83,7 +83,7 @@ class OBSAudioSourceForm extends Vue {
 			await Utils.promisedTimeout(500);
 		}
 
-		this.audioSources = await OBSWebsocket.instance.getInputs();
+		this.audioSources = await OBSWebSocket.instance.getInputs();
 		if(this.audioSources.length > 0) {
 			this.noAudioSource = false;
 			this.obsAllowed_audioSources.listValues = this.audioSources

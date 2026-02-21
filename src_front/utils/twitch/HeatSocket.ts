@@ -2,7 +2,7 @@ import { EventDispatcher } from "@/events/EventDispatcher";
 import HeatEvent from "@/events/HeatEvent";
 import StoreProxy from "@/store/StoreProxy";
 import { ref } from "vue";
-import OBSWebsocket from "../OBSWebsocket";
+import OBSWebSocket from "../OBSWebSocket";
 
 /**
 * Created : 21/06/2023 
@@ -145,7 +145,7 @@ export default class HeatSocket extends EventDispatcher {
 		};
 		//@ts-ignore
 		window.clearOBSCache = ():void => {
-			OBSWebsocket.instance.clearSourceTransformCache();
+			OBSWebSocket.instance.clearSourceTransformCache();
 		};
 	}
 }

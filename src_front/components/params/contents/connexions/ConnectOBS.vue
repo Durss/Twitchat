@@ -59,7 +59,7 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import { watch } from '@vue/runtime-core';
 import type { CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -109,7 +109,7 @@ class ConnectOBS extends Vue implements IParameterContent {
 		const ip = DataStore.get(DataStore.OBS_IP);
 
 		if(port != undefined || pass != undefined || ip != undefined) {
-			this.connected = OBSWebsocket.instance.connected.value;
+			this.connected = OBSWebSocket.instance.connected.value;
 			this.openConnectForm = !this.connected;
 		}else{
 			this.openConnectForm = true;
@@ -121,8 +121,8 @@ class ConnectOBS extends Vue implements IParameterContent {
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
-		watch(()=> OBSWebsocket.instance.connected.value, () => {
-			this.connected = OBSWebsocket.instance.connected.value;
+		watch(()=> OBSWebSocket.instance.connected.value, () => {
+			this.connected = OBSWebSocket.instance.connected.value;
 			if(!this.connected) this.openConnectForm = true;
 		});
 	}
@@ -144,7 +144,7 @@ class ConnectOBS extends Vue implements IParameterContent {
 		this.$store.obs.connectionEnabled = this.param_enabled.value;
 		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
 		if(!this.param_enabled.value) {
-			OBSWebsocket.instance.disconnect();
+			OBSWebSocket.instance.disconnect();
 		}
 	}
 }
