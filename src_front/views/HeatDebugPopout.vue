@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebSocket from '@/utils/OBSWebSocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -35,10 +35,10 @@ class HeatDebugPopout extends Vue {
 
 	public mounted():void {
 		this.isPopout = this.$route.name == "heatDebug";
-		if(OBSWebsocket.instance.connected.value){
+		if(OBSWebSocket.instance.connected.value){
 			this.refreshImage();
 		}else{
-			watch(()=>OBSWebsocket.instance.connected.value, ()=>{
+			watch(()=>OBSWebSocket.instance.connected.value, ()=>{
 				this.refreshImage();
 			});
 		}
@@ -97,7 +97,7 @@ class HeatDebugPopout extends Vue {
 		}
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
 
 	public goFullscreen():void {
 		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;
@@ -114,7 +114,7 @@ class HeatDebugPopout extends Vue {
 	}
 
 	public clearOBSCache():void {
-		OBSWebsocket.instance.clearSourceTransformCache()
+		OBSWebSocket.instance.clearSourceTransformCache()
 		if(window.opener?.clearOBSCache) {
 			window.opener.clearOBSCache();
 		}
@@ -146,7 +146,7 @@ class HeatDebugPopout extends Vue {
 		const area = (this.$refs.areaHolder as HTMLDivElement);
 		//@ts-ignore
 		if(area) {
-			const image = await OBSWebsocket.instance.getScreenshot();
+			const image = await OBSWebSocket.instance.getScreenshot();
 			area.style.backgroundImage = "url("+image+")";
 		}
 

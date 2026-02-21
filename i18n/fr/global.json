@@ -251,6 +251,8 @@
 			"complete_copied": "Message copié dans presse-papier.\r\nFaites CTRL+V dans discord, paint, ...",
 			"complete_discord": "Message envoyé sur Discord",
 			"error": "Une erreur est survenue lors de l'export du message :("
-		}
+		},
+		"state_overlay_not_visible": "L'overlay {NAME} est masqué",
+		"state_overlay_not_found": "L'overlay {NAME} n'existe pas sur la scène OBS actuelle"
 	}
 }

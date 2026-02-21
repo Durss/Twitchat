@@ -208,29 +208,11 @@ export default class TwitchExtensionController extends AbstractController {
 		const streamerId = request.twitchExtensionUser!.channel_id;
 		const viewerId = request.twitchExtensionUser!.user_id;
 		const bingos = await this._bingoController.getViewerGridList(streamerId, viewerId);
-		const quizs = await this._quizController.getStreamerQuizs(streamerId);
-		
-		if(quizs) {
-			// Strip out correct answers from quizs
-			quizs.data.forEach(quiz => {
-				if(quiz.mode == "classic") {
-					quiz.questionList.forEach(question => {
-						question.answerList.forEach(answer => {
-							delete answer.correct;
-						});
-					});
-				}else 
-				if(quiz.mode == "freeAnswer") {
-					quiz.questionList.forEach(question => {
-						delete question.answer
-					});
-				}
-			});
-		}
+		const quiz = await this._quizController.getStreamerQuiz(streamerId);
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:{bingos, quizs:quizs?.data}}));
+		response.send(JSON.stringify({success:true, data:{bingos, quiz}}));
 	}
 
 }

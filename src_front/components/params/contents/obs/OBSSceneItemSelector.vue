@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import OBSWebsocket, { type OBSItemPath, type OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebSocket, { type OBSItemPath, type OBSSourceItem } from '@/utils/OBSWebSocket';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -55,23 +55,23 @@ class OBSSceneItemSelector extends Vue {
 		this.listScenes();
 
 		this.obsEventHandler = ()=> this.listScenes();
-		OBSWebsocket.instance.socket.on("SceneCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneItemCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneItemRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("InputNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.on("SceneItemListReindexed", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneItemCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneItemRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("InputNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.on("SceneItemListReindexed", this.obsEventHandler);
 	}
 
 	public beforeUnmount():void {
-		OBSWebsocket.instance.socket.off("SceneCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneItemCreated", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneItemRemoved", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("InputNameChanged", this.obsEventHandler);
-		OBSWebsocket.instance.socket.off("SceneItemListReindexed", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneItemCreated", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneItemRemoved", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("InputNameChanged", this.obsEventHandler);
+		OBSWebSocket.instance.socket.off("SceneItemListReindexed", this.obsEventHandler);
 	}
 
 	public sceneItemClasses(name:string):string[] {
@@ -94,7 +94,7 @@ class OBSSceneItemSelector extends Vue {
 			this.modelValue.source.id = 0;
 			this.modelValue.source.name = "";
 		}
-		this.sceneItems = (await OBSWebsocket.instance.getSceneItems(this.modelValue.sceneName));
+		this.sceneItems = (await OBSWebSocket.instance.getSceneItems(this.modelValue.sceneName));
 	}
 
 	public async selectItem(item:OBSSourceItem):Promise<void> {
@@ -109,7 +109,7 @@ class OBSSceneItemSelector extends Vue {
 	}
 
 	private listScenes():void {
-		OBSWebsocket.instance.getScenes().then((result)=> {
+		OBSWebSocket.instance.getScenes().then((result)=> {
 			this.sceneList = result.scenes;
 			this.loading = true;
 			if(this.modelValue.sceneName) {
