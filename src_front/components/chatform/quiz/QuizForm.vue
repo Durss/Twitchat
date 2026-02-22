@@ -15,59 +15,18 @@
 
 		<div class="content" ref="content">
 			<div class="createForm">
-				<template v-if="!showQuizTypeForm">
-					<TTButton class="addBt"
-					v-if="$store.auth.isPremium || $store.quiz.quizList.length < $config.MAX_QUIZ"
-					@click="showQuizTypeForm = true" icon="add">{{ $t("quiz.form.add_bt") }}</TTButton>
-	
-					<PremiumLimitMessage v-else
-						label="quiz.form.non_premium_limit"
-						premiumLabel="quiz.form.premium_limit"
-						:max="$config.MAX_QUIZ"
-						:maxPremium="$config.MAX_QUIZ_PREMIUM" />
-				</template>
+				<TTButton class="addBt"
+				v-if="$store.auth.isPremium || $store.quiz.quizList.length < $config.MAX_QUIZ"
+				@click="addQuiz()" icon="add">{{ $t("quiz.form.add_bt") }}</TTButton>
 
-				<template v-if="showQuizTypeForm">
-					<TTButton class="addBt"
-					@click="showQuizTypeForm = false" icon="back">{{ $t("global.back") }}</TTButton>
-		
-					<div class="modeSelector">
-						<div class="card-item">
-							<div class="header">
-								<icon class="normalSize" name="quiz_classic" />
-								<span class="title">{{ $t("quiz.form.mode_classic.title") }}</span>
-							</div>
-							<div class="body">
-								<div class="content">{{ $t("quiz.form.mode_classic.description") }}</div>
-								<TTButton @click="addQuiz('classic')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
-							</div>
-						</div>
-						<div class="card-item">
-							<div class="header">
-								<icon class="normalSize" name="quiz_freeAnswer" />
-								<span class="title">{{ $t("quiz.form.mode_freeAnswer.title") }}</span>
-							</div>
-							<div class="body">
-								<div class="content">{{ $t("quiz.form.mode_freeAnswer.description") }}</div>
-								<TTButton @click="addQuiz('freeAnswer')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
-							</div>
-						</div>
-						<div class="card-item">
-							<div class="header">
-								<icon class="normalSize" name="quiz_majority" />
-								<span class="title">{{ $t("quiz.form.mode_majority.title") }}</span>
-							</div>
-							<div class="body">
-								<div class="content">{{ $t("quiz.form.mode_majority.description") }}</div>
-								<TTButton @click="addQuiz('majority')" icon="add" primary>{{ $t("quiz.form.createBt") }}</TTButton>
-							</div>
-						</div>
-					</div>
-				</template>
+				<PremiumLimitMessage v-else
+					label="quiz.form.non_premium_limit"
+					premiumLabel="quiz.form.premium_limit"
+					:max="$config.MAX_QUIZ"
+					:maxPremium="$config.MAX_QUIZ_PREMIUM" />
 			</div>
 			
-
-			<VueDraggable v-if="!showQuizTypeForm" class="quizList"
+			<VueDraggable class="quizList"
 			v-model="$store.quiz.quizList"
 			:group="{name:'quiz'}"
 			handle=".header"
@@ -77,13 +36,12 @@
 				v-model:title="quiz.title"
 				:titleDefault="$t('quiz.form.default_title')"
 				:titleMaxLengh="30"
-				:open="autoOpenID === quiz.id"
+				:open="autoOpenQuizID === quiz.id"
 				:key="quiz.id"
 				@update:title="save(quiz)">
 
 					<template #left_actions>
-						<ToggleButton small v-model="quiz.enabled" @click.native.stop @change="save(quiz)" v-if="$store.auth.isPremium || quiz.enabled || $store.quiz.quizList.filter(v=>v.enabled).length < $config.MAX_QUIZ" />
-						<icon class="modeIcon" :name="`quiz_${quiz.mode}`" v-tooltip="$t('quiz.form.mode_'+quiz.mode+'.title')" />
+						<ToggleButton small v-model="quiz.enabled" @click.native.stop @change="save(quiz)" :disabled="!$store.auth.isPremium && $store.quiz.quizList.length > 1" />
 					</template>
 
 					<template #right_actions>
@@ -101,36 +59,37 @@
 						<ParamItem :paramData="param_duration[quiz.id]" v-model="quiz.durationPerQuestion_s" @change="save(quiz)" />
 						<ParamItem :paramData="param_looseOnFail[quiz.id]" v-model="quiz.loosePointsOnFail" @change="save(quiz)" />
 						<ParamItem :paramData="param_timeBasedScore[quiz.id]" v-model="quiz.timeBasedScoring" @change="save(quiz)" />
-						<ParamItem v-if="quiz.mode == 'freeAnswer'" :paramData="param_tolerance[quiz.id]" v-model="quiz.toleranceLevel" @change="save(quiz)" />
+						<ParamItem :paramData="param_tolerance[quiz.id]" v-model="quiz.toleranceLevel" @change="save(quiz)" class="toleranceParam" />
 						
 						<Splitter><icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
-						
-						<div class="importForm">
-							<TTButton icon="download" type="file" accept=".csv" @update:file="(file:File) => onCSVImport(quiz, file)">{{ $t("quiz.form.import_bt") }}</TTButton>
-							<TTButton icon="info" noBounce primary v-tooltip="$t('quiz.form.import_'+quiz.mode+'_tt')"></TTButton>
-						</div>
 
-						<VueDraggable v-if="!showQuizTypeForm" class="questionList"
+						<div class="noQuestion" v-if="quiz.questionList.length === 0">{{ $t("quiz.form.no_question") }}</div>
+
+						<SearchForm v-if="quiz.questionList.length > 0" v-model="searches[quiz.id]" :debounceDelay="0" noAutoFocus />
+
+						<VueDraggable class="questionList"
 						v-model="quiz.questionList"
 						:group="{name:'questionList_'+quiz.id}"
 						handle=".dragHandle"
 						animation="250">
-							<div class="card-item" v-for="question in quiz.questionList" :key="question.id">
+							<div class="card-item" v-for="question in filteredQuestions(quiz)" :key="question.id">
 
-								<Icon class="dragHandle" name="dragZone" />
+								<div class="actions">
+									<Icon class="dragHandle" name="dragZone" />
 
-								<TTButton @click.stop :copy="question.id" icon="id" v-tooltip="$t('global.copy_id')" class="copyIdBt" small />
-
-								<div class="question">
-									<div class="questionHolder">
-										<ParamItem :paramData="param_question[question.id]" v-model="question.question" @blur="save(quiz)" noBackground />
+									<div class="innerGroup">
+										<TTButton class="modeSelector"
+											:icon="`quiz_${question.mode}`"
+											transparent
+											@click="(e:MouseEvent) => selectQuestionMode(e, quiz, question)"
+											v-tooltip="$t('quiz.form.mode_'+question.mode+'.title')" />
 										
 										<div class="durationOverride" v-tooltip="$t('quiz.form.durationOverride_tt')">
 											<TTButton v-if="!durationOverrideState[question.id]"
 												icon="countdown"
 												tabindex="-1"
 												@click="setCustomDuration(quiz.id, question)"
-												:primary="question.duration_s && question.duration_s > 0"
+												:secondary="question.duration_s && question.duration_s > 0"
 												:transparent="!question.duration_s">{{ question.duration_s? question.duration_s+'s' : '' }}</TTButton>
 											<span v-else class="durationForm">
 												<ContentEditable tag="span"
@@ -143,56 +102,70 @@
 													@blur="durationOverrideState[question.id] = false" />s
 											</span>
 										</div>
-									</div>
-									
-									<div class="singleAnswer" v-if="$utils.isFreeAnswerQuestion(quiz.mode, question)">
-										<ParamItem :paramData="param_answer[question.id]" v-model="question.answer" @blur="save(quiz)" noBackground />
-										
-										<div class="toleranceOverride" v-tooltip="$t('quiz.form.toleranceOverride_tt')">
-											<TTButton v-if="$utils.isFreeAnswerQuestion(quiz.mode, question)"
-												icon="spelling"
-												tabindex="-1"
-												@click="(e:MouseEvent|TouchEvent) => selectCustomTolerance(e, quiz.id, question)"
-												:primary="question.toleranceLevel !== undefined && question.toleranceLevel >= 0"
-												:transparent="!question.toleranceLevel">{{ 
-													question.toleranceLevel == undefined?
-													'' :
-													{
-														"0": $t('quiz.form.tolerances.none').split(' ')[0],
-														"1": $t('quiz.form.tolerances.very_low').split(' ')[0],
-														"2": $t('quiz.form.tolerances.low').split(' ')[0],
-														"3": $t('quiz.form.tolerances.medium').split(' ')[0],
-														"4": $t('quiz.form.tolerances.high').split(' ')[0],
-														"5": $t('quiz.form.tolerances.very_high').split(' ')[0],
-													}[question.toleranceLevel]
-												}}</TTButton>
+	
+										<div class="toleranceOverride" v-if="question.mode == 'freeAnswer'" v-tooltip="$t('quiz.form.toleranceOverride_tt')">
+											<TTButton
+											icon="spelling"
+											tabindex="-1"
+											@click="(e:MouseEvent|TouchEvent) => selectCustomTolerance(e, quiz.id, question)"
+											:secondary="question.toleranceLevel !== undefined && question.toleranceLevel >= 0"
+											:transparent="question.toleranceLevel === undefined || question.toleranceLevel < 0">{{ 
+												question.toleranceLevel == undefined?
+												'' :
+												{
+													"0": $t('quiz.form.tolerances.none').split(' ')[0],
+													"1": $t('quiz.form.tolerances.very_low').split(' ')[0],
+													"2": $t('quiz.form.tolerances.low').split(' ')[0],
+													"3": $t('quiz.form.tolerances.medium').split(' ')[0],
+													"4": $t('quiz.form.tolerances.high').split(' ')[0],
+													"5": $t('quiz.form.tolerances.very_high').split(' ')[0],
+												}[question.toleranceLevel]
+											}}</TTButton>
 										</div>
 									</div>
+										
+									<TTButton class="deleteBt"
+										icon="trash"
+										alert
+										v-tooltip="$t('quiz.form.deleteQuestionbt_tt')"
+										@click="deleteQuestion(quiz, question.id)" />
+								</div>
 
-									<template v-else-if="!$utils.isFreeAnswerQuestion(quiz.mode, question)">
+								<TTButton @click.stop :copy="question.id" icon="id" v-tooltip="$t('global.copy_id')" class="copyIdBt" small />
+								
+								<div class="question">
+									<div class="questionHolder">
+										<ParamItem :paramData="param_question[question.id]" v-model="question.question" @blur="save(quiz)" noBackground :autofocus="autoOpenQuestionID === question.id" />
+									</div>
+									
+									<div class="singleAnswer" v-if="question.mode == 'freeAnswer'">
+										<ParamItem :paramData="param_answer[question.id]" v-model="question.answer" @blur="save(quiz)" noBackground />
+									</div>
+
+									<template v-else>
 										<ToggleBlock
-										:icons="quiz.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
+										:icons="question.mode =='classic'? ['quiz_answers'] : ['quiz_answers_wrong']"
 										class="answersBlock"
-										:subtitle="quiz.mode == 'majority'? $t('quiz.form.answers_majority_subtitle') : ''"
-										:title="quiz.mode == 'classic'? $t('quiz.form.answers', {COUNT: question.answerList.length}) : $t('quiz.form.answers_majority', {COUNT: question.answerList.length}	)"
+										:subtitle="question.mode == 'majority'? $t('quiz.form.answers_majority_subtitle') : ''"
+										:title="question.mode == 'classic'? $t('quiz.form.answers', {COUNT: question.answerList.length}) : $t('quiz.form.answers_majority', {COUNT: question.answerList.length}	)"
 										noTitleColor
 										small
-										:open="autoOpenID === question.id">
+										:open="autoOpenQuestionID === question.id">
 											<div class="answerList">
 												<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
-													<TTButton v-if="$utils.isClassicQuizAnswer(quiz.mode, answer)" class="correctToggle"
+													<TTButton v-if="$utils.isClassicQuizAnswer(question.mode, answer)" class="correctToggle"
 														@click="tickAnswer(question.answerList, answer)"
 														v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
 														:icon="answer.correct? 'checkmark' : 'cross'"
 														:primary="answer.correct"
-														:disabled="$utils.isClassicQuizAnswer(quiz.mode, answer) && answer.correct && question.answerList.filter(a=> $utils.isClassicQuizAnswer(quiz.mode, a) && a.correct).length === 1"
+														:disabled="$utils.isClassicQuizAnswer(question.mode, answer) && answer.correct && question.answerList.filter(a=> $utils.isClassicQuizAnswer(question.mode, a) && a.correct).length === 1"
 														noBounce />
 													<ParamItem :paramData="param_answer[answer.id]" v-model="answer.title" @blur="save(quiz)" noBackground />
 													<TTButton v-if="question.answerList.length > 2" class="deleteBt" icon="trash" @click="deleteAnswer(quiz, question.id, answer.id)" alert />
 												</div>
 												
 												<TTButton :sortable="false" :draggable="false" class="addBt"
-													v-if="question.answerList.length < (quiz.mode == 'classic'? 6 : 4)"
+													v-if="question.answerList.length < (question.mode == 'classic'? 6 : 4)"
 													@click="addAnswer(quiz, question.id)"
 													primary
 													icon="add">{{ $t("quiz.form.addAnswer_bt") }}</TTButton>
@@ -200,16 +173,19 @@
 										</ToggleBlock>
 									</template>
 								</div>
-
-								<TTButton class="deleteBt"
-									icon="trash"
-									v-tooltip="$t('quiz.form.deleteQuestionbt_tt')"
-									@click="deleteQuestion(quiz, question.id)"
-									transparent />
 							</div>
 						</VueDraggable>
 
-						<TTButton @click="addQuestion(quiz)" v-if="quiz.questionList.length < maxQuestionCount" icon="add" primary>{{ $t("quiz.form.addQuestion_bt") }}</TTButton>
+						<div class="card-item addQuestionBtns" v-if="quiz.questionList.length < maxQuestionCount">
+							<div>{{ $t("quiz.form.add_question_title") }}</div>
+							<div class="importForm">
+								<TTButton icon="download" type="file" accept=".csv" @update:file="(file:File) => onCSVImport(quiz, file)">{{ $t("quiz.form.import_bt") }}</TTButton>
+								<Icon class="icon" name="info" v-tooltip="$t('quiz.form.import_tt')" />
+							</div>
+							<TTButton @click="addQuestion(quiz, 'classic')" icon="quiz_classic" primary v-tooltip="$t('quiz.form.mode_classic.description')">{{ $t("quiz.form.mode_classic.title") }}</TTButton>
+							<TTButton @click="addQuestion(quiz, 'freeAnswer')" icon="quiz_freeAnswer" primary v-tooltip="$t('quiz.form.mode_freeAnswer.description')">{{ $t("quiz.form.mode_freeAnswer.title") }}</TTButton>
+							<TTButton @click="addQuestion(quiz, 'majority')" icon="quiz_majority" primary v-tooltip="$t('quiz.form.mode_majority.description')">{{ $t("quiz.form.mode_majority.title") }}</TTButton>
+						</div>
 						
 						<PremiumLimitMessage v-else
 							label="quiz.form.nonpremium_question_limit"
@@ -230,6 +206,7 @@ import Checkbox from '@/components/Checkbox.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import ContentEditable from '@/components/ContentEditable.vue';
 import OverlayInstaller from '@/components/params/contents/overlays/OverlayInstaller.vue';
+import SearchForm from '@/components/params/contents/SearchForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PremiumLimitMessage from '@/components/params/PremiumLimitMessage.vue';
 import Splitter from '@/components/Splitter.vue';
@@ -239,6 +216,7 @@ import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import ContextMenu, { type MenuOptions } from "@imengyu/vue3-context-menu";
+import { h, type RendererElement, type RendererNode, type VNode } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, toNative } from 'vue-facing-decorator';
 
@@ -248,6 +226,7 @@ import { Component, toNative } from 'vue-facing-decorator';
 		Splitter,
 		Checkbox,
 		ParamItem,
+		SearchForm,
 		ClearButton,
 		ToggleBlock,
 		ToggleButton,
@@ -269,9 +248,10 @@ class QuizForm extends AbstractSidePanel {
 	public param_answerDuration: Record<string, TwitchatDataTypes.ParameterData<number>> = {}
 	public durationOverrideState: Record<string, boolean> = {}
 	public toleranceOverrideState: Record<string, boolean> = {}
+	public searches: Record<string, string> = {};
 
-	public showQuizTypeForm:boolean = false;
-	public autoOpenID:string|null = null;
+	public autoOpenQuizID:string|null = null;
+	public autoOpenQuestionID:string|null = null;
 
 	public get maxQuizReached():boolean {
 		if(this.$store.auth.isPremium) {
@@ -285,8 +265,28 @@ class QuizForm extends AbstractSidePanel {
 		return this.$store.auth.isPremium ? this.$config.MAX_QUESTIONS_PER_QUIZ_PREMIUM : this.$config.MAX_QUESTIONS_PER_QUIZ;
 	}
 
+	/**
+	 * Returns questions filtered by the current search query for a given quiz
+	 */
+	public filteredQuestions(quiz:TwitchatDataTypes.QuizParams):TwitchatDataTypes.QuizParams["questionList"] {
+		const search = (this.searches[quiz.id] || "").trim().toLowerCase();
+		if(!search) return quiz.questionList;
+		return quiz.questionList.filter(q => {
+			if(q.question.toLowerCase().includes(search)) return true;
+			if(q.mode === "freeAnswer") {
+				return (q.answer || "").toLowerCase().includes(search);
+			} else {
+				return q.answerList.some(a => a.title.toLowerCase().includes(search));
+			}
+		}) as TwitchatDataTypes.QuizParams["questionList"];
+	}
+
 	public async beforeMount():Promise<void> {
 		this.initParams();
+		if(!this.$store.auth.isPremium && this.$store.quiz.quizList.filter(v=>v.enabled).length === 0) {
+			this.$store.quiz.quizList[0]!.enabled = true;
+			console.log("OKOKO")
+		}
 	}
 
 	public mounted():void {
@@ -303,11 +303,10 @@ class QuizForm extends AbstractSidePanel {
 	/**
 	 * Create a new quiz
 	 */
-	public addQuiz(type: TwitchatDataTypes.QuizParams["mode"]):void {
-		const quiz = this.$store.quiz.addQuiz(type);
-		this.autoOpenID = quiz.id;
+	public addQuiz():void {
+		const quiz = this.$store.quiz.addQuiz();
+		this.autoOpenQuizID = quiz.id;
 		this.initParams();
-		this.showQuizTypeForm = false;
 	}
 
 	/**
@@ -315,7 +314,7 @@ class QuizForm extends AbstractSidePanel {
 		*/
 	public duplicateQuiz(id:string):void {
 		const quiz = this.$store.quiz.duplicateQuiz(id)
-		this.autoOpenID = quiz?.id ?? null;
+		this.autoOpenQuizID = quiz?.id ?? null;
 		this.initParams();
 	}
 
@@ -329,38 +328,41 @@ class QuizForm extends AbstractSidePanel {
 	/**
 	 * Adds a question to given quiz
 	 */
-	public addQuestion(quiz:TwitchatDataTypes.QuizParams):void {
-		if(quiz.mode == "classic") {
-			const question:TwitchatDataTypes.QuizParams<"classic">["questionList"][number] = {
+	public addQuestion(quiz:TwitchatDataTypes.QuizParams, mode:"classic"|"majority"|"freeAnswer"):void {
+		if(mode == "classic") {
+			const question:TwitchatDataTypes.QuizParams["questionList"][number] = {
 				id: Utils.getUUID(),
+				mode: "classic",
 				question: "",
 				answerList: [
 					{id:Utils.getUUID(), title:"", correct:true},
 					{id:Utils.getUUID(), title:""},
 				],
 			};
-			this.autoOpenID = question.id;
+			this.autoOpenQuestionID = question.id;
 			quiz.questionList.push(question);
 
-		}else if(quiz.mode == "majority") {
-			const question:TwitchatDataTypes.QuizParams<"majority">["questionList"][number] = {
+		}else if(mode == "majority") {
+			const question:TwitchatDataTypes.QuizParams["questionList"][number] = {
 				id: Utils.getUUID(),
+				mode: "majority",
 				question: "",
 				answerList: [
 					{id:Utils.getUUID(), title:""},
 					{id:Utils.getUUID(), title:""},
 				],
 			};
-			this.autoOpenID = question.id;
+			this.autoOpenQuestionID = question.id;
 			quiz.questionList.push(question);
 
-		}else if(quiz.mode == "freeAnswer") {
-			const question:TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] = {
+		}else if(mode == "freeAnswer") {
+			const question:TwitchatDataTypes.QuizParams["questionList"][number] = {
 				id: Utils.getUUID(),
+				mode: "freeAnswer",
 				question: "",
 				answer:"",
 			};
-			this.autoOpenID = question.id;
+			this.autoOpenQuestionID = question.id;
 			quiz.questionList.push(question);
 		}
 		this.initParams();
@@ -380,15 +382,9 @@ class QuizForm extends AbstractSidePanel {
 	 */
 	public addAnswer(quiz:TwitchatDataTypes.QuizParams, questionId:string):void {
 		const question = quiz.questionList.find(v=>v.id == questionId);
-		if(!question) return;
+		if(!question || question.mode === "freeAnswer") return;
 
-		if(quiz.mode == "classic") {
-			const typedQuestion = question as TwitchatDataTypes.QuizParams<"classic">["questionList"][number];
-			typedQuestion.answerList.push({id:Utils.getUUID(), title:""});
-		}else{
-			const typedQuestion = question as TwitchatDataTypes.QuizParams<"majority">["questionList"][number];
-			typedQuestion.answerList.push({id:Utils.getUUID(), title:""});
-		}
+		question.answerList.push({id:Utils.getUUID(), title:""});
 		this.initParams();
 		this.save(quiz);
 	}
@@ -401,15 +397,9 @@ class QuizForm extends AbstractSidePanel {
 	 */
 	public deleteAnswer(quiz:TwitchatDataTypes.QuizParams, questionId:string, answerId:string):void {
 		const question = quiz.questionList.find(v=>v.id == questionId);
-		if(!question) return;
+		if(!question || question.mode === "freeAnswer") return;
 
-		if(quiz.mode == "classic") {
-			const typedQuestion = question as TwitchatDataTypes.QuizParams<"classic">["questionList"][number];
-			typedQuestion.answerList = typedQuestion.answerList.filter(v=>v.id != answerId);
-		}else{
-			const typedQuestion = question as TwitchatDataTypes.QuizParams<"majority">["questionList"][number];
-			typedQuestion.answerList = typedQuestion.answerList.filter(v=>v.id != answerId);
-		}
+		question.answerList = question.answerList.filter(v=>v.id != answerId);
 		this.initParams();
 		this.save(quiz);
 	}
@@ -433,8 +423,8 @@ class QuizForm extends AbstractSidePanel {
 	 * If trying to untick the only correct answer, ignore and keep it ticked
 	 * @param answerList 
 	 */
-	public tickAnswer(answerList: TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"],
-	answer:TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number]): void {
+	public tickAnswer(answerList: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"],
+	answer:Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"][number]): void {
 		if(answer.correct) {
 			//Untick
 			const correctAnswers = answerList.filter(a=> a.correct);
@@ -452,7 +442,7 @@ class QuizForm extends AbstractSidePanel {
 	 * @param id 
 	 * @param question 
 	 */
-	public selectCustomTolerance(event: MouseEvent|TouchEvent, quizId:string, question: TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number]): void {
+	public selectCustomTolerance(event: MouseEvent|TouchEvent, quizId:string, question: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "freeAnswer"}>): void {
 		const list:{[key:string]:string} = this.$tm("quiz.form.tolerances") as {[key:string]:string};
 		const px = event.type == "touchstart"? (event as TouchEvent).touches[0]!.clientX : (event as MouseEvent).x;
 		const py = event.type == "touchstart"? (event as TouchEvent).touches[0]!.clientY : (event as MouseEvent).y;
@@ -471,8 +461,9 @@ class QuizForm extends AbstractSidePanel {
 			if (!Object.hasOwn(list, key)) continue;
 			
 			menu.items!.push({
-				checked: (key == "undefined" && question.toleranceLevel === undefined) || question.toleranceLevel === index-1,
+				customClass: (key == "undefined" && question.toleranceLevel === undefined) || question.toleranceLevel === index-1? 'selected' : '',
 				label: this.$t("quiz.form.tolerances."+key),
+				preserveIconWidth: false,
 				onClick: ((index)=> {
 					return () => {
 						if(key == "undefined") {
@@ -490,6 +481,72 @@ class QuizForm extends AbstractSidePanel {
 	}
 
 	/**
+	 * Opens a context menu to select the question mode
+	 * @param event 
+	 * @param quiz 
+	 * @param question 
+	 */
+	public selectQuestionMode(event: MouseEvent, quiz:TwitchatDataTypes.QuizParams, question: TwitchatDataTypes.QuizParams["questionList"][number]):void {
+		const menu:MenuOptions = {
+			theme: 'mac '+this.$store.common.theme,
+			x: event.x,
+			y: event.y,
+			items: [
+				{ icon:this.getIcon("icons/quiz_classic.svg"), customClass: question.mode === "classic"? 'selected': '', label: this.$t("quiz.form.mode_classic.title"), onClick: () => this.changeQuestionMode(quiz, question, "classic") },
+				{ icon:this.getIcon("icons/quiz_freeAnswer.svg"), customClass: question.mode === "freeAnswer"? 'selected': '', label: this.$t("quiz.form.mode_freeAnswer.title"), onClick: () => this.changeQuestionMode(quiz, question, "freeAnswer") },
+				{ icon:this.getIcon("icons/quiz_majority.svg"), customClass: question.mode === "majority"? 'selected': '', label: this.$t("quiz.form.mode_majority.title"), onClick: () => this.changeQuestionMode(quiz, question, "majority") },
+			],
+			mouseScroll:true,
+			closeWhenScroll:false,
+			updownButtonSpaceholder:false,
+		}
+		ContextMenu.showContextMenu(menu);
+	}
+
+	private getIcon(icon:string):VNode<RendererNode, RendererElement> {
+		const image = this.$store.asset;
+		return h('img', {
+			src: image(icon),
+			style: {
+			width: '1em',
+			height: '1em',
+			}
+		})
+	}
+
+	/**
+	 * Changes the mode of a question, resetting mode-specific data
+	 * @param quiz 
+	 * @param question 
+	 * @param newMode 
+	 */
+	public changeQuestionMode(quiz:TwitchatDataTypes.QuizParams, question: TwitchatDataTypes.QuizParams["questionList"][number], newMode: "classic"|"majority"|"freeAnswer"):void {
+		if(question.mode === newMode) return;
+		const index = quiz.questionList.findIndex(q => q.id === question.id);
+		if(index === -1) return;
+
+		const hasAnswerList = question.mode === "classic" || question.mode === "majority";
+
+		let newQuestion: TwitchatDataTypes.QuizParams["questionList"][number];
+		if(newMode === "classic") {
+			const answerList = hasAnswerList
+				? question.answerList.map(a => ({ id: a.id, title: a.title, correct: false }))
+				: [{id:Utils.getUUID(), title:"", correct:true}, {id:Utils.getUUID(), title:"", correct:false}];
+			newQuestion = { id: question.id, mode: "classic", question: question.question, duration_s: question.duration_s, answerList };
+		}else if(newMode === "majority") {
+			const answerList = hasAnswerList
+				? question.answerList.map(a => ({ id: a.id, title: a.title }))
+				: [{id:Utils.getUUID(), title:""}, {id:Utils.getUUID(), title:""}];
+			newQuestion = { id: question.id, mode: "majority", question: question.question, duration_s: question.duration_s, answerList };
+		}else{
+			newQuestion = { id: question.id, mode: "freeAnswer", question: question.question, duration_s: question.duration_s, answer: "" };
+		}
+		quiz.questionList.splice(index, 1, newQuestion);
+		this.initParams();
+		this.save(quiz);
+	}
+
+	/**
 	 * Called when importing a CSV file
 	 * @param file 
 	 */
@@ -498,41 +555,34 @@ class QuizForm extends AbstractSidePanel {
 			this.$store.common.alert(this.$t("quiz.form.import_invalid_file"));
 			return;
 		}
-		console.log("Importing CSV file:", file);
+		
 		file.text().then(content=> {
 			const questions = content.split("\n").map(line=> line.split(";")).filter(line=> line.length > 0);
 			questions.forEach(line=> {
 				const questionText = line[0]!.trim();
-				const answersText = line.slice(1);
-				if(answersText.length < 2) return; //Need at least 2 answers
-				
-				if(quiz.mode == "classic" || quiz.mode == "majority") {
-					const question:TwitchatDataTypes.QuizParams["questionList"][number] = {
-						id: Utils.getUUID(),
-						question: questionText,
-						answerList: [],
-					};
+				if(!questionText) return;
+				const answersText = line.slice(1).filter(a => a.trim());
 
-					answersText.forEach((answerText, index)=> {
-						const answer:TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][number]["answerList"][number] = {
-							id: Utils.getUUID(),
-							title: answerText.trim(),
-						};
-						//Flag 1st answer as correct for classic quizes
-						if(quiz.mode == "classic" && Utils.isClassicQuizAnswer(quiz.mode, answer)) {
-							answer.correct = index === 0;
-						}
-						question.answerList.push(answer);
-					});
-
-					quiz.questionList.push(question);
-				}else if(quiz.mode == "freeAnswer") {
-					const question:TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] = {
+				if(answersText.length === 1) {
+					// 2 columns: question + answer → freeAnswer
+					quiz.questionList.push({
 						id: Utils.getUUID(),
+						mode: "freeAnswer",
 						question: questionText,
 						answer: answersText[0]!.trim(),
-					};
-					quiz.questionList.push(question);
+					});
+				}else if(answersText.length >= 2) {
+					// 3+ columns: question + answers → classic (first answer is correct)
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "classic",
+						question: questionText,
+						answerList: answersText.map((a, index) => ({
+							id: Utils.getUUID(),
+							title: a.trim(),
+							correct: index === 0,
+						})),
+					});
 				}
 			});
 			this.initParams();
@@ -561,10 +611,8 @@ class QuizForm extends AbstractSidePanel {
 				this.param_looseOnFail[id] = {type:"boolean", value:true, labelKey:"quiz.form.param_loose_on_fail", icon:"sad"};
 			}
 
-			if(quiz.mode == "freeAnswer") {
-				if(!this.param_tolerance[id])  {
-					this.param_tolerance[id] = {type:"list", value:1, listValues:spellingOptions, labelKey:"quiz.form.param_tolerance", icon:"spelling"};
-				}
+			if(!this.param_tolerance[id])  {
+				this.param_tolerance[id] = {type:"list", value:1, listValues:spellingOptions, labelKey:"quiz.form.param_tolerance", icon:"spelling"};
 			}
 
 			quiz.questionList.forEach(question=> {
@@ -575,7 +623,7 @@ class QuizForm extends AbstractSidePanel {
 					this.durationOverrideState[id] = false;
 				}
 
-				if(!Utils.isFreeAnswerQuestion(quiz.mode, question)) {
+				if(question.mode !== "freeAnswer") {
 					question.answerList.forEach(answer=> {
 						const id = answer.id;
 						if(!this.param_answer[id]) {
@@ -599,34 +647,70 @@ export default toNative(QuizForm);
 <style scoped lang="less">
 .quizform{
 
-	.modeSelector {
-		gap: 1em;
+	.addQuestionBtns {
+		gap: .5em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		.card-item {
-			flex-grow: 1;
-			flex-basis: calc(50% - 1em);
-			min-width: 195px;
+		justify-content: center;
+		&>:first-child {
+			flex: 1 1 100%;
+			text-align: center;
+			font-weight: bold;
+		}
+		.button {
+			min-width: 120px;
+		}
+
+		.importForm {
 			display: flex;
-			flex-direction: column;
-			.body {
-				gap: 1em;
-				display: flex;
-				flex-direction: column;
-				line-height: 1.25em;
-				flex: 1;
-	
-				.content {
-					flex: 1;
-					white-space: pre-line;
-				}
+			flex-direction: row;
+			justify-content: center;
+			.button {
+				flex-wrap: nowrap;
+			}
+
+			&>* {
+				border-radius: 0;
+			}
+			&>*:first-child {
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			&>*:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
+			}
+
+			&>.icon {
+				padding: .25em;
+				background-color: var(--color-primary);
+				height: auto;
+				max-width: 1.5em;
+			}
+
+			&>.icon:first-child {
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			&>.icon:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 			}
 		}
 	}
 
 	.form {
 		gap: .5em;
+	}
+
+	.toleranceParam {
+		:deep(.holder) {
+			flex-direction: column;
+			select {
+				flex-basis: unset;
+			}
+		}
 	}
 
 	.createForm {
@@ -651,9 +735,9 @@ export default toNative(QuizForm);
 			}
 		}
 
-		.modeIcon {
-			height: 1.5em;
-			max-width: 2em;
+		.noQuestion {
+			text-align: center;
+			font-style: italic;
 		}
 
 		.questionList {
@@ -663,18 +747,81 @@ export default toNative(QuizForm);
 			.card-item {
 				gap: .5em;
 				display: flex;
-				flex-direction: row;
-				align-items: flex-start;
+				flex-direction: column;
 				position: relative;
 				overflow: visible;
 
-				&>.dragHandle {
-					flex-shrink: 0;
-					padding: .25em;
-					width: 1em;
-					cursor: grab;
+				.actions {
+					gap: 3px;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-between;
+
+					.innerGroup {
+						gap: .25em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						flex-grow: 1;
+						flex-wrap: wrap;
+						justify-content: flex-start;
+					}
+
+					.dragHandle {
+						flex-shrink: 0;
+						padding: .25em;
+						height: 1.25em;
+						cursor: grab;
+						margin-right: 1em;
+					}
+	
+					.modeSelector {
+						flex-shrink: 0;
+						align-self: flex-start;
+						:deep(.icon) {
+							max-width: 1.25em;
+						}
+					}
+
+					.durationOverride,
+					.toleranceOverride {
+						display: flex;
+						.button {
+							height: 100%;
+							min-height: 100%;
+							padding-left: .5em;
+							padding-right: .5em;
+							gap: .25em;
+							flex-wrap: nowrap;
+							flex-shrink: 0;
+							::v-deep(.icon) {
+								flex-shrink: 0;
+							}
+							::v-deep(.label) {
+								font-size: .7em;
+								flex-shrink: 0;
+							}
+						}
+
+						&.toleranceOverride {
+							::v-deep(.label) {
+								font-size: 1em;
+								margin-top: -.5em;
+								margin-bottom: -.5em;
+							}
+						}
+	
+						.durationForm {
+							margin-top: .1em;
+							padding: .25em .5em;
+							font-size: .8em;
+							align-self: center;
+						}
+					}
 				}
-				&>.deleteBt {
+				
+				.deleteBt {
 					flex-shrink: 0;
 					height: 100%;
 				}
@@ -715,35 +862,6 @@ export default toNative(QuizForm);
 							background: transparent;
 						}
 					}
-
-					.durationOverride {
-						display: flex;
-						.button {
-							height: 100%;
-							min-height: 100%;
-							padding-left: .5em;
-							padding-right: .5em;
-							border-top-left-radius: 0;
-							border-bottom-left-radius: 0;
-							gap: .25em;
-							flex-wrap: nowrap;
-							flex-shrink: 0;
-							::v-deep(.icon) {
-								flex-shrink: 0;
-							}
-							::v-deep(.label) {
-								font-size: .7em;
-								flex-shrink: 0;
-							}
-						}
-	
-						.durationForm {
-							margin-top: .1em;
-							padding: .25em .5em;
-							font-size: .8em;
-							align-self: center;
-						}
-					}
 				}
 
 				.answersBlock {
@@ -773,26 +891,6 @@ export default toNative(QuizForm);
 							background: transparent;
 						}
 					}
-					.toleranceOverride {
-						.button {
-							height: 100%;
-							min-height: 100%;
-							padding-left: .5em;
-							padding-right: .5em;
-							border-top-left-radius: 0;
-							border-bottom-left-radius: 0;
-							gap: .25em;
-							flex-wrap: nowrap;
-							flex-shrink: 0;
-							::v-deep(.icon) {
-								flex-shrink: 0;
-							}
-							::v-deep(.label) {
-								// font-size: 1.25em;
-								flex-shrink: 0;
-							}
-						}
-					}
 				}
 				
 				.answerList {
@@ -809,7 +907,7 @@ export default toNative(QuizForm);
 						display: flex;
 						position: relative;
 						flex-direction: row;
-						.correctToggle, .deleteBt {
+						.correctToggle {
 							flex-shrink: 0;
 						}
 						&>.paramitem {
@@ -881,25 +979,6 @@ export default toNative(QuizForm);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-		}
-	}
-
-	.importForm {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-
-		&>.button {
-			border-radius: 0;
-		}
-
-		&>.button:first-child {
-			border-top-left-radius: var(--border-radius);
-			border-bottom-left-radius: var(--border-radius);
-		}
-		&>.button:last-child {
-			border-top-right-radius: var(--border-radius);
-			border-bottom-right-radius: var(--border-radius);
 		}
 	}
 	

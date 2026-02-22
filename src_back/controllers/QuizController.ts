@@ -63,13 +63,13 @@ export default class QuizController extends AbstractController {
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		const found = fs.existsSync(userFilePath);
 		if(found){
-			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {quizConfigs:{quizList:QuizParams[]}};
+			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {quizConfigs?:{quizList?:QuizParams[]}};
 			// Get requested quiz (must be enabled) or first enabled one if no quizId provided
-			const quiz = data.quizConfigs.quizList.find(q => q.enabled && (!quizId || q.id === quizId));
-			return this.setCache(uid, quiz);
+			const quiz = data.quizConfigs?.quizList?.find(q => q.enabled && (!quizId || q.id === quizId));
+			return this.setCache(uid, quiz, false);
 		}
 
-		return this.setCache(uid, undefined);
+		return this.setCache(uid, undefined, false);
 	}
 	
 	
@@ -109,12 +109,11 @@ export default class QuizController extends AbstractController {
 	private async putBroadcastQuiz(request:FastifyRequest, response:FastifyReply) {
 		const user = await super.twitchUserGuard(request, response);
 		if(!user) return;
-		const quiz:QuizParams = (request.body as any).quiz;
+		const quiz:QuizParams|undefined = (request.body as any).quiz;
 		const uid:string = user.user_id;
-		const quizId = quiz.id;
 		
 		// Validate UID and quizId
-		if(!uid || !/^[0-9]+$/.test(uid) || !quizId || !/^[a-zA-Z0-9_-]+$/.test(quizId)) {
+		if(!uid || !/^[0-9]+$/.test(uid)) {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
 			response.send(JSON.stringify({success:false, error:"Invalid UID or quiz ID", errorCode:"INVALID_PARAMS"}));
@@ -131,35 +130,33 @@ export default class QuizController extends AbstractController {
 	/**
 	 * Updates quiz cache and broadcast it to extension viewers
 	 */
-	private setCache(uid:string, quiz?:QuizParams):QuizParams|undefined {
+	private setCache(uid:string, quiz?:QuizParams, broadcast:boolean = true):QuizParams|undefined {
 		if(quiz) {
-			// Don't include correct answers in the cached quiz to prevent cheating by inspecting network traffic
-			if(quiz.mode == "classic") {
-				quiz.questionList.forEach(question => {
+			quiz.questionList = quiz.questionList.filter(q => q.id === quiz.currentQuestionId);
+			const question = quiz.questionList[0];
+			// Don't delete correct answer if question is currently revealed
+			if(question && !quiz.currentQuestionRevealed) {
+				if(question.mode === "classic") {
 					question.answerList.forEach(answer => {
-						// Don't delete correct answer if question is currently revealed
-						if(quiz.currentQuestionRevealed && quiz.currentQuestionId === question.id) return;
 						delete answer.correct;
 					});
-				});
-			}else 
-			if(quiz.mode == "freeAnswer") {
-				quiz.questionList.forEach(question => {
-					// Don't delete correct answer if question is currently revealed
-					if(quiz.currentQuestionRevealed && quiz.currentQuestionId === question.id) return;
-					delete question.answer
-				});
+				}else if(question.mode === "freeAnswer") {
+					delete question.answer;
+				}
 			}
 		}
 		this.cachedQuizzes.set(uid, quiz);
-		this.extensionController.notifyStateUpdate(uid);
+
+		if(broadcast) {
+			this.extensionController.notifyStateUpdate(uid);
+		}
 
 		return quiz;
 	}
 }
 
 
-export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
+export type QuizParams = {
 		/**
 	 * Quiz ID
 	 */
@@ -168,10 +165,6 @@ export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 	 * Quiz title
 	 */
 	title:string
-	/**
-	 * Quiz mode.
-	 */
-	mode:Mode;
 	/**
 	 * Number of seconds to answer
 	 */
@@ -217,28 +210,32 @@ export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 	 * 5 = very tolerant
 	 */
 	toleranceLevel?:0|1|2|3|4|5;
-} & ({
 	/**
-	 * Quiz mode.
-	 * classic: earn points by answering questions correctly
+	 * List of questions. Each question carries its own mode.
 	 */
-	mode:"classic";
-	/**
-	 * List of questions
-	 */
-	questionList: {
+	questionList: ({
 		/**
 		 * Question ID
 		 */
 		id:string;
 		/**
+		 * Question mode
+		 */
+		mode:"classic" | "majority" | "freeAnswer";
+		/**
 		 * Question text
 		 */
 		question:string;
 		/**
-		 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
+		 * Number of seconds to answer this question (overrides durationPerQuestion_s)
 		 */
 		duration_s?:number;
+	} & ({
+		/**
+		 * Question mode.
+		 * classic: earn points by answering questions correctly
+		 */
+		mode:"classic";
 		/**
 		 * Possible answers for this question
 		 */
@@ -256,29 +253,12 @@ export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 			 */
 			correct?:boolean;
 		}[];
-	}[];
-} | {
-	/**
-	 * Quiz mode.
-	 * majority: earn points by being part of the most popular answer
-	 */
-	mode:"majority";
-	/**
-	 * List of questions
-	 */
-	questionList: {
+	} | {
 		/**
-		 * Question ID
+		 * Question mode.
+		 * majority: earn points by being part of the most popular answer
 		 */
-		id:string;
-		/**
-		 * Question text
-		 */
-		question:string;
-		/**
-		 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
-		 */
-		duration_s?:number
+		mode:"majority";
 		/**
 		 * Possible answers for this question
 		 */
@@ -292,33 +272,16 @@ export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 			 */
 			title:string;
 		}[];
-	}[];
-} | {
-	/**
-	 * Quiz mode.
-	 * freeAnswer: viewers must type the answer on chat or extension
-	 */
-	mode:"freeAnswer";
-	/**
-	 * List of questions
-	 */
-	questionList: {
+	} | {
 		/**
-		 * Question ID
+		 * Question mode.
+		 * freeAnswer: viewers must type the answer on chat or extension
 		 */
-		id:string;
-		/**
-		 * Question text
-		 */
-		question:string;
+		mode:"freeAnswer";
 		/**
 		 * Expected answer
 		 */
 		answer?:string
-		/**
-		 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-		 */
-		duration_s?:number
 		/**
 		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 		 * Overrides the global quiz tolerance level.
@@ -327,5 +290,5 @@ export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
 		 * 5 = very tolerant
 		 */
 		toleranceLevel?:0|1|2|3|4|5;
-	}[];
-})
+	}))[];
+}

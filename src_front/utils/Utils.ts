@@ -1337,24 +1337,10 @@ export default class Utils {
 	}
 	
 	/**
-	 * Check if answer is from a classic quiz
+	 * Check if answer is from a classic quiz question
 	 */
-	public static isClassicQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"classic">["questionList"][number]["answerList"][number] {
+	public static isClassicQuizAnswer(mode: TwitchatDataTypes.QuizParams["questionList"][number]["mode"], _answer: any): _answer is Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"][number] {
 		return mode === "classic";
-	}
-
-	/**
-	 * Check if answer is from a majority quiz
-	 */
-	public static isMajorityQuizAnswer(mode: TwitchatDataTypes.QuizParams["mode"], _answer: any): _answer is TwitchatDataTypes.QuizParams<"majority">["questionList"][number]["answerList"][number] {
-		return mode === "majority";
-	}
-
-	/**
-	 * Check if question is from a free answer quiz
-	 */
-	public static isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
-		return mode === "freeAnswer";
 	}
 
 	/**
