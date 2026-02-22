@@ -8,11 +8,15 @@
 					<a href="https://patreon.com/" target="_blank"><Icon name="newtab" />Patreon</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary beta" v-if="$store.auth.isPremium">
-				<Icon name="alert" />
-				{{ $t("patreon.beta") }}<br>
-				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" secondary light icon="discord">Discord</TTButton>
+		</div>
+		
+		<div class="card-item userInfo" v-if="$store.patreon.connected">
+			<div class="title">{{ $t('patreon.connected_as') }}</div>
+			<div class="info">
+				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
+				<span class="name">{{ $store.patreon.userName }}</span>
 			</div>
+			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{ $t("global.disconnect") }}</TTButton>
 		</div>
 
 		<section v-if="!$store.auth.isPremium">
@@ -22,10 +26,6 @@
 		<section v-else-if="$store.auth.isPremium && !$store.patreon.connected">
 			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.patreon_connect_failed") }}</div>
-		</section>
-
-		<section v-else-if="$store.patreon.connected">
-			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
 		</section>
 
 		<section class="examples">
@@ -112,6 +112,30 @@ export default toNative(ConnectPatreon);
 
 <style scoped lang="less">
 .connectpatreon{
+	.userInfo {
+		margin: auto;
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+		.info {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: .5em;
+			padding: .25em .5em;
+			.avatar {
+				width: 1.75em;
+				height: 1.75em;
+				border-radius: 50%;
+			}
+			.name {
+				font-weight: bold;
+				flex-grow: 1;
+			}
+		}
+	}
+
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;
