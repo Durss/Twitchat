@@ -1,5 +1,6 @@
 <template>
-	<div class="extensioninstaller card-item primary">
+	<div class="extensioninstaller card-item"
+	:class="{primary:installed && enabled && !loading, secondary:installed && !enabled && !loading, alert:!installed && !loading}">
 		<icon class="logo" name="extension" />
 		<div v-if="loading" class="content loader">
 			<span class="text">
@@ -9,11 +10,11 @@
 		</div>
 		<div class="content" v-else-if="!installed">
 			<span class="head">{{ $t('extensions.installer.install')}}</span>
-			<TTButton light icon="twitch" type="link" :href="extensionUrl" target="_blank">{{ $t('extensions.installer.installBt')}}</TTButton>
+			<TTButton alert light icon="newtab" type="link" :href="extensionUrl" target="_blank">{{ $t('extensions.installer.installBt')}}</TTButton>
 		</div>
 		<div class="content" v-else-if="!enabled">
 			<span class="head">{{ $t('extensions.installer.enable')}}</span>
-			<TTButton light icon="twitch" @click="enableExtension" :loading="enabling">{{ $t('extensions.installer.enableBt')}}</TTButton>
+			<TTButton secondary light icon="twitch" @click="enableExtension" :loading="enabling">{{ $t('extensions.installer.enableBt')}}</TTButton>
 			<div class="card-item alert error" v-if="enableError"><icon name="alert" />{{ $t('extensions.installer.enableError') }}</div>
 		</div>
 		<div class="content complete" v-else>
