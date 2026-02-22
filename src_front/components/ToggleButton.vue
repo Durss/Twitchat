@@ -188,6 +188,13 @@ onBeforeMount(() => {
 		}
 	}
 
+	&.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		*> {
+			pointer-events: none;
+		}
+	}
 
 	&.big {
 		font-size: 1.2em;
