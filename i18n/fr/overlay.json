@@ -763,6 +763,9 @@
 			"param_recordLabel_default": "🏆 Nouveau record absolu 🏆",
 			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train",
 			"allTimeRecord_title": "Record absolu le {DATE}, niveau {LEVEL} à {PERCENT} avec {AMOUNT}"
+		},
+		"quiz": {
+			"search_terms":["quiz", "trivia"]
 		}
 	}
 }

@@ -720,6 +720,9 @@
 			"param_recordLabel_default": "🏆 New all time record 🏆",
 			"param_platforms": "Chose tip platforms accepted for this train",
 			"allTimeRecord_title":"All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
+		},
+		"quiz": {
+			"search_terms":["quiz", "trivia"]
 		}
 	}
 }
