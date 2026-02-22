@@ -2,16 +2,17 @@
 	"patreon": {
 		"header":"Soyez notifié·e lorsqu'une personne s'abonne à votre {LINK} et affichez vos membres actifs dans l'overlay de générique de fin",
 		"linkBt":"Lier Patreon",
+		"donateBt":"Faire un don",
+		"connected_as":"Connecté en tant que :",
 		"info":"{LINK} pour profiter des fonctionnalités Premium.",
 		"info_link":"Abonnez-vous sur Patreon",
 		"alternative":"Ou devenez Premium à vie avec un {LINK} ou plus.",
 		"alternative_link":"don de {AMOUNT}€",
 		"connected":"Votre compte Patreon est lié à Twitchat.",
-		"is_member":"💝 Merci de faire partie des donateur·ices sur Patreon 💝",
-		"is_member_details":"Vous bénéficiez de toutes les fonctionnalités premium !",
-		"is_not_member":"Vous ne faites pas partie des donateur·ices sur Patreon 😥",
-		"is_not_member_details":"Vous ne bénéficiez pas des fonctionnalités premium.\r\nNote : Patreon peut prendre quelques minutes à traiter votre paiement.",
-		"api_down":"L'API Patreon est en panne.\nCe n'est ni la 1ère ni la dernière fois que celà arrive hélas...\n\nSi vous venez de souscrire sur Patreon il faudra peut-être attendre que Patreon corrige leur API pour que vous soyez reconnu·e comme Premium :(...",
-		"beta":"Retours souhaités !\nEssayez de me prévenir si vous rencontrez des problèmes avec les notifications Patreon."
+		"is_member":"Merci pour votre soutien sur Patreon ! 💝",
+		"is_member_details":"Toutes les fonctionnalités Premium sont débloquées !",
+		"is_not_member":"Patreon lié, mais pas d'abonnement actif",
+		"is_not_member_details":"Les fonctionnalités Premium ne sont pas encore débloquées.\nSi vous venez de vous abonner, Patreon peut prendre quelques minutes pour traiter votre paiement.",
+		"api_down":"L'API Patreon est en panne.\nCe n'est ni la 1ère ni la dernière fois que celà arrive hélas...\n\nSi vous venez de souscrire sur Patreon il faudra peut-être attendre que Patreon corrige leur API pour que vous soyez reconnu·e comme Premium :(..."
 	}
 }
