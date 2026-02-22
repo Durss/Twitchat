@@ -2,6 +2,7 @@
 	"extensions": {
 		"title":"Manage Twitch extensions",
 		"param_install":"Install",
+		"slot_assign":"Assign to slot…",
 		"no_extension":"You have no extension installed on your channel",
 		"no_extension_browse":"Browse for extensions",
 		"type_panel":"Panel",

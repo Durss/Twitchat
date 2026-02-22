@@ -2,7 +2,7 @@
 	<div class="extensions sidePanel">
 		<div class="head">
 			<ClearButton @click="close" />
-			<h1 class="title"><Icon :name="reloading? 'loader' : 'extension'" />{{ $t("extensions.title") }}</h1>
+			<h1 class="title"><Icon :name="reloading ? 'loader' : 'extension'" />{{ $t("extensions.title") }}</h1>
 		</div>
 
 		<div class="content scope" ref="content" v-if="!hasPermissions">
@@ -13,47 +13,60 @@
 		<div class="content" ref="content" v-else>
 			<Icon class="spinner" name="loader" v-if="loading" />
 
-			<TransitionGroup name="list" tag="div" ref="list" class="list"  v-if="!loading && extensionList.length > 0">
-				<div class="card-item extension" v-for="extension in extensionList" :key="extension.data.id">
-					<div class="header">
-						<span class="title">{{extension.data.name}}</span>
-						<a :href="'https://dashboard.twitch.tv/extensions/'+extension.data.id+'-'+extension.data.version" target="_blank" class="link"><Icon name="newtab" /></a>
-					</div>
-					<div class="details">
-						<Icon name="loader" v-if="extension.loading" />
+			<TTButton v-if="!loading && extensionList.length > 0" icon="newtab" href="https://dashboard.twitch.tv/extensions" target="_blank" type="link" primary>{{ $t("extensions.no_extension_browse") }}</TTButton>
 
-						<template v-else>
-							<div class="card-item install">
-								<span>{{$t("extensions.param_install")}}</span>
-								<select @change="onInstall(extension)" v-model="extension.selectedValue">
-									<option value="" disabled :selected="!extension.enabledType">{{ $t("global.select_placeholder") }}</option>
-									<option value="" disabled>━━━━━━━━</option>
-									<option v-for="opt in extension.slotOptions"
-									:value="opt.type+'_'+opt.index"
-									:disabled="opt.type == 'split'"
-									:selected="opt.type == extension.enabledType && opt.index == extension.enabledIndex">
-										<template v-if="opt.type != 'split'">{{ $t("extensions.type_"+opt.type) }} {{ opt.index }}</template>
-										<template v-else>━━━━━━━━</template>
-									</option>
-								</select>
-							</div>
-							
-							<TTButton icon="offline" alert v-if="extension.enabled" @click="onDisable(extension)" small>{{ $t("global.disable") }}</TTButton>
-						</template>
+			<TransitionGroup name="list" tag="div" ref="list" class="list" v-if="!loading && extensionList.length > 0">
+				<div class="extension"
+					:class="{ active: extension.enabled }"
+					v-for="extension in extensionList"
+					:key="extension.data.id">
 
-						<div class="version">v{{ extension.data.version }}</div>
+					<div class="extHeader">
+						<span class="statusDot" :class="{ on: extension.enabled }"></span>
+						<span class="extName">{{ extension.data.name }}</span>
+						<span class="extVersion">v{{ extension.data.version }}</span>
+						<a class="extLink"
+							:href="'https://dashboard.twitch.tv/extensions/' + extension.data.id + '-' + extension.data.version"
+							target="_blank">
+							<Icon name="newtab" />
+						</a>
 					</div>
+
+					<div class="extTypes">
+						<Tag v-for="t in extension.data.type.filter(t => t !== 'mobile')"
+							:key="t"
+							:active="extension.enabled && extension.enabledType === t">
+							{{ $t('extensions.type_' + t) }}
+						</Tag>
+					</div>
+
+					<div class="extActions" v-if="!extension.loading">
+						<select class="slotSelect" v-model="extension.selectedValue" @change="onInstall(extension)">
+							<option value="" disabled>{{ $t("extensions.slot_assign") }}</option>
+							<optgroup v-for="group in getGroupedOptions(extension)"
+								:key="group.type"
+								:label="$t('extensions.type_' + group.type)">
+								<option v-for="slot in group.slots"
+									:key="slot.type + '_' + slot.index"
+									:value="slot.type + '_' + slot.index">
+									{{ $t('extensions.type_' + slot.type) }} #{{ slot.index }}
+								</option>
+							</optgroup>
+						</select>
+						<TTButton v-if="extension.enabled" icon="offline" alert small @click="onDisable(extension)">{{ $t("global.disable") }}</TTButton>
+					</div>
+					<Icon name="loader" class="extLoader" v-else />
 				</div>
 			</TransitionGroup>
 
 			<div class="noExtension" v-else-if="!loading">
+				<Icon name="extension" class="emptyIcon" />
 				<p>{{ $t("extensions.no_extension") }}</p>
 				<TTButton icon="newtab" href="https://dashboard.twitch.tv/extensions" target="_blank" type="link" primary>{{ $t("extensions.no_extension_browse") }}</TTButton>
-				<TTButton icon="refresh">{{ $t("global.refresh") }}</TTButton>
+				<TTButton icon="refresh" @click="loadList()">{{ $t("global.refresh") }}</TTButton>
 			</div>
 
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("extensions.update_error") }}</div>
-
 		</div>
 	</div>
 </template>
@@ -69,9 +82,11 @@ import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import Tag from '../Tag.vue';
 
 @Component({
 	components:{
+		Tag,
 		Icon,
 		TTButton,
 		ParamItem,
@@ -180,6 +195,23 @@ class Extensions extends AbstractSidePanel {
 		this.reloading = false;
 	}
 
+	/**
+	 * Groups slot options by type for cleaner display via <optgroup>
+	 */
+	public getGroupedOptions(ext:ExtensionItem):{type:string, slots:{type:string, index:string}[]}[] {
+		const groups:{type:string, slots:{type:string, index:string}[]}[] = [];
+		let currentGroup:{type:string, slots:{type:string, index:string}[]} | null = null;
+		for (const opt of ext.slotOptions) {
+			if (opt.type === "split") continue;
+			if (!currentGroup || currentGroup.type !== opt.type) {
+				currentGroup = { type: opt.type, slots: [] };
+				groups.push(currentGroup);
+			}
+			currentGroup.slots.push(opt);
+		}
+		return groups;
+	}
+
 	public grantScopes():void {
 		TwitchUtils.requestScopes([TwitchScopes.EXTENSIONS]);
 	}
@@ -224,59 +256,113 @@ export default toNative(Extensions);
 	}
 
 	.list {
+		display: flex;
+		flex-direction: column;
 		gap: .5em;
-		@itemWidth: 200px;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 		.extension {
 			display: flex;
 			flex-direction: column;
-			.link {
-				color: var(--color-light);
-				text-decoration: none;
-				.icon {
-					height: 1em;
-				}
-			}
-			.header {
-				padding-left: 2em;
-			}
-			.details {
-				gap: .5em;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				flex-grow: 1;
-			}
-			.version {
-				font-style: italic;
-				font-size: .8em;
-			}
-			.install {
-				gap: 1em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
+			gap: .5em;
+			padding: .75em;
+			border-radius: var(--border-radius);
+			background-color: var(--background-color-fadest);
+			border-left: 3px solid transparent;
+			transition: border-color .3s, background-color .3s;
 
-				select {
-					font-size: .8em;
-					option {
-						text-align: center;
+			&.active {
+				border-left-color: var(--color-primary);
+				background-color: var(--color-primary-fadest);
+			}
+
+			.extHeader {
+				display: flex;
+				align-items: center;
+				gap: .5em;
+
+				.statusDot {
+					width: .5em;
+					height: .5em;
+					border-radius: 50%;
+					background-color: var(--color-alert-light);
+					flex-shrink: 0;
+					transition: background-color .3s;
+					&.on {
+						background-color: var(--color-primary);
 					}
 				}
+
+				.extName {
+					font-weight: bold;
+					flex-grow: 1;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				.extVersion {
+					font-size: .75em;
+					opacity: .5;
+					font-style: italic;
+					flex-shrink: 0;
+				}
+
+				.extLink {
+					color: var(--color-light);
+					opacity: .5;
+					flex-shrink: 0;
+					transition: opacity .2s;
+					.icon {
+						height: .85em;
+					}
+					&:hover {
+						opacity: 1;
+					}
+				}
+			}
+
+			.extTypes {
+				display: flex;
+				flex-wrap: wrap;
+				gap: .25em;
+			}
+
+			.extActions {
+				display: flex;
+				align-items: center;
+				gap: .5em;
+
+				.slotSelect {
+					flex-grow: 1;
+				}
+			}
+
+			.extLoader {
+				height: 1.5em;
+				margin: 0 auto;
 			}
 		}
 	}
 
 	.noExtension {
-		gap: .5em;
+		gap: .75em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		padding: 2em 1em;
+		text-align: center;
+
+		.emptyIcon {
+			height: 3em;
+			opacity: .3;
+		}
+
+		p {
+			opacity: .7;
+		}
 	}
-	
+
 	.error {
 		cursor: pointer;
 		margin: 0 auto;
@@ -285,13 +371,13 @@ export default toNative(Extensions);
 	.list-move,
 	.list-enter-active,
 	.list-leave-active {
-		transition: all 0.5s ease;
+		transition: all 0.4s ease;
 	}
 
 	.list-enter-from,
 	.list-leave-to {
 		opacity: 0;
-		transform: translateX(30px);
+		transform: translateY(-10px);
 	}
 
 	.list-leave-active {
