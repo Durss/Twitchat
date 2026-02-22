@@ -4,7 +4,7 @@
 			<Icon name="loader" class="searchIcon" v-if="searchDebouncing" />
 			<Icon name="search" class="searchIcon" v-else />
 			<input type="text" :placeholder="$t('global.search_placeholder')"
-				v-model="search" v-autofocus
+				v-model="search" v-autofocus="!props.noAutoFocus"
 				@keydown.esc="e => onKeyUp(e)" />
 			<Icon name="cross" class="clearSearch" v-if="search" @click="search = ''" />
 		</div>
@@ -22,6 +22,7 @@ const emit = defineEmits<{
 const props = defineProps<{
 	modelValue?: string;
 	debounceDelay?: number;
+	noAutoFocus?: boolean;
 }>();
 
 const search = ref("");
@@ -79,7 +80,7 @@ onBeforeUnmount(() => {
 		input {
 			width: 100%;
 			border-radius: var(--border-radius);
-			padding: .5em;
+			padding: .25em;
 			padding-left: 2em;
 			padding-right: 2em;
 		}
