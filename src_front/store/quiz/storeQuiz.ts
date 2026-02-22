@@ -232,6 +232,8 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.currentQuestionId = "";
 				quiz.currentQuestionRevealed = false;
 				quiz.currentQuestionVotes = {};
+				quiz.quizStarted_at = new Date(0).toISOString();
+				quiz.questionStarted_at = new Date(0).toISOString()
 				if(this.liveState?.quizId == quizId) this.liveState = null;
 				this.broadcastQuizState();
 			}).catch(()=>{})
