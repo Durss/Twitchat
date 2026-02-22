@@ -70,6 +70,39 @@
 							</i18n-t>
 						</div>
 
+						<template v-if="!entry.isDefault">
+							<SwitchButton v-model="entry.type"
+								:icons="['timer', 'countdown']"
+								:values="['timer', 'countdown']"
+								:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
+								@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
+							></SwitchButton>
+
+							<ParamItem v-if="entry.type == 'countdown'" :paramData="param_duration[entry.id]"
+								v-model="param_duration[entry.id]!.value"
+								@change="entry.duration_ms = param_duration[entry.id]!.value * 1000" />
+
+							<div class="card-item placeholder"
+							:class="{error:timer2PlaceholderError[entry.id]}"
+							v-tooltip="$t('timers.form.param_placeholder_tt')">
+								<Icon name="placeholder"/>
+								<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
+								<PlaceholderField class="input-field field"
+									v-model="entry.placeholderKey"
+									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
+									@change="checkForPlaceholderDuplicates()" />
+								<template v-if="timer2PlaceholderError[entry.id]">
+									<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
+									<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
+								</template>
+							</div>
+						</template>
+						
+
+						<ParamItem v-else-if="entry.type == 'countdown'" :paramData="param_duration[entry.id]"
+							v-model="param_duration[entry.id]!.value"
+							@change="entry.duration_ms = param_duration[entry.id]!.value * 1000" />
+
 						<div class="ctas">
 							<TTButton icon="play"
 							v-if="!entry.startAt_ms"
@@ -87,36 +120,6 @@
 								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">{{ $t('timers.form.stop') }}</TTButton>
 							</template>
 						</div>
-
-						<template v-if="!entry.isDefault">
-							<SwitchButton v-model="entry.type"
-								:icons="['timer', 'countdown']"
-								:values="['timer', 'countdown']"
-								:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
-								@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
-							></SwitchButton>
-
-							<template v-if="entry.type == 'countdown'">
-								<ParamItem :paramData="param_duration[entry.id]"
-								v-model="param_duration[entry.id]!.value"
-								@change="entry.duration_ms = param_duration[entry.id]!.value * 1000" />
-							</template>
-
-							<div class="card-item placeholder"
-							:class="{error:timer2PlaceholderError[entry.id]}"
-							v-tooltip="$t('timers.form.param_placeholder_tt')">
-								<Icon name="placeholder"/>
-								<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
-								<PlaceholderField class="input-field field"
-									v-model="entry.placeholderKey"
-									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
-									@change="checkForPlaceholderDuplicates()" />
-								<template v-if="timer2PlaceholderError[entry.id]">
-									<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
-									<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
-								</template>
-							</div>
-						</template>
 					</div>
 				</ToggleBlock>
 			</template>
