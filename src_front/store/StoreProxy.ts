@@ -2408,6 +2408,8 @@ export interface IHeatActions {
 
 export interface IPatreonState {
 	isMember: boolean;
+	userName: string;
+	userAvatar: string;
 	connected: boolean;
 	/**
 	 * Patreon auth flow params
