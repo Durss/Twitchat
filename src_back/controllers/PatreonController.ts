@@ -233,13 +233,7 @@ export default class PatreonController extends AbstractController {
 			await Utils.promisedTimeout(delay);
 			return this.getUserIsMember(request, response);
 		} else {
-			const json = await result.json() as { error?: string } | {
-				data: {
-					relationships: {
-						memberships: { data: { id: string, type: string}[]}
-					}
-				};
-			}
+			const json = await result.json() as ({ error?: string } | MemberResult);
 
 			if ("error" in json) {
 				response.header('Content-Type', 'application/json');
@@ -252,6 +246,8 @@ export default class PatreonController extends AbstractController {
 				//Check if remote patreon user is registered as a member locally
 				let isMember = Config.credentials.admin_ids.includes(patreonAuth.twitchUser.user_id);
 				let memberID = "";
+				let memberName = json.data.attributes.first_name+" "+json.data.attributes.last_name;
+				let memberAvatar = json.data.attributes.image_url;
 				for (let i = 0; i < remoteMembershipList.length; i++) {
 					const m = remoteMembershipList[i]!;
 					if (localMemberList.findIndex(v => v.id === m.id) > -1) {
@@ -299,7 +295,7 @@ export default class PatreonController extends AbstractController {
 
 				response.header('Content-Type', 'application/json');
 				response.status(200);
-				response.send(JSON.stringify({ success: true, data: { isMember } }));
+				response.send(JSON.stringify({ success: true, data: { isMember, memberName, memberAvatar } }));
 			}
 		}
 	}
@@ -1193,6 +1189,38 @@ export interface PatreonMember {
 	id: string;
 	name: string;
 	total: number;
+}
+
+interface MemberResult {
+	data: {
+		id: string
+		type: string
+		attributes: {
+		first_name: string
+		last_name: string
+		vanity: string
+		about: any
+		image_url: string
+		created: string
+		url: string
+		}
+		relationships: {
+		memberships: {
+			data: Array<{
+			id: string
+			type: string
+			}>
+		}
+		}
+	}
+	included: Array<{
+		id: string
+		type: string
+		attributes: {}
+	}>
+	links: {
+		self: string
+	}
 }
 
 interface PatreonMemberships {
