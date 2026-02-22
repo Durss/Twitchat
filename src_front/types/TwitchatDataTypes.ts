@@ -48,6 +48,7 @@ export namespace TwitchatDataTypes {
 		STREAMERBOT: "streamerbot",
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
+		PREMIUM_REMAINING: "premium_remaining",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
 

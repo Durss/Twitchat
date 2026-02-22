@@ -15,6 +15,8 @@ let refreshTimeout:number = 0;
 export const storePatreon = defineStore('patreon', {
 	state: () => ({
 		isMember: false,
+		userName: "",
+		userAvatar: "",
 		connected: false,
 		oauthFlowParams: null,
 		memberList: [],
@@ -140,6 +142,8 @@ export const storePatreon = defineStore('patreon', {
 			}else{
 				this.connected = true;
 				this.isMember = res.json.data?.isMember === true;
+				this.userName = res.json.data?.memberName || "";
+				this.userAvatar = res.json.data?.memberAvatar || "";
 				if(StoreProxy.auth.isPremium) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
 				}

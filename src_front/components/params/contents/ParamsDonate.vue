@@ -4,11 +4,6 @@
 
 		<p class="head">{{ $t("donate.header") }}</p>
 		
-		<div class="card-item info">
-			<Icon name="info" class="icon" />
-			<p v-for="i in $tm('donate.infos')" v-html="i"></p>
-		</div>
-
 		<div class="paypalFormHolder" v-if="!success">
 			<div class="amount">
 				<div :class="formClasses">
@@ -241,6 +236,10 @@ class ParamsDonate extends Vue {
 
 		if(this.$store.params.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM) {
 			this.amount = this.$config.LIFETIME_DONOR_VALUE;
+		}else
+
+		if(this.$store.params.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING) {
+			this.amount = Math.ceil(this.$config.LIFETIME_DONOR_VALUE * (1 - this.$store.auth.lifetimePremiumPercent));
 		}
 
 		watch(()=>this.currency, ()=> {
@@ -407,6 +406,8 @@ class ParamsDonate extends Vue {
 		if(this.amount < 3) this.amount = 3;
 		if(this.amount > 999999) this.amount = 999999;
 		this.premium = this.amount >= this.$config.LIFETIME_DONOR_VALUE;
+		const currentAmountProgress = Math.floor(this.$config.LIFETIME_DONOR_VALUE * this.$store.auth.lifetimePremiumPercent);
+		this.premium = this.amount + currentAmountProgress >= this.$config.LIFETIME_DONOR_VALUE;
 
 		const eyeL = this.$refs.eyeL as SVGPathElement;
 		const eyeR = this.$refs.eyeR as SVGPathElement;
@@ -546,19 +547,6 @@ export default toNative(ParamsDonate);
 
 <style scoped lang="less">
 .paramsdonate{
-	.info {
-		margin: auto;
-		line-height: 1.25em;
-		p:first-of-type {
-			display: inline;
-		}
-		.icon {
-			height: 1.3em;
-			margin-right: .25em;
-			vertical-align: middle;
-		}
-	}
-
 	.paypalFormHolder {
 		margin: auto;
 		gap: 1em;
