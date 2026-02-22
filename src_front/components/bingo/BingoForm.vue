@@ -28,7 +28,7 @@
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValueTolerance" @change="onValueChange()" />
 
-				<ToggleBlock :icons="['params']" :title="$t('global.advanced_params')" class="configs" :open="false" v-if="triggerMode === false">
+				<ToggleBlock :icons="['params']" :title="$t('global.advanced_params')" class="configs" :open="false" v-if="triggerMode === false" small>
 					<PostOnChatParam botMessageKey="bingoStart"
 						:placeholderEnabled="false"
 						titleKey="bingo.form.announce_start"

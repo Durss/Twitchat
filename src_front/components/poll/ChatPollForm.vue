@@ -41,7 +41,7 @@
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				<ParamItem :paramData="param_allowMultiVote" @change="onValueChange()" />
 
-				<ToggleBlock :title="$t('chatPoll.form.permissions')" :open="false" :icons="['lock_fit']">
+				<ToggleBlock :title="$t('chatPoll.form.permissions')" :open="false" :icons="['lock_fit']" small>
 					<PermissionsForm v-model="permissions" @change="onValueChange()" />
 				</ToggleBlock>
 

@@ -52,7 +52,7 @@
 
 						<ExtensionInstaller/>
 
-						<ToggleBlock :icons="['overlay']" :title="$t('bingo_grid.form.overlayParams_title')" :open="false">
+						<ToggleBlock :icons="['overlay']" :title="$t('bingo_grid.form.overlayParams_title')" :open="false" small>
 							<div class="overlayParams">
 								<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
 		
@@ -142,7 +142,7 @@
 
 						<ParamItem :paramData="param_overlayAnnouncement[bingo.id]" v-model="bingo.overlayAnnouncement" @change="save(bingo)">
 							<div class="parameter-child">
-								<ToggleBlock :title="$t('bingo_grid.form.param_overlayAnnouncement_permissions')" small :open="false">
+								<ToggleBlock :title="$t('bingo_grid.form.param_overlayAnnouncement_permissions')" small :open="false" noTitle>
 									<PermissionsForm v-model="bingo.overlayAnnouncementPermissions"></PermissionsForm>
 								</ToggleBlock>
 							</div>

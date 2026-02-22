@@ -91,7 +91,7 @@ export const storeQuiz = defineStore('quiz', {
 				enabled:this.quizList.length === 0,
 				title:"",
 				questionList:[],
-				durationPerQuestion_s:30,
+				durationPerQuestion_s:20,
 				loosePointsOnFail:false,
 				timeBasedScoring:false,
 				currentQuestionId:"",
