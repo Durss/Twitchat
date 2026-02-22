@@ -35,6 +35,10 @@
 		
 		<TransitionGroup name="overlayItem" tag="div" class="list" v-if="subContent == null">
 			
+			<button class="item" key="quiz" v-if="matchesSearch('quiz')" @click="subContent = 'quiz'" v-newflag="{date:$config.NEW_FLAGS_DATE_V17, id:'params_overlays_quiz'}">
+				<img src="@/assets/img/overlays/quiz.jpg" alt="Quiz">
+				<span>{{ getLabel('quiz') }}</span>
+			</button>
 			<button class="item" key="animatedtext" v-if="matchesSearch('animatedtext')" @click="subContent = 'animatedtext'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_animatedText'}">
 				<img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text">
 				<span>{{ getLabel('animatedtext') }}</span>
@@ -63,7 +67,8 @@
 				<img src="@/assets/img/overlays/predictions.jpg" alt="Predictions">
 				<span>{{ getLabel('predictions') }}</span>
 			</button>
-			<button class="item" key="wheel" v-if="matchesSearch('wheel')" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg" alt="wheel">
+			<button class="item" key="wheel" v-if="matchesSearch('wheel')" @click="subContent = 'wheel'">
+				<img src="@/assets/img/overlays/raffle.jpg" alt="wheel">
 				<span>{{ getLabel('wheel') }}</span>
 			</button>
 			<button class="item" key="bitswall" v-if="matchesSearch('bitswall')" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}">
@@ -74,7 +79,8 @@
 				<img src="@/assets/img/overlays/ending_credits.jpg" alt="Ending Credits">
 				<span>{{ getLabel('credits') }}</span>
 			</button>
-			<button class="item" key="music" v-if="matchesSearch('music')" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg" alt="music">
+			<button class="item" key="music" v-if="matchesSearch('music')" @click="subContent = 'music'">
+				<img src="@/assets/img/overlays/spotify.jpg" alt="music">
 				<span>{{ getLabel('music') }}</span>
 			</button>
 			<button class="item" key="distort" v-if="matchesSearch('distort')" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}">
@@ -92,14 +98,16 @@
 				<img src="@/assets/img/overlays/labels.jpg" alt="Labels">
 				<span>{{ getLabel('labels') }}</span>
 			</button>
-			<button class="item" key="counter" v-if="matchesSearch('counter')" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters">
+			<button class="item" key="counter" v-if="matchesSearch('counter')" @click="subContent = 'counter'">
+				<img src="@/assets/img/overlays/counters.jpg" alt="Counters">
 				<span>{{ getLabel('counter') }}</span>
 			</button>
 			<button class="item" key="timer" v-if="matchesSearch('timer')" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}">
 				<img src="@/assets/img/overlays/timer.jpg" alt="Timers">
 				<span>{{ getLabel('timer') }}</span>
 			</button>
-			<button class="item" key="ulule" v-if="matchesSearch('ulule')" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule">
+			<button class="item" key="ulule" v-if="matchesSearch('ulule')" @click="subContent = 'ulule'">
+				<img src="@/assets/img/overlays/ulule.jpg" alt="Ulule">
 				<span>{{ getLabel('ulule') }}</span>
 			</button>
 		</TransitionGroup>
@@ -124,6 +132,7 @@
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
 			<OverlayParamsCustomTrain class="block"		:open="subContent == 'customtrain'"		v-if="subContent == 'customtrain'" />
+			<OverlayParamsQuiz class="block"			:open="subContent == 'quiz'"		v-if="subContent == 'quiz'" />
 		</div>
 	</div>
 </template>
@@ -157,12 +166,14 @@ import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue'
 import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 import Utils from '@/utils/Utils';
 import SearchForm from './SearchForm.vue';
+import OverlayParamsQuiz from './overlays/OverlayParamsQuiz.vue';
 
 @Component({
 	components:{
 		TTButton,
 		SearchForm,
 		OverlayParamsTTS,
+		OverlayParamsQuiz,
 		OverlayParamsPolls,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
@@ -314,14 +325,14 @@ export default toNative(ParamsOverlays);
 		.item {
 			padding: 0;
 			margin: 0;
-			aspect-ratio: 16/9;
+			// aspect-ratio: 16/9;
 			transition: filter .25s, opacity .25s, transform .25s;
-			border: 0;
+			border: none;
 			position: relative;
 			background-color: var(--background-color-fadest);
-			border-radius: var(--border-radius);
-			overflow: hidden;
+			// overflow: hidden;
 			img {
+				border-radius: var(--border-radius);
 				position: relative;
 				width: 100%;
 				z-index: 1;
@@ -340,7 +351,7 @@ export default toNative(ParamsOverlays);
 		}
 		:deep(.newFlag) {
 			img {
-				border: 4px solid var(--color-secondary);
+				border: 3px solid var(--color-secondary);
 			}
 		}
 	}
