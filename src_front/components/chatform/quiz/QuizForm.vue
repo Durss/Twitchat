@@ -56,10 +56,14 @@
 							<OverlayInstaller type="quiz" :sourceSuffix="quiz.title" :id="quiz.id" :queryParams="{bid:quiz.id}" />
 						</div>
 
-						<ParamItem :paramData="param_duration[quiz.id]" v-model="quiz.durationPerQuestion_s" @change="save(quiz)" />
-						<ParamItem :paramData="param_looseOnFail[quiz.id]" v-model="quiz.loosePointsOnFail" @change="save(quiz)" />
-						<ParamItem :paramData="param_timeBasedScore[quiz.id]" v-model="quiz.timeBasedScoring" @change="save(quiz)" />
-						<ParamItem :paramData="param_tolerance[quiz.id]" v-model="quiz.toleranceLevel" @change="save(quiz)" class="toleranceParam" />
+						<ToggleBlock :icons="['params']" small :title="$t('global.settings')" :open="false">
+							<div class="settings">
+								<ParamItem :paramData="param_duration[quiz.id]" v-model="quiz.durationPerQuestion_s" @change="save(quiz)" />
+								<ParamItem :paramData="param_looseOnFail[quiz.id]" v-model="quiz.loosePointsOnFail" @change="save(quiz)" />
+								<ParamItem :paramData="param_timeBasedScore[quiz.id]" v-model="quiz.timeBasedScoring" @change="save(quiz)" />
+								<ParamItem :paramData="param_tolerance[quiz.id]" v-model="quiz.toleranceLevel" @change="save(quiz)" class="toleranceParam" />
+							</div>
+						</ToggleBlock>
 						
 						<Splitter><icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
 
@@ -179,7 +183,7 @@
 						<div class="card-item addQuestionBtns" v-if="quiz.questionList.length < maxQuestionCount">
 							<div>{{ $t("quiz.form.add_question_title") }}</div>
 							<div class="importForm">
-								<TTButton icon="download" type="file" accept=".csv" @update:file="(file:File) => onCSVImport(quiz, file)">{{ $t("quiz.form.import_bt") }}</TTButton>
+								<TTButton icon="download" type="file" primary accept=".csv" @update:file="(file:File) => onCSVImport(quiz, file)">{{ $t("quiz.form.import_bt") }}</TTButton>
 								<Icon class="icon" name="info" v-tooltip="$t('quiz.form.import_tt')" />
 							</div>
 							<TTButton @click="addQuestion(quiz, 'classic')" icon="quiz_classic" primary v-tooltip="$t('quiz.form.mode_classic.description')">{{ $t("quiz.form.mode_classic.title") }}</TTButton>
@@ -666,6 +670,7 @@ export default toNative(QuizForm);
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
+			flex: 1 1 100%;
 			.button {
 				flex-wrap: nowrap;
 			}
@@ -702,6 +707,12 @@ export default toNative(QuizForm);
 
 	.form {
 		gap: .5em;
+	}
+
+	.settings {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.toleranceParam {
