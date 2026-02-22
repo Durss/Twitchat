@@ -1,11 +1,6 @@
 <template>
 	<div :class="rootClasses" :style="rootStyles" @dragenter="onDragEnter" @dragleave="onDragLeave" @drop.prevent>
 		<div class="header" ref="headerRef" @click="toggle()">
-			<!-- Small mode: arrow on left -->
-			<button v-if="small && !noArrow" type="button" class="arrow" :class="{ open: isOpen && !isClosing }">
-				<Icon name="arrowRight" />
-			</button>
-
 			<!-- Left actions slot -->
 			<div class="leftActions">
 				<slot name="left_actions" />
@@ -68,7 +63,7 @@
 			</button>
 
 			<!-- Default mode: arrow on right -->
-			<button v-if="!small && !noArrow" type="button" class="arrow right" :class="{ open: isOpen && !isClosing }">
+			<button v-if="!noArrow" type="button" class="arrow right" :class="{ open: isOpen && !isClosing }">
 				<Icon name="arrowRight" />
 			</button>
 
@@ -719,6 +714,7 @@ onUnmounted(() => {
 
 	&.small {
 		background-color: transparent;
+		border-left: 2px solid var(--color-secondary-fader);
 
 		.header {
 			padding: 0;
@@ -771,8 +767,11 @@ onUnmounted(() => {
 				background-color: var(--color-dark-fadest);
 			}
 		}
-		&.noTitleColor .header {
-			color: var(--color-text);
+		&.noTitleColor {
+			border-color: var(--color-text-fader);
+			.header {
+				color: var(--color-text);
+			}
 		}
 	}
 
