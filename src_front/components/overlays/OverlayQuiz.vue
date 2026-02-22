@@ -15,7 +15,7 @@
 					</transition>
 				</div>
 			</div>
-			<ul v-if="!Utils.isFreeAnswerQuestion(quizData!.mode, currentQuestion)" class="answers" :key="currentQuestion.id">
+			<ul v-if="currentQuestion && currentQuestion.mode !== 'freeAnswer'" class="answers" :key="currentQuestion.id">
 				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
 				:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
 					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
@@ -51,7 +51,7 @@ const currentQuestion = computed(()=> {
 });
 
 const answerList = computed(()=> {
-	if(currentQuestion.value && !Utils.isFreeAnswerQuestion(quizData.value!.mode, currentQuestion.value)) {
+	if(currentQuestion.value && currentQuestion.value.mode !== "freeAnswer") {
 		const seed = parseInt(currentQuestion.value!.id.replace(/[^0-9]/g, '').substring(0, 4), 16) || Date.now();
 		const seededRnd = Utils.seededRandom(seed);
 		let a = currentQuestion.value.answerList.concat();
@@ -86,11 +86,11 @@ function startTimer() {
 	}, 1000);
 }
 
-function isGoodAnswer(answer:TwitchatDataTypes.QuizParams<"classic"|"majority">["questionList"][0]["answerList"][0]):boolean {
+function isGoodAnswer(answer:{id:string; title:string; correct?:boolean}):boolean {
 	if(!quizData.value || !currentQuestion.value) return false;
-	if(Utils.isClassicQuizAnswer(quizData.value.mode, answer)) {
+	if(currentQuestion.value.mode === "classic") {
 		return answer.correct == true;
-	}else if(Utils.isMajorityQuizAnswer(quizData.value.mode, answer)) {
+	}else if(currentQuestion.value.mode === "majority") {
 		const maxVotes = Math.max(...Object.values(answersVotes.value));
 		return answersVotes.value[answer.id] == maxVotes && maxVotes > 0;
 	}
@@ -115,7 +115,7 @@ function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRE
  * Called when starting quiz, starting next question, etc...
  */
 function onQuizConfigs(e:TwitchatEvent<"ON_QUIZ_CONFIGS">) {
-	quizData.value = e.data;
+	quizData.value = e.data.quiz ?? null;
 }
 
 useOverlayConnector(onConnect);
