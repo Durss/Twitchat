@@ -1,6 +1,6 @@
 <template>
-	<div class="quizform sidePanel">
-		<div class="head">
+	<div class="quizform sidePanel" :class="{embedMode}">
+		<div class="head" v-if="embedMode === false">
 			<div class="title">
 				<Icon name="quiz" />
 				<i18n-t scope="global" tag="h1" keypath="quiz.form.title">
@@ -222,7 +222,7 @@ import Utils from '@/utils/Utils';
 import ContextMenu, { type MenuOptions } from "@imengyu/vue3-context-menu";
 import { h, type RendererElement, type RendererNode, type VNode } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
-import { Component, toNative } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -242,6 +242,9 @@ import { Component, toNative } from 'vue-facing-decorator';
 	emits:[],
 })
 class QuizForm extends AbstractSidePanel {
+
+	@Prop({type:Boolean, default:false})
+	public embedMode!:boolean;
 
 	public param_duration: Record<string, TwitchatDataTypes.ParameterData<number>> = {}
 	public param_timeBasedScore: Record<string, TwitchatDataTypes.ParameterData<boolean>> = {}
@@ -294,7 +297,9 @@ class QuizForm extends AbstractSidePanel {
 	}
 
 	public mounted():void {
-		super.open();
+		if(this.embedMode == false) {
+			super.open();
+		}
 	}
 
 	/**
