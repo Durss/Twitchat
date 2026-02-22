@@ -3957,9 +3957,8 @@ export interface IQuizActions {
 	populateData():Promise<void>;
 	/**
 	 * Create a new quiz
-	 * @param payload
 	 */
-	addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams;
+	addQuiz():TwitchatDataTypes.QuizParams;
 	/**
 	 * Delete a quiz
 	 */
@@ -3991,7 +3990,7 @@ export interface IQuizActions {
 	 * Resets given quiz
 	 * @param quizId 
 	 */
-	resetQuiz(quizId:string):void;
+	resetQuizState(quizId:string):void;
 	/**
 	 * Reveal answer for current question of given quiz ID
 	 * @param quizId 

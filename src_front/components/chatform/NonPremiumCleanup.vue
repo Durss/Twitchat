@@ -222,6 +222,22 @@
 					</div>
 				</ToggleBlock>
 
+				<ToggleBlock :icons="['quiz']" :title="$t('premium.cleanup.quiz')" :alert="!quizOK" :open="!quizOK"
+				v-if="$store.quiz.quizList.filter(v=>v.enabled).length > 0">
+					<template #right_actions>
+						<Icon :name="(quizOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.quiz.quizList.filter(v=>v.enabled).length}}/{{ $config.MAX_QUIZ }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.quiz.quizList">
+							<span class="label">{{ item.title || $t("quiz.form.default_title") }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleQuiz(item)" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
 				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
 				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
 			</div>
@@ -273,6 +289,7 @@ class NonPremiumCleanup extends Vue {
 	public get timersOK():boolean { return this.$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length <= this.$config.MAX_TIMERS; }
 	public get animatedTextsOK():boolean { return this.$store.animatedText.animatedTextList.filter(v=>v.enabled).length <= this.$config.MAX_ANIMATED_TEXT; }
 	public get customTrainOK():boolean { return this.$store.customTrain.customTrainList.filter(v=>v.enabled).length <= this.$config.MAX_CUSTOM_TRAIN; }
+	public get quizOK():boolean { return this.$store.quiz.quizList.filter(v=>v.enabled).length <= this.$config.MAX_QUIZ; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -287,7 +304,7 @@ class NonPremiumCleanup extends Vue {
 			&& this.timersOK
 			&& this.animatedTextsOK
 			&& this.customTrainOK
-		;
+			&& this.quizOK
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
@@ -469,6 +486,10 @@ class NonPremiumCleanup extends Vue {
 		this.$store.customTrain.saveData();
 	}
 
+	public toggleQuiz(item:TwitchatDataTypes.QuizParams):void {
+		this.$store.quiz.saveData();
+	}
+
 	public onToggleTrigger():void {
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
 			switch(root.type) {
@@ -498,7 +519,7 @@ export default toNative(NonPremiumCleanup);
 
 <style scoped lang="less">
 .nonpremiumcleanup{
-	// z-index: 2;
+	z-index: 3;
 
 	.premiumBt {
 		display: flex;

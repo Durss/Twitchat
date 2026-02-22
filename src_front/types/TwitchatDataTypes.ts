@@ -4045,7 +4045,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains quiz parameters
 	 */
-	export type QuizParams<Mode = "classic" | "majority" | "freeAnswer"> = {
+	export type QuizParams = {
 		/**
 		 * Quiz ID
 		 */
@@ -4054,10 +4054,6 @@ export namespace TwitchatDataTypes {
 		 * Quiz title
 		 */
 		title:string
-		/**
-		 * Quiz mode.
-		 */
-		mode:Mode;
 		/**
 		 * Number of seconds to answer
 		 */
@@ -4103,28 +4099,33 @@ export namespace TwitchatDataTypes {
 		 * 5 = very tolerant
 		 */
 		toleranceLevel?:0|1|2|3|4|5;
-	} & ({
-		/**
-		 * Quiz mode.
-		 * classic: earn points by answering questions correctly
-		 */
-		mode:"classic";
 		/**
 		 * List of questions
 		 */
-		questionList: {
+		questionList: ({
 			/**
 			 * Question ID
 			 */
 			id:string;
 			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode:"classic" | "majority" | "freeAnswer";
+			/**
+			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?:number;
+			/**
 			 * Question text
 			 */
 			question:string;
+		} & ({
 			/**
-			 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
 			 */
-			duration_s?:number;
+			mode:"classic";
 			/**
 			 * Possible answers for this question
 			 */
@@ -4142,29 +4143,13 @@ export namespace TwitchatDataTypes {
 				 */
 				correct?:boolean;
 			}[];
-		}[];
-	} | {
-		/**
-		 * Quiz mode.
-		 * majority: earn points by being part of the most popular answer
-		 */
-		mode:"majority";
-		/**
-		 * List of questions
-		 */
-		questionList: {
+
+		} | {
 			/**
-			 * Question ID
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
 			 */
-			id:string;
-			/**
-			 * Question text
-			 */
-			question:string;
-			/**
-			 * Nuber of seconds to answer this question (overrides durationPerQuestion_s)
-			 */
-			duration_s?:number
+			mode:"majority";
 			/**
 			 * Possible answers for this question
 			 */
@@ -4178,33 +4163,17 @@ export namespace TwitchatDataTypes {
 				 */
 				title:string;
 			}[];
-		}[];
-	} | {
-		/**
-		 * Quiz mode.
-		 * freeAnswer: viewers must type the answer on chat or extension
-		 */
-		mode:"freeAnswer";
-		/**
-		 * List of questions
-		 */
-		questionList: {
+
+		} | {
 			/**
-			 * Question ID
+			 * Question mode.
+			 * freeAnswer: viewers must type the answer on chat or extension
 			 */
-			id:string;
-			/**
-			 * Question text
-			 */
-			question:string;
+			mode:"freeAnswer";
 			/**
 			 * Expected answer
 			 */
 			answer:string
-			/**
-			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-			 */
-			duration_s?:number
 			/**
 			 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 			 * Overrides the global quiz tolerance level.
@@ -4213,8 +4182,8 @@ export namespace TwitchatDataTypes {
 			 * 5 = very tolerant
 			 */
 			toleranceLevel?:0|1|2|3|4|5;
-		}[];
-	})
+		}))[];
+	}
 
 	/**
 	 * Contains current state for any live quiz
