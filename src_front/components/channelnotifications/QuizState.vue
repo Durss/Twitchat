@@ -3,7 +3,10 @@
 		<div class="head" v-stickyTopShadow>
 			<div class="subHolder">
 				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
-				<div class="subtitle" v-if="currentQuestion">{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</div>
+				<div class="subtitle" v-if="currentQuestion">
+					<icon :name="`quiz_${currentQuestion.mode}`" v-tooltip="$t('quiz.form.mode_'+currentQuestion.mode+'.title')" />
+					<span>{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</span>
+				</div>
 			</div>
 			
 			<ProgressBar v-if="currentQuiz.questionStarted_at && progressPercent < 1"
@@ -17,26 +20,28 @@
 
 		<div class="body">
 			<div class="actions">
-				<TTButton icon="test" light secondary small @click="fakeVote()">fake votes</TTButton>
+				<!-- <TTButton icon="test" light secondary small @click="fakeVote()">fake votes</TTButton> -->
 				<template v-if="!currentQuestion">
 					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
 				</template>
 				<template v-else>
-					<TTButton icon="checkmark" light @click="store.revealAnswer(currentQuiz.id)">{{ $t('quiz.state.showAnswer_bt') }}</TTButton>
-					<TTButton icon="next" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
+					<TTButton icon="refresh" alert light @click="store.resetQuizState(currentQuiz.id)" v-tooltip="$t('quiz.state.resetQuiz_bt')"></TTButton>
+					<TTButton icon="checkmark" light @click="store.revealAnswer(currentQuiz.id)" v-tooltip="$t('quiz.state.showAnswer_bt')"></TTButton>
+					<TTButton icon="next" light @click="store.startNextQuestion(currentQuiz.id)" v-tooltip="$t('quiz.state.nextQuestion_bt')"></TTButton>
 				</template>
 			</div>
 	
 			<template v-if="currentQuestion">
 				<div class="question">{{ currentQuestion.question }}</div>
-				<div class="answers" v-if="!$utils.isFreeAnswerQuestion(currentQuiz.mode, currentQuestion)">
+				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
 					<div class="answer"
-					:class="{selected:$utils.isClassicQuizAnswer(currentQuiz.mode, answer)? answer.correct : false}"
+					:class="{selected:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
 					v-for="(answer, index) in currentQuestion.answerList">
 						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 						<span class="label">{{ answer.title }}</span>
 					</div>
 				</div>
+				<div class="answer selected" v-else>{{ currentQuestion.answer }}</div>
 			</template>
 
 			<OverlayPresenceChecker
@@ -61,7 +66,7 @@ const progressPercent = ref(0);
 const activeQuizList = computed(() => store.quizList.filter(v=>v.enabled))
 const currentQuizId = ref(activeQuizList.value[0]?.id)
 const currentQuiz = computed(() => store.quizList.filter(v=>v.id == currentQuizId.value)[0])
-const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.findIndex(v=>v.id == currentQuiz.value?.currentQuestionId) || -1)
+const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.findIndex(v=>v.id == currentQuiz.value?.currentQuestionId) ?? -1)
 const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
 
@@ -78,7 +83,7 @@ renderFrame();
 
 async function fakeVote():Promise<void> {
 	if(!currentQuestion.value) return;
-	if(!Utils.isFreeAnswerQuestion(currentQuiz.value!.mode, currentQuestion.value)) {
+	if(currentQuestion.value.mode !== "freeAnswer") {
 		const answerId = Utils.pickRand(currentQuestion.value.answerList).id;
 		const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
 		store.handleAnswer(currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
@@ -101,6 +106,11 @@ onBeforeUnmount(() => {
 			font-size: 0.9em;
 			opacity: 0.8;
 			font-style: italic;
+			.icon {
+				height: 1em;
+				margin-right: .25em;
+				vertical-align: middle;
+			}
 		}
 	}
 	.progress{
@@ -120,40 +130,40 @@ onBeforeUnmount(() => {
 		flex-wrap: wrap;
 		align-items: flex-start;
 		justify-content: center;
-		.answer {
-			display: flex;
-			gap: .5em;
-			max-width: 40%;
-			padding: .25em .5em;
-			border: 1px solid transparent;
-			border-radius: .5em;
-			background-color: rgba(0, 0, 0, .25);
-			transition: all .15s;
-			
-			.index {
-				flex-shrink: 0;
-				font-weight: bold;
-				font-size: 1.1em;
-				opacity: .7;
-			}
-			
-			.label {
-				word-break: break-word;
-				max-height: 100px;
-				overflow-y: auto;
-				padding-right: 3px;
-				font-size: .95em;
-				// Explicit line-height avoids sub-pixel rounding mismatches between
-				// scrollHeight and clientHeight that cause spurious scrollbars
-				// when line-height is "normal" (browser-computed fractional value).
-				line-height: 1.25em;
-			}
+	}
+	.answer {
+		display: flex;
+		gap: .5em;
+		max-width: 40%;
+		padding: .25em .5em;
+		border: 1px solid transparent;
+		border-radius: .5em;
+		background-color: rgba(0, 0, 0, .25);
+		transition: all .15s;
+		
+		.index {
+			flex-shrink: 0;
+			font-weight: bold;
+			font-size: 1.1em;
+			opacity: .7;
+		}
+		
+		.label {
+			word-break: break-word;
+			max-height: 100px;
+			overflow-y: auto;
+			padding-right: 3px;
+			font-size: .95em;
+			// Explicit line-height avoids sub-pixel rounding mismatches between
+			// scrollHeight and clientHeight that cause spurious scrollbars
+			// when line-height is "normal" (browser-computed fractional value).
+			line-height: 1.25em;
+		}
 
-			&.selected {
-				border-color: var(--color-light);
-				.index {
-					opacity: 1;
-				}
+		&.selected {
+			border-color: var(--color-light);
+			.index {
+				opacity: 1;
 			}
 		}
 	}
