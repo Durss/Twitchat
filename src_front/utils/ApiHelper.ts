@@ -1209,7 +1209,7 @@ type ApiEndpoints = {
 	"quiz/broadcast": {
 		PUT: {
 			parameters: {
-				quiz:TwitchatDataTypes.QuizParams;
+				quiz?:TwitchatDataTypes.QuizParams;
 			};
 			response: {
 				success:boolean;

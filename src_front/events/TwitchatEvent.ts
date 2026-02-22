@@ -1929,7 +1929,7 @@ export type TwitchatEventMap = {
 	/**
 	 * Receive quiz overlay configuration
 	 */
-	ON_QUIZ_CONFIGS: TwitchatDataTypes.QuizParams;
+	ON_QUIZ_CONFIGS: {quiz?: TwitchatDataTypes.QuizParams, i18n:{mode_classic: string, mode_majority: string, mode_freeAnswer: string}};
 	
 	/**
 	 * Requests for global states

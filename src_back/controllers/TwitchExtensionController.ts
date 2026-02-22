@@ -56,7 +56,7 @@ export default class TwitchExtensionController extends AbstractController {
 		const hash = createHash('sha512')
 			.update(Config.credentials.twitchat_api_secret + ':' + channelId)
 			.digest('hex');
-		console.log("Notify state update to Twitchat API for channel "+channelId);
+		
 		const res = await fetch(url, {
 			method: 'POST',
 			headers:{

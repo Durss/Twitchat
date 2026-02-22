@@ -8,6 +8,7 @@ import type { UnwrapRef } from 'vue';
 import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
+import Config from '@/utils/Config';
 
 let broadcastDebounceTO = -1;
 export const storeQuiz = defineStore('quiz', {
@@ -84,12 +85,11 @@ export const storeQuiz = defineStore('quiz', {
 			this.broadcastQuizState();
 		},
 
-		addQuiz(mode: TwitchatDataTypes.QuizParams["mode"]):TwitchatDataTypes.QuizParams {
+		addQuiz():TwitchatDataTypes.QuizParams {
 			let data:TwitchatDataTypes.QuizParams = {
 				id:Utils.getUUID(),
 				enabled:this.quizList.length === 0,
 				title:"",
-				mode,
 				questionList:[],
 				durationPerQuestion_s:30,
 				loosePointsOnFail:false,
@@ -117,12 +117,9 @@ export const storeQuiz = defineStore('quiz', {
 			if(!source) return;
 			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
 			clone.id = Utils.getUUID();
-			function isFreeAnswerQuestion(mode: TwitchatDataTypes.QuizParams["mode"], _question: any): _question is TwitchatDataTypes.QuizParams<"freeAnswer">["questionList"][number] {
-				return mode === "freeAnswer";
-			}
 			clone.questionList.forEach(q => {
 				q.id = Utils.getUUID();
-				if(!isFreeAnswerQuestion(clone.mode, q)) {
+				if(q.mode !== "freeAnswer") {
 					q.answerList.forEach(a => {
 						a.id = Utils.getUUID();
 					});
@@ -150,7 +147,7 @@ export const storeQuiz = defineStore('quiz', {
 			}
 
 			let score:number = 0;
-			if(Utils.isFreeAnswerQuestion(quiz.mode, question)) {
+			if(question.mode === "freeAnswer") {
 				const tolerancePercent = Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
 				// Max tolerance level accepts half of the answer to differ
 				const levensteinTolerance = tolerancePercent * question.answer.length / 2;
@@ -165,7 +162,7 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}else if(answerId) {
 				const answer = question.answerList.filter(a=>a.id === answerId)[0];
-				if(answer && Utils.isClassicQuizAnswer(quiz.mode, answer) && answer.correct) {
+				if(answer && Utils.isClassicQuizAnswer(question.mode, answer) && answer.correct) {
 					score = 1;
 				}else{
 					// for majority quiz we can only get score once everyone has voted.
@@ -227,14 +224,17 @@ export const storeQuiz = defineStore('quiz', {
 			this.broadcastQuizState();
 		},
 
-		resetQuiz(quizId:string):void {
-			const quiz = this.quizList.find(v=>v.id === quizId);
-			if(!quiz) return
-			quiz.currentQuestionId = "";
-			quiz.currentQuestionRevealed = false;
-			quiz.currentQuestionVotes = {};
-			if(this.liveState?.quizId == quizId) this.liveState = null;
-			this.broadcastQuizState();
+		resetQuizState(quizId:string):void {
+			StoreProxy.main.confirm(StoreProxy.i18n.t("quiz.state.reset_confirm.title"), StoreProxy.i18n.t("quiz.state.reset_confirm.description"))
+			.then(()=>{
+				const quiz = this.quizList.find(v=>v.id === quizId);
+				if(!quiz) return
+				quiz.currentQuestionId = "";
+				quiz.currentQuestionRevealed = false;
+				quiz.currentQuestionVotes = {};
+				if(this.liveState?.quizId == quizId) this.liveState = null;
+				this.broadcastQuizState();
+			}).catch(()=>{})
 		},
 
 		revealAnswer(quizId:string):void {
@@ -243,7 +243,7 @@ export const storeQuiz = defineStore('quiz', {
 			const votes: {[answerId:string]: number} = {};
 			if(this.liveState) {
 				const question = quiz.questionList.find(q=>q.id === quiz.currentQuestionId);
-				if(question && !Utils.isFreeAnswerQuestion(quiz.mode, question)) {
+				if(question && question.mode !== "freeAnswer") {
 					question.answerList.forEach(a => {
 						votes[a.id] = 0;
 					});
@@ -261,16 +261,20 @@ export const storeQuiz = defineStore('quiz', {
 
 		broadcastQuizState(overlayOnly?:boolean):void {
 			const quiz = this.quizList.find(v=>v.enabled);
-			if(!quiz) return
-			console.log("Broadcasting quiz state", quiz);
-			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", quiz);
+			
+			const i18n = {
+				mode_classic: StoreProxy.i18n.t("quiz.form.mode_classic.title"),
+				mode_majority: StoreProxy.i18n.t("quiz.form.mode_majority.title"),
+				mode_freeAnswer: StoreProxy.i18n.t("quiz.form.mode_freeAnswer.title"),
+			};
+			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", {quiz, i18n});
 			if(overlayOnly) return;
 			
 			// Debounce server broadcast
 			window.clearTimeout(broadcastDebounceTO);
 			broadcastDebounceTO = window.setTimeout(()=>{
 				ApiHelper.call("quiz/broadcast", "PUT", {
-					quiz: quiz,
+					quiz,
 				});
 			}, 1500);
 		}
