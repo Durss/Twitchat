@@ -4,10 +4,8 @@
 			"title": "Quiz",
 			"subtitle": "Créez votre propre quiz interactif !",
 			"add_bt": "Créer un quiz",
-			"import_bt": "Importer des questions depuis un CSV",
-			"import_classic_tt": "Une question par ligne.\nColonne 1 : question\nColonnes 2 : bonne réponse\nColonnes 3,4,5 : mauvaises réponses.",
-			"import_majority_tt": "Une question par ligne.\nColonne 1 : question\nColonnes 2,3,4,5 : mauvaises réponses.",
-			"import_freeAnswer_tt": "Une question par ligne.\nColonne 1 : question\nColonne 2 : bonne réponse",
+			"import_bt": "Importer des questions (.csv)",
+			"import_tt": "Importer des questions depuis un fichier .csv.\nUne question par ligne.\n\nQuestion à choix multiples → 3+ colonnes (question;correcte;fausse;...)\n\nQuestion à Réponse libre → 2 colonnes (question;réponse)",
 			"import_invalid_file": "Format de fichier invalide. Veuillez télécharger un fichier CSV avec la structure correcte.",
 			"addQuestion_bt": "Ajouter une question",
 			"addAnswer_bt": "Ajouter une réponse",
@@ -38,7 +36,8 @@
 			"param_duration": "Durée par question ({VALUE} secondes)",
 			"param_time_based_scoring": "Score basé sur le temps\n(plus de points pour les réponses rapides)",
 			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
-			"param_tolerance": "Tolérance orthographique",
+			"param_tolerance": "Tolérance orthographique\n(pour les questions à réponse libre)",
+			"no_question": "aucune question",
 			"question_placeholder": "question...",
 			"answer_placeholder": "réponse...",
 			"answers": "{COUNT} Réponses",
@@ -47,17 +46,18 @@
 			"param_answer_duration": "Durée",
 			"questionList": "Liste de questions",
 			"createBt": "Créer",
+			"add_question_title": "Ajouter une question",
 			"mode_classic": {
-				"title": "Mode classique",
-				"description": "Une question, jusqu'à 6 réponses, 1 ou plusieurs bonnes réponses.\n\nLes spectateurices gagnent des points pour chaque bonne réponse."
+				"title": "Réponse à choix",
+				"description": "Question à choix multiples"
 			},
 			"mode_freeAnswer": {
-				"title": "Mode réponse libre",
-				"description": "Une question, les spectateurices peuvent répondre librement dans le tchat ou dans l'extension Twitchat."
+				"title": "Réponse libre",
+				"description": "Question à réponse libre"
 			},
 			"mode_majority": {
-				"title": "Mode majoritaire",
-				"description": "Une question, jusqu'à 4 réponses, UNIQUEMENT des MAUVAISES réponses.\n\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes."
+				"title": "Vote Majoritaire",
+				"description": "Question à choix majoritaire.\n\nUniquement des fausses réponses.\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes"
 			},
 			"live_progress_warning":{
 				"title": "Quiz en cours",
@@ -69,6 +69,11 @@
 			"start_bt": "Démarrer le quiz",
 			"showAnswer_bt": "Révéler réponse",
 			"nextQuestion_bt": "Question suivante",
+			"resetQuiz_bt": "Réinitialiser le quiz",
+			"reset_confirm": {
+				"title": "Réinitialiser le quiz ?",
+				"description": "La progression du quiz sera perdue\nCette action est irréversible."
+			},
 			"questionIndex": "Question {INDEX}/{TOTAL}"
 		}
 	}

@@ -2733,34 +2733,33 @@ const UserDataSchema = {
 					maxItems:20,
 					items:{
 						type: "object",
-						discriminator: { propertyName: "mode" },
-						oneOf: [
-							{
-								additionalProperties: false,
-								properties: {
-									id: { type: "string", maxLength:50 },
-									title: { type: "string", maxLength:100 },
-									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
-									mode: { const: "classic" },
-									loosePointsOnFail: { type: "boolean" },
-									timeBasedScoring: { type: "boolean" },
-									enabled: { type: "boolean" },
-									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
-									quizStarted_at: { type: "string", maxLength:150 },
-									currentQuestionId: { type: "string", maxLength:50 },
-									questionStarted_at: { type: "string", maxLength:150 },
-									questionList: {
-										type: "array",
-										minItems: 0,
-										maxItems: 100,
-										items: {
-											type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string", maxLength:50 },
+							title: { type: "string", maxLength:100 },
+							durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
+							loosePointsOnFail: { type: "boolean" },
+							timeBasedScoring: { type: "boolean" },
+							enabled: { type: "boolean" },
+							toleranceLevel: { type: "integer", minimum:0, maximum:5 },
+							quizStarted_at: { type: "string", maxLength:150 },
+							currentQuestionId: { type: "string", maxLength:50 },
+							questionStarted_at: { type: "string", maxLength:150 },
+							questionList: {
+								type: "array",
+								minItems: 0,
+								maxItems: 100,
+								items: {
+									type: "object",
+									discriminator: { propertyName: "mode" },
+									oneOf: [
+										{
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
+												mode: { const: "classic" },
 												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
-												loosePointsOnFail: { type: "number" },
 												answerList: {
 													type: "array",
 													items: {
@@ -2773,35 +2772,14 @@ const UserDataSchema = {
 														}
 													}
 												}
-											}
-										}
-									}
-								},
-								required: ["mode"]
-							},
-							{
-								additionalProperties: false,
-								properties: {
-									id: { type: "string", maxLength:50 },
-									title: { type: "string", maxLength:100 },
-									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
-									mode: { const: "majority" },
-									loosePointsOnFail: { type: "boolean" },
-									timeBasedScoring: { type: "boolean" },
-									enabled: { type: "boolean" },
-									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
-									quizStarted_at: { type: "string", maxLength:150 },
-									currentQuestionId: { type: "string", maxLength:50 },
-									questionStarted_at: { type: "string", maxLength:150 },
-									questionList: {
-										type: "array",
-										minItems: 0,
-										maxItems: 100,
-										items: {
-											type: "object",
+											},
+											required: ["mode"]
+										},
+										{
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
+												mode: { const: "majority" },
 												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
 												answerList: {
@@ -2815,46 +2793,25 @@ const UserDataSchema = {
 														}
 													}
 												}
-											}
-										}
-									}
-								},
-								required: ["mode"]
-							},
-							{
-								additionalProperties: false,
-								properties: {
-									id: { type: "string", maxLength:50 },
-									title: { type: "string", maxLength:100 },
-									durationPerQuestion_s: { type: "integer", minimum:0, maximum:65535 },
-									mode: { const: "freeAnswer" },
-									loosePointsOnFail: { type: "boolean" },
-									timeBasedScoring: { type: "boolean" },
-									enabled: { type: "boolean" },
-									toleranceLevel: { type: "integer", minimum:0, maximum:5 },
-									quizStarted_at: { type: "string", maxLength:150 },
-									currentQuestionId: { type: "string", maxLength:50 },
-									questionStarted_at: { type: "string", maxLength:150 },
-									questionList: {
-										type: "array",
-										minItems: 0,
-										maxItems: 100,
-										items: {
-											type: "object",
+											},
+											required: ["mode"]
+										},
+										{
 											additionalProperties: false,
 											properties: {
 												id: { type: "string", maxLength:50 },
+												mode: { const: "freeAnswer" },
 												question: { type: "string", maxLength:300 },
 												duration_s: { type: "integer" },
 												toleranceLevel: { type: "integer", minimum:0, maximum:5 },
 												answer: { type: "string", maxLength:130 },
-											}
+											},
+											required: ["mode"]
 										}
-									}
-								},
-								required: ["mode"]
+									]
+								}
 							}
-						]
+						}
 					}
 				},
 				liveState: {
