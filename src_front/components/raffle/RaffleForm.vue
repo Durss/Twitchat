@@ -33,7 +33,7 @@
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 
-				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
+				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false" small>
 					<ParamItem :paramData="param_autoClose" v-model="localData.autoClose" />
 					<ParamItem :paramData="param_multipleJoin" v-model="localData.multipleJoin" />
 					<ParamItem :paramData="param_maxUsersToggle" v-model="param_maxUsersToggle.value" @change="onValueChange()">
@@ -135,7 +135,7 @@
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 
-				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
+				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false" small>
 					<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
 					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
 						<ParamItem class="child" noBackground :paramData="param_maxEntries" v-model="localData.maxEntries" />
