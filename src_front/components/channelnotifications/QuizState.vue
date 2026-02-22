@@ -4,7 +4,6 @@
 			<div class="subHolder">
 				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
 				<div class="subtitle" v-if="currentQuestion">
-					<icon :name="`quiz_${currentQuestion.mode}`" v-tooltip="$t('quiz.form.mode_'+currentQuestion.mode+'.title')" />
 					<span>{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</span>
 				</div>
 			</div>
@@ -32,7 +31,7 @@
 			</div>
 	
 			<template v-if="currentQuestion">
-				<div class="question">{{ currentQuestion.question }}</div>
+				<div class="question"><icon :name="`quiz_${currentQuestion.mode}`" v-tooltip="$t('quiz.form.mode_'+currentQuestion.mode+'.title')" />{{ currentQuestion.question }}</div>
 				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
 					<div class="answer"
 					:class="{selected:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
@@ -106,22 +105,26 @@ onBeforeUnmount(() => {
 			font-size: 0.9em;
 			opacity: 0.8;
 			font-style: italic;
-			.icon {
-				height: 1em;
-				margin-right: .25em;
-				vertical-align: middle;
-			}
 		}
 	}
 	.progress{
 		z-index: 1;
 	}
 	.question {
+		gap: .5em;
+		display: flex;
+		align-items: center;
+		flex-direction: row;
 		line-height: 1.1em;
 		padding: .5em .75em;
 		margin-top: .5em;
 		border-radius: .5em;
 		background-color: rgba(0, 0, 0, .25);
+		.icon {
+			width: 2em;
+			flex-shrink: 0;
+			vertical-align: middle;
+		}
 	}
 	.answers {
 		gap: .5em;
