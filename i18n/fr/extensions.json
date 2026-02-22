@@ -2,6 +2,7 @@
 	"extensions": {
 		"title":"Gérer vos extensions Twitch",
 		"param_install":"Installer",
+		"slot_assign":"Assigner à un emplacement…",
 		"no_extension":"Vous n'avez aucune extension installée sur votre chaîne.",
 		"no_extension_browse":"Parcourir les extensions",
 		"type_panel":"Panneau",
