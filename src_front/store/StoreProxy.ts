@@ -3972,12 +3972,13 @@ export interface IQuizActions {
 	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
 	/**
 	 * Registers an answer to a quiz question
+	 * @param platform
 	 * @param quizId 
 	 * @param questionId 
 	 * @param answerId 
 	 * @param answerText 
 	 */
-	handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
+	handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
 	/**
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
@@ -3998,6 +3999,11 @@ export interface IQuizActions {
 	 * @param quizId 
 	 */
 	revealAnswer(quizId:string):void;
+	/**
+	 * Show leaderboard for given quiz ID
+	 * @param quizId 
+	 */
+	showLeaderBoard(quizId:string):Promise<void>;
 	/**
 	 * Broadcasts currently enabled quiz state to overlays
 	 */

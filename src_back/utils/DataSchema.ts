@@ -2744,6 +2744,13 @@ const UserDataSchema = {
 							toleranceLevel: { type: "integer", minimum:0, maximum:5 },
 							quizStarted_at: { type: "string", maxLength:150 },
 							currentQuestionId: { type: "string", maxLength:50 },
+							currentQuestionRevealed: { type: "boolean" },
+							currentQuestionVotes: {
+								type:"object",
+								maxProperties: 10,
+								propertyNames: { maxLength: 50 },
+								additionalProperties: { type: "number", minimum:0, maximum:99999999999999999 },
+							},
 							questionStarted_at: { type: "string", maxLength:150 },
 							questionList: {
 								type: "array",
@@ -2827,7 +2834,11 @@ const UserDataSchema = {
 								type: "object",
 								additionalProperties: false,
 								properties: {
+									id: { type: "string", maxLength: 100 },
+									platform: { type: "string", maxLength:20 },
 									name: { type: "string", maxLength: 100 },
+									avatarPath: { type: "string", maxLength: 500 },
+									isAnonymous: { type: "boolean" },
 									score: { type: "number" },
 								},
 							},
