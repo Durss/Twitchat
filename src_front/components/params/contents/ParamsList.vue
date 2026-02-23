@@ -5,7 +5,7 @@
 		:key="key"
 		:ref="'entry_'+p.id"
 		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
-			<div :class="classes[p.id!]" v-if="buildIndex > index">
+			<div :class="getClasses(p, key as string)" v-if="buildIndex > index">
 				<ParamItem :paramData="p" noBackground autoFade v-model="p.value" @change="$store.params.updateParams();">
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !missingScopeStates[p.id!]" class="config">
 						<div class="card-item alert">
@@ -119,7 +119,7 @@ class ParamsList extends Vue implements IParameterContent {
 	public highlightId:string = "";
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
-	public classes:{[key:number]:string[]} = [];
+
 	public disabledStates:{[key:number]:boolean} = {};
 	public missingScopeStates:{[key:number]:boolean} = {};
 
@@ -246,6 +246,16 @@ class ParamsList extends Vue implements IParameterContent {
 		}, 30);
 	}
 
+	public getClasses(p:TwitchatDataTypes.ParameterData<unknown>, key:string):string[] {
+		const id = p.id!;
+		let res = ["item", key];
+		if(p.icon) res.push("hasIcon");
+		if(p.value === false) res.push("off");
+		if(p.premiumOnly === true) res.push("premium");
+		if(this.disabledStates[id]) res.push("disabled");
+		return res;
+	}
+
 	private computeMissingScopeStates():void {
 		for (const key in this.params) {
 			const p = this.params[key]!;
@@ -256,13 +266,6 @@ class ParamsList extends Vue implements IParameterContent {
 				this.missingScopeStates[id] = false;
 			}
 			this.disabledStates[id] = (p.id == 212 && !this.isOBSConnected) || this.missingScopeStates[id];
-
-			let res = ["item", key];
-			if(p.icon) res.push("hasIcon");
-			if(p.value === false) res.push("off");
-			if(p.premiumOnly === true) res.push("premium");
-			if(this.disabledStates[id]) res.push("disabled");
-			this.classes[id] = res;
 		}
 	}
 

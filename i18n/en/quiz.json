@@ -69,6 +69,7 @@
 			"start_bt": "Start quiz",
 			"showAnswer_bt": "Reveal answer",
 			"nextQuestion_bt": "Next question",
+			"leaderboard_bt": "Show Leaderboard",
 			"resetQuiz_bt": "Reset quiz",
 			"reset_confirm": {
 				"title": "Reset quiz?",

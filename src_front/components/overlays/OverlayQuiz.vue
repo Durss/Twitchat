@@ -1,6 +1,8 @@
 <template>
 	<div class="overlayquiz">
-		<div v-if="currentQuestion" class="content">
+		<OverlayQuizLeaderboard v-if="showLeaderboard && leaderboard" :users="leaderboard" />
+
+		<div v-else-if="currentQuestion" class="content">
 			<div class="question">
 				<h3>{{ currentQuestion.question }}</h3>
 				<div class="timer">
@@ -34,8 +36,11 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import OverlayQuizLeaderboard from './quiz/OverlayQuizLeaderboard.vue';
 
 const quizData = ref<TwitchatDataTypes.QuizParams|null>(null);
+const leaderboard = ref<TwitchatDataTypes.QuizState["users"]|null>(null);
+const showLeaderboard = ref(false);
 const timeRemaining = ref(3000);
 const answersVotes = ref<{[answerId: string]: number}>({});
 let timerInterval: number | null = null;
@@ -111,22 +116,30 @@ function onConnect() {
 function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRESENCE"); }
 
 /**
- * Called when a quiz config is updated. Update local data.
+ * Called when a quiz state is updated. Update local data.
  * Called when starting quiz, starting next question, etc...
  */
-function onQuizConfigs(e:TwitchatEvent<"ON_QUIZ_CONFIGS">) {
+function onQuizState(e:TwitchatEvent<"ON_QUIZ_STATE">) {
 	quizData.value = e.data.quiz ?? null;
+}
+
+function onQuizLeaderboard(e:TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
+	if(!quizData.value) return;
+	leaderboard.value = e.data.leaderboard;
+	showLeaderboard.value = true;
 }
 
 useOverlayConnector(onConnect);
 
 PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
-PublicAPI.instance.addEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
+PublicAPI.instance.addEventListener("ON_QUIZ_STATE", onQuizState);
+PublicAPI.instance.addEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
 
 onBeforeUnmount(() => {
 	if (timerInterval) clearInterval(timerInterval);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
-	PublicAPI.instance.removeEventListener("ON_QUIZ_CONFIGS", onQuizConfigs);
+	PublicAPI.instance.removeEventListener("ON_QUIZ_STATE", onQuizState);
+	PublicAPI.instance.removeEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
 });
 
 </script>
@@ -143,7 +156,7 @@ onBeforeUnmount(() => {
 	align-items: center;
 	padding: 2em;
 	box-sizing: border-box;
-	
+
 	.content {
 		width: 100%;
 		max-width: 1200px;

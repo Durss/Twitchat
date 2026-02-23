@@ -517,6 +517,7 @@ export class ParamItem extends Vue {
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
 		if(this.paramData.type == "font") res.push("font");
+		if(this.showMaxLength) res.push("withMaxLength");
 		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
 		if(this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
 		res.push("level_"+this.childLevel);
@@ -1077,7 +1078,7 @@ export default toNative(ParamItem);
 		}
 	}
 
-	&.maxLength {
+	&.withMaxLength.maxLength {
 		.content {
 			.text {
 				input {
