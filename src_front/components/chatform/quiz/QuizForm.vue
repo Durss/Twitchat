@@ -111,7 +111,7 @@
 											<TTButton
 											icon="spelling"
 											tabindex="-1"
-											@click="(e:MouseEvent|TouchEvent) => selectCustomTolerance(e, quiz.id, question)"
+											@click="(e:MouseEvent|TouchEvent) => selectCustomTolerance(e, quiz, question)"
 											:secondary="question.toleranceLevel !== undefined && question.toleranceLevel >= 0"
 											:transparent="question.toleranceLevel === undefined || question.toleranceLevel < 0">{{ 
 												question.toleranceLevel == undefined?
@@ -158,7 +158,7 @@
 											<div class="answerList">
 												<div v-for="answer in question.answerList" class="answer" :key="'answer_'+answer.id">
 													<TTButton v-if="$utils.isClassicQuizAnswer(question.mode, answer)" class="correctToggle"
-														@click="tickAnswer(question.answerList, answer)"
+														@click="tickAnswer(quiz, question.answerList, answer)"
 														v-tooltip="answer.correct? $t('quiz.form.answer_correct') : $t('quiz.form.answer_wrong')"
 														:icon="answer.correct? 'checkmark' : 'cross'"
 														:primary="answer.correct"
@@ -432,7 +432,7 @@ class QuizForm extends AbstractSidePanel {
 	 * If trying to untick the only correct answer, ignore and keep it ticked
 	 * @param answerList 
 	 */
-	public tickAnswer(answerList: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"],
+	public tickAnswer(quiz:TwitchatDataTypes.QuizParams, answerList: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"],
 	answer:Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "classic"}>["answerList"][number]): void {
 		if(answer.correct) {
 			//Untick
@@ -443,6 +443,7 @@ class QuizForm extends AbstractSidePanel {
 		}else{
 			answer.correct = !answer.correct;
 		}
+		this.save(quiz);
 	}
 
 	/**
@@ -451,7 +452,7 @@ class QuizForm extends AbstractSidePanel {
 	 * @param id 
 	 * @param question 
 	 */
-	public selectCustomTolerance(event: MouseEvent|TouchEvent, quizId:string, question: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "freeAnswer"}>): void {
+	public selectCustomTolerance(event: MouseEvent|TouchEvent, quiz:TwitchatDataTypes.QuizParams, question: Extract<TwitchatDataTypes.QuizParams["questionList"][number], {mode: "freeAnswer"}>): void {
 		const list:{[key:string]:string} = this.$tm("quiz.form.tolerances") as {[key:string]:string};
 		const px = event.type == "touchstart"? (event as TouchEvent).touches[0]!.clientX : (event as MouseEvent).x;
 		const py = event.type == "touchstart"? (event as TouchEvent).touches[0]!.clientY : (event as MouseEvent).y;
@@ -480,6 +481,7 @@ class QuizForm extends AbstractSidePanel {
 						} else {
 							question.toleranceLevel = index -1 as 0|1|2|3|4|5;
 						}
+						this.save(quiz);
 					}
 				})(index)
 			});
