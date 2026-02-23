@@ -1,5 +1,6 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import SSEHelper from '@/utils/SSEHelper';
 import Utils from '@/utils/Utils';
@@ -7,8 +8,6 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import ApiHelper from '@/utils/ApiHelper';
-import Config from '@/utils/Config';
 
 let broadcastDebounceTO = -1;
 export const storeQuiz = defineStore('quiz', {
@@ -45,7 +44,7 @@ export const storeQuiz = defineStore('quiz', {
 				const eventData = e.data
 				if(!eventData) return;
 
-				this.handleAnswer(eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
+				this.handleAnswer("twitch", eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
 			})
 		},
 		
@@ -130,7 +129,7 @@ export const storeQuiz = defineStore('quiz', {
 			return clone;
 		},
 
-		async handleAnswer(quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
+		async handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
 			const quiz = this.quizList.filter(q=>q.id === quizId)[0];
 			if(!quiz) return;
 			const question = quiz.questionList.filter(q=>q.id === questionId)[0];
@@ -181,30 +180,37 @@ export const storeQuiz = defineStore('quiz', {
 			// Get or create user data
 			let userData = this.liveState.users[uid];
 			if(!userData) {
-				let name = "";
+				let name:string = "";
+				let avatarPath:string|undefined = undefined;
 				if(userId) {
 					// User isn't anonymous, grab their name from the Twitch API
-					name = await new Promise(resolve => {
+					const user = await new Promise<TwitchatDataTypes.TwitchatUser>(resolve => {
 						StoreProxy.users.getUserFrom(
 							"twitch",
 							StoreProxy.auth.twitch.user.id, userId,
 							undefined,
 							undefined,
-							(user)=> resolve(user.displayNameOriginal)
+							(user)=> resolve(user)
 						);
 					})
+					name = user?.displayNameOriginal ?? "";
+					avatarPath = user?.avatarPath ?? "";
 					if(!name) name = "#" + userId;
 				}else{
 					// User is anonymous, get random name
 					name = Utils.getNameFromOpaqueId(uid);
 				}
 				userData = this.liveState.users[uid] = {
+					platform,
 					name,
+					avatarPath,
 					score: 0,
+					isAnonymous: !!opaqueUserId && !userId,
 				}
 			}
 
 			userData.score += score
+			this.saveData(quizId);
 		},
 
 		startNextQuestion(quizId:string):void {
@@ -221,7 +227,7 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this. Only here for testing to loop back to 1st question
 				//TODO: quiz ended, do whatever needs to be done at that moment
 			}
-			this.broadcastQuizState();
+			this.saveData();
 		},
 
 		resetQuizState(quizId:string):void {
@@ -235,7 +241,7 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.quizStarted_at = new Date(0).toISOString();
 				quiz.questionStarted_at = new Date(0).toISOString()
 				if(this.liveState?.quizId == quizId) this.liveState = null;
-				this.broadcastQuizState();
+				this.saveData();
 			}).catch(()=>{})
 		},
 
@@ -258,7 +264,13 @@ export const storeQuiz = defineStore('quiz', {
 			quiz.questionStarted_at = new Date(0).toISOString();
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionVotes = votes;
-			this.broadcastQuizState();
+			this.saveData(quizId);
+		},
+
+		async showLeaderBoard(quizId:string):Promise<void> {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz) return
+			PublicAPI.instance.broadcast("ON_QUIZ_LEADERBOARD", {leaderboard: this.liveState?.users ?? {}});
 		},
 
 		broadcastQuizState(overlayOnly?:boolean):void {
@@ -269,7 +281,7 @@ export const storeQuiz = defineStore('quiz', {
 				mode_majority: StoreProxy.i18n.t("quiz.form.mode_majority.title"),
 				mode_freeAnswer: StoreProxy.i18n.t("quiz.form.mode_freeAnswer.title"),
 			};
-			PublicAPI.instance.broadcast("ON_QUIZ_CONFIGS", {quiz, i18n});
+			PublicAPI.instance.broadcast("ON_QUIZ_STATE", {quiz, i18n});
 			if(overlayOnly) return;
 			
 			// Debounce server broadcast

@@ -69,6 +69,7 @@
 			"start_bt": "Démarrer le quiz",
 			"showAnswer_bt": "Révéler réponse",
 			"nextQuestion_bt": "Question suivante",
+			"leaderboard_bt": "Afficher le classement",
 			"resetQuiz_bt": "Réinitialiser le quiz",
 			"reset_confirm": {
 				"title": "Réinitialiser le quiz ?",
