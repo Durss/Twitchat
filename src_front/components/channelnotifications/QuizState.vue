@@ -19,14 +19,30 @@
 
 		<div class="body">
 			<div class="actions">
-				<!-- <TTButton icon="test" light secondary small @click="fakeVote()">fake votes</TTButton> -->
+				<TTButton icon="test" light secondary @click="fakeVote()" v-if="auth.isAdmin" />
 				<template v-if="!currentQuestion">
 					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
 				</template>
 				<template v-else>
-					<TTButton icon="refresh" alert light @click="store.resetQuizState(currentQuiz.id)" v-tooltip="$t('quiz.state.resetQuiz_bt')"></TTButton>
-					<TTButton icon="checkmark" light @click="store.revealAnswer(currentQuiz.id)" v-tooltip="$t('quiz.state.showAnswer_bt')"></TTButton>
-					<TTButton icon="next" light @click="store.startNextQuestion(currentQuiz.id)" v-tooltip="$t('quiz.state.nextQuestion_bt')"></TTButton>
+					<TTButton icon="refresh"
+						alert light
+						@click="store.resetQuizState(currentQuiz.id)"
+						v-tooltip="$t('quiz.state.resetQuiz_bt')"></TTButton>
+					<TTButton icon="checkmark"
+						light
+						@click="store.revealAnswer(currentQuiz.id)"
+						v-tooltip="$t('quiz.state.showAnswer_bt')"
+						v-if="!currentQuiz.currentQuestionRevealed"></TTButton>
+					<TTButton icon="next"
+						light
+						@click="store.startNextQuestion(currentQuiz.id)"
+						v-tooltip="$t('quiz.state.nextQuestion_bt')"
+						v-if="!isLastQuestion"></TTButton>
+					<TTButton icon="leaderboard"
+						light
+						@click="store.showLeaderBoard(currentQuiz.id)"
+						v-tooltip="$t('quiz.state.leaderboard_bt')"
+						v-if="isLastQuestion"></TTButton>
 				</template>
 			</div>
 	
@@ -52,6 +68,7 @@
 
 <script lang="ts" setup>
 import { storeQuiz } from '@/store/quiz/storeQuiz';
+import { storeAuth } from '@/store/auth/storeAuth';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { computed, onBeforeUnmount, ref } from 'vue';
@@ -60,6 +77,7 @@ import TTButton from '../TTButton.vue';
 import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 
 const store = storeQuiz();
+const auth = storeAuth();
 const progressPercent = ref(0);
 
 const activeQuizList = computed(() => store.quizList.filter(v=>v.enabled))
@@ -68,6 +86,7 @@ const currentQuiz = computed(() => store.quizList.filter(v=>v.id == currentQuizI
 const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.findIndex(v=>v.id == currentQuiz.value?.currentQuestionId) ?? -1)
 const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
+const isLastQuestion = computed(() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1)
 
 // if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
 // if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
@@ -85,7 +104,7 @@ async function fakeVote():Promise<void> {
 	if(currentQuestion.value.mode !== "freeAnswer") {
 		const answerId = Utils.pickRand(currentQuestion.value.answerList).id;
 		const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
-		store.handleAnswer(currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
+		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
 	}
 }
 

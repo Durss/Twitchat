@@ -531,6 +531,7 @@ export default toNative(Parameters);
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
+		transform: translateY(-50%);
 		.title {
 			display: none;
 			flex-grow: 1;
@@ -791,7 +792,7 @@ export default toNative(Parameters);
 		.contentHolder {
 			display:none;
 			.content {
-				margin-top: 1em;
+				margin-top: 0;
 				padding: 0;
 
 				.search {

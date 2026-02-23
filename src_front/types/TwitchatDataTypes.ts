@@ -4197,9 +4197,22 @@ export namespace TwitchatDataTypes {
 		 */
 		users:{[userId:string]:{
 			/**
+			 * Is the user anonymous?
+			 * true when user has chose not to grant access to their user info on extension
+			 */
+			isAnonymous:boolean;
+			/**
+			 * Platform used to play the quiz
+			 */
+			platform:ChatPlatform;
+			/**
 			 * User name
 			 */
 			name:string;
+			/**
+			 * user's avatar URL
+			 */
+			avatarPath?:string;
 			/**
 			 * User score
 			 */
