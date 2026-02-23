@@ -1923,13 +1923,17 @@ export type TwitchatEventMap = {
 	ON_QUIZ_OVERLAY_PRESENCE:void;
 	/**
 	 * Request quiz overlay configuration
-	 * @answer ON_QUIZ_CONFIGS
+	 * @answer ON_QUIZ_STATE
 	 */
 	GET_QUIZ_CONFIGS:void;
 	/**
 	 * Receive quiz overlay configuration
 	 */
-	ON_QUIZ_CONFIGS: {quiz?: TwitchatDataTypes.QuizParams, i18n:{mode_classic: string, mode_majority: string, mode_freeAnswer: string}};
+	ON_QUIZ_STATE: {quiz?: TwitchatDataTypes.QuizParams, i18n:{mode_classic: string, mode_majority: string, mode_freeAnswer: string}};
+	/**
+	 * Receive quiz overlay leaderboard
+	 */
+	ON_QUIZ_LEADERBOARD: {leaderboard: TwitchatDataTypes.QuizState["users"]};
 	
 	/**
 	 * Requests for global states
