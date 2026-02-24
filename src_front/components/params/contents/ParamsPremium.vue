@@ -5,7 +5,7 @@
 		<div class="head">{{ $t("premium.header") }}</div>
 		
 		<div class="card-item userInfo" v-if="$store.patreon.connected">
-			<div class="title">{{ $t('patreon.connected_as') }}</div>
+			<div class="title"><Icon name="patreon" /> {{ $t('patreon.connected_as') }}</div>
 			<div class="info">
 				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
 				<span class="name">{{ $store.patreon.userName }}</span>
@@ -13,7 +13,7 @@
 			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{ $t("global.disconnect") }}</TTButton>
 		</div>
 
-		<ParamsAccountPatreon class="card-item" />
+		<ParamsAccountPatreon />
 
 		<div class="card-item premium lifetimePremiumProgress" v-if="showProgress">
 			<div class="info">{{ $t("premium.progress") }}</div>
@@ -107,6 +107,9 @@ export default toNative(ParamsPremium);
 				font-weight: bold;
 				flex-grow: 1;
 			}
+		}
+		.icon {
+			height: 1em;
 		}
 	}
 
