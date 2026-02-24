@@ -161,13 +161,15 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}else if(answerId) {
 				const answer = question.answerList.filter(a=>a.id === answerId)[0];
-				if(answer && Utils.isClassicQuizAnswer(question.mode, answer) && answer.correct) {
-					score = 1;
+				if(Utils.isClassicQuizAnswer(question.mode, answer)) {
+					if(answer.correct) {
+						score = 1;
+					}
 				}else{
-					// for majority quiz we can only get score once everyone has voted.
-					this.liveState.questionVotes[question.id] = this.liveState.questionVotes[question.id] || [];
-					this.liveState.questionVotes[question.id]!.push({uid, answer: answerId});
+					// TODO: for majority quiz we can only get score once everyone has voted.
 				}
+				this.liveState.questionVotes[question.id] = this.liveState.questionVotes[question.id] || [];
+				this.liveState.questionVotes[question.id]!.push({uid, answer: answerId});
 			}
 			// Apply speed multiplicator if any
 			let speedMult = quiz.timeBasedScoring ? Date.now() - new Date(quiz.questionStarted_at).getTime() : 1;
@@ -291,6 +293,30 @@ export const storeQuiz = defineStore('quiz', {
 					quiz,
 				});
 			}, 1500);
+		},
+
+		computeQuestionPercents(quizId:string, questionId:string): {[answerId: string]: {global:number, relative:number}} {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			const question = quiz?.questionList.find(q=>q.id === questionId);
+			if(question?.mode === "freeAnswer") return {};
+			if(!quiz || !question) return {};
+			const votes = this.liveState?.questionVotes[question.id];
+			if(!votes || votes.length === 0) return question.answerList.reduce((acc, a) => {
+				acc[a.id] = {global: 0, relative: 0};
+				return acc;
+			}, {} as {[answerId: string]: {global:number, relative:number}});
+
+			const maxVotes = question.answerList.reduce((max, a) => {
+				const count = votes.filter(v=>v.answer == a.id).length;
+				return count > max ? count : max;
+			}, 0);
+			return question.answerList.reduce((acc, a) => {
+				acc[a.id] = {
+					global: Math.round((votes.filter(v=>v.answer == a.id).length / votes.length)*1000)/1000,
+					relative: Math.round((votes.filter(v=>v.answer == a.id).length / maxVotes)*1000)/1000
+				};
+				return acc;
+			}, {} as {[answerId: string]: {global:number, relative:number}});
 		}
 		
 	} as IQuizActions

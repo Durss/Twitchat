@@ -69,18 +69,17 @@ const timerStyles = computed<CSSProperties>(() => {
 
 <style scoped lang="less">
 .progressbar{
-	height: 5px;
+	height: 2px;
 	width: 100%;
-	@bg: #555;
 	@bg: var(--grayout);
 	background: @bg;
 	position: relative;
-	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
+	@shadow: 0 2px 2px rgba(0, 0, 0, .5);
 	flex-shrink: 0;
 
 	.fill {
 		box-shadow: @shadow;
-		height: 4px;
+		height: 2px;
 		width: 100%;
 		background-color: var(--color-primary);
 		transform-origin: left;
@@ -91,10 +90,9 @@ const timerStyles = computed<CSSProperties>(() => {
 	.timer {
 		position: absolute;
 		font-family: var(--font-roboto);
-		background-color: var(--color-primary);
 		color: var(--color-light);
 		top: 0;
-		font-size: .9em;
+		font-size: .8em;
 		padding: 2px 5px;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
