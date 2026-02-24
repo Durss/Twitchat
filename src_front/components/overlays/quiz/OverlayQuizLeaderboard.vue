@@ -60,7 +60,7 @@ function startScroll() {
 
 	const containerHeight = el.clientHeight;
 	const listHeight = listEl.scrollHeight;
-	// Start: list is just below the container; End: list has fully scrolled past the top
+
 	let offset = containerHeight;
 	const endOffset = -listHeight;
 	listEl.style.transform = `translateY(${offset}px)`;
@@ -68,13 +68,16 @@ function startScroll() {
 	const pixelsPerSecond = 100;
 	let lastTime: number | null = null;
 	let paused = true;
-	const startTime = performance.now();
 
 	function step(time: number) {
 		if (paused) {
 			paused = false;
 			lastTime = time;
 			scrollAnimation = requestAnimationFrame(step);
+			return;
+		}
+
+		if(listHeight <= containerHeight && offset <= 0) {
 			return;
 		}
 		if (lastTime !== null) {
@@ -110,7 +113,6 @@ onBeforeUnmount(() => {
 		display: flex;
 		flex-direction: column;
 		gap: 0.4em;
-		backdrop-filter: blur(5px);
 		will-change: transform;
 	}
 
@@ -122,6 +124,7 @@ onBeforeUnmount(() => {
 		border-radius: 10px;
 		background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.7));
 		color:#ffffff;
+		backdrop-filter: blur(5px);
 
 		&.top-1 {
 			color: #202020;
