@@ -9,16 +9,16 @@
 				<Icon name="gift" theme="light" />
 				<div class="statusContent">
 					<div class="statusTitle">{{ $t("premium.early_donor1") }}</div>
+					<i18n-t class="supportCta" scope="global" tag="p" keypath="premium.early_donor2">
+						<template #LINK>
+							<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+						</template>
+						<template #DONATE>
+							<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
+						</template>
+					</i18n-t>
 				</div>
 			</div>
-			<i18n-t class="supportCta" scope="global" tag="p" keypath="premium.early_donor2">
-				<template #LINK>
-					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
-				</template>
-				<template #DONATE>
-					<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
-				</template>
-			</i18n-t>
 		</div>
 
 		<!-- Premium: gifted by someone -->
@@ -27,16 +27,16 @@
 				<Icon name="gift" theme="light" />
 				<div class="statusContent">
 					<div class="statusTitle">{{ $t("premium.gifted") }}</div>
+					<i18n-t class="supportCta" scope="global" tag="p" keypath="premium.early_donor2">
+						<template #LINK>
+							<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+						</template>
+						<template #DONATE>
+							<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
+						</template>
+					</i18n-t>
 				</div>
 			</div>
-			<i18n-t class="supportCta" scope="global" tag="p" keypath="premium.early_donor2">
-				<template #LINK>
-					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
-				</template>
-				<template #DONATE>
-					<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
-				</template>
-			</i18n-t>
 		</div>
 
 		<!-- Premium: lifetime (donated enough) -->
@@ -58,7 +58,7 @@
 		</div>
 
 		<!-- Connected to Patreon -->
-		<template v-else-if="connected || $store.auth.premiumType == 'patreon'">
+		<template v-else-if="(connected || $store.auth.premiumType == 'patreon') && false">
 
 			<!-- Active Patreon member = Premium -->
 			<template v-if="$store.auth.premiumType == 'patreon'">
@@ -73,23 +73,23 @@
 
 			<!-- Linked but not a paying member -->
 			<template v-else-if="!authenticating">
-				<div class="card-item secondary statusCard">
+				<div class="card-item secondary statusCard left">
 					<Icon name="premium" theme="light" />
 					<div class="statusContent">
 						<div class="statusTitle">{{ $t("patreon.is_not_member") }}</div>
 						<div class="statusDetails">{{ $t("patreon.is_not_member_details") }}</div>
+						<i18n-t scope="global" tag="p" class="supportCta" keypath="patreon.info">
+							<template #LINK>
+								<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
+							</template>
+						</i18n-t>
 					</div>
 				</div>
-				<i18n-t scope="global" tag="p" class="supportCta" keypath="patreon.info">
-					<template #LINK>
-						<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
-					</template>
-				</i18n-t>
 			</template>
 		</template>
 
 		<!-- Not connected: prompt to link account -->
-		<template v-else>
+		<div class="card-item notPremium" v-else>
 			<i18n-t scope="global" tag="p" class="description" keypath="patreon.info">
 				<template #LINK>
 					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}<icon name="newtab" /></a>
@@ -111,7 +111,7 @@
 				<Icon name="alert" theme="light"/>
 				{{ $t("patreon.api_down") }}
 			</div>
-		</template>
+		</div>
 	</div>
 </template>
 
@@ -183,6 +183,11 @@ export default toNative(ParamsAccountPatreon);
 		gap: .75em;
 		width: 100%;
 		padding: .75em 1em;
+		&.left {
+			.statusContent {
+				text-align: left;
+			}
+		}
 		.icon {
 			width: 2.5em;
 			height: 2.5em;
@@ -190,6 +195,7 @@ export default toNative(ParamsAccountPatreon);
 		}
 		.statusContent {
 			flex-grow: 1;
+			text-align: center;
 			.statusTitle {
 				font-weight: bold;
 				line-height: 1.3em;
@@ -209,6 +215,8 @@ export default toNative(ParamsAccountPatreon);
 		font-style: italic;
 		font-size: .9em;
 		opacity: .8;
+		white-space: pre-line;
+		margin-top: .25em;
 		a {
 			font-style: normal;
 			font-weight: bold;
@@ -229,13 +237,14 @@ export default toNative(ParamsAccountPatreon);
 			}
 		}
 	}
-
+	
 	.actions {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: .5em;
 		justify-content: center;
+		margin-top: .5em;
 	}
 
 	.apiDown {
