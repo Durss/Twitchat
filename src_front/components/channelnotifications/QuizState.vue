@@ -8,7 +8,7 @@
 				</div>
 			</div>
 			
-			<ProgressBar v-if="currentQuiz.questionStarted_at && progressPercent < 1"
+			<ProgressBar v-if="showProgressbar"
 				class="progress"
 				secondary
 				:percent="progressPercent"
@@ -19,30 +19,26 @@
 
 		<div class="body">
 			<div class="actions">
-				<TTButton icon="test" light secondary @click="fakeVote()" v-if="auth.isAdmin" />
+				<TTButton icon="test" light secondary noBounce :selected="fakeVotes" @click="fakeVotes = !fakeVotes" v-if="auth.isAdmin" />
 				<template v-if="!currentQuestion">
 					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
 				</template>
 				<template v-else>
 					<TTButton icon="refresh"
 						alert light
-						@click="store.resetQuizState(currentQuiz.id)"
-						v-tooltip="$t('quiz.state.resetQuiz_bt')"></TTButton>
+						@click="store.resetQuizState(currentQuiz.id)">{{ $t('quiz.state.resetQuiz_bt') }}</TTButton>
 					<TTButton icon="checkmark"
 						light
 						@click="store.revealAnswer(currentQuiz.id)"
-						v-tooltip="$t('quiz.state.showAnswer_bt')"
-						v-if="!currentQuiz.currentQuestionRevealed"></TTButton>
+						v-if="!currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.showAnswer_bt') }}</TTButton>
 					<TTButton icon="next"
 						light
 						@click="store.startNextQuestion(currentQuiz.id)"
-						v-tooltip="$t('quiz.state.nextQuestion_bt')"
-						v-if="!isLastQuestion"></TTButton>
+						v-if="!isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
 					<TTButton icon="leaderboard"
 						light
 						@click="store.showLeaderBoard(currentQuiz.id)"
-						v-tooltip="$t('quiz.state.leaderboard_bt')"
-						v-if="isLastQuestion"></TTButton>
+						v-if="isLastQuestion">{{ $t('quiz.state.leaderboard_bt') }}</TTButton>
 				</template>
 			</div>
 	
@@ -51,9 +47,15 @@
 				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
 					<div class="answer"
 					:class="{selected:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
+					:style="{backgroundPositionX: 100-store.computeQuestionPercents(currentQuiz.id, currentQuestion.id)[answer.id]!.relative * 100 + '%'}"
 					v-for="(answer, index) in currentQuestion.answerList">
+						<template v-if="$utils.isClassicQuizAnswer(currentQuestion.mode, answer)">
+							<icon name="checkmark" v-if="answer.correct" />
+							<icon name="cross" v-else />
+						</template>
 						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 						<span class="label">{{ answer.title }}</span>
+						<span class="percent">{{ (store.computeQuestionPercents(currentQuiz.id, currentQuestion.id)[answer.id]!.global * 100).toFixed(1) }}%</span>
 					</div>
 				</div>
 				<div class="answer selected" v-else>{{ currentQuestion.answer }}</div>
@@ -79,6 +81,7 @@ import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
 const store = storeQuiz();
 const auth = storeAuth();
 const progressPercent = ref(0);
+const fakeVotes = ref(false);
 
 const activeQuizList = computed(() => store.quizList.filter(v=>v.enabled))
 const currentQuizId = ref(activeQuizList.value[0]?.id)
@@ -87,6 +90,7 @@ const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.find
 const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
 const isLastQuestion = computed(() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1)
+const showProgressbar = computed(() => currentQuiz.value?.questionStarted_at && progressPercent.value < 1 )
 
 // if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
 // if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
@@ -100,16 +104,26 @@ function renderFrame():void {
 renderFrame();
 
 async function fakeVote():Promise<void> {
-	if(!currentQuestion.value) return;
+	if(!fakeVotes.value || !currentQuestion.value || !showProgressbar.value) return;
+	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
 	if(currentQuestion.value.mode !== "freeAnswer") {
-		const answerId = Utils.pickRand(currentQuestion.value.answerList).id;
-		const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
+		const answer = Utils.pickRand(currentQuestion.value.answerList);
+		console.log(answer.title)
+		const answerId = answer.id;
 		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
+	}else{
+		const answer = Math.random() > .5? currentQuestion.value.answer : "Wrong answer ";
+		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, undefined, answer, fakeUserId);
 	}
+}
+let fakeVoteInterval:number;
+if(auth.isAdmin) {
+	fakeVoteInterval = window.setInterval(fakeVote, 1000);
 }
 
 onBeforeUnmount(() => {
 	cancelAnimationFrame(rafId);
+	if(fakeVoteInterval) clearInterval(fakeVoteInterval);
 });
 
 </script>
@@ -136,7 +150,6 @@ onBeforeUnmount(() => {
 		flex-direction: row;
 		line-height: 1.1em;
 		padding: .5em .75em;
-		margin-top: .5em;
 		border-radius: .5em;
 		background-color: rgba(0, 0, 0, .25);
 		.icon {
@@ -147,21 +160,31 @@ onBeforeUnmount(() => {
 	}
 	.answers {
 		gap: .5em;
+		font-size: .9em;
 		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		align-items: flex-start;
-		justify-content: center;
+		align-self: stretch;
+		flex-direction: column;
 	}
 	.answer {
 		display: flex;
 		gap: .5em;
-		max-width: 40%;
 		padding: .25em .5em;
 		border: 1px solid transparent;
 		border-radius: .5em;
-		background-color: rgba(0, 0, 0, .25);
 		transition: all .15s;
+		@c: rgba(0, 0, 0, .4);
+		@bg: rgba(0, 0, 0, .25);
+		background-color: @c;
+		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
+		background-size: 200% 100%;
+		transition: background .25s;
+
+		.icon {
+			height: 1em;
+			flex-shrink: 0;
+			vertical-align: middle;
+			color: var(--color-alert-light);
+		}
 		
 		.index {
 			flex-shrink: 0;
@@ -176,16 +199,17 @@ onBeforeUnmount(() => {
 			overflow-y: auto;
 			padding-right: 3px;
 			font-size: .95em;
-			// Explicit line-height avoids sub-pixel rounding mismatches between
-			// scrollHeight and clientHeight that cause spurious scrollbars
-			// when line-height is "normal" (browser-computed fractional value).
-			line-height: 1.25em;
+			flex: 1;
+			line-height: 1.2em;
 		}
 
 		&.selected {
-			border-color: var(--color-light);
+			// border-color: var(--color-light);
 			.index {
 				opacity: 1;
+			}
+			.icon {
+				color: inherit
 			}
 		}
 	}

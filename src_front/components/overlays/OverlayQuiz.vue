@@ -25,6 +25,11 @@
 					<span class="votes" v-if="revealAnswers">{{ answersVotes[answer.id] ? `(${answersVotes[answer.id]} votes)` : "" }}</span>
 				</li>
 			</ul>
+			<div v-else-if="currentQuestion && currentQuestion.mode === 'freeAnswer' && revealAnswers" class="answers" :key="'FA_'+currentQuestion.id">
+				<div class="answer-item revealed good freeAnswer">
+					<span class="answer">{{ currentQuestion.answer }}</span>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -121,11 +126,12 @@ function advertizePresence() { PublicAPI.instance.broadcast("ON_QUIZ_OVERLAY_PRE
  */
 function onQuizState(e:TwitchatEvent<"ON_QUIZ_STATE">) {
 	quizData.value = e.data.quiz ?? null;
+	leaderboard.value = null;
 }
 
 function onQuizLeaderboard(e:TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 	if(!quizData.value) return;
-	leaderboard.value = e.data.leaderboard;
+	leaderboard.value = e.data.leaderboard
 	showLeaderboard.value = true;
 }
 
@@ -280,6 +286,13 @@ onBeforeUnmount(() => {
 			&.revealed.good {
 				background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-dark));
 				box-shadow: 0 4px 16px rgba(0, 100, 0, 0.5);
+			}
+
+			&.freeAnswer {
+				margin: auto;
+				.answer {
+					margin-top: 0;
+				}
 			}
 
 			&.revealed:not(.good) {
