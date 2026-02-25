@@ -115,6 +115,7 @@ Events fired by Twitchat that you can listen to.
 - [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)
 - [ON_ANIMATED_TEXT_HIDE_COMPLETE](#on_animated_text_hide_complete)
 - [ON_ANIMATED_TEXT_SHOW_COMPLETE](#on_animated_text_show_complete)
+- [ON_AUTOMOD_MESSAGE_HELD](#on_automod_message_held)
 - [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
 - [ON_BINGO_GRID_LEADER_BOARD](#on_bingo_grid_leader_board)
 - [ON_BINGO_GRID_VIEWER_EVENT](#on_bingo_grid_viewer_event)
@@ -161,6 +162,9 @@ Events fired by Twitchat that you can listen to.
 - [ON_PREDICTION_PROGRESS](#on_prediction_progress)
 - [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)
 - [ON_QNA_SESSION_LIST](#on_qna_session_list)
+- [ON_QUIZ_LEADERBOARD](#on_quiz_leaderboard)
+- [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)
+- [ON_QUIZ_STATE](#on_quiz_state)
 - [ON_REWARD_REDEEM](#on_reward_redeem)
 - [ON_SUBSCRIPTION](#on_subscription)
 - [ON_TIMER_LIST](#on_timer_list)
@@ -383,6 +387,34 @@ type ON_ANIMATED_TEXT_SHOW_COMPLETE = {
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
 	queryId: string;
+}
+```
+
+</details>
+
+#### ON_AUTOMOD_MESSAGE_HELD
+Triggered when a message is held by automod  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_AUTOMOD_MESSAGE_HELD = null|{
+	/**
+	 * Channel ID where the message was sent
+	 */
+	channel: string;
+	/**
+	 * Message content
+	 */
+	message: string;
+	/**
+	 * User info
+	 */
+	user: {
+		id: string;
+		login: string;
+		displayName: string;
+	};
 }
 ```
 
@@ -1486,10 +1518,6 @@ type ON_CURRENT_TRACK = {
 	 * Current track cover URL
 	 */
 	cover?: string;
-	/**
-	 * Optional skin name
-	 */
-	skin?: string;
 }
 ```
 
@@ -1961,10 +1989,6 @@ type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 	 * the total amount raised for the charity
 	 */
 	raisedPersonnal: number;
-	/**
-	 * Optional skin name
-	 */
-	skin: string;
 }
 ```
 
@@ -2535,6 +2559,24 @@ type ON_GLOBAL_STATES = {
 		 */
 		enabled: boolean;
 	}[];
+	pendingAutomodMessage: null|{
+		/**
+		 * Channel ID where the message was sent
+		 */
+		channel: string;
+		/**
+		 * Message content
+		 */
+		message: string;
+		/**
+		 * User info
+		 */
+		user: {
+			id: string;
+			login: string;
+			displayName: string;
+		};
+	};
 }
 ```
 
@@ -3711,6 +3753,259 @@ type ON_QNA_SESSION_LIST = {
 
 </details>
 
+#### ON_QUIZ_LEADERBOARD
+Receive quiz overlay leaderboard  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_QUIZ_LEADERBOARD = {
+	leaderboard: {
+		[key: string]: {
+			/**
+			 * Is the user anonymous?
+			 * true when user has chose not to grant access to their user info on extension
+			 */
+			isAnonymous: boolean;
+			/**
+			 * Platform used to play the quiz
+			 */
+			platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+			/**
+			 * User name
+			 */
+			name: string;
+			/**
+			 * user's avatar URL
+			 */
+			avatarPath?: string;
+			/**
+			 * User score
+			 */
+			score: number;
+		};
+	};
+}
+```
+
+</details>
+
+#### ON_QUIZ_OVERLAY_PRESENCE
+Advertise for quiz overlay presence  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_QUIZ_OVERLAY_PRESENCE = void
+```
+
+</details>
+
+#### ON_QUIZ_STATE
+Receive quiz overlay configuration  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type ON_QUIZ_STATE = {
+	quiz?: {
+		/**
+		 * Quiz ID
+		 */
+		id: string;
+		/**
+		 * Quiz title
+		 */
+		title: string;
+		/**
+		 * Number of seconds to answer
+		 */
+		durationPerQuestion_s: number;
+		/**
+		 * If true, users that answer wrong will loose points
+		 */
+		loosePointsOnFail: boolean;
+		/**
+		 * If true, the faster the answer, the more points earned
+		 */
+		timeBasedScoring: boolean;
+		/**
+		 * Is the quiz enabled ?
+		 * Can be false after user stops being premium and is required to disable
+		 * entries if they have more than the maximum allowed
+		 */
+		enabled: boolean;
+		/**
+		 * UTC date at which the quiz started
+		 */
+		quizStarted_at: string;
+		/**
+		 * UTC date at which the current question started
+		 */
+		questionStarted_at: string;
+		/**
+		 * Current question ID
+		 */
+		currentQuestionId: string;
+		/**
+		 * Is the current question revealed to users?
+		 */
+		currentQuestionRevealed?: boolean;
+		/**
+		 * Votes for the current question.
+		 */
+		currentQuestionStats?: {
+			[key: string]: {
+				/**
+				 * Percentage of votes for this answer compared to all the other answers
+				 */
+				globalPercent: number;
+				/**
+				 * Percentage of votes for this answer compared to the answers with the highest voted answer
+				 */
+				relativePercent: number;
+				/**
+				 * Number of votes for this answer
+				 */
+				voteCount: number;
+			};
+		};
+		/**
+		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+		 * 0 = exact match
+		 * ...
+		 * 5 = very tolerant
+		 */
+		toleranceLevel?: undefined|0|1|2|3|4|5;
+		/**
+		 * List of questions
+		 */
+		questionList: {
+			/**
+			 * Question ID
+			 */
+			id: string;
+			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode: "classic"|"majority"|"freeAnswer";
+			/**
+			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?: number;
+			/**
+			 * Question text
+			 */
+			question: string;
+		} & {
+			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode: "classic";
+			/**
+			 * Possible answers for this question
+			 */
+			answerList: {
+				/**
+				 * Answer ID
+				 */
+				id: string;
+				/**
+				 * Answer text
+				 */
+				title: string;
+				/**
+				 * Is this the answer correct ?
+				 */
+				correct?: boolean;
+			}[];
+		}|{
+			/**
+			 * Question ID
+			 */
+			id: string;
+			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode: "classic"|"majority"|"freeAnswer";
+			/**
+			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?: number;
+			/**
+			 * Question text
+			 */
+			question: string;
+		} & {
+			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode: "majority";
+			/**
+			 * Possible answers for this question
+			 */
+			answerList: {
+				/**
+				 * Answer ID
+				 */
+				id: string;
+				/**
+				 * Answer text
+				 */
+				title: string;
+			}[];
+		}|{
+			/**
+			 * Question ID
+			 */
+			id: string;
+			/**
+			 * Question mode.
+			 * classic: earn points by answering questions correctly
+			 */
+			mode: "classic"|"majority"|"freeAnswer";
+			/**
+			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+			 */
+			duration_s?: number;
+			/**
+			 * Question text
+			 */
+			question: string;
+		} & {
+			/**
+			 * Question mode.
+			 * freeAnswer: viewers must type the answer on chat or extension
+			 */
+			mode: "freeAnswer";
+			/**
+			 * Expected answer
+			 */
+			answer: string;
+			/**
+			 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+			 * Overrides the global quiz tolerance level.
+			 * 0 = exact match
+			 * ...
+			 * 5 = very tolerant
+			 */
+			toleranceLevel?: undefined|0|1|2|3|4|5;
+		}[];
+	};
+	i18n: {
+		mode_classic: string;
+		mode_majority: string;
+		mode_freeAnswer: string;
+	};
+}
+```
+
+</details>
+
 #### ON_REWARD_REDEEM
 Triggered when a channel point reward is redeemed  
 <details>
@@ -4345,7 +4640,6 @@ type ON_WHEEL_OVERLAY_START = {
 	}[];
 	winner: string;
 	sessionId: string;
-	skin?: string;
 }
 ```
 
@@ -4359,8 +4653,8 @@ Actions you can request Twitchat to perform.
 - [SET_ANIMATED_TEXT_CONTENT](#set_animated_text_content)
 - [SET_AUTOMOD_ACCEPT](#set_automod_accept)
 - [SET_AUTOMOD_REJECT](#set_automod_reject)
-- [SET_BINGO_GRID_CONFIGS_VISIBILITY](#set_bingo_grid_configs_visibility)
 - [SET_BINGO_GRID_OVERLAY_PRESENCE](#set_bingo_grid_overlay_presence)
+- [SET_BINGO_GRID_VISIBILITY](#set_bingo_grid_visibility)
 - [SET_BINGO_TOGGLE](#set_bingo_toggle)
 - [SET_CENSOR_DELETED_MESSAGES_TOGGLE](#set_censor_deleted_messages_toggle)
 - [SET_CHAT_FEED_PAUSE_STATE](#set_chat_feed_pause_state)
@@ -4458,27 +4752,6 @@ Accept latest message held by automod
 Reject latest message held by automod  
 
 
-#### SET_BINGO_GRID_CONFIGS_VISIBILITY
-Set bingo grid visibility  
-<details>
-<summary>JSON parameters</summary>
-
-```typescript
-type SET_BINGO_GRID_CONFIGS_VISIBILITY = {
-	/**
-	 * Bingo grid ID to change visibility of
-	 */
-	id: string;
-	/**
-	 * Show or hide the bingo grid
-	 * Omit to toggle current visibility
-	 */
-	show?: boolean;
-}
-```
-
-</details>
-
 #### SET_BINGO_GRID_OVERLAY_PRESENCE
 Advertise bingo grid overlay presence  
 <details>
@@ -4490,6 +4763,27 @@ type SET_BINGO_GRID_OVERLAY_PRESENCE = {
 	 * Bingo grid ID to advertise presence of
 	 */
 	id: string;
+}
+```
+
+</details>
+
+#### SET_BINGO_GRID_VISIBILITY
+Set bingo grid visibility  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_BINGO_GRID_VISIBILITY = {
+	/**
+	 * Bingo grid ID to change visibility of
+	 */
+	id: string;
+	/**
+	 * Show or hide the bingo grid
+	 * Omit to toggle current visibility
+	 */
+	show?: boolean;
 }
 ```
 
@@ -4958,7 +5252,6 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 	};
 	dateLabel: string;
 	message_id: string;
-	skin?: string;
 }
 ```
 
@@ -5174,7 +5467,6 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 	};
 	dateLabel: string;
 	message_id: string;
-	skin?: string;
 }
 ```
 
@@ -6564,6 +6856,8 @@ Data you can request from Twitchat.
 - [GET_PREDICTIONS_OVERLAY_CONFIGS](#get_predictions_overlay_configs)
 - [GET_PREDICTIONS_OVERLAY_PRESENCE](#get_predictions_overlay_presence)
 - [GET_QNA_SESSION_LIST](#get_qna_session_list)
+- [GET_QUIZ_CONFIGS](#get_quiz_configs)
+- [GET_QUIZ_OVERLAY_PRESENCE](#get_quiz_overlay_presence)
 - [GET_TIMER](#get_timer)
 - [GET_TIMER_LIST](#get_timer_list)
 - [GET_TIMER_OVERLAY_PRESENCE](#get_timer_overlay_presence)
@@ -6807,6 +7101,30 @@ Receive answer with: [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_p
 Request list of all Q&A sessions  
 Receive answer with: [ON_QNA_SESSION_LIST](#on_qna_session_list)  
 
+
+#### GET_QUIZ_CONFIGS
+Request quiz overlay configuration  
+Receive answer with: [ON_QUIZ_STATE](#on_quiz_state)  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type GET_QUIZ_CONFIGS = void
+```
+
+</details>
+
+#### GET_QUIZ_OVERLAY_PRESENCE
+Request quiz overlay presence  
+Receive answer with: [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)  
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type GET_QUIZ_OVERLAY_PRESENCE = void
+```
+
+</details>
 
 #### GET_TIMER
 Request specific timer configuration  
