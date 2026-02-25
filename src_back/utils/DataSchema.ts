@@ -305,7 +305,13 @@ const UserDataSchema = {
 						additionalProperties: false,
 						properties: {
 							platform: {type:"string", maxLength:15},
-							index:{type:"number", minimum:0, maximum:1000},
+							incices:{
+								type: "array",
+								minItems:0,
+								maxItems:100,
+								items:{type:"number", minimum:0, maximum:1000},
+							},
+							login: {type:"string", maxLength:50},
 						}
 					},
 				},
@@ -2745,11 +2751,19 @@ const UserDataSchema = {
 							quizStarted_at: { type: "string", maxLength:150 },
 							currentQuestionId: { type: "string", maxLength:50 },
 							currentQuestionRevealed: { type: "boolean" },
-							currentQuestionVotes: {
+							currentQuestionStats: {
 								type:"object",
 								maxProperties: 10,
 								propertyNames: { maxLength: 50 },
-								additionalProperties: { type: "number", minimum:0, maximum:99999999999999999 },
+								additionalProperties: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										globalPercent: { type: "number", minimum:0, maximum:100 },
+										relativePercent: { type: "number", minimum:0, maximum:100 },
+										voteCount: { type: "integer", minimum:0, maximum:100_000_000_000 },
+									}
+								},
 							},
 							questionStarted_at: { type: "string", maxLength:150 },
 							questionList: {
