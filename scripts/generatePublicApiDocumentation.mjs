@@ -259,6 +259,13 @@ function typeToFormattedString(type, checker, indent = 0, visited = new Set()) {
 		
 		// Add properties
 		for (const prop of properties) {
+			// Get JSDoc to check for @private
+			const jsDocTags = prop.getJsDocTags();
+			const isPrivate = jsDocTags.some(tag => tag.name === 'private');
+			if(isPrivate) {
+				continue;
+			}
+			
 			// Try to get the type of the property from the type itself first
 			// This works better with utility types like Pick<> and Omit<>
 			let propType;

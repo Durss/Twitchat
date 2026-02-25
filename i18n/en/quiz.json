@@ -70,6 +70,7 @@
 			"showAnswer_bt": "Reveal answer",
 			"nextQuestion_bt": "Next question",
 			"leaderboard_bt": "Show Leaderboard",
+			"disable_bt": "Disable quiz",
 			"resetQuiz_bt": "Reset quiz",
 			"reset_confirm": {
 				"title": "Reset quiz?",

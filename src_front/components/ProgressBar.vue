@@ -76,6 +76,7 @@ const timerStyles = computed<CSSProperties>(() => {
 	position: relative;
 	@shadow: 0 2px 2px rgba(0, 0, 0, .5);
 	flex-shrink: 0;
+	pointer-events: none;
 
 	.fill {
 		box-shadow: @shadow;
