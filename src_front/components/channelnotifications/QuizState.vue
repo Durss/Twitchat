@@ -38,7 +38,11 @@
 					<TTButton icon="leaderboard"
 						light
 						@click="store.showLeaderBoard(currentQuiz.id)"
-						v-if="isLastQuestion">{{ $t('quiz.state.leaderboard_bt') }}</TTButton>
+						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.leaderboard_bt') }}</TTButton>
+					<TTButton icon="disable"
+						light
+						@click="store.disableQuiz(currentQuiz.id)"
+						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.disable_bt') }}</TTButton>
 				</template>
 			</div>
 	
@@ -47,7 +51,7 @@
 				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
 					<div class="answer"
 					:class="{selected:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
-					:style="{backgroundPositionX: 100-store.computeQuestionPercents(currentQuiz.id, currentQuestion.id)[answer.id]!.relative * 100 + '%'}"
+					:style="{backgroundPositionX: 100-liveStats[answer.id]!.relativePercent * 100 + '%'}"
 					v-for="(answer, index) in currentQuestion.answerList">
 						<template v-if="$utils.isClassicQuizAnswer(currentQuestion.mode, answer)">
 							<icon name="checkmark" v-if="answer.correct" />
@@ -55,7 +59,8 @@
 						</template>
 						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 						<span class="label">{{ answer.title }}</span>
-						<span class="percent">{{ (store.computeQuestionPercents(currentQuiz.id, currentQuestion.id)[answer.id]!.global * 100).toFixed(1) }}%</span>
+						<span class="tag votes"><icon name="user" />{{ liveStats[answer.id]!.voteCount }}</span>
+						<span class="tag percent">{{ (liveStats[answer.id]!.globalPercent * 100).toFixed(1) }}%</span>
 					</div>
 				</div>
 				<div class="answer selected" v-else>{{ currentQuestion.answer }}</div>
@@ -91,6 +96,7 @@ const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v
 const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
 const isLastQuestion = computed(() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1)
 const showProgressbar = computed(() => currentQuiz.value?.questionStarted_at && progressPercent.value < 1 )
+const liveStats = computed(() => store.computeQuestionStats(currentQuiz.value!.id, currentQuestion.value!.id) )
 
 // if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
 // if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
@@ -108,7 +114,6 @@ async function fakeVote():Promise<void> {
 	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
 	if(currentQuestion.value.mode !== "freeAnswer") {
 		const answer = Utils.pickRand(currentQuestion.value.answerList);
-		console.log(answer.title)
 		const answerId = answer.id;
 		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
 	}else{
@@ -143,6 +148,11 @@ onBeforeUnmount(() => {
 	.progress{
 		z-index: 1;
 	}
+	// .body {
+	// 	.actions {
+	// 		// flex-direction: column;
+	// 	}
+	// }
 	.question {
 		gap: .5em;
 		display: flex;
@@ -152,6 +162,8 @@ onBeforeUnmount(() => {
 		padding: .5em .75em;
 		border-radius: .5em;
 		background-color: rgba(0, 0, 0, .25);
+		text-wrap: balance;
+		text-align: center;
 		.icon {
 			width: 2em;
 			flex-shrink: 0;
@@ -178,6 +190,7 @@ onBeforeUnmount(() => {
 		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 		background-size: 200% 100%;
 		transition: background .25s;
+		align-items: center;
 
 		.icon {
 			height: 1em;
@@ -203,8 +216,21 @@ onBeforeUnmount(() => {
 			line-height: 1.2em;
 		}
 
+		.tag {
+			background-color: rgba(0, 0, 0, .35);
+			padding: .25em .5em;
+			border-radius: 1em;
+			gap: .25em;
+			display: inline-flex;
+			align-items: center;
+			font-size: .9em;
+			.icon {
+				color: #ffffff;
+				height: .8em;
+			}
+		}
+
 		&.selected {
-			// border-color: var(--color-light);
 			.index {
 				opacity: 1;
 			}

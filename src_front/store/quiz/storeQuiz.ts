@@ -219,7 +219,7 @@ export const storeQuiz = defineStore('quiz', {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
 			delete quiz.currentQuestionRevealed;
-			delete quiz.currentQuestionVotes;
+			delete quiz.currentQuestionStats;
 			quiz.questionStarted_at = new Date().toISOString();
 			const index = quiz.questionList.findIndex(q=>q.id === quiz.currentQuestionId);
 			if(index < quiz.questionList.length - 1) {
@@ -238,8 +238,8 @@ export const storeQuiz = defineStore('quiz', {
 				const quiz = this.quizList.find(v=>v.id === quizId);
 				if(!quiz) return
 				quiz.currentQuestionId = "";
-				quiz.currentQuestionRevealed = false;
-				quiz.currentQuestionVotes = {};
+				delete quiz.currentQuestionRevealed;
+				delete quiz.currentQuestionStats;
 				quiz.quizStarted_at = new Date(0).toISOString();
 				quiz.questionStarted_at = new Date(0).toISOString()
 				if(this.liveState?.quizId == quizId) this.liveState = null;
@@ -250,22 +250,9 @@ export const storeQuiz = defineStore('quiz', {
 		revealAnswer(quizId:string):void {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
-			const votes: {[answerId:string]: number} = {};
-			if(this.liveState) {
-				const question = quiz.questionList.find(q=>q.id === quiz.currentQuestionId);
-				if(question && question.mode !== "freeAnswer") {
-					question.answerList.forEach(a => {
-						votes[a.id] = 0;
-					});
-					const answers = this.liveState.questionVotes[question.id] || [];
-					for (const answer of answers) {
-						votes[answer.answer]! ++;
-					}
-				}
-			}
 			quiz.questionStarted_at = new Date(0).toISOString();
 			quiz.currentQuestionRevealed = true;
-			quiz.currentQuestionVotes = votes;
+			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
 			this.saveData(quizId);
 		},
 
@@ -295,16 +282,16 @@ export const storeQuiz = defineStore('quiz', {
 			}, 1500);
 		},
 
-		computeQuestionPercents(quizId:string, questionId:string): {[answerId: string]: {global:number, relative:number}} {
+		computeQuestionStats(quizId:string, questionId:string): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]> {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			const question = quiz?.questionList.find(q=>q.id === questionId);
 			if(question?.mode === "freeAnswer") return {};
 			if(!quiz || !question) return {};
 			const votes = this.liveState?.questionVotes[question.id];
 			if(!votes || votes.length === 0) return question.answerList.reduce((acc, a) => {
-				acc[a.id] = {global: 0, relative: 0};
+				acc[a.id] = {globalPercent: 0, relativePercent: 0, voteCount: 0};
 				return acc;
-			}, {} as {[answerId: string]: {global:number, relative:number}});
+			}, {} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>);
 
 			const maxVotes = question.answerList.reduce((max, a) => {
 				const count = votes.filter(v=>v.answer == a.id).length;
@@ -312,11 +299,12 @@ export const storeQuiz = defineStore('quiz', {
 			}, 0);
 			return question.answerList.reduce((acc, a) => {
 				acc[a.id] = {
-					global: Math.round((votes.filter(v=>v.answer == a.id).length / votes.length)*1000)/1000,
-					relative: Math.round((votes.filter(v=>v.answer == a.id).length / maxVotes)*1000)/1000
+					globalPercent: Math.round((votes.filter(v=>v.answer == a.id).length / votes.length)*1000)/1000,
+					relativePercent: Math.round((votes.filter(v=>v.answer == a.id).length / maxVotes)*1000)/1000,
+					voteCount: votes.filter(v=>v.answer == a.id).length
 				};
 				return acc;
-			}, {} as {[answerId: string]: {global:number, relative:number}});
+			}, {} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>);
 		}
 		
 	} as IQuizActions

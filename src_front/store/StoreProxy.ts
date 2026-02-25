@@ -4016,7 +4016,7 @@ export interface IQuizActions {
 	 * @param quizId 
 	 * @param questionId 
 	 */
-	computeQuestionPercents(quizId:string, questionId:string): {[answerId: string]: {global:number, relative:number}}
+	computeQuestionStats(quizId:string, questionId:string): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>;
 }
 
 
