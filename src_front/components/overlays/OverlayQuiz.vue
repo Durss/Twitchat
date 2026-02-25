@@ -20,9 +20,13 @@
 			<ul v-if="currentQuestion && currentQuestion.mode !== 'freeAnswer'" class="answers" :key="currentQuestion.id">
 				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
 				:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
+					<div class="fill" :style="{ opacity:revealAnswers? 1 : 0, width: ((quizData?.currentQuestionStats?.[answer.id]?.globalPercent ?? 0) * 100) + '%' }"></div>
 					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 					<span class="answer">{{ answer.title }}</span>
-					<span class="votes" v-if="revealAnswers">{{ answersVotes[answer.id] ? `(${answersVotes[answer.id]} votes)` : "" }}</span>
+					<div class="info" v-if="revealAnswers && quizData?.currentQuestionStats?.[answer.id]">
+						<span class="votes"><Icon name="user" />{{ quizData.currentQuestionStats[answer.id]!.voteCount }}</span>
+						<span class="percent">{{ (quizData.currentQuestionStats[answer.id]!.globalPercent * 100).toFixed(0) }}%</span>
+					</div>
 				</li>
 			</ul>
 			<div v-else-if="currentQuestion && currentQuestion.mode === 'freeAnswer' && revealAnswers" class="answers" :key="'FA_'+currentQuestion.id">
@@ -42,12 +46,12 @@ import type TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import OverlayQuizLeaderboard from './quiz/OverlayQuizLeaderboard.vue';
+import Icon from '../Icon.vue';
 
 const quizData = ref<TwitchatDataTypes.QuizParams|null>(null);
 const leaderboard = ref<TwitchatDataTypes.QuizState["users"]|null>(null);
 const showLeaderboard = ref(false);
 const timeRemaining = ref(3000);
-const answersVotes = ref<{[answerId: string]: number}>({});
 let timerInterval: number | null = null;
 
 const revealAnswers = computed(()=> {
@@ -101,8 +105,8 @@ function isGoodAnswer(answer:{id:string; title:string; correct?:boolean}):boolea
 	if(currentQuestion.value.mode === "classic") {
 		return answer.correct == true;
 	}else if(currentQuestion.value.mode === "majority") {
-		const maxVotes = Math.max(...Object.values(answersVotes.value));
-		return answersVotes.value[answer.id] == maxVotes && maxVotes > 0;
+		const maxVotes = Math.max(...Object.values(quizData.value.currentQuestionStats ?? {}).map(s => s.voteCount));
+		return quizData.value.currentQuestionStats?.[answer.id]?.voteCount == maxVotes && maxVotes > 0;
 	}
 	return false;
 }
@@ -170,12 +174,11 @@ onBeforeUnmount(() => {
 	}
 	
 	.question {
-		background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+		background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-fade));
 		backdrop-filter: blur(10px);
-		border-radius: 16px;
+		border-radius: 1.5em;
 		padding: 1.5em 2em;
 		margin-bottom: 1em;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 		display: flex;
 		align-items: center;
 		gap: 2em;
@@ -251,16 +254,32 @@ onBeforeUnmount(() => {
 		gap: 0.8em;
 		
 		.answer-item {
-			background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(50, 50, 50, 0.95));
+			background: var(--grayout);
 			backdrop-filter: blur(10px);
-			border-radius: 12px;
+			border-radius: 1em;
 			padding: 1.2em 1.5em;
 			display: flex;
 			gap: 1em;
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-			transition: all 0.3s ease;
+			transition: filter 0.3s ease;
 			animation: fadeIn 0.5s ease-out backwards;
 			cursor: pointer;
+			align-items: center;
+			position: relative;
+			overflow: hidden;
+
+			.fill {
+				z-index: 0;
+				position: absolute;
+				top: 0;
+				left: 0;
+				bottom: 0;
+				width: 0;
+				transition: width 1s;
+				background: rgba(0, 0, 0, .15);
+				border-top-right-radius: 1em;
+				border-bottom-right-radius: 1em;
+				// backdrop-filter: brightness(1.25);
+			}
 
 			&:nth-last-child(1):nth-child(2n - 1) {
   				grid-column: span 2;
@@ -278,32 +297,26 @@ onBeforeUnmount(() => {
 			&:nth-child(10) { animation-delay: 1s; }
 			
 			&:hover {
-				transform: translateY(-2px);
-				box-shadow: 0 6px 20px var(--color-dark-fade);
-				background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary-dark));
+				filter: brightness(1.5);
 			}
 
 			&.revealed.good {
-				background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-dark));
-				box-shadow: 0 4px 16px rgba(0, 100, 0, 0.5);
+				background: var(--color-primary-fade);
 			}
 
 			&.freeAnswer {
 				margin: auto;
-				.answer {
-					margin-top: 0;
-				}
 			}
 
 			&.revealed:not(.good) {
-				opacity: 0.7;
-				background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary-dark));
+				background: var(--color-secondary-fade);
 				.index {
-					background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+					background: var(--color-secondary);
 				}
 			}
 			
 			.index {
+				z-index: 1;
 				flex-shrink: 0;
 				width: 2.2em;
 				height: 2.2em;
@@ -320,6 +333,7 @@ onBeforeUnmount(() => {
 			}
 			
 			.answer {
+				z-index: 1;
 				flex: 1;
 				font-size: 1.3em;
 				font-weight: 500;
@@ -327,13 +341,30 @@ onBeforeUnmount(() => {
 				text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 				line-height: 1.4;
 				word-break: break-word;
-				margin-top: .25em;
 			}
 
-			.votes {
-				font-size: 0.9em;
+			.info {
+				z-index: 1;
+				margin-left: auto;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: .25em;
+				font-size: 1.2em;
 				color: #ffffff;
-				text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	
+				.votes {
+					text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+					gap: .25em;
+					display: inline-flex;
+					align-items: center;
+					.icon {
+						height: .8em;
+					}
+				}
+				.percent {
+					font-size: .85em;
+				}
 			}
 		}
 	}

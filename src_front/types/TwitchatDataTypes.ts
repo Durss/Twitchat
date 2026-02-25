@@ -809,6 +809,9 @@ export namespace TwitchatDataTypes {
 		items:EntryItem[];
 		winner:string;
 		sessionId:string;
+		/**
+		 * @private
+		 */
 		skin?:string;
 	}
 
@@ -1741,6 +1744,9 @@ export namespace TwitchatDataTypes {
 		params:ChatHighlightParams,
 		dateLabel:string,
 		message_id:string;
+		/**
+		 * @private
+		 */
 		skin?:string;
 	}
 	export interface ChatHighlightParams {
@@ -4093,7 +4099,22 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Votes for the current question.
 		 */
-		currentQuestionVotes?:{[answerId:string]:number};
+		currentQuestionStats?:{
+			[answerId: string]:{
+				/**
+				 * Percentage of votes for this answer compared to all the other answers
+				 */
+				globalPercent:number;
+				/**
+				 * Percentage of votes for this answer compared to the answers with the highest voted answer
+				 */
+				relativePercent:number;
+				/**
+				 * Number of votes for this answer
+				 */
+				voteCount:number;
+			}
+		};
 		/**
 		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 		 * 0 = exact match
