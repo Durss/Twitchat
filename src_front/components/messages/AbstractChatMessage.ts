@@ -43,8 +43,8 @@ export default class AbstractChatMessage extends Vue {
 					//If moderator on this channel and user to moderate isn't also a moderator
 					(authenticatedUser.channelInfo[channelId]?.is_moderator && !user.channelInfo[channelId]?.is_moderator)
 				)
-				//If not self
-				&& user.id != authenticatedUser.id
+				//If own message and we're mod
+				|| (user.id == authenticatedUser.id && authenticatedUser.channelInfo[channelId]?.is_moderator);
 	}
 
 	// public beforeUpdate() {
