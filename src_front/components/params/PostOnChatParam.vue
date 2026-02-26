@@ -84,6 +84,9 @@ class PostOnChatParam extends Vue {
 	@Prop({type:String, default: ""})
 	public text!:string;
 	
+	@Prop({type:String, default: ""})
+	public prefix!:string;
+	
 	@Prop({type:Boolean, default: false})
 	public enabled!:boolean;
 	
@@ -104,6 +107,10 @@ class PostOnChatParam extends Vue {
 			const data					= this.$store.chat.botMessages[ this.botMessageKey ];
 			this.textParam.value		= data.message;
 			this.enabledParam.value		= data.enabled || this.noToggle !== false;
+			if(this.botMessageKey == "twitchatAd" && this.textParam.value.indexOf("/announce") == 0) {
+				// Remove /announcexxx from message. It's now given as prefix prop.
+				this.textParam.value = this.textParam.value.replace(/\/announce[a-z]*\s(.*)/i, "$1");
+			}
 		}else{
 			this.textParam.value		= this.text;
 			this.enabledParam.value		= this.enabled || this.noToggle !== false;
@@ -179,7 +186,7 @@ class PostOnChatParam extends Vue {
 		await this.$nextTick();
 
 		const me = this.$store.auth.twitch.user;
-		let rawMessage = this.textParam.value.normalize("NFC");
+		let rawMessage = (this.prefix + this.textParam.value).normalize("NFC");
 
 		if(this.placeholders) {
 			for (const p of this.placeholders) {
