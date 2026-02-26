@@ -111,7 +111,7 @@ export default class Config {
 	/**
 	 * No twitchat ad for users with less than this amount of followers
 	 */
-	public AD_MIN_FOLLOWERS_COUNT = 200;
+	public AD_MIN_FOLLOWERS_COUNT = 1000;
 	/**
 	 * Time to wait between to SO
 	 */

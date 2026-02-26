@@ -15,6 +15,7 @@
 					:noToggle="!isDonor"
 					clearToggle
 					noBackground
+					prefix="/announcepurple "
 					titleKey="params.ad_info"
 				/>
 
@@ -197,15 +198,11 @@ export default toNative(ParamsTwitchatAd);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		text-wrap: balance;
 	}
 
 	.tip {
 		width: 100%;
-		:deep(.header) {
-			.title {
-				color: var(--color-light);
-			}
-		}
 	}
 }
 </style>
