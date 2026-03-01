@@ -45,7 +45,7 @@
 					</template>
 
 					<div class="form">
-						<div class="card-item install">
+						<div class="overlayInstallCard">
 							<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" />
 						</div>
@@ -523,7 +523,7 @@ export default toNative(BingoGridForm);
 		}
 	}
 
-	.sizes, .install {
+	.sizes {
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
@@ -543,9 +543,6 @@ export default toNative(BingoGridForm);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-		}
-		&.install {
-			flex-direction: column;
 		}
 
 	}

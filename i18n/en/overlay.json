@@ -11,7 +11,7 @@
 		"install_success_exists": "There already was a browser source for this overlay on your scenes.\nIt has been copied to your current scene.",
 		"install_error": "Something went wrong when installing the overlay:\n{ERROR}",
 		"youtube_demo_tt": "Watch a tutorial",
-		"title_install": "Install",
+		"title_install": "Install overlay",
 		"title_settings": "Settings",
 		"install_instructions_title": "Instructions",
 		"overlay_not_configured": "Overlay not configured or hidden",
