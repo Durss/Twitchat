@@ -11,7 +11,7 @@
 		"install_success_exists": "Une source navigateur pour cet overlay existait déjà dans vos scènes.\nElle a été copiée dans votre scène courante.",
 		"install_error": "Une erreur a eu lieu lors de l'installation de l'overlay :\n{ERROR}",
 		"youtube_demo_tt": "Voir un tutoriel",
-		"title_install": "Installer",
+		"title_install": "Installer l'overlay",
 		"title_settings": "Configurations",
 		"install_instructions_title": "Instructions",
 		"overlay_not_configured": "Overlay non configuré ou masqué",
