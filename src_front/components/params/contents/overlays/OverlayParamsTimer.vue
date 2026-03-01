@@ -33,7 +33,7 @@
 						</i18n-t>
 					</div>
 
-					<div class="card-item install">
+					<div class="overlayInstallCard">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="timer" :sourceSuffix="entry.title" :id="entry.isDefault? '' : entry.id" :sourceTransform="{width:300, height:100}" />
 					</div>
@@ -161,23 +161,6 @@ export default toNative(OverlayParamsTimer);
 		justify-content: center;
 		flex-wrap: wrap;
 		gap: 1em;
-	}
-
-	.install {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		.icon {
-			height: 1em;
-		}
-		label {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-		}
 	}
 
 	.content {

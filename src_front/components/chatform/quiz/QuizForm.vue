@@ -51,7 +51,7 @@
 					</template>
 
 					<div class="form">
-						<div class="card-item install">
+						<div class="overlayInstallCard">
 							<label><Icon name="obs" />{{$t('quiz.form.install_title')}}</label>
 							<OverlayInstaller type="quiz" :sourceSuffix="quiz.title" :id="quiz.id" :queryParams="{bid:quiz.id}" />
 						</div>
@@ -983,22 +983,5 @@ export default toNative(QuizForm);
 		}
 	}
 
-	.install {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		.icon {
-			height: 1em;
-		}
-		label {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-		}
-	}
-	
 }
 </style>

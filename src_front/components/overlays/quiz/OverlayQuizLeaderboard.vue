@@ -2,13 +2,13 @@
 	<div class="overlayquizleaderboard" ref="rootEl">
 		<div class="leaderboard-list">
 			<div v-for="user in rankedUsers" :key="user.uid" class="leaderboard-entry"
-				:class="{ 'top-1': user.rank === 1, 'top-2': user.rank === 2, 'top-3': user.rank === 3 }">
+			:class="{ 'top-1': user.rank === 1, 'top-2': user.rank === 2, 'top-3': user.rank === 3 }">
 				<span class="rank">#{{ user.rank }}</span>
 				<img v-if="user.avatarPath" :src="user.avatarPath" class="avatar" alt="" />
 				<Icon v-else name="avatar" class="avatar" />
 				<Icon :name="user.platform" class="platform-icon" />
 				<span class="name">{{ user.isAnonymous ? 'Anonymous' : user.name }}</span>
-				<span class="score">{{ user.score }}</span>
+				<span class="score">{{ user.score.toFixed(1) }}</span>
 			</div>
 		</div>
 	</div>
@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import gsap from 'gsap/all';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 const props = defineProps<{
@@ -51,19 +52,48 @@ watch(() => props.users, () => {
 	nextTick(() => startScroll());
 }, { immediate: true });
 
-function startScroll() {
+let starRequesttId = -1;
+async function startScroll() {
 	if (scrollAnimation) cancelAnimationFrame(scrollAnimation);
 	const el = rootEl.value;
 	if (!el) return;
 	const listEl = el.querySelector('.leaderboard-list') as HTMLElement;
 	if (!listEl) return;
+	starRequesttId ++
+	let localStartId = starRequesttId;
 
 	const containerHeight = el.clientHeight;
 	const listHeight = listEl.scrollHeight;
 
-	let offset = containerHeight;
+	let offset = 0;//containerHeight;
 	const endOffset = -listHeight;
 	listEl.style.transform = `translateY(${offset}px)`;
+
+	const entries = [...rootEl.value!.querySelectorAll('.leaderboard-entry') || []] as HTMLElement[];
+	if(entries.length > 0) {
+		await new Promise(resolve => {
+			gsap.killTweensOf(entries);
+			gsap.fromTo(entries.splice(0,3), { opacity: 0, y: 20, scale:2 }, { opacity: 1, y: 0, scale:1, stagger: 1, ease: "back.out", onComplete: resolve });
+			if(starRequesttId !== localStartId) return;
+			entries.forEach((entry) => {
+				entry.style.transition = "none";
+				entry.style.transitionDelay = "0s";
+			});
+			nextTick().then(() => {
+				if(starRequesttId !== localStartId) return;
+				entries.forEach((entry) => {
+					entry.style.opacity = "0";
+				});
+			});
+		})
+		if(starRequesttId !== localStartId) return;
+		entries.forEach((entry, index) => {
+			entry.style.transition = "all .5s";
+			entry.style.transitionDelay = `${index * 0.1}s`;
+			entry.style.opacity = "1";
+		});
+	}
+	if(starRequesttId !== localStartId) return;
 
 	const pixelsPerSecond = 100;
 	let lastTime: number | null = null;
@@ -119,32 +149,39 @@ onBeforeUnmount(() => {
 	.leaderboard-entry {
 		display: flex;
 		align-items: center;
-		gap: .5em;
-		padding: 0.7em 1.2em;
-		border-radius: 10px;
+		gap: .5rem;
+		padding: 0.7rem 1.2rem;
+		border-radius: 1rem;
+		font-size: .9em;
 		background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.7));
 		color:#ffffff;
 		backdrop-filter: blur(5px);
-
+		opacity: 0;
+		
 		&.top-1 {
+			font-size: 1.6em;
 			color: #202020;
 			background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(255, 180, 0, 0.4));
 			.rank { color: inherit; }
 		}
 		&.top-2 {
+			font-size: 1.4em;
 			color: #202020;
 			background: linear-gradient(135deg, rgba(192, 192, 192, 0.5), rgba(160, 160, 160, 0.4));
 			.rank { color: inherit; }
 		}
 		&.top-3 {
+			font-size: 1.2em;
+			color: #202020;
 			background: linear-gradient(135deg, rgba(205, 127, 50, 0.5), rgba(180, 110, 40, 0.4));
+			.rank { color: inherit; }
 		}
 
 		.rank {
 			font-size: 1.5em;
 			font-weight: 800;
 			color: #ffffff;
-			min-width: 2.5em;
+			min-width: 2.5rem;
 			text-align: left;
 			flex-shrink: 0;
 		}

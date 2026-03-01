@@ -33,15 +33,14 @@
 </template>
 
 <script lang="ts">
-import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import InfiniteList from '../InfiniteList.vue';
-import type { JsonObject } from "type-fest";
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { ComponentPublicInstance, CSSProperties } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import InfiniteList from '../InfiniteList.vue';
 
 @Component({
 	components:{

@@ -40,7 +40,7 @@
 				</template>
 
 				<div class="form">
-					<div class="card-item install">
+					<div class="overlayInstallCard">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="label" :sourceSuffix="label.title" :id="label.id" :sourceTransform="{width:300, height:100}" />
 					</div>
@@ -265,23 +265,6 @@ export default toNative(OverlayParamsLabels);
 				width: 2em;
 				opacity: 1;//Do not fade when disabled as its holder will already be faded
 			}
-		}
-	}
-
-	.install {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		.icon {
-			height: 1em;
-		}
-		label {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
 		}
 	}
 

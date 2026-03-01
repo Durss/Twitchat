@@ -8,12 +8,9 @@
 
 		<div class="header">{{ $t("overlay.raffle.head") }}</div>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
+		<section class="overlayInstallCard">
+			<label><Icon name="obs" />{{$t('overlay.title_install')}}</label>
 			<OverlayInstaller type="wheel" @obsSourceCreated="getOverlayPresence(true)" />
-			
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.raffle.css") }}</div>
 				<ul class="cssStructure">

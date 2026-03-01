@@ -137,6 +137,8 @@ export const storeQuiz = defineStore('quiz', {
 			const uid = userId || opaqueUserId;
 			if(!uid) return;
 
+			const POINTS_PER_QUESTION = 100;
+
 			if(!this.liveState) {
 				this.liveState = {
 					quizId,
@@ -145,6 +147,9 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}
 
+			// Check if user already voted for this question
+			if(this.liveState.questionVotes[questionId]?.find(v=>v.uid === uid)) return;
+
 			let score:number = 0;
 			if(question.mode === "freeAnswer") {
 				const tolerancePercent = Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
@@ -152,19 +157,17 @@ export const storeQuiz = defineStore('quiz', {
 				const levensteinTolerance = tolerancePercent * question.answer.length / 2;
 				if(levensteinTolerance > 0) {
 					if(Utils.levenshtein(answerText ?? "", question.answer) <= levensteinTolerance) {
-						score = 1;
+						score = POINTS_PER_QUESTION;
 					}else{
-						score = -1;
+						score = -POINTS_PER_QUESTION;
 					}
 				}else{
-					score = answerText === question.answer ? 1 : -1;
+					score = answerText === question.answer ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
 				}
 			}else if(answerId) {
 				const answer = question.answerList.filter(a=>a.id === answerId)[0];
 				if(Utils.isClassicQuizAnswer(question.mode, answer)) {
-					if(answer.correct) {
-						score = 1;
-					}
+					score = answer.correct? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
 				}else{
 					// TODO: for majority quiz we can only get score once everyone has voted.
 				}
@@ -172,7 +175,8 @@ export const storeQuiz = defineStore('quiz', {
 				this.liveState.questionVotes[question.id]!.push({uid, answer: answerId});
 			}
 			// Apply speed multiplicator if any
-			let speedMult = quiz.timeBasedScoring ? Date.now() - new Date(quiz.questionStarted_at).getTime() : 1;
+			const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
+			let speedMult = quiz.timeBasedScoring ? (Date.now() - new Date(quiz.questionStarted_at).getTime())/questionDuration : 1;
 			score *= speedMult;
 			// Avoid loosing points if the quiz isn't configured for it
 			if(score <= 0 && !quiz.loosePointsOnFail) {
