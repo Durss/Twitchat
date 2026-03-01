@@ -67,11 +67,11 @@
 		},
 		"state": {
 			"start_bt": "Démarrer le quiz",
-			"showAnswer_bt": "Révéler réponse",
+			"showAnswer_bt": "Révéler la réponse",
 			"nextQuestion_bt": "Question suivante",
 			"leaderboard_bt": "Afficher le classement",
 			"resetQuiz_bt": "Réinitialiser le quiz",
-			"disable_bt": "Désactiver le quiz",
+			"disable_bt": "Clore le quiz",
 			"reset_confirm": {
 				"title": "Réinitialiser le quiz ?",
 				"description": "La progression du quiz sera perdue\nCette action est irréversible."

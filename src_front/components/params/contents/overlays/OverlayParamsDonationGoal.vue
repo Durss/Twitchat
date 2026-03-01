@@ -41,7 +41,7 @@
 				</template>
 
 				<div class="form">
-					<div class="card-item install">
+					<div class="overlayInstallCard">
 						<label><Icon name="obs" />{{$t('donation_goals.install_title')}}</label>
 						<OverlayInstaller type="donationgoals" :sourceSuffix="overlay.title" :id="overlay.id" :queryParams="{bid:overlay.id}" />
 					</div>
@@ -601,23 +601,6 @@ export default toNative(OverlayParamsDonationGoal);
 		flex-direction: column;
 		justify-content: stretch;
 		gap: .5em;
-
-		.install {
-			gap: .5em;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: space-between;
-			.icon {
-				height: 1em;
-			}
-			label {
-				gap: .5em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-			}
-		}
 
 		.currencyField {
 			:deep(.inputHolder) {
