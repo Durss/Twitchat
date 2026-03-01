@@ -59,7 +59,7 @@
 							<template #AMOUNT><strong>{{ train2Record[entry.id]!.amountFormatted }}</strong></template>
 						</i18n-t>
 					</div>
-					<div class="card-item install">
+					<div class="overlayInstallCard">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="customtrain" :sourceSuffix="entry.title" :id="entry.id"
 						:sourceTransform="{width:1200, height:100}" />
@@ -653,23 +653,6 @@ export default toNative(OverlayParamsCustomTrain);
 		}
 		&>.colors {
 			flex-grow: 1;
-		}
-	}
-
-	.install {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		.icon {
-			height: 1em;
-		}
-		label {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
 		}
 	}
 

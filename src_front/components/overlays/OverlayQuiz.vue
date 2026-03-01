@@ -20,7 +20,7 @@
 			<ul v-if="currentQuestion && currentQuestion.mode !== 'freeAnswer'" class="answers" :key="currentQuestion.id">
 				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
 				:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
-					<div class="fill" :style="{ opacity:revealAnswers? 1 : 0, width: ((quizData?.currentQuestionStats?.[answer.id]?.globalPercent ?? 0) * 100) + '%' }"></div>
+					<div class="fill" :style="{ opacity:revealAnswers? 1 : 0, width: ((quizData?.currentQuestionStats?.[answer.id]?.relativePercent ?? 0) * 100) + '%' }"></div>
 					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
 					<span class="answer">{{ answer.title }}</span>
 					<div class="info" v-if="revealAnswers && quizData?.currentQuestionStats?.[answer.id]">
@@ -135,6 +135,10 @@ function onQuizState(e:TwitchatEvent<"ON_QUIZ_STATE">) {
 
 function onQuizLeaderboard(e:TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 	if(!quizData.value) return;
+	if(leaderboard.value) {
+		showLeaderboard.value = false;
+		return;
+	}
 	leaderboard.value = e.data.leaderboard
 	showLeaderboard.value = true;
 }
@@ -157,15 +161,16 @@ onBeforeUnmount(() => {
 <style scoped lang="less">
 .overlayquiz{
 	position: fixed;
-	bottom: 0;
+	bottom: 50px;
 	left: 0;
 	right: 0;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 2em;
 	box-sizing: border-box;
+	margin: auto;
+	max-width: 1000px;
 
 	.content {
 		width: 100%;
@@ -177,7 +182,7 @@ onBeforeUnmount(() => {
 		background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-fade));
 		backdrop-filter: blur(10px);
 		border-radius: 1.5em;
-		padding: 1.5em 2em;
+		padding: 1em 1.5em;
 		margin-bottom: 1em;
 		display: flex;
 		align-items: center;
@@ -251,13 +256,13 @@ onBeforeUnmount(() => {
 		margin: 0;
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-		gap: 0.8em;
+		gap: 0.5em;
 		
 		.answer-item {
 			background: var(--grayout);
 			backdrop-filter: blur(10px);
 			border-radius: 1em;
-			padding: 1.2em 1.5em;
+			padding: 1em 1.2em;
 			display: flex;
 			gap: 1em;
 			transition: filter 0.3s ease;
@@ -352,18 +357,23 @@ onBeforeUnmount(() => {
 				gap: .25em;
 				font-size: 1.2em;
 				color: #ffffff;
+				background-color: rgba(0, 0, 0, .25);
+				padding: .25em .5em;
+				border-radius: var(--border-radius);
 	
 				.votes {
 					text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 					gap: .25em;
 					display: inline-flex;
 					align-items: center;
+					font-weight: bold;
 					.icon {
 						height: .8em;
 					}
 				}
 				.percent {
-					font-size: .85em;
+					font-size: .8em;
+					font-style: italic;
 				}
 			}
 		}
