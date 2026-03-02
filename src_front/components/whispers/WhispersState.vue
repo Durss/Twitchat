@@ -90,6 +90,16 @@ class WhispersState extends AbstractSidePanel {
 	public beforeMount():void {
 		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0]!;
 		this.$store.chat.whispersUnreadCount = 0;
+		
+		if(this.$store.main.tempStoreValue
+		&& typeof this.$store.main.tempStoreValue === "object"
+		&& "type" in this.$store.main.tempStoreValue
+		&& this.$store.main.tempStoreValue.type == "user") {
+			const data = this.$store.main.tempStoreValue as {type:string, user:TwitchatDataTypes.TwitchatUser};
+			this.selectedUserId = data.user.id;
+			this.$store.main.tempStoreValue = null;
+		}
+
 		watch(()=>this.selectedUserId, async ()=>{
 			//Force scroll for a few frames in case there are
 			//emotes to be loaded. If we were not waiting for this

@@ -2397,6 +2397,7 @@ export const storeChat = defineStore('chat', {
 
 			const from = StoreProxy.auth.twitch.user;
 			StoreProxy.chat.whispers[user.id] = {to:user, from, messages:[]};
+			StoreProxy.main.tempStoreValue = {type:"user", user};
 			StoreProxy.params.openModal("whispers", true);
 		},
 
