@@ -1,7 +1,7 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
-import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
+import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList, LabelItemPlaceholderTag } from "@/types/ILabelOverlayData";
 import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, SettingsExportData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
@@ -3166,7 +3166,7 @@ export interface ILabelsActions {
 	/**
 	 * Get a label by its tag
 	 */
-	getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined;
+	getLabelByKey(key:LabelItemPlaceholderTag):string|number|undefined;
 	/**
 	 * Add a new label
 	 */
@@ -3188,13 +3188,18 @@ export interface ILabelsActions {
 	 * @param value
 	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary (only for Twitch users!)
 	 */
-	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void>;
+	updateLabelValue(key:LabelItemPlaceholderTag, value:string|number, userId?:string):Promise<void>;
 	/**
 	 * Updates a numerci label value by adding the given value to it
 	 * @param key
 	 * @param value
 	 */
-	incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
+	incrementLabelValue(key:LabelItemPlaceholderTag, value:number):Promise<void>;
+	/**
+	 * Clears a label value.
+	 * Used when banning a user to clear their avatar/name/... from the overlays
+	 */
+	clearUserLabelValue(userId:string):Promise<void> 
 	/**
 	 * Broadcasts placeholders values to the overlays
 	 */
