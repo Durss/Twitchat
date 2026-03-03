@@ -1,4 +1,4 @@
-import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder } from '@/types/ILabelOverlayData';
+import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder, type LabelItemPlaceholderTag } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -112,7 +112,7 @@ export const storeLabels = defineStore('labels', {
 			this.broadcastPlaceholders();
 		},
 
-		getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined {
+		getLabelByKey(key:LabelItemPlaceholderTag):string|number|undefined {
 			// Special case for generic viewer count, return the sum of all platforms
 			if(key == "VIEWER_COUNT") {
 				let twitch = this.getLabelByKey("VIEWER_COUNT_TWITCH") as number || 0;
@@ -182,7 +182,7 @@ export const storeLabels = defineStore('labels', {
 			if(labelId) this.broadcastLabelParams(labelId);
 		},
 
-		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void> {
+		async updateLabelValue(key:LabelItemPlaceholderTag, value:string|number, userId?:string):Promise<void> {
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
@@ -202,7 +202,7 @@ export const storeLabels = defineStore('labels', {
 			}
 		},
 
-		async incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
+		async incrementLabelValue(key:LabelItemPlaceholderTag, value:number):Promise<void> {
 			if(value == 0) return;
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
@@ -212,6 +212,55 @@ export const storeLabels = defineStore('labels', {
 			this.placeholders[key]!.value = prevValue + value;
 			this.broadcastPlaceholders();
 			this.saveData();
+		},
+
+		async clearUserLabelValue(userId:string):Promise<void> {
+			if(!ready) {
+				//Store not yet ready, wiat for it to be ready	
+				await readyPromise;
+			}
+			console.log("CLEARING LABEL VALUES FOR USER "+userId);
+			const userIdKeyList:LabelItemPlaceholderTag[] = [
+				"SUB_ID",
+				"SUBGIFT_ID",
+				"SUB_YOUTUBE_ID",
+				"SUBGIFT_YOUTUBE_ID",
+				"SUB_GENERIC_ID",
+				"SUBGIFT_GENERIC_ID",
+				"SUPER_CHAT_ID",
+				"SUPER_STICKER_ID",
+				"CHEER_ID",
+				"COMBO_ID",
+				"FOLLOWER_ID",
+				"FOLLOWER_GENERIC_ID",
+				"REWARD_ID",
+				"RAID_ID",
+				"WATCH_STREAK_ID",
+				"POWER_UP_GIANTIFIED_ID",
+				"POWER_UP_CELEBRATION_ID",
+				"POWER_UP_MESSAGE_ID",
+			]
+			let hasClearedValue = false;
+			for (const key of userIdKeyList) {
+				if(this.placeholders[key] && this.placeholders[key].value === userId) {
+					hasClearedValue = true;
+					this.placeholders[key].value = "";
+					const prefix = key.replace(/_ID$/, "_");
+					// Clear all other placeholders with the same prefix
+					for (const labelKey in this.placeholders) {
+						const typedKey = labelKey as LabelItemPlaceholderTag;
+						if(labelKey.startsWith(prefix)
+						&& this.placeholders[typedKey]) {
+							this.placeholders[typedKey].value = "";
+							hasClearedValue = true;
+						}
+					}
+				}
+			}
+			if(hasClearedValue) {
+				this.broadcastPlaceholders();
+				this.saveData();
+			}
 		},
 
 		broadcastPlaceholders():void {
@@ -282,5 +331,5 @@ if(import.meta.hot) {
 
 interface IStoreData {
 	labelList:LabelItemData[];
-	cachedValues:Partial<{[key in typeof LabelItemPlaceholderList[number]["tag"]]:string|number}>;
+	cachedValues:Partial<{[key in LabelItemPlaceholderTag]:string|number}>;
 }

@@ -1086,7 +1086,8 @@ export default toNative(UserCard);
 		}
 
 		.modActions {
-			margin: -.5em 0;
+			margin-top: -.25em;
+			margin-bottom: 0;
 			align-self: center;
 			flex-shrink: 0;//necessery for shit old safari -_-
 		}
