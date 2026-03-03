@@ -524,6 +524,8 @@ export const storeUsers = defineStore('users', {
 				channel_id:"",
 			}
 			StoreProxy.chat.addMessage(m);
+
+			StoreProxy.labels.clearUserLabelValue(user.id);
 		},
 
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
@@ -575,6 +577,10 @@ export const storeUsers = defineStore('users', {
 				// info missing from the main source of moderation info, we can get
 				// double ban events
 				return;
+			}
+
+			if(channelId == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.labels.clearUserLabelValue(bannedUser.id);
 			}
 
 			const banEndDate = Date.now() + (duration_s || 0) * 1000;
