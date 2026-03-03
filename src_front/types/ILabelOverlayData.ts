@@ -67,7 +67,7 @@ export interface LabelItemData {
  * Contains definition about a LabelItemData placeholder
  */
 export interface LabelItemPlaceholder {
-	tag:typeof LabelItemPlaceholderList[number]["tag"];
+	tag:LabelItemPlaceholderTag;
 	type:typeof LabelItemPlaceholderList[number]["type"];
 	descriptionKey:string;
 	descriptionKeyName?:string;
@@ -270,3 +270,5 @@ export const LabelItemPlaceholderList = [
 	{tag:"TIKTOK_GIFT_COUNT",					type:"number",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_COUNT", backup:true} as const,
 	{tag:"TIKTOK_GIFT_DIAMONDS",				type:"number",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS", backup:true} as const,
 ] as const;
+
+export type LabelItemPlaceholderTag = typeof LabelItemPlaceholderList[number]["tag"];
