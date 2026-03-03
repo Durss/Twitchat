@@ -1003,7 +1003,6 @@ export default toNative(ChatMessage);
 	}
 	.mod {
 		display: inline-flex;
-		margin-right: .4em;
 		vertical-align: middle;
 	}
 
@@ -1027,16 +1026,17 @@ export default toNative(ChatMessage);
 	}
 
 	.userBadges {
-		display: inline;
-		margin-right: .4em;
+		gap: 2px;
+		display: inline-flex;
+		flex-direction: row;
 		color: var(--color-text);
+		margin-right: .25em;
 	}
 
 	.badge, :deep(.customUserBadge) {
 		width: 1em;
 		height: 1em;
 		vertical-align: middle;
-		margin-right: .25em;
 
 		&.mini {
 			display: inline-block;
@@ -1059,10 +1059,6 @@ export default toNative(ChatMessage);
 			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
 			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
 			&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
-		}
-
-		&:last-child {
-			margin-right: 0;
 		}
 	}
 
