@@ -136,6 +136,7 @@ function onQuizState(e:TwitchatEvent<"ON_QUIZ_STATE">) {
 function onQuizLeaderboard(e:TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 	if(!quizData.value) return;
 	if(leaderboard.value) {
+		leaderboard.value = null;
 		showLeaderboard.value = false;
 		return;
 	}
@@ -170,11 +171,9 @@ onBeforeUnmount(() => {
 	align-items: center;
 	box-sizing: border-box;
 	margin: auto;
-	max-width: 1000px;
 
 	.content {
-		width: 100%;
-		max-width: 1200px;
+		max-width: 1000px;
 		animation: slideUp 0.5s ease-out;
 	}
 	

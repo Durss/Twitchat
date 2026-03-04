@@ -994,6 +994,16 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/__quiz_answer") {
+			const quiz = this.$store.quiz.quizList.filter(v=>v.enabled)[0]!;
+			const text = params.join(" ");
+			const index = parseInt(text);
+			const question = quiz.questionList.find(v=>v.id == quiz.currentQuestionId)!;
+			const answer = question.mode == "freeAnswer"? text : question.answerList[index - 1]!.id;
+			this.$store.quiz.handleAnswer("twitch", quiz.id, quiz.currentQuestionId, answer, answer, this.$store.auth.twitch.user.id);
+			this.message = "";
+		}else
+
 		if(cmd == "/adslogs") {
 			Logger.instance.download("ads");
 			this.message = "";
