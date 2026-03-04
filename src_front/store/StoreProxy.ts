@@ -3998,7 +3998,7 @@ export interface IQuizActions {
 	 * Resets given quiz
 	 * @param quizId 
 	 */
-	resetQuizState(quizId:string):void;
+	resetQuizState(quizId:string, confirm?:boolean):void;
 	/**
 	 * Reveal answer for current question of given quiz ID
 	 * @param quizId 
@@ -4013,6 +4013,13 @@ export interface IQuizActions {
 	 * Broadcasts currently enabled quiz state to overlays
 	 */
 	broadcastQuizState(overlayOnly?:boolean):void;
+	/**
+	 * Computes and applies scores for all votes on a given question.
+	 * Called from revealAnswer() once voting is closed.
+	 * @param quizId
+	 * @param questionId
+	 */
+	computeQuestionScores(quizId:string, questionId:string):void;
 	/**
 	 * Computes global and relative percents for each answer of given quiz question based on current votes
 	 * Global percent is the actual percent of votes for this answer among all votes

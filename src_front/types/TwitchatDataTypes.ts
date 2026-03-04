@@ -4250,7 +4250,12 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Can be either an answer ID or a raw text answer for "freeAnswer" mode
 			 */
-			answer:string
+			answer:string;
+			/**
+			 * Timestamp (ms) when the vote was cast.
+			 * Used for time-based scoring on majority questions.
+			 */
+			votedAt?:number;
 		}[]};
 	}
 
