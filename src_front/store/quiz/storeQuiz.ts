@@ -10,6 +10,71 @@ import type { IQuizActions, IQuizGetters, IQuizState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
 let broadcastDebounceTO = -1;
+const POINTS_PER_QUESTION = 100;
+
+interface AnswerScoreParams {
+	quiz: TwitchatDataTypes.QuizParams;
+	question: TwitchatDataTypes.QuizParams["questionList"][number];
+	/** Answer ID (for classic/majority modes) */
+	answerId?: string;
+	/** Raw text answer (for freeAnswer mode) */
+	answerText?: string;
+	/** Timestamp (ms) when the user voted */
+	votedAt: number;
+	/**
+	 * For majority mode, the set of winning answer IDs.
+	 * Must be provided when scoring majority questions (i.e. at reveal time).
+	 */
+	majorityWinnerIds?: Set<string>;
+}
+
+/**
+ * Computes the final score for a single answer.
+ * Handles all question modes (classic, freeAnswer, majority),
+ * applies time-based speed multiplier and loosePointsOnFail guard.
+ */
+function computeAnswerScore(params:AnswerScoreParams):number {
+	const { quiz, question, answerId, answerText, votedAt, majorityWinnerIds } = params;
+	let rawScore = 0;
+
+	if(question.mode === "freeAnswer") {
+		const tolerancePercent = Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
+		// Max tolerance level accepts half of the answer to differ
+		const levenshteinTolerance = tolerancePercent * question.answer.length / 2;
+		let isCorrect: boolean;
+		if(levenshteinTolerance > 0) {
+			isCorrect = Utils.levenshtein(answerText ?? "", question.answer) <= levenshteinTolerance;
+		}else{
+			isCorrect = answerText === question.answer;
+		}
+		rawScore = isCorrect ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+
+	}else if(question.mode === "classic" && answerId) {
+		const answer = question.answerList.find(a => a.id === answerId);
+		if(answer) {
+			rawScore = answer.correct ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+		}
+
+	}else if(question.mode === "majority" && answerId && majorityWinnerIds) {
+		rawScore = majorityWinnerIds.has(answerId) ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+	}
+
+	// Apply time-based speed multiplier
+	let score = rawScore;
+	if(quiz.timeBasedScoring) {
+		const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
+		const speedMult = (votedAt - new Date(quiz.questionStarted_at).getTime()) / questionDuration;
+		score *= speedMult;
+	}
+
+	// Avoid losing points if the quiz isn't configured for it
+	if(score <= 0 && !quiz.loosePointsOnFail) {
+		score = 0;
+	}
+
+	return score;
+}
+
 export const storeQuiz = defineStore('quiz', {
 	state: () => ({
 		quizList: [],
@@ -131,13 +196,17 @@ export const storeQuiz = defineStore('quiz', {
 
 		async handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
 			const quiz = this.quizList.filter(q=>q.id === quizId)[0];
-			if(!quiz) return;
+			if(!quiz || !quiz.enabled) return;
 			const question = quiz.questionList.filter(q=>q.id === questionId)[0];
 			if(!question) return;
 			const uid = userId || opaqueUserId;
 			if(!uid) return;
 
-			const POINTS_PER_QUESTION = 100;
+			// Check if question is still accepting answers based on duration
+			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
+			if(new Date(quiz.questionStarted_at).getTime() + totalTime < Date.now()) {
+				return;
+			}
 
 			if(!this.liveState) {
 				this.liveState = {
@@ -150,38 +219,13 @@ export const storeQuiz = defineStore('quiz', {
 			// Check if user already voted for this question
 			if(this.liveState.questionVotes[questionId]?.find(v=>v.uid === uid)) return;
 
-			let score:number = 0;
-			if(question.mode === "freeAnswer") {
-				const tolerancePercent = Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
-				// Max tolerance level accepts half of the answer to differ
-				const levensteinTolerance = tolerancePercent * question.answer.length / 2;
-				if(levensteinTolerance > 0) {
-					if(Utils.levenshtein(answerText ?? "", question.answer) <= levensteinTolerance) {
-						score = POINTS_PER_QUESTION;
-					}else{
-						score = -POINTS_PER_QUESTION;
-					}
-				}else{
-					score = answerText === question.answer ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
-				}
-			}else if(answerId) {
-				const answer = question.answerList.filter(a=>a.id === answerId)[0];
-				if(Utils.isClassicQuizAnswer(question.mode, answer)) {
-					score = answer.correct? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
-				}else{
-					// TODO: for majority quiz we can only get score once everyone has voted.
-				}
-				this.liveState.questionVotes[question.id] = this.liveState.questionVotes[question.id] || [];
-				this.liveState.questionVotes[question.id]!.push({uid, answer: answerId});
-			}
-			// Apply speed multiplicator if any
-			const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
-			let speedMult = quiz.timeBasedScoring ? (Date.now() - new Date(quiz.questionStarted_at).getTime())/questionDuration : 1;
-			score *= speedMult;
-			// Avoid loosing points if the quiz isn't configured for it
-			if(score <= 0 && !quiz.loosePointsOnFail) {
-				score = 0;
-			}
+			// Record vote
+			this.liveState.questionVotes[question.id] = this.liveState.questionVotes[question.id] || [];
+			this.liveState.questionVotes[question.id]!.push({
+				uid,
+				answer: answerId ?? answerText ?? "",
+				votedAt: Date.now(),
+			});
 
 			// Get or create user data
 			let userData = this.liveState.users[uid];
@@ -215,7 +259,6 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}
 
-			userData.score += score
 			this.saveData(quizId);
 		},
 
@@ -236,9 +279,8 @@ export const storeQuiz = defineStore('quiz', {
 			this.saveData();
 		},
 
-		resetQuizState(quizId:string):void {
-			StoreProxy.main.confirm(StoreProxy.i18n.t("quiz.state.reset_confirm.title"), StoreProxy.i18n.t("quiz.state.reset_confirm.description"))
-			.then(()=>{
+		resetQuizState(quizId:string, confirm:boolean = true):void {
+			const reset = () => {
 				const quiz = this.quizList.find(v=>v.id === quizId);
 				if(!quiz) return
 				quiz.currentQuestionId = "";
@@ -248,15 +290,25 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.questionStarted_at = new Date(0).toISOString()
 				if(this.liveState?.quizId == quizId) this.liveState = null;
 				this.saveData();
-			}).catch(()=>{})
+			}
+			if(confirm) {
+				StoreProxy.main.confirm(StoreProxy.i18n.t("quiz.state.reset_confirm.title"), StoreProxy.i18n.t("quiz.state.reset_confirm.description"))
+				.then(()=>{
+					reset();
+				}).catch(()=>{})
+			}else{
+				reset();
+			}
 		},
 
 		revealAnswer(quizId:string):void {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
-			quiz.questionStarted_at = new Date(0).toISOString();
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
+			// Compute scores — must run before resetting questionStarted_at (needed for time-based scoring)
+			this.computeQuestionScores(quizId, quiz.currentQuestionId);
+			quiz.questionStarted_at = new Date(0).toISOString();
 			this.saveData(quizId);
 		},
 
@@ -284,6 +336,41 @@ export const storeQuiz = defineStore('quiz', {
 					quiz,
 				});
 			}, 1500);
+		},
+
+		computeQuestionScores(quizId:string, questionId:string):void {
+			const quiz = this.quizList.find(v=>v.id === quizId);
+			if(!quiz || !this.liveState) return;
+			const question = quiz.questionList.find(q=>q.id === questionId);
+			if(!question) return;
+
+			const votes = this.liveState.questionVotes[questionId];
+			if(!votes || votes.length === 0) return;
+
+			// For majority mode, determine the winning answer(s)
+			let majorityWinnerIds:Set<string> | undefined;
+			if(question.mode === "majority") {
+				const voteCounts:{[answerId:string]:number} = {};
+				for(const vote of votes) {
+					voteCounts[vote.answer] = (voteCounts[vote.answer] || 0) + 1;
+				}
+				const maxVoteCount = Math.max(...Object.values(voteCounts));
+				majorityWinnerIds = new Set(
+					Object.keys(voteCounts).filter(id => voteCounts[id] === maxVoteCount)
+				);
+			}
+
+			for(const vote of votes) {
+				const userData = this.liveState.users[vote.uid];
+				if(!userData) continue;
+				userData.score += computeAnswerScore({
+					quiz, question,
+					answerId: question.mode !== "freeAnswer" ? vote.answer : undefined,
+					answerText: question.mode === "freeAnswer" ? vote.answer : undefined,
+					votedAt: vote.votedAt ?? Date.now(),
+					majorityWinnerIds,
+				});
+			}
 		},
 
 		computeQuestionStats(quizId:string, questionId:string): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]> {
