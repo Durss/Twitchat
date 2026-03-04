@@ -52,7 +52,7 @@
 						v-if="!isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
 					<TTButton icon="disable"
 						light
-						@click="store.disableQuiz(currentQuiz.id)"
+						@click="currentQuiz.enabled = false; store.resetQuizState(currentQuiz.id, false)"
 						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.disable_bt') }}</TTButton>
 				</template>
 			</div>
