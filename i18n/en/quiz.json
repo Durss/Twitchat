@@ -61,7 +61,7 @@
 			},
 			"live_progress_warning":{
 				"title": "Quiz in progress",
-				"description": "If you enable this quiz, you will lose the progress of the quiz {NAME}"
+				"description": "If you enable this quiz, you will lose the progress of the quiz \"{NAME}\""
 			},
 			"overlay_name": "Quiz"
 		},
