@@ -135,7 +135,6 @@ onBeforeUnmount(() => {
 <style scoped lang="less">
 .overlayquizleaderboard {
 	width: 100%;
-	max-width: 600px;
 	max-height: 50vh;
 	overflow: hidden;
 
@@ -144,6 +143,7 @@ onBeforeUnmount(() => {
 		flex-direction: column;
 		gap: 0.4em;
 		will-change: transform;
+		align-items: center;
 	}
 
 	.leaderboard-entry {
@@ -157,6 +157,8 @@ onBeforeUnmount(() => {
 		color:#ffffff;
 		backdrop-filter: blur(5px);
 		opacity: 0;
+		width: 100%;
+		max-width: 600px;
 		
 		&.top-1 {
 			font-size: 1.6em;
