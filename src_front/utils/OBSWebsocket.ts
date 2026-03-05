@@ -11,9 +11,9 @@ import Utils from './Utils';
 /**
 * Created : 29/03/2022
 */
-export default class OBSWebSocket extends EventDispatcher {
+export default class OBSWebsocket extends EventDispatcher {
 
-	private static _instance:OBSWebSocket;
+	private static _instance:OBSWebsocket;
 
 	public connected = ref<boolean>(false);
 	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
@@ -43,12 +43,12 @@ export default class OBSWebSocket extends EventDispatcher {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():OBSWebSocket {
-		if(!OBSWebSocket._instance) {
-			OBSWebSocket._instance = new OBSWebSocket();
-			OBSWebSocket._instance.initialize();
+	static get instance():OBSWebsocket {
+		if(!OBSWebsocket._instance) {
+			OBSWebsocket._instance = new OBSWebsocket();
+			OBSWebsocket._instance.initialize();
 		}
-		return OBSWebSocket._instance;
+		return OBSWebsocket._instance;
 	}
 
 	public get socket():ObsWS { return this.obs; }
