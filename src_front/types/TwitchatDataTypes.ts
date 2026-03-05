@@ -3,7 +3,7 @@ import Config from "@/utils/Config";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
-import type { OBSItemPath } from "@/utils/OBSWebSocket";
+import type { OBSItemPath } from "@/utils/OBSWebsocket";
 
 export namespace TwitchatDataTypes {
 

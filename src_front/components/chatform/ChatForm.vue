@@ -468,7 +468,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
-import OBSWebSocket from '@/utils/OBSWebSocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
@@ -589,7 +589,7 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebSocket.instance.connected.value; }
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected.value; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
