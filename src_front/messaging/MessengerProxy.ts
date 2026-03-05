@@ -5,7 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
-import OBSWebSocket from "@/utils/OBSWebSocket";
+import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { TwitchChannelModerateV2Scopes, TwitchScopes } from "@/utils/twitch/TwitchScopes";
@@ -356,7 +356,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/__stopobsstream__") {
-			OBSWebSocket.instance.stopStreaming();
+			OBSWebsocket.instance.stopStreaming();
 			return true;
 		}else
 
@@ -594,7 +594,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/clearobscache") {
-			await OBSWebSocket.instance.clearSourceTransformCache();
+			await OBSWebsocket.instance.clearSourceTransformCache();
 			return true;
 		}else
 
