@@ -18,13 +18,13 @@
 
 <script setup lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebSocket from '@/utils/OBSWebSocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { onBeforeUnmount, ref } from 'vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import TTButton from '../TTButton.vue';
 
-const obsConnected = OBSWebSocket.instance.connected;
+const obsConnected = OBSWebsocket.instance.connected;
 const overlaySource = ref<{sceneName?:string, sceneItemId:number}>();
 const overlayFound = ref(false);
 const checkingOverlay = ref(false);
@@ -40,7 +40,7 @@ const props = defineProps<{
 async function showOverlay():Promise<void> {
 	if(overlaySource.value) {
 		checkingOverlay.value = true;
-		await OBSWebSocket.instance.socket.call("SetSceneItemEnabled", {sceneItemEnabled:true, sceneItemId:overlaySource.value.sceneItemId, sceneName:overlaySource.value.sceneName!});
+		await OBSWebsocket.instance.socket.call("SetSceneItemEnabled", {sceneItemEnabled:true, sceneItemId:overlaySource.value.sceneItemId, sceneName:overlaySource.value.sceneName!});
 		checkOverlay();
 	}
 }
@@ -48,7 +48,7 @@ async function showOverlay():Promise<void> {
 async function checkOverlay():Promise<void> {
 	if(!obsConnected || checkingOverlay.value) return;
 
-	const sourceRes = await OBSWebSocket.instance.getSources(true);
+	const sourceRes = await OBSWebsocket.instance.getSources(true);
 	const params = props.overlayId? [{k:"twitchat_overlay_id", v:props.overlayId}] : [];
 	const urlRef = new URL(Utils.overlayURL(props.overlayType, params));
 	
@@ -58,7 +58,7 @@ async function checkOverlay():Promise<void> {
 	for (const source of sourceRes) {
 		if(source.inputKind != "browser_source") continue;
 		
-		const settingsRes = await OBSWebSocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(source.sourceName);
+		const settingsRes = await OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(source.sourceName);
 		localOverlayFound = false;
 		localSourceVisible = false;
 		const localFile = settingsRes.inputSettings.is_local_file === true;
@@ -75,7 +75,7 @@ async function checkOverlay():Promise<void> {
 		&& url.indexOf(urlRef.pathname.toLowerCase()) > -1) {
 			localOverlayFound = true;
 			if(source.sceneName) {
-				const visibleRes = await OBSWebSocket.instance.socket.call("GetSceneItemEnabled", {
+				const visibleRes = await OBSWebsocket.instance.socket.call("GetSceneItemEnabled", {
 					sceneName:source.sceneName,
 					sceneItemId:source.sceneItemId,
 				});

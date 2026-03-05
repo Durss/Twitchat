@@ -3,7 +3,7 @@ import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePr
 import type { LabelItemData } from "@/types/ILabelOverlayData";
 import type { TriggerActionCountDataAction } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { OBSSourceItem } from '@/utils/OBSWebSocket';
+import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Event } from './EventDispatcher';
 
 /**
