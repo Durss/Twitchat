@@ -16,7 +16,7 @@ import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
-import { default as OBSWebSocket, type SourceTransform } from "../OBSWebSocket";
+import { default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import SFXRUtils from "../SFXRUtils";
 import TTSUtils from "../TTSUtils";
