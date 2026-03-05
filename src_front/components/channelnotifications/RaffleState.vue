@@ -87,7 +87,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebSocket from '@/utils/OBSWebSocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import { gsap } from 'gsap/gsap-core';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
@@ -122,7 +122,7 @@ class RaffleState extends Vue {
 
 	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
 
-	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public get canPick():boolean {
 		if(!this.raffleData) return false;
