@@ -140,7 +140,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import OBSWebSocket from '@/utils/OBSWebSocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
@@ -223,7 +223,7 @@ class ParamsOverlays extends Vue implements IParameterContent {
 	};
 
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
-	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected.value; }

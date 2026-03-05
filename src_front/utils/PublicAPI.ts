@@ -2,7 +2,7 @@ import StoreProxy from "@/store/StoreProxy";
 import type { JsonObject } from "type-fest";
 import { EventDispatcher } from "../events/EventDispatcher";
 import TwitchatEvent, { type TwitchatEventMap } from "../events/TwitchatEvent";
-import OBSWebSocket from "./OBSWebSocket";
+import OBSWebsocket from "./OBSWebsocket";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 import Utils from "./Utils";
 import VoiceController from "./voice/VoiceController";
@@ -101,9 +101,9 @@ export default class PublicAPI extends EventDispatcher {
 			// @ts-ignore
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, dataClone));
 		} else {
-			if(OBSWebSocket.instance.connected.value) {
+			if(OBSWebsocket.instance.connected.value) {
 				// @ts-ignore
-				OBSWebSocket.instance.broadcast(type, eventId, dataClone);
+				OBSWebsocket.instance.broadcast(type, eventId, dataClone);
 			}
 			if(StreamdeckSocket.instance.connected.value) {
 				// @ts-ignore
@@ -190,20 +190,20 @@ export default class PublicAPI extends EventDispatcher {
 	private listenOBS(isMainApp:boolean):Promise<void> {
 		return new Promise((resolve, _reject):void => {
 			//OBS api not ready yet, wait for it
-			if(!OBSWebSocket.instance.connected.value) {
+			if(!OBSWebsocket.instance.connected.value) {
 				const connectHandler = () => {
-					OBSWebSocket.instance.removeEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
+					OBSWebsocket.instance.removeEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
 					if(isMainApp) this.broadcast("ON_TWITCHAT_READY", undefined, false);
 					resolve();
 				};
-				OBSWebSocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
+				OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
 			}else{
 				resolve();
 			}
 			
-			OBSWebSocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_CONNECTED", undefined, false));
-			OBSWebSocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false));
-			OBSWebSocket.instance.socket.on("CustomEvent", (eventData:JsonObject) => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_CONNECTED", undefined, false));
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false));
+			OBSWebsocket.instance.socket.on("CustomEvent", (eventData:JsonObject) => {
 				const eventDataTyped = eventData as unknown as IEnvelope;
 				this.onMessage(eventDataTyped, true);
 			});

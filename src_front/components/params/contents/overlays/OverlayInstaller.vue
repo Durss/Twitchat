@@ -36,7 +36,7 @@
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebSocket, { type SourceTransform } from '@/utils/OBSWebSocket';
+import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
@@ -91,7 +91,7 @@ class OverlayInstaller extends Vue {
 
 	private successTO:number = -1;
 
-	public get obsConnected():boolean { return OBSWebSocket.instance.connected.value; };
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; };
 	public get obsSourceName():string {
 		if(this.customSourceName) return this.customSourceName
 		let name = "Twitchat_"+this.type;
@@ -130,7 +130,7 @@ class OverlayInstaller extends Vue {
 		this.error = "";
 		clearTimeout(this.successTO);
 		try {
-			this.isExistingSource = await OBSWebSocket.instance.createBrowserSource(this.localURL, this.obsSourceName, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
+			this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, this.obsSourceName, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
 			this.showSuccess = true;
 		}catch(error:any) {
 			console.log(error);
