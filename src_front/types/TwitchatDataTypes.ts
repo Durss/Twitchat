@@ -4252,10 +4252,10 @@ export namespace TwitchatDataTypes {
 			 */
 			answer:string;
 			/**
-			 * Timestamp (ms) when the vote was cast.
+			 * Date (ISO 8601 string) when the vote was cast.
 			 * Used for time-based scoring on majority questions.
 			 */
-			votedAt?:number;
+			votedAt?:string;
 		}[]};
 	}
 
