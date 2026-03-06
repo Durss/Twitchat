@@ -904,7 +904,7 @@ export default class Utils {
 	 * @param seed
 	 * @returns
 	 */
-	public static seededRandom =(seed:number):()=>number => {
+	public static seededRandom (seed:number):()=>number {
 		return () => {
 			seed |= 0;
 			seed = seed + 0x9e3779b9 | 0;
