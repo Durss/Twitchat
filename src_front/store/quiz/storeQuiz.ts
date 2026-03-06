@@ -19,8 +19,8 @@ interface AnswerScoreParams {
 	answerId?: string;
 	/** Raw text answer (for freeAnswer mode) */
 	answerText?: string;
-	/** Timestamp (ms) when the user voted */
-	votedAt: number;
+	/** Date (ISO 8601 string) when the user voted */
+	votedAt: string;
 	/**
 	 * For majority mode, the set of winning answer IDs.
 	 * Must be provided when scoring majority questions (i.e. at reveal time).
@@ -63,7 +63,7 @@ function computeAnswerScore(params:AnswerScoreParams):number {
 	let score = rawScore;
 	if(quiz.timeBasedScoring) {
 		const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
-		const speedMult = (votedAt - new Date(quiz.questionStarted_at).getTime()) / questionDuration;
+		const speedMult = (new Date(votedAt).getTime() - new Date(quiz.questionStarted_at).getTime()) / questionDuration;
 		score *= speedMult;
 	}
 
@@ -224,7 +224,7 @@ export const storeQuiz = defineStore('quiz', {
 			this.liveState.questionVotes[question.id]!.push({
 				uid,
 				answer: answerId ?? answerText ?? "",
-				votedAt: Date.now(),
+				votedAt: new Date().toISOString(),
 			});
 
 			// Get or create user data
@@ -367,7 +367,7 @@ export const storeQuiz = defineStore('quiz', {
 					quiz, question,
 					answerId: question.mode !== "freeAnswer" ? vote.answer : undefined,
 					answerText: question.mode === "freeAnswer" ? vote.answer : undefined,
-					votedAt: vote.votedAt ?? Date.now(),
+					votedAt: vote.votedAt ?? new Date().toISOString(),
 					majorityWinnerIds,
 				});
 			}

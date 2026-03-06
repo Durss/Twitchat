@@ -2870,6 +2870,7 @@ const UserDataSchema = {
 									properties: {
 										uid: { type: "string", maxLength: 50 },
 										answer: { type: "string", maxLength: 500 },
+										votedAt: { type: "string", maxLength: 200 },
 									},
 								},
 							},
