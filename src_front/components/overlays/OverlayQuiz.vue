@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
 	margin: auto;
 
 	.content {
-		max-width: 1000px;
+		max-width: 50vw;
 		animation: slideUp 0.5s ease-out;
 	}
 	
