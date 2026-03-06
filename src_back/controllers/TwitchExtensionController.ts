@@ -172,11 +172,26 @@ export default class TwitchExtensionController extends AbstractController {
 		// if(!request.twitchExtensionUser!.user_id) return;
 
 		const params = request.body as {
+			/**
+			 * The ID of the quiz being answered.
+			 */
 			quizId: string;
+			/**
+			 * The ID of the question being answered.
+			 */
 			questionId: string;
+			/**
+			 * For non-free answer questions, the ID of the selected answer.
+			 */
 			answerId: string;
+			/**
+			 * For free answer questions, the raw text answer provided by the user.
+			 */
 			answerText?: string;
-			speed?: string;
+			/**
+			 * Delay with streamer
+			 */
+			delay?: number;
 		};
 		
 		try {
@@ -212,7 +227,7 @@ export default class TwitchExtensionController extends AbstractController {
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:{bingos, quiz}}));
+		response.send(JSON.stringify({success:true, state:{bingos, quiz}}));
 	}
 
 }
