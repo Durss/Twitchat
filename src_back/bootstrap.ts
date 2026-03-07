@@ -59,7 +59,7 @@ fs.mkdirSync(Config.BINGO_ROOT, { recursive: true });
 
 I18n.instance.initialize();
 
-const server:FastifyInstance = Fastify({logger: false, bodyLimit:20*1024*1024});
+const server:FastifyInstance = Fastify({logger: false, bodyLimit:20*1024*1024, keepAliveTimeout: 300000});
 server.register(fastifyFormbody)
 .register(FastifySSEPlugin)
 

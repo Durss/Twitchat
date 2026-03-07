@@ -253,7 +253,7 @@ export const storeMain = defineStore("main", {
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
-			SSEHelper.instance.initialize();
+			SSEHelper.instance.initialize(true);
 			this.initHttpMigrationFixer();
 
 			//Once SSE is connected, request any stream we're a mod for to

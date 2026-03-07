@@ -291,7 +291,7 @@ class BingoGridView extends Vue {
 				this.loading = false;
 				if(this.gridEnabled) this.animateOpen();
 				if(this.$store.public.authenticated && infos.json.multiplayerMode) {
-					SSEHelper.instance.initialize();
+					SSEHelper.instance.initialize(false);
 				}
 			}else{
 				this.error = true;
