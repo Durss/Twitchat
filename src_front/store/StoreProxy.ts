@@ -3988,7 +3988,7 @@ export interface IQuizActions {
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
 	 */
-	saveData(quizId?:string):Promise<void>;
+	saveData(quizId?:string, broadcastToOverlayOnly?:boolean, directBroadcast?:boolean):Promise<void>;
 	/**
 	 * Starts the next question of given quiz ID
 	 * @param quizId 
@@ -4012,7 +4012,7 @@ export interface IQuizActions {
 	/**
 	 * Broadcasts currently enabled quiz state to overlays
 	 */
-	broadcastQuizState(overlayOnly?:boolean):void;
+	broadcastQuizState(overlayOnly?:boolean, directBroadcast?:boolean):void;
 	/**
 	 * Computes and applies scores for all votes on a given question.
 	 * Called from revealAnswer() once voting is closed.

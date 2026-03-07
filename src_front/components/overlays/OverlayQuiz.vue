@@ -1,37 +1,39 @@
 <template>
 	<div class="overlayquiz">
-		<OverlayQuizLeaderboard v-if="showLeaderboard && leaderboard" :users="leaderboard" />
+		<div class="wrapper">
+			<OverlayQuizLeaderboard v-if="showLeaderboard && leaderboard" :users="leaderboard" />
 
-		<div v-else-if="currentQuestion" class="content">
-			<div class="question">
-				<h3>{{ currentQuestion.question }}</h3>
-				<div class="timer">
-					<svg class="timer-svg" viewBox="0 0 100 100">
-						<circle class="timer-bg" cx="50" cy="50" r="45" />
-						<circle class="timer-progress" cx="50" cy="50" r="45" 
-							v-if="!revealAnswers && timeRemaining > 0"
-							:style="{ strokeDashoffset: circleOffsetAngle }" />
-					</svg>
-					<transition name="scale">
-						<div class="timer-text" v-if="!revealAnswers && timeRemaining > 0">{{ Math.round(timeRemaining / 1000) }}</div>
-					</transition>
-				</div>
-			</div>
-			<ul v-if="currentQuestion && currentQuestion.mode !== 'freeAnswer'" class="answers" :key="currentQuestion.id">
-				<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
-				:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
-					<div class="fill" :style="{ opacity:revealAnswers? 1 : 0, width: ((quizData?.currentQuestionStats?.[answer.id]?.relativePercent ?? 0) * 100) + '%' }"></div>
-					<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
-					<span class="answer">{{ answer.title }}</span>
-					<div class="info" v-if="revealAnswers && quizData?.currentQuestionStats?.[answer.id]">
-						<span class="votes"><Icon name="user" />{{ quizData.currentQuestionStats[answer.id]!.voteCount }}</span>
-						<span class="percent">{{ (quizData.currentQuestionStats[answer.id]!.globalPercent * 100).toFixed(0) }}%</span>
+			<div v-else-if="currentQuestion" class="content">
+				<div class="question">
+					<h3>{{ currentQuestion.question }}</h3>
+					<div class="timer">
+						<svg class="timer-svg" viewBox="0 0 100 100">
+							<circle class="timer-bg" cx="50" cy="50" r="45" />
+							<circle class="timer-progress" cx="50" cy="50" r="45" 
+								v-if="!revealAnswers && timeRemaining > 0"
+								:style="{ strokeDashoffset: circleOffsetAngle }" />
+						</svg>
+						<transition name="scale">
+							<div class="timer-text" v-if="!revealAnswers && timeRemaining > 0">{{ Math.round(timeRemaining / 1000) }}</div>
+						</transition>
 					</div>
-				</li>
-			</ul>
-			<div v-else-if="currentQuestion && currentQuestion.mode === 'freeAnswer' && revealAnswers" class="answers" :key="'FA_'+currentQuestion.id">
-				<div class="answer-item revealed good freeAnswer">
-					<span class="answer">{{ currentQuestion.answer }}</span>
+				</div>
+				<ul v-if="currentQuestion && currentQuestion.mode !== 'freeAnswer'" class="answers" :key="currentQuestion.id">
+					<li v-for="(answer, index) in answerList" :key="answer.id" class="answer-item"
+					:class="{ good: isGoodAnswer(answer), revealed: revealAnswers }">
+						<div class="fill" :style="{ opacity:revealAnswers? 1 : 0, width: ((quizData?.currentQuestionStats?.[answer.id]?.relativePercent ?? 0) * 100) + '%' }"></div>
+						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
+						<span class="answer">{{ answer.title }}</span>
+						<div class="info" v-if="revealAnswers && quizData?.currentQuestionStats?.[answer.id]">
+							<span class="votes"><Icon name="user" />{{ quizData.currentQuestionStats[answer.id]!.voteCount }}</span>
+							<span class="percent">{{ (quizData.currentQuestionStats[answer.id]!.globalPercent * 100).toFixed(0) }}%</span>
+						</div>
+					</li>
+				</ul>
+				<div v-else-if="currentQuestion && currentQuestion.mode === 'freeAnswer' && revealAnswers" class="answers" :key="'FA_'+currentQuestion.id">
+					<div class="answer-item revealed good freeAnswer">
+						<span class="answer">{{ currentQuestion.answer }}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -157,23 +159,36 @@ onBeforeUnmount(() => {
 	PublicAPI.instance.removeEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
 });
 
+const scaleFactor = computed(() => {
+	return Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+});
+
 </script>
 
 <style scoped lang="less">
 .overlayquiz{
+	width: 1920px;
+	height: 1080px;
 	position: fixed;
-	bottom: 50px;
-	left: 0;
-	right: 0;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	box-sizing: border-box;
-	margin: auto;
+	top: 50%;
+	left: 50%;
+	transform: scale(v-bind(scaleFactor)) translate(-50%, -50%);
+	transform-origin: top left;
+	background: rgba(0, 255, 25, .2);
+		font-size: 18px;
+
+	.wrapper {
+		margin: auto;
+		display: block;
+		position: absolute;
+		margin: auto;
+		left: 0;
+		right: 0;
+		width: 60%;
+		bottom: 50px;
+	}
 
 	.content {
-		max-width: 50vw;
 		animation: slideUp 0.5s ease-out;
 	}
 	
@@ -186,7 +201,7 @@ onBeforeUnmount(() => {
 		display: flex;
 		align-items: center;
 		gap: 2em;
-		min-width: 400px;
+		width: 100%;
 		
 		h3 {
 			margin: 0;
@@ -254,7 +269,7 @@ onBeforeUnmount(() => {
 		padding: 0;
 		margin: 0;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
 		gap: 0.5em;
 		
 		.answer-item {
@@ -358,7 +373,7 @@ onBeforeUnmount(() => {
 				color: #ffffff;
 				background-color: rgba(0, 0, 0, .25);
 				padding: .25em .5em;
-				border-radius: var(--border-radius);
+				border-radius: .5em;
 	
 				.votes {
 					text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
