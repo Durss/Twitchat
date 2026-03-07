@@ -113,7 +113,7 @@ export const storeQuiz = defineStore('quiz', {
 			})
 		},
 		
-		async saveData(quizId?:string):Promise<void> {
+		async saveData(quizId?:string, broadcastToOverlayOnly?:boolean, directBroadcast?:boolean):Promise<void> {
 			const quiz = quizId ? this.quizList.find(q=>q.id === quizId) : undefined;
 			
 			// Are we saving a specifc quiz that's enabled?
@@ -146,7 +146,7 @@ export const storeQuiz = defineStore('quiz', {
 				liveState:this.liveState,
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
-			this.broadcastQuizState();
+			this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
 		},
 
 		addQuiz():TwitchatDataTypes.QuizParams {
@@ -259,7 +259,7 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}
 
-			this.saveData(quizId);
+			this.saveData(quizId, true);
 		},
 
 		startNextQuestion(quizId:string):void {
@@ -276,7 +276,7 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.currentQuestionId = quiz.questionList[0]?.id ?? "";//TODO: remove this. Only here for testing to loop back to 1st question
 				//TODO: quiz ended, do whatever needs to be done at that moment
 			}
-			this.saveData();
+			this.saveData(quizId, false, true);
 		},
 
 		resetQuizState(quizId:string, confirm:boolean = true):void {
@@ -289,7 +289,7 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.quizStarted_at = new Date(0).toISOString();
 				quiz.questionStarted_at = new Date(0).toISOString()
 				if(this.liveState?.quizId == quizId) this.liveState = null;
-				this.saveData();
+				this.saveData(quizId, false, true);
 			}
 			if(confirm) {
 				StoreProxy.main.confirm(StoreProxy.i18n.t("quiz.state.reset_confirm.title"), StoreProxy.i18n.t("quiz.state.reset_confirm.description"))
@@ -309,7 +309,7 @@ export const storeQuiz = defineStore('quiz', {
 			// Compute scores — must run before resetting questionStarted_at (needed for time-based scoring)
 			this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
-			this.saveData(quizId);
+			this.saveData(quizId, false, true);
 		},
 
 		async showLeaderBoard(quizId:string):Promise<void> {
@@ -318,7 +318,7 @@ export const storeQuiz = defineStore('quiz', {
 			PublicAPI.instance.broadcast("ON_QUIZ_LEADERBOARD", {leaderboard: this.liveState?.users ?? {}});
 		},
 
-		broadcastQuizState(overlayOnly?:boolean):void {
+		broadcastQuizState(overlayOnly?:boolean, directBroadcast:boolean = false):void {
 			const quiz = this.quizList.find(v=>v.enabled);
 			
 			const i18n = {
@@ -327,15 +327,16 @@ export const storeQuiz = defineStore('quiz', {
 				mode_freeAnswer: StoreProxy.i18n.t("quiz.form.mode_freeAnswer.title"),
 			};
 			PublicAPI.instance.broadcast("ON_QUIZ_STATE", {quiz, i18n});
-			if(overlayOnly) return;
+			if(!overlayOnly) {
+				// Debounce server broadcast
+				window.clearTimeout(broadcastDebounceTO);
+				broadcastDebounceTO = window.setTimeout(()=>{
+					ApiHelper.call("quiz/broadcast", "PUT", {
+						quiz,
+					});
+				}, directBroadcast? 0 : 1500);
+			}
 			
-			// Debounce server broadcast
-			window.clearTimeout(broadcastDebounceTO);
-			broadcastDebounceTO = window.setTimeout(()=>{
-				ApiHelper.call("quiz/broadcast", "PUT", {
-					quiz,
-				});
-			}, 1500);
 		},
 
 		computeQuestionScores(quizId:string, questionId:string):void {
