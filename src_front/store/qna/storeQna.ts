@@ -51,6 +51,7 @@ export const storeQna = defineStore('qna', {
 						this.activeSessions.push(session);
 					}else{
 						localSession.messages = session.messages;
+						localSession.open = session.open;
 					}
 				});
 			});
