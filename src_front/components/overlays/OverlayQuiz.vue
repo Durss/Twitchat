@@ -174,8 +174,7 @@ const scaleFactor = computed(() => {
 	left: 50%;
 	transform: scale(v-bind(scaleFactor)) translate(-50%, -50%);
 	transform-origin: top left;
-	background: rgba(0, 255, 25, .2);
-		font-size: 18px;
+	font-size: 18px;
 
 	.wrapper {
 		margin: auto;
