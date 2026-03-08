@@ -634,18 +634,18 @@ class QuizForm extends AbstractSidePanel {
 					this.durationOverrideState[id] = false;
 				}
 
-				if(question.mode !== "freeAnswer") {
+				if(question.mode == "freeAnswer") {
+					const id = question.id;
+					if(!this.param_answer[id]) {
+						this.param_answer[id] = {type:"string", value:"", maxLength:50, placeholderKey:"quiz.form.answer_placeholder"};
+					}
+				} else {
 					question.answerList.forEach(answer=> {
 						const id = answer.id;
 						if(!this.param_answer[id]) {
 							this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};
 						}
 					});
-				} else {
-					const id = question.id;
-					if(!this.param_answer[id]) {
-						this.param_answer[id] = {type:"string", value:"", maxLength:130, placeholderKey:"quiz.form.answer_placeholder"};
-					}
 				}
 			});
 

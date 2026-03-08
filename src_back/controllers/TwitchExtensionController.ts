@@ -42,7 +42,7 @@ export default class TwitchExtensionController extends AbstractController {
 		this.server.decorateRequest('twitchExtensionUser', null);
 		this.server.get('/api/twitch/extension/streamerstate', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.getStreamerState(request, response));
 		this.server.post('/api/twitch/extension/click', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postClickEvent(request, response));
-		this.server.post('/api/twitch/extension/bingoCount', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postBingoCount(request, response));
+		this.server.post('/api/twitch/extension/bingo/count', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postBingoCount(request, response));
 		this.server.post('/api/twitch/extension/quiz/answer', { preHandler: this.authHook.bind(this) }, async (request, response) => await this.postQuizAnswer(request, response));
 		return this;
 	}
