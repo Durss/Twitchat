@@ -412,13 +412,8 @@ class ChatMessage extends AbstractChatMessage {
 		return res;
 	}
 
-	public beforeUpdate() {
-		// console.log("Update message", this.messageData.message);
-	}
-
 	public beforeMount() {
 		super.beforeMount()
-		// console.log("Create message");
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id]!;
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
 		this.localMessageChunks = JSON.parse(JSON.stringify(this.messageData.message_chunks));
@@ -641,7 +636,6 @@ class ChatMessage extends AbstractChatMessage {
 	 */
 	public grantClipDLScope():void {
 		TwitchUtils.requestScopes([TwitchScopes.MANAGE_CLIPS]);
-		console.log("ok")
 		watch(() => this.$store.auth.twitch.scopes, () => {
 			this.requestClipDLPermission = !TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS]);
 		}, {once:true});
@@ -792,7 +786,6 @@ class ChatMessage extends AbstractChatMessage {
 			&& this.$store.params.appearance.helloBadge.value === true
 			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
 
-			console.log(mess.todayFirst === true, mess.twitch_isFirstMessage !== true, mess.twitch_isReturning !== true, this.$store.params.appearance.helloBadge.value === true,this.lightMode === false)
 			if(mess.twitch_hypeChat) {
 				let currency = {EUR:"€",USD:"$", GBP:"£"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
