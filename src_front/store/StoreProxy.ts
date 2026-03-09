@@ -3952,6 +3952,13 @@ export interface IQuizState {
 	 * Contains users votes.
 	 */
 	liveState:TwitchatDataTypes.QuizState|null;
+	/**
+	 * Stats for the current free answer question.
+	 */
+	currentFreeAnswerStats: {
+		right: number;
+		wrong: number;
+	};
 }
 
 export interface IQuizGetters {
@@ -3977,13 +3984,8 @@ export interface IQuizActions {
 	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
 	/**
 	 * Registers an answer to a quiz question
-	 * @param platform
-	 * @param quizId 
-	 * @param questionId 
-	 * @param answerId 
-	 * @param answerText 
 	 */
-	handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
+	handleAnswer(platform:TwitchatDataTypes.ChatPlatform, delay_ms:number, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
 	/**
 	 * Saves data to server
 	 * @param quizId quiz ID. This will broadcast update to overlay
@@ -4019,7 +4021,7 @@ export interface IQuizActions {
 	 * @param quizId
 	 * @param questionId
 	 */
-	computeQuestionScores(quizId:string, questionId:string):void;
+	computeQuestionScores(quizId:string, questionId:string):{[uid:string]:number};
 	/**
 	 * Computes global and relative percents for each answer of given quiz question based on current votes
 	 * Global percent is the actual percent of votes for this answer among all votes
