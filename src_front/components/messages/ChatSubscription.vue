@@ -90,7 +90,7 @@
 				v-if="messageData.totalSubDuration > 0"
 				keypath="chat.subscription.sub_duration" :plural="messageData.totalSubDuration">
 					<template #COUNT>
-						<strong v-tooltip="messageData.totalSubDuration < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.totalSubDuration || 1}, messageData.totalSubDuration || 1)">{{ formatedDuration(messageData.totalSubDuration) }}</strong>
+						<strong v-tooltip="messageData.totalSubDuration < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.totalSubDuration}, messageData.totalSubDuration)">{{ formatedDuration(messageData.totalSubDuration) }}</strong>
 					</template>
 				</i18n-t>
 	
@@ -100,7 +100,7 @@
 					<i18n-t scope="global"
 					keypath="chat.subscription.sub_prepaid" :plural="messageData.months">
 						<template #COUNT>
-							<strong v-tooltip="messageData.months < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.months || 1}, messageData.months || 1)">{{ formatedDuration(messageData.months) }}</strong>
+							<strong v-tooltip="messageData.months < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.months}, messageData.months)">{{ formatedDuration(messageData.months) }}</strong>
 						</template>
 					</i18n-t>
 				</div>
@@ -110,7 +110,7 @@
 				v-if="messageData.streakMonths > 0"
 				keypath="chat.subscription.sub_streak" :plural="messageData.streakMonths">
 					<template #COUNT>
-						<strong v-tooltip="messageData.streakMonths < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.streakMonths || 1}, messageData.streakMonths || 1)">{{ formatedDuration(messageData.streakMonths) }}</strong>
+						<strong v-tooltip="messageData.streakMonths < 12? '' : $t('chat.subscription.duration_months', {COUNT:messageData.streakMonths}, messageData.streakMonths)">{{ formatedDuration(messageData.streakMonths) }}</strong>
 					</template>
 				</i18n-t>
 			</div>
@@ -169,10 +169,15 @@ class ChatSubscription extends AbstractChatMessage {
 	}
 
 	public formatedDuration(months:number): string {
+		months ||= 1
 		const years = Math.floor(months/12);
-		const chunks:string[] = [this.$t('chat.subscription.duration_months', { COUNT: months - years * 12 }, months - years * 12)];
-		if(months >= 12) {
-			chunks.unshift(this.$t('chat.subscription.duration_years', { COUNT: years }, years));
+		months = months - years * 12;
+		const chunks:string[] = [];
+		if(years > 0) {
+			chunks.push(this.$t('chat.subscription.duration_years', { COUNT: years }, years));
+		}
+		if(months > 0) {
+			chunks.push(this.$t('chat.subscription.duration_months', { COUNT: months }, months));
 		}
 		return chunks.join(' '+this.$t('global.and')+' ');
 	}
