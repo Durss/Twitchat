@@ -29,11 +29,11 @@
 		<Teleport v-if="panelsColumnTarget && buildIndex >= 1 + $store.params.chatColumnsConfig.length" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" />
 			<ChatPollForm			class="popin" v-if="$store.params.currentModal == 'chatPoll'" @close="$store.params.closeModal()" />
-			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
-			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
-			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" />
+			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" />
+			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" />
 			<BingoForm				class="popin" v-if="$store.params.currentModal == 'bingo'" @close="$store.params.closeModal()" />
 			<BingoGridForm			class="popin" v-if="$store.params.currentModal == 'bingo_grid'" @close="$store.params.closeModal()" />
 			<LiveFollowings			class="popin" v-if="$store.params.currentModal == 'liveStreams'" @close="$store.params.closeModal()" />
@@ -54,6 +54,7 @@
 			<QnaForm				class="popin" v-if="$store.params.currentModal == 'qnaForm'" @close="$store.params.closeModal()" />
 			<QnaList				class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
 			<GroqHistory			class="popin" v-if="$store.params.currentModal == 'groqHistory'" @close="$store.params.closeModal()" />
+			<QuizForm				class="popin" v-if="$store.params.currentModal == 'quizForm'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -189,9 +190,11 @@ import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue
 import UserList from '@/components/chatform/UserList.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 import MessageList from '@/components/messages/MessageList.vue';
+import MigrationFixerModal from '@/components/modals/MigrationFixerModal.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import Parameters from '@/components/params/Parameters.vue';
+import SettingsImportForm from '@/components/params/contents/exporter/SettingsImportForm.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
@@ -201,19 +204,14 @@ import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import type { TriggerActionCountDataAction, SettingsExportData, TriggerImportData } from '@/types/TriggerActionDataTypes';
+import type { TriggerImportData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import type { JsonObject } from 'type-fest';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
@@ -225,8 +223,9 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
-import MigrationFixerModal from '@/components/modals/MigrationFixerModal.vue';
-import SettingsImportForm from '@/components/params/contents/exporter/SettingsImportForm.vue';
+import PublicAPI from '@/utils/PublicAPI';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
+import QuizForm from '@/components/chatform/quiz/QuizForm.vue';
 
 @Component({
 	components:{
@@ -240,6 +239,7 @@ import SettingsImportForm from '@/components/params/contents/exporter/SettingsIm
 		HeatLogs,
 		PollForm,
 		PinsList,
+		QuizForm,
 		Changelog,
 		TimerForm,
 		GreetThem,
@@ -291,11 +291,11 @@ class Chat extends Vue {
 	public buildIndex = 0;
 	public showQna = false;
 	public showPins = false;
+	public showQuiz = false;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCredits = false;
-	public voiceControl = true;
 	public showCommands = false;
 	public showShoutout = false;
 	public showBingoGrid = false;
@@ -324,7 +324,7 @@ class Chat extends Vue {
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private windowResizeHandler!:(e:Event)=> void;
-	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private publicApiEventHandler!:(e:unknown)=> void;
 
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
@@ -437,8 +437,6 @@ class Chat extends Vue {
 
 		//Watch for current modal to be displayed
 		watch(()=>this.$store.params.currentModal, (value)=>{
-			this.voiceControl = false;
-
 			//Make sure the column holding modals is visible
 			if(this.panelsColumnTarget && value) {
 				const col = this.panelsColumnTarget.parentElement as HTMLDivElement;
@@ -489,7 +487,13 @@ class Chat extends Vue {
 			this.$store.chat.emoteSelectorCache = [];
 		})
 
-		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		watch(()=> this.$store.auth.isPremium, (newValue) => {
+			if(!newValue) {
+				this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
+			}
+		})
+
+		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.windowResizeHandler = (e:Event) => this.computeChatFormHeight();
@@ -499,34 +503,22 @@ class Chat extends Vue {
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
 		window.addEventListener("resize", this.windowResizeHandler)
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
 		requestWakeLock();
 
 		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
@@ -558,33 +550,22 @@ class Chat extends Vue {
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		window.removeEventListener("resize", this.windowResizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_SHOUTOUT_LAST_RAIDER", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -601,40 +582,55 @@ class Chat extends Vue {
 	 * Called when requesting an action from the public API
 	 * //TODO move this store, this has nothing to do here for the most part
 	 */
-	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
+	private async onPublicApiEvent(
+e:{type:"SET_POLL_TOGGLE", data:TwitchatEventMap["SET_POLL_TOGGLE"]}
+| {type:"SET_PREDICTION_TOGGLE", data:TwitchatEventMap["SET_PREDICTION_TOGGLE"]}
+| {type:"SET_BINGO_TOGGLE", data:TwitchatEventMap["SET_BINGO_TOGGLE"]}
+| {type:"SET_RAFFLE_TOGGLE", data:TwitchatEventMap["SET_RAFFLE_TOGGLE"]}
+| {type:"SET_VIEWERS_COUNT_TOGGLE", data:TwitchatEventMap["SET_VIEWERS_COUNT_TOGGLE"]}
+| {type:"SET_MOD_TOOLS_TOGGLE", data:TwitchatEventMap["SET_MOD_TOOLS_TOGGLE"]}
+| {type:"SET_CENSOR_DELETED_MESSAGES_TOGGLE", data:TwitchatEventMap["SET_CENSOR_DELETED_MESSAGES_TOGGLE"]}
+| {type:"ON_OPEN_POLL_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"]}
+| {type:"SET_OPEN_PREDICTION_CREATION_FORM", data:TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"]}
+| {type:"ON_OPEN_RAFFLE_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"]}
+| {type:"SET_SHOUTOUT_LAST_RAIDER", data:TwitchatEventMap["SET_SHOUTOUT_LAST_RAIDER"]}
+| {type:"GET_CHAT_COLUMNS_COUNT", data:TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"]}
+| {type:"SET_CLEAR_CHAT_HIGHLIGHT", data:TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"]}
+| {type:"SET_STOP_POLL", data:TwitchatEventMap["SET_STOP_POLL"]}
+| {type:"SET_STOP_PREDICTION", data:TwitchatEventMap["SET_STOP_PREDICTION"]}
+| {type:"SET_SEND_MESSAGE", data:TwitchatEventMap["SET_SEND_MESSAGE"]}):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
 
 		switch(e.type) {
-			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
-			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
-			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
-			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
-			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
+			case "SET_POLL_TOGGLE": notif = 'poll'; break;
+			case "SET_PREDICTION_TOGGLE": notif = 'prediction'; break;
+			case "SET_BINGO_TOGGLE": notif = 'bingo'; break;
+			case "SET_RAFFLE_TOGGLE": notif = 'raffle'; break;
+			case "SET_VIEWERS_COUNT_TOGGLE":
 				this.$store.params.appearance.showViewersCount.value = !this.$store.params.appearance.showViewersCount.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.MOD_TOOLS_TOGGLE:
+			case "SET_MOD_TOOLS_TOGGLE":
 				this.$store.params.features.showModTools.value = !this.$store.params.features.showModTools.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.GET_COLS_COUNT:
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT,{count:this.$store.params.chatColumnsConfig.length});
+			case "GET_CHAT_COLUMNS_COUNT":
+				PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {count:this.$store.params.chatColumnsConfig.length});
 				break;
 
-			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
+			case "SET_CENSOR_DELETED_MESSAGES_TOGGLE":
 				this.$store.params.appearance.censorDeletedMessages.value = !this.$store.params.appearance.censorDeletedMessages.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.CREATE_POLL:
+			case "ON_OPEN_POLL_CREATION_FORM":
 				this.$store.params.openModal('poll');
 				await this.$nextTick();
-				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_POLL:{
+			case "SET_STOP_POLL":{
 				const poll = this.$store.poll.data;
 				if(!poll) return;
 				try {
@@ -645,12 +641,11 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.CREATE_PREDICTION:
+			case "SET_OPEN_PREDICTION_CREATION_FORM":
 				this.$store.params.openModal('pred');
 				await this.$nextTick();
-				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_PREDICTION:{
+			case "SET_STOP_PREDICTION":{
 				const prediction = this.$store.prediction.data;
 				if(!prediction) return;
 				try {
@@ -661,154 +656,20 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.RAFFLE_START:{
+			case "ON_OPEN_RAFFLE_CREATION_FORM":{
 				this.$store.params.openModal('raffle');
 				await this.$nextTick();
-				this.voiceControl = true;
-				break;
-			}
-			case TwitchatEvent.RAFFLE_END:{
-				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
-				.then(async ()=> {
-					//TODO see if i can adapt this to the new system allowing to create
-					//multiple raffles in parallel. This is called when using a voice
-					//command to stop current raffle
-					const list = this.$store.raffle.raffleList;
-					if(list.length == 0) return true;
-					this.$store.raffle.stopRaffle(list[0]!.sessionId || "");
-				}).catch(()=>{});
 				break;
 			}
 
-			case TwitchatEvent.START_EMERGENCY:{
-				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
-					this.$store.emergency.setEmergencyMode(true);
-				}).catch(()=>{});
-				break;
-			}
-			case TwitchatEvent.STOP_EMERGENCY:{
-				this.$store.emergency.setEmergencyMode(false);
-				break;
-			}
-
-			case TwitchatEvent.COUNTER_GET: {
-				const id = (e.data as JsonObject).cid as string;
-				this.$store.counters.broadcastCounterValue(id);
-				break;
-			}
-
-			case TwitchatEvent.COUNTER_ADD: {
-				const id = (e.data as JsonObject).counterId as string;
-				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
-				const value = parseInt((e.data as JsonObject).countAdd as string);
-				const counter = this.$store.counters.counterList.find(v=>v.id == id);
-				if(counter && !isNaN(value)) {
-					this.$store.counters.increment(id, action || "ADD", value);
-				}
-				break;
-			}
-
-			case TwitchatEvent.EXECUTE_TRIGGER: {
-				const id = (e.data as JsonObject).triggerId as string;
-				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
-				if(trigger) {
-					const me = this.$store.auth.twitch.user;
-					const fakeMessage:TwitchatDataTypes.MessageChatData = {
-						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-						channel_id:me.id,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						message:"",
-						message_chunks:[],
-						message_html:"",
-						message_size:0,
-						user:me,
-						is_short:false,
-						answers:[],
-					}
-					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
-				}
-				break;
-			}
-
-			case TwitchatEvent.TOGGLE_TRIGGER: {
-				const id = (e.data as JsonObject).triggerId as string;
-				const action = (e.data as JsonObject).triggerAction as string || "enable";
-				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
-				if(trigger) {
-					switch(action.toLowerCase()){
-						case "enable":	trigger.enabled = true; break;
-						case "disable":	trigger.enabled = false; break;
-						case "toggle":	trigger.enabled = !trigger.enabled; break;
-					}
-				}
-				this.$store.triggers.saveTriggers();
-				break;
-			}
-
-			case TwitchatEvent.COUNTER_GET_ALL: {
-				const counters = this.$store.counters.counterList.map(v=> {
-					return {
-						id:v.id,
-						name:v.name,
-						perUser:v.perUser === true,
-					}
-				});
-				if(counters) {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
-				}
-				break;
-			}
-
-			case TwitchatEvent.TRIGGERS_GET_ALL: {
-				const triggers = this.$store.triggers.triggerList.map(v=> {
-					return {
-						id:v.id,
-						name:TriggerUtils.getTriggerDisplayInfo(v).label,
-					}
-				});
-				if(triggers) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TRIGGER_LIST, {triggers});
-				}
-				break;
-			}
-
-			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
+			case "SET_CLEAR_CHAT_HIGHLIGHT": {
 				this.$store.chat.highlightChatMessageOverlay();
 				break;
 			}
 
-			case TwitchatEvent.SEND_MESSAGE: {
-				const message = (e.data as JsonObject).message as string;
-				if(message) {
-					MessengerProxy.instance.sendMessage(message);
-				}
-				break;
-			}
-
-			case TwitchatEvent.TIMER_ADD: {
-				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
-				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault);
-				if(!timer) return;
-				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
-				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
-				}
-				break;
-			}
-
-			case TwitchatEvent.COUNTDOWN_ADD: {
-				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
-				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
-				if(!timer) return;
-				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
-				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
+			case "SET_SEND_MESSAGE": {
+				if(e.data.message && e.data.message.trim().length > 0) {
+					MessengerProxy.instance.sendMessage(e.data.message);
 				}
 				break;
 			}
@@ -1170,7 +1031,7 @@ export default toNative(Chat);
 
 	.popin {
 		position: absolute;
-		z-index: 2;
+		z-index: 3;
 		top:0;
 		left:0;
 		height: 100%;

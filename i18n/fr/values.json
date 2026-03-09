@@ -4,8 +4,9 @@
 		"header_link_trigger":"les Triggers",
 		"addBt":"Créer une valeur",
 		"editBt":"Editer la valeur",
-		"max_values_reached":"You reached the maximum of {COUNT} values that can be created",
 		"user_not_found": "personne introuvable",
+		"nonpremium_limit": "Vous avez créé le nombre maximum de {MAX} valeurs. Devenez premium pour créer jusqu'à {MAX_PREMIUM} valeurs.",
+		"premium_limit": "Vous avez créé le nombre maximum de {MAX} valeurs.",
 
 		"form":{
 			"name":"Nom",

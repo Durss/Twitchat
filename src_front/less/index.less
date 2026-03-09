@@ -13,6 +13,7 @@
 @import "cssStructure.less";
 @import "overlayParamsSection.less";
 @import "blinkHighlight.less";
+@import "overlayInstallCard.less";
 
 :root {
 	@color-dark: #18181b;
@@ -538,6 +539,9 @@ mark {
 				.mx-context-menu-item.alert {
 					background-image: linear-gradient(90deg, var(--color-alert-fadest) 0%, rgba(255,0,0,0) 100%);
 				}
+				.mx-context-menu-item.selected {
+					background-color: var(--color-primary-fade);
+				}
 				.mx-context-menu-item.alert.open,
 				.mx-context-menu-item.alert:hover {
 					background: var(--color-alert);
@@ -596,18 +600,20 @@ mark {
 }
 
 *::-webkit-scrollbar {
-	width: 10px;
+	width: 7px;
 	height: 10px;
 }
 
 *::-webkit-scrollbar-track {
 	background: transparent;
 	background-color: var(--color-dark-fadest);
+	border-radius: 20px;
 }
 
 *::-webkit-scrollbar-thumb {
+	cursor: pointer;
 	border-radius: 20px;
-	background-color: var(--color-dark-extralight);
+	background-color: var(--color-text-fade);
 }
 
 body.light {

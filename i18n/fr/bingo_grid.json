@@ -33,13 +33,14 @@
 			"param_chatAnnouncementEnabled": "Annoncer les bingos de viewers dans le tchat",
 			"param_chatAnnouncement": "Message à envoyer en tchat",
 			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
+			"overlayParams_title": "Paramètres de l'overlay de stream",
 			"send_chat_url_tt": "Envoyer en tchat",
 			"winners_placeholder": "Viewers ayant eu des bingos",
 			"add_cellBt": "Ajouter",
 			"chat_cmd_usage":"Utilisez la commande {CMD}",
 			"heat_usage":"@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",
-			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} grilles de bingo.",
+			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX_PREMIUM} grilles de bingo.",
 			"share": "Partagez cette grille à vos viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",
@@ -54,16 +55,15 @@
 			"perf_alert": "Il sembelrait que vous ayez beaucoup de viewers.\nJe ne peux pas garantir que mon serveur tiendra le coup, pensez à faire une petite prière avant de partager le lien à vos viewers 🙏."
 		},
 		"state":{
-			"auth_bt": "Avoir ma propre grille aléatoire",
+			"auth_bt": "Avoir ma propre grille",
 			"cell_disabled": "{USER} doit\ncocher cette case\npour l'activer",
 			"mod_info": "Vous êtes modérateur·ice de cette chaîne, les cases que vous cochez s'activeront chez tout le monde",
 			"showLeaderboard_bt": "Afficher sur l'overlay",
 			"hideLeaderboard_bt": "Masquer de l'overlay",
-			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir"
-		},
-		"public": {
+			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir",
 			"grid": "grille",
-			"list": "liste"
+			"list": "liste",
+			"footer": "Propulsé par {LINK}"
 		}
 	}
 }

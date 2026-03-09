@@ -4,6 +4,8 @@ import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 import type { SFXR } from "./types/jsfxr";
 import type { TwitchScopesString } from "./utils/twitch/TwitchScopes";
+import type { Reactive } from "vue";
+import type Utils from "./utils/Utils";
 
 declare module '*.vue' {
 	import type { DefineComponent } from 'vue';
@@ -16,7 +18,8 @@ declare module '*.vue' {
 declare module '@vue/runtime-core' {
 	interface ComponentCustomProperties {
 		$store: IStore,
-		$config: Config,
+		$config: Reactive<Config>,
+		$utils: typeof Utils,
 		$asset: (path:string) => string,
 		$placeDropdown: (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => void,
 		$overlayURL: (id:TwitchatDataTypes.OverlayTypes, params?:{k:string, v:string}[]) => string,
@@ -24,8 +27,7 @@ declare module '@vue/runtime-core' {
 			description?: string,
 			data?: T,
 			yesLabel?:string,
-			noLabel?:string,
-			STTOrigin?:boolean) => Promise<T|undefined>,
+			noLabel?:string) => Promise<T|undefined>,
 	}
 }
 

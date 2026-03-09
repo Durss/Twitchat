@@ -19,7 +19,7 @@
 
 			<Splitter class="splitter">{{ $t("automod.rule.title") }}</Splitter>
 
-			<section class="">
+			<section>
 				<div class="ruleList" v-if="automodData.keywordsFilters.length > 0">
 					<ToggleBlock class="rule"
 					v-for="f in automodData.keywordsFilters"
@@ -27,14 +27,10 @@
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
 						<template #left_actions>
-							<div class="actions">
-								<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
-							</div>
+							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
 						</template>
 						<template #right_actions>
-							<div class="actions">
-								<TTButton icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
-							</div>
+							<TTButton icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
 						<div class="ruleContent">
 							<ParamItem class="sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" v-tooltip="$t('automod.rule.sync_tt')" />
@@ -235,7 +231,7 @@ class ParamsAutomod extends Vue implements IParameterContent {
 		this.keywordToValid[data.id]		= true;
 		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:30};
 		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
-		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
+		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false, icon:"anon"};
 		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency"};
 		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime"};
 	}
@@ -329,21 +325,6 @@ export default toNative(ParamsAutomod);
 
 				.rule {
 					width: 100%;
-					&.closed {
-						// width: fit-content;
-					}
-					.actions {
-						gap: .5em;
-						display: flex;
-						flex-direction: row;
-						.deleteBt {
-							margin: -.5em 0;
-							border-radius: 0;
-							// :deep(.icon){
-							// 	height: 1.5em;
-							// }
-						}
-					}
 					.ruleContent {
 						gap: .5em;
 						display: flex;

@@ -119,9 +119,10 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private innactivityTimeout:number = -1;
 	private leaderBoardFontSize:string = "";
 	private broadcastPresenceInterval:string = "";
-	private bingoUpdateHandler!:(e:TwitchatEvent<IBingoUpdateData>) => void;
-	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
-	private leaderboardHandler!:(e:TwitchatEvent<{gridId:string, scores?:{user_name:string, user_pic:string, score:number, pos:number}[]}>) => void;
+	private bingoUpdateHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_CONFIGS">) => void;
+	private bingoViewerHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">) => void;
+	private leaderboardHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_LEADER_BOARD">) => void;
+	private visibilityHandler!:(e:TwitchatEvent<"SET_BINGO_GRID_VISIBILITY">) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
 	private debugScale = 1;//Reduce to add margin around grid for cleaner screen capture
@@ -171,9 +172,11 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
 		this.leaderboardHandler = (e) => this.onLeaderboard(e);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, this.leaderboardHandler);
+		this.visibilityHandler = (e) => this.onVisibilityChange(e);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.addEventListener("SET_BINGO_GRID_VISIBILITY", this.visibilityHandler);
 
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
@@ -184,38 +187,45 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	public beforeUnmount(): void {
 		SetIntervalWorker.instance.delete(this.broadcastPresenceInterval);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, this.leaderboardHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.removeEventListener("SET_BINGO_GRID_VISIBILITY", this.visibilityHandler);
 	}
 
 	/**
 	 * Ask bingo info from Twitchat
 	 */
 	override requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, {bid:this.id});
+		PublicAPI.instance.broadcast("GET_BINGO_GRID_CONFIGS", {id:this.id});
 	}
 
 	/**
 	 * Tell Twitchat overlay exists
 	 */
 	public broadcastPresence():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, {bid:this.id});
+		PublicAPI.instance.broadcast("SET_BINGO_GRID_OVERLAY_PRESENCE", {id:this.id});
 	}
 
 	/**
-	 * Called when clicking overlay via heat
+	 * Show/hide bingo grid from Public API
 	 */
-	public onHeatClick(event:TwitchatDataTypes.HeatClickData, x:number, y:number):void {
-		let element = document.elementFromPoint(x, y) as HTMLElement;
-		if(element) {
-			while(!element.dataset["cellid"] && element != document.body) {
-				element = element.parentElement as HTMLElement;
-			}
-			if(element != document.body) {
-				const id = element.dataset["cellid"] || "";
-				PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_HEAT_CLICK, {gridId:this.bingo!.id, entryId:id, click:event});
-			}
+	private onVisibilityChange(e:Parameters<typeof this.visibilityHandler>[0]):void {
+		if(!e.data) return;
+		if(e.data.id != this.id) return;
+
+		clearTimeout(this.innactivityTimeout);
+
+		let show = e.data.show;
+		if(show === undefined) show = !this.gridOpened;
+		if(show === this.gridOpened) return;
+		
+		this.openCloseGrid(show);
+		
+		if(this.bingo && this.bingo.autoShowHide === true) {
+			this.innactivityTimeout = window.setTimeout(()=>{
+				this.pushEvent({type:"close"});
+			}, 5 * 1000);
 		}
 	}
 
@@ -224,7 +234,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async onLeaderboard(e:Parameters<typeof this.leaderboardHandler>[0]):Promise<void> {
 		if(!e.data) return;
-		if(e.data.gridId != this.id) return;
+		if(e.data.id != this.id) return;
 
 		await this.openCloseGrid(true);
 
@@ -232,14 +242,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 		if(newLeaderboard) this.leaderboard = newLeaderboard;
 		else{
-			//Close leaderboard
-			const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
-			gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
-				this.leaderboard = null;
-				if(this.pendingEvents.length === 0) {
-					this.openCloseGrid(false);
-				}
-			}});
+			this.hideLeaderBoard();
 			return;
 		}
 
@@ -268,19 +271,32 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 
 	/**
+	 * Hide leaderboard with animation
+	 */
+	private hideLeaderBoard():void {
+		const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
+		if(!leaderboardHolder) return;
+		gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
+			this.leaderboard = null;
+			if(this.pendingEvents.length === 0) {
+				this.openCloseGrid(false);
+			}
+		}});
+	}
+
+	/**
 	 * Called when a user wins a bingo
 	 */
-	private async onBingoViewer(e:Parameters<typeof this.bingoViewerHandler>[0]):Promise<void> {
+	private async onBingoViewer(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">):Promise<void> {
 		if(!e.data) return;
-		if(e.data.gridId != this.id) return;
-		e.data.displayCount = e.data.count;
-		this.pushEvent({type:"user", userBingo:e.data});
+		if(e.data.id != this.id) return;
+		this.pushEvent({type:"user", userBingo:{...e.data, displayCount:e.data.count}});
 	}
 
 	/**
 	 * Called when bingo data are changed
 	 */
-	private async onBingoUpdate(e:Parameters<typeof this.bingoUpdateHandler>[0]):Promise<void> {
+	private async onBingoUpdate(e:TwitchatEvent<"ON_BINGO_GRID_CONFIGS">):Promise<void> {
 		if(e.data) {
 			const data = e.data;
 			if(data.id != this.id) return;
@@ -290,6 +306,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.error = true;
 				return;
 			}
+
+			this.hideLeaderBoard();
 
 			if(animate) {
 				this.bingo = data.bingo;
@@ -311,7 +329,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.pushEvent({type:"open"});
 
 			}else if(data.bingo) {
-				this.pushEvent({type:"update", data:data});
+				this.pushEvent({type:"update", data:{
+					bingo:data.bingo,
+					id:data.id,
+					newDiagonalBingos: data.newDiagonalBingos || [],
+					newHorizontalBingos: data.newHorizontalBingos || [],
+					newVerticalBingos: data.newVerticalBingos || [],
+				}});
 			}
 
 
@@ -319,8 +343,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			//@ts-ignore
 			window.fakeUserEvents = ()=>{
 
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "DurssBot",
 							"id": "647389082",
@@ -328,8 +352,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						},
 						"count": 1
 					}));
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "JohanRelpek",
 							"id": "675760285",
@@ -338,8 +362,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						"count": 9
 					}));
 
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "Durss",
 							"id": "29961813",
@@ -355,8 +379,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			// FAKE LEADERBOARD
 			//@ts-ignore
 			window.fakeLeaderboard = ()=>{
-				this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
-						gridId:this.id,
+				this.onLeaderboard(new TwitchatEvent("ON_BINGO_GRID_LEADER_BOARD",{
+						id:this.id,
 						scores:[
 							{pos:0,score:8,user_name:"Cailloute",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png"},
 							{pos:1,score:5,user_name:"ChezMarino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png"},
@@ -408,39 +432,42 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		await this.$nextTick();
 
 		//Animate new checks display
-		for (const entry of this.bingo.entries) {
+		for (let i = 0; i < this.bingo.entries.length; i++) {
+			const entry = this.bingo.entries[i]!;
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
 			if(!checks) continue;
-			const firstCheck = checks[0];
-			if(!firstCheck) continue;
 			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
+			let localCheck = entry.check;
 			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
-				if(checks?.length > 0 && firstCheck.nodeName != "#comment") {
+				const checkmark = checks[0];
+				if(checkmark && checkmark.nodeName != "#comment") {
 					const angle = (Math.random()-Math.random()) * 25;
-					if(entry.check && forcedCellsState[entry.id] !== true) {
+					if(localCheck && forcedCellsState[entry.id] !== true) {
 						//Animate checkmark display
-						gsap.killTweensOf(firstCheck);
-						gsap.fromTo(firstCheck, {opacity:0}, {opacity:.8, duration:.25});
+						gsap.killTweensOf(checkmark);
+						gsap.fromTo(checkmark, {opacity:0}, {opacity:.8, duration:.25});
 						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-						gsap.fromTo(firstCheck, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
 						await Utils.promisedTimeout(150);
 						this.popClouds(cell);
-						await Utils.promisedTimeout(250);
+						await Utils.promisedTimeout(100);
 
 					}else {
 						//Animate checkmark hide
-						gsap.killTweensOf(firstCheck);
-						gsap.to(firstCheck,
-							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
-						await Utils.promisedTimeout(350);
-						entry.check = false;
+						gsap.killTweensOf(checkmark);
+						gsap.to(checkmark,
+							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35, onComplete:()=>{
+								entry.check = false;
+							}});
+						localCheck = false;
+						await Utils.promisedTimeout(60);
 					}
 				}
-			}else if(entry.check) {
+			}else if(localCheck && checks[0]) {
 				//Force display of the cell
-				gsap.set(firstCheck, {opacity:.8});
+				gsap.set(checks[0]!, {opacity:.8});
 			}
-			this.prevCheckStates[entry.id] = entry.check;
+			this.prevCheckStates[entry.id] = localCheck;
 		}
 
 		if((data.newVerticalBingos || []).length > 0
@@ -584,7 +611,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			delay += .4;
 		});
 
-		await Utils.promisedTimeout(delay * 1000 + 500);
+		await Utils.promisedTimeout(delay * 1000);
 	}
 
 	/**
@@ -620,7 +647,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const x = (Math.random()-Math.random()) * bounds.width;
 			const y = (Math.random()-Math.random()) * bounds.height;
 			gsap.killTweensOf(cloud);
-			gsap.to(cloud, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:.5, ease:"sine.out"});
+			gsap.to(cloud, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:.35, ease:"sine.out"});
 		});
 	}
 
@@ -857,7 +884,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 }
 
-interface IUserBingoData {gridId:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
+interface IUserBingoData {id:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
 interface IBingoUpdateData {id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[] }
 export default toNative(OverlayBingoGrid);
 </script>

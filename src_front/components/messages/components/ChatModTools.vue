@@ -311,7 +311,7 @@ export default toNative(ChatModTools);
 
 <style scoped lang="less">
 .chatmodtools{
-	gap: .5em;
+	gap: 5px;
 	display: flex;
 	flex-direction: row;
 	align-items: center;

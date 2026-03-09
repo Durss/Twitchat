@@ -1,12 +1,10 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
-import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
-import DataStore from '../DataStore';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
+import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
 
 export const storePoll = defineStore('poll', {
 	state: () => ({
@@ -59,7 +57,7 @@ export const storePoll = defineStore('poll', {
 			/**
 			 * Called when poll overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_CONFIGS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -77,25 +75,27 @@ export const storePoll = defineStore('poll', {
 					StoreProxy.chat.addMessage(data);
 				}
 
-				PublicAPI.instance.broadcast(TwitchatEvent.POLL_PROGRESS, {poll: (data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", {poll:data});
 			}else if(this.data){
-				PublicAPI.instance.broadcast(TwitchatEvent.POLL_PROGRESS, {});
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", undefined);
 			}
 
 			this.data = data;
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		setOverlayParams(params:PollOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.POLL_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("ON_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast(TwitchatEvent.POLL_PROGRESS, {poll: (this.data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", {poll: this.data});
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("ON_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcastGlobalStates();
 		}
 	} as IPollActions
 	& ThisType<IPollActions
@@ -111,14 +111,46 @@ if(import.meta.hot) {
 }
 
 export interface PollOverlayParamStoreData {
+	/**
+	 * Display choices as a list ?
+	 * Otherwise display them all in a single line
+	 */
 	listMode:boolean;
+	/**
+	 * Display choices as a list only if there is more than 2 choices
+	 */
 	listModeOnlyMore2:boolean;
+	/**
+	 * Show poll's title ?
+	*/
 	showTitle:boolean;
+	/**
+	 * Show entries title ?
+	 */
 	showLabels:boolean;
+	/**
+	 * Show vote counts ?
+	 */
 	showVotes:boolean;
+	/**
+	 * Show vote percentages ?
+	 */
 	showPercent:boolean;
+	/**
+	 * Show remaining time ?
+	 */
 	showTimer:boolean;
+	/**
+	 * Only show results of the poll ?
+	 * Otherwise also show poll while it's running
+	 */
 	showOnlyResult:boolean;
+	/**
+	 * Duration to show results screen (in seconds)
+	 */
 	resultDuration_s:number;
+	/**
+	 * Screen placement of the overlay
+	 */
 	placement:TwitchatDataTypes.ScreenPosition;
 }

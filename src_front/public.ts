@@ -16,6 +16,7 @@ import type { NavigationGuardNext, RouteLocation } from "vue-router";
 import VueTippy, { setDefaultProps } from "vue-tippy";
 import { storeCommon } from './store/common/storeCommon';
 import { storePublic } from "./store/storePublic";
+import Utils from "./utils/Utils";
 
 setDefaultProps({
 	theme:"twitchat",
@@ -105,12 +106,12 @@ function buildApp() {
 	.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.public = storePublic();
 	StoreProxy.default.common = storeCommon();
 	app.config.globalProperties.$asset = asset;
 	app.config.globalProperties.$store = StoreProxy.default;
 	app.config.globalProperties.$config = Config.instance;
+	app.config.globalProperties.$utils = Utils;
 
 	StoreProxy.default.common.initialize(false).then(()=>{
 		app.mount('#app');

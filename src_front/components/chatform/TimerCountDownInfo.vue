@@ -27,7 +27,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import TimerCountDownInfoEntry from './TimerCountDownInfoEntry.vue';
 
 @Component({
@@ -89,6 +89,7 @@ export default toNative(TimerCountDownInfo);
 	display: flex;
 	flex-direction: row;
 	position: relative;
+	margin: 0 .5em;
 
 	.timer {
 		width: 100%;

@@ -1,0 +1,51 @@
+{
+	"counters": {
+		"header": "Créez des compteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
+		"header_link_trigger": "les triggers",
+		"header_link_overlay": "affichez-les",
+		"addBt": "Créer un compteur",
+		"editBt": "Editer le compteur",
+		"min_tt": "Min",
+		"max_tt": "Max",
+		"loop_tt": "Boucler la valeur",
+		"user_tt": "Par viewer",
+		"examples": "Exemples :",
+		"user_not_found": "personne introuvable",
+		"connect_youtube":"Twitchat n'est pas connecté à YouTube.\nLe nom des viewers YouTube ne peut être récupéré.",
+		"connect_youtubeBt":"Connect YouTube.",
+		"nonpremium_limit": "Vous avez créé le maximum de {MAX} compteurs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
+		"premium_limit": "Vous avez créé le maximum de {MAX} compteurs.",
+		"form": {
+			"name": "Nom",
+			"value": "Valeur",
+			"more": "Plus d'options",
+			"placholder": "Nom de placeholder personnalisé {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur du<br>compteur dans n'importe<br>quelle action de trigger",
+			"placholder_conflict": "Un autre compteur utilise déjà ce placeholder",
+			"name_conflict": "Un autre compteur du même nom existe déjà",
+			"value_min": "Valeur min",
+			"value_max": "Valeur max",
+			"value_loop": "Boucler la valeur lorsque le maximum ou le minimum est atteint",
+			"value_user": "Chaque viewer possède son propre compteur",
+			"load_all_users": "Charger tous les viewers",
+			"clear_all_users": "Supprimer les viewers",
+			"reset_all_users": "Tout mettre à zéro",
+			"no_users": "aucune entrée",
+			"search": "Chercher quelqu'un...",
+			"sort_name":"Nom",
+			"sort_points":"Points"
+		},
+		"delete_confirm": {
+			"title": "Supprimer ?",
+			"desc": "Les données du compteur seront perdues."
+		},
+		"reset_users_confirm":{
+			"title": "Reset ?",
+			"desc": "Souhaitez-vous remettre tous les viewers à zéro ?"
+		},
+		"delete_users_confirm":{
+			"title": "Supprimer ?",
+			"desc": "Souhaitez-vous supprimer tous les viewers ?"
+		}
+	}
+}

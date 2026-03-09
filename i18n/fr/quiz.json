@@ -1,0 +1,82 @@
+{
+	"quiz": {
+		"form":{
+			"title": "Quiz",
+			"subtitle": "Créez votre propre quiz interactif !",
+			"add_bt": "Créer un quiz",
+			"import_bt": "Importer des questions (.csv)",
+			"import_tt": "Importer des questions depuis un fichier .csv.\nUne question par ligne.\n\nQuestion à choix multiples → 3+ colonnes (question;correcte;fausse;...)\n\nQuestion à Réponse libre → 2 colonnes (question;réponse)",
+			"import_invalid_file": "Format de fichier invalide. Veuillez télécharger un fichier CSV avec la structure correcte.",
+			"addQuestion_bt": "Ajouter une question",
+			"addAnswer_bt": "Ajouter une réponse",
+			"answer_correct": "Bonne réponse",
+			"answer_wrong": "Mauvaise réponse",
+			"deleteQuestionbt_tt": "Supprimer la question",
+			"durationOverride_tt": "Durée personnalisée pour cette question",
+			"toleranceOverride_tt": "Tolérance personnalisée pour cette question",
+			"premium_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} quizs que vous pouvez créer.",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} quiz que vous pouvez créer.\nDevenez membre premium pour en créer jusqu'à {MAX_PREMIUM}.",
+			"premium_question_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} questions que vous pouvez ajouter.",
+			"nonpremium_question_limit": "Vous avez atteint le nombre maximum de {MAX} questions que vous pouvez ajouter.\nDevenez premium pour en ajouter jusqu'à {MAX_PREMIUM}.",
+			"tolerances":{
+				"undefined":"         🗑️",
+				"none":"😠 Aucune",
+				"very_low":"🧐 Très basse",
+				"low":"🤨 Basse",
+				"medium":"😁 Moyenne",
+				"high":"🤪 Haute",
+				"very_high":"🤡 Très haute"
+			},
+			"delete_confirm": {
+				"description": "Le quiz sera supprimé\nCette action est irréversible.",
+				"title": "Supprimer le quiz ?"
+			},
+			"default_title": "Mon Quiz",
+			"install_title": "Installer l'overlay",
+			"param_duration": "Durée par question ({VALUE} secondes)",
+			"param_time_based_scoring": "Score basé sur le temps\n(plus de points pour les réponses rapides)",
+			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
+			"param_tolerance": "Tolérance orthographique\n(pour les questions à réponse libre)",
+			"no_question": "aucune question",
+			"question_placeholder": "question...",
+			"answer_placeholder": "réponse...",
+			"answers": "{COUNT} Réponses",
+			"answers_majority": "{COUNT} Réponses",
+			"answers_majority_subtitle": " (fausses uniquement)",
+			"param_answer_duration": "Durée",
+			"questionList": "Liste de questions",
+			"createBt": "Créer",
+			"add_question_title": "Ajouter une question",
+			"mode_classic": {
+				"title": "Réponse à choix",
+				"description": "Question à choix multiples"
+			},
+			"mode_freeAnswer": {
+				"title": "Réponse libre",
+				"description": "Question à réponse libre"
+			},
+			"mode_majority": {
+				"title": "Vote Majoritaire",
+				"description": "Question à choix majoritaire.\n\nUniquement des fausses réponses.\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes"
+			},
+			"live_progress_warning":{
+				"title": "Quiz en cours",
+				"description": "Si vous activez ce quiz vous perdrez la progression du quiz \"{NAME}\""
+			},
+			"overlay_name": "de Quiz"
+		},
+		"state": {
+			"start_bt": "Démarrer le quiz",
+			"showAnswer_bt": "Révéler la réponse",
+			"nextQuestion_bt": "Question suivante",
+			"leaderboard_bt": "Afficher le classement",
+			"resetQuiz_bt": "Réinitialiser le quiz",
+			"disable_bt": "Clore le quiz",
+			"reset_confirm": {
+				"title": "Réinitialiser le quiz ?",
+				"description": "La progression du quiz sera perdue\nCette action est irréversible."
+			},
+			"questionIndex": "Question {INDEX}/{TOTAL}"
+		}
+	}
+}

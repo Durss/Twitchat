@@ -31,6 +31,8 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
 	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
+	public static TWITCHEXT_CLICK = "TWITCHEXT_CLICK" as const;
+	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -63,15 +65,15 @@ export type EventTypeMap = {
 	KO_FI_FAILED_WEBHOOK: string;
 	TILTIFY_EVENT: TiltifyDonationEventData | TiltifyCauseEventData;
 	NOTIFICATION: {
-			messageId:string;
-			col:number[];
-			message:string;
-			quote:string;
-			highlightColor:string;
-			style:TwitchatDataTypes.MessageCustomData["style"];
-			username:string;
-			actions:TwitchatDataTypes.MessageCustomData["actions"];
-		};
+		messageId:string;
+		col:number[];
+		message:string;
+		quote:string;
+		highlightColor:string;
+		style:TwitchatDataTypes.MessageCustomData["style"];
+		username:string;
+		actions:TwitchatDataTypes.MessageCustomData["actions"];
+	};
 	BINGO_GRID_UPDATE:{
 		force:true;
 	} | {
@@ -86,28 +88,28 @@ export type EventTypeMap = {
 		};
 	};
 	BINGO_GRID_BINGO_COUNT: {
-			gridId:string;
-			uid:string;
-			login:string;
-			count:number;
-		};
+		gridId:string;
+		uid:string;
+		count:number;
+		login?:string;
+	};
 	BINGO_GRID_CELL_STATES: {
-			gridId:string;
-			states:{[cellId:string]:boolean};
-		}
+		gridId:string;
+		states:{[cellId:string]:boolean};
+	};
 	TRIGGER_SLASH_COMMAND: {
-			command:"link" | "say" | "ask";
-			params: {
-				name:string;
-				value:string;
-			}[];
-		};
+		command:"link" | "say" | "ask";
+		params: {
+			name:string;
+			value:string;
+		}[];
+	};
 	BINGO_GRID_UNTICK_ALL: void;
 	BINGO_GRID_MODERATOR_TICK: {
-			gridId:string;
-			uid:string;
-			states:{[cellid:string]:boolean};
-		};
+		gridId:string;
+		uid:string;
+		states:{[cellid:string]:boolean};
+	};
 	SHARED_MOD_INFO_REQUEST: void;
 	QNA_STATE: {
 		sessions:TwitchatDataTypes.QnaSession[];
@@ -150,6 +152,23 @@ export type EventTypeMap = {
 	SERVER_UPDATE: {
 		delay:number;
 	};
+	TWITCHEXT_CLICK: {
+		px: number;
+		py: number;
+		alt: boolean;
+		ctrl: boolean;
+		shift: boolean;
+		userId?: string;
+	};
+	TWITCHEXT_QUIZ_ANSWER: {
+		quizId: string;
+		questionId: string;
+		answerId?: string;
+		answerText?: string;
+		userId?: string;
+		opaqueUserId: string;
+	};
+	
 }
 
 interface AbstractQnaAciton {

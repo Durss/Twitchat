@@ -1,8 +1,8 @@
 <template>
 	<div class="overlaydistort">
-		<div class="instructions">
+		<!-- <div class="instructions">
 			<img src="@/assets/img/shader_warning.png"/>
-		</div>
+		</div> -->
 		<DistortionLiquid :params="distortionData" v-if="distortionData && distortionData.effect == 'liquid'" />
 		<DistortionExpand :params="distortionData" v-if="distortionData && distortionData.effect == 'expand'" />
 		<DistortionHeart :params="distortionData" v-if="distortionData && distortionData.effect == 'heart'" />
@@ -36,26 +36,26 @@ class OverlayDistort extends AbstractOverlay {
 	public distortionData:TwitchatDataTypes.HeatDistortionData|null = null;
 
 	private distortionID:string = "";
-	private parametersHandler!:(e:TwitchatEvent)=>void;
+	private parametersHandler!:(e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">)=>void;
 
 	public async beforeMount():Promise<void> {
 		this.distortionID = Utils.getQueryParameterByName("twitchat_overlay_id") || "";
 
-		this.parametersHandler = (e:TwitchatEvent)=>this.onParametersHandler(e);
+		this.parametersHandler = (e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">)=>this.onParametersHandler(e);
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, this.parametersHandler);
+		PublicAPI.instance.addEventListener("ON_DISTORT_OVERLAY_CONFIGS", this.parametersHandler);
 	}
 
 	public async beforeUnmount():Promise<void> {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, this.parametersHandler);
+		PublicAPI.instance.removeEventListener("ON_DISTORT_OVERLAY_CONFIGS", this.parametersHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_DISTORT_OVERLAY_PARAMETERS, {distortionID: this.distortionID});
+		PublicAPI.instance.broadcast("GET_DISTORT_OVERLAY_CONFIGS", {id: this.distortionID});
 	}
 
-	public async onParametersHandler(e:TwitchatEvent):Promise<void> {
-		const {params} = (e.data as unknown) as {params:TwitchatDataTypes.HeatDistortionData};
+	public async onParametersHandler(e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">):Promise<void> {
+		const {params} = e.data;
 		//If it's not for us, stop there
 		if(!params || params.id != this.distortionID) return;
 		this.distortionData = params;

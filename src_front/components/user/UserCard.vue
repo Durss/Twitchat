@@ -1086,7 +1086,8 @@ export default toNative(UserCard);
 		}
 
 		.modActions {
-			margin: -.5em 0;
+			margin-top: -.25em;
+			margin-bottom: 0;
 			align-self: center;
 			flex-shrink: 0;//necessery for shit old safari -_-
 		}
@@ -1107,7 +1108,7 @@ export default toNative(UserCard);
 				gap: 0;
 				display: flex;
 				flex-direction: row;
-				* {
+				&>* {
 					border-radius: 0;
 					&:first-child {
 						border-top-left-radius: var(--border-radius);

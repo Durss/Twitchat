@@ -77,7 +77,8 @@
 			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
 			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
 			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !",
-			"loading_emotes": "Chargement des emotes..."
+			"loading_emotes": "Chargement des emotes...",
+			"quizBt_aria": "Quiz"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -237,14 +238,16 @@
 			"sub_prime": "{USER} a pris un abonnement avec Prime.",
 			"resub": "{USER} a renouvelé son abonnement de niveau {TIER}.",
 			"resub_prime": "{USER} a pris un abonnement avec Prime.",
-			"sub_duration": "Abonné·e depuis {COUNT} mois.",
-			"sub_streak": "{COUNT} mois d'abonnement consécutifs.",
-			"sub_prepaid": "A pris {COUNT} mois d'abonnement en avance",
+			"sub_duration": "Abonné·e depuis {COUNT}.",
+			"sub_streak": "{COUNT} d'abonnement consécutifs.",
+			"sub_prepaid": "A pris {COUNT} d'abonnement en avance",
 			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à la communauté : {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à la communauté : {LIST}",
 			"sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
-			"sub_gift_months": "{USER} a offert {MONTHS} mois d'abonnement de niveau {TIER} à {LIST}",
+			"sub_gift_months": "{USER} a offert {MONTHS} d'abonnement de niveau {TIER} à {LIST}",
 			"sub_gift_upgrade": "{USER} continue l'abonnement offert par {GIFTER}",
-			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme"
+			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme",
+			"duration_months": "{COUNT} mois",
+			"duration_years": "{COUNT} an | {COUNT} ans"
 		},
 		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
 		"combo": "{USER} a envoyé 1 bit depuis les Combos | {USER} a envoyé {BITS} bits depuis les Combos",
@@ -582,26 +585,26 @@
 		"youtube_subgift": {
 			"title": "{USER} a offert {COUNT} abonnements {TIER} à {LIST}"
 		},
-		"tiktok_sub":{
+		"tiktok_sub": {
 			"new": "{USER} s'est abonné"
 		},
-		"tiktok_like":{
+		"tiktok_like": {
 			"new": "{USER} a envoyé {COUNT} likes"
 		},
-		"tiktok_gift":{
+		"tiktok_gift": {
 			"new": "{USER} a envoyé x{COUNT} {IMAGE}"
 		},
-		"tiktok_share":{
+		"tiktok_share": {
 			"new": "{USER} a partagé le stream"
 		},
-		"suspended_trigger_stack":{
+		"suspended_trigger_stack": {
 			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
 			"resumeBt": "Relancer",
 			"callstack": "Historique d'exécution :"
 		},
 		"tts": {
-			"elevenlabs_credits_empty":"Vous avez dépensé tous vos crédits EleventLabs.",
-			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
+			"elevenlabs_credits_empty": "Vous avez dépensé tous vos crédits EleventLabs.",
+			"elevenlabs_credits_almost_empty": "Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
 		},
 		"private_mod_message": {
 			"accepted": "accepté",

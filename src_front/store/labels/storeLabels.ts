@@ -1,14 +1,12 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
-import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder } from '@/types/ILabelOverlayData';
+import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder, type LabelItemPlaceholderTag } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import * as Sentry from "@sentry/vue";
 
 let ready = false;
@@ -96,11 +94,11 @@ export const storeLabels = defineStore('labels', {
 				}
 			}
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
+			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_PLACEHOLDERS", ()=>{
 				this.broadcastPlaceholders();
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
+			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_CONFIGS", (e)=> {
 				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
@@ -114,7 +112,7 @@ export const storeLabels = defineStore('labels', {
 			this.broadcastPlaceholders();
 		},
 
-		getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined {
+		getLabelByKey(key:LabelItemPlaceholderTag):string|number|undefined {
 			// Special case for generic viewer count, return the sum of all platforms
 			if(key == "VIEWER_COUNT") {
 				let twitch = this.getLabelByKey("VIEWER_COUNT_TWITCH") as number || 0;
@@ -184,7 +182,7 @@ export const storeLabels = defineStore('labels', {
 			if(labelId) this.broadcastLabelParams(labelId);
 		},
 
-		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void> {
+		async updateLabelValue(key:LabelItemPlaceholderTag, value:string|number, userId?:string):Promise<void> {
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
@@ -204,7 +202,7 @@ export const storeLabels = defineStore('labels', {
 			}
 		},
 
-		async incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
+		async incrementLabelValue(key:LabelItemPlaceholderTag, value:number):Promise<void> {
 			if(value == 0) return;
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
@@ -214,6 +212,55 @@ export const storeLabels = defineStore('labels', {
 			this.placeholders[key]!.value = prevValue + value;
 			this.broadcastPlaceholders();
 			this.saveData();
+		},
+
+		async clearUserLabelValue(userId:string):Promise<void> {
+			if(!ready) {
+				//Store not yet ready, wiat for it to be ready	
+				await readyPromise;
+			}
+			console.log("CLEARING LABEL VALUES FOR USER "+userId);
+			const userIdKeyList:LabelItemPlaceholderTag[] = [
+				"SUB_ID",
+				"SUBGIFT_ID",
+				"SUB_YOUTUBE_ID",
+				"SUBGIFT_YOUTUBE_ID",
+				"SUB_GENERIC_ID",
+				"SUBGIFT_GENERIC_ID",
+				"SUPER_CHAT_ID",
+				"SUPER_STICKER_ID",
+				"CHEER_ID",
+				"COMBO_ID",
+				"FOLLOWER_ID",
+				"FOLLOWER_GENERIC_ID",
+				"REWARD_ID",
+				"RAID_ID",
+				"WATCH_STREAK_ID",
+				"POWER_UP_GIANTIFIED_ID",
+				"POWER_UP_CELEBRATION_ID",
+				"POWER_UP_MESSAGE_ID",
+			]
+			let hasClearedValue = false;
+			for (const key of userIdKeyList) {
+				if(this.placeholders[key] && this.placeholders[key].value === userId) {
+					hasClearedValue = true;
+					this.placeholders[key].value = "";
+					const prefix = key.replace(/_ID$/, "_");
+					// Clear all other placeholders with the same prefix
+					for (const labelKey in this.placeholders) {
+						const typedKey = labelKey as LabelItemPlaceholderTag;
+						if(labelKey.startsWith(prefix)
+						&& this.placeholders[typedKey]) {
+							this.placeholders[typedKey].value = "";
+							hasClearedValue = true;
+						}
+					}
+				}
+			}
+			if(hasClearedValue) {
+				this.broadcastPlaceholders();
+				this.saveData();
+			}
 		},
 
 		broadcastPlaceholders():void {
@@ -233,7 +280,7 @@ export const storeLabels = defineStore('labels', {
 						value:ph.value,
 					}
 					if(list[key].value === undefined) {
-						if(ph.placeholder.type == "date", ph.placeholder.type == "datetime" || ph.placeholder.type == "time") {
+						if(ph.placeholder.type == "date" || ph.placeholder.type == "datetime" || ph.placeholder.type == "time") {
 							list[key].value = Date.now();
 						}else if(ph.placeholder.type == "image" || ph.placeholder.type == "string") {
 							list[key].value = "";
@@ -242,7 +289,7 @@ export const storeLabels = defineStore('labels', {
 						}
 					}
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, list);
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_PLACEHOLDERS", list);
 			}, 100);
 		},
 
@@ -251,9 +298,9 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject, exists:true, isValid:(!!validTag || data.mode == "html")});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data, exists:true, isValid:(!!validTag || data.mode == "html")});
 			}else{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, exists:false});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data:null, exists:false});
 			}
 		},
 
@@ -284,5 +331,5 @@ if(import.meta.hot) {
 
 interface IStoreData {
 	labelList:LabelItemData[];
-	cachedValues:Partial<{[key in typeof LabelItemPlaceholderList[number]["tag"]]:string|number}>;
+	cachedValues:Partial<{[key in LabelItemPlaceholderTag]:string|number}>;
 }

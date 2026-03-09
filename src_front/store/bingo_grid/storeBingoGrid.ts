@@ -1,22 +1,21 @@
+import SSEEvent from '@/events/SSEEvent';
+import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IBingoGridActions, type IBingoGridGetters, type IBingoGridState, type IStore } from '../StoreProxy';
-import Utils from '@/utils/Utils';
 import DataStore from '../DataStore';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import ApiHelper from '@/utils/ApiHelper';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import type { JsonObject } from 'type-fest';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import MessengerProxy from '@/messaging/MessengerProxy';
+import StoreProxy, { type IBingoGridActions, type IBingoGridGetters, type IBingoGridState } from '../StoreProxy';
 
 let saveCountPending:number = 0;
 let debounceSave:number = -1;
 let debounceShuffle:number = -1;
+let debounceBroadcast:number = -1;
 let debounceChatAnnounce:number = -1
 let tickDebounce:{[key:string]:number} = {};
 let chatAnnounceStack:{user:TwitchatDataTypes.TwitchatUser, count:number}[] = [];
@@ -69,22 +68,22 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			/**
 			 * Called when bingo grid overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
-				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid);
+			PublicAPI.instance.addEventListener("GET_BINGO_GRID_CONFIGS", (e)=> {
+				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.id);
 				if(bingo) {
 					if(!bingo.enabled) return;
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:bingo as unknown as JsonObject, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:e.data!.id, bingo, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
 				}else{
 					//Tell the overlay requested bingo couldn't be found
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:null});
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:e.data!.id, bingo:null});
 				}
 			});
 
 			/**
 			 * Get notified when a grid overlay exists
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, (event:TwitchatEvent<{bid:string}>)=>{
-				const id = event.data!.bid;
+			PublicAPI.instance.addEventListener("SET_BINGO_GRID_OVERLAY_PRESENCE", (event)=>{
+				const id = event.data!.id;
 				const ref = this.gridList.find(v => v.id == id);
 				//Check if bingo exists
 				if(!ref || !ref.enabled) return;
@@ -104,29 +103,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			});
 
 			/**
-			 * Get notified when clicking on a grid via heat
+			 * Relay to set grid visibility from Stream Deck socket
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_HEAT_CLICK, async (event:TwitchatEvent<{gridId:string, entryId:string, click:TwitchatDataTypes.HeatClickData}>)=>{
+			PublicAPI.instance.addEventListener("SET_BINGO_GRID_VISIBILITY_FROM_SD", async (event)=>{
 				if(!event.data) return;
-				const data = event.data;
-				const grid = this.gridList.find(g => g.id === (data.gridId || ""));
-				//Ignore heat click if grid is disabled or heat interaction is disabled
-				if(!grid || !grid.enabled || !grid.heatClick) return;
-
-				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
-
-				//Ignore banned users (but not timed out ones)
-				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id]!;
-				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
-
-				const allowed = await Utils.checkPermissions(grid.heatClickPermissions, user, data.click.channelId);
-				if(!allowed) {
-					console.log("User not allowed to click !");
-				}else{
-					const entry = grid.entries.find(e => e.id === (event.data?.entryId || ""));
-					if(!entry) return;
-					this.toggleCell(grid.id, entry.id);
-				}
+				PublicAPI.instance.broadcast("SET_BINGO_GRID_VISIBILITY", event.data);
 			});
 
 			/**
@@ -184,7 +165,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						//Tell the overlay someone got a bingo if allowed to be displayed on overlay
 						if(grid.overlayAnnouncement && await Utils.checkPermissions(grid.overlayAnnouncementPermissions, user, channelId)) {
 							const data = {
-								gridId:event.data.gridId,
+								id:event.data.gridId,
 								user:{
 									name:user.displayNameOriginal,
 									id:user.id,
@@ -192,7 +173,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								},
 								count:entry.count
 							};
-							PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, data);
+							PublicAPI.instance.broadcast("ON_BINGO_GRID_VIEWER_EVENT", data);
 						}
 
 						//Announce bingos on chat
@@ -284,7 +265,6 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				textColor:"#000000",
 				enabled:true,
 				showGrid:true,
-				heatClick:false,
 				winSoundVolume:100,
 				textSize:20,
 				cols:5,
@@ -293,11 +273,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				backgroundAlpha:0,
 				backgroundColor:"#000000",
 				autoShowHide:false,
+				chatAnnouncementEnabled:true,
 				chatAnnouncement:StoreProxy.i18n.t("bingo_grid.form.param_chatAnnouncement_default"),
 				overlayAnnouncement:true,
-				chatAnnouncementEnabled:true,
 				overlayAnnouncementPermissions:Utils.getDefaultPermissions(),
+				chatCmd:undefined,
 				chatCmdPermissions:Utils.getDefaultPermissions(true, true, false, false, false, false),
+				heatClick:false,
 				heatClickPermissions:Utils.getDefaultPermissions(true, true, false, false, false, false),
 			}
 			const len = data.cols*data.rows;
@@ -320,10 +302,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			.then(()=>{
 				this.gridList = this.gridList.filter(g => g.id !== id);
 				this.saveData();
+				ApiHelper.call("bingogrid", "DELETE", {gridId:id});
 			}).catch(()=>{})
 		},
 
-		shuffleGrid(id:string):void {
+		async shuffleGrid(id:string):Promise<void> {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 
@@ -353,12 +336,15 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			grid.entries = entries;
 
 			clearTimeout(debounceShuffle);
-			debounceShuffle = window.setTimeout(() => {
-				this.saveData(id, undefined, false);
-				if(StoreProxy.auth.isPremium) {
-					ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
-				}
-			}, 600);
+			return new Promise<void>((resolve) => {
+				debounceShuffle = window.setTimeout(async () => {
+					this.saveData(id, undefined, false);
+					if(StoreProxy.auth.isPremium) {
+						await ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
+					}
+					resolve();
+				}, 600);
+			});
 		},
 
 		resetLabels(id:string):void {
@@ -377,7 +363,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}).catch(()=>{})
 		},
 
-		resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):void {
+		async resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):Promise<void> {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 			//Reset diff array
@@ -409,7 +395,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const states:{[cellId:string]:boolean} = {};
 			grid.entries.forEach(v=> states[v.id] = v.check);
 			if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
-			if(StoreProxy.auth.isPremium && callEndpoint) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+			if(StoreProxy.auth.isPremium && callEndpoint) await ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {
@@ -479,7 +465,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					const prevStates = prevGridStates[grid.id];
 					let newVerticalBingos:number[] = [];
 					let newHorizontalBingos:number[] = [];
-					let newDiagonalBingos:number[] = [];
+					let newDiagonalBingos:(0|1)[] = [];
 					if(prevStates) {
 						let prevVerticalBingos:number[] = [];
 						let prevHorizontalBingos:number[] = [];
@@ -601,7 +587,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							message.complete = true;
 							StoreProxy.chat.addMessage(message);
 						}
-						PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
+						PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 					}
 
 					prevGridStates[grid.id] = newStates;
@@ -611,18 +597,21 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					}
 
 					if(StoreProxy.auth.isPremium && broadcastToViewers) {
-						//Debounce this call as it will fire an event to every connected viewer
-						ApiHelper.call("bingogrid", "PUT", {
-							gridid:grid.id,
-							grid:{
-								cols:grid.cols,
-								rows:grid.rows,
-								title:grid.title,
-								entries:grid.entries,
-								enabled:grid.enabled,
-								additionalEntries:grid.additionalEntries,
-							}
-						});
+						window.clearTimeout(debounceBroadcast);
+						debounceBroadcast = window.setTimeout(() => {
+							//Debounce this call as it will fire an event to every connected viewer
+							ApiHelper.call("bingogrid", "PUT", {
+								gridid:grid.id,
+								grid:{
+									cols:grid.cols,
+									rows:grid.rows,
+									title:grid.title,
+									entries:grid.entries,
+									enabled:grid.enabled,
+									additionalEntries:grid.additionalEntries,
+								}
+							});
+						}, 3000);
 					}
 				}
 
@@ -734,7 +723,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			// 	});
 			// }
 			const data = {
-				gridId,
+				id:gridId,
 				scores:viewers.sort((a,b)=> {
 					if(b.count == a.count) {
 						return a.user.displayNameOriginal.toLowerCase().localeCompare(b.user.displayNameOriginal.toLowerCase())
@@ -758,12 +747,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				s.pos = pos;
 				prevScore = s.score;
 			})
-			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, data as unknown as JsonObject);
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", data);
 		},
 
 		hideLeaderboard(gridId:string):void {
-			const data = {gridId};
-			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, data as unknown as JsonObject);
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", {id:gridId});
 		},
 
 	} as IBingoGridActions

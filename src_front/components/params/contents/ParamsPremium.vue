@@ -4,12 +4,16 @@
 		
 		<div class="head">{{ $t("premium.header") }}</div>
 		
-		<div class="card-item info">
-			<Icon name="info" class="icon" />
-			<p v-for="i in $tm('donate.infos')" v-html="i"></p>
+		<div class="card-item userInfo" v-if="$store.patreon.connected">
+			<div class="title"><Icon name="patreon" /> {{ $t('patreon.connected_as') }}</div>
+			<div class="info">
+				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
+				<span class="name">{{ $store.patreon.userName }}</span>
+			</div>
+			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{ $t("global.disconnect") }}</TTButton>
 		</div>
 
-		<ParamsAccountPatreon class="card-item" />
+		<ParamsAccountPatreon />
 
 		<div class="card-item premium lifetimePremiumProgress" v-if="showProgress">
 			<div class="info">{{ $t("premium.progress") }}</div>
@@ -36,7 +40,8 @@ import SponsorTable from '@/components/premium/SponsorTable.vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import { gsap } from 'gsap/gsap-core';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -71,7 +76,7 @@ class ParamsPremium extends Vue {
 	}
 
 	public openDonate():void {
-		this.$store.params.openParamsPage("donate");
+		this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING);
 	}
 
 }
@@ -80,16 +85,31 @@ export default toNative(ParamsPremium);
 
 <style scoped lang="less">
 .paramspremium {
-	.info {
+
+	.userInfo {
 		margin: auto;
-		line-height: 1.25em;
-		p:first-of-type {
-			display: inline;
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+		.info {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: .5em;
+			padding: .25em .5em;
+			.avatar {
+				width: 1.75em;
+				height: 1.75em;
+				border-radius: 50%;
+			}
+			.name {
+				font-weight: bold;
+				flex-grow: 1;
+			}
 		}
 		.icon {
-			height: 1.3em;
-			margin-right: .25em;
-			vertical-align: middle;
+			height: 1em;
 		}
 	}
 

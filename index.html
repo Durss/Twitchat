@@ -26,7 +26,7 @@
 	<meta name="robots" content="index, follow">
 	<link rel="author" href="https://www.durss.ninja" />
 	<link rel="canonical" href="https://twitchat.fr/">
-	<link rel="manifest" href="/manifest.json">
+	<link rel="manifest" crossorigin="use-credentials" href="/manifest.json">
 	<style>
 		body {
 			background-color: transparent;
@@ -432,8 +432,8 @@
 			startTime[index] = virtualDate;
 			directions[index] = -1;
 			offsetMax[index] = 25 * scale;
-			const notes = [146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63, 293.66]; // D3-D4 chromatic
-			if(scale > 1) playBeep(notes[index % 8], 300, 0.2)
+			const notes = [293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33];
+			if(scale > 1) playBeep(notes[index % 8], 300, 1)
 		}
 
 		//Animate loader

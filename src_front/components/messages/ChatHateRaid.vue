@@ -43,7 +43,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Database from '@/store/Database';

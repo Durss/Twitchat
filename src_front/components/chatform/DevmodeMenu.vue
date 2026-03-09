@@ -1,124 +1,125 @@
 <template>
 	<div class="devmodemenu blured-background-window">
 		<h1>Developer panel</h1>
-		<div class="list">
-			<!-- <Button small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
-			<!-- <Button small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</Button>
-			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
-			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequence</Button>
-			<Button small @click="simulateCustomMessage()" icon="edit">Custom message</Button>
-			<Button small @click="simulateEvent($event, 'many_replies')" icon="reply">Many replies</Button>
-			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
-			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
-			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</Button>
-			<Button small @click="$store.chat.sendRightClickHint()" icon="whispers">Right click hint</Button>
-			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
-			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
-			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
-			<Button small @click="simulateEvent($event, 'youtube_ban')" icon="ban">Ban Youtube</Button>
-			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
-			<Button small @click="simulateEvent($event, 'warn_chatter')" icon="alert">Warn chatter</Button>
-			<Button small @click="simulateEvent($event, 'warn_acknowledge')" icon="alert">Warn acknowledgement</Button>
-			<Button small @click="simulateEvent($event, 'unban_request')" icon="unbanRequest">Unban Request</Button>
-			<Button small @click="simulateEvent($event, 'unban_request', 'unban_request_solve')" icon="unbanRequest">Unban Request solve</Button>
-			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>
-			<!-- <Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button> -->
-			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
-			<Button small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</Button>
-			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
-			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
-			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
-			<Button small @click="simulateEvent($event, 'message', 'skin3')" icon="watchStreak">Power Up skin 3</Button>
-			<Button small @click="simulateEvent($event, 'gigantified_emote')" icon="watchStreak">Power Up Giant emote</Button>
-			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</Button>
-			<Button small @click="simulateEvent($event, 'twitch_combo')" icon="bits">Combo</Button>
-			<Button small @click="simulateComboSpam()" icon="bits">Combo spam</Button>
-			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
-			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
-			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
-			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
-			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
-			<Button small @click="simulateEvent($event, 'cheer', 'no_message')" icon="bits">Bits (no mess)</Button>
-			<Button small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</Button>
-			<!-- <Button small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat</Button> -->
-			<Button small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</Button>
-			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
-			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
-			<Button small @click="simulateMultichanGifts()" icon="gift">Subgifts multichan</Button>
-			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
-			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
-			<Button small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</Button>
-			<Button small @click="simulateEvent($event, 'following', 'youtube')" icon="youtube">Youtube follow</Button>
-			<Button small @click="simulateEvent($event, 'super_chat')" icon="youtube">Youtube Super chat</Button>
-			<Button small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Youtube Super sticker</Button>
-			<Button small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Youtube Sub</Button>
-			<Button small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Youtube Subgift</Button>
-			<Button small @click="simulateEvent($event, 'message', 'tiktok')" icon="tiktok">TikTok message</Button>
-			<Button small @click="simulateEvent($event, 'tiktok_sub')" icon="tiktok">TikTok Sub</Button>
-			<Button small @click="simulateEvent($event, 'tiktok_gift')" icon="tiktok">TikTok Gift</Button>
-			<Button small @click="simulateEvent($event, 'tiktok_like')" icon="tiktok">TikTok Like</Button>
-			<Button small @click="simulateEvent($event, 'tiktok_share')" icon="tiktok">TikTok Share</Button>
-			<Button small @click="simulateEvent($event, 'following', 'tiktok')" icon="tiktok">TikTok Follow</Button>
-			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
-			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
-			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
-			<Button small @click="simulateHypeTrain('regular')" icon="train">Hype train</Button>
-			<Button small @click="simulateHypeTrain('golden_kappa')" icon="train">Golden kappa train</Button>
-			<Button small @click="simulateHypeTrain('treasure')" icon="train">Treasure train</Button>
-			<Button small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
-			<Button small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</Button>
-			<Button small @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
-			<Button small @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</Button>
-			<Button small @click="simulateEvent($event, 'autoban_join')" icon="automod">Automod Twitchat join</Button>
-			<Button small @click="simulateEvent($event, 'poll')" icon="poll">Poll result</Button>
-			<Button small @click="simulateEvent($event, 'prediction')" icon="prediction">Prediction result</Button>
-			<Button small @click="simulateEvent($event, 'chat_poll')" icon="chatPoll">Chat poll result</Button>
-			<Button small @click="simulateEvent($event, 'bingo')" icon="bingo">Bingo result</Button>
-			<Button small @click="simulateEvent($event, 'raffle')" icon="ticket">Raffle result</Button>
-			<Button small @click="simulateEvent($event, 'countdown')" icon="timer">Countdown result</Button>
-			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
-			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
-			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
-			<Button small @click="simulateEvent($event, 'twitch_charity_donation')" icon="twitch_charity">Twitch charity donation</Button>
-			<Button small @click="simulateEvent($event, 'streamelements', 'se_donation')" icon="streamelements">Streamelements donation</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity')" icon="streamlabs">Streamlabs Charity</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')" icon="streamlabs">Streamlabs Ch. spam</Button>
-			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
-			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
-			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
-			<Button small @click="simulateEvent($event, 'kofi', 'kofi_commission')" icon="kofi">Kofi Commission</Button>
-			<Button small @click="simulateEvent($event, 'tipeee')" icon="tipeee">Tipeee donation</Button>
-			<Button small @click="simulateEvent($event, 'tiltify')" icon="tiltify">Tiltify donation</Button>
-			<Button small @click="simulateEvent($event, 'patreon')" icon="patreon">Patreon new member</Button>
-			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
-			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
-			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
-			<Button small @click="simulateFollowbotItem()" icon="follow">Follow bot item</Button>
-			<Button small @click="simulateFollowbotRaid()" icon="follow">Follow bot raid</Button>
-			<Button small @click="simulateEvent($event, 'shoutout')" icon="shoutout">Send shoutout</Button>
-			<Button small @click="simulateEvent($event, 'shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
-			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>
-			<Button small @click="monitorUser()" icon="shield">Monitor user</Button>
-			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
-			<Button small @click="simulateEvent($event, 'connect')" icon="online">Chat connected</Button>
-			<Button small @click="simulateEvent($event, 'disconnect')" icon="offline">Chat disconnected</Button>
-			<Button small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</Button>
-			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
-			<Button small @click="simulateEvent($event, 'stream_online', 'my_stream_online')" icon="offline">My stream started</Button>
-			<Button small @click="simulateEvent($event, 'stream_offline', 'my_stream_offline')" icon="offline">My stream stoped</Button>
-			<Button small @click="simulateHateRaid()" icon="raid">Hate raid</Button>
-			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
-			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</Button>
-			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
-			<Button small @click="fakeConversation()" icon="whispers">Fake conversation</Button>
+		<SearchForm v-model="search" @update:modelValue="doSearch" :debounceDelay="0" :placeholder="$t('global.search_placeholder')" class="search" />
+		<div class="list" ref="list">
+			<!-- <TTButton small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
+			<!-- <TTButton small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</TTButton>
+			<TTButton small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</TTButton> -->
+			<TTButton small @click="simulateCommercialSequence()" icon="ad">Commercial sequence</TTButton>
+			<TTButton small @click="simulateCustomMessage()" icon="edit">Custom message</TTButton>
+			<TTButton small @click="simulateEvent($event, 'many_replies')" icon="reply">Many replies</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</TTButton>
+			<TTButton small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'ad')" icon="whispers">Twitchat ad</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</TTButton>
+			<TTButton small @click="$store.chat.sendRightClickHint()" icon="whispers">Right click hint</TTButton>
+			<TTButton small @click="simulateEvent($event, 'join')" icon="enter">Join</TTButton>
+			<TTButton small @click="simulateEvent($event, 'leave')" icon="leave">Leave</TTButton>
+			<TTButton small @click="simulateEvent($event, 'ban')" icon="ban">Ban</TTButton>
+			<TTButton small @click="simulateEvent($event, 'youtube_ban')" icon="ban">Ban Youtube</TTButton>
+			<TTButton small @click="simulateEvent($event, 'unban')" icon="unban">Unban</TTButton>
+			<TTButton small @click="simulateEvent($event, 'warn_chatter')" icon="alert">Warn chatter</TTButton>
+			<TTButton small @click="simulateEvent($event, 'warn_acknowledge')" icon="alert">Warn acknowledgement</TTButton>
+			<TTButton small @click="simulateEvent($event, 'unban_request')" icon="unbanRequest">Unban Request</TTButton>
+			<TTButton small @click="simulateEvent($event, 'unban_request', 'unban_request_solve')" icon="unbanRequest">Unban Request solve</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</TTButton>
+			<!-- <TTButton small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</TTButton> -->
+			<TTButton small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'skin3')" icon="watchStreak">Power Up skin 3</TTButton>
+			<TTButton small @click="simulateEvent($event, 'gigantified_emote')" icon="watchStreak">Power Up Giant emote</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitch_combo')" icon="bits">Combo</TTButton>
+			<TTButton small @click="simulateComboSpam()" icon="bits">Combo spam</TTButton>
+			<TTButton small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</TTButton>
+			<TTButton small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</TTButton>
+			<TTButton small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</TTButton>
+			<TTButton small @click="startFakeRaid()" icon="raid">Outgoing raid</TTButton>
+			<TTButton small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</TTButton>
+			<TTButton small @click="simulateEvent($event, 'cheer', 'no_message')" icon="bits">Bits (no mess)</TTButton>
+			<TTButton small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</TTButton>
+			<!-- <TTButton small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat</TTButton> -->
+			<TTButton small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</TTButton>
+			<TTButton small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</TTButton>
+			<TTButton small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</TTButton>
+			<TTButton small @click="simulateMultichanGifts()" icon="gift">Subgifts multichan</TTButton>
+			<TTButton small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</TTButton>
+			<TTButton small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</TTButton>
+			<TTButton small @click="simulateEvent($event, 'following', 'youtube')" icon="youtube">Youtube follow</TTButton>
+			<TTButton small @click="simulateEvent($event, 'super_chat')" icon="youtube">Youtube Super chat</TTButton>
+			<TTButton small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Youtube Super sticker</TTButton>
+			<TTButton small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Youtube Sub</TTButton>
+			<TTButton small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Youtube Subgift</TTButton>
+			<TTButton small @click="simulateEvent($event, 'message', 'tiktok')" icon="tiktok">TikTok message</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tiktok_sub')" icon="tiktok">TikTok Sub</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tiktok_gift')" icon="tiktok">TikTok Gift</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tiktok_like')" icon="tiktok">TikTok Like</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tiktok_share')" icon="tiktok">TikTok Share</TTButton>
+			<TTButton small @click="simulateEvent($event, 'following', 'tiktok')" icon="tiktok">TikTok Follow</TTButton>
+			<TTButton small @click="simulateEvent($event, 'following')" icon="follow">Follow</TTButton>
+			<TTButton small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</TTButton>
+			<TTButton small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</TTButton>
+			<TTButton small @click="simulateHypeTrain('regular')" icon="train">Hype train</TTButton>
+			<TTButton small @click="simulateHypeTrain('golden_kappa')" icon="train">Golden kappa train</TTButton>
+			<TTButton small @click="simulateHypeTrain('treasure')" icon="train">Treasure train</TTButton>
+			<TTButton small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</TTButton>
+			<TTButton small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</TTButton>
+			<TTButton small @click="simulateAutomod()" icon="automod">Automod Twitch</TTButton>
+			<TTButton small @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</TTButton>
+			<TTButton small @click="simulateEvent($event, 'autoban_join')" icon="automod">Automod Twitchat join</TTButton>
+			<TTButton small @click="simulateEvent($event, 'poll')" icon="poll">Poll result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'prediction')" icon="prediction">Prediction result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'chat_poll')" icon="chatPoll">Chat poll result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'bingo')" icon="bingo">Bingo result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'raffle')" icon="ticket">Raffle result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'countdown')" icon="timer">Countdown result</TTButton>
+			<TTButton small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</TTButton>
+			<TTButton small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</TTButton>
+			<TTButton small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</TTButton>
+			<TTButton small @click="simulateEvent($event, 'twitch_charity_donation')" icon="twitch_charity">Twitch charity donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamelements', 'se_donation')" icon="streamelements">Streamelements donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamlabs', 'sl_charity')" icon="streamlabs">Streamlabs Charity</TTButton>
+			<TTButton small @click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')" icon="streamlabs">Streamlabs Ch. spam</TTButton>
+			<TTButton small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</TTButton>
+			<TTButton small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</TTButton>
+			<TTButton small @click="simulateEvent($event, 'kofi', 'kofi_commission')" icon="kofi">Kofi Commission</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tipeee')" icon="tipeee">Tipeee donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'tiltify')" icon="tiltify">Tiltify donation</TTButton>
+			<TTButton small @click="simulateEvent($event, 'patreon')" icon="patreon">Patreon new member</TTButton>
+			<TTButton small @click="simulateBlockedUser()" icon="block">Blocked user</TTButton>
+			<TTButton small @click="simulateSuspicious()" icon="shield">Suspicious user</TTButton>
+			<TTButton small @click="simulateRestricted()" icon="shield">Restricted user</TTButton>
+			<TTButton small @click="simulateFollowbotItem()" icon="follow">Follow bot item</TTButton>
+			<TTButton small @click="simulateFollowbotRaid()" icon="follow">Follow bot raid</TTButton>
+			<TTButton small @click="simulateEvent($event, 'shoutout')" icon="shoutout">Send shoutout</TTButton>
+			<TTButton small @click="simulateEvent($event, 'shoutout', 'soReceived')" icon="shoutout">Receive shoutout</TTButton>
+			<TTButton small @click="restrictUser()" icon="shield">Restrict user</TTButton>
+			<TTButton small @click="monitorUser()" icon="shield">Monitor user</TTButton>
+			<TTButton small @click="unflagUser()" icon="shield">Unflag user</TTButton>
+			<TTButton small @click="simulateEvent($event, 'connect')" icon="online">Chat connected</TTButton>
+			<TTButton small @click="simulateEvent($event, 'disconnect')" icon="offline">Chat disconnected</TTButton>
+			<TTButton small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</TTButton>
+			<TTButton small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</TTButton>
+			<TTButton small @click="simulateEvent($event, 'stream_online', 'my_stream_online')" icon="offline">My stream started</TTButton>
+			<TTButton small @click="simulateEvent($event, 'stream_offline', 'my_stream_offline')" icon="offline">My stream stoped</TTButton>
+			<TTButton small @click="simulateHateRaid()" icon="raid">Hate raid</TTButton>
+			<TTButton small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</TTButton>
+			<TTButton small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</TTButton>
+			<TTButton small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</TTButton>
+			<TTButton small @click="fakeConversation()" icon="whispers">Fake conversation</TTButton>
 		</div>
 	</div>
 </template>
@@ -137,10 +138,12 @@ import { reactive } from 'vue';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import type { TwitchEventSubDataTypes } from '@/types/twitch/TwitchEventSubDataTypes';
+import SearchForm from '../params/contents/SearchForm.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
+		SearchForm,
 	},
 	emits:["close", "triggersLogs", "obsHeatLogs"]
 })
@@ -148,6 +151,7 @@ class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
 	public generatingHistory = false;
+	public search = "";
 	private commercialTO:number = -1;
 
 	private clickHandler!:(e:MouseEvent) => void;
@@ -212,7 +216,6 @@ class DevmodeMenu extends Vue {
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "no_message": {
-					console.log("OKOKO");
 					(message as TwitchatDataTypes.MessageCheerData).message = "";
 					(message as TwitchatDataTypes.MessageCheerData).message_size = 0;
 					(message as TwitchatDataTypes.MessageCheerData).message_html = "";
@@ -531,7 +534,7 @@ class DevmodeMenu extends Vue {
 	 */
 	public async simulateFollowbotItem():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("__");
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const uid = Math.round(Math.random()*99999999999).toString();
 		const message:TwitchatDataTypes.MessageFollowingData = {
@@ -714,7 +717,7 @@ class DevmodeMenu extends Vue {
 			user,
 			viewerCount: 42,
 			startedAt:Date.now(),
-			timerDuration_s:90,
+			timerDuration_s:900,
 		};
 		StoreProxy.stream.setRaiding(m);
 	}
@@ -789,6 +792,19 @@ class DevmodeMenu extends Vue {
 		};
 
 		this.$store.chat.addMessage(message);
+	}
+
+	public doSearch() {
+		const list = this.$refs.list as HTMLElement;
+		const buttonList = list.querySelectorAll(".button");
+		for (const bt of buttonList) {
+			const text = bt.textContent || "";
+			if(text.toLowerCase().includes(this.search.toLowerCase())) {
+				(bt as HTMLElement).style.display = "";
+			}else{
+				(bt as HTMLElement).style.display = "none";
+			}
+		}
 	}
 }
 

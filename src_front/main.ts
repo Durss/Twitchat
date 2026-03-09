@@ -43,7 +43,6 @@ import { storeValues } from '@/store/values/storeValues';
 import { storeVoice } from '@/store/voice/storeVoice';
 import { storeYoutube } from '@/store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import { createPopper } from '@popperjs/core';
@@ -55,32 +54,40 @@ import { gsap } from 'gsap/gsap-core';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
-import { createApp, type DirectiveBinding, type VNode } from "vue";
+import { createApp } from "vue";
 import CountryFlag from 'vue-country-flag-next';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
+import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
+import { storeChatPoll } from './store/chat_poll/storeChatPoll';
 import { storeCommon } from './store/common/storeCommon';
+import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
 import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
+import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
+import { storeExporter } from './store/exporter/storeExporter';
+import { storeGroq } from './store/groq/storeGroq';
 import { storeLabels } from './store/labels/storeLabels';
 import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storePlayability } from './store/playability/storePlayability';
+import { storeQuiz } from './store/quiz/storeQuiz';
 import { storeSammi } from './store/sammi/storeSammi';
 import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
+import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
 import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
-import { storeGroq } from './store/groq/storeGroq';
-import { storeChatPoll } from './store/chat_poll/storeChatPoll';
-import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
-import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
-import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
-import { storeExporter } from './store/exporter/storeExporter';
-import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
+import Config from './utils/Config';
+import { storeStreamfog } from './store/streamfog/storeStreamfog';
+import Utils from './utils/Utils';
+import { vAutofocus } from './directives/autofocus';
+import { vClick2Select } from './directives/click2Select';
+import { vNewflag } from './directives/newflag';
+import { stickyTopShadow } from './directives/stickyTopShadow';
 
 window.setInitMessage("Booting app...");
 
@@ -194,32 +201,8 @@ function buildApp() {
 		description?: string,
 		data?: T,
 		yesLabel?:string,
-		noLabel?:string,
-		STTOrigin?:boolean): Promise<T|undefined> => {
-		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
-	}
-
-	/**
-	 * Gets an overlay's URL
-	 * @param id overlay ID
-	 * @returns
-	 */
-	const overlayURL = (id:string, params?:{k:string, v:string}[]):string => {
-		const port = DataStore.get(DataStore.OBS_PORT);
-		const pass = DataStore.get(DataStore.OBS_PASS);
-		const ip = DataStore.get(DataStore.OBS_IP);
-		const urlParams = new URLSearchParams()
-		if(params) {
-			for (let i = 0; i < params.length; i++) {
-				urlParams.append(params[i]!.k, params[i]!.v);
-			}
-		}
-		if(port) urlParams.append("obs_port", port);
-		if(pass) urlParams.append("obs_pass", pass);
-		if(ip) urlParams.append("obs_ip", ip);
-		let suffix = urlParams.toString()
-		if(suffix) suffix = "?" + suffix;
-		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
+		noLabel?:string): Promise<T|undefined> => {
+		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel);
 	}
 
 	/**
@@ -267,7 +250,7 @@ function buildApp() {
 	StoreProxy.default.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.users = (storeUsers() as unknown) as StoreProxy.IUsersState & StoreProxy.IUsersGetters & StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset:()=>void };
-	StoreProxy.default.voice = storeVoice();
+	StoreProxy.default.voice = (storeVoice() as unknown) as StoreProxy.IVoiceState & StoreProxy.IVoiceGetters & StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset:()=>void };
 	StoreProxy.default.debug = storeDebug();
 	StoreProxy.default.accessibility = storeAccessibility();
 	StoreProxy.default.admin = storeAdmin();
@@ -305,6 +288,8 @@ function buildApp() {
 	StoreProxy.default.exporter = storeExporter();
 	StoreProxy.default.groq = storeGroq();
 	StoreProxy.default.endingCredits = storeEndingCredits();
+	StoreProxy.default.quiz = storeQuiz();
+	StoreProxy.default.streamfog = storeStreamfog();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
@@ -326,81 +311,14 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
-	.provide("$config", Config.instance)
-	.provide("$asset", asset)
-	.provide("$store", StoreProxy.default)
-	.provide("$confirm", confirm)
-	.provide("$overlayURL", overlayURL)
-	.provide("$placeDropdown", placeDropdown)
-	.directive('autofocus', {
-		mounted(el:HTMLDivElement, binding:unknown) {
-			if((binding as {[key:string]:boolean}).value !== false) {
-				//Disabling scroll avoids breaking layout when opening
-				//a ChannelNotifications content that has an autofocus element.
-				//In such case, if the focus is given during the opening
-				//transition, it completely breaks the chat layout, adding
-				//lots of space under the chat and activities.
-				//The "preventScroll" flag avoids this.
-				el.focus({preventScroll:true});
-				if(el.tagName.toLowerCase() == "input" || el.tagName.toLowerCase() == "textarea") {
-					const typedEl = el as HTMLInputElement;
-					if(typedEl.type =="number") {
-						typedEl.focus();
-					}else{
-						typedEl.setSelectionRange(typedEl.value.length, typedEl.value.length);
-					}
-				}
-			}
-		}
-	})
-	.directive('click2Select', {
-		mounted(el:HTMLElement, binding:unknown) {
-			if((binding as {[key:string]:boolean}).value !== false) {
-				el.style.cursor = "default";
-				el.addEventListener("click", ()=> {
-					if(el.nodeName === "INPUT") {
-						(el as HTMLInputElement).select();
-					}else{
-						el.ownerDocument?.getSelection()?.selectAllChildren(el);
-					}
-				});
-			}
-		}
-	})
-	.directive('newflag', {
-		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string, duration?:number}>, vnode:VNode<any, any, { [key: string]: any; }>) {
-			if(binding && binding.value) {
-				//date : contains the date at which something has been flagged as new
-				//id : id of the item flaged as new
-				//duration : duration during which the item should be flaged as new (1 month by default)
-				const {date, id, duration} = binding.value;
-				const maxDuration = duration || 30 * 24 * 60 * 60000;
-				//Flag as new only for 1 month
-				if(Date.now() - date > maxDuration) return;
-
-				//Don't flag is already marked as read
-				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-				if(flagsDone.includes(id)) return;
-
-				el.classList.add("newFlag");
-
-				el.addEventListener("click", ()=>{
-					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-					if(!flagsDone.includes(id)) {
-						flagsDone.push(id);
-						DataStore.set(DataStore.NEW_FLAGS, flagsDone);
-					}
-					el.classList.remove("newFlag");
-				});
-			}
-		},
-		beforeUnmount(el:HTMLElement, binding:unknown) {
-		}
-	});
+	.directive('stickyTopShadow', stickyTopShadow)
+	.directive('autofocus', vAutofocus)
+	.directive('click2Select', vClick2Select)
+	.directive('newflag', vNewflag);
 	app.config.globalProperties.$asset = asset;
+	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
-	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	app.config.globalProperties.$store = StoreProxy.default;
 

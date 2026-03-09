@@ -531,6 +531,7 @@ export default toNative(Parameters);
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
+		transform: translateY(-50%);
 		.title {
 			display: none;
 			flex-grow: 1;
@@ -737,6 +738,7 @@ export default toNative(Parameters);
 @media only screen and (max-width: 800px) {
 	.parameters {
 		max-height: var(--vh);
+		z-index: 5;
 		.head {
 			height: 3em;
 			border-bottom: 1px solid var(--color-dark-extralight);
@@ -790,7 +792,7 @@ export default toNative(Parameters);
 		.contentHolder {
 			display:none;
 			.content {
-				margin-top: 1em;
+				margin-top: 0;
 				padding: 0;
 
 				.search {

@@ -2,20 +2,19 @@ import type HeatEvent from '@/events/HeatEvent';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { LogHeat } from '@/utils/Logger';
+import Logger from '@/utils/Logger';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IHeatActions, IHeatGetters, IHeatState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import PublicAPI from '@/utils/PublicAPI';
-import type { JsonObject } from "type-fest";
-import type { LogHeat } from '@/utils/Logger';
-import Logger from '@/utils/Logger';
 
 export const storeHeat = defineStore('heat', {
 	state: () => ({
@@ -250,36 +249,38 @@ export const storeHeat = defineStore('heat', {
 				}
 			}
 			const chaninfo = user.channelInfo[channelId]!;
+			const event_data: TwitchatDataTypes.HeatClickData = {
+					id:Utils.getUUID(),
+					anonymous,
+					x:0,
+					y:0,
+					channelId,
+					uid:user.id,
+					login:user.login,
+					rotation:0,
+					scaleX:0,
+					scaleY:0,
+					isBroadcaster:chaninfo.is_broadcaster,
+					isSub:chaninfo.is_subscriber || false,
+					isBan:chaninfo.is_banned,
+					isMod:chaninfo.is_moderator,
+					isVip:chaninfo.is_vip,
+					isFollower:chaninfo.is_following || false,
+					followDate:chaninfo.following_date_ms,
+					testMode:event.testMode || false,
+					alt:event.alt || false,
+					ctrl:event.ctrl || false,
+					shift:event.shift || false,
+					twitchatOverlayID:"",
+					page:"",
+			};
+
 			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
 				requestType:"emit_event",
 				vendorName:"obs-browser",
 				requestData:{
 					event_name:"heat-click",
-					event_data: {
-						id:Utils.getUUID(),
-						anonymous,
-						x:0,
-						y:0,
-						channelId,
-						uid:user.id,
-						login:user.login,
-						rotation:0,
-						scaleX:0,
-						scaleY:0,
-						isBroadcaster:chaninfo.is_broadcaster,
-						isSub:chaninfo.is_subscriber || false,
-						isBan:chaninfo.is_banned,
-						isMod:chaninfo.is_moderator,
-						isVip:chaninfo.is_vip,
-						isFollower:chaninfo.is_following || false,
-						followDate:chaninfo.following_date_ms,
-						testMode:event.testMode || false,
-						alt:event.alt || false,
-						ctrl:event.ctrl || false,
-						shift:event.shift || false,
-						twitchatOverlayID:"",
-						page:"",
-					}
+					event_data: event_data,
 				}
 			};
 
@@ -300,7 +301,11 @@ export const storeHeat = defineStore('heat', {
 				clickClone.requestData.event_data.y = event.coordinates.y;
 				clickClone.requestData.event_data.scaleX = 1;
 				clickClone.requestData.event_data.scaleY = 1;
-				OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+				OBSWebsocket.instance.socket.call("CallVendorRequest", {
+					requestType: clickClone.requestType,
+					vendorName: clickClone.vendorName,
+					requestData: clickClone.requestData as unknown as JsonObject
+				});
 				log.targets.push({distortiontID: d.id, x:event.coordinates.x, y:event.coordinates.y});
 			}
 
@@ -344,8 +349,8 @@ export const storeHeat = defineStore('heat', {
 				clickEventData.requestData.event_data.x = percentX;
 				clickEventData.requestData.event_data.y = percentY;
 				clickEventData.requestData.event_data.rotation = rect.transform.globalRotation!;
-				clickEventData.requestData.event_data.scale = rect.transform.globalScaleX!;
-				clickEventData.requestData.event_data.scale = rect.transform.globalScaleY!;
+				clickEventData.requestData.event_data.scaleX = rect.transform.globalScaleX!;
+				clickEventData.requestData.event_data.scaleY = rect.transform.globalScaleY!;
 
 				log.targets.push({obsSource:rect.source.sourceName || rect.sceneName, x:percentX, y:percentY});
 
@@ -370,7 +375,11 @@ export const storeHeat = defineStore('heat', {
 						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
 						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
-						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+						OBSWebsocket.instance.socket.call("CallVendorRequest", {
+							requestType: clickClone.requestType,
+							vendorName: clickClone.vendorName,
+							requestData: clickClone.requestData as unknown as JsonObject
+						});
 						log.targets.push({distortiontID: d.id, x:percentX, y:percentY});
 					}
 				}
@@ -398,7 +407,11 @@ export const storeHeat = defineStore('heat', {
 					clickClone.requestData.event_data.page = await Utils.sha256(url);
 					clickClone.requestData.event_data.twitchatOverlayID = overlayID;
 					//Send click info to browser source
-					OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+					OBSWebsocket.instance.socket.call("CallVendorRequest", {
+						requestType: clickClone.requestType,
+						vendorName: clickClone.vendorName,
+						requestData: clickClone.requestData as unknown as JsonObject
+					});
 
 					//Spotify overlay
 					if(url && url.indexOf(spotifyRoute) > -1
@@ -497,14 +510,14 @@ export const storeHeat = defineStore('heat', {
 				//The browser is unknown because user created the overlay manualy
 				//Get the filter's params to extract the browser source name
 				//TODO
-				// const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
+				// const filters = await OBSWebSocket.instance.getSourceFilters(sourceName);
 				// if(filters.length == 0) return;
 				// const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
 				// console.log(filter);
-				// await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+				// await OBSWebSocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
 				// if(filter) {
 				// 	const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
-				// 	OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+				// 	OBSWebSocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
 				// 		console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
 				// 	});
 				// }
@@ -522,10 +535,9 @@ export const storeHeat = defineStore('heat', {
 			DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
 
 			for (let i = 0; i < this.distortionList.length; i++) {
-				const data = {
-					params:(this.distortionList[i] as unknown) as JsonObject,
-				};
-				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, data);
+				PublicAPI.instance.broadcast("ON_DISTORT_OVERLAY_CONFIGS", {
+					params:this.distortionList[i]!,
+				});
 			}
 		}
 

@@ -108,19 +108,18 @@
 </template>
 
 <script lang="ts">
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import OverlayInstaller from './OverlayInstaller.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import { TTButton } from '@/components/TTButton.vue';
-import Utils from '@/utils/Utils';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import SetIntervalWorker from '@/utils/SetIntervalWorker';
-import { ParamItem } from '../../ParamItem.vue';
-import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import PlacementSelector from '@/components/PlacementSelector.vue';
 import CSSPollsVarStyles from './CSSPollsVarStyles.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import TTButton from '@/components/TTButton.vue';
+import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import Utils from '@/utils/Utils';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { ParamItem } from '../../ParamItem.vue';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
@@ -179,7 +178,7 @@ class OverlayParamsPredictions extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -191,7 +190,7 @@ class OverlayParamsPredictions extends Vue {
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -199,7 +198,7 @@ class OverlayParamsPredictions extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{

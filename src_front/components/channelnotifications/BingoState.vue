@@ -1,33 +1,40 @@
 <template>
 	<div class="bingostate gameStateWindow">
-		<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
-
-		<div class="card-item goal" v-if="bingoData.guessNumber">
-			<strong class="guess">{{bingoData.numberValue}}</strong>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
+			<slot />
 		</div>
 
-		<div class="card-item goal" v-else-if="bingoData.guessEmote">
-			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
-			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
-		</div>
-
-		<div class="card-item goal" v-if="bingoData.guessCustom">
-			<span class="guess">{{bingoData.customValue}}</span>
-		</div>
-
-		<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
-			<p><Icon name="sub" />{{ $t("bingo.state.winner") }}</p>
-			<div class="entries">
-				<TTButton v-for="w in bingoData.winners" :key="w.id"
-				small light
-				type="link"
-				target="_blank"
-				:href="'https://twitch.tv/'+w.login"
-				@click.prevent="openUserCard(w)">{{ w.displayName }}</TTButton>
+		<div class="body">
+			<div class="card-item goal" v-if="bingoData.guessNumber">
+				<strong class="guess">{{bingoData.numberValue}}</strong>
+			</div>
+	
+			<div class="card-item goal" v-else-if="bingoData.guessEmote">
+				<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
+				<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
+			</div>
+	
+			<div class="card-item goal" v-if="bingoData.guessCustom">
+				<span class="guess">{{bingoData.customValue}}</span>
+			</div>
+	
+			<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
+				<p><Icon name="sub" />{{ $t("bingo.state.winner") }}</p>
+				<div class="entries">
+					<TTButton v-for="w in bingoData.winners" :key="w.id"
+						small light secondary
+						type="link"
+						target="_blank"
+						:href="'https://twitch.tv/'+w.login"
+						@click.prevent="openUserCard(w)">{{ w.displayName }}</TTButton>
+				</div>
+			</div>
+	
+			<div class="actions">
+				<TTButton @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</TTButton>
 			</div>
 		</div>
-
-		<TTButton @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</TTButton>
 	</div>
 </template>
 
@@ -72,10 +79,7 @@ export default toNative(BingoState);
 .bingostate{
 
 	.goal {
-		.emboss();
-		// padding: .5em;
-		// border-radius: var(--border-radius);
-		// background-color: var(--color-secondary);
+		background-color: rgba(0, 0, 0, .25);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -105,6 +109,12 @@ export default toNative(BingoState);
 		}
 		.entries {
 			margin-top: .5em;
+			gap: .25em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 

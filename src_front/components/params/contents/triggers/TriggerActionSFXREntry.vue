@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import { TTButton } from '@/components/TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { JSFXRSoundPreset } from '@/types/jsfxr';
 import type { TriggerActionSFXRData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -51,7 +51,7 @@ import ParamItem from '../../ParamItem.vue';
 import AbstractTriggerActionEntry from './entries/AbstractTriggerActionEntry';
 import OverlayInstaller from '../overlays/OverlayInstaller.vue';
 import Config from '@/utils/Config';
-import OBSWebSocket from '@/utils/OBSWebsocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -78,7 +78,7 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 
 	private prevSound : AudioBufferSourceNode | null = null;
 	
-	public get exchangeChannelAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT || OBSWebSocket.instance.connected.value; }
+	public get exchangeChannelAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT || OBSWebsocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 

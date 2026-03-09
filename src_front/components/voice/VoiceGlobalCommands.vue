@@ -15,8 +15,9 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 
@@ -46,7 +47,7 @@ class VoiceGlobalCommands extends Vue {
 			const isGlobal = VoiceAction[a+"_IS_GLOBAL" as VAKeys] === true;
 			if(!isGlobal) continue;
 
-			const id:string = VoiceAction[a as VAKeys] as string;
+			const id:string = a as string;
 			let text = "";
 			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;
@@ -68,7 +69,7 @@ class VoiceGlobalCommands extends Vue {
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i]!;
 			data.push({
-				id:this.itemIDs[i],
+				id:this.itemIDs[i] as keyof TwitchatEventMap,
 				sentences:item.value,
 			})
 

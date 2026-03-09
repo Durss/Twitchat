@@ -5,15 +5,14 @@
 
 		<section>
 			<TTButton class="addBt"
-			v-if="($store.auth.isPremium && $store.customTrain.customTrainList.length < $config.MAX_CUSTOM_TRAIN_PREMIUM) || $store.customTrain.customTrainList.length < $config.MAX_CUSTOM_TRAIN"
+			v-if="!maxTrainsReached"
 			@click="addEntry()" icon="add">{{ $t("overlay.customTrain.add_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.customTrain.customTrainList.length >= $config.MAX_CUSTOM_TRAIN_PREMIUM">{{ $t("overlay.customTrain.premium_limit") }}</div>
-
-			<div class="card-item premium maximumReached" v-else>
-				<div>{{ $t("overlay.customTrain.non_premium_limit", {MAX:$config.MAX_CUSTOM_TRAIN_PREMIUM}) }}</div>
-				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
-			</div>
+			<PremiumLimitMessage v-else
+				label="overlay.customTrain.non_premium_limit"
+				premiumLabel="overlay.customTrain.premium_limit"
+				:max="$config.MAX_CUSTOM_TRAIN"
+				:maxPremium="$config.MAX_CUSTOM_TRAIN_PREMIUM" />
 		</section>
 
 		<VueDraggable class="entryList"
@@ -46,10 +45,8 @@
 				</template>
 
 				<template #right_actions>
-					<div class="rightActions">
-						<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-						<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
-					</div>
+					<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
+					<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
 				</template>
 
 				<div class="content">
@@ -62,7 +59,7 @@
 							<template #AMOUNT><strong>{{ train2Record[entry.id]!.amountFormatted }}</strong></template>
 						</i18n-t>
 					</div>
-					<div class="card-item install">
+					<div class="overlayInstallCard">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="customtrain" :sourceSuffix="entry.title" :id="entry.id"
 						:sourceTransform="{width:1200, height:100}" />
@@ -324,6 +321,7 @@ import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import Utils from '@/utils/Utils';
 import { watch, type ComponentPublicInstance } from 'vue';
+import PremiumLimitMessage from '../../PremiumLimitMessage.vue';
 
 @Component({
 	components:{
@@ -337,6 +335,7 @@ import { watch, type ComponentPublicInstance } from 'vue';
 		OverlayInstaller,
 		CurrencyPatternInput,
 		OverlayCustomTrainRenderer,
+		PremiumLimitMessage,
 	}
 })
 class OverlayParamsCustomTrain extends Vue {
@@ -369,6 +368,11 @@ class OverlayParamsCustomTrain extends Vue {
 	private clickHandler!:(e:MouseEvent)=>void;
 	private keyHandler!:(e:KeyboardEvent)=>void;
 	private refreshInterval:number = -1;
+
+	public get maxTrainsReached():boolean {
+		const max = this.$store.auth.isPremium ? this.$config.MAX_CUSTOM_TRAIN_PREMIUM : this.$config.MAX_CUSTOM_TRAIN;
+		return this.$store.customTrain.customTrainList.length >= max;
+	}
 
 	public beforeMount():void {
 		this.initParams();
@@ -649,38 +653,6 @@ export default toNative(OverlayParamsCustomTrain);
 		}
 		&>.colors {
 			flex-grow: 1;
-		}
-	}
-
-	.install {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-		.icon {
-			height: 1em;
-		}
-		label {
-			gap: .5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-		}
-	}
-
-	.rightActions {
-		gap: .25em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		flex-shrink: 0;
-		.button {
-			margin: -.5em 0;
-			align-self: stretch;
-			border-radius: 0;
-			flex-shrink: 0;
-			padding: 0 .5em;
 		}
 	}
 

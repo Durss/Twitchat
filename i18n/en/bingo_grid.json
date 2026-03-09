@@ -33,13 +33,14 @@
 			"param_chatAnnouncementEnabled": "Announce viewers' bingos on chat",
 			"param_chatAnnouncement": "Message to send on chat",
 			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
+			"overlayParams_title": "Stream overlay settings",
 			"send_chat_url_tt": "Send to chat",
 			"winners_placeholder": "Viewers that got bingos",
-			"add_cellBt": "Add cell",
+			"add_cellBt": "Add",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
 			"premium_limit": "You reached the maximum bingo grid count you can create.",
-			"non_premium_limit": "@:bingo_grid.premium_limit \nBecome a premium member to create up to {MAX} bingo grids.",
+			"non_premium_limit": "@:bingo_grid.premium_limit \nBecome a premium member to create up to {MAX_PREMIUM} bingo grids.",
 			"share": "Share this grid with your viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",
@@ -54,16 +55,15 @@
 			"perf_alert": "Looks like you have quite a lot of viewers on your stream.\nI can't guarantee my server will survive that, please make a little prayer before sharing the link with your viewers 🙏."
 		},
 		"state": {
-			"auth_bt": "Get your own random grid",
+			"auth_bt": "Get my own grid",
 			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
 			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
 			"showLeaderboard_bt": "Show on overlay",
 			"hideLeaderboard_bt": "Hide from overlay",
-			"additional_cells": "Additional cells other viewers may have"
-		},
-		"public": {
+			"additional_cells": "Additional cells other viewers may have",
 			"grid": "grid",
-			"list": "list"
+			"list": "list",
+			"footer": "Powered by {LINK}"
 		}
 	}
 }

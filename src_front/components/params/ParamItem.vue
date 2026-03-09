@@ -517,6 +517,7 @@ export class ParamItem extends Vue {
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
 		if(this.paramData.type == "font") res.push("font");
+		if(this.showMaxLength) res.push("withMaxLength");
 		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
 		if(this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
 		res.push("level_"+this.childLevel);
@@ -544,7 +545,7 @@ export class ParamItem extends Vue {
 		}
 		if(!txt) return "";
 		//Puts anything that's between parenthesis inside <span> elements
-		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
+		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='smallText'>$1</span>");
 	}
 
 	public get placeholder():string {
@@ -1077,7 +1078,7 @@ export default toNative(ParamItem);
 		}
 	}
 
-	&.maxLength {
+	&.withMaxLength.maxLength {
 		.content {
 			.text {
 				input {
@@ -1199,7 +1200,7 @@ export default toNative(ParamItem);
 			flex-grow: 1;
 		}
 
-		:deep(.small) {
+		:deep(.smallText) {
 			font-size: .75em;
 			font-style: italic;
 		}

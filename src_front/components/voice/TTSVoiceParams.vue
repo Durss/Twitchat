@@ -42,7 +42,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
-import { TTButton } from '../TTButton.vue';
+import TTButton from '../TTButton.vue';
 import StoreProxy from '@/store/StoreProxy';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';

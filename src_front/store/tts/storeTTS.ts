@@ -7,6 +7,7 @@ import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import type { JsonObject } from 'type-fest';
+import PublicAPI from '@/utils/PublicAPI';
 
 export const storeTTS = defineStore('tts', {
 	state: () => ({
@@ -114,17 +115,23 @@ export const storeTTS = defineStore('tts', {
 			}
 		},
 
+		setSpeakingState(speaking:boolean):void {
+			this.speaking = speaking;
+			PublicAPI.instance.broadcastGlobalStates();
+		},
+
 		ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			TTSUtils.instance.readNow(message);
 		},
 
-		ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean) {
+		ttsReadUser(user:TwitchatDataTypes.TwitchatUser, forceRead?:boolean) {
 			let list = this.params.ttsPerms.usersAllowed;
 			const index = list.findIndex(v=> v.toLowerCase() == user.login.toLowerCase());
+			const readLocal = forceRead !== undefined ? forceRead : (index === -1);
 			if(index > -1) {
 				//User already there, remove them if requested to stop reading them
-				if(!read) list.splice(index, 1);
-			}else if(read){
+				if(!readLocal) list.splice(index, 1);
+			}else if(readLocal){
 				//User not yet in the list, add them if requested to read them
 				list.push(user.login);
 			}
@@ -134,7 +141,7 @@ export const storeTTS = defineStore('tts', {
 			this.setTTSParams(this.params);//Triggers a server save
 
 			let message = "";
-			if(read) {
+			if(readLocal) {
 				message = StoreProxy.i18n.t("tts.on_notice", {USER:user.displayName});
 			}else{
 				message = StoreProxy.i18n.t("tts.off_notice", {USER:user.displayName});

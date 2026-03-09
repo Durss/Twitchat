@@ -50,14 +50,8 @@
 							</template>
 
 							<template #right_actions>
-								<div class="rightActions">
-									<!-- <TTButton v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
-									icon="premium" premium
-									v-tooltip="$t('premium.become_premiumBt')"
-									@click.prevent="openPremium()" /> -->
-									<TTButton class="scrollBt" icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" v-tooltip="$t('overlay.credits.scroll_tt')" />
-									<TTButton class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
-								</div>
+								<TTButton icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" data-close-popout v-tooltip="$t('overlay.credits.scroll_tt')" />
+								<TTButton icon="trash" @click.stop="deleteSlot(element)" alert />
 							</template>
 
 							<div class="content">
@@ -196,10 +190,6 @@
 									:paramData="param_text[element.id]"
 									v-model="element.text"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-
-								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
-									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
-								</ParamItem> -->
 							</div>
 						</ToggleBlock>
 					</template>
@@ -275,17 +265,15 @@ import Icon from '@/components/Icon.vue';
 import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import type { IPatreonTier } from '@/store/patreon/storePatreon';
 import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -293,8 +281,6 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import type { IPatreonTier } from '@/store/patreon/storePatreon';
-import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -333,10 +319,8 @@ class OverlayParamsCredits extends Vue {
 	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, maxLength:25, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
 	public param_powerUpEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_powerUpEmotes", icon:"watchStreak", premiumOnly:true};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
-	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubMonths:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
-	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showBadges:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showResubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -461,7 +445,7 @@ class OverlayParamsCredits extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
@@ -473,7 +457,7 @@ class OverlayParamsCredits extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -481,7 +465,7 @@ class OverlayParamsCredits extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_ENDING_CREDITS_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
@@ -504,8 +488,6 @@ class OverlayParamsCredits extends Vue {
 		this.$confirm( this.$t("overlay.credits.delete_confirm_title") ).then(()=> {
 			const index = this.$store.endingCredits.overlayData.slots.findIndex(v=>v.id == slot.id);
 			this.$store.endingCredits.overlayData.slots.splice(index, 1);
-			delete this.param_customHTML[slot.id];
-			delete this.param_htmlTemplate[slot.id];
 			delete this.param_maxItems[slot.id];
 			delete this.param_showAmounts[slot.id];
 			delete this.param_text[slot.id];
@@ -529,8 +511,6 @@ class OverlayParamsCredits extends Vue {
 		};
 
 		//Create parameters
-		this.param_customHTML[id]	= {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
-		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
 		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems', premiumOnly:true};
 		if(slotDef.hasAmount) {
 			if(entry.showAmounts === undefined) {
@@ -760,7 +740,7 @@ class OverlayParamsCredits extends Vue {
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 		this.sendingSummaryData = false;
 	}
 
@@ -768,7 +748,7 @@ class OverlayParamsCredits extends Vue {
 	 * Scrolls to
 	 */
 	public async scrollTo(id:string):Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:id});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {scrollToSectionID:id});
 	}
 
 	/**
@@ -826,6 +806,7 @@ export default toNative(OverlayParamsCredits);
 				gap: .5em;
 				display: flex;
 				flex-direction: row;
+				align-items: center;
 				.icon {
 					height: 1em;
 					min-width: 1em;
@@ -878,25 +859,6 @@ export default toNative(OverlayParamsCredits);
 				}
 				&>.icon {
 					margin-left: -1.5em;
-				}
-			}
-			.rightActions {
-				gap: .25em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-					flex-shrink: 0;
-				.maxItems {
-					width: 4.5em;
-					:deep(input) {
-						text-align: center;
-					}
-				}
-				.deleteBt, .scrollBt {
-					margin: -.5em 0;
-					align-self: stretch;
-					border-radius: 0;
-					flex-shrink: 0;
 				}
 			}
 			.content {
@@ -979,6 +941,9 @@ export default toNative(OverlayParamsCredits);
 			}
 			&.premium {
 				border-color: var(--color-premium-extralight);
+				&>:deep(.header) {
+					color: var(--color-text);
+				}
 				.paramitem {
 					background-color: var(--color-light-fadest);
 				}

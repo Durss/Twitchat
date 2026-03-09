@@ -1,7 +1,7 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
-import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
+import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList, LabelItemPlaceholderTag } from "@/types/ILabelOverlayData";
 import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, SettingsExportData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
@@ -21,6 +21,7 @@ import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { Lense, Video } from "./streamfog/storeStreamfog";
 
 /**
 * Created : 23/09/2022
@@ -85,6 +86,8 @@ export default class StoreProxy {
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
 	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
 	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
+	public static quiz: IQuizState & IQuizGetters & IQuizActions & { $state: IQuizState, $reset: () => void };
+	public static streamfog: IStreamfogState & IStreamfogGetters & IStreamfogActions & { $state: IStreamfogState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -226,9 +229,8 @@ export interface IMainActions {
 	 * @param data
 	 * @param yesLabel
 	 * @param noLabel
-	 * @param STTOrigin is open from speech recognition ? If so, voice commands are displayed
 	 */
-	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
+	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string): Promise<T|undefined>;
 	/**
 	 * Close confirm window
 	 */
@@ -517,7 +519,7 @@ export interface IBingoGridActions {
 	 * Shuffle given grid entries
 	 * @param id
 	 */
-	shuffleGrid(id:string):void;
+	shuffleGrid(id:string):Promise<void>;
 	/**
 	 * Resets given grid entries label
 	 * @param id
@@ -529,7 +531,7 @@ export interface IBingoGridActions {
 	 * @param forcedState
 	 * @param callEndpoint
 	 */
-	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):void;
+	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -645,6 +647,10 @@ export interface IChatState {
 	 * should be disabled.
 	 */
 	securityRaidGraceEndDate:number;
+	/**
+	 * Pending automod messages to be reviewed by the user
+	 */
+	pendingAutomodMessages:TwitchatDataTypes.MessageChatData[];
 }
 
 export interface IChatGetters {
@@ -783,7 +789,7 @@ export interface IChatActions {
 	/**
 	 * Accepts or rejects given automoded messages
 	 */
-	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	automodAction(accept:boolean, message:TwitchatDataTypes.MessageChatData):Promise<void>;
 	/**
 	 * Flag a message as a spoiler
 	 * @param message
@@ -1126,6 +1132,15 @@ export interface IParamsState {
 	 * Chat columns definitions
 	 */
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
+	/**
+	 * Live status of each chat column
+	 */
+	chatColumnStates:{
+		/**
+		 * Is chat autoscroll paused?
+		 */
+		paused:boolean
+	}[];
 	/**
 	 * GoXLR configurations
 	 */
@@ -1628,7 +1643,11 @@ export interface ITimerActions {
 	 * Gets current timer/countdown computed value
 	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
+	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string};
+	/**
+	 * Broadcasts the timer list on Public API
+	 */
+	broadcastTimerList():void;
 }
 
 
@@ -1755,6 +1774,10 @@ export interface ITriggersActions {
 	 * trigger will be flagged as disabled
 	 */
 	computeTriggerTreeEnabledStates():void;
+	/**
+	 * Broadcasts current trigger list on Public API
+	 */
+	broadcastTriggerList():void;
 }
 
 
@@ -1780,6 +1803,11 @@ export interface ITTSActions {
 	 */
 	populateData():void;
 	/**
+	 * Updates speaking state
+	 * @param speaking 
+	 */
+	setSpeakingState(speaking:boolean):void;
+	/**
 	 * Read a message via TTS
 	 * @param message
 	 */
@@ -1787,9 +1815,9 @@ export interface ITTSActions {
 	/**
 	 * Start/stop reading any incoming message of a user
 	 * @param user
-	 * @param read
+	 * @param forceRead
 	 */
-	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean):void
+	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, forceRead?:boolean):void
 	/**
 	 * Set text to speech params
 	 * @param params
@@ -2137,6 +2165,7 @@ export interface IVoiceState {
 }
 
 export interface IVoiceGetters {
+	voiceBotConfigured:boolean;
 }
 
 export interface IVoiceActions {
@@ -2379,6 +2408,8 @@ export interface IHeatActions {
 
 export interface IPatreonState {
 	isMember: boolean;
+	userName: string;
+	userAvatar: string;
 	connected: boolean;
 	/**
 	 * Patreon auth flow params
@@ -2612,6 +2643,10 @@ export interface IQnaActions {
 	 * Broadcasts Q&A list to public API
 	 */
 	broadcastQnaList():void
+	/**
+	 * Broadcasts Q&A list on Public API
+	 */
+	broadcastQnAList():void;
 }
 
 
@@ -3131,7 +3166,7 @@ export interface ILabelsActions {
 	/**
 	 * Get a label by its tag
 	 */
-	getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined;
+	getLabelByKey(key:LabelItemPlaceholderTag):string|number|undefined;
 	/**
 	 * Add a new label
 	 */
@@ -3153,13 +3188,18 @@ export interface ILabelsActions {
 	 * @param value
 	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary (only for Twitch users!)
 	 */
-	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void>;
+	updateLabelValue(key:LabelItemPlaceholderTag, value:string|number, userId?:string):Promise<void>;
 	/**
 	 * Updates a numerci label value by adding the given value to it
 	 * @param key
 	 * @param value
 	 */
-	incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
+	incrementLabelValue(key:LabelItemPlaceholderTag, value:number):Promise<void>;
+	/**
+	 * Clears a label value.
+	 * Used when banning a user to clear their avatar/name/... from the overlays
+	 */
+	clearUserLabelValue(userId:string):Promise<void> 
 	/**
 	 * Broadcasts placeholders values to the overlays
 	 */
@@ -3896,4 +3936,150 @@ export interface IEndingCreditsActions {
 	 * Save current ending credits params
 	 */
 	saveParams():Promise<void>;
+}
+
+
+
+
+
+export interface IQuizState {
+	/**
+	 * True when exporting selected settings
+	 */
+	quizList:TwitchatDataTypes.QuizParams[];
+	/**
+	 * Stores current states of live quizes.
+	 * Contains users votes.
+	 */
+	liveState:TwitchatDataTypes.QuizState|null;
+}
+
+export interface IQuizGetters {
+}
+
+export interface IQuizActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Create a new quiz
+	 */
+	addQuiz():TwitchatDataTypes.QuizParams;
+	/**
+	 * Delete a quiz
+	 */
+	removeQuiz(id:string):void;
+	/**
+	 * Duplicates given quiz
+	 * @param id
+	 */
+	duplicateQuiz(id:string):TwitchatDataTypes.QuizParams|undefined;
+	/**
+	 * Registers an answer to a quiz question
+	 * @param platform
+	 * @param quizId 
+	 * @param questionId 
+	 * @param answerId 
+	 * @param answerText 
+	 */
+	handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void>;
+	/**
+	 * Saves data to server
+	 * @param quizId quiz ID. This will broadcast update to overlay
+	 */
+	saveData(quizId?:string, broadcastToOverlayOnly?:boolean, directBroadcast?:boolean):Promise<void>;
+	/**
+	 * Starts the next question of given quiz ID
+	 * @param quizId 
+	 */
+	startNextQuestion(quizId:string):void;
+	/**
+	 * Resets given quiz
+	 * @param quizId 
+	 */
+	resetQuizState(quizId:string, confirm?:boolean):void;
+	/**
+	 * Reveal answer for current question of given quiz ID
+	 * @param quizId 
+	 */
+	revealAnswer(quizId:string):void;
+	/**
+	 * Show leaderboard for given quiz ID
+	 * @param quizId 
+	 */
+	showLeaderBoard(quizId:string):Promise<void>;
+	/**
+	 * Broadcasts currently enabled quiz state to overlays
+	 */
+	broadcastQuizState(overlayOnly?:boolean, directBroadcast?:boolean):void;
+	/**
+	 * Computes and applies scores for all votes on a given question.
+	 * Called from revealAnswer() once voting is closed.
+	 * @param quizId
+	 * @param questionId
+	 */
+	computeQuestionScores(quizId:string, questionId:string):void;
+	/**
+	 * Computes global and relative percents for each answer of given quiz question based on current votes
+	 * Global percent is the actual percent of votes for this answer among all votes
+	 * Relative percent is based on the highest voted answer. Highest voted answer is 100%,
+	 * other answers percent are computed based on that.
+	 * @param quizId 
+	 * @param questionId 
+	 */
+	computeQuestionStats(quizId:string, questionId:string): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>;
+}
+
+
+
+
+
+export interface IStreamfogState {
+	connected:boolean;
+	invalidID:boolean;
+	connecting:boolean;
+	userId:string;
+	lensesList:Lense[]
+	userLensesList:Lense[]
+	videoList:Video[]
+}
+
+export interface IStreamfogGetters {
+}
+
+export interface IStreamfogActions {
+	/**
+	 * Populates the store from user's data
+	 * @param data
+	 */
+	populateData():void;
+	/**
+	 * Connect to streamfog
+	 */
+	connect(userId:string, isReconnect?:boolean):Promise<true|string>;
+	/**
+	 * Lists all lenses available
+	 */
+	listAllLenses():Promise<Lense[]|false>
+	/**
+	 * Lists user lenses
+	 */
+	listUserLenses():Promise<boolean>
+	/**
+	 * Activate given lense for given duration (optional)
+	 */
+	activateLense(lenseId:string, duration_ms?:number):Promise<boolean>
+	/**
+	 * Deactivate any currently active lense
+	 */
+	deactivateLense():Promise<boolean>;
+	/**
+	 * Enables playing a video animation
+	 */
+	playVideoAnimation(videoId:string):Promise<boolean>
+	/**
+	 * Saves current data to server
+	 */
+	saveData():void;
 }

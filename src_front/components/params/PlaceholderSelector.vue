@@ -83,12 +83,10 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import TTButton from '../TTButton.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
-		Icon,
 		TTButton,
 		ToggleBlock,
 	},
@@ -231,7 +229,6 @@ export default toNative(PlaceholderSelector);
 	display: block;
 	max-width: unset;
 	min-width: unset;
-	outline: 1ps solid red;
 	font-size: .8em;
 }
 .tooltipContent {
