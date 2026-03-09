@@ -4097,9 +4097,14 @@ export namespace TwitchatDataTypes {
 		 */
 		currentQuestionRevealed?:boolean;
 		/**
+		 * Contains scores for current question
+		 */
+		currentQuestionScores?: {[uid:string]:number};
+		/**
 		 * Votes for the current question.
 		 */
 		currentQuestionStats?:{
+			// Classic and majority answers
 			[answerId: string]:{
 				/**
 				 * Percentage of votes for this answer compared to all the other answers

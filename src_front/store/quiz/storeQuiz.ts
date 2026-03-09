@@ -79,6 +79,10 @@ export const storeQuiz = defineStore('quiz', {
 	state: () => ({
 		quizList: [],
 		liveState: null,
+		currentFreeAnswerStats: {
+			right: 0,
+			wrong: 0,
+		},
 	} as IQuizState),
 
 
@@ -109,7 +113,7 @@ export const storeQuiz = defineStore('quiz', {
 				const eventData = e.data
 				if(!eventData) return;
 
-				this.handleAnswer("twitch", eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
+				this.handleAnswer("twitch", eventData.delay_ms, eventData.quizId, eventData.questionId, eventData.answerId, eventData.answerText, eventData.userId, eventData.opaqueUserId);
 			})
 		},
 		
@@ -194,13 +198,17 @@ export const storeQuiz = defineStore('quiz', {
 			return clone;
 		},
 
-		async handleAnswer(platform:TwitchatDataTypes.ChatPlatform, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
+		async handleAnswer(platform:TwitchatDataTypes.ChatPlatform, delay_ms:number, quizId:string, questionId:string, answerId?:string, answerText?:string, userId?:string, opaqueUserId?:string):Promise<void> {
 			const quiz = this.quizList.filter(q=>q.id === quizId)[0];
 			if(!quiz || !quiz.enabled) return;
 			const question = quiz.questionList.filter(q=>q.id === questionId)[0];
 			if(!question) return;
 			const uid = userId || opaqueUserId;
 			if(!uid) return;
+
+			// Clamp delay to 10s max or question duration
+			delay_ms = Math.min((question.duration_s || quiz.durationPerQuestion_s || 10) * 1000, delay_ms)
+			const votedAt = new Date(Date.now() - delay_ms).toISOString();
 
 			// Check if question is still accepting answers based on duration
 			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
@@ -224,7 +232,7 @@ export const storeQuiz = defineStore('quiz', {
 			this.liveState.questionVotes[question.id]!.push({
 				uid,
 				answer: answerId ?? answerText ?? "",
-				votedAt: new Date().toISOString(),
+				votedAt,
 			});
 
 			// Get or create user data
@@ -259,12 +267,30 @@ export const storeQuiz = defineStore('quiz', {
 				}
 			}
 
+			if(question.mode === "freeAnswer") {
+				const score = computeAnswerScore({
+					quiz, question,
+					answerId: undefined,
+					answerText: answerText,
+					votedAt,
+					majorityWinnerIds:undefined,
+				});
+				if(score > 0) {
+					this.currentFreeAnswerStats.right ++;
+				}else{
+					this.currentFreeAnswerStats.wrong ++;
+				}
+				userData.score += score;	
+			}
+
 			this.saveData(quizId, true);
 		},
 
 		startNextQuestion(quizId:string):void {
 			const quiz = this.quizList.find(v=>v.id === quizId);
 			if(!quiz) return
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
 			delete quiz.currentQuestionRevealed;
 			delete quiz.currentQuestionStats;
 			quiz.questionStarted_at = new Date().toISOString();
@@ -307,7 +333,7 @@ export const storeQuiz = defineStore('quiz', {
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
 			// Compute scores — must run before resetting questionStarted_at (needed for time-based scoring)
-			this.computeQuestionScores(quizId, quiz.currentQuestionId);
+			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
 			this.saveData(quizId, false, true);
 		},
@@ -339,14 +365,16 @@ export const storeQuiz = defineStore('quiz', {
 			
 		},
 
-		computeQuestionScores(quizId:string, questionId:string):void {
+		computeQuestionScores(quizId:string, questionId:string):{[uid:string]:number} {
 			const quiz = this.quizList.find(v=>v.id === quizId);
-			if(!quiz || !this.liveState) return;
+			if(!quiz || !this.liveState) return {};
 			const question = quiz.questionList.find(q=>q.id === questionId);
-			if(!question) return;
+			if(!question) return {};
 
 			const votes = this.liveState.questionVotes[questionId];
-			if(!votes || votes.length === 0) return;
+			if(!votes || votes.length === 0) return {};
+
+			const summary:{[uid:string]:number} = {};
 
 			// For majority mode, determine the winning answer(s)
 			let majorityWinnerIds:Set<string> | undefined;
@@ -364,14 +392,17 @@ export const storeQuiz = defineStore('quiz', {
 			for(const vote of votes) {
 				const userData = this.liveState.users[vote.uid];
 				if(!userData) continue;
-				userData.score += computeAnswerScore({
+				const score = computeAnswerScore({
 					quiz, question,
 					answerId: question.mode !== "freeAnswer" ? vote.answer : undefined,
 					answerText: question.mode === "freeAnswer" ? vote.answer : undefined,
 					votedAt: vote.votedAt ?? new Date().toISOString(),
 					majorityWinnerIds,
 				});
+				summary[vote.uid] = score;
+				userData.score += score;
 			}
+			return summary
 		},
 
 		computeQuestionStats(quizId:string, questionId:string): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]> {
@@ -393,7 +424,7 @@ export const storeQuiz = defineStore('quiz', {
 				acc[a.id] = {
 					globalPercent: Math.round((votes.filter(v=>v.answer == a.id).length / votes.length)*1000)/1000,
 					relativePercent: Math.round((votes.filter(v=>v.answer == a.id).length / maxVotes)*1000)/1000,
-					voteCount: votes.filter(v=>v.answer == a.id).length
+					voteCount: votes.filter(v=>v.answer == a.id).length,
 				};
 				return acc;
 			}, {} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>);
