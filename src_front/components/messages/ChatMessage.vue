@@ -459,7 +459,7 @@ class ChatMessage extends AbstractChatMessage {
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 
-			watch(()=> mess.twitch_isSuspicious, () => this.updateSuspiciousState());
+			watch(()=> mess.twitch_isSuspicious, () => this.updateBadges());
 			watch(()=> mess.is_saved, () => this.updateSavedState());
 		}
 
@@ -528,7 +528,6 @@ class ChatMessage extends AbstractChatMessage {
 
 		this.staticClasses = staticClasses;
 		this.$store.accessibility.setAriaPolite(this.messageData.message);
-		this.updateSuspiciousState();
 		this.updateBadges();
 	}
 
@@ -689,29 +688,6 @@ class ChatMessage extends AbstractChatMessage {
 	}
 
 	/**
-	 * Called when suspicious state of the user changes
-	 */
-	private updateSuspiciousState():void{
-		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
-
-		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
-		if(users.length > 0) {
-			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 "+this.$t("global.and"));
-		}
-
-		if(this.messageData.twitch_isSuspicious
-		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER) == -1) {
-			let tt = users.length > 0? this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
-			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER, label:users.length > 1? "(x"+users.length+")" : "", tooltip:tt});
-		}
-
-		if(this.messageData.twitch_isRestricted
-		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER) == -1) {
-			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
-		}
-	}
-
-	/**
 	 * Called when "saved" state is changed
 	 */
 	private updateSavedState():void{
@@ -772,6 +748,15 @@ class ChatMessage extends AbstractChatMessage {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 
+			if(this.messageData.twitch_isSuspicious) {
+				let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
+				if(users.length > 0) {
+					this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 "+this.$t("global.and"));
+				}
+				let tt = users.length > 0? this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER, label:users.length > 1? "(x"+users.length+")" : "", tooltip:tt});
+			}
+
 			if(mess.twitch_isRestricted)				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
 			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
 			if((mess.twitch_watchStreak || 0) > 0)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WATCH_STREAK, label:mess.twitch_watchStreak!.toString()});
@@ -791,7 +776,7 @@ class ChatMessage extends AbstractChatMessage {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
 			}
 		}
-
+		
 		this.infoBadges = infoBadges;
 	}
 }
@@ -933,7 +918,6 @@ export default toNative(ChatMessage);
 	}
 
 	&.censor {
-
 		&.deleted, .messageChild.deleted {
 			.message, &.messageChild.deleted {
 				.text, .textTranslation { display: none; }
@@ -948,12 +932,13 @@ export default toNative(ChatMessage);
 		}
 	}
 
-	&.deleted:not(.censor) {
-
+	&.deleted {
 		opacity: .35;
 		transition: opacity .2s;
-		.message, &.messageChild.deleted {
-			text-decoration: line-through;
+		&:not(.censor) {
+			.message, &.messageChild.deleted {
+				text-decoration: line-through;
+			}
 		}
 		&:hover{
 			opacity: 1;
@@ -1004,7 +989,6 @@ export default toNative(ChatMessage);
 	}
 	.mod {
 		display: inline-flex;
-		margin-right: .4em;
 		vertical-align: middle;
 	}
 
@@ -1028,16 +1012,17 @@ export default toNative(ChatMessage);
 	}
 
 	.userBadges {
-		display: inline;
-		margin-right: .4em;
+		gap: 2px;
+		display: inline-flex;
+		flex-direction: row;
 		color: var(--color-text);
+		margin-right: .25em;
 	}
 
 	.badge, :deep(.customUserBadge) {
 		width: 1em;
 		height: 1em;
 		vertical-align: middle;
-		margin-right: .25em;
 
 		&.mini {
 			display: inline-block;
@@ -1060,10 +1045,6 @@ export default toNative(ChatMessage);
 			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
 			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
 			&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
-		}
-
-		&:last-child {
-			margin-right: 0;
 		}
 	}
 
