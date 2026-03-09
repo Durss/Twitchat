@@ -322,7 +322,7 @@
 				<transition name="blink">
 					<ButtonNotification class="quiz"
 						icon="quiz"
-						v-if="$store.quiz.quizList.filter(v=>v.enabled).length > 0"
+						v-if="$store.quiz.quizList.filter(v=>v.enabled && v.questionList.length > 0).length > 0"
 						:aria-label="$t('chat.form.quizBt_aria')"
 						v-tooltip="{touch:'hold', content:$t('chat.form.quizBt_aria')}"
 						@click="openNotifications('quiz')" />
@@ -991,16 +991,6 @@ export class ChatForm extends Vue {
 			//App version
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
 			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
-			this.message = "";
-		}else
-
-		if(cmd == "/__quiz_answer") {
-			const quiz = this.$store.quiz.quizList.filter(v=>v.enabled)[0]!;
-			const text = params.join(" ");
-			const index = parseInt(text);
-			const question = quiz.questionList.find(v=>v.id == quiz.currentQuestionId)!;
-			const answer = question.mode == "freeAnswer"? text : question.answerList[index - 1]!.id;
-			this.$store.quiz.handleAnswer("twitch", quiz.id, quiz.currentQuestionId, answer, answer, this.$store.auth.twitch.user.id);
 			this.message = "";
 		}else
 

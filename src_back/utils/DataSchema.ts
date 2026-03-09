@@ -2751,6 +2751,11 @@ const UserDataSchema = {
 							quizStarted_at: { type: "string", maxLength:150 },
 							currentQuestionId: { type: "string", maxLength:50 },
 							currentQuestionRevealed: { type: "boolean" },
+							currentQuestionScores: {
+								type: "object",
+								propertyNames: { maxLength: 50 },
+								additionalProperties: { type: "number", minimum:-100_000_000_000, maximum:100_000_000_000 },
+							},
 							currentQuestionStats: {
 								type:"object",
 								maxProperties: 10,
