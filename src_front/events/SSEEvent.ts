@@ -161,12 +161,28 @@ export type EventTypeMap = {
 		userId?: string;
 	};
 	TWITCHEXT_QUIZ_ANSWER: {
-		quizId: string;
-		questionId: string;
-		answerId?: string;
-		answerText?: string;
 		userId?: string;
 		opaqueUserId: string;
+		/**
+		 * The ID of the quiz being answered.
+		 */
+		quizId: string;
+		/**
+		 * The ID of the question being answered.
+		 */
+		questionId: string;
+		/**
+		 * For non-free answer questions, the ID of the selected answer.
+		 */
+		answerId?: string;
+		/**
+		 * For free answer questions, the raw text answer provided by the user.
+		 */
+		answerText?: string;
+		/**
+		 * Delay with streamer
+		 */
+		delay_ms: number;
 	};
 	
 }
