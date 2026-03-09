@@ -2,7 +2,7 @@
 	<div class="quizstate gameStateWindow" v-if="currentQuiz">
 		<div class="head" v-stickyTopShadow>
 			<div class="subHolder">
-				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title}}</h1>
+				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title || $t('quiz.form.title')}}</h1>
 				<div class="subtitle" v-if="currentQuestion">
 					<span>{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</span>
 				</div>
@@ -62,7 +62,7 @@
 				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
 					<div class="answer"
 					:class="{correct:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
-					:style="{backgroundPositionX: 100-liveStats[answer.id]!.relativePercent * 100 + '%'}"
+					:style="{backgroundPositionX: 100 - liveStats[answer.id]!.relativePercent * 100 + '%'}"
 					v-for="(answer, index) in currentQuestion.answerList">
 						<template v-if="$utils.isClassicQuizAnswer(currentQuestion.mode, answer)">
 							<icon class="validity" name="checkmark" v-if="answer.correct" />
@@ -76,7 +76,12 @@
 						</div>
 					</div>
 				</div>
-				<div class="answer selected" v-else>{{ currentQuestion.answer }}</div>
+				<div class="answer" v-else>
+					<span>{{ currentQuestion.answer }}</span>
+					<span class="right"><Icon name="checkmark"/>{{store.currentFreeAnswerStats.right}}</span>
+					<span class="wrong"><Icon name="cross"/>{{store.currentFreeAnswerStats.wrong}}</span>
+				</div>
+				<div>{{ store.liveState?.questionVotes[currentQuestion.id]?.map(v => v.answer).join(", ") }}</div>
 			</template>
 
 			<OverlayPresenceChecker
@@ -126,13 +131,14 @@ renderFrame();
 async function fakeVote():Promise<void> {
 	if(!fakeVotes.value || !currentQuestion.value || !showProgressbar.value) return;
 	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
+	let delayMs = Math.random() * 5000;
 	if(currentQuestion.value.mode !== "freeAnswer") {
 		const answer = Utils.pickRand(currentQuestion.value.answerList);
 		const answerId = answer.id;
-		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
+		store.handleAnswer("twitch", delayMs, currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
 	}else{
 		const answer = Math.random() > .5? currentQuestion.value.answer : "Wrong answer ";
-		store.handleAnswer("twitch", currentQuizId.value!, currentQuestion.value.id, undefined, answer, fakeUserId);
+		store.handleAnswer("twitch", delayMs, currentQuizId.value!, currentQuestion.value.id, undefined, answer, fakeUserId);
 	}
 }
 let fakeVoteInterval:number;
@@ -270,6 +276,21 @@ onBeforeUnmount(() => {
 				color: #ffffff;
 				height: .8em;
 			}
+		}
+
+		.right {
+			.icon {
+				color: #fff;
+			}
+		}
+		.right, .wrong {
+			display: inline-flex;
+			gap: .25em;
+			align-items: center;
+			font-size: .9em;
+			font-weight: bold;
+			padding-left: .5em;
+			border-left: 1px solid rgba(255, 255, 255, .5);
 		}
 
 		&.correct {
