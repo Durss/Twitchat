@@ -66,6 +66,7 @@ onBeforeUnmount(() => {
 .triggersearchform {
 	display: flex;
 	flex-direction: column;
+	color: var(--color-text);
 
 	.search {
 		display: flex;
