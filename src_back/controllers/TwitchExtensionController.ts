@@ -183,7 +183,7 @@ export default class TwitchExtensionController extends AbstractController {
 			/**
 			 * For non-free answer questions, the ID of the selected answer.
 			 */
-			answerId: string;
+			answerId?: string;
 			/**
 			 * For free answer questions, the raw text answer provided by the user.
 			 */
@@ -191,7 +191,7 @@ export default class TwitchExtensionController extends AbstractController {
 			/**
 			 * Delay with streamer
 			 */
-			delay?: number;
+			delay_ms: number;
 		};
 		
 		try {
@@ -200,6 +200,7 @@ export default class TwitchExtensionController extends AbstractController {
 				questionId: params.questionId,
 				answerId: params.answerId,
 				answerText: params.answerText,
+				delay_ms: params.delay_ms,
 				userId: request.twitchExtensionUser!.user_id,
 				opaqueUserId: request.twitchExtensionUser!.opaque_user_id,
 			})
