@@ -124,6 +124,9 @@ export default class PublicAPI extends EventDispatcher {
 	public broadcastGlobalStates():void {
 		if(this._isMainApp == false) return;
 		const lastAutomod = StoreProxy.chat.pendingAutomodMessages[ StoreProxy.chat.pendingAutomodMessages.length -1 ];
+		const currentQuiz = StoreProxy.quiz.quizList.find(v=>v.enabled);
+		const currentQuizQuestion = currentQuiz?.questionList.find(v=>v.id == currentQuiz.currentQuestionId);
+		const currentQuizQuestionIndex = currentQuiz?.questionList.findIndex(v=>v.id == currentQuiz.currentQuestionId) ?? -1;
 		const states:TwitchatEventMap["ON_GLOBAL_STATES"] = {
 			activeCountdowns: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "countdown").map(({overlayParams, placeholderKey, ...rest}) => rest),
 			activeTimers: StoreProxy.timers.timerList.filter(v=>v.startAt_ms && v.type == "timer").map(({overlayParams, placeholderKey, ...rest}) => rest),
@@ -146,6 +149,15 @@ export default class PublicAPI extends EventDispatcher {
 			chatColConfs: StoreProxy.params.chatColumnStates,
 			animatedTextList:StoreProxy.animatedText.animatedTextList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
 			bingoGridList:StoreProxy.bingoGrid.gridList.map(v=> ({id:v.id, enabled:v.enabled, name:v.title})),
+			currentQuiz:currentQuiz? {
+				id: currentQuiz.id,
+				name: currentQuiz.title,
+				timerStartedAt: currentQuiz.questionStarted_at,
+				questionDuration_ms: (currentQuizQuestion?.duration_s ?? currentQuiz.durationPerQuestion_s ?? 10) * 1000,
+				answerRevealed: currentQuiz.currentQuestionRevealed == true,
+				questionIndex: currentQuizQuestionIndex,
+				totalQuestions: currentQuiz.questionList.length,
+			} : undefined,
 			pendingAutomodMessage: !lastAutomod? null : {
 					channel: lastAutomod.channel_id,
 					message: lastAutomod.message,
