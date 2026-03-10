@@ -109,6 +109,24 @@ export const storeQuiz = defineStore('quiz', {
 				this.broadcastQuizState(true);
 			});
 
+			PublicAPI.instance.addEventListener("SET_QUIZ_NEXT_QUESTION", (e) => {
+				const quiz = this.quizList.find(q=>q.enabled);
+				if(!quiz) return;
+				this.startNextQuestion(quiz.id);
+			});
+			
+			PublicAPI.instance.addEventListener("SET_QUIZ_REVEAL", (e) => {
+				const quiz = this.quizList.find(q=>q.enabled);
+				if(!quiz) return;
+				this.revealAnswer(quiz.id);
+			});
+
+			PublicAPI.instance.addEventListener("SET_QUIZ_TOGGLE_LEADERBOARD", (e) => {
+				const quiz = this.quizList.find(q=>q.enabled);
+				if(!quiz) return;
+				this.showLeaderBoard(quiz.id);
+			});
+			
 			SSEHelper.instance.addEventListener("TWITCHEXT_QUIZ_ANSWER", async (e)=> {
 				const eventData = e.data
 				if(!eventData) return;
@@ -312,8 +330,8 @@ export const storeQuiz = defineStore('quiz', {
 				quiz.currentQuestionId = "";
 				delete quiz.currentQuestionRevealed;
 				delete quiz.currentQuestionStats;
-				quiz.quizStarted_at = new Date(0).toISOString();
-				quiz.questionStarted_at = new Date(0).toISOString()
+				quiz.quizStarted_at = "";
+				quiz.questionStarted_at = "";
 				if(this.liveState?.quizId == quizId) this.liveState = null;
 				this.saveData(quizId, false, true);
 			}
@@ -353,6 +371,7 @@ export const storeQuiz = defineStore('quiz', {
 				mode_freeAnswer: StoreProxy.i18n.t("quiz.form.mode_freeAnswer.title"),
 			};
 			PublicAPI.instance.broadcast("ON_QUIZ_STATE", {quiz, i18n});
+			PublicAPI.instance.broadcastGlobalStates();
 			if(!overlayOnly) {
 				// Debounce server broadcast
 				window.clearTimeout(broadcastDebounceTO);
