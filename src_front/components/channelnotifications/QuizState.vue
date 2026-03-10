@@ -81,7 +81,7 @@
 					<span class="right"><Icon name="checkmark"/>{{store.currentFreeAnswerStats.right}}</span>
 					<span class="wrong"><Icon name="cross"/>{{store.currentFreeAnswerStats.wrong}}</span>
 				</div>
-				<div>{{ store.liveState?.questionVotes[currentQuestion.id]?.map(v => v.answer).join(", ") }}</div>
+				<!-- <div>{{ store.liveState?.questionVotes[currentQuestion.id]?.map(v => v.answer).join(", ") }}</div> -->
 			</template>
 
 			<OverlayPresenceChecker
