@@ -1934,6 +1934,18 @@ export type TwitchatEventMap = {
 	 * Receive quiz overlay leaderboard
 	 */
 	ON_QUIZ_LEADERBOARD: {leaderboard: TwitchatDataTypes.QuizState["users"]};
+	/**
+	 * Reveals the answer for current quiz question
+	 */
+	SET_QUIZ_REVEAL: void;
+	/**
+	 * Moves to the next question in the current quiz
+	 */
+	SET_QUIZ_NEXT_QUESTION: void;
+	/**
+	 * Toggle quiz leaderboard display
+	 */
+	SET_QUIZ_TOGGLE_LEADERBOARD: void;
 	
 	/**
 	 * Requests for global states
@@ -2057,6 +2069,42 @@ export type TwitchatEventMap = {
 			 */
 			enabled: boolean;
 		}[];
+		/**
+		 * Contains currently enabled quiz info.
+		 */
+		currentQuiz?: {
+			/**
+			 * Animated text ID
+			 */
+			id: string;
+			/**
+			 * Animated text name
+			 */
+			name: string;
+			/**
+			 * Timer start time, in ISO format
+			 */
+			timerStartedAt: string;
+			/**
+			 * Current question duration
+			 */
+			questionDuration_ms: number;
+			/**
+			 * Is current answer revealed?
+			 */
+			answerRevealed: boolean;
+			/**
+			 * Question index
+			 */
+			questionIndex: number;
+			/**
+			 * Total number of questions
+			 */
+			totalQuestions: number;
+		};
+		/**
+		 * Details about a message pending for automod review.
+		 */
 		pendingAutomodMessage: {
 			/**
 			 * Channel ID where the message was sent
