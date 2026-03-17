@@ -35,7 +35,7 @@
 			
 			<OverlayPresenceChecker
 				:overlayName="$t('poll.state.overlay_name')"
-				:overlayType="'poll'" />
+				:overlayType="'polls'" />
 		</div>
 	</div>
 </template>
