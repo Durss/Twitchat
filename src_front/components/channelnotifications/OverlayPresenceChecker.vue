@@ -39,7 +39,6 @@ const props = defineProps<{
 
 async function showOverlay():Promise<void> {
 	if(overlaySource.value) {
-		checkingOverlay.value = true;
 		await OBSWebsocket.instance.socket.call("SetSceneItemEnabled", {sceneItemEnabled:true, sceneItemId:overlaySource.value.sceneItemId, sceneName:overlaySource.value.sceneName!});
 		checkOverlay();
 	}
@@ -81,6 +80,7 @@ async function checkOverlay():Promise<void> {
 				});
 				overlaySource.value = source;
 				localSourceVisible ||= visibleRes.sceneItemEnabled;
+				break;
 			}
 		}
 	}

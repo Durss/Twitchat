@@ -49,7 +49,7 @@
 			
 			<OverlayPresenceChecker
 				:overlayName="$t('prediction.state.overlay_name')"
-				:overlayType="'prediction'" />
+				:overlayType="'predictions'" />
 		</div>
 	</div>
 </template>
