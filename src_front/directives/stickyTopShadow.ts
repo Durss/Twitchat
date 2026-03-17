@@ -12,7 +12,7 @@ type ElWithState = HTMLElement & {
 
 export const stickyTopShadow: Directive<ElWithState, StickyOptions | undefined> = {
   mounted(el, binding) {
-    const HYSTERESIS = 10; // px buffer to prevent oscillation
+    const HYSTERESIS = 16; // px buffer to prevent oscillation
     const className = binding.value?.className ?? "is-stuck";
     const root = binding.value?.root ?? null;
 
