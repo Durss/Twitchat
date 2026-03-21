@@ -1,13 +1,30 @@
 <template>
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
-		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()" ref="input">
+		<input
+			type="range"
+			v-model.number="localValue"
+			:min="min"
+			:max="max"
+			:step="step"
+			@pointerdown.capture.stop=""
+			@input="renderBar()"
+			ref="input"
+		/>
 		<div class="gratuations" :style="gratuationsStyles"></div>
 		<div class="fill" :style="fillStyles"></div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { watch, type CSSProperties, ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
+import {
+	watch,
+	type CSSProperties,
+	ref,
+	computed,
+	onMounted,
+	onBeforeUnmount,
+	getCurrentInstance,
+} from "vue";
 
 interface Props {
 	secondary?: boolean;
@@ -36,10 +53,10 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-	'update:modelValue': [value: number];
-	'stop': [];
-	'start': [];
-	'change': [value: number];
+	"update:modelValue": [value: number];
+	stop: [];
+	start: [];
+	change: [value: number];
 }>();
 
 const instance = getCurrentInstance();
@@ -54,53 +71,53 @@ let mouseMoveHandler: (e: PointerEvent) => void;
 
 const classes = computed(() => {
 	let res: string[] = ["slider"];
-	if(props.secondary !== false) res.push("secondary");
-	if(props.alert !== false) res.push("alert");
-	if(props.premium !== false) res.push("premium");
-	if(props.light) res.push("light");
-	if(props.disabled) res.push("disabled");
-	if(props.dotMode) res.push("dotMode");
+	if (props.secondary !== false) res.push("secondary");
+	if (props.alert !== false) res.push("alert");
+	if (props.premium !== false) res.push("premium");
+	if (props.light) res.push("light");
+	if (props.disabled) res.push("disabled");
+	if (props.dotMode) res.push("dotMode");
 	return res;
 });
 
 const fillStyles = computed<CSSProperties>(() => {
-	if(props.dotMode !== false) {
+	if (props.dotMode !== false) {
 		return {
-			left: (fillPercent.value * 100)+"%"
+			left: fillPercent.value * 100 + "%",
 		};
-	}else{
+	} else {
 		return {
-			width: (fillPercent.value * 100)+"%"
+			width: fillPercent.value * 100 + "%",
 		};
 	}
 });
 
 const gratuationsStyles = computed<CSSProperties>(() => {
 	const ratio = Math.abs(props.max - props.min) / props.step;
-	if(ratio > 50) return {backgroundSize:"110%, 50%"};
+	if (ratio > 50) return { backgroundSize: "110%, 50%" };
 	return {
-		backgroundSize: (100/ratio)+"% 50%",
+		backgroundSize: 100 / ratio + "% 50%",
 	};
 });
 
 function renderBar(): void {
-	fillPercent.value = (localValue.value - props.min)/(props.max - props.min);
+	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
 	emit("update:modelValue", localValue.value);
 	emit("change", localValue.value);
 }
 
 function onMouseWheel(e?: WheelEvent): void {
 	//Don't allow control via mouse wheel if not focused
-	if(document.activeElement != input.value) return;
+	if (document.activeElement != input.value) return;
 
-	const add = e? (e.deltaY > 0)? -1 : 1 : 0;
+	const add = e ? (e.deltaY > 0 ? -1 : 1) : 0;
 	let v = localValue.value + add * props.step;
 	//Rounding to compensate for bad JS maths.
 	//For JS: 0.2 + 0.1 = 0.30000000000000004
-	v = Math.round(v/props.step) / (1/props.step);
+	v = Math.round(v / props.step) / (1 / props.step);
 	const nonClampedValue = v;
 	v = Math.max(props.min, Math.min(props.max, v));
-	if(v === nonClampedValue && e) e.preventDefault();
+	if (v === nonClampedValue && e) e.preventDefault();
 	localValue.value = v;
 	renderBar();
 	emit("stop");
@@ -119,16 +136,17 @@ function onMouseDown(e: PointerEvent): void {
 }
 
 function onMouseMove(e: PointerEvent): void {
-	if(!pressed.value) return;
+	if (!pressed.value) return;
 
-	const bounds = (instance?.proxy?.$el as HTMLElement).getBoundingClientRect();
+	const bounds = (instance?.proxy?.$el as HTMLElement)?.getBoundingClientRect();
+	if (!bounds) return;
 	//Compute percent of the width clicked
 	let percent = Math.max(0, Math.min(1, (e.clientX - bounds.left) / bounds.width));
 	//Compute value and round it to the nearest step
 	let value = percent * (props.max - props.min) + props.min;
 	//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
 	//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
-	value = Math.round(value/props.step) / (1/props.step);
+	value = Math.round(value / props.step) / (1 / props.step);
 	//Set local values
 	localValue.value = value;
 	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
@@ -140,7 +158,7 @@ function updateLimit(): void {
 	let value = fillPercent.value * (props.max - props.min) + props.min;
 	//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
 	//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
-	value = Math.round(value/props.step) / (1/props.step);
+	value = Math.round(value / props.step) / (1 / props.step);
 	//Set local values
 	localValue.value = value;
 	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
@@ -154,12 +172,21 @@ onMounted(() => {
 	document.addEventListener("pointerup", mouseUpHandler);
 	document.addEventListener("pointermove", mouseMoveHandler);
 
-	watch(() => props.min, () => updateLimit());
-	watch(() => props.max, () => updateLimit());
-	watch(() => props.modelValue, () => {
-		localValue.value = props.modelValue;
-		renderBar();
-	});
+	watch(
+		() => props.min,
+		() => updateLimit(),
+	);
+	watch(
+		() => props.max,
+		() => updateLimit(),
+	);
+	watch(
+		() => props.modelValue,
+		() => {
+			localValue.value = props.modelValue;
+			renderBar();
+		},
+	);
 });
 
 onBeforeUnmount(() => {
@@ -169,7 +196,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="less">
-.slider{
+.slider {
 	.bevel();
 	height: 1em;
 	position: relative;
@@ -194,7 +221,7 @@ onBeforeUnmount(() => {
 		background-repeat: repeat-x;
 		background-position: left center;
 	}
-	
+
 	.fill {
 		.emboss();
 		position: relative;
@@ -235,10 +262,10 @@ onBeforeUnmount(() => {
 	}
 
 	&.disabled {
-		opacity: .5;
+		opacity: 0.5;
 		pointer-events: none;
 	}
-	
+
 	&.secondary {
 		background-color: var(--color-secondary-fadest);
 		.fill {
@@ -246,10 +273,15 @@ onBeforeUnmount(() => {
 		}
 		.gratuations {
 			@c2: var(--color-secondary-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.alert {
 		background-color: var(--color-alert-fadest);
 		.fill {
@@ -257,10 +289,15 @@ onBeforeUnmount(() => {
 		}
 		.gratuations {
 			@c2: var(--color-alert-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.light {
 		background-color: var(--color-light-fadest);
 		.fill {
@@ -268,10 +305,15 @@ onBeforeUnmount(() => {
 		}
 		.gratuations {
 			@c2: var(--color-light-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.premium {
 		background-color: var(--color-premium-fadest);
 		.fill {
@@ -279,7 +321,12 @@ onBeforeUnmount(() => {
 		}
 		.gratuations {
 			@c2: var(--color-premium-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
 }

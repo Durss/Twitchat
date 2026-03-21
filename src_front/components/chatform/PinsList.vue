@@ -1,9 +1,12 @@
 <template>
 	<div class="pinslist blured-background-window">
 		<div class="scrollable">
-			<button v-for="pin in pinList" v-tooltip="pin.label || $t(pin.labelKey)"
-			:class="{pinned: pin.pinned}"
-			@click="togglePin(pin.id)">
+			<button
+				v-for="pin in pinList"
+				v-tooltip="pin.label || $t(pin.labelKey)"
+				:class="{ pinned: pin.pinned }"
+				@click="togglePin(pin.id)"
+			>
 				<icon :name="pin.icon" class="icon" />
 				<span class="label">{{ pin.label || $t(pin.labelKey) }}</span>
 			</button>
@@ -12,83 +15,90 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import { gsap } from 'gsap/gsap-core';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
+import { TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import { gsap } from "gsap/gsap-core";
+import { Component, toNative, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{},
-	emits:["close"],
+	components: {},
+	emits: ["close"],
 })
 class PinsList extends Vue {
-
-	private clickHandler!:(e:MouseEvent) => void;
+	private clickHandler!: (e: MouseEvent) => void;
 
 	public get pinList() {
-		const pins = TwitchatDataTypes.PinnableMenuItems.map(v=> {
+		const pins = TwitchatDataTypes.PinnableMenuItems.map((v) => {
 			return {
-				id:v.id,
-				icon:v.icon,
-				label:"",
-				labelKey:v.labelKey,
+				id: v.id,
+				icon: v.icon,
+				label: "",
+				labelKey: v.labelKey,
 				pinned: this.$store.params.pinnedMenuItems.includes(v.id),
-			}
+			};
 		});
-		const triggerPins: typeof pins[0][] = [];
-		this.$store.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND).forEach(trigger => {
-			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
-			triggerPins.push({
-				id:`trigger:${trigger.id}`,
-				icon:"broadcast",
-				label:triggerInfo.label,
-				labelKey:triggerInfo.labelKey || "",
-				pinned: this.$store.params.pinnedMenuItems.includes(`trigger:${trigger.id}`),
+		const triggerPins: (typeof pins)[0][] = [];
+		this.$store.triggers.triggerList
+			.filter((v) => v.type == TriggerTypes.SLASH_COMMAND)
+			.forEach((trigger) => {
+				const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
+				triggerPins.push({
+					id: `trigger:${trigger.id}`,
+					icon: "broadcast",
+					label: triggerInfo.label,
+					labelKey: triggerInfo.labelKey || "",
+					pinned: this.$store.params.pinnedMenuItems.includes(`trigger:${trigger.id}`),
+				});
 			});
-		});
 		return [...pins, ...triggerPins];
 	}
 
-	public mounted():void {
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+	public mounted(): void {
+		this.clickHandler = (e: MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
-	public togglePin(id:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void {
+	public togglePin(id: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): void {
 		this.$store.params.toggleChatMenuPin(id);
 	}
 
-	private open():void {
+	private open(): void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+		gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
 	}
 
-	private close():void {
+	private close(): void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY", ease:"back.in", onComplete:() => {
-			this.$emit("close");
-		}});
+		gsap.to(ref, {
+			duration: 0.2,
+			scaleY: 0,
+			delay: 0.1,
+			clearProps: "scaleY",
+			ease: "back.in",
+			onComplete: () => {
+				this.$emit("close");
+			},
+		});
 	}
 
-	private onClick(e:MouseEvent):void {
+	private onClick(e: MouseEvent): void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref && target) {
+		while (target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
-		if(target != ref) {
+		if (target != ref) {
 			this.close();
 		}
 	}
-
 }
 export default toNative(PinsList);
 </script>
@@ -97,7 +107,7 @@ export default toNative(PinsList);
 .pinslist {
 	max-width: 500px;
 	max-height: 300px;
-	
+
 	.scrollable {
 		max-width: 500px;
 		display: grid;
@@ -108,16 +118,16 @@ export default toNative(PinsList);
 	}
 
 	button {
-		padding: .5em;
+		padding: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		color: var(--color-text);
 		border-radius: var(--border-radius);
-			user-select: none;
+		user-select: none;
 
-		&:hover{
+		&:hover {
 			background-color: var(--color-primary-fader);
 		}
 		&.pinned {

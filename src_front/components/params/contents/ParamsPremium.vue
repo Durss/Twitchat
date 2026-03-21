@@ -1,103 +1,136 @@
 <template>
 	<div class="paramspremium parameterContent">
 		<Icon name="premium" class="icon" />
-		
+
 		<div class="head">{{ $t("premium.header") }}</div>
-		
+
 		<div class="card-item userInfo" v-if="$store.patreon.connected">
-			<div class="title"><Icon name="patreon" /> {{ $t('patreon.connected_as') }}</div>
+			<div class="title"><Icon name="patreon" /> {{ $t("patreon.connected_as") }}</div>
 			<div class="info">
 				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
 				<span class="name">{{ $store.patreon.userName }}</span>
 			</div>
-			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{
+				$t("global.disconnect")
+			}}</TTButton>
 		</div>
 
 		<ParamsAccountPatreon />
 
 		<div class="card-item premium lifetimePremiumProgress" v-if="showProgress">
 			<div class="info">{{ $t("premium.progress") }}</div>
-			<div class="card-item progressBar" :style="{backgroundSize:lifetimePercent+'% 100%'}">
-				<div class="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
-				<div class="labelOver" ref="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
+			<div
+				class="card-item progressBar"
+				:style="{ backgroundSize: lifetimePercent + '% 100%' }"
+			>
+				<div class="label">
+					{{ Math.round((lifetimePercent / 100) * $config.LIFETIME_DONOR_VALUE) }}€ /
+					{{ $config.LIFETIME_DONOR_VALUE }}€
+				</div>
+				<div class="labelOver" ref="label">
+					{{ Math.round((lifetimePercent / 100) * $config.LIFETIME_DONOR_VALUE) }}€ /
+					{{ $config.LIFETIME_DONOR_VALUE }}€
+				</div>
 			</div>
-			<TTButton class="donateBt" @click="openDonate()" light premium icon="coin">{{ $t("params.categories.sponsor") }}</TTButton>
+			<TTButton class="donateBt" @click="openDonate()" light premium icon="coin">{{
+				$t("params.categories.sponsor")
+			}}</TTButton>
 		</div>
 
 		<SponsorTable />
 
 		<div class="footer">
-			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
-			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
-			<a :href="'mailto:'+$config.CONTACT_MAIL">{{ $t("global.contact", {MAIL:$config.CONTACT_MAIL}) }}</a>
+			<a :href="$router.resolve({ name: 'privacypolicy' }).href" target="_blank">{{
+				$t("global.privacy")
+			}}</a>
+			<a :href="$router.resolve({ name: 'termsofuse' }).href" target="_blank">{{
+				$t("global.terms")
+			}}</a>
+			<a :href="'mailto:' + $config.CONTACT_MAIL">{{
+				$t("global.contact", { MAIL: $config.CONTACT_MAIL })
+			}}</a>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import Icon from '@/components/Icon.vue';
-import SponsorTable from '@/components/premium/SponsorTable.vue';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
-import { gsap } from 'gsap/gsap-core';
-import TTButton from '@/components/TTButton.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Icon from "@/components/Icon.vue";
+import SponsorTable from "@/components/premium/SponsorTable.vue";
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import ParamsAccountPatreon from "./account/ParamsAccountPatreon.vue";
+import { gsap } from "gsap/gsap-core";
+import TTButton from "@/components/TTButton.vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		SponsorTable,
 		ParamsAccountPatreon,
 	},
-	emits:[],
+	emits: [],
 })
 class ParamsPremium extends Vue {
+	public get lifetimePercent(): number {
+		return this.lifetimePercentEased;
+	}
+	public get showProgress(): boolean {
+		return (
+			this.$store.auth.premiumType != "lifetime" &&
+			this.$store.auth.premiumType != "gifted" &&
+			this.lifetimePercent > 0 &&
+			this.lifetimePercent < 100
+		);
+	}
 
-	public get lifetimePercent():number { return this.lifetimePercentEased; }
-	public get showProgress():boolean { return this.$store.auth.premiumType != 'lifetime' && this.$store.auth.premiumType != 'gifted' && this.lifetimePercent > 0 && this.lifetimePercent < 100; }
-	
-	public lifetimePercentEased:number = 0;
+	public lifetimePercentEased: number = 0;
 
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		const lifetime = this.$store.auth.lifetimePremiumPercent * 100;
-		if(this.showProgress) {
-			await this.$nextTick();//wait for the progress bar to build
-			this.lifetimePercentEased = .0001;
-			gsap.to(this, {lifetimePercentEased:lifetime, duration:2, ease:"sine.out", onUpdate:()=>{
-				const label = this.$refs.label as HTMLDivElement;
-				label.style.clipPath = `polygon(0 0, ${this.lifetimePercentEased}% 0, ${this.lifetimePercentEased}% 100%, 0 100%)`;
-			}});
+		if (this.showProgress) {
+			await this.$nextTick(); //wait for the progress bar to build
+			this.lifetimePercentEased = 0.0001;
+			gsap.to(this, {
+				lifetimePercentEased: lifetime,
+				duration: 2,
+				ease: "sine.out",
+				onUpdate: () => {
+					const label = this.$refs.label as HTMLDivElement;
+					label.style.clipPath = `polygon(0 0, ${this.lifetimePercentEased}% 0, ${this.lifetimePercentEased}% 100%, 0 100%)`;
+				},
+			});
 		}
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		gsap.killTweensOf(this);
 	}
 
-	public openDonate():void {
-		this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING);
+	public openDonate(): void {
+		this.$store.params.openParamsPage(
+			"donate",
+			TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING,
+		);
 	}
-
 }
 export default toNative(ParamsPremium);
 </script>
 
 <style scoped lang="less">
 .paramspremium {
-
 	.userInfo {
 		margin: auto;
 		display: flex;
 		flex-direction: column;
-		gap: .25em;
+		gap: 0.25em;
 		.info {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			flex-wrap: wrap;
-			gap: .5em;
-			padding: .25em .5em;
+			gap: 0.5em;
+			padding: 0.25em 0.5em;
 			.avatar {
 				width: 1.75em;
 				height: 1.75em;
@@ -117,7 +150,7 @@ export default toNative(ParamsPremium);
 		line-height: 1.25em;
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
 	}
@@ -129,11 +162,11 @@ export default toNative(ParamsPremium);
 			display: block;
 			font-size: 1.2em;
 			text-align: center;
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
 	}
 	.footer {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -144,22 +177,29 @@ export default toNative(ParamsPremium);
 		margin: 1em 0;
 		background-color: var(--color-premium);
 		font-weight: bold;
-		.info  {
+		.info {
 			text-align: center;
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
 		.progressBar {
 			position: relative;
 			margin: auto;
 			width: calc(100% - 1em);
 			padding: 1em;
-			@scale:2px;
-			box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
+			@scale: 2px;
+			box-shadow:
+				inset -@scale -@scale @scale rgba(255, 255, 255, 0.1),
+				inset @scale @scale @scale rgba(0, 0, 0, 0.3);
 			background-color: var(--color-light-fade);
-			background-image: linear-gradient(90deg, var(--color-light) 0%, var(--color-light) 100%);
+			background-image: linear-gradient(
+				90deg,
+				var(--color-light) 0%,
+				var(--color-light) 100%
+			);
 			background-repeat: no-repeat;
 			background-size: 0% 100%;
-			.label, .labelOver {
+			.label,
+			.labelOver {
 				.center();
 				color: #ffffff;
 				position: absolute;
@@ -172,12 +212,12 @@ export default toNative(ParamsPremium);
 
 			.labelOver {
 				color: var(--color-premium);
-				text-shadow: 1px 1px 2px #000000A0;
+				text-shadow: 1px 1px 2px #000000a0;
 			}
 		}
 		.donateBt {
 			display: flex;
-			margin: .5em auto 0 auto;
+			margin: 0.5em auto 0 auto;
 		}
 	}
 }

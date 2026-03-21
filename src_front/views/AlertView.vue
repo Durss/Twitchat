@@ -3,72 +3,99 @@
 		<ClearButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
 		<div v-if="$store.common.alertData.showContact" class="contact">
-			<Button @click.stop :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
+			<Button
+				@click.stop
+				:href="discordUrl"
+				type="link"
+				target="_blank"
+				icon="discord"
+				light
+				alert
+				>{{ $t("global.ask_supportBt") }}</Button
+			>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ClearButton from '@/components/ClearButton.vue';
-import Config from '@/utils/Config';
-import { watch } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import DOMPurify from 'isomorphic-dompurify';
+import TTButton from "@/components/TTButton.vue";
+import ClearButton from "@/components/ClearButton.vue";
+import Config from "@/utils/Config";
+import { watch } from "@vue/runtime-core";
+import { gsap } from "gsap/gsap-core";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import DOMPurify from "isomorphic-dompurify";
 
 @Component({
-	components:{
+	components: {
 		Button: TTButton,
 		ClearButton,
 	},
 })
 class AlertView extends Vue {
 	public message = "";
-	public timeout!:number;
-	public locked:boolean = false;
-	public showContact:boolean = false;
+	public timeout!: number;
+	public locked: boolean = false;
+	public showContact: boolean = false;
 
-	public get discordUrl():string { return Config.instance.DISCORD_URL; }
-
-	public mounted():void {
-		this.onWatchAlert();
-		watch(() => this.$store.common.alertData.message, () => {
-			this.onWatchAlert();
-		});
+	public get discordUrl(): string {
+		return Config.instance.DISCORD_URL;
 	}
 
-	public async onWatchAlert():Promise<void> {
-		if(this.locked) return;
+	public mounted(): void {
+		this.onWatchAlert();
+		watch(
+			() => this.$store.common.alertData.message,
+			() => {
+				this.onWatchAlert();
+			},
+		);
+	}
+
+	public async onWatchAlert(): Promise<void> {
+		if (this.locked) return;
 
 		let mess = this.$store.common.alertData;
-		if(mess && mess.message.length > 0) {
+		if (mess && mess.message.length > 0) {
 			this.message = DOMPurify.sanitize(mess.message);
 			await this.$nextTick();
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);
-			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
+			gsap.from(this.$el, {
+				duration: 0.3,
+				height: 0,
+				paddingTop: 0,
+				paddingBottom: 0,
+				ease: "back.out",
+			});
 			clearTimeout(this.timeout);
 
-			if(mess.critical) {
+			if (mess.critical) {
 				this.locked = true;
-			}else if(!this.showContact){
-				const autoHideDuration = (this.message.length*80 + 2000) * 4;
-				this.timeout = window.setTimeout(()=> this.close(), autoHideDuration);
+			} else if (!this.showContact) {
+				const autoHideDuration = (this.message.length * 80 + 2000) * 4;
+				this.timeout = window.setTimeout(() => this.close(), autoHideDuration);
 			}
-		}else if(this.message) {
-			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
-				this.message = "";
-			}});
+		} else if (this.message) {
+			gsap.to(this.$el, {
+				duration: 0.3,
+				height: 0,
+				paddingTop: 0,
+				paddingBottom: 0,
+				ease: "back.in",
+				onComplete: () => {
+					this.message = "";
+				},
+			});
 		}
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		clearTimeout(this.timeout);
 	}
 
-	public close():void {
-		if(this.locked) return;
+	public close(): void {
+		if (this.locked) return;
 
 		clearTimeout(this.timeout);
 		this.$store.common.alertData.message = "";

@@ -1,5 +1,11 @@
 <template>
-	<div :class="rootClasses" :style="rootStyles" @dragenter="onDragEnter" @dragleave="onDragLeave" @drop.prevent>
+	<div
+		:class="rootClasses"
+		:style="rootStyles"
+		@dragenter="onDragEnter"
+		@dragleave="onDragLeave"
+		@drop.prevent
+	>
 		<div class="header" ref="headerRef" @click="toggle()">
 			<!-- Left actions slot -->
 			<div class="leftActions">
@@ -16,7 +22,11 @@
 			/>
 
 			<!-- Title section -->
-			<div v-if="editableTitle" class="titleSection editable" :class="{ singleLine: isSingleLineMode }">
+			<div
+				v-if="editableTitle"
+				class="titleSection editable"
+				:class="{ singleLine: isSingleLineMode }"
+			>
 				<ContentEditable
 					ref="titleEditRef"
 					tag="h2"
@@ -36,13 +46,20 @@
 				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
-			<div v-else-if="title || titleDefault || subtitle" ref="titleRef" class="titleSection" :class="{ singleLine: isSingleLineMode }">
+			<div
+				v-else-if="title || titleDefault || subtitle"
+				ref="titleRef"
+				class="titleSection"
+				:class="{ singleLine: isSingleLineMode }"
+			>
 				<h2 class="titleText">{{ title || titleDefault }}</h2>
 				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
 			<!-- Hidden element for measuring natural title height at fixed width -->
-			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">{{ title || titleDefault }}</div>
+			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">
+				{{ title || titleDefault }}
+			</div>
 
 			<!-- Custom title slot -->
 			<slot name="title" />
@@ -63,7 +80,12 @@
 			</button>
 
 			<!-- Default mode: arrow on right -->
-			<button v-if="!noArrow" type="button" class="arrow right" :class="{ open: isOpen && !isClosing }">
+			<button
+				v-if="!noArrow"
+				type="button"
+				class="arrow right"
+				:class="{ open: isOpen && !isClosing }"
+			>
 				<Icon name="arrowRight" />
 			</button>
 
@@ -85,70 +107,82 @@
 </template>
 
 <script setup lang="ts">
-import { gsap } from 'gsap/gsap-core';
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type CSSProperties } from 'vue';
-import ContentEditable from './ContentEditable.vue';
-import Icon from './Icon.vue';
+import { gsap } from "gsap/gsap-core";
+import {
+	computed,
+	nextTick,
+	onMounted,
+	onUnmounted,
+	ref,
+	useTemplateRef,
+	watch,
+	type CSSProperties,
+} from "vue";
+import ContentEditable from "./ContentEditable.vue";
+import Icon from "./Icon.vue";
 
 // Props
-const props = withDefaults(defineProps<{
-	icons?: string[];
-	title?: string;
-	titleDefault?: string;
-	subtitle?: string;
-	open?: boolean;
-	error?: boolean;
-	alert?: boolean;
-	primary?: boolean;
-	secondary?: boolean;
-	premium?: boolean;
-	small?: boolean;
-	medium?: boolean;
-	disabled?: boolean;
-	noBackground?: boolean;
-	noArrow?: boolean;
-	noTitleColor?: boolean;
-	editableTitle?: boolean;
-	titleMaxLength?: number;
-	customColor?: string;
-}>(), {
-	icons: () => [],
-	open: true,
-	error: false,
-	alert: false,
-	primary: false,
-	secondary: false,
-	premium: false,
-	small: false,
-	medium: false,
-	disabled: false,
-	noBackground: false,
-	noArrow: false,
-	noTitleColor: false,
-	editableTitle: false,
-	titleMaxLength: 100,
-	customColor: '',
-});
+const props = withDefaults(
+	defineProps<{
+		icons?: string[];
+		title?: string;
+		titleDefault?: string;
+		subtitle?: string;
+		open?: boolean;
+		error?: boolean;
+		alert?: boolean;
+		primary?: boolean;
+		secondary?: boolean;
+		premium?: boolean;
+		small?: boolean;
+		medium?: boolean;
+		disabled?: boolean;
+		noBackground?: boolean;
+		noArrow?: boolean;
+		noTitleColor?: boolean;
+		editableTitle?: boolean;
+		titleMaxLength?: number;
+		customColor?: string;
+	}>(),
+	{
+		icons: () => [],
+		open: true,
+		error: false,
+		alert: false,
+		primary: false,
+		secondary: false,
+		premium: false,
+		small: false,
+		medium: false,
+		disabled: false,
+		noBackground: false,
+		noArrow: false,
+		noTitleColor: false,
+		editableTitle: false,
+		titleMaxLength: 100,
+		customColor: "",
+	},
+);
 
 // Emits
 const emit = defineEmits<{
-	'update:open': [value: boolean];
-	'update:title': [value: string];
+	"update:open": [value: boolean];
+	"update:title": [value: string];
 }>();
 
 // Template refs
-const headerRef = useTemplateRef<HTMLElement>('headerRef');
-const contentRef = useTemplateRef<HTMLElement>('contentRef');
-const rightActionsRef = useTemplateRef<HTMLElement>('rightActionsRef');
-const titleRef = useTemplateRef<HTMLElement>('titleRef');
-const titleMeasureRef = useTemplateRef<HTMLElement>('titleMeasureRef');
-const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>('titleEditRef');
+const headerRef = useTemplateRef<HTMLElement>("headerRef");
+const contentRef = useTemplateRef<HTMLElement>("contentRef");
+const rightActionsRef = useTemplateRef<HTMLElement>("rightActionsRef");
+const titleRef = useTemplateRef<HTMLElement>("titleRef");
+const titleMeasureRef = useTemplateRef<HTMLElement>("titleMeasureRef");
+const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("titleEditRef");
 
 // State
 const isOpen = ref(props.open);
 const isClosing = ref(false);
 const contentVisible = ref(props.open);
-const localTitle = ref(props.title || props.titleDefault || '');
+const localTitle = ref(props.title || props.titleDefault || "");
 const isEditingTitle = ref(false);
 const actionsCollapsed = ref(false);
 const actionsMenuOpen = ref(false);
@@ -162,20 +196,22 @@ let dragTimeout: number | undefined;
 let resizeObserver: ResizeObserver | null = null;
 
 // Computed
-const hasThemedHeader = computed(() =>
-	(props.error || props.alert || props.primary || props.secondary || props.premium) && !props.small
+const hasThemedHeader = computed(
+	() =>
+		(props.error || props.alert || props.primary || props.secondary || props.premium) &&
+		!props.small,
 );
 
 const iconTheme = computed(() => {
-	if (props.noTitleColor) return '';
-	if (hasThemedHeader.value) return 'light';
-	if (props.small) return 'secondary';
-	return '';
+	if (props.noTitleColor) return "";
+	if (hasThemedHeader.value) return "light";
+	if (props.small) return "secondary";
+	return "";
 });
 
 const displayIcons = computed(() => {
 	const icons = [...props.icons];
-	if (props.error) icons.push('automod');
+	if (props.error) icons.push("automod");
 	return icons;
 });
 
@@ -183,11 +219,11 @@ const displayTitle = computed(() => {
 	// When editing, show actual localTitle (even if empty) to allow clearing default
 	if (isEditingTitle.value) return localTitle.value;
 	// When not editing, fallback to default if localTitle is empty
-	return localTitle.value || props.titleDefault || '';
+	return localTitle.value || props.titleDefault || "";
 });
 
 const rootClasses = computed(() => [
-	'toggleblock',
+	"toggleblock",
 	{
 		closed: !isOpen.value || isClosing.value,
 		error: props.error,
@@ -225,8 +261,8 @@ async function toggle(forcedState?: boolean): Promise<void> {
 			paddingTop: 0,
 			paddingBottom: 0,
 			duration: 0.25,
-			ease: 'sine.inOut',
-			clearProps: 'all',
+			ease: "sine.inOut",
+			clearProps: "all",
 		});
 	} else {
 		// Closing
@@ -236,8 +272,8 @@ async function toggle(forcedState?: boolean): Promise<void> {
 			paddingTop: 0,
 			paddingBottom: 0,
 			duration: 0.25,
-			ease: 'sine.inOut',
-			clearProps: 'all',
+			ease: "sine.inOut",
+			clearProps: "all",
 			onComplete: () => {
 				isOpen.value = false;
 				contentVisible.value = false;
@@ -249,7 +285,7 @@ async function toggle(forcedState?: boolean): Promise<void> {
 
 function onTitleFocus(): void {
 	if (localTitle.value === props.titleDefault) {
-		localTitle.value = '';
+		localTitle.value = "";
 	}
 	const el = titleEditRef.value?.$el;
 	if (el) {
@@ -263,7 +299,7 @@ function onTitleFocus(): void {
 
 function onTitleBlur(): void {
 	if (!localTitle.value.trim()) {
-		localTitle.value = props.titleDefault || '';
+		localTitle.value = props.titleDefault || "";
 	}
 	isEditingTitle.value = false;
 }
@@ -274,7 +310,7 @@ function onTitleInput(value: string | number): void {
 }
 
 const MIN_TITLE_WIDTH_COLLAPSE = 150; // Width below which actions collapse
-const MIN_TITLE_WIDTH_EXPAND = 205;   // Width above which actions can expand (hysteresis)
+const MIN_TITLE_WIDTH_EXPAND = 205; // Width above which actions can expand (hysteresis)
 
 function checkActionsOverflow(): void {
 	const actions = rightActionsRef.value;
@@ -291,7 +327,7 @@ function checkActionsOverflow(): void {
 	// If title section exists, check width with hysteresis to prevent oscillation
 	if (titleSection) {
 		const titleWidth = titleSection.getBoundingClientRect().width;
-		
+
 		if (actionsCollapsed.value) {
 			// Currently collapsed: only expand if we have plenty of space
 			if (titleWidth > MIN_TITLE_WIDTH_EXPAND) {
@@ -336,15 +372,15 @@ function onDragLeave(): void {
 function closeActionsMenuOnClickOutside(event: MouseEvent): void {
 	if (!actionsMenuOpen.value) return;
 	const target = event.target as HTMLElement;
-	const popout = headerRef.value?.querySelector('.actionsPopout');
-	const toggleBtn = headerRef.value?.querySelector('.collapseToggle');
+	const popout = headerRef.value?.querySelector(".actionsPopout");
+	const toggleBtn = headerRef.value?.querySelector(".collapseToggle");
 	if (!popout?.contains(target) && !toggleBtn?.contains(target)) {
 		actionsMenuOpen.value = false;
 	}
 }
 
-function detectPopoutClose(e:MouseEvent): void {
-	if((e.target as HTMLElement).dataset.closePopout !== undefined) {
+function detectPopoutClose(e: MouseEvent): void {
+	if ((e.target as HTMLElement).dataset.closePopout !== undefined) {
 		// Give time to actual button click to be processed before closing
 		// As we're listening on capture phase, the button click will happen after this
 		setTimeout(() => {
@@ -354,19 +390,25 @@ function detectPopoutClose(e:MouseEvent): void {
 }
 
 // Watchers
-watch(() => props.open, (newVal) => toggle(newVal));
+watch(
+	() => props.open,
+	(newVal) => toggle(newVal),
+);
 
-watch(isOpen, (newVal) => emit('update:open', newVal));
+watch(isOpen, (newVal) => emit("update:open", newVal));
 
 watch(localTitle, (newVal) => {
-	emit('update:title', newVal.trim());
+	emit("update:title", newVal.trim());
 	// Re-check title overflow when title changes
 	nextTick(() => checkTitleOverflow());
 });
 
-watch(() => props.title, (newVal) => {
-	if (newVal !== undefined) localTitle.value = newVal;
-});
+watch(
+	() => props.title,
+	(newVal) => {
+		if (newVal !== undefined) localTitle.value = newVal;
+	},
+);
 
 // Lifecycle
 onMounted(() => {
@@ -391,13 +433,13 @@ onMounted(() => {
 		}, 100);
 	});
 
-	document.addEventListener('click', closeActionsMenuOnClickOutside);
+	document.addEventListener("click", closeActionsMenuOnClickOutside);
 });
 
 onUnmounted(() => {
 	resizeObserver?.disconnect();
 	clearTimeout(dragTimeout);
-	document.removeEventListener('click', closeActionsMenuOnClickOutside);
+	document.removeEventListener("click", closeActionsMenuOnClickOutside);
 });
 </script>
 
@@ -445,7 +487,7 @@ onUnmounted(() => {
 			transform: rotate(90deg);
 		}
 		&.right {
-			margin-left: -.5em;
+			margin-left: -0.5em;
 		}
 	}
 
@@ -614,7 +656,7 @@ onUnmounted(() => {
 		display: flex;
 		background-color: var(--background-color-secondary);
 		border-radius: var(--border-radius);
-		box-shadow: -5px 0px 5px rgba(0, 0, 0, .5);
+		box-shadow: -5px 0px 5px rgba(0, 0, 0, 0.5);
 
 		:deep(button),
 		:deep(.button) {

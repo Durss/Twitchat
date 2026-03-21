@@ -3,71 +3,86 @@
 		<!-- <div class="instructions">
 			<img src="@/assets/img/shader_warning.png"/>
 		</div> -->
-		<DistortionLiquid :params="distortionData" v-if="distortionData && distortionData.effect == 'liquid'" />
-		<DistortionExpand :params="distortionData" v-if="distortionData && distortionData.effect == 'expand'" />
-		<DistortionHeart :params="distortionData" v-if="distortionData && distortionData.effect == 'heart'" />
-		<DistortShrink :params="distortionData" v-if="distortionData && distortionData.effect == 'shrink'" />
+		<DistortionLiquid
+			:params="distortionData"
+			v-if="distortionData && distortionData.effect == 'liquid'"
+		/>
+		<DistortionExpand
+			:params="distortionData"
+			v-if="distortionData && distortionData.effect == 'expand'"
+		/>
+		<DistortionHeart
+			:params="distortionData"
+			v-if="distortionData && distortionData.effect == 'heart'"
+		/>
+		<DistortShrink
+			:params="distortionData"
+			v-if="distortionData && distortionData.effect == 'shrink'"
+		/>
 	</div>
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import DistortionLiquid from './distortions/DistortionLiquid.vue';
-import DistortionExpand from './distortions/DistortionExpand.vue';
-import DistortShrink from './distortions/DistortShrink.vue';
-import DistortionHeart from './distortions/DistortionHeart.vue';
+import TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { toNative, Component } from "vue-facing-decorator";
+import AbstractOverlay from "./AbstractOverlay";
+import DistortionLiquid from "./distortions/DistortionLiquid.vue";
+import DistortionExpand from "./distortions/DistortionExpand.vue";
+import DistortShrink from "./distortions/DistortShrink.vue";
+import DistortionHeart from "./distortions/DistortionHeart.vue";
 
 @Component({
-	components:{
+	components: {
 		DistortionLiquid,
 		DistortionExpand,
 		DistortionHeart,
 		DistortShrink,
 	},
-	emits:[],
+	emits: [],
 })
 class OverlayDistort extends AbstractOverlay {
+	public distortionData: TwitchatDataTypes.HeatDistortionData | null = null;
 
-	public distortionData:TwitchatDataTypes.HeatDistortionData|null = null;
+	private distortionID: string = "";
+	private parametersHandler!: (e: TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">) => void;
 
-	private distortionID:string = "";
-	private parametersHandler!:(e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">)=>void;
-
-	public async beforeMount():Promise<void> {
+	public async beforeMount(): Promise<void> {
 		this.distortionID = Utils.getQueryParameterByName("twitchat_overlay_id") || "";
 
-		this.parametersHandler = (e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">)=>this.onParametersHandler(e);
+		this.parametersHandler = (e: TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">) =>
+			this.onParametersHandler(e);
 
 		PublicAPI.instance.addEventListener("ON_DISTORT_OVERLAY_CONFIGS", this.parametersHandler);
 	}
 
-	public async beforeUnmount():Promise<void> {
-		PublicAPI.instance.removeEventListener("ON_DISTORT_OVERLAY_CONFIGS", this.parametersHandler);
+	public async beforeUnmount(): Promise<void> {
+		PublicAPI.instance.removeEventListener(
+			"ON_DISTORT_OVERLAY_CONFIGS",
+			this.parametersHandler,
+		);
 	}
 
-	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_DISTORT_OVERLAY_CONFIGS", {id: this.distortionID});
+	public requestInfo(): void {
+		PublicAPI.instance.broadcast("GET_DISTORT_OVERLAY_CONFIGS", { id: this.distortionID });
 	}
 
-	public async onParametersHandler(e:TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">):Promise<void> {
-		const {params} = e.data;
+	public async onParametersHandler(
+		e: TwitchatEvent<"ON_DISTORT_OVERLAY_CONFIGS">,
+	): Promise<void> {
+		const { params } = e.data;
 		//If it's not for us, stop there
-		if(!params || params.id != this.distortionID) return;
+		if (!params || params.id != this.distortionID) return;
 		this.distortionData = params;
 	}
-	
 }
 export default toNative(OverlayDistort);
 </script>
 
 <style scoped lang="less">
-.overlaydistort{
-
+.overlaydistort {
 	.instructions {
 		position: fixed;
 		top: 50%;

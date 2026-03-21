@@ -1,81 +1,92 @@
 <template>
 	<div class="triggeractiondelayentry triggerActionLight">
-		<Icon name="dragZone"
-			class="orderBt"
-			data-noselect
-			v-tooltip="$t('triggers.reorder_tt')" />
+		<Icon name="dragZone" class="orderBt" data-noselect v-tooltip="$t('triggers.reorder_tt')" />
 
 		<ToggleButton v-model="action.enabled" small />
 
 		<Icon name="timer" class="icon" theme="light" @click="action.enabled = !action.enabled" />
 
-		<DurationForm style="color:#fff" v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
+		<DurationForm
+			style="color: #fff"
+			v-if="isNumericValue"
+			class="field"
+			v-model="action.delay"
+			allowMs
+		/>
 
-		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
+		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{
+			action.delay
+		}}</TTButton>
 
 		<div class="actions">
-			<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
+			<PlaceholderSelector
+				class="placeholders"
+				v-if="placeholderList?.length > 0"
 				:placeholders="placeholderList"
 				:secondary="true"
 				:popoutMode="true"
 				@insert="insertTag"
 			/>
 
-			<TTButton transparent icon="merge" light @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton
+				transparent
+				icon="merge"
+				light
+				@click="$emit('addCondition')"
+				v-tooltip="$t('triggers.condition.add_tt')"
+			/>
 			<TTButton alert icon="trash" @click="$emit('delete')" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import DurationForm from '@/components/DurationForm.vue';
-import TTButton from '@/components/TTButton.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
-import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import DurationForm from "@/components/DurationForm.vue";
+import TTButton from "@/components/TTButton.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
+import PlaceholderSelector from "@/components/params/PlaceholderSelector.vue";
+import type { TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ParamItem,
 		ToggleButton,
 		DurationForm,
 		PlaceholderSelector,
 	},
-	emits:["delete", "addCondition"],
+	emits: ["delete", "addCondition"],
 })
 class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
+	@Prop
+	declare action: TriggerActionTypes;
 
 	@Prop
-	declare action:TriggerActionTypes;
+	declare triggerData: TriggerData;
 
-	@Prop
-	declare triggerData:TriggerData;
-
-	public get isNumericValue():boolean {
-		return typeof(this.action.delay) != 'string';
+	public get isNumericValue(): boolean {
+		return typeof this.action.delay != "string";
 	}
 
-	public beforeMount():void {
+	public beforeMount(): void {
 		super.beforeMount();
-		if(!this.action.delay) this.action.delay = 0;
+		if (!this.action.delay) this.action.delay = 0;
 	}
 
 	/**
 	 * Called when inserting a placeholder's tag
 	 */
-	public insertTag(tag:string):void {
+	public insertTag(tag: string): void {
 		this.action.delay = tag;
 	}
-
 }
 export default toNative(TriggerActionDelayEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractiondelayentry{
+.triggeractiondelayentry {
 }
 </style>

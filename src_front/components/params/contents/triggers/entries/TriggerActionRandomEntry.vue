@@ -1,13 +1,24 @@
 <template>
 	<div class="triggeractionrandomentry triggerActionForm">
+		<div class="info" v-if="action.mode != 'trigger'">
+			{{ $t("triggers.actions.common.dynamic_placeholder_info") }}
+		</div>
+		<div class="info" v-else-if="action.mode == 'trigger'">
+			{{ $t("triggers.actions.random.trigger_info") }}
+		</div>
 
-		<div class="info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
-		<div class="info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
-
-		<TabMenu v-model="action.mode"
-		:values="['number', 'list', 'trigger', 'value', 'counter']"
-		:icons="['dice', 'list', 'broadcast', 'placeholder', 'count']"
-		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger'), $t('triggers.actions.random.value'), $t('triggers.actions.random.counter')]" />
+		<TabMenu
+			v-model="action.mode"
+			:values="['number', 'list', 'trigger', 'value', 'counter']"
+			:icons="['dice', 'list', 'broadcast', 'placeholder', 'count']"
+			:labels="[
+				$t('triggers.actions.random.number'),
+				$t('triggers.actions.random.list'),
+				$t('triggers.actions.random.trigger'),
+				$t('triggers.actions.random.value'),
+				$t('triggers.actions.random.counter'),
+			]"
+		/>
 
 		<template v-if="action.mode == 'number'">
 			<ParamItem :paramData="param_max" v-model="action.max" placeholdersAsPopout />
@@ -18,34 +29,66 @@
 		<div class="card-item" v-if="action.mode == 'list'">
 			<label for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
 			<div class="itemForm" v-if="action.list.length < 10000">
-				<textarea rows="2" v-model="itemValue" ref="listinput" id="randomEntry_input"
+				<textarea
+					rows="2"
+					v-model="itemValue"
+					ref="listinput"
+					id="randomEntry_input"
 					:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
-					@keyup.enter.ctrl="addListItem()"></textarea>
-				<TTButton icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
+					@keyup.enter.ctrl="addListItem()"
+				></textarea>
+				<TTButton
+					icon="add"
+					class="addBt"
+					primary
+					@click="addListItem()"
+					:disabled="!itemValue"
+				/>
 			</div>
 
-			<PlaceholderSelector :placeholders="placeholderList" v-model="itemValue" :target="$refs['listinput']" />
+			<PlaceholderSelector
+				:placeholders="placeholderList"
+				v-model="itemValue"
+				:target="$refs['listinput']"
+			/>
 
 			<div class="listItem list">
-				<div v-for="item, index in action.list" :key="'entry_'+index" class="entry"
-				@click="indexToEditState[index] = true">
-
-					<button class="action button"
-					v-tooltip="$t('global.delete')"
-					@click.capture.stop="deleteListItem(index)">
+				<div
+					v-for="(item, index) in action.list"
+					:key="'entry_' + index"
+					class="entry"
+					@click="indexToEditState[index] = true"
+				>
+					<button
+						class="action button"
+						v-tooltip="$t('global.delete')"
+						@click.capture.stop="deleteListItem(index)"
+					>
 						<Icon name="trash" theme="light" />
 					</button>
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser v-if="buildIndex >= index" :chunks="itemChunks[index]" :channel="$store.auth.twitch.user.id" platform="twitch" />
+							<ChatMessageChunksParser
+								v-if="buildIndex >= index"
+								:chunks="itemChunks[index]"
+								:channel="$store.auth.twitch.user.id"
+								platform="twitch"
+							/>
 						</span>
 
-						<textarea v-if="indexToEditState[index]"
+						<textarea
+							v-if="indexToEditState[index]"
 							maxlength="500"
-							rows="4" v-autofocus
-							@focusout="indexToEditState[index] = false; onChangeListItem(index)"
-							v-model="action.list[index]">{{ item }}</textarea>
+							rows="4"
+							v-autofocus
+							@focusout="
+								indexToEditState[index] = false;
+								onChangeListItem(index);
+							"
+							v-model="action.list[index]"
+							>{{ item }}</textarea
+						>
 					</div>
 				</div>
 			</div>
@@ -58,7 +101,7 @@
 
 			<div class="card-item triggerList" medium primary :open="openTriggerList">
 				<div class="title" @click="openTriggerList = !openTriggerList">
-					<span :class="openTriggerList? 'arrow open' : 'arrow'">►</span>
+					<span :class="openTriggerList ? 'arrow open' : 'arrow'">►</span>
 					<span>{{ $t("triggers.actions.random.trigger_select") }}</span>
 				</div>
 				<SimpleTriggerList class="list" @select="onSelectTrigger" v-if="openTriggerList" />
@@ -66,9 +109,11 @@
 
 			<div class="listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
-					<button class="action button"
+					<button
+						class="action button"
 						v-tooltip="$t('global.delete')"
-						@click.capture.stop="deleteTriggerItem(index)">
+						@click.capture.stop="deleteTriggerItem(index)"
+					>
 						<Icon name="trash" alt="delete" theme="light" />
 					</button>
 
@@ -89,13 +134,18 @@
 			</template>
 			<div class="card-item secondary info warning" v-else>
 				<p>{{ $t("triggers.actions.random.value_no_values") }}</p>
-				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
+				<TTButton secondary light small @click="createValue()">{{
+					$t("values.addBt")
+				}}</TTButton>
 			</div>
 
-			<ParamItem v-if="valueIdToValue[param_value.value]?.perUser !== true"
+			<ParamItem
+				v-if="valueIdToValue[param_value.value]?.perUser !== true"
 				:paramData="param_valueSplitter"
 				:error="(action.valueSplitter || '').trim().length == 0"
-				v-model="action.valueSplitter" noBackground />
+				v-model="action.valueSplitter"
+				noBackground
+			/>
 		</template>
 
 		<template v-if="action.mode == 'counter'">
@@ -104,61 +154,111 @@
 			</template>
 			<div class="card-item secondary info warning" v-else>
 				<p>{{ $t("triggers.actions.random.counter_no_values") }}</p>
-				<TTButton secondary light small @click="createCounter()">{{ $t("counters.addBt") }}</TTButton>
+				<TTButton secondary light small @click="createCounter()">{{
+					$t("counters.addBt")
+				}}</TTButton>
 			</div>
 		</template>
 
-		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
+		<div
+			v-if="
+				(action.mode == 'value' && (param_value.listValues || []).length > 0) ||
+				(action.mode == 'counter' && (param_counter.listValues || []).length > 0)
+			"
+			class="card-item listItem"
+		>
 			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
-			<template v-if="action.mode=='counter' || valueIdToValue[param_value.value]?.perUser === true">
-				<ParamItem :paramData="param_placeholderUserId"
+			<template
+				v-if="
+					action.mode == 'counter' || valueIdToValue[param_value.value]?.perUser === true
+				"
+			>
+				<ParamItem
+					:paramData="param_placeholderUserId"
 					:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
-					v-model="action.valueCounterPlaceholders!.userId" noBackground />
-				<ParamItem :paramData="param_placeholderUserName"
+					v-model="action.valueCounterPlaceholders!.userId"
+					noBackground
+				/>
+				<ParamItem
+					:paramData="param_placeholderUserName"
 					:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
-					v-model="action.valueCounterPlaceholders!.userName" noBackground />
+					v-model="action.valueCounterPlaceholders!.userName"
+					noBackground
+				/>
 			</template>
 
-			<ParamItem :paramData="param_placeholderValue"
+			<ParamItem
+				:paramData="param_placeholderValue"
 				:error="(action.valueCounterPlaceholders!.value || '').trim().length == 0"
-				v-model="action.valueCounterPlaceholders!.value" noBackground />
+				v-model="action.valueCounterPlaceholders!.value"
+				noBackground
+			/>
 		</div>
 
-		<ParamItem v-if="action.mode == 'list' || action.mode == 'number'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+		<ParamItem
+			v-if="action.mode == 'list' || action.mode == 'number'"
+			:paramData="param_placeholder"
+			v-model="action.placeholder"
+			:error="action.placeholder && action.placeholder.length === 0"
+		/>
 
-		<ParamItem v-if="action.mode == 'list' || action.mode == 'trigger' || action.mode == 'value' || action.mode == 'counter'" :paramData="param_removePickedEntry" v-model="action.removePickedEntry" />
+		<ParamItem
+			v-if="
+				action.mode == 'list' ||
+				action.mode == 'trigger' ||
+				action.mode == 'value' ||
+				action.mode == 'counter'
+			"
+			:paramData="param_removePickedEntry"
+			v-model="action.removePickedEntry"
+		/>
 
-		<i18n-t scope="global" class="card-item primary" tag="div"
-		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'">
+		<i18n-t
+			scope="global"
+			class="card-item primary"
+			tag="div"
+			keypath="triggers.actions.common.custom_placeholder_example"
+			v-if="
+				param_placeholder.value.length > 0 &&
+				action.mode != 'trigger' &&
+				action.mode != 'value' &&
+				action.mode != 'counter'
+			"
+		>
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{param_placeholder.value.toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select
+					>{{ "{" }}{{ param_placeholder.value.toUpperCase() }}{{ "}" }}</mark
+				>
 			</template>
 		</i18n-t>
 	</div>
 </template>
 
 <script lang="ts">
-import Icon from '@/components/Icon.vue';
-import TTButton from '@/components/TTButton.vue';
-import TabMenu from '@/components/TabMenu.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
-import type { ITriggerPlaceholder, TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch } from 'vue';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import SimpleTriggerList from '../SimpleTriggerList.vue';
-import TriggerList from '../TriggerList.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import Icon from "@/components/Icon.vue";
+import TTButton from "@/components/TTButton.vue";
+import TabMenu from "@/components/TabMenu.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ChatMessageChunksParser from "@/components/messages/components/ChatMessageChunksParser.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
+import PlaceholderSelector from "@/components/params/PlaceholderSelector.vue";
+import type {
+	ITriggerPlaceholder,
+	TriggerActionRandomData,
+	TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { watch } from "vue";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import SimpleTriggerList from "../SimpleTriggerList.vue";
+import TriggerList from "../TriggerList.vue";
+import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TabMenu,
 		TTButton,
@@ -171,134 +271,218 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 })
 class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
+	@Prop
+	declare action: TriggerActionRandomData;
 
 	@Prop
-	declare action:TriggerActionRandomData;
+	public rewards!: TwitchDataTypes.Reward[];
 
 	@Prop
-	public rewards!:TwitchDataTypes.Reward[];
+	declare triggerData: TriggerData;
 
-	@Prop
-	declare triggerData:TriggerData;
+	public itemValue: string = "";
+	public itemChunks: TwitchatDataTypes.ParseMessageChunk[][] = [];
+	public buildIndex: number = 0;
+	public disposed: boolean = false;
+	public openTriggerList: boolean = false;
+	public indexToEditState: { [key: string]: boolean } = {};
+	public valueIdToValue: { [key: string]: TwitchatDataTypes.ValueData } = {};
 
-	public itemValue:string = "";
-	public itemChunks:TwitchatDataTypes.ParseMessageChunk[][] = [];
-	public buildIndex:number = 0;
-	public disposed:boolean = false;
-	public openTriggerList:boolean = false;
-	public indexToEditState:{[key:string]:boolean} = {};
-	public valueIdToValue:{[key:string]:TwitchatDataTypes.ValueData} = {};
+	public param_min: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		labelKey: "triggers.actions.random.min_label",
+		value: 0,
+		min: Number.MIN_SAFE_INTEGER,
+		max: Number.MAX_SAFE_INTEGER,
+		icon: "min",
+	};
+	public param_max: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		labelKey: "triggers.actions.random.max_label",
+		value: 10,
+		min: Number.MIN_SAFE_INTEGER,
+		max: Number.MAX_SAFE_INTEGER,
+		icon: "max",
+	};
+	public param_float: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		labelKey: "triggers.actions.random.float_label",
+		value: false,
+		icon: "dice",
+	};
+	public param_placeholder: TwitchatDataTypes.ParameterData<string> = {
+		type: "placeholder",
+		labelKey: "triggers.actions.random.placeholder_label",
+		value: "",
+		maxLength: 20,
+		icon: "placeholder",
+		allowedCharsRegex: "A-z0-9-_",
+	};
+	public param_skipDisabled: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		labelKey: "triggers.actions.random.trigger_skipDisabled",
+		value: true,
+		icon: "skip",
+	};
+	public param_disableAfterExec: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		labelKey: "triggers.actions.random.trigger_disableAfterExec",
+		value: false,
+		icon: "disable",
+	};
+	public param_value: TwitchatDataTypes.ParameterData<string> = {
+		type: "list",
+		labelKey: "triggers.actions.random.value_id",
+		value: "",
+		icon: "placeholder",
+	};
+	public param_counter: TwitchatDataTypes.ParameterData<string> = {
+		type: "list",
+		labelKey: "triggers.actions.random.counter_id",
+		value: "",
+		icon: "placeholder",
+	};
+	public param_valueSplitter: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		labelKey: "triggers.actions.random.value_splitter",
+		value: ",",
+		icon: "split",
+		maxLength: 5,
+	};
+	public param_placeholderUserId: TwitchatDataTypes.ParameterData<string> = {
+		type: "placeholder",
+		labelKey: "triggers.actions.random.placeholder_user_id",
+		value: "",
+		icon: "label",
+	};
+	public param_placeholderUserName: TwitchatDataTypes.ParameterData<string> = {
+		type: "placeholder",
+		labelKey: "triggers.actions.random.placeholder_user_name",
+		value: "",
+		icon: "user",
+	};
+	public param_placeholderValue: TwitchatDataTypes.ParameterData<string> = {
+		type: "placeholder",
+		labelKey: "triggers.actions.random.placeholder_value",
+		value: "",
+		icon: "number",
+	};
+	public param_removePickedEntry: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		labelKey: "triggers.actions.random.param_removePickedEntry",
+		value: false,
+		icon: "trash",
+	};
 
-	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
-	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
-	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
-	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
-	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.value_id", value:"", icon:"placeholder"};
-	public param_counter:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.counter_id", value:"", icon:"placeholder"};
-	public param_valueSplitter:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.value_splitter", value:",", icon:"split", maxLength:5};
-	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
-	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
-	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
-	public param_removePickedEntry:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.param_removePickedEntry", value:false, icon:"trash"};
-
-	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
-		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);
-		if(!t) return {label:"TRIGGER NOT FOUND", icon:"alert"};
+	public getTriggerInfo(triggerId: string): {
+		label: string;
+		icon: string;
+		iconURL?: string;
+		iconBgColor?: string;
+	} {
+		const t = this.$store.triggers.triggerList.find((v) => v.id === triggerId);
+		if (!t) return { label: "TRIGGER NOT FOUND", icon: "alert" };
 		return TriggerUtils.getTriggerDisplayInfo(t);
 	}
 
-	public beforeMount():void {
-		if(this.action.mode == undefined) this.action.mode = "number";
-		if(this.action.max == undefined) this.action.max = this.param_max.value;
-		if(this.action.min == undefined) this.action.min = this.param_min.value;
-		if(this.action.skipDisabled == undefined) this.action.skipDisabled = this.param_skipDisabled.value;
-		if(this.action.disableAfterExec == undefined) this.action.disableAfterExec = this.param_disableAfterExec.value;
-		if(!this.action.triggers) this.action.triggers = [];
-		if(!this.action.list) this.action.list = [];
-		if(!this.action.valueSplitter) this.action.valueSplitter = ",";
+	public beforeMount(): void {
+		if (this.action.mode == undefined) this.action.mode = "number";
+		if (this.action.max == undefined) this.action.max = this.param_max.value;
+		if (this.action.min == undefined) this.action.min = this.param_min.value;
+		if (this.action.skipDisabled == undefined)
+			this.action.skipDisabled = this.param_skipDisabled.value;
+		if (this.action.disableAfterExec == undefined)
+			this.action.disableAfterExec = this.param_disableAfterExec.value;
+		if (!this.action.triggers) this.action.triggers = [];
+		if (!this.action.list) this.action.list = [];
+		if (!this.action.valueSplitter) this.action.valueSplitter = ",";
 		this.buildIndex = 0;
 
 		this.valueIdToValue = {};
 
 		this.param_value.listValues = this.$store.values.valueList
-		// .filter(v=>v.perUser === true)
-		.map(v=>{
-			return {
-				value:v.id,
-				label:v.name,
-
-			}
-		});
-		this.$store.values.valueList.forEach(v=>{
+			// .filter(v=>v.perUser === true)
+			.map((v) => {
+				return {
+					value: v.id,
+					label: v.name,
+				};
+			});
+		this.$store.values.valueList.forEach((v) => {
 			this.valueIdToValue[v.id] = v;
-		})
-
-		this.param_counter.listValues = this.$store.counters.counterList.filter(v=>v.perUser === true).map(v=>{
-			return {
-				value:v.id,
-				label:v.name,
-			}
 		});
+
+		this.param_counter.listValues = this.$store.counters.counterList
+			.filter((v) => v.perUser === true)
+			.map((v) => {
+				return {
+					value: v.id,
+					label: v.name,
+				};
+			});
 
 		//Remove deleted triggers
 		const triggers = this.$store.triggers.triggerList;
-		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
+		this.action.triggers = this.action.triggers.filter(
+			(v) => triggers.findIndex((w) => v === w.id) > -1,
+		);
 		this.openTriggerList = this.action.triggers.length == 0;
 
-		watch(()=>this.action.mode, ()=> {
-			this.onSwitchMode();
-		});
+		watch(
+			() => this.action.mode,
+			() => {
+				this.onSwitchMode();
+			},
+		);
 		this.onSwitchMode();
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
-	public onSwitchMode():void {
-		if((this.action.mode == "value" || this.action.mode == "counter")) {
-			if(!this.action.valueCounterPlaceholders) {
+	public onSwitchMode(): void {
+		if (this.action.mode == "value" || this.action.mode == "counter") {
+			if (!this.action.valueCounterPlaceholders) {
 				this.action.valueCounterPlaceholders = {
-					userId:"EXTRACTED_USER_ID",
-					userName:"EXTRACTED_USERNAME",
-					value:"EXTRACTED_VALUE",
-				}
+					userId: "EXTRACTED_USER_ID",
+					userName: "EXTRACTED_USERNAME",
+					value: "EXTRACTED_VALUE",
+				};
 			}
-		}else{
+		} else {
 			delete this.action.valueCounterPlaceholders;
 		}
 		this.buildNextListBatch();
 	}
 
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<unknown>[]):void {
+	public onPlaceholderUpdate(list: ITriggerPlaceholder<unknown>[]): void {
 		this.param_min.placeholderList = list;
 		this.param_max.placeholderList = list;
 	}
 
-	public getChunksFromItem(src:string):TwitchatDataTypes.ParseMessageChunk[] {
+	public getChunksFromItem(src: string): TwitchatDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(src, undefined, true);
 	}
 
-	public addListItem():void {
-		this.buildIndex ++;
+	public addListItem(): void {
+		this.buildIndex++;
 		this.action.list.unshift(this.itemValue);
 		this.itemChunks.unshift(TwitchUtils.parseMessageToChunks(this.itemValue, undefined, true));
 		this.itemValue = "";
 		(this.$refs.listinput as HTMLInputElement).focus();
 	}
 
-	public deleteListItem(index:number):void {
+	public deleteListItem(index: number): void {
 		this.action.list.splice(index, 1);
 		this.itemChunks.splice(index, 1);
 	}
 
-	public deleteTriggerItem(index:number):void {
+	public deleteTriggerItem(index: number): void {
 		this.action.triggers.splice(index, 1);
 	}
 
-	public onSelectTrigger(id:string):void {
+	public onSelectTrigger(id: string): void {
 		this.action.triggers.unshift(id);
 	}
 
@@ -306,18 +490,22 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	 * Build custom list entries by batch to avoid potential
 	 * huge lag on display if there are many entries
 	 */
-	public buildNextListBatch():void {
-		if(this.disposed) return;
-		if(this.action.mode != "list") return;
-		if(this.buildIndex >= this.action.list.length) return;
+	public buildNextListBatch(): void {
+		if (this.disposed) return;
+		if (this.action.mode != "list") return;
+		if (this.buildIndex >= this.action.list.length) return;
 
-		for (let i = this.buildIndex; i < Math.min(this.buildIndex+10, this.action.list.length); i++) {
+		for (
+			let i = this.buildIndex;
+			i < Math.min(this.buildIndex + 10, this.action.list.length);
+			i++
+		) {
 			const item = this.action.list[i]!;
 			this.itemChunks.push(TwitchUtils.parseMessageToChunks(item, undefined, true));
 		}
 		this.buildIndex += 10;
 
-		window.setTimeout(()=> {
+		window.setTimeout(() => {
 			this.buildNextListBatch();
 		}, 30);
 	}
@@ -325,40 +513,42 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Redirect to Values
 	 */
-	public createValue():void {
+	public createValue(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
 	}
 
 	/**
 	 * Redirect to Counters
 	 */
-	public createCounter():void {
+	public createCounter(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
-	public onChangeListItem(index:number):void {
-		this.itemChunks[index] = TwitchUtils.parseMessageToChunks(this.action.list[index]!, undefined, true);
+	public onChangeListItem(index: number): void {
+		this.itemChunks[index] = TwitchUtils.parseMessageToChunks(
+			this.action.list[index]!,
+			undefined,
+			true,
+		);
 	}
-
 }
 
 export default toNative(TriggerActionRandomEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractionrandomentry{
-
+.triggeractionrandomentry {
 	.itemForm {
 		display: flex;
-		margin-top: .5em;
-		&>* {
+		margin-top: 0.5em;
+		& > * {
 			border-radius: 0;
 		}
-		&>*:first-child {
+		& > *:first-child {
 			border-top-left-radius: var(--border-radius);
 			border-bottom-left-radius: var(--border-radius);
 		}
-		&>*:last-child {
+		& > *:last-child {
 			border-top-right-radius: var(--border-radius);
 			border-bottom-right-radius: var(--border-radius);
 		}
@@ -373,12 +563,12 @@ export default toNative(TriggerActionRandomEntry);
 	.listItem {
 		display: flex;
 		flex-direction: column;
-		gap: .25em;
+		gap: 0.25em;
 		max-height: 300px;
 		overflow-y: auto;
 		margin-top: 1em;
-		&>p {
-			margin-bottom: .5em;
+		& > p {
+			margin-bottom: 0.5em;
 		}
 		.entry {
 			flex-shrink: 0;
@@ -391,10 +581,10 @@ export default toNative(TriggerActionRandomEntry);
 				width: 1.5em;
 				min-width: 1.5em;
 				background-color: var(--color-alert);
-				padding: .25em;
+				padding: 0.25em;
 				right: 0;
-				border-top-left-radius: .5em;
-				border-bottom-left-radius: .5em;
+				border-top-left-radius: 0.5em;
+				border-bottom-left-radius: 0.5em;
 				.icon {
 					height: 1.2em;
 					margin: auto;
@@ -403,27 +593,27 @@ export default toNative(TriggerActionRandomEntry);
 			}
 			.content {
 				flex-grow: 1;
-				border-top-right-radius: .5em;
-				border-bottom-right-radius: .5em;
+				border-top-right-radius: 0.5em;
+				border-bottom-right-radius: 0.5em;
 				background-color: var(--color-primary);
-				font-size: .9em;
+				font-size: 0.9em;
 				display: flex;
 				align-items: center;
-				padding-left: .25em;
+				padding-left: 0.25em;
 				.icon {
 					align-self: stretch;
 					width: 1.75em;
-					padding: .25em;
+					padding: 0.25em;
 					object-fit: contain;
 				}
 				.label {
-					padding: .5em .25em;
+					padding: 0.5em 0.25em;
 					word-break: break-all;
 					white-space: pre-line;
 					text-align: left;
 					align-self: flex-start;
 				}
-				textarea{
+				textarea {
 					font-size: 1em;
 					min-width: calc(100%);
 					resize: vertical;
@@ -450,7 +640,7 @@ export default toNative(TriggerActionRandomEntry);
 				background-color: var(--color-primary);
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
-				padding-left: .5em;
+				padding-left: 0.5em;
 				color: var(--color-light);
 			}
 		}
@@ -463,15 +653,15 @@ export default toNative(TriggerActionRandomEntry);
 			cursor: pointer;
 			.arrow {
 				display: inline-block;
-				margin-right: .5em;
-				transition: transform .2s;
-				&.open{
+				margin-right: 0.5em;
+				transition: transform 0.2s;
+				&.open {
 					transform: rotate(90deg);
 				}
 			}
 		}
 		.list {
-			margin-top: .5em;
+			margin-top: 0.5em;
 		}
 	}
 	.warning {

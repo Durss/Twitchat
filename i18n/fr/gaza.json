@@ -1,18 +1,18 @@
 {
 	"gaza": {
-		"title":"Aidez 🍉",
-		"tooltip":"Aidez les victimes",
-		"description":[
+		"title": "Aidez 🍉",
+		"tooltip": "Aidez les victimes",
+		"description": [
 			"Agir contre le génocide du peuple Palestinien ne fait de vous ni des antisémites ni des pro-hamas.",
 			"\n",
 			"Si vous ne pouvez vous le permettre financièrement, partagez les liens ci-dessous à vos viewers 💖"
 		],
-		"araborg_head":"1 clic gratuit par jour pour aider",
-		"araborg_message":"💖🍉 1 clic gratuit par jour pour aider =>",
-		"gazafunds_head":"Faites un don à une cagnotte\nsélectionnée au hasard",
-		"gazafunds_message":"💖🍉 Donnez à une cagnotte sélectionnée =>",
-		"allFunds_bt":"Consulter toutes les cagnottes",
-		"send_bt":"Envoyer le lien dans le chat",
-		"thanks":"💖 Merci 💖"
+		"araborg_head": "1 clic gratuit par jour pour aider",
+		"araborg_message": "💖🍉 1 clic gratuit par jour pour aider =>",
+		"gazafunds_head": "Faites un don à une cagnotte\nsélectionnée au hasard",
+		"gazafunds_message": "💖🍉 Donnez à une cagnotte sélectionnée =>",
+		"allFunds_bt": "Consulter toutes les cagnottes",
+		"send_bt": "Envoyer le lien dans le chat",
+		"thanks": "💖 Merci 💖"
 	}
 }

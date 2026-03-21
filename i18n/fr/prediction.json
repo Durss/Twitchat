@@ -1,23 +1,23 @@
 {
-  "prediction": {
-    "form": {
-      "title": "Créer une prédiction",
-      "closeBt_aria": "Fermer la fenêtre",
-      "question": "Question",
-      "outcomes": "Réponses",
-      "outcome_delete_aria": "Supprimer l'option",
-      "vote_duration": "Durée (minutes)",
-	  "question_placeholder":"question...",
-	  "answer_placeholder":"option..."
-    },
-    "state": {
-      "choose_outcome": "Choisissez le résultat",
-      "cancelBt": "Annuler la prédiction",
-      "outcome_confirm_title": "Confirmer ?",
-      "outcome_confirm_desc": "Confirmez-vous le résultat \"{CHOICE}\" ?",
-      "delete_title": "Supprimer la prédiction",
-      "delete_desc": "Voulez-vous vraiment supprimer cette prédiction ? Les participant·es seront remboursé·es.",
-      "overlay_name": "de Prédiction"
-    }
-  }
+	"prediction": {
+		"form": {
+			"title": "Créer une prédiction",
+			"closeBt_aria": "Fermer la fenêtre",
+			"question": "Question",
+			"outcomes": "Réponses",
+			"outcome_delete_aria": "Supprimer l'option",
+			"vote_duration": "Durée (minutes)",
+			"question_placeholder": "question...",
+			"answer_placeholder": "option..."
+		},
+		"state": {
+			"choose_outcome": "Choisissez le résultat",
+			"cancelBt": "Annuler la prédiction",
+			"outcome_confirm_title": "Confirmer ?",
+			"outcome_confirm_desc": "Confirmez-vous le résultat \"{CHOICE}\" ?",
+			"delete_title": "Supprimer la prédiction",
+			"delete_desc": "Voulez-vous vraiment supprimer cette prédiction ? Les participant·es seront remboursé·es.",
+			"overlay_name": "de Prédiction"
+		}
+	}
 }

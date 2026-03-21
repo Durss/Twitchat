@@ -1,5 +1,5 @@
 .card-item {
-	@padding: .5em;
+	@padding: 0.5em;
 	overflow: hidden;
 	padding: @padding;
 	border-radius: var(--border-radius);
@@ -9,17 +9,17 @@
 		display: flex;
 		flex-direction: row;
 		background-color: var(--background-color-fader);
-		transition: all .2s;
+		transition: all 0.2s;
 		margin: -@padding;
-		margin-bottom: .5em;
-		gap: .5em;
-		padding: .5em;
-		
+		margin-bottom: 0.5em;
+		gap: 0.5em;
+		padding: 0.5em;
+
 		& > .icon {
 			height: 2em;
-			margin-top: -.5em;
-			margin-left: -.5em;
-			margin-bottom: -.5em;
+			margin-top: -0.5em;
+			margin-left: -0.5em;
+			margin-bottom: -0.5em;
 			border-top-right-radius: 50%;
 			border-bottom-right-radius: 50%;
 			border-left: none;
@@ -40,11 +40,11 @@
 			font-weight: bold;
 			.icon {
 				height: 1em;
-				margin-right: .5em;
+				margin-right: 0.5em;
 			}
 		}
 	}
-	
+
 	&.primary {
 		color: var(--color-light);
 		background-color: var(--color-primary);
@@ -62,10 +62,10 @@
 			}
 		}
 		a {
-			color:#fff;
+			color: #fff;
 		}
 	}
-	
+
 	&.secondary {
 		color: var(--color-text-light);
 		background-color: var(--color-secondary);
@@ -80,10 +80,10 @@
 			}
 		}
 		a {
-			color:#fff;
+			color: #fff;
 		}
 	}
-	
+
 	&.alert {
 		color: var(--color-text-light);
 		background-color: var(--color-alert);
@@ -98,10 +98,10 @@
 			}
 		}
 		a {
-			color:#fff;
+			color: #fff;
 		}
 	}
-	
+
 	&.premium {
 		color: var(--color-text-light);
 		background-color: var(--color-premium);
@@ -116,14 +116,14 @@
 			}
 		}
 		a {
-			color:#fff;
+			color: #fff;
 		}
 	}
 
 	&.light {
 		background-color: var(--color-light);
 		color: var(--color-dark);
-		
+
 		&.primary {
 			color: var(--color-primary);
 		}
@@ -139,8 +139,10 @@
 	}
 
 	&.dark {
-		@scale:2px;
-		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3) !important;
+		@scale: 2px;
+		box-shadow:
+			inset -@scale -@scale @scale rgba(255, 255, 255, 0.1),
+			inset @scale @scale @scale rgba(0, 0, 0, 0.3) !important;
 		background-color: var(--grayout-fadest);
 	}
 }

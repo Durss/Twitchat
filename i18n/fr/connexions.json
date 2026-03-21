@@ -1,37 +1,37 @@
 {
-	"connexions":{
-		"header":"Connectez Twitchat avec des applications tièrces",
-		"spotify":{
-			"refused":"Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
-			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
-			"how_to_read":"LIS CE TUTORIEL",
-			"usage":"Connectez Spotify puis contrôlez-le depuis les Triggers ou affichez le morceau en cours de lecture depuis les Overlays.",
-			"usage_premium":"Nécessite un compte Spotify Premium !",
-			"usage_connected":"Vous pouvez afficher le morceau en cours de lecture grâce à {OVERLAY} dédié ou permettre à vos viewers de contrôler la lecture en créant des {TRIGGERS}.",
-			"usage_connected_overlay":"l'overlay",
-			"usage_connected_triggers":"triggers",
-			"success":"Spotify est maintenant connecté"
+	"connexions": {
+		"header": "Connectez Twitchat avec des applications tièrces",
+		"spotify": {
+			"refused": "Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
+			"how_to": "Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
+			"how_to_read": "LIS CE TUTORIEL",
+			"usage": "Connectez Spotify puis contrôlez-le depuis les Triggers ou affichez le morceau en cours de lecture depuis les Overlays.",
+			"usage_premium": "Nécessite un compte Spotify Premium !",
+			"usage_connected": "Vous pouvez afficher le morceau en cours de lecture grâce à {OVERLAY} dédié ou permettre à vos viewers de contrôler la lecture en créant des {TRIGGERS}.",
+			"usage_connected_overlay": "l'overlay",
+			"usage_connected_triggers": "triggers",
+			"success": "Spotify est maintenant connecté"
 		},
 
-		"triggerSocket":{
-			"ip":"IP",
-			"port":"Port",
-			"secured":"Sécurisé",
-			"success":"Connexion au serveur socket établie",
-			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers."
+		"triggerSocket": {
+			"ip": "IP",
+			"port": "Port",
+			"secured": "Sécurisé",
+			"success": "Connexion au serveur socket établie",
+			"usage": "Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers."
 		},
 
-		"youtube":{
-			"header":"Affichez votre tchat YouTube directement dans Twitchat.",
-			"success":"YouTube est maintenant connecté",
-			"current_live_title":"Sélectionnez le ou les lives auxquels se connecter",
-			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface YouTube puis cliquez sur recharger ci-dessous.",
-			"scopes_title":"Autorisations",
-			"scope_read":"Lire les messages de tchat\n(obligatoire)",
-			"scope_moderate":"Envoyer et supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",
-			"scope_moderate_details":"Cette autorisation permet aussi de supprimer des vidéos de votre chaîne, chose que Twitchat ne fera jamais, mais Youtube ne laisse pas le choix.",
-			"terms":"Conditions d'utilisation de YouTube",
-			"policy":"Politique de confidentialité de Google"
+		"youtube": {
+			"header": "Affichez votre tchat YouTube directement dans Twitchat.",
+			"success": "YouTube est maintenant connecté",
+			"current_live_title": "Sélectionnez le ou les lives auxquels se connecter",
+			"no_live": "Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface YouTube puis cliquez sur recharger ci-dessous.",
+			"scopes_title": "Autorisations",
+			"scope_read": "Lire les messages de tchat\n(obligatoire)",
+			"scope_moderate": "Envoyer et supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",
+			"scope_moderate_details": "Cette autorisation permet aussi de supprimer des vidéos de votre chaîne, chose que Twitchat ne fera jamais, mais Youtube ne laisse pas le choix.",
+			"terms": "Conditions d'utilisation de YouTube",
+			"policy": "Politique de confidentialité de Google"
 		}
 	}
 }

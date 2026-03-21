@@ -3,63 +3,107 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<template v-if="showReadAlert">
-				<img src="@/assets/img/mrbean.png" class="mrbean" :class="showMrBean ? 'show' : ''">
+				<img
+					src="@/assets/img/mrbean.png"
+					class="mrbean"
+					:class="showMrBean ? 'show' : ''"
+				/>
 				<Teleport to="body">
-					<TTButton style="position:absolute; z-index: 9;" ref="noCareFloating" big alert
-						@click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<TTButton
+						style="position: absolute; z-index: 9"
+						ref="noCareFloating"
+						big
+						alert
+						@click="close(true)"
+						>{{ $t("changelog.forceRead.fuBt") }}</TTButton
+					>
 				</Teleport>
 			</template>
-			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" style="z-index:100" />
-			<ClearButton icon="back" class="backBt" @click="currentSlide = 0"
-				v-if="currentSlide != 0 && !showReadAlert && !showFu" />
+			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" style="z-index: 100" />
+			<ClearButton
+				icon="back"
+				class="backBt"
+				@click="currentSlide = 0"
+				v-if="currentSlide != 0 && !showReadAlert && !showFu"
+			/>
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
 					<div class="image">
 						<div class="smirk" ref="smirk">😏</div>
-						<img src="@/assets/img/barracuda.png" class="barracuda" width="315" height="255">
+						<img
+							src="@/assets/img/barracuda.png"
+							class="barracuda"
+							width="315"
+							height="255"
+						/>
 					</div>
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
-					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}
+					<p v-if="readAtSpeedOfLight" class="description">
+						{{ $t("changelog.forceRead.readAtSpeedOfLight") }}
 					</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
-					<TTButton primary big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
+					<TTButton primary big @click="cancelClose()">{{
+						$t("changelog.forceRead.sorryBt")
+					}}</TTButton>
 					<!-- <TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton> -->
 					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()">{{
-						$t("changelog.forceRead.reminderBt") }}
-					</TTButton>
+						$t("changelog.forceRead.reminderBt")
+					}}</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
 
-				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true"
-					:mouseDrag="items.length > 1" @slide-start="onSlideStart">
-					<template #addons v-if="items.length > 1">
+				<Carousel
+					v-else
+					class="carousel"
+					:items-to-show="1"
+					v-model="currentSlide"
+					:wrap-around="true"
+					@slide-start="onSlideStart"
+				>
+					<template #addons>
 						<Navigation />
 						<Pagination />
 					</template>
 
-					<Slide v-for="(item, index) in items" :key="index"
-						:class="currentSlide == index ? 'item current' : 'item'">
+					<Slide
+						v-for="(item, index) in items"
+						:key="index"
+						:class="currentSlide == index ? 'item current' : 'item'"
+					>
 						<div v-if="item.i == 'toc'" class="inner">
 							<div class="head">
-								<Icon name="firstTime" class="icon"
-									:theme="currentItem.i === 'premium' ? 'light' : undefined" />
+								<Icon
+									name="firstTime"
+									class="icon"
+									:theme="currentItem.i === 'premium' ? 'light' : undefined"
+								/>
 								<span class="title">{{ $t("changelog.title") }}</span>
-								<div class="version">{{$t('changelog.version',
-									{
-										VERSION: appVersion.split('.').filter(v => v !=
-											'0').join('.')
-									})}}</div>
+								<div class="version">
+									{{
+										$t("changelog.version", {
+											VERSION: appVersion
+												.split(".")
+												.filter((v) => v != "0")
+												.join("."),
+										})
+									}}
+								</div>
 							</div>
 							<ul class="toc">
-								<li v-for="(item, index) in items.filter(v => v.l)">
-									<TTButton :icon="item.i" :premium="item.p" @click="currentSlide = index + 1">{{
-										item.l }}
-									</TTButton>
+								<li v-for="(item, index) in items.filter((v) => v.l)">
+									<TTButton
+										:icon="item.i"
+										:premium="item.p"
+										@click="currentSlide = index + 1"
+										>{{ item.l }}</TTButton
+									>
 								</li>
 								<li>
-									<TTButton secondary @click="currentSlide = items.length - 1">🫶 🥺 🫶</TTButton>
+									<TTButton secondary @click="currentSlide = items.length - 1"
+										>🫶 🥺 🫶</TTButton
+									>
 								</li>
 							</ul>
 						</div>
@@ -71,22 +115,40 @@
 
 							<div class="description" v-html="item.html"></div>
 
-							<TTButton type="link" v-if="item.i == 'streamsocket'" target="_blank"
+							<TTButton
+								type="link"
+								v-if="item.i == 'streamsocket'"
+								target="_blank"
 								href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
-								icon="streamsocket">{{
-									$t("changelog.streamsocket_plugin") }}</TTButton>
+								icon="streamsocket"
+								>{{ $t("changelog.streamsocket_plugin") }}</TTButton
+							>
 
-							<TTButton v-if="item.a" icon="test" :light="item.p === true" :premium="item.p === true"
-								@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">
-								{{ item.a.l }}</TTButton>
+							<TTButton
+								v-if="item.a"
+								icon="test"
+								:light="item.p === true"
+								:premium="item.p === true"
+								@click="
+									$store.params.openParamsPage(
+										item.a.param as TwitchatDataTypes.ParameterPagesStringType,
+										item.a.subparam,
+									)
+								"
+								>{{ item.a.l }}</TTButton
+							>
 
 							<div class="demo" v-if="(item.v || item.g) && currentSlide == index">
-								<img v-if="item.g" :src="item.g" lazy>
-								<div v-if="item.v" class="placeholder">
-									<Icon name="play" />
-								</div>
-								<video @click="$event => ($event.target as HTMLVideoElement).play()" v-if="item.v" lazy
-									:src="item.v" autoplay loop></video>
+								<img v-if="item.g" :src="item.g" lazy />
+								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
+								<video
+									@click="($event) => ($event.target as HTMLVideoElement).play()"
+									v-if="item.v"
+									lazy
+									:src="item.v"
+									autoplay
+									loop
+								></video>
 							</div>
 
 							<div v-if="item.i == 'heat'" class="card-item moreInfo">
@@ -94,33 +156,59 @@
 								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
 									<template #LINK>
 										<a :href="$config.HEAT_EXTENSION" target="_blank">{{
-											$t("changelog.heat_details_link") }}</a>
+											$t("changelog.heat_details_link")
+										}}</a>
 									</template>
 								</i18n-t>
 							</div>
 
-							<TTButton type="link" class="elgato" v-if="item.i == 'elgato'" big target="_blank"
+							<TTButton
+								type="link"
+								class="elgato"
+								v-if="item.i == 'elgato'"
+								big
+								target="_blank"
 								href="https://marketplace.elgato.com/product/twitchat-820f1bb5-465d-408b-aabf-2d46a05a10d9"
-								icon="elgato">{{ $t("changelog.streamdeck_plugin") }}</TTButton>
+								icon="elgato"
+								>{{ $t("changelog.streamdeck_plugin") }}</TTButton
+							>
 
 							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
 							<!-- <Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" /> -->
 
 							<template v-if="item.p === true || item.i == 'donate'">
-								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)"
-									v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
-								<TTButton premium icon="premium" @click="$store.params.openParamsPage(contentPremium)"
-									v-if="!isPremium">{{ $t("premium.become_premiumBt") }}</TTButton>
-								<TTButton primary icon="sub" @click="showPremiumFeatures = true"
-									v-if="!showPremiumFeatures && !isPremium">{{ $t("premium.features_title") }}
-								</TTButton>
-								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
+								<TTButton
+									secondary
+									icon="coin"
+									@click="$store.params.openParamsPage(contentDonate)"
+									v-if="item.i == 'donate'"
+									>{{ $t("params.categories.donate") }}</TTButton
+								>
+								<TTButton
+									premium
+									icon="premium"
+									@click="$store.params.openParamsPage(contentPremium)"
+									v-if="!isPremium"
+									>{{ $t("premium.become_premiumBt") }}</TTButton
+								>
+								<TTButton
+									primary
+									icon="sub"
+									@click="showPremiumFeatures = true"
+									v-if="!showPremiumFeatures && !isPremium"
+									>{{ $t("premium.features_title") }}</TTButton
+								>
+								<SponsorTable
+									class="premiumTable"
+									v-if="showPremiumFeatures"
+									expand
+								/>
 							</template>
 
 							<template v-if="item.y">
 								<a :href="item.y" target="_blank" class="youtubeBt">
 									<Icon name="youtube" theme="light" />
-									<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+									<span>{{ $t("overlay.youtube_demo_tt") }}</span>
 									<Icon name="newtab" theme="light" />
 								</a>
 							</template>
@@ -133,25 +221,29 @@
 </template>
 
 <script lang="ts">
-import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { gsap } from 'gsap/gsap-core';
-import { toNative, Component, Vue } from 'vue-facing-decorator';
-import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
-import 'vue3-carousel/dist/carousel.css';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ThemeSelector from '../ThemeSelector.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import OverlayCounter from '../overlays/OverlayCounter.vue';
-import SponsorTable from '../premium/SponsorTable.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import MessageItem from '../messages/MessageItem.vue';
-import { defineAsyncComponent, markRaw } from 'vue';
-const ChangelogLabels = defineAsyncComponent({ loader: () => import('@/components/changelog/ChangelogLabels.vue') })
-const Changelog3rdPartyAnim = defineAsyncComponent({ loader: () => import('@/components/changelog/Changelog3rdPartyAnim.vue') })
+import DataStore from "@/store/DataStore";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import { Carousel, Navigation, Pagination, Slide } from "vue3-carousel";
+import "vue3-carousel/dist/carousel.css";
+import TTButton from "../TTButton.vue";
+import ClearButton from "../ClearButton.vue";
+import ThemeSelector from "../ThemeSelector.vue";
+import ToggleBlock from "../ToggleBlock.vue";
+import OverlayCounter from "../overlays/OverlayCounter.vue";
+import SponsorTable from "../premium/SponsorTable.vue";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import MessageItem from "../messages/MessageItem.vue";
+import { defineAsyncComponent, markRaw } from "vue";
+const ChangelogLabels = defineAsyncComponent({
+	loader: () => import("@/components/changelog/ChangelogLabels.vue"),
+});
+const Changelog3rdPartyAnim = defineAsyncComponent({
+	loader: () => import("@/components/changelog/Changelog3rdPartyAnim.vue"),
+});
 
 @Component({
 	components: {
@@ -169,10 +261,9 @@ const Changelog3rdPartyAnim = defineAsyncComponent({ loader: () => import('@/com
 		Pagination,
 		Navigation,
 	},
-	emits: ["close"]
+	emits: ["close"],
 })
 class Changelog extends Vue {
-
 	public showFu: boolean = false;
 	public showCode: boolean = false;
 	public showMrBean: boolean = false;
@@ -181,7 +272,7 @@ class Changelog extends Vue {
 	public readAtSpeedOfLight: boolean = false;
 	public currentSlide: number = 0;
 	public buildIndex: number = 0;
-	public items: (TwitchatDataTypes.ChangelogEntry & { html: string })[] = []
+	public items: (TwitchatDataTypes.ChangelogEntry & { html: string })[] = [];
 
 	private openedAt = 0;
 	private closing: boolean = false;
@@ -190,8 +281,12 @@ class Changelog extends Vue {
 	private durationsUpdateTO = -1;
 	private keyUpHandler!: (e: KeyboardEvent) => void;
 
-	public get appVersion(): string { return import.meta.env.PACKAGE_VERSION; }
-	public get isPremium(): boolean { return this.$store.auth.isPremium; }
+	public get appVersion(): string {
+		return import.meta.env.PACKAGE_VERSION;
+	}
+	public get isPremium(): boolean {
+		return this.$store.auth.isPremium;
+	}
 
 	public get classes(): string[] {
 		const res: string[] = ["changelog", "modal"];
@@ -203,28 +298,37 @@ class Changelog extends Vue {
 	/**
 	 * Get currently displayed item data
 	 */
-	public get currentItem(): TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]!; }
-	public get contentDonate(): TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
-	public get contentPremium(): TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
-	public get hasEmoteScope(): boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]); }
-	public get hasUnbanRequestScope(): boolean { return TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS]); }
+	public get currentItem(): TwitchatDataTypes.ChangelogEntry {
+		return this.items[this.currentSlide]!;
+	}
+	public get contentDonate(): TwitchatDataTypes.ParameterPagesStringType {
+		return TwitchatDataTypes.ParameterPages.DONATE;
+	}
+	public get contentPremium(): TwitchatDataTypes.ParameterPagesStringType {
+		return TwitchatDataTypes.ParameterPages.PREMIUM;
+	}
+	public get hasEmoteScope(): boolean {
+		return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]);
+	}
+	public get hasUnbanRequestScope(): boolean {
+		return TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS]);
+	}
 
 	public beforeMount(): void {
-		let list = (this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[])
-			.map(v => ({
+		let list = (this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[]).map(
+			(v) => ({
 				...v,
-				html: ""
-			}));
-		list.forEach(v => {
-			v.html = this.parseCommonPlaceholders(v.d || '')
-		})
-		if (list.length > 1) {
-			list.unshift({
-				l: "",
-				i: "toc",
 				html: "",
-			})
-		}
+			}),
+		);
+		list.forEach((v) => {
+			v.html = this.parseCommonPlaceholders(v.d || "");
+		});
+		list.unshift({
+			l: "",
+			i: "toc",
+			html: "",
+		});
 		this.items = list;
 	}
 
@@ -235,8 +339,14 @@ class Changelog extends Vue {
 		//Leave the view a bit of time to render to avoid lag during transition
 		window.setTimeout(() => {
 			gsap.set(this.$el as HTMLDivElement, { opacity: 1 });
-			gsap.from(this.$refs.dimmer as HTMLDivElement, { duration: .25, opacity: 0 });
-			gsap.from(this.$refs.holder as HTMLDivElement, { marginTop: "150px", ease: "back.out", opacity: 0, duration: 1, clearProps: "all" });
+			gsap.from(this.$refs.dimmer as HTMLDivElement, { duration: 0.25, opacity: 0 });
+			gsap.from(this.$refs.holder as HTMLDivElement, {
+				marginTop: "150px",
+				ease: "back.out",
+				opacity: 0,
+				duration: 1,
+				clearProps: "all",
+			});
 		}, 250);
 
 		this.keyUpHandler = (e: KeyboardEvent) => this.onKeyUp(e);
@@ -282,10 +392,11 @@ class Changelog extends Vue {
 		if (this.closing) return;
 
 		//If most of the slides haven't been swiped or too quickly, yell at the user
-		let minSlidesToRead = Math.floor(this.items.length * .8 - 2); //-1 to ignore TOC and Donate slides
+		let minSlidesToRead = Math.floor(this.items.length * 0.8 - 2); //-1 to ignore TOC and Donate slides
 		const didntReadAll = [...this.slideCountRead].length < minSlidesToRead; //don't care about last slide
-		this.readAtSpeedOfLight = Date.now() - this.openedAt < minSlidesToRead * 2000 && !didntReadAll;
-		if (this.items.length > 1 && !forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
+		this.readAtSpeedOfLight =
+			Date.now() - this.openedAt < minSlidesToRead * 2000 && !didntReadAll;
+		if (!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
 			this.showReadAlert = true;
 			return;
 		}
@@ -297,20 +408,33 @@ class Changelog extends Vue {
 			this.showReadAlert = !fuMode;
 			if (fuMode) {
 				await this.$nextTick();
-				gsap.to(this.$refs.fu as HTMLDivElement, { duration: .5, opacity: 0, fontSize: 0, ease: "back.in" });
+				gsap.to(this.$refs.fu as HTMLDivElement, {
+					duration: 0.5,
+					opacity: 0,
+					fontSize: 0,
+					ease: "back.in",
+				});
 				await Utils.promisedTimeout(500);
 			}
 			this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
 		}
 
-		gsap.to(this.$refs.dimmer as HTMLDivElement, { duration: .25, opacity: 0 });
+		gsap.to(this.$refs.dimmer as HTMLDivElement, { duration: 0.25, opacity: 0 });
 		gsap.to(this.$refs.holder as HTMLDivElement, {
-			y: "-150px", ease: "back.in", opacity: 0, duration: .5, onComplete: () => {
-				this.$emit('close');
-			}
+			y: "-150px",
+			ease: "back.in",
+			opacity: 0,
+			duration: 0.5,
+			onComplete: () => {
+				this.$emit("close");
+			},
 		});
 
-		if (!forceClose && DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
+		if (
+			!forceClose &&
+			DataStore.get(DataStore.UPDATE_INDEX) !=
+				(this.$store.main.latestUpdateIndex as number).toString()
+		) {
 			DataStore.set(DataStore.UPDATE_INDEX, this.$store.main.latestUpdateIndex);
 		}
 	}
@@ -321,7 +445,12 @@ class Changelog extends Vue {
 	 * @param prevSlideIndex
 	 * @param slidesCount
 	 */
-	public onSlideStart(data: { currentSlideIndex: number, prevSlideIndex: number, slidesCount: number, slidingToIndex: number }): void {
+	public onSlideStart(data: {
+		currentSlideIndex: number;
+		prevSlideIndex: number;
+		slidesCount: number;
+		slidingToIndex: number;
+	}): void {
 		this.slideCountRead.set(data.slidingToIndex, true);
 		this.showPremiumFeatures = false;
 		(this.$refs.scrollable as HTMLDivElement).scrollTo(0, 0);
@@ -333,8 +462,14 @@ class Changelog extends Vue {
 	 */
 	public parseCommonPlaceholders(str: string): string {
 		const message = "Congrats for reading! Use command <input readonly value='/_hYUZ8S5_' />";
-		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
-		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
+		str = str.replace(
+			/\{HEAT\}/gi,
+			`<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`,
+		);
+		str = str.replace(
+			/\{SHADERTASTIC\}/gi,
+			`<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`,
+		);
 		str = str.replace(/\{_LI\}/gi, `<li class="_code_">${message}</li>`);
 		str = str.replace(/\{_.*?\}/gi, `<span class="_code_">${message}</span>`);
 		return str;
@@ -380,9 +515,8 @@ class Changelog extends Vue {
 					list[i]!.classList.add("rainbow");
 				}
 			}
-		})
+		});
 	}
-
 }
 export default toNative(Changelog);
 </script>
@@ -392,7 +526,7 @@ export default toNative(Changelog);
 	z-index: 2;
 
 	&.premium {
-		&>.holder {
+		& > .holder {
 			color: var(--color-light);
 			background-color: var(--color-premium-dark);
 
@@ -407,11 +541,13 @@ export default toNative(Changelog);
 		}
 	}
 
-	&>.holder {
+	& > .holder {
 		width: 600px;
 		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
-		transition: background-color .2s, color .2s;
+		transition:
+			background-color 0.2s,
+			color 0.2s;
 		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
 		max-height: calc(var(--vh) - var(--chat-form-height));
 		padding-top: 2.5em;
@@ -434,7 +570,7 @@ export default toNative(Changelog);
 				max-height: 3em;
 				width: unset;
 				max-width: unset;
-				margin-bottom: .5em;
+				margin-bottom: 0.5em;
 			}
 
 			.title {
@@ -445,8 +581,8 @@ export default toNative(Changelog);
 		.version {
 			text-align: center;
 			font-style: italic;
-			font-size: .8em;
-			opacity: .5;
+			font-size: 0.8em;
+			opacity: 0.5;
 		}
 
 		.mrbean {
@@ -490,7 +626,7 @@ export default toNative(Changelog);
 				width: calc(100% - 5px);
 				min-height: 100%;
 
-				&>.icon {
+				& > .icon {
 					height: 2em;
 				}
 
@@ -517,11 +653,10 @@ export default toNative(Changelog);
 				.demo {
 					max-width: calc(100% - 2em);
 					// max-height: 400px;
-					transition: all .5s;
+					transition: all 0.5s;
 					overflow: hidden;
 					border-radius: var(--border-radius);
 					position: relative;
-
 					&:hover {
 						max-height: 550px;
 						max-width: 100%;
@@ -565,12 +700,12 @@ export default toNative(Changelog);
 
 					.icon {
 						height: 1em;
-						margin-right: .25em;
+						margin-right: 0.25em;
 					}
 				}
 
 				.messageList {
-					gap: .5em;
+					gap: 0.5em;
 					display: flex;
 					flex-direction: column;
 					text-align: left;
@@ -582,7 +717,7 @@ export default toNative(Changelog);
 				}
 
 				.videos {
-					gap: .5em;
+					gap: 0.5em;
 					display: flex;
 					flex-direction: row;
 
@@ -622,8 +757,7 @@ export default toNative(Changelog);
 					margin-left: 0;
 
 					li {
-						margin-bottom: .5em;
-
+						margin-bottom: 0.5em;
 						button {
 							width: 100%;
 						}
@@ -644,22 +778,20 @@ export default toNative(Changelog);
 				stroke-linejoin: round;
 				stroke: var(--color-light);
 				paint-order: stroke;
-				filter: drop-shadow(0 2px 0px rgba(0, 0, 0, .5));
-				transition: transform .25s;
+				filter: drop-shadow(0 2px 0px rgba(0, 0, 0, 0.5));
+				transition: transform 0.25s;
 			}
 
 			&.carousel__next {
 				right: 6px;
-
-				&:hover>svg {
+				&:hover > svg {
 					transform: scale(2.1) translate(3px);
 				}
 			}
 
 			&.carousel__prev {
 				left: 6px;
-
-				&:hover>svg {
+				&:hover > svg {
 					transform: scale(2.1) translate(-3px);
 				}
 			}
@@ -674,13 +806,15 @@ export default toNative(Changelog);
 		:deep(.carousel__pagination-button) {
 			border-radius: 4px;
 			background-color: var(--color-text);
-			transition: height .25s, margin-top .25s;
+			transition:
+				height 0.25s,
+				margin-top 0.25s;
 		}
 
 		:deep(.carousel__pagination-button--active) {
 			border-radius: 2px;
-			height: .75em !important;
-			margin-top: -.5em !important;
+			height: 0.75em !important;
+			margin-top: -0.5em !important;
 			transform-origin: bottom center;
 		}
 
@@ -700,13 +834,11 @@ export default toNative(Changelog);
 				animation: grow 2s infinite alternate;
 
 				@keyframes grow {
-
 					0%,
 					20% {
-						height: .5em;
-						margin-top: -.25em;
+						height: 0.5em;
+						margin-top: -0.25em;
 					}
-
 					10%,
 					30%,
 					100% {
@@ -741,16 +873,16 @@ export default toNative(Changelog);
 				opacity: 0;
 				font-size: 8em;
 				position: absolute;
-				transition: opacity .5s;
+				transition: opacity 0.5s;
 			}
 		}
 
 		h2 {
 			font-size: 2.5em;
-			padding: .5em;
+			padding: 0.5em;
 			color: var(--color-light);
 			background-color: var(--color-dark);
-			margin-top: -.5em;
+			margin-top: -0.5em;
 			white-space: pre-line;
 			text-align: center;
 		}
@@ -767,12 +899,12 @@ export default toNative(Changelog);
 		display: block;
 		text-align: center;
 		font-size: 5em;
-		padding: .25em;
+		padding: 0.25em;
 	}
 
 	.youtubeBt {
-		padding: .5em;
-		gap: .5em;
+		padding: 0.5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		color: var(--color-light);
@@ -781,8 +913,7 @@ export default toNative(Changelog);
 		border-radius: var(--border-radius);
 		margin: 0 auto;
 		align-items: center;
-		transition: background-color .25s;
-
+		transition: background-color 0.25s;
 		.icon {
 			height: 1em;
 			min-height: 20px;
@@ -805,12 +936,11 @@ export default toNative(Changelog);
 			}
 		}
 	}
-
 }
 
 @media only screen and (max-width: 600px) {
 	.changelog {
-		font-size: .9em;
+		font-size: 0.9em;
 	}
 }
 </style>
@@ -826,12 +956,12 @@ export default toNative(Changelog);
 
 		input {
 			background: none;
-			width: 100Px;
+			width: 100px;
 			border: none;
 			padding: 0;
 			border-radius: 0;
 			margin: 0;
-			font-size: .9em;
+			font-size: 0.9em;
 			outline: none;
 			color: var(--color-text);
 			font-weight: 300;

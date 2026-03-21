@@ -2,110 +2,127 @@ import Config from "./Config.js";
 /**
  * Created by Durss on 16/03/2017
  */
-export default class Logger  {
-
-	constructor() {
-	}
+export default class Logger {
+	constructor() {}
 
 	/********************
 	 * GETTER / SETTERS *
 	 ********************/
 
-
-
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-	public static log(message:any, ...more:string[]):void {
-		if(!Config.LOGS_ENABLED) return;
+	public static log(message: any, ...more: string[]): void {
+		if (!Config.LOGS_ENABLED) return;
 
-		let chunks:string[] = [message];
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
 		this.doLog(chunks.join(" "));
 	}
 
-	public static simpleLog(message:any, ...more:string[]):void {
-		if(!Config.LOGS_ENABLED) return;
+	public static simpleLog(message: any, ...more: string[]): void {
+		if (!Config.LOGS_ENABLED) return;
 
-		let chunks:string[] = [message];
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
-		console.log("                            "+LogStyle.Reset+chunks.join(" ")+LogStyle.Reset);
+		console.log(
+			"                            " + LogStyle.Reset + chunks.join(" ") + LogStyle.Reset,
+		);
 	}
 
-	public static info(message:any, ...more:string[]):void {
-		if(!Config.LOGS_ENABLED) return;
+	public static info(message: any, ...more: string[]): void {
+		if (!Config.LOGS_ENABLED) return;
 
-		let chunks:string[] = [message];
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.Italic+LogStyle.FgCyan+chunks.join(" "));
+		this.doLog(LogStyle.Italic + LogStyle.FgCyan + chunks.join(" "));
 	}
 
-	public static warn(message:any, ...more:string[]):void {
-		let chunks:string[] = [message];
+	public static warn(message: any, ...more: string[]): void {
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.FgYellow+chunks.join(" "));
+		this.doLog(LogStyle.FgYellow + chunks.join(" "));
 	}
 
-	public static error(message:any, ...more:string[]):void {
-		let chunks:string[] = [message];
+	public static error(message: any, ...more: string[]): void {
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.Bold+LogStyle.FgRed+chunks.join(" "));
+		this.doLog(LogStyle.Bold + LogStyle.FgRed + chunks.join(" "));
 	}
 
-	public static success(message:any, ...more:string[]):void {
-		let chunks:string[] = [message];
+	public static success(message: any, ...more: string[]): void {
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.FgGreen+chunks.join(" "));
+		this.doLog(LogStyle.FgGreen + chunks.join(" "));
 	}
 
-	public static grey(message:any, ...more:string[]):void {
-		let chunks:string[] = [message];
+	public static grey(message: any, ...more: string[]): void {
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.FgGrey+chunks.join(" "));
+		this.doLog(LogStyle.FgGrey + chunks.join(" "));
 	}
 
-	public static highlight(message:any, ...more:string[]):void {
-		let chunks:string[] = [message];
+	public static highlight(message: any, ...more: string[]): void {
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
-		this.doLog(LogStyle.BgBlue+LogStyle.FgWhite+chunks.join(" "));
+		this.doLog(LogStyle.BgBlue + LogStyle.FgWhite + chunks.join(" "));
 	}
-	public static rgb(color:string, message:any, ...more:string[]):void {
-		if(!Config.LOGS_ENABLED) return;
+	public static rgb(color: string, message: any, ...more: string[]): void {
+		if (!Config.LOGS_ENABLED) return;
 
-		let chunks:string[] = [message];
+		let chunks: string[] = [message];
 		chunks = chunks.concat(more);
 
 		const c = parseInt(color.replace(/[^a-z0-9]/gi, ""), 16);
 		const r = (c >> 16) & 0xff;
 		const g = (c >> 8) & 0xff;
 		const b = c & 0xff;
-		
-		const style = "\x1B[38;2;"+r+";"+g+";"+b+"m";
 
-		this.doLog(style+chunks.join(" "));
+		const style = "\x1B[38;2;" + r + ";" + g + ";" + b + "m";
+
+		this.doLog(style + chunks.join(" "));
 	}
-
-
 
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
-	private static convertDate(inputFormat:Date):string {
-		function pad(s:number) { return (s < 10) ? '0' + s : s; }
-		function pad2(s:number) { return (s < 10) ? '00' + s : (s < 100) ? '0' + s : s; }
+	private static convertDate(inputFormat: Date): string {
+		function pad(s: number) {
+			return s < 10 ? "0" + s : s;
+		}
+		function pad2(s: number) {
+			return s < 10 ? "00" + s : s < 100 ? "0" + s : s;
+		}
 		const d = new Date(inputFormat);
-		return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()-2000].join('/')+ " " + [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':')+":"+pad2(d.getMilliseconds());
+		return (
+			[pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear() - 2000].join("/") +
+			" " +
+			[pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(":") +
+			":" +
+			pad2(d.getMilliseconds())
+		);
 	}
 
-	private static doLog(mess:string):void {
-		console.log(LogStyle.Underscore+LogStyle.FgBlack+LogStyle.BgWhite+"["+this.convertDate(new Date())+"]"+LogStyle.Reset+" : "+mess+LogStyle.Reset);
+	private static doLog(mess: string): void {
+		console.log(
+			LogStyle.Underscore +
+				LogStyle.FgBlack +
+				LogStyle.BgWhite +
+				"[" +
+				this.convertDate(new Date()) +
+				"]" +
+				LogStyle.Reset +
+				" : " +
+				mess +
+				LogStyle.Reset,
+		);
 	}
 }
 
@@ -136,7 +153,7 @@ export class LogStyle {
 	static BgMagenta = "\x1b[45m";
 	static BgCyan = "\x1b[46m";
 	static BgWhite = "\x1b[47m";
-	
+
 	static Bold = "\x1B[1m";
 	static Italic = "\x1B[3m";
 	static Underline = "\x1B[4m";

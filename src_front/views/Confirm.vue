@@ -3,126 +3,149 @@
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
 			<div class="title" v-html="htmlSafe(confirmData.title)"></div>
-			
+
 			<VoiceGlobalCommandsHelper v-if="voiceController" :confirmMode="true" />
 
-			<div class="description" v-if="confirmData.description" v-html="htmlSafe(confirmData.description)"></div>
+			<div
+				class="description"
+				v-if="confirmData.description"
+				v-html="htmlSafe(confirmData.description)"
+			></div>
 			<div class="buttons">
-				<Button class="button" @click.stop="answer()" type="cancel" alert>{{ confirmData.noLabel ?? $t('global.cancel') }}</Button>
-				<Button class="button" @click.stop="answer(true)" primary>{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
+				<Button class="button" @click.stop="answer()" type="cancel" alert>{{
+					confirmData.noLabel ?? $t("global.cancel")
+				}}</Button>
+				<Button class="button" @click.stop="answer(true)" primary>{{
+					confirmData.yesLabel ?? $t("global.yes")
+				}}</Button>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHelper.vue';
-import DOMPurify from 'isomorphic-dompurify';
-import VoiceController from '@/utils/voice/VoiceController';
+import TTButton from "@/components/TTButton.vue";
+import FormVoiceControllHelper from "@/components/voice/FormVoiceControllHelper";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { watch } from "@vue/runtime-core";
+import { gsap } from "gsap/gsap-core";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import VoiceGlobalCommandsHelper from "../components/voice/VoiceGlobalCommandsHelper.vue";
+import DOMPurify from "isomorphic-dompurify";
+import VoiceController from "@/utils/voice/VoiceController";
 
 @Component({
-	components:{
+	components: {
 		Button: TTButton,
 		VoiceGlobalCommandsHelper,
-	}
+	},
 })
 class Confirm extends Vue {
-	
-	public confirmData:TwitchatDataTypes.ConfirmData|null = null;
+	public confirmData: TwitchatDataTypes.ConfirmData | null = null;
 	public submitPressed = false;
-	public voiceController!:FormVoiceControllHelper;
-	
-	private keyUpHandler!:(e:KeyboardEvent) => void;
-	private keyDownHandler!:(e:KeyboardEvent) => void;
+	public voiceController!: FormVoiceControllHelper;
 
-	public mounted():void {
-		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
+	private keyUpHandler!: (e: KeyboardEvent) => void;
+	private keyDownHandler!: (e: KeyboardEvent) => void;
+
+	public mounted(): void {
+		this.keyUpHandler = (e: KeyboardEvent) => this.onKeyUp(e);
+		this.keyDownHandler = (e: KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
-		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
-		watch(() => this.$store.main.confirmData, async () => {
-			await Utils.promisedTimeout(50);
-			this.onConfirmChanged();
-		});
+		document.addEventListener("keydown", this.keyDownHandler, { capture: true });
+		watch(
+			() => this.$store.main.confirmData,
+			async () => {
+				await Utils.promisedTimeout(50);
+				this.onConfirmChanged();
+			},
+		);
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		document.removeEventListener("keyup", this.keyUpHandler);
-		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
+		document.removeEventListener("keydown", this.keyDownHandler, { capture: true });
 	}
 
-	public htmlSafe(html:string):string {
+	public htmlSafe(html: string): string {
 		return DOMPurify.sanitize(html);
 	}
 
-	public async onConfirmChanged():Promise<void> {
+	public async onConfirmChanged(): Promise<void> {
 		const d = this.$store.main.confirmData;
-		
+
 		let hidden = d == null;
 
-		if(!hidden) {
+		if (!hidden) {
 			this.confirmData = d;
 			await this.$nextTick();
 			const holder = this.$refs.holder as HTMLElement;
 			const dimmer = this.$refs.dimmer as HTMLElement;
-			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
+			(document.activeElement as HTMLElement).blur(); //avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([holder, dimmer]);
-			gsap.set(holder, {marginTop:0, opacity:1});
-			gsap.to(dimmer, {duration:.25, opacity:1});
-			gsap.from(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out"});
-			if(VoiceController.instance.started.value) {
-				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			gsap.set(holder, { marginTop: 0, opacity: 1 });
+			gsap.to(dimmer, { duration: 0.25, opacity: 1 });
+			gsap.from(holder, { duration: 0.25, marginTop: 100, opacity: 0, ease: "back.out" });
+			if (VoiceController.instance.started.value) {
+				this.voiceController = new FormVoiceControllHelper(
+					this.$el,
+					this.close,
+					this.submitForm,
+				);
 			}
-		}else{
-			if(this.voiceController) this.voiceController.dispose();
+		} else {
+			if (this.voiceController) this.voiceController.dispose();
 			gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 			const holder = this.$refs.holder as HTMLElement;
 			const dimmer = this.$refs.dimmer as HTMLElement;
-			gsap.to(dimmer, {duration:.25, opacity:0, ease:"sine.in"});
-			gsap.to(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out", onComplete:()=> {
-				this.confirmData = null;
-			}});
+			gsap.to(dimmer, { duration: 0.25, opacity: 0, ease: "sine.in" });
+			gsap.to(holder, {
+				duration: 0.25,
+				marginTop: 100,
+				opacity: 0,
+				ease: "back.out",
+				onComplete: () => {
+					this.confirmData = null;
+				},
+			});
 		}
 	}
 
 	/**
 	 * Used by FormVoiceControllHelper
 	 */
-	public close():void {
+	public close(): void {
 		this.answer(false);
 	}
 
 	/**
 	 * Used by FormVoiceControllHelper
 	 */
-	public submitForm():void {
+	public submitForm(): void {
 		this.answer(true);
 	}
 
-	private onDownUp(e:KeyboardEvent):void {
-		if(!this.confirmData) return;
-		if(e.key == "Enter" || e.key == " ") {//Enter / space
+	private onDownUp(e: KeyboardEvent): void {
+		if (!this.confirmData) return;
+		if (e.key == "Enter" || e.key == " ") {
+			//Enter / space
 			this.submitPressed = true;
 			e.preventDefault();
 		}
-		if(e.key == "Escape") {//escape
+		if (e.key == "Escape") {
+			//escape
 			this.answer(false);
 			e.preventDefault();
 			e.stopPropagation();
 		}
 	}
 
-	private onKeyUp(e:KeyboardEvent):void {
-		if(!this.confirmData) return;
-		if(e.key == "Enter" || e.key == " ") {//Enter / space
-			if(this.submitPressed) {
+	private onKeyUp(e: KeyboardEvent): void {
+		if (!this.confirmData) return;
+		if (e.key == "Enter" || e.key == " ") {
+			//Enter / space
+			if (this.submitPressed) {
 				this.answer(true);
 				this.submitPressed = false;
 			}
@@ -131,16 +154,16 @@ class Confirm extends Vue {
 		}
 	}
 
-	public answer(confirm = false):void {
+	public answer(confirm = false): void {
 		const d = this.$store.main.confirmData;
-		if(!d) return;
-		
-		if(confirm) {
-			if(d.confirmCallback) {
+		if (!d) return;
+
+		if (confirm) {
+			if (d.confirmCallback) {
 				d.confirmCallback!();
 			}
-		}else{
-			if(d.cancelCallback) {
+		} else {
+			if (d.cancelCallback) {
 				d.cancelCallback!();
 			}
 		}
@@ -151,18 +174,17 @@ export default toNative(Confirm);
 </script>
 
 <style lang="less" scoped>
-
 .confirmView {
 	z-index: 99;
 	position: fixed;
 
-	&>.holder {
+	& > .holder {
 		width: 400px;
 
 		.icon {
 			display: block;
 			margin: auto;
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 			height: 3em;
 		}
 
@@ -199,8 +221,8 @@ export default toNative(Confirm);
 
 @media only screen and (max-width: 500px) {
 	.confirmView {
-		&>.holder {
-			padding: .75em;
+		& > .holder {
+			padding: 0.75em;
 			width: 90vw;
 
 			.icon {
@@ -213,7 +235,7 @@ export default toNative(Confirm);
 
 			.description {
 				font-size: 1em;
-				margin-top: .5em;
+				margin-top: 0.5em;
 			}
 
 			.buttons {
@@ -222,5 +244,4 @@ export default toNative(Confirm);
 		}
 	}
 }
-
 </style>

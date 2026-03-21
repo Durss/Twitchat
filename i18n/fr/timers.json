@@ -1,5 +1,5 @@
 {
-	"timers":{
+	"timers": {
 		"header": "Créez des minuteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
 		"header_link_trigger": "les triggers",
 		"header_link_overlay": "affichez-les",
@@ -14,9 +14,9 @@
 			"message": "Êtes-vous sûr de vouloir supprimer ce minuteur ?"
 		},
 
-		"panel":{
-			"title":"Minuteurs",
-			"description":"Lancez un chronomètre ou un compte à rebours",
+		"panel": {
+			"title": "Minuteurs",
+			"description": "Lancez un chronomètre ou un compte à rebours",
 			"hint_timer": "Vous pouvez contrôler ce chronomètre avec les commandes {CMD}",
 			"hint_countdown": "Vous pouvez contrôler ce compte à rebours avec les commandes {CMD}"
 		},

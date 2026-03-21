@@ -1,134 +1,155 @@
 <template>
 	<div class="pollstate gameStateWindow">
 		<div class="head" v-stickyTopShadow>
-			<h1 class="title"><Icon name="poll" />{{poll.title}}</h1>
-			<ProgressBar class="progress"
+			<h1 class="title"><Icon name="poll" />{{ poll.title }}</h1>
+			<ProgressBar
+				class="progress"
 				secondary
 				:percent="progressPercent"
-				:duration="poll.duration_s*1000" />
+				:duration="poll.duration_s * 1000"
+			/>
 			<slot />
 		</div>
 
-
 		<div class="body">
 			<div class="choices">
-				<div v-for="(c, index) in poll.choices"
+				<div
+					v-for="(c, index) in poll.choices"
 					:key="index"
 					:style="getAnswerStyles(c)"
 					:class="getAnswerClasses(c)"
 				>
-					<div>{{c.label}}</div>
-					<div>{{getPercent(c)}}% ({{c.votes}})</div>
+					<div>{{ c.label }}</div>
+					<div>{{ getPercent(c) }}% ({{ c.votes }})</div>
 				</div>
 			</div>
-	
-			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
-			v-if="poll.creator && poll.creator.id != me.id">
+
+			<i18n-t
+				class="creator"
+				scope="global"
+				tag="div"
+				keypath="poll.form.created_by"
+				v-if="poll.creator && poll.creator.id != me.id"
+			>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{poll.creator.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard()">{{
+						poll.creator.displayName
+					}}</a>
 				</template>
 			</i18n-t>
-	
+
 			<div class="actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
-				<TTButton alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</TTButton>
+				<TTButton alert @click="endPoll()" :loading="loading">{{
+					$t("poll.state.endBt")
+				}}</TTButton>
 			</div>
-			
+
 			<OverlayPresenceChecker
 				:overlayName="$t('poll.state.overlay_name')"
-				:overlayType="'polls'" />
+				:overlayType="'polls'"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import ProgressBar from '../ProgressBar.vue';
-import Icon from '../Icon.vue';
-import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import TTButton from "../TTButton.vue";
+import ProgressBar from "../ProgressBar.vue";
+import Icon from "../Icon.vue";
+import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		ProgressBar,
 		OverlayPresenceChecker,
-	}
+	},
 })
 class PollState extends Vue {
-
 	public loading = false;
 	public progressPercent = 0;
 
 	private disposed = false;
 
-	public get poll():TwitchatDataTypes.MessagePollData { return this.$store.poll.data!; }
+	public get poll(): TwitchatDataTypes.MessagePollData {
+		return this.$store.poll.data!;
+	}
 
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
+	public get me(): TwitchatDataTypes.TwitchatUser {
+		return this.$store.auth.twitch.user;
+	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice):number {
+	public getPercent(c: TwitchatDataTypes.MessagePollDataChoice): number {
 		let totalVotes = 0;
-		if(this.poll) {
+		if (this.poll) {
 			for (let i = 0; i < this.poll.choices.length; i++) {
 				totalVotes += this.poll.choices[i]!.votes;
 			}
 		}
-		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
+		return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):{[key:string]:string} {
-		let res:{[key:string]:string} = {};
+	public getAnswerStyles(c: TwitchatDataTypes.MessagePollDataChoice): { [key: string]: string } {
+		let res: { [key: string]: string } = {};
 		res.backgroundSize = `${this.getPercent(c)}% 100%`;
 		return res;
 	}
 
-	public getAnswerClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
-		let res:string[] = ["choice"];
+	public getAnswerClasses(c: TwitchatDataTypes.MessagePollDataChoice): string[] {
+		let res: string[] = ["choice"];
 
 		let max = 0;
-		this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
-		if(c.votes == max) res.push("win");
+		this.poll.choices.forEach((v) => {
+			max = Math.max(max, v.votes);
+		});
+		if (c.votes == max) res.push("win");
 		else res.push("lose");
 
 		return res;
 	}
 
-	public mounted():void {
+	public mounted(): void {
 		this.renderFrame();
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
-	public endPoll():void {
+	public endPoll(): void {
 		this.loading = true;
 
-		this.$confirm(this.$t("poll.state.closeConfirm.title"), this.$t("poll.state.closeConfirm.message"))
-		.then(async ()=> {
-			try {
-				await TwitchUtils.endPoll(this.poll.id, this.poll.channel_id);
-			}catch(error) {
+		this.$confirm(
+			this.$t("poll.state.closeConfirm.title"),
+			this.$t("poll.state.closeConfirm.message"),
+		)
+			.then(async () => {
+				try {
+					await TwitchUtils.endPoll(this.poll.id, this.poll.channel_id);
+				} catch (error) {
+					this.loading = false;
+					this.$store.common.alert("An error occurred while deleting the poll");
+				}
 				this.loading = false;
-				this.$store.common.alert( "An error occurred while deleting the poll" );
-			}
-			this.loading = false;
-		}).catch(()=> {
-			this.loading = false;
-		});
+			})
+			.catch(() => {
+				this.loading = false;
+			});
 	}
 
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderFrame());
+	private renderFrame(): void {
+		if (this.disposed) return;
+		requestAnimationFrame(() => this.renderFrame());
 		const elapsed = Date.now() - this.poll.started_at;
 		const duration = this.poll.duration_s * 1000;
-		this.progressPercent = elapsed/duration;
+		this.progressPercent = elapsed / duration;
 	}
 
-	public openUserCard():void {
+	public openUserCard(): void {
 		this.$store.users.openUserCard(this.poll.creator!);
 	}
 }
@@ -136,9 +157,9 @@ export default toNative(PollState);
 </script>
 
 <style scoped lang="less">
-.pollstate{
+.pollstate {
 	.creator {
-		font-size: .8em;
+		font-size: 0.8em;
 		text-align: center;
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
@@ -151,10 +172,10 @@ export default toNative(PollState);
 			display: flex;
 			flex-direction: row;
 			border-radius: var(--border-radius);
-			padding: .25em .5em;
+			padding: 0.25em 0.5em;
 			font-size: em;
 			background-color: var(--color-secondary-fadest);
-			transition: background-size .2s;
+			transition: background-size 0.2s;
 			justify-content: space-between;
 			background-repeat: no-repeat;
 			&:not(:last-child) {
