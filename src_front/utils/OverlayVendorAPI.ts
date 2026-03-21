@@ -1,30 +1,24 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 
 /**
-* Created : 21/06/2024 
-*/
+ * Created : 21/06/2024
+ */
 export default class OverlayVendorAPI extends EventDispatcher {
-
 	constructor() {
 		super();
 		this.initialize();
 	}
-	
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	
-	
+	 * GETTER / SETTERS *
+	 ********************/
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	
-	
-	
+	 * PUBLIC METHODS *
+	 ******************/
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
-		
-	}
+	 * PRIVATE METHODS *
+	 *******************/
+	private initialize(): void {}
 }

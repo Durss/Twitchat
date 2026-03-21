@@ -6,21 +6,23 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-	active?:boolean,
+	active?: boolean;
 }>();
 </script>
 
 <style scoped lang="less">
-.tag{
-	font-size: .7em;
-	padding: .15em .55em;
+.tag {
+	font-size: 0.7em;
+	padding: 0.15em 0.55em;
 	border-radius: 1em;
 	background-color: var(--background-color-fader);
 	color: var(--color-light);
-	opacity: .7;
-	transition: opacity .2s, background-color .2s;
+	opacity: 0.7;
+	transition:
+		opacity 0.2s,
+		background-color 0.2s;
 	text-transform: uppercase;
-	letter-spacing: .04em;
+	letter-spacing: 0.04em;
 	font-weight: bold;
 	display: flex;
 	align-items: center;

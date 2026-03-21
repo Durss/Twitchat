@@ -7,70 +7,81 @@
 
 		<div class="list">
 			<div class="card-item user" v-for="item in itemList">
-				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(item.user.id)"><Icon name="cross" theme="alert" /></button>
-				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ item.user.displayNameOriginal }}</span>
-				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ item.customName }})</span>
+				<button
+					class="deleteBt"
+					v-tooltip="$t('usercard.manage_usernames_removeBt')"
+					@click="deleteCustomName(item.user.id)"
+				>
+					<Icon name="cross" theme="alert" />
+				</button>
+				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{
+					item.user.displayNameOriginal
+				}}</span>
+				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')"
+					>({{ item.customName }})</span
+				>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import Icon from '../Icon.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import TTButton from "../TTButton.vue";
+import Icon from "../Icon.vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		Button: TTButton,
 	},
-	emits:["close"],
+	emits: ["close"],
 })
 class CustomUserNameManager extends Vue {
+	public itemList: { customName: string; user: TwitchatDataTypes.TwitchatUser }[] = [];
 
-	public itemList:{customName:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
-
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		this.refreshList();
 	}
 
-	public deleteCustomName(uid:string):void {
+	public deleteCustomName(uid: string): void {
 		this.$store.users.removeCustomUsername(uid);
 		this.refreshList();
 	}
 
-	private refreshList():void {
+	private refreshList(): void {
 		const customUsernames = this.$store.users.customUsernames;
 		this.itemList = [];
 		for (const uid in customUsernames) {
 			const u = customUsernames[uid]!;
-			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
+			this.itemList.push({
+				user: this.$store.users.getUserFrom(u.platform, u.channel, uid),
+				customName: u.name,
+			});
 		}
-		if(this.itemList.length == 0){
+		if (this.itemList.length == 0) {
 			this.$emit("close");
 		}
 	}
-
 }
 export default toNative(CustomUserNameManager);
 </script>
 
 <style scoped lang="less">
-.customusernamemanager{
-	padding-bottom: 4px;//No idea why but this avoids scrollbar to show up when unnecessary
+.customusernamemanager {
+	padding-bottom: 4px; //No idea why but this avoids scrollbar to show up when unnecessary
 
 	.header {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		.backBt {
-			padding: .85em 1em;
-			color:var(--color-text);
+			padding: 0.85em 1em;
+			color: var(--color-text);
 			.icon {
 				height: 1em;
-				transition: transform .15s;
+				transition: transform 0.15s;
 			}
 			&:hover {
 				.icon {
@@ -88,11 +99,11 @@ export default toNative(CustomUserNameManager);
 	h2 {
 		font-size: 1.5em;
 		text-align: center;
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.list {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

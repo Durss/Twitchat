@@ -5,20 +5,29 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="streamsocket.header">
 				<template #LINK>
-					<a href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj" target="_blank"><Icon name="newtab" />StreamSocket Events</a>
+					<a
+						href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
+						target="_blank"
+						><Icon name="newtab" />StreamSocket Events</a
+					>
 				</template>
 			</i18n-t>
 		</div>
 
 		<template v-if="!$store.streamSocket.connected">
 			<section>
-				<TTButton icon="newtab" type="link" href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj" target="_blank"
-					@click="$store.streamSocket.disconnect(true)">{{ $t("streamsocket.installBt") }}</TTButton>
+				<TTButton
+					icon="newtab"
+					type="link"
+					href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
+					target="_blank"
+					@click="$store.streamSocket.disconnect(true)"
+					>{{ $t("streamsocket.installBt") }}</TTButton
+				>
 			</section>
 
 			<section class="card-item form">
 				<form @submit.prevent="$store.streamSocket.connect(secretField.value)">
-
 					<ParamItem :paramData="secretField" v-model="secretField.value" noBackground />
 
 					<ToggleBlock small :title="$t('streamsocket.help')" :open="false">
@@ -32,11 +41,17 @@
 						icon="online"
 						type="submit"
 						:loading="$store.streamSocket.connecting"
-						:disabled="secretField.value.length < 100">{{ $t("global.connect") }}</TTButton>
+						:disabled="secretField.value.length < 100"
+						>{{ $t("global.connect") }}</TTButton
+					>
 
-					<div class="card-item alert error"
+					<div
+						class="card-item alert error"
 						v-if="$store.streamSocket.invalidSecret"
-						@click="$store.streamSocket.invalidSecret = false">{{ $t("error.streamSocket_connect_failed") }}</div>
+						@click="$store.streamSocket.invalidSecret = false"
+					>
+						{{ $t("error.streamSocket_connect_failed") }}
+					</div>
 				</form>
 			</section>
 
@@ -46,12 +61,17 @@
 		</template>
 
 		<section class="card-item connected" v-else>
-			<TTButton alert icon="offline" class="disconnectBt"
-				@click="$store.streamSocket.disconnect(true)">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton
+				alert
+				icon="offline"
+				class="disconnectBt"
+				@click="$store.streamSocket.disconnect(true)"
+				>{{ $t("global.disconnect") }}</TTButton
+			>
 
 			<i18n-t scope="global" tag="span" keypath="streamsocket.next_step">
 				<template #TRIGGERS>
-					<a @click="openTriggers()">{{$t("params.categories.triggers")}}</a>
+					<a @click="openTriggers()">{{ $t("params.categories.triggers") }}</a>
 				</template>
 			</i18n-t>
 
@@ -61,47 +81,51 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import ParamItem from "../../ParamItem.vue";
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ParamItem,
 		ToggleBlock,
 	},
-	emits:[],
+	emits: [],
 })
 class ConnectStreamSocket extends Vue {
+	public secretField: TwitchatDataTypes.ParameterData<string> = {
+		type: "password",
+		value: "",
+		labelKey: "streamsocket.secret_input",
+		icon: "key",
+		isPrivate: true,
+	};
 
-	public secretField:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", labelKey:"streamsocket.secret_input", icon:"key", isPrivate:true };
-
-	public mounted():void {
+	public mounted(): void {
 		this.secretField.value = this.$store.streamSocket.socketSecret || "";
 	}
 
-	public openTriggers():void {
+	public openTriggers(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
-
 }
 export default toNative(ConnectStreamSocket);
 </script>
 
 <style scoped lang="less">
-.connectstreamsocket{
+.connectstreamsocket {
 	form {
 		// max-width: 400px;
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		.infos {
 			margin-top: 1em;
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -127,7 +151,7 @@ export default toNative(ConnectStreamSocket);
 		margin: auto;
 		margin-top: 2em;
 		display: block;
-		max-width:500px;
+		max-width: 500px;
 	}
 }
 </style>

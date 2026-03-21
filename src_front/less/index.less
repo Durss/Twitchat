@@ -17,7 +17,7 @@
 
 :root {
 	@color-dark: #18181b;
-	@color-light: #EEEEEE;
+	@color-light: #eeeeee;
 	@color-primary: #008667;
 	@color-button: #57575c;
 	@color-secondary: #e04e00;
@@ -28,23 +28,23 @@
 	@color-chatMessage: #f0f0f0;
 	@color-twitch: #9147ff;
 
-	--vh: 100vh;//Overridden via JS on App.vue
-	--vw: 100vw;//Overridden for demoMode
-	--chat-form-height: 40px;//Overridden via JS on Chat.vue
-	
+	--vh: 100vh; //Overridden via JS on App.vue
+	--vw: 100vw; //Overridden for demoMode
+	--chat-form-height: 40px; //Overridden via JS on Chat.vue
+
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
 
-	--box-shadow: 0 0 4px 2px rgba(0, 0, 0, .5);
+	--box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.5);
 
 	--background-color-primary: #18181b;
 	--background-color-secondary: #303036;
-	--background-color-fade: rgba(255,255,255,.5);
-	--background-color-fader: rgba(255,255,255,.15);
-	--background-color-fadest: rgba(255,255,255,.05);
-	--background-color-transparent: rgba(255,255,255,0);
+	--background-color-fade: rgba(255, 255, 255, 0.5);
+	--background-color-fader: rgba(255, 255, 255, 0.15);
+	--background-color-fadest: rgba(255, 255, 255, 0.05);
+	--background-color-transparent: rgba(255, 255, 255, 0);
 
 	--grayout: fade(@color-dark, 70%);
 	--grayout-fader: fade(@color-dark, 50%);
@@ -53,9 +53,9 @@
 	--toggle-block-header-background: @color-button;
 	--toggle-block-header-background-hover: lighten(@color-button, 10%);
 
-	--splitter-color: rgba(255,255,255,.2);
+	--splitter-color: rgba(255, 255, 255, 0.2);
 
-	--text-shadow-contrast: 1px 1px 0 rgba(0,0,0,.7);
+	--text-shadow-contrast: 1px 1px 0 rgba(0, 0, 0, 0.7);
 
 	--color-light: @color-light;
 	--color-dark: @color-dark;
@@ -69,7 +69,7 @@
 	--color-text: @color-text;
 	--color-text-light: #fff;
 	--color-text-inverse: @color-text-inverse;
-	
+
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
 	--color-primary-transparent: fade(@color-primary, 0%);
@@ -77,7 +77,7 @@
 	--color-secondary-transparent: fade(@color-secondary, 0%);
 	--color-alert-transparent: fade(@color-alert, 0%);
 	--color-premium-transparent: fade(@color-premium, 0%);
-	
+
 	--color-light-fade: fade(@color-light, 30%);
 	--color-dark-fade: fade(@color-dark, 80%);
 	--color-primary-fade: fade(@color-primary, 70%);
@@ -87,7 +87,7 @@
 	--color-premium-fade: fade(@color-premium, 70%);
 	--color-text-fade: fade(@color-text, 50%);
 	--color-text-inverse-fade: fade(@color-text-inverse, 50%);
-	
+
 	--color-light-fader: fade(@color-light, 10%);
 	--color-dark-fader: fade(@color-dark, 40%);
 	--color-primary-fader: fade(@color-primary, 40%);
@@ -97,7 +97,7 @@
 	--color-premium-fader: fade(@color-premium, 40%);
 	--color-text-fader: fade(@color-text, 30%);
 	--color-text-inverse-fader: fade(@color-text-inverse, 30%);
-	
+
 	--color-light-fadest: fade(@color-light, 5%);
 	--color-dark-fadest: fade(@color-dark, 15%);
 	--color-primary-fadest: fade(@color-primary, 15%);
@@ -107,7 +107,7 @@
 	--color-premium-fadest: fade(@color-premium, 20%);
 	--color-text-fadest: fade(@color-text, 10%);
 	--color-text-inverse-fadest: fade(@color-text-inverse, 10%);
-	
+
 	--color-light-light: lighten(@color-light, 10%);
 	--color-dark-light: lighten(@color-dark, 10%);
 	--color-primary-light: lighten(@color-primary, 8%);
@@ -116,7 +116,7 @@
 	--color-secondary-light: lighten(@color-secondary, 13%);
 	--color-alert-light: lighten(@color-alert, 10%);
 	--color-premium-light: lighten(@color-premium, 10%);
-	
+
 	--color-light-extralight: lighten(@color-light, 30%);
 	--color-dark-extralight: lighten(@color-dark, 30%);
 	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
@@ -125,7 +125,7 @@
 	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
 	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
 	--color-premium-extralight: saturate(lighten(@color-premium, 30%), 100%);
-	
+
 	--color-light-dark: darken(@color-light, 10%);
 	--color-dark-dark: darken(@color-dark, 10%);
 	--color-primary-dark: darken(@color-primary, 5%);
@@ -135,8 +135,8 @@
 	--color-alert-dark: darken(@color-alert, 10%);
 	--color-premium-dark: darken(@color-premium, 10%);
 
-	--border-radius:.5rem;
-	
+	--border-radius: 0.5rem;
+
 	--highlight-suspicious: #ff8280;
 	--highlight-1st: #ff75e6;
 	--highlight-subs: #528bff;
@@ -149,7 +149,7 @@
 
 body.light {
 	@color-dark: #18181b;
-	@color-light: #FFFFFF;
+	@color-light: #ffffff;
 	@color-primary: #039372;
 	@color-button: #d6d6d6;
 	@color-secondary: #e04e00;
@@ -160,14 +160,14 @@ body.light {
 	@color-chatMessage: #101010;
 	@color-twitch: #9147ff;
 
-	--box-shadow: 0 0 10px 1px rgba(0, 0, 0, .5);
+	--box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
 
 	--background-color-primary: #ffffff;
 	--background-color-secondary: #eeeeee;
-	--background-color-fade: rgba(0,0,0,.5);
-	--background-color-fader: rgba(0,0,0,.15);
-	--background-color-fadest: rgba(0,0,0,.075);
-	--background-color-transparent: rgba(0,0,0,0);
+	--background-color-fade: rgba(0, 0, 0, 0.5);
+	--background-color-fader: rgba(0, 0, 0, 0.15);
+	--background-color-fadest: rgba(0, 0, 0, 0.075);
+	--background-color-transparent: rgba(0, 0, 0, 0);
 
 	--grayout: fade(@color-light, 70%);
 	--grayout-fader: fade(@color-light, 50%);
@@ -176,9 +176,9 @@ body.light {
 	--toggle-block-header-background: @color-button;
 	--toggle-block-header-background-hover: lighten(@color-button, 10%);
 
-	--splitter-color: rgba(0,0,0,.2);
+	--splitter-color: rgba(0, 0, 0, 0.2);
 
-	--text-shadow-contrast: 1px 1px 0 rgba(255,255,255,.1);
+	--text-shadow-contrast: 1px 1px 0 rgba(255, 255, 255, 0.1);
 
 	--color-light: @color-light;
 	--color-dark: @color-dark;
@@ -191,14 +191,14 @@ body.light {
 	--color-text: @color-text;
 	--color-text-fade: fade(@color-text, 30%);
 	--color-text-inverse: @color-text-inverse;
-	
+
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
 	--color-primary-transparent: fade(@color-primary, 0%);
 	--color-twitch-transparent: fade(@color-twitch, 0%);
 	--color-secondary-transparent: fade(@color-secondary, 0%);
 	--color-alert-transparent: fade(@color-alert, 0%);
-	
+
 	--color-light-fade: fade(@color-light, 30%);
 	--color-dark-fade: fade(@color-dark, 80%);
 	--color-primary-fade: fade(@color-primary, 70%);
@@ -207,7 +207,7 @@ body.light {
 	--color-alert-fade: fade(@color-alert, 70%);
 	--color-text-fade: fade(@color-text, 50%);
 	--color-text-inverse-fade: fade(@color-text-inverse, 50%);
-	
+
 	--color-light-fader: fade(@color-light, 10%);
 	--color-dark-fader: fade(@color-dark, 40%);
 	--color-primary-fader: fade(@color-primary, 40%);
@@ -216,7 +216,7 @@ body.light {
 	--color-alert-fader: fade(@color-alert, 40%);
 	--color-text-fader: fade(@color-text, 30%);
 	--color-text-inverse-fader: fade(@color-text-inverse, 30%);
-	
+
 	--color-light-fadest: fade(@color-light, 5%);
 	--color-dark-fadest: fade(@color-dark, 10%);
 	--color-primary-fadest: fade(@color-primary, 10%);
@@ -225,7 +225,7 @@ body.light {
 	--color-alert-fadest: fade(@color-alert, 20%);
 	--color-text-fadest: fade(@color-text, 10%);
 	--color-text-inverse-fadest: fade(@color-text-inverse, 10%);
-	
+
 	--color-light-light: lighten(@color-light, 10%);
 	--color-dark-light: lighten(@color-dark, 10%);
 	--color-primary-light: lighten(@color-primary, 8%);
@@ -233,7 +233,7 @@ body.light {
 	--color-button-light: lighten(@color-button, 10%);
 	--color-secondary-light: lighten(@color-secondary, 13%);
 	--color-alert-light: lighten(@color-alert, 10%);
-	
+
 	--color-light-extralight: lighten(@color-light, 30%);
 	--color-dark-extralight: lighten(@color-dark, 30%);
 	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
@@ -241,7 +241,7 @@ body.light {
 	--color-button-extralight: lighten(@color-button, 20%);
 	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
 	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
-	
+
 	--color-light-dark: darken(@color-light, 10%);
 	--color-dark-dark: darken(@color-dark, 10%);
 	--color-primary-dark: darken(@color-primary, 15%);
@@ -250,8 +250,8 @@ body.light {
 	--color-secondary-dark: darken(@color-secondary, 15%);
 	--color-alert-dark: darken(@color-alert, 10%);
 
-	--border-radius:.5rem;
-	
+	--border-radius: 0.5rem;
+
 	--highlight-suspicious: #ff8280;
 	--highlight-1st: #ff75e6;
 	--highlight-subs: #528bff;
@@ -263,10 +263,11 @@ body.light {
 }
 
 body.dark {
-	font-weight:250;
+	font-weight: 250;
 }
 
-body, html {
+body,
+html {
 	padding: 0;
 	margin: 0;
 	-webkit-font-smoothing: antialiased;
@@ -274,7 +275,7 @@ body, html {
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
 	min-width: 100%;
 	min-height: var(--vh);
-    min-height: -moz-available;
+	min-height: -moz-available;
 	min-height: -webkit-fill-available;
 	min-height: fill-available;
 }
@@ -287,8 +288,8 @@ body.demoMode {
 }
 
 pre {
-	font-family: 'Courier New', Courier, monospace, var(--font-inter), Helvetica, Arial, sans-serif;
-	font-size: .9em;
+	font-family: "Courier New", Courier, monospace, var(--font-inter), Helvetica, Arial, sans-serif;
+	font-size: 0.9em;
 
 	.comment {
 		font-family: var(--font-inter), Helvetica, Arial, sans-serif !important;
@@ -312,7 +313,7 @@ a {
 
 .copyBt {
 	height: 1em;
-	margin-right: .25em;
+	margin-right: 0.25em;
 	vertical-align: middle;
 	cursor: pointer;
 }
@@ -320,11 +321,11 @@ a {
 .demoLink {
 	.demo {
 		.emboss();
-		margin:auto;
+		margin: auto;
 		display: block;
 		max-height: 100px;
 		aspect-ratio: 16 / 9;
-		border-radius: .5em;
+		border-radius: 0.5em;
 	}
 }
 
@@ -351,7 +352,7 @@ h1 {
 mark {
 	font-weight: bold;
 	background-color: var(--background-color-fader);
-	padding: .1em .25em;
+	padding: 0.1em 0.25em;
 	border-radius: var(--border-radius);
 	&.primary {
 		background-color: var(--color-primary);
@@ -369,10 +370,10 @@ mark {
 	width: 100%;
 	height: 100vh;
 	position: absolute;
-	top:0;
-	left:0;
+	top: 0;
+	left: 0;
 }
-	
+
 .quote {
 	font-style: italic;
 	word-break: break-word;
@@ -381,21 +382,33 @@ mark {
 	line-height: 1.2em;
 	border-radius: var(--border-radius);
 	border-left: 2px solid var(--background-color-fader);
-	background-image: linear-gradient(90deg, var(--background-color-fadest), var(--background-color-transparent));
-	padding: .5em;
+	background-image: linear-gradient(
+		90deg,
+		var(--background-color-fadest),
+		var(--background-color-transparent)
+	);
+	padding: 0.5em;
 	&.primary {
 		border-left-color: var(--color-primary-fade);
-		background-image: linear-gradient(90deg, var(--color-primary-fadest), var(--background-color-transparent));
+		background-image: linear-gradient(
+			90deg,
+			var(--color-primary-fadest),
+			var(--background-color-transparent)
+		);
 	}
 	&.secondary {
 		border-left-color: var(--color-secondary-fade);
-		background-image: linear-gradient(90deg, var(--color-secondary-fadest), var(--background-color-transparent));
+		background-image: linear-gradient(
+			90deg,
+			var(--color-secondary-fadest),
+			var(--background-color-transparent)
+		);
 	}
 }
 
 .youtubeTutorialBt {
-	padding: .5em;
-	gap: .5em;
+	padding: 0.5em;
+	gap: 0.5em;
 	display: flex;
 	flex-direction: row;
 	color: var(--color-light) !important;
@@ -404,7 +417,7 @@ mark {
 	border-radius: var(--border-radius);
 	margin: 0 auto;
 	align-items: center;
-	transition: background-color .25s;
+	transition: background-color 0.25s;
 	.icon {
 		height: 1em;
 		min-height: 20px;
@@ -415,86 +428,86 @@ mark {
 	}
 }
 
-.tippy-box[data-theme~='twitchat'] {
+.tippy-box[data-theme~="twitchat"] {
 	@color: var(--color-secondary);
-	color:var(--color-text-light);
-    background-color: @color;
+	color: var(--color-text-light);
+	background-color: @color;
 	font-size: 1rem;
 	word-wrap: break-word;
 	white-space: pre-line;
-	&[data-placement^='top']  > .tippy-arrow::before {
+	&[data-placement^="top"] > .tippy-arrow::before {
 		border-top-color: @color;
 	}
-	&[data-placement^='left']  > .tippy-arrow::before {
+	&[data-placement^="left"] > .tippy-arrow::before {
 		border-left-color: @color;
 	}
-	&[data-placement^='bottom']  > .tippy-arrow::before {
+	&[data-placement^="bottom"] > .tippy-arrow::before {
 		border-bottom-color: @color;
 	}
-	&[data-placement^='right']  > .tippy-arrow::before {
+	&[data-placement^="right"] > .tippy-arrow::before {
 		border-right-color: @color;
 	}
 }
 
-.tippy-box[data-theme~='light'] {
+.tippy-box[data-theme~="light"] {
 	@color: var(--color-light);
-	color:var(--color-text-light);
-    background-color: @color;
+	color: var(--color-text-light);
+	background-color: @color;
 	font-size: 1rem;
 	word-wrap: break-word;
 	white-space: pre-line;
-	&[data-placement^='top']  > .tippy-arrow::before {
+	&[data-placement^="top"] > .tippy-arrow::before {
 		border-top-color: @color;
 	}
-	&[data-placement^='left']  > .tippy-arrow::before {
+	&[data-placement^="left"] > .tippy-arrow::before {
 		border-left-color: @color;
 	}
-	&[data-placement^='bottom']  > .tippy-arrow::before {
+	&[data-placement^="bottom"] > .tippy-arrow::before {
 		border-bottom-color: @color;
 	}
-	&[data-placement^='right']  > .tippy-arrow::before {
+	&[data-placement^="right"] > .tippy-arrow::before {
 		border-right-color: @color;
 	}
 }
 
-.tippy-box[data-theme~='dark'] {
+.tippy-box[data-theme~="dark"] {
 	@color: var(--color-dark);
-	color:var(--color-text-light);
-    background-color: @color;
+	color: var(--color-text-light);
+	background-color: @color;
 	font-size: 1rem;
 	word-wrap: break-word;
 	white-space: pre-line;
-	&[data-placement^='top']  > .tippy-arrow::before {
+	&[data-placement^="top"] > .tippy-arrow::before {
 		border-top-color: @color;
 	}
-	&[data-placement^='left']  > .tippy-arrow::before {
+	&[data-placement^="left"] > .tippy-arrow::before {
 		border-left-color: @color;
 	}
-	&[data-placement^='bottom']  > .tippy-arrow::before {
+	&[data-placement^="bottom"] > .tippy-arrow::before {
 		border-bottom-color: @color;
 	}
-	&[data-placement^='right']  > .tippy-arrow::before {
+	&[data-placement^="right"] > .tippy-arrow::before {
 		border-right-color: @color;
 	}
 }
 
-.tippy-box[data-theme~='alert'] {
+.tippy-box[data-theme~="alert"] {
 	@color: var(--color-alert);
-	color:var(--color-text-light);
-    background-color: @color;
+	color: var(--color-text-light);
+	background-color: @color;
 	font-size: 1rem;
 	word-wrap: break-word;
 	white-space: pre-line;
-	&[data-placement^='top']  > .tippy-arrow::before {
+	&[data-placement^="top"] > .tippy-arrow::before {
 		border-top-color: @color;
 	}
-	&[data-placement^='left']  > .tippy-arrow::before {
+	&[data-placement^="left"] > .tippy-arrow::before {
 		border-left-color: @color;
 	}
-	&[data-placement^='bottom']  > .tippy-arrow::before {
+	&[data-placement^="bottom"] > .tippy-arrow::before {
 		border-bottom-color: @color;
 	}
-	&[data-placement^='right']  > .tippy-arrow::before {
+	&[data-placement^="right"] > .tippy-arrow::before {
 		border-right-color: @color;
 	}
 }
@@ -513,9 +526,9 @@ mark {
 		top: 0;
 		left: 0;
 		transform: translate(0, -50%);
-		transition: transform .2s;
+		transition: transform 0.2s;
 		transform-origin: center center;
-		filter: drop-shadow(1px 1px 0px rgba(0,0,0,.5));
+		filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.5));
 	}
 	&:hover::before {
 		transform: translate(0, -50%) scale(1.5);
@@ -523,10 +536,10 @@ mark {
 }
 
 #mx-menu-default-container {
-	top: 0;//necessery for shit old safari -_-
-	overflow: unset;//necessery for shit old safari -_-
-	&.mx-menu-ghost-host{
-		overflow: unset;//necessery for shit old safari -_-
+	top: 0; //necessery for shit old safari -_-
+	overflow: unset; //necessery for shit old safari -_-
+	&.mx-menu-ghost-host {
+		overflow: unset; //necessery for shit old safari -_-
 		.mx-context-menu {
 			padding-top: 0 !important;
 			padding-bottom: 0 !important;
@@ -537,7 +550,11 @@ mark {
 			.mx-context-menu-items {
 				cursor: pointer;
 				.mx-context-menu-item.alert {
-					background-image: linear-gradient(90deg, var(--color-alert-fadest) 0%, rgba(255,0,0,0) 100%);
+					background-image: linear-gradient(
+						90deg,
+						var(--color-alert-fadest) 0%,
+						rgba(255, 0, 0, 0) 100%
+					);
 				}
 				.mx-context-menu-item.selected {
 					background-color: var(--color-primary-fade);
@@ -563,17 +580,17 @@ mark {
 					}
 					.mx-context-menu-item.disabled {
 						.mx-icon-placeholder {
-							opacity: .35;
+							opacity: 0.35;
 						}
 					}
 					.mx-context-menu-item.header {
-						color:var(--color-light);
-						background: rgba(255,255,255,.2);
+						color: var(--color-light);
+						background: rgba(255, 255, 255, 0.2);
 						background: var(--color-primary);
 						margin: 0;
 						border-bottom-left-radius: 0;
 						border-bottom-right-radius: 0;
-						padding: .5em;
+						padding: 0.5em;
 						cursor: default;
 						.mx-item-row:nth-child(1) {
 							flex-grow: 1;
@@ -630,7 +647,7 @@ body.light {
 	background-size: 52px 39px;
 
 	&.normal-flag {
-		@scale: .4;
+		@scale: 0.4;
 		transform: scale(@scale) !important;
 		margin: ((-39px * (1-@scale)) / 2) ((-52px * (1-@scale)) / 2) !important;
 		vertical-align: bottom !important;
@@ -640,7 +657,7 @@ body.light {
 	}
 
 	&.small-flag {
-		@scale: .25;
+		@scale: 0.25;
 		transform: scale(@scale) !important;
 		margin: ((-39px * (1-@scale)) / 2) ((-52px * (1-@scale)) / 2) !important;
 		// vertical-align: bottom !important;

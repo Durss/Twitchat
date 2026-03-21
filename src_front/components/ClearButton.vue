@@ -1,33 +1,36 @@
 <template>
 	<button :class="classes" type="button">
-		<Icon class="icon" :name="icon" :theme="theme"/>
+		<Icon class="icon" :name="icon" :theme="theme" />
 	</button>
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref } from "vue";
 
-const props = withDefaults(defineProps<{
-	theme?: string;
-	small?: boolean;
-	icon?: string;
-}>(), {
-	theme: "",
-	small: false,
-	icon: "cross",
-});
+const props = withDefaults(
+	defineProps<{
+		theme?: string;
+		small?: boolean;
+		icon?: string;
+	}>(),
+	{
+		theme: "",
+		small: false,
+		icon: "cross",
+	},
+);
 const classes = ref<string[]>([]);
 
 onBeforeMount(() => {
 	classes.value.push("clearbutton");
-	if(props.small !== false)  {
+	if (props.small !== false) {
 		classes.value.push("small");
 	}
 });
 </script>
 
 <style scoped lang="less">
-.clearbutton{
+.clearbutton {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -38,7 +41,7 @@ onBeforeMount(() => {
 	color: inherit;
 	.icon {
 		height: 1em;
-		transition: transform .15s;
+		transition: transform 0.15s;
 	}
 	&:hover {
 		.icon {
@@ -46,7 +49,7 @@ onBeforeMount(() => {
 		}
 	}
 	&.small {
-		padding: .5em;
+		padding: 0.5em;
 	}
 }
 </style>

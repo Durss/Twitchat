@@ -1,24 +1,28 @@
 <template>
-	<div class="parampremiumlimitmessage card-item premiumLimit"
-	@click="onClick"
-	:class="{premium: !isPremium, secondary: isPremium}">
+	<div
+		class="parampremiumlimitmessage card-item premiumLimit"
+		@click="onClick"
+		:class="{ premium: !isPremium, secondary: isPremium }"
+	>
 		<template v-if="isPremium">
-			<span>{{ i18n.t(premiumLabel, {MAX:max, MAX_PREMIUM:maxPremium}) }}</span>
+			<span>{{ i18n.t(premiumLabel, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
 		</template>
 		<template v-else>
-			<span>{{ i18n.t(label, {MAX:max, MAX_PREMIUM:maxPremium}) }}</span>
-			<TTButton icon="premium" premium light @click="openPremium()">{{ i18n.t("premium.become_premiumBt") }}</TTButton>
+			<span>{{ i18n.t(label, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
+			<TTButton icon="premium" premium light @click="openPremium()">{{
+				i18n.t("premium.become_premiumBt")
+			}}</TTButton>
 		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
-import TTButton from '@/components/TTButton.vue';
+import TTButton from "@/components/TTButton.vue";
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 const i18n = useI18n();
 
@@ -39,15 +43,18 @@ const openPremium = (): void => {
 	StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 };
 
-watch(()=> StoreProxy.auth.isPremium, (newVal) => {
-	isPremium.value = newVal;
-});
+watch(
+	() => StoreProxy.auth.isPremium,
+	(newVal) => {
+		isPremium.value = newVal;
+	},
+);
 
 /**
  * Just debug stuff to toggle premium state when ctrl+clicking the message
  */
-function onClick(e:MouseEvent):void {
-	if(!Config.instance.IS_PROD && e.ctrlKey) {
+function onClick(e: MouseEvent): void {
+	if (!Config.instance.IS_PROD && e.ctrlKey) {
 		isPremium.value = !isPremium.value;
 		e.preventDefault();
 	}
@@ -55,12 +62,12 @@ function onClick(e:MouseEvent):void {
 </script>
 
 <style scoped lang="less">
-.parampremiumlimitmessage{
+.parampremiumlimitmessage {
 	text-align: center;
 	.button {
 		display: flex;
 		margin: auto;
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 }
 </style>

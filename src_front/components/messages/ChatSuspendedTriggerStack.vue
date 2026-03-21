@@ -1,9 +1,11 @@
 <template>
 	<div class="chatsuspendedtriggerstack chatMessage highlight alert">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
+
 		<div class="head">
-			<Icon name="broadcast" alt="icon" class="icon"/>
+			<Icon name="broadcast" alt="icon" class="icon" />
 			<span class="info">{{ $t("chat.suspended_trigger_stack.title") }}</span>
 			<div class="history">
 				<strong class="content">{{ $t("chat.suspended_trigger_stack.callstack") }}</strong>
@@ -15,58 +17,61 @@
 			</div>
 		</div>
 
-		<TTButton @click.stop="resume()"
+		<TTButton
+			@click.stop="resume()"
 			v-if="messageData.triggerStack.resume"
-			small light alert
+			small
+			light
+			alert
 			icon="play"
-		>{{ $t('chat.suspended_trigger_stack.resumeBt') }}</TTButton>
+			>{{ $t("chat.suspended_trigger_stack.resumeBt") }}</TTButton
+		>
 
 		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
-
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import TTButton from '@/components/TTButton.vue';
-import StoreProxy from '@/store/StoreProxy';
-import { TriggerSubTypeLabel, TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
-import ClearButton from '../ClearButton.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import TTButton from "@/components/TTButton.vue";
+import StoreProxy from "@/store/StoreProxy";
+import { TriggerSubTypeLabel, TriggerTypesDefinitionList } from "@/types/TriggerActionDataTypes";
+import ClearButton from "../ClearButton.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ClearButton,
 	},
-	emits:["onRead"]
+	emits: ["onRead"],
 })
 class ChatSuspendedTriggerStack extends AbstractChatMessage {
-
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageSuspendedTriggerStackData;
-	
-	public getLabelFromTriggerId(triggerId:string):string {
-		const trigger = StoreProxy.triggers.triggerList.find(v=> v.id == triggerId)!;
-		const event = TriggerTypesDefinitionList().find(v=> v.value === trigger.type)!;
-		return StoreProxy.i18n.t(event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(trigger)});
+	declare messageData: TwitchatDataTypes.MessageSuspendedTriggerStackData;
+
+	public getLabelFromTriggerId(triggerId: string): string {
+		const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == triggerId)!;
+		const event = TriggerTypesDefinitionList().find((v) => v.value === trigger.type)!;
+		return StoreProxy.i18n.t(event?.descriptionKey || event?.labelKey, {
+			SUB_ITEM_NAME: TriggerSubTypeLabel(trigger),
+		});
 	}
 
-	public resume():void {
+	public resume(): void {
 		this.deleteMessage();
 		//Wait for message to visually be deleted
 		setTimeout(() => {
 			this.messageData.triggerStack.resume!();
 		}, 1000);
 	}
-
 }
 export default toNative(ChatSuspendedTriggerStack);
 </script>
 
 <style scoped lang="less">
-.chatsuspendedtriggerstack{
+.chatsuspendedtriggerstack {
 	flex-direction: row;
 	.head {
 		flex-grow: 1;

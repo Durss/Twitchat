@@ -746,18 +746,18 @@
 				}
 			},
 			"sfxr": {
-				"preset_pickupCoin":"Pickup coin",
-				"preset_laserShoot":"Laser shoot",
-				"preset_explosion":"Explosion",
-				"preset_powerUp":"Power up",
-				"preset_hitHurt":"Hit hurt",
-				"preset_jump":"Jump",
-				"preset_blipSelect":"Blip select",
-				"preset_synth":"Synth",
-				"preset_tone":"Tone",
-				"preset_click":"Click",
-				"preset_random":"Random",
-				"preset_custom":"Custom...",
+				"preset_pickupCoin": "Pickup coin",
+				"preset_laserShoot": "Laser shoot",
+				"preset_explosion": "Explosion",
+				"preset_powerUp": "Power up",
+				"preset_hitHurt": "Hit hurt",
+				"preset_jump": "Jump",
+				"preset_blipSelect": "Blip select",
+				"preset_synth": "Synth",
+				"preset_tone": "Tone",
+				"preset_click": "Click",
+				"preset_random": "Random",
+				"preset_custom": "Custom...",
 				"param_volume": "Volume",
 				"param_waitForComplete": "Wait for audio to complete\n(trigger's execution will be paused until audio completes)",
 				"param_playOnOverlay": "Play audio on overlay instead of Twitchat",
@@ -1820,15 +1820,15 @@
 				"label": "Twitch Combo",
 				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
 			},
-			"OBS_CONNECTED":{
+			"OBS_CONNECTED": {
 				"label": "OBS connected",
 				"description": "Actions to execute when Twitchat connects to OBS websocket"
 			},
-			"OBS_DISCONNECTED":{
+			"OBS_DISCONNECTED": {
 				"label": "OBS disconnected",
 				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
 			},
-			"MANY_REPLIES":{
+			"MANY_REPLIES": {
 				"label": "A message received many replies",
 				"description": "Actions to execute when a message receives many replies",
 				"disabled_reason": "You need to enable this feature first in @:params.categories.features section"

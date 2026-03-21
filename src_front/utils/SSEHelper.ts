@@ -1,71 +1,74 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
-import SSEEvent, {type EventTypeMap} from "@/events/SSEEvent";
+import SSEEvent, { type EventTypeMap } from "@/events/SSEEvent";
 import ApiHelper from "./ApiHelper";
 import Config from "./Config";
 
 /**
-* Created : 29/02/2024
-*/
+ * Created : 29/02/2024
+ */
 export default class SSEHelper extends EventDispatcher {
-
-	private static _instance:SSEHelper;
-	private _sse!:EventSource;
+	private static _instance: SSEHelper;
+	private _sse!: EventSource;
 	private _failCount = 0;
-	private _expectedPingInterval = 110*1000;
-	private _pingFailTimeout:number = -1;
+	private _expectedPingInterval = 110 * 1000;
+	private _pingFailTimeout: number = -1;
 	private _reconnectDelay = 0;
 	private _isMainApp = false;
 
 	constructor() {
 		super();
-		window.addEventListener("beforeunload", ()=>{
-			if(this._sse && this._sse.readyState == this._sse.OPEN) this._sse.close();
+		window.addEventListener("beforeunload", () => {
+			if (this._sse && this._sse.readyState == this._sse.OPEN) this._sse.close();
 		});
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():SSEHelper {
-		if(!SSEHelper._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): SSEHelper {
+		if (!SSEHelper._instance) {
 			SSEHelper._instance = new SSEHelper();
 		}
 		return SSEHelper._instance;
 	}
 
-
-
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public initialize(isMainApp:boolean):void {
-		if(this._sse) return;
+	 * PUBLIC METHODS *
+	 ******************/
+	public initialize(isMainApp: boolean): void {
+		if (this._sse) return;
 		this._isMainApp = isMainApp;
 		this.connect();
 	}
 
-	override addEventListener<T extends keyof EventTypeMap>(event:T, listenerFunc:(e:SSEEvent<T>)=>void):void {
+	override addEventListener<T extends keyof EventTypeMap>(
+		event: T,
+		listenerFunc: (e: SSEEvent<T>) => void,
+	): void {
 		super.addEventListener(event, listenerFunc);
 	}
 
-
-
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 	/**
 	 * Open SSE pipe
 	 */
-	private connect():void {
+	private connect(): void {
 		console.log("[SSE] Connecting...");
-		if(this._sse) {
+		if (this._sse) {
 			this._sse.onmessage = null;
 			this._sse.onopen = null;
 			this._sse.onerror = null;
 			this._sse.close();
 		}
 
-		this._sse = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+ApiHelper.accessToken+(this._isMainApp ? "&mainApp=true" : ""));
+		this._sse = new EventSource(
+			Config.instance.API_PATH +
+				"/sse/register?token=Bearer " +
+				ApiHelper.accessToken +
+				(this._isMainApp ? "&mainApp=true" : ""),
+		);
 		this._sse.onmessage = (event) => this.onMessage(event);
 		this._sse.onopen = (_event) => {
 			this._failCount = 0;
@@ -73,17 +76,17 @@ export default class SSEHelper extends EventDispatcher {
 			//randomize event so not everyone potentially spams server after rebooting it
 			window.setTimeout(() => {
 				this.dispatchEvent(new SSEEvent(SSEEvent.ON_CONNECT));
-			}, Math.random()*5000);
-		}
+			}, Math.random() * 5000);
+		};
 		this._sse.onerror = (_event) => {
 			console.log("[SSE] ❌ Connection closed...");
 			this._sse.close();
 			// console.log("ERROR");
 			// console.log(event);
-			if(++this._failCount === 5) {
+			if (++this._failCount === 5) {
 				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
 			}
-			const delay = this._reconnectDelay || Math.random()*5000;
+			const delay = this._reconnectDelay || Math.random() * 5000;
 			console.log("[SSE] ⌛ Reconnect in " + delay + "ms");
 			window.setTimeout(() => {
 				this._reconnectDelay = 0;
@@ -91,41 +94,42 @@ export default class SSEHelper extends EventDispatcher {
 			}, delay);
 		};
 
-		window.addEventListener("beforeunload", ()=>{
+		window.addEventListener("beforeunload", () => {
 			this._sse.onmessage = null;
 			this._sse.onopen = null;
 			this._sse.onerror = null;
 			this._sse.close();
-		})
+		});
 	}
 
 	/**
 	 * Called when receiving a message
 	 */
-	private onMessage(event:MessageEvent<string>):void {
+	private onMessage(event: MessageEvent<string>): void {
 		this._failCount = 0;
 		try {
-			let json = JSON.parse(event.data) as {code:keyof EventTypeMap, data:any};
+			let json = JSON.parse(event.data) as { code: keyof EventTypeMap; data: any };
 
 			clearTimeout(this._pingFailTimeout);
-			this._pingFailTimeout = window.setTimeout(()=>{
+			this._pingFailTimeout = window.setTimeout(() => {
 				this.connect();
 			}, this._expectedPingInterval);
 
-			if(json.code == "AUTHENTICATION_FAILED") {
+			if (json.code == "AUTHENTICATION_FAILED") {
 				//Avoid autoreconnect
 				this._sse.close();
 			}
 
-			if(json.code == "SERVER_UPDATE") {
+			if (json.code == "SERVER_UPDATE") {
 				this._reconnectDelay = json.data.delay;
-				console.log("Server update received, reconnecting in "+this._reconnectDelay+"ms");
+				console.log(
+					"Server update received, reconnecting in " + this._reconnectDelay + "ms",
+				);
 				return;
 			}
 			this.dispatchEvent(new SSEEvent(json.code, json.data));
-		}catch(error) {
+		} catch (_error) {
 			//ignore
 		}
 	}
-
 }

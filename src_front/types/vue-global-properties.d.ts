@@ -3,11 +3,11 @@
  * This fixes TypeScript errors for class-based components using vue-facing-decorator
  */
 
-import type { Router, RouteLocationNormalizedLoaded } from 'vue-router';
-import type { VueI18n } from 'vue-i18n';
-import type { Store } from 'pinia';
+import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
+import type { VueI18n } from "vue-i18n";
+import type { Store } from "pinia";
 
-declare module '@vue/runtime-core' {
+declare module "@vue/runtime-core" {
 	interface ComponentCustomProperties {
 		// Vue Router
 		$route: RouteLocationNormalizedLoaded;
@@ -16,7 +16,7 @@ declare module '@vue/runtime-core' {
 		$i18n: VueI18n;
 		$t: {
 			(key: string): string;
-			(key: string, value:number, {locale: string}): string;
+			(key: string, value: number, { locale: string }): string;
 			(key: string, values: Record<string, unknown>): string;
 			(key: string, values: Record<string, unknown>, locale: string): string;
 			// Support for pluralization with count as second parameter
@@ -24,7 +24,7 @@ declare module '@vue/runtime-core' {
 			// Support for pluralization with values and count
 			(key: string, values: Record<string, unknown>, count: number): string;
 			// Support for pluralization with values and count
-			(key: string, values: (string|number)[], count: number): string;
+			(key: string, values: (string | number)[], count: number): string;
 		};
 		/**
 		 * @deprecated Use $t with count parameter instead
@@ -37,7 +37,7 @@ declare module '@vue/runtime-core' {
 			(key: string, choice: number, values: Record<string, unknown>, locale: string): string;
 		};
 		$tm: (key: string) => unknown;
-		$te: (key: string, locale?:string) => boolean;
+		$te: (key: string, locale?: string) => boolean;
 		$d: (value: number | Date, key?: string) => string;
 		$n: (value: number, key?: string) => string;
 

@@ -1,18 +1,18 @@
 {
 	"gaza": {
-		"title":"Please help 🍉",
-		"tooltip":"Help victims",
-		"description":[
+		"title": "Please help 🍉",
+		"tooltip": "Help victims",
+		"description": [
 			"Taking action against the genocide of the Palestinian people does not make you antisemitic or pro-Hamas.",
 			"\n",
 			"If you can't afford giving money, sharing following links with your viewers is as important 💖"
 		],
-		"araborg_head":"Just click a button every day",
-		"araborg_message":"💖🍉 1 free click per day to help =>",
-		"gazafunds_head":"Donate to a randomly selected campaign",
-		"gazafunds_message":"💖🍉 Donate to a selected fundraiser =>",
-		"allFunds_bt":"View all fundraisers",
-		"send_bt":"Send link in chat",
-		"thanks":"💖 Thank you 💖"
+		"araborg_head": "Just click a button every day",
+		"araborg_message": "💖🍉 1 free click per day to help =>",
+		"gazafunds_head": "Donate to a randomly selected campaign",
+		"gazafunds_message": "💖🍉 Donate to a selected fundraiser =>",
+		"allFunds_bt": "View all fundraisers",
+		"send_bt": "Send link in chat",
+		"thanks": "💖 Thank you 💖"
 	}
 }

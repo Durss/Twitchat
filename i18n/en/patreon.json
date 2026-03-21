@@ -1,18 +1,18 @@
 {
 	"patreon": {
-		"header":"Get notified when you get new members on {LINK} and show your active members in the ending credits overlay",
-		"linkBt":"Link Patreon",
-		"donateBt":"Donate",
-		"connected_as":"Connected as:",
-		"info":"{LINK} to enjoy Premium features.",
-		"info_link":"Support me monthly on Patreon",
-		"alternative":"Or get lifetime Premium by {LINK} or more.",
-		"alternative_link":"donating {AMOUNT}€",
-		"connected":"Your Patreon account is linked to Twitchat.",
-		"is_member":"Thank you for supporting on Patreon! 💝",
-		"is_member_details":"All Premium features are unlocked!",
-		"is_not_member":"Patreon linked, but no active membership",
-		"is_not_member_details":"Premium features are not yet unlocked.\nIf you just subscribed, it may take a few minutes for Patreon to process your payment.",
-		"api_down":"Patreon API is down.\nIt's not the first time, and probably not the last...\n\nIf you just subscribed on Patreon you may have issues being recognized as Premium until Patreon fixes their API sorry :(..."
+		"header": "Get notified when you get new members on {LINK} and show your active members in the ending credits overlay",
+		"linkBt": "Link Patreon",
+		"donateBt": "Donate",
+		"connected_as": "Connected as:",
+		"info": "{LINK} to enjoy Premium features.",
+		"info_link": "Support me monthly on Patreon",
+		"alternative": "Or get lifetime Premium by {LINK} or more.",
+		"alternative_link": "donating {AMOUNT}€",
+		"connected": "Your Patreon account is linked to Twitchat.",
+		"is_member": "Thank you for supporting on Patreon! 💝",
+		"is_member_details": "All Premium features are unlocked!",
+		"is_not_member": "Patreon linked, but no active membership",
+		"is_not_member_details": "Premium features are not yet unlocked.\nIf you just subscribed, it may take a few minutes for Patreon to process your payment.",
+		"api_down": "Patreon API is down.\nIt's not the first time, and probably not the last...\n\nIf you just subscribed on Patreon you may have issues being recognized as Premium until Patreon fixes their API sorry :(..."
 	}
 }

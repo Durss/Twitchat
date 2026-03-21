@@ -2,146 +2,174 @@
 	<div :class="classes" v-if="showTimer">
 		<Icon name="ad" />
 
-		<div class="timer" ref="label" v-tooltip="isAdRunning? $t('global.tooltips.commercial') : $t('global.tooltips.commercial_soon')">{{timeLeftFormatted}}s</div>
+		<div
+			class="timer"
+			ref="label"
+			v-tooltip="
+				isAdRunning
+					? $t('global.tooltips.commercial')
+					: $t('global.tooltips.commercial_soon')
+			"
+		>
+			{{ timeLeftFormatted }}s
+		</div>
 
-		<Button v-if="!isAdRunning && snoozeLeft > 0 && !error"
-		light primary small
-		icon="timeout"
-		ref="snoozeBt"
-		class="snoozeBt"
-		@click.capture="snooze()"
-		v-tooltip="$t('global.tooltips.commercial_snooze')"
-		:loading="snoozing">Snooze {{ snoozeLeft }}/{{ snoozeMax }}</Button>
+		<Button
+			v-if="!isAdRunning && snoozeLeft > 0 && !error"
+			light
+			primary
+			small
+			icon="timeout"
+			ref="snoozeBt"
+			class="snoozeBt"
+			@click.capture="snooze()"
+			v-tooltip="$t('global.tooltips.commercial_snooze')"
+			:loading="snoozing"
+			>Snooze {{ snoozeLeft }}/{{ snoozeMax }}</Button
+		>
 
-		<div v-if="error" class="card-item alert error" @click="error = false" aria-label="click to close">ERROR :(</div>
+		<div
+			v-if="error"
+			class="card-item alert error"
+			@click="error = false"
+			aria-label="click to close"
+		>
+			ERROR :(
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import TTButton from '../TTButton.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import { gsap } from 'gsap/gsap-core';
+import Utils from "@/utils/Utils";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { gsap } from "gsap/gsap-core";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		Button: TTButton,
-	}
+	},
 })
 class CommercialTimer extends Vue {
+	public showTimer: boolean = false;
+	public error: boolean = false;
+	public canSnooze: boolean = false;
+	public snoozing: boolean = false;
+	public isAdComing: boolean = true;
+	public isAdRunning: boolean = true;
+	public timeLeft: number = 0;
+	public timeLeftFormatted: string = "";
+	public snoozeLeft: number = 3;
+	public snoozeMax: number = 3;
 
-	public showTimer:boolean = false;
-	public error:boolean = false;
-	public canSnooze:boolean = false;
-	public snoozing:boolean = false;
-	public isAdComing:boolean = true;
-	public isAdRunning:boolean = true;
-	public timeLeft:number = 0;
-	public timeLeftFormatted:string = "";
-	public snoozeLeft:number = 3;
-	public snoozeMax:number = 3;
+	private interval: number = -1;
 
-	private interval:number = -1;
-
-	public get classes():string[] {
+	public get classes(): string[] {
 		const res = ["commercialtimer"];
-		if(this.isAdRunning) res.push("secondary");
+		if (this.isAdRunning) res.push("secondary");
 		return res;
 	}
 
-	public mounted():void {
+	public mounted(): void {
 		this.refreshTimer();
-		this.interval = window.setInterval(()=> this.refreshTimer(), 1000);
+		this.interval = window.setInterval(() => this.refreshTimer(), 1000);
 		this.canSnooze = TwitchUtils.hasScopes([TwitchScopes.ADS_SNOOZE]);
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		clearInterval(this.interval);
 	}
 
-	public refreshTimer():void {
-		const maxSchedule		= 10 * 60000;
-		const channelId			= this.$store.auth.twitch.user.id;
-		const infos				= this.$store.stream.getCommercialInfo(channelId);
-		this.snoozeLeft			= infos.remainingSnooze;
-		this.snoozeMax			= Math.max(3, infos.remainingSnooze);//Not 100% sure we get 3 snooze max so we get the max of both values
+	public refreshTimer(): void {
+		const maxSchedule = 10 * 60000;
+		const channelId = this.$store.auth.twitch.user.id;
+		const infos = this.$store.stream.getCommercialInfo(channelId);
+		this.snoozeLeft = infos.remainingSnooze;
+		this.snoozeMax = Math.max(3, infos.remainingSnooze); //Not 100% sure we get 3 snooze max so we get the max of both values
 		//Check if an ad is rolling
-		this.isAdComing			= false;
-		this.isAdRunning		= false;
-		let startDate:number	= 0;
-		if(infos.prevAdStart_at + infos.currentAdDuration_ms >= Date.now()){
-			this.isAdRunning	= true;
-			startDate			= infos.prevAdStart_at + infos.currentAdDuration_ms;
-		}else
-		if(Date.now() > infos.nextAdStart_at && Date.now() < infos.nextAdStart_at + infos.currentAdDuration_ms) {
-			this.isAdRunning	= true;
-			startDate			= infos.nextAdStart_at + infos.currentAdDuration_ms;
-		}else
-		//Check if an ad is coming in less than "maxSchedule"" minutes
-		if(infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
-			this.isAdComing		= true;
-			startDate			= infos.nextAdStart_at;
+		this.isAdComing = false;
+		this.isAdRunning = false;
+		let startDate: number = 0;
+		if (infos.prevAdStart_at + infos.currentAdDuration_ms >= Date.now()) {
+			this.isAdRunning = true;
+			startDate = infos.prevAdStart_at + infos.currentAdDuration_ms;
+		} else if (
+			Date.now() > infos.nextAdStart_at &&
+			Date.now() < infos.nextAdStart_at + infos.currentAdDuration_ms
+		) {
+			this.isAdRunning = true;
+			startDate = infos.nextAdStart_at + infos.currentAdDuration_ms;
+		} else //Check if an ad is coming in less than "maxSchedule"" minutes
+		 if (infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
+			this.isAdComing = true;
+			startDate = infos.nextAdStart_at;
 		}
-		this.timeLeft			= Math.max(0, Math.round((startDate - Date.now())/1000));
-		this.timeLeftFormatted	= Utils.formatDuration(this.timeLeft * 1000);
+		this.timeLeft = Math.max(0, Math.round((startDate - Date.now()) / 1000));
+		this.timeLeftFormatted = Utils.formatDuration(this.timeLeft * 1000);
 
 		const prevShow = this.showTimer;
 		this.showTimer = (this.isAdRunning || this.isAdComing) && this.timeLeft > 0;
-		if(!prevShow && this.showTimer) {
-			this.$nextTick().then(()=> {
+		if (!prevShow && this.showTimer) {
+			this.$nextTick().then(() => {
 				this.openAnimation();
-			})
+			});
 		}
 	}
 
-	public openAnimation():void {
+	public openAnimation(): void {
 		// const snooze = (this.$refs.snoozeBt as ComponentPublicInstance).$el as HTMLDivElement | undefined;
 		// if(snooze) {
 		// 	gsap.from(snooze, {duration:.25, width:0, padding:0, clearProps:"all", delay: 1.5, ease:"sine.inOut"});
 		// }
 		const label = this.$refs.label as HTMLDivElement;
-		gsap.from(label, {duration:.5, width:0, padding:0, clearProps:"all", delay: .5, ease:"sine.inOut"});
-		gsap.from(this.$el, {duration:.5, width:0, height:0, padding:0, ease:"sine.inOut"});
-		gsap.from(this.$el, {duration:.5, gap:0, clearProps:"all", ease:"sine.inOut"});
+		gsap.from(label, {
+			duration: 0.5,
+			width: 0,
+			padding: 0,
+			clearProps: "all",
+			delay: 0.5,
+			ease: "sine.inOut",
+		});
+		gsap.from(this.$el, { duration: 0.5, width: 0, height: 0, padding: 0, ease: "sine.inOut" });
+		gsap.from(this.$el, { duration: 0.5, gap: 0, clearProps: "all", ease: "sine.inOut" });
 	}
 
-	public async snooze():Promise<void> {
-		if(!this.canSnooze) {
+	public async snooze(): Promise<void> {
+		if (!this.canSnooze) {
 			TwitchUtils.requestScopes([TwitchScopes.ADS_SNOOZE]);
-		}else{
+		} else {
 			this.snoozing = true;
 			const res = await TwitchUtils.snoozeNextAd();
 			this.error = res == null;
 			this.snoozing = false;
 		}
 	}
-
 }
 export default toNative(CommercialTimer);
 </script>
 
 <style scoped lang="less">
-.commercialtimer{
-	gap: .5em;
+.commercialtimer {
+	gap: 0.5em;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	font-size: .8em;
+	font-size: 0.8em;
 	height: 2em;
 	color: var(--color-light);
 	background-color: var(--color-primary);
 	// padding: .25em .5em;
-	padding: 0 .5em;
+	padding: 0 0.5em;
 	border-radius: var(--border-radius);
 	overflow: hidden;
 
 	&.secondary {
 		background-color: var(--color-secondary);
-		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 	}
 
 	&:has(.button, .error) {
@@ -157,11 +185,11 @@ export default toNative(CommercialTimer);
 		cursor: default;
 	}
 	.snoozeBt {
-		max-width:0;
+		max-width: 0;
 		padding: 0;
 		height: 100%;
 		flex-wrap: nowrap;
-		transition: all .25s;
+		transition: all 0.25s;
 		:deep(.label) {
 			white-space: nowrap;
 			text-overflow: clip;
@@ -171,7 +199,7 @@ export default toNative(CommercialTimer);
 	&:hover {
 		.snoozeBt {
 			max-width: 300px;
-			padding: .3em 1em;
+			padding: 0.3em 1em;
 		}
 	}
 

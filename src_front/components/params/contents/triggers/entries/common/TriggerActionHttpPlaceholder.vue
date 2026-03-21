@@ -1,6 +1,5 @@
 <template>
 	<div class="triggeractionhttpplaceholder">
-
 		<div class="card-item placeholderList">
 			<p icon="add">{{ $t("triggers.actions.http_ws.extract_data") }}</p>
 			<div v-for="(item, index) in placeholderList" class="item">
@@ -9,23 +8,55 @@
 					<option value="json">{{ $t("triggers.actions.http_ws.extract_data_type_json") }}</option>
 				</select> -->
 				<div class="jsonpath" v-if="item.type == 'json'">
-					<input type="text" maxlength="500" v-model="item.path" :placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')">
-					<TTButton class="helpBt" icon="help" secondary type="link" target="_blank" href="https://wikipedia.org/wiki/JSONPath" />
+					<input
+						type="text"
+						maxlength="500"
+						v-model="item.path"
+						:placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')"
+					/>
+					<TTButton
+						class="helpBt"
+						icon="help"
+						secondary
+						type="link"
+						target="_blank"
+						href="https://wikipedia.org/wiki/JSONPath"
+					/>
 				</div>
-				<PlaceholderField class="input-field" :class="{error:isDuplicate(item)}" v-model="item.placeholder" :maxLength="30" />
-				<TTButton class="deleteBt" icon="trash" alert @click="removeOutputPlacholder(index)" />
+				<PlaceholderField
+					class="input-field"
+					:class="{ error: isDuplicate(item) }"
+					v-model="item.placeholder"
+					:maxLength="30"
+				/>
+				<TTButton
+					class="deleteBt"
+					icon="trash"
+					alert
+					@click="removeOutputPlacholder(index)"
+				/>
 			</div>
-			<TTButton icon="add" @click="addOutputPlaceholder" v-if="(placeholderList || []).length < 50">{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton>
+			<TTButton
+				icon="add"
+				@click="addOutputPlaceholder"
+				v-if="(placeholderList || []).length < 50"
+				>{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton
+			>
 		</div>
 
-
-		<i18n-t scope="global" class="card-item info" tag="div"
-		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="placeholderList && placeholderList.length > 0">
+		<i18n-t
+			scope="global"
+			class="card-item info"
+			tag="div"
+			keypath="triggers.actions.common.custom_placeholder_example"
+			v-if="placeholderList && placeholderList.length > 0"
+		>
 			<template #PLACEHOLDER>
 				<template v-for="(p, index) in placeholderList">
-					<mark v-click2Select>{{"{" + p.placeholder.toUpperCase() + "}"}}</mark>
-					<template v-if="index < placeholderList.length-1">{{ $t("global.or") }}</template>
+					<mark v-click2Select>{{ "{" + p.placeholder.toUpperCase() + "}" }}</mark>
+					<template v-if="index < placeholderList.length - 1">{{
+						$t("global.or")
+					}}</template>
 				</template>
 			</template>
 		</i18n-t>
@@ -33,33 +64,33 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import type { IHttpPlaceholder } from '@/types/TriggerActionDataTypes';
-import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
-import ContentEditable from '@/components/ContentEditable.vue';
-import PlaceholderField from '@/components/PlaceholderField.vue';
+import TTButton from "@/components/TTButton.vue";
+import type { IHttpPlaceholder } from "@/types/TriggerActionDataTypes";
+import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
+import ContentEditable from "@/components/ContentEditable.vue";
+import PlaceholderField from "@/components/PlaceholderField.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ContentEditable,
 		PlaceholderField,
 	},
-	emits:[],
+	emits: [],
 })
 class TriggerActionHttpPlaceholder extends Vue {
-
-	@Prop({required:true, type:Object, default:[]})
-	public placeholderList:IHttpPlaceholder[] = [];
+	@Prop({ required: true, type: Object, default: [] })
+	public placeholderList: IHttpPlaceholder[] = [];
 
 	/**
 	 * Check if given item has a duplicate placeholder
 	 * @param item
 	 */
-	public isDuplicate(item:IHttpPlaceholder):boolean {
+	public isDuplicate(item: IHttpPlaceholder): boolean {
 		for (const entry of this.placeholderList) {
-			if(entry === item) continue;
-			if(entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim()) return true;
+			if (entry === item) continue;
+			if (entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim())
+				return true;
 		}
 
 		return false;
@@ -68,39 +99,38 @@ class TriggerActionHttpPlaceholder extends Vue {
 	/**
 	 * Creates an output placeholder
 	 */
-	public addOutputPlaceholder():void {
+	public addOutputPlaceholder(): void {
 		this.placeholderList.push({
-			type:"json",
-			path:"",
-			placeholder:"",
-		})
+			type: "json",
+			path: "",
+			placeholder: "",
+		});
 	}
 
 	/**
 	 * Deletes an output placeholder
 	 */
-	public removeOutputPlacholder(index:number):void {
+	public removeOutputPlacholder(index: number): void {
 		this.placeholderList.splice(index, 1);
 	}
-
 }
 export default toNative(TriggerActionHttpPlaceholder);
 </script>
 
 <style scoped lang="less">
-.triggeractionhttpplaceholder{
-	gap: .5em;
+.triggeractionhttpplaceholder {
+	gap: 0.5em;
 	display: flex;
 	flex-direction: column;
 
 	.placeholderList {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 	}
 
 	.item {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -108,14 +138,14 @@ export default toNative(TriggerActionHttpPlaceholder);
 		&:hover {
 			background-color: var(--background-color-fadest);
 		}
-		&>*:nth-child(2) {
+		& > *:nth-child(2) {
 			flex: 1;
 		}
 		.jsonpath {
 			display: flex;
 			flex-direction: row;
 			flex-basis: 60%;
-			&>* {
+			& > * {
 				border-radius: 0;
 				&:first-child {
 					border-top-left-radius: var(--border-radius);
@@ -137,8 +167,8 @@ export default toNative(TriggerActionHttpPlaceholder);
 		input {
 			flex-grow: 1;
 			flex-shrink: 1;
-			display:inline-block;
-			min-width:0;
+			display: inline-block;
+			min-width: 0;
 			width: 100%;
 			min-width: 8em;
 		}
