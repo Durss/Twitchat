@@ -7,44 +7,44 @@
 </template>
 
 <script lang="ts">
-import { watch } from 'vue';
-import { toNative, Component, Vue, Prop } from 'vue-facing-decorator';
+import { watch } from "vue";
+import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
 
 @Component({
 	components: {},
 	emits: [],
 })
 class TextSplitter extends Vue {
+	@Prop({ default: "", type: String })
+	public message!: string;
 
-	@Prop({default:"", type:String})
-	public message!:string;
-
-	public chunks:string[][] = [];
+	public chunks: string[][] = [];
 
 	public mounted(): void {
 		this.renderText();
-		watch(()=>this.message, ()=>this.renderText());
+		watch(
+			() => this.message,
+			() => this.renderText(),
+		);
 	}
-	
-	private renderText():void{
+
+	private renderText(): void {
 		const slotText = this.message || "";
 		const wordList = slotText.split(" ");
 		const words = wordList.map((word, wordIndex) => {
 			const letterList = Array.from(word).map((letter, letterIndex) => {
 				return letter;
 			});
-			if(wordIndex < wordList.length) letterList.push(" ");
+			if (wordIndex < wordList.length) letterList.push(" ");
 			return letterList;
 		});
 		this.chunks = words;
 	}
-
 }
 export default toNative(TextSplitter);
 </script>
 
 <style scoped lang="less">
 .textsplitter {
-
 }
 </style>

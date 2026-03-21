@@ -1,37 +1,39 @@
-import StoreProxy from '@/store/StoreProxy';
+import StoreProxy from "@/store/StoreProxy";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { reactive, type Reactive } from "vue";
-import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
+import { TwitchScopes, type TwitchScopesString } from "./twitch/TwitchScopes";
 
 /**
  * Created by Durss
  */
 export default class Config {
-
-	private static _instance:Reactive<Config>;
+	private static _instance: Reactive<Config>;
 
 	/**
 	 * Defines automatic skin changes based on Streamlabs Charity teams and dates
 	 * the "skin" value will be applied as class attribute to some overlays so their style can be changed
 	 */
-	public AUTO_SKIN_CONFIGS:Record<string, { skin: string, dateStart: Date, dateEnd: Date, disableAds:boolean }> = {
+	public AUTO_SKIN_CONFIGS: Record<
+		string,
+		{ skin: string; dateStart: Date; dateEnd: Date; disableAds: boolean }
+	> = {
 		"837342991965360522": {
-			skin:"etc",
+			skin: "etc",
 			disableAds: true,
-			dateStart:new Date("10/10/2025 17:00:00 GMT+0200 (Central European Summer Time)"),
-			dateEnd:new Date("10/12/2025 23:59:59 GMT+0200 (Central European Summer Time)"),
-		}
-	}
+			dateStart: new Date("10/10/2025 17:00:00 GMT+0200 (Central European Summer Time)"),
+			dateEnd: new Date("10/12/2025 23:59:59 GMT+0200 (Central European Summer Time)"),
+		},
+	};
 
 	/**
 	 * Get current auto skin config based on connected Streamlabs Charity team and date
-	 * @returns 
+	 * @returns
 	 */
 	public GET_CURRENT_AUTO_SKIN_CONFIG() {
 		const now = new Date();
-		for(const key in this.AUTO_SKIN_CONFIGS) {
+		for (const key in this.AUTO_SKIN_CONFIGS) {
 			const config = this.AUTO_SKIN_CONFIGS[key]!;
-			if(now >= config.dateStart && now <= config.dateEnd) {
+			if (now >= config.dateStart && now <= config.dateEnd) {
 				return config;
 			}
 		}
@@ -45,7 +47,9 @@ export default class Config {
 	/**
 	 * Is Twitchat running on a production server ?
 	 */
-	public IS_PROD:boolean = !["localhost", "127.0.0.1", "dev.twitchat.fr"].includes(document.location.hostname);
+	public IS_PROD: boolean = !["localhost", "127.0.0.1", "dev.twitchat.fr"].includes(
+		document.location.hostname,
+	);
 	/**
 	 * Heat extension URL
 	 */
@@ -68,33 +72,43 @@ export default class Config {
 	 * Date for features additions
 	 */
 	public NEW_FLAGS_DATE_V11 = new Date("01 01 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V12 = new Date("02 24 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V13 = new Date("08 30 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V13_1 = new Date("08 30 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V13_4 = new Date("09 01 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V13_6 = new Date("09 13 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V13_7 = new Date("09 10 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V14_2 = new Date("10 15 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V15 = new Date("11 30 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V16 = new Date("04 01 2025 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V16_1 = new Date("05 15 2025 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V17 = new Date("03 05 2026 01:00:00").getTime()
+	public NEW_FLAGS_DATE_V12 = new Date("02 24 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V13 = new Date("08 30 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V13_1 = new Date("08 30 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V13_4 = new Date("09 01 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V13_6 = new Date("09 13 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V13_7 = new Date("09 10 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V14_2 = new Date("10 15 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V15 = new Date("11 30 2024 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V16 = new Date("04 01 2025 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V16_1 = new Date("05 15 2025 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V17 = new Date("03 05 2026 01:00:00").getTime();
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
-	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
+	public OBS_DOCK_CONTEXT: boolean = window.obsstudio != undefined;
 	/**
 	 * List of twitch scopes that MUST be granted for twitchat to work
 	 */
-	public MANDATORY_TWITCH_SCOPES:TwitchScopesString[] = [TwitchScopes.CHAT_READ, TwitchScopes.CHAT_WRITE, TwitchScopes.SEND_ANNOUNCE, TwitchScopes.CHAT_READ_EVENTSUB, TwitchScopes.CHAT_WRITE_EVENTSUB];
+	public MANDATORY_TWITCH_SCOPES: TwitchScopesString[] = [
+		TwitchScopes.CHAT_READ,
+		TwitchScopes.CHAT_WRITE,
+		TwitchScopes.SEND_ANNOUNCE,
+		TwitchScopes.CHAT_READ_EVENTSUB,
+		TwitchScopes.CHAT_WRITE_EVENTSUB,
+	];
 	/**
 	 * URL of twitchat's discord
 	 */
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
-	public get DISCORD_BOT_URL():string {
-		return "https://discord.com/oauth2/authorize?client_id="+this._serverConfig.discord_client_id+"&scope=applications.commands+bot";
+	public get DISCORD_BOT_URL(): string {
+		return (
+			"https://discord.com/oauth2/authorize?client_id=" +
+			this._serverConfig.discord_client_id +
+			"&scope=applications.commands+bot"
+		);
 	}
 	/**
 	 * URL of twitchat's youtube
@@ -269,17 +283,15 @@ export default class Config {
 	 */
 	public MAX_QUESTIONS_PER_QUIZ_PREMIUM = 100;
 
-	private _serverConfig!:ServerConfig;
+	private _serverConfig!: ServerConfig;
 
-	constructor() {
-
-	}
+	constructor() {}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():Reactive<Config> {
-		if(!Config._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): Reactive<Config> {
+		if (!Config._instance) {
 			Config._instance = reactive(new Config());
 		}
 		return Config._instance;
@@ -288,97 +300,141 @@ export default class Config {
 	/**
 	 * Path to twitchat's API
 	 */
-	public get API_PATH():string {
-		if(!this.IS_PROD && document.location.protocol == "http:") {
-			return document.location.protocol+"//"+document.location.hostname+":"+this.SERVER_PORT+"/api";
-		}else{
-			return document.location.protocol+"//"+document.location.hostname+"/api";
+	public get API_PATH(): string {
+		if (!this.IS_PROD && document.location.protocol == "http:") {
+			return (
+				document.location.protocol +
+				"//" +
+				document.location.hostname +
+				":" +
+				this.SERVER_PORT +
+				"/api"
+			);
+		} else {
+			return document.location.protocol + "//" + document.location.hostname + "/api";
 		}
 	}
 
 	/**
 	 * Get if current twitchat instance is a beta instance
 	 */
-	public get BETA_MODE():boolean {
+	public get BETA_MODE(): boolean {
 		// if(!this.IS_PROD) {
 		// 	return true;//Simulate beta env on local
 		// }
-		return document.location.host.indexOf("beta") > -1 || document.location.host.indexOf("localhost") > -1;
+		return (
+			document.location.host.indexOf("beta") > -1 ||
+			document.location.host.indexOf("localhost") > -1
+		);
 	}
 
 	/**
 	 * Twitch client ID of Twitchat app
 	 */
-	public get TWITCH_CLIENT_ID():string { return this._serverConfig.twitch_client_id; }
+	public get TWITCH_CLIENT_ID(): string {
+		return this._serverConfig.twitch_client_id;
+	}
 	/**
 	 * List of twitch scopes Twitchat can request
 	 */
-	public get TWITCH_APP_SCOPES():string[] { return this._serverConfig.twitch_scopes; }
+	public get TWITCH_APP_SCOPES(): string[] {
+		return this._serverConfig.twitch_scopes;
+	}
 	/**
 	 * Not used since Spotify refused Twitchat extended quotas...
 	 */
-	public get SPOTIFY_CLIENT_ID():string { return this._serverConfig.spotify_client_id; }
+	public get SPOTIFY_CLIENT_ID(): string {
+		return this._serverConfig.spotify_client_id;
+	}
 	/**
 	 * Scopes required for spotify auth
 	 */
-	public get SPOTIFY_SCOPES():string { return this._serverConfig.spotify_scopes; }
+	public get SPOTIFY_SCOPES(): string {
+		return this._serverConfig.spotify_scopes;
+	}
 	/**
 	 * Patreon app client ID
 	 */
-	public get PATREON_CLIENT_ID():string { return this._serverConfig.patreon_client_id; }
+	public get PATREON_CLIENT_ID(): string {
+		return this._serverConfig.patreon_client_id;
+	}
 	/**
 	 * Patreon app requested scopes
-	*/
-	public get PATREON_SCOPES():string { return this._serverConfig.patreon_scopes; }
+	 */
+	public get PATREON_SCOPES(): string {
+		return this._serverConfig.patreon_scopes;
+	}
 	/**
 	 * Paypal app client ID
 	 */
-	public get PAYPAL_CLIENT_ID():string { return this._serverConfig.paypal_client_id; }
+	public get PAYPAL_CLIENT_ID(): string {
+		return this._serverConfig.paypal_client_id;
+	}
 	/**
 	 * Contact mail
 	 */
-	public get CONTACT_MAIL():string { return this._serverConfig.contact_mail; }
+	public get CONTACT_MAIL(): string {
+		return this._serverConfig.contact_mail;
+	}
 	/**
 	 * Youtube's client ID
-	*/
-	public get YOUTUBE_CLIENT_ID():string { return this._serverConfig.youtube_client_id; }
+	 */
+	public get YOUTUBE_CLIENT_ID(): string {
+		return this._serverConfig.youtube_client_id;
+	}
 	/**
 	 * Youtube's scopes
 	 */
-	public get YOUTUBE_SCOPES():string[] { return this._serverConfig.youtube_scopes; }
+	public get YOUTUBE_SCOPES(): string[] {
+		return this._serverConfig.youtube_scopes;
+	}
 	/**
 	 * Streamlabs client ID
 	 */
-	public get STREAMLABS_CLIENT_ID():string { return this._serverConfig.streamlabs_client_id; }
+	public get STREAMLABS_CLIENT_ID(): string {
+		return this._serverConfig.streamlabs_client_id;
+	}
 	/**
 	 * Streamelements client ID
 	 */
-	public get STREAMELEMENTS_CLIENT_ID():string { return this._serverConfig.streamelements_client_id; }
+	public get STREAMELEMENTS_CLIENT_ID(): string {
+		return this._serverConfig.streamelements_client_id;
+	}
 	/**
 	 * Tipeee client ID
 	 */
-	public get TIPEEE_CLIENT_ID():string { return this._serverConfig.tipeee_client_id; }
+	public get TIPEEE_CLIENT_ID(): string {
+		return this._serverConfig.tipeee_client_id;
+	}
 	/**
 	 * Tiltify client ID
 	 */
-	public get TILTIFY_CLIENT_ID():string { return this._serverConfig.tiltify_client_id; }
+	public get TILTIFY_CLIENT_ID(): string {
+		return this._serverConfig.tiltify_client_id;
+	}
 	/**
 	 * Tiltify scopes
 	 */
-	public get TILTIFY_SCOPES():string { return this._serverConfig.tiltify_scopes; }
+	public get TILTIFY_SCOPES(): string {
+		return this._serverConfig.tiltify_scopes;
+	}
 	/**
 	 * Twitch Extension ID
 	 */
-	public get TWITCH_EXTENSION_VERSION():string { return this._serverConfig.twitchExtension_version; }
+	public get TWITCH_EXTENSION_VERSION(): string {
+		return this._serverConfig.twitchExtension_version;
+	}
 	/**
 	 * Twitch Extension ID
 	 */
-	public get TWITCH_EXTENSION_ID():string { return this._serverConfig.twitchExtension_client_id; }
+	public get TWITCH_EXTENSION_ID(): string {
+		return this._serverConfig.twitchExtension_client_id;
+	}
 
 	/**
 	 * Fake Twitch "highlight my message" reward
 	 */
-	public get highlightMyMessageReward():TwitchDataTypes.Reward {
+	public get highlightMyMessageReward(): TwitchDataTypes.Reward {
 		const img = StoreProxy.asset("icons/reward_highlight.svg");
 		const defaultImg = StoreProxy.asset("icons/channelPoints.svg");
 		return {
@@ -386,10 +442,10 @@ export default class Config {
 			broadcaster_login: "durss",
 			broadcaster_id: "29961813",
 			id: "highlighted-message",
-			image:{
-				url_1x:img,
-				url_2x:img,
-				url_4x:img,
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
 			},
 			background_color: "#9147ff",
 			is_enabled: true,
@@ -412,28 +468,28 @@ export default class Config {
 			is_paused: false,
 			is_in_stock: true,
 			default_image: {
-				url_1x:defaultImg,
-				url_2x:defaultImg,
-				url_4x:defaultImg,
+				url_1x: defaultImg,
+				url_2x: defaultImg,
+				url_4x: defaultImg,
 			},
 			should_redemptions_skip_request_queue: false,
-		}
+		};
 	}
 
 	/**
 	 * Fake Twitch "highlight my message" reward
 	 */
-	public get allRewards():TwitchDataTypes.Reward {
+	public get allRewards(): TwitchDataTypes.Reward {
 		const img = StoreProxy.asset("icons/channelPoints.svg");
 		return {
 			broadcaster_name: "Durss",
 			broadcaster_login: "durss",
 			broadcaster_id: "29961813",
 			id: "*",
-			image:{
-				url_1x:img,
-				url_2x:img,
-				url_4x:img,
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
 			},
 			background_color: "#9147ff",
 			is_enabled: true,
@@ -456,32 +512,28 @@ export default class Config {
 			is_paused: false,
 			is_in_stock: true,
 			default_image: {
-				url_1x:img,
-				url_2x:img,
-				url_4x:img,
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
 			},
 			should_redemptions_skip_request_queue: false,
-		}
+		};
 	}
 
-
-
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public populateServerConfigs(data:ServerConfig):void {
+	 * PUBLIC METHODS *
+	 ******************/
+	public populateServerConfigs(data: ServerConfig): void {
 		this._serverConfig = data;
 	}
 
-	public getParamByKey(key:string):unknown {
+	public getParamByKey(key: string): unknown {
 		return this[key as keyof typeof Config.instance];
 	}
 
-
-
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 }
 
 export interface ServerConfig {
@@ -496,13 +548,13 @@ export interface ServerConfig {
 	youtube_client_id: string;
 	youtube_scopes: string[];
 	discord_client_id: string;
-	streamlabs_client_id:string;
-	streamlabs_redirect_uri:string;
-	streamelements_client_id:string;
-	tipeee_client_id:string;
-	tipeee_redirect_uri:string;
-	tiltify_client_id:string;
-	tiltify_scopes:string;
-	twitchExtension_version:string;
-	twitchExtension_client_id:string;
+	streamlabs_client_id: string;
+	streamlabs_redirect_uri: string;
+	streamelements_client_id: string;
+	tipeee_client_id: string;
+	tipeee_redirect_uri: string;
+	tiltify_client_id: string;
+	tiltify_scopes: string;
+	twitchExtension_version: string;
+	twitchExtension_client_id: string;
 }

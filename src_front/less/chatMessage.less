@@ -24,14 +24,18 @@
 	.spoilerFrag,
 	.spoiler .messagetranslation .text {
 		color: transparent;
-		@c1: rgba(128, 128, 128, .5);
-		@c2: rgba(128, 128, 128, .25);
+		@c1: rgba(128, 128, 128, 0.5);
+		@c2: rgba(128, 128, 128, 0.25);
 		background-color: @c1;
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-		transition: color .3s, background .3s;
-		.emote, a, .icon {
+		transition:
+			color 0.3s,
+			background 0.3s;
+		.emote,
+		a,
+		.icon {
 			opacity: 0;
-			transition: opacity .3s;
+			transition: opacity 0.3s;
 		}
 	}
 	.spoilerTag {
@@ -44,7 +48,9 @@
 		@c1: rgba(128, 128, 128, 0);
 		@c2: rgba(128, 128, 128, 0);
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-		.emote, a, .icon {
+		.emote,
+		a,
+		.icon {
 			opacity: 1;
 		}
 	}
@@ -111,8 +117,8 @@
 		background-color: var(--background-color-fadest);
 	}
 
-	&>.icon,
-	&>.head>.icon {
+	& > .icon,
+	& > .head > .icon {
 		width: 1.25em;
 		height: 1.25em;
 		min-width: 1.25em;
@@ -136,7 +142,8 @@
 		}
 	}
 
-	.cheermote, .emote {
+	.cheermote,
+	.emote {
 		height: 1.75em;
 		vertical-align: middle;
 		display: inline-block;
@@ -148,10 +155,10 @@
 
 	.streamInfo {
 		// background-color: rgba(255, 255, 255, .15);
-		border-radius: .5em;
+		border-radius: 0.5em;
 		overflow: hidden;
 		width: 100%;
-		row-gap: .5em;
+		row-gap: 0.5em;
 		column-gap: 1em;
 		display: flex;
 		flex-direction: row;
@@ -160,16 +167,17 @@
 			flex-grow: 1;
 			flex-basis: 200px;
 			.details {
-				gap: .5em;
+				gap: 0.5em;
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				margin-top: .5em;
-				.category, .duration {
+				margin-top: 0.5em;
+				.category,
+				.duration {
 					width: fit-content;
 					margin-right: 0;
 					margin-left: 0;
-					font-size: .9em;
+					font-size: 0.9em;
 					display: block;
 					padding: 2px 10px;
 					font-style: normal;
@@ -180,7 +188,7 @@
 					.icon {
 						height: 1em;
 						vertical-align: text-top;
-						margin-right: .25em;
+						margin-right: 0.25em;
 					}
 				}
 			}
@@ -195,7 +203,7 @@
 	//Set in absolute position with fixed width to avoid reflow
 	//of the chat message everytime the timer changes
 	position: absolute;
-	font-size: .8em;
+	font-size: 0.8em;
 	font-family: var(--font-roboto);
 	width: 3em;
 	text-align: right;
@@ -204,7 +212,6 @@
 
 body.light {
 	.chatMessage {
-
 		&.success {
 			.userlink {
 				color: var(--color-primary);
@@ -220,29 +227,28 @@ body.light {
 }
 
 .pollResult {
-
 	.content {
 		overflow: hidden;
 		flex-grow: 1;
 		.title {
 			font-weight: bold;
 			word-break: break-all;
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 			text-align: center;
 		}
 		.creator {
-			font-size: .8em;
+			font-size: 0.8em;
 			font-style: italic;
 		}
 		.choices {
 			display: flex;
 			flex-direction: column;
-			gap: .5em;
-			margin-bottom: .5em;
+			gap: 0.5em;
+			margin-bottom: 0.5em;
 			.choice {
 				display: flex;
 				flex-direction: column;
-				gap: .25em;
+				gap: 0.25em;
 				filter: contrast(0);
 				.infos {
 					display: flex;
@@ -256,7 +262,7 @@ body.light {
 					.icon {
 						color: var(--color-text);
 						height: 1em;
-						margin-right: .25em;
+						margin-right: 0.25em;
 					}
 
 					.label {
@@ -273,11 +279,13 @@ body.light {
 						flex-shrink: 0;
 					}
 
-					.percent, .points, .users {
-						font-size: .8em;
+					.percent,
+					.points,
+					.users {
+						font-size: 0.8em;
 						font-variant-numeric: tabular-nums;
 						flex-shrink: 0;
-						margin-right: .5em;
+						margin-right: 0.5em;
 						&.points {
 							margin-right: 0;
 						}

@@ -47,65 +47,67 @@ export const TwitchScopes = {
 	MANAGE_SUSPICIOUS_USERS: "moderator:manage:suspicious_users",
 	CHARITY_READ: "channel:read:charity",
 } as const;
-export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
+export type TwitchScopesString = (typeof TwitchScopes)[keyof typeof TwitchScopes];
 
-export const TwitchScope2Icon:Partial<{[key in TwitchScopesString]:string}> = {};
-TwitchScope2Icon[TwitchScopes.CHAT_READ]				= "whispers";
-TwitchScope2Icon[TwitchScopes.CHAT_READ_EVENTSUB]		= "whispers";
-TwitchScope2Icon[TwitchScopes.CHAT_WRITE]				= "whispers";
-TwitchScope2Icon[TwitchScopes.WHISPER_READ]				= "whispers";
-TwitchScope2Icon[TwitchScopes.WHISPER_MANAGE]			= "whispers";
-TwitchScope2Icon[TwitchScopes.SHOUTOUT]					= "shoutout";
-TwitchScope2Icon[TwitchScopes.SEND_ANNOUNCE]			= "announcement";
-TwitchScope2Icon[TwitchScopes.DELETE_MESSAGES]			= "trash";
-TwitchScope2Icon[TwitchScopes.LIST_CHATTERS]			= "user";
-TwitchScope2Icon[TwitchScopes.LIST_REWARDS]				= "channelPoints";
-TwitchScope2Icon[TwitchScopes.MANAGE_REWARDS]			= "channelPoints";
-TwitchScope2Icon[TwitchScopes.MANAGE_POLLS]				= "poll";
-TwitchScope2Icon[TwitchScopes.MANAGE_PREDICTIONS]		= "prediction";
-TwitchScope2Icon[TwitchScopes.SET_ROOM_SETTINGS]		= "lock";
-TwitchScope2Icon[TwitchScopes.MODERATION_EVENTS]		= "mod";
-TwitchScope2Icon[TwitchScopes.LIST_MODERATED_CHANS]		= "mod";
-TwitchScope2Icon[TwitchScopes.EDIT_MODS]				= "mod";
-TwitchScope2Icon[TwitchScopes.EDIT_VIPS]				= "vip";
-TwitchScope2Icon[TwitchScopes.START_RAID]				= "raid";
-TwitchScope2Icon[TwitchScopes.SET_STREAM_INFOS]			= "info";
-TwitchScope2Icon[TwitchScopes.READ_HYPE_TRAIN]			= "train";
-TwitchScope2Icon[TwitchScopes.START_COMMERCIAL]			= "coin";
-TwitchScope2Icon[TwitchScopes.CHECK_SUBSCRIBER_STATE]	= "sub";
-TwitchScope2Icon[TwitchScopes.LIST_SUBSCRIBERS]			= "sub";
-TwitchScope2Icon[TwitchScopes.READ_CHEER]				= "bits";
-TwitchScope2Icon[TwitchScopes.LIST_FOLLOWINGS]			= "follow";
-TwitchScope2Icon[TwitchScopes.LIST_FOLLOWERS]			= "follow";
-TwitchScope2Icon[TwitchScopes.LIST_BLOCKED]				= "block";
-TwitchScope2Icon[TwitchScopes.EDIT_BLOCKED]				= "block";
-TwitchScope2Icon[TwitchScopes.EDIT_BANNED]				= "ban";
-TwitchScope2Icon[TwitchScopes.AUTOMOD]					= "automod";
-TwitchScope2Icon[TwitchScopes.SHIELD_MODE]				= "shield";
-TwitchScope2Icon[TwitchScopes.CLIPS_EDIT]				= "clip";
-TwitchScope2Icon[TwitchScopes.MANAGE_CLIPS]				= "clip";
-TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
-TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
-TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
-TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS]			= "unbanRequest";
-TwitchScope2Icon[TwitchScopes.BLOCKED_TERMS]			= "block";
-TwitchScope2Icon[TwitchScopes.CHAT_WARNING]				= "alert";
-TwitchScope2Icon[TwitchScopes.READ_VIPS]				= "vip";
-TwitchScope2Icon[TwitchScopes.READ_MODERATORS]			= "mod";
-TwitchScope2Icon[TwitchScopes.SUSPICIOUS_USERS]			= "shield";
-TwitchScope2Icon[TwitchScopes.MANAGE_SUSPICIOUS_USERS]	= "shield";
-TwitchScope2Icon[TwitchScopes.CHARITY_READ]				= "twitch_charity";
-TwitchScope2Icon[TwitchScopes.EXTENSIONS]				= "extension";
+export const TwitchScope2Icon: Partial<{ [key in TwitchScopesString]: string }> = {};
+TwitchScope2Icon[TwitchScopes.CHAT_READ] = "whispers";
+TwitchScope2Icon[TwitchScopes.CHAT_READ_EVENTSUB] = "whispers";
+TwitchScope2Icon[TwitchScopes.CHAT_WRITE] = "whispers";
+TwitchScope2Icon[TwitchScopes.WHISPER_READ] = "whispers";
+TwitchScope2Icon[TwitchScopes.WHISPER_MANAGE] = "whispers";
+TwitchScope2Icon[TwitchScopes.SHOUTOUT] = "shoutout";
+TwitchScope2Icon[TwitchScopes.SEND_ANNOUNCE] = "announcement";
+TwitchScope2Icon[TwitchScopes.DELETE_MESSAGES] = "trash";
+TwitchScope2Icon[TwitchScopes.LIST_CHATTERS] = "user";
+TwitchScope2Icon[TwitchScopes.LIST_REWARDS] = "channelPoints";
+TwitchScope2Icon[TwitchScopes.MANAGE_REWARDS] = "channelPoints";
+TwitchScope2Icon[TwitchScopes.MANAGE_POLLS] = "poll";
+TwitchScope2Icon[TwitchScopes.MANAGE_PREDICTIONS] = "prediction";
+TwitchScope2Icon[TwitchScopes.SET_ROOM_SETTINGS] = "lock";
+TwitchScope2Icon[TwitchScopes.MODERATION_EVENTS] = "mod";
+TwitchScope2Icon[TwitchScopes.LIST_MODERATED_CHANS] = "mod";
+TwitchScope2Icon[TwitchScopes.EDIT_MODS] = "mod";
+TwitchScope2Icon[TwitchScopes.EDIT_VIPS] = "vip";
+TwitchScope2Icon[TwitchScopes.START_RAID] = "raid";
+TwitchScope2Icon[TwitchScopes.SET_STREAM_INFOS] = "info";
+TwitchScope2Icon[TwitchScopes.READ_HYPE_TRAIN] = "train";
+TwitchScope2Icon[TwitchScopes.START_COMMERCIAL] = "coin";
+TwitchScope2Icon[TwitchScopes.CHECK_SUBSCRIBER_STATE] = "sub";
+TwitchScope2Icon[TwitchScopes.LIST_SUBSCRIBERS] = "sub";
+TwitchScope2Icon[TwitchScopes.READ_CHEER] = "bits";
+TwitchScope2Icon[TwitchScopes.LIST_FOLLOWINGS] = "follow";
+TwitchScope2Icon[TwitchScopes.LIST_FOLLOWERS] = "follow";
+TwitchScope2Icon[TwitchScopes.LIST_BLOCKED] = "block";
+TwitchScope2Icon[TwitchScopes.EDIT_BLOCKED] = "block";
+TwitchScope2Icon[TwitchScopes.EDIT_BANNED] = "ban";
+TwitchScope2Icon[TwitchScopes.AUTOMOD] = "automod";
+TwitchScope2Icon[TwitchScopes.SHIELD_MODE] = "shield";
+TwitchScope2Icon[TwitchScopes.CLIPS_EDIT] = "clip";
+TwitchScope2Icon[TwitchScopes.MANAGE_CLIPS] = "clip";
+TwitchScope2Icon[TwitchScopes.ADS_READ] = "ad";
+TwitchScope2Icon[TwitchScopes.ADS_SNOOZE] = "ad";
+TwitchScope2Icon[TwitchScopes.READ_EMOTES] = "emote";
+TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS] = "unbanRequest";
+TwitchScope2Icon[TwitchScopes.BLOCKED_TERMS] = "block";
+TwitchScope2Icon[TwitchScopes.CHAT_WARNING] = "alert";
+TwitchScope2Icon[TwitchScopes.READ_VIPS] = "vip";
+TwitchScope2Icon[TwitchScopes.READ_MODERATORS] = "mod";
+TwitchScope2Icon[TwitchScopes.SUSPICIOUS_USERS] = "shield";
+TwitchScope2Icon[TwitchScopes.MANAGE_SUSPICIOUS_USERS] = "shield";
+TwitchScope2Icon[TwitchScopes.CHARITY_READ] = "twitch_charity";
+TwitchScope2Icon[TwitchScopes.EXTENSIONS] = "extension";
 
 // Lists all scopes required for channel.moderate v2 eventsub topic to be granted.
 // This is also used for raid persmissions check.
 // It's not technically necessary to start a raid, but it is to get notified when
 // the raid starts/ends so we require these all as well as the START_RAID scope.
-export const TwitchChannelModerateV2Scopes = [TwitchScopes.BLOCKED_TERMS,
-											TwitchScopes.SET_ROOM_SETTINGS,
-											TwitchScopes.UNBAN_REQUESTS,
-											TwitchScopes.EDIT_BANNED,
-											TwitchScopes.DELETE_MESSAGES,
-											TwitchScopes.CHAT_WARNING,
-											TwitchScopes.READ_MODERATORS,
-											TwitchScopes.READ_VIPS];
+export const TwitchChannelModerateV2Scopes = [
+	TwitchScopes.BLOCKED_TERMS,
+	TwitchScopes.SET_ROOM_SETTINGS,
+	TwitchScopes.UNBAN_REQUESTS,
+	TwitchScopes.EDIT_BANNED,
+	TwitchScopes.DELETE_MESSAGES,
+	TwitchScopes.CHAT_WARNING,
+	TwitchScopes.READ_MODERATORS,
+	TwitchScopes.READ_VIPS,
+];

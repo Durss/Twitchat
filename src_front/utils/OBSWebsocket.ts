@@ -1,19 +1,18 @@
-import StoreProxy from '@/store/StoreProxy';
-import { OBSWebSocket as ObsWS } from 'obs-websocket-js';
-import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import { ref } from 'vue';
-import { EventDispatcher } from '../events/EventDispatcher';
-import TwitchatEvent from '../events/TwitchatEvent';
-import Logger from './Logger';
-import type { TwitchatEventMap } from '@/events/TwitchatEvent';
-import Utils from './Utils';
+import StoreProxy from "@/store/StoreProxy";
+import { OBSWebSocket as ObsWS } from "obs-websocket-js";
+import type { JsonArray, JsonObject, JsonValue } from "type-fest";
+import { ref } from "vue";
+import { EventDispatcher } from "../events/EventDispatcher";
+import TwitchatEvent from "../events/TwitchatEvent";
+import Logger from "./Logger";
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import Utils from "./Utils";
 
 /**
-* Created : 29/03/2022
-*/
+ * Created : 29/03/2022
+ */
 export default class OBSWebsocket extends EventDispatcher {
-
-	private static _instance:OBSWebsocket;
+	private static _instance: OBSWebsocket;
 
 	public connected = ref<boolean>(false);
 	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
@@ -21,50 +20,70 @@ export default class OBSWebsocket extends EventDispatcher {
 	//drastically enlarge its bundle size because TriggerActionDataTypes as dependencies to
 	//other parts of code useless for the overlay.
 	//Removing this ref from here allows for a proper tree shaking of deps
-	public heatClickTriggerType:string = "82";
-	public versionInfo:Awaited<ReturnType<typeof this.obs.call<"GetVersion">>> | null = null;
+	public heatClickTriggerType: string = "82";
+	public versionInfo: Awaited<ReturnType<typeof this.obs.call<"GetVersion">>> | null = null;
 
-	private obs!:ObsWS;
-	private reconnectTimeout!:number;
-	private autoReconnect:boolean = false;
-	private connectInfo:{port:string, ip:string, pass:string} = {port:"",ip:"",pass:""};
+	private obs!: ObsWS;
+	private reconnectTimeout!: number;
+	private autoReconnect: boolean = false;
+	private connectInfo: { port: string; ip: string; pass: string } = {
+		port: "",
+		ip: "",
+		pass: "",
+	};
 
-	private sceneCacheKeySplitter:string = "_-___-___-_";
+	private sceneCacheKeySplitter: string = "_-___-___-_";
 	//Key : "sceneName" + sceneCacheKeySplitter + "sourceName"
-	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}[]}} = {};
-	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
-	private sceneToCaching:{[key:string]:boolean} = {};
-	private cachedScreenshots = new Map<string, {ts:number, screen:string}>();
+	private sceneSourceCache: {
+		[key: string]: { ts: number; value: { scene: string; source: OBSSourceItem }[] };
+	} = {};
+	private sceneDisplayRectsCache: {
+		[key: string]: {
+			ts: number;
+			value: {
+				canvas: { width: number; height: number };
+				sources: { sceneName: string; source: OBSSourceItem; transform: SourceTransform }[];
+			};
+		};
+	} = {};
+	private sceneToCaching: { [key: string]: boolean } = {};
+	private cachedScreenshots = new Map<string, { ts: number; screen: string }>();
 
 	constructor() {
 		super();
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():OBSWebsocket {
-		if(!OBSWebsocket._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): OBSWebsocket {
+		if (!OBSWebsocket._instance) {
 			OBSWebsocket._instance = new OBSWebsocket();
 			OBSWebsocket._instance.initialize();
 		}
 		return OBSWebsocket._instance;
 	}
 
-	public get socket():ObsWS { return this.obs; }
-
-
+	public get socket(): ObsWS {
+		return this.obs;
+	}
 
 	/******************
-	* PUBLIC METHODS *
-	******************/
+	 * PUBLIC METHODS *
+	 ******************/
 
-	public override addEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
+	public override addEventListener<Event extends keyof TwitchatEventMap>(
+		typeStr: Event,
+		listenerFunc: (e: TwitchatEvent<Event>) => void,
+	): void {
 		// @ts-ignore
 		super.addEventListener(typeStr, listenerFunc);
 	}
 
-	public override removeEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
+	public override removeEventListener<Event extends keyof TwitchatEventMap>(
+		typeStr: Event,
+		listenerFunc: (e: TwitchatEvent<Event>) => void,
+	): void {
 		// @ts-ignore
 		super.removeEventListener(typeStr, listenerFunc);
 	}
@@ -72,10 +91,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Disconnect from OBS Websocket
 	 */
-	public async disconnect():Promise<void> {
+	public async disconnect(): Promise<void> {
 		this.autoReconnect = false;
-		if(this.connected.value) {
-			this.obs.disconnect();
+		if (this.connected.value) {
+			void this.obs.disconnect();
 		}
 	}
 
@@ -87,42 +106,48 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param autoReconnect
 	 * @returns
 	 */
-	public async connect(port:string = "4455", pass:string = "", autoReconnect = true, ip = "127.0.0.1", forceConnect:boolean = false):Promise<boolean> {
-		if(this.connected.value) return true;
+	public async connect(
+		port: string = "4455",
+		pass: string = "",
+		autoReconnect = true,
+		ip = "127.0.0.1",
+		forceConnect: boolean = false,
+	): Promise<boolean> {
+		if (this.connected.value) return true;
 
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
-		if(!forceConnect && StoreProxy.obs && StoreProxy.obs.connectionEnabled !== true) return false;
+		if (!forceConnect && StoreProxy.obs && StoreProxy.obs.connectionEnabled !== true)
+			return false;
 
 		try {
 			this.connectInfo.ip = (ip || "").trim();
 			this.connectInfo.port = (port || "").trim();
 			this.connectInfo.pass = (pass || "").trim();
-			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
-			if(ip.indexOf("ws") == 0) {
+			let protocol = ip == "127.0.0.1" || ip == "localhost" ? "ws://" : "wss://";
+			if (ip.indexOf("ws") == 0) {
 				const [_protocol, _ip] = ip.split("//");
 				ip = _ip!;
-				protocol = _protocol+"//";
+				protocol = _protocol + "//";
 			}
-			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
-			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
-			if(!this.connected.value) {
+			const portValue = port && port?.length > 0 && port != "0" ? ":" + port : "";
+			await this.obs.connect(protocol + ip + portValue, pass, { rpcVersion: 1 });
+			if (!this.connected.value) {
 				this.dispatchEvent(new TwitchatEvent("ON_OBS_WEBSOCKET_CONNECTED", undefined));
 			}
 			this.connected.value = true;
-		}catch(error) {
+		} catch (error) {
 			console.log(error);
-			if(this.autoReconnect) {
+			if (this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
-					this.connect(port, pass, autoReconnect, ip);
+				this.reconnectTimeout = window.setTimeout(() => {
+					void this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
 			return false;
 		}
 
 		StoreProxy.common.currentOBSScene = await this.getCurrentScene();
-
 
 		// LIST ALL INPUT KINDS
 		//console.log(await this.obs.call("GetInputKindList"));
@@ -175,17 +200,17 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Logs data
 	 */
-	public log(info:string, data?:any):void {
-		Logger.instance.log("obs", {info, data});
+	public log(info: string, data?: any): void {
+		Logger.instance.log("obs", { info, data });
 	}
 
 	/**
 	 * Start OBS stream
 	 */
-	public async startStreaming():Promise<void> {
-		if(!this.connected.value) return;
+	public async startStreaming(): Promise<void> {
+		if (!this.connected.value) return;
 		const status = await this.obs.call("GetStreamStatus");
-		if(!status.outputActive) {
+		if (!status.outputActive) {
 			await this.obs.call("StartStream");
 		}
 	}
@@ -193,10 +218,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Stop OBS stream
 	 */
-	public async stopStreaming():Promise<void> {
-		if(!this.connected.value) return;
+	public async stopStreaming(): Promise<void> {
+		if (!this.connected.value) return;
 		const status = await this.obs.call("GetStreamStatus");
-		if(status.outputActive) {
+		if (status.outputActive) {
 			await this.obs.call("StopStream");
 		}
 	}
@@ -205,16 +230,21 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
-	public async broadcast(type:keyof TwitchatEventMap, eventId:string, data?:JsonObject, retryCount:number = 0):Promise<void> {
-		if(!this.connected.value) {
+	public async broadcast(
+		type: keyof TwitchatEventMap,
+		eventId: string,
+		data?: JsonObject,
+		retryCount: number = 0,
+	): Promise<void> {
+		if (!this.connected.value) {
 			//Try again
-			if(retryCount == 30) return;
-			window.setTimeout(()=> this.broadcast(type, eventId, data, ++retryCount), 1000);
+			if (retryCount == 30) return;
+			window.setTimeout(() => this.broadcast(type, eventId, data, ++retryCount), 1000);
 			return;
 		}
 
-		const eventData = { origin:"twitchat", type, data, id:eventId } as JsonObject;
-		this.obs.call("BroadcastCustomEvent", {eventData});
+		const eventData = { origin: "twitchat", type, data, id: eventId } as JsonObject;
+		void this.obs.call("BroadcastCustomEvent", { eventData });
 	}
 
 	/**
@@ -222,21 +252,22 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getScenes():Promise<{
+	public async getScenes(): Promise<{
 		currentProgramSceneName: string;
 		currentPreviewSceneName: string;
-		scenes: {sceneIndex:number, sceneName:string}[];
+		scenes: { sceneIndex: number; sceneName: string }[];
 	}> {
-		if(!this.connected.value) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
+		if (!this.connected.value)
+			return { currentProgramSceneName: "", currentPreviewSceneName: "", scenes: [] };
 
-		const res = await this.obs.call("GetSceneList") as {
+		const res = (await this.obs.call("GetSceneList")) as {
 			currentProgramSceneName: string;
 			currentProgramSceneUuid: string;
 			currentPreviewSceneName: string;
 			currentPreviewSceneUuid: string;
-			scenes: {sceneIndex:number, sceneName:string}[];
+			scenes: { sceneIndex: number; sceneName: string }[];
 		};
-		res.scenes.sort((a,b)=> b.sceneIndex - a.sceneIndex)
+		res.scenes.sort((a, b) => b.sceneIndex - a.sceneIndex);
 		return res;
 	}
 
@@ -246,25 +277,29 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getSceneItems(sceneName:string):Promise<{item:OBSSourceItem, children:OBSSourceItem[]}[]> {
-		if(!this.connected.value) return [];
+	public async getSceneItems(
+		sceneName: string,
+	): Promise<{ item: OBSSourceItem; children: OBSSourceItem[] }[]> {
+		if (!this.connected.value) return [];
 
 		//Get scene's items
-		const list = await this.obs.call("GetSceneItemList", {sceneName});
-		const items = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {
-			return {item:v, children:[] as OBSSourceItem[]};
+		const list = await this.obs.call("GetSceneItemList", { sceneName });
+		const items = (list.sceneItems as unknown as OBSSourceItem[]).map((v) => {
+			return { item: v, children: [] as OBSSourceItem[] };
 		});
 
 		//Get groups' items
 		for (const entry of items) {
-			if(entry.item.isGroup) {
+			if (entry.item.isGroup) {
 				//Load group's children
-				const groupList = await this.obs.call("GetGroupSceneItemList", {sceneName:entry.item.sourceName});
-				const groupItems = (groupList.sceneItems as unknown) as OBSSourceItem[]
-				entry.children = groupItems.sort((a,b)=> b.sceneItemIndex - a.sceneItemIndex);
+				const groupList = await this.obs.call("GetGroupSceneItemList", {
+					sceneName: entry.item.sourceName,
+				});
+				const groupItems = groupList.sceneItems as unknown as OBSSourceItem[];
+				entry.children = groupItems.sort((a, b) => b.sceneItemIndex - a.sceneItemIndex);
 			}
 		}
-		return items.sort((a,b)=> b.item.sceneItemIndex - a.item.sceneItemIndex);
+		return items.sort((a, b) => b.item.sceneItemIndex - a.item.sceneItemIndex);
 	}
 
 	/**
@@ -272,53 +307,57 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getSources(currentSceneOnly:boolean = false):Promise<OBSSourceItem[]> {
-		if(!this.connected.value) return [];
+	public async getSources(currentSceneOnly: boolean = false): Promise<OBSSourceItem[]> {
+		if (!this.connected.value) return [];
 		const scenesResult = await this.getScenes();
-		let sceneList:OBSSceneItemParented[] = scenesResult.scenes;
-		if(currentSceneOnly) {
-			const currentScene  = await this.getCurrentScene();
-			sceneList = sceneList.filter(v=>v.sceneName == currentScene);
+		let sceneList: OBSSceneItemParented[] = scenesResult.scenes;
+		if (currentSceneOnly) {
+			const currentScene = await this.getCurrentScene();
+			sceneList = sceneList.filter((v) => v.sceneName == currentScene);
 		}
-		let sources:OBSSourceItem[] = [];
-		const sourceDone:{[key:string]:boolean} = {};
-		const scenesDone:{[key:string]:boolean} = {};
+		let sources: OBSSourceItem[] = [];
+		const sourceDone: { [key: string]: boolean } = {};
+		const scenesDone: { [key: string]: boolean } = {};
 
 		//Parse all scene items
 		for (const scene of sceneList) {
-			if(scenesDone[scene.sceneName] == true) continue;
+			if (scenesDone[scene.sceneName] == true) continue;
 			scenesDone[scene.sceneName] = true;
 
-			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
-			let items = (list.sceneItems as unknown) as OBSSourceItem[];
+			const list = await this.obs.call("GetSceneItemList", { sceneName: scene.sceneName });
+			let items = list.sceneItems as unknown as OBSSourceItem[];
 
 			//Parse all scene sources
 			for (const source of items) {
 				source.sceneName = scene.sceneName;
-				if(sourceDone[source.sourceName] == true) continue;
+				if (sourceDone[source.sourceName] == true) continue;
 
 				sourceDone[source.sourceName] = true;
 
 				//Get group children
-				if(source.isGroup) {
-					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
-					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
-					items = items.concat( groupItems );
-				}else
-
-				//Check recursively on child scene if we requested the sources only from the current scene
-				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE" && currentSceneOnly) {
-					sceneList.push({sceneIndex:-1, sceneName:source.sourceName, parentScene:scene});
+				if (source.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {
+						sceneName: source.sourceName,
+					});
+					const groupItems = res.sceneItems as unknown as OBSSourceItem[];
+					items = items.concat(groupItems);
+				} else //Check recursively on child scene if we requested the sources only from the current scene
+				if (source.sourceType == "OBS_SOURCE_TYPE_SCENE" && currentSceneOnly) {
+					sceneList.push({
+						sceneIndex: -1,
+						sceneName: source.sourceName,
+						parentScene: scene,
+					});
 				}
 			}
 			sources = sources.concat(items);
 		}
 
 		//Dedupe results
-		const itemsDone:{[key:string]:boolean} = {};
+		const itemsDone: { [key: string]: boolean } = {};
 		for (let i = 0; i < sources.length; i++) {
-			if(itemsDone[sources[i]!.sourceName] === true) {
-				sources.splice(i, 1)!
+			if (itemsDone[sources[i]!.sourceName] === true) {
+				sources.splice(i, 1)!;
 				i--;
 			}
 			itemsDone[sources[i]!.sourceName] = true;
@@ -344,106 +383,151 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getSourcesDisplayRects():Promise<{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}> {
-		if(!this.connected.value) return {canvas:{width:1920, height:1080}, sources:[]};
-		const currentScene  = await this.getCurrentScene();
+	public async getSourcesDisplayRects(): Promise<{
+		canvas: { width: number; height: number };
+		sources: { sceneName: string; source: OBSSourceItem; transform: SourceTransform }[];
+	}> {
+		if (!this.connected.value) return { canvas: { width: 1920, height: 1080 }, sources: [] };
+		const currentScene = await this.getCurrentScene();
 
 		this.log("Requesting display rects");
 
 		//If current scene is cached, just send back cached data
 		const cache = this.sceneDisplayRectsCache[currentScene];
-		if(cache && Date.now()-cache.ts < 30000) {
+		if (cache && Date.now() - cache.ts < 30000) {
 			this.log("return cached data", this.sceneDisplayRectsCache[currentScene]!.value);
 			return this.sceneDisplayRectsCache[currentScene]!.value;
 		}
 
 		//If caching is in progress from a previous request, wait a little
-		if(this.sceneToCaching[currentScene] === true) {
-			this.log("Caching in progress, return already cached data", cache ? cache.value : undefined)
-			if(cache) return cache.value;
-			return {canvas:{width:1920, height:1080}, sources:[]};
+		if (this.sceneToCaching[currentScene] === true) {
+			this.log(
+				"Caching in progress, return already cached data",
+				cache ? cache.value : undefined,
+			);
+			if (cache) return cache.value;
+			return { canvas: { width: 1920, height: 1080 }, sources: [] };
 		}
 
 		//Flag scene as being cached
 		this.sceneToCaching[currentScene] = true;
-		const isOverlayInteraction = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
+		const isOverlayInteraction =
+			StoreProxy.chat.botMessages.heatSpotify.enabled ||
+			StoreProxy.chat.botMessages.heatUlule.enabled;
 
 		const videoSettings = await this.obs.call("GetVideoSettings");
-		const sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform, isGroup?:boolean}[] = [{name:currentScene}];
-		const transforms:{source:OBSSourceItem, sceneName:string, transform:SourceTransform}[] = [];
-		const sourceDone:{[key:string]:boolean} = {};
-		const scenesDone:{[key:string]:boolean} = {};
-		const itemNameToTransform:{[key:string]:SourceTransform} = {};
-		const canvasW:number = videoSettings.baseWidth;
-		const canvasH:number = videoSettings.baseHeight;
-		const sourcesToWatch:string[] = [];
-		this.log(`Canvas sizes is ${videoSettings.baseWidth}x${videoSettings.baseHeight}`)
+		const sceneList: {
+			name: string;
+			parentScene?: string;
+			parentItemId?: number;
+			parentTransform?: SourceTransform;
+			isGroup?: boolean;
+		}[] = [{ name: currentScene }];
+		const transforms: {
+			source: OBSSourceItem;
+			sceneName: string;
+			transform: SourceTransform;
+		}[] = [];
+		const sourceDone: { [key: string]: boolean } = {};
+		const scenesDone: { [key: string]: boolean } = {};
+		const itemNameToTransform: { [key: string]: SourceTransform } = {};
+		const canvasW: number = videoSettings.baseWidth;
+		const canvasH: number = videoSettings.baseHeight;
+		const sourcesToWatch: string[] = [];
+		this.log(`Canvas sizes is ${videoSettings.baseWidth}x${videoSettings.baseHeight}`);
 
-		StoreProxy.triggers.triggerList.forEach(v=> {
-			if(v.type == this.heatClickTriggerType && v.heatObsSource && v.enabled){
+		StoreProxy.triggers.triggerList.forEach((v) => {
+			if (v.type == this.heatClickTriggerType && v.heatObsSource && v.enabled) {
 				sourcesToWatch.push(v.heatObsSource);
 			}
 		});
 
 		const distortions = StoreProxy.heat.distortionList;
-		distortions.forEach(d=> {
-			sourcesToWatch.push( d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName );
+		distortions.forEach((d) => {
+			sourcesToWatch.push(
+				d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName,
+			);
 		});
-		this.log("OBS sources and Distorsions sources linked to an enabled trigger", sourcesToWatch);
-		this.log("Is overlay interaction enabled (spotify/ulule)? "+ (isOverlayInteraction?"true":"false"));
+		this.log(
+			"OBS sources and Distorsions sources linked to an enabled trigger",
+			sourcesToWatch,
+		);
+		this.log(
+			"Is overlay interaction enabled (spotify/ulule)? " +
+				(isOverlayInteraction ? "true" : "false"),
+		);
 
-		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
+		if (sourcesToWatch.length === 0 && !isOverlayInteraction) {
 			this.sceneToCaching[currentScene] = false;
-			this.log("No source to watch for")
-			return {canvas:{width:canvasW, height:canvasH}, sources:[]};
+			this.log("No source to watch for");
+			return { canvas: { width: canvasW, height: canvasH }, sources: [] };
 		}
 
 		//Parse all scene items
 		for (const scene of sceneList) {
-
-			if(scenesDone[scene.name] == true) continue;
+			if (scenesDone[scene.name] == true) continue;
 			scenesDone[scene.name] = true;
 
-			let list:{sceneItems: JsonObject[]} = {sceneItems:[]};
-			if(scene.isGroup === true){
-				this.log("Parse children for group: "+ scene.name);
-				list = await this.obs.call("GetGroupSceneItemList", {sceneName:scene.name});
-			}else{
-				this.log("Parse children for scene: "+ scene.name);
-				list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
+			let list: { sceneItems: JsonObject[] } = { sceneItems: [] };
+			if (scene.isGroup === true) {
+				this.log("Parse children for group: " + scene.name);
+				list = await this.obs.call("GetGroupSceneItemList", { sceneName: scene.name });
+			} else {
+				this.log("Parse children for scene: " + scene.name);
+				list = await this.obs.call("GetSceneItemList", { sceneName: scene.name });
 			}
-			const items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
+			const items: { parent: string; item: OBSSourceItem }[] = (
+				list.sceneItems as unknown as OBSSourceItem[]
+			).map((v) => {
+				return { parent: scene.name, item: v };
+			});
 			//Parse all scene sources
 			for (const source of items) {
 				sourceDone[source.item.sourceName] = true;
 
 				//Ignore invisible items
 				const visibleRes = await this.obs.call("GetSceneItemEnabled", {
-					sceneName:source.parent,
-					sceneItemId:source.item.sceneItemId,
+					sceneName: source.parent,
+					sceneItemId: source.item.sceneItemId,
 				});
-				this.log("Checking visibility of '"+ source.item.sourceName+ "' in '"+ source.parent+"'. Visible:"+(visibleRes?"true":"false"));
-				if(!visibleRes.sceneItemEnabled) continue;
+				this.log(
+					"Checking visibility of '" +
+						source.item.sourceName +
+						"' in '" +
+						source.parent +
+						"'. Visible:" +
+						(visibleRes ? "true" : "false"),
+				);
+				if (!visibleRes.sceneItemEnabled) continue;
 
 				//If no trigger request for this source's events and if it's not a browser source or a group or a scene, ignore it
-				if(source.item.sourceType != "OBS_SOURCE_TYPE_SCENE"
-				&& !source.item.isGroup
-				&& source.item.inputKind != "browser_source"
-				&& !sourcesToWatch.includes(source.item.sourceName)) {
-					this.log("Source '"+source.item.sourceName+"' is not a scene, not a group, not a browser source and not part of the watched sources. Ignore it")
+				if (
+					source.item.sourceType != "OBS_SOURCE_TYPE_SCENE" &&
+					!source.item.isGroup &&
+					source.item.inputKind != "browser_source" &&
+					!sourcesToWatch.includes(source.item.sourceName)
+				) {
+					this.log(
+						"Source '" +
+							source.item.sourceName +
+							"' is not a scene, not a group, not a browser source and not part of the watched sources. Ignore it",
+					);
 					continue;
 				}
 
 				// let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
 				const sourceTransform = source.item.sceneItemTransform;
-				if(!sourceTransform.globalScaleX) {
+				if (!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
 
 				this.compensateCrop(sourceTransform);
-				this.log("Transform data compensated for crop", JSON.parse(JSON.stringify(sourceTransform)));
+				this.log(
+					"Transform data compensated for crop",
+					JSON.parse(JSON.stringify(sourceTransform)),
+				);
 
 				//Compute the center of the source on the local space
 				const coords = this.getSourceCenterFromTransform(sourceTransform);
@@ -451,19 +535,19 @@ export default class OBSWebsocket extends EventDispatcher {
 				sourceTransform.globalCenterY = coords.cy;
 				this.log("Computed source center", coords);
 
-				if(scene.parentTransform) {
+				if (scene.parentTransform) {
 					//Apply parent rotation
 					const pt = scene.parentTransform;
-					const cW = scene.isGroup? pt.width/2 : canvasW/2;
-					const cH = scene.isGroup? pt.height/2 : canvasH/2;
+					const cW = scene.isGroup ? pt.width / 2 : canvasW / 2;
+					const cH = scene.isGroup ? pt.height / 2 : canvasH / 2;
 					const rotated = Utils.rotatePointAround(
-													{
-														x:sourceTransform.globalCenterX + pt.globalCenterX! - cW,
-														y:sourceTransform.globalCenterY + pt.globalCenterY! - cH,
-													},
-													{x:pt.globalCenterX!, y:pt.globalCenterY!},
-													pt.rotation
-													);
+						{
+							x: sourceTransform.globalCenterX + pt.globalCenterX! - cW,
+							y: sourceTransform.globalCenterY + pt.globalCenterY! - cH,
+						},
+						{ x: pt.globalCenterX!, y: pt.globalCenterY! },
+						pt.rotation,
+					);
 					sourceTransform.globalCenterX = rotated.x;
 					sourceTransform.globalCenterY = rotated.y;
 
@@ -474,52 +558,78 @@ export default class OBSWebsocket extends EventDispatcher {
 					sourceTransform.globalScaleY! *= pt.globalScaleY!;
 
 					//Apply parent scale
-					const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
+					const scaled = this.applyParentScale(
+						{ x: sourceTransform.globalCenterX, y: sourceTransform.globalCenterY },
+						pt,
+					);
 					sourceTransform.globalCenterX = scaled.x;
 					sourceTransform.globalCenterY = scaled.y;
-					this.log("Applied parent transform", {parentTransform:scene.parentTransform, sourceTransform:JSON.parse(JSON.stringify(sourceTransform))});
+					this.log("Applied parent transform", {
+						parentTransform: scene.parentTransform,
+						sourceTransform: JSON.parse(JSON.stringify(sourceTransform)),
+					});
 				}
 
-				this.log("Source type is: "+source.item.sourceType);
+				this.log("Source type is: " + source.item.sourceType);
 
 				//Is it a source?
-				if((source.item.sourceType == "OBS_SOURCE_TYPE_INPUT"
-				|| source.item.sourceType == "OBS_SOURCE_TYPE_SCENE")
-				|| source.item.isGroup) {
-					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
+				if (
+					source.item.sourceType == "OBS_SOURCE_TYPE_INPUT" ||
+					source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" ||
+					source.item.isGroup
+				) {
+					itemNameToTransform[source.item.sourceName + "_" + source.item.sceneItemId] =
+						sourceTransform;
 					const px = sourceTransform.globalCenterX!;
 					const py = sourceTransform.globalCenterY!;
 					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2;
 					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2;
-					const angle_rad = sourceTransform.rotation * Math.PI / 180;
+					const angle_rad = (sourceTransform.rotation * Math.PI) / 180;
 					const cos_angle = Math.cos(angle_rad);
 					const sin_angle = Math.sin(angle_rad);
 					sourceTransform.globalRotation = sourceTransform.rotation;
-					sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
-					sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
-					sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
-					sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
-					if(!source.item.isGroup) {
-						transforms.push({transform:sourceTransform, sceneName:source.parent, source:source.item});
+					sourceTransform.globalBL = {
+						x: px - hw * cos_angle - hh * sin_angle,
+						y: py - hw * sin_angle + hh * cos_angle,
+					};
+					sourceTransform.globalBR = {
+						x: px + hw * cos_angle - hh * sin_angle,
+						y: py + hw * sin_angle + hh * cos_angle,
+					};
+					sourceTransform.globalTL = {
+						x: px - hw * cos_angle + hh * sin_angle,
+						y: py - hw * sin_angle - hh * cos_angle,
+					};
+					sourceTransform.globalTR = {
+						x: px + hw * cos_angle + hh * sin_angle,
+						y: py + hw * sin_angle - hh * cos_angle,
+					};
+					if (!source.item.isGroup) {
+						transforms.push({
+							transform: sourceTransform,
+							sceneName: source.parent,
+							source: source.item,
+						});
 					}
 				}
 
 				//If it's a scene item, add it to the scene list to parse it later
-				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
-					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
-					sceneList.push( {
-									name:source.item.sourceName,
-									parentScene:source.parent,
-									parentItemId:source.item.sceneItemId,
-									parentTransform:sourceTransform,
-									isGroup:source.item.isGroup === true,
-								} );
+				if (source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
+					itemNameToTransform[source.item.sourceName + "_" + source.item.sceneItemId] =
+						sourceTransform;
+					sceneList.push({
+						name: source.item.sourceName,
+						parentScene: source.parent,
+						parentItemId: source.item.sceneItemId,
+						parentTransform: sourceTransform,
+						isGroup: source.item.isGroup === true,
+					});
 				}
 			}
 		}
 
-		const res = {canvas:{width:canvasW, height:canvasH}, sources:transforms};
-		this.sceneDisplayRectsCache[currentScene] = {ts:Date.now(), value:res};
+		const res = { canvas: { width: canvasW, height: canvasH }, sources: transforms };
+		this.sceneDisplayRectsCache[currentScene] = { ts: Date.now(), value: res };
 		this.sceneToCaching[currentScene] = false;
 		return res;
 	}
@@ -527,7 +637,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Clears cache for sources transforms
 	 */
-	public clearSourceTransformCache():void {
+	public clearSourceTransformCache(): void {
 		this.sceneDisplayRectsCache = {};
 		this.sceneSourceCache = {};
 	}
@@ -538,19 +648,41 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneItemId
 	 * @param transform
 	 */
-	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
-		if(!this.connected.value) return;
+	public async setSourceTransform(
+		sceneName: string,
+		sceneItemId: number,
+		transform: Partial<SourceTransform>,
+	): Promise<void> {
+		if (!this.connected.value) return;
 		//Rmove props not supported by obs-websocket. like width/height.
-		const filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
+		const filtered = Object.keys(transform).reduce<{
+			[key in keyof Partial<SourceTransform>]: any;
+		}>((filteredObject, key) => {
 			const typedKey = key as keyof SourceTransform;
-			const allowedKeys:(keyof SourceTransform)[] = ["alignment","boundsAlignment","cropBottom","cropLeft","cropRight","cropTop","positionX","positionY","rotation","scaleX","scaleY"];
+			const allowedKeys: (keyof SourceTransform)[] = [
+				"alignment",
+				"boundsAlignment",
+				"cropBottom",
+				"cropLeft",
+				"cropRight",
+				"cropTop",
+				"positionX",
+				"positionY",
+				"rotation",
+				"scaleX",
+				"scaleY",
+			];
 			if (allowedKeys.includes(typedKey)) {
 				filteredObject[typedKey] = transform[typedKey];
 			}
 			return filteredObject;
 		}, {});
-		if(Object.keys(filtered).length == 0) return;
-		await this.obs.call("SetSceneItemTransform", {sceneName, sceneItemId, sceneItemTransform:transform});
+		if (Object.keys(filtered).length == 0) return;
+		await this.obs.call("SetSceneItemTransform", {
+			sceneName,
+			sceneItemId,
+			sceneItemTransform: transform,
+		});
 	}
 
 	/**
@@ -558,9 +690,9 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getInputs():Promise<OBSInputItem[]> {
-		if(!this.connected.value) return [];
-		return ((await this.obs.call("GetInputList")).inputs as unknown) as OBSInputItem[];
+	public async getInputs(): Promise<OBSInputItem[]> {
+		if (!this.connected.value) return [];
+		return (await this.obs.call("GetInputList")).inputs as unknown as OBSInputItem[];
 	}
 
 	/**
@@ -568,24 +700,24 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getAudioSources():Promise<{
+	public async getAudioSources(): Promise<{
 		inputs: JsonArray;
 	}> {
-		if(!this.connected.value) return {inputs:[]};
+		if (!this.connected.value) return { inputs: [] };
 
 		const kinds = await this.getInputKindList();
-		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
-		return await this.obs.call("GetInputList", {inputKind:audioKind});
+		const audioKind = kinds.inputKinds.find((kind) => kind.indexOf("input_capture") > -1);
+		return await this.obs.call("GetInputList", { inputKind: audioKind });
 	}
 
 	/**
 	 * Get all the available kinds of sources
 	 * @returns
 	 */
-	public async getInputKindList():Promise<{
+	public async getInputKindList(): Promise<{
 		inputKinds: string[];
 	}> {
-		if(!this.connected.value) return {inputKinds:[]};
+		if (!this.connected.value) return { inputKinds: [] };
 
 		return await this.obs.call("GetInputKindList");
 	}
@@ -596,11 +728,11 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @returns
 	 */
-	public async getSourceFilters(sourceName:string):Promise<OBSFilter[]> {
-		if(!this.connected.value) return [];
+	public async getSourceFilters(sourceName: string): Promise<OBSFilter[]> {
+		if (!this.connected.value) return [];
 
-		const res = await this.obs.call("GetSourceFilterList", {sourceName});
-		return (res.filters as unknown) as OBSFilter[];
+		const res = await this.obs.call("GetSourceFilterList", { sourceName });
+		return res.filters as unknown as OBSFilter[];
 	}
 
 	/**
@@ -609,10 +741,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param name
 	 * @returns
 	 */
-	public async setCurrentScene(name:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async setCurrentScene(name: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		await this.obs.call("SetCurrentProgramScene", {sceneName:name});
+		await this.obs.call("SetCurrentProgramScene", { sceneName: name });
 	}
 
 	/**
@@ -620,13 +752,13 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns
 	 */
-	public async getCurrentScene():Promise<string> {
-		if(!this.connected.value) return "";
+	public async getCurrentScene(): Promise<string> {
+		if (!this.connected.value) return "";
 		let scene = "";
 		try {
 			const res = await this.obs.call("GetCurrentProgramScene");
 			scene = res.currentProgramSceneName;
-		}catch(error) {}
+		} catch (_error) {}
 		return scene;
 	}
 
@@ -636,10 +768,13 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param text
 	 */
-	public async setTextSourceContent(sourceName:string, text:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async setTextSourceContent(sourceName: string, text: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{text}});
+		await this.obs.call("SetInputSettings", {
+			inputName: sourceName as string,
+			inputSettings: { text },
+		});
 	}
 
 	/**
@@ -649,10 +784,18 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param filterName
 	 * @param visible
 	 */
-	public async setFilterState(sourceName:string, filterName:string, visible:boolean):Promise<void> {
-		if(!this.connected.value) return;
+	public async setFilterState(
+		sourceName: string,
+		filterName: string,
+		visible: boolean,
+	): Promise<void> {
+		if (!this.connected.value) return;
 
-		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
+		await this.obs.call("SetSourceFilterEnabled", {
+			sourceName,
+			filterName,
+			filterEnabled: visible,
+		});
 		await Utils.promisedTimeout(50);
 	}
 
@@ -663,13 +806,17 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param filterName
 	 * @param visible
 	 */
-	public async toggleFilterState(sourceName:string, filterName:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async toggleFilterState(sourceName: string, filterName: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		const res = await this.obs.call("GetSourceFilterList", {sourceName});
-		const filter = res.filters.find(filter=> filter.filterName === filterName);
-		if(filter) {
-			await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:!filter.filterEnabled});
+		const res = await this.obs.call("GetSourceFilterList", { sourceName });
+		const filter = res.filters.find((filter) => filter.filterName === filterName);
+		if (filter) {
+			await this.obs.call("SetSourceFilterEnabled", {
+				sourceName,
+				filterName,
+				filterEnabled: !filter.filterEnabled,
+			});
 			await Utils.promisedTimeout(50);
 		}
 	}
@@ -680,16 +827,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param visible
 	 */
-	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
-		if(!this.connected.value) return;
+	public async setSourceState(sourceName: string, visible: boolean): Promise<void> {
+		if (!this.connected.value) return;
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
-		if(items.length > 0) {
+		if (items.length > 0) {
 			for (const item of items) {
 				await this.obs.call("SetSceneItemEnabled", {
-					sceneName:item.scene,
-					sceneItemId:item.source.sceneItemId,
-					sceneItemEnabled:visible
+					sceneName: item.scene,
+					sceneItemId: item.source.sceneItemId,
+					sceneItemEnabled: visible,
 				});
 			}
 		}
@@ -703,20 +850,20 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param visible
 	 */
-	public async toggleSourceState(sourceName:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async toggleSourceState(sourceName: string): Promise<void> {
+		if (!this.connected.value) return;
 
 		const items = await this.getSourceOnCurrentScene(sourceName);
-		if(items.length > 0) {
+		if (items.length > 0) {
 			for (const item of items) {
 				const res = await this.obs.call("GetSceneItemEnabled", {
-					sceneName:item.scene,
-					sceneItemId:item.source.sceneItemId,
+					sceneName: item.scene,
+					sceneItemId: item.source.sceneItemId,
 				});
 				await this.obs.call("SetSceneItemEnabled", {
-					sceneName:item.scene,
-					sceneItemId:item.source.sceneItemId,
-					sceneItemEnabled:!res.sceneItemEnabled
+					sceneName: item.scene,
+					sceneItemId: item.source.sceneItemId,
+					sceneItemEnabled: !res.sceneItemEnabled,
 				});
 			}
 		}
@@ -729,21 +876,24 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName will search on current scene if not specified
 	 * @returns
 	 */
-	public async searchSceneItemId(sourceName:string, sceneName?:string):Promise<{scene:string, itemId:number}|null> {
-		if(!sceneName) {
+	public async searchSceneItemId(
+		sourceName: string,
+		sceneName?: string,
+	): Promise<{ scene: string; itemId: number } | null> {
+		if (!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
 		}
 		try {
-			const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
-			return {scene:sceneName, itemId:result.sceneItemId};
-		}catch(error){
+			const result = await this.obs.call("GetSceneItemId", { sceneName, sourceName });
+			return { scene: sceneName, itemId: result.sceneItemId };
+		} catch (_error) {
 			//If source isn't found, search for groups recursively to also check within them
 			const sources = await this.getSources();
 			for (const s of sources) {
-				if(s.isGroup || s.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+				if (s.isGroup || s.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 					const res = await this.searchSceneItemId(sourceName, s.sourceName);
-					if(res) return res;
+					if (res) return res;
 				}
 			}
 		}
@@ -758,52 +908,58 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName
 	 * @returns
 	 */
-	public async getSourceOnCurrentScene(sourceName:string):Promise<{scene:string, source:OBSSourceItem}[]> {
+	public async getSourceOnCurrentScene(
+		sourceName: string,
+	): Promise<{ scene: string; source: OBSSourceItem }[]> {
 		const scene = await this.obs.call("GetCurrentProgramScene");
 		const sceneName = scene.currentProgramSceneName;
 
-		const getSourceListOn = async (target:string, isGroup:boolean):Promise<{scene:string, source:OBSSourceItem}[]> => {
-
+		const getSourceListOn = async (
+			target: string,
+			isGroup: boolean,
+		): Promise<{ scene: string; source: OBSSourceItem }[]> => {
 			const cacheKey = target + this.sceneCacheKeySplitter + sourceName;
 			//Searching for a source in the scene tree may take quite much time depending on the number
 			//of sources and nested scenes. If the resource has already been queried, send back cached data
-			if(this.sceneSourceCache[cacheKey] && Date.now() > this.sceneSourceCache[cacheKey].ts + 60000) {
+			if (
+				this.sceneSourceCache[cacheKey] &&
+				Date.now() > this.sceneSourceCache[cacheKey].ts + 60000
+			) {
 				return this.sceneSourceCache[cacheKey].value;
 			}
 
-			let result:{scene:string, source:OBSSourceItem}[] = [];
-			let items:OBSSourceItem[] = [];
-			if(isGroup) {
+			let result: { scene: string; source: OBSSourceItem }[] = [];
+			let items: OBSSourceItem[] = [];
+			if (isGroup) {
 				//Search in grouped items
-				const res = await this.obs.call("GetGroupSceneItemList", {sceneName:target});
-				items = (res.sceneItems as unknown) as OBSSourceItem[];
-			}else{
+				const res = await this.obs.call("GetGroupSceneItemList", { sceneName: target });
+				items = res.sceneItems as unknown as OBSSourceItem[];
+			} else {
 				//Search in scene items
-				const res = await this.obs.call("GetSceneItemList", {sceneName:target});
-				items = (res.sceneItems as unknown) as OBSSourceItem[];
+				const res = await this.obs.call("GetSceneItemList", { sceneName: target });
+				items = res.sceneItems as unknown as OBSSourceItem[];
 			}
 
 			for (const item of items) {
-				if(item.sourceName == sourceName) {
-					result.push( {scene:target, source:item} );
+				if (item.sourceName == sourceName) {
+					result.push({ scene: target, source: item });
 				}
 			}
 
 			for (const item of items) {
-				if(item.isGroup) {
+				if (item.isGroup) {
 					//Search on sub group
 					const list = await getSourceListOn(item.sourceName, true);
-					if(list.length > 0) result = result.concat(list);
-				}else
-				//Search on sub scene
-				if(item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+					if (list.length > 0) result = result.concat(list);
+				} else //Search on sub scene
+				if (item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 					const list = await getSourceListOn(item.sourceName, false);
-					if(list.length > 0) result = result.concat(list);
+					if (list.length > 0) result = result.concat(list);
 				}
 			}
-			this.sceneSourceCache[cacheKey] = {ts:Date.now(), value:result};
+			this.sceneSourceCache[cacheKey] = { ts: Date.now(), value: result };
 			return result;
-		}
+		};
 
 		return getSourceListOn(sceneName, false);
 	}
@@ -815,10 +971,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param mute
 	 * @returns
 	 */
-	public async setMuteState(sourceName:string, mute:boolean):Promise<void> {
-		if(!this.connected.value) return;
+	public async setMuteState(sourceName: string, mute: boolean): Promise<void> {
+		if (!this.connected.value) return;
 
-		await this.obs.call("SetInputMute", {inputName:sourceName, inputMuted:mute});
+		await this.obs.call("SetInputMute", { inputName: sourceName, inputMuted: mute });
 	}
 
 	/**
@@ -827,17 +983,21 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param url
 	 */
-	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async setBrowserSourceURL(sourceName: string, url: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
-		if(!/https?:\/\.*/i?.test(url) && !/.*:\/\/.*/gi.test(url)) {
+		const newSettings: BrowserSourceSettings = { shutdown: true, is_local_file: false, url };
+		if (!/https?:\/\.*/i?.test(url) && !/.*:\/\/.*/gi.test(url)) {
 			//If using a local file, do not use "local_file" param as it does not
 			//supports query parameters.
-			newSettings.url = "file:///"+url;
+			newSettings.url = "file:///" + url;
 		}
 
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
+		await this.obs.call("SetInputSettings", {
+			inputName: sourceName as string,
+			overlay: true,
+			inputSettings: newSettings as JsonObject,
+		});
 	}
 
 	/**
@@ -846,11 +1006,15 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param url
 	 */
-	public async setBrowserSourceCSS(sourceName:string, css:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async setBrowserSourceCSS(sourceName: string, css: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, css}
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
+		const newSettings: BrowserSourceSettings = { shutdown: true, is_local_file: false, css };
+		await this.obs.call("SetInputSettings", {
+			inputName: sourceName as string,
+			overlay: true,
+			inputSettings: newSettings as JsonObject,
+		});
 	}
 
 	/**
@@ -858,16 +1022,17 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async getSourceSettings<T>(sourceName:string):Promise<{
+	public async getSourceSettings<T>(sourceName: string): Promise<{
 		inputSettings: T | JsonObject;
 		inputKind: string;
 	}> {
-		if(!this.connected.value) return {
-			inputSettings: {},
-			inputKind: "",
-		};
+		if (!this.connected.value)
+			return {
+				inputSettings: {},
+				inputKind: "",
+			};
 
-		const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
+		const settings = await this.obs.call("GetInputSettings", { inputName: sourceName });
 		return settings;
 	}
 
@@ -876,30 +1041,34 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async getSceneItemTransform(sceneName:string, sceneItemId:number):Promise<SourceTransform> {
-		if(!this.connected.value) return {
-			alignment: 0,
-			boundsAlignment: 0,
-			boundsHeight: 0,
-			boundsType: "OBS_BOUNDS_NONE",
-			boundsWidth: 0,
-			cropBottom: 0,
-			cropLeft: 0,
-			cropRight: 0,
-			cropTop: 0,
-			height: 0,
-			positionX: 0,
-			positionY: 0,
-			rotation: 0,
-			scaleX: 0,
-			scaleY: 0,
-			sourceHeight: 0,
-			sourceWidth: 0,
-			width: 0,
-		};
+	public async getSceneItemTransform(
+		sceneName: string,
+		sceneItemId: number,
+	): Promise<SourceTransform> {
+		if (!this.connected.value)
+			return {
+				alignment: 0,
+				boundsAlignment: 0,
+				boundsHeight: 0,
+				boundsType: "OBS_BOUNDS_NONE",
+				boundsWidth: 0,
+				cropBottom: 0,
+				cropLeft: 0,
+				cropRight: 0,
+				cropTop: 0,
+				height: 0,
+				positionX: 0,
+				positionY: 0,
+				rotation: 0,
+				scaleX: 0,
+				scaleY: 0,
+				sourceHeight: 0,
+				sourceWidth: 0,
+				width: 0,
+			};
 
-		const settings = await this.obs.call("GetSceneItemTransform", {sceneName, sceneItemId});
-		return (settings.sceneItemTransform as unknown) as SourceTransform;
+		const settings = await this.obs.call("GetSceneItemTransform", { sceneName, sceneItemId });
+		return settings.sceneItemTransform as unknown as SourceTransform;
 	}
 
 	/**
@@ -908,10 +1077,13 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName
 	 * @param url
 	 */
-	public async setMediaSourceURL(sourceName:string, url:string):Promise<void> {
-		if(!this.connected.value) return;
+	public async setMediaSourceURL(sourceName: string, url: string): Promise<void> {
+		if (!this.connected.value) return;
 
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
+		await this.obs.call("SetInputSettings", {
+			inputName: sourceName as string,
+			inputSettings: { local_file: url, file: url },
+		});
 	}
 
 	/**
@@ -919,9 +1091,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async replayMedia(sourceName:string):Promise<void> {
-		if(!this.connected.value) return;
-		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+	public async replayMedia(sourceName: string): Promise<void> {
+		if (!this.connected.value) return;
+		await this.obs.call("TriggerMediaInputAction", {
+			inputName: sourceName,
+			mediaAction: "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART",
+		});
 	}
 
 	/**
@@ -929,9 +1104,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async stopMedia(sourceName:string):Promise<void> {
-		if(!this.connected.value) return;
-		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP'});
+	public async stopMedia(sourceName: string): Promise<void> {
+		if (!this.connected.value) return;
+		await this.obs.call("TriggerMediaInputAction", {
+			inputName: sourceName,
+			mediaAction: "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP",
+		});
 	}
 
 	/**
@@ -939,9 +1117,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async nextMedia(sourceName:string):Promise<void> {
-		if(!this.connected.value) return;
-		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT'});
+	public async nextMedia(sourceName: string): Promise<void> {
+		if (!this.connected.value) return;
+		await this.obs.call("TriggerMediaInputAction", {
+			inputName: sourceName,
+			mediaAction: "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT",
+		});
 	}
 
 	/**
@@ -949,9 +1130,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async prevMedia(sourceName:string):Promise<void> {
-		if(!this.connected.value) return;
-		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS'});
+	public async prevMedia(sourceName: string): Promise<void> {
+		if (!this.connected.value) return;
+		await this.obs.call("TriggerMediaInputAction", {
+			inputName: sourceName,
+			mediaAction: "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS",
+		});
 	}
 
 	/**
@@ -960,24 +1144,27 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param sourceName
 	 */
-	public async getScreenshot(sourceName?:string):Promise<string> {
-		if(!this.connected.value) return "";
-		if(!sourceName) sourceName = await this.getCurrentScene();
+	public async getScreenshot(sourceName?: string): Promise<string> {
+		if (!this.connected.value) return "";
+		if (!sourceName) sourceName = await this.getCurrentScene();
 		const cached = this.cachedScreenshots.get(sourceName);
 		//If there's an cached image recent enough, send it back
-		if(cached && (Date.now() - cached.ts < 100)) return cached.screen;
+		if (cached && Date.now() - cached.ts < 100) return cached.screen;
 
 		//Request for a fresh new screenshot
-		const res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
+		const res = await this.obs.call("GetSourceScreenshot", {
+			sourceName: sourceName,
+			imageFormat: "jpeg",
+		});
 		//Cache it
 		this.cachedScreenshots.set(sourceName, {
-			ts:Date.now(),
-			screen:res.imageData,
+			ts: Date.now(),
+			screen: res.imageData,
 		});
-		if(this.cachedScreenshots.size > 100) {
+		if (this.cachedScreenshots.size > 100) {
 			//Purge old entries
 			const key = this.cachedScreenshots.keys().next().value;
-			if(key) this.cachedScreenshots.delete(key);
+			if (key) this.cachedScreenshots.delete(key);
 		}
 		return res.imageData;
 	}
@@ -988,63 +1175,96 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @returns if an existing source has been found
 	 */
-	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>, sceneName?:string, orderToBottom:boolean = false, css:string = ""):Promise<boolean> {
+	public async createBrowserSource(
+		url: string,
+		sourceName: string,
+		sourceTransform: Partial<SourceTransform>,
+		sceneName?: string,
+		orderToBottom: boolean = false,
+		css: string = "",
+	): Promise<boolean> {
 		//List all existing OBS sources
-		const inputList = await this.obs.call("GetInputList", {inputKind:"browser_source"});
+		const inputList = await this.obs.call("GetInputList", { inputKind: "browser_source" });
 		const urlObj = new URL(url);
 		const pathToFind = urlObj.pathname;
 		const hostToFind = urlObj.hostname;
 		const idToFind = urlObj.searchParams.get("twitchat_overlay_id");
-		if(!sceneName) sceneName = await this.getCurrentScene();
+		if (!sceneName) sceneName = await this.getCurrentScene();
 		sourceName = sourceName.substring(0, 100);
 
-		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
+		let existingSource: {
+			inputKind: string;
+			inputName: string;
+			unversionedInputKind: string;
+		} | null = null;
 		//Check if the source we're about to create already exists somewhere
 		for (const input of inputList.inputs) {
-			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
+			const inputConf = await this.obs.call("GetInputSettings", {
+				inputName: input.inputName as string,
+			});
 			//Ignore local file sources
-			if(inputConf.inputSettings.is_local_file === true || !inputConf.inputSettings.url) continue;
+			if (inputConf.inputSettings.is_local_file === true || !inputConf.inputSettings.url)
+				continue;
 			try {
 				const urlParsed = new URL(inputConf.inputSettings.url as string);
 				//If source URL contains both expected path and hostname, consider it's what's we're searching for
-				if(urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
+				if (urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
 					//If a twitchat overlay ID is expected check if it exists
-					if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) {
+					if (idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) {
 						continue;
 					}
-					existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
+					existingSource = input as {
+						inputKind: string;
+						inputName: string;
+						unversionedInputKind: string;
+					};
 					//Update OBS websocket params on URL if necessary
 					const port = this.connectInfo.port;
 					const pass = this.connectInfo.pass;
 					const ip = this.connectInfo.ip;
-					if(urlParsed.searchParams.get("obs_port") != port
-					|| urlParsed.searchParams.get("obs_ip") != ip
-					|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {
+					if (
+						urlParsed.searchParams.get("obs_port") != port ||
+						urlParsed.searchParams.get("obs_ip") != ip ||
+						((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)
+					) {
 						urlParsed.searchParams.set("obs_port", port || "4455");
 						urlParsed.searchParams.set("obs_ip", ip || "127.0.0.1");
-						if(pass) urlParsed.searchParams.set("obs_pass", pass);
+						if (pass) urlParsed.searchParams.set("obs_pass", pass);
 						const inputSettings = { url: urlParsed.href };
-						const res = await this.obs.call('SetInputSettings', {inputName:sourceName, inputSettings});
+						void this.obs.call("SetInputSettings", {
+							inputName: sourceName,
+							inputSettings,
+						});
 					}
 					break;
 				}
-			}catch(error) {
+			} catch (_error) {
 				//Probably an OBS source with an invalid URL that makes the
 				//new URL(...) throw an error
 			}
 		}
 
-		if(existingSource) {
+		if (existingSource) {
 			//Create a new instance of the existing overlay
-			const res = await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
-			if(res && orderToBottom) {
-				await this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName})
+			const res = await this.obs.call("CreateSceneItem", {
+				sceneName,
+				sourceName: existingSource.inputName,
+			});
+			if (res && orderToBottom) {
+				await this.obs.call("SetSceneItemIndex", {
+					sceneItemId: res.sceneItemId,
+					sceneItemIndex: 0,
+					sceneName,
+				});
 			}
 			//Name changed, update it
-			if(existingSource.inputName != sourceName) {
-				await this.obs.call("SetInputName", {inputName:existingSource.inputName, newInputName:sourceName});
+			if (existingSource.inputName != sourceName) {
+				await this.obs.call("SetInputName", {
+					inputName: existingSource.inputName,
+					newInputName: sourceName,
+				});
 			}
-			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
+			if (sourceTransform && Object.keys(sourceTransform).length > 0) {
 				await this.setSourceTransform(sceneName, res.sceneItemId, sourceTransform);
 			}
 			return true;
@@ -1062,10 +1282,21 @@ export default class OBSWebsocket extends EventDispatcher {
 			restart_when_active: true,
 			shutdown: true,
 		};
-		const res = await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
-		if(res) {
-			if(orderToBottom) this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
-			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
+		const res = await this.obs.call("CreateInput", {
+			sceneName,
+			inputName: sourceName,
+			inputKind: "browser_source",
+			sceneItemEnabled: true,
+			inputSettings,
+		});
+		if (res) {
+			if (orderToBottom)
+				void this.obs.call("SetSceneItemIndex", {
+					sceneItemId: res.sceneItemId,
+					sceneItemIndex: 0,
+					sceneName,
+				});
+			if (sourceTransform && Object.keys(sourceTransform).length > 0) {
 				await this.setSourceTransform(sceneName, res.sceneItemId, sourceTransform);
 			}
 		}
@@ -1075,8 +1306,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Get available hotkeys
 	 */
-	public async getHotkeys():Promise<string[]> {
-		if(!this.connected.value) return [];
+	public async getHotkeys(): Promise<string[]> {
+		if (!this.connected.value) return [];
 		const res = await this.obs.call("GetHotkeyList");
 		return res.hotkeys;
 	}
@@ -1086,9 +1317,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param key The key to retrieve
 	 * @returns The value of the persisted key
 	 */
-	public async getPersistedValue(key:string):Promise<JsonValue> {
-		if(!this.connected.value) return "";
-		const res = await this.obs.call("GetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key});
+	public async getPersistedValue(key: string): Promise<JsonValue> {
+		if (!this.connected.value) return "";
+		const res = await this.obs.call("GetPersistentData", {
+			realm: "OBS_WEBSOCKET_DATA_REALM_GLOBAL",
+			slotName: key,
+		});
 		return res.slotValue;
 	}
 
@@ -1098,56 +1332,72 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param value The value to set
 	 * @returns
 	 */
-	public async setPersistedValue(key:string, value:JsonValue):Promise<void> {
-		if(!this.connected.value) return;
-		await this.obs.call("SetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key, slotValue:value});
+	public async setPersistedValue(key: string, value: JsonValue): Promise<void> {
+		if (!this.connected.value) return;
+		await this.obs.call("SetPersistentData", {
+			realm: "OBS_WEBSOCKET_DATA_REALM_GLOBAL",
+			slotName: key,
+			slotValue: value,
+		});
 	}
-	
+
 	/**
 	 * Changes the color of a color source
-	 * @param sourceName 
-	 * @param color 
-	 * @returns 
+	 * @param sourceName
+	 * @param color
+	 * @returns
 	 */
-	public async setColorSourceColor(sourceName:string, color:number):Promise<void> {
-		if(!this.connected.value) return;
+	public async setColorSourceColor(sourceName: string, color: number): Promise<void> {
+		if (!this.connected.value) return;
 		//Convert from 0xAARRGGBB to 0xAABBGGRR
-		color = ((color & 0xFF00FF00) | ((color & 0xFF) << 16) | ((color >> 16) & 0xFF));
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{color}});
+		color = (color & 0xff00ff00) | ((color & 0xff) << 16) | ((color >> 16) & 0xff);
+		await this.obs.call("SetInputSettings", {
+			inputName: sourceName as string,
+			inputSettings: { color },
+		});
 	}
 
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
+	 * PRIVATE METHODS *
+	 *******************/
+	private initialize(): void {
 		this.obs = new ObsWS();
 
-		this.obs.addListener("ConnectionClosed", ()=> {
-			if(this.connected.value) {
+		this.obs.addListener("ConnectionClosed", () => {
+			if (this.connected.value) {
 				this.dispatchEvent(new TwitchatEvent("ON_OBS_WEBSOCKET_DISCONNECTED", undefined));
 			}
 			this.connected.value = false;
-			if(this.autoReconnect) {
+			if (this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = window.setTimeout(()=> {
-					this.connect(this.connectInfo.port, this.connectInfo.pass, this.autoReconnect, this.connectInfo.ip);
+				this.reconnectTimeout = window.setTimeout(() => {
+					void this.connect(
+						this.connectInfo.port,
+						this.connectInfo.pass,
+						this.autoReconnect,
+						this.connectInfo.ip,
+					);
 				}, 5000);
 			}
 		});
 
-		this.obs.on("CustomEvent", (eventData:JsonObject) => {
-			const eventDataTyped = eventData as {origin:"twitchat", type:keyof TwitchatEventMap, data:TwitchatEventMap[keyof TwitchatEventMap]};
-			if(eventDataTyped.type == undefined) return;
-			if(eventDataTyped.origin != "twitchat") return;
+		this.obs.on("CustomEvent", (eventData: JsonObject) => {
+			const eventDataTyped = eventData as {
+				origin: "twitchat";
+				type: keyof TwitchatEventMap;
+				data: TwitchatEventMap[keyof TwitchatEventMap];
+			};
+			if (eventDataTyped.type == undefined) return;
+			if (eventDataTyped.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(eventDataTyped.type, eventDataTyped.data));
 		});
 
-		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
+		this.obs.on("CurrentProgramSceneChanged", (e: { sceneName: string }) => {
 			this.clearSourceTransformCache();
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_SCENE_CHANGE", e));
 		});
 
-		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
+		this.obs.on("InputMuteStateChanged", (e: { inputName: string; inputMuted: boolean }) => {
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_MUTE_TOGGLE", e));
 		});
 
@@ -1170,12 +1420,12 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 		//*/
 
-		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
+		this.obs.on("MediaInputPlaybackStarted", async (e: { inputName: string }) => {
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_PLAYBACK_STARTED", e));
 		});
 
-		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
-			this.log("Media playback complete: "+e.inputName);
+		this.obs.on("MediaInputPlaybackEnded", async (e: { inputName: string }) => {
+			this.log("Media playback complete: " + e.inputName);
 			//Waiting 1.5s to workaround an issue with OBS.
 			//Suppose a media source is set to restart playback when displayed.
 			//Now, suppose we hide the source and show it back right after
@@ -1189,74 +1439,102 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_PLAYBACK_ENDED", e));
 		});
 
-		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
-			let res:{sceneItems: JsonObject[]} = {sceneItems:[]};
-			try {
-				res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
-			}catch(error) {
-				console.log("Failed loading scene item, try loading it as a group");
-				//If reaching this point it's most probably because the scene is
-				//actually a group.
-				//Let's try to load its content as a group.
+		this.obs.on(
+			"SceneItemEnableStateChanged",
+			async (e: { sceneName: string; sceneItemId: number; sceneItemEnabled: boolean }) => {
+				let res: { sceneItems: JsonObject[] } = { sceneItems: [] };
 				try {
-					res = await this.obs.call("GetGroupSceneItemList", {sceneName:e.sceneName});
-				}catch(error){
-					//dunno what could have failed :/
-					console.log("Failed loading it a group as well :/");
-					console.log(error);
+					res = await this.obs.call("GetSceneItemList", { sceneName: e.sceneName });
+				} catch (_error) {
+					console.log("Failed loading scene item, try loading it as a group");
+					//If reaching this point it's most probably because the scene is
+					//actually a group.
+					//Let's try to load its content as a group.
+					try {
+						res = await this.obs.call("GetGroupSceneItemList", {
+							sceneName: e.sceneName,
+						});
+					} catch (error) {
+						//dunno what could have failed :/
+						console.log("Failed loading it a group as well :/");
+						console.log(error);
+					}
 				}
-			}
-			const items = (res.sceneItems as unknown) as OBSSourceItem[];
-			for (const item of items) {
-				if(item.sceneItemId == e.sceneItemId) {
-					this.dispatchEvent(new TwitchatEvent("ON_OBS_SOURCE_TOGGLE", {item, event:e}));
-					break;
+				const items = res.sceneItems as unknown as OBSSourceItem[];
+				for (const item of items) {
+					if (item.sceneItemId == e.sceneItemId) {
+						this.dispatchEvent(
+							new TwitchatEvent("ON_OBS_SOURCE_TOGGLE", { item, event: e }),
+						);
+						break;
+					}
 				}
-			}
-		});
+			},
+		);
 
-		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+		this.obs.on("InputNameChanged", async (e: { oldInputName: string; inputName: string }) => {
 			//Migrate all caches refering to the old source name to the new source name
 			for (const key in this.sceneSourceCache) {
 				const [scene, source] = key.split(this.sceneCacheKeySplitter);
-				if(source == e.oldInputName) {
-					this.sceneSourceCache[ scene + this.sceneCacheKeySplitter + e.inputName ] = this.sceneSourceCache[key]!;
+				if (source == e.oldInputName) {
+					this.sceneSourceCache[scene + this.sceneCacheKeySplitter + e.inputName] =
+						this.sceneSourceCache[key]!;
 					delete this.sceneSourceCache[key];
 				}
 			}
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_INPUT_NAME_CHANGED", e));
 		});
 
-		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+		this.obs.on("SceneNameChanged", async (e: { oldSceneName: string; sceneName: string }) => {
 			//Migrate all caches refering to the old scene name to the new scene name
 			for (const key in this.sceneSourceCache) {
 				const [scene, source] = key.split(this.sceneCacheKeySplitter);
-				if(scene == e.oldSceneName) {
-					this.sceneSourceCache[ e.sceneName + this.sceneCacheKeySplitter + source ] = this.sceneSourceCache[key]!;
+				if (scene == e.oldSceneName) {
+					this.sceneSourceCache[e.sceneName + this.sceneCacheKeySplitter + source] =
+						this.sceneSourceCache[key]!;
 					delete this.sceneSourceCache[key];
 				}
 			}
 			this.dispatchEvent(new TwitchatEvent("ON_OBS_SCENE_NAME_CHANGED", e));
 		});
 
-		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
-			this.dispatchEvent(new TwitchatEvent("ON_OBS_FILTER_NAME_CHANGED", e));
-		});
+		this.obs.on(
+			"SourceFilterNameChanged",
+			async (e: { sourceName: string; oldFilterName: string; filterName: string }) => {
+				this.dispatchEvent(new TwitchatEvent("ON_OBS_FILTER_NAME_CHANGED", e));
+			},
+		);
 
-		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
-			this.dispatchEvent(new TwitchatEvent("ON_OBS_FILTER_TOGGLE", e));
-		});
+		this.obs.on(
+			"SourceFilterEnableStateChanged",
+			async (e: { sourceName: string; filterName: string; filterEnabled: boolean }) => {
+				this.dispatchEvent(new TwitchatEvent("ON_OBS_FILTER_TOGGLE", e));
+			},
+		);
 
-		this.obs.on("StreamStateChanged", async (e:{outputActive: boolean, outputState: string}) => {
-			if(e.outputState == "OBS_WEBSOCKET_OUTPUT_STARTED" || e.outputState == "OBS_WEBSOCKET_OUTPUT_STOPPED") {
-				this.dispatchEvent(new TwitchatEvent("ON_OBS_STREAM_STATE", e));
-			}
-		});
+		this.obs.on(
+			"StreamStateChanged",
+			async (e: { outputActive: boolean; outputState: string }) => {
+				if (
+					e.outputState == "OBS_WEBSOCKET_OUTPUT_STARTED" ||
+					e.outputState == "OBS_WEBSOCKET_OUTPUT_STOPPED"
+				) {
+					this.dispatchEvent(new TwitchatEvent("ON_OBS_STREAM_STATE", e));
+				}
+			},
+		);
 
-		this.obs.on("RecordStateChanged", async (e:{ outputActive: boolean; outputState: string; outputPath: string; }) => {
-			if(e.outputState != "OBS_WEBSOCKET_OUTPUT_STOPPED" && e.outputState != "OBS_WEBSOCKET_OUTPUT_STARTED") return;
-			this.dispatchEvent(new TwitchatEvent("ON_OBS_RECORD_STATE", e));
-		});
+		this.obs.on(
+			"RecordStateChanged",
+			async (e: { outputActive: boolean; outputState: string; outputPath: string }) => {
+				if (
+					e.outputState != "OBS_WEBSOCKET_OUTPUT_STOPPED" &&
+					e.outputState != "OBS_WEBSOCKET_OUTPUT_STARTED"
+				)
+					return;
+				this.dispatchEvent(new TwitchatEvent("ON_OBS_RECORD_STATE", e));
+			},
+		);
 	}
 
 	/**
@@ -1264,17 +1542,18 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param transform
 	 */
-	private getSourceCenterFromTransform(transform:SourceTransform) {
-		const a = -transform.rotation * Math.PI / 180;
-		const width = transform.width;// - transform.cropLeft - transform.cropRight;
-		const height = transform.height;// - transform.cropTop - transform.cropBottom;
+	private getSourceCenterFromTransform(transform: SourceTransform) {
+		const a = (-transform.rotation * Math.PI) / 180;
+		const width = transform.width; // - transform.cropLeft - transform.cropRight;
+		const height = transform.height; // - transform.cropTop - transform.cropBottom;
 		let w = width / 2;
 		let h = height / 2;
 
 		//Define width and height offset depending on the pivot point type
 		switch (transform.alignment) {
 			//center
-			case 0: break;
+			case 0:
+				break;
 			//center left
 			case 1:
 				w = 0;
@@ -1337,8 +1616,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 *
 	 * @param transform
 	 */
-	private compensateCrop(transform:SourceTransform) {
-		const a = transform.rotation * Math.PI / 180;
+	private compensateCrop(transform: SourceTransform) {
+		const a = (transform.rotation * Math.PI) / 180;
 		let w = transform.cropLeft * transform.globalScaleX!;
 		let h = transform.cropTop * transform.globalScaleY!;
 
@@ -1346,22 +1625,22 @@ export default class OBSWebsocket extends EventDispatcher {
 		switch (transform.alignment) {
 			//center
 			case 0:
-				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
-				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				w = ((transform.cropLeft - transform.cropRight) / 2) * transform.globalScaleX!;
+				h = ((transform.cropTop - transform.cropBottom) / 2) * transform.globalScaleY!;
 				break;
 			//center left
 			case 1:
 				w = transform.cropLeft * transform.globalScaleX!;
-				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				h = ((transform.cropTop - transform.cropBottom) / 2) * transform.globalScaleY!;
 				break;
 			//center right
 			case 2:
 				w = -transform.cropRight * transform.globalScaleX!;
-				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				h = ((transform.cropTop - transform.cropBottom) / 2) * transform.globalScaleY!;
 				break;
 			//top center
 			case 4:
-				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
+				w = ((transform.cropLeft - transform.cropRight) / 2) * transform.globalScaleX!;
 				h = transform.cropTop * transform.globalScaleY!;
 				break;
 			//top left
@@ -1376,7 +1655,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				break;
 			//bottom center
 			case 8:
-				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
+				w = ((transform.cropLeft - transform.cropRight) / 2) * transform.globalScaleX!;
 				h = -transform.cropBottom * transform.globalScaleY!;
 				break;
 			//bottom left
@@ -1406,7 +1685,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param origin
 	 * @param scale
 	 */
-	private applyParentScale(point:{x:number, y:number}, parentTransform:SourceTransform) {
+	private applyParentScale(point: { x: number; y: number }, parentTransform: SourceTransform) {
 		const translatedX = point.x - parentTransform.globalCenterX!;
 		const translatedY = point.y - parentTransform.globalCenterY!;
 		const scaledX = translatedX * parentTransform.globalScaleX!;
@@ -1417,36 +1696,57 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "image_source" | "color_source_v3" | "slideshow" | "browser_source" | "ffmpeg_source" | "text_gdiplus_v2" | "text_ft2_source_v2" | "text_ft2_source_v3" | "vlc_source" | "monitor_capture" | "window_capture" | "game_capture" | "dshow_input" | "wasapi_input_capture" | "wasapi_output_capture" | "wasapi_process_output_capture" | null;
+export type OBSInputKind =
+	| "image_source"
+	| "color_source_v3"
+	| "slideshow"
+	| "browser_source"
+	| "ffmpeg_source"
+	| "text_gdiplus_v2"
+	| "text_ft2_source_v2"
+	| "text_ft2_source_v3"
+	| "vlc_source"
+	| "monitor_capture"
+	| "window_capture"
+	| "game_capture"
+	| "dshow_input"
+	| "wasapi_input_capture"
+	| "wasapi_output_capture"
+	| "wasapi_process_output_capture"
+	| null;
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
-export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}
+export interface OBSAudioSource {
+	inputKind: OBSInputKind;
+	inputName: string;
+	unversionedInputKind: string;
+}
 export interface OBSSourceItem {
-	inputKind:OBSInputKind;
-	isGroup:boolean|null;
-	sceneItemId:number;
-	sceneItemIndex:number;
-	sourceName:string;
-	sourceType:OBSSourceType;
-	sceneItemTransform:SourceTransform;
-	sceneName?:string;
+	inputKind: OBSInputKind;
+	isGroup: boolean | null;
+	sceneItemId: number;
+	sceneItemIndex: number;
+	sourceName: string;
+	sourceType: OBSSourceType;
+	sceneItemTransform: SourceTransform;
+	sceneName?: string;
 }
 
 export interface OBSSceneItem {
-	sceneIndex:number;
-	sceneName:string;
+	sceneIndex: number;
+	sceneName: string;
 }
 
 export interface OBSSceneItemParented {
-	sceneIndex:number;
-	sceneName:string;
-	parentScene?:OBSSceneItem;
+	sceneIndex: number;
+	sceneName: string;
+	parentScene?: OBSSceneItem;
 }
 
 export interface OBSInputItem {
-	inputKind:OBSInputKind;
-	inputName:string;
-	unversionedInputKind:string;
+	inputKind: OBSInputKind;
+	inputName: string;
+	unversionedInputKind: string;
 }
 
 export interface OBSFilter {
@@ -1491,69 +1791,70 @@ export interface SourceTransform {
 	/**
 	 * Center X of the source on the global space
 	 */
-	globalCenterX? :number;
+	globalCenterX?: number;
 	/**
 	 * Center Y of the source on the global space
 	 */
-	globalCenterY? :number;
+	globalCenterY?: number;
 	/**
 	 * Scale X of the source on the global space
 	 */
-	globalScaleX? :number;
+	globalScaleX?: number;
 	/**
 	 * Scale Y of the source on the global space
 	 */
-	globalScaleY? :number;
+	globalScaleY?: number;
 	/**
 	 * Rotation of the source on the global space
 	 */
-	globalRotation? :number;
+	globalRotation?: number;
 	/**
 	 * Top Left corner coordinates on the global space
 	 */
-	globalTL? :{x:number, y:number};
+	globalTL?: { x: number; y: number };
 	/**
 	 * Top Right corner coordinates on the global space
 	 */
-	globalTR? :{x:number, y:number};
+	globalTR?: { x: number; y: number };
 	/**
 	 * Bottom Left corner coordinates on the global space
 	 */
-	globalBL? :{x:number, y:number};
+	globalBL?: { x: number; y: number };
 	/**
 	 * Bottom Left corner coordinates on the global space
 	 */
-	globalBR? :{x:number, y:number};
+	globalBR?: { x: number; y: number };
 }
 
 export interface OBSItemPath {
 	/**
 	 * Name of the scene containing the item
 	 */
-	sceneName:string;
+	sceneName: string;
 	/**
 	 * Name of the group containing the item (if any)
 	 */
-	groupName:string;
+	groupName: string;
 	/**
 	 * Source info
 	 */
-	source:{
+	source: {
 		/**
 		 * Source ID
 		 */
-		id:number;
+		id: number;
 		/**
 		 * Source name
 		 */
-		name:string;
-	}
+		name: string;
+	};
 }
 
-export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT" |
-							"ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";
+export type OBSMediaAction =
+	| "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT"
+	| "ON_OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";

@@ -1,33 +1,42 @@
 <template>
 	<div :class="classes">
 		<div class="checkmark">
-			<Icon v-if="checked" class="icon" name="checkmark"/>
+			<Icon v-if="checked" class="icon" name="checkmark" />
 		</div>
 		<span class="label" v-if="slots.default"><slot></slot></span>
-		<input type="checkbox" class="checkboxInput" ref="checkbox" v-model="checked" @change="onChange()" />
+		<input
+			type="checkbox"
+			class="checkboxInput"
+			ref="checkbox"
+			v-model="checked"
+			@change="onChange()"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts" generic="T">
-import { watch, ref, computed, onMounted, useSlots } from 'vue';
-import Icon from './Icon.vue';
+import { watch, ref, computed, onMounted, useSlots } from "vue";
+import Icon from "./Icon.vue";
 
-const props = withDefaults(defineProps<{
-	modelValue?: T;
-	values?: [T, T];
-	secondary?: boolean;
-	primary?: boolean;
-	alert?: boolean;
-}>(), {
-	values: () => [true as T, false as T],
-	secondary: false,
-	primary: false,
-	alert: false,
-});
+const props = withDefaults(
+	defineProps<{
+		modelValue?: T;
+		values?: [T, T];
+		secondary?: boolean;
+		primary?: boolean;
+		alert?: boolean;
+	}>(),
+	{
+		values: () => [true as T, false as T],
+		secondary: false,
+		primary: false,
+		alert: false,
+	},
+);
 
 const emit = defineEmits<{
-	'update:modelValue': [value: T];
-	'change': [value: T];
+	"update:modelValue": [value: T];
+	change: [value: T];
 }>();
 
 const slots = useSlots();
@@ -36,10 +45,10 @@ const checked = ref(false);
 
 const classes = computed(() => {
 	const res: string[] = ["checkbox"];
-	if(props.primary !== false) res.push("primary")
-	if(props.secondary !== false) res.push("secondary")
-	if(props.alert !== false) res.push("alert")
-	if(!slots.default) res.push("noLabel")
+	if (props.primary !== false) res.push("primary");
+	if (props.secondary !== false) res.push("secondary");
+	if (props.alert !== false) res.push("alert");
+	if (!slots.default) res.push("noLabel");
 	return res;
 });
 
@@ -50,20 +59,23 @@ function onChange(): void {
 
 onMounted(() => {
 	checked.value = props.modelValue === props.values[0];
-	watch(() => props.modelValue, () => {
-		checked.value = props.modelValue === props.values[0];
-	});
+	watch(
+		() => props.modelValue,
+		() => {
+			checked.value = props.modelValue === props.values[0];
+		},
+	);
 });
 </script>
 
 <style scoped lang="less">
-.checkbox{
+.checkbox {
 	cursor: pointer;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	position: relative;
-	color:var(--color-text);
+	color: var(--color-text);
 
 	&.noLabel {
 		height: 1em;
@@ -74,7 +86,7 @@ onMounted(() => {
 
 	.checkmark {
 		border: 1px solid currentColor;
-		border-radius: .25em;
+		border-radius: 0.25em;
 		padding: 0;
 		aspect-ratio: 1;
 		height: 1em;
@@ -92,7 +104,7 @@ onMounted(() => {
 
 	.label {
 		flex-grow: 1;
-		margin-left: .35em;
+		margin-left: 0.35em;
 		justify-self: flex-start;
 		text-align: left;
 		// width: max-content;
@@ -100,13 +112,13 @@ onMounted(() => {
 
 	&:hover {
 		.checkmark {
-			background-color: var(--background-color-fader)
+			background-color: var(--background-color-fader);
 		}
 	}
 
 	.checkboxInput {
 		pointer-events: all;
-		opacity: .0001;
+		opacity: 0.0001;
 		position: absolute;
 		padding: 0;
 		margin: 0;
@@ -118,34 +130,34 @@ onMounted(() => {
 		z-index: 1000;
 		cursor: pointer;
 	}
-	&.primary{
-		color:var(--color-primary);
+	&.primary {
+		color: var(--color-primary);
 
 		&:hover {
-			color:var(--color-primary-light);
+			color: var(--color-primary-light);
 			.checkmark {
-				background-color: var(--color-primary-fadest)
+				background-color: var(--color-primary-fadest);
 			}
 		}
 	}
 
-	&.secondary{
-		color:var(--color-secondary);
+	&.secondary {
+		color: var(--color-secondary);
 
 		&:hover {
-			color:var(--color-secondary-light);
+			color: var(--color-secondary-light);
 			.checkmark {
-				background-color: var(--color-secondary-fadest)
+				background-color: var(--color-secondary-fadest);
 			}
 		}
 	}
-	&.alert{
-		color:var(--color-alert);
+	&.alert {
+		color: var(--color-alert);
 
 		&:hover {
-			color:var(--color-alert-light);
+			color: var(--color-alert-light);
 			.checkmark {
-				background-color: var(--color-alert-fadest)
+				background-color: var(--color-alert-fadest);
 			}
 		}
 	}

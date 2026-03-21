@@ -5,83 +5,100 @@
 			<Icon v-if="loading === true" name="loader" class="loading" />
 		</div>
 		<Icon name="cross" class="cross" />
-		<input :id="inputId" type="checkbox" v-model="localValue" class="input" @change="onChange()" :disabled="disabled !== false">
+		<input
+			:id="inputId"
+			type="checkbox"
+			v-model="localValue"
+			class="input"
+			@change="onChange()"
+			:disabled="disabled !== false"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, onBeforeMount } from 'vue';
-import Icon from "@/components/Icon.vue"
+import { watch, ref, computed, onBeforeMount } from "vue";
+import Icon from "@/components/Icon.vue";
 
-const props = withDefaults(defineProps<{
-	inputId?: string;
-	big?: boolean;
-	small?: boolean;
-	secondary?: boolean;
-	alert?: boolean;
-	premium?: boolean;
-	modelValue?: boolean;
-	noCheckmark?: boolean;
-	loading?: boolean;
-	inverseState?: boolean;
-	disabled?: boolean;
-}>(), {
-	inputId: "",
-	big: false,
-	small: false,
-	secondary: false,
-	alert: false,
-	premium: false,
-	modelValue: false,
-	noCheckmark: false,
-	loading: false,
-	inverseState: false,
-	disabled: false,
-});
+const props = withDefaults(
+	defineProps<{
+		inputId?: string;
+		big?: boolean;
+		small?: boolean;
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		modelValue?: boolean;
+		noCheckmark?: boolean;
+		loading?: boolean;
+		inverseState?: boolean;
+		disabled?: boolean;
+	}>(),
+	{
+		inputId: "",
+		big: false,
+		small: false,
+		secondary: false,
+		alert: false,
+		premium: false,
+		modelValue: false,
+		noCheckmark: false,
+		loading: false,
+		inverseState: false,
+		disabled: false,
+	},
+);
 
 const emit = defineEmits<{
-	'update:modelValue': [value: boolean];
-	'change': [value: boolean];
+	"update:modelValue": [value: boolean];
+	change: [value: boolean];
 }>();
 
 const localValue = ref(false);
 
 const classes = computed(() => {
 	let res = ["togglebutton"];
-	if(props.big !== false) res.push("big");
-	if(props.small !== false) res.push("small");
-	if(props.secondary !== false) res.push("secondary");
-	if(props.alert !== false) res.push("alert");
-	if(props.premium !== false) res.push("premium");
-	if(props.noCheckmark !== false) res.push("noCheckmark");
-	if(props.disabled !== false) res.push("disabled");
-	if((props.inverseState === false && localValue.value) || (props.inverseState !== false && !localValue.value)) res.push("selected");
+	if (props.big !== false) res.push("big");
+	if (props.small !== false) res.push("small");
+	if (props.secondary !== false) res.push("secondary");
+	if (props.alert !== false) res.push("alert");
+	if (props.premium !== false) res.push("premium");
+	if (props.noCheckmark !== false) res.push("noCheckmark");
+	if (props.disabled !== false) res.push("disabled");
+	if (
+		(props.inverseState === false && localValue.value) ||
+		(props.inverseState !== false && !localValue.value)
+	)
+		res.push("selected");
 	return res;
 });
 
 function onChange(): void {
-	if(props.disabled) return;
-	emit('update:modelValue', localValue.value);
-	emit('change', localValue.value);
+	if (props.disabled) return;
+	emit("update:modelValue", localValue.value);
+	emit("change", localValue.value);
 }
 
 onBeforeMount(() => {
 	localValue.value = props.modelValue;
-	watch(() => props.modelValue, () => {
-		localValue.value = props.modelValue;
-	})
+	watch(
+		() => props.modelValue,
+		() => {
+			localValue.value = props.modelValue;
+		},
+	);
 });
 </script>
 
 <style scoped lang="less">
-.togglebutton{
+.togglebutton {
 	@size: 1.25em;
 	width: @size * 2;
 	min-width: @size * 2;
 	height: @size;
 	border-radius: @size;
 	position: relative;
-	transition: background-color .35s;
+	transition: background-color 0.35s;
 	background-color: var(--background-color-fader);
 	.bevel();
 	overflow: hidden;
@@ -94,7 +111,9 @@ onBeforeMount(() => {
 	}
 
 	.circle {
-		transition: left .35s, background-color .35s;
+		transition:
+			left 0.35s,
+			background-color 0.35s;
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
@@ -109,28 +128,32 @@ onBeforeMount(() => {
 
 	.checkmark {
 		position: absolute;
-		margin-left: .35em;
+		margin-left: 0.35em;
 		left: -50%;
 		top: 50%;
 		transform: translateY(-50%);
-		height: .7em;
+		height: 0.7em;
 		width: fit-content;
 		display: block;
 		opacity: 0;
-		transition: opacity .5s, left .5s;
+		transition:
+			opacity 0.5s,
+			left 0.5s;
 	}
 
 	.cross {
 		position: absolute;
-		margin-right: .35em;
+		margin-right: 0.35em;
 		right: 0;
 		top: 50%;
 		transform: translateY(-50%);
-		height: .7em;
+		height: 0.7em;
 		width: fit-content;
 		display: block;
 		opacity: 1;
-		transition: opacity .5s, right .5s;
+		transition:
+			opacity 0.5s,
+			right 0.5s;
 	}
 
 	.input {
@@ -150,7 +173,8 @@ onBeforeMount(() => {
 	}
 
 	&.noCheckmark {
-		.checkmark, .cross {
+		.checkmark,
+		.cross {
 			display: none;
 		}
 	}
@@ -191,7 +215,7 @@ onBeforeMount(() => {
 	&.disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
-		*> {
+		* > {
 			pointer-events: none;
 		}
 	}
@@ -201,9 +225,8 @@ onBeforeMount(() => {
 	}
 
 	&.small {
-		font-size: .8em;
+		font-size: 0.8em;
 	}
-
 
 	&.secondary {
 		.circle {

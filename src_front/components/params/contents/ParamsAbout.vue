@@ -1,35 +1,74 @@
 <template>
 	<div class="paramsabout">
-
 		<!-- <ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
 			<ParamsSponsor />
 		</ToggleBlock> -->
 
 		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="true">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
-			<Button class="item" icon="discord" :href="discordURL" target="_blank" type="link">{{ $t('about.discordBt') }}</Button>
+			<Button class="item" icon="discord" :href="discordURL" target="_blank" type="link">{{
+				$t("about.discordBt")
+			}}</Button>
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
 		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="true">
 			<p class="item">{{ $t("about.api_content1") }}</p>
 			<p class="item">{{ $t("about.api_content2") }}</p>
-			<Button class="item" icon="github" :href="apiURL" target="_blank" type="link">{{ $t('about.documentationBt') }}</Button>
+			<Button class="item" icon="github" :href="apiURL" target="_blank" type="link">{{
+				$t("about.documentationBt")
+			}}</Button>
 		</ToggleBlock>
 
 		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info']" :open="true">
-			<p class="item" v-html="$t('about.credits_author', {USER:'<a href=\'https://twitch.tv/durss\' target=\'_blank\'>Durss</a>'})"></p>
-			<p class="item" v-html="$t('about.credits_sources', {URL:'<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>'})"></p>
+			<p
+				class="item"
+				v-html="
+					$t('about.credits_author', {
+						USER: '<a href=\'https://twitch.tv/durss\' target=\'_blank\'>Durss</a>',
+					})
+				"
+			></p>
+			<p
+				class="item"
+				v-html="
+					$t('about.credits_sources', {
+						URL: '<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>',
+					})
+				"
+			></p>
 			<p class="item">{{ $t("about.credits_sites") }}</p>
 			<p class="item socials">
-				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" v-tooltip="'Durss puzzle boxes'" alt="puzzle boxes"></a>
-				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" v-tooltip="'Multiblindtest'" alt="multi blindtest"></a>
-				<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" v-tooltip="'Portfolio'" alt="portfolio"></a>
-				<a class="link" href="https://instagram.com/durss" target="_blank"><img src="@/assets/img/instagram.png" v-tooltip="'Instagram'" alt="instagram"></a>
-				<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" v-tooltip="'Tiktok'" alt="tiktok"></a>
-				<a class="link" href="https://github.com/durss" target="_blank"><img src="@/assets/img/github.png" v-tooltip="'Github'" alt="github"></a>
-				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"></a>
-				<a class="link" href="https://bsky.app/profile/durss.fr" target="_blank"><img src="@/assets/img/bluesky.svg" v-tooltip="'Bluesky'" alt="bluesky"></a>
+				<a class="link" href="https://box.durss.ninja" target="_blank"
+					><img
+						src="@/assets/img/boxes.svg"
+						v-tooltip="'Durss puzzle boxes'"
+						alt="puzzle boxes"
+				/></a>
+				<a class="link" href="https://multiblindtest.com" target="_blank"
+					><img
+						src="@/assets/img/multiblindtest.png"
+						v-tooltip="'Multiblindtest'"
+						alt="multi blindtest"
+				/></a>
+				<a class="link" href="https://www.durss.ninja" target="_blank"
+					><img src="@/assets/img/work.svg" v-tooltip="'Portfolio'" alt="portfolio"
+				/></a>
+				<a class="link" href="https://instagram.com/durss" target="_blank"
+					><img src="@/assets/img/instagram.png" v-tooltip="'Instagram'" alt="instagram"
+				/></a>
+				<a class="link" href="https://tiktok.com/@dursss" target="_blank"
+					><img src="@/assets/img/tiktok.png" v-tooltip="'Tiktok'" alt="tiktok"
+				/></a>
+				<a class="link" href="https://github.com/durss" target="_blank"
+					><img src="@/assets/img/github.png" v-tooltip="'Github'" alt="github"
+				/></a>
+				<a class="link" href="https://twitch.tv/durss" target="_blank"
+					><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"
+				/></a>
+				<a class="link" href="https://bsky.app/profile/durss.fr" target="_blank"
+					><img src="@/assets/img/bluesky.svg" v-tooltip="'Bluesky'" alt="bluesky"
+				/></a>
 			</p>
 			<i18n-t scope="global" tag="p" class="item" keypath="about.sentry">
 				<template #LINK>
@@ -46,43 +85,51 @@
 		</ToggleBlock> -->
 
 		<div class="footer">
-			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
-			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
-			<a :href="'mailto:'+$config.CONTACT_MAIL">{{ $t("global.contact", {MAIL:$config.CONTACT_MAIL}) }}</a>
+			<a :href="$router.resolve({ name: 'privacypolicy' }).href" target="_blank">{{
+				$t("global.privacy")
+			}}</a>
+			<a :href="$router.resolve({ name: 'termsofuse' }).href" target="_blank">{{
+				$t("global.terms")
+			}}</a>
+			<a :href="'mailto:' + $config.CONTACT_MAIL">{{
+				$t("global.contact", { MAIL: $config.CONTACT_MAIL })
+			}}</a>
 		</div>
-
 	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import Config from '@/utils/Config';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import type IParameterContent from './IParameterContent';
-import ParamsSponsor from './ParamsSponsor.vue';
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import Config from "@/utils/Config";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import type IParameterContent from "./IParameterContent";
+import ParamsSponsor from "./ParamsSponsor.vue";
 
 @Component({
-	components:{
+	components: {
 		Button: TTButton,
 		ToggleBlock,
 		ParamsSponsor,
-	}
+	},
 })
-class ParamsAbout extends Vue implements IParameterContent {
+class ParamsAbout  extends Vue implements IParameterContent {
+	public get discordURL(): string {
+		return Config.instance.DISCORD_URL;
+	}
+	public get apiURL(): string {
+		return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md";
+	}
 
-	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get apiURL():string { return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"; }
-
-	public onNavigateBack(): boolean { return false; }
-
+	public onNavigateBack(): boolean {
+		return false;
+	}
 }
 export default toNative(ParamsAbout);
 </script>
 
 <style scoped lang="less">
-.paramsabout{
-
+.paramsabout {
 	.feedBt {
 		margin: auto;
 		display: block;
@@ -98,12 +145,12 @@ export default toNative(ParamsAbout);
 		line-height: 1.25em;
 
 		.item:not(:last-child) {
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
-		
+
 		p {
-			font-size: .85em;
-	
+			font-size: 0.85em;
+
 			.link {
 				&:not(:last-child) {
 					margin-right: 10px;
@@ -112,7 +159,7 @@ export default toNative(ParamsAbout);
 					height: 40px;
 				}
 			}
-	
+
 			&.socials {
 				margin-top: 1em;
 			}
@@ -121,7 +168,7 @@ export default toNative(ParamsAbout);
 
 	.footer {
 		margin-top: 1em;
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -132,7 +179,7 @@ export default toNative(ParamsAbout);
 		text-align: left;
 		p:first-letter {
 			font-weight: bold;
-			margin-left: .5em;
+			margin-left: 0.5em;
 		}
 		p:first-child {
 			font-style: italic;

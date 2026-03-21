@@ -1,139 +1,139 @@
 {
-	"home":{
-		"info":"Fait avec 💘 par",
-		"head":"Twitchat est une alternative au tchat Twitch offrant un confort de stream optimal",
-		"loginBt":"Connexion",
-		"streamdeckBt":"Plugin Stream Deck™",
-		"discordBt":"Rejoins Discord",
-		"youtubeBt":"Chaîne YouTube",
-		"sponsorBt":"Me soutenir 🤍",
-		"features":{
-			"title":"Fonctionnalités",
-			"list":[
+	"home": {
+		"info": "Fait avec 💘 par",
+		"head": "Twitchat est une alternative au tchat Twitch offrant un confort de stream optimal",
+		"loginBt": "Connexion",
+		"streamdeckBt": "Plugin Stream Deck™",
+		"discordBt": "Rejoins Discord",
+		"youtubeBt": "Chaîne YouTube",
+		"sponsorBt": "Me soutenir 🤍",
+		"features": {
+			"title": "Fonctionnalités",
+			"list": [
 				{
-					"icon":"tiktok",
-					"image":"tiktok_messages.png",
-					"title":"TikTok",
-					"description":"Retrouvez vos messages TikTok au même endroit que vos messages Twitch (nécessite <a href='https://tikfinity.zerody.one/app/' target='_blank'>TikFinity</a>)"
+					"icon": "tiktok",
+					"image": "tiktok_messages.png",
+					"title": "TikTok",
+					"description": "Retrouvez vos messages TikTok au même endroit que vos messages Twitch (nécessite <a href='https://tikfinity.zerody.one/app/' target='_blank'>TikFinity</a>)"
 				},
 				{
-					"icon":"youtube",
-					"image":"youtube_messages.png",
-					"title":"YouTube",
-					"description":"Connectez jusqu'à 3 lives YouTube simultanés et recevez leurs messages en un seul endroit"
+					"icon": "youtube",
+					"image": "youtube_messages.png",
+					"title": "YouTube",
+					"description": "Connectez jusqu'à 3 lives YouTube simultanés et recevez leurs messages en un seul endroit"
 				},
 				{
-					"icon":"merge",
-					"image":"merge_messages.gif",
-					"title":"Anti-spam",
-					"description":"Fusionnez les messages consécutifs d'une même personne en un seul"
+					"icon": "merge",
+					"image": "merge_messages.gif",
+					"title": "Anti-spam",
+					"description": "Fusionnez les messages consécutifs d'une même personne en un seul"
 				},
 				{
-					"icon":"badge",
-					"image":"custom_badges_name.gif",
-					"title":"Badges et pseudo personnalisés",
-					"description":"Créez des badges de tchat et attribuez des pseudos personnalisés à vos viewers. Ceci peut être automatisé depuis les points de chaîne, des commandes de tchat, des subs, des bits, ..."
+					"icon": "badge",
+					"image": "custom_badges_name.gif",
+					"title": "Badges et pseudo personnalisés",
+					"description": "Créez des badges de tchat et attribuez des pseudos personnalisés à vos viewers. Ceci peut être automatisé depuis les points de chaîne, des commandes de tchat, des subs, des bits, ..."
 				},
 				{
-					"icon":"goxlr",
-					"image":"goxlr.png",
-					"title":"GoXLR",
-					"description":"Contrôlez Twitchat depuis votre GoXLR et contrôlez votre GoXLR depuis des récompenses de point de chaîne, subs, bit, ..."
+					"icon": "goxlr",
+					"image": "goxlr.png",
+					"title": "GoXLR",
+					"description": "Contrôlez Twitchat depuis votre GoXLR et contrôlez votre GoXLR depuis des récompenses de point de chaîne, subs, bit, ..."
 				},
 				{
-					"icon":"elgato",
-					"image":"streamdeck.jpg",
-					"title":"Stream Deck™",
-					"description":"Scrollez le tchat, déplacez le marque-page, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
+					"icon": "elgato",
+					"image": "streamdeck.jpg",
+					"title": "Stream Deck™",
+					"description": "Scrollez le tchat, déplacez le marque-page, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
 				},
 				{
-					"icon":"voicemod",
-					"image":"voicemod.webp",
-					"title":"Voicemod",
-					"description":"Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
+					"icon": "voicemod",
+					"image": "voicemod.webp",
+					"title": "Voicemod",
+					"description": "Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
 				},
 				{
-					"icon":"spotify",
-					"image":"musicPlayer.png",
-					"title":"Spotify",
-					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
+					"icon": "spotify",
+					"image": "musicPlayer.png",
+					"title": "Spotify",
+					"description": "Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
 				},
 				{
-					"icon":"show",
-					"image":"spoiler.png",
-					"title":"Commande de spoil",
-					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoilers.<br>Vos modérateurices peuvent spoiler les messages d'autres viewers en répondant <mark>!spoiler</mark> à leur message"
+					"icon": "show",
+					"image": "spoiler.png",
+					"title": "Commande de spoil",
+					"description": "Les messages débutant par <mark>||</mark> seront affichés comme des spoilers.<br>Vos modérateurices peuvent spoiler les messages d'autres viewers en répondant <mark>!spoiler</mark> à leur message"
 				},
 				{
-					"icon":"search",
-					"image":"search.png",
-					"title":"Rechercher des messages",
-					"description":"Retrouvez des messages avec la commande <mark>/search</mark>"
+					"icon": "search",
+					"image": "search.png",
+					"title": "Rechercher des messages",
+					"description": "Retrouvez des messages avec la commande <mark>/search</mark>"
 				},
 				{
-					"icon":"alert",
-					"video":"alert.webm",
-					"title":"Commande d'alerte",
-					"description":"Permettez à vos modérateurices de vous alerter en cas d'urgence"
+					"icon": "alert",
+					"video": "alert.webm",
+					"title": "Commande d'alerte",
+					"description": "Permettez à vos modérateurices de vous alerter en cas d'urgence"
 				},
 				{
-					"icon":"emergency",
-					"video":"emergency.webm",
-					"title":"Bouton d'urgence",
-					"description":"Masquez vos alertes, changez de scène, bannissez vos bots temporairement et activez le shield mode d'un simple bouton"
+					"icon": "emergency",
+					"video": "emergency.webm",
+					"title": "Bouton d'urgence",
+					"description": "Masquez vos alertes, changez de scène, bannissez vos bots temporairement et activez le shield mode d'un simple bouton"
 				},
 				{
-					"icon":"tts",
-					"image":"tts.gif",
-					"title":"Lire les messages",
-					"description":"Twitchat peut lire n'importe quel message à haute voix"
+					"icon": "tts",
+					"image": "tts.gif",
+					"title": "Lire les messages",
+					"description": "Twitchat peut lire n'importe quel message à haute voix"
 				},
 				{
-					"icon":"hand",
-					"image":"greet.png",
-					"title":"Saluez vos viewers",
-					"description":"Le 1er message de chaque viewer est conservé dans une liste pour ne pas oublier de les saluer"
+					"icon": "hand",
+					"image": "greet.png",
+					"title": "Saluez vos viewers",
+					"description": "Le 1er message de chaque viewer est conservé dans une liste pour ne pas oublier de les saluer"
 				},
 				{
-					"icon":"checkmark",
-					"video":"readMark.webm",
-					"title":"Marque-page",
-					"description":"Placez un marque-page en cliquant un message pour vous souvenir où vous avez arreté votre lecture"
+					"icon": "checkmark",
+					"video": "readMark.webm",
+					"title": "Marque-page",
+					"description": "Placez un marque-page en cliquant un message pour vous souvenir où vous avez arreté votre lecture"
 				},
 				{
-					"icon":"conversation",
-					"video":"conversation.webm",
-					"title":"Conversations",
-					"description":"Les conversations entre viewers sont regroupées"
+					"icon": "conversation",
+					"video": "conversation.webm",
+					"title": "Conversations",
+					"description": "Les conversations entre viewers sont regroupées"
 				},
 				{
-					"icon":"ticket",
-					"image":"raffle.gif",
-					"title":"Tirage au sort",
-					"description":"Lancez un tirage au sort et choisissez 1 ou plusieurs gagnant·es"
+					"icon": "ticket",
+					"image": "raffle.gif",
+					"title": "Tirage au sort",
+					"description": "Lancez un tirage au sort et choisissez 1 ou plusieurs gagnant·es"
 				},
 				{
-					"icon":"bingo",
-					"image":"bingo.gif",
-					"title":"Bingo",
-					"description":"Faites deviner un nombre aléatoire, une emote aléatoire ou un message personnalisé à vos viewers"
+					"icon": "bingo",
+					"image": "bingo.gif",
+					"title": "Bingo",
+					"description": "Faites deviner un nombre aléatoire, une emote aléatoire ou un message personnalisé à vos viewers"
 				},
 				{
-					"icon":"voice",
-					"video":"voiceControl.webm",
-					"title":"Contrôle vocal",
-					"description":"Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclencher le mode urgence, ..."
+					"icon": "voice",
+					"video": "voiceControl.webm",
+					"title": "Contrôle vocal",
+					"description": "Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclencher le mode urgence, ..."
 				},
 				{
-					"icon":"broadcast",
-					"image":"triggers.png",
-					"title":"Actions automatisées",
-					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
+					"icon": "broadcast",
+					"image": "triggers.png",
+					"title": "Actions automatisées",
+					"description": "Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
 				},
 				{
-					"icon":"params",
-					"title":"Twitchat permet aussi",
-					"items":[
+					"icon": "params",
+					"title": "Twitchat permet aussi",
+					"items": [
 						"Recevoir et répondre aux whispers",
 						"Voir qui ne vous follow pas",
 						"Afficher les pronoms de vos viewers",
@@ -150,9 +150,9 @@
 				}
 			]
 		},
-		"footer":{
-			"title":"Sources sur",
-			"disclaimer":"Twitchat n'est PAS affilié avec <a href=\"https://twitch.tv\" target=\"_blank\">Twitch</a>"
+		"footer": {
+			"title": "Sources sur",
+			"disclaimer": "Twitchat n'est PAS affilié avec <a href=\"https://twitch.tv\" target=\"_blank\">Twitch</a>"
 		}
 	}
 }

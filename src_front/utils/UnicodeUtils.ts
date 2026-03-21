@@ -1,34 +1,29 @@
 import GraphemeSplitter from "grapheme-splitter";
 
 /**
-* Created : 25/08/2022
-*/
+ * Created : 25/08/2022
+ */
 export default class UnicodeUtils {
-
-	private static _instance:UnicodeUtils;
+	private static _instance: UnicodeUtils;
 
 	private gSplitter = new GraphemeSplitter();
 
-	constructor() {
-
-	}
+	constructor() {}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():UnicodeUtils {
-		if(!UnicodeUtils._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): UnicodeUtils {
+		if (!UnicodeUtils._instance) {
 			UnicodeUtils._instance = new UnicodeUtils();
 		}
 		return UnicodeUtils._instance;
 	}
 
-
-
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public normalizeAlphaNum(src:string, exceptions:string = ""):string {
+	 * PUBLIC METHODS *
+	 ******************/
+	public normalizeAlphaNum(src: string, exceptions: string = ""): string {
 		let n = this.getUnicodeLetters();
 		src = this.normalizeText(src, n, exceptions);
 		n = this.getUnicodeNumbers();
@@ -37,55 +32,57 @@ export default class UnicodeUtils {
 		src = this.normalizeText(src, n, exceptions);
 		return src;
 	}
-	public normalizeLeet(src:string, exceptions:string = ""):string {
+	public normalizeLeet(src: string, exceptions: string = ""): string {
 		let n = this.getLeetCode();
 		src = this.normalizeText(src, n, exceptions);
 		return src;
 	}
 
-	public normalizeLetters(src:string, exceptions:string = ""):string {
+	public normalizeLetters(src: string, exceptions: string = ""): string {
 		const chars = this.getUnicodeLetters();
-		return this.normalizeText(src, chars, exceptions)
+		return this.normalizeText(src, chars, exceptions);
 	}
 
-	public normalizeNumbers(src:string, exceptions:string = ""):string {
+	public normalizeNumbers(src: string, exceptions: string = ""): string {
 		const n = this.getUnicodeNumbers();
-		return this.normalizeText(src, n, exceptions)
+		return this.normalizeText(src, n, exceptions);
 	}
 
-	public normalizeMarks(src:string, exceptions:string = "") {
+	public normalizeMarks(src: string, exceptions: string = "") {
 		const n = this.getUnicodeMarks();
-		return this.normalizeText(src, n, exceptions)
+		return this.normalizeText(src, n, exceptions);
 	}
-
-
 
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
-	private normalizeText(src:string, charTable:{[key:string]:string}, exceptions:string):string {
-		let u:string[] = [];
+	private normalizeText(
+		src: string,
+		charTable: { [key: string]: string },
+		exceptions: string,
+	): string {
+		let u: string[] = [];
 		for (let t = this.gSplitter.splitGraphemes(src), m = 0; m < t.length; m++) {
 			const a = t[m]!;
 			if (exceptions.indexOf(a) != -1) {
 				u.push(a);
-				continue
+				continue;
 			}
 			let found = false;
 			for (const key in charTable) {
 				if (charTable[key]!.indexOf(a) != -1) {
 					u.push(key);
 					found = true;
-					break
+					break;
 				}
 			}
-			if(!found) u.push(a)
+			if (!found) u.push(a);
 		}
 		return u.join("");
 	}
 
-	public getUnicodeLetters():{[key:string]:string} {
+	public getUnicodeLetters(): { [key: string]: string } {
 		return {
 			A: "🅰️\u24B6\uD83C\uDD50\uFF21\uD835\uDC00\uD835\uDD6C\uD835\uDC68\uD835\uDCD0\uD835\uDD38\uD835\uDE70\uD835\uDDA0\uD835\uDDD4\uD835\uDE3C\uD835\uDE08\uD83C\uDD30\uD83C\uDD70\uD83C\uDDE6\uD835\uDD04\u1D2C\u2200\xC0\xC1\xC2\xC3\xC4\xC5\u0100\u0102\u0104\u01CD\u01DE\u01E0\u01FA\u0200\u0202\u0226\u023A\u0386\u0391\u0410\u04D0\u04D2\u15C5\u15E9\u1D00\u1E00\u1EA0\u1EA2\u1EA4\u1EA6\u1EA8\u1EAA\u1EAC\u1EAE\u1EB0\u1EB2\u1EB4\u1EB6\u1F08\u1F09\u1F0A\u1F0B\u1F0C\u1F0D\u1F0E\u1F0F\u1F88\u1F89\u1F8A\u1F8B\u1F8C\u1F8D\u1F8E\u1F8F\u1FB8\u1FB9\u1FBA\u1FBB\u1FBC\u20B3\u212B\uA4EE\uD800\uDEA0\uD800\uDECE\uD800\uDF00\uD835\uDEA8\uD835\uDEE2\uD835\uDF1C\uD835\uDF56\uD835\uDF90\uD83C\uDD10\u15C4\u2C6F\uA4EF\u13AA\u13AF\u13CC\u15C6\u15C7\u15C8\u15C9\u15CA\u15CB\u15CC\u0040",
 			a: "🅱️\u24D0\uFF41\uD835\uDC1A\uD835\uDD86\uD835\uDC82\uD835\uDCEA\uD835\uDD52\uD835\uDE8A\uD835\uDDBA\uD835\uDDEE\uD835\uDE56\uD835\uDE22\uD835\uDD1E\u2090\u1D43\u249C\u0250\u0252\u120D\uFF91\xE0\xE1\xE2\xE3\xE4\xE5\u0101\u0103\u0105\u01CE\u01DF\u01E1\u01FB\u0201\u0203\u0227\u0251\u03AC\u03B1\u0430\u04D1\u04D3\u1D45\u1D8F\u1E01\u1E9A\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7\u1F00\u1F01\u1F02\u1F03\u1F04\u1F05\u1F06\u1F07\u1F70\u1F71\u1F80\u1F81\u1F82\u1F83\u1F84\u1F85\u1F86\u1F87\u1FB0\u1FB1\u1FB2\u1FB3\u1FB4\u1FB6\u1FB7\u2C65\u2C80\u2C81\uD835\uDEC2\uD835\uDEFC\uD835\uDF36\uD835\uDF70\u1D44\u1D9B\uD801\uDC1F\u237A\xAA\xAD",
@@ -367,7 +364,7 @@ export default class UnicodeUtils {
 		};
 	}
 
-	public getUnicodeNumbers():{[key:string]:string} {
+	public getUnicodeNumbers(): { [key: string]: string } {
 		return {
 			"0": "🅾️0️⃣\u24EA\u24FF\uFF10\uD835\uDFCE\uD835\uDFD8\uD835\uDFF6\uD835\uDFE2\uD835\uDFEC\u2080\u2070\uD835\uDFF6\uD835\uDE7E\uD83C\uDD00\uD83C\uDD01\u03B8\u25CB\u0BE6\u0D66\u0E50\u0ED0\u0F20\u0FC0\u101D\u1040\u1090\u3358",
 			"1": "1️⃣\u2460\u2776\uFF11\uD835\uDFCF\uD835\uDFD9\uD835\uDFF7\uD835\uDFE3\uD835\uDFED\u2081\xB9\u2474\u21C2\u295C\u2488\uD83C\uDD02\u24F5\u0391\u2160\u2170\u02E6\u2951\u1091\u3359\u33E0\uA747",
@@ -451,11 +448,11 @@ export default class UnicodeUtils {
 			"5/8": "\u215D",
 			"7/8": "\u215E",
 			"1/": "\u215F",
-			"0/3": "\u2189"
+			"0/3": "\u2189",
 		};
 	}
 
-	public getUnicodeMarks():{[key:string]:string} {
+	public getUnicodeMarks(): { [key: string]: string } {
 		return {
 			" ": "\u2423 \xA0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000",
 			"'": "\u02B9\u02BB\u02BC\u02BD\u02BE\u02BF\u02CA\u02CB\u02F4\u0374\u0559\u055A\u055B\u055C\u055D\u1FBD\u1FBF\u1FFD\u1FFE\u200B\u200C\u200D\u200E\u200F\u2032\u2035\uFF40\uA78B\uA78C\u0384\uFF07\u02C8\u144A\u16CC\u2018\u2019\u201B\xB4",
@@ -494,289 +491,289 @@ export default class UnicodeUtils {
 			"..": "\u2025",
 			".": "\u2024\uA4F8\uFF0E",
 			"&": "\uA778",
-			"#": "\uFF03"
+			"#": "\uFF03",
 		};
 	}
 
-	public getUnicodeFlags():{[key:string]:string} {
+	public getUnicodeFlags(): { [key: string]: string } {
 		return {
-			"ad": "🇦🇩",
-			"ae": "🇦🇪",
-			"af": "🇦🇫",
-			"ag": "🇦🇬",
-			"ai": "🇦🇮",
-			"al": "🇦🇱",
-			"am": "🇦🇲",
-			"ao": "🇦🇴",
-			"aq": "🇦🇶",
-			"ar": "🇦🇷",
-			"as": "🇦🇸",
-			"at": "🇦🇹",
-			"au": "🇦🇺",
-			"aw": "🇦🇼",
-			"ax": "🇦🇽",
-			"az": "🇦🇿",
-			"ba": "🇧🇦",
-			"bb": "🇧🇧",
-			"bd": "🇧🇩",
-			"be": "🇧🇪",
-			"bf": "🇧🇫",
-			"bg": "🇧🇬",
-			"bh": "🇧🇭",
-			"bi": "🇧🇮",
-			"bj": "🇧🇯",
-			"bl": "🇧🇱",
-			"bm": "🇧🇲",
-			"bn": "🇧🇳",
-			"bo": "🇧🇴",
-			"bq": "🇧🇶",
-			"br": "🇧🇷",
-			"bs": "🇧🇸",
-			"bt": "🇧🇹",
-			"bv": "🇧🇻",
-			"bw": "🇧🇼",
-			"by": "🇧🇾",
-			"bz": "🇧🇿",
-			"ca": "🇨🇦",
-			"cc": "🇨🇨",
-			"cd": "🇨🇩",
-			"cf": "🇨🇫",
-			"cg": "🇨🇬",
-			"ch": "🇨🇭",
-			"ci": "🇨🇮",
-			"ck": "🇨🇰",
-			"cl": "🇨🇱",
-			"cm": "🇨🇲",
-			"cn": "🇨🇳",
-			"co": "🇨🇴",
-			"cr": "🇨🇷",
-			"cu": "🇨🇺",
-			"cv": "🇨🇻",
-			"cw": "🇨🇼",
-			"cx": "🇨🇽",
-			"cy": "🇨🇾",
-			"cz": "🇨🇿",
-			"de": "🇩🇪",
-			"dj": "🇩🇯",
-			"dk": "🇩🇰",
-			"dm": "🇩🇲",
-			"do": "🇩🇴",
-			"dz": "🇩🇿",
-			"ec": "🇪🇨",
-			"ee": "🇪🇪",
-			"eg": "🇪🇬",
-			"eh": "🇪🇭",
-			"er": "🇪🇷",
-			"es": "🇪🇸",
-			"et": "🇪🇹",
-			"fi": "🇫🇮",
-			"fj": "🇫🇯",
-			"fk": "🇫🇰",
-			"fm": "🇫🇲",
-			"fo": "🇫🇴",
-			"fr": "🇫🇷",
-			"ga": "🇬🇦",
-			"gb": "🇬🇧",
-			"gd": "🇬🇩",
-			"ge": "🇬🇪",
-			"gf": "🇬🇫",
-			"gg": "🇬🇬",
-			"gh": "🇬🇭",
-			"gi": "🇬🇮",
-			"gl": "🇬🇱",
-			"gm": "🇬🇲",
-			"gn": "🇬🇳",
-			"gp": "🇬🇵",
-			"gq": "🇬🇶",
-			"gr": "🇬🇷",
-			"gs": "🇬🇸",
-			"gt": "🇬🇹",
-			"gu": "🇬🇺",
-			"gw": "🇬🇼",
-			"gy": "🇬🇾",
-			"hk": "🇭🇰",
-			"hm": "🇭🇲",
-			"hn": "🇭🇳",
-			"hr": "🇭🇷",
-			"ht": "🇭🇹",
-			"hu": "🇭🇺",
-			"id": "🇮🇩",
-			"ie": "🇮🇪",
-			"il": "🇮🇱",
-			"im": "🇮🇲",
-			"in": "🇮🇳",
-			"io": "🇮🇴",
-			"iq": "🇮🇶",
-			"ir": "🇮🇷",
-			"is": "🇮🇸",
-			"it": "🇮🇹",
-			"je": "🇯🇪",
-			"jm": "🇯🇲",
-			"jo": "🇯🇴",
-			"jp": "🇯🇵",
-			"ke": "🇰🇪",
-			"kg": "🇰🇬",
-			"kh": "🇰🇭",
-			"ki": "🇰🇮",
-			"km": "🇰🇲",
-			"kn": "🇰🇳",
-			"kp": "🇰🇵",
-			"kr": "🇰🇷",
-			"kw": "🇰🇼",
-			"ky": "🇰🇾",
-			"kz": "🇰🇿",
-			"la": "🇱🇦",
-			"lb": "🇱🇧",
-			"lc": "🇱🇨",
-			"li": "🇱🇮",
-			"lk": "🇱🇰",
-			"lr": "🇱🇷",
-			"ls": "🇱🇸",
-			"lt": "🇱🇹",
-			"lu": "🇱🇺",
-			"lv": "🇱🇻",
-			"ly": "🇱🇾",
-			"ma": "🇲🇦",
-			"mc": "🇲🇨",
-			"md": "🇲🇩",
-			"me": "🇲🇪",
-			"mf": "🇲🇫",
-			"mg": "🇲🇬",
-			"mh": "🇲🇭",
-			"mk": "🇲🇰",
-			"ml": "🇲🇱",
-			"mm": "🇲🇲",
-			"mn": "🇲🇳",
-			"mo": "🇲🇴",
-			"mp": "🇲🇵",
-			"mq": "🇲🇶",
-			"mr": "🇲🇷",
-			"ms": "🇲🇸",
-			"mt": "🇲🇹",
-			"mu": "🇲🇺",
-			"mv": "🇲🇻",
-			"mw": "🇲🇼",
-			"mx": "🇲🇽",
-			"my": "🇲🇾",
-			"mz": "🇲🇿",
-			"na": "🇳🇦",
-			"nc": "🇳🇨",
-			"ne": "🇳🇪",
-			"nf": "🇳🇫",
-			"ng": "🇳🇬",
-			"ni": "🇳🇮",
-			"nl": "🇳🇱",
-			"no": "🇳🇴",
-			"np": "🇳🇵",
-			"nr": "🇳🇷",
-			"nu": "🇳🇺",
-			"nz": "🇳🇿",
-			"om": "🇴🇲",
-			"pa": "🇵🇦",
-			"pe": "🇵🇪",
-			"pf": "🇵🇫",
-			"pg": "🇵🇬",
-			"ph": "🇵🇭",
-			"pk": "🇵🇰",
-			"pl": "🇵🇱",
-			"pm": "🇵🇲",
-			"pn": "🇵🇳",
-			"pr": "🇵🇷",
-			"ps": "🇵🇸",
-			"pt": "🇵🇹",
-			"pw": "🇵🇼",
-			"py": "🇵🇾",
-			"qa": "🇶🇦",
-			"re": "🇷🇪",
-			"ro": "🇷🇴",
-			"rs": "🇷🇸",
-			"ru": "🇷🇺",
-			"rw": "🇷🇼",
-			"sa": "🇸🇦",
-			"sb": "🇸🇧",
-			"sc": "🇸🇨",
-			"sd": "🇸🇩",
-			"se": "🇸🇪",
-			"sg": "🇸🇬",
-			"sh": "🇸🇭",
-			"si": "🇸🇮",
-			"sj": "🇸🇯",
-			"sk": "🇸🇰",
-			"sl": "🇸🇱",
-			"sm": "🇸🇲",
-			"sn": "🇸🇳",
-			"so": "🇸🇴",
-			"sr": "🇸🇷",
-			"ss": "🇸🇸",
-			"st": "🇸🇹",
-			"sv": "🇸🇻",
-			"sx": "🇸🇽",
-			"sy": "🇸🇾",
-			"sz": "🇸🇿",
-			"tc": "🇹🇨",
-			"td": "🇹🇩",
-			"tf": "🇹🇫",
-			"tg": "🇹🇬",
-			"th": "🇹🇭",
-			"tj": "🇹🇯",
-			"tk": "🇹🇰",
-			"tl": "🇹🇱",
-			"tm": "🇹🇲",
-			"tn": "🇹🇳",
-			"to": "🇹🇴",
-			"tr": "🇹🇷",
-			"tt": "🇹🇹",
-			"tv": "🇹🇻",
-			"tw": "🇹🇼",
-			"tz": "🇹🇿",
-			"ua": "🇺🇦",
-			"ug": "🇺🇬",
-			"um": "🇺🇲",
-			"us": "🇺🇸",
-			"uy": "🇺🇾",
-			"uz": "🇺🇿",
-			"va": "🇻🇦",
-			"vc": "🇻🇨",
-			"ve": "🇻🇪",
-			"vg": "🇻🇬",
-			"vi": "🇻🇮",
-			"vn": "🇻🇳",
-			"vu": "🇻🇺",
-			"wf": "🇼🇫",
-			"ws": "🇼🇸",
-			"ye": "🇾🇪",
-			"yt": "🇾🇹",
-			"za": "🇿🇦",
-			"zm": "🇿🇲",
-			"zw": "🇿🇼"
-		}
+			ad: "🇦🇩",
+			ae: "🇦🇪",
+			af: "🇦🇫",
+			ag: "🇦🇬",
+			ai: "🇦🇮",
+			al: "🇦🇱",
+			am: "🇦🇲",
+			ao: "🇦🇴",
+			aq: "🇦🇶",
+			ar: "🇦🇷",
+			as: "🇦🇸",
+			at: "🇦🇹",
+			au: "🇦🇺",
+			aw: "🇦🇼",
+			ax: "🇦🇽",
+			az: "🇦🇿",
+			ba: "🇧🇦",
+			bb: "🇧🇧",
+			bd: "🇧🇩",
+			be: "🇧🇪",
+			bf: "🇧🇫",
+			bg: "🇧🇬",
+			bh: "🇧🇭",
+			bi: "🇧🇮",
+			bj: "🇧🇯",
+			bl: "🇧🇱",
+			bm: "🇧🇲",
+			bn: "🇧🇳",
+			bo: "🇧🇴",
+			bq: "🇧🇶",
+			br: "🇧🇷",
+			bs: "🇧🇸",
+			bt: "🇧🇹",
+			bv: "🇧🇻",
+			bw: "🇧🇼",
+			by: "🇧🇾",
+			bz: "🇧🇿",
+			ca: "🇨🇦",
+			cc: "🇨🇨",
+			cd: "🇨🇩",
+			cf: "🇨🇫",
+			cg: "🇨🇬",
+			ch: "🇨🇭",
+			ci: "🇨🇮",
+			ck: "🇨🇰",
+			cl: "🇨🇱",
+			cm: "🇨🇲",
+			cn: "🇨🇳",
+			co: "🇨🇴",
+			cr: "🇨🇷",
+			cu: "🇨🇺",
+			cv: "🇨🇻",
+			cw: "🇨🇼",
+			cx: "🇨🇽",
+			cy: "🇨🇾",
+			cz: "🇨🇿",
+			de: "🇩🇪",
+			dj: "🇩🇯",
+			dk: "🇩🇰",
+			dm: "🇩🇲",
+			do: "🇩🇴",
+			dz: "🇩🇿",
+			ec: "🇪🇨",
+			ee: "🇪🇪",
+			eg: "🇪🇬",
+			eh: "🇪🇭",
+			er: "🇪🇷",
+			es: "🇪🇸",
+			et: "🇪🇹",
+			fi: "🇫🇮",
+			fj: "🇫🇯",
+			fk: "🇫🇰",
+			fm: "🇫🇲",
+			fo: "🇫🇴",
+			fr: "🇫🇷",
+			ga: "🇬🇦",
+			gb: "🇬🇧",
+			gd: "🇬🇩",
+			ge: "🇬🇪",
+			gf: "🇬🇫",
+			gg: "🇬🇬",
+			gh: "🇬🇭",
+			gi: "🇬🇮",
+			gl: "🇬🇱",
+			gm: "🇬🇲",
+			gn: "🇬🇳",
+			gp: "🇬🇵",
+			gq: "🇬🇶",
+			gr: "🇬🇷",
+			gs: "🇬🇸",
+			gt: "🇬🇹",
+			gu: "🇬🇺",
+			gw: "🇬🇼",
+			gy: "🇬🇾",
+			hk: "🇭🇰",
+			hm: "🇭🇲",
+			hn: "🇭🇳",
+			hr: "🇭🇷",
+			ht: "🇭🇹",
+			hu: "🇭🇺",
+			id: "🇮🇩",
+			ie: "🇮🇪",
+			il: "🇮🇱",
+			im: "🇮🇲",
+			in: "🇮🇳",
+			io: "🇮🇴",
+			iq: "🇮🇶",
+			ir: "🇮🇷",
+			is: "🇮🇸",
+			it: "🇮🇹",
+			je: "🇯🇪",
+			jm: "🇯🇲",
+			jo: "🇯🇴",
+			jp: "🇯🇵",
+			ke: "🇰🇪",
+			kg: "🇰🇬",
+			kh: "🇰🇭",
+			ki: "🇰🇮",
+			km: "🇰🇲",
+			kn: "🇰🇳",
+			kp: "🇰🇵",
+			kr: "🇰🇷",
+			kw: "🇰🇼",
+			ky: "🇰🇾",
+			kz: "🇰🇿",
+			la: "🇱🇦",
+			lb: "🇱🇧",
+			lc: "🇱🇨",
+			li: "🇱🇮",
+			lk: "🇱🇰",
+			lr: "🇱🇷",
+			ls: "🇱🇸",
+			lt: "🇱🇹",
+			lu: "🇱🇺",
+			lv: "🇱🇻",
+			ly: "🇱🇾",
+			ma: "🇲🇦",
+			mc: "🇲🇨",
+			md: "🇲🇩",
+			me: "🇲🇪",
+			mf: "🇲🇫",
+			mg: "🇲🇬",
+			mh: "🇲🇭",
+			mk: "🇲🇰",
+			ml: "🇲🇱",
+			mm: "🇲🇲",
+			mn: "🇲🇳",
+			mo: "🇲🇴",
+			mp: "🇲🇵",
+			mq: "🇲🇶",
+			mr: "🇲🇷",
+			ms: "🇲🇸",
+			mt: "🇲🇹",
+			mu: "🇲🇺",
+			mv: "🇲🇻",
+			mw: "🇲🇼",
+			mx: "🇲🇽",
+			my: "🇲🇾",
+			mz: "🇲🇿",
+			na: "🇳🇦",
+			nc: "🇳🇨",
+			ne: "🇳🇪",
+			nf: "🇳🇫",
+			ng: "🇳🇬",
+			ni: "🇳🇮",
+			nl: "🇳🇱",
+			no: "🇳🇴",
+			np: "🇳🇵",
+			nr: "🇳🇷",
+			nu: "🇳🇺",
+			nz: "🇳🇿",
+			om: "🇴🇲",
+			pa: "🇵🇦",
+			pe: "🇵🇪",
+			pf: "🇵🇫",
+			pg: "🇵🇬",
+			ph: "🇵🇭",
+			pk: "🇵🇰",
+			pl: "🇵🇱",
+			pm: "🇵🇲",
+			pn: "🇵🇳",
+			pr: "🇵🇷",
+			ps: "🇵🇸",
+			pt: "🇵🇹",
+			pw: "🇵🇼",
+			py: "🇵🇾",
+			qa: "🇶🇦",
+			re: "🇷🇪",
+			ro: "🇷🇴",
+			rs: "🇷🇸",
+			ru: "🇷🇺",
+			rw: "🇷🇼",
+			sa: "🇸🇦",
+			sb: "🇸🇧",
+			sc: "🇸🇨",
+			sd: "🇸🇩",
+			se: "🇸🇪",
+			sg: "🇸🇬",
+			sh: "🇸🇭",
+			si: "🇸🇮",
+			sj: "🇸🇯",
+			sk: "🇸🇰",
+			sl: "🇸🇱",
+			sm: "🇸🇲",
+			sn: "🇸🇳",
+			so: "🇸🇴",
+			sr: "🇸🇷",
+			ss: "🇸🇸",
+			st: "🇸🇹",
+			sv: "🇸🇻",
+			sx: "🇸🇽",
+			sy: "🇸🇾",
+			sz: "🇸🇿",
+			tc: "🇹🇨",
+			td: "🇹🇩",
+			tf: "🇹🇫",
+			tg: "🇹🇬",
+			th: "🇹🇭",
+			tj: "🇹🇯",
+			tk: "🇹🇰",
+			tl: "🇹🇱",
+			tm: "🇹🇲",
+			tn: "🇹🇳",
+			to: "🇹🇴",
+			tr: "🇹🇷",
+			tt: "🇹🇹",
+			tv: "🇹🇻",
+			tw: "🇹🇼",
+			tz: "🇹🇿",
+			ua: "🇺🇦",
+			ug: "🇺🇬",
+			um: "🇺🇲",
+			us: "🇺🇸",
+			uy: "🇺🇾",
+			uz: "🇺🇿",
+			va: "🇻🇦",
+			vc: "🇻🇨",
+			ve: "🇻🇪",
+			vg: "🇻🇬",
+			vi: "🇻🇮",
+			vn: "🇻🇳",
+			vu: "🇻🇺",
+			wf: "🇼🇫",
+			ws: "🇼🇸",
+			ye: "🇾🇪",
+			yt: "🇾🇹",
+			za: "🇿🇦",
+			zm: "🇿🇲",
+			zw: "🇿🇼",
+		};
 	}
 
-	public getLeetCode():{[key:string]:string} {
+	public getLeetCode(): { [key: string]: string } {
 		return {
-			"a": "4",
-			"b": "8",
-			"c": "(",
-			"d": "[)",
-			"e": "3",
-			"f": "|=",
-			"g": "6",
-			"h": "#",
-			"i": "1",
-			"j": "]",
-			"k": "|<",
-			"l": "1",
-			"m": "|v|",
-			"n": "||",
-			"o": "0",
-			"p": "|°",
-			"q": "9",
-			"r": "2",
-			"s": "5",
-			"t": "7",
-			"w": "vv",
-			"x": "%",
-			"z": "2",
+			a: "4",
+			b: "8",
+			c: "(",
+			d: "[)",
+			e: "3",
+			f: "|=",
+			g: "6",
+			h: "#",
+			i: "1",
+			j: "]",
+			k: "|<",
+			l: "1",
+			m: "|v|",
+			n: "||",
+			o: "0",
+			p: "|°",
+			q: "9",
+			r: "2",
+			s: "5",
+			t: "7",
+			w: "vv",
+			x: "%",
+			z: "2",
 		};
 	}
 }

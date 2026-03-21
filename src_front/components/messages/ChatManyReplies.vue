@@ -1,6 +1,8 @@
 <template>
 	<div class="chatmanyreplies chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
 		<Icon name="reply_many" class="icon" />
 
@@ -12,7 +14,11 @@
 			</i18n-t>
 			<ChatMessage class="quote" :messageData="messageData.message" lightMode />
 			<ToggleBlock class="answers" title="view replies" small :open="false">
-				<div v-for="answer in messageData.message.answers" :key="answer.id" style="margin-bottom: 0.5em;">
+				<div
+					v-for="answer in messageData.message.answers"
+					:key="answer.id"
+					style="margin-bottom: 0.5em"
+				>
 					<ChatMessage :messageData="answer" lightMode />
 				</div>
 			</ToggleBlock>
@@ -21,29 +27,28 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import ChatMessage from './ChatMessage.vue';
-import ToggleBlock from '../ToggleBlock.vue';
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import ChatMessage from "./ChatMessage.vue";
+import ToggleBlock from "../ToggleBlock.vue";
 
 @Component({
-	components:{
+	components: {
 		ChatMessage,
 		ToggleBlock,
 	},
-	emits:["onRead"]
+	emits: ["onRead"],
 })
 class ChatManyReplies extends AbstractChatMessage {
-	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageManyRepliesData;
+	declare messageData: TwitchatDataTypes.MessageManyRepliesData;
 }
 export default toNative(ChatManyReplies);
 </script>
 
 <style scoped lang="less">
-.chatmanyreplies{
+.chatmanyreplies {
 	.holder {
 		flex-grow: 1;
 		display: flex;
@@ -56,7 +61,7 @@ export default toNative(ChatManyReplies);
 	&.unpinned {
 		.holder {
 			.quote {
-				opacity: .75;
+				opacity: 0.75;
 				text-decoration: line-through;
 				&:hover {
 					text-decoration: none;

@@ -6,23 +6,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from "vue-facing-decorator";
 import Alert from "./views/AlertView.vue";
 
 @Component({
-	components:{
+	components: {
 		Alert,
 	},
-	emits:[],
+	emits: [],
 })
-class AppOverlay extends Vue {
-
-}
+class AppOverlay extends Vue {}
 export default toNative(AppOverlay);
 </script>
 
 <style scoped lang="less">
-.appoverlay{
+.appoverlay {
 	width: 100vw;
 	height: 100vh;
 }

@@ -29,8 +29,6 @@
 		"patreon",
 		"beta"
 	],
-	"watch": [
-		"./server"
-	],
+	"watch": ["./server"],
 	"exec_mode": "fork"
 }

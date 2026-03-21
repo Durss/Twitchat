@@ -1,51 +1,93 @@
 <template>
-	<draggable class="triggerlistfolderitem"
-	:animation="250"
-	group="trigger"
-	item-key="id"
-	tag="div"
-	v-model="localItems"
-	:invertSwap="true"
-	:swapThreshold="10"
-	:emptyInsertThreshold="0"
-	:disabled="noEdit !== false"
-	@start="dragging = true"
-	@end="onDragEnd()">
-		<template #item="{element: folder, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
-			<ToggleBlock class="folder" v-if="folder.type == 'folder'"
-			medium
-			:editableTitle="!noEdit"
-			v-model:title="folder.label"
-			v-model:open="folder.expand"
-			:customColor="folder.color.value"
-			:ref="'folder_'+folder.id"
-			:titleDefault="'folder'"
-			@dragstart="startDrag(folder)"
-			@drop="onDrop($event, folder)"
-			@dragenter="onDragEnter($event, folder)"
-			@dragleave="onDragLeave($event, folder)"
-			@update:open="$emit('change', $event)"
-			@update:title="$emit('change', $event)">
+	<draggable
+		class="triggerlistfolderitem"
+		:animation="250"
+		group="trigger"
+		item-key="id"
+		tag="div"
+		v-model="localItems"
+		:invertSwap="true"
+		:swapThreshold="10"
+		:emptyInsertThreshold="0"
+		:disabled="noEdit !== false"
+		@start="dragging = true"
+		@end="onDragEnd()"
+	>
+		<template
+			#item="{
+				element: folder,
+				index,
+			}: {
+				element: TriggerListEntry | TriggerListFolderEntry;
+				index: number;
+			}"
+		>
+			<ToggleBlock
+				class="folder"
+				v-if="folder.type == 'folder'"
+				medium
+				:editableTitle="!noEdit"
+				v-model:title="folder.label"
+				v-model:open="folder.expand"
+				:customColor="folder.color.value"
+				:ref="'folder_' + folder.id"
+				:titleDefault="'folder'"
+				@dragstart="startDrag(folder)"
+				@drop="onDrop($event, folder)"
+				@dragenter="onDragEnter($event, folder)"
+				@dragleave="onDragLeave($event, folder)"
+				@update:open="$emit('change', $event)"
+				@update:title="$emit('change', $event)"
+			>
 				<template #left_actions>
-					<ParamItem class="colorSelector"
+					<ParamItem
+						class="colorSelector"
 						v-if="noEdit === false"
 						@click.stop
 						v-tooltip="$t('triggers.folder_color')"
 						:paramData="folder.color"
 						v-model="folder.color.value"
-						@change="$emit('change', $event)" />
+						@change="$emit('change', $event)"
+					/>
 					<Icon name="broadcast" />
 					<div class="count">x{{ countTriggerItems(folder) }}</div>
 				</template>
 				<template #right_actions>
-					<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" data-close-popout />
-					<TTButton class="deleteBt" icon="add" v-if="noEdit === false" @click.stop="addTrigger(folder)" data-close-popout v-tooltip="$t('triggers.add_triggerBt')" transparent></TTButton>
-					<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
+					<ToggleButton
+						class="triggerToggle"
+						v-model="folder.enabled"
+						@click.stop
+						@change="onToggleFolder(folder)"
+						data-close-popout
+					/>
+					<TTButton
+						class="deleteBt"
+						icon="add"
+						v-if="noEdit === false"
+						@click.stop="addTrigger(folder)"
+						data-close-popout
+						v-tooltip="$t('triggers.add_triggerBt')"
+						transparent
+					></TTButton>
+					<TTButton
+						class="deleteBt"
+						icon="trash"
+						v-if="noEdit === false"
+						@click.stop="deleteFolder(folder)"
+						alert
+					></TTButton>
 				</template>
 
-				<div @drop.stop :class="folder.enabled === false && selectMode === false? 'childList disabled' : 'childList'">
+				<div
+					@drop.stop
+					:class="
+						folder.enabled === false && selectMode === false
+							? 'childList disabled'
+							: 'childList'
+					"
+				>
 					<TriggerListFolderItem
-						:class="!folder.items || folder.items.length == 0? 'emptyChildren' : ''"
+						:class="!folder.items || folder.items.length == 0 ? 'emptyChildren' : ''"
 						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
@@ -57,16 +99,19 @@
 						@changeState="onToggleTrigger(folder, $event)"
 						@delete="$emit('delete', $event)"
 						@duplicate="$emit('duplicate', $event, folder)"
-						@testTrigger="$emit('testTrigger',$event)"
-						@createTrigger="$emit('createTrigger',$event)"
-						@select="$emit('select', $event)" />
+						@testTrigger="$emit('testTrigger', $event)"
+						@createTrigger="$emit('createTrigger', $event)"
+						@select="$emit('select', $event)"
+					/>
 
-					<div v-if="!folder.items || folder.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
+					<div v-if="!folder.items || folder.items.length == 0" class="emptyFolder">
+						{{ $t("global.empty") }}
+					</div>
 				</div>
-
 			</ToggleBlock>
 
-			<TriggerListItem v-else
+			<TriggerListItem
+				v-else
 				:noEdit="noEdit"
 				:selectMode="selectMode"
 				:forceDisableOption="forceDisableOption"
@@ -75,30 +120,31 @@
 				@changeState="onToggleTrigger(folder, $event)"
 				@delete="$emit('delete', $event)"
 				@duplicate="$emit('duplicate', $event, folder)"
-				@testTrigger="$emit('testTrigger',$event)"
-				@select="$emit('select', $event)">
+				@testTrigger="$emit('testTrigger', $event)"
+				@select="$emit('select', $event)"
+			>
 			</TriggerListItem>
 		</template>
 	</draggable>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { RoughEase } from 'gsap/EasePack';
-import { Linear, gsap } from 'gsap/gsap-core';
-import { watch, type ComponentPublicInstance } from 'vue';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
-import ParamItem from '../../ParamItem.vue';
-import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
-import TriggerListItem from './TriggerListItem.vue';
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import { RoughEase } from "gsap/EasePack";
+import { Linear, gsap } from "gsap/gsap-core";
+import { watch, type ComponentPublicInstance } from "vue";
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import draggable from "vuedraggable";
+import ParamItem from "../../ParamItem.vue";
+import type { TriggerListEntry, TriggerListFolderEntry } from "./TriggerList.vue";
+import TriggerListItem from "./TriggerListItem.vue";
 
 @Component({
-	name:"TriggerListFolderItem",
-	components:{
+	name: "TriggerListFolderItem",
+	components: {
 		TTButton,
 		draggable,
 		ParamItem,
@@ -106,57 +152,72 @@ import TriggerListItem from './TriggerListItem.vue';
 		ToggleButton,
 		TriggerListItem,
 	},
-	emits:["update:items","change","changeState","createTrigger","delete","duplicate","testTrigger","select"],
+	emits: [
+		"update:items",
+		"change",
+		"changeState",
+		"createTrigger",
+		"delete",
+		"duplicate",
+		"testTrigger",
+		"select",
+	],
 })
 class TriggerListFolderItem extends Vue {
+	@Prop({ default: [] })
+	public rewards!: TwitchDataTypes.Reward[];
 
-	@Prop({default:[]})
-	public rewards!:TwitchDataTypes.Reward[];
+	@Prop({ default: false })
+	public noEdit!: boolean;
 
-	@Prop({default:false})
-	public noEdit!:boolean;
+	@Prop({ default: false })
+	public forceDisableOption!: boolean;
 
-	@Prop({default:false})
-	public forceDisableOption!:boolean;
+	@Prop({ default: false })
+	public selectMode!: boolean;
 
-	@Prop({default:false})
-	public selectMode!:boolean;
+	@Prop({ default: null })
+	public triggerId!: string | null;
 
-	@Prop({default:null})
-	public triggerId!:string|null;
+	@Prop({ default: null })
+	public items!: (TriggerListEntry | TriggerListFolderEntry)[];
 
-	@Prop({default:null})
-	public items!:(TriggerListEntry|TriggerListFolderEntry)[];
+	@Prop({ default: 0 })
+	public level!: number;
 
-	@Prop({default:0})
-	public level!:number;
+	public dragging: boolean = false;
+	public localItems: (TriggerListEntry | TriggerListFolderEntry)[] = [];
 
-	public dragging:boolean = false;
-	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+	private draggedEntry: TriggerListEntry | TriggerListFolderEntry | null = null;
+	private droppedOnFolder: boolean = false;
+	public dragCounter: { [id: string]: number } = {};
 
-	private draggedEntry:TriggerListEntry|TriggerListFolderEntry|null = null;
-	private droppedOnFolder:boolean = false;
-	public dragCounter:{[id:string]:number} = {};
-
-	public beforeMount():void {
+	public beforeMount(): void {
 		this.localItems = this.items;
-		watch(()=>this.items, ()=> this.localItems = this.items);
+		watch(
+			() => this.items,
+			() => (this.localItems = this.items),
+		);
 	}
 
-	public onChange(e?:{moved:{element:TriggerListEntry|TriggerListFolderEntry}, newIndex:number, oldIndex:number}):void {
+	public onChange(e?: {
+		moved: { element: TriggerListEntry | TriggerListFolderEntry };
+		newIndex: number;
+		oldIndex: number;
+	}): void {
 		this.$emit("update:items", this.localItems);
-		this.$emit('change', e);
+		this.$emit("change", e);
 	}
 
 	/**
 	 * Called when vuedraggable ends a drag.
 	 * Skips saving if onDrop already handled the move (drop onto folder header).
 	 */
-	public onDragEnd():void {
+	public onDragEnd(): void {
 		this.dragging = false;
-		if(this.droppedOnFolder) {
+		if (this.droppedOnFolder) {
 			this.droppedOnFolder = false;
-		}else{
+		} else {
 			this.onChange();
 		}
 	}
@@ -165,19 +226,22 @@ class TriggerListFolderItem extends Vue {
 	 * Called when clicking delete button on a folder
 	 * @param id
 	 */
-	public async deleteFolder(folder:TriggerListFolderEntry):Promise<void> {
-		if(folder.items.length > 0) {
+	public async deleteFolder(folder: TriggerListFolderEntry): Promise<void> {
+		if (folder.items.length > 0) {
 			try {
-				await this.$confirm(this.$t("triggers.delete_folder_confirm.title"), this.$t("triggers.delete_folder_confirm.desc"));
-			}catch(error) {
+				await this.$confirm(
+					this.$t("triggers.delete_folder_confirm.title"),
+					this.$t("triggers.delete_folder_confirm.desc"),
+				);
+			} catch (error) {
 				return;
 			}
 		}
-		let index = this.localItems.findIndex(v=>v.id == folder.id);
+		let index = this.localItems.findIndex((v) => v.id == folder.id);
 		this.localItems.splice(index, 1);
-		folder.items.forEach(v=> {
+		folder.items.forEach((v) => {
 			this.localItems.splice(index, 0, v);
-			index ++;
+			index++;
 		});
 		this.onChange();
 	}
@@ -186,7 +250,7 @@ class TriggerListFolderItem extends Vue {
 	 * Called when starting to drag an item
 	 * @param entry
 	 */
-	public startDrag(entry:TriggerListEntry|TriggerListFolderEntry):void {
+	public startDrag(entry: TriggerListEntry | TriggerListFolderEntry): void {
 		this.draggedEntry = entry;
 		this.dragCounter[entry.id] = 0;
 	}
@@ -197,10 +261,10 @@ class TriggerListFolderItem extends Vue {
 	 * @param event
 	 * @param folder
 	 */
-	public onDrop(event:Event, folder:TriggerListFolderEntry):void {
-		if(!this.dragging) return;
-		if(!this.draggedEntry) return;
-		if(this.draggedEntry == folder) return;
+	public onDrop(event: Event, folder: TriggerListFolderEntry): void {
+		if (!this.dragging) return;
+		if (!this.draggedEntry) return;
+		if (this.draggedEntry == folder) return;
 
 		event.stopPropagation();
 		const entry = this.draggedEntry;
@@ -208,8 +272,8 @@ class TriggerListFolderItem extends Vue {
 		this.droppedOnFolder = true;
 
 		this.$nextTick(() => {
-			const index = this.localItems.findIndex(v => v.id === entry.id);
-			if(index !== -1) {
+			const index = this.localItems.findIndex((v) => v.id === entry.id);
+			if (index !== -1) {
 				this.localItems.splice(index, 1);
 				folder.items.push(entry);
 			}
@@ -217,24 +281,24 @@ class TriggerListFolderItem extends Vue {
 		});
 	}
 
-	public onDragEnter(event:MouseEvent, entry:TriggerListFolderEntry):void {
-		if(this.draggedEntry == entry) return
-		if(!this.dragging) return
+	public onDragEnter(event: MouseEvent, entry: TriggerListFolderEntry): void {
+		if (this.draggedEntry == entry) return;
+		if (!this.dragging) return;
 		//Drag system is fucked up. It fires dragenter/leave event for every
 		//single children of the holder unless we set a "pointer-events:none" to
 		//it which I can't do because ToggleBlock contains many interactive
 		//children.
 		//We keep track of the number of over/leaved child to know if we're
 		//still over the element or not
-		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		this.dragCounter[entry.id]! ++;
+		if (!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
+		this.dragCounter[entry.id]!++;
 		(event.currentTarget as HTMLElement).classList.add("over");
 	}
 
-	public onDragLeave(event:MouseEvent, entry:TriggerListFolderEntry):void {
-		if(this.draggedEntry == entry) return;
-		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		if(--this.dragCounter[entry.id]! < 1) {
+	public onDragLeave(event: MouseEvent, entry: TriggerListFolderEntry): void {
+		if (this.draggedEntry == entry) return;
+		if (!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
+		if (--this.dragCounter[entry.id]! < 1) {
 			this.dragCounter[entry.id] = 0;
 			(event.currentTarget as HTMLElement).classList.remove("over");
 		}
@@ -245,80 +309,115 @@ class TriggerListFolderItem extends Vue {
 	 * @param item
 	 * @param el
 	 */
-	public onToggleTrigger(item:TriggerListEntry | TriggerListFolderEntry, el:HTMLElement):void {
-		if(item.type == "trigger" && item.trigger.enabled
-		&& !this.$store.auth.isPremium
-		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
-			window.setTimeout(()=>{
+	public onToggleTrigger(item: TriggerListEntry | TriggerListFolderEntry, el: HTMLElement): void {
+		if (
+			item.type == "trigger" &&
+			item.trigger.enabled &&
+			!this.$store.auth.isPremium &&
+			this.$store.triggers.triggerList.filter(
+				(v) =>
+					v.enabled !== false &&
+					this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false,
+			).length > this.$config.MAX_TRIGGERS
+		) {
+			window.setTimeout(() => {
 				item.trigger.enabled = false;
 			}, 350);
 			this.vibrate(el);
-		}else{
-			this.$emit('change');
-			this.$emit('changeState', item);
+		} else {
+			this.$emit("change");
+			this.$emit("changeState", item);
 		}
 	}
 
 	/**
 	 * Adds a trigger within the folder
 	 */
-	public addTrigger(folder:TriggerListFolderEntry):void {
-		this.$emit('createTrigger', folder.id);
+	public addTrigger(folder: TriggerListFolderEntry): void {
+		this.$emit("createTrigger", folder.id);
 	}
 
 	/**
 	 * Enable/disable a folder
 	 */
-	public onToggleFolder(folder:TriggerListFolderEntry):void {
+	public onToggleFolder(folder: TriggerListFolderEntry): void {
 		//First emit to update storage
-		this.$emit('change');
+		this.$emit("change");
 
 		//If there are too much items enabled, disable the folder
-		if(folder.enabled
-		&& !this.$store.auth.isPremium
-		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
+		if (
+			folder.enabled &&
+			!this.$store.auth.isPremium &&
+			this.$store.triggers.triggerList.filter(
+				(v) =>
+					v.enabled !== false &&
+					this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false,
+			).length > this.$config.MAX_TRIGGERS
+		) {
 			//Need to wait for animation to complete
-			window.setTimeout(()=>{
+			window.setTimeout(() => {
 				folder.enabled = false;
 				//Emit the revert
-				this.$emit('change');
+				this.$emit("change");
 			}, 200);
-			this.vibrate((this.$refs["folder_" + folder.id] as ComponentPublicInstance).$el as HTMLElement);
+			this.vibrate(
+				(this.$refs["folder_" + folder.id] as ComponentPublicInstance).$el as HTMLElement,
+			);
 		}
 	}
 
-	public countTriggerItems(folder:TriggerListFolderEntry):number {
-		function parseFolder(folder:TriggerListFolderEntry):number {
+	public countTriggerItems(folder: TriggerListFolderEntry): number {
+		function parseFolder(folder: TriggerListFolderEntry): number {
 			let count = 0;
-			folder.items.forEach(v=>{
-				if(v.type == 'trigger') count ++;
-				if(v.type == 'folder') count += parseFolder(v);
+			folder.items.forEach((v) => {
+				if (v.type == "trigger") count++;
+				if (v.type == "folder") count += parseFolder(v);
 			});
 			return count;
 		}
 		return parseFolder(folder);
 	}
 
-	private vibrate(el:HTMLElement):void {
-		window.setTimeout(()=>{
-			gsap.fromTo(el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
-			gsap.fromTo(el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+	private vibrate(el: HTMLElement): void {
+		window.setTimeout(() => {
+			gsap.fromTo(
+				el,
+				{ backgroundColor: "rgba(255,0,0,1)" },
+				{
+					duration: 0.5,
+					backgroundColor: "rgba(255,0,0,0)",
+					clearProps: "background-color",
+				},
+			);
+			gsap.fromTo(
+				el,
+				{ x: -5 },
+				{
+					duration: 0.25,
+					x: 5,
+					ease: RoughEase.ease.config({
+						strength: 8,
+						points: 20,
+						template: Linear.easeNone,
+						randomize: false,
+					}),
+					clearProps: "x",
+				},
+			);
 		}, 150);
-
 	}
-
 }
 export default toNative(TriggerListFolderItem);
 </script>
 
 <style scoped lang="less">
-.triggerlistfolderitem{
+.triggerlistfolderitem {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 
 	.folder {
-		margin: .25em 0;
+		margin: 0.25em 0;
 		z-index: 998999;
 		&.over {
 			outline: 2px solid var(--color-secondary);
@@ -335,7 +434,7 @@ export default toNative(TriggerListFolderItem);
 			text-align: center;
 			font-style: italic;
 			position: absolute;
-			top:50%;
+			top: 50%;
 			transform: translateY(-50%);
 			width: 100%;
 			pointer-events: none;
@@ -349,29 +448,30 @@ export default toNative(TriggerListFolderItem);
 			background-color: var(--toggle-block-header-background-hover);
 		}
 		.triggerlistitem {
-			transition: opacity .5s;
+			transition: opacity 0.5s;
 		}
 		&.disabled {
 			.triggerlistitem {
-				opacity: .5;
+				opacity: 0.5;
 			}
 		}
 	}
-		.colorSelector {
-			padding: 0;
+	.colorSelector {
+		padding: 0;
+		height: 100%;
+		width: 1em;
+		margin-left: -0.5em;
+		margin-right: 0.25em;
+		box-shadow: 2px 0 2px rgba(0, 0, 0, 0.2);
+		:deep(.content) {
 			height: 100%;
-			width: 1em;
-			margin-left: -.5em;
-			margin-right: .25em;
-			box-shadow: 2px 0 2px rgba(0, 0, 0, .2);
-			:deep(.content) {
+			.holder,
+			.inputHolder {
+				border-radius: 0;
+				align-self: stretch;
 				height: 100%;
-				.holder, .inputHolder {
-					border-radius: 0;
-					align-self: stretch;
-					height: 100%;
-				}
 			}
 		}
+	}
 }
 </style>
