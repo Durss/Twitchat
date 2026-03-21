@@ -12,7 +12,6 @@
 		"sourceMap": false,
 		"isolatedModules": true,
 		"esModuleInterop": true,
-		"baseUrl": ".",
 		"outDir": "../server",
 		"skipLibCheck": true,
 		"incremental": true,
@@ -20,24 +19,10 @@
 		"noPropertyAccessFromIndexSignature": true,
 		"tsBuildInfoFile": "../server/.tsbuildinfo",
 		"paths": {
-			"@/*": [
-				"./*"
-			]
+			"@/*": ["./*"]
 		},
-		"lib": [
-			"esnext",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		]
+		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
-	"include": [
-		"./**/*.ts",
-		"./**/*.tsx"
-	],
-	"exclude": [
-		"node_modules",
-		"server",
-		"static/labels.json"
-	]
+	"include": ["./**/*.ts", "./**/*.tsx"],
+	"exclude": ["node_modules", "server", "static/labels.json"]
 }
