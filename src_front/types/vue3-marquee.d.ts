@@ -1,1 +1,1 @@
-declare module 'vue3-marquee';
+declare module "vue3-marquee";

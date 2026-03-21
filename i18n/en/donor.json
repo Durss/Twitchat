@@ -1,7 +1,7 @@
 {
-	"donor":{
-		"level":"level",
-		"anon":"Anonymous",
-		"make_public":"Make my donation public"
+	"donor": {
+		"level": "level",
+		"anon": "Anonymous",
+		"make_public": "Make my donation public"
 	}
 }

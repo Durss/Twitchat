@@ -3,18 +3,23 @@
 		<div class="head">
 			<div class="title">
 				<Icon name="save" />
-				<i18n-t scope="global" tag="h1" keypath="pin.title" :plural="$store.chat.pinedMessages.length">
+				<i18n-t
+					scope="global"
+					tag="h1"
+					keypath="pin.title"
+					:plural="$store.chat.pinedMessages.length"
+				>
 					<template #COUNT>{{ $store.chat.pinedMessages.length }}</template>
 				</i18n-t>
 			</div>
 			<ClearButton @click="close()" />
 		</div>
 		<div class="content">
-
 			<div class="list">
 				<div v-for="m in $store.chat.pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
-					<TTButton :aria-label="$t('pin.highlightBt_aria')"
+					<TTButton
+						:aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
 						class="button"
 						small
@@ -22,14 +27,16 @@
 						v-tooltip="$t('pin.highlightBt_tt')"
 						:loading="highlightLoading"
 						:disabled="!overlayAvailable"
-						/>
-					<TTButton :aria-label="$t('pin.unpinBt_aria')"
+					/>
+					<TTButton
+						:aria-label="$t('pin.unpinBt_aria')"
 						@click="unpin(m)"
 						class="button"
 						small
 						secondary
 						highlight
-						icon="delete" />
+						icon="delete"
+					/>
 				</div>
 			</div>
 		</div>
@@ -37,34 +44,33 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { Component, toNative } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import ClearButton from '../ClearButton.vue';
-import Icon from '../Icon.vue';
-import TTButton from '../TTButton.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { Component, toNative } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
+import ChatMessage from "../messages/ChatMessage.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		ClearButton,
 		ChatMessage,
 	},
-	emits:["close"]
+	emits: ["close"],
 })
 class PinedMessages extends AbstractSidePanel {
-	
 	public overlayAvailable = false;
 	public highlightLoading = true;
 
-	public mounted():void {
+	public mounted(): void {
 		super.open();
 
 		//Check if highlight overlay exists
-		Utils.getHighlightOverPresence().then(res => {
+		Utils.getHighlightOverPresence().then((res) => {
 			this.overlayAvailable = res;
 			this.highlightLoading = false;
 		});
@@ -72,40 +78,45 @@ class PinedMessages extends AbstractSidePanel {
 
 	/**
 	 * Removes a message from pins
-	 * @param m 
+	 * @param m
 	 */
-	public async unpin(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
+	public async unpin(
+		m: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData,
+	): Promise<void> {
 		this.$store.chat.unsaveMessage(m);
-		if(this.$store.chat.pinedMessages.length === 0) {
+		if (this.$store.chat.pinedMessages.length === 0) {
 			this.close();
 		}
 	}
-	
+
 	/**
 	 * Highlights a message on dedicated overlay
 	 */
-	public async chatHighlight(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
-		if(!this.overlayAvailable) {
+	public async chatHighlight(
+		m: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData,
+	): Promise<void> {
+		if (!this.overlayAvailable) {
 			//Open parameters if overlay is not found
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
-		}else{
+			this.$store.params.openParamsPage(
+				TwitchatDataTypes.ParameterPages.OVERLAYS,
+				TwitchatDataTypes.ParamDeepSections.HIGHLIGHT,
+			);
+		} else {
 			this.highlightLoading = true;
 			this.$store.chat.highlightChatMessageOverlay(m);
 			await Utils.promisedTimeout(1000);
 			this.highlightLoading = false;
 		}
 	}
-
 }
 export default toNative(PinedMessages);
 </script>
 
 <style scoped lang="less">
-.pinedmessages{
+.pinedmessages {
 	.content {
-
 		.list {
-			padding: .5em;
+			padding: 0.5em;
 			max-width: 100%;
 
 			.messageItem {
@@ -113,7 +124,7 @@ export default toNative(PinedMessages);
 				flex-direction: row;
 				align-items: center;
 				position: relative;
-				gap: .25em;
+				gap: 0.25em;
 				width: 100%;
 				max-width: 100%;
 
@@ -125,7 +136,6 @@ export default toNative(PinedMessages);
 					width: fit-content;
 					min-width: fit-content;
 				}
-
 			}
 		}
 	}

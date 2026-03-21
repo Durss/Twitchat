@@ -9,11 +9,11 @@
 		"form_pass": "Mot de passe du serveur",
 		"form_ip": "IP du serveur",
 		"credentials_form_title": "Identifiants de connexion",
-		"disable_brave":"Utilisateurices Brave\nVous devrez désactiver le Brave Shields pour la connexion fonctionne",
+		"disable_brave": "Utilisateurices Brave\nVous devrez désactiver le Brave Shields pour la connexion fonctionne",
 
 		"scenes": "Scènes",
 		"sources": "Sources",
-		
+
 		"header": "Créez vos propres alertes Twitch, permettez à vos viewers de contrôler votre OBS et plus encore...",
 		"install": "Nécessite {OBS_VERSION}",
 
@@ -29,9 +29,9 @@
 		"microphone_unmute": "Réactiver la source",
 		"microphone_default_entry": "- aucun -",
 
-		"browser_sources_title":"Sources navigateur",
-		"browser_sources_refresh":"Recharger",
-		"browser_sources_refresh_all":"Recharger toutes les sources",
+		"browser_sources_title": "Sources navigateur",
+		"browser_sources_refresh": "Recharger",
+		"browser_sources_refresh_all": "Recharger toutes les sources",
 
 		"scenes_title": "Contrôle des scènes",
 		"scenes_empty": "Aucune scène trouvée",

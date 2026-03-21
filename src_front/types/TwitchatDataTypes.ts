@@ -4,16 +4,90 @@ import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScop
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
+import type { AutocompletableString } from "@/typeUtils";
 
 export namespace TwitchatDataTypes {
+	export type ChatPlatform =
+		| "twitchat"
+		| "twitch"
+		| "instagram"
+		| "youtube"
+		| "tiktok"
+		| "facebook"
+		| "kick";
 
-	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+	export type ModalTypes =
+		| ""
+		| "search"
+		| "gngngn"
+		| "poll"
+		| "chatPoll"
+		| "chatsuggForm"
+		| "chatsuggState"
+		| "raffle"
+		| "pred"
+		| "bingo"
+		| "bingo_grid"
+		| "liveStreams"
+		| "streamInfo"
+		| "TTuserList"
+		| "pins"
+		| "timer"
+		| "updates"
+		| "triggersLogs"
+		| "loginn"
+		| "tracked"
+		| "whispers"
+		| "twitchatAnnouncement"
+		| "streamSummary"
+		| "obsHeatLogs"
+		| "extensions"
+		| "qnaForm"
+		| "qna"
+		| "credits"
+		| "heatLogs"
+		| "shareParams"
+		| "groqHistory"
+		| "quizForm";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory" | "quizForm";
+	export type NotificationTypes =
+		| ""
+		| "raffle"
+		| "bingo"
+		| "bingo_grid"
+		| "poll"
+		| "chatPoll"
+		| "prediction"
+		| "save"
+		| "highlight"
+		| "shoutout"
+		| "train"
+		| "raid"
+		| "quiz";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid" | "quiz";
-
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "quiz";
+	export type OverlayTypes =
+		| "timer"
+		| "wheel"
+		| "credits"
+		| "chathighlight"
+		| "music"
+		| "counter"
+		| "ulule"
+		| "heatdebug"
+		| "distort"
+		| "unified"
+		| "tts"
+		| "adbreak"
+		| "bitswall"
+		| "predictions"
+		| "polls"
+		| "chatPoll"
+		| "bingogrid"
+		| "labels"
+		| "donationgoals"
+		| "animatedtext"
+		| "customtrain"
+		| "quiz";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -50,7 +124,9 @@ export namespace TwitchatDataTypes {
 		STREAMELEMENTS: "streamelements",
 		PREMIUM_REMAINING: "premium_remaining",
 	} as const;
-	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
+	export type ParamDeepSectionsStringType =
+		| (typeof ParamDeepSections)[keyof typeof ParamDeepSections]
+		| OverlayTypes;
 
 	/**
 	 * Parameters menue categories
@@ -80,233 +156,237 @@ export namespace TwitchatDataTypes {
 		TIMERS: "timers",
 		EXPORTER: "exporter",
 	} as const;
-	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
+	export type ParameterPagesStringType = (typeof ParameterPages)[keyof typeof ParameterPages];
 
 	/**
 	 * Contains info about a counter
 	 */
 	export interface CounterData {
-		id:string;
+		id: string;
 		/**
 		 * Counter name
 		 */
-		name:string;
+		name: string;
 		/**
 		 * Counter placeholder for use in triggers
 		 * If value is "XXX", the placeholder {COUNTER_VALUE_XXX} will be usable
 		 * in all triggers
 		 */
-		placeholderKey:string;
+		placeholderKey: string;
 		/**
 		 * Current counter's value (if not "per user")
 		 */
-		value:number;
+		value: number;
 		/**
 		 * Min value of the counter
 		 */
-		min:number|false;
+		min: number | false;
 		/**
 		 * Max value of the counter
 		 */
-		max:number|false;
+		max: number | false;
 		/**
 		 * Should the value loop to the opposite limit when reaching the min or max value
 		 */
-		loop:boolean;
+		loop: boolean;
 		/**
 		 * Is the counter is global (false) or per user (true)
 		 */
-		perUser:boolean;
+		perUser: boolean;
 		/**
 		 * Users values
 		 */
-		users?:{[userId:string]:{
-			/**
-			 * User's chat platform
-			 */
-			platform:ChatPlatform;
-			/**
-			 * Value of that user
-			 */
-			value:number;
-			/**
-			 * User name
-			 */
-			login?:string;
-		}};
+		users?: {
+			[userId: string]: {
+				/**
+				 * User's chat platform
+				 */
+				platform: ChatPlatform;
+				/**
+				 * Value of that user
+				 */
+				value: number;
+				/**
+				 * User name
+				 */
+				login?: string;
+			};
+		};
 		/**
 		 * Only available for counters overlay related to a "per user" counter
 		 * Contains user info necessary for display on screen.
 		 * Only contains 10 first users
 		 */
-		leaderboard?:{
+		leaderboard?: {
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * User avatar URL
 			 */
-			avatar:string;
+			avatar: string;
 			/**
 			 * Value of that user
 			 */
-			points:number;
+			points: number;
 		}[];
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
 		 * premium and have more than the maximum counters allowed
 		 */
-		enabled?:boolean;
+		enabled?: boolean;
 	}
 
 	export interface ValueData {
-		id:string;
+		id: string;
 		/**
 		 * Value's name
 		 */
-		name:string;
+		name: string;
 		/**
 		 * Placeholder string
 		 */
-		placeholderKey:string;
+		placeholderKey: string;
 		/**
 		 * Actual value
 		 */
-		value:string;
+		value: string;
 		/**
 		 * Is the value is global (false) or per user (true)
 		 */
-		perUser:boolean;
+		perUser: boolean;
 		/**
 		 * Users values
 		 */
-		users?:{[userId:string]:{
-			/**
-			 * User's chat platform
-			 */
-			platform:ChatPlatform;
-			/**
-			 * Value of that user
-			 */
-			value:string;
-			/**
-			 * User name
-			 */
-			login?:string;
-		}};
+		users?: {
+			[userId: string]: {
+				/**
+				 * User's chat platform
+				 */
+				platform: ChatPlatform;
+				/**
+				 * Value of that user
+				 */
+				value: string;
+				/**
+				 * User name
+				 */
+				login?: string;
+			};
+		};
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
 		 * premium and have more than the maximum counters allowed
 		 */
-		enabled?:boolean
+		enabled?: boolean;
 	}
 
 	/**
 	 * Contains config about a chat column
 	 */
 	export interface ChatColumnsConfig {
-		id:string;
+		id: string;
 		/**
 		 * Position of the col
 		 */
-		order:number;
+		order: number;
 		/**
 		 * Size of the col in percent of the available screen space
 		 */
-		size:number;
+		size: number;
 		/**
 		 * Number of message to show on the "live messages" section when chat paused
 		 */
-		liveLockCount:number;
+		liveLockCount: number;
 		/**
 		 * true if polls, predictions, bingos,.. and other forms should show up on this col
 		 */
-		showPanelsHere:boolean;
+		showPanelsHere: boolean;
 		/**
 		 * true if the "greet them" should show up on this col
 		 */
-		showGreetHere:boolean;
+		showGreetHere: boolean;
 		/**
 		 * Filter params of the col
 		 */
-		filters:{[key in typeof MessageListFilterTypes[number]["type"]]:boolean};
+		filters: { [key in (typeof MessageListFilterTypes)[number]["type"]]: boolean };
 		/**
 		 * Filter params of the "messages" sub section
 		 */
-		messageFilters:ChatColumnsConfigMessageFilters;
+		messageFilters: ChatColumnsConfigMessageFilters;
 		/**
 		 * Specific commands that should be hidden
 		 */
-		commandsBlockList:string[];
+		commandsBlockList: string[];
 		/**
 		 * Specific users that should be hidden
 		 */
-		userBlockList:string[];
+		userBlockList: string[];
 		/**
 		 * Custom permissions for the whispers
 		 * This allows to accept whispers only from mods or specific users
 		 */
-		whispersPermissions:PermissionsData;
+		whispersPermissions: PermissionsData;
 		/**
 		 * Should filter on mandatory badges
 		 */
-		mandatoryBadges_flag?:boolean;
+		mandatoryBadges_flag?: boolean;
 		/**
 		 * Should filter on forbidden badges
 		 */
-		forbiddenBadges_flag?:boolean;
+		forbiddenBadges_flag?: boolean;
 		/**
 		 * Badges user must have
 		 */
-		mandatoryBadges?:string[];
+		mandatoryBadges?: string[];
 		/**
 		 * Badges user must not have
 		 */
-		forbiddenBadges?:string[];
+		forbiddenBadges?: string[];
 		/**
 		 * Optional custom background color
-		*/
-		backgroundColor?:string;
+		 */
+		backgroundColor?: string;
 		/**
 		 * Channel IDs to show
 		 */
-		channelIDs?:{[uid:string]:{platform:ChatPlatform, date:number}};
+		channelIDs?: { [uid: string]: { platform: ChatPlatform; date: number } };
 	}
 
 	/**
 	 * Bot messages types
 	 */
 	export interface IBotMessage {
-		bingo:BotMessageEntry;
-		bingoStart:BotMessageEntry;
-		raffleJoin:BotMessageEntry;
-		raffleTipsJoin:BotMessageEntry;
-		raffleStart:BotMessageEntry;
-		raffleTipsStart:BotMessageEntry;
-		raffle:BotMessageEntry;
-		raffleTipsWinner:BotMessageEntry;
-		raffleSubsWinner:BotMessageEntry;
-		raffleListWinner:BotMessageEntry;
-		raffleValuesWinner:BotMessageEntry;
-		shoutout:BotMessageEntry;
-		twitchatAd:BotMessageEntry;
-		chatSuggStart:BotMessageEntry;
-		heatSpotify:BotMessageEntry;
-		heatUlule:BotMessageEntry;
-		qnaStart:BotMessageEntry;
+		bingo: BotMessageEntry;
+		bingoStart: BotMessageEntry;
+		raffleJoin: BotMessageEntry;
+		raffleTipsJoin: BotMessageEntry;
+		raffleStart: BotMessageEntry;
+		raffleTipsStart: BotMessageEntry;
+		raffle: BotMessageEntry;
+		raffleTipsWinner: BotMessageEntry;
+		raffleSubsWinner: BotMessageEntry;
+		raffleListWinner: BotMessageEntry;
+		raffleValuesWinner: BotMessageEntry;
+		shoutout: BotMessageEntry;
+		twitchatAd: BotMessageEntry;
+		chatSuggStart: BotMessageEntry;
+		heatSpotify: BotMessageEntry;
+		heatUlule: BotMessageEntry;
+		qnaStart: BotMessageEntry;
 	}
 	export interface BotMessageEntry {
-		enabled:boolean;
-		message:string;
-		cooldown?:number;
+		enabled: boolean;
+		message: string;
+		cooldown?: number;
 		/**
 		 * Used for Heat interactions.
 		 * Specifies wether anonymous users are allowed to interact with it or not
 		 */
-		allowAnon?:boolean;
+		allowAnon?: boolean;
 	}
 	export type BotMessageField = keyof IBotMessage;
 
@@ -367,11 +447,11 @@ export namespace TwitchatDataTypes {
 	 * Chat room settings
 	 */
 	export interface IRoomSettings {
-		subOnly?:boolean;
-		emotesOnly?:boolean;
-		followOnly?:number|boolean;
-		chatDelay?:number;
-		slowMode?:number;
+		subOnly?: boolean;
+		emotesOnly?: boolean;
+		followOnly?: number | boolean;
+		chatDelay?: number;
+		slowMode?: number;
 	}
 	export type RoomSettings = keyof IRoomSettings;
 
@@ -379,93 +459,97 @@ export namespace TwitchatDataTypes {
 	 * Generic parameter categories types
 	 */
 	export interface IParameterCategory {
-		features:{[key in
-			"spoilersEnabled" |
-			"alertMode" |
-			"firstMessage" |
-			"saveHistory" |
-			"antiHateRaid" |
-			"antiHateRaidDeleteMessage" |
-			"antiHateRaidEmergency" |
-			"autoTranslate" |
-			"autoTranslateFirst" |
-			"autoTranslateLang" |
-			"autoTranslateSpoken" |
-			"manyRepliesAlert" |
-			"manyRepliesAlertThreshold" |
-			"mergeConsecutive" |
-			"mergeConsecutive_maxSize" |
-			"mergeConsecutive_maxSizeTotal" |
-			"mergeConsecutive_minDuration" |
-			"groupIdenticalMessage" |
-			"markAsRead" |
-			"conversationsEnabled" |
-			"userHistoryEnabled" |
-			"lockAutoScroll" |
-			"liveMessages" |
-			"liveAlerts" |
-			"autoRemod" |
-			"showModTools" |
-			"raffleHighlightUser" |
-			"raffleHighlightUserDuration" |
-			"offlineEmoteOnly" |
-			"stopStreamOnRaid" |
-			"showUserPronouns" |
-			"chatShoutout"
-		]:ParameterData<string|number|boolean|string[]>};
-		appearance:{[key in
-			"splitViewVertical" |
-			"censorDeletedMessages" |
-			"multiChatAvatar" |
-			"multiChatColor" |
-			"sharedChatHide" |
-			"hideAnswersTo" |
-			"highlightusernames" |
-			"highlightMods" |
-			"highlightMods_color" |
-			"highlightVips" |
-			"highlightVips_color" |
-			"highlightSubs" |
-			"highlightSubs_color" |
-			"highlightPartners" |
-			"highlightPartners_color" |
-			"highlightMentions" |
-			"highlightMentions_color" |
-			"highlightMentions_custom" |
-			"raidHighlightUser" |
-			"raidHighlightUser_color" |
-			"raidHighlightUserDuration" |
-			"raidHighlightUserTrack" |
-			"highlight1stEver" |
-			"highlight1stEver_color" |
-			"highlight1stToday" |
-			"highlight1stToday_color" |
-			"highlightNonFollowers" |
-			"helloBadge" |
-			"firstUserBadge" |
-			"recentAccountUserBadge" |
-			"translateNames" |
-			"showRewardsInfos" |
-			"showViewersCount" |
-			"showRaidViewersCount" |
-			"showRaidStreamInfo" |
-			"alternateMessageBackground" |
-			"showEmotes" |
-			"bttvEmotes" |
-			"ffzEmotes" |
-			"sevenTVEmotes" |
-			"showBadges" |
-			"minimalistBadges" |
-			"fadeAnswers" |
-			"displayTime" |
-			"displayTimeRelative" |
-			"dyslexicFont" |
-			"adhdFont" |
-			"defaultSize"
-		]:ParameterData<string|number|boolean|string[]>};
+		features: {
+			[key in
+				| "spoilersEnabled"
+				| "alertMode"
+				| "firstMessage"
+				| "saveHistory"
+				| "antiHateRaid"
+				| "antiHateRaidDeleteMessage"
+				| "antiHateRaidEmergency"
+				| "autoTranslate"
+				| "autoTranslateFirst"
+				| "autoTranslateLang"
+				| "autoTranslateSpoken"
+				| "manyRepliesAlert"
+				| "manyRepliesAlertThreshold"
+				| "mergeConsecutive"
+				| "mergeConsecutive_maxSize"
+				| "mergeConsecutive_maxSizeTotal"
+				| "mergeConsecutive_minDuration"
+				| "groupIdenticalMessage"
+				| "markAsRead"
+				| "conversationsEnabled"
+				| "userHistoryEnabled"
+				| "lockAutoScroll"
+				| "liveMessages"
+				| "liveAlerts"
+				| "autoRemod"
+				| "showModTools"
+				| "raffleHighlightUser"
+				| "raffleHighlightUserDuration"
+				| "offlineEmoteOnly"
+				| "stopStreamOnRaid"
+				| "showUserPronouns"
+				| "chatShoutout"]: ParameterData<string | number | boolean | string[]>;
+		};
+		appearance: {
+			[key in
+				| "splitViewVertical"
+				| "censorDeletedMessages"
+				| "multiChatAvatar"
+				| "multiChatColor"
+				| "sharedChatHide"
+				| "hideAnswersTo"
+				| "highlightusernames"
+				| "highlightMods"
+				| "highlightMods_color"
+				| "highlightVips"
+				| "highlightVips_color"
+				| "highlightSubs"
+				| "highlightSubs_color"
+				| "highlightPartners"
+				| "highlightPartners_color"
+				| "highlightMentions"
+				| "highlightMentions_color"
+				| "highlightMentions_custom"
+				| "raidHighlightUser"
+				| "raidHighlightUser_color"
+				| "raidHighlightUserDuration"
+				| "raidHighlightUserTrack"
+				| "highlight1stEver"
+				| "highlight1stEver_color"
+				| "highlight1stToday"
+				| "highlight1stToday_color"
+				| "highlightNonFollowers"
+				| "helloBadge"
+				| "firstUserBadge"
+				| "recentAccountUserBadge"
+				| "translateNames"
+				| "showRewardsInfos"
+				| "showViewersCount"
+				| "showRaidViewersCount"
+				| "showRaidStreamInfo"
+				| "alternateMessageBackground"
+				| "showEmotes"
+				| "bttvEmotes"
+				| "ffzEmotes"
+				| "sevenTVEmotes"
+				| "showBadges"
+				| "minimalistBadges"
+				| "fadeAnswers"
+				| "displayTime"
+				| "displayTimeRelative"
+				| "dyslexicFont"
+				| "adhdFont"
+				| "defaultSize"]: ParameterData<string | number | boolean | string[]>;
+		};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
-	export type ParameterSubCategory = keyof IParameterCategory["appearance"] | keyof IParameterCategory["features"];
+	export type ParameterSubCategory =
+		| keyof IParameterCategory["appearance"]
+		| keyof IParameterCategory["features"];
 
 	/**
 	 * Account params types
@@ -474,11 +558,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if parameters should be saved server side
 		 */
-		syncDataWithServer:ParameterData<boolean>;
+		syncDataWithServer: ParameterData<boolean>;
 		/**
 		 * true if user choose to make their donation public
 		 */
-		publicDonation:ParameterData<boolean>;
+		publicDonation: ParameterData<boolean>;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 
@@ -489,14 +573,14 @@ export namespace TwitchatDataTypes {
 		/**
 		 * OBS scene info
 		 */
-		scene:{
-			sceneIndex:number;
-			sceneName:string;
-		}
+		scene: {
+			sceneIndex: number;
+			sceneName: string;
+		};
 		/**
 		 * Command to use to switch to that OBS scene
 		 */
-		command:string;
+		command: string;
 	}
 
 	/**
@@ -506,30 +590,30 @@ export namespace TwitchatDataTypes {
 		/**
 		 * OBS audio source name
 		 */
-		audioSourceName:string;
+		audioSourceName: string;
 		/**
 		 * Command to use to mute the source
 		 */
-		muteCommand:string;
+		muteCommand: string;
 		/**
 		 * Command to use to unmute the source
 		 */
-		unmuteCommand:string;
+		unmuteCommand: string;
 	}
 
 	export interface GoXLRParams {
 		/**
 		 * GoXLR socket enabled ?
 		 */
-		enabled:boolean,
+		enabled: boolean;
 		/**
 		 * Socket IP
 		 */
-		ip:string,
+		ip: string;
 		/**
 		 * Socket port
 		 */
-		port:number,
+		port: number;
 		/**
 		 * Contains an effect preset ID and an effect encoder ID for
 		 * every chat columns.
@@ -537,7 +621,7 @@ export namespace TwitchatDataTypes {
 		 * encoder of the preset N°6 the first entry of this array
 		 * will contain this: ["EffectSelect6", "gender"]
 		 */
-		chatScrollSources:GoXLRTypes.ButtonTypesData[][],
+		chatScrollSources: GoXLRTypes.ButtonTypesData[][];
 		/**
 		 * Contains an effect preset ID and an effect encoder ID for
 		 * every chat columns.
@@ -545,10 +629,8 @@ export namespace TwitchatDataTypes {
 		 * "Gender" encoder of the preset N°6 the first entry of this
 		 * array will contain this: ["EffectSelect6", "gender"]
 		 */
-		chatReadMarkSources:GoXLRTypes.ButtonTypesData[][],
+		chatReadMarkSources: GoXLRTypes.ButtonTypesData[][];
 	}
-
-
 
 	/**
 	 * Data type for message badges.
@@ -575,229 +657,239 @@ export namespace TwitchatDataTypes {
 		RETURNING_CHATTER: "returningChatter",
 		FIRST_TIME_CHATTER: "firstTimeChatter",
 	} as const;
-	export type MessageBadgeDataStringType = typeof MessageBadgeDataType[keyof typeof MessageBadgeDataType];
+	export type MessageBadgeDataStringType =
+		(typeof MessageBadgeDataType)[keyof typeof MessageBadgeDataType];
 	export interface MessageBadgeData {
-		type:MessageBadgeDataStringType;
-		label?:string;
-		tooltip?:string;
-		tooltipLabelParams?:{[key:string]:string};
+		type: MessageBadgeDataStringType;
+		label?: string;
+		tooltip?: string;
+		tooltipLabelParams?: { [key: string]: string };
 	}
 
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any, ListStorageType = unknown> {
-		id?:number;
+	export interface ParameterData<
+		ValueType,
+		ListType = unknown,
+		ChildValueType = unknown,
+		StorageType = any,
+		ListStorageType = unknown,
+	> {
+		id?: number;
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"
-		|"number"
-		|"integer"
-		|"string"
-		|"slider"
-		|"password"
-		|"list"
-		|"browse"
-		|"editablelist"
-		|"color"
-		|"date"
-		|"datetime"
-		|"time"
-		|"imagelist"
-		|"duration"
-		|"custom"
-		|"font"
-		|"placeholder";
+		type:
+			| "boolean"
+			| "number"
+			| "integer"
+			| "string"
+			| "slider"
+			| "password"
+			| "list"
+			| "browse"
+			| "editablelist"
+			| "color"
+			| "date"
+			| "datetime"
+			| "time"
+			| "imagelist"
+			| "duration"
+			| "custom"
+			| "font"
+			| "placeholder";
 		/**
 		 * Parameter value
 		 */
-		value:ValueType;
+		value: ValueType;
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType, ListStorageType>[];
+		listValues?: TwitchatDataTypes.ParameterDataListValue<ListType, ListStorageType>[];
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?:ParameterDataListValue<ListType, ListStorageType>;
+		selectedListValue?: ParameterDataListValue<ListType, ListStorageType>;
 		/**
 		 * List values for the "editablelist" type
 		 */
-		options?:string[];
+		options?: string[];
 		/**
 		 * Can select multiple entries for "list" type ?
 		 */
-		multiple?:boolean;
+		multiple?: boolean;
 		/**
 		 * Disable input to only keep title (used for shoutout param)
 		 */
-		noInput?:boolean;
+		noInput?: boolean;
 		/**
 		 * Param's label
 		 */
-		label?:string;
+		label?: string;
 		/**
 		 * Label (i18n key) so the text can update if changing current language.
 		 * If "label" is also defined, this value will be concatenated to it.
 		 */
-		labelKey?:string;
+		labelKey?: string;
 		/**
 		 * Min value for "number" type
 		 */
-		min?:number;
+		min?: number;
 		/**
 		 * Max value for "number" type or max number of items for "editablelist" type
 		 */
-		max?:number;
+		max?: number;
 		/**
 		 * Step value for "number" type
 		 */
-		step?:number;
+		step?: number;
 		/**
 		 * Maximum text length for "string" type or max items for "list" type
 		 * with "multiple" enabled
 		 */
-		maxLength?:number;
+		maxLength?: number;
 		/**
 		 * Allow milliseconds? for "duration" type
 		 */
-		allowMs?:boolean;
+		allowMs?: boolean;
 		/**
 		 * Wether it's a long text or not from "string" type
 		 * if true a textarea will be displayed instead of an input
 		 */
-		longText?:boolean;
+		longText?: boolean;
 		/**
 		 * Icon name to display on le left (see files on "src_front/assets/icons")
 		 */
-		icon?:string;
+		icon?: string;
 		/**
 		 * Forces a theme for the icon
 		 */
-		iconTheme?:"light"|"dark"|"primary"|"secondary"|"alert";
+		iconTheme?: "light" | "dark" | "primary" | "secondary" | "alert";
 		/**
 		 * Icon URL to display on the left
 		 */
-		iconURL?:string;
+		iconURL?: string;
 		/**
 		 * Input's placeholder
 		 */
-		placeholder?:string;
+		placeholder?: string;
 		/**
 		 * Input's placeholder (i18n key) so it can update if changing current language.
 		 */
-		placeholderKey?:string;
+		placeholderKey?: string;
 		/**
 		 * Dynamic clickable placeholders.
 		 * This creates a list of clickable items that will push a value on the input
 		 * Only works for "string" type
 		 */
-		placeholderList?:PlaceholderEntry[];
+		placeholderList?: PlaceholderEntry[];
 		/**
 		 * Parent parameter ID.
 		 * Only used for global parameters. @see ParamsList
 		 */
-		parent?:number;
+		parent?: number;
 		/**
 		 * Image Url. If set it displays an icon with a tooltip containing the specified image
 		 */
-		example?:string;
+		example?: string;
 		/**
 		 * Just a field to allow storage of random data if necessary
 		 */
-		storage?:StorageType;
+		storage?: StorageType;
 		/**
 		 * Children parameters
 		 */
-		children?:ParameterData<ChildValueType>[];
+		children?: ParameterData<ChildValueType>[];
 		/**
 		 * File types for browse inputs
 		 */
-		accept?:string;
+		accept?: string;
 		/**
 		 * Input's "name" attribute
 		 */
-		fieldName?:string;
+		fieldName?: string;
 		/**
 		 * Twitch scopes necessary for this feature. Will disable the component if scope isn't granted
 		 */
-		twitch_scopes?:TwitchScopesString[];
+		twitch_scopes?: TwitchScopesString[];
 		/**
 		 * Regex defining which chars are allowed on the field
 		 */
-		allowedCharsRegex?:string;
+		allowedCharsRegex?: string;
 		/**
 		 * Tooltip displayed on hover
 		 */
-		tooltip?:string;
+		tooltip?: string;
 		/**
 		 * Tooltip displayed on hover (i18n key)
 		 */
-		tooltipKey?:string;
+		tooltipKey?: string;
 		/**
 		 * Disable possibility to change the value
 		 */
-		disabled?:boolean;
+		disabled?: boolean;
 		/**
 		 * Defines if user must be premium to set this parameter
 		 */
-		premiumOnly?:boolean;
+		premiumOnly?: boolean;
 		/**
 		 * Show an error state
 		 */
-		error?:boolean;
+		error?: boolean;
 		/**
 		 * Optional error message to be displayed
 		 */
-		errorMessage?:string;
+		errorMessage?: string;
 		/**
 		 * Defines if the parameter is private
 		 * A private parameter is not saved server-side
 		 */
-		isPrivate?:boolean;
+		isPrivate?: boolean;
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
-		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType, ListStorageType>) => void;
+		editCallback?: (
+			data: ParameterData<ValueType, ListType, ChildValueType, StorageType, ListStorageType>,
+		) => void;
 	}
 	export interface ParameterDataListValue<ValueType, StorageType = unknown> {
 		/**
 		 * Raw text label
 		 */
-		label?:string;
+		label?: string;
 		/**
 		 * i18n key of the labal
 		 */
-		labelKey?:string;
+		labelKey?: string;
 		/**
 		 * Value of the entry
 		 */
-		value:ValueType;
+		value: ValueType;
 		/**
 		 * Is entry disabled?
-		*/
-		disabled?:boolean;
+		 */
+		disabled?: boolean;
 		/**
 		 * Icon name of the entry
 		 */
-		icon?:string;
+		icon?: string;
 		/**
 		 * Image path of the entry
 		 */
-		image?:string;
+		image?: string;
 		/**
 		 * Flag ISO code. Only used by the ParamItem with "list" type and "multiple" flag on
 		 */
-		flag?:string;
+		flag?: string;
 		/**
 		 * Just a field to allow storage of random data if necessary
 		 */
-		storage?:StorageType;
+		storage?: StorageType;
 		/**
 		 * Optional group containing sub entries
 		 */
-		group?:ParameterDataListValue<ValueType, StorageType>[];
+		group?: ParameterDataListValue<ValueType, StorageType>[];
 		// [parameter: string]: unknown;
 	}
 
@@ -805,64 +897,68 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a wheel overlay data
 	 */
 	export interface WheelData {
-		items:EntryItem[];
-		winner:string;
-		sessionId:string;
+		items: EntryItem[];
+		winner: string;
+		sessionId: string;
 		/**
 		 * @private
 		 */
-		skin?:string;
+		skin?: string;
 	}
 
 	/**
 	 * Generic item entry
 	 */
 	export interface EntryItem {
-		id:string;
-		label:string;
+		id: string;
+		label: string;
 	}
 
 	/**
 	 * Config for a poll game (used by triggers)
 	 */
 	export interface PollConfig {
-		pointsPerVote:number;
-		voteDuration:number;
-		title:string;
-		answers:string[];
+		pointsPerVote: number;
+		voteDuration: number;
+		title: string;
+		answers: string[];
 	}
 
 	/**
 	 * Config for a prediction game (used by triggers)
 	 */
 	export interface PredictionConfig {
-		voteDuration:number;
-		title:string;
-		answers:string[];
+		voteDuration: number;
+		title: string;
+		answers: string[];
 	}
 
 	/**
 	 * Config for a bingo game
 	 */
 	export interface BingoConfig {
-		guessNumber:boolean;
-		guessEmote:boolean;
-		guessCustom:boolean;
-		min:number;
-		max:number;
-		numberValue?:number;
-		customValue?:string;
+		guessNumber: boolean;
+		guessEmote: boolean;
+		guessCustom: boolean;
+		min: number;
+		max: number;
+		numberValue?: number;
+		customValue?: string;
 		customValueTolerance?: number;
-		emoteValue?:{[key in ChatPlatform]:{
-			code:string,
-			image:TwitchatImage,
-		}|undefined};
+		emoteValue?: {
+			[key in ChatPlatform]:
+				| {
+						code: string;
+						image: TwitchatImage;
+				  }
+				| undefined;
+		};
 		/**
 		 * Contains either "numberValue", "emoteValue" or "customValue"
 		 * depending on the trigger type
 		 */
-		genericValue:string|number;
-		winners?:TwitchatDataTypes.TwitchatUser[];
+		genericValue: string | number;
+		winners?: TwitchatDataTypes.TwitchatUser[];
 	}
 
 	/**
@@ -872,108 +968,108 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Bingo grid ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Bingo grid title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Is the bingo grid enabled ?
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Show cell borders ?
 		 */
-		showGrid:boolean;
+		showGrid: boolean;
 		/**
 		 * Bingo grid entries
 		 */
-		entries:{
+		entries: {
 			/**
 			 * Cell ID
 			 */
-			id:string;
+			id: string;
 			/**
 			 * Cell label
 			 */
-			label:string;
+			label: string;
 			/**
 			 * Is the cell locked (not movable) ?
 			 */
-			lock:boolean;
+			lock: boolean;
 			/**
 			 * Is the cell checked ?
 			 */
-			check:boolean;
+			check: boolean;
 		}[];
 		/**
 		 * Additional entries that can be used to fill the grid when shuffling it
 		 */
-		additionalEntries?:BingoGridConfig["entries"];
+		additionalEntries?: BingoGridConfig["entries"];
 		/**
 		 * Number of columns
 		 */
-		cols:number;
+		cols: number;
 		/**
 		 * Number of rows
 		 */
-		rows:number;
+		rows: number;
 		/**
 		 * Text color
 		 */
-		textColor:string;
+		textColor: string;
 		/**
 		 * Background color
 		 */
-		backgroundColor:string;
+		backgroundColor: string;
 		/**
 		 * Background alpha (0-1)
 		 */
-		backgroundAlpha:number;
+		backgroundAlpha: number;
 		/**
 		 * Text size in pixels
 		 */
-		textSize:number;
+		textSize: number;
 		/**
 		 * Chat command to tick a cell from chat
 		 */
-		chatCmd?:string;
+		chatCmd?: string;
 		/**
 		 * Users allowed to use the chat command
 		 */
-		chatCmdPermissions:PermissionsData;
+		chatCmdPermissions: PermissionsData;
 		/**
 		 * Volume of the sound played when a user fills a col/row/diagonal
 		 */
-		winSoundVolume:number;
+		winSoundVolume: number;
 		/**
 		 * Should the bingo grid auto show/hide after inactivity ?
 		 */
-		autoShowHide:boolean;
+		autoShowHide: boolean;
 		/**
 		 * Allow to tick cells from heat extension
 		 */
-		heatClick:boolean;
+		heatClick: boolean;
 		/**
 		 * Users allowed to click on the bingo grid from heat extension
 		 */
-		heatClickPermissions:PermissionsData;
+		heatClickPermissions: PermissionsData;
 		/**
 		 * Announcement message to send on chat when someone completes a row/col/diagonal
 		 */
-		chatAnnouncement:string;
+		chatAnnouncement: string;
 		/**
 		 * Is chat announcement enabled ?
 		 */
-		chatAnnouncementEnabled:boolean;
+		chatAnnouncementEnabled: boolean;
 		/**
 		 * Announce users that completed a row/col/diagonal on overlay
 		 */
-		overlayAnnouncement:boolean;
+		overlayAnnouncement: boolean;
 		/**
 		 * Which users can be announced on overlay ?
 		 */
-		overlayAnnouncementPermissions:PermissionsData;
+		overlayAnnouncementPermissions: PermissionsData;
 	}
 
 	/**
@@ -983,88 +1079,94 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Donation goal ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Donation goal title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Is the donation goal enabled ?
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Notify donations on current goal
 		 */
-		notifyTips:boolean
+		notifyTips: boolean;
 		/**
 		 * Automatically show/hide all goals depending on activities
 		 */
-		autoDisplay:boolean;
+		autoDisplay: boolean;
 		/**
 		 * Close completed goals
 		 */
-		hideDone:boolean;
+		hideDone: boolean;
 		/**
 		 * Delay after which hide the goal
 		 */
-		hideDelay:number;
+		hideDelay: number;
 		/**
 		 * Should the number of items bellow the current one be limited
 		 */
-		limitEntryCount:boolean;
+		limitEntryCount: boolean;
 		/**
 		 * Maximum donation goals to display
 		 */
-		maxDisplayedEntries:number;
+		maxDisplayedEntries: number;
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers"|"twitch_charity";
+		dataSource:
+			| "streamlabs_charity"
+			| "tiltify"
+			| "counter"
+			| "twitch_subs"
+			| "twitch_followers"
+			| "twitch_charity";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
 		 * is defined globaly and only one can be active
 		 */
-		campaignId?:string;
+		campaignId?: string;
 		/**
 		 * Counter ID if "dataSource" is set to "counter"
 		 */
-		counterId?:string;
+		counterId?: string;
 		/**
 		 * Theme color
 		 */
-		color:string;
+		color: string;
 		/**
 		 * Currency value
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * List of donation goal entries
 		 */
-		goalList:{
+		goalList: {
 			/**
 			 * Goal ID
 			 */
-			id:string;
+			id: string;
 			/**
 			 * Goal title
 			 */
-			title:string;
+			title: string;
 			/**
 			 * Goal amount to reach
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * If true, the goal's title will be censored until
 			 * the goal is completed
 			 */
-			secret:boolean;
+			secret: boolean;
 			/**
 			 * Defines the secret type.
 			 * blur (default): blurs the whole text and shows it only on complete
 			 * progressive: shows random letter progressively
 			 */
-			secret_type?:"blur"|"progressive";
+			secret_type?: "blur" | "progressive";
 		}[];
 	}
 
@@ -1075,31 +1177,31 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Contains percent of completion of the goal relative to global progress
 		 */
-		percent:number;
+		percent: number;
 		/**
 		 * Should hide percent information ?
 		 */
-		hidePercent:number;
+		hidePercent: number;
 		/**
 		 * Should the goal be displayed on screen ?
 		 */
-		visible:boolean;
+		visible: boolean;
 		/**
 		 * Is the goal closing
 		 */
-		closing:boolean;
+		closing: boolean;
 		/**
 		 * Distance to current index (0 for current goal, 1 for next goal, etc..)
 		 */
-		distanceToCurrentIndex:number;
+		distanceToCurrentIndex: number;
 		/**
 		 * Goal completion timestamp
 		 */
-		completed_at:number;
+		completed_at: number;
 		/**
 		 * Goal item data
 		 */
-		goalItem:DonationGoalOverlayConfig["goalList"][number];
+		goalItem: DonationGoalOverlayConfig["goalList"][number];
 	}
 
 	/**
@@ -1109,203 +1211,203 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Raffle ID
 		 */
-		sessionId?:string;
+		sessionId?: string;
 		/**
 		 * Raffle mode
 		 */
-		mode:"chat"|"sub"|"manual"|"values"|"tips";
+		mode: "chat" | "sub" | "manual" | "values" | "tips";
 		/**
 		 * Chat command to start the raffle (if mode is "chat")
 		 */
-		command?:string;
+		command?: string;
 		/**
 		 * Reward ID (if mode is "channelPoints")
 		 */
-		reward_id?:string;
+		reward_id?: string;
 		/**
 		 * Should kofi tips be considered as entries ?
 		 */
-		tip_kofi?:boolean;
+		tip_kofi?: boolean;
 		/**
 		 * Should streamlabs tips be considered as entries ?
 		 */
-		tip_streamlabs?:boolean;
+		tip_streamlabs?: boolean;
 		/**
 		 * Should streamlabs charity tips be considered as entries ?
 		 */
-		tip_streamlabsCharity?:boolean;
+		tip_streamlabsCharity?: boolean;
 		/**
 		 * Should streamelements tips be considered as entries ?
 		 */
-		tip_streamelements?:boolean;
+		tip_streamelements?: boolean;
 		/**
 		 * Should tipeee tips be considered as entries ?
 		 */
-		tip_tipeee?:boolean;
+		tip_tipeee?: boolean;
 		/**
 		 * Should tiltify tips be considered as entries ?
 		 */
-		tip_tiltify?:boolean;
+		tip_tiltify?: boolean;
 		/**
 		 * Should twitch charity tips be considered as entries ?
 		 */
-		tip_twitchCharity?:boolean;
+		tip_twitchCharity?: boolean;
 		/**
 		 * Minimum kofi tip amount to be considered as an entry
 		 */
-		tip_kofi_minAmount?:number;
+		tip_kofi_minAmount?: number;
 		/**
 		 * Minimum streamlabs tip amount to be considered as an entry
 		 */
-		tip_streamlabs_minAmount?:number;
+		tip_streamlabs_minAmount?: number;
 		/**
 		 * Minimum streamlabs charity tip amount to be considered as an entry
 		 */
-		tip_streamlabsCharity_minAmount?:number;
+		tip_streamlabsCharity_minAmount?: number;
 		/**
 		 * Minimum streamelements tip amount to be considered as an entry
 		 */
-		tip_streamelements_minAmount?:number;
+		tip_streamelements_minAmount?: number;
 		/**
 		 * Minimum tipeee tip amount to be considered as an entry
 		 */
-		tip_tipeee_minAmount?:number;
+		tip_tipeee_minAmount?: number;
 		/**
 		 * Minimum tiltify tip amount to be considered as an entry
 		 */
-		tip_tiltify_minAmount?:number;
+		tip_tiltify_minAmount?: number;
 		/**
 		 * Minimum twitch charity tip amount to be considered as an entry
 		 */
-		tip_twitchCharity_minAmount?:number;
+		tip_twitchCharity_minAmount?: number;
 		/**
 		 * Ponderate kofi entries based on tip amount
 		 */
-		tip_kofi_ponderate?:number;
+		tip_kofi_ponderate?: number;
 		/**
 		 * Ponderate streamlabs entries based on tip amount
 		 */
-		tip_streamlabs_ponderate?:number;
+		tip_streamlabs_ponderate?: number;
 		/**
 		 * Ponderate streamlabs charity entries based on tip amount
 		 */
-		tip_streamlabsCharity_ponderate?:number;
+		tip_streamlabsCharity_ponderate?: number;
 		/**
 		 * Ponderate streamelements entries based on tip amount
 		 */
-		tip_streamelements_ponderate?:number;
+		tip_streamelements_ponderate?: number;
 		/**
 		 * Ponderate tipeee entries based on tip amount
 		 */
-		tip_tipeee_ponderate?:number;
+		tip_tipeee_ponderate?: number;
 		/**
 		 * Ponderate tiltify entries based on tip amount
 		 */
-		tip_tiltify_ponderate?:number;
+		tip_tiltify_ponderate?: number;
 		/**
 		 * Ponderate twitch charity entries based on tip amount
 		 */
-		tip_twitchCharity_ponderate?:number;
+		tip_twitchCharity_ponderate?: number;
 		/**
 		 * Value ID (if mode is "values")
 		 */
-		value_id?:string;
+		value_id?: string;
 		/**
 		 * Entries delimiter for the value (if mode is "values")
 		 */
-		value_splitter?:string;
+		value_splitter?: string;
 		/**
 		 * If true, remove winning entry from next draws
 		 */
-		removeWinningEntry?:boolean;
+		removeWinningEntry?: boolean;
 		/**
 		 * Duration of the raffle in seconds
 		 */
-		duration_s:number;
+		duration_s: number;
 		/**
 		 * Maximum number of entries allowed
 		 */
-		maxEntries:number;
+		maxEntries: number;
 		/**
 		 * Automatically close the raffle after drawing a winner
 		 */
-		autoClose:boolean;
+		autoClose: boolean;
 		/**
 		 * If true, users can join multiple times the raffle
 		 * If they do they get more chances to win
 		 */
-		multipleJoin:boolean;
+		multipleJoin: boolean;
 		/**
 		 * If true, this raffle woon't appear on the raffle list
 		 * accessible from the footer and won't be saved to server
 		 */
-		ghost?:true;
+		ghost?: true;
 		/**
 		 * Raffle creation timestamp
 		 */
-		created_at:number;
+		created_at: number;
 		/**
 		 * Raffle entries
 		 */
-		entries:RaffleEntry[];
+		entries: RaffleEntry[];
 		/**
 		 * If user entering the raffle is a VIP they get this number of
 		 * chances more than a normal user
 		 */
-		vipRatio:number;
+		vipRatio: number;
 		/**
 		 * If user entering the raffle is a follower they get this number of
 		 * chances more than a normal user
 		 */
-		followRatio:number;
+		followRatio: number;
 		/**
 		 * If user entering the raffle is a T1 subscriber they get this number of
 		 * chances more than a normal user
 		 */
-		subRatio:number;
+		subRatio: number;
 		/**
 		 * If user entering the raffle is a T2 subscriber they get this number of
 		 * chances more than a normal user
 		 */
-		subT2Ratio:number;
+		subT2Ratio: number;
 		/**
 		 * If user entering the raffle is a T3 subscriber they get this number of
 		 * chances more than a normal user
 		 */
-		subT3Ratio:number;
+		subT3Ratio: number;
 		/**
 		 * If user entering the raffle is a gifter or gifted subscriber they get this
 		 *  number of chances more than a normal user
 		 */
-		subgiftRatio:number;
+		subgiftRatio: number;
 		/**
 		 * Should sub gifters be allowed to join the raffle ?
 		 */
-		subMode_includeGifters:boolean;
+		subMode_includeGifters: boolean;
 		/**
 		 * Should gifted users be excluded from the raffle ?
 		 */
-		subMode_excludeGifted:boolean;
+		subMode_excludeGifted: boolean;
 		/**
 		 * If set to true, the default countdown will show the remaining duration
 		 * to enter the raffle.
 		 * If the corresponding overlay exists it will show the remaining time
 		 * on stream.
 		 */
-		showCountdownOverlay:boolean;
+		showCountdownOverlay: boolean;
 		/**
 		 * Custom entries text (used for manual raffles)
 		 * Entries will be splitted by new lines
 		 */
-		customEntries:string;
+		customEntries: string;
 		/**
 		 * Raffle past winners
 		 */
-		winners?:RaffleEntry[];
+		winners?: RaffleEntry[];
 		/**
 		 * If true, trigger's execution will be halted until a winner is picked
 		 */
-		triggerWaitForWinner?:true;
+		triggerWaitForWinner?: true;
 		/**
 		 * Messages to send on chat when raffle events occur
 		 */
@@ -1314,111 +1416,117 @@ export namespace TwitchatDataTypes {
 			 * Message when the raffle starts
 			 */
 			raffleStart?: {
-				enabled:boolean;
-				message:string;
-			},
+				enabled: boolean;
+				message: string;
+			};
 			/**
 			 * Message when someone joins the raffle
 			 */
 			raffleJoin?: {
-				enabled:boolean;
-				message:string;
-			},
+				enabled: boolean;
+				message: string;
+			};
 			/**
 			 * Message when a winner is selected
 			 */
 			raffleWinner?: {
-				enabled:boolean;
-				message:string;
-			},
+				enabled: boolean;
+				message: string;
+			};
 		};
 		/**
 		 * Only used by raffle form to show winner within the form
 		 * when raffle completes
 		 */
-		resultCallback?:(winner:RaffleEntry)=>void;
+		resultCallback?: (winner: RaffleEntry) => void;
 		/**
 		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */
-		duration?:number;
+		duration?: number;
 	}
 	export interface RaffleEntry extends EntryItem {
 		/**
 		 * Number of points the entry has (used for ponderation)
 		 * The higher the more chances
 		 */
-		score:number;
+		score: number;
 		/**
 		 * Number of times the user joined the raffle
 		 */
-		joinCount:number;
+		joinCount: number;
 		/**
 		 * Optional tip info (if entry created from a tip)
 		 */
-		tip?:{
-			amount:string;
-			source:"kofi"|"streamlabs"|"streamlabs_charity"|"streamlements"|"tipeee"|"tiltify";
+		tip?: {
+			amount: string;
+			source:
+				| "kofi"
+				| "streamlabs"
+				| "streamlabs_charity"
+				| "streamlements"
+				| "tipeee"
+				| "tiltify";
 		};
 		/**
 		 * User info
 		 */
-		user?:{
+		user?: {
 			/**
 			 * User ID
 			 */
-			id:string;
+			id: string;
 			/**
 			 * Channel ID where the user joined the raffle from
 			 */
-			channel_id:string;
+			channel_id: string;
 			/**
 			 * Chat platform
 			 */
-			platform:ChatPlatform;
-		}
+			platform: ChatPlatform;
+		};
 	}
 
 	/**
 	 * Config for a "chat suggestion" session
 	 */
 	export interface ChatSuggestionData {
-		command:string;
-		startTime:number;
-		maxLength:number;
-		duration:number;
-		allowMultipleAnswers:boolean;
-		choices:ChatSuggestionDataChoice[];
-		winners:ChatSuggestionDataChoice[];
+		command: string;
+		startTime: number;
+		maxLength: number;
+		duration: number;
+		allowMultipleAnswers: boolean;
+		choices: ChatSuggestionDataChoice[];
+		winners: ChatSuggestionDataChoice[];
 	}
 	export interface ChatSuggestionDataChoice {
-		id:string;
-		user:TwitchatDataTypes.TwitchatUser;
-		label:string;
+		id: string;
+		user: TwitchatDataTypes.TwitchatUser;
+		label: string;
 	}
 
 	/**
 	 * Contains current hype train info
 	 */
 	export interface HypeTrainStateData {
-		channel_id:string;
-		level:number;
-		currentValue:number;
-		total:number;
-		goal:number;
-		approached_at:number;
-		started_at:number;
-		updated_at:number;
-		ends_at:number;
-		state:"APPROACHING" | "START" | "PROGRESS" | "LEVEL_UP" | "COMPLETED" | "EXPIRED";
-		type:"regular"|"treasure"|"golden_kappa";
-		isSharedTrain:boolean;
-		isAllTimeRecord:boolean;
+		channel_id: string;
+		level: number;
+		currentValue: number;
+		total: number;
+		goal: number;
+		approached_at: number;
+		started_at: number;
+		updated_at: number;
+		ends_at: number;
+		state: "APPROACHING" | "START" | "PROGRESS" | "LEVEL_UP" | "COMPLETED" | "EXPIRED";
+		type: "regular" | "treasure" | "golden_kappa";
+		isSharedTrain: boolean;
+		isAllTimeRecord: boolean;
 		allTimeHighLevel: number;
 		allTimeHighTotal: number;
-		conductor_subs?:HypeTrainConductorData;
-		conductor_bits?:HypeTrainConductorData;
-		sharedStates:{
-			[channelId:string]:HypeTrainStateData;
+		conductor_subs?: HypeTrainConductorData;
+		conductor_bits?: HypeTrainConductorData;
+		sharedStates: {
+			[channelId: string]: HypeTrainStateData;
 		};
 	}
 
@@ -1426,8 +1534,8 @@ export namespace TwitchatDataTypes {
 	 * Stores the data about one of the hype train's conductors
 	 */
 	export interface HypeTrainConductorData {
-		user:TwitchatUser;
-		amount:number;
+		user: TwitchatUser;
+		amount: number;
 	}
 
 	/**
@@ -1435,19 +1543,19 @@ export namespace TwitchatDataTypes {
 	 * form when write "/xxx" on the chat input
 	 */
 	export interface CommandData {
-		id:string;
-		cmd:string;
-		alias:string;
-		details?:string;
-		detailsKey?:string;
-		needChannelPoints?:boolean;
-		needTTS?:boolean;
-		needAdmin?:boolean;
-		needModerator?:boolean,
-		needBroadcaster?:boolean,
-		needDiscordChan?:boolean;
-		twitchCmd?:boolean,
-		twitch_scopes?:TwitchScopesString[],
+		id: string;
+		cmd: string;
+		alias: string;
+		details?: string;
+		detailsKey?: string;
+		needChannelPoints?: boolean;
+		needTTS?: boolean;
+		needAdmin?: boolean;
+		needModerator?: boolean;
+		needBroadcaster?: boolean;
+		needDiscordChan?: boolean;
+		twitchCmd?: boolean;
+		twitch_scopes?: TwitchScopesString[];
 	}
 
 	/**
@@ -1457,39 +1565,39 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Allow broadcaster ?
 		 */
-		broadcaster:boolean;
+		broadcaster: boolean;
 		/**
 		 * Allow followers ?
 		 */
-		follower:boolean;
+		follower: boolean;
 		/**
 		 * Minimum follower duration in ms
 		 */
-		follower_duration_ms:number;
+		follower_duration_ms: number;
 		/**
 		 * Allow moderators ?
 		 */
-		mods:boolean;
+		mods: boolean;
 		/**
 		 * Allow VIPS ?
 		 */
-		vips:boolean;
+		vips: boolean;
 		/**
 		 * Allow subscribers ?
 		 */
-		subs:boolean;
+		subs: boolean;
 		/**
 		 * Allow everyone
 		 */
-		all:boolean;
+		all: boolean;
 		/**
 		 * Specific users allowed
 		 */
-		usersAllowed:string[];
+		usersAllowed: string[];
 		/**
 		 * Specific users refused
 		 */
-		usersRefused:string[];
+		usersRefused: string[];
 	}
 
 	/**
@@ -1498,18 +1606,27 @@ export namespace TwitchatDataTypes {
 	 * a text field.
 	 */
 	export interface PlaceholderEntry {
-		tag:string;
-		descKey:string;
-		descReplacedValues?:{[key:string]:string};
-		example?:string;
-		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs"|string;
+		tag: string;
+		descKey: string;
+		descReplacedValues?: { [key: string]: string };
+		example?: string;
+		globalTag?: boolean;
+		category?:
+			| "stream"
+			| "counter"
+			| "value"
+			| "timer"
+			| "music"
+			| "goxlr"
+			| "twitch"
+			| "streamlabs"
+			| AutocompletableString;
 		/**
 		 * Is placeholder private
 		 * Used for a deprecated placeholder that i don't want to simply break
 		 * but i don't want users to keep using
 		 */
-		private?:boolean;
+		private?: boolean;
 	}
 
 	/**
@@ -1521,8 +1638,8 @@ export namespace TwitchatDataTypes {
 		title: string;
 		categoryID?: string;
 		tags?: string[];
-		branded?:boolean;
-		labels?:{id:string, enabled:boolean}[];
+		branded?: boolean;
+		labels?: { id: string; enabled: boolean }[];
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of the new "tags" prop
 		 */
@@ -1533,15 +1650,15 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a stream
 	 */
 	export interface StreamInfo {
-		user?:TwitchatUser;
-		title:string;
-		category:string;
-		tags:string[];
-		started_at:number;
-		live:boolean;
-		viewers:number;
-		lastSoDoneDate:number;
-		previewUrl:string;
+		user?: TwitchatUser;
+		title: string;
+		category: string;
+		tags: string[];
+		started_at: number;
+		live: boolean;
+		viewers: number;
+		lastSoDoneDate: number;
+		previewUrl: string;
 	}
 
 	/**
@@ -1551,80 +1668,80 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Date in milliseconds the previous mid-roll started
 		 */
-		prevAdStart_at:number;
+		prevAdStart_at: number;
 		/**
 		 * Date in milliseconds the next mid-roll will start
 		 */
-		nextAdStart_at:number;
+		nextAdStart_at: number;
 		/**
 		 * Duration in milliseconds of the current md-roll
 		 */
-		currentAdDuration_ms:number;
+		currentAdDuration_ms: number;
 		/**
 		 * Number of snooze remaining
 		 */
-		remainingSnooze:number;
+		remainingSnooze: number;
 		/**
 		 * Date in milliseconds a snooze will be unlocked
 		 */
-		nextSnooze_at:number;
+		nextSnooze_at: number;
 	}
 
 	/**
 	 * Contains info about a timer/countdown
 	 */
 	export interface TimerData {
-		id:string;
+		id: string;
 		/**
 		 * Is timer/countdown enabled
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Is the default timer/countdown
 		 * These are static instances that cannot be deleted
 		 * for use with the /timer and /countdown commands
 		 */
-		isDefault:boolean;
+		isDefault: boolean;
 		/**
 		 * Name of the timer/countdown
 		 */
-		title:string
+		title: string;
 		/**
 		 * Type of entry, timer or countdown
 		 */
-		type:"timer"|"countdown",
+		type: "timer" | "countdown";
 		/**
 		 * Timer/countdown's placeholder for trigger
 		 */
-		placeholderKey:string
+		placeholderKey: string;
 		/**
 		 * Date in ms the timer/countdown has been started at
 		 */
-		startAt_ms?:number;
+		startAt_ms?: number;
 		/**
 		 * Duration added to the timer/countdown
 		 */
-		offset_ms:number;
+		offset_ms: number;
 		/**
 		 * Duration the countdown has been paused for
 		 */
-		pauseDuration_ms:number;
+		pauseDuration_ms: number;
 		/**
 		 * Is timer/countdown paused
 		 */
-		paused:boolean;
+		paused: boolean;
 		/**
 		 * Date in ms the timer/countdown has been paused at
 		 */
-		pausedAt_ms?:number;
+		pausedAt_ms?: number;
 		/**
 		 * Date in ms the countdown has ended
 		 */
-		endAt_ms?:number;
+		endAt_ms?: number;
 		/**
 		 * Duration of the countdown in ms
 		 */
-		duration_ms:number;
+		duration_ms: number;
 		/**
 		 * Contains overlay's params
 		 */
@@ -1634,50 +1751,50 @@ export namespace TwitchatDataTypes {
 			 * text: legacy mode
 			 * bar: new render style for countdown with a progress bar reducing
 			 */
-			style:"text"|"bar";
+			style: "text" | "bar";
 			/**
 			 * Background color
 			 */
-			bgColor:string;
+			bgColor: string;
 			/**
 			 * Show background
 			 */
-			bgEnabled:boolean;
+			bgEnabled: boolean;
 			/**
 			 * Show icon
 			 */
-			showIcon:boolean;
+			showIcon: boolean;
 			/**
 			 * Text font
 			 */
-			textFont:string;
+			textFont: string;
 			/**
 			 * Text size
 			 */
-			textSize:number;
+			textSize: number;
 			/**
 			 * Text color
 			 */
-			textColor:string;
+			textColor: string;
 			/**
 			 * Size of the progress bar
 			 */
-			progressSize:number;
+			progressSize: number;
 			/**
 			 * Progress style for "bar" style
 			 */
-			progressStyle:"fill"|"empty";
-		}
+			progressStyle: "fill" | "empty";
+		};
 	}
 
 	/**
 	 * Chat poll presets
 	 */
 	export interface ChatPollPresets {
-		duration_s:number;
-		voteCount:number;
-		permissions:PermissionsData;
-		history:ChatPollData[];
+		duration_s: number;
+		voteCount: number;
+		permissions: PermissionsData;
+		history: ChatPollData[];
 	}
 
 	/**
@@ -1707,19 +1824,19 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Winning choice
 		 */
-		winner?:MessagePollDataChoice;
+		winner?: MessagePollDataChoice;
 		/**
 		 * Permissions params
 		 */
-		permissions:PermissionsData;
+		permissions: PermissionsData;
 		/**
 		 * Stores the poll's votes
 		 */
-		votes:{[uid:string]:{indices:number[], login:string, platform:ChatPlatform}}
+		votes: { [uid: string]: { indices: number[]; login: string; platform: ChatPlatform } };
 		/**
 		 * Maximum answers a user can vote for
 		 */
-		maxVotePerUser:number;
+		maxVotePerUser: number;
 	}
 
 	/**
@@ -1729,32 +1846,32 @@ export namespace TwitchatDataTypes {
 	 * tr = top right
 	 * ...
 	 */
-	export type ScreenPosition = "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	export type ScreenPosition = "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 
 	/**
 	 * Contains info about an highlighted chat message.
 	 * Used by the "chat highlight" overlay
 	 */
 	export interface ChatHighlightInfo {
-		date?:number,
-		message?:string,
-		user?:TwitchatUser,
-		clip?:ClipInfo,
-		params:ChatHighlightParams,
-		dateLabel:string,
-		message_id:string;
+		date?: number;
+		message?: string;
+		user?: TwitchatUser;
+		clip?: ClipInfo;
+		params: ChatHighlightParams;
+		dateLabel: string;
+		message_id: string;
 		/**
 		 * @private
 		 */
-		skin?:string;
+		skin?: string;
 	}
 	export interface ChatHighlightParams {
-		position:ScreenPosition;
+		position: ScreenPosition;
 	}
 	export interface ClipInfo {
-		duration:number;
-		url:string;
-		mp4?:string;
+		duration: number;
+		url: string;
+		mp4?: string;
 	}
 
 	/**
@@ -1763,17 +1880,19 @@ export namespace TwitchatDataTypes {
 	 * command /tip or  /updates
 	 */
 	export const TwitchatAdTypes = {
-		NONE:-1,
-		DONATE:1,
-		TIP_AND_TRICK:2,
-		DISCORD:3,
-		TWITCHAT_AD_WARNING:4,
-		TWITCHAT_SPONSOR_PUBLIC_PROMPT:5,
-		DONATE_REMINDER:6,
-		UPDATE_REMINDER:7,
-		AD_BREAK_SCOPE_REQUEST:8,
+		NONE: -1,
+		DONATE: 1,
+		TIP_AND_TRICK: 2,
+		DISCORD: 3,
+		TWITCHAT_AD_WARNING: 4,
+		TWITCHAT_SPONSOR_PUBLIC_PROMPT: 5,
+		DONATE_REMINDER: 6,
+		UPDATE_REMINDER: 7,
+		AD_BREAK_SCOPE_REQUEST: 8,
 	} as const;
-	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
+	export type TwitchatAdStringTypes =
+		| (typeof TwitchatAdTypes)[keyof typeof TwitchatAdTypes]
+		| null;
 
 	/**
 	 * Stores the install callback sent by the browser
@@ -1781,8 +1900,8 @@ export namespace TwitchatDataTypes {
 	 * (mostly made for mobile but also work on desktop)
 	 */
 	export interface InstallHandler extends Event {
-		prompt:()=>void;
-		userChoice:Promise<{outcome:"accepted"}>;
+		prompt: () => void;
+		userChoice: Promise<{ outcome: "accepted" }>;
 	}
 
 	/**
@@ -1799,8 +1918,8 @@ export namespace TwitchatDataTypes {
 		elevenlabs_similarity: number;
 		elevenlabs_style: number;
 		voice: {
-			id:string;
-			platform:"system"|"elevenlabs";
+			id: string;
+			platform: "system" | "elevenlabs";
 		};
 		allRemoteChans: boolean;
 		removeEmotes: boolean;
@@ -1810,146 +1929,146 @@ export namespace TwitchatDataTypes {
 		removeURL: boolean;
 		replaceURL: string;
 		inactivityPeriod: number;
-		readMessages:boolean;
+		readMessages: boolean;
 		readMessagePatern: string;
-		readWhispers:boolean;
+		readWhispers: boolean;
 		readWhispersPattern: string;
-		readNotices:boolean;
+		readNotices: boolean;
 		readNoticesPattern: string;
 		readRewards: boolean;
 		readRewardsPattern: string;
 		readSubs: boolean;
-		readSubsPattern:string;
-		readSubgifts:boolean,
-		readSubgiftsPattern:string,
+		readSubsPattern: string;
+		readSubgifts: boolean;
+		readSubgiftsPattern: string;
 		readBits: boolean;
 		readBitsMinAmount: number;
-		readBitsPattern:string;
+		readBitsPattern: string;
 		readRaids: boolean;
-		readRaidsPattern:string;
+		readRaidsPattern: string;
 		readFollow: boolean;
-		readFollowPattern:string;
+		readFollowPattern: string;
 		readPolls: boolean;
-		readPollsPattern:string;
+		readPollsPattern: string;
 		readChatPolls: boolean;
-		readChatPollsPattern:string;
+		readChatPollsPattern: string;
 		readBingos: boolean;
-		readBingosPattern:string;
+		readBingosPattern: string;
 		readRaffle: boolean;
-		readRafflePattern:string;
+		readRafflePattern: string;
 		readPredictions: boolean;
-		readPredictionsPattern:string;
+		readPredictionsPattern: string;
 		read1stMessageToday: boolean;
-		read1stMessageTodayPattern:string;
+		read1stMessageTodayPattern: string;
 		read1stTimeChatters: boolean;
-		read1stTimeChattersPattern:string;
+		read1stTimeChattersPattern: string;
 		readMonitored: boolean;
-		readMonitoredPattern:string;
+		readMonitoredPattern: string;
 		readRestricted: boolean;
-		readRestrictedPattern:string;
+		readRestrictedPattern: string;
 		readAutomod: boolean;
-		readAutomodPattern:string;
+		readAutomodPattern: string;
 		readTimeouts: boolean;
-		readTimeoutsPattern:string;
+		readTimeoutsPattern: string;
 		readBans: boolean;
-		readBansPattern:string;
+		readBansPattern: string;
 		readUnbans: boolean;
-		readUnbansPattern:string;
-		readKofiTip:boolean;
-		readKofiTipPattern:string;
-		readKofiMerch:boolean;
-		readKofiMerchPattern:string;
-		readKofiSub:boolean;
-		readKofiSubPattern:string;
-		readStreamlabsTip:boolean;
-		readStreamlabsTipPattern:string;
-		readStreamlabsMerch:boolean;
-		readStreamlabsMerchPattern:string;
-		readStreamlabsPatreon:boolean;
-		readStreamlabsPatreonPattern:string;
-		readStreamelementsTip:boolean;
-		readStreamelementsTipPattern:string;
-		ttsPerms:PermissionsData;
+		readUnbansPattern: string;
+		readKofiTip: boolean;
+		readKofiTipPattern: string;
+		readKofiMerch: boolean;
+		readKofiMerchPattern: string;
+		readKofiSub: boolean;
+		readKofiSubPattern: string;
+		readStreamlabsTip: boolean;
+		readStreamlabsTipPattern: string;
+		readStreamlabsMerch: boolean;
+		readStreamlabsMerchPattern: string;
+		readStreamlabsPatreon: boolean;
+		readStreamlabsPatreonPattern: string;
+		readStreamelementsTip: boolean;
+		readStreamelementsTipPattern: string;
+		ttsPerms: PermissionsData;
 		/**
 		 * @deprecated was a kind of duplicate of what "ttsPerms" allows
 		 */
-		readUsers?:string[];
+		readUsers?: string[];
 	}
 
 	/**
 	 * Contains a voice parameters for TTS
 	 */
 	export interface TTSVoiceParamsData {
-		voice:string;
-		volume:number;
-		rate:number;
-		pitch:number;
-		elevenlabs_lang:string;
-		elevenlabs_model:string;
-		elevenlabs_stability:number;
-		elevenlabs_similarity:number;
-		elevenlabs_style:number;
+		voice: string;
+		volume: number;
+		rate: number;
+		pitch: number;
+		elevenlabs_lang: string;
+		elevenlabs_model: string;
+		elevenlabs_stability: number;
+		elevenlabs_similarity: number;
+		elevenlabs_style: number;
 	}
 
 	/**
 	 * Represents emergency mode params
 	 */
 	export interface EmergencyParamsData {
-		enabled:boolean;
-		chatCmd:string;
-		chatCmdPerms:PermissionsData;
-		emotesOnly:boolean;
-		subOnly:boolean;
-		slowMode:boolean;
-		followOnly:boolean;
-		noTriggers:boolean;
-		autoEnableOnFollowbot:boolean;
-		followOnlyDuration:number;
-		slowModeDuration:number;
-		toUsers:string[];
-		obsScene:string;
-		obsSources:string[];
-		autoEnableOnShieldmode:boolean;
-		enableShieldMode:boolean;
+		enabled: boolean;
+		chatCmd: string;
+		chatCmdPerms: PermissionsData;
+		emotesOnly: boolean;
+		subOnly: boolean;
+		slowMode: boolean;
+		followOnly: boolean;
+		noTriggers: boolean;
+		autoEnableOnFollowbot: boolean;
+		followOnlyDuration: number;
+		slowModeDuration: number;
+		toUsers: string[];
+		obsScene: string;
+		obsSources: string[];
+		autoEnableOnShieldmode: boolean;
+		enableShieldMode: boolean;
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
 		 */
-		autoBlockFollows?:boolean;
+		autoBlockFollows?: boolean;
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
 		 */
-		autoUnblockFollows?:boolean;
+		autoUnblockFollows?: boolean;
 	}
 
 	/**
 	 * Represents spoiler params
 	 */
 	export interface SpoilerParamsData {
-		permissions:PermissionsData;
-		autoSpoilNewUsers:boolean;
+		permissions: PermissionsData;
+		autoSpoilNewUsers: boolean;
 	}
 
 	/**
 	 * Represents chat alert params
 	 */
 	export interface AlertParamsData {
-		chatCmd:string;
-		permissions:PermissionsData;
-		blink:boolean;
-		shake:boolean;
-		sound:boolean;
-		vibrate:boolean;
-		message:boolean;
+		chatCmd: string;
+		permissions: PermissionsData;
+		blink: boolean;
+		shake: boolean;
+		sound: boolean;
+		vibrate: boolean;
+		message: boolean;
 	}
 
 	/**
 	 * Represents an anchor for the homepage
 	 */
 	export interface AnchorData {
-		label:string;
-		icon:string;
-		div:HTMLElement;
-		selected:boolean;
+		label: string;
+		icon: string;
+		div: HTMLElement;
+		selected: boolean;
 	}
 
 	/**
@@ -1959,39 +2078,39 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Should the music overlay auto hide when no music is playing ?
 		 */
-		autoHide:boolean;
+		autoHide: boolean;
 		/**
 		 * Should current track info be cleared when no music is playing ?
 		 */
-		erase:boolean;
+		erase: boolean;
 		/**
 		 * Show current track cover?
 		 */
-		showCover:boolean;
+		showCover: boolean;
 		/**
 		 * Show current track artist name?
 		 */
-		showArtist:boolean;
+		showArtist: boolean;
 		/**
 		 * Show current track title?
 		 */
-		showTitle:boolean;
+		showTitle: boolean;
 		/**
 		 * Show progress bar?
 		 */
-		showProgressbar:boolean;
+		showProgressbar: boolean;
 		/**
 		 * Open the overlay from left side instead of right?
 		 */
-		openFromLeft:boolean;
+		openFromLeft: boolean;
 		/**
 		 * Disable title and artist name scrolling when too long?
 		 */
-		noScroll:boolean;
+		noScroll: boolean;
 		/**
 		 * Custom rendering HTML template
 		 */
-		customInfoTemplate:string;
+		customInfoTemplate: string;
 	}
 
 	/**
@@ -2001,31 +2120,31 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Track ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Track title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Track artist name
 		 */
-		artist:string;
+		artist: string;
 		/**
 		 * Track album name
 		 */
-		album:string;
+		album: string;
 		/**
 		 * Track cover URL
 		 */
-		cover:string;
+		cover: string;
 		/**
 		 * Track duration in milliseconds
 		 */
-		duration:number;
+		duration: number;
 		/**
 		 * Track public URL
 		 */
-		url:string;
+		url: string;
 	}
 	export type MusicTrackDataKeys = keyof MusicTrackData;
 
@@ -2033,29 +2152,29 @@ export namespace TwitchatDataTypes {
 	 * Represents voicemod params
 	 */
 	export interface VoicemodParamsData {
-		enabled:boolean;
-		voiceIndicator:boolean;
-		commandToVoiceID:{[key:string]:string};
-		chatCmdPerms:PermissionsData;
+		enabled: boolean;
+		voiceIndicator: boolean;
+		commandToVoiceID: { [key: string]: string };
+		chatCmdPerms: PermissionsData;
 	}
 
 	/**
 	 * Represents twitchat's automod params
 	 */
 	export interface AutomodParamsData {
-		enabled:boolean;
-		banUserNames:boolean;
-		keywordsFilters:AutomodParamsKeywordFilterData[];
-		exludedUsers:PermissionsData;
+		enabled: boolean;
+		banUserNames: boolean;
+		keywordsFilters: AutomodParamsKeywordFilterData[];
+		exludedUsers: PermissionsData;
 	}
 	export interface AutomodParamsKeywordFilterData {
-		id:string;
-		enabled:boolean;
-		label:string;
-		regex:string;
-		serverSync:boolean;
-		emergency:boolean;
-		firstTimeChatters:boolean;
+		id: string;
+		enabled: boolean;
+		label: string;
+		regex: string;
+		serverSync: boolean;
+		emergency: boolean;
+		firstTimeChatters: boolean;
 	}
 
 	/**
@@ -2064,27 +2183,27 @@ export namespace TwitchatDataTypes {
 	export interface Pronoun {
 		id: string;
 		login: string;
-		pronoun_id: string
+		pronoun_id: string;
 	}
 
 	/**
 	 * Represents info about a confirm window
 	 */
 	export interface ConfirmData {
-		title:string,
-		description?:string,
-		confirmCallback?:()=>void,
-		cancelCallback?:()=>void,
-		yesLabel?:string,
-		noLabel?:string,
+		title: string;
+		description?: string;
+		confirmCallback?: () => void;
+		cancelCallback?: () => void;
+		yesLabel?: string;
+		noLabel?: string;
 	}
 
 	/**
 	 * Represents generic data for a multi-res image
 	 */
 	export interface TwitchatImage {
-		sd:string;
-		hd?:string;
+		sd: string;
+		hd?: string;
 	}
 
 	/**
@@ -2102,97 +2221,97 @@ export namespace TwitchatDataTypes {
 	 * Represents a user
 	 */
 	export interface TwitchatUser {
-		id:string;
-		platform:ChatPlatform;
-		login:string;
+		id: string;
+		platform: ChatPlatform;
+		login: string;
 		/**
 		 * Get the display name of the user.
 		 * Returns eith the actual twitch display name, or the custom one defined
 		 * on twitchat.
 		 */
-		displayName:string;
+		displayName: string;
 		/**
 		 * Original twitch display name of the user
 		 */
-		displayNameOriginal:string;
+		displayNameOriginal: string;
 		/**
 		 * URL of the avatar
 		 */
-		avatarPath?:string;
+		avatarPath?: string;
 		/**
 		 * Account createion date
 		 */
-		created_at_ms?:number;
+		created_at_ms?: number;
 		/**
 		 * Nickname chat color
 		 */
-		color?:string;
+		color?: string;
 		/**
 		 * Is a twitch partner?
 		 */
-		is_partner:boolean;
+		is_partner: boolean;
 		/**
 		 * Is a twitch affiliate?
 		 */
-		is_affiliate:boolean;
+		is_affiliate: boolean;
 		/**
 		 * Should this user's messages be highlighted?
 		 */
-		is_tracked:boolean;
+		is_tracked: boolean;
 		/**
 		 * Is this a known bot account?
 		 */
-		is_bot:boolean;
+		is_bot: boolean;
 		/**
 		 * Is the user blocked by me?
 		 */
-		is_blocked:boolean;
+		is_blocked: boolean;
 		/**
 		 * When a user is blocked, their messages are censored until we click
 		 * on of them in which case messages stop being censored until next
 		 * app start.
 		 * This flag is here for this, stopping censor to ignore "is_blocked" state
 		 */
-		stop_block_censor?:boolean;
+		stop_block_censor?: boolean;
 		/**
 		 * Is a Twitchat admin?
 		 */
-		is_admin?:boolean;
+		is_admin?: boolean;
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 		 */
-		pronouns:string|false|null;
+		pronouns: string | false | null;
 		/**
 		 * Pronouns label
 		 */
-		pronounsLabel:string|false;
+		pronounsLabel: string | false;
 		/**
 		 * Pronouns tooltip
 		 */
-		pronounsTooltip:string|false;
+		pronounsTooltip: string | false;
 		/**
 		 * Contains one entry per connected channel with
 		 * channel specific info.
 		 */
-		channelInfo:{[key:string]:UserChannelInfo},
+		channelInfo: { [key: string]: UserChannelInfo };
 		/**
 		 * true when the details are loading
 		 */
-		temporary?:boolean;
+		temporary?: boolean;
 		/**
 		 * true if user data loading failed
 		 */
-		errored?:boolean;
+		errored?: boolean;
 		/**
 		 * true if data respresents an anonymous user.
 		 * For exemple an anonymous Heat user
 		 */
-		anonymous?:boolean;
+		anonymous?: boolean;
 		/**
 		 * If set to true, this user's messages won't be automatically set
 		 * as spoiler if the related option is enabled on the spoiler section
 		 */
-		noAutospoil?:boolean;
+		noAutospoil?: boolean;
 	}
 
 	/**
@@ -2202,115 +2321,126 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if user is connected on the channel's chat
 		 */
-		online:boolean;
+		online: boolean;
 		/**
 		 * true if user talked for the first time ever on our chat during this session
 		 */
-		is_new:boolean;
+		is_new: boolean;
 		/**
 		 * true if user raided us
 		 * Stays to "true" for the specified amount of duration on the parameters
 		 * then switched back to false
 		 */
-		is_raider:boolean;
+		is_raider: boolean;
 		/**
 		 * Defines if user is a follower of the channel
 		 * null = don't know yet
 		 * true = is a follower
 		 * false = is not a follower
 		 */
-		is_following:boolean|null;
+		is_following: boolean | null;
 		/**
 		 * true if user is banned on the channel
 		 */
-		is_banned:boolean;
+		is_banned: boolean;
 		/**
 		 * true if user is a VIP of the channel
 		 */
-		is_vip:boolean;
+		is_vip: boolean;
 		/**
 		 * true if user is a moderator of the channel
 		 */
-		is_moderator:boolean;
+		is_moderator: boolean;
 		/**
 		 * true if user is the broadcaster of the channel
 		 */
-		is_broadcaster:boolean;
+		is_broadcaster: boolean;
 		/**
 		 * true if user is subscribed to the channel
 		 */
-		is_subscriber?:boolean;
+		is_subscriber?: boolean;
 		/**
 		 * true if user has gifted subs on the channel
 		 */
-		is_gifter:boolean;
+		is_gifter: boolean;
 		/**
 		 * Date at which the user followed the channel
 		 * Value = 0 if not checked yet, -1 not following
 		 */
-		following_date_ms:number;
+		following_date_ms: number;
 		/**
 		 * User badges for this channel
 		 */
-		badges:TwitchatUserBadge[];
+		badges: TwitchatUserBadge[];
 		/**
 		 * Date at which the ban expires on this channel
 		 */
-		banEndDate?:number;
+		banEndDate?: number;
 		/**
 		 * Contains the ban reason
 		 */
-		banReason?:string;
+		banReason?: string;
 		/**
 		 * Last date the user interracted on this channel
 		 */
-		lastActivityDate?:number;
+		lastActivityDate?: number;
 		/**
 		 * Number of subgifts the user made on this channel
 		 * Only available after making a subgift
 		 */
-		totalSubgifts?:number;
+		totalSubgifts?: number;
 		/**
 		 * Store the date at which this user last got a shoutout
 		 */
-		lastShoutout?:number;
+		lastShoutout?: number;
 		/**
 		 * Defines if the user should be moded back after their timeout completes
 		 */
-		autoRemod?:boolean;
+		autoRemod?: boolean;
 		/**
 		 * Is the user restricted in the channel?
 		 */
-		is_restricted?:boolean;
+		is_restricted?: boolean;
 		/**
 		 * Is the user suspicious in the channel?
 		 */
-		is_suspicious?:boolean;
+		is_suspicious?: boolean;
 	}
 
 	/**
 	 * Represents the info about a user's badge
 	 */
 	export interface TwitchatUserBadge {
-		icon:TwitchatImage;
-		id:TwitchatUserBadgeType;
-		title?:string;
-		version?:string;
+		icon: TwitchatImage;
+		id: TwitchatUserBadgeType;
+		title?: string;
+		version?: string;
 	}
 
 	/**
 	 * Available user badge types
 	 */
-	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "lead_moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
+	export type TwitchatUserBadgeType =
+		| "predictions"
+		| "subscriber"
+		| "vip"
+		| "premium"
+		| "moderator"
+		| "lead_moderator"
+		| "staff"
+		| "broadcaster"
+		| "partner"
+		| "founder"
+		| "ambassador";
 
 	/**
 	 * Represents the info about a a custom user's badge
 	 */
 	export interface TwitchatCustomUserBadge {
-		id:string;
-		img:string;
-		name?:string;
-		enabled?:boolean;
+		id: string;
+		img: string;
+		name?: string;
+		enabled?: boolean;
 	}
 
 	/**
@@ -2318,10 +2448,10 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface RaidInfo {
 		channel_id: string;
-		user:TwitchatUser;
+		user: TwitchatUser;
 		viewerCount: number;
-		startedAt:number;
-		timerDuration_s:number;
+		startedAt: number;
+		timerDuration_s: number;
 	}
 
 	/**
@@ -2329,8 +2459,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface CommunityBoost {
 		channel_id: string;
-		goal:number;
-		progress:number;
+		goal: number;
+		progress: number;
 	}
 
 	/**
@@ -2338,7 +2468,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface AutomodData {
 		words: string[];
-		reasons:string[];
+		reasons: string[];
 	}
 
 	/**
@@ -2346,18 +2476,18 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface AutomodData {
 		words: string[];
-		reasons:string[];
+		reasons: string[];
 	}
 
 	/**
 	 * Represents a raw emergency follow entry
 	 */
 	export interface EmergencyFollowEntryData {
-		platform:ChatPlatform;
-		uid:string;
-		channelId:string;
-		login:string;
-		date:number;
+		platform: ChatPlatform;
+		uid: string;
+		channelId: string;
+		login: string;
+		date: number;
 	}
 
 	/**
@@ -2377,7 +2507,7 @@ export namespace TwitchatDataTypes {
 		 * "true" for all global emotes
 		 */
 		is_public: boolean;
-		source?: "BTTV"|"7TV"|"FFZ";
+		source?: "BTTV" | "7TV" | "FFZ";
 		owner?: TwitchatUser;
 		/**
 		 * Defines if this emote can only be used if
@@ -2393,20 +2523,20 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Display duration
 		 */
-		duration_s:number;
+		duration_s: number;
 		/**
 		 * Paid amount
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Currency example : "EUR" "USD" "CHF" "GBP"
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * Hype chat paid level.
 		 * From 0 to 9
 		 */
-		level:number;
+		level: number;
 	}
 
 	/**
@@ -2416,80 +2546,80 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Title
 		 */
-		l:string;
+		l: string;
 		/**
 		 * Icon name
 		 */
-		i?:string;
+		i?: string;
 		/**
 		 * Image
 		 */
-		g?:string;
+		g?: string;
 		/**
 		 * Video
 		 */
-		v?:string;
+		v?: string;
 		/**
 		 * Description
 		 */
-		d?:string;
+		d?: string;
 		/**
 		 * Is premium feautre?
 		 */
-		p?:boolean;
+		p?: boolean;
 		/**
 		 * Youtube video URL
 		 */
-		y?:string;
+		y?: string;
 		/**
 		 * Call to action
 		 */
-		a?:{
+		a?: {
 			/**
 			 * Button label
 			 */
-			l:string;
+			l: string;
 			/**
 			 * Parameter page to go to
 			 */
-			param?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
+			param?: TwitchatDataTypes.ParameterPagesStringType; //Parameter page to go to
 			/**
 			 * Parameter sub section to go to
 			 */
-			subparam?:TwitchatDataTypes.ParamDeepSectionsStringType;
-		}
+			subparam?: TwitchatDataTypes.ParamDeepSectionsStringType;
+		};
 	}
 
 	/**
 	 * Contains the info about a past or pending shoutout
 	 */
 	export interface ShoutoutHistoryItem {
-		id:string;
+		id: string;
 		/**
 		 * User receiving the shoutout
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * Remaining duration before execution
 		 */
-		executeIn:number;
+		executeIn: number;
 	}
 
 	/**
 	 * Represents a twitchat announcement message
 	 */
-	export interface TwitchatAnnouncementData{
-		id:string;
-		dateStart:number;
-		important:boolean;
-		donorsOnly:boolean;
-		premiumOnly:boolean;
-		patreonOnly:boolean;
-		heatOnly:boolean;
-		title:{[key:string]:string};
-		text:{[key:string]:string};
-		dateEnd?:number;
-		versionMax?:string;
+	export interface TwitchatAnnouncementData {
+		id: string;
+		dateStart: number;
+		important: boolean;
+		donorsOnly: boolean;
+		premiumOnly: boolean;
+		patreonOnly: boolean;
+		heatOnly: boolean;
+		title: { [key: string]: string };
+		text: { [key: string]: string };
+		dateEnd?: number;
+		versionMax?: string;
 	}
 
 	/**
@@ -2500,587 +2630,587 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Stream duration in seconds
 		 */
-		streamDuration:number;
+		streamDuration: number;
 		/**
 		 * Slots that should show premium warning
 		 * Only set when testing fake credits to let the user know these sections
 		 * won't be shown in actual ending credits because they're not premium
 		 */
-		premiumWarningSlots?:{[slotType:string]:boolean};
+		premiumWarningSlots?: { [slotType: string]: boolean };
 		/**
 		 * Ending credits parameters
 		 */
-		params?:EndingCreditsParams;
+		params?: EndingCreditsParams;
 		/**
 		 * Following events
 		 */
-		follows:{
+		follows: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 		}[];
 		/**
 		 * Raid events
 		 */
-		raids:{
+		raids: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * Raider's name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Raiders count
 			 */
-			raiders:number;
+			raiders: number;
 		}[];
 		/**
 		 * Subscription events
 		 */
-		subs:{
+		subs: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Subscription tier
 			 */
-			tier:1|2|3|"prime";
+			tier: 1 | 2 | 3 | "prime";
 			/**
 			 * Subscription duration in months
 			 */
-			subDuration?:number;
+			subDuration?: number;
 			/**
 			 * Is sub info from currently active subscribers ?
 			 * Otherwise it's from new subs that happened during the stream
 			 */
-			fromActiveSubs?:true;
+			fromActiveSubs?: true;
 			/**
 			 * Chat platform of the subscription
 			 */
-			platform:ChatPlatform
+			platform: ChatPlatform;
 		}[];
 		/**
 		 * Resubscription events
 		 */
-		resubs:{
+		resubs: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Subscription tier
 			 */
-			tier:1|2|3|"prime";
+			tier: 1 | 2 | 3 | "prime";
 			/**
 			 * Subscription duration in months
 			 */
-			subDuration?:number;
+			subDuration?: number;
 			/**
 			 * Is sub info from currently active subscribers ?
 			 * Otherwise it's from new subs that happened during the stream
 			 */
-			fromActiveSubs?:true;
+			fromActiveSubs?: true;
 			/**
 			 * Chat platform of the subscription
 			 */
-			platform:ChatPlatform
+			platform: ChatPlatform;
 		}[];
 		/**
 		 * Subgift events
 		 */
-		subgifts:{
+		subgifts: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Subscription tier
 			 */
-			tier:1|2|3|"prime";
+			tier: 1 | 2 | 3 | "prime";
 			/**
 			 * Number of subgifts
 			 */
-			total:number;
+			total: number;
 			/**
 			 * Is subgift info from currently active subscribers ?
 			 */
-			fromActiveSubs?:true;
+			fromActiveSubs?: true;
 			/**
 			 * Chat platform of the subscription
 			 */
-			platform:ChatPlatform
+			platform: ChatPlatform;
 		}[];
 		/**
 		 * Bits events
 		 */
-		bits:{
+		bits: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Number of bits
 			 */
-			bits:number;
+			bits: number;
 			/**
 			 * Is pinned cheer ?
 			 */
-			pinned:boolean;
+			pinned: boolean;
 		}[];
 		/**
 		 * Hype chat events
 		 */
-		hypeChats:{
+		hypeChats: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Amount paid
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Currency used
 			 */
-			currency:string;
+			currency: string;
 		}[];
 		/**
 		 * Reward redemption events
 		 */
-		rewards:{
+		rewards: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Channel point reward info
 			 */
-			reward:{
+			reward: {
 				/**
 				 * Reward name
 				 */
-				name:string;
+				name: string;
 				/**
 				 * Reward ID
 				 */
-				id:string;
+				id: string;
 				/**
 				 * Reward icon URL
 				 */
-				icon:string;
+				icon: string;
 			};
 		}[];
 		/**
 		 * Shoutout events
 		 */
-		shoutouts:{
+		shoutouts: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Was the shoutout received or given ?
 			 */
-			received:boolean;
+			received: boolean;
 			/**
 			 * Viewers count when the shoutout happened
 			 */
-			viewers:number
+			viewers: number;
 		}[];
 		/**
 		 * Hype train events
 		 */
-		hypeTrains:{
+		hypeTrains: {
 			/**
 			 * Hype train level reached
 			 */
-			level:number;
+			level: number;
 			/**
 			 * Percent of the level completed
 			 */
-			percent:number;
+			percent: number;
 			/**
 			 * Bits conductor info
 			 */
-			conductorBits?:{
+			conductorBits?: {
 				/**
 				 * User ID
 				 */
-				uid:string;
+				uid: string;
 				/**
 				 * User name
 				 */
-				login:string;
+				login: string;
 				/**
 				 * Number of bits given
 				 */
-				bits:number;
+				bits: number;
 			};
 			/**
 			 * Sub conductor info
 			 */
-			conductorSubs?:{
+			conductorSubs?: {
 				/**
 				 * User ID
 				 */
-				uid:string;
+				uid: string;
 				/**
 				 * User name
 				 */
-				login:string;
+				login: string;
 				/**
 				 * Number of subs given
 				 */
-				subs:number;
-			}
+				subs: number;
+			};
 		}[];
 		/**
 		 * Poll events
 		 */
-		polls:{
+		polls: {
 			/**
 			 * Poll title
 			 */
-			title:string;
+			title: string;
 			/**
 			 * Total votes count
 			 */
-			votes:number;
+			votes: number;
 			/**
 			 * Poll choices
 			 */
-			choices:{
+			choices: {
 				/**
 				 * Choice title
 				 */
-				title:string;
+				title: string;
 				/**
 				 * Number of votes for this choice
 				 */
-				votes:number;
+				votes: number;
 				/**
 				 * Is this choice the winning one ?
 				 */
-				win:boolean;
-			}[]
+				win: boolean;
+			}[];
 		}[];
 		/**
 		 * Chat poll events
 		 */
-		predictions:{
+		predictions: {
 			/**
 			 * Prediction title
 			 */
-			title:string;
+			title: string;
 			/**
 			 * Total points used to vote
 			 */
-			points:number;
+			points: number;
 			/**
 			 * Prediction outcomes
 			 */
-			outcomes:{
+			outcomes: {
 				/**
 				 * Outcome title
 				 */
-				title:string;
+				title: string;
 				/**
 				 * Number of points used to vote for this outcome
 				 */
-				points:number;
+				points: number;
 				/**
 				 * Number of voters for this outcome
 				 */
-				voters:number;
+				voters: number;
 				/**
 				 * Is this outcome the winning one ?
 				 */
-				win:boolean
-			}[]
+				win: boolean;
+			}[];
 		}[];
 		/**
 		 * Chatters info
 		 */
-		chatters:{
+		chatters: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Number of messages sent
 			 */
-			count:number;
+			count: number;
 			/**
 			 * Is user a VIP ?
 			 */
-			vip:boolean;
+			vip: boolean;
 			/**
 			 * Is user a moderator ?
 			 */
-			mod:boolean;
+			mod: boolean;
 			/**
 			 * Is user a subscriber ?
 			 */
-			sub:boolean;
+			sub: boolean;
 			/**
 			 * Number of timeouts
 			 */
-			bans:number;
+			bans: number;
 			/**
 			 * Number of times this user has been timedout
 			 */
-			tos:number;
+			tos: number;
 			/**
 			 * Total duration this user has been timedout for (in seconds)
 			 */
-			tosDuration:number;
+			tosDuration: number;
 		}[];
 		/**
 		 * Tip events
 		 */
-		tips:{
+		tips: {
 			/**
 			 * User ID
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Tip amount
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Currency used for the tip
 			 */
-			currency:string;
+			currency: string;
 			/**
 			 * Platform the tip was made on
 			 */
-			platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon";
+			platform: "kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon";
 		}[];
 		/**
 		 * Merch events
 		 */
-		merch:{
+		merch: {
 			/**
 			 * User ID
 			 */
-			login:string;
+			login: string;
 			/**
 			 * List of products bought
 			 */
-			products:string[];
+			products: string[];
 			/**
 			 * Total amount spent
 			 */
-			total:number;
+			total: number;
 			/**
 			 * Currency used for the merch purchase
 			 */
-			currency:string;
+			currency: string;
 			/**
 			 * Platform the merch was bought on
 			 */
-			platform:"kofi" | "streamlabs"
+			platform: "kofi" | "streamlabs";
 		}[];
 		/**
 		 * Powerup events
 		 */
-		powerups:{
+		powerups: {
 			/**
 			 * User ID
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Skind ID for "animation" type
 			 */
-			skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"];
+			skinID?: TwitchatDataTypes.MessageChatData["twitch_animationId"];
 			/**
 			 * Emote URL for "gigantifiedemote" type
 			 */
-			emoteUrl?:string;
+			emoteUrl?: string;
 			/**
 			 * Type of powerup
 			 */
-			type:"animation" | "gigantifiedemote" | "celebration"
+			type: "animation" | "gigantifiedemote" | "celebration";
 		}[];
 		/**
 		 * Super chat events
 		 */
-		superChats:{
+		superChats: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Amount paid for the super chat
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Currency used for the super chat
 			 */
-			currency:string;
+			currency: string;
 		}[];
 		/**
 		 * Super stickers events
 		 */
-		superStickers:{
+		superStickers: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Amount paid for the super sticker
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Currency used for the super sticker
 			 */
-			currency:string;
+			currency: string;
 			/**
 			 * Sticker URL
 			 */
-			stickerUrl:string;
+			stickerUrl: string;
 		}[];
 		/**
 		 * Tiktok gifts events
 		 */
-		tiktokGifts:{
+		tiktokGifts: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Number of gifts offered
 			 */
-			count:number;
+			count: number;
 			/**
 			 * Amount paid for the gifts
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Image URL of the gift
 			 */
-			imageUrl:string;
+			imageUrl: string;
 		}[];
 		/**
 		 * Tiktok likes events
 		 */
-		tiktokLikes:{
+		tiktokLikes: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Number of likes
 			 */
-			count:number;
+			count: number;
 		}[];
 		/**
 		 * Tiktok shares events
 		 */
-		tiktokShares:{
+		tiktokShares: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Number of shares
 			 */
-			count:number;
+			count: number;
 		}[];
 		/**
 		 * Patreon members events
 		 */
-		patreonMembers:{
+		patreonMembers: {
 			/**
 			 * User ID
 			 */
-			uid:string;
+			uid: string;
 			/**
 			 * User name
 			 */
-			login:string;
+			login: string;
 			/**
 			 * Membership duration in months
 			 */
-			months:number;
+			months: number;
 			/**
 			 * Membership tier name
 			 */
-			tier:string;
+			tier: string;
 			/**
 			 * Lifetime amount paid
 			 */
-			lifetimeAmount:number;
+			lifetimeAmount: number;
 		}[];
 		/**
 		 * i18n labels for the ending credits
 		 */
-		labels:{
-			no_entry:string;
-			train:string;
-			premium_only:string;
-			sub_duration:string;
-		}
+		labels: {
+			no_entry: string;
+			train: string;
+			premium_only: string;
+			sub_duration: string;
+		};
 	}
 
 	/**
@@ -3090,43 +3220,43 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Distortion overlay ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Overlay name
 		 */
-		name:string;
+		name: string;
 		/**
 		 * OBS item path where to apply the distortion
 		 */
-		obsItemPath:OBSItemPath;
+		obsItemPath: OBSItemPath;
 		/**
 		 * Users allowed to trigger the distortion
 		 */
-		permissions:PermissionsData;
+		permissions: PermissionsData;
 		/**
 		 * Refuse anonymous clicks ?
 		 */
-		refuseAnon:boolean;
+		refuseAnon: boolean;
 		/**
 		 * Distortion effect type
 		 */
-		effect:"liquid"|"expand"|"shrink"|"heart";
+		effect: "liquid" | "expand" | "shrink" | "heart";
 		/**
-		 * Name of the shadertastic filter added to the source to create the distortion 
+		 * Name of the shadertastic filter added to the source to create the distortion
 		 */
-		filterName:string;
+		filterName: string;
 		/**
 		 * Name of the browser source in OBS
 		 */
-		browserSourceName:string;
+		browserSourceName: string;
 		/**
 		 * Is the distortion enabled ?
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Should the disctortion only be used from the triggers ?
 		 */
-		triggerOnly:boolean;
+		triggerOnly: boolean;
 	}
 
 	/**
@@ -3137,141 +3267,141 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Click ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Channel ID the click occured on
 		 */
-		channelId:string;
+		channelId: string;
 		/**
 		 * Is the click anonymous ?
 		 */
-		anonymous:boolean;
+		anonymous: boolean;
 		/**
 		 * ID of the user who clicked
 		 */
-		uid:string;
+		uid: string;
 		/**
 		 * Login of the user who clicked
 		 */
-		login:string;
+		login: string;
 		/**
 		 * Normalized X position (0 to 1) of the click
 		 */
-		x:number;
+		x: number;
 		/**
 		 * Normalized Y position (0 to 1) of the click
 		 */
-		y:number;
+		y: number;
 		/**
 		 * Is the user a subscriber ?
 		 */
-		isSub:boolean;
+		isSub: boolean;
 		/**
 		 * Is the user banned ?
 		 */
-		isBan:boolean;
+		isBan: boolean;
 		/**
 		 * Is the user a moderator ?
 		 */
-		isMod:boolean;
+		isMod: boolean;
 		/**
 		 * Is the user a VIP ?
 		 */
-		isVip:boolean;
+		isVip: boolean;
 		/**
 		 * Is the user the broadcaster ?
 		 */
-		isBroadcaster:boolean;
+		isBroadcaster: boolean;
 		/**
 		 * Is the user a follower ?
 		 */
-		isFollower:boolean;
+		isFollower: boolean;
 		/**
 		 * Date at which the user followed the channel (if isFollower is true)
 		 */
-		followDate:number;
+		followDate: number;
 		/**
 		 * Is it a test click ?
 		 * Sent from settings => connections => heat => click on preview
 		 */
-		testMode:boolean;
+		testMode: boolean;
 		/**
 		 * Was alt keys pressed ?
 		 */
-		alt:boolean;
+		alt: boolean;
 		/**
 		 * Was ctrl key pressed ?
 		 */
-		ctrl:boolean;
+		ctrl: boolean;
 		/**
 		 * Was shift key pressed ?
 		 */
-		shift:boolean;
+		shift: boolean;
 		/**
 		 * Sha256 of the clicked browser source URL
 		 */
-		page:string;
+		page: string;
 		/**
 		 * Optional Twitchat overlay ID sent for some specific overlays
 		 */
-		twitchatOverlayID:string;
+		twitchatOverlayID: string;
 		/**
 		 * X scale of the browser source
-		*/
-		scaleX:number;
+		 */
+		scaleX: number;
 		/**
 		 * Y scale of the browser source
-		*/
-		scaleY:number;
+		 */
+		scaleY: number;
 		/**
 		 * Rotation angle of the browser source in degrees
 		 */
-		rotation:number;
+		rotation: number;
 	}
 
 	export interface QnaSession {
 		/**
 		 * Session ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Are submissions opened?
 		 */
-		open:boolean;
+		open: boolean;
 		/**
 		 * Command to use to submit a question
 		 */
-		command:string;
+		command: string;
 		/**
 		 * Can chatters answer "+1" to upvote a question?
 		 */
-		allowUpvotes:boolean;
+		allowUpvotes: boolean;
 		/**
 		 * Can mods manage the Q&A session from their own twitchat?
 		 */
-		shareWithMods:boolean;
+		shareWithMods: boolean;
 		/**
 		 * Submitted questions
 		 */
-		messages:{
-			votes:number;
-			channelId:string;
-			platform:ChatPlatform;
-			message:{
-				id:string;
-				chunks:ParseMessageChunk[];
-			},
-			user:{
-				id:string;
-				name:string;
-			}
+		messages: {
+			votes: number;
+			channelId: string;
+			platform: ChatPlatform;
+			message: {
+				id: string;
+				chunks: ParseMessageChunk[];
+			};
+			user: {
+				id: string;
+				name: string;
+			};
 		}[];
 		/**
 		 * Contains owner ID.
 		 * Usefull when sharing a Q&A session with mods so they
 		 * know who actually owns the session
 		 */
-		ownerId:string;
+		ownerId: string;
 	}
 
 	/**
@@ -3281,72 +3411,82 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Item ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Prompt used
 		 */
-		prompt:string;
+		prompt: string;
 		/**
 		 * Answer from groq
 		 */
-		answer:string;
+		answer: string;
 		/**
 		 * Date of the prompt
 		 */
-		date:number;
+		date: number;
 		/**
 		 * Preprompt used
 		 */
-		preprompt?:string;
+		preprompt?: string;
 		/**
 		 * Contains anonymised username map
 		 */
-		userMap:{[anonName:string]:string};
+		userMap: { [anonName: string]: string };
 	}
 
 	/**
 	 * Represents an Animated Text overlay params
 	 */
 	export interface AnimatedTextData {
-		id:string;
-		enabled:boolean;
+		id: string;
+		enabled: boolean;
 		/**
 		 * Optional overlay title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Animation style
 		 */
-		animStyle: typeof AnimatedTextData_AnimStyles[number];
+		animStyle: (typeof AnimatedTextData_AnimStyles)[number];
 		/**
 		 * Animation duration scale
 		 * The higher the slower.
 		 * Represents the delay between each letter
 		 */
-		animDurationScale:number;
+		animDurationScale: number;
 		/**
 		 * Animation strength
 		 * The higher the value, the strong the animation effect
 		 */
-		animStrength:number;
+		animStrength: number;
 		/**
 		 * Text color
 		 */
-		colorBase:string;
+		colorBase: string;
 		/**
 		 * Highlighted text color
 		 */
-		colorHighlights:string;
+		colorHighlights: string;
 		/**
 		 * Text font
 		 */
-		textFont:string;
+		textFont: string;
 		/**
 		 * Text size
 		 */
-		textSize:number;
+		textSize: number;
 	}
-	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm","caterpillar"] as const
+	export const AnimatedTextData_AnimStyles = [
+		"wave",
+		"typewriter",
+		"bounce",
+		"wobble",
+		"rotate",
+		"elastic",
+		"neon",
+		"swarm",
+		"caterpillar",
+	] as const;
 
 	/**
 	 * Represents a custom train params
@@ -3355,140 +3495,140 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Custom train ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Is custom train enabled ?
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Is train being tested ?
 		 */
-		testing:boolean;
+		testing: boolean;
 		/**
 		 * Optional overlay title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Level name "LVL" by default
 		 */
-		levelName:string;
+		levelName: string;
 		/**
 		 * Fill color
 		 */
-		colorFill:string;
+		colorFill: string;
 		/**
 		 * Background color
 		 */
-		colorBg:string;
+		colorBg: string;
 		/**
 		 * Text font
 		 */
-		textFont:string;
+		textFont: string;
 		/**
 		 * Text size
 		 */
-		textSize:number;
+		textSize: number;
 		/**
 		 * Train unit currency
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * Number of events to get the train approaching
 		 */
-		approachEventCount:number;
+		approachEventCount: number;
 		/**
 		 * Number of events to start the train
 		 */
-		triggerEventCount:number;
+		triggerEventCount: number;
 		/**
 		 * Duration to wait after a train before starting a new one
 		 */
-		cooldownDuration_s:number;
+		cooldownDuration_s: number;
 		/**
 		 * Duration to complete a level
 		 */
-		levelsDuration_s:number;
+		levelsDuration_s: number;
 		/**
 		 * Date at which the current train/level expires
 		 */
-		expires_at:number;
+		expires_at: number;
 		/**
 		 * Contains the date at which the cooldown will end
 		 */
-		coolDownEnd_at:number;
+		coolDownEnd_at: number;
 		/**
 		 * Post progress on chat?
 		 */
-		postLevelUpOnChat:boolean;
+		postLevelUpOnChat: boolean;
 		/**
 		 * Message to post on chat on level up
 		 */
-		postLevelUpChatMessage:string;
+		postLevelUpChatMessage: string;
 		/**
 		 * Post success on chat?
 		 */
-		postSuccessOnChat:boolean;
+		postSuccessOnChat: boolean;
 		/**
 		 * Message to post on chat on success
 		 */
-		postSuccessChatMessage:string;
+		postSuccessChatMessage: string;
 		/**
 		 * Text for the "level X complete"
 		 */
-		levelUpLabel:string;
+		levelUpLabel: string;
 		/**
 		 * Text for the "train appraoching"
 		 */
-		approachingLabel:string;
+		approachingLabel: string;
 		/**
 		 * Emote for the "train appraoching"
 		 */
-		approachingEmote:string;
+		approachingEmote: string;
 		/**
 		 * Text displayed if train is failed
 		 */
-		failedLabel:string;
+		failedLabel: string;
 		/**
 		 * Emote for the "train failed"
 		 */
-		failedEmote:string;
+		failedEmote: string;
 		/**
 		 * Text displayed when train complete
 		 */
-		successLabel:string;
+		successLabel: string;
 		/**
 		 * Text displayed when train complete with level and percent reached
 		 */
-		successLabelSummary:string;
+		successLabelSummary: string;
 		/**
 		 * Emote for the "train complete"
 		 */
-		successEmote:string;
+		successEmote: string;
 		/**
 		 * Text displayed on all time record
 		 */
-		recordLabel:string;
+		recordLabel: string;
 		/**
 		 * Emote for all time record
 		 */
-		recordEmote:string;
+		recordEmote: string;
 		/**
 		 * Fill color for all time record
 		 */
-		recordColorFill:string;
+		recordColorFill: string;
 		/**
 		 * Background color for all time record
 		 */
-		recordColorBg:string;
+		recordColorBg: string;
 		/**
 		 * Emote for the "level up" sequence
 		 */
-		levelUpEmote:string;
+		levelUpEmote: string;
 		/**
 		 * Levels amounts.
 		 * coma seperated numbers
 		 */
-		levelAmounts:number[];
+		levelAmounts: number[];
 		/**
 		 * Current all time record info
 		 */
@@ -3496,140 +3636,357 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Date of the record (timestamp)
 			 */
-			date:number;
+			date: number;
 			/**
 			 * Record amount
 			 */
-			amount:number;
+			amount: number;
 		};
 		/**
 		 * Platforms allowed to make train progress
 		 */
-		platforms:{
-			kofi:boolean;
-			streamelements:boolean;
-			patreon:boolean;
-			streamlabs:boolean;
-			tipeee:boolean;
-			tiltify:boolean;
-			streamlabs_charity:boolean;
-			twitch_charity:boolean;
-		}
+		platforms: {
+			kofi: boolean;
+			streamelements: boolean;
+			patreon: boolean;
+			streamlabs: boolean;
+			tipeee: boolean;
+			tiltify: boolean;
+			streamlabs_charity: boolean;
+			twitch_charity: boolean;
+		};
 	}
 
 	export interface CustomTrainState {
 		/**
 		 * Date at which the train approached (0 if not yet)
 		 */
-		approached_at:number;
+		approached_at: number;
 		/**
 		 * Date at which the train started (0 if not yet)
 		 */
-		levelStarted_at:number;
+		levelStarted_at: number;
 		/**
 		 * Current train amount
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Reference to internal timeout
 		 */
-		timeoutRef?:string;
+		timeoutRef?: string;
 		/**
 		 * Activities for this train
 		 */
-		activities:{
-			id:string;
+		activities: {
+			id: string;
 			/**
 			 * Platform used to make the donation
 			 */
-			platform:keyof CustomTrainData["platforms"]|"trigger";
+			platform: keyof CustomTrainData["platforms"] | "trigger";
 			/**
 			 * Donation amount
 			 */
-			amount:number;
+			amount: number;
 			/**
 			 * Activity date
 			 */
-			created_at:number;
+			created_at: number;
 			/**
 			 * Message that created this activity
 			 */
-			messageId:string;
+			messageId: string;
 		}[];
 	}
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData
 	 */
-	type ExtractArrayProps<T> = {[K in keyof T]: T[K] extends any[] ? ExcludeUndefined<T[K][number]> : never;}
-	type UnionFromArrayProps<T> = ExcludeUndefined<ExtractArrayProps<T>[keyof ExtractArrayProps<T>]>;
+	type ExtractArrayProps<T> = {
+		[K in keyof T]: T[K] extends any[] ? ExcludeUndefined<T[K][number]> : never;
+	};
+	type UnionFromArrayProps<T> = ExcludeUndefined<
+		ExtractArrayProps<T>[keyof ExtractArrayProps<T>]
+	>;
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text"
-											| "bans"
-											| "mods"
-											| "subs"
-											| "vips"
-											| "raids"
-											| "polls"
-											| "so_in"
-											| "so_out"
-											| "cheers"
-											| "follows"
-											| "rewards"
-											| "chatters"
-											| "timeouts"
-											| "hypechats"
-											| "hypetrains"
-											| "predictions"
-											| "tips"
-											| "shoutouts"
-											| "merch"
-											| "patreonMembers"
-											| "powerups"
-											| "ytSuperchat"
-											| "ytSuperSticker"
-											| "tiktokLikes"
-											| "tiktokShares"
-											| "tiktokGifts";
-	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
-		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",			amountLabel:"overlay.credits.amounts.cheers"},
-		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",				amountLabel:"overlay.credits.amounts.subs",				newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
-		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
-		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",			amountLabel:"overlay.credits.amounts.raids"},
-		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 		amountLabel:"overlay.credits.amounts.chatters"},
-		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"tiktokLikes",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokLikes",		defaultLabel:"overlay.credits.labels.tiktokLikes",		amountLabel:"overlay.credits.amounts.tiktokLikes",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
-		{id:"tiktokShares",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokShares",	defaultLabel:"overlay.credits.labels.tiktokShares",		amountLabel:"overlay.credits.amounts.tiktokShares",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
-		{id:"tiktokGifts",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokGifts",		defaultLabel:"overlay.credits.labels.tiktokGifts",		amountLabel:"overlay.credits.amounts.tiktokGifts",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+	export type EndingCreditsSlotStringTypes =
+		| "text"
+		| "bans"
+		| "mods"
+		| "subs"
+		| "vips"
+		| "raids"
+		| "polls"
+		| "so_in"
+		| "so_out"
+		| "cheers"
+		| "follows"
+		| "rewards"
+		| "chatters"
+		| "timeouts"
+		| "hypechats"
+		| "hypetrains"
+		| "predictions"
+		| "tips"
+		| "shoutouts"
+		| "merch"
+		| "patreonMembers"
+		| "powerups"
+		| "ytSuperchat"
+		| "ytSuperSticker"
+		| "tiktokLikes"
+		| "tiktokShares"
+		| "tiktokGifts";
+	export const EndingCreditsSlotDefinitions: EndingCreditsSlotDefinition[] = [
+		{
+			id: "cheers",
+			premium: false,
+			hasAmount: true,
+			canMerge: true,
+			icon: "bits",
+			label: "overlay.credits.categories.cheers",
+			defaultLabel: "overlay.credits.labels.cheers",
+			amountLabel: "overlay.credits.amounts.cheers",
+		},
+		{
+			id: "subs",
+			premium: false,
+			hasAmount: true,
+			canMerge: true,
+			icon: "sub",
+			label: "overlay.credits.categories.subs",
+			defaultLabel: "overlay.credits.labels.subs",
+			amountLabel: "overlay.credits.amounts.subs",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13_4,
+		},
+		{
+			id: "follows",
+			premium: false,
+			hasAmount: false,
+			canMerge: false,
+			icon: "follow",
+			label: "overlay.credits.categories.follows",
+			defaultLabel: "overlay.credits.labels.follows",
+		},
+		{
+			id: "raids",
+			premium: false,
+			hasAmount: true,
+			canMerge: true,
+			icon: "raid",
+			label: "overlay.credits.categories.raids",
+			defaultLabel: "overlay.credits.labels.raids",
+			amountLabel: "overlay.credits.amounts.raids",
+		},
+		{
+			id: "chatters",
+			premium: false,
+			hasAmount: true,
+			canMerge: false,
+			icon: "user",
+			label: "overlay.credits.categories.chatters",
+			defaultLabel: "overlay.credits.labels.chatters",
+			amountLabel: "overlay.credits.amounts.chatters",
+		},
+		{
+			id: "powerups",
+			premium: false,
+			hasAmount: false,
+			canMerge: true,
+			icon: "watchStreak",
+			label: "overlay.credits.categories.powerups",
+			defaultLabel: "overlay.credits.labels.powerups",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			id: "tiktokLikes",
+			premium: false,
+			hasAmount: true,
+			canMerge: false,
+			icon: "tiktok",
+			label: "overlay.credits.categories.tiktokLikes",
+			defaultLabel: "overlay.credits.labels.tiktokLikes",
+			amountLabel: "overlay.credits.amounts.tiktokLikes",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			id: "tiktokShares",
+			premium: false,
+			hasAmount: true,
+			canMerge: false,
+			icon: "tiktok",
+			label: "overlay.credits.categories.tiktokShares",
+			defaultLabel: "overlay.credits.labels.tiktokShares",
+			amountLabel: "overlay.credits.amounts.tiktokShares",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			id: "tiktokGifts",
+			premium: false,
+			hasAmount: true,
+			canMerge: true,
+			icon: "tiktok",
+			label: "overlay.credits.categories.tiktokGifts",
+			defaultLabel: "overlay.credits.labels.tiktokGifts",
+			amountLabel: "overlay.credits.amounts.tiktokGifts",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
 		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",		amountLabel:"overlay.credits.amounts.hypechats"},
-		{id:"hypetrains",	premium:true,	hasAmount:false,	canMerge:false,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},
-		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",			amountLabel:"overlay.credits.amounts.rewards"},
-		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",				amountLabel:"overlay.credits.amounts.bans"},
-		{id:"timeouts",		premium:true,	hasAmount:true,		canMerge:false,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",			amountLabel:"overlay.credits.amounts.timeouts"},
-		{id:"so_in",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",			amountLabel:"overlay.credits.amounts.so_in"},
-		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",			amountLabel:"overlay.credits.amounts.so_out"},
-		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",			amountLabel:"overlay.credits.amounts.polls"},
-		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",		amountLabel:"overlay.credits.amounts.predictions"},
-		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",				amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",		amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"patreonMembers",premium:true,	hasAmount:true,		canMerge:false,		icon:"patreon",			label:"overlay.credits.categories.patreonMembers",	defaultLabel:"overlay.credits.labels.patreonMembers",	amountLabel:"overlay.credits.amounts.patreonMembers",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
-		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
+		{
+			id: "hypetrains",
+			premium: true,
+			hasAmount: false,
+			canMerge: false,
+			icon: "train",
+			label: "overlay.credits.categories.hypetrains",
+			defaultLabel: "overlay.credits.labels.hypetrains",
+		},
+		{
+			id: "rewards",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "channelPoints",
+			label: "overlay.credits.categories.rewards",
+			defaultLabel: "overlay.credits.labels.rewards",
+			amountLabel: "overlay.credits.amounts.rewards",
+		},
+		{
+			id: "bans",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "ban",
+			label: "overlay.credits.categories.bans",
+			defaultLabel: "overlay.credits.labels.bans",
+			amountLabel: "overlay.credits.amounts.bans",
+		},
+		{
+			id: "timeouts",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "timeout",
+			label: "overlay.credits.categories.timeouts",
+			defaultLabel: "overlay.credits.labels.timeouts",
+			amountLabel: "overlay.credits.amounts.timeouts",
+		},
+		{
+			id: "so_in",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "shoutout",
+			label: "overlay.credits.categories.so_in",
+			defaultLabel: "overlay.credits.labels.so_in",
+			amountLabel: "overlay.credits.amounts.so_in",
+		},
+		{
+			id: "so_out",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "shoutout",
+			label: "overlay.credits.categories.so_out",
+			defaultLabel: "overlay.credits.labels.so_out",
+			amountLabel: "overlay.credits.amounts.so_out",
+		},
+		{
+			id: "polls",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "poll",
+			label: "overlay.credits.categories.polls",
+			defaultLabel: "overlay.credits.labels.polls",
+			amountLabel: "overlay.credits.amounts.polls",
+		},
+		{
+			id: "predictions",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "prediction",
+			label: "overlay.credits.categories.predictions",
+			defaultLabel: "overlay.credits.labels.predictions",
+			amountLabel: "overlay.credits.amounts.predictions",
+		},
+		{
+			id: "tips",
+			premium: true,
+			hasAmount: true,
+			canMerge: true,
+			icon: "coin",
+			label: "overlay.credits.categories.tips",
+			defaultLabel: "overlay.credits.labels.tips",
+			amountLabel: "overlay.credits.amounts.tips",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			id: "merch",
+			premium: true,
+			hasAmount: false,
+			canMerge: false,
+			icon: "label",
+			label: "overlay.credits.categories.merch",
+			defaultLabel: "overlay.credits.labels.merch",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			id: "ytSuperchat",
+			premium: true,
+			hasAmount: true,
+			canMerge: true,
+			icon: "youtube",
+			label: "overlay.credits.categories.ytSuperchat",
+			defaultLabel: "overlay.credits.labels.ytSuperchat",
+			amountLabel: "overlay.credits.amounts.tips",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			id: "ytSuperSticker",
+			premium: true,
+			hasAmount: true,
+			canMerge: true,
+			icon: "youtube",
+			label: "overlay.credits.categories.ytSuperSticker",
+			defaultLabel: "overlay.credits.labels.ytSuperSticker",
+			amountLabel: "overlay.credits.amounts.tips",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			id: "patreonMembers",
+			premium: true,
+			hasAmount: true,
+			canMerge: false,
+			icon: "patreon",
+			label: "overlay.credits.categories.patreonMembers",
+			defaultLabel: "overlay.credits.labels.patreonMembers",
+			amountLabel: "overlay.credits.amounts.patreonMembers",
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			id: "text",
+			premium: true,
+			hasAmount: false,
+			canMerge: false,
+			icon: "font",
+			label: "overlay.credits.categories.text",
+			defaultLabel: "overlay.credits.labels.text",
+		},
 	];
 
 	export interface EndingCreditsSlotDefinition {
-		id:EndingCreditsSlotStringTypes,
-		icon:string,
-		label:string,
-		defaultLabel:string,
-		premium:boolean,
-		hasAmount:boolean,
-		canMerge:boolean,
-		amountLabel?:string,
-		newFlag?:number,
+		id: EndingCreditsSlotStringTypes;
+		icon: string;
+		label: string;
+		defaultLabel: string;
+		premium: boolean;
+		hasAmount: boolean;
+		canMerge: boolean;
+		amountLabel?: string;
+		newFlag?: number;
 	}
 
 	/**
@@ -3639,221 +3996,221 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Section ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Type of slot to show
 		 */
-		slotType:EndingCreditsSlotStringTypes;
+		slotType: EndingCreditsSlotStringTypes;
 		/**
 		 * Title for this slot
 		 */
-		label:string;
+		label: string;
 		/**
 		 * Maximum entries that section should show
 		 */
-		maxEntries:number;
+		maxEntries: number;
 		/**
 		 * Is the slot enabled ?
 		 */
-		enabled:boolean,
+		enabled: boolean;
 		/**
 		 * Layout of the entries
 		 */
-		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
+		layout: "colLeft" | "col" | "colRight" | "left" | "center" | "right" | "2cols" | "3cols";
 		/**
 		 * Show entries amounts if any ?
 		 */
-		showAmounts?:boolean;
+		showAmounts?: boolean;
 		/**
 		 * Show sub months duration for subs slot ?
 		 */
-		showSubMonths?:boolean;
+		showSubMonths?: boolean;
 		/**
 		 * Show mod/sub/vip badges next to chatters names ?
 		 */
-		showBadges?:boolean;
+		showBadges?: boolean;
 		/**
 		 * Show moderators on chatters slot ?
 		 */
-		showMods?:boolean;
+		showMods?: boolean;
 		/**
 		 * Show VIPs on chatters slot ?
 		 */
-		showVIPs?:boolean;
+		showVIPs?: boolean;
 		/**
 		 * Show subscribers on sub slot ?
 		 */
-		showSubs?:boolean;
+		showSubs?: boolean;
 		/**
 		 * Show resubs on subs slot ?
 		 */
-		showResubs?:boolean;
+		showResubs?: boolean;
 		/**
 		 * Show subgifts on subs slot ?
 		 */
-		showSubgifts?:boolean;
+		showSubgifts?: boolean;
 		/**
 		 * Show prime subs on subs slot ?
 		 */
-		showSubsPrime?:boolean;
+		showSubsPrime?: boolean;
 		/**
 		 * Show tier 1 subs on subs slot ?
 		 */
-		showSubsT1?:boolean;
+		showSubsT1?: boolean;
 		/**
 		 * Show tier 2 subs on subs slot ?
 		 */
-		showSubsT2?:boolean;
+		showSubsT2?: boolean;
 		/**
 		 * Show tier 3 subs on subs slot ?
 		 */
-		showSubsT3?:boolean;
+		showSubsT3?: boolean;
 		/**
 		 * Show all subs/subgifters on subs slot ?
 		 * Otherwise it only show subs that occured during the stream
 		 */
-		showAllSubs?:boolean;
+		showAllSubs?: boolean;
 		/**
 		 * Show all subgifters on subs slot ?
 		 * Otherwise it only show subgifters that occured during the stream
 		 */
-		showAllSubgifters?:boolean;
+		showAllSubgifters?: boolean;
 		/**
 		 * Show subs from Youtube ?
 		 */
-		showSubsYoutube?:boolean;
+		showSubsYoutube?: boolean;
 		/**
 		 * Show subs from TikTok ?
 		 */
-		showSubsTiktok?:boolean;
+		showSubsTiktok?: boolean;
 		/**
 		 * Show subgifts from Youtube ?
 		 */
-		showSubgiftsYoutube?:boolean;
+		showSubgiftsYoutube?: boolean;
 		/**
 		 * Show tips from Kofi on tips slot ?
 		 */
-		showTipsKofi?:boolean;
+		showTipsKofi?: boolean;
 		/**
 		 * Show subs from Kofi on tips slot ?
 		 */
-		showSubsKofi?:boolean;
+		showSubsKofi?: boolean;
 		/**
 		 * Show tips from Tipeee on tips slot ?
-		*/
-		showTipsTipeee?:boolean;
+		 */
+		showTipsTipeee?: boolean;
 		/**
 		 * Show tips from Patreon on tips slot ?
 		 */
-		showTipsPatreon?:boolean;
+		showTipsPatreon?: boolean;
 		/**
 		 * Show tips from Streamlabs on tips slot ?
 		 */
-		showTipsStreamlabs?:boolean;
+		showTipsStreamlabs?: boolean;
 		/**
 		 * Show tips from Streamelements on tips slot ?
 		 */
-		showTipsStreamelements?:boolean;
+		showTipsStreamelements?: boolean;
 		/**
 		 * Show merch from Kofi on merch slot ?
 		 */
-		showMerchKofi?:boolean;
+		showMerchKofi?: boolean;
 		/**
 		 * Show merch from Streamlabs on merch slot ?
 		 */
-		showMerchStreamlabs?:boolean;
+		showMerchStreamlabs?: boolean;
 		/**
 		 * Sort entries by names ?
 		 */
-		sortByNames?:boolean;
+		sortByNames?: boolean;
 		/**
 		 * Sort entries by roles ?
 		 */
-		sortByRoles?:boolean;
+		sortByRoles?: boolean;
 		/**
 		 * Sort entries by amounts ?
 		 */
-		sortByAmounts?:boolean;
+		sortByAmounts?: boolean;
 		/**
 		 * Sort entries by amounts (if any) ?
 		 */
-		sortByTotalAmounts?:boolean;
+		sortByTotalAmounts?: boolean;
 		/**
 		 * Sort entries by sub types ?
 		 */
-		sortBySubTypes?:boolean;
+		sortBySubTypes?: boolean;
 		/**
 		 * Show all chatters for chatters slot ?
 		 */
-		showChatters?:boolean;
+		showChatters?: boolean;
 		/**
 		 * Show train conductors for hypetrain slot ?
 		 */
-		showTrainConductors?:boolean;
+		showTrainConductors?: boolean;
 		/**
 		 * Show power up skin events ?
 		 */
-		showPuSkin?:boolean;
+		showPuSkin?: boolean;
 		/**
 		 * Show power up gigantified emote events ?
 		 */
-		showPuEmote?:boolean;
+		showPuEmote?: boolean;
 		/**
 		 * Show power up celebration events ?
 		 */
-		showPuCeleb?:boolean;
+		showPuCeleb?: boolean;
 		/**
 		 * Show total amounts for entries that have amounts ?
 		 * ex: membership duration for Patreon members
 		 */
-		showTotalAmounts?:boolean;
+		showTotalAmounts?: boolean;
 		/**
 		 * Show unique users only ?
 		 * Multiple entries from the same user will be merged
 		 */
-		uniqueUsers?:boolean;
+		uniqueUsers?: boolean;
 		/**
 		 * Text content for text slot
 		 */
-		text?:string;
+		text?: string;
 		/**
 		 * Currency to use for amounts display
 		 * ex: for Patreon total amount given
 		 */
-		currency?:string;
+		currency?: string;
 		/**
 		 * Show user list tha tredeemed a reward ?
 		 */
-		showRewardUsers?:boolean;
+		showRewardUsers?: boolean;
 		/**
 		 * Show normal cheers ? (not pinned)
 		 */
-		showNormalCheers?:boolean;
+		showNormalCheers?: boolean;
 		/**
 		 * Show pinned cheers ?
 		 */
-		showPinnedCheers?:boolean;
+		showPinnedCheers?: boolean;
 		/**
 		 * Anonymise last names of users ?
 		 * ex: for patreon members show "john D." instead of "john Doe"
 		 */
-		anonLastNames?:boolean;
+		anonLastNames?: boolean;
 		/**
 		 * Filter patreon tiers to show
 		 */
-		patreonTiers?:string[];
+		patreonTiers?: string[];
 		/**
 		 * Should we filter channel point reward redeems ?
 		 */
-		filterRewards?:boolean;
+		filterRewards?: boolean;
 		/**
 		 * Reward IDs to show if filterRewards is true
 		 */
-		rewardIds?:string[];
+		rewardIds?: string[];
 		/**
 		 * @deprecated only here for data migration typing
 		 */
-		showPremiumWarning?:boolean;
+		showPremiumWarning?: boolean;
 	}
 
 	/**
@@ -3863,87 +4220,87 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Scale at which to render the credits
 		 */
-		scale:number;
+		scale: number;
 		/**
 		 * Padding around the categories (in pixels)
 		 */
-		padding:number;
+		padding: number;
 		/**
 		 * Padding bellow the title (in pixels)
 		 */
-		paddingTitle:number;
+		paddingTitle: number;
 		/**
 		 * Should title stick to the top when scrolling ?
 		 */
-		stickyTitle:boolean;
+		stickyTitle: boolean;
 		/**
 		 * Title color
 		 */
-		colorTitle:string;
+		colorTitle: string;
 		/**
 		 * Color of the categories entries
 		 */
-		colorEntry:string;
+		colorEntry: string;
 		/**
 		 * Font for the title
 		 */
-		fontTitle:string;
+		fontTitle: string;
 		/**
 		 * Font for the entries
 		 */
-		fontEntry:string;
+		fontEntry: string;
 		/**
 		 * Should bots be ignored ?
 		 */
-		ignoreBots:boolean;
+		ignoreBots: boolean;
 		/**
 		 * List of user names to ignore
 		 */
-		ignoreCustomBots:string[];
+		ignoreCustomBots: string[];
 		/**
 		 * Strength of the text shadow
 		 */
-		textShadow:number;
+		textShadow: number;
 		/**
 		 * Should the entries scroll at a specific speed or over a specific duration ?
 		 */
-		timing:"speed" | "duration";
+		timing: "speed" | "duration";
 		/**
 		 * Duration of the credits scroll (in seconds)
 		 */
-		duration:number;
+		duration: number;
 		/**
 		 * Delay before starting the credits (in seconds)
 		 */
-		startDelay:number;
+		startDelay: number;
 		/**
 		 * Should credits loop after ending ?
 		 */
-		loop:boolean;
+		loop: boolean;
 		/**
-		 * Show icons on categories titles ? 
+		 * Show icons on categories titles ?
 		 */
-		showIcons:boolean;
+		showIcons: boolean;
 		/**
 		 * Show power up emotes in the background ?
 		 */
-		powerUpEmotes:boolean;
+		powerUpEmotes: boolean;
 		/**
 		 * Speed of the credits scroll (in pixels per second)
 		 */
-		speed:number;
+		speed: number;
 		/**
 		 * Size of the fade at the top and bottom of the credits (in pixels)
 		 */
-		fadeSize:number;
+		fadeSize: number;
 		/**
 		 * Slots to show in the ending credits
 		 */
-		slots:EndingCreditsSlotParams[];
+		slots: EndingCreditsSlotParams[];
 		/**
 		 * Hide slots that have no entry
 		 */
-		hideEmptySlots?:boolean;
+		hideEmptySlots?: boolean;
 	}
 
 	/**
@@ -3953,63 +4310,63 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Show approaching state ?
 		 */
-		showApproaching:boolean;
+		showApproaching: boolean;
 		/**
 		 * Show running state ?
 		 */
-		showRunning:boolean;
+		showRunning: boolean;
 		/**
 		 * Delay before starting the ad break (in seconds)
 		 */
-		approachingDelay:number;
+		approachingDelay: number;
 		/**
 		 * Style of the approaching state
 		 */
-		approachingStyle:"bar"|"text";
+		approachingStyle: "bar" | "text";
 		/**
 		 * Style of the running state
 		 */
-		runningStyle:"bar"|"text";
+		runningStyle: "bar" | "text";
 		/**
 		 * Size of the approaching render
 		 */
-		approachingSize:number;
+		approachingSize: number;
 		/**
 		 * Size of the running render
 		 */
-		runningSize:number;
+		runningSize: number;
 		/**
 		 * Thickness of the approaching bar
 		 */
-		approachingThickness:number;
+		approachingThickness: number;
 		/**
 		 * Thickness of the running bar
 		 */
-		runningThickness:number;
+		runningThickness: number;
 		/**
 		 * Color of the approaching render
 		 */
-		approachingColor:string;
+		approachingColor: string;
 		/**
 		 * Color of the running render
 		 */
-		runningColor:string;
+		runningColor: string;
 		/**
 		 * Position of the approaching render
 		 */
-		approachingPlacement:ScreenPosition;
+		approachingPlacement: ScreenPosition;
 		/**
 		 * Position of the running render
 		 */
-		runningPlacement:ScreenPosition;
+		runningPlacement: ScreenPosition;
 		/**
 		 * Label when approaching ad break
 		 */
-		approachingLabel:string;
+		approachingLabel: string;
 		/**
 		 * Label when running ad break
 		 */
-		runningLabel:string;
+		runningLabel: string;
 	}
 
 	/**
@@ -4019,34 +4376,34 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Cheermotes size
 		 */
-		size:number;
+		size: number;
 		/**
 		 * Opacity of the cheermotes (0 to 1)
-		*/
-		opacity:number;
+		 */
+		opacity: number;
 		/**
 		 * Can cheermote be broken by clicking them ?
 		 */
-		break:boolean;
+		break: boolean;
 		/**
 		 * Can cheermotes be broken only by the sender ?
 		 */
-		break_senderOnly:boolean;
+		break_senderOnly: boolean;
 		/**
 		 * Duration after which the cheermote automatically breaks (in seconds)
 		 */
-		break_durations?:{1:number, 100:number, 1000:number, 5000:number, 10000:number};
+		break_durations?: { 1: number; 100: number; 1000: number; 5000: number; 10000: number };
 	}
 
 	/**
 	 * Contains params about the bits wall overlay
 	 */
 	export interface DiscordQuickActionData {
-		id:string;
-		action:"message";
-		name:string;
-		message?:string;
-		channelId?:string;
+		id: string;
+		action: "message";
+		name: string;
+		message?: string;
+		channelId?: string;
 	}
 
 	/**
@@ -4056,68 +4413,68 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Quiz ID
 		 */
-		id:string;
+		id: string;
 		/**
 		 * Quiz title
 		 */
-		title:string
+		title: string;
 		/**
 		 * Number of seconds to answer
 		 */
-		durationPerQuestion_s:number;
+		durationPerQuestion_s: number;
 		/**
 		 * If true, users that answer wrong will loose points
 		 */
-		loosePointsOnFail:boolean;
+		loosePointsOnFail: boolean;
 		/**
 		 * If true, the faster the answer, the more points earned
 		 */
-		timeBasedScoring:boolean;
+		timeBasedScoring: boolean;
 		/**
 		 * Is the quiz enabled ?
 		 * Can be false after user stops being premium and is required to disable
 		 * entries if they have more than the maximum allowed
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * UTC date at which the quiz started
 		 */
-		quizStarted_at:string;
+		quizStarted_at: string;
 		/**
 		 * UTC date at which the current question started
 		 */
-		questionStarted_at:string;
+		questionStarted_at: string;
 		/**
 		 * Current question ID
 		 */
-		currentQuestionId:string;
+		currentQuestionId: string;
 		/**
 		 * Is the current question revealed to users?
 		 */
-		currentQuestionRevealed?:boolean;
+		currentQuestionRevealed?: boolean;
 		/**
 		 * Contains scores for current question
 		 */
-		currentQuestionScores?: {[uid:string]:number};
+		currentQuestionScores?: { [uid: string]: number };
 		/**
 		 * Votes for the current question.
 		 */
-		currentQuestionStats?:{
+		currentQuestionStats?: {
 			// Classic and majority answers
-			[answerId: string]:{
+			[answerId: string]: {
 				/**
 				 * Percentage of votes for this answer compared to all the other answers
 				 */
-				globalPercent:number;
+				globalPercent: number;
 				/**
 				 * Percentage of votes for this answer compared to the answers with the highest voted answer
 				 */
-				relativePercent:number;
+				relativePercent: number;
 				/**
 				 * Number of votes for this answer
 				 */
-				voteCount:number;
-			}
+				voteCount: number;
+			};
 		};
 		/**
 		 * Orthographic tolerance for answer matching in "freeAnswer" mode.
@@ -4125,7 +4482,7 @@ export namespace TwitchatDataTypes {
 		 * ...
 		 * 5 = very tolerant
 		 */
-		toleranceLevel?:0|1|2|3|4|5;
+		toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
 		/**
 		 * List of questions
 		 */
@@ -4133,140 +4490,146 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Question ID
 			 */
-			id:string;
+			id: string;
 			/**
 			 * Question mode.
 			 * classic: earn points by answering questions correctly
 			 */
-			mode:"classic" | "majority" | "freeAnswer";
+			mode: "classic" | "majority" | "freeAnswer";
 			/**
 			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
 			 */
-			duration_s?:number;
+			duration_s?: number;
 			/**
 			 * Question text
 			 */
-			question:string;
-		} & ({
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode:"classic";
-			/**
-			 * Possible answers for this question
-			 */
-			answerList:{
-				/**
-				 * Answer ID
-				 */
-				id:string;
-				/**
-				 * Answer text
-				 */
-				title:string;
-				/**
-				 * Is this the answer correct ?
-				 */
-				correct?:boolean;
-			}[];
-
-		} | {
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode:"majority";
-			/**
-			 * Possible answers for this question
-			 */
-			answerList:{
-				/**
-				 * Answer ID
-				 */
-				id:string;
-				/**
-				 * Answer text
-				 */
-				title:string;
-			}[];
-
-		} | {
-			/**
-			 * Question mode.
-			 * freeAnswer: viewers must type the answer on chat or extension
-			 */
-			mode:"freeAnswer";
-			/**
-			 * Expected answer
-			 */
-			answer:string
-			/**
-			 * Orthographic tolerance for answer matching in "freeAnswer" mode.
-			 * Overrides the global quiz tolerance level.
-			 * 0 = exact match
-			 * ...
-			 * 5 = very tolerant
-			 */
-			toleranceLevel?:0|1|2|3|4|5;
-		}))[];
-	}
+			question: string;
+		} & (
+			| {
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "classic";
+					/**
+					 * Possible answers for this question
+					 */
+					answerList: {
+						/**
+						 * Answer ID
+						 */
+						id: string;
+						/**
+						 * Answer text
+						 */
+						title: string;
+						/**
+						 * Is this the answer correct ?
+						 */
+						correct?: boolean;
+					}[];
+			  }
+			| {
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "majority";
+					/**
+					 * Possible answers for this question
+					 */
+					answerList: {
+						/**
+						 * Answer ID
+						 */
+						id: string;
+						/**
+						 * Answer text
+						 */
+						title: string;
+					}[];
+			  }
+			| {
+					/**
+					 * Question mode.
+					 * freeAnswer: viewers must type the answer on chat or extension
+					 */
+					mode: "freeAnswer";
+					/**
+					 * Expected answer
+					 */
+					answer: string;
+					/**
+					 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+					 * Overrides the global quiz tolerance level.
+					 * 0 = exact match
+					 * ...
+					 * 5 = very tolerant
+					 */
+					toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
+			  }
+		))[];
+	};
 
 	/**
 	 * Contains current state for any live quiz
 	 * Stores users votes and scores
 	 */
 	export type QuizState = {
-		quizId:string;
+		quizId: string;
 		/**
 		 * Users list that played this quiz
 		 */
-		users:{[userId:string]:{
-			/**
-			 * Is the user anonymous?
-			 * true when user has chose not to grant access to their user info on extension
-			 */
-			isAnonymous:boolean;
-			/**
-			 * Platform used to play the quiz
-			 */
-			platform:ChatPlatform;
-			/**
-			 * User name
-			 */
-			name:string;
-			/**
-			 * user's avatar URL
-			 */
-			avatarPath?:string;
-			/**
-			 * User score
-			 */
-			score:number;
-		}};
+		users: {
+			[userId: string]: {
+				/**
+				 * Is the user anonymous?
+				 * true when user has chose not to grant access to their user info on extension
+				 */
+				isAnonymous: boolean;
+				/**
+				 * Platform used to play the quiz
+				 */
+				platform: ChatPlatform;
+				/**
+				 * User name
+				 */
+				name: string;
+				/**
+				 * user's avatar URL
+				 */
+				avatarPath?: string;
+				/**
+				 * User score
+				 */
+				score: number;
+			};
+		};
 		/**
 		 * Votes for each questions.
 		 */
-		questionVotes:{[questionId:string]:{
-			/**
-			 * User ID
-			 */
-			uid:string;
-			/**
-			 * Can be either an answer ID or a raw text answer for "freeAnswer" mode
-			 */
-			answer:string;
-			/**
-			 * Date (ISO 8601 string) when the vote was cast.
-			 * Used for time-based scoring on majority questions.
-			 */
-			votedAt?:string;
-		}[]};
-	}
+		questionVotes: {
+			[questionId: string]: {
+				/**
+				 * User ID
+				 */
+				uid: string;
+				/**
+				 * Can be either an answer ID or a raw text answer for "freeAnswer" mode
+				 */
+				answer: string;
+				/**
+				 * Date (ISO 8601 string) when the vote was cast.
+				 * Used for time-based scoring on majority questions.
+				 */
+				votedAt?: string;
+			}[];
+		};
+	};
 
 	/**
 	 * Defines the pinnable menu items
-	 * 
+	 *
 	 * Allow PinId to be one of the fixed strings or a pattern like "trigger:TRIGGER_ID"
 	 */
 	type PinId =
@@ -4286,536 +4649,904 @@ export namespace TwitchatDataTypes {
 		| "rewards"
 		| "quiz"
 		| `trigger:${string}`;
-	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string, label?:string}[] = [
-		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
-		{id:"chatPoll",		isModal:true,	icon:"chatPoll", 		modalId:"chatPoll",		modelValueName:"",	 labelKey:"cmdmenu.chatPoll"},
-		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"",	 labelKey:"cmdmenu.prediction"},
-		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"",	 labelKey:"cmdmenu.raffle"},
-		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
-		{id:"bingo_grid",	isModal:true,	icon:"bingo_grid", 		modalId:"bingo_grid",	modelValueName:"",	 labelKey:"cmdmenu.bingo_grid"},
-		{id:"quiz",			isModal:true,	icon:"quiz", 			modalId:"quizForm", 	modelValueName:"",	 labelKey:"cmdmenu.quiz"},
-		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
-		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
-		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
-		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
-		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},
-		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"",	 labelKey:"cmdmenu.chat"},
-		{id:"chatters",		isModal:false,	icon:"user", 			modalId:"", 			modelValueName:"showChatUsers", labelKey:"cmdmenu.chatters"},
-		{id:"rewards",		isModal:false,	icon:"channelPoints", 	modalId:"", 			modelValueName:"showRewards", labelKey:"cmdmenu.rewards"},
+	export const PinnableMenuItems: {
+		id: PinId;
+		isModal: boolean;
+		icon: string;
+		modalId: TwitchatDataTypes.ModalTypes | "";
+		modelValueName: string;
+		labelKey: string;
+		label?: string;
+	}[] = [
+		{
+			id: "poll",
+			isModal: true,
+			icon: "poll",
+			modalId: "poll",
+			modelValueName: "",
+			labelKey: "cmdmenu.poll",
+		},
+		{
+			id: "chatPoll",
+			isModal: true,
+			icon: "chatPoll",
+			modalId: "chatPoll",
+			modelValueName: "",
+			labelKey: "cmdmenu.chatPoll",
+		},
+		{
+			id: "prediction",
+			isModal: true,
+			icon: "prediction",
+			modalId: "pred",
+			modelValueName: "",
+			labelKey: "cmdmenu.prediction",
+		},
+		{
+			id: "raffle",
+			isModal: true,
+			icon: "ticket",
+			modalId: "raffle",
+			modelValueName: "",
+			labelKey: "cmdmenu.raffle",
+		},
+		{
+			id: "bingo",
+			isModal: true,
+			icon: "bingo",
+			modalId: "bingo",
+			modelValueName: "",
+			labelKey: "cmdmenu.bingo",
+		},
+		{
+			id: "bingo_grid",
+			isModal: true,
+			icon: "bingo_grid",
+			modalId: "bingo_grid",
+			modelValueName: "",
+			labelKey: "cmdmenu.bingo_grid",
+		},
+		{
+			id: "quiz",
+			isModal: true,
+			icon: "quiz",
+			modalId: "quizForm",
+			modelValueName: "",
+			labelKey: "cmdmenu.quiz",
+		},
+		{
+			id: "qna",
+			isModal: true,
+			icon: "qna",
+			modalId: "qnaForm",
+			modelValueName: "",
+			labelKey: "cmdmenu.qna",
+		},
+		{
+			id: "chatSugg",
+			isModal: true,
+			icon: "chatSugg",
+			modalId: "chatsuggForm",
+			modelValueName: "",
+			labelKey: "cmdmenu.suggestions",
+		},
+		{
+			id: "timer",
+			isModal: true,
+			icon: "timer",
+			modalId: "timer",
+			modelValueName: "",
+			labelKey: "cmdmenu.timer",
+		},
+		{
+			id: "streamInfo",
+			isModal: true,
+			icon: "info",
+			modalId: "streamInfo",
+			modelValueName: "",
+			labelKey: "cmdmenu.info",
+		},
+		{
+			id: "extensions",
+			isModal: true,
+			icon: "extension",
+			modalId: "extensions",
+			modelValueName: "",
+			labelKey: "cmdmenu.extensions",
+		},
+		{
+			id: "clearChat",
+			isModal: false,
+			icon: "clearChat",
+			modalId: "",
+			modelValueName: "",
+			labelKey: "cmdmenu.chat",
+		},
+		{
+			id: "chatters",
+			isModal: false,
+			icon: "user",
+			modalId: "",
+			modelValueName: "showChatUsers",
+			labelKey: "cmdmenu.chatters",
+		},
+		{
+			id: "rewards",
+			isModal: false,
+			icon: "channelPoints",
+			modalId: "",
+			modelValueName: "showRewards",
+			labelKey: "cmdmenu.rewards",
+		},
 	];
-
-
 
 	/**
 	 * Available message types
 	 */
-	export const TwitchatMessageType:{  [K in Uppercase<ChatMessageTypes["type"]>]: Extract<ChatMessageTypes["type"], Lowercase<K>>} = {
-		BAN:"ban",
-		RAID:"raid",
-		POLL:"poll",
-		KOFI:"kofi",
-		JOIN:"join",
-		UNBAN:"unban",
-		LEAVE:"leave",
-		CHEER:"cheer",
-		TIMER:"timer",
-		BINGO:"bingo",
-		CUSTOM:"custom",
-		PINNED:"pinned",
-		RAFFLE:"raffle",
-		REWARD:"reward",
-		NOTICE:"notice",
-		TIPEEE:"tipeee",
-		MESSAGE:"message",
-		WHISPER:"whisper",
-		TILTIFY:"tiltify",
-		CONNECT:"connect",
-		PATREON:"patreon",
-		UNPINNED:"unpinned",
-		SHOUTOUT:"shoutout",
-		VOICEMOD:"voicemod",
-		QNA_STOP:"qna_stop",
-		CHAT_POLL:"chat_poll",
-		QNA_START:"qna_start",
-		HYPE_CHAT:"hype_chat",
-		FOLLOWING:"following",
-		COUNTDOWN:"countdown",
-		HATE_RAID:"hate_raid",
-		BINGO_GRID:"bingo_grid",
-		QNA_DELETE:"qna_delete",
-		CLEAR_CHAT:"clear_chat",
-		CHAT_ALERT:"chat_alert",
-		DISCONNECT:"disconnect",
-		PREDICTION:"prediction",
-		HEAT_CLICK:"heat_click",
-		MUSIC_STOP:"music_stop",
-		STREAMLABS:"streamlabs",
-		SUPER_CHAT:"super_chat",
-		TIKTOK_SUB:"tiktok_sub",
-		TIKTOK_GIFT:"tiktok_gift",
-		TIKTOK_LIKE:"tiktok_like",
-		MUSIC_START:"music_start",
-		TWITCHAT_AD:"twitchat_ad",
-		YOUTUBE_BAN:"youtube_ban",
-		MANY_REPLIES:"many_replies",
-		TWITCH_COMBO:"twitch_combo",
-		TIKTOK_SHARE:"tiktok_share",
-		VALUE_UPDATE:"value_update",
-		GOXLR_BUTTON:"goxlr_button",
-		RAID_STARTED:"raid_started",
-		SUBSCRIPTION:"subscription",
-		AUTOBAN_JOIN:"autoban_join",
-		WARN_CHATTER:"warn_chatter",
-		SUPER_STICKER:"super_sticker",
-		UNBAN_REQUEST:"unban_request",
-		SCOPE_REQUEST:"scope_request",
-		ROOM_SETTINGS:"room_settings",
-		STREAM_ONLINE:"stream_online",
-		BLOCKED_TERMS:"blocked_terms",
-		STREAMELEMENTS:"streamelements",
-		GOXLR_FX_STATE:"goxlr_fx_state",
-		STREAM_OFFLINE:"stream_offline",
-		CHAT_HIGHLIGHT:"chat_highlight",
-		FOLLOWBOT_LIST:"followbot_list",
-		COUNTER_UPDATE:"counter_update",
-		AD_BREAK_START:"ad_break_start",
-		WEBSOCKET_TOPIC:"websocket_topic",
-		OBS_STOP_STREAM:"obs_stop_stream",
-		YOUTUBE_SUBGIFT:"youtube_subgift",
-		WARN_ACKNOWLEDGE:"warn_acknowledge",
-		CREDITS_COMPLETE:"credits_complete",
-		HISTORY_SPLITTER:"history_splitter",
-		TWITCHAT_STARTED:"twitchat_started",
-		OBS_START_STREAM:"obs_start_stream",
-		HYPE_TRAIN_START:"hype_train_start",
-		OBS_SCENE_CHANGE:"obs_scene_change",
-		CUSTOM_TRAIN_FAIL:"custom_train_fail",
-		GIGANTIFIED_EMOTE:"gigantified_emote",
-		PLAYABILITY_INPUT:"playability_input",
-		BINGO_GRID_VIEWER:"bingo_grid_viewer",
-		AD_BREAK_COMPLETE:"ad_break_complete",
-		GOXLR_SOUND_INPUT:"goxlr_sound_input",
-		USER_WATCH_STREAK:"user_watch_streak",
-		OBS_SOURCE_TOGGLE:"obs_source_toggle",
-		OBS_FILTER_TOGGLE:"obs_filter_toggle",
-		HYPE_TRAIN_CANCEL:"hype_train_cancel",
-		CUSTOM_TRAIN_START:"custom_train_start",
-		GOAL_STEP_COMPLETE:"goal_step_complete",
-		TWITCH_CELEBRATION:"twitch_celebration",
-		HYPE_TRAIN_SUMMARY:"hype_train_summary",
-		RAFFLE_PICK_WINNER:"raffle_pick_winner",
-		OBS_RECORDING_STOP:"obs_recording_stop",
-		STREAMSOCKET_ACTION:"streamsocket_action",
-		PRIVATE_MOD_MESSAGE:"private_mod_message",
-		OBS_RECORDING_START:"obs_recording_start",
-		AD_BREAK_START_CHAT:"ad_break_start_chat",
-		HYPE_TRAIN_PROGRESS:"hype_train_progress",
-		HYPE_TRAIN_COMPLETE:"hype_train_complete",
-		LOW_TRUST_TREATMENT:"low_trust_treatment",
-		CUSTOM_TRAIN_SUMMARY:"custom_train_summary",
-		CHAT_HIGHLIGHT_CLOSE:"chat_highlight_close",
-		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
-		AD_BREAK_APPROACHING:"ad_break_approaching",
-		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
-		CUSTOM_TRAIN_COOLDOWN:"custom_train_cooldown",
-		CUSTOM_TRAIN_LEVEL_UP:"custom_train_level_up",
-		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
-		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
-		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
-		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
-		CLIP_CREATION_COMPLETE:"clip_creation_complete",
-		TWITCH_CHARITY_DONATION:"twitch_charity_donation",
-		SUSPENDED_TRIGGER_STACK:"suspended_trigger_stack",
-		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
-		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
-		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
-		OBS_WS_CONNECT_STATE_CHANGE:"obs_ws_connect_state_change",
-		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
+	export const TwitchatMessageType: {
+		[K in Uppercase<ChatMessageTypes["type"]>]: Extract<ChatMessageTypes["type"], Lowercase<K>>;
+	} = {
+		BAN: "ban",
+		RAID: "raid",
+		POLL: "poll",
+		KOFI: "kofi",
+		JOIN: "join",
+		UNBAN: "unban",
+		LEAVE: "leave",
+		CHEER: "cheer",
+		TIMER: "timer",
+		BINGO: "bingo",
+		CUSTOM: "custom",
+		PINNED: "pinned",
+		RAFFLE: "raffle",
+		REWARD: "reward",
+		NOTICE: "notice",
+		TIPEEE: "tipeee",
+		MESSAGE: "message",
+		WHISPER: "whisper",
+		TILTIFY: "tiltify",
+		CONNECT: "connect",
+		PATREON: "patreon",
+		UNPINNED: "unpinned",
+		SHOUTOUT: "shoutout",
+		VOICEMOD: "voicemod",
+		QNA_STOP: "qna_stop",
+		CHAT_POLL: "chat_poll",
+		QNA_START: "qna_start",
+		HYPE_CHAT: "hype_chat",
+		FOLLOWING: "following",
+		COUNTDOWN: "countdown",
+		HATE_RAID: "hate_raid",
+		BINGO_GRID: "bingo_grid",
+		QNA_DELETE: "qna_delete",
+		CLEAR_CHAT: "clear_chat",
+		CHAT_ALERT: "chat_alert",
+		DISCONNECT: "disconnect",
+		PREDICTION: "prediction",
+		HEAT_CLICK: "heat_click",
+		MUSIC_STOP: "music_stop",
+		STREAMLABS: "streamlabs",
+		SUPER_CHAT: "super_chat",
+		TIKTOK_SUB: "tiktok_sub",
+		TIKTOK_GIFT: "tiktok_gift",
+		TIKTOK_LIKE: "tiktok_like",
+		MUSIC_START: "music_start",
+		TWITCHAT_AD: "twitchat_ad",
+		YOUTUBE_BAN: "youtube_ban",
+		MANY_REPLIES: "many_replies",
+		TWITCH_COMBO: "twitch_combo",
+		TIKTOK_SHARE: "tiktok_share",
+		VALUE_UPDATE: "value_update",
+		GOXLR_BUTTON: "goxlr_button",
+		RAID_STARTED: "raid_started",
+		SUBSCRIPTION: "subscription",
+		AUTOBAN_JOIN: "autoban_join",
+		WARN_CHATTER: "warn_chatter",
+		SUPER_STICKER: "super_sticker",
+		UNBAN_REQUEST: "unban_request",
+		SCOPE_REQUEST: "scope_request",
+		ROOM_SETTINGS: "room_settings",
+		STREAM_ONLINE: "stream_online",
+		BLOCKED_TERMS: "blocked_terms",
+		STREAMELEMENTS: "streamelements",
+		GOXLR_FX_STATE: "goxlr_fx_state",
+		STREAM_OFFLINE: "stream_offline",
+		CHAT_HIGHLIGHT: "chat_highlight",
+		FOLLOWBOT_LIST: "followbot_list",
+		COUNTER_UPDATE: "counter_update",
+		AD_BREAK_START: "ad_break_start",
+		WEBSOCKET_TOPIC: "websocket_topic",
+		OBS_STOP_STREAM: "obs_stop_stream",
+		YOUTUBE_SUBGIFT: "youtube_subgift",
+		WARN_ACKNOWLEDGE: "warn_acknowledge",
+		CREDITS_COMPLETE: "credits_complete",
+		HISTORY_SPLITTER: "history_splitter",
+		TWITCHAT_STARTED: "twitchat_started",
+		OBS_START_STREAM: "obs_start_stream",
+		HYPE_TRAIN_START: "hype_train_start",
+		OBS_SCENE_CHANGE: "obs_scene_change",
+		CUSTOM_TRAIN_FAIL: "custom_train_fail",
+		GIGANTIFIED_EMOTE: "gigantified_emote",
+		PLAYABILITY_INPUT: "playability_input",
+		BINGO_GRID_VIEWER: "bingo_grid_viewer",
+		AD_BREAK_COMPLETE: "ad_break_complete",
+		GOXLR_SOUND_INPUT: "goxlr_sound_input",
+		USER_WATCH_STREAK: "user_watch_streak",
+		OBS_SOURCE_TOGGLE: "obs_source_toggle",
+		OBS_FILTER_TOGGLE: "obs_filter_toggle",
+		HYPE_TRAIN_CANCEL: "hype_train_cancel",
+		CUSTOM_TRAIN_START: "custom_train_start",
+		GOAL_STEP_COMPLETE: "goal_step_complete",
+		TWITCH_CELEBRATION: "twitch_celebration",
+		HYPE_TRAIN_SUMMARY: "hype_train_summary",
+		RAFFLE_PICK_WINNER: "raffle_pick_winner",
+		OBS_RECORDING_STOP: "obs_recording_stop",
+		STREAMSOCKET_ACTION: "streamsocket_action",
+		PRIVATE_MOD_MESSAGE: "private_mod_message",
+		OBS_RECORDING_START: "obs_recording_start",
+		AD_BREAK_START_CHAT: "ad_break_start_chat",
+		HYPE_TRAIN_PROGRESS: "hype_train_progress",
+		HYPE_TRAIN_COMPLETE: "hype_train_complete",
+		LOW_TRUST_TREATMENT: "low_trust_treatment",
+		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
+		CHAT_HIGHLIGHT_CLOSE: "chat_highlight_close",
+		YOUTUBE_SUBSCRIPTION: "youtube_subscription",
+		AD_BREAK_APPROACHING: "ad_break_approaching",
+		MUSIC_ADDED_TO_QUEUE: "music_added_to_queue",
+		CUSTOM_TRAIN_COOLDOWN: "custom_train_cooldown",
+		CUSTOM_TRAIN_LEVEL_UP: "custom_train_level_up",
+		GOXLR_SAMPLE_COMPLETE: "goxlr_sample_complete",
+		OBS_INPUT_MUTE_TOGGLE: "obs_input_mute_toggle",
+		HYPE_TRAIN_APPROACHING: "hype_train_approaching",
+		HYPE_TRAIN_COOLED_DOWN: "hype_train_cooled_down",
+		CLIP_CREATION_COMPLETE: "clip_creation_complete",
+		TWITCH_CHARITY_DONATION: "twitch_charity_donation",
+		SUSPENDED_TRIGGER_STACK: "suspended_trigger_stack",
+		CLIP_PENDING_PUBLICATION: "clip_pending_publication",
+		COMMUNITY_BOOST_COMPLETE: "community_boost_complete",
+		OBS_PLAYBACK_STATE_UPDATE: "obs_playback_state_update",
+		OBS_WS_CONNECT_STATE_CHANGE: "obs_ws_connect_state_change",
+		COMMUNITY_CHALLENGE_CONTRIBUTION: "community_challenge_contribution",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
-	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
+	export type TwitchatMessageStringType =
+		(typeof TwitchatMessageType)[keyof typeof TwitchatMessageType];
 
 	export const DisplayableMessageTypes = {
-		ban:true,
-		raid:true,
-		unban:true,
-		poll:true,
-		join:true,
-		kofi:true,
-		leave:true,
-		cheer:true,
-		timer:true,
-		bingo:true,
-		tipeee:true,
-		custom:true,
-		raffle:true,
-		reward:true,
-		notice:true,
-		pinned:true,//Don't set it to false! we need to find it back when unpinning a message
-		tiltify:true,
-		message:true,
-		whisper:true,
-		connect:true,
-		patreon:true,
-		shoutout:true,
-		unpinned:true,
-		qna_stop:false,
-		chat_poll:true,
-		qna_start:false,
-		qna_delete:false,
-		warn_chatter:true,
-		hype_chat:true,
-		voicemod:false,
-		following:true,
-		countdown:true,
-		hate_raid:true,
-		super_chat:true,
-		streamlabs:true,
-		clear_chat:true,
-		disconnect:true,
-		prediction:true,
-		youtube_ban:true,
-		bingo_grid:false,
-		heat_click:false,
-		chat_alert:false,
-		music_stop:false,
-		twitchat_ad:true,
-		music_start:true,
-		subscription:true,
-		autoban_join:true,
-		tiktok_sub:true,
-		tiktok_gift:true,
-		tiktok_like:true,
-		tiktok_share:true,
-		twitch_combo:true,
-		many_replies:true,
-		super_sticker:true,
-		value_update:false,
-		unban_request:true,
-		goxlr_button:false,
-		raid_started:false,
-		room_settings:true,
-		stream_online:true,
-		scope_request:true,
-		blocked_terms:true,
-		followbot_list:true,
-		streamelements:true,
-		stream_offline:true,
-		ad_break_start:false,
-		chat_highlight:false,
-		counter_update:false,
-		goxlr_fx_state:false,
-		youtube_subgift:true,
-		history_splitter:true,
-		warn_acknowledge:true,
-		obs_stop_stream:false,
-		websocket_topic:false,
-		gigantified_emote:true,
-		twitchat_started:false,
-		credits_complete:false,
-		user_watch_streak:true,
-		hype_train_start:false,
-		obs_scene_change:false,
-		obs_start_stream:false,
-		custom_train_fail:false,
-		playability_input:false,
-		bingo_grid_viewer:false,
-		twitch_celebration:true,
-		obs_source_toggle:false,
-		ad_break_complete:false,
-		obs_filter_toggle:false,
-		hype_train_cancel:false,
-		hype_train_summary:true,
-		goxlr_sound_input:false,
-		private_mod_message:true,
-		raffle_pick_winner:false,
-		low_trust_treatment:true,
-		ad_break_start_chat:true,
-		obs_recording_stop:false,
-		goal_step_complete:false,
-		custom_train_start:false,
-		streamsocket_action:true,
-		custom_train_summary:true,
-		obs_recording_start:false,
-		youtube_subscription:true,
-		hype_train_progress:false,
-		hype_train_complete:false,
-		music_added_to_queue:true,
-		ad_break_approaching:false,
-		chat_highlight_close:false,
-		custom_train_level_up:false,
-		goxlr_sample_complete:false,
-		obs_input_mute_toggle:false,
-		hype_train_cooled_down:true,
-		custom_train_cooldown:false,
-		twitch_charity_donation:true,
-		suspended_trigger_stack:true,
-		hype_train_approaching:false,
-		clip_creation_complete:false,
-		clip_pending_publication:true,
-		community_boost_complete:true,
-		obs_playback_state_update:false,
-		obs_ws_connect_state_change:false,
-		community_challenge_contribution:true,
+		ban: true,
+		raid: true,
+		unban: true,
+		poll: true,
+		join: true,
+		kofi: true,
+		leave: true,
+		cheer: true,
+		timer: true,
+		bingo: true,
+		tipeee: true,
+		custom: true,
+		raffle: true,
+		reward: true,
+		notice: true,
+		pinned: true, //Don't set it to false! we need to find it back when unpinning a message
+		tiltify: true,
+		message: true,
+		whisper: true,
+		connect: true,
+		patreon: true,
+		shoutout: true,
+		unpinned: true,
+		qna_stop: false,
+		chat_poll: true,
+		qna_start: false,
+		qna_delete: false,
+		warn_chatter: true,
+		hype_chat: true,
+		voicemod: false,
+		following: true,
+		countdown: true,
+		hate_raid: true,
+		super_chat: true,
+		streamlabs: true,
+		clear_chat: true,
+		disconnect: true,
+		prediction: true,
+		youtube_ban: true,
+		bingo_grid: false,
+		heat_click: false,
+		chat_alert: false,
+		music_stop: false,
+		twitchat_ad: true,
+		music_start: true,
+		subscription: true,
+		autoban_join: true,
+		tiktok_sub: true,
+		tiktok_gift: true,
+		tiktok_like: true,
+		tiktok_share: true,
+		twitch_combo: true,
+		many_replies: true,
+		super_sticker: true,
+		value_update: false,
+		unban_request: true,
+		goxlr_button: false,
+		raid_started: false,
+		room_settings: true,
+		stream_online: true,
+		scope_request: true,
+		blocked_terms: true,
+		followbot_list: true,
+		streamelements: true,
+		stream_offline: true,
+		ad_break_start: false,
+		chat_highlight: false,
+		counter_update: false,
+		goxlr_fx_state: false,
+		youtube_subgift: true,
+		history_splitter: true,
+		warn_acknowledge: true,
+		obs_stop_stream: false,
+		websocket_topic: false,
+		gigantified_emote: true,
+		twitchat_started: false,
+		credits_complete: false,
+		user_watch_streak: true,
+		hype_train_start: false,
+		obs_scene_change: false,
+		obs_start_stream: false,
+		custom_train_fail: false,
+		playability_input: false,
+		bingo_grid_viewer: false,
+		twitch_celebration: true,
+		obs_source_toggle: false,
+		ad_break_complete: false,
+		obs_filter_toggle: false,
+		hype_train_cancel: false,
+		hype_train_summary: true,
+		goxlr_sound_input: false,
+		private_mod_message: true,
+		raffle_pick_winner: false,
+		low_trust_treatment: true,
+		ad_break_start_chat: true,
+		obs_recording_stop: false,
+		goal_step_complete: false,
+		custom_train_start: false,
+		streamsocket_action: true,
+		custom_train_summary: true,
+		obs_recording_start: false,
+		youtube_subscription: true,
+		hype_train_progress: false,
+		hype_train_complete: false,
+		music_added_to_queue: true,
+		ad_break_approaching: false,
+		chat_highlight_close: false,
+		custom_train_level_up: false,
+		goxlr_sample_complete: false,
+		obs_input_mute_toggle: false,
+		hype_train_cooled_down: true,
+		custom_train_cooldown: false,
+		twitch_charity_donation: true,
+		suspended_trigger_stack: true,
+		hype_train_approaching: false,
+		clip_creation_complete: false,
+		clip_pending_publication: true,
+		community_boost_complete: true,
+		obs_playback_state_update: false,
+		obs_ws_connect_state_change: false,
+		community_challenge_contribution: true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
-
 
 	/**
 	 * Available notice types
 	 * All these are managed by the same ChatNotice.vue component
 	 */
 	export const TwitchatNoticeType = {
-		GENERIC:"generic",//For any generic (not strongly typed) messages. Ex: any comming from twitch's IRC that can't all be known for sure
-		ERROR:"error",//For any error message
-		TTS:"tts",//For TTS releated messages. Ex:"User's message will be read out loud"
-		APP_VERSION:"appVersion",//When using command "/version"
-		MOD:"mod",//When granting mod role to a user
-		UNMOD:"unmod",//When removing mod role from a user
-		SHIELD_MODE:"shieldMode",//When starting/stopping shield mode
-		VIP:"vip",///When granting VIP role to a user
-		UNVIP:"unvip",//When removing VIP role from a user
-		EMERGENCY_MODE:"emergencyMode",//When emergency mode is started/stoped
-		COMMERCIAL_ERROR:"commercialError",//When a commercial request fails
-		COMMERCIAL_START:"commercialStart",//When a commercial is started
-		COMMERCIAL_COMPLETE:"commercialComplete",//When a commercial completes
-		STREAM_INFO_UPDATE:"stream_info_update",//When updating a stream info (title, category,...)
-		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
-		MARKER_CREATED:"markerCreated",
-		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
-		BLOCKED:"blocked",//When a user is blocked
-		UNBLOCKED:"unblocked",//When a user is unblocked
-		SUB_ONLY_ON:"subs_on",
-		SUB_ONLY_OFF:"subs_off",
-		FOLLOW_ONLY_ON:"followers_on",
-		FOLLOW_ONLY_OFF:"followers_off",
-		EMOTE_ONLY_ON:"emote_only_on",
-		EMOTE_ONLY_OFF:"emote_only_off",
-		SLOW_MODE_ON:"slow_on",
-		SLOW_MODE_OFF:"slow_off",
+		GENERIC: "generic", //For any generic (not strongly typed) messages. Ex: any comming from twitch's IRC that can't all be known for sure
+		ERROR: "error", //For any error message
+		TTS: "tts", //For TTS releated messages. Ex:"User's message will be read out loud"
+		APP_VERSION: "appVersion", //When using command "/version"
+		MOD: "mod", //When granting mod role to a user
+		UNMOD: "unmod", //When removing mod role from a user
+		SHIELD_MODE: "shieldMode", //When starting/stopping shield mode
+		VIP: "vip", ///When granting VIP role to a user
+		UNVIP: "unvip", //When removing VIP role from a user
+		EMERGENCY_MODE: "emergencyMode", //When emergency mode is started/stoped
+		COMMERCIAL_ERROR: "commercialError", //When a commercial request fails
+		COMMERCIAL_START: "commercialStart", //When a commercial is started
+		COMMERCIAL_COMPLETE: "commercialComplete", //When a commercial completes
+		STREAM_INFO_UPDATE: "stream_info_update", //When updating a stream info (title, category,...)
+		CYPHER_KEY: "cypherKey", //When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
+		MARKER_CREATED: "markerCreated",
+		DEVMODE: "devMode", //When enabling/disabling devmode via "/devmode" command
+		BLOCKED: "blocked", //When a user is blocked
+		UNBLOCKED: "unblocked", //When a user is unblocked
+		SUB_ONLY_ON: "subs_on",
+		SUB_ONLY_OFF: "subs_off",
+		FOLLOW_ONLY_ON: "followers_on",
+		FOLLOW_ONLY_OFF: "followers_off",
+		EMOTE_ONLY_ON: "emote_only_on",
+		EMOTE_ONLY_OFF: "emote_only_off",
+		SLOW_MODE_ON: "slow_on",
+		SLOW_MODE_OFF: "slow_off",
 	} as const;
-	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
+	export type TwitchatNoticeStringType =
+		| (typeof TwitchatNoticeType)[keyof typeof TwitchatNoticeType]
+		| null;
 
 	/**
 	 * Message types
 	 */
-	export type ChatMessageTypes = MessageChatData
-									| MessageWhisperData
-									| MessagePollData
-									| MessagePredictionData
-									| MessageFollowingData
-									| MessageSubscriptionData
-									| MessageCheerData
-									| MessageRewardRedeemData
-									| MessageCommunityChallengeContributionData
-									| MessageHypeTrainSummaryData
-									| MessageHypeTrainCooledDownData
-									| MessageCommunityBoostData
-									| MessageRaidData
-									| MessageJoinData
-									| MessageLeaveData
-									| MessageBanData
-									| MessageUnbanData
-									| MessageModerationAction
-									| MessageClearChatData
-									| MessageRaffleData
-									| MessageRafflePickWinnerData
-									| MessageBingoData
-									| MessageCountdownData
-									| MessageAutobanJoinData
-									| MessageTwitchatAdData
-									| MessageTimerData
-									| MessageStreamInfoUpdate
-									| MessageEmergencyModeInfo
-									| MessageHypeTrainEventData
-									| MessageChatAlertData
-									| MessageMusicStopData
-									| MessageMusicStartData
-									| MessageMusicAddedToQueueData
-									| MessageShoutoutData
-									| MessageVoicemodData
-									| MessageChatHighlightData
-									| MessageChatHighlightCloseData
-									| MessageConnectData
-									| MessageDisconnectData
-									| MessageFollowbotData
-									| MessageNoticeData
-									| MessageLowtrustTreatmentData
-									| MessageOBSSceneChangedData
-									| MessageOBSSourceToggleData
-									| MessageOBSStartStreamData
-									| MessageOBSStopStreamData
-									| MessageOBSFilterToggleData
-									| MessageOBSInputMuteToggleData
-									| MessageOBSPlaybackStateUpdateData
-									| MessageOBSRecordingStartData
-									| MessageOBSRecordingStopData
-									| MessageRoomSettingsData
-									| MessageStreamOnlineData
-									| MessageStreamOfflineData
-									| MessageCounterUpdateData
-									| MessageValueUpdateData
-									| MessageUnpinData
-									| MessageClipCreate
-									| MessageRaidStartData
-									| MessagePinData
-									| MessageScopeRequestData
-									| MessageMarkerCreatedData
-									| MessageWatchStreakData
-									| MessageHypeChatData
-									| MessageHeatClickData
-									| MessageGoXLRButtonData
-									| MessageGoXLRFXEnableChangeData
-									| MessageGoXLRSampleCompleteData
-									| MessageGoXLRSoundInputData
-									| MessageHistorySplitterData
-									| MessageAdBreakStartData
-									| MessageAdBreakApproachingData
-									| MessageAdBreakCompleteData
-									| MessageCustomData
-									| MessageQnaStartData
-									| MessageQnaStopData
-									| MessageQnaDeleteData
-									| MessageCreditsCompleteData
-									| MessageStreamlabsData
-									| MessageStreamelementsData
-									| MessageKofiData
-									| MessagePatreonData
-									| MessageUnbanRequestData
-									| MessageTipeeeDonationData
-									| MessageBingoGridData
-									| MessageBingoGridViewerData
-									| MessageTwitchCelebrationData
-									| MessageTwitchGigantifiedEmoteData
-									| MessageBlockedTermsData
-									| MessageHateRaidData
-									| MessageWarnUserData
-									| MessageWarnAcknowledgementData
-									| MessageYoutubeSuperChatData
-									| MessageYoutubeSuperStickerData
-									| MessageYoutubeSubscriptionData
-									| MessageYoutubeSubgiftData
-									| MessageYoutubeBanData
-									| MessageWebsocketTopicData
-									| MessageTiltifyData
-									| MessageTwitchatStartedData
-									| MessageTikTokSubData
-									| MessageTikTokGiftData
-									| MessageTikTokLikeData
-									| MessageTikTokShareData
-									| MessageSuspendedTriggerStackData
-									| MessageCharityDonationData
-									| MessagePrivateModeratorData
-									| MessagePlayabilityInputData
-									| MessageGoalStepCompleteData
-									| MessageChatPollData
-									| MessageCustomTrainCooldownData
-									| MessageCustomTrainLevelStartData
-									| MessageCustomTrainLevelUpData
-									| MessageCustomTrainSummaryData
-									| MessageCustomTrainFailData
-									| MessageStreamSocketActionData
-									| MessageTwitchComboData
-									| MessageObsWsConnectStateChangeData
-									| MessageManyRepliesData
-	;
+	export type ChatMessageTypes =
+		| MessageChatData
+		| MessageWhisperData
+		| MessagePollData
+		| MessagePredictionData
+		| MessageFollowingData
+		| MessageSubscriptionData
+		| MessageCheerData
+		| MessageRewardRedeemData
+		| MessageCommunityChallengeContributionData
+		| MessageHypeTrainSummaryData
+		| MessageHypeTrainCooledDownData
+		| MessageCommunityBoostData
+		| MessageRaidData
+		| MessageJoinData
+		| MessageLeaveData
+		| MessageBanData
+		| MessageUnbanData
+		| MessageModerationAction
+		| MessageClearChatData
+		| MessageRaffleData
+		| MessageRafflePickWinnerData
+		| MessageBingoData
+		| MessageCountdownData
+		| MessageAutobanJoinData
+		| MessageTwitchatAdData
+		| MessageTimerData
+		| MessageStreamInfoUpdate
+		| MessageEmergencyModeInfo
+		| MessageHypeTrainEventData
+		| MessageChatAlertData
+		| MessageMusicStopData
+		| MessageMusicStartData
+		| MessageMusicAddedToQueueData
+		| MessageShoutoutData
+		| MessageVoicemodData
+		| MessageChatHighlightData
+		| MessageChatHighlightCloseData
+		| MessageConnectData
+		| MessageDisconnectData
+		| MessageFollowbotData
+		| MessageNoticeData
+		| MessageLowtrustTreatmentData
+		| MessageOBSSceneChangedData
+		| MessageOBSSourceToggleData
+		| MessageOBSStartStreamData
+		| MessageOBSStopStreamData
+		| MessageOBSFilterToggleData
+		| MessageOBSInputMuteToggleData
+		| MessageOBSPlaybackStateUpdateData
+		| MessageOBSRecordingStartData
+		| MessageOBSRecordingStopData
+		| MessageRoomSettingsData
+		| MessageStreamOnlineData
+		| MessageStreamOfflineData
+		| MessageCounterUpdateData
+		| MessageValueUpdateData
+		| MessageUnpinData
+		| MessageClipCreate
+		| MessageRaidStartData
+		| MessagePinData
+		| MessageScopeRequestData
+		| MessageMarkerCreatedData
+		| MessageWatchStreakData
+		| MessageHypeChatData
+		| MessageHeatClickData
+		| MessageGoXLRButtonData
+		| MessageGoXLRFXEnableChangeData
+		| MessageGoXLRSampleCompleteData
+		| MessageGoXLRSoundInputData
+		| MessageHistorySplitterData
+		| MessageAdBreakStartData
+		| MessageAdBreakApproachingData
+		| MessageAdBreakCompleteData
+		| MessageCustomData
+		| MessageQnaStartData
+		| MessageQnaStopData
+		| MessageQnaDeleteData
+		| MessageCreditsCompleteData
+		| MessageStreamlabsData
+		| MessageStreamelementsData
+		| MessageKofiData
+		| MessagePatreonData
+		| MessageUnbanRequestData
+		| MessageTipeeeDonationData
+		| MessageBingoGridData
+		| MessageBingoGridViewerData
+		| MessageTwitchCelebrationData
+		| MessageTwitchGigantifiedEmoteData
+		| MessageBlockedTermsData
+		| MessageHateRaidData
+		| MessageWarnUserData
+		| MessageWarnAcknowledgementData
+		| MessageYoutubeSuperChatData
+		| MessageYoutubeSuperStickerData
+		| MessageYoutubeSubscriptionData
+		| MessageYoutubeSubgiftData
+		| MessageYoutubeBanData
+		| MessageWebsocketTopicData
+		| MessageTiltifyData
+		| MessageTwitchatStartedData
+		| MessageTikTokSubData
+		| MessageTikTokGiftData
+		| MessageTikTokLikeData
+		| MessageTikTokShareData
+		| MessageSuspendedTriggerStackData
+		| MessageCharityDonationData
+		| MessagePrivateModeratorData
+		| MessagePlayabilityInputData
+		| MessageGoalStepCompleteData
+		| MessageChatPollData
+		| MessageCustomTrainCooldownData
+		| MessageCustomTrainLevelStartData
+		| MessageCustomTrainLevelUpData
+		| MessageCustomTrainSummaryData
+		| MessageCustomTrainFailData
+		| MessageStreamSocketActionData
+		| MessageTwitchComboData
+		| MessageObsWsConnectStateChangeData
+		| MessageManyRepliesData;
 
 	/**
 	 * Defines any message that could be deleted.
 	 * Used by TTS to check if the message still exists before reading it
 	 */
-	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
-		TwitchatMessageType.MESSAGE,
-	];
+	export const DeletableMessageTypes: TwitchatMessageStringType[] = [TwitchatMessageType.MESSAGE];
 
 	/**
 	 * Defines the possible chat filters
 	 */
-	type AllowFilterTypes = typeof TwitchatMessageType.FOLLOWING
-							| typeof TwitchatMessageType.SUBSCRIPTION
-							| typeof TwitchatMessageType.CHEER
-							| typeof TwitchatMessageType.RAID
-							| typeof TwitchatMessageType.PINNED
-							| typeof TwitchatMessageType.SHOUTOUT
-							| typeof TwitchatMessageType.BAN
-							| typeof TwitchatMessageType.UNBAN
-							| typeof TwitchatMessageType.UNBAN_REQUEST
-							| typeof TwitchatMessageType.REWARD
-							| typeof TwitchatMessageType.POLL
-							| typeof TwitchatMessageType.PREDICTION
-							| typeof TwitchatMessageType.HYPE_TRAIN_SUMMARY
-							| typeof TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
-							| typeof TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
-							| typeof TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
-							| typeof TwitchatMessageType.BINGO
-							| typeof TwitchatMessageType.RAFFLE
-							| typeof TwitchatMessageType.TWITCH_CHARITY_DONATION
-							| typeof TwitchatMessageType.KOFI
-							| typeof TwitchatMessageType.STREAMLABS
-							| typeof TwitchatMessageType.STREAMELEMENTS
-							| typeof TwitchatMessageType.TIPEEE
-							| typeof TwitchatMessageType.TILTIFY
-							| typeof TwitchatMessageType.PATREON
-							| typeof TwitchatMessageType.COUNTDOWN
-							| typeof TwitchatMessageType.TIKTOK_LIKE
-							| typeof TwitchatMessageType.TIKTOK_GIFT
-							| typeof TwitchatMessageType.TIKTOK_SHARE
-							| typeof TwitchatMessageType.STREAM_ONLINE
-							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
-							| typeof TwitchatMessageType.AD_BREAK_START_CHAT
-							| typeof TwitchatMessageType.JOIN
-							| typeof TwitchatMessageType.LEAVE
-							| typeof TwitchatMessageType.NOTICE
-							| typeof TwitchatMessageType.USER_WATCH_STREAK
-							| typeof TwitchatMessageType.TWITCHAT_AD
-							| typeof TwitchatMessageType.WHISPER
-							| typeof TwitchatMessageType.MESSAGE
-							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
-							| typeof TwitchatMessageType.STREAMSOCKET_ACTION
-							;
+	type AllowFilterTypes =
+		| typeof TwitchatMessageType.FOLLOWING
+		| typeof TwitchatMessageType.SUBSCRIPTION
+		| typeof TwitchatMessageType.CHEER
+		| typeof TwitchatMessageType.RAID
+		| typeof TwitchatMessageType.PINNED
+		| typeof TwitchatMessageType.SHOUTOUT
+		| typeof TwitchatMessageType.BAN
+		| typeof TwitchatMessageType.UNBAN
+		| typeof TwitchatMessageType.UNBAN_REQUEST
+		| typeof TwitchatMessageType.REWARD
+		| typeof TwitchatMessageType.POLL
+		| typeof TwitchatMessageType.PREDICTION
+		| typeof TwitchatMessageType.HYPE_TRAIN_SUMMARY
+		| typeof TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
+		| typeof TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
+		| typeof TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
+		| typeof TwitchatMessageType.BINGO
+		| typeof TwitchatMessageType.RAFFLE
+		| typeof TwitchatMessageType.TWITCH_CHARITY_DONATION
+		| typeof TwitchatMessageType.KOFI
+		| typeof TwitchatMessageType.STREAMLABS
+		| typeof TwitchatMessageType.STREAMELEMENTS
+		| typeof TwitchatMessageType.TIPEEE
+		| typeof TwitchatMessageType.TILTIFY
+		| typeof TwitchatMessageType.PATREON
+		| typeof TwitchatMessageType.COUNTDOWN
+		| typeof TwitchatMessageType.TIKTOK_LIKE
+		| typeof TwitchatMessageType.TIKTOK_GIFT
+		| typeof TwitchatMessageType.TIKTOK_SHARE
+		| typeof TwitchatMessageType.STREAM_ONLINE
+		| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
+		| typeof TwitchatMessageType.AD_BREAK_START_CHAT
+		| typeof TwitchatMessageType.JOIN
+		| typeof TwitchatMessageType.LEAVE
+		| typeof TwitchatMessageType.NOTICE
+		| typeof TwitchatMessageType.USER_WATCH_STREAK
+		| typeof TwitchatMessageType.TWITCHAT_AD
+		| typeof TwitchatMessageType.WHISPER
+		| typeof TwitchatMessageType.MESSAGE
+		| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
+		| typeof TwitchatMessageType.STREAMSOCKET_ACTION;
 
-	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
-		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
-		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.TIKTOK_LIKE,							labelKey:"chat.filters.message_types.tiktok_like",							icon:"follow",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
-		{type:TwitchatMessageType.TIKTOK_GIFT,							labelKey:"chat.filters.message_types.tiktok_gift",							icon:"gift",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
-		{type:TwitchatMessageType.TIKTOK_SHARE,							labelKey:"chat.filters.message_types.tiktok_share",							icon:"share",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
-		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"raid",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.PINNED,								labelKey:"chat.filters.message_types.pinned",								icon:"pin",				scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
-		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"unban",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
-		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.PRIVATE_MOD_MESSAGE,					labelKey:"chat.filters.message_types.private_mod_message",					icon:"mod",				scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
-		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[TwitchScopes.BLOCKED_TERMS, TwitchScopes.CHAT_WARNING, TwitchScopes.SET_ROOM_SETTINGS, TwitchScopes.UNBAN_REQUESTS, TwitchScopes.EDIT_BANNED, TwitchScopes.DELETE_MESSAGES, TwitchScopes.READ_MODERATORS, TwitchScopes.READ_VIPS],	newFlag:Config.instance.NEW_FLAGS_DATE_V13},
-		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
-		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
-		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
-		{type:TwitchatMessageType.HYPE_TRAIN_SUMMARY,					labelKey:"chat.filters.message_types.hype_train_summary",					icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
+	export const MessageListFilterTypes: {
+		type: AllowFilterTypes;
+		labelKey: string;
+		icon: string;
+		scopes: TwitchScopesString[];
+		newFlag: number;
+	}[] = [
+		{
+			type: TwitchatMessageType.FOLLOWING,
+			labelKey: "chat.filters.message_types.following",
+			icon: "follow",
+			scopes: [TwitchScopes.LIST_FOLLOWERS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.SUBSCRIPTION,
+			labelKey: "chat.filters.message_types.subscription",
+			icon: "sub",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.CHEER,
+			labelKey: "chat.filters.message_types.cheer",
+			icon: "bits",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.TIKTOK_LIKE,
+			labelKey: "chat.filters.message_types.tiktok_like",
+			icon: "follow",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			type: TwitchatMessageType.TIKTOK_GIFT,
+			labelKey: "chat.filters.message_types.tiktok_gift",
+			icon: "gift",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			type: TwitchatMessageType.TIKTOK_SHARE,
+			labelKey: "chat.filters.message_types.tiktok_share",
+			icon: "share",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			type: TwitchatMessageType.RAID,
+			labelKey: "chat.filters.message_types.raid",
+			icon: "raid",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.PINNED,
+			labelKey: "chat.filters.message_types.pinned",
+			icon: "pin",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.SHOUTOUT,
+			labelKey: "chat.filters.message_types.shoutout",
+			icon: "shoutout",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.BAN,
+			labelKey: "chat.filters.message_types.ban",
+			icon: "ban",
+			scopes: [TwitchScopes.MODERATION_EVENTS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.UNBAN,
+			labelKey: "chat.filters.message_types.unban",
+			icon: "unban",
+			scopes: [TwitchScopes.MODERATION_EVENTS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.UNBAN_REQUEST,
+			labelKey: "chat.filters.message_types.unban_request",
+			icon: "unbanRequest",
+			scopes: [TwitchScopes.UNBAN_REQUESTS],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+		},
+		{
+			type: TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+			labelKey: "chat.filters.message_types.private_mod_message",
+			icon: "mod",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			type: TwitchatMessageType.NOTICE,
+			labelKey: "chat.filters.message_types.notice",
+			icon: "mod",
+			scopes: [
+				TwitchScopes.BLOCKED_TERMS,
+				TwitchScopes.CHAT_WARNING,
+				TwitchScopes.SET_ROOM_SETTINGS,
+				TwitchScopes.UNBAN_REQUESTS,
+				TwitchScopes.EDIT_BANNED,
+				TwitchScopes.DELETE_MESSAGES,
+				TwitchScopes.READ_MODERATORS,
+				TwitchScopes.READ_VIPS,
+			],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+		},
+		{
+			type: TwitchatMessageType.REWARD,
+			labelKey: "chat.filters.message_types.reward",
+			icon: "channelPoints",
+			scopes: [TwitchScopes.LIST_REWARDS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.POLL,
+			labelKey: "chat.filters.message_types.poll",
+			icon: "poll",
+			scopes: [TwitchScopes.MANAGE_POLLS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.PREDICTION,
+			labelKey: "chat.filters.message_types.prediction",
+			icon: "prediction",
+			scopes: [TwitchScopes.MANAGE_PREDICTIONS],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+			labelKey: "chat.filters.message_types.hype_train_summary",
+			icon: "train",
+			scopes: [TwitchScopes.READ_HYPE_TRAIN],
+			newFlag: 0,
+		},
 		// {type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
-		{type:TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,				labelKey:"chat.filters.message_types.community_boost_complete",				icon:"boost",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.TWITCH_CHARITY_DONATION,				labelKey:"chat.filters.message_types.twitch_charity_donation",				icon:"twitch_charity",	scopes:[TwitchScopes.CHARITY_READ],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
-		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",									icon:"kofi",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.TIPEEE,								labelKey:"chat.filters.message_types.tipeee",								icon:"tipeee",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.TILTIFY,								labelKey:"chat.filters.message_types.tiltify",								icon:"tiltify",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V13_7},
-		{type:TwitchatMessageType.PATREON,								labelKey:"chat.filters.message_types.patreon",								icon:"patreon",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V13_7},
-		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
-		{type:TwitchatMessageType.STREAMSOCKET_ACTION,					labelKey:"chat.filters.message_types.stream_socket_action",					icon:"streamsocket",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V16},
-		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"enter",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.LEAVE,								labelKey:"chat.filters.message_types.leave",								icon:"leave",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.USER_WATCH_STREAK,					labelKey:"chat.filters.message_types.user_watch_streak",					icon:"watchStreak",		scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.TWITCHAT_AD,							labelKey:"chat.filters.message_types.twitchat_ad",							icon:"twitchat",		scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.WHISPER,								labelKey:"chat.filters.message_types.whisper",								icon:"whispers",		scopes:[TwitchScopes.WHISPER_READ, TwitchScopes.WHISPER_MANAGE],	newFlag:0},
-		{type:TwitchatMessageType.MESSAGE,								labelKey:"chat.filters.message_types.message",								icon:"user",			scopes:[],	newFlag:0},
+		{
+			type: TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+			labelKey: "chat.filters.message_types.community_boost_complete",
+			icon: "boost",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
+			labelKey: "chat.filters.message_types.community_challenge_contribution",
+			icon: "channelPoints",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.BINGO,
+			labelKey: "chat.filters.message_types.bingo",
+			icon: "bingo",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.RAFFLE,
+			labelKey: "chat.filters.message_types.raffle",
+			icon: "ticket",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.TWITCH_CHARITY_DONATION,
+			labelKey: "chat.filters.message_types.twitch_charity_donation",
+			icon: "twitch_charity",
+			scopes: [TwitchScopes.CHARITY_READ],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+		},
+		{
+			type: TwitchatMessageType.KOFI,
+			labelKey: "chat.filters.message_types.kofi",
+			icon: "kofi",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+		},
+		{
+			type: TwitchatMessageType.STREAMLABS,
+			labelKey: "chat.filters.message_types.streamlabs",
+			icon: "streamlabs",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+		},
+		{
+			type: TwitchatMessageType.STREAMELEMENTS,
+			labelKey: "chat.filters.message_types.streamelements",
+			icon: "streamelements",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+		},
+		{
+			type: TwitchatMessageType.TIPEEE,
+			labelKey: "chat.filters.message_types.tipeee",
+			icon: "tipeee",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+		},
+		{
+			type: TwitchatMessageType.TILTIFY,
+			labelKey: "chat.filters.message_types.tiltify",
+			icon: "tiltify",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13_7,
+		},
+		{
+			type: TwitchatMessageType.PATREON,
+			labelKey: "chat.filters.message_types.patreon",
+			icon: "patreon",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V13_7,
+		},
+		{
+			type: TwitchatMessageType.COUNTDOWN,
+			labelKey: "chat.filters.message_types.countdown",
+			icon: "countdown",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.STREAM_ONLINE,
+			labelKey: "chat.filters.message_types.stream_online",
+			icon: "online",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
+			labelKey: "chat.filters.message_types.music_added_to_queue",
+			icon: "music",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.AD_BREAK_START_CHAT,
+			labelKey: "chat.filters.message_types.ad_break_start_chat",
+			icon: "ad",
+			scopes: [TwitchScopes.ADS_READ],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.STREAMSOCKET_ACTION,
+			labelKey: "chat.filters.message_types.stream_socket_action",
+			icon: "streamsocket",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V16,
+		},
+		{
+			type: TwitchatMessageType.JOIN,
+			labelKey: "chat.filters.message_types.join",
+			icon: "enter",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.LEAVE,
+			labelKey: "chat.filters.message_types.leave",
+			icon: "leave",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.USER_WATCH_STREAK,
+			labelKey: "chat.filters.message_types.user_watch_streak",
+			icon: "watchStreak",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.TWITCHAT_AD,
+			labelKey: "chat.filters.message_types.twitchat_ad",
+			icon: "twitchat",
+			scopes: [],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.WHISPER,
+			labelKey: "chat.filters.message_types.whisper",
+			icon: "whispers",
+			scopes: [TwitchScopes.WHISPER_READ, TwitchScopes.WHISPER_MANAGE],
+			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.MESSAGE,
+			labelKey: "chat.filters.message_types.message",
+			icon: "user",
+			scopes: [],
+			newFlag: 0,
+		},
 		// {type:TwitchatMessageType.HYPE_CHAT, },
 	] as const;
 
@@ -4823,80 +5554,167 @@ export namespace TwitchatDataTypes {
 	 * Defines the possible chat message filters
 	 */
 	export const MessageListChatMessageFilterTypes = [
-		{type:"viewers",		labelKey:"chat.filters.message_filters.viewers", 		icon:"user",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"vips",			labelKey:"chat.filters.message_filters.vips", 			icon:"vip",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"subs",			labelKey:"chat.filters.message_filters.subs", 			icon:"sub",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"moderators",		labelKey:"chat.filters.message_filters.moderators", 	icon:"mod",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"partners",		labelKey:"chat.filters.message_filters.partners", 		icon:"partner",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"bots",			labelKey:"chat.filters.message_filters.bots", 			icon:"bot",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"tracked",		labelKey:"chat.filters.message_filters.tracked", 		icon:"magnet",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"deleted",		labelKey:"chat.filters.message_filters.deleted", 		icon:"delete",	hasPreview:true,	scopes:[] as TwitchScopesString[]},
-		{type:"pinned",			labelKey:"chat.filters.message_filters.pinned", 		icon:"pin",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"automod",		labelKey:"chat.filters.message_filters.automod", 		icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[]},
-		{type:"suspiciousUsers",labelKey:"chat.filters.message_filters.suspiciousUsers",icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS,TwitchScopes.SUSPICIOUS_USERS] as TwitchScopesString[]},
-		{type:"commands",		labelKey:"chat.filters.message_filters.commands", 		icon:"commands",hasPreview:false,	scopes:[] as TwitchScopesString[]},
-		{type:"short",			labelKey:"chat.filters.message_filters.short", 			icon:"",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{
+			type: "viewers",
+			labelKey: "chat.filters.message_filters.viewers",
+			icon: "user",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "vips",
+			labelKey: "chat.filters.message_filters.vips",
+			icon: "vip",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "subs",
+			labelKey: "chat.filters.message_filters.subs",
+			icon: "sub",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "moderators",
+			labelKey: "chat.filters.message_filters.moderators",
+			icon: "mod",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "partners",
+			labelKey: "chat.filters.message_filters.partners",
+			icon: "partner",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "bots",
+			labelKey: "chat.filters.message_filters.bots",
+			icon: "bot",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "tracked",
+			labelKey: "chat.filters.message_filters.tracked",
+			icon: "magnet",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "deleted",
+			labelKey: "chat.filters.message_filters.deleted",
+			icon: "delete",
+			hasPreview: true,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "pinned",
+			labelKey: "chat.filters.message_filters.pinned",
+			icon: "pin",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "automod",
+			labelKey: "chat.filters.message_filters.automod",
+			icon: "shield",
+			hasPreview: true,
+			scopes: [TwitchScopes.AUTOMOD, TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[],
+		},
+		{
+			type: "suspiciousUsers",
+			labelKey: "chat.filters.message_filters.suspiciousUsers",
+			icon: "shield",
+			hasPreview: true,
+			scopes: [
+				TwitchScopes.AUTOMOD,
+				TwitchScopes.MODERATION_EVENTS,
+				TwitchScopes.SUSPICIOUS_USERS,
+			] as TwitchScopesString[],
+		},
+		{
+			type: "commands",
+			labelKey: "chat.filters.message_filters.commands",
+			icon: "commands",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
+		{
+			type: "short",
+			labelKey: "chat.filters.message_filters.short",
+			icon: "",
+			hasPreview: false,
+			scopes: [] as TwitchScopesString[],
+		},
 	] as const;
 
 	/**
 	 * Contains chat message sub filters
 	 */
-	export type ChatColumnsConfigMessageFilters = { [key in typeof MessageListChatMessageFilterTypes[number]["type"]]:boolean};
+	export type ChatColumnsConfigMessageFilters = {
+		[key in (typeof MessageListChatMessageFilterTypes)[number]["type"]]: boolean;
+	};
 
 	/**
 	 * Common props for all message types
 	 */
 	export interface AbstractTwitchatMessage {
-		type:TwitchatMessageStringType;
-		id:string;
-		date:number;
-		channel_id:string;
-		platform:ChatPlatform;
+		type: TwitchatMessageStringType;
+		id: string;
+		date: number;
+		channel_id: string;
+		platform: ChatPlatform;
 		/**
 		 * Defines infos about the channel this message comes from.
 		 * Only set for messages received from channels other than ours
 		 */
-		channelSource?:{
-			color:string;
-			name:string;
-			pic?:string
+		channelSource?: {
+			color: string;
+			name: string;
+			pic?: string;
 		};
 		/**
 		 * Defines if messages originates from a shared chat session.
 		 */
-		twitchSharedChat?:boolean;
+		twitchSharedChat?: boolean;
 		/**
 		 * true if message has been deleted
 		 */
-		deleted?:boolean;
+		deleted?: boolean;
 		/**
 		 * true if message has been part of the cleared messages
 		 * when using /clear command
 		 */
-		cleared?:boolean;
+		cleared?: boolean;
 		/**
 		 * Is it a fake message ?
 		 */
-		fake?:boolean;
+		fake?: boolean;
 		/**
 		 * Optional column index to display the message to
 		 * Can be an array of column indices
 		 */
-		col?:number|number[];
+		col?: number | number[];
 	}
 
-	export type MergeableMessageTypes = Extract<ChatMessageTypes, {message_size?:number}>["type"];
+	export type MergeableMessageTypes = Extract<
+		ChatMessageTypes,
+		{ message_size?: number }
+	>["type"];
 
 	//Ensure the object contains all requested keys
-	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
-		message:true,
-		reward:true,
-		whisper:true,
-		cheer:true,
-		subscription:false,
-		user_watch_streak:false,
-		gigantified_emote:false,
-	}
+	export const MergeableMessageTypesString: Record<MergeableMessageTypes, boolean> = {
+		message: true,
+		reward: true,
+		whisper: true,
+		cheer: true,
+		subscription: false,
+		user_watch_streak: false,
+		gigantified_emote: false,
+	};
 	export interface MergeableMessage {
 		/**
 		 * User that posted the message
@@ -4905,31 +5723,34 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Size of the message in chars (emotes/cheermotes count as 2 chars)
 		 */
-		message_size:number;
+		message_size: number;
 		/**
 		 * Channel ID the message has been sent to
 		 */
-		channel_id:string;
+		channel_id: string;
 	}
 
-	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
+	export type GreetableMessageTypes = Extract<
+		ChatMessageTypes,
+		{ is_greetable_message?: boolean }
+	>["type"];
 	//Ensure the object contains all requested keys
 	//This object is used to check if a message type is a greetable message
-	export const GreetableMessageTypesString:Record<GreetableMessageTypes, boolean> ={
-		cheer:true,
-		reward:true,
-		message:true,
-		following:true,
-		subscription:true,
-		user_watch_streak:true,
-	}
+	export const GreetableMessageTypesString: Record<GreetableMessageTypes, boolean> = {
+		cheer: true,
+		reward: true,
+		message: true,
+		following: true,
+		subscription: true,
+		user_watch_streak: true,
+	};
 	export interface GreetableMessage extends AbstractTwitchatMessage {
 		/**
 		 * Do not use this property.
 		 * It's only here for the GreetableMessageTypes type definition
 		 * @deprecated
 		 */
-		is_greetable_message?:boolean;
+		is_greetable_message?: boolean;
 		/**
 		 * Is it the first message of the user today ?
 		 */
@@ -4937,85 +5758,90 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Channel ID the message has been sent to
 		 */
-		channel_id:string;
+		channel_id: string;
 		/**
 		 * User that sent the message
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
-
-	export type TranslatableMessageTypes = Extract<ChatMessageTypes, {translation?:TranslatableMessage["translation"]}>["type"];
+	export type TranslatableMessageTypes = Extract<
+		ChatMessageTypes,
+		{ translation?: TranslatableMessage["translation"] }
+	>["type"];
 	//Ensure the object contains all requested keys
-	const TranslatableMessageTypesMap:Record<TranslatableMessageTypes, true> = {
-		cheer:true,
-		reward:true,
-		whisper:true,
-		message:true,
-		super_chat:true,
-		subscription:true,
-		user_watch_streak:true,
-		private_mod_message:true,
-		youtube_subscription:true,
-	}
+	const TranslatableMessageTypesMap: Record<TranslatableMessageTypes, true> = {
+		cheer: true,
+		reward: true,
+		whisper: true,
+		message: true,
+		super_chat: true,
+		subscription: true,
+		user_watch_streak: true,
+		private_mod_message: true,
+		youtube_subscription: true,
+	};
 
-	export const IsTranslatableMessage = new Proxy<Record<string, boolean>>({}, {
-		get: (target, prop: string) => {
-			return TranslatableMessageTypesMap[prop as TranslatableMessageTypes] === true;
-		}
-	});
-
+	export const IsTranslatableMessage = new Proxy<Record<string, boolean>>(
+		{},
+		{
+			get: (target, prop: string) => {
+				return TranslatableMessageTypesMap[prop as TranslatableMessageTypes] === true;
+			},
+		},
+	);
 
 	export interface TranslatableMessage extends AbstractTwitchatMessage {
 		/**
 		 * User that sent the message
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Translation details
 		 */
-		translation?:{
+		translation?: {
 			/**
 			 * ISO 639-1 code for the flag icon
 			 */
-			flagISO:string;
+			flagISO: string;
 			/**
 			 * Original ISO 639-1 language code
 			 */
-			languageCode:string;
+			languageCode: string;
 			/**
 			 * Original language name
 			 */
-			languageName:string;
+			languageName: string;
 			/**
 			 * Translated message
 			 */
-			translation:string;
-		}
+			translation: string;
+		};
 		/**
 		 * Set to true if translation gave nothing or an error
 		 */
-		translation_failed?:boolean;
+		translation_failed?: boolean;
 		/**
 		 * Text message content
 		 */
-		message?:string;
+		message?: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:ParseMessageChunk[];
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
-		message_html?:string;
+		message_html?: string;
 	}
 
 	/**
 	 * A regular user's message
 	 */
-	export interface MessageChatData extends GreetableMessage, MergeableMessage, TranslatableMessage {
-		type:"message";
+	export interface MessageChatData
+		extends GreetableMessage, MergeableMessage, TranslatableMessage {
+		type: "message";
 		/**
 		 * Channel ID the message has been posted in
 		 */
@@ -5027,20 +5853,20 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Text message content
 		 */
-		message:string;
+		message: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks:ParseMessageChunk[];
+		message_chunks: ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
-		message_html:string;
+		message_html: string;
 		/**
 		 * @see MergeableMessage
 		 */
-		message_size:number;
+		message_size: number;
 		/**
 		 * All messages that answered to this message
 		 */
@@ -5085,7 +5911,7 @@ export namespace TwitchatDataTypes {
 		 * Info about the mod that deleted the message
 		 */
 		deletedData?: {
-			deleter:TwitchatUser;
+			deleter: TwitchatUser;
 		};
 		/**
 		 * Number of times this message has been sent
@@ -5119,7 +5945,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * CIs defined if user paied for their message
 		 */
-		twitch_hypeChat?:HypeChatData;
+		twitch_hypeChat?: HypeChatData;
 		/**
 		 * Twitch automod info if the message has been held by automod
 		 */
@@ -5127,29 +5953,29 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if user used the /me command for this message
 		 */
-		twitch_isSlashMe?:boolean;
+		twitch_isSlashMe?: boolean;
 		/**
 		 * true if it's the first message the user ever sent on this channel
 		 */
-		twitch_isFirstMessage?:boolean;
+		twitch_isFirstMessage?: boolean;
 		/**
 		 * true if it's a returning user
 		 * I think twitch removed it.
 		 */
-		twitch_isReturning?:boolean;
+		twitch_isReturning?: boolean;
 		/**
 		 * Watch streak count
 		 */
-		twitch_watchStreak?:number;
+		twitch_watchStreak?: number;
 		/**
 		 * true if user used the "presentation" feature
 		 * @deprecated feature removed by twitch
 		 */
-		twitch_isPresentation?:boolean;
+		twitch_isPresentation?: boolean;
 		/**
 		 * Contains the channels in which the user is banned in case of shared ban user
 		 */
-		twitch_sharedBanChannels?: {id:string, login:string}[];
+		twitch_sharedBanChannels?: { id: string; login: string }[];
 		/**
 		 * true if user is flagged as suspicious
 		 */
@@ -5173,11 +5999,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is message coming from IRC or EventSub?
 		 */
-		twitch_source?:"eventsub"|"irc";
+		twitch_source?: "eventsub" | "irc";
 		/**
 		 * Animation type AKA message skin
 		 */
-		twitch_animationId?: "simmer"|"rainbow-eclipse"|"cosmic-abyss";
+		twitch_animationId?: "simmer" | "rainbow-eclipse" | "cosmic-abyss";
 		/**
 		 * Color of the announcement if this is a /announce message
 		 */
@@ -5189,15 +6015,15 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Raw IRC data of t he message
 		 */
-		raw_data?:any;
+		raw_data?: any;
 	}
 
 	/**
 	 * Whisper message
 	 */
 	export interface MessageWhisperData extends AbstractTwitchatMessage, TranslatableMessage {
-		type:"whisper";
-		channel_id:string;
+		type: "whisper";
+		channel_id: string;
 		/**
 		 * User that sent the whisper
 		 */
@@ -5209,20 +6035,20 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Text message content
 		 */
-		message:string;
+		message: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks:ParseMessageChunk[];
+		message_chunks: ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
-		message_html:string;
+		message_html: string;
 		/**
 		 * @see MergeableMessage
 		 */
-		message_size:number;
+		message_size: number;
 		/**
 		 * Is the message content cyphered ?
 		 */
@@ -5250,7 +6076,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessagePollData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"poll";
+		type: "poll";
 		/**
 		 * Poll creator
 		 */
@@ -5278,25 +6104,25 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Winning choice
 		 */
-		winner?:MessagePollDataChoice;
+		winner?: MessagePollDataChoice;
 		/**
 		 * Defines if it's the first event of the poll
 		 * which means it's just been started
 		 */
-		isStart?:boolean;
+		isStart?: boolean;
 		/**
 		 * Set to true when simulating a poll for the overlay
 		 */
-		isFake?:boolean;
+		isFake?: boolean;
 	}
-	export type MessagePollDataChoice = Omit<MessagePredictionDataOutcome, "voters">
+	export type MessagePollDataChoice = Omit<MessagePredictionDataOutcome, "voters">;
 
 	/**
 	 * Represents a prediction's data
 	 */
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"prediction";
+		type: "prediction";
 		/**
 		 * Prediction creator
 		 */
@@ -5328,24 +6154,24 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Winning choice
 		 */
-		winner?:MessagePredictionDataOutcome;
+		winner?: MessagePredictionDataOutcome;
 		/**
 		 * Total channel points bet
 		 */
-		totalPoints:number;
+		totalPoints: number;
 		/**
 		 * Total users participating
 		 */
-		totalUsers:number;
+		totalUsers: number;
 		/**
 		 * Defines if it's the first event of the prediction
 		 * which means it's just been started
 		 */
-		isStart?:boolean;
+		isStart?: boolean;
 		/**
 		 * Set to true when simulating a poll for the overlay
 		 */
-		isFake?:boolean;
+		isFake?: boolean;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;
@@ -5368,11 +6194,11 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageFollowingData extends GreetableMessage {
 		channel_id: string;
-		type:"following";
+		type: "following";
 		/**
 		 * User that followed
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Timestamp the user followed
 		 */
@@ -5388,7 +6214,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if twitchat thinks it's part of a followbot
 		 */
-		followbot?:boolean;
+		followbot?: boolean;
 	}
 
 	/**
@@ -5396,7 +6222,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageSubscriptionData extends GreetableMessage, TranslatableMessage {
 		channel_id: string;
-		type:"subscription";
+		type: "subscription";
 		/**
 		 * User that subscribed or gifted a sub
 		 */
@@ -5404,7 +6230,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Sub tier
 		 */
-		tier: 1|2|3|"prime";
+		tier: 1 | 2 | 3 | "prime";
 		/**
 		 * true if it's a gift
 		 */
@@ -5440,43 +6266,44 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Number of months the user subscribed for
 		 */
-		months:number;
+		months: number;
 		/**
 		 * Number of consecutive months the user has been subscribed for
 		 */
-		streakMonths:number;
+		streakMonths: number;
 		/**
 		 * Number of months the user has been subscribed for
 		 */
-		totalSubDuration:number;
+		totalSubDuration: number;
 		/**
 		 * Optional message sent when sharing our sub
 		 */
-		message?:string;
+		message?: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:ParseMessageChunk[];
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Optional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
-		message_html?:string;
+		message_html?: string;
 		/**
 		 * @see MergeableMessage
 		 */
-		message_size:number;
+		message_size: number;
 		/**
 		 * raw IRC data of the sub
 		 */
-		raw_data?:any;
+		raw_data?: any;
 	}
 
 	/**
 	 * Represents a bits data
 	 */
-	export interface MessageCheerData extends GreetableMessage, MergeableMessage, TranslatableMessage {
+	export interface MessageCheerData
+		extends GreetableMessage, MergeableMessage, TranslatableMessage {
 		channel_id: string;
-		type:"cheer";
+		type: "cheer";
 		/**
 		 * Number of bits sent
 		 */
@@ -5492,7 +6319,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:ParseMessageChunk[];
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Text message with cheermotes replaced by HTML tags
 		 */
@@ -5504,27 +6331,28 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is message pinned ?
 		 */
-		pinned:boolean;
+		pinned: boolean;
 		/**
 		 * Pin level
 		 */
-		pinLevel:number;//0|1|2|3|4|5|6|7;
+		pinLevel: number; //0|1|2|3|4|5|6|7;
 		/**
 		 * Pin duration in ms if message is pinned
 		 */
-		pinDuration_ms:number;
+		pinDuration_ms: number;
 		/**
 		 * Raw IRC data of the message
 		 */
-		raw_data?:any;
+		raw_data?: any;
 	}
 
 	/**
 	 * Represents a reward redeem message
 	 */
-	export interface MessageRewardRedeemData extends GreetableMessage, MergeableMessage, TranslatableMessage {
+	export interface MessageRewardRedeemData
+		extends GreetableMessage, MergeableMessage, TranslatableMessage {
 		channel_id: string;
-		type:"reward";
+		type: "reward";
 		/**
 		 * User that redeemed a channel point reward
 		 */
@@ -5533,34 +6361,34 @@ export namespace TwitchatDataTypes {
 		 * Reward's info
 		 */
 		reward: {
-			id:string;
-			title:string;
-			cost:number;
-			description:string;
-			icon:TwitchatImage;
-			color:string;
+			id: string;
+			title: string;
+			cost: number;
+			description: string;
+			icon: TwitchatImage;
+			color: string;
 		};
 		/**
 		 * Optional message the reward requires the user to send when redeeming it
-		*/
-		message?:string;
+		 */
+		message?: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
-		*/
-		message_chunks?:ParseMessageChunk[];
+		 */
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
-		*/
-		message_html?:string;
+		 */
+		message_html?: string;
 		/**
 		 * Redeem ID.
 		 * Need to refund it later
 		 */
-		redeemId?:string;
+		redeemId?: string;
 		/**
 		 * Is redeem refund?
 		 */
-		refund?:boolean
+		refund?: boolean;
 	}
 
 	/**
@@ -5568,7 +6396,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"community_challenge_contribution";
+		type: "community_challenge_contribution";
 		/**
 		 * User contributing to the challenge
 		 */
@@ -5580,22 +6408,22 @@ export namespace TwitchatDataTypes {
 		/**
 		 * How many points the user contributed during current stream
 		 */
-		stream_contribution?:number;
+		stream_contribution?: number;
 		/**
 		 * How many points the user contributed for this challenge since its beginning
 		 */
-		total_contribution?:number;
+		total_contribution?: number;
 		/**
 		 * Challenge infos
 		 */
 		challenge: {
-			title:string;
-			goal:number;
-			progress:number;
-			progress_percent:number;
-			description?:string;
-			icon?:TwitchatImage;
-		}
+			title: string;
+			goal: number;
+			progress: number;
+			progress_percent: number;
+			description?: string;
+			icon?: TwitchatImage;
+		};
 	}
 
 	/**
@@ -5603,7 +6431,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageHypeTrainSummaryData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"hype_train_summary";
+		type: "hype_train_summary";
 		/**
 		 * Hype train infos
 		 */
@@ -5611,7 +6439,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Chat activities related to this hype train
 		 */
-		activities: (MessageSubscriptionData|MessageCheerData)[];
+		activities: (MessageSubscriptionData | MessageCheerData)[];
 	}
 
 	/**
@@ -5619,7 +6447,12 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageHypeTrainEventData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"hype_train_approaching"|"hype_train_start"|"hype_train_cancel"|"hype_train_progress"|"hype_train_complete";
+		type:
+			| "hype_train_approaching"
+			| "hype_train_start"
+			| "hype_train_cancel"
+			| "hype_train_progress"
+			| "hype_train_complete";
 		/**
 		 * Hype train infos
 		 */
@@ -5627,11 +6460,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Current hype train level
 		 */
-		level:number;
+		level: number;
 		/**
 		 * Current hyper train level percent
 		 */
-		percent:number;
+		percent: number;
 	}
 
 	/**
@@ -5640,7 +6473,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"hype_train_cooled_down";
+		type: "hype_train_cooled_down";
 	}
 
 	/**
@@ -5648,15 +6481,15 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCustomTrainCooldownData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"custom_train_cooldown";
+		type: "custom_train_cooldown";
 		/**
 		 * Train ID
 		 */
-		trainId:string;
+		trainId: string;
 		/**
 		 * Train name
 		 */
-		trainName:string;
+		trainName: string;
 	}
 
 	/**
@@ -5664,15 +6497,15 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCustomTrainLevelStartData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"custom_train_start";
+		type: "custom_train_start";
 		/**
 		 * Train ID
 		 */
-		trainId:string;
+		trainId: string;
 		/**
 		 * Train name
 		 */
-		trainName:string;
+		trainName: string;
 	}
 
 	/**
@@ -5680,43 +6513,43 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCustomTrainLevelUpData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"custom_train_level_up";
+		type: "custom_train_level_up";
 		/**
 		 * Current hype train level
 		 */
-		level:number;
+		level: number;
 		/**
 		 * Current hyper train level percent
 		 */
-		percent:number;
+		percent: number;
 		/**
 		 * Amount reached
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Amount reached formatted
 		 */
-		amountFormatted:string;
+		amountFormatted: string;
 		/**
 		 * Amount left
 		 */
-		amountLeft:number;
+		amountLeft: number;
 		/**
 		 * Amount left formatted
 		 */
-		amountLeftFormatted:string;
+		amountLeftFormatted: string;
 		/**
 		 * Train ID
 		 */
-		trainId:string;
+		trainId: string;
 		/**
 		 * Train name
 		 */
-		trainName:string;
+		trainName: string;
 		/**
 		 * Is new record?
 		 */
-		isRecord:boolean;
+		isRecord: boolean;
 	}
 
 	/**
@@ -5724,15 +6557,15 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCustomTrainFailData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"custom_train_fail";
+		type: "custom_train_fail";
 		/**
 		 * Train ID
 		 */
-		trainId:string;
+		trainId: string;
 		/**
 		 * Train name
 		 */
-		trainName:string;
+		trainName: string;
 	}
 
 	/**
@@ -5740,7 +6573,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCustomTrainSummaryData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"custom_train_summary";
+		type: "custom_train_summary";
 		/**
 		 * Activities
 		 */
@@ -5748,31 +6581,31 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Current hype train level
 		 */
-		level:number;
+		level: number;
 		/**
 		 * Current hyper train level percent
 		 */
-		percent:number;
+		percent: number;
 		/**
 		 * Amount reached
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Amount reached formatted
 		 */
-		amountFormatted:string;
+		amountFormatted: string;
 		/**
 		 * Train ID
 		 */
-		trainId:string;
+		trainId: string;
 		/**
 		 * Train name
 		 */
-		trainName:string;
+		trainName: string;
 		/**
 		 * Is new record?
 		 */
-		isRecord:boolean;
+		isRecord: boolean;
 	}
 
 	/**
@@ -5780,11 +6613,11 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"community_boost_complete";
+		type: "community_boost_complete";
 		/**
 		 * Number of viewers the channel has been boosted to
 		 */
-		viewers:number;
+		viewers: number;
 	}
 
 	/**
@@ -5792,19 +6625,19 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageRaidData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"raid";
+		type: "raid";
 		/**
 		 * User raiding
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Number of viewers coming with the raid
 		 */
-		viewers:number;
+		viewers: number;
 		/**
 		 * Stream info of the raider
 		 */
-		stream:{
+		stream: {
 			wasLive: boolean;
 			title: string;
 			category: string;
@@ -5816,7 +6649,7 @@ export namespace TwitchatDataTypes {
 			 * Stream duration formatted
 			 */
 			duration_str: string;
-		}
+		};
 	}
 
 	/**
@@ -5827,11 +6660,11 @@ export namespace TwitchatDataTypes {
 		 * Channel ID we connected to
 		 */
 		channel_id: string;
-		type:"connect";
+		type: "connect";
 		/**
 		 * User that connected to the chat
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -5842,11 +6675,11 @@ export namespace TwitchatDataTypes {
 		 * Channel ID we disconnected from
 		 */
 		channel_id: string;
-		type:"disconnect";
+		type: "disconnect";
 		/**
 		 * User that got disconnected from the chat
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -5859,11 +6692,11 @@ export namespace TwitchatDataTypes {
 		 * Channel ID the users joined
 		 */
 		channel_id: string;
-		type:"join";
+		type: "join";
 		/**
 		 * Users that joined the channel
 		 */
-		users:TwitchatUser[];
+		users: TwitchatUser[];
 	}
 
 	/**
@@ -5876,11 +6709,11 @@ export namespace TwitchatDataTypes {
 		 * Channel ID the users left
 		 */
 		channel_id: string;
-		type:"leave";
+		type: "leave";
 		/**
 		 * Users that left the channel
 		 */
-		users:TwitchatUser[];
+		users: TwitchatUser[];
 	}
 
 	/**
@@ -5891,149 +6724,149 @@ export namespace TwitchatDataTypes {
 		 * Chennel ID that got cleared
 		 */
 		channel_id: string;
-		type:"clear_chat";
+		type: "clear_chat";
 		/**
 		 * User that cleared the channel
 		 */
-		user?:TwitchatUser;
+		user?: TwitchatUser;
 		/**
 		 * true if the channel has been cleared from automod
 		 */
-		fromAutomod:boolean;
+		fromAutomod: boolean;
 	}
 
 	/**
 	 * Represents a raffle message
 	 */
 	export interface MessageRaffleData extends AbstractTwitchatMessage {
-		type:"raffle";
+		type: "raffle";
 		/**
 		 * Contains the current raffle's data
 		 */
-		raffleData:RaffleData;
+		raffleData: RaffleData;
 		/**
 		 * Winning entry of the raffle
 		 */
-		winner:RaffleEntry;
+		winner: RaffleEntry;
 	}
 
 	/**
 	 * Represents a raffle pick winner event
 	 */
 	export interface MessageRafflePickWinnerData extends AbstractTwitchatMessage {
-		type:"raffle_pick_winner";
+		type: "raffle_pick_winner";
 	}
 
 	/**
 	 * Represents a bingo message
 	 */
 	export interface MessageBingoData extends AbstractTwitchatMessage {
-		type:"bingo";
+		type: "bingo";
 		/**
 		 * User that won the bingo
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Contains the current bingo's data
 		 */
-		bingoData:BingoConfig;
+		bingoData: BingoConfig;
 	}
 
 	/**
 	 * Represents a countdown complete message
 	 */
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
-		type:"countdown";
+		type: "countdown";
 		/**
 		 * Timer ID
 		 */
-		countdown_id:string;
+		countdown_id: string;
 		/**
 		 * Is countdown completed
 		 */
-		complete:boolean;
+		complete: boolean;
 		/**
 		 * Is countdown aborted
 		 */
-		aborted:boolean;
+		aborted: boolean;
 		/**
 		 * Timer duration in milliseconds
 		 */
-		startedAt_ms:number;
+		startedAt_ms: number;
 		/**
 		 * Timer duration formatted
 		 */
-		startedAt_str:string;
+		startedAt_str: string;
 		/**
 		 * Countdown duration in milliseconds
 		 */
-		duration_ms:number;
+		duration_ms: number;
 		/**
 		 * Countdown duration formatted
 		 */
-		duration_str:string;
+		duration_str: string;
 		/**
 		 * Final countdown duration in milliseconds
 		 */
-		finalDuration_ms?:number;
+		finalDuration_ms?: number;
 		/**
 		 * Final countdown duration formatted
 		 */
-		finalDuration_str?:string;
+		finalDuration_str?: string;
 		/**
 		 * Countdown end date in milliseconds
 		 */
-		endedAt_ms?:number;
+		endedAt_ms?: number;
 		/**
 		 * Countdown end date formatted
 		 */
-		endedAt_str?:string;
+		endedAt_str?: string;
 	}
 
 	/**
 	 * Represents a timer message
 	 */
 	export interface MessageTimerData extends AbstractTwitchatMessage {
-		type:"timer";
+		type: "timer";
 		/**
 		 * Timer ID
 		 */
-		timer_id:string;
+		timer_id: string;
 		/**
 		 * Timer duration in milliseconds
 		 */
-		startedAt_ms:number;
+		startedAt_ms: number;
 		/**
 		 * Timer duration formatted
 		 */
-		startedAt_str:string;
+		startedAt_str: string;
 		/**
 		 * Timer duration in milliseconds
 		 */
-		duration_ms:number;
+		duration_ms: number;
 		/**
 		 * Timer duration formatted
 		 */
-		duration_str:string;
+		duration_str: string;
 		/**
 		 * Get if timer has been stopped
 		 */
-		stopped:boolean;
+		stopped: boolean;
 	}
 
 	/**
 	 * Represents a notice message (which has multiple sub types)
 	 */
 	export interface MessageNoticeData extends AbstractTwitchatMessage {
-		type:"notice";
+		type: "notice";
 		/**
 		 * Notice type
 		 */
-		noticeId:TwitchatNoticeStringType;
+		noticeId: TwitchatNoticeStringType;
 		/**
 		 * Notice message
 		 */
-		message:string;
+		message: string;
 	}
 
 	/**
@@ -6042,88 +6875,88 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
 		channel_id: string;
-		type:"autoban_join";
+		type: "autoban_join";
 		/**
 		 * User that got banned
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Rule at the origin of the autoban
 		 */
-		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;
+		rule: TwitchatDataTypes.AutomodParamsKeywordFilterData;
 	}
 
 	/**
 	 * Represents info about a twitchat ad (updates, tips & tricks, ...)
 	 */
 	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
-		type:"twitchat_ad";
+		type: "twitchat_ad";
 		/**
 		 * Type of ad
 		 */
-		adType:TwitchatAdStringTypes;
+		adType: TwitchatAdStringTypes;
 	}
 
 	/**
 	 * Represents a created clip pending publivation
 	 */
 	export interface MessageClipCreate extends AbstractTwitchatMessage {
-		type:"clip_pending_publication" | "clip_creation_complete";
+		type: "clip_pending_publication" | "clip_creation_complete";
 		/**
 		 * Clip URL
 		 */
-		clipUrl:string;
+		clipUrl: string;
 		/**
 		 * ID of the clip
 		 */
-		clipID:string;
+		clipID: string;
 		/**
 		 * true if clip is still being created
 		 */
-		loading:boolean;
+		loading: boolean;
 		/**
 		 * true if clip creation failed
 		 */
-		error:boolean;
+		error: boolean;
 		/**
 		 * Details about the clip
 		 */
-		clipData?:ClipInfo;
+		clipData?: ClipInfo;
 		/**
 		 * CLip title
 		 */
-		clipTitle?:string;
+		clipTitle?: string;
 	}
 
 	/**
 	 * Represents a stream info update message
 	 */
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
-		noticeId:"stream_info_update";
+		noticeId: "stream_info_update";
 		/**
 		 * Stream title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * Stream category
 		 */
-		category:string;
+		category: string;
 		/**
 		 * Concatenated tags (comma+space separated)
 		 */
-		tags:string;
+		tags: string;
 		/**
 		 * true if title changed
 		 */
-		titleChanged:boolean;
+		titleChanged: boolean;
 		/**
 		 * true if category changed
 		 */
-		categoryChanged:boolean;
+		categoryChanged: boolean;
 		/**
 		 * true if tags changed
 		 */
-		tagsChanged:boolean;
+		tagsChanged: boolean;
 	}
 
 	/**
@@ -6133,7 +6966,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that got moderated
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -6143,214 +6976,223 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that started/stoped the shield mod
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * shieldmode state
 		 */
-		enabled:boolean;
+		enabled: boolean;
 	}
 
 	/**
 	 * Represents a user banned message
 	 */
 	export interface MessageBanData extends AbstractTwitchatMessage {
-		type:"ban",
+		type: "ban";
 		channel_id: string;
 		/**
 		 * User that made the moderation action
 		 */
-		moderator?:TwitchatUser;
+		moderator?: TwitchatUser;
 		/**
 		 * Banned user
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Ban duration in seconds (if it's a timeout)
 		 */
-		duration_s?:number;
+		duration_s?: number;
 		/**
 		 * Ban reason
 		 */
-		reason?:string;
+		reason?: string;
 	}
 
 	/**
 	 * Represents a user unbanned message
 	 */
 	export interface MessageUnbanData extends AbstractTwitchatMessage {
-		type:"unban",
+		type: "unban";
 		channel_id: string;
 		/**
 		 * User that made the moderation action
 		 */
-		moderator?:TwitchatUser;
+		moderator?: TwitchatUser;
 		/**
 		 * Unbaned user
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
 	 * Represents an emergency mode state change (enable or disable)
 	 */
-	export interface MessageEmergencyModeInfo extends MessageNoticeData{
-		noticeId:"emergencyMode";
+	export interface MessageEmergencyModeInfo extends MessageNoticeData {
+		noticeId: "emergencyMode";
 		/**
 		 * Emergency state
 		 */
-		enabled:boolean;
+		enabled: boolean;
 	}
 
 	/**
 	 * Represents a chat alert message
 	 * (when a user uses the !alert command)
 	 */
-	export interface MessageChatAlertData extends AbstractTwitchatMessage{
-		type:"chat_alert";
+	export interface MessageChatAlertData extends AbstractTwitchatMessage {
+		type: "chat_alert";
 		/**
 		 * User's message (with chat command stripped out)
 		 */
-		message:MessageChatData;
+		message: MessageChatData;
 	}
 
 	/**
 	 * Represents a music start data
 	 */
 	export interface MessageMusicStartData extends AbstractTwitchatMessage {
-		type:"music_start";
+		type: "music_start";
 		/**
 		 * Info about the track that started playing
 		 */
-		track:MusicTrackData;
+		track: MusicTrackData;
 		/**
 		 * User that added the track to the queue
 		 */
-		userOrigin?:TwitchatUser;
+		userOrigin?: TwitchatUser;
 		/**
 		 * Search terms used to find this track
 		 */
-		searchTerms?:string;
+		searchTerms?: string;
 	}
 
 	/**
 	 * Represents a music stop data
 	 */
 	export interface MessageMusicStopData extends AbstractTwitchatMessage {
-		type:"music_stop";
+		type: "music_stop";
 		/**
 		 * Info about the track that stoped playing
 		 */
-		track:MusicTrackData|null;
+		track: MusicTrackData | null;
 	}
 
 	/**
 	 * Represents a music added to queue data
 	 */
 	export interface MessageMusicAddedToQueueData extends AbstractTwitchatMessage {
-		type:"music_added_to_queue";
+		type: "music_added_to_queue";
 		/**
 		 * Info about the track that's been added to the queue
 		 */
-		trackAdded?:MusicTrackData;
+		trackAdded?: MusicTrackData;
 		/**
 		 * Playlist the track has been added to if requested to
 		 * add to a playlist instead of the current queue
 		 */
-		playlistTarget?:{
-			id:string;
-			title:string;
-			cover:string;
-			url?:string;
+		playlistTarget?: {
+			id: string;
+			title: string;
+			cover: string;
+			url?: string;
 		};
 		/**
 		 * User that added the track
 		 */
-		user?:TwitchatUser;
+		user?: TwitchatUser;
 		/**
 		 * Message the user sent to add the track
 		 */
-		message?:string;
+		message?: string;
 		/**
 		 * Trigger ID that executed the song request
 		 */
-		triggerIdSource?:string;
+		triggerIdSource?: string;
 		/**
 		 * If set, adding to queue failed.
 		 * This contains the failure reason
 		 */
-		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api_queue" | "api_playlist" | "no_result" | "no_active_device" | "spotify_max_per_user_reached";
+		failCode?:
+			| undefined
+			| "spotify_not_connected"
+			| "wrong_url"
+			| "max_duration"
+			| "api_queue"
+			| "api_playlist"
+			| "no_result"
+			| "no_active_device"
+			| "spotify_max_per_user_reached";
 		/**
 		 * Textual reason for the failure
 		 */
-		failReason?:string;
+		failReason?: string;
 		/**
 		 * Maximum allowed duration by the trigger action that
 		 * executed the track add
 		 */
-		maxDuration?:number;
+		maxDuration?: number;
 		/**
 		 * Search made to add a track
 		 */
-		search?:string;
+		search?: string;
 		/**
 		 * true if requested to remove the track from queue
 		 */
-		skipped?:boolean
+		skipped?: boolean;
 	}
 
 	/**
 	 * Represents a voicemod voice change data
 	 */
 	export interface MessageVoicemodData extends AbstractTwitchatMessage {
-		type:"voicemod";
+		type: "voicemod";
 		/**
 		 * Voice ID that got enabled
 		 */
-		voiceID?:string;
+		voiceID?: string;
 		/**
 		 * Voice name that got enabled
 		 */
-		voiceName?:string;
+		voiceName?: string;
 		/**
 		 * Sound ID that got enabled
 		 */
-		soundID?:string;
+		soundID?: string;
 		/**
 		 * Sound name that got enabled
 		 */
-		soundName?:string;
+		soundName?: string;
 	}
 
 	/**
 	 * Represents a shoutout data
 	 */
 	export interface MessageShoutoutData extends AbstractTwitchatMessage {
-		type:"shoutout";
+		type: "shoutout";
 		/**
 		 * true if we've been given a shoutout
 		 * false if we gave a shoutout to someone
 		 */
-		received:boolean;
+		received: boolean;
 		/**
 		 * Number of viewers that saw the shoutout
 		 */
-		viewerCount:number;
+		viewerCount: number;
 		/**
 		 * Channel ID that made the shoutout or ID of the channel we gave a shoutout to
 		 */
-		channel_id:string;
+		channel_id: string;
 		/**
 		 * User that gave us a shoutout or user we gave a shoutout to
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * User that made the shoutout
 		 */
-		moderator:TwitchatDataTypes.TwitchatUser;
+		moderator: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * Stream info of the channel that gave us a shoutout
 		 */
-		stream:{
+		stream: {
 			title: string;
 			category: string;
 		};
@@ -6360,18 +7202,18 @@ export namespace TwitchatDataTypes {
 	 * Represents a chat highlight message
 	 */
 	export interface MessageChatHighlightData extends AbstractTwitchatMessage {
-		type:"chat_highlight";
+		type: "chat_highlight";
 		/**
 		 * Details about the highlight
 		 */
-		info:ChatHighlightInfo;
+		info: ChatHighlightInfo;
 	}
 
 	/**
 	 * Represents a chat highlight close message
 	 */
 	export interface MessageChatHighlightCloseData extends AbstractTwitchatMessage {
-		type:"chat_highlight_close";
+		type: "chat_highlight_close";
 	}
 
 	/**
@@ -6380,11 +7222,11 @@ export namespace TwitchatDataTypes {
 	 * single MessageFollowbotData
 	 */
 	export interface MessageFollowbotData extends AbstractTwitchatMessage {
-		type:"followbot_list";
+		type: "followbot_list";
 		/**
 		 * Users being part of the followbot raid
 		 */
-		users:TwitchatUser[];
+		users: TwitchatUser[];
 	}
 
 	/**
@@ -6392,7 +7234,7 @@ export namespace TwitchatDataTypes {
 	 * Sent on channel connexion to show current room's restrictions
 	 */
 	export interface MessageRoomSettingsData extends AbstractTwitchatMessage {
-		type:"room_settings";
+		type: "room_settings";
 		/**
 		 * Channel ID
 		 */
@@ -6404,7 +7246,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Room's settings
 		 */
-		settings:IRoomSettings;
+		settings: IRoomSettings;
 	}
 
 	/**
@@ -6413,153 +7255,159 @@ export namespace TwitchatDataTypes {
 	 * on a user
 	 */
 	export interface MessageLowtrustTreatmentData extends AbstractTwitchatMessage {
-		type:"low_trust_treatment";
+		type: "low_trust_treatment";
 		channel_id: string;
 		/**
 		 * User flaged as monitored or restrected
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * true if user is now restricted from chatting
 		 * all their messages will be pending for moderation
 		 */
-		restricted:boolean;
+		restricted: boolean;
 		/**
 		 * true if user is now monitored.
 		 * all their message will be displayed with a "suspicious" flag
 		 */
-		monitored:boolean;
+		monitored: boolean;
 		/**
 		 * Moderator that made the change
 		 */
-		moderator:TwitchatUser;
+		moderator: TwitchatUser;
 	}
 
 	/**
 	 * Represents an OBS scene change event
 	 */
 	export interface MessageOBSSceneChangedData extends AbstractTwitchatMessage {
-		type:"obs_scene_change";
+		type: "obs_scene_change";
 		/**
 		 * Name of the OBS scene we switched to
 		 */
-		sceneName:string;
+		sceneName: string;
 		/**
 		 * Name of the OBS scene we're coming from
 		 */
-		previousSceneName:string;
+		previousSceneName: string;
 	}
 
 	/**
 	 * Represents an OBS source visibility change
 	 */
 	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
-		type:"obs_source_toggle";
+		type: "obs_source_toggle";
 		/**
 		 * Name of the source that's been toggled
 		 */
-		sourceName:string;
+		sourceName: string;
 		/**
 		 * Id of the source that's been toggled
 		 */
-		sourceItemId:number;
+		sourceItemId: number;
 		/**
 		 * true if the source is now visible
 		 */
-		visible:boolean;
+		visible: boolean;
 	}
 
 	/**
 	 * Represents an OBS start stream event
 	 */
 	export interface MessageOBSStartStreamData extends AbstractTwitchatMessage {
-		type:"obs_start_stream";
+		type: "obs_start_stream";
 	}
 
 	/**
 	 * Represents an OBS stop stream event
 	 */
 	export interface MessageOBSStopStreamData extends AbstractTwitchatMessage {
-		type:"obs_stop_stream";
+		type: "obs_stop_stream";
 	}
 
 	/**
 	 * Represents an OBS source filter visibility change
 	 */
 	export interface MessageOBSFilterToggleData extends AbstractTwitchatMessage {
-		type:"obs_filter_toggle";
+		type: "obs_filter_toggle";
 		/**
 		 * Name of the parent source of the filter
 		 */
-		sourceName:string;
+		sourceName: string;
 		/**
 		 * Filter name
 		 */
-		filterName:string;
+		filterName: string;
 		/**
 		 * true if the filter is now enabled
 		 */
-		enabled:boolean;
+		enabled: boolean;
 	}
 
 	/**
 	 * Represents an OBS input mute toggle
 	 */
 	export interface MessageOBSInputMuteToggleData extends AbstractTwitchatMessage {
-		type:"obs_input_mute_toggle";
+		type: "obs_input_mute_toggle";
 		/**
 		 * Name of the input that's been toggled
 		 */
-		inputName:string;
+		inputName: string;
 		/**
 		 * true if the input is now muted
 		 */
-		muted:boolean;
+		muted: boolean;
 	}
 
 	/**
 	 * Represents an OBS recording started
 	 */
 	export interface MessageOBSRecordingStartData extends AbstractTwitchatMessage {
-		type:"obs_recording_start";
+		type: "obs_recording_start";
 	}
 
 	/**
 	 * Represents an OBS recording started
 	 */
 	export interface MessageOBSRecordingStopData extends AbstractTwitchatMessage {
-		type:"obs_recording_stop";
+		type: "obs_recording_stop";
 	}
 
 	/**
 	 * Represents an OBS media playback change event
 	 */
 	export interface MessageOBSPlaybackStateUpdateData extends AbstractTwitchatMessage {
-		type:"obs_playback_state_update";
+		type: "obs_playback_state_update";
 		/**
 		 * Name of the source which playback started/ended
 		 */
-		inputName:string;
+		inputName: string;
 		/**
 		 * true if the playback has started, false if it ended
 		 */
-		state:MessageOBSPlaybackStateValue;
+		state: MessageOBSPlaybackStateValue;
 	}
-	export type MessageOBSPlaybackStateValue = "start"|"pause"|"complete"|"next"|"prev"|"restart";
+	export type MessageOBSPlaybackStateValue =
+		| "start"
+		| "pause"
+		| "complete"
+		| "next"
+		| "prev"
+		| "restart";
 
 	/**
 	 * Represents a pinned message
 	 */
 	export interface MessagePinData extends AbstractTwitchatMessage {
-		type:"pinned";
+		type: "pinned";
 		/**
 		 * User that pinned the message
 		 */
-		moderator:TwitchatUser;
+		moderator: TwitchatUser;
 		/**
 		 * Message that got pinned
 		 */
-		chatMessage:MessageChatData;
+		chatMessage: MessageChatData;
 		/**
 		 * Timestamp when the message got pinned
 		 */
@@ -6582,118 +7430,117 @@ export namespace TwitchatDataTypes {
 	 * Represents an unpined message
 	 */
 	export interface MessageUnpinData extends AbstractTwitchatMessage {
-		type:"unpinned";
+		type: "unpinned";
 		/**
 		 * user that unpinned the message
 		 */
-		moderator?:TwitchatUser;
+		moderator?: TwitchatUser;
 		/**
 		 * Message that got unpinned
 		 */
-		chatMessage:MessageChatData;
+		chatMessage: MessageChatData;
 	}
 
 	/**
 	 * Represents a stream start event
 	 */
 	export interface MessageStreamOnlineData extends AbstractTwitchatMessage {
-		type:"stream_online";
+		type: "stream_online";
 		/**
 		 * Current stream info
 		 */
-		info:StreamInfo;
-
+		info: StreamInfo;
 	}
 
 	/**
 	 * Represents a stream stop event
 	 */
 	export interface MessageStreamOfflineData extends AbstractTwitchatMessage {
-		type:"stream_offline";
+		type: "stream_offline";
 		/**
 		 * Current stream info
 		 */
-		info:StreamInfo;
+		info: StreamInfo;
 	}
 
 	/**
 	 * Represents a counter value update
 	 */
 	export interface MessageCounterUpdateData extends AbstractTwitchatMessage {
-		type:"counter_update";
+		type: "counter_update";
 		/**
 		 * Counter's reference
 		 */
-		counter:CounterData;
+		counter: CounterData;
 		/**
 		 * Value added to the counter
 		 */
-		added:number;
+		added: number;
 		/**
 		 * Absolute value added to the counter
 		 */
-		added_abs:number;
+		added_abs: number;
 		/**
 		 * Current value of the counter
 		 */
-		value:number;
+		value: number;
 		/**
 		 * true if the counter reached its max value
-		*/
-		maxed:boolean;
+		 */
+		maxed: boolean;
 		/**
 		 * true if the counter reached its min value
 		 */
-		mined:boolean;
+		mined: boolean;
 		/**
 		 * true if the counter reached its min or max and got looped to the other limit
 		 */
-		looped:boolean;
+		looped: boolean;
 		/**
 		 * User that made the counter update
 		 */
-		user?:TwitchatUser;
+		user?: TwitchatUser;
 	}
 
 	/**
 	 * Represents a Value object update
 	 */
 	export interface MessageValueUpdateData extends AbstractTwitchatMessage {
-		type:"value_update",
+		type: "value_update";
 		/**
 		 * Value object updated
 		 */
-		value:ValueData,
+		value: ValueData;
 		/**
 		 * New value
 		 */
-		newValue:string;
+		newValue: string;
 		/**
 		 * Old value
 		 */
-		oldValue:string;
+		oldValue: string;
 	}
 
 	/**
 	 * Represents an outgoing raid
 	 */
 	export interface MessageRaidStartData extends AbstractTwitchatMessage {
-		type:"raid_started";
+		type: "raid_started";
 		/**
 		 * User that's being raided
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
 	 * Represents an on-chat scope request
 	 */
 	export interface MessageScopeRequestData extends AbstractTwitchatMessage {
-		type:"scope_request";
+		type: "scope_request";
 		/**
 		 * Twitch scopes to request
 		 */
-		twitch_scopes:TwitchScopesString[];
+		twitch_scopes: TwitchScopesString[];
 	}
 
 	/**
@@ -6703,43 +7550,43 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that created the marker
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
 	 * Represents a user watch streak
 	 */
 	export interface MessageWatchStreakData extends GreetableMessage, TranslatableMessage {
-		type:"user_watch_streak";
+		type: "user_watch_streak";
 		/**
 		 * User that created the marker
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Number of consecutive streams the user watched
 		 */
-		streak:number;
+		streak: number;
 		/**
 		 * Number of channel points earned
 		 */
-		channelPointsEarned:number;
+		channelPointsEarned: number;
 		/**
 		 * Text message content
 		 */
-		message?:string;
+		message?: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:ParseMessageChunk[];
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
-		message_html?:string;
+		message_html?: string;
 		/**
 		 * @see MergeableMessage
 		 */
-		message_size:number;
+		message_size: number;
 	}
 
 	/**
@@ -6747,11 +7594,11 @@ export namespace TwitchatDataTypes {
 	 * These messages are also sent as standard messages
 	 */
 	export interface MessageHypeChatData extends AbstractTwitchatMessage {
-		type:"hype_chat";
+		type: "hype_chat";
 		/**
 		 * User that created the marker
 		 */
-		message:MessageChatData;
+		message: MessageChatData;
 	}
 
 	/**
@@ -6759,271 +7606,292 @@ export namespace TwitchatDataTypes {
 	 * These messages are also sent as standard messages
 	 */
 	export interface MessageHeatClickData extends AbstractTwitchatMessage {
-		type:"heat_click";
+		type: "heat_click";
 		channel_id: string;
 		/**
 		 * User that clicked.
 		 * "null" for anonymous users
 		 */
-		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login" | "platform"> | null;
+		user: Pick<
+			TwitchatDataTypes.TwitchatUser,
+			"channelInfo" | "id" | "login" | "platform"
+		> | null;
 		/**
 		 * Is it an anonymous user?
 		 */
-		anonymous:boolean;
+		anonymous: boolean;
 		/**
 		 * Is CTRL key pressed
 		 */
-		ctrl:boolean;
+		ctrl: boolean;
 		/**
 		 * Is SHIFT key pressed
 		 */
-		shift:boolean;
+		shift: boolean;
 		/**
 		 * Is ALT key pressed
 		 */
-		alt:boolean;
+		alt: boolean;
 		/**
 		 * Coordinates of the click in percent (0-100)
 		 */
-		coords:{x:number, y:number};
+		coords: { x: number; y: number };
 		/**
 		 * Clicked area ID
 		 */
-		areaId?:string;
+		areaId?: string;
 		/**
 		 * Clicked OBS source
 		 */
-		obsSource?:string;
+		obsSource?: string;
 	}
 
 	/**
 	 * Represents a GoXLR button press/release
 	 */
 	export interface MessageGoXLRButtonData extends AbstractTwitchatMessage {
-		type:"goxlr_button";
+		type: "goxlr_button";
 		/**
 		 * Button pressed/released
 		 */
-		button:GoXLRTypes.ButtonTypesData;
+		button: GoXLRTypes.ButtonTypesData;
 		/**
 		 * Is button pressed ?
 		 */
-		pressed:boolean;
+		pressed: boolean;
 	}
 
 	/**
 	 * Represents a GoXLR FX state change
 	 */
 	export interface MessageGoXLRFXEnableChangeData extends AbstractTwitchatMessage {
-		type:"goxlr_fx_state";
+		type: "goxlr_fx_state";
 		/**
 		 * Is button pressed ?
 		 */
-		enabled:boolean;
+		enabled: boolean;
 		/**
 		 * Enabled/disabled FX index (0->5)
 		 */
-		fxIndex:number;
+		fxIndex: number;
 	}
 
 	/**
 	 * Represents a GoXLR sample playback complete
 	 */
 	export interface MessageGoXLRSampleCompleteData extends AbstractTwitchatMessage {
-		type:"goxlr_sample_complete";
+		type: "goxlr_sample_complete";
 		/**
 		 * Active bank when starting the sample
 		 */
-		bank:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA" | "SamplerSelectB" | "SamplerSelectC">;
+		bank: Extract<
+			GoXLRTypes.ButtonTypesData,
+			"SamplerSelectA" | "SamplerSelectB" | "SamplerSelectC"
+		>;
 		/**
 		 * Sampler button that started the sample
 		 */
-		buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
+		buttonId: Extract<
+			GoXLRTypes.ButtonTypesData,
+			"SamplerTopLeft" | "SamplerTopRight" | "SamplerBottomLeft" | "SamplerBottomRight"
+		>;
 	}
 
 	/**
 	 * Represents a GoXLR fader mute/unmute action
 	 */
 	export interface MessageGoXLRSoundInputData extends AbstractTwitchatMessage {
-		type:"goxlr_sound_input";
+		type: "goxlr_sound_input";
 		/**
 		 * Is channel muted ?
 		 */
-		mute:boolean;
+		mute: boolean;
 		/**
 		 * Muted/unmuted fader index (1 -> 4)
 		 */
-		faderIndex:1|2|3|4;
+		faderIndex: 1 | 2 | 3 | 4;
 	}
 
 	/**
 	 * Represents a splitter between preloaded messages from IndexedDB and current session messages
 	 */
 	export interface MessageHistorySplitterData extends AbstractTwitchatMessage {
-		type:"history_splitter";
+		type: "history_splitter";
 	}
 
 	/**
 	 * Represents an ad break started manually
 	 */
 	export interface MessageAdBreakStartData extends AbstractTwitchatMessage {
-		type:"ad_break_start" | "ad_break_start_chat";
+		type: "ad_break_start" | "ad_break_start_chat";
 		/**
 		 * Ad duration in seconds
 		 */
-		duration_s:number;
+		duration_s: number;
 		/**
 		 * User that started the ad break if not started automatically
 		 */
-		startedBy?:TwitchatUser;
+		startedBy?: TwitchatUser;
 	}
 
 	/**
 	 * Represents an ad break approaching
 	 */
 	export interface MessageAdBreakApproachingData extends AbstractTwitchatMessage {
-		type:"ad_break_approaching";
+		type: "ad_break_approaching";
 		/**
 		 * Date in milliseconds the ad will start
 		 */
-		start_at:number;
+		start_at: number;
 		/**
 		 * Delay in milliseconds before ad break
 		 */
-		delay_ms:number;
+		delay_ms: number;
 	}
 
 	/**
 	 * Represents an ad break completing
 	 */
 	export interface MessageAdBreakCompleteData extends AbstractTwitchatMessage {
-		type:"ad_break_complete";
+		type: "ad_break_complete";
 		/**
 		 * Duration of the ad in seconds
 		 */
-		duration_s:number;
+		duration_s: number;
 		/**
 		 * User that started the ad break if not started automatically
 		 */
-		startedBy?:TwitchatUser;
+		startedBy?: TwitchatUser;
 	}
 
 	/**
 	 * Represents a custom message sent via API
 	 */
 	export interface MessageCustomData extends AbstractTwitchatMessage {
-		type:"custom";
+		type: "custom";
 		/**
 		 * User name
 		 */
-		user?:{
-			name:string,
-			color?:string
+		user?: {
+			name: string;
+			color?: string;
 		};
 		/**
 		 * Message sent
 		 */
-		message?:string;
+		message?: string;
 		/**
 		 * Define if the close button should be disaplay
 		 * defaults to "true" if omitted
 		 */
-		canClose?:boolean;
+		canClose?: boolean;
 		/**
 		 * Defines if the message should be displayed on the "greet them" section
 		 */
-		todayFirst?:boolean;
+		todayFirst?: boolean;
 		/**
 		 * Option quote displayed in a dedicated holder
 		 */
-		quote?:string;
+		quote?: string;
 		/**
 		 * Message sent (raw chunks)
 		 */
-		message_chunks?:ParseMessageChunk[];
+		message_chunks?: ParseMessageChunk[];
 		/**
 		 * Quote (raw chunks)
 		 */
-		quote_chunks?:ParseMessageChunk[];
+		quote_chunks?: ParseMessageChunk[];
 		/**
 		 * Message sent (html parsed)
 		 */
-		message_html?:string;
+		message_html?: string;
 		/**
 		 * Quote (html parsed)
 		 */
-		quote_html?:string;
+		quote_html?: string;
 		/**
 		 * Icon ID
 		 */
-		icon?:string;
+		icon?: string;
 		/**
 		 * Optional highlight color
 		 */
-		highlightColor?:string;
+		highlightColor?: string;
 		/**
 		 * Message style
 		 */
-		style?:"message"|"highlight"|"error"|"warn";
+		style?: "message" | "highlight" | "error" | "warn";
 		/**
 		 * CTAs to add on the message
 		 */
-		actions?:{
-			id?:string;
+		actions?: {
+			id?: string;
 			/**
 			 * Button's icon
 			 */
-			icon?:string;
+			icon?: string;
 			/**
 			 * Button's label
 			 */
-			label:string,
+			label: string;
 			/**
 			 * Type of action to executee
 			 */
-			actionType?:"url"|"trigger"|"message"|"discord",
+			actionType?: "url" | "trigger" | "message" | "discord";
 			/**
 			 * Target to open URL to (_blank, _self, ...)
 			 */
-			urlTarget?:string,
+			urlTarget?: string;
 			/**
 			 * URL to open in a new tab for "url" type.
 			 */
-			url?:string,
+			url?: string;
 			/**
 			 * Trigger ID to execute for "trigger" type.
 			 */
-			triggerId?:string,
+			triggerId?: string;
 			/**
 			 * Message to send on chat for "message" type.
 			 */
-			message?:string,
+			message?: string;
 			/**
 			 * Button's style
 			 */
-			theme?:"primary"|"secondary"|"alert"|""|"default"|"light",
+			theme?: "primary" | "secondary" | "alert" | "" | "default" | "light";
 			/**
 			 * Placeholder to store data that will be sent in POST to the discord endpoint
 			 */
-			data?:{
-				messageId:string;
-				channelId:string;
-				reaction?:string;
-			},
+			data?: {
+				messageId: string;
+				channelId: string;
+				reaction?: string;
+			};
 		}[];
 	}
 
-	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user" | "quote" | "canClose" | "todayFirst">
+	export type MessageCustomDataAPI = Pick<
+		TwitchatDataTypes.MessageCustomData,
+		| "actions"
+		| "col"
+		| "style"
+		| "highlightColor"
+		| "icon"
+		| "message"
+		| "user"
+		| "quote"
+		| "canClose"
+		| "todayFirst"
+	>;
 
 	/**
 	 * Represents a Q&A session start
 	 */
 	export interface MessageQnaStartData extends AbstractTwitchatMessage {
-		type:"qna_start";
+		type: "qna_start";
 		/**
 		 * Q&A session data
 		 */
-		qnaSession:QnaSession;
+		qnaSession: QnaSession;
 	}
 
 	/**
@@ -7031,11 +7899,11 @@ export namespace TwitchatDataTypes {
 	 * Stopping is when we chose to stop accepting entries
 	 */
 	export interface MessageQnaStopData extends AbstractTwitchatMessage {
-		type:"qna_stop";
+		type: "qna_stop";
 		/**
 		 * Q&A session data
 		 */
-		qnaSession:QnaSession;
+		qnaSession: QnaSession;
 	}
 
 	/**
@@ -7043,513 +7911,521 @@ export namespace TwitchatDataTypes {
 	 * When destroying a Q&A session
 	 */
 	export interface MessageQnaDeleteData extends AbstractTwitchatMessage {
-		type:"qna_delete";
+		type: "qna_delete";
 		/**
 		 * Q&A session data
 		 */
-		qnaSession:QnaSession;
+		qnaSession: QnaSession;
 	}
 
 	/**
 	 * Represents a ending credits that completed
 	 */
 	export interface MessageCreditsCompleteData extends AbstractTwitchatMessage {
-		type:"credits_complete";
+		type: "credits_complete";
 	}
 
 	/**
 	 * Represents a streamlabs event
 	 */
-	export type MessageStreamlabsData = StreamlabsDonationData | StreamlabsMerchData | StreamlabsPatreonPledgeData | StreamlabsCharityData;
-		interface StreamlabsDonationBaseData extends AbstractTwitchatMessage{
-			type:"streamlabs";
-			eventType:"donation" | "merch" | "patreon_pledge" | "charity";
-		}
-		export interface StreamlabsDonationData extends StreamlabsDonationBaseData{
-			eventType:"donation";
-			amount:number;
-			amountFormatted:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			currency:string;
-		}
+	export type MessageStreamlabsData =
+		| StreamlabsDonationData
+		| StreamlabsMerchData
+		| StreamlabsPatreonPledgeData
+		| StreamlabsCharityData;
+	interface StreamlabsDonationBaseData extends AbstractTwitchatMessage {
+		type: "streamlabs";
+		eventType: "donation" | "merch" | "patreon_pledge" | "charity";
+	}
+	export interface StreamlabsDonationData extends StreamlabsDonationBaseData {
+		eventType: "donation";
+		amount: number;
+		amountFormatted: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		currency: string;
+	}
 
-		/**
-		 * Represents a streamlabs event
-		 */
-		export interface StreamlabsMerchData extends StreamlabsDonationBaseData {
-			eventType:"merch";
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			product:string;
-		}
+	/**
+	 * Represents a streamlabs event
+	 */
+	export interface StreamlabsMerchData extends StreamlabsDonationBaseData {
+		eventType: "merch";
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		product: string;
+	}
 
-		/**
-		 * Represents a streamlabs event
-		 */
-		export interface StreamlabsPatreonPledgeData extends StreamlabsDonationBaseData {
-			eventType:"patreon_pledge";
-			amount:number;
-			amountFormatted:string;
-			userName:string;
-			currency:string;
-		}
+	/**
+	 * Represents a streamlabs event
+	 */
+	export interface StreamlabsPatreonPledgeData extends StreamlabsDonationBaseData {
+		eventType: "patreon_pledge";
+		amount: number;
+		amountFormatted: string;
+		userName: string;
+		currency: string;
+	}
 
+	/**
+	 * Represents a streamlabs charity event
+	 */
+	export interface StreamlabsCharityData extends StreamlabsDonationBaseData {
+		eventType: "charity";
 		/**
-		 * Represents a streamlabs charity event
+		 * Amount donated
 		 */
-		export interface StreamlabsCharityData extends StreamlabsDonationBaseData {
-			eventType:"charity";
-			/**
-			 * Amount donated
-			 */
-			amount:number;
-			amountFormatted:string;
-			/**
-			 * Total raised for the campaign
-			 */
-			totalRaised:number;
-			totalRaisedFormatted:string;
-			/**
-			 * Goal amount to be raised
-			 */
-			goal:number;
-			goalFormatted:string;
-			/**
-			 * user that made the donation
-			 */
-			userName:string;
-			/**
-			 * Name of the channel donation has been made from
-			 */
-			to:string;
-			currency:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			/**
-			 * Donation made to ourself or someone else?
-			 */
-			isToSelf:boolean;
-			/**
-			 * Campaign details
-			 */
-			campaign:{
-				id:string;
-				title:string;
-				url:string;
-			}
-		}
+		amount: number;
+		amountFormatted: string;
+		/**
+		 * Total raised for the campaign
+		 */
+		totalRaised: number;
+		totalRaisedFormatted: string;
+		/**
+		 * Goal amount to be raised
+		 */
+		goal: number;
+		goalFormatted: string;
+		/**
+		 * user that made the donation
+		 */
+		userName: string;
+		/**
+		 * Name of the channel donation has been made from
+		 */
+		to: string;
+		currency: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		/**
+		 * Donation made to ourself or someone else?
+		 */
+		isToSelf: boolean;
+		/**
+		 * Campaign details
+		 */
+		campaign: {
+			id: string;
+			title: string;
+			url: string;
+		};
+	}
 
 	/**
 	 * Represents a streamelements event
 	 */
 	export type MessageStreamelementsData = StreamelementsDonationData;
-		interface StreamelementsDonationBaseData extends AbstractTwitchatMessage{
-			type:"streamelements";
-			eventType:"donation";
-		}
-		/**
-		 * Represents a streamelements donation event
-		 */
-		export interface StreamelementsDonationData extends StreamelementsDonationBaseData{
-			eventType:"donation";
-			amount:number;
-			amountFormatted:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			currency:string;
-		}
+	interface StreamelementsDonationBaseData extends AbstractTwitchatMessage {
+		type: "streamelements";
+		eventType: "donation";
+	}
+	/**
+	 * Represents a streamelements donation event
+	 */
+	export interface StreamelementsDonationData extends StreamelementsDonationBaseData {
+		eventType: "donation";
+		amount: number;
+		amountFormatted: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		currency: string;
+	}
 
 	/**
 	 * Represents a kofi event
 	 */
-	export type MessageKofiData = KofiDonationData | KofiMerchData | KofiSubscriptionData | KofiCommissionData;
-		interface KofiDonationBaseData extends AbstractTwitchatMessage{
-			type:"kofi";
-			isPublic:boolean;
-			eventType:"donation" | "merch" | "subscription" | "commission";
-		}
-		/**
-		 * Represents a kofi donation
-		 */
-		export interface KofiDonationData extends KofiDonationBaseData{
-			eventType:"donation";
-			amount:number;
-			amountFormatted:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			currency:string;
-		}
+	export type MessageKofiData =
+		| KofiDonationData
+		| KofiMerchData
+		| KofiSubscriptionData
+		| KofiCommissionData;
+	interface KofiDonationBaseData extends AbstractTwitchatMessage {
+		type: "kofi";
+		isPublic: boolean;
+		eventType: "donation" | "merch" | "subscription" | "commission";
+	}
+	/**
+	 * Represents a kofi donation
+	 */
+	export interface KofiDonationData extends KofiDonationBaseData {
+		eventType: "donation";
+		amount: number;
+		amountFormatted: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		currency: string;
+	}
 
-		/**
-		 * Represents a kofi merch event
-		 */
-		export interface KofiMerchData extends KofiDonationBaseData {
-			eventType:"merch";
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			products:{id:string, quantity:number, name?:string}[];
-			amount:number;
-			amountFormatted:string;
-			currency:string;
-		}
+	/**
+	 * Represents a kofi merch event
+	 */
+	export interface KofiMerchData extends KofiDonationBaseData {
+		eventType: "merch";
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		products: { id: string; quantity: number; name?: string }[];
+		amount: number;
+		amountFormatted: string;
+		currency: string;
+	}
 
-		/**
-		 * Represents a kofi subscription event
-		 */
-		export interface KofiSubscriptionData extends KofiDonationBaseData {
-			eventType:"subscription";
-			amount:number;
-			amountFormatted:string;
-			userName:string;
-			currency:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			tier?:string;
-			firstTimeSub:boolean;
-		}
+	/**
+	 * Represents a kofi subscription event
+	 */
+	export interface KofiSubscriptionData extends KofiDonationBaseData {
+		eventType: "subscription";
+		amount: number;
+		amountFormatted: string;
+		userName: string;
+		currency: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		tier?: string;
+		firstTimeSub: boolean;
+	}
 
-		/**
-		 * Represents a kofi commision event
-		 */
-		export interface KofiCommissionData extends KofiDonationBaseData {
-			eventType:"commission";
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			url:string;
-			amount:number;
-			amountFormatted:string;
-			currency:string;
-		}
+	/**
+	 * Represents a kofi commision event
+	 */
+	export interface KofiCommissionData extends KofiDonationBaseData {
+		eventType: "commission";
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		url: string;
+		amount: number;
+		amountFormatted: string;
+		currency: string;
+	}
 
 	/**
 	 * Represents a Patreon event
 	 */
 	export type MessagePatreonData = PatreonNewMemberData;
-		interface MessagePatreonBaseData extends AbstractTwitchatMessage {
-			type:"patreon";
-			eventType:"new_member";
-		}
-		/**
-		 * Represents a streamelements donation event
-		 */
-		export interface PatreonNewMemberData extends MessagePatreonBaseData {
-			eventType:"new_member";
-			user: {
-				username: string;
-				avatar: string;
-				url: string;
-			},
-			tier: {
-				amount: number;
-				title: string;
-				description: string;
-			}
-		}
+	interface MessagePatreonBaseData extends AbstractTwitchatMessage {
+		type: "patreon";
+		eventType: "new_member";
+	}
+	/**
+	 * Represents a streamelements donation event
+	 */
+	export interface PatreonNewMemberData extends MessagePatreonBaseData {
+		eventType: "new_member";
+		user: {
+			username: string;
+			avatar: string;
+			url: string;
+		};
+		tier: {
+			amount: number;
+			title: string;
+			description: string;
+		};
+	}
 
 	/**
 	 * Represents an unban request event.
 	 * Either a new unban request received or an aexisting one resolved
 	 */
 	export interface MessageUnbanRequestData extends AbstractTwitchatMessage {
-		type:"unban_request";
+		type: "unban_request";
 		/**
 		 * Define if it's an unban request resolve (true) or creation (false)
 		 */
-		isResolve:boolean;
+		isResolve: boolean;
 		/**
 		 * Define if the message content is flagged by automod
 		 */
-		isFlagByAutomod:boolean;
+		isFlagByAutomod: boolean;
 		/**
 		 * Define if unban request has been accepted (true) or refused (false)
 		 */
-		accepted?:boolean;
+		accepted?: boolean;
 		/**
 		 * User that requested to be unbaned
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * Moderator that resolved the request (if isResolve is true)
 		 */
-		moderator?:TwitchatDataTypes.TwitchatUser;
+		moderator?: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * if isResolve is true, contains the answer given to the
 		 * unban request by the moderator.
 		 * Otherwise it contains the message sent by the user when
 		 * requesting to be unbaned
 		 */
-		message:string;
+		message: string;
 	}
 
 	/**
 	 * Represents a tipeee donation event
 	 */
 	export interface MessageTipeeeDonationData extends AbstractTwitchatMessage {
-		type:"tipeee";
-		eventType:"donation";
-		amount:number;
-		amountFormatted:string;
-		message:string;
-		message_chunks:ParseMessageChunk[];
-		message_html:string;
-		userName:string;
-		currency:string;
-		recurring:boolean;
-		recurringCount:number;
+		type: "tipeee";
+		eventType: "donation";
+		amount: number;
+		amountFormatted: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		currency: string;
+		recurring: boolean;
+		recurringCount: number;
 	}
 
 	/**
 	 * Represents a bingo grid event
 	 */
 	export interface MessageBingoGridData extends AbstractTwitchatMessage {
-		type:"bingo_grid";
+		type: "bingo_grid";
 		/**
 		 * ID of the related bingo grid
 		 */
-		bingoGridId:string;
+		bingoGridId: string;
 		/**
 		 * Name of the bingo grid
 		 */
-		bingoGridName:string;
+		bingoGridName: string;
 		/**
 		 * Coordinates of the ticked cell
 		 */
-		coords:{
-			x:number;
-			y:number;
+		coords: {
+			x: number;
+			y: number;
 		};
 		/**
 		 * Label of the ticked cell if any
 		 */
-		cellLabel:string;
+		cellLabel: string;
 		/**
 		 * Col index that's been filled
 		 * -1 = none
 		 */
-		colIndex:number;
+		colIndex: number;
 		/**
 		 * Row index that's been filled
 		 * -1 = none
 		 */
-		rowIndex:number;
+		rowIndex: number;
 		/**
 		 * Diagonal that's been filled:
 		 * 1 = top left to bottom right
 		 * 2 = top right to bottom left
 		 * -1 = none
 		 */
-		diagonal:number;
+		diagonal: number;
 		/**
 		 * All cells ticked ?
 		 */
-		complete:boolean;
+		complete: boolean;
 		/**
 		 * Grid has just been reset?
 		 */
-		reset:boolean;
+		reset: boolean;
 		/**
 		 * User that clicked.
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 	}
 
 	/**
 	 * Represents a bingo grid event from a viewer
 	 */
 	export interface MessageBingoGridViewerData extends AbstractTwitchatMessage {
-		type:"bingo_grid_viewer";
+		type: "bingo_grid_viewer";
 		/**
 		 * ID of the related bingo grid
 		 */
-		bingoGridId:string;
+		bingoGridId: string;
 		/**
 		 * Name of the bingo grid
 		 */
-		bingoGridName:string;
+		bingoGridName: string;
 		/**
 		 * Number of lines filled
 		 */
-		bingoCount:number;
+		bingoCount: number;
 		/**
 		 * User that clicked.
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 	}
 
 	/**
 	 * Represents a Twitch "celebration" event
 	 */
 	export interface MessageTwitchCelebrationData extends AbstractTwitchatMessage {
-		type:"twitch_celebration";
+		type: "twitch_celebration";
 		/**
 		 * User that sent the celebration
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Emote ID that was used
 		 */
-		emoteID:string;
+		emoteID: string;
 		/**
 		 * Emote URL
 		 */
-		emoteURL:string;
+		emoteURL: string;
 		/**
 		 * Bits used to trigger celebration
 		 */
-		cost:number;
+		cost: number;
 	}
 
 	/**
 	 * Represents a Twitch "gigantified emote" event
 	 */
 	export interface MessageTwitchGigantifiedEmoteData extends AbstractTwitchatMessage {
-		type:"gigantified_emote";
+		type: "gigantified_emote";
 		/**
 		 * User that sent the gigantifed emote
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Emote ID that was used
 		 */
-		emoteID:string;
+		emoteID: string;
 		/**
 		 * Emote URL
 		 */
-		emoteURL:string;
+		emoteURL: string;
 		/**
 		 * Bits used to gigantify the emote
 		 */
-		cost:number;
+		cost: number;
 		/**
 		 * Text message content
 		 */
-		message:string;
+		message: string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks:ParseMessageChunk[];
+		message_chunks: ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
-		message_html:string;
+		message_html: string;
 		/**
 		 * @see MergeableMessage
 		 */
-		message_size:number;
+		message_size: number;
 	}
 
 	/**
 	 * Represents a Twitch "blocked terms" change
 	 */
 	export interface MessageBlockedTermsData extends AbstractTwitchatMessage {
-		type:"blocked_terms";
+		type: "blocked_terms";
 		/**
 		 * User that added the blocked term
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Terms blocked
 		 */
-		terms:string[];
+		terms: string[];
 		/**
 		 * Automod action
 		 */
-		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
+		action: "add_permitted" | "remove_permitted" | "add_blocked" | "remove_blocked";
 		/**
 		 * true if message has been allowed only temporarily (from automod)
 		 * in such case the word is allowed for 1h
 		 */
-		temporary?:boolean;
+		temporary?: boolean;
 	}
 
 	/**
 	 * Represents a hate raid detection
 	 */
 	export interface MessageHateRaidData extends AbstractTwitchatMessage {
-		type:"hate_raid";
+		type: "hate_raid";
 		/**
 		 * Terms blocked
 		 */
-		terms:{id:string, text:string, unblocked?:true}[];
+		terms: { id: string; text: string; unblocked?: true }[];
 		/**
 		 * Users that triggered the hate raid detection
 		 */
-		haters:TwitchatDataTypes.TwitchatUser[];
+		haters: TwitchatDataTypes.TwitchatUser[];
 	}
 
 	/**
 	 * Represents a user warning data
 	 */
 	export interface MessageWarnUserData extends AbstractTwitchatMessage {
-		type:"warn_chatter";
+		type: "warn_chatter";
 		/**
 		 * User warned
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * Moderator that sent the warning
 		 */
-		moderator:TwitchatDataTypes.TwitchatUser;
+		moderator: TwitchatDataTypes.TwitchatUser;
 		/**
 		 * Rules the user has been warned
 		 */
-		rules:string[]
+		rules: string[];
 		/**
 		 * Custom warn message
 		 */
-		customReason?:string;
+		customReason?: string;
 		/**
 		 * Abstracted reason for trigger placeholder.
 		 * Contains either the "customReason" or a concatenation of the "rules"
 		 */
-		abstractedReason:string;
+		abstractedReason: string;
 	}
 
 	/**
 	 * Represents a user warning acknowledgement data
 	 */
 	export interface MessageWarnAcknowledgementData extends AbstractTwitchatMessage {
-		type:"warn_acknowledge";
+		type: "warn_acknowledge";
 		/**
 		 * User warned
 		 */
-		user:TwitchatDataTypes.TwitchatUser;
+		user: TwitchatDataTypes.TwitchatUser;
 	}
 
 	/**
 	 * Represents a super chat message on youtube
 	 */
 	export interface MessageYoutubeSuperChatData extends TranslatableMessage {
-		type:"super_chat";
+		type: "super_chat";
 		/**
 		 * Tip amount in floating point form.
 		 * Exemple: 1.54 for "1,54€"
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Formatted amount
 		 */
-		amountDisplay:string;
+		amountDisplay: string;
 		/**
 		 * Tip currency
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * Tier tip from 1 to 11
 		 * Here are the corresponding pin duration:
@@ -7565,7 +8441,7 @@ export namespace TwitchatDataTypes {
 		 * 10 = 14400s
 		 * 11 = 18000s
 		 */
-		tier:number;
+		tier: number;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */
@@ -7576,24 +8452,24 @@ export namespace TwitchatDataTypes {
 	 * Represents a super chat message on youtube
 	 */
 	export interface MessageYoutubeSuperStickerData extends AbstractTwitchatMessage {
-		type:"super_sticker";
+		type: "super_sticker";
 		/**
 		 * User that offered the subgifts
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Tip amount in floating point form.
 		 * Exemple: 1.54 for "1,54€"
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Formatted amount
 		 */
-		amountDisplay:string;
+		amountDisplay: string;
 		/**
 		 * Tip currency
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * Tier tip from 1 to 11
 		 * Here are the corresponding pin duration:
@@ -7609,15 +8485,15 @@ export namespace TwitchatDataTypes {
 		 * 10 = 14400s
 		 * 11 = 18000s
 		 */
-		tier:number;
+		tier: number;
 		/**
 		 * Super sticker to be displayed
 		 */
-		sticker_url:string;
+		sticker_url: string;
 		/**
 		 * Sticker's ID
 		 */
-		sticker_id:string;
+		sticker_id: string;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */
@@ -7628,19 +8504,19 @@ export namespace TwitchatDataTypes {
 	 * Represents a subcription on youtube
 	 */
 	export interface MessageYoutubeSubscriptionData extends TranslatableMessage {
-		type:"youtube_subscription";
+		type: "youtube_subscription";
 		/**
 		 * Is it a resub (true) or a new sub (false)
 		 */
-		is_resub:boolean;
+		is_resub: boolean;
 		/**
 		 * Number of months the user has subscribed for
 		 */
-		months:number;
+		months: number;
 		/**
 		 * Subscription level name
 		 */
-		levelName:string;
+		levelName: string;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */
@@ -7651,23 +8527,23 @@ export namespace TwitchatDataTypes {
 	 * Represents a subgift on youtube
 	 */
 	export interface MessageYoutubeSubgiftData extends AbstractTwitchatMessage {
-		type:"youtube_subgift";
+		type: "youtube_subgift";
 		/**
 		 * User that offered the subgifts
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Number of months the user has subscribed for
 		 */
-		gift_recipients:TwitchatUser[];
+		gift_recipients: TwitchatUser[];
 		/**
 		 * Number of subgifts
 		 */
-		gift_count:number;
+		gift_count: number;
 		/**
 		 * Subscription level name
 		 */
-		levelName:string;
+		levelName: string;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */
@@ -7678,146 +8554,146 @@ export namespace TwitchatDataTypes {
 	 * Represents a ban on youtube
 	 */
 	export interface MessageYoutubeBanData extends AbstractTwitchatMessage {
-		type:"youtube_ban";
+		type: "youtube_ban";
 		/**
 		 * User that got banned
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * User that executed the ban action
 		 */
-		moderator?:TwitchatUser;
+		moderator?: TwitchatUser;
 		/**
 		 * Ban duration if temporary, undefined if permanent
 		 */
-		duration_s?:number;
+		duration_s?: number;
 	}
 
 	/**
 	 * Represents an incoming websocket message with a "topic" param
 	 */
 	export interface MessageWebsocketTopicData extends AbstractTwitchatMessage {
-		type:"websocket_topic";
+		type: "websocket_topic";
 		/**
 		 * Topic called
 		 */
-		topic:string;
+		topic: string;
 		/**
 		 * Message received
 		 */
-		message:string;
+		message: string;
 	}
 
 	/**
 	 * Represents a tiltify event
 	 */
 	export type MessageTiltifyData = TiltifyDonationData;
-		interface TiltifyDonationBaseData extends AbstractTwitchatMessage{
-			type:"tiltify";
-			eventType:"donation";
-		}
-		export interface TiltifyDonationData extends TiltifyDonationBaseData{
-			eventType:"donation";
-			amount:number;
-			amountFormatted:string;
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			currency:string;
-			campaign:{
-				id:string;
-				url:string;
-				title:string;
-			};
-		}
+	interface TiltifyDonationBaseData extends AbstractTwitchatMessage {
+		type: "tiltify";
+		eventType: "donation";
+	}
+	export interface TiltifyDonationData extends TiltifyDonationBaseData {
+		eventType: "donation";
+		amount: number;
+		amountFormatted: string;
+		message: string;
+		message_chunks: ParseMessageChunk[];
+		message_html: string;
+		userName: string;
+		currency: string;
+		campaign: {
+			id: string;
+			url: string;
+			title: string;
+		};
+	}
 
 	/**
 	 * Called when twitchat starts
 	 */
 	export interface MessageTwitchatStartedData extends AbstractTwitchatMessage {
-		type:"twitchat_started";
+		type: "twitchat_started";
 	}
 
 	/**
 	 * Represents a subscription on TikTok
 	 */
 	export interface MessageTikTokSubData extends AbstractTwitchatMessage {
-		type:"tiktok_sub";
+		type: "tiktok_sub";
 		/**
 		 * User that sent the gift
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Number of months the user subscribed for
 		 * /!\ not exactly sure about the meaning of this value!
 		 */
-		months:number;
+		months: number;
 	}
 
 	/**
 	 * Represents a gift on TikTok
 	 */
 	export interface MessageTikTokGiftData extends AbstractTwitchatMessage {
-		type:"tiktok_gift";
+		type: "tiktok_gift";
 		/**
 		 * User that sent the gift
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Gift image
 		 */
-		image:string;
+		image: string;
 		/**
 		 * Number of gifts
 		 */
-		count:number;
+		count: number;
 		/**
 		 * Number of diamonds the streamer earns
 		 */
-		diamonds:number;
+		diamonds: number;
 		/**
 		 * ID of the gift
 		 */
-		giftId:string;
+		giftId: string;
 		/**
 		 * Name of the gift
 		 */
-		giftName:string;
+		giftName: string;
 		/**
 		 * Raw data of the original message
 		 */
-		raw_data?:any;
+		raw_data?: any;
 	}
 
 	/**
 	 * Represents a like on TikTok
 	 */
 	export interface MessageTikTokLikeData extends AbstractTwitchatMessage {
-		type:"tiktok_like";
+		type: "tiktok_like";
 		/**
 		 * User that sent the gift
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Number of likes (sent by batch)
 		 */
-		count:number;
+		count: number;
 		/**
 		 * Total number of likes received on this stream
 		 */
-		streamLikeCount:number;
+		streamLikeCount: number;
 	}
 
 	/**
 	 * Represents a share on TikTok
 	 */
 	export interface MessageTikTokShareData extends AbstractTwitchatMessage {
-		type:"tiktok_share";
+		type: "tiktok_share";
 		/**
 		 * User that sent the gift
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -7827,131 +8703,133 @@ export namespace TwitchatDataTypes {
 	 * Users has a button to resume execution
 	 */
 	export interface MessageSuspendedTriggerStackData extends AbstractTwitchatMessage {
-		type:"suspended_trigger_stack";
+		type: "suspended_trigger_stack";
 		/**
 		 * Trigger stack that has been suspended
 		 */
-		triggerStack:TriggerCallStack;
+		triggerStack: TriggerCallStack;
 	}
 
 	/**
 	 * Represents a donation made on twitch charity
 	 */
 	export interface MessageCharityDonationData extends AbstractTwitchatMessage {
-		type:"twitch_charity_donation";
+		type: "twitch_charity_donation";
 		/**
 		 * User that donated
 		 */
-		user:TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Amount donated
 		 */
-		amount:number;
+		amount: number;
 		/**
 		 * Amount donated formatted (amount + currency)
 		 */
-		amountFormatted:string;
+		amountFormatted: string;
 		/**
 		 * Goal amount to reach
 		 */
-		goal:number
+		goal: number;
 		/**
 		 * Goal amount to reach formatted
 		 */
-		goalFormatted:string;
+		goalFormatted: string;
 		/**
 		 * Current amount
 		 */
-		raised:number
+		raised: number;
 		/**
 		 * Current amount formatted
 		 */
-		raisedFormatted:string;
+		raisedFormatted: string;
 		/**
 		 * Currency of the donation
 		 */
-		currency:string;
+		currency: string;
 		/**
 		 * Campaign details
 		 */
-		campaign:{
-			id:string;
-			url:string;
-			title:string;
-		}
+		campaign: {
+			id: string;
+			url: string;
+			title: string;
+		};
 	}
 
 	/**
 	 * Represents a private moderator message
 	 */
 	export interface MessagePrivateModeratorData extends TranslatableMessage {
-		type:"private_mod_message";
+		type: "private_mod_message";
 		/**
 		 * Message type:
 		 * - message: simple message
 		 * - question: question to answer
 		 */
-		action:IChatState["messageMode"];
+		action: IChatState["messageMode"];
 		/**
 		 * Optional message ID to reference
 		 */
-		parentMessage?:TranslatableMessage;
+		parentMessage?: TranslatableMessage;
 		/**
 		 * Optional fallback parent message.
 		 * Used in case parentMessage isn't found on history
 		 */
-		parentMessageFallback?:{
-			uid:string;
-			login:string;
-			platform:ChatPlatform;
-			message:TwitchatDataTypes.ParseMessageChunk[];
+		parentMessageFallback?: {
+			uid: string;
+			login: string;
+			platform: ChatPlatform;
+			message: TwitchatDataTypes.ParseMessageChunk[];
 		};
 		/**
 		 * Answer given by the streamer for a "question" message
 		 */
-		answer?:boolean;
+		answer?: boolean;
 		/**
 		 * Channel ID the message has been sent to
 		 */
-		toChannelId?:string;
+		toChannelId?: string;
 	}
 
 	/**
 	 * Represents a PlayAbility event
 	 */
 	export interface MessagePlayabilityInputData extends AbstractTwitchatMessage {
-		type:"playability_input";
+		type: "playability_input";
 		/**
 		 * Input code
 		 */
-		inputCode:string;
+		inputCode: string;
 		/**
 		 * Input type
 		 */
-		inputType:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"];
+		inputType: NonNullable<
+			TriggerActionPlayabilityData["playabilityData"]
+		>["outputs"][number]["type"];
 		/**
 		 * input value
 		 */
-		inputValue:number|boolean;
+		inputValue: number | boolean;
 	}
 
 	/**
 	 * Represents a Goal's overlay step completion
 	 */
 	export interface MessageGoalStepCompleteData extends AbstractTwitchatMessage {
-		type:"goal_step_complete";
+		type: "goal_step_complete";
 		/**
 		 * Index of the completed step
 		 */
-		stepIndex:number;
+		stepIndex: number;
 		/**
 		 * Goal overlay data
 		 */
-		goalConfig:DonationGoalOverlayConfig
+		goalConfig: DonationGoalOverlayConfig;
 		/**
 		 * Completed step info
 		 */
-		stepConfig:DonationGoalOverlayConfig["goalList"][number];
+		stepConfig: DonationGoalOverlayConfig["goalList"][number];
 	}
 
 	/**
@@ -7966,7 +8844,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is poll just starting
 		 */
-		isStart:boolean;
+		isStart: boolean;
 	}
 
 	/**
@@ -7981,7 +8859,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Action Name
 		 */
-        actionName: string;
+		actionName: string;
 		/**
 		 * Product sku for paid actions
 		 */
@@ -7989,11 +8867,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Product cost in bits for paid actions
 		 */
-        bits: number;
+		bits: number;
 		/**
 		 * User that triggered the action
 		 */
-        user: TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -8004,11 +8882,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Number of bits used to trigger the combo
 		 */
-        bits: number;
+		bits: number;
 		/**
 		 * User that made the combo
 		 */
-        user: TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -8031,6 +8909,5 @@ export namespace TwitchatDataTypes {
 		 * New connection state
 		 */
 		message: MessageChatData;
-
 	}
 }

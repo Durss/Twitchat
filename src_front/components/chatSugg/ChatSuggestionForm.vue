@@ -3,20 +3,26 @@
 		<div class="head" v-if="triggerMode === false">
 			<ClearButton @click="close()" />
 
-			<h1><Icon name="chatSugg" class="icon" />{{ $t('suggestion.title') }}</h1>
+			<h1><Icon name="chatSugg" class="icon" />{{ $t("suggestion.title") }}</h1>
 
-			<div class="description">{{ $t('suggestion.info') }}</div>
+			<div class="description">{{ $t("suggestion.info") }}</div>
 		</div>
 
 		<div class="content">
-			<form  @submit.prevent="submitChatSuggestion()">
+			<form @submit.prevent="submitChatSuggestion()">
 				<div class="card-item">
-					<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
+					<ParamItem
+						noBackground
+						:paramData="command"
+						autofocus
+						@change="changeValue()"
+					/>
 					<div class="example">
-						<span>{{ $t("global.example") }}</span>:
+						<span>{{ $t("global.example") }}</span
+						>:
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
-							<template #CMD>{{example}}</template>
-							<template #SUGG>{{$t("suggestion.example_sugg")}}</template>
+							<template #CMD>{{ example }}</template>
+							<template #SUGG>{{ $t("suggestion.example_sugg") }}</template>
 						</i18n-t>
 					</div>
 				</div>
@@ -25,9 +31,14 @@
 
 				<ParamItem :paramData="duration" @change="changeValue()" />
 
-				<ParamItem :paramData="multiAnswers" v-model="multiAnswers.value" @change="changeValue()" />
+				<ParamItem
+					:paramData="multiAnswers"
+					v-model="multiAnswers.value"
+					@change="changeValue()"
+				/>
 
-				<PostOnChatParam botMessageKey="chatSuggStart"
+				<PostOnChatParam
+					botMessageKey="chatSuggStart"
 					v-if="triggerMode === false"
 					:placeholderEnabled="false"
 					icon="announcement"
@@ -39,7 +50,9 @@
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
-				<Button v-if="triggerMode === false" type="submit">{{ $t('global.submit') }}</Button>
+				<Button v-if="triggerMode === false" type="submit">{{
+					$t("global.submit")
+				}}</Button>
 			</form>
 
 			<!-- Removed because down -->
@@ -54,20 +67,20 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import PermissionsForm from '../PermissionsForm.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import ParamItem from '../params/ParamItem.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
-import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/TriggerActionDataTypes';
-import Utils from '@/utils/Utils';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import TTButton from "../TTButton.vue";
+import ClearButton from "../ClearButton.vue";
+import PermissionsForm from "../PermissionsForm.vue";
+import ToggleBlock from "../ToggleBlock.vue";
+import ParamItem from "../params/ParamItem.vue";
+import PostOnChatParam from "../params/PostOnChatParam.vue";
+import type { TriggerActionChatSuggestionsData, TriggerData } from "@/types/TriggerActionDataTypes";
+import Utils from "@/utils/Utils";
 
 @Component({
-	components:{
+	components: {
 		Button: TTButton,
 		ParamItem,
 		ClearButton,
@@ -75,86 +88,115 @@ import Utils from '@/utils/Utils';
 		PermissionsForm,
 		PostOnChatParam,
 	},
-	emits:["close"]
+	emits: ["close"],
 })
 class ChatSuggestionForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public triggerMode!:boolean;
+	@Prop({ type: Boolean, default: false })
+	public triggerMode!: boolean;
 
 	//This is used by the trigger action form.
-	@Prop({type: Object, default:{}})
-	public action!:TriggerActionChatSuggestionsData;
+	@Prop({ type: Object, default: {} })
+	public action!: TriggerActionChatSuggestionsData;
 
 	@Prop
-	public triggerData!:TriggerData;
+	public triggerData!: TriggerData;
 
-	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30, labelKey:"suggestion.command", icon:"commands"};
-	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength", icon:"font"};
-	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration", icon:"timer"};
-	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"suggestion.multiAnswers", icon:"user"};
-	public permissions:TwitchatDataTypes.PermissionsData			= Utils.getDefaultPermissions()
+	public command: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "!sugg",
+		placeholder: "!sugg",
+		maxLength: 30,
+		labelKey: "suggestion.command",
+		icon: "commands",
+	};
+	public maxLength: TwitchatDataTypes.ParameterData<number> = {
+		value: 100,
+		type: "number",
+		min: 1,
+		max: 500,
+		labelKey: "suggestion.maxLength",
+		icon: "font",
+	};
+	public duration: TwitchatDataTypes.ParameterData<number> = {
+		value: 2,
+		type: "number",
+		min: 1,
+		max: 60 * 24,
+		labelKey: "suggestion.duration",
+		icon: "timer",
+	};
+	public multiAnswers: TwitchatDataTypes.ParameterData<boolean> = {
+		value: false,
+		type: "boolean",
+		labelKey: "suggestion.multiAnswers",
+		icon: "user",
+	};
+	public permissions: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions();
 
-	public get classes():string[] {
+	public get classes(): string[] {
 		const res = ["chatsuggform", "sidePanel"];
-		if(this.triggerMode !== false) res.push("embedMode");
+		if (this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 
-	public get example():string {
-		if(this.command.value) return this.command.value;
+	public get example(): string {
+		if (this.command.value) return this.command.value;
 		return "!sugg";
 	}
 
-	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+	public get startPlaceholders(): TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
-				tag:"CMD", descKey:'suggestion.placeholder_cmd', example:this.command.value,
+				tag: "CMD",
+				descKey: "suggestion.placeholder_cmd",
+				example: this.command.value,
 			},
 			{
-				tag:"LENGTH", descKey:'suggestion.placeholder_length', example:this.maxLength.value.toString(),
-			}
+				tag: "LENGTH",
+				descKey: "suggestion.placeholder_length",
+				example: this.maxLength.value.toString(),
+			},
 		];
 	}
 
-	public get dataObject():TwitchatDataTypes.ChatSuggestionData {
+	public get dataObject(): TwitchatDataTypes.ChatSuggestionData {
 		return {
-			startTime:Date.now(),
-			command:this.command.value.trim(),
-			maxLength:this.maxLength.value,
-			duration:this.duration.value,
-			allowMultipleAnswers:this.multiAnswers.value,
-			choices:[],
-			winners:[],
-		}
+			startTime: Date.now(),
+			command: this.command.value.trim(),
+			maxLength: this.maxLength.value,
+			duration: this.duration.value,
+			allowMultipleAnswers: this.multiAnswers.value,
+			choices: [],
+			winners: [],
+		};
 	}
 
 	public beforeMount(): void {
-		if(this.triggerMode) {
-			if(this.action.suggData) {
+		if (this.triggerMode) {
+			if (this.action.suggData) {
 				this.command.value = this.action.suggData.command;
 				this.maxLength.value = this.action.suggData.maxLength;
 				this.duration.value = this.action.suggData.duration;
 				this.multiAnswers.value = this.action.suggData.allowMultipleAnswers;
-			}else{
+			} else {
 				this.action.suggData = this.dataObject;
 			}
 		}
 	}
 
-	public async mounted():Promise<void> {
-		if(!this.triggerMode) {
+	public async mounted(): Promise<void> {
+		if (!this.triggerMode) {
 			super.open();
 		}
 	}
 
-	public submitChatSuggestion():void {
+	public submitChatSuggestion(): void {
 		this.$store.chatSuggestion.setChatSuggestion(this.dataObject);
 		this.close();
 	}
 
-	public changeValue():void {
-		if(this.triggerMode) {
+	public changeValue(): void {
+		if (this.triggerMode) {
 			this.action.suggData.command = this.command.value;
 			this.action.suggData.maxLength = this.maxLength.value;
 			this.action.suggData.duration = this.duration.value;
@@ -166,19 +208,19 @@ export default toNative(ChatSuggestionForm);
 </script>
 
 <style scoped lang="less">
-.chatsuggform{
+.chatsuggform {
 	.example {
 		// .bevel();
 		// padding: .8em;
 		margin-left: auto;
 		margin-top: 10px;
 		border-radius: var(--border-radius);
-		font-size: .8em;
+		font-size: 0.8em;
 		text-align: right;
 	}
 	.alternativeTool {
 		text-align: center;
-		font-size: .8em;
+		font-size: 0.8em;
 		flex-shrink: 0;
 	}
 }

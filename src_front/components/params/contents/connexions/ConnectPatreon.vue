@@ -9,75 +9,85 @@
 				</template>
 			</i18n-t>
 		</div>
-		
+
 		<div class="card-item userInfo" v-if="$store.patreon.connected">
-			<div class="title">{{ $t('patreon.connected_as') }}</div>
+			<div class="title">{{ $t("patreon.connected_as") }}</div>
 			<div class="info">
 				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
 				<span class="name">{{ $store.patreon.userName }}</span>
 			</div>
-			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{
+				$t("global.disconnect")
+			}}</TTButton>
 		</div>
 
 		<section v-if="!$store.auth.isPremium">
-			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
+			<TTButton icon="premium" @click="openPremium()" premium big>{{
+				$t("premium.become_premiumBt")
+			}}</TTButton>
 		</section>
 
 		<section v-else-if="$store.auth.isPremium && !$store.patreon.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.patreon_connect_failed") }}</div>
+			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{
+				$t("global.connect")
+			}}</TTButton>
+			<div class="card-item alert error" v-if="error" @click="error = false">
+				{{ $t("error.patreon_connect_failed") }}
+			</div>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers"/>{{$t("streamelements.examples")}}</h2>
+			<h2><Icon name="whispers" />{{ $t("streamelements.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeMember" />
 			<MessageItem v-else="fakeMember" :messageData="fakeMember" />
 		</section>
-
 	</div>
 </template>
 
 <script lang="ts">
-import MessageItem from '@/components/messages/MessageItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
+import MessageItem from "@/components/messages/MessageItem.vue";
+import TTButton from "@/components/TTButton.vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, toNative, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		MessageItem,
 	},
-	emits:[],
+	emits: [],
 })
 class ConnectPatreon extends Vue {
-
 	public error = false;
 	public loading = false;
 	public oAuthURL = "";
-	public fakeMember:TwitchatDataTypes.PatreonNewMemberData|undefined = undefined;
+	public fakeMember: TwitchatDataTypes.PatreonNewMemberData | undefined = undefined;
 
-	public async mounted():Promise<void> {
-		if(this.$store.patreon.oauthFlowParams) {
+	public async mounted(): Promise<void> {
+		if (this.$store.patreon.oauthFlowParams) {
 			this.loading = true;
-			if(!await this.$store.patreon.completeOAuthFlow()) {
+			if (!(await this.$store.patreon.completeOAuthFlow())) {
 				await this.loadAuthURL();
-			}else{
+			} else {
 				this.loading = false;
 			}
-		}else{
+		} else {
 			await this.loadAuthURL();
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(TwitchatDataTypes.TwitchatMessageType.PATREON, (mess) => {
-			mess.eventType = "new_member";
-			this.fakeMember = mess;
-		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(
+			TwitchatDataTypes.TwitchatMessageType.PATREON,
+			(mess) => {
+				mess.eventType = "new_member";
+				this.fakeMember = mess;
+			},
+			false,
+		);
 	}
 
 	/**
 	 * Disconnects from patreon
 	 */
-	public disconnect():void{
+	public disconnect(): void {
 		this.$store.patreon.disconnect();
 		this.loadAuthURL();
 	}
@@ -85,14 +95,14 @@ class ConnectPatreon extends Vue {
 	/**
 	 * Opens the premium param page
 	 */
-	public openPremium():void{
+	public openPremium(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
 	 * Start authentication flow
 	 */
-	public async loadAuthURL():Promise<void> {
+	public async loadAuthURL(): Promise<void> {
 		this.loading = true;
 		this.oAuthURL = await this.$store.patreon.getOAuthURL();
 		this.loading = false;
@@ -101,29 +111,28 @@ class ConnectPatreon extends Vue {
 	/**
 	 * Start authentication flow
 	 */
-	public async authenticate():Promise<void> {
+	public async authenticate(): Promise<void> {
 		this.loading = true;
 		document.location = this.oAuthURL;
 	}
-
 }
 export default toNative(ConnectPatreon);
 </script>
 
 <style scoped lang="less">
-.connectpatreon{
+.connectpatreon {
 	.userInfo {
 		margin: auto;
 		display: flex;
 		flex-direction: column;
-		gap: .25em;
+		gap: 0.25em;
 		.info {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			flex-wrap: wrap;
-			gap: .5em;
-			padding: .25em .5em;
+			gap: 0.5em;
+			padding: 0.25em 0.5em;
 			.avatar {
 				width: 1.75em;
 				height: 1.75em;
@@ -146,10 +155,10 @@ export default toNative(ConnectPatreon);
 	.examples {
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
-		.chatMessage  {
+		.chatMessage {
 			font-size: 1em;
 		}
 	}
@@ -157,18 +166,18 @@ export default toNative(ConnectPatreon);
 	.beta {
 		white-space: pre-line;
 		.button {
-			margin-top: .5em;
+			margin-top: 0.5em;
 		}
 	}
 
 	.info {
 		.icon {
 			height: 1em;
-			margin-right: .25em;
+			margin-right: 0.25em;
 		}
 		i {
-			font-size: .8em;
-			text-align: center
+			font-size: 0.8em;
+			text-align: center;
 		}
 	}
 }

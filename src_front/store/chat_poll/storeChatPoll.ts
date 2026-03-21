@@ -1,89 +1,100 @@
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import Utils from '@/utils/Utils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import type { PollOverlayParamStoreData } from '../poll/storePoll';
-import StoreProxy, { type IChatPollActions, type IChatPollGetters, type IChatPollState } from '../StoreProxy';
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import Utils from "@/utils/Utils";
+import {
+	acceptHMRUpdate,
+	defineStore,
+	type PiniaCustomProperties,
+	type _GettersTree,
+	type _StoreWithGetters,
+	type _StoreWithState,
+} from "pinia";
+import type { UnwrapRef } from "vue";
+import DataStore from "../DataStore";
+import type { PollOverlayParamStoreData } from "../poll/storePoll";
+import StoreProxy, {
+	type IChatPollActions,
+	type IChatPollGetters,
+	type IChatPollState,
+} from "../StoreProxy";
 
 let timeoutEnd = "";
-export const storeChatPoll = defineStore('chatPoll', {
-	state: () => ({
-		data: null,
-		presets: {
-			duration_s: 2 * 60,
-			voteCount: 1,
-			permissions: Utils.getDefaultPermissions(),
-			history:[],
-		},
-		overlayParams: {
-			showTitle:true,
-			listMode:true,
-			listModeOnlyMore2:true,
-			showLabels:true,
-			showVotes:false,
-			showPercent:false,
-			showTimer:true,
-			resultDuration_s:5,
-			showOnlyResult:false,
-			placement:"bl",
-		},
-	} as IChatPollState),
+export const storeChatPoll = defineStore("chatPoll", {
+	state: () =>
+		({
+			data: null,
+			presets: {
+				duration_s: 2 * 60,
+				voteCount: 1,
+				permissions: Utils.getDefaultPermissions(),
+				history: [],
+			},
+			overlayParams: {
+				showTitle: true,
+				listMode: true,
+				listModeOnlyMore2: true,
+				showLabels: true,
+				showVotes: false,
+				showPercent: false,
+				showTimer: true,
+				resultDuration_s: 5,
+				showOnlyResult: false,
+				placement: "bl",
+			},
+		}) as IChatPollState,
 
-
-
-	getters: {
-	} as IChatPollGetters
-	& ThisType<UnwrapRef<IChatPollState> & _StoreWithGetters<IChatPollGetters> & PiniaCustomProperties>
-	& _GettersTree<IChatPollState>,
-
-
+	getters: {} as IChatPollGetters &
+		ThisType<
+			UnwrapRef<IChatPollState> & _StoreWithGetters<IChatPollGetters> & PiniaCustomProperties
+		> &
+		_GettersTree<IChatPollState>,
 
 	actions: {
-
-		populateData(params?:PollOverlayParamStoreData):void {
-			if(!params) {
+		populateData(params?: PollOverlayParamStoreData): void {
+			if (!params) {
 				//Init poll overlay params
 				const pollParams = DataStore.get(DataStore.CHAT_POLL_OVERLAY_PARAMS);
-				if(pollParams) {
+				if (pollParams) {
 					params = JSON.parse(pollParams);
 				}
 				//Init poll presets
 				const pollPresets = DataStore.get(DataStore.CHAT_POLL_PRESETS);
-				if(pollPresets) {
+				if (pollPresets) {
 					this.presets = JSON.parse(pollPresets) as TwitchatDataTypes.ChatPollPresets;
 				}
-			}else
-			if(params) {
-				this.overlayParams.showTitle =			params.showTitle !== false;
-				this.overlayParams.listMode =			params.listMode !== false;
-				this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
-				this.overlayParams.showLabels =			params.showLabels !== false;
-				this.overlayParams.showVotes =			params.showVotes !== false;
-				this.overlayParams.showPercent =		params.showPercent !== false;
-				this.overlayParams.showTimer =			params.showTimer !== false;
-				this.overlayParams.showOnlyResult =		params.showOnlyResult !== false;
-				this.overlayParams.resultDuration_s =	params.resultDuration_s || 5;
-				this.overlayParams.placement =			params.placement || "bl";
+			} else if (params) {
+				this.overlayParams.showTitle = params.showTitle !== false;
+				this.overlayParams.listMode = params.listMode !== false;
+				this.overlayParams.listModeOnlyMore2 = params.listModeOnlyMore2 !== false;
+				this.overlayParams.showLabels = params.showLabels !== false;
+				this.overlayParams.showVotes = params.showVotes !== false;
+				this.overlayParams.showPercent = params.showPercent !== false;
+				this.overlayParams.showTimer = params.showTimer !== false;
+				this.overlayParams.showOnlyResult = params.showOnlyResult !== false;
+				this.overlayParams.resultDuration_s = params.resultDuration_s || 5;
+				this.overlayParams.placement = params.placement || "bl";
 			}
 
 			/**
 			 * Called when poll overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_CONFIGS", ()=> {
+			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_CONFIGS", () => {
 				this.broadcastState();
 			});
 
 			/**
 			 * Start a new poll from Public API
 			 */
-			PublicAPI.instance.addEventListener("SET_CHAT_POLL_START", (event)=> {
-				if(!event.data.choices || !event.data.choices.length) return;
+			PublicAPI.instance.addEventListener("SET_CHAT_POLL_START", (event) => {
+				if (!event.data.choices || !event.data.choices.length) return;
 				this.setCurrentPoll({
-					choices: event.data.choices.map((label:string) => ({id:Utils.getUUID(), label, votes:0})),
+					choices: event.data.choices.map((label: string) => ({
+						id: Utils.getUUID(),
+						label,
+						votes: 0,
+					})),
 					duration_s: event.data.duration || 60,
 					maxVotePerUser: event.data.maxVotePerUser || 1,
 					permissions: Utils.getDefaultPermissions(),
@@ -96,43 +107,59 @@ export const storeChatPoll = defineStore('chatPoll', {
 			/**
 			 * Stop any currently running poll from public API
 			 */
-			PublicAPI.instance.addEventListener("SET_CHAT_POLL_STOP", ()=> {
+			PublicAPI.instance.addEventListener("SET_CHAT_POLL_STOP", () => {
 				this.setCurrentPoll(null);
 			});
 
 			/**
 			 * Stop any currently running poll from public API
 			 */
-			PublicAPI.instance.addEventListener("GET_CHAT_POLL_INFO", ()=> {
-				if(!this.data) return;
-				
+			PublicAPI.instance.addEventListener("GET_CHAT_POLL_INFO", () => {
+				if (!this.data) return;
+
 				PublicAPI.instance.broadcast("ON_CHAT_POLL_INFO", {
 					title: this.data.title,
-					choices: this.data.choices.map(v=>{return {title: v.label, votes: v.votes}}),
+					choices: this.data.choices.map((v) => {
+						return { title: v.label, votes: v.votes };
+					}),
 					duration: this.data.duration_s,
 				});
 			});
 		},
 
-		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
+		async handleChatCommand(message: TwitchatDataTypes.TranslatableMessage): Promise<void> {
 			// Check if a poll is running
-			if(!this.data) return;
+			if (!this.data) return;
 
-			const voteMsg = (message.message || "").trim().split(" ")[0]!
+			const voteMsg = (message.message || "").trim().split(" ")[0]!;
 			// Check if message matches a valid index
 			const index = parseInt(voteMsg);
-			if(index < 1 || index > this.data.choices.length || isNaN(index) || index.toString().trim() != voteMsg) return;
+			if (
+				index < 1 ||
+				index > this.data.choices.length ||
+				isNaN(index) ||
+				index.toString().trim() != voteMsg
+			)
+				return;
 
 			// Check permission
-			if(!await Utils.checkPermissions(this.data.permissions, message.user, message.channel_id)) return;
+			if (
+				!(await Utils.checkPermissions(
+					this.data.permissions,
+					message.user,
+					message.channel_id,
+				))
+			)
+				return;
 
-			if(this.data.votes[message.user.id]) {
+			if (this.data.votes[message.user.id]) {
 				// Check if the user has already voted for this index
 				if (this.data.votes[message.user.id]!.indices.includes(index)) return;
 
 				// Check if the user has reached the maximum number of votes allowed
-				if (this.data.votes[message.user.id]!.indices.length >= this.data.maxVotePerUser) return;
-			}else{
+				if (this.data.votes[message.user.id]!.indices.length >= this.data.maxVotePerUser)
+					return;
+			} else {
 				this.data.votes[message.user.id] = {
 					indices: [],
 					login: message.user.login,
@@ -141,16 +168,19 @@ export const storeChatPoll = defineStore('chatPoll', {
 			}
 			this.data.votes[message.user.id]!.indices.push(index);
 
-			this.data.choices[index-1]!.votes ++;
-			PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
+			this.data.choices[index - 1]!.votes++;
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", { poll: this.data });
 		},
 
-		setCurrentPoll(data:typeof this.data, replacePresets:boolean = false) {
+		setCurrentPoll(data: typeof this.data, replacePresets: boolean = false) {
 			SetTimeoutWorker.instance.delete(timeoutEnd);
-			if(data != null) {
-				timeoutEnd = SetTimeoutWorker.instance.create(()=>this.setCurrentPoll(null), data.duration_s * 1000);
+			if (data != null) {
+				timeoutEnd = SetTimeoutWorker.instance.create(
+					() => this.setCurrentPoll(null),
+					data.duration_s * 1000,
+				);
 
-				const message:TwitchatDataTypes.MessageChatPollData = {
+				const message: TwitchatDataTypes.MessageChatPollData = {
 					id: Utils.getUUID(),
 					type: TwitchatDataTypes.TwitchatMessageType.CHAT_POLL,
 					channel_id: StoreProxy.auth.twitch.user.id,
@@ -158,45 +188,46 @@ export const storeChatPoll = defineStore('chatPoll', {
 					isStart: false,
 					platform: "twitchat",
 					poll: data,
-				}
+				};
 
 				//Executes the start poll trigger if there was no poll data before
-				if(!this.data) {
+				if (!this.data) {
 					message.isStart = true;
-					TriggerActionHandler.instance.execute(message);
+					void TriggerActionHandler.instance.execute(message);
 				}
 
 				this.data = data;
 
-				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", { poll: this.data });
 
-				if(replacePresets) {
+				if (replacePresets) {
 					this.presets.duration_s = data.duration_s;
 					this.presets.voteCount = data.maxVotePerUser;
 					this.presets.permissions = data.permissions;
 					this.presets.history.unshift(JSON.parse(JSON.stringify(data)));
 
-					const done:{[key:string]:boolean} = {};
-					this.presets.history = this.presets.history.map(v => {
-						const options = v.choices.map(c=>c.label);
-						let key = v.title+v.duration_s+v.maxVotePerUser+options.join(",");
-						if(done[key]) return null;
-						done[key] = true;
-						return v;
-					}).filter(v=> v != null);
+					const done: { [key: string]: boolean } = {};
+					this.presets.history = this.presets.history
+						.map((v) => {
+							const options = v.choices.map((c) => c.label);
+							let key = v.title + v.duration_s + v.maxVotePerUser + options.join(",");
+							if (done[key]) return null;
+							done[key] = true;
+							return v;
+						})
+						.filter((v) => v != null);
 
 					// Keep only the last 10 polls
-					if(this.presets.history.length > 10) {
+					if (this.presets.history.length > 10) {
 						this.presets.history.pop();
 					}
 					DataStore.set(DataStore.CHAT_POLL_PRESETS, this.presets);
 				}
-
-			}else if(this.data){
+			} else if (this.data) {
 				this.data.winner = this.data.choices.reduce((prev, curr) => {
-					return (prev.votes > curr.votes) ? prev : curr;
+					return prev.votes > curr.votes ? prev : curr;
 				});
-				const message:TwitchatDataTypes.MessageChatPollData = {
+				const message: TwitchatDataTypes.MessageChatPollData = {
 					id: Utils.getUUID(),
 					type: TwitchatDataTypes.TwitchatMessageType.CHAT_POLL,
 					channel_id: StoreProxy.auth.twitch.user.id,
@@ -204,43 +235,50 @@ export const storeChatPoll = defineStore('chatPoll', {
 					isStart: false,
 					platform: "twitchat",
 					poll: this.data,
-				}
+				};
 
 				//Post result on chat
-				StoreProxy.chat.addMessage(message);
+				void StoreProxy.chat.addMessage(message);
 
 				//Clear overlay
 				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", undefined);
 				PublicAPI.instance.broadcast("ON_CHAT_POLL_RESULT", {
 					title: this.data.title,
-					choices: this.data.choices.map(v=>{return {title: v.label, votes: v.votes}}),
+					choices: this.data.choices.map((v) => {
+						return { title: v.label, votes: v.votes };
+					}),
 				});
 			}
 
 			this.data = data;
 		},
 
-		setOverlayParams(params:PollOverlayParamStoreData):void {
+		setOverlayParams(params: PollOverlayParamStoreData): void {
 			this.populateData(params);
 			DataStore.set(DataStore.CHAT_POLL_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {
+				parameters: this.overlayParams,
+			});
 		},
 
-		broadcastState():void {
-			if(this.data) {
-				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
+		broadcastState(): void {
+			if (this.data) {
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", { poll: this.data });
 			}
-			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {
+				parameters: this.overlayParams,
+			});
 		},
-	} as IChatPollActions
-	& ThisType<IChatPollActions
-		& UnwrapRef<IChatPollState>
-		& _StoreWithState<"chatPoll", IChatPollState, IChatPollGetters, IChatPollActions>
-		& _StoreWithGetters<IChatPollGetters>
-		& PiniaCustomProperties
-	>,
-})
+	} as IChatPollActions &
+		ThisType<
+			IChatPollActions &
+				UnwrapRef<IChatPollState> &
+				_StoreWithState<"chatPoll", IChatPollState, IChatPollGetters, IChatPollActions> &
+				_StoreWithGetters<IChatPollGetters> &
+				PiniaCustomProperties
+		>,
+});
 
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeChatPoll, import.meta.hot))
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeChatPoll, import.meta.hot));
 }

@@ -1,8 +1,6 @@
 {
 	"extends": "@vue/tsconfig/tsconfig.lib.json",
-	"include": [
-		"vite.config.*"
-	],
+	"include": ["vite.config.*"],
 	"compilerOptions": {
 		"composite": true,
 		"target": "esnext",
@@ -10,8 +8,6 @@
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"types": [
-			"node"
-		]
+		"types": ["node"]
 	}
 }

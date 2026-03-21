@@ -1,7 +1,15 @@
 <template>
 	<div class="overlaycustomtrain">
 		<transition name="scaleY">
-			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0 && state.activities.length >= configs.approachEventCount" key="train"
+			<OverlayCustomTrainRenderer
+				class="train"
+				v-if="
+					configs &&
+					state &&
+					state.amount > 0 &&
+					state.activities.length >= configs.approachEventCount
+				"
+				key="train"
 				:showSuccess="false"
 				:showApproaching="showApproaching"
 				:showFail="false"
@@ -13,83 +21,76 @@
 				:eventCount="configs.triggerEventCount"
 				:recordColorText="configs.recordColorFill"
 				:recordColorBg="configs.recordColorBg"
-
 				:titleLevelUp="configs.levelUpLabel"
 				:levelUpEmote="configs.levelUpEmote"
-
 				:titleApproaching="configs.approachingLabel"
 				:approachingEmote="configs.approachingEmote"
-
 				:title="configs.title"
-
 				:titleSuccess="configs.successLabel"
 				:titleSuccessSummary="configs.successLabelSummary"
 				:successEmote="configs.successEmote"
-
 				:titleFail="configs.failedLabel"
 				:failedEmote="configs.failedEmote"
-
 				:titleRecord="configs.recordLabel"
 				:recordEmote="configs.recordEmote"
-
 				:levelName="configs.levelName"
-
 				:isRecord="!showApproaching && isRecord"
 				:eventDone="state?.activities.length || 2"
-				:level="showApproaching? 0 : currentLevel.index"
-				:percent="showApproaching? 0 : progressPercent"
-				:amountLeft="showApproaching? 0 : Math.ceil(Math.max(0, 1-progressPercent) * currentLevel.goal)"
+				:level="showApproaching ? 0 : currentLevel.index"
+				:percent="showApproaching ? 0 : progressPercent"
+				:amountLeft="
+					showApproaching
+						? 0
+						: Math.ceil(Math.max(0, 1 - progressPercent) * currentLevel.goal)
+				"
 				:amountLeftFormat="configs.currency"
 				:expiresAt="configs.expires_at"
 				:recordPercent="recordPercent"
 				:recordLevel="recordLevel"
-
 				@close="state = null"
 				@lock="locked = true"
 				@unlock="locked = false"
-				/>
+			/>
 		</transition>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, toNative } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import OverlayCustomTrainRenderer from './custom_train/OverlayCustomTrainRenderer.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
+import { Component, toNative } from "vue-facing-decorator";
+import AbstractOverlay from "./AbstractOverlay";
+import PublicAPI from "@/utils/PublicAPI";
+import TwitchatEvent from "@/events/TwitchatEvent";
+import OverlayCustomTrainRenderer from "./custom_train/OverlayCustomTrainRenderer.vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
 
 @Component({
-	components:{
+	components: {
 		OverlayCustomTrainRenderer,
 	},
-	emits:[],
+	emits: [],
 })
 class OverlayCustomTrain extends AbstractOverlay {
-
 	public locked = false;
 	public isRecord = false;
 	public recordPercent = -1;
 	public recordLevel = -1;
 	public showApproaching = false;
-	public configs:TwitchatDataTypes.CustomTrainData | null = null;
-	public state:TwitchatDataTypes.CustomTrainState | null = null;
+	public configs: TwitchatDataTypes.CustomTrainData | null = null;
+	public state: TwitchatDataTypes.CustomTrainState | null = null;
 
-	private overlayId:string = "";
-	private customTrainStateHandler!:(e:TwitchatEvent<"ON_CUSTOM_TRAIN_DATA">) => void;
+	private overlayId: string = "";
+	private customTrainStateHandler!: (e: TwitchatEvent<"ON_CUSTOM_TRAIN_DATA">) => void;
 
-
-	public get progressPercent():number {
-		if(!this.state || !this.configs) return 1;
+	public get progressPercent(): number {
+		if (!this.state || !this.configs) return 1;
 		return (this.state.amount - this.currentLevel.offset) / this.currentLevel.goal;
 	}
 
 	public get currentLevel() {
-		if(!this.state || !this.configs) return {index:0, offset:0, goal:1};
+		if (!this.state || !this.configs) return { index: 0, offset: 0, goal: 1 };
 
-		const levels = this.configs.levelAmounts.concat().sort((a,b)=>a - b);
+		const levels = this.configs.levelAmounts.concat().sort((a, b) => a - b);
 		levels.unshift(0);
 
 		// Find neareset level
@@ -98,42 +99,45 @@ class OverlayCustomTrain extends AbstractOverlay {
 		let i = 0;
 		for (i = 1; i < levels.length; i++) {
 			const level = levels[i]!;
-			if(level > this.state.amount || i === levels.length - 1) {
-				offset = levels[i-1]!;
+			if (level > this.state.amount || i === levels.length - 1) {
+				offset = levels[i - 1]!;
 				goal = level - offset;
 				break;
 			}
 		}
-		return {index:i, offset, goal}
+		return { index: i, offset, goal };
 	}
 
-	public beforeMount():void {
-		this.customTrainStateHandler = (e) => this.onCustomTrainState(e)
+	public beforeMount(): void {
+		this.customTrainStateHandler = (e) => this.onCustomTrainState(e);
 		PublicAPI.instance.addEventListener("ON_CUSTOM_TRAIN_DATA", this.customTrainStateHandler);
 
-		this.overlayId = this.$route.query.twitchat_overlay_id as string ?? "";
+		this.overlayId = (this.$route.query.twitchat_overlay_id as string) ?? "";
 	}
 
-	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("ON_CUSTOM_TRAIN_DATA", this.customTrainStateHandler);
+	public beforeUnmount(): void {
+		PublicAPI.instance.removeEventListener(
+			"ON_CUSTOM_TRAIN_DATA",
+			this.customTrainStateHandler,
+		);
 	}
 
-	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_CUSTOM_TRAIN_DATA", {id:this.overlayId});
+	public requestInfo(): void {
+		PublicAPI.instance.broadcast("GET_CUSTOM_TRAIN_DATA", { id: this.overlayId });
 	}
 
-	public onCustomTrainState(e:TwitchatEvent<"ON_CUSTOM_TRAIN_DATA">):void {
-		if(!e.data || !e.data.configs) return;
-		if(e.data.configs.id !== this.overlayId) return;
-		if(this.locked) return;
+	public onCustomTrainState(e: TwitchatEvent<"ON_CUSTOM_TRAIN_DATA">): void {
+		if (!e.data || !e.data.configs) return;
+		if (e.data.configs.id !== this.overlayId) return;
+		if (this.locked) return;
 
 		this.configs = e.data.configs;
 		this.state = e.data.state;
-		
-		if(this.state) {
-			if(this.state.activities.length < this.configs.triggerEventCount) {
+
+		if (this.state) {
+			if (this.state.activities.length < this.configs.triggerEventCount) {
 				this.showApproaching = true;
-			}else if(this.showApproaching) {
+			} else if (this.showApproaching) {
 				// Show last ticked cell for 1 second
 				setTimeout(() => {
 					this.showApproaching = false;
@@ -143,27 +147,27 @@ class OverlayCustomTrain extends AbstractOverlay {
 			const wasRecord = this.isRecord;
 
 			const record = Utils.getAllTimeRecord(this.configs);
-			this.isRecord = !this.configs.allTimeRecord || !record? false : this.state.amount >= record?.amount
-			if(!wasRecord
-			&& record
-			&& this.currentLevel.index == record.level+1) {
-				this.recordLevel = record.level+1;
+			this.isRecord =
+				!this.configs.allTimeRecord || !record
+					? false
+					: this.state.amount >= record?.amount;
+			if (!wasRecord && record && this.currentLevel.index == record.level + 1) {
+				this.recordLevel = record.level + 1;
 				this.recordPercent = record.percent;
-			}else{
+			} else {
 				this.recordLevel = -1;
 				this.recordPercent = -1;
 			}
 		}
 	}
-
 }
 export default toNative(OverlayCustomTrain);
 </script>
 
 <style scoped lang="less">
-.overlaycustomtrain{
+.overlaycustomtrain {
 	.train {
-		transition: all .35s;
+		transition: all 0.35s;
 		transform: scaleY(1);
 	}
 

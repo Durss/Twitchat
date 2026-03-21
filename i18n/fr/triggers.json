@@ -281,7 +281,7 @@
 					"top40": "Au hasard parmi les 40 premiers résultats",
 					"top50": "Au hasard parmi les 50 premiers résultats"
 				},
-				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
+				"missing_playlist_edit_scopes": "Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Fonctionne uniquement avec Spotify",
 				"fail_reasons": {
 					"spotify_max_per_user_reached": "{USER} a atteint le maximum de morceaux autorisés en file d'attente",
@@ -318,8 +318,8 @@
 				"param_obs_action_screenshot": "Faire un screenshot de source",
 				"param_obs_action_getPersistedData": "Récupérer une donnée persistante",
 				"param_obs_action_setPersistedData": "Définir une donnée persistante",
-				"param_record_chapter_name":"Nom du chapitre",
-				"param_record_hotkey_name":"Action",
+				"param_record_chapter_name": "Nom du chapitre",
+				"param_record_hotkey_name": "Action",
 				"param_screenImgFormat_conf": "Format d'image",
 				"param_screenImgSize_toggle_conf": "Taille d'image personnalisée",
 				"param_screenImgSize_width_conf": "Largeur : {VALUE}px",
@@ -671,30 +671,30 @@
 				"param_cell": "Case",
 				"no_grid": "Vous devez d'abord créer une grille de bingo avant de pouvoir l'éditer"
 			},
-			"streamerbot":{
-				"param_action":"Action à executer",
+			"streamerbot": {
+				"param_action": "Action à executer",
 				"need_to_connect": "Cette action nécessite de {LINK}",
 				"need_to_connect_link": "connecter Streamer.bot",
-				"add_arg_bt":"Ajouter un paramètre"
+				"add_arg_bt": "Ajouter un paramètre"
 			},
-			"sammi":{
-				"param_buttonId":"ID du boutton à déclencher",
+			"sammi": {
+				"param_buttonId": "ID du boutton à déclencher",
 				"need_to_connect": "Cette action nécessite de {LINK}",
 				"need_to_connect_link": "connecter SAMMI"
 			},
-			"mixitup":{
-				"param_commandId":"Commande à déclencher",
+			"mixitup": {
+				"param_commandId": "Commande à déclencher",
 				"need_to_connect": "Cette action nécessite de {LINK}",
 				"need_to_connect_link": "connecter Mix It Up",
-				"add_arg_bt":"Ajouter un paramètre"
+				"add_arg_bt": "Ajouter un paramètre"
 			},
-			"playability":{
+			"playability": {
 				"need_to_connect": "Cette action nécessite de {LINK}",
 				"need_to_connect_link": "connecter PlayAbility",
 				"add_output_bt": "Ajouter une action",
-				"output_press":"Appuyer le bouton",
-				"output_release":"Relâcher le bouton",
-				"output_press_release":"Appuyer/Relâcher le bouton"
+				"output_press": "Appuyer le bouton",
+				"output_release": "Relâcher le bouton",
+				"output_press_release": "Appuyer/Relâcher le bouton"
 			},
 			"groq": {
 				"preprompt": "Preprompt",
@@ -746,17 +746,17 @@
 				}
 			},
 			"sfxr": {
-				"preset_pickupCoin":"Pièce",
-				"preset_laserShoot":"Tir laser",
-				"preset_explosion":"Explosion",
-				"preset_powerUp":"Power up",
-				"preset_hitHurt":"Touché/blessé",
-				"preset_jump":"Saut",
-				"preset_blipSelect":"Bip sélection",
-				"preset_synth":"Synthé",
-				"preset_tone":"Tonalité",
-				"preset_click":"Clic",
-				"preset_random":"Aléatoire",
+				"preset_pickupCoin": "Pièce",
+				"preset_laserShoot": "Tir laser",
+				"preset_explosion": "Explosion",
+				"preset_powerUp": "Power up",
+				"preset_hitHurt": "Touché/blessé",
+				"preset_jump": "Saut",
+				"preset_blipSelect": "Bip sélection",
+				"preset_synth": "Synthé",
+				"preset_tone": "Tonalité",
+				"preset_click": "Clic",
+				"preset_random": "Aléatoire",
 				"preset_custom": "Configuration personnalisée...",
 				"param_volume": "Volume",
 				"param_waitForComplete": "Attendre la fin de l'audio\n(l'exécution du trigger sera mise en pause jusqu'à ce que l'audio termine)",
@@ -986,9 +986,9 @@
 			"announcement_color": "Couleur de l'annonce",
 			"track_add_fail_reason": "Raison de l'échec d'ajout du morceau",
 			"now": "Date en millisecondes",
-			"date":"Date formatée",
-			"time":"Heure formatée",
-			"datetime":"Date et heure formatées",
+			"date": "Date formatée",
+			"time": "Heure formatée",
+			"datetime": "Date et heure formatées",
 			"last_sub": "Nom du dernier sub",
 			"last_sub_id": "ID du dernier sub",
 			"last_subgift_count": "Nombre d'abonnements du dernier subgift",
@@ -1064,33 +1064,33 @@
 			"supersticker_url": "URL du sticker",
 			"youtube_sub_tier": "Nom de l'abonnement",
 			"youtube_sub_months": "Durées d'abonnement en mois",
-			"ws_topic":"Topic du message",
-			"ws_message":"Données reçues",
-			"platform":"Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
-			"tiktok_gift_count":"Nombre de cadeaux",
-			"tiktok_gift_id":"ID du cadeau",
-			"tiktok_gift_name":"Nom du cadeau",
-			"tiktok_gift_image":"Image du cadeau",
-			"tiktok_like_count":"Nombre de likes",
-			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
-			"tiktok_diamonds":"Diamants reçus",
-			"tiktok_sub_month":"Mois d'abonnement",
-			"playability_inputName":"Nom de l'input",
-			"playability_inputType":"Type d'input",
-			"playability_inputValue":"Valeur de l'input",
-			"playability_inputType_axis":"Stick manette",
-			"playability_inputType_button":"Bouton manette",
-			"playability_inputType_keyboard":"Touche de clavier",
-			"playability_inputType_mouseButton":"Click souris",
-			"playability_inputType_trigger":"Gachette manette",
-			"goal_step_id":"ID de l'objectif",
-			"goal_step_index":"Index de l'objectif (débute à 0)",
-			"goal_step_title":"Titre de l'objectif",
-			"goal_step_secret":"Objectif secret ?",
-			"goal_step_amount":"Montant de l'objectif",
-			"goal_overlay_id":"ID de l'overlay d'objectifs",
-			"goal_overlay_title":"Titre de l'overlay d'objectifs",
-			"current_vod_url":"URL la VOD en cours",
+			"ws_topic": "Topic du message",
+			"ws_message": "Données reçues",
+			"platform": "Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
+			"tiktok_gift_count": "Nombre de cadeaux",
+			"tiktok_gift_id": "ID du cadeau",
+			"tiktok_gift_name": "Nom du cadeau",
+			"tiktok_gift_image": "Image du cadeau",
+			"tiktok_like_count": "Nombre de likes",
+			"tiktok_like_total": "Nombtre de likes reçus durant ce stream",
+			"tiktok_diamonds": "Diamants reçus",
+			"tiktok_sub_month": "Mois d'abonnement",
+			"playability_inputName": "Nom de l'input",
+			"playability_inputType": "Type d'input",
+			"playability_inputValue": "Valeur de l'input",
+			"playability_inputType_axis": "Stick manette",
+			"playability_inputType_button": "Bouton manette",
+			"playability_inputType_keyboard": "Touche de clavier",
+			"playability_inputType_mouseButton": "Click souris",
+			"playability_inputType_trigger": "Gachette manette",
+			"goal_step_id": "ID de l'objectif",
+			"goal_step_index": "Index de l'objectif (débute à 0)",
+			"goal_step_title": "Titre de l'objectif",
+			"goal_step_secret": "Objectif secret ?",
+			"goal_step_amount": "Montant de l'objectif",
+			"goal_overlay_id": "ID de l'overlay d'objectifs",
+			"goal_overlay_title": "Titre de l'overlay d'objectifs",
+			"current_vod_url": "URL la VOD en cours",
 			"custom_train_id": "ID du train",
 			"custom_train_name": "Nom du train",
 			"custom_train_level": "Niveau atteint",
@@ -1721,75 +1721,75 @@
 				"description": "Actions à exécuter lorsqu'un nouveau membre s'abonne sur Patreon"
 			},
 			"TIKTOK_SUB": {
-				"label":"Nouvel·le abonné·e TikTok",
-				"description":"Une personne s'abonne à votre TikTok"
+				"label": "Nouvel·le abonné·e TikTok",
+				"description": "Une personne s'abonne à votre TikTok"
 			},
 			"TIKTOK_GIFT": {
-				"label":"Cadeau TikTok",
-				"description":"Une personne vous envoie un cadeau"
+				"label": "Cadeau TikTok",
+				"description": "Une personne vous envoie un cadeau"
 			},
 			"TIKTOK_LIKE": {
-				"label":"Like TikTok",
-				"description":"Une personne vous envoie un like"
+				"label": "Like TikTok",
+				"description": "Une personne vous envoie un like"
 			},
 			"TIKTOK_SHARE": {
-				"label":"Partage TikTok",
-				"description":"Une personne partage votre stream"
+				"label": "Partage TikTok",
+				"description": "Une personne partage votre stream"
 			},
 			"CLEAR_CHAT": {
-				"label":"Chat effacé",
+				"label": "Chat effacé",
 				"description": "Actions à exécuter lorsque tout le tchat est effacé"
 			},
 			"SUB_ONLY_ON": {
-				"label":"Sub-only activé",
+				"label": "Sub-only activé",
 				"description": "Actions à exécuter lorsque le tchat passe en sub-only"
 			},
 			"SUB_ONLY_OFF": {
-				"label":"Sub-only désactivé",
+				"label": "Sub-only désactivé",
 				"description": "Actions à exécuter lorsque le tchat n'est plus en sub-only"
 			},
 			"FOLLOW_ONLY_ON": {
-				"label":"Follow-only activé",
+				"label": "Follow-only activé",
 				"description": "Actions à exécuter lorsque le tchat passe en follow-only"
 			},
 			"FOLLOW_ONLY_OFF": {
-				"label":"Follow-only désactivé",
+				"label": "Follow-only désactivé",
 				"description": "Actions à exécuter lorsque le tchat n'est plus en follow-only"
 			},
 			"EMOTE_ONLY_ON": {
-				"label":"Emote-only activé",
+				"label": "Emote-only activé",
 				"description": "Actions à exécuter lorsque le tchat passe en emote-only"
 			},
 			"EMOTE_ONLY_OFF": {
-				"label":"Emote-only désactivé",
+				"label": "Emote-only désactivé",
 				"description": "Actions à exécuter lorsque le tchat n'est plus en emote-only"
 			},
 			"SLOW_MODE_ON": {
-				"label":"Mode lent activé",
+				"label": "Mode lent activé",
 				"description": "Actions à exécuter lorsque le mode lent est activé"
 			},
 			"SLOW_MODE_OFF": {
-				"label":"Mode lent désactivé",
+				"label": "Mode lent désactivé",
 				"description": "Actions à exécuter lorsque le mode lent est désactivé"
 			},
 			"MONITOR_ON": {
-				"label":"Personne surveillée",
+				"label": "Personne surveillée",
 				"description": "Actions à exécuter lorsqu'une personne n'est plus surveillée"
 			},
 			"RESTRICT_ON": {
-				"label":"Personne restreinte",
+				"label": "Personne restreinte",
 				"description": "Actions à exécuter lorsqu'une personne est restreinte"
 			},
 			"MONITOR_RESTRICT_OFF": {
-				"label":"Personne plus surveillée ou restrainte",
+				"label": "Personne plus surveillée ou restrainte",
 				"description": "Actions à exécuter lorsqu'une personne n'est plus surveillée ou restreinte"
 			},
 			"PLAYABILITY_INPUT": {
-				"label":"Action déclenchée par PlayAbility",
+				"label": "Action déclenchée par PlayAbility",
 				"description": "Actions à exécuter lorsqu'une action est déclenchée par PlayAbility"
 			},
 			"GOAL_STEP_COMPLETE": {
-				"label":"Objectif remplit (overlay Goals)",
+				"label": "Objectif remplit (overlay Goals)",
 				"description": "Actions à exécuter lorsqu'une étape d'un objectif est complétée"
 			},
 			"CUSTOM_TRAIN_START": {
@@ -1797,38 +1797,38 @@
 				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé débute"
 			},
 			"CUSTOM_TRAIN_LEVEL_UP": {
-				"label":"Niveau supérieur d'un train de la hype personnalisé",
+				"label": "Niveau supérieur d'un train de la hype personnalisé",
 				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé change de niveau"
 			},
 			"CUSTOM_TRAIN_COMPLETE": {
-				"label":"Fin d'un train de la hype personnalisé",
+				"label": "Fin d'un train de la hype personnalisé",
 				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé termine"
 			},
 			"CUSTOM_TRAIN_FAIL": {
-				"label":"Échec d'un train de la hype personnalisé",
+				"label": "Échec d'un train de la hype personnalisé",
 				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé échoue"
 			},
 			"CUSTOM_TRAIN_COOLDOWN": {
-				"label":"Cooldown d'un train de la hype personnalisé écoulé",
+				"label": "Cooldown d'un train de la hype personnalisé écoulé",
 				"description": "Actions à exécuter lorsque le cooldown d'un train de la hype personnalisé est écoulé"
 			},
 			"STREAMSOCKET_ACTION": {
-				"label":"Action StreamSocket déclenchée",
+				"label": "Action StreamSocket déclenchée",
 				"description": "Actions à exécuter lorsqu'une action StreamSocket est déclenchée"
 			},
 			"TWITCH_COMBO": {
-				"label":"Twitch Combo",
+				"label": "Twitch Combo",
 				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
 			},
-			"OBS_CONNECTED":{
+			"OBS_CONNECTED": {
 				"label": "OBS connecté",
 				"description": "Actions à exécuter lorsque Twitchat se connecte à OBS websocket"
 			},
-			"OBS_DISCONNECTED":{
+			"OBS_DISCONNECTED": {
 				"label": "OBS déconnecté",
 				"description": "Actions à exécuter lorsque Twitchat se déconnecte d'OBS websocket"
 			},
-			"MANY_REPLIES":{
+			"MANY_REPLIES": {
 				"label": "Un message a reçu de nombreuses réponses",
 				"description": "Actions à exécuter lorsqu'un message reçoit de nombreuses réponses",
 				"disabled_reason": "Vous devez d'abord activer cette fonctionnalité dans la section @:params.categories.features"

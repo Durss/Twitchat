@@ -1,19 +1,21 @@
 <template>
 	<div class="volumebar">
 		<Icon name="volume" alt="volume" class="icon" />
-		<div class="holder"
-		ref="holder"
-		@mousedown="mousePressed = true"
-		@mousemove="onSeek($event)"
-		@click="onSeek($event, true)">
+		<div
+			class="holder"
+			ref="holder"
+			@mousedown="mousePressed = true"
+			@mousemove="onSeek($event)"
+			@click="onSeek($event, true)"
+		>
 			<div class="fill" :style="fillStyles"></div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import Icon from './Icon.vue';
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import Icon from "./Icon.vue";
 
 interface Props {
 	modelValue?: number;
@@ -24,7 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-	'update:modelValue': [value: number];
+	"update:modelValue": [value: number];
 }>();
 
 const mousePressed = ref(false);
@@ -35,11 +37,11 @@ let mouseUpHandler: () => void;
 const fillStyles = computed(() => {
 	return {
 		width: `${props.modelValue * 100}%`,
-	}
+	};
 });
 
 function onSeek(e: MouseEvent, force = false): void {
-	if(!mousePressed.value && !force) return;
+	if (!mousePressed.value && !force) return;
 	const bar = holder.value;
 	if (!bar) return;
 	const bounds = bar.getBoundingClientRect();
@@ -48,7 +50,7 @@ function onSeek(e: MouseEvent, force = false): void {
 }
 
 onMounted(() => {
-	mouseUpHandler = () => mousePressed.value = false;
+	mouseUpHandler = () => (mousePressed.value = false);
 	document.addEventListener("mouseup", mouseUpHandler);
 });
 
@@ -58,7 +60,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="less">
-.volumebar{
+.volumebar {
 	display: flex;
 	flex-direction: row;
 	min-width: 200px;
@@ -66,7 +68,7 @@ onBeforeUnmount(() => {
 
 	.icon {
 		height: 1em;
-		margin-right: .25em;
+		margin-right: 0.25em;
 	}
 
 	.holder {
@@ -78,7 +80,7 @@ onBeforeUnmount(() => {
 		&::before {
 			content: "";
 			width: 100%;
-			height: .25em;
+			height: 0.25em;
 			background-color: var(--color-light-fader);
 			position: absolute;
 			top: 50%;
@@ -88,8 +90,8 @@ onBeforeUnmount(() => {
 
 		.fill {
 			width: 50%;
-			height: .25em;
-			margin-top: .33em;
+			height: 0.25em;
+			margin-top: 0.33em;
 			background-color: var(--color-light);
 		}
 	}

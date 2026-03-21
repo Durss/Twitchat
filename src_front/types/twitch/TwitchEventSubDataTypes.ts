@@ -1,5 +1,6 @@
-export namespace TwitchEventSubDataTypes {
+import type { AutocompletableString } from "@/typeUtils";
 
+export namespace TwitchEventSubDataTypes {
 	export const SubscriptionTypes = {
 		CHAT_MESSAGES: "channel.chat.message",
 		CHANNEL_UPDATE: "channel.update",
@@ -61,12 +62,18 @@ export namespace TwitchEventSubDataTypes {
 		WHISPERS: "user.whisper.message",
 		BITS_USE: "channel.bits.use",
 	} as const;
-	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
+	export type SubscriptionStringTypes =
+		(typeof SubscriptionTypes)[keyof typeof SubscriptionTypes];
 
 	export interface EventSubMessage {
 		metadata: {
 			message_id: string;
-			message_type: "session_welcome" | "session_keepalive" | "session_reconnect" | "notification" | "revocation";
+			message_type:
+				| "session_welcome"
+				| "session_keepalive"
+				| "session_reconnect"
+				| "notification"
+				| "revocation";
 			message_timestamp: string;
 			subscription_type: SubscriptionStringTypes;
 			subscription_version: string;
@@ -82,13 +89,13 @@ export namespace TwitchEventSubDataTypes {
 			keepalive_timeout_seconds: number;
 			reconnect_url: string | null;
 			recovery_url: string | null;
-		}
+		};
 	}
 
 	export interface ReconnectPayload {
 		session: {
 			reconnect_url: string;
-		}
+		};
 	}
 
 	export interface RevocationPayload {
@@ -126,45 +133,41 @@ export namespace TwitchEventSubDataTypes {
 				callback?: string;
 			};
 			created_at: string;
-		},
-		event: ChannelUpdateEvent
-		| FollowEvent
-		| SubEvent
-		| SubgiftEvent
-		| SubRenewEvent
-		| BitsEvent
-		| RaidEvent
-		| BanEvent
-		| UnbanEvent
-		| ModeratorAddEvent
-		| ModeratorRemoveEvent
-		| RewardCreateEvent
-		| RewardUpdateEvent
-		| RewardRemoveEvent
-		| RewardRedeemEvent
-		| RewardRedeemUpdateEvent
-		| PollStartEvent
-		| PollProgressEvent
-		| PollEndEvent
-		| PredictionStartEvent
-		| PredictionProgressEvent
-		| PredictionLockEvent
-		| PredictionEndEvent
-		| HypeTrainStartEvent
-		| HypeTrainProgressEvent
-		| HypeTrainEndEvent
-		| ShieldModeStartEvent
-		| ShieldModeStopEvent
-		| BitsExtensionEvent
-		| GoalStartEvent
-		| GoalProgressEvent
-		| GoalEndEvent
-		| StreamOnlineEvent
-		| StreamOfflineEvent
-		| WhisperEvent
-		;
+		};
+		event:
+			| ChannelUpdateEvent
+			| FollowEvent
+			| SubEvent
+			| SubgiftEvent
+			| SubRenewEvent
+			| BitsEvent
+			| RaidEvent
+			| BanEvent
+			| UnbanEvent
+			| ModeratorAddEvent
+			| RewardCreateEvent
+			| RewardUpdateEvent
+			| RewardRedeemUpdateEvent
+			| PollStartEvent
+			| PollProgressEvent
+			| PollEndEvent
+			| PredictionStartEvent
+			| PredictionProgressEvent
+			| PredictionLockEvent
+			| PredictionEndEvent
+			| HypeTrainStartEvent
+			| HypeTrainProgressEvent
+			| HypeTrainEndEvent
+			| ShieldModeStartEvent
+			| ShieldModeStopEvent
+			| BitsExtensionEvent
+			| GoalStartEvent
+			| GoalProgressEvent
+			| GoalEndEvent
+			| StreamOnlineEvent
+			| StreamOfflineEvent
+			| WhisperEvent;
 	}
-
 
 	export interface ChannelUpdateEvent {
 		broadcaster_user_id: string;
@@ -178,7 +181,6 @@ export namespace TwitchEventSubDataTypes {
 		content_classification_labels: string[];
 	}
 
-
 	export interface FollowEvent {
 		user_id: string;
 		user_login: string;
@@ -188,7 +190,6 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_name: string;
 		followed_at: string;
 	}
-
 
 	export interface SubEvent {
 		user_id: string;
@@ -205,10 +206,9 @@ export namespace TwitchEventSubDataTypes {
 	//TO get the actual subgifts info, listen for the SubEvent
 	export interface SubgiftEvent extends SubEvent {
 		total: number;
-		cumulative_total: number;//null if anonymous or not shared by the user
+		cumulative_total: number; //null if anonymous or not shared by the user
 		is_anonymous: boolean;
 	}
-
 
 	export interface SubRenewEvent extends SubEvent {
 		message: {
@@ -226,9 +226,9 @@ export namespace TwitchEventSubDataTypes {
 
 	export interface BitsEvent {
 		is_anonymous: boolean;
-		user_id: string;// null if is_anonymous=true
-		user_login: string;// null if is_anonymous=true
-		user_name: string;// null if is_anonymous=true
+		user_id: string; // null if is_anonymous=true
+		user_login: string; // null if is_anonymous=true
+		user_name: string; // null if is_anonymous=true
 		broadcaster_user_id: string;
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
@@ -274,7 +274,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_name: string;
 	}
 
-	export type ModeratorRemoveEvent = ModeratorAddEvent
+	export type ModeratorRemoveEvent = ModeratorAddEvent;
 
 	export interface RewardCreateEvent {
 		id: string;
@@ -316,9 +316,9 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	export type RewardUpdateEvent = RewardRedeemEvent
+	export type RewardUpdateEvent = RewardRedeemEvent;
 
-	export type RewardRemoveEvent = RewardRedeemEvent
+	export type RewardRemoveEvent = RewardRedeemEvent;
 
 	export interface RewardRedeemEvent {
 		id: string;
@@ -368,25 +368,26 @@ export namespace TwitchEventSubDataTypes {
 		user_login: string;
 		user_input?: string;
 		reward: {
-			type: "single_message_bypass_sub_mode" |
-			"send_highlighted_message" |
-			"random_sub_emote_unlock" |
-			"chosen_sub_emote_unlock" |
-			"chosen_modified_sub_emote_unlock" |
-			"message_effect" |
-			"gigantify_an_emote" |
-			"celebration";
+			type:
+				| "single_message_bypass_sub_mode"
+				| "send_highlighted_message"
+				| "random_sub_emote_unlock"
+				| "chosen_sub_emote_unlock"
+				| "chosen_modified_sub_emote_unlock"
+				| "message_effect"
+				| "gigantify_an_emote"
+				| "celebration";
 			cost: number;
-			unlocked_emote: {id:string};//TODO confirm data format
-		}
+			unlocked_emote: { id: string }; //TODO confirm data format
+		};
 		message: {
 			text: string;
 			emotes: {
 				id: string;
 				begin: number;
 				end: number;
-			}[]
-		}
+			}[];
+		};
 		redeemed_at: string;
 	}
 
@@ -424,8 +425,8 @@ export namespace TwitchEventSubDataTypes {
 			channel_points_votes: number;
 			votes: number;
 		}[];
-		status: "completed"|"archived",
-		ended_at: string,
+		status: "completed" | "archived";
+		ended_at: string;
 	}
 
 	export interface PredictionStartEvent {
@@ -471,47 +472,49 @@ export namespace TwitchEventSubDataTypes {
 	}
 
 	interface AbstractHypeTrainEvent {
-		id: string
-		broadcaster_user_id: string
-		broadcaster_user_login: string
-		broadcaster_user_name: string
+		id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
 		top_contributions: {
-			user_id: string
-			user_login: string
-			user_name: string
-			type: string
-			total: number
-		}[]
-		is_shared_train: boolean
-		type: "regular"|"treasure"|"golden_kappa"
-		started_at: string
-		total: number
-		level: number
-		shared_train_participants: {
-			broadcaster_user_id: string
-			broadcaster_user_login: string
-			broadcaster_user_name: string
-		}[] | null
+			user_id: string;
+			user_login: string;
+			user_name: string;
+			type: string;
+			total: number;
+		}[];
+		is_shared_train: boolean;
+		type: "regular" | "treasure" | "golden_kappa";
+		started_at: string;
+		total: number;
+		level: number;
+		shared_train_participants:
+			| {
+					broadcaster_user_id: string;
+					broadcaster_user_login: string;
+					broadcaster_user_name: string;
+			  }[]
+			| null;
 	}
 
-	export interface HypeTrainStartEvent extends AbstractHypeTrainEvent{
-		progress: number
-		goal: number
-		all_time_high_level: number
-		all_time_high_total: number
-		expires_at: string
+	export interface HypeTrainStartEvent extends AbstractHypeTrainEvent {
+		progress: number;
+		goal: number;
+		all_time_high_level: number;
+		all_time_high_total: number;
+		expires_at: string;
 	}
 
-	export interface HypeTrainProgressEvent extends AbstractHypeTrainEvent{
-		progress: number
-		goal: number
-		level: number
-		expires_at: string
+	export interface HypeTrainProgressEvent extends AbstractHypeTrainEvent {
+		progress: number;
+		goal: number;
+		level: number;
+		expires_at: string;
 	}
 
-	export interface HypeTrainEndEvent extends AbstractHypeTrainEvent{
-		ended_at: string
-		cooldown_ends_at: string
+	export interface HypeTrainEndEvent extends AbstractHypeTrainEvent {
+		ended_at: string;
+		cooldown_ends_at: string;
 	}
 
 	export interface ShieldModeEvent {
@@ -560,7 +563,7 @@ export namespace TwitchEventSubDataTypes {
 		started_at: string;
 	}
 
-	export interface GoalProgressEvent { }
+	export interface GoalProgressEvent {}
 
 	export interface GoalEndEvent {
 		is_achieved: boolean;
@@ -610,15 +613,15 @@ export namespace TwitchEventSubDataTypes {
 	}
 
 	export interface AdBreakEvent {
-		broadcaster_user_id:string;
-		broadcaster_user_login:string;
-		broadcaster_user_name:string;
-		requester_user_id:string;
-		requester_user_login:string;
-		requester_user_name:string;
-		duration_seconds:number;
-		is_automatic:boolean;
-		started_at:string
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		requester_user_id: string;
+		requester_user_login: string;
+		requester_user_name: string;
+		duration_seconds: number;
+		is_automatic: boolean;
+		started_at: string;
 	}
 
 	export interface UnbanRequestResolveEvent {
@@ -655,7 +658,7 @@ export namespace TwitchEventSubDataTypes {
 		moderator_user_id: string;
 		moderator_user_login: string;
 		moderator_user_name: string;
-		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
+		action: "add_permitted" | "remove_permitted" | "add_blocked" | "remove_blocked";
 		from_automod: boolean;
 		terms: string[];
 	}
@@ -669,8 +672,8 @@ export namespace TwitchEventSubDataTypes {
 		user_name: string;
 		message_id: string;
 		message: {
-			text:string;
-			fragments:MessageFragments;
+			text: string;
+			fragments: MessageFragments;
 		};
 		reason: "automod" | "blocked_term";
 		automod?: {
@@ -700,31 +703,31 @@ export namespace TwitchEventSubDataTypes {
 		moderator_user_id: string;
 		moderator_user_login: string;
 		moderator_user_name: string;
-		status: "approved"|"denied";
+		status: "approved" | "denied";
 	}
 
-	export type ModerationEvent  = ModerationEvent_raid
-								| ModerationEvent_unraid
-								| ModerationEvent_mod
-								| ModerationEvent_unmod
-								| ModerationEvent_vip
-								| ModerationEvent_unvip
-								| ModerationEvent_ban
-								| ModerationEvent_unban
-								| ModerationEvent_timeout
-								| ModerationEvent_untimeout
-								| ModerationEvent_deletemessage
-								| ModerationEvent_followon
-								| ModerationEvent_followoff
-								| ModerationEvent_subson
-								| ModerationEvent_subsoff
-								| ModerationEvent_emoteson
-								| ModerationEvent_emotesoff
-								| ModerationEvent_slowon
-								| ModerationEvent_slowoff
-								| ModerationEvent_warn
-								| ModerationEvent_clear
-	;
+	export type ModerationEvent =
+		| ModerationEvent_raid
+		| ModerationEvent_unraid
+		| ModerationEvent_mod
+		| ModerationEvent_unmod
+		| ModerationEvent_vip
+		| ModerationEvent_unvip
+		| ModerationEvent_ban
+		| ModerationEvent_unban
+		| ModerationEvent_timeout
+		| ModerationEvent_untimeout
+		| ModerationEvent_deletemessage
+		| ModerationEvent_followon
+		| ModerationEvent_followoff
+		| ModerationEvent_subson
+		| ModerationEvent_subsoff
+		| ModerationEvent_emoteson
+		| ModerationEvent_emotesoff
+		| ModerationEvent_slowon
+		| ModerationEvent_slowoff
+		| ModerationEvent_warn
+		| ModerationEvent_clear;
 
 	export interface ModerationEvent_base {
 		broadcaster_user_id: string;
@@ -737,42 +740,42 @@ export namespace TwitchEventSubDataTypes {
 
 	export interface ModerationEvent_raid extends ModerationEvent_base {
 		action: "raid";
-		raid: { user_id: string; user_login: string; user_name: string; viewer_count: number; };
+		raid: { user_id: string; user_login: string; user_name: string; viewer_count: number };
 	}
 
 	export interface ModerationEvent_unraid extends ModerationEvent_base {
 		action: "unraid";
-		unraid: { user_id: string; user_login: string; user_name: string; }
+		unraid: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_mod extends ModerationEvent_base {
 		action: "mod";
-		mod: {user_id: string, user_login: string, user_name: string};
+		mod: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_unmod extends ModerationEvent_base {
 		action: "unmod";
-		unmod: {user_id: string, user_login: string, user_name: string};
+		unmod: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_vip extends ModerationEvent_base {
 		action: "vip";
-		vip: {user_id: string, user_login: string, user_name: string};
+		vip: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_unvip extends ModerationEvent_base {
 		action: "unvip";
-		unvip: {user_id: string, user_login: string, user_name: string};
+		unvip: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_ban extends ModerationEvent_base {
 		action: "ban";
-		ban: {user_id: string, user_login: string, user_name: string; reason:string};
+		ban: { user_id: string; user_login: string; user_name: string; reason: string };
 	}
 
 	export interface ModerationEvent_unban extends ModerationEvent_base {
 		action: "unban";
-		unban: {user_id: string, user_login: string, user_name: string};
+		unban: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_timeout extends ModerationEvent_base {
@@ -788,23 +791,23 @@ export namespace TwitchEventSubDataTypes {
 
 	export interface ModerationEvent_untimeout extends ModerationEvent_base {
 		action: "untimeout";
-		untimeout: {user_id: string, user_login: string, user_name: string};
+		untimeout: { user_id: string; user_login: string; user_name: string };
 	}
 
 	export interface ModerationEvent_deletemessage extends ModerationEvent_base {
 		action: "delete";
-		delete:{
+		delete: {
 			user_id: string;
 			user_login: string;
 			user_name: string;
 			message_id: string;
 			message_body: string;
-		}
+		};
 	}
 
 	export interface ModerationEvent_followon extends ModerationEvent_base {
 		action: "followers";
-		followers:{follow_duration_minutes: 50}
+		followers: { follow_duration_minutes: 50 };
 	}
 
 	export interface ModerationEvent_followoff extends ModerationEvent_base {
@@ -829,7 +832,7 @@ export namespace TwitchEventSubDataTypes {
 
 	export interface ModerationEvent_slowon extends ModerationEvent_base {
 		action: "slow";
-		slow:{wait_time_seconds:number}
+		slow: { wait_time_seconds: number };
 	}
 
 	export interface ModerationEvent_slowoff extends ModerationEvent_base {
@@ -846,9 +849,9 @@ export namespace TwitchEventSubDataTypes {
 			user_id: string;
 			user_login: string;
 			user_name: string;
-			reason: string|null;
+			reason: string | null;
 			chat_rules_cited: string[];
-		}
+		};
 	}
 
 	export interface WarningSentEvent {
@@ -858,11 +861,11 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_login: string;
 		user_name: string;
-		moderator_user_id:string;
-		moderator_user_login:string;
-		moderator_user_name:string;
-		reason:string|null;
-		chat_rules_cited:string[];
+		moderator_user_id: string;
+		moderator_user_login: string;
+		moderator_user_name: string;
+		reason: string | null;
+		chat_rules_cited: string[];
 	}
 
 	export interface WarningAcknowledgeEvent {
@@ -884,7 +887,7 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_name: string;
 		user_login: string;
-		low_trust_status: "active_monitoring"|"restricted";
+		low_trust_status: "active_monitoring" | "restricted";
 	}
 
 	export interface SuspiciousUserMessage {
@@ -894,11 +897,16 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_name: string;
 		user_login: string;
-		low_trust_status: "none"|"active_monitoring"|"restricted";
+		low_trust_status: "none" | "active_monitoring" | "restricted";
 		shared_ban_channel_ids?: string[];
-		types: ("manually_added"|"ban_evader_detector"|"shared_channel_ban"|string)[];
-		ban_evasion_evaluation: "unknown”"|"possible"|"likely";
-		message:  {
+		types: (
+			| "manually_added"
+			| "ban_evader_detector"
+			| "shared_channel_ban"
+			| AutocompletableString
+		)[];
+		ban_evasion_evaluation: "unknown”" | "possible" | "likely";
+		message: {
 			message_id: string;
 			text: string;
 			fragments: MessageFragments;
@@ -906,16 +914,16 @@ export namespace TwitchEventSubDataTypes {
 	}
 
 	export interface WhisperEvent {
-		from_user_id: string
-		from_user_login: string
-		from_user_name: string
-		to_user_id: string
-		to_user_login: string
-		to_user_name: string
-		whisper_id: string
+		from_user_id: string;
+		from_user_login: string;
+		from_user_name: string;
+		to_user_id: string;
+		to_user_login: string;
+		to_user_name: string;
+		whisper_id: string;
 		whisper: {
-			text: string
-		}
+			text: string;
+		};
 	}
 
 	export interface ChatMessageEvent {
@@ -927,8 +935,8 @@ export namespace TwitchEventSubDataTypes {
 		chatter_user_name: string;
 		message_id: string;
 		message: {
-			text:string;
-			fragments:MessageFragments;
+			text: string;
+			fragments: MessageFragments;
 		};
 		color: string;
 		badges: {
@@ -938,7 +946,7 @@ export namespace TwitchEventSubDataTypes {
 		}[];
 		message_type: "text" | "channel_points_highlighted";
 		cheer?: {
-			bits:number;
+			bits: number;
 		};
 		reply?: {
 			parent_message_id: string;
@@ -957,14 +965,19 @@ export namespace TwitchEventSubDataTypes {
 		source_broadcaster_user_login?: string;
 		source_broadcaster_user_name?: string;
 		source_message_id?: string;
-		source_badges?:  {
+		source_badges?: {
 			set_id: string;
 			id: string;
 			info: string;
 		}[];
 	}
 
-	export type MessageFragments = (MessageFragmentText|MessageFragmentEmote|MessageFragmentMention|MessageFragmentCheermote)[];
+	export type MessageFragments = (
+		| MessageFragmentText
+		| MessageFragmentEmote
+		| MessageFragmentMention
+		| MessageFragmentCheermote
+	)[];
 
 	interface MessageFragmentText {
 		type: "text";
@@ -979,7 +992,7 @@ export namespace TwitchEventSubDataTypes {
 			format: Array<"static" | "animated">;
 			emote_set_id: string;
 			owner_id: string;
-		}
+		};
 	}
 
 	interface MessageFragmentCheermote {
@@ -989,44 +1002,44 @@ export namespace TwitchEventSubDataTypes {
 		 * Cheermote info
 		 * Actual cheermote text code is a concatenation of prefix and bits values
 		 */
-		cheermote:{
+		cheermote: {
 			prefix: string;
 			bits: number;
 			tier: number;
-		}
+		};
 	}
 
 	interface MessageFragmentMention {
 		type: "mention";
 		text: string;
-		mention:{
+		mention: {
 			user_id: string;
 			user_login: string;
 			user_name: string;
-		}
+		};
 	}
 
 	export interface ChatClearEvent {
-        broadcaster_user_id: string;
-        broadcaster_user_name: string;
-        broadcaster_user_login: string;
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
 	}
 
 	export interface ChatDeleteMessageEvent {
-        broadcaster_user_id: string;
-        broadcaster_user_name: string;
-        broadcaster_user_login: string;
-        target_user_id: string;
-        target_user_name: string;
-        target_user_login: string;
-        message_id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		target_user_id: string;
+		target_user_name: string;
+		target_user_login: string;
+		message_id: string;
 	}
 
-	export interface CharityStartEvent extends CharityProgressEvent{
+	export interface CharityStartEvent extends CharityProgressEvent {
 		started_at: string;
 	}
 
-	export interface CharityStopEvent extends CharityProgressEvent{
+	export interface CharityStopEvent extends CharityProgressEvent {
 		stopped_at: string;
 	}
 
@@ -1086,11 +1099,9 @@ export namespace TwitchEventSubDataTypes {
 		}[];
 	}
 
-	export interface SharedChatUpdateEvent extends SharedChatStartEvent {
-	}
+	export interface SharedChatUpdateEvent extends SharedChatStartEvent {}
 
-	export interface SharedChatEndEvent {
-	}
+	export interface SharedChatEndEvent {}
 
 	export interface BitsUseEvent {
 		user_id: string;
@@ -1100,25 +1111,25 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
 		bits: number;
-		type: "cheer"|"power_up"|"combo";
-		power_up: null | {
-			type: "gigantify_an_emote" | "celebration";
-			emote: {
-				id: string;
-				name: string;
-			};
-			message_effect_id: null;
-		} | {
-			type: "message_effect";
-			emote: null
-			message_effect_id: "simmer"|"rainbow-eclipse"|"cosmic-abyss";
-		};
+		type: "cheer" | "power_up" | "combo";
+		power_up:
+			| null
+			| {
+					type: "gigantify_an_emote" | "celebration";
+					emote: {
+						id: string;
+						name: string;
+					};
+					message_effect_id: null;
+			  }
+			| {
+					type: "message_effect";
+					emote: null;
+					message_effect_id: "simmer" | "rainbow-eclipse" | "cosmic-abyss";
+			  };
 		message: {
-			text:string;
-			fragments:MessageFragments;
+			text: string;
+			fragments: MessageFragments;
 		} | null;
 	}
 }
-
-
-

@@ -24,12 +24,7 @@
 			"dock_tutorial": "Dans OBS, ouvrez <strong>Docks</strong> => <strong>Docks internet personnalisés</strong> puis ajoutez Twitchat comme ceci"
 		},
 		"raffle": {
-			"search_terms": [
-				"roue animée",
-				"tirage au sort",
-				"roue",
-				"spin"
-			],
+			"search_terms": ["roue animée", "tirage au sort", "roue", "spin"],
 			"title": "Roue animée",
 			"head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -37,12 +32,7 @@
 			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
-			"search_terms": [
-				"minuteurs",
-				"minuteur",
-				"compte à rebours",
-				"chronomètre"
-			],
+			"search_terms": ["minuteurs", "minuteur", "compte à rebours", "chronomètre"],
 			"header": "Créez des minuteurs, contrôlez-les depuis les Triggers, et affichez leur état sur votre stream",
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
 			"default_title": "Mon minuteur",
@@ -65,12 +55,7 @@
 			"non_premium_limit": "Vous avez atteint le nombre maximum de minuteurs.\nDevenez premium pour définir jusqu'à {MAX} minuteurs."
 		},
 		"counters": {
-			"search_terms": [
-				"compteurs",
-				"compte",
-				"classement",
-				""
-			],
+			"search_terms": ["compteurs", "compte", "classement", ""],
 			"title": "Compteurs",
 			"head": "Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
 			"head_empty": "Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
@@ -83,12 +68,7 @@
 			}
 		},
 		"highlight": {
-			"search_terms": [
-				"mise en avant",
-				"message en avant",
-				"highlight",
-				"chat"
-			],
+			"search_terms": ["mise en avant", "message en avant", "highlight", "chat"],
 			"title": "Mettre en avant",
 			"instruction": "Affiche un message ou un clip sur votre stream.",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -97,13 +77,7 @@
 			"alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 		"music_common": {
-			"search_terms": [
-				"lecteur de musique",
-				"musique",
-				"morceau",
-				"playlist",
-				"player"
-			],
+			"search_terms": ["lecteur de musique", "musique", "morceau", "playlist", "player"],
 			"music": "Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"no_scroll": "Désactiver le défilement",
@@ -128,12 +102,7 @@
 			"connectBt": "Connecter Spotify"
 		},
 		"ulule": {
-			"search_terms": [
-				"ulule",
-				"crowdfunding",
-				"projet",
-				"financement"
-			],
+			"search_terms": ["ulule", "crowdfunding", "projet", "financement"],
 			"title": "Ulule",
 			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
 			"description": "Affichez une barre de progression pour votre projet {LINK}.",
@@ -145,12 +114,7 @@
 			"project_goals_tt": "Si vous avez plusieurs paliers de dons, spécifiez-les ici afin que la barre de progression ne reste pas pleine lorsque l'objectif principal est atteint."
 		},
 		"credits": {
-			"search_terms": [
-				"crédits de fin",
-				"générique",
-				"credits",
-				"end"
-			],
+			"search_terms": ["crédits de fin", "générique", "credits", "end"],
 			"title": "Crédits de fin",
 			"head": "Affichez des crédits de fin de stream",
 			"css": "Changez l'apparence des crédits via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -361,11 +325,7 @@
 			}
 		},
 		"tts": {
-			"search_terms": [
-				"text to speech",
-				"tts",
-				"synthèse vocale"
-			],
+			"search_terms": ["text to speech", "tts", "synthèse vocale"],
 			"title": "Text to speech",
 			"description": "Permet de lire les messages dans un overlay pour mieux contrôler l'audio."
 		},
@@ -393,13 +353,7 @@
 			"testBt": "Tester"
 		},
 		"bitswall": {
-			"search_terms": [
-				"mur de bits",
-				"bits wall",
-				"bits",
-				"cheer",
-				"cheermote"
-			],
+			"search_terms": ["mur de bits", "bits wall", "bits", "cheer", "cheermote"],
 			"title": "Bits wall",
 			"head": "Les bits reçus tomberont sur votre stream.\nLes viewers peuvent \"casser\" les bits en plus petits en les cliquant via l'extension Heat.",
 			"testBt": "Envoyer des bits",
@@ -414,9 +368,7 @@
 			"param_durations": "Durées avant destruction des cheermotes"
 		},
 		"predictions": {
-			"search_terms": [
-				"prédictions"
-			],
+			"search_terms": ["prédictions"],
 			"title": "Prédictions",
 			"head": "Afficher la prédiction en cours sur votre stream",
 			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -435,9 +387,7 @@
 			"param_resultDuration": "Durée d'affichage du résultat"
 		},
 		"polls": {
-			"search_terms": [
-				"sondages"
-			],
+			"search_terms": ["sondages"],
 			"title": "Sondage",
 			"head": "Afficher le sondage en cours sur votre stream",
 			"css": "Changez l'apparence du sondage via ces sélecteurs CSS dans les paramètres de la source navigateur OBS",
@@ -454,11 +404,7 @@
 			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
 		},
 		"chatPoll": {
-			"search_terms": [
-				"sondage de tchat",
-				"chat poll",
-				"tchat poll"
-			],
+			"search_terms": ["sondage de tchat", "chat poll", "tchat poll"],
 			"title": "Sondage de tchat",
 			"head": "Afficher le sondage de tchat en cours sur votre stream.\nPour démarrer un sondage de tchat, utilisez la commande {CMD} ou le menu{MENU}en bas de l'écran.",
 			"css": "@:overlay.polls.css",
@@ -476,22 +422,11 @@
 			"non_premium_limit": "Vous avez atteint le nombre maximum de réponses.\nDevenez premium pour définir jusqu'à {MAX} réponses."
 		},
 		"bingo_grid": {
-			"search_terms": [
-				"grille de bingo",
-				"bingo grid",
-				"bingo",
-				"case",
-				"cocher"
-			],
+			"search_terms": ["grille de bingo", "bingo grid", "bingo", "case", "cocher"],
 			"head": "Afficher des grilles de bingo interactives"
 		},
 		"labels": {
-			"search_terms": [
-				"labels",
-				"label",
-				"valeurs",
-				"info"
-			],
+			"search_terms": ["labels", "label", "valeurs", "info"],
 			"head": "Afficher des valeurs sur votre stream",
 			"addBt": "Créer un nouveau label",
 			"premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer",
@@ -672,11 +607,7 @@
 			}
 		},
 		"animatedText": {
-			"search_terms": [
-				"texte animé",
-				"animated text",
-				"text animation"
-			],
+			"search_terms": ["texte animé", "animated text", "text animation"],
 			"header": "Affiche du texte animé sur ton stream\nContrôle-le depuis les {TRIGGERS}",
 			"add_bt": "Créer un overlay",
 			"default_title": "Texte animé",
@@ -765,7 +696,7 @@
 			"allTimeRecord_title": "Record absolu le {DATE}, niveau {LEVEL} à {PERCENT} avec {AMOUNT}"
 		},
 		"quiz": {
-			"search_terms":["quiz", "trivia"]
+			"search_terms": ["quiz", "trivia"]
 		}
 	}
 }

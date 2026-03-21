@@ -1,67 +1,75 @@
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import type { ITiktokActions, ITiktokGetters, ITiktokState } from '../StoreProxy';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '../StoreProxy';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
+import {
+	acceptHMRUpdate,
+	defineStore,
+	type PiniaCustomProperties,
+	type _GettersTree,
+	type _StoreWithGetters,
+	type _StoreWithState,
+} from "pinia";
+import type { UnwrapRef } from "vue";
+import DataStore from "../DataStore";
+import type { ITiktokActions, ITiktokGetters, ITiktokState } from "../StoreProxy";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import StoreProxy from "../StoreProxy";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
 
-let autoreconnect:boolean = false;
-let initResolver!:(value: boolean) => void;
-let socket!:WebSocket;
-let reconnectTimeout:number = -1;
-let debouncedLikes:{[uid:string]:{count:number, to:number}} = {};
-let processedEvents:{[id:string]:true} = {};
+let autoreconnect: boolean = false;
+let initResolver!: (value: boolean) => void;
+let socket!: WebSocket;
+let reconnectTimeout: number = -1;
+let debouncedLikes: { [uid: string]: { count: number; to: number } } = {};
+let processedEvents: { [id: string]: true } = {};
 
-export const storeTiktok = defineStore('tiktok', {
-	state: () => ({
-		connected:false,
-		ip:"127.0.0.1",
-		port:21213,
-	} as ITiktokState),
+export const storeTiktok = defineStore("tiktok", {
+	state: () =>
+		({
+			connected: false,
+			ip: "127.0.0.1",
+			port: 21213,
+		}) as ITiktokState,
 
-
-
-	getters: {
-
-	} as ITiktokGetters
-	& ThisType<UnwrapRef<ITiktokState> & _StoreWithGetters<ITiktokGetters> & PiniaCustomProperties>
-	& _GettersTree<ITiktokState>,
-
-
+	getters: {} as ITiktokGetters &
+		ThisType<
+			UnwrapRef<ITiktokState> & _StoreWithGetters<ITiktokGetters> & PiniaCustomProperties
+		> &
+		_GettersTree<ITiktokState>,
 
 	actions: {
-		populateData():void {
+		populateData(): void {
 			const json = DataStore.get(DataStore.TIKTOK_CONFIGS);
-			if(json) {
+			if (json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
-				this.port = data.port ||21213;
+				this.port = data.port || 21213;
 				autoreconnect = true;
-				this.connect();
+				void this.connect();
 			}
 		},
 
-		async connect():Promise<boolean> {
-			if(this.connected) return Promise.resolve(true);
+		async connect(): Promise<boolean> {
+			if (this.connected) return Promise.resolve(true);
 			clearTimeout(reconnectTimeout);
 			return new Promise<boolean>((resolve, reject) => {
 				initResolver = resolve;
 
 				this.ip = (this.ip || "").trim();
-				this.port = this.port || 0
-				let protocol = (this.ip == "127.0.0.1" || this.ip == "localhost") ? "ws://" : "wss://";
-				if(this.ip.indexOf("ws") == 0) {
+				this.port = this.port || 0;
+				let protocol =
+					this.ip == "127.0.0.1" || this.ip == "localhost" ? "ws://" : "wss://";
+				if (this.ip.indexOf("ws") == 0) {
 					const [_protocol, _ip] = this.ip.split("//");
 					this.ip = _ip!;
-					protocol = _protocol+"//";
+					protocol = _protocol + "//";
 				}
-				if(this.ip.indexOf("http") == 0) {
+				if (this.ip.indexOf("http") == 0) {
 					this.ip = this.ip.split("//")[1]!;
 				}
-				const portValue = this.port && this.port.toString()?.length > 0 && this.port.toString() != "0"? ":"+this.port : "";
-				
+				const portValue =
+					this.port && this.port.toString()?.length > 0 && this.port.toString() != "0"
+						? ":" + this.port
+						: "";
+
 				socket = new WebSocket(protocol + this.ip + portValue);
 
 				socket.onopen = () => {
@@ -71,101 +79,120 @@ export const storeTiktok = defineStore('tiktok', {
 					this.saveConfigs();
 				};
 
-				socket.onmessage = (event:any) => this.onEvent(event);
+				socket.onmessage = (event: any) => this.onEvent(event);
 
-				socket.onclose = (e) => {
-					if(autoreconnect) {
+				socket.onclose = (_e) => {
+					if (autoreconnect) {
 						// console.log('🎤 TikTok connection lost');
 						try {
-							reconnectTimeout = window.setTimeout(()=> {
-								this.connect();
-							}, 10000)
-						}catch(error) {
+							reconnectTimeout = window.setTimeout(() => {
+								void this.connect();
+							}, 10000);
+						} catch (error) {
 							console.log(error);
 							reject("[Tiktok] Reconnection failed");
 						}
 					}
 					this.connected = false;
 					initResolver(false);
-				}
+				};
 
-				socket.onerror = (e) => {
+				socket.onerror = (_e) => {
 					this.connected = false;
 					initResolver(false);
 					reject("[-][Tiktok] Socket error");
-				}
+				};
 			});
 		},
 
-		disconnect():void {
+		disconnect(): void {
 			clearTimeout(reconnectTimeout);
 			autoreconnect = false;
 			this.ip = "127.0.0.1";
-			this.port = 21213;;
-			if(socket && socket.readyState === socket.OPEN) {
+			this.port = 21213;
+			if (socket && socket.readyState === socket.OPEN) {
 				socket.close();
 			}
-			DataStore.remove(DataStore.TIKTOK_CONFIGS)
+			DataStore.remove(DataStore.TIKTOK_CONFIGS);
 		},
 
-		onEvent(event:MessageEvent):void {
-			let json:TikTokMessage
-			| TikTokGift
-			| TikTokLike
-			| TikTokMemberJoin
-			| TikTokRoomStats
-			| TikTokShare
-			| TikTokSub
-			| TikTokFollower = JSON.parse(event.data || ""); // Parse the JSON data
-			let user:TwitchatDataTypes.TwitchatUser|null = null;
+		onEvent(event: MessageEvent): void {
+			let json:
+				| TikTokMessage
+				| TikTokGift
+				| TikTokLike
+				| TikTokMemberJoin
+				| TikTokRoomStats
+				| TikTokShare
+				| TikTokSub
+				| TikTokFollower = JSON.parse(event.data || ""); // Parse the JSON data
+			let user: TwitchatDataTypes.TwitchatUser | null = null;
 
 			//join event with actionId=1 are empty objects, ignore them
 			//Particularly, there's an actionId=26 that regularly comes up
-			if(json.event == "member" && json.data.actionId != 1) return;
+			if (json.event == "member" && json.data.actionId != 1) return;
 
-			if(json.event == "chat"
-			|| json.event == "follow"
-			|| json.event == "gift"
-			|| json.event == "like"
-			|| json.event == "share"
-			|| json.event == "member"
-			|| json.event == "subscribe"
+			if (
+				json.event == "chat" ||
+				json.event == "follow" ||
+				json.event == "gift" ||
+				json.event == "like" ||
+				json.event == "share" ||
+				json.event == "member" ||
+				json.event == "subscribe"
 			) {
-
 				//Message already processed, ignore it
-				if(processedEvents[json.data.msgId] === true) return;
+				if (processedEvents[json.data.msgId] === true) return;
 				processedEvents[json.data.msgId] = true;
 
 				try {
-					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber, false);
-					user.avatarPath = json.data.profilePictureUrl || (json.data.userDetails.profilePictureUrls? json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ] : "");
-					if(json.data.userBadges?.length > 0) {
+					user = StoreProxy.users.getUserFrom(
+						"tiktok",
+						json.data.tikfinityUserId.toString(),
+						json.data.userId,
+						json.data.uniqueId,
+						json.data.nickname,
+						undefined,
+						json.data.followInfo?.followStatus === 1,
+						false,
+						json.data.isSubscriber,
+						false,
+					);
+					user.avatarPath =
+						json.data.profilePictureUrl ||
+						(json.data.userDetails.profilePictureUrls
+							? json.data.userDetails.profilePictureUrls[
+									json.data.userDetails.profilePictureUrls.length - 1
+								]
+							: "");
+					if (json.data.userBadges?.length > 0) {
 						const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()]!;
 						chanInfo.is_subscriber = true;
 						chanInfo.badges = json.data.userBadges
-						.filter(b=>b.url != undefined)
-						.map(b => {
-							return {
-								id:"subscriber",
-								icon:{ sd:b.url! },
-								title:b.name || "",
-							}
-						})
-						if(json.data.userBadges.find(b=>b.type == "pm_mt_moderator_im")) {
-							const chanInfo = user.channelInfo[json.data.tikfinityUserId.toString()]!;
+							.filter((b) => b.url != undefined)
+							.map((b) => {
+								return {
+									id: "subscriber",
+									icon: { sd: b.url! },
+									title: b.name || "",
+								};
+							});
+						if (json.data.userBadges.find((b) => b.type == "pm_mt_moderator_im")) {
+							const chanInfo =
+								user.channelInfo[json.data.tikfinityUserId.toString()]!;
 							chanInfo.is_moderator = true;
 							chanInfo.badges.push({
-								icon:{sd:"mod"},
-								id:"moderator",
+								icon: { sd: "mod" },
+								id: "moderator",
 							});
 						}
 					}
-				}catch(error) {
+				} catch (error) {
 					console.log(error);
 					console.log(json);
 				}
 			}
-			switch(json.event) {
+			switch (json.event) {
 				case "chat": {
 					let messageStr = json.data.comment || "";
 					//TODO find a way to use TwitchUtils.parseMessageToChunks() so links and mentions are also parsed
@@ -202,131 +229,132 @@ export const storeTiktok = defineStore('tiktok', {
 	"comment": "‼️‼️‼️‼️"
 }
 */
-					let messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];//TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
+					let messageChunks: TwitchatDataTypes.ParseMessageChunk[] = []; //TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
 
-					if(json.data.emotes) {
+					if (json.data.emotes) {
 						let currentIndex = 0;
-						json.data.emotes.sort((a, b) => a.placeInComment - b.placeInComment)
-						.forEach((emote) => {
-							const emoteIndex = emote.placeInComment;
-							// Add the text before the emote if there's any
-							if (emoteIndex > currentIndex) {
-								let value = messageStr.slice(currentIndex, emoteIndex);
-								if(value.length > 0) {
-									messageChunks.push({
-										type: 'text',
-										value,
-									});
+						json.data.emotes
+							.sort((a, b) => a.placeInComment - b.placeInComment)
+							.forEach((emote) => {
+								const emoteIndex = emote.placeInComment;
+								// Add the text before the emote if there's any
+								if (emoteIndex > currentIndex) {
+									let value = messageStr.slice(currentIndex, emoteIndex);
+									if (value.length > 0) {
+										messageChunks.push({
+											type: "text",
+											value,
+										});
+									}
 								}
-							}
 
-							// Add the emote chunk
-							messageChunks.push({
-								type: "emote",
-								value: "",
-								emote: emote.emoteImageUrl,
-								emoteHD: emote.emoteImageUrl,
+								// Add the emote chunk
+								messageChunks.push({
+									type: "emote",
+									value: "",
+									emote: emote.emoteImageUrl,
+									emoteHD: emote.emoteImageUrl,
+								});
+
+								// Update the current index to the position after the emote
+								currentIndex = emoteIndex;
 							});
-
-							// Update the current index to the position after the emote
-							currentIndex = emoteIndex;
-						});
 
 						// Add the remaining text after the last emote
 						if (currentIndex < messageStr.length) {
 							messageChunks.push({
-								type: 'text',
+								type: "text",
 								value: messageStr.slice(currentIndex),
 							});
 						}
 					}
-					const message:TwitchatDataTypes.MessageChatData = {
-						id:json.data.msgId,
-						date:Date.now(),
-						platform:"tiktok",
-						channel_id:json.data.tikfinityUserId.toString(),
-						user:user!,
-						answers:[],
-						is_short:false,
-						message:messageStr,
-						message_chunks:messageChunks,
-						message_html:TwitchUtils.messageChunksToHTML(messageChunks),
-						message_size:TwitchUtils.computeMessageSize(messageChunks),
-						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-						raw_data:json.data,
-					}
-					StoreProxy.chat.addMessage(message);
+					const message: TwitchatDataTypes.MessageChatData = {
+						id: json.data.msgId,
+						date: Date.now(),
+						platform: "tiktok",
+						channel_id: json.data.tikfinityUserId.toString(),
+						user: user!,
+						answers: [],
+						is_short: false,
+						message: messageStr,
+						message_chunks: messageChunks,
+						message_html: TwitchUtils.messageChunksToHTML(messageChunks),
+						message_size: TwitchUtils.computeMessageSize(messageChunks),
+						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						raw_data: json.data,
+					};
+					void StoreProxy.chat.addMessage(message);
 					return;
 				}
 
 				case "gift": {
 					// Streak ended or non-streakable gift => process the gift with final repeat_count
 					if (json.data.giftType !== 1 || json.data.repeatEnd) {
-						const message:TwitchatDataTypes.MessageTikTokGiftData = {
-							id:json.data.msgId,
-							date:Date.now(),
-							platform:"tiktok",
-							channel_id:json.data.tikfinityUserId.toString(),
-							user:user!,
-							type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT,
-							count:json.data.repeatCount,
-							image:json.data.giftPictureUrl,
-							diamonds:json.data.diamondCount * json.data.repeatCount,
-							giftId:json.data.giftId.toString(),
-							giftName:json.data.giftName,
-							raw_data:json.data,
-						}
-						StoreProxy.chat.addMessage(message);
+						const message: TwitchatDataTypes.MessageTikTokGiftData = {
+							id: json.data.msgId,
+							date: Date.now(),
+							platform: "tiktok",
+							channel_id: json.data.tikfinityUserId.toString(),
+							user: user!,
+							type: TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT,
+							count: json.data.repeatCount,
+							image: json.data.giftPictureUrl,
+							diamonds: json.data.diamondCount * json.data.repeatCount,
+							giftId: json.data.giftId.toString(),
+							giftName: json.data.giftName,
+							raw_data: json.data,
+						};
+						void StoreProxy.chat.addMessage(message);
 					}
 					return;
 				}
 
 				case "subscribe": {
-					const message:TwitchatDataTypes.MessageTikTokSubData = {
-						id:json.data.msgId,
-						date:Date.now(),
-						platform:"tiktok",
-						channel_id:json.data.tikfinityUserId.toString(),
-						user:user!,
-						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB,
-						months:json.data.subMonth || 1,
-					}
-					StoreProxy.chat.addMessage(message);
+					const message: TwitchatDataTypes.MessageTikTokSubData = {
+						id: json.data.msgId,
+						date: Date.now(),
+						platform: "tiktok",
+						channel_id: json.data.tikfinityUserId.toString(),
+						user: user!,
+						type: TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB,
+						months: json.data.subMonth || 1,
+					};
+					void StoreProxy.chat.addMessage(message);
 					return;
 				}
 
 				case "follow": {
-					const message:TwitchatDataTypes.MessageFollowingData = {
-						channel_id:json.data.tikfinityUserId.toString(),
-						platform:"tiktok",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						followed_at:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-						user:user!,
+					const message: TwitchatDataTypes.MessageFollowingData = {
+						channel_id: json.data.tikfinityUserId.toString(),
+						platform: "tiktok",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						followed_at: Date.now(),
+						type: TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+						user: user!,
 					};
-					StoreProxy.chat.addMessage(message);
+					void StoreProxy.chat.addMessage(message);
 					return;
 				}
 
 				case "like": {
-					if(debouncedLikes[user!.id]) {
+					if (debouncedLikes[user!.id]) {
 						clearTimeout(debouncedLikes[user!.id]!.to);
-					}else{
-						debouncedLikes[user!.id] = {count:0, to:-1}
+					} else {
+						debouncedLikes[user!.id] = { count: 0, to: -1 };
 					}
-					const to = window.setTimeout(()=> {
-						const message:TwitchatDataTypes.MessageTikTokLikeData = {
-							channel_id:json.data.tikfinityUserId.toString(),
-							platform:"tiktok",
-							id:Utils.getUUID(),
-							date:Date.now(),
-							type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
-							user:user!,
-							count:debouncedLikes[user!.id]!.count,
-							streamLikeCount:json.data.totalLikeCount,
+					const to = window.setTimeout(() => {
+						const message: TwitchatDataTypes.MessageTikTokLikeData = {
+							channel_id: json.data.tikfinityUserId.toString(),
+							platform: "tiktok",
+							id: Utils.getUUID(),
+							date: Date.now(),
+							type: TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
+							user: user!,
+							count: debouncedLikes[user!.id]!.count,
+							streamLikeCount: json.data.totalLikeCount,
 						};
-						StoreProxy.chat.addMessage(message);
+						void StoreProxy.chat.addMessage(message);
 						delete debouncedLikes[user!.id];
 					}, 5000);
 					debouncedLikes[user!.id]!.count += json.data.likeCount;
@@ -335,15 +363,15 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 
 				case "share": {
-					const message:TwitchatDataTypes.MessageTikTokShareData = {
-						channel_id:json.data.tikfinityUserId.toString(),
-						platform:"tiktok",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE,
-						user:user!,
+					const message: TwitchatDataTypes.MessageTikTokShareData = {
+						channel_id: json.data.tikfinityUserId.toString(),
+						platform: "tiktok",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						type: TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE,
+						user: user!,
 					};
-					StoreProxy.chat.addMessage(message);
+					void StoreProxy.chat.addMessage(message);
 					return;
 				}
 
@@ -353,16 +381,17 @@ export const storeTiktok = defineStore('tiktok', {
 
 				case "roomUser": {
 					const count = json.data.viewerCount || 0;
-					StoreProxy.stream.currentStreamInfo["tiktok"] = {//Super dirty """user""" ID I know :3. It should be an actual ID instead of "tiktok"
-						category:"",
-						lastSoDoneDate:0,
-						live:true,
-						started_at:0,
-						tags:[],
-						title:"",
-						viewers:count,
-						previewUrl:"",
-					}
+					StoreProxy.stream.currentStreamInfo["tiktok"] = {
+						//Super dirty """user""" ID I know :3. It should be an actual ID instead of "tiktok"
+						category: "",
+						lastSoDoneDate: 0,
+						live: true,
+						started_at: 0,
+						tags: [],
+						title: "",
+						viewers: count,
+						previewUrl: "",
+					};
 					StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TIKTOK", count);
 					return;
 				}
@@ -373,33 +402,31 @@ export const storeTiktok = defineStore('tiktok', {
 			}
 		},
 
-		saveConfigs():void {
-			const data:IStoreData = {
-				ip:this.ip,
-				port:parseInt(this.port.toString()),//Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+		saveConfigs(): void {
+			const data: IStoreData = {
+				ip: this.ip,
+				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
 			};
 			DataStore.set(DataStore.TIKTOK_CONFIGS, data);
 		},
+	} as ITiktokActions &
+		ThisType<
+			ITiktokActions &
+				UnwrapRef<ITiktokState> &
+				_StoreWithState<"tiktok", ITiktokState, ITiktokGetters, ITiktokActions> &
+				_StoreWithGetters<ITiktokGetters> &
+				PiniaCustomProperties
+		>,
+});
 
-	} as ITiktokActions
-	& ThisType<ITiktokActions
-		& UnwrapRef<ITiktokState>
-		& _StoreWithState<"tiktok", ITiktokState, ITiktokGetters, ITiktokActions>
-		& _StoreWithGetters<ITiktokGetters>
-		& PiniaCustomProperties
-	>,
-})
-
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeTiktok, import.meta.hot))
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTiktok, import.meta.hot));
 }
 
 interface IStoreData {
-	ip:string;
-	port:number;
+	ip: string;
+	port: number;
 }
-
-type TikTokEventType = "follow" | "share" | "chat" | "gift" | "subscribe" | "member" | "like" | "social" | "emote" | "error" | "websocketConnected" | "connected" | "disconnected";
 
 interface TikTokMessage {
 	event: "chat";
@@ -430,7 +457,7 @@ interface TikTokMessage {
 		createTime: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokGift {
@@ -477,7 +504,7 @@ interface TikTokGift {
 		originalDescribe: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokSub {
@@ -505,7 +532,7 @@ interface TikTokSub {
 		label: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokLike {
@@ -535,7 +562,7 @@ interface TikTokLike {
 		label: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokMemberJoin {
@@ -564,7 +591,7 @@ interface TikTokMemberJoin {
 		label: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokRoomStats {
@@ -590,10 +617,10 @@ interface TikTokRoomStats {
 				topGifterRank: any;
 				gifterLevel: number;
 				teamMemberLevel: number;
-			}
+			};
 			coinCount: number;
-		}[]
-	}
+		}[];
+	};
 }
 
 interface TikTokShare {
@@ -624,7 +651,7 @@ interface TikTokShare {
 		username: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokFollower {
@@ -655,7 +682,7 @@ interface TikTokFollower {
 		username: string;
 		tikfinityUserId: number;
 		tikfinityUsername: string;
-	}
+	};
 }
 
 interface TikTokUserDetails {
@@ -668,7 +695,7 @@ interface TikTokFollowInfos {
 	followingCount: number;
 	followerCount: number;
 	followStatus: 0 | 1;
-	pushStatus: 0 | number;
+	pushStatus: 0 | 1;
 }
 
 interface TikTokUserBadge {

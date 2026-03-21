@@ -1,8 +1,12 @@
 <template>
 	<div class="overlayparamshighlight overlayParamsSection">
-		<a href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank" class="youtubeTutorialBt">
+		<a
+			href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q"
+			target="_blank"
+			class="youtubeTutorialBt"
+		>
 			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<span>{{ $t("overlay.youtube_demo_tt") }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
 
@@ -14,7 +18,12 @@
 			</div>
 			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
 
-			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+			<ToggleBlock
+				class="shrink"
+				small
+				:title="$t('overlay.css_customization')"
+				:open="false"
+			>
 				<div class="cssHead">{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>
@@ -31,7 +40,12 @@
 						</ul>
 					</li>
 				</ul>
-				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+				<ToggleBlock
+					class="cssPositionning"
+					small
+					title="Holder's positionning"
+					:open="false"
+				>
 					<ul class="cssStructure">
 						<li>#highlight_holder.position-tl { ... }</li>
 						<li>#highlight_holder.position-t { ... }</li>
@@ -53,7 +67,12 @@
 						</ul>
 					</li>
 				</ul>
-				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+				<ToggleBlock
+					class="cssPositionning"
+					small
+					title="Holder's positionning"
+					:open="false"
+				>
 					<ul class="cssStructure">
 						<li>#clip_holder.position-tl { ... }</li>
 						<li>#clip_holder.position-t { ... }</li>
@@ -79,12 +98,20 @@
 			</div>
 
 			<div class="center" v-if="overlayExists">
-				<TTButton @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</TTButton>
+				<TTButton @click="testOverlay()" icon="test">{{
+					$t("overlay.highlight.testBt")
+				}}</TTButton>
 			</div>
 
-			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
+			<Icon
+				class="center loader card-item"
+				name="loader"
+				v-else-if="checkingOverlayPresence"
+			/>
 
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
+			<div class="center card-item alert" v-else-if="!overlayExists">
+				{{ $t("overlay.overlay_not_configured") }}
+			</div>
 		</section>
 
 		<!-- <div class="card-item footer">
@@ -98,113 +125,119 @@
 </template>
 
 <script lang="ts">
-import Icon from '@/components/Icon.vue';
-import PlacementSelector from '@/components/PlacementSelector.vue';
-import StoreProxy from '@/store/StoreProxy';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { LoremIpsum } from 'lorem-ipsum';
-import { watch } from 'vue';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
-import TTButton from '../../../TTButton.vue';
-import ToggleBlock from '../../../ToggleBlock.vue';
-import OverlayInstaller from './OverlayInstaller.vue';
+import Icon from "@/components/Icon.vue";
+import PlacementSelector from "@/components/PlacementSelector.vue";
+import StoreProxy from "@/store/StoreProxy";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { LoremIpsum } from "lorem-ipsum";
+import { watch } from "vue";
+import { Component, toNative, Vue } from "vue-facing-decorator";
+import TTButton from "../../../TTButton.vue";
+import ToggleBlock from "../../../ToggleBlock.vue";
+import OverlayInstaller from "./OverlayInstaller.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 		PlacementSelector,
-	}
+	},
 })
 class OverlayParamsHighlight extends Vue {
-
 	public overlayExists = false;
 	public checkingOverlayPresence = false;
-	public placement:TwitchatDataTypes.ScreenPosition = "bl";
+	public placement: TwitchatDataTypes.ScreenPosition = "bl";
 
-	private checkInterval:number = -1;
-	private subcheckTimeout:number = -1;
-	private overlayPresenceHandler!:()=>void;
+	private checkInterval: number = -1;
+	private subcheckTimeout: number = -1;
+	private overlayPresenceHandler!: () => void;
 
 	public beforeMount(): void {
 		this.placement = this.$store.chat.chatHighlightOverlayParams.position;
 
-		this.overlayPresenceHandler = ()=> {
+		this.overlayPresenceHandler = () => {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener(
+			"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
-		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
+		this.checkInterval = window.setInterval(() => this.getOverlayPresence(), 2000);
 
-		watch(()=>this.placement, ()=> {
-			const data:TwitchatDataTypes.ChatHighlightParams = {
-				position:this.placement,
-			}
-			this.$store.chat.setChatHighlightOverlayParams(data);
-		})
+		watch(
+			() => this.placement,
+			() => {
+				const data: TwitchatDataTypes.ChatHighlightParams = {
+					position: this.placement,
+				};
+				this.$store.chat.setChatHighlightOverlayParams(data);
+			},
+		);
 	}
 
 	/**
 	 * Checks if overlay exists
 	 */
-	public getOverlayPresence(showLoader:boolean = false):void {
-		if(showLoader) this.checkingOverlayPresence = true;
+	public getOverlayPresence(showLoader: boolean = false): void {
+		if (showLoader) this.checkingOverlayPresence = true;
 		PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
-		this.subcheckTimeout = window.setTimeout(()=>{
+		this.subcheckTimeout = window.setTimeout(() => {
 			this.overlayExists = false;
 			this.checkingOverlayPresence = false;
 		}, 1500);
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener(
+			"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 	}
 
-	public async testOverlay():Promise<void> {
+	public async testOverlay(): Promise<void> {
 		const lorem = new LoremIpsum({
 			sentencesPerParagraph: { max: 3, min: 1 },
-			wordsPerSentence: { max: 16, min: 4 }
+			wordsPerSentence: { max: 16, min: 4 },
 		});
 
 		const uid = StoreProxy.auth.twitch.user.id;
-		const text = lorem.generateParagraphs(1)+" TakeNRG";
+		const text = lorem.generateParagraphs(1) + " TakeNRG";
 		const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
-		const message:TwitchatDataTypes.MessageChatData = {
-			id:Utils.getUUID(),
-			platform:"twitch",
+		const message: TwitchatDataTypes.MessageChatData = {
+			id: Utils.getUUID(),
+			platform: "twitch",
 			date: Date.now(),
-			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			user: this.$store.users.getUserFrom("twitch", uid, uid),
 			answers: [],
-			channel_id:uid,
+			channel_id: uid,
 			message: text,
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			message_size: TwitchUtils.computeMessageSize(chunks),
 			is_short: false,
-		}
+		};
 		this.$store.chat.highlightChatMessageOverlay(message);
 	}
-
 }
 export default toNative(OverlayParamsHighlight);
 </script>
 
 <style scoped lang="less">
-.overlayparamshighlight{
-
+.overlayparamshighlight {
 	.placement {
 		display: flex;
 		flex-direction: column;

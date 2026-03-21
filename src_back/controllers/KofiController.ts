@@ -1,4 +1,3 @@
-
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config.js";
@@ -9,52 +8,61 @@ import fetch from "node-fetch";
 import Utils from "../utils/Utils.js";
 
 /**
-* Created : 04/03/2024
-*/
+ * Created : 04/03/2024
+ */
 export default class KofiController extends AbstractController {
-
 	/**
 	 * Kofi token to twitch user
 	 */
-	private hashmapCache:{[verificationKey:string]:{twitch:string}} = {};
+	private hashmapCache: { [verificationKey: string]: { twitch: string } } = {};
 
 	/**
 	 * Twitch user to kofi token
 	 */
-	private hashmapInverseCache:{[twitchId:string]:string} = {};
+	private hashmapInverseCache: { [twitchId: string]: string } = {};
 
 	/**
 	 * Stores a merch item name
 	 */
-	private merchIdToNameCache:{[merchId:string]:string|false} = {};
+	private merchIdToNameCache: { [merchId: string]: string | false } = {};
 
 	/**
 	 * Stores already parsed events to avoid duplicates
 	 */
-	private parsedEvents:{[eventId:string]:boolean} = {};
+	private parsedEvents: { [eventId: string]: boolean } = {};
 
-	constructor(public server:FastifyInstance) {
+	constructor(public server: FastifyInstance) {
 		super();
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-
-
+	 * GETTER / SETTERS *
+	 ********************/
 
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public initialize():void {
-		this.server.get('/api/kofi/token', async (request, response) => await this.getToken(request, response));
-		this.server.post('/api/kofi/token', async (request, response) => await this.postToken(request, response));
-		this.server.delete('/api/kofi/token', async (request, response) => await this.deleteToken(request, response));
-		this.server.post('/api/kofi/webhook', async (request, response) => await this.postWebhook(request, response));
+	 * PUBLIC METHODS *
+	 ******************/
+	public initialize(): void {
+		this.server.get(
+			"/api/kofi/token",
+			async (request, response) => await this.getToken(request, response),
+		);
+		this.server.post(
+			"/api/kofi/token",
+			async (request, response) => await this.postToken(request, response),
+		);
+		this.server.delete(
+			"/api/kofi/token",
+			async (request, response) => await this.deleteToken(request, response),
+		);
+		this.server.post(
+			"/api/kofi/webhook",
+			async (request, response) => await this.postWebhook(request, response),
+		);
 
-		if(!fs.existsSync(Config.KO_FI_USERS)) {
+		if (!fs.existsSync(Config.KO_FI_USERS)) {
 			fs.writeFileSync(Config.KO_FI_USERS, "{}", "utf-8");
-		}else{
+		} else {
 			this.hashmapCache = JSON.parse(fs.readFileSync(Config.KO_FI_USERS, "utf-8"));
 		}
 
@@ -64,48 +72,49 @@ export default class KofiController extends AbstractController {
 			this.hashmapInverseCache[v.twitch] = key;
 		}
 
-		if(!fs.existsSync(Config.KO_FI_PRODUCT_CACHE)) {
+		if (!fs.existsSync(Config.KO_FI_PRODUCT_CACHE)) {
 			fs.writeFileSync(Config.KO_FI_PRODUCT_CACHE, "{}", "utf-8");
-		}else{
-			this.merchIdToNameCache = JSON.parse(fs.readFileSync(Config.KO_FI_PRODUCT_CACHE, "utf-8"));
+		} else {
+			this.merchIdToNameCache = JSON.parse(
+				fs.readFileSync(Config.KO_FI_PRODUCT_CACHE, "utf-8"),
+			);
 		}
 	}
 
-
-
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 	/**
 	 * Called when receiving data from ko-fi
 	 * @param request
 	 * @param response
 	 */
-	private async postWebhook(request:FastifyRequest, response:FastifyReply) {
+	private async postWebhook(request: FastifyRequest, response: FastifyReply) {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 
-			if(this.parsedEvents[data.message_id]) return; //Event already parsed
+			if (this.parsedEvents[data.message_id]) return; //Event already parsed
 			this.parsedEvents[data.message_id] = true;
 
 			//Dispose data after a day to free unneccessary memory
-			setTimeout(() => {
-				delete this.parsedEvents[data.verification_token];
-			}, 24 * 3600 * 1000);
+			setTimeout(
+				() => {
+					delete this.parsedEvents[data.verification_token];
+				},
+				24 * 3600 * 1000,
+			);
 
 			const user = this.hashmapCache[data.verification_token];
-			if(!user || await super.getUserPremiumState(user.twitch) === "no") {
-				response.header('Content-Type', 'application/json')
-				.status(200)
-				.send("ok");
+			if (!user || (await super.getUserPremiumState(user.twitch)) === "no") {
+				response.header("Content-Type", "application/json").status(200).send("ok");
 				return;
 			}
 
 			//If there are shop items, attempt to load their details
 			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
 			//find a way to bypass it without using puppeteer which i want to avoid
-			if(data.shop_items) {
-				Utils.logToFile("kofi", JSON.stringify({type:"shop", data}));
+			if (data.shop_items) {
+				Utils.logToFile("kofi", JSON.stringify({ type: "shop", data }));
 				// let updateCache = false;
 				// //Ko-fi has no API to get a product name from its ID.
 				// //Only "solution" is to scrape it from the HTML page -_-...
@@ -164,8 +173,8 @@ export default class KofiController extends AbstractController {
 			//If it's a commission, attempt to load its details
 			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
 			//find a way to bypass it without using puppeteer which i want to avoid
-			if(data.type == "Commission") {
-				Utils.logToFile("kofi", JSON.stringify({type:"commission", data}));
+			if (data.type == "Commission") {
+				Utils.logToFile("kofi", JSON.stringify({ type: "commission", data }));
 				/*
 				//Attempt to load commission info from page
 				//These headers are necessary to bypass clouflare filtres
@@ -206,20 +215,24 @@ export default class KofiController extends AbstractController {
 			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);
 
 			//Check if user defined webhooks and proxy the event to them
-			const userFilePath = Config.USER_DATA_PATH + user.twitch+".json";
-			if(fs.existsSync(userFilePath)){
-				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
-				if(data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
+			const userFilePath = Config.USER_DATA_PATH + user.twitch + ".json";
+			if (fs.existsSync(userFilePath)) {
+				const data = JSON.parse(fs.readFileSync(userFilePath, { encoding: "utf8" }));
+				if (data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
 					for (let i = 0; i < data.kofiConfigs.webhooks.length; i++) {
-						const webhook = data.kofiConfigs.webhooks[i] as {url:string, fails:number, enabled:boolean};
+						const webhook = data.kofiConfigs.webhooks[i] as {
+							url: string;
+							fails: number;
+							enabled: boolean;
+						};
 						const url = new URL(Config.credentials.kofi_proxy);
 						let webhookPath = "";
-						if(typeof webhook === "string") {
+						if (typeof webhook === "string") {
 							//This is just a fallback to old data structure until user migrates it
 							webhookPath = webhook;
-						}else{
+						} else {
 							webhookPath = webhook.url;
-							if(webhook.enabled === false) continue; //Skip disabled webhooks
+							if (webhook.enabled === false) continue; //Skip disabled webhooks
 						}
 						url.searchParams.append("url", webhookPath);
 						let success = false;
@@ -227,9 +240,9 @@ export default class KofiController extends AbstractController {
 							// Filter out array-valued headers that node-fetch doesn't support
 							const filteredHeaders: Record<string, string> = {};
 							for (const [key, value] of Object.entries(request.headers)) {
-								if (typeof value === 'string') {
+								if (typeof value === "string") {
 									filteredHeaders[key] = value!;
-								}else{
+								} else {
 									filteredHeaders[key] = value!.toString();
 								}
 							}
@@ -239,32 +252,40 @@ export default class KofiController extends AbstractController {
 									...filteredHeaders,
 									host: url.host,
 								},
-								body: new URLSearchParams(request.body as URLSearchParams).toString(),
-							})
-							if(res.status >= 200 && res.status <= 206) success = true;
-							console.log(res.status)
-						}catch(error) {
-							console.log(error)
+								body: new URLSearchParams(
+									request.body as URLSearchParams,
+								).toString(),
+							});
+							if (res.status >= 200 && res.status <= 206) success = true;
+							console.log(res.status);
+						} catch (error) {
+							console.log(error);
 						}
-						if(!success) {
-							if(typeof webhook != "string" && ++webhook.fails >=5) {
+						if (!success) {
+							if (typeof webhook != "string" && ++webhook.fails >= 5) {
 								webhook.enabled = false;
-								SSEController.sendToUser(user.twitch, SSECode.KO_FI_DELETE_WEBHOOK, webhookPath);
-							}else{
-								SSEController.sendToUser(user.twitch, SSECode.KO_FI_FAILED_WEBHOOK, webhookPath);
+								SSEController.sendToUser(
+									user.twitch,
+									SSECode.KO_FI_DELETE_WEBHOOK,
+									webhookPath,
+								);
+							} else {
+								SSEController.sendToUser(
+									user.twitch,
+									SSECode.KO_FI_FAILED_WEBHOOK,
+									webhookPath,
+								);
 							}
 						}
 					}
 				}
 			}
-		}catch(error) {
+		} catch (error) {
 			Logger.error("Failed parsing kofi event");
 			console.log(error);
 		}
 
-		response.header('Content-Type', 'application/json')
-		.status(200)
-		.send("ok");
+		response.header("Content-Type", "application/json").status(200).send("ok");
 	}
 
 	/**
@@ -272,23 +293,25 @@ export default class KofiController extends AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	private async getToken(request:FastifyRequest, response:FastifyReply) {
+	private async getToken(request: FastifyRequest, response: FastifyReply) {
 		const guard = await super.twitchUserGuard(request, response);
-		if(guard === false) return;
+		if (guard === false) return;
 
 		try {
 			const token = this.hashmapInverseCache[guard.user_id];
 
-			response.header('Content-Type', 'application/json')
-			.status(200)
-			.send(JSON.stringify({success:token != undefined, token}));
-		}catch(error) {
+			response
+				.header("Content-Type", "application/json")
+				.status(200)
+				.send(JSON.stringify({ success: token != undefined, token }));
+		} catch (error) {
 			Logger.error("Failed getting kofi token");
 			console.log(error);
 
-			response.header('Content-Type', 'application/json')
-			.status(500)
-			.send(JSON.stringify({success:false}));
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(JSON.stringify({ success: false }));
 		}
 	}
 
@@ -297,28 +320,30 @@ export default class KofiController extends AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	private async postToken(request:FastifyRequest, response:FastifyReply) {
+	private async postToken(request: FastifyRequest, response: FastifyReply) {
 		const guard = await super.premiumGuard(request, response);
-		if(guard === false) return;
+		if (guard === false) return;
 
 		const token = (request.body as any).token;
 
 		try {
-			this.hashmapCache[token] = {twitch:guard.user_id};
+			this.hashmapCache[token] = { twitch: guard.user_id };
 			this.hashmapInverseCache[guard.user_id] = token;
 
 			fs.writeFileSync(Config.KO_FI_USERS, JSON.stringify(this.hashmapCache), "utf-8");
 
-			response.header('Content-Type', 'application/json')
-			.status(200)
-			.send(JSON.stringify({success:true}));
-		}catch(error) {
+			response
+				.header("Content-Type", "application/json")
+				.status(200)
+				.send(JSON.stringify({ success: true }));
+		} catch (error) {
 			Logger.error("Failed setting kofi token");
 			console.log(error);
 
-			response.header('Content-Type', 'application/json')
-			.status(500)
-			.send(JSON.stringify({success:false}));
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(JSON.stringify({ success: false }));
 		}
 	}
 
@@ -327,29 +352,29 @@ export default class KofiController extends AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	private async deleteToken(request:FastifyRequest, response:FastifyReply) {
+	private async deleteToken(request: FastifyRequest, response: FastifyReply) {
 		const guard = await super.twitchUserGuard(request, response);
-		if(guard === false) return;
+		if (guard === false) return;
 		try {
 			const token = this.hashmapInverseCache[guard.user_id]!;
 			delete this.hashmapCache[token];
 			delete this.hashmapInverseCache[guard.user_id];
 			fs.writeFileSync(Config.KO_FI_USERS, JSON.stringify(this.hashmapCache), "utf-8");
 
-			response.header('Content-Type', 'application/json')
-			.status(200)
-			.send(JSON.stringify({success:true}));
-
-		}catch(error) {
+			response
+				.header("Content-Type", "application/json")
+				.status(200)
+				.send(JSON.stringify({ success: true }));
+		} catch (error) {
 			Logger.error("Failed deleting kofi token");
 			console.log(error);
 
-			response.header('Content-Type', 'application/json')
-			.status(500)
-			.send(JSON.stringify({success:false}));
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(JSON.stringify({ success: false }));
 		}
 	}
-
 }
 
 interface KofiData {
@@ -385,6 +410,6 @@ interface KofiData {
 		country_code: string;
 		telephone: string;
 	};
-	discord_username: string | null,
-	discord_userid: string | null
+	discord_username: string | null;
+	discord_userid: string | null;
 }

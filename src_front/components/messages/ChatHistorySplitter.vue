@@ -5,32 +5,30 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import Splitter from '../Splitter.vue';
-import Icon from '../Icon.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import Splitter from "../Splitter.vue";
+import Icon from "../Icon.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		Splitter,
 	},
-	emits:["onRead"],
+	emits: ["onRead"],
 })
 class ChatHistorySplitter extends AbstractChatMessage {
-	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageHistorySplitterData;
-	
-	@Prop
-	declare childrenList:TwitchatDataTypes.MessageHistorySplitterData[];
+	declare messageData: TwitchatDataTypes.MessageHistorySplitterData;
 
+	@Prop
+	declare childrenList: TwitchatDataTypes.MessageHistorySplitterData[];
 }
 export default toNative(ChatHistorySplitter);
 </script>
 
 <style scoped lang="less">
-.chathistorysplitter{
+.chathistorysplitter {
 }
 </style>
