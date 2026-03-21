@@ -2,159 +2,248 @@
 	<div class="quizstate gameStateWindow" v-if="currentQuiz">
 		<div class="head" v-stickyTopShadow>
 			<div class="subHolder">
-				<h1 class="title" v-stickyTopShadow><Icon name="quiz" />{{currentQuiz.title || $t('quiz.form.title')}}</h1>
+				<h1 class="title" v-stickyTopShadow>
+					<Icon name="quiz" />{{ currentQuiz.title || $t("quiz.form.title") }}
+				</h1>
 				<div class="subtitle" v-if="currentQuestion">
-					<span>{{ $t('quiz.state.questionIndex', { INDEX: currentQuestionIndex + 1, TOTAL: currentQuiz?.questionList.length }) }}</span>
+					<span>{{
+						$t("quiz.state.questionIndex", {
+							INDEX: currentQuestionIndex + 1,
+							TOTAL: currentQuiz?.questionList.length,
+						})
+					}}</span>
 				</div>
 			</div>
-			
-			<ProgressBar v-if="showProgressbar"
+
+			<ProgressBar
+				v-if="showProgressbar"
 				class="progress"
 				secondary
 				:percent="progressPercent"
-				:duration="questionDuration" />
-			
+				:duration="questionDuration"
+			/>
+
 			<slot />
 		</div>
 
 		<div class="body">
 			<div class="actions floating">
-				<TTButton icon="test"
+				<TTButton
+					icon="test"
 					noBounce
 					:transparent="!fakeVotes"
 					:secondary="fakeVotes"
 					@click="fakeVotes = !fakeVotes"
-					v-if="auth.isAdmin" />
-				<TTButton icon="leaderboard"
-					light transparent
+					v-if="auth.isAdmin"
+				/>
+				<TTButton
+					icon="leaderboard"
+					light
+					transparent
 					:disabled="showProgressbar"
 					v-tooltip="$t('quiz.state.leaderboard_bt')"
 					@click="store.showLeaderBoard(currentQuiz.id)"
-					v-if="hasLeaderboard" />
-				<TTButton icon="refresh"
-					light transparent
+					v-if="hasLeaderboard"
+				/>
+				<TTButton
+					icon="refresh"
+					light
+					transparent
 					v-tooltip="$t('quiz.state.resetQuiz_bt')"
 					v-if="currentQuestionIndex >= 0"
-					@click="store.resetQuizState(currentQuiz.id)" />
+					@click="store.resetQuizState(currentQuiz.id)"
+				/>
 			</div>
 			<div class="actions">
 				<template v-if="!currentQuestion">
-					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{ $t('quiz.state.start_bt') }}</TTButton>
+					<TTButton icon="play" light @click="store.startNextQuestion(currentQuiz.id)">{{
+						$t("quiz.state.start_bt")
+					}}</TTButton>
 				</template>
 				<template v-else>
-					<TTButton icon="checkmark"
+					<TTButton
+						icon="checkmark"
 						light
 						@click="store.revealAnswer(currentQuiz.id)"
-						v-if="!currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.showAnswer_bt') }}</TTButton>
-					<TTButton icon="next"
+						v-if="!currentQuiz.currentQuestionRevealed"
+						>{{ $t("quiz.state.showAnswer_bt") }}</TTButton
+					>
+					<TTButton
+						icon="next"
 						light
 						@click="store.startNextQuestion(currentQuiz.id)"
-						v-if="!isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.nextQuestion_bt') }}</TTButton>
-					<TTButton icon="disable"
+						v-if="!isLastQuestion && currentQuiz.currentQuestionRevealed"
+						>{{ $t("quiz.state.nextQuestion_bt") }}</TTButton
+					>
+					<TTButton
+						icon="disable"
 						light
-						@click="currentQuiz.enabled = false; store.resetQuizState(currentQuiz.id, false)"
-						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed">{{ $t('quiz.state.disable_bt') }}</TTButton>
+						@click="
+							currentQuiz.enabled = false;
+							store.resetQuizState(currentQuiz.id, false);
+						"
+						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed"
+						>{{ $t("quiz.state.disable_bt") }}</TTButton
+					>
 				</template>
 			</div>
-	
+
 			<template v-if="currentQuestion">
-				<div class="question"><icon :name="`quiz_${currentQuestion.mode}`" v-tooltip="$t('quiz.form.mode_'+currentQuestion.mode+'.title')" />{{ currentQuestion.question }}</div>
+				<div class="question">
+					<icon
+						:name="`quiz_${currentQuestion.mode}`"
+						v-tooltip="$t('quiz.form.mode_' + currentQuestion.mode + '.title')"
+					/>{{ currentQuestion.question }}
+				</div>
 				<div class="answers" v-if="currentQuestion.mode !== 'freeAnswer'">
-					<div class="answer"
-					:class="{correct:$utils.isClassicQuizAnswer(currentQuestion.mode, answer)? answer.correct : false}"
-					:style="{backgroundPositionX: 100 - liveStats[answer.id]!.relativePercent * 100 + '%'}"
-					v-for="(answer, index) in currentQuestion.answerList">
+					<div
+						class="answer"
+						:class="{
+							correct: $utils.isClassicQuizAnswer(currentQuestion.mode, answer)
+								? answer.correct
+								: false,
+						}"
+						:style="{
+							backgroundPositionX:
+								100 - liveStats[answer.id]!.relativePercent * 100 + '%',
+						}"
+						v-for="(answer, index) in currentQuestion.answerList"
+					>
 						<template v-if="$utils.isClassicQuizAnswer(currentQuestion.mode, answer)">
 							<icon class="validity" name="checkmark" v-if="answer.correct" />
 							<icon class="validity" name="cross" v-else />
 						</template>
-						<span class="index">{{ ["A", "B", "C", "D", "E", "F", "G", "H"][index] }}</span>
+						<span class="index">{{
+							["A", "B", "C", "D", "E", "F", "G", "H"][index]
+						}}</span>
 						<span class="label">{{ answer.title }}</span>
 						<div class="tags">
-							<span class="tag votes"><icon name="user" />{{ liveStats[answer.id]!.voteCount }}</span>
-							<span class="tag percent">{{ (liveStats[answer.id]!.globalPercent * 100).toFixed(1) }}%</span>
+							<span class="tag votes"
+								><icon name="user" />{{ liveStats[answer.id]!.voteCount }}</span
+							>
+							<span class="tag percent"
+								>{{ (liveStats[answer.id]!.globalPercent * 100).toFixed(1) }}%</span
+							>
 						</div>
 					</div>
 				</div>
 				<div class="answer" v-else>
 					<span>{{ currentQuestion.answer }}</span>
-					<span class="right"><Icon name="checkmark"/>{{store.currentFreeAnswerStats.right}}</span>
-					<span class="wrong"><Icon name="cross"/>{{store.currentFreeAnswerStats.wrong}}</span>
+					<span class="right"
+						><Icon name="checkmark" />{{ store.currentFreeAnswerStats.right }}</span
+					>
+					<span class="wrong"
+						><Icon name="cross" />{{ store.currentFreeAnswerStats.wrong }}</span
+					>
 				</div>
 				<!-- <div>{{ store.liveState?.questionVotes[currentQuestion.id]?.map(v => v.answer).join(", ") }}</div> -->
 			</template>
 
 			<OverlayPresenceChecker
 				:overlayName="$t('quiz.form.overlay_name')"
-				:overlayType="'quiz'" />
+				:overlayType="'quiz'"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { storeQuiz } from '@/store/quiz/storeQuiz';
-import { storeAuth } from '@/store/auth/storeAuth';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { computed, onBeforeUnmount, ref } from 'vue';
-import ProgressBar from '../ProgressBar.vue';
-import TTButton from '../TTButton.vue';
-import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
+import { storeQuiz } from "@/store/quiz/storeQuiz";
+import { storeAuth } from "@/store/auth/storeAuth";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, onBeforeUnmount, ref } from "vue";
+import ProgressBar from "../ProgressBar.vue";
+import TTButton from "../TTButton.vue";
+import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
 const store = storeQuiz();
 const auth = storeAuth();
 const progressPercent = ref(0);
 const fakeVotes = ref(false);
 
-const activeQuizList = computed(() => store.quizList.filter(v=>v.enabled))
-const currentQuizId = ref(activeQuizList.value[0]?.id)
-const currentQuiz = computed(() => store.quizList.filter(v=>v.id == currentQuizId.value)[0])
-const currentQuestionIndex = computed(() => currentQuiz.value?.questionList.findIndex(v=>v.id == currentQuiz.value?.currentQuestionId) ?? -1)
-const currentQuestion = computed(() => currentQuiz.value?.questionList.find(v=>v.id == currentQuiz.value?.currentQuestionId))
-const questionDuration = computed(() => (currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) * 1000)
-const isLastQuestion = computed(() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1)
-const showProgressbar = computed(() => Boolean(currentQuiz.value?.questionStarted_at) && progressPercent.value < 1 )
-const liveStats = computed(() => store.computeQuestionStats(currentQuiz.value!.id, currentQuestion.value!.id) )
-const hasLeaderboard = computed(() => Object.keys(store.liveState?.users || {}).length > 0 )
+const activeQuizList = computed(() => store.quizList.filter((v) => v.enabled));
+const currentQuizId = ref(activeQuizList.value[0]?.id);
+const currentQuiz = computed(() => store.quizList.filter((v) => v.id == currentQuizId.value)[0]);
+const currentQuestionIndex = computed(
+	() =>
+		currentQuiz.value?.questionList.findIndex(
+			(v) => v.id == currentQuiz.value?.currentQuestionId,
+		) ?? -1,
+);
+const currentQuestion = computed(() =>
+	currentQuiz.value?.questionList.find((v) => v.id == currentQuiz.value?.currentQuestionId),
+);
+const questionDuration = computed(
+	() =>
+		(currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) *
+		1000,
+);
+const isLastQuestion = computed(
+	() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1,
+);
+const showProgressbar = computed(
+	() => Boolean(currentQuiz.value?.questionStarted_at) && progressPercent.value < 1,
+);
+const liveStats = computed(() =>
+	store.computeQuestionStats(currentQuiz.value!.id, currentQuestion.value!.id),
+);
+const hasLeaderboard = computed(() => Object.keys(store.liveState?.users || {}).length > 0);
 
 // if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
 // if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
 
-let rafId:number;
-function renderFrame():void {
+let rafId: number;
+function renderFrame(): void {
 	rafId = requestAnimationFrame(renderFrame);
-	const elapsed = Date.now() - (new Date(currentQuiz.value?.questionStarted_at || "0").getTime() ?? 0);
-	progressPercent.value = Math.min(1, elapsed/questionDuration.value);
+	const elapsed =
+		Date.now() - (new Date(currentQuiz.value?.questionStarted_at || "0").getTime() ?? 0);
+	progressPercent.value = Math.min(1, elapsed / questionDuration.value);
 }
 renderFrame();
 
-async function fakeVote():Promise<void> {
-	if(!fakeVotes.value || !currentQuestion.value || !showProgressbar.value) return;
+async function fakeVote(): Promise<void> {
+	if (!fakeVotes.value || !currentQuestion.value || !showProgressbar.value) return;
 	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
 	let delayMs = Math.random() * 5000;
-	if(currentQuestion.value.mode !== "freeAnswer") {
+	if (currentQuestion.value.mode !== "freeAnswer") {
 		const answer = Utils.pickRand(currentQuestion.value.answerList);
 		const answerId = answer.id;
-		store.handleAnswer("twitch", delayMs, currentQuizId.value!, currentQuestion.value.id, answerId, undefined, fakeUserId);
-	}else{
-		const answer = Math.random() > .5? currentQuestion.value.answer : "Wrong answer ";
-		store.handleAnswer("twitch", delayMs, currentQuizId.value!, currentQuestion.value.id, undefined, answer, fakeUserId);
+		store.handleAnswer(
+			"twitch",
+			delayMs,
+			currentQuizId.value!,
+			currentQuestion.value.id,
+			answerId,
+			undefined,
+			fakeUserId,
+		);
+	} else {
+		const answer = Math.random() > 0.5 ? currentQuestion.value.answer : "Wrong answer ";
+		store.handleAnswer(
+			"twitch",
+			delayMs,
+			currentQuizId.value!,
+			currentQuestion.value.id,
+			undefined,
+			answer,
+			fakeUserId,
+		);
 	}
 }
-let fakeVoteInterval:number;
-if(auth.isAdmin) {
+let fakeVoteInterval: number;
+if (auth.isAdmin) {
 	fakeVoteInterval = window.setInterval(fakeVote, 1000);
 }
 
 onBeforeUnmount(() => {
 	cancelAnimationFrame(rafId);
-	if(fakeVoteInterval) clearInterval(fakeVoteInterval);
+	if (fakeVoteInterval) clearInterval(fakeVoteInterval);
 });
-
 </script>
 
 <style scoped lang="less">
-.quizstate{
+.quizstate {
 	.subHolder {
 		display: flex;
 		flex-direction: column;
@@ -165,7 +254,7 @@ onBeforeUnmount(() => {
 			font-style: italic;
 		}
 	}
-	.progress{
+	.progress {
 		z-index: 1;
 	}
 	.body {
@@ -179,14 +268,14 @@ onBeforeUnmount(() => {
 		}
 	}
 	.question {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		align-items: center;
 		flex-direction: row;
 		line-height: 1.1em;
-		padding: .5em .75em;
-		border-radius: .5em;
-		background-color: rgba(0, 0, 0, .25);
+		padding: 0.5em 0.75em;
+		border-radius: 0.5em;
+		background-color: rgba(0, 0, 0, 0.25);
 		text-wrap: balance;
 		text-align: center;
 		.icon {
@@ -196,8 +285,8 @@ onBeforeUnmount(() => {
 		}
 	}
 	.answers {
-		gap: .5em;
-		font-size: .9em;
+		gap: 0.5em;
+		font-size: 0.9em;
 		display: flex;
 		align-self: stretch;
 		flex-direction: column;
@@ -206,17 +295,17 @@ onBeforeUnmount(() => {
 	}
 	.answer {
 		display: flex;
-		gap: .5em;
-		padding: .25em .5em;
+		gap: 0.5em;
+		padding: 0.25em 0.5em;
 		border: 1px solid transparent;
-		border-radius: .5em;
-		transition: all .15s;
-		@c: rgba(0, 0, 0, .4);
-		@bg: rgba(0, 0, 0, .25);
+		border-radius: 0.5em;
+		transition: all 0.15s;
+		@c: rgba(0, 0, 0, 0.4);
+		@bg: rgba(0, 0, 0, 0.25);
 		background-color: @c;
 		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 		background-size: 200% 100%;
-		transition: background .25s;
+		transition: background 0.25s;
 		align-items: center;
 		position: relative;
 
@@ -226,20 +315,20 @@ onBeforeUnmount(() => {
 			vertical-align: middle;
 			color: var(--color-alert-extralight);
 		}
-		
+
 		.index {
 			flex-shrink: 0;
 			font-weight: bold;
 			font-size: 1.1em;
-			opacity: .7;
+			opacity: 0.7;
 		}
-		
+
 		.label {
 			word-break: break-word;
 			max-height: 100px;
 			overflow-y: auto;
 			padding-right: 3px;
-			font-size: .95em;
+			font-size: 0.95em;
 			flex: 1 1 auto;
 			line-height: 1.2em;
 		}
@@ -257,7 +346,7 @@ onBeforeUnmount(() => {
 
 		.tags {
 			display: flex;
-			gap: .25em;
+			gap: 0.25em;
 			flex-wrap: wrap;
 			flex-direction: row;
 			justify-content: center;
@@ -265,16 +354,16 @@ onBeforeUnmount(() => {
 			min-width: min-content;
 		}
 		.tag {
-			background-color: rgba(0, 0, 0, .35);
-			padding: .25em .5em;
+			background-color: rgba(0, 0, 0, 0.35);
+			padding: 0.25em 0.5em;
 			border-radius: 1em;
-			gap: .25em;
+			gap: 0.25em;
 			display: inline-flex;
 			align-items: center;
-			font-size: .9em;
+			font-size: 0.9em;
 			.icon {
 				color: #ffffff;
-				height: .8em;
+				height: 0.8em;
 			}
 		}
 
@@ -283,14 +372,15 @@ onBeforeUnmount(() => {
 				color: #fff;
 			}
 		}
-		.right, .wrong {
+		.right,
+		.wrong {
 			display: inline-flex;
-			gap: .25em;
+			gap: 0.25em;
 			align-items: center;
-			font-size: .9em;
+			font-size: 0.9em;
 			font-weight: bold;
-			padding-left: .5em;
-			border-left: 1px solid rgba(255, 255, 255, .5);
+			padding-left: 0.5em;
+			border-left: 1px solid rgba(255, 255, 255, 0.5);
 		}
 
 		&.correct {
@@ -298,7 +388,7 @@ onBeforeUnmount(() => {
 				opacity: 1;
 			}
 			.icon {
-				color: inherit
+				color: inherit;
 			}
 		}
 	}

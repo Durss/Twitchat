@@ -7,8 +7,8 @@ export interface YoutubeAuthToken {
 	access_token: string;
 	refresh_token: string;
 	scope: string;
-	token_type: string;//Bearer
-	expiry_date: number;//In milliseconds
+	token_type: string; //Bearer
+	expiry_date: number; //In milliseconds
 }
 
 export interface YoutubeLiveBroadcast {
@@ -41,7 +41,15 @@ export interface YoutubeLiveBroadcast {
 			liveChatId: string;
 		};
 		status: {
-			lifeCycleStatus: "complete" | "created" | "live" | "liveStarting" | "ready" | "revoked" | "testStarting" | "testing";
+			lifeCycleStatus:
+				| "complete"
+				| "created"
+				| "live"
+				| "liveStarting"
+				| "ready"
+				| "revoked"
+				| "testStarting"
+				| "testing";
 			privacyStatus: string;
 			recordingStatus: "recording" | "recorded" | "notRecording";
 			madeForKids: boolean;
@@ -86,22 +94,22 @@ export interface YoutubeFollowerResult {
 		etag: string;
 		id: string;
 		subscriberSnippet: {
-			title: string,
-			description: string,
-			channelId: string,
+			title: string;
+			description: string;
+			channelId: string;
 			thumbnails: {
 				default: {
-					url: string,
-				},
+					url: string;
+				};
 				medium: {
-					url: string,
-				},
+					url: string;
+				};
 				high: {
-					url: string,
-				}
-			}
-		}
-	}[]
+					url: string;
+				};
+			};
+		};
+	}[];
 }
 
 /**
@@ -119,19 +127,20 @@ export interface YoutubeMessages {
 		kind: string;
 		etag: string;
 		id: string;
-		snippet: YoutubeTextMessage
-				| YoutubeDeletedMessage
-				| YoutubeBanUserMessage
-				| YoutubeResubMessage
-				| YoutubeSubMessage
-				| YoutubeSuperChatMessage
-				| YoutubeSuperStickerMessage
-				| YoutubeSubgiftMessage
-				| YoutubeSubgiftReceivedChatMessage
-				| YoutubeTombstoneMessage
-				| YoutubeSponsorOnlyModeOn
-				| YoutubeSponsorOnlyModeOff
-				| YoutubeChatEnded
+		snippet:
+			| YoutubeTextMessage
+			| YoutubeDeletedMessage
+			| YoutubeBanUserMessage
+			| YoutubeResubMessage
+			| YoutubeSubMessage
+			| YoutubeSuperChatMessage
+			| YoutubeSuperStickerMessage
+			| YoutubeSubgiftMessage
+			| YoutubeSubgiftReceivedChatMessage
+			| YoutubeTombstoneMessage
+			| YoutubeSponsorOnlyModeOn
+			| YoutubeSponsorOnlyModeOff
+			| YoutubeChatEnded;
 		authorDetails: {
 			channelId: string;
 			channelUrl: string;
@@ -203,7 +212,7 @@ interface YoutubeBanUserMessage extends AbstractYoutubeTextMessage {
 			displayName: string;
 			profileImageUrl: string;
 		};
-		banType: "permanent"|"temporary";
+		banType: "permanent" | "temporary";
 		banDurationSeconds?: number;
 	};
 }
@@ -287,8 +296,8 @@ interface YoutubeSuperStickerMessage extends AbstractYoutubeTextMessage {
 			 * https://youtube.googleapis.com/super_stickers/sticker_ids_to_urls.csv
 			 */
 			stickerId: string;
-		}
-	}
+		};
+	};
 }
 
 export interface YoutubeChannelInfo {
@@ -313,7 +322,7 @@ export interface YoutubeChannelInfo {
 				description: string;
 			};
 			country: string;
-			defaultLanguage?: string
+			defaultLanguage?: string;
 		};
 		status: {
 			privacyStatus: string;

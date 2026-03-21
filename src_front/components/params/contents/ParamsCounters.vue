@@ -3,24 +3,32 @@
 		<Icon name="count" class="icon" />
 
 		<div class="head">
-			<i18n-t scope="global"  tag="p" keypath="counters.header">
+			<i18n-t scope="global" tag="p" keypath="counters.header">
 				<template #LINK_TRIGGER>
-					<a @click="openTriggers()" target="_blank">{{ $t("counters.header_link_trigger") }}</a>
+					<a @click="openTriggers()" target="_blank">{{
+						$t("counters.header_link_trigger")
+					}}</a>
 				</template>
 				<template #LINK_OVERLAY>
-					<a @click="openOverlays()" target="_blank">{{ $t("counters.header_link_overlay") }}</a>
+					<a @click="openOverlays()" target="_blank">{{
+						$t("counters.header_link_overlay")
+					}}</a>
 				</template>
 			</i18n-t>
 		</div>
 
 		<section v-if="!showForm">
-			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{ $t('counters.addBt') }}</TTButton>
+			<TTButton icon="add" @click="showForm = true" v-if="!maxReached">{{
+				$t("counters.addBt")
+			}}</TTButton>
 
-			<PremiumLimitMessage v-else
+			<PremiumLimitMessage
+				v-else
 				label="counters.nonpremium_limit"
 				premiumLabel="counters.premium_limit"
 				:max="$config.MAX_COUNTERS"
-				:maxPremium="$config.MAX_COUNTERS_PREMIUM" />
+				:maxPremium="$config.MAX_COUNTERS_PREMIUM"
+			/>
 		</section>
 
 		<section class="card-item primary examples" v-if="!showForm && counterEntries.length == 0">
@@ -31,148 +39,317 @@
 
 		<section class="card-item" v-if="showForm">
 			<form @submit.prevent="createCounter()">
-				<ParamItem :paramData="param_title" :errorMessage="$t('counters.form.name_conflict')" />
+				<ParamItem
+					:paramData="param_title"
+					:errorMessage="$t('counters.form.name_conflict')"
+				/>
 				<ParamItem :paramData="param_value" />
 				<ParamItem :paramData="param_more" v-model="param_more.value" />
 				<div class="ctas">
-					<TTButton type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</TTButton>
-					<TTButton type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</TTButton>
-					<TTButton type="submit" v-else icon="edit" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('counters.editBt') }}</TTButton>
+					<TTButton type="button" icon="cross" alert @click="cancelForm()">{{
+						$t("global.cancel")
+					}}</TTButton>
+					<TTButton
+						type="submit"
+						v-if="!editedCounter"
+						icon="add"
+						:disabled="
+							param_title.value.length == 0 ||
+							param_title.error ||
+							param_placeholder.error
+						"
+						>{{ $t("global.create") }}</TTButton
+					>
+					<TTButton
+						type="submit"
+						v-else
+						icon="edit"
+						:disabled="
+							param_title.value.length == 0 ||
+							param_title.error ||
+							param_placeholder.error
+						"
+						>{{ $t("counters.editBt") }}</TTButton
+					>
 				</div>
 			</form>
 		</section>
 
-		<draggable class="entryList"
+		<draggable
+			class="entryList"
 			v-model="counterEntries"
 			direction="vertical"
 			group="counters"
 			item-key="counter.id"
 			:animation="250"
-			@sort="onSortItems()">
-				<template #item="{element:entry, index}:{element:CounterEntry, index:number}">
-					<ToggleBlock class="counterEntry"
+			@sort="onSortItems()"
+		>
+			<template #item="{ element: entry, index }: { element: CounterEntry; index: number }">
+				<ToggleBlock
+					class="counterEntry"
 					v-if="counterEntries.length > 0"
 					:open="false"
 					:key="entry.counter.id"
-					:title="entry.counter.name">
+					:title="entry.counter.name"
+				>
+					<template #left_actions>
+						<ToggleButton
+							v-model="entry.counter.enabled"
+							*
+							@click.stop
+							@change="$store.counters.saveCounters()"
+							v-if="
+								($store.auth.isPremium && entry.counter.enabled === false) ||
+								(!$store.auth.isPremium &&
+									(entry.counter.enabled == true || canEnableMore))
+							"
+						/>
+					</template>
 
-						<template #left_actions>
-							<ToggleButton v-model="entry.counter.enabled"*
-								@click.stop
-								@change="$store.counters.saveCounters()"
-								v-if="($store.auth.isPremium && entry.counter.enabled === false)
-								|| (!$store.auth.isPremium && (entry.counter.enabled == true || canEnableMore))" />
+					<template #right_actions>
+						<template v-if="entry.counter.enabled !== false">
+							<span
+								class="info loop"
+								v-tooltip="$t('counters.loop_tt')"
+								v-if="entry.counter.loop"
+								><Icon name="loop" alt="loop"
+							/></span>
+							<span
+								class="info min"
+								v-tooltip="$t('counters.min_tt')"
+								v-if="entry.counter.min !== false"
+								><Icon name="min" alt="min" />{{ entry.counter.min }}</span
+							>
+							<span
+								class="info max"
+								v-tooltip="$t('counters.max_tt')"
+								v-if="entry.counter.max !== false"
+								><Icon name="max" alt="max" />{{ entry.counter.max }}</span
+							>
+							<span
+								class="info user"
+								v-tooltip="$t('counters.user_tt')"
+								v-if="entry.counter.perUser"
+								><Icon name="user" alt="user" />
+								{{ Object.keys(entry.counter.users ?? {}).length }}</span
+							>
+							<TTButton
+								v-tooltip="$t('counters.editBt')"
+								icon="edit"
+								@click.stop="editCounter(entry.counter)"
+								data-close-popout
+							/>
 						</template>
+						<TTButton
+							@click.stop
+							:copy="entry.counter.id"
+							icon="id"
+							v-tooltip="$t('global.copy_id')"
+							small
+						/>
+						<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
+					</template>
 
-						<template #right_actions>
-							<template v-if="entry.counter.enabled !== false">
-								<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
-								<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
-								<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
-								<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-								<TTButton v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" data-close-popout />
+					<div class="content">
+						<ParamItem
+							class="value"
+							v-if="!entry.counter.perUser"
+							:paramData="entry.param"
+							v-model="entry.param.value"
+							@change="onChangeValue(entry)"
+						/>
+
+						<div class="userList" v-else>
+							<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
+								<div class="search">
+									<input
+										type="text"
+										:placeholder="$t('counters.form.search')"
+										v-model="entry.search[entry.counter.id]"
+										@input="searchUser(entry)"
+									/>
+									<Icon
+										name="loader"
+										class="loader"
+										v-show="entry.idToLoading[entry.counter.id] === true"
+									/>
+								</div>
+
+								<TTButton
+									class="resetBt"
+									v-if="entry.search[entry.counter.id]!.length === 0"
+									secondary
+									@click="resetUsers(entry)"
+									>{{ $t("counters.form.reset_all_users") }}</TTButton
+								>
+
+								<TTButton
+									class="clearBt"
+									v-if="entry.search[entry.counter.id]!.length === 0"
+									alert
+									@click="clearUsers(entry)"
+									>{{ $t("counters.form.clear_all_users") }}</TTButton
+								>
+
+								<TTButton
+									class="loadAllBt"
+									v-if="
+										entry.search[entry.counter.id]!.length === 0 &&
+										entry.idToAllLoaded[entry.counter.id] !== true
+									"
+									@click="loadUsers(entry)"
+									:loading="entry.idToLoading[entry.counter.id]"
+									>{{ $t("counters.form.load_all_users") }}</TTButton
+								>
+
+								<div
+									class="noResult"
+									v-if="entry.idToNoResult[entry.counter.id] === true"
+								>
+									{{ $t("counters.user_not_found") }}
+								</div>
 							</template>
-							<TTButton @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							<TTButton alert icon="trash" @click.stop="deleteCounter(entry)" />
-						</template>
 
-						<div class="content">
+							<span class="noResult" v-else>{{ $t("counters.form.no_users") }}</span>
 
-							<ParamItem class="value" v-if="!entry.counter.perUser"
-								:paramData="entry.param"
-								v-model="entry.param.value"
-								@change="onChangeValue(entry)" />
-
-							<div class="userList" v-else>
-								<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
-									<div class="search">
-										<input type="text" :placeholder="$t('counters.form.search')"
-											v-model="entry.search[entry.counter.id]" @input="searchUser(entry)">
-										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.counter.id] === true" />
-									</div>
-
-									<TTButton class="resetBt" v-if="entry.search[entry.counter.id]!.length === 0"
-										secondary
-										@click="resetUsers(entry)">{{ $t('counters.form.reset_all_users') }}</TTButton>
-
-									<TTButton class="clearBt" v-if="entry.search[entry.counter.id]!.length === 0"
+							<template
+								v-if="
+									entry.idToUsers[entry.counter.id] &&
+									entry.idToUsers[entry.counter.id]!.length > 0
+								"
+							>
+								<div
+									class="sort"
+									v-if="
+										entry.idToUsers[entry.counter.id]!.filter(
+											(v) => v.hide !== true,
+										).length > 1
+									"
+								>
+									<button @click="sortOn(entry, 'name')">
+										{{ $t("counters.form.sort_name") }}
+										<template
+											v-if="entry.sortType[entry.counter.id] === 'name'"
+											>{{
+												entry.sortDirection[entry.counter.id] == 1
+													? "▼"
+													: "▲"
+											}}</template
+										>
+									</button>
+									<button @click="sortOn(entry, 'points')">
+										{{ $t("counters.form.sort_points") }}
+										<template
+											v-if="entry.sortType[entry.counter.id] === 'points'"
+											>{{
+												entry.sortDirection[entry.counter.id] == 1
+													? "▼"
+													: "▲"
+											}}</template
+										>
+									</button>
+								</div>
+								<div
+									class="card-item alert error"
+									v-if="entry.idToYoutubeConnect[entry.counter.id]"
+								>
+									<span>{{ $t("counters.connect_youtube") }}</span>
+									<TTButton
+										icon="youtube"
+										@click="openYoutubeConnect()"
 										alert
-										@click="clearUsers(entry)">{{ $t('counters.form.clear_all_users') }}</TTButton>
-
-									<TTButton class="loadAllBt" v-if="entry.search[entry.counter.id]!.length === 0 && entry.idToAllLoaded[entry.counter.id] !== true"
-										@click="loadUsers(entry)"
-										:loading="entry.idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</TTButton>
-
-									<div class="noResult" v-if="entry.idToNoResult[entry.counter.id] === true">{{ $t("counters.user_not_found") }}</div>
-								</template>
-
-								<span class="noResult" v-else>{{ $t("counters.form.no_users") }}</span>
-
-								<template v-if="entry.idToUsers[entry.counter.id] && entry.idToUsers[entry.counter.id]!.length > 0">
-									<div class="sort" v-if="entry.idToUsers[entry.counter.id]!.filter(v=>v.hide !== true).length > 1">
-										<button @click="sortOn(entry, 'name')">
-											{{$t("counters.form.sort_name")}}
-											<template v-if="entry.sortType[entry.counter.id]==='name'">{{ entry.sortDirection[entry.counter.id] == 1? "▼" : "▲" }}</template>
-										</button>
-										<button @click="sortOn(entry, 'points')">
-											{{$t("counters.form.sort_points")}}
-											<template v-if="entry.sortType[entry.counter.id]==='points'">{{ entry.sortDirection[entry.counter.id] == 1? "▼" : "▲" }}</template>
-										</button>
-									</div>
-									<div class="card-item alert error" v-if="entry.idToYoutubeConnect[entry.counter.id]">
-										<span>{{ $t("counters.connect_youtube") }}</span>
-										<TTButton icon="youtube" @click="openYoutubeConnect()" alert light>{{ $t("counters.connect_youtubeBt") }}</TTButton>
-									</div>
-									<InfiniteList class="scrollableList"
-									:dataset="entry.idToUsers[entry.counter.id]!.filter(v=>v.hide !== true)"
+										light
+										>{{ $t("counters.connect_youtubeBt") }}</TTButton
+									>
+								</div>
+								<InfiniteList
+									class="scrollableList"
+									:dataset="
+										entry.idToUsers[entry.counter.id]!.filter(
+											(v) => v.hide !== true,
+										)
+									"
 									:itemSize="50"
 									:itemMargin="3"
 									lockScroll
-									v-slot="{ item } : {item:UserEntry}">
-										<div class="card-item userItem">
-											<img v-if="item.user.avatar" :src="item.user.avatar" class="avatar" referrerpolicy="no-referrer">
-											<Icon v-else name="user" class="avatar" />
-											<a v-if="item.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
-											<a v-else-if="item.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.login }}</a>
-											<a v-else-if="item.platform == 'tiktok'" :href="'https://www.tiktok.com/@'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
-											<Icon name="twitch" v-if="item.platform == 'twitch'" />
-											<Icon name="youtube" v-else-if="item.platform == 'youtube'" />
-											<Icon name="tiktok" v-else-if="item.platform == 'tiktok'" />
-											<ParamItem class="value" noBackground
-												:paramData="item.param"
-												@input="onChangeValue(entry, item)" />
-											<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
-										</div>
-									</InfiniteList>
-								</template>
-							</div>
+									v-slot="{ item }: { item: UserEntry }"
+								>
+									<div class="card-item userItem">
+										<img
+											v-if="item.user.avatar"
+											:src="item.user.avatar"
+											class="avatar"
+											referrerpolicy="no-referrer"
+										/>
+										<Icon v-else name="user" class="avatar" />
+										<a
+											v-if="item.platform == 'twitch'"
+											:href="'https://twitch.tv/' + item.user.login"
+											class="login"
+											target="_blank"
+											>{{ item.user.login }}</a
+										>
+										<a
+											v-else-if="item.platform == 'youtube'"
+											:href="
+												'https://www.youtube.com/channel/' + item.user.id
+											"
+											class="login"
+											target="_blank"
+											>{{ item.user.login }}</a
+										>
+										<a
+											v-else-if="item.platform == 'tiktok'"
+											:href="'https://www.tiktok.com/@' + item.user.login"
+											class="login"
+											target="_blank"
+											>{{ item.user.login }}</a
+										>
+										<Icon name="twitch" v-if="item.platform == 'twitch'" />
+										<Icon
+											name="youtube"
+											v-else-if="item.platform == 'youtube'"
+										/>
+										<Icon name="tiktok" v-else-if="item.platform == 'tiktok'" />
+										<ParamItem
+											class="value"
+											noBackground
+											:paramData="item.param"
+											@input="onChangeValue(entry, item)"
+										/>
+										<button class="deleteBt" @click="deleteUser(entry, item)">
+											<Icon name="trash" theme="light" />
+										</button>
+									</div>
+								</InfiniteList>
+							</template>
 						</div>
-					</ToggleBlock>
-				</template>
+					</div>
+				</ToggleBlock>
+			</template>
 		</draggable>
-
 	</div>
 </template>
 
 <script lang="ts">
-import InfiniteList from '@/components/InfiniteList.vue';
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import { reactive, watch } from 'vue';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
-import PremiumLimitMessage from '../PremiumLimitMessage.vue';
+import InfiniteList from "@/components/InfiniteList.vue";
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import OverlayCounter from "@/components/overlays/OverlayCounter.vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
+import { reactive, watch } from "vue";
+import { Component, toNative, Vue } from "vue-facing-decorator";
+import draggable from "vuedraggable";
+import ParamItem from "../ParamItem.vue";
+import type IParameterContent from "./IParameterContent";
+import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		draggable,
 		ParamItem,
@@ -182,153 +359,223 @@ import PremiumLimitMessage from '../PremiumLimitMessage.vue';
 		OverlayCounter,
 		PremiumLimitMessage,
 	},
-	emits:[]
+	emits: [],
 })
-class ParamsCounters extends Vue implements IParameterContent {
+class ParamsCounters  extends Vue implements IParameterContent {
+	public showForm: boolean = false;
+	public timeoutSearch: number = -1;
+	public timeoutEdit: number = -1;
+	public editedCounter: TwitchatDataTypes.CounterData | null = null;
+	public counterEntries: CounterEntry[] = [];
+	public counterExample: TwitchatDataTypes.CounterData = {
+		id: Utils.getUUID(),
+		placeholderKey: "",
+		loop: false,
+		perUser: false,
+		value: 50,
+		name: "My awesome counter",
+		min: false,
+		max: false,
+	};
+	public progressExample: TwitchatDataTypes.CounterData = {
+		id: Utils.getUUID(),
+		placeholderKey: "",
+		loop: false,
+		perUser: false,
+		value: 50,
+		name: "My awesome counter",
+		min: 0,
+		max: 75,
+	};
 
-	public showForm:boolean = false;
-	public timeoutSearch:number = -1;
-	public timeoutEdit:number = -1;
-	public editedCounter:TwitchatDataTypes.CounterData|null = null;
-	public counterEntries:CounterEntry[] = [];
-	public counterExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:false,
-		value:50,
-		name:"My awesome counter",
-		min:false,
-		max:false,
-	}
-	public progressExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:false,
-		value:50,
-		name:"My awesome counter",
-		min:0,
-		max:75,
-	}
+	public param_title: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "",
+		maxLength: 50,
+		labelKey: "counters.form.name",
+	};
+	public param_value: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		value: 0,
+		min: Number.MIN_SAFE_INTEGER,
+		max: Number.MAX_SAFE_INTEGER,
+		labelKey: "counters.form.value",
+	};
+	public param_more: TwitchatDataTypes.ParameterData<boolean, any, any> = {
+		type: "boolean",
+		value: false,
+		labelKey: "counters.form.more",
+	};
+	public param_valueMin_toggle: TwitchatDataTypes.ParameterData<boolean, any, any> = {
+		type: "boolean",
+		value: false,
+		labelKey: "counters.form.value_min",
+		icon: "min",
+	};
+	public param_valueMin_value: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		value: 0,
+	};
+	public param_valueMax_toggle: TwitchatDataTypes.ParameterData<boolean, any, any> = {
+		type: "boolean",
+		value: false,
+		labelKey: "counters.form.value_max",
+		icon: "max",
+	};
+	public param_valueMax_value: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		value: 0,
+	};
+	public param_valueLoop_toggle: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		value: false,
+		labelKey: "counters.form.value_loop",
+		icon: "loop",
+	};
+	public param_userSpecific: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		value: false,
+		labelKey: "counters.form.value_user",
+		icon: "user",
+	};
+	public param_placeholder: TwitchatDataTypes.ParameterData<string> = {
+		type: "placeholder",
+		value: "",
+		maxLength: 20,
+		labelKey: "counters.form.placholder",
+		icon: "broadcast",
+		tooltipKey: "counters.form.placholder_tt",
+		allowedCharsRegex: "A-z0-9_",
+	};
 
-	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
-	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
-	public param_more:TwitchatDataTypes.ParameterData<boolean, any, any> = {type:"boolean", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean, any, any> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min"};
-	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean, any, any> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max"};
-	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", maxLength:20, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
-
-	public get maxReached():boolean {
+	public get maxReached(): boolean {
 		const count = this.$store.counters.counterList.length;
-		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+		const max = this.$store.auth.isPremium
+			? this.$config.MAX_COUNTERS_PREMIUM
+			: this.$config.MAX_COUNTERS;
 		return count >= max;
 	}
 
-	public get canEnableMore():boolean {
-		if(this.$store.auth.isPremium) return false;
-		const count = this.$store.counters.counterList.filter(v=>v.enabled != false).length;
-		const max = this.$store.auth.isPremium ? this.$config.MAX_COUNTERS_PREMIUM : this.$config.MAX_COUNTERS;
+	public get canEnableMore(): boolean {
+		if (this.$store.auth.isPremium) return false;
+		const count = this.$store.counters.counterList.filter((v) => v.enabled != false).length;
+		const max = this.$store.auth.isPremium
+			? this.$config.MAX_COUNTERS_PREMIUM
+			: this.$config.MAX_COUNTERS;
 		return count < max;
 	}
 
-	public openTriggers():void {
+	public openTriggers(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
-	public getUserFromID(id:string):TwitchatDataTypes.TwitchatUser {
+	public getUserFromID(id: string): TwitchatDataTypes.TwitchatUser {
 		return this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, id);
 	}
 
-	public openOverlays():void {
+	public openOverlays(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "counter");
 	}
 
 	public mounted(): void {
-		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
+		this.param_more.children = [
+			this.param_valueMax_toggle,
+			this.param_valueMin_toggle,
+			this.param_valueLoop_toggle,
+			this.param_userSpecific,
+			this.param_placeholder,
+		];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
 
-		watch(()=> this.param_title.value, ()=> {
-			const counters = this.$store.counters.counterList;
-			const name = this.param_title.value.toLowerCase();
-			let exists = false;
-			for (const c of counters) {
-				if(c.id == this.editedCounter?.id) continue;
-				if(c.name.toLowerCase() === name) {
-					exists = true;
-					continue;
+		watch(
+			() => this.param_title.value,
+			() => {
+				const counters = this.$store.counters.counterList;
+				const name = this.param_title.value.toLowerCase();
+				let exists = false;
+				for (const c of counters) {
+					if (c.id == this.editedCounter?.id) continue;
+					if (c.name.toLowerCase() === name) {
+						exists = true;
+						continue;
+					}
 				}
-			}
-			this.param_title.error = exists;
-		})
+				this.param_title.error = exists;
+			},
+		);
 
-		watch(()=> this.param_placeholder.value, ()=> {
-			if(!this.param_placeholder.value) {
-				this.param_placeholder.error = false;
-				return;
-			}
-			//Check if a placeholder with the same name already exists
-			const counters = this.$store.counters.counterList;
-			const placeholder = this.param_placeholder.value.toLowerCase();
-			let exists = false;
-			for (const c of counters) {
-				if(c.id == this.editedCounter?.id) continue;
-				if(c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
-					exists = true;
-					continue;
+		watch(
+			() => this.param_placeholder.value,
+			() => {
+				if (!this.param_placeholder.value) {
+					this.param_placeholder.error = false;
+					return;
 				}
-			}
-			this.param_placeholder.error = exists;
-			this.param_placeholder.errorMessage = exists? this.$t("counters.form.placholder_conflict") : '';
-		})
+				//Check if a placeholder with the same name already exists
+				const counters = this.$store.counters.counterList;
+				const placeholder = this.param_placeholder.value.toLowerCase();
+				let exists = false;
+				for (const c of counters) {
+					if (c.id == this.editedCounter?.id) continue;
+					if (c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
+						exists = true;
+						continue;
+					}
+				}
+				this.param_placeholder.error = exists;
+				this.param_placeholder.errorMessage = exists
+					? this.$t("counters.form.placholder_conflict")
+					: "";
+			},
+		);
 
 		this.buildEntries();
 	}
 
-	public onNavigateBack(): boolean { return false; }
+	public onNavigateBack(): boolean {
+		return false;
+	}
 
 	/**
 	 * Create a new counter
 	 */
 	public createCounter(): void {
 		let placeholderKey = this.param_placeholder.value;
-		if(!placeholderKey){
+		if (!placeholderKey) {
 			//No placeholder define, create a default one from the counter's name
 			placeholderKey = Utils.slugify(this.param_title.value).toUpperCase();
 			//Load all placeholders
-			let hashmap:{[key:string]:boolean} = {};
+			let hashmap: { [key: string]: boolean } = {};
 			for (const c of this.counterEntries) {
-				if(this.editedCounter && c.counter.id == this.editedCounter.id) continue;
+				if (this.editedCounter && c.counter.id == this.editedCounter.id) continue;
 				hashmap[c.counter.placeholderKey] = true;
 			}
 			//If a placeholder with the same name exists, adds an increment suffix
 			//until a slot is available
-			if(hashmap[placeholderKey]) {
+			if (hashmap[placeholderKey]) {
 				let index = 1;
-				while(hashmap[placeholderKey+"_"+index]) index ++;
-				placeholderKey = placeholderKey+"_"+index;
+				while (hashmap[placeholderKey + "_" + index]) index++;
+				placeholderKey = placeholderKey + "_" + index;
 			}
 		}
 
-		const data:TwitchatDataTypes.CounterData = {
-			id:this.editedCounter? this.editedCounter.id : Utils.getUUID(),
+		const data: TwitchatDataTypes.CounterData = {
+			id: this.editedCounter ? this.editedCounter.id : Utils.getUUID(),
 			placeholderKey,
-			name:this.param_title.value,
-			value:this.param_value.value,
-			max:this.param_valueMax_toggle.value === true? this.param_valueMax_value.value : false,
-			min:this.param_valueMin_toggle.value === true? this.param_valueMin_value.value : false,
-			loop:this.param_valueLoop_toggle.value,
-			perUser:this.param_userSpecific.value,
+			name: this.param_title.value,
+			value: this.param_value.value,
+			max:
+				this.param_valueMax_toggle.value === true ? this.param_valueMax_value.value : false,
+			min:
+				this.param_valueMin_toggle.value === true ? this.param_valueMin_value.value : false,
+			loop: this.param_valueLoop_toggle.value,
+			perUser: this.param_userSpecific.value,
 		};
-		if(this.editedCounter) {
+		if (this.editedCounter) {
 			this.editedCounter = null;
 			this.$store.counters.updateCounter(data);
-		}else{
+		} else {
 			this.$store.counters.addCounter(data);
 			this.buildEntries();
 		}
@@ -339,16 +586,22 @@ class ParamsCounters extends Vue implements IParameterContent {
 	/**
 	 * Called when editing the value of an existing counter
 	 */
-	public onChangeValue(entry:CounterEntry, userEntry?:UserEntry):void {
+	public onChangeValue(entry: CounterEntry, userEntry?: UserEntry): void {
 		clearTimeout(this.timeoutEdit);
 		let diff = 0;
 		this.timeoutEdit = window.setTimeout(() => {
-			if(userEntry) {
-				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ]!.value;
-			}else{
+			if (userEntry) {
+				diff = userEntry.param.value - entry.counter.users![userEntry.user.id]!.value;
+			} else {
 				diff = entry.param.value - entry.counter.value;
 			}
-			this.$store.counters.increment(entry.counter.id, "ADD", diff, undefined, userEntry?.user.id);
+			this.$store.counters.increment(
+				entry.counter.id,
+				"ADD",
+				diff,
+				undefined,
+				userEntry?.user.id,
+			);
 		}, 500);
 	}
 
@@ -356,26 +609,33 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Called when requesting to delete a counter
 	 * @param counter
 	 */
-	public deleteCounter(entry:CounterEntry):void {
-		this.$confirm(this.$t("counters.delete_confirm.title"), this.$t("counters.delete_confirm.desc")).then(()=>{
-			this.$store.counters.delCounter(entry.counter);
-			this.buildEntries();
-		}).catch(()=>{/* ignore */});
+	public deleteCounter(entry: CounterEntry): void {
+		this.$confirm(
+			this.$t("counters.delete_confirm.title"),
+			this.$t("counters.delete_confirm.desc"),
+		)
+			.then(() => {
+				this.$store.counters.delCounter(entry.counter);
+				this.buildEntries();
+			})
+			.catch(() => {
+				/* ignore */
+			});
 	}
 
 	/**
 	 * Start a counter edition
 	 */
-	public editCounter(c:TwitchatDataTypes.CounterData):void {
+	public editCounter(c: TwitchatDataTypes.CounterData): void {
 		this.editedCounter = c;
 		this.showForm = true;
 		this.param_title.value = c.name;
 		this.param_value.value = c.value;
 		this.param_placeholder.value = c.placeholderKey;
 		this.param_valueMax_toggle.value = c.max !== false;
-		this.param_valueMax_value.value = c.max === false? 0 : c.max;
+		this.param_valueMax_value.value = c.max === false ? 0 : c.max;
 		this.param_valueMin_toggle.value = c.min !== false;
-		this.param_valueMin_value.value = c.min === false? 0 : c.min;
+		this.param_valueMin_value.value = c.min === false ? 0 : c.min;
 		this.param_valueLoop_toggle.value = c.loop;
 		this.param_userSpecific.value = c.perUser;
 		this.param_more.value = c.loop || c.min !== false || c.max !== false || c.perUser;
@@ -384,7 +644,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	/**
 	 * Called when canceling counter edition
 	 */
-	public cancelForm():void {
+	public cancelForm(): void {
 		this.editedCounter = null;
 		this.showForm = false;
 		this.param_title.value = "";
@@ -397,23 +657,24 @@ class ParamsCounters extends Vue implements IParameterContent {
 		this.param_valueLoop_toggle.value = false;
 		this.param_userSpecific.value = false;
 		this.param_more.value = false;
-
 	}
 
 	/**
 	 * Open a user's profile info
 	 */
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+	public openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
 		this.$store.users.openUserCard(user);
 	}
 
 	/**
 	 * Open a user's profile info
 	 */
-	public deleteUser(counterEntry:CounterEntry, userEntry:UserEntry):void {
-		if(!counterEntry.counter.users) return;
+	public deleteUser(counterEntry: CounterEntry, userEntry: UserEntry): void {
+		if (!counterEntry.counter.users) return;
 		delete counterEntry.counter.users[userEntry.user.id];
-		counterEntry.idToUsers[counterEntry.counter.id] = counterEntry.idToUsers[counterEntry.counter.id]!.filter(v=>v.user.id != userEntry.user.id);
+		counterEntry.idToUsers[counterEntry.counter.id] = counterEntry.idToUsers[
+			counterEntry.counter.id
+		]!.filter((v) => v.user.id != userEntry.user.id);
 		this.$store.counters.updateCounter(counterEntry.counter);
 	}
 
@@ -422,52 +683,63 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * If all users are loaded, search within them.
 	 * If users are not loaded, query twitch for a user matching current search
 	 */
-	public searchUser(entry:CounterEntry):void {
+	public searchUser(entry: CounterEntry): void {
 		const counter = entry.counter;
 		const search = entry.search[counter.id]!.toLowerCase();
 		let preloadedUsers = entry.idToUsers[counter.id];
 		entry.idToNoResult[counter.id] = false;
-		if(search.length == 0) {
-			if(entry.idToAllLoaded[counter.id] !== true) delete entry.idToUsers[counter.id];
-			else if(preloadedUsers) preloadedUsers.forEach(v=> v.hide = false);
+		if (search.length == 0) {
+			if (entry.idToAllLoaded[counter.id] !== true) delete entry.idToUsers[counter.id];
+			else if (preloadedUsers) preloadedUsers.forEach((v) => (v.hide = false));
 			return;
 		}
 		//If there are more than 1 loaded users, that's because they've all been loaded
 		//In this case, just search there instead of polling from twitch API
-		if(entry.idToAllLoaded[counter.id] === true && preloadedUsers && preloadedUsers.length > 1) {
+		if (
+			entry.idToAllLoaded[counter.id] === true &&
+			preloadedUsers &&
+			preloadedUsers.length > 1
+		) {
 			let hasResult = false;
 			for (const u of preloadedUsers) {
 				u.hide = false;
-				if(u.user.login.indexOf(search) == -1 && u.user.login.toLowerCase().indexOf(search) == -1) {
+				if (
+					u.user.login.indexOf(search) == -1 &&
+					u.user.login.toLowerCase().indexOf(search) == -1
+				) {
 					u.hide = true;
-				}else{
+				} else {
 					hasResult = true;
 				}
 			}
-			if(hasResult) return;
+			if (hasResult) return;
 		}
 
-		if(preloadedUsers) {
-			preloadedUsers.forEach(v=> v.hide = true);
+		if (preloadedUsers) {
+			preloadedUsers.forEach((v) => (v.hide = true));
 		}
 
 		entry.idToLoading[counter.id] = true;
 		entry.idToUsers[counter.id] = [];
 
 		//Search from "login" property if it exists
-		if(counter.users) {
+		if (counter.users) {
 			for (const key in counter.users) {
 				const user = counter.users[key]!;
 				//If entry has a login and login matches search
-				if(user.login
-				&& user.login!.toLowerCase().indexOf(search) > -1) {
+				if (user.login && user.login!.toLowerCase().indexOf(search) > -1) {
 					entry.idToUsers[counter.id]!.push({
-						hide:false,
-						param:reactive({type:"number", value:user.value, min:counter.min || undefined, max:counter.max || undefined}),
-						platform:user.platform,
-						user:{
-							id:key,
-							login:user.login!,
+						hide: false,
+						param: reactive({
+							type: "number",
+							value: user.value,
+							min: counter.min || undefined,
+							max: counter.max || undefined,
+						}),
+						platform: user.platform,
+						user: {
+							id: key,
+							login: user.login!,
 						},
 					});
 				}
@@ -478,35 +750,43 @@ class ParamsCounters extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = window.setTimeout(async () => {
 			const users = await TwitchUtils.getUserInfo(undefined, [search]);
-			if(users.length > 0) {
+			if (users.length > 0) {
 				const u = users[0]!;
-				if(counter.users![u.id] != undefined) {
+				if (counter.users![u.id] != undefined) {
 					//If user isn't already in the results
 					//and user is in the counter users
-					if((entry.counter.users || {})[u.id]) {
-						const existingIndex = (entry.idToUsers[counter.id] ||[]).findIndex(v=>v.user.id === u.id);
-						const value = (counter.users && counter.users[u.id])? counter.users![u.id]!.value : 0;
-						const userEntry:UserEntry = {
-							hide:false,
-							param:reactive({type:"number", value:value, min:counter.min || undefined, max:counter.max || undefined}),
-							platform:"twitch",
-							user:{
-								id:u.id,
-								login:u.display_name,
-								avatar:u.profile_image_url,
+					if ((entry.counter.users || {})[u.id]) {
+						const existingIndex = (entry.idToUsers[counter.id] || []).findIndex(
+							(v) => v.user.id === u.id,
+						);
+						const value =
+							counter.users && counter.users[u.id] ? counter.users![u.id]!.value : 0;
+						const userEntry: UserEntry = {
+							hide: false,
+							param: reactive({
+								type: "number",
+								value: value,
+								min: counter.min || undefined,
+								max: counter.max || undefined,
+							}),
+							platform: "twitch",
+							user: {
+								id: u.id,
+								login: u.display_name,
+								avatar: u.profile_image_url,
 							},
-						}
-						if(existingIndex > -1){
+						};
+						if (existingIndex > -1) {
 							entry.idToUsers[counter.id]![existingIndex] = userEntry;
-						}else{
+						} else {
 							entry.idToUsers[counter.id]!.push(userEntry);
 						}
 					}
 				}
 			}
-			entry.idToNoResult[counter.id] = (entry.idToUsers[counter.id] || []).filter(v=>!v.hide).length == 0;
+			entry.idToNoResult[counter.id] =
+				(entry.idToUsers[counter.id] || []).filter((v) => !v.hide).length == 0;
 			entry.idToLoading[counter.id] = false;
-
 		}, 500);
 	}
 
@@ -514,83 +794,110 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Load all users
 	 * @param counterItem
 	 */
-	public async loadUsers(counterItem:CounterEntry):Promise<void> {
+	public async loadUsers(counterItem: CounterEntry): Promise<void> {
 		counterItem.idToLoading[counterItem.counter.id] = true;
 
 		clearTimeout(this.timeoutSearch);
-		let entries:UserEntry[] = [];
-		let loginUpdated:boolean = false;
+		let entries: UserEntry[] = [];
+		let loginUpdated: boolean = false;
 
-		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "twitch"));
-		if(twitchUsers.length > 0) {
+		const twitchUsers = await TwitchUtils.getUserInfo(
+			Object.keys(counterItem.counter.users!).filter(
+				(v) => counterItem.counter.users![v]!.platform == "twitch",
+			),
+		);
+		if (twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			twitchUsers.forEach((u) => {
 				const entry = counterItem.counter.users![u.id];
-				if(!entry) return null;
+				if (!entry) return null;
 				const value = entry.value || 0;
-				const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined});
-				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
-				if(entry.login != u.login){
-					entry.login = u.login;//Refresh login
+				const param: TwitchatDataTypes.ParameterData<number> = reactive({
+					type: "number",
+					value,
+					min: counterItem.counter.min || undefined,
+					max: counterItem.counter.max || undefined,
+				});
+				const user = this.$store.users.getUserFrom(
+					"twitch",
+					channelId,
+					u.id,
+					u.login,
+					u.display_name,
+				);
+				if (entry.login != u.login) {
+					entry.login = u.login; //Refresh login
 					loginUpdated = true;
 				}
 				user.avatarPath = u.profile_image_url;
-				const res:UserEntry = {
+				const res: UserEntry = {
 					param,
-					hide:false,
-					platform:"twitch",
-					user:{
-						id:user.id,
-						login:user.displayNameOriginal,
-						avatar:user.avatarPath,
+					hide: false,
+					platform: "twitch",
+					user: {
+						id: user.id,
+						login: user.displayNameOriginal,
+						avatar: user.avatarPath,
 					},
-				}
+				};
 				entries.push(res);
 			});
 		}
 
-		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "youtube");
-		if(youtubeIds.length > 0) {
-			if(YoutubeHelper.instance.connected.value) {
+		const youtubeIds = Object.keys(counterItem.counter.users!).filter(
+			(v) => counterItem.counter.users![v]!.platform == "youtube",
+		);
+		if (youtubeIds.length > 0) {
+			if (YoutubeHelper.instance.connected.value) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
-				if(youtubeUsers.length > 0) {
+				if (youtubeUsers.length > 0) {
 					youtubeUsers.forEach((user) => {
 						const entry = counterItem.counter.users![user.id];
-						if(!entry) return null;
+						if (!entry) return null;
 						const value = entry.value || 0;
-						const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined});
-						if(entry.login != user.login){
-							entry.login = user.login;//Refresh login
+						const param: TwitchatDataTypes.ParameterData<number> = reactive({
+							type: "number",
+							value,
+							min: counterItem.counter.min || undefined,
+							max: counterItem.counter.max || undefined,
+						});
+						if (entry.login != user.login) {
+							entry.login = user.login; //Refresh login
 							loginUpdated = true;
 						}
-						const res:UserEntry = {
+						const res: UserEntry = {
 							param,
-							hide:false,
-							platform:"youtube",
-							user:{
-								id:user.id,
-								login:user.displayNameOriginal,
-								avatar:user.avatarPath,
+							hide: false,
+							platform: "youtube",
+							user: {
+								id: user.id,
+								login: user.displayNameOriginal,
+								avatar: user.avatarPath,
 							},
-						}
+						};
 						entries.push(res);
 					});
 				}
-			}else{
+			} else {
 				youtubeIds.forEach((uid) => {
 					const entry = counterItem.counter.users![uid];
-					if(!entry) return null;
+					if (!entry) return null;
 					const value = entry.value || 0;
-					const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined});
-					const res:UserEntry = {
+					const param: TwitchatDataTypes.ParameterData<number> = reactive({
+						type: "number",
+						value,
+						min: counterItem.counter.min || undefined,
+						max: counterItem.counter.max || undefined,
+					});
+					const res: UserEntry = {
 						param,
-						hide:false,
-						platform:"youtube",
-						user:{
-							id:uid,
-							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]",
+						hide: false,
+						platform: "youtube",
+						user: {
+							id: uid,
+							login: entry.login || "[Youtube User #" + uid.substring(0, 5) + "...]",
 						},
-					}
+					};
 					entries.push(res);
 				});
 				counterItem.idToYoutubeConnect[counterItem.counter.id] = true;
@@ -600,68 +907,81 @@ class ParamsCounters extends Vue implements IParameterContent {
 		for (const uid in counterItem.counter.users) {
 			const user = counterItem.counter.users[uid]!;
 			//If entry does not exists in the loaded list, push it
-			if(entries.findIndex(v => v.user.id == uid) === -1) {
+			if (entries.findIndex((v) => v.user.id == uid) === -1) {
 				entries.push({
-					hide:false,
-					param:reactive({type:"number", value:user.value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined}),
-					platform:user.platform,
-					user:{
-						id:uid,
-						login:user.login!,
+					hide: false,
+					param: reactive({
+						type: "number",
+						value: user.value,
+						min: counterItem.counter.min || undefined,
+						max: counterItem.counter.max || undefined,
+					}),
+					platform: user.platform,
+					user: {
+						id: uid,
+						login: user.login!,
 					},
 				});
 			}
 		}
 
-		if(entries.length > 0) {
+		if (entries.length > 0) {
 			counterItem.idToAllLoaded[counterItem.counter.id] = true;
 			counterItem.idToUsers[counterItem.counter.id] = entries;
 			this.sortOn(counterItem);
 		}
 		counterItem.idToLoading[counterItem.counter.id] = false;
 
-		if(loginUpdated) this.$store.counters.saveCounters();
+		if (loginUpdated) this.$store.counters.saveCounters();
 	}
 
 	/**
 	 * Reset all user counters to 0 or min value
 	 * @param entry
 	 */
-	public resetUsers(entry:CounterEntry):void {
-		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc"))
-		.then(()=>{
-			//Reset counter data
-			let value:number = entry.counter.min != false? entry.counter.min : 0;
-			for (const key in entry.counter.users!) {
-				entry.counter.users[key]!.value = value;
-			}
-
-			//Reset view data
-			if(entry.idToUsers[entry.counter.id]) {
-				for (const u of entry.idToUsers[entry.counter.id]!) {
-					u.param.value = 0;
+	public resetUsers(entry: CounterEntry): void {
+		this.$confirm(
+			this.$t("counters.reset_users_confirm.title"),
+			this.$t("counters.reset_users_confirm.desc"),
+		)
+			.then(() => {
+				//Reset counter data
+				let value: number = entry.counter.min != false ? entry.counter.min : 0;
+				for (const key in entry.counter.users!) {
+					entry.counter.users[key]!.value = value;
 				}
-			}
 
-			this.$store.counters.updateCounter(entry.counter);
-		}).catch(()=>{});
+				//Reset view data
+				if (entry.idToUsers[entry.counter.id]) {
+					for (const u of entry.idToUsers[entry.counter.id]!) {
+						u.param.value = 0;
+					}
+				}
+
+				this.$store.counters.updateCounter(entry.counter);
+			})
+			.catch(() => {});
 	}
 
 	/**
 	 * Clears all users of a counter
 	 * @param entry
 	 */
-	public clearUsers(entry:CounterEntry):void {
-		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc"))
-		.then(()=>{
-			//Reset counter data
-			entry.counter.users = {};
+	public clearUsers(entry: CounterEntry): void {
+		this.$confirm(
+			this.$t("counters.delete_users_confirm.title"),
+			this.$t("counters.delete_users_confirm.desc"),
+		)
+			.then(() => {
+				//Reset counter data
+				entry.counter.users = {};
 
-			//Reset view data
-			entry.idToUsers[entry.counter.id] = [];
+				//Reset view data
+				entry.idToUsers[entry.counter.id] = [];
 
-			this.$store.counters.updateCounter(entry.counter);
-		}).catch(()=>{});
+				this.$store.counters.updateCounter(entry.counter);
+			})
+			.catch(() => {});
 	}
 
 	/**
@@ -671,27 +991,34 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * @param entry
 	 * @param type
 	 */
-	public sortOn(entry:CounterEntry, type?:"name"|"points"):void {
-		if(type) {
-			if(entry.sortType[entry.counter.id] == type) entry.sortDirection[entry.counter.id] = -entry.sortDirection[entry.counter.id]! as 1|-1;
+	public sortOn(entry: CounterEntry, type?: "name" | "points"): void {
+		if (type) {
+			if (entry.sortType[entry.counter.id] == type)
+				entry.sortDirection[entry.counter.id] = -entry.sortDirection[entry.counter.id]! as
+					| 1
+					| -1;
 			else entry.sortType[entry.counter.id] = type;
 		}
 
 		let users = entry.idToUsers[entry.counter.id];
-		if(users) {
-			users.sort((a,b)=> {
-				if(entry.sortType[entry.counter.id] == "name") {
-					if(a.user.login.toLowerCase() > b.user.login.toLowerCase()) return entry.sortDirection[entry.counter.id]!;
-					if(a.user.login.toLowerCase() < b.user.login.toLowerCase()) return -entry.sortDirection[entry.counter.id]!;
+		if (users) {
+			users.sort((a, b) => {
+				if (entry.sortType[entry.counter.id] == "name") {
+					if (a.user.login.toLowerCase() > b.user.login.toLowerCase())
+						return entry.sortDirection[entry.counter.id]!;
+					if (a.user.login.toLowerCase() < b.user.login.toLowerCase())
+						return -entry.sortDirection[entry.counter.id]!;
 					return 0;
 				}
-				if(entry.sortType[entry.counter.id] == "points") {
-					if(a.param.value > b.param.value) return entry.sortDirection[entry.counter.id]!;
-					if(a.param.value < b.param.value) return -entry.sortDirection[entry.counter.id]!;
+				if (entry.sortType[entry.counter.id] == "points") {
+					if (a.param.value > b.param.value)
+						return entry.sortDirection[entry.counter.id]!;
+					if (a.param.value < b.param.value)
+						return -entry.sortDirection[entry.counter.id]!;
 					return 0;
 				}
 				return 0;
-			})
+			});
 		}
 	}
 
@@ -699,39 +1026,48 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Called when counters are sorted
 	 * Applies the sorting to original cata array
 	 */
-	public onSortItems():void {
-		const idToIndex:{[id:string]:number} = {};
-		this.counterEntries.forEach((entry, index)=> idToIndex[entry.counter.id] = index);
-		this.$store.counters.counterList.sort((a,b)=> idToIndex[a.id]! - idToIndex[b.id]!);
+	public onSortItems(): void {
+		const idToIndex: { [id: string]: number } = {};
+		this.counterEntries.forEach((entry, index) => (idToIndex[entry.counter.id] = index));
+		this.$store.counters.counterList.sort((a, b) => idToIndex[a.id]! - idToIndex[b.id]!);
 	}
 
 	/**
 	 * Opens YouTube connect form
 	 */
-	public openYoutubeConnect():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+	public openYoutubeConnect(): void {
+		this.$store.params.openParamsPage(
+			TwitchatDataTypes.ParameterPages.CONNECTIONS,
+			TwitchatDataTypes.ParamDeepSections.YOUTUBE,
+		);
 	}
 
 	/**
 	 * Builds up local counter list
 	 */
-	private buildEntries():void{
+	private buildEntries(): void {
 		const list = this.$store.counters.counterList;
-		this.counterEntries = list.map((v):CounterEntry => {
-			const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min as number;
-			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
+		this.counterEntries = list.map((v): CounterEntry => {
+			const min = v.min == false ? Number.MIN_SAFE_INTEGER : (v.min as number);
+			const max = v.min == false ? Number.MAX_SAFE_INTEGER : (v.max as number);
 			return {
-					counter:v,
-					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'}),
-					idToAllLoaded:{},
-					idToLoading:{},
-					idToNoResult:{},
-					idToUsers:{},
-					search:{},
-					sortDirection:{},
-					sortType:{},
-					idToYoutubeConnect:{},
-				}
+				counter: v,
+				param: reactive({
+					type: "number",
+					value: v.value,
+					min,
+					max,
+					labelKey: "counters.form.value",
+				}),
+				idToAllLoaded: {},
+				idToLoading: {},
+				idToNoResult: {},
+				idToUsers: {},
+				search: {},
+				sortDirection: {},
+				sortType: {},
+				idToYoutubeConnect: {},
+			};
 		});
 
 		for (const element of this.counterEntries) {
@@ -743,44 +1079,43 @@ class ParamsCounters extends Vue implements IParameterContent {
 }
 
 interface CounterEntry {
-    param: TwitchatDataTypes.ParameterData<number, unknown, unknown>;
-    counter: TwitchatDataTypes.CounterData;
-	idToUsers:{[key:string]:UserEntry[]|null};
-	idToNoResult:{[key:string]:boolean};
-	idToLoading:{[key:string]:boolean};
-	idToYoutubeConnect:{[key:string]:boolean};
-	idToAllLoaded:{[key:string]:boolean};
-	sortType:{[key:string]:"name"|"points"};
-	sortDirection:{[key:string]:1|-1};
-	search:{[key:string]:string};
+	param: TwitchatDataTypes.ParameterData<number, unknown, unknown>;
+	counter: TwitchatDataTypes.CounterData;
+	idToUsers: { [key: string]: UserEntry[] | null };
+	idToNoResult: { [key: string]: boolean };
+	idToLoading: { [key: string]: boolean };
+	idToYoutubeConnect: { [key: string]: boolean };
+	idToAllLoaded: { [key: string]: boolean };
+	sortType: { [key: string]: "name" | "points" };
+	sortDirection: { [key: string]: 1 | -1 };
+	search: { [key: string]: string };
 }
 
 interface UserEntry {
-	param:TwitchatDataTypes.ParameterData<number>,
-	platform:TwitchatDataTypes.ChatPlatform;
-	user:{
-		id:string;
-		login:string;
-		avatar?:string;
-	},
-	hide:boolean,
+	param: TwitchatDataTypes.ParameterData<number>;
+	platform: TwitchatDataTypes.ChatPlatform;
+	user: {
+		id: string;
+		login: string;
+		avatar?: string;
+	};
+	hide: boolean;
 }
 export default toNative(ParamsCounters);
 </script>
 
 <style scoped lang="less">
-.paramscounters{
-
+.paramscounters {
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 0.5em;
 		max-width: 400px;
 
 		form {
 			display: flex;
 			flex-direction: column;
-			gap: .25em;
+			gap: 0.25em;
 			.ctas {
 				display: flex;
 				flex-direction: row;
@@ -790,11 +1125,11 @@ export default toNative(ParamsCounters);
 		}
 	}
 
-	.examples{
+	.examples {
 		text-align: center;
 		.counterExample {
 			color: var(--color-dark);
-			font-size: .5em;
+			font-size: 0.5em;
 		}
 	}
 
@@ -803,7 +1138,7 @@ export default toNative(ParamsCounters);
 	}
 
 	.entryList {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 	}
@@ -818,7 +1153,7 @@ export default toNative(ParamsCounters);
 			height: 100%;
 			display: flex;
 			align-items: center;
-			padding: 0 .5em;
+			padding: 0 0.5em;
 			&:hover {
 				background-color: var(--color-alert-light);
 			}
@@ -828,7 +1163,7 @@ export default toNative(ParamsCounters);
 		}
 		.icon {
 			height: 1em;
-			margin-left: .5em;
+			margin-left: 0.5em;
 		}
 		:deep(h2) {
 			text-align: left;
@@ -836,7 +1171,7 @@ export default toNative(ParamsCounters);
 		}
 
 		.info {
-			gap: .25em;
+			gap: 0.25em;
 			display: flex;
 			flex-direction: row;
 			cursor: default;
@@ -851,7 +1186,7 @@ export default toNative(ParamsCounters);
 				min-width: 3em;
 				width: 100%;
 				:deep(.content) {
-					.holder{
+					.holder {
 						flex-wrap: nowrap;
 					}
 				}
@@ -865,21 +1200,23 @@ export default toNative(ParamsCounters);
 			.userList {
 				display: flex;
 				flex-direction: column;
-				gap: .5em;
+				gap: 0.5em;
 
 				.search {
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
-					gap: .5em;
+					gap: 0.5em;
 					img {
 						width: 1em;
 						height: 1em;
 					}
 				}
 
-				.loadAllBt, .clearBt, .resetBt {
+				.loadAllBt,
+				.clearBt,
+				.resetBt {
 					margin: auto;
 				}
 
@@ -894,9 +1231,9 @@ export default toNative(ParamsCounters);
 					flex-direction: row;
 					button {
 						color: var(--color-light);
-						border-radius: .5em;
+						border-radius: 0.5em;
 						background-color: var(--color-primary);
-						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+						box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 						&:hover {
 							background-color: var(--color-primary-light);
 						}
@@ -923,7 +1260,7 @@ export default toNative(ParamsCounters);
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-					gap: .5em;
+					gap: 0.5em;
 					height: 50px;
 					.login {
 						font-weight: bold;
@@ -942,10 +1279,10 @@ export default toNative(ParamsCounters);
 					}
 					.deleteBt {
 						width: 1.5em;
-						padding: 1em .5em;
+						padding: 1em 0.5em;
 						flex-shrink: 0;
 						flex-basis: 1.5em;
-						margin-right: -.5em;
+						margin-right: -0.5em;
 						background-color: var(--color-alert);
 						img {
 							height: 100%;
@@ -961,12 +1298,12 @@ export default toNative(ParamsCounters);
 			}
 
 			.error {
-				gap: .5em;
+				gap: 0.5em;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				white-space: pre-line;
-				text-align: center
+				text-align: center;
 			}
 		}
 	}

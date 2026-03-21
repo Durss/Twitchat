@@ -1,6 +1,6 @@
 {
 	"quiz": {
-		"form":{
+		"form": {
 			"title": "Quiz",
 			"subtitle": "Create your own interactive quiz!",
 			"add_bt": "Create a quiz",
@@ -18,14 +18,14 @@
 			"non_premium_limit": "You reached the limit of {MAX} quiz you can create.\nBecome a premium member to create up to {MAX_PREMIUM} quizzes.",
 			"premium_question_limit": "You reached the limit of {MAX} questions you can add.",
 			"nonpremium_question_limit": "You reached the limit of {MAX} questions you can add.\nBecome a premium to add up to {MAX_PREMIUM} questions.",
-			"tolerances":{
-				"undefined":"        🗑️",
-				"none":"😠 None",
-				"very_low":"🧐 Very low",
-				"low":"🤨 Low",
-				"medium":"😁 Medium",
-				"high":"🤪 High",
-				"very_high":"🤡 Very high"
+			"tolerances": {
+				"undefined": "        🗑️",
+				"none": "😠 None",
+				"very_low": "🧐 Very low",
+				"low": "🤨 Low",
+				"medium": "😁 Medium",
+				"high": "🤪 High",
+				"very_high": "🤡 Very high"
 			},
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
@@ -59,7 +59,7 @@
 				"title": "Majority",
 				"description": "Majority choice question.\n\nAll answers are wrong.\nViewers must guess which answer will receive the most votes."
 			},
-			"live_progress_warning":{
+			"live_progress_warning": {
 				"title": "Quiz in progress",
 				"description": "If you enable this quiz, you will lose the progress of the quiz \"{NAME}\""
 			},

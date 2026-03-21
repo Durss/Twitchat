@@ -7,16 +7,16 @@
 	justify-content: center;
 	padding-top: 0;
 	gap: 1em;
-	
-	&>.icon,
-	&>picture .icon {
+
+	& > .icon,
+	& > picture .icon {
 		height: 4em;
 		display: block;
 		margin: auto;
 	}
 
-	&>.head {
-		gap: .5em;
+	& > .head {
+		gap: 0.5em;
 		display: flex;
 		align-items: center;
 		flex-direction: column;
@@ -24,14 +24,15 @@
 		line-height: 1.25em;
 		text-wrap: balance;
 		white-space: pre-line;
-		&.small, &>.small {
-			font-size: .8em;
+		&.small,
+		& > .small {
+			font-size: 0.8em;
 			text-align: left;
 			white-space: pre-line;
 			.btExample {
 				height: 1.25em;
-				padding: .25em;
-				border-radius: .25em;
+				padding: 0.25em;
+				border-radius: 0.25em;
 				background-color: var(--color-alert);
 				vertical-align: middle;
 			}
@@ -39,40 +40,42 @@
 		.icon {
 			height: 1em;
 			vertical-align: middle;
-			margin-right: .25em;
+			margin-right: 0.25em;
 		}
 	}
 
-	&>.enableBt {
+	& > .enableBt {
 		width: fit-content;
 		margin: auto;
 		border-radius: 1em;
-		padding: .5em 1em !important;
+		padding: 0.5em 1em !important;
 		background-color: var(--color-primary);
-		transition: background-color .25s;
+		transition: background-color 0.25s;
 		label {
 			color: var(--color-light);
 			align-self: flex-end !important;
 		}
 	}
 
-	&>section, .fadeHolder>section, &>.content>section {
+	& > section,
+	.fadeHolder > section,
+	& > .content > section {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 0.5em;
 		margin: auto;
-			
-		&>.icon:not(.loader) {
+
+		& > .icon:not(.loader) {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 		}
 	}
-		
+
 	.splitter {
 		margin: 2em 0 1em 0;
 	}
 
-	&.beta{
+	&.beta {
 		overflow: hidden;
 		&::after {
 			z-index: -1;
@@ -86,7 +89,7 @@
 			color: var(--color-light);
 			background-color: var(--color-secondary);
 			width: 250px;
-			padding: .25em;
+			padding: 0.25em;
 			font-size: 2em;
 			font-weight: bold;
 		}
@@ -94,7 +97,7 @@
 }
 
 // body.light .parameterContent {
-	
+
 // 	&>.enableBt {
 // 		&.unselected {
 // 			label {

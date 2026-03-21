@@ -3,36 +3,58 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<h1 class="title"><Icon name="alert" /> {{ $t('premium.cleanup.title') }}</h1>
+				<h1 class="title"><Icon name="alert" /> {{ $t("premium.cleanup.title") }}</h1>
 				<ClearButton @click="close()" v-if="!$store.main.nonPremiumLimitExceeded" />
 			</div>
 			<div class="content">
-				<span class="header">{{ $t('premium.cleanup.description') }}</span>
-				<TTButton icon="premium" class="premiumBt" big premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
+				<span class="header">{{ $t("premium.cleanup.description") }}</span>
+				<TTButton icon="premium" class="premiumBt" big premium @click="openPremium()">{{
+					$t("premium.become_premiumBt")
+				}}</TTButton>
 
-				<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :alert="!triggersOK" :open="!triggersOK"
-				v-if="$store.triggers.triggerList.length > 0">
+				<ToggleBlock
+					:icons="['broadcast']"
+					:title="$t('params.categories.triggers')"
+					:alert="!triggersOK"
+					:open="!triggersOK"
+					v-if="$store.triggers.triggerList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
-						<strong>{{triggerCount}}/{{ $config.MAX_TRIGGERS }}</strong>
+						<Icon :name="triggersOK ? 'checkmark' : 'alert'" />
+						<strong>{{ triggerCount }}/{{ $config.MAX_TRIGGERS }}</strong>
 					</template>
 					<div class="itemList">
 						<TriggerListFolderItem
 							v-model:items="folderTriggerList"
 							:noEdit="true"
 							:forceDisableOption="true"
-							@change="onToggleTrigger()" />
+							@change="onToggleTrigger()"
+						/>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['count']" :title="$t('params.categories.counters')" :alert="!countersOK" :open="!countersOK"
-				v-if="$store.counters.counterList.length > 0">
+				<ToggleBlock
+					:icons="['count']"
+					:title="$t('params.categories.counters')"
+					:alert="!countersOK"
+					:open="!countersOK"
+					v-if="$store.counters.counterList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(countersOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.counters.counterList.filter(v=>v.enabled !== false).length}}/{{ $config.MAX_COUNTERS }}</strong>
+						<Icon :name="countersOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.counters.counterList.filter((v) => v.enabled !== false)
+									.length
+							}}/{{ $config.MAX_COUNTERS }}</strong
+						>
 					</template>
 					<div class="itemList">
-						<div class="rowItem" v-for="item in $store.counters.counterList" @click="toggleCounter(item)">
+						<div
+							class="rowItem"
+							v-for="item in $store.counters.counterList"
+							@click="toggleCounter(item)"
+						>
 							<span class="label"><Icon name="count" />{{ item.name }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleCounter()" />
@@ -41,14 +63,27 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['placeholder']" :title="$t('params.categories.values')" :alert="!valuesOK" :open="!valuesOK"
-				v-if="$store.values.valueList.length > 0">
+				<ToggleBlock
+					:icons="['placeholder']"
+					:title="$t('params.categories.values')"
+					:alert="!valuesOK"
+					:open="!valuesOK"
+					v-if="$store.values.valueList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(valuesOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.values.valueList.filter(v=>v.enabled !== false).length}}/{{ $config.MAX_VALUES }}</strong>
+						<Icon :name="valuesOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.values.valueList.filter((v) => v.enabled !== false).length
+							}}/{{ $config.MAX_VALUES }}</strong
+						>
 					</template>
 					<div class="itemList">
-						<div class="rowItem" v-for="item in $store.values.valueList" @click="toggleValue(item)">
+						<div
+							class="rowItem"
+							v-for="item in $store.values.valueList"
+							@click="toggleValue(item)"
+						>
 							<span class="label"><Icon name="count" />{{ item.name }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleValue()" />
@@ -57,14 +92,27 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('params.categories.heat')" :alert="!heatOK" :open="!heatOK"
-				v-if="$store.heat.screenList.length > 0">
+				<ToggleBlock
+					:icons="['heat']"
+					:title="$t('params.categories.heat')"
+					:alert="!heatOK"
+					:open="!heatOK"
+					v-if="$store.heat.screenList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(heatOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.heat.screenList.filter(v=>v.enabled !== false).length}}/{{ $config.MAX_CUSTOM_HEAT_SCREENS }}</strong>
+						<Icon :name="heatOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.heat.screenList.filter((v) => v.enabled !== false).length
+							}}/{{ $config.MAX_CUSTOM_HEAT_SCREENS }}</strong
+						>
 					</template>
 					<div class="itemList heat">
-						<div class="rowItem" v-for="item in $store.heat.screenList" @click="toggleHeat(item)">
+						<div
+							class="rowItem"
+							v-for="item in $store.heat.screenList"
+							@click="toggleHeat(item)"
+						>
 							<HeatScreenPreview class="heatScreen" :screen="item" />
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleHeat()" />
@@ -73,15 +121,29 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
-				v-if="$store.users.customBadgeList.length > 0">
+				<ToggleBlock
+					:icons="['badge']"
+					:title="$t('premium.cleanup.custom_badges')"
+					:alert="!badgesOK"
+					:open="!badgesOK"
+					v-if="$store.users.customBadgeList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(badgesOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.users.customBadgeList.filter(v=>v.enabled !== false).length}}/{{ $config.MAX_CUSTOM_BADGES }}</strong>
+						<Icon :name="badgesOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.users.customBadgeList.filter((v) => v.enabled !== false)
+									.length
+							}}/{{ $config.MAX_CUSTOM_BADGES }}</strong
+						>
 					</template>
 					<div class="itemList badges">
-						<div class="rowItem" v-for="item in $store.users.customBadgeList" @click="toggleBadge(item)">
-							<img :src="item.img" alt="custom badge">
+						<div
+							class="rowItem"
+							v-for="item in $store.users.customBadgeList"
+							@click="toggleBadge(item)"
+						>
+							<img :src="item.img" alt="custom badge" />
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleBadge()" />
 							</div>
@@ -89,52 +151,115 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['badge','user']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
-				v-if="userBadges.length > 0">
+				<ToggleBlock
+					:icons="['badge', 'user']"
+					:title="$t('premium.cleanup.custom_badges_attribution')"
+					:alert="!badgesUserOK"
+					:open="!badgesUserOK"
+					v-if="userBadges.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(badgesUserOK? 'checkmark' : 'alert')" />
-						<strong>{{userBadges.length}}/{{ $config.MAX_CUSTOM_BADGES_ATTRIBUTION }}</strong>
+						<Icon :name="badgesUserOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ userBadges.length }}/{{
+								$config.MAX_CUSTOM_BADGES_ATTRIBUTION
+							}}</strong
+						>
 					</template>
 					<div class="itemList">
-						<div class="rowItem" v-for="user in userBadges" v-tooltip="$t('premium.cleanup.custom_badges_attribution_remove')" @click="deleteUserBadges(user)">
+						<div
+							class="rowItem"
+							v-for="user in userBadges"
+							v-tooltip="$t('premium.cleanup.custom_badges_attribution_remove')"
+							@click="deleteUserBadges(user)"
+						>
 							<div class="label">
 								<span class="username">{{ user.displayName }}</span>
-								<span class="small" v-if="user.displayName != user.displayNameOriginal">({{ user.displayNameOriginal }})</span>
+								<span
+									class="small"
+									v-if="user.displayName != user.displayNameOriginal"
+									>({{ user.displayNameOriginal }})</span
+								>
 								<div class="badgeList">
-									<img class="badge card-item" :src="$store.users.customBadgeList.find(v=>v.id == badge.id)?.img" alt="custom badge" v-for="badge in $store.users.customUserBadges[user.id]">
+									<img
+										class="badge card-item"
+										:src="
+											$store.users.customBadgeList.find(
+												(v) => v.id == badge.id,
+											)?.img
+										"
+										alt="custom badge"
+										v-for="badge in $store.users.customUserBadges[user.id]"
+									/>
 								</div>
 							</div>
 							<div class="deleteBt">
-								<Icon name="trash"/>
+								<Icon name="trash" />
 							</div>
 						</div>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['user']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
-				v-if="Object.keys($store.users.customUsernames).length > 0">
+				<ToggleBlock
+					:icons="['user']"
+					:title="$t('premium.cleanup.custom_usernames')"
+					:alert="!usernamesOK"
+					:open="!usernamesOK"
+					v-if="Object.keys($store.users.customUsernames).length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(usernamesOK? 'checkmark' : 'alert')" />
-						<strong>{{Object.keys($store.users.customUsernames).length}}/{{ $config.MAX_CUSTOM_USERNAMES }}</strong>
+						<Icon :name="usernamesOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ Object.keys($store.users.customUsernames).length }}/{{
+								$config.MAX_CUSTOM_USERNAMES
+							}}</strong
+						>
 					</template>
 					<div class="itemList users">
-						<div class="rowItem" v-for="user in usernames" v-tooltip="$t('premium.cleanup.custom_username_remove')" @click="deleteUsername(user)">
+						<div
+							class="rowItem"
+							v-for="user in usernames"
+							v-tooltip="$t('premium.cleanup.custom_username_remove')"
+							@click="deleteUsername(user)"
+						>
 							<span class="label">{{ user.displayName }}</span>
-							<span class="label small" v-if="user.displayName != user.displayNameOriginal">({{ user.displayNameOriginal }})</span>
+							<span
+								class="label small"
+								v-if="user.displayName != user.displayNameOriginal"
+								>({{ user.displayNameOriginal }})</span
+							>
 							<Icon name="trash" theme="alert" />
 						</div>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['distort']" :title="$t('premium.cleanup.distortion')" :alert="!distortionsOK" :open="!distortionsOK"
-				v-if="$store.heat.distortionList.length > 0">
+				<ToggleBlock
+					:icons="['distort']"
+					:title="$t('premium.cleanup.distortion')"
+					:alert="!distortionsOK"
+					:open="!distortionsOK"
+					v-if="$store.heat.distortionList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(distortionsOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.heat.distortionList.filter(v=>v.enabled).length}}/{{ $config.MAX_DISTORTION_OVERLAYS }}</strong>
+						<Icon :name="distortionsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ $store.heat.distortionList.filter((v) => v.enabled).length }}/{{
+								$config.MAX_DISTORTION_OVERLAYS
+							}}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.heat.distortionList">
-							<span class="label">{{ item.name || [item.obsItemPath.sceneName, item.obsItemPath.groupName, item.obsItemPath.source?.name].filter(v=>v!='').join(" => ") }}</span>
+							<span class="label">{{
+								item.name ||
+								[
+									item.obsItemPath.sceneName,
+									item.obsItemPath.groupName,
+									item.obsItemPath.source?.name,
+								]
+									.filter((v) => v != "")
+									.join(" => ")
+							}}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleDistortion()" />
 							</div>
@@ -142,27 +267,48 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['bingo_grid']" :title="$t('premium.cleanup.bingo_grids')" :alert="!bingoGridsOK" :open="!bingoGridsOK"
-				v-if="$store.bingoGrid.gridList.length > 0">
+				<ToggleBlock
+					:icons="['bingo_grid']"
+					:title="$t('premium.cleanup.bingo_grids')"
+					:alert="!bingoGridsOK"
+					:open="!bingoGridsOK"
+					v-if="$store.bingoGrid.gridList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(bingoGridsOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.bingoGrid.gridList.filter(v=>v.enabled).length}}/{{ $config.MAX_BINGO_GRIDS }}</strong>
+						<Icon :name="bingoGridsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ $store.bingoGrid.gridList.filter((v) => v.enabled).length }}/{{
+								$config.MAX_BINGO_GRIDS
+							}}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.bingoGrid.gridList">
 							<span class="label">{{ item.title }}</span>
 							<div class="toggle">
-								<ToggleButton v-model="item.enabled" @change="toggleBingoGrid(item)" />
+								<ToggleButton
+									v-model="item.enabled"
+									@change="toggleBingoGrid(item)"
+								/>
 							</div>
 						</div>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['label']" :title="$t('premium.cleanup.labels')" :alert="!labelsOK" :open="!labelsOK"
-				v-if="$store.labels.labelList.length > 0">
+				<ToggleBlock
+					:icons="['label']"
+					:title="$t('premium.cleanup.labels')"
+					:alert="!labelsOK"
+					:open="!labelsOK"
+					v-if="$store.labels.labelList.length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.labels.labelList.filter(v=>v.enabled).length}}/{{ $config.MAX_LABELS }}</strong>
+						<Icon :name="labelsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ $store.labels.labelList.filter((v) => v.enabled).length }}/{{
+								$config.MAX_LABELS
+							}}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.labels.labelList">
@@ -174,14 +320,27 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['timer']" :title="$t('premium.cleanup.timers')" :alert="!timersOK" :open="!timersOK"
-				v-if="$store.timers.timerList.filter(v=>!v.isDefault).length > 0">
+				<ToggleBlock
+					:icons="['timer']"
+					:title="$t('premium.cleanup.timers')"
+					:alert="!timersOK"
+					:open="!timersOK"
+					v-if="$store.timers.timerList.filter((v) => !v.isDefault).length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(timersOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length}}/{{ $config.MAX_TIMERS }}</strong>
+						<Icon :name="timersOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.timers.timerList.filter((v) => v.enabled && !v.isDefault)
+									.length
+							}}/{{ $config.MAX_TIMERS }}</strong
+						>
 					</template>
 					<div class="itemList">
-						<div class="rowItem" v-for="item in $store.timers.timerList.filter(v=>!v.isDefault)">
+						<div
+							class="rowItem"
+							v-for="item in $store.timers.timerList.filter((v) => !v.isDefault)"
+						>
 							<span class="label">{{ item.title }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleTimer(item)" />
@@ -190,47 +349,87 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['animate']" :title="$t('premium.cleanup.animated_text')" :alert="!animatedTextsOK" :open="!animatedTextsOK"
-				v-if="$store.animatedText.animatedTextList.filter(v=>v.enabled).length > 0">
+				<ToggleBlock
+					:icons="['animate']"
+					:title="$t('premium.cleanup.animated_text')"
+					:alert="!animatedTextsOK"
+					:open="!animatedTextsOK"
+					v-if="$store.animatedText.animatedTextList.filter((v) => v.enabled).length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(animatedTextsOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.animatedText.animatedTextList.filter(v=>v.enabled).length}}/{{ $config.MAX_ANIMATED_TEXT }}</strong>
+						<Icon :name="animatedTextsOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.animatedText.animatedTextList.filter((v) => v.enabled)
+									.length
+							}}/{{ $config.MAX_ANIMATED_TEXT }}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.animatedText.animatedTextList">
-							<span class="label">{{ item.title || $t("overlay.animatedText.default_title") }}</span>
+							<span class="label">{{
+								item.title || $t("overlay.animatedText.default_title")
+							}}</span>
 							<div class="toggle">
-								<ToggleButton v-model="item.enabled" @change="toggleAnimatedText(item)" />
+								<ToggleButton
+									v-model="item.enabled"
+									@change="toggleAnimatedText(item)"
+								/>
 							</div>
 						</div>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['train']" :title="$t('premium.cleanup.custom_train')" :alert="!customTrainOK" :open="!customTrainOK"
-				v-if="$store.customTrain.customTrainList.filter(v=>v.enabled).length > 0">
+				<ToggleBlock
+					:icons="['train']"
+					:title="$t('premium.cleanup.custom_train')"
+					:alert="!customTrainOK"
+					:open="!customTrainOK"
+					v-if="$store.customTrain.customTrainList.filter((v) => v.enabled).length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(customTrainOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.customTrain.customTrainList.filter(v=>v.enabled).length}}/{{ $config.MAX_CUSTOM_TRAIN }}</strong>
+						<Icon :name="customTrainOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{
+								$store.customTrain.customTrainList.filter((v) => v.enabled).length
+							}}/{{ $config.MAX_CUSTOM_TRAIN }}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.customTrain.customTrainList">
-							<span class="label">{{ item.title || $t("overlay.customTrain.default_title") }}</span>
+							<span class="label">{{
+								item.title || $t("overlay.customTrain.default_title")
+							}}</span>
 							<div class="toggle">
-								<ToggleButton v-model="item.enabled" @change="toggleCustomTrain(item)" />
+								<ToggleButton
+									v-model="item.enabled"
+									@change="toggleCustomTrain(item)"
+								/>
 							</div>
 						</div>
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['quiz']" :title="$t('premium.cleanup.quiz')" :alert="!quizOK" :open="!quizOK"
-				v-if="$store.quiz.quizList.filter(v=>v.enabled).length > 0">
+				<ToggleBlock
+					:icons="['quiz']"
+					:title="$t('premium.cleanup.quiz')"
+					:alert="!quizOK"
+					:open="!quizOK"
+					v-if="$store.quiz.quizList.filter((v) => v.enabled).length > 0"
+				>
 					<template #right_actions>
-						<Icon :name="(quizOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.quiz.quizList.filter(v=>v.enabled).length}}/{{ $config.MAX_QUIZ }}</strong>
+						<Icon :name="quizOK ? 'checkmark' : 'alert'" />
+						<strong
+							>{{ $store.quiz.quizList.filter((v) => v.enabled).length }}/{{
+								$config.MAX_QUIZ
+							}}</strong
+						>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.quiz.quizList">
-							<span class="label">{{ item.title || $t("quiz.form.default_title") }}</span>
+							<span class="label">{{
+								item.title || $t("quiz.form.default_title")
+							}}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleQuiz(item)" />
 							</div>
@@ -238,32 +437,39 @@
 					</div>
 				</ToggleBlock>
 
-				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
-				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
+				<div class="card-item warning" v-if="!allOK">
+					{{ $t("premium.cleanup.disable_more_items") }}
+				</div>
+				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{
+					$t("premium.cleanup.completeBt")
+				}}</TTButton>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { HeatScreen } from '@/types/HeatDataTypes';
-import type { LabelItemData } from '@/types/ILabelOverlayData';
-import type { TriggerData, TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import { gsap } from 'gsap/all';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ClearButton from '../ClearButton.vue';
-import Icon from '../Icon.vue';
-import TTButton from '../TTButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import ToggleButton from '../ToggleButton.vue';
-import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.vue';
-import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
-import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
+import type { HeatScreen } from "@/types/HeatDataTypes";
+import type { LabelItemData } from "@/types/ILabelOverlayData";
+import type { TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import { gsap } from "gsap/all";
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
+import ToggleBlock from "../ToggleBlock.vue";
+import ToggleButton from "../ToggleButton.vue";
+import HeatScreenPreview from "../params/contents/heat/areas/HeatScreenPreview.vue";
+import type {
+	TriggerListEntry,
+	TriggerListFolderEntry,
+} from "../params/contents/triggers/TriggerList.vue";
+import TriggerListFolderItem from "../params/contents/triggers/TriggerListFolderItem.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		ClearButton,
@@ -272,61 +478,135 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 		HeatScreenPreview,
 		TriggerListFolderItem,
 	},
-	emits:["close"],
+	emits: ["close"],
 })
 class NonPremiumCleanup extends Vue {
-
-	public get triggersOK():boolean { return this.triggerCount <= this.$config.MAX_TRIGGERS; }
-	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
-	public get valuesOK():boolean { return this.$store.values.valueList.filter(v=>v.enabled !== false).length <= this.$config.MAX_VALUES; }
-	public get heatOK():boolean { return this.$store.heat.screenList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_HEAT_SCREENS; }
-	public get badgesOK():boolean { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_BADGES; }
-	public get badgesUserOK():boolean { return Object.keys(this.$store.users.customUserBadges).length <= this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION; }
-	public get usernamesOK():boolean { return Object.keys(this.$store.users.customUsernames).length <= this.$config.MAX_CUSTOM_USERNAMES; }
-	public get distortionsOK():boolean { return this.$store.heat.distortionList.filter(v=>v.enabled).length <= this.$config.MAX_DISTORTION_OVERLAYS; }
-	public get bingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
-	public get labelsOK():boolean { return this.$store.labels.labelList.filter(v=>v.enabled).length <= this.$config.MAX_LABELS; }
-	public get timersOK():boolean { return this.$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length <= this.$config.MAX_TIMERS; }
-	public get animatedTextsOK():boolean { return this.$store.animatedText.animatedTextList.filter(v=>v.enabled).length <= this.$config.MAX_ANIMATED_TEXT; }
-	public get customTrainOK():boolean { return this.$store.customTrain.customTrainList.filter(v=>v.enabled).length <= this.$config.MAX_CUSTOM_TRAIN; }
-	public get quizOK():boolean { return this.$store.quiz.quizList.filter(v=>v.enabled).length <= this.$config.MAX_QUIZ; }
-	public get allOK():boolean {
-		return this.triggersOK
-			&& this.countersOK
-			&& this.valuesOK
-			&& this.heatOK
-			&& this.badgesOK
-			&& this.badgesUserOK
-			&& this.usernamesOK
-			&& this.distortionsOK
-			&& this.bingoGridsOK
-			&& this.labelsOK
-			&& this.timersOK
-			&& this.animatedTextsOK
-			&& this.customTrainOK
-			&& this.quizOK
+	public get triggersOK(): boolean {
+		return this.triggerCount <= this.$config.MAX_TRIGGERS;
+	}
+	public get countersOK(): boolean {
+		return (
+			this.$store.counters.counterList.filter((v) => v.enabled !== false).length <=
+			this.$config.MAX_COUNTERS
+		);
+	}
+	public get valuesOK(): boolean {
+		return (
+			this.$store.values.valueList.filter((v) => v.enabled !== false).length <=
+			this.$config.MAX_VALUES
+		);
+	}
+	public get heatOK(): boolean {
+		return (
+			this.$store.heat.screenList.filter((v) => v.enabled !== false).length <=
+			this.$config.MAX_CUSTOM_HEAT_SCREENS
+		);
+	}
+	public get badgesOK(): boolean {
+		return (
+			this.$store.users.customBadgeList.filter((v) => v.enabled !== false).length <=
+			this.$config.MAX_CUSTOM_BADGES
+		);
+	}
+	public get badgesUserOK(): boolean {
+		return (
+			Object.keys(this.$store.users.customUserBadges).length <=
+			this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION
+		);
+	}
+	public get usernamesOK(): boolean {
+		return (
+			Object.keys(this.$store.users.customUsernames).length <=
+			this.$config.MAX_CUSTOM_USERNAMES
+		);
+	}
+	public get distortionsOK(): boolean {
+		return (
+			this.$store.heat.distortionList.filter((v) => v.enabled).length <=
+			this.$config.MAX_DISTORTION_OVERLAYS
+		);
+	}
+	public get bingoGridsOK(): boolean {
+		return (
+			this.$store.bingoGrid.gridList.filter((v) => v.enabled).length <=
+			this.$config.MAX_BINGO_GRIDS
+		);
+	}
+	public get labelsOK(): boolean {
+		return (
+			this.$store.labels.labelList.filter((v) => v.enabled).length <= this.$config.MAX_LABELS
+		);
+	}
+	public get timersOK(): boolean {
+		return (
+			this.$store.timers.timerList.filter((v) => v.enabled && !v.isDefault).length <=
+			this.$config.MAX_TIMERS
+		);
+	}
+	public get animatedTextsOK(): boolean {
+		return (
+			this.$store.animatedText.animatedTextList.filter((v) => v.enabled).length <=
+			this.$config.MAX_ANIMATED_TEXT
+		);
+	}
+	public get customTrainOK(): boolean {
+		return (
+			this.$store.customTrain.customTrainList.filter((v) => v.enabled).length <=
+			this.$config.MAX_CUSTOM_TRAIN
+		);
+	}
+	public get quizOK(): boolean {
+		return this.$store.quiz.quizList.filter((v) => v.enabled).length <= this.$config.MAX_QUIZ;
+	}
+	public get allOK(): boolean {
+		return (
+			this.triggersOK &&
+			this.countersOK &&
+			this.valuesOK &&
+			this.heatOK &&
+			this.badgesOK &&
+			this.badgesUserOK &&
+			this.usernamesOK &&
+			this.distortionsOK &&
+			this.bingoGridsOK &&
+			this.labelsOK &&
+			this.timersOK &&
+			this.animatedTextsOK &&
+			this.customTrainOK &&
+			this.quizOK
+		);
 	}
 
-	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+	public folderTriggerList: (TriggerListEntry | TriggerListFolderEntry)[] = [];
 
-	public get triggerCount():number {
-		return this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length;
+	public get triggerCount(): number {
+		return this.$store.triggers.triggerList.filter(
+			(v) =>
+				v.enabled !== false &&
+				this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false,
+		).length;
 	}
 
-	public get userBadges():TwitchatDataTypes.TwitchatUser[] {
-		const res:TwitchatDataTypes.TwitchatUser[] = [];
+	public get userBadges(): TwitchatDataTypes.TwitchatUser[] {
+		const res: TwitchatDataTypes.TwitchatUser[] = [];
 		const customUserBadges = this.$store.users.customUserBadges;
 		for (const uid in customUserBadges) {
 			const userBadges = customUserBadges[uid];
-			if(userBadges && userBadges?.length > 0) {
-				res.push(this.$store.users.getUserFrom(userBadges[0]!.platform, userBadges[0]!.channel, uid));
+			if (userBadges && userBadges?.length > 0) {
+				res.push(
+					this.$store.users.getUserFrom(
+						userBadges[0]!.platform,
+						userBadges[0]!.channel,
+						uid,
+					),
+				);
 			}
 		}
 		return res;
 	}
 
-	public get usernames():TwitchatDataTypes.TwitchatUser[] {
-		const res:TwitchatDataTypes.TwitchatUser[] = [];
+	public get usernames(): TwitchatDataTypes.TwitchatUser[] {
+		const res: TwitchatDataTypes.TwitchatUser[] = [];
 		const user = this.$store.users.customUsernames;
 		for (const uid in user) {
 			res.push(this.$store.users.getUserFrom(user[uid]!.platform, user[uid]!.channel, uid));
@@ -334,24 +614,44 @@ class NonPremiumCleanup extends Vue {
 		return res;
 	}
 
-	public get triggerList():TriggerListEntry[] {
+	public get triggerList(): TriggerListEntry[] {
 		const triggers = this.$store.triggers.triggerList;
 		const entries = triggers.map((trigger, index) => {
 			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
-			const entry:TriggerListEntry = { type:"trigger", id:trigger.id, index, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest:false };
+			const entry: TriggerListEntry = {
+				type: "trigger",
+				id: trigger.id,
+				index,
+				label: info.label,
+				trigger,
+				icon: info.icon,
+				iconURL: info.iconURL,
+				canTest: false,
+			};
 			return entry;
-		})
+		});
 		return entries;
 	}
 
-	public mounted():void {
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+	public mounted(): void {
+		gsap.set(this.$refs.holder as HTMLElement, { marginTop: 0, opacity: 1 });
+		gsap.to(this.$refs.dimmer as HTMLElement, { duration: 0.25, opacity: 1 });
+		gsap.from(this.$refs.holder as HTMLElement, {
+			duration: 0.25,
+			marginTop: -100,
+			opacity: 0,
+			ease: "back.out",
+		});
 
-		this.$store.counters.counterList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
-		this.$store.values.valueList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
-		this.$store.users.customBadgeList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
+		this.$store.counters.counterList.forEach(
+			(v) => (v.enabled = v.enabled === undefined ? true : v.enabled),
+		);
+		this.$store.values.valueList.forEach(
+			(v) => (v.enabled = v.enabled === undefined ? true : v.enabled),
+		);
+		this.$store.users.customBadgeList.forEach(
+			(v) => (v.enabled = v.enabled === undefined ? true : v.enabled),
+		);
 
 		// console.log(StoreProxy.counters.counterList.filter(v=>v.enabled != false).length > Config.instance.MAX_COUNTERS);
 		// console.log(StoreProxy.values.valueList.filter(v=>v.enabled != false).length > Config.instance.MAX_VALUES);
@@ -364,28 +664,41 @@ class NonPremiumCleanup extends Vue {
 
 		//Build folder structure
 		const triggerList = this.$store.triggers.triggerList;
-		const idToHasFolder:{[key:string]:boolean} = {};
+		const idToHasFolder: { [key: string]: boolean } = {};
 
-		const flatList = triggerList.map<TriggerListEntry>(v=> {
+		const flatList = triggerList.map<TriggerListEntry>((v) => {
 			const info = TriggerUtils.getTriggerDisplayInfo(v);
-			return { type:"trigger", index:0, label:info.label, id:v.id, trigger:v, icon:info.icon, iconURL:info.iconURL, canTest:false }
-		})
+			return {
+				type: "trigger",
+				index: 0,
+				label: info.label,
+				id: v.id,
+				trigger: v,
+				icon: info.icon,
+				iconURL: info.iconURL,
+				canTest: false,
+			};
+		});
 
-		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
-			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+		function buildItem(
+			items: TriggerTreeItemData[],
+		): (TriggerListEntry | TriggerListFolderEntry)[] {
+			const res: (TriggerListEntry | TriggerListFolderEntry)[] = [];
 			for (const item of items) {
-				if(item.type == "folder") {
+				if (item.type == "folder") {
 					const children = buildItem(item.children || []);
-					res.push({type:"folder",
-							id:item.id,
-							label:item.name!,
-							items:children,
-							color:{type:"color", value:item.color || "#60606c"},
-							expand:item.expand == true,
-							enabled:item.enabled !== false});
-				}else{
-					const entry = flatList.find(v=> v.trigger.id == item.triggerId);
-					if(entry && !idToHasFolder[entry.id]) {
+					res.push({
+						type: "folder",
+						id: item.id,
+						label: item.name!,
+						items: children,
+						color: { type: "color", value: item.color || "#60606c" },
+						expand: item.expand == true,
+						enabled: item.enabled !== false,
+					});
+				} else {
+					const entry = flatList.find((v) => v.trigger.id == item.triggerId);
+					if (entry && !idToHasFolder[entry.id]) {
 						idToHasFolder[entry.id] = true;
 						res.push(entry);
 					}
@@ -395,130 +708,151 @@ class NonPremiumCleanup extends Vue {
 		}
 		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
 		for (const t of this.triggerList) {
-			if(!idToHasFolder[t.id]) {
+			if (!idToHasFolder[t.id]) {
 				idToHasFolder[t.id] = true;
 				this.folderTriggerList.push(t);
 			}
 		}
 	}
 
-	public async close():Promise<void> {
+	public async close(): Promise<void> {
 		//Don't close if there still are limits exceed
-		if(this.$store.main.nonPremiumLimitExceeded) return;
+		if (this.$store.main.nonPremiumLimitExceeded) return;
 
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
+		gsap.to(this.$refs.dimmer as HTMLElement, { duration: 0.25, opacity: 0, ease: "sine.in" });
+		gsap.to(this.$refs.holder as HTMLElement, {
+			duration: 0.25,
+			marginTop: -100,
+			opacity: 0,
+			ease: "back.in",
+			onComplete: () => {
+				this.$emit("close");
+			},
+		});
 	}
 
-	public openPremium():void {
+	public openPremium(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
-	public toggleTrigger(item?:TriggerData):void {
-		if(item) item.enabled = !item.enabled;
+	public toggleTrigger(item?: TriggerData): void {
+		if (item) item.enabled = !item.enabled;
 		this.$store.triggers.saveTriggers();
 	}
 
-	public deleteUserBadges(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$confirm( this.$t("premium.cleanup.delete_badges_title"), this.$t("premium.cleanup.delete_badges_description")).then(()=>{
-			delete this.$store.users.customUserBadges[user.id];
-			this.$store.users.saveCustomBadges();
-		}).catch(()=>{});
+	public deleteUserBadges(user: TwitchatDataTypes.TwitchatUser): void {
+		this.$confirm(
+			this.$t("premium.cleanup.delete_badges_title"),
+			this.$t("premium.cleanup.delete_badges_description"),
+		)
+			.then(() => {
+				delete this.$store.users.customUserBadges[user.id];
+				this.$store.users.saveCustomBadges();
+			})
+			.catch(() => {});
 	}
 
-	public deleteUsername(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$confirm( this.$t("premium.cleanup.delete_name_title"), this.$t("premium.cleanup.delete_name_description")).then(()=>{
-			delete this.$store.users.customUsernames[user.id];
-			this.$store.users.saveCustomUsername();
-		}).catch(()=>{});
+	public deleteUsername(user: TwitchatDataTypes.TwitchatUser): void {
+		this.$confirm(
+			this.$t("premium.cleanup.delete_name_title"),
+			this.$t("premium.cleanup.delete_name_description"),
+		)
+			.then(() => {
+				delete this.$store.users.customUsernames[user.id];
+				this.$store.users.saveCustomUsername();
+			})
+			.catch(() => {});
 	}
 
-	public deleteDistortion(data:TwitchatDataTypes.HeatDistortionData):void {
-		this.$confirm( this.$t("premium.cleanup.delete_distortion_title"), this.$t("premium.cleanup.delete_distortion_description")).then(()=>{
-			this.$store.heat.deleteDistorsion(data);
-		}).catch(()=>{});
+	public deleteDistortion(data: TwitchatDataTypes.HeatDistortionData): void {
+		this.$confirm(
+			this.$t("premium.cleanup.delete_distortion_title"),
+			this.$t("premium.cleanup.delete_distortion_description"),
+		)
+			.then(() => {
+				this.$store.heat.deleteDistorsion(data);
+			})
+			.catch(() => {});
 	}
 
-	public toggleCounter(item?:TwitchatDataTypes.CounterData):void {
-		if(item) item.enabled = !item.enabled;
+	public toggleCounter(item?: TwitchatDataTypes.CounterData): void {
+		if (item) item.enabled = !item.enabled;
 		this.$store.counters.saveCounters();
 	}
 
-	public toggleValue(item?:TwitchatDataTypes.ValueData):void {
-		if(item) item.enabled = !item.enabled;
+	public toggleValue(item?: TwitchatDataTypes.ValueData): void {
+		if (item) item.enabled = !item.enabled;
 		this.$store.values.saveValues();
 	}
 
-	public toggleHeat(item?:HeatScreen):void {
-		if(item) item.enabled = !item.enabled;
+	public toggleHeat(item?: HeatScreen): void {
+		if (item) item.enabled = !item.enabled;
 		this.$store.heat.saveScreens();
 	}
 
-	public toggleBadge(item?:TwitchatDataTypes.TwitchatCustomUserBadge):void {
-		if(item) item.enabled = !item.enabled;
+	public toggleBadge(item?: TwitchatDataTypes.TwitchatCustomUserBadge): void {
+		if (item) item.enabled = !item.enabled;
 		this.$store.users.saveCustomBadges();
 	}
 
-	public toggleDistortion(item?:TwitchatDataTypes.HeatDistortionData):void {
+	public toggleDistortion(item?: TwitchatDataTypes.HeatDistortionData): void {
 		this.$store.heat.saveDistorsions();
 	}
 
-	public toggleBingoGrid(item:TwitchatDataTypes.BingoGridConfig):void {
+	public toggleBingoGrid(item: TwitchatDataTypes.BingoGridConfig): void {
 		this.$store.bingoGrid.saveData(item.id);
 	}
 
-	public toggleLabel(item:LabelItemData):void {
+	public toggleLabel(item: LabelItemData): void {
 		this.$store.labels.saveData(item.id);
 	}
 
-	public toggleTimer(item:TwitchatDataTypes.TimerData):void {
+	public toggleTimer(item: TwitchatDataTypes.TimerData): void {
 		this.$store.timers.saveData();
 	}
 
-	public toggleAnimatedText(item:TwitchatDataTypes.AnimatedTextData):void {
+	public toggleAnimatedText(item: TwitchatDataTypes.AnimatedTextData): void {
 		this.$store.animatedText.saveData();
 	}
 
-	public toggleCustomTrain(item:TwitchatDataTypes.CustomTrainData):void {
+	public toggleCustomTrain(item: TwitchatDataTypes.CustomTrainData): void {
 		this.$store.customTrain.saveData();
 	}
 
-	public toggleQuiz(item:TwitchatDataTypes.QuizParams):void {
+	public toggleQuiz(item: TwitchatDataTypes.QuizParams): void {
 		this.$store.quiz.saveData();
 	}
 
-	public onToggleTrigger():void {
-		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
-			switch(root.type) {
-				case "folder":{
-					return {type:"folder",
-							id:root.id,
-							name:root.label,
-							expand:root.expand === true,
-							color:root.color.value,
-							enabled:root.enabled !== false,
-							children:root.items.map(v=> buildItem(v))
-						};
+	public onToggleTrigger(): void {
+		function buildItem(root: TriggerListEntry | TriggerListFolderEntry): TriggerTreeItemData {
+			switch (root.type) {
+				case "folder": {
+					return {
+						type: "folder",
+						id: root.id,
+						name: root.label,
+						expand: root.expand === true,
+						color: root.color.value,
+						enabled: root.enabled !== false,
+						children: root.items.map((v) => buildItem(v)),
+					};
 				}
 				default:
-				case "trigger":{
-					return {type:"trigger", id:root.id, triggerId:root.id};
+				case "trigger": {
+					return { type: "trigger", id: root.id, triggerId: root.id };
 				}
 			}
 		}
-		const tree = this.folderTriggerList.map(v => buildItem(v));
+		const tree = this.folderTriggerList.map((v) => buildItem(v));
 		this.$store.triggers.updateTriggerTree(tree);
 	}
-
 }
 export default toNative(NonPremiumCleanup);
 </script>
 
 <style scoped lang="less">
-.nonpremiumcleanup{
+.nonpremiumcleanup {
 	z-index: 3;
 
 	.premiumBt {
@@ -550,7 +884,7 @@ export default toNative(NonPremiumCleanup);
 
 	.warning {
 		flex-shrink: 0;
-		padding: .5em;
+		padding: 0.5em;
 		margin: 0 auto;
 		font-style: italic;
 		background-color: var(--color-secondary-fader);
@@ -561,16 +895,16 @@ export default toNative(NonPremiumCleanup);
 		display: flex;
 		flex-direction: column;
 		.rowItem {
-			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+			box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 			background-color: var(--background-color-fadest);
-			border-radius: .5em;
+			border-radius: 0.5em;
 			padding: 0;
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
 			min-height: 1.5em;
 			position: relative;
-			transition: background-color .1s;
+			transition: background-color 0.1s;
 			cursor: pointer;
 
 			&:hover {
@@ -578,36 +912,36 @@ export default toNative(NonPremiumCleanup);
 			}
 			.label {
 				flex-grow: 1;
-				gap: .5em;
+				gap: 0.5em;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				color: var(--color-text);
 				padding: 0;
-				margin-left: .5em;
+				margin-left: 0.5em;
 				.icon {
 					height: 1.5em;
 					width: 1.5em;
 					padding: 0.25em;
 					object-fit: fill;
-					margin-right: .5em;
+					margin-right: 0.5em;
 				}
 
 				.username {
-					padding-left: .5em;
+					padding-left: 0.5em;
 				}
 
 				.small {
 					font-style: italic;
-					font-size: .9em;
-					margin-left: -.5em;
+					font-size: 0.9em;
+					margin-left: -0.5em;
 				}
 				.badgeList {
-					gap: .5em;
+					gap: 0.5em;
 					display: flex;
 					flex-direction: row;
 					.badge {
-						padding: .25em;
+						padding: 0.25em;
 						height: 2em;
 					}
 				}
@@ -620,8 +954,10 @@ export default toNative(NonPremiumCleanup);
 				pointer-events: none;
 				flex-grow: 1;
 			}
-			.toggle, .deleteBt, .badgeList {
-				padding: 0 .5em;
+			.toggle,
+			.deleteBt,
+			.badgeList {
+				padding: 0 0.5em;
 				border-left: 1px solid var(--color-dark-light);
 			}
 			.deleteBt {
@@ -629,7 +965,9 @@ export default toNative(NonPremiumCleanup);
 				align-items: center;
 			}
 		}
-		&.heat, &.badges, &.users {
+		&.heat,
+		&.badges,
+		&.users {
 			gap: 1em;
 			width: 100%;
 			flex-direction: row;
@@ -651,7 +989,7 @@ export default toNative(NonPremiumCleanup);
 
 		&.users {
 			.rowItem {
-				padding: .5em;
+				padding: 0.5em;
 				max-width: fit-content;
 			}
 		}

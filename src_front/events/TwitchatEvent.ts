@@ -3,15 +3,21 @@ import type { PredictionOverlayParamStoreData } from "@/store/prediction/storePr
 import type { LabelItemData } from "@/types/ILabelOverlayData";
 import type { TriggerActionCountDataAction } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
-import { Event } from './EventDispatcher';
+import type { OBSSourceItem } from "@/utils/OBSWebsocket";
+import { Event } from "./EventDispatcher";
+import type { AutocompletableString } from "@/typeUtils";
 
 /**
-* Created : 14/04/2022
-*/
-export default class TwitchatEvent<EventName extends keyof TwitchatEventMap, Data = TwitchatEventMap[EventName]> extends Event {
-
-	constructor(type:EventName, public data:Data) {
+ * Created : 14/04/2022
+ */
+export default class TwitchatEvent<
+	EventName extends keyof TwitchatEventMap,
+	Data = TwitchatEventMap[EventName],
+> extends Event {
+	constructor(
+		type: EventName,
+		public data: Data,
+	) {
 		super(type);
 	}
 }
@@ -65,7 +71,7 @@ export type TwitchatEventMap = {
 		 * Scroll mode.
 		 * Scroll by messages or by pixels.
 		 */
-		mode: 'messages' | 'pixels';
+		mode: "messages" | "pixels";
 	};
 	/**
 	 * Move read marker in chat feed
@@ -101,7 +107,7 @@ export type TwitchatEventMap = {
 		 * Force paused state
 		 * Omit to toggle current state
 		 */
-		pause?:boolean;
+		pause?: boolean;
 	};
 	/**
 	 * Scroll a chat feed to the bottom
@@ -469,7 +475,7 @@ export type TwitchatEventMap = {
 		 * Omit to toggle current visibility
 		 */
 		show?: boolean;
-	}
+	};
 	/**
 	 * Triggered when a viewer completes a bingo
 	 */
@@ -636,7 +642,7 @@ export type TwitchatEventMap = {
 		 * Optional skin name
 		 * @private
 		 */
-		skin: 'default' | string;
+		skin: "default" | AutocompletableString;
 	};
 	/**
 	 * Triggered when a donation event occurs
@@ -727,12 +733,14 @@ export type TwitchatEventMap = {
 	 * Triggered when poll progress updates.
 	 * If no active poll, body is undefined
 	 */
-	ON_POLL_PROGRESS: {
-		/**
-		 * Poll's data
-		 */
-		poll: TwitchatDataTypes.MessagePollData
-	} | undefined;
+	ON_POLL_PROGRESS:
+		| {
+				/**
+				 * Poll's data
+				 */
+				poll: TwitchatDataTypes.MessagePollData;
+		  }
+		| undefined;
 
 	/**
 	 * Request predictions overlay presence
@@ -755,18 +763,20 @@ export type TwitchatEventMap = {
 		/**
 		 * Prediction overlay parameters
 		 */
-		parameters: PredictionOverlayParamStoreData
+		parameters: PredictionOverlayParamStoreData;
 	};
 	/**
 	 * Triggered when prediction progress updates
 	 * If no active prediction, body is undefined
 	 */
-	ON_PREDICTION_PROGRESS: {
-		/**
-		 * Prediction's data
-		 */
-		prediction: TwitchatDataTypes.MessagePredictionData
-	} | undefined;
+	ON_PREDICTION_PROGRESS:
+		| {
+				/**
+				 * Prediction's data
+				 */
+				prediction: TwitchatDataTypes.MessagePredictionData;
+		  }
+		| undefined;
 
 	/**
 	 * Request timer overlay presence
@@ -805,8 +815,18 @@ export type TwitchatEventMap = {
 			/**
 			 * Timer type
 			 */
-			type: 'timer' | 'countdown';
-		} & Pick<TwitchatDataTypes.TimerData, "isDefault"|"startAt_ms"|"endAt_ms"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"duration_ms">)[];
+			type: "timer" | "countdown";
+		} & Pick<
+			TwitchatDataTypes.TimerData,
+			| "isDefault"
+			| "startAt_ms"
+			| "endAt_ms"
+			| "offset_ms"
+			| "pauseDuration_ms"
+			| "paused"
+			| "pausedAt_ms"
+			| "duration_ms"
+		>)[];
 	};
 
 	/**
@@ -968,19 +988,19 @@ export type TwitchatEventMap = {
 		/**
 		 * Poll title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * List of poll choices
 		 */
-		choices:string[];
+		choices: string[];
 		/**
 		 * Duration of the poll in seconds
 		 */
-		duration:number;
+		duration: number;
 		/**
 		 * Maximum answers a user can vote for
 		 */
-		maxVotePerUser:number;
+		maxVotePerUser: number;
 	};
 	/**
 	 * Triggerd when a chat poll ends
@@ -993,26 +1013,26 @@ export type TwitchatEventMap = {
 		/**
 		 * Poll title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * List of poll choices with their number of votes
 		 */
-		choices:{
+		choices: {
 			/**
 			 * Choice title
 			 */
-			title:string;
+			title: string;
 			/**
 			 * Number of votes for this choice
 			 */
-			votes:number;
+			votes: number;
 		}[];
 	};
 	/**
 	 * Request for current chat poll info
 	 * @answer ON_CHAT_POLL_INFO
 	 */
-	GET_CHAT_POLL_INFO: undefined
+	GET_CHAT_POLL_INFO: undefined;
 	/**
 	 * Receive current chat poll info.
 	 * Call GET_CHAT_POLL_INFO to get this data
@@ -1021,25 +1041,25 @@ export type TwitchatEventMap = {
 		/**
 		 * Poll title
 		 */
-		title:string;
+		title: string;
 		/**
 		 * List of poll choices with their number of votes
 		 */
-		choices:{
+		choices: {
 			/**
 			 * Choice title
 			 */
-			title:string;
+			title: string;
 			/**
 			 * Number of votes for this choice
 			 */
-			votes:number;
+			votes: number;
 		}[];
 		/**
 		 * Duration of the poll in seconds
 		 */
-		duration:number;
-	}
+		duration: number;
+	};
 
 	/**
 	 * A chat message has been deleted
@@ -1264,7 +1284,7 @@ export type TwitchatEventMap = {
 		/**
 		 * Subscription tier
 		 */
-		tier: TwitchatDataTypes.MessageSubscriptionData['tier'];
+		tier: TwitchatDataTypes.MessageSubscriptionData["tier"];
 		/**
 		 * Number of months the user subscribed for
 		 */
@@ -1366,19 +1386,19 @@ export type TwitchatEventMap = {
 			 * Placeholder type
 			 */
 			type:
-				| 'string'
-				| 'number'
-				| 'date'
-				| 'time'
-				| 'datetime'
-				| 'day'
-				| 'month'
-				| 'year'
-				| 'hours'
-				| 'minutes'
-				| 'seconds'
-				| 'duration'
-				| 'image';
+				| "string"
+				| "number"
+				| "date"
+				| "time"
+				| "datetime"
+				| "day"
+				| "month"
+				| "year"
+				| "hours"
+				| "minutes"
+				| "seconds"
+				| "duration"
+				| "image";
 		};
 	};
 	/**
@@ -1573,7 +1593,7 @@ export type TwitchatEventMap = {
 			login: string;
 			displayName: string;
 		};
-	}|null;
+	} | null;
 	/**
 	 * Toggle merge feature
 	 * See settings => chat features => Merge consecutive messages of a user
@@ -1678,188 +1698,188 @@ export type TwitchatEventMap = {
 		 * Button icon see list of values above
 		 */
 		icon?:
-			| 'ad'
-			| 'add'
-			| 'alert'
-			| 'animate'
-			| 'announcement'
-			| 'anon'
-			| 'api'
-			| 'automod'
-			| 'badge'
-			| 'ban'
-			| 'bingo'
-			| 'bits'
-			| 'block'
-			| 'boost'
-			| 'bot'
-			| 'broadcast'
-			| 'broadcaster'
-			| 'change'
-			| 'channelPoints'
-			| 'chatCommand'
-			| 'chatPoll'
-			| 'checkmark'
-			| 'clearChat'
-			| 'click'
-			| 'clip'
-			| 'coffee'
-			| 'coin'
-			| 'color'
-			| 'commands'
-			| 'conversation'
-			| 'copy'
-			| 'count'
-			| 'countdown'
-			| 'credits'
-			| 'cross'
-			| 'date'
-			| 'debug'
-			| 'delete'
-			| 'dice'
-			| 'discord'
-			| 'donor'
-			| 'download'
-			| 'dragZone'
-			| 'easing'
-			| 'edit'
-			| 'elevated'
-			| 'elgato'
-			| 'emergency'
-			| 'emote'
-			| 'enter'
-			| 'filters'
-			| 'firstTime'
-			| 'fix'
-			| 'follow'
-			| 'follow_outline'
-			| 'font'
-			| 'fontSize'
-			| 'fullscreen'
-			| 'gift'
-			| 'github'
-			| 'goxlr'
-			| 'goxlr_bleep'
-			| 'goxlr_fx'
-			| 'hand'
-			| 'heat'
-			| 'help'
-			| 'hide'
-			| 'highlight'
-			| 'history'
-			| 'hypeChat'
-			| 'idea'
-			| 'info'
-			| 'internet'
-			| 'kofi'
-			| 'leave'
-			| 'list'
-			| 'live'
-			| 'loader'
-			| 'lock'
-			| 'loop'
-			| 'magnet'
-			| 'markRead'
-			| 'max'
-			| 'merge'
-			| 'microphone'
-			| 'microphone_mute'
-			| 'microphone_recording'
-			| 'min'
-			| 'minus'
-			| 'mod'
-			| 'move'
-			| 'music'
-			| 'mute'
-			| 'newtab'
-			| 'next'
-			| 'noMusic'
-			| 'notification'
-			| 'number'
-			| 'obs'
-			| 'offline'
-			| 'online'
-			| 'orderable'
-			| 'overlay'
-			| 'params'
-			| 'partner'
-			| 'patreon'
-			| 'pause'
-			| 'paypal'
-			| 'pin'
-			| 'pipette'
-			| 'placeholder'
-			| 'play'
-			| 'poll'
-			| 'polygon'
-			| 'prediction'
-			| 'premium'
-			| 'presentation'
-			| 'press'
-			| 'prev'
-			| 'prime'
-			| 'pros'
-			| 'qna'
-			| 'raid'
-			| 'read'
-			| 'refresh'
-			| 'reply'
-			| 'returning'
-			| 'reward_highlight'
-			| 'rightClick'
-			| 'rotate'
-			| 'save'
-			| 'scale'
-			| 'scroll'
-			| 'scrollDown'
-			| 'scrollUp'
-			| 'search'
-			| 'shadow'
-			| 'shield'
-			| 'shieldMode'
-			| 'shoutout'
-			| 'show'
-			| 'skip'
-			| 'slow'
-			| 'spotify'
-			| 'stars'
-			| 'stop'
-			| 'sub'
-			| 'test'
-			| 'thickness'
-			| 'ticket'
-			| 'tiktok'
-			| 'timeout'
-			| 'timer'
-			| 'train'
-			| 'train_boost'
-			| 'translate'
-			| 'trash'
-			| 'tts'
-			| 'twitch'
-			| 'twitchat'
-			| 'twitter'
-			| 'ulule'
-			| 'unban'
-			| 'unblock'
-			| 'unfollow'
-			| 'unlock'
-			| 'unmod'
-			| 'unmute'
-			| 'unpin'
-			| 'unvip'
-			| 'update'
-			| 'upload'
-			| 'url'
-			| 'user'
-			| 'vibrate'
-			| 'vip'
-			| 'voice'
-			| 'voicemod'
-			| 'volume'
-			| 'watchStreak'
-			| 'whispers'
-			| 'youtube';
+			| "ad"
+			| "add"
+			| "alert"
+			| "animate"
+			| "announcement"
+			| "anon"
+			| "api"
+			| "automod"
+			| "badge"
+			| "ban"
+			| "bingo"
+			| "bits"
+			| "block"
+			| "boost"
+			| "bot"
+			| "broadcast"
+			| "broadcaster"
+			| "change"
+			| "channelPoints"
+			| "chatCommand"
+			| "chatPoll"
+			| "checkmark"
+			| "clearChat"
+			| "click"
+			| "clip"
+			| "coffee"
+			| "coin"
+			| "color"
+			| "commands"
+			| "conversation"
+			| "copy"
+			| "count"
+			| "countdown"
+			| "credits"
+			| "cross"
+			| "date"
+			| "debug"
+			| "delete"
+			| "dice"
+			| "discord"
+			| "donor"
+			| "download"
+			| "dragZone"
+			| "easing"
+			| "edit"
+			| "elevated"
+			| "elgato"
+			| "emergency"
+			| "emote"
+			| "enter"
+			| "filters"
+			| "firstTime"
+			| "fix"
+			| "follow"
+			| "follow_outline"
+			| "font"
+			| "fontSize"
+			| "fullscreen"
+			| "gift"
+			| "github"
+			| "goxlr"
+			| "goxlr_bleep"
+			| "goxlr_fx"
+			| "hand"
+			| "heat"
+			| "help"
+			| "hide"
+			| "highlight"
+			| "history"
+			| "hypeChat"
+			| "idea"
+			| "info"
+			| "internet"
+			| "kofi"
+			| "leave"
+			| "list"
+			| "live"
+			| "loader"
+			| "lock"
+			| "loop"
+			| "magnet"
+			| "markRead"
+			| "max"
+			| "merge"
+			| "microphone"
+			| "microphone_mute"
+			| "microphone_recording"
+			| "min"
+			| "minus"
+			| "mod"
+			| "move"
+			| "music"
+			| "mute"
+			| "newtab"
+			| "next"
+			| "noMusic"
+			| "notification"
+			| "number"
+			| "obs"
+			| "offline"
+			| "online"
+			| "orderable"
+			| "overlay"
+			| "params"
+			| "partner"
+			| "patreon"
+			| "pause"
+			| "paypal"
+			| "pin"
+			| "pipette"
+			| "placeholder"
+			| "play"
+			| "poll"
+			| "polygon"
+			| "prediction"
+			| "premium"
+			| "presentation"
+			| "press"
+			| "prev"
+			| "prime"
+			| "pros"
+			| "qna"
+			| "raid"
+			| "read"
+			| "refresh"
+			| "reply"
+			| "returning"
+			| "reward_highlight"
+			| "rightClick"
+			| "rotate"
+			| "save"
+			| "scale"
+			| "scroll"
+			| "scrollDown"
+			| "scrollUp"
+			| "search"
+			| "shadow"
+			| "shield"
+			| "shieldMode"
+			| "shoutout"
+			| "show"
+			| "skip"
+			| "slow"
+			| "spotify"
+			| "stars"
+			| "stop"
+			| "sub"
+			| "test"
+			| "thickness"
+			| "ticket"
+			| "tiktok"
+			| "timeout"
+			| "timer"
+			| "train"
+			| "train_boost"
+			| "translate"
+			| "trash"
+			| "tts"
+			| "twitch"
+			| "twitchat"
+			| "twitter"
+			| "ulule"
+			| "unban"
+			| "unblock"
+			| "unfollow"
+			| "unlock"
+			| "unmod"
+			| "unmute"
+			| "unpin"
+			| "unvip"
+			| "update"
+			| "upload"
+			| "url"
+			| "user"
+			| "vibrate"
+			| "vip"
+			| "voice"
+			| "voicemod"
+			| "volume"
+			| "watchStreak"
+			| "whispers"
+			| "youtube";
 		/**
 		 * Color of the message for "highlight" style
 		 */
@@ -1867,7 +1887,7 @@ export type TwitchatEventMap = {
 		/**
 		 * Message style
 		 */
-		style?: 'message' | 'highlight' | 'error';
+		style?: "message" | "highlight" | "error";
 		/**
 		 * Option quote displayed in a dedicated holder
 		 */
@@ -1887,7 +1907,7 @@ export type TwitchatEventMap = {
 			/**
 			 * Type of action
 			 */
-			actionType?: 'url' | 'trigger' | 'message' | 'discord';
+			actionType?: "url" | "trigger" | "message" | "discord";
 			/**
 			 * Page to open in a new tab for "url" actionType
 			 */
@@ -1908,7 +1928,7 @@ export type TwitchatEventMap = {
 			/**
 			 * Button style
 			 */
-			theme?: 'default' | 'primary' | 'secondary' | 'alert';
+			theme?: "default" | "primary" | "secondary" | "alert";
 		}[];
 	};
 
@@ -1916,24 +1936,27 @@ export type TwitchatEventMap = {
 	 * Request quiz overlay presence
 	 * @answer ON_QUIZ_OVERLAY_PRESENCE
 	 */
-	GET_QUIZ_OVERLAY_PRESENCE:void;
+	GET_QUIZ_OVERLAY_PRESENCE: void;
 	/**
 	 * Advertise for quiz overlay presence
 	 */
-	ON_QUIZ_OVERLAY_PRESENCE:void;
+	ON_QUIZ_OVERLAY_PRESENCE: void;
 	/**
 	 * Request quiz overlay configuration
 	 * @answer ON_QUIZ_STATE
 	 */
-	GET_QUIZ_CONFIGS:void;
+	GET_QUIZ_CONFIGS: void;
 	/**
 	 * Receive quiz overlay configuration
 	 */
-	ON_QUIZ_STATE: {quiz?: TwitchatDataTypes.QuizParams, i18n:{mode_classic: string, mode_majority: string, mode_freeAnswer: string}};
+	ON_QUIZ_STATE: {
+		quiz?: TwitchatDataTypes.QuizParams;
+		i18n: { mode_classic: string; mode_majority: string; mode_freeAnswer: string };
+	};
 	/**
 	 * Receive quiz overlay leaderboard
 	 */
-	ON_QUIZ_LEADERBOARD: {leaderboard: TwitchatDataTypes.QuizState["users"]};
+	ON_QUIZ_LEADERBOARD: { leaderboard: TwitchatDataTypes.QuizState["users"] };
 	/**
 	 * Reveals the answer for current quiz question
 	 */
@@ -1946,7 +1969,7 @@ export type TwitchatEventMap = {
 	 * Toggle quiz leaderboard display
 	 */
 	SET_QUIZ_TOGGLE_LEADERBOARD: void;
-	
+
 	/**
 	 * Requests for global states
 	 * @answer ON_GLOBAL_STATES
@@ -1960,15 +1983,41 @@ export type TwitchatEventMap = {
 		/**
 		 * List of active timer and their state
 		 */
-		activeTimers: Pick<TwitchatDataTypes.TimerData, "id"|"duration_ms"|"enabled"|"endAt_ms"|"isDefault"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"startAt_ms"|"type">[];
+		activeTimers: Pick<
+			TwitchatDataTypes.TimerData,
+			| "id"
+			| "duration_ms"
+			| "enabled"
+			| "endAt_ms"
+			| "isDefault"
+			| "offset_ms"
+			| "pauseDuration_ms"
+			| "paused"
+			| "pausedAt_ms"
+			| "startAt_ms"
+			| "type"
+		>[];
 		/**
 		 * List of active countdowns and their state
 		 */
-		activeCountdowns: Pick<TwitchatDataTypes.TimerData, "id"|"duration_ms"|"enabled"|"endAt_ms"|"isDefault"|"offset_ms"|"pauseDuration_ms"|"paused"|"pausedAt_ms"|"startAt_ms"|"type">[];
+		activeCountdowns: Pick<
+			TwitchatDataTypes.TimerData,
+			| "id"
+			| "duration_ms"
+			| "enabled"
+			| "endAt_ms"
+			| "isDefault"
+			| "offset_ms"
+			| "pauseDuration_ms"
+			| "paused"
+			| "pausedAt_ms"
+			| "startAt_ms"
+			| "type"
+		>[];
 		/**
 		 * Current counter values
 		 */
-		counterValues: { id:string, value: number }[];
+		counterValues: { id: string; value: number }[];
 		/**
 		 * Current emergency mode state
 		 */
@@ -2032,9 +2081,9 @@ export type TwitchatEventMap = {
 		/**
 		 * Chat columns configurations
 		 */
-		chatColConfs:{
+		chatColConfs: {
 			paused: boolean;
-		}[]
+		}[];
 		/**
 		 * List of animated texts overlays
 		 */
@@ -2122,7 +2171,7 @@ export type TwitchatEventMap = {
 				login: string;
 				displayName: string;
 			};
-		}|null;
+		} | null;
 	};
 
 	/**
@@ -2350,4 +2399,4 @@ export type TwitchatEventMap = {
 	 * @private
 	 */
 	SET_BINGO_GRID_VISIBILITY_FROM_SD: TwitchatEventMap["SET_BINGO_GRID_VISIBILITY"];
-}
+};

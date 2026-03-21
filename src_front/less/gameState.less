@@ -8,7 +8,7 @@
 	border-radius: var(--border-radius);
 	display: flex;
 	flex-direction: column;
-	gap: .5em;
+	gap: 0.5em;
 	max-height: 50vh;
 	overflow: auto;
 
@@ -18,18 +18,19 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: .5em;
+		gap: 0.5em;
 		width: 100%;
 		position: sticky;
 		top: 0;
 		background-color: var(--color-primary);
-		transition: all .1s ease;
+		transition: all 0.1s ease;
 		z-index: 1;
-		padding: .25em 0;
+		padding: 0.25em 0;
 		padding-right: @paddingRight;
 
-		.title,h1 {
-			gap: .25em;
+		.title,
+		h1 {
+			gap: 0.25em;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -38,37 +39,38 @@
 			text-align: center;
 			flex-wrap: wrap;
 			filter: drop-shadow(1px 1px rgba(0, 0, 0, 0.5));
-			img, .icon {
+			img,
+			.icon {
 				max-width: 1em;
 				height: 1em;
 				flex-shrink: 0;
 			}
 			.highlight {
-				font-size: .8em;
+				font-size: 0.8em;
 				color: var(--color-secondary);
 			}
 			mark {
-				font-size: .6em;
-				margin-left: .25em;
+				font-size: 0.6em;
+				margin-left: 0.25em;
 				font-weight: normal;
 				.icon {
 					height: 1em;
-					margin-right: .5em;
+					margin-right: 0.5em;
 					vertical-align: bottom;
 				}
 			}
 		}
 
-		.progressbar  {
+		.progressbar {
 			position: absolute;
 			bottom: -5px;
 			left: 0;
 			width: 100%;
 		}
-	
+
 		&.is-stuck {
-			box-shadow: 0 2px 2px rgba(0,0,0,0.25);
-			font-size: .8em;
+			box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+			font-size: 0.8em;
 		}
 	}
 
@@ -76,20 +78,20 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: .5em;
-		padding: .5em;
+		gap: 0.5em;
+		padding: 0.5em;
 		padding-top: 0;
 	}
 
 	.highlight:not(.button) {
 		background: var(--color-secondary);
-		padding: .2em .5em;
-		border-radius: .5em;
+		padding: 0.2em 0.5em;
+		border-radius: 0.5em;
 	}
 
 	.actions {
-		gap: .5em;
-		row-gap: .5em;
+		gap: 0.5em;
+		row-gap: 0.5em;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -99,9 +101,8 @@
 	*::-webkit-scrollbar-thumb {
 		cursor: pointer;
 		border-radius: 20px;
-		background-color: rgba(255, 255, 255, .5);
+		background-color: rgba(255, 255, 255, 0.5);
 	}
-
 }
 
 /* experimental enhancement */

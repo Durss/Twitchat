@@ -5,12 +5,12 @@ import PublicAPI from "../PublicAPI";
 import Utils from "../Utils";
 import VoicemodEvent from "./VoicemodEvent";
 import type { VoicemodTypes } from "./VoicemodTypes";
+import type { AutocompletableString } from "@/typeUtils";
 
 /**
-* Created : 25/07/2021
-*/
+ * Created : 25/07/2021
+ */
 export default class VoicemodWebSocket extends EventDispatcher {
-
 	private static ACTION_REGISTER_CLIENT: string = "registerClient";
 	private static ACTION_GET_VOICES: string = "getVoices";
 	private static ACTION_GET_CURRENT_VOICE: string = "getCurrentVoice";
@@ -34,7 +34,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private static NO_FILTER_ID: string = "nofx";
 	private static NO_FILTER_ID_V3: string = "df6454f1-8eb2-4092-9ccc-fb51219f6291";
 
-	private static _instance:VoicemodWebSocket;
+	private static _instance: VoicemodWebSocket;
 
 	public connected = ref(false);
 
@@ -43,58 +43,62 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private _socket!: WebSocket;
 	private _voicesList: VoicemodTypes.Voice[] = [];
 	private _soundsboards: VoicemodTypes.Soundboard[] = [];
-	private _currentVoiceEffect!: VoicemodTypes.Voice|null;
+	private _currentVoiceEffect!: VoicemodTypes.Voice | null;
 	private _autoReconnect: boolean = false;
-	private _resetVoiceTimeout:number = -1;
+	private _resetVoiceTimeout: number = -1;
 	private _reconnectTimeout: number = -1;
-	private _voiceIdImageToPromise:{[key:string]:{resolve:(base64:string)=>void, reject:()=>void}} = {};
-	private _voiceIdToImage:{[key:string]:string} = {};
-	private _hearMyselfState:boolean = false;
-	private _voiceChangerState:boolean = false;
-	private _connectAttempts:number = 0;
+	private _voiceIdImageToPromise: {
+		[key: string]: { resolve: (base64: string) => void; reject: () => void };
+	} = {};
+	private _voiceIdToImage: { [key: string]: string } = {};
+	private _hearMyselfState: boolean = false;
+	private _voiceChangerState: boolean = false;
+	private _connectAttempts: number = 0;
 
-	static get instance():VoicemodWebSocket {
-		if(!VoicemodWebSocket._instance) {
+	static get instance(): VoicemodWebSocket {
+		if (!VoicemodWebSocket._instance) {
 			VoicemodWebSocket._instance = new VoicemodWebSocket();
 		}
 		return VoicemodWebSocket._instance;
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
+	 * GETTER / SETTERS *
+	 ********************/
 
 	/**
 	 * Get all the available voice effects
 	 */
-	public get voices():VoicemodTypes.Voice[] {
+	public get voices(): VoicemodTypes.Voice[] {
 		return JSON.parse(JSON.stringify(this._voicesList));
 	}
 
 	/**
 	 * Get all the available soundboards list
 	 */
-	public get soundboards():VoicemodTypes.Soundboard[] {
+	public get soundboards(): VoicemodTypes.Soundboard[] {
 		return JSON.parse(JSON.stringify(this._soundsboards));
 	}
 
 	/**
 	 * Get all the available memes list
 	 */
-	public get currentVoiceEffect():VoicemodTypes.Voice|null {
+	public get currentVoiceEffect(): VoicemodTypes.Voice | null {
 		return this._currentVoiceEffect;
 	}
 
-
-
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public connect(ip:string="127.0.0.1", port:number=59129, isRetry:boolean = false): Promise<void> {
-		if(this.connected.value) return Promise.resolve();
-		if(this._connecting) return Promise.resolve();
+	 * PUBLIC METHODS *
+	 ******************/
+	public connect(
+		ip: string = "127.0.0.1",
+		port: number = 59129,
+		isRetry: boolean = false,
+	): Promise<void> {
+		if (this.connected.value) return Promise.resolve();
+		if (this._connecting) return Promise.resolve();
 		this._connecting = true;
-		if(!isRetry) {
+		if (!isRetry) {
 			this._connectAttempts = 0;
 		}
 		return new Promise((resolve, reject) => {
@@ -108,47 +112,47 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				this.register();
 			};
 
-			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
+			this._socket.onmessage = (event: any) => this.onSocketMessage(event);
 
-			this._socket.onclose = (e) => {
+			this._socket.onclose = (_e) => {
 				// if(this.connected.value) {
 				// 	console.log('🎤 Voicemod connection lost');
 				// }
 				this._connecting = false;
 				this.connected.value = false;
 				// Attempt to connect 300 times which roughly corresponds to 10min
-				if(this._autoReconnect || ++this._connectAttempts < 300) {
+				if (this._autoReconnect || ++this._connectAttempts < 300) {
 					try {
-						window.setTimeout(()=> {
-							this.connect(ip, port, true);
-						}, 1000)
-					}catch(error) {
+						window.setTimeout(() => {
+							void this.connect(ip, port, true);
+						}, 1000);
+					} catch (error) {
 						console.log(error);
 						reject("[-][VoicemodWebSocket] Reconnection failed");
 					}
 				}
-			}
+			};
 
-			this._socket.onerror = (e) => {
+			this._socket.onerror = (_e) => {
 				this._connecting = false;
 				reject("[-][VoicemodWebSocket] Socket error");
-			}
+			};
 		});
 	}
 
 	/**
 	 * Disconnects socket
 	 */
-	public disconnect():void {
+	public disconnect(): void {
 		// console.log("🎤 VoicemodWebSocket: disconnecting");
 		this._voicesList = [];
 		this._soundsboards = [];
 		this._voiceIdToImage = {};
 		this._voiceIdImageToPromise = {};
 		this._autoReconnect = false;
-		this._connectAttempts = Number.MAX_SAFE_INTEGER
+		this._connectAttempts = Number.MAX_SAFE_INTEGER;
 		clearTimeout(this._reconnectTimeout);
-		if(this.connected.value) {
+		if (this.connected.value) {
 			this._socket.close();
 		}
 		this.connected.value = false;
@@ -163,37 +167,58 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the voice effect to activate
 	 * @param id		(optional) The ID of the voice effect to activate
 	 */
-	public async enableVoiceEffect(name?:string, id?:string|"DISABLE_EFFECT", autoRemoveDelay:number = -1):Promise<void> {
-		if(!this._voicesList || !this._voicesList.length) {
+	public async enableVoiceEffect(
+		name?: string,
+		id?: AutocompletableString | "DISABLE_EFFECT",
+		autoRemoveDelay: number = -1,
+	): Promise<void> {
+		if (!this._voicesList || !this._voicesList.length) {
 			// console.log("🎤 VoicemodWebSocket not connected");
 			return;
 		}
 
-		let voice:VoicemodTypes.Voice|undefined;
-		if(name) {
-			name = name.toLowerCase().replace(/[^\w\s]/g, '').trim();
-			voice = VoicemodWebSocket.instance.voices.find(v=> v.friendlyName.toLowerCase().replace(/[^\w\s]/g, '').trim() === name);
+		let voice: VoicemodTypes.Voice | undefined;
+		if (name) {
+			name = name
+				.toLowerCase()
+				.replace(/[^\w\s]/g, "")
+				.trim();
+			voice = VoicemodWebSocket.instance.voices.find(
+				(v) =>
+					v.friendlyName
+						.toLowerCase()
+						.replace(/[^\w\s]/g, "")
+						.trim() === name,
+			);
 		}
-		if(!name && id) {
-			if(id == "DISABLE_EFFECT") {
-				voice = this._voicesList.find(v=>v.id == VoicemodWebSocket.NO_FILTER_ID || v.id == VoicemodWebSocket.NO_FILTER_ID_V3);
-			}else{
-				voice = this._voicesList.find(v=>v.id == id);
+		if (!name && id) {
+			if (id == "DISABLE_EFFECT") {
+				voice = this._voicesList.find(
+					(v) =>
+						v.id == VoicemodWebSocket.NO_FILTER_ID ||
+						v.id == VoicemodWebSocket.NO_FILTER_ID_V3,
+				);
+			} else {
+				voice = this._voicesList.find((v) => v.id == id);
 			}
 		}
 
-		if(!voice) {
-			console.log("🎤Voicemod: voice effect "+(id? id : name)+" not found");
-		}else{
-			this._currentVoiceEffect = (voice.id != VoicemodWebSocket.NO_FILTER_ID && voice.friendlyName.toLowerCase() != VoicemodWebSocket.NO_FILTER_ID_V3)? voice : null;
-			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, {voiceID:voice.id});
+		if (!voice) {
+			console.log("🎤Voicemod: voice effect " + (id ? id : name) + " not found");
+		} else {
+			this._currentVoiceEffect =
+				voice.id != VoicemodWebSocket.NO_FILTER_ID &&
+				voice.friendlyName.toLowerCase() != VoicemodWebSocket.NO_FILTER_ID_V3
+					? voice
+					: null;
+			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, { voiceID: voice.id });
 		}
 
 		clearTimeout(this._resetVoiceTimeout);
 
-		if(autoRemoveDelay > -1) {
-			this._resetVoiceTimeout = window.setTimeout(async ()=> {
-				this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
+		if (autoRemoveDelay > -1) {
+			this._resetVoiceTimeout = window.setTimeout(async () => {
+				void this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
 			}, autoRemoveDelay);
 		}
 	}
@@ -201,23 +226,23 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	/**
 	 * Disables the current voice effect
 	 */
-	public disableVoiceEffect():void {
-		this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
+	public disableVoiceEffect(): void {
+		void this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
 		this._currentVoiceEffect = null;
 	}
 
 	/**
 	 * Makes a beep sound
 	 */
-	public async beepOn():Promise<void> {
-		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, {badLanguage:1});
+	public async beepOn(): Promise<void> {
+		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, { badLanguage: 1 });
 	}
 
 	/**
 	 * Stops beeping
 	 */
-	public beepOff():void {
-		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, {badLanguage:0});
+	public beepOff(): void {
+		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, { badLanguage: 0 });
 	}
 
 	/**
@@ -229,60 +254,68 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the meme sound to activate
 	 * @param id		(optional) The "FileName" of the meme to activate
 	 */
-	public playSound(name?:string, id?:string):void {
-		if(!this._soundsboards || this._soundsboards.length == 0) return;
+	public playSound(name?: string, id?: string): void {
+		if (!this._soundsboards || this._soundsboards.length == 0) return;
 
-		if(name) {
+		if (name) {
 			const rawName = name;
-			name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
+			name = name
+				.trim()
+				.toLowerCase()
+				.replace(/[^\w\s]/g, "");
 			for (const board of this._soundsboards) {
 				for (const sound of board.sounds) {
-					if(!sound) continue;
+					if (!sound) continue;
 					//Check if the requested name is exactly the same
-					if(rawName == sound.name) {
+					if (rawName == sound.name) {
 						//As this exactly matches the requested name, we can stop searching
 						id = sound.id;
 						break;
 					}
 					//Check if requested name is more or less the same
-					if (sound.name.trim().toLowerCase().replace(/[^\w\s]/g, '') === name) {
+					if (
+						sound.name
+							.trim()
+							.toLowerCase()
+							.replace(/[^\w\s]/g, "") === name
+					) {
 						id = sound.id;
 					}
 				}
 			}
 		}
 
-		if(!id) {
-			console.log("🎤Voicemod: meme sound "+name+" not found");
-		}else{
-			this.send(VoicemodWebSocket.ACTION_PLAY_MEME, {FileName:id, IsKeyDown:true});
+		if (!id) {
+			console.log("🎤Voicemod: meme sound " + name + " not found");
+		} else {
+			this.send(VoicemodWebSocket.ACTION_PLAY_MEME, { FileName: id, IsKeyDown: true });
 		}
 	}
 
 	/**
 	 * Stops any playing meme sound
 	 */
-	public stopSound():void {
+	public stopSound(): void {
 		this.send(VoicemodWebSocket.ACTION_STOP_ALL_MEME_SOUNDS);
 	}
 
 	/**
 	 * Stops any playing meme sound
 	 */
-	public getCurrentVoice():void {
+	public getCurrentVoice(): void {
 		this.send(VoicemodWebSocket.ACTION_GET_CURRENT_VOICE);
 	}
 
 	/**
 	 * Request the image of a voice effect
 	 */
-	public async getBitmapForVoice(id:string):Promise<string> {
-		return new Promise((resolve, reject)=> {
-			if(this._voiceIdToImage[id]) {
+	public async getBitmapForVoice(id: string): Promise<string> {
+		return new Promise((resolve, reject) => {
+			if (this._voiceIdToImage[id]) {
 				resolve(this._voiceIdToImage[id]);
-			}else{
-				this._voiceIdImageToPromise[id] = {resolve, reject};
-				this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:id});
+			} else {
+				this._voiceIdImageToPromise[id] = { resolve, reject };
+				this.send(VoicemodWebSocket.ACTION_GET_BITMAP, { voiceID: id });
 			}
 		});
 	}
@@ -291,60 +324,60 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Enable or disable the voice changer
 	 * @param state
 	 */
-	public setVoiceChangerState(state:boolean):void {
-		if(this._voiceChangerState != state) {
+	public setVoiceChangerState(state: boolean): void {
+		if (this._voiceChangerState != state) {
 			this.send(VoicemodWebSocket.ACTION_TOGGLE_VOICE_CHANGER);
 		}
 	}
 
-	public setHearMyselfState(state:boolean):void {
-		if(this._hearMyselfState != state) {
+	public setHearMyselfState(state: boolean): void {
+		if (this._hearMyselfState != state) {
 			this.send(VoicemodWebSocket.ACTION_TOGGLE_HEAR_MYSELF);
 		}
 	}
 
-
-
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
 	/**
 	 * Sends a data to Voicemod
 	 */
-	private send(actionType: string, payload?:any):void {
+	private send(actionType: string, payload?: any): void {
 		const uuid = Utils.getUUID();
-		const json:any = {
-			"id": uuid,
-			"action": actionType,
+		const json: any = {
+			id: uuid,
+			action: actionType,
 		};
-		if(payload) {
+		if (payload) {
 			json.payload = payload;
 		}
 
-		if(this._socket.readyState == WebSocket.OPEN) {
-			this._socket.send( JSON.stringify(json) );
+		if (this._socket.readyState == WebSocket.OPEN) {
+			this._socket.send(JSON.stringify(json));
 		}
 	}
 
-	private register():void {
-		const json = {clientKey: "controlapi-uzur23999"};
-		this.send(VoicemodWebSocket.ACTION_REGISTER_CLIENT, json)
+	private register(): void {
+		const json = { clientKey: "controlapi-uzur23999" };
+		this.send(VoicemodWebSocket.ACTION_REGISTER_CLIENT, json);
 	}
 
 	/**
 	 * Called when a message is received from Voicemod app
 	 */
-	private async onSocketMessage(event:VoicemodTypes.SocketEvent):Promise<void> {
-		const json:VoicemodTypes.SocketData = JSON.parse(event.data);
+	private async onSocketMessage(event: VoicemodTypes.SocketEvent): Promise<void> {
+		const json: VoicemodTypes.SocketData = JSON.parse(event.data);
 
 		// console.log("🎤Voicemod: received message: " + json);
 
 		//Special case for "registerClient" event that's returned in an "action"
 		//field instead of "actionType" like every other events -_-
-		if(json.action == VoicemodWebSocket.ACTION_REGISTER_CLIENT) {
-			if(json.payload.status.code != 200) {
-				StoreProxy.common.alert("[Voicemod] Connection failed with reason: "+json.payload.status.description)
+		if (json.action == VoicemodWebSocket.ACTION_REGISTER_CLIENT) {
+			if (json.payload.status.code != 200) {
+				StoreProxy.common.alert(
+					"[Voicemod] Connection failed with reason: " + json.payload.status.description,
+				);
 				return;
 			}
 			//Request all available voice effect list
@@ -359,50 +392,54 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			return;
 		}
 
-		switch(json.actionType) {
-
-			case VoicemodWebSocket.ACTION_GET_VOICES:{
+		switch (json.actionType) {
+			case VoicemodWebSocket.ACTION_GET_VOICES: {
 				this._voicesList = json.actionObject.voices ?? [];
-				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.currentVoice)!;
-				if(this.currentVoiceEffect) this.onVoiceChange(this.currentVoiceEffect);
+				this._currentVoiceEffect = this._voicesList.find(
+					(v) => v.id === json.actionObject.currentVoice,
+				)!;
+				if (this.currentVoiceEffect) void this.onVoiceChange(this.currentVoiceEffect);
 				this.checkInitComplete();
 				break;
 			}
 
-			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE:{
-				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.voiceID)!;
+			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE: {
+				this._currentVoiceEffect = this._voicesList.find(
+					(v) => v.id === json.actionObject.voiceID,
+				)!;
 				break;
 			}
 
-			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:{
-				if(json.payload) {
+			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS: {
+				if (json.payload) {
 					this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
 				}
-				if(json.actionObject && json.actionObject.soundboards) {
+				if (json.actionObject && json.actionObject.soundboards) {
 					this._soundsboards = json.actionObject.soundboards;
 				}
 				this.checkInitComplete();
 				break;
 			}
 
-			case VoicemodWebSocket.ACTION_GET_BITMAP:{
+			case VoicemodWebSocket.ACTION_GET_BITMAP: {
 				//Called after requesting the image of a voice effect
 				const data = json.actionObject.result;
-				if(data) {
+				if (data) {
 					const img = data.transparent ?? data.default ?? data.selected;
 					const voiceID = json.actionObject.voiceID as string;
 					const prom = this._voiceIdImageToPromise[voiceID];
-					if(prom?.resolve) prom.resolve(img);
+					if (prom?.resolve) prom.resolve(img);
 					this._voiceIdToImage[voiceID] = img;
 				}
 				break;
-
 			}
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT_V3:
-			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:{
-				const voice = this._voicesList.find(v=>v.id == json.actionObject.voiceID as string);
-				if(voice) {
-					this.onVoiceChange(voice);
+			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT: {
+				const voice = this._voicesList.find(
+					(v) => v.id == (json.actionObject.voiceID as string),
+				);
+				if (voice) {
+					void this.onVoiceChange(voice);
 				}
 				break;
 			}
@@ -426,8 +463,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 
 			default:
-				// console.log("🎤Voicemod: unhandled actionType "+json.actionType);
-				// console.log(json);
+			// console.log("🎤Voicemod: unhandled actionType "+json.actionType);
+			// console.log(json);
 		}
 	}
 
@@ -435,8 +472,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Check if voices and memes list are laoded and resolves the
 	 * connect promise.
 	 */
-	private checkInitComplete():void {
-		if(this._voicesList.length > 0 && this._soundsboards.length > 0) {
+	private checkInitComplete(): void {
+		if (this._voicesList.length > 0 && this._soundsboards.length > 0) {
 			this._initResolver();
 			this.connected.value = true;
 		}
@@ -446,25 +483,34 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Populates given voice image
 	 * @param voice
 	 */
-	private async populateImageProp(voice:VoicemodTypes.Voice):Promise<void> {
+	private async populateImageProp(voice: VoicemodTypes.Voice): Promise<void> {
 		for (const v of this.voices) {
-			if(v.id == voice.id) {
+			if (v.id == voice.id) {
 				try {
 					const img = await this.getBitmapForVoice(v.id);
 					v.image = voice.image = img;
-				}catch(error){}
+				} catch (_error) {}
 			}
 		}
 	}
 
-	private async onVoiceChange(voice:VoicemodTypes.Voice):Promise<void> {
+	private async onVoiceChange(voice: VoicemodTypes.Voice): Promise<void> {
 		await this.populateImageProp(voice);
-		this._currentVoiceEffect = (voice.id != VoicemodWebSocket.NO_FILTER_ID && voice.id != VoicemodWebSocket.NO_FILTER_ID_V3)? voice : null;
+		this._currentVoiceEffect =
+			voice.id != VoicemodWebSocket.NO_FILTER_ID &&
+			voice.id != VoicemodWebSocket.NO_FILTER_ID_V3
+				? voice
+				: null;
 		StoreProxy.voice.voicemodCurrentVoice = this._currentVoiceEffect;
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
-		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
-		PublicAPI.instance.broadcast("ON_VOICEMOD_VOICE_CHANGE", {voiceId:voice.id});
-		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id, voice.friendlyName));
+		StoreProxy.labels.updateLabelValue(
+			"VOICEMOD_EFFECT_ICON",
+			"data:image/png;base64," + voice.image ||
+				"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+		);
+		PublicAPI.instance.broadcast("ON_VOICEMOD_VOICE_CHANGE", { voiceId: voice.id });
+		this.dispatchEvent(
+			new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id, voice.friendlyName),
+		);
 	}
-
 }

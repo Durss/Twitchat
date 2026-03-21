@@ -3,9 +3,11 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<component class="content" :is="component" v-if="component">
-					<ClearButton class="closeBt clearButton"
+					<ClearButton
+						class="closeBt clearButton"
 						aria-label="close"
-						@click="$emit('close')" />
+						@click="$emit('close')"
+					/>
 				</component>
 			</transition>
 		</div>
@@ -13,24 +15,24 @@
 </template>
 
 <script setup lang="ts">
-import { storeBingo as useStoreBingo } from '@/store/bingo/storeBingo';
-import { storeChatPoll as useStoreChatPoll } from '@/store/chat_poll/storeChatPoll';
-import { storePoll as useStorePoll } from '@/store/poll/storePoll';
-import { storePrediction as useStorePrediction } from '@/store/prediction/storePrediction';
-import { storeQuiz as useStoreQuiz } from '@/store/quiz/storeQuiz';
-import { storeRaffle as useStoreRaffle } from '@/store/raffle/storeRaffle';
-import { storeStream as useStoreStream } from '@/store/stream/storeStream';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { computed } from 'vue';
-import ClearButton from '../ClearButton.vue';
-import BingoState from './BingoState.vue';
-import ChatPollState from './ChatPollState.vue';
-import HypeTrainState from './HypeTrainState.vue';
-import PollState from './PollState.vue';
-import PredictionState from './PredictionState.vue';
-import QuizState from './QuizState.vue';
-import RaffleState from './RaffleState.vue';
-import RaidState from './RaidState.vue';
+import { storeBingo as useStoreBingo } from "@/store/bingo/storeBingo";
+import { storeChatPoll as useStoreChatPoll } from "@/store/chat_poll/storeChatPoll";
+import { storePoll as useStorePoll } from "@/store/poll/storePoll";
+import { storePrediction as useStorePrediction } from "@/store/prediction/storePrediction";
+import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
+import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed } from "vue";
+import ClearButton from "../ClearButton.vue";
+import BingoState from "./BingoState.vue";
+import ChatPollState from "./ChatPollState.vue";
+import HypeTrainState from "./HypeTrainState.vue";
+import PollState from "./PollState.vue";
+import PredictionState from "./PredictionState.vue";
+import QuizState from "./QuizState.vue";
+import RaffleState from "./RaffleState.vue";
+import RaidState from "./RaidState.vue";
 
 const props = defineProps<{
 	currentContent: TwitchatDataTypes.NotificationTypes;
@@ -49,51 +51,55 @@ const storeStream = useStoreStream();
 const storeQuiz = useStoreQuiz();
 
 const component = computed(() => {
-	switch(props.currentContent) {
+	switch (props.currentContent) {
 		case "poll": {
-			if(storePoll.data?.id != null && storePoll.data?.isFake != true) {
+			if (storePoll.data?.id != null && storePoll.data?.isFake != true) {
 				return PollState;
 			}
 			break;
 		}
 		case "prediction": {
-			if(storePrediction.data?.id != null && storePrediction.data?.isFake != true) {
+			if (storePrediction.data?.id != null && storePrediction.data?.isFake != true) {
 				return PredictionState;
 			}
 			break;
 		}
 		case "chatPoll": {
-			if(storeChatPoll.data != null) {
+			if (storeChatPoll.data != null) {
 				return ChatPollState;
 			}
 			break;
 		}
 		case "bingo": {
-			if(storeBingo.data != null) {
+			if (storeBingo.data != null) {
 				return BingoState;
 			}
 			break;
 		}
 		case "raffle": {
-			if(storeRaffle.raffleList != null && storeRaffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0) {
+			if (
+				storeRaffle.raffleList != null &&
+				storeRaffle.raffleList.filter((v) => v.mode === "chat" || v.mode === "tips")
+					.length > 0
+			) {
 				return RaffleState;
 			}
 			break;
 		}
 		case "raid": {
-			if(storeStream.currentRaid != undefined) {
+			if (storeStream.currentRaid != undefined) {
 				return RaidState;
 			}
 			break;
 		}
 		case "quiz": {
-			if(storeQuiz.quizList.filter(v=>v.enabled).length > 0) {
+			if (storeQuiz.quizList.filter((v) => v.enabled).length > 0) {
 				return QuizState;
 			}
 			break;
 		}
 		case "train": {
-			if(storeStream.hypeTrain != undefined) {
+			if (storeStream.hypeTrain != undefined) {
 				return HypeTrainState;
 			}
 			break;
@@ -101,26 +107,25 @@ const component = computed(() => {
 	}
 	return null;
 });
-
 </script>
 
 <style scoped lang="less">
-.channelnotifications{
+.channelnotifications {
 	width: 100%;
-	pointer-events:none;
+	pointer-events: none;
 
 	.holder {
 		position: relative;
-		pointer-events:all;
-		&>.content {
+		pointer-events: all;
+		& > .content {
 			max-height: 30vh;
 			overflow: auto;
-			transition: all .35s;
+			transition: all 0.35s;
 		}
 		.closeBt {
 			position: absolute;
-			top:.5em;
-			right:.25em;
+			top: 0.5em;
+			right: 0.25em;
 			width: 1.25em;
 			height: 1.25em;
 			padding: 0;
@@ -131,7 +136,7 @@ const component = computed(() => {
 		.slide-enter-from,
 		.slide-leave-to {
 			&.slide-leave-to {
-				opacity: .2;
+				opacity: 0.2;
 			}
 			max-height: 0;
 			padding-top: 0;

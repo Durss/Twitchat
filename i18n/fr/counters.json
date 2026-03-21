@@ -11,8 +11,8 @@
 		"user_tt": "Par viewer",
 		"examples": "Exemples :",
 		"user_not_found": "personne introuvable",
-		"connect_youtube":"Twitchat n'est pas connecté à YouTube.\nLe nom des viewers YouTube ne peut être récupéré.",
-		"connect_youtubeBt":"Connect YouTube.",
+		"connect_youtube": "Twitchat n'est pas connecté à YouTube.\nLe nom des viewers YouTube ne peut être récupéré.",
+		"connect_youtubeBt": "Connect YouTube.",
 		"nonpremium_limit": "Vous avez créé le maximum de {MAX} compteurs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
 		"premium_limit": "Vous avez créé le maximum de {MAX} compteurs.",
 		"form": {
@@ -32,18 +32,18 @@
 			"reset_all_users": "Tout mettre à zéro",
 			"no_users": "aucune entrée",
 			"search": "Chercher quelqu'un...",
-			"sort_name":"Nom",
-			"sort_points":"Points"
+			"sort_name": "Nom",
+			"sort_points": "Points"
 		},
 		"delete_confirm": {
 			"title": "Supprimer ?",
 			"desc": "Les données du compteur seront perdues."
 		},
-		"reset_users_confirm":{
+		"reset_users_confirm": {
 			"title": "Reset ?",
 			"desc": "Souhaitez-vous remettre tous les viewers à zéro ?"
 		},
-		"delete_users_confirm":{
+		"delete_users_confirm": {
 			"title": "Supprimer ?",
 			"desc": "Souhaitez-vous supprimer tous les viewers ?"
 		}

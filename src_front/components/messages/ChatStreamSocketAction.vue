@@ -1,19 +1,28 @@
 <template>
-	<div class="chatstreamsocketaction chatMessage highlight"
-		@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+	<div
+		class="chatstreamsocketaction chatMessage highlight"
+		@contextmenu="onContextMenu($event, messageData, $el)"
+	>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
-		<Icon name="streamsocket" alt="streamsocket" class="icon"/>
+		<Icon name="streamsocket" alt="streamsocket" class="icon" />
 
 		<i18n-t scope="global" keypath="chat.stream_socket.action" tag="span" class="holder">
 			<template #USER>
-				<a class="userlink"
+				<a
+					class="userlink"
 					:href="getProfilePage(messageData.user)"
 					target="_blank"
-					@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)">{{messageData.user.displayName}}</a>
+					@click.stop.prevent="
+						openUserCard(messageData.user, messageData.channel_id, messageData.platform)
+					"
+					>{{ messageData.user.displayName }}</a
+				>
 			</template>
 			<template #ACTION>
-				<strong>{{messageData.actionName}}</strong>
+				<strong>{{ messageData.actionName }}</strong>
 			</template>
 		</i18n-t>
 
@@ -25,33 +34,31 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import Icon from '../Icon.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import Icon from "../Icon.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 	},
-	emits:[],
+	emits: [],
 })
 class ChatStreamSocketAction extends AbstractChatMessage {
-
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageStreamSocketActionData;
-
+	declare messageData: TwitchatDataTypes.MessageStreamSocketActionData;
 }
 export default toNative(ChatStreamSocketAction);
 </script>
 
 <style scoped lang="less">
-.chatstreamsocketaction{
+.chatstreamsocketaction {
 	.holder {
 		flex-grow: 1;
 	}
 	.bits {
-		gap: .25em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -60,6 +67,5 @@ export default toNative(ChatStreamSocketAction);
 			height: 1em;
 		}
 	}
-
 }
 </style>

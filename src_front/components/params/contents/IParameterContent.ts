@@ -4,10 +4,10 @@ export default interface IParameterContent {
 	 * This is a hook to allow contents to override default back button
 	 * behavior.
 	 * The call must return true if the default behavior is overriden
-	 * 
+	 *
 	 * @returns true if the call acted on the navigation
 	 */
-	onNavigateBack():boolean;
+	onNavigateBack(): boolean;
 	/**
 	 * Called if clicking on the menu button to open this section
 	 * when already on it.
@@ -15,5 +15,5 @@ export default interface IParameterContent {
 	 * on the "Triggers" menu entry will bring user back to the
 	 * triggers list
 	 */
-	reload?():void;
+	reload?(): void;
 }

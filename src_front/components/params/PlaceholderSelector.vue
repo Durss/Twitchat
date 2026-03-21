@@ -1,54 +1,96 @@
 <template>
-	<component tag="div" :is="popoutMode !== false? 'tooltip' : 'ToggleBlock'" small
-	:title="$t('global.placeholder_selector_title')"
-	:open="false"
-	:inlinePositioning='false'
-	:maxWidth="600"
-	:maxHeight="200"
-	interactive
-	:interactiveDebounce="1000"
-	:theme="$store.common.theme"
-	:appendTo='tooltipTarget'
-	:trigger="popoutMode !== false? 'click' : 'mouseenter'"
-	:class="classes">
+	<component
+		tag="div"
+		:is="popoutMode !== false ? 'tooltip' : 'ToggleBlock'"
+		small
+		:title="$t('global.placeholder_selector_title')"
+		:open="false"
+		:inlinePositioning="false"
+		:maxWidth="600"
+		:maxHeight="200"
+		interactive
+		:interactiveDebounce="1000"
+		:theme="$store.common.theme"
+		:appendTo="tooltipTarget"
+		:trigger="popoutMode !== false ? 'click' : 'mouseenter'"
+		:class="classes"
+	>
 		<template #default>
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
 		<template #content>
-
-			<input class="placeholderSelector_searchField" type="text"
-			v-if="search || localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
-			v-model="search"
-			:placeholder="$t('global.search_placeholder')"
-			@keydown.capture.stop="onKeyUp($event)">
+			<input
+				class="placeholderSelector_searchField"
+				type="text"
+				v-if="
+					search ||
+					localPlaceholders.length +
+						globalPlaceholders.length +
+						globalPlaceholderCategories.length >
+						5
+				"
+				v-model="search"
+				:placeholder="$t('global.search_placeholder')"
+				@keydown.capture.stop="onKeyUp($event)"
+			/>
 
 			<div :class="contentClasses">
 				<div class="list" v-if="localPlaceholders.length > 0">
-					<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
-						<TTButton primary small @click="insert(h)"
-							:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
-							v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
+					<template v-for="(h, index) in localPlaceholders" :key="h.tag + index">
+						<TTButton
+							primary
+							small
+							@click="insert(h)"
+							:copy="copyMode !== false ? '{' + h.tag + '}' : undefined"
+							v-tooltip="
+								copyMode !== false
+									? $t('global.copy')
+									: $t('global.placeholder_selector_insert')
+							"
+							>&#123;{{ h.tag }}&#125;</TTButton
+						>
 
 						<i18n-t scope="global" :keypath="h.descKey" tag="span">
-							<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+							<template
+								v-for="(value, name) in h.descReplacedValues ?? {}"
+								v-slot:[name]
+							>
 								<mark>{{ value }}</mark>
 							</template>
 						</i18n-t>
 					</template>
 				</div>
 
-				<template v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0">
-					<ToggleBlock class="misc" key="misc" small v-if="globalPlaceholders.length > 0" :open="search.length > 0"
-					noBackground
-					:title="$t('global.placeholder_selector_categories.misc')">
+				<template v-if="globalPlaceholders.length + globalPlaceholderCategories.length > 0">
+					<ToggleBlock
+						class="misc"
+						key="misc"
+						small
+						v-if="globalPlaceholders.length > 0"
+						:open="search.length > 0"
+						noBackground
+						:title="$t('global.placeholder_selector_categories.misc')"
+					>
 						<div class="list">
-							<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
-								<TTButton primary small @click="insert(h)"
-									:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
-									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
+							<template v-for="(h, index) in globalPlaceholders" :key="h.tag + index">
+								<TTButton
+									primary
+									small
+									@click="insert(h)"
+									:copy="copyMode !== false ? '{' + h.tag + '}' : undefined"
+									v-tooltip="
+										copyMode !== false
+											? $t('global.copy')
+											: $t('global.placeholder_selector_insert')
+									"
+									>&#123;{{ h.tag }}&#125;</TTButton
+								>
 
 								<i18n-t scope="global" :keypath="h.descKey" tag="span">
-									<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+									<template
+										v-for="(value, name) in h.descReplacedValues ?? {}"
+										v-slot:[name]
+									>
 										<mark>{{ value }}</mark>
 									</template>
 								</i18n-t>
@@ -56,17 +98,35 @@
 						</div>
 					</ToggleBlock>
 
-					<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="search.length > 0"
-					noBackground
-					:title="$t('global.placeholder_selector_categories.'+c.key)">
+					<ToggleBlock
+						class="global"
+						v-for="c in globalPlaceholderCategories"
+						:key="c.key"
+						small
+						:open="search.length > 0"
+						noBackground
+						:title="$t('global.placeholder_selector_categories.' + c.key)"
+					>
 						<div class="list">
-							<template v-for="(h,index) in c.entries" :key="h.tag+index">
-								<TTButton primary small @click="insert(h)"
-								:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
-									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
+							<template v-for="(h, index) in c.entries" :key="h.tag + index">
+								<TTButton
+									primary
+									small
+									@click="insert(h)"
+									:copy="copyMode !== false ? '{' + h.tag + '}' : undefined"
+									v-tooltip="
+										copyMode !== false
+											? $t('global.copy')
+											: $t('global.placeholder_selector_insert')
+									"
+									>&#123;{{ h.tag }}&#125;</TTButton
+								>
 
 								<i18n-t scope="global" :keypath="h.descKey" tag="span">
-									<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+									<template
+										v-for="(value, name) in h.descReplacedValues ?? {}"
+										v-slot:[name]
+									>
 										<mark>{{ value }}</mark>
 									</template>
 								</i18n-t>
@@ -80,46 +140,47 @@
 </template>
 
 <script lang="ts">
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
-import TTButton from '@/components/TTButton.vue';
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import TTButton from "@/components/TTButton.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ToggleBlock,
 	},
-	emits:["update:modelValue", "insert"]
+	emits: ["update:modelValue", "insert"],
 })
 class PlaceholderSelector extends Vue {
+	@Prop
+	public placeholders!: TwitchatDataTypes.PlaceholderEntry[];
 
 	@Prop
-	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public target!:
+		| (HTMLInputElement | HTMLTextAreaElement)
+		| Promise<HTMLInputElement | HTMLTextAreaElement>;
 
 	@Prop
-	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
+	public modelValue!: string;
 
-	@Prop
-	public modelValue!:string;
+	@Prop({ default: false })
+	public copyMode!: boolean;
 
-	@Prop({default:false})
-	public copyMode!:boolean;
+	@Prop({ default: false })
+	public popoutMode!: boolean;
 
-	@Prop({default:false})
-	public popoutMode!:boolean;
+	public search: string = "";
 
-	public search:string = "";
-
-	public get classes():string[] {
-		const res:string[] = ["placeholderselector"];
-		if(this.popoutMode !== false) res.push("popoutMode");
+	public get classes(): string[] {
+		const res: string[] = ["placeholderselector"];
+		if (this.popoutMode !== false) res.push("popoutMode");
 		return res;
 	}
 
-	public get contentClasses():string[] {
-		const res:string[] = ["tooltipContent"];
-		if(this.popoutMode !== false) res.push("popoutMode");
+	public get contentClasses(): string[] {
+		const res: string[] = ["tooltipContent"];
+		if (this.popoutMode !== false) res.push("popoutMode");
 		return res;
 	}
 
@@ -127,56 +188,68 @@ class PlaceholderSelector extends Vue {
 		return document.body;
 	}
 
-	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+	public get localPlaceholders(): TwitchatDataTypes.PlaceholderEntry[] {
 		const search = this.search.toLowerCase().trim();
-		return this.placeholders.filter(v=>v.globalTag !== true
-										&& v.private !== true
-										&& (
-											!this.search
-											|| v.tag.toLowerCase().indexOf(search) > -1
-											|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
-										));
+		return this.placeholders.filter(
+			(v) =>
+				v.globalTag !== true &&
+				v.private !== true &&
+				(!this.search ||
+					v.tag.toLowerCase().indexOf(search) > -1 ||
+					this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
+		);
 	}
 
-	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+	public get globalPlaceholders(): TwitchatDataTypes.PlaceholderEntry[] {
 		const search = this.search.toLowerCase().trim();
-		const list = this.placeholders.filter(v=>v.globalTag === true
-												&& !v.category
-												&& v.private !== true
-												&& (
-													!this.search
-													|| v.tag.toLowerCase().indexOf(search) > -1
-													|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
-												)
-											).sort((a,b) => a.tag.length - b.tag.length);
+		const list = this.placeholders
+			.filter(
+				(v) =>
+					v.globalTag === true &&
+					!v.category &&
+					v.private !== true &&
+					(!this.search ||
+						v.tag.toLowerCase().indexOf(search) > -1 ||
+						this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
+			)
+			.sort((a, b) => a.tag.length - b.tag.length);
 
 		return list;
 	}
 
-	public get globalPlaceholderCategories():{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[]{
+	public get globalPlaceholderCategories(): {
+		key: string;
+		entries: TwitchatDataTypes.PlaceholderEntry[];
+	}[] {
 		const search = this.search.toLowerCase().trim();
-		const list = this.placeholders.filter(v=>v.globalTag === true
-											&& v.category
-											&& v.private !== true
-											&& (
-												!this.search
-												|| v.tag.toLowerCase().indexOf(search) > -1
-												|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
-											)).sort((a,b)=> {
-			if((a.category || "") < (b.category || "")) return -1;
-			if((a.category || "") > (b.category || "")) return 1;
-			return 0;
-		});
+		const list = this.placeholders
+			.filter(
+				(v) =>
+					v.globalTag === true &&
+					v.category &&
+					v.private !== true &&
+					(!this.search ||
+						v.tag.toLowerCase().indexOf(search) > -1 ||
+						this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
+			)
+			.sort((a, b) => {
+				if ((a.category || "") < (b.category || "")) return -1;
+				if ((a.category || "") > (b.category || "")) return 1;
+				return 0;
+			});
 
-		if(list.length === 0) return [];
+		if (list.length === 0) return [];
 
-		const categories:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[] = [];
-		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0]!.category!, entries:[list[0]!]};
+		const categories: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] }[] = [];
+		let currentCategory: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] } = {
+			key: list[0]!.category!,
+			entries: [list[0]!],
+		};
 		for (let i = 1; i < list.length; i++) {
 			const el = list[i]!;
-			if(el.category != currentCategory.key) {
+			if (el.category != currentCategory.key) {
 				categories.push(currentCategory);
-				currentCategory = {key:el.category!, entries:[]};
+				currentCategory = { key: el.category!, entries: [] };
 			}
 			currentCategory.entries.push(el);
 		}
@@ -188,35 +261,38 @@ class PlaceholderSelector extends Vue {
 	/**
 	 * Add a token on the text
 	 */
-	public async insert(h:TwitchatDataTypes.PlaceholderEntry):Promise<void> {
-		if(this.target) {
+	public async insert(h: TwitchatDataTypes.PlaceholderEntry): Promise<void> {
+		if (this.target) {
 			let target = this.target as HTMLInputElement | HTMLTextAreaElement;
 			//target can be a promise returning the actual target, if it's a promise
 			//wait for it to complete.
-			if((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
-				target = await(new Promise((resolve)=>{
-					(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then((input:HTMLInputElement | HTMLTextAreaElement)=>{
-						resolve(input);
-					});
-				}))
+			if ((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
+				target = await new Promise((resolve) => {
+					(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then(
+						(input: HTMLInputElement | HTMLTextAreaElement) => {
+							resolve(input);
+						},
+					);
+				});
 			}
-			const tag = "{"+h.tag+"}";
+			const tag = "{" + h.tag + "}";
 			let carretPos = target.selectionStart as number | 0;
-			if(!carretPos) carretPos = 0;
+			if (!carretPos) carretPos = 0;
 			//Insert tag
-			const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
+			const text =
+				target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 			this.$emit("update:modelValue", text);
-		}else{
-			this.$emit("update:modelValue", this.modelValue+"{"+h.tag+"}");
-			this.$emit("insert", "{"+h.tag+"}");
+		} else {
+			this.$emit("update:modelValue", this.modelValue + "{" + h.tag + "}");
+			this.$emit("insert", "{" + h.tag + "}");
 		}
 	}
 
 	/**
 	 * Clear search on Escape
 	 */
-	public onKeyUp(event:KeyboardEvent):void {
-		if(event.key == 'Escape') this.search = "";
+	public onKeyUp(event: KeyboardEvent): void {
+		if (event.key == "Escape") this.search = "";
 	}
 }
 export default toNative(PlaceholderSelector);
@@ -225,14 +301,14 @@ export default toNative(PlaceholderSelector);
 <style lang="less" scoped>
 .placeholderSelector_searchField {
 	margin: 0 auto;
-	margin-bottom: .5em;
+	margin-bottom: 0.5em;
 	display: block;
 	max-width: unset;
 	min-width: unset;
-	font-size: .8em;
+	font-size: 0.8em;
 }
 .tooltipContent {
-	gap: .25em;
+	gap: 0.25em;
 	display: flex;
 	flex-direction: column;
 
@@ -241,7 +317,6 @@ export default toNative(PlaceholderSelector);
 		max-width: 100vw;
 		max-height: min(100vh, 300px);
 		overflow-y: auto;
-
 	}
 
 	.list {
@@ -249,13 +324,13 @@ export default toNative(PlaceholderSelector);
 		grid-template-columns: auto 1fr;
 		align-items: stretch;
 		column-gap: 1px;
-		row-gap: .25em;
-		font-size: .8em;
+		row-gap: 0.25em;
+		font-size: 0.8em;
 		color: var(--color-text);
-		&>* {
+		& > * {
 			background-color: var(--color-light-fadest);
-			border-radius: .5em;
-			padding: .25em .5em;
+			border-radius: 0.5em;
+			padding: 0.25em 0.5em;
 			&:nth-child(odd) {
 				max-width: 30vw;
 				word-break: break-all;
@@ -280,21 +355,20 @@ export default toNative(PlaceholderSelector);
 }
 </style>
 <style scoped lang="less">
-.placeholderselector{
-
+.placeholderselector {
 	&.popoutMode {
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		background-color: var(--color-secondary);
 		overflow: hidden;
 		display: flex;
-		.tooltipOpener{
-			color:var(--color-light);
+		.tooltipOpener {
+			color: var(--color-light);
 			display: block;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			padding: .25em .1em;
+			padding: 0.25em 0.1em;
 		}
 	}
 	.tooltipOpener {

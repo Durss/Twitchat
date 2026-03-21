@@ -1,43 +1,37 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
-import fetch from "node-fetch";
-import Config from "../utils/Config.js";
 
 /**
-* Created : 25/02/2024 
-*/
+ * Created : 25/02/2024
+ */
 export default class ApiController extends AbstractController {
-
-	constructor(public server:FastifyInstance) {
+	constructor(public server: FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	
-	
-	
+	 * GETTER / SETTERS *
+	 ********************/
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public initialize():void {
-		this.server.post('/api/remote/action', async (request, response) => await this.postRemoteAction(request, response));
+	 * PUBLIC METHODS *
+	 ******************/
+	public initialize(): void {
+		this.server.post(
+			"/api/remote/action",
+			async (request, response) => await this.postRemoteAction(request, response),
+		);
 	}
-	
-	
-	
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
 	/**
 	 * Executes a Twitchat action remotely
 	 * TODO
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
-	private async postRemoteAction(request:FastifyRequest, response:FastifyReply) {
-	}
-
+	private async postRemoteAction(_request: FastifyRequest, _response: FastifyReply) {}
 }

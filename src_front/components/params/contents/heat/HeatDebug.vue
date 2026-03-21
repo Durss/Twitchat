@@ -1,8 +1,14 @@
 <template>
-	<ToggleBlock class="heatdebug" :title="$t('heat.debug_interaction')" :open="false" :icons="['debug']" secondary>
+	<ToggleBlock
+		class="heatdebug"
+		:title="$t('heat.debug_interaction')"
+		:open="false"
+		:icons="['debug']"
+		secondary
+	>
 		<div class="content">
 			<div>{{ $t("heat.debug.description") }}</div>
-			
+
 			<div ref="areaHolder" class="areaHolder">
 				<HeatDebugPopout />
 			</div>
@@ -11,29 +17,27 @@
 </template>
 
 <script lang="ts">
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import HeatDebugPopout from '@/views/HeatDebugPopout.vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import HeatDebugPopout from "@/views/HeatDebugPopout.vue";
+import { toNative, Component, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		ToggleBlock,
 		HeatDebugPopout,
 	},
-	emits:[],
+	emits: [],
 })
-class HeatDebug extends Vue {
-
-}
+class HeatDebug extends Vue {}
 export default toNative(HeatDebug);
 </script>
 
 <style scoped lang="less">
-.heatdebug{
+.heatdebug {
 	width: 100%;
 
 	.content {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 

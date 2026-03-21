@@ -1,65 +1,94 @@
 <template>
 	<div class="paramsaccount parameterContent">
-		
 		<section class="profilePic">
-			<img :src="userPP" alt="profile pic">
+			<img :src="userPP" alt="profile pic" />
 		</section>
 
 		<section class="card-itemhead">
-			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
+			<div
+				v-html="$t('account.connected_as', { USER: '<strong>' + userName + '</strong>' })"
+			></div>
 		</section>
 
 		<section class="card-item actions">
-			<TTButton class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</TTButton>
-			<TTButton class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</TTButton>
-			<TTButton class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</TTButton>
+			<TTButton class="button" @click="logout()" icon="logout" alert>{{
+				$t("global.log_out")
+			}}</TTButton>
+			<TTButton class="button" @click="latestUpdates()" icon="update">{{
+				$t("account.updatesBt")
+			}}</TTButton>
+			<TTButton class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{
+				$t("account.installBt")
+			}}</TTButton>
 		</section>
 
 		<section class="card-item">
-			<div class="title">{{ $t('account.language') }}</div>
+			<div class="title">{{ $t("account.language") }}</div>
 			<AppLangSelector />
 		</section>
-		
+
 		<section class="card-item scopes">
-			<div class="title"><Icon name="lock_fit" class="icon" />{{$t("account.authorization")}}</div>
-			
+			<div class="title">
+				<Icon name="lock_fit" class="icon" />{{ $t("account.authorization") }}
+			</div>
+
 			<ScopeSelector @update="onScopesUpdate" />
 
-			<TTButton class="authorizeBt"
+			<TTButton
+				class="authorizeBt"
 				primary
 				@click.stop="authorize()"
 				v-if="showAuthorizeBt"
 				:loading="generatingCSRF || authenticating"
-				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				icon="twitch">{{ $t('login.authorizeBt') }}</TTButton>
+				v-tooltip="generatingCSRF ? $t('login.generatingCSRF') : ''"
+				icon="twitch"
+				>{{ $t("login.authorizeBt") }}</TTButton
+			>
 		</section>
 
 		<section v-if="$store.auth.donorLevel > -1" class="card-item donorState">
 			<DonorState />
 		</section>
-		
+
 		<section class="card-item dataSync">
-			<ParamItem class="param" :paramData="$store.account.syncDataWithServer" v-model="syncEnabled" noBackground />
-			<TTButton class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</TTButton>
+			<ParamItem
+				class="param"
+				:paramData="$store.account.syncDataWithServer"
+				v-model="syncEnabled"
+				noBackground
+			/>
+			<TTButton class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{
+				$t("account.erase_dataBt")
+			}}</TTButton>
 		</section>
-		
+
 		<section class="card-item dataShare">
 			<i18n-t tag="p" scope="global" keypath="account.share.info">
 				<template #USER>
 					<strong>{{ $store.auth.twitch.user.displayNameOriginal }}</strong>
 				</template>
 			</i18n-t>
-			<TTButton icon="twitch" class="button" @click="startParamsShareFlow()" :loading="connecting">{{ $t('account.share.connectBt') }}</TTButton>
+			<TTButton
+				icon="twitch"
+				class="button"
+				@click="startParamsShareFlow()"
+				:loading="connecting"
+				>{{ $t("account.share.connectBt") }}</TTButton
+			>
 
 			<template v-if="sharedUsers.length > 0">
 				<Splitter>{{ $t("account.share.sharingList") }}</Splitter>
-				<div class="card-item alert" v-if="unlinkError" @click="unlinkError = false">{{ $t("account.share.unlink_fail") }}</div>
+				<div class="card-item alert" v-if="unlinkError" @click="unlinkError = false">
+					{{ $t("account.share.unlink_fail") }}
+				</div>
 				<div class="card-item sharedUser" v-for="user in sharedUsers" :key="user.id">
 					<Icon name="loader" v-if="user.temporary" />
 					<template v-else>
-						<img :src="user.avatarPath" alt="avatar" class="avatar">
+						<img :src="user.avatarPath" alt="avatar" class="avatar" />
 						<span>{{ user.displayNameOriginal }}</span>
-						<TTButton @click="unlink(user)" icon="cross" small alert>{{ $t("account.share.unlinkBt") }}</TTButton>
+						<TTButton @click="unlink(user)" icon="cross" small alert>{{
+							$t("account.share.unlinkBt")
+						}}</TTButton>
 					</template>
 				</div>
 			</template>
@@ -68,29 +97,29 @@
 </template>
 
 <script lang="ts">
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import TTSUtils from '@/utils/TTSUtils';
-import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { watch } from '@vue/runtime-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../../TTButton.vue';
-import ParamItem from '../ParamItem.vue';
-import AppLangSelector from '@/components/AppLangSelector.vue';
-import ScopeSelector from '@/components/login/ScopeSelector.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type IParameterContent from './IParameterContent';
-import DonorState from '@/components/user/DonorState.vue';
-import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
-import ApiHelper from '@/utils/ApiHelper';
-import Splitter from '@/components/Splitter.vue';
-import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import DataStore from "@/store/DataStore";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import OBSWebsocket from "@/utils/OBSWebsocket";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import TTSUtils from "@/utils/TTSUtils";
+import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
+import { watch } from "@vue/runtime-core";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import TTButton from "../../TTButton.vue";
+import ParamItem from "../ParamItem.vue";
+import AppLangSelector from "@/components/AppLangSelector.vue";
+import ScopeSelector from "@/components/login/ScopeSelector.vue";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import type IParameterContent from "./IParameterContent";
+import DonorState from "@/components/user/DonorState.vue";
+import ParamsAccountPatreon from "./account/ParamsAccountPatreon.vue";
+import ApiHelper from "@/utils/ApiHelper";
+import Splitter from "@/components/Splitter.vue";
+import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 
 @Component({
-	components:{
+	components: {
 		Splitter,
 		TTButton,
 		ParamItem,
@@ -100,10 +129,9 @@ import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 		AppLangSelector,
 		ParamsAccountPatreon,
 	},
-	emits:[],
+	emits: [],
 })
-class ParamsAccount extends Vue implements IParameterContent {
-
+class ParamsAccount  extends Vue implements IParameterContent {
 	public showObs = false;
 	public disposed = false;
 	public showCredits = true;
@@ -113,141 +141,160 @@ class ParamsAccount extends Vue implements IParameterContent {
 	public showAuthorizeBt = false;
 	public showSuggestions = false;
 	public publicDonation_loaded = false;
-	public scopes:string[] = [];
+	public scopes: string[] = [];
 	public generatingCSRF = false;
 	public authenticating = false;
-	public CSRFToken:string = "";
-	public sharedUsers:TwitchatDataTypes.TwitchatUser[] = [];
+	public CSRFToken: string = "";
+	public sharedUsers: TwitchatDataTypes.TwitchatUser[] = [];
 
-	public get canInstall():boolean { return this.$store.main.ahsInstaller != null; }
-	public get userName():string { return this.$store.auth.twitch.user.displayName; }
-	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
-	public get userPP():string {
-		let pp:string|undefined = this.$store.auth.twitch.user.avatarPath;
-		if(!pp) {
+	public get canInstall(): boolean {
+		return this.$store.main.ahsInstaller != null;
+	}
+	public get userName(): string {
+		return this.$store.auth.twitch.user.displayName;
+	}
+	public get contentAbout(): TwitchatDataTypes.ParameterPagesStringType {
+		return TwitchatDataTypes.ParameterPages.ABOUT;
+	}
+	public get userPP(): string {
+		let pp: string | undefined = this.$store.auth.twitch.user.avatarPath;
+		if (!pp) {
 			pp = this.$asset("icons/user.svg");
 		}
 		return pp;
 	}
 
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
-		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
+		watch(
+			() => this.syncEnabled,
+			() => DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false),
+		);
 		this.updateSharedUserList();
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
-	public onNavigateBack(): boolean { return false; }
-
-	public logout():void {
-		this.$store.auth.logout();
-		this.$router.push({name:'logout'});
+	public onNavigateBack(): boolean {
+		return false;
 	}
 
-	public latestUpdates():void {
+	public logout(): void {
+		this.$store.auth.logout();
+		this.$router.push({ name: "logout" });
+	}
+
+	public latestUpdates(): void {
 		this.$store.params.closeParameters();
 		this.$store.params.openModal("updates");
 		// this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
-	public ahs():void {
+	public ahs(): void {
 		const ahsInstaller = this.$store.main.ahsInstaller;
-		if(!ahsInstaller) return;
+		if (!ahsInstaller) return;
 		// Show the prompt
 		ahsInstaller.prompt();
 	}
 
-	public eraseData():void {
-		this.$store.main.confirm(this.$t('account.erase_confirm_title'), this.$t('account.erase_confirm_description'))
-		.then(()=>{
-			DataStore.clear(true);
-			this.$store.obs.$reset();
-			this.$store.qna.$reset();
-			this.$store.tts.$reset();
-			this.$store.poll.$reset();
-			this.$store.chat.$reset();
-			this.$store.heat.$reset();
-			this.$store.kofi.$reset();
-			this.$store.voice.$reset();
-			this.$store.music.$reset();
-			this.$store.lumia.$reset();
-			this.$store.users.$reset();
-			this.$store.raffle.$reset();
-			this.$store.labels.$reset();
-			this.$store.stream.$reset();
-			this.$store.params.$reset();
-			this.$store.values.$reset();
-			this.$store.tipeee.$reset();
-			this.$store.discord.$reset();
-			this.$store.automod.$reset();
-			this.$store.triggers.$reset();
-			this.$store.counters.$reset();
-			this.$store.bingoGrid.$reset();
-			this.$store.emergency.$reset();
-			this.$store.streamlabs.$reset();
-			this.$store.prediction.$reset();
-			this.$store.donationGoals.$reset();
-			this.$store.streamelements.$reset();
-			OBSWebsocket.instance.disconnect();
-			VoicemodWebSocket.instance.disconnect();
-			TTSUtils.instance.enabled = false;
-			TriggerActionHandler.instance.populate([]);
-			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
-		}).catch(error => {
-			//ignore
-		});
+	public eraseData(): void {
+		this.$store.main
+			.confirm(
+				this.$t("account.erase_confirm_title"),
+				this.$t("account.erase_confirm_description"),
+			)
+			.then(() => {
+				DataStore.clear(true);
+				this.$store.obs.$reset();
+				this.$store.qna.$reset();
+				this.$store.tts.$reset();
+				this.$store.poll.$reset();
+				this.$store.chat.$reset();
+				this.$store.heat.$reset();
+				this.$store.kofi.$reset();
+				this.$store.voice.$reset();
+				this.$store.music.$reset();
+				this.$store.lumia.$reset();
+				this.$store.users.$reset();
+				this.$store.raffle.$reset();
+				this.$store.labels.$reset();
+				this.$store.stream.$reset();
+				this.$store.params.$reset();
+				this.$store.values.$reset();
+				this.$store.tipeee.$reset();
+				this.$store.discord.$reset();
+				this.$store.automod.$reset();
+				this.$store.triggers.$reset();
+				this.$store.counters.$reset();
+				this.$store.bingoGrid.$reset();
+				this.$store.emergency.$reset();
+				this.$store.streamlabs.$reset();
+				this.$store.prediction.$reset();
+				this.$store.donationGoals.$reset();
+				this.$store.streamelements.$reset();
+				OBSWebsocket.instance.disconnect();
+				VoicemodWebSocket.instance.disconnect();
+				TTSUtils.instance.enabled = false;
+				TriggerActionHandler.instance.populate([]);
+				DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
+			})
+			.catch((error) => {
+				//ignore
+			});
 	}
 
-	public async generateCSRF():Promise<void> {
+	public async generateCSRF(): Promise<void> {
 		this.generatingCSRF = true;
 		this.showAuthorizeBt = true;
 		try {
-			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
+			const { json } = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
-		}catch(e) {
+		} catch (e) {
 			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
 		this.generatingCSRF = false;
 	}
 
-	public async onScopesUpdate(list:string[]):Promise<void> {
+	public async onScopesUpdate(list: string[]): Promise<void> {
 		await this.generateCSRF();
 		this.scopes = list;
 	}
 
-	public async startParamsShareFlow():Promise<void> {
+	public async startParamsShareFlow(): Promise<void> {
 		this.connecting = true;
-		const {json} = await ApiHelper.call("auth/CSRFToken", "GET", {withRef:true});
+		const { json } = await ApiHelper.call("auth/CSRFToken", "GET", { withRef: true });
 		this.CSRFToken = json.token;
 		document.location.href = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
-		window.setTimeout(()=>{
+		window.setTimeout(() => {
 			this.connecting = false;
 		}, 10000);
 	}
 
-	public unlink(user:TwitchatDataTypes.TwitchatUser):void {
+	public unlink(user: TwitchatDataTypes.TwitchatUser): void {
 		this.unlinkError = false;
-		this.$confirm(this.$t("account.share.unlink_confirm.title"),
-		this.$t("account.share.unlink_confirm.description"))
-		.then(async ()=>{
-			const res = await ApiHelper.call("auth/dataShare", "DELETE", {uid:user.id});
-			if(res.status == 200) {
-				this.$store.auth.dataSharingUserList = res.json.users || [];
-				this.updateSharedUserList();
-			}else{
-				this.unlinkError = true;
-			}
-			//DO unlink
-		}).catch(()=>{});
+		this.$confirm(
+			this.$t("account.share.unlink_confirm.title"),
+			this.$t("account.share.unlink_confirm.description"),
+		)
+			.then(async () => {
+				const res = await ApiHelper.call("auth/dataShare", "DELETE", { uid: user.id });
+				if (res.status == 200) {
+					this.$store.auth.dataSharingUserList = res.json.users || [];
+					this.updateSharedUserList();
+				} else {
+					this.unlinkError = true;
+				}
+				//DO unlink
+			})
+			.catch(() => {});
 	}
 
-	public authorize():void {
+	public authorize(): void {
 		let oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes, "/popup");
 		const win = window.open(oAuthURL, "twitchAuth", "width=600,height=800");
-		if(win) {
+		if (win) {
 			this.authenticating = true;
 			const interval = setInterval(() => {
 				if (win.closed) {
@@ -255,11 +302,13 @@ class ParamsAccount extends Vue implements IParameterContent {
 					this.authenticating = false;
 				}
 			}, 500);
-			window.authCallback = async (code:string, csrfToken:string)=> {
+			window.authCallback = async (code: string, csrfToken: string) => {
 				clearInterval(interval);
 				win?.close();
-				const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
-				if(!csrf.success) {
+				const { json: csrf } = await ApiHelper.call("auth/CSRFToken", "POST", {
+					token: csrfToken,
+				});
+				if (!csrf.success) {
 					this.$store.common.alert(this.$t("error.csrf_invalid"));
 					this.authenticating = false;
 					return;
@@ -267,7 +316,7 @@ class ParamsAccount extends Vue implements IParameterContent {
 				this.$store.auth.twitch_updateAuthScopes(code).finally(() => {
 					this.authenticating = false;
 				});
-			}
+			};
 			win.focus();
 			return;
 		}
@@ -275,19 +324,20 @@ class ParamsAccount extends Vue implements IParameterContent {
 		window.location.href = oAuthURL;
 	}
 
-	private updateSharedUserList():void {
+	private updateSharedUserList(): void {
 		this.sharedUsers = [];
-		this.$store.auth.dataSharingUserList.forEach(uid => {
-			this.sharedUsers.push( this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid) );
+		this.$store.auth.dataSharingUserList.forEach((uid) => {
+			this.sharedUsers.push(
+				this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid),
+			);
 		});
 	}
-
 }
 export default toNative(ParamsAccount);
 </script>
 
 <style scoped lang="less">
-.paramsaccount{
+.paramsaccount {
 	.profilePic {
 		.emboss();
 		overflow: hidden;
@@ -295,7 +345,7 @@ export default toNative(ParamsAccount);
 		img {
 			height: 5em;
 			width: 5em;
-			transition: all .25s;
+			transition: all 0.25s;
 		}
 		&:hover {
 			img {
@@ -308,13 +358,13 @@ export default toNative(ParamsAccount);
 	.head {
 		margin-top: 0;
 	}
-	
+
 	.title {
 		text-align: center;
 		font-weight: bold;
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: text-top;
 		}
 	}
@@ -326,7 +376,7 @@ export default toNative(ParamsAccount);
 	.donorState {
 		overflow: visible;
 	}
-	
+
 	.scopes {
 		max-width: 400px;
 
@@ -335,11 +385,12 @@ export default toNative(ParamsAccount);
 		}
 
 		.authorizeBt {
-			margin-top: .5em;
+			margin-top: 0.5em;
 		}
 	}
 
-	.dataSync, .dataShare {
+	.dataSync,
+	.dataShare {
 		line-height: 1.25em;
 		align-items: center;
 		text-align: center;
@@ -349,11 +400,11 @@ export default toNative(ParamsAccount);
 	.splitter {
 		width: 100%;
 		margin-top: 1em;
-		margin-bottom: .5em;
+		margin-bottom: 0.5em;
 	}
 
 	.sharedUser {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -362,6 +413,5 @@ export default toNative(ParamsAccount);
 			border-radius: 50%;
 		}
 	}
-
 }
 </style>

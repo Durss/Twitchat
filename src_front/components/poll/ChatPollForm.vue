@@ -1,5 +1,5 @@
 <template>
-	<div class="chatpollform sidePanel" :class="{embedMode: triggerMode !== false}">
+	<div class="chatpollform sidePanel" :class="{ embedMode: triggerMode !== false }">
 		<div class="head" v-if="triggerMode === false">
 			<h1 class="title"><Icon name="poll" class="icon" />{{ $t("chatPoll.form.title") }}</h1>
 			<span class="description">{{ $t("chatPoll.form.header") }}</span>
@@ -7,32 +7,70 @@
 		</div>
 
 		<div class="content">
-
 			<div class="presets" v-if="$store.chatPoll.presets.history.length > 0">
-				<TTButton @click="selectPreset(item)" v-for="item in $store.chatPoll.presets.history" v-tooltip="'•'+item.choices.map(v=>v.label).join('\n•')+'\n(⏱️'+item.duration_s+'s)\n(🎫'+item.maxVotePerUser+')'">{{item.title || [...item.choices].splice(0,2).map(v=>v.label).join(', ')+'...'}}</TTButton>
+				<TTButton
+					@click="selectPreset(item)"
+					v-for="item in $store.chatPoll.presets.history"
+					v-tooltip="
+						'•' +
+						item.choices.map((v) => v.label).join('\n•') +
+						'\n(⏱️' +
+						item.duration_s +
+						's)\n(🎫' +
+						item.maxVotePerUser +
+						')'
+					"
+					>{{
+						item.title ||
+						[...item.choices]
+							.splice(0, 2)
+							.map((v) => v.label)
+							.join(", ") + "..."
+					}}</TTButton
+				>
 			</div>
 
 			<form @submit.prevent="submitForm()">
-				<ParamItem :paramData="param_title"
+				<ParamItem
+					:paramData="param_title"
 					v-model="title"
 					:autofocus="title == ''"
 					:tabindex="1"
-					@change="onValueChange()" />
+					@change="onValueChange()"
+				/>
 
 				<div class="card-item answers">
 					<label for="poll_answer">{{ $t("chatPoll.form.answers") }}</label>
 
 					<div class="field" v-for="(a, index) in choices.length" :key="index">
-						<input type="text" id="poll_answer" v-model="choices[index]!.label" maxlength="50" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
-						<div class="len">{{choices[index]!.label.length}}/50</div>
+						<input
+							type="text"
+							id="poll_answer"
+							v-model="choices[index]!.label"
+							maxlength="50"
+							v-autofocus="index == 0 && title != ''"
+							:tabindex="index + 2"
+							@change="onValueChange()"
+						/>
+						<div class="len">{{ choices[index]!.label.length }}/50</div>
 					</div>
 
 					<div class="card-item premium" v-if="showPremiumLimit">
-						<div>{{ $t("overlay.chatPoll.non_premium_limit", {MAX:$config.MAX_CHAT_POLL_ENTRIES_PREMIUM}) }}</div>
-						<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
+						<div>
+							{{
+								$t("overlay.chatPoll.non_premium_limit", {
+									MAX: $config.MAX_CHAT_POLL_ENTRIES_PREMIUM,
+								})
+							}}
+						</div>
+						<TTButton icon="premium" @click="openPremium()" light premium>{{
+							$t("premium.become_premiumBt")
+						}}</TTButton>
 					</div>
 
-					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
+					<PlaceholderSelector
+						class="child placeholders"
+						v-if="placeholderList.length > 0"
 						copyMode
 						:placeholders="placeholderList"
 					/>
@@ -41,35 +79,49 @@
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				<ParamItem :paramData="param_allowMultiVote" @change="onValueChange()" />
 
-				<ToggleBlock :title="$t('chatPoll.form.permissions')" :open="false" :icons="['lock_fit']" small>
+				<ToggleBlock
+					:title="$t('chatPoll.form.permissions')"
+					:open="false"
+					:icons="['lock_fit']"
+					small
+				>
 					<PermissionsForm v-model="permissions" @change="onValueChange()" />
 				</ToggleBlock>
 
-				<TTButton type="submit" v-if="triggerMode === false"
-					:disabled="choices.filter(v=> v.label.trim().length > 0).length < 2">{{ $t('global.start') }}</TTButton>
+				<TTButton
+					type="submit"
+					v-if="triggerMode === false"
+					:disabled="choices.filter((v) => v.label.trim().length > 0).length < 2"
+					>{{ $t("global.start") }}</TTButton
+				>
 			</form>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionChatPollData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import Utils from '@/utils/Utils';
-import { watch } from 'vue';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import ClearButton from '../ClearButton.vue';
-import ParamItem from '../params/ParamItem.vue';
-import PlaceholderSelector from '../params/PlaceholderSelector.vue';
-import PermissionsForm from '../PermissionsForm.vue';
-import TTButton from '../TTButton.vue';
-import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
-import ToggleBlock from '../ToggleBlock.vue';
+import {
+	TriggerEventPlaceholders,
+	type ITriggerPlaceholder,
+	type TriggerActionChatPollData,
+	type TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
+import { watch } from "vue";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import ClearButton from "../ClearButton.vue";
+import ParamItem from "../params/ParamItem.vue";
+import PlaceholderSelector from "../params/PlaceholderSelector.vue";
+import PermissionsForm from "../PermissionsForm.vue";
+import TTButton from "../TTButton.vue";
+import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
+import ToggleBlock from "../ToggleBlock.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ParamItem,
 		ToggleBlock,
@@ -78,127 +130,164 @@ import ToggleBlock from '../ToggleBlock.vue';
 		PlaceholderSelector,
 		VoiceGlobalCommandsHelper,
 	},
-	emits:['close']
+	emits: ["close"],
 })
 class ChatPollForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public triggerMode!:boolean;
+	@Prop({ type: Boolean, default: false })
+	public triggerMode!: boolean;
 
 	//This is used by the trigger action form.
-	@Prop({type: Object, default:{}})
-	public action!:TriggerActionChatPollData;
+	@Prop({ type: Object, default: {} })
+	public action!: TriggerActionChatPollData;
 
 	@Prop
-	public triggerData!:TriggerData;
+	public triggerData!: TriggerData;
 
 	public title = "";
 	public showPremiumLimit = false;
-	public choices:TwitchatDataTypes.ChatPollData["choices"] = [];
-	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:100, labelKey:"chatPoll.form.question", placeholderKey:"prediction.form.question_placeholder"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:5, max:3600, labelKey:"chatPoll.form.voteDuration", icon:"timer"};
-	public param_allowMultiVote:TwitchatDataTypes.ParameterData<number> = {value:1, type:"number", min:1, max:20, labelKey:"chatPoll.form.allowMultiVote", icon:"user"};
-	public placeholderList:ITriggerPlaceholder<any>[] = [];
-	public permissions:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions();
+	public choices: TwitchatDataTypes.ChatPollData["choices"] = [];
+	public param_title: TwitchatDataTypes.ParameterData<string> = {
+		value: "",
+		type: "string",
+		maxLength: 100,
+		labelKey: "chatPoll.form.question",
+		placeholderKey: "prediction.form.question_placeholder",
+	};
+	public param_duration: TwitchatDataTypes.ParameterData<number> = {
+		value: 2 * 60,
+		type: "duration",
+		min: 5,
+		max: 3600,
+		labelKey: "chatPoll.form.voteDuration",
+		icon: "timer",
+	};
+	public param_allowMultiVote: TwitchatDataTypes.ParameterData<number> = {
+		value: 1,
+		type: "number",
+		min: 1,
+		max: 20,
+		labelKey: "chatPoll.form.allowMultiVote",
+		icon: "user",
+	};
+	public placeholderList: ITriggerPlaceholder<any>[] = [];
+	public permissions: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions();
 
-	public async beforeMount():Promise<void> {
-
-		if(this.$store.main.tempStoreValue) {
+	public async beforeMount(): Promise<void> {
+		if (this.$store.main.tempStoreValue) {
 			const titlePrefill = this.$store.main.tempStoreValue as string;
-			if(titlePrefill) this.title = titlePrefill;
+			if (titlePrefill) this.title = titlePrefill;
 			this.$store.main.tempStoreValue = null;
 		}
 
-		if(this.triggerMode !== false) {
-			this.placeholderList =
-			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
-			if(this.action.chatPollData) {
+		if (this.triggerMode !== false) {
+			this.placeholderList = this.param_title.placeholderList = TriggerEventPlaceholders(
+				this.triggerData.type,
+			);
+			if (this.action.chatPollData) {
 				this.title = this.action.chatPollData.title;
 				this.param_duration.value = this.action.chatPollData.duration_s;
 				this.permissions = this.action.chatPollData.permissions;
 				for (let i = 0; i < this.action.chatPollData.choices.length; i++) {
-					this.choices[i] = {...this.action.chatPollData.choices[i]!};
+					this.choices[i] = { ...this.action.chatPollData.choices[i]! };
 				}
-			}else{
+			} else {
 				this.onValueChange();
 			}
-		}else{
+		} else {
 			this.permissions = this.$store.chatPoll.presets.permissions;
-			this.param_duration.value = this.$store.chatPoll.presets.duration_s
+			this.param_duration.value = this.$store.chatPoll.presets.duration_s;
 			this.param_allowMultiVote.value = this.$store.chatPoll.presets.voteCount;
 		}
 
 		// Add 2 empty choices if less than 2 choices exist
 		for (let i = this.choices.length; i < 2; i++) {
 			this.choices.push({
-				id:Utils.getUUID(),
-				label:"",
-				votes:0,
+				id: Utils.getUUID(),
+				label: "",
+				votes: 0,
 			});
 		}
-
 	}
 
-	public async mounted():Promise<void> {
-		if(this.triggerMode === false) {
+	public async mounted(): Promise<void> {
+		if (this.triggerMode === false) {
 			super.open();
 		}
 
-		watch(()=>this.choices, ()=> {
-			let emptyCount = 0;
-			for (let i = 0; i < this.choices.length; i++) {
-				if(this.choices[i]!.label.length === 0) emptyCount++;
-			}
-			const maxEntries = this.$store.auth.isPremium? Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM : Config.instance.MAX_CHAT_POLL_ENTRIES;
-			if(emptyCount == 0 && this.choices.length < maxEntries) {
-				this.choices.push({
-					id:Utils.getUUID(),
-					label:"",
-					votes:0,
-				});
-			}else if(emptyCount > 1 && this.choices.length > 2) {
-				while(emptyCount > 1) {
-					for (let i = 0; i < this.choices.length; i++) {
-						if(this.choices[i]!.label.length === 0) {
-							this.choices.splice(i, 1);
-							emptyCount--;
-							break;
+		watch(
+			() => this.choices,
+			() => {
+				let emptyCount = 0;
+				for (let i = 0; i < this.choices.length; i++) {
+					if (this.choices[i]!.label.length === 0) emptyCount++;
+				}
+				const maxEntries = this.$store.auth.isPremium
+					? Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM
+					: Config.instance.MAX_CHAT_POLL_ENTRIES;
+				if (emptyCount == 0 && this.choices.length < maxEntries) {
+					this.choices.push({
+						id: Utils.getUUID(),
+						label: "",
+						votes: 0,
+					});
+				} else if (emptyCount > 1 && this.choices.length > 2) {
+					while (emptyCount > 1) {
+						for (let i = 0; i < this.choices.length; i++) {
+							if (this.choices[i]!.label.length === 0) {
+								this.choices.splice(i, 1);
+								emptyCount--;
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			this.showPremiumLimit = (this.choices.length-emptyCount) == maxEntries && maxEntries < Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM;
-			// this.param_allowMultiVote.max = this.choices.filter(v=>v.label.trim().length > 0).length
-		}, {deep:true});
+				this.showPremiumLimit =
+					this.choices.length - emptyCount == maxEntries &&
+					maxEntries < Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM;
+				// this.param_allowMultiVote.max = this.choices.filter(v=>v.label.trim().length > 0).length
+			},
+			{ deep: true },
+		);
 	}
 
-	public async submitForm():Promise<void> {
-		this.$store.chatPoll.setCurrentPoll({
-			title:this.title,
-			choices:this.choices.filter(v=>v.label.trim().length > 0).map(v=> {return {...v}}),
-			permissions:this.permissions,
-			duration_s:this.param_duration.value,
-			started_at:Date.now(),
-			votes:{},
-			maxVotePerUser:this.param_allowMultiVote.value,
-		}, true)
+	public async submitForm(): Promise<void> {
+		this.$store.chatPoll.setCurrentPoll(
+			{
+				title: this.title,
+				choices: this.choices
+					.filter((v) => v.label.trim().length > 0)
+					.map((v) => {
+						return { ...v };
+					}),
+				permissions: this.permissions,
+				duration_s: this.param_duration.value,
+				started_at: Date.now(),
+				votes: {},
+				maxVotePerUser: this.param_allowMultiVote.value,
+			},
+			true,
+		);
 		this.close();
 	}
 
 	/**
 	 * Called when any value is changed
 	 */
-	public onValueChange():void {
-		if(this.action) {
+	public onValueChange(): void {
+		if (this.action) {
 			this.action.chatPollData = {
-				title:this.title,
-				choices:this.choices.filter(v=>v.label.trim().length > 0).map(v=> {return {...v}}),
-				duration_s:this.param_duration.value,
-				started_at:Date.now(),
-				permissions:this.permissions,
-				maxVotePerUser:this.param_allowMultiVote.value,
-				votes:{},
+				title: this.title,
+				choices: this.choices
+					.filter((v) => v.label.trim().length > 0)
+					.map((v) => {
+						return { ...v };
+					}),
+				duration_s: this.param_duration.value,
+				started_at: Date.now(),
+				permissions: this.permissions,
+				maxVotePerUser: this.param_allowMultiVote.value,
+				votes: {},
 			};
 		}
 	}
@@ -206,7 +295,7 @@ class ChatPollForm extends AbstractSidePanel {
 	/**
 	 * Opens the premium section
 	 */
-	public openPremium():void {
+	public openPremium(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
@@ -214,11 +303,15 @@ class ChatPollForm extends AbstractSidePanel {
 	 * Selects a poll's preset
 	 * @param params
 	 */
-	public selectPreset(params:TwitchatDataTypes.ChatPollData):void {
+	public selectPreset(params: TwitchatDataTypes.ChatPollData): void {
 		this.param_title.value = params.title;
 		this.param_duration.value = params.duration_s;
 		this.title = params.title;
-		this.choices = params.choices.filter(v=>v.label.trim().length > 0).map(v=> {return {...v}});
+		this.choices = params.choices
+			.filter((v) => v.label.trim().length > 0)
+			.map((v) => {
+				return { ...v };
+			});
 		this.permissions = params.permissions;
 		this.param_duration.value = params.duration_s;
 		this.param_allowMultiVote.value = params.maxVotePerUser;
@@ -229,11 +322,11 @@ export default toNative(ChatPollForm);
 </script>
 
 <style scoped lang="less">
-.chatpollform{
-	.content{
+.chatpollform {
+	.content {
 		.presets {
-			row-gap: .5em;
-			column-gap: .2em;
+			row-gap: 0.5em;
+			column-gap: 0.2em;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
@@ -252,20 +345,20 @@ export default toNative(ChatPollForm);
 					padding-right: 3em;
 				}
 				.len {
-					font-size: .7em;
+					font-size: 0.7em;
 					position: absolute;
-					right: .5em;
+					right: 0.5em;
 					top: 50%;
 					transform: translateY(-50%);
 				}
 			}
-			&.answers{
-				gap:5px;
+			&.answers {
+				gap: 5px;
 				display: flex;
 				flex-direction: column;
 				label {
 					display: block;
-					margin-bottom: .5em;
+					margin-bottom: 0.5em;
 				}
 			}
 		}
@@ -276,7 +369,7 @@ export default toNative(ChatPollForm);
 		.button {
 			display: flex;
 			margin: auto;
-			margin-top: .5em;
+			margin-top: 0.5em;
 		}
 	}
 }

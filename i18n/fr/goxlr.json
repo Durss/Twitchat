@@ -1,29 +1,29 @@
 {
-	"goxlr":{
-		"header":"Contrôlez votre GoXLR depuis Twitchat.\nNécessite {LINK}.",
-		"header_link":"GoXLR-Utility",
-		"donate":"🎁 {LINK} pour son énorme travail open-source sur GoXLR-Utility",
-		"donate_link":"Soutenez FrostyCoolSlug",
-		"connecting":"connexion à GoXLR-Utility...",
-		"connect_failed":"Impossible de se connecter à GoXLR-Utility",
-		"no_device":"Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
-		"triggersBt":"Créer des triggers",
-		"param_chat_col":"Colonne de tchat",
-		"scroll_info":"Défiler le tchat via les encodeurs",
-		"scroll_select_encoder":"Sélectionnez un preset puis l'encodeur avec lequel faire défiler cette colonne",
-		"readMark_info":"Déplacer le marque-page via les encodeurs",
-		"readMark_select_encoder":"Sélectionnez un preset puis l'encodeur avec lequel déplacer le marque-page de cette colonne",
-		"pitch_warning":"⚠️ L'encodeur de pitch a des contraintes le rendant inadéquat pour défiler le tchat. Le défilement risque d'être saccadé ou de ne pas fonctionner selon les paramètres d'effet.",
-		"goxlrmini_alert":"Le contrôle du tchat depuis les encoders n'est pas possible depuis une GoXLR mini car elle ne possède pas les entrées nécessaires",
-		"infos":[
+	"goxlr": {
+		"header": "Contrôlez votre GoXLR depuis Twitchat.\nNécessite {LINK}.",
+		"header_link": "GoXLR-Utility",
+		"donate": "🎁 {LINK} pour son énorme travail open-source sur GoXLR-Utility",
+		"donate_link": "Soutenez FrostyCoolSlug",
+		"connecting": "connexion à GoXLR-Utility...",
+		"connect_failed": "Impossible de se connecter à GoXLR-Utility",
+		"no_device": "Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
+		"triggersBt": "Créer des triggers",
+		"param_chat_col": "Colonne de tchat",
+		"scroll_info": "Défiler le tchat via les encodeurs",
+		"scroll_select_encoder": "Sélectionnez un preset puis l'encodeur avec lequel faire défiler cette colonne",
+		"readMark_info": "Déplacer le marque-page via les encodeurs",
+		"readMark_select_encoder": "Sélectionnez un preset puis l'encodeur avec lequel déplacer le marque-page de cette colonne",
+		"pitch_warning": "⚠️ L'encodeur de pitch a des contraintes le rendant inadéquat pour défiler le tchat. Le défilement risque d'être saccadé ou de ne pas fonctionner selon les paramètres d'effet.",
+		"goxlrmini_alert": "Le contrôle du tchat depuis les encoders n'est pas possible depuis une GoXLR mini car elle ne possède pas les entrées nécessaires",
+		"infos": [
 			"Une fois votre GoXLR connectée vous pourrez par exemple permettre à vos viewers d'activer un preset d'FX ou un Sample via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
 			"Ou encore afficher une source OBS lorsque vous appuyez sur le bouton mute ou bleep.",
 			"Vous pourrez aussi faire défiler vos colonnes de tchat et déplacer le marque page depuis les encodeurs."
 		],
-		"connect_form":{
-			"title":"Identifiants de connexion",
-			"ip_security":"Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée.\nSi vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok).\n Venez demander de l'aide sur {LINK} si vous ne savez pas comment faire.\n\nSi votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
-			"ip_security_link":"Discord"
+		"connect_form": {
+			"title": "Identifiants de connexion",
+			"ip_security": "Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée.\nSi vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok).\n Venez demander de l'aide sur {LINK} si vous ne savez pas comment faire.\n\nSi votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
+			"ip_security_link": "Discord"
 		}
 	}
 }

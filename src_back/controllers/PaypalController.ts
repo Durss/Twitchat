@@ -33,28 +33,23 @@ export default class PaypalController extends AbstractController {
 	public async initialize(): Promise<void> {
 		this.server.post(
 			"/api/paypal/create_order",
-			async (request, response) =>
-				await this.postCreateOrder(request, response),
+			async (request, response) => await this.postCreateOrder(request, response),
 		);
 		this.server.post(
 			"/api/paypal/complete_order",
-			async (request, response) =>
-				await this.postCompleteOrder(request, response),
+			async (request, response) => await this.postCompleteOrder(request, response),
 		);
 		this.server.get(
 			"/api/paypal/invoice/list",
-			async (request, response) =>
-				await this.getInvoiceList(request, response),
+			async (request, response) => await this.getInvoiceList(request, response),
 		);
 		this.server.get(
 			"/api/paypal/invoice/downloadToken",
-			async (request, response) =>
-				await this.getInvoiceDownloadToken(request, response),
+			async (request, response) => await this.getInvoiceDownloadToken(request, response),
 		);
 		this.server.get(
 			"/api/paypal/invoice",
-			async (request, response) =>
-				await this.getInvoice(request, response),
+			async (request, response) => await this.getInvoice(request, response),
 		);
 	}
 
@@ -64,10 +59,7 @@ export default class PaypalController extends AbstractController {
 	/**
 	 * Create a paypal order
 	 */
-	private async postCreateOrder(
-		request: FastifyRequest,
-		response: FastifyReply,
-	): Promise<void> {
+	private async postCreateOrder(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
@@ -95,17 +87,14 @@ export default class PaypalController extends AbstractController {
 		const data = JSON.stringify(order_data_json);
 
 		try {
-			const json = await fetch(
-				Config.PAYPAL_ENDPOINT + "/v2/checkout/orders",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-					body: data,
+			const json = await fetch(Config.PAYPAL_ENDPOINT + "/v2/checkout/orders", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
 				},
-			)
+				body: data,
+			})
 				.then(
 					(res) =>
 						res.json() as unknown as {
@@ -169,8 +158,7 @@ export default class PaypalController extends AbstractController {
 				purchase_units: [
 					{
 						amount: {
-							currency_code:
-								order.purchase_units[0]!.amount.currency_code,
+							currency_code: order.purchase_units[0]!.amount.currency_code,
 							value: order.purchase_units[0]!.amount.value,
 						},
 					},
@@ -217,15 +205,12 @@ export default class PaypalController extends AbstractController {
 					amount: parseFloat(payment.gross_amount.value),
 					fees: parseFloat(payment.paypal_fee.value),
 					payerID: orderResult.payer.payer_id,
-					transactionID:
-						orderResult.purchase_units[0]!.payments.captures[0]!.id,
+					transactionID: orderResult.purchase_units[0]!.payments.captures[0]!.id,
 					payerEmail: orderResult.payer.email_address,
 				};
 
 				if (giftedUserId) {
-					const result = await TwitchUtils.getUsers(undefined, [
-						giftedUserId,
-					]);
+					const result = await TwitchUtils.getUsers(undefined, [giftedUserId]);
 					if (result && result.length > 0) {
 						giftedUser = result[0]!;
 						params.gifterUID = params.twitchUID;
@@ -239,10 +224,7 @@ export default class PaypalController extends AbstractController {
 						response.send(
 							JSON.stringify({
 								success: false,
-								error:
-									"Gifted user ID #" +
-									giftedUserId +
-									" not found on Twitch",
+								error: "Gifted user ID #" + giftedUserId + " not found on Twitch",
 								errorCode: "GIFTED_USER_NOT_FOUND",
 							}),
 						);
@@ -254,8 +236,7 @@ export default class PaypalController extends AbstractController {
 					//Generate PDF invoice. Failure is non-fatal: the payment already went through.
 					try {
 						const amount = parseFloat(
-							orderResult.purchase_units[0]!.payments.captures[0]!
-								.amount.value,
+							orderResult.purchase_units[0]!.payments.captures[0]!.amount.value,
 						);
 						const description =
 							amount >= Config.lifetimeDonorThreshold
@@ -278,59 +259,42 @@ export default class PaypalController extends AbstractController {
 							giftedTwitchLogin: giftedUser?.login,
 							amount,
 							currency:
-								orderResult.purchase_units[0]!.payments
-									.captures[0]!.amount.currency_code,
+								orderResult.purchase_units[0]!.payments.captures[0]!.amount
+									.currency_code,
 							fees: 0,
 							quantity: 1,
 							unitPrice: amount,
 							paymentMethod: "PayPal",
 							description: giftedUser?.login
-								? description +
-									" (gifted to " +
-									giftedUser?.login +
-									")"
+								? description + " (gifted to " + giftedUser?.login + ")"
 								: description,
 							payerAddressLine1:
-								orderResult.purchase_units[0]!.shipping.address
-									.address_line_1,
+								orderResult.purchase_units[0]!.shipping.address.address_line_1,
 							payerAddressLine2:
-								orderResult.purchase_units[0]!.shipping.address
-									.address_line_2,
+								orderResult.purchase_units[0]!.shipping.address.address_line_2,
 							payerPostCode:
-								orderResult.purchase_units[0]!.shipping.address
-									.postal_code,
+								orderResult.purchase_units[0]!.shipping.address.postal_code,
 							payerCountryCode:
-								orderResult.purchase_units[0]!.shipping.address
-									.country_code,
-							payerCity:
-								orderResult.purchase_units[0]!.shipping.address
-									.admin_area_2,
+								orderResult.purchase_units[0]!.shipping.address.country_code,
+							payerCity: orderResult.purchase_units[0]!.shipping.address.admin_area_2,
 							payerState:
-								orderResult.purchase_units[0]!.shipping.address
-									.admin_area_1,
+								orderResult.purchase_units[0]!.shipping.address.admin_area_1,
 						});
 					} catch (error) {
-						Logger.error(
-							"Failed generating PDF invoice for order " +
-								orderResult.id,
-						);
+						Logger.error("Failed generating PDF invoice for order " + orderResult.id);
 						console.log(error);
 					}
 				}
 
 				//Add donor to donor list via remote service
-				const resRemote = await fetch(
-					Config.DONORS_REMOTE_ENDPOINT + "api/donate",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-							Authorization:
-								Config.credentials.donors_remote_api_secret,
-						},
-						body: JSON.stringify(params),
+				const resRemote = await fetch(Config.DONORS_REMOTE_ENDPOINT + "api/donate", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: Config.credentials.donors_remote_api_secret,
 					},
-				);
+					body: JSON.stringify(params),
+				});
 				const jsonRemote = (await resRemote.json()) as {
 					success: boolean;
 					id?: string;
@@ -367,10 +331,7 @@ export default class PaypalController extends AbstractController {
 								"€)",
 						);
 					}
-					const donorLevel =
-						Config.donorsLevels.findIndex(
-							(v) => v > params.amount,
-						) - 1;
+					const donorLevel = Config.donorsLevels.findIndex((v) => v > params.amount) - 1;
 
 					response.header("Content-Type", "application/json");
 					response.status(200);
@@ -406,20 +367,14 @@ export default class PaypalController extends AbstractController {
 	 * Get an order details from its ID
 	 * @param orderID
 	 */
-	private async getOrderDetails(
-		token: string,
-		orderID: string,
-	): Promise<PaypalOrder> {
-		const json = await fetch(
-			Config.PAYPAL_ENDPOINT + "/v2/checkout/orders/" + orderID,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
+	private async getOrderDetails(token: string, orderID: string): Promise<PaypalOrder> {
+		const json = await fetch(Config.PAYPAL_ENDPOINT + "/v2/checkout/orders/" + orderID, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
 			},
-		)
+		})
 			.then((res) => res.json() as unknown as PaypalOrder)
 			.then((json) => {
 				return json;
@@ -453,10 +408,7 @@ export default class PaypalController extends AbstractController {
 	 * the profile list (date + amount); the full record is stored in the
 	 * sidecar JSON next to each PDF.
 	 */
-	private async getInvoiceList(
-		request: FastifyRequest,
-		response: FastifyReply,
-	): Promise<void> {
+	private async getInvoiceList(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const twitchUser = await super.twitchUserGuard(request, response);
 		if (twitchUser == false) return;
 
@@ -539,58 +491,40 @@ export default class PaypalController extends AbstractController {
 	 * getInvoiceDownloadToken) so this can be opened in a new tab without an
 	 * Authorization header.
 	 */
-	private async getInvoice(
-		request: FastifyRequest,
-		response: FastifyReply,
-	): Promise<void> {
+	private async getInvoice(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const query = request.query as { orderId?: string; token?: string };
 		const orderId = query.orderId;
 		const token = query.token;
 
 		//Reject anything that isn't a plain PayPal order ID to prevent path traversal
 		if (!orderId || !/^[A-Z0-9]{6,32}$/i.test(orderId)) {
-			response
-				.status(400)
-				.send({ success: false, error: "Invalid order ID" });
+			response.status(400).send({ success: false, error: "Invalid order ID" });
 			return;
 		}
 
 		if (!token) {
-			response
-				.status(401)
-				.send({ success: false, error: "Missing token" });
+			response.status(401).send({ success: false, error: "Missing token" });
 			return;
 		}
 
 		let payload: InvoiceDownloadToken;
 		try {
-			payload = jwt.verify(
-				token,
-				Config.credentials.csrf_key,
-			) as InvoiceDownloadToken;
+			payload = jwt.verify(token, Config.credentials.csrf_key) as InvoiceDownloadToken;
 		} catch {
-			response
-				.status(401)
-				.send({ success: false, error: "Invalid token" });
+			response.status(401).send({ success: false, error: "Invalid token" });
 			return;
 		}
 
 		if (!payload || !payload.uid || !payload.orderId || !payload.date) {
-			response
-				.status(401)
-				.send({ success: false, error: "Invalid token payload" });
+			response.status(401).send({ success: false, error: "Invalid token payload" });
 			return;
 		}
 		if (payload.orderId !== orderId) {
-			response
-				.status(403)
-				.send({ success: false, error: "Token / order mismatch" });
+			response.status(403).send({ success: false, error: "Token / order mismatch" });
 			return;
 		}
 		if (Date.now() - payload.date > INVOICE_TOKEN_TTL_MS) {
-			response
-				.status(401)
-				.send({ success: false, error: "Token expired" });
+			response.status(401).send({ success: false, error: "Token expired" });
 			return;
 		}
 
@@ -598,22 +532,13 @@ export default class PaypalController extends AbstractController {
 		try {
 			stream = await InvoiceUtils.fetchInvoicePdf(payload.uid, orderId);
 		} catch (error) {
-			Logger.error(
-				"Failed fetching invoice PDF for " +
-					payload.uid +
-					"/" +
-					orderId,
-			);
+			Logger.error("Failed fetching invoice PDF for " + payload.uid + "/" + orderId);
 			console.log(error);
-			response
-				.status(502)
-				.send({ success: false, error: "Invoice service unavailable" });
+			response.status(502).send({ success: false, error: "Invoice service unavailable" });
 			return;
 		}
 		if (!stream) {
-			response
-				.status(404)
-				.send({ success: false, error: "Invoice not found" });
+			response.status(404).send({ success: false, error: "Invoice not found" });
 			return;
 		}
 

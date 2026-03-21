@@ -4,31 +4,46 @@
 		<div class="holder" ref="holder">
 			<Icon name="broadcast" class="icon" />
 			<div class="head">
-				<h1 v-if="step == 'init'">{{ $t('migrationFix.title1') }}</h1>
-				<h1 v-if="step == 'info'">{{ $t('migrationFix.title2') }}</h1>
-				<h1 v-if="step == 'trigger'">{{ $t('migrationFix.fix', { INDEX: triggerIndex+1, TOTAL: triggers.length }) }}</h1>
-				<h1 v-if="step == 'end'">{{ $t('migrationFix.title3') }}</h1>
+				<h1 v-if="step == 'init'">{{ $t("migrationFix.title1") }}</h1>
+				<h1 v-if="step == 'info'">{{ $t("migrationFix.title2") }}</h1>
+				<h1 v-if="step == 'trigger'">
+					{{
+						$t("migrationFix.fix", { INDEX: triggerIndex + 1, TOTAL: triggers.length })
+					}}
+				</h1>
+				<h1 v-if="step == 'end'">{{ $t("migrationFix.title3") }}</h1>
 			</div>
 			<div class="content" v-if="step == 'init'">
 				<span class="info" v-html="$t('migrationFix.intro')"></span>
-				<TTButton class="nextBt" icon="arrowRight" @click="step = 'info'">{{ $t('migrationFix.next') }}</TTButton>
+				<TTButton class="nextBt" icon="arrowRight" @click="step = 'info'">{{
+					$t("migrationFix.next")
+				}}</TTButton>
 			</div>
 
 			<div class="content" v-if="step == 'info'">
-				<span class="info" v-html="$t('migrationFix.info', { COUNT: triggers.length })"></span>
-				<TTButton class="nextBt" icon="arrowRight" @click="step = 'trigger'">{{ $t('migrationFix.next') }}</TTButton>
+				<span
+					class="info"
+					v-html="$t('migrationFix.info', { COUNT: triggers.length })"
+				></span>
+				<TTButton class="nextBt" icon="arrowRight" @click="step = 'trigger'">{{
+					$t("migrationFix.next")
+				}}</TTButton>
 			</div>
 
 			<Transition name="fade">
 				<div class="content" v-if="step == 'trigger' && !fadeTrigger">
-					<Splitter theme="secondary">{{ $t('migrationFix.splitter_triggers') }}</Splitter>
+					<Splitter theme="secondary">{{
+						$t("migrationFix.splitter_triggers")
+					}}</Splitter>
 					<div class="triggers">
 						<i18n-t tag="p" scope="global" keypath="migrationFix.change1">
 							<template #TRIGGER_ACTION>
-								<strong>{{ $t('triggers.actions.common.action_http') }}</strong>
+								<strong>{{ $t("triggers.actions.common.action_http") }}</strong>
 							</template>
 							<template #TRIGGER_NAME>
-								<mark v-tooltip="currentTrigger!.tooltip">{{ currentTrigger!.triggerInfo?.label }}</mark>
+								<mark v-tooltip="currentTrigger!.tooltip">{{
+									currentTrigger!.triggerInfo?.label
+								}}</mark>
 							</template>
 						</i18n-t>
 						<TriggerActionEntry
@@ -42,8 +57,11 @@
 							:obsInputs="[]"
 							:rewards="[]"
 							:extensions="[]"
-							:triggerData="currentTrigger!.trigger" />
-						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
+							:triggerData="currentTrigger!.trigger"
+						/>
+						<span class="center"
+							><i>{{ $t("migrationFix.expand") }}</i></span
+						>
 						<span class="gap"></span>
 						<span v-html="$t('migrationFix.change2')"></span>
 						<TriggerActionEntry
@@ -57,20 +75,40 @@
 							:obsInputs="[]"
 							:rewards="[]"
 							:extensions="[]"
-							:triggerData="currentTrigger!.trigger" />
-						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
+							:triggerData="currentTrigger!.trigger"
+						/>
+						<span class="center"
+							><i>{{ $t("migrationFix.expand") }}</i></span
+						>
 					</div>
 
-					<Splitter theme="secondary">{{ $t('migrationFix.splitter_summary') }}</Splitter>
+					<Splitter theme="secondary">{{ $t("migrationFix.splitter_summary") }}</Splitter>
 					<div class="summary">
 						<ul>
-							<li>{{ $t('migrationFix.summary.call') }}<mark>{{ currentTrigger!.action.url }}</mark></li>
-							<li>{{ $t('migrationFix.summary.save') }}<mark>{{ currentTrigger!.action.outputPlaceholder }}</mark></li>
 							<li>
-								<span>{{ $t('migrationFix.summary.extract') }}<mark>{{ currentTrigger!.action.outputPlaceholder }}</mark></span>
+								{{ $t("migrationFix.summary.call")
+								}}<mark>{{ currentTrigger!.action.url }}</mark>
+							</li>
+							<li>
+								{{ $t("migrationFix.summary.save")
+								}}<mark>{{ currentTrigger!.action.outputPlaceholder }}</mark>
+							</li>
+							<li>
+								<span
+									>{{ $t("migrationFix.summary.extract")
+									}}<mark>{{
+										currentTrigger!.action.outputPlaceholder
+									}}</mark></span
+								>
 								<ul>
-									<i18n-t scope="global" keypath="migrationFix.summary.json" tag="li"
-									v-for="p in currentTrigger!.jsonAction.jsonExtractData.outputPlaceholderList" :key="p.placeholder">
+									<i18n-t
+										scope="global"
+										keypath="migrationFix.summary.json"
+										tag="li"
+										v-for="p in currentTrigger!.jsonAction.jsonExtractData
+											.outputPlaceholderList"
+										:key="p.placeholder"
+									>
 										<template #JSON_PATH>
 											<mark>{{ p.path }}</mark>
 										</template>
@@ -84,31 +122,42 @@
 					</div>
 
 					<div class="ctas">
-						<TTButton icon="cross" @click="nextTrigger()" alert>{{ $t('migrationFix.reject') }}</TTButton>
-						<TTButton icon="checkmark" @click="acceptChanges()" primary>{{ $t('migrationFix.accept') }}</TTButton>
+						<TTButton icon="cross" @click="nextTrigger()" alert>{{
+							$t("migrationFix.reject")
+						}}</TTButton>
+						<TTButton icon="checkmark" @click="acceptChanges()" primary>{{
+							$t("migrationFix.accept")
+						}}</TTButton>
 					</div>
 				</div>
 			</Transition>
 
 			<div class="content" v-if="step == 'end'">
-				<p class="info">{{ $t('migrationFix.end') }}</p>
-				<TTButton class="nextBt" icon="cross" @click="close();">{{ $t('migrationFix.close') }}</TTButton>
+				<p class="info">{{ $t("migrationFix.end") }}</p>
+				<TTButton class="nextBt" icon="cross" @click="close()">{{
+					$t("migrationFix.close")
+				}}</TTButton>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import DataStore from '@/store/DataStore';
-import { TriggerSubTypeLabel, type TriggerActionHTTPCallData, type TriggerActionJSONExtractData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import Utils from '@/utils/Utils';
-import { reactive } from 'vue';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
-import InfiniteList from '../InfiniteList.vue';
-import TTButton from '../TTButton.vue';
-import TriggerActionEntry from '../params/contents/triggers/TriggerActionEntry.vue';
-import Splitter from '../Splitter.vue';
+import DataStore from "@/store/DataStore";
+import {
+	TriggerSubTypeLabel,
+	type TriggerActionHTTPCallData,
+	type TriggerActionJSONExtractData,
+	type TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import Utils from "@/utils/Utils";
+import { reactive } from "vue";
+import { Component, toNative, Vue } from "vue-facing-decorator";
+import InfiniteList from "../InfiniteList.vue";
+import TTButton from "../TTButton.vue";
+import TriggerActionEntry from "../params/contents/triggers/TriggerActionEntry.vue";
+import Splitter from "../Splitter.vue";
 
 @Component({
 	components: {
@@ -117,64 +166,84 @@ import Splitter from '../Splitter.vue';
 		InfiniteList,
 		TriggerActionEntry,
 	},
-	emits: ["close"]
+	emits: ["close"],
 })
 class MigrationFixerModal extends Vue {
-
 	public step: "init" | "info" | "trigger" | "end" = "init";
 	public triggerIndex = 0;
 	public fadeTrigger = false;
 	public UPDATED = "";
 	public NEW = "";
 
-	public get currentTrigger() { return this.triggers[this.triggerIndex]; }
+	public get currentTrigger() {
+		return this.triggers[this.triggerIndex];
+	}
 
 	public get triggers() {
 		const triggerList = this.$store.triggers.triggerList;
-		return this.$store.main.httpMigrationFixData.map(v=> {
-			const trigger = JSON.parse(JSON.stringify(triggerList.find(t => t.id == v.triggerId))) as TriggerData;
-			const action = trigger?.actions.find(t => t.id == v.httpActionId) as TriggerActionHTTPCallData;
-			const triggerInfo = trigger ? TriggerUtils.getTriggerDisplayInfo(trigger) : undefined;
-			action.enabled = true;
-			action.outputPlaceholder = "HTTP_RESULT";
-			const jsonAction:TriggerActionJSONExtractData = {
-				id: Utils.getUUID(),
-				type: "json_extract",
-				enabled:true,
-				jsonExtractData:{
-					sourcePlaceholder: action.outputPlaceholder,
-					outputPlaceholderList: v.jsonPlaceholders,
-				}
-			}
-			return reactive({
-				oldTrigger:v.oldTriggerData,
-				oldTriggerAction:v.oldTriggerAction,
-				trigger,
-				originalAction: trigger?.actions.find(t=>t.id == v.httpActionId),
-				triggerInfo,
-				actionId: v.httpActionId,
-				action,
-				placeholders: v.jsonPlaceholders,
-				jsonAction,
-				tooltip: triggerInfo && triggerInfo.descriptionKey ? this.$t(triggerInfo.descriptionKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(trigger)}) : ""
+		return this.$store.main.httpMigrationFixData
+			.map((v) => {
+				const trigger = JSON.parse(
+					JSON.stringify(triggerList.find((t) => t.id == v.triggerId)),
+				) as TriggerData;
+				const action = trigger?.actions.find(
+					(t) => t.id == v.httpActionId,
+				) as TriggerActionHTTPCallData;
+				const triggerInfo = trigger
+					? TriggerUtils.getTriggerDisplayInfo(trigger)
+					: undefined;
+				action.enabled = true;
+				action.outputPlaceholder = "HTTP_RESULT";
+				const jsonAction: TriggerActionJSONExtractData = {
+					id: Utils.getUUID(),
+					type: "json_extract",
+					enabled: true,
+					jsonExtractData: {
+						sourcePlaceholder: action.outputPlaceholder,
+						outputPlaceholderList: v.jsonPlaceholders,
+					},
+				};
+				return reactive({
+					oldTrigger: v.oldTriggerData,
+					oldTriggerAction: v.oldTriggerAction,
+					trigger,
+					originalAction: trigger?.actions.find((t) => t.id == v.httpActionId),
+					triggerInfo,
+					actionId: v.httpActionId,
+					action,
+					placeholders: v.jsonPlaceholders,
+					jsonAction,
+					tooltip:
+						triggerInfo && triggerInfo.descriptionKey
+							? this.$t(triggerInfo.descriptionKey, {
+									SUB_ITEM_NAME: TriggerSubTypeLabel(trigger),
+								})
+							: "",
+				});
 			})
-		}).filter(v => v.trigger && v.oldTriggerAction);
+			.filter((v) => v.trigger && v.oldTriggerAction);
 	}
 
-	public beforeMount():void {
+	public beforeMount(): void {
 		this.UPDATED = `"${this.$t("migrationFix.updated")}"`;
 		this.NEW = `"${this.$t("migrationFix.new")}"`;
 	}
 
-	public acceptChanges():void {
+	public acceptChanges(): void {
 		const triggerList = this.$store.triggers.triggerList;
 		const entry = this.$store.main.httpMigrationFixData[this.triggerIndex]!;
 
-		const trigger = triggerList.find(t => t.id == entry.triggerId);
-		if(trigger) {
-			const action = trigger.actions.find(t => t.id == entry.httpActionId) as TriggerActionHTTPCallData;
+		const trigger = triggerList.find((t) => t.id == entry.triggerId);
+		if (trigger) {
+			const action = trigger.actions.find(
+				(t) => t.id == entry.httpActionId,
+			) as TriggerActionHTTPCallData;
 			action.outputPlaceholder = "HTTP_RESULT";
-			trigger.actions.splice(trigger.actions.indexOf(action)+1, 0, this.triggers[this.triggerIndex]!.jsonAction);
+			trigger.actions.splice(
+				trigger.actions.indexOf(action) + 1,
+				0,
+				this.triggers[this.triggerIndex]!.jsonAction,
+			);
 			this.$store.triggers.saveTriggers();
 			DataStore.save(true);
 		}
@@ -182,21 +251,21 @@ class MigrationFixerModal extends Vue {
 		this.nextTrigger();
 	}
 
-	public async nextTrigger():Promise<void> {
-		if(this.triggerIndex == this.triggers.length-1) {
+	public async nextTrigger(): Promise<void> {
+		if (this.triggerIndex == this.triggers.length - 1) {
 			this.step = "end";
 			return;
 		}
-		this.fadeTrigger = true
+		this.fadeTrigger = true;
 		await Utils.promisedTimeout(200);
-		this.triggerIndex ++;
+		this.triggerIndex++;
 		await this.$nextTick();
-		this.fadeTrigger = false
+		this.fadeTrigger = false;
 	}
 
-	public close():void {
+	public close(): void {
 		DataStore.emergencyBackupStorage(true);
-		this.$emit('close');
+		this.$emit("close");
 	}
 }
 export default toNative(MigrationFixerModal);
@@ -216,8 +285,8 @@ export default toNative(MigrationFixerModal);
 			top: 0;
 			left: 0;
 			color: var(--color-light);
-			padding: .25em .5em;
-			font-size: .8em;
+			padding: 0.25em 0.5em;
+			font-size: 0.8em;
 			font-weight: bold;
 			z-index: 1;
 			border-top-left-radius: var(--border-radius);
@@ -235,42 +304,43 @@ export default toNative(MigrationFixerModal);
 		line-height: 1.2em;
 
 		.head {
-			gap: .25em;
+			gap: 0.25em;
 			flex-direction: column;
-			h1{
+			h1 {
 				margin: auto;
 			}
 			.triggerName {
 				// margin: auto;
-				margin-top: .5em;
+				margin-top: 0.5em;
 				text-align: center;
 			}
 		}
 
-		&>.icon {
+		& > .icon {
 			margin: auto;
 			width: 3em;
 			height: 3em;
 		}
 
 		.content {
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
 
-			.triggers, .summary {
+			.triggers,
+			.summary {
 				width: 90%;
 				margin: auto;
 			}
 			.triggers {
-				gap: .5em;
+				gap: 0.5em;
 				display: flex;
 				flex-direction: column;
 				margin-bottom: 1em;
 			}
-			
+
 			h1 {
-				margin-bottom: .5em;
+				margin-bottom: 0.5em;
 			}
 
 			.info {
@@ -281,9 +351,9 @@ export default toNative(MigrationFixerModal);
 			}
 			.center {
 				text-align: center;
-				margin-top: -.5em;
-				opacity: .7;
-				font-size: .8em;
+				margin-top: -0.5em;
+				opacity: 0.7;
+				font-size: 0.8em;
 			}
 
 			mark {
@@ -313,7 +383,7 @@ export default toNative(MigrationFixerModal);
 			}
 
 			mark {
-				font-size: .8em;
+				font-size: 0.8em;
 				word-break: break-all;
 			}
 
@@ -321,10 +391,10 @@ export default toNative(MigrationFixerModal);
 				list-style-position: inside;
 				display: flex;
 				flex-direction: column;
-				gap: .35em;
+				gap: 0.35em;
 				ul {
 					padding-left: 1em;
-					margin-top: .35em;
+					margin-top: 0.35em;
 				}
 			}
 		}

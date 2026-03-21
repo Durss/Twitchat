@@ -1,120 +1,120 @@
-import App from '@/App.vue';
-import Icon from '@/components/Icon.vue';
-import '@/less/index.less';
-import router from '@/router';
-import DataStore from '@/store/DataStore';
-import * as StoreProxy from '@/store/StoreProxy';
-import { storeAccessibility } from '@/store/accessibility/storeAccessibility';
-import { storeAccount } from '@/store/account/storeAccount';
-import { storeAdmin } from '@/store/admin/storeAdmin';
-import { storeAuth } from '@/store/auth/storeAuth';
-import { storeAutomod } from '@/store/automod/storeAutomod';
-import { storeBingo } from '@/store/bingo/storeBingo';
-import { storeBingoGrid } from '@/store/bingo_grid/storeBingoGrid';
-import { storeChat } from '@/store/chat/storeChat';
-import { storeChatSuggestion } from '@/store/chat_sugg/storeChatSuggestion';
-import { storeCounters } from '@/store/counters/storeCounters';
-import { storeDebug } from '@/store/debug/storeDebug';
-import { storeDiscord } from '@/store/discord/storeDiscord';
-import { storeEmergency } from '@/store/emergency/storeEmergency';
-import { storeExtension } from '@/store/extension/storeExtension';
-import { storeHeat } from '@/store/heat/storeHeat';
-import { storeKofi } from '@/store/kofi/storeKofi';
-import { storeLumia } from '@/store/lumia/storeLumia';
-import { storeMusic } from '@/store/music/storeMusic';
-import { storeOBS } from '@/store/obs/storeOBS';
-import { storeParams } from '@/store/params/storeParams';
-import { storePatreon } from '@/store/patreon/storePatreon';
-import { storePoll } from '@/store/poll/storePoll';
-import { storePrediction } from '@/store/prediction/storePrediction';
-import { storeQna } from '@/store/qna/storeQna';
-import { storeRaffle } from '@/store/raffle/storeRaffle';
-import { storeRewards } from '@/store/rewards/storeRewards';
-import { storeMain } from '@/store/storeMain';
-import { storeStream } from '@/store/stream/storeStream';
-import { storeStreamelements } from '@/store/streamelements/storeStreamelements';
-import { storeStreamlabs } from '@/store/streamlabs/storeStreamlabs';
-import { storeTimer } from '@/store/timer/storeTimer';
-import { storeTipeee } from '@/store/tipeee/storeTipeee';
-import { storeTriggers } from '@/store/triggers/storeTriggers';
-import { storeTTS } from '@/store/tts/storeTTS';
-import { storeUsers } from '@/store/users/storeUsers';
-import { storeValues } from '@/store/values/storeValues';
-import { storeVoice } from '@/store/voice/storeVoice';
-import { storeYoutube } from '@/store/youtube/storeYoutube';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ContextMenu from '@imengyu/vue3-context-menu';
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
-import { createPopper } from '@popperjs/core';
+import App from "@/App.vue";
+import Icon from "@/components/Icon.vue";
+import "@/less/index.less";
+import router from "@/router";
+import DataStore from "@/store/DataStore";
+import * as StoreProxy from "@/store/StoreProxy";
+import { storeAccessibility } from "@/store/accessibility/storeAccessibility";
+import { storeAccount } from "@/store/account/storeAccount";
+import { storeAdmin } from "@/store/admin/storeAdmin";
+import { storeAuth } from "@/store/auth/storeAuth";
+import { storeAutomod } from "@/store/automod/storeAutomod";
+import { storeBingo } from "@/store/bingo/storeBingo";
+import { storeBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import { storeChat } from "@/store/chat/storeChat";
+import { storeChatSuggestion } from "@/store/chat_sugg/storeChatSuggestion";
+import { storeCounters } from "@/store/counters/storeCounters";
+import { storeDebug } from "@/store/debug/storeDebug";
+import { storeDiscord } from "@/store/discord/storeDiscord";
+import { storeEmergency } from "@/store/emergency/storeEmergency";
+import { storeExtension } from "@/store/extension/storeExtension";
+import { storeHeat } from "@/store/heat/storeHeat";
+import { storeKofi } from "@/store/kofi/storeKofi";
+import { storeLumia } from "@/store/lumia/storeLumia";
+import { storeMusic } from "@/store/music/storeMusic";
+import { storeOBS } from "@/store/obs/storeOBS";
+import { storeParams } from "@/store/params/storeParams";
+import { storePatreon } from "@/store/patreon/storePatreon";
+import { storePoll } from "@/store/poll/storePoll";
+import { storePrediction } from "@/store/prediction/storePrediction";
+import { storeQna } from "@/store/qna/storeQna";
+import { storeRaffle } from "@/store/raffle/storeRaffle";
+import { storeRewards } from "@/store/rewards/storeRewards";
+import { storeMain } from "@/store/storeMain";
+import { storeStream } from "@/store/stream/storeStream";
+import { storeStreamelements } from "@/store/streamelements/storeStreamelements";
+import { storeStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeTimer } from "@/store/timer/storeTimer";
+import { storeTipeee } from "@/store/tipeee/storeTipeee";
+import { storeTriggers } from "@/store/triggers/storeTriggers";
+import { storeTTS } from "@/store/tts/storeTTS";
+import { storeUsers } from "@/store/users/storeUsers";
+import { storeValues } from "@/store/values/storeValues";
+import { storeVoice } from "@/store/voice/storeVoice";
+import { storeYoutube } from "@/store/youtube/storeYoutube";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import ContextMenu from "@imengyu/vue3-context-menu";
+import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
+import { createPopper } from "@popperjs/core";
 import { dedupeIntegration } from "@sentry/integrations";
 import * as Sentry from "@sentry/vue";
-import CSSPlugin from 'gsap/CSSPlugin';
-import { CustomEase, ScrollToPlugin } from 'gsap/all';
-import { gsap } from 'gsap/gsap-core';
-import { createPinia } from 'pinia';
-import 'tippy.js/animations/scale.css';
-import 'tippy.js/dist/tippy.css';
+import CSSPlugin from "gsap/CSSPlugin";
+import { CustomEase, ScrollToPlugin } from "gsap/all";
+import { gsap } from "gsap/gsap-core";
+import { createPinia } from "pinia";
+import "tippy.js/animations/scale.css";
+import "tippy.js/dist/tippy.css";
 import { createApp } from "vue";
-import CountryFlag from 'vue-country-flag-next';
-import { createI18n } from 'vue-i18n';
-import type { NavigationGuardNext, RouteLocation } from 'vue-router';
+import CountryFlag from "vue-country-flag-next";
+import { createI18n } from "vue-i18n";
+import type { NavigationGuardNext, RouteLocation } from "vue-router";
 import VueSelect from "vue-select";
-import 'vue-select/dist/vue-select.css';
+import "vue-select/dist/vue-select.css";
 import VueTippy, { setDefaultProps } from "vue-tippy";
-import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
-import { storeChatPoll } from './store/chat_poll/storeChatPoll';
-import { storeCommon } from './store/common/storeCommon';
-import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
-import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
-import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
-import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
-import { storeExporter } from './store/exporter/storeExporter';
-import { storeGroq } from './store/groq/storeGroq';
-import { storeLabels } from './store/labels/storeLabels';
-import { storeMixitup } from './store/mixitup/storeMixitup';
-import { storePlayability } from './store/playability/storePlayability';
-import { storeQuiz } from './store/quiz/storeQuiz';
-import { storeSammi } from './store/sammi/storeSammi';
-import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
-import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
-import { storeTiktok } from './store/tiktok/storeTiktok';
-import { storeTiltify } from './store/tiltify/storeTiltify';
-import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
-import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
-import Config from './utils/Config';
-import { storeStreamfog } from './store/streamfog/storeStreamfog';
-import Utils from './utils/Utils';
-import { vAutofocus } from './directives/autofocus';
-import { vClick2Select } from './directives/click2Select';
-import { vNewflag } from './directives/newflag';
-import { stickyTopShadow } from './directives/stickyTopShadow';
+import { storeAnimatedText } from "./store/animated_text/storeAnimatedText";
+import { storeChatPoll } from "./store/chat_poll/storeChatPoll";
+import { storeCommon } from "./store/common/storeCommon";
+import { storeCustomTrain } from "./store/customtrain/storeCustomTrain";
+import { storeDonationGoals } from "./store/donation_goals/storeDonationGoals";
+import { storeElevenLabs } from "./store/elevenlabs/storeElevenLabs";
+import { storeEndingCredits } from "./store/ending_credits/storeEndingCredits";
+import { storeExporter } from "./store/exporter/storeExporter";
+import { storeGroq } from "./store/groq/storeGroq";
+import { storeLabels } from "./store/labels/storeLabels";
+import { storeMixitup } from "./store/mixitup/storeMixitup";
+import { storePlayability } from "./store/playability/storePlayability";
+import { storeQuiz } from "./store/quiz/storeQuiz";
+import { storeSammi } from "./store/sammi/storeSammi";
+import { storeStreamerbot } from "./store/streamerbot/storeStreamerbot";
+import { storeStreamSocket } from "./store/streamsocket/storeStreamSocket";
+import { storeTiktok } from "./store/tiktok/storeTiktok";
+import { storeTiltify } from "./store/tiltify/storeTiltify";
+import { storeTwitchCharity } from "./store/twitch_charity/storeTwitchCharity";
+import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
+import Config from "./utils/Config";
+import { storeStreamfog } from "./store/streamfog/storeStreamfog";
+import Utils from "./utils/Utils";
+import { vAutofocus } from "./directives/autofocus";
+import { vClick2Select } from "./directives/click2Select";
+import { vNewflag } from "./directives/newflag";
+import { stickyTopShadow } from "./directives/stickyTopShadow";
 
 window.setInitMessage("Booting app...");
 
 setDefaultProps({
-	theme:"twitchat",
-	animation:"scale",
-	duration:100,
-	allowHTML:true,
-	maxWidth:250,
+	theme: "twitchat",
+	animation: "scale",
+	duration: 100,
+	allowHTML: true,
+	maxWidth: 250,
 });
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin);
 DataStore.init();
 
-let lang: string = navigator.language || (<any>navigator)['userLanguage'];
+let lang: string = navigator.language || (<any>navigator)["userLanguage"];
 lang = lang.substring(0, 2).toLowerCase();
 const sLang = DataStore.get(DataStore.LANGUAGE);
-if(sLang) lang = sLang;
+if (sLang) lang = sLang;
 const i18n = createI18n<true>({
-	locale:lang,
-	fallbackLocale: 'en',
+	locale: lang,
+	fallbackLocale: "en",
 	legacy: true,
 	globalInjection: true,
 	warnHtmlMessage: false,
-	silentFallbackWarn:!Config.instance.IS_PROD,
-	silentTranslationWarn:!Config.instance.IS_PROD,
+	silentFallbackWarn: !Config.instance.IS_PROD,
+	silentTranslationWarn: !Config.instance.IS_PROD,
 	// modifiers:{
 	// 	strong:(str)=> "<strong>"+str+"</strong>",
 	// }
@@ -122,18 +122,18 @@ const i18n = createI18n<true>({
 
 //Load labels before everything else so they are available when
 //initializing stores data
-(async()=> {
+void (async () => {
 	try {
 		window.setInitMessage("loading labels");
-		const labelsRes = await fetch("/labels.json?v="+import.meta.env.PACKAGE_VERSION);
+		const labelsRes = await fetch("/labels.json?v=" + import.meta.env.PACKAGE_VERSION);
 		const labelsJSON = await labelsRes.json();
 		for (const lang in labelsJSON) {
 			i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
 		}
-	}catch(error) {
+	} catch (error) {
 		console.log(error);
 		window.setTimeout(() => {
-			StoreProxy.default.common.alert( "An error occured when loading labels :(" );
+			StoreProxy.default.common.alert("An error occured when loading labels :(");
 			storeMain().initComplete = true;
 		}, 1000);
 	}
@@ -150,36 +150,38 @@ function buildApp() {
 		const needAuth = to.meta.needAuth !== false;
 		const needAdmin = to.meta.needAdmin === true;
 		const transparent = to.meta.noBG;
-		if(transparent) {
+		if (transparent) {
 			document.body.style.backgroundColor = "transparent";
 		}
 
 		//If landing on homepage, redirect to chat if an auth token is available
 		const authToken = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
-		if(authToken && to.name === "home") {
-			next({name:"chat"});
+		if (authToken && to.name === "home") {
+			next({ name: "chat" });
 			return;
 		}
 
 		if (!sMain.initComplete) {
 			try {
-				await new Promise((resolve) => { sMain.startApp(needAuth, resolve); });
-			}catch(error) {
+				await new Promise((resolve) => {
+					void sMain.startApp(needAuth, resolve);
+				});
+			} catch (error) {
 				console.log(error);
 			}
 		}
 
 		if (!sAuth.authenticated) {
 			//Not authenticated, reroute to login
-			if(needAuth && to.name != "login" && to.name != "logout" && to.name != "oauth") {
-				next({name: 'login', params: {redirect: to.fullPath}});
+			if (needAuth && to.name != "login" && to.name != "logout" && to.name != "oauth") {
+				next({ name: "login", params: { redirect: to.fullPath } });
 				return;
 			}
 		}
 
 		//Not admin, reroute to login
-		if(needAdmin && !StoreProxy.default.auth.isAdmin) {
-			next({name: 'home'});
+		if (needAdmin && !StoreProxy.default.auth.isAdmin) {
+			next({ name: "home" });
 			return;
 		}
 
@@ -189,35 +191,40 @@ function buildApp() {
 	/**
 	 * Include an image from the asset folder
 	 */
-	const asset = (path:string):string => {
-		const map = import.meta.glob('/src_front/assets/**/*', { eager: true, import: 'default' });
+	const asset = (path: string): string => {
+		const map = import.meta.glob("/src_front/assets/**/*", { eager: true, import: "default" });
 		return map[`/src_front/assets/${path}`] as string;
-	}
+	};
 
 	/**
 	 * Opens up a confirm window so the user can confirm or cancel an action.
 	 */
-	const confirm = <T>(title: string,
+	const confirm = <T>(
+		title: string,
 		description?: string,
 		data?: T,
-		yesLabel?:string,
-		noLabel?:string): Promise<T|undefined> => {
+		yesLabel?: string,
+		noLabel?: string,
+	): Promise<T | undefined> => {
 		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel);
-	}
+	};
 
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const placeDropdown = (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => {
+	const placeDropdown = (
+		dropdownList: HTMLDivElement,
+		component: { $refs: { [key: string]: HTMLElement } },
+		params: { width: string; left: string; top: string },
+	) => {
 		dropdownList.style.width = params.width;
-		const popper = createPopper(component.$refs.toggle!, dropdownList, { placement: "top" })
-		return () => popper.destroy()
-	}
+		const popper = createPopper(component.$refs.toggle!, dropdownList, { placement: "top" });
+		return () => popper.destroy();
+	};
 
 	window.setInitMessage("Building stores");
 
-	const app = createApp(App)
-	.use(pinia);
+	const app = createApp(App).use(pinia);
 
 	//Init stores before instanciating the router because the
 	//router needs to access some stores
@@ -225,14 +232,20 @@ function buildApp() {
 	StoreProxy.default.i18n = i18n.global;
 	StoreProxy.default.asset = asset;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.main = (storeMain() as unknown) as StoreProxy.IMainState & StoreProxy.IMainGetters & StoreProxy.IMainActions & { $state: StoreProxy.IMainState; $reset:()=>void };
+	StoreProxy.default.main = storeMain() as unknown as StoreProxy.IMainState &
+		StoreProxy.IMainGetters &
+		StoreProxy.IMainActions & { $state: StoreProxy.IMainState; $reset: () => void };
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.auth = (storeAuth() as unknown) as StoreProxy.IAuthState & StoreProxy.IAuthGetters & StoreProxy.IAuthActions & { $state: StoreProxy.IAuthState; $reset:()=>void };
+	StoreProxy.default.auth = storeAuth() as unknown as StoreProxy.IAuthState &
+		StoreProxy.IAuthGetters &
+		StoreProxy.IAuthActions & { $state: StoreProxy.IAuthState; $reset: () => void };
 	StoreProxy.default.automod = storeAutomod();
 	StoreProxy.default.bingo = storeBingo();
 	StoreProxy.default.bingoGrid = storeBingoGrid();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.chat = (storeChat() as unknown) as StoreProxy.IChatState & StoreProxy.IChatGetters & StoreProxy.IChatActions & { $state: StoreProxy.IChatState; $reset:()=>void };
+	StoreProxy.default.chat = storeChat() as unknown as StoreProxy.IChatState &
+		StoreProxy.IChatGetters &
+		StoreProxy.IChatActions & { $state: StoreProxy.IChatState; $reset: () => void };
 	StoreProxy.default.chatSuggestion = storeChatSuggestion();
 	StoreProxy.default.emergency = storeEmergency();
 	StoreProxy.default.music = storeMusic();
@@ -246,11 +259,17 @@ function buildApp() {
 	StoreProxy.default.stream = storeStream();
 	StoreProxy.default.timers = storeTimer();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
+	StoreProxy.default.triggers = storeTriggers() as unknown as StoreProxy.ITriggersState &
+		StoreProxy.ITriggersGetters &
+		StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset: () => void };
 	StoreProxy.default.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.users = (storeUsers() as unknown) as StoreProxy.IUsersState & StoreProxy.IUsersGetters & StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset:()=>void };
-	StoreProxy.default.voice = (storeVoice() as unknown) as StoreProxy.IVoiceState & StoreProxy.IVoiceGetters & StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset:()=>void };
+	StoreProxy.default.users = storeUsers() as unknown as StoreProxy.IUsersState &
+		StoreProxy.IUsersGetters &
+		StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset: () => void };
+	StoreProxy.default.voice = storeVoice() as unknown as StoreProxy.IVoiceState &
+		StoreProxy.IVoiceGetters &
+		StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset: () => void };
 	StoreProxy.default.debug = storeDebug();
 	StoreProxy.default.accessibility = storeAccessibility();
 	StoreProxy.default.admin = storeAdmin();
@@ -263,8 +282,12 @@ function buildApp() {
 	StoreProxy.default.extension = storeExtension();
 	StoreProxy.default.qna = storeQna();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.discord = (storeDiscord() as unknown) as StoreProxy.IDiscordState & StoreProxy.IDiscordGetters & StoreProxy.IDiscordActions & { $state: StoreProxy.IDiscordState; $reset:()=>void };
-	StoreProxy.default.streamlabs = (storeStreamlabs() as unknown) as StoreProxy.IStreamlabsState & StoreProxy.IStreamlabsGetters & StoreProxy.IStreamlabsActions & { $state: StoreProxy.IStreamlabsState; $reset:()=>void };
+	StoreProxy.default.discord = storeDiscord() as unknown as StoreProxy.IDiscordState &
+		StoreProxy.IDiscordGetters &
+		StoreProxy.IDiscordActions & { $state: StoreProxy.IDiscordState; $reset: () => void };
+	StoreProxy.default.streamlabs = storeStreamlabs() as unknown as StoreProxy.IStreamlabsState &
+		StoreProxy.IStreamlabsGetters &
+		StoreProxy.IStreamlabsActions & { $state: StoreProxy.IStreamlabsState; $reset: () => void };
 	StoreProxy.default.streamelements = storeStreamelements();
 	StoreProxy.default.kofi = storeKofi();
 	StoreProxy.default.lumia = storeLumia();
@@ -276,7 +299,9 @@ function buildApp() {
 	StoreProxy.default.streamerbot = storeStreamerbot();
 	StoreProxy.default.sammi = storeSammi();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
+	StoreProxy.default.labels = storeLabels() as unknown as StoreProxy.ILabelsState &
+		StoreProxy.ILabelsGetters &
+		StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset: () => void };
 	StoreProxy.default.mixitup = storeMixitup();
 	StoreProxy.default.twitchCharity = storeTwitchCharity();
 	StoreProxy.default.elevenLabs = storeElevenLabs();
@@ -292,29 +317,29 @@ function buildApp() {
 	StoreProxy.default.streamfog = storeStreamfog();
 
 	const keys = Object.keys(StoreProxy.default);
-	keys.forEach(k => {
-		if(!StoreProxy.default[k as keyof typeof StoreProxy.default]) {
+	keys.forEach((k) => {
+		if (!StoreProxy.default[k as keyof typeof StoreProxy.default]) {
 			//Not necessary for main app
-			if(k == "public") return;
-			console.error("ERROR !! StoreProxy \""+k+"\" not initialized !");
+			if (k == "public") return;
+			console.error('ERROR !! StoreProxy "' + k + '" not initialized !');
 		}
-	})
+	});
 
 	window.setInitMessage("Building interface");
 	app.use(router)
-	.use(i18n)
-	.use(ContextMenu)
-	.use(VueTippy,{
-		directive: "tooltip",
-		component: "tooltip",
-	})
-	.component("country-flag", CountryFlag)
-	.component("vue-select", VueSelect)
-	.component("Icon", Icon)
-	.directive('stickyTopShadow', stickyTopShadow)
-	.directive('autofocus', vAutofocus)
-	.directive('click2Select', vClick2Select)
-	.directive('newflag', vNewflag);
+		.use(i18n)
+		.use(ContextMenu)
+		.use(VueTippy, {
+			directive: "tooltip",
+			component: "tooltip",
+		})
+		.component("country-flag", CountryFlag)
+		.component("vue-select", VueSelect)
+		.component("Icon", Icon)
+		.directive("stickyTopShadow", stickyTopShadow)
+		.directive("autofocus", vAutofocus)
+		.directive("click2Select", vClick2Select)
+		.directive("newflag", vNewflag);
 	app.config.globalProperties.$asset = asset;
 	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;
@@ -322,71 +347,84 @@ function buildApp() {
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	app.config.globalProperties.$store = StoreProxy.default;
 
-	window.addEventListener("beforeinstallprompt", (e:Event)=> {
+	window.addEventListener("beforeinstallprompt", (e: Event) => {
 		e.preventDefault();
 		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	if(Config.instance.IS_PROD) {
+	if (Config.instance.IS_PROD) {
 		Sentry.init({
 			app,
-			debug:false,
-			release:"twitchat@"+import.meta.env.PACKAGE_VERSION,
+			debug: false,
+			release: "twitchat@" + import.meta.env.PACKAGE_VERSION,
 			dsn: "https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224",
-			integrations: [
-				dedupeIntegration()
-			],
+			integrations: [dedupeIntegration()],
 			//@ts-ignore
-			environment:{"beta.twitchat.fr":"beta", "twitchat.fr":"prod"}[document.location.hostname] || document.location.hostname,
+			environment:
+				{ "beta.twitchat.fr": "beta", "twitchat.fr": "prod" }[document.location.hostname] ||
+				document.location.hostname,
 			tracesSampleRate: 1.0,
 			ignoreErrors: [
-							"[-]",//Custom tag to ignore errors coming from specific parts of the app
-							"reading 'innerText'",//When emptying a content-editable field
-							"venmo",//When opening paypal popup
-							"Detected popup close",//When closing paypal popup
-							"OBS is not ready",//If trying to connect to OBS when OBS-ws is booting
-							"This is likely a Vue internals bug",//Dev potential exception
-							"Connection error",//websocket connection attempts
-						],
+				"[-]", //Custom tag to ignore errors coming from specific parts of the app
+				"reading 'innerText'", //When emptying a content-editable field
+				"venmo", //When opening paypal popup
+				"Detected popup close", //When closing paypal popup
+				"OBS is not ready", //If trying to connect to OBS when OBS-ws is booting
+				"This is likely a Vue internals bug", //Dev potential exception
+				"Connection error", //websocket connection attempts
+			],
 		});
 	}
 
 	window.setInitMessage("Mounting interface");
-	app.mount('#app');
+	app.mount("#app");
 
-	document.addEventListener("keyup", (e:KeyboardEvent)=> {
-		//Given a Sentry error, a user apparently succeeded to have an
-		//"undefined" e.key value on an up to date Edge browser
-		if(!e.key) return;
+	document.addEventListener(
+		"keyup",
+		(e: KeyboardEvent) => {
+			//Given a Sentry error, a user apparently succeeded to have an
+			//"undefined" e.key value on an up to date Edge browser
+			if (!e.key) return;
 
-		const metaKey = e.metaKey || e.ctrlKey;
+			const metaKey = e.metaKey || e.ctrlKey;
 
-		//Reload labels on CTRL+Alt+L
-		if(e.key.toLowerCase() == "l" && metaKey && e.altKey) {
-			StoreProxy.default.main.reloadLabels();
-			e.preventDefault();
-		}
+			//Reload labels on CTRL+Alt+L
+			if (e.key.toLowerCase() == "l" && metaKey && e.altKey) {
+				void StoreProxy.default.main.reloadLabels();
+				e.preventDefault();
+			}
 
-		//Toggle light/dark mode on CTRL+Alt+K
-		if(e.key.toLowerCase() == "k" && metaKey && e.altKey) {
-			StoreProxy.default.main.toggleTheme();
-			e.preventDefault();
-		}
+			//Toggle light/dark mode on CTRL+Alt+K
+			if (e.key.toLowerCase() == "k" && metaKey && e.altKey) {
+				void StoreProxy.default.main.toggleTheme();
+				e.preventDefault();
+			}
 
-		//Walk through available locales on CTRL+Alt+M
-		if(e.key.toLowerCase() == "m" && metaKey && e.altKey) {
-			const locales = i18n.global.availableLocales;
-			// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
-			i18n.global.locale.value = locales[(locales.indexOf(i18n.global.locale.value) + 1)%locales.length];
-			// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
-			DataStore.set(DataStore.LANGUAGE, i18n.global.locale.value);
-			e.preventDefault();
-		}
+			//Walk through available locales on CTRL+Alt+M
+			if (e.key.toLowerCase() == "m" && metaKey && e.altKey) {
+				const locales = i18n.global.availableLocales;
+				// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+				i18n.global.locale.value =
+					// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+					locales[(locales.indexOf(i18n.global.locale.value) + 1) % locales.length];
+				// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+				DataStore.set(DataStore.LANGUAGE, i18n.global.locale.value);
+				e.preventDefault();
+			}
 
-		//Toggle premium/non-premium state on CTRL+Alt+P
-		if(e.key.toLowerCase() == "p" && metaKey && e.altKey && StoreProxy.default.auth.twitch.user.is_admin === true && !Config.instance.IS_PROD) {
-			StoreProxy.default.auth.premiumType = StoreProxy.default.auth.premiumType === ""? 'lifetime' : '';
-			e.preventDefault();
-		}
-	}, true);
+			//Toggle premium/non-premium state on CTRL+Alt+P
+			if (
+				e.key.toLowerCase() == "p" &&
+				metaKey &&
+				e.altKey &&
+				StoreProxy.default.auth.twitch.user.is_admin === true &&
+				!Config.instance.IS_PROD
+			) {
+				StoreProxy.default.auth.premiumType =
+					StoreProxy.default.auth.premiumType === "" ? "lifetime" : "";
+				e.preventDefault();
+			}
+		},
+		true,
+	);
 }

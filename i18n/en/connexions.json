@@ -1,37 +1,37 @@
 {
-	"connexions":{
-		"header":"Connect Twitchat with external softwares",
-		"spotify":{
-			"refused":"Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
-			"how_to":"To use it you'll have to {URL} and fill-in the values below:",
-			"how_to_read":"READ THIS TUTORIAL",
-			"usage":"Connect with Spotify to control it from the Triggers or display currently playing track from the Overlays.",
-			"usage_premium":"Requires a Spotify Premium subscription!",
-			"usage_connected":"You can now display the currently playing track thanks to the dedicated {OVERLAY} or allow your viewers to control playback by creating {TRIGGERS}.",
-			"usage_connected_overlay":"overlay",
-			"usage_connected_triggers":"triggers",
-			"success":"Spotify is now connected"
+	"connexions": {
+		"header": "Connect Twitchat with external softwares",
+		"spotify": {
+			"refused": "Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
+			"how_to": "To use it you'll have to {URL} and fill-in the values below:",
+			"how_to_read": "READ THIS TUTORIAL",
+			"usage": "Connect with Spotify to control it from the Triggers or display currently playing track from the Overlays.",
+			"usage_premium": "Requires a Spotify Premium subscription!",
+			"usage_connected": "You can now display the currently playing track thanks to the dedicated {OVERLAY} or allow your viewers to control playback by creating {TRIGGERS}.",
+			"usage_connected_overlay": "overlay",
+			"usage_connected_triggers": "triggers",
+			"success": "Spotify is now connected"
 		},
 
-		"triggerSocket":{
-			"ip":"IP",
-			"port":"Port",
-			"secured":"Secured",
-			"success":"Socket is now connected",
-			"usage":"Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger."
+		"triggerSocket": {
+			"ip": "IP",
+			"port": "Port",
+			"secured": "Secured",
+			"success": "Socket is now connected",
+			"usage": "Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger."
 		},
 
-		"youtube":{
-			"header":"Show your YouTube's chat in Twitchat.",
-			"success":"YouTube is now connected",
-			"current_live_title":"Select live(s) to connect to",
-			"no_live":"No live broadcast found.\nPlease create a live broadcast session on YouTube and hit refresh button.",
-			"scopes_title":"Autorizations",
-			"scope_read":"Read chat messages\n(mandatory)",
-			"scope_moderate":"Write & delete messages / ban users\n(@:connexions.youtube.scope_moderate_details )",
-			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but Youtube leaves no choice.",
-			"terms":"YouTube Terms of Services",
-			"policy":"Google Privacy Policy"
+		"youtube": {
+			"header": "Show your YouTube's chat in Twitchat.",
+			"success": "YouTube is now connected",
+			"current_live_title": "Select live(s) to connect to",
+			"no_live": "No live broadcast found.\nPlease create a live broadcast session on YouTube and hit refresh button.",
+			"scopes_title": "Autorizations",
+			"scope_read": "Read chat messages\n(mandatory)",
+			"scope_moderate": "Write & delete messages / ban users\n(@:connexions.youtube.scope_moderate_details )",
+			"scope_moderate_details": "This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but Youtube leaves no choice.",
+			"terms": "YouTube Terms of Services",
+			"policy": "Google Privacy Policy"
 		}
 	}
 }

@@ -2,30 +2,45 @@
 	<div :class="classes">
 		<div class="head">
 			<ClearButton @click="close()" />
-			<h1 class="title"><Icon name="magnet" class="icon" />{{ $t('tracked.title') }}</h1>
+			<h1 class="title"><Icon name="magnet" class="icon" />{{ $t("tracked.title") }}</h1>
 		</div>
 
 		<div class="content">
 			<div class="messageList" ref="messageList" v-if="messages.length > 0">
-				<MessageItem v-for="(m, index) in messages"
+				<MessageItem
+					v-for="(m, index) in messages"
 					:key="m.id"
 					:messageData="m"
 					:lightMode="true"
 					:disableConversation="true"
-					class="message" />
-				
+					class="message"
+				/>
 			</div>
 			<div class="messageList empty" v-else>no message</div>
-			
-			<Button class="refreshBt clearButton"
+
+			<Button
+				class="refreshBt clearButton"
 				@click="refreshMessages()"
 				icon="refresh"
-				:loading="refreshing" />
-				
+				:loading="refreshing"
+			/>
+
 			<div class="userlist">
 				<div v-for="user in trackedUsers" :key="user.id" class="user">
-					<Button small class="login" @click="selectUser(user)" :selected="selectedUser?.id == user.id">{{ user.displayName }}</Button>
-					<Button small class="delete" icon="trash" @click="untrackUser(user)" alert></Button>
+					<Button
+						small
+						class="login"
+						@click="selectUser(user)"
+						:selected="selectedUser?.id == user.id"
+						>{{ user.displayName }}</Button
+					>
+					<Button
+						small
+						class="delete"
+						icon="trash"
+						@click="untrackUser(user)"
+						alert
+					></Button>
 				</div>
 			</div>
 		</div>
@@ -33,86 +48,95 @@
 </template>
 
 <script lang="ts">
-import EventBus from '@/events/EventBus';
-import GlobalEvent from '@/events/GlobalEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import MessageItem from '../messages/MessageItem.vue';
+import EventBus from "@/events/EventBus";
+import GlobalEvent from "@/events/GlobalEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { toNative, Component } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import TTButton from "../TTButton.vue";
+import ClearButton from "../ClearButton.vue";
+import ToggleBlock from "../ToggleBlock.vue";
+import MessageItem from "../messages/MessageItem.vue";
 
 @Component({
-	components:{
+	components: {
 		Button: TTButton,
 		MessageItem,
 		ClearButton,
 		ToggleBlock,
 	},
-	emits:["close"]
+	emits: ["close"],
 })
 class TrackedUsers extends AbstractSidePanel {
+	public refreshing: boolean = false;
+	public selectedUser: TwitchatDataTypes.TwitchatUser | null = null;
+	public messages: TwitchatDataTypes.ChatMessageTypes[] = [];
+	public trackedUsers: TwitchatDataTypes.TwitchatUser[] = [];
 
-	public refreshing:boolean = false;
-	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
-	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
-	public trackedUsers:TwitchatDataTypes.TwitchatUser[] = [];
+	private updateListHandler!: (e: GlobalEvent) => void;
 
-	private updateListHandler!:(e:GlobalEvent)=>void;
-
-	public get classes():string[] {
+	public get classes(): string[] {
 		let res = ["trackedusers", "sidePanel"];
 		return res;
 	}
 
-	public selectUser(user:TwitchatDataTypes.TwitchatUser):void {
+	public selectUser(user: TwitchatDataTypes.TwitchatUser): void {
 		this.selectedUser = user;
 		const uid = user.id;
-		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
+		let list: TwitchatDataTypes.ChatMessageTypes[] = [];
 		const messageList = this.$store.chat.messages;
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"];
+		const allowedTypes: TwitchatDataTypes.TwitchatMessageStringType[] = [
+			"following",
+			"message",
+			"reward",
+			"subscription",
+			"shoutout",
+			"whisper",
+			"ban",
+			"unban",
+			"cheer",
+		];
 		// for (let i = messageList.length-1; i > Math.max(0, messageList.length-100); i--) {
 		for (const mess of messageList) {
-			if(!allowedTypes.includes(mess.type)) continue;
-			if(mess.type == "shoutout" && mess.user.id == uid) {
+			if (!allowedTypes.includes(mess.type)) continue;
+			if (mess.type == "shoutout" && mess.user.id == uid) {
 				list.push(mess);
-			}else if(mess.type == "following" && mess.user.id == uid) {
+			} else if (mess.type == "following" && mess.user.id == uid) {
 				list.push(mess);
-			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
+			} else if ((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
 				list.push(mess);
-			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
+			} else if ((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
 				list.push(mess);
-			}else if(mess.type == "subscription" && mess.user.id == uid) {
+			} else if (mess.type == "subscription" && mess.user.id == uid) {
 				list.push(mess);
-			}else if(mess.type == "cheer" && mess.user.id == uid) {
+			} else if (mess.type == "cheer" && mess.user.id == uid) {
 				list.push(mess);
-			}else if(mess.type == "reward" && mess.user.id == uid) {
+			} else if (mess.type == "reward" && mess.user.id == uid) {
 				list.push(mess);
 			}
-			if (list.length > 100) break;//Limit to 100 for perf reasons
+			if (list.length > 100) break; //Limit to 100 for perf reasons
 		}
 		this.messages = list;
 
-		this.$nextTick().then(()=>{
+		this.$nextTick().then(() => {
 			this.scrollToBottom();
-		})
+		});
 	}
 
-	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
+	public untrackUser(user: TwitchatDataTypes.TwitchatUser): void {
 		this.$store.users.untrackUser(user);
 		this.onUpdateList();
 	}
 
 	public beforeMount(): void {
-		this.updateListHandler = (e:GlobalEvent) => this.onUpdateList();
+		this.updateListHandler = (e: GlobalEvent) => this.onUpdateList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
 		this.onUpdateList();
 		this.selectUser(this.trackedUsers[0]!);
 	}
 
-	public mounted():void {
+	public mounted(): void {
 		super.open();
 	}
 
@@ -127,40 +151,39 @@ class TrackedUsers extends AbstractSidePanel {
 		this.refreshing = false;
 	}
 
-	private onUpdateList():void {
+	private onUpdateList(): void {
 		const res = [];
 		for (const u of this.$store.users.users) {
-			if(u.is_tracked) res.push(u);
+			if (u.is_tracked) res.push(u);
 		}
 		this.trackedUsers = res;
-		if(res.length == 0) {
+		if (res.length == 0) {
 			super.close();
 		}
 	}
 
-	private scrollToBottom():void {
+	private scrollToBottom(): void {
 		const div = this.$refs.messageList as HTMLDivElement;
-		if(div) div.scrollTo(0, div.scrollHeight);
+		if (div) div.scrollTo(0, div.scrollHeight);
 	}
-
 }
 export default toNative(TrackedUsers);
 </script>
 
 <style scoped lang="less">
-.trackedusers{
+.trackedusers {
 	.content {
 		padding-right: 5px;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		width: 100%;
-		margin:auto;
+		margin: auto;
 
 		.userlistToggle {
 			width: 100%;
 		}
-		
+
 		.userlist {
 			display: flex;
 			flex-direction: row;
@@ -178,7 +201,7 @@ export default toNative(TrackedUsers);
 				.delete {
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
-					padding: 0 .5em;
+					padding: 0 0.5em;
 				}
 			}
 		}
@@ -205,9 +228,8 @@ export default toNative(TrackedUsers);
 		.refreshBt {
 			align-self: center;
 			flex-shrink: 0;
-			padding-left: .38em;
+			padding-left: 0.38em;
 		}
 	}
-
 }
 </style>

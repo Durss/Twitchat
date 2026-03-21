@@ -7,27 +7,26 @@
 </template>
 
 <script lang="ts">
-import MessageList from '@/components/messages/MessageList.vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import MessageList from "@/components/messages/MessageList.vue";
+import { toNative, Component, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		MessageList,
-	}
+	},
 })
 class ChatLight extends Vue {
-
 	public maxSize = 50;
 
-	public mounted():void {
-		this.$store.chat.realHistorySize = this.maxSize;//Reduces memory footprint
+	public mounted(): void {
+		this.$store.chat.realHistorySize = this.maxSize; //Reduces memory footprint
 	}
 }
 export default toNative(ChatLight);
 </script>
 
 <style scoped lang="less">
-.chatlight{
+.chatlight {
 	width: 100%;
 	height: 100%;
 

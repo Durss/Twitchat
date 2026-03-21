@@ -13,33 +13,30 @@
 </template>
 
 <script lang="ts">
-import { Component, toNative } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import ClearButton from '../ClearButton.vue';
-import ParamsTimer from '../params/contents/ParamsTimer.vue';
+import { Component, toNative } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import ClearButton from "../ClearButton.vue";
+import ParamsTimer from "../params/contents/ParamsTimer.vue";
 
 @Component({
-	components:{
+	components: {
 		ClearButton,
 		ParamsTimer,
 	},
-	emits:["close"]
+	emits: ["close"],
 })
 class TimerForm extends AbstractSidePanel {
-
-
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		super.open();
 	}
-
 }
 export default toNative(TimerForm);
 </script>
 
 <style scoped lang="less">
-.timerform{
+.timerform {
 	.demo {
-		width:auto;
+		width: auto;
 		align-self: center;
 		justify-self: center;
 	}

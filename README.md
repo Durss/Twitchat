@@ -225,10 +225,22 @@ By default the server listens on port 3018, you can change it on `credentials.js
 # Environment setup
 
 This project has been coded with VSCode.\
-It is recommended to install these plugins:\
-Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.volar
+It is recommended to install these plugins:
 
-I18n-ally Plugin: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
+- Vue: https://marketplace.visualstudio.com/items?itemName=Vue.volar
+- I18n-ally: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
+- Oxc for linting: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
+- Prettier for auto formatting: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+
+<br>
+<br>
+<br>
+
+# Refactoring in progress
+
+Project has initially be done with class component style.  
+To date 99% of the project uses this but I'm slowly moving away for from it in favor of standard Vue3 composition API which will require shit tons of time and effort.  
+New components must be done with standard syntax/API as much as possible.
 
 <br>
 <br>

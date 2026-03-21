@@ -2,9 +2,16 @@
 	<div class="triggeractionwsentry triggerActionForm">
 		<div class="card-item info warn" v-if="!$store.sammi.connected">
 			<Icon name="info" alt="info" theme="light" />
-			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.sammi.need_to_connect">
+			<i18n-t
+				scope="global"
+				class="label"
+				tag="p"
+				keypath="triggers.actions.sammi.need_to_connect"
+			>
 				<template #LINK>
-					<a @click="openConnectForm()">{{ $t("triggers.actions.sammi.need_to_connect_link") }}</a>
+					<a @click="openConnectForm()">{{
+						$t("triggers.actions.sammi.need_to_connect_link")
+					}}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -14,53 +21,57 @@
 </template>
 
 <script lang="ts">
-import ParamItem from '@/components/params/ParamItem.vue';
-import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import type { TriggerActionSammiData, TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import Icon from '@/components/Icon.vue';
+import ParamItem from "@/components/params/ParamItem.vue";
+import PlaceholderSelector from "@/components/params/PlaceholderSelector.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import type { TriggerActionSammiData, TriggerData } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
+import Icon from "@/components/Icon.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		ParamItem,
 		ToggleButton,
 		PlaceholderSelector,
 	},
-	emits:["update"]
+	emits: ["update"],
 })
 class TriggerActionSammiEntry extends AbstractTriggerActionEntry {
+	@Prop
+	declare action: TriggerActionSammiData;
 
 	@Prop
-	declare action:TriggerActionSammiData;
+	declare triggerData: TriggerData;
 
-	@Prop
-	declare triggerData:TriggerData;
+	public param_buttonId: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "",
+		labelKey: "triggers.actions.sammi.param_buttonId",
+		maxLength: 40,
+	};
 
-	public param_buttonId:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.sammi.param_buttonId", maxLength:40 };
-
-	public beforeMount():void {
-		if(!this.action.sammiData) {
+	public beforeMount(): void {
+		if (!this.action.sammiData) {
 			this.action.sammiData = {
-				buttonId:"",
+				buttonId: "",
 			};
 		}
 	}
 
-	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
+	public openConnectForm(): void {
+		this.$store.params.openParamsPage(
+			TwitchatDataTypes.ParameterPages.CONNECTIONS,
+			TwitchatDataTypes.ParamDeepSections.SAMMI,
+		);
 	}
-
-
 }
 export default toNative(TriggerActionSammiEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractionsammientry{
-
+.triggeractionsammientry {
 }
 </style>

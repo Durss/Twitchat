@@ -1,33 +1,33 @@
 {
-	"emergency":{
-		"header":"Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.",
-		"enable_confirm":"Enable emergency mode?",
-		"enabled":"Emergency mode enabled",
-		"disabled":"Emergency mode disabled",
+	"emergency": {
+		"header": "Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.",
+		"enable_confirm": "Enable emergency mode?",
+		"enabled": "Emergency mode enabled",
+		"disabled": "Emergency mode disabled",
 		"start": {
-			"title":"Start condition",
-			"chatCommand_users":"Users allowed to use chat command",
-			"also":"You can also start it from {LINK}",
-			"also_link":"automod rule",
-			"followbot_info":"After the emergency is stopped you'll get a list of all the users who followed you during the emergency."
+			"title": "Start condition",
+			"chatCommand_users": "Users allowed to use chat command",
+			"also": "You can also start it from {LINK}",
+			"also_link": "automod rule",
+			"followbot_info": "After the emergency is stopped you'll get a list of all the users who followed you during the emergency."
 		},
 		"actions": {
-			"title":"Actions",
-			"obs_connect":"{LINK} to switch to a specific scene and hide sources (ex: alerts)",
-			"obs_connect_link":"Connect with OBS",
-			"obs_scene":"Switch OBS to the following scene",
-			"obs_scene_select":"Select a scene...",
-			"obs_sources":"Hide following OBS sources",
-			"obs_sources_example":"(ex: streamelements alerts)",
-			"obs_sources_select":"Select one or more sources..."
+			"title": "Actions",
+			"obs_connect": "{LINK} to switch to a specific scene and hide sources (ex: alerts)",
+			"obs_connect_link": "Connect with OBS",
+			"obs_scene": "Switch OBS to the following scene",
+			"obs_scene_select": "Select a scene...",
+			"obs_sources": "Hide following OBS sources",
+			"obs_sources_example": "(ex: streamelements alerts)",
+			"obs_sources_select": "Select one or more sources..."
 		},
 		"params": {
 			"shieldmode": "Enable Twitch shield mode",
-			"chatCommand":"Chat command",
-			"autoEnableOnFollowbot":"Automatically start on followbot raid",
-			"autoEnableOnFollowbot_tt":"A raid is detected when receiving 20 follow events with less than 0,5s between each follow",
-			"autoEnableOnShieldmode":"Sync with Twitch's shield mode",
-			"autoEnableOnShieldmode_tt":"Start / Stop emergency mode from Twitch's shield mode",
+			"chatCommand": "Chat command",
+			"autoEnableOnFollowbot": "Automatically start on followbot raid",
+			"autoEnableOnFollowbot_tt": "A raid is detected when receiving 20 follow events with less than 0,5s between each follow",
+			"autoEnableOnShieldmode": "Sync with Twitch's shield mode",
+			"autoEnableOnShieldmode_tt": "Start / Stop emergency mode from Twitch's shield mode",
 			"slowMode": "Slow mode",
 			"slowModeDuration": "Cooldown (seconds)",
 			"followersOnly": "Followers only",

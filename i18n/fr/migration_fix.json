@@ -1,28 +1,28 @@
 {
-	"migrationFix":{
-		"title1":"🚨 CECI EST IMPORTANT 🚨",
-		"title2":"Qu'est-ce qui a échoué ?",
-		"title3":"Correctifs terminés",
-		"intro":"La dernière mise à jour de Twitchat n'a pas réussi à migrer correctement certains de vos triggers, perdant des configurations.\n\nEssayons de corriger cela.",
-		"info":"Jusqu'à présent, l'action de trigger <strong>\" @:triggers.actions.common.action_http \"</strong> permettait d'extraire des données JSON des données reçues.\n\nDésormais, cette extraction JSON est effectuée avec une nouvelle action dédiée <strong>\" @:triggers.actions.common.action_json_extract \"</strong>.\n\nCette conversion semble avoir échoué pour <strong>{COUNT}</strong> de vos actions de trigger.",
+	"migrationFix": {
+		"title1": "🚨 CECI EST IMPORTANT 🚨",
+		"title2": "Qu'est-ce qui a échoué ?",
+		"title3": "Correctifs terminés",
+		"intro": "La dernière mise à jour de Twitchat n'a pas réussi à migrer correctement certains de vos triggers, perdant des configurations.\n\nEssayons de corriger cela.",
+		"info": "Jusqu'à présent, l'action de trigger <strong>\" @:triggers.actions.common.action_http \"</strong> permettait d'extraire des données JSON des données reçues.\n\nDésormais, cette extraction JSON est effectuée avec une nouvelle action dédiée <strong>\" @:triggers.actions.common.action_json_extract \"</strong>.\n\nCette conversion semble avoir échoué pour <strong>{COUNT}</strong> de vos actions de trigger.",
 		"change1": "L'action {TRIGGER_ACTION} de votre trigger {TRIGGER_NAME} sera mise à jour comme ci-dessous :",
 		"change2": "L'action suivante sera ajoutée juste après l'action {TRIGGER_ACTION} pour extraire les données comme il se doit :",
 		"end": "Vous pouvez maintenant fermer cette fenêtre.\n\nSi vous avez refusé des correctifs que vous souhaitez revoir, relancez Twitchat sans cliquer sur \" @:migrationFix.close \".",
-		"expand":"(cliquez pour développer)",
-		"splitter_triggers":"Triggers modifiés",
-		"splitter_summary":"Résumé",
+		"expand": "(cliquez pour développer)",
+		"splitter_triggers": "Triggers modifiés",
+		"splitter_summary": "Résumé",
 		"summary": {
 			"call": "Appeler l'URL : {CALL_URL}",
 			"save": "Enregistrer le résultat dans : {SAVE_RESULT}",
 			"extract": "Extraire les données JSON de : {EXTRACT_JSON}",
 			"json": "Enregistrer {JSON_PATH} dans {PLACEHOLDER}"
 		},
-		"fix":"Correctif N° {INDEX}/{TOTAL}",
-		"next":"Suivant",
-		"close":"Fermer",
-		"updated":"MODIFIÉ",
-		"new":"AJOUTÉ",
-		"accept":"Accepter les changements",
-		"reject":"Rejeter les changements"
+		"fix": "Correctif N° {INDEX}/{TOTAL}",
+		"next": "Suivant",
+		"close": "Fermer",
+		"updated": "MODIFIÉ",
+		"new": "AJOUTÉ",
+		"accept": "Accepter les changements",
+		"reject": "Rejeter les changements"
 	}
 }
