@@ -14,25 +14,13 @@
 		"useDefineForClassFields": true,
 		"sourceMap": true,
 		"ignoreDeprecations": "5.0",
-		"baseUrl": ".",
 		"types": [],
-		"outDir":"../static/lande",
+		"outDir": "../static/lande",
 		"paths": {
-			"@/*": [
-				"./*"
-			]
+			"@/*": ["./*"]
 		},
-		"lib": [
-			"es2015",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		]
+		"lib": ["es2015", "dom", "dom.iterable", "scripthost"]
 	},
-	"include": [
-		"./**/*.ts"
-	],
-	"exclude": [
-		"node_modules"
-	]
+	"include": ["./**/*.ts"],
+	"exclude": ["node_modules"]
 }
