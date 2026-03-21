@@ -29,7 +29,7 @@
 
 			<div class="userlist" v-if="Object.keys($store.chat.whispers).length > 0">
 				<div v-for="whispers, key in $store.chat.whispers" :key="key" class="user">
-					<TTButton small class="login" @click="selectedUserId = <string>key" :selected="selectedUserId == key">{{ getCorrespondant(<string>key).displayName }}</TTButton>
+					<TTButton small class="login" @click="selectedUserId = <string>key" :selected="selectedUserId == key">{{ getCorrespondant(key).displayName }}</TTButton>
 					<TTButton small class="delete" icon="trash" @click="deleteWhispers(<string>key)" alert></TTButton>
 				</div>
 			</div>

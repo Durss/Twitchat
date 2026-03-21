@@ -19,36 +19,21 @@
 		"sourceMap": true,
 		"noImplicitAny": true,
 		"noUncheckedIndexedAccess": true,
-		"suppressImplicitAnyIndexErrors": false,
-		"baseUrl": ".",
-		"types": [
-			"vite/client",
-			"@types/dom-screen-wake-lock",
-			"vue3-marquee/dist/vue3-marquee.d.ts"
-		],
+		"types": ["@types/dom-screen-wake-lock", "vue3-marquee/dist/vue3-marquee.d.ts"],
 		"paths": {
-			"@/*": [
-				"src_front/*"
-			]
+			"@/*": ["./src_front/*"]
 		},
-		"lib": [
-			"esnext",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		]
+		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
 	"include": [
+		"env.d.ts",
 		"src_front/**/*.ts",
 		"src_front/**/*.tsx",
 		"src_front/**/*.vue",
 		"tests/**/*.ts",
 		"tests/**/*.tsx"
 	],
-	"exclude": [
-		"node_modules",
-		"server"
-	],
+	"exclude": ["node_modules", "server"],
 	"references": [
 		{
 			"path": "./tsconfig.vite.json"
