@@ -1,4 +1,3 @@
-
 <div align="center">
 	<a href="https://twitchat.fr" target="_blank">
 		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
@@ -10,22 +9,23 @@
 <br>
 <br>
 
-Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) to control some features receive some events, and query some data.
+Twitchat offers a websocket API through [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) to control some features receive some events, and query some data.
 
 <br>
 <br>
 
 # Table of content
-* [Prerequisites](#prerequisites)
-* [Connect example](#connect-example)
-* [Events you can receive](#events-you-can-receive)
-* [Actions you can perform](#actions-you-can-perform)
-* [Requesting data](#requesting-data)
+
+- [Prerequisites](#prerequisites)
+- [Connect example](#connect-example)
+- [Events you can receive](#events-you-can-receive)
+- [Actions you can perform](#actions-you-can-perform)
+- [Requesting data](#requesting-data)
 
 <br>
 
-
 # Prerequisites
+
 This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5 to be installed and running!\
 After installing OBS-Websocket, start OBS, you may want set a password on `Tools -> obs-websocket Settings`.\
 Once done, go on Twitchat, open the parameters and on the OBS panel specify the credentials to connect with OBS.\
@@ -33,8 +33,8 @@ OBS will act as a bridge to transmit Twitchat messages to any connected client.
 
 <br>
 
-
 # Connect example
+
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
 Below is a typescript example to use the API via `OBS-Websocket-js`.
@@ -106,6 +106,7 @@ connect(ip, port pass).then(()=> {
 <!-- INJECT_AFTER -->
 
 # Events you can receive
+
 Events fired by Twitchat that you can listen to.
 
 - [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
@@ -180,11 +181,10 @@ Events fired by Twitchat that you can listen to.
 - [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)
 - [ON_WHEEL_OVERLAY_START](#on_wheel_overlay_start)
 
-
-
-
 #### ON_AD_BREAK_OVERLAY_CONFIGS
-Receive ad break overlay configuration  
+
+Receive ad break overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -205,11 +205,11 @@ type ON_AD_BREAK_OVERLAY_CONFIGS = {
 	/**
 	 * Style of the approaching state
 	 */
-	approachingStyle: "text"|"bar";
+	approachingStyle: "text" | "bar";
 	/**
 	 * Style of the running state
 	 */
-	runningStyle: "text"|"bar";
+	runningStyle: "text" | "bar";
 	/**
 	 * Size of the approaching render
 	 */
@@ -237,11 +237,11 @@ type ON_AD_BREAK_OVERLAY_CONFIGS = {
 	/**
 	 * Position of the approaching render
 	 */
-	approachingPlacement: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	approachingPlacement: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	/**
 	 * Position of the running render
 	 */
-	runningPlacement: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+	runningPlacement: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	/**
 	 * Label when approaching ad break
 	 */
@@ -250,13 +250,15 @@ type ON_AD_BREAK_OVERLAY_CONFIGS = {
 	 * Label when running ad break
 	 */
 	runningLabel: string;
-}
+};
 ```
 
 </details>
 
 #### ON_AD_BREAK_OVERLAY_DATA
-Triggered when an ad break occurs  
+
+Triggered when an ad break occurs
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -282,17 +284,19 @@ type ON_AD_BREAK_OVERLAY_DATA = {
 	 * Date in milliseconds a snooze will be unlocked
 	 */
 	nextSnooze_at: number;
-}
+};
 ```
 
 </details>
 
 #### ON_AD_BREAK_OVERLAY_PRESENCE
-Advertise for ad break overlay presence  
 
+Advertise for ad break overlay presence
 
 #### ON_ANIMATED_TEXT_CLOSE
-Triggered when an animated text overlay close animation completes  
+
+Triggered when an animated text overlay close animation completes
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -306,13 +310,15 @@ type ON_ANIMATED_TEXT_CLOSE = {
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
 	queryId: string;
-}
+};
 ```
 
 </details>
 
 #### ON_ANIMATED_TEXT_CONFIGS
-Receive animated text overlay configuration  
+
+Receive animated text overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -327,7 +333,16 @@ type ON_ANIMATED_TEXT_CONFIGS = {
 	/**
 	 * Animation style
 	 */
-	animStyle: "wave"|"typewriter"|"bounce"|"wobble"|"rotate"|"elastic"|"neon"|"swarm"|"caterpillar";
+	animStyle:
+		| "wave"
+		| "typewriter"
+		| "bounce"
+		| "wobble"
+		| "rotate"
+		| "elastic"
+		| "neon"
+		| "swarm"
+		| "caterpillar";
 	/**
 	 * Animation duration scale
 	 * The higher the slower.
@@ -355,13 +370,15 @@ type ON_ANIMATED_TEXT_CONFIGS = {
 	 * Text size
 	 */
 	textSize: number;
-}
+};
 ```
 
 </details>
 
 #### ON_ANIMATED_TEXT_HIDE_COMPLETE
-Triggered when an animated text hide animation completes  
+
+Triggered when an animated text hide animation completes
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -371,13 +388,15 @@ type ON_ANIMATED_TEXT_HIDE_COMPLETE = {
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
 	queryId: string;
-}
+};
 ```
 
 </details>
 
 #### ON_ANIMATED_TEXT_SHOW_COMPLETE
-Triggered when an animated text show animation completes  
+
+Triggered when an animated text show animation completes
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -387,18 +406,20 @@ type ON_ANIMATED_TEXT_SHOW_COMPLETE = {
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
 	queryId: string;
-}
+};
 ```
 
 </details>
 
 #### ON_AUTOMOD_MESSAGE_HELD
-Triggered when a message is held by automod  
+
+Triggered when a message is held by automod
+
 <details>
 <summary>JSON parameters</summary>
 
 ```typescript
-type ON_AUTOMOD_MESSAGE_HELD = null|{
+type ON_AUTOMOD_MESSAGE_HELD = null | {
 	/**
 	 * Channel ID where the message was sent
 	 */
@@ -415,13 +436,15 @@ type ON_AUTOMOD_MESSAGE_HELD = null|{
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_BINGO_GRID_CONFIGS
-Receive a bingo grid configuration  
+
+Receive a bingo grid configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -434,7 +457,7 @@ type ON_BINGO_GRID_CONFIGS = {
 	/**
 	 * Bingo configs
 	 */
-	bingo: null|{
+	bingo: null | {
 		/**
 		 * Bingo grid ID
 		 */
@@ -682,14 +705,16 @@ type ON_BINGO_GRID_CONFIGS = {
 	 * 0 => top-left to bottom-right
 	 * 1 => bottom-left to top-right
 	 */
-	newDiagonalBingos?: 0|1[];
-}
+	newDiagonalBingos?: 0 | 1[];
+};
 ```
 
 </details>
 
 #### ON_BINGO_GRID_LEADER_BOARD
-Receive bingo grid leaderboard  
+
+Receive bingo grid leaderboard
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -709,13 +734,15 @@ type ON_BINGO_GRID_LEADER_BOARD = {
 		score: number;
 		pos: number;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_BINGO_GRID_VIEWER_EVENT
-Triggered when a viewer completes a bingo  
+
+Triggered when a viewer completes a bingo
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -737,13 +764,15 @@ type ON_BINGO_GRID_VIEWER_EVENT = {
 	 * Number of bingos completed (lines, rows, diagonals)
 	 */
 	count: number;
-}
+};
 ```
 
 </details>
 
 #### ON_BITS
-Triggered when a user sends bits (cheers)  
+
+Triggered when a user sends bits (cheers)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -764,7 +793,7 @@ type ON_BITS = {
 		/**
 		 * Chunk type
 		 */
-		type: "text"|"emote"|"cheermote"|"url"|"highlight"|"user";
+		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
 		 * - text: text content
@@ -824,13 +853,15 @@ type ON_BITS = {
 	 * Pin level (1-10)
 	 */
 	pinLevel: number;
-}
+};
 ```
 
 </details>
 
 #### ON_BITSWALL_OVERLAY_CONFIGS
-Receive bitswall overlay configuration  
+
+Receive bitswall overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -862,17 +893,19 @@ type ON_BITSWALL_OVERLAY_CONFIGS = {
 		5000: number;
 		10000: number;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_BITSWALL_OVERLAY_PRESENCE
-Advertise for bitswall overlay presence  
 
+Advertise for bitswall overlay presence
 
 #### ON_CHAT_COLUMNS_COUNT
-Receive number of chat columns  
+
+Receive number of chat columns
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -882,19 +915,21 @@ type ON_CHAT_COLUMNS_COUNT = {
 	 * Number of chat columns
 	 */
 	count: number;
-}
+};
 ```
 
 </details>
 
 #### ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE
-Sent by chat highlight overlay when a clip completes playing to
-request main app to close the highlight  
 
+Sent by chat highlight overlay when a clip completes playing to
+request main app to close the highlight
 
 #### ON_CHAT_POLL_INFO
+
 Receive current chat poll info.
-Call GET_CHAT_POLL_INFO to get this data  
+Call GET_CHAT_POLL_INFO to get this data
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -921,13 +956,15 @@ type ON_CHAT_POLL_INFO = {
 	 * Duration of the poll in seconds
 	 */
 	duration: number;
-}
+};
 ```
 
 </details>
 
 #### ON_CHAT_POLL_OVERLAY_CONFIGS
-Receive chat poll overlay configuration  
+
+Receive chat poll overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -975,19 +1012,21 @@ type ON_CHAT_POLL_OVERLAY_CONFIGS = {
 		/**
 		 * Screen placement of the overlay
 		 */
-		placement: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		placement: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_CHAT_POLL_OVERLAY_PRESENCE
-Advertise for chat poll overlay presence  
 
+Advertise for chat poll overlay presence
 
 #### ON_CHAT_POLL_PROGRESS
-Triggered when chat poll progress updates  
+
+Triggered when chat poll progress updates
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1086,7 +1125,14 @@ type ON_CHAT_POLL_PROGRESS = {
 			[key: string]: {
 				indices: number[];
 				login: string;
-				platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+				platform:
+					| "twitchat"
+					| "twitch"
+					| "instagram"
+					| "youtube"
+					| "tiktok"
+					| "facebook"
+					| "kick";
 			};
 		};
 		/**
@@ -1094,13 +1140,15 @@ type ON_CHAT_POLL_PROGRESS = {
 		 */
 		maxVotePerUser: number;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_CHAT_POLL_RESULT
-Triggerd when a chat poll ends  
+
+Triggerd when a chat poll ends
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1123,13 +1171,15 @@ type ON_CHAT_POLL_RESULT = {
 		 */
 		votes: number;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_COUNTDOWN_COMPLETE
-Triggered when a countdown completes  
+
+Triggered when a countdown completes
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1153,7 +1203,7 @@ type ON_COUNTDOWN_COMPLETE = {
 	/**
 	 * Type of entry, timer or countdown
 	 */
-	type: "timer"|"countdown";
+	type: "timer" | "countdown";
 	/**
 	 * Timer/countdown's placeholder for trigger
 	 */
@@ -1195,7 +1245,7 @@ type ON_COUNTDOWN_COMPLETE = {
 		 * text: legacy mode
 		 * bar: new render style for countdown with a progress bar reducing
 		 */
-		style: "text"|"bar";
+		style: "text" | "bar";
 		/**
 		 * Background color
 		 */
@@ -1227,15 +1277,17 @@ type ON_COUNTDOWN_COMPLETE = {
 		/**
 		 * Progress style for "bar" style
 		 */
-		progressStyle: "fill"|"empty";
+		progressStyle: "fill" | "empty";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_COUNTDOWN_START
-Triggered when a countdown starts  
+
+Triggered when a countdown starts
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1259,7 +1311,7 @@ type ON_COUNTDOWN_START = {
 	/**
 	 * Type of entry, timer or countdown
 	 */
-	type: "timer"|"countdown";
+	type: "timer" | "countdown";
 	/**
 	 * Timer/countdown's placeholder for trigger
 	 */
@@ -1301,7 +1353,7 @@ type ON_COUNTDOWN_START = {
 		 * text: legacy mode
 		 * bar: new render style for countdown with a progress bar reducing
 		 */
-		style: "text"|"bar";
+		style: "text" | "bar";
 		/**
 		 * Background color
 		 */
@@ -1333,15 +1385,17 @@ type ON_COUNTDOWN_START = {
 		/**
 		 * Progress style for "bar" style
 		 */
-		progressStyle: "fill"|"empty";
+		progressStyle: "fill" | "empty";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_COUNTER_LIST
-Receive the list of all counters  
+
+Receive the list of all counters
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1352,13 +1406,15 @@ type ON_COUNTER_LIST = {
 		name: string;
 		perUser: boolean;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_COUNTER_UPDATE
-Receive counter update  
+
+Receive counter update
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1386,11 +1442,11 @@ type ON_COUNTER_UPDATE = {
 		/**
 		 * Min value of the counter
 		 */
-		min: number|false;
+		min: number | false;
 		/**
 		 * Max value of the counter
 		 */
-		max: number|false;
+		max: number | false;
 		/**
 		 * Should the value loop to the opposite limit when reaching the min or max value
 		 */
@@ -1407,7 +1463,14 @@ type ON_COUNTER_UPDATE = {
 				/**
 				 * User's chat platform
 				 */
-				platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+				platform:
+					| "twitchat"
+					| "twitch"
+					| "instagram"
+					| "youtube"
+					| "tiktok"
+					| "facebook"
+					| "kick";
 				/**
 				 * Value of that user
 				 */
@@ -1444,13 +1507,15 @@ type ON_COUNTER_UPDATE = {
 		 */
 		enabled?: boolean;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_CURRENT_TRACK
-Receive current track information  
+
+Receive current track information
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1518,13 +1583,15 @@ type ON_CURRENT_TRACK = {
 	 * Current track cover URL
 	 */
 	cover?: string;
-}
+};
 ```
 
 </details>
 
 #### ON_CUSTOM_TRAIN_DATA
-Receive custom train configuration and state  
+
+Receive custom train configuration and state
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1720,7 +1787,16 @@ type ON_CUSTOM_TRAIN_DATA = {
 			/**
 			 * Platform used to make the donation
 			 */
-			platform: "kofi"|"streamlabs"|"streamelements"|"tipeee"|"patreon"|"tiltify"|"streamlabs_charity"|"twitch_charity"|"trigger";
+			platform:
+				| "kofi"
+				| "streamlabs"
+				| "streamelements"
+				| "tipeee"
+				| "patreon"
+				| "tiltify"
+				| "streamlabs_charity"
+				| "twitch_charity"
+				| "trigger";
 			/**
 			 * Donation amount
 			 */
@@ -1735,13 +1811,15 @@ type ON_CUSTOM_TRAIN_DATA = {
 			messageId: string;
 		}[];
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_DISTORT_OVERLAY_CONFIGS
-Receive a distortion overlay configuration data  
+
+Receive a distortion overlay configuration data
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1830,7 +1908,7 @@ type ON_DISTORT_OVERLAY_CONFIGS = {
 		/**
 		 * Distortion effect type
 		 */
-		effect: "liquid"|"expand"|"shrink"|"heart";
+		effect: "liquid" | "expand" | "shrink" | "heart";
 		/**
 		 * Name of the shadertastic filter added to the source to create the distortion
 		 */
@@ -1848,13 +1926,15 @@ type ON_DISTORT_OVERLAY_CONFIGS = {
 		 */
 		triggerOnly: boolean;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_DONATION_EVENT
-Triggered when a donation event occurs  
+
+Triggered when a donation event occurs
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1872,13 +1952,15 @@ type ON_DONATION_EVENT = {
 	 * Donation amount
 	 */
 	amount: string;
-}
+};
 ```
 
 </details>
 
 #### ON_DONATION_GOALS_OVERLAY_CONFIGS
-Receive a donation goals overlay configurations  
+
+Receive a donation goals overlay configurations
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -1927,7 +2009,13 @@ type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource: "tiltify"|"streamlabs_charity"|"twitch_charity"|"counter"|"twitch_subs"|"twitch_followers";
+		dataSource:
+			| "tiltify"
+			| "streamlabs_charity"
+			| "twitch_charity"
+			| "counter"
+			| "twitch_subs"
+			| "twitch_followers";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
@@ -1972,7 +2060,7 @@ type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 			 * blur (default): blurs the whole text and shows it only on complete
 			 * progressive: shows random letter progressively
 			 */
-			secret_type?: undefined|"blur"|"progressive";
+			secret_type?: undefined | "blur" | "progressive";
 		}[];
 	};
 	/**
@@ -1989,12 +2077,13 @@ type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 	 * the total amount raised for the charity
 	 */
 	raisedPersonnal: number;
-}
+};
 ```
 
 </details>
 
 #### ON_EMERGENCY_MODE_CHANGED
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2004,17 +2093,19 @@ type ON_EMERGENCY_MODE_CHANGED = {
 	 * New emergency mode state
 	 */
 	enabled: boolean;
-}
+};
 ```
 
 </details>
 
 #### ON_ENDING_CREDITS_COMPLETE
-Triggered when ending credits animation completes  
 
+Triggered when ending credits animation completes
 
 #### ON_ENDING_CREDITS_CONFIGS
-Receive ending credits configuration data  
+
+Receive ending credits configuration data
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2067,7 +2158,7 @@ type ON_ENDING_CREDITS_CONFIGS = {
 	/**
 	 * Should the entries scroll at a specific speed or over a specific duration ?
 	 */
-	timing: "speed"|"duration";
+	timing: "speed" | "duration";
 	/**
 	 * Duration of the credits scroll (in seconds)
 	 */
@@ -2107,7 +2198,34 @@ type ON_ENDING_CREDITS_CONFIGS = {
 		/**
 		 * Type of slot to show
 		 */
-		slotType: "text"|"bans"|"mods"|"subs"|"vips"|"raids"|"polls"|"so_in"|"so_out"|"cheers"|"follows"|"rewards"|"chatters"|"timeouts"|"hypechats"|"hypetrains"|"predictions"|"tips"|"shoutouts"|"merch"|"patreonMembers"|"powerups"|"ytSuperchat"|"ytSuperSticker"|"tiktokLikes"|"tiktokShares"|"tiktokGifts";
+		slotType:
+			| "text"
+			| "bans"
+			| "mods"
+			| "subs"
+			| "vips"
+			| "raids"
+			| "polls"
+			| "so_in"
+			| "so_out"
+			| "cheers"
+			| "follows"
+			| "rewards"
+			| "chatters"
+			| "timeouts"
+			| "hypechats"
+			| "hypetrains"
+			| "predictions"
+			| "tips"
+			| "shoutouts"
+			| "merch"
+			| "patreonMembers"
+			| "powerups"
+			| "ytSuperchat"
+			| "ytSuperSticker"
+			| "tiktokLikes"
+			| "tiktokShares"
+			| "tiktokGifts";
 		/**
 		 * Title for this slot
 		 */
@@ -2123,7 +2241,7 @@ type ON_ENDING_CREDITS_CONFIGS = {
 		/**
 		 * Layout of the entries
 		 */
-		layout: "colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
+		layout: "colLeft" | "col" | "colRight" | "left" | "center" | "right" | "2cols" | "3cols";
 		/**
 		 * Show entries amounts if any ?
 		 */
@@ -2320,13 +2438,15 @@ type ON_ENDING_CREDITS_CONFIGS = {
 	 * Hide slots that have no entry
 	 */
 	hideEmptySlots?: boolean;
-}
+};
 ```
 
 </details>
 
 #### ON_FOLLOW
-Triggered when a user follows the channel  
+
+Triggered when a user follows the channel
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2344,13 +2464,15 @@ type ON_FOLLOW = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_GLOBAL_STATES
-Response to GET_GLOBAL_STATES  
+
+Response to GET_GLOBAL_STATES
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2402,7 +2524,7 @@ type ON_GLOBAL_STATES = {
 		/**
 		 * Type of entry, timer or countdown
 		 */
-		type: "timer"|"countdown";
+		type: "timer" | "countdown";
 	}[];
 	/**
 	 * List of active countdowns and their state
@@ -2450,7 +2572,7 @@ type ON_GLOBAL_STATES = {
 		/**
 		 * Type of entry, timer or countdown
 		 */
-		type: "timer"|"countdown";
+		type: "timer" | "countdown";
 	}[];
 	/**
 	 * Current counter values
@@ -2559,7 +2681,7 @@ type ON_GLOBAL_STATES = {
 		 */
 		enabled: boolean;
 	}[];
-	pendingAutomodMessage: null|{
+	pendingAutomodMessage: null | {
 		/**
 		 * Channel ID where the message was sent
 		 */
@@ -2577,13 +2699,15 @@ type ON_GLOBAL_STATES = {
 			displayName: string;
 		};
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_LABEL_OVERLAY_CONFIGS
-Receive label overlay configuration  
+
+Receive label overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2596,7 +2720,7 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 	/**
 	 * Label data
 	 */
-	data: null|{
+	data: null | {
 		/**
 		 * Label ID
 		 */
@@ -2612,7 +2736,161 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 		/**
 		 * Label placeholder tag to use if mode is "placeholder"
 		 */
-		placeholder: ""|"DATE"|"TIME"|"DATE_TIME"|"DAY"|"MONTH"|"YEAR"|"HOURS"|"MINUTES"|"SECONDS"|"VIEWER_COUNT_TWITCH"|"FOLLOWER_COUNT"|"SUB_COUNT"|"SUB_POINTS"|"STREAM_DURATION"|"STREAM_TITLE"|"STREAM_CATEGORY_NAME"|"STREAM_CATEGORY_COVER"|"SUB_NAME"|"SUB_ID"|"SUB_AVATAR"|"SUB_TIER"|"SUBGIFT_NAME"|"SUBGIFT_ID"|"SUBGIFT_AVATAR"|"SUBGIFT_TIER"|"SUBGIFT_COUNT"|"VIEWER_COUNT_YOUTUBE"|"SUB_YOUTUBE_NAME"|"SUB_YOUTUBE_ID"|"SUB_YOUTUBE_AVATAR"|"SUB_YOUTUBE_TIER"|"SUBGIFT_YOUTUBE_NAME"|"SUBGIFT_YOUTUBE_ID"|"SUBGIFT_YOUTUBE_AVATAR"|"SUBGIFT_YOUTUBE_TIER"|"SUBGIFT_YOUTUBE_COUNT"|"FOLLOWER_YOUTUBE_USER"|"FOLLOWER_YOUTUBE_AVATAR"|"VIEWER_COUNT"|"SUB_GENERIC_NAME"|"SUB_GENERIC_ID"|"SUB_GENERIC_AVATAR"|"SUB_GENERIC_TIER"|"SUBGIFT_GENERIC_NAME"|"SUBGIFT_GENERIC_ID"|"SUBGIFT_GENERIC_AVATAR"|"SUBGIFT_GENERIC_TIER"|"SUBGIFT_GENERIC_COUNT"|"SUPER_CHAT_NAME"|"SUPER_CHAT_ID"|"SUPER_CHAT_AVATAR"|"SUPER_CHAT_AMOUNT"|"SUPER_STICKER_NAME"|"SUPER_STICKER_ID"|"SUPER_STICKER_AVATAR"|"SUPER_STICKER_AMOUNT"|"SUPER_STICKER_IMAGE"|"CHEER_NAME"|"CHEER_ID"|"CHEER_AVATAR"|"CHEER_AMOUNT"|"COMBO_NAME"|"COMBO_ID"|"COMBO_AVATAR"|"COMBO_AMOUNT"|"FOLLOWER_NAME"|"FOLLOWER_ID"|"FOLLOWER_AVATAR"|"FOLLOWER_GENERIC_NAME"|"FOLLOWER_GENERIC_ID"|"FOLLOWER_GENERIC_AVATAR"|"REWARD_NAME"|"REWARD_ID"|"REWARD_AVATAR"|"REWARD_ICON"|"REWARD_TITLE"|"RAID_NAME"|"RAID_ID"|"RAID_AVATAR"|"RAID_COUNT"|"WATCH_STREAK_NAME"|"WATCH_STREAK_ID"|"WATCH_STREAK_AVATAR"|"WATCH_STREAK_COUNT"|"POWER_UP_GIANTIFIED_ID"|"POWER_UP_GIANTIFIED_NAME"|"POWER_UP_GIANTIFIED_AVATAR"|"POWER_UP_GIANTIFIED_CODE"|"POWER_UP_GIANTIFIED_IMAGE"|"POWER_UP_CELEBRATION_ID"|"POWER_UP_CELEBRATION_NAME"|"POWER_UP_CELEBRATION_AVATAR"|"POWER_UP_CELEBRATION_CODE"|"POWER_UP_CELEBRATION_IMAGE"|"POWER_UP_MESSAGE_ID"|"POWER_UP_MESSAGE_NAME"|"POWER_UP_MESSAGE_AVATAR"|"KOFI_TIP_NAME"|"KOFI_TIP_AMOUNT"|"KOFI_MERCH_USER"|"KOFI_MERCH_NAME"|"KOFI_MERCH_AMOUNT"|"STREAMLABS_TIP_NAME"|"STREAMLABS_TIP_AMOUNT"|"STREAMLABS_MERCH_USER"|"STREAMLABS_MERCH_NAME"|"STREAMLABS_CHARITY_NAME"|"STREAMLABS_CHARITY_IMAGE"|"STREAMLABS_CHARITY_RAISED"|"STREAMLABS_CHARITY_RAISED_PERSONNAL"|"STREAMLABS_CHARITY_GOAL"|"STREAMLABS_CHARITY_LAST_TIP_USER"|"STREAMLABS_CHARITY_LAST_TIP_AMOUNT"|"TILTIFY_LAST_TIP_USER"|"TILTIFY_LAST_TIP_AMOUNT"|"PATREON_USER"|"PATREON_AMOUNT"|"PATREON_TITLE"|"PATREON_AVATAR"|"PATREON_MEMBER_COUNT"|"STREAMELEMENTS_TIP_NAME"|"STREAMELEMENTS_TIP_AMOUNT"|"TIPEEE_TIP_NAME"|"TIPEEE_TIP_AMOUNT"|"TWITCH_CHARITY_NAME"|"TWITCH_CHARITY_IMAGE"|"TWITCH_CHARITY_RAISED"|"TWITCH_CHARITY_GOAL"|"TWITCH_CHARITY_LAST_TIP_USER"|"TWITCH_CHARITY_LAST_TIP_AMOUNT"|"TWITCH_CHARITY_LAST_TIP_AVATAR"|"VOICEMOD_EFFECT_TITLE"|"VOICEMOD_EFFECT_ICON"|"MUSIC_TITLE"|"MUSIC_ARTIST"|"MUSIC_ALBUM"|"MUSIC_COVER"|"VIEWER_COUNT_TIKTOK"|"TIKTOK_LIKE_TOTAL"|"TIKTOK_LIKE_USER"|"TIKTOK_LIKE_AVATAR"|"TIKTOK_LIKE_COUNT"|"TIKTOK_FOLLOWER_USER"|"TIKTOK_FOLLOWER_AVATAR"|"TIKTOK_SUB_USER"|"TIKTOK_SUB_AVATAR"|"TIKTOK_SHARE_USER"|"TIKTOK_SHARE_AVATAR"|"TIKTOK_GIFT_USER"|"TIKTOK_GIFT_AVATAR"|"TIKTOK_GIFT_IMAGE"|"TIKTOK_GIFT_COUNT"|"TIKTOK_GIFT_DIAMONDS";
+		placeholder:
+			| ""
+			| "DATE"
+			| "TIME"
+			| "DATE_TIME"
+			| "DAY"
+			| "MONTH"
+			| "YEAR"
+			| "HOURS"
+			| "MINUTES"
+			| "SECONDS"
+			| "VIEWER_COUNT_TWITCH"
+			| "FOLLOWER_COUNT"
+			| "SUB_COUNT"
+			| "SUB_POINTS"
+			| "STREAM_DURATION"
+			| "STREAM_TITLE"
+			| "STREAM_CATEGORY_NAME"
+			| "STREAM_CATEGORY_COVER"
+			| "SUB_NAME"
+			| "SUB_ID"
+			| "SUB_AVATAR"
+			| "SUB_TIER"
+			| "SUBGIFT_NAME"
+			| "SUBGIFT_ID"
+			| "SUBGIFT_AVATAR"
+			| "SUBGIFT_TIER"
+			| "SUBGIFT_COUNT"
+			| "VIEWER_COUNT_YOUTUBE"
+			| "SUB_YOUTUBE_NAME"
+			| "SUB_YOUTUBE_ID"
+			| "SUB_YOUTUBE_AVATAR"
+			| "SUB_YOUTUBE_TIER"
+			| "SUBGIFT_YOUTUBE_NAME"
+			| "SUBGIFT_YOUTUBE_ID"
+			| "SUBGIFT_YOUTUBE_AVATAR"
+			| "SUBGIFT_YOUTUBE_TIER"
+			| "SUBGIFT_YOUTUBE_COUNT"
+			| "FOLLOWER_YOUTUBE_USER"
+			| "FOLLOWER_YOUTUBE_AVATAR"
+			| "VIEWER_COUNT"
+			| "SUB_GENERIC_NAME"
+			| "SUB_GENERIC_ID"
+			| "SUB_GENERIC_AVATAR"
+			| "SUB_GENERIC_TIER"
+			| "SUBGIFT_GENERIC_NAME"
+			| "SUBGIFT_GENERIC_ID"
+			| "SUBGIFT_GENERIC_AVATAR"
+			| "SUBGIFT_GENERIC_TIER"
+			| "SUBGIFT_GENERIC_COUNT"
+			| "SUPER_CHAT_NAME"
+			| "SUPER_CHAT_ID"
+			| "SUPER_CHAT_AVATAR"
+			| "SUPER_CHAT_AMOUNT"
+			| "SUPER_STICKER_NAME"
+			| "SUPER_STICKER_ID"
+			| "SUPER_STICKER_AVATAR"
+			| "SUPER_STICKER_AMOUNT"
+			| "SUPER_STICKER_IMAGE"
+			| "CHEER_NAME"
+			| "CHEER_ID"
+			| "CHEER_AVATAR"
+			| "CHEER_AMOUNT"
+			| "COMBO_NAME"
+			| "COMBO_ID"
+			| "COMBO_AVATAR"
+			| "COMBO_AMOUNT"
+			| "FOLLOWER_NAME"
+			| "FOLLOWER_ID"
+			| "FOLLOWER_AVATAR"
+			| "FOLLOWER_GENERIC_NAME"
+			| "FOLLOWER_GENERIC_ID"
+			| "FOLLOWER_GENERIC_AVATAR"
+			| "REWARD_NAME"
+			| "REWARD_ID"
+			| "REWARD_AVATAR"
+			| "REWARD_ICON"
+			| "REWARD_TITLE"
+			| "RAID_NAME"
+			| "RAID_ID"
+			| "RAID_AVATAR"
+			| "RAID_COUNT"
+			| "WATCH_STREAK_NAME"
+			| "WATCH_STREAK_ID"
+			| "WATCH_STREAK_AVATAR"
+			| "WATCH_STREAK_COUNT"
+			| "POWER_UP_GIANTIFIED_ID"
+			| "POWER_UP_GIANTIFIED_NAME"
+			| "POWER_UP_GIANTIFIED_AVATAR"
+			| "POWER_UP_GIANTIFIED_CODE"
+			| "POWER_UP_GIANTIFIED_IMAGE"
+			| "POWER_UP_CELEBRATION_ID"
+			| "POWER_UP_CELEBRATION_NAME"
+			| "POWER_UP_CELEBRATION_AVATAR"
+			| "POWER_UP_CELEBRATION_CODE"
+			| "POWER_UP_CELEBRATION_IMAGE"
+			| "POWER_UP_MESSAGE_ID"
+			| "POWER_UP_MESSAGE_NAME"
+			| "POWER_UP_MESSAGE_AVATAR"
+			| "KOFI_TIP_NAME"
+			| "KOFI_TIP_AMOUNT"
+			| "KOFI_MERCH_USER"
+			| "KOFI_MERCH_NAME"
+			| "KOFI_MERCH_AMOUNT"
+			| "STREAMLABS_TIP_NAME"
+			| "STREAMLABS_TIP_AMOUNT"
+			| "STREAMLABS_MERCH_USER"
+			| "STREAMLABS_MERCH_NAME"
+			| "STREAMLABS_CHARITY_NAME"
+			| "STREAMLABS_CHARITY_IMAGE"
+			| "STREAMLABS_CHARITY_RAISED"
+			| "STREAMLABS_CHARITY_RAISED_PERSONNAL"
+			| "STREAMLABS_CHARITY_GOAL"
+			| "STREAMLABS_CHARITY_LAST_TIP_USER"
+			| "STREAMLABS_CHARITY_LAST_TIP_AMOUNT"
+			| "TILTIFY_LAST_TIP_USER"
+			| "TILTIFY_LAST_TIP_AMOUNT"
+			| "PATREON_USER"
+			| "PATREON_AMOUNT"
+			| "PATREON_TITLE"
+			| "PATREON_AVATAR"
+			| "PATREON_MEMBER_COUNT"
+			| "STREAMELEMENTS_TIP_NAME"
+			| "STREAMELEMENTS_TIP_AMOUNT"
+			| "TIPEEE_TIP_NAME"
+			| "TIPEEE_TIP_AMOUNT"
+			| "TWITCH_CHARITY_NAME"
+			| "TWITCH_CHARITY_IMAGE"
+			| "TWITCH_CHARITY_RAISED"
+			| "TWITCH_CHARITY_GOAL"
+			| "TWITCH_CHARITY_LAST_TIP_USER"
+			| "TWITCH_CHARITY_LAST_TIP_AMOUNT"
+			| "TWITCH_CHARITY_LAST_TIP_AVATAR"
+			| "VOICEMOD_EFFECT_TITLE"
+			| "VOICEMOD_EFFECT_ICON"
+			| "MUSIC_TITLE"
+			| "MUSIC_ARTIST"
+			| "MUSIC_ALBUM"
+			| "MUSIC_COVER"
+			| "VIEWER_COUNT_TIKTOK"
+			| "TIKTOK_LIKE_TOTAL"
+			| "TIKTOK_LIKE_USER"
+			| "TIKTOK_LIKE_AVATAR"
+			| "TIKTOK_LIKE_COUNT"
+			| "TIKTOK_FOLLOWER_USER"
+			| "TIKTOK_FOLLOWER_AVATAR"
+			| "TIKTOK_SUB_USER"
+			| "TIKTOK_SUB_AVATAR"
+			| "TIKTOK_SHARE_USER"
+			| "TIKTOK_SHARE_AVATAR"
+			| "TIKTOK_GIFT_USER"
+			| "TIKTOK_GIFT_AVATAR"
+			| "TIKTOK_GIFT_IMAGE"
+			| "TIKTOK_GIFT_COUNT"
+			| "TIKTOK_GIFT_DIAMONDS";
 		/**
 		 * HTML content if mode is "html"
 		 */
@@ -2626,7 +2904,7 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 		 * "placeholder": use a predefined placeholder
 		 * "html": use custom HTML content
 		 */
-		mode: "placeholder"|"html";
+		mode: "placeholder" | "html";
 		/**
 		 * Font size in pixels
 		 */
@@ -2642,7 +2920,7 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 		/**
 		 * Text horizontal alignment
 		 */
-		textAlign: "left"|"center"|"right";
+		textAlign: "left" | "center" | "right";
 		/**
 		 * Should scroll content ?
 		 */
@@ -2665,13 +2943,15 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 	 * False if label mode is "placeholder" but related placeholder doesn't exist
 	 */
 	isValid?: boolean;
-}
+};
 ```
 
 </details>
 
 #### ON_LABEL_OVERLAY_PLACEHOLDERS
-Advertise for label overlay placeholders  
+
+Advertise for label overlay placeholders
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2681,19 +2961,34 @@ type ON_LABEL_OVERLAY_PLACEHOLDERS = {
 		/**
 		 * Placeholder value
 		 */
-		value: string|number;
+		value: string | number;
 		/**
 		 * Placeholder type
 		 */
-		type: "string"|"number"|"duration"|"date"|"time"|"datetime"|"day"|"month"|"year"|"hours"|"minutes"|"seconds"|"image";
+		type:
+			| "string"
+			| "number"
+			| "duration"
+			| "date"
+			| "time"
+			| "datetime"
+			| "day"
+			| "month"
+			| "year"
+			| "hours"
+			| "minutes"
+			| "seconds"
+			| "image";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MENTION
-Triggered when the streamer is mentioned in a message  
+
+Triggered when the streamer is mentioned in a message
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2715,13 +3010,15 @@ type ON_MENTION = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_DELETED
-A chat message has been deleted  
+
+A chat message has been deleted
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2743,13 +3040,15 @@ type ON_MESSAGE_DELETED = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_FIRST_ALL_TIME
-Triggered when a user sends their first message ever in the channel  
+
+Triggered when a user sends their first message ever in the channel
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2771,13 +3070,15 @@ type ON_MESSAGE_FIRST_ALL_TIME = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_FIRST_TODAY
-Triggered when a user sends their first message of the day  
+
+Triggered when a user sends their first message of the day
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2799,13 +3100,15 @@ type ON_MESSAGE_FIRST_TODAY = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_FROM_NON_FOLLOWER
-Triggered when a message is received from a non-follower  
+
+Triggered when a message is received from a non-follower
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2827,13 +3130,15 @@ type ON_MESSAGE_FROM_NON_FOLLOWER = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_MARKED_AS_READ
-Triggered when a message is marked or unmarked as read  
+
+Triggered when a message is marked or unmarked as read
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2863,13 +3168,15 @@ type ON_MESSAGE_MARKED_AS_READ = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MESSAGE_WHISPER
-Triggered when a whisper message is received  
+
+Triggered when a whisper message is received
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2891,13 +3198,15 @@ type ON_MESSAGE_WHISPER = {
 		login: string;
 		displayName: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_MUSIC_PLAYER_HEAT_CLICK
-Triggered when a heat click occurs on the music player  
+
+Triggered when a heat click occurs on the music player
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -2996,21 +3305,23 @@ type ON_MUSIC_PLAYER_HEAT_CLICK = {
 	 * Rotation angle of the browser source in degrees
 	 */
 	rotation: number;
-}
+};
 ```
 
 </details>
 
 #### ON_OBS_WEBSOCKET_CONNECTED
-OBS Websocket connection established  
 
+OBS Websocket connection established
 
 #### ON_OBS_WEBSOCKET_DISCONNECTED
-OBS Websocket connection lost  
 
+OBS Websocket connection lost
 
 #### ON_POLL_OVERLAY_CONFIGS
-Receive poll overlay configuration  
+
+Receive poll overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3058,16 +3369,18 @@ type ON_POLL_OVERLAY_CONFIGS = {
 		/**
 		 * Screen placement of the overlay
 		 */
-		placement: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		placement: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_POLL_PROGRESS
+
 Triggered when poll progress updates.
-If no active poll, body is undefined  
+If no active poll, body is undefined
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3084,7 +3397,14 @@ type ON_POLL_PROGRESS = {
 		 */
 		creator?: {
 			id: string;
-			platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+			platform:
+				| "twitchat"
+				| "twitch"
+				| "instagram"
+				| "youtube"
+				| "tiktok"
+				| "facebook"
+				| "kick";
 			login: string;
 			/**
 			 * Get the display name of the user.
@@ -3142,15 +3462,15 @@ type ON_POLL_PROGRESS = {
 			/**
 			 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 			 */
-			pronouns: null|string|false;
+			pronouns: null | string | false;
 			/**
 			 * Pronouns label
 			 */
-			pronounsLabel: string|false;
+			pronounsLabel: string | false;
 			/**
 			 * Pronouns tooltip
 			 */
-			pronounsTooltip: string|false;
+			pronounsTooltip: string | false;
 			/**
 			 * Contains one entry per connected channel with
 			 * channel specific info.
@@ -3177,7 +3497,7 @@ type ON_POLL_PROGRESS = {
 					 * true = is a follower
 					 * false = is not a follower
 					 */
-					is_following: null|false|true;
+					is_following: null | false | true;
 					/**
 					 * true if user is banned on the channel
 					 */
@@ -3215,7 +3535,18 @@ type ON_POLL_PROGRESS = {
 							sd: string;
 							hd?: string;
 						};
-						id: "predictions"|"subscriber"|"vip"|"premium"|"moderator"|"lead_moderator"|"staff"|"broadcaster"|"partner"|"founder"|"ambassador";
+						id:
+							| "predictions"
+							| "subscriber"
+							| "vip"
+							| "premium"
+							| "moderator"
+							| "lead_moderator"
+							| "staff"
+							| "broadcaster"
+							| "partner"
+							| "founder"
+							| "ambassador";
 						title?: string;
 						version?: string;
 					}[];
@@ -3328,7 +3659,7 @@ type ON_POLL_PROGRESS = {
 		isFake?: boolean;
 		id: string;
 		date: number;
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 		/**
 		 * Defines infos about the channel this message comes from.
 		 * Only set for messages received from channels other than ours
@@ -3359,19 +3690,21 @@ type ON_POLL_PROGRESS = {
 		 * Optional column index to display the message to
 		 * Can be an array of column indices
 		 */
-		col?: undefined|number|number[];
+		col?: undefined | number | number[];
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_POLLS_OVERLAY_PRESENCE
-Advertise for polls overlay presence  
 
+Advertise for polls overlay presence
 
 #### ON_PREDICTION_OVERLAY_CONFIGS
-Receive prediction overlay configuration  
+
+Receive prediction overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3392,16 +3725,18 @@ type ON_PREDICTION_OVERLAY_CONFIGS = {
 		showOnlyResult: boolean;
 		hideUntilResolved: boolean;
 		resultDuration_s: number;
-		placement: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		placement: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_PREDICTION_PROGRESS
+
 Triggered when prediction progress updates
-If no active prediction, body is undefined  
+If no active prediction, body is undefined
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3418,7 +3753,14 @@ type ON_PREDICTION_PROGRESS = {
 		 */
 		creator?: {
 			id: string;
-			platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+			platform:
+				| "twitchat"
+				| "twitch"
+				| "instagram"
+				| "youtube"
+				| "tiktok"
+				| "facebook"
+				| "kick";
 			login: string;
 			/**
 			 * Get the display name of the user.
@@ -3476,15 +3818,15 @@ type ON_PREDICTION_PROGRESS = {
 			/**
 			 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 			 */
-			pronouns: null|string|false;
+			pronouns: null | string | false;
 			/**
 			 * Pronouns label
 			 */
-			pronounsLabel: string|false;
+			pronounsLabel: string | false;
 			/**
 			 * Pronouns tooltip
 			 */
-			pronounsTooltip: string|false;
+			pronounsTooltip: string | false;
 			/**
 			 * Contains one entry per connected channel with
 			 * channel specific info.
@@ -3511,7 +3853,7 @@ type ON_PREDICTION_PROGRESS = {
 					 * true = is a follower
 					 * false = is not a follower
 					 */
-					is_following: null|false|true;
+					is_following: null | false | true;
 					/**
 					 * true if user is banned on the channel
 					 */
@@ -3549,7 +3891,18 @@ type ON_PREDICTION_PROGRESS = {
 							sd: string;
 							hd?: string;
 						};
-						id: "predictions"|"subscriber"|"vip"|"premium"|"moderator"|"lead_moderator"|"staff"|"broadcaster"|"partner"|"founder"|"ambassador";
+						id:
+							| "predictions"
+							| "subscriber"
+							| "vip"
+							| "premium"
+							| "moderator"
+							| "lead_moderator"
+							| "staff"
+							| "broadcaster"
+							| "partner"
+							| "founder"
+							| "ambassador";
 						title?: string;
 						version?: string;
 					}[];
@@ -3682,7 +4035,7 @@ type ON_PREDICTION_PROGRESS = {
 		isFake?: boolean;
 		id: string;
 		date: number;
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 		/**
 		 * Defines infos about the channel this message comes from.
 		 * Only set for messages received from channels other than ours
@@ -3713,19 +4066,21 @@ type ON_PREDICTION_PROGRESS = {
 		 * Optional column index to display the message to
 		 * Can be an array of column indices
 		 */
-		col?: undefined|number|number[];
+		col?: undefined | number | number[];
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_PREDICTIONS_OVERLAY_PRESENCE
-Advertise for predictions overlay presence  
 
+Advertise for predictions overlay presence
 
 #### ON_QNA_SESSION_LIST
-Receive list of all Q&A sessions  
+
+Receive list of all Q&A sessions
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3748,13 +4103,15 @@ type ON_QNA_SESSION_LIST = {
 		 */
 		open: boolean;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_QUIZ_LEADERBOARD
-Receive quiz overlay leaderboard  
+
+Receive quiz overlay leaderboard
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3770,7 +4127,14 @@ type ON_QUIZ_LEADERBOARD = {
 			/**
 			 * Platform used to play the quiz
 			 */
-			platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+			platform:
+				| "twitchat"
+				| "twitch"
+				| "instagram"
+				| "youtube"
+				| "tiktok"
+				| "facebook"
+				| "kick";
 			/**
 			 * User name
 			 */
@@ -3785,24 +4149,28 @@ type ON_QUIZ_LEADERBOARD = {
 			score: number;
 		};
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_QUIZ_OVERLAY_PRESENCE
-Advertise for quiz overlay presence  
+
+Advertise for quiz overlay presence
+
 <details>
 <summary>JSON parameters</summary>
 
 ```typescript
-type ON_QUIZ_OVERLAY_PRESENCE = void
+type ON_QUIZ_OVERLAY_PRESENCE = void;
 ```
 
 </details>
 
 #### ON_QUIZ_STATE
-Receive quiz overlay configuration  
+
+Receive quiz overlay configuration
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -3876,138 +4244,143 @@ type ON_QUIZ_STATE = {
 		 * ...
 		 * 5 = very tolerant
 		 */
-		toleranceLevel?: undefined|0|1|2|3|4|5;
+		toleranceLevel?: undefined | 0 | 1 | 2 | 3 | 4 | 5;
 		/**
 		 * List of questions
 		 */
-		questionList: {
-			/**
-			 * Question ID
-			 */
-			id: string;
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode: "classic"|"majority"|"freeAnswer";
-			/**
-			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-			 */
-			duration_s?: number;
-			/**
-			 * Question text
-			 */
-			question: string;
-		} & {
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode: "classic";
-			/**
-			 * Possible answers for this question
-			 */
-			answerList: {
-				/**
-				 * Answer ID
-				 */
-				id: string;
-				/**
-				 * Answer text
-				 */
-				title: string;
-				/**
-				 * Is this the answer correct ?
-				 */
-				correct?: boolean;
-			}[];
-		}|{
-			/**
-			 * Question ID
-			 */
-			id: string;
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode: "classic"|"majority"|"freeAnswer";
-			/**
-			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-			 */
-			duration_s?: number;
-			/**
-			 * Question text
-			 */
-			question: string;
-		} & {
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode: "majority";
-			/**
-			 * Possible answers for this question
-			 */
-			answerList: {
-				/**
-				 * Answer ID
-				 */
-				id: string;
-				/**
-				 * Answer text
-				 */
-				title: string;
-			}[];
-		}|{
-			/**
-			 * Question ID
-			 */
-			id: string;
-			/**
-			 * Question mode.
-			 * classic: earn points by answering questions correctly
-			 */
-			mode: "classic"|"majority"|"freeAnswer";
-			/**
-			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-			 */
-			duration_s?: number;
-			/**
-			 * Question text
-			 */
-			question: string;
-		} & {
-			/**
-			 * Question mode.
-			 * freeAnswer: viewers must type the answer on chat or extension
-			 */
-			mode: "freeAnswer";
-			/**
-			 * Expected answer
-			 */
-			answer: string;
-			/**
-			 * Orthographic tolerance for answer matching in "freeAnswer" mode.
-			 * Overrides the global quiz tolerance level.
-			 * 0 = exact match
-			 * ...
-			 * 5 = very tolerant
-			 */
-			toleranceLevel?: undefined|0|1|2|3|4|5;
-		}[];
+		questionList:
+			| ({
+					/**
+					 * Question ID
+					 */
+					id: string;
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "classic" | "majority" | "freeAnswer";
+					/**
+					 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+					 */
+					duration_s?: number;
+					/**
+					 * Question text
+					 */
+					question: string;
+			  } & {
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "classic";
+					/**
+					 * Possible answers for this question
+					 */
+					answerList: {
+						/**
+						 * Answer ID
+						 */
+						id: string;
+						/**
+						 * Answer text
+						 */
+						title: string;
+						/**
+						 * Is this the answer correct ?
+						 */
+						correct?: boolean;
+					}[];
+			  })
+			| ({
+					/**
+					 * Question ID
+					 */
+					id: string;
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "classic" | "majority" | "freeAnswer";
+					/**
+					 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+					 */
+					duration_s?: number;
+					/**
+					 * Question text
+					 */
+					question: string;
+			  } & {
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "majority";
+					/**
+					 * Possible answers for this question
+					 */
+					answerList: {
+						/**
+						 * Answer ID
+						 */
+						id: string;
+						/**
+						 * Answer text
+						 */
+						title: string;
+					}[];
+			  })
+			| ({
+					/**
+					 * Question ID
+					 */
+					id: string;
+					/**
+					 * Question mode.
+					 * classic: earn points by answering questions correctly
+					 */
+					mode: "classic" | "majority" | "freeAnswer";
+					/**
+					 * Number of seconds to answer this question (overrides durationPerQuestion_s)
+					 */
+					duration_s?: number;
+					/**
+					 * Question text
+					 */
+					question: string;
+			  } & {
+					/**
+					 * Question mode.
+					 * freeAnswer: viewers must type the answer on chat or extension
+					 */
+					mode: "freeAnswer";
+					/**
+					 * Expected answer
+					 */
+					answer: string;
+					/**
+					 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+					 * Overrides the global quiz tolerance level.
+					 * 0 = exact match
+					 * ...
+					 * 5 = very tolerant
+					 */
+					toleranceLevel?: undefined | 0 | 1 | 2 | 3 | 4 | 5;
+			  }[]);
 	};
 	i18n: {
 		mode_classic: string;
 		mode_majority: string;
 		mode_freeAnswer: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_REWARD_REDEEM
-Triggered when a channel point reward is redeemed  
+
+Triggered when a channel point reward is redeemed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4028,7 +4401,7 @@ type ON_REWARD_REDEEM = {
 		/**
 		 * Chunk type
 		 */
-		type: "text"|"emote"|"cheermote"|"url"|"highlight"|"user";
+		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
 		 * - text: text content
@@ -4084,13 +4457,15 @@ type ON_REWARD_REDEEM = {
 		cost: number;
 		title: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_SUBSCRIPTION
-Triggered when a subscription event occurs (new sub, resub, gift, etc.)  
+
+Triggered when a subscription event occurs (new sub, resub, gift, etc.)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4111,7 +4486,7 @@ type ON_SUBSCRIPTION = {
 		/**
 		 * Chunk type
 		 */
-		type: "text"|"emote"|"cheermote"|"url"|"highlight"|"user";
+		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
 		 * - text: text content
@@ -4162,7 +4537,7 @@ type ON_SUBSCRIPTION = {
 	/**
 	 * Subscription tier
 	 */
-	tier: 1|2|3|"prime";
+	tier: 1 | 2 | 3 | "prime";
 	/**
 	 * Number of months the user subscribed for
 	 */
@@ -4202,13 +4577,15 @@ type ON_SUBSCRIPTION = {
 	 * Is subscription a resubscription
 	 */
 	isResub: boolean;
-}
+};
 ```
 
 </details>
 
 #### ON_TIMER_LIST
-Receive list of all timers and countdowns  
+
+Receive list of all timers and countdowns
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4233,7 +4610,7 @@ type ON_TIMER_LIST = {
 		/**
 		 * Timer type
 		 */
-		type: "timer"|"countdown";
+		type: "timer" | "countdown";
 	} & {
 		/**
 		 * Is the default timer/countdown
@@ -4270,17 +4647,19 @@ type ON_TIMER_LIST = {
 		 */
 		duration_ms: number;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_TIMER_OVERLAY_PRESENCE
-Advertise for timer overlay presence  
 
+Advertise for timer overlay presence
 
 #### ON_TIMER_START
-Triggered when a timer starts  
+
+Triggered when a timer starts
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4304,7 +4683,7 @@ type ON_TIMER_START = {
 	/**
 	 * Type of entry, timer or countdown
 	 */
-	type: "timer"|"countdown";
+	type: "timer" | "countdown";
 	/**
 	 * Timer/countdown's placeholder for trigger
 	 */
@@ -4346,7 +4725,7 @@ type ON_TIMER_START = {
 		 * text: legacy mode
 		 * bar: new render style for countdown with a progress bar reducing
 		 */
-		style: "text"|"bar";
+		style: "text" | "bar";
 		/**
 		 * Background color
 		 */
@@ -4378,15 +4757,17 @@ type ON_TIMER_START = {
 		/**
 		 * Progress style for "bar" style
 		 */
-		progressStyle: "fill"|"empty";
+		progressStyle: "fill" | "empty";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_TIMER_STOP
-Triggered when a timer stops  
+
+Triggered when a timer stops
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4410,7 +4791,7 @@ type ON_TIMER_STOP = {
 	/**
 	 * Type of entry, timer or countdown
 	 */
-	type: "timer"|"countdown";
+	type: "timer" | "countdown";
 	/**
 	 * Timer/countdown's placeholder for trigger
 	 */
@@ -4452,7 +4833,7 @@ type ON_TIMER_STOP = {
 		 * text: legacy mode
 		 * bar: new render style for countdown with a progress bar reducing
 		 */
-		style: "text"|"bar";
+		style: "text" | "bar";
 		/**
 		 * Background color
 		 */
@@ -4484,15 +4865,17 @@ type ON_TIMER_STOP = {
 		/**
 		 * Progress style for "bar" style
 		 */
-		progressStyle: "fill"|"empty";
+		progressStyle: "fill" | "empty";
 	};
-}
+};
 ```
 
 </details>
 
 #### ON_TRACK_ADDED_TO_QUEUE
-Triggered when a track is added to the music queue  
+
+Triggered when a track is added to the music queue
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4526,13 +4909,15 @@ type ON_TRACK_ADDED_TO_QUEUE = {
 	 * Track public URL
 	 */
 	url: string;
-}
+};
 ```
 
 </details>
 
 #### ON_TRIGGER_LIST
-Receive list of all triggers  
+
+Receive list of all triggers
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4555,17 +4940,19 @@ type ON_TRIGGER_LIST = {
 		 */
 		disabled: boolean;
 	}[];
-}
+};
 ```
 
 </details>
 
 #### ON_TWITCHAT_READY
-Twitchat completed initialization and is ready.  
 
+Twitchat completed initialization and is ready.
 
 #### ON_VOICE_CONTROL_STATE_CHANGE
-Triggered when voice control state is updated  
+
+Triggered when voice control state is updated
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4575,13 +4962,15 @@ type ON_VOICE_CONTROL_STATE_CHANGE = {
 	 * Voice control enabled state
 	 */
 	enabled: boolean;
-}
+};
 ```
 
 </details>
 
 #### ON_VOICEMOD_VOICE_CHANGE
-Triggered when the user changes Voicemod voice  
+
+Triggered when the user changes Voicemod voice
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4591,13 +4980,15 @@ type ON_VOICEMOD_VOICE_CHANGE = {
 	 * Voice ID that got selected
 	 */
 	voiceId: string;
-}
+};
 ```
 
 </details>
 
 #### ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
-Triggered when wheel overlay animation completes  
+
+Triggered when wheel overlay animation completes
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4618,17 +5009,19 @@ type ON_WHEEL_OVERLAY_ANIMATION_COMPLETE = {
 	 * Delay in ms before sending a chat message about the result
 	 */
 	delay?: number;
-}
+};
 ```
 
 </details>
 
 #### ON_WHEEL_OVERLAY_PRESENCE
-Advertise for wheel overlay presence  
 
+Advertise for wheel overlay presence
 
 #### ON_WHEEL_OVERLAY_START
-Triggered when wheel overlay animation starts  
+
+Triggered when wheel overlay animation starts
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4640,14 +5033,13 @@ type ON_WHEEL_OVERLAY_START = {
 	}[];
 	winner: string;
 	sessionId: string;
-}
+};
 ```
 
 </details>
 
-
-
 # Actions you can perform
+
 Actions you can request Twitchat to perform.
 
 - [SET_ANIMATED_TEXT_CONTENT](#set_animated_text_content)
@@ -4706,11 +5098,10 @@ Actions you can request Twitchat to perform.
 - [SET_VIEWERS_COUNT_TOGGLE](#set_viewers_count_toggle)
 - [SET_VOICE_CONTROL_STATE](#set_voice_control_state)
 
-
-
-
 #### SET_ANIMATED_TEXT_CONTENT
-Set text content for an animated text overlay  
+
+Set text content for an animated text overlay
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4739,21 +5130,23 @@ type SET_ANIMATED_TEXT_CONTENT = {
 	 * message queue and shows the new text right away.
 	 */
 	bypassAll?: boolean;
-}
+};
 ```
 
 </details>
 
 #### SET_AUTOMOD_ACCEPT
-Accept latest message held by automod  
 
+Accept latest message held by automod
 
 #### SET_AUTOMOD_REJECT
-Reject latest message held by automod  
 
+Reject latest message held by automod
 
 #### SET_BINGO_GRID_OVERLAY_PRESENCE
-Advertise bingo grid overlay presence  
+
+Advertise bingo grid overlay presence
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4763,13 +5156,15 @@ type SET_BINGO_GRID_OVERLAY_PRESENCE = {
 	 * Bingo grid ID to advertise presence of
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_BINGO_GRID_VISIBILITY
-Set bingo grid visibility  
+
+Set bingo grid visibility
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4784,21 +5179,23 @@ type SET_BINGO_GRID_VISIBILITY = {
 	 * Omit to toggle current visibility
 	 */
 	show?: boolean;
-}
+};
 ```
 
 </details>
 
 #### SET_BINGO_TOGGLE
-Toggle current bingo display (NOT bingo GRID!)  
 
+Toggle current bingo display (NOT bingo GRID!)
 
 #### SET_CENSOR_DELETED_MESSAGES_TOGGLE
-Toggle censorship of deleted messages  
 
+Toggle censorship of deleted messages
 
 #### SET_CHAT_FEED_PAUSE_STATE
-Pause auto-scrolling in a chat feed  
+
+Pause auto-scrolling in a chat feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4813,13 +5210,15 @@ type SET_CHAT_FEED_PAUSE_STATE = {
 	 * Omit to toggle current state
 	 */
 	pause?: boolean;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_READ
-Move read marker in chat feed  
+
+Move read marker in chat feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4833,13 +5232,15 @@ type SET_CHAT_FEED_READ = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_READ_ALL
-Mark all messages as read in a chat feed  
+
+Mark all messages as read in a chat feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4849,13 +5250,15 @@ type SET_CHAT_FEED_READ_ALL = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SCROLL
-Scroll a chat feed by a specific amount  
+
+Scroll a chat feed by a specific amount
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4874,14 +5277,16 @@ type SET_CHAT_FEED_SCROLL = {
 	 * Scroll mode.
 	 * Scroll by messages or by pixels.
 	 */
-	mode: "messages"|"pixels";
-}
+	mode: "messages" | "pixels";
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SCROLL_BOTTOM
-Scroll a chat feed to the bottom  
+
+Scroll a chat feed to the bottom
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4891,13 +5296,15 @@ type SET_CHAT_FEED_SCROLL_BOTTOM = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT
-Move message selection in a chat feed  
+
+Move message selection in a chat feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4914,14 +5321,16 @@ type SET_CHAT_FEED_SELECT = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_BAN
+
 Ban the user of the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4936,13 +5345,15 @@ type SET_CHAT_FEED_SELECT_ACTION_BAN = {
 	 * If not set, a permanent ban is done
 	 */
 	duration?: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_CANCEL
-Cancel the action selection for the currently selected message in a chat feed  
+
+Cancel the action selection for the currently selected message in a chat feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4952,14 +5363,16 @@ type SET_CHAT_FEED_SELECT_ACTION_CANCEL = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_DELETE
+
 Delete the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4969,14 +5382,16 @@ type SET_CHAT_FEED_SELECT_ACTION_DELETE = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT
+
 Highlight the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -4986,14 +5401,16 @@ type SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_SAVE
+
 Save the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5003,14 +5420,16 @@ type SET_CHAT_FEED_SELECT_ACTION_SAVE = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT
+
 Shoutout the user of the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5020,14 +5439,16 @@ type SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_FEED_SELECT_CHOOSING_ACTION
+
 Open action chooser for the currently selected message in a chat feed
-First select a message with SET_CHAT_FEED_SELECT  
+First select a message with SET_CHAT_FEED_SELECT
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5037,13 +5458,15 @@ type SET_CHAT_FEED_SELECT_CHOOSING_ACTION = {
 	 * Column index
 	 */
 	colIndex: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_HIGHLIGHT_OVERLAY_CLIP
-Send a clip to the chat highlight overlay  
+
+Send a clip to the chat highlight overlay
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5053,7 +5476,7 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 	message?: string;
 	user?: {
 		id: string;
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 		login: string;
 		/**
 		 * Get the display name of the user.
@@ -5111,15 +5534,15 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 		 */
-		pronouns: null|string|false;
+		pronouns: null | string | false;
 		/**
 		 * Pronouns label
 		 */
-		pronounsLabel: string|false;
+		pronounsLabel: string | false;
 		/**
 		 * Pronouns tooltip
 		 */
-		pronounsTooltip: string|false;
+		pronounsTooltip: string | false;
 		/**
 		 * Contains one entry per connected channel with
 		 * channel specific info.
@@ -5146,7 +5569,7 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 				 * true = is a follower
 				 * false = is not a follower
 				 */
-				is_following: null|false|true;
+				is_following: null | false | true;
 				/**
 				 * true if user is banned on the channel
 				 */
@@ -5184,7 +5607,18 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 						sd: string;
 						hd?: string;
 					};
-					id: "predictions"|"subscriber"|"vip"|"premium"|"moderator"|"lead_moderator"|"staff"|"broadcaster"|"partner"|"founder"|"ambassador";
+					id:
+						| "predictions"
+						| "subscriber"
+						| "vip"
+						| "premium"
+						| "moderator"
+						| "lead_moderator"
+						| "staff"
+						| "broadcaster"
+						| "partner"
+						| "founder"
+						| "ambassador";
 					title?: string;
 					version?: string;
 				}[];
@@ -5248,17 +5682,19 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 		mp4?: string;
 	};
 	params: {
-		position: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		position: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	};
 	dateLabel: string;
 	message_id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE
-Send a message to the chat highlight overlay  
+
+Send a message to the chat highlight overlay
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5268,7 +5704,7 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 	message?: string;
 	user?: {
 		id: string;
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 		login: string;
 		/**
 		 * Get the display name of the user.
@@ -5326,15 +5762,15 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 		 */
-		pronouns: null|string|false;
+		pronouns: null | string | false;
 		/**
 		 * Pronouns label
 		 */
-		pronounsLabel: string|false;
+		pronounsLabel: string | false;
 		/**
 		 * Pronouns tooltip
 		 */
-		pronounsTooltip: string|false;
+		pronounsTooltip: string | false;
 		/**
 		 * Contains one entry per connected channel with
 		 * channel specific info.
@@ -5361,7 +5797,7 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 				 * true = is a follower
 				 * false = is not a follower
 				 */
-				is_following: null|false|true;
+				is_following: null | false | true;
 				/**
 				 * true if user is banned on the channel
 				 */
@@ -5399,7 +5835,18 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 						sd: string;
 						hd?: string;
 					};
-					id: "predictions"|"subscriber"|"vip"|"premium"|"moderator"|"lead_moderator"|"staff"|"broadcaster"|"partner"|"founder"|"ambassador";
+					id:
+						| "predictions"
+						| "subscriber"
+						| "vip"
+						| "premium"
+						| "moderator"
+						| "lead_moderator"
+						| "staff"
+						| "broadcaster"
+						| "partner"
+						| "founder"
+						| "ambassador";
 					title?: string;
 					version?: string;
 				}[];
@@ -5463,21 +5910,23 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 		mp4?: string;
 	};
 	params: {
-		position: "tl"|"t"|"tr"|"l"|"m"|"r"|"bl"|"b"|"br";
+		position: "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
 	};
 	dateLabel: string;
 	message_id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
-Advertise for highlight overlay presence  
 
+Advertise for highlight overlay presence
 
 #### SET_CHAT_POLL_START
-Start a chat poll  
+
+Start a chat poll
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5499,21 +5948,23 @@ type SET_CHAT_POLL_START = {
 	 * Maximum answers a user can vote for
 	 */
 	maxVotePerUser: number;
-}
+};
 ```
 
 </details>
 
 #### SET_CHAT_POLL_STOP
-Triggerd when a chat poll ends  
 
+Triggerd when a chat poll ends
 
 #### SET_CLEAR_CHAT_HIGHLIGHT
-Clear any current message or clip displayed in chat highlight overlay  
 
+Clear any current message or clip displayed in chat highlight overlay
 
 #### SET_COUNTDOWN_ADD
-Add time to a countdown  
+
+Add time to a countdown
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5529,13 +5980,15 @@ type SET_COUNTDOWN_ADD = {
 	 * it can contain placeholders
 	 */
 	value: string;
-}
+};
 ```
 
 </details>
 
 #### SET_COUNTER_ADD
-Add a value to a counter  
+
+Add a value to a counter
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5548,22 +6001,24 @@ type SET_COUNTER_ADD = {
 	/**
 	 * Action to perform
 	 */
-	action: "ADD"|"DEL"|"SET";
+	action: "ADD" | "DEL" | "SET";
 	/**
 	 * Value to add to the counter.
 	 * Typed as string cause it can be an arithmetic expression or
 	 * it can contain placeholders
 	 */
 	value: string;
-}
+};
 ```
 
 </details>
 
 #### SET_EMERGENCY_MODE
+
 Enable/disable/toggle emergency mode
 Either give an object with "enabled" boolean to force a specific
-state, or don't give any parameter to toggle current state  
+state, or don't give any parameter to toggle current state
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5578,13 +6033,15 @@ type SET_EMERGENCY_MODE = {
 	 * to confirm the action
 	 */
 	promptConfirmation?: boolean;
-}
+};
 ```
 
 </details>
 
 #### SET_ENDING_CREDITS_CONTROL
-Control ending credits playback  
+
+Control ending credits playback
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5606,13 +6063,15 @@ type SET_ENDING_CREDITS_CONTROL = {
 	 * Section ID to jump to
 	 */
 	scrollToSectionID?: string;
-}
+};
 ```
 
 </details>
 
 #### SET_ENDING_CREDITS_DATA
-Response with ending credits data  
+
+Response with ending credits data
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -5681,7 +6140,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Should the entries scroll at a specific speed or over a specific duration ?
 		 */
-		timing: "speed"|"duration";
+		timing: "speed" | "duration";
 		/**
 		 * Duration of the credits scroll (in seconds)
 		 */
@@ -5721,7 +6180,34 @@ type SET_ENDING_CREDITS_DATA = {
 			/**
 			 * Type of slot to show
 			 */
-			slotType: "text"|"bans"|"mods"|"subs"|"vips"|"raids"|"polls"|"so_in"|"so_out"|"cheers"|"follows"|"rewards"|"chatters"|"timeouts"|"hypechats"|"hypetrains"|"predictions"|"tips"|"shoutouts"|"merch"|"patreonMembers"|"powerups"|"ytSuperchat"|"ytSuperSticker"|"tiktokLikes"|"tiktokShares"|"tiktokGifts";
+			slotType:
+				| "text"
+				| "bans"
+				| "mods"
+				| "subs"
+				| "vips"
+				| "raids"
+				| "polls"
+				| "so_in"
+				| "so_out"
+				| "cheers"
+				| "follows"
+				| "rewards"
+				| "chatters"
+				| "timeouts"
+				| "hypechats"
+				| "hypetrains"
+				| "predictions"
+				| "tips"
+				| "shoutouts"
+				| "merch"
+				| "patreonMembers"
+				| "powerups"
+				| "ytSuperchat"
+				| "ytSuperSticker"
+				| "tiktokLikes"
+				| "tiktokShares"
+				| "tiktokGifts";
 			/**
 			 * Title for this slot
 			 */
@@ -5737,7 +6223,15 @@ type SET_ENDING_CREDITS_DATA = {
 			/**
 			 * Layout of the entries
 			 */
-			layout: "colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
+			layout:
+				| "colLeft"
+				| "col"
+				| "colRight"
+				| "left"
+				| "center"
+				| "right"
+				| "2cols"
+				| "3cols";
 			/**
 			 * Show entries amounts if any ?
 			 */
@@ -5980,7 +6474,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Subscription tier
 		 */
-		tier: 1|2|3|"prime";
+		tier: 1 | 2 | 3 | "prime";
 		/**
 		 * Subscription duration in months
 		 */
@@ -5993,7 +6487,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 	}[];
 	/**
 	 * Resubscription events
@@ -6010,7 +6504,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Subscription tier
 		 */
-		tier: 1|2|3|"prime";
+		tier: 1 | 2 | 3 | "prime";
 		/**
 		 * Subscription duration in months
 		 */
@@ -6023,7 +6517,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 	}[];
 	/**
 	 * Subgift events
@@ -6040,7 +6534,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Subscription tier
 		 */
-		tier: 1|2|3|"prime";
+		tier: 1 | 2 | 3 | "prime";
 		/**
 		 * Number of subgifts
 		 */
@@ -6052,7 +6546,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
+		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
 	}[];
 	/**
 	 * Bits events
@@ -6318,7 +6812,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Platform the tip was made on
 		 */
-		platform: "kofi"|"streamlabs"|"streamelements"|"tipeee"|"patreon";
+		platform: "kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon";
 	}[];
 	/**
 	 * Merch events
@@ -6343,7 +6837,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Platform the merch was bought on
 		 */
-		platform: "kofi"|"streamlabs";
+		platform: "kofi" | "streamlabs";
 	}[];
 	/**
 	 * Powerup events
@@ -6356,7 +6850,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Skind ID for "animation" type
 		 */
-		skinID?: undefined|"simmer"|"rainbow-eclipse"|"cosmic-abyss";
+		skinID?: undefined | "simmer" | "rainbow-eclipse" | "cosmic-abyss";
 		/**
 		 * Emote URL for "gigantifiedemote" type
 		 */
@@ -6364,7 +6858,7 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Type of powerup
 		 */
-		type: "animation"|"gigantifiedemote"|"celebration";
+		type: "animation" | "gigantifiedemote" | "celebration";
 	}[];
 	/**
 	 * Super chat events
@@ -6505,17 +6999,19 @@ type SET_ENDING_CREDITS_DATA = {
 		premium_only: string;
 		sub_duration: string;
 	};
-}
+};
 ```
 
 </details>
 
 #### SET_ENDING_CREDITS_PRESENCE
-Response with current ending credits overlay presence  
 
+Response with current ending credits overlay presence
 
 #### SET_EXECUTE_TRIGGER
-Execute a specific trigger manually  
+
+Execute a specific trigger manually
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6525,13 +7021,15 @@ type SET_EXECUTE_TRIGGER = {
 	 * Trigger ID to execute
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_GREET_FEED_READ
-Mark messages as read in the greet them feed  
+
+Mark messages as read in the greet them feed
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6541,31 +7039,33 @@ type SET_GREET_FEED_READ = {
 	 * Number of messages to mark as read
 	 */
 	messageCount: number;
-}
+};
 ```
 
 </details>
 
 #### SET_GREET_FEED_READ_ALL
-Clears the greet them feed  
 
+Clears the greet them feed
 
 #### SET_HIDE_CHAT_ALERT
-Hide current chat alert
-See settings => chat features => Enable chat alert  
 
+Hide current chat alert
+See settings => chat features => Enable chat alert
 
 #### SET_MERGE_TOGGLE
-Toggle merge feature
-See settings => chat features => Merge consecutive messages of a user  
 
+Toggle merge feature
+See settings => chat features => Merge consecutive messages of a user
 
 #### SET_MOD_TOOLS_TOGGLE
-Toggle moderation tools display  
 
+Toggle moderation tools display
 
 #### SET_PLAY_SFXR
-Play an SFXR sound  
+
+Play an SFXR sound
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6581,21 +7081,23 @@ type SET_PLAY_SFXR = {
 	 * Volume from 0 to 1
 	 */
 	volume: number;
-}
+};
 ```
 
 </details>
 
 #### SET_POLL_TOGGLE
-Toggle current poll display  
 
+Toggle current poll display
 
 #### SET_PREDICTION_TOGGLE
-Toggle current prediction display  
 
+Toggle current prediction display
 
 #### SET_QNA_HIGHLIGHT
-Highlights the top most message of given Q&A session  
+
+Highlights the top most message of given Q&A session
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6605,13 +7107,15 @@ type SET_QNA_HIGHLIGHT = {
 	 * Q&A session ID
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_QNA_SKIP
-Skips the top most message of given Q&A session  
+
+Skips the top most message of given Q&A session
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6621,22 +7125,24 @@ type SET_QNA_SKIP = {
 	 * Q&A session ID
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### SET_RAFFLE_PICK_WINNER
-Pick a winner for the first active raffle.
-If multiple raffles are active, only the first one started will be considered.  
 
+Pick a winner for the first active raffle.
+If multiple raffles are active, only the first one started will be considered.
 
 #### SET_RAFFLE_TOGGLE
-Toggle current raffle display  
 
+Toggle current raffle display
 
 #### SET_SEND_CUSTOM_CHAT_MESSAGE
-Send a custom message to the chat feed with optional styling and actions  
+
+Send a custom message to the chat feed with optional styling and actions
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6669,7 +7175,190 @@ type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 	/**
 	 * Button icon see list of values above
 	 */
-	icon?: undefined|"number"|"prime"|"twitchat"|"twitch"|"youtube"|"tiktok"|"kofi"|"patreon"|"vip"|"premium"|"broadcaster"|"partner"|"rotate"|"poll"|"prediction"|"timer"|"countdown"|"emote"|"url"|"highlight"|"user"|"date"|"voicemod"|"music"|"placeholder"|"ad"|"add"|"alert"|"animate"|"announcement"|"anon"|"api"|"automod"|"badge"|"ban"|"bingo"|"bits"|"block"|"boost"|"bot"|"broadcast"|"change"|"channelPoints"|"chatCommand"|"chatPoll"|"checkmark"|"clearChat"|"click"|"clip"|"coffee"|"coin"|"color"|"commands"|"conversation"|"copy"|"count"|"credits"|"cross"|"debug"|"delete"|"dice"|"discord"|"donor"|"download"|"dragZone"|"easing"|"edit"|"elevated"|"elgato"|"emergency"|"enter"|"filters"|"firstTime"|"fix"|"follow"|"follow_outline"|"font"|"fontSize"|"fullscreen"|"gift"|"github"|"goxlr"|"goxlr_bleep"|"goxlr_fx"|"hand"|"heat"|"help"|"hide"|"history"|"hypeChat"|"idea"|"info"|"internet"|"leave"|"list"|"live"|"loader"|"lock"|"loop"|"magnet"|"markRead"|"max"|"merge"|"microphone"|"microphone_mute"|"microphone_recording"|"min"|"minus"|"mod"|"move"|"mute"|"newtab"|"next"|"noMusic"|"notification"|"obs"|"offline"|"online"|"orderable"|"overlay"|"params"|"pause"|"paypal"|"pin"|"pipette"|"play"|"polygon"|"presentation"|"press"|"prev"|"pros"|"qna"|"raid"|"read"|"refresh"|"reply"|"returning"|"reward_highlight"|"rightClick"|"save"|"scale"|"scroll"|"scrollDown"|"scrollUp"|"search"|"shadow"|"shield"|"shieldMode"|"shoutout"|"show"|"skip"|"slow"|"spotify"|"stars"|"stop"|"sub"|"test"|"thickness"|"ticket"|"timeout"|"train"|"train_boost"|"translate"|"trash"|"tts"|"twitter"|"ulule"|"unban"|"unblock"|"unfollow"|"unlock"|"unmod"|"unmute"|"unpin"|"unvip"|"update"|"upload"|"vibrate"|"voice"|"volume"|"watchStreak"|"whispers";
+	icon?:
+		| undefined
+		| "number"
+		| "prime"
+		| "twitchat"
+		| "twitch"
+		| "youtube"
+		| "tiktok"
+		| "kofi"
+		| "patreon"
+		| "vip"
+		| "premium"
+		| "broadcaster"
+		| "partner"
+		| "rotate"
+		| "poll"
+		| "prediction"
+		| "timer"
+		| "countdown"
+		| "emote"
+		| "url"
+		| "highlight"
+		| "user"
+		| "date"
+		| "voicemod"
+		| "music"
+		| "placeholder"
+		| "ad"
+		| "add"
+		| "alert"
+		| "animate"
+		| "announcement"
+		| "anon"
+		| "api"
+		| "automod"
+		| "badge"
+		| "ban"
+		| "bingo"
+		| "bits"
+		| "block"
+		| "boost"
+		| "bot"
+		| "broadcast"
+		| "change"
+		| "channelPoints"
+		| "chatCommand"
+		| "chatPoll"
+		| "checkmark"
+		| "clearChat"
+		| "click"
+		| "clip"
+		| "coffee"
+		| "coin"
+		| "color"
+		| "commands"
+		| "conversation"
+		| "copy"
+		| "count"
+		| "credits"
+		| "cross"
+		| "debug"
+		| "delete"
+		| "dice"
+		| "discord"
+		| "donor"
+		| "download"
+		| "dragZone"
+		| "easing"
+		| "edit"
+		| "elevated"
+		| "elgato"
+		| "emergency"
+		| "enter"
+		| "filters"
+		| "firstTime"
+		| "fix"
+		| "follow"
+		| "follow_outline"
+		| "font"
+		| "fontSize"
+		| "fullscreen"
+		| "gift"
+		| "github"
+		| "goxlr"
+		| "goxlr_bleep"
+		| "goxlr_fx"
+		| "hand"
+		| "heat"
+		| "help"
+		| "hide"
+		| "history"
+		| "hypeChat"
+		| "idea"
+		| "info"
+		| "internet"
+		| "leave"
+		| "list"
+		| "live"
+		| "loader"
+		| "lock"
+		| "loop"
+		| "magnet"
+		| "markRead"
+		| "max"
+		| "merge"
+		| "microphone"
+		| "microphone_mute"
+		| "microphone_recording"
+		| "min"
+		| "minus"
+		| "mod"
+		| "move"
+		| "mute"
+		| "newtab"
+		| "next"
+		| "noMusic"
+		| "notification"
+		| "obs"
+		| "offline"
+		| "online"
+		| "orderable"
+		| "overlay"
+		| "params"
+		| "pause"
+		| "paypal"
+		| "pin"
+		| "pipette"
+		| "play"
+		| "polygon"
+		| "presentation"
+		| "press"
+		| "prev"
+		| "pros"
+		| "qna"
+		| "raid"
+		| "read"
+		| "refresh"
+		| "reply"
+		| "returning"
+		| "reward_highlight"
+		| "rightClick"
+		| "save"
+		| "scale"
+		| "scroll"
+		| "scrollDown"
+		| "scrollUp"
+		| "search"
+		| "shadow"
+		| "shield"
+		| "shieldMode"
+		| "shoutout"
+		| "show"
+		| "skip"
+		| "slow"
+		| "spotify"
+		| "stars"
+		| "stop"
+		| "sub"
+		| "test"
+		| "thickness"
+		| "ticket"
+		| "timeout"
+		| "train"
+		| "train_boost"
+		| "translate"
+		| "trash"
+		| "tts"
+		| "twitter"
+		| "ulule"
+		| "unban"
+		| "unblock"
+		| "unfollow"
+		| "unlock"
+		| "unmod"
+		| "unmute"
+		| "unpin"
+		| "unvip"
+		| "update"
+		| "upload"
+		| "vibrate"
+		| "voice"
+		| "volume"
+		| "watchStreak"
+		| "whispers";
 	/**
 	 * Color of the message for "highlight" style
 	 */
@@ -6677,7 +7366,7 @@ type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 	/**
 	 * Message style
 	 */
-	style?: undefined|"highlight"|"message"|"error";
+	style?: undefined | "highlight" | "message" | "error";
 	/**
 	 * Option quote displayed in a dedicated holder
 	 */
@@ -6697,7 +7386,7 @@ type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 		/**
 		 * Type of action
 		 */
-		actionType?: undefined|"trigger"|"url"|"discord"|"message";
+		actionType?: undefined | "trigger" | "url" | "discord" | "message";
 		/**
 		 * Page to open in a new tab for "url" actionType
 		 */
@@ -6718,15 +7407,17 @@ type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 		/**
 		 * Button style
 		 */
-		theme?: undefined|"default"|"alert"|"primary"|"secondary";
+		theme?: undefined | "default" | "alert" | "primary" | "secondary";
 	}[];
-}
+};
 ```
 
 </details>
 
 #### SET_SEND_MESSAGE
-Send a message to chat  
+
+Send a message to chat
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6736,29 +7427,31 @@ type SET_SEND_MESSAGE = {
 	 * Message content to send
 	 */
 	message: string;
-}
+};
 ```
 
 </details>
 
 #### SET_SHOUTOUT_LAST_RAIDER
-Shoutout the user that raided the channel the most recently  
 
+Shoutout the user that raided the channel the most recently
 
 #### SET_STOP_CURRENT_TTS_AUDIO
-Stop any current text-to-speech audio playback  
 
+Stop any current text-to-speech audio playback
 
 #### SET_STOP_POLL
-Stop any Twitch poll currently running  
 
+Stop any Twitch poll currently running
 
 #### SET_STOP_PREDICTION
-Stop any Twitch prediction currently running  
 
+Stop any Twitch prediction currently running
 
 #### SET_TIMER_ADD
-Add time to a timer  
+
+Add time to a timer
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6774,13 +7467,15 @@ type SET_TIMER_ADD = {
 	 * it can contain placeholders
 	 */
 	value: string;
-}
+};
 ```
 
 </details>
 
 #### SET_TRIGGER_STATE
-Enable or disable a specific trigger  
+
+Enable or disable a specific trigger
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6794,21 +7489,23 @@ type SET_TRIGGER_STATE = {
 	 * Force trigger state:
 	 * - true: enable it
 	 * - false: disable it
-	 * 
+	 *
 	 * Omit this field to toggle current state
 	 */
 	forcedState?: boolean;
-}
+};
 ```
 
 </details>
 
 #### SET_VIEWERS_COUNT_TOGGLE
-Toggle viewers count display  
 
+Toggle viewers count display
 
 #### SET_VOICE_CONTROL_STATE
-Set voice bot enabled/disabled state  
+
+Set voice bot enabled/disabled state
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6819,14 +7516,13 @@ type SET_VOICE_CONTROL_STATE = {
 	 * Omit to toggle current state
 	 */
 	enabled?: boolean;
-}
+};
 ```
 
 </details>
 
-
-
 # Requesting data
+
 Data you can request from Twitchat.
 
 - [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
@@ -6864,27 +7560,26 @@ Data you can request from Twitchat.
 - [GET_TRIGGER_LIST](#get_trigger_list)
 - [GET_WHEEL_OVERLAY_PRESENCE](#get_wheel_overlay_presence)
 
-
-
-
 #### GET_AD_BREAK_OVERLAY_CONFIGS
-Request ad break overlay configuration  
-Receive answer with: [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)  
 
+Request ad break overlay configuration  
+Receive answer with: [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
 
 #### GET_AD_BREAK_OVERLAY_PRESENCE
-Request ad break overlay presence  
-Receive answer with: [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)  
 
+Request ad break overlay presence  
+Receive answer with: [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)
 
 #### GET_ALL_COUNTERS
-Request list of all counters  
-Receive answer with: [ON_COUNTER_LIST](#on_counter_list)  
 
+Request list of all counters  
+Receive answer with: [ON_COUNTER_LIST](#on_counter_list)
 
 #### GET_ANIMATED_TEXT_CONFIGS
+
 Request animated text overlay configuration  
-Receive answer with: [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)  
+Receive answer with: [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6894,14 +7589,16 @@ type GET_ANIMATED_TEXT_CONFIGS = {
 	 * Animated text overlay ID
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_BINGO_GRID_CONFIGS
+
 Request bingo grid configuration  
-Receive answer with: [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)  
+Receive answer with: [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6911,49 +7608,51 @@ type GET_BINGO_GRID_CONFIGS = {
 	 * Bingo grid ID to get parameters for
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_BITSWALL_OVERLAY_CONFIGS
-Request bitswall overlay configuration  
-Receive answer with: [ON_BITSWALL_OVERLAY_CONFIGS](#on_bitswall_overlay_configs)  
 
+Request bitswall overlay configuration  
+Receive answer with: [ON_BITSWALL_OVERLAY_CONFIGS](#on_bitswall_overlay_configs)
 
 #### GET_BITSWALL_OVERLAY_PRESENCE
-Request bitswall overlay presence  
-Receive answer with: [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)  
 
+Request bitswall overlay presence  
+Receive answer with: [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)
 
 #### GET_CHAT_COLUMNS_COUNT
-Request number of chat columns  
-Receive answer with: [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)  
 
+Request number of chat columns  
+Receive answer with: [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)
 
 #### GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
-Request current chat highlight overlay presence  
-Receive answer with: [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)  
 
+Request current chat highlight overlay presence  
+Receive answer with: [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)
 
 #### GET_CHAT_POLL_INFO
-Request for current chat poll info  
-Receive answer with: [ON_CHAT_POLL_INFO](#on_chat_poll_info)  
 
+Request for current chat poll info  
+Receive answer with: [ON_CHAT_POLL_INFO](#on_chat_poll_info)
 
 #### GET_CHAT_POLL_OVERLAY_CONFIGS
-Request chat poll overlay configuration  
-Receive answer with: [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)  
 
+Request chat poll overlay configuration  
+Receive answer with: [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)
 
 #### GET_CHAT_POLL_OVERLAY_PRESENCE
-Request chat poll overlay presence  
-Receive answer with: [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)  
 
+Request chat poll overlay presence  
+Receive answer with: [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)
 
 #### GET_COUNTER
+
 Request a specific counter entity  
-Receive answer with: [ON_COUNTER_UPDATE](#on_counter_update)  
+Receive answer with: [ON_COUNTER_UPDATE](#on_counter_update)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6963,19 +7662,21 @@ type GET_COUNTER = {
 	 * Counter ID to get value of
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_CURRENT_TRACK
-Request current playing track information  
-Receive answer with: [ON_CURRENT_TRACK](#on_current_track)  
 
+Request current playing track information  
+Receive answer with: [ON_CURRENT_TRACK](#on_current_track)
 
 #### GET_CUSTOM_TRAIN_DATA
+
 Request custom train data and state  
-Receive answer with: [ON_CUSTOM_TRAIN_DATA](#on_custom_train_data)  
+Receive answer with: [ON_CUSTOM_TRAIN_DATA](#on_custom_train_data)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -6985,14 +7686,16 @@ type GET_CUSTOM_TRAIN_DATA = {
 	 * Custom train ID to get state for
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_DISTORT_OVERLAY_CONFIGS
+
 Request distortion overlay configuration  
-Receive answer with: [ON_DISTORT_OVERLAY_CONFIGS](#on_distort_overlay_configs)  
+Receive answer with: [ON_DISTORT_OVERLAY_CONFIGS](#on_distort_overlay_configs)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -7002,14 +7705,16 @@ type GET_DISTORT_OVERLAY_CONFIGS = {
 	 * Distortion overlay ID to get parameters for
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_DONATION_GOALS_OVERLAY_CONFIGS
+
 Request donation goals overlay configuration  
-Receive answer with: [ON_DONATION_GOALS_OVERLAY_CONFIGS](#on_donation_goals_overlay_configs)  
+Receive answer with: [ON_DONATION_GOALS_OVERLAY_CONFIGS](#on_donation_goals_overlay_configs)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -7019,14 +7724,16 @@ type GET_DONATION_GOALS_OVERLAY_CONFIGS = {
 	 * Overlay ID to get parameters for
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_ENDING_CREDITS_DATA
+
 Request for ending credits data  
-Receive answer with: [SET_ENDING_CREDITS_DATA](#set_ending_credits_data)  
+Receive answer with: [SET_ENDING_CREDITS_DATA](#set_ending_credits_data)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -7040,24 +7747,26 @@ type GET_ENDING_CREDITS_DATA = {
 	 * Include overlay parameters to response
 	 */
 	includeOverlayParams?: boolean;
-}
+};
 ```
 
 </details>
 
 #### GET_ENDING_CREDITS_PRESENCE
-Request current ending credits overlay presence  
-Receive answer with: [SET_ENDING_CREDITS_PRESENCE](#set_ending_credits_presence)  
 
+Request current ending credits overlay presence  
+Receive answer with: [SET_ENDING_CREDITS_PRESENCE](#set_ending_credits_presence)
 
 #### GET_GLOBAL_STATES
-Requests for global states  
-Receive answer with: [ON_GLOBAL_STATES](#on_global_states)  
 
+Requests for global states  
+Receive answer with: [ON_GLOBAL_STATES](#on_global_states)
 
 #### GET_LABEL_OVERLAY_CONFIGS
+
 Request label overlay configuration  
-Receive answer with: [ON_LABEL_OVERLAY_CONFIGS](#on_label_overlay_configs)  
+Receive answer with: [ON_LABEL_OVERLAY_CONFIGS](#on_label_overlay_configs)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -7067,68 +7776,74 @@ type GET_LABEL_OVERLAY_CONFIGS = {
 	 * Label ID
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_LABEL_OVERLAY_PLACEHOLDERS
-Request available label overlay placeholders  
-Receive answer with: [ON_LABEL_OVERLAY_PLACEHOLDERS](#on_label_overlay_placeholders)  
 
+Request available label overlay placeholders  
+Receive answer with: [ON_LABEL_OVERLAY_PLACEHOLDERS](#on_label_overlay_placeholders)
 
 #### GET_POLLS_OVERLAY_CONFIGS
-Request polls overlay configuration  
-Receive answer with: [ON_POLL_OVERLAY_CONFIGS](#on_poll_overlay_configs)  
 
+Request polls overlay configuration  
+Receive answer with: [ON_POLL_OVERLAY_CONFIGS](#on_poll_overlay_configs)
 
 #### GET_POLLS_OVERLAY_PRESENCE
-Request polls overlay presence  
-Receive answer with: [ON_POLLS_OVERLAY_PRESENCE](#on_polls_overlay_presence)  
 
+Request polls overlay presence  
+Receive answer with: [ON_POLLS_OVERLAY_PRESENCE](#on_polls_overlay_presence)
 
 #### GET_PREDICTIONS_OVERLAY_CONFIGS
-Request predictions overlay configuration  
-Receive answer with: [ON_PREDICTION_OVERLAY_CONFIGS](#on_prediction_overlay_configs)  
 
+Request predictions overlay configuration  
+Receive answer with: [ON_PREDICTION_OVERLAY_CONFIGS](#on_prediction_overlay_configs)
 
 #### GET_PREDICTIONS_OVERLAY_PRESENCE
-Request predictions overlay presence  
-Receive answer with: [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)  
 
+Request predictions overlay presence  
+Receive answer with: [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)
 
 #### GET_QNA_SESSION_LIST
-Request list of all Q&A sessions  
-Receive answer with: [ON_QNA_SESSION_LIST](#on_qna_session_list)  
 
+Request list of all Q&A sessions  
+Receive answer with: [ON_QNA_SESSION_LIST](#on_qna_session_list)
 
 #### GET_QUIZ_CONFIGS
+
 Request quiz overlay configuration  
-Receive answer with: [ON_QUIZ_STATE](#on_quiz_state)  
+Receive answer with: [ON_QUIZ_STATE](#on_quiz_state)
+
 <details>
 <summary>JSON parameters</summary>
 
 ```typescript
-type GET_QUIZ_CONFIGS = void
+type GET_QUIZ_CONFIGS = void;
 ```
 
 </details>
 
 #### GET_QUIZ_OVERLAY_PRESENCE
+
 Request quiz overlay presence  
-Receive answer with: [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)  
+Receive answer with: [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)
+
 <details>
 <summary>JSON parameters</summary>
 
 ```typescript
-type GET_QUIZ_OVERLAY_PRESENCE = void
+type GET_QUIZ_OVERLAY_PRESENCE = void;
 ```
 
 </details>
 
 #### GET_TIMER
+
 Request specific timer configuration  
-Receive answer with: [ON_TIMER_START](#on_timer_start)  
+Receive answer with: [ON_TIMER_START](#on_timer_start)
+
 <details>
 <summary>JSON parameters</summary>
 
@@ -7138,30 +7853,27 @@ type GET_TIMER = {
 	 * Timer ID to get configs for
 	 */
 	id: string;
-}
+};
 ```
 
 </details>
 
 #### GET_TIMER_LIST
-Request list of all timers  
-Receive answer with: [ON_TIMER_LIST](#on_timer_list)  
 
+Request list of all timers  
+Receive answer with: [ON_TIMER_LIST](#on_timer_list)
 
 #### GET_TIMER_OVERLAY_PRESENCE
-Request timer overlay presence  
-Receive answer with: [ON_TIMER_OVERLAY_PRESENCE](#on_timer_overlay_presence)  
 
+Request timer overlay presence  
+Receive answer with: [ON_TIMER_OVERLAY_PRESENCE](#on_timer_overlay_presence)
 
 #### GET_TRIGGER_LIST
-Request list of all triggers  
-Receive answer with: [ON_TRIGGER_LIST](#on_trigger_list)  
 
+Request list of all triggers  
+Receive answer with: [ON_TRIGGER_LIST](#on_trigger_list)
 
 #### GET_WHEEL_OVERLAY_PRESENCE
+
 Request wheel overlay presence  
-Receive answer with: [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)  
-
-
-
-
+Receive answer with: [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)

@@ -1,50 +1,64 @@
 <template>
-	<div class="chatcelebration chatMessage highlight"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+	<div
+		class="chatcelebration chatMessage highlight"
+		@contextmenu="onContextMenu($event, messageData, $el)"
+	>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
 		<div class="holder">
 			<Icon name="watchStreak" />
 			<i18n-t scope="global" class="label" tag="span" keypath="chat.celebration.message">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+					<a
+						class="userlink"
+						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						>{{ messageData.user.displayName }}</a
+					>
 				</template>
 				<template #PRICE>
 					<strong>{{ messageData.cost }}</strong>
 					<Icon class="bitsIcon" name="bits" />
 				</template>
 			</i18n-t>
-			<img v-if="messageData.emoteID" class="emote large" :src="'https://static-cdn.jtvnw.net/emoticons/v2/'+messageData.emoteID+'/default/light/3.0'" alt="emote">
+			<img
+				v-if="messageData.emoteID"
+				class="emote large"
+				:src="
+					'https://static-cdn.jtvnw.net/emoticons/v2/' +
+					messageData.emoteID +
+					'/default/light/3.0'
+				"
+				alt="emote"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import AbstractChatMessage from './AbstractChatMessage';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import Icon from "../Icon.vue";
+import AbstractChatMessage from "./AbstractChatMessage";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 	},
-	emits:['onRead'],
+	emits: ["onRead"],
 })
 class ChatCelebration extends AbstractChatMessage {
-
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageTwitchCelebrationData;
-
+	declare messageData: TwitchatDataTypes.MessageTwitchCelebrationData;
 }
 export default toNative(ChatCelebration);
 </script>
 
 <style scoped lang="less">
-.chatcelebration{
-
+.chatcelebration {
 	.cost {
-		font-size: .7em;
+		font-size: 0.7em;
 		font-style: italic;
 	}
 
@@ -64,7 +78,7 @@ export default toNative(ChatCelebration);
 		.label {
 			flex-grow: 1;
 		}
-		&>.icon {
+		& > .icon {
 			color: #5cffbe;
 			width: 1.25em;
 			height: 1.25em;

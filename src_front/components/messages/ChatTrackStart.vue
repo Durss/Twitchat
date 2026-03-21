@@ -1,8 +1,10 @@
 <template>
 	<div class="chattrackstart chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
-		<Icon name="music" alt="notice" class="icon"/>
+		<Icon name="music" alt="notice" class="icon" />
 		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 
 		<div class="messageHolder">
@@ -14,16 +16,27 @@
 					</a>
 				</template>
 				<template #USER>
-					<a class="userlink"
-						:href="'https://twitch.tv/'+messageData.userOrigin!.login"
+					<a
+						class="userlink"
+						:href="'https://twitch.tv/' + messageData.userOrigin!.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.userOrigin!, messageData.channel_id)">{{messageData.userOrigin!.displayName}}</a>
+						@click.stop.prevent="
+							openUserCard(messageData.userOrigin!, messageData.channel_id)
+						"
+						>{{ messageData.userOrigin!.displayName }}</a
+					>
 				</template>
 			</i18n-t>
 
-			<i18n-t scope="global" tag="div" keypath="chat.now_playing.search" v-if="messageData.searchTerms" class="searchTerms">
+			<i18n-t
+				scope="global"
+				tag="div"
+				keypath="chat.now_playing.search"
+				v-if="messageData.searchTerms"
+				class="searchTerms"
+			>
 				<template #TERMS>
-					<strong>{{messageData.searchTerms}}</strong>
+					<strong>{{ messageData.searchTerms }}</strong>
 				</template>
 			</i18n-t>
 		</div>
@@ -31,41 +44,39 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import ClearButton from '../ClearButton.vue';
-import Icon from '../Icon.vue';
-import AbstractChatMessage from './AbstractChatMessage';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import ClearButton from "../ClearButton.vue";
+import Icon from "../Icon.vue";
+import AbstractChatMessage from "./AbstractChatMessage";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		ClearButton,
 	},
-	emits:["onRead"]
+	emits: ["onRead"],
 })
 class ChatTrackStart extends AbstractChatMessage {
-
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageMusicStartData;
-
+	declare messageData: TwitchatDataTypes.MessageMusicStartData;
 }
 export default toNative(ChatTrackStart);
 </script>
 
 <style scoped lang="less">
-.chattrackstart{
+.chattrackstart {
 	padding-right: 2em;
-	a>.icon {
+	a > .icon {
 		height: 1em;
 		vertical-align: middle;
-		margin-left: .25em;
+		margin-left: 0.25em;
 	}
 
 	.searchTerms {
 		// display: block;
 		font-style: italic;
-		margin-top: .25em;
+		margin-top: 0.25em;
 	}
 }
 </style>

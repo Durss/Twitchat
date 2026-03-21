@@ -1,22 +1,30 @@
 <template>
 	<div class="connecttipeee parameterContent">
 		<Icon name="tipeee" class="icon" />
-		
+
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="tipeee.header">
 				<template #LINK>
-					<a href="https://www.tipeeestream.com/" target="_blank"><Icon name="newtab" />Tipeee Stream</a>
+					<a href="https://www.tipeeestream.com/" target="_blank"
+						><Icon name="newtab" />Tipeee Stream</a
+					>
 				</template>
 			</i18n-t>
 		</div>
 
 		<section v-if="!$store.auth.isPremium">
-			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
+			<TTButton icon="premium" @click="openPremium()" premium big>{{
+				$t("premium.become_premiumBt")
+			}}</TTButton>
 		</section>
 
 		<section v-else-if="!$store.tipeee.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.tipeee_connect_failed") }}</div>
+			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{
+				$t("global.connect")
+			}}</TTButton>
+			<div class="card-item alert error" v-if="error" @click="error = false">
+				{{ $t("error.tipeee_connect_failed") }}
+			</div>
 		</section>
 
 		<section v-else>
@@ -24,7 +32,7 @@
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers"/>{{$t("tipeee.examples")}}</h2>
+			<h2><Icon name="whispers" />{{ $t("tipeee.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation || !fakeSub || !fakeResub" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -36,69 +44,79 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import MessageItem from '@/components/messages/MessageItem.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
+import TTButton from "@/components/TTButton.vue";
+import MessageItem from "@/components/messages/MessageItem.vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Vue, toNative } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		MessageItem,
 	},
-	emits:[],
+	emits: [],
 })
 class ConnectTipeee extends Vue {
-
 	public error = false;
 	public loading = false;
 	public oAuthURL = "";
-	public fakeDonation:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
-	public fakeSub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
-	public fakeResub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
+	public fakeDonation: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
+	public fakeSub: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
+	public fakeResub: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
 
-	public beforeMount():void {
-		if(!this.$store.tipeee.connected) {
-			if(this.$store.tipeee.authResult.code) {
+	public beforeMount(): void {
+		if (!this.$store.tipeee.connected) {
+			if (this.$store.tipeee.authResult.code) {
 				//Complete oauth process
-				this.loading = true
-				this.$store.tipeee.completeOAuthProcess()
-				.then(success => {
+				this.loading = true;
+				this.$store.tipeee.completeOAuthProcess().then((success) => {
 					this.error = !success;
 					this.loading = false;
 					this.loadAuthURL();
-				})
-			}else{
+				});
+			} else {
 				//Preload oAuth URL
 				this.loadAuthURL();
 			}
 		}
 
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
-			this.fakeDonation = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
-			mess.recurring = true;
-			this.fakeSub = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
-			mess.recurring = true;
-			mess.recurringCount = Math.round(Math.random() *10)
-			this.fakeResub = mess;
-		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+			(mess) => {
+				this.fakeDonation = mess;
+			},
+			false,
+		);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+			(mess) => {
+				mess.recurring = true;
+				this.fakeSub = mess;
+			},
+			false,
+		);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+			(mess) => {
+				mess.recurring = true;
+				mess.recurringCount = Math.round(Math.random() * 10);
+				this.fakeResub = mess;
+			},
+			false,
+		);
 	}
 
 	/**
 	 * Opens the premium param page
 	 */
-	public openPremium():void{
+	public openPremium(): void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
 	 * Disconnects from tipeee
 	 */
-	public disconnect():void{
+	public disconnect(): void {
 		this.$store.tipeee.disconnect();
 		this.loadAuthURL();
 	}
@@ -106,20 +124,19 @@ class ConnectTipeee extends Vue {
 	/**
 	 * initiliaze the auth url
 	 */
-	private loadAuthURL():void{
+	private loadAuthURL(): void {
 		this.loading = true;
-		this.$store.tipeee.getOAuthURL().then(res => {
+		this.$store.tipeee.getOAuthURL().then((res) => {
 			this.oAuthURL = res;
 			this.loading = false;
 		});
 	}
-
 }
 export default toNative(ConnectTipeee);
 </script>
 
 <style scoped lang="less">
-.connecttipeee{
+.connecttipeee {
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;
@@ -131,10 +148,10 @@ export default toNative(ConnectTipeee);
 		margin-top: 2em;
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
-		.chatMessage  {
+		.chatMessage {
 			font-size: 1em;
 		}
 	}

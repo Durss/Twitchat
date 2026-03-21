@@ -1,8 +1,7 @@
 export namespace GoXLRTypes {
-
 	export interface Status {
 		config: Config;
-		mixers: {[key:string]:Mixer};
+		mixers: { [key: string]: Mixer };
 		paths: Paths;
 		files: Files;
 	}
@@ -212,7 +211,6 @@ export namespace GoXLRTypes {
 		LineOut: boolean;
 	}
 
-
 	export interface CoughButton {
 		is_toggle: boolean;
 		mute_type: string;
@@ -231,28 +229,28 @@ export namespace GoXLRTypes {
 	export interface Animation {
 		supported: boolean;
 		mode: string;
-		mod1: number
-		mod2: number
+		mod1: number;
+		mod2: number;
 		waterfall_direction: string;
 	}
 
 	export interface Buttons {
 		EffectFx: Button;
 		EffectMegaphone: Button;
-		EffectSelect4: Button
+		EffectSelect4: Button;
 		Bleep: Button;
 		Fader4Mute: Button;
-		EffectSelect5: Button
+		EffectSelect5: Button;
 		Fader2Mute: Button;
 		EffectHardTune: Button;
 		EffectRobot: Button;
-		EffectSelect2: Button
+		EffectSelect2: Button;
 		Cough: Button;
 		Fader3Mute: Button;
-		EffectSelect6: Button
+		EffectSelect6: Button;
 		Fader1Mute: Button;
-		EffectSelect3: Button
-		EffectSelect1: Button
+		EffectSelect3: Button;
+		EffectSelect1: Button;
 	}
 
 	export interface Button {
@@ -317,12 +315,12 @@ export namespace GoXLRTypes {
 	}
 
 	export interface PresetNames {
-		Preset1: string
-		Preset2: string
-		Preset3: string
-		Preset4: string
-		Preset5: string
-		Preset6: string
+		Preset1: string;
+		Preset2: string;
+		Preset3: string;
+		Preset4: string;
+		Preset5: string;
+		Preset6: string;
 	}
 
 	export interface CurrentEffect {
@@ -499,15 +497,47 @@ export namespace GoXLRTypes {
 		icons: string[];
 	}
 
-	export const ButtonTypes = ["Fader1Mute", "Fader2Mute", "Fader3Mute", "Fader4Mute",
-								"EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6",
-								"SamplerSelectA", "SamplerSelectB", "SamplerSelectC",
-								"EffectMegaphone", "EffectRobot", "EffectHardTune", "EffectFx", 
-								"Bleep", "Cough",
-								"gender", "echo", "reverb", "pitch",
-								"SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight", "SamplerClear"] as const;
-	export type ButtonTypesData = typeof ButtonTypes[number];
-	
-	export const InputTypes = ["Mic", "Chat", "Music","Game","Console","LineIn","System","Sample"] as const;
-	export type InputTypesData = typeof InputTypes[number];
+	export const ButtonTypes = [
+		"Fader1Mute",
+		"Fader2Mute",
+		"Fader3Mute",
+		"Fader4Mute",
+		"EffectSelect1",
+		"EffectSelect2",
+		"EffectSelect3",
+		"EffectSelect4",
+		"EffectSelect5",
+		"EffectSelect6",
+		"SamplerSelectA",
+		"SamplerSelectB",
+		"SamplerSelectC",
+		"EffectMegaphone",
+		"EffectRobot",
+		"EffectHardTune",
+		"EffectFx",
+		"Bleep",
+		"Cough",
+		"gender",
+		"echo",
+		"reverb",
+		"pitch",
+		"SamplerTopLeft",
+		"SamplerBottomLeft",
+		"SamplerBottomRight",
+		"SamplerTopRight",
+		"SamplerClear",
+	] as const;
+	export type ButtonTypesData = (typeof ButtonTypes)[number];
+
+	export const InputTypes = [
+		"Mic",
+		"Chat",
+		"Music",
+		"Game",
+		"Console",
+		"LineIn",
+		"System",
+		"Sample",
+	] as const;
+	export type InputTypesData = (typeof InputTypes)[number];
 }

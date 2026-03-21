@@ -1,14 +1,13 @@
 <template>
 	<div :class="classes">
-			<span class="line"></span>
-			<span><slot /></span>
-			<span class="line"></span>
+		<span class="line"></span>
+		<span><slot /></span>
+		<span class="line"></span>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-
+import { computed } from "vue";
 
 const props = defineProps<{
 	theme?: "dark" | "light" | "primary" | "secondary" | "alert";
@@ -16,17 +15,17 @@ const props = defineProps<{
 
 const classes = computed(() => {
 	let res = ["splitter"];
-	if(props.theme == "dark") res.push("dark");
-	if(props.theme == "light") res.push("light");
-	if(props.theme == "primary") res.push("primary");
-	if(props.theme == "secondary") res.push("secondary");
-	if(props.theme == "alert") res.push("alert");
+	if (props.theme == "dark") res.push("dark");
+	if (props.theme == "light") res.push("light");
+	if (props.theme == "primary") res.push("primary");
+	if (props.theme == "secondary") res.push("secondary");
+	if (props.theme == "alert") res.push("alert");
 	return res;
 });
 </script>
 
 <style scoped lang="less">
-.splitter{
+.splitter {
 	display: flex;
 	flex-direction: row;
 	font-weight: bold;
@@ -34,7 +33,7 @@ const classes = computed(() => {
 	align-items: center;
 	text-align: center;
 	color: var(--color-text);
-	
+
 	span {
 		padding: 0 1em;
 	}

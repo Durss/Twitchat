@@ -4,10 +4,10 @@
 		"ban_usernames": "Ban users whose names match a rule",
 		"delete_confirm_title": "Delete rule?",
 		"delete_confirm_description": "This cannot be undone",
-		"disclaimers":{
-			"why":{
-				"title":"Why this feature?",
-				"contents":[
+		"disclaimers": {
+			"why": {
+				"title": "Why this feature?",
+				"contents": [
 					"Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.",
 					"If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.",
 					"",
@@ -20,10 +20,10 @@
 					"<strong>Warning</strong> though, this process has its cost on performance and may slow down twitchat a little if you have many rules and receive lots of messages."
 				]
 			},
-			"delete":{
-				"title":"Is deleting a message efficient against doxxing?",
-				"contents":[
-					"No.", 
+			"delete": {
+				"title": "Is deleting a message efficient against doxxing?",
+				"contents": [
+					"No.",
 					"",
 					"But it's the only way to moderate a message after it's sent.",
 					"The main problem is that extensions like <a href=\"https://betterttv.com\" target=\"_blank\">BetterTTV</a> allow users to keep deleted message.",
@@ -35,31 +35,31 @@
 				]
 			}
 		},
-		"rule":{
-			"title":"Your rules",
-			"new":"New rule",
-			"add":"Add rule",
-			"toggle_tt":"Enable/disable rule",
-			"name":"Rule name",
-			"keywords":"Rule (accepts <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Test your regexp</a>)",
-			"sync":"Save to server",
-			"sync_tt":"If the rule contains personal information you can choose not to save it on the server. You'll loose it if you clean your cookies.",
-			"emergency":"Start emergency mode",
-			"emergency_tt":"If a message matches this rule, the emergency mode will be enabled",
-			"firstTime":"Apply to first time chatters only",
-			"firstTime_tt":"Apply this rule only to first message ever of a user on your chat",
-			"invalid_rule":"Invalid rule"
+		"rule": {
+			"title": "Your rules",
+			"new": "New rule",
+			"add": "Add rule",
+			"toggle_tt": "Enable/disable rule",
+			"name": "Rule name",
+			"keywords": "Rule (accepts <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Test your regexp</a>)",
+			"sync": "Save to server",
+			"sync_tt": "If the rule contains personal information you can choose not to save it on the server. You'll loose it if you clean your cookies.",
+			"emergency": "Start emergency mode",
+			"emergency_tt": "If a message matches this rule, the emergency mode will be enabled",
+			"firstTime": "Apply to first time chatters only",
+			"firstTime_tt": "Apply this rule only to first message ever of a user on your chat",
+			"invalid_rule": "Invalid rule"
 		},
 		"test": {
-			"title":"Test rules",
-			"input_placeholder":"write text...",
-			"result_tt":"Cleaned up message with special chars replaced by their latin equivalent",
-			"blocked_title":"Message blocked by rule: | Message blocked by rules:",
-			"no_block":"This message passes automod"
+			"title": "Test rules",
+			"input_placeholder": "write text...",
+			"result_tt": "Cleaned up message with special chars replaced by their latin equivalent",
+			"blocked_title": "Message blocked by rule: | Message blocked by rules:",
+			"no_block": "This message passes automod"
 		},
 		"options": {
-			"title":"Options",
-			"exclude_users":"Exclude these users from automod rules:"
+			"title": "Options",
+			"exclude_users": "Exclude these users from automod rules:"
 		}
 	}
 }

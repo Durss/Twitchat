@@ -1,116 +1,141 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-stickyTopShadow>
-			<h1 class="title"><Icon name="prediction" />{{prediction.title}}</h1>
-	
-			<ProgressBar class="progress"
+			<h1 class="title"><Icon name="prediction" />{{ prediction.title }}</h1>
+
+			<ProgressBar
+				class="progress"
 				secondary
 				:percent="progressPercent"
-				:duration="prediction.duration_s*1000"
-				v-if="!prediction.pendingAnswer" />
+				:duration="prediction.duration_s * 1000"
+				v-if="!prediction.pendingAnswer"
+			/>
 
 			<slot />
 		</div>
 
 		<div class="body">
-			<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
-	
+			<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer">
+				<span class="arrow">⤺</span> {{ $t("prediction.state.choose_outcome") }}
+			</div>
+
 			<div class="choices">
 				<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 					<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
-					<TTButton class="winBt"
+					<TTButton
+						class="winBt"
 						secondary
 						@click="setOutcome(c)"
 						icon="checkmark"
 						v-if="prediction.pendingAnswer && canAnswer"
-						:loading="loading" />
-	
+						:loading="loading"
+					/>
+
 					<div class="bar" :style="getAnswerStyles(c)">
-						<div>{{c.label}}</div>
+						<div>{{ c.label }}</div>
 						<div class="details">
-							<span class="percent">{{getPercent(c)}}%</span>
-							<span class="votes"><Icon name="user" alt="user" class="icon" />{{c.voters}}</span>
-							<span class="points"><Icon name="channelPoints" alt="channelPoints" class="icon" />{{c.votes}}</span>
+							<span class="percent">{{ getPercent(c) }}%</span>
+							<span class="votes"
+								><Icon name="user" alt="user" class="icon" />{{ c.voters }}</span
+							>
+							<span class="points"
+								><Icon name="channelPoints" alt="channelPoints" class="icon" />{{
+									c.votes
+								}}</span
+							>
 						</div>
 					</div>
 				</div>
 			</div>
-	
-			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
-			v-if="prediction.creator && prediction.creator.id != me.id">
+
+			<i18n-t
+				class="creator"
+				scope="global"
+				tag="div"
+				keypath="poll.form.created_by"
+				v-if="prediction.creator && prediction.creator.id != me.id"
+			>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{prediction.creator.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard()">{{
+						prediction.creator.displayName
+					}}</a>
 				</template>
 			</i18n-t>
-	
+
 			<div class="actions">
-				<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</TTButton>
+				<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{
+					$t("prediction.state.cancelBt")
+				}}</TTButton>
 			</div>
-			
+
 			<OverlayPresenceChecker
 				:overlayName="$t('prediction.state.overlay_name')"
-				:overlayType="'predictions'" />
+				:overlayType="'predictions'"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import ProgressBar from '../ProgressBar.vue';
-import Icon from '../Icon.vue';
-import OverlayPresenceChecker from './OverlayPresenceChecker.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import TTButton from "../TTButton.vue";
+import ProgressBar from "../ProgressBar.vue";
+import Icon from "../Icon.vue";
+import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
 		TTButton,
 		ProgressBar,
 		OverlayPresenceChecker,
-	}
+	},
 })
 class PredictionState extends Vue {
-
 	public loading = false;
 	public progressPercent = 0;
 
 	private disposed = false;
 
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
+	public get me(): TwitchatDataTypes.TwitchatUser {
+		return this.$store.auth.twitch.user;
+	}
 
-	public get prediction():TwitchatDataTypes.MessagePredictionData {
+	public get prediction(): TwitchatDataTypes.MessagePredictionData {
 		return this.$store.prediction.data!;
 	}
 
-	public get canAnswer():boolean {
+	public get canAnswer(): boolean {
 		return this.prediction.channel_id == this.$store.auth.twitch.user.id;
 	}
 
-	public get classes():string[] {
+	public get classes(): string[] {
 		let res = ["predictionstate", "gameStateWindow"];
-		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
+		if (this.prediction.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome):number {
+	public getPercent(c: TwitchatDataTypes.MessagePredictionDataOutcome): number {
 		let totalVotes = 0;
-		if(this.prediction) {
+		if (this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
 				totalVotes += this.prediction.outcomes[i]!.votes;
 			}
 		}
-		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
+		return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 	}
 
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):{[key:string]:string} {
+	public getAnswerStyles(c: TwitchatDataTypes.MessagePredictionDataOutcome): {
+		[key: string]: string;
+	} {
 		return {
 			backgroundSize: `${this.getPercent(c)}% 100%`,
-		}
+		};
 	}
 
-	public mounted():void {
+	public mounted(): void {
 		// const elapsed = Date.now() - this.prediction.started_at;
 		// const duration = this.prediction.duration_s*1000;
 		// const timeLeft = duration - elapsed
@@ -120,63 +145,78 @@ class PredictionState extends Vue {
 		this.renderFrame();
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
-	public setOutcome(c:TwitchatDataTypes.MessagePredictionDataOutcome):void {
+	public setOutcome(c: TwitchatDataTypes.MessagePredictionDataOutcome): void {
 		this.loading = true;
-		this.$confirm(this.$t('prediction.state.outcome_confirm_title'), this.$t('prediction.state.outcome_confirm_desc', {CHOICE:c.label}))
-		.then(async ()=> {
-			try {
-				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
-			}catch(error) {
+		this.$confirm(
+			this.$t("prediction.state.outcome_confirm_title"),
+			this.$t("prediction.state.outcome_confirm_desc", { CHOICE: c.label }),
+		)
+			.then(async () => {
+				try {
+					await TwitchUtils.endPrediction(
+						this.prediction.channel_id,
+						this.prediction.id,
+						c.id,
+					);
+				} catch (error) {
+					this.loading = false;
+					this.$store.common.alert(this.$t("error.prediction_outcome"));
+				}
 				this.loading = false;
-				this.$store.common.alert(this.$t('error.prediction_outcome'));
-			}
-			this.loading = false;
-		}).catch(()=> {
-			this.loading = false;
-		});
+			})
+			.catch(() => {
+				this.loading = false;
+			});
 	}
 
-	public deletePrediction():void {
+	public deletePrediction(): void {
 		this.loading = true;
-		this.$confirm(this.$t('prediction.state.delete_title'), this.$t('prediction.state.delete_desc'))
-		.then(async ()=> {
-			try {
-				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
-			}catch(error) {
+		this.$confirm(
+			this.$t("prediction.state.delete_title"),
+			this.$t("prediction.state.delete_desc"),
+		)
+			.then(async () => {
+				try {
+					await TwitchUtils.endPrediction(
+						this.prediction.channel_id,
+						this.prediction.id,
+						"",
+						true,
+					);
+				} catch (error) {
+					this.loading = false;
+					this.$store.common.alert(this.$t("error.prediction_delete"));
+				}
 				this.loading = false;
-				this.$store.common.alert(this.$t('error.prediction_delete'));
-			}
-			this.loading = false;
-		}).catch(()=> {
-			this.loading = false;
-		});
+			})
+			.catch(() => {
+				this.loading = false;
+			});
 	}
 
-	public openUserCard():void {
+	public openUserCard(): void {
 		this.$store.users.openUserCard(this.prediction.creator!);
 	}
 
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderFrame());
+	private renderFrame(): void {
+		if (this.disposed) return;
+		requestAnimationFrame(() => this.renderFrame());
 		const elapsed = Date.now() - this.prediction.started_at;
 		const duration = this.prediction.duration_s * 1000;
-		this.progressPercent = elapsed/duration;
+		this.progressPercent = elapsed / duration;
 	}
-
 }
 export default toNative(PredictionState);
 </script>
 
 <style scoped lang="less">
-.predictionstate{
-
+.predictionstate {
 	.creator {
-		font-size: .8em;
+		font-size: 0.8em;
 		text-align: center;
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
@@ -186,8 +226,8 @@ export default toNative(PredictionState);
 		align-self: stretch;
 		margin-left: 1em;
 		color: var(--color-light);
-		margin-top: -.8em;
-		margin-bottom: -.25em;
+		margin-top: -0.8em;
+		margin-bottom: -0.25em;
 		pointer-events: none;
 		.arrow {
 			display: inline;
@@ -197,13 +237,17 @@ export default toNative(PredictionState);
 			margin-left: -7px;
 			position: relative;
 			top: -5px;
-			animation: slide .5s infinite ease-in-out alternate-reverse;
+			animation: slide 0.5s infinite ease-in-out alternate-reverse;
 			transform: rotate(-40deg);
 			transform-origin: bottom right;
 		}
 		@keyframes slide {
-			from {transform: rotate(-40deg);}
-			to {transform: rotate(-60deg);}
+			from {
+				transform: rotate(-40deg);
+			}
+			to {
+				transform: rotate(-60deg);
+			}
 		}
 	}
 
@@ -211,8 +255,9 @@ export default toNative(PredictionState);
 		.choices {
 			.choice {
 				&:not(:first-of-type) {
-					.color, .winBt {
-					background-color: #f50e9b;
+					.color,
+					.winBt {
+						background-color: #f50e9b;
 					}
 				}
 			}
@@ -238,10 +283,11 @@ export default toNative(PredictionState);
 				display: inline-block;
 				border-radius: 50%;
 				align-self: center;
-				margin-right: .5em;
+				margin-right: 0.5em;
 			}
 			&:first-of-type {
-				.color, .winBt {
+				.color,
+				.winBt {
 					background-color: #387aff;
 				}
 			}
@@ -250,7 +296,7 @@ export default toNative(PredictionState);
 				height: 1.25em;
 				width: 1.25em;
 				background-color: #387aff;
-				margin-right: .5em;
+				margin-right: 0.5em;
 				padding: 0px;
 				:deep(.icon) {
 					width: 18px;
@@ -264,43 +310,44 @@ export default toNative(PredictionState);
 				display: flex;
 				flex-direction: row;
 				border-radius: var(--border-radius);
-				padding: .25em .5em;
+				padding: 0.25em 0.5em;
 				font-size: 1em;
 				color: var(--color-light);
 				@c: var(--color-secondary);
-				transition: background-size .2s;
+				transition: background-size 0.2s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
 				background-color: var(--color-secondary-fadest);
 				background-repeat: no-repeat;
 				justify-content: space-between;
 				align-items: center;
 
-				.details{
+				.details {
 					display: flex;
 					flex-direction: row;
 
-					.percent, .votes, .points {
+					.percent,
+					.votes,
+					.points {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						padding: .25em .5em;
+						padding: 0.25em 0.5em;
 						border-radius: var(--border-radius);
-						background-color: rgba(0, 0, 0, .25);
-						font-size: .8em;
+						background-color: rgba(0, 0, 0, 0.25);
+						font-size: 0.8em;
 
 						&:not(:last-child) {
-							margin-right: .25em;
+							margin-right: 0.25em;
 						}
 
 						.icon {
 							height: 1em;
-							margin-right: .25em;
+							margin-right: 0.25em;
 						}
 					}
 				}
 			}
 		}
 	}
-
 }
 </style>

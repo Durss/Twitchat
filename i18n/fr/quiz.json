@@ -1,6 +1,6 @@
 {
 	"quiz": {
-		"form":{
+		"form": {
 			"title": "Quiz",
 			"subtitle": "Créez votre propre quiz interactif !",
 			"add_bt": "Créer un quiz",
@@ -18,14 +18,14 @@
 			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} quiz que vous pouvez créer.\nDevenez membre premium pour en créer jusqu'à {MAX_PREMIUM}.",
 			"premium_question_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} questions que vous pouvez ajouter.",
 			"nonpremium_question_limit": "Vous avez atteint le nombre maximum de {MAX} questions que vous pouvez ajouter.\nDevenez premium pour en ajouter jusqu'à {MAX_PREMIUM}.",
-			"tolerances":{
-				"undefined":"         🗑️",
-				"none":"😠 Aucune",
-				"very_low":"🧐 Très basse",
-				"low":"🤨 Basse",
-				"medium":"😁 Moyenne",
-				"high":"🤪 Haute",
-				"very_high":"🤡 Très haute"
+			"tolerances": {
+				"undefined": "         🗑️",
+				"none": "😠 Aucune",
+				"very_low": "🧐 Très basse",
+				"low": "🤨 Basse",
+				"medium": "😁 Moyenne",
+				"high": "🤪 Haute",
+				"very_high": "🤡 Très haute"
 			},
 			"delete_confirm": {
 				"description": "Le quiz sera supprimé\nCette action est irréversible.",
@@ -59,7 +59,7 @@
 				"title": "Vote Majoritaire",
 				"description": "Question à choix majoritaire.\n\nUniquement des fausses réponses.\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes"
 			},
-			"live_progress_warning":{
+			"live_progress_warning": {
 				"title": "Quiz en cours",
 				"description": "Si vous activez ce quiz vous perdrez la progression du quiz \"{NAME}\""
 			},

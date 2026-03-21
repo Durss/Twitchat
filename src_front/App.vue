@@ -4,94 +4,119 @@
 		<Confirm />
 		<Alert />
 
-		<img v-if="demoMode && cursorImage == 'arrow'" src="@/assets/img/cursorDemo_default.svg" :style="cursorProps" class="cursor">
-		<img v-if="demoMode && cursorImage == 'pointer'" src="@/assets/img/cursorDemo_pointer.svg" :style="cursorProps" class="cursor">
-		<div v-if="demoMode" class="clickIndicator" ref="clickIndicator" :style="clickIndicatorProps"></div>
+		<img
+			v-if="demoMode && cursorImage == 'arrow'"
+			src="@/assets/img/cursorDemo_default.svg"
+			:style="cursorProps"
+			class="cursor"
+		/>
+		<img
+			v-if="demoMode && cursorImage == 'pointer'"
+			src="@/assets/img/cursorDemo_pointer.svg"
+			:style="cursorProps"
+			class="cursor"
+		/>
+		<div
+			v-if="demoMode"
+			class="clickIndicator"
+			ref="clickIndicator"
+			:style="clickIndicatorProps"
+		></div>
 	</div>
 </template>
 
 <script lang="ts">
-import { gsap } from 'gsap/gsap-core';
-import { watch, type VNode } from 'vue';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Config from './utils/Config';
+import { gsap } from "gsap/gsap-core";
+import { watch, type VNode } from "vue";
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import Config from "./utils/Config";
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 
-
 @Component({
-	components:{
+	components: {
 		Alert,
 		Confirm,
-	}
+	},
 })
 class App extends Vue {
+	public node!: VNode;
+	public cursorImage: "pointer" | "arrow" = "arrow";
+	public mousePos = { x: 0, y: 0 };
+	public cursorOffset = { x: 0, y: 0 };
+	public cursorProps = { left: "0px", top: "0px" };
+	public clickIndicatorProps = { left: "0px", top: "0px" };
 
-	public node!:VNode;
-	public cursorImage:"pointer"|"arrow" = "arrow";
-	public mousePos = {x:0, y:0};
-	public cursorOffset = {x:0, y:0};
-	public cursorProps = {left:'0px', top:'0px'};
-	public clickIndicatorProps = {left:'0px', top:'0px'};
-
-	public get demoMode() { return Config.instance.DEMO_MODE && this.$route.name !="overlay"; }
+	public get demoMode() {
+		return Config.instance.DEMO_MODE && this.$route.name != "overlay";
+	}
 
 	private requestAnimID = -1;
-	private resizeHandler!:() => void;
-	private dragStartHandler!:(e:MouseEvent) => boolean;
-	private mouseDownHandler!:(e:MouseEvent) => boolean;
-	private mouseMoveHandler!:(e:MouseEvent) => boolean;
-	private keyDownHandler!:(e:KeyboardEvent) => void;
+	private resizeHandler!: () => void;
+	private dragStartHandler!: (e: MouseEvent) => boolean;
+	private mouseDownHandler!: (e: MouseEvent) => boolean;
+	private mouseMoveHandler!: (e: MouseEvent) => boolean;
+	private keyDownHandler!: (e: KeyboardEvent) => void;
 
-	public get dyslexicFont():boolean { return this.$store.params.appearance.dyslexicFont.value as boolean; }
-	public get adhdFont():boolean { return this.$store.params.appearance.adhdFont.value as boolean; }
+	public get dyslexicFont(): boolean {
+		return this.$store.params.appearance.dyslexicFont.value as boolean;
+	}
+	public get adhdFont(): boolean {
+		return this.$store.params.appearance.adhdFont.value as boolean;
+	}
 
-	public get classes():string[] {
+	public get classes(): string[] {
 		let res = ["app"];
-		if(this.dyslexicFont === true) res.push("dyslexicFont");
-		if(this.adhdFont === true) res.push("adhdFont");
-		if(this.$route.meta.overflow === true) res.push("overflow");
-		if(this.demoMode === true) res.push("demoMode");
-		res.push("messageSize_"+this.$store.params.appearance.defaultSize.value);
+		if (this.dyslexicFont === true) res.push("dyslexicFont");
+		if (this.adhdFont === true) res.push("adhdFont");
+		if (this.$route.meta.overflow === true) res.push("overflow");
+		if (this.demoMode === true) res.push("demoMode");
+		res.push("messageSize_" + this.$store.params.appearance.defaultSize.value);
 		return res;
 	}
 
-	public mounted():void {
-		this.resizeHandler = ()=> this.onWindowResize();
+	public mounted(): void {
+		this.resizeHandler = () => this.onWindowResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
-		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
+		watch(
+			() => this.$store.main.initComplete,
+			() => this.hideMainLoader(),
+		);
 		this.hideMainLoader();
 
-		watch(()=> Config.instance.DEMO_MODE, () => {
-			if(this.demoMode) {
-				document.body.classList.add("demoMode");
-				this.renderFrame();
-				this.mouseMoveHandler = (e) => this.onMouseMove(e);
-				this.dragStartHandler = (e) => this.onDragStart(e);
-				this.mouseDownHandler = (e) => this.onMouseDown(e);
-				this.keyDownHandler = (e) => this.onKeyDown(e);
-				window.addEventListener("mousedown", this.mouseDownHandler);
-				window.addEventListener("mousemove", this.mouseMoveHandler, true);
-				window.addEventListener("dragover", this.mouseMoveHandler);
-				window.addEventListener("dragstart", this.dragStartHandler);
-				window.addEventListener("keydown", this.keyDownHandler);
-			}else{
-				document.body.classList.remove("demoMode");
-				cancelAnimationFrame(this.requestAnimID);
-				window.removeEventListener("mousedown", this.mouseDownHandler);
-				window.removeEventListener("mousemove", this.mouseMoveHandler, true);
-				window.removeEventListener("dragover", this.mouseMoveHandler);
-				window.removeEventListener("dragstart", this.dragStartHandler);
-				window.removeEventListener("keydown", this.keyDownHandler);
-			}
-		})
+		watch(
+			() => Config.instance.DEMO_MODE,
+			() => {
+				if (this.demoMode) {
+					document.body.classList.add("demoMode");
+					this.renderFrame();
+					this.mouseMoveHandler = (e) => this.onMouseMove(e);
+					this.dragStartHandler = (e) => this.onDragStart(e);
+					this.mouseDownHandler = (e) => this.onMouseDown(e);
+					this.keyDownHandler = (e) => this.onKeyDown(e);
+					window.addEventListener("mousedown", this.mouseDownHandler);
+					window.addEventListener("mousemove", this.mouseMoveHandler, true);
+					window.addEventListener("dragover", this.mouseMoveHandler);
+					window.addEventListener("dragstart", this.dragStartHandler);
+					window.addEventListener("keydown", this.keyDownHandler);
+				} else {
+					document.body.classList.remove("demoMode");
+					cancelAnimationFrame(this.requestAnimID);
+					window.removeEventListener("mousedown", this.mouseDownHandler);
+					window.removeEventListener("mousemove", this.mouseMoveHandler, true);
+					window.removeEventListener("dragover", this.mouseMoveHandler);
+					window.removeEventListener("dragstart", this.dragStartHandler);
+					window.removeEventListener("keydown", this.keyDownHandler);
+				}
+			},
+		);
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		cancelAnimationFrame(this.requestAnimID);
 		window.removeEventListener("resize", this.resizeHandler);
-		if(this.demoMode) {
+		if (this.demoMode) {
 			window.removeEventListener("mousedown", this.mouseDownHandler);
 			window.removeEventListener("mousemove", this.mouseMoveHandler, true);
 			window.removeEventListener("dragover", this.mouseMoveHandler);
@@ -100,13 +125,16 @@ class App extends Vue {
 		}
 	}
 
-	private onWindowResize():void {
+	private onWindowResize(): void {
 		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
 		//Here we calculate the actual page height and set it as a CSS var.
-		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
+		(document.querySelector(":root") as HTMLHtmlElement).style.setProperty(
+			"--vh",
+			window.innerHeight + "px",
+		);
 	}
 
-	private onKeyDown(e:KeyboardEvent):void {
+	private onKeyDown(e: KeyboardEvent): void {
 		//Debuging stuff
 		/*
 		if(e.key == "a" && e.ctrlKey && e.altKey) {
@@ -127,88 +155,89 @@ class App extends Vue {
 		//*/
 	}
 
-	private onMouseDown(e:MouseEvent):boolean {
-		if(!this.demoMode) return false;
+	private onMouseDown(e: MouseEvent): boolean {
+		if (!this.demoMode) return false;
 		const indicator = this.$refs.clickIndicator as HTMLElement;
-		gsap.fromTo(indicator, {scale:0, opacity:1}, {scale:1, opacity:0});
-		this.clickIndicatorProps.left = this.mousePos.x+'px';
-		this.clickIndicatorProps.top = (this.mousePos.y-2)+'px';
+		gsap.fromTo(indicator, { scale: 0, opacity: 1 }, { scale: 1, opacity: 0 });
+		this.clickIndicatorProps.left = this.mousePos.x + "px";
+		this.clickIndicatorProps.top = this.mousePos.y - 2 + "px";
 		return true;
 	}
 
-	private onDragStart(e:MouseEvent):boolean {
+	private onDragStart(e: MouseEvent): boolean {
 		//Avoid showing cursor on drag when using demo mode
 		return false;
 	}
 
-	private onMouseMove(e:DragEvent|MouseEvent):boolean {
-		if(!this.demoMode) return false;
+	private onMouseMove(e: DragEvent | MouseEvent): boolean {
+		if (!this.demoMode) return false;
 		this.mousePos.x = e.clientX;
 		this.mousePos.y = e.clientY;
-		let target:HTMLElement|null = e.target as HTMLElement;
+		let target: HTMLElement | null = e.target as HTMLElement;
 		let isButton = false;
 
 		// console.log(target);
-		while(target) {
+		while (target) {
 			// console.log(target.style);
 			// console.log(target.computedStyleMap().get("cursor"));
-			if(target.tagName == "BUTTON"
-			|| target.tagName == "A"
-			|| target.classList.contains("checkbox")
-			|| target.classList.contains("buttonnotification")
-			|| target.classList.contains("switchbutton")
-			|| target.classList.contains("ToggleButton.vue")
-			|| target.classList.contains("button")
-			|| target.classList.contains("toggle")
-			|| (target.classList.contains("header") && (target.parentElement as HTMLElement).classList.contains("toggleblock"))
-			|| target.classList.contains("timercountdowninfo")
-			|| target.classList.contains("mx-context-menu-item-wrapper")
-			|| (typeof target.className === "string" && target.className.indexOf("Bt") > -1)
-
+			if (
+				target.tagName == "BUTTON" ||
+				target.tagName == "A" ||
+				target.classList.contains("checkbox") ||
+				target.classList.contains("buttonnotification") ||
+				target.classList.contains("switchbutton") ||
+				target.classList.contains("ToggleButton.vue") ||
+				target.classList.contains("button") ||
+				target.classList.contains("toggle") ||
+				(target.classList.contains("header") &&
+					(target.parentElement as HTMLElement).classList.contains("toggleblock")) ||
+				target.classList.contains("timercountdowninfo") ||
+				target.classList.contains("mx-context-menu-item-wrapper") ||
+				(typeof target.className === "string" && target.className.indexOf("Bt") > -1)
 			) {
 				isButton = true;
 				break;
 			}
 			target = target.parentElement as HTMLElement;
-			if(target === document.body) target = null;
+			if (target === document.body) target = null;
 		}
 
-		if(isButton) {
+		if (isButton) {
 			this.cursorOffset.x = -20;
 			this.cursorImage = "pointer";
-		}else{
+		} else {
 			this.cursorOffset.x = 0;
 			this.cursorImage = "arrow";
 		}
 		return false;
 	}
 
-	private hideMainLoader():void {
-		if(this.$store.main.initComplete === true) {
+	private hideMainLoader(): void {
+		if (this.$store.main.initComplete === true) {
 			//@ts-ignore
-			closeInitLoader();//Method declared on index.html
+			closeInitLoader(); //Method declared on index.html
 		}
 	}
 
-	private renderFrame():void {
-		this.requestAnimID = requestAnimationFrame(()=>this.renderFrame());
-		this.cursorProps.left = (this.mousePos.x+this.cursorOffset.x)+'px';
-		this.cursorProps.top = (this.mousePos.y-2)+'px';
+	private renderFrame(): void {
+		this.requestAnimID = requestAnimationFrame(() => this.renderFrame());
+		this.cursorProps.left = this.mousePos.x + this.cursorOffset.x + "px";
+		this.cursorProps.top = this.mousePos.y - 2 + "px";
 	}
 }
 export default toNative(App);
 </script>
 
 <style scoped lang="less">
-.app{
+.app {
 	width: 100%;
 	height: var(--vh);
 	font-family: var(--font-inter);
 	overflow: hidden;
 
 	// &.demoMode {
-		// max-width: var(--vw) !important;
-		// width: var(--vw) !important;
+	// max-width: var(--vw) !important;
+	// width: var(--vw) !important;
 	// }
 
 	.cursor {
@@ -231,7 +260,7 @@ export default toNative(App);
 	}
 
 	&.dyslexicFont {
-		font-size: .9em;
+		font-size: 0.9em;
 		--font-inter: "OpenDyslexic";
 		--font-nunito: "OpenDyslexic";
 		--font-roboto: "OpenDyslexic";
@@ -249,18 +278,17 @@ export default toNative(App);
 		overflow: auto;
 	}
 
-
 	&.messageSize_1 {
-		--messageSize: .6em;
+		--messageSize: 0.6em;
 	}
 	&.messageSize_2 {
-		--messageSize: .7em;
+		--messageSize: 0.7em;
 	}
 	&.messageSize_3 {
-		--messageSize: .8em;
+		--messageSize: 0.8em;
 	}
 	&.messageSize_4 {
-		--messageSize: .9em;
+		--messageSize: 0.9em;
 	}
 	&.messageSize_5 {
 		--messageSize: 1em;

@@ -1,11 +1,17 @@
 <template>
 	<div :class="classes">
-		<TTButton class="addFolderBt" icon="folder"
+		<TTButton
+			class="addFolderBt"
+			icon="folder"
 			v-if="!triggerId && folderTriggerList.length > 0"
 			@click="addFolder()"
-			v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'triggers_folder'}">{{ $t('triggers.create_folder') }}</TTButton>
+			v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'triggers_folder' }"
+			>{{ $t("triggers.create_folder") }}</TTButton
+		>
 		<SearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
-			<Checkbox class="searchActions" v-model="searchInActions">{{ $t('triggers.search_in_actions') }}</Checkbox>
+			<Checkbox class="searchActions" v-model="searchInActions">{{
+				$t("triggers.search_in_actions")
+			}}</Checkbox>
 		</SearchForm>
 		<TriggerListFolderItem
 			v-model:items="filteredTriggerList"
@@ -17,28 +23,35 @@
 			@changeState="onToggleTrigger"
 			@delete="deleteTrigger"
 			@duplicate="duplicateTrigger"
-			@testTrigger="$emit('testTrigger',$event)"
-			@createTrigger="$emit('createTrigger',$event)"
-			@select="$emit('select', $event)" />
+			@testTrigger="$emit('testTrigger', $event)"
+			@createTrigger="$emit('createTrigger', $event)"
+			@select="$emit('select', $event)"
+		/>
 	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerTypesDefinitionList, type TriggerData, type TriggerTreeItemData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TriggerUtils from '@/utils/TriggerUtils';
-import Utils from '@/utils/Utils';
-import { watch } from 'vue';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import Icon from '@/components/Icon.vue';
-import TriggerListFolderItem from './TriggerListFolderItem.vue';
-import TriggerListItem from './TriggerListItem.vue';
-import Checkbox from '@/components/Checkbox.vue';
-import SearchForm from '../SearchForm.vue';
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import {
+	TriggerTypesDefinitionList,
+	type TriggerData,
+	type TriggerTreeItemData,
+	type TriggerTypeDefinition,
+	type TriggerTypesValue,
+} from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import Utils from "@/utils/Utils";
+import { watch } from "vue";
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import Icon from "@/components/Icon.vue";
+import TriggerListFolderItem from "./TriggerListFolderItem.vue";
+import TriggerListItem from "./TriggerListItem.vue";
+import Checkbox from "@/components/Checkbox.vue";
+import SearchForm from "../SearchForm.vue";
 
 @Component({
 	components: {
@@ -54,7 +67,6 @@ import SearchForm from '../SearchForm.vue';
 	emits: ["select", "testTrigger", "createTrigger"],
 })
 class TriggerList extends Vue {
-
 	@Prop({ default: [] })
 	public rewards!: TwitchDataTypes.Reward[];
 
@@ -78,7 +90,6 @@ class TriggerList extends Vue {
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
 	public buildBatchSize = 25;
-
 
 	public get hasSearch(): boolean {
 		return this.debouncedSearch.trim().length > 0;
@@ -104,7 +115,7 @@ class TriggerList extends Vue {
 
 	public get debug(): string {
 		function buildItem(items: (TriggerListEntry | TriggerListFolderEntry)[]): any[] {
-			const res: any[] = []
+			const res: any[] = [];
 			for (const item of items) {
 				if (item.type == "folder") {
 					const children = buildItem(item.items || []);
@@ -122,13 +133,16 @@ class TriggerList extends Vue {
 	public beforeMount(): void {
 		this.populateTriggers();
 		let isFirstRewardUpdate = true;
-		watch(() => this.rewards, () => {
-			if (isFirstRewardUpdate) {
-				isFirstRewardUpdate = false;
-				return;
-			}
-			this.populateTriggers();
-		})
+		watch(
+			() => this.rewards,
+			() => {
+				if (isFirstRewardUpdate) {
+					isFirstRewardUpdate = false;
+					return;
+				}
+				this.populateTriggers();
+			},
+		);
 
 		this.startSequentialBuild();
 	}
@@ -154,7 +168,7 @@ class TriggerList extends Vue {
 	private populateTriggers(): void {
 		//List all available trigger types
 		this.triggerTypeToInfo = {};
-		TriggerTypesDefinitionList().forEach(v => this.triggerTypeToInfo[v.value] = v);
+		TriggerTypesDefinitionList().forEach((v) => (this.triggerTypeToInfo[v.value] = v));
 
 		const triggerList = this.$store.triggers.triggerList;
 
@@ -162,7 +176,7 @@ class TriggerList extends Vue {
 		triggerList.sort((a, b) => {
 			if (parseInt(a.type) > parseInt(b.type)) return 1;
 			if (parseInt(a.type) < parseInt(b.type)) return -1;
-			return 0
+			return 0;
 		});
 
 		let triggerBuildIndex = 0;
@@ -172,20 +186,34 @@ class TriggerList extends Vue {
 			//Parse trigger
 			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
-			const buildIndex = Math.floor(++triggerBuildIndex / this.buildBatchSize);//Builditems by batch of 5
-			const entry: TriggerListEntry = { type: "trigger", index: buildIndex, label: info.label, labelKey: info.labelKey, id: trigger.id, trigger, icon: info.icon, iconURL: info.iconURL, canTest };
+			const buildIndex = Math.floor(++triggerBuildIndex / this.buildBatchSize); //Builditems by batch of 5
+			const entry: TriggerListEntry = {
+				type: "trigger",
+				index: buildIndex,
+				label: info.label,
+				labelKey: info.labelKey,
+				id: trigger.id,
+				trigger,
+				icon: info.icon,
+				iconURL: info.iconURL,
+				canTest,
+			};
 			flatList.push(entry);
 			if (info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 		}
 
 		if (this.triggerId != null) {
-			this.folderTriggerList = flatList.filter(v => v.type == 'trigger' && v.trigger.id === this.triggerId);
+			this.folderTriggerList = flatList.filter(
+				(v) => v.type == "trigger" && v.trigger.id === this.triggerId,
+			);
 		} else {
 			//Build folder structure
 			const idToHasFolder: { [key: string]: boolean } = {};
 			const done: any = {};
-			function buildItem(items: TriggerTreeItemData[]): (TriggerListEntry | TriggerListFolderEntry)[] {
-				const res: (TriggerListEntry | TriggerListFolderEntry)[] = []
+			function buildItem(
+				items: TriggerTreeItemData[],
+			): (TriggerListEntry | TriggerListFolderEntry)[] {
+				const res: (TriggerListEntry | TriggerListFolderEntry)[] = [];
 				for (const item of items) {
 					if (item.type == "folder") {
 						const children = buildItem(item.children || []);
@@ -196,10 +224,10 @@ class TriggerList extends Vue {
 							items: children,
 							color: { type: "color", value: item.color || "#60606c" },
 							expand: item.expand == true,
-							enabled: item.enabled !== false
+							enabled: item.enabled !== false,
 						});
 					} else {
-						const entry = flatList.find(v => v.trigger.id == item.triggerId);
+						const entry = flatList.find((v) => v.trigger.id == item.triggerId);
 						if (entry && !done[entry.id]) {
 							idToHasFolder[entry.id] = true;
 							res.push(entry);
@@ -214,7 +242,7 @@ class TriggerList extends Vue {
 			//After this execution, triggers will be registered on the tree structure.
 			//This is mostly here as a sort of migration step from old flat list structure
 			//to the new tree structure
-			flatList.forEach(v => {
+			flatList.forEach((v) => {
 				if (!idToHasFolder[v.id]) {
 					this.folderTriggerList.push(v);
 				}
@@ -229,10 +257,13 @@ class TriggerList extends Vue {
 	 * @param entry
 	 */
 	public deleteTrigger(entry: TriggerListEntry): void {
-		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(() => {
-			this.$store.triggers.deleteTrigger(entry.trigger.id);
-			this.populateTriggers();
-		}).catch(error => { });
+		this.$store.main
+			.confirm(this.$t("triggers.delete_confirm"))
+			.then(() => {
+				this.$store.triggers.deleteTrigger(entry.trigger.id);
+				this.populateTriggers();
+			})
+			.catch((error) => {});
 	}
 
 	/**
@@ -269,7 +300,7 @@ class TriggerList extends Vue {
 						expand: root.expand === true,
 						color: root.color.value,
 						enabled: root.enabled !== false,
-						children: root.items.map(v => buildItem(v))
+						children: root.items.map((v) => buildItem(v)),
 					};
 				}
 				default:
@@ -279,7 +310,7 @@ class TriggerList extends Vue {
 			}
 		}
 
-		const tree = this.folderTriggerList.map(v => buildItem(v));
+		const tree = this.folderTriggerList.map((v) => buildItem(v));
 		this.$store.triggers.updateTriggerTree(tree);
 	}
 
@@ -288,7 +319,10 @@ class TriggerList extends Vue {
 	 * the search query (by label or translated labelKey) and preserving
 	 * the folder structure for matching descendants.
 	 */
-	private filterTree(items: (TriggerListEntry | TriggerListFolderEntry)[], query: string): (TriggerListEntry | TriggerListFolderEntry)[] {
+	private filterTree(
+		items: (TriggerListEntry | TriggerListFolderEntry)[],
+		query: string,
+	): (TriggerListEntry | TriggerListFolderEntry)[] {
 		const result: (TriggerListEntry | TriggerListFolderEntry)[] = [];
 		for (const item of items) {
 			if (item.type === "folder") {
@@ -300,7 +334,7 @@ class TriggerList extends Vue {
 				const values: (string | undefined)[] = [item.label];
 				if (item.labelKey) values.push(this.$t(item.labelKey));
 				if (this.searchInActions) {
-					item.trigger.actions.forEach(action => {
+					item.trigger.actions.forEach((action) => {
 						switch (action.type) {
 							case "chat": {
 								values.push(action.text);
@@ -315,7 +349,9 @@ class TriggerList extends Vue {
 							case "raffle": {
 								values.push(action.raffleData.command);
 								values.push(action.raffleData.customEntries);
-								values.push(...action.raffleData.entries.map(entry => entry.label));
+								values.push(
+									...action.raffleData.entries.map((entry) => entry.label),
+								);
 								break;
 							}
 							case "animated_text": {
@@ -357,17 +393,21 @@ class TriggerList extends Vue {
 							}
 							case "poll": {
 								values.push(action.pollData.title);
-								values.push(...action.pollData.answers.map(option => option));
+								values.push(...action.pollData.answers.map((option) => option));
 								break;
 							}
 							case "prediction": {
 								values.push(action.predictionData.title);
-								values.push(...action.predictionData.answers.map(option => option));
+								values.push(
+									...action.predictionData.answers.map((option) => option),
+								);
 								break;
 							}
 							case "chat_poll": {
 								values.push(action.chatPollData.title);
-								values.push(...action.chatPollData.choices.map(option => option.label));
+								values.push(
+									...action.chatPollData.choices.map((option) => option.label),
+								);
 								break;
 							}
 							case "chatSugg": {
@@ -380,7 +420,7 @@ class TriggerList extends Vue {
 							}
 							case "random": {
 								if (action.mode == "list") {
-									values.push(...action.list.map(option => option));
+									values.push(...action.list.map((option) => option));
 								}
 								break;
 							}
@@ -390,7 +430,7 @@ class TriggerList extends Vue {
 								break;
 							}
 						}
-					})
+					});
 				}
 				for (const value of values) {
 					if (value && value.toString().toLowerCase().includes(query.toLowerCase())) {
@@ -415,9 +455,8 @@ class TriggerList extends Vue {
 			enabled: true,
 			expand: true,
 			color: { type: "color", value: "#60606c" },
-		})
+		});
 	}
-
 }
 
 export interface TriggerListEntry {
@@ -454,12 +493,12 @@ export default toNative(TriggerList);
 	.searchActions {
 		display: flex;
 		align-items: center;
-		gap: .5em;
-		font-size: .9em;
+		gap: 0.5em;
+		font-size: 0.9em;
 		cursor: pointer;
 		align-self: center;
 		background-color: var(--background-color-fader);
-		padding: .25em .5em;
+		padding: 0.25em 0.5em;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 	}
@@ -467,6 +506,5 @@ export default toNative(TriggerList);
 	.addFolderBt {
 		align-self: center;
 	}
-
 }
 </style>

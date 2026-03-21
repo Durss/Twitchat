@@ -4,24 +4,29 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const credentialsPath = path.join("data", "credentials", "credentials.json");
-const credentials = fs.existsSync(credentialsPath)? JSON.parse(fs.readFileSync(credentialsPath, "utf8")) : null;
+const credentials = fs.existsSync(credentialsPath)
+	? JSON.parse(fs.readFileSync(credentialsPath, "utf8"))
+	: null;
 
 console.log("\x1b[36m \n Compiling all label files into one... \x1b[0m");
 
 // Recursively get all JSON files from a directory
 function getLabelFilesFrom(dir) {
-	return fs.readdirSync(dir)
-		.filter(f => f !== "." && f !== "..")
-		.flatMap(f => {
+	return fs
+		.readdirSync(dir)
+		.filter((f) => f !== "." && f !== "..")
+		.flatMap((f) => {
 			const filePath = path.join(dir, f);
 			return fs.lstatSync(filePath).isDirectory()
 				? getLabelFilesFrom(filePath)
-				: /\.json$/i.test(filePath) ? [filePath] : [];
+				: /\.json$/i.test(filePath)
+					? [filePath]
+					: [];
 		});
 }
 
@@ -32,7 +37,7 @@ async function processLabels() {
 	const output = {};
 
 	// Process each JSON file
-	files.forEach(filePath => {
+	files.forEach((filePath) => {
 		// Extract path information
 		const relativePath = filePath.replace(rootDir, "");
 		const pathParts = relativePath.split(path.sep);
@@ -42,7 +47,7 @@ async function processLabels() {
 		let json;
 		try {
 			json = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-		} catch(error) {
+		} catch (_error) {
 			console.log("\x1b[41m Invalid JSON ", filePath, "\x1b[0m");
 			return; // Continue to next iteration
 		}
@@ -61,43 +66,45 @@ async function processLabels() {
 
 	// Write the output file
 	const dest = path.join(__dirname, "../static/labels.json");
-	fs.writeFileSync(dest, JSON.stringify(output), {encoding:"utf-8"});
-	
+	fs.writeFileSync(dest, JSON.stringify(output), { encoding: "utf-8" });
+
 	// Also copy to dist if it exists
 	const dest2 = path.join(__dirname, "../dist/labels.json");
 	if (fs.existsSync(path.dirname(dest2))) {
-		fs.writeFileSync(dest2, JSON.stringify(output), {encoding:"utf-8"});
+		fs.writeFileSync(dest2, JSON.stringify(output), { encoding: "utf-8" });
 	}
 
 	// Server notification if possible
 	if (credentials) {
 		try {
 			await fetch("http://localhost:3018/api/admin/labels/reload", {
-				method: "POST", 
-				headers: {"Content-Type": "application/json"}, 
-				body: JSON.stringify({key: credentials.csrf_key})
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ key: credentials.csrf_key }),
 			});
-		} catch(error) { /* ignore */ }
+		} catch (_error) {
+			/* ignore */
+		}
 	}
 
 	console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
 }
 
 // Execute the process
-processLabels().catch(error => console.error("Error processing labels:", error));
+processLabels().catch((error) => console.error("Error processing labels:", error));
 
 if (process.argv.includes("--pm2")) {
 	// Watch for changes and recompile automatically
 	const watchDir = path.join(__dirname, "../i18n/");
 	console.log("\x1b[33m Watching for label changes... \x1b[0m");
-	
+
 	fs.watch(watchDir, { recursive: true }, (eventType, filename) => {
-		if (filename && filename.endsWith('.json')) {
+		if (filename && filename.endsWith(".json")) {
 			console.log(`\x1b[36m Detected change in ${filename}, recompiling... \x1b[0m`);
-			processLabels().catch(error => console.error("Error processing labels:", error));
+			processLabels().catch((error) => console.error("Error processing labels:", error));
 		}
 	});
-	
+
 	// Keep the process alive
 	process.stdin.resume();
 }

@@ -1,14 +1,21 @@
 <template>
 	<div :class="classes">
 		<div class="fill" :style="barStyles"></div>
-		<div class="timer" ref="timer" :style="timerStyles" v-if="percent<1 && duration != undefined">{{timeLeft}}</div>
+		<div
+			class="timer"
+			ref="timer"
+			:style="timerStyles"
+			v-if="percent < 1 && duration != undefined"
+		>
+			{{ timeLeft }}
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
-import { computed, ref } from 'vue';
+import Utils from "@/utils/Utils";
+import type { CSSProperties } from "vue";
+import { computed, ref } from "vue";
 
 interface Props {
 	percent?: number;
@@ -28,53 +35,55 @@ const props = withDefaults(defineProps<Props>(), {
 
 const timer = ref<HTMLElement>();
 
-const timeLeft = computed(() => Utils.formatDuration(props.duration * Math.max(0, Math.min(1, (1-props.percent)))));
+const timeLeft = computed(() =>
+	Utils.formatDuration(props.duration * Math.max(0, Math.min(1, 1 - props.percent))),
+);
 
-const elapsedPercent = computed(() => Math.max(0, Math.min(1, (1-props.percent))));
+const elapsedPercent = computed(() => Math.max(0, Math.min(1, 1 - props.percent)));
 
 const classes = computed(() => {
 	const list = ["progressbar"];
-	if(props.secondary !== false) list.push("secondary");
-	if(props.premium !== false) list.push("premium");
-	if(props.alert !== false) list.push("alert");
+	if (props.secondary !== false) list.push("secondary");
+	if (props.premium !== false) list.push("premium");
+	if (props.alert !== false) list.push("alert");
 	return list;
 });
 
 const barStyles = computed<CSSProperties>(() => {
 	return {
-		transform: `scaleX(${elapsedPercent.value*100}%)`,
-	}
+		transform: `scaleX(${elapsedPercent.value * 100}%)`,
+	};
 });
 
 const timerStyles = computed<CSSProperties>(() => {
-	if(timer.value) {
+	if (timer.value) {
 		const parent = timer.value.parentElement!.getBoundingClientRect();
 		const bounds = timer.value.getBoundingClientRect();
 		const barSize = elapsedPercent.value * parent.width;
 		let px = barSize - bounds.width;
 		const offset = -px / bounds.width;
-		if(px < 0) px -= barSize - bounds.width;
+		if (px < 0) px -= barSize - bounds.width;
 		return {
-			right:"auto",
-			transform: "translateX("+px+"px)",
-			backgroundPositionX: offset > 0? (offset*100)+"%" : "0%"
-		}
-	}else{
+			right: "auto",
+			transform: "translateX(" + px + "px)",
+			backgroundPositionX: offset > 0 ? offset * 100 + "%" : "0%",
+		};
+	} else {
 		return {
-			right: (props.percent*100)+"%",
-		}
+			right: props.percent * 100 + "%",
+		};
 	}
 });
 </script>
 
 <style scoped lang="less">
-.progressbar{
+.progressbar {
 	height: 2px;
 	width: 100%;
 	@bg: var(--grayout);
 	background: @bg;
 	position: relative;
-	@shadow: 0 2px 2px rgba(0, 0, 0, .5);
+	@shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
 	flex-shrink: 0;
 	pointer-events: none;
 
@@ -93,14 +102,14 @@ const timerStyles = computed<CSSProperties>(() => {
 		font-family: var(--font-roboto);
 		color: var(--color-light);
 		top: 0;
-		font-size: .8em;
+		font-size: 0.8em;
 		padding: 2px 5px;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: @shadow;
 		transform: translateX(0);
 		will-change: transform;
-		@c:var(--color-primary);
+		@c: var(--color-primary);
 		background-color: @c;
 		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 		background-size: 200% 100%;

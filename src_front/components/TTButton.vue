@@ -1,13 +1,14 @@
 <template>
 	<component
-	:class="classes"
-	:is="nodeType"
-	:type="type"
-	:target="target"
-	:to="to"
-	:href="type=='link'? to : null"
-	@click="onClick($event)"
-	@mouseup="onRelease($event)">
+		:class="classes"
+		:is="nodeType"
+		:type="type"
+		:target="target"
+		:to="to"
+		:href="type == 'link' ? to : null"
+		@click="onClick($event)"
+		@mouseup="onRelease($event)"
+	>
 		<span class="background"></span>
 		<Icon v-if="copySuccess" name="checkmark" />
 
@@ -24,62 +25,72 @@
 
 			<div class="clickArea"></div>
 
-			<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
+			<input
+				type="file"
+				v-if="type == 'file'"
+				class="browse"
+				:accept="accept"
+				ref="browse"
+				@change="onBrowseFile()"
+			/>
 		</template>
 	</component>
 </template>
 
 <script setup lang="ts">
-import Utils from '@/utils/Utils';
-import { gsap } from 'gsap/gsap-core';
-import { computed, getCurrentInstance, ref, useSlots, useTemplateRef } from 'vue';
-import Icon from './Icon.vue';
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import { computed, getCurrentInstance, ref, useSlots, useTemplateRef } from "vue";
+import Icon from "./Icon.vue";
 
-const props = withDefaults(defineProps<{
-	icon?: string;
-	loading?: boolean;
-	type?: "link" | "button" | "file";
-	target?: string;
-	to?: unknown;
-	big?: boolean;
-	small?: boolean;
-	primary?: boolean;
-	secondary?: boolean;
-	alert?: boolean;
-	premium?: boolean;
-	twitch?: boolean;
-	light?: boolean;
-	transparent?: boolean;
-	selected?: boolean;
-	disabled?: boolean;
-	modelValue?: boolean;
-	noBounce?: boolean;
-	accept?: string;
-	copy?: string;
-	file?: string;
-}>(), {
-	loading: false,
-	type: 'button',
-	big: false,
-	small: false,
-	primary: false,
-	secondary: false,
-	alert: false,
-	premium: false,
-	twitch: false,
-	light: false,
-	transparent: false,
-	selected: false,
-	disabled: false,
-	modelValue: false,
-	noBounce: false,
-	accept: "image/*",
-	copy: "",
-});
+const props = withDefaults(
+	defineProps<{
+		icon?: string;
+		loading?: boolean;
+		type?: "link" | "button" | "file";
+		target?: string;
+		to?: unknown;
+		big?: boolean;
+		small?: boolean;
+		primary?: boolean;
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		twitch?: boolean;
+		light?: boolean;
+		transparent?: boolean;
+		selected?: boolean;
+		disabled?: boolean;
+		modelValue?: boolean;
+		noBounce?: boolean;
+		accept?: string;
+		copy?: string;
+		file?: string;
+	}>(),
+	{
+		loading: false,
+		type: "button",
+		big: false,
+		small: false,
+		primary: false,
+		secondary: false,
+		alert: false,
+		premium: false,
+		twitch: false,
+		light: false,
+		transparent: false,
+		selected: false,
+		disabled: false,
+		modelValue: false,
+		noBounce: false,
+		accept: "image/*",
+		copy: "",
+	},
+);
 
 const emit = defineEmits<{
-	'click': [event: MouseEvent];
-	'update:file': [file: File];
+	click: [event: MouseEvent];
+	"update:file": [file: File];
 }>();
 
 const slots = useSlots();
@@ -90,49 +101,49 @@ const copyFail = ref(false);
 const browseRef = useTemplateRef("browse");
 
 const nodeType = computed(() => {
-	if(props.to) return "router-link";
-	if(props.type == "link") return "a";
+	if (props.to) return "router-link";
+	if (props.type == "link") return "a";
 	return "button";
 });
 
 const classes = computed(() => {
-	let list =  ["button", "type-"+props.type];
-	if(!slots.default) list.push("noTitle");
-	if(props.primary !== false || copySuccess.value) list.push("primary");
-	if(props.twitch !== false) list.push("twitch");
-	if(props.secondary !== false) list.push("secondary");
-	if(props.alert !== false) list.push("alert");
-	if(props.premium !== false) list.push("premium");
-	if(props.light !== false) list.push("light");
-	if(props.transparent !== false) list.push("transparent");
-	if(props.big !== false) list.push("big");
-	if(props.small !== false) list.push("small");
-	if(props.selected !== false) list.push("selected");
-	if(props.loading !== false) list.push("disabled", "loading");
-	else if(props.disabled !== false) list.push("disabled");
+	let list = ["button", "type-" + props.type];
+	if (!slots.default) list.push("noTitle");
+	if (props.primary !== false || copySuccess.value) list.push("primary");
+	if (props.twitch !== false) list.push("twitch");
+	if (props.secondary !== false) list.push("secondary");
+	if (props.alert !== false) list.push("alert");
+	if (props.premium !== false) list.push("premium");
+	if (props.light !== false) list.push("light");
+	if (props.transparent !== false) list.push("transparent");
+	if (props.big !== false) list.push("big");
+	if (props.small !== false) list.push("small");
+	if (props.selected !== false) list.push("selected");
+	if (props.loading !== false) list.push("disabled", "loading");
+	else if (props.disabled !== false) list.push("disabled");
 	return list;
 });
 
 function onBrowseFile(): void {
 	let input = browseRef.value;
-	if(input?.files && input.files[0]) {
-		emit('update:file', input.files[0])
+	if (input?.files && input.files[0]) {
+		emit("update:file", input.files[0]);
 	}
 }
 
 async function onClick(event: MouseEvent): Promise<void> {
-	if(props.disabled !== false || props.loading) {
+	if (props.disabled !== false || props.loading) {
 		event.preventDefault();
 		event.stopPropagation();
 		return;
 	}
 	emit("click", event);
 
-	if(props.copy) {
+	if (props.copy) {
 		try {
 			await Utils.copyToClipboard(props.copy);
 			copySuccess.value = true;
-		}catch(e) {
+		} catch (e) {
 			copyFail.value = true;
 		}
 		await Utils.promisedTimeout(2000);
@@ -142,10 +153,21 @@ async function onClick(event: MouseEvent): Promise<void> {
 }
 
 function onRelease(_event: MouseEvent): void {
-	if(props.disabled || props.loading || props.noBounce !== false) return;
+	if (props.disabled || props.loading || props.noBounce !== false) return;
 	const el = instance?.proxy?.$el;
 	if (el) {
-		gsap.fromTo(el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
+		gsap.fromTo(
+			el,
+			{ translateY: -3, scaleY: 1.1 },
+			{
+				duration: 0.5,
+				translateY: 0,
+				scaleY: 1,
+				clearProps: "all",
+				ease: "elastic.out(1.5)",
+				delay: 0.05,
+			},
+		);
 	}
 }
 </script>
@@ -159,9 +181,9 @@ function onRelease(_event: MouseEvent): void {
 	flex-direction: row;
 	position: relative;
 	flex-wrap: wrap;
-	padding: .3em .7em;
+	padding: 0.3em 0.7em;
 	row-gap: 0;
-	column-gap: .5em;
+	column-gap: 0.5em;
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
@@ -170,7 +192,7 @@ function onRelease(_event: MouseEvent): void {
 	font-size: 1rem;
 	color: var(--color-text);
 
-	&:not(.type-file)>* {
+	&:not(.type-file) > * {
 		pointer-events: none;
 	}
 
@@ -192,32 +214,42 @@ function onRelease(_event: MouseEvent): void {
 		left: -@offset;
 		border-radius: inherit;
 		background-color: var(--color-button);
-		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
+		background-image: linear-gradient(
+			20deg,
+			rgba(255, 255, 255, 0) 35%,
+			rgba(255, 255, 255, 0.7) 40%,
+			rgba(255, 255, 255, 0.7) 60%,
+			rgba(255, 255, 255, 0) 65%
+		);
 		background-repeat: repeat-x;
-		background-size:  200% 100%;
+		background-size: 200% 100%;
 		width: calc(100% + @offset*2);
 		height: calc(100% + @offset*2);
 		animation: glowing 1s linear infinite;
 
 		@keyframes glowing {
-			0% { background-position: 200% 0; }
-			100% { background-position: 0 0; }
+			0% {
+				background-position: 200% 0;
+			}
+			100% {
+				background-position: 0 0;
+			}
 		}
 	}
 
 	.background {
 		border-radius: inherit;
 		position: absolute;
-		top:0;
-		left:0;
+		top: 0;
+		left: 0;
 		width: 100%;
 		height: 100%;
-		transition: all .15s;
+		transition: all 0.15s;
 		background-color: var(--color-button);
 	}
 
 	&.disabled {
-		opacity: .5;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 	&.loading {
@@ -230,26 +262,29 @@ function onRelease(_event: MouseEvent): void {
 		}
 	}
 
-	&:not(.disabled){
+	&:not(.disabled) {
 		&:hover {
 			.background {
 				background-color: var(--color-button-light);
 			}
 		}
 
-		&:active{
+		&:active {
 			transform: translateY(2px);
-			.clickArea{
+			.clickArea {
 				top: -2px;
 			}
 			.background {
 				background-color: var(--color-button-dark);
-				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
+				box-shadow:
+					0px 0px 0px rgba(255, 255, 255, 0),
+					0px 0px 0px rgba(0, 0, 0, 0);
 			}
 		}
 	}
-	.icon, .label {
-		transition: all .25s;
+	.icon,
+	.label {
+		transition: all 0.25s;
 		z-index: 0;
 	}
 	.label {
@@ -260,8 +295,8 @@ function onRelease(_event: MouseEvent): void {
 		text-overflow: ellipsis;
 		overflow: hidden;
 		display: block;
-		line-height: 1.25em;//Makes sure letters like g or p are not cut on the bottom
-		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		line-height: 1.25em; //Makes sure letters like g or p are not cut on the bottom
+		text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		&:empty {
 			display: none;
 		}
@@ -273,7 +308,7 @@ function onRelease(_event: MouseEvent): void {
 		left: -1em;
 		width: calc(100% + 1em);
 		height: calc(100% + 1em);
-		opacity: .01;
+		opacity: 0.01;
 		&::file-selector-button {
 			cursor: pointer;
 			width: 200%;
@@ -297,11 +332,11 @@ function onRelease(_event: MouseEvent): void {
 	}
 
 	&.small {
-		font-size: .8rem;
+		font-size: 0.8rem;
 	}
 
 	&.noTitle {
-		padding: .3em;
+		padding: 0.3em;
 	}
 
 	&.primary {
@@ -309,7 +344,7 @@ function onRelease(_event: MouseEvent): void {
 		.background {
 			background-color: var(--color-primary);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-primary-light);
@@ -329,12 +364,12 @@ function onRelease(_event: MouseEvent): void {
 	&.secondary {
 		color: var(--color-light);
 		.label {
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		}
 		.background {
 			background-color: var(--color-secondary);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-secondary-light);
@@ -354,12 +389,12 @@ function onRelease(_event: MouseEvent): void {
 	&.twitch {
 		color: var(--color-light);
 		.label {
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 		}
 		.background {
 			background-color: var(--color-twitch);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-twitch-light);
@@ -384,7 +419,7 @@ function onRelease(_event: MouseEvent): void {
 		.background {
 			background-color: var(--color-alert);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-alert-light);
@@ -413,7 +448,7 @@ function onRelease(_event: MouseEvent): void {
 		.background {
 			background-color: var(--color-premium);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-premium-light);
@@ -447,7 +482,7 @@ function onRelease(_event: MouseEvent): void {
 		.background {
 			background-color: var(--color-light);
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-light-dark);
@@ -482,7 +517,7 @@ function onRelease(_event: MouseEvent): void {
 		.background {
 			background-color: transparent;
 		}
-		&:not(.disabled){
+		&:not(.disabled) {
 			&:hover {
 				.background {
 					background-color: var(--color-text-fadest);
@@ -502,54 +537,54 @@ function onRelease(_event: MouseEvent): void {
 			font-weight: bold;
 			text-shadow: unset;
 		}
-		.background{
+		.background {
 			background-color: var(--color-button-extralight);
 		}
 		&:active {
-			.background{
+			.background {
 				background-color: var(--color-button);
 			}
 		}
 		&.primary {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-primary-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-primary);
 				}
 			}
 		}
 		&.secondary {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-secondary-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-secondary);
 				}
 			}
 		}
 		&.alert {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-alert-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-alert);
 				}
 			}
 		}
 		&.premium {
 			color: var(--color-dark);
-			.background{
+			.background {
 				background-color: var(--color-premium-extralight);
 			}
 			&:active {
-				.background{
+				.background {
 					background-color: var(--color-premium);
 				}
 			}
@@ -559,22 +594,27 @@ function onRelease(_event: MouseEvent): void {
 
 @media only screen and (max-width: 500px) {
 	.button {
-		&.noTitle.big, &.big {
-			padding: .5em;
+		&.noTitle.big,
+		&.big {
+			padding: 0.5em;
 			font-size: 1.2rem;
-			min-height: calc(1.2em + .5em);
+			min-height: calc(1.2em + 0.5em);
 		}
 	}
 }
 </style>
 
-
-
 <style lang="less">
 body.light {
 	.button {
 		.loadingBorder {
-			background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%) !important;
+			background-image: linear-gradient(
+				20deg,
+				rgba(255, 255, 255, 0) 35%,
+				rgba(255, 255, 255, 1) 40%,
+				rgba(255, 255, 255, 1) 60%,
+				rgba(255, 255, 255, 0) 65%
+			) !important;
 		}
 		&.selected {
 			color: var(--color-text);

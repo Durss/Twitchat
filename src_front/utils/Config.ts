@@ -20,12 +20,8 @@ export default class Config {
 		"837342991965360522": {
 			skin: "etc",
 			disableAds: true,
-			dateStart: new Date(
-				"10/10/2025 17:00:00 GMT+0200 (Central European Summer Time)",
-			),
-			dateEnd: new Date(
-				"10/12/2025 23:59:59 GMT+0200 (Central European Summer Time)",
-			),
+			dateStart: new Date("10/10/2025 17:00:00 GMT+0200 (Central European Summer Time)"),
+			dateEnd: new Date("10/12/2025 23:59:59 GMT+0200 (Central European Summer Time)"),
 		},
 	};
 
@@ -51,16 +47,13 @@ export default class Config {
 	/**
 	 * Is Twitchat running on a production server ?
 	 */
-	public IS_PROD: boolean = ![
-		"localhost",
-		"127.0.0.1",
-		"dev.twitchat.fr",
-	].includes(document.location.hostname);
+	public IS_PROD: boolean = !["localhost", "127.0.0.1", "dev.twitchat.fr"].includes(
+		document.location.hostname,
+	);
 	/**
 	 * Heat extension URL
 	 */
-	public HEAT_EXTENSION =
-		"https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk";
+	public HEAT_EXTENSION = "https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk";
 	/**
 	 * Twitchat API path
 	 */
@@ -92,7 +85,6 @@ export default class Config {
 	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime();
 	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime();
 	public NEW_FLAGS_DATE_V17 = new Date("03 05 2026 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V16_17 = new Date("06 01 2026 01:00:00").getTime();
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -319,12 +311,7 @@ export default class Config {
 				"/api"
 			);
 		} else {
-			return (
-				document.location.protocol +
-				"//" +
-				document.location.hostname +
-				"/api"
-			);
+			return document.location.protocol + "//" + document.location.hostname + "/api";
 		}
 	}
 
