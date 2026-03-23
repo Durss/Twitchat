@@ -3035,6 +3035,15 @@ const UserDataSchema = {
 									maximum: 100_000_000_000,
 								},
 							},
+							allScores: {
+								type: "object",
+								propertyNames: { maxLength: 50 },
+								additionalProperties: {
+									type: "number",
+									minimum: -100_000_000_000,
+									maximum: 100_000_000_000,
+								},
+							},
 							currentQuestionStats: {
 								type: "object",
 								maxProperties: 10,
