@@ -4458,6 +4458,10 @@ export namespace TwitchatDataTypes {
 		 */
 		currentQuestionScores?: { [uid: string]: number };
 		/**
+		 * Contains cumulated scores for all questions
+		 */
+		allScores?: { [uid: string]: number };
+		/**
 		 * Votes for the current question.
 		 */
 		currentQuestionStats?: {
@@ -4494,7 +4498,6 @@ export namespace TwitchatDataTypes {
 			id: string;
 			/**
 			 * Question mode.
-			 * classic: earn points by answering questions correctly
 			 */
 			mode: "classic" | "majority" | "freeAnswer";
 			/**
@@ -4533,7 +4536,7 @@ export namespace TwitchatDataTypes {
 			| {
 					/**
 					 * Question mode.
-					 * classic: earn points by answering questions correctly
+					 * majority: earn points by being part of the most popular answer
 					 */
 					mode: "majority";
 					/**

@@ -6,6 +6,7 @@
 			secondary: installed && !enabled && !loading,
 			alert: !installed && !loading,
 		}"
+		v-if="loading || !installed || !enabled"
 	>
 		<icon class="logo" name="extension" />
 		<div v-if="loading" class="content loader">
@@ -29,9 +30,9 @@
 				<icon name="alert" />{{ $t("extensions.installer.enableError") }}
 			</div>
 		</div>
-		<div class="content complete" v-else>
+		<!-- <div class="content complete" v-else>
 			<span> <icon name="checkmark" />{{ $t("extensions.installer.ready") }} </span>
-		</div>
+		</div> -->
 	</div>
 </template>
 
