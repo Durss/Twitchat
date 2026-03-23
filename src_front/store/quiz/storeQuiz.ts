@@ -396,9 +396,13 @@ export const storeQuiz = defineStore("quiz", {
 			if (!quiz) return;
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
-			// Compute scores — must run before resetting questionStarted_at (needed for time-based scoring)
+			// Compute scores, must run before resetting questionStarted_at (needed for time-based scoring)
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
+			quiz.allScores = {};
+			Object.keys(this.liveState?.users || {}).map((uid) => {
+				quiz.allScores![uid] = this.liveState?.users[uid]?.score ?? 0;
+			});
 			void this.saveData(quizId, false, true);
 		},
 

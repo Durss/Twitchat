@@ -720,7 +720,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						);
 					}
 
-					if (StoreProxy.auth.isPremium && broadcastToViewers) {
+					if (broadcastToViewers) {
 						window.clearTimeout(debounceBroadcast);
 						debounceBroadcast = window.setTimeout(() => {
 							//Debounce this call as it will fire an event to every connected viewer

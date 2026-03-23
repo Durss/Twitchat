@@ -220,9 +220,33 @@ export type QuizParams = {
 	 */
 	currentQuestionRevealed?: boolean;
 	/**
+	 * Contains scores for current question
+	 */
+	currentQuestionScores?: { [uid: string]: number };
+	/**
+	 * Contains cumulated scores for all questions
+	 */
+	allScores?: { [uid: string]: number };
+	/**
 	 * Votes for the current question.
 	 */
-	currentQuestionVotes?: { [answerId: string]: number };
+	currentQuestionStats?: {
+		// Classic and majority answers
+		[answerId: string]: {
+			/**
+			 * Percentage of votes for this answer compared to all the other answers
+			 */
+			globalPercent: number;
+			/**
+			 * Percentage of votes for this answer compared to the answers with the highest voted answer
+			 */
+			relativePercent: number;
+			/**
+			 * Number of votes for this answer
+			 */
+			voteCount: number;
+		};
+	};
 	/**
 	 * Orthographic tolerance for answer matching in "freeAnswer" mode.
 	 * 0 = exact match
@@ -231,7 +255,7 @@ export type QuizParams = {
 	 */
 	toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
 	/**
-	 * List of questions. Each question carries its own mode.
+	 * List of questions
 	 */
 	questionList: ({
 		/**
@@ -239,17 +263,17 @@ export type QuizParams = {
 		 */
 		id: string;
 		/**
-		 * Question mode
+		 * Question mode.
 		 */
 		mode: "classic" | "majority" | "freeAnswer";
-		/**
-		 * Question text
-		 */
-		question: string;
 		/**
 		 * Number of seconds to answer this question (overrides durationPerQuestion_s)
 		 */
 		duration_s?: number;
+		/**
+		 * Question text
+		 */
+		question: string;
 	} & (
 		| {
 				/**

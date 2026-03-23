@@ -514,7 +514,7 @@ export default class PatreonController extends AbstractController {
 						return false;
 					}
 					this.campaignId = campaignId.id;
-					await this.refreshPatrons(this.campaignId, this.isFirstAuth);
+					void this.refreshPatrons(this.campaignId, this.isFirstAuth);
 					this.patreonApiDown = false;
 				} catch (_error) {
 					this.patreonApiDown = true;
