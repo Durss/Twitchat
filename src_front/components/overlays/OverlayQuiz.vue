@@ -96,6 +96,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import OverlayQuizLeaderboard from "./quiz/OverlayQuizLeaderboard.vue";
 import Icon from "../Icon.vue";
+import { onMounted } from "vue";
 
 const quizData = ref<TwitchatDataTypes.QuizParams | null>(null);
 const leaderboard = ref<TwitchatDataTypes.QuizLeaderboard | null>(null);
@@ -203,19 +204,28 @@ function onQuizLeaderboard(e: TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 
 useOverlayConnector(onConnect);
 
-PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
-PublicAPI.instance.addEventListener("ON_QUIZ_STATE", onQuizState);
-PublicAPI.instance.addEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
+const scaleFactor = ref(0);
+const resizeHandler = () => {
+	scaleFactor.value = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+};
+resizeHandler();
+
+onMounted(() => {
+	PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
+	PublicAPI.instance.addEventListener("ON_QUIZ_STATE", onQuizState);
+	PublicAPI.instance.addEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
+	window.addEventListener("resize", resizeHandler);
+});
+
+onBeforeUnmount(() => {
+	window.removeEventListener("resize", resizeHandler);
+});
 
 onBeforeUnmount(() => {
 	if (timerInterval) clearInterval(timerInterval);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_STATE", onQuizState);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
-});
-
-const scaleFactor = computed(() => {
-	return Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
 });
 </script>
 
