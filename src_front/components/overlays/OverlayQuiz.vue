@@ -1,7 +1,7 @@
 <template>
 	<div class="overlayquiz">
 		<div class="wrapper">
-			<OverlayQuizLeaderboard v-if="showLeaderboard && leaderboard" :users="leaderboard" />
+			<OverlayQuizLeaderboard v-if="showLeaderboard && leaderboard" :data="leaderboard" />
 
 			<div v-else-if="currentQuestion" class="content">
 				<div class="question">
@@ -98,7 +98,7 @@ import OverlayQuizLeaderboard from "./quiz/OverlayQuizLeaderboard.vue";
 import Icon from "../Icon.vue";
 
 const quizData = ref<TwitchatDataTypes.QuizParams | null>(null);
-const leaderboard = ref<TwitchatDataTypes.QuizState["users"] | null>(null);
+const leaderboard = ref<TwitchatDataTypes.QuizLeaderboard | null>(null);
 const showLeaderboard = ref(false);
 const timeRemaining = ref(3000);
 let timerInterval: number | null = null;
@@ -197,7 +197,7 @@ function onQuizLeaderboard(e: TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 		showLeaderboard.value = false;
 		return;
 	}
-	leaderboard.value = e.data.leaderboard;
+	leaderboard.value = e.data;
 	showLeaderboard.value = true;
 }
 

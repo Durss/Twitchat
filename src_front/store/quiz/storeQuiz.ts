@@ -4,14 +4,7 @@ import ApiHelper from "@/utils/ApiHelper";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _GettersTree,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore, type _StoreWithGetters, type _StoreWithState, type PiniaCustomProperties } from "pinia";
 import type { UnwrapRef } from "vue";
 import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -88,16 +81,14 @@ export const storeQuiz = defineStore("quiz", {
 	state: () =>
 		({
 			quizList: [],
-			liveState: null,
 			currentFreeAnswerStats: {
 				right: 0,
 				wrong: 0,
 			},
 		}) as IQuizState,
 
-	getters: {} as IQuizGetters &
-		ThisType<UnwrapRef<IQuizState> & _StoreWithGetters<IQuizGetters> & PiniaCustomProperties> &
-		_GettersTree<IQuizState>,
+	getters: {} satisfies IQuizGetters &
+		ThisType<UnwrapRef<IQuizState> & _StoreWithGetters<IQuizGetters> & PiniaCustomProperties>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -105,7 +96,6 @@ export const storeQuiz = defineStore("quiz", {
 			if (json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.quizList = data.quizList ?? [];
-				this.liveState = data.liveState ?? null;
 			} else {
 				this.quizList = [];
 			}
@@ -158,15 +148,18 @@ export const storeQuiz = defineStore("quiz", {
 
 			// Are we saving a specifc quiz that's enabled?
 			if (quiz?.enabled) {
+				const otherActiveQuiz = this.quizList.filter(
+					(q) =>
+						q.enabled && q.id !== quizId && Object.keys(q.leaderboard || {}).length > 0,
+				)[0];
 				// Are we about to lose live quiz progress?
-				if (quiz?.enabled && this.liveState && this.liveState.quizId !== quizId) {
+				if (otherActiveQuiz) {
 					const t = StoreProxy.i18n.t;
-					const activeQuiz = this.quizList.find((q) => q.id === this.liveState!.quizId);
 					try {
 						await StoreProxy.main.confirm(
 							t("quiz.form.live_progress_warning.title"),
 							t("quiz.form.live_progress_warning.description", {
-								NAME: activeQuiz?.title,
+								NAME: otherActiveQuiz?.title,
 							}),
 						);
 					} catch (_error) {
@@ -174,7 +167,6 @@ export const storeQuiz = defineStore("quiz", {
 						quiz.enabled = false;
 						return;
 					}
-					this.liveState = null;
 				}
 
 				// Disable all other quizzes
@@ -186,7 +178,6 @@ export const storeQuiz = defineStore("quiz", {
 			}
 			const data: IStoreData = {
 				quizList: this.quizList,
-				liveState: this.liveState,
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
 			this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
@@ -204,6 +195,9 @@ export const storeQuiz = defineStore("quiz", {
 				currentQuestionId: "",
 				quizStarted_at: "",
 				questionStarted_at: "",
+				leaderboard: {},
+				currentQuestionScores: {},
+				currentQuestionVotes: {},
 			};
 			this.quizList.push(data);
 			void this.saveData(data.id);
@@ -238,6 +232,7 @@ export const storeQuiz = defineStore("quiz", {
 				}
 			});
 			this.quizList.push(clone);
+			this.resetQuizState(clone.id, false);
 			void this.saveData(clone.id);
 			return clone;
 		},
@@ -259,6 +254,29 @@ export const storeQuiz = defineStore("quiz", {
 			const uid = userId || opaqueUserId;
 			if (!uid) return;
 
+			if (!quiz.leaderboard[uid]) {
+				quiz.leaderboard[uid] = {
+					anon: !!opaqueUserId && !userId,
+					score: 0,
+					platform,
+				};
+				// If user doesn't come from Twitch, store username and avatar as they probably cannot
+				// be retrieved from any API but are needed for leaderboard.
+				if (platform != "twitch") {
+					StoreProxy.users.getUserFrom(
+						platform,
+						StoreProxy.auth.twitch.user.id,
+						uid,
+						undefined,
+						undefined,
+						(user) => {
+							quiz.leaderboard[uid]!.name = user?.displayNameOriginal ?? "";
+							quiz.leaderboard[uid]!.avatarPath = user?.avatarPath ?? "";
+						},
+					);
+				}
+			}
+
 			// Clamp delay to 10s max or question duration
 			delay_ms = Math.min(
 				(question.duration_s || quiz.durationPerQuestion_s || 10) * 1000,
@@ -272,58 +290,24 @@ export const storeQuiz = defineStore("quiz", {
 				return;
 			}
 
-			if (!this.liveState) {
-				this.liveState = {
-					quizId,
-					questionVotes: {},
-					users: {},
-				};
+			if (!quiz.leaderboard) {
+				quiz.leaderboard = {};
+			}
+			if (!quiz.currentQuestionScores) {
+				quiz.currentQuestionScores = {};
+			}
+			if (!quiz.currentQuestionVotes) {
+				quiz.currentQuestionVotes = {};
 			}
 
 			// Check if user already voted for this question
-			if (this.liveState.questionVotes[questionId]?.find((v) => v.uid === uid)) return;
+			if (quiz.currentQuestionVotes[uid]) return;
 
 			// Record vote
-			this.liveState.questionVotes[question.id] =
-				this.liveState.questionVotes[question.id] || [];
-			this.liveState.questionVotes[question.id]!.push({
-				uid,
+			quiz.currentQuestionVotes[uid] = {
 				answer: answerId ?? answerText ?? "",
-				votedAt,
-			});
-
-			// Get or create user data
-			let userData = this.liveState.users[uid];
-			if (!userData) {
-				let name: string = "";
-				let avatarPath: string | undefined = undefined;
-				if (userId) {
-					// User isn't anonymous, grab their name from the Twitch API
-					const user = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve) => {
-						StoreProxy.users.getUserFrom(
-							"twitch",
-							StoreProxy.auth.twitch.user.id,
-							userId,
-							undefined,
-							undefined,
-							(user) => resolve(user),
-						);
-					});
-					name = user?.displayNameOriginal ?? "";
-					avatarPath = user?.avatarPath ?? "";
-					if (!name) name = "#" + userId;
-				} else {
-					// User is anonymous, get random name
-					name = Utils.getNameFromOpaqueId(uid);
-				}
-				userData = this.liveState.users[uid] = {
-					platform,
-					name,
-					avatarPath,
-					score: 0,
-					isAnonymous: !!opaqueUserId && !userId,
-				};
-			}
+				voted_at: votedAt,
+			};
 
 			if (question.mode === "freeAnswer") {
 				const score = computeAnswerScore({
@@ -339,7 +323,6 @@ export const storeQuiz = defineStore("quiz", {
 				} else {
 					this.currentFreeAnswerStats.wrong++;
 				}
-				userData.score += score;
 			}
 
 			void this.saveData(quizId, true);
@@ -371,9 +354,11 @@ export const storeQuiz = defineStore("quiz", {
 				quiz.currentQuestionId = "";
 				delete quiz.currentQuestionRevealed;
 				delete quiz.currentQuestionStats;
+				delete quiz.currentQuestionVotes;
+				delete quiz.currentQuestionScores;
+				quiz.leaderboard = {};
 				quiz.quizStarted_at = "";
 				quiz.questionStarted_at = "";
-				if (this.liveState?.quizId == quizId) this.liveState = null;
 				void this.saveData(quizId, false, true);
 			};
 			if (confirm) {
@@ -399,19 +384,39 @@ export const storeQuiz = defineStore("quiz", {
 			// Compute scores, must run before resetting questionStarted_at (needed for time-based scoring)
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
-			quiz.allScores = {};
-			Object.keys(this.liveState?.users || {}).map((uid) => {
-				quiz.allScores![uid] = this.liveState?.users[uid]?.score ?? 0;
-			});
 			void this.saveData(quizId, false, true);
 		},
 
 		async showLeaderBoard(quizId: string): Promise<void> {
 			const quiz = this.quizList.find((v) => v.id === quizId);
 			if (!quiz) return;
-			PublicAPI.instance.broadcast("ON_QUIZ_LEADERBOARD", {
-				leaderboard: this.liveState?.users ?? {},
-			});
+			const leaderboard: TwitchatDataTypes.QuizLeaderboard = {};
+			const promises: Promise<TwitchatDataTypes.TwitchatUser>[] = [];
+			for (const uid in quiz.leaderboard) {
+				const element = quiz.leaderboard[uid]!;
+				const promise = new Promise<TwitchatDataTypes.TwitchatUser>((resolve) => {
+					const platform = element.platform || "twitch";
+					StoreProxy.users.getUserFrom(
+						platform,
+						StoreProxy.auth.twitch.user.id,
+						uid,
+						element.name,
+						undefined,
+						(user) => {
+							resolve(user);
+							leaderboard[uid] = {
+								...element,
+								platform,
+								name: user.displayNameOriginal,
+								avatarPath: user.avatarPath || "",
+							};
+						},
+					);
+				});
+				promises.push(promise);
+			}
+			await Promise.all(promises);
+			PublicAPI.instance.broadcast("ON_QUIZ_LEADERBOARD", leaderboard);
 		},
 
 		broadcastQuizState(overlayOnly?: boolean, directBroadcast: boolean = false): void {
@@ -440,12 +445,12 @@ export const storeQuiz = defineStore("quiz", {
 
 		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {
 			const quiz = this.quizList.find((v) => v.id === quizId);
-			if (!quiz || !this.liveState) return {};
+			if (!quiz) return {};
 			const question = quiz.questionList.find((q) => q.id === questionId);
-			if (!question) return {};
+			if (!question || !quiz.currentQuestionVotes) return {};
 
-			const votes = this.liveState.questionVotes[questionId];
-			if (!votes || votes.length === 0) return {};
+			const votes = quiz.currentQuestionVotes;
+			if (!votes || Object.keys(votes).length === 0) return {};
 
 			const summary: { [uid: string]: number } = {};
 
@@ -453,7 +458,8 @@ export const storeQuiz = defineStore("quiz", {
 			let majorityWinnerIds: Set<string> | undefined;
 			if (question.mode === "majority") {
 				const voteCounts: { [answerId: string]: number } = {};
-				for (const vote of votes) {
+				for (const uid in votes) {
+					const vote = votes[uid]!;
 					voteCounts[vote.answer] = (voteCounts[vote.answer] || 0) + 1;
 				}
 				const maxVoteCount = Math.max(...Object.values(voteCounts));
@@ -462,18 +468,19 @@ export const storeQuiz = defineStore("quiz", {
 				);
 			}
 
-			for (const vote of votes) {
-				const userData = this.liveState.users[vote.uid];
+			for (const uid in votes) {
+				const vote = votes[uid]!;
+				const userData = quiz.leaderboard[uid];
 				if (!userData) continue;
 				const score = computeAnswerScore({
 					quiz,
 					question,
 					answerId: question.mode !== "freeAnswer" ? vote.answer : undefined,
 					answerText: question.mode === "freeAnswer" ? vote.answer : undefined,
-					votedAt: vote.votedAt ?? new Date().toISOString(),
+					votedAt: vote.voted_at ?? new Date().toISOString(),
 					majorityWinnerIds,
 				});
-				summary[vote.uid] = score;
+				summary[uid] = score;
 				userData.score += score;
 			}
 			return summary;
@@ -487,8 +494,8 @@ export const storeQuiz = defineStore("quiz", {
 			const question = quiz?.questionList.find((q) => q.id === questionId);
 			if (question?.mode === "freeAnswer") return {};
 			if (!quiz || !question) return {};
-			const votes = this.liveState?.questionVotes[question.id];
-			if (!votes || votes.length === 0)
+			const votes = quiz.currentQuestionVotes;
+			if (!votes || Object.keys(votes).length === 0)
 				return question.answerList.reduce(
 					(acc, a) => {
 						acc[a.id] = { globalPercent: 0, relativePercent: 0, voteCount: 0 };
@@ -498,7 +505,7 @@ export const storeQuiz = defineStore("quiz", {
 				);
 
 			const maxVotes = question.answerList.reduce((max, a) => {
-				const count = votes.filter((v) => v.answer == a.id).length;
+				const count = Object.values(votes).filter((v) => v.answer == a.id).length;
 				return count > max ? count : max;
 			}, 0);
 			return question.answerList.reduce(
@@ -506,21 +513,24 @@ export const storeQuiz = defineStore("quiz", {
 					acc[a.id] = {
 						globalPercent:
 							Math.round(
-								(votes.filter((v) => v.answer == a.id).length / votes.length) *
+								(Object.values(votes).filter((v) => v.answer == a.id).length /
+									Object.keys(votes).length) *
 									1000,
 							) / 1000,
 						relativePercent:
 							Math.round(
-								(votes.filter((v) => v.answer == a.id).length / maxVotes) * 1000,
+								(Object.values(votes).filter((v) => v.answer == a.id).length /
+									maxVotes) *
+									1000,
 							) / 1000,
-						voteCount: votes.filter((v) => v.answer == a.id).length,
+						voteCount: Object.values(votes).filter((v) => v.answer == a.id).length,
 					};
 					return acc;
 				},
 				{} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>,
 			);
 		},
-	} as IQuizActions &
+	} satisfies IQuizActions &
 		ThisType<
 			IQuizActions &
 				UnwrapRef<IQuizState> &
@@ -536,5 +546,4 @@ if (import.meta.hot) {
 
 interface IStoreData {
 	quizList: TwitchatDataTypes.QuizParams[];
-	liveState: TwitchatDataTypes.QuizState | null;
 }
