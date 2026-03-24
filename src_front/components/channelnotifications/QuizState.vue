@@ -27,7 +27,7 @@
 		</div>
 
 		<div class="body">
-			<div class="actions floating">
+			<div class="actions">
 				<TTButton
 					icon="test"
 					noBounce
@@ -36,16 +36,17 @@
 					@click="fakeVotes = !fakeVotes"
 					v-if="auth.isAdmin"
 				/>
-				<TTButton
-					icon="leaderboard"
-					light
-					transparent
-					:disabled="showProgressbar"
-					:loading="loadingLeaderboard"
-					v-tooltip="$t('quiz.state.leaderboard_bt')"
-					@click="openLeaderboard()"
-					v-if="hasLeaderboard"
-				/>
+				<div class="leaderBoardBt" v-if="hasLeaderboard">
+					<TTButton
+						icon="leaderboard"
+						light
+						transparent
+						:disabled="showProgressbar || loadingLeaderboard"
+						v-tooltip="$t('quiz.state.leaderboard_bt')"
+						@click="openLeaderboard()"
+					/>
+					<icon class="spinner" name="loader" v-if="loadingLeaderboard" />
+				</div>
 				<TTButton
 					icon="refresh"
 					light
@@ -268,12 +269,20 @@ onBeforeUnmount(() => {
 	}
 	.body {
 		position: relative;
-		.actions.floating {
+		.actions {
 			gap: 0;
-			// flex-direction: column;
-			// position: absolute;
-			// top: 0;
-			// right: 0;
+			.leaderBoardBt {
+				position: relative;
+				.spinner {
+					pointer-events: none;
+					position: absolute;
+					left: 50%;
+					top: 50%;
+					transform: translate(-50%, -50%);
+					width: calc(100% + 3px);
+					height: calc(100% + 3px);
+				}
+			}
 		}
 	}
 	.question {
