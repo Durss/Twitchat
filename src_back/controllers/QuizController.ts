@@ -224,9 +224,39 @@ export type QuizParams = {
 	 */
 	currentQuestionScores?: { [uid: string]: number };
 	/**
+	 * Contains scores for current question
+	 */
+	currentQuestionVotes?: { [uid: string]: { answer: string; voted_at: string } };
+	/**
 	 * Contains cumulated scores for all questions
 	 */
-	allScores?: { [uid: string]: number };
+	leaderboard: {
+		[uid: string]: {
+			/**
+			 * Is the user anonymous?
+			 * true when user has chose not to grant access to their user info on extension
+			 */
+			anon: boolean;
+			/**
+			 * Platform used to play the quiz
+			 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+			 */
+			platform?: string;
+			/**
+			 * User name
+			 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+			 */
+			name?: string;
+			/**
+			 * User's avatar URL
+			 */
+			avatarPath?: string;
+			/**
+			 * User score
+			 */
+			score: number;
+		};
+	};
 	/**
 	 * Votes for the current question.
 	 */

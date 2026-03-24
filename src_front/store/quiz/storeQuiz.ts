@@ -341,6 +341,8 @@ export const storeQuiz = defineStore("quiz", {
 			this.currentFreeAnswerStats.wrong = 0;
 			delete quiz.currentQuestionRevealed;
 			delete quiz.currentQuestionStats;
+			delete quiz.currentQuestionVotes;
+			delete quiz.currentQuestionScores;
 			quiz.questionStarted_at = new Date().toISOString();
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
 			if (index < quiz.questionList.length - 1) {
