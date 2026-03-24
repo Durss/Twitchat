@@ -17,7 +17,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -30,13 +29,12 @@ import StoreProxy from "../StoreProxy";
 export const storeHeat = defineStore("heat", {
 	state: () =>
 		({
-			screenList: [],
-			distortionList: [],
-		}) as IHeatState,
+			screenList: [] as IHeatState["screenList"],
+			distortionList: [] as IHeatState["distortionList"],
+		}) satisfies IHeatState,
 
-	getters: {} as IHeatGetters &
-		ThisType<UnwrapRef<IHeatState> & _StoreWithGetters<IHeatGetters> & PiniaCustomProperties> &
-		_GettersTree<IHeatState>,
+	getters: {} satisfies IHeatGetters &
+		ThisType<UnwrapRef<IHeatState> & _StoreWithGetters<IHeatGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -680,7 +678,7 @@ export const storeHeat = defineStore("heat", {
 				});
 			}
 		},
-	} as IHeatActions &
+	} satisfies IHeatActions &
 		ThisType<
 			IHeatActions &
 				UnwrapRef<IHeatState> &

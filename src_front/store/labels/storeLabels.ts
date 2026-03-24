@@ -11,8 +11,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
-	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
 import type { UnwrapRef } from "vue";
@@ -32,13 +30,12 @@ let lastSaveDate: number = Date.now();
 export const storeLabels = defineStore("labels", {
 	state: () =>
 		({
-			labelList: [],
-			placeholders: {},
-			selectedLabelIDs: [],
-		}) as ILabelsState,
+			labelList: [] as ILabelsState["labelList"],
+			placeholders: {} as ILabelsState["placeholders"],
+		}) satisfies ILabelsState,
 
 	getters: {
-		allPlaceholders() {
+		allPlaceholders(): typeof this.placeholders {
 			const placeholders = JSON.parse(
 				JSON.stringify(this.placeholders),
 			) as typeof this.placeholders;
@@ -75,11 +72,7 @@ export const storeLabels = defineStore("labels", {
 
 			return placeholders;
 		},
-	} as ILabelsGetters &
-		ThisType<
-			UnwrapRef<ILabelsState> & _StoreWithGetters<ILabelsGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ILabelsState>,
+	},
 
 	actions: {
 		populateData(): void {
@@ -373,7 +366,7 @@ export const storeLabels = defineStore("labels", {
 				this.saveData();
 			}
 		},
-	} as ILabelsActions &
+	} satisfies ILabelsActions &
 		ThisType<
 			ILabelsActions &
 				UnwrapRef<ILabelsState> &

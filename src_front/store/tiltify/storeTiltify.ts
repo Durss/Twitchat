@@ -7,7 +7,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -22,17 +21,16 @@ export const storeTiltify = defineStore("tiltify", {
 	state: () =>
 		({
 			user: null,
-			campaignList: [],
+			campaignList: [] as ITiltifyState["campaignList"],
 			token: null,
 			connected: false,
 			authResult: { code: "", csrf: "" },
-		}) as ITiltifyState,
+		}) satisfies ITiltifyState,
 
-	getters: {} as ITiltifyGetters &
+	getters: {} satisfies ITiltifyGetters &
 		ThisType<
 			UnwrapRef<ITiltifyState> & _StoreWithGetters<ITiltifyGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ITiltifyState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -207,7 +205,7 @@ export const storeTiltify = defineStore("tiltify", {
 			StoreProxy.donationGoals.broadcastData();
 			return { user: this.user, campaigns: this.campaignList };
 		},
-	} as ITiltifyActions &
+	} satisfies ITiltifyActions &
 		ThisType<
 			ITiltifyActions &
 				UnwrapRef<ITiltifyState> &

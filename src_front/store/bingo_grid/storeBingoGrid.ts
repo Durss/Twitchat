@@ -11,7 +11,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -37,18 +36,17 @@ let prevGridStates: { [key: string]: boolean[] } = {};
 export const storeBingoGrid = defineStore("bingoGrid", {
 	state: () =>
 		({
-			gridList: [] as TwitchatDataTypes.BingoGridConfig[],
-			availableOverlayList: [],
-			viewersBingoCount: {},
-		}) as IBingoGridState,
+			gridList: [] as IBingoGridState["gridList"],
+			availableOverlayList: [] as IBingoGridState["availableOverlayList"],
+			viewersBingoCount: {} as IBingoGridState["viewersBingoCount"],
+		}) satisfies IBingoGridState,
 
-	getters: {} as IBingoGridGetters &
+	getters: {} satisfies IBingoGridGetters &
 		ThisType<
 			UnwrapRef<IBingoGridState> &
 				_StoreWithGetters<IBingoGridGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IBingoGridState>,
+		>,
 
 	actions: {
 		/**
@@ -895,7 +893,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 		hideLeaderboard(gridId: string): void {
 			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", { id: gridId });
 		},
-	} as IBingoGridActions &
+	} satisfies IBingoGridActions &
 		ThisType<
 			IBingoGridActions &
 				UnwrapRef<IBingoGridState> &

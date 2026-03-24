@@ -8,7 +8,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -21,13 +20,12 @@ export const storeKofi = defineStore("kofi", {
 	state: () =>
 		({
 			webhooktoken: "",
-			webhooks: [],
+			webhooks: [] as IKofiState["webhooks"],
 			connected: false,
-		}) as IKofiState,
+		}) satisfies IKofiState,
 
-	getters: {} as IKofiGetters &
-		ThisType<UnwrapRef<IKofiState> & _StoreWithGetters<IKofiGetters> & PiniaCustomProperties> &
-		_GettersTree<IKofiState>,
+	getters: {} satisfies IKofiGetters &
+		ThisType<UnwrapRef<IKofiState> & _StoreWithGetters<IKofiGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -261,7 +259,7 @@ export const storeKofi = defineStore("kofi", {
 			};
 			DataStore.set(DataStore.KOFI_CONFIGS, data);
 		},
-	} as IKofiActions &
+	} satisfies IKofiActions &
 		ThisType<
 			IKofiActions &
 				UnwrapRef<IKofiState> &

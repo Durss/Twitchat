@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -31,13 +30,10 @@ export const storeMusic = defineStore("music", {
 				noScroll: false,
 				customInfoTemplate: "",
 			},
-		}) as IMusicState,
+		}) satisfies IMusicState,
 
-	getters: {} as IMusicGetters &
-		ThisType<
-			UnwrapRef<IMusicState> & _StoreWithGetters<IMusicGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IMusicState>,
+	getters: {} satisfies IMusicGetters &
+		ThisType<UnwrapRef<IMusicState> & _StoreWithGetters<IMusicGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -54,7 +50,7 @@ export const storeMusic = defineStore("music", {
 		setSpotifyAuthResult(value: SpotifyAuthResult | null) {
 			this.spotifyAuthParams = value;
 		},
-	} as IMusicActions &
+	} satisfies IMusicActions &
 		ThisType<
 			IMusicActions &
 				UnwrapRef<IMusicState> &
