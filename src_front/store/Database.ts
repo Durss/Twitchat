@@ -9,10 +9,11 @@ import StoreProxy from "./StoreProxy";
 export default class Database {
 	public static MESSAGES_TABLE: string = "messages";
 	public static GROQ_HISTORY_TABLE: string = "groqHistory";
+	public static EMOJI_SHORTCODES_TABLE: string = "emojiShortcodes";
 
 	private static _instance: Database;
 
-	private DB_VERSION: number = 8;
+	private DB_VERSION: number = 9;
 
 	private _dbConnection!: IDBOpenDBRequest;
 	private _messageStore!: IDBObjectStore;
@@ -125,6 +126,7 @@ export default class Database {
 				};
 				this.createMessageTable();
 				this.createGroqTable();
+				this.createEmojiShortcodesTable();
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
 				this._ready = true;
 			};
@@ -461,6 +463,114 @@ export default class Database {
 		});
 	}
 
+	/**
+	 * Get the number of emoji shortcode records in the DB
+	 */
+	public async getEmojiShortcodesCount(): Promise<number> {
+		if (!this._db || !this._ready) return 0;
+		return new Promise((resolve) => {
+			const query = this._db
+				.transaction(Database.EMOJI_SHORTCODES_TABLE, "readonly")
+				.objectStore(Database.EMOJI_SHORTCODES_TABLE)
+				.count();
+			query.addEventListener("success", (event) => {
+				resolve((event.target as IDBRequest).result as number);
+			});
+			query.addEventListener("error", () => {
+				resolve(0);
+			});
+		});
+	}
+
+	/**
+	 * Populate emoji shortcodes table with entries
+	 */
+	public async populateEmojiShortcodes(
+		entries: { shortcode: string; emoji: string }[],
+	): Promise<void> {
+		if (!this._db || !this._ready) return;
+		return new Promise((resolve, reject) => {
+			const tx = this._db.transaction(Database.EMOJI_SHORTCODES_TABLE, "readwrite");
+			const store = tx.objectStore(Database.EMOJI_SHORTCODES_TABLE);
+			for (const entry of entries) {
+				store.add(entry);
+			}
+			tx.addEventListener("complete", () => resolve());
+			tx.addEventListener("error", () => reject("Failed to populate emoji shortcodes"));
+		});
+	}
+
+	/**
+	 * Loads emoji shortcodes from the static JSON file into IndexedDB.
+	 * Skips if data is already populated.
+	 */
+	public async loadEmojiShortcodes(): Promise<void> {
+		const count = await this.getEmojiShortcodesCount();
+		if (count > 0) return;
+
+		const result = await fetch("/emoji_shortcodes.json");
+		const json = (await result.json()) as Record<string, string | string[]>;
+
+		const entries: { shortcode: string; emoji: string }[] = [];
+		for (const [codepoint, shortcodes] of Object.entries(json)) {
+			const emoji = codepoint
+				.split("-")
+				.map((cp) => String.fromCodePoint(parseInt(cp, 16)))
+				.join("");
+			if (typeof shortcodes === "string") {
+				entries.push({ shortcode: shortcodes, emoji });
+			} else if (Array.isArray(shortcodes)) {
+				for (const sc of shortcodes) {
+					entries.push({ shortcode: sc, emoji });
+				}
+			}
+		}
+
+		await this.populateEmojiShortcodes(entries);
+	}
+
+	/**
+	 * Search emoji shortcodes by query (contains match).
+	 * Returns prefix matches first, then contains matches.
+	 */
+	public async searchEmojiShortcodes(
+		query: string,
+		limit: number = 50,
+	): Promise<{ shortcode: string; emoji: string }[]> {
+		if (!this._db || !this._ready) return [];
+		return new Promise((resolve) => {
+			let exactResult: { shortcode: string; emoji: string } | null = null;
+			const prefixResults: { shortcode: string; emoji: string }[] = [];
+			const containsResults: { shortcode: string; emoji: string }[] = [];
+			const store = this._db
+				.transaction(Database.EMOJI_SHORTCODES_TABLE, "readonly")
+				.objectStore(Database.EMOJI_SHORTCODES_TABLE);
+			const request = store.openCursor();
+			request.addEventListener("success", (event) => {
+				const cursor = (event.target as IDBRequest).result;
+				if (cursor) {
+					const value = cursor.value as { shortcode: string; emoji: string };
+					if (value.shortcode === query) {
+						exactResult = value;
+					} else if (value.shortcode.startsWith(query)) {
+						prefixResults.push(value);
+					} else if (value.shortcode.indexOf(query) > -1) {
+						containsResults.push(value);
+					}
+					cursor.continue();
+				} else {
+					const results: { shortcode: string; emoji: string }[] = [];
+					if (exactResult) results.push(exactResult);
+					results.push(...prefixResults, ...containsResults);
+					resolve(results.slice(0, limit));
+				}
+			});
+			request.addEventListener("error", () => {
+				resolve([]);
+			});
+		});
+	}
+
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
@@ -595,6 +705,33 @@ export default class Database {
 				const version = this._db.version;
 				Sentry.captureException(event);
 				Sentry.captureMessage("Message table creation aborted. DB version: " + version);
+			};
+		}
+	}
+
+	private createEmojiShortcodesTable(): void {
+		const tableList = this._db.objectStoreNames;
+		if (!tableList.contains(Database.EMOJI_SHORTCODES_TABLE)) {
+			const store = this._db.createObjectStore(Database.EMOJI_SHORTCODES_TABLE, {
+				autoIncrement: true,
+			});
+			store.createIndex("shortcode", "shortcode", { unique: true });
+			store.transaction.oncomplete = (event) => {
+				console.log("EMOJI_SHORTCODES_TABLE created", event);
+			};
+			store.transaction.onerror = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage(
+					"Emoji shortcodes table creation error. DB version: " + version,
+				);
+			};
+			store.transaction.onabort = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage(
+					"Emoji shortcodes table creation aborted. DB version: " + version,
+				);
 			};
 		}
 	}
