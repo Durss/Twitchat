@@ -1,6 +1,7 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
+import Database from "@/store/Database";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -289,6 +290,7 @@ export const storeAuth = defineStore("auth", {
 				//Loads state of current or incoming ads
 				void TwitchUtils.getAdSchedule();
 				void TwitchUtils.loadGlobalBadges();
+				void Database.instance.loadEmojiShortcodes();
 				void StoreProxy.users.loadMyFollowings();
 				void StoreProxy.users.loadMyFollowers();
 				void StoreProxy.users.loadMyVIPs();
