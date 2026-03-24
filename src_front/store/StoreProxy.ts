@@ -4096,11 +4096,6 @@ export interface IQuizState {
 	 */
 	quizList: TwitchatDataTypes.QuizParams[];
 	/**
-	 * Stores current states of live quizes.
-	 * Contains users votes.
-	 */
-	liveState: TwitchatDataTypes.QuizState | null;
-	/**
 	 * Stats for the current free answer question.
 	 */
 	currentFreeAnswerStats: {
