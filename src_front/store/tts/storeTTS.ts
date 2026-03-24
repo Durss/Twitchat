@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -99,13 +98,14 @@ export const storeTTS = defineStore("tts", {
 				readStreamlabsPatreonPattern: "",
 				readStreamelementsTip: false,
 				readStreamelementsTipPattern: "",
+				readChatPolls: false,
+				readChatPollsPattern: "",
 				ttsPerms: Utils.getDefaultPermissions(),
 			},
-		}) as ITTSState,
+		}) satisfies ITTSState,
 
-	getters: {} as ITTSGetters &
-		ThisType<UnwrapRef<ITTSState> & _StoreWithGetters<ITTSGetters> & PiniaCustomProperties> &
-		_GettersTree<ITTSState>,
+	getters: {} satisfies ITTSGetters &
+		ThisType<UnwrapRef<ITTSState> & _StoreWithGetters<ITTSGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -164,7 +164,7 @@ export const storeTTS = defineStore("tts", {
 			DataStore.set(DataStore.TTS_PARAMS, params);
 			TTSUtils.instance.enabled = params.enabled;
 		},
-	} as ITTSActions &
+	} satisfies ITTSActions &
 		ThisType<
 			ITTSActions &
 				UnwrapRef<ITTSState> &

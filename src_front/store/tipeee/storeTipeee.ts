@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -31,13 +30,12 @@ export const storeTipeee = defineStore("tipeee", {
 			refreshToken: "",
 			connected: false,
 			authResult: { code: "", csrf: "" },
-		}) as ITipeeeState,
+		}) satisfies ITipeeeState,
 
-	getters: {} as ITipeeeGetters &
+	getters: {} satisfies ITipeeeGetters &
 		ThisType<
 			UnwrapRef<ITipeeeState> & _StoreWithGetters<ITipeeeGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ITipeeeState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -324,7 +322,7 @@ export const storeTipeee = defineStore("tipeee", {
 			};
 			DataStore.set(DataStore.TIPEEE, data);
 		},
-	} as ITipeeeActions &
+	} satisfies ITipeeeActions &
 		ThisType<
 			ITipeeeActions &
 				UnwrapRef<ITipeeeState> &

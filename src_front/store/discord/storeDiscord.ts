@@ -28,9 +28,9 @@ export const storeDiscord = defineStore("discord", {
 			ticketChanTarget: "",
 			linkedToGuild: "",
 			reactionsEnabled: true,
-			quickActions: [],
-			channelList: [],
-		}) as IDiscordState,
+			quickActions: [] as IDiscordState["quickActions"],
+			channelList: [] as IDiscordState["channelList"],
+		}) satisfies IDiscordState,
 
 	getters: {},
 
@@ -185,7 +185,7 @@ export const storeDiscord = defineStore("discord", {
 			const channels = await ApiHelper.call("discord/channels", "GET");
 			this.channelList = channels.json.channelList;
 		},
-	} as IDiscordActions &
+	} satisfies IDiscordActions &
 		ThisType<
 			IDiscordActions &
 				UnwrapRef<IDiscordState> &

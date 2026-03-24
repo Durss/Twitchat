@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -28,19 +27,18 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 		({
 			apiKey: "",
 			connected: false,
-			voiceList: [],
-			modelList: [],
+			voiceList: [] as IElevenLabsState["voiceList"],
+			modelList: [] as IElevenLabsState["modelList"],
 			creditsUsed: 0,
 			creditsTotal: 0,
-		}) as IElevenLabsState,
+		}) satisfies IElevenLabsState,
 
-	getters: {} as IElevenLabsGetters &
+	getters: {} satisfies IElevenLabsGetters &
 		ThisType<
 			UnwrapRef<IElevenLabsState> &
 				_StoreWithGetters<IElevenLabsGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IElevenLabsState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -240,7 +238,7 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 				});
 			} while (history && history.has_more && ++failSafe < 1000 && !onlyLatest);
 		},
-	} as IElevenLabsActions &
+	} satisfies IElevenLabsActions &
 		ThisType<
 			IElevenLabsActions &
 				UnwrapRef<IElevenLabsState> &

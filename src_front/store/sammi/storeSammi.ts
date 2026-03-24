@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -17,13 +16,10 @@ export const storeSammi = defineStore("sammi", {
 			ip: "127.0.0.1",
 			port: 9450,
 			password: "",
-		}) as ISammiState,
+		}) satisfies ISammiState,
 
-	getters: {} as ISammiGetters &
-		ThisType<
-			UnwrapRef<ISammiState> & _StoreWithGetters<ISammiGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ISammiState>,
+	getters: {} satisfies ISammiGetters &
+		ThisType<UnwrapRef<ISammiState> & _StoreWithGetters<ISammiGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -89,7 +85,7 @@ export const storeSammi = defineStore("sammi", {
 			DataStore.set(DataStore.SAMMI_CONFIGS, data);
 			DataStore.set(DataStore.SAMMI_API_PASSWORD, this.password);
 		},
-	} as ISammiActions &
+	} satisfies ISammiActions &
 		ThisType<
 			ISammiActions &
 				UnwrapRef<ISammiState> &

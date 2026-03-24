@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -39,13 +38,12 @@ export const storeGroq = defineStore("groq", {
 			creditsTotal: 0,
 			creditsUsed: 0,
 			defaultModel: "llama-3.3-70b-versatile",
-			availableModels: [],
-			answerHistory: [],
-		}) as IGroqState,
+			availableModels: [] as IGroqState["availableModels"],
+			answerHistory: [] as IGroqState["answerHistory"],
+		}) satisfies IGroqState,
 
-	getters: {} as IGroqGetters &
-		ThisType<UnwrapRef<IGroqState> & _StoreWithGetters<IGroqGetters> & PiniaCustomProperties> &
-		_GettersTree<IGroqState>,
+	getters: {} satisfies IGroqGetters &
+		ThisType<UnwrapRef<IGroqState> & _StoreWithGetters<IGroqGetters> & PiniaCustomProperties>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -314,7 +312,7 @@ export const storeGroq = defineStore("groq", {
 				return false;
 			}
 		},
-	} as IGroqActions &
+	} satisfies IGroqActions &
 		ThisType<
 			IGroqActions &
 				UnwrapRef<IGroqState> &

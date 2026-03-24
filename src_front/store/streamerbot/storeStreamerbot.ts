@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -21,16 +20,15 @@ export const storeStreamerbot = defineStore("streamerbot", {
 			ip: "127.0.0.1",
 			port: 8080,
 			password: "",
-			actionList: [],
-		}) as IStreamerbotState,
+			actionList: [] as IStreamerbotState["actionList"],
+		}) satisfies IStreamerbotState,
 
-	getters: {} as IStreamerbotGetters &
+	getters: {} satisfies IStreamerbotGetters &
 		ThisType<
 			UnwrapRef<IStreamerbotState> &
 				_StoreWithGetters<IStreamerbotGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IStreamerbotState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -124,7 +122,7 @@ export const storeStreamerbot = defineStore("streamerbot", {
 			const actions = await socket.getActions();
 			this.actionList = actions.actions;
 		},
-	} as IStreamerbotActions &
+	} satisfies IStreamerbotActions &
 		ThisType<
 			IStreamerbotActions &
 				UnwrapRef<IStreamerbotState> &

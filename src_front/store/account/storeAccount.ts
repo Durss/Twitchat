@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -24,15 +23,14 @@ export const storeAccount = defineStore("account", {
 				labelKey: "donor.make_public",
 				id: 402,
 			},
-		}) as IAccountState,
+		}) satisfies IAccountState,
 
-	getters: {} as IAccountGetters &
+	getters: {} satisfies IAccountGetters &
 		ThisType<
 			UnwrapRef<IAccountState> & _StoreWithGetters<IAccountGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IAccountState>,
+		>,
 
-	actions: {} as IAccountActions &
+	actions: {} satisfies IAccountActions &
 		ThisType<
 			IAccountActions &
 				UnwrapRef<IAccountState> &

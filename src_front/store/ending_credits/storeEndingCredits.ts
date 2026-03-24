@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -48,15 +47,14 @@ export const storeEndingCredits = defineStore("EndingCredits", {
 				ignoreCustomBots: [],
 				slots: [],
 			},
-		}) as IEndingCreditsState,
+		}) satisfies IEndingCreditsState,
 
-	getters: {} as IEndingCreditsGetters &
+	getters: {} satisfies IEndingCreditsGetters &
 		ThisType<
 			UnwrapRef<IEndingCreditsState> &
 				_StoreWithGetters<IEndingCreditsGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IEndingCreditsState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -101,7 +99,7 @@ export const storeEndingCredits = defineStore("EndingCredits", {
 				PublicAPI.instance.broadcast("ON_ENDING_CREDITS_CONFIGS", result);
 			}, 50);
 		},
-	} as IEndingCreditsActions &
+	} satisfies IEndingCreditsActions &
 		ThisType<
 			IEndingCreditsActions &
 				UnwrapRef<IEndingCreditsState> &

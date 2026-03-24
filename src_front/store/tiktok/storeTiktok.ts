@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -27,13 +26,12 @@ export const storeTiktok = defineStore("tiktok", {
 			connected: false,
 			ip: "127.0.0.1",
 			port: 21213,
-		}) as ITiktokState,
+		}) satisfies ITiktokState,
 
-	getters: {} as ITiktokGetters &
+	getters: {} satisfies ITiktokGetters &
 		ThisType<
 			UnwrapRef<ITiktokState> & _StoreWithGetters<ITiktokGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ITiktokState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -409,7 +407,7 @@ export const storeTiktok = defineStore("tiktok", {
 			};
 			DataStore.set(DataStore.TIKTOK_CONFIGS, data);
 		},
-	} as ITiktokActions &
+	} satisfies ITiktokActions &
 		ThisType<
 			ITiktokActions &
 				UnwrapRef<ITiktokState> &

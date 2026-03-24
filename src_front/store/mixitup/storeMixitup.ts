@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -17,14 +16,13 @@ export const storeMixitup = defineStore("mixitup", {
 			connected: false,
 			ip: "127.0.0.1",
 			port: 8911,
-			commandList: [],
-		}) as IMixitupState,
+			commandList: [] as IMixitupState["commandList"],
+		}) satisfies IMixitupState,
 
-	getters: {} as IMixitupGetters &
+	getters: {} satisfies IMixitupGetters &
 		ThisType<
 			UnwrapRef<IMixitupState> & _StoreWithGetters<IMixitupGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IMixitupState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -111,7 +109,7 @@ export const storeMixitup = defineStore("mixitup", {
 				throw new Error("Failed to connect to MixItUp");
 			}
 		},
-	} as IMixitupActions &
+	} satisfies IMixitupActions &
 		ThisType<
 			IMixitupActions &
 				UnwrapRef<IMixitupState> &

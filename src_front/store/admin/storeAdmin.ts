@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -18,13 +17,10 @@ import StoreProxy, {
 } from "../StoreProxy";
 
 export const storeAdmin = defineStore("Admin", {
-	state: () => ({}) as IAdminState,
+	state: () => ({}) satisfies IAdminState,
 
-	getters: {} as IAdminGetters &
-		ThisType<
-			UnwrapRef<IAdminState> & _StoreWithGetters<IAdminGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IAdminState>,
+	getters: {} satisfies IAdminGetters &
+		ThisType<UnwrapRef<IAdminState> & _StoreWithGetters<IAdminGetters> & PiniaCustomProperties>,
 
 	actions: {
 		async addBetaUser(login: string): Promise<void> {
@@ -228,7 +224,7 @@ export const storeAdmin = defineStore("Admin", {
 			};
 			void StoreProxy.chat.addMessage(message);
 		},
-	} as IAdminActions &
+	} satisfies IAdminActions &
 		ThisType<
 			IAdminActions &
 				UnwrapRef<IAdminState> &

@@ -7,7 +7,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -43,13 +42,12 @@ export const storeChatPoll = defineStore("chatPoll", {
 				showOnlyResult: false,
 				placement: "bl",
 			},
-		}) as IChatPollState,
+		}) satisfies IChatPollState,
 
-	getters: {} as IChatPollGetters &
+	getters: {} satisfies IChatPollGetters &
 		ThisType<
 			UnwrapRef<IChatPollState> & _StoreWithGetters<IChatPollGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IChatPollState>,
+		>,
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
@@ -269,7 +267,7 @@ export const storeChatPoll = defineStore("chatPoll", {
 				parameters: this.overlayParams,
 			});
 		},
-	} as IChatPollActions &
+	} satisfies IChatPollActions &
 		ThisType<
 			IChatPollActions &
 				UnwrapRef<IChatPollState> &

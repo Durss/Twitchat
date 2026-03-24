@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -16,13 +15,12 @@ export const storeYoutube = defineStore("youtube", {
 			youtubeAuthParams: null,
 			youtubeAuthToken: null,
 			newScopesToRequest: null,
-		}) as IYoutubeState,
+		}) satisfies IYoutubeState,
 
-	getters: {} as IYoutubeGetters &
+	getters: {} satisfies IYoutubeGetters &
 		ThisType<
 			UnwrapRef<IYoutubeState> & _StoreWithGetters<IYoutubeGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IYoutubeState>,
+		>,
 
 	actions: {
 		setYoutubeAuthResult(value) {
@@ -36,7 +34,7 @@ export const storeYoutube = defineStore("youtube", {
 			this.youtubeAuthToken = res;
 			return true;
 		},
-	} as IYoutubeActions &
+	} satisfies IYoutubeActions &
 		ThisType<
 			IYoutubeActions &
 				UnwrapRef<IYoutubeState> &
