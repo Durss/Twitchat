@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -21,14 +20,11 @@ import PublicAPI from "@/utils/PublicAPI";
 export const storeBingo = defineStore("bingo", {
 	state: () =>
 		({
-			data: null as TwitchatDataTypes.BingoConfig | null,
-		}) as IBingoState,
+			data: null,
+		}) satisfies IBingoState,
 
-	getters: {} as IBingoGetters &
-		ThisType<
-			UnwrapRef<IBingoState> & _StoreWithGetters<IBingoGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IBingoState>,
+	getters: {} satisfies IBingoGetters &
+		ThisType<UnwrapRef<IBingoState> & _StoreWithGetters<IBingoGetters> & PiniaCustomProperties>,
 
 	actions: {
 		async startBingo(data: TwitchatDataTypes.BingoConfig) {
@@ -143,7 +139,7 @@ export const storeBingo = defineStore("bingo", {
 				void sChat.addMessage(m);
 			}
 		},
-	} as IBingoActions &
+	} satisfies IBingoActions &
 		ThisType<
 			IBingoActions &
 				UnwrapRef<IBingoState> &

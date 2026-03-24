@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -23,17 +22,15 @@ const queryIdToResolver = new Map<string, () => void>();
 export const storeAnimatedText = defineStore("animatedtext", {
 	state: () =>
 		({
-			animatedTextList: [] as TwitchatDataTypes.AnimatedTextData[],
-			selectedAnimatedTextIDs: [],
-		}) as IAnimatedTextState,
+			animatedTextList: [] as IAnimatedTextState["animatedTextList"],
+		}) satisfies IAnimatedTextState,
 
-	getters: {} as IAnimatedTextGetters &
+	getters: {} satisfies IAnimatedTextGetters &
 		ThisType<
 			UnwrapRef<IAnimatedTextState> &
 				_StoreWithGetters<IAnimatedTextGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IAnimatedTextState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -167,7 +164,7 @@ export const storeAnimatedText = defineStore("animatedtext", {
 				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CLOSE", { id: overlayId, queryId });
 			});
 		},
-	} as IAnimatedTextActions &
+	} satisfies IAnimatedTextActions &
 		ThisType<
 			IAnimatedTextActions &
 				UnwrapRef<IAnimatedTextState> &

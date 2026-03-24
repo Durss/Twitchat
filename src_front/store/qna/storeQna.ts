@@ -11,7 +11,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -26,12 +25,11 @@ let deleteSpool: string[] = [];
 export const storeQna = defineStore("qna", {
 	state: () =>
 		({
-			activeSessions: [],
-		}) as IQnaState,
+			activeSessions: [] as IQnaState["activeSessions"],
+		}) satisfies IQnaState,
 
-	getters: {} as IQnaGetters &
-		ThisType<UnwrapRef<IQnaState> & _StoreWithGetters<IQnaGetters> & PiniaCustomProperties> &
-		_GettersTree<IQnaState>,
+	getters: {} satisfies IQnaGetters &
+		ThisType<UnwrapRef<IQnaState> & _StoreWithGetters<IQnaGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -413,7 +411,7 @@ export const storeQna = defineStore("qna", {
 				})),
 			});
 		},
-	} as IQnaActions &
+	} satisfies IQnaActions &
 		ThisType<
 			IQnaActions &
 				UnwrapRef<IQnaState> &

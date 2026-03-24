@@ -8,7 +8,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -30,16 +29,15 @@ export const storePlayability = defineStore("playability", {
 			connected: false,
 			ip: "127.0.0.1",
 			port: 13123,
-			mappingList: [],
-		}) as IPlayabilityState,
+			mappingList: [] as IPlayabilityState["mappingList"],
+		}) satisfies IPlayabilityState,
 
-	getters: {} as IPlayabilityGetters &
+	getters: {} satisfies IPlayabilityGetters &
 		ThisType<
 			UnwrapRef<IPlayabilityState> &
 				_StoreWithGetters<IPlayabilityGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IPlayabilityState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -263,7 +261,7 @@ export const storePlayability = defineStore("playability", {
 		loadProfile(): void {
 			socket!.send(JSON.stringify({ type: "GET_PROFILE_MAPPINGS", profile: "Twitchat" }));
 		},
-	} as IPlayabilityActions &
+	} satisfies IPlayabilityActions &
 		ThisType<
 			IPlayabilityActions &
 				UnwrapRef<IPlayabilityState> &

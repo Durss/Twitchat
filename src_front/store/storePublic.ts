@@ -1,7 +1,6 @@
 import {
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -27,14 +26,13 @@ export const storePublic = defineStore("public", {
 			twitchLogin: "",
 			twitchAccessToken: "",
 			twitchRefreshToken: "",
-			grantedScopes: [],
-		}) as IPublicState,
+			grantedScopes: [] as IPublicState["grantedScopes"],
+		}) satisfies IPublicState,
 
-	getters: {} as IPublicGetters &
+	getters: {} satisfies IPublicGetters &
 		ThisType<
 			UnwrapRef<IPublicState> & _StoreWithGetters<IPublicGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IPublicState>,
+		>,
 
 	actions: {
 		async startApp(): Promise<void> {
@@ -213,7 +211,7 @@ export const storePublic = defineStore("public", {
 				StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
 			}
 		},
-	} as IPublicActions &
+	} satisfies IPublicActions &
 		ThisType<
 			IPublicActions &
 				UnwrapRef<IPublicState> &

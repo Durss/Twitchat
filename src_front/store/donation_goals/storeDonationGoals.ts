@@ -8,7 +8,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -25,16 +24,15 @@ const donationGoalStatesCache: Record<string, number> = { coucou: 0 };
 export const storeDonationGoals = defineStore("donationGoals", {
 	state: () =>
 		({
-			overlayList: [],
-		}) as IDonationGoalState,
+			overlayList: [] as IDonationGoalState["overlayList"],
+		}) satisfies IDonationGoalState,
 
-	getters: {} as IDonationGoalGetters &
+	getters: {} satisfies IDonationGoalGetters &
 		ThisType<
 			UnwrapRef<IDonationGoalState> &
 				_StoreWithGetters<IDonationGoalGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IDonationGoalState>,
+		>,
 
 	actions: {
 		/**
@@ -279,7 +277,7 @@ export const storeDonationGoals = defineStore("donationGoals", {
 				overlayId: overlay.id,
 			});
 		},
-	} as IDonationGoalActions &
+	} satisfies IDonationGoalActions &
 		ThisType<
 			IDonationGoalActions &
 				UnwrapRef<IDonationGoalState> &

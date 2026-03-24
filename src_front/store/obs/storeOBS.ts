@@ -8,7 +8,6 @@ import Utils from "@/utils/Utils";
 import {
 	acceptHMRUpdate,
 	defineStore,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 	type PiniaCustomProperties,
@@ -22,7 +21,7 @@ export const storeOBS = defineStore("obs", {
 	state: () =>
 		({
 			connectionEnabled: false,
-			sceneCommands: [],
+			sceneCommands: [] as IOBSState["sceneCommands"],
 			muteUnmuteCommands: {
 				audioSourceName: "",
 				muteCommand: "!mute",
@@ -36,11 +35,10 @@ export const storeOBS = defineStore("obs", {
 				false,
 				false,
 			),
-		}) as IOBSState,
+		}) satisfies IOBSState,
 
-	getters: {} as IOBSGetters &
-		ThisType<UnwrapRef<IOBSState> & _StoreWithGetters<IOBSGetters> & PiniaCustomProperties> &
-		_GettersTree<IOBSState>,
+	getters: {} satisfies IOBSGetters &
+		ThisType<UnwrapRef<IOBSState> & _StoreWithGetters<IOBSGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData() {
@@ -473,7 +471,7 @@ export const storeOBS = defineStore("obs", {
 				}
 			}
 		},
-	} as IOBSActions &
+	} satisfies IOBSActions &
 		ThisType<
 			IOBSActions &
 				UnwrapRef<IOBSState> &

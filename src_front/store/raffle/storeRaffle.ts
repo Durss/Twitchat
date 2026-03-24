@@ -9,7 +9,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -27,14 +26,13 @@ let debounceConfirm: number = -1;
 export const storeRaffle = defineStore("raffle", {
 	state: () =>
 		({
-			raffleList: [],
-		}) as IRaffleState,
+			raffleList: [] as IRaffleState["raffleList"],
+		}) satisfies IRaffleState,
 
-	getters: {} as IRaffleGetters &
+	getters: {} satisfies IRaffleGetters &
 		ThisType<
 			UnwrapRef<IRaffleState> & _StoreWithGetters<IRaffleGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IRaffleState>,
+		>,
 
 	actions: {
 		populateData() {
@@ -931,7 +929,7 @@ export const storeRaffle = defineStore("raffle", {
 			);
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} as IRaffleActions &
+	} satisfies IRaffleActions &
 		ThisType<
 			IRaffleActions &
 				UnwrapRef<IRaffleState> &

@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -29,11 +28,10 @@ export const storePoll = defineStore("poll", {
 				resultDuration_s: 5,
 				showOnlyResult: false,
 			},
-		}) as IPollState,
+		}) satisfies IPollState,
 
-	getters: {} as IPollGetters &
-		ThisType<UnwrapRef<IPollState> & _StoreWithGetters<IPollGetters> & PiniaCustomProperties> &
-		_GettersTree<IPollState>,
+	getters: {} satisfies IPollGetters &
+		ThisType<UnwrapRef<IPollState> & _StoreWithGetters<IPollGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
@@ -103,7 +101,7 @@ export const storePoll = defineStore("poll", {
 			});
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} as IPollActions &
+	} satisfies IPollActions &
 		ThisType<
 			IPollActions &
 				UnwrapRef<IPollState> &

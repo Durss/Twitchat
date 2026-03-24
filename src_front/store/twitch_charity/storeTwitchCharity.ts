@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -22,15 +21,14 @@ export const storeTwitchCharity = defineStore("switchcharity", {
 	state: () =>
 		({
 			currentCharity: null,
-		}) as ITwitchCharityState,
+		}) satisfies ITwitchCharityState,
 
-	getters: {} as ITwitchCharityGetters &
+	getters: {} satisfies ITwitchCharityGetters &
 		ThisType<
 			UnwrapRef<ITwitchCharityState> &
 				_StoreWithGetters<ITwitchCharityGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<ITwitchCharityState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -146,7 +144,7 @@ export const storeTwitchCharity = defineStore("switchcharity", {
 				this.currentCharity ? this.currentCharity.charity_name : "",
 			);
 		},
-	} as ITwitchCharityActions &
+	} satisfies ITwitchCharityActions &
 		ThisType<
 			ITwitchCharityActions &
 				UnwrapRef<ITwitchCharityState> &

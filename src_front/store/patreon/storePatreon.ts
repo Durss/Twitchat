@@ -7,7 +7,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -26,15 +25,14 @@ export const storePatreon = defineStore("patreon", {
 			userAvatar: "",
 			connected: false,
 			oauthFlowParams: null,
-			memberList: [],
-			tierList: [],
-		}) as IPatreonState,
+			memberList: [] as IPatreonState["memberList"],
+			tierList: [] as IPatreonState["tierList"],
+		}) satisfies IPatreonState,
 
-	getters: {} as IPatreonGetters &
+	getters: {} satisfies IPatreonGetters &
 		ThisType<
 			UnwrapRef<IPatreonState> & _StoreWithGetters<IPatreonGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IPatreonState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -190,7 +188,7 @@ export const storePatreon = defineStore("patreon", {
 				StoreProxy.labels.updateLabelValue("PATREON_MEMBER_COUNT", activeMembers.length);
 			}
 		},
-	} as IPatreonActions &
+	} satisfies IPatreonActions &
 		ThisType<
 			IPatreonActions &
 				UnwrapRef<IPatreonState> &

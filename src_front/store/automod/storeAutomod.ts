@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -23,13 +22,12 @@ export const storeAutomod = defineStore("automod", {
 				keywordsFilters: [],
 				exludedUsers: Utils.getDefaultPermissions(true, true, true, false, false, false),
 			},
-		}) as IAutomodState,
+		}) satisfies IAutomodState,
 
-	getters: {} as IAutomodGetters &
+	getters: {} satisfies IAutomodGetters &
 		ThisType<
 			UnwrapRef<IAutomodState> & _StoreWithGetters<IAutomodGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IAutomodState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -104,7 +102,7 @@ export const storeAutomod = defineStore("automod", {
 			}
 			return null;
 		},
-	} as IAutomodActions &
+	} satisfies IAutomodActions &
 		ThisType<
 			IAutomodActions &
 				UnwrapRef<IAutomodState> &

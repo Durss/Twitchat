@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -20,18 +19,17 @@ export const storeStreamfog = defineStore("streamfog", {
 			invalidID: false,
 			connecting: false,
 			userId: "",
-			lensesList: [],
-			userLensesList: [],
-			videoList: [],
-		}) as IStreamfogState,
+			lensesList: [] as IStreamfogState["lensesList"],
+			userLensesList: [] as IStreamfogState["userLensesList"],
+			videoList: [] as IStreamfogState["videoList"],
+		}) satisfies IStreamfogState,
 
-	getters: {} as IStreamfogGetters &
+	getters: {} satisfies IStreamfogGetters &
 		ThisType<
 			UnwrapRef<IStreamfogState> &
 				_StoreWithGetters<IStreamfogGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IStreamfogState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -180,7 +178,7 @@ export const storeStreamfog = defineStore("streamfog", {
 			};
 			DataStore.set(DataStore.STREAMFOG_CONFIGS, data);
 		},
-	} as IStreamfogActions &
+	} satisfies IStreamfogActions &
 		ThisType<
 			IStreamfogActions &
 				UnwrapRef<IStreamfogState> &
