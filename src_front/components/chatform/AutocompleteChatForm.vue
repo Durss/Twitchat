@@ -17,6 +17,8 @@
 				v-if="i.type == 'emote'"
 			/>
 
+			<span class="image emoji" v-else-if="i.type == 'emojiShortcode'">{{ i.emoji }}</span>
+
 			<Icon v-else-if="i.type == 'user'" class="image" name="user" />
 			<Icon v-else-if="i.type == 'slashCommand'" class="image" name="commands" alt="cmd" />
 			<Icon v-else-if="i.type == 'chatCommand'" class="image" name="chatCommand" alt="cmd" />
@@ -48,7 +50,11 @@
 			/>
 
 			<div class="name">{{ i.label }}</div>
-			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
+			<div class="source" v-if="i.type == 'emote' && i.source">
+				{{ $t("global." + i.source.toLowerCase() + "_emote") }}
+			</div>
+			<div class="source" v-else-if="i.type == 'emote'">{{ $t("global.twitch_emote") }}</div>
+			<div class="source" v-if="i.type == 'emojiShortcode'">{{ $t("global.emoji") }}</div>
 			<div class="infos" v-if="i.type == 'slashCommand' && (i.infos || i.infosKey)">
 				{{ i.infos || $t(i.infosKey || "") }}
 			</div>
@@ -78,6 +84,7 @@ import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Database from "@/store/Database";
 import { watch } from "@vue/runtime-core";
 import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
 import TTButton from "../TTButton.vue";
@@ -111,6 +118,8 @@ class AutocompleteChatForm extends Vue {
 	private keyUpHandler!: (e: KeyboardEvent) => void;
 	private keyDownHandler!: (e: KeyboardEvent) => void;
 	private emotesRequestToken = 0;
+	private emojiSearchToken = 0;
+	private emojiSearchPending = false;
 
 	public getClasses(index: number, item: ListItem): string[] {
 		let res = ["item"];
@@ -167,6 +176,8 @@ class AutocompleteChatForm extends Vue {
 			} else {
 				this.$emit("selectItem", item.cmd);
 			}
+		} else if (item.type == "emojiShortcode") {
+			this.$emit("selectItem", item.emoji);
 		} else {
 			const prefix = item.type == "user" ? "@" : "";
 			this.$emit("selectItem", prefix + item.label);
@@ -327,6 +338,23 @@ class AutocompleteChatForm extends Vue {
 						}
 					}
 				}
+
+				//Search emoji shortcodes from IndexedDB
+				this.emojiSearchToken++;
+				this.emojiSearchPending = true;
+				const emojiToken = this.emojiSearchToken;
+				Database.instance.searchEmojiShortcodes(s, 50).then((results) => {
+					if (this.emojiSearchToken !== emojiToken) return;
+					this.emojiSearchPending = false;
+					if (results.length === 0) return;
+					const emojiItems: ListItem[] = results.map((r) => ({
+						type: "emojiShortcode" as const,
+						id: "emoji_" + r.shortcode,
+						label: ":" + r.shortcode + ":",
+						emoji: r.emoji,
+					}));
+					this.filteredItems = [...this.filteredItems, ...emojiItems];
+				});
 			}
 
 			//Search for slash commands
@@ -440,18 +468,25 @@ class AutocompleteChatForm extends Vue {
 			this.filteredItems = res;
 		}
 
-		if (this.filteredItems.length == 0 && !this.showEmotesLoading) {
+		if (this.filteredItems.length == 0 && !this.showEmotesLoading && !this.emojiSearchPending) {
 			this.$emit("close");
 		}
 	}
 }
 
-type ListItem = UserItem | EmoteItem | CommandItem;
+type ListItem = UserItem | EmoteItem | CommandItem | EmojiShortcodeItem;
 
 interface UserItem {
 	type: "user";
 	id: string;
 	label: string;
+}
+
+interface EmojiShortcodeItem {
+	type: "emojiShortcode";
+	id: string;
+	label: string;
+	emoji: string;
 }
 
 interface EmoteItem {
@@ -561,10 +596,12 @@ export default toNative(AutocompleteChatForm);
 			}
 		}
 
-		.name,
+		.name {
+			font-size: 0.8em;
+			flex: 1;
+		}
 		.source {
 			font-size: 0.8em;
-			flex-grow: 1;
 		}
 
 		.source {
@@ -578,6 +615,10 @@ export default toNative(AutocompleteChatForm);
 			text-align: right;
 			padding-right: 0.5em;
 			opacity: 0.8;
+			flex-shrink: 0;
+			flex-basis: auto;
+			align-self: flex-end;
+			justify-self: flex-end;
 		}
 
 		.image {
@@ -588,6 +629,9 @@ export default toNative(AutocompleteChatForm);
 				height: 1em;
 				width: 1em;
 				padding: 0.1em;
+			}
+			&.emoji {
+				width: 1.5em;
 			}
 		}
 		.alias {
