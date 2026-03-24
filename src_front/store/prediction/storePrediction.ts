@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -30,17 +29,19 @@ export const storePrediction = defineStore("prediction", {
 				showVoters: false,
 				showPercent: false,
 				showTimer: true,
+				showOnlyResult: false,
+				hideUntilResolved: false,
+				resultDuration_s: 10,
 				placement: "bl",
 			},
-		}) as IPredictionState,
+		}) satisfies IPredictionState,
 
-	getters: {} as IPredictionGetters &
+	getters: {} satisfies IPredictionGetters &
 		ThisType<
 			UnwrapRef<IPredictionState> &
 				_StoreWithGetters<IPredictionGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IPredictionState>,
+		>,
 
 	actions: {
 		populateData(params?: PredictionOverlayParamStoreData): void {
@@ -113,7 +114,7 @@ export const storePrediction = defineStore("prediction", {
 			});
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} as IPredictionActions &
+	} satisfies IPredictionActions &
 		ThisType<
 			IPredictionActions &
 				UnwrapRef<IPredictionState> &

@@ -3,7 +3,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -20,15 +19,14 @@ export const storeAccessibility = defineStore("Accessibility", {
 	state: () =>
 		({
 			ariaPolite: "",
-		}) as IAccessibilityState,
+		}) satisfies IAccessibilityState,
 
-	getters: {} as IAccessibilityGetters &
+	getters: {} satisfies IAccessibilityGetters &
 		ThisType<
 			UnwrapRef<IAccessibilityState> &
 				_StoreWithGetters<IAccessibilityGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IAccessibilityState>,
+		>,
 
 	actions: {
 		setAriaPolite(message: string) {
@@ -39,7 +37,7 @@ export const storeAccessibility = defineStore("Accessibility", {
 				this.ariaPolite = "";
 			}, 10000);
 		},
-	} as IAccessibilityActions &
+	} satisfies IAccessibilityActions &
 		ThisType<
 			IAccessibilityActions &
 				UnwrapRef<IAccessibilityState> &

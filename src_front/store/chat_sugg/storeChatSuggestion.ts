@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -21,15 +20,14 @@ export const storeChatSuggestion = defineStore("chatSuggestion", {
 	state: () =>
 		({
 			data: null,
-		}) as IChatSuggestionState,
+		}) satisfies IChatSuggestionState,
 
-	getters: {} as IChatSuggestionGetters &
+	getters: {} satisfies IChatSuggestionGetters &
 		ThisType<
 			UnwrapRef<IChatSuggestionState> &
 				_StoreWithGetters<IChatSuggestionGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IChatSuggestionState>,
+		>,
 
 	actions: {
 		setChatSuggestion(payload: TwitchatDataTypes.ChatSuggestionData | null) {
@@ -69,7 +67,7 @@ export const storeChatSuggestion = defineStore("chatSuggestion", {
 				}
 			}
 		},
-	} as IChatSuggestionActions &
+	} satisfies IChatSuggestionActions &
 		ThisType<
 			IChatSuggestionActions &
 				UnwrapRef<IChatSuggestionState> &

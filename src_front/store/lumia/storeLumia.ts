@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -21,13 +20,10 @@ export const storeLumia = defineStore("lumia", {
 		({
 			connected: false,
 			socketToken: "",
-		}) as ILumiaState,
+		}) satisfies ILumiaState,
 
-	getters: {} as ILumiaGetters &
-		ThisType<
-			UnwrapRef<ILumiaState> & _StoreWithGetters<ILumiaGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ILumiaState>,
+	getters: {} satisfies ILumiaGetters &
+		ThisType<UnwrapRef<ILumiaState> & _StoreWithGetters<ILumiaGetters> & PiniaCustomProperties>,
 
 	actions: {
 		populateData(): void {
@@ -149,7 +145,7 @@ export const storeLumia = defineStore("lumia", {
 			};
 			void DataStore.set(DataStore.LUMIA, data);
 		},
-	} as ILumiaActions &
+	} satisfies ILumiaActions &
 		ThisType<
 			ILumiaActions &
 				UnwrapRef<ILumiaState> &

@@ -1545,7 +1545,7 @@ export namespace TwitchatDataTypes {
 	export interface CommandData {
 		id: string;
 		cmd: string;
-		alias: string;
+		alias?: string;
 		details?: string;
 		detailsKey?: string;
 		needChannelPoints?: boolean;

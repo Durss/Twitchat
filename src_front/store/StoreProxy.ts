@@ -18,7 +18,7 @@ import type {
 	TriggerTreeItemData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
+import type { SpotifyAuthResult } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
@@ -1073,9 +1073,11 @@ export interface IDebugActions {
 	 * @param postOnChat
 	 * @param allowConversations
 	 */
-	simulateMessage<T = TwitchatDataTypes.ChatMessageTypes>(
+	simulateMessage<
+		T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+	>(
 		type: TwitchatDataTypes.TwitchatMessageStringType,
-		hook?: (message: T) => void,
+		hook?: (message: T) => boolean | void | Promise<boolean | void>,
 		postOnChat?: boolean,
 		allowConversations?: boolean,
 	): Promise<T>;
@@ -1086,9 +1088,11 @@ export interface IDebugActions {
 	 * @param postOnChat
 	 * @param allowConversations
 	 */
-	simulateNotice<T = TwitchatDataTypes.ChatMessageTypes>(
+	simulateNotice<
+		T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+	>(
 		noticeType?: TwitchatDataTypes.TwitchatNoticeStringType,
-		hook?: (message: T) => void,
+		hook?: (message: T) => boolean | void | Promise<boolean | void>,
 		postOnChat?: boolean,
 	): Promise<T>;
 	/**
@@ -1097,10 +1101,12 @@ export interface IDebugActions {
 	 * @param forcedMessage
 	 * @param hook
 	 */
-	sendRandomFakeMessage<T = TwitchatDataTypes.ChatMessageTypes>(
+	sendRandomFakeMessage<
+		T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+	>(
 		postOnChat: boolean,
 		forcedMessage?: string,
-		hook?: (message: T) => void,
+		hook?: (message: T) => void | Promise<void>,
 		forcedType?: TwitchatDataTypes.TwitchatMessageStringType,
 	): Promise<T>;
 }
@@ -1178,10 +1184,6 @@ export interface IMusicState {
 	 * Stores consecutive API exceptions
 	 */
 	spotifyConsecutiveErrors: number;
-	/**
-	 * Current Spotify auth token
-	 */
-	spotifyAuthToken: SpotifyAuthToken | null;
 	/**
 	 * Music player overlay params.
 	 */
@@ -2785,7 +2787,7 @@ export interface IQnaActions {
 		command: string,
 		allowUpvotes: boolean,
 		shareWithMods: boolean,
-	): TwitchatDataTypes.QnaSession;
+	): TwitchatDataTypes.QnaSession | false;
 	/**
 	 * Stops an existing Q&A sessions
 	 */
@@ -2838,10 +2840,6 @@ export interface IQnaActions {
 	 * Broadcasts Q&A list to public API
 	 */
 	broadcastQnaList(): void;
-	/**
-	 * Broadcasts Q&A list on Public API
-	 */
-	broadcastQnAList(): void;
 }
 
 export interface IDiscordState {

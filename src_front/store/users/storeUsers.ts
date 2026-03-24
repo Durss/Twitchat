@@ -61,11 +61,11 @@ export const storeUsers = defineStore("users", {
 	state: () =>
 		({
 			tmpDisplayName: "…loading…",
-			pendingShoutouts: {},
-			userCard: null,
-			customUsernames: {},
-			customUserBadges: {},
-			customBadgeList: [],
+			pendingShoutouts: {} as IUsersState["pendingShoutouts"],
+			userCard: null as IUsersState["userCard"],
+			customUsernames: {} as IUsersState["customUsernames"],
+			customUserBadges: {} as IUsersState["customUserBadges"],
+			customBadgeList: [] as IUsersState["customBadgeList"],
 			myMods: {
 				twitchat: {},
 				twitch: {},
@@ -120,7 +120,7 @@ export const storeUsers = defineStore("users", {
 				facebook: {},
 				kick: {},
 			},
-		}) as IUsersState,
+		}) satisfies IUsersState,
 
 	getters: {
 		users(): TwitchatDataTypes.TwitchatUser[] {
@@ -1590,7 +1590,7 @@ export const storeUsers = defineStore("users", {
 			delete user.channelInfo[channelId]!.is_suspicious;
 			delete user.channelInfo[channelId]!.is_restricted;
 		},
-	} as IUsersActions &
+	} satisfies IUsersActions &
 		ThisType<
 			IUsersActions &
 				UnwrapRef<IUsersState> &

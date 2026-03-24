@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -26,15 +25,14 @@ export const storeStreamSocket = defineStore("streamSocket", {
 			invalidSecret: false,
 			connecting: false,
 			socketSecret: "",
-		}) as IStreamSocketState,
+		}) satisfies IStreamSocketState,
 
-	getters: {} as IStreamSocketGetters &
+	getters: {} satisfies IStreamSocketGetters &
 		ThisType<
 			UnwrapRef<IStreamSocketState> &
 				_StoreWithGetters<IStreamSocketGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IStreamSocketState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -205,7 +203,7 @@ export const storeStreamSocket = defineStore("streamSocket", {
 			// }
 			DataStore.set(DataStore.STREAM_SOCKET_SECRET, this.socketSecret);
 		},
-	} as IStreamSocketActions &
+	} satisfies IStreamSocketActions &
 		ThisType<
 			IStreamSocketActions &
 				UnwrapRef<IStreamSocketState> &

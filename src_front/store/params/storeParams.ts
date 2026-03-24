@@ -14,7 +14,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -750,7 +749,6 @@ export const storeParams = defineStore("params", {
 						following: false,
 						countdown: false,
 						streamlabs: false,
-						hype_chat: false,
 						prediction: false,
 						tiktok_gift: false,
 						tiktok_like: false,
@@ -857,7 +855,7 @@ export const storeParams = defineStore("params", {
 					},
 				},
 			],
-			chatColumnStates: [],
+			chatColumnStates: [] as IParamsState["chatColumnStates"],
 			goxlrConfig: {
 				enabled: false,
 				ip: "127.0.0.1",
@@ -865,13 +863,12 @@ export const storeParams = defineStore("params", {
 				chatScrollSources: [],
 				chatReadMarkSources: [],
 			},
-		}) as IParamsState,
+		}) satisfies IParamsState,
 
-	getters: {} as IParamsGetters &
+	getters: {} satisfies IParamsGetters &
 		ThisType<
 			UnwrapRef<IParamsState> & _StoreWithGetters<IParamsGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IParamsState>,
+		>,
 
 	actions: {
 		populateData() {
@@ -1223,7 +1220,7 @@ export const storeParams = defineStore("params", {
 		saveChatMenuPins(): void {
 			DataStore.set(DataStore.PINNED_CHAT_MENU_ITEM, this.pinnedMenuItems);
 		},
-	} as IParamsActions &
+	} satisfies IParamsActions &
 		ThisType<
 			IParamsActions &
 				UnwrapRef<IParamsState> &

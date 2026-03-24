@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -18,7 +17,7 @@ import StreamdeckSocket from "@/utils/StreamdeckSocket";
 export const storeCommon = defineStore("common", {
 	state: () =>
 		({
-			iconCache: {},
+			iconCache: {} as ICommonState["iconCache"],
 			alertData: {
 				message: "",
 				critical: false,
@@ -26,13 +25,12 @@ export const storeCommon = defineStore("common", {
 			},
 			currentOBSScene: "",
 			theme: "dark",
-		}) as ICommonState,
+		}) satisfies ICommonState,
 
-	getters: {} as ICommonGetters &
+	getters: {} satisfies ICommonGetters &
 		ThisType<
 			UnwrapRef<ICommonState> & _StoreWithGetters<ICommonGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ICommonState>,
+		>,
 
 	actions: {
 		async initialize(authenticated: boolean): Promise<void> {
@@ -58,7 +56,7 @@ export const storeCommon = defineStore("common", {
 			this.alertData.critical = isCritical;
 			this.alertData.showContact = showContact;
 		},
-	} as ICommonActions &
+	} satisfies ICommonActions &
 		ThisType<
 			ICommonActions &
 				UnwrapRef<ICommonState> &

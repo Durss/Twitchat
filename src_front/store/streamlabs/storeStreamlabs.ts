@@ -8,7 +8,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -39,7 +38,7 @@ export const storeStreamlabs = defineStore("streamlabs", {
 			syncingTips: false,
 			syncingCampaign: false,
 			syncingLeaderboard: false,
-		}) as IStreamlabsState,
+		}) satisfies IStreamlabsState,
 
 	getters: {
 		isLoading: () => {
@@ -2573,7 +2572,7 @@ export const storeStreamlabs = defineStore("streamlabs", {
 
 			this.syncingTips = false;
 		},
-	} as IStreamlabsActions &
+	} satisfies IStreamlabsActions &
 		ThisType<
 			IStreamlabsActions &
 				UnwrapRef<IStreamlabsState> &

@@ -270,7 +270,9 @@ function buildApp() {
 	StoreProxy.default.voice = storeVoice() as unknown as StoreProxy.IVoiceState &
 		StoreProxy.IVoiceGetters &
 		StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset: () => void };
-	StoreProxy.default.debug = storeDebug();
+	StoreProxy.default.debug = storeDebug() as unknown as StoreProxy.IDebugState &
+		StoreProxy.IDebugGetters &
+		StoreProxy.IDebugActions & { $state: StoreProxy.IDebugState; $reset: () => void };
 	StoreProxy.default.accessibility = storeAccessibility();
 	StoreProxy.default.admin = storeAdmin();
 	StoreProxy.default.counters = storeCounters();

@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -38,7 +37,7 @@ export const storeVoice = defineStore("voice", {
 				commandToVoiceID: {},
 				chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
 			},
-		}) as IVoiceState,
+		}) satisfies IVoiceState,
 
 	getters: {
 		voiceBotConfigured: (): boolean => {
@@ -145,7 +144,7 @@ export const storeVoice = defineStore("voice", {
 				);
 			}
 		},
-	} as IVoiceActions &
+	} satisfies IVoiceActions &
 		ThisType<
 			IVoiceActions &
 				UnwrapRef<IVoiceState> &

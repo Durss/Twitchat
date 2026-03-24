@@ -8,7 +8,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -38,15 +37,11 @@ const getDefaultStyle = (): TwitchatDataTypes.TimerData["overlayParams"] => {
 export const storeTimer = defineStore("timer", {
 	state: () =>
 		({
-			timerList: [] as TwitchatDataTypes.TimerData[],
-			selectedTimerIDs: [],
-		}) as ITimerState,
+			timerList: [] as ITimerState["timerList"],
+		}) satisfies ITimerState,
 
-	getters: {} as ITimerGetters &
-		ThisType<
-			UnwrapRef<ITimerState> & _StoreWithGetters<ITimerGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ITimerState>,
+	getters: {} satisfies ITimerGetters &
+		ThisType<UnwrapRef<ITimerState> & _StoreWithGetters<ITimerGetters> & PiniaCustomProperties>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -484,7 +479,7 @@ export const storeTimer = defineStore("timer", {
 				})),
 			});
 		},
-	} as ITimerActions &
+	} satisfies ITimerActions &
 		ThisType<
 			ITimerActions &
 				UnwrapRef<ITimerState> &

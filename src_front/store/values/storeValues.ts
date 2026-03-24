@@ -4,7 +4,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -19,15 +18,13 @@ import type { JsonObject } from "type-fest";
 export const storeValues = defineStore("values", {
 	state: () =>
 		({
-			valueList: [],
-			selectedValueIDs: [],
-		}) as IValuesState,
+			valueList: [] as IValuesState["valueList"],
+		}) satisfies IValuesState,
 
-	getters: {} as IValuesGetters &
+	getters: {} satisfies IValuesGetters &
 		ThisType<
 			UnwrapRef<IValuesState> & _StoreWithGetters<IValuesGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IValuesState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -200,7 +197,7 @@ export const storeValues = defineStore("values", {
 		saveValues(): void {
 			DataStore.set(DataStore.VALUES, this.valueList);
 		},
-	} as IValuesActions &
+	} satisfies IValuesActions &
 		ThisType<
 			IValuesActions &
 				UnwrapRef<IValuesState> &

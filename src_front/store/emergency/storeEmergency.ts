@@ -9,7 +9,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -46,16 +45,15 @@ export const storeEmergency = defineStore("emergency", {
 			},
 
 			//Stores all the people that followed during an emergency
-			follows: [],
-		}) as IEmergencyState,
+			follows: [] as IEmergencyState["follows"],
+		}) satisfies IEmergencyState,
 
-	getters: {} as IEmergencyGetters &
+	getters: {} satisfies IEmergencyGetters &
 		ThisType<
 			UnwrapRef<IEmergencyState> &
 				_StoreWithGetters<IEmergencyGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IEmergencyState>,
+		>,
 
 	actions: {
 		populateData() {
@@ -328,7 +326,7 @@ export const storeEmergency = defineStore("emergency", {
 			);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, saved);
 		},
-	} as IEmergencyActions &
+	} satisfies IEmergencyActions &
 		ThisType<
 			IEmergencyActions &
 				UnwrapRef<IEmergencyState> &

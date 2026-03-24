@@ -21,10 +21,9 @@ const APPROACHING_TIMEOUT_PER_ACTION = 10 * 60_000;
 export const storeCustomTrain = defineStore("customTrain", {
 	state: () =>
 		({
-			customTrainList: [],
-			customTrainStates: {},
-			selectedCustomTrainIDs: [],
-		}) as ICustomTrainState,
+			customTrainList: [] as ICustomTrainState["customTrainList"],
+			customTrainStates: {} as ICustomTrainState["customTrainStates"],
+		}) satisfies ICustomTrainState,
 
 	getters: {},
 
@@ -449,7 +448,7 @@ export const storeCustomTrain = defineStore("customTrain", {
 				train.coolDownEnd_at = 0;
 			}
 		},
-	} as ICustomTrainActions &
+	} satisfies ICustomTrainActions &
 		ThisType<
 			ICustomTrainActions &
 				UnwrapRef<ICustomTrainState> &

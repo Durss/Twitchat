@@ -28,18 +28,19 @@ export const storeAuth = defineStore("auth", {
 			authenticated: false,
 			dataSharingUserList: [] as string[],
 			newScopesToRequest: [] as TwitchScopesString[],
-			twitchat: {},
-			twitch: {},
-			youtube: {},
-			tiktok: {},
-			facebook: {},
-			instagram: {},
-			twitchModeratedChannels: [] as TwitchDataTypes.ModeratedUser[],
+			twitchat: {} as IAuthState["twitchat"],
+			twitch: {} as IAuthState["twitch"],
+			youtube: {} as IAuthState["youtube"],
+			tiktok: {} as IAuthState["tiktok"],
+			facebook: {} as IAuthState["facebook"],
+			instagram: {} as IAuthState["instagram"],
+			twitchModeratedChannels: [] as IAuthState["twitchModeratedChannels"],
 			donorLevel: -1,
 			premiumType: "",
 			noAd: false,
 			donorLevelUpgrade: false,
 			lifetimePremiumPercent: 0,
+			features: [] as IAuthState["features"],
 		}) as IAuthState,
 
 	getters: {
@@ -504,7 +505,7 @@ export const storeAuth = defineStore("auth", {
 			}
 			return false;
 		},
-	} as IAuthActions &
+	} satisfies IAuthActions &
 		ThisType<
 			IAuthActions &
 				UnwrapRef<IAuthState> &

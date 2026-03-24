@@ -51,14 +51,14 @@ export const storeChat = defineStore("chat", {
 			searchMessages: "",
 			realHistorySize: 20000,
 			whispersUnreadCount: 0,
-			pinedMessages: [],
-			whispers: {},
-			emoteSelectorCache: [],
-			replyTo: null,
-			messageMode: "message",
-			spamingFakeMessages: false,
+			pinedMessages: [] as IChatState["pinedMessages"],
+			whispers: {} as IChatState["whispers"],
+			emoteSelectorCache: [] as IChatState["emoteSelectorCache"],
+			replyTo: null as IChatState["replyTo"],
+			messageMode: "message" as IChatState["messageMode"],
+			spamingFakeMessages: false as IChatState["spamingFakeMessages"],
 			securityRaidGraceEndDate: 0,
-			pendingAutomodMessages: [],
+			pendingAutomodMessages: [] as IChatState["pendingAutomodMessages"],
 
 			botMessages: {
 				raffleStart: {
@@ -731,9 +731,8 @@ export const storeChat = defineStore("chat", {
 			highlightedMessageId: null,
 			chatHighlightOverlayParams: {
 				position: "bl",
-				dateLabel: "",
 			},
-		}) as IChatState,
+		}) satisfies IChatState,
 
 	getters: {
 		messages(): TwitchatDataTypes.ChatMessageTypes[] {
@@ -3570,7 +3569,7 @@ export const storeChat = defineStore("chat", {
 			};
 			void this.addMessage(notif);
 		},
-	} as IChatActions &
+	} satisfies IChatActions &
 		ThisType<
 			IChatActions &
 				UnwrapRef<IChatState> &

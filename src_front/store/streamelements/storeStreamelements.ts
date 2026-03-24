@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -79,15 +78,14 @@ export const storeStreamelements = defineStore("streamelements", {
 				amount: 0,
 				username: "",
 			},
-		}) as IStreamelementsState,
+		}) satisfies IStreamelementsState,
 
-	getters: {} as IStreamelementsGetters &
+	getters: {} satisfies IStreamelementsGetters &
 		ThisType<
 			UnwrapRef<IStreamelementsState> &
 				_StoreWithGetters<IStreamelementsGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IStreamelementsState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -526,7 +524,7 @@ export const storeStreamelements = defineStore("streamelements", {
 			};
 			DataStore.set(DataStore.STREAMELEMENTS, data);
 		},
-	} as IStreamelementsActions &
+	} satisfies IStreamelementsActions &
 		ThisType<
 			IStreamelementsActions &
 				UnwrapRef<IStreamelementsState> &

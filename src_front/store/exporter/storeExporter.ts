@@ -7,7 +7,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -20,22 +19,21 @@ export const storeExporter = defineStore("Exporter", {
 	state: () =>
 		({
 			exportingSelectedSettings: false,
-			selectedTimerIDs: [],
-			selectedTriggerIDs: [],
-			selectedCounterIDs: [],
-			selectedValueIDs: [],
-			selectedLabelIDs: [],
-			selectedAnimatedTextIDs: [],
-			selectedCustomTrainIDs: [],
-			selectedEndingCreditsSlotIDs: [],
-			selectedBingoGridIDs: [],
-		}) as IExporterState,
+			selectedTimerIDs: [] as IExporterState["selectedTimerIDs"],
+			selectedTriggerIDs: [] as IExporterState["selectedTriggerIDs"],
+			selectedCounterIDs: [] as IExporterState["selectedCounterIDs"],
+			selectedValueIDs: [] as IExporterState["selectedValueIDs"],
+			selectedLabelIDs: [] as IExporterState["selectedLabelIDs"],
+			selectedAnimatedTextIDs: [] as IExporterState["selectedAnimatedTextIDs"],
+			selectedCustomTrainIDs: [] as IExporterState["selectedCustomTrainIDs"],
+			selectedEndingCreditsSlotIDs: [] as IExporterState["selectedEndingCreditsSlotIDs"],
+			selectedBingoGridIDs: [] as IExporterState["selectedBingoGridIDs"],
+		}) satisfies IExporterState,
 
-	getters: {} as IExporterGetters &
+	getters: {} satisfies IExporterGetters &
 		ThisType<
 			UnwrapRef<IExporterState> & _StoreWithGetters<IExporterGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IExporterState>,
+		>,
 
 	actions: {
 		async exportSelectedSettings(
@@ -342,7 +340,7 @@ export const storeExporter = defineStore("Exporter", {
 				});
 			}
 		},
-	} as IExporterActions &
+	} satisfies IExporterActions &
 		ThisType<
 			IExporterActions &
 				UnwrapRef<IExporterState> &
