@@ -9,7 +9,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -24,21 +23,20 @@ let streamInfoCache: TwitchDataTypes.ChannelInfo | null = null;
 const ponderatedRandomList: TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
 export const storeDebug = defineStore("debug", {
-	state: () => ({}) as IDebugState,
+	state: () => ({}) satisfies IDebugState,
 
-	getters: {} as IDebugGetters &
-		ThisType<
-			UnwrapRef<IDebugState> & _StoreWithGetters<IDebugGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IDebugState>,
+	getters: {} satisfies IDebugGetters &
+		ThisType<UnwrapRef<IDebugState> & _StoreWithGetters<IDebugGetters> & PiniaCustomProperties>,
 
 	actions: {
-		async simulateMessage(
+		async simulateMessage<
+			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+		>(
 			type: TwitchatDataTypes.TwitchatMessageStringType,
-			hook?: (message: TwitchatDataTypes.ChatMessageTypes) => boolean,
+			hook?: (message: T) => boolean | void | Promise<boolean | void>,
 			postOnChat: boolean = true,
 			allowConversations: boolean = true,
-		): Promise<TwitchatDataTypes.ChatMessageTypes> {
+		): Promise<T> {
 			let data!: TwitchatDataTypes.ChatMessageTypes;
 			const uid: string = StoreProxy.auth.twitch.user.id;
 			const fakeUsers = await TwitchUtils.getFakeUsers();
@@ -2371,17 +2369,19 @@ export const storeDebug = defineStore("debug", {
 			data = reactive(data);
 
 			if (hook) {
-				if (hook(data) === false) return data;
+				if (hook(data as T) === false) return data as T;
 			}
 			if (postOnChat) void StoreProxy.chat.addMessage(data);
-			return data;
+			return data as T;
 		},
 
-		async simulateNotice(
+		async simulateNotice<
+			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+		>(
 			noticeType?: TwitchatDataTypes.TwitchatNoticeStringType,
-			hook?: (message: TwitchatDataTypes.ChatMessageTypes) => boolean,
+			hook?: (message: T) => boolean | void | Promise<boolean | void>,
 			postOnChat: boolean = true,
-		): Promise<TwitchatDataTypes.ChatMessageTypes> {
+		): Promise<T> {
 			let data!: TwitchatDataTypes.MessageNoticeData;
 			const uid: string = StoreProxy.auth.twitch.user.id;
 			const fakeUsers = await TwitchUtils.getFakeUsers();
@@ -2596,18 +2596,20 @@ export const storeDebug = defineStore("debug", {
 			data.fake = true;
 
 			if (hook) {
-				if (hook(data) === false) return data;
+				if (hook(data as T) === false) return data as T;
 			}
 			if (postOnChat) void StoreProxy.chat.addMessage(data);
-			return data;
+			return data as T;
 		},
 
-		async sendRandomFakeMessage(
+		async sendRandomFakeMessage<
+			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
+		>(
 			postOnChat: boolean,
 			forcedMessage?: string,
-			hook?: (message: TwitchatDataTypes.ChatMessageTypes) => void,
+			hook?: (message: T) => void | Promise<void>,
 			forcedType?: TwitchatDataTypes.TwitchatMessageStringType,
-		): Promise<TwitchatDataTypes.ChatMessageTypes> {
+		): Promise<T> {
 			if (ponderatedRandomList.length === 0) {
 				const spamTypes: {
 					type: TwitchatDataTypes.TwitchatMessageStringType;
@@ -2662,7 +2664,7 @@ export const storeDebug = defineStore("debug", {
 			}
 
 			const messageType = forcedType ? forcedType : Utils.pickRand(ponderatedRandomList);
-			return await this.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(
+			return (await this.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(
 				messageType,
 				(data) => {
 					if (data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -2706,13 +2708,13 @@ export const storeDebug = defineStore("debug", {
 						}
 					}
 					if (hook) {
-						hook(data);
+						void hook(data as T);
 					}
 				},
 				postOnChat,
-			);
+			)) as T;
 		},
-	} as IDebugActions &
+	} satisfies IDebugActions &
 		ThisType<
 			IDebugActions &
 				UnwrapRef<IDebugState> &

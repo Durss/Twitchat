@@ -10,7 +10,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -26,15 +25,13 @@ const broadcastTimeoutDebounce: { [key: string]: number } = {};
 export const storeCounters = defineStore("counters", {
 	state: () =>
 		({
-			counterList: [],
-			selectedCounterIDs: [],
-		}) as ICountersState,
+			counterList: [] as ICountersState["counterList"],
+		}) satisfies ICountersState,
 
-	getters: {} as ICountersGetters &
+	getters: {} satisfies ICountersGetters &
 		ThisType<
 			UnwrapRef<ICountersState> & _StoreWithGetters<ICountersGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<ICountersState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -383,7 +380,7 @@ export const storeCounters = defineStore("counters", {
 				PublicAPI.instance.broadcast("ON_COUNTER_LIST", { counterList: counters });
 			}
 		},
-	} as ICountersActions &
+	} satisfies ICountersActions &
 		ThisType<
 			ICountersActions &
 				UnwrapRef<ICountersState> &

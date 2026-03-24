@@ -54,9 +54,6 @@ export const storeMain = defineStore("main", {
 			cypherEnabled: false,
 			tempStoreValue: null,
 			confirmData: null,
-			accessibility: {
-				ariaPolite: "",
-			},
 			chatAlertParams: {
 				chatCmd: "!alert",
 				message: true,
@@ -67,12 +64,12 @@ export const storeMain = defineStore("main", {
 				permissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
 			},
 			chatAlert: null,
-			iconCache: {},
+			iconCache: {} as IMainState["iconCache"],
 			outdatedDataVersion: false,
 			offlineMode: false,
-			suspendedTriggerStacks: [],
-			httpMigrationFixData: [],
-		}) as IMainState,
+			suspendedTriggerStacks: [] as IMainState["suspendedTriggerStacks"],
+			httpMigrationFixData: [] as IMainState["httpMigrationFixData"],
+		}) satisfies IMainState,
 
 	getters: {
 		nonPremiumLimitExceeded: () => {

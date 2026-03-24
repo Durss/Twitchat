@@ -345,7 +345,7 @@ class AutocompleteChatForm extends Vue {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if (
 						e.cmd.toLowerCase().indexOf(s) > -1 ||
-						e.alias?.toLowerCase().indexOf(s) > -1
+						(e.alias?.toLowerCase().indexOf(s) ?? -1) > -1
 					) {
 						let disabled = false;
 

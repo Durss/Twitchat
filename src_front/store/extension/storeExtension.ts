@@ -2,7 +2,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -13,17 +12,16 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 export const storeExtension = defineStore("Extension", {
 	state: () =>
 		({
-			availableSlots: {},
-			availableExtensions: {},
-		}) as IExtensionState,
+			availableSlots: {} as IExtensionState["availableSlots"],
+			availableExtensions: [] as IExtensionState["availableExtensions"],
+		}) satisfies IExtensionState,
 
-	getters: {} as IExtensionGetters &
+	getters: {} satisfies IExtensionGetters &
 		ThisType<
 			UnwrapRef<IExtensionState> &
 				_StoreWithGetters<IExtensionGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<IExtensionState>,
+		>,
 
 	actions: {
 		init(): void {
@@ -38,7 +36,7 @@ export const storeExtension = defineStore("Extension", {
 				this.availableSlots.component = Object.keys(res.component).length;
 			});
 		},
-	} as IExtensionActions &
+	} satisfies IExtensionActions &
 		ThisType<
 			IExtensionActions &
 				UnwrapRef<IExtensionState> &

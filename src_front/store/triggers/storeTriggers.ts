@@ -39,14 +39,12 @@ let enabledStateCache: { [triggerId: string]: boolean } = {};
 export const storeTriggers = defineStore("triggers", {
 	state: () =>
 		({
-			triggerList: [],
-			clipboard: [],
-			triggerTree: [],
-			currentEditTriggerData: null,
-			triggerIdToFolderEnabled: {},
-			selectedTriggerIDs: [],
-			exportingSelectedTriggers: false,
-		}) as ITriggersState,
+			triggerList: [] as ITriggersState["triggerList"],
+			clipboard: [] as ITriggersState["clipboard"],
+			triggerTree: [] as ITriggersState["triggerTree"],
+			currentEditTriggerData: null as ITriggersState["currentEditTriggerData"],
+			triggerIdToFolderEnabled: {} as ITriggersState["triggerIdToFolderEnabled"],
+		}) satisfies ITriggersState,
 
 	getters: {
 		queues(): string[] {
@@ -546,7 +544,7 @@ export const storeTriggers = defineStore("triggers", {
 			});
 			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", { triggerList: triggers });
 		},
-	} as ITriggersActions &
+	} satisfies ITriggersActions &
 		ThisType<
 			ITriggersActions &
 				UnwrapRef<ITriggersState> &

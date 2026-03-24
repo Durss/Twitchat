@@ -17,7 +17,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -40,31 +39,28 @@ export const storeStream = defineStore("stream", {
 		({
 			hypeTrain: undefined,
 			currentRaid: undefined,
-			playbackState: undefined,
 			communityBoostState: undefined,
-			streamInfoPreset: [],
+			streamInfoPreset: [] as IStreamState["streamInfoPreset"],
 			lastRaider: undefined,
 			shieldModeEnabled: false,
-			canStartAd: true,
-			commercial: {},
-			roomSettings: {}, //channelId => settings
-			currentStreamInfo: {}, //channelId => infos
-			raidHistory: [],
-			connectedTwitchChans: [],
+			commercial: {} as IStreamState["commercial"], //channelId => commercial infos
+			roomSettings: {} as IStreamState["roomSettings"], //channelId => settings
+			currentStreamInfo: {} as IStreamState["currentStreamInfo"], //channelId => infos
+			raidHistory: [] as IStreamState["raidHistory"],
+			connectedTwitchChans: [] as IStreamState["connectedTwitchChans"],
 			currentChatChannel: {
 				id: "",
 				name: "",
 				platform: "twitch",
 			},
-			autoconnectChans: [],
+			autoconnectChans: [] as IStreamState["autoconnectChans"],
 			currentVODUrl: "",
-		}) as IStreamState,
+		}) satisfies IStreamState,
 
-	getters: {} as IStreamGetters &
+	getters: {} satisfies IStreamGetters &
 		ThisType<
 			UnwrapRef<IStreamState> & _StoreWithGetters<IStreamGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IStreamState>,
+		>,
 
 	actions: {
 		populateData(): void {
@@ -1720,7 +1716,7 @@ export const storeStream = defineStore("stream", {
 				}
 			} catch (_error) {}
 		},
-	} as IStreamActions &
+	} satisfies IStreamActions &
 		ThisType<
 			IStreamActions &
 				UnwrapRef<IStreamState> &

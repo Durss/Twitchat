@@ -4,7 +4,13 @@ import ApiHelper from "@/utils/ApiHelper";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
-import { acceptHMRUpdate, defineStore, type _StoreWithGetters, type _StoreWithState, type PiniaCustomProperties } from "pinia";
+import {
+	acceptHMRUpdate,
+	defineStore,
+	type _StoreWithGetters,
+	type _StoreWithState,
+	type PiniaCustomProperties,
+} from "pinia";
 import type { UnwrapRef } from "vue";
 import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -80,12 +86,12 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 export const storeQuiz = defineStore("quiz", {
 	state: () =>
 		({
-			quizList: [],
+			quizList: [] as IQuizState["quizList"],
 			currentFreeAnswerStats: {
 				right: 0,
 				wrong: 0,
 			},
-		}) as IQuizState,
+		}) satisfies IQuizState,
 
 	getters: {} satisfies IQuizGetters &
 		ThisType<UnwrapRef<IQuizState> & _StoreWithGetters<IQuizGetters> & PiniaCustomProperties>,

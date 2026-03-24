@@ -6,7 +6,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -17,14 +16,13 @@ import StoreProxy from "../StoreProxy";
 export const storeRewards = defineStore("rewards", {
 	state: () =>
 		({
-			rewardList: [],
-		}) as IRewardsState,
+			rewardList: [] as IRewardsState["rewardList"],
+		}) satisfies IRewardsState,
 
-	getters: {} as IRewardsGetters &
+	getters: {} satisfies IRewardsGetters &
 		ThisType<
 			UnwrapRef<IRewardsState> & _StoreWithGetters<IRewardsGetters> & PiniaCustomProperties
-		> &
-		_GettersTree<IRewardsState>,
+		>,
 
 	actions: {
 		async loadRewards(): Promise<TwitchDataTypes.Reward[]> {
@@ -63,7 +61,7 @@ export const storeRewards = defineStore("rewards", {
 
 			return this.rewardList;
 		},
-	} as IRewardsActions &
+	} satisfies IRewardsActions &
 		ThisType<
 			IRewardsActions &
 				UnwrapRef<IRewardsState> &

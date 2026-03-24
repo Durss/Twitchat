@@ -5,7 +5,6 @@ import {
 	acceptHMRUpdate,
 	defineStore,
 	type PiniaCustomProperties,
-	type _GettersTree,
 	type _StoreWithGetters,
 	type _StoreWithState,
 } from "pinia";
@@ -25,15 +24,14 @@ export const storeTwitchBot = defineStore("switchbot", {
 			connecting: false,
 			authToken: null,
 			userInfos: null,
-		}) as ITwitchBotState,
+		}) satisfies ITwitchBotState,
 
-	getters: {} as ITwitchBotGetters &
+	getters: {} satisfies ITwitchBotGetters &
 		ThisType<
 			UnwrapRef<ITwitchBotState> &
 				_StoreWithGetters<ITwitchBotGetters> &
 				PiniaCustomProperties
-		> &
-		_GettersTree<ITwitchBotState>,
+		>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -151,7 +149,7 @@ export const storeTwitchBot = defineStore("switchbot", {
 			};
 			DataStore.set(DataStore.TWITCH_BOT, params);
 		},
-	} as ITwitchBotActions &
+	} satisfies ITwitchBotActions &
 		ThisType<
 			ITwitchBotActions &
 				UnwrapRef<ITwitchBotState> &
