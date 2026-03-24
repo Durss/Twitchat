@@ -3074,17 +3074,25 @@ const UserDataSchema = {
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										globalPercent: { type: "number", minimum: 0, maximum: 100 },
+										globalPercent: {
+											type: "number",
+											minimum: 0,
+											maximum: 100,
+											nullable: true,
+										},
 										relativePercent: {
 											type: "number",
 											minimum: 0,
 											maximum: 100,
+											nullable: true,
 										},
 										voteCount: {
 											type: "integer",
 											minimum: 0,
 											maximum: 100_000_000_000,
+											nullable: true,
 										},
+										nullable: true,
 									},
 								},
 							},
