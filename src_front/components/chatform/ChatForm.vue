@@ -731,6 +731,7 @@ import EventBus from "@/events/EventBus";
 import GlobalEvent from "@/events/GlobalEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
+import Database from "@/store/Database";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -743,6 +744,9 @@ import Utils from "@/utils/Utils";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import BTTVUtils from "@/utils/emotes/BTTVUtils";
+import FFZUtils from "@/utils/emotes/FFZUtils";
+import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import VoiceController from "@/utils/voice/VoiceController";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import { watch } from "@vue/runtime-core";
@@ -913,7 +917,7 @@ export class ChatForm extends Vue {
 
 	public get openAutoComplete(): boolean {
 		return (
-			this.autoCompleteSearch.length > 1 ||
+			this.autoCompleteSearch.length >= 1 ||
 			(this.autoCompleteCommands && this.autoCompleteSearch.length > 0)
 		);
 	}
@@ -1100,6 +1104,45 @@ export class ChatForm extends Vue {
 
 				const carretPos = input.selectionStart as number | 0;
 
+				//If emote autocomplete was active and user just typed a closing ":",
+				//check if the search text exactly matches an emote or emoji shortcode
+				if (
+					this.autoCompleteEmotes &&
+					this.autoCompleteSearch.length > 0 &&
+					carretPos > 0 &&
+					newVal.charAt(carretPos - 1) === ":"
+				) {
+					const search = this.autoCompleteSearch.toLowerCase();
+					//Check twitch/BTTV/7TV/FFZ emotes for exact code match
+					let emotes = TwitchUtils.emotesCache ?? [];
+					if (this.$store.params.appearance.bttvEmotes.value === true) {
+						emotes = emotes.concat(BTTVUtils.instance.emotes);
+					}
+					if (this.$store.params.appearance.sevenTVEmotes.value === true) {
+						emotes = emotes.concat(SevenTVUtils.instance.emotes);
+					}
+					if (this.$store.params.appearance.ffzEmotes.value === true) {
+						emotes = emotes.concat(FFZUtils.instance.emotes);
+					}
+					const exactEmote = emotes.find((e) => e.code.toLowerCase() === search);
+					if (exactEmote) {
+						this.message =
+							newVal.substring(0, carretPos - 1) + newVal.substring(carretPos);
+						this.onSelectItem(exactEmote.code);
+						return;
+					}
+					//Check emoji shortcodes for exact match
+					Database.instance.searchEmojiShortcodes(search, 1).then((emojiResults) => {
+						if (emojiResults.length > 0 && emojiResults[0]!.shortcode === search) {
+							this.message =
+								this.message.substring(0, carretPos - 1) +
+								this.message.substring(carretPos);
+							this.onSelectItem(emojiResults[0]!.emoji);
+						}
+					});
+					return;
+				}
+
 				for (let i = carretPos; i >= 0; i--) {
 					const currentChar = newVal.charAt(i);
 					const nextChar = newVal.charAt(i + 1);
@@ -1116,7 +1159,8 @@ export class ChatForm extends Vue {
 						(i == 0 && this.autoCompleteSearch)
 					) {
 						this.autoCompleteUsers = currentChar == "@";
-						this.autoCompleteEmotes = currentChar == ":" && /[a-z0-9]/i.test(nextChar);
+						this.autoCompleteEmotes =
+							currentChar == ":" && /[a-z0-9+-]/i.test(nextChar);
 						this.autoCompleteCommands = currentChar == "/" || currentChar == "!";
 						this.autoCompleteSearch = newVal.substring(i + offset, carretPos);
 						break;
