@@ -41,8 +41,9 @@
 					light
 					transparent
 					:disabled="showProgressbar"
+					:loading="loadingLeaderboard"
 					v-tooltip="$t('quiz.state.leaderboard_bt')"
-					@click="store.showLeaderBoard(currentQuiz.id)"
+					@click="openLeaderboard()"
 					v-if="hasLeaderboard"
 				/>
 				<TTButton
@@ -161,6 +162,7 @@ const store = storeQuiz();
 const auth = storeAuth();
 const progressPercent = ref(0);
 const fakeVotes = ref(false);
+const loadingLeaderboard = ref(false);
 
 const activeQuizList = computed(() => store.quizList.filter((v) => v.enabled));
 const currentQuizId = ref(activeQuizList.value[0]?.id);
@@ -188,7 +190,7 @@ const showProgressbar = computed(
 const liveStats = computed(() =>
 	store.computeQuestionStats(currentQuiz.value!.id, currentQuestion.value!.id),
 );
-const hasLeaderboard = computed(() => Object.keys(store.liveState?.users || {}).length > 0);
+const hasLeaderboard = computed(() => Object.keys(currentQuiz.value?.leaderboard || {}).length > 0);
 
 // if(currentQuiz.value) currentQuiz.value.questionStarted_at = "";//TODO: remove
 // if(currentQuiz.value) currentQuiz.value.currentQuestionId = "";//TODO: remove
@@ -231,6 +233,13 @@ async function fakeVote(): Promise<void> {
 		);
 	}
 }
+
+async function openLeaderboard(): Promise<void> {
+	loadingLeaderboard.value = true;
+	await store.showLeaderBoard(currentQuizId.value!);
+	loadingLeaderboard.value = false;
+}
+
 let fakeVoteInterval: number;
 if (auth.isAdmin) {
 	fakeVoteInterval = window.setInterval(fakeVote, 1000);

@@ -163,7 +163,7 @@ Events fired by Twitchat that you can listen to.
 - [ON_PREDICTION_PROGRESS](#on_prediction_progress)
 - [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)
 - [ON_QNA_SESSION_LIST](#on_qna_session_list)
-- [ON_QUIZ_LEADERBOARD](#on_quiz_leaderboard)
+- [ON_QUIZ_LEADERBOARD](#ON_QUIZ_LEADERBOARD)
 - [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)
 - [ON_QUIZ_STATE](#on_quiz_state)
 - [ON_REWARD_REDEEM](#on_reward_redeem)

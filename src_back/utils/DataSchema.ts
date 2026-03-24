@@ -3035,13 +3035,35 @@ const UserDataSchema = {
 									maximum: 100_000_000_000,
 								},
 							},
-							allScores: {
+							currentQuestionVotes: {
 								type: "object",
 								propertyNames: { maxLength: 50 },
 								additionalProperties: {
-									type: "number",
-									minimum: -100_000_000_000,
-									maximum: 100_000_000_000,
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										answer: { type: "string", maxLength: 500 },
+										voted_at: { type: "string", maxLength: 100 },
+									},
+								},
+							},
+							leaderboard: {
+								type: "object",
+								propertyNames: { maxLength: 50 },
+								additionalProperties: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										anon: { type: "boolean" },
+										platform: { type: "string", maxLength: 20 },
+										name: { type: "string", maxLength: 100 },
+										avatarPath: { type: "string", maxLength: 1000 },
+										score: {
+											type: "number",
+											minimum: -100_000_000_000,
+											maximum: 100_000_000_000,
+										},
+									},
 								},
 							},
 							currentQuestionStats: {
@@ -3141,48 +3163,6 @@ const UserDataSchema = {
 											required: ["mode"],
 										},
 									],
-								},
-							},
-						},
-					},
-				},
-				liveState: {
-					type: "object",
-					nullable: true,
-					additionalProperties: false,
-					properties: {
-						quizId: { type: "string", maxLength: 50 },
-						users: {
-							type: "object",
-							propertyNames: { maxLength: 50 },
-							additionalProperties: {
-								type: "object",
-								additionalProperties: false,
-								properties: {
-									id: { type: "string", maxLength: 100 },
-									platform: { type: "string", maxLength: 20 },
-									name: { type: "string", maxLength: 100 },
-									avatarPath: { type: "string", maxLength: 500 },
-									isAnonymous: { type: "boolean" },
-									score: { type: "number" },
-								},
-							},
-						},
-						questionVotes: {
-							type: "object",
-							propertyNames: { maxLength: 50 },
-							additionalProperties: {
-								type: "array",
-								minItems: 0,
-								maxItems: 100000,
-								items: {
-									type: "object",
-									additionalProperties: false,
-									properties: {
-										uid: { type: "string", maxLength: 50 },
-										answer: { type: "string", maxLength: 500 },
-										votedAt: { type: "string", maxLength: 200 },
-									},
 								},
 							},
 						},

@@ -1956,7 +1956,7 @@ export type TwitchatEventMap = {
 	/**
 	 * Receive quiz overlay leaderboard
 	 */
-	ON_QUIZ_LEADERBOARD: { leaderboard: TwitchatDataTypes.QuizState["users"] };
+	ON_QUIZ_LEADERBOARD: TwitchatDataTypes.QuizLeaderboard;
 	/**
 	 * Reveals the answer for current quiz question
 	 */

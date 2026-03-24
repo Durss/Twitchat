@@ -1,10 +1,10 @@
 import type { IChatState } from "@/store/StoreProxy";
+import type { AutocompletableString } from "@/typeUtils";
 import Config from "@/utils/Config";
+import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
-import type { OBSItemPath } from "@/utils/OBSWebsocket";
-import type { AutocompletableString } from "@/typeUtils";
 
 export namespace TwitchatDataTypes {
 	export type ChatPlatform =
@@ -4457,9 +4457,39 @@ export namespace TwitchatDataTypes {
 		 */
 		currentQuestionScores?: { [uid: string]: number };
 		/**
+		 * Contains scores for current question
+		 */
+		currentQuestionVotes?: { [uid: string]: { answer: string; voted_at: string } };
+		/**
 		 * Contains cumulated scores for all questions
 		 */
-		allScores?: { [uid: string]: number };
+		leaderboard: {
+			[uid: string]: {
+				/**
+				 * Is the user anonymous?
+				 * true when user has chose not to grant access to their user info on extension
+				 */
+				anon: boolean;
+				/**
+				 * Platform used to play the quiz
+				 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+				 */
+				platform?: ChatPlatform;
+				/**
+				 * User name
+				 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+				 */
+				name?: string;
+				/**
+				 * User's avatar URL
+				 */
+				avatarPath?: string;
+				/**
+				 * User score
+				 */
+				score: number;
+			};
+		};
 		/**
 		 * Votes for the current question.
 		 */
@@ -4574,61 +4604,7 @@ export namespace TwitchatDataTypes {
 		))[];
 	};
 
-	/**
-	 * Contains current state for any live quiz
-	 * Stores users votes and scores
-	 */
-	export type QuizState = {
-		quizId: string;
-		/**
-		 * Users list that played this quiz
-		 */
-		users: {
-			[userId: string]: {
-				/**
-				 * Is the user anonymous?
-				 * true when user has chose not to grant access to their user info on extension
-				 */
-				isAnonymous: boolean;
-				/**
-				 * Platform used to play the quiz
-				 */
-				platform: ChatPlatform;
-				/**
-				 * User name
-				 */
-				name: string;
-				/**
-				 * user's avatar URL
-				 */
-				avatarPath?: string;
-				/**
-				 * User score
-				 */
-				score: number;
-			};
-		};
-		/**
-		 * Votes for each questions.
-		 */
-		questionVotes: {
-			[questionId: string]: {
-				/**
-				 * User ID
-				 */
-				uid: string;
-				/**
-				 * Can be either an answer ID or a raw text answer for "freeAnswer" mode
-				 */
-				answer: string;
-				/**
-				 * Date (ISO 8601 string) when the vote was cast.
-				 * Used for time-based scoring on majority questions.
-				 */
-				votedAt?: string;
-			}[];
-		};
-	};
+	export type QuizLeaderboard = Record<string, Required<QuizParams["leaderboard"][string]>>;
 
 	/**
 	 * Defines the pinnable menu items

@@ -29,22 +29,25 @@ import gsap from "gsap/all";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 
 const props = defineProps<{
-	users: TwitchatDataTypes.QuizState["users"];
+	data: TwitchatDataTypes.QuizLeaderboard | null;
 }>();
 
 const rootEl = ref<HTMLElement | null>(null);
 let scrollAnimation: number | null = null;
 
 const rankedUsers = computed(() => {
-	const users = Object.entries(props.users).map(([uid, u]) => ({
-		uid,
-		name: u.name,
-		avatarPath: u.avatarPath,
-		platform: u.platform,
-		score: u.score,
-		isAnonymous: u.isAnonymous,
-		rank: 0,
-	}));
+	const users = Object.keys(props.data || {}).map((uid) => {
+		const u = props.data![uid]!;
+		return {
+			uid,
+			name: u.name,
+			avatarPath: u.avatarPath,
+			platform: u.platform,
+			score: u.score,
+			isAnonymous: u.anon,
+			rank: 0,
+		};
+	});
 	users.sort((a, b) => b.score - a.score);
 	let currentRank = 1;
 	for (let i = 0; i < users.length; i++) {
@@ -57,7 +60,7 @@ const rankedUsers = computed(() => {
 });
 
 watch(
-	() => props.users,
+	() => props.data,
 	() => {
 		nextTick(() => startScroll());
 	},
