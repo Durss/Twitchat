@@ -399,10 +399,14 @@ export const storeQuiz = defineStore("quiz", {
 			const quiz = this.quizList.find((v) => v.id === quizId);
 			if (!quiz) return;
 			const leaderboard: TwitchatDataTypes.QuizLeaderboard = {};
-			const promises: Promise<TwitchatDataTypes.TwitchatUser>[] = [];
+			const promises: Promise<TwitchatDataTypes.TwitchatUser | void>[] = [];
 			for (const uid in quiz.leaderboard) {
 				const element = quiz.leaderboard[uid]!;
-				const promise = new Promise<TwitchatDataTypes.TwitchatUser>((resolve) => {
+				const promise = new Promise<TwitchatDataTypes.TwitchatUser | void>((resolve) => {
+					if (element.anon) {
+						resolve();
+						return;
+					}
 					const platform = element.platform || "twitch";
 					StoreProxy.users.getUserFrom(
 						platform,
