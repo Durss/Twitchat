@@ -1771,11 +1771,11 @@ export default class Utils {
 
 		const adjIdx = hash % this.ADJECTIVES.length;
 		const nounIdx = Math.floor(hash / this.ADJECTIVES.length) % this.NOUNS.length;
-		const suffix = Math.floor(hash / (this.ADJECTIVES.length * this.NOUNS.length)) % 100;
+		const suffix = Math.floor(hash) % 10;
 
 		const adj = this.ADJECTIVES[adjIdx] as string;
 		const noun = this.NOUNS[nounIdx] as string;
-		const name = adj + noun + String(suffix).padStart(2, "0");
+		const name = adj + noun + suffix.toString();
 		return name;
 	}
 
