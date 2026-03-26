@@ -13,9 +13,10 @@
 			>
 				<span class="rank">#{{ user.rank }}</span>
 				<img v-if="user.avatarPath" :src="user.avatarPath" class="avatar" alt="" />
+				<Icon v-else-if="user.isAnonymous" name="anon" class="avatar anon" />
 				<Icon v-else name="avatar" class="avatar" />
-				<Icon :name="user.platform" class="platform-icon" />
-				<span class="name">{{ user.isAnonymous ? "Anonymous" : user.name }}</span>
+				<Icon v-if="user.platform" :name="user.platform" class="platform-icon" />
+				<span class="name">{{ user.name }}</span>
 				<span class="score">{{ user.score.toFixed(1) }}</span>
 			</div>
 		</div>
@@ -25,6 +26,7 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
 import gsap from "gsap/all";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 
@@ -40,7 +42,7 @@ const rankedUsers = computed(() => {
 		const u = props.data![uid]!;
 		return {
 			uid,
-			name: u.name,
+			name: u.anon ? Utils.getNameFromOpaqueId(uid) : u.name,
 			avatarPath: u.avatarPath,
 			platform: u.platform,
 			score: u.score,
@@ -226,7 +228,10 @@ onBeforeUnmount(() => {
 			border-radius: 50%;
 			object-fit: cover;
 			flex-shrink: 0;
-			border: 1px solid rgba(0, 0, 0, 0.8);
+			&.anon {
+				border: 1px solid currentColor;
+				padding: 0.25em;
+			}
 		}
 
 		.icon {
