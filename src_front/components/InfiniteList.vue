@@ -1,5 +1,11 @@
 <template>
-	<component :is="nodeType" :style="holderStyles" :class="holderClasses" @wheel="onWheel($event)">
+	<component
+		ref="rootEl"
+		:is="nodeType"
+		:style="holderStyles"
+		:class="holderClasses"
+		@wheel="onWheel($event)"
+	>
 		<div
 			v-for="(item, index) in items"
 			:key="index"
@@ -15,299 +21,309 @@
 	</component>
 </template>
 
-<script lang="ts">
-import type { CSSProperties } from "vue";
-import { watch } from "vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+<script setup lang="ts" generic="T">
+import {
+	computed,
+	type CSSProperties,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	shallowRef,
+	useTemplateRef,
+	watch,
+} from "vue";
 
-@Component({
-	components: {},
-	emits: ["update:scrollOffset"],
-})
-class InfiniteList extends Vue {
-	@Prop({
-		type: String,
-		default: "div",
-	})
-	public nodeType!: string;
-	@Prop({
-		type: Number,
-		default: 50,
-	})
-	public itemSize!: number;
-	@Prop({
-		type: Number,
-		default: 0,
-	})
-	public itemMargin!: number;
-	@Prop({
-		type: Number,
-		default: 500,
-	})
-	public listHeight!: number;
-	@Prop({
-		type: Number,
-		default: 0,
-	})
-	public scrollOffset!: number;
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public lockScroll!: boolean;
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public noScrollbar!: boolean;
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public fillWithDuplicates!: boolean;
-	@Prop({
-		type: [Array],
-		default: [],
-		required: true,
-	})
-	public dataset!: unknown[];
-
-	public items: IListItem[] = [];
-	public scrollOffset_local: number = 0;
-	public scrollOffset_local_eased: number = 0;
-	public cursorY: number = 0;
-	public cursorSize: number = 0;
-
-	private mouseY: number = 0;
-	private maxScrollY: number = 0;
-	private cursorOffsetY: number = 0;
-	private draggingList: boolean = false;
-	private draggingListOffset: number = 0;
-	private draggingCursor: boolean = false;
-	private disposed: boolean = false;
-	private canScroll: boolean = true;
-	private trackPressed: boolean = false;
-	private dragStartHandler!: (e: MouseEvent | TouchEvent) => void;
-	private dragHandler!: (e: MouseEvent | TouchEvent) => void;
-	private dragStopHandler!: (e: MouseEvent | TouchEvent) => void;
-	private dragStartListHandler!: (e: TouchEvent) => void;
-
-	public getStyles(i: number): CSSProperties | undefined {
-		return {
-			height: this.itemSize + "px",
-			top: this.items[i]!.py + "px",
-		};
-	}
-
-	public get holderClasses(): string[] {
-		let res = ["infinitelist"];
-		if (!this.showScrollbar) res.push("noScroll");
-		return res;
-	}
-
-	public get holderStyles(): CSSProperties {
-		if (this.fillWithDuplicates === false) {
-			return {
-				height: this.dataset.length * (this.itemSize + this.itemMargin) + 1 + "px",
-			};
-		}
-		return {};
-	}
-
-	public get cursorStyles(): CSSProperties {
-		return {
-			top: this.cursorY + "px",
-			height: this.cursorSize + "px",
-		};
-	}
-
-	public get showScrollbar(): boolean {
-		return this.noScrollbar === false && this.canScroll;
-	}
-
-	public mounted(): void {
-		this.scrollOffset_local = this.scrollOffset;
-		watch(
-			() => this.scrollOffset,
-			() => {
-				if (this.scrollOffset_local_eased === this.scrollOffset) return; //Avoid useless render
-				this.scrollOffset_local = this.scrollOffset;
-			},
-		);
-
-		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
-		if (scrollbar) {
-			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
-
-			this.dragStartListHandler = (e: TouchEvent) => this.ondragStartList(e);
-			this.dragStartHandler = (e: MouseEvent | TouchEvent) => this.onDragStart(e);
-			this.dragHandler = (e: MouseEvent | TouchEvent) => this.onDrag(e);
-			this.dragStopHandler = (e: MouseEvent | TouchEvent) => this.onDragStop(e);
-
-			scrollbar.addEventListener("mousedown", this.dragStartHandler);
-			scrollbarCursor.addEventListener("mousedown", this.dragStartHandler);
-			scrollbarCursor.addEventListener("touchstart", this.dragStartHandler);
-			document.addEventListener("mousemove", this.dragHandler);
-			document.addEventListener("touchmove", this.dragHandler);
-			document.addEventListener("mouseup", this.dragStopHandler);
-			document.addEventListener("touchend", this.dragStopHandler);
-			this.$el.addEventListener("touchstart", this.dragStartListHandler);
-		}
-
-		requestAnimationFrame(() => this.renderList());
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
-		if (scrollbar) {
-			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
-
-			scrollbar.addEventListener("mousedown", this.dragStartHandler);
-			scrollbarCursor.removeEventListener("mousedown", this.dragStartHandler);
-			scrollbarCursor.removeEventListener("touchstart", this.dragStartHandler);
-			document.removeEventListener("mousemove", this.dragHandler);
-			document.removeEventListener("touchmove", this.dragHandler);
-			document.removeEventListener("mouseup", this.dragStopHandler);
-			document.removeEventListener("touchend", this.dragStopHandler);
-			this.$el.removeEventListener("touchstart", this.dragStartListHandler);
-		}
-	}
-
-	public onWheel(e: WheelEvent): void {
-		this.scrollOffset_local += e.deltaY;
-		if (this.lockScroll) {
-			if (this.scrollOffset_local <= 0 && e.deltaY < 0) return;
-			if (this.scrollOffset_local > this.maxScrollY && e.deltaY > 0) return;
-		}
-		e.preventDefault();
-	}
-
-	private onDragStart(e: MouseEvent | TouchEvent): void {
-		e.preventDefault();
-		this.onDrag(e);
-		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
-		const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
-		const scrollbarCursor_b = scrollbarCursor.getBoundingClientRect();
-		this.cursorOffsetY = this.mouseY - scrollbarCursor_b.top;
-		if (e.target == scrollbar) {
-			this.trackPressed = true;
-		} else {
-			this.draggingCursor = true;
-		}
-	}
-
-	private ondragStartList(e: MouseEvent | TouchEvent): void {
-		e.preventDefault();
-		this.onDrag(e);
-		this.draggingList = true;
-		this.draggingListOffset = this.mouseY;
-	}
-
-	private onDrag(e: MouseEvent | TouchEvent): void {
-		if (e.type == "mousemove" || e.type == "mousedown") {
-			this.mouseY = (e as MouseEvent).clientY;
-		} else {
-			this.mouseY = (e as TouchEvent).touches[0]!.clientY;
-		}
-	}
-
-	private onDragStop(e: MouseEvent | TouchEvent): void {
-		this.draggingCursor = false;
-		this.trackPressed = false;
-		this.draggingList = false;
-	}
-
-	private async renderList(): Promise<void> {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderList());
-
-		const bounds = this.$el.getBoundingClientRect();
-		const itemsCount = Math.ceil(bounds.height / (this.itemSize + this.itemMargin)) + 2;
-		this.maxScrollY = this.dataset.length * (this.itemSize + this.itemMargin) - bounds.height;
-		this.scrollOffset_local_eased +=
-			(this.scrollOffset_local - this.scrollOffset_local_eased) * 0.1;
-
-		if (itemsCount != this.items.length) {
-			const items: IListItem[] = [];
-			for (let i = 0; i < itemsCount; i++) {
-				items.push({ id: i, data: this.dataset[i], py: 0 });
-			}
-			this.items = items;
-		}
-
-		if (this.lockScroll !== false) {
-			if (this.scrollOffset_local_eased < 0) {
-				this.scrollOffset_local = this.scrollOffset_local_eased = 0;
-			}
-			if (this.scrollOffset_local_eased > this.maxScrollY) {
-				this.scrollOffset_local = this.scrollOffset_local_eased = this.maxScrollY;
-			}
-		}
-
-		const ih = this.itemSize + this.itemMargin;
-
-		this.canScroll =
-			this.fillWithDuplicates !== false || this.dataset.length * ih > bounds.height;
-		const vPos = this.canScroll ? this.scrollOffset_local_eased : 0;
-
-		for (let i = 0; i < this.items.length; i++) {
-			const len = this.items.length;
-			let index: number = (i - vPos / ih) % len;
-			if (index < -1) index += len;
-			let py: number = index * ih;
-			py -= ih; //offset all from one item to top to avoid a gap when scrolling to top
-
-			let dataIndex: number = Math.round((py + vPos) / ih);
-			if (this.fillWithDuplicates !== false) {
-				dataIndex = dataIndex % this.dataset.length;
-				if (dataIndex < 0) dataIndex += this.dataset.length;
-			}
-
-			this.items[i]!.py = py;
-			this.items[i]!.data = dataIndex < this.dataset.length ? this.dataset[dataIndex] : null;
-		}
-
-		if (this.draggingList) {
-			this.scrollOffset_local -= (this.mouseY - this.draggingListOffset) * 2;
-			this.draggingListOffset = this.mouseY;
-		}
-
-		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
-		if (scrollbar) {
-			const scrollbar_b = scrollbar.getBoundingClientRect();
-			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
-			const scrollbarCursor_b = scrollbarCursor.getBoundingClientRect();
-			const scrollH = scrollbar_b.height - scrollbarCursor_b.height;
-			if (this.draggingCursor) {
-				const py = (this.mouseY - scrollbar_b.top - this.cursorOffsetY) / scrollH;
-				// console.log(py);
-				this.scrollOffset_local = this.maxScrollY * py;
-			} else if (this.trackPressed) {
-				const py = (this.mouseY - scrollbar_b.top - scrollbarCursor_b.height / 2) / scrollH;
-				// console.log(py);
-				this.scrollOffset_local = this.maxScrollY * py;
-			}
-			this.cursorY = (this.scrollOffset_local_eased / this.maxScrollY) * scrollH;
-			this.cursorSize = Math.max(
-				20,
-				(bounds.height / (this.maxScrollY + bounds.height)) * scrollbar_b.height,
-			);
-		}
-
-		if (this.scrollOffset_local_eased != this.scrollOffset) {
-			this.$emit("update:scrollOffset", this.scrollOffset_local_eased);
-		}
-	}
-}
-
-interface IListItem {
+interface IListItem<T> {
 	id: number;
-	data: unknown;
 	py: number;
+	data: T | null;
 }
 
-export default toNative(InfiniteList);
+const props = withDefaults(
+	defineProps<{
+		nodeType?: string;
+		itemSize?: number;
+		itemMargin?: number;
+		listHeight?: number;
+		scrollOffset?: number;
+		lockScroll?: boolean;
+		noScrollbar?: boolean;
+		fillWithDuplicates?: boolean;
+		dataset: T[];
+	}>(),
+	{
+		nodeType: "div",
+		itemSize: 50,
+		itemMargin: 0,
+		listHeight: 500,
+		scrollOffset: 0,
+		fillWithDuplicates: false,
+	},
+);
+
+const emit = defineEmits<{
+	"update:scrollOffset": [value: number];
+}>();
+
+const rootElRef = useTemplateRef<HTMLElement>("rootEl");
+const scrollbarRef = useTemplateRef("scrollbar");
+const cursorRef = useTemplateRef("cursor");
+
+const items = shallowRef<IListItem<T>[]>([]);
+const scrollOffset_local = ref(0);
+const scrollOffset_local_eased = ref(0);
+const cursorY = ref(0);
+const cursorSize = ref(0);
+const canScroll = ref(true);
+
+let mouseY = 0;
+let maxScrollY = 0;
+let cursorOffsetY = 0;
+let draggingList = false;
+let draggingListOffset = 0;
+let draggingCursor = false;
+let disposed = false;
+let trackPressed = false;
+let scaleFactor = 1;
+let draggSpeed = 0;
+let dragStartHandler: (e: MouseEvent | TouchEvent) => void;
+let dragHandler: (e: MouseEvent | TouchEvent) => void;
+let dragStopHandler: (e: MouseEvent | TouchEvent) => void;
+let dragStartListHandler: (e: TouchEvent) => void;
+
+function getStyles(i: number): CSSProperties | undefined {
+	return {
+		height: props.itemSize + "px",
+		// top: items.value[i]!.py + 'px',
+		transform: `translateY(${items.value[i]!.py}px)`,
+	};
+}
+
+const holderClasses = computed(() => {
+	let res = ["infinitelist"];
+	if (!showScrollbar.value) res.push("noScroll");
+	return res;
+});
+
+const holderStyles = computed<CSSProperties>(() => {
+	if (props.fillWithDuplicates === false) {
+		return {
+			height: props.dataset.length * (props.itemSize + props.itemMargin) + 1 + "px",
+		};
+	}
+	return {};
+});
+
+const cursorStyles = computed<CSSProperties>(() => {
+	return {
+		top: cursorY.value + "px",
+		height: cursorSize.value + "px",
+	};
+});
+
+const showScrollbar = computed<boolean>(() => {
+	return props.noScrollbar === false && canScroll.value;
+});
+
+function onWheel(e: WheelEvent): void {
+	scrollOffset_local.value += e.deltaY;
+	if (props.lockScroll) {
+		if (scrollOffset_local.value <= 0 && e.deltaY < 0) return;
+		if (scrollOffset_local.value > maxScrollY && e.deltaY > 0) return;
+	}
+	e.preventDefault();
+}
+
+function onDragStart(e: MouseEvent | TouchEvent): void {
+	e.preventDefault();
+	onDrag(e);
+	const scrollbarEl = scrollbarRef.value!;
+	const cursorEl = cursorRef.value!;
+	const cursorEl_b = cursorEl.getBoundingClientRect();
+	cursorOffsetY = mouseY - cursorEl_b.top;
+	if (e.target == scrollbarEl) {
+		trackPressed = true;
+	} else {
+		draggingCursor = true;
+	}
+}
+
+function ondragStartList(e: MouseEvent | TouchEvent): void {
+	e.preventDefault();
+	onDrag(e);
+	draggingList = true;
+	draggingListOffset = mouseY;
+}
+
+function onDrag(e: MouseEvent | TouchEvent): void {
+	if (e.type == "mousemove" || e.type == "mousedown") {
+		mouseY = (e as MouseEvent).clientY;
+	} else {
+		mouseY = (e as TouchEvent).touches[0]!.clientY;
+	}
+}
+
+function onDragStop(_e: MouseEvent | TouchEvent): void {
+	if (draggingList) {
+		scrollOffset_local.value += draggSpeed * 20;
+	}
+	draggingCursor = false;
+	trackPressed = false;
+	draggingList = false;
+}
+
+/**
+ * Scrolls to given item index, centering it in the view if possible
+ * @param index
+ */
+function scrollToIndex(index: number): void {
+	const rootEl = rootElRef.value!;
+	const bounds = rootEl.getBoundingClientRect();
+	scaleFactor = bounds.height / rootEl.offsetHeight || 1;
+	const unscaledHeight = bounds.height / scaleFactor;
+	scrollOffset_local.value =
+		index * (props.itemSize + props.itemMargin) -
+		unscaledHeight / 2 +
+		(props.itemSize + props.itemMargin) / 2;
+}
+
+async function renderList(): Promise<void> {
+	if (disposed) return;
+	requestAnimationFrame(() => renderList());
+
+	const rootEl = rootElRef.value!;
+	const bounds = rootEl.getBoundingClientRect();
+	scaleFactor = bounds.height / rootEl.offsetHeight || 1;
+	const unscaledHeight = bounds.height / scaleFactor;
+	const itemsCount = Math.ceil(unscaledHeight / (props.itemSize + props.itemMargin)) + 2;
+	maxScrollY = props.dataset.length * (props.itemSize + props.itemMargin) - unscaledHeight;
+	scrollOffset_local_eased.value +=
+		(scrollOffset_local.value - scrollOffset_local_eased.value) * 0.1;
+
+	if (itemsCount != items.value.length) {
+		const newItems: IListItem<T>[] = [];
+		for (let i = 0; i < itemsCount; i++) {
+			newItems.push({ id: i, data: props.dataset[i]!, py: 0 });
+		}
+		items.value = newItems;
+	}
+
+	if (props.lockScroll !== false) {
+		if (scrollOffset_local_eased.value < 0) {
+			scrollOffset_local.value = scrollOffset_local_eased.value = 0;
+		}
+		if (scrollOffset_local_eased.value > maxScrollY) {
+			scrollOffset_local.value = scrollOffset_local_eased.value = maxScrollY;
+		}
+	}
+
+	const ih = props.itemSize + props.itemMargin;
+
+	canScroll.value =
+		props.fillWithDuplicates !== false || props.dataset.length * ih > unscaledHeight;
+	const vPos = canScroll.value ? scrollOffset_local_eased.value : 0;
+
+	for (let i = 0; i < items.value.length; i++) {
+		const len = items.value.length;
+		let index: number = (i - vPos / ih) % len;
+		if (index < -1) index += len;
+		let py: number = index * ih;
+		py -= ih; //offset all from one item to top to avoid a gap when scrolling to top
+
+		let dataIndex: number = Math.round((py + vPos) / ih);
+		if (props.fillWithDuplicates !== false) {
+			dataIndex = dataIndex % props.dataset.length;
+			if (dataIndex < 0) dataIndex += props.dataset.length;
+		}
+
+		items.value[i]!.py = py;
+		items.value[i]!.data = dataIndex < props.dataset.length ? props.dataset[dataIndex]! : null;
+	}
+
+	if (draggingList) {
+		const prevScrollOffset = scrollOffset_local.value;
+		scrollOffset_local.value -= (mouseY - draggingListOffset) / scaleFactor;
+		draggingListOffset = mouseY;
+		draggSpeed = (scrollOffset_local.value - prevScrollOffset) / scaleFactor;
+	}
+
+	const scrollbarEl = scrollbarRef.value;
+	if (scrollbarEl) {
+		const scrollbar_b = scrollbarEl.getBoundingClientRect();
+		const cursorEl = cursorRef.value!;
+		const cursorEl_b = cursorEl.getBoundingClientRect();
+		const scrollH = scrollbar_b.height - cursorEl_b.height;
+		if (draggingCursor) {
+			const py = (mouseY - scrollbar_b.top - cursorOffsetY) / scrollH;
+			scrollOffset_local.value = maxScrollY * py;
+		} else if (trackPressed) {
+			const py = (mouseY - scrollbar_b.top - cursorEl_b.height / 2) / scrollH;
+			scrollOffset_local.value = maxScrollY * py;
+		}
+		cursorY.value = ((scrollOffset_local_eased.value / maxScrollY) * scrollH) / scaleFactor;
+		cursorSize.value = Math.max(
+			50,
+			((unscaledHeight / (maxScrollY + unscaledHeight)) * scrollbar_b.height) / scaleFactor,
+		);
+	}
+
+	if (scrollOffset_local_eased.value != props.scrollOffset) {
+		emit("update:scrollOffset", scrollOffset_local_eased.value);
+	}
+}
+
+watch(
+	() => props.scrollOffset,
+	() => {
+		if (scrollOffset_local_eased.value === props.scrollOffset) return;
+		scrollOffset_local.value = props.scrollOffset;
+	},
+);
+
+onMounted(() => {
+	scrollOffset_local.value = props.scrollOffset;
+
+	const scrollbarEl = scrollbarRef.value;
+	if (scrollbarEl) {
+		const cursorEl = cursorRef.value!;
+
+		dragStartListHandler = (e: TouchEvent) => ondragStartList(e);
+		dragStartHandler = (e: MouseEvent | TouchEvent) => onDragStart(e);
+		dragHandler = (e: MouseEvent | TouchEvent) => onDrag(e);
+		dragStopHandler = (e: MouseEvent | TouchEvent) => onDragStop(e);
+
+		scrollbarEl.addEventListener("mousedown", dragStartHandler);
+		cursorEl.addEventListener("mousedown", dragStartHandler);
+		cursorEl.addEventListener("touchstart", dragStartHandler);
+		document.addEventListener("mousemove", dragHandler);
+		document.addEventListener("touchmove", dragHandler);
+		document.addEventListener("mouseup", dragStopHandler);
+		document.addEventListener("touchend", dragStopHandler);
+		rootElRef.value!.addEventListener("touchstart", dragStartListHandler);
+	}
+
+	requestAnimationFrame(() => renderList());
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+	const scrollbarEl = scrollbarRef.value;
+	if (scrollbarEl) {
+		const cursorEl = cursorRef.value!;
+
+		scrollbarEl.removeEventListener("mousedown", dragStartHandler);
+		cursorEl.removeEventListener("mousedown", dragStartHandler);
+		cursorEl.removeEventListener("touchstart", dragStartHandler);
+		document.removeEventListener("mousemove", dragHandler);
+		document.removeEventListener("touchmove", dragHandler);
+		document.removeEventListener("mouseup", dragStopHandler);
+		document.removeEventListener("touchend", dragStopHandler);
+		rootElRef.value!.removeEventListener("touchstart", dragStartListHandler);
+	}
+});
+defineExpose({
+	scrollToIndex,
+});
 </script>
 
 <style scoped lang="less">
