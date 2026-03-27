@@ -121,8 +121,10 @@
 			<div class="menuItem">
 				<TTButton
 					@click.capture="
-						$emit('update:showRewards', true);
-						close();
+						if (hasChannelPoints) {
+							$emit('update:showRewards', true);
+							close();
+						}
 					"
 					icon="channelPoints"
 					v-tooltip="
