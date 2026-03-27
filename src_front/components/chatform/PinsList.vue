@@ -28,8 +28,17 @@ import { Component, toNative, Vue } from "vue-facing-decorator";
 class PinsList extends Vue {
 	private clickHandler!: (e: MouseEvent) => void;
 
+	public get hasChannelPoints(): boolean {
+		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
+	}
+
 	public get pinList() {
-		const pins = TwitchatDataTypes.PinnableMenuItems.map((v) => {
+		const pins = TwitchatDataTypes.PinnableMenuItems.filter((v) => {
+			if (v.id == "rewards" || v.id == "poll" || v.id == "prediction") {
+				return this.hasChannelPoints;
+			}
+			return true;
+		}).map((v) => {
 			return {
 				id: v.id,
 				icon: v.icon,
