@@ -15,7 +15,7 @@ import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } fro
 export const storePoll = defineStore("poll", {
 	state: () =>
 		({
-			data: null,
+			data: null as IPollState["data"] | null,
 			overlayParams: {
 				showTitle: true,
 				listMode: true,

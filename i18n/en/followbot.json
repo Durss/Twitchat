@@ -2,7 +2,7 @@
 	"followbot": {
 		"title": "Review {COUNT} follower | Review {COUNT} followers",
 		"header": "List of user that followed you during the emergency",
-		"search_placeholder": "username...",
+		"search_placeholder": "search username...",
 		"banBt": "Ban all users",
 		"unfollowBt": "Remove all followers",
 		"exportBt": "Export CSV",
