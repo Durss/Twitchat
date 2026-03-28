@@ -2,7 +2,7 @@
 	"followbot": {
 		"title": "Examiner {COUNT} follower | Examiner {COUNT} followers",
 		"header": "Liste des personnes vous ayant suivi durant le mode urgence",
-		"search_placeholder": "login...",
+		"search_placeholder": "chercher un pseudo...",
 		"banBt": "Tout bannir",
 		"unfollowBt": "Supprimer followers",
 		"exportBt": "Exporter en CSV",

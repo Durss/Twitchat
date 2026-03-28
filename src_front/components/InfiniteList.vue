@@ -10,7 +10,7 @@
 			v-for="(item, index) in items"
 			:key="index"
 			class="list-item"
-			:style="getStyles(index)"
+			:style="{ height: props.itemSize + 'px' }"
 		>
 			<slot v-if="item.data" :item="item.data" :index="index"> </slot>
 		</div>
@@ -29,6 +29,7 @@ import {
 	onMounted,
 	ref,
 	shallowRef,
+	triggerRef,
 	useTemplateRef,
 	watch,
 } from "vue";
@@ -90,14 +91,6 @@ let dragStartHandler: (e: MouseEvent | TouchEvent) => void;
 let dragHandler: (e: MouseEvent | TouchEvent) => void;
 let dragStopHandler: (e: MouseEvent | TouchEvent) => void;
 let dragStartListHandler: (e: TouchEvent) => void;
-
-function getStyles(i: number): CSSProperties | undefined {
-	return {
-		height: props.itemSize + "px",
-		// top: items.value[i]!.py + 'px',
-		transform: `translateY(${items.value[i]!.py}px)`,
-	};
-}
 
 const holderClasses = computed(() => {
 	let res = ["infinitelist"];
@@ -176,7 +169,7 @@ function onDragStop(_e: MouseEvent | TouchEvent): void {
  * Scrolls to given item index, centering it in the view if possible
  * @param index
  */
-function scrollToIndex(index: number): void {
+function scrollToIndex(index: number, ease: boolean = true): void {
 	const rootEl = rootElRef.value!;
 	const bounds = rootEl.getBoundingClientRect();
 	scaleFactor = bounds.height / rootEl.offsetHeight || 1;
@@ -185,6 +178,9 @@ function scrollToIndex(index: number): void {
 		index * (props.itemSize + props.itemMargin) -
 		unscaledHeight / 2 +
 		(props.itemSize + props.itemMargin) / 2;
+	if (!ease) {
+		scrollOffset_local_eased.value = scrollOffset_local.value;
+	}
 }
 
 async function renderList(): Promise<void> {
@@ -195,10 +191,13 @@ async function renderList(): Promise<void> {
 	const bounds = rootEl.getBoundingClientRect();
 	scaleFactor = bounds.height / rootEl.offsetHeight || 1;
 	const unscaledHeight = bounds.height / scaleFactor;
-	const itemsCount = Math.ceil(unscaledHeight / (props.itemSize + props.itemMargin)) + 2;
+	const bufferCount = 1;
+	const itemsCount =
+		Math.ceil(unscaledHeight / (props.itemSize + props.itemMargin)) + bufferCount;
 	maxScrollY = props.dataset.length * (props.itemSize + props.itemMargin) - unscaledHeight;
-	scrollOffset_local_eased.value +=
-		(scrollOffset_local.value - scrollOffset_local_eased.value) * 0.1;
+	const ih = props.itemSize + props.itemMargin;
+	const easedStep = (scrollOffset_local.value - scrollOffset_local_eased.value) * 0.1;
+	scrollOffset_local_eased.value += easedStep;
 
 	if (itemsCount != items.value.length) {
 		const newItems: IListItem<T>[] = [];
@@ -217,28 +216,27 @@ async function renderList(): Promise<void> {
 		}
 	}
 
-	const ih = props.itemSize + props.itemMargin;
-
 	canScroll.value =
 		props.fillWithDuplicates !== false || props.dataset.length * ih > unscaledHeight;
 	const vPos = canScroll.value ? scrollOffset_local_eased.value : 0;
 
-	for (let i = 0; i < items.value.length; i++) {
-		const len = items.value.length;
-		let index: number = (i - vPos / ih) % len;
-		if (index < -1) index += len;
-		let py: number = index * ih;
-		py -= ih; //offset all from one item to top to avoid a gap when scrolling to top
+	// Compute the first visible data index, then offset by half the buffer
+	const firstVisible = Math.floor(vPos / ih) - Math.floor(bufferCount / 2);
 
-		let dataIndex: number = Math.round((py + vPos) / ih);
+	for (let i = 0; i < items.value.length; i++) {
+		let dataIndex = firstVisible + i;
+		const py = dataIndex * ih - vPos;
+
 		if (props.fillWithDuplicates !== false) {
 			dataIndex = dataIndex % props.dataset.length;
 			if (dataIndex < 0) dataIndex += props.dataset.length;
 		}
 
 		items.value[i]!.py = py;
-		items.value[i]!.data = dataIndex < props.dataset.length ? props.dataset[dataIndex]! : null;
+		items.value[i]!.data =
+			dataIndex >= 0 && dataIndex < props.dataset.length ? props.dataset[dataIndex]! : null;
 	}
+	triggerRef(items);
 
 	if (draggingList) {
 		const prevScrollOffset = scrollOffset_local.value;
@@ -256,9 +254,12 @@ async function renderList(): Promise<void> {
 		if (draggingCursor) {
 			const py = (mouseY - scrollbar_b.top - cursorOffsetY) / scrollH;
 			scrollOffset_local.value = maxScrollY * py;
+			scrollOffset_local_eased.value = maxScrollY * py;
 		} else if (trackPressed) {
 			const py = (mouseY - scrollbar_b.top - cursorEl_b.height / 2) / scrollH;
 			scrollOffset_local.value = maxScrollY * py;
+			// scrollOffset_local_eased.value = maxScrollY * py;
+			console.log("ok");
 		}
 		cursorY.value = ((scrollOffset_local_eased.value / maxScrollY) * scrollH) / scaleFactor;
 		cursorSize.value = Math.max(
@@ -266,6 +267,10 @@ async function renderList(): Promise<void> {
 			((unscaledHeight / (maxScrollY + unscaledHeight)) * scrollbar_b.height) / scaleFactor,
 		);
 	}
+
+	rootEl.querySelectorAll(".list-item").forEach((el, index) => {
+		(el as HTMLElement).style.transform = `translateY(${items.value[index]!.py}px)`;
+	});
 
 	if (scrollOffset_local_eased.value != props.scrollOffset) {
 		emit("update:scrollOffset", scrollOffset_local_eased.value);
