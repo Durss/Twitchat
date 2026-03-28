@@ -19,7 +19,7 @@ import StoreProxy, {
 export const storePrediction = defineStore("prediction", {
 	state: () =>
 		({
-			data: null,
+			data: null as IPredictionState["data"] | null,
 			overlayParams: {
 				showTitle: true,
 				listMode: true,

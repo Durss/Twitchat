@@ -17,7 +17,6 @@
 			<div class="content">
 				<div class="info">{{ $t("followbot.header") }}</div>
 				<div class="searchField">
-					<span>{{ $t("global.search") }}</span>
 					<input
 						type="text"
 						v-model="search"
@@ -363,6 +362,7 @@ export default toNative(EmergencyFollowsListModal);
 .emergencyfollowslistmodal {
 	.holder {
 		max-width: 600px;
+		max-height: calc(100vh - 50px);
 
 		& > .icon {
 			margin: auto;
