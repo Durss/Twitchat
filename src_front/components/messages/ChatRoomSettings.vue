@@ -35,7 +35,16 @@
 			>
 				<span
 					><Icon class="icon" name="follow" />{{
-						$t("chat.room_settings.follow_only")
+						$t(
+							"chat.room_settings.follow_only",
+							{
+								DURATION: messageData.settings.followOnly,
+							},
+							typeof messageData.settings.followOnly == "number" &&
+								messageData.settings.followOnly > 0
+								? 2
+								: 1,
+						)
 					}}</span
 				>
 				<TTButton v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{
@@ -44,9 +53,15 @@
 			</div>
 			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
 				<span
-					><Icon class="icon" name="slow" />{{ $t("chat.room_settings.slow_mode") }} ({{
-						messageData.settings.slowMode
-					}}s)</span
+					><Icon class="icon" name="slow" />{{
+						$t(
+							"chat.room_settings.slow_mode",
+							{
+								DURATION: messageData.settings.slowMode,
+							},
+							messageData.settings.slowMode,
+						)
+					}}</span
 				>
 				<TTButton v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{
 					$t("chat.room_settings.unsetBt")
@@ -54,9 +69,15 @@
 			</div>
 			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
 				<span
-					><Icon class="icon" name="timer" />{{ $t("chat.room_settings.chat_delay") }} ({{
-						messageData.settings.chatDelay
-					}}s)</span
+					><Icon class="icon" name="timer" />{{
+						$t(
+							"chat.room_settings.chat_delay",
+							{
+								DURATION: messageData.settings.chatDelay,
+							},
+							messageData.settings.chatDelay,
+						)
+					}}</span
 				>
 				<TTButton v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{
 					$t("chat.room_settings.unsetBt")
