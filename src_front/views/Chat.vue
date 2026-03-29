@@ -409,7 +409,7 @@ import Login from "./Login.vue";
 import ShareParams from "./ShareParams.vue";
 import PublicAPI from "@/utils/PublicAPI";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
-import QuizForm from "@/components/chatform/quiz/QuizForm.vue";
+import QuizForm from "@/components/quiz/QuizForm.vue";
 
 @Component({
 	components: {

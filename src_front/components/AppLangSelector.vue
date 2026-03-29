@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import DataStore from "@/store/DataStore";
-import { computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import CountryFlag from "vue-country-flag-next";
 import { useI18n } from "vue-i18n";
 import Icon from "./Icon.vue";
