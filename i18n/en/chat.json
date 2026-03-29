@@ -176,9 +176,9 @@
 			"title": "{ROOM} room has the following restrictions:",
 			"sub_only": "Sub only",
 			"emote_only": "Emote only",
-			"follow_only": "Followers only",
-			"slow_mode": "Slow mode",
-			"chat_delay": "Chat delay",
+			"follow_only": "Followers only|Followers only ({DURATION}m)",
+			"slow_mode": "Slow mode|Slow mode ({DURATION}s)",
+			"chat_delay": "Chat delay|Chat delay ({DURATION}s)",
 			"unsetBt": "unset"
 		},
 		"raffle": {

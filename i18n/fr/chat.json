@@ -176,9 +176,9 @@
 			"title": "Le salon {ROOM} a les restrictions suivantes :",
 			"sub_only": "Sub uniquement",
 			"emote_only": "Emote uniquement",
-			"follow_only": "Followers uniquement",
-			"slow_mode": "Mode lent",
-			"chat_delay": "Délai de tchat",
+			"follow_only": "Followers uniquement|Followers uniquement ({DURATION}m)",
+			"slow_mode": "Mode lent|Mode lent ({DURATION}s)",
+			"chat_delay": "Délai de tchat|Délai de tchat ({DURATION}s)",
 			"unsetBt": "retirer"
 		},
 		"raffle": {
