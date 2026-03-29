@@ -67,7 +67,12 @@ export default class AbstractSidePanel extends Vue {
 	private onKeyDown(e: KeyboardEvent): void {
 		if (this.closed) return;
 		const node = document.activeElement?.nodeName;
-		if (e.key && e.key.toLowerCase() == "escape" && node != "INPUT") {
+		if (
+			e.key &&
+			e.key.toLowerCase() == "escape" &&
+			node != "INPUT" &&
+			document.activeElement?.getAttribute("contenteditable") != "true"
+		) {
 			this.closed = true;
 			void this.close();
 		}
