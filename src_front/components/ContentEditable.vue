@@ -6,7 +6,7 @@
 		:class="$attrs['class']"
 		@input="update(false)"
 		@blur="update(true)"
-		@keypress="onKeypress"
+		@keydown.capture="onKeyDown"
 	></component>
 </template>
 
@@ -16,8 +16,7 @@
  * that emits warnings on the console:
  * https://github.com/hl037/vue-contenteditable
  */
-import { nextTick } from "vue";
-import { computed, onMounted, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, useTemplateRef, watch } from "vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -47,7 +46,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: string | number): void;
-	(e: "returned", value: string | number): void;
+	(e: "submit", value: string | number): void;
 }>();
 
 const computedContentEditableValue = computed(() => {
@@ -59,6 +58,10 @@ const elementRef$ = useTemplateRef<HTMLElement>("elementRef");
 
 function focus() {
 	elementRef$.value?.focus();
+}
+
+function blur() {
+	elementRef$.value?.blur();
 }
 
 function moveCaretTo(position: number) {
@@ -87,7 +90,7 @@ function moveCaretTo(position: number) {
 
 function currentContent() {
 	if (elementRef$.value == null) {
-		return props.numeric ? 0 : "";
+		return props.numeric ? Number(props.modelValue) || 0 : (props.modelValue ?? "");
 	}
 	let content: string | number =
 		props.noHtml || props.numeric != false
@@ -114,10 +117,11 @@ function updateContent(newcontent: string | number) {
 		if (isNaN(newcontent)) newcontent = 0;
 		newcontent = newcontent.toString();
 	}
+	if (!elementRef$.value) return;
 	if (props.noHtml || props.numeric != false) {
-		elementRef$.value!.innerText = newcontent;
+		elementRef$.value.innerText = newcontent;
 	} else {
-		elementRef$.value!.innerHTML = newcontent;
+		elementRef$.value.innerHTML = newcontent;
 	}
 }
 
@@ -127,10 +131,12 @@ async function update(isBlurEvent: boolean) {
 	emit("update:modelValue", currentContent());
 }
 
-function onKeypress(event: KeyboardEvent) {
-	if (event.key == "Enter" && props.noNl) {
+function onKeyDown(event: KeyboardEvent) {
+	if (event.key == "Escape") {
 		event.preventDefault();
-		emit("returned", currentContent());
+		event.stopPropagation();
+		blur();
+		return;
 	}
 	if (props.numeric != false) {
 		if (props.min < 0) {
@@ -153,6 +159,10 @@ function onKeypress(event: KeyboardEvent) {
 			event.preventDefault();
 		}
 	}
+	if (event.key == "Enter" && props.noNl) {
+		event.preventDefault();
+		emit("submit", currentContent());
+	}
 }
 
 /**
@@ -162,14 +172,14 @@ async function limitLabelSize(): Promise<void> {
 	const sel = window.getSelection();
 	let text = currentContent().toString();
 	if (text.length <= (props.maxLength ?? text.length)) return;
-	if (sel && sel.rangeCount > 0) {
+	if (sel && sel.rangeCount > 0 && elementRef$.value) {
 		//Save caret index
 		var range = sel.getRangeAt(0);
 		let caretIndex = range.startOffset;
 		await nextTick();
 		//Limit label's size
 		text = text.substring(0, props.maxLength ?? text.length);
-		elementRef$.value!.innerText = text;
+		elementRef$.value.innerText = text;
 		await nextTick();
 		//Reset caret to previous position
 		if (range.startContainer.firstChild)
@@ -207,4 +217,10 @@ watch(
 	},
 	{ flush: "post" },
 );
+
+defineExpose({
+	blur,
+	focus,
+	moveCaretTo,
+});
 </script>

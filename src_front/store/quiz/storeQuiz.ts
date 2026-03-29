@@ -34,6 +34,25 @@ interface AnswerScoreParams {
 	majorityWinnerIds?: Set<string>;
 }
 
+function validateFreeAnswer(
+	answer: string,
+	quiz: TwitchatDataTypes.QuizParams,
+	question: TwitchatDataTypes.QuizParams["questionList"][number],
+): boolean {
+	if (question.mode !== "freeAnswer") return false;
+	const tolerancePercent =
+		Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
+	// Max tolerance level accepts half of the answer to differ
+	const levenshteinTolerance = (tolerancePercent * question.answer.length) / 2;
+	let isCorrect: boolean;
+	if (levenshteinTolerance > 0) {
+		isCorrect = Utils.levenshtein(answer ?? "", question.answer) <= levenshteinTolerance;
+	} else {
+		isCorrect = answer === question.answer;
+	}
+	return isCorrect;
+}
+
 /**
  * Computes the final score for a single answer.
  * Handles all question modes (classic, freeAnswer, majority),
@@ -44,18 +63,9 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 	let rawScore = 0;
 
 	if (question.mode === "freeAnswer") {
-		const tolerancePercent =
-			Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
-		// Max tolerance level accepts half of the answer to differ
-		const levenshteinTolerance = (tolerancePercent * question.answer.length) / 2;
-		let isCorrect: boolean;
-		if (levenshteinTolerance > 0) {
-			isCorrect =
-				Utils.levenshtein(answerText ?? "", question.answer) <= levenshteinTolerance;
-		} else {
-			isCorrect = answerText === question.answer;
-		}
-		rawScore = isCorrect ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+		rawScore = validateFreeAnswer(answerText ?? "", quiz, question)
+			? POINTS_PER_QUESTION
+			: -POINTS_PER_QUESTION;
 	} else if (question.mode === "classic" && answerId) {
 		const answer = question.answerList.find((a) => a.id === answerId);
 		if (answer) {
@@ -173,6 +183,8 @@ export const storeQuiz = defineStore("quiz", {
 						quiz.enabled = false;
 						return;
 					}
+					this.resetQuizState(otherActiveQuiz.id, false);
+					this.resetQuizState(quiz.id, false);
 				}
 
 				// Disable all other quizzes
@@ -453,6 +465,14 @@ export const storeQuiz = defineStore("quiz", {
 					directBroadcast ? 0 : 1500,
 				);
 			}
+		},
+
+		validateFreeAnswer(
+			answer: string,
+			quiz: TwitchatDataTypes.QuizParams,
+			question: TwitchatDataTypes.QuizParams["questionList"][number],
+		): boolean {
+			return validateFreeAnswer(answer, quiz, question);
 		},
 
 		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {

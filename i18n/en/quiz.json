@@ -5,7 +5,7 @@
 			"subtitle": "Create your own interactive quiz!",
 			"add_bt": "Create a quiz",
 			"import_bt": "Import questions (.csv)",
-			"import_tt": "Import questions from a .csv file.\nOne question per line.\n\nMultiple choice question → 3+ columns (question;correct;wrong;...)\n\nFree answer question → 2 columns (question;answer)",
+			"import_tt": "Import questions from a .csv file.\nOne question per line.\n\nMultiple choice question:\n3 to 7 columns (question;correct answer;wrong answer;...)\n\nFree answer question:\n2 columns (question;answer)",
 			"import_invalid_file": "Invalid file format. Please upload a CSV file with the correct structure.",
 			"addQuestion_bt": "Add question",
 			"addAnswer_bt": "Add answer",
@@ -24,8 +24,8 @@
 				"very_low": "🧐 Very low",
 				"low": "🤨 Low",
 				"medium": "😁 Medium",
-				"high": "🤪 High",
-				"very_high": "🤡 Very high"
+				"high": "😲 High",
+				"very_high": "🥳 Very high"
 			},
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
@@ -39,6 +39,7 @@
 			"param_tolerance": "Spelling tolerance\n(for free answer questions)",
 			"no_question": "no question",
 			"question_placeholder": "question...",
+			"test_answer_placeholder": "test an answer...",
 			"answer_placeholder": "answer...",
 			"answers": "{COUNT} Answers",
 			"answers_majority": "{COUNT} Answers",

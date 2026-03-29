@@ -11,6 +11,13 @@ select,
 	border-radius: var(--border-radius);
 	font-family: var(--font-inter);
 
+	&.noBg {
+		background-color: transparent;
+		&:focus {
+			outline: none;
+		}
+	}
+
 	&.primary {
 		color: var(--color-light);
 		background-color: var(--color-primary);
