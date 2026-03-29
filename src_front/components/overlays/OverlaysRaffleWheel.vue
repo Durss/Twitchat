@@ -2,8 +2,8 @@
 	<div :class="['overlaysrafflewheel', skin]">
 		<InfiniteList
 			class="list"
-			v-if="itemList.length > 0"
 			ref="listHolder"
+			v-if="itemList.length > 0"
 			fillWithDuplicates
 			:dataset="itemList"
 			:itemSize="itemSize"
@@ -11,9 +11,12 @@
 			:style="listStyles"
 			noScrollbar
 			v-slot="{ item }"
+			:renderCallback="renderFrame"
 		>
-			<div class="wheel-item" id="wheel-item">
-				<span class="label">{{ item.label }}</span>
+			<div class="rotating-holder">
+				<div class="wheel-item" id="wheel-item">
+					<span class="label">{{ item.label }}</span>
+				</div>
 			</div>
 		</InfiniteList>
 
@@ -66,7 +69,6 @@ class OverlaysRaffleWheel extends Vue {
 	public stars: StarData[] = [];
 	public itemList: TwitchatDataTypes.EntryItem[] = [];
 
-	private rafID = 0;
 	private prevTs = 0;
 	private animStep = 0;
 	private endOffset = 0;
@@ -124,11 +126,11 @@ class OverlaysRaffleWheel extends Vue {
 
 		//Populate with fake data
 		/*
-		let list:TwitchatDataTypes.EntryItem[] = [];
+		let list: TwitchatDataTypes.EntryItem[] = [];
 		for (let i = 0; i < 90000; i++) {
 			let id = i.toString();
 			// list.push({id, label:"Item "+i});
-			list.push({id, label:i+"pouet"});
+			list.push({ id, label: i + "pouetgj_" });
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.itemList = list;
@@ -137,7 +139,6 @@ class OverlaysRaffleWheel extends Vue {
 	}
 
 	public beforeUnmount(): void {
-		this.rafID++;
 		gsap.killTweensOf(this);
 		window.removeEventListener("resize", this.resizeHandler);
 		PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_START", this.startWheelHandler);
@@ -151,7 +152,6 @@ class OverlaysRaffleWheel extends Vue {
 	 * Populates the list
 	 */
 	private async populate(): Promise<void> {
-		this.rafID++;
 		this.listHeight = document.body.clientHeight;
 		this.itemSize = (this.listHeight / this.itemsCount) * 1.2;
 		this.animStep = 0;
@@ -206,13 +206,9 @@ class OverlaysRaffleWheel extends Vue {
 		gsap.killTweensOf(this);
 
 		this.prevTs = Date.now();
-		this.renderFrame(this.prevTs, this.rafID);
 	}
 
-	private renderFrame(ts: number, id: number): void {
-		if (id != this.rafID) return;
-		requestAnimationFrame((ts: number) => this.renderFrame(ts, id));
-
+	public renderFrame(ts: number): void {
 		const timeScale = (60 / 1000) * (ts - this.prevTs);
 		this.prevTs = ts;
 
@@ -232,28 +228,42 @@ class OverlaysRaffleWheel extends Vue {
 			return;
 		}
 
-		const items = this.$el.querySelectorAll(".list-item");
+		if (this.animStep == 3) return; //Freeze render on animation end to avoid bugs with items appearing after animation
+
+		const items = this.$el.querySelectorAll(".rotating-holder");
 		if (items.length == 0) return;
 
-		const h = this.listHeight;
+		const listHeight = this.listHeight;
 		let biggestItem!: HTMLDivElement;
 		let biggestItemScale = 0;
+
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i] as HTMLDivElement;
 			const rect = item.getBoundingClientRect();
 			const cy = rect.top + rect.height / 2;
-			const ratio = (h / 2 - cy) / (h / 2); //0 on center, 1 on edges
+			const ratio = (listHeight / 2 - cy) / (listHeight / 2); //0 on center, 1 on edges
 			const centerRatio = 1 - Math.abs(ratio);
-			const angle = -ratio * 15;
-			// const pz = -Math.abs(ratio) * 200;
+			const angle = -ratio * 11;
 			const px = -Math.pow(Math.abs(angle), 2.2);
-			// const scale = Math.round(((Math.abs(Math.cos(ratio))) * .2 + .8)*2000)/2000;
-			// item.style.opacity = ((1-Math.abs(ratio))*.2 + .8).toString();
 			if (this.animStep == 0 && this.frameIndex > 5) {
 				//Open animation
-				let delay = Math.pow(Math.abs(ratio) * 10, 2.8) / 1000; // + Math.random()*.5;
+				const visibleLength = items.length - 2; // 2 is the number of outscreen buffer items in infinitelist
+				const stepedRatio = Math.abs((i - visibleLength / 2) / visibleLength);
+				let delay = Math.pow(stepedRatio, 0.85) * 0.5;
 				this.listDisplayed = true;
 				gsap.from(item, { duration: 0.5, x: "-100%", delay, ease: "quad.inOut" });
+				gsap.fromTo(
+					item,
+					{ scaleX: 0.225 },
+					{
+						duration: 0.5,
+						scaleX: 1,
+						delay: delay + 0.4,
+						// the closer to center the stronger the back effect
+						ease: "back.out(" + Math.pow(Math.abs(1 - stepedRatio), 2) * 4 + ")",
+					},
+				);
+
 				let tween = gsap.from(item, {
 					duration: 1.5,
 					rotation: angle * 4 + "deg",
@@ -268,7 +278,7 @@ class OverlaysRaffleWheel extends Vue {
 							this.selectedItemIndex * this.itemSize -
 							this.listHeight / 2 +
 							this.itemSize / 2;
-						const duration = 9; //Math.abs(this.endOffset - this.scrollOffset)*.001;
+						const duration = 9;
 						//Scroll down after last item has appeared
 						gsap.to(this, {
 							scrollOffset: this.endOffset,
@@ -286,9 +296,10 @@ class OverlaysRaffleWheel extends Vue {
 				if (i === items.length - 1) {
 					this.animStep = 1;
 				}
-			} else if (this.animStep > 1 || this.frameIndex <= 5) {
-				//Scroll animation
-				item.style.transform = "rotateZ(" + angle + "deg) translateX(" + px + "px)"; //scale("+scale+") rotateX("+angle+"deg) translateZ("+pz+"px)";
+			} else if ((this.animStep > 1 && this.animStep < 3) || this.frameIndex <= 5) {
+				// Set x position and rotation with gsap so hide animation
+				// properly starts from current position
+				gsap.set(item, { rotate: angle + "deg", x: px });
 			}
 			if (centerRatio > biggestItemScale) {
 				biggestItem = item;
@@ -337,10 +348,10 @@ class OverlaysRaffleWheel extends Vue {
 	private async onAnimationComplete(): Promise<void> {
 		await this.$nextTick();
 
-		const items = [...(this.$el as HTMLDivElement).querySelectorAll(".list-item")];
-		const selectedItem = (this.$el as HTMLDivElement).querySelector(
-			".list-item.selected",
-		) as HTMLDivElement;
+		this.animStep = 3;
+		const root = this.$el as HTMLDivElement;
+		const items = [...root.querySelectorAll<HTMLDivElement>(".rotating-holder")];
+		const selectedItem = root.querySelector<HTMLDivElement>(".rotating-holder.selected")!;
 
 		gsap.set(selectedItem, { scale: "1", rotate: 0, x: 0, y: 0 });
 		gsap.from(selectedItem, {
@@ -350,7 +361,7 @@ class OverlaysRaffleWheel extends Vue {
 			x: 0,
 			duration: 1,
 			onStart: () => {
-				this.burstStars(selectedItem);
+				this.burstStars(selectedItem.querySelector(".wheel-item") as HTMLDivElement);
 			},
 			delay: 0.5,
 			immediateRender: false,
@@ -364,7 +375,7 @@ class OverlaysRaffleWheel extends Vue {
 		});
 
 		gsap.to(items, {
-			left: "-110%",
+			x: "-110%",
 			duration: 0.35,
 			ease: "quad.in",
 			stagger: 0.035,
@@ -372,7 +383,6 @@ class OverlaysRaffleWheel extends Vue {
 			onComplete: () => {
 				//Reset everything to free up memory
 				this.itemList = [];
-				this.rafID++;
 			},
 		});
 
@@ -384,15 +394,13 @@ class OverlaysRaffleWheel extends Vue {
 		});
 	}
 
-	public burstStars(heart: HTMLDivElement): void {
-		const holder = (this.$refs.listHolder as ComponentPublicInstance).$el as HTMLDivElement;
-		const bounds = heart.getBoundingClientRect();
+	public burstStars(holderRef: HTMLDivElement): void {
+		const bounds = holderRef.getBoundingClientRect();
 
-		// console.log(bounds);
 		for (let i = 0; i < 40; i++) {
 			const s: StarData = { x: 0, vx: 0, y: 0, vy: 0, r: 0, vr: 0, a: 1, va: 0, s: 0 };
-			const cx = holder.offsetWidth / 2;
-			const cy = holder.offsetHeight / 2;
+			const cx = bounds.x + bounds.width / 2;
+			const cy = bounds.y + bounds.height / 2;
 			s.x = cx + (Math.random() - Math.random()) * (bounds.width / 2);
 			s.y = cy + (Math.random() - Math.random()) * (bounds.height / 2);
 
@@ -430,15 +438,18 @@ export default toNative(OverlaysRaffleWheel);
 	@borderWidth: 3px;
 	@numberOfItems: 15;
 	.list {
-		// background-color: white;
-		// border-top-right-radius: 50%;
-		// border-bottom-right-radius: 50%;
 		height: 100%;
-		width: 50%;
-		max-width: 700px;
-		// overflow: hidden !important;
+		width: 100%;
+		max-width: 100%;
+		overflow: visible !important;
 		:deep(.list-item) {
-			transform-origin: left center;
+			width: 50%;
+			max-width: 700px;
+			.rotating-holder {
+				transform-origin: left center;
+				height: 100%;
+				width: 100%;
+			}
 			.wheel-item {
 				border-top-right-radius: 2em;
 				border-bottom-right-radius: 2em;
@@ -450,7 +461,6 @@ export default toNative(OverlaysRaffleWheel);
 				color: var(--color-primary);
 				background-color: var(--color-light);
 				transition: all 0.5s;
-				will-change: transform; //Avoid text jittering
 				border-left: none;
 				margin-right: 15%;
 				.label {
@@ -458,14 +468,14 @@ export default toNative(OverlaysRaffleWheel);
 					overflow: hidden;
 					width: 100%;
 					padding: 0 0.5em;
+					line-height: 1.5em;
 					white-space: nowrap;
 					text-align: center;
 				}
 			}
-			&.selected {
+			&:has(.selected) {
 				z-index: 1;
-				width: 100%;
-				& > .wheel-item {
+				.wheel-item {
 					margin-right: 0;
 					color: var(--color-light);
 					background-color: var(--color-primary);
@@ -475,10 +485,6 @@ export default toNative(OverlaysRaffleWheel);
 				}
 			}
 		}
-		// &>:deep(div) {
-		// 	perspective: 800px;
-		// 	perspective-origin: center top;
-		// }
 	}
 
 	.stars {

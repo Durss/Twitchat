@@ -136,7 +136,8 @@ class OverlayParamsRaffle extends Vue {
 			items = followers.map((v) => {
 				return { id: v.user_id, label: v.user_name, data: v };
 			});
-		} else {
+		}
+		if (items.length === 0) {
 			const fakeNames = [
 				"GamerPro97",
 				"StreamKing87",
