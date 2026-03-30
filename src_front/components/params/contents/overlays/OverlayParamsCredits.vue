@@ -12,10 +12,8 @@
 			<Icon name="newtab" theme="light" />
 		</a>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller
 				class="installer"
 				type="credits"
@@ -27,13 +25,116 @@
 			</OverlayInstaller>
 		</section>
 
-		<section class="card-item expand">
-			<div class="header">
-				<div class="title">
-					<Icon name="credits" /> {{ $t("overlay.credits.slot_list") }}
-				</div>
+		<ToggleBlock :icons="['params']" small :title="$t('global.settings')" :open="false">
+			<div class="settings">
+				<ParamItem
+					:paramData="param_scale"
+					v-model="$store.endingCredits.overlayData.scale"
+				/>
+				<ParamItem
+					:paramData="param_padding"
+					v-model="$store.endingCredits.overlayData.padding"
+				/>
+				<ParamItem
+					:paramData="param_paddingTitle"
+					v-model="$store.endingCredits.overlayData.paddingTitle"
+				/>
+				<ParamItem
+					:paramData="param_fadeSize"
+					v-model="$store.endingCredits.overlayData.fadeSize"
+				/>
+				<ParamItem
+					:paramData="param_stickyTitle"
+					v-model="$store.endingCredits.overlayData.stickyTitle"
+				/>
+				<ParamItem
+					:paramData="param_fontTitle"
+					v-model="$store.endingCredits.overlayData.fontTitle"
+					class="fontStyle"
+				>
+					<template #composite>
+						<ParamItem
+							:paramData="param_titleColor"
+							v-model="$store.endingCredits.overlayData.colorTitle"
+							noBackground
+							class="colorPicker"
+						/>
+					</template>
+				</ParamItem>
+				<ParamItem
+					:paramData="param_fontEntry"
+					v-model="$store.endingCredits.overlayData.fontEntry"
+					class="fontStyle"
+				>
+					<template #composite>
+						<ParamItem
+							:paramData="param_entryColor"
+							v-model="$store.endingCredits.overlayData.colorEntry"
+							noBackground
+							class="colorPicker"
+						/>
+					</template>
+				</ParamItem>
+				<ParamItem
+					:paramData="param_textShadow"
+					v-model="$store.endingCredits.overlayData.textShadow"
+				/>
+				<ParamItem
+					:paramData="param_ignoreBots"
+					v-model="$store.endingCredits.overlayData.ignoreBots"
+				>
+					<ParamItem
+						:paramData="param_ignoreCustomBots"
+						v-model="$store.endingCredits.overlayData.ignoreCustomBots"
+						noBackground
+						class="child"
+					/>
+				</ParamItem>
+				<ParamItem
+					:paramData="param_hideEmptySlots"
+					v-model="$store.endingCredits.overlayData.hideEmptySlots"
+				/>
+				<ParamItem
+					:paramData="param_powerUpEmotes"
+					v-model="$store.endingCredits.overlayData.powerUpEmotes"
+				/>
+				<ParamItem
+					:paramData="param_showIcons"
+					v-model="$store.endingCredits.overlayData.showIcons"
+				/>
+				<ParamItem
+					:paramData="param_startDelay"
+					v-model="$store.endingCredits.overlayData.startDelay"
+				/>
+				<ParamItem
+					:paramData="param_loop"
+					v-model="$store.endingCredits.overlayData.loop"
+				/>
+				<ParamItem
+					:paramData="param_timing"
+					v-model="$store.endingCredits.overlayData.timing"
+				>
+					<ParamItem
+						class="child"
+						noBackground
+						:paramData="param_duration"
+						v-model="$store.endingCredits.overlayData.duration"
+						v-if="param_timing.value == 'duration'"
+						noPremiumLock
+					/>
+					<ParamItem
+						class="child"
+						noBackground
+						:paramData="param_speed"
+						v-model="$store.endingCredits.overlayData.speed"
+						v-if="param_timing.value == 'speed'"
+						noPremiumLock
+					/>
+				</ParamItem>
 			</div>
+		</ToggleBlock>
 
+		<section class="expand">
 			<div class="slots">
 				<draggable
 					:animation="250"
@@ -41,7 +142,7 @@
 					ghostClass="ghost"
 					item-key="id"
 					handle=".slotHolder>.header"
-					v-model="$store.endingCredits.overlayData.slots"
+					v-model="slots"
 				>
 					<template
 						#item="{
@@ -638,113 +739,6 @@
 				{{ $t("overlay.overlay_not_configured") }}
 			</div>
 		</section>
-
-		<section class="card-item expand parameters">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-			<ParamItem :paramData="param_scale" v-model="$store.endingCredits.overlayData.scale" />
-			<ParamItem
-				:paramData="param_padding"
-				v-model="$store.endingCredits.overlayData.padding"
-			/>
-			<ParamItem
-				:paramData="param_paddingTitle"
-				v-model="$store.endingCredits.overlayData.paddingTitle"
-			/>
-			<ParamItem
-				:paramData="param_fadeSize"
-				v-model="$store.endingCredits.overlayData.fadeSize"
-			/>
-			<ParamItem
-				:paramData="param_stickyTitle"
-				v-model="$store.endingCredits.overlayData.stickyTitle"
-			/>
-			<ParamItem
-				:paramData="param_fontTitle"
-				v-model="$store.endingCredits.overlayData.fontTitle"
-				class="fontStyle"
-			>
-				<template #composite>
-					<ParamItem
-						:paramData="param_titleColor"
-						v-model="$store.endingCredits.overlayData.colorTitle"
-						noBackground
-						class="colorPicker"
-					/>
-				</template>
-			</ParamItem>
-			<ParamItem
-				:paramData="param_fontEntry"
-				v-model="$store.endingCredits.overlayData.fontEntry"
-				class="fontStyle"
-			>
-				<template #composite>
-					<ParamItem
-						:paramData="param_entryColor"
-						v-model="$store.endingCredits.overlayData.colorEntry"
-						noBackground
-						class="colorPicker"
-					/>
-				</template>
-			</ParamItem>
-			<ParamItem
-				:paramData="param_textShadow"
-				v-model="$store.endingCredits.overlayData.textShadow"
-			/>
-			<ParamItem
-				:paramData="param_ignoreBots"
-				v-model="$store.endingCredits.overlayData.ignoreBots"
-			>
-				<ParamItem
-					:paramData="param_ignoreCustomBots"
-					v-model="$store.endingCredits.overlayData.ignoreCustomBots"
-					noBackground
-					class="child"
-				/>
-			</ParamItem>
-			<ParamItem
-				:paramData="param_hideEmptySlots"
-				v-model="$store.endingCredits.overlayData.hideEmptySlots"
-			/>
-			<ParamItem
-				:paramData="param_powerUpEmotes"
-				v-model="$store.endingCredits.overlayData.powerUpEmotes"
-			/>
-			<ParamItem
-				:paramData="param_showIcons"
-				v-model="$store.endingCredits.overlayData.showIcons"
-			/>
-			<ParamItem
-				:paramData="param_startDelay"
-				v-model="$store.endingCredits.overlayData.startDelay"
-			/>
-			<ParamItem :paramData="param_loop" v-model="$store.endingCredits.overlayData.loop" />
-			<ParamItem :paramData="param_timing" v-model="$store.endingCredits.overlayData.timing">
-				<ParamItem
-					class="child"
-					noBackground
-					:paramData="param_duration"
-					v-model="$store.endingCredits.overlayData.duration"
-					v-if="param_timing.value == 'duration'"
-					noPremiumLock
-				/>
-				<ParamItem
-					class="child"
-					noBackground
-					:paramData="param_speed"
-					v-model="$store.endingCredits.overlayData.speed"
-					v-if="param_timing.value == 'speed'"
-					noPremiumLock
-				/>
-			</ParamItem>
-		</section>
-		<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
-			<div>{{ $t("overlay.credits.css") }}</div>
-			<ul class="cssStructure">
-				<li>.todo { ... }</li>
-			</ul>
-		</ToggleBlock> -->
 	</div>
 </template>
 
@@ -766,10 +760,10 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { watch } from "vue";
 import { Component, Vue, toNative } from "vue-facing-decorator";
 import draggable from "vuedraggable";
-import TTButton from "../../../TTButton.vue";
-import ToggleBlock from "../../../ToggleBlock.vue";
-import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import TTButton from "@/components/TTButton.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
 
 @Component({
 	components: {
@@ -1006,6 +1000,10 @@ class OverlayParamsCredits extends Vue {
 		return this.$store.auth.isPremium;
 	}
 
+	public get slots() {
+		return this.$store.endingCredits.overlayData.slots;
+	}
+
 	public get classes(): string[] {
 		const res: string[] = ["overlayparamscredits", "overlayParamsSection"];
 		if (!this.isPremium) res.push("notPremium");
@@ -1019,7 +1017,7 @@ class OverlayParamsCredits extends Vue {
 	}
 
 	public beforeMount(): void {
-		if (this.$store.endingCredits.overlayData.slots.length == 0) {
+		if (this.slots.length == 0) {
 			this.addSlot(
 				TwitchatDataTypes.EndingCreditsSlotDefinitions.find((v) => v.id == "follows")!,
 				undefined,
@@ -1046,14 +1044,14 @@ class OverlayParamsCredits extends Vue {
 				true,
 			);
 		} else {
-			for (let i = 0; i < this.$store.endingCredits.overlayData.slots.length; i++) {
-				const slot = this.$store.endingCredits.overlayData.slots[i]!;
+			for (let i = 0; i < this.slots.length; i++) {
+				const slot = this.slots[i]!;
 				const defaultSlot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(
 					(v) => v.id == slot.slotType,
 				);
 				if (!defaultSlot) {
 					//Remove deleted slot
-					this.$store.endingCredits.overlayData.slots.splice(i, 1);
+					this.slots.splice(i, 1);
 					i--;
 				} else {
 					if (this.getDefinitionFromSlot(slot.slotType).premium) {
@@ -1071,7 +1069,7 @@ class OverlayParamsCredits extends Vue {
 				}
 			}
 
-			for (const slot of this.$store.endingCredits.overlayData.slots) {
+			for (const slot of this.slots) {
 				this.addSlot(
 					TwitchatDataTypes.EndingCreditsSlotDefinitions.find(
 						(v) => v.id == slot.slotType,
@@ -1158,10 +1156,8 @@ class OverlayParamsCredits extends Vue {
 	public deleteSlot(slot: TwitchatDataTypes.EndingCreditsSlotParams): void {
 		this.$confirm(this.$t("overlay.credits.delete_confirm_title"))
 			.then(() => {
-				const index = this.$store.endingCredits.overlayData.slots.findIndex(
-					(v) => v.id == slot.id,
-				);
-				this.$store.endingCredits.overlayData.slots.splice(index, 1);
+				const index = this.slots.findIndex((v) => v.id == slot.id);
+				this.slots.splice(index, 1);
 				delete this.param_maxItems[slot.id];
 				delete this.param_showAmounts[slot.id];
 				delete this.param_text[slot.id];
@@ -1756,7 +1752,7 @@ class OverlayParamsCredits extends Vue {
 				premiumOnly: true,
 			};
 		}
-		if (!data) this.$store.endingCredits.overlayData.slots.push(entry);
+		if (!data) this.slots.push(entry);
 		this.saveParams();
 	}
 
@@ -1809,6 +1805,12 @@ export default toNative(OverlayParamsCredits);
 
 	section.expand {
 		width: 100%;
+	}
+
+	.settings {
+		gap: 0.25em;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.slots {
