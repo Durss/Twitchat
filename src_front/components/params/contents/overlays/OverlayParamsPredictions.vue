@@ -12,10 +12,8 @@
 			<Icon name="newtab" theme="light" />
 		</a>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller type="predictions" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock
@@ -108,11 +106,7 @@
 			</ToggleBlock>
 		</section>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-
+		<section>
 			<ParamItem
 				:paramData="param_listMode"
 				v-model="params.listMode"

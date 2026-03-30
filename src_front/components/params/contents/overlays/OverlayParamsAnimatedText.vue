@@ -8,20 +8,6 @@
 			</template>
 		</i18n-t>
 
-		<section>
-			<TTButton class="addBt" v-if="!maxReached" @click="addEntry()" icon="add">{{
-				$t("overlay.animatedText.add_bt")
-			}}</TTButton>
-
-			<PremiumLimitMessage
-				v-else
-				label="overlay.animatedText.non_premium_limit"
-				premiumLabel="overlay.animatedText.premium_limit"
-				:max="$config.MAX_ANIMATED_TEXT"
-				:maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM"
-			/>
-		</section>
-
 		<VueDraggable
 			class="entryList"
 			v-model="$store.animatedText.animatedTextList"
@@ -63,7 +49,7 @@
 
 				<div class="content">
 					<div class="overlayInstallCard">
-						<label><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</label>
+						<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 						<OverlayInstaller
 							type="animatedtext"
 							:sourceSuffix="entry.title"
@@ -117,6 +103,20 @@
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
+
+		<section>
+			<TTButton class="addBt" v-if="!maxReached" @click="addEntry()" icon="add">{{
+				$t("overlay.animatedText.add_bt")
+			}}</TTButton>
+
+			<PremiumLimitMessage
+				v-else
+				label="overlay.animatedText.non_premium_limit"
+				premiumLabel="overlay.animatedText.premium_limit"
+				:max="$config.MAX_ANIMATED_TEXT"
+				:maxPremium="$config.MAX_ANIMATED_TEXT_PREMIUM"
+			/>
+		</section>
 	</div>
 </template>
 

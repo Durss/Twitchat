@@ -12,10 +12,8 @@
 
 		<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock
@@ -89,9 +87,6 @@
 		</section>
 
 		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
 			<div class="placement">
 				<p>{{ $t("overlay.highlight.message_pos") }}</p>
 				<PlacementSelector v-model="placement" />

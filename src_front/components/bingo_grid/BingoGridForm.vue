@@ -11,20 +11,6 @@
 		</div>
 
 		<div class="content">
-			<div class="createForm">
-				<TTButton class="addBt" v-if="!maxGridReached" @click="addGrid()" icon="add">{{
-					$t("bingo_grid.form.add_bt")
-				}}</TTButton>
-
-				<PremiumLimitMessage
-					v-else
-					label="bingo_grid.form.non_premium_limit"
-					premiumLabel="bingo_grid.form.premium_limit"
-					:max="$config.MAX_BINGO_GRIDS"
-					:maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM"
-				/>
-			</div>
-
 			<VueDraggable
 				class="gridList"
 				v-model="$store.bingoGrid.gridList"
@@ -74,9 +60,7 @@
 
 					<div class="form">
 						<div class="overlayInstallCard">
-							<label
-								><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</label
-							>
+							<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 							<OverlayInstaller
 								type="bingogrid"
 								:sourceSuffix="bingo.title"
@@ -320,6 +304,20 @@
 					</div>
 				</ToggleBlock>
 			</VueDraggable>
+
+			<div class="createForm">
+				<TTButton class="addBt" v-if="!maxGridReached" @click="addGrid()" icon="add">{{
+					$t("bingo_grid.form.add_bt")
+				}}</TTButton>
+
+				<PremiumLimitMessage
+					v-else
+					label="bingo_grid.form.non_premium_limit"
+					premiumLabel="bingo_grid.form.premium_limit"
+					:max="$config.MAX_BINGO_GRIDS"
+					:maxPremium="$config.MAX_BINGO_GRIDS_PREMIUM"
+				/>
+			</div>
 		</div>
 	</div>
 </template>
@@ -707,14 +705,6 @@ export default toNative(BingoGridForm);
 <style scoped lang="less">
 .bingoform {
 	min-width: 330px !important;
-
-	.form {
-		gap: 0.5em;
-	}
-
-	.content {
-		gap: 0.5em;
-	}
 
 	.createForm {
 		text-align: center;
