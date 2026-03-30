@@ -78,7 +78,6 @@
 <script setup lang="ts">
 import SearchForm from "@/components/params/contents/SearchForm.vue";
 import PremiumLimitMessage from "@/components/params/PremiumLimitMessage.vue";
-import Splitter from "@/components/Splitter.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
@@ -87,8 +86,8 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
 import { VueDraggable } from "vue-draggable-plus";
+import { useI18n } from "vue-i18n";
 import QuizQuestionItem from "./QuizQuestionItem.vue";
 
 const props = defineProps<{

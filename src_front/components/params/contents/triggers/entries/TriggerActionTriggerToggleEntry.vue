@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractiontriggertoggleentry triggerActionForm">
-		<div class="card-item field col" v-if="!action.triggerId">
+		<div class="field col" v-if="!action.triggerId">
 			<div class="item title" v-if="rewards.length > 0 && !action.triggerId">
 				{{ $t("triggers.actions.triggerToggle.select") }}
 			</div>
@@ -104,6 +104,7 @@ export default toNative(TriggerActionTriggerToggleEntry);
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
+			width: 100%;
 		}
 
 		.openTriggerBt {
