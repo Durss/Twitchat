@@ -45,7 +45,6 @@
 			"answers_majority": "{COUNT} Réponses",
 			"answers_majority_subtitle": " (fausses uniquement)",
 			"param_answer_duration": "Durée",
-			"questionList": "Liste de questions",
 			"createBt": "Créer",
 			"add_question_title": "Ajouter une question",
 			"mode_classic": {
