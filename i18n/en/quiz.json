@@ -45,7 +45,6 @@
 			"answers_majority": "{COUNT} Answers",
 			"answers_majority_subtitle": "(wrong answers only)",
 			"param_answer_duration": "Duration",
-			"questionList": "Question list",
 			"createBt": "Create",
 			"add_question_title": "Add question",
 			"mode_classic": {
