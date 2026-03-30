@@ -13,7 +13,7 @@
 		<div class="header">{{ $t("overlay.raffle.head") }}</div>
 
 		<section class="overlayInstallCard">
-			<label><Icon name="obs" />{{ $t("overlay.title_install") }}</label>
+			<h1><Icon name="obs" />{{ $t("overlay.title_install") }}</h1>
 			<OverlayInstaller type="wheel" @obsSourceCreated="getOverlayPresence(true)" />
 			<ToggleBlock
 				class="shrink"
@@ -29,11 +29,7 @@
 			</ToggleBlock>
 		</section>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-
+		<section>
 			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
 
 			<TTButton

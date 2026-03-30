@@ -1,6 +1,6 @@
 <template>
 	<div class="quizquestionlist">
-		<Splitter><Icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter>
+		<!-- <Splitter><Icon name="question" /> {{ $t("quiz.form.questionList") }}</Splitter> -->
 
 		<div class="noQuestion" v-if="quiz.questionList.length === 0">
 			{{ $t("quiz.form.no_question") }}

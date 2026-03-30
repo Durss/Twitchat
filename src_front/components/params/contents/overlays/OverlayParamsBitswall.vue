@@ -12,10 +12,8 @@
 
 		<div class="header">{{ $t("overlay.bitswall.head") }}</div>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 
 			<div
 				class="card-item"
@@ -76,11 +74,7 @@
 			</OverlayInstaller>
 		</section>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-
+		<section>
 			<ParamItem :paramData="param_textureAlpha" v-model="parameters.opacity" />
 
 			<ParamItem :paramData="param_size" v-model="parameters.size">
