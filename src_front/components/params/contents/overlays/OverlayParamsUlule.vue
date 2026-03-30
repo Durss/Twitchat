@@ -7,15 +7,8 @@
 				}}</a>
 			</template>
 		</i18n-t>
-
-		<section class="card-item">
-			<ParamItem :paramData="param_project" @change="saveConfigs" />
-
-			<ParamItem :paramData="param_title" @change="saveConfigs" />
-
-			<ParamItem :paramData="param_goals" @change="saveConfigs" />
-
-			<ParamItem class="shrinkField" :paramData="param_currency" @change="saveConfigs" />
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 
 			<OverlayInstaller type="ulule" :url="overlayUrl" :disabled="!param_project.value" />
 
@@ -49,6 +42,16 @@
 					</li>
 				</ul>
 			</ToggleBlock>
+		</section>
+
+		<section class="card-item">
+			<ParamItem :paramData="param_project" @change="saveConfigs" />
+
+			<ParamItem :paramData="param_title" @change="saveConfigs" />
+
+			<ParamItem :paramData="param_goals" @change="saveConfigs" />
+
+			<ParamItem class="shrinkField" :paramData="param_currency" @change="saveConfigs" />
 		</section>
 	</div>
 </template>

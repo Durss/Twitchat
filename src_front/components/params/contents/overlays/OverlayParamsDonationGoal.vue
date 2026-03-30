@@ -72,7 +72,7 @@
 
 				<div class="form">
 					<div class="overlayInstallCard">
-						<label><Icon name="obs" />{{ $t("donation_goals.install_title") }}</label>
+						<h1><Icon name="obs" />{{ $t("donation_goals.install_title") }}</h1>
 						<OverlayInstaller
 							type="donationgoals"
 							:sourceSuffix="overlay.title"

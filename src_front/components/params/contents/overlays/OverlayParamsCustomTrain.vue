@@ -104,7 +104,7 @@
 						</i18n-t>
 					</div>
 					<div class="overlayInstallCard">
-						<label><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</label>
+						<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
 						<OverlayInstaller
 							type="customtrain"
 							:sourceSuffix="entry.title"

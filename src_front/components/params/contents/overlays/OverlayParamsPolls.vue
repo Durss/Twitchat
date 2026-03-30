@@ -100,11 +100,7 @@
 			</ToggleBlock>
 		</section>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-
+		<section>
 			<ParamItem
 				:paramData="param_listMode"
 				v-model="params.listMode"

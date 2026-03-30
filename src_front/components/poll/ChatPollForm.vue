@@ -7,7 +7,10 @@
 		</div>
 
 		<div class="content">
-			<div class="presets" v-if="$store.chatPoll.presets.history.length > 0">
+			<div
+				class="presets"
+				v-if="$store.chatPoll.presets.history.length > 0 && triggerMode === false"
+			>
 				<TTButton
 					@click="selectPreset(item)"
 					v-for="item in $store.chatPoll.presets.history"
