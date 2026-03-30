@@ -1,5 +1,6 @@
 <template>
 	<div class="overlayparamsspotify overlayParamsSection">
+		<div class="header">{{ $t("overlay.music_common.music") }}</div>
 		<template v-if="spotifyConnected">
 			<div class="card-item playerHolder center">
 				<div class="label">{{ $t("global.example") }}</div>
@@ -27,14 +28,12 @@
 			</i18n-t>
 		</template>
 
-		<template v-else>
-			<div class="header">{{ $t("overlay.music_common.music") }}</div>
-			<TTButton
-				class="center"
-				@click="$store.params.openParamsPage(contentConnexions, 'spotify')"
-				>{{ $t("overlay.spotify.connectBt") }}</TTButton
-			>
-		</template>
+		<TTButton
+			v-else
+			class="center"
+			@click="$store.params.openParamsPage(contentConnexions, 'spotify')"
+			>{{ $t("overlay.spotify.connectBt") }}</TTButton
+		>
 	</div>
 </template>
 

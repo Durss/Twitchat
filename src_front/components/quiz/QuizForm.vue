@@ -14,26 +14,8 @@
 
 		<div class="content" ref="content">
 			<div class="overlayInstallCard">
-				<label><Icon name="obs" />{{ $t("quiz.form.install_title") }}</label>
+				<h1><Icon name="obs" />{{ $t("quiz.form.install_title") }}</h1>
 				<OverlayInstaller type="quiz" sourceSuffix="Twitchat_Quiz" />
-			</div>
-
-			<div class="createForm">
-				<TTButton
-					class="addBt"
-					v-if="$store.auth.isPremium || $store.quiz.quizList.length < $config.MAX_QUIZ"
-					@click="addQuiz()"
-					icon="add"
-					>{{ $t("quiz.form.add_bt") }}</TTButton
-				>
-
-				<PremiumLimitMessage
-					v-else
-					label="quiz.form.non_premium_limit"
-					premiumLabel="quiz.form.premium_limit"
-					:max="$config.MAX_QUIZ"
-					:maxPremium="$config.MAX_QUIZ_PREMIUM"
-				/>
 			</div>
 
 			<VueDraggable
@@ -120,6 +102,24 @@
 					</div>
 				</ToggleBlock>
 			</VueDraggable>
+
+			<div class="createForm">
+				<TTButton
+					class="addBt"
+					v-if="$store.auth.isPremium || $store.quiz.quizList.length < $config.MAX_QUIZ"
+					@click="addQuiz()"
+					icon="add"
+					>{{ $t("quiz.form.add_bt") }}</TTButton
+				>
+
+				<PremiumLimitMessage
+					v-else
+					label="quiz.form.non_premium_limit"
+					premiumLabel="quiz.form.premium_limit"
+					:max="$config.MAX_QUIZ"
+					:maxPremium="$config.MAX_QUIZ_PREMIUM"
+				/>
+			</div>
 		</div>
 	</div>
 </template>
