@@ -1946,7 +1946,7 @@ export interface ITriggersActions {
 	 */
 	updateTriggerTree(data: TriggerTreeItemData[]): void;
 	/**
-	 * Computes the enabled tates for every triggers based on
+	 * Computes the enabled states for every triggers based on
 	 * the folder structure.
 	 * If the trigger is within a folder that is disabled, the
 	 * trigger will be flagged as disabled

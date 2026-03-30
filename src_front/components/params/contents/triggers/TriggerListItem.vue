@@ -210,10 +210,8 @@ export default toNative(TriggerListItem);
 		}
 	}
 	.label {
-		display: flex;
-		align-items: flex-start;
-		flex-direction: column;
 		transition: opacity 0.1s;
+		text-align: left;
 	}
 	.selectCb {
 		margin: auto 0.25em;
