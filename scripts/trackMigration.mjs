@@ -9,16 +9,17 @@
  *   - "options"      → defineComponent without setup sugar (or plain <script> with no class pattern)
  *
  * Usage:
- *   node scripts/trackMigration.mjs [--json] [--by-dir] [--list-class] [--verbose]
+ *   node scripts/trackMigration.mjs [--json] [--by-dir] [--list-class] [--verbose] [--update-readme]
  *
  * Flags:
- *   --json        Output raw JSON instead of tables
- *   --by-dir      Show per-directory breakdown
- *   --list-class  List every class-style component path
- *   --verbose     Show all three lists (class / composition / options)
+ *   --json           Output raw JSON instead of tables
+ *   --by-dir         Show per-directory breakdown
+ *   --list-class     List every class-style component path
+ *   --verbose        Show all three lists (class / composition / options)
+ *   --update-readme  Update the migration stats section in README.md
  */
 
-import { readFileSync, readdirSync, statSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import { join, relative, dirname, sep } from "path";
 import { fileURLToPath } from "url";
 
@@ -176,7 +177,7 @@ if (flags.has("--by-dir")) {
 			"Comp".padStart(6) +
 			"Opts".padStart(6) +
 			"Total".padStart(7) +
-			"  Done"
+			"  Done",
 	);
 	console.log("  " + "─".repeat(74));
 
@@ -193,7 +194,7 @@ if (flags.has("--by-dir")) {
 				String(d.composition).padStart(6) +
 				String(d.options).padStart(6) +
 				String(d.total).padStart(7) +
-				`  ${donePct}%`.padStart(6)
+				`  ${donePct}%`.padStart(6),
 		);
 	}
 	console.log("  " + "─".repeat(74));
@@ -209,10 +210,16 @@ console.log("");
 
 console.log(`  Total .vue files:  ${total}`);
 console.log("");
-console.log(`  ✅ Composition API (<script setup>):  ${compositionFiles.length}  (${pct(compositionFiles.length)}%)`);
-console.log(`  ⚠️  Class-style (vue-facing-decorator): ${classFiles.length}  (${pct(classFiles.length)}%)`);
+console.log(
+	`  ✅ Composition API (<script setup>):  ${compositionFiles.length}  (${pct(compositionFiles.length)}%)`,
+);
+console.log(
+	`  ⚠️  Class-style (vue-facing-decorator): ${classFiles.length}  (${pct(classFiles.length)}%)`,
+);
 if (optionsFiles.length > 0) {
-	console.log(`  📦 Options API / other:                ${optionsFiles.length}  (${pct(optionsFiles.length)}%)`);
+	console.log(
+		`  📦 Options API / other:                ${optionsFiles.length}  (${pct(optionsFiles.length)}%)`,
+	);
 }
 console.log("");
 console.log(`  Migration progress:`);
@@ -243,4 +250,51 @@ function buildDirBreakdown() {
 		dirs[r.dir].total++;
 	}
 	return dirs;
+}
+
+// ── Update README.md ────────────────────────────────────────────────────
+if (flags.has("--update-readme")) {
+	const readmePath = join(ROOT, "README.md");
+	const readme = readFileSync(readmePath, "utf-8");
+
+	const startMarker = "<!-- MIGRATION-STATS-START -->";
+	const endMarker = "<!-- MIGRATION-STATS-END -->";
+
+	const startIdx = readme.indexOf(startMarker);
+	const endIdx = readme.indexOf(endMarker);
+
+	if (startIdx === -1 || endIdx === -1) {
+		console.error("  ❌  Could not find migration stats markers in README.md");
+		process.exit(1);
+	}
+
+	const compositionPct = pct(compositionFiles.length);
+	const classPct = pct(classFiles.length);
+
+	const barLen = 30;
+	const filled = Math.round((compositionFiles.length / total) * barLen);
+
+	const statsBlock = [
+		startMarker,
+		"",
+		`| | Count | % |`,
+		`|---|---|---|`,
+		`| Composition API (\`<script setup>\`) | **${compositionFiles.length}** | ${compositionPct}% |`,
+		`| Class-style (vue-facing-decorator) | **${classFiles.length}** | ${classPct}% |`,
+		...(optionsFiles.length > 0
+			? [
+					`| Options API / other | **${optionsFiles.length}** | ${pct(optionsFiles.length)}% |`,
+				]
+			: []),
+		`| **Total** | **${total}** | |`,
+		"",
+		`> Migration progress \`[${"⣿".repeat(filled)}${"⣀".repeat(barLen - filled)}]\` _(${compositionPct}%)_`,
+		"",
+		`_Last updated: ${new Date().toISOString().split("T")[0]}_`,
+		"",
+	].join("\n");
+
+	const updated = readme.slice(0, startIdx) + statsBlock + readme.slice(endIdx);
+	writeFileSync(readmePath, updated, "utf-8");
+	console.log("  ✅  README.md migration stats updated");
 }
