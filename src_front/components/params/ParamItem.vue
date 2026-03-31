@@ -733,8 +733,6 @@ export class ParamItem extends Vue {
 		const res = ["paramitem"];
 		if (this.noBackground === false) {
 			res.push("card-item");
-		} else {
-			res.push("no-bg");
 		}
 		if (this.paramData.type == "boolean" && this.paramData.value !== true)
 			res.push("unselected");
@@ -1731,11 +1729,6 @@ export default toNative(ParamItem);
 			top: calc(50%);
 			transform: translateY(-50%);
 			height: calc(100% - 4px);
-		}
-		&:not(.no-bg) {
-			.placeholders {
-				height: calc(100% - 1em);
-			}
 		}
 		input,
 		.button {

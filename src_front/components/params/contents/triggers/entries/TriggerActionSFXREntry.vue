@@ -50,7 +50,7 @@
 							light
 							alert
 							small
-							@click="$store.params.openParamsPage(contentConnexions, subcontentObs)"
+							@click="storeParams.openParamsPage(contentConnexions, subcontentObs)"
 							>{{ $t("overlay.connection.obsBt") }}</TTButton
 						>
 					</template>
@@ -71,113 +71,107 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
-import { JSFXRSoundPreset } from "@/types/jsfxr";
+import ParamItem from "@/components/params/ParamItem.vue";
+import OverlayInstaller from "@/components/params/contents/overlays/OverlayInstaller.vue";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { TriggerActionSFXRData, TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import SFXRUtils from "@/utils/SFXRUtils";
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
-import AbstractTriggerActionEntry from "./entries/AbstractTriggerActionEntry";
-import OverlayInstaller from "../overlays/OverlayInstaller.vue";
+import { JSFXRSoundPreset } from "@/types/jsfxr";
 import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
+import SFXRUtils from "@/utils/SFXRUtils";
+import { computed, onBeforeMount, ref } from "vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		OverlayInstaller,
-	},
-	emits: [],
-})
-class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
-	@Prop
-	declare action: TriggerActionSFXRData;
+const props = defineProps<{
+	action: TriggerActionSFXRData;
+	triggerData: TriggerData;
+}>();
 
-	@Prop
-	declare triggerData: TriggerData;
+const storeParams = useStoreParams();
+const error = ref(false);
 
-	public error: boolean = false;
-	public param_custom: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		labelKey: "triggers.actions.sfxr.param_custom",
-		value: "",
-		placeholder: "{...}",
-		longText: true,
-	};
-	public param_volume: TwitchatDataTypes.ParameterData<number> = {
-		type: "slider",
-		min: 0,
-		max: 100,
-		labelKey: "triggers.actions.sfxr.param_volume",
-		value: 25,
-		icon: "volume",
-	};
-	public param_waitForEnd: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		labelKey: "triggers.actions.sfxr.param_waitForComplete",
-		value: true,
-		icon: "countdown",
-	};
-	public param_playOnOverlay: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		labelKey: "triggers.actions.sfxr.param_playOnOverlay",
-		value: false,
-		icon: "overlay",
-	};
+const param_custom = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	labelKey: "triggers.actions.sfxr.param_custom",
+	value: "",
+	placeholder: "{...}",
+	longText: true,
+});
 
-	private prevSound: AudioBufferSourceNode | null = null;
+const param_volume = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	min: 0,
+	max: 100,
+	labelKey: "triggers.actions.sfxr.param_volume",
+	value: 25,
+	icon: "volume",
+});
 
-	public get exchangeChannelAvailable(): boolean {
-		return Config.instance.OBS_DOCK_CONTEXT || OBSWebsocket.instance.connected.value;
+const param_waitForEnd = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	labelKey: "triggers.actions.sfxr.param_waitForComplete",
+	value: true,
+	icon: "countdown",
+});
+
+const param_playOnOverlay = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	labelKey: "triggers.actions.sfxr.param_playOnOverlay",
+	value: false,
+	icon: "overlay",
+});
+
+let prevSound: AudioBufferSourceNode | null = null;
+
+const exchangeChannelAvailable = computed((): boolean => {
+	return Config.instance.OBS_DOCK_CONTEXT || OBSWebsocket.instance.connected.value;
+});
+
+const subcontentObs = computed((): TwitchatDataTypes.ParamDeepSectionsStringType => {
+	return TwitchatDataTypes.ParamDeepSections.OBS;
+});
+
+const contentConnexions = computed((): TwitchatDataTypes.ParameterPagesStringType => {
+	return TwitchatDataTypes.ParameterPages.CONNECTIONS;
+});
+
+const actions = computed((): TriggerActionSFXRData["sfxr"]["presetId"][] => {
+	return [...JSFXRSoundPreset, "custom"];
+});
+
+onBeforeMount(() => {
+	if (!props.action.sfxr) {
+		props.action.sfxr = {
+			presetId: "blipSelect",
+			waitForEnd: true,
+			playOnOverlay: false,
+			volume: 100,
+		};
 	}
-	public get subcontentObs(): TwitchatDataTypes.ParamDeepSectionsStringType {
-		return TwitchatDataTypes.ParamDeepSections.OBS;
-	}
-	public get contentConnexions(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.CONNECTIONS;
-	}
+	param_custom.value.value = props.action.sfxr.rawConfig || "";
+});
 
-	public get actions(): TriggerActionSFXRData["sfxr"]["presetId"][] {
-		return [...JSFXRSoundPreset, "custom"];
-	}
-
-	public beforeMount(): void {
-		if (!this.action.sfxr) {
-			this.action.sfxr = {
-				presetId: "blipSelect",
-				waitForEnd: true,
-				playOnOverlay: false,
-				volume: 100,
-			};
-		}
-		this.param_custom.value = this.action.sfxr.rawConfig || "";
-	}
-
-	public async testCustomSound(): Promise<void> {
-		if (this.prevSound) this.prevSound.stop();
-		this.error = false;
-		if (this.action.sfxr.rawConfig) {
-			this.prevSound = (
-				await SFXRUtils.playSFXRFromString(
-					this.action.sfxr.rawConfig,
-					this.param_volume.value,
-				)
-			).audio;
-		}
-	}
-
-	public async playSample(id: TriggerActionSFXRData["sfxr"]["presetId"]): Promise<void> {
-		if (this.prevSound) this.prevSound.stop();
-		if (id === "custom") return;
-		this.prevSound = (await SFXRUtils.playSFXRFromString(id, this.param_volume.value)).audio;
+async function testCustomSound(): Promise<void> {
+	if (prevSound) prevSound.stop();
+	error.value = false;
+	if (props.action.sfxr.rawConfig) {
+		prevSound = (
+			await SFXRUtils.playSFXRFromString(
+				props.action.sfxr.rawConfig,
+				param_volume.value.value,
+			)
+		).audio;
 	}
 }
-export default toNative(TriggerActionSFXREntry);
+
+async function playSample(id: TriggerActionSFXRData["sfxr"]["presetId"]): Promise<void> {
+	if (prevSound) prevSound.stop();
+	if (id === "custom") return;
+	prevSound = (await SFXRUtils.playSFXRFromString(id, param_volume.value.value)).audio;
+}
 </script>
 
 <style scoped lang="less">

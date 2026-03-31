@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import PublicAPI from "@/utils/PublicAPI";
-import { useOverlayConnector } from "./composables/useOverlayConnector";
+import { useOverlayConnector } from "../../composables/useOverlayConnector";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";

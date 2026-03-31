@@ -9,10 +9,10 @@
 
 		<template v-if="param_clickSource.value == 'area'">
 			<div><Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}</div>
-			<div class="screenList" v-if="$store.heat.screenList.length > 0">
+			<div class="screenList" v-if="storeHeat.screenList.length > 0">
 				<HeatScreenPreview
 					class="screen"
-					v-for="screen in $store.heat.screenList"
+					v-for="screen in storeHeat.screenList"
 					:key="screen.id"
 					selectAreaMode
 					@select="(id: string) => onSelectArea(id)"
@@ -23,9 +23,9 @@
 
 			<div class="card-item secondary noArea" v-else>
 				<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
-				<Button secondary light @click="openHeatParams()">{{
+				<TTButton secondary light @click="openHeatParams()">{{
 					$t("triggers.actions.heat.create_areaBt")
-				}}</Button>
+				}}</TTButton>
 			</div>
 		</template>
 
@@ -56,9 +56,9 @@
 
 			<div v-else class="card-item alert error">
 				<p v-html="$t('heat.need_OBS')"></p>
-				<Button @click="openOBSParams()" alert light icon="obs">{{
+				<TTButton @click="openOBSParams()" alert light icon="obs">{{
 					$t("heat.need_OBS_connectBt")
-				}}</Button>
+				}}</TTButton>
 			</div>
 		</template>
 
@@ -86,12 +86,12 @@
 			medium
 			primary
 		>
-			<PermissionsForm v-model="triggerData.permissions" />
+			<PermissionsForm v-if="triggerData.permissions" v-model="triggerData.permissions" />
 		</ToggleBlock>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import Icon from "@/components/Icon.vue";
 import PermissionsForm from "@/components/PermissionsForm.vue";
@@ -99,178 +99,167 @@ import ToggleBlock from "@/components/ToggleBlock.vue";
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSSourceItem } from "@/utils/OBSWebsocket";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
 import HeatScreenPreview from "../heat/areas/HeatScreenPreview.vue";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import { watch } from "vue";
+import { computed, watch, onBeforeMount, onMounted, ref } from "vue";
 import Utils from "@/utils/Utils";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 
-@Component({
-	components: {
-		Icon,
-		Button: TTButton,
-		ParamItem,
-		ToggleBlock,
-		PermissionsForm,
-		HeatScreenPreview,
-	},
-	emits: [],
-})
-class TriggerActionHeatParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
-	@Prop
-	public obsSources!: OBSSourceItem[];
+const props = defineProps<{
+	triggerData: TriggerData;
+	obsSources: OBSSourceItem[];
+}>();
 
-	public param_clickSource: TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]> = {
-		type: "list",
-		value: "all",
-		listValues: [],
-		labelKey: "heat.click_source",
-		icon: "click",
-	};
-	public param_obsSources: TwitchatDataTypes.ParameterData<string, string> = {
-		type: "list",
-		value: "",
-		listValues: [],
-		labelKey: "heat.obs_source",
-		icon: "obs",
-	};
-	public param_allowAnon: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "heat.param_anon",
-		icon: "anon",
-		tooltipKey: "heat.anonymous",
-	};
-	public param_globalCD: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		icon: "timeout",
-		min: 0,
-		max: 60 * 60 * 12,
-		labelKey: "triggers.actions.chat.param_globalCD",
-	};
-	public param_userCD: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		icon: "timeout",
-		min: 0,
-		max: 60 * 60 * 12,
-		labelKey: "triggers.actions.chat.param_userCD",
-	};
+const storeHeat = useStoreHeat();
+const storeCommon = useStoreCommon();
+const storeParams = useStoreParams();
 
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
+const param_clickSource = ref<TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]>>({
+	type: "list",
+	value: "all",
+	listValues: [],
+	labelKey: "heat.click_source",
+	icon: "click",
+});
+const param_obsSources = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "list",
+	value: "",
+	listValues: [],
+	labelKey: "heat.obs_source",
+	icon: "obs",
+});
+const param_allowAnon = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "heat.param_anon",
+	icon: "anon",
+	tooltipKey: "heat.anonymous",
+});
+const param_globalCD = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	icon: "timeout",
+	min: 0,
+	max: 60 * 60 * 12,
+	labelKey: "triggers.actions.chat.param_globalCD",
+});
+const param_userCD = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	icon: "timeout",
+	min: 0,
+	max: 60 * 60 * 12,
+	labelKey: "triggers.actions.chat.param_userCD",
+});
+
+const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
+
+onBeforeMount(() => {
+	if (!props.triggerData.heatAreaIds) props.triggerData.heatAreaIds = [];
+	if (!props.triggerData.permissions) {
+		props.triggerData.permissions = Utils.getDefaultPermissions();
+	}
+	if (!props.triggerData.cooldown) {
+		props.triggerData.cooldown = {
+			global: 0,
+			user: 0,
+			alert: false,
+		};
 	}
 
-	public beforeMount(): void {
-		if (!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
-		if (!this.triggerData.permissions) {
-			this.triggerData.permissions = Utils.getDefaultPermissions();
-		}
-		if (!this.triggerData.cooldown) {
-			this.triggerData.cooldown = {
-				global: 0,
-				user: 0,
-				alert: false,
-			};
-		}
+	const entries: TwitchatDataTypes.ParameterDataListValue<TriggerData["heatClickSource"]>[] = [
+		{ value: "obs", labelKey: "heat.click_source_obs" },
+		{ value: "area", labelKey: "heat.click_source_area" },
+		{ value: "all", labelKey: "heat.click_source_all" },
+	];
+	param_clickSource.value.listValues = entries;
 
-		const entries: TwitchatDataTypes.ParameterDataListValue<TriggerData["heatClickSource"]>[] =
-			[
-				{ value: "obs", labelKey: "heat.click_source_obs" },
-				{ value: "area", labelKey: "heat.click_source_area" },
-				{ value: "all", labelKey: "heat.click_source_all" },
-			];
-		this.param_clickSource.listValues = entries;
+	populateObsSources();
+});
 
-		this.populateObsSources();
-
-		watch(
-			() => this.obsSources,
-			() => this.populateObsSources(),
-		);
-	}
-
-	public mounted(): void {
-		//Cleanup any area ID from the trigger that does not exist anymore
-		//in the screens definitions
-		const screenList = this.$store.heat.screenList;
-		if (!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
-		for (let i = 0; i < this.triggerData.heatAreaIds!.length; i++) {
-			const id = this.triggerData.heatAreaIds![i];
-			let found = false;
-			for (let j = 0; j < screenList.length; j++) {
-				if (screenList[j]!.areas.findIndex((v) => v.id == id) > -1) {
-					found = true;
-				}
-			}
-			if (!found) {
-				this.triggerData.heatAreaIds!.splice(i, 1);
-				i--;
+onMounted(() => {
+	//Cleanup any area ID from the trigger that does not exist anymore
+	//in the screens definitions
+	const screenList = storeHeat.screenList;
+	if (!props.triggerData.heatAreaIds) props.triggerData.heatAreaIds = [];
+	for (let i = 0; i < props.triggerData.heatAreaIds!.length; i++) {
+		const id = props.triggerData.heatAreaIds![i];
+		let found = false;
+		for (let j = 0; j < screenList.length; j++) {
+			if (screenList[j]!.areas.findIndex((v) => v.id == id) > -1) {
+				found = true;
 			}
 		}
-	}
-
-	public onSelectArea(id: string): void {
-		if (!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
-		const index = this.triggerData.heatAreaIds.indexOf(id);
-		if (index > -1) {
-			this.triggerData.heatAreaIds.splice(index, 1);
-		} else if (this.triggerData.heatAreaIds.length < 100) {
-			this.triggerData.heatAreaIds.push(id);
-		} else {
-			this.$store.common.alert("You reached the maximum of 100 clickable areas");
+		if (!found) {
+			props.triggerData.heatAreaIds!.splice(i, 1);
+			i--;
 		}
 	}
+});
 
-	public openHeatParams(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.HEAT_AREAS,
-		);
-	}
-
-	public openOBSParams(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.OBS,
-		);
-	}
-
-	public cleanupData(prevValue: any, newValue: any): void {
-		if (prevValue === newValue) return;
-
-		switch (this.param_clickSource.value) {
-			case "obs": {
-				this.triggerData.heatAreaIds = undefined;
-				this.triggerData.heatObsSource =
-					this.param_obsSources.listValues && this.param_obsSources.listValues.length > 0
-						? this.param_obsSources.listValues[0]!.value
-						: "";
-				break;
-			}
-			case "area": {
-				this.triggerData.heatAreaIds = this.triggerData.heatAreaIds || [];
-				this.triggerData.heatObsSource = undefined;
-				break;
-			}
-			default: {
-				this.triggerData.heatAreaIds = undefined;
-				this.triggerData.heatObsSource = undefined;
-			}
-		}
-	}
-
-	private populateObsSources(): void {
-		this.param_obsSources.listValues = (this.obsSources || []).map((v) => {
-			return { value: v.sourceName, label: v.sourceName };
-		});
+function onSelectArea(id: string): void {
+	if (!props.triggerData.heatAreaIds) props.triggerData.heatAreaIds = [];
+	const index = props.triggerData.heatAreaIds.indexOf(id);
+	if (index > -1) {
+		props.triggerData.heatAreaIds.splice(index, 1);
+	} else if (props.triggerData.heatAreaIds.length < 100) {
+		props.triggerData.heatAreaIds.push(id);
+	} else {
+		storeCommon.alert("You reached the maximum of 100 clickable areas");
 	}
 }
-export default toNative(TriggerActionHeatParams);
+
+function openHeatParams(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.HEAT_AREAS,
+	);
+}
+
+function openOBSParams(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.OBS,
+	);
+}
+
+function cleanupData(prevValue: any, newValue: any): void {
+	if (prevValue === newValue) return;
+
+	switch (param_clickSource.value.value) {
+		case "obs": {
+			props.triggerData.heatAreaIds = undefined;
+			props.triggerData.heatObsSource =
+				param_obsSources.value.listValues && param_obsSources.value.listValues.length > 0
+					? param_obsSources.value.listValues[0]!.value
+					: "";
+			break;
+		}
+		case "area": {
+			props.triggerData.heatAreaIds = props.triggerData.heatAreaIds || [];
+			props.triggerData.heatObsSource = undefined;
+			break;
+		}
+		default: {
+			props.triggerData.heatAreaIds = undefined;
+			props.triggerData.heatObsSource = undefined;
+		}
+	}
+}
+
+function populateObsSources(): void {
+	param_obsSources.value.listValues = (props.obsSources || []).map((v) => {
+		return { value: v.sourceName, label: v.sourceName };
+	});
+}
+
+watch(
+	() => props.obsSources,
+	() => populateObsSources(),
+);
 </script>
 
 <style scoped lang="less">

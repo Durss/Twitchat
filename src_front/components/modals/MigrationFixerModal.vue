@@ -49,7 +49,6 @@
 						<TriggerActionEntry
 							noHeaderOptions
 							class="httpAction"
-							:readonly="false"
 							:action="currentTrigger!.action"
 							:index="0"
 							:obsScenes="[]"
@@ -67,7 +66,6 @@
 						<TriggerActionEntry
 							noHeaderOptions
 							class="jsonAction"
-							:readonly="false"
 							:action="currentTrigger!.jsonAction"
 							:index="0"
 							:obsScenes="[]"

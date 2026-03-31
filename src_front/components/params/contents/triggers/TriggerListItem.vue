@@ -41,7 +41,7 @@
 				<span
 					class="triggerId"
 					v-click2Select
-					v-if="$store.main.devmode && over && selectMode === false"
+					v-if="storeMain.devmode && over && selectMode === false"
 					@click.stop=""
 					>{{
 				}}</span>
@@ -64,7 +64,7 @@
 		</div>
 
 		<TTButton
-			v-if="noEdit === false && $store.main.devmode"
+			v-if="noEdit === false && storeMain.devmode"
 			v-tooltip="$t('global.copy')"
 			class="copyIdBt"
 			transparent
@@ -102,82 +102,82 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ToggleButton from "@/components/ToggleButton.vue";
 import {
 	TriggerSubTypeLabel,
 	TriggerTypesDefinitionList,
 	type TriggerTypeDefinition,
 } from "@/types/TriggerActionDataTypes";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import type { TriggerListEntry } from "./TriggerList.vue";
 import TriggerUtils from "@/utils/TriggerUtils";
-import { watch } from "vue";
+import { ref, watch } from "vue";
 import TTButton from "@/components/TTButton.vue";
+import { useI18n } from "vue-i18n";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeExporter as useStoreExporter } from "@/store/exporter/storeExporter";
 
-@Component({
-	components: {
-		TTButton,
-		ToggleButton,
+const { t } = useI18n();
+const storeMain = useStoreMain();
+const storeExporter = useStoreExporter();
+
+const props = withDefaults(
+	defineProps<{
+		entryData: TriggerListEntry;
+		noEdit?: boolean;
+		forceDisableOption?: boolean;
+		selectMode?: boolean;
+		toggleMode?: boolean;
+	}>(),
+	{
+		noEdit: false,
+		forceDisableOption: false,
+		selectMode: false,
+		toggleMode: false,
 	},
-	emits: ["changeState", "delete", "testTrigger", "select", "duplicate"],
-})
-class TriggerListItem extends Vue {
-	@Prop
-	public entryData!: TriggerListEntry;
+);
 
-	@Prop({ default: false })
-	public noEdit!: boolean;
+defineEmits<{
+	changeState: [el: HTMLElement];
+	delete: [entry: TriggerListEntry];
+	testTrigger: [entry: TriggerListEntry["trigger"]];
+	select: [entry: TriggerListEntry["trigger"]];
+	duplicate: [entry: TriggerListEntry];
+}>();
 
-	@Prop({ default: false })
-	public forceDisableOption!: boolean;
+const over = ref<boolean>(false);
+const selected = ref<boolean>(false);
+const tooltipText = ref<string>("");
+const triggerTypeDef = ref<TriggerTypeDefinition | undefined>(undefined);
 
-	@Prop({ default: false })
-	public selectMode!: boolean;
+triggerTypeDef.value = TriggerTypesDefinitionList().find(
+	(v) => v.value === props.entryData.trigger.type,
+);
+const info = TriggerUtils.getTriggerDisplayInfo(props.entryData.trigger);
+const event = TriggerTypesDefinitionList().find((v) => v.value === props.entryData.trigger.type);
+if (triggerTypeDef.value?.disabled === true && triggerTypeDef.value.disabledReasonLabelKey)
+	tooltipText.value = t(triggerTypeDef.value.disabledReasonLabelKey, {
+		SUB_ITEM_NAME: TriggerSubTypeLabel(props.entryData.trigger),
+	});
+else if (!event) tooltipText.value = "unknown category";
+else
+	tooltipText.value = t(info.descriptionKey || event?.descriptionKey || event?.labelKey, {
+		SUB_ITEM_NAME: TriggerSubTypeLabel(props.entryData.trigger),
+	});
 
-	@Prop({ default: false })
-	public toggleMode!: boolean;
+selected.value = storeExporter.selectedTriggerIDs.includes(props.entryData.trigger.id);
 
-	public over: boolean = false;
-	public selected: boolean = false;
-	public tooltipText: string = "";
-	public triggerTypeDef: TriggerTypeDefinition | undefined = undefined;
-
-	public beforeMount(): void {
-		this.triggerTypeDef = TriggerTypesDefinitionList().find(
-			(v) => v.value === this.entryData.trigger.type,
-		);
-		const info = TriggerUtils.getTriggerDisplayInfo(this.entryData.trigger);
-		const event = TriggerTypesDefinitionList().find(
-			(v) => v.value === this.entryData.trigger.type,
-		);
-		if (this.triggerTypeDef?.disabled === true && this.triggerTypeDef.disabledReasonLabelKey)
-			this.tooltipText = this.$t(this.triggerTypeDef.disabledReasonLabelKey, {
-				SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger),
-			});
-		else if (!event) this.tooltipText = "unknown category";
+watch(
+	() => selected.value,
+	(newVal) => {
+		if (newVal) storeExporter.selectedTriggerIDs.push(props.entryData.trigger.id);
 		else
-			this.tooltipText = this.$t(
-				info.descriptionKey || event?.descriptionKey || event?.labelKey,
-				{ SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger) },
+			storeExporter.selectedTriggerIDs.splice(
+				storeExporter.selectedTriggerIDs.indexOf(props.entryData.trigger.id),
+				1,
 			);
-
-		this.selected = this.$store.exporter.selectedTriggerIDs.includes(this.entryData.trigger.id);
-
-		watch(
-			() => this.selected,
-			(newVal) => {
-				if (newVal) this.$store.exporter.selectedTriggerIDs.push(this.entryData.trigger.id);
-				else
-					this.$store.exporter.selectedTriggerIDs.splice(
-						this.$store.exporter.selectedTriggerIDs.indexOf(this.entryData.trigger.id),
-						1,
-					);
-			},
-		);
-	}
-}
-export default toNative(TriggerListItem);
+	},
+);
 </script>
 
 <style scoped lang="less">
