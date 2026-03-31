@@ -57,7 +57,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import type {
 	ITriggerPlaceholder,
@@ -66,75 +66,60 @@ import type {
 	TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
-import TriggerConditionListItem from "./TriggerConditionListItem.vue";
 import { VueDraggable } from "vue-draggable-plus";
+import TriggerConditionListItem from "./TriggerConditionListItem.vue";
 
-@Component({
-	name: "TriggerConditionListGroupItem",
-	components: {
-		TTButton,
-		ParamItem,
-		VueDraggable,
-		TriggerConditionListItem,
-	},
-	emits: ["delete"],
-})
-class TriggerConditionListGroupItem extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+defineOptions({ name: "TriggerConditionListGroupItem" });
 
-	@Prop
-	public condition!: (TriggerConditionGroup | TriggerCondition)[];
+const props = defineProps<{
+	triggerData: TriggerData;
+	condition: (TriggerConditionGroup | TriggerCondition)[];
+	parentCondition: TriggerConditionGroup;
+	placeholderList: ITriggerPlaceholder<string>[];
+}>();
 
-	@Prop
-	public parentCondition!: TriggerConditionGroup;
+defineEmits<{
+	delete: [];
+}>();
 
-	@Prop
-	public placeholderList!: ITriggerPlaceholder<string>[];
-
-	public addItem(item: TriggerCondition | TriggerConditionGroup): void {
-		if (item.type == "condition") {
-			const index = this.parentCondition.conditions.findIndex((v) => v.id === item.id);
-			this.parentCondition.conditions.splice(index, 1, {
-				id: Utils.getUUID(),
-				type: "group",
-				conditions: [
-					item,
-					{
-						id: Utils.getUUID(),
-						type: "condition",
-						operator: "=",
-						placeholder: "",
-						value: "",
-					},
-				],
-				operator: "AND",
-			});
-		} else if (item.type == "group") {
-			item.conditions.push({
-				id: Utils.getUUID(),
-				type: "condition",
-				operator: "=",
-				placeholder: "",
-				value: "",
-			});
-		}
-	}
-
-	public deleteItem(item: TriggerCondition | TriggerConditionGroup): void {
-		const index = this.parentCondition.conditions.findIndex((v) => v.id === item.id);
-		if (index === -1) return; //Item not found
-		this.parentCondition.conditions.splice(index, 1);
-	}
-
-	public toggleOperator(item: TriggerConditionGroup): void {
-		item.operator = item.operator == "AND" ? "OR" : "AND";
+function addItem(item: TriggerCondition | TriggerConditionGroup): void {
+	if (item.type == "condition") {
+		const index = props.parentCondition.conditions.findIndex((v) => v.id === item.id);
+		props.parentCondition.conditions.splice(index, 1, {
+			id: Utils.getUUID(),
+			type: "group",
+			conditions: [
+				item,
+				{
+					id: Utils.getUUID(),
+					type: "condition",
+					operator: "=",
+					placeholder: "",
+					value: "",
+				},
+			],
+			operator: "AND",
+		});
+	} else if (item.type == "group") {
+		item.conditions.push({
+			id: Utils.getUUID(),
+			type: "condition",
+			operator: "=",
+			placeholder: "",
+			value: "",
+		});
 	}
 }
 
-export default toNative(TriggerConditionListGroupItem);
+function deleteItem(item: TriggerCondition | TriggerConditionGroup): void {
+	const index = props.parentCondition.conditions.findIndex((v) => v.id === item.id);
+	if (index === -1) return; //Item not found
+	props.parentCondition.conditions.splice(index, 1);
+}
+
+function toggleOperator(item: TriggerConditionGroup): void {
+	item.operator = item.operator == "AND" ? "OR" : "AND";
+}
 </script>
 
 <style scoped lang="less">

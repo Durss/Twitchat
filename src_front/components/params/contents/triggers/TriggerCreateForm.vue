@@ -176,13 +176,20 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
-import ToggleBlock from "@/components/ToggleBlock.vue";
+import { asset } from "@/composables/useAsset";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import type { TriggerEventTypeCategory } from "@/types/TriggerActionDataTypes";
 import {
 	ANY_COUNTER,
 	ANY_OBS_SCENE,
+	ANY_VALUE,
 	TriggerEventTypeCategories,
 	TriggerTypes,
 	TriggerTypesDefinitionList,
@@ -198,791 +205,720 @@ import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch } from "vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import TriggerActionList from "./TriggerActionList.vue";
-import { ANY_VALUE } from "../../../../types/TriggerActionDataTypes";
+import { computed, onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
 
-@Component({
-	components: {
-		TTButton: TTButton, //Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
-		ToggleBlock,
-		SearchForm,
-		TriggerActionList,
+const { t, availableLocales } = useI18n();
+const { getAsset } = asset();
+const storeAuth = useStoreAuth();
+const storeCounters = useStoreCounters();
+const storeValues = useStoreValues();
+const storeTriggers = useStoreTriggers();
+const storeParams = useStoreParams();
+const storeMain = useStoreMain();
+
+const props = withDefaults(
+	defineProps<{
+		folderTarget?: string;
+		obsScenes?: OBSSceneItem[];
+		obsSources?: OBSSourceItem[];
+		obsInputs?: OBSInputItem[];
+		rewards?: TwitchDataTypes.Reward[];
+	}>(),
+	{
+		folderTarget: "",
+		obsScenes: () => [],
+		obsSources: () => [],
+		obsInputs: () => [],
+		rewards: () => [],
 	},
-	emits: ["selectTrigger", "updateHeader"],
-})
-class TriggerCreateForm extends Vue {
-	@Prop({ default: "" })
-	public folderTarget!: string;
-	@Prop({ default: [] })
-	public obsScenes!: OBSSceneItem[];
-	@Prop({ default: [] })
-	public obsSources!: OBSSourceItem[];
-	@Prop({ default: [] })
-	public obsInputs!: OBSInputItem[];
-	@Prop({ default: [] })
-	public rewards!: TwitchDataTypes.Reward[];
+);
 
-	public search = "";
-	public showLoading = false;
-	public needRewards = false;
-	public needObsConnect = false;
-	public selectedTriggerType: TriggerTypeDefinition | null = null;
-	public subtriggerList: TriggerEntry[] = [];
-	public eventCategories: TriggerCategory[] = [];
+const emit = defineEmits<{
+	selectTrigger: [trigger: TriggerData];
+	updateHeader: [key: string];
+}>();
 
-	private temporaryTrigger: TriggerData | null = null;
+const search = ref("");
+const showLoading = ref(false);
+const needRewards = ref(false);
+const needObsConnect = ref(false);
+const selectedTriggerType = ref<TriggerTypeDefinition | null>(null);
+const subtriggerList = ref<TriggerEntry[]>([]);
+const eventCategories = ref<TriggerCategory[]>([]);
 
-	public get musicServiceAvailable(): boolean {
-		return SpotifyHelper.instance.connected.value;
-	}
+let temporaryTrigger: TriggerData | null = null;
 
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
+const musicServiceAvailable = computed((): boolean => {
+	return SpotifyHelper.instance.connected.value;
+});
 
-	public get hasCounterOrValue(): boolean {
-		return (
-			this.$store.counters.counterList.length > 0 || this.$store.values.valueList.length > 0
-		);
-	}
+const obsConnected = computed((): boolean => {
+	return OBSWebsocket.instance.connected.value;
+});
 
-	public get isGoxlrMini(): boolean {
-		return GoXLRSocket.instance.isGoXLRMini.value;
-	}
+const hasCounterOrValue = computed((): boolean => {
+	return storeCounters.counterList.length > 0 || storeValues.valueList.length > 0;
+});
 
-	public get hasChannelPoints(): boolean {
-		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
-	}
+const isGoxlrMini = computed((): boolean => {
+	return GoXLRSocket.instance.isGoXLRMini.value;
+});
 
-	/**
-	 * Gets a trigger's classes
-	 */
-	public getTriggerClasses(e: TriggerTypeDefinition): string[] {
-		const res: string[] = ["item"];
-		if (e.beta) res.push("beta");
-		return res;
-	}
+const hasChannelPoints = computed((): boolean => {
+	return storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner;
+});
 
-	public isMusicCategory(category: TriggerEventTypeCategory): boolean {
-		return category.id == TriggerEventTypeCategories.MUSIC.id;
-	}
+function getTriggerClasses(e: TriggerTypeDefinition): string[] {
+	const res: string[] = ["item"];
+	if (e.beta) res.push("beta");
+	return res;
+}
 
-	public isOBSCategory(category: TriggerEventTypeCategory): boolean {
-		return category.id == TriggerEventTypeCategories.OBS.id;
-	}
+function isMusicCategory(category: TriggerEventTypeCategory): boolean {
+	return category.id == TriggerEventTypeCategories.MUSIC.id;
+}
 
-	public isCountersAndValueCategory(category: TriggerEventTypeCategory): boolean {
-		return category.id == TriggerEventTypeCategories.COUNTER_VALUE.id;
-	}
+function isOBSCategory(category: TriggerEventTypeCategory): boolean {
+	return category.id == TriggerEventTypeCategories.OBS.id;
+}
 
-	public beforeMount(): void {
-		this.populate();
+function isCountersAndValueCategory(category: TriggerEventTypeCategory): boolean {
+	return category.id == TriggerEventTypeCategories.COUNTER_VALUE.id;
+}
 
-		watch(
-			() => this.obsSources,
-			() => {
-				if (this.selectedTriggerType) {
-					this.selectTriggerType(this.selectedTriggerType);
-				}
-			},
-		);
-		watch(
-			() => this.rewards,
-			() => {
-				if (this.selectedTriggerType) {
-					this.selectTriggerType(this.selectedTriggerType);
-				}
-			},
-		);
+onBeforeMount(() => {
+	populate();
+});
 
-		watch(
-			() => this.$store.auth.newScopesToRequest,
-			() => {
-				this.populate();
-			},
-		);
-		watch(
-			() => this.search,
-			() => {
-				this.onSearch();
-			},
-		);
-	}
-
-	/**
-	 * Populates the form
-	 */
-	public populate(showPrivate: boolean = false): void {
-		this.eventCategories = [];
-		const triggers = TriggerTypesDefinitionList().concat();
-		const locales = this.$i18n.availableLocales;
-		//Create button/display data for all available triggers
-		let triggerTypeList: TriggerEntry[] = triggers
-			.filter(
-				(v) =>
-					(!showPrivate && v.private !== true) ||
-					(showPrivate == true && v.private === true),
-			)
-			.map((v) => {
-				return {
-					label: this.$t(v.labelKey),
-					searchTerms: locales.map((l) => this.$t(v.labelKey, { locale: l })),
-					value: v.value,
-					trigger: v,
-					icon: this.$asset("icons/" + v.icon + ".svg"),
-					isCategory: false,
-					newDate: v.newDate,
-				};
-			});
-
-		if (this.search && !showPrivate) {
-			const premiumSearch = this.search.toLowerCase() == "premium";
-			const reg = new RegExp(this.search, "i");
-			triggerTypeList = triggerTypeList.filter((v) => {
-				if (premiumSearch && v.trigger?.premium === true) return true;
-				let matches = false;
-				v.searchTerms.forEach((v) => {
-					matches ||= reg.test(v);
-				});
-				return matches;
-			});
+watch(
+	() => props.obsSources,
+	() => {
+		if (selectedTriggerType.value) {
+			selectTriggerType(selectedTriggerType.value);
 		}
-		if (triggerTypeList.length === 0) return;
-
-		//Remove affiliates-only triggers if not affiliate or partner
-		if (
-			!this.$store.auth.twitch.user.is_affiliate &&
-			!this.$store.auth.twitch.user.is_partner
-		) {
-			triggerTypeList = triggerTypeList.filter((v) => {
-				return (
-					v.value != TriggerTypes.REWARD_REDEEM &&
-					v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS &&
-					v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
-				);
-			});
+	},
+);
+watch(
+	() => props.rewards,
+	() => {
+		if (selectedTriggerType.value) {
+			selectTriggerType(selectedTriggerType.value);
 		}
+	},
+);
 
-		//Remove GoXLR Full specific triggers if a mini is connected
-		if (this.isGoxlrMini) {
-			triggerTypeList = triggerTypeList.filter(
-				(v) =>
-					v.trigger?.goxlrMiniCompatible === true ||
-					v.trigger?.goxlrMiniCompatible === undefined,
+watch(
+	() => storeAuth.newScopesToRequest,
+	() => {
+		populate();
+	},
+);
+watch(search, () => {
+	onSearch();
+});
+
+function populate(showPrivate: boolean = false): void {
+	eventCategories.value = [];
+	const triggers = TriggerTypesDefinitionList().concat();
+	const locales = availableLocales;
+	let triggerTypeList: TriggerEntry[] = triggers
+		.filter(
+			(v) =>
+				(!showPrivate && v.private !== true) || (showPrivate == true && v.private === true),
+		)
+		.map((v) => {
+			return {
+				label: t(v.labelKey),
+				searchTerms: locales.map((l) => t(v.labelKey, { locale: l })),
+				value: v.value,
+				trigger: v,
+				icon: getAsset("icons/" + v.icon + ".svg"),
+				isCategory: false,
+				newDate: v.newDate,
+			};
+		});
+
+	if (search.value && !showPrivate) {
+		const premiumSearch = search.value.toLowerCase() == "premium";
+		const reg = new RegExp(search.value, "i");
+		triggerTypeList = triggerTypeList.filter((v) => {
+			if (premiumSearch && v.trigger?.premium === true) return true;
+			let matches = false;
+			v.searchTerms.forEach((v) => {
+				matches ||= reg.test(v);
+			});
+			return matches;
+		});
+	}
+	if (triggerTypeList.length === 0) return;
+
+	if (!storeAuth.twitch.user.is_affiliate && !storeAuth.twitch.user.is_partner) {
+		triggerTypeList = triggerTypeList.filter((v) => {
+			return (
+				v.value != TriggerTypes.REWARD_REDEEM &&
+				v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS &&
+				v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 			);
-		}
-
-		//Extract available trigger categories
-		let currCat = triggerTypeList[0]!.trigger!.category;
-		let catEvents: TriggerTypeDefinition[] = [];
-		for (let i = 0; i < triggerTypeList.length; i++) {
-			const ev = triggerTypeList[i]!;
-			if (!ev.trigger) continue;
-			if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
-				if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
-				const cat: TriggerCategory = {
-					category: catEvents[0]!.category,
-					events: catEvents,
-				};
-				this.eventCategories.push(cat);
-				catEvents = [ev.trigger];
-			} else {
-				catEvents.push(ev.trigger);
-			}
-			currCat = ev.trigger.category;
-		}
-
-		this.eventCategories.forEach((v) => {
-			let newDate = 0;
-			v.events.forEach((w) => {
-				if (w.newDate) newDate = Math.max(newDate, w.newDate);
-			});
-			if (newDate > 0) v.newDate = newDate;
 		});
 	}
 
-	/**
-	 * Get if a trigger entry should be disabled
-	 */
-	public disabledEntry(e: TriggerTypeDefinition): boolean {
-		if (e.disabled === true) return true;
-
-		if (
-			e.value == TriggerTypes.REWARD_REDEEM &&
-			(!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.POLL_RESULT &&
-			(!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.PREDICTION_RESULT &&
-			(!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.SHIELD_MODE_ON &&
-			!TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.SHIELD_MODE_OFF &&
-			!TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
-		)
-			return true;
-		if (e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
-			return true;
-		if (e.value == TriggerTypes.BAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
-			return true;
-		if (e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
-			return true;
-		if (e.value == TriggerTypes.VIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS]))
-			return true;
-		if (e.value == TriggerTypes.UNVIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS]))
-			return true;
-		if (e.value == TriggerTypes.MOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS]))
-			return true;
-		if (e.value == TriggerTypes.UNMOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS]))
-			return true;
-		if (
-			e.value == TriggerTypes.STREAM_INFO_UPDATE &&
-			!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE &&
-			!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])
-		)
-			return true;
-		if (
-			e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE &&
-			!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])
-		)
-			return true;
-		if (
-			(e.value == TriggerTypes.AD_APPROACHING ||
-				e.value == TriggerTypes.AD_STARTED ||
-				e.value == TriggerTypes.AD_COMPLETE) &&
-			!TwitchUtils.hasScopes([TwitchScopes.ADS_READ])
-		)
-			return true;
-
-		if (
-			!TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN]) &&
-			(e.value == TriggerTypes.HYPE_TRAIN_CANCELED ||
-				e.value == TriggerTypes.HYPE_TRAIN_APPROACHING ||
-				e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN ||
-				e.value == TriggerTypes.HYPE_TRAIN_END ||
-				e.value == TriggerTypes.HYPE_TRAIN_PROGRESS ||
-				e.value == TriggerTypes.HYPE_TRAIN_START)
-		)
-			return true;
-
-		if (
-			e.value == TriggerTypes.MANY_REPLIES &&
-			this.$store.params.features.manyRepliesAlert.value !== true
-		)
-			return true;
-
-		return false;
+	if (isGoxlrMini.value) {
+		triggerTypeList = triggerTypeList.filter(
+			(v) =>
+				v.trigger?.goxlrMiniCompatible === true ||
+				v.trigger?.goxlrMiniCompatible === undefined,
+		);
 	}
 
-	/**
-	 * Request any missing scope if necessary
-	 * @param e
-	 */
-	public requestScope(e: TriggerTypeDefinition): void {
-		if (
-			e.value == TriggerTypes.REWARD_REDEEM &&
-			this.hasChannelPoints &&
-			!TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.POLL_RESULT &&
-			this.hasChannelPoints &&
-			!TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.PREDICTION_RESULT &&
-			this.hasChannelPoints &&
-			!TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.SHIELD_MODE_ON &&
-			!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.SHIELD_MODE_OFF &&
-			!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.TIMEOUT &&
-			!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])
-		)
-			return;
-		if (e.value == TriggerTypes.BAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]))
-			return;
-		if (e.value == TriggerTypes.UNBAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]))
-			return;
-		if (e.value == TriggerTypes.VIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS]))
-			return;
-		if (e.value == TriggerTypes.UNVIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS]))
-			return;
-		if (e.value == TriggerTypes.MOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS]))
-			return;
-		if (e.value == TriggerTypes.UNMOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS]))
-			return;
-		if (
-			e.value == TriggerTypes.STREAM_INFO_UPDATE &&
-			!TwitchUtils.requestScopes([TwitchScopes.SET_STREAM_INFOS])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE &&
-			!TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])
-		)
-			return;
-		if (
-			e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE &&
-			!TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])
-		)
-			return;
-		if (
-			(e.value == TriggerTypes.AD_APPROACHING ||
-				e.value == TriggerTypes.AD_STARTED ||
-				e.value == TriggerTypes.AD_COMPLETE) &&
-			!TwitchUtils.requestScopes([TwitchScopes.ADS_READ])
-		)
-			return;
-
-		if (
-			(e.value == TriggerTypes.HYPE_TRAIN_CANCELED ||
-				e.value == TriggerTypes.HYPE_TRAIN_APPROACHING ||
-				e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN ||
-				e.value == TriggerTypes.HYPE_TRAIN_END ||
-				e.value == TriggerTypes.HYPE_TRAIN_PROGRESS ||
-				e.value == TriggerTypes.HYPE_TRAIN_START) &&
-			!TwitchUtils.requestScopes([TwitchScopes.READ_HYPE_TRAIN])
-		)
-			return;
-
-		if (
-			e.value == TriggerTypes.MANY_REPLIES &&
-			this.$store.params.features.manyRepliesAlert.value !== true
-		) {
-			this.$store.main.tempStoreValue = this.$store.params.features.manyRepliesAlert.id;
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.FEATURES);
+	let currCat = triggerTypeList[0]!.trigger!.category;
+	let catEvents: TriggerTypeDefinition[] = [];
+	for (let i = 0; i < triggerTypeList.length; i++) {
+		const ev = triggerTypeList[i]!;
+		if (!ev.trigger) continue;
+		if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
+			if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
+			const cat: TriggerCategory = {
+				category: catEvents[0]!.category,
+				events: catEvents,
+			};
+			eventCategories.value.push(cat);
+			catEvents = [ev.trigger];
+		} else {
+			catEvents.push(ev.trigger);
 		}
+		currCat = ev.trigger.category;
 	}
 
-	/**
-	 * Called when selecting a main event type
-	 * @param e
-	 */
-	public async selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
-		this.selectedTriggerType = e;
+	eventCategories.value.forEach((v) => {
+		let newDate = 0;
+		v.events.forEach((w) => {
+			if (w.newDate) newDate = Math.max(newDate, w.newDate);
+		});
+		if (newDate > 0) v.newDate = newDate;
+	});
+}
 
-		this.subtriggerList = [];
-		if (e.value == TriggerTypes.REWARD_REDEEM) {
-			if (!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-				this.needRewards = true;
-				return;
-			} else {
-				this.needRewards = false;
-				//build list from rewards
-				const list = this.rewards.map((v): TriggerEntry => {
-					return {
-						label: v.title,
-						searchTerms: [v.title],
-						isCategory: false,
-						value: v.id,
-						background: v.background_color,
-						labelSmall: v.cost > 0 ? v.cost + "pts" : "",
-						icon: v.image?.url_2x ?? this.$asset("icons/channelPoints.svg"),
-					};
-				});
-				this.subtriggerList = list;
-				this.$emit("updateHeader", "triggers.header_select_reward");
-			}
-		} else if (e.value == TriggerTypes.OBS_SCENE) {
-			if (!OBSWebsocket.instance.connected.value) {
-				this.needObsConnect = true;
-				return;
-			} else {
-				this.needObsConnect = false;
-				//build list from obs scenes
-				const list = this.obsScenes.map((v): TriggerEntry => {
-					return {
-						label: v.sceneName,
-						searchTerms: [v.sceneName],
-						value: v.sceneName,
-						icon: "",
-						isCategory: false,
-					};
-				});
-				const defaultName = this.$t("triggers.obs.anyScene");
-				list.unshift({
-					label: defaultName,
-					searchTerms: [defaultName],
-					value: ANY_OBS_SCENE,
+function disabledEntry(e: TriggerTypeDefinition): boolean {
+	if (e.disabled === true) return true;
+
+	if (
+		e.value == TriggerTypes.REWARD_REDEEM &&
+		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.POLL_RESULT &&
+		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.PREDICTION_RESULT &&
+		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.SHIELD_MODE_ON &&
+		!TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.SHIELD_MODE_OFF &&
+		!TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
+	)
+		return true;
+	if (e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
+		return true;
+	if (e.value == TriggerTypes.BAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
+		return true;
+	if (e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]))
+		return true;
+	if (e.value == TriggerTypes.VIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS]))
+		return true;
+	if (e.value == TriggerTypes.UNVIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS]))
+		return true;
+	if (e.value == TriggerTypes.MOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS]))
+		return true;
+	if (e.value == TriggerTypes.UNMOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS]))
+		return true;
+	if (
+		e.value == TriggerTypes.STREAM_INFO_UPDATE &&
+		!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE &&
+		!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])
+	)
+		return true;
+	if (
+		e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE &&
+		!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])
+	)
+		return true;
+	if (
+		(e.value == TriggerTypes.AD_APPROACHING ||
+			e.value == TriggerTypes.AD_STARTED ||
+			e.value == TriggerTypes.AD_COMPLETE) &&
+		!TwitchUtils.hasScopes([TwitchScopes.ADS_READ])
+	)
+		return true;
+
+	if (
+		!TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN]) &&
+		(e.value == TriggerTypes.HYPE_TRAIN_CANCELED ||
+			e.value == TriggerTypes.HYPE_TRAIN_APPROACHING ||
+			e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN ||
+			e.value == TriggerTypes.HYPE_TRAIN_END ||
+			e.value == TriggerTypes.HYPE_TRAIN_PROGRESS ||
+			e.value == TriggerTypes.HYPE_TRAIN_START)
+	)
+		return true;
+
+	if (
+		e.value == TriggerTypes.MANY_REPLIES &&
+		storeParams.features.manyRepliesAlert.value !== true
+	)
+		return true;
+
+	return false;
+}
+
+function requestScope(e: TriggerTypeDefinition): void {
+	if (
+		e.value == TriggerTypes.REWARD_REDEEM &&
+		hasChannelPoints.value &&
+		!TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.POLL_RESULT &&
+		hasChannelPoints.value &&
+		!TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.PREDICTION_RESULT &&
+		hasChannelPoints.value &&
+		!TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.SHIELD_MODE_ON &&
+		!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.SHIELD_MODE_OFF &&
+		!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])
+	)
+		return;
+	if (e.value == TriggerTypes.TIMEOUT && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]))
+		return;
+	if (e.value == TriggerTypes.BAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]))
+		return;
+	if (e.value == TriggerTypes.UNBAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]))
+		return;
+	if (e.value == TriggerTypes.VIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return;
+	if (e.value == TriggerTypes.UNVIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS]))
+		return;
+	if (e.value == TriggerTypes.MOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return;
+	if (e.value == TriggerTypes.UNMOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS]))
+		return;
+	if (
+		e.value == TriggerTypes.STREAM_INFO_UPDATE &&
+		!TwitchUtils.requestScopes([TwitchScopes.SET_STREAM_INFOS])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE &&
+		!TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])
+	)
+		return;
+	if (
+		e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE &&
+		!TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])
+	)
+		return;
+	if (
+		(e.value == TriggerTypes.AD_APPROACHING ||
+			e.value == TriggerTypes.AD_STARTED ||
+			e.value == TriggerTypes.AD_COMPLETE) &&
+		!TwitchUtils.requestScopes([TwitchScopes.ADS_READ])
+	)
+		return;
+
+	if (
+		(e.value == TriggerTypes.HYPE_TRAIN_CANCELED ||
+			e.value == TriggerTypes.HYPE_TRAIN_APPROACHING ||
+			e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN ||
+			e.value == TriggerTypes.HYPE_TRAIN_END ||
+			e.value == TriggerTypes.HYPE_TRAIN_PROGRESS ||
+			e.value == TriggerTypes.HYPE_TRAIN_START) &&
+		!TwitchUtils.requestScopes([TwitchScopes.READ_HYPE_TRAIN])
+	)
+		return;
+
+	if (
+		e.value == TriggerTypes.MANY_REPLIES &&
+		storeParams.features.manyRepliesAlert.value !== true
+	) {
+		storeMain.tempStoreValue = storeParams.features.manyRepliesAlert.id;
+		storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.FEATURES);
+	}
+}
+
+async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
+	selectedTriggerType.value = e;
+
+	subtriggerList.value = [];
+	if (e.value == TriggerTypes.REWARD_REDEEM) {
+		if (!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+			needRewards.value = true;
+			return;
+		} else {
+			needRewards.value = false;
+			const list = props.rewards.map((v): TriggerEntry => {
+				return {
+					label: v.title,
+					searchTerms: [v.title],
+					isCategory: false,
+					value: v.id,
+					background: v.background_color,
+					labelSmall: v.cost > 0 ? v.cost + "pts" : "",
+					icon: v.image?.url_2x ?? getAsset("icons/channelPoints.svg"),
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_reward");
+		}
+	} else if (e.value == TriggerTypes.OBS_SCENE) {
+		if (!OBSWebsocket.instance.connected.value) {
+			needObsConnect.value = true;
+			return;
+		} else {
+			needObsConnect.value = false;
+			const list = props.obsScenes.map((v): TriggerEntry => {
+				return {
+					label: v.sceneName,
+					searchTerms: [v.sceneName],
+					value: v.sceneName,
 					icon: "",
 					isCategory: false,
-				});
-				this.subtriggerList = list;
-				this.$emit("updateHeader", "triggers.header_select_obs_scene");
-			}
-		} else if (
-			e.value == TriggerTypes.OBS_SOURCE_OFF ||
-			e.value == TriggerTypes.OBS_SOURCE_ON
-		) {
-			if (!OBSWebsocket.instance.connected.value) {
-				this.needObsConnect = true;
-				return;
-			} else {
-				this.needObsConnect = false;
-				//build list from obs sources
-				const list = this.obsSources.map((v): TriggerEntry => {
-					return {
-						label: v.sourceName,
-						searchTerms: [v.sourceName],
-						value: v.sourceName,
-						icon: "",
-						isCategory: false,
-					};
-				});
-				this.subtriggerList = list;
-				this.$emit("updateHeader", "triggers.header_select_obs_source");
-			}
-		} else if (
-			e.value == TriggerTypes.OBS_FILTER_OFF ||
-			e.value == TriggerTypes.OBS_FILTER_ON
-		) {
-			if (!OBSWebsocket.instance.connected.value) {
-				this.needObsConnect = true;
-				return;
-			} else {
-				this.needObsConnect = false;
-				this.showLoading = true;
+				};
+			});
+			const defaultName = t("triggers.obs.anyScene");
+			list.unshift({
+				label: defaultName,
+				searchTerms: [defaultName],
+				value: ANY_OBS_SCENE,
+				icon: "",
+				isCategory: false,
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_obs_scene");
+		}
+	} else if (e.value == TriggerTypes.OBS_SOURCE_OFF || e.value == TriggerTypes.OBS_SOURCE_ON) {
+		if (!OBSWebsocket.instance.connected.value) {
+			needObsConnect.value = true;
+			return;
+		} else {
+			needObsConnect.value = false;
+			const list = props.obsSources.map((v): TriggerEntry => {
+				return {
+					label: v.sourceName,
+					searchTerms: [v.sourceName],
+					value: v.sourceName,
+					icon: "",
+					isCategory: false,
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_obs_source");
+		}
+	} else if (e.value == TriggerTypes.OBS_FILTER_OFF || e.value == TriggerTypes.OBS_FILTER_ON) {
+		if (!OBSWebsocket.instance.connected.value) {
+			needObsConnect.value = true;
+			return;
+		} else {
+			needObsConnect.value = false;
+			showLoading.value = true;
 
-				//Get all OBS sources
-				let list: TriggerEntry[] = this.obsSources.map((v) => {
-					return {
-						label: v.sourceName,
-						searchTerms: [v.sourceName],
-						value: v.sourceName,
-						isCategory: false,
-						icon: "",
-					};
-				});
-				//Get all OBS inputs
-				list = list.concat(
-					this.obsInputs.map((v) => {
-						return {
-							label: v.inputName,
-							searchTerms: [v.inputName],
-							value: v.inputName,
-							isCategory: false,
-							icon: "",
-						};
-					}),
-				);
-
-				//Dedupe entries
-				const entriesDone: { [key: string]: boolean } = {};
-				list = list.filter((v) => {
-					const key = v.value.toLowerCase();
-					if (entriesDone[key] === true) return false;
-					entriesDone[key] = true;
-					return true;
-				});
-
-				//Load filters for all items
-				for (let i = 0; i < list.length; i++) {
-					const item = list[i]!;
-					let filters = await OBSWebsocket.instance.getSourceFilters(item.value);
-					if (filters.length === 0) {
-						list.splice(i, 1);
-						i--;
-						continue;
-					}
-					item.subValues = filters.map((v) => {
-						return {
-							label: v.filterName,
-							searchTerms: [v.filterName],
-							value: v.filterName,
-							icon: "",
-							isCategory: false,
-						};
-					});
-				}
-
-				this.showLoading = false;
-				this.subtriggerList = list;
-				this.$emit("updateHeader", "triggers.header_select_obs_filter");
-			}
-		} else if (
-			e.value == TriggerTypes.OBS_INPUT_MUTE ||
-			e.value == TriggerTypes.OBS_INPUT_UNMUTE ||
-			e.value == TriggerTypes.OBS_PLAYBACK_PAUSED ||
-			e.value == TriggerTypes.OBS_PLAYBACK_RESTARTED ||
-			e.value == TriggerTypes.OBS_PLAYBACK_NEXT ||
-			e.value == TriggerTypes.OBS_PLAYBACK_PREVIOUS ||
-			e.value == TriggerTypes.OBS_PLAYBACK_STARTED ||
-			e.value == TriggerTypes.OBS_PLAYBACK_ENDED
-		) {
-			if (!OBSWebsocket.instance.connected.value) {
-				this.needObsConnect = true;
-				return;
-			} else {
-				this.needObsConnect = false;
-				let filteredList = this.obsInputs;
-
-				if (
-					e.value != TriggerTypes.OBS_INPUT_MUTE &&
-					e.value != TriggerTypes.OBS_INPUT_UNMUTE
-				) {
-					//Filter only media sources if on a media playback trigger
-					filteredList = filteredList.filter((v) => {
-						return (
-							v.inputKind === "ffmpeg_source" ||
-							v.inputKind === "image_source" ||
-							v.inputKind == "vlc_source"
-						);
-					});
-				}
-
-				//build list from obs sourcess
-				const list = filteredList.map((v): TriggerEntry => {
+			let list: TriggerEntry[] = props.obsSources.map((v) => {
+				return {
+					label: v.sourceName,
+					searchTerms: [v.sourceName],
+					value: v.sourceName,
+					isCategory: false,
+					icon: "",
+				};
+			});
+			list = list.concat(
+				props.obsInputs.map((v) => {
 					return {
 						label: v.inputName,
 						searchTerms: [v.inputName],
 						value: v.inputName,
+						isCategory: false,
+						icon: "",
+					};
+				}),
+			);
+
+			const entriesDone: { [key: string]: boolean } = {};
+			list = list.filter((v) => {
+				const key = v.value.toLowerCase();
+				if (entriesDone[key] === true) return false;
+				entriesDone[key] = true;
+				return true;
+			});
+
+			for (let i = 0; i < list.length; i++) {
+				const item = list[i]!;
+				let filters = await OBSWebsocket.instance.getSourceFilters(item.value);
+				if (filters.length === 0) {
+					list.splice(i, 1);
+					i--;
+					continue;
+				}
+				item.subValues = filters.map((v) => {
+					return {
+						label: v.filterName,
+						searchTerms: [v.filterName],
+						value: v.filterName,
 						icon: "",
 						isCategory: false,
 					};
 				});
-				this.subtriggerList = list;
-				this.$emit("updateHeader", "triggers.header_select_obs_input");
 			}
-		} else if (
-			e.value == TriggerTypes.COUNTER_EDIT ||
-			e.value == TriggerTypes.COUNTER_ADD ||
-			e.value == TriggerTypes.COUNTER_DEL ||
-			e.value == TriggerTypes.COUNTER_LOOPED ||
-			e.value == TriggerTypes.COUNTER_MAXED ||
-			e.value == TriggerTypes.COUNTER_MINED
-		) {
-			this.listCounters();
-			this.$emit("updateHeader", "triggers.header_select_counter");
+
+			showLoading.value = false;
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_obs_filter");
 		}
+	} else if (
+		e.value == TriggerTypes.OBS_INPUT_MUTE ||
+		e.value == TriggerTypes.OBS_INPUT_UNMUTE ||
+		e.value == TriggerTypes.OBS_PLAYBACK_PAUSED ||
+		e.value == TriggerTypes.OBS_PLAYBACK_RESTARTED ||
+		e.value == TriggerTypes.OBS_PLAYBACK_NEXT ||
+		e.value == TriggerTypes.OBS_PLAYBACK_PREVIOUS ||
+		e.value == TriggerTypes.OBS_PLAYBACK_STARTED ||
+		e.value == TriggerTypes.OBS_PLAYBACK_ENDED
+	) {
+		if (!OBSWebsocket.instance.connected.value) {
+			needObsConnect.value = true;
+			return;
+		} else {
+			needObsConnect.value = false;
+			let filteredList = props.obsInputs;
 
-		if (e.value == TriggerTypes.VALUE_UPDATE) {
-			this.listValues();
-			this.$emit("updateHeader", "triggers.header_select_value");
-		}
-
-		if (e.value) {
-			this.temporaryTrigger = {
-				actions: this.temporaryTrigger ? this.temporaryTrigger.actions : [],
-				enabled: true,
-				id: Utils.getUUID(),
-				type: e.value,
-				created_at: Date.now(),
-			};
-
-			if (this.subtriggerList.length == 0) {
-				this.$store.triggers.addTrigger(this.temporaryTrigger, this.folderTarget);
-				this.$emit("selectTrigger", this.temporaryTrigger);
+			if (
+				e.value != TriggerTypes.OBS_INPUT_MUTE &&
+				e.value != TriggerTypes.OBS_INPUT_UNMUTE
+			) {
+				filteredList = filteredList.filter((v) => {
+					return (
+						v.inputKind === "ffmpeg_source" ||
+						v.inputKind === "image_source" ||
+						v.inputKind == "vlc_source"
+					);
+				});
 			}
+
+			const list = filteredList.map((v): TriggerEntry => {
+				return {
+					label: v.inputName,
+					searchTerms: [v.inputName],
+					value: v.inputName,
+					icon: "",
+					isCategory: false,
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_obs_input");
 		}
+	} else if (
+		e.value == TriggerTypes.COUNTER_EDIT ||
+		e.value == TriggerTypes.COUNTER_ADD ||
+		e.value == TriggerTypes.COUNTER_DEL ||
+		e.value == TriggerTypes.COUNTER_LOOPED ||
+		e.value == TriggerTypes.COUNTER_MAXED ||
+		e.value == TriggerTypes.COUNTER_MINED
+	) {
+		listCounters();
+		emit("updateHeader", "triggers.header_select_counter");
 	}
 
-	/**
-	 * Called when selecting a sub type (reward, counter, obs scene/source, ...)
-	 * @param entry
-	 */
-	public selectSubType(entry: TriggerEntry, parentItem?: TriggerEntry): void {
-		if (!this.selectedTriggerType) return;
+	if (e.value == TriggerTypes.VALUE_UPDATE) {
+		listValues();
+		emit("updateHeader", "triggers.header_select_value");
+	}
 
-		this.temporaryTrigger = {
-			actions: this.temporaryTrigger ? this.temporaryTrigger.actions : [],
+	if (e.value) {
+		temporaryTrigger = {
+			actions: temporaryTrigger ? temporaryTrigger.actions : [],
 			enabled: true,
 			id: Utils.getUUID(),
-			type: this.selectedTriggerType.value,
+			type: e.value,
 			created_at: Date.now(),
 		};
 
-		switch (this.selectedTriggerType.value) {
-			case TriggerTypes.REWARD_REDEEM:
-				this.temporaryTrigger.rewardId = entry.value;
-				break;
-
-			case TriggerTypes.OBS_SCENE:
-				this.temporaryTrigger.obsScene = entry.value;
-				break;
-
-			case TriggerTypes.OBS_SOURCE_ON:
-			case TriggerTypes.OBS_SOURCE_OFF:
-				this.temporaryTrigger.obsSource = entry.value;
-				break;
-
-			case TriggerTypes.OBS_FILTER_ON:
-			case TriggerTypes.OBS_FILTER_OFF:
-				this.temporaryTrigger.obsSource = parentItem!.value;
-				this.temporaryTrigger.obsFilter = entry.value;
-				break;
-
-			case TriggerTypes.OBS_PLAYBACK_STARTED:
-			case TriggerTypes.OBS_PLAYBACK_ENDED:
-			case TriggerTypes.OBS_PLAYBACK_PAUSED:
-			case TriggerTypes.OBS_PLAYBACK_RESTARTED:
-			case TriggerTypes.OBS_PLAYBACK_NEXT:
-			case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
-			case TriggerTypes.OBS_INPUT_MUTE:
-			case TriggerTypes.OBS_INPUT_UNMUTE:
-				this.temporaryTrigger.obsInput = entry.value;
-				break;
-
-			case TriggerTypes.COUNTER_EDIT:
-			case TriggerTypes.COUNTER_ADD:
-			case TriggerTypes.COUNTER_DEL:
-			case TriggerTypes.COUNTER_LOOPED:
-			case TriggerTypes.COUNTER_MAXED:
-			case TriggerTypes.COUNTER_MINED:
-				this.temporaryTrigger.counterId = entry.value;
-				break;
-
-			case TriggerTypes.VALUE_UPDATE:
-				this.temporaryTrigger.valueId = entry.value;
-				break;
+		if (subtriggerList.value.length == 0) {
+			storeTriggers.addTrigger(temporaryTrigger, props.folderTarget);
+			emit("selectTrigger", temporaryTrigger);
 		}
+	}
+}
 
-		this.$store.triggers.addTrigger(this.temporaryTrigger, this.folderTarget);
-		this.$emit("selectTrigger", this.temporaryTrigger);
+function selectSubType(entry: TriggerEntry, parentItem?: TriggerEntry): void {
+	if (!selectedTriggerType.value) return;
+
+	temporaryTrigger = {
+		actions: temporaryTrigger ? temporaryTrigger.actions : [],
+		enabled: true,
+		id: Utils.getUUID(),
+		type: selectedTriggerType.value.value,
+		created_at: Date.now(),
+	};
+
+	switch (selectedTriggerType.value.value) {
+		case TriggerTypes.REWARD_REDEEM:
+			temporaryTrigger.rewardId = entry.value;
+			break;
+
+		case TriggerTypes.OBS_SCENE:
+			temporaryTrigger.obsScene = entry.value;
+			break;
+
+		case TriggerTypes.OBS_SOURCE_ON:
+		case TriggerTypes.OBS_SOURCE_OFF:
+			temporaryTrigger.obsSource = entry.value;
+			break;
+
+		case TriggerTypes.OBS_FILTER_ON:
+		case TriggerTypes.OBS_FILTER_OFF:
+			temporaryTrigger.obsSource = parentItem!.value;
+			temporaryTrigger.obsFilter = entry.value;
+			break;
+
+		case TriggerTypes.OBS_PLAYBACK_STARTED:
+		case TriggerTypes.OBS_PLAYBACK_ENDED:
+		case TriggerTypes.OBS_PLAYBACK_PAUSED:
+		case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+		case TriggerTypes.OBS_PLAYBACK_NEXT:
+		case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
+		case TriggerTypes.OBS_INPUT_MUTE:
+		case TriggerTypes.OBS_INPUT_UNMUTE:
+			temporaryTrigger.obsInput = entry.value;
+			break;
+
+		case TriggerTypes.COUNTER_EDIT:
+		case TriggerTypes.COUNTER_ADD:
+		case TriggerTypes.COUNTER_DEL:
+		case TriggerTypes.COUNTER_LOOPED:
+		case TriggerTypes.COUNTER_MAXED:
+		case TriggerTypes.COUNTER_MINED:
+			temporaryTrigger.counterId = entry.value;
+			break;
+
+		case TriggerTypes.VALUE_UPDATE:
+			temporaryTrigger.valueId = entry.value;
+			break;
 	}
 
-	/**
-	 * Open connexions parameters
-	 */
-	public openConnexions(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.SPOTIFY,
-		);
-	}
+	storeTriggers.addTrigger(temporaryTrigger, props.folderTarget);
+	emit("selectTrigger", temporaryTrigger);
+}
 
-	/**
-	 * Open OBS parameters
-	 */
-	public openOBS(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.OBS,
-		);
-	}
+function openConnexions(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.SPOTIFY,
+	);
+}
 
-	/**
-	 * Open counters parameters
-	 */
-	public openCounters(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
-	}
+function openOBS(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.OBS,
+	);
+}
 
-	/**
-	 * Open values parameters
-	 */
-	public openValues(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
-	}
+function openCounters(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+}
 
-	/**
-	 * Requests access to rewards
-	 */
-	public requestRewardsScope(): void {
-		this.$store.auth.requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
-	}
+function openValues(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
+}
 
-	/**
-	 * Lists Counters
-	 */
-	public async listCounters(): Promise<void> {
-		const list = this.$store.counters.counterList
-			.sort((a, b) => {
-				if (a.name < b.name) return -1;
-				if (a.name > b.name) return 1;
-				return 0;
-			})
-			.map((v): TriggerEntry => {
-				return {
-					label: v.name,
-					searchTerms: [v.name],
-					value: v.id,
-					icon: "",
-					isCategory: false,
-				};
-			});
-		const defaultName = this.$t("triggers.count.any_counter");
-		list.unshift({
-			label: defaultName,
-			searchTerms: [defaultName],
-			value: ANY_COUNTER,
-			icon: "",
-			isCategory: false,
+function requestRewardsScope(): void {
+	storeAuth.requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
+}
+
+function listCounters(): void {
+	const list = storeCounters.counterList
+		.sort((a, b) => {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		})
+		.map((v): TriggerEntry => {
+			return {
+				label: v.name,
+				searchTerms: [v.name],
+				value: v.id,
+				icon: "",
+				isCategory: false,
+			};
 		});
-		this.subtriggerList = list;
-	}
+	const defaultName = t("triggers.count.any_counter");
+	list.unshift({
+		label: defaultName,
+		searchTerms: [defaultName],
+		value: ANY_COUNTER,
+		icon: "",
+		isCategory: false,
+	});
+	subtriggerList.value = list;
+}
 
-	/**
-	 * Lists Values
-	 */
-	public async listValues(): Promise<void> {
-		const list = this.$store.values.valueList
-			.sort((a, b) => {
-				if (a.name < b.name) return -1;
-				if (a.name > b.name) return 1;
-				return 0;
-			})
-			.map((v): TriggerEntry => {
-				return {
-					label: v.name,
-					searchTerms: [v.name],
-					value: v.id,
-					icon: "",
-					isCategory: false,
-				};
-			});
-		const defaultName = this.$t("triggers.count.any_value");
-		list.unshift({
-			label: defaultName,
-			searchTerms: [defaultName],
-			value: ANY_VALUE,
-			icon: "",
-			isCategory: false,
+function listValues(): void {
+	const list = storeValues.valueList
+		.sort((a, b) => {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		})
+		.map((v): TriggerEntry => {
+			return {
+				label: v.name,
+				searchTerms: [v.name],
+				value: v.id,
+				icon: "",
+				isCategory: false,
+			};
 		});
-		this.subtriggerList = list;
-	}
+	const defaultName = t("triggers.count.any_value");
+	list.unshift({
+		label: defaultName,
+		searchTerms: [defaultName],
+		value: ANY_VALUE,
+		icon: "",
+		isCategory: false,
+	});
+	subtriggerList.value = list;
+}
 
-	/**
-	 * Called when searching for triggers
-	 */
-	public onSearch(): void {
-		this.populate();
-		Utils.sha256(this.search).then((hash) => {
-			if (hash === "09f0654a10e2dc4327e5bb0a2d8c01d703af81422d69b1d1def04bd754b47739") {
-				this.populate(true);
-			}
-		});
-	}
+function onSearch(): void {
+	populate();
+	Utils.sha256(search.value).then((hash) => {
+		if (hash === "09f0654a10e2dc4327e5bb0a2d8c01d703af81422d69b1d1def04bd754b47739") {
+			populate(true);
+		}
+	});
 }
 
 interface TriggerEntry {
@@ -1003,7 +939,6 @@ interface TriggerCategory {
 	events: TriggerTypeDefinition[];
 	newDate?: number;
 }
-export default toNative(TriggerCreateForm);
 </script>
 
 <style scoped lang="less">

@@ -36,56 +36,60 @@
 	<div v-else class="card-item alert deletedTrigger">{{ $t("triggers.missing_trigger") }}</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TriggerUtils from "@/utils/TriggerUtils";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import { ref, onMounted } from "vue";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 
-@Component({
-	components: {},
-	emits: ["select"],
-})
-class SimpleTriggerList extends Vue {
-	@Prop({ type: String, default: "" })
-	public filteredItemId!: string;
+const props = withDefaults(
+	defineProps<{
+		filteredItemId?: string;
+		primary?: boolean;
+	}>(),
+	{
+		filteredItemId: "",
+		primary: false,
+	},
+);
 
-	@Prop({ type: Boolean, default: false })
-	public primary!: boolean;
+const emit = defineEmits<{
+	select: [id: string];
+}>();
 
-	public triggerList: {
+const storeTriggers = useStoreTriggers();
+
+const triggerList = ref<
+	{
 		id: string;
 		label: string;
 		icon?: string;
 		iconURL?: string;
 		iconBG?: string;
-	}[] = [];
+	}[]
+>([]);
 
-	public classes(selected: boolean): string[] {
-		const res: string[] = ["item"];
-		if (selected) res.push("selected");
-		if (this.primary !== false) res.push("primary");
-		return res;
-	}
-
-	public mounted(): void {
-		//Remove deleted triggers
-		const triggers = this.$store.triggers.triggerList;
-
-		triggers.forEach((t) => {
-			if (this.filteredItemId != "") {
-				if (t.id != this.filteredItemId) return;
-			}
-			let infos = TriggerUtils.getTriggerDisplayInfo(t);
-			this.triggerList.push({
-				id: t.id,
-				label: infos.label,
-				icon: infos.icon,
-				iconURL: infos.iconURL,
-				iconBG: infos.iconBgColor,
-			});
-		});
-	}
+function classes(selected: boolean): string[] {
+	const res: string[] = ["item"];
+	if (selected) res.push("selected");
+	if (props.primary !== false) res.push("primary");
+	return res;
 }
-export default toNative(SimpleTriggerList);
+
+onMounted(() => {
+	//Remove deleted triggers
+	const triggers = storeTriggers.triggerList;
+	triggers.forEach((t) => {
+		if (props.filteredItemId != "" && t.id != props.filteredItemId) return;
+		const infos = TriggerUtils.getTriggerDisplayInfo(t);
+		triggerList.value.push({
+			id: t.id,
+			label: infos.label,
+			icon: infos.icon,
+			iconURL: infos.iconURL,
+			iconBG: infos.iconBgColor,
+		});
+	});
+});
 </script>
 
 <style scoped lang="less">

@@ -7,7 +7,6 @@
 			:triggerData="triggerData"
 			:triggerAction="action"
 			:conditions="action.conditionList"
-			:placeholderList="placeholderList"
 			@empty="delete action.conditionList"
 		/>
 
@@ -63,14 +62,14 @@
 					small
 					icon="dragZone"
 					class="action orderBt"
-					v-if="noHeaderOptions === false && readonly === false"
+					v-if="noHeaderOptions === false && !readonly"
 					v-tooltip="$t('triggers.reorder_tt')"
 					data-noselect
 					@click.stop
 				/>
 				<ToggleButton
 					v-model="action.enabled"
-					v-if="noHeaderOptions === false && readonly === false"
+					v-if="noHeaderOptions === false && !readonly"
 					@click.stop
 					small
 				/>
@@ -82,7 +81,7 @@
 					class="action"
 					@click.stop="addCondition()"
 					data-close-popout
-					v-if="!action.conditionList && noHeaderOptions === false && readonly === false"
+					v-if="!action.conditionList && noHeaderOptions === false && !readonly"
 					v-tooltip="$t('triggers.condition.add_tt')"
 				/>
 
@@ -91,7 +90,7 @@
 					class="action"
 					@click.stop="$emit('duplicate')"
 					data-close-popout
-					v-if="noHeaderOptions === false && readonly === false"
+					v-if="noHeaderOptions === false && !readonly"
 					v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 				/>
 
@@ -100,7 +99,7 @@
 					icon="trash"
 					class="action delete"
 					@click.stop="$emit('delete')"
-					v-if="noHeaderOptions === false && readonly === false"
+					v-if="noHeaderOptions === false && !readonly"
 					v-tooltip="$t('global.delete')"
 				/>
 				<!-- </div> -->
@@ -298,9 +297,9 @@
 						class="button"
 						@click.capture="selectActionType('tts')"
 						icon="tts"
-						:disabled="!$store.tts.params.enabled"
+						:disabled="!storeTTS.params.enabled"
 						v-tooltip="
-							$store.tts.params.enabled
+							storeTTS.params.enabled
 								? ''
 								: $t('triggers.actions.common.action_tts_tt')
 						"
@@ -372,13 +371,13 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('streamerbot')"
-						:disabled="!$store.streamerbot.connected"
+						:disabled="!storeStreamerbot.connected"
 						v-newflag="{
 							date: $config.NEW_FLAGS_DATE_V15,
 							id: 'params_triggerAction_streamerbot',
 						}"
 						v-tooltip="
-							$store.streamerbot.connected
+							storeStreamerbot.connected
 								? ''
 								: $t('triggers.actions.common.action_streamerbot_tt')
 						"
@@ -389,13 +388,13 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('sammi')"
-						:disabled="!$store.sammi.connected"
+						:disabled="!storeSammi.connected"
 						v-newflag="{
 							date: $config.NEW_FLAGS_DATE_V15,
 							id: 'params_triggerAction_sammi',
 						}"
 						v-tooltip="
-							$store.sammi.connected
+							storeSammi.connected
 								? ''
 								: $t('triggers.actions.common.action_sammi_tt')
 						"
@@ -406,13 +405,13 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('mixitup')"
-						:disabled="!$store.mixitup.connected"
+						:disabled="!storeMixitup.connected"
 						v-newflag="{
 							date: $config.NEW_FLAGS_DATE_V15,
 							id: 'params_triggerAction_mixitup',
 						}"
 						v-tooltip="
-							$store.mixitup.connected
+							storeMixitup.connected
 								? ''
 								: $t('triggers.actions.common.action_mixitup_tt')
 						"
@@ -423,13 +422,13 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('playability')"
-						:disabled="!$store.playability.connected"
+						:disabled="!storePlayability.connected"
 						v-newflag="{
 							date: $config.NEW_FLAGS_DATE_V15,
 							id: 'params_triggerAction_playability',
 						}"
 						v-tooltip="
-							$store.playability.connected
+							storePlayability.connected
 								? ''
 								: $t('triggers.actions.common.action_playability_tt')
 						"
@@ -440,16 +439,14 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('groq')"
-						v-if="$store.groq.enabled"
-						:disabled="!$store.groq.connected"
+						v-if="storeGroq.enabled"
+						:disabled="!storeGroq.connected"
 						v-newflag="{
 							date: $config.NEW_FLAGS_DATE_V16,
 							id: 'params_triggerAction_groq',
 						}"
 						v-tooltip="
-							$store.groq.connected
-								? ''
-								: $t('triggers.actions.common.action_groq_tt')
+							storeGroq.connected ? '' : $t('triggers.actions.common.action_groq_tt')
 						"
 						icon="groq"
 						>{{ $t("triggers.actions.common.action_groq") }}</TTButton
@@ -638,7 +635,6 @@
 				v-else-if="action.type == 'triggerToggle'"
 				:action="action"
 				:triggerData="triggerData"
-				:rewards="rewards"
 			/>
 			<TriggerActionHTTPCall
 				v-else-if="action.type == 'http'"
@@ -816,7 +812,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
@@ -851,11 +847,24 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
-import { reactive, readonly } from "vue";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import { ref, computed, reactive, watch, onBeforeMount } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
+import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
+import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
+import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
 import BingoForm from "../../../bingo/BingoForm.vue";
 import RaffleForm from "../../../raffle/RaffleForm.vue";
-import TriggerActionSFXREntry from "./TriggerActionSFXREntry.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerActionAnimateTextEntry from "./entries/TriggerActionAnimateTextEntry.vue";
 import TriggerActionBingoGridEntry from "./entries/TriggerActionBingoGridEntry.vue";
@@ -895,525 +904,444 @@ import TriggerActionValueEntry from "./entries/TriggerActionValueEntry.vue";
 import TriggerActionVibratePhoneEntry from "./entries/TriggerActionVibratePhoneEntry.vue";
 import TriggerActionVoicemodEntry from "./entries/TriggerActionVoicemodEntry.vue";
 import TriggerActionWSEntry from "./entries/TriggerActionWSEntry.vue";
+import TriggerActionSFXREntry from "./entries/TriggerActionSFXREntry.vue";
 
-@Component({
-	components: {
-		TTButton,
-		PollForm,
-		ParamItem,
-		BingoForm,
-		RaffleForm,
-		ToggleBlock,
-		ToggleButton,
-		ChatPollForm,
-		PredictionForm,
-		ChatSuggestionForm,
-		TriggerConditionList,
-		TriggerActionWSEntry,
-		TriggerActionOBSEntry,
-		TriggerActionTTSEntry,
-		TriggerActionHTTPCall,
-		TriggerActionJSONExtract,
-		TriggerActionGroqEntry,
-		TriggerActionChatEntry,
-		TriggerActionSFXREntry,
-		TriggerActionLumiaEntry,
-		TriggerActionDelayEntry,
-		TriggerActionValueEntry,
-		TriggerActionCountEntry,
-		TriggerActionMusicEntry,
-		TriggerActionSammiEntry,
-		TriggerActionGoXLREntry,
-		TriggerActionTimerEntry,
-		TriggerActionRewardEntry,
-		TriggerActionCustomBadge,
-		TriggerActionRandomEntry,
-		TriggerActionMixitupEntry,
-		TriggerActionTriggerEntry,
-		TriggerActionDiscordEntry,
-		TriggerActionStopExecEntry,
-		TriggerActionVoicemodEntry,
-		TriggerActionBingoGridEntry,
-		TriggerActionClickHeatEntry,
-		TriggerActionExtensionEntry,
-		TriggerActionHighlightEntry,
-		TriggerActionCustomUsername,
-		TriggerActionCustomChatEntry,
-		TriggerActionStreamInfoEntry,
-		TriggerActionCustomTrainEntry,
-		TriggerActionPlayAbilityEntry,
-		TriggerActionStreamerbotEntry,
-		TriggerActionAnimateTextEntry,
-		TriggerActionVibratePhoneEntry,
-		TriggerActionSpoilMessageEntry,
-		TriggerActionDeleteMessageEntry,
-		TriggerActionTriggerToggleEntry,
+const { t } = useI18n();
+
+const props = withDefaults(
+	defineProps<{
+		action: TriggerActionTypes;
+		triggerData: TriggerData;
+		obsScenes?: OBSSceneItem[];
+		obsSources?: OBSSourceItem[];
+		obsInputs?: OBSInputItem[];
+		rewards: TwitchDataTypes.Reward[];
+		extensions: TwitchDataTypes.Extension[];
+		index: number;
+		readonly?: boolean;
+		noHeaderOptions?: boolean;
+	}>(),
+	{
+		obsScenes: () => [],
+		obsSources: () => [],
+		obsInputs: () => [],
+		readonly: false,
+		noHeaderOptions: false,
 	},
-	emits: ["delete", "duplicate"],
-})
-class TriggerActionEntry extends Vue {
-	@Prop
-	public action!: TriggerActionTypes;
-	@Prop
-	public triggerData!: TriggerData;
-	@Prop({ default: [] })
-	public obsScenes!: OBSSceneItem[];
-	@Prop({ default: [] })
-	public obsSources!: OBSSourceItem[];
-	@Prop({ default: [] })
-	public obsInputs!: OBSInputItem[];
-	@Prop
-	public rewards!: TwitchDataTypes.Reward[];
-	@Prop
-	public extensions!: TwitchDataTypes.Extension[];
-	@Prop
-	public index!: number;
-	@Prop({ default: false })
-	public readonly!: boolean;
-	@Prop({ default: false })
-	public noHeaderOptions!: boolean;
+);
 
-	public opened = false;
-	public search = "";
-	public placeholderList: ITriggerPlaceholder<unknown>[] = [];
-	public canManageRewards: boolean = false;
-	public canManageExtensions: boolean = false;
-	public canCreatePoll: boolean = false;
-	public canCreatePrediction: boolean = false;
-	public canEditStreamInfo: boolean = false;
+const emit = defineEmits<{
+	delete: [];
+	duplicate: [];
+}>();
 
-	public get lumiaConnected(): boolean {
-		return this.$store.lumia.connected;
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeTTS = useStoreTTS();
+const storeLumia = useStoreLumia();
+const storeDiscord = useStoreDiscord();
+const storeHeat = useStoreHeat();
+const storeAnimatedText = useStoreAnimatedText();
+const storeCustomTrain = useStoreCustomTrain();
+const storeStreamerbot = useStoreStreamerbot();
+const storeSammi = useStoreSammi();
+const storeMixitup = useStoreMixitup();
+const storeGroq = useStoreGroq();
+const storeBingoGrid = useStoreBingoGrid();
+const storePlayability = useStorePlayability();
+
+const actionList = ref<HTMLDivElement | null>(null);
+const opened = ref(false);
+const search = ref("");
+const canManageRewards = ref(false);
+const canManageExtensions = ref(false);
+const canCreatePoll = ref(false);
+const canCreatePrediction = ref(false);
+const canEditStreamInfo = ref(false);
+
+const lumiaConnected = computed(() => storeLumia.connected);
+const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
+const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
+const voicemodEnabled = computed(() => VoicemodWebSocket.instance.connected.value);
+const discordEnabled = computed(() => storeDiscord.discordLinked === true);
+const goxlrEnabled = computed(() => GoXLRSocket.instance.connected.value);
+const wsConnected = computed(() => WebsocketTrigger.instance.connected.value);
+const heatClickEnabled = computed(() => (storeHeat.distortionList || []).length > 0);
+const canAnimateText = computed(() => storeAnimatedText.animatedTextList.length > 0);
+const canControlCustomTrain = computed(() => storeCustomTrain.customTrainList.length > 0);
+const isAffiliate = computed(
+	() => storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner,
+);
+const isDeletableMessageTrigger = computed(
+	() =>
+		props.triggerData.type == TriggerTypes.ANY_MESSAGE ||
+		props.triggerData.type == TriggerTypes.CHAT_COMMAND ||
+		props.triggerData.type == TriggerTypes.CHAT_ALERT ||
+		props.triggerData.type == TriggerTypes.PIN_MESSAGE ||
+		props.triggerData.type == TriggerTypes.UNPIN_MESSAGE,
+);
+
+const classes = computed(() => {
+	const res = ["triggeractionentry"];
+	if (isError.value) res.push("error");
+	if (props.readonly !== false) res.push("readonly");
+	return res;
+});
+
+const hasUserInfo = computed(
+	() => TriggerEventPlaceholders(props.triggerData.type).findIndex((v) => v.isUserID) > -1,
+);
+
+const title = computed(() => {
+	if (isError.value) {
+		if (props.action.type == "obs") {
+			return "MISSING OBS SOURCE";
+		}
 	}
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
+	let res = "Step " + (props.index + 1);
+	if (props.action.type) {
+		res = t(`triggers.actions.common.action_${props.action.type}`);
 	}
-	public get spotifyConnected(): boolean {
-		return SpotifyHelper.instance.connected.value;
+	return res;
+});
+
+const subtitle = computed(() => {
+	let res = "";
+	if (props.action.type == "obs") {
+		const chunks: string[] = [];
+		if (props.action.sourceName) {
+			let sourceName = props.action.sourceName;
+			sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			chunks.push(sourceName);
+		}
+		if (props.action.filterName) {
+			let filterName = props.action.filterName;
+			filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			chunks.push(filterName);
+		}
+		if (chunks.length > 0) {
+			res += chunks.join(" -> ");
+		}
+	} else if (props.action.type == "delay" && props.action.delay > 0) {
+		res += "⏳" + props.action.delay + "s";
 	}
-	public get voicemodEnabled(): boolean {
-		return VoicemodWebSocket.instance.connected.value;
-	}
-	public get discordEnabled(): boolean {
-		return this.$store.discord.discordLinked === true;
-	}
-	public get goxlrEnabled(): boolean {
-		return GoXLRSocket.instance.connected.value;
-	}
-	public get wsConnected(): boolean {
-		return WebsocketTrigger.instance.connected.value;
-	}
-	public get heatClickEnabled(): boolean {
-		return (this.$store.heat.distortionList || []).length > 0;
-	}
-	public get canAnimateText(): boolean {
-		return this.$store.animatedText.animatedTextList.length > 0;
-	}
-	public get canControlCustomTrain(): boolean {
-		return this.$store.customTrain.customTrainList.length > 0;
-	}
-	public get isAffiliate(): boolean {
-		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
-	}
-	public get isDeletableMessageTrigger(): boolean {
+	return res;
+});
+
+const icons = computed(() => {
+	const icons: string[] = [];
+	const sourceAction2Icon: { [key in TriggerActionObsSourceDataAction]: string } = {
+		hide: "hide",
+		show: "show",
+		mute: "mute",
+		unmute: "unmute",
+		replay: "play",
+		switch_to: "next",
+		move: "move",
+		resize: "scale",
+		rotate: "rotate",
+		next: "next",
+		prev: "prev",
+		stop: "stop",
+		toggle_visibility: "show",
+	};
+
+	if (props.action.type == "obs") {
+		if (props.action.obsAction == "sources")
+			icons.push(sourceAction2Icon[props.action.action] + "");
+		else if (props.action.obsAction === "screenshot") icons.push("screenshot");
+		else if (props.action.obsAction === "hotKey") icons.push("press");
+		else if (props.action.obsAction === "startrecord") icons.push("recordStart");
+		else if (props.action.obsAction === "stoprecord") icons.push("recordStop");
+		else if (props.action.obsAction === "pauserecord") icons.push("pause");
+		else if (props.action.obsAction === "setPersistedData") icons.push("save");
+		else if (props.action.obsAction === "getPersistedData") icons.push("save");
+	} else if (props.action.type == "music") icons.push("spotify");
+	else if (props.action.type == "chat") icons.push("whispers");
+	else if (props.action.type == "tts") icons.push("tts");
+	else if (props.action.type == "raffle") icons.push("ticket");
+	else if (props.action.type == "raffle_enter") icons.push("user");
+	else if (props.action.type == "bingo") icons.push("bingo");
+	else if (props.action.type == "voicemod") icons.push("voicemod");
+	else if (props.action.type == "trigger") icons.push("broadcast");
+	else if (props.action.type == "triggerToggle") icons.push("broadcast");
+	else if (props.action.type == "highlight") icons.push("highlight");
+	else if (props.action.type == "http") icons.push("url");
+	else if (props.action.type == "ws") icons.push("url");
+	else if (props.action.type == "poll") icons.push("poll");
+	else if (props.action.type == "prediction") icons.push("prediction");
+	else if (props.action.type == "chat_poll") icons.push("chatPoll");
+	else if (props.action.type == "count") icons.push("count");
+	else if (props.action.type == "value") icons.push("placeholder");
+	else if (props.action.type == "random") icons.push("dice_placeholder");
+	else if (props.action.type == "stream_infos") icons.push("info");
+	else if (props.action.type == "delay") icons.push("timer");
+	else if (props.action.type == "vibrate") icons.push("vibrate");
+	else if (props.action.type == "customBadges") icons.push("badge");
+	else if (props.action.type == "customUsername") icons.push("user");
+	else if (props.action.type == "heat_click") icons.push("distort");
+	else if (props.action.type == "reward") icons.push("channelPoints");
+	else if (props.action.type == "extension") icons.push("extension");
+	else if (props.action.type == "bingoGrid") icons.push("bingo_grid");
+	else if (props.action.type == "streamerbot") icons.push("streamerbot");
+	else if (props.action.type == "mixitup") icons.push("mixitup");
+	else if (props.action.type == "playability") icons.push("playability");
+	else if (props.action.type == "groq") icons.push("groq");
+	else if (props.action.type == "timer") icons.push("timer");
+	else if (props.action.type == "animated_text") icons.push("animate");
+	else if (props.action.type == "custom_train") icons.push("train");
+	else if (props.action.type == "sfxr") icons.push("unmute");
+	return icons;
+});
+
+const isError = computed(() => {
+	if (props.action.type == "obs" && props.action.sourceName) {
+		const action = props.action as TriggerActionObsData;
+		if (!obsConnected.value) return true;
 		return (
-			this.triggerData.type == TriggerTypes.ANY_MESSAGE ||
-			this.triggerData.type == TriggerTypes.CHAT_COMMAND ||
-			this.triggerData.type == TriggerTypes.CHAT_ALERT ||
-			this.triggerData.type == TriggerTypes.PIN_MESSAGE ||
-			this.triggerData.type == TriggerTypes.UNPIN_MESSAGE
+			props.obsSources.findIndex((v) => v.sourceName == action.sourceName) == -1 &&
+			props.obsScenes.findIndex((v) => v.sceneName == action.sourceName) == -1 &&
+			props.obsInputs.findIndex((v) => v.inputName == action.sourceName) == -1 &&
+			action.sourceName != t("triggers.actions.obs.param_source_currentScene")
 		);
 	}
-
-	public get classes(): string[] {
-		const res = ["triggeractionentry"];
-		if (this.isError) res.push("error");
-		if (this.readonly !== false) res.push("readonly");
-		return res;
+	if (props.action.type === "animated_text" && props.action.animatedTextData) {
+		const action = props.action as TriggerActionAnimatedTextData;
+		return !storeAnimatedText.animatedTextList.some(
+			(entry) => entry.id == action.animatedTextData.overlayId,
+		);
 	}
-
-	/**
-	 * Checks if one of the placeholders has a user info in it
-	 */
-	public get hasUserInfo(): boolean {
-		return TriggerEventPlaceholders(this.triggerData.type).findIndex((v) => v.isUserID) > -1;
+	if (props.action.type === "custom_train" && props.action.customTrainData) {
+		const action = props.action as TriggerActionCustomTrainData;
+		return !storeCustomTrain.customTrainList.some(
+			(entry) => entry.id == action.customTrainData.trainId,
+		);
 	}
+	if (props.action.type === "reward" && props.action.rewardAction) {
+		const action = props.action as TriggerActionRewardData;
+		if (action.rewardAction.action == "create") return false;
+		return props.rewards.findIndex((r) => r.id === action.rewardAction?.rewardId) == -1;
+	}
+	if (props.action.type === "bingoGrid" && props.action.bingoGrid) {
+		const action = props.action as TriggerActionBingoGridData;
+		return storeBingoGrid.gridList.findIndex((g) => g.id === action.bingoGrid.grid) == -1;
+	}
+	return false;
+});
 
-	/**
-	 * Get block's title
-	 */
-	public get title(): string {
-		if (this.isError) {
-			if (this.action.type == "obs") {
-				return "MISSING OBS SOURCE";
+onBeforeMount(() => {
+	opened.value = !props.action.type;
+	if (props.action.enabled === undefined) {
+		props.action.enabled = true;
+	}
+	updateTwitchPermissionStates();
+	watch(
+		() => storeAuth.twitch.scopes,
+		() => updateTwitchPermissionStates(),
+	);
+});
+
+/**
+ * Called when choosing an action type
+ */
+function selectActionType(type: TriggerActionStringTypes): void {
+	switch (type) {
+		case "heat_click": {
+			if (!heatClickEnabled.value) {
+				storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "distort");
+				return;
 			}
+			break;
 		}
-
-		let res = "Step " + (this.index + 1);
-		if (this.action.type) {
-			res = this.$t("triggers.actions.common.action_" + this.action.type);
+		case "animated_text": {
+			if (!canAnimateText.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.OVERLAYS,
+					"animatedtext",
+				);
+				return;
+			}
+			break;
 		}
-		return res;
-	}
-
-	/**
-	 * Get block's subtitle
-	 */
-	public get subtitle(): string {
-		let res = "";
-		if (this.action.type == "obs") {
-			const chunks: string[] = [];
-			if (this.action.sourceName) {
-				let sourceName = this.action.sourceName;
-				sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-				chunks.push(sourceName);
+		case "custom_train": {
+			if (!canControlCustomTrain.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.OVERLAYS,
+					"customtrain",
+				);
+				return;
 			}
-			if (this.action.filterName) {
-				let filterName = this.action.filterName;
-				filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-				chunks.push(filterName);
-			}
-			if (chunks.length > 0) {
-				res += chunks.join(" -> ");
-			}
-		} else if (this.action.type == "delay" && this.action.delay > 0) {
-			res += "⏳" + this.action.delay + "s";
+			break;
 		}
-		return res;
+		case "poll": {
+			if (!canCreatePoll.value) {
+				storeAuth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
+				return;
+			}
+			break;
+		}
+		case "prediction": {
+			if (!canCreatePrediction.value) {
+				storeAuth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+				return;
+			}
+			break;
+		}
+		case "stream_infos": {
+			if (!canEditStreamInfo.value) {
+				storeAuth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+				return;
+			}
+			break;
+		}
+		case "music": {
+			if (!spotifyConnected.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.SPOTIFY,
+				);
+				return;
+			}
+			break;
+		}
+		case "voicemod": {
+			if (!voicemodEnabled.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.VOICEMOD,
+				);
+				return;
+			}
+			break;
+		}
+		case "goxlr": {
+			if (!goxlrEnabled.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.GOXLR,
+				);
+				return;
+			}
+			break;
+		}
+		case "obs": {
+			if (!obsConnected.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.OBS,
+				);
+				return;
+			}
+			break;
+		}
+		case "ws": {
+			if (!wsConnected.value) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.WEBSOCKET,
+				);
+				return;
+			}
+			break;
+		}
+		case "streamerbot": {
+			if (!storeStreamerbot.connected) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.STREAMERBOT,
+				);
+				return;
+			}
+			break;
+		}
+		case "sammi": {
+			if (!storeSammi.connected) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.SAMMI,
+				);
+				return;
+			}
+			break;
+		}
+		case "mixitup": {
+			if (!storeMixitup.connected) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.MIXITUP,
+				);
+				return;
+			}
+			break;
+		}
+		case "tts": {
+			if (!storeTTS.params.enabled) {
+				storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
+				return;
+			}
+			break;
+		}
+		case "reward": {
+			if (!canManageRewards.value) {
+				storeAuth.requestTwitchScopes([TwitchScopes.MANAGE_REWARDS]);
+				return;
+			}
+			break;
+		}
+		case "extension": {
+			if (!canManageExtensions.value) {
+				storeAuth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
+				return;
+			}
+			break;
+		}
+		case "groq": {
+			if (!storeGroq.connected) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.GROQ,
+				);
+				return;
+			}
+			break;
+		}
 	}
+	props.action.type = type;
+}
 
-	/**
-	 * Get block's icon
-	 */
-	public get icons(): string[] {
-		const icons = [];
-		const sourceAction2Icon: { [key in TriggerActionObsSourceDataAction]: string } = {
-			hide: "hide",
-			show: "show",
-			mute: "mute",
-			unmute: "unmute",
-			replay: "play",
-			switch_to: "next",
-			move: "move",
-			resize: "scale",
-			rotate: "rotate",
-			next: "next",
-			prev: "prev",
-			stop: "stop",
-			toggle_visibility: "show",
+/**
+ * Add conditions to current action
+ */
+function addCondition(): void {
+	if (!props.action.conditionList) {
+		const condition: TriggerConditionGroup = {
+			id: Utils.getUUID(),
+			type: "group" as const,
+			conditions: [],
+			operator: "AND",
 		};
-
-		if (this.action.type == "obs") {
-			if (this.action.obsAction == "sources")
-				icons.push(sourceAction2Icon[this.action.action] + "");
-			else if (this.action.obsAction === "screenshot") icons.push("screenshot");
-			else if (this.action.obsAction === "hotKey") icons.push("press");
-			else if (this.action.obsAction === "startrecord") icons.push("recordStart");
-			else if (this.action.obsAction === "stoprecord") icons.push("recordStop");
-			else if (this.action.obsAction === "pauserecord") icons.push("pause");
-			else if (this.action.obsAction === "setPersistedData") icons.push("save");
-			else if (this.action.obsAction === "getPersistedData") icons.push("save");
-		} else if (this.action.type == "music") icons.push("spotify");
-		else if (this.action.type == "chat") icons.push("whispers");
-		else if (this.action.type == "tts") icons.push("tts");
-		else if (this.action.type == "raffle") icons.push("ticket");
-		else if (this.action.type == "raffle_enter") icons.push("user");
-		else if (this.action.type == "bingo") icons.push("bingo");
-		else if (this.action.type == "voicemod") icons.push("voicemod");
-		else if (this.action.type == "trigger") icons.push("broadcast");
-		else if (this.action.type == "triggerToggle") icons.push("broadcast");
-		else if (this.action.type == "highlight") icons.push("highlight");
-		else if (this.action.type == "http") icons.push("url");
-		else if (this.action.type == "ws") icons.push("url");
-		else if (this.action.type == "poll") icons.push("poll");
-		else if (this.action.type == "prediction") icons.push("prediction");
-		else if (this.action.type == "chat_poll") icons.push("chatPoll");
-		else if (this.action.type == "count") icons.push("count");
-		else if (this.action.type == "value") icons.push("placeholder");
-		else if (this.action.type == "random") icons.push("dice_placeholder");
-		else if (this.action.type == "stream_infos") icons.push("info");
-		else if (this.action.type == "delay") icons.push("timer");
-		else if (this.action.type == "vibrate") icons.push("vibrate");
-		else if (this.action.type == "customBadges") icons.push("badge");
-		else if (this.action.type == "customUsername") icons.push("user");
-		else if (this.action.type == "heat_click") icons.push("distort");
-		else if (this.action.type == "reward") icons.push("channelPoints");
-		else if (this.action.type == "extension") icons.push("extension");
-		else if (this.action.type == "bingoGrid") icons.push("bingo_grid");
-		else if (this.action.type == "streamerbot") icons.push("streamerbot");
-		else if (this.action.type == "mixitup") icons.push("mixitup");
-		else if (this.action.type == "playability") icons.push("playability");
-		else if (this.action.type == "groq") icons.push("groq");
-		else if (this.action.type == "timer") icons.push("timer");
-		else if (this.action.type == "animated_text") icons.push("animate");
-		else if (this.action.type == "custom_train") icons.push("train");
-		else if (this.action.type == "sfxr") icons.push("unmute");
-		return icons;
-	}
-
-	public get isError(): boolean {
-		if (this.action.type == "obs" && this.action.sourceName) {
-			const action = this.action as TriggerActionObsData;
-			if (!this.obsConnected) return true;
-			return (
-				this.obsSources.findIndex((v) => v.sourceName == action.sourceName) == -1 &&
-				this.obsScenes.findIndex((v) => v.sceneName == action.sourceName) == -1 &&
-				this.obsInputs.findIndex((v) => v.inputName == action.sourceName) == -1 &&
-				action.sourceName != this.$t("triggers.actions.obs.param_source_currentScene")
-			);
-		}
-		if (this.action.type === "animated_text" && this.action.animatedTextData) {
-			const action = this.action as TriggerActionAnimatedTextData;
-			return !this.$store.animatedText.animatedTextList.some(
-				(entry) => entry.id == action.animatedTextData.overlayId,
-			);
-		}
-
-		if (this.action.type === "custom_train" && this.action.customTrainData) {
-			const action = this.action as TriggerActionCustomTrainData;
-			return !this.$store.customTrain.customTrainList.some(
-				(entry) => entry.id == action.customTrainData.trainId,
-			);
-		}
-
-		if (this.action.type === "reward" && this.action.rewardAction) {
-			const action = this.action as TriggerActionRewardData;
-			if (action.rewardAction.action == "create") return false;
-			return this.rewards.findIndex((r) => r.id === action.rewardAction?.rewardId) == -1;
-		}
-		if (this.action.type === "bingoGrid" && this.action.bingoGrid) {
-			const action = this.action as TriggerActionBingoGridData;
-			return (
-				this.$store.bingoGrid.gridList.findIndex((g) => g.id === action.bingoGrid.grid) ==
-				-1
-			);
-		}
-		return false;
-	}
-
-	public async beforeMount(): Promise<void> {
-		this.opened = !this.action.type;
-		if (this.action.enabled === undefined) {
-			this.action.enabled = true;
-		}
-		this.updateTwitchPermissionStates();
-		this.$watch(
-			() => this.$store.auth.twitch.scopes,
-			() => this.updateTwitchPermissionStates(),
-		);
-	}
-
-	/**
-	 * Called when choosing an action type
-	 * @param type
-	 */
-	public selectActionType(type: TriggerActionStringTypes): void {
-		switch (type) {
-			case "heat_click": {
-				if (!this.heatClickEnabled) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.OVERLAYS,
-						"distort",
-					);
-					return;
-				}
-				break;
-			}
-			case "animated_text": {
-				if (!this.canAnimateText) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.OVERLAYS,
-						"animatedtext",
-					);
-					return;
-				}
-				break;
-			}
-			case "custom_train": {
-				if (!this.canControlCustomTrain) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.OVERLAYS,
-						"customtrain",
-					);
-					return;
-				}
-				break;
-			}
-			case "poll": {
-				if (!this.canCreatePoll) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
-					return;
-				}
-				break;
-			}
-			case "prediction": {
-				if (!this.canCreatePrediction) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
-					return;
-				}
-				break;
-			}
-			case "stream_infos": {
-				if (!this.canEditStreamInfo) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
-					return;
-				}
-				break;
-			}
-			case "music": {
-				if (!this.spotifyConnected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.SPOTIFY,
-					);
-					return;
-				}
-				break;
-			}
-			case "voicemod": {
-				if (!this.voicemodEnabled) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.VOICEMOD,
-					);
-					return;
-				}
-				break;
-			}
-			case "goxlr": {
-				if (!this.goxlrEnabled) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.GOXLR,
-					);
-					return;
-				}
-				break;
-			}
-			case "obs": {
-				if (!this.obsConnected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.OBS,
-					);
-					return;
-				}
-				break;
-			}
-			case "ws": {
-				if (!this.wsConnected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.WEBSOCKET,
-					);
-					return;
-				}
-				break;
-			}
-			case "streamerbot": {
-				if (!this.$store.streamerbot.connected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.STREAMERBOT,
-					);
-					return;
-				}
-				break;
-			}
-			case "sammi": {
-				if (!this.$store.sammi.connected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.SAMMI,
-					);
-					return;
-				}
-				break;
-			}
-			case "mixitup": {
-				if (!this.$store.mixitup.connected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.MIXITUP,
-					);
-					return;
-				}
-				break;
-			}
-			case "tts": {
-				if (!this.$store.tts.params.enabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
-					return;
-				}
-				break;
-			}
-			case "reward": {
-				if (!this.canManageRewards) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_REWARDS]);
-					return;
-				}
-				break;
-			}
-			case "extension": {
-				if (!this.canManageExtensions) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
-					return;
-				}
-				break;
-			}
-			case "groq": {
-				if (!this.$store.groq.connected) {
-					this.$store.params.openParamsPage(
-						TwitchatDataTypes.ParameterPages.CONNECTIONS,
-						TwitchatDataTypes.ParamDeepSections.GROQ,
-					);
-					return;
-				}
-				break;
-			}
-		}
-		this.action.type = type;
-	}
-
-	/**
-	 * Add condtions to current action
-	 */
-	public addCondition(): void {
-		if (!this.action.conditionList) {
-			const condition: TriggerConditionGroup = {
-				id: Utils.getUUID(),
-				type: "group" as const,
-				conditions: [],
-				operator: "AND",
-			};
-			this.action.conditionList = reactive(condition);
-		}
-	}
-
-	public onPlaceholderListUpdate(list: ITriggerPlaceholder<unknown>[]): void {
-		this.placeholderList = list;
-	}
-
-	public onSearch(): void {
-		const holder = this.$refs.actionList as HTMLDivElement;
-		([...holder.children] as HTMLElement[]).forEach((el) => {
-			if (el.textContent?.toLowerCase().includes(this.search.toLowerCase())) {
-				el.style.display = "flex";
-			} else {
-				el.style.display = "none";
-			}
-		});
-	}
-
-	public updateTwitchPermissionStates(): void {
-		this.canManageRewards = TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]);
-		this.canManageExtensions = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
-		this.canCreatePoll = TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]);
-		this.canCreatePrediction = TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]);
-		this.canEditStreamInfo = TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
+		props.action.conditionList = reactive(condition);
 	}
 }
-export default toNative(TriggerActionEntry);
+
+function onSearch(): void {
+	const holder = actionList.value as HTMLDivElement;
+	([...holder.children] as HTMLElement[]).forEach((el) => {
+		if (el.textContent?.toLowerCase().includes(search.value.toLowerCase())) {
+			el.style.display = "flex";
+		} else {
+			el.style.display = "none";
+		}
+	});
+}
+
+function updateTwitchPermissionStates(): void {
+	canManageRewards.value = TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]);
+	canManageExtensions.value = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
+	canCreatePoll.value = TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]);
+	canCreatePrediction.value = TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+	canEditStreamInfo.value = TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
+}
 </script>
 
 <style lang="less">
@@ -1468,19 +1396,10 @@ export default toNative(TriggerActionEntry);
 	&.readonly {
 		& > :deep(.content) {
 			filter: saturate(25%);
-			* {
-				//Disable focus on any possible child
-				pointer-events: none;
-				*:focus {
-					outline: none;
-				}
-				*:focus-visible {
-					outline: none;
-				}
-				&[contenteditable] {
-					-webkit-user-modify: read-only;
-					user-modify: read-only;
-				}
+			pointer-events: none;
+			user-select: none;
+			*[contenteditable] {
+				-webkit-user-modify: read-only;
 			}
 		}
 	}

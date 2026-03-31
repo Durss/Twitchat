@@ -9,40 +9,32 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { AD_APPROACHING_INTERVALS, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
 import ParamItem from "../../ParamItem.vue";
 import Utils from "@/utils/Utils";
 
-@Component({
-	components: {
-		ParamItem,
-	},
-	emits: [],
-})
-class TriggerAdApproachParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public param_delay: TwitchatDataTypes.ParameterData<number> = {
-		type: "list",
-		value: 30000,
-		icon: "timer",
-		labelKey: "triggers.actions.adBreak.param_delay",
-	};
+const param_delay = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "list",
+	value: 30000,
+	icon: "timer",
+	labelKey: "triggers.actions.adBreak.param_delay",
+});
 
-	public beforeMount(): void {
-		this.param_delay.listValues = AD_APPROACHING_INTERVALS.sort((a, b) => a - b).map((v) => {
-			return { value: v, label: Utils.formatDuration(v) + "s" };
-		});
-		if (!this.triggerData.adBreakDelay) {
-			this.triggerData.adBreakDelay = this.param_delay.value;
-		}
+onBeforeMount(() => {
+	param_delay.value.listValues = AD_APPROACHING_INTERVALS.sort((a, b) => a - b).map((v) => {
+		return { value: v, label: Utils.formatDuration(v) + "s" };
+	});
+	if (!props.triggerData.adBreakDelay) {
+		props.triggerData.adBreakDelay = param_delay.value.value;
 	}
-}
-export default toNative(TriggerAdApproachParams);
+});
 </script>
 
 <style scoped lang="less">

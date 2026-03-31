@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractiontriggertoggleentry triggerActionForm">
 		<div class="field col" v-if="!action.triggerId">
-			<div class="item title" v-if="rewards.length > 0 && !action.triggerId">
+			<div class="item title">
 				{{ $t("triggers.actions.triggerToggle.select") }}
 			</div>
 
@@ -25,63 +25,51 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ParamItem from "@/components/params/ParamItem.vue";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import type {
 	TriggerActionTriggerToggleData,
 	TriggerActionTriggerToggleDataAction,
 	TriggerData,
 } from "@/types/TriggerActionDataTypes";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import TriggerList from "../TriggerList.vue";
+import { onBeforeMount, ref } from "vue";
 import SimpleTriggerList from "../SimpleTriggerList.vue";
 
-@Component({
-	components: {
-		ParamItem,
-		TriggerList,
-		SimpleTriggerList,
-	},
-	emits: [],
-})
-class TriggerActionTriggerToggleEntry extends Vue {
-	@Prop
-	public action!: TriggerActionTriggerToggleData;
-	@Prop
-	public triggerData!: TriggerData;
-	@Prop
-	public rewards!: TwitchDataTypes.Reward[];
+const props = defineProps<{
+	action: TriggerActionTriggerToggleData;
+	triggerData: TriggerData;
+}>();
 
-	public param_action: TwitchatDataTypes.ParameterData<string> = {
-		type: "list",
-		value: "",
-		labelKey: "triggers.actions.triggerToggle.action",
-	};
+const storeTriggers = useStoreTriggers();
 
-	public beforeMount(): void {
-		const values: TwitchatDataTypes.ParameterDataListValue<TriggerActionTriggerToggleDataAction>[] =
-			[];
-		values.push({ value: "enable", labelKey: "triggers.actions.triggerToggle.action_enable" });
-		values.push({
-			value: "disable",
-			labelKey: "triggers.actions.triggerToggle.action_disable",
-		});
-		values.push({ value: "toggle", labelKey: "triggers.actions.triggerToggle.action_toggle" });
-		this.param_action.listValues = values;
-	}
+const param_action = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "list",
+	value: "",
+	labelKey: "triggers.actions.triggerToggle.action",
+});
 
-	public onSelectTrigger(triggerID: string): void {
-		this.action.triggerId = triggerID;
-	}
+onBeforeMount(() => {
+	const values: TwitchatDataTypes.ParameterDataListValue<TriggerActionTriggerToggleDataAction>[] =
+		[];
+	values.push({ value: "enable", labelKey: "triggers.actions.triggerToggle.action_enable" });
+	values.push({
+		value: "disable",
+		labelKey: "triggers.actions.triggerToggle.action_disable",
+	});
+	values.push({ value: "toggle", labelKey: "triggers.actions.triggerToggle.action_toggle" });
+	param_action.value.listValues = values;
+});
 
-	public openTrigger(): void {
-		const trigger = this.$store.triggers.triggerList.find((v) => v.id == this.action.triggerId);
-		if (trigger) this.$store.triggers.openTriggerEdition(trigger);
-	}
+function onSelectTrigger(triggerID: string): void {
+	props.action.triggerId = triggerID;
 }
-export default toNative(TriggerActionTriggerToggleEntry);
+
+function openTrigger(): void {
+	const trigger = storeTriggers.triggerList.find((v) => v.id == props.action.triggerId);
+	if (trigger) storeTriggers.openTriggerEdition(trigger);
+}
 </script>
 
 <style scoped lang="less">

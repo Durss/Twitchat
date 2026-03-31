@@ -30,7 +30,11 @@
 				v-model:title="folder.label"
 				v-model:open="folder.expand"
 				:customColor="folder.color.value"
-				:ref="'folder_' + folder.id"
+				:ref="
+					(el: any) => {
+						if (el) folderRefs['folder_' + folder.id] = el;
+					}
+				"
 				:titleDefault="'folder'"
 				@dragstart="startDrag(folder)"
 				@drop="onDrop($event, folder)"
@@ -128,286 +132,278 @@
 	</draggable>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { RoughEase } from "gsap/EasePack";
 import { Linear, gsap } from "gsap/gsap-core";
-import { watch, type ComponentPublicInstance } from "vue";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import { nextTick, onBeforeMount, ref, watch, type ComponentPublicInstance } from "vue";
 import draggable from "vuedraggable";
 import ParamItem from "../../ParamItem.vue";
 import type { TriggerListEntry, TriggerListFolderEntry } from "./TriggerList.vue";
 import TriggerListItem from "./TriggerListItem.vue";
+import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import Config from "@/utils/Config";
 
-@Component({
-	name: "TriggerListFolderItem",
-	components: {
-		TTButton,
-		draggable,
-		ParamItem,
-		ToggleBlock,
-		ToggleButton,
-		TriggerListItem,
+defineOptions({ name: "TriggerListFolderItem" });
+
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeTriggers = useStoreTriggers();
+
+const props = withDefaults(
+	defineProps<{
+		rewards?: TwitchDataTypes.Reward[];
+		noEdit?: boolean;
+		forceDisableOption?: boolean;
+		selectMode?: boolean;
+		triggerId?: string | null;
+		items: (TriggerListEntry | TriggerListFolderEntry)[];
+		level?: number;
+	}>(),
+	{
+		rewards: () => [],
+		noEdit: false,
+		forceDisableOption: false,
+		selectMode: false,
+		triggerId: null,
+		level: 0,
 	},
-	emits: [
-		"update:items",
-		"change",
-		"changeState",
-		"createTrigger",
-		"delete",
-		"duplicate",
-		"testTrigger",
-		"select",
-	],
-})
-class TriggerListFolderItem extends Vue {
-	@Prop({ default: [] })
-	public rewards!: TwitchDataTypes.Reward[];
+);
 
-	@Prop({ default: false })
-	public noEdit!: boolean;
+const emit = defineEmits<{
+	"update:items": [items: (TriggerListEntry | TriggerListFolderEntry)[]];
+	change: [e?: any];
+	changeState: [item: any];
+	createTrigger: [folderId: string];
+	delete: [entry: TriggerListEntry];
+	duplicate: [entry: TriggerListEntry, folder?: TriggerListEntry | TriggerListFolderEntry];
+	testTrigger: [trigger: TriggerListEntry["trigger"]];
+	select: [trigger: TriggerListEntry["trigger"]];
+}>();
 
-	@Prop({ default: false })
-	public forceDisableOption!: boolean;
+const dragging = ref<boolean>(false);
+const localItems = ref<(TriggerListEntry | TriggerListFolderEntry)[]>([]);
+const folderRefs = ref<{ [key: string]: ComponentPublicInstance | undefined }>({});
 
-	@Prop({ default: false })
-	public selectMode!: boolean;
+let draggedEntry: TriggerListEntry | TriggerListFolderEntry | null = null;
+let droppedOnFolder = false;
+const dragCounter: { [id: string]: number } = {};
 
-	@Prop({ default: null })
-	public triggerId!: string | null;
+onBeforeMount(() => {
+	localItems.value = props.items;
+});
 
-	@Prop({ default: null })
-	public items!: (TriggerListEntry | TriggerListFolderEntry)[];
+watch(
+	() => props.items,
+	() => (localItems.value = props.items),
+);
 
-	@Prop({ default: 0 })
-	public level!: number;
+function onChange(e?: {
+	moved: { element: TriggerListEntry | TriggerListFolderEntry };
+	newIndex: number;
+	oldIndex: number;
+}): void {
+	emit("update:items", localItems.value);
+	emit("change", e);
+}
 
-	public dragging: boolean = false;
-	public localItems: (TriggerListEntry | TriggerListFolderEntry)[] = [];
-
-	private draggedEntry: TriggerListEntry | TriggerListFolderEntry | null = null;
-	private droppedOnFolder: boolean = false;
-	public dragCounter: { [id: string]: number } = {};
-
-	public beforeMount(): void {
-		this.localItems = this.items;
-		watch(
-			() => this.items,
-			() => (this.localItems = this.items),
-		);
-	}
-
-	public onChange(e?: {
-		moved: { element: TriggerListEntry | TriggerListFolderEntry };
-		newIndex: number;
-		oldIndex: number;
-	}): void {
-		this.$emit("update:items", this.localItems);
-		this.$emit("change", e);
-	}
-
-	/**
-	 * Called when vuedraggable ends a drag.
-	 * Skips saving if onDrop already handled the move (drop onto folder header).
-	 */
-	public onDragEnd(): void {
-		this.dragging = false;
-		if (this.droppedOnFolder) {
-			this.droppedOnFolder = false;
-		} else {
-			this.onChange();
-		}
-	}
-
-	/**
-	 * Called when clicking delete button on a folder
-	 * @param id
-	 */
-	public async deleteFolder(folder: TriggerListFolderEntry): Promise<void> {
-		if (folder.items.length > 0) {
-			try {
-				await this.$confirm(
-					this.$t("triggers.delete_folder_confirm.title"),
-					this.$t("triggers.delete_folder_confirm.desc"),
-				);
-			} catch (error) {
-				return;
-			}
-		}
-		let index = this.localItems.findIndex((v) => v.id == folder.id);
-		this.localItems.splice(index, 1);
-		folder.items.forEach((v) => {
-			this.localItems.splice(index, 0, v);
-			index++;
-		});
-		this.onChange();
-	}
-
-	/**
-	 * Called when starting to drag an item
-	 * @param entry
-	 */
-	public startDrag(entry: TriggerListEntry | TriggerListFolderEntry): void {
-		this.draggedEntry = entry;
-		this.dragCounter[entry.id] = 0;
-	}
-
-	/**
-	 * Called when an item is dropped onto a folder header.
-	 * Defers array modification to nextTick so vuedraggable finishes first.
-	 * @param event
-	 * @param folder
-	 */
-	public onDrop(event: Event, folder: TriggerListFolderEntry): void {
-		if (!this.dragging) return;
-		if (!this.draggedEntry) return;
-		if (this.draggedEntry == folder) return;
-
-		event.stopPropagation();
-		const entry = this.draggedEntry;
-		this.draggedEntry = null;
-		this.droppedOnFolder = true;
-
-		this.$nextTick(() => {
-			const index = this.localItems.findIndex((v) => v.id === entry.id);
-			if (index !== -1) {
-				this.localItems.splice(index, 1);
-				folder.items.push(entry);
-			}
-			this.onChange();
-		});
-	}
-
-	public onDragEnter(event: MouseEvent, entry: TriggerListFolderEntry): void {
-		if (this.draggedEntry == entry) return;
-		if (!this.dragging) return;
-		//Drag system is fucked up. It fires dragenter/leave event for every
-		//single children of the holder unless we set a "pointer-events:none" to
-		//it which I can't do because ToggleBlock contains many interactive
-		//children.
-		//We keep track of the number of over/leaved child to know if we're
-		//still over the element or not
-		if (!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		this.dragCounter[entry.id]!++;
-		(event.currentTarget as HTMLElement).classList.add("over");
-	}
-
-	public onDragLeave(event: MouseEvent, entry: TriggerListFolderEntry): void {
-		if (this.draggedEntry == entry) return;
-		if (!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
-		if (--this.dragCounter[entry.id]! < 1) {
-			this.dragCounter[entry.id] = 0;
-			(event.currentTarget as HTMLElement).classList.remove("over");
-		}
-	}
-
-	/**
-	 * Toggles a trigger state
-	 * @param item
-	 * @param el
-	 */
-	public onToggleTrigger(item: TriggerListEntry | TriggerListFolderEntry, el: HTMLElement): void {
-		if (
-			item.type == "trigger" &&
-			item.trigger.enabled &&
-			!this.$store.auth.isPremium &&
-			this.$store.triggers.triggerList.filter(
-				(v) =>
-					v.enabled !== false &&
-					this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false,
-			).length > this.$config.MAX_TRIGGERS
-		) {
-			window.setTimeout(() => {
-				item.trigger.enabled = false;
-			}, 350);
-			this.vibrate(el);
-		} else {
-			this.$emit("change");
-			this.$emit("changeState", item);
-		}
-	}
-
-	/**
-	 * Adds a trigger within the folder
-	 */
-	public addTrigger(folder: TriggerListFolderEntry): void {
-		this.$emit("createTrigger", folder.id);
-	}
-
-	/**
-	 * Enable/disable a folder
-	 */
-	public onToggleFolder(folder: TriggerListFolderEntry): void {
-		//First emit to update storage
-		this.$emit("change");
-
-		//If there are too much items enabled, disable the folder
-		if (
-			folder.enabled &&
-			!this.$store.auth.isPremium &&
-			this.$store.triggers.triggerList.filter(
-				(v) =>
-					v.enabled !== false &&
-					this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false,
-			).length > this.$config.MAX_TRIGGERS
-		) {
-			//Need to wait for animation to complete
-			window.setTimeout(() => {
-				folder.enabled = false;
-				//Emit the revert
-				this.$emit("change");
-			}, 200);
-			this.vibrate(
-				(this.$refs["folder_" + folder.id] as ComponentPublicInstance).$el as HTMLElement,
-			);
-		}
-	}
-
-	public countTriggerItems(folder: TriggerListFolderEntry): number {
-		function parseFolder(folder: TriggerListFolderEntry): number {
-			let count = 0;
-			folder.items.forEach((v) => {
-				if (v.type == "trigger") count++;
-				if (v.type == "folder") count += parseFolder(v);
-			});
-			return count;
-		}
-		return parseFolder(folder);
-	}
-
-	private vibrate(el: HTMLElement): void {
-		window.setTimeout(() => {
-			gsap.fromTo(
-				el,
-				{ backgroundColor: "rgba(255,0,0,1)" },
-				{
-					duration: 0.5,
-					backgroundColor: "rgba(255,0,0,0)",
-					clearProps: "background-color",
-				},
-			);
-			gsap.fromTo(
-				el,
-				{ x: -5 },
-				{
-					duration: 0.25,
-					x: 5,
-					ease: RoughEase.ease.config({
-						strength: 8,
-						points: 20,
-						template: Linear.easeNone,
-						randomize: false,
-					}),
-					clearProps: "x",
-				},
-			);
-		}, 150);
+/**
+ * Called when vuedraggable ends a drag.
+ * Skips saving if onDrop already handled the move (drop onto folder header).
+ */
+function onDragEnd(): void {
+	dragging.value = false;
+	if (droppedOnFolder) {
+		droppedOnFolder = false;
+	} else {
+		onChange();
 	}
 }
-export default toNative(TriggerListFolderItem);
+
+/**
+ * Called when clicking delete button on a folder
+ * @param id
+ */
+async function deleteFolder(folder: TriggerListFolderEntry): Promise<void> {
+	if (folder.items.length > 0) {
+		try {
+			await confirm(
+				t("triggers.delete_folder_confirm.title"),
+				t("triggers.delete_folder_confirm.desc"),
+			);
+		} catch (error) {
+			return;
+		}
+	}
+	let index = localItems.value.findIndex((v) => v.id == folder.id);
+	localItems.value.splice(index, 1);
+	folder.items.forEach((v) => {
+		localItems.value.splice(index, 0, v);
+		index++;
+	});
+	onChange();
+}
+
+/**
+ * Called when starting to drag an item
+ * @param entry
+ */
+function startDrag(entry: TriggerListEntry | TriggerListFolderEntry): void {
+	draggedEntry = entry;
+	dragCounter[entry.id] = 0;
+}
+
+/**
+ * Called when an item is dropped onto a folder header.
+ * Defers array modification to nextTick so vuedraggable finishes first.
+ * @param event
+ * @param folder
+ */
+function onDrop(event: Event, folder: TriggerListFolderEntry): void {
+	if (!dragging.value) return;
+	if (!draggedEntry) return;
+	if (draggedEntry == folder) return;
+
+	event.stopPropagation();
+	const entry = draggedEntry;
+	draggedEntry = null;
+	droppedOnFolder = true;
+
+	nextTick(() => {
+		const index = localItems.value.findIndex((v) => v.id === entry.id);
+		if (index !== -1) {
+			localItems.value.splice(index, 1);
+			folder.items.push(entry);
+		}
+		onChange();
+	});
+}
+
+function onDragEnter(event: MouseEvent, entry: TriggerListFolderEntry): void {
+	if (draggedEntry == entry) return;
+	if (!dragging.value) return;
+	//Drag system is fucked up. It fires dragenter/leave event for every
+	//single children of the holder unless we set a "pointer-events:none" to
+	//it which I can't do because ToggleBlock contains many interactive
+	//children.
+	//We keep track of the number of over/leaved child to know if we're
+	//still over the element or not
+	if (!dragCounter[entry.id]) dragCounter[entry.id] = 0;
+	dragCounter[entry.id]!++;
+	(event.currentTarget as HTMLElement).classList.add("over");
+}
+
+function onDragLeave(event: MouseEvent, entry: TriggerListFolderEntry): void {
+	if (draggedEntry == entry) return;
+	if (!dragCounter[entry.id]) dragCounter[entry.id] = 0;
+	if (--dragCounter[entry.id]! < 1) {
+		dragCounter[entry.id] = 0;
+		(event.currentTarget as HTMLElement).classList.remove("over");
+	}
+}
+
+/**
+ * Toggles a trigger state
+ * @param item
+ * @param el
+ */
+function onToggleTrigger(item: TriggerListEntry | TriggerListFolderEntry, el: HTMLElement): void {
+	if (
+		item.type == "trigger" &&
+		item.trigger.enabled &&
+		!storeAuth.isPremium &&
+		storeTriggers.triggerList.filter(
+			(v) => v.enabled !== false && storeTriggers.triggerIdToFolderEnabled[v.id] !== false,
+		).length > Config.instance.MAX_TRIGGERS
+	) {
+		window.setTimeout(() => {
+			item.trigger.enabled = false;
+		}, 350);
+		vibrate(el);
+	} else {
+		emit("change");
+		emit("changeState", item);
+	}
+}
+
+/**
+ * Adds a trigger within the folder
+ */
+function addTrigger(folder: TriggerListFolderEntry): void {
+	emit("createTrigger", folder.id);
+}
+
+/**
+ * Enable/disable a folder
+ */
+function onToggleFolder(folder: TriggerListFolderEntry): void {
+	emit("change");
+	//If there are too much items enabled, disable the folder
+	if (
+		folder.enabled &&
+		!storeAuth.isPremium &&
+		storeTriggers.triggerList.filter(
+			(v) => v.enabled !== false && storeTriggers.triggerIdToFolderEnabled[v.id] !== false,
+		).length > Config.instance.MAX_TRIGGERS
+	) {
+		//Need to wait for animation to complete
+		window.setTimeout(() => {
+			folder.enabled = false;
+			//Emit the revert
+			emit("change");
+		}, 200);
+		const ref = folderRefs.value["folder_" + folder.id];
+		if (ref) vibrate(ref.$el as HTMLElement);
+	}
+}
+
+function countTriggerItems(folder: TriggerListFolderEntry): number {
+	function parseFolder(folder: TriggerListFolderEntry): number {
+		let count = 0;
+		folder.items.forEach((v) => {
+			if (v.type == "trigger") count++;
+			if (v.type == "folder") count += parseFolder(v);
+		});
+		return count;
+	}
+	return parseFolder(folder);
+}
+
+function vibrate(el: HTMLElement): void {
+	window.setTimeout(() => {
+		gsap.fromTo(
+			el,
+			{ backgroundColor: "rgba(255,0,0,1)" },
+			{
+				duration: 0.5,
+				backgroundColor: "rgba(255,0,0,0)",
+				clearProps: "background-color",
+			},
+		);
+		gsap.fromTo(
+			el,
+			{ x: -5 },
+			{
+				duration: 0.25,
+				x: 5,
+				ease: RoughEase.ease.config({
+					strength: 8,
+					points: 20,
+					template: Linear.easeNone,
+					randomize: false,
+				}),
+				clearProps: "x",
+			},
+		);
+	}, 150);
+}
 </script>
 
 <style scoped lang="less">

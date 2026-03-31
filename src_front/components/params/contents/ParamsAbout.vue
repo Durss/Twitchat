@@ -98,34 +98,20 @@
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from "@/components/TTButton.vue";
+<script setup lang="ts">
+import Button from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import Config from "@/utils/Config";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import type IParameterContent from "./IParameterContent";
-import ParamsSponsor from "./ParamsSponsor.vue";
+import { computed } from "vue";
 
-@Component({
-	components: {
-		Button: TTButton,
-		ToggleBlock,
-		ParamsSponsor,
-	},
-})
-class ParamsAbout  extends Vue implements IParameterContent {
-	public get discordURL(): string {
-		return Config.instance.DISCORD_URL;
-	}
-	public get apiURL(): string {
-		return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md";
-	}
+const discordURL = computed(() => Config.instance.DISCORD_URL);
+const apiURL = "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md";
 
-	public onNavigateBack(): boolean {
-		return false;
-	}
+function onNavigateBack(): boolean {
+	return false;
 }
-export default toNative(ParamsAbout);
+
+defineExpose({ onNavigateBack });
 </script>
 
 <style scoped lang="less">

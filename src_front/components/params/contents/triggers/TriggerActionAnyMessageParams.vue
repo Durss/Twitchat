@@ -8,36 +8,27 @@
 			medium
 			primary
 		>
-			<PermissionsForm v-model="triggerData.permissions" />
+			<PermissionsForm v-model="triggerData.permissions!" />
 		</ToggleBlock>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import PermissionsForm from "@/components/PermissionsForm.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { onBeforeMount } from "vue";
 
-@Component({
-	components: {
-		ToggleBlock,
-		PermissionsForm,
-	},
-	emits: [],
-})
-class TriggerActionAnyMessageParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public beforeMount(): void {
-		if (!this.triggerData.permissions) {
-			this.triggerData.permissions = Utils.getDefaultPermissions();
-		}
+onBeforeMount(() => {
+	if (!props.triggerData.permissions) {
+		props.triggerData.permissions = Utils.getDefaultPermissions();
 	}
-}
-export default toNative(TriggerActionAnyMessageParams);
+});
 </script>
 
 <style scoped lang="less">

@@ -43,112 +43,106 @@
 				</div>
 			</div>
 		</div>
-		<!-- <div class="usage" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
-			<div class="example">
-				<div class="label">● {{ $t("triggers.slash_cmd.param_cmd_params_example") }}</div>
-				<input type="text" v-model="usage">
-			</div>
-			<div class="result">
-				<div class="label">● {{ $t("triggers.slash_cmd.param_cmd_params_example_result") }}</div>
-				<div class="values">
-					<template v-for="(p, index) in triggerData.chatCommandParams">
-						<mark @click="copy($event, p)" v-click2Select>{{ "{" }}{{ p.tag.toUpperCase() }}{{ "}" }}</mark>
-						<Icon name="right" class="arrow" />
-						<span>"{{ usage.replace(/\s+/gi, ' ').split(" ")[index+1] }}"</span>
-					</template>
+		<ToggleBlock
+			:title="$t('triggers.slash_cmd.param_cmd_params_example')"
+			small
+			:open="false"
+			class="usage"
+			v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0"
+		>
+			<div class="content">
+				<div class="example">
+					<input type="text" class="dark" v-model="usage" />
+				</div>
+				<div class="result">
+					<div class="values">
+						<template v-for="(p, index) in triggerData.chatCommandParams">
+							<mark @click="copy($event, p)" v-click2Select
+								>{{ "{" }}{{ p.tag.toUpperCase() }}{{ "}" }}</mark
+							>
+							<Icon name="right" class="arrow" />
+							<span>"{{ usage.replace(/\s+/gi, " ").split(" ")[index + 1] }}"</span>
+						</template>
+					</div>
 				</div>
 			</div>
-		</div> -->
+		</ToggleBlock>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import PlaceholderField from "@/components/PlaceholderField.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 import type { TriggerChatCommandParam, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import PlaceholderField from "@/components/PlaceholderField.vue";
+import { onMounted, ref } from "vue";
 
-@Component({
-	components: {
-		ParamItem,
-		PlaceholderField,
-	},
-	emits: [],
-})
-class TriggerActionCommandArgumentParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public usage: string = "";
-	public newTag: string = "";
-	public params: TriggerChatCommandParam[] = [];
-	public param_cmdParams: TwitchatDataTypes.ParameterData<string[]> = {
-		type: "editablelist",
-		value: [],
-		icon: "placeholder",
-		labelKey: "triggers.slash_cmd.param_cmd_params",
-		placeholderKey: "triggers.slash_cmd.param_cmd_params_placeholder",
-		tooltipKey: "triggers.slash_cmd.param_cmd_params_tt",
-		max: 30,
-		maxLength: 50,
-	};
+const usage = ref("");
+const newTag = ref("");
+const param_cmdParams = ref<TwitchatDataTypes.ParameterData<string[]>>({
+	type: "editablelist",
+	value: [],
+	icon: "placeholder",
+	labelKey: "triggers.slash_cmd.param_cmd_params",
+	placeholderKey: "triggers.slash_cmd.param_cmd_params_placeholder",
+	tooltipKey: "triggers.slash_cmd.param_cmd_params_tt",
+	max: 30,
+	maxLength: 50,
+});
 
-	public mounted(): void {
-		this.updateUsage();
-	}
+onMounted(() => {
+	updateUsage();
+});
 
-	public createItem(): void {
-		if (this.newTag.length == 0) return;
-		if (!this.triggerData.chatCommandParams) this.triggerData.chatCommandParams = [];
-		this.triggerData.chatCommandParams.push({
-			tag: this.newTag,
-			type: "TEXT",
-		});
-		this.newTag = "";
-		this.updateUsage();
-	}
-
-	public updateUsage(): void {
-		let cmd = this.triggerData.chatCommand ?? "";
-		//If usage field content is long enough, no need to do anything
-		const availableItems = this.usage
-			.replace(cmd, "")
-			.replace(/\s+/gi, " ")
-			.trim()
-			.split(" ")
-			.filter((v) => v.length > 0);
-		if (
-			this.triggerData.chatCommandParams &&
-			availableItems.length > this.triggerData.chatCommandParams.length - 1
-		)
-			return;
-
-		//Generate a fake message
-		const words =
-			"Lorem ipsum dolore Enim nisi labore adipisicing irure aliquip anim dolor consequat fugiat exercitation veniam minim velit ullamco consectetur duis aute tempor".trim();
-		this.usage =
-			cmd +
-			" " +
-			words.split(" ").splice(0, Math.max(5, this.param_cmdParams.value.length)).join(" ");
-	}
-
-	public filterChars(event: KeyboardEvent): void {
-		if (!/[a-z-0-9_-]/gi.test(event.key)) event.preventDefault();
-	}
-
-	public copy(event: MouseEvent, item: TriggerChatCommandParam): void {
-		Utils.copyToClipboard("{" + item.tag + "}");
-		gsap.fromTo(
-			event.currentTarget,
-			{ scale: 1.2 },
-			{ duration: 0.5, scale: 1, ease: "back.out(1.7)" },
-		);
-	}
+function createItem(): void {
+	if (newTag.value.length == 0) return;
+	if (!props.triggerData.chatCommandParams) props.triggerData.chatCommandParams = [];
+	props.triggerData.chatCommandParams.push({
+		tag: newTag.value,
+		type: "TEXT",
+	});
+	newTag.value = "";
+	updateUsage();
 }
-export default toNative(TriggerActionCommandArgumentParams);
+
+function updateUsage(): void {
+	let cmd = props.triggerData.chatCommand ?? "";
+	//If usage field content is long enough, no need to do anything
+	const availableItems = usage.value
+		.replace(cmd, "")
+		.replace(/\s+/gi, " ")
+		.trim()
+		.split(" ")
+		.filter((v) => v.length > 0);
+	if (
+		props.triggerData.chatCommandParams &&
+		availableItems.length > props.triggerData.chatCommandParams.length - 1
+	)
+		return;
+
+	//Generate a fake message
+	const words =
+		"Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.".trim();
+	usage.value =
+		cmd +
+		" " +
+		words.split(" ").splice(0, Math.max(5, param_cmdParams.value.value.length)).join(" ");
+}
+
+function copy(event: MouseEvent, item: TriggerChatCommandParam): void {
+	Utils.copyToClipboard("{" + item.tag + "}");
+	gsap.fromTo(
+		event.currentTarget,
+		{ scale: 1.2 },
+		{ duration: 0.5, scale: 1, ease: "back.out(1.7)" },
+	);
+}
 </script>
 
 <style scoped lang="less">
@@ -223,34 +217,34 @@ export default toNative(TriggerActionCommandArgumentParams);
 		}
 	}
 	.usage {
-		margin-top: 1em;
-		background-color: var(--color-primary-fadest);
-		padding: 0.5em;
-		border-radius: 0.5em;
+		margin-top: 0.5em;
 		margin-left: 1.5em;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-		.example {
-			input {
-				width: 100%;
+		.content {
+			background-color: var(--color-primary-fadest);
+			padding: 0.5em;
+			border-radius: 0.5em;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+			.example,
+			.result {
+				display: flex;
+				flex-direction: column;
+				align-items: stretch;
 			}
-		}
-		.label {
-			margin-bottom: 0.25em;
-		}
-		.arrow {
-			height: 0.75em;
-			margin: 0 0.5em;
-		}
-		.values {
-			display: grid;
-			grid-template-columns: auto auto 1fr;
-			align-items: center;
-			gap: 0.25em;
-		}
-		mark {
-			cursor: pointer !important;
+			.arrow {
+				height: 0.75em;
+				margin: 0 0.5em;
+			}
+			.values {
+				display: grid;
+				grid-template-columns: auto auto 1fr;
+				align-items: center;
+				gap: 0.25em;
+			}
+			mark {
+				cursor: pointer !important;
+			}
 		}
 	}
 }
