@@ -35,9 +35,9 @@
 		</template>
 
 		<div v-else-if="param_action.value == '2'" class="card-item dateForm">
-			<Button class="addBt" icon="add" @click="addDate()">{{
+			<TTButton class="addBt" icon="add" @click="addDate()">{{
 				$t("triggers.schedule.add_dateBt")
-			}}</Button>
+			}}</TTButton>
 
 			<div
 				class="dateList"
@@ -67,7 +67,13 @@
 					</div>
 					<div class="date">
 						<input type="datetime-local" v-model="d.value" />
-						<Button class="deleteBt" icon="cross" @click="delDate(index)" small alert />
+						<TTButton
+							class="deleteBt"
+							icon="cross"
+							@click="delDate(index)"
+							small
+							alert
+						/>
 					</div>
 				</div>
 			</div>
@@ -75,9 +81,8 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
-import ToggleBlock from "@/components/ToggleBlock.vue";
 import {
 	ScheduleTriggerEvents,
 	type TriggerData,
@@ -86,161 +91,149 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { watch } from "@vue/runtime-core";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import PermissionsForm from "../../../PermissionsForm.vue";
+import { onBeforeMount, ref, watch } from "vue";
 import ParamItem from "../../ParamItem.vue";
 
-@Component({
-	components: {
-		Button: TTButton,
-		ParamItem,
-		ToggleBlock,
-		PermissionsForm,
-	},
-})
-class TriggerActionScheduleParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public param_action: TwitchatDataTypes.ParameterData<string> = {
-		type: "list",
-		value: "",
-		icon: "date",
-		labelKey: "triggers.schedule.param_action",
-	};
-	public param_repeatDurationCondition: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "timeout",
-		labelKey: "triggers.schedule.param_repeatDurationCondition",
-	};
-	public param_repeatDurationValue: TwitchatDataTypes.ParameterData<number> = {
-		type: "duration",
-		value: 30 * 60,
-		icon: "timeout",
-		min: 0,
-		max: 48 * 60 * 60,
-		labelKey: "triggers.schedule.param_repeatDurationValue",
-	};
-	public param_repeatMessageCondition: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "whispers",
-		labelKey: "triggers.schedule.param_repeatMessageCondition",
-	};
-	public param_repeatMessageValue: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 100,
-		icon: "whispers",
-		min: 1,
-		max: 9999,
-		labelKey: "triggers.schedule.param_repeatMessageValue",
-	};
-	public params_daily: TwitchatDataTypes.ParameterData<boolean>[] = [];
-	public params_monthly: TwitchatDataTypes.ParameterData<boolean>[] = [];
-	public params_yearly: TwitchatDataTypes.ParameterData<boolean>[] = [];
+const param_action = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "list",
+	value: "",
+	icon: "date",
+	labelKey: "triggers.schedule.param_action",
+});
+const param_repeatDurationCondition = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "timeout",
+	labelKey: "triggers.schedule.param_repeatDurationCondition",
+});
+const param_repeatDurationValue = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "duration",
+	value: 30 * 60,
+	icon: "timeout",
+	min: 0,
+	max: 48 * 60 * 60,
+	labelKey: "triggers.schedule.param_repeatDurationValue",
+});
+const param_repeatMessageCondition = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "whispers",
+	labelKey: "triggers.schedule.param_repeatMessageCondition",
+});
+const param_repeatMessageValue = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 100,
+	icon: "whispers",
+	min: 1,
+	max: 9999,
+	labelKey: "triggers.schedule.param_repeatMessageValue",
+});
+const params_daily = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
+const params_monthly = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
+const params_yearly = ref<TwitchatDataTypes.ParameterData<boolean>[]>([]);
 
-	public beforeMount(): void {
-		//List all available trigger types
-		let events: TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
-		if (!this.triggerData.scheduleParams) {
-			this.triggerData.scheduleParams = {
-				type: events[1]!.value as TriggerScheduleTypesValue,
-				repeatDuration: 30 * 60,
-				repeatMinMessages: 100,
-				dates: [],
-			};
-		}
-		this.param_action.value = this.triggerData.scheduleParams?.type
-			? this.triggerData.scheduleParams?.type
-			: events[0]!.value;
-		this.param_action.listValues = events;
-		const duration = this.triggerData.scheduleParams!.repeatDuration;
-		const minMess = this.triggerData.scheduleParams!.repeatMinMessages;
-		this.param_repeatDurationCondition.value = duration != undefined && duration > 0;
-		this.param_repeatMessageCondition.value = minMess != undefined && minMess > 0;
-
-		watch(
-			() => this.param_repeatDurationCondition.value,
-			() => {
-				if (this.param_repeatDurationCondition.value === false) {
-					this.triggerData.scheduleParams!.repeatDuration = 0;
-				}
-			},
-		);
-
-		watch(
-			() => this.param_repeatMessageCondition.value,
-			() => {
-				if (this.param_repeatMessageCondition.value === false) {
-					this.triggerData.scheduleParams!.repeatMinMessages = 0;
-				}
-			},
-		);
-
-		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
-			this.addDateParam();
-		}
+onBeforeMount(() => {
+	//List all available trigger types
+	let events: TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
+	if (!props.triggerData.scheduleParams) {
+		props.triggerData.scheduleParams = {
+			type: events[1]!.value as TriggerScheduleTypesValue,
+			repeatDuration: 30 * 60,
+			repeatMinMessages: 100,
+			dates: [],
+		};
 	}
+	param_action.value.value = props.triggerData.scheduleParams?.type
+		? props.triggerData.scheduleParams?.type
+		: events[0]!.value;
+	param_action.value.listValues = events;
+	const duration = props.triggerData.scheduleParams!.repeatDuration;
+	const minMess = props.triggerData.scheduleParams!.repeatMinMessages;
+	param_repeatDurationCondition.value.value = duration != undefined && duration > 0;
+	param_repeatMessageCondition.value.value = minMess != undefined && minMess > 0;
 
-	public dateClasses(d: {
-		daily: boolean;
-		monthly: boolean;
-		yearly: boolean;
-		value: string;
-	}): string[] {
-		const res: string[] = ["row"];
-		if (new Date(d.value).getTime() < Date.now() && !d.daily && !d.monthly && !d.yearly)
-			res.push("past");
-		return res;
+	for (let i = 0; i < props.triggerData.scheduleParams!.dates.length; i++) {
+		addDateParam();
 	}
+});
 
-	public addDate(): void {
-		const d = new Date();
-		d.setHours(d.getHours() + 1);
-		const value =
-			Utils.toDigits(d.getFullYear(), 4) +
-			"-" +
-			Utils.toDigits(d.getMonth() + 1, 2) +
-			"-" +
-			Utils.toDigits(d.getDate(), 2) +
-			"T" +
-			Utils.toDigits(d.getHours(), 2) +
-			":" +
-			Utils.toDigits(d.getMinutes(), 2);
-		this.triggerData.scheduleParams?.dates?.push({
-			value,
-			daily: false,
-			monthly: false,
-			yearly: false,
-		});
-		this.addDateParam();
-	}
-
-	public delDate(index: number): void {
-		this.triggerData.scheduleParams?.dates?.splice(index, 1);
-	}
-
-	private addDateParam(): void {
-		this.params_daily.push({
-			type: "boolean",
-			value: false,
-			labelKey: "triggers.schedule.param_daily",
-		});
-		this.params_monthly.push({
-			type: "boolean",
-			value: false,
-			labelKey: "triggers.schedule.param_monthly",
-		});
-		this.params_yearly.push({
-			type: "boolean",
-			value: false,
-			labelKey: "triggers.schedule.param_yearly",
-		});
-	}
+function dateClasses(d: {
+	daily: boolean;
+	monthly: boolean;
+	yearly: boolean;
+	value: string;
+}): string[] {
+	const res: string[] = ["row"];
+	if (new Date(d.value).getTime() < Date.now() && !d.daily && !d.monthly && !d.yearly)
+		res.push("past");
+	return res;
 }
-export default toNative(TriggerActionScheduleParams);
+
+function addDate(): void {
+	const d = new Date();
+	d.setHours(d.getHours() + 1);
+	const value =
+		Utils.toDigits(d.getFullYear(), 4) +
+		"-" +
+		Utils.toDigits(d.getMonth() + 1, 2) +
+		"-" +
+		Utils.toDigits(d.getDate(), 2) +
+		"T" +
+		Utils.toDigits(d.getHours(), 2) +
+		":" +
+		Utils.toDigits(d.getMinutes(), 2);
+	props.triggerData.scheduleParams?.dates?.push({
+		value,
+		daily: false,
+		monthly: false,
+		yearly: false,
+	});
+	addDateParam();
+}
+
+function delDate(index: number): void {
+	props.triggerData.scheduleParams?.dates?.splice(index, 1);
+}
+
+function addDateParam(): void {
+	params_daily.value.push({
+		type: "boolean",
+		value: false,
+		labelKey: "triggers.schedule.param_daily",
+	});
+	params_monthly.value.push({
+		type: "boolean",
+		value: false,
+		labelKey: "triggers.schedule.param_monthly",
+	});
+	params_yearly.value.push({
+		type: "boolean",
+		value: false,
+		labelKey: "triggers.schedule.param_yearly",
+	});
+}
+
+watch(
+	() => param_repeatDurationCondition.value.value,
+	() => {
+		if (param_repeatDurationCondition.value.value === false) {
+			props.triggerData.scheduleParams!.repeatDuration = 0;
+		}
+	},
+);
+
+watch(
+	() => param_repeatMessageCondition.value.value,
+	() => {
+		if (param_repeatMessageCondition.value.value === false) {
+			props.triggerData.scheduleParams!.repeatMinMessages = 0;
+		}
+	},
+);
 </script>
 
 <style scoped lang="less">
