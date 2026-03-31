@@ -11,6 +11,14 @@ select,
 	border-radius: var(--border-radius);
 	font-family: var(--font-inter);
 
+	&.dark {
+		@scale: 2px;
+		box-shadow:
+			inset -@scale -@scale @scale rgba(255, 255, 255, 0.1),
+			inset @scale @scale @scale rgba(0, 0, 0, 0.3) !important;
+		background-color: var(--grayout-fadest);
+	}
+
 	&.noBg {
 		background-color: transparent;
 		&:focus {

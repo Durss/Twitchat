@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractionlist">
+	<div ref="rootEl" class="triggeractionlist">
 		<div class="card-item alert description" v-if="triggerDef?.disabledReasonKey" data-noselect>
 			<Icon name="alert" class="icon" theme="light" />
 			{{ $t(triggerDef.disabledReasonKey) }}
@@ -185,7 +185,11 @@
 						<div class="dash"></div>
 						<TriggerActionEntry
 							:class="getActionClasses(element)"
-							:ref="'actionEntry_' + element.id"
+							:ref="
+								(el: any) => {
+									actionEntryRefs[element.id] = el;
+								}
+							"
 							:data-actionid="element.id"
 							:action="element"
 							:index="index"
@@ -216,9 +220,8 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
-import PermissionsForm from "@/components/PermissionsForm.vue";
 import TTButton from "@/components/TTButton.vue";
 import {
 	TriggerSubTypeLabel,
@@ -233,8 +236,19 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from "@/utils/OBSWebsocket";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
+import Config from "@/utils/Config";
 import { gsap } from "gsap/gsap-core";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import {
+	ref,
+	computed,
+	onBeforeMount,
+	onBeforeUnmount,
+	nextTick,
+	type ComponentPublicInstance,
+	useTemplateRef,
+} from "vue";
+import { useI18n } from "vue-i18n";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import draggable from "vuedraggable";
 import ParamItem from "../../ParamItem.vue";
 import TriggerActionAnyMessageParams from "./TriggerActionAnyMessageParams.vue";
@@ -247,489 +261,461 @@ import TriggerActionSlashCommandParams from "./TriggerActionSlashCommandParams.v
 import TriggerAdApproachParams from "./TriggerAdApproachParams.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerGoXLRParams from "./TriggerGoXLRParams.vue";
-import type { ComponentPublicInstance } from "vue";
+import { useConfirm } from "@/composables/useConfirm";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		draggable,
-		ParamItem,
-		PermissionsForm,
-		TriggerActionEntry,
-		TriggerGoXLRParams,
-		TriggerConditionList,
-		TriggerAdApproachParams,
-		TriggerActionHeatParams,
-		TriggerActionScheduleParams,
-		TriggerActionAnyMessageParams,
-		TriggerActionChatCommandParams,
-		TriggerActionSlashCommandParams,
-		TriggerActionCommandArgumentParams,
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeTriggers = useStoreTriggers();
+const rootEl = useTemplateRef("rootEl");
+const actionEntryRefs: Record<string, ComponentPublicInstance | null> = {};
+
+const props = withDefaults(
+	defineProps<{
+		triggerData: TriggerData;
+		obsScenes?: OBSSceneItem[];
+		obsSources?: OBSSourceItem[];
+		obsInputs?: OBSInputItem[];
+		rewards?: TwitchDataTypes.Reward[];
+		extensions?: TwitchDataTypes.Extension[];
+	}>(),
+	{
+		obsScenes: () => [],
+		obsSources: () => [],
+		obsInputs: () => [],
+		rewards: () => [],
+		extensions: () => [],
 	},
-	emits: [],
-})
-class TriggerActionList extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
-	@Prop({ default: [] })
-	public obsScenes!: OBSSceneItem[];
-	@Prop({ default: [] })
-	public obsSources!: OBSSourceItem[];
-	@Prop({ default: [] })
-	public obsInputs!: OBSInputItem[];
-	@Prop({ default: [] })
-	public rewards!: TwitchDataTypes.Reward[];
-	@Prop({ default: [] })
-	public extensions!: TwitchDataTypes.Extension[];
+);
 
-	public selecting: boolean = false;
-	public selectStyles: { [key: string]: string } = {};
-	public selectedActions: string[] = [];
-	public matchingCondition: boolean = true;
-	public triggerDef: ReturnType<typeof TriggerUtils.getTriggerDisplayInfo> | undefined =
-		undefined;
-	public param_enabled: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		icon: "disable",
-		labelKey: "global.enabled",
-	};
-	public param_enableForRemoteChans: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		icon: "disable",
-		labelKey: "triggers.enableForRemoteChans",
-	};
-	public param_name: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		icon: "label",
-		placeholder: "...",
-		labelKey: "triggers.trigger_name",
-	};
-	public param_queue: TwitchatDataTypes.ParameterData<string> = {
-		type: "editablelist",
-		value: "",
-		maxLength: 100,
-		max: 1,
-		placeholderKey: "triggers.trigger_queue_input_placeholder",
-	};
-	public param_queue_priority: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		min: -100,
-		max: 100,
-	};
+const selecting = ref(false);
+const selectStyles = ref<{ [key: string]: string }>({});
+const selectedActions = ref<string[]>([]);
+const matchingCondition = ref(true);
+const triggerDef = ref<ReturnType<typeof TriggerUtils.getTriggerDisplayInfo> | undefined>(
+	undefined,
+);
+const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	icon: "disable",
+	labelKey: "global.enabled",
+});
+const param_enableForRemoteChans = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	icon: "disable",
+	labelKey: "triggers.enableForRemoteChans",
+});
+const param_name = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	icon: "label",
+	placeholder: "...",
+	labelKey: "triggers.trigger_name",
+});
+const param_queue = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "editablelist",
+	value: "",
+	maxLength: 100,
+	max: 1,
+	placeholderKey: "triggers.trigger_queue_input_placeholder",
+});
+const param_queue_priority = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	min: -100,
+	max: 100,
+});
 
-	private selectOffset = { x: 0, y: 0 };
-	private scrollDir: number = 0;
-	private disposed: boolean = false;
-	private pointerDownHandler!: (e: PointerEvent) => void;
-	private pointerMoveHandler!: (e: PointerEvent) => void;
-	private pointerUpHandler!: (e: PointerEvent) => void;
-	private keyDownHandler!: (e: KeyboardEvent) => void;
-	private keyUpHandler!: (e: KeyboardEvent) => void;
+let selectOffset = { x: 0, y: 0 };
+let scrollDir = 0;
+let disposed = false;
+let pointerDownHandler: (e: PointerEvent) => void;
+let pointerMoveHandler: (e: PointerEvent) => void;
+let pointerUpHandler: (e: PointerEvent) => void;
+let keyDownHandler: (e: KeyboardEvent) => void;
+let keyUpHandler: (e: KeyboardEvent) => void;
 
-	/**
-	 * Get if the trigger can be active on remote channels
-	 */
-	public get allowedOnRemoteChans(): boolean {
-		const allowList: TriggerTypesValue[] = [
-			TriggerTypes.CHAT_COMMAND,
-			TriggerTypes.ANY_MESSAGE,
-			TriggerTypes.REWARD_REDEEM,
-			TriggerTypes.FIRST_TODAY,
-			TriggerTypes.FIRST_ALL_TIME,
-			TriggerTypes.FOLLOW,
-			TriggerTypes.USER_WATCH_STREAK,
-			TriggerTypes.POLL_START,
-			TriggerTypes.POLL_RESULT,
-			TriggerTypes.PREDICTION_START,
-			TriggerTypes.PREDICTION_RESULT,
-			TriggerTypes.SUB,
-			TriggerTypes.SUBGIFT,
-			TriggerTypes.CHEER,
-			TriggerTypes.POWER_UP_MESSAGE,
-			TriggerTypes.POWER_UP_GIANT_EMOTE,
-			TriggerTypes.POWER_UP_CELEBRATION,
-			TriggerTypes.SHOUTOUT_IN,
-			TriggerTypes.SHOUTOUT_OUT,
-			TriggerTypes.PIN_MESSAGE,
-			TriggerTypes.UNPIN_MESSAGE,
-			TriggerTypes.BAN,
-			TriggerTypes.UNBAN,
-			TriggerTypes.TIMEOUT,
-			TriggerTypes.CLEAR_CHAT,
-			TriggerTypes.SUB_ONLY_ON,
-			TriggerTypes.SUB_ONLY_OFF,
-			TriggerTypes.EMOTE_ONLY_ON,
-			TriggerTypes.EMOTE_ONLY_OFF,
-			TriggerTypes.SLOW_MODE_ON,
-			TriggerTypes.SLOW_MODE_OFF,
-			TriggerTypes.RAID,
-			TriggerTypes.RAID_STARTED,
-		];
-		return allowList.includes(this.triggerData.type);
-	}
+/**
+ * Get if the trigger can be active on remote channels
+ */
+const allowedOnRemoteChans = computed((): boolean => {
+	const allowList: TriggerTypesValue[] = [
+		TriggerTypes.CHAT_COMMAND,
+		TriggerTypes.ANY_MESSAGE,
+		TriggerTypes.REWARD_REDEEM,
+		TriggerTypes.FIRST_TODAY,
+		TriggerTypes.FIRST_ALL_TIME,
+		TriggerTypes.FOLLOW,
+		TriggerTypes.USER_WATCH_STREAK,
+		TriggerTypes.POLL_START,
+		TriggerTypes.POLL_RESULT,
+		TriggerTypes.PREDICTION_START,
+		TriggerTypes.PREDICTION_RESULT,
+		TriggerTypes.SUB,
+		TriggerTypes.SUBGIFT,
+		TriggerTypes.CHEER,
+		TriggerTypes.POWER_UP_MESSAGE,
+		TriggerTypes.POWER_UP_GIANT_EMOTE,
+		TriggerTypes.POWER_UP_CELEBRATION,
+		TriggerTypes.SHOUTOUT_IN,
+		TriggerTypes.SHOUTOUT_OUT,
+		TriggerTypes.PIN_MESSAGE,
+		TriggerTypes.UNPIN_MESSAGE,
+		TriggerTypes.BAN,
+		TriggerTypes.UNBAN,
+		TriggerTypes.TIMEOUT,
+		TriggerTypes.CLEAR_CHAT,
+		TriggerTypes.SUB_ONLY_ON,
+		TriggerTypes.SUB_ONLY_OFF,
+		TriggerTypes.EMOTE_ONLY_ON,
+		TriggerTypes.EMOTE_ONLY_OFF,
+		TriggerTypes.SLOW_MODE_ON,
+		TriggerTypes.SLOW_MODE_OFF,
+		TriggerTypes.RAID,
+		TriggerTypes.RAID_STARTED,
+	];
+	return allowList.includes(props.triggerData.type);
+});
 
-	/**
-	 * Get a trigger's description
-	 */
-	public get filteredActionList(): TriggerActionTypes[] {
-		let res = this.triggerData.actions;
-		if (this.hasCondition) {
+/**
+ * Get a trigger's description / Get filtered actions depending on condition result if any
+ */
+const filteredActionList = computed({
+	get(): TriggerActionTypes[] {
+		let res = props.triggerData.actions;
+		if (hasCondition.value) {
 			return res.filter((t) => {
 				return (
-					t.condition == this.matchingCondition ||
-					(t.condition !== false && this.matchingCondition)
+					t.condition == matchingCondition.value ||
+					(t.condition !== false && matchingCondition.value)
 				);
 			});
 		}
 		return res;
-	}
-
-	/**
-	 * Get filtered actions depending on condition result if any
-	 */
-	public set filteredActionList(value: TriggerActionTypes[]) {
-		if (this.hasCondition) {
+	},
+	set(value: TriggerActionTypes[]) {
+		if (hasCondition.value) {
 			//Remove all sorted actions from the original trigger data
-			for (let i = 0; i < this.triggerData.actions.length; i++) {
-				const item = this.triggerData.actions[i]!;
+			for (let i = 0; i < props.triggerData.actions.length; i++) {
+				const item = props.triggerData.actions[i]!;
 				if (value.findIndex((v) => v.id == item.id) == -1) continue;
-				this.triggerData.actions.splice(i, 1);
+				props.triggerData.actions.splice(i, 1);
 				i--;
 			}
 			//Push sorted actions
-			this.triggerData.actions = this.triggerData.actions.concat(value);
+			props.triggerData.actions = props.triggerData.actions.concat(value);
 		} else {
-			this.triggerData.actions = value;
+			props.triggerData.actions = value;
 		}
+	},
+});
+
+const isChatCmd = computed(() => props.triggerData.type === TriggerTypes.CHAT_COMMAND);
+const isAnyMessages = computed(() => props.triggerData.type === TriggerTypes.ANY_MESSAGE);
+const isSchedule = computed(() => props.triggerData.type === TriggerTypes.SCHEDULE);
+const isSlashCommand = computed(() => props.triggerData.type === TriggerTypes.SLASH_COMMAND);
+const isAdBreakApproach = computed(() => props.triggerData.type === TriggerTypes.AD_APPROACHING);
+const isAnyChatMessageCommand = computed(() => props.triggerData.type === TriggerTypes.ANY_MESSAGE);
+const isHeatTrigger = computed(() => props.triggerData.type === TriggerTypes.HEAT_CLICK);
+
+const hasCondition = computed((): boolean => {
+	return (
+		props.triggerData.conditions != undefined &&
+		props.triggerData.conditions.conditions.length > 0
+	);
+});
+const isGoXLRButtonTrigger = computed((): boolean => {
+	const list: TriggerTypesValue[] = [
+		TriggerTypes.GOXLR_BUTTON_PRESSED,
+		TriggerTypes.GOXLR_BUTTON_RELEASED,
+	];
+	return list.indexOf(props.triggerData.type) > -1;
+});
+const listClasses = computed((): string[] => {
+	const res = ["list"];
+	if (hasCondition.value && !matchingCondition.value) res.push("alert");
+	return res;
+});
+
+/**
+ * Get a trigger's sub type's label (reward name, counter name, ...)
+ */
+const subTypeLabel = computed((): string | undefined => {
+	return TriggerSubTypeLabel(props.triggerData);
+});
+
+function getActionClasses(action: TriggerActionTypes): string[] {
+	const res = ["action", "actionItemEntry"];
+	if (selectedActions.value.includes(action.id)) res.push("selected");
+	return res;
+}
+
+/**
+ * Called when deleting an action item
+ */
+function deleteAction(actionId: string): void {
+	confirm(t("triggers.delete_action_confirm"))
+		.then(async () => {
+			let index = props.triggerData.actions.findIndex((v) => v.id == actionId);
+			props.triggerData.actions.splice(index, 1);
+		})
+		.catch(() => {});
+}
+
+/**
+ * Called when duplicating an action item
+ */
+function duplicateAction(action: TriggerActionTypes, index: number): void {
+	const clone: TriggerActionTypes = JSON.parse(JSON.stringify(action));
+	clone.id = Utils.getUUID();
+	props.triggerData.actions.splice(index + 1, 0, clone);
+
+	highlightItemById(action.id);
+}
+
+/**
+ * Adds an action after the specified trigger ID
+ * @param id
+ */
+function addActionAfter(id: string): void {
+	let index = props.triggerData.actions.findIndex((v) => v.id == id);
+	if (index == -1) return;
+	console.log("Add after", id, index);
+	addActionAt(index + 1);
+}
+
+/**
+ * Adds an action at a specific index
+ * @param id
+ */
+function addActionAt(index: number): void {
+	const action: TriggerActionEmptyData = {
+		id: Utils.getUUID(),
+		type: null,
+	};
+	if (hasCondition.value) {
+		action.condition = matchingCondition.value;
+	}
+	props.triggerData.actions.splice(index, 0, action);
+
+	highlightItemById(action.id);
+}
+
+function onPointerDown(e: PointerEvent): void {
+	const parent = document.getElementById("paramContentHolder")!;
+	let target = e.target as HTMLElement;
+	//Go up on hierarchy until reaching the parameters holder
+	//stop if finding a button or an element with "data-noselect" attribute
+	while (
+		target != parent &&
+		target.dataset.noselect == undefined &&
+		target.nodeName != "BUTTON"
+	) {
+		target = target.parentElement as HTMLElement;
 	}
 
-	public get isChatCmd(): boolean {
-		return this.triggerData.type === TriggerTypes.CHAT_COMMAND;
+	//Not a valid drag start place
+	if (target != parent) return;
+
+	Utils.unselectDom();
+	const offsetBounds = rootEl.value!.getBoundingClientRect();
+
+	selecting.value = true;
+	selectOffset.x = e.clientX - offsetBounds.left;
+	selectOffset.y = e.clientY - offsetBounds.top;
+	onPointerMove(e);
+}
+
+function onPointerMove(e: PointerEvent): void {
+	if (!selecting.value) return;
+
+	const offsetBounds = rootEl.value!.getBoundingClientRect();
+
+	const margin = 20;
+	const x1 = Math.min(
+		offsetBounds.width + margin,
+		Math.max(-margin, Math.min(selectOffset.x, e.clientX - offsetBounds.left)),
+	);
+	const y1 = Math.min(
+		offsetBounds.height,
+		Math.max(0, Math.min(selectOffset.y, e.clientY - offsetBounds.top)),
+	);
+	const x2 = Math.min(
+		offsetBounds.width + margin,
+		Math.max(selectOffset.x, e.clientX - offsetBounds.left),
+	);
+	const y2 = Math.min(
+		offsetBounds.height,
+		Math.max(selectOffset.y, e.clientY - offsetBounds.top),
+	);
+	selectStyles.value.left = x1 + "px";
+	selectStyles.value.top = y1 + "px";
+	selectStyles.value.width = x2 - x1 + "px";
+	selectStyles.value.height = y2 - y1 + "px";
+	selectStyles.value.display = Math.abs(x2 - x1) < 2 || Math.abs(y2 - y1) < 2 ? "none" : "block";
+
+	if (x2 - x1 < 10 && y2 - y1 < 5) {
+		selectedActions.value = [];
+		return;
 	}
-	public get isAnyMessages(): boolean {
-		return this.triggerData.type === TriggerTypes.ANY_MESSAGE;
-	}
-	public get isSchedule(): boolean {
-		return this.triggerData.type === TriggerTypes.SCHEDULE;
-	}
-	public get isSlashCommand(): boolean {
-		return this.triggerData.type === TriggerTypes.SLASH_COMMAND;
-	}
-	public get isAdBreakApproach(): boolean {
-		return this.triggerData.type === TriggerTypes.AD_APPROACHING;
-	}
-	public get isAnyChatMessageCommand(): boolean {
-		return this.triggerData.type === TriggerTypes.ANY_MESSAGE;
-	}
-	public get isHeatTrigger(): boolean {
-		return this.triggerData.type === TriggerTypes.HEAT_CLICK;
-	}
-	public get hasCondition(): boolean {
-		return (
-			this.triggerData.conditions != undefined &&
-			this.triggerData.conditions.conditions.length > 0
+
+	const entries = rootEl.value!.querySelectorAll(".actionItemEntry");
+	const selected: string[] = [];
+	for (let i = 0; i < entries.length; i++) {
+		const entry = entries[i] as HTMLElement;
+		const bounds = entry.getBoundingClientRect();
+		const overlap = !(
+			x1 + offsetBounds.left > bounds.right ||
+			x2 + offsetBounds.left < bounds.left ||
+			y1 + offsetBounds.top > bounds.bottom ||
+			y2 + offsetBounds.top < bounds.top
 		);
-	}
-	public get isGoXLRButtonTrigger(): boolean {
-		const list: TriggerTypesValue[] = [
-			TriggerTypes.GOXLR_BUTTON_PRESSED,
-			TriggerTypes.GOXLR_BUTTON_RELEASED,
-		];
-		return list.indexOf(this.triggerData.type) > -1;
-	}
-	public get listClasses(): string[] {
-		const res = ["list"];
-		if (this.hasCondition && !this.matchingCondition) res.push("alert");
-		return res;
-	}
-
-	/**
-	 * Get a trigger's sub type's label (reward name, counter name, ...)
-	 */
-	public get subTypeLabel(): string | undefined {
-		return TriggerSubTypeLabel(this.triggerData);
-	}
-
-	public getActionClasses(action: TriggerActionTypes): string[] {
-		const res = ["action", "actionItemEntry"];
-		if (this.selectedActions.includes(action.id)) res.push("selected");
-		return res;
-	}
-
-	public beforeMount(): void {
-		this.param_queue.options = this.$store.triggers.queues;
-		this.triggerDef = TriggerUtils.getTriggerDisplayInfo(this.triggerData);
-
-		// Init new prop if not existing
-		if (this.triggerData.enableForRemoteChans === undefined) {
-			this.triggerData.enableForRemoteChans = false;
+		if (overlap) {
+			selected.push(entry.dataset.actionid as string);
 		}
-
-		//Not super clean way of getting the param content holder but don't
-		//know any cleaner one.
-		this.pointerDownHandler = (e: PointerEvent) => this.onPointerDown(e);
-		this.pointerMoveHandler = (e: PointerEvent) => this.onPointerMove(e);
-		this.pointerUpHandler = (e: PointerEvent) => this.onPointerUp(e);
-		this.keyUpHandler = (e: KeyboardEvent) => this.onKeyUp(e);
-		this.keyDownHandler = (e: KeyboardEvent) => this.onKeyDown(e);
-		const holder = document.getElementById("paramContentHolder")!;
-		//Make sure holder exists. Apparently someone succeeded to have not existing holder (?!). See Sentry TWITCHAT-1Q
-		if (holder) holder.addEventListener("pointerdown", this.pointerDownHandler);
-		document.addEventListener("pointermove", this.pointerMoveHandler);
-		document.addEventListener("pointerup", this.pointerUpHandler);
-		document.addEventListener("keyup", this.keyUpHandler, true);
-		document.addEventListener("keydown", this.keyDownHandler, true);
-
-		this.renderFrame();
 	}
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-		const holder = document.getElementById("paramContentHolder")!;
-		if (holder) holder.removeEventListener("pointerdown", this.pointerDownHandler);
-		document.removeEventListener("pointermove", this.pointerMoveHandler);
-		document.removeEventListener("pointerup", this.pointerUpHandler);
-		document.removeEventListener("keyup", this.keyUpHandler, true);
-		document.removeEventListener("keydown", this.keyDownHandler, true);
+	scrollDir = 0;
+	if (y2 - y1 > 10) {
+		if (e.clientY > document.body.clientHeight * 0.8)
+			scrollDir = (e.clientY - document.body.clientHeight * 0.8) * 0.1;
+		if (e.clientY < document.body.clientHeight * 0.2)
+			scrollDir = -(document.body.clientHeight * 0.2) * 0.1;
 	}
 
-	/**
-	 * Called when deleting an action item
-	 */
-	public deleteAction(actionId: string): void {
-		this.$confirm(this.$t("triggers.delete_action_confirm"))
+	selectedActions.value = selected;
+
+	//If moved 10px away in a direction, avoid selecting something on the page
+	if (x2 - x1 > 10 || y2 - y1 > 10) {
+		Utils.unselectDom();
+		e.preventDefault();
+	}
+}
+
+function onPointerUp(e: PointerEvent): void {
+	selecting.value = false;
+}
+
+function onKeyDown(e: KeyboardEvent): void {
+	//Avoid closing parameters page if actions are selected
+	if (e.key == "Escape" && selectedActions.value.length > 0) {
+		selectedActions.value = [];
+		e.stopPropagation();
+	}
+	if (selectedActions.value.length > 0 && e.key == "Backspace") e.preventDefault();
+}
+
+function onKeyUp(e: KeyboardEvent): void {
+	//Do not copy/past actions if focus is on a form input
+	const nodeName = (e.target as HTMLElement).nodeName;
+	if (["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
+	const metaKey = e.metaKey || e.ctrlKey;
+
+	//Delete selected actions
+	if ((e.key == "Delete" || e.key == "Backspace") && selectedActions.value.length > 0) {
+		const list = selectedActions.value;
+		confirm(t("triggers.delete_actions_confirm"))
 			.then(async () => {
-				let index = this.triggerData.actions.findIndex((v) => v.id == actionId);
-				this.triggerData.actions.splice(index, 1);
+				for (let i = 0; i < props.triggerData.actions.length; i++) {
+					const a = props.triggerData.actions[i]!;
+					if (list.find((v) => v == a.id)) {
+						props.triggerData.actions.splice(i, 1);
+						i--;
+					}
+				}
 			})
 			.catch(() => {});
 	}
 
-	/**
-	 * Called when duplicating an action item
-	 */
-	public duplicateAction(action: TriggerActionTypes, index: number): void {
-		const clone: TriggerActionTypes = JSON.parse(JSON.stringify(action));
-		clone.id = Utils.getUUID();
-		this.triggerData.actions.splice(index + 1, 0, clone);
-
-		this.highlightItemById(action.id);
-	}
-
-	/**
-	 * Adds an action after the specified trigger ID
-	 * @param id
-	 */
-	public addActionAfter(id: string): void {
-		let index = this.triggerData.actions.findIndex((v) => v.id == id);
-		if (index == -1) return;
-		console.log("Add after", id, index);
-		this.addActionAt(index + 1);
-	}
-
-	/**
-	 * Adds an action at a specific index
-	 * @param id
-	 */
-	public addActionAt(index: number): void {
-		const action: TriggerActionEmptyData = {
-			id: Utils.getUUID(),
-			type: null,
-		};
-		if (this.hasCondition) {
-			action.condition = this.matchingCondition;
-		}
-		this.triggerData.actions.splice(index, 0, action);
-
-		this.highlightItemById(action.id);
-	}
-
-	private onPointerDown(e: PointerEvent): void {
-		const parent = document.getElementById("paramContentHolder")!;
-		let target = e.target as HTMLElement;
-		//Go up on hierarchy until reaching the parameters holder
-		//stop if finding a button or an element with "data-noselect" attribute
-		while (
-			target != parent &&
-			target.dataset.noselect == undefined &&
-			target.nodeName != "BUTTON"
-		) {
-			target = target.parentElement as HTMLElement;
-		}
-
-		//Not a valid drag start place
-		if (target != parent) return;
-
-		Utils.unselectDom();
-		const offsetBounds = this.$el.getBoundingClientRect();
-
-		this.selecting = true;
-		this.selectOffset.x = e.clientX - offsetBounds.left;
-		this.selectOffset.y = e.clientY - offsetBounds.top;
-		this.onPointerMove(e);
-	}
-
-	private onPointerMove(e: PointerEvent): void {
-		if (!this.selecting) return;
-
-		const offsetBounds = (this.$el as HTMLElement).getBoundingClientRect();
-
-		const margin = 20;
-		const x1 = Math.min(
-			offsetBounds.width + margin,
-			Math.max(-margin, Math.min(this.selectOffset.x, e.clientX - offsetBounds.left)),
-		);
-		const y1 = Math.min(
-			offsetBounds.height,
-			Math.max(0, Math.min(this.selectOffset.y, e.clientY - offsetBounds.top)),
-		);
-		const x2 = Math.min(
-			offsetBounds.width + margin,
-			Math.max(this.selectOffset.x, e.clientX - offsetBounds.left),
-		);
-		const y2 = Math.min(
-			offsetBounds.height,
-			Math.max(this.selectOffset.y, e.clientY - offsetBounds.top),
-		);
-		this.selectStyles.left = x1 + "px";
-		this.selectStyles.top = y1 + "px";
-		this.selectStyles.width = x2 - x1 + "px";
-		this.selectStyles.height = y2 - y1 + "px";
-		this.selectStyles.display =
-			Math.abs(x2 - x1) < 2 || Math.abs(y2 - y1) < 2 ? "none" : "block";
-
-		if (x2 - x1 < 10 && y2 - y1 < 5) {
-			this.selectedActions = [];
-			return;
-		}
-
-		// const entries = this.$refs.entry as TriggerActionEntry[];
-		const entries = (this.$el as HTMLElement).querySelectorAll(".actionItemEntry");
-		const selected: string[] = [];
-		for (let i = 0; i < entries.length; i++) {
-			const entry = entries[i] as HTMLElement;
-			const bounds = entry.getBoundingClientRect();
-			const overlap = !(
-				x1 + offsetBounds.left > bounds.right ||
-				x2 + offsetBounds.left < bounds.left ||
-				y1 + offsetBounds.top > bounds.bottom ||
-				y2 + offsetBounds.top < bounds.top
-			);
-			if (overlap) {
-				selected.push(entry.dataset.actionid as string);
+	if (e.key == "c" && metaKey && selectedActions.value.length > 0) {
+		const clipboar: TriggerActionTypes[] = [];
+		for (const a of props.triggerData.actions) {
+			if (selectedActions.value.includes(a.id)) {
+				clipboar.push(a);
 			}
 		}
-
-		this.scrollDir = 0;
-		if (y2 - y1 > 10) {
-			if (e.clientY > document.body.clientHeight * 0.8)
-				this.scrollDir = (e.clientY - document.body.clientHeight * 0.8) * 0.1;
-			if (e.clientY < document.body.clientHeight * 0.2)
-				this.scrollDir = -(document.body.clientHeight * 0.2) * 0.1;
-		}
-
-		this.selectedActions = selected;
-
-		//If moved 10px away in a direction, avoid selecting something on the page
-		if (x2 - x1 > 10 || y2 - y1 > 10) {
-			Utils.unselectDom();
-			e.preventDefault();
-		}
-	}
-
-	private onPointerUp(e: PointerEvent): void {
-		this.selecting = false;
-	}
-
-	private onKeyDown(e: KeyboardEvent): void {
-		//Avoid closing parameters page if actions are selected
-		if (e.key == "Escape" && this.selectedActions.length > 0) {
-			this.selectedActions = [];
-			e.stopPropagation();
-		}
-		if (this.selectedActions.length > 0 && e.key == "Backspace") e.preventDefault();
-	}
-
-	private onKeyUp(e: KeyboardEvent): void {
-		//Do not copy/past actions if focus is on a form input
-		const nodeName = (e.target as HTMLElement).nodeName;
-		if (["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
-		const metaKey = e.metaKey || e.ctrlKey;
-
-		//Delete selected actions
-		if ((e.key == "Delete" || e.key == "Backspace") && this.selectedActions.length > 0) {
-			const list = this.selectedActions;
-			this.$confirm(this.$t("triggers.delete_actions_confirm"))
-				.then(async () => {
-					for (let i = 0; i < this.triggerData.actions.length; i++) {
-						const t = this.triggerData.actions[i]!;
-						if (list.find((v) => v == t.id)) {
-							this.triggerData.actions.splice(i, 1);
-							i--;
-						}
-					}
-				})
-				.catch(() => {});
-		}
-
-		if (e.key == "c" && metaKey && this.selectedActions.length > 0) {
-			const clipboar: TriggerActionTypes[] = [];
-			for (const a of this.triggerData.actions) {
-				if (this.selectedActions.includes(a.id)) {
-					clipboar.push(a);
-				}
-			}
-			this.selectedActions = [];
-			this.$store.triggers.clipboard = clipboar;
-		} else if (e.key == "v" && metaKey && this.$store.triggers.clipboard.length > 0) {
-			for (let i = 0; i < this.$store.triggers.clipboard.length; i++) {
-				if (this.triggerData.actions.length >= this.$config.MAX_TRIGGER_ACTIONS) break;
-				const action = JSON.parse(
-					JSON.stringify(this.$store.triggers.clipboard[i]),
-				) as TriggerActionTypes;
-				action.id = Utils.getUUID(); //Override ID by a new one to avoid conflicts
-				action.condition = this.matchingCondition;
-				this.triggerData.actions.push(action);
-			}
-		}
-	}
-
-	private renderFrame(): void {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderFrame());
-		if (!this.selecting) return;
-		if (this.scrollDir == 0) return;
-		const scrollableHolder = document.getElementById(
-			"paramContentScrollableHolder",
-		) as HTMLDivElement;
-		if (!scrollableHolder) return;
-		scrollableHolder.scrollTop += this.scrollDir;
-	}
-
-	private async highlightItemById(id: string): Promise<void> {
-		await this.$nextTick();
-		const ref = (this.$refs["actionEntry_" + id] as ComponentPublicInstance).$el;
-		if (ref) {
-			gsap.from(ref, {
-				duration: 0.5,
-				overflow: "hidden",
-				width: 0,
-				height: 0,
-				ease: "back.out",
-				clearProps: "all",
-				onUpdate: () => {
-					ref.scrollIntoView({ behavior: "auto", block: "center" });
-				},
-			});
+		selectedActions.value = [];
+		storeTriggers.clipboard = clipboar;
+	} else if (e.key == "v" && metaKey && storeTriggers.clipboard.length > 0) {
+		for (let i = 0; i < storeTriggers.clipboard.length; i++) {
+			if (props.triggerData.actions.length >= Config.instance.MAX_TRIGGER_ACTIONS) break;
+			const action = JSON.parse(
+				JSON.stringify(storeTriggers.clipboard[i]),
+			) as TriggerActionTypes;
+			action.id = Utils.getUUID(); //Override ID by a new one to avoid conflicts
+			action.condition = matchingCondition.value;
+			props.triggerData.actions.push(action);
 		}
 	}
 }
-export default toNative(TriggerActionList);
+
+function renderFrame(): void {
+	if (disposed) return;
+	requestAnimationFrame(() => renderFrame());
+	if (!selecting.value) return;
+	if (scrollDir == 0) return;
+	const scrollableHolder = document.getElementById(
+		"paramContentScrollableHolder",
+	) as HTMLDivElement;
+	if (!scrollableHolder) return;
+	scrollableHolder.scrollTop += scrollDir;
+}
+
+async function highlightItemById(id: string): Promise<void> {
+	await nextTick();
+	const refEl = actionEntryRefs[id]?.$el;
+	if (refEl) {
+		gsap.from(refEl, {
+			duration: 0.5,
+			overflow: "hidden",
+			width: 0,
+			height: 0,
+			ease: "back.out",
+			clearProps: "all",
+			onUpdate: () => {
+				refEl.scrollIntoView({ behavior: "auto", block: "center" });
+			},
+		});
+	}
+}
+
+onBeforeMount(() => {
+	param_queue.value.options = storeTriggers.queues;
+	triggerDef.value = TriggerUtils.getTriggerDisplayInfo(props.triggerData);
+
+	// Init new prop if not existing
+	if (props.triggerData.enableForRemoteChans === undefined) {
+		props.triggerData.enableForRemoteChans = false;
+	}
+
+	//Not super clean way of getting the param content holder but don't
+	//know any cleaner one.
+	pointerDownHandler = (e: PointerEvent) => onPointerDown(e);
+	pointerMoveHandler = (e: PointerEvent) => onPointerMove(e);
+	pointerUpHandler = (e: PointerEvent) => onPointerUp(e);
+	keyUpHandler = (e: KeyboardEvent) => onKeyUp(e);
+	keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
+	const holder = document.getElementById("paramContentHolder")!;
+	//Make sure holder exists. Apparently someone succeeded to have not existing holder (?!). See Sentry TWITCHAT-1Q
+	if (holder) holder.addEventListener("pointerdown", pointerDownHandler);
+	document.addEventListener("pointermove", pointerMoveHandler);
+	document.addEventListener("pointerup", pointerUpHandler);
+	document.addEventListener("keyup", keyUpHandler, true);
+	document.addEventListener("keydown", keyDownHandler, true);
+
+	renderFrame();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+	const holder = document.getElementById("paramContentHolder")!;
+	if (holder) holder.removeEventListener("pointerdown", pointerDownHandler);
+	document.removeEventListener("pointermove", pointerMoveHandler);
+	document.removeEventListener("pointerup", pointerUpHandler);
+	document.removeEventListener("keyup", keyUpHandler, true);
+	document.removeEventListener("keydown", keyDownHandler, true);
+});
 </script>
 
 <style scoped lang="less">

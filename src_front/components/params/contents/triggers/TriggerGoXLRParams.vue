@@ -7,30 +7,21 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import GoXLRUI from "@/components/goxlr/GoXLRUI.vue";
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { onMounted } from "vue";
 
-@Component({
-	components: {
-		Icon,
-		GoXLRUI,
-	},
-	emits: [],
-})
-class TriggerGoXLRParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public mounted(): void {
-		if (!this.triggerData.goxlrButtons) {
-			this.triggerData.goxlrButtons = [];
-		}
+onMounted(() => {
+	if (!props.triggerData.goxlrButtons) {
+		props.triggerData.goxlrButtons = [];
 	}
-}
-export default toNative(TriggerGoXLRParams);
+});
 </script>
 
 <style scoped lang="less">
