@@ -40,94 +40,89 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import ParamItem from "../../ParamItem.vue";
 import TriggerActionCommandArgumentParams from "./TriggerActionCommandArgumentParams.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 
-@Component({
-	components: {
-		ParamItem,
-		ToggleBlock,
-		TriggerActionCommandArgumentParams,
-	},
-	emits: [],
-})
-class TriggerActionSlashCommandParams extends Vue {
-	@Prop
-	public triggerData!: TriggerData;
+const storeTriggers = useStoreTriggers();
+const storeChat = useStoreChat();
 
-	public formatError = false;
-	public cmdNameConflict = false;
-	public param_command: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		icon: "commands",
-		labelKey: "triggers.slash_cmd.param_cmd",
-		placeholderKey: "triggers.slash_cmd.param_cmd_placeholder",
-	};
-	public param_addToContextMenu: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "rightClick",
-		labelKey: "triggers.slash_cmd.param_ctx_menu",
-	};
-	public param_addToDiscord: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "discord",
-		labelKey: "triggers.slash_cmd.param_discord",
-	};
+const props = defineProps<{
+	triggerData: TriggerData;
+}>();
 
-	public beforeMount(): void {
-		if (!this.triggerData.chatCommand) this.triggerData.chatCommand = "";
-		this.param_command.value = this.triggerData.chatCommand;
-		if (!this.triggerData.addToDiscord) this.triggerData.addToDiscord = false;
-		if (!this.triggerData.addToContextMenu) this.triggerData.addToContextMenu = false;
-	}
+const formatError = ref(false);
+const cmdNameConflict = ref(false);
+const param_command = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	icon: "commands",
+	labelKey: "triggers.slash_cmd.param_cmd",
+	placeholderKey: "triggers.slash_cmd.param_cmd_placeholder",
+});
+const param_addToContextMenu = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "rightClick",
+	labelKey: "triggers.slash_cmd.param_ctx_menu",
+});
+const param_addToDiscord = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "discord",
+	labelKey: "triggers.slash_cmd.param_discord",
+});
 
-	public onUpdateCommand(): void {
-		this.cmdNameConflict = false;
+onBeforeMount(() => {
+	if (!props.triggerData.chatCommand) props.triggerData.chatCommand = "";
+	param_command.value.value = props.triggerData.chatCommand;
+	if (!props.triggerData.addToDiscord) props.triggerData.addToDiscord = false;
+	if (!props.triggerData.addToContextMenu) props.triggerData.addToContextMenu = false;
+});
 
-		this.triggerData.chatCommand = this.param_command.value = this.param_command.value
-			.trim()
-			.replace(/\s+/g, "");
+function onUpdateCommand(): void {
+	cmdNameConflict.value = false;
 
-		//Make sure no other chat command has the same name
-		const triggers = this.$store.triggers.triggerList;
-		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
+	props.triggerData.chatCommand = param_command.value.value = param_command.value.value
+		.trim()
+		.replace(/\s+/g, "");
 
-		this.formatError = mainCmd.indexOf("/") != 0;
+	//Make sure no other chat command has the same name
+	const triggers = storeTriggers.triggerList;
+	const mainCmd = props.triggerData.chatCommand?.toLowerCase() || "";
 
-		//Check if any other trigger contain the same command
-		for (const trigger of triggers) {
-			if (
-				trigger.type == TriggerTypes.SLASH_COMMAND &&
-				trigger.id != this.triggerData.id &&
-				trigger.chatCommand
-			) {
-				//Check if there's a command conflict
-				if (trigger.chatCommand?.toLowerCase() === mainCmd) {
-					this.cmdNameConflict = true;
-					break;
-				}
-			}
-		}
+	formatError.value = mainCmd.indexOf("/") != 0;
 
-		//Check if a global slash command exists with the same name
-		const globalCmds = this.$store.chat.commands;
-		for (const entry of globalCmds) {
-			if (entry.cmd.split(" ")[0]!.toLowerCase() === mainCmd) {
-				this.cmdNameConflict = true;
+	//Check if any other trigger contain the same command
+	for (const trigger of triggers) {
+		if (
+			trigger.type == TriggerTypes.SLASH_COMMAND &&
+			trigger.id != props.triggerData.id &&
+			trigger.chatCommand
+		) {
+			//Check if there's a command conflict
+			if (trigger.chatCommand?.toLowerCase() === mainCmd) {
+				cmdNameConflict.value = true;
 				break;
 			}
 		}
 	}
+
+	//Check if a global slash command exists with the same name
+	const globalCmds = storeChat.commands;
+	for (const entry of globalCmds) {
+		if (entry.cmd.split(" ")[0]!.toLowerCase() === mainCmd) {
+			cmdNameConflict.value = true;
+			break;
+		}
+	}
 }
-export default toNative(TriggerActionSlashCommandParams);
 </script>
 
 <style scoped lang="less">
