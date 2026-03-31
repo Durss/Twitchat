@@ -238,9 +238,24 @@ It is recommended to install these plugins:
 
 # Refactoring in progress
 
-Project has initially be done with class component style.  
-To date 99% of the project uses this but I'm slowly moving away for from it in favor of standard Vue3 composition API which will require shit tons of time and effort.  
-New components must be done with standard syntax/API as much as possible.
+Project has initially been done with class component style.  
+Migration to standard Vue 3 Composition API (`<script setup>`) is ongoing.  
+New components must use the standard syntax/API.
+
+<!-- MIGRATION-STATS-START -->
+
+|                                    | Count   | %     |
+| ---------------------------------- | ------- | ----- |
+| Composition API (`<script setup>`) | **59**  | 14.7% |
+| Class-style (vue-facing-decorator) | **342** | 85.1% |
+| Options API / other                | **1**   | 0.2%  |
+| **Total**                          | **402** |       |
+
+> Migration progress `[⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀]` _(14.7%)_
+
+_Last updated: 2026-03-31_
+
+<!-- MIGRATION-STATS-END -->
 
 <br>
 <br>

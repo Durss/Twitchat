@@ -8,7 +8,7 @@
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"devall": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
-		"build": "npm run i18n && vp pack && vp build && npm run server/build",
+		"build": "npm run i18n && npm run migration:stats && vp pack && vp build && npm run server/build",
 		"tunnel": "cloudflared tunnel run dev",
 		"front/watch": "vp dev --host",
 		"front/watch-force": "vp dev --host --force",
@@ -29,7 +29,8 @@
 		"check-circular-dependencies": "dpdm --transform ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
 		"analyse": "esbuild src_front/main.ts --bundle --analyze",
-		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs"
+		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs",
+		"migration:stats": "node scripts/trackMigration.mjs --update-readme"
 	},
 	"dependencies": {
 		"@fastify/cors": "^11.2.0",
