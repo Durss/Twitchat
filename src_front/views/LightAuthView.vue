@@ -36,50 +36,49 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import DataStoreCommon from "@/store/DataStoreCommon";
-import { Component, Vue, toNative } from "vue-facing-decorator";
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
+import { ref, onBeforeMount } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storePublic as useStorePublic } from "@/store/storePublic";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-	},
-	emits: [],
-})
-class LightAuthView extends Vue {
-	public error: boolean = false;
-	public redirect: string = "";
-	public authenticating: boolean = true;
+const { t } = useI18n();
+const router = useRouter();
+const storeCommon = useStoreCommon();
+const storePublicInst = useStorePublic();
 
-	async beforeMount(): Promise<void> {
-		this.authenticating = true;
-		this.redirect = DataStoreCommon.get(DataStoreCommon.REDIRECT);
-		const code = Utils.getQueryParameterByName("code");
-		const csrfToken = Utils.getQueryParameterByName("state");
-		if (code) {
-			const res = await ApiHelper.call("auth/CSRFToken", "POST", { token: csrfToken! });
-			if (!res.json.success) {
-				if (res.json.message) this.$store.common.alert(res.json.message);
-				this.error = true;
-			} else {
-				this.error = !(await this.$store.public.twitchAuth(code));
-				if (this.error) {
-					this.$store.common.alert(this.$t("error.invalid_credentials"));
-				}
-			}
+const error = ref<boolean>(false);
+const redirect = ref<string>("");
+const authenticating = ref<boolean>(true);
+
+onBeforeMount(async () => {
+	authenticating.value = true;
+	redirect.value = DataStoreCommon.get(DataStoreCommon.REDIRECT);
+	const code = Utils.getQueryParameterByName("code");
+	const csrfToken = Utils.getQueryParameterByName("state");
+	if (code) {
+		const res = await ApiHelper.call("auth/CSRFToken", "POST", { token: csrfToken! });
+		if (!res.json.success) {
+			if (res.json.message) storeCommon.alert(res.json.message);
+			error.value = true;
 		} else {
-			this.$store.common.alert(this.$t("error.authorization_refused"));
+			error.value = !(await storePublicInst.twitchAuth(code));
+			if (error.value) {
+				storeCommon.alert(t("error.invalid_credentials"));
+			}
 		}
-		DataStoreCommon.remove(DataStoreCommon.REDIRECT);
-		this.$router.push(this.redirect);
+	} else {
+		storeCommon.alert(t("error.authorization_refused"));
 	}
-}
-export default toNative(LightAuthView);
+	DataStoreCommon.remove(DataStoreCommon.REDIRECT);
+	router.push(redirect.value);
+});
 </script>
 
 <style scoped lang="less">

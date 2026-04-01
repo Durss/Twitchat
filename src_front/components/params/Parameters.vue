@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="!closed">
+	<div ref="rootEl" :class="classes" v-show="!closed">
 		<div class="menu">
 			<div
 				class="head"
@@ -23,7 +23,7 @@
 					<input
 						type="text"
 						:placeholder="$t('params.search')"
-						v-model="$store.params.currentParamSearch"
+						v-model="storeParams.currentParamSearch"
 						v-autofocus
 						ref="searchField"
 					/>
@@ -35,7 +35,7 @@
 					class="buttonList"
 					v-model="pinnedMenuEntries"
 					:group="{ name: 'menu_sections' }"
-					animation="250"
+					:animation="250"
 					@end="onEditMenu()"
 				>
 					<TTButton
@@ -69,7 +69,7 @@
 						class="buttonList"
 						v-model="unpinnedMenuEntries"
 						:group="{ name: 'menu_sections' }"
-						animation="250"
+						:animation="250"
 						@end="onEditMenu()"
 					>
 						<TTButton
@@ -190,7 +190,7 @@
 					<input
 						type="text"
 						:placeholder="$t('params.search')"
-						v-model="$store.params.currentParamSearch"
+						v-model="storeParams.currentParamSearch"
 						v-autofocus
 						ref="searchField"
 					/>
@@ -244,11 +244,19 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { watch } from "@vue/runtime-core";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
 import { gsap } from "gsap/gsap-core";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import TTButton from "../TTButton.vue";
 import ClearButton from "../ClearButton.vue";
 import ThemeSelector from "../ThemeSelector.vue";
@@ -277,483 +285,9 @@ import Config from "@/utils/Config";
 import { VueDraggable } from "vue-draggable-plus";
 import ParamsTimer from "./contents/ParamsTimer.vue";
 import ParamsExporter from "./contents/ParamsExporter.vue";
-
-@Component({
-	components: {
-		TTButton,
-		ParamsTTS,
-		DonorState,
-		ParamsList,
-		ToggleBlock,
-		ClearButton,
-		ParamsAbout,
-		ParamsAlert,
-		ParamsTimer,
-		VueDraggable,
-		ParamsDonate,
-		ParamsValues,
-		ParamsPremium,
-		ParamsAutomod,
-		ParamsSpoiler,
-		ParamsAccount,
-		ThemeSelector,
-		ParamsCounters,
-		ParamsOverlays,
-		ParamsTriggers,
-		ParamsExporter,
-		ParamsVoiceBot,
-		ParamsEmergency,
-		ParamsTwitchatAd,
-		ParamsConnections,
-	},
-})
-class Parameters extends Vue {
-	public closed: boolean = true;
-	public showCTA: boolean = true;
-	public showNewFlagOnPin: boolean = false;
-	public filteredParams: TwitchatDataTypes.ParameterData<unknown>[] = [];
-	public pinnedMenuEntries: MenuEntry[] = [];
-	public unpinnedMenuEntries: MenuEntry[] = [];
-	public newFlagMoreParams: { id: string; date: number } | null = null;
-	public ParameterPages = TwitchatDataTypes.ParameterPages;
-
-	public button_donate: MenuEntry = {
-		pinned: true,
-		icon: "coin",
-		page: TwitchatDataTypes.ParameterPages.DONATE,
-		labelKey: "params.categories.donate",
-		newflag: { date: 1693519200000, id: "params_donate" },
-		theme: "secondary",
-	};
-	public button_premium: MenuEntry = {
-		pinned: true,
-		icon: "premium",
-		page: TwitchatDataTypes.ParameterPages.PREMIUM,
-		labelKey: "params.categories.premium",
-		newflag: { date: 1693519200000, id: "params_premium" },
-		theme: "premium",
-	};
-
-	private closing: boolean = false;
-	private keydownCaptureTarget: Element | null = null;
-	private history: TwitchatDataTypes.ParameterPagesStringType[] = [];
-
-	public get isDonor(): boolean {
-		return this.$store.auth.donorLevel > -1 || this.$store.auth.isPremium;
-	}
-
-	private keyDownHandler!: (e: KeyboardEvent) => void;
-	private keyDownCaptureHandler!: (e: KeyboardEvent) => void;
-	private menuEntries: MenuEntry[] = [
-		{
-			pinned: true,
-			icon: "params",
-			page: TwitchatDataTypes.ParameterPages.FEATURES,
-			labelKey: "params.categories.features",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "params_chatfeatures_2" },
-		},
-		{
-			pinned: true,
-			icon: "show",
-			page: TwitchatDataTypes.ParameterPages.APPEARANCE,
-			labelKey: "params.categories.appearance",
-			newflag: { date: 1771444874612, id: "params_chatappearance_3" },
-		},
-		{
-			pinned: true,
-			icon: "overlay",
-			page: TwitchatDataTypes.ParameterPages.OVERLAYS,
-			labelKey: "params.categories.overlays",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_overlays_4" },
-		},
-		{
-			pinned: true,
-			icon: "offline",
-			page: TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			labelKey: "params.categories.connexions",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_connexion_2" },
-		},
-		{
-			pinned: false,
-			icon: "broadcast",
-			page: TwitchatDataTypes.ParameterPages.TRIGGERS,
-			labelKey: "params.categories.triggers",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "paramsparams_triggers_3" },
-		},
-		{
-			pinned: false,
-			icon: "placeholder",
-			page: TwitchatDataTypes.ParameterPages.VALUES,
-			labelKey: "params.categories.values",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V11, id: "paramsparams_values" },
-		},
-		{
-			pinned: true,
-			icon: "count",
-			page: TwitchatDataTypes.ParameterPages.COUNTERS,
-			labelKey: "params.categories.counters",
-		},
-		{
-			pinned: false,
-			icon: "tts",
-			page: TwitchatDataTypes.ParameterPages.TTS,
-			labelKey: "params.categories.tts",
-		},
-		{
-			pinned: false,
-			icon: "emergency",
-			page: TwitchatDataTypes.ParameterPages.EMERGENCY,
-			labelKey: "params.categories.emergency",
-		},
-		{
-			pinned: false,
-			icon: "mod",
-			page: TwitchatDataTypes.ParameterPages.AUTOMOD,
-			labelKey: "params.categories.automod",
-		},
-		{
-			pinned: false,
-			icon: "voice",
-			page: TwitchatDataTypes.ParameterPages.VOICE,
-			labelKey: "params.categories.voice",
-		},
-		{
-			pinned: true,
-			icon: "user",
-			page: TwitchatDataTypes.ParameterPages.ACCOUNT,
-			labelKey: "params.categories.account",
-		},
-		{
-			pinned: false,
-			icon: "info",
-			page: TwitchatDataTypes.ParameterPages.ABOUT,
-			labelKey: "params.categories.about",
-			newflag: { date: 1693519200000, id: "params_about" },
-		},
-		{
-			pinned: false,
-			icon: "timer",
-			page: TwitchatDataTypes.ParameterPages.TIMERS,
-			labelKey: "params.categories.timers",
-			newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_timers" },
-		},
-	];
-
-	/**
-	 * If true, will display a search field at the top of the view to
-	 * search params by their labels
-	 */
-	public get isGenericListContent(): boolean {
-		return this.content == "features" || this.content == "appearance" || this.search.length > 0;
-	}
-
-	public get appVersion(): string {
-		return import.meta.env.PACKAGE_VERSION;
-	}
-
-	public get content(): TwitchatDataTypes.ParameterPagesStringType {
-		return this.$store.params.currentPage;
-	}
-
-	public get search(): string {
-		return this.$store.params.currentParamSearch;
-	}
-
-	public get classes(): string[] {
-		let res = ["parameters", "sidePanel"];
-		if (this.content != "main" || this.search) res.push("hasContent");
-		return res;
-	}
-
-	public async beforeMount(): Promise<void> {
-		this.showCTA = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
-
-		if (this.$store.auth.features.includes("export_configs")) {
-			this.menuEntries.push({
-				pinned: true,
-				icon: "save",
-				page: TwitchatDataTypes.ParameterPages.EXPORTER,
-				labelKey: "params.categories.exporter",
-			});
-		}
-
-		const sectionsJSON = DataStore.get(DataStore.PARAMS_SECTIONS);
-		if (sectionsJSON) {
-			const sections = JSON.parse(sectionsJSON);
-			if (!Array.isArray(sections)) return;
-			//Sort entries and set pinned states
-			for (let i = 0; i < sections.length; i++) {
-				const item = sections[i];
-				const entry = this.menuEntries.find((v) => v.page == item.id);
-				if (!entry) continue;
-				entry.pinned = item.pinned;
-				if (entry.pinned) {
-					this.pinnedMenuEntries.push(entry);
-				} else {
-					this.unpinnedMenuEntries.push(entry);
-				}
-			}
-		}
-
-		//Check if any entry from the "menuEntries" is missing from the final
-		//list. Add them to the beginning if so.
-		for (const item of this.menuEntries) {
-			if (this.pinnedMenuEntries.findIndex((v) => v.page == item.page) > -1) continue;
-			if (this.unpinnedMenuEntries.findIndex((v) => v.page == item.page) > -1) continue;
-			//Missing item, add it to the top
-			if (item.pinned) {
-				this.pinnedMenuEntries.unshift(item);
-			} else {
-				this.unpinnedMenuEntries.unshift(item);
-				this.newFlagMoreParams = item.newflag ?? null;
-			}
-		}
-	}
-
-	public async mounted(): Promise<void> {
-		if (this.content != TwitchatDataTypes.ParameterPages.CLOSE) {
-			this.open();
-		}
-
-		watch(
-			() => this.$store.params.currentPage,
-			(
-				value: TwitchatDataTypes.ParameterPagesStringType,
-				oldValue: TwitchatDataTypes.ParameterPagesStringType,
-			) => {
-				if (value === this.history[this.history.length - 1]) this.history.pop();
-				if (
-					value != TwitchatDataTypes.ParameterPages.CLOSE &&
-					value != TwitchatDataTypes.ParameterPages.MAIN_MENU
-				) {
-					this.history.push(value);
-				}
-
-				if (value == TwitchatDataTypes.ParameterPages.CLOSE) this.close();
-				else this.open();
-
-				if (value != TwitchatDataTypes.ParameterPages.MAIN_MENU) this.filteredParams = [];
-			},
-		);
-
-		watch(
-			() => this.$store.params.currentParamSearch,
-			(value: string) => {
-				if (value) this.openPage(this.ParameterPages.MAIN_MENU);
-				this.filterParams(value);
-			},
-		);
-
-		this.keyDownHandler = (e: KeyboardEvent) => this.onKeyDown(e);
-		this.keyDownCaptureHandler = (e: KeyboardEvent) => this.onKeyDown(e, true);
-		document.addEventListener("keydown", this.keyDownHandler);
-		document.addEventListener("keydown", this.keyDownCaptureHandler, { capture: true });
-
-		this.showNewFlagOnPin = this.$el.querySelectorAll(".menuItem.newFlag").length > 0;
-	}
-
-	public beforeUnmount(): void {
-		document.removeEventListener("keydown", this.keyDownHandler);
-		document.removeEventListener("keydown", this.keyDownCaptureHandler, { capture: true });
-	}
-
-	public async open(): Promise<void> {
-		if (!this.closed) return;
-		this.history = [];
-		await this.$nextTick();
-
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, {
-			duration: 0.1,
-			translateX: "115%",
-			delay: 0.2,
-			ease: "sine.out",
-			onComplete: () => {
-				//Give focus to search field only after transition complete otherwise the browser
-				//will bring it into view before which causes glitches on opening animation
-				(this.$refs.searchField as HTMLInputElement)?.focus();
-			},
-		});
-		gsap.fromTo(
-			ref,
-			{ scaleX: 1.1 },
-			{
-				duration: 0.5,
-				delay: 0.3,
-				scaleX: 1,
-				clearProps: "scaleX,translateX",
-				ease: "elastic.out(1)",
-			},
-		);
-
-		this.closed = false;
-
-		if (this.search) {
-			await this.$nextTick();
-			this.openPage(this.ParameterPages.MAIN_MENU);
-			this.filterParams(this.search);
-		}
-	}
-
-	public async close(): Promise<void> {
-		if (this.closing || this.closed) return;
-		this.closing = true;
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, { duration: 0.1, scaleX: 1.1, ease: "sin.in" });
-		gsap.to(ref, {
-			duration: 0.1,
-			translateX: "100%",
-			scaleX: 1,
-			delay: 0.1,
-			clearProps: "all",
-			ease: "sin.out",
-			onComplete: () => {
-				this.closing = false;
-				this.closed = true;
-				this.filteredParams = [];
-				this.$store.params.closeParameters();
-			},
-		});
-	}
-
-	public back(): void {
-		const content = this.$refs.currentContent as IParameterContent;
-		this.$store.params.currentParamSearch = "";
-
-		//Check if current content wants to override the navigation
-		if (content && content.onNavigateBack && content.onNavigateBack() === true) return;
-
-		this.history.pop(); //Remove current page from history
-		this.openPage(this.history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
-	}
-
-	/**
-	 * Called when searching for a parameter
-	 * @param search
-	 */
-	public async filterParams(search: string): Promise<void> {
-		this.filteredParams = [];
-		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-		const IDsDone: { [key: number]: boolean } = {};
-		for (const categoryID in this.$store.params.$state) {
-			const category = this.$store.params.$state[
-				categoryID as TwitchatDataTypes.ParameterCategory
-			] as { [ley: string]: TwitchatDataTypes.ParameterData<unknown> };
-			for (const prop in category) {
-				const data: TwitchatDataTypes.ParameterData<unknown> = category[prop]!;
-
-				//Already done (via its parent probably), ignore it
-				if (IDsDone[data.id as number] === true) continue;
-
-				let label = data.label;
-				let labelKey = data.labelKey;
-				if (labelKey) label = this.$t(labelKey);
-
-				if (label && new RegExp(safeSearch, "gi").test(label)) {
-					if (data.parent) {
-						for (const key in category) {
-							const prop = category[key]!;
-							if (prop.id == data.parent && IDsDone[prop.id as number] !== true) {
-								IDsDone[prop.id as number] = true;
-								this.filteredParams.push(prop);
-							}
-						}
-					} else {
-						IDsDone[data.id as number] = true;
-						this.filteredParams.push(data);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Opens up a parameter section
-	 */
-	public openPage(
-		page: TwitchatDataTypes.ParameterPagesStringType,
-		blockIfEditing: boolean = false,
-	): void {
-		// if(blockIfEditing && this.editPins) return;
-
-		const content = this.$refs.currentContent as IParameterContent;
-		//Check if current content wants to override the navigation
-		if (content && content.reload) content.reload();
-
-		this.$store.params.openParamsPage(page);
-	}
-
-	/**
-	 * Called when menu items are sorted
-	 */
-	public onEditMenu(): void {
-		const sections: RawMenuEntry[] = this.pinnedMenuEntries
-			.map((v) => {
-				return { id: v.page, pinned: true };
-			})
-			.concat(
-				this.unpinnedMenuEntries.map((v) => {
-					return { id: v.page, pinned: false };
-				}),
-			);
-		DataStore.set(DataStore.PARAMS_SECTIONS, sections);
-	}
-
-	/**
-	 * Called when CTA is clicked
-	 */
-	public hideCTA(): void {
-		DataStore.set(DataStore.PARAMS_SECTIONS_CTA, true);
-		this.showCTA = false;
-	}
-
-	/**
-	 * Closes the window on escape if the focus isn't on an input.
-	 * The "keydownCaptureTarget" is here to store the currently focused
-	 * element with "capture" flag so it's called before the browser
-	 * natively removes focus from the field.
-	 *
-	 * This avoids a tricky situation when user is writing on a field
-	 * and presses escape key. If we were listening to the keydown event
-	 * without the capture flag, the browser would first remove the focus
-	 * from the field, then call this function and the "activeElement"
-	 * wouldn't be the field anymore.
-	 * To avoid that, we listen to the keyDown event with capture flag
-	 * so it's called before the field loses focus.
-	 * BUT, if we were only doing this, a child component wouldn't be
-	 * able to stop the escape key propagation (ex: the heat screen editor)
-	 * so the window wouldn't close if other things than just input
-	 * elements had focus.
-	 * The heat editor allows to drag areas and unselect them with the
-	 * escape key. This cannot generically be handle here, the event
-	 * needs to be stoped from the editor itself.
-	 *
-	 * This is why we only register the focused element on capture and
-	 * use it on a non-capture event. This fixes both above situations.
-	 *
-	 * @param e
-	 * @param isCapture
-	 */
-	private onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
-		if (this.closed) return;
-		if (isCapture) {
-			this.keydownCaptureTarget = document.activeElement;
-			return;
-		}
-		const node = this.keydownCaptureTarget ?? document.activeElement?.nodeName;
-		const isContentEditable = document.activeElement?.getAttribute("contenteditable");
-		if (
-			e.key?.toLowerCase() == "escape" &&
-			node != "INPUT" &&
-			node != "TEXTAREA" &&
-			!isContentEditable
-		) {
-			this.close();
-		}
-	}
-}
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { useI18n } from "vue-i18n";
 
 interface MenuEntry {
 	pinned: boolean;
@@ -769,7 +303,444 @@ interface RawMenuEntry {
 	id: TwitchatDataTypes.ParameterPagesStringType;
 	pinned: boolean;
 }
-export default toNative(Parameters);
+
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+
+const rootEl = useTemplateRef("rootEl");
+const searchField = useTemplateRef("searchField");
+const currentContent = useTemplateRef<IParameterContent>("currentContent");
+
+const closed = ref(true);
+const showCTA = ref(true);
+const showNewFlagOnPin = ref(false);
+const filteredParams = ref<TwitchatDataTypes.ParameterData<unknown>[]>([]);
+const pinnedMenuEntries = ref<MenuEntry[]>([]);
+const unpinnedMenuEntries = ref<MenuEntry[]>([]);
+const newFlagMoreParams = ref<{ id: string; date: number } | null>(null);
+const ParameterPages = TwitchatDataTypes.ParameterPages;
+
+const button_donate: MenuEntry = {
+	pinned: true,
+	icon: "coin",
+	page: TwitchatDataTypes.ParameterPages.DONATE,
+	labelKey: "params.categories.donate",
+	newflag: { date: 1693519200000, id: "params_donate" },
+	theme: "secondary",
+};
+const button_premium: MenuEntry = {
+	pinned: true,
+	icon: "premium",
+	page: TwitchatDataTypes.ParameterPages.PREMIUM,
+	labelKey: "params.categories.premium",
+	newflag: { date: 1693519200000, id: "params_premium" },
+	theme: "premium",
+};
+
+let closing = false;
+let keydownCaptureTarget: Element | null = null;
+let history: TwitchatDataTypes.ParameterPagesStringType[] = [];
+let keyDownHandler: (e: KeyboardEvent) => void;
+let keyDownCaptureHandler: (e: KeyboardEvent) => void;
+
+const menuEntries: MenuEntry[] = [
+	{
+		pinned: true,
+		icon: "params",
+		page: TwitchatDataTypes.ParameterPages.FEATURES,
+		labelKey: "params.categories.features",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "params_chatfeatures_2" },
+	},
+	{
+		pinned: true,
+		icon: "show",
+		page: TwitchatDataTypes.ParameterPages.APPEARANCE,
+		labelKey: "params.categories.appearance",
+		newflag: { date: 1771444874612, id: "params_chatappearance_3" },
+	},
+	{
+		pinned: true,
+		icon: "overlay",
+		page: TwitchatDataTypes.ParameterPages.OVERLAYS,
+		labelKey: "params.categories.overlays",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_overlays_4" },
+	},
+	{
+		pinned: true,
+		icon: "offline",
+		page: TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		labelKey: "params.categories.connexions",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_connexion_2" },
+	},
+	{
+		pinned: false,
+		icon: "broadcast",
+		page: TwitchatDataTypes.ParameterPages.TRIGGERS,
+		labelKey: "params.categories.triggers",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "paramsparams_triggers_3" },
+	},
+	{
+		pinned: false,
+		icon: "placeholder",
+		page: TwitchatDataTypes.ParameterPages.VALUES,
+		labelKey: "params.categories.values",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V11, id: "paramsparams_values" },
+	},
+	{
+		pinned: true,
+		icon: "count",
+		page: TwitchatDataTypes.ParameterPages.COUNTERS,
+		labelKey: "params.categories.counters",
+	},
+	{
+		pinned: false,
+		icon: "tts",
+		page: TwitchatDataTypes.ParameterPages.TTS,
+		labelKey: "params.categories.tts",
+	},
+	{
+		pinned: false,
+		icon: "emergency",
+		page: TwitchatDataTypes.ParameterPages.EMERGENCY,
+		labelKey: "params.categories.emergency",
+	},
+	{
+		pinned: false,
+		icon: "mod",
+		page: TwitchatDataTypes.ParameterPages.AUTOMOD,
+		labelKey: "params.categories.automod",
+	},
+	{
+		pinned: false,
+		icon: "voice",
+		page: TwitchatDataTypes.ParameterPages.VOICE,
+		labelKey: "params.categories.voice",
+	},
+	{
+		pinned: true,
+		icon: "user",
+		page: TwitchatDataTypes.ParameterPages.ACCOUNT,
+		labelKey: "params.categories.account",
+	},
+	{
+		pinned: false,
+		icon: "info",
+		page: TwitchatDataTypes.ParameterPages.ABOUT,
+		labelKey: "params.categories.about",
+		newflag: { date: 1693519200000, id: "params_about" },
+	},
+	{
+		pinned: false,
+		icon: "timer",
+		page: TwitchatDataTypes.ParameterPages.TIMERS,
+		labelKey: "params.categories.timers",
+		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_timers" },
+	},
+];
+
+const isDonor = computed(() => storeAuth.donorLevel > -1 || storeAuth.isPremium);
+
+/**
+ * If true, will display a search field at the top of the view to
+ * search params by their labels
+ */
+const isGenericListContent = computed(
+	() => content.value == "features" || content.value == "appearance" || search.value.length > 0,
+);
+
+const appVersion = computed(() => import.meta.env.PACKAGE_VERSION);
+
+const content = computed((): TwitchatDataTypes.ParameterPagesStringType => storeParams.currentPage);
+
+const search = computed((): string => storeParams.currentParamSearch);
+
+const classes = computed(() => {
+	let res = ["parameters", "sidePanel"];
+	if (content.value != "main" || search.value) res.push("hasContent");
+	return res;
+});
+
+onBeforeMount(async () => {
+	showCTA.value = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
+
+	if (storeAuth.features.includes("export_configs")) {
+		menuEntries.push({
+			pinned: true,
+			icon: "save",
+			page: TwitchatDataTypes.ParameterPages.EXPORTER,
+			labelKey: "params.categories.exporter",
+		});
+	}
+
+	const sectionsJSON = DataStore.get(DataStore.PARAMS_SECTIONS);
+	if (sectionsJSON) {
+		const sections = JSON.parse(sectionsJSON);
+		if (!Array.isArray(sections)) return;
+		//Sort entries and set pinned states
+		for (let i = 0; i < sections.length; i++) {
+			const item = sections[i];
+			const entry = menuEntries.find((v) => v.page == item.id);
+			if (!entry) continue;
+			entry.pinned = item.pinned;
+			if (entry.pinned) {
+				pinnedMenuEntries.value.push(entry);
+			} else {
+				unpinnedMenuEntries.value.push(entry);
+			}
+		}
+	}
+
+	//Check if any entry from the "menuEntries" is missing from the final
+	//list. Add them to the beginning if so.
+	for (const item of menuEntries) {
+		if (pinnedMenuEntries.value.findIndex((v) => v.page == item.page) > -1) continue;
+		if (unpinnedMenuEntries.value.findIndex((v) => v.page == item.page) > -1) continue;
+		//Missing item, add it to the top
+		if (item.pinned) {
+			pinnedMenuEntries.value.unshift(item);
+		} else {
+			unpinnedMenuEntries.value.unshift(item);
+			newFlagMoreParams.value = item.newflag ?? null;
+		}
+	}
+});
+
+onMounted(async () => {
+	if (content.value != TwitchatDataTypes.ParameterPages.CLOSE) {
+		open();
+	}
+
+	watch(
+		() => storeParams.currentPage,
+		(
+			value: TwitchatDataTypes.ParameterPagesStringType,
+			oldValue: TwitchatDataTypes.ParameterPagesStringType,
+		) => {
+			if (value === history[history.length - 1]) history.pop();
+			if (
+				value != TwitchatDataTypes.ParameterPages.CLOSE &&
+				value != TwitchatDataTypes.ParameterPages.MAIN_MENU
+			) {
+				history.push(value);
+			}
+
+			if (value == TwitchatDataTypes.ParameterPages.CLOSE) close();
+			else open();
+
+			if (value != TwitchatDataTypes.ParameterPages.MAIN_MENU) filteredParams.value = [];
+		},
+	);
+
+	watch(
+		() => storeParams.currentParamSearch,
+		(value: string) => {
+			if (value) openPage(ParameterPages.MAIN_MENU);
+			filterParams(value);
+		},
+	);
+
+	keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
+	keyDownCaptureHandler = (e: KeyboardEvent) => onKeyDown(e, true);
+	document.addEventListener("keydown", keyDownHandler);
+	document.addEventListener("keydown", keyDownCaptureHandler, { capture: true });
+
+	showNewFlagOnPin.value = rootEl.value!.querySelectorAll(".menuItem.newFlag").length > 0;
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("keydown", keyDownHandler);
+	document.removeEventListener("keydown", keyDownCaptureHandler, { capture: true });
+});
+
+async function open(): Promise<void> {
+	if (!closed.value) return;
+	history = [];
+	await nextTick();
+
+	const el = rootEl.value!;
+	gsap.killTweensOf(el);
+	gsap.from(el, {
+		duration: 0.1,
+		translateX: "115%",
+		delay: 0.2,
+		ease: "sine.out",
+		onComplete: () => {
+			//Give focus to search field only after transition complete otherwise the browser
+			//will bring it into view before which causes glitches on opening animation
+			searchField.value?.focus();
+		},
+	});
+	gsap.fromTo(
+		el,
+		{ scaleX: 1.1 },
+		{
+			duration: 0.5,
+			delay: 0.3,
+			scaleX: 1,
+			clearProps: "scaleX,translateX",
+			ease: "elastic.out(1)",
+		},
+	);
+
+	closed.value = false;
+
+	if (search.value) {
+		await nextTick();
+		openPage(ParameterPages.MAIN_MENU);
+		filterParams(search.value);
+	}
+}
+
+async function close(): Promise<void> {
+	if (closing || closed.value) return;
+	closing = true;
+	const el = rootEl.value!;
+	gsap.killTweensOf(el);
+	gsap.to(el, { duration: 0.1, scaleX: 1.1, ease: "sin.in" });
+	gsap.to(el, {
+		duration: 0.1,
+		translateX: "100%",
+		scaleX: 1,
+		delay: 0.1,
+		clearProps: "all",
+		ease: "sin.out",
+		onComplete: () => {
+			closing = false;
+			closed.value = true;
+			filteredParams.value = [];
+			storeParams.closeParameters();
+		},
+	});
+}
+
+function back(): void {
+	const contentRef = currentContent.value;
+	storeParams.currentParamSearch = "";
+
+	//Check if current content wants to override the navigation
+	if (contentRef && contentRef.onNavigateBack && contentRef.onNavigateBack() === true) return;
+
+	history.pop(); //Remove current page from history
+	openPage(history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
+}
+
+/**
+ * Called when searching for a parameter
+ * @param search
+ */
+async function filterParams(searchStr: string): Promise<void> {
+	filteredParams.value = [];
+	const safeSearch = searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	const IDsDone: { [key: number]: boolean } = {};
+	for (const categoryID in storeParams.$state) {
+		const category = storeParams.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {
+			[key: string]: TwitchatDataTypes.ParameterData<unknown>;
+		};
+		for (const prop in category) {
+			const data: TwitchatDataTypes.ParameterData<unknown> = category[prop]!;
+
+			//Already done (via its parent probably), ignore it
+			if (IDsDone[data.id as number] === true) continue;
+
+			let label = data.label;
+			let labelKey = data.labelKey;
+			if (labelKey) label = t(labelKey);
+
+			if (label && new RegExp(safeSearch, "gi").test(label)) {
+				if (data.parent) {
+					for (const key in category) {
+						const prop = category[key]!;
+						if (prop.id == data.parent && IDsDone[prop.id as number] !== true) {
+							IDsDone[prop.id as number] = true;
+							filteredParams.value.push(prop);
+						}
+					}
+				} else {
+					IDsDone[data.id as number] = true;
+					filteredParams.value.push(data);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Opens up a parameter section
+ */
+function openPage(
+	page: TwitchatDataTypes.ParameterPagesStringType,
+	blockIfEditing: boolean = false,
+): void {
+	// if(blockIfEditing && this.editPins) return;
+
+	const contentRef = currentContent.value;
+	//Check if current content wants to override the navigation
+	if (contentRef && contentRef.reload) contentRef.reload();
+
+	storeParams.openParamsPage(page);
+}
+
+/**
+ * Called when menu items are sorted
+ */
+function onEditMenu(): void {
+	const sections: RawMenuEntry[] = pinnedMenuEntries.value
+		.map((v) => {
+			return { id: v.page, pinned: true };
+		})
+		.concat(
+			unpinnedMenuEntries.value.map((v) => {
+				return { id: v.page, pinned: false };
+			}),
+		);
+	DataStore.set(DataStore.PARAMS_SECTIONS, sections);
+}
+
+/**
+ * Closes the window on escape if the focus isn't on an input.
+ * The "keydownCaptureTarget" is here to store the currently focused
+ * element with "capture" flag so it's called before the browser
+ * natively removes focus from the field.
+ *
+ * This avoids a tricky situation when user is writing on a field
+ * and presses escape key. If we were listening to the keydown event
+ * without the capture flag, the browser would first remove the focus
+ * from the field, then call this function and the "activeElement"
+ * wouldn't be the field anymore.
+ * To avoid that, we listen to the keyDown event with capture flag
+ * so it's called before the field loses focus.
+ * BUT, if we were only doing this, a child component wouldn't be
+ * able to stop the escape key propagation (ex: the heat screen editor)
+ * so the window wouldn't close if other things than just input
+ * elements had focus.
+ * The heat editor allows to drag areas and unselect them with the
+ * escape key. This cannot generically be handle here, the event
+ * needs to be stoped from the editor itself.
+ *
+ * This is why we only register the focused element on capture and
+ * use it on a non-capture event. This fixes both above situations.
+ *
+ * @param e
+ * @param isCapture
+ */
+function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
+	if (closed.value) return;
+	if (isCapture) {
+		keydownCaptureTarget = document.activeElement;
+		return;
+	}
+	const node = keydownCaptureTarget ?? document.activeElement?.nodeName;
+	const isContentEditable = document.activeElement?.getAttribute("contenteditable");
+	if (
+		e.key?.toLowerCase() == "escape" &&
+		node != "INPUT" &&
+		node != "TEXTAREA" &&
+		!isContentEditable
+	) {
+		close();
+	}
+}
 </script>
 
 <style scoped lang="less">

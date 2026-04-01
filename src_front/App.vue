@@ -25,207 +25,197 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { gsap } from "gsap/gsap-core";
-import { watch, type VNode } from "vue";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { ref, computed, watch, onMounted, onBeforeUnmount, useTemplateRef } from "vue";
+import { useRoute } from "vue-router";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import Config from "./utils/Config";
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 
-@Component({
-	components: {
-		Alert,
-		Confirm,
-	},
-})
-class App extends Vue {
-	public node!: VNode;
-	public cursorImage: "pointer" | "arrow" = "arrow";
-	public mousePos = { x: 0, y: 0 };
-	public cursorOffset = { x: 0, y: 0 };
-	public cursorProps = { left: "0px", top: "0px" };
-	public clickIndicatorProps = { left: "0px", top: "0px" };
+const route = useRoute();
+const storeMain = useStoreMain();
+const storeParams = useStoreParams();
 
-	public get demoMode() {
-		return Config.instance.DEMO_MODE && this.$route.name != "overlay";
+const clickIndicator = useTemplateRef<HTMLElement>("clickIndicator");
+
+const cursorImage = ref<"pointer" | "arrow">("arrow");
+const mousePos = { x: 0, y: 0 };
+const cursorOffset = { x: 0, y: 0 };
+const cursorProps = ref({ left: "0px", top: "0px" });
+const clickIndicatorProps = ref({ left: "0px", top: "0px" });
+
+let requestAnimID = -1;
+let resizeHandler: () => void;
+let dragStartHandler: (e: MouseEvent) => boolean;
+let mouseDownHandler: (e: MouseEvent) => boolean;
+let mouseMoveHandler: (e: MouseEvent) => boolean;
+let keyDownHandler: (e: KeyboardEvent) => void;
+
+const demoMode = computed(() => Config.instance.DEMO_MODE && route.name != "overlay");
+const dyslexicFont = computed(() => storeParams.appearance.dyslexicFont.value as boolean);
+const adhdFont = computed(() => storeParams.appearance.adhdFont.value as boolean);
+
+const classes = computed(() => {
+	let res = ["app"];
+	if (dyslexicFont.value === true) res.push("dyslexicFont");
+	if (adhdFont.value === true) res.push("adhdFont");
+	if (route.meta.overflow === true) res.push("overflow");
+	if (demoMode.value === true) res.push("demoMode");
+	res.push("messageSize_" + storeParams.appearance.defaultSize.value);
+	return res;
+});
+
+onMounted(() => {
+	resizeHandler = () => onWindowResize();
+	window.addEventListener("resize", resizeHandler);
+	onWindowResize();
+	hideMainLoader();
+});
+
+onBeforeUnmount(() => {
+	cancelAnimationFrame(requestAnimID);
+	window.removeEventListener("resize", resizeHandler);
+	if (demoMode.value) {
+		window.removeEventListener("mousedown", mouseDownHandler);
+		window.removeEventListener("mousemove", mouseMoveHandler, true);
+		window.removeEventListener("dragover", mouseMoveHandler);
+		window.removeEventListener("dragstart", dragStartHandler);
+		window.removeEventListener("keydown", keyDownHandler);
 	}
+});
 
-	private requestAnimID = -1;
-	private resizeHandler!: () => void;
-	private dragStartHandler!: (e: MouseEvent) => boolean;
-	private mouseDownHandler!: (e: MouseEvent) => boolean;
-	private mouseMoveHandler!: (e: MouseEvent) => boolean;
-	private keyDownHandler!: (e: KeyboardEvent) => void;
+function onWindowResize(): void {
+	//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
+	//Here we calculate the actual page height and set it as a CSS var.
+	(document.querySelector(":root") as HTMLHtmlElement).style.setProperty(
+		"--vh",
+		window.innerHeight + "px",
+	);
+}
 
-	public get dyslexicFont(): boolean {
-		return this.$store.params.appearance.dyslexicFont.value as boolean;
+function onKeyDown(e: KeyboardEvent): void {
+	//Debuging stuff
+	/*
+	if(e.key == "a" && e.ctrlKey && e.altKey) {
+		EventSub.instance.simulateFollowbotRaid();
+		// for (let i = 0; i < 30; i++) {
+		// 	Utils.promisedTimeout(i*100).then(()=>{
+		// 		if(Math.random() >= .5) {
+		// 			MessengerProxy.instance.sendMessage("/fake !q {LOREM}")
+		// 		}else{
+		// 			MessengerProxy.instance.sendMessage("/fake !howto {LOREM}")
+		// 		}
+		// 	})
+		// }
 	}
-	public get adhdFont(): boolean {
-		return this.$store.params.appearance.adhdFont.value as boolean;
+	if(e.key == "q" && e.ctrlKey && e.altKey) {
+		MessengerProxy.instance.stopSpam();
 	}
+	//*/
+}
 
-	public get classes(): string[] {
-		let res = ["app"];
-		if (this.dyslexicFont === true) res.push("dyslexicFont");
-		if (this.adhdFont === true) res.push("adhdFont");
-		if (this.$route.meta.overflow === true) res.push("overflow");
-		if (this.demoMode === true) res.push("demoMode");
-		res.push("messageSize_" + this.$store.params.appearance.defaultSize.value);
-		return res;
-	}
+function onMouseDown(e: MouseEvent): boolean {
+	if (!demoMode.value) return false;
+	gsap.fromTo(clickIndicator.value!, { scale: 0, opacity: 1 }, { scale: 1, opacity: 0 });
+	clickIndicatorProps.value.left = mousePos.x + "px";
+	clickIndicatorProps.value.top = mousePos.y - 2 + "px";
+	return true;
+}
 
-	public mounted(): void {
-		this.resizeHandler = () => this.onWindowResize();
-		window.addEventListener("resize", this.resizeHandler);
-		this.onWindowResize();
-		watch(
-			() => this.$store.main.initComplete,
-			() => this.hideMainLoader(),
-		);
-		this.hideMainLoader();
+function onDragStart(e: MouseEvent): boolean {
+	//Avoid showing cursor on drag when using demo mode
+	return false;
+}
 
-		watch(
-			() => Config.instance.DEMO_MODE,
-			() => {
-				if (this.demoMode) {
-					document.body.classList.add("demoMode");
-					this.renderFrame();
-					this.mouseMoveHandler = (e) => this.onMouseMove(e);
-					this.dragStartHandler = (e) => this.onDragStart(e);
-					this.mouseDownHandler = (e) => this.onMouseDown(e);
-					this.keyDownHandler = (e) => this.onKeyDown(e);
-					window.addEventListener("mousedown", this.mouseDownHandler);
-					window.addEventListener("mousemove", this.mouseMoveHandler, true);
-					window.addEventListener("dragover", this.mouseMoveHandler);
-					window.addEventListener("dragstart", this.dragStartHandler);
-					window.addEventListener("keydown", this.keyDownHandler);
-				} else {
-					document.body.classList.remove("demoMode");
-					cancelAnimationFrame(this.requestAnimID);
-					window.removeEventListener("mousedown", this.mouseDownHandler);
-					window.removeEventListener("mousemove", this.mouseMoveHandler, true);
-					window.removeEventListener("dragover", this.mouseMoveHandler);
-					window.removeEventListener("dragstart", this.dragStartHandler);
-					window.removeEventListener("keydown", this.keyDownHandler);
-				}
-			},
-		);
-	}
+function onMouseMove(e: DragEvent | MouseEvent): boolean {
+	if (!demoMode.value) return false;
+	mousePos.x = e.clientX;
+	mousePos.y = e.clientY;
+	let target: HTMLElement | null = e.target as HTMLElement;
+	let isButton = false;
 
-	public beforeUnmount(): void {
-		cancelAnimationFrame(this.requestAnimID);
-		window.removeEventListener("resize", this.resizeHandler);
-		if (this.demoMode) {
-			window.removeEventListener("mousedown", this.mouseDownHandler);
-			window.removeEventListener("mousemove", this.mouseMoveHandler, true);
-			window.removeEventListener("dragover", this.mouseMoveHandler);
-			window.removeEventListener("dragstart", this.dragStartHandler);
-			window.removeEventListener("keydown", this.keyDownHandler);
+	// console.log(target);
+	while (target) {
+		// console.log(target.style);
+		// console.log(target.computedStyleMap().get("cursor"));
+		if (
+			target.tagName == "BUTTON" ||
+			target.tagName == "A" ||
+			target.classList.contains("checkbox") ||
+			target.classList.contains("buttonnotification") ||
+			target.classList.contains("switchbutton") ||
+			target.classList.contains("ToggleButton.vue") ||
+			target.classList.contains("button") ||
+			target.classList.contains("toggle") ||
+			(target.classList.contains("header") &&
+				(target.parentElement as HTMLElement).classList.contains("toggleblock")) ||
+			target.classList.contains("timercountdowninfo") ||
+			target.classList.contains("mx-context-menu-item-wrapper") ||
+			(typeof target.className === "string" && target.className.indexOf("Bt") > -1)
+		) {
+			isButton = true;
+			break;
 		}
+		target = target.parentElement as HTMLElement;
+		if (target === document.body) target = null;
 	}
 
-	private onWindowResize(): void {
-		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
-		//Here we calculate the actual page height and set it as a CSS var.
-		(document.querySelector(":root") as HTMLHtmlElement).style.setProperty(
-			"--vh",
-			window.innerHeight + "px",
-		);
+	if (isButton) {
+		cursorOffset.x = -20;
+		cursorImage.value = "pointer";
+	} else {
+		cursorOffset.x = 0;
+		cursorImage.value = "arrow";
 	}
+	return false;
+}
 
-	private onKeyDown(e: KeyboardEvent): void {
-		//Debuging stuff
-		/*
-		if(e.key == "a" && e.ctrlKey && e.altKey) {
-			EventSub.instance.simulateFollowbotRaid();
-			// for (let i = 0; i < 30; i++) {
-			// 	Utils.promisedTimeout(i*100).then(()=>{
-			// 		if(Math.random() >= .5) {
-			// 			MessengerProxy.instance.sendMessage("/fake !q {LOREM}")
-			// 		}else{
-			// 			MessengerProxy.instance.sendMessage("/fake !howto {LOREM}")
-			// 		}
-			// 	})
-			// }
-		}
-		if(e.key == "q" && e.ctrlKey && e.altKey) {
-			MessengerProxy.instance.stopSpam();
-		}
-		//*/
-	}
-
-	private onMouseDown(e: MouseEvent): boolean {
-		if (!this.demoMode) return false;
-		const indicator = this.$refs.clickIndicator as HTMLElement;
-		gsap.fromTo(indicator, { scale: 0, opacity: 1 }, { scale: 1, opacity: 0 });
-		this.clickIndicatorProps.left = this.mousePos.x + "px";
-		this.clickIndicatorProps.top = this.mousePos.y - 2 + "px";
-		return true;
-	}
-
-	private onDragStart(e: MouseEvent): boolean {
-		//Avoid showing cursor on drag when using demo mode
-		return false;
-	}
-
-	private onMouseMove(e: DragEvent | MouseEvent): boolean {
-		if (!this.demoMode) return false;
-		this.mousePos.x = e.clientX;
-		this.mousePos.y = e.clientY;
-		let target: HTMLElement | null = e.target as HTMLElement;
-		let isButton = false;
-
-		// console.log(target);
-		while (target) {
-			// console.log(target.style);
-			// console.log(target.computedStyleMap().get("cursor"));
-			if (
-				target.tagName == "BUTTON" ||
-				target.tagName == "A" ||
-				target.classList.contains("checkbox") ||
-				target.classList.contains("buttonnotification") ||
-				target.classList.contains("switchbutton") ||
-				target.classList.contains("ToggleButton.vue") ||
-				target.classList.contains("button") ||
-				target.classList.contains("toggle") ||
-				(target.classList.contains("header") &&
-					(target.parentElement as HTMLElement).classList.contains("toggleblock")) ||
-				target.classList.contains("timercountdowninfo") ||
-				target.classList.contains("mx-context-menu-item-wrapper") ||
-				(typeof target.className === "string" && target.className.indexOf("Bt") > -1)
-			) {
-				isButton = true;
-				break;
-			}
-			target = target.parentElement as HTMLElement;
-			if (target === document.body) target = null;
-		}
-
-		if (isButton) {
-			this.cursorOffset.x = -20;
-			this.cursorImage = "pointer";
-		} else {
-			this.cursorOffset.x = 0;
-			this.cursorImage = "arrow";
-		}
-		return false;
-	}
-
-	private hideMainLoader(): void {
-		if (this.$store.main.initComplete === true) {
-			//@ts-ignore
-			closeInitLoader(); //Method declared on index.html
-		}
-	}
-
-	private renderFrame(): void {
-		this.requestAnimID = requestAnimationFrame(() => this.renderFrame());
-		this.cursorProps.left = this.mousePos.x + this.cursorOffset.x + "px";
-		this.cursorProps.top = this.mousePos.y - 2 + "px";
+function hideMainLoader(): void {
+	if (storeMain.initComplete === true) {
+		//@ts-ignore
+		closeInitLoader(); //Method declared on index.html
 	}
 }
-export default toNative(App);
+
+function renderFrame(): void {
+	requestAnimID = requestAnimationFrame(() => renderFrame());
+	cursorProps.value.left = mousePos.x + cursorOffset.x + "px";
+	cursorProps.value.top = mousePos.y - 2 + "px";
+}
+
+watch(
+	() => storeMain.initComplete,
+	() => hideMainLoader(),
+);
+watch(
+	() => Config.instance.DEMO_MODE,
+	() => {
+		if (demoMode.value) {
+			document.body.classList.add("demoMode");
+			renderFrame();
+			mouseMoveHandler = (e) => onMouseMove(e);
+			dragStartHandler = (e) => onDragStart(e);
+			mouseDownHandler = (e) => onMouseDown(e);
+			keyDownHandler = (e) => onKeyDown(e);
+			window.addEventListener("mousedown", mouseDownHandler);
+			window.addEventListener("mousemove", mouseMoveHandler, true);
+			window.addEventListener("dragover", mouseMoveHandler);
+			window.addEventListener("dragstart", dragStartHandler);
+			window.addEventListener("keydown", keyDownHandler);
+		} else {
+			document.body.classList.remove("demoMode");
+			cancelAnimationFrame(requestAnimID);
+			window.removeEventListener("mousedown", mouseDownHandler);
+			window.removeEventListener("mousemove", mouseMoveHandler, true);
+			window.removeEventListener("dragover", mouseMoveHandler);
+			window.removeEventListener("dragstart", dragStartHandler);
+			window.removeEventListener("keydown", keyDownHandler);
+		}
+	},
+);
 </script>
 
 <style scoped lang="less">

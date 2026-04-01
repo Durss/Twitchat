@@ -138,7 +138,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import { Component, toNative, Vue } from "vue-facing-decorator";
 import type IParameterContent from "../IParameterContent";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 import Utils from "@/utils/Utils";
 
 @Component({
