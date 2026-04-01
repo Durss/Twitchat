@@ -351,7 +351,7 @@ import ChannelNotifications from "@/components/channelnotifications/ChannelNotif
 import ChatSuggestionForm from "@/components/chatSugg/ChatSuggestionForm.vue";
 import ChatSuggestionState from "@/components/chatSugg/ChatSuggestionState.vue";
 import BingoGridControls from "@/components/chatform/BingoGridControls.vue";
-import ChatForm, { ChatForm as ChatFormClass } from "@/components/chatform/ChatForm.vue";
+import ChatForm from "@/components/chatform/ChatForm.vue";
 import CommandHelper from "@/components/chatform/CommandHelper.vue";
 import DevmodeMenu from "@/components/chatform/DevmodeMenu.vue";
 import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
@@ -1040,7 +1040,8 @@ class Chat extends Vue {
 	 * Called when selecting an emote from the emote selectors
 	 */
 	public onSelectEmote(item: TwitchatDataTypes.Emote): void {
-		(this.$refs.chatForm as ChatFormClass).onSelectItem(item.code);
+		//TODO drop "any" once this file is migrated to composition API and we can use proper typing for refs
+		(this.$refs.chatForm as any).onSelectItem(item.code);
 	}
 
 	/**

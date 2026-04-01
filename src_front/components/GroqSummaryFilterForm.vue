@@ -87,7 +87,7 @@
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
 import TTButton from "./TTButton.vue";
-import { ParamItem } from "./params/ParamItem.vue";
+import ParamItem from "./params/ParamItem.vue";
 import SwitchButton from "./SwitchButton.vue";
 import ClearButton from "./ClearButton.vue";
 import ToggleBlock from "./ToggleBlock.vue";

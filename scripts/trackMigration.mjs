@@ -236,7 +236,7 @@ for (const r of classFiles) {
 if (Object.keys(decoratorCounts).length > 0) {
 	console.log("  Decorator usage in class components:");
 	for (const [dec, count] of Object.entries(decoratorCounts).sort((a, b) => b[1] - a[1])) {
-		console.log(`    ${dec.padEnd(10)} ${count} file(s)`);
+		console.log(`    ${dec.padEnd(10)} ${count.toString()} file(s)`);
 	}
 	console.log("");
 }
