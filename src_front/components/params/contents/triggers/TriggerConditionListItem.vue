@@ -23,7 +23,7 @@
 			class="operator"
 			noBackground
 			:paramData="param_operator"
-			v-model="condition.operator"
+			v-model="condition.operator as string"
 			:key="'op_' + condition.id"
 		/>
 

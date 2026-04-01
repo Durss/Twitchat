@@ -246,6 +246,7 @@ import {
 	nextTick,
 	type ComponentPublicInstance,
 	useTemplateRef,
+	onMounted,
 } from "vue";
 import { useI18n } from "vue-i18n";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
@@ -705,6 +706,14 @@ onBeforeMount(() => {
 	document.addEventListener("keydown", keyDownHandler, true);
 
 	renderFrame();
+});
+
+onMounted(() => {
+	const scrollableHolder = document.getElementById(
+		"paramContentScrollableHolder",
+	) as HTMLDivElement;
+	if (!scrollableHolder) return;
+	scrollableHolder.scrollTop = 0;
 });
 
 onBeforeUnmount(() => {

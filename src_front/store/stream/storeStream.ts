@@ -37,12 +37,12 @@ let ignoreHypeTrainCooldown = true;
 export const storeStream = defineStore("stream", {
 	state: () =>
 		({
-			hypeTrain: undefined,
-			currentRaid: undefined,
-			communityBoostState: undefined,
+			hypeTrain: undefined as IStreamState["hypeTrain"],
+			currentRaid: undefined as IStreamState["currentRaid"],
+			communityBoostState: undefined as IStreamState["communityBoostState"],
 			streamInfoPreset: [] as IStreamState["streamInfoPreset"],
-			lastRaider: undefined,
-			shieldModeEnabled: false,
+			lastRaider: undefined as IStreamState["lastRaider"],
+			shieldModeEnabled: false as IStreamState["shieldModeEnabled"],
 			commercial: {} as IStreamState["commercial"], //channelId => commercial infos
 			roomSettings: {} as IStreamState["roomSettings"], //channelId => settings
 			currentStreamInfo: {} as IStreamState["currentStreamInfo"], //channelId => infos
@@ -52,7 +52,7 @@ export const storeStream = defineStore("stream", {
 				id: "",
 				name: "",
 				platform: "twitch",
-			},
+			} as IStreamState["currentChatChannel"],
 			autoconnectChans: [] as IStreamState["autoconnectChans"],
 			currentVODUrl: "",
 		}) satisfies IStreamState,

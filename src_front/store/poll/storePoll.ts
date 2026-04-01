@@ -27,7 +27,7 @@ export const storePoll = defineStore("poll", {
 				placement: "bl",
 				resultDuration_s: 5,
 				showOnlyResult: false,
-			},
+			} as IPollState["overlayParams"],
 		}) satisfies IPollState,
 
 	getters: {} satisfies IPollGetters &

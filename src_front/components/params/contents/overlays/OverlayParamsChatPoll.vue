@@ -163,7 +163,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import { Component, Vue, toNative } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 import CSSPollsVarStyles from "./CSSPollsVarStyles.vue";
 
