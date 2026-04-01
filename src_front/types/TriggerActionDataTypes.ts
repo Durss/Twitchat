@@ -6728,7 +6728,11 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 				isUserID: false,
 				globalTag: true,
 				storage: t.id,
-			} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, string, "__timer__">);
+				values: [
+					{ labelKey: "global.yes", value: true },
+					{ labelKey: "global.no", value: false },
+				],
+			} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, boolean, "__timer__">);
 			if (t.type == "timer") {
 				timersPlaceholders.push({
 					category: "timer",

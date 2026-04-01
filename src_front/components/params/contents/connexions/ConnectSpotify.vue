@@ -91,7 +91,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { Component, Vue, toNative } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 
 @Component({
 	components: {

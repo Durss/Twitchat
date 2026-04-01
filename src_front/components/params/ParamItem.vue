@@ -1,9 +1,10 @@
 <template>
 	<div
+		ref="rootEl"
 		:class="classes"
 		:data-type="paramData.type"
-		@mouseenter="$emit('mouseenter', $event, paramData)"
-		@mouseleave="$emit('mouseleave', $event, paramData)"
+		@mouseenter="emit('mouseenter', $event, paramData)"
+		@mouseleave="emit('mouseleave', $event, paramData)"
 		@click="clickItem($event)"
 	>
 		<div class="content">
@@ -32,7 +33,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -47,7 +48,7 @@
 				<ToggleButton
 					v-if="!paramData.noInput"
 					class="ToggleButton.vue"
-					v-model="paramData.value"
+					v-model="paramData.value as boolean"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
@@ -68,7 +69,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -103,12 +104,12 @@
 					:max="paramData.max"
 					:step="paramData.step"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-					@focus="$emit('focus')"
+					@focus="emit('focus')"
 					@blur="
 						clampValue();
-						$emit('blur');
+						emit('blur');
 					"
-					@input="$emit('input')"
+					@input="emit('input')"
 				/>
 				<slot name="composite" />
 			</div>
@@ -130,7 +131,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -141,7 +142,7 @@
 						v-if="paramData.isPrivate"
 						name="spoiler"
 						class="privateIcon"
-						v-tooltip="$t('global.private_field')"
+						v-tooltip="t('global.private_field')"
 					/>
 					<textarea
 						ref="input"
@@ -157,9 +158,9 @@
 						:disabled="
 							premiumLocked || disabled !== false || paramData.disabled === true
 						"
-						@focus="$emit('focus')"
-						@blur="$emit('blur')"
-						@input="$emit('input')"
+						@focus="emit('focus')"
+						@blur="emit('blur')"
+						@input="emit('input')"
 					></textarea>
 
 					<input
@@ -178,12 +179,12 @@
 							premiumLocked || disabled !== false || paramData.disabled === true
 						"
 						:autocomplete="paramData.type == 'password' ? 'off' : 'new-password'"
-						@focus="$emit('focus')"
+						@focus="emit('focus')"
 						@blur="
 							clampValue();
-							$emit('blur');
+							emit('blur');
 						"
-						@input="$emit('input')"
+						@input="emit('input')"
 					/>
 
 					<div class="maxlength" v-if="showMaxLength">
@@ -201,7 +202,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -211,7 +212,7 @@
 					ref="input"
 					v-if="!paramData.noInput"
 					:id="'duration' + key"
-					v-model="paramData.value"
+					v-model="paramData.value as number"
 					:allowMs="paramData.allowMs"
 					:autofocus="autofocus"
 					:tabindex="tabindex"
@@ -219,7 +220,7 @@
 					:max="paramData.max"
 					:min="paramData.min"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-					@change="$emit('input')"
+					@change="emit('input')"
 				/>
 				<slot name="composite" />
 			</div>
@@ -232,7 +233,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -267,7 +268,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -277,7 +278,7 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
-					v-model="paramData.value"
+					v-model="paramData.value as number"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
@@ -294,7 +295,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -312,7 +313,7 @@
 							:is="a.group ? 'optgroup' : 'option'"
 							:disabled="a.disabled === true"
 							:value="a.group ? null : a.value"
-							:label="a.label != undefined ? a.label : $t(a.labelKey!)"
+							:label="a.label != undefined ? a.label : t(a.labelKey!)"
 						>
 							<option
 								v-for="b in a.group!"
@@ -320,7 +321,7 @@
 								:disabled="b.disabled === true"
 							>
 								<CountryFlag v-if="a.flag" :country="a.flag" size="small" />
-								{{ b.label != undefined ? b.label : $t(b.labelKey!) }}
+								{{ b.label != undefined ? b.label : t(b.labelKey!) }}
 							</option>
 						</component>
 					</template>
@@ -336,7 +337,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -349,7 +350,7 @@
 					:id="'editablelist' + key"
 					:placeholder="placeholder"
 					v-model="paramData.value"
-					:calculate-position="$placeDropdown"
+					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
 					appendToBody
 					:options="paramData.listValues"
@@ -361,8 +362,8 @@
 					:reduce="(v: TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
 				>
 					<template #no-options="{ search, searching, loading }">
-						<div>{{ $t("global.empty_list1") }}</div>
-						<div>{{ $t("global.empty_list2") }}</div>
+						<div>{{ t("global.empty_list1") }}</div>
+						<div>{{ t("global.empty_list2") }}</div>
 					</template>
 
 					<template
@@ -390,7 +391,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -404,7 +405,7 @@
 					:placeholder="placeholder"
 					v-model="paramData.value"
 					:reduce="(v: TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
-					:calculate-position="$placeDropdown"
+					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
 					appendToBody
 					:submitSearchOnBlur="true"
@@ -416,7 +417,7 @@
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
 						<img class="image" v-else-if="option.image" :src="option.image" />
 						<div class="image" v-else>
-							{{ option.label != undefined ? option.label : $t(option.labelKey!) }}
+							{{ option.label != undefined ? option.label : t(option.labelKey!) }}
 						</div>
 					</template>
 
@@ -426,7 +427,7 @@
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
 						<img class="image" v-else-if="option.image" :src="option.image" />
 						<div class="image" v-else>
-							{{ option.label != undefined ? option.label : $t(option.labelKey!) }}
+							{{ option.label != undefined ? option.label : t(option.labelKey!) }}
 						</div>
 					</template>
 				</vue-select>
@@ -444,7 +445,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -459,7 +460,7 @@
 						:id="'editablelist' + key"
 						:placeholder="placeholder"
 						v-model="paramData.value"
-						:calculate-position="$placeDropdown"
+						:calculate-position="placeDropdown"
 						appendToBody
 						taggable
 						v-if="
@@ -473,8 +474,8 @@
 						:options="paramData.options"
 					>
 						<template #no-options="{ search, searching, loading }">
-							<div>{{ $t("global.empty_list1") }}</div>
-							<div>{{ $t("global.empty_list2") }}</div>
+							<div>{{ t("global.empty_list1") }}</div>
+							<div>{{ t("global.empty_list2") }}</div>
 						</template>
 					</vue-select>
 				</div>
@@ -489,7 +490,7 @@
 					v-if="paramData.example"
 					v-tooltip="{
 						content:
-							'<img src=' + $asset('img/param_examples/' + paramData.example) + '>',
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
 						maxWidth: 'none',
 					}"
 				/>
@@ -511,7 +512,7 @@
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 				/>
 				<TTButton
-					v-model:file="paramData.value"
+					v-model:file="paramData.value as string"
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
@@ -525,7 +526,10 @@
 			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field">
-					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
+					<PlaceholderField
+						v-model="paramData.value as string"
+						:maxLength="paramData.maxLength"
+					/>
 				</div>
 			</div>
 
@@ -559,7 +563,7 @@
 		<ParamItem
 			v-for="(c, index) in children"
 			class="child"
-			ref="param_child"
+			ref="paramChild"
 			:key="'child_' + index + c.id"
 			:paramData="c"
 			:secondary="secondary"
@@ -567,14 +571,14 @@
 			:alert="alert || errorLocal"
 			noBackground
 			noPremiumLock
-			v-model="c.value"
+			v-model="c.value as string | number | boolean | string[] | null | undefined"
 			:autoFade="autoFade"
 			:childLevel="childLevel + 1"
-			@change="$emit('change')"
+			@change="(prevVal, newVal) => emit('change', prevVal, newVal)"
 		/>
 
 		<transition @enter="onShowItem" @leave="onHideItem">
-			<div class="child" ref="param_child_slot" v-if="showChildren">
+			<div class="child" ref="paramChild_slot" v-if="showChildren">
 				<slot></slot>
 				<slot name="child"></slot>
 			</div>
@@ -585,7 +589,7 @@
 			icon="lock_fit"
 			v-if="askForSystemFontAccess"
 			@click="grantSystemFontRead()"
-			>{{ $t("overlay.credits.grant_fonts_access") }}</TTButton
+			>{{ t("overlay.credits.grant_fonts_access") }}</TTButton
 		>
 
 		<div
@@ -599,14 +603,24 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch, type ComponentPublicInstance } from "@vue/runtime-core";
+import {
+	ref,
+	computed,
+	watch,
+	onMounted,
+	nextTick,
+	useSlots,
+	type ComponentPublicInstance,
+	useTemplateRef,
+	onBeforeMount,
+} from "vue";
+import { useI18n } from "vue-i18n";
 import { gsap } from "gsap/gsap-core";
 import CountryFlag from "vue-country-flag-next";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import DurationForm from "../DurationForm.vue";
 import PremiumLockLayer from "../PremiumLockLayer.vue";
 import Slider from "../Slider.vue";
@@ -615,201 +629,87 @@ import ToggleButton from "../ToggleButton.vue";
 import PlaceholderSelector from "./PlaceholderSelector.vue";
 import Config from "@/utils/Config";
 import PlaceholderField from "../PlaceholderField.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
+import { asset } from "@/composables/useAsset";
 
-@Component({
-	name: "ParamItem", //This is needed so recursion works properly
-	components: {
-		TTButton,
-		Slider,
-		CountryFlag,
-		DurationForm,
-		ToggleButton,
-		PremiumLockLayer,
-		PlaceholderField,
-		PlaceholderSelector,
+defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
+
+const props = withDefaults(
+	defineProps<{
+		paramData: TwitchatDataTypes.ParameterData<any, any, any>;
+		error?: boolean;
+		errorMessage?: string;
+		disabled?: boolean;
+		autofocus?: boolean;
+		childLevel?: number;
+		modelValue?: string | boolean | number | string[] | null;
+		secondary?: boolean;
+		alert?: boolean;
+
+		premium?: boolean;
+		noPremiumLock?: boolean;
+		noBackground?: boolean;
+		autoFade?: boolean;
+		inverseChildrenCondition?: boolean;
+		tabindex?: number;
+		placeholdersAsPopout?: boolean;
+		forceChildDisplay?: boolean;
+	}>(),
+	{
+		errorMessage: "",
+		childLevel: 0,
+		tabindex: 0,
+		modelValue: null,
 	},
-	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input", "focus", "blur"],
-})
+);
 
-export class ParamItem extends Vue {
-	@Prop
-	public paramData!: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
+const emit = defineEmits<{
+	change: [prevValue: string | boolean | number | string[] | null, newValue: unknown];
+	"update:modelValue": [value: unknown];
+	mouseenter: [
+		event: MouseEvent,
+		paramData: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>,
+	];
+	mouseleave: [
+		event: MouseEvent,
+		paramData: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>,
+	];
+	input: [];
+	focus: [];
+	blur: [];
+}>();
 
-	@Prop({ type: Boolean, default: false })
-	public error!: boolean;
+const { t } = useI18n();
+const slots = useSlots();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const { place: placeDropdown } = usePlaceDropdown();
+const { getAsset } = asset();
 
-	@Prop({ type: String, default: "" })
-	public errorMessage!: string;
+const rootElRef = useTemplateRef("rootEl");
+const inputRef = useTemplateRef("input");
+const vueSelectRef = useTemplateRef("vueSelect");
+const paramChildrenRef = useTemplateRef<ComponentPublicInstance[]>("paramChild");
 
-	@Prop({ type: Boolean, default: false })
-	public disabled!: boolean;
+const key = Math.random().toString();
+const children = ref<TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[]>([]);
+const placeholderTarget = ref<HTMLTextAreaElement | HTMLInputElement | null>(null);
+const errorLocal = ref(false);
+const premiumOnlyLocal = ref(false);
+const autofocusLocal = ref(false);
+const askForSystemFontAccess = ref(false);
+const isMissingScope = ref(false);
 
-	@Prop({ type: Boolean, default: false })
-	public autofocus!: boolean;
+let isLocalUpdate = false;
+let childrenExpanded = false;
 
-	@Prop({ type: Number, default: 0 })
-	public childLevel!: number;
-
-	@Prop({ type: [String, Number, Boolean, Object, Array], default: null })
-	public modelValue!: string | boolean | number | string[];
-
-	@Prop({ type: Boolean, default: false })
-	public secondary!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public alert!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public premium!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public noPremiumLock!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public noBackground!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public autoFade!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public inverseChildrenCondition!: boolean;
-
-	@Prop({ type: Number, default: 0 })
-	public tabindex!: number;
-
-	@Prop({ type: Boolean, default: false })
-	public placeholdersAsPopout!: boolean;
-
-	@Prop({ type: Boolean, default: false })
-	public forceChildDisplay!: boolean;
-
-	public key: string = Math.random().toString();
-	public children: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
-	public placeholderTarget: HTMLTextAreaElement | HTMLInputElement | null = null;
-	public errorLocal: boolean = false;
-	public premiumOnlyLocal: boolean = false;
-	public autofocusLocal: boolean = false;
-	public askForSystemFontAccess: boolean = false;
-	public isMissingScope: boolean = false;
-
-	private isLocalUpdate: boolean = false;
-	private childrenExpanded: boolean = false;
-
-	public get longText(): boolean {
-		return (
-			this.paramData?.longText === true ||
-			(this.textValue?.length > 40 &&
-				this.paramData.longText !== false &&
-				this.paramData.type != "password")
-		);
-	}
-
-	public get showChildren(): boolean {
-		if (this.forceChildDisplay !== false) return true;
-		let state =
-			(this.paramData.type == "boolean" && this.paramData.value === true) ||
-			(this.paramData.type == "string" && this.paramData.value != "") ||
-			!!this.paramData.value;
-		if (this.inverseChildrenCondition) state = !state;
-
-		return (this.$slots.default != undefined || this.$slots.child != undefined) && state;
-	}
-
-	public get premiumLocked(): boolean {
-		return (
-			this.premiumOnlyLocal !== false &&
-			!this.$store.auth.isPremium &&
-			this.noPremiumLock === false
-		);
-	}
-
-	public get icon(): string {
-		let defaultIcon = "";
-		if (this.paramData.type == "placeholder") defaultIcon = "placeholder";
-		return this.paramData.icon ?? defaultIcon ?? "";
-	}
-
-	public get classes(): string[] {
-		const res = ["paramitem"];
-		if (this.noBackground === false) {
-			res.push("card-item");
-		}
-		if (this.paramData.type == "boolean" && this.paramData.value !== true)
-			res.push("unselected");
-		if (this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
-		if (this.errorLocal !== false) res.push("error");
-		else if (this.isMissingScope) res.push("error");
-		if (this.longText) res.push("longText");
-		if (this.label == "") res.push("noLabel");
-		if (this.autoFade !== false) res.push("autoFade");
-		if (this.childLevel > 0) res.push("child");
-		if (this.icon) res.push("hasIcon");
-		if (this.paramData.maxLength) res.push("maxLength");
-		if (this.paramData.disabled || this.disabled == true) res.push("disabled");
-		if (this.premiumLocked) res.push("cantUse");
-		if (this.paramData.type == "time") res.push("time");
-		if (this.paramData.type == "font") res.push("font");
-		if (this.showMaxLength) res.push("withMaxLength");
-		if (this.placeholdersAsPopout !== false) res.push("popoutMode");
-		if (this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
-		res.push("level_" + this.childLevel);
-		return res;
-	}
-
-	public get label(): string {
-		if (!this.paramData) return "";
-		let txt = this.paramData.label ?? "";
-
-		let count = 0;
-		let v = this.paramData.value as number | string;
-		if (
-			this.paramData.type == "number" ||
-			this.paramData.type == "integer" ||
-			this.paramData.type == "slider"
-		) {
-			count = parseFloat(this.paramData.value as string) ?? 0;
-			if (isNaN(count)) count = 0;
-			v = count.toString();
-		} else if (this.paramData.type == "time" || this.paramData.type == "duration") {
-			v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
-		}
-		if (this.paramData.labelKey) {
-			txt += this.$t(this.paramData.labelKey, { VALUE: v }, count);
-		} else {
-			txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
-		}
-		if (!txt) return "";
-		//Puts anything that's between parenthesis inside <span> elements
-		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='smallText'>$1</span>");
-	}
-
-	public get placeholder(): string {
-		if (!this.paramData) return "";
-		let txt = this.paramData.placeholder ?? "";
-		if (this.paramData.placeholderKey) {
-			txt = this.$t(this.paramData.placeholderKey);
-		}
-		return txt;
-	}
-
-	public get tooltip(): string {
-		if (this.paramData.tooltip) return this.paramData.tooltip;
-		if (this.paramData.tooltipKey) return this.$t(this.paramData.tooltipKey);
-		return "";
-	}
-
-	public get showMaxLength(): boolean {
-		return (
-			!!this.paramData.maxLength &&
-			((this.paramData.value as string).length / this.paramData.maxLength > 0.8 ||
-				this.paramData.maxLength < 50)
-		);
-	}
-
-	public get textValue(): string {
-		if (this.paramData.type == "time") {
+const textValue = computed({
+	get(): string {
+		if (props.paramData.type == "time") {
 			//Convert number value in milliseconds to "hh:mm:ss" string
-			const value = (this.paramData.value as number) || 0;
+			const value = (props.paramData.value as number) || 0;
 			const h_ms = 3600;
 			const m_ms = 60;
 			const h = Math.floor(value / h_ms);
@@ -817,25 +717,24 @@ export class ParamItem extends Vue {
 			const s = Math.floor(value - h * h_ms - m * m_ms);
 			return Utils.toDigits(h) + ":" + Utils.toDigits(m) + ":" + Utils.toDigits(s);
 		} else {
-			return this.paramData.value as string;
+			return props.paramData.value as string;
 		}
-	}
-
-	public set textValue(value: string) {
-		if (this.paramData.allowedCharsRegex) {
+	},
+	set(value: string) {
+		if (props.paramData.allowedCharsRegex) {
 			const prevValue = value;
 			//Only keep allowed chars if a list is defined
 			value = value.replace(
-				new RegExp("[^" + this.paramData.allowedCharsRegex + "]", "gi"),
+				new RegExp("[^" + props.paramData.allowedCharsRegex + "]", "gi"),
 				"",
 			);
 			if (value != prevValue) {
 				//set to a new value so a change is detected by vue when modifying it aftewards
-				this.paramData.value =
+				props.paramData.value =
 					"_____this_is_a_fake_value_you_SHOULD_R3aLLY_N0T_use_hehehehehe_____";
 			}
 		}
-		if (this.paramData.type == "time") {
+		if (props.paramData.type == "time") {
 			//Convert string input value "hh:mm:ss" to a number value in milliseconds
 			if (!/[0-9]{2}:[0-9]{2}:[0-9]{2}/gi.test(value)) {
 				//This line forces the component to rerun the "textValue" getter which parses the duration back
@@ -844,475 +743,571 @@ export class ParamItem extends Vue {
 				//wouldn't trigger the "textValue" getter again and field would be like "00:--:00" instead
 				//if "00:00:00". Forcing change of the field here to an invalid value will make sure that
 				//setting the value back to the proper value will trigger appropriate watchers
-				this.paramData.value = "";
+				props.paramData.value = "";
 				value = "00:00:00";
 			}
 			const [h, m, s] = value.split(":").map((v) => parseInt(v));
-			this.paramData.value = h! * 3600 + m! * 60 + s! || 0;
+			props.paramData.value = h! * 3600 + m! * 60 + s! || 0;
 		} else {
-			this.paramData.value = value;
+			props.paramData.value = value;
 
-			const input = this.$refs.input as HTMLInputElement;
-			let selectStart = input.selectionStart || value.length;
-			let selectEnd = input.selectionEnd;
+			const inputEl = inputRef.value as HTMLInputElement;
+			let selectStart = inputEl.selectionStart || value.length;
+			let selectEnd = inputEl.selectionEnd;
 
-			this.$nextTick().then(() => {
-				const newInput = this.$refs.input as HTMLInputElement;
-				if (newInput == input) return;
+			nextTick().then(() => {
+				const newInput = inputRef.value as HTMLInputElement;
+				if (newInput == inputEl) return;
 				//In case there was a switch between a <input> and a <textarea>, set the carret
 				//to the same place it was before the switch
 				newInput.selectionStart = selectStart;
 				newInput.selectionEnd = selectEnd;
 			});
 		}
+	},
+});
+
+const longText = computed((): boolean => {
+	return (
+		props.paramData?.longText === true ||
+		(textValue.value?.length > 40 &&
+			props.paramData.longText !== false &&
+			props.paramData.type != "password")
+	);
+});
+
+const showChildren = computed((): boolean => {
+	if (props.forceChildDisplay !== false) return true;
+	let state =
+		(props.paramData.type == "boolean" && props.paramData.value === true) ||
+		(props.paramData.type == "string" && props.paramData.value != "") ||
+		!!props.paramData.value;
+	if (props.inverseChildrenCondition) state = !state;
+
+	return (slots.default != undefined || slots.child != undefined) && state;
+});
+
+const premiumLocked = computed((): boolean => {
+	return (
+		premiumOnlyLocal.value !== false && !storeAuth.isPremium && props.noPremiumLock === false
+	);
+});
+
+const icon = computed((): string => {
+	let defaultIcon = "";
+	if (props.paramData.type == "placeholder") defaultIcon = "placeholder";
+	return props.paramData.icon ?? defaultIcon ?? "";
+});
+
+const classes = computed((): string[] => {
+	const res = ["paramitem"];
+	if (props.noBackground === false) {
+		res.push("card-item");
 	}
+	if (props.paramData.type == "boolean" && props.paramData.value !== true) res.push("unselected");
+	if (props.paramData.type == "string" && props.paramData.value !== "") res.push("unselected");
+	if (errorLocal.value !== false) res.push("error");
+	else if (isMissingScope.value) res.push("error");
+	if (longText.value) res.push("longText");
+	if (label.value == "") res.push("noLabel");
+	if (props.autoFade !== false) res.push("autoFade");
+	if (props.childLevel > 0) res.push("child");
+	if (icon.value) res.push("hasIcon");
+	if (props.paramData.maxLength) res.push("maxLength");
+	if (props.paramData.disabled || props.disabled == true) res.push("disabled");
+	if (premiumLocked.value) res.push("cantUse");
+	if (props.paramData.type == "time") res.push("time");
+	if (props.paramData.type == "font") res.push("font");
+	if (showMaxLength.value) res.push("withMaxLength");
+	if (props.placeholdersAsPopout !== false) res.push("popoutMode");
+	if (premiumOnlyLocal.value !== false && props.noBackground === false) res.push("premium");
+	res.push("level_" + props.childLevel);
+	return res;
+});
 
-	public beforeUpdate(): void {
-		// console.log("rerender");
+const label = computed((): string => {
+	if (!props.paramData) return "";
+	let txt = props.paramData.label ?? "";
+
+	let count = 0;
+	let v = props.paramData.value as number | string;
+	if (
+		props.paramData.type == "number" ||
+		props.paramData.type == "integer" ||
+		props.paramData.type == "slider"
+	) {
+		count = parseFloat(props.paramData.value as string) ?? 0;
+		if (isNaN(count)) count = 0;
+		v = count.toString();
+	} else if (props.paramData.type == "time" || props.paramData.type == "duration") {
+		v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
 	}
-
-	public beforeMount(): void {
-		this.autofocusLocal = this.autofocus;
-		this.premiumOnlyLocal = this.premium !== false || this.paramData.premiumOnly === true;
-		this.setErrorState(this.error || this.paramData.error === true);
-
-		if (this.modelValue !== null && this.modelValue !== undefined) {
-			this.paramData.value = this.modelValue;
-		}
-
-		//If it's a boolean and modelValue is undefined, force it to false
-		if (this.paramData.type == "boolean" && this.modelValue == undefined) {
-			console.warn(
-				"PROBABLY AN ISSUE TO FIX WITH A PARAM ITEM:",
-				this.modelValue,
-				this.paramData.labelKey,
-				this.paramData,
-			);
-			this.paramData.value = false;
-			this.$emit("update:modelValue", false);
-		}
-
-		//Makes sure value is non-empty and within min/max.
-		//For a while some users emptied the field because i didn't block that
-		//this kinda fixes these old bad behaviors.
-		//also if min/max values are changed this will make sure the value
-		//respects the new limits.
-		if (this.paramData.type == "number" || this.paramData.type == "integer") {
-			if (typeof this.paramData.value == "number") {
-				this.clampValue();
-			}
-		}
-
-		if (this.paramData.type == "font") {
-			this.paramData.value = this.modelValue;
-			if ("queryLocalFonts" in window) {
-				this.askForSystemFontAccess = false;
-				try {
-					navigator.permissions
-						.query(
-							//@ts-ignore
-							{ name: "local-fonts" },
-						)
-						.then((granted) => {
-							if (granted.state == "prompt") {
-								// Ask for font access if not running in OBS as they doesn't support Font API
-								this.askForSystemFontAccess = !Config.instance.OBS_DOCK_CONTEXT;
-							} else if (granted.state == "granted") {
-								this.grantSystemFontRead();
-							}
-							if (granted.state != "granted") {
-								this.getLocalFonts();
-							}
-						})
-						.catch((error) => {
-							console.log("FONT FAILLURE");
-							console.log(error);
-						});
-				} catch (error) {
-					console.log("FONT FAILLURE2");
-					console.log(error);
-				}
-			} else {
-				this.getLocalFonts();
-			}
-		}
-
-		watch(
-			() => this.$store.auth.twitch.scopes,
-			() => {
-				this.isMissingScope =
-					this.paramData.twitch_scopes !== undefined &&
-					this.paramData.twitch_scopes.length > 0 &&
-					!TwitchUtils.hasScopes(this.paramData.twitch_scopes);
-				this.setErrorState(this.error || this.isMissingScope);
-			},
-			{ immediate: true },
-		);
+	if (props.paramData.labelKey) {
+		txt += t(props.paramData.labelKey, { VALUE: v }, count);
+	} else {
+		txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
 	}
+	if (!txt) return "";
+	//Puts anything that's between parenthesis inside <span> elements
+	return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='smallText'>$1</span>");
+});
 
-	public mounted(): void {
-		watch(
-			() => this.modelValue,
-			(value: string | number | boolean | string[]) => {
-				if (value !== null && value !== undefined) {
-					this.paramData.value = value;
-				}
-			},
-		);
-
-		watch(
-			() => this.paramData.value,
-			() => this.onEdit(),
-			{ deep: true },
-		);
-
-		watch(
-			() => this.paramData.error,
-			() => this.setErrorState(this.paramData.error === true),
-		);
-
-		watch(
-			() => this.paramData.listValues,
-			() => this.updateSelectedListValue(),
-		);
-
-		watch(
-			() => this.paramData.children,
-			() => this.buildChildren(),
-		);
-
-		watch(
-			() => this.error,
-			() => this.setErrorState(this.error === true),
-		);
-
-		if (this.paramData.type == "number") {
-			watch(
-				() => this.paramData.max,
-				() => this.clampValue(),
-			);
-			watch(
-				() => this.paramData.min,
-				() => this.clampValue(),
-			);
-		}
-
-		this.buildChildren();
-
-		if (
-			this.paramData.listValues &&
-			this.paramData.listValues.length > 0 &&
-			this.paramData.multiple !== true
-		) {
-			//Check if the value is on the listValues.
-			//If not, fallback to the first value.
-			let found;
-			for (const entry of this.paramData.listValues) {
-				if (entry.group) {
-					const v = entry.group.find((v) => v.value === this.paramData.value);
-					if (v) {
-						found = v;
-						break;
-					}
-				} else if (entry.value === this.paramData.value) {
-					found = entry;
-					break;
-				}
-			}
-			if (!found) {
-				this.paramData.value = this.paramData.listValues[0]!.value;
-			}
-			this.updateSelectedListValue();
-		}
-
-		if (this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
-			if (this.paramData.type == "string") {
-				this.placeholderTarget = this.$el.querySelector("textarea,input");
-				// }else{
-				// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
-			}
-		}
-
-		//Set this to true so we keep focus on the text field when it switches
-		//between <input> and <textarea> depending on the text length
-		//This won't affect first rendering, only subsequent ones
-		this.autofocusLocal = true;
-
-		//Force a model value update.
-		//This is necessary for default values to be applied to the
-		//v-model value on first render.
-		if (this.modelValue != null && this.modelValue != this.paramData.value) this.onEdit();
+const placeholder = computed((): string => {
+	if (!props.paramData) return "";
+	let txt = props.paramData.placeholder ?? "";
+	if (props.paramData.placeholderKey) {
+		txt = t(props.paramData.placeholderKey);
 	}
+	return txt;
+});
 
-	/**
-	 * Called when item is clicked.
-	 * If parameter requires a specific scope that's not granted, the
-	 * clicke event is blocked and user is asked to grant permission.
-	 * @param event
-	 */
-	public clickItem(event: MouseEvent): void {
-		if (this.paramData.twitch_scopes) {
-			if (TwitchUtils.hasScopes(this.paramData.twitch_scopes)) return;
-			this.paramData.value = false;
-			this.setErrorState(false);
-			event.stopPropagation();
-			this.$store.auth.requestTwitchScopes(this.paramData.twitch_scopes);
-		}
-	}
+const tooltip = computed((): string => {
+	if (props.paramData.tooltip) return props.paramData.tooltip;
+	if (props.paramData.tooltipKey) return t(props.paramData.tooltipKey);
+	return "";
+});
 
-	/**
-	 * Called when value changes
-	 */
-	public onEdit(): void {
-		if (this.premiumLocked) return;
+const showMaxLength = computed((): boolean => {
+	return (
+		!!props.paramData.value &&
+		!!props.paramData.maxLength &&
+		((props.paramData.value as string).length / props.paramData.maxLength > 0.8 ||
+			props.paramData.maxLength < 50)
+	);
+});
 
-		this.updateSelectedListValue();
-
-		if (this.isLocalUpdate) return;
-
-		this.isLocalUpdate = true;
-		if (Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
-			//Limite items sizes
-			const maxLength = this.paramData.maxLength || 300;
-			const list = this.paramData.value as string[];
-			list.forEach((v, i) => (list[i] = v.substring(0, maxLength)));
-
-			//Limit number of items of the editablelist
-			const maxItem = this.paramData.max ?? 999;
-			if (list.length > maxItem) {
-				this.paramData.value.splice(0, Math.max(0, list.length - maxItem));
-			}
-		}
-
-		if (this.paramData.type == "editablelist") {
-			const list = this.$refs.vueSelect as any;
-			if (this.paramData.options && list.pushedTags) {
-				//If there's a list of options, cleanup any custom options added that
-				//is not the currently selected one
-				for (let i = 0; i < list.pushedTags.length; i++) {
-					const opt = list.pushedTags[i];
-					if (opt == (this.paramData.value as string)) continue;
-					if (this.paramData.options.includes(opt)) continue;
-					list.pushedTags.splice(i, 1);
-				}
-			}
-
-			if (list.dropdownOpen) {
-				list.closeSearchOptions();
-			}
-		} else if (this.paramData.type == "imagelist") {
-			if (this.paramData.value === null) this.paramData.value = "";
-		}
-
-		if (
-			(this.paramData.type != "number" && this.paramData.type != "integer") ||
-			this.paramData.value !== ""
-		) {
-			const prevValue = this.modelValue;
-			this.$emit("update:modelValue", this.paramData.value);
-			this.$emit("change", prevValue, this.paramData.value);
-			if (this.paramData.editCallback) {
-				this.paramData.editCallback(this.paramData);
-			}
-		}
-
-		this.buildChildren();
-
-		this.$nextTick().then(() => {
-			this.isLocalUpdate = false;
-		});
-	}
-
-	/**
-	 * Create children
-	 */
-	private async buildChildren(): Promise<void> {
-		if (this.paramData.value === false) {
-			//Collapse children
-			this.childrenExpanded = false;
-			if (this.children.length > 0) {
-				//Hide transition
-				const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
-				if (childrenItems) {
-					let divs: HTMLDivElement[] = childrenItems.map(
-						(v) => v.$el,
-					) as HTMLDivElement[];
-					gsap.killTweensOf(divs);
-					gsap.to(divs, {
-						overflow: "hidden",
-						height: 0,
-						paddingTop: 0,
-						marginTop: 0,
-						paddingBottom: 0,
-						marginBottom: 0,
-						duration: 0.25,
-						stagger: 0.025,
-						onComplete: () => {
-							this.children = [];
-						},
-					});
-				}
-			}
-			return;
-		}
-
-		const list = this.$store.params.$state;
-		let children: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
-		for (const key in list) {
-			const typedKey = key as keyof typeof list;
-			if (typedKey != "appearance" && typedKey != "features") continue;
-			const params = list[typedKey];
-			for (const key2 in params) {
-				const typedKey = key2 as TwitchatDataTypes.ParameterSubCategory;
-				const param = params[
-					typedKey as keyof typeof params
-				] as TwitchatDataTypes.ParameterData<unknown>;
-				if (param && param.parent != undefined && param.parent == this.paramData.id) {
-					children.push(param);
-				}
-			}
-		}
-
-		if (this.paramData.children) {
-			children = children.concat(this.paramData.children);
-		}
-
-		if (this.children == children) return;
-
-		this.children = children;
-		await this.$nextTick();
-
-		if (children.length > 0 && !this.childrenExpanded && this.$refs.param_child) {
-			//Show transitions
-			const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
-			let divs: HTMLDivElement[] = childrenItems.map((v) => v.$el) as HTMLDivElement[];
-			gsap.killTweensOf(divs);
-			gsap.from(divs, {
-				overflow: "hidden",
-				height: 0,
-				paddingTop: 0,
-				marginTop: 0,
-				paddingBottom: 0,
-				marginBottom: 0,
-				duration: 0.25,
-				stagger: 0.025,
-				clearProps: "all",
-			});
-		}
-		this.childrenExpanded = true;
-	}
-
-	public clampValue(): void {
-		if (
-			this.paramData.value === "" &&
-			(this.paramData.type == "number" || this.paramData.type == "integer")
-		) {
-			this.paramData.value = 0;
-		}
-
-		if (this.paramData.type == "integer") {
-			this.paramData.value = Math.round(this.paramData.value as number);
-		}
-
-		if (
-			this.paramData.max != undefined &&
-			(this.paramData.value as number) > this.paramData.max
-		)
-			this.paramData.value = this.paramData.max;
-		if (
-			this.paramData.min != undefined &&
-			(this.paramData.value as number) < this.paramData.min
-		)
-			this.paramData.value = this.paramData.min;
-
-		// this.onEdit();
-	}
-
-	public insertPlaceholder(tag: string): void {
-		if (this.paramData.type == "editablelist") {
-			(this.paramData.value as string[]).push(tag);
-		} else if (this.paramData.type == "number" || this.paramData.type == "integer") {
-			this.paramData.value = tag;
-		} else {
-			// console.log(this.textValue, tag)
-			// this.textValue += tag;
-		}
-		this.onEdit();
-	}
-
-	private setErrorState(state: boolean) {
-		if (this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) {
-			this.errorLocal = true;
-		} else {
-			this.errorLocal = state;
-		}
-	}
-
-	public async onShowItem(el: Element, done: () => void): Promise<void> {
-		gsap.from(el, {
-			overflow: "hidden",
-			height: 0,
-			duration: 0.2,
-			marginTop: 0,
-			ease: "sine.out",
-			clearProps: "all",
-			onComplete: () => {
-				done();
-			},
-		});
-	}
-
-	public onHideItem(el: Element, done: () => void): void {
-		gsap.to(el, {
-			overflow: "hidden",
-			height: 0,
-			duration: 0.2,
-			marginTop: 0,
-			ease: "sine.out",
-			onComplete: () => {
-				done();
-			},
-		});
-	}
-
-	private updateSelectedListValue(): void {
-		if (
-			(this.paramData.type == "list" || this.paramData.type == "imagelist") &&
-			this.paramData.listValues
-		) {
-			this.paramData.selectedListValue = this.paramData.listValues.find(
-				(v) => v.value == this.paramData.value,
-			);
-		}
-	}
-
-	/**
-	 * Get local fonts
-	 */
-	public async getLocalFonts(): Promise<void> {
-		Utils.listAvailableFonts().then((result) => {
-			this.paramData.options = result.fonts.concat();
-			if (this.paramData.options.indexOf(this.paramData.value as string) == -1) {
-				this.paramData.options.push(this.paramData.value as string);
-			}
-			this.paramData.options = this.paramData.options.sort();
-		});
-	}
-
-	/**
-	 * Grant access to system fonts
-	 */
-	public async grantSystemFontRead(): Promise<void> {
-		Utils.listAvailableFonts(true).then((result) => {
-			this.paramData.options = result.fonts.sort();
-			this.askForSystemFontAccess = result?.systemGranted !== true;
-			if (!this.paramData.value) {
-				this.paramData.value = "Inter";
-			}
-		});
+/**
+ * Called when item is clicked.
+ * If parameter requires a specific scope that's not granted, the
+ * clicke event is blocked and user is asked to grant permission.
+ * @param event
+ */
+function clickItem(event: MouseEvent): void {
+	if (props.paramData.twitch_scopes) {
+		if (TwitchUtils.hasScopes(props.paramData.twitch_scopes)) return;
+		props.paramData.value = false;
+		setErrorState(false);
+		event.stopPropagation();
+		storeAuth.requestTwitchScopes(props.paramData.twitch_scopes);
 	}
 }
-export default toNative(ParamItem);
+
+/**
+ * Called when value changes
+ */
+function onEdit(): void {
+	if (premiumLocked.value) return;
+
+	updateSelectedListValue();
+
+	if (isLocalUpdate) return;
+
+	isLocalUpdate = true;
+	if (Array.isArray(props.paramData.value) && props.paramData.type == "editablelist") {
+		//Limite items sizes
+		const maxLength = props.paramData.maxLength || 300;
+		const list = props.paramData.value as string[];
+		list.forEach((v, i) => (list[i] = v.substring(0, maxLength)));
+
+		//Limit number of items of the editablelist
+		const maxItem = props.paramData.max ?? 999;
+		if (list.length > maxItem) {
+			props.paramData.value.splice(0, Math.max(0, list.length - maxItem));
+		}
+	}
+
+	if (props.paramData.type == "editablelist") {
+		const list = vueSelectRef.value as any;
+		if (props.paramData.options && list.pushedTags) {
+			//If there's a list of options, cleanup any custom options added that
+			//is not the currently selected one
+			for (let i = 0; i < list.pushedTags.length; i++) {
+				const opt = list.pushedTags[i];
+				if (opt == (props.paramData.value as string)) continue;
+				if (props.paramData.options.includes(opt)) continue;
+				list.pushedTags.splice(i, 1);
+			}
+		}
+
+		if (list.dropdownOpen) {
+			list.closeSearchOptions();
+		}
+	} else if (props.paramData.type == "imagelist") {
+		if (props.paramData.value === null) props.paramData.value = "";
+	}
+
+	if (
+		(props.paramData.type != "number" && props.paramData.type != "integer") ||
+		props.paramData.value !== ""
+	) {
+		const prevValue = props.modelValue;
+		emit("update:modelValue", props.paramData.value);
+		emit("change", prevValue, props.paramData.value);
+		if (props.paramData.editCallback) {
+			props.paramData.editCallback(props.paramData);
+		}
+	}
+
+	buildChildren();
+
+	nextTick().then(() => {
+		isLocalUpdate = false;
+	});
+}
+
+/**
+ * Create children
+ */
+async function buildChildren(): Promise<void> {
+	if (props.paramData.value === false) {
+		//Collapse children
+		childrenExpanded = false;
+		if (children.value.length > 0) {
+			//Hide transition
+			const childrenItems = paramChildrenRef.value;
+			if (childrenItems) {
+				let divs: HTMLDivElement[] = childrenItems.map((v) => v.$el as HTMLDivElement);
+				gsap.killTweensOf(divs);
+				gsap.to(divs, {
+					overflow: "hidden",
+					height: 0,
+					paddingTop: 0,
+					marginTop: 0,
+					paddingBottom: 0,
+					marginBottom: 0,
+					duration: 0.25,
+					stagger: 0.025,
+					onComplete: () => {
+						children.value = [];
+					},
+				});
+			}
+		}
+		return;
+	}
+
+	const list = storeParams.$state;
+	let childList: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
+	for (const key in list) {
+		const typedKey = key as keyof typeof list;
+		if (typedKey != "appearance" && typedKey != "features") continue;
+		const params = list[typedKey];
+		for (const key2 in params) {
+			const typedKey = key2 as TwitchatDataTypes.ParameterSubCategory;
+			const param = params[
+				typedKey as keyof typeof params
+			] as TwitchatDataTypes.ParameterData<unknown>;
+			if (param && param.parent != undefined && param.parent == props.paramData.id) {
+				childList.push(param);
+			}
+		}
+	}
+
+	if (props.paramData.children) {
+		childList = childList.concat(props.paramData.children);
+	}
+
+	if (children.value == childList) return;
+
+	children.value = childList;
+	await nextTick();
+
+	if (childList.length > 0 && !childrenExpanded && paramChildrenRef.value) {
+		//Show transitions
+		let divs = paramChildrenRef.value.map((v) => v.$el as HTMLDivElement);
+		gsap.killTweensOf(divs);
+		gsap.from(divs, {
+			overflow: "hidden",
+			height: 0,
+			paddingTop: 0,
+			marginTop: 0,
+			paddingBottom: 0,
+			marginBottom: 0,
+			duration: 0.25,
+			stagger: 0.025,
+			clearProps: "all",
+		});
+	}
+	childrenExpanded = true;
+}
+
+function clampValue(): void {
+	if (
+		props.paramData.value === "" &&
+		(props.paramData.type == "number" || props.paramData.type == "integer")
+	) {
+		props.paramData.value = 0;
+	}
+
+	if (props.paramData.type == "integer") {
+		props.paramData.value = Math.round(props.paramData.value as number);
+	}
+
+	if (props.paramData.max != undefined && (props.paramData.value as number) > props.paramData.max)
+		props.paramData.value = props.paramData.max;
+	if (props.paramData.min != undefined && (props.paramData.value as number) < props.paramData.min)
+		props.paramData.value = props.paramData.min;
+
+	// clampValue();
+}
+
+function insertPlaceholder(tag: string): void {
+	if (props.paramData.type == "editablelist") {
+		(props.paramData.value as string[]).push(tag);
+	} else if (props.paramData.type == "number" || props.paramData.type == "integer") {
+		props.paramData.value = tag;
+	} else {
+		// console.log(textValue.value, tag)
+		// textValue.value += tag;
+	}
+	onEdit();
+}
+
+function setErrorState(state: boolean) {
+	if (props.paramData.twitch_scopes && !TwitchUtils.hasScopes(props.paramData.twitch_scopes)) {
+		errorLocal.value = true;
+	} else {
+		errorLocal.value = state;
+	}
+}
+
+function onShowItem(el: Element, done: () => void): void {
+	gsap.from(el, {
+		overflow: "hidden",
+		height: 0,
+		duration: 0.2,
+		marginTop: 0,
+		ease: "sine.out",
+		clearProps: "all",
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+function onHideItem(el: Element, done: () => void): void {
+	gsap.to(el, {
+		overflow: "hidden",
+		height: 0,
+		duration: 0.2,
+		marginTop: 0,
+		ease: "sine.out",
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+function updateSelectedListValue(): void {
+	if (
+		(props.paramData.type == "list" || props.paramData.type == "imagelist") &&
+		props.paramData.listValues
+	) {
+		props.paramData.selectedListValue = props.paramData.listValues.find(
+			(v) => v.value == props.paramData.value,
+		);
+	}
+}
+
+/**
+ * Get local fonts
+ */
+async function getLocalFonts(): Promise<void> {
+	Utils.listAvailableFonts().then((result) => {
+		props.paramData.options = result.fonts.concat();
+		if (props.paramData.options.indexOf(props.paramData.value as string) == -1) {
+			props.paramData.options.push(props.paramData.value as string);
+		}
+		props.paramData.options = props.paramData.options.sort();
+	});
+}
+
+/**
+ * Grant access to system fonts
+ */
+async function grantSystemFontRead(): Promise<void> {
+	Utils.listAvailableFonts(true).then((result) => {
+		props.paramData.options = result.fonts.sort();
+		askForSystemFontAccess.value = result?.systemGranted !== true;
+		if (!props.paramData.value) {
+			props.paramData.value = "Inter";
+		}
+	});
+}
+
+// beforeMount logic
+onBeforeMount(() => {
+	autofocusLocal.value = props.autofocus;
+	premiumOnlyLocal.value = props.premium !== false || props.paramData.premiumOnly === true;
+	setErrorState(props.error || props.paramData.error === true);
+
+	if (props.modelValue !== null && props.modelValue !== undefined) {
+		props.paramData.value = props.modelValue;
+	}
+
+	//If it's a boolean and modelValue is undefined, force it to false
+	if (props.paramData.type == "boolean" && props.modelValue == undefined) {
+		console.warn(
+			"PROBABLY AN ISSUE TO FIX WITH A PARAM ITEM:",
+			props.modelValue,
+			props.paramData.labelKey,
+			props.paramData,
+		);
+		props.paramData.value = false;
+		emit("update:modelValue", false);
+	}
+
+	//Makes sure value is non-empty and within min/max.
+	//For a while some users emptied the field because i didn't block that
+	//this kinda fixes these old bad behaviors.
+	//also if min/max values are changed this will make sure the value
+	//respects the new limits.
+	if (props.paramData.type == "number" || props.paramData.type == "integer") {
+		if (typeof props.paramData.value == "number") {
+			clampValue();
+		}
+	}
+
+	if (props.paramData.type == "font") {
+		props.paramData.value = props.modelValue;
+		if ("queryLocalFonts" in window) {
+			askForSystemFontAccess.value = false;
+			try {
+				navigator.permissions
+					.query(
+						//@ts-ignore
+						{ name: "local-fonts" },
+					)
+					.then((granted) => {
+						if (granted.state == "prompt") {
+							// Ask for font access if not running in OBS as they doesn't support Font API
+							askForSystemFontAccess.value = !Config.instance.OBS_DOCK_CONTEXT;
+						} else if (granted.state == "granted") {
+							grantSystemFontRead();
+						}
+						if (granted.state != "granted") {
+							getLocalFonts();
+						}
+					})
+					.catch((error) => {
+						console.log("FONT FAILLURE");
+						console.log(error);
+					});
+			} catch (error) {
+				console.log("FONT FAILLURE2");
+				console.log(error);
+			}
+		} else {
+			getLocalFonts();
+		}
+	}
+});
+
+watch(
+	() => storeAuth.twitch.scopes,
+	() => {
+		isMissingScope.value =
+			props.paramData.twitch_scopes !== undefined &&
+			props.paramData.twitch_scopes.length > 0 &&
+			!TwitchUtils.hasScopes(props.paramData.twitch_scopes);
+		setErrorState(props.error || isMissingScope.value);
+	},
+	{ immediate: true },
+);
+
+onMounted(() => {
+	if (props.paramData.type == "number" || props.paramData.type == "integer") {
+		watch(
+			() => props.paramData.max,
+			() => clampValue(),
+		);
+		watch(
+			() => props.paramData.min,
+			() => clampValue(),
+		);
+	}
+
+	buildChildren();
+
+	if (
+		props.paramData.listValues &&
+		props.paramData.listValues.length > 0 &&
+		props.paramData.multiple !== true
+	) {
+		//Check if the value is on the listValues.
+		//If not, fallback to the first value.
+		let found;
+		for (const entry of props.paramData.listValues) {
+			if (entry.group) {
+				const v = entry.group.find((v) => v.value === props.paramData.value);
+				if (v) {
+					found = v;
+					break;
+				}
+			} else if (entry.value === props.paramData.value) {
+				found = entry;
+				break;
+			}
+		}
+		if (!found) {
+			props.paramData.value = props.paramData.listValues[0]!.value;
+		}
+		updateSelectedListValue();
+	}
+
+	if (props.paramData.placeholderList && props.paramData.placeholderList.length > 0) {
+		if (props.paramData.type == "string") {
+			placeholderTarget.value = rootElRef.value!.querySelector("textarea,input");
+			// }else{
+			// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+props.paramData.type+"\"");
+		}
+	}
+
+	//Set this to true so we keep focus on the text field when it switches
+	//between <input> and <textarea> depending on the text length
+	//This won't affect first rendering, only subsequent ones
+	autofocusLocal.value = true;
+
+	//Force a model value update.
+	//This is necessary for default values to be applied to the
+	//v-model value on first render.
+	if (props.modelValue != null && props.modelValue != props.paramData.value) onEdit();
+});
+
+watch(
+	() => props.modelValue,
+	(value: string | number | boolean | string[] | null | undefined) => {
+		if (value !== null && value !== undefined) {
+			props.paramData.value = value;
+		}
+	},
+);
+
+watch(
+	() => props.paramData.value,
+	() => onEdit(),
+	{ deep: true },
+);
+
+watch(
+	() => props.paramData.error,
+	() => setErrorState(props.paramData.error === true),
+);
+
+watch(
+	() => props.paramData.listValues,
+	() => updateSelectedListValue(),
+);
+
+watch(
+	() => props.paramData.children,
+	() => buildChildren(),
+);
+
+watch(
+	() => props.error,
+	() => setErrorState(props.error === true),
+);
 </script>
 
 <style scoped lang="less">

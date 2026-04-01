@@ -197,7 +197,7 @@ import PublicAPI from "@/utils/PublicAPI";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import Utils from "@/utils/Utils";
 import { Component, Vue, toNative } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 
 @Component({

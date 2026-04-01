@@ -97,7 +97,7 @@ import TTButton from "@/components/TTButton.vue";
 import type { SettingsExportData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { Component, toNative, Vue } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 
 @Component({
 	components: {

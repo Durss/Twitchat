@@ -53,7 +53,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { Component, Vue, toNative } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
 
 @Component({

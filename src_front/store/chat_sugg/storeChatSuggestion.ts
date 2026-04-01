@@ -19,7 +19,7 @@ import StoreProxy from "../StoreProxy";
 export const storeChatSuggestion = defineStore("chatSuggestion", {
 	state: () =>
 		({
-			data: null,
+			data: null as IChatSuggestionState["data"],
 		}) satisfies IChatSuggestionState,
 
 	getters: {} satisfies IChatSuggestionGetters &

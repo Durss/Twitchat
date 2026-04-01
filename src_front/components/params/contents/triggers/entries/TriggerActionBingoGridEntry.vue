@@ -46,7 +46,7 @@
 <script lang="ts">
 import { Component, Prop, toNative } from "vue-facing-decorator";
 import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
-import { ParamItem } from "@/components/params/ParamItem.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
 import type {
 	ITriggerPlaceholder,
 	TriggerActionBingoGridData,

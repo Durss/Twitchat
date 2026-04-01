@@ -224,7 +224,7 @@ import Utils from "@/utils/Utils";
 import { Component, Vue, toNative } from "vue-facing-decorator";
 import type IParameterContent from "../IParameterContent";
 import ParamsDiscordQuickActions from "../discord/ParamsDiscordQuickActions.vue";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 
 @Component({
 	components: {
