@@ -24,14 +24,14 @@ import StoreProxy from "../StoreProxy";
 export const storeParams = defineStore("params", {
 	state: () =>
 		({
-			currentPage: "",
-			currentParamSearch: "",
-			currentPageSubContent: "",
-			currentModal: "",
-			donationReminderEnabled: false,
-			updatesReminderEnabled: false,
-			greetThemAutoDelete: 600,
-			pinnedMenuItems: ["chatters", "rewards"],
+			currentPage: "" as IParamsState["currentPage"],
+			currentParamSearch: "" as IParamsState["currentParamSearch"],
+			currentPageSubContent: "" as IParamsState["currentPageSubContent"],
+			currentModal: "" as IParamsState["currentModal"],
+			donationReminderEnabled: false as IParamsState["donationReminderEnabled"],
+			updatesReminderEnabled: false as IParamsState["updatesReminderEnabled"],
+			greetThemAutoDelete: 600 as IParamsState["greetThemAutoDelete"],
+			pinnedMenuItems: ["chatters", "rewards"] as IParamsState["pinnedMenuItems"],
 			features: {
 				spoilersEnabled: {
 					type: "boolean",
@@ -330,7 +330,7 @@ export const storeParams = defineStore("params", {
 					id: 215,
 					icon: "shoutout",
 				},
-			},
+			} as IParamsState["features"],
 			appearance: {
 				splitViewVertical: {
 					type: "boolean",
@@ -714,7 +714,7 @@ export const storeParams = defineStore("params", {
 					step: 1,
 					id: 12,
 				},
-			},
+			} as IParamsState["appearance"],
 			chatColumnsConfig: [
 				{
 					id: Utils.getUUID(),
@@ -854,7 +854,7 @@ export const storeParams = defineStore("params", {
 						pinned: true,
 					},
 				},
-			],
+			] as IParamsState["chatColumnsConfig"],
 			chatColumnStates: [] as IParamsState["chatColumnStates"],
 			goxlrConfig: {
 				enabled: false,
@@ -862,7 +862,7 @@ export const storeParams = defineStore("params", {
 				port: 14564,
 				chatScrollSources: [],
 				chatReadMarkSources: [],
-			},
+			} as IParamsState["goxlrConfig"],
 		}) satisfies IParamsState,
 
 	getters: {} satisfies IParamsGetters &

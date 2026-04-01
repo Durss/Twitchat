@@ -4634,7 +4634,21 @@ export namespace TwitchatDataTypes {
 		isModal: boolean;
 		icon: string;
 		modalId: TwitchatDataTypes.ModalTypes | "";
-		modelValueName: string;
+		modelValueName:
+			| ""
+			| "howEmotes"
+			| "showCommands"
+			| "showRewards"
+			| "showDevMenu"
+			| "showShoutout"
+			| "showCredits"
+			| "showBingoGrid"
+			| "showQuiz"
+			| "showGroqHistory"
+			| "showGazaFunds"
+			| "showChatUsers"
+			| "showPins"
+			| "showSettingsImport";
 		labelKey: string;
 		label?: string;
 	}[] = [

@@ -20,13 +20,13 @@ import StoreProxy from "../StoreProxy";
 export const storeOBS = defineStore("obs", {
 	state: () =>
 		({
-			connectionEnabled: false,
+			connectionEnabled: false as boolean,
 			sceneCommands: [] as IOBSState["sceneCommands"],
 			muteUnmuteCommands: {
 				audioSourceName: "",
 				muteCommand: "!mute",
 				unmuteCommand: "!unmute",
-			},
+			} as IOBSState["muteUnmuteCommands"],
 			commandsPermissions: Utils.getDefaultPermissions(
 				true,
 				true,
@@ -34,7 +34,7 @@ export const storeOBS = defineStore("obs", {
 				false,
 				false,
 				false,
-			),
+			) as IOBSState["commandsPermissions"],
 		}) satisfies IOBSState,
 
 	getters: {} satisfies IOBSGetters &

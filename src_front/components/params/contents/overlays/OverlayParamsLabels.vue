@@ -184,7 +184,7 @@ import { type LabelItemData } from "@/types/ILabelOverlayData";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { VueDraggable } from "vue-draggable-plus";
 import { Component, Vue, toNative } from "vue-facing-decorator";
-import { ParamItem } from "../../ParamItem.vue";
+import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 

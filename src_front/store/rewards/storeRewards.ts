@@ -16,8 +16,8 @@ import StoreProxy from "../StoreProxy";
 export const storeRewards = defineStore("rewards", {
 	state: () =>
 		({
-			rewardList: [],
-			powerUpList: [],
+			rewardList: [] as IRewardsState["rewardList"],
+			powerUpList: [] as IRewardsState["powerUpList"],
 		}) satisfies IRewardsState,
 
 	getters: {} satisfies IRewardsGetters &

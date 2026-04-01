@@ -42,7 +42,7 @@ export const storeEmergency = defineStore("emergency", {
 				autoEnableOnShieldmode: true,
 				autoEnableOnFollowbot: true,
 				enableShieldMode: false,
-			},
+			} as IEmergencyState["params"],
 
 			//Stores all the people that followed during an emergency
 			follows: [] as IEmergencyState["follows"],

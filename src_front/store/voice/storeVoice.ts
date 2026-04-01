@@ -21,22 +21,22 @@ import Config from "@/utils/Config";
 export const storeVoice = defineStore("voice", {
 	state: () =>
 		({
-			voiceActions: [] as VoiceAction[],
+			voiceActions: [] as IVoiceState["voiceActions"],
 			voiceLang: "en-US",
 			voiceText: {
 				tempText: "",
 				rawTempText: "",
 				finalText: "",
-			},
+			} as IVoiceState["voiceText"],
 
-			voicemodCurrentVoice: null,
+			voicemodCurrentVoice: null as IVoiceState["voicemodCurrentVoice"],
 
 			voicemodParams: {
 				enabled: false,
 				voiceIndicator: true,
 				commandToVoiceID: {},
 				chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
-			},
+			} as IVoiceState["voicemodParams"],
 		}) satisfies IVoiceState,
 
 	getters: {
