@@ -1,11 +1,16 @@
 <template>
-	<div class="simpletriggerlist" v-if="triggerList.length > 0 && filteredItemId == ''">
+	<div class="simpletriggerlist" v-if="entryList.length > 0 && filteredItemId == ''">
 		<div
+			v-for="item in entryList"
 			:class="classes(false)"
-			v-for="item in triggerList"
 			:key="item.id"
-			@click="$emit('select', item.id)"
+			@click="emit('select', item.id)"
 		>
+			<div
+				v-if="item.color"
+				class="colorLayer"
+				:style="{ backgroundColor: item.color }"
+			></div>
 			<img
 				class="icon"
 				:src="item.iconURL"
@@ -19,18 +24,18 @@
 
 	<div
 		:class="classes(true)"
-		v-else-if="triggerList.length === 1"
-		@click="$emit('select', triggerList[0]!.id)"
+		v-else-if="entryList.length === 1"
+		@click="emit('select', entryList[0]!.id)"
 	>
 		<img
 			class="icon"
-			:src="triggerList[0]!.iconURL"
-			v-if="triggerList[0]!.iconURL"
-			:style="{ backgroundColor: triggerList[0]!.iconBG }"
+			:src="entryList[0]!.iconURL"
+			v-if="entryList[0]!.iconURL"
+			:style="{ backgroundColor: entryList[0]!.iconBG }"
 		/>
-		<Icon class="icon" :name="triggerList[0]!.icon" v-else-if="triggerList[0]!.icon" />
+		<Icon class="icon" :name="entryList[0]!.icon" v-else-if="entryList[0]!.icon" />
 		<Icon class="icon trash" name="trash" />
-		<span class="label">{{ triggerList[0]!.label }}</span>
+		<span class="label">{{ entryList[0]!.label }}</span>
 	</div>
 
 	<div v-else class="card-item alert deletedTrigger">{{ $t("triggers.missing_trigger") }}</div>
@@ -40,15 +45,25 @@
 import TriggerUtils from "@/utils/TriggerUtils";
 import { ref, onMounted } from "vue";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import type { TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+
+type Entry = {
+	id: string;
+	label: string;
+	icon?: string;
+	iconURL?: string;
+	iconBG?: string;
+	color?: string;
+};
 
 const props = withDefaults(
 	defineProps<{
 		filteredItemId?: string;
 		primary?: boolean;
+		allowFolders?: boolean;
 	}>(),
 	{
 		filteredItemId: "",
-		primary: false,
 	},
 );
 
@@ -58,15 +73,7 @@ const emit = defineEmits<{
 
 const storeTriggers = useStoreTriggers();
 
-const triggerList = ref<
-	{
-		id: string;
-		label: string;
-		icon?: string;
-		iconURL?: string;
-		iconBG?: string;
-	}[]
->([]);
+const entryList = ref<Entry[]>([]);
 
 function classes(selected: boolean): string[] {
 	const res: string[] = ["item"];
@@ -76,12 +83,17 @@ function classes(selected: boolean): string[] {
 }
 
 onMounted(() => {
-	//Remove deleted triggers
+	entryList.value = TriggerUtils.getFlatFolderList().map((folder) => ({
+		id: folder.id,
+		label: folder.name || "???",
+		icon: "folder",
+		color: folder.color,
+	}));
+
 	const triggers = storeTriggers.triggerList;
 	triggers.forEach((t) => {
-		if (props.filteredItemId != "" && t.id != props.filteredItemId) return;
 		const infos = TriggerUtils.getTriggerDisplayInfo(t);
-		triggerList.value.push({
+		entryList.value.push({
 			id: t.id,
 			label: infos.label,
 			icon: infos.icon,
@@ -89,6 +101,10 @@ onMounted(() => {
 			iconBG: infos.iconBgColor,
 		});
 	});
+
+	if (props.filteredItemId != "") {
+		entryList.value = entryList.value.filter((e) => e.id == props.filteredItemId);
+	}
 });
 </script>
 
@@ -106,6 +122,7 @@ onMounted(() => {
 	flex-direction: row;
 	align-items: center;
 	flex-shrink: 0;
+	position: relative;
 	background-color: var(--background-color-fadest);
 	transition: background-color 0.2s;
 	cursor: pointer;
@@ -113,6 +130,10 @@ onMounted(() => {
 	padding: 0.25em 0.5em;
 	font-size: 0.9em;
 	color: var(--color-text);
+	.icon,
+	.label {
+		z-index: 1;
+	}
 	.icon {
 		height: 1.5em;
 		width: 1.5em;
@@ -140,6 +161,16 @@ onMounted(() => {
 		&:hover {
 			background-color: var(--color-alert);
 		}
+	}
+	.colorLayer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: var(--border-radius);
+		opacity: 0.25;
+		z-index: 0;
 	}
 }
 

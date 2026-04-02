@@ -633,6 +633,7 @@ import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
 import { asset } from "@/composables/useAsset";
+import type { VueSelectInstance } from "vue-select";
 
 defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
 
@@ -690,7 +691,7 @@ const { getAsset } = asset();
 
 const rootElRef = useTemplateRef("rootEl");
 const inputRef = useTemplateRef("input");
-const vueSelectRef = useTemplateRef("vueSelect");
+const vueSelectRef = useTemplateRef<VueSelectInstance>("vueSelect");
 const paramChildrenRef = useTemplateRef<ComponentPublicInstance[]>("paramChild");
 
 const key = Math.random().toString();
@@ -895,10 +896,11 @@ function clickItem(event: MouseEvent): void {
 /**
  * Called when value changes
  */
-function onEdit(): void {
+async function onEdit(): Promise<void> {
 	if (premiumLocked.value) return;
 
 	updateSelectedListValue();
+	await nextTick();
 
 	if (isLocalUpdate) return;
 
@@ -917,19 +919,19 @@ function onEdit(): void {
 	}
 
 	if (props.paramData.type == "editablelist") {
-		const list = vueSelectRef.value as any;
-		if (props.paramData.options && list.pushedTags) {
+		const list = vueSelectRef.value;
+		if (props.paramData.options && list && list.pushedTags) {
 			//If there's a list of options, cleanup any custom options added that
 			//is not the currently selected one
 			for (let i = 0; i < list.pushedTags.length; i++) {
 				const opt = list.pushedTags[i];
 				if (opt == (props.paramData.value as string)) continue;
-				if (props.paramData.options.includes(opt)) continue;
+				if (opt && props.paramData.options.includes(opt as string)) continue;
 				list.pushedTags.splice(i, 1);
 			}
 		}
 
-		if (list.dropdownOpen) {
+		if (list?.dropdownOpen) {
 			list.closeSearchOptions();
 		}
 	} else if (props.paramData.type == "imagelist") {
