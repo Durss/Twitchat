@@ -1,5 +1,5 @@
 <template>
-	<div class="triggerslogs sidePanel">
+	<div class="triggerslogs sidePanel" ref="rootEl">
 		<div class="head">
 			<h1 class="title"><Icon name="broadcast" />{{ $t("triggers.logs.title") }}</h1>
 			<div class="subtitle">{{ $t("triggers.logs.subtitle") }}</div>
@@ -27,7 +27,7 @@
 					<div class="infos">
 						<img
 							class="icon"
-							:src="$asset('icons/' + getTriggerInfo(item.trigger)?.icon + '.svg')"
+							:src="getAsset('icons/' + getTriggerInfo(item.trigger)?.icon + '.svg')"
 						/>
 						<div class="status" v-tooltip="'error'" v-if="item.error">
 							<Icon theme="light" name="cross" />
@@ -108,89 +108,82 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
 import Logger, { type LogTrigger, type LogTriggerStep } from "@/utils/Logger";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
-import { Component, toNative } from "vue-facing-decorator";
-import AbstractSidePanel from "../AbstractSidePanel";
+import { ref, computed, useTemplateRef } from "vue";
+import { useSidePanel } from "@/composables/useSidePanel";
+import { asset } from "@/composables/useAsset";
 import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ClearButton,
-	},
-	emits: ["close"],
-})
-class TriggersLogs extends AbstractSidePanel {
-	public reloading: boolean = false;
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public idToExpandState: { [key: string]: boolean } = {};
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const { close } = useSidePanel(rootEl, emit);
+const { getAsset } = asset();
 
-	public get logs(): LogTrigger[] {
-		return Logger.instance.getLogs("triggers").concat().reverse();
-	}
+const reloading = ref<boolean>(false);
+const idToExpandState = ref<{ [key: string]: boolean }>({});
 
-	public getTriggerClasses(log: LogTrigger): string[] {
-		const res = ["entry"];
-		if (log.error) res.push("secondary");
-		if (log.criticalError) res.push("alert");
-		if (this.idToExpandState[log.id]) res.push("open");
-		return res;
-	}
+const logs = computed<LogTrigger[]>(() => {
+	return Logger.instance.getLogs("triggers").concat().reverse();
+});
 
-	public getHeadClasses(step: LogTriggerStep): string[] {
-		const res = ["head"];
-		if (this.idToExpandState[step.id]) res.push("open");
-		if (step.error) res.push("secondary");
-		return res;
-	}
-
-	public getStepClasses(step: LogTriggerStep): string[] {
-		const res = ["step"];
-		if (step.error) res.push("secondary");
-		return res;
-	}
-
-	public getTriggerInfo(trigger: TriggerData) {
-		return TriggerUtils.getTriggerDisplayInfo(trigger);
-	}
-
-	public getFormattedTime(date: number): string {
-		const d = new Date(date);
-		return (
-			Utils.toDigits(d.getHours()) +
-			":" +
-			Utils.toDigits(d.getMinutes()) +
-			":" +
-			Utils.toDigits(d.getSeconds()) +
-			"." +
-			Utils.toDigits(d.getMilliseconds(), 3)
-		);
-	}
-
-	public async mounted(): Promise<void> {
-		this.open();
-	}
-
-	public refreshList(): void {
-		this.reloading = true;
-		window.setTimeout(() => {
-			this.reloading = false;
-		}, 500);
-	}
-
-	public clearList(): void {
-		Logger.instance.clear("triggers");
-		this.refreshList();
-	}
+function getTriggerClasses(log: LogTrigger): string[] {
+	const res = ["entry"];
+	if (log.error) res.push("secondary");
+	if (log.criticalError) res.push("alert");
+	if (idToExpandState.value[log.id]) res.push("open");
+	return res;
 }
-export default toNative(TriggersLogs);
+
+function getHeadClasses(step: LogTriggerStep): string[] {
+	const res = ["head"];
+	if (idToExpandState.value[step.id]) res.push("open");
+	if (step.error) res.push("secondary");
+	return res;
+}
+
+function getStepClasses(step: LogTriggerStep): string[] {
+	const res = ["step"];
+	if (step.error) res.push("secondary");
+	return res;
+}
+
+function getTriggerInfo(trigger: TriggerData) {
+	return TriggerUtils.getTriggerDisplayInfo(trigger);
+}
+
+function getFormattedTime(date: number): string {
+	const d = new Date(date);
+	return (
+		Utils.toDigits(d.getHours()) +
+		":" +
+		Utils.toDigits(d.getMinutes()) +
+		":" +
+		Utils.toDigits(d.getSeconds()) +
+		"." +
+		Utils.toDigits(d.getMilliseconds(), 3)
+	);
+}
+
+function refreshList(): void {
+	reloading.value = true;
+	window.setTimeout(() => {
+		reloading.value = false;
+	}, 500);
+}
+
+function clearList(): void {
+	Logger.instance.clear("triggers");
+	refreshList();
+}
 </script>
 
 <style scoped lang="less">

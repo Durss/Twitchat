@@ -9,6 +9,7 @@ import {
 	type ITriggerPlaceholder,
 	type TriggerActionData,
 	type TriggerData,
+	type TriggerTreeItemData,
 	type TriggerTypeDefinition,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -430,6 +431,30 @@ export default class TriggerUtils {
 	public static isTriggerEnabled(trigger: TriggerData): boolean {
 		const parentsEnabled = StoreProxy.triggers.triggerIdToFolderEnabled[trigger.id] !== false;
 		return trigger.enabled && parentsEnabled;
+	}
+
+	/**
+	 * Get a flat list of all folders in the trigger tree, with their path as label
+	 * @param root
+	 * @returns
+	 */
+	public static getFlatFolderList(root?: TriggerTreeItemData[]): TriggerTreeItemData[] {
+		if (!root) root = StoreProxy.triggers.triggerTree;
+		let res: TriggerTreeItemData[] = [];
+		for (const entry of root) {
+			if (entry.type == "folder") {
+				res.push(entry);
+			}
+			entry.children?.forEach((child) => {
+				if (child.type == "folder") {
+					res.push(child);
+					if (child.children) {
+						res.push(...this.getFlatFolderList(child.children));
+					}
+				}
+			});
+		}
+		return res;
 	}
 
 	/*******************

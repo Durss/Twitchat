@@ -6,11 +6,11 @@
 			v-if="!triggerId && folderTriggerList.length > 0"
 			@click="addFolder()"
 			v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'triggers_folder' }"
-			>{{ $t("triggers.create_folder") }}</TTButton
+			>{{ t("triggers.create_folder") }}</TTButton
 		>
 		<SearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
 			<Checkbox class="searchActions" v-model="searchInActions">{{
-				$t("triggers.search_in_actions")
+				t("triggers.search_in_actions")
 			}}</Checkbox>
 		</SearchForm>
 		<TriggerListFolderItem
@@ -22,9 +22,9 @@
 			@changeState="onToggleTrigger"
 			@delete="deleteTrigger"
 			@duplicate="duplicateTrigger"
-			@testTrigger="$emit('testTrigger', $event)"
-			@createTrigger="$emit('createTrigger', $event)"
-			@select="$emit('select', $event)"
+			@testTrigger="emit('testTrigger', $event)"
+			@createTrigger="emit('createTrigger', $event)"
+			@select="emit('select', $event)"
 		/>
 	</div>
 </template>
@@ -33,7 +33,6 @@
 import Checkbox from "@/components/Checkbox.vue";
 import TTButton from "@/components/TTButton.vue";
 import { useConfirm } from "@/composables/useConfirm";
-import { storeMain as useStoreMain } from "@/store/storeMain";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import {
 	TriggerTypesDefinitionList,
@@ -50,6 +49,7 @@ import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
 import TriggerListFolderItem from "./TriggerListFolderItem.vue";
+import { onBeforeMount } from "vue";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();
@@ -68,7 +68,7 @@ const props = withDefaults(
 	},
 );
 
-defineEmits<{
+const emit = defineEmits<{
 	select: [trigger: TriggerData];
 	testTrigger: [trigger: TriggerData];
 	createTrigger: [folderId: string];
@@ -104,8 +104,10 @@ const classes = computed((): string[] => {
 	return res;
 });
 
-// beforeMount logic
-populateTriggers();
+onBeforeMount(() => {
+	populateTriggers();
+});
+
 let isFirstRewardUpdate = true;
 watch(
 	() => props.rewards,
@@ -116,6 +118,39 @@ watch(
 		}
 		populateTriggers();
 	},
+);
+/**
+ * Sync folder enabled states from store tree back to local entries.
+ * This catches external mutations (ex: toggling a folder from the triggers)
+ * that bypass populateTriggers() and would otherwise be invisible to the UI.
+ */
+watch(
+	() => storeTriggers.triggerTree,
+	() => {
+		const enabledMap = new Map<string, boolean>();
+		function collectEnabled(items: TriggerTreeItemData[]) {
+			for (const item of items) {
+				if (item.type === "folder") {
+					enabledMap.set(item.id, item.enabled !== false);
+					if (item.children) collectEnabled(item.children);
+				}
+			}
+		}
+		collectEnabled(storeTriggers.triggerTree);
+		function syncEnabled(items: (TriggerListEntry | TriggerListFolderEntry)[]) {
+			for (const item of items) {
+				if (item.type === "folder") {
+					const storeEnabled = enabledMap.get(item.id);
+					if (storeEnabled !== undefined && item.enabled !== storeEnabled) {
+						item.enabled = storeEnabled;
+					}
+					syncEnabled(item.items);
+				}
+			}
+		}
+		syncEnabled(folderTriggerList.value);
+	},
+	{ deep: true },
 );
 startSequentialBuild();
 
@@ -390,6 +425,8 @@ function addFolder(): void {
 		expand: true,
 		color: { type: "color", value: "#60606c" },
 	});
+	onUpdateList();
+	populateTriggers();
 }
 
 export interface TriggerListEntry {
