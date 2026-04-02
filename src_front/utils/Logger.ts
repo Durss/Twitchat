@@ -2,6 +2,7 @@ import type { TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataT
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
+import { reactive } from "vue";
 
 /**
  * Created : 30/11/2023
@@ -9,7 +10,7 @@ import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataT
 export default class Logger {
 	private static _instance: Logger;
 
-	private logs: LogsHistory = {
+	private logs: LogsHistory = reactive({
 		ads: [],
 		obs: [],
 		irc: [],
@@ -17,7 +18,7 @@ export default class Logger {
 		youtube: [],
 		triggers: [],
 		subgifts: [],
-	};
+	});
 
 	constructor() {}
 
@@ -35,15 +36,18 @@ export default class Logger {
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-	public log<T extends LogsKey>(type: T, data: LogData[T]): void {
+	public log<T extends LogsKey>(type: T, data: LogData[T]): LogData[T] & { date: number } {
 		const fullData = data as LogData[T] & { date: number };
 		fullData.date = Date.now();
-		this.logs[type].push(fullData as any); //Dirty typing... I gave up...
+		const arr = this.logs[type];
+		arr.push(fullData as any); //Dirty typing... I gave up...
 		//Limit histories sizes
 		for (const key in this.logs) {
 			type keyType = keyof typeof this.logs;
 			if (this.logs[key as keyType].length > 500) this.logs[key as keyType].splice(1);
 		}
+		// Return the reactive version stored in the array, not the original plain object
+		return arr[arr.length - 1] as LogData[T] & { date: number };
 	}
 
 	public getLogs(type: LogsKey): any[] {

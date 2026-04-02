@@ -29,6 +29,7 @@
 			/>
 
 			<TTButton
+				v-if="!action.conditionList"
 				transparent
 				icon="merge"
 				light
