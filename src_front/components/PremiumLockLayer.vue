@@ -1,15 +1,16 @@
 <template>
 	<div class="premiumlocklayer" v-if="!$store.auth.isPremium">
 		<Icon name="premium" class="icon" />
-		<Button icon="premium" @click="openPremium()" light premium>{{
+		<TTButton icon="premium" @click="openPremium()" light premium>{{
 			$t("premium.become_premiumBt")
-		}}</Button>
+		}}</TTButton>
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { storeParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TTButton from "./TTButton.vue";
 
 const store = storeParams();
 function openPremium(): void {
