@@ -2,16 +2,15 @@
 	<div class="triggeractiontriggertoggleentry triggerActionForm">
 		<div class="field col" v-if="!action.triggerId">
 			<div class="item title">
-				{{ $t("triggers.actions.triggerToggle.select") }}
+				{{ t("triggers.actions.triggerToggle.select") }}
 			</div>
-
-			<SimpleTriggerList class="list" @select="onSelectTrigger" />
+			<SimpleTriggerList class="list" @select="onSelectTrigger" allowFolders />
 		</div>
 
 		<template v-else>
 			<div class="card-item field">
 				<Icon name="broadcast" />
-				<div class="item title">{{ $t("triggers.actions.triggerToggle.selected") }}</div>
+				<div class="item title">{{ t("triggers.actions.triggerToggle.selected") }}</div>
 				<SimpleTriggerList
 					:filteredItemId="action.triggerId"
 					@click="action.triggerId = ''"
@@ -36,6 +35,9 @@ import type {
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { onBeforeMount, ref } from "vue";
 import SimpleTriggerList from "../SimpleTriggerList.vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
 	action: TriggerActionTriggerToggleData;

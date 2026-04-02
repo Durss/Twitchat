@@ -10,6 +10,7 @@
 
 		<div class="actions">
 			<TTButton
+				v-if="!action.conditionList"
 				transparent
 				icon="merge"
 				@click="$emit('addCondition')"

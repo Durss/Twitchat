@@ -408,7 +408,7 @@
 				"loop_delails": "Ceci risque de rendre Twitchat instable."
 			},
 			"triggerToggle": {
-				"select": "Sélectionnez le trigger duquel changer l'état",
+				"select": "Sélectionnez le trigger ou dossier duquel changer l'état",
 				"selected": "Trigger à modifier",
 				"action": "Action à exécuter",
 				"action_enable": "Activer le trigger",

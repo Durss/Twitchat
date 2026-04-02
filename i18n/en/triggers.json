@@ -408,7 +408,7 @@
 				"loop_delails": "This may make twitchat unstable."
 			},
 			"triggerToggle": {
-				"select": "Select the trigger you want to control",
+				"select": "Select the trigger or folder you want to control",
 				"selected": "Trigger to update",
 				"action": "Action",
 				"action_enable": "Enable trigger",
