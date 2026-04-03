@@ -1694,10 +1694,10 @@ export interface IStreamActions {
 	 */
 	setCommunityBoost(value: TwitchatDataTypes.CommunityBoost | undefined): void;
 	/**
-	 * Save a new stream info preset
+	 * Save a new stream info preset or current list if preset param is not set
 	 * @param preset
 	 */
-	saveStreamInfoPreset(preset: TwitchatDataTypes.StreamInfoPreset): void;
+	saveStreamInfoPreset(preset?: TwitchatDataTypes.StreamInfoPreset): void;
 	/**
 	 * Delete a stream info preset
 	 * @param preset

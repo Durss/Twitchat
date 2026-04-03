@@ -22,6 +22,7 @@
 			:group="{ name: 'labels' }"
 			handle=".header"
 			animation="250"
+			@end="$store.customTrain.saveData()"
 		>
 			<ToggleBlock
 				v-for="entry in $store.customTrain.customTrainList"

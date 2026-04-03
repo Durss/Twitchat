@@ -24,6 +24,7 @@
 				:group="{ name: 'quiz' }"
 				handle=".header"
 				animation="250"
+				@end="$store.quiz.saveData()"
 			>
 				<ToggleBlock
 					v-for="quiz in $store.quiz.quizList"

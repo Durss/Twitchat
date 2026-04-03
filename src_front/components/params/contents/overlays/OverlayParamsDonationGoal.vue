@@ -22,6 +22,7 @@
 			:group="{ name: 'bingo_grids' }"
 			handle=".header"
 			animation="250"
+			@end="$store.donationGoals.saveData()"
 		>
 			<ToggleBlock
 				v-for="overlay in $store.donationGoals.overlayList"
