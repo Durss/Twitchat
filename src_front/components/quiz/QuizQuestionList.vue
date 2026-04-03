@@ -17,6 +17,7 @@
 			:group="{ name: 'questionList_' + quiz.id }"
 			handle=".dragHandle"
 			:animation="250"
+			@end="$store.quiz.saveData()"
 		>
 			<QuizQuestionItem
 				v-for="question in filteredQuestions"

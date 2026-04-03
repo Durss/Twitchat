@@ -17,6 +17,7 @@
 				:group="{ name: 'bingo_grids' }"
 				handle=".header"
 				animation="250"
+				@end="$store.bingoGrid.saveData()"
 			>
 				<ToggleBlock
 					v-for="bingo in $store.bingoGrid.gridList"
