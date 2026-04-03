@@ -47,13 +47,14 @@
 
 				<ToggleButton
 					v-if="!paramData.noInput"
-					class="ToggleButton.vue"
-					v-model="paramData.value as boolean"
+					class="toggleButton"
+					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
 					:inputId="'toggle' + key"
 					:disabled="disabled !== false || paramData.disabled === true"
+					@change="emit('input')"
 				/>
 				<slot name="composite" />
 			</div>
@@ -212,7 +213,7 @@
 					ref="input"
 					v-if="!paramData.noInput"
 					:id="'duration' + key"
-					v-model="paramData.value as number"
+					v-model="paramData.value"
 					:allowMs="paramData.allowMs"
 					:autofocus="autofocus"
 					:tabindex="tabindex"
@@ -278,7 +279,7 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
-					v-model="paramData.value as number"
+					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
@@ -512,7 +513,7 @@
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 				/>
 				<TTButton
-					v-model:file="paramData.value as string"
+					v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
@@ -526,10 +527,7 @@
 			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field">
-					<PlaceholderField
-						v-model="paramData.value as string"
-						:maxLength="paramData.maxLength"
-					/>
+					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
 				</div>
 			</div>
 
