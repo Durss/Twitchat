@@ -22,6 +22,7 @@
 			:group="{ name: 'labels' }"
 			handle=".header"
 			animation="250"
+			@end="$store.labels.saveData()"
 		>
 			<ToggleBlock
 				v-for="label in $store.labels.labelList"
