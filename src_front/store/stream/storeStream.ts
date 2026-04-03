@@ -424,14 +424,16 @@ export const storeStream = defineStore("stream", {
 			this.communityBoostState = value;
 		},
 
-		saveStreamInfoPreset(preset: TwitchatDataTypes.StreamInfoPreset) {
-			const index = this.streamInfoPreset.findIndex((v) => v.id == preset.id);
-			if (index > -1) {
-				//update existing preset
-				this.streamInfoPreset[index] = preset;
-			} else {
-				//add new preset
-				this.streamInfoPreset.push(preset);
+		saveStreamInfoPreset(preset?: TwitchatDataTypes.StreamInfoPreset) {
+			if (preset) {
+				const index = this.streamInfoPreset.findIndex((v) => v.id == preset.id);
+				if (index > -1) {
+					//update existing preset
+					this.streamInfoPreset[index] = preset;
+				} else {
+					//add new preset
+					this.streamInfoPreset.push(preset);
+				}
 			}
 			DataStore.set(DataStore.STREAM_INFO_PRESETS, this.streamInfoPreset);
 		},

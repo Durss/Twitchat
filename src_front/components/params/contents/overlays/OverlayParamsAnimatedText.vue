@@ -14,6 +14,7 @@
 			:group="{ name: 'labels' }"
 			handle=".header"
 			animation="250"
+			@end="$store.animatedText.saveData()"
 		>
 			<ToggleBlock
 				v-for="entry in $store.animatedText.animatedTextList"
