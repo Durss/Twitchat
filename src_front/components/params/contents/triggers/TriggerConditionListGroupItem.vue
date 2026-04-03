@@ -23,6 +23,7 @@
 					:forceFallback="false"
 					:handle="'.dragIcon'"
 					group="triggerCondition"
+					@end="$store.triggers.saveTriggers()"
 				>
 					<div class="item" v-for="element in c.conditions" :key="element.id">
 						<TriggerConditionListGroupItem
@@ -109,12 +110,6 @@ function addItem(item: TriggerCondition | TriggerConditionGroup): void {
 			value: "",
 		});
 	}
-}
-
-function deleteItem(item: TriggerCondition | TriggerConditionGroup): void {
-	const index = props.parentCondition.conditions.findIndex((v) => v.id === item.id);
-	if (index === -1) return; //Item not found
-	props.parentCondition.conditions.splice(index, 1);
 }
 
 function toggleOperator(item: TriggerConditionGroup): void {
