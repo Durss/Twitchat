@@ -55,6 +55,8 @@ export default class TTSUtils {
 	private _lastMessageTime: number = 0;
 	private _stopTimeout: number = -1;
 	private _readComplete: boolean = false;
+	private _currentlyPlayingMessageId: string | null = null;
+	private _cancelReadHandler: () => void = () => {};
 
 	/***********
 	 * HANDLERS *
@@ -155,13 +157,13 @@ export default class TTSUtils {
 		if (clearQueue) {
 			this._pendingMessages = [];
 		}
-		if (window.speechSynthesis) window.speechSynthesis.cancel();
+		this._cancelReadHandler();
 
 		//This is a shit workaround a change in browsers behavior.
 		//Before this, when calling "speechSynthesis.cancel()" the
 		//"onend" event was fired which was doing necessary things
 		//for proper twitchat behavior.
-		//For some reasong it doesn't anymore (at least on Vivaldi)
+		//For some reason it doesn't anymore (at least on Vivaldi)
 		//Here we check if reading completed or not after a short
 		//delay, if not, we execute necessary things.
 		window.setTimeout(() => {
@@ -279,6 +281,18 @@ export default class TTSUtils {
 			void this.readNextMessage();
 		} else {
 			this._pendingMessages.push(m);
+		}
+	}
+
+	public cancelMessage(message: TwitchatDataTypes.ChatMessageTypes): void {
+		const index = this._pendingMessages.findIndex(
+			(m) => m.message && m.message.id == message.id,
+		);
+		if (index !== -1) {
+			this._pendingMessages.splice(index, 1);
+		}
+		if (this._currentlyPlayingMessageId == message.id) {
+			window.speechSynthesis.cancel();
 		}
 	}
 
@@ -899,7 +913,6 @@ export default class TTSUtils {
 
 		const messageEntry = this._pendingMessages[0]!;
 		let skipMessage = false;
-
 		//Message deleted?
 		if (messageEntry.message) {
 			if (TwitchatDataTypes.DeletableMessageTypes.includes(messageEntry.message.type)) {
@@ -971,6 +984,11 @@ export default class TTSUtils {
 						URL.revokeObjectURL(audioUrl);
 						this.onReadComplete();
 					};
+					this._cancelReadHandler = () => {
+						audio.pause();
+						URL.revokeObjectURL(audioUrl);
+						this.onReadComplete();
+					};
 				} else {
 					fallbackToSystem = true;
 				}
@@ -1003,6 +1021,10 @@ export default class TTSUtils {
 			};
 
 			if (window.speechSynthesis) window.speechSynthesis.speak(mess);
+			this._cancelReadHandler = () => {
+				if (window.speechSynthesis) window.speechSynthesis.cancel();
+				this.onReadComplete();
+			};
 		}
 
 		if (paramsTTS.maxDuration > 0) {

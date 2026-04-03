@@ -3106,7 +3106,6 @@ export const storeChat = defineStore("chat", {
 			if (message.fake) {
 				message.deleted = true;
 
-				console.log(message.type);
 				//Don't keep automod accept/reject message
 				if (
 					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
@@ -3114,7 +3113,6 @@ export const storeChat = defineStore("chat", {
 				) {
 					const i = messageList.findIndex((v) => v.id === message.id);
 					messageList.splice(i, 1);
-					console.log("REMOVE");
 					void Database.instance.deleteMessage(message);
 				}
 
@@ -3189,6 +3187,7 @@ export const storeChat = defineStore("chat", {
 			EventBus.instance.dispatchEvent(
 				new GlobalEvent(GlobalEvent.DELETE_MESSAGE, { message: message, force: false }),
 			);
+			TTSUtils.instance.cancelMessage(message);
 		},
 
 		delUserMessages(uid: string, channelId: string) {
