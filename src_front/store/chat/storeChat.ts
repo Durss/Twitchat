@@ -2404,6 +2404,7 @@ export const storeChat = defineStore("chat", {
 										subgiftHistoryEntry.gift_count,
 									);
 								}
+								Database.instance.updateMessage(subgiftHistoryEntry);
 								Logger.instance.log("subgifts", {
 									id: message.id,
 									merged: true,
