@@ -1080,6 +1080,9 @@ export default class Utils {
 	 * Make string "file name" safe by removing invalid characters
 	 */
 	public static makeFileSafe(str: string): string {
+		// If it's a URL, keep it as is
+		if (/^https?:\/\//g.test(str)) return str;
+
 		// Remove or replace invalid filename characters
 		return (
 			str
