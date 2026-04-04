@@ -359,10 +359,6 @@ export const storeQuiz = defineStore("quiz", {
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
 			if (index < quiz.questionList.length - 1) {
 				quiz.currentQuestionId = quiz.questionList[index + 1]!.id;
-			} else {
-				quiz.currentQuestionId = "";
-				quiz.currentQuestionId = quiz.questionList[0]?.id ?? ""; //TODO: remove this. Only here for testing to loop back to 1st question
-				//TODO: quiz ended, do whatever needs to be done at that moment
 			}
 			void this.saveData(quizId, false, true);
 		},
@@ -404,6 +400,25 @@ export const storeQuiz = defineStore("quiz", {
 			// Compute scores, must run before resetting questionStarted_at (needed for time-based scoring)
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
+			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
+			if (index === quiz.questionList.length - 1) {
+				const message: TwitchatDataTypes.MessageQuizCompleteData = {
+					channel_id: StoreProxy.auth.twitch.user.id,
+					platform: "twitch",
+					type: "quiz_complete",
+					id: Utils.getUUID(),
+					date: Date.now(),
+					quizResult: {
+						quizId: quiz.id,
+						quizName: quiz.title,
+						leaderboard: Object.entries(quiz.leaderboard || {}).map(([uid, data]) => ({
+							uid,
+							...data,
+						})),
+					},
+				};
+				void StoreProxy.chat.addMessage(message);
+			}
 			void this.saveData(quizId, false, true);
 		},
 

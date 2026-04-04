@@ -146,7 +146,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok gifts",
 				"tiktok_share": "Tiktok share",
-				"private_mod_message": "Private mod messages"
+				"private_mod_message": "Private mod messages",
+				"quiz_complete": "Quiz result"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -623,6 +624,12 @@
 		},
 		"many_replies": {
 			"label": "This message is getting attention with {COUNT} direct or indirect replies"
+		},
+		"quiz_result": {
+			"title": "Quiz \"{TITLE}\" completed.",
+			"info": "{USER_COUNT} participants. Winner: {WINNER}",
+			"leaderboard_bt": "Leaderboard",
+			"search_placeholder": "Search user..."
 		}
 	}
 }

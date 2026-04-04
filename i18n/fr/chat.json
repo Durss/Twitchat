@@ -146,7 +146,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok cadeaux",
 				"tiktok_share": "Tiktok partages",
-				"private_mod_message": "Messages de modération privés"
+				"private_mod_message": "Messages de modération privés",
+				"quiz_complete": "Résultat d'un quiz"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -623,6 +624,12 @@
 		},
 		"many_replies": {
 			"label": "Ce message attire l'attention avec {COUNT} réponses directes ou indirectes"
+		},
+		"quiz_result": {
+			"title": "Quiz \"{TITLE}\" terminé.",
+			"info": "{USER_COUNT} partcipant·es. Gagnant·e : {WINNER}",
+			"leaderboard_bt": "Classement",
+			"search_placeholder": "Chercher un pseudo..."
 		}
 	}
 }
