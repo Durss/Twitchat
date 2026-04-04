@@ -163,9 +163,10 @@
 					</tooltip>
 
 					<div class="paramsList">
-						<SearchForm v-model="searchTerm" />
+						<SearchForm v-model="searchTerms" :debounceDelay="0" />
 						<ParamItem
 							class="toggleAll"
+							v-if="!searchTerms"
 							noBackground
 							:paramData="param_toggleAll"
 							v-model="param_toggleAll.value"
@@ -174,8 +175,8 @@
 
 						<div
 							class="item"
-							v-for="filter in filters"
-							:key="'filter_' + filter.storage"
+							v-for="filter in filteredFilters"
+							:key="'filter_' + filter.storage!.type"
 						>
 							<Icon
 								name="show"
@@ -230,7 +231,15 @@
 											<div class="preview"></div>
 
 											<ParamItem
-												v-if="config.filters.message === true"
+												v-if="
+													config.filters.message === true &&
+													(!searchTerms ||
+														t(param_hideUsers.labelKey || '')
+															.toLowerCase()
+															.includes(
+																searchTerms.toLowerCase().trim(),
+															))
+												"
 												key="subfilter_blockUsers"
 												:paramData="param_hideUsers"
 												@change="saveData()"
@@ -238,7 +247,11 @@
 											/>
 										</div>
 
-										<div class="item" v-for="messageFilter in messageFilters">
+										<div
+											class="item"
+											v-for="messageFilter in filteredMessageFilters"
+											:key="'subfilter_' + messageFilter.storage!.type"
+										>
 											<Icon
 												name="show"
 												class="preview"
@@ -265,7 +278,18 @@
 										</div>
 
 										<template v-if="storeUsers.customBadgeList.length > 0">
-											<div class="item">
+											<div
+												class="item"
+												v-if="
+													storeUsers.customBadgeList.length > 0 &&
+													(!searchTerms ||
+														t(param_showBadges.labelKey || '')
+															.toLowerCase()
+															.includes(
+																searchTerms.toLowerCase().trim(),
+															))
+												"
+											>
 												<div class="preview"></div>
 												<ParamItem
 													key="subfilter_blockUsers"
@@ -286,6 +310,7 @@
 															"
 															:key="badge.id + '_show'"
 															:title="badge.name"
+															v-tooltip="badge.name"
 														>
 															<img
 																:src="badge.img"
@@ -298,7 +323,15 @@
 
 											<div
 												class="item"
-												v-if="storeUsers.customBadgeList.length > 0"
+												v-if="
+													storeUsers.customBadgeList.length > 0 &&
+													(!searchTerms ||
+														t(param_hideBadges.labelKey || '')
+															.toLowerCase()
+															.includes(
+																searchTerms.toLowerCase().trim(),
+															))
+												"
 											>
 												<div class="preview"></div>
 												<ParamItem
@@ -320,6 +353,7 @@
 															"
 															:key="badge.id + '_show'"
 															:title="badge.name"
+															v-tooltip="badge.name"
 														>
 															<img
 																:src="badge.img"
@@ -543,7 +577,7 @@ const emit = defineEmits<{
 	change: [];
 }>();
 
-const searchTerm = ref<string>("");
+const searchTerms = ref<string>("");
 const previewIndex = ref<number>(0);
 const error = ref<boolean>(false);
 const expand = ref<boolean>(false);
@@ -607,10 +641,6 @@ const param_backgroundColor = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "color",
 	value: "#ffffff",
 });
-const messageKeyToScope = ref<
-	| { [key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]: TwitchScopesString[] }
-	| null
->(null);
 
 let mouseY = 0;
 let disposed = false;
@@ -642,6 +672,37 @@ const classes = computed((): string[] => {
 
 const canDelete = computed((): boolean => {
 	return storeParams.chatColumnsConfig.length > 1;
+});
+
+const filteredMessageFilters = computed(() => {
+	const term = searchTerms.value.toLowerCase().trim();
+	if (!term) return messageFilters.value;
+	return messageFilters.value.filter((f) => {
+		const label = f.labelKey ? t(f.labelKey).toLowerCase() : "";
+		return label.includes(term);
+	});
+});
+
+const filteredFilters = computed(() => {
+	const term = searchTerms.value.toLowerCase().trim();
+	if (!term) return filters.value;
+	const staticItems = [
+		t(param_showBadges.value.labelKey!),
+		t(param_hideBadges.value.labelKey!),
+		t(param_hideUsers.value.labelKey!),
+	];
+	return filters.value.filter((f) => {
+		const label = f.labelKey ? t(f.labelKey).toLowerCase() : "";
+		if (label.includes(term)) return true;
+		// Keep the "message" parent visible if any child messageFilter matches
+		if (f.storage?.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			return (
+				filteredMessageFilters.value.length > 0 ||
+				staticItems.some((item) => item.toLowerCase().includes(term))
+			);
+		}
+		return false;
+	});
 });
 
 const channels = computed(() => {
