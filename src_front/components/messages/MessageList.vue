@@ -1030,6 +1030,10 @@ class MessageList extends Vue {
 				return this.config.filters.streamsocket_action !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
+				return this.config.filters.quiz_complete !== false;
+			}
+
 			default:
 				return false;
 		}
