@@ -59,7 +59,7 @@ class ChatUnbanRequest extends AbstractChatMessage {
 		return res;
 	}
 
-	public mounted(): void {
+	public beforeMount(): void {
 		if (this.messageData.isResolve) {
 			this.label = this.messageData.accepted
 				? "chat.unban_request.accepted"

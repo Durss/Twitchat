@@ -1,5 +1,5 @@
 <template>
-	<div class="triggersearchform">
+	<div class="searchform">
 		<div class="search">
 			<Icon name="loader" class="searchIcon" v-if="searchDebouncing" />
 			<Icon name="search" class="searchIcon" v-else />
@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
 });
 </script>
 <style scoped lang="less">
-.triggersearchform {
+.searchform {
 	display: flex;
 	flex-direction: column;
 	color: var(--color-text);
@@ -86,7 +86,6 @@ onBeforeUnmount(() => {
 		}
 		input {
 			width: 100%;
-			border-radius: var(--border-radius);
 			padding: 0.25em;
 			padding-left: 2em;
 			padding-right: 2em;

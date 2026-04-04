@@ -367,7 +367,6 @@ export const storeDebug = defineStore("debug", {
 							resolve,
 						);
 					});
-					console.log("USER LOADED", user.avatarPath);
 					const m: TwitchatDataTypes.MessageRaidData = {
 						id: Utils.getUUID(),
 						platform: "twitch",
