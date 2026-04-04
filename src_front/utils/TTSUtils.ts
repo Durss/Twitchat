@@ -275,6 +275,16 @@ export default class TTSUtils {
 		);
 		if (scheduledInstance) return;
 
+		// For first messages, we wait a little before adding them to the queue
+		// to avoid reading messages that are quickly deleted by the user or a bot, or caught by automod
+		if (
+			message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+			message.twitch_isFirstMessage
+		) {
+			await Utils.promisedTimeout(2000);
+			if (message.deleted) return;
+		}
+
 		const m: SpokenMessage = { message, id, text, params, force, date: Date.now() };
 		if (this._pendingMessages.length == 0) {
 			this._pendingMessages.push(m);
@@ -292,7 +302,7 @@ export default class TTSUtils {
 			this._pendingMessages.splice(index, 1);
 		}
 		if (this._currentlyPlayingMessageId == message.id) {
-			window.speechSynthesis.cancel();
+			this._cancelReadHandler();
 		}
 	}
 
@@ -998,6 +1008,7 @@ export default class TTSUtils {
 		}
 
 		if (voice?.platform == "system" || fallbackToSystem) {
+			this._currentlyPlayingMessageId = messageEntry.message?.id || null;
 			const mess = new SpeechSynthesisUtterance(messageEntry.text);
 			mess.rate = messageEntry.params?.rate || paramsTTS.rate;
 			mess.pitch = messageEntry.params?.pitch || paramsTTS.pitch;
@@ -1054,6 +1065,8 @@ export default class TTSUtils {
 	 * Called when reading of a message completes or is interrupted
 	 */
 	private onReadComplete(): void {
+		this._currentlyPlayingMessageId = null;
+		this._cancelReadHandler = () => {};
 		this._readComplete = true;
 		this._pendingMessages.shift();
 		clearTimeout(this._stopTimeout);
