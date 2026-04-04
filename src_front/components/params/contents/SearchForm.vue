@@ -8,6 +8,7 @@
 				:placeholder="$t('global.search_placeholder')"
 				v-model="search"
 				v-autofocus="!props.noAutoFocus"
+				@keydown.enter="emit('submit', search)"
 				@keydown.esc="(e) => onKeyUp(e)"
 			/>
 			<Icon name="cross" class="clearSearch" v-if="search" @click="search = ''" />
@@ -21,6 +22,7 @@ import { ref, watch, onBeforeUnmount } from "vue";
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: string): void;
+	(e: "submit", value: string): void;
 }>();
 
 const props = defineProps<{

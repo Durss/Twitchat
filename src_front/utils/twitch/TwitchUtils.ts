@@ -37,6 +37,7 @@ export default class TwitchUtils {
 	private static currentlyPinnedMessageId: string = "";
 	private static requestScopesCallback: (scopes: TwitchScopesString[]) => void;
 	private static refreshTokenCallback: () => Promise<false | TwitchDataTypes.AuthTokenResult>;
+	private static userInfoCache = new Map<string, TwitchDataTypes.UserInfo>();
 
 	public static get headers(): { [key: string]: string } {
 		return {
@@ -244,10 +245,17 @@ export default class TwitchUtils {
 		logins?: string[],
 		signal?: AbortSignal,
 	): Promise<TwitchDataTypes.UserInfo[]> {
-		let items: string[] | undefined = ids ? ids : logins;
+		let items = ids ? ids : logins;
 		if (items == undefined) return [];
 		items = items.filter((v) => v != null && v != undefined);
-		items = items.map((v) => encodeURIComponent(v));
+
+		// Get cached users
+		const cachedUsers =
+			items.map((v) => this.userInfoCache.get(v.toLowerCase())).filter((v) => !!v) ?? [];
+		if (cachedUsers.length >= items.length) return cachedUsers;
+
+		// Only keep not cached users
+		items = items.filter((v) => !this.userInfoCache.has(v.toLowerCase()));
 
 		let users: TwitchDataTypes.UserInfo[] = [];
 		//Split by 100 max to comply with API limitations
@@ -272,7 +280,12 @@ export default class TwitchUtils {
 				return await this.getUserInfo(ids, logins, signal);
 			} else if (result.status == 500 || result.status == 499) break;
 		}
-		return users;
+
+		users.forEach((user) => {
+			this.userInfoCache.set(user.id.toLowerCase(), user);
+			this.userInfoCache.set(user.login.toLowerCase(), user);
+		});
+		return [...cachedUsers, ...users];
 	}
 
 	/**
