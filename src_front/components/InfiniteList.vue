@@ -108,10 +108,11 @@ const showScrollbar = computed<boolean>(() => {
 function onWheel(e: WheelEvent): void {
 	scrollOffset_local.value += e.deltaY;
 	if (props.lockScroll) {
-		if (scrollOffset_local.value <= 0 && e.deltaY < 0) return;
-		if (scrollOffset_local.value > maxScrollY && e.deltaY > 0) return;
+		if (scrollOffset_local_eased.value <= 0 && e.deltaY < 0) return;
+		if (scrollOffset_local_eased.value > maxScrollY && e.deltaY > 0) return;
 	}
 	e.preventDefault();
+	e.stopPropagation();
 }
 
 function onDragStart(e: MouseEvent | TouchEvent): void {
@@ -126,6 +127,7 @@ function onDragStart(e: MouseEvent | TouchEvent): void {
 	} else {
 		draggingCursor = true;
 	}
+	e.stopPropagation();
 }
 
 function ondragStartList(e: MouseEvent | TouchEvent): void {
@@ -133,6 +135,7 @@ function ondragStartList(e: MouseEvent | TouchEvent): void {
 	onDrag(e);
 	draggingList = true;
 	draggingListOffset = mouseY;
+	e.stopPropagation();
 }
 
 function onDrag(e: MouseEvent | TouchEvent): void {
@@ -141,15 +144,17 @@ function onDrag(e: MouseEvent | TouchEvent): void {
 	} else {
 		mouseY = (e as TouchEvent).touches[0]!.clientY;
 	}
+	e.stopPropagation();
 }
 
-function onDragStop(_e: MouseEvent | TouchEvent): void {
+function onDragStop(e: MouseEvent | TouchEvent): void {
 	if (draggingList) {
 		scrollOffset_local.value += draggSpeed * 20;
 	}
 	draggingCursor = false;
 	trackPressed = false;
 	draggingList = false;
+	e.stopPropagation();
 }
 
 /**
@@ -233,7 +238,7 @@ async function renderList(ts: number): Promise<void> {
 		if (draggingCursor) {
 			const py = (mouseY - scrollbar_b.top - cursorOffsetY) / scrollH;
 			scrollOffset_local.value = maxScrollY * py;
-			scrollOffset_local_eased.value = maxScrollY * py;
+			scrollOffset_local_eased.value = Math.max(0, Math.min(maxScrollY, maxScrollY * py));
 		} else if (trackPressed) {
 			const py = (mouseY - scrollbar_b.top - scrollbarCursor_b.height / 2) / scrollH;
 			scrollOffset_local.value = maxScrollY * py;
@@ -257,7 +262,8 @@ async function renderList(ts: number): Promise<void> {
 	}
 
 	rootElRef.value.querySelectorAll(".list-item").forEach((el, index) => {
-		(el as HTMLElement).style.transform = `translateY(${items.value[index]!.py}px)`;
+		if (!items.value[index]) return;
+		(el as HTMLElement).style.transform = `translateY(${items.value[index].py}px)`;
 	});
 
 	if (scrollOffset_local_eased.value != scrollOffset_local.value) {

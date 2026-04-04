@@ -4836,6 +4836,7 @@ export namespace TwitchatDataTypes {
 		SUBSCRIPTION: "subscription",
 		AUTOBAN_JOIN: "autoban_join",
 		WARN_CHATTER: "warn_chatter",
+		QUIZ_COMPLETE: "quiz_complete",
 		SUPER_STICKER: "super_sticker",
 		UNBAN_REQUEST: "unban_request",
 		SCOPE_REQUEST: "scope_request",
@@ -4963,6 +4964,7 @@ export namespace TwitchatDataTypes {
 		tiktok_share: true,
 		twitch_combo: true,
 		many_replies: true,
+		quiz_complete: true,
 		super_sticker: true,
 		value_update: false,
 		unban_request: true,
@@ -5195,6 +5197,7 @@ export namespace TwitchatDataTypes {
 		| MessageTwitchComboData
 		| MessageObsWsConnectStateChangeData
 		| MessageManyRepliesData
+		| MessageQuizCompleteData
 		| MessageModiversaryData
 		| MessageTwitchCustomPowerUpData;
 
@@ -5248,7 +5251,8 @@ export namespace TwitchatDataTypes {
 		| typeof TwitchatMessageType.WHISPER
 		| typeof TwitchatMessageType.MESSAGE
 		| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
-		| typeof TwitchatMessageType.STREAMSOCKET_ACTION;
+		| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+		| typeof TwitchatMessageType.QUIZ_COMPLETE;
 
 	export const MessageListFilterTypes: {
 		type: AllowFilterTypes;
@@ -5420,6 +5424,13 @@ export namespace TwitchatDataTypes {
 			icon: "ticket",
 			scopes: [],
 			newFlag: 0,
+		},
+		{
+			type: TwitchatMessageType.QUIZ_COMPLETE,
+			labelKey: "chat.filters.message_types.quiz_complete",
+			icon: "quiz",
+			scopes: [],
+			newFlag: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 		{
 			type: TwitchatMessageType.TWITCH_CHARITY_DONATION,
@@ -8962,6 +8973,21 @@ export namespace TwitchatDataTypes {
 		 * New connection state
 		 */
 		message: MessageChatData;
+	}
+
+	/**
+	 * Called when a quiz completes
+	 */
+	export interface MessageQuizCompleteData extends AbstractTwitchatMessage {
+		type: "quiz_complete";
+		/**
+		 * New connection state
+		 */
+		quizResult: {
+			quizName: string;
+			quizId: string;
+			leaderboard: (QuizParams["leaderboard"][number] & { uid: string })[];
+		};
 	}
 
 	/**
