@@ -52,7 +52,6 @@
 
 				<MessageItem
 					class="message"
-					light
 					:messageData="messageData.parentMessage"
 					@showConversation="
 						(messageData: TwitchatDataTypes.ChatMessageTypes) =>
