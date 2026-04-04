@@ -3119,6 +3119,7 @@ export const storeChat = defineStore("chat", {
 				EventBus.instance.dispatchEvent(
 					new GlobalEvent(GlobalEvent.DELETE_MESSAGE, { message: message, force: false }),
 				);
+				TTSUtils.instance.cancelMessage(message);
 				return;
 			}
 			message.deleted = true;
@@ -3220,6 +3221,7 @@ export const storeChat = defineStore("chat", {
 					mTyped.cleared = true;
 					StoreProxy.qna.onDeleteMessage(m.id);
 					void Database.instance.updateMessage(m);
+					TTSUtils.instance.cancelMessage(m);
 					// mTyped.deleted = true;
 					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
