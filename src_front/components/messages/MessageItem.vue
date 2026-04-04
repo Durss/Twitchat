@@ -132,8 +132,8 @@ import ChatModiversary from "./ChatModiversary.vue";
 const props = withDefaults(
 	defineProps<{
 		messageData: TwitchatDataTypes.ChatMessageTypes;
-		colIndex: number;
-		lightMode: boolean;
+		colIndex?: number;
+		lightMode?: boolean;
 		childrenList?: TwitchatDataTypes.ChatMessageTypes[];
 		disableConversation?: boolean;
 	}>(),
