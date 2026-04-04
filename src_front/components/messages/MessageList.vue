@@ -203,9 +203,7 @@ import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
 import TTButton from "../TTButton.vue";
 import ClearButton from "../ClearButton.vue";
 import MessageItem from "./MessageItem.vue";
-import MessageListFilter, {
-	MessageListFilter as MessageListFilterClass,
-} from "./components/MessageListFilter.vue";
+import MessageListFilter from "./components/MessageListFilter.vue";
 import { RoughEase } from "gsap/all";
 import { Linear } from "gsap/all";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
@@ -540,7 +538,7 @@ class MessageList extends Vue {
 	 * Opens up the message filters
 	 */
 	public openFilters(): void {
-		(this.$refs.listFilter as MessageListFilterClass).openFilters();
+		(this.$refs.listFilter as any).openFilters();
 	}
 
 	/**

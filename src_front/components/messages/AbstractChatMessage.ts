@@ -13,13 +13,13 @@ export default class AbstractChatMessage extends Vue {
 	public messageData!: TwitchatDataTypes.ChatMessageTypes;
 
 	@Prop
-	public childrenList!: TwitchatDataTypes.ChatMessageTypes[];
+	public childrenList?: TwitchatDataTypes.ChatMessageTypes[];
 
 	@Prop({ type: Boolean, default: false })
-	public lightMode!: boolean;
+	public lightMode?: boolean;
 
 	@Prop({ type: Boolean, default: false })
-	public contextMenuOff!: boolean;
+	public contextMenuOff?: boolean;
 
 	public time: string = "";
 
