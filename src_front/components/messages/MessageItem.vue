@@ -3,7 +3,7 @@
 		<img
 			v-if="
 				messageData.channelSource?.pic &&
-				$store.params.appearance.multiChatAvatar.value === true
+				storeParams.appearance.multiChatAvatar.value === true
 			"
 			class="avatar"
 			v-tooltip="messageData.channelSource.name"
@@ -13,8 +13,8 @@
 
 		<template
 			v-if="
-				($store.params.appearance.multiChatAvatar.value === false ||
-					$store.params.appearance.multiChatColor.value === true) &&
+				(storeParams.appearance.multiChatAvatar.value === false ||
+					storeParams.appearance.multiChatColor.value === true) &&
 				messageData.channelSource
 			"
 		>
@@ -22,7 +22,7 @@
 
 			<span
 				class="side"
-				v-if="$store.params.appearance.multiChatAvatar.value !== true"
+				v-if="storeParams.appearance.multiChatAvatar.value !== true"
 				v-tooltip="messageData.channelSource.name"
 				:style="{ color: messageData.channelSource.color }"
 			></span>
@@ -53,10 +53,11 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ChatMessage from "@/components/messages/ChatMessage.vue";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { computed, type Component as VueComponent } from "vue";
 import ChatAd from "./ChatAd.vue";
 import ChatAutobanJoin from "./ChatAutobanJoin.vue";
 import ChatBan from "./ChatBan.vue";
@@ -124,196 +125,126 @@ import ChatCustomTrainSummary from "./ChatCustomTrainSummary.vue";
 import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
 import ChatTwitchCombo from "./ChatTwitchCombo.vue";
 import ChatManyReplies from "./ChatManyReplies.vue";
+import ChatQuizResult from "./ChatQuizResult.vue";
 import ChatCustomPowerUp from "./ChatCustomPowerUp.vue";
 
-@Component({
-	name: "MessageItem",
-	components: {
-		ChatAd,
-		ChatBan,
-		ChatRaid,
-		ChatBits,
-		ChatUnban,
-		ChatClear,
-		ChatFollow,
-		ChatReward,
-		ChatNotice,
-		ChatConnect,
-		ChatMessage,
-		ChatWarnUser,
-		ChatShoutout,
-		ChatHateRaid,
-		ChatKofiEvent,
-		ChatTikTokSub,
-		ChatTikTokGift,
-		ChatTikTokLike,
-		ChatTikTokShare,
-		ChatPinNotice,
-		ChatJoinLeave,
-		ChatTrackStart,
-		ChatPollResult,
-		ChatGiantEmote,
-		ChatTipeeeEvent,
-		ChatStreamOnOff,
-		ChatBingoResult,
-		ChatWatchStreak,
-		ChatCelebration,
-		ChatTimerResult,
-		ChatAutobanJoin,
-		ChatManyReplies,
-		ChatTiltifyEvent,
-		ChatUnbanRequest,
-		ChatRoomSettings,
-		ChatPatreonEvent,
-		ChatRaffleResult,
-		ChatSubscription,
-		ChatCustomMessage,
-		ChatYoutubeSubgift,
-		ChatAdBreakStarted,
-		ChatCommunityBoost,
-		ChatScopeRequester,
-		ChatHistorySplitter,
-		ChatStreamlabsEvent,
-		ChatFollowbotEvents,
-		ChatHypeTrainResult,
-		ChatCountdownResult,
-		ChatHypeChatMessage,
-		ChatPrivateModerator,
-		ChatPredictionResult,
-		ChatYoutubeSuperChat,
-		ChatTrackAddedToQueue,
-		ChatHypeTrainCooldown,
-		ChatLowTrustTreatment,
-		ChatCustomTrainSummary,
-		ChatAutomodTermsUpdate,
-		ChatMessageClipPending,
-		ChatWarnAcknowledgment,
-		ChatYoutubeSubscription,
-		ChatStreamelementsEvent,
-		ChatYoutubeSuperSticker,
-		ChatSuspendedTriggerStack,
-		ChatTwitchCharityDonation,
-		ChatCommunityChallengeContribution,
+const props = withDefaults(
+	defineProps<{
+		messageData: TwitchatDataTypes.ChatMessageTypes;
+		colIndex: number;
+		lightMode: boolean;
+		childrenList?: TwitchatDataTypes.ChatMessageTypes[];
+		disableConversation?: boolean;
+	}>(),
+	{
+		childrenList: () => [],
 	},
-	emits: [
-		"onRead",
-		"showConversation",
-		"showUserMessages",
-		"unscheduleMessageOpen",
-		"setCustomActivities",
-		"openFilters",
-		"onOverMessage",
-	],
-})
-class MessageItem extends Vue {
-	@Prop()
-	public messageData!: TwitchatDataTypes.ChatMessageTypes;
+);
 
-	@Prop()
-	public colIndex!: number;
+defineEmits<{
+	onRead: [m: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+	showConversation: [event: any];
+	showUserMessages: [event: any];
+	unscheduleMessageOpen: [event: any];
+	setCustomActivities: [event: any];
+	openFilters: [event: any];
+	onOverMessage: [event: any];
+}>();
 
-	@Prop()
-	public lightMode!: boolean;
+const storeParams = useStoreParams();
 
-	@Prop()
-	public disableConversation!: boolean;
+// Utility type to extract keys where value is literally true
+type KeysWithTrueValue<T> = keyof {
+	[K in keyof T as T[K] extends true ? K : never]: T[K];
+};
 
-	@Prop({ default: [] })
-	public childrenList!: TwitchatDataTypes.ChatMessageTypes[];
+type ExpectedTypes = KeysWithTrueValue<typeof TwitchatDataTypes.DisplayableMessageTypes>;
 
-	public get componentRef(): typeof Vue | null {
-		// Utility type to extract keys where value is literally true
-		type KeysWithTrueValue<T> = keyof {
-			[K in keyof T as T[K] extends true ? K : never]: T[K];
-		};
-
-		type ExpectedTypes = KeysWithTrueValue<typeof TwitchatDataTypes.DisplayableMessageTypes>;
-
-		const map: { [key in ExpectedTypes]: typeof Vue } = {
-			twitchat_ad: ChatAd,
-			join: ChatJoinLeave,
-			leave: ChatJoinLeave,
-			following: ChatFollow,
-			raid: ChatRaid,
-			message: ChatMessage,
-			whisper: ChatMessage,
-			notice: ChatNotice,
-			poll: ChatPollResult,
-			chat_poll: ChatChatPollResult,
-			prediction: ChatPredictionResult,
-			bingo: ChatBingoResult,
-			raffle: ChatRaffleResult,
-			countdown: ChatCountdownResult,
-			timer: ChatTimerResult,
-			hype_train_cooled_down: ChatHypeTrainCooldown,
-			hype_train_summary: ChatHypeTrainResult,
-			followbot_list: ChatFollowbotEvents,
-			room_settings: ChatRoomSettings,
-			clear_chat: ChatClear,
-			shoutout: ChatShoutout,
-			low_trust_treatment: ChatLowTrustTreatment,
-			pinned: ChatPinNotice,
-			unpinned: ChatPinNotice,
-			ban: ChatBan,
-			youtube_ban: ChatBan,
-			unban: ChatUnban,
-			stream_online: ChatStreamOnOff,
-			stream_offline: ChatStreamOnOff,
-			clip_pending_publication: ChatMessageClipPending,
-			scope_request: ChatScopeRequester,
-			community_boost_complete: ChatCommunityBoost,
-			cheer: ChatBits,
-			subscription: ChatSubscription,
-			reward: ChatReward,
-			community_challenge_contribution: ChatCommunityChallengeContribution,
-			autoban_join: ChatAutobanJoin,
-			user_watch_streak: ChatWatchStreak,
-			hype_chat: ChatHypeChatMessage,
-			ad_break_start_chat: ChatAdBreakStarted,
-			history_splitter: ChatHistorySplitter,
-			music_added_to_queue: ChatTrackAddedToQueue,
-			music_start: ChatTrackStart,
-			custom: ChatCustomMessage,
-			streamlabs: ChatStreamlabsEvent,
-			streamelements: ChatStreamelementsEvent,
-			kofi: ChatKofiEvent,
-			tipeee: ChatTipeeeEvent,
-			tiltify: ChatTiltifyEvent,
-			patreon: ChatPatreonEvent,
-			unban_request: ChatUnbanRequest,
-			twitch_celebration: ChatCelebration,
-			blocked_terms: ChatAutomodTermsUpdate,
-			hate_raid: ChatHateRaid,
-			warn_chatter: ChatWarnUser,
-			warn_acknowledge: ChatWarnAcknowledgment,
-			super_chat: ChatYoutubeSuperChat,
-			super_sticker: ChatYoutubeSuperSticker,
-			youtube_subscription: ChatYoutubeSubscription,
-			youtube_subgift: ChatYoutubeSubgift,
-			tiktok_sub: ChatTikTokSub,
-			tiktok_gift: ChatTikTokGift,
-			tiktok_like: ChatTikTokLike,
-			tiktok_share: ChatTikTokShare,
-			suspended_trigger_stack: ChatSuspendedTriggerStack,
-			twitch_charity_donation: ChatTwitchCharityDonation,
-			private_mod_message: ChatPrivateModerator,
-			connect: ChatConnect,
-			disconnect: ChatConnect,
-			gigantified_emote: ChatGiantEmote,
-			twitch_combo: ChatTwitchCombo,
-			custom_train_summary: ChatCustomTrainSummary,
-			streamsocket_action: ChatStreamSocketAction,
-			many_replies: ChatManyReplies,
-			custom_power_up: ChatCustomPowerUp,
-		};
-		if (!Object.hasOwn(map, this.messageData.type)) {
-			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);
-			return null;
-		}
-		return map[this.messageData.type as ExpectedTypes];
+const componentRef = computed<VueComponent | null>(() => {
+	const map: { [key in ExpectedTypes]: VueComponent } = {
+		twitchat_ad: ChatAd,
+		join: ChatJoinLeave,
+		leave: ChatJoinLeave,
+		following: ChatFollow,
+		raid: ChatRaid,
+		message: ChatMessage,
+		whisper: ChatMessage,
+		notice: ChatNotice,
+		poll: ChatPollResult,
+		chat_poll: ChatChatPollResult,
+		prediction: ChatPredictionResult,
+		bingo: ChatBingoResult,
+		raffle: ChatRaffleResult,
+		countdown: ChatCountdownResult,
+		timer: ChatTimerResult,
+		hype_train_cooled_down: ChatHypeTrainCooldown,
+		hype_train_summary: ChatHypeTrainResult,
+		followbot_list: ChatFollowbotEvents,
+		room_settings: ChatRoomSettings,
+		clear_chat: ChatClear,
+		shoutout: ChatShoutout,
+		low_trust_treatment: ChatLowTrustTreatment,
+		pinned: ChatPinNotice,
+		unpinned: ChatPinNotice,
+		ban: ChatBan,
+		youtube_ban: ChatBan,
+		unban: ChatUnban,
+		stream_online: ChatStreamOnOff,
+		stream_offline: ChatStreamOnOff,
+		clip_pending_publication: ChatMessageClipPending,
+		scope_request: ChatScopeRequester,
+		community_boost_complete: ChatCommunityBoost,
+		cheer: ChatBits,
+		subscription: ChatSubscription,
+		reward: ChatReward,
+		community_challenge_contribution: ChatCommunityChallengeContribution,
+		autoban_join: ChatAutobanJoin,
+		user_watch_streak: ChatWatchStreak,
+		hype_chat: ChatHypeChatMessage,
+		ad_break_start_chat: ChatAdBreakStarted,
+		history_splitter: ChatHistorySplitter,
+		music_added_to_queue: ChatTrackAddedToQueue,
+		music_start: ChatTrackStart,
+		custom: ChatCustomMessage,
+		streamlabs: ChatStreamlabsEvent,
+		streamelements: ChatStreamelementsEvent,
+		kofi: ChatKofiEvent,
+		tipeee: ChatTipeeeEvent,
+		tiltify: ChatTiltifyEvent,
+		patreon: ChatPatreonEvent,
+		unban_request: ChatUnbanRequest,
+		twitch_celebration: ChatCelebration,
+		blocked_terms: ChatAutomodTermsUpdate,
+		hate_raid: ChatHateRaid,
+		warn_chatter: ChatWarnUser,
+		warn_acknowledge: ChatWarnAcknowledgment,
+		super_chat: ChatYoutubeSuperChat,
+		super_sticker: ChatYoutubeSuperSticker,
+		youtube_subscription: ChatYoutubeSubscription,
+		youtube_subgift: ChatYoutubeSubgift,
+		tiktok_sub: ChatTikTokSub,
+		tiktok_gift: ChatTikTokGift,
+		tiktok_like: ChatTikTokLike,
+		tiktok_share: ChatTikTokShare,
+		suspended_trigger_stack: ChatSuspendedTriggerStack,
+		twitch_charity_donation: ChatTwitchCharityDonation,
+		private_mod_message: ChatPrivateModerator,
+		connect: ChatConnect,
+		disconnect: ChatConnect,
+		gigantified_emote: ChatGiantEmote,
+		twitch_combo: ChatTwitchCombo,
+		custom_train_summary: ChatCustomTrainSummary,
+		streamsocket_action: ChatStreamSocketAction,
+		many_replies: ChatManyReplies,
+		quiz_complete: ChatQuizResult,
+		custom_power_up: ChatCustomPowerUp,
+	};
+	if (!Object.hasOwn(map, props.messageData.type)) {
+		console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", props.messageData.type);
+		return null;
 	}
-}
-export default toNative(MessageItem);
+	return map[props.messageData.type as ExpectedTypes];
+});
 </script>
 <style scoped lang="less">
 .holder {
