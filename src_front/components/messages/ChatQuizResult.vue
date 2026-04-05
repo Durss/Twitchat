@@ -116,7 +116,7 @@ const rankedUsers = computed(() => {
 		}),
 	);
 
-	// Add fake users TODO: remove
+	// Add fake users
 	/*
 	for (let i = 0; i < 1000; i++) {
 		users.push({
@@ -132,7 +132,7 @@ const rankedUsers = computed(() => {
 	//*/
 
 	// Sort by score descending
-	users.sort((a, b) => b.score - a.score);
+	// users.sort((a, b) => b.score - a.score);
 
 	// Compute users ranks
 	let currentRank = 1;
@@ -236,6 +236,7 @@ watch(userSearch, () => {
 	.content,
 	.leadeboard {
 		width: 100%;
+		z-index: 0;
 	}
 	.searchField {
 		width: 100%;
@@ -246,7 +247,6 @@ watch(userSearch, () => {
 	}
 	.leaderboard-list {
 		width: 100%;
-		// min-height: 50px;
 		max-height: 500px;
 		margin: auto;
 		.leaderboard-entry {

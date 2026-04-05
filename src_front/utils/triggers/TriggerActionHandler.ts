@@ -464,6 +464,22 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.QUIZ_COMPLETE,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 				if (
 					await this.executeTriggersByType(
@@ -8626,17 +8642,27 @@ export default class TriggerActionHandler {
 						const rebuilt: string[] = [];
 						chunks: for (let i = 0; i < chunks.length; i++) {
 							const chunk = chunks[i]!;
+							const nextChunkNumeric =
+								i < chunks.length - 1 ? parseInt(chunks[i + 1]!) : NaN;
 							rebuilt.push(chunk);
 							root = (root as { [key: string]: unknown })[chunk];
 							if (Array.isArray(root) && i < chunks.length - 1) {
-								root = (root as { [key: string]: string }[])
-									.map((v) => v[chunks[i + 2]!])
-									.join(", ");
+								const list = (root as { [key: string]: string }[]).map(
+									(v) => v[chunks[i + 2]!],
+								);
+								// If next pointer chunk is a number greater than 0, get the corresponding
+								// item index-1 on the array.
+								if (!isNaN(nextChunkNumeric) && nextChunkNumeric > 0) {
+									root = list[nextChunkNumeric - 1];
+								} else {
+									// Return the whole list as a comma separated string
+									root = list.join(", ");
+								}
 								break chunks;
 							}
 						}
 
-						//Spacial case for followage placeholders.
+						//Special case for followage placeholders.
 						//Dynamically request for follow date if necessary
 						if (
 							placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE ||
