@@ -3211,7 +3211,7 @@ export default class EventSub {
 					powerUpTitle: event.custom_power_up?.title || "",
 					cost: event.bits,
 				};
-				StoreProxy.chat.addMessage(m);
+				void StoreProxy.chat.addMessage(m);
 				break;
 			}
 		}

@@ -108,7 +108,9 @@
 			<TTButton small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak"
 				>Power Up celebration</TTButton
 			>
-			<Button small @click="simulateEvent($event, 'custom_power_up')" icon="powerup">Custom Power Up</Button>
+			<TTButton small @click="simulateEvent($event, 'custom_power_up')" icon="watchStreak"
+				>Custom Power Up</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'twitch_combo')" icon="bits"
 				>Combo</TTButton
 			>
