@@ -2360,26 +2360,65 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY: {
-					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true);
-					message.twitch_modiversary = Math.round(Math.random() * 10 + 1) * 12;
-					if(fakeUser.temporary) {
-						await new Promise((resolve)=> {
-							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
-						})
+				case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
+					const leaderboard: TwitchatDataTypes.MessageQuizCompleteData["quizResult"]["leaderboard"] =
+						[];
+					const fakeUsers = (await TwitchUtils.getFakeUsers()).concat();
+					for (let i = 0; i < Math.min(10, fakeUsers.length); i++) {
+						const fakeUser = Utils.pickRand(fakeUsers, true);
+						const anon = Math.random() > 0.8;
+						leaderboard.push({
+							uid: anon ? "ANON_" + fakeUser.id : fakeUser.id,
+							name: anon ? "" : fakeUser.displayNameOriginal,
+							avatarPath: anon ? "" : fakeUser.avatarPath,
+							platform: "twitch",
+							anon,
+							score: Math.round(Math.random() * 1000),
+						});
 					}
-					const m:TwitchatDataTypes.MessageModiversaryData = {
-						platform:"twitch",
+					const m: TwitchatDataTypes.MessageQuizCompleteData = {
+						id: Utils.getUUID(),
 						type,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						user:message.user,
-						channel_id:uid,
-						months:message.twitch_modiversary,
-						message:message.message,
-						message_html:message.message_html,
-						message_chunks:message.message_chunks,
-						message_size:message.message_size,
+						date: Date.now(),
+						channel_id: StoreProxy.auth.twitch.user.id,
+						platform: "twitch",
+						quizResult: {
+							quizId: "my_quiz_id",
+							quizName: "My awesome quiz",
+							leaderboard: leaderboard.sort((a, b) => b.score - a.score),
+						},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY: {
+					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(
+						TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						undefined,
+						true,
+					);
+					message.twitch_modiversary = Math.round(Math.random() * 10 + 1) * 12;
+					if (fakeUser.temporary) {
+						await new Promise((resolve) => {
+							watch(
+								() => fakeUser.temporary,
+								() => resolve(fakeUser),
+							);
+						});
+					}
+					const m: TwitchatDataTypes.MessageModiversaryData = {
+						platform: "twitch",
+						type,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						user: message.user,
+						channel_id: uid,
+						months: message.twitch_modiversary,
+						message: message.message,
+						message_html: message.message_html,
+						message_chunks: message.message_chunks,
+						message_size: message.message_size,
 					};
 
 					data = m;
