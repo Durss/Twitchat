@@ -627,7 +627,6 @@
 		},
 		"quiz_result": {
 			"title": "Quiz \"{TITLE}\" completed.",
-			"info": "{USER_COUNT} participants. Winner: {WINNER}",
 			"leaderboard_bt": "Leaderboard",
 			"search_placeholder": "Search user..."
 		}

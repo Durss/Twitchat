@@ -3410,7 +3410,7 @@ export const storeChat = defineStore("chat", {
 			//If reaching this point, it's most probably because pubsub sent us the
 			//event before receiving message on IRC. Wait a little and try again
 			if (retryCount != 20) {
-				retryCount = retryCount ? retryCount++ : 1;
+				retryCount = retryCount ? retryCount + 1 : 1;
 				window.setTimeout(() => {
 					void this.flagSuspiciousMessage(messageId, flaggedChans, retryCount);
 				}, 100);
