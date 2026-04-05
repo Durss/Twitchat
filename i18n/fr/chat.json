@@ -627,7 +627,6 @@
 		},
 		"quiz_result": {
 			"title": "Quiz \"{TITLE}\" terminé.",
-			"info": "{USER_COUNT} partcipant·es. Gagnant·e : {WINNER}",
 			"leaderboard_bt": "Classement",
 			"search_placeholder": "Chercher un pseudo..."
 		}
