@@ -411,10 +411,12 @@ export const storeQuiz = defineStore("quiz", {
 					quizResult: {
 						quizId: quiz.id,
 						quizName: quiz.title,
-						leaderboard: Object.entries(quiz.leaderboard || {}).map(([uid, data]) => ({
-							uid,
-							...data,
-						})),
+						leaderboard: Object.entries(quiz.leaderboard || {})
+							.map(([uid, data]) => ({
+								uid,
+								...data,
+							}))
+							.sort((a, b) => b.score - a.score),
 					},
 				};
 				void StoreProxy.chat.addMessage(message);
