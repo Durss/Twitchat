@@ -10,14 +10,17 @@
 					<strong>{{ messageData.quizResult.quizName }}</strong>
 				</template>
 			</i18n-t>
-			<i18n-t scope="global" keypath="chat.quiz_result.info" class="subtitle" tag="span">
-				<template #USER_COUNT>
-					<strong>{{ rankedUsers.length }}</strong>
-				</template>
-				<template #WINNER>
-					<strong>{{ rankedUsers[0]?.name || $t("global.loading") }}</strong>
-				</template>
-			</i18n-t>
+			<span class="info">
+				<Icon name="user" />
+				<strong>x{{ rankedUsers.length }}</strong>
+				<Icon name="leaderboard" />
+				<strong v-if="rankedUsers[0]?.isAnonymous">{{
+					rankedUsers[0]?.name || $t("global.loading")
+				}}</strong>
+				<a href="#" @click.stop="clickUser(rankedUsers[0]!)" v-else
+					><strong>{{ rankedUsers[0]?.name || $t("global.loading") }}</strong></a
+				>
+			</span>
 			<ToggleBlock
 				small
 				class="leadeboard"
@@ -47,6 +50,7 @@
 								clickable: !item.isAnonymous && item.platform === 'twitch',
 								anon: item.isAnonymous,
 							}"
+							@click="clickUser(item)"
 						>
 							<span class="rank">#{{ item.rank }}</span>
 							<div v-if="item.avatarPath">
@@ -79,6 +83,7 @@ import { computed, reactive, useTemplateRef, watch } from "vue";
 import InfiniteList from "../InfiniteList.vue";
 import Utils from "@/utils/Utils";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { ref } from "vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import SearchForm from "../params/contents/SearchForm.vue";
@@ -98,6 +103,7 @@ const emit = defineEmits<{
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const { time, openUserCard } = useChatMessage(props, emit, rootEl);
 const storeAuth = useStoreAuth();
+const storeUsers = useStoreUsers();
 const listRef = useTemplateRef("infiniteList");
 const userSearch = ref("");
 const currentSearchIndex = ref(0);
@@ -118,7 +124,7 @@ const rankedUsers = computed(() => {
 
 	// Add fake users
 	/*
-	for (let i = 0; i < 1000; i++) {
+	for (let i = 0; i < 100; i++) {
 		users.push({
 			uid: `fake${i}`,
 			name: Utils.getNameFromOpaqueId(`fake${i}`),
@@ -129,6 +135,7 @@ const rankedUsers = computed(() => {
 			rank: 0,
 		});
 	}
+	users.sort((a, b) => b.score - a.score);
 	//*/
 
 	// Sort by score descending
@@ -159,6 +166,19 @@ TwitchUtils.getUserInfo(batches[0]).then((twitchUserList) => {
 		}
 	});
 });
+
+async function clickUser(user: (typeof rankedUsers.value)[0]) {
+	storeUsers.getUserFrom(
+		user.platform || "twitch",
+		storeAuth.twitch.user.id,
+		user.uid,
+		user.name,
+		user.name,
+		(tUser) => {
+			openUserCard(tUser);
+		},
+	);
+}
 
 async function onExpandLeaderboard() {
 	if (aborter) aborter.abort();
@@ -230,8 +250,13 @@ watch(userSearch, () => {
 
 <style scoped lang="less">
 .chatquizresult {
-	.title {
-		margin-right: 1ch;
+	.info {
+		.icon {
+			margin-left: 1ch;
+			height: 1em;
+			vertical-align: text-top;
+			margin-right: 0.25em;
+		}
 	}
 	.content,
 	.leadeboard {
@@ -258,6 +283,13 @@ watch(userSearch, () => {
 			font-size: 0.9em;
 			border-bottom: 1px solid rgba(0, 0, 0, 1);
 			content-visibility: paint;
+
+			&.clickable {
+				cursor: pointer;
+				&:hover {
+					background-color: var(--color-primary-fade);
+				}
+			}
 
 			&.anon {
 				font-style: italic;
