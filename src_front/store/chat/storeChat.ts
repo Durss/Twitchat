@@ -1206,6 +1206,7 @@ export const storeChat = defineStore("chat", {
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
 			const sChatPoll = StoreProxy.chatPoll;
+			const sQuiz = StoreProxy.quiz;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 			const logTimings = false; //Enable to check for perf issues
@@ -2801,6 +2802,9 @@ export const storeChat = defineStore("chat", {
 
 					//Handle chat poll commands
 					void sChatPoll.handleChatCommand(typedMessage);
+
+					//Handle quiz answers
+					void sQuiz.handleChatAnswer(typedMessage);
 				}
 
 				if (logTimings) console.log("3", message.id, Date.now() - s);
