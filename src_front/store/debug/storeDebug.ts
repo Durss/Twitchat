@@ -2342,6 +2342,38 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE: {
+					const leaderboard: TwitchatDataTypes.MessageQuizCompleteData["quizResult"]["leaderboard"] =
+						[];
+					const fakeUsers = (await TwitchUtils.getFakeUsers()).concat();
+					for (let i = 0; i < Math.min(10, fakeUsers.length); i++) {
+						const fakeUser = Utils.pickRand(fakeUsers, true);
+						const anon = Math.random() > 0.8;
+						leaderboard.push({
+							uid: anon ? "ANON_" + fakeUser.id : fakeUser.id,
+							name: anon ? "" : fakeUser.displayNameOriginal,
+							avatarPath: anon ? "" : fakeUser.avatarPath,
+							platform: "twitch",
+							anon,
+							score: Math.round(Math.random() * 1000),
+						});
+					}
+					const m: TwitchatDataTypes.MessageQuizCompleteData = {
+						id: Utils.getUUID(),
+						type,
+						date: Date.now(),
+						channel_id: StoreProxy.auth.twitch.user.id,
+						platform: "twitch",
+						quizResult: {
+							quizId: "my_quiz_id",
+							quizName: "My awesome quiz",
+							leaderboard: leaderboard.sort((a, b) => b.score - a.score),
+						},
+					};
+					data = m;
+					break;
+				}
+
 				default: {
 					let message =
 						'The request message type "' +

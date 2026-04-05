@@ -2042,6 +2042,7 @@ export const TriggerTypes = {
 	OBS_CONNECTED: "170",
 	OBS_DISCONNECTED: "171",
 	MANY_REPLIES: "172",
+	QUIZ_COMPLETE: "179",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -2867,6 +2868,21 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
+			tag: "WINNER_ID",
+			descKey: "triggers.placeholders.winner_id",
+			pointer: "user.id",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
+		{
+			tag: "WINNER_PLATFORM",
+			descKey: "triggers.placeholders.winner_platform",
+			pointer: "user.platform",
+			numberParsable: false,
+			isUserID: false,
+			example: "twitch",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
+		{
 			tag: "WIN_VALUE_NUM",
 			descKey: "triggers.placeholders.bingo_number",
 			pointer: "bingoData.numberValue",
@@ -2896,6 +2912,45 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 	];
 
+	map[TriggerTypes.QUIZ_COMPLETE] = [
+		{
+			tag: "QUIZ_NAME",
+			descKey: "triggers.placeholders.quiz_name",
+			pointer: "quizResult.quizName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+		{
+			tag: "QUIZ_ID",
+			descKey: "triggers.placeholders.quiz_id",
+			pointer: "quizResult.quizId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+		{
+			tag: "WINNER",
+			descKey: "triggers.placeholders.winner",
+			pointer: "quizResult.leaderboard.1.name",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+		{
+			tag: "WINNER_ID",
+			descKey: "triggers.placeholders.winner_id",
+			pointer: "quizResult.leaderboard.1.uid",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+		{
+			tag: "WINNER_PLATFORM",
+			descKey: "triggers.placeholders.winner_platform",
+			pointer: "quizResult.leaderboard.1.platform",
+			numberParsable: false,
+			isUserID: false,
+			example: "twitch",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+	];
+
 	map[TriggerTypes.RAFFLE_RESULT] = [
 		{
 			tag: "WINNER",
@@ -2903,6 +2958,21 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			pointer: "winner.label",
 			numberParsable: false,
 			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleData>,
+		{
+			tag: "WINNER_ID",
+			descKey: "triggers.placeholders.winner_id",
+			pointer: "winner.user.id",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleData>,
+		{
+			tag: "WINNER_PLATFORM",
+			descKey: "triggers.placeholders.winner_platform",
+			pointer: "winner.user.platform",
+			numberParsable: false,
+			isUserID: false,
+			example: "twitch",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleData>,
 	];
 
@@ -8093,6 +8163,15 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.BINGO_GRID_RESET,
 			descriptionKey: "triggers.events.BINGO_GRID_RESET.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.GAMES,
+			icon: "quiz",
+			labelKey: "triggers.events.QUIZ_COMPLETE.label",
+			value: TriggerTypes.QUIZ_COMPLETE,
+			descriptionKey: "triggers.events.QUIZ_COMPLETE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.QUIZ_COMPLETE,
 		},
 
 		{

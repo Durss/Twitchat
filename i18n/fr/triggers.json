@@ -830,7 +830,11 @@
 			"prediction_users_win": "Nombre de votant pour l'entrée gagnante",
 			"followage": "Date de follow",
 			"followage_ms": "Date de follow en millisecondes",
-			"winner": "Pseudo de la personne",
+			"winner": "Pseudo de la personne gagnante",
+			"winner_id": "ID de la personne gagnante",
+			"winner_platform": "Plateforme de la personne gagnante",
+			"quiz_name": "Nom du quiz",
+			"quiz_id": "ID du quiz",
 			"bingo_number": "Nombre à deviner",
 			"bingo_emote": "Emote à deviner",
 			"bingo_custom": "Texte personnalisé à deviner",
@@ -1831,6 +1835,10 @@
 				"label": "Un message a reçu de nombreuses réponses",
 				"description": "Actions à exécuter lorsqu'un message reçoit de nombreuses réponses",
 				"disabled_reason": "Vous devez d'abord activer cette fonctionnalité dans la section @:params.categories.features"
+			},
+			"QUIZ_COMPLETE": {
+				"label": "Quiz terminé",
+				"description": "Actions à exécuter lorsqu'un quiz est terminé"
 			}
 		},
 		"musicEvents": {

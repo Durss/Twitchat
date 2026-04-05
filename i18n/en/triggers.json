@@ -831,6 +831,8 @@
 			"followage": "Following date",
 			"followage_ms": "Following date in milliseconds",
 			"winner": "Winner name",
+			"quiz_name": "Quiz name",
+			"quiz_id": "Quiz ID",
 			"bingo_number": "Number to guess",
 			"bingo_emote": "Emote to guess",
 			"bingo_custom": "Custom text to guess",
@@ -1831,6 +1833,10 @@
 				"label": "A message received many replies",
 				"description": "Actions to execute when a message receives many replies",
 				"disabled_reason": "You need to enable this feature first in @:params.categories.features section"
+			},
+			"QUIZ_COMPLETE": {
+				"label": "Quiz complete",
+				"description": "Actions to execute when a quiz is completed"
 			}
 		},
 		"musicEvents": {

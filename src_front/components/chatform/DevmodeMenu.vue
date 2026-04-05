@@ -230,6 +230,9 @@
 			<TTButton small @click="simulateEvent($event, 'bingo')" icon="bingo"
 				>Bingo result</TTButton
 			>
+			<TTButton small @click="simulateEvent($event, 'quiz_complete')" icon="quiz"
+				>Quiz result</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'raffle')" icon="ticket"
 				>Raffle result</TTButton
 			>
