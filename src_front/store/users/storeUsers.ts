@@ -483,13 +483,21 @@ export const storeUsers = defineStore("users", {
 				//Batch requests by types.
 				//All items loaded by their IDs on one batch, by logins on another batch.
 				if (id) {
-					twitchUserBatchIdToLoad.push({ user, channelId, cb: loadCallback });
+					twitchUserBatchIdToLoad.push({
+						user,
+						channelId,
+						cb: user.temporary == true ? loadCallback : undefined,
+					});
 					if (twitchUserBatchIdToLoad.length < 100) {
 						if (twitchUserBatchIdTimeout > -1) clearTimeout(twitchUserBatchIdTimeout);
 						twitchUserBatchIdTimeout = to;
 					}
 				} else if (login) {
-					twitchUserBatchLoginToLoad.push({ user, channelId, cb: loadCallback });
+					twitchUserBatchLoginToLoad.push({
+						user,
+						channelId,
+						cb: user.temporary == true ? loadCallback : undefined,
+					});
 					if (twitchUserBatchLoginToLoad.length < 100) {
 						if (twitchUserBatchLoginTimeout > -1)
 							clearTimeout(twitchUserBatchLoginTimeout);
