@@ -1100,7 +1100,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
 		bits: number;
-		type: "cheer"|"power_up"|"combo";
+		type: "cheer"|"power_up"|"combo"|"custom_power_up";
 		power_up: null | {
 			type: "gigantify_an_emote" | "celebration";
 			emote: {
@@ -1112,6 +1112,10 @@ export namespace TwitchEventSubDataTypes {
 			type: "message_effect";
 			emote: null
 			message_effect_id: "simmer"|"rainbow-eclipse"|"cosmic-abyss";
+		};
+		custom_power_up: null | {
+			title: string;
+			reward_id: string;
 		};
 		message: {
 			text:string;

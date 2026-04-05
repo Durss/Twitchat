@@ -242,7 +242,8 @@ export default class EventSub {
 			"bits":Utils.pickRand([5, 10, 25, 50, 100]),
 			"type":"combo",
 			"power_up":null,
-			"message":null
+			"message":null,
+			"custom_power_up": null,
 		};
 		for (let i = 0; i < 10; i++) {
 			this.bitsUsed(TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, obj);
@@ -2102,6 +2103,32 @@ export default class EventSub {
 					};
 					StoreProxy.chat.addMessage(m);
 				}
+				break;
+			}
+
+			case "custom_power_up": {
+				const chunks = TwitchUtils.parseMessageToChunks(
+					event.message?.text || "",
+					undefined,
+					true,
+					"twitch",
+				);
+				const m: TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					platform: "twitch",
+					channel_id: event.broadcaster_user_id,
+					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
+					user,
+					message: event.message?.text || "",
+					message_chunks: chunks,
+					message_html: TwitchUtils.messageChunksToHTML(chunks),
+					message_size: TwitchUtils.computeMessageSize(chunks),
+					powerUpId: event.custom_power_up?.reward_id || "",
+					powerUpTitle: event.custom_power_up?.title || "",
+					cost: event.bits,
+				};
+				StoreProxy.chat.addMessage(m);
 				break;
 			}
 		}

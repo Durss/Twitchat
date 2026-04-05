@@ -1650,6 +1650,28 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const emote = Utils.pickRand(staticEmotes);
+					const m:TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						user:fakeUser,
+						cost:Utils.pickRand([40, 60, 80, 100, 500, 1000]),
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						message_size:0,
+						powerUpId:"fake-power-up-id",
+						powerUpTitle:"My awesome power-up",
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER: {
 					const m:TwitchatDataTypes.MessageWarnUserData = {
 						platform:"twitch",

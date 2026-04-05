@@ -545,6 +545,10 @@
 			"message": "{USER} redeemed the Power Up \"Gigantify emote\" for {PRICE}",
 			"message_tmp": "{USER} redeemed the Power Up \"Gigantify emote\""
 		},
+		"custom_power_up": {
+			"message": "{USER} redeemed the Custom Power Up \"{NAME}\" for {PRICE}",
+			"message_tmp": "{USER} redeemed the Custom Power Up \"{NAME}\""
+		},
 		"blocked_terms": {
 			"add_permitted": "{USER} added {TERMS} to permitted terms",
 			"add_blocked": "{USER} added {TERMS} to blocked terms",
@@ -575,33 +579,33 @@
 		"warn_acknowledge": {
 			"title": "{USER} acknowledged reading their warning"
 		},
-		"youtube_sub":{
+		"youtube_sub": {
 			"new": "{USER} subscribed for the first time at tier {TIER}",
 			"resub": "{USER} subscibed at {TIER} for {MONTHS} months"
 		},
-		"youtube_subgift":{
+		"youtube_subgift": {
 			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
 		},
-		"tiktok_sub":{
+		"tiktok_sub": {
 			"new": "{USER} subscribed"
 		},
-		"tiktok_like":{
+		"tiktok_like": {
 			"new": "{USER} liked {COUNT} times"
 		},
-		"tiktok_gift":{
+		"tiktok_gift": {
 			"new": "{USER} sent x{COUNT} {IMAGE}"
 		},
-		"tiktok_share":{
+		"tiktok_share": {
 			"new": "{USER} shared the stream"
 		},
-		"suspended_trigger_stack":{
+		"suspended_trigger_stack": {
 			"title": "A sequence of triggers executions is making Twitchat unstable.\nIt has been stopped to prevent further issues.",
 			"resumeBt": "Resume",
 			"callstack": "Execution history:"
 		},
 		"tts": {
-			"elevenlabs_credits_empty":"You spent all your Elevenlabs credits.",
-			"elevenlabs_credits_almost_empty":"Your Elevenlabs credits are almost empty. You have {CREDITS} credits left."
+			"elevenlabs_credits_empty": "You spent all your Elevenlabs credits.",
+			"elevenlabs_credits_almost_empty": "Your Elevenlabs credits are almost empty. You have {CREDITS} credits left."
 		},
 		"private_mod_message": {
 			"accepted": "accepted",

@@ -651,7 +651,8 @@ class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:
 			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO:
-			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+			case TwitchatDataTypes.TwitchatMessageType.CHEER:
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
 				return this.config.filters.cheer === true;
 			}
 
@@ -667,10 +668,6 @@ class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
 				return this.config.filters.hype_train_summary === true;
-			}
-
-			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				return this.config.filters.reward === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {

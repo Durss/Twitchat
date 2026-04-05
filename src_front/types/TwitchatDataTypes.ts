@@ -2823,6 +2823,7 @@ export namespace TwitchatDataTypes {
 		FOLLOWBOT_LIST:"followbot_list",
 		COUNTER_UPDATE:"counter_update",
 		AD_BREAK_START:"ad_break_start",
+		CUSTOM_POWER_UP:"custom_power_up",
 		WEBSOCKET_TOPIC:"websocket_topic",
 		OBS_STOP_STREAM:"obs_stop_stream",
 		YOUTUBE_SUBGIFT:"youtube_subgift",
@@ -2951,6 +2952,7 @@ export namespace TwitchatDataTypes {
 		counter_update:false,
 		goxlr_fx_state:false,
 		youtube_subgift:true,
+		custom_power_up:true,
 		history_splitter:true,
 		warn_acknowledge:true,
 		obs_stop_stream:false,
@@ -3162,6 +3164,7 @@ export namespace TwitchatDataTypes {
 									| MessageTwitchComboData
 									| MessageObsWsConnectStateChangeData
 									| MessageManyRepliesData
+									| MessageTwitchCustomPowerUpData
 	;
 
 	/**
@@ -3340,6 +3343,7 @@ export namespace TwitchatDataTypes {
 		subscription:false,
 		user_watch_streak:false,
 		gigantified_emote:false,
+		custom_power_up:false,
 	}
 	export interface MergeableMessage {
 		/**
@@ -5896,6 +5900,47 @@ export namespace TwitchatDataTypes {
 		 * @see MergeableMessage
 		 */
 		message_size:number;
+	}
+
+
+	/**
+	 * Represents a Twitch "custom power up" event
+	 */
+	export interface MessageTwitchCustomPowerUpData extends AbstractTwitchatMessage {
+		type: "custom_power_up";
+		/**
+		 * User that sent the custom power up
+		 */
+		user: TwitchatUser;
+		/**
+		 * Text message content
+		 */
+		message: string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks: ParseMessageChunk[];
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
+		message_html: string;
+		/**
+		 * @see MergeableMessage
+		 */
+		message_size: number;
+		/**
+		 * ID of the power up
+		 */
+		powerUpId: string;
+		/**
+		 * Name of the power up
+		 */
+		powerUpTitle: string;
+		/**
+		 * Cost of the power up in bits.
+		 */
+		cost: number;
 	}
 
 	/**

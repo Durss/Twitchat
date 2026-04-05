@@ -1,44 +1,34 @@
 <template>
 	<div class="holder">
 		<img v-if="messageData.channelSource?.pic && $store.params.appearance.multiChatAvatar.value === true"
-			class="avatar"
-			v-tooltip="messageData.channelSource.name"
-			:style="{color:messageData.channelSource.color+'99'}"
-			:src="messageData.channelSource.pic" />
+			class="avatar" v-tooltip="messageData.channelSource.name"
+			:style="{ color: messageData.channelSource.color + '99' }" :src="messageData.channelSource.pic" />
 
-		<template v-if="($store.params.appearance.multiChatAvatar.value === false || $store.params.appearance.multiChatColor.value === true) && messageData.channelSource">
-			<span class="border"
-				:style="{color:messageData.channelSource.color+'99'}"></span>
+		<template
+			v-if="($store.params.appearance.multiChatAvatar.value === false || $store.params.appearance.multiChatColor.value === true) && messageData.channelSource">
+			<span class="border" :style="{ color: messageData.channelSource.color + '99' }"></span>
 
-			<span class="side"
-				v-if="$store.params.appearance.multiChatAvatar.value !== true"
-				v-tooltip="messageData.channelSource.name"
-				:style="{color:messageData.channelSource.color}"></span>
+			<span class="side" v-if="$store.params.appearance.multiChatAvatar.value !== true"
+				v-tooltip="messageData.channelSource.name" :style="{ color: messageData.channelSource.color }"></span>
 		</template>
 
-		<component v-if="componentRef" class="message"
-			:is="componentRef"
-			:messageData="messageData"
-			@showConversation="$emit('showConversation', $event)"
-			@showUserMessages="$emit('showUserMessages', $event)"
-			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
-			@openFilters="$emit('openFilters', $event)"
-			@onOverMessage="$emit('onOverMessage', $event)"
+		<component v-if="componentRef" class="message" :is="componentRef" :messageData="messageData"
+			@showConversation="$emit('showConversation', $event)" @showUserMessages="$emit('showUserMessages', $event)"
+			@onRead="(m: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent) => $emit('onRead', m, e)"
+			@openFilters="$emit('openFilters', $event)" @onOverMessage="$emit('onOverMessage', $event)"
 			@unscheduleMessageOpen="$emit('unscheduleMessageOpen', $event)"
-			@setCustomActivities="$emit('setCustomActivities', $event)"
-			:colIndex="colIndex"
-			:lightMode="lightMode"
-			:childrenList="childrenList"
-			:disableConversation="disableConversation"
-		/>
-		<div v-else class="message card-item secondary">No compontent found for type: <strong>{{ messageData.type }}</strong></div>
+			@setCustomActivities="$emit('setCustomActivities', $event)" :colIndex="colIndex" :lightMode="lightMode"
+			:childrenList="childrenList" :disableConversation="disableConversation" />
+		<div v-else class="message card-item secondary">No compontent found for type: <strong>{{ messageData.type
+				}}</strong>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { toNative, Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatAd from './ChatAd.vue';
 import ChatAutobanJoin from './ChatAutobanJoin.vue';
 import ChatBan from './ChatBan.vue';
@@ -106,10 +96,11 @@ import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 import ChatStreamSocketAction from './ChatStreamSocketAction.vue';
 import ChatTwitchCombo from './ChatTwitchCombo.vue';
 import ChatManyReplies from './ChatManyReplies.vue';
+import ChatCustomPowerUp from './ChatCustomPowerUp.vue';
 
 @Component({
-	name:"MessageItem",
-	components:{
+	name: "MessageItem",
+	components: {
 		ChatAd,
 		ChatBan,
 		ChatRaid,
@@ -176,26 +167,26 @@ import ChatManyReplies from './ChatManyReplies.vue';
 		ChatTwitchCharityDonation,
 		ChatCommunityChallengeContribution,
 	},
-	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "openFilters", "onOverMessage"],
+	emits: ["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "openFilters", "onOverMessage"],
 })
 class MessageItem extends Vue {
 
 	@Prop()
-	public messageData!:TwitchatDataTypes.ChatMessageTypes;
+	public messageData!: TwitchatDataTypes.ChatMessageTypes;
 
 	@Prop()
-	public colIndex!:number;
+	public colIndex!: number;
 
 	@Prop()
-	public lightMode!:boolean;
+	public lightMode!: boolean;
 
 	@Prop()
-	public disableConversation!:boolean;
+	public disableConversation!: boolean;
 
-	@Prop({default:[]})
-	public childrenList!:TwitchatDataTypes.ChatMessageTypes[];
+	@Prop({ default: [] })
+	public childrenList!: TwitchatDataTypes.ChatMessageTypes[];
 
-	public get componentRef():typeof Vue|null {
+	public get componentRef(): typeof Vue | null {
 		// Utility type to extract keys where value is literally true
 		type KeysWithTrueValue<T> = keyof {
 			[K in keyof T as T[K] extends true ? K : never]: T[K]
@@ -203,83 +194,84 @@ class MessageItem extends Vue {
 
 		type ExpectedTypes = KeysWithTrueValue<typeof TwitchatDataTypes.DisplayableMessageTypes>;
 
-		const map:{[key in ExpectedTypes]:typeof Vue} = {
-			twitchat_ad:					ChatAd,
-			join:							ChatJoinLeave,
-			leave:							ChatJoinLeave,
-			following:						ChatFollow,
-			raid:							ChatRaid,
-			message:						ChatMessage,
-			whisper:						ChatMessage,
-			notice:							ChatNotice,
-			poll:							ChatPollResult,
-			chat_poll:						ChatChatPollResult,
-			prediction:						ChatPredictionResult,
-			bingo:							ChatBingoResult,
-			raffle:							ChatRaffleResult,
-			countdown:						ChatCountdownResult,
-			timer:							ChatTimerResult,
-			hype_train_cooled_down:			ChatHypeTrainCooldown,
-			hype_train_summary:				ChatHypeTrainResult,
-			followbot_list:					ChatFollowbotEvents,
-			room_settings:					ChatRoomSettings,
-			clear_chat:						ChatClear,
-			shoutout:						ChatShoutout,
-			low_trust_treatment:			ChatLowTrustTreatment,
-			pinned:							ChatPinNotice,
-			unpinned:						ChatPinNotice,
-			ban:							ChatBan,
-			youtube_ban:					ChatBan,
-			unban:							ChatUnban,
-			stream_online:					ChatStreamOnOff,
-			stream_offline:					ChatStreamOnOff,
-			clip_pending_publication:		ChatMessageClipPending,
-			scope_request:					ChatScopeRequester,
-			community_boost_complete:		ChatCommunityBoost,
-			cheer:							ChatBits,
-			subscription:					ChatSubscription,
-			reward:							ChatReward,
+		const map: { [key in ExpectedTypes]: typeof Vue } = {
+			twitchat_ad: ChatAd,
+			join: ChatJoinLeave,
+			leave: ChatJoinLeave,
+			following: ChatFollow,
+			raid: ChatRaid,
+			message: ChatMessage,
+			whisper: ChatMessage,
+			notice: ChatNotice,
+			poll: ChatPollResult,
+			chat_poll: ChatChatPollResult,
+			prediction: ChatPredictionResult,
+			bingo: ChatBingoResult,
+			raffle: ChatRaffleResult,
+			countdown: ChatCountdownResult,
+			timer: ChatTimerResult,
+			hype_train_cooled_down: ChatHypeTrainCooldown,
+			hype_train_summary: ChatHypeTrainResult,
+			followbot_list: ChatFollowbotEvents,
+			room_settings: ChatRoomSettings,
+			clear_chat: ChatClear,
+			shoutout: ChatShoutout,
+			low_trust_treatment: ChatLowTrustTreatment,
+			pinned: ChatPinNotice,
+			unpinned: ChatPinNotice,
+			ban: ChatBan,
+			youtube_ban: ChatBan,
+			unban: ChatUnban,
+			stream_online: ChatStreamOnOff,
+			stream_offline: ChatStreamOnOff,
+			clip_pending_publication: ChatMessageClipPending,
+			scope_request: ChatScopeRequester,
+			community_boost_complete: ChatCommunityBoost,
+			cheer: ChatBits,
+			subscription: ChatSubscription,
+			reward: ChatReward,
 			community_challenge_contribution: ChatCommunityChallengeContribution,
-			autoban_join:					ChatAutobanJoin,
-			user_watch_streak:				ChatWatchStreak,
-			hype_chat:						ChatHypeChatMessage,
-			ad_break_start_chat:			ChatAdBreakStarted,
-			history_splitter:				ChatHistorySplitter,
-			music_added_to_queue:			ChatTrackAddedToQueue,
-			music_start:					ChatTrackStart,
-			custom:							ChatCustomMessage,
-			streamlabs:						ChatStreamlabsEvent,
-			streamelements:					ChatStreamelementsEvent,
-			kofi:							ChatKofiEvent,
-			tipeee:							ChatTipeeeEvent,
-			tiltify:						ChatTiltifyEvent,
-			patreon:						ChatPatreonEvent,
-			unban_request:					ChatUnbanRequest,
-			twitch_celebration:				ChatCelebration,
-			blocked_terms:					ChatAutomodTermsUpdate,
-			hate_raid:						ChatHateRaid,
-			warn_chatter:					ChatWarnUser,
-			warn_acknowledge:				ChatWarnAcknowledgment,
-			super_chat:						ChatYoutubeSuperChat,
-			super_sticker:					ChatYoutubeSuperSticker,
-			youtube_subscription:			ChatYoutubeSubscription,
-			youtube_subgift:				ChatYoutubeSubgift,
-			tiktok_sub:						ChatTikTokSub,
-			tiktok_gift:					ChatTikTokGift,
-			tiktok_like:					ChatTikTokLike,
-			tiktok_share:					ChatTikTokShare,
-			suspended_trigger_stack:		ChatSuspendedTriggerStack,
-			twitch_charity_donation:		ChatTwitchCharityDonation,
-			private_mod_message:			ChatPrivateModerator,
-			connect:						ChatConnect,
-			disconnect:						ChatConnect,
-			gigantified_emote:				ChatGiantEmote,
-			twitch_combo:					ChatTwitchCombo,
-			custom_train_summary:			ChatCustomTrainSummary,
-			streamsocket_action:			ChatStreamSocketAction,
-			many_replies:					ChatManyReplies,
+			autoban_join: ChatAutobanJoin,
+			user_watch_streak: ChatWatchStreak,
+			hype_chat: ChatHypeChatMessage,
+			ad_break_start_chat: ChatAdBreakStarted,
+			history_splitter: ChatHistorySplitter,
+			music_added_to_queue: ChatTrackAddedToQueue,
+			music_start: ChatTrackStart,
+			custom: ChatCustomMessage,
+			streamlabs: ChatStreamlabsEvent,
+			streamelements: ChatStreamelementsEvent,
+			kofi: ChatKofiEvent,
+			tipeee: ChatTipeeeEvent,
+			tiltify: ChatTiltifyEvent,
+			patreon: ChatPatreonEvent,
+			unban_request: ChatUnbanRequest,
+			twitch_celebration: ChatCelebration,
+			blocked_terms: ChatAutomodTermsUpdate,
+			hate_raid: ChatHateRaid,
+			warn_chatter: ChatWarnUser,
+			warn_acknowledge: ChatWarnAcknowledgment,
+			super_chat: ChatYoutubeSuperChat,
+			super_sticker: ChatYoutubeSuperSticker,
+			youtube_subscription: ChatYoutubeSubscription,
+			youtube_subgift: ChatYoutubeSubgift,
+			tiktok_sub: ChatTikTokSub,
+			tiktok_gift: ChatTikTokGift,
+			tiktok_like: ChatTikTokLike,
+			tiktok_share: ChatTikTokShare,
+			suspended_trigger_stack: ChatSuspendedTriggerStack,
+			twitch_charity_donation: ChatTwitchCharityDonation,
+			private_mod_message: ChatPrivateModerator,
+			connect: ChatConnect,
+			disconnect: ChatConnect,
+			gigantified_emote: ChatGiantEmote,
+			twitch_combo: ChatTwitchCombo,
+			custom_train_summary: ChatCustomTrainSummary,
+			streamsocket_action: ChatStreamSocketAction,
+			many_replies: ChatManyReplies,
+			custom_power_up: ChatCustomPowerUp,
 		};
-		if(!Object.hasOwn(map, this.messageData.type)) {
+		if (!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);
 			return null;
 		}
@@ -290,12 +282,13 @@ class MessageItem extends Vue {
 export default toNative(MessageItem);
 </script>
 <style scoped lang="less">
-.holder{
+.holder {
 	position: relative;
 	display: flex;
 	flex-direction: row;
 	justify-content: stretch;
 	width: 100%;
+
 	.border {
 		position: absolute;
 		width: 65%;
@@ -306,11 +299,13 @@ export default toNative(MessageItem);
 		background-image: linear-gradient(to right, currentColor 0%, transparent 100%);
 		z-index: -1;
 	}
+
 	.side {
 		width: 5px;
 		opacity: .35;
 		background-color: currentColor;
 	}
+
 	.avatar {
 		border-radius: 50%;
 		height: 1.5em;
@@ -318,6 +313,7 @@ export default toNative(MessageItem);
 		outline: 1px solid currentColor;
 		padding: 1px;
 	}
+
 	.message {
 		width: 100%;
 		position: relative;
