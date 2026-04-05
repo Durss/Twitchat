@@ -15,8 +15,13 @@ import type { UnwrapRef } from "vue";
 import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
+// Local fast access to current question to avoid searching for it
+// everytime we receive a chat message.
+let currentQuiz: TwitchatDataTypes.QuizParams | null = null;
+let currentQuestion: TwitchatDataTypes.QuizParams["questionList"][number] | null = null;
 let broadcastDebounceTO = -1;
 const POINTS_PER_QUESTION = 100;
+const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 interface AnswerScoreParams {
 	quiz: TwitchatDataTypes.QuizParams;
@@ -272,6 +277,7 @@ export const storeQuiz = defineStore("quiz", {
 			const uid = userId || opaqueUserId;
 			if (!uid) return;
 
+			// Initialize leaderboard entry for user if not present
 			if (!quiz.leaderboard[uid]) {
 				quiz.leaderboard[uid] = {
 					anon: !!opaqueUserId && !userId,
@@ -319,7 +325,9 @@ export const storeQuiz = defineStore("quiz", {
 			}
 
 			// Check if user already voted for this question
-			if (quiz.currentQuestionVotes[uid]) return;
+			if (quiz.currentQuestionVotes[uid]) {
+				return;
+			}
 
 			// Record vote
 			quiz.currentQuestionVotes[uid] = {
@@ -359,6 +367,8 @@ export const storeQuiz = defineStore("quiz", {
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
 			if (index < quiz.questionList.length - 1) {
 				quiz.currentQuestionId = quiz.questionList[index + 1]!.id;
+				currentQuiz = quiz;
+				currentQuestion = quiz.questionList[index + 1] || null;
 			}
 			void this.saveData(quizId, false, true);
 		},
@@ -372,6 +382,8 @@ export const storeQuiz = defineStore("quiz", {
 				delete quiz.currentQuestionStats;
 				delete quiz.currentQuestionVotes;
 				delete quiz.currentQuestionScores;
+				currentQuiz = null;
+				currentQuestion = null;
 				quiz.leaderboard = {};
 				quiz.quizStarted_at = "";
 				quiz.questionStarted_at = "";
@@ -490,6 +502,40 @@ export const storeQuiz = defineStore("quiz", {
 			question: TwitchatDataTypes.QuizParams["questionList"][number],
 		): boolean {
 			return validateFreeAnswer(answer, quiz, question);
+		},
+
+		async handleChatAnswer(message: TwitchatDataTypes.TranslatableMessage): Promise<void> {
+			if (!currentQuestion || !currentQuiz) return;
+			const answer = (message.message ?? "").trim();
+			let answerId: string | undefined = undefined;
+			if (currentQuestion.mode !== "freeAnswer") {
+				if (answer.length == 1) {
+					// Search if answer matches an answer index, either letter (A, B, C...) or number (1, 2, 3...)
+					let index = letterIndexes.indexOf(answer.toUpperCase());
+					if (index === -1) index = parseInt(answer) - 1;
+					if (index >= 0 && index < currentQuestion.answerList.length) {
+						answerId = currentQuestion.answerList[index]!.id;
+					}
+				}
+				// Search if answer matches an actual text answer
+				if (!answerId) {
+					currentQuestion.answerList.forEach((a) => {
+						if (a.title.trim().toLowerCase() === answer.toLowerCase()) {
+							answerId = a.id;
+						}
+					});
+				}
+			}
+			// Handle the answer
+			void this.handleAnswer(
+				message.platform,
+				0,
+				currentQuiz.id,
+				currentQuestion.id,
+				answerId,
+				answerId ? undefined : answer,
+				message.user.id,
+			);
 		},
 
 		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {

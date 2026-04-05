@@ -4187,6 +4187,10 @@ export interface IQuizActions {
 		question: TwitchatDataTypes.QuizParams["questionList"][number],
 	): boolean;
 	/**
+	 * Handles a chat answer for a quiz question.
+	 */
+	handleChatAnswer(message: TwitchatDataTypes.TranslatableMessage): Promise<void>;
+	/**
 	 * Computes global and relative percents for each answer of given quiz question based on current votes
 	 * Global percent is the actual percent of votes for this answer among all votes
 	 * Relative percent is based on the highest voted answer. Highest voted answer is 100%,
