@@ -236,7 +236,7 @@ import ParamItem from "../../ParamItem.vue";
 	},
 	emits: [],
 })
-class ConnectDiscord  extends Vue implements IParameterContent {
+class ConnectDiscord extends Vue implements IParameterContent {
 	public code: string = "";
 	public codeLength: number = 4;
 	public duration: number = 0;
