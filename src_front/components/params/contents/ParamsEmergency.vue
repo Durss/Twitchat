@@ -160,7 +160,7 @@ import Utils from "@/utils/Utils";
 		PermissionsForm,
 	},
 })
-class ParamsEmergency  extends Vue implements IParameterContent {
+class ParamsEmergency extends Vue implements IParameterContent {
 	public param_obsScene: TwitchatDataTypes.ParameterData<string, string> = {
 		type: "list",
 		value: "",

@@ -403,7 +403,7 @@ import OverlayParamsQuiz from "./overlays/OverlayParamsQuiz.vue";
 	},
 	emits: [],
 })
-class ParamsOverlays  extends Vue implements IParameterContent {
+class ParamsOverlays extends Vue implements IParameterContent {
 	public showDockTutorial: boolean = false;
 	public subContent: TwitchatDataTypes.OverlayTypes | null = null;
 	public search: string = "";

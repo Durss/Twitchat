@@ -150,7 +150,7 @@ import Utils from "@/utils/Utils";
 	},
 	emits: [],
 })
-class ConnectStreamdeck  extends Vue implements IParameterContent {
+class ConnectStreamdeck extends Vue implements IParameterContent {
 	public error: string = "";
 	public connecting: boolean = false;
 	public securityWarning: boolean = false;

@@ -106,7 +106,7 @@ import Utils from "@/utils/Utils";
 	},
 	emits: [],
 })
-class ConnectVoicemod  extends Vue implements IParameterContent {
+class ConnectVoicemod extends Vue implements IParameterContent {
 	public loadingList: boolean = false;
 	public connecting: boolean = false;
 	public connectionFailed: boolean = false;
