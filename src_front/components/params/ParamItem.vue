@@ -53,7 +53,7 @@
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
 					:inputId="'toggle' + key"
-					:disabled="disabled !== false || paramData.disabled === true"
+					:disabled="disabled !== false || paramData.disabled === true || readonly"
 					@change="emit('input')"
 				/>
 				<slot name="composite" />
@@ -105,6 +105,7 @@
 					:max="paramData.max"
 					:step="paramData.step"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					:readonly="readonly"
 					@focus="emit('focus')"
 					@blur="
 						clampValue();
@@ -159,6 +160,7 @@
 						:disabled="
 							premiumLocked || disabled !== false || paramData.disabled === true
 						"
+						:readonly="readonly"
 						@focus="emit('focus')"
 						@blur="emit('blur')"
 						@input="emit('input')"
@@ -179,6 +181,7 @@
 						:disabled="
 							premiumLocked || disabled !== false || paramData.disabled === true
 						"
+						:readonly="readonly"
 						:autocomplete="paramData.type == 'password' ? 'off' : 'new-password'"
 						@focus="emit('focus')"
 						@blur="
@@ -221,6 +224,7 @@
 					:max="paramData.max"
 					:min="paramData.min"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					:readonly="readonly"
 					@change="emit('input')"
 				/>
 				<slot name="composite" />
@@ -251,7 +255,10 @@
 						v-model="textValue"
 						v-autofocus="autofocus"
 						:disabled="
-							premiumLocked || disabled !== false || paramData.disabled === true
+							premiumLocked ||
+							disabled !== false ||
+							paramData.disabled === true ||
+							readonly
 						"
 						:name="paramData.fieldName"
 						:id="'text' + key"
@@ -282,7 +289,12 @@
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
-					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					:disabled="
+						premiumLocked ||
+						disabled !== false ||
+						paramData.disabled === true ||
+						readonly
+					"
 					:alert="alert || errorLocal"
 				/>
 				<slot name="composite" />
@@ -308,6 +320,7 @@
 					:id="'list' + key"
 					v-model="paramData.value"
 					v-autofocus="autofocus"
+					:disabled="readonly"
 				>
 					<template v-for="a in paramData.listValues" :key="a.value">
 						<component
@@ -354,6 +367,7 @@
 					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
 					appendToBody
+					:disabled="readonly"
 					:options="paramData.listValues"
 					:submitSearchOnBlur="true"
 					:multiple="true"
@@ -409,6 +423,7 @@
 					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
 					appendToBody
+					:disabled="readonly"
 					:submitSearchOnBlur="true"
 					:options="paramData.listValues"
 				>
@@ -463,6 +478,7 @@
 						v-model="paramData.value"
 						:calculate-position="placeDropdown"
 						appendToBody
+						:disabled="readonly"
 						taggable
 						v-if="
 							(paramData.type == 'font' && paramData.options) ||
@@ -511,6 +527,7 @@
 					:id="'browse' + key"
 					:placeholder="placeholder"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					:readonly="readonly"
 				/>
 				<TTButton
 					v-model:file="paramData.value"
@@ -520,6 +537,7 @@
 					:premium="premium"
 					:alert="alert || errorLocal"
 					:accept="paramData.accept ? paramData.accept : '*'"
+					:disabled="readonly"
 					icon="upload"
 				/>
 			</div>
@@ -527,7 +545,11 @@
 			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field">
-					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
+					<PlaceholderField
+						v-model="paramData.value"
+						:maxLength="paramData.maxLength"
+						:disabled="readonly"
+					/>
 				</div>
 			</div>
 
@@ -655,6 +677,7 @@ const props = withDefaults(
 		tabindex?: number;
 		placeholdersAsPopout?: boolean;
 		forceChildDisplay?: boolean;
+		readonly?: boolean;
 	}>(),
 	{
 		errorMessage: "",
