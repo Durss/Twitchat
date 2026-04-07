@@ -413,25 +413,43 @@ export const storeQuiz = defineStore("quiz", {
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
 			quiz.questionStarted_at = new Date(0).toISOString();
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
+
+			// If this is the last question, compute the final leaderboard and send a message to chat with the winner
 			if (index === quiz.questionList.length - 1) {
-				const message: TwitchatDataTypes.MessageQuizCompleteData = {
-					channel_id: StoreProxy.auth.twitch.user.id,
-					platform: "twitch",
-					type: "quiz_complete",
-					id: Utils.getUUID(),
-					date: Date.now(),
-					quizResult: {
-						quizId: quiz.id,
-						quizName: quiz.title,
-						leaderboard: Object.entries(quiz.leaderboard || {})
-							.map(([uid, data]) => ({
-								uid,
-								...data,
-							}))
-							.sort((a, b) => b.score - a.score),
-					},
-				};
-				void StoreProxy.chat.addMessage(message);
+				const leaderboard = Object.entries(quiz.leaderboard || {})
+					.map(([uid, data]) => ({
+						uid,
+						...data,
+					}))
+					.sort((a, b) => b.score - a.score);
+				const firstUser = leaderboard[0];
+				if (firstUser) {
+					StoreProxy.users.getUserFrom(
+						firstUser.platform || "twitch",
+						StoreProxy.auth.twitch.user.id,
+						firstUser.uid || "",
+						firstUser.name,
+						firstUser.platform != "twitch" ? firstUser.name : undefined,
+						//Wait for user data to be computed (potential API call)
+						(winner) => {
+							if (firstUser.avatarPath) winner.avatarPath = firstUser.avatarPath;
+							const message: TwitchatDataTypes.MessageQuizCompleteData = {
+								channel_id: StoreProxy.auth.twitch.user.id,
+								platform: "twitch",
+								type: "quiz_complete",
+								id: Utils.getUUID(),
+								date: Date.now(),
+								quizResult: {
+									quizId: quiz.id,
+									quizName: quiz.title,
+									leaderboard,
+									winner,
+								},
+							};
+							void StoreProxy.chat.addMessage(message);
+						},
+					);
+				}
 			}
 			void this.saveData(quizId, false, true);
 		},

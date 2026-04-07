@@ -8990,6 +8990,7 @@ export namespace TwitchatDataTypes {
 		quizResult: {
 			quizName: string;
 			quizId: string;
+			winner: TwitchatDataTypes.TwitchatUser;
 			leaderboard: (QuizParams["leaderboard"][number] & { uid: string })[];
 		};
 	}
