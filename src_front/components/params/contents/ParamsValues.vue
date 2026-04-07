@@ -327,7 +327,7 @@ import type IParameterContent from "./IParameterContent";
 	},
 	emits: [],
 })
-class ParamsValues  extends Vue implements IParameterContent {
+class ParamsValues extends Vue implements IParameterContent {
 	public showForm: boolean = false;
 	public timeoutSearch: number = -1;
 	public timeoutEdit: number = -1;

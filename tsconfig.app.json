@@ -1,0 +1,27 @@
+{
+	"extends": "@vue/tsconfig/tsconfig.dom.json",
+	"compilerOptions": {
+		"composite": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"tsBuildInfoFile": "./.tsbuildinfo",
+		"allowJs": true,
+		"sourceMap": true,
+		"noImplicitAny": true,
+		"noUncheckedIndexedAccess": true,
+		"types": ["@types/dom-screen-wake-lock", "vue3-marquee"],
+		"paths": {
+			"@/*": ["./src_front/*"],
+		},
+		"lib": ["esnext", "dom", "dom.iterable"],
+	},
+	"include": [
+		"env.d.ts",
+		"src_front/**/*.ts",
+		"src_front/**/*.tsx",
+		"src_front/**/*.vue",
+		"tests/**/*.ts",
+		"tests/**/*.tsx",
+	],
+	"exclude": ["node_modules", "server"],
+}

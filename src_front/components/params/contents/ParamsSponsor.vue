@@ -105,7 +105,7 @@ import type { ComponentPublicInstance } from "vue";
 		SponsorTable,
 	},
 })
-class ParamsSponsor  extends Vue implements IParameterContent {
+class ParamsSponsor extends Vue implements IParameterContent {
 	@Prop({ type: Boolean, default: false })
 	public animate!: boolean;
 

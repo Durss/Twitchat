@@ -361,7 +361,7 @@ import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 	},
 	emits: [],
 })
-class ParamsCounters  extends Vue implements IParameterContent {
+class ParamsCounters extends Vue implements IParameterContent {
 	public showForm: boolean = false;
 	public timeoutSearch: number = -1;
 	public timeoutEdit: number = -1;

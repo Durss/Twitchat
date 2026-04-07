@@ -149,7 +149,7 @@ import Utils from "@/utils/Utils";
 	},
 })
 //TODO replace all the hardcoded message types and build them dynamically
-class ParamsTTS  extends Vue implements IParameterContent {
+class ParamsTTS extends Vue implements IParameterContent {
 	public voiceParams: TwitchatDataTypes.TTSVoiceParamsData = {
 		voice: "",
 		volume: 1,

@@ -203,9 +203,9 @@ if (flags.has("--by-dir")) {
 
 // ── Summary (printed last so it's visible at the bottom) ────────────────
 console.log("");
-console.log("╔══════════════════════════════════════════════════════════════╗");
-console.log("║        Vue Class → Composition API Migration Tracker       ║");
-console.log("╚══════════════════════════════════════════════════════════════╝");
+console.log("╔═══════════════════════════════════════════════╗");
+console.log("║ Vue Class → Composition API Migration Tracker ║");
+console.log("╚═══════════════════════════════════════════════╝");
 console.log("");
 
 console.log(`  Total .vue files:  ${total}`);
