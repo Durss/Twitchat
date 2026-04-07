@@ -2364,8 +2364,9 @@ export const storeDebug = defineStore("debug", {
 					const leaderboard: TwitchatDataTypes.MessageQuizCompleteData["quizResult"]["leaderboard"] =
 						[];
 					const fakeUsers = (await TwitchUtils.getFakeUsers()).concat();
+					let winner: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers, true);
 					for (let i = 0; i < Math.min(10, fakeUsers.length); i++) {
-						const fakeUser = Utils.pickRand(fakeUsers, true);
+						const fakeUser = i == 0 ? winner : Utils.pickRand(fakeUsers, true);
 						const anon = Math.random() > 0.8;
 						leaderboard.push({
 							uid: anon ? "ANON_" + fakeUser.id : fakeUser.id,
@@ -2386,6 +2387,7 @@ export const storeDebug = defineStore("debug", {
 							quizId: "my_quiz_id",
 							quizName: "My awesome quiz",
 							leaderboard: leaderboard.sort((a, b) => b.score - a.score),
+							winner,
 						},
 					};
 					data = m;

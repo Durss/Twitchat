@@ -172,7 +172,7 @@ import { watch } from "vue";
 	},
 	emits: [],
 })
-class ParamsList  extends Vue implements IParameterContent {
+class ParamsList extends Vue implements IParameterContent {
 	@Prop
 	public category!: TwitchatDataTypes.ParameterCategory;
 	@Prop

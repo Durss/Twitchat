@@ -64,7 +64,7 @@ import Utils from "@/utils/Utils";
 		PermissionsForm,
 	},
 })
-class ParamsSpoiler  extends Vue implements IParameterContent {
+class ParamsSpoiler extends Vue implements IParameterContent {
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
 	public param_autospoil: TwitchatDataTypes.ParameterData<boolean> = {
 		type: "boolean",
