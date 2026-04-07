@@ -92,7 +92,7 @@ import Utils from "@/utils/Utils";
 	},
 	emits: [],
 })
-class ConnectOBS  extends Vue implements IParameterContent {
+class ConnectOBS extends Vue implements IParameterContent {
 	public loading = false;
 	public connected = false;
 	public connectError = false;

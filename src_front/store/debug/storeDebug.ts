@@ -1838,21 +1838,20 @@ export const storeDebug = defineStore("debug", {
 
 				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-					const emote = Utils.pickRand(staticEmotes);
-					const m:TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
-						platform:"twitch",
+					const m: TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
+						platform: "twitch",
 						type,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						channel_id:uid,
-						user:fakeUser,
-						cost:Utils.pickRand([40, 60, 80, 100, 500, 1000]),
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: uid,
+						user: fakeUser,
+						cost: Utils.pickRand([40, 60, 80, 100, 500, 1000]),
 						message,
-						message_html:TwitchUtils.messageChunksToHTML(chunks),
-						message_chunks:chunks,
-						message_size:0,
-						powerUpId:"fake-power-up-id",
-						powerUpTitle:"My awesome power-up",
+						message_html: TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks: chunks,
+						message_size: 0,
+						powerUpId: "fake-power-up-id",
+						powerUpTitle: "My awesome power-up",
 					};
 					data = m;
 					break;
@@ -2346,8 +2345,9 @@ export const storeDebug = defineStore("debug", {
 					const leaderboard: TwitchatDataTypes.MessageQuizCompleteData["quizResult"]["leaderboard"] =
 						[];
 					const fakeUsers = (await TwitchUtils.getFakeUsers()).concat();
+					let winner: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers, true);
 					for (let i = 0; i < Math.min(10, fakeUsers.length); i++) {
-						const fakeUser = Utils.pickRand(fakeUsers, true);
+						const fakeUser = i == 0 ? winner : Utils.pickRand(fakeUsers, true);
 						const anon = Math.random() > 0.8;
 						leaderboard.push({
 							uid: anon ? "ANON_" + fakeUser.id : fakeUser.id,
@@ -2368,6 +2368,7 @@ export const storeDebug = defineStore("debug", {
 							quizId: "my_quiz_id",
 							quizName: "My awesome quiz",
 							leaderboard: leaderboard.sort((a, b) => b.score - a.score),
+							winner,
 						},
 					};
 					data = m;

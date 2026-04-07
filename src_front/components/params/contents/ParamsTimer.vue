@@ -285,7 +285,7 @@ import PremiumLimitMessage from "../PremiumLimitMessage.vue";
 	},
 	emits: [],
 })
-class ParamsTimer  extends Vue implements IParameterContent {
+class ParamsTimer extends Vue implements IParameterContent {
 	@Prop({ type: Boolean, default: false })
 	public panelContext!: boolean;
 
