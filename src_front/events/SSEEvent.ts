@@ -32,6 +32,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
 	public static TWITCHEXT_CLICK = "TWITCHEXT_CLICK" as const;
 	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
+	public static REMOTE_ACTION = "REMOTE_ACTION" as const;
 
 	constructor(
 		eventType: T,
@@ -184,6 +185,10 @@ export type EventTypeMap = {
 		 * Delay with streamer
 		 */
 		delay_ms: number;
+	};
+	REMOTE_ACTION: {
+		action: string;
+		data?: unknown;
 	};
 };
 

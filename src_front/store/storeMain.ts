@@ -840,6 +840,7 @@ export const storeMain = defineStore("main", {
 			void StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
+			StoreProxy.api.populateData();
 
 			rebuildPlaceholdersCache();
 

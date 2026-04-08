@@ -39,6 +39,7 @@ fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.KO_FI_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.TILTIFY_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.API_KEYS_PATH, { recursive: true });
 fs.mkdirSync(Config.LOGS_FOLDER, { recursive: true });
 fs.mkdirSync(Config.BINGO_ROOT, { recursive: true });
 

@@ -1,0 +1,10 @@
+{
+	"api": {
+		"header": "Exécutez {LINK} depuis des applications externes via de simples requêtes HTTP.",
+		"header_link": "des actions Twitchat",
+		"param_key": "Clé secrète",
+		"click_reveal": "Cliquez pour révéler la clé",
+		"reset_key": "Réinitialiser la clé secrète",
+		"reset_key_tt": "Cliquez si votre clé secrète a été compromise"
+	}
+}

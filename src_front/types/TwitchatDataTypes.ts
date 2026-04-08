@@ -120,6 +120,7 @@ export namespace TwitchatDataTypes {
 		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
 		STREAMERBOT: "streamerbot",
+		TWITCHAT_API: "twitchat_api",
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
 		PREMIUM_REMAINING: "premium_remaining",

@@ -1229,4 +1229,25 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"remote/key": {
+		POST: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data?: {
+					privateKey: string;
+				};
+				error?: string;
+				errorCode?: string;
+			};
+		};
+		DELETE: {
+			parameters: void;
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
 };
