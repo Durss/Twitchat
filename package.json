@@ -50,7 +50,8 @@
 		"jsonwebtoken": "^9.0.3",
 		"lru-cache": "^11.2.4",
 		"mime-types": "^3.0.2",
-		"node-fetch": "^3.3.2"
+		"node-fetch": "^3.3.2",
+		"vue3-toastify": "^0.2.9"
 	},
 	"devDependencies": {
 		"@imengyu/vue3-context-menu": "^1.5.3",

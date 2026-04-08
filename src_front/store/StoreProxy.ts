@@ -222,6 +222,9 @@ export default class StoreProxy {
 	public static streamfog: IStreamfogState &
 		IStreamfogGetters &
 		IStreamfogActions & { $state: IStreamfogState; $reset: () => void };
+	public static api: IAPIState &
+		IAPIGetters &
+		IAPIActions & { $state: IAPIState; $reset: () => void };
 	public static i18n: VueI18n<
 		{},
 		{},
@@ -4250,4 +4253,30 @@ export interface IStreamfogActions {
 	 * Saves current data to server
 	 */
 	saveData(): void;
+}
+
+export interface IAPIState {
+	connected: boolean;
+}
+
+export interface IAPIGetters {}
+
+export interface IAPIActions {
+	/**
+	 * Populates the store and starts listening for SSE events
+	 */
+	populateData(): void;
+	/**
+	 * Generates a new Ed25519 keypair.
+	 * Returns the private key (shown once) or false on failure.
+	 */
+	generateKey(): Promise<string | false>;
+	/**
+	 * Deletes the stored public key, revoking API access
+	 */
+	deleteKey(): Promise<boolean>;
+	/**
+	 * Called when a remote action is received via SSE
+	 */
+	onRemoteAction(data?: { action: string; data?: unknown }): void;
 }
