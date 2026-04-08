@@ -2,7 +2,7 @@
 	<div class="paramsconnexions parameterContent" v-if="!subContent">
 		<Icon name="offline" alt="connections icon" class="icon" />
 
-		<p class="head">{{ $t("connexions.header") }}</p>
+		<p class="head">{{ t("connexions.header") }}</p>
 
 		<div class="content">
 			<button
@@ -25,7 +25,17 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: $store.streamelements.connected }"
+				:class="{ connected: storeAuth.isPremium }"
+				@click="subContent = 'twitchat_api'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.twitchat_api' }"
+			>
+				<Icon name="twitchat" />
+				<p>Twitchat API</p>
+			</button>
+
+			<button
+				class="card-item premium"
+				:class="{ connected: storeStreamelements.connected }"
 				@click="subContent = 'streamelements'"
 			>
 				<Icon name="streamelements" />
@@ -34,7 +44,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: $store.kofi.connected }"
+				:class="{ connected: storeKofi.connected }"
 				@click="subContent = 'kofi'"
 			>
 				<Icon name="kofi" />
@@ -43,7 +53,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: $store.tipeee.connected }"
+				:class="{ connected: storeTipeee.connected }"
 				@click="subContent = 'tipeee'"
 			>
 				<Icon name="tipeee" />
@@ -52,7 +62,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: $store.lumia.connected }"
+				:class="{ connected: storeLumia.connected }"
 				@click="subContent = 'lumia'"
 			>
 				<Icon name="lumia" />
@@ -61,7 +71,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: $store.patreon.connected }"
+				:class="{ connected: storePatreon.connected }"
 				@click="subContent = 'patreon'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.patreon' }"
 			>
@@ -71,7 +81,7 @@
 
 			<button
 				class="card-item premium half"
-				:class="{ connected: $store.streamlabs.connected }"
+				:class="{ connected: storeStreamlabs.connected }"
 				@click="subContent = 'streamlabs'"
 			>
 				<Icon name="streamlabs" />
@@ -80,7 +90,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.tiktok.connected }"
+				:class="{ connected: storeTiktok.connected }"
 				@click="subContent = 'tiktok'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.tiktok' }"
 			>
@@ -93,7 +103,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.tiltify.connected }"
+				:class="{ connected: storeTiltify.connected }"
 				@click="subContent = 'tiltify'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.tiltify' }"
 			>
@@ -121,7 +131,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.discord.discordLinked }"
+				:class="{ connected: storeDiscord.discordLinked }"
 				@click="subContent = 'discord'"
 			>
 				<Icon name="discord" />
@@ -137,14 +147,15 @@
 				<p>Spotify</p>
 			</button>
 
-			<button
+			<!-- <button
 				class="card-item"
 				:class="{ connected: $store.streamfog.connected }"
 				@click="subContent = 'streamfog'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.streamfog' }"
 			>
 				<Icon name="streamfog" />
 				<p>Streamfog</p>
-			</button>
+			</button> -->
 
 			<button
 				class="card-item"
@@ -157,7 +168,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.streamSocket.connected }"
+				:class="{ connected: storeStreamSocket.connected }"
 				@click="subContent = 'streamsocket'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.streamsocket' }"
 			>
@@ -167,7 +178,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.streamerbot.connected }"
+				:class="{ connected: storeStreamerbot.connected }"
 				@click="subContent = 'streamerbot'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.stramerbot' }"
 			>
@@ -177,7 +188,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.sammi.connected }"
+				:class="{ connected: storeSammi.connected }"
 				@click="subContent = 'sammi'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.sammi' }"
 			>
@@ -187,7 +198,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.mixitup.connected }"
+				:class="{ connected: storeMixitup.connected }"
 				@click="subContent = 'mixitup'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.mixitup' }"
 			>
@@ -197,7 +208,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.playability.connected }"
+				:class="{ connected: storePlayability.connected }"
 				@click="subContent = 'playability'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.playability' }"
 			>
@@ -208,7 +219,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.elevenLabs.connected }"
+				:class="{ connected: storeElevenLabs.connected }"
 				@click="subContent = 'elevenlabs'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.elevenlabs' }"
 			>
@@ -218,8 +229,8 @@
 
 			<button
 				class="card-item"
-				v-if="$store.groq.enabled"
-				:class="{ connected: $store.groq.connected }"
+				v-if="storeGroq.enabled"
+				:class="{ connected: storeGroq.connected }"
 				@click="subContent = 'groq'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.groq' }"
 			>
@@ -229,7 +240,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: $store.twitchBot.connected }"
+				:class="{ connected: storeTwitchBot.connected }"
 				@click="subContent = 'twitchbot'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.twitchbot' }"
 			>
@@ -283,9 +294,10 @@
 	<ConnectGroq v-else-if="subContent == 'groq'" />
 	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
 	<ConnectStreamfog v-else-if="subContent == 'streamfog'" />
+	<ConnectTwitchatAPI v-else-if="subContent == 'twitchat_api'" />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import WebsocketTrigger from "@/utils/WebsocketTrigger";
@@ -294,8 +306,26 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
-import { Component, Vue, toNative } from "vue-facing-decorator";
-import type IParameterContent from "./IParameterContent";
+import StreamdeckSocket from "@/utils/StreamdeckSocket";
+import { ref, computed, onBeforeMount, nextTick } from "vue";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
+import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
+import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
+import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
+import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
+import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
+import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
+import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
 import ConnectDiscord from "./connexions/ConnectDiscord.vue";
 import ConnectElevenLabs from "./connexions/ConnectElevenLabs.vue";
 import ConnectGoXLR from "./connexions/ConnectGoXLR.vue";
@@ -321,89 +351,64 @@ import ConnectYoutube from "./connexions/ConnectYoutube.vue";
 import ConnectTwitchBot from "./connexions/ConnectTwitchBot.vue";
 import ConnectGroq from "./connexions/ConnectGroq.vue";
 import ConnectStreamSocket from "./connexions/ConnectStreamSocket.vue";
-import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import ConnectStreamfog from "./connexions/ConnectStreamfog.vue";
+import { useI18n } from "vue-i18n";
+import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
-@Component({
-	components: {
-		ConnectOBS,
-		ConnectKofi,
-		ConnectGroq,
-		ConnectHeat,
-		ConnectGoXLR,
-		ConnectLumia,
-		ConnectSammi,
-		ConnectTiktok,
-		ConnectTipeee,
-		ConnectPatreon,
-		ConnectDiscord,
-		ConnectTiltify,
-		ConnectSpotify,
-		ConnectYoutube,
-		ConnectMixitup,
-		ConnectVoicemod,
-		ConnectStreamfog,
-		ConnectWebsocket,
-		ConnectTwitchBot,
-		ConnectStreamdeck,
-		ConnectStreamlabs,
-		ConnectElevenLabs,
-		ConnectPlayability,
-		ConnectStreamerBot,
-		ConnectStreamSocket,
-		ConnectStreamelements,
-	},
-	emits: [],
-})
-class ParamsConnections  extends Vue implements IParameterContent {
-	public allowHighlight: boolean = true;
-	public subContent: TwitchatDataTypes.ParamDeepSectionsStringType | "" = "";
+const { t } = useI18n();
+const storeParams = useStoreParams();
+const storeStreamelements = useStoreStreamelements();
+const storeKofi = useStoreKofi();
+const storeTipeee = useStoreTipeee();
+const storeLumia = useStoreLumia();
+const storePatreon = useStorePatreon();
+const storeStreamlabs = useStoreStreamlabs();
+const storeTiktok = useStoreTiktok();
+const storeTiltify = useStoreTiltify();
+const storeDiscord = useStoreDiscord();
+const storeStreamerbot = useStoreStreamerbot();
+const storeSammi = useStoreSammi();
+const storeMixitup = useStoreMixitup();
+const storePlayability = useStorePlayability();
+const storeElevenLabs = useStoreElevenLabs();
+const storeGroq = useStoreGroq();
+const storeTwitchBot = useStoreTwitchBot();
+const storeStreamSocket = useStoreStreamSocket();
+const storeAuth = useStoreAuth();
 
-	public get youtubeConnected(): boolean {
-		return YoutubeHelper.instance.connected.value;
-	}
-	public get goxlrConnected(): boolean {
-		return GoXLRSocket.instance.connected.value;
-	}
-	public get voicemodConnected(): boolean {
-		return VoicemodWebSocket.instance.connected.value;
-	}
-	public get spotifyConnected(): boolean {
-		return SpotifyHelper.instance.connected.value;
-	}
-	public get heatConnected(): boolean {
-		return HeatSocket.instance.connected.value;
-	}
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
-	public get wsCustomConnected(): boolean {
-		return WebsocketTrigger.instance.connected.value;
-	}
-	public get streamdeckConnected(): boolean {
-		return StreamdeckSocket.instance.connected.value;
-	}
+const allowHighlight = ref<boolean>(true);
+const subContent = ref<TwitchatDataTypes.ParamDeepSectionsStringType | "">("");
 
-	public async beforeMount(): Promise<void> {
-		await this.$nextTick();
-		this.subContent = this.$store.params.currentPageSubContent;
-		// if(this.subContent) {
-		// 	const holder = (this.$refs[this.subContent] as ComponentPublicInstance)?.$el;
-		// 	if(holder) holder.scrollIntoView();
-		// }
-	}
+const youtubeConnected = computed(() => YoutubeHelper.instance.connected.value);
+const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
+const voicemodConnected = computed(() => VoicemodWebSocket.instance.connected.value);
+const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
+const heatConnected = computed(() => HeatSocket.instance.connected.value);
+const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
+const wsCustomConnected = computed(() => WebsocketTrigger.instance.connected.value);
+const streamdeckConnected = computed(() => StreamdeckSocket.instance.connected.value);
 
-	public onNavigateBack(): boolean {
-		if (this.subContent == "") return false;
-		this.subContent = "";
-		return true;
-	}
+onBeforeMount(async () => {
+	await nextTick();
+	subContent.value = storeParams.currentPageSubContent;
+	// if(subContent.value) {
+	// 	const holder = (this.$refs[subContent.value] as ComponentPublicInstance)?.$el;
+	// 	if(holder) holder.scrollIntoView();
+	// }
+});
 
-	public reload(): boolean {
-		return this.onNavigateBack();
-	}
+function onNavigateBack(): boolean {
+	if (subContent.value == "") return false;
+	subContent.value = "";
+	return true;
 }
-export default toNative(ParamsConnections);
+
+function reload(): boolean {
+	return onNavigateBack();
+}
+
+defineExpose({ allowHighlight, onNavigateBack, reload });
 </script>
 
 <style scoped lang="less">
@@ -507,7 +512,7 @@ export default toNative(ParamsConnections);
 				background-color: var(--color-alert);
 			}
 			&.connected {
-				border-right: 1px solid var(--color-primary);
+				border-right-color: var(--color-primary);
 				&::after {
 					background-color: var(--color-primary);
 				}

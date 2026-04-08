@@ -184,6 +184,14 @@ export default class Config {
 		});
 	}
 
+	public static get API_KEYS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/apiKeys/"),
+			beta: path.join(this.DATA_ROOT, "/apiKeys/"),
+			prod: path.join(this.DATA_ROOT, "/apiKeys/"),
+		});
+	}
+
 	public static get BINGO_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/bingo"),
