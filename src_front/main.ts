@@ -83,6 +83,7 @@ import { storeTwitchCharity } from "./store/twitch_charity/storeTwitchCharity";
 import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
 import Config from "./utils/Config";
 import { storeStreamfog } from "./store/streamfog/storeStreamfog";
+import { storeAPI } from "./store/api/storeAPI";
 import Utils from "./utils/Utils";
 import { vAutofocus } from "./directives/autofocus";
 import { vClick2Select } from "./directives/click2Select";
@@ -317,6 +318,7 @@ function buildApp() {
 	StoreProxy.default.endingCredits = storeEndingCredits();
 	StoreProxy.default.quiz = storeQuiz();
 	StoreProxy.default.streamfog = storeStreamfog();
+	StoreProxy.default.api = storeAPI();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach((k) => {
