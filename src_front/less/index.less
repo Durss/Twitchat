@@ -662,3 +662,48 @@ body.light {
 		// background-size: 52px * @scale 10660px * @scale;
 	}
 }
+
+.codeBlock {
+	background: var(--grayout-fader);
+	border-radius: 0.5em;
+	padding: 0.5em 0.75em;
+	font-family: monospace;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+	tab-size: 2;
+	line-height: 1.2em;
+
+	.hljs-keyword,
+	.hljs-selector-tag {
+		color: #ff7b72;
+	}
+	.hljs-string,
+	.hljs-template-variable {
+		color: #a5d6ff;
+	}
+	.hljs-comment {
+		color: #8b949e;
+	}
+	.hljs-number,
+	.hljs-literal {
+		color: #79c0ff;
+	}
+	.hljs-title,
+	.hljs-function {
+		color: #d2a8ff;
+	}
+	.hljs-built_in {
+		color: #ffa657;
+	}
+	.hljs-variable,
+	.hljs-attr {
+		color: #ffa657;
+	}
+	.hljs-params {
+		color: #c9d1d9;
+	}
+	.hljs-subst {
+		color: #c9d1d9;
+	}
+}

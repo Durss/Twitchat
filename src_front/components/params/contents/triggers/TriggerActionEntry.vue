@@ -817,14 +817,26 @@ import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
 import ChatSuggestionForm from "@/components/chatSugg/ChatSuggestionForm.vue";
-import ParamItem from "@/components/params/ParamItem.vue";
 import ChatPollForm from "@/components/poll/ChatPollForm.vue";
 import PollForm from "@/components/poll/PollForm.vue";
 import PredictionForm from "@/components/prediction/PredictionForm.vue";
+import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
+import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
+import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import {
 	TriggerEventPlaceholders,
 	TriggerTypes,
-	type ITriggerPlaceholder,
 	type TriggerActionAnimatedTextData,
 	type TriggerActionBingoGridData,
 	type TriggerActionCustomTrainData,
@@ -847,22 +859,8 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
-import { ref, computed, reactive, watch, onBeforeMount } from "vue";
+import { computed, onBeforeMount, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
-import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
-import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
-import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
-import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
-import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
-import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
-import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
-import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
-import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
-import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
-import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
 import BingoForm from "../../../bingo/BingoForm.vue";
 import RaffleForm from "../../../raffle/RaffleForm.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
@@ -891,6 +889,7 @@ import TriggerActionOBSEntry from "./entries/TriggerActionOBSEntry.vue";
 import TriggerActionPlayAbilityEntry from "./entries/TriggerActionPlayAbilityEntry.vue";
 import TriggerActionRandomEntry from "./entries/TriggerActionRandomEntry.vue";
 import TriggerActionRewardEntry from "./entries/TriggerActionRewardEntry.vue";
+import TriggerActionSFXREntry from "./entries/TriggerActionSFXREntry.vue";
 import TriggerActionSammiEntry from "./entries/TriggerActionSammiEntry.vue";
 import TriggerActionSpoilMessageEntry from "./entries/TriggerActionSpoilMessageEntry.vue";
 import TriggerActionStopExecEntry from "./entries/TriggerActionStopExecEntry.vue";
@@ -904,7 +903,6 @@ import TriggerActionValueEntry from "./entries/TriggerActionValueEntry.vue";
 import TriggerActionVibratePhoneEntry from "./entries/TriggerActionVibratePhoneEntry.vue";
 import TriggerActionVoicemodEntry from "./entries/TriggerActionVoicemodEntry.vue";
 import TriggerActionWSEntry from "./entries/TriggerActionWSEntry.vue";
-import TriggerActionSFXREntry from "./entries/TriggerActionSFXREntry.vue";
 
 const { t } = useI18n();
 
@@ -1054,8 +1052,10 @@ const icons = computed(() => {
 		else if (props.action.obsAction === "startrecord") icons.push("recordStart");
 		else if (props.action.obsAction === "stoprecord") icons.push("recordStop");
 		else if (props.action.obsAction === "pauserecord") icons.push("pause");
+		else if (props.action.obsAction === "resumerecord") icons.push("recordStart");
 		else if (props.action.obsAction === "setPersistedData") icons.push("save");
 		else if (props.action.obsAction === "getPersistedData") icons.push("save");
+		else if (props.action.obsAction === "createchapter") icons.push("label");
 	} else if (props.action.type == "music") icons.push("spotify");
 	else if (props.action.type == "chat") icons.push("whispers");
 	else if (props.action.type == "tts") icons.push("tts");
