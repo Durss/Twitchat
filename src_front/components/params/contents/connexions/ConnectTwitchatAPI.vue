@@ -76,6 +76,79 @@
 			</div>
 
 			<div v-if="error" class="errorMessage">{{ error }}</div>
+
+			<ToggleBlock
+				:title="t('api.tutorial_title')"
+				class="tutorial"
+				small
+				:open="false"
+				@update:open="onTutorialToggle"
+			>
+				<p>{{ t("api.tutorial_intro") }}</p>
+
+				<ol>
+					<li class="card-item">
+						<span class="index">1.</span>
+						<span>{{ t("api.tutorial_step1") }}</span>
+						<div class="codeBlock">
+							<code>{{ t("api.tutorial_step1_detail") }}</code>
+						</div>
+					</li>
+
+					<li class="card-item">
+						<span class="index">2.</span>
+						<span>{{ t("api.tutorial_step2") }}</span>
+						<div class="codeBlock">
+							<code>{{ signaturePayloadExample }}</code>
+						</div>
+					</li>
+
+					<li class="card-item">
+						<span class="index">3.</span>
+						<span>{{ t("api.tutorial_step3") }}</span>
+						<div class="codeBlock">
+							<code>POST {{ apiEndpoint }}</code>
+						</div>
+					</li>
+
+					<li class="card-item">
+						<span class="index">4.</span>
+						<span>{{ t("api.tutorial_step4") }}</span>
+						<div class="codeBlock">
+							<code>{{ headersExample }}</code>
+						</div>
+					</li>
+
+					<li class="card-item">
+						<span class="index">5.</span>
+						<i18n-t scope="global" tag="span" keypath="api.tutorial_step5">
+							<template #LINK>
+								<a :href="url" target="_blank"
+									><Icon name="newtab" />{{ t("api.tutorial_step5_link") }}</a
+								>
+							</template>
+						</i18n-t>
+					</li>
+				</ol>
+
+				<TabMenu
+					class="codeExampleTabs"
+					v-model="exampleLang"
+					:values="['javascript', 'nodejs', 'python', 'curl']"
+					:labels="['JavaScript', 'Node.js', 'Python', 'cURL']"
+					small
+				/>
+				<div class="codeExampleWrapper">
+					<pre class="codeBlock"><code v-html="activeHighlighted"></code></pre>
+
+					<TTButton
+						class="copyBt"
+						icon="copy"
+						:copy="activeHighlightedCopy"
+						transparent
+					/>
+				</div>
+			</ToggleBlock>
 		</section>
 	</div>
 </template>
@@ -83,13 +156,16 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
+import TabMenu from "@/components/TabMenu.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useHighlight } from "@/composables/useHighlight";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -100,9 +176,182 @@ const loading = ref(false);
 const deleting = ref(false);
 const error = ref("");
 const privateKey = ref("");
+const { loadHighlightJs, highlighted } = useHighlight();
+const exampleLang = ref<"javascript" | "nodejs" | "python" | "curl">("javascript");
 
 const gitBranch = Config.instance.BETA_MODE ? "v17" : "main";
 const url = `https://github.com/Durss/Twitchat/blob/${gitBranch}/PUBLIC_API.md#actions-you-can-perform`;
+
+const apiEndpoint = computed(() => Config.instance.API_PATH + "/remote/action");
+
+const userId = computed(() => storeAuth.twitch.user.id);
+
+const keyValue = computed(() => privateKey.value || "twitchat_XXX");
+
+const signaturePayloadExample = computed(() => `TIMESTAMP\\nACTION\\nJSON_BODY`);
+
+const headersExample = computed(
+	() =>
+		`X-Twitchat-UserId: ${userId.value}\nX-Twitchat-Timestamp: {unix_ms}\nX-Twitchat-Signature: {base64_signature}\nContent-Type: application/json`,
+);
+
+const nodejsExample = computed(
+	() =>
+		`import { createPrivateKey, sign } from "crypto";
+
+// Reconstruct private key from your twitchat_ key
+const compactKey = "${keyValue.value}";
+const seed = Buffer.from(compactKey.replace("twitchat_", ""), "base64url");
+const prefix = Buffer.from("302e020100300506032b657004220420", "hex");
+const privateKey = createPrivateKey({
+  key: Buffer.concat([prefix, seed]),
+  format: "der",
+  type: "pkcs8",
+});
+
+// Build and sign the request
+const timestamp = Date.now().toString();
+const action = "my_action";
+const body = JSON.stringify({ action, data: {} });
+const payload = \`\${timestamp}\\n\${action}\\n\${body}\`;
+const signature = sign(null, Buffer.from(payload), privateKey)
+  .toString("base64");
+
+// Send it
+const res = await fetch("${apiEndpoint.value}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Twitchat-UserId": "${userId.value}",
+    "X-Twitchat-Timestamp": timestamp,
+    "X-Twitchat-Signature": signature,
+  },
+  body,
+});
+console.log(await res.json());`,
+);
+
+const javascriptExample = computed(
+	() =>
+		`// Decode the twitchat_ key and build the PKCS8 DER
+const compactKey = "${keyValue.value}";
+const b64 = compactKey.replace("twitchat_", "")
+  .replace(/-/g, "+").replace(/_/g, "/");
+const seed = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+const prefix = new Uint8Array([
+  0x30,0x2e,0x02,0x01,0x00,0x30,0x05,0x06,
+  0x03,0x2b,0x65,0x70,0x04,0x22,0x04,0x20
+]);
+const pkcs8 = new Uint8Array([...prefix, ...seed]);
+
+// Import as an Ed25519 signing key
+const key = await crypto.subtle.importKey(
+  "pkcs8", pkcs8, { name: "Ed25519" }, false, ["sign"]
+);
+
+// Build and sign the request
+const timestamp = Date.now().toString();
+const action = "my_action";
+const body = JSON.stringify({ action, data: {} });
+const payload = \`\${timestamp}\\n\${action}\\n\${body}\`;
+const sig = await crypto.subtle.sign(
+  "Ed25519", key, new TextEncoder().encode(payload)
+);
+const signature = btoa(String.fromCharCode(...new Uint8Array(sig)));
+
+// Send it
+const res = await fetch("${apiEndpoint.value}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Twitchat-UserId": "${userId.value}",
+    "X-Twitchat-Timestamp": timestamp,
+    "X-Twitchat-Signature": signature,
+  },
+  body,
+});
+console.log(await res.json());`,
+);
+
+const pythonExample = computed(
+	() =>
+		`from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives import serialization
+import base64, json, time, requests
+
+compact_key = "${keyValue.value}"
+seed = base64.urlsafe_b64decode(compact_key.replace("twitchat_", "") + "==")
+private_key = Ed25519PrivateKey.from_private_bytes(seed)
+
+timestamp = str(int(time.time() * 1000))
+action = "my_action"
+body = json.dumps({"action": action, "data": {}})
+payload = f"{timestamp}\\n{action}\\n{body}"
+signature = base64.b64encode(
+    private_key.sign(payload.encode())
+).decode()
+
+res = requests.post("${apiEndpoint.value}", json=json.loads(body), headers={
+    "X-Twitchat-UserId": "${userId.value}",
+    "X-Twitchat-Timestamp": timestamp,
+    "X-Twitchat-Signature": signature,
+})
+print(res.json())`,
+);
+
+const curlExample = computed(
+	() =>
+		`# Generate the signature using openssl (bash/zsh)
+TIMESTAMP=$(date +%s000)
+ACTION="my_action"
+BODY='{"action":"'$ACTION'","data":{}}'
+PAYLOAD="$TIMESTAMP\\n$ACTION\\n$BODY"
+
+# Sign with your private key (PEM file)
+SIGNATURE=$(echo -ne "$PAYLOAD" | openssl pkeyutl -sign -inkey key.pem | base64 -w0)
+
+curl -X POST "${apiEndpoint.value}" \\
+  -H "Content-Type: application/json" \\
+  -H "X-Twitchat-UserId: ${userId.value}" \\
+  -H "X-Twitchat-Timestamp: $TIMESTAMP" \\
+  -H "X-Twitchat-Signature: $SIGNATURE" \\
+  -d "$BODY"`,
+);
+
+const highlightedJavascript = highlighted(javascriptExample, "javascript");
+const highlightedNodejs = highlighted(nodejsExample, "javascript");
+const highlightedPython = highlighted(pythonExample, "python");
+const highlightedCurl = highlighted(curlExample, "bash");
+
+const activeHighlighted = computed(() => {
+	switch (exampleLang.value) {
+		case "javascript":
+			return highlightedJavascript.value;
+		case "python":
+			return highlightedPython.value;
+		case "curl":
+			return highlightedCurl.value;
+		default:
+			return highlightedNodejs.value;
+	}
+});
+
+const activeHighlightedCopy = computed(() => {
+	switch (exampleLang.value) {
+		case "javascript":
+			return javascriptExample.value;
+		case "python":
+			return pythonExample.value;
+		case "curl":
+			return curlExample.value;
+		default:
+			return nodejsExample.value;
+	}
+});
+
+async function onTutorialToggle(open: boolean) {
+	if (open) await loadHighlightJs();
+}
 
 function openPremium() {
 	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
@@ -229,6 +478,108 @@ async function revokeKey() {
 						@c2 20px
 					);
 				}
+			}
+		}
+	}
+
+	.tutorial {
+		text-align: left;
+
+		p {
+			margin-bottom: 0.5em;
+		}
+
+		ol {
+			list-style: none;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+
+			li {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25em;
+
+				.index {
+					font-weight: bold;
+				}
+
+				a {
+					.icon {
+						vertical-align: middle;
+						margin-right: 0.1em;
+					}
+				}
+
+				span {
+					white-space: pre-line;
+				}
+			}
+		}
+
+		.codeBlock {
+			background: var(--grayout-fader);
+			border-radius: 0.5em;
+			padding: 0.5em 0.75em;
+			font-family: monospace;
+			font-size: 0.85em;
+			overflow-x: auto;
+			white-space: pre-wrap;
+			word-break: break-all;
+			tab-size: 2;
+		}
+
+		pre.codeBlock {
+			white-space: pre;
+			word-break: normal;
+
+			:deep(.hljs-keyword),
+			:deep(.hljs-selector-tag) {
+				color: #ff7b72;
+			}
+			:deep(.hljs-string),
+			:deep(.hljs-template-variable) {
+				color: #a5d6ff;
+			}
+			:deep(.hljs-comment) {
+				color: #8b949e;
+			}
+			:deep(.hljs-number),
+			:deep(.hljs-literal) {
+				color: #79c0ff;
+			}
+			:deep(.hljs-title),
+			:deep(.hljs-function) {
+				color: #d2a8ff;
+			}
+			:deep(.hljs-built_in) {
+				color: #ffa657;
+			}
+			:deep(.hljs-variable),
+			:deep(.hljs-attr) {
+				color: #ffa657;
+			}
+			:deep(.hljs-params) {
+				color: #c9d1d9;
+			}
+			:deep(.hljs-subst) {
+				color: #c9d1d9;
+			}
+		}
+
+		.codeExampleTabs {
+			margin-top: 0.5em;
+		}
+
+		.codeExampleWrapper {
+			position: relative;
+
+			.copyBt {
+				position: absolute;
+				top: 0.5em;
+				right: 0.5em;
+				height: auto;
 			}
 		}
 	}
