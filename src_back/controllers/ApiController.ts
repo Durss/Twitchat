@@ -19,7 +19,9 @@ export default class ApiController extends AbstractController {
 		"302e020100300506032b657004220420",
 		"hex",
 	);
-	private static readonly MAX_TIMESTAMP_DRIFT_MS = 5 * 60 * 1000;
+	private static readonly MAX_TIMESTAMP_DRIFT_MS = 1 * 60 * 1000;
+	private static readonly RATE_LIMIT_MS = 1000;
+	private lastActionTimestamps: Map<string, number> = new Map();
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -93,7 +95,7 @@ export default class ApiController extends AbstractController {
 		});
 
 		// Extract the raw 32-byte seed from the 48-byte PKCS8 DER
-		const seed = (privateKey as Buffer).subarray(ApiController.ED25519_PKCS8_PREFIX.length);
+		const seed = privateKey.subarray(ApiController.ED25519_PKCS8_PREFIX.length);
 		const compactKey = "twitchat_" + seed.toString("base64url");
 
 		// Persist only the public key
@@ -156,7 +158,7 @@ export default class ApiController extends AbstractController {
 	 * - X-Twitchat-UserId: Twitch user ID
 	 * - X-Twitchat-Timestamp: unix ms when the request was signed
 	 * - X-Twitchat-Signature: base64-encoded Ed25519 signature of
-	 *     `${timestamp}\nPOST\n/api/remote/action\n${body}`
+	 *     `${timestamp}\n${action}\n${body}`
 	 */
 	private async postRemoteAction(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const uid = request.headers["x-twitchat-userid"] as string | undefined;
@@ -177,6 +179,25 @@ export default class ApiController extends AbstractController {
 			return;
 		}
 
+		// Rate limit: 1 call per second per user
+		const now = Date.now();
+		const lastCall = this.lastActionTimestamps.get(uid) ?? 0;
+		if (now - lastCall < ApiController.RATE_LIMIT_MS) {
+			response
+				.header("Content-Type", "application/json")
+				.header("Retry-After", "1")
+				.status(429)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "RATE_LIMITED",
+						error: "Too many requests. Max 1 call per second.",
+					}),
+				);
+			return;
+		}
+		this.lastActionTimestamps.set(uid, now);
+
 		// Validate timestamp to prevent replay attacks
 		const ts = parseInt(timestamp, 10);
 		if (isNaN(ts) || Math.abs(Date.now() - ts) > ApiController.MAX_TIMESTAMP_DRIFT_MS) {
@@ -187,7 +208,11 @@ export default class ApiController extends AbstractController {
 					JSON.stringify({
 						success: false,
 						errorCode: "INVALID_TIMESTAMP",
-						error: "Timestamp is missing or too far from server time (max 5 minutes)",
+						error:
+							"Timestamp is missing or too far from server time (max " +
+							ApiController.MAX_TIMESTAMP_DRIFT_MS +
+							" minute). Current server timestamp is " +
+							Date.now(),
 					}),
 				);
 			return;
@@ -214,7 +239,21 @@ export default class ApiController extends AbstractController {
 		// Reconstruct the signed payload
 		const bodyStr =
 			typeof request.body === "string" ? request.body : JSON.stringify(request.body);
-		const payload = `${timestamp}\nPOST\n/api/remote/action\n${bodyStr}`;
+		const action = (request.body as Record<string, unknown>)?.["action"];
+		if (!action || typeof action !== "string") {
+			response
+				.header("Content-Type", "application/json")
+				.status(400)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "MISSING_ACTION",
+						error: "Request body must contain an 'action' string field",
+					}),
+				);
+			return;
+		}
+		const payload = `${timestamp}\n${action}\n${bodyStr}`;
 
 		// Verify the signature
 		let valid = false;
@@ -242,6 +281,8 @@ export default class ApiController extends AbstractController {
 				);
 			return;
 		}
+
+		Logger.info(`[API] Executing remote action '${action}' from user ${uid}`);
 
 		// Signature is valid — forward the action to the connected frontend
 		const sent = SSEController.sendToUser(uid, "REMOTE_ACTION", request.body);
