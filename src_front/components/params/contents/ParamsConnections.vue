@@ -25,7 +25,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeAuth.isPremium }"
+				:class="{ connected: storeApi.connected }"
 				@click="subContent = 'twitchat_api'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.twitchat_api' }"
 			>
@@ -355,9 +355,11 @@ import ConnectStreamfog from "./connexions/ConnectStreamfog.vue";
 import { useI18n } from "vue-i18n";
 import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
+const storeApi = useStoreAPI();
 const storeStreamelements = useStoreStreamelements();
 const storeKofi = useStoreKofi();
 const storeTipeee = useStoreTipeee();

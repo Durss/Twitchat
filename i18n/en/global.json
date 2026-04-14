@@ -259,6 +259,13 @@
 			"error": "An error has occured while exporting message :("
 		},
 		"state_overlay_not_visible": "{NAME} overlay is not visible",
-		"state_overlay_not_found": "{NAME} overlay does not exist on current OBS scene"
+		"state_overlay_not_found": "{NAME} overlay does not exist on current OBS scene",
+		"toasters": {
+			"remote_api_action": {
+				"title": "Twitchat API action executed.",
+				"details": "Details",
+				"revoke_key": "Revoke API key"
+			}
+		}
 	}
 }

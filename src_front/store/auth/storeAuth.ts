@@ -442,6 +442,7 @@ export const storeAuth = defineStore("auth", {
 			this.dataSharingUserList = res.json.data.dataSharing || [];
 			this.features = res.json.data.features || [];
 			StoreProxy.discord.discordLinked = res.json.data.discordLinked === true;
+			StoreProxy.api.connected = res.json.data.has_api_key === true;
 			if (res.json.data.patreonLinked) void StoreProxy.patreon.loadMemberState();
 			this.twitch.user.channelInfo[user.id]!.following_date_ms = user.created_at_ms || 0;
 			//Uncomment to force non-premium for debugging

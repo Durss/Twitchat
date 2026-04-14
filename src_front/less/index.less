@@ -145,6 +145,14 @@
 	--highlight-partners: #9147ff;
 	--highlight-mention: #adadb8;
 	--highlight-raider: #f5f500;
+
+	--toastify-color-progress-light: var(--color-secondary-fade) !important;
+	--toastify-color-progress-dark: var(--color-secondary-fade) !important;
+	--toastify-toast-min-height: 40px !important;
+	--toastify-color-progress-success: var(--color-primary) !important;
+	--toastify-icon-color-success: var(--color-primary) !important;
+	--toastify-color-progress-error: var(--color-alert) !important;
+	--toastify-icon-color-error: var(--color-alert) !important;
 }
 
 body.light {
@@ -260,6 +268,8 @@ body.light {
 	--highlight-partners: #9147ff;
 	--highlight-mention: #adadb8;
 	--highlight-raider: #f5f500;
+
+	--toastify-color-progress-light: var(--color-secondary) !important;
 }
 
 body.dark {
@@ -706,4 +716,14 @@ body.light {
 	.hljs-subst {
 		color: #c9d1d9;
 	}
+}
+
+.Toastify__toast {
+	margin-bottom: 5px !important;
+}
+
+.Toastify__toast-container--bottom-right {
+	right: 0.5em !important;
+	bottom: calc(var(--chat-form-height) + 0.5em) !important;
+	padding: 0 !important;
 }

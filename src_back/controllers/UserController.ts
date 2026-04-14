@@ -239,6 +239,8 @@ export default class UserController extends AbstractController {
 			});
 		}
 
+		const has_api_key = fs.existsSync(path.join(Config.API_KEYS_PATH, uid + ".pem"));
+
 		const data: {
 			dataSharing: string[];
 			donorLevel: number;
@@ -248,11 +250,13 @@ export default class UserController extends AbstractController {
 			patreonLinked?: true;
 			discordLinked?: true;
 			features?: Flag[];
+			has_api_key: boolean;
 		} = {
 			donorLevel,
 			lifetimePercent,
 			premiumType,
 			dataSharing: super.getDataSharingList(uid),
+			has_api_key,
 		};
 		if (Config.credentials.admin_ids.includes(uid)) {
 			data.isAdmin = true;
