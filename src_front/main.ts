@@ -89,6 +89,8 @@ import { vAutofocus } from "./directives/autofocus";
 import { vClick2Select } from "./directives/click2Select";
 import { vNewflag } from "./directives/newflag";
 import { stickyTopShadow } from "./directives/stickyTopShadow";
+import Vue3Toasity, { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 window.setInitMessage("Booting app...");
 
@@ -336,6 +338,10 @@ function buildApp() {
 		.use(VueTippy, {
 			directive: "tooltip",
 			component: "tooltip",
+		})
+		.use(Vue3Toasity, {
+			autoClose: 5_000,
+			position: toast.POSITION.BOTTOM_RIGHT,
 		})
 		.component("country-flag", CountryFlag)
 		.component("vue-select", VueSelect)

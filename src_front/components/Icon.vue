@@ -1,6 +1,5 @@
 <template>
 	<span :class="classes" v-html="svg" v-if="svg"></span>
-
 	<svg
 		class="icon"
 		v-else-if="error"
@@ -31,6 +30,7 @@
 <script setup lang="ts">
 import { watch, ref, computed, onBeforeMount, onBeforeUnmount, getCurrentInstance } from "vue";
 import { storeCommon } from "@/store/common/storeCommon";
+import StoreProxy from "@/store/StoreProxy";
 
 const store = storeCommon();
 const props = withDefaults(
@@ -83,10 +83,9 @@ async function loadImage(): Promise<void> {
 
 	//Icon not yet loaded, load it
 	try {
-		const $asset = instance?.appContext.config.globalProperties.$asset;
-		if (!$asset) throw "$asset not available";
+		if (!StoreProxy.asset) throw "$asset not available";
 
-		const url = $asset("icons/" + props.name + ".svg");
+		const url = StoreProxy.asset("icons/" + props.name + ".svg");
 		if (url.endsWith("undefined")) {
 			throw "icon not found";
 		}
@@ -104,6 +103,7 @@ async function loadImage(): Promise<void> {
 			}
 		});
 	} catch (err) {
+		console.log("Error loading icon", props.name, err);
 		error.value = true;
 	}
 }

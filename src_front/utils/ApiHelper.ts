@@ -437,6 +437,7 @@ type ApiEndpoints = {
 					discordLinked: boolean;
 					patreonLinked: string;
 					dataSharing: string[];
+					has_api_key: boolean;
 					features?: IAuthState["features"];
 				};
 			};

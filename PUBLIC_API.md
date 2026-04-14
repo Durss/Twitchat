@@ -109,6 +109,9 @@ connect(ip, port pass).then(()=> {
 
 Events fired by Twitchat that you can listen to.
 
+> [!WARNING]  
+> These **CANNOT** be used from HTTP remote API, only via OBSWebsocket.
+
 - [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
 - [ON_AD_BREAK_OVERLAY_DATA](#on_ad_break_overlay_data)
 - [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)
@@ -7524,6 +7527,9 @@ type SET_VOICE_CONTROL_STATE = {
 # Requesting data
 
 Data you can request from Twitchat.
+
+> [!WARNING]  
+> These **CANNOT** be used from HTTP remote API, only via OBSWebsocket.
 
 - [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
 - [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)

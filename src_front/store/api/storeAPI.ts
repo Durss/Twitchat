@@ -10,6 +10,10 @@ import {
 } from "pinia";
 import type { UnwrapRef } from "vue";
 import type { IAPIActions, IAPIGetters, IAPIState } from "../StoreProxy";
+import PublicAPI from "@/utils/PublicAPI";
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import { toast } from "@/utils/toast/toast";
+import ToastRemoteApiInfo from "@/utils/toast/ToastRemoteApiInfo.vue";
 
 export const storeAPI = defineStore("api", {
 	state: () =>
@@ -45,10 +49,18 @@ export const storeAPI = defineStore("api", {
 			return false;
 		},
 
-		onRemoteAction(data?: { action: string; data?: unknown }): void {
-			console.log("ON REMOTE ACTION", data);
-			// Dispatch a custom DOM event so any part of the app can listen
-			// window.dispatchEvent(new CustomEvent("twitchat-remote-action", { detail: data }));
+		onRemoteAction(data?: { action: keyof TwitchatEventMap; data?: unknown }): void {
+			if (!data?.data || !data?.action) return;
+			PublicAPI.instance.broadcast(data.action, data.data, true, true);
+
+			toast(ToastRemoteApiInfo, {
+				autoClose: 4_000,
+				contentProps: {
+					action: data.action,
+					data: data.data,
+				},
+				type: "success",
+			});
 		},
 	} satisfies IAPIActions &
 		ThisType<

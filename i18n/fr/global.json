@@ -259,6 +259,13 @@
 			"error": "Une erreur est survenue lors de l'export du message :("
 		},
 		"state_overlay_not_visible": "L'overlay {NAME} est masqué",
-		"state_overlay_not_found": "L'overlay {NAME} n'existe pas sur la scène OBS actuelle"
+		"state_overlay_not_found": "L'overlay {NAME} n'existe pas sur la scène OBS actuelle",
+		"toasters": {
+			"remote_api_action": {
+				"title": "Action d'API Twitchat exécutée.",
+				"details": "Détails",
+				"revoke_key": "Révoquer la clé d'API"
+			}
+		}
 	}
 }
