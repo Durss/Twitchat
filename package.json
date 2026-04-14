@@ -108,9 +108,6 @@
 		"vuedraggable": "^4.1.0"
 	},
 	"overrides": {
-		"ajv": "^8.18.0",
-		"minimatch": ">=10.2.1",
-		"undici": "^6.23.0",
 		"vite": "npm:@voidzero-dev/vite-plus-core@latest",
 		"vitest": "npm:@voidzero-dev/vite-plus-test@latest"
 	},
