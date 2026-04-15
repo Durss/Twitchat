@@ -47,7 +47,7 @@ const props = withDefaults(
 	defineProps<{
 		icon?: string;
 		loading?: boolean;
-		type?: "link" | "button" | "file" | "submit";
+		type?: "link" | "button" | "file" | "submit" | "reset";
 		target?: string;
 		to?: unknown;
 		big?: boolean;

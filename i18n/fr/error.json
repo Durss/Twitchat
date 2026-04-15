@@ -124,6 +124,7 @@
 		"sse_error": "Une erreur est survenue lors de la connexion aux évènements temps réel.\nLe {APP} risque de ne pas fonctionner correctement.\nDésactivez vos ad-blockers pour cette page et rechargez-la.",
 		"patreon_max_linked": "Vous ne pouvez lier plus de 2 comptes Twitch au même compte Patreon.",
 		"streamSocket_connect_failed": "Impossible de se connecter à l'extension Twitch.\nAssurez-vous de l'avoir installée sur votre chaîne et d'avoir défini le bon \"secret\".",
-		"streamFog_connect_failed": "Impossible de se connecter à Streamfog."
+		"streamFog_connect_failed": "Impossible de se connecter à Streamfog.",
+		"local_network_access_denied": "Vous avez refusé d'accorder l'accès à votre réseau local à Twitchat.\nVérifiez les paramètres de votre navigateur pour l'autoriser."
 	}
 }
