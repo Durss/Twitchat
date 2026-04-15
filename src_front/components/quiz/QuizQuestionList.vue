@@ -8,7 +8,7 @@
 			v-if="quiz.questionList.length > 0"
 			v-model="search"
 			:debounceDelay="0"
-			noAutoFocus
+			:autoFocus="false"
 		/>
 
 		<VueDraggable
