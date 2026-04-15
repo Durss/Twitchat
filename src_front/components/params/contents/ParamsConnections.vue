@@ -2,13 +2,17 @@
 	<div class="paramsconnexions parameterContent" v-if="!subContent">
 		<Icon name="offline" alt="connections icon" class="icon" />
 
-		<p class="head">{{ t("connexions.header") }}</p>
+		<p class="head">
+			{{ t("connexions.header")
+			}}<SearchForm v-model="search" :debounce-delay="0" @change="filterItems" />
+		</p>
 
-		<div class="content">
+		<div class="content" ref="content">
 			<button
 				class="card-item premium"
 				:class="{ connected: youtubeConnected }"
 				@click="subContent = 'youtube'"
+				key="youtube"
 			>
 				<Icon name="youtube" />
 				<p>Youtube</p>
@@ -18,6 +22,7 @@
 				class="card-item premium"
 				:class="{ connected: goxlrConnected }"
 				@click="subContent = 'goxlr'"
+				key="goxlr"
 			>
 				<Icon name="goxlr" />
 				<p>GoXLR</p>
@@ -28,6 +33,8 @@
 				:class="{ connected: storeApi.connected }"
 				@click="subContent = 'twitchat_api'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.twitchat_api' }"
+				*
+				key="twitchat_api"
 			>
 				<Icon name="twitchat" />
 				<p>Twitchat API</p>
@@ -37,6 +44,7 @@
 				class="card-item premium"
 				:class="{ connected: storeStreamelements.connected }"
 				@click="subContent = 'streamelements'"
+				key="streamelements"
 			>
 				<Icon name="streamelements" />
 				<p>Streamelements</p>
@@ -46,6 +54,7 @@
 				class="card-item premium"
 				:class="{ connected: storeKofi.connected }"
 				@click="subContent = 'kofi'"
+				key="kofi"
 			>
 				<Icon name="kofi" />
 				<p>Ko-fi</p>
@@ -55,6 +64,7 @@
 				class="card-item premium"
 				:class="{ connected: storeTipeee.connected }"
 				@click="subContent = 'tipeee'"
+				key="tipeee"
 			>
 				<Icon name="tipeee" />
 				<p>Tipeee Stream</p>
@@ -64,6 +74,7 @@
 				class="card-item premium"
 				:class="{ connected: storeLumia.connected }"
 				@click="subContent = 'lumia'"
+				key="lumia"
 			>
 				<Icon name="lumia" />
 				<p>Lumia Stream</p>
@@ -74,6 +85,7 @@
 				:class="{ connected: storePatreon.connected }"
 				@click="subContent = 'patreon'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.patreon' }"
+				key="patreon"
 			>
 				<Icon name="patreon" />
 				<p>Patreon</p>
@@ -83,6 +95,7 @@
 				class="card-item premium half"
 				:class="{ connected: storeStreamlabs.connected }"
 				@click="subContent = 'streamlabs'"
+				key="streamlabs"
 			>
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
@@ -93,6 +106,7 @@
 				:class="{ connected: storeTiktok.connected }"
 				@click="subContent = 'tiktok'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.tiktok' }"
+				key="tiktok"
 			>
 				<Icon name="tiktok" />
 				<p>
@@ -106,6 +120,7 @@
 				:class="{ connected: storeTiltify.connected }"
 				@click="subContent = 'tiltify'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.tiltify' }"
+				key="tiltify"
 			>
 				<Icon name="tiltify" />
 				<p>Tiltify</p>
@@ -115,6 +130,7 @@
 				class="card-item"
 				:class="{ connected: voicemodConnected }"
 				@click="subContent = 'voicemod'"
+				key="voicemod"
 			>
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
@@ -124,6 +140,7 @@
 				class="card-item"
 				:class="{ connected: streamdeckConnected }"
 				@click="subContent = 'streamdeck'"
+				key="stream deck"
 			>
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
@@ -133,6 +150,7 @@
 				class="card-item"
 				:class="{ connected: storeDiscord.discordLinked }"
 				@click="subContent = 'discord'"
+				key="discord"
 			>
 				<Icon name="discord" />
 				<p>Discord</p>
@@ -142,6 +160,7 @@
 				class="card-item"
 				:class="{ connected: spotifyConnected }"
 				@click="subContent = 'spotify'"
+				key="spotify"
 			>
 				<Icon name="spotify" />
 				<p>Spotify</p>
@@ -152,6 +171,7 @@
 				:class="{ connected: $store.streamfog.connected }"
 				@click="subContent = 'streamfog'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.streamfog' }"
+				key="streamfog"
 			>
 				<Icon name="streamfog" />
 				<p>Streamfog</p>
@@ -161,6 +181,7 @@
 				class="card-item"
 				:class="{ connected: heatConnected }"
 				@click="subContent = 'heat'"
+				key="heat"
 			>
 				<Icon name="heat" />
 				<p>Heat</p>
@@ -171,6 +192,7 @@
 				:class="{ connected: storeStreamSocket.connected }"
 				@click="subContent = 'streamsocket'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.streamsocket' }"
+				key="streamsocket"
 			>
 				<Icon name="streamsocket" />
 				<p>StreamSocket Events</p>
@@ -181,6 +203,7 @@
 				:class="{ connected: storeStreamerbot.connected }"
 				@click="subContent = 'streamerbot'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.stramerbot' }"
+				key="streamer_bot"
 			>
 				<Icon name="streamerbot" />
 				<p>Streamer.bot</p>
@@ -191,6 +214,7 @@
 				:class="{ connected: storeSammi.connected }"
 				@click="subContent = 'sammi'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.sammi' }"
+				key="sammi"
 			>
 				<Icon name="sammi" />
 				<p>SAMMI</p>
@@ -201,6 +225,7 @@
 				:class="{ connected: storeMixitup.connected }"
 				@click="subContent = 'mixitup'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.mixitup' }"
+				key="miu"
 			>
 				<Icon name="mixitup" />
 				<p>Mix It Up</p>
@@ -211,6 +236,7 @@
 				:class="{ connected: storePlayability.connected }"
 				@click="subContent = 'playability'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.playability' }"
+				key="playability"
 			>
 				<Icon name="playability" />
 				<p>PlayAbility</p>
@@ -222,6 +248,7 @@
 				:class="{ connected: storeElevenLabs.connected }"
 				@click="subContent = 'elevenlabs'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.elevenlabs' }"
+				key="elevenlabs"
 			>
 				<Icon name="elevenlabs" />
 				<p>ElevenLabs</p>
@@ -233,6 +260,7 @@
 				:class="{ connected: storeGroq.connected }"
 				@click="subContent = 'groq'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.groq' }"
+				key="groq"
 			>
 				<Icon name="groq" />
 				<p>Groq</p>
@@ -243,6 +271,7 @@
 				:class="{ connected: storeTwitchBot.connected }"
 				@click="subContent = 'twitchbot'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.twitchbot' }"
+				key="twitch_bot"
 			>
 				<Icon name="twitch" />
 				<p>Twitch bot</p>
@@ -252,6 +281,7 @@
 				class="card-item"
 				:class="{ connected: obsConnected }"
 				@click="subContent = 'obs'"
+				key="obs"
 			>
 				<Icon name="obs" />
 				<p>OBS</p>
@@ -261,6 +291,7 @@
 				class="card-item"
 				:class="{ connected: wsCustomConnected }"
 				@click="subContent = 'websocket'"
+				key="websocket"
 			>
 				<Icon name="broadcast" />
 				<p>Websocket</p>
@@ -326,7 +357,7 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
-import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ConnectDiscord from "./connexions/ConnectDiscord.vue";
 import ConnectElevenLabs from "./connexions/ConnectElevenLabs.vue";
@@ -355,6 +386,7 @@ import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
 import ConnectVoicemod from "./connexions/ConnectVoicemod.vue";
 import ConnectWebsocket from "./connexions/ConnectWebsocket.vue";
 import ConnectYoutube from "./connexions/ConnectYoutube.vue";
+import SearchForm from "./SearchForm.vue";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -376,9 +408,11 @@ const storeElevenLabs = useStoreElevenLabs();
 const storeGroq = useStoreGroq();
 const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
+const contentRef = useTemplateRef("content");
 
 const allowHighlight = ref<boolean>(true);
 const subContent = ref<TwitchatDataTypes.ParamDeepSectionsStringType | "">("");
+const search = ref("");
 
 const youtubeConnected = computed(() => YoutubeHelper.instance.connected.value);
 const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
@@ -406,6 +440,16 @@ function onNavigateBack(): boolean {
 
 function reload(): boolean {
 	return onNavigateBack();
+}
+
+function filterItems(): void {
+	const buttonList = [...(contentRef.value?.querySelectorAll("button") || [])];
+	for (const element of buttonList) {
+		const text = element.innerText || "";
+		const show = text.toLowerCase().includes(search.value.toLowerCase());
+		if (show) element.classList.remove("hidden");
+		else element.classList.add("hidden");
+	}
 }
 
 watch(
@@ -441,9 +485,15 @@ defineExpose({ allowHighlight, onNavigateBack, reload });
 			width: 250px;
 			text-align: center;
 			margin: unset;
-			transition: background-color 0.2s;
 			overflow: visible;
 			position: relative;
+			transition:
+				background-color 0.2s,
+				opacity 0.2s;
+
+			&.hidden {
+				display: none;
+			}
 			&:not(.noConnectInfo) {
 				border-right: 2px solid var(--color-alert);
 			}

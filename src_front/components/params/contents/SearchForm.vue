@@ -21,6 +21,7 @@ import Icon from "@/components/Icon.vue";
 import { ref, watch, onBeforeUnmount } from "vue";
 
 const emit = defineEmits<{
+	(e: "change", value: string): void;
 	(e: "update:modelValue", value: string): void;
 	(e: "submit", value: string): void;
 }>();
@@ -67,6 +68,7 @@ watch(search, () => {
 		debouncedSearch.value = "";
 		hasSearch.value = false;
 		emit("update:modelValue", "");
+		emit("change", "");
 		return;
 	}
 	const delay = props.debounceDelay ?? 300;
@@ -76,6 +78,7 @@ watch(search, () => {
 		debouncedSearch.value = search.value;
 		hasSearch.value = true;
 		emit("update:modelValue", search.value);
+		emit("change", search.value);
 	}, delay);
 });
 
