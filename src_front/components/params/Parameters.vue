@@ -19,27 +19,13 @@
 					/>
 				</div>
 
-				<div class="search">
-					<input
-						type="text"
-						:placeholder="$t('params.search')"
-						v-model="storeParams.currentParamSearch"
-						v-autofocus
-						ref="searchField"
-					/>
-				</div>
+				<SearchForm class="search" v-model="storeParams.currentParamSearch" />
 			</div>
 
 			<div class="scrollable">
-				<VueDraggable
-					class="buttonList"
-					v-model="pinnedMenuEntries"
-					:group="{ name: 'menu_sections' }"
-					:animation="250"
-					@end="onEditMenu()"
-				>
+				<div class="buttonList" v-if="search">
 					<TTButton
-						v-for="element in pinnedMenuEntries"
+						v-for="element in searchMenuItem"
 						@click="openPage(element.page, true)"
 						class="menuItem"
 						v-newflag="element.newflag"
@@ -54,26 +40,22 @@
 						:premium="element.theme == 'premium'"
 						>{{ $t(element.labelKey) }}</TTButton
 					>
-				</VueDraggable>
-
-				<ToggleBlock
-					:title="$t('params.more_params')"
-					small
-					:open="false"
-					v-newflag="newFlagMoreParams"
-				>
-					<div class="dragInfo">
-						<Icon name="hand" />{{ $t("params.customize_sections") }}
+					<div class="searchResult" v-if="search">
+						<div class="noResult" v-if="searchMenuItem.length == 0">
+							{{ $t("params.search_no_result") }}
+						</div>
 					</div>
+				</div>
+				<template v-else>
 					<VueDraggable
 						class="buttonList"
-						v-model="unpinnedMenuEntries"
+						v-model="pinnedMenuEntries"
 						:group="{ name: 'menu_sections' }"
 						:animation="250"
 						@end="onEditMenu()"
 					>
 						<TTButton
-							v-for="element in unpinnedMenuEntries"
+							v-for="element in pinnedMenuEntries"
 							@click="openPage(element.page, true)"
 							class="menuItem"
 							v-newflag="element.newflag"
@@ -86,56 +68,95 @@
 									.filter((v) => v != '')
 									.join(' ')
 							"
-							icon="dragZone"
+							:icon="element.icon"
 							:primary="content == element.page"
 							:secondary="element.theme == 'secondary'"
 							:premium="element.theme == 'premium'"
 							>{{ $t(element.labelKey) }}</TTButton
 						>
 					</VueDraggable>
-				</ToggleBlock>
 
-				<div class="buttonList">
-					<TTButton
-						@click="openPage(button_donate.page, true)"
-						class="menuItem"
-						v-newflag="button_donate.newflag"
-						:class="
-							[
-								button_donate.premium
-									? 'premiumIndicator ' + button_donate.icon
-									: button_donate.icon,
-							]
-								.filter((v) => v != '')
-								.join(' ')
-						"
-						:icon="button_donate.icon"
-						:primary="content == button_donate.page"
-						:secondary="button_donate.theme == 'secondary'"
-						:premium="button_donate.theme == 'premium'"
-						>{{ $t(button_donate.labelKey) }}</TTButton
+					<ToggleBlock
+						:title="$t('params.more_params')"
+						small
+						:open="false"
+						v-newflag="newFlagMoreParams"
 					>
+						<div class="dragInfo">
+							<Icon name="hand" />{{ $t("params.customize_sections") }}
+						</div>
+						<VueDraggable
+							class="buttonList"
+							v-model="unpinnedMenuEntries"
+							:group="{ name: 'menu_sections' }"
+							:animation="250"
+							@end="onEditMenu()"
+						>
+							<TTButton
+								v-for="element in unpinnedMenuEntries"
+								@click="openPage(element.page, true)"
+								class="menuItem"
+								v-newflag="element.newflag"
+								:class="
+									[
+										element.premium
+											? 'premiumIndicator ' + element.icon
+											: element.icon,
+									]
+										.filter((v) => v != '')
+										.join(' ')
+								"
+								icon="dragZone"
+								:primary="content == element.page"
+								:secondary="element.theme == 'secondary'"
+								:premium="element.theme == 'premium'"
+								>{{ $t(element.labelKey) }}</TTButton
+							>
+						</VueDraggable>
+					</ToggleBlock>
 
-					<TTButton
-						@click="openPage(button_premium.page, true)"
-						class="menuItem"
-						v-newflag="button_premium.newflag"
-						:class="
-							[
-								button_premium.premium
-									? 'premiumIndicator ' + button_premium.icon
-									: button_premium.icon,
-							]
-								.filter((v) => v != '')
-								.join(' ')
-						"
-						:icon="button_premium.icon"
-						:primary="content == button_premium.page"
-						:secondary="button_premium.theme == 'secondary'"
-						:premium="button_premium.theme == 'premium'"
-						>{{ $t(button_premium.labelKey) }}</TTButton
-					>
-				</div>
+					<div class="buttonList">
+						<TTButton
+							@click="openPage(button_donate.page, true)"
+							class="menuItem"
+							v-newflag="button_donate.newflag"
+							:class="
+								[
+									button_donate.premium
+										? 'premiumIndicator ' + button_donate.icon
+										: button_donate.icon,
+								]
+									.filter((v) => v != '')
+									.join(' ')
+							"
+							:icon="button_donate.icon"
+							:primary="content == button_donate.page"
+							:secondary="button_donate.theme == 'secondary'"
+							:premium="button_donate.theme == 'premium'"
+							>{{ $t(button_donate.labelKey) }}</TTButton
+						>
+
+						<TTButton
+							@click="openPage(button_premium.page, true)"
+							class="menuItem"
+							v-newflag="button_premium.newflag"
+							:class="
+								[
+									button_premium.premium
+										? 'premiumIndicator ' + button_premium.icon
+										: button_premium.icon,
+								]
+									.filter((v) => v != '')
+									.join(' ')
+							"
+							:icon="button_premium.icon"
+							:primary="content == button_premium.page"
+							:secondary="button_premium.theme == 'secondary'"
+							:premium="button_premium.theme == 'premium'"
+							>{{ $t(button_premium.labelKey) }}</TTButton
+						>
+					</div>
+				</template>
 
 				<div class="automaticMessageHolder" v-if="isDonor && !closed">
 					<ParamsTwitchatAd
@@ -179,22 +200,33 @@
 				"
 				id="paramContentScrollableHolder"
 			>
-				<div
+				<SearchForm
 					class="search"
+					v-model="storeParams.currentParamSearch"
 					v-if="
 						search ||
 						content == ParameterPages.APPEARANCE ||
 						content == ParameterPages.FEATURES
 					"
-				>
-					<input
-						type="text"
-						:placeholder="$t('params.search')"
-						v-model="storeParams.currentParamSearch"
-						v-autofocus
-						ref="searchField"
-					/>
-				</div>
+				/>
+				<template v-if="search">
+					<TTButton
+						v-for="element in searchMenuItem"
+						@click="openPage(element.page, true)"
+						class="menuItem"
+						v-newflag="element.newflag"
+						:class="
+							[element.premium ? 'premiumIndicator ' + element.icon : element.icon]
+								.filter((v) => v != '')
+								.join(' ')
+						"
+						:icon="element.icon"
+						:primary="content == element.page"
+						:secondary="element.theme == 'secondary'"
+						:premium="element.theme == 'premium'"
+						>{{ $t(element.labelKey) }}</TTButton
+					>
+				</template>
 				<ParamsList
 					v-if="isGenericListContent || filteredParams.length > 0"
 					:category="content"
@@ -285,6 +317,7 @@ import Config from "@/utils/Config";
 import { VueDraggable } from "vue-draggable-plus";
 import ParamsTimer from "./contents/ParamsTimer.vue";
 import ParamsExporter from "./contents/ParamsExporter.vue";
+import SearchForm from "./contents/SearchForm.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { useI18n } from "vue-i18n";
@@ -309,7 +342,6 @@ const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 
 const rootEl = useTemplateRef("rootEl");
-const searchField = useTemplateRef("searchField");
 const currentContent = useTemplateRef<IParameterContent>("currentContent");
 
 const closed = ref(true);
@@ -461,6 +493,12 @@ const classes = computed(() => {
 	return res;
 });
 
+const searchMenuItem = computed(() => {
+	return [...pinnedMenuEntries.value, ...unpinnedMenuEntries.value].filter((v) =>
+		t(v.labelKey).toLowerCase().includes(search.value.toLowerCase()),
+	);
+});
+
 onBeforeMount(async () => {
 	showCTA.value = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
 
@@ -565,11 +603,6 @@ async function open(): Promise<void> {
 		translateX: "115%",
 		delay: 0.2,
 		ease: "sine.out",
-		onComplete: () => {
-			//Give focus to search field only after transition complete otherwise the browser
-			//will bring it into view before which causes glitches on opening animation
-			searchField.value?.focus();
-		},
 	});
 	gsap.fromTo(
 		el,
@@ -943,6 +976,13 @@ function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
 				max-width: 600px;
 				margin: 0 auto;
 			}
+
+			.menuItem {
+				display: none;
+				margin: auto;
+				width: 100%;
+				margin-bottom: 0.25em;
+			}
 		}
 	}
 
@@ -950,7 +990,6 @@ function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
 		.noResult {
 			font-style: italic;
 			text-align: center;
-			margin-top: 1em;
 		}
 	}
 
@@ -1043,6 +1082,12 @@ function onKeyDown(e: KeyboardEvent, isCapture: boolean = false): void {
 			}
 			.contentHolder {
 				display: flex;
+
+				.content {
+					.menuItem {
+						display: flex;
+					}
+				}
 			}
 		}
 	}

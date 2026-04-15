@@ -7,7 +7,7 @@
 				type="text"
 				:placeholder="$t('global.search_placeholder')"
 				v-model="search"
-				v-autofocus="!props.noAutoFocus"
+				v-autofocus="props.autoFocus"
 				@keydown.enter="emit('submit', search)"
 				@keydown.esc="(e) => onKeyUp(e)"
 			/>
@@ -25,11 +25,16 @@ const emit = defineEmits<{
 	(e: "submit", value: string): void;
 }>();
 
-const props = defineProps<{
-	modelValue?: string;
-	debounceDelay?: number;
-	noAutoFocus?: boolean;
-}>();
+const props = withDefaults(
+	defineProps<{
+		modelValue?: string;
+		debounceDelay?: number;
+		autoFocus?: boolean;
+	}>(),
+	{
+		autoFocus: true,
+	},
+);
 
 const search = ref("");
 const debouncedSearch = ref("");
@@ -44,6 +49,16 @@ function onKeyUp(e: KeyboardEvent) {
 		e.stopPropagation();
 	}
 }
+
+watch(
+	() => props.modelValue,
+	(newVal) => {
+		if (newVal !== search.value) {
+			search.value = newVal || "";
+		}
+	},
+	{ immediate: true },
+);
 
 watch(search, () => {
 	clearTimeout(debounceTimeout);
