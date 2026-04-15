@@ -124,6 +124,7 @@
 		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it.",
 		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account",
 		"streamSocket_connect_failed": "Could not connect with Twitch extension.\nMake sure you installed it on your channel and that you set proper secret.",
-		"streamFog_connect_failed": "Could not connect with Streamfog."
+		"streamFog_connect_failed": "Could not connect with Streamfog.",
+		"local_network_access_denied": "You refused to grant Twitchat access to your local network.\nCheck your browser settings to allow local network access."
 	}
 }
