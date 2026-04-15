@@ -1,7 +1,10 @@
 <template>
 	<div :class="classes">
 		<Icon name="overlay" class="icon" />
-		<div class="head" v-if="subContent == null">{{ $t("overlay.header") }}</div>
+		<div class="head" v-if="subContent == null">
+			{{ $t("overlay.header")
+			}}<SearchForm v-if="subContent == null" v-model="search" :debounceDelay="0" />
+		</div>
 
 		<div class="card-item alert connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title" v-if="!showDockTutorial">
@@ -47,8 +50,6 @@
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div> -->
-
-		<SearchForm v-if="subContent == null" v-model="search" :debounceDelay="0" />
 
 		<TransitionGroup name="overlayItem" tag="div" class="list" v-if="subContent == null">
 			<button
