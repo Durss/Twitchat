@@ -8,7 +8,7 @@
 					<a href="https://tiktok.com/" target="_blank"><Icon name="newtab" />TikTok</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos" v-if="!$store.tiktok.connected">
+			<div class="card-item secondary infos" v-if="!storeTiktok.connected">
 				<span>
 					<Icon name="info" />
 					<i18n-t scope="global" keypath="tiktok.requirement">
@@ -35,7 +35,7 @@
 		<div class="content">
 			<TTButton
 				type="submit"
-				v-if="!$store.tiktok.connected"
+				v-if="!storeTiktok.connected"
 				@click="connect()"
 				:loading="connecting"
 				:disabled="!canConnect"
@@ -43,7 +43,7 @@
 			>
 
 			<ToggleBlock
-				v-if="!$store.tiktok.connected"
+				v-if="!storeTiktok.connected"
 				:title="$t('global.advanced_params')"
 				small
 				:open="false"
@@ -52,10 +52,10 @@
 					<ParamItem
 						noBackground
 						:paramData="param_ip"
-						v-model="$store.tiktok.ip"
+						v-model="storeTiktok.ip"
 						autofocus
 					/>
-					<ParamItem noBackground :paramData="param_port" v-model="$store.tiktok.port" />
+					<ParamItem noBackground :paramData="param_port" v-model="storeTiktok.port" />
 
 					<div class="ctas">
 						<TTButton
@@ -73,11 +73,19 @@
 				</form>
 			</ToggleBlock>
 
-			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("tiktok.connect_error") }}
-			</div>
+			<BrowserPermissionChecker
+				v-if="error"
+				@click="error = false"
+				class="card-item alert error"
+				:errorMessage="t('error.local_network_access_denied')"
+				:permissionName="'local-network-access'"
+			>
+				<div class="card-item alert error">
+					{{ $t("tiktok.connect_error") }}
+				</div>
+			</BrowserPermissionChecker>
 
-			<template v-if="$store.tiktok.connected">
+			<template v-if="storeTiktok.connected">
 				<div class="card-item primary" v-if="showSuccess">
 					{{ $t("connexions.triggerSocket.success") }}
 				</div>
@@ -85,11 +93,11 @@
 				<div class="card-item infos">
 					<div>
 						<strong>{{ $t(param_ip.labelKey!) }}</strong
-						>: {{ $store.tiktok.ip }}
+						>: {{ storeTiktok.ip }}
 					</div>
 					<div>
 						<strong>{{ $t(param_port.labelKey!) }}</strong
-						>: {{ $store.tiktok.port }}
+						>: {{ storeTiktok.port }}
 					</div>
 				</div>
 
@@ -101,59 +109,51 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
 import Icon from "@/components/Icon.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits: [],
-})
-class ConnectTiktok extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t } = useI18n();
+const storeTiktok = useStoreTiktok();
 
-	public param_ip: TwitchatDataTypes.ParameterData<string> = {
-		value: "127.0.0.1",
-		type: "string",
-		labelKey: "connexions.triggerSocket.ip",
-		maxLength: 100,
-	};
-	public param_port: TwitchatDataTypes.ParameterData<number> = {
-		value: 0,
-		type: "number",
-		labelKey: "connexions.triggerSocket.port",
-		min: 0,
-		max: 65535,
-	};
+const error = ref(false);
+const showSuccess = ref(false);
+const connecting = ref(false);
 
-	public get canConnect(): boolean {
-		return this.param_ip.value.length >= 7; // && this.param_port.value > 0;
-	}
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "127.0.0.1",
+	type: "string",
+	labelKey: "connexions.triggerSocket.ip",
+	maxLength: 100,
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 0,
+	type: "number",
+	labelKey: "connexions.triggerSocket.port",
+	min: 0,
+	max: 65535,
+});
 
-	public beforeMount(): void {}
+const canConnect = computed((): boolean => {
+	return param_ip.value.value.length >= 7; // && param_port.value.value > 0;
+});
 
-	public async connect(): Promise<void> {
-		this.connecting = true;
-		this.error = !(await this.$store.tiktok.connect());
-		this.connecting = false;
-	}
-
-	public disconnect(): void {
-		this.$store.tiktok.disconnect();
-	}
+async function connect(): Promise<void> {
+	connecting.value = true;
+	error.value = !(await storeTiktok.connect());
+	connecting.value = false;
 }
-export default toNative(ConnectTiktok);
+
+function disconnect(): void {
+	storeTiktok.disconnect();
+}
 </script>
 
 <style scoped lang="less">
