@@ -298,37 +298,40 @@
 </template>
 
 <script setup lang="ts">
+import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
+import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
+import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
+import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
+import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
+import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
+import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
+import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
+import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
+import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
+import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import WebsocketTrigger from "@/utils/WebsocketTrigger";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
-import StreamdeckSocket from "@/utils/StreamdeckSocket";
-import { ref, computed, onBeforeMount, nextTick } from "vue";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
-import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
-import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
-import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
-import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
-import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
-import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
-import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
-import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
-import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
-import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
-import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
-import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
-import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
-import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
-import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
-import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
+import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ConnectDiscord from "./connexions/ConnectDiscord.vue";
 import ConnectElevenLabs from "./connexions/ConnectElevenLabs.vue";
 import ConnectGoXLR from "./connexions/ConnectGoXLR.vue";
+import ConnectGroq from "./connexions/ConnectGroq.vue";
 import ConnectHeat from "./connexions/ConnectHeat.vue";
 import ConnectKofi from "./connexions/ConnectKofi.vue";
 import ConnectLumia from "./connexions/ConnectLumia.vue";
@@ -338,24 +341,20 @@ import ConnectPatreon from "./connexions/ConnectPatreon.vue";
 import ConnectPlayability from "./connexions/ConnectPlayability.vue";
 import ConnectSammi from "./connexions/ConnectSammi.vue";
 import ConnectSpotify from "./connexions/ConnectSpotify.vue";
+import ConnectStreamSocket from "./connexions/ConnectStreamSocket.vue";
 import ConnectStreamdeck from "./connexions/ConnectStreamdeck.vue";
 import ConnectStreamelements from "./connexions/ConnectStreamelements.vue";
 import ConnectStreamerBot from "./connexions/ConnectStreamerBot.vue";
+import ConnectStreamfog from "./connexions/ConnectStreamfog.vue";
 import ConnectStreamlabs from "./connexions/ConnectStreamlabs.vue";
 import ConnectTiktok from "./connexions/ConnectTiktok.vue";
 import ConnectTiltify from "./connexions/ConnectTiltify.vue";
 import ConnectTipeee from "./connexions/ConnectTipeee.vue";
+import ConnectTwitchBot from "./connexions/ConnectTwitchBot.vue";
+import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
 import ConnectVoicemod from "./connexions/ConnectVoicemod.vue";
 import ConnectWebsocket from "./connexions/ConnectWebsocket.vue";
 import ConnectYoutube from "./connexions/ConnectYoutube.vue";
-import ConnectTwitchBot from "./connexions/ConnectTwitchBot.vue";
-import ConnectGroq from "./connexions/ConnectGroq.vue";
-import ConnectStreamSocket from "./connexions/ConnectStreamSocket.vue";
-import ConnectStreamfog from "./connexions/ConnectStreamfog.vue";
-import { useI18n } from "vue-i18n";
-import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -377,7 +376,6 @@ const storeElevenLabs = useStoreElevenLabs();
 const storeGroq = useStoreGroq();
 const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
-const storeAuth = useStoreAuth();
 
 const allowHighlight = ref<boolean>(true);
 const subContent = ref<TwitchatDataTypes.ParamDeepSectionsStringType | "">("");
@@ -409,6 +407,13 @@ function onNavigateBack(): boolean {
 function reload(): boolean {
 	return onNavigateBack();
 }
+
+watch(
+	() => storeParams.currentPageSubContent,
+	(newVal) => {
+		subContent.value = newVal;
+	},
+);
 
 defineExpose({ allowHighlight, onNavigateBack, reload });
 </script>

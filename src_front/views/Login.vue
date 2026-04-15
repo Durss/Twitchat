@@ -216,7 +216,6 @@ class Login extends Vue {
 					this.$store.auth.twitch_autenticate(
 						code,
 						(success: boolean, betaRefused?: boolean) => {
-							this.authenticating = false;
 							if (success) {
 								if (res.json.uidShare) {
 									this.$store.main.tempStoreValue = {
@@ -224,9 +223,11 @@ class Login extends Vue {
 										csrf: csrfToken,
 									};
 									this.$store.params.openModal("shareParams");
+									this.authenticating = false;
 								}
 								this.redirect();
 							} else {
+								this.authenticating = false;
 								if (betaRefused === true) {
 									this.closedBeta = true;
 									this.checkIfCanMigrate();
