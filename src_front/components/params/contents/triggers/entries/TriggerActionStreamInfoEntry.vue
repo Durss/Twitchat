@@ -57,7 +57,7 @@ class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
 			this.category = await TwitchUtils.getCategoryByID(this.action.categoryId);
 		}
 		this.title = this.action.title;
-		this.tags = this.action.tags;
+		this.tags = this.action.tags || [];
 		this.branded = this.action.branded === true;
 		this.labels = this.action.labels || [];
 		this.loading = false;
