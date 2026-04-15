@@ -1535,7 +1535,7 @@ export interface TriggerActionStreamInfoData extends TriggerActionData {
 	/**
 	 * New stream tags
 	 */
-	tags: string[];
+	tags?: string[];
 	/**
 	 * New branded content state
 	 */

@@ -401,7 +401,7 @@ function filterTree(
 						}
 						case "stream_infos": {
 							values.push(action.title);
-							values.push(...action.tags);
+							if (action.tags) values.push(...action.tags);
 							break;
 						}
 					}
