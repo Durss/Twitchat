@@ -10,10 +10,10 @@
 					>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos" v-if="!$store.mixitup.connected">
+			<div class="card-item secondary infos" v-if="!sMixitup.connected">
 				<span>
 					<Icon name="info" />
-					<span>{{ $t("mixitup.instructions") }}</span>
+					<span>{{ t("mixitup.instructions") }}</span>
 				</span>
 				<TTButton
 					class="installBt"
@@ -23,7 +23,7 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("mixitup.install") }}</TTButton
+					>{{ t("mixitup.install") }}</TTButton
 				>
 			</div>
 		</div>
@@ -31,27 +31,22 @@
 		<div class="content">
 			<TTButton
 				type="submit"
-				v-if="!$store.mixitup.connected"
+				v-if="!sMixitup.connected"
 				@click="connect()"
 				:loading="connecting"
 				:disabled="!canConnect"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 
 			<ToggleBlock
-				v-if="!$store.mixitup.connected"
-				:title="$t('global.advanced_params')"
+				v-if="!sMixitup.connected"
+				:title="t('global.advanced_params')"
 				small
 				:open="false"
 			>
 				<form class="card-item" @submit.prevent="connect()">
-					<ParamItem
-						noBackground
-						:paramData="param_ip"
-						v-model="$store.mixitup.ip"
-						autofocus
-					/>
-					<ParamItem noBackground :paramData="param_port" v-model="$store.mixitup.port" />
+					<ParamItem noBackground :paramData="param_ip" v-model="sMixitup.ip" autofocus />
+					<ParamItem noBackground :paramData="param_port" v-model="sMixitup.port" />
 
 					<div class="ctas">
 						<TTButton
@@ -60,98 +55,99 @@
 							@click="disconnect()"
 							:loading="connecting"
 							:disabled="!canConnect"
-							>{{ $t("global.clear") }}</TTButton
+							>{{ t("global.clear") }}</TTButton
 						>
 						<TTButton type="submit" :loading="connecting" :disabled="!canConnect">{{
-							$t("global.connect")
+							t("global.connect")
 						}}</TTButton>
 					</div>
 				</form>
 			</ToggleBlock>
 
-			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("mixitup.connect_error") }}
-			</div>
+			<BrowserPermissionChecker
+				v-if="error"
+				@click="error = false"
+				class="card-item alert error"
+				:errorMessage="t('error.local_network_access_denied')"
+				:permissionName="'local-network-access'"
+			>
+				{{ t("mixitup.connect_error") }}
+			</BrowserPermissionChecker>
 
-			<template v-if="$store.mixitup.connected">
+			<template v-if="sMixitup.connected">
 				<div class="card-item primary" v-if="showSuccess">
-					{{ $t("connexions.triggerSocket.success") }}
+					{{ t("connexions.triggerSocket.success") }}
 				</div>
 
 				<div class="card-item infos">
 					<div>
-						<strong>{{ $t(param_ip.labelKey!) }}</strong
-						>: {{ $store.mixitup.ip }}
+						<strong>{{ t(param_ip.labelKey!) }}</strong
+						>: {{ sMixitup.ip }}
 					</div>
 					<div>
-						<strong>{{ $t(param_port.labelKey!) }}</strong
-						>: {{ $store.mixitup.port }}
+						<strong>{{ t(param_port.labelKey!) }}</strong
+						>: {{ sMixitup.port }}
 					</div>
 				</div>
 
 				<TTButton class="connectBt" alert @click="disconnect()">{{
-					$t("global.disconnect")
+					t("global.disconnect")
 				}}</TTButton>
 			</template>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits: [],
-})
-class ConnectMixitup extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t } = useI18n();
+const sMixitup = useStoreMixitup();
 
-	public param_ip: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		labelKey: "mixitup.ip",
-		maxLength: 100,
-	};
-	public param_port: TwitchatDataTypes.ParameterData<number> = {
-		value: 0,
-		type: "number",
-		labelKey: "mixitup.port",
-		min: 0,
-		max: 65535,
-	};
+const error = ref(false);
+const showSuccess = ref(false);
+const connecting = ref(false);
 
-	public get canConnect(): boolean {
-		return this.param_ip.value.length >= 7; // && this.param_port.value > 0;
-	}
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "mixitup.ip",
+	maxLength: 100,
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 0,
+	type: "number",
+	labelKey: "mixitup.port",
+	min: 0,
+	max: 65535,
+});
 
-	public beforeMount(): void {
-		this.param_ip.value = this.$store.mixitup.ip;
-	}
+const canConnect = computed<boolean>(() => {
+	return param_ip.value.value.length >= 7; // && param_port.value.value > 0;
+});
 
-	public async connect(): Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.mixitup.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
+onBeforeMount(() => {
+	param_ip.value.value = sMixitup.ip;
+});
 
-	public disconnect(): void {
-		this.$store.mixitup.disconnect();
-	}
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	const res = await sMixitup.connect();
+	error.value = !res;
+	connecting.value = false;
 }
-export default toNative(ConnectMixitup);
+
+function disconnect(): void {
+	sMixitup.disconnect();
+}
 </script>
 
 <style scoped lang="less">

@@ -1,11 +1,11 @@
 <template>
-	<div class="browserpermissionchecker">
+	<component :is="tag" class="browserpermissionchecker">
 		<div v-if="denied" class="message">
 			<Icon name="alert" />
 			{{ errorMessage }}
 		</div>
 		<slot v-else />
-	</div>
+	</component>
 </template>
 
 <script setup lang="ts">
@@ -16,10 +16,16 @@ type AugmentedPermissionName = PermissionName | "local-network-access";
 
 const denied = ref(false);
 
-const props = defineProps<{
-	errorMessage: string;
-	permissionName: AugmentedPermissionName[] | AugmentedPermissionName;
-}>();
+const props = withDefaults(
+	defineProps<{
+		tag?: string;
+		errorMessage: string;
+		permissionName: AugmentedPermissionName[] | AugmentedPermissionName;
+	}>(),
+	{
+		tag: "div",
+	},
+);
 
 function check() {
 	const permissions = Array.isArray(props.permissionName)

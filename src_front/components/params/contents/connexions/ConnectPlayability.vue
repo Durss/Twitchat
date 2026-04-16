@@ -10,8 +10,8 @@
 					>
 				</template>
 			</i18n-t>
-			<div class="small">{{ $t("playability.info") }}</div>
-			<div class="card-item secondary infos" v-if="!$store.playability.connected">
+			<div class="small">{{ t("playability.info") }}</div>
+			<div class="card-item secondary infos" v-if="!sPlayability.connected">
 				<span>
 					<Icon name="info" />
 					<i18n-t scope="global" tag="span" keypath="playability.instructions">
@@ -30,7 +30,7 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("playability.install") }}</TTButton
+					>{{ t("playability.install") }}</TTButton
 				>
 			</div>
 		</div>
@@ -38,35 +38,27 @@
 		<div class="content">
 			<TTButton
 				type="submit"
-				v-if="!$store.playability.connected"
+				v-if="!sPlayability.connected"
 				@click="connect()"
 				:loading="connecting"
 				:disabled="!canConnect"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 
 			<ToggleBlock
-				v-if="!$store.playability.connected"
-				:title="$t('global.advanced_params')"
+				v-if="!sPlayability.connected"
+				:title="t('global.advanced_params')"
 				small
 				:open="false"
 			>
-				<form
-					class="card-item"
-					v-if="!$store.playability.connected"
-					@submit.prevent="connect()"
-				>
+				<form class="card-item" v-if="!sPlayability.connected" @submit.prevent="connect()">
 					<ParamItem
 						noBackground
 						:paramData="param_ip"
-						v-model="$store.playability.ip"
+						v-model="sPlayability.ip"
 						autofocus
 					/>
-					<ParamItem
-						noBackground
-						:paramData="param_port"
-						v-model="$store.playability.port"
-					/>
+					<ParamItem noBackground :paramData="param_port" v-model="sPlayability.port" />
 
 					<div class="ctas">
 						<TTButton
@@ -75,98 +67,99 @@
 							@click="disconnect()"
 							:loading="connecting"
 							:disabled="!canConnect"
-							>{{ $t("global.clear") }}</TTButton
+							>{{ t("global.clear") }}</TTButton
 						>
 						<TTButton type="submit" :loading="connecting" :disabled="!canConnect">{{
-							$t("global.connect")
+							t("global.connect")
 						}}</TTButton>
 					</div>
 				</form>
 			</ToggleBlock>
 
-			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("playability.connect_error") }}
-			</div>
+			<BrowserPermissionChecker
+				v-if="error"
+				@click="error = false"
+				class="card-item alert error"
+				:errorMessage="t('error.local_network_access_denied')"
+				:permissionName="'local-network-access'"
+			>
+				{{ t("playability.connect_error") }}
+			</BrowserPermissionChecker>
 
-			<template v-if="$store.playability.connected">
+			<template v-if="sPlayability.connected">
 				<div class="card-item primary" v-if="showSuccess">
-					{{ $t("connexions.triggerSocket.success") }}
+					{{ t("connexions.triggerSocket.success") }}
 				</div>
 
 				<div class="card-item infos">
 					<div>
-						<strong>{{ $t(param_ip.labelKey!) }}</strong
-						>: {{ $store.playability.ip }}
+						<strong>{{ t(param_ip.labelKey!) }}</strong
+						>: {{ sPlayability.ip }}
 					</div>
 					<div>
-						<strong>{{ $t(param_port.labelKey!) }}</strong
-						>: {{ $store.playability.port }}
+						<strong>{{ t(param_port.labelKey!) }}</strong
+						>: {{ sPlayability.port }}
 					</div>
 				</div>
 
 				<TTButton class="connectBt" alert @click="disconnect()">{{
-					$t("global.disconnect")
+					t("global.disconnect")
 				}}</TTButton>
 			</template>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits: [],
-})
-class ConnectPlayability extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t } = useI18n();
+const sPlayability = useStorePlayability();
 
-	public param_ip: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		labelKey: "playability.ip",
-		maxLength: 100,
-	};
-	public param_port: TwitchatDataTypes.ParameterData<number> = {
-		value: 0,
-		type: "number",
-		labelKey: "playability.port",
-		min: 0,
-		max: 65535,
-	};
+const error = ref(false);
+const showSuccess = ref(false);
+const connecting = ref(false);
 
-	public get canConnect(): boolean {
-		return this.param_ip.value.length >= 7; // && this.param_port.value > 0;
-	}
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "playability.ip",
+	maxLength: 100,
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 0,
+	type: "number",
+	labelKey: "playability.port",
+	min: 0,
+	max: 65535,
+});
 
-	public beforeMount(): void {
-		this.param_ip.value = this.$store.playability.ip;
-	}
+const canConnect = computed<boolean>(() => {
+	return param_ip.value.value.length >= 7; // && param_port.value.value > 0;
+});
 
-	public async connect(): Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.playability.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
+onBeforeMount(() => {
+	param_ip.value.value = sPlayability.ip;
+});
 
-	public disconnect(): void {
-		this.$store.playability.disconnect();
-	}
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	const res = await sPlayability.connect();
+	error.value = !res;
+	connecting.value = false;
 }
-export default toNative(ConnectPlayability);
+
+function disconnect(): void {
+	sPlayability.disconnect();
+}
 </script>
 
 <style scoped lang="less">
