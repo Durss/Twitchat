@@ -6,7 +6,7 @@
 			<i18n-t scope="global" tag="div" keypath="voicemod.header">
 				<template #LINK>
 					<a href="https://www.voicemod.net" target="_blank"
-						><Icon name="newtab" />{{ $t("voicemod.header_link") }}</a
+						><Icon name="newtab" />{{ t("voicemod.header_link") }}</a
 					>
 				</template>
 			</i18n-t>
@@ -21,20 +21,23 @@
 
 		<section v-if="connecting" class="card-item">
 			<Icon class="item center" name="loader" />
-			<div class="item center">{{ $t("voicemod.connecting") }}</div>
+			<div class="item center">{{ t("voicemod.connecting") }}</div>
 		</section>
 
-		<div class="fadeHolder" :style="holderStyles">
-			<section
-				class="card-item alert error"
-				v-if="connectionFailed && !connected"
-				@click="connectionFailed = false"
-			>
-				<div class="item">{{ $t("voicemod.connect_failed") }}</div>
-			</section>
+		<BrowserPermissionChecker
+			tag="section"
+			v-if="connectionFailed && !connected"
+			@click="connectionFailed = false"
+			class="card-item alert error"
+			:errorMessage="t('error.local_network_access_denied')"
+			:permissionName="'local-network-access'"
+		>
+			{{ t("voicemod.connect_failed") }}
+		</BrowserPermissionChecker>
 
+		<div class="fadeHolder" :style="holderStyles">
 			<template v-if="connected">
-				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
+				<Splitter>{{ t("voicemod.params_title") }}</Splitter>
 
 				<section>
 					<ParamItem
@@ -45,7 +48,7 @@
 					/>
 					<div class="card-item">
 						<div class="item">
-							<strong>{{ $t("voicemod.allowed_users") }}</strong>
+							<strong>{{ t("voicemod.allowed_users") }}</strong>
 						</div>
 						<PermissionsForm
 							class="item users"
@@ -55,10 +58,10 @@
 					</div>
 				</section>
 
-				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
+				<Splitter>{{ t("voicemod.voices_title") }}</Splitter>
 
 				<section>
-					<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
+					<div class="item center">{{ t("voicemod.voices_infos") }}</div>
 					<i18n-t
 						scope="global"
 						tag="div"
@@ -66,8 +69,8 @@
 						keypath="voicemod.voices_triggers"
 					>
 						<template #LINK>
-							<a @click="$store.params.openParamsPage(contentTriggers)">{{
-								$t("voicemod.voices_triggers_link")
+							<a @click="storeParams.openParamsPage(contentTriggers)">{{
+								t("voicemod.voices_triggers_link")
 							}}</a>
 						</template>
 					</i18n-t>
@@ -84,228 +87,219 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
-import { reactive, watch, type CSSProperties } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, onMounted, ref, watch, type CSSProperties } from "vue";
 import Splitter from "../../../Splitter.vue";
 import ParamItem from "../../ParamItem.vue";
 import PermissionsForm from "../../../PermissionsForm.vue";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import Icon from "@/components/Icon.vue";
-import type IParameterContent from "../IParameterContent";
 import Utils from "@/utils/Utils";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
+import { useI18n } from "vue-i18n";
+import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 
-@Component({
-	components: {
-		Icon,
-		Splitter,
-		ParamItem,
-		PermissionsForm,
-	},
-	emits: [],
-})
-class ConnectVoicemod extends Vue implements IParameterContent {
-	public loadingList: boolean = false;
-	public connecting: boolean = false;
-	public connectionFailed: boolean = false;
-	public voices: VoicemodTypes.Voice[] = [];
-	public voiceParams: TwitchatDataTypes.ParameterData<
-		string,
-		unknown,
-		unknown,
-		VoicemodTypes.Voice
-	>[] = [];
-	public param_enabled: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "global.enable",
+const { t } = useI18n();
+const storeVoice = useStoreVoice();
+const storeParams = useStoreParams();
+
+const loadingList = ref(false);
+const connecting = ref(false);
+const connectionFailed = ref(false);
+const voices = ref<VoicemodTypes.Voice[]>([]);
+const voiceParams = ref<
+	TwitchatDataTypes.ParameterData<string, unknown, unknown, VoicemodTypes.Voice>[]
+>([]);
+const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "global.enable",
+});
+const param_voiceIndicator = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	example: "voicemod_reset.png",
+	labelKey: "voicemod.show_indicator",
+});
+const permissions = ref<TwitchatDataTypes.PermissionsData>(
+	Utils.getDefaultPermissions(true, true, false, false, false, false),
+);
+
+let loadCount = 0;
+let loadTotal = 0;
+let voiceIdToCommand: { [key: string]: string } = {};
+
+const contentTriggers = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
+	return TwitchatDataTypes.ParameterPages.TRIGGERS;
+});
+
+const connected = computed(() => {
+	return VoicemodWebSocket.instance.connected.value;
+});
+
+const holderStyles = computed<CSSProperties>(() => {
+	return {
+		opacity: param_enabled.value.value === true && !connecting.value ? 1 : 0.5,
+		pointerEvents: param_enabled.value.value === true && !connecting.value ? "all" : "none",
 	};
-	public param_voiceIndicator: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		example: "voicemod_reset.png",
-		labelKey: "voicemod.show_indicator",
-	};
-	public permissions: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(
-		true,
-		true,
-		false,
-		false,
-		false,
-		false,
+});
+
+onMounted(() => {
+	prefill();
+	watch(
+		VoicemodWebSocket.instance.connected,
+		() => {
+			if (connected.value) {
+				populate();
+			}
+			connecting.value = false;
+		},
+		{ immediate: true },
 	);
+});
 
-	private loadCount: number = 0;
-	private loadTotal: number = 0;
-	private voiceIdToCommand: { [key: string]: string } = {};
+function onNavigateBack(): boolean {
+	return false;
+}
 
-	public get contentTriggers(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.TRIGGERS;
-	}
-	public get connected() {
-		return VoicemodWebSocket.instance.connected.value;
-	}
-
-	public get holderStyles(): CSSProperties {
-		return {
-			opacity: this.param_enabled.value === true && !this.connecting ? 1 : 0.5,
-			pointerEvents: this.param_enabled.value === true && !this.connecting ? "all" : "none",
-		};
-	}
-
-	public mounted(): void {
-		this.prefill();
-		watch(
-			VoicemodWebSocket.instance.connected,
-			() => {
-				if (this.connected) {
-					this.populate();
-				}
-				this.connecting = false;
-			},
-			{ immediate: true },
-		);
-	}
-
-	public onNavigateBack(): boolean {
-		return false;
-	}
-
-	/**
-	 * Called when toggling the "enabled" state
-	 */
-	public toggleState(): void {
-		if (this.param_enabled.value === true) {
-			this.connect();
-		} else {
-			this.connecting = false;
-			this.saveData();
-			VoicemodWebSocket.instance.disconnect();
-		}
-	}
-
-	/**
-	 * Connect to Voicemod
-	 */
-	public async connect(): Promise<void> {
-		this.connecting = true;
-		this.connectionFailed = false;
-		let connected = false;
-		try {
-			await VoicemodWebSocket.instance.connect();
-			connected = true;
-		} catch (error) {}
-
-		if (!connected) {
-			this.connectionFailed = true;
-		}
-	}
-
-	/**
-	 * Populate voices list.
-	 * Grabs image for all voices then add it to the list
-	 */
-	public async populate(): Promise<void> {
-		this.voices = VoicemodWebSocket.instance.voices;
-		this.voiceParams = [];
-		this.loadingList = true;
-		const storeParams = this.$store.voice
-			.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
-
-		//Build hashmap for faster access
-		for (const key in storeParams.commandToVoiceID) {
-			this.voiceIdToCommand[storeParams.commandToVoiceID[key]!] = key;
-		}
-
-		this.loadTotal = this.voices.length;
-		this.loadCount = 0;
-		let prevBatchIndex = 0;
-		for (let i = 0; i < this.loadTotal; i++) {
-			const v = this.voices[i]!;
-			const batchIndex = Math.floor(i / 20);
-			if (prevBatchIndex !== batchIndex) {
-				prevBatchIndex = batchIndex;
-				await Utils.promisedTimeout(100);
-			}
-			this.addVoiceTolist(v);
-		}
-		this.loadingList = false;
-	}
-
-	/**
-	 * Save current configs
-	 */
-	public saveData(): void {
-		let commandToVoiceID: { [key: string]: string } = {};
-
-		for (const p of this.voiceParams) {
-			const cmd = p.value.trim().toLowerCase();
-			if (cmd.length > 0) {
-				commandToVoiceID[cmd] = p.storage!.id;
-			}
-		}
-		if (Object.keys(commandToVoiceID).length === 0) {
-			commandToVoiceID = this.$store.voice.voicemodParams.commandToVoiceID;
-		}
-
-		const data: TwitchatDataTypes.VoicemodParamsData = {
-			enabled: this.param_enabled.value,
-			voiceIndicator: this.param_voiceIndicator.value,
-			chatCmdPerms: this.permissions,
-			commandToVoiceID,
-		};
-		this.$store.voice.setVoicemodParams(data);
-	}
-
-	/**
-	 * Prefills the forms
-	 */
-	private prefill(): void {
-		const params: TwitchatDataTypes.VoicemodParamsData = this.$store.voice.voicemodParams;
-		this.param_enabled.value = params.enabled === true;
-
-		this.param_voiceIndicator.value = params.voiceIndicator;
-
-		const storedPermissions = params.chatCmdPerms;
-		this.permissions.broadcaster = storedPermissions.broadcaster;
-		this.permissions.mods = storedPermissions.mods;
-		this.permissions.vips = storedPermissions.vips;
-		this.permissions.subs = storedPermissions.subs;
-		this.permissions.all = storedPermissions.all;
-		this.permissions.follower = storedPermissions.follower;
-		this.permissions.follower_duration_ms = storedPermissions.follower_duration_ms;
-		this.permissions.usersAllowed = storedPermissions.usersAllowed;
-		this.permissions.usersRefused = storedPermissions.usersRefused;
-	}
-
-	private addVoiceTolist(v: VoicemodTypes.Voice): void {
-		const data: TwitchatDataTypes.ParameterData<string> = reactive({
-			type: "string",
-			storage: v,
-			label: v.friendlyName,
-			value: this.voiceIdToCommand[v.id] ?? "",
-			placeholder: "!command",
-			maxLength: 50,
-			icon: "loader",
-		});
-		VoicemodWebSocket.instance.getBitmapForVoice(v.id).then((img: string) => {
-			data.icon = undefined;
-			data.iconURL = "data:image/png;base64," + img;
-		});
-		this.voiceParams.push(data);
-		this.voiceParams.sort((a, b) => {
-			if (a.storage!.friendlyName < b.storage!.friendlyName) return -1;
-			if (a.storage!.friendlyName > b.storage!.friendlyName) return 1;
-			return 0;
-		});
-		if (++this.loadCount === this.loadTotal) {
-			this.saveData();
-		}
+/**
+ * Called when toggling the "enabled" state
+ */
+function toggleState(): void {
+	if (param_enabled.value.value === true) {
+		connect();
+	} else {
+		connecting.value = false;
+		connectionFailed.value = false;
+		saveData();
+		VoicemodWebSocket.instance.disconnect();
 	}
 }
-export default toNative(ConnectVoicemod);
+
+/**
+ * Connect to Voicemod
+ */
+async function connect(): Promise<void> {
+	connecting.value = true;
+	connectionFailed.value = false;
+	let isConnected = false;
+	console.log("Connecting to Voicemod...");
+	try {
+		await VoicemodWebSocket.instance.connect();
+		isConnected = true;
+	} catch (e) {}
+
+	if (!isConnected) {
+		connecting.value = false;
+		connectionFailed.value = true;
+	}
+}
+
+/**
+ * Populate voices list.
+ * Grabs image for all voices then add it to the list
+ */
+async function populate(): Promise<void> {
+	voices.value = VoicemodWebSocket.instance.voices;
+	voiceParams.value = [];
+	loadingList.value = true;
+	const voicemodParams = storeVoice.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
+
+	//Build hashmap for faster access
+	for (const key in voicemodParams.commandToVoiceID) {
+		voiceIdToCommand[voicemodParams.commandToVoiceID[key]!] = key;
+	}
+
+	loadTotal = voices.value.length;
+	loadCount = 0;
+	let prevBatchIndex = 0;
+	for (let i = 0; i < loadTotal; i++) {
+		const v = voices.value[i]!;
+		const batchIndex = Math.floor(i / 20);
+		if (prevBatchIndex !== batchIndex) {
+			prevBatchIndex = batchIndex;
+			await Utils.promisedTimeout(100);
+		}
+		addVoiceTolist(v);
+	}
+	loadingList.value = false;
+}
+
+/**
+ * Save current configs
+ */
+function saveData(): void {
+	let commandToVoiceID: { [key: string]: string } = {};
+
+	for (const p of voiceParams.value) {
+		const cmd = p.value.trim().toLowerCase();
+		if (cmd.length > 0) {
+			commandToVoiceID[cmd] = p.storage!.id;
+		}
+	}
+	if (Object.keys(commandToVoiceID).length === 0) {
+		commandToVoiceID = storeVoice.voicemodParams.commandToVoiceID;
+	}
+
+	const data: TwitchatDataTypes.VoicemodParamsData = {
+		enabled: param_enabled.value.value,
+		voiceIndicator: param_voiceIndicator.value.value,
+		chatCmdPerms: permissions.value,
+		commandToVoiceID,
+	};
+	storeVoice.setVoicemodParams(data);
+}
+
+/**
+ * Prefills the forms
+ */
+function prefill(): void {
+	const params: TwitchatDataTypes.VoicemodParamsData = storeVoice.voicemodParams;
+	param_enabled.value.value = params.enabled === true;
+
+	param_voiceIndicator.value.value = params.voiceIndicator;
+
+	const storedPermissions = params.chatCmdPerms;
+	permissions.value.broadcaster = storedPermissions.broadcaster;
+	permissions.value.mods = storedPermissions.mods;
+	permissions.value.vips = storedPermissions.vips;
+	permissions.value.subs = storedPermissions.subs;
+	permissions.value.all = storedPermissions.all;
+	permissions.value.follower = storedPermissions.follower;
+	permissions.value.follower_duration_ms = storedPermissions.follower_duration_ms;
+	permissions.value.usersAllowed = storedPermissions.usersAllowed;
+	permissions.value.usersRefused = storedPermissions.usersRefused;
+}
+
+function addVoiceTolist(v: VoicemodTypes.Voice): void {
+	const data: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		storage: v,
+		label: v.friendlyName,
+		value: voiceIdToCommand[v.id] ?? "",
+		placeholder: "!command",
+		maxLength: 50,
+		icon: "loader",
+	};
+	VoicemodWebSocket.instance.getBitmapForVoice(v.id).then((img: string) => {
+		data.icon = undefined;
+		data.iconURL = "data:image/png;base64," + img;
+	});
+	voiceParams.value.push(data);
+	voiceParams.value.sort((a, b) => {
+		if (a.storage!.friendlyName < b.storage!.friendlyName) return -1;
+		if (a.storage!.friendlyName > b.storage!.friendlyName) return 1;
+		return 0;
+	});
+	if (++loadCount === loadTotal) {
+		saveData();
+	}
+}
+
+defineExpose({ onNavigateBack });
 </script>
 
 <style scoped lang="less">
@@ -371,6 +365,7 @@ export default toNative(ConnectVoicemod);
 		}
 
 		&.error {
+			cursor: pointer;
 			text-align: center;
 		}
 	}

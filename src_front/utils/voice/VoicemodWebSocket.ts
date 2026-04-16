@@ -54,6 +54,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private _hearMyselfState: boolean = false;
 	private _voiceChangerState: boolean = false;
 	private _connectAttempts: number = 0;
+	private _connectPromise!: Promise<void>;
 
 	static get instance(): VoicemodWebSocket {
 		if (!VoicemodWebSocket._instance) {
@@ -96,12 +97,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		isRetry: boolean = false,
 	): Promise<void> {
 		if (this.connected.value) return Promise.resolve();
-		if (this._connecting) return Promise.resolve();
+		if (this._connecting) return this._connectPromise;
 		this._connecting = true;
 		if (!isRetry) {
 			this._connectAttempts = 0;
 		}
-		return new Promise((resolve, reject) => {
+		this._connectPromise = new Promise((resolve, reject) => {
 			this._initResolver = resolve;
 			this._socket = new WebSocket(`ws://${ip}:${port}/v1/`);
 
@@ -128,16 +129,17 @@ export default class VoicemodWebSocket extends EventDispatcher {
 						}, 1000);
 					} catch (error) {
 						console.log(error);
-						reject("[-][VoicemodWebSocket] Reconnection failed");
+						reject("[VoicemodWebSocket] Reconnection failed");
 					}
 				}
 			};
 
 			this._socket.onerror = (_e) => {
 				this._connecting = false;
-				reject("[-][VoicemodWebSocket] Socket error");
+				reject("[VoicemodWebSocket] Socket error");
 			};
 		});
+		return this._connectPromise;
 	}
 
 	/**

@@ -12,102 +12,108 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
+		<section v-if="!storeAuth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{
-				$t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</section>
 
-		<form class="card-item" @submit.prevent="onConnect()" v-else-if="!$store.lumia.connected">
+		<form class="card-item" @submit.prevent="onConnect()" v-else-if="!storeLumia.connected">
 			<ParamItem class="param" :paramData="param_token" noBackground v-model="token" />
-			<div class="hint">({{ $t("lumia.param_token_help") }})</div>
+			<div class="hint">({{ t("lumia.param_token_help") }})</div>
 			<TTButton
 				type="submit"
 				icon="offline"
 				:disabled="token.length < 10"
 				:loading="loading"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 		</form>
 
 		<div v-else>
 			<TTButton alert @click="disconnect()" :loading="loading">{{
-				$t("global.disconnect")
+				t("global.disconnect")
 			}}</TTButton>
 		</div>
 
-		<div class="card-item alert error" v-if="error" @click="error = false">
-			{{ $t("error.lumia_connect_failed") }}
-		</div>
+		<BrowserPermissionChecker
+			v-if="error"
+			@click="error = false"
+			class="card-item alert error"
+			:errorMessage="t('error.local_network_access_denied')"
+			:permissionName="'local-network-access'"
+		>
+			{{ t("error.lumia_connect_failed") }}
+		</BrowserPermissionChecker>
 
 		<section class="card-item infos">
 			<i18n-t scope="global" tag="p" keypath="lumia.info">
 				<template #TRIGGERS>
-					<a @click.prevent="openTriggers()">{{ $t("params.categories.triggers") }}</a>
+					<a @click.prevent="openTriggers()">{{ t("params.categories.triggers") }}</a>
 				</template>
 			</i18n-t>
 		</section>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { ref } from "vue";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-	},
-	emits: [],
-})
-class ConnectLumia extends Vue {
-	public token: string = "";
-	public error: boolean = false;
-	public loading: boolean = false;
-	public param_token: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		maxLength: 40,
-		labelKey: "lumia.param_token",
-	};
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeLumia = useStoreLumia();
+const storeParams = useStoreParams();
 
-	/**
-	 * Attempt to connect to Lumia's socket
-	 */
-	public async onConnect(): Promise<void> {
-		this.loading = true;
-		try {
-			await this.$store.lumia.connect(this.token);
-		} catch (error) {}
-		this.error = !this.$store.lumia.connected;
-		this.loading = false;
-	}
+const token = ref<string>("");
+const error = ref<boolean>(false);
+const loading = ref<boolean>(false);
+const param_token = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	maxLength: 40,
+	labelKey: "lumia.param_token",
+});
 
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Opens the triggers page
-	 */
-	public async openTriggers(): Promise<void> {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
-	}
-
-	/**
-	 * Disconnects from Lumia Stream
-	 */
-	public async disconnect(): Promise<void> {
-		this.$store.lumia.disconnect();
-	}
+/**
+ * Attempt to connect to Lumia's socket
+ */
+async function onConnect(): Promise<void> {
+	loading.value = true;
+	try {
+		await storeLumia.connect(token.value);
+	} catch (e) {}
+	error.value = !storeLumia.connected;
+	loading.value = false;
 }
-export default toNative(ConnectLumia);
+
+/**
+ * Opens the premium param page
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
+ * Opens the triggers page
+ */
+async function openTriggers(): Promise<void> {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+}
+
+/**
+ * Disconnects from Lumia Stream
+ */
+async function disconnect(): Promise<void> {
+	storeLumia.disconnect();
+}
 </script>
 
 <style scoped lang="less">
