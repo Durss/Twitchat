@@ -2,7 +2,7 @@
 	<div class="paramsstreamdeck parameterContent">
 		<Icon name="elgato" alt="stream deck logo" class="icon" />
 
-		<p class="head">{{ $t("streamdeck.header") }}</p>
+		<p class="head">{{ t("streamdeck.header") }}</p>
 
 		<section>
 			<TTButton
@@ -11,16 +11,16 @@
 				target="_blank"
 				type="link"
 				class="button elgatoBt"
-				>{{ $t("streamdeck.download_bt") }}</TTButton
+				>{{ t("streamdeck.download_bt") }}</TTButton
 			>
 		</section>
 
 		<section v-if="connected">
 			<div class="connected card-item primary">
-				<icon name="checkmark" />{{ $t("streamdeck.connected") }}
+				<icon name="checkmark" />{{ t("streamdeck.connected") }}
 			</div>
 			<TTButton icon="offline" alert @click="disconnect()">{{
-				$t("global.disconnect")
+				t("global.disconnect")
 			}}</TTButton>
 		</section>
 
@@ -34,21 +34,16 @@
 					/>
 					<ToggleBlock
 						class="secretKeyDetails"
-						:title="$t('streamdeck.connect_form.findSecretKey')"
+						:title="t('streamdeck.connect_form.findSecretKey')"
 						small
 						noTitleColor
 						:open="false"
 					>
 						<span class="info">{{
-							$t("streamdeck.connect_form.findSecretKey_details")
+							t("streamdeck.connect_form.findSecretKey_details")
 						}}</span>
 						<img src="@/assets/img/streamdeck_credentials.png" />
 					</ToggleBlock>
-				</div>
-
-				<!-- <icon v-if="connecting" name="loader" class="loader" /> -->
-				<div class="card-item alert message error" v-if="error" @click="error = ''">
-					{{ $t(`streamdeck.error_messages.${error}`) }}
 				</div>
 
 				<TTButton
@@ -56,10 +51,20 @@
 					icon="online"
 					:loading="connecting"
 					:disabled="!param_secretKey.value"
-					>{{ $t("global.connect") }}</TTButton
+					>{{ t("global.connect") }}</TTButton
 				>
 
-				<ToggleBlock :title="$t('global.advanced_params')" small :open="false">
+				<BrowserPermissionChecker
+					v-if="error"
+					@click="error = false"
+					class="card-item alert error"
+					:errorMessage="t('error.local_network_access_denied')"
+					:permissionName="'local-network-access'"
+				>
+					{{ $t(`streamdeck.error_messages.${error}`) }}
+				</BrowserPermissionChecker>
+
+				<ToggleBlock :title="t('global.advanced_params')" small :open="false">
 					<ParamItem
 						:paramData="param_ip"
 						v-model="param_ip.value"
@@ -90,7 +95,7 @@
 								—
 								<span
 									v-html="
-										$t('streamdeck.connect_form.chromium', {
+										t('streamdeck.connect_form.chromium', {
 											IP: param_ip.value,
 										})
 									"
@@ -100,7 +105,7 @@
 								<img class="logo" src="@/assets/icons/logo-firefox.svg" /> —
 								<span
 									v-html="
-										$t('streamdeck.connect_form.firefox', {
+										t('streamdeck.connect_form.firefox', {
 											IP: param_ip.value,
 										})
 									"
@@ -110,7 +115,7 @@
 								<img class="logo" src="@/assets/icons/logo-opera.svg" /> —
 								<span
 									v-html="
-										$t('streamdeck.connect_form.opera', { IP: param_ip.value })
+										t('streamdeck.connect_form.opera', { IP: param_ip.value })
 									"
 								></span>
 							</li>
@@ -118,7 +123,7 @@
 								<img class="logo" src="@/assets/icons/logo-safari.svg" /> —
 								<span
 									v-html="
-										$t('streamdeck.connect_form.safari', { IP: param_ip.value })
+										t('streamdeck.connect_form.safari', { IP: param_ip.value })
 									"
 								></span>
 							</li>
@@ -130,92 +135,83 @@
 	</div>
 </template>
 
-<script lang="ts">
-import Splitter from "@/components/Splitter.vue";
+<script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
-import { Component, toNative, Vue } from "vue-facing-decorator";
-import type IParameterContent from "../IParameterContent";
 import ParamItem from "../../ParamItem.vue";
 import Utils from "@/utils/Utils";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components: {
-		TTButton,
-		Splitter,
-		ToggleBlock,
-		ParamItem,
-	},
-	emits: [],
-})
-class ConnectStreamdeck extends Vue implements IParameterContent {
-	public error: string = "";
-	public connecting: boolean = false;
-	public securityWarning: boolean = false;
-	public param_ip: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "127.0.0.1",
-		label: "IP",
-	};
-	public param_secretKey: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		labelKey: "global.key",
-		icon: "key",
-		longText: false,
-	};
+const { t } = useI18n();
 
-	public get contentConnexions(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.CONNECTIONS;
-	}
-	public get subcontentOBS(): TwitchatDataTypes.ParamDeepSectionsStringType {
-		return TwitchatDataTypes.ParamDeepSections.OBS;
-	}
-	public get connected(): boolean {
-		return StreamdeckSocket.instance.connected.value;
-	}
+const error = ref(false);
+const errorMessage = ref("");
+const connecting = ref(false);
+const securityWarning = ref(false);
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "127.0.0.1",
+	label: "IP",
+});
+const param_secretKey = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	labelKey: "global.key",
+	icon: "key",
+	longText: false,
+});
 
-	public onNavigateBack(): boolean {
-		return false;
-	}
+const connected = computed<boolean>(() => {
+	return StreamdeckSocket.instance.connected.value;
+});
 
-	public mounted(): void {
-		this.param_ip.value = StreamdeckSocket.instance.ip;
-		this.param_secretKey.value = StreamdeckSocket.instance.secretKey;
-		this.onIpChange();
-	}
-
-	public async connect(): Promise<void> {
-		this.error = "";
-		this.connecting = true;
-		await Utils.promisedTimeout(250);
-		StreamdeckSocket.instance
-			.connect(this.param_secretKey.value, this.param_ip.value)
-			.then((res) => {
-				if (!res) this.error = "UNKNOWN_ERROR";
-				else this.error = "";
-			})
-			.catch((reason) => {
-				this.error = reason;
-			})
-			.finally(() => {
-				this.connecting = false;
-			});
-	}
-
-	public disconnect(): void {
-		console.log("Disconnecting from Streamdeck");
-		StreamdeckSocket.instance.disconnect();
-	}
-
-	public onIpChange(): void {
-		this.securityWarning =
-			this.param_ip.value.trim() != "127.0.0.1" && this.param_ip.value.trim() != "localhost";
-	}
+function onNavigateBack(): boolean {
+	return false;
 }
-export default toNative(ConnectStreamdeck);
+
+onMounted(() => {
+	param_ip.value.value = StreamdeckSocket.instance.ip;
+	param_secretKey.value.value = StreamdeckSocket.instance.secretKey;
+	onIpChange();
+});
+
+async function connect(): Promise<void> {
+	errorMessage.value = "";
+	error.value = false;
+	connecting.value = true;
+	await Utils.promisedTimeout(250);
+	StreamdeckSocket.instance
+		.connect(param_secretKey.value.value, param_ip.value.value)
+		.then((res) => {
+			console.log(res);
+			if (!res) {
+				errorMessage.value = "UNKNOWN_ERROR";
+				error.value = true;
+			} else errorMessage.value = "";
+		})
+		.catch((reason) => {
+			errorMessage.value = reason;
+			error.value = true;
+		})
+		.finally(() => {
+			connecting.value = false;
+		});
+}
+
+function disconnect(): void {
+	StreamdeckSocket.instance.disconnect();
+}
+
+function onIpChange(): void {
+	securityWarning.value =
+		param_ip.value.value.trim() != "127.0.0.1" && param_ip.value.value.trim() != "localhost";
+}
+
+defineExpose({ onNavigateBack });
 </script>
 
 <style scoped lang="less">
@@ -236,6 +232,7 @@ export default toNative(ConnectStreamdeck);
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 		:deep(.inputHolder),
 		:deep(input) {
 			flex-basis: 150px !important;
