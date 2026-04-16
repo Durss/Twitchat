@@ -13,7 +13,7 @@
 			<div class="card-item secondary infos">
 				<span>
 					<Icon name="info" />
-					<span>{{ $t("streamerbot.instructions") }}</span>
+					<span>{{ t("streamerbot.instructions") }}</span>
 				</span>
 				<TTButton
 					class="installBt"
@@ -23,7 +23,7 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("streamerbot.install") }}</TTButton
+					>{{ t("streamerbot.install") }}</TTButton
 				>
 			</div>
 		</div>
@@ -31,16 +31,16 @@
 		<div class="content">
 			<TTButton
 				type="submit"
-				v-if="!$store.streamerbot.connected"
+				v-if="!sStreamerbot.connected"
 				@click="connect()"
 				:loading="connecting"
 				:disabled="!canConnect"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 
 			<ToggleBlock
-				v-if="!$store.streamerbot.connected"
-				:title="$t('global.advanced_params')"
+				v-if="!sStreamerbot.connected"
+				:title="t('global.advanced_params')"
 				small
 				:open="false"
 			>
@@ -48,18 +48,14 @@
 					<ParamItem
 						noBackground
 						:paramData="param_ip"
-						v-model="$store.streamerbot.ip"
+						v-model="sStreamerbot.ip"
 						autofocus
 					/>
-					<ParamItem
-						noBackground
-						:paramData="param_port"
-						v-model="$store.streamerbot.port"
-					/>
+					<ParamItem noBackground :paramData="param_port" v-model="sStreamerbot.port" />
 					<ParamItem
 						noBackground
 						:paramData="param_pass"
-						v-model="$store.streamerbot.password"
+						v-model="sStreamerbot.password"
 					/>
 
 					<div class="ctas">
@@ -69,105 +65,106 @@
 							@click="disconnect()"
 							:loading="connecting"
 							:disabled="!canConnect"
-							>{{ $t("global.clear") }}</TTButton
+							>{{ t("global.clear") }}</TTButton
 						>
 						<TTButton type="submit" :loading="connecting" :disabled="!canConnect">{{
-							$t("global.connect")
+							t("global.connect")
 						}}</TTButton>
 					</div>
 				</form>
 			</ToggleBlock>
 
-			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("streamerbot.connect_error") }}
-			</div>
+			<BrowserPermissionChecker
+				v-if="error"
+				@click="error = false"
+				class="card-item alert error"
+				:errorMessage="t('error.local_network_access_denied')"
+				:permissionName="'local-network-access'"
+			>
+				{{ t("streamerbot.connect_error") }}
+			</BrowserPermissionChecker>
 
-			<template v-if="$store.streamerbot.connected">
+			<template v-if="sStreamerbot.connected">
 				<div class="card-item primary" v-if="showSuccess">
-					{{ $t("connexions.triggerSocket.success") }}
+					{{ t("connexions.triggerSocket.success") }}
 				</div>
 
 				<div class="card-item infos">
 					<div>
-						<strong>{{ $t(param_ip.labelKey!) }}</strong
-						>: {{ $store.streamerbot.ip }}
+						<strong>{{ t(param_ip.labelKey!) }}</strong
+						>: {{ sStreamerbot.ip }}
 					</div>
 					<div>
-						<strong>{{ $t(param_port.labelKey!) }}</strong
-						>: {{ $store.streamerbot.port }}
+						<strong>{{ t(param_port.labelKey!) }}</strong
+						>: {{ sStreamerbot.port }}
 					</div>
 				</div>
 
 				<TTButton class="connectBt" alert @click="disconnect()">{{
-					$t("global.disconnect")
+					t("global.disconnect")
 				}}</TTButton>
 			</template>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits: [],
-})
-class ConnectStreamerBot extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t } = useI18n();
+const sStreamerbot = useStoreStreamerbot();
 
-	public param_ip: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		labelKey: "streamerbot.ip",
-		maxLength: 100,
-	};
-	public param_port: TwitchatDataTypes.ParameterData<number> = {
-		value: 0,
-		type: "number",
-		labelKey: "streamerbot.port",
-		min: 0,
-		max: 65535,
-	};
-	public param_pass: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		labelKey: "streamerbot.pass",
-		maxLength: 100,
-		isPrivate: true,
-	};
+const error = ref(false);
+const showSuccess = ref(false);
+const connecting = ref(false);
 
-	public get canConnect(): boolean {
-		return this.param_ip.value.length >= 7; // && this.param_port.value > 0;
-	}
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "streamerbot.ip",
+	maxLength: 100,
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 0,
+	type: "number",
+	labelKey: "streamerbot.port",
+	min: 0,
+	max: 65535,
+});
+const param_pass = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "streamerbot.pass",
+	maxLength: 100,
+	isPrivate: true,
+});
 
-	public beforeMount(): void {
-		this.param_ip.value = this.$store.streamerbot.ip;
-	}
+const canConnect = computed<boolean>(() => {
+	return param_ip.value.value.length >= 7; // && param_port.value.value > 0;
+});
 
-	public async connect(): Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.streamerbot.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
+onBeforeMount(() => {
+	param_ip.value.value = sStreamerbot.ip;
+});
 
-	public disconnect(): void {
-		this.$store.streamerbot.disconnect();
-	}
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	const res = await sStreamerbot.connect();
+	error.value = !res;
+	connecting.value = false;
 }
-export default toNative(ConnectStreamerBot);
+
+function disconnect(): void {
+	sStreamerbot.disconnect();
+}
 </script>
 
 <style scoped lang="less">
