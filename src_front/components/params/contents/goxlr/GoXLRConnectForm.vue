@@ -31,20 +31,18 @@
 					v-tooltip="!isPremium ? t('premium.restricted_access') : ''"
 					>{{ t("global.connect") }}</TTButton
 				>
-
-				<BrowserPermissionChecker
-					v-if="error"
-					@click="error = false"
-					class="card-item alert error"
-					:errorMessage="t('error.local_network_access_denied')"
-					:permissionName="'local-network-access'"
-				>
-					<div class="card-item alert message error" v-if="error" @click="error = false">
-						{{ t("goxlr.connect_failed") }}
-					</div>
-				</BrowserPermissionChecker>
 			</form>
 		</ToggleBlock>
+
+		<BrowserPermissionChecker
+			v-if="error"
+			@click="error = false"
+			class="card-item alert error"
+			:errorMessage="t('error.local_network_access_denied')"
+			:permissionName="'local-network-access'"
+		>
+			{{ t("goxlr.connect_failed") }}
+		</BrowserPermissionChecker>
 
 		<template v-else>
 			<TTButton class="disconnectBt" type="button" @click="disconnect()" alert>{{
@@ -163,9 +161,6 @@ function onIpChange(): void {
 		.security {
 			white-space: pre-line;
 		}
-	}
-	.message {
-		text-align: center;
 	}
 	.error {
 		cursor: pointer;
