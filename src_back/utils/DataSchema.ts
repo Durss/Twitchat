@@ -1790,6 +1790,8 @@ const UserDataSchema = {
 					additionalProperties: { type: "string", maxLength: 100 },
 				},
 				chatCmdPerms: { $ref: "defs.json#/definitions/permissions" },
+				ip: { type: "string", maxLength: 100 },
+				port: { type: "integer", minimum: 0, maximum: 65535 },
 			},
 		},
 
@@ -1998,6 +2000,7 @@ const UserDataSchema = {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
 				secured: { type: "boolean" },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -2725,6 +2728,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -2734,6 +2738,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -2743,6 +2748,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -2752,6 +2758,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -2761,6 +2768,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 
@@ -3002,6 +3010,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				secretKey: { type: "string", maxLength: 50 },
+				connectionEnabled: { type: "boolean" },
 			},
 		},
 

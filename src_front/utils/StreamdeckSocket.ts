@@ -16,6 +16,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	private _isMainApp: boolean = false;
 	private _secretKey: string = "";
 	private _ip: string = "";
+	private _enabled: boolean = false;
 
 	constructor() {
 		super();
@@ -46,6 +47,18 @@ export default class StreamdeckSocket extends EventDispatcher {
 		return this._secretKey;
 	}
 
+	public set enabled(value: boolean) {
+		if (!value) {
+			this.disconnect();
+		}
+		this._enabled = value;
+		this.saveConfigs();
+	}
+
+	public get enabled(): boolean {
+		return this._enabled;
+	}
+
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
@@ -55,6 +68,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	public connect(secretKey?: string, ip?: string, isMainApp: boolean = false): Promise<boolean> {
 		let isManualConnect = !!ip || !!secretKey;
 		this.connected.value = false;
+		if (!this._enabled) return Promise.resolve(false);
 		if (isMainApp === true) this._isMainApp = true;
 		if (secretKey) this._secretKey = secretKey.substring(0, 100);
 		if (ip) this._ip = ip;
@@ -70,11 +84,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 			const address = this.ip ? `${protocol}${this.ip}:${port}` : `ws://127.0.0.1:${port}`;
 			if (isManualConnect) {
 				if (ip || secretKey) {
-					const data: StoreData = {
-						ip: this.ip && this.ip != "127.0.0.1" ? this.ip : "",
-						secretKey: this._secretKey || "",
-					};
-					DataStore.set(DataStore.STREAMDECK_CONFIGS, data);
+					this.saveConfigs();
 				} else {
 					DataStore.remove(DataStore.STREAMDECK_CONFIGS);
 				}
@@ -110,6 +120,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 				if (args.action == "ON_STREAMDECK_AUTHENTICATION_RESULT") {
 					if (args.data?.success === true) {
 						this.connected.value = true;
+						// TODO: why broadcasting this here??
 						PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {
 							enabled: false,
 						});
@@ -182,6 +193,15 @@ export default class StreamdeckSocket extends EventDispatcher {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+
+	private saveConfigs(): void {
+		const data: StoreData = {
+			ip: this.ip && this.ip != "127.0.0.1" ? this.ip : "",
+			secretKey: this._secretKey || "",
+			enabled: this._enabled,
+		};
+		DataStore.set(DataStore.STREAMDECK_CONFIGS, data);
+	}
 }
 
 export class StreamdeckSocketEvent<
@@ -199,5 +219,6 @@ export class StreamdeckSocketEvent<
 
 type StoreData = {
 	ip: string;
+	enabled: boolean;
 	secretKey: string;
 };

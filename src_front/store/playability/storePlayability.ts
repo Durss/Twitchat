@@ -27,6 +27,7 @@ export const storePlayability = defineStore("playability", {
 	state: () =>
 		({
 			connected: false,
+			connectionEnabled: false as boolean,
 			ip: "127.0.0.1",
 			port: 13123,
 			mappingList: [] as IPlayabilityState["mappingList"],
@@ -45,8 +46,11 @@ export const storePlayability = defineStore("playability", {
 			if (json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
-				this.port = data.port || 8911;
-				void this.connect();
+				this.port = data.port || 13123;
+				this.connectionEnabled = data.connectionEnabled ?? true;
+				if (this.connectionEnabled) {
+					void this.connect();
+				}
 			}
 		},
 
@@ -180,10 +184,14 @@ export const storePlayability = defineStore("playability", {
 		disconnect(): void {
 			autoReconnect = false;
 			this.connected = false;
-			this.saveConfigs();
 			clearTimeout(reconnectTimeout);
-			if (socket && this.connected) socket.close();
-			DataStore.remove(DataStore.PLAYABILITY_CONFIGS);
+			if (socket) {
+				try {
+					socket.close();
+				} catch (_e) {
+					/* ignore */
+				}
+			}
 		},
 
 		async execOutputs(
@@ -254,6 +262,7 @@ export const storePlayability = defineStore("playability", {
 			const data: IStoreData = {
 				ip: this.ip,
 				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.PLAYABILITY_CONFIGS, data);
 		},
@@ -283,4 +292,5 @@ if (import.meta.hot) {
 interface IStoreData {
 	ip: string;
 	port: number;
+	connectionEnabled?: boolean;
 }
