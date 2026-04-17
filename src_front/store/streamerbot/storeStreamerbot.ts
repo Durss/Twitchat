@@ -16,7 +16,8 @@ let socket!: StreamerbotClient;
 export const storeStreamerbot = defineStore("streamerbot", {
 	state: () =>
 		({
-			connected: false,
+			connected: false as boolean,
+			connectionEnabled: false as boolean,
 			ip: "127.0.0.1",
 			port: 8080,
 			password: "",
@@ -38,12 +39,16 @@ export const storeStreamerbot = defineStore("streamerbot", {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
 				this.port = data.port || 8080;
+				this.connectionEnabled = data.connectionEnabled ?? true;
 				this.password = pass || "";
-				void this.connect();
+				if (this.connectionEnabled) {
+					void this.connect();
+				}
 			}
 		},
 
 		async connect(): Promise<boolean> {
+			if (!this.connectionEnabled) return false;
 			return new Promise<boolean>((resolve) => {
 				initResolver = resolve;
 
@@ -87,8 +92,6 @@ export const storeStreamerbot = defineStore("streamerbot", {
 		disconnect(): void {
 			this.connected = false;
 			void socket.disconnect();
-			DataStore.remove(DataStore.STREAMERBOT_CONFIGS);
-			DataStore.remove(DataStore.STREAMERBOT_WS_PASSWORD);
 		},
 
 		doAction(id: string, args: { [key: string]: string | number }): void {
@@ -113,6 +116,7 @@ export const storeStreamerbot = defineStore("streamerbot", {
 			const data: IStoreData = {
 				ip: this.ip,
 				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.STREAMERBOT_CONFIGS, data);
 			DataStore.set(DataStore.STREAMERBOT_WS_PASSWORD, this.password);
@@ -144,4 +148,5 @@ if (import.meta.hot) {
 interface IStoreData {
 	ip: string;
 	port: number;
+	connectionEnabled?: boolean;
 }

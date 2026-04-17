@@ -24,6 +24,7 @@ export const storeTiktok = defineStore("tiktok", {
 	state: () =>
 		({
 			connected: false,
+			connectionEnabled: false as boolean,
 			ip: "127.0.0.1",
 			port: 21213,
 		}) satisfies ITiktokState,
@@ -40,8 +41,11 @@ export const storeTiktok = defineStore("tiktok", {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
 				this.port = data.port || 21213;
-				autoreconnect = true;
-				void this.connect();
+				this.connectionEnabled = data.connectionEnabled ?? true;
+				if (this.connectionEnabled) {
+					autoreconnect = true;
+					void this.connect();
+				}
 			}
 		},
 
@@ -106,12 +110,10 @@ export const storeTiktok = defineStore("tiktok", {
 		disconnect(): void {
 			clearTimeout(reconnectTimeout);
 			autoreconnect = false;
-			this.ip = "127.0.0.1";
-			this.port = 21213;
+			this.connected = false;
 			if (socket && socket.readyState === socket.OPEN) {
 				socket.close();
 			}
-			DataStore.remove(DataStore.TIKTOK_CONFIGS);
 		},
 
 		onEvent(event: MessageEvent): void {
@@ -404,6 +406,7 @@ export const storeTiktok = defineStore("tiktok", {
 			const data: IStoreData = {
 				ip: this.ip,
 				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.TIKTOK_CONFIGS, data);
 		},
@@ -424,6 +427,7 @@ if (import.meta.hot) {
 interface IStoreData {
 	ip: string;
 	port: number;
+	connectionEnabled?: boolean;
 }
 
 interface TikTokMessage {

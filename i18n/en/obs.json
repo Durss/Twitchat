@@ -9,13 +9,11 @@
 		"form_pass": "OBS websocket password",
 		"form_ip": "OBS websocket IP",
 		"credentials_form_title": "OBS credentials",
-		"disable_brave": "Brave users\nYou need to disable Brave Shields for the connection to work",
 
 		"scenes": "Scenes",
 		"sources": "Sources",
 
 		"header": "Create your own twitch alerts, allow your mods basic control over your OBS and much more",
-		"install": "In order to work, this needs {OBS_VERSION}",
 
 		"permissions_title": "Permissions",
 		"permissions_head": "Users allowed to use the chat commands",

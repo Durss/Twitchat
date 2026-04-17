@@ -1,6 +1,10 @@
 {
 	"connexions": {
 		"header": "Connect Twitchat with external softwares",
+		"ip": "IP",
+		"port": "Port",
+		"success": "Connection established",
+		"brave_shields": "Brave users\nYou need to disable Brave Shields for the connection to work",
 		"spotify": {
 			"refused": "Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
 			"how_to": "To use it you'll have to {URL} and fill-in the values below:",
@@ -14,10 +18,7 @@
 		},
 
 		"triggerSocket": {
-			"ip": "IP",
-			"port": "Port",
 			"secured": "Secured",
-			"success": "Socket is now connected",
 			"usage": "Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger."
 		},
 

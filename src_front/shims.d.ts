@@ -43,6 +43,12 @@ declare global {
 		jsfxr: { sfxr: SFXR };
 	}
 
+	interface Navigator {
+		brave: {
+			isBrave: () => Promise<boolean>;
+		};
+	}
+
 	interface Array<T> {
 		findLastIndex(
 			predicate: (value: T, index: number, obj: T[]) => unknown,

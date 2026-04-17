@@ -13,6 +13,7 @@ export const storeSammi = defineStore("sammi", {
 	state: () =>
 		({
 			connected: false,
+			connectionEnabled: false as boolean,
 			ip: "127.0.0.1",
 			port: 9450,
 			password: "",
@@ -29,8 +30,11 @@ export const storeSammi = defineStore("sammi", {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
 				this.port = data.port || 9450;
+				this.connectionEnabled = data.connectionEnabled ?? true;
 				this.password = pass || "";
-				void this.connect();
+				if (this.connectionEnabled) {
+					void this.connect();
+				}
 			}
 		},
 
@@ -81,6 +85,7 @@ export const storeSammi = defineStore("sammi", {
 			const data: IStoreData = {
 				ip: this.ip,
 				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.SAMMI_CONFIGS, data);
 			DataStore.set(DataStore.SAMMI_API_PASSWORD, this.password);
@@ -102,4 +107,5 @@ if (import.meta.hot) {
 interface IStoreData {
 	ip: string;
 	port: number;
+	connectionEnabled?: boolean;
 }
