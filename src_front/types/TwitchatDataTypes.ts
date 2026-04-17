@@ -2157,6 +2157,8 @@ export namespace TwitchatDataTypes {
 		voiceIndicator: boolean;
 		commandToVoiceID: { [key: string]: string };
 		chatCmdPerms: PermissionsData;
+		ip?: string;
+		port?: number;
 	}
 
 	/**

@@ -35,6 +35,18 @@
 			{{ t("voicemod.connect_failed") }}
 		</BrowserPermissionChecker>
 
+		<ToggleBlock
+			class="advancedParamsToggle"
+			:title="t('global.advanced_params')"
+			small
+			:open="false"
+		>
+			<div class="card-item advancedParams">
+				<ParamItem :paramData="param_ip" v-model="param_ip.value" noBackground />
+				<ParamItem :paramData="param_port" v-model="param_port.value" noBackground />
+			</div>
+		</ToggleBlock>
+
 		<div class="fadeHolder" :style="holderStyles">
 			<template v-if="connected">
 				<Splitter>{{ t("voicemod.params_title") }}</Splitter>
@@ -92,6 +104,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import { computed, onMounted, ref, watch, type CSSProperties } from "vue";
 import Splitter from "../../../Splitter.vue";
+import ToggleBlock from "../../../ToggleBlock.vue";
 import ParamItem from "../../ParamItem.vue";
 import PermissionsForm from "../../../PermissionsForm.vue";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
@@ -117,6 +130,18 @@ const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: false,
 	labelKey: "global.enable",
+});
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "127.0.0.1",
+	label: "IP",
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 59129,
+	labelKey: "connexions.port",
+	min: 0,
+	max: 65535,
 });
 const param_voiceIndicator = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
@@ -188,7 +213,7 @@ async function connect(): Promise<void> {
 	let isConnected = false;
 	console.log("Connecting to Voicemod...");
 	try {
-		await VoicemodWebSocket.instance.connect();
+		await VoicemodWebSocket.instance.connect(param_ip.value.value, param_port.value.value);
 		isConnected = true;
 	} catch (e) {}
 
@@ -249,6 +274,8 @@ function saveData(): void {
 		voiceIndicator: param_voiceIndicator.value.value,
 		chatCmdPerms: permissions.value,
 		commandToVoiceID,
+		ip: param_ip.value.value,
+		port: param_port.value.value,
 	};
 	storeVoice.setVoicemodParams(data);
 }
@@ -259,6 +286,8 @@ function saveData(): void {
 function prefill(): void {
 	const params: TwitchatDataTypes.VoicemodParamsData = storeVoice.voicemodParams;
 	param_enabled.value.value = params.enabled === true;
+	param_ip.value.value = params.ip ?? "127.0.0.1";
+	param_port.value.value = params.port ?? 59129;
 
 	param_voiceIndicator.value.value = params.voiceIndicator;
 
@@ -376,6 +405,19 @@ defineExpose({ onNavigateBack });
 		.icon {
 			height: 100%;
 		}
+	}
+
+	.advancedParamsToggle {
+		margin: auto;
+	}
+
+	.advancedParams {
+		max-width: 300px;
+		display: flex;
+		gap: 0.25em;
+		flex-wrap: wrap;
+		flex-direction: column;
+		justify-content: center;
 	}
 }
 </style>

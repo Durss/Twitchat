@@ -106,12 +106,16 @@ export const storeTriggers = defineStore("triggers", {
 			//Init trigger websocket
 			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
 			if (triggerSocketParams) {
-				const params = JSON.parse(triggerSocketParams) as SocketParams;
+				const params = JSON.parse(triggerSocketParams) as SocketParams & {
+					connectionEnabled?: boolean;
+				};
 
-				WebsocketTrigger.instance
-					.connect(params.ip, params.port, params.secured)
-					.then(() => {})
-					.catch(() => {});
+				if (params.connectionEnabled) {
+					WebsocketTrigger.instance
+						.connect(params.ip, params.port, params.secured)
+						.then(() => {})
+						.catch(() => {});
+				}
 			}
 
 			/**

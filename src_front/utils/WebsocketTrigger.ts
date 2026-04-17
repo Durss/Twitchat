@@ -52,7 +52,6 @@ export default class WebsocketTrigger {
 		ip: string,
 		port: number,
 		securedConnection: boolean = false,
-		keepTringToConnect: boolean = true,
 	): Promise<void> {
 		return new Promise((resolve, reject) => {
 			clearTimeout(this.reconnectTimeout);
@@ -73,7 +72,6 @@ export default class WebsocketTrigger {
 				resolve();
 				this.connected.value = true;
 				this.autoReconnect = true;
-				keepTringToConnect = false;
 			};
 
 			this.socket.onmessage = (event: MessageEvent) => {
@@ -96,7 +94,7 @@ export default class WebsocketTrigger {
 			};
 
 			this.socket.onclose = (_event) => {
-				if (!this.autoReconnect && !keepTringToConnect) return;
+				if (!this.autoReconnect) return;
 
 				this.connected.value = false;
 				clearTimeout(this.reconnectTimeout);

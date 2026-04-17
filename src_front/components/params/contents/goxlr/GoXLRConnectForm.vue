@@ -5,8 +5,13 @@
 		}}</TTButton>
 
 		<ToggleBlock v-if="!connected" :title="t('global.advanced_params')" small :open="false">
-			<form @submit.prevent="connect()">
-				<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
+			<form class="card-item" @submit.prevent="connect()">
+				<ParamItem
+					:paramData="param_ip"
+					v-model="param_ip.value"
+					@change="onIpChange()"
+					noBackground
+				/>
 
 				<i18n-t
 					scope="global"
@@ -22,15 +27,7 @@
 					</template>
 				</i18n-t>
 
-				<ParamItem :paramData="param_port" v-model="param_port.value" />
-
-				<TTButton
-					type="submit"
-					:loading="connecting"
-					:disabled="!isPremium"
-					v-tooltip="!isPremium ? t('premium.restricted_access') : ''"
-					>{{ t("global.connect") }}</TTButton
-				>
+				<ParamItem :paramData="param_port" v-model="param_port.value" noBackground />
 			</form>
 		</ToggleBlock>
 
@@ -44,7 +41,7 @@
 			{{ t("goxlr.connect_failed") }}
 		</BrowserPermissionChecker>
 
-		<template v-else>
+		<template v-else-if="connected">
 			<TTButton class="disconnectBt" type="button" @click="disconnect()" alert>{{
 				t("global.disconnect")
 			}}</TTButton>
