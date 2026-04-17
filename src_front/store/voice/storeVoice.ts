@@ -84,7 +84,7 @@ export const storeVoice = defineStore("voice", {
 				this.setVoicemodParams(JSON.parse(voicemodParams));
 				if (this.voicemodParams.enabled) {
 					VoicemodWebSocket.instance
-						.connect()
+						.connect(this.voicemodParams.ip, this.voicemodParams.port)
 						.then(() => {})
 						.catch(() => {});
 				}
