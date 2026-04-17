@@ -14,6 +14,7 @@ export const storeMixitup = defineStore("mixitup", {
 	state: () =>
 		({
 			connected: false,
+			connectionEnabled: false as boolean,
 			ip: "127.0.0.1",
 			port: 8911,
 			commandList: [] as IMixitupState["commandList"],
@@ -31,7 +32,10 @@ export const storeMixitup = defineStore("mixitup", {
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
 				this.port = data.port || 8911;
-				void this.connect();
+				this.connectionEnabled = data.connectionEnabled ?? true;
+				if (this.connectionEnabled) {
+					void this.connect();
+				}
 			}
 		},
 
@@ -49,7 +53,6 @@ export const storeMixitup = defineStore("mixitup", {
 
 		disconnect(): void {
 			this.connected = false;
-			DataStore.remove(DataStore.MIXITUP_CONFIGS);
 		},
 
 		async execCommand(
@@ -86,6 +89,7 @@ export const storeMixitup = defineStore("mixitup", {
 			const data: IStoreData = {
 				ip: this.ip,
 				port: parseInt(this.port.toString()), //Seems stupid but it enforces the type. Some browser still return strings from "number" fields.
+				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.MIXITUP_CONFIGS, data);
 		},
@@ -126,4 +130,5 @@ if (import.meta.hot) {
 interface IStoreData {
 	ip: string;
 	port: number;
+	connectionEnabled?: boolean;
 }

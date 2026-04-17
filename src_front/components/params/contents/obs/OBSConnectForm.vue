@@ -60,16 +60,6 @@
 				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ t("obs.ip_advice") }}</div>
 			</BrowserPermissionChecker>
 		</transition>
-
-		<transition name="fade">
-			<div
-				class="card-item alert error"
-				v-if="connectError && isBraveBrowser"
-				@click="connectError = false"
-			>
-				<Icon name="brave" /> {{ t("obs.disable_brave") }}
-			</div>
-		</transition>
 	</form>
 </template>
 
@@ -88,7 +78,6 @@ const { t } = useI18n();
 const loading = ref<boolean>(false);
 const connectError = ref<boolean>(false);
 const connectSuccess = ref<boolean>(false);
-const isBraveBrowser = ref<boolean>(false);
 const obsPort_conf = ref<TwitchatDataTypes.ParameterData<number>>({
 	type: "number",
 	value: 4455,
@@ -121,9 +110,6 @@ onBeforeMount(async () => {
 	if (port) obsPort_conf.value.value = parseInt(port);
 	if (pass) obsPass_conf.value.value = pass;
 	if (ip) obsIP_conf.value.value = ip;
-
-	//@ts-ignore
-	isBraveBrowser.value = (navigator.brave && (await navigator.brave.isBrave())) || false;
 });
 
 /**

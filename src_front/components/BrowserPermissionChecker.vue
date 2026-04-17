@@ -1,20 +1,28 @@
 <template>
 	<component :is="tag" class="browserpermissionchecker">
-		<div v-if="denied" class="message">
-			<Icon name="alert" />
-			{{ errorMessage }}
-		</div>
+		<template v-if="denied">
+			<div class="message">
+				<Icon name="alert" />
+				{{ errorMessage }}
+			</div>
+			<div class="card-item alert error" v-if="isBraveBrowser">
+				<Icon name="brave" /> {{ t("connexions.brave_shields") }}
+			</div>
+		</template>
 		<slot v-else />
 	</component>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import Icon from "./Icon.vue";
+import { useI18n } from "vue-i18n";
 
 type AugmentedPermissionName = PermissionName | "local-network-access";
 
+const { t } = useI18n();
 const denied = ref(false);
+const isBraveBrowser = ref<boolean>(false);
 
 const props = withDefaults(
 	defineProps<{
@@ -26,6 +34,10 @@ const props = withDefaults(
 		tag: "div",
 	},
 );
+
+onBeforeMount(async () => {
+	isBraveBrowser.value = (navigator.brave && (await navigator.brave.isBrave())) || false;
+});
 
 function check() {
 	const permissions = Array.isArray(props.permissionName)

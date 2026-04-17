@@ -3491,6 +3491,7 @@ export interface ITiltifyActions {
 
 export interface ITiktokState {
 	connected: boolean;
+	connectionEnabled: boolean;
 	ip: string;
 	port: number;
 }
@@ -3523,6 +3524,7 @@ export interface ITiktokActions {
 
 export interface IStreamerbotState {
 	connected: boolean;
+	connectionEnabled: boolean;
 	ip: string;
 	port: number;
 	password: string;
@@ -3560,6 +3562,7 @@ export interface IStreamerbotActions {
 
 export interface ISammiState {
 	connected: boolean;
+	connectionEnabled: boolean;
 	ip: string;
 	port: number;
 	password: string;
@@ -3592,6 +3595,7 @@ export interface ISammiActions {
 
 export interface IMixitupState {
 	connected: boolean;
+	connectionEnabled: boolean;
 	ip: string;
 	port: number;
 	commandList: {
@@ -3745,6 +3749,7 @@ export interface IElevenLabsActions {
 
 export interface IPlayabilityState {
 	connected: boolean;
+	connectionEnabled: boolean;
 	ip: string;
 	port: number;
 	mappingList: {

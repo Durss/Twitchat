@@ -4,13 +4,6 @@
 
 		<div class="head">
 			<p>{{ $t("obs.header") }}</p>
-			<p class="install">
-				<i18n-t scope="global" tag="i" keypath="obs.install">
-					<template #OBS_VERSION>
-						<strong>OBS v28+</strong>
-					</template>
-				</i18n-t>
-			</p>
 		</div>
 
 		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
@@ -191,11 +184,6 @@ export default toNative(ConnectOBS);
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
-	}
-
-	.install {
-		margin-top: 1em;
-		font-size: 0.8em;
 	}
 
 	.block {
