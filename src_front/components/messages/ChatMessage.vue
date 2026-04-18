@@ -1392,6 +1392,7 @@ export default toNative(ChatMessage);
 		flex-direction: row;
 		color: var(--color-text);
 		margin-right: 0.25em;
+		vertical-align: middle;
 	}
 
 	.badge,
