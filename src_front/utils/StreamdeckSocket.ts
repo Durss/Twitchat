@@ -27,6 +27,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 		if (params?.ip) {
 			this._ip = params.ip;
 		}
+		this._enabled = !!params.enabled;
 	}
 
 	/********************
@@ -48,6 +49,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	}
 
 	public set enabled(value: boolean) {
+		if (value == this._enabled) return;
 		if (!value) {
 			this.disconnect();
 		}
@@ -83,11 +85,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 			let port = protocol == "ws://" ? 30385 : 30386;
 			const address = this.ip ? `${protocol}${this.ip}:${port}` : `ws://127.0.0.1:${port}`;
 			if (isManualConnect) {
-				if (ip || secretKey) {
-					this.saveConfigs();
-				} else {
-					DataStore.remove(DataStore.STREAMDECK_CONFIGS);
-				}
+				this.saveConfigs();
 			}
 			this._socket = new WebSocket(address);
 
@@ -120,10 +118,6 @@ export default class StreamdeckSocket extends EventDispatcher {
 				if (args.action == "ON_STREAMDECK_AUTHENTICATION_RESULT") {
 					if (args.data?.success === true) {
 						this.connected.value = true;
-						// TODO: why broadcasting this here??
-						PublicAPI.instance.broadcast("ON_VOICE_CONTROL_STATE_CHANGE", {
-							enabled: false,
-						});
 						resolve(true);
 					} else {
 						reject("AUTH_FAILED");
@@ -156,9 +150,9 @@ export default class StreamdeckSocket extends EventDispatcher {
 	}
 
 	public disconnect(): void {
-		if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-			this.connected.value = false;
-			this._socket.close();
+		this.connected.value = false;
+		if (this._socket) {
+			if (this._socket.readyState === WebSocket.OPEN) this._socket.close();
 			this._socket.onopen = null;
 			this._socket.onclose = null;
 			this._socket.onerror = null;

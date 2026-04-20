@@ -3009,7 +3009,7 @@ const UserDataSchema = {
 			properties: {
 				ip: { type: "string", maxLength: 100 },
 				secretKey: { type: "string", maxLength: 50 },
-				connectionEnabled: { type: "boolean" },
+				enabled: { type: "boolean" },
 			},
 		},
 
