@@ -112,7 +112,7 @@ import TTButton from "@/components/TTButton.vue";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
 import Utils from "@/utils/Utils";
-import { computed, onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import ConnectionForm from "./ConnectionForm.vue";
@@ -140,7 +140,7 @@ const param_secretKey = ref<TwitchatDataTypes.ParameterData<string>>({
 	isPrivate: true,
 });
 
-const connected = computed(() => StreamdeckSocket.instance.connected.value);
+const connected = StreamdeckSocket.instance.connected;
 
 onBeforeMount(() => {
 	param_ip.value.value = StreamdeckSocket.instance.ip;

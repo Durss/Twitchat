@@ -143,6 +143,7 @@ watch(
 		if (v !== props.enabled) {
 			emit("update:enabled", v);
 		}
+		if (!v) emit("disconnect");
 	},
 );
 
