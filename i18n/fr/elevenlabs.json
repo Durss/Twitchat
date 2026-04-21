@@ -6,6 +6,23 @@
 		"invalid_api_key": "Clé d'API invalide",
 		"apiKey": "Clé d'API",
 		"credits_usage": "Crédits restant: {REMAINING}/{LIMIT}",
-		"usage": "Vous pouvez maintenant utiliser ElevenLabs pour lire des messages depuis la section {TTS} ou lire tout ce que vous voulez à partir des {TRIGGERS} grâce à l'action ElevenLabs."
+		"usage": "Vous pouvez maintenant utiliser ElevenLabs pour lire des messages depuis la section {TTS} ou lire tout ce que vous voulez à partir des {TRIGGERS} grâce à l'action ElevenLabs.",
+		"errors": {
+			"CANNOT_ACCESS_SUBSCRIPTION": "Impossible d'accéder au détails de votre abonnement.",
+			"CANNOT_LIST_VOICES": "Impossible de récupérer la liste des voix",
+			"CANNOT_LIST_MODELS": "Impossible de récupérer la liste des modèles",
+			"CANNOT_READ_HISTORY": "Impossible de lire l'historique (nécessaire pour économiser les crédits)",
+			"NO_TTS_ACCESS": "Accordez l'accès \"Text to Speech\" dans les paramètres de votre clé d'API ElevenLabs.",
+			"PAYMENT_REQUIRED": "Veuillez renseigner des informations de paiement dans votre compte ElevenLabs.",
+			"INVALID_KEY": "Clé d'API invalide",
+			"UNKNOWN": "Erreur inconnue"
+		},
+		"error_resolution": "Vous devez accorder l'accès en lecture à {SOURCE} dans les paramètres de votre clé d'API ElevenLabs.",
+		"error_resolution_source": {
+			"CANNOT_ACCESS_SUBSCRIPTION": "Administration => User",
+			"CANNOT_LIST_VOICES": "Endpoints => Voices",
+			"CANNOT_LIST_MODELS": "Administration => Models",
+			"CANNOT_READ_HISTORY": "Administration => Models"
+		}
 	}
 }
