@@ -384,6 +384,7 @@ const UserDataSchema = {
 					rewardId: { type: "string", maxLength: 100 },
 					powerUpId: { type: "string", maxLength: 100 },
 					name: { type: "string", maxLength: 100 },
+					icon: { type: "string", maxLength: 500 },
 					chatCommand: { type: "string", maxLength: 100 },
 					obsSource: { type: "string", maxLength: 200 },
 					obsScene: { type: "string", maxLength: 200 },

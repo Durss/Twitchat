@@ -98,7 +98,16 @@
 		<transition name="fade">
 			<div class="approaching" v-if="showApproaching !== false">
 				<div class="content">
-					<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote" />
+					<div v-if="approachingEmote.indexOf('http') === -1" class="emote">
+						{{ approachingEmote }}
+					</div>
+					<img
+						v-else
+						class="emote"
+						@click="onClickEmote"
+						:src="approachingEmote"
+						alt="emote"
+					/>
 					<ContentEditable
 						tag="div"
 						class="title editableField"
@@ -150,19 +159,30 @@
 			<div class="levelUp" v-if="showLevelUp_local !== false && !showRecord_local">
 				<div class="content">
 					<div class="emoteWall" ref="emoteWall">
-						<img
-							:src="levelUpEmote"
-							v-for="(i, index) in emoteList"
-							:key="index"
-							class="emoteWallEmote"
-							alt="emote"
-							:width="i.size"
-							:height="i.size"
-							:style="{
-								transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
-								opacity: i.alpha,
-							}"
-						/>
+						<div v-for="(i, index) in emoteList" :key="index" class="emoteWallEmote">
+							<div
+								v-if="levelUpEmote.indexOf('http') === -1"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							>
+								{{ levelUpEmote }}
+							</div>
+							<img
+								v-else
+								alt="emote"
+								:src="levelUpEmote"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							/>
+						</div>
 					</div>
 					<ContentEditable
 						tag="div"
@@ -177,13 +197,11 @@
 						@input="onChangeTitleLevelUp()"
 					/>
 				</div>
-				<img
-					class="emote picker"
-					v-if="editable !== false"
-					@click="onClickEmote"
-					:src="levelUpEmote"
-					alt="emote"
-				/>
+
+				<div v-if="editable !== false" class="emote picker" @click="onClickEmote">
+					<div v-if="levelUpEmote.indexOf('http') === -1">{{ levelUpEmote }}</div>
+					<img v-else :src="levelUpEmote" alt="emote" />
+				</div>
 			</div>
 		</transition>
 
@@ -191,19 +209,30 @@
 			<div class="record" v-if="showRecord_local !== false">
 				<div class="content">
 					<div class="emoteWall" ref="emoteWall">
-						<img
-							:src="recordEmote"
-							v-for="(i, index) in emoteList"
-							:key="index"
-							class="emoteWallEmote"
-							alt="emote"
-							:width="i.size"
-							:height="i.size"
-							:style="{
-								transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
-								opacity: i.alpha,
-							}"
-						/>
+						<div v-for="(i, index) in emoteList" :key="index" class="emoteWallEmote">
+							<div
+								v-if="recordEmote.indexOf('http') === -1"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							>
+								{{ recordEmote }}
+							</div>
+							<img
+								v-else
+								alt="emote"
+								:src="recordEmote"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							/>
+						</div>
 					</div>
 					<ContentEditable
 						tag="div"
@@ -218,13 +247,11 @@
 						@input="onChangeTitleRecord()"
 					/>
 				</div>
-				<img
-					class="emote picker"
-					v-if="editable !== false"
-					@click="onClickEmote"
-					:src="recordEmote"
-					alt="emote"
-				/>
+
+				<div v-if="editable !== false" class="emote picker" @click="onClickEmote">
+					<div v-if="recordEmote.indexOf('http') === -1">{{ recordEmote }}</div>
+					<img v-else :src="recordEmote" alt="emote" />
+				</div>
 			</div>
 		</transition>
 
@@ -232,19 +259,30 @@
 			<div class="success" v-if="showSuccess_local !== false">
 				<div class="content">
 					<div class="emoteWall" ref="emoteWall">
-						<img
-							:src="successEmote"
-							v-for="(i, index) in emoteList"
-							:key="index"
-							class="emoteWallEmote"
-							alt="emote"
-							:width="i.size"
-							:height="i.size"
-							:style="{
-								transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
-								opacity: i.alpha,
-							}"
-						/>
+						<div v-for="(i, index) in emoteList" :key="index" class="emoteWallEmote">
+							<div
+								v-if="successEmote.indexOf('http') === -1"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							>
+								{{ successEmote }}
+							</div>
+							<img
+								v-else
+								alt="emote"
+								:src="successEmote"
+								:width="i.size"
+								:height="i.size"
+								:style="{
+									transform: `translate(${i.x}px, ${i.y}px) rotate(${i.angle}deg)`,
+									opacity: i.alpha,
+								}"
+							/>
+						</div>
 					</div>
 					<ContentEditable
 						tag="div"
@@ -259,20 +297,27 @@
 						@input="onChangeTitleSuccess()"
 					/>
 				</div>
-				<img
-					class="emote picker"
-					v-if="editable !== false"
-					@click="onClickEmote"
-					:src="successEmote"
-					alt="emote"
-				/>
+
+				<div v-if="editable !== false" class="emote picker" @click="onClickEmote">
+					<div v-if="successEmote.indexOf('http') === -1">{{ successEmote }}</div>
+					<img v-else :src="successEmote" alt="emote" />
+				</div>
 			</div>
 		</transition>
 
 		<transition name="fade">
 			<div class="fail" v-if="showFail_local !== false">
 				<div class="content">
-					<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote" />
+					<div v-if="failedEmote.indexOf('http') === -1" class="emote">
+						{{ failedEmote }}
+					</div>
+					<img
+						v-else
+						class="emote"
+						@click="onClickEmote"
+						:src="failedEmote"
+						alt="emote"
+					/>
 					<ContentEditable
 						tag="div"
 						ref="title"
@@ -1143,6 +1188,9 @@ export default toNative(OverlayCustomTrainRenderer);
 			.emote {
 				margin-left: 0.25em;
 				height: 1.6em;
+				display: flex;
+				align-items: center;
+				justify-content: center;
 			}
 
 			.title {
@@ -1256,8 +1304,18 @@ export default toNative(OverlayCustomTrainRenderer);
 				top: 0;
 				right: 0;
 				height: 1.5rem;
+				width: 1.5rem;
 				transform: translate(25%, -50%);
 				background-color: #ffffff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			& > img {
+				height: 100%;
+			}
+			& > div {
+				font-size: 0.7em;
 			}
 		}
 		.record,
