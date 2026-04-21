@@ -102,13 +102,9 @@ export default toNative(OBSScenes);
 		display: flex;
 		flex-direction: column;
 		.row {
-			align-items: center;
-			overflow: hidden;
-
 			:deep(input),
 			:deep(.inputHolder) {
 				flex-basis: 150px;
-				width: 150px;
 				flex-grow: unset !important;
 			}
 		}

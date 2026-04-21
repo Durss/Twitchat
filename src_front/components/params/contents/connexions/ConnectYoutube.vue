@@ -96,14 +96,14 @@
 				</div>
 				<TTButton
 					class="connectBt"
-					icon="youtube"
+					icon="newtab"
 					@click="oauth()"
 					:loading="loading"
 					:disabled="!$store.auth.isPremium"
 					>{{ $t("global.connect") }}</TTButton
 				>
 			</template>
-			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{
+			<TTButton @click="disconnect()" :loading="loading" icon="offline" alert v-else>{{
 				$t("global.disconnect")
 			}}</TTButton>
 
@@ -188,10 +188,10 @@ class ConnectYoutube extends Vue {
 		return YoutubeHelper.instance.connected.value && !this.requestNewScopes;
 	}
 	public get selectedLiveIds() {
-		return YoutubeHelper.instance.currentLiveChatIds;
+		return YoutubeHelper.instance.currentLiveChatIds.value;
 	}
 	public get broadcastList() {
-		return YoutubeHelper.instance.availableLiveBroadcasts;
+		return YoutubeHelper.instance.availableLiveBroadcasts.value;
 	}
 
 	public getLiveClasses(live: YoutubeLiveBroadcast["items"][0]): string[] {
@@ -273,13 +273,13 @@ class ConnectYoutube extends Vue {
 	}
 
 	public toggleLiveId(id: string): void {
-		if (YoutubeHelper.instance.currentLiveChatIds.includes(id)) {
-			YoutubeHelper.instance.currentLiveChatIds =
-				YoutubeHelper.instance.currentLiveChatIds.filter((v) => v !== id);
+		if (YoutubeHelper.instance.currentLiveChatIds.value.includes(id)) {
+			YoutubeHelper.instance.currentLiveChatIds.value =
+				YoutubeHelper.instance.currentLiveChatIds.value.filter((v) => v !== id);
 		} else {
-			YoutubeHelper.instance.currentLiveChatIds.push(id);
-			if (YoutubeHelper.instance.currentLiveChatIds.length > 3) {
-				YoutubeHelper.instance.currentLiveChatIds.shift();
+			YoutubeHelper.instance.currentLiveChatIds.value.push(id);
+			if (YoutubeHelper.instance.currentLiveChatIds.value.length > 3) {
+				YoutubeHelper.instance.currentLiveChatIds.value.shift();
 			}
 		}
 	}

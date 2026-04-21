@@ -29,7 +29,11 @@ import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
+import type {
+	ElevenlabsError,
+	ElevenLabsModel,
+	ElevenLabsVoice,
+} from "./elevenlabs/storeElevenLabs";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
@@ -3717,7 +3721,7 @@ export interface IElevenLabsActions {
 	/**
 	 * Connects to ElevenLabs
 	 */
-	connect(): Promise<boolean>;
+	connect(): Promise<true | ElevenlabsError>;
 	/**
 	 * Disconnects from ElevenLabs
 	 */
@@ -3739,7 +3743,7 @@ export interface IElevenLabsActions {
 	/**
 	 * Loads available voices list
 	 */
-	loadParams(): Promise<boolean>;
+	loadParams(): Promise<true | ElevenlabsError>;
 	/**
 	 * Saves current confis
 	 */
@@ -3752,7 +3756,7 @@ export interface IElevenLabsActions {
 	/**
 	 * Builds up a cache from the history
 	 */
-	buildHistoryCache(onlyLatest?: boolean): Promise<void>;
+	buildHistoryCache(onlyLatest?: boolean): Promise<boolean>;
 }
 
 export interface IPlayabilityState {

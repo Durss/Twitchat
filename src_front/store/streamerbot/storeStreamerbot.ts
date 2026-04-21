@@ -18,9 +18,9 @@ export const storeStreamerbot = defineStore("streamerbot", {
 		({
 			connected: false as boolean,
 			connectionEnabled: false as boolean,
-			ip: "127.0.0.1",
-			port: 8080,
-			password: "",
+			ip: "127.0.0.1" as string,
+			port: 8080 as number,
+			password: "" as string,
 			actionList: [] as IStreamerbotState["actionList"],
 		}) satisfies IStreamerbotState,
 
@@ -55,6 +55,7 @@ export const storeStreamerbot = defineStore("streamerbot", {
 				if (socket) {
 					void socket.disconnect();
 				}
+				console.log(this.password);
 				socket = new StreamerbotClient({
 					port: this.port,
 					host: this.ip,
