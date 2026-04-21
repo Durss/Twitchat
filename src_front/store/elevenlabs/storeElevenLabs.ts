@@ -12,10 +12,19 @@ import TTSUtils from "@/utils/TTSUtils";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from "../StoreProxy";
 import Utils from "@/utils/Utils";
+import { toast } from "@/utils/toast/toast";
 
 let emptyCreditsWarned = false;
+let debounceApiCreditsCall: ReturnType<typeof setTimeout> | null = null;
 let almostEmptyCreditsWarned = false;
 let cacheHistory: { [key: string]: { id: string } } = {};
+export type ElevenlabsError =
+	| "UNKNOWN"
+	| "INVALID_KEY"
+	| "CANNOT_LIST_VOICES"
+	| "CANNOT_LIST_MODELS"
+	| "CANNOT_READ_HISTORY"
+	| "CANNOT_ACCESS_SUBSCRIPTION";
 
 function getKey(text: string, voiceId: string, modelId: string): string {
 	const splitter = "___";
@@ -49,22 +58,24 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 			if (this.apiKey) await this.connect();
 		},
 
-		async connect(): Promise<boolean> {
+		async connect(): Promise<true | ElevenlabsError> {
 			this.connected = false;
 			try {
-				const success = await this.loadParams();
-				this.connected = success;
-				TTSUtils.instance.loadVoiceList();
-				if (this.connected) {
-					void (async () => {
-						await this.loadApiCredits();
-						this.saveConfigs();
-						await this.buildHistoryCache();
-					})();
+				let success = await this.loadParams();
+				if (success == true) {
+					await this.loadApiCredits();
+					if (!(await this.buildHistoryCache())) {
+						success = "CANNOT_READ_HISTORY";
+					}
 				}
-				return this.connected;
+				if (success === true) {
+					this.connected = true;
+					this.saveConfigs();
+					TTSUtils.instance.loadVoiceList();
+				}
+				return success;
 			} catch (_error) {
-				return false;
+				return "UNKNOWN";
 			}
 		},
 
@@ -129,32 +140,54 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 			url.searchParams.append("output_format", "mp3_22050_32");
 
 			const ttsQuery = await fetch(url, options);
+			if (ttsQuery.status === 402) {
+				toast(StoreProxy.i18n.t("elevenlabs.errors.PAYMENT_REQUIRED"), {
+					autoClose: 4_000,
+					type: "error",
+				});
+				return false;
+			}
+			if (ttsQuery.status === 401) {
+				toast(StoreProxy.i18n.t("elevenlabs.errors.NO_TTS_ACCESS"), {
+					autoClose: 10_000,
+					type: "error",
+				});
+				return false;
+			}
 			const audioBlob = await ttsQuery.blob();
 			const audioUrl = URL.createObjectURL(audioBlob);
 
-			void this.loadApiCredits();
 			void this.buildHistoryCache(true);
+			if (debounceApiCreditsCall) clearTimeout(debounceApiCreditsCall);
+			debounceApiCreditsCall = setTimeout(() => {
+				URL.revokeObjectURL(audioUrl);
+				void this.loadApiCredits();
+			}, 30_000);
 
 			return audioUrl;
 		},
 
-		async loadParams(): Promise<boolean> {
+		async loadParams(): Promise<true | ElevenlabsError> {
 			const options: RequestInit = {};
 			const headers = new Headers();
 			headers.append("xi-api-key", this.apiKey);
 			headers.append("Accept", "application/json");
 			headers.append("Content-Type", "application/json");
 			options.headers = headers;
+			const apiKeyQuery = await fetch(
+				"https://api.elevenlabs.io/v1/user/subscription",
+				options,
+			);
+			if (apiKeyQuery.status !== 200) return "CANNOT_ACCESS_SUBSCRIPTION";
 			const voiceListQuery = await fetch("https://api.elevenlabs.io/v1/voices", options);
-			if (voiceListQuery.status !== 200) return false;
+			if (voiceListQuery.status !== 200) return "CANNOT_LIST_VOICES";
 			this.voiceList = (await voiceListQuery.json()).voices as typeof this.voiceList;
 
 			const modelListQuery = await fetch("https://api.elevenlabs.io/v1/models", options);
-			if (modelListQuery.status !== 200) return false;
+			if (modelListQuery.status !== 200) return "CANNOT_LIST_MODELS";
 			this.modelList = ((await modelListQuery.json()) as typeof this.modelList).filter(
 				(v) => v.can_do_text_to_speech === true,
 			);
-			// this.read("Coucou ici", "eleven_turbo_v2_5");
 			return true;
 		},
 
@@ -163,6 +196,7 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 		},
 
 		async loadApiCredits(): Promise<void> {
+			if (debounceApiCreditsCall) clearTimeout(debounceApiCreditsCall);
 			const options: RequestInit = {};
 			const headers = new Headers();
 			headers.append("xi-api-key", this.apiKey);
@@ -216,7 +250,7 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 			}
 		},
 
-		async buildHistoryCache(onlyLatest: boolean = false): Promise<void> {
+		async buildHistoryCache(onlyLatest: boolean = false): Promise<boolean> {
 			const options: RequestInit = {};
 			const headers = new Headers();
 			headers.append("xi-api-key", this.apiKey);
@@ -230,13 +264,14 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 				const urlHistory = new URL("https://api.elevenlabs.io/v1/history");
 				urlHistory.searchParams.append("page_size", onlyLatest ? "10" : "1000");
 				const historyQuery = await fetch(urlHistory, options);
-				if (historyQuery.status !== 200) return;
+				if (historyQuery.status !== 200) return false;
 				history = (await historyQuery.json()) as ElevenLabsHistory;
 				history.history.forEach((h) => {
 					const key = getKey(h.text, h.voice_id, h.model_id);
 					cacheHistory[key] = { id: h.history_item_id };
 				});
 			} while (history && history.has_more && ++failSafe < 1000 && !onlyLatest);
+			return true;
 		},
 	} satisfies IElevenLabsActions &
 		ThisType<
