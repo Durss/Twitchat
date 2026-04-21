@@ -524,20 +524,21 @@ export const storeStream = defineStore("stream", {
 						remainingTime / 1000 +
 						"s (with 5s margin) before forcing an ad",
 				});
-				const to = window.setTimeout(() => {
-					Logger.instance.log("ads", {
-						log:
-							"Approaching timer complete in 5s. Start a " +
-							data.currentAdDuration_ms / 1000 +
-							"s ad",
-					});
-					TwitchUtils.startCommercial(data.currentAdDuration_ms / 1000, channelId).catch(
-						(_error) => {
-							//ignore
-						},
-					);
-				}, remainingTime - 5000);
-				commercialTimeouts[channelId].push(to);
+				//TODO: restore commercial force AFTER checking if it got snoozed?
+				// const to = window.setTimeout(() => {
+				// 	Logger.instance.log("ads", {
+				// 		log:
+				// 			"Approaching timer complete in 5s. Start a " +
+				// 			data.currentAdDuration_ms / 1000 +
+				// 			"s ad",
+				// 	});
+				// 	TwitchUtils.startCommercial(data.currentAdDuration_ms / 1000, channelId).catch(
+				// 		(_error) => {
+				// 			//ignore
+				// 		},
+				// 	);
+				// }, remainingTime - 5000);
+				// commercialTimeouts[channelId].push(to);
 			}
 
 			if (isManualStart) {
