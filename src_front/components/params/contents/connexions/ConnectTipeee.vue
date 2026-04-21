@@ -19,16 +19,23 @@
 		</section>
 
 		<section v-else-if="!$store.tipeee.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{
-				$t("global.connect")
-			}}</TTButton>
+			<TTButton
+				type="link"
+				:href="oAuthURL"
+				target="_self"
+				:loading="loading"
+				icon="newtab"
+				>{{ $t("global.connect") }}</TTButton
+			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
 				{{ $t("error.tipeee_connect_failed") }}
 			</div>
 		</section>
 
 		<section v-else>
-			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton alert @click="disconnect()" icon="offline">{{
+				$t("global.disconnect")
+			}}</TTButton>
 		</section>
 
 		<section class="examples">

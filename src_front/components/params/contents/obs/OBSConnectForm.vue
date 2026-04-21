@@ -1,16 +1,22 @@
 <template>
-	<form @submit.prevent="connect()" class="obsconnectform" :class="connected ? '' : 'card-item'">
-		<transition name="fade">
-			<div
-				v-if="connectSuccess && connected"
-				@click="connectSuccess = false"
-				class="card-item primary success"
-			>
-				{{ t("obs.connection_success") }}
-			</div>
-		</transition>
-
-		<template v-if="!connected">
+	<ConnectionForm
+		class="obsconnectform"
+		icon="obs"
+		:showIcon="false"
+		:showHeader="false"
+		:connected="connected"
+		:connecting="connecting"
+		:error="error"
+		:showSuccess="showSuccess"
+		errorMessage="error.obs_ws_connect"
+		:canConnect="canConnect"
+		:connectedInfo="connectedInfo"
+		:enableToggle="false"
+		@connect="doConnect"
+		@disconnect="doDisconnect"
+		@update:error="error = $event"
+	>
+		<template #fields>
 			<ParamItem
 				:paramData="obsPort_conf"
 				class="param"
@@ -32,52 +38,27 @@
 				</i18n-t>
 				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials" />
 			</ToggleBlock>
-
-			<Button type="submit" class="connectBt" :loading="loading">{{
-				t("global.connect")
-			}}</Button>
 		</template>
 
-		<Button
-			v-else
-			@click="disconnect()"
-			class="connectBt"
-			alert
-			:loading="loading"
-			icon="cross"
-			>{{ t("global.disconnect") }}</Button
-		>
-
-		<transition name="fade">
-			<BrowserPermissionChecker
-				v-if="connectError"
-				@click="connectError = false"
-				class="card-item alert error"
-				:errorMessage="t('error.local_network_access_denied')"
-				:permissionName="'local-network-access'"
-			>
-				<div>{{ t("error.obs_ws_connect") }}</div>
-				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ t("obs.ip_advice") }}</div>
-			</BrowserPermissionChecker>
-		</transition>
-	</form>
+		<template #error>
+			<div>{{ t("error.obs_ws_connect") }}</div>
+			<div v-if="obsIP_conf.value != '127.0.0.1'">{{ t("obs.ip_advice") }}</div>
+		</template>
+	</ConnectionForm>
 </template>
 
 <script setup lang="ts">
+import { useConnectionForm } from "@/composables/useConnectionForm";
 import DataStore from "@/store/DataStore";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import { ref, computed, onBeforeMount } from "vue";
-import Button from "../../../TTButton.vue";
 import ToggleBlock from "../../../ToggleBlock.vue";
 import ParamItem from "../../ParamItem.vue";
-import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 import { useI18n } from "vue-i18n";
+import ConnectionForm from "../connexions/ConnectionForm.vue";
 
 const { t } = useI18n();
-const loading = ref<boolean>(false);
-const connectError = ref<boolean>(false);
-const connectSuccess = ref<boolean>(false);
 const obsPort_conf = ref<TwitchatDataTypes.ParameterData<number>>({
 	type: "number",
 	value: 4455,
@@ -98,10 +79,37 @@ const obsIP_conf = ref<TwitchatDataTypes.ParameterData<string>>({
 	maxLength: 100,
 	labelKey: "obs.form_ip",
 });
+const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectionForm(
+	async () => {
+		const isConnected = await OBSWebsocket.instance.connect(
+			obsPort_conf.value.value.toString(),
+			obsPass_conf.value.value,
+			false,
+			obsIP_conf.value.value,
+			true,
+		);
+		if (isConnected) {
+			paramUpdate();
+		}
+		return isConnected;
+	},
+	() => {
+		OBSWebsocket.instance.disconnect();
+	},
+);
 
 const connected = computed((): boolean => {
 	return OBSWebsocket.instance.connected.value;
 });
+
+const canConnect = computed((): boolean => {
+	return obsIP_conf.value.value.length >= 7;
+});
+
+const connectedInfo = computed(() => [
+	{ label: t(obsIP_conf.value.labelKey!), value: obsIP_conf.value.value },
+	{ label: t(obsPort_conf.value.labelKey!), value: obsPort_conf.value.value },
+]);
 
 onBeforeMount(async () => {
 	const port = DataStore.get(DataStore.OBS_PORT);
@@ -111,36 +119,6 @@ onBeforeMount(async () => {
 	if (pass) obsPass_conf.value.value = pass;
 	if (ip) obsIP_conf.value.value = ip;
 });
-
-/**
- * Connect to OBS websocket
- */
-async function connect(): Promise<void> {
-	loading.value = true;
-	connectSuccess.value = false;
-	connectError.value = false;
-	const isConnected = await OBSWebsocket.instance.connect(
-		obsPort_conf.value.value.toString(),
-		obsPass_conf.value.value,
-		false,
-		obsIP_conf.value.value,
-		true,
-	);
-	if (isConnected) {
-		paramUpdate();
-		connectSuccess.value = true;
-		window.setTimeout(() => {
-			connectSuccess.value = false;
-		}, 3000);
-	} else {
-		connectError.value = true;
-	}
-	loading.value = false;
-}
-
-async function disconnect(): Promise<void> {
-	OBSWebsocket.instance.disconnect();
-}
 
 /**
  * Called when changing OBS credentials
@@ -154,16 +132,8 @@ function paramUpdate(): void {
 
 <style scoped lang="less">
 .obsconnectform {
-	gap: 0.5em;
-	display: flex;
-	flex-direction: column;
-
-	.connectBt {
-		margin: auto;
-	}
-
-	.error,
-	.success {
+	:deep(.error),
+	:deep(.success) {
 		text-align: center;
 		line-height: 1.3em;
 		cursor: pointer;
@@ -177,6 +147,7 @@ function paramUpdate(): void {
 			margin-right: 0.5em;
 		}
 	}
+
 	.info {
 		width: 100%;
 		:deep(.content) {
@@ -191,20 +162,6 @@ function paramUpdate(): void {
 			flex-basis: 200px;
 			flex-grow: 0 !important;
 		}
-	}
-
-	.fade-enter-active {
-		transition: all 0.2s;
-	}
-
-	.fade-leave-active {
-		transition: all 0.2s;
-	}
-
-	.fade-enter-from,
-	.fade-leave-to {
-		opacity: 0;
-		transform: translateY(-10px);
 	}
 }
 </style>

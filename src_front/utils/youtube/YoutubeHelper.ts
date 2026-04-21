@@ -15,6 +15,7 @@ import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import { type YoutubeScopesString } from "./YoutubeScopes";
 import StickerList from "./sticker_list.json";
+import { reactive } from "vue";
 
 /**
  * Created : 28/11/2023
@@ -22,7 +23,8 @@ import StickerList from "./sticker_list.json";
 export default class YoutubeHelper {
 	public connected = ref(false);
 	public liveFound: boolean = false;
-	public availableLiveBroadcasts: YoutubeLiveBroadcast["items"] = [];
+	public availableLiveBroadcasts = ref<YoutubeLiveBroadcast["items"]>([]);
+	public currentLiveChatIds = ref<string[]>([]);
 
 	private static _instance: YoutubeHelper;
 
@@ -30,7 +32,6 @@ export default class YoutubeHelper {
 	private _token: YoutubeAuthToken | null = null;
 	private _userData: YoutubeChannelInfo["items"][number] | null = null;
 	private _viewerCount: { id: string; title: string; count: number }[] = [];
-	private _currentLiveChatIds: string[] = [];
 	private _lastMessagePage: { [key: string]: string } = {};
 	private _lastMessageDate: number = -1;
 	private _lastMessageDelay: number = -1;
@@ -71,14 +72,6 @@ export default class YoutubeHelper {
 		return this._viewerCount.concat();
 	}
 
-	public get currentLiveChatIds() {
-		return this._currentLiveChatIds;
-	}
-
-	public set currentLiveChatIds(value: string[]) {
-		this._currentLiveChatIds = value;
-	}
-
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
@@ -89,7 +82,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Connecting to Youtube",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		const token = DataStore.get(DataStore.YOUTUBE_AUTH_TOKEN);
 		if (token) {
@@ -168,7 +161,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Authenticating user...",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		const redirectURI =
 			document.location.origin + StoreProxy.router.resolve({ name: "youtube/auth" }).href;
@@ -184,7 +177,7 @@ export default class YoutubeHelper {
 					Utils.formatDuration(refreshDelay) +
 					"s",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			//Refresh token 1min before it expires
 			clearTimeout(this._refreshTimeout);
@@ -204,7 +197,7 @@ export default class YoutubeHelper {
 				log: "Failed refreshing auth token",
 				error: res.json,
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			throw new Error("unknown error occured when loging in to Youtube");
 		}
@@ -219,7 +212,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Loading user infos...",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		const url = new URL(this.API_PATH + "channels");
 		url.searchParams.append("part", "id");
@@ -256,7 +249,7 @@ export default class YoutubeHelper {
 						user.id +
 						")",
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				StoreProxy.auth.youtube.user = user;
 			}
@@ -274,7 +267,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Loading current live broadcast",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		const url = new URL(this.API_PATH + "liveBroadcasts");
 		url.searchParams.append("maxResults", "50");
@@ -293,7 +286,7 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {
 					log: "Current live broadcast loaded successfully",
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				//Sort by life cycle status importance
 				const items = json.items
@@ -371,10 +364,10 @@ export default class YoutubeHelper {
 				if (item) {
 					const liveId = item.snippet.liveChatId;
 					this.liveFound = true;
-					if (this._currentLiveChatIds.indexOf(liveId) == -1) {
-						this._currentLiveChatIds.push(liveId);
+					if (this.currentLiveChatIds.value.indexOf(liveId) == -1) {
+						this.currentLiveChatIds.value.push(liveId);
 					}
-					this.availableLiveBroadcasts = items;
+					this.availableLiveBroadcasts.value = items;
 					this._lastMessageDate = Date.now();
 					const messageNotification: TwitchatDataTypes.MessageCustomData = {
 						id: Utils.getUUID(),
@@ -393,7 +386,7 @@ export default class YoutubeHelper {
 					Logger.instance.log("youtube", {
 						log: 'Select live "' + item.snippet.title + '"',
 						credits: this._creditsUsed,
-						liveID: this._currentLiveChatIds,
+						liveID: this.currentLiveChatIds.value,
 					});
 					//Start polling messages
 					void this.getMessages();
@@ -406,11 +399,11 @@ export default class YoutubeHelper {
 					Logger.instance.log("youtube", {
 						log: "No live found matching required criterias",
 						credits: this._creditsUsed,
-						liveID: this._currentLiveChatIds,
+						liveID: this.currentLiveChatIds.value,
 					});
 					this.liveFound = false;
-					this._currentLiveChatIds = [];
-					this.availableLiveBroadcasts = [];
+					this.currentLiveChatIds.value = [];
+					this.availableLiveBroadcasts.value = [];
 					//Search again in 1min
 					this._pollMessageTimeout = window.setTimeout(
 						() => this.getCurrentLiveBroadcast(),
@@ -425,7 +418,7 @@ export default class YoutubeHelper {
 						log: "Failed loading current live broadcast (status: " + res.status + ")",
 						error: txt,
 						credits: this._creditsUsed,
-						liveID: this._currentLiveChatIds,
+						liveID: this.currentLiveChatIds.value,
 					});
 					if (await this.refreshToken()) {
 						await Utils.promisedTimeout(1000);
@@ -442,7 +435,7 @@ export default class YoutubeHelper {
 								")",
 							error: json,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 						if (reason === "liveStreamingNotEnabled") {
 							StoreProxy.common.alert(
@@ -463,7 +456,7 @@ export default class YoutubeHelper {
 								")",
 							error: txt,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 					}
 					return null;
@@ -482,7 +475,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Loading current live broadcast",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		const url = new URL(this.API_PATH + "liveBroadcasts");
 		url.searchParams.append("maxResults", "50");
@@ -497,7 +490,7 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {
 					log: "Current live broadcast loaded successfully",
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				//Sort by life cycle status importance
 				const items = json.items;
@@ -534,26 +527,26 @@ export default class YoutubeHelper {
 		if (!this.connected.value) return;
 
 		// Cleanup live that do not exist anymore
-		for (let i = this._currentLiveChatIds.length - 1; i >= 0; i--) {
-			const liveId = this._currentLiveChatIds[i];
-			const found = this.availableLiveBroadcasts.some(
+		for (let i = this.currentLiveChatIds.value.length - 1; i >= 0; i--) {
+			const liveId = this.currentLiveChatIds.value[i];
+			const found = this.availableLiveBroadcasts.value.some(
 				(broadcast) => broadcast.snippet.liveChatId === liveId,
 			);
 			if (!found) {
-				this._currentLiveChatIds.splice(i, 1);
+				this.currentLiveChatIds.value.splice(i, 1);
 				i--;
 			}
 		}
 
 		let maxDelay = 1000;
-		for (let i = 0; i < this._currentLiveChatIds.length; i++) {
-			const liveId = this._currentLiveChatIds[i]!;
+		for (let i = 0; i < this.currentLiveChatIds.value.length; i++) {
+			const liveId = this.currentLiveChatIds.value[i]!;
 			const pageToken = this._lastMessagePage[liveId]!;
-			if (!this._currentLiveChatIds) {
+			if (!this.currentLiveChatIds.value) {
 				Logger.instance.log("youtube", {
 					log: "Tried to get messages but missing live broadcast ID.",
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				return;
 			}
@@ -616,7 +609,7 @@ export default class YoutubeHelper {
 							log: "Failed polling chat messages (status: " + res.status + ")",
 							error: json,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 						errorCode = json.error.errors[0].reason;
 					} catch (_error) {
@@ -631,7 +624,7 @@ export default class YoutubeHelper {
 								")",
 							error: text,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 					}
 					if (res.status == 401) {
@@ -659,7 +652,7 @@ export default class YoutubeHelper {
 								//Just youtube failing
 							}
 							StoreProxy.common.alert(errorReason);
-							this.currentLiveChatIds.splice(i, 1);
+							this.currentLiveChatIds.value.splice(i, 1);
 							i--;
 						}
 					}
@@ -695,7 +688,7 @@ export default class YoutubeHelper {
 					elapsedTime +
 					"s with no message",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 		}
 		this._lastMessageDelay = additionalDelay;
@@ -755,7 +748,7 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {
 					log: "Loaded latest followers: " + json.items.length,
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				//Check for new followers in a minute
 				this._pollFollowersTimeout = window.setTimeout(
@@ -769,7 +762,7 @@ export default class YoutubeHelper {
 					log: "Failed getting latest followers (status: " + res.status + ")",
 					error: res.text(),
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				if (res.status == 401) {
 					if (!(await this.refreshToken())) return [];
@@ -814,7 +807,7 @@ export default class YoutubeHelper {
 					log: "Failed getting latest followers (status: " + res.status + ")",
 					error: res.text(),
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				if (res.status == 401) {
 					if (!(await this.refreshToken())) return [];
@@ -838,11 +831,11 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Disconnect from Youtube",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 		this.connected.value = false;
-		this._currentLiveChatIds = [];
-		this.availableLiveBroadcasts = [];
+		this.currentLiveChatIds.value = [];
+		this.availableLiveBroadcasts.value = [];
 		clearTimeout(this._pollMessageTimeout);
 		clearTimeout(this._pollFollowersTimeout);
 		clearTimeout(this._pollSubscribersTimeout);
@@ -880,14 +873,14 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {
 				log: "Timeout user #" + userId + " for " + duration_s + "s",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			params.snippet.banDurationSeconds = duration_s;
 		} else {
 			Logger.instance.log("youtube", {
 				log: "Ban user #" + userId,
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 		}
 
@@ -922,7 +915,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Unban user ID #" + userId,
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 
 		//Youtube API is pure shit.
@@ -937,7 +930,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {
 				log: "No ban ID found for this user. Cannot unban the user.",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			return;
 		}
@@ -950,7 +943,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {
 				log: "User unbaned successfully",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			await StoreProxy.users.flagUnbanned("youtube", this._liveIdToChanId[liveId]!, userId);
 		} else {
@@ -958,7 +951,7 @@ export default class YoutubeHelper {
 				log: "An error occured when trying to unban the user",
 				error: await res.text(),
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
 		}
@@ -981,7 +974,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {
 				log: "Deleted message #" + messageId,
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			return true;
 		} else {
@@ -989,7 +982,7 @@ export default class YoutubeHelper {
 				log: "Cannot delete message #" + messageId,
 				error: await res.text(),
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
 		}
@@ -1060,7 +1053,7 @@ export default class YoutubeHelper {
 		}
 
 		let success = false;
-		const lives = liveId ? [liveId] : this.currentLiveChatIds;
+		const lives = liveId ? [liveId] : this.currentLiveChatIds.value;
 		for (let i = 0; i < lives.length; i++) {
 			const live = lives[i];
 			const body = {
@@ -1083,7 +1076,7 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {
 					log: "Success post message to live " + live,
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				success = true;
 			} else {
@@ -1091,7 +1084,7 @@ export default class YoutubeHelper {
 					log: "Cannot post message to live " + live,
 					error: await res.text(),
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_post"));
 			}
@@ -1128,35 +1121,35 @@ export default class YoutubeHelper {
 				if (json.items?.length > 0) {
 					const liveID = json.items[0].liveStreamingDetails?.activeLiveChatId || "";
 					if (liveID) {
-						this._currentLiveChatIds.push(liveID);
+						this.currentLiveChatIds.value.push(liveID);
 						this._lastMessageDate = Date.now();
 						this._liveIdToChanId[liveID] = json.items[0].snippet.channelId;
 						void this.getMessages();
 						Logger.instance.log("youtube", {
 							log: "Success connecting to live " + liveID,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 						return true;
 					} else {
 						Logger.instance.log("youtube", {
 							log: "Failed getting livechat ID from video ID " + videoID,
 							credits: this._creditsUsed,
-							liveID: this._currentLiveChatIds,
+							liveID: this.currentLiveChatIds.value,
 						});
 					}
 				} else {
 					Logger.instance.log("youtube", {
 						log: "Failed getting video info from ID " + videoID,
 						credits: this._creditsUsed,
-						liveID: this._currentLiveChatIds,
+						liveID: this.currentLiveChatIds.value,
 					});
 				}
 			} else {
 				Logger.instance.log("youtube", {
 					log: "Failed getting video info from ID " + videoID + ". Status:" + res.status,
 					credits: this._creditsUsed,
-					liveID: this._currentLiveChatIds,
+					liveID: this.currentLiveChatIds.value,
 				});
 			}
 		} catch (_error) {}
@@ -1218,7 +1211,7 @@ export default class YoutubeHelper {
 		Logger.instance.log("youtube", {
 			log: "Refreshing auth token",
 			credits: this._creditsUsed,
-			liveID: this._currentLiveChatIds,
+			liveID: this.currentLiveChatIds.value,
 		});
 
 		const redirectURI =
@@ -1244,7 +1237,7 @@ export default class YoutubeHelper {
 					Utils.formatDuration(refreshDelay) +
 					"s",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			//Refresh token 1min before it expires
 			this._refreshTimeout = window.setTimeout(() => {
@@ -1258,7 +1251,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {
 				log: "An error occured when refreshing auth token",
 				credits: this._creditsUsed,
-				liveID: this._currentLiveChatIds,
+				liveID: this.currentLiveChatIds.value,
 			});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
 		}

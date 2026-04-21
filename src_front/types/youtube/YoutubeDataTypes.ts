@@ -332,7 +332,7 @@ export interface YoutubeChannelInfo {
 	}[];
 }
 
-interface ThumbnailInfo {
+export interface ThumbnailInfo {
 	url: string;
 	width: number;
 	height: number;

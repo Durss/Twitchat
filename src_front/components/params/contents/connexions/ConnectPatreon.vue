@@ -28,9 +28,14 @@
 		</section>
 
 		<section v-else-if="$store.auth.isPremium && !$store.patreon.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{
-				$t("global.connect")
-			}}</TTButton>
+			<TTButton
+				type="link"
+				:href="oAuthURL"
+				target="_self"
+				:loading="loading"
+				icon="newtab"
+				>{{ $t("global.connect") }}</TTButton
+			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
 				{{ $t("error.patreon_connect_failed") }}
 			</div>
