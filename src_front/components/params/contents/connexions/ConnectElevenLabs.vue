@@ -10,10 +10,10 @@
 					>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos" v-if="!$store.elevenLabs.connected">
+			<div class="card-item secondary infos" v-if="!storeElevenLabs.connected">
 				<span>
 					<Icon name="info" />
-					<span>{{ $t("elevenlabs.instructions") }}</span>
+					<span>{{ t("elevenlabs.instructions") }}</span>
 				</span>
 				<TTButton
 					class="installBt"
@@ -23,121 +23,159 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("elevenlabs.install") }}</TTButton
+					>{{ t("elevenlabs.install") }}</TTButton
 				>
 			</div>
 		</div>
 
 		<div class="content">
-			<TTButton class="connectBt" alert @click="disconnect()">{{
-				$t("global.disconnect")
-			}}</TTButton>
+			<TTButton
+				class="connectBt"
+				alert
+				@click="disconnect()"
+				icon="offline"
+				v-if="storeElevenLabs.connected"
+				>{{ t("global.disconnect") }}</TTButton
+			>
 
-			<form class="card-item" v-if="!$store.elevenLabs.connected" @submit.prevent="connect()">
+			<form class="card-item" v-else @submit.prevent="connect()">
 				<ParamItem
 					noBackground
 					:paramData="param_apiKey"
-					v-model="$store.elevenLabs.apiKey"
+					v-model="storeElevenLabs.apiKey"
 					autofocus
 				/>
 
 				<div class="ctas">
-					<TTButton type="submit" :loading="connecting" :disabled="!canConnect">{{
-						$t("global.connect")
-					}}</TTButton>
+					<TTButton
+						type="submit"
+						:loading="connecting"
+						:disabled="!canConnect"
+						icon="online"
+						>{{ t("global.connect") }}</TTButton
+					>
 				</div>
 			</form>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("elevenlabs.invalid_api_key") }}
+				<div>{{ t(`elevenlabs.errors.${errorKey}`) }}</div>
+				<i18n-t
+					tag="div"
+					scope="global"
+					v-if="te(`elevenlabs.error_resolution_source.${errorKey}`)"
+					keypath="elevenlabs.error_resolution"
+				>
+					<template #SOURCE>
+						<strong>{{ t(`elevenlabs.error_resolution_source.${errorKey}`) }}</strong>
+					</template>
+				</i18n-t>
 			</div>
 
-			<template v-if="$store.elevenLabs.connected">
+			<template v-if="storeElevenLabs.connected">
 				<div class="card-item infos">
 					<i18n-t scope="global" keypath="elevenlabs.usage" tag="span">
 						<template #TTS>
-							<a @click.prevent="openTTS()">{{ $t("params.categories.tts") }}</a>
+							<a @click.prevent="openTTS()">{{ t("params.categories.tts") }}</a>
 						</template>
 						<template #TRIGGERS>
 							<a @click.prevent="openTriggers()">{{
-								$t("params.categories.triggers")
+								t("params.categories.triggers")
 							}}</a>
 						</template>
 					</i18n-t>
 				</div>
 
-				<i18n-t
-					class="card-item"
-					scope="global"
-					keypath="elevenlabs.credits_usage"
-					tag="div"
-				>
-					<template #LIMIT>
-						<strong>{{ $store.elevenLabs.creditsTotal }}</strong>
-					</template>
-					<template #REMAINING>
-						<strong>{{
-							$store.elevenLabs.creditsTotal - $store.elevenLabs.creditsUsed
-						}}</strong>
-					</template>
-				</i18n-t>
+				<div class="credits">
+					<TTButton
+						icon="refresh"
+						:loading="loadingCredits"
+						@click="refreshCreditsUsage"
+					/>
+					<i18n-t
+						class="card-item"
+						scope="global"
+						keypath="elevenlabs.credits_usage"
+						tag="span"
+					>
+						<template #LIMIT>
+							<strong>{{ storeElevenLabs.creditsTotal }}</strong>
+						</template>
+						<template #REMAINING>
+							<strong>{{
+								storeElevenLabs.creditsTotal - storeElevenLabs.creditsUsed
+							}}</strong>
+						</template>
+					</i18n-t>
+				</div>
 			</template>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { toast } from "@/utils/toast/toast";
+import Utils from "@/utils/Utils";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-	},
-	emits: [],
-})
-class ConnectElevenLabs extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t, te } = useI18n();
 
-	public param_apiKey: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "password",
-		icon: "key",
-		labelKey: "elevenlabs.apiKey",
-		isPrivate: true,
-	};
+const storeElevenLabs = useStoreElevenLabs();
+const storeParams = useStoreParams();
 
-	public get canConnect(): boolean {
-		return this.param_apiKey.value.length >= 30;
-	}
+const error = ref(false);
+const loadingCredits = ref(false);
+const errorKey = ref("");
+const connecting = ref(false);
 
-	public beforeMount(): void {}
+const param_apiKey = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "password",
+	icon: "key",
+	labelKey: "elevenlabs.apiKey",
+	isPrivate: true,
+});
 
-	public async connect(): Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.elevenLabs.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
+const canConnect = computed(() => param_apiKey.value.value.length >= 30);
 
-	public disconnect(): void {
-		this.$store.elevenLabs.disconnect();
-	}
-
-	public openTTS(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
-	}
-
-	public openTriggers(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
-	}
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	const res = await storeElevenLabs.connect();
+	error.value = res !== true;
+	errorKey.value = res === true ? "" : res;
+	connecting.value = false;
 }
-export default toNative(ConnectElevenLabs);
+
+function disconnect(): void {
+	storeElevenLabs.disconnect();
+}
+
+function openTTS(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
+}
+
+function openTriggers(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+}
+
+async function refreshCreditsUsage(): Promise<void> {
+	loadingCredits.value = true;
+	await Utils.promisedTimeout(250);
+	try {
+		await storeElevenLabs.loadApiCredits();
+	} catch (e) {
+		// ignore
+		toast(t("elevenlabs.errors.UNKNOWN"), {
+			type: "error",
+		});
+	}
+	loadingCredits.value = false;
+}
 </script>
 
 <style scoped lang="less">
@@ -173,6 +211,13 @@ export default toNative(ConnectElevenLabs);
 		flex-direction: column;
 		align-items: center;
 		line-height: 1.2em;
+	}
+
+	.credits {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
 	}
 }
 </style>
