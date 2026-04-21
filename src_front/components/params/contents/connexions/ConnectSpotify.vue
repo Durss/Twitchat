@@ -48,6 +48,7 @@
 					type="submit"
 					:loading="loading"
 					:disabled="!canConnect"
+					icon="newtab"
 					>{{ $t("global.connect") }}</TTButton
 				>
 			</form>
@@ -70,7 +71,7 @@
 					</template>
 				</i18n-t>
 
-				<TTButton @click="disconnect()" icon="cross" alert>{{
+				<TTButton @click="disconnect()" icon="offline" alert>{{
 					$t("global.disconnect")
 				}}</TTButton>
 			</div>

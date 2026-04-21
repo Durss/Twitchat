@@ -56,14 +56,15 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import DataStore from "@/store/DataStore";
+import { storeOBS as useStoreOBS } from "@/store/obs/storeOBS";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import { watch } from "@vue/runtime-core";
+import Utils from "@/utils/Utils";
+import { computed, onMounted, ref, watch } from "vue";
 import type { CSSProperties } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import PermissionsForm from "../../../PermissionsForm.vue";
 import ParamItem from "../../ParamItem.vue";
 import OBSAudioSourceForm from "../obs/OBSAudioSourceForm.vue";
@@ -71,110 +72,87 @@ import OBSConnectForm from "../obs/OBSConnectForm.vue";
 import OBSScenes from "../obs/OBSScenes.vue";
 import OBSBrowserSources from "../obs/OBSBrowserSources.vue";
 import type IParameterContent from "../IParameterContent";
-import Utils from "@/utils/Utils";
 
-@Component({
-	components: {
-		ParamItem,
-		OBSScenes,
-		ToggleBlock,
-		OBSConnectForm,
-		PermissionsForm,
-		OBSBrowserSources,
-		OBSAudioSourceForm,
+const storeOBS = useStoreOBS();
+
+const connected = ref(false);
+const openConnectForm = ref(false);
+const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	labelKey: "global.enabled",
+	value: false,
+});
+const permissions = ref<TwitchatDataTypes.PermissionsData>(
+	Utils.getDefaultPermissions(true, true, false, false, false, false),
+);
+
+const holderStyles = computed<CSSProperties>(() => ({
+	opacity: param_enabled.value.value === true ? 1 : 0.5,
+	pointerEvents: param_enabled.value.value === true ? "all" : "none",
+}));
+
+watch(
+	() => param_enabled.value.value,
+	() => {
+		paramUpdate();
 	},
-	emits: [],
-})
-class ConnectOBS extends Vue implements IParameterContent {
-	public loading = false;
-	public connected = false;
-	public connectError = false;
-	public connectSuccess = false;
-	public showPermissions = false;
-	public openConnectForm = false;
-	public param_enabled: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		labelKey: "global.enabled",
-		value: false,
-	};
-	public permissions: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(
-		true,
-		true,
-		false,
-		false,
-		false,
-		false,
-	);
+);
+watch(
+	() => permissions.value,
+	() => {
+		onPermissionChange();
+	},
+	{ deep: true },
+);
+watch(
+	() => OBSWebsocket.instance.connected.value,
+	() => {
+		connected.value = OBSWebsocket.instance.connected.value;
+		if (!connected.value) openConnectForm.value = true;
+	},
+);
 
-	public get holderStyles(): CSSProperties {
-		return {
-			opacity: this.param_enabled.value === true ? 1 : 0.5,
-			pointerEvents: this.param_enabled.value === true ? "all" : "none",
-		};
+onMounted(() => {
+	const port = DataStore.get(DataStore.OBS_PORT);
+	const pass = DataStore.get(DataStore.OBS_PASS);
+	const ip = DataStore.get(DataStore.OBS_IP);
+
+	if (port != undefined || pass != undefined || ip != undefined) {
+		connected.value = OBSWebsocket.instance.connected.value;
+		openConnectForm.value = !connected.value;
+	} else {
+		openConnectForm.value = true;
 	}
 
-	public mounted(): void {
-		const port = DataStore.get(DataStore.OBS_PORT);
-		const pass = DataStore.get(DataStore.OBS_PASS);
-		const ip = DataStore.get(DataStore.OBS_IP);
+	const storedPermissions = storeOBS.commandsPermissions;
+	permissions.value = JSON.parse(JSON.stringify(storedPermissions)); //Clone object to break ref
+	param_enabled.value.value = storeOBS.connectionEnabled ?? false;
+});
 
-		if (port != undefined || pass != undefined || ip != undefined) {
-			this.connected = OBSWebsocket.instance.connected.value;
-			this.openConnectForm = !this.connected;
-		} else {
-			this.openConnectForm = true;
-		}
+function onNavigateBack(): boolean {
+	return false;
+}
 
-		const storedPermissions = this.$store.obs.commandsPermissions;
-		this.permissions = JSON.parse(JSON.stringify(storedPermissions)); //Clone object to break ref
-		this.param_enabled.value = this.$store.obs.connectionEnabled ?? false;
+/**
+ * Called when changing commands permisions
+ */
+async function onPermissionChange(): Promise<void> {
+	storeOBS.setObsCommandsPermissions(permissions.value);
+}
 
-		watch(
-			() => this.param_enabled.value,
-			() => {
-				this.paramUpdate();
-			},
-		);
-		watch(
-			() => this.permissions,
-			() => {
-				this.onPermissionChange();
-			},
-			{ deep: true },
-		);
-		watch(
-			() => OBSWebsocket.instance.connected.value,
-			() => {
-				this.connected = OBSWebsocket.instance.connected.value;
-				if (!this.connected) this.openConnectForm = true;
-			},
-		);
-	}
-
-	public onNavigateBack(): boolean {
-		return false;
-	}
-
-	/**
-	 * Called when changing commands permisions
-	 */
-	public async onPermissionChange(): Promise<void> {
-		this.$store.obs.setObsCommandsPermissions(this.permissions);
-	}
-
-	/**
-	 * Called when changing OBS credentials
-	 */
-	private paramUpdate(): void {
-		this.connected = false;
-		this.$store.obs.connectionEnabled = this.param_enabled.value;
-		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
-		if (!this.param_enabled.value) {
-			OBSWebsocket.instance.disconnect();
-		}
+/**
+ * Called when changing OBS credentials
+ */
+function paramUpdate(): void {
+	connected.value = false;
+	storeOBS.connectionEnabled = param_enabled.value.value;
+	DataStore.set(DataStore.OBS_CONNECTION_ENABLED, param_enabled.value.value);
+	if (!param_enabled.value.value) {
+		OBSWebsocket.instance.disconnect();
 	}
 }
-export default toNative(ConnectOBS);
+
+defineExpose<IParameterContent>({ onNavigateBack });
 </script>
 
 <style scoped lang="less">
@@ -184,6 +162,10 @@ export default toNative(ConnectOBS);
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+
+		.connectForm {
+			align-self: center;
+		}
 	}
 
 	.block {
