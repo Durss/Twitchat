@@ -1,8 +1,8 @@
 <template>
 	<div class="connectionForm parameterContent">
-		<Icon :name="icon" class="icon" />
+		<Icon v-if="showIcon" :name="icon" class="icon" />
 
-		<div class="head">
+		<div v-if="showHeader" class="head">
 			<slot name="header" />
 			<slot v-if="!connected" name="info" />
 		</div>
@@ -20,9 +20,13 @@
 					<slot name="mandatoryFields" />
 				</div>
 
-				<TTButton @click="$emit('connect')" :loading="connecting" :disabled="!canConnect">{{
-					t("global.connect")
-				}}</TTButton>
+				<TTButton
+					@click="$emit('connect')"
+					:loading="connecting"
+					:disabled="!canConnect"
+					icon="online"
+					>{{ t("global.connect") }}</TTButton
+				>
 
 				<ToggleBlock
 					v-if="$slots.fields"
@@ -68,7 +72,7 @@
 					</div>
 				</div>
 
-				<TTButton class="connectBt" alert @click="$emit('disconnect')">{{
+				<TTButton class="connectBt" alert @click="$emit('disconnect')" icon="offline">{{
 					t("global.disconnect")
 				}}</TTButton>
 
@@ -101,6 +105,8 @@ const props = withDefaults(
 		enableToggle?: boolean;
 		enabled?: boolean;
 		advancedOpen?: boolean;
+		showIcon?: boolean;
+		showHeader?: boolean;
 	}>(),
 	{
 		connecting: false,
@@ -112,6 +118,8 @@ const props = withDefaults(
 		enableToggle: true,
 		enabled: false,
 		advancedOpen: false,
+		showIcon: true,
+		showHeader: true,
 	},
 );
 
@@ -139,11 +147,11 @@ watch(
 
 watch(
 	() => enableParam.value.value,
-	(v) => {
-		if (v !== props.enabled) {
-			emit("update:enabled", v);
+	(newVal, prevVal) => {
+		if (newVal !== prevVal) {
+			emit("update:enabled", newVal);
 		}
-		if (!v) emit("disconnect");
+		if (!newVal) emit("disconnect");
 	},
 );
 

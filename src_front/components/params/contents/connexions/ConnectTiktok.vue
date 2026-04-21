@@ -63,6 +63,7 @@ import { useI18n } from "vue-i18n";
 import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { useConnectionForm } from "@/composables/useConnectionForm";
 import ConnectionForm from "./ConnectionForm.vue";
+import { ref } from "vue";
 
 const { t } = useI18n();
 const storeTiktok = useStoreTiktok();
@@ -71,25 +72,25 @@ const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectio
 	() => storeTiktok.disconnect(),
 );
 
-const param_ip: TwitchatDataTypes.ParameterData<string> = {
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
 	value: "127.0.0.1",
 	type: "string",
 	labelKey: "connexions.ip",
 	maxLength: 100,
-};
-const param_port: TwitchatDataTypes.ParameterData<number> = {
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
 	value: 0,
 	type: "number",
 	labelKey: "connexions.port",
 	min: 0,
 	max: 65535,
-};
+});
 
 const canConnect = computed(() => storeTiktok.ip.length >= 7);
 
 const connectedInfo = computed(() => [
-	{ label: t(param_ip.labelKey!), value: storeTiktok.ip },
-	{ label: t(param_port.labelKey!), value: storeTiktok.port },
+	{ label: t(param_ip.value.labelKey!), value: storeTiktok.ip },
+	{ label: t(param_port.value.labelKey!), value: storeTiktok.port },
 ]);
 
 function onToggleEnabled(v: boolean): void {

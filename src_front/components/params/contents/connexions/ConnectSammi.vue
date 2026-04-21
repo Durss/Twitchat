@@ -60,6 +60,7 @@ import { useI18n } from "vue-i18n";
 import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { useConnectionForm } from "@/composables/useConnectionForm";
 import ConnectionForm from "./ConnectionForm.vue";
+import { ref } from "vue";
 
 const { t } = useI18n();
 const sSammi = useStoreSammi();
@@ -68,32 +69,32 @@ const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectio
 	() => sSammi.disconnect(),
 );
 
-const param_ip: TwitchatDataTypes.ParameterData<string> = {
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
 	value: "",
 	type: "string",
 	labelKey: "sammi.ip",
 	maxLength: 100,
-};
-const param_port: TwitchatDataTypes.ParameterData<number> = {
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
 	value: 0,
 	type: "number",
 	labelKey: "sammi.port",
 	min: 0,
 	max: 65535,
-};
-const param_pass: TwitchatDataTypes.ParameterData<string> = {
+});
+const param_pass = ref<TwitchatDataTypes.ParameterData<string>>({
 	value: "",
 	type: "string",
 	labelKey: "sammi.pass",
 	maxLength: 100,
 	isPrivate: true,
-};
+});
 
 const canConnect = computed(() => sSammi.ip.length >= 7);
 
 const connectedInfo = computed(() => [
-	{ label: t(param_ip.labelKey!), value: sSammi.ip },
-	{ label: t(param_port.labelKey!), value: sSammi.port },
+	{ label: t(param_ip.value.labelKey!), value: sSammi.ip },
+	{ label: t(param_port.value.labelKey!), value: sSammi.port },
 ]);
 
 function onToggleEnabled(v: boolean): void {

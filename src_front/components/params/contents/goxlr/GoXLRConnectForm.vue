@@ -1,8 +1,13 @@
 <template>
 	<div class="goxlrconnectform">
-		<TTButton type="submit" v-if="!connected" @click="connect()" :loading="connecting">{{
-			t("global.connect")
-		}}</TTButton>
+		<TTButton
+			type="submit"
+			v-if="!connected"
+			@click="connect()"
+			:loading="connecting"
+			icon="online"
+			>{{ t("global.connect") }}</TTButton
+		>
 
 		<ToggleBlock v-if="!connected" :title="t('global.advanced_params')" small :open="false">
 			<form class="card-item" @submit.prevent="connect()">
@@ -42,9 +47,14 @@
 		</BrowserPermissionChecker>
 
 		<template v-else-if="connected">
-			<TTButton class="disconnectBt" type="button" @click="disconnect()" alert>{{
-				t("global.disconnect")
-			}}</TTButton>
+			<TTButton
+				class="disconnectBt"
+				type="button"
+				@click="disconnect()"
+				alert
+				icon="offline"
+				>{{ t("global.disconnect") }}</TTButton
+			>
 		</template>
 	</div>
 </template>
@@ -86,9 +96,6 @@ const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
 const connected = computed((): boolean => {
 	return GoXLRSocket.instance.connected.value;
 });
-const isPremium = computed((): boolean => {
-	return storeAuth.isPremium;
-});
 
 async function connect(): Promise<void> {
 	error.value = false;
@@ -119,6 +126,7 @@ onBeforeMount(() => {
 });
 
 function disconnect(): void {
+	connecting.value = false;
 	GoXLRSocket.instance.disconnect();
 }
 

@@ -16,7 +16,7 @@
 
 		<TTButton
 			class="unlinkBt"
-			icon="cross"
+			icon="offline"
 			v-if="$store.discord.discordLinked"
 			alert
 			@click="unlink()"
