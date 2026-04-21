@@ -200,6 +200,7 @@ function populateTriggers(): void {
 			trigger,
 			icon: info.icon,
 			iconURL: info.iconURL,
+			iconEmoji: info.iconEmoji,
 			canTest,
 		};
 		flatList.push(entry);
@@ -443,6 +444,7 @@ export interface TriggerListEntry {
 	trigger: TriggerData;
 	iconURL?: string;
 	iconBgColor?: string;
+	iconEmoji?: string;
 }
 
 export interface TriggerListFolderEntry {

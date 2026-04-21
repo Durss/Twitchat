@@ -46,7 +46,16 @@
 						}"
 						:disabled="pinDisableState(element).disabled"
 						:aria-label="element.tooltip"
-						:icon="element.icon"
+						:icon="
+							element.trigger?.icon?.startsWith('http')
+								? element.trigger?.icon
+								: element.icon
+						"
+						:iconEmoji="
+							element.trigger?.icon && element.trigger?.icon.startsWith('http')
+								? undefined
+								: element.trigger?.icon
+						"
 						@click="onClickMenuItem(element)"
 					/>
 				</VueDraggable>
@@ -771,7 +780,11 @@ import { VueDraggable } from "vue-draggable-plus";
 import GroqChannelAction from "./GroqChannelAction.vue";
 import TriggerUtils from "@/utils/TriggerUtils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import type { TriggerImportData } from "@/types/TriggerActionDataTypes";
+import type {
+	TriggerActionData,
+	TriggerData,
+	TriggerImportData,
+} from "@/types/TriggerActionDataTypes";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { useI18n } from "vue-i18n";
 import { useConfirm } from "@/composables/useConfirm";
@@ -1036,12 +1049,20 @@ const pinnedMenuItems = computed(() => {
 		item: (typeof TwitchatDataTypes.PinnableMenuItems)[number];
 		icon: string;
 		tooltip: string;
+		trigger?: TriggerData | null;
 	}[] = [];
 	for (const item of items) {
 		const menuItem = getPinnedMenuItemFromId(item);
 		if (!menuItem) continue;
 		if (!getMenuItemEnabled(menuItem)) continue;
-		const resultItem = { item: menuItem, tooltip: "", icon: menuItem.icon };
+		const resultItem: (typeof result)[0] = { item: menuItem, tooltip: "", icon: menuItem.icon };
+		if (menuItem.id.indexOf("trigger:") === 0) {
+			const triggerId = menuItem.id.replace("trigger:", "");
+			const trigger = storeTriggers.triggerList.find((trigger) => trigger.id == triggerId);
+			if (trigger) {
+				resultItem.trigger = trigger;
+			}
+		}
 		const tooltip = pinDisableState(resultItem).disabled
 			? t("global.grant_scope")
 			: menuItem.label || t(menuItem.labelKey);
