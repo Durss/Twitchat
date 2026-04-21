@@ -109,7 +109,7 @@ function onWheel(e: WheelEvent): void {
 	scrollOffset_local.value += e.deltaY;
 	if (props.lockScroll) {
 		if (scrollOffset_local_eased.value <= 0 && e.deltaY < 0) return;
-		if (scrollOffset_local_eased.value > maxScrollY && e.deltaY > 0) return;
+		if (scrollOffset_local_eased.value >= maxScrollY && e.deltaY > 0) return;
 	}
 	e.preventDefault();
 	e.stopPropagation();
