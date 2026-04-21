@@ -11,9 +11,14 @@
 		</div>
 
 		<section v-if="!$store.tiltify.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{
-				$t("global.connect")
-			}}</TTButton>
+			<TTButton
+				type="link"
+				:href="oAuthURL"
+				target="_self"
+				:loading="loading"
+				icon="online"
+				>{{ $t("global.connect") }}</TTButton
+			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
 				{{ $t("error.tiltify_connect_failed") }}
 			</div>
@@ -21,7 +26,7 @@
 
 		<template v-else>
 			<section>
-				<TTButton alert @click="disconnect()">
+				<TTButton alert icon="offline" @click="disconnect()">
 					<div class="userInfo" v-if="$store.tiltify.user">
 						<span>{{ $t("global.disconnect") }} </span>
 						<img :src="$store.tiltify.user.avatar.src" alt="avatar" />

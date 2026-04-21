@@ -54,7 +54,7 @@
 					:alert="alert || errorLocal"
 					:inputId="'toggle' + key"
 					:disabled="disabled !== false || paramData.disabled === true || readonly"
-					@change="emit('input')"
+					@change="onInput"
 				/>
 				<slot name="composite" />
 			</div>
@@ -111,7 +111,7 @@
 						clampValue();
 						emit('blur');
 					"
-					@input="emit('input')"
+					@input="onInput"
 				/>
 				<slot name="composite" />
 			</div>
@@ -163,7 +163,7 @@
 						:readonly="readonly"
 						@focus="emit('focus')"
 						@blur="emit('blur')"
-						@input="emit('input')"
+						@input="onInput"
 					></textarea>
 
 					<input
@@ -188,7 +188,7 @@
 							clampValue();
 							emit('blur');
 						"
-						@input="emit('input')"
+						@input="onInput"
 					/>
 
 					<div class="maxlength" v-if="showMaxLength">
@@ -225,7 +225,7 @@
 					:min="paramData.min"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 					:readonly="readonly"
-					@change="emit('input')"
+					@change="onInput"
 				/>
 				<slot name="composite" />
 			</div>
@@ -263,6 +263,7 @@
 						:name="paramData.fieldName"
 						:id="'text' + key"
 						type="color"
+						@input="onInput"
 					/>
 				</div>
 				<slot name="composite" />
@@ -296,6 +297,7 @@
 						readonly
 					"
 					:alert="alert || errorLocal"
+					@update:modelValue="onEdit()"
 				/>
 				<slot name="composite" />
 			</div>
@@ -321,6 +323,7 @@
 					v-model="paramData.value"
 					v-autofocus="autofocus"
 					:disabled="readonly"
+					@change="onEdit"
 				>
 					<template v-for="a in paramData.listValues" :key="a.value">
 						<component
@@ -366,6 +369,7 @@
 					v-model="paramData.value"
 					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
+					@update:modelValue="onEdit()"
 					appendToBody
 					:disabled="readonly"
 					:options="paramData.listValues"
@@ -422,6 +426,7 @@
 					:reduce="(v: TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
 					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
+					@update:modelValue="onEdit()"
 					appendToBody
 					:disabled="readonly"
 					:submitSearchOnBlur="true"
@@ -477,6 +482,7 @@
 						:placeholder="placeholder"
 						v-model="paramData.value"
 						:calculate-position="placeDropdown"
+						@update:modelValue="onEdit()"
 						appendToBody
 						:disabled="readonly"
 						taggable
@@ -528,6 +534,7 @@
 					:placeholder="placeholder"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 					:readonly="readonly"
+					@input="onInput"
 				/>
 				<TTButton
 					v-model:file="paramData.value"
@@ -549,6 +556,7 @@
 						v-model="paramData.value"
 						:maxLength="paramData.maxLength"
 						:disabled="readonly"
+						@update:modelValue="onEdit()"
 					/>
 				</div>
 			</div>
@@ -563,6 +571,7 @@
 				:popoutMode="placeholdersAsPopout"
 				:alert="alert || errorLocal"
 				:target="placeholderTarget"
+				@update:modelValue="onEdit()"
 				@insert="insertPlaceholder"
 			/>
 		</div>
@@ -577,6 +586,7 @@
 			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
 			:target="placeholderTarget"
+			@update:modelValue="onEdit()"
 			@insert="insertPlaceholder"
 		/>
 
@@ -917,6 +927,11 @@ function clickItem(event: MouseEvent): void {
 /**
  * Called when value changes
  */
+function onInput(): void {
+	emit("input");
+	onEdit();
+}
+
 async function onEdit(): Promise<void> {
 	if (premiumLocked.value) return;
 
