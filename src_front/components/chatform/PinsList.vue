@@ -7,7 +7,17 @@
 				:class="{ pinned: pin.pinned }"
 				@click="togglePin(pin.id)"
 			>
-				<icon :name="pin.icon" class="icon" />
+				<img
+					class="icon"
+					v-if="pin.trigger?.icon && pin.trigger.icon.startsWith('http')"
+					:src="pin.trigger.icon"
+				/>
+				<span
+					class="icon emoji"
+					v-else-if="pin.trigger?.icon && !pin.trigger.icon.startsWith('http')"
+					>{{ pin.trigger.icon }}</span
+				>
+				<icon v-else :name="pin.icon" class="icon" />
 				<span class="label">{{ pin.label || $t(pin.labelKey) }}</span>
 			</button>
 		</div>
@@ -15,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerUtils from "@/utils/TriggerUtils";
 import { gsap } from "gsap/gsap-core";
@@ -33,7 +43,14 @@ class PinsList extends Vue {
 	}
 
 	public get pinList() {
-		const pins = TwitchatDataTypes.PinnableMenuItems.filter((v) => {
+		const pins: {
+			id: (typeof TwitchatDataTypes.PinnableMenuItems)[0]["id"] | `trigger:${string}`;
+			icon: string;
+			labelKey: string;
+			label?: string;
+			pinned: boolean;
+			trigger?: TriggerData;
+		}[] = TwitchatDataTypes.PinnableMenuItems.filter((v) => {
 			if (v.id == "rewards" || v.id == "poll" || v.id == "prediction") {
 				return this.hasChannelPoints;
 			}
@@ -58,6 +75,7 @@ class PinsList extends Vue {
 					label: triggerInfo.label,
 					labelKey: triggerInfo.labelKey || "",
 					pinned: this.$store.params.pinnedMenuItems.includes(`trigger:${trigger.id}`),
+					trigger,
 				});
 			});
 		return [...pins, ...triggerPins];
@@ -128,6 +146,7 @@ export default toNative(PinsList);
 
 	button {
 		padding: 0.5em;
+		gap: 4px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -147,7 +166,10 @@ export default toNative(PinsList);
 		.icon {
 			max-width: 1.75em;
 			height: 1.5em;
-			margin-bottom: 0.25em;
+			&.emoji {
+				height: auto;
+				font-size: 1.5em;
+			}
 		}
 		.label {
 			font-size: 0.8em;
