@@ -23,8 +23,9 @@
 				theme: triggerTypeDef?.disabled ? 'alert' : 'twitchat',
 			}"
 		>
+			<div v-if="entryData.iconEmoji">{{ entryData.iconEmoji }}</div>
 			<img
-				v-if="entryData.iconURL"
+				v-else-if="entryData.iconURL"
 				:src="entryData.iconURL"
 				class="icon"
 				:style="{ backgroundColor: entryData.iconBgColor }"

@@ -37,6 +37,7 @@
 
 		<div class="card-item params" data-noselect>
 			<ParamItem noBackground :paramData="param_enabled" v-model="triggerData.enabled" />
+
 			<ParamItem
 				noBackground
 				:paramData="param_enableForRemoteChans"
@@ -45,7 +46,30 @@
 				v-tooltip="{ content: $t('triggers.enableForRemoteChans_tt'), placement: 'bottom' }"
 				class="premiumOption"
 			/>
-			<ParamItem noBackground :paramData="param_name" v-model="triggerData.name" />
+			<ParamItem
+				noBackground
+				:paramData="param_name"
+				v-model="triggerData.name"
+				class="nameInput"
+			>
+				<template #composite>
+					<TTButton
+						@click="(event: MouseEvent) => openEmoteSelector(event)"
+						transparent
+						class="emoteBt"
+					>
+						<img
+							v-if="triggerData.icon && triggerData.icon?.indexOf('http') > -1"
+							:src="triggerData.icon"
+							alt="emote"
+						/>
+						<div v-else-if="triggerData.icon" class="icon">
+							{{ triggerData.icon }}
+						</div>
+						<Icon v-else name="emote" class="icon" />
+					</TTButton>
+				</template>
+			</ParamItem>
 
 			<TriggerActionChatCommandParams v-if="isChatCmd" :triggerData="triggerData" />
 
@@ -217,6 +241,15 @@
 		</div>
 
 		<div class="selectRect" :style="selectStyles" v-if="selecting"></div>
+
+		<EmoteSelector
+			class="emoteSelector"
+			popoutMode
+			v-if="showEmoteSelector"
+			@select="onSelectEmote"
+			ref="emoteSelector"
+			@onLoad="replaceEmoteSelector()"
+		/>
 	</div>
 </template>
 
@@ -263,11 +296,13 @@ import TriggerAdApproachParams from "./TriggerAdApproachParams.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerGoXLRParams from "./TriggerGoXLRParams.vue";
 import { useConfirm } from "@/composables/useConfirm";
+import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();
 const storeTriggers = useStoreTriggers();
-const rootEl = useTemplateRef("rootEl");
+const rootElRef = useTemplateRef("rootEl");
+const emoteSelectorRef = useTemplateRef("emoteSelector");
 const actionEntryRefs: Record<string, ComponentPublicInstance | null> = {};
 
 const props = withDefaults(
@@ -289,6 +324,10 @@ const props = withDefaults(
 );
 
 const selecting = ref(false);
+const showEmoteSelector = ref(false);
+const emoteSelectorOrigin = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const emoteSelectorPos_x = ref("0px");
+const emoteSelectorPos_y = ref("0px");
 const selectStyles = ref<{ [key: string]: string }>({});
 const selectedActions = ref<string[]>([]);
 const matchingCondition = ref(true);
@@ -313,6 +352,14 @@ const param_name = ref<TwitchatDataTypes.ParameterData<string>>({
 	icon: "label",
 	placeholder: "...",
 	labelKey: "triggers.trigger_name",
+	longText: false,
+	maxLength: 100,
+});
+const param_icon = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "editablelist",
+	value: "",
+	icon: "emote",
+	labelKey: "triggers.trigger_icon",
 });
 const param_queue = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "editablelist",
@@ -336,6 +383,7 @@ let pointerMoveHandler: (e: PointerEvent) => void;
 let pointerUpHandler: (e: PointerEvent) => void;
 let keyDownHandler: (e: KeyboardEvent) => void;
 let keyUpHandler: (e: KeyboardEvent) => void;
+let clickHandler: (e: MouseEvent) => void;
 
 /**
  * Get if the trigger can be active on remote channels
@@ -482,7 +530,6 @@ function duplicateAction(action: TriggerActionTypes, index: number): void {
 function addActionAfter(id: string): void {
 	let index = props.triggerData.actions.findIndex((v) => v.id == id);
 	if (index == -1) return;
-	console.log("Add after", id, index);
 	addActionAt(index + 1);
 }
 
@@ -520,7 +567,7 @@ function onPointerDown(e: PointerEvent): void {
 	if (target != parent) return;
 
 	Utils.unselectDom();
-	const offsetBounds = rootEl.value!.getBoundingClientRect();
+	const offsetBounds = rootElRef.value!.getBoundingClientRect();
 
 	selecting.value = true;
 	selectOffset.x = e.clientX - offsetBounds.left;
@@ -531,7 +578,7 @@ function onPointerDown(e: PointerEvent): void {
 function onPointerMove(e: PointerEvent): void {
 	if (!selecting.value) return;
 
-	const offsetBounds = rootEl.value!.getBoundingClientRect();
+	const offsetBounds = rootElRef.value!.getBoundingClientRect();
 
 	const margin = 20;
 	const x1 = Math.min(
@@ -561,7 +608,7 @@ function onPointerMove(e: PointerEvent): void {
 		return;
 	}
 
-	const entries = rootEl.value!.querySelectorAll(".actionItemEntry");
+	const entries = rootElRef.value!.querySelectorAll(".actionItemEntry");
 	const selected: string[] = [];
 	for (let i = 0; i < entries.length; i++) {
 		const entry = entries[i] as HTMLElement;
@@ -681,6 +728,61 @@ async function highlightItemById(id: string): Promise<void> {
 	}
 }
 
+/**
+ * Open emote selector
+ */
+function openEmoteSelector(event: MouseEvent): void {
+	props.triggerData.icon = "";
+	showEmoteSelector.value = true;
+	emoteSelectorOrigin.value = { x: event.clientX, y: event.clientY };
+}
+
+/**
+ * Replaces emote selector position
+ */
+function replaceEmoteSelector(): void {
+	const bounds = emoteSelectorRef.value?.$el.getBoundingClientRect();
+	let x =
+		emoteSelectorOrigin.value.x < window.innerWidth / 2
+			? emoteSelectorOrigin.value.x
+			: emoteSelectorOrigin.value.x - bounds.width;
+	let y =
+		emoteSelectorOrigin.value.y < window.innerHeight / 2
+			? emoteSelectorOrigin.value.y
+			: emoteSelectorOrigin.value.y - bounds.height;
+	const marginBottom = 70;
+	if (x + bounds.width > window.innerWidth) x = window.innerWidth - bounds.width;
+	if (y + bounds.height > window.innerHeight - marginBottom)
+		y = window.innerHeight - marginBottom - bounds.height;
+	emoteSelectorPos_x.value = x + "px";
+	emoteSelectorPos_y.value = y + "px";
+}
+
+/**
+ * Called after selecting an emote
+ */
+async function onSelectEmote(
+	emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji,
+): Promise<void> {
+	props.triggerData.icon =
+		"images" in emote
+			? emote.images.url_2x || emote.images.url_4x || emote.images.url_1x
+			: emote.emoji;
+	showEmoteSelector.value = false;
+}
+
+/**
+ * Detect click outside emote selector
+ */
+function onClick(e: MouseEvent): void {
+	if (showEmoteSelector.value) {
+		const emoteSelector = emoteSelectorRef.value!.$el;
+		if (!emoteSelector.contains(e.target as Node)) {
+			showEmoteSelector.value = false;
+		}
+	}
+}
+
 onBeforeMount(() => {
 	param_queue.value.options = storeTriggers.queues;
 	triggerDef.value = TriggerUtils.getTriggerDisplayInfo(props.triggerData);
@@ -695,6 +797,7 @@ onBeforeMount(() => {
 	pointerDownHandler = (e: PointerEvent) => onPointerDown(e);
 	pointerMoveHandler = (e: PointerEvent) => onPointerMove(e);
 	pointerUpHandler = (e: PointerEvent) => onPointerUp(e);
+	clickHandler = (e: MouseEvent) => onClick(e);
 	keyUpHandler = (e: KeyboardEvent) => onKeyUp(e);
 	keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
 	const holder = document.getElementById("paramContentHolder")!;
@@ -702,6 +805,7 @@ onBeforeMount(() => {
 	if (holder) holder.addEventListener("pointerdown", pointerDownHandler);
 	document.addEventListener("pointermove", pointerMoveHandler);
 	document.addEventListener("pointerup", pointerUpHandler);
+	document.addEventListener("click", clickHandler, true);
 	document.addEventListener("keyup", keyUpHandler, true);
 	document.addEventListener("keydown", keyDownHandler, true);
 
@@ -722,6 +826,7 @@ onBeforeUnmount(() => {
 	if (holder) holder.removeEventListener("pointerdown", pointerDownHandler);
 	document.removeEventListener("pointermove", pointerMoveHandler);
 	document.removeEventListener("pointerup", pointerUpHandler);
+	document.removeEventListener("click", clickHandler, true);
 	document.removeEventListener("keyup", keyUpHandler, true);
 	document.removeEventListener("keydown", keyDownHandler, true);
 });
@@ -912,6 +1017,34 @@ onBeforeUnmount(() => {
 			border: 2px solid var(--color-primary);
 			margin-bottom: -1em;
 		}
+
+		.nameInput {
+			:deep(input) {
+				padding-right: 1.5em;
+			}
+
+			.emoteBt {
+				border-radius: 0;
+				padding: 0;
+				margin-left: -1.5em;
+				height: 1.5em;
+				width: 1.5em;
+				img {
+					height: 1em;
+					object-fit: contain;
+					border-radius: 0.25em;
+					vertical-align: middle;
+				}
+				.icon {
+					margin: 0;
+					padding: 0;
+					width: auto;
+					height: auto;
+					vertical-align: middle;
+					font-size: 1em;
+				}
+			}
+		}
 	}
 
 	.selectRect {
@@ -920,6 +1053,13 @@ onBeforeUnmount(() => {
 		position: absolute;
 		border: 1px solid var(--color-text);
 		background-color: var(--background-color-fader);
+	}
+
+	.emoteSelector {
+		position: fixed;
+		z-index: 100;
+		top: v-bind(emoteSelectorPos_y);
+		left: v-bind(emoteSelectorPos_x);
 	}
 }
 </style>

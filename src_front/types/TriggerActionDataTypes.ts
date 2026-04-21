@@ -146,6 +146,10 @@ export interface TriggerData {
 	 */
 	name?: string;
 	/**
+	 * Trigger's custom icon
+	 */
+	icon?: string;
+	/**
 	 * Reward ID for reward related events
 	 */
 	rewardId?: string;

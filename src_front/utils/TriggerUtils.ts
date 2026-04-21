@@ -101,6 +101,7 @@ export default class TriggerUtils {
 			icon: string;
 			iconURL?: string;
 			iconBgColor?: string;
+			iconEmoji?: string;
 			event?: TriggerTypeDefinition;
 		} = {
 			label: "",
@@ -216,6 +217,14 @@ export default class TriggerUtils {
 
 		if (!result.label) result.label = StoreProxy.i18n.t(ref.labelKey);
 		if (!result.label) result.label = "-unknown trigger type-";
+
+		if (trigger.icon) {
+			if (trigger.icon.startsWith("http")) {
+				result.iconURL = trigger.icon;
+			} else {
+				result.iconEmoji = trigger.icon;
+			}
+		}
 
 		return result;
 	}
