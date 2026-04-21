@@ -971,23 +971,28 @@ class OverlayParamsCustomTrain extends Vue {
 	/**
 	 * Called after selecting an emote
 	 */
-	public async onSelectEmote(emote: TwitchatDataTypes.Emote): Promise<void> {
-		const url = emote.images.url_2x || emote.images.url_4x || emote.images.url_1x;
+	public async onSelectEmote(
+		emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji,
+	): Promise<void> {
+		const urlOrEmoji =
+			"images" in emote
+				? emote.images.url_2x || emote.images.url_4x || emote.images.url_1x
+				: emote.emoji;
 		switch (this.emoteSelectorTarget?.step) {
 			case "approaching":
-				this.emoteSelectorTarget.entry.approachingEmote = url;
+				this.emoteSelectorTarget.entry.approachingEmote = urlOrEmoji;
 				break;
 			case "levelUp":
-				this.emoteSelectorTarget.entry.levelUpEmote = url;
+				this.emoteSelectorTarget.entry.levelUpEmote = urlOrEmoji;
 				break;
 			case "failed":
-				this.emoteSelectorTarget.entry.failedEmote = url;
+				this.emoteSelectorTarget.entry.failedEmote = urlOrEmoji;
 				break;
 			case "success":
-				this.emoteSelectorTarget.entry.successEmote = url;
+				this.emoteSelectorTarget.entry.successEmote = urlOrEmoji;
 				break;
 			case "record":
-				this.emoteSelectorTarget.entry.recordEmote = url;
+				this.emoteSelectorTarget.entry.recordEmote = urlOrEmoji;
 				break;
 		}
 	}
