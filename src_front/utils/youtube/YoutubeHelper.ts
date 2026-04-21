@@ -15,7 +15,6 @@ import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import { type YoutubeScopesString } from "./YoutubeScopes";
 import StickerList from "./sticker_list.json";
-import { reactive } from "vue";
 
 /**
  * Created : 28/11/2023
