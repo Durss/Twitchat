@@ -3,6 +3,8 @@ import * as Sentry from "@sentry/vue";
 import { toRaw } from "vue";
 import StoreProxy from "./StoreProxy";
 
+type EmojiShortcodeEntry = TwitchatDataTypes.Emoji;
+
 /**
  * Created : 28/07/2023
  */
@@ -485,9 +487,7 @@ export default class Database {
 	/**
 	 * Populate emoji shortcodes table with entries
 	 */
-	public async populateEmojiShortcodes(
-		entries: { shortcode: string; emoji: string }[],
-	): Promise<void> {
+	public async populateEmojiShortcodes(entries: EmojiShortcodeEntry[]): Promise<void> {
 		if (!this._db || !this._ready) return;
 		return new Promise((resolve, reject) => {
 			const tx = this._db.transaction(Database.EMOJI_SHORTCODES_TABLE, "readwrite");
@@ -506,27 +506,51 @@ export default class Database {
 	 */
 	public async loadEmojiShortcodes(): Promise<void> {
 		const count = await this.getEmojiShortcodesCount();
-		if (count > 0) return;
+		if (count > 0) {
+			const existing = await this.getAllEmojiShortcodes(1);
+			if (existing.length > 0 && existing[0]?.codepoint) return;
+			await this.clearEmojiShortcodes();
+		}
 
 		const result = await fetch("/emoji_shortcodes.json");
 		const json = (await result.json()) as Record<string, string | string[]>;
 
-		const entries: { shortcode: string; emoji: string }[] = [];
+		const entries: EmojiShortcodeEntry[] = [];
 		for (const [codepoint, shortcodes] of Object.entries(json)) {
 			const emoji = codepoint
 				.split("-")
 				.map((cp) => String.fromCodePoint(parseInt(cp, 16)))
 				.join("");
+			const normalizedCodepoint = codepoint.toLowerCase();
 			if (typeof shortcodes === "string") {
-				entries.push({ shortcode: shortcodes, emoji });
+				entries.push({ shortcode: shortcodes, emoji, codepoint: normalizedCodepoint });
 			} else if (Array.isArray(shortcodes)) {
 				for (const sc of shortcodes) {
-					entries.push({ shortcode: sc, emoji });
+					entries.push({ shortcode: sc, emoji, codepoint: normalizedCodepoint });
 				}
 			}
 		}
 
 		await this.populateEmojiShortcodes(entries);
+	}
+
+	/**
+	 * Get all emoji shortcodes from the DB
+	 */
+	public async getAllEmojiShortcodes(limit = 0): Promise<EmojiShortcodeEntry[]> {
+		if (!this._db || !this._ready) return [];
+		return new Promise((resolve) => {
+			const store = this._db
+				.transaction(Database.EMOJI_SHORTCODES_TABLE, "readonly")
+				.objectStore(Database.EMOJI_SHORTCODES_TABLE);
+			const query = limit > 0 ? store.getAll(undefined, limit) : store.getAll();
+			query.addEventListener("success", (event) => {
+				resolve(((event.target as IDBRequest).result as EmojiShortcodeEntry[]) || []);
+			});
+			query.addEventListener("error", () => {
+				resolve([]);
+			});
+		});
 	}
 
 	/**
@@ -536,12 +560,12 @@ export default class Database {
 	public async searchEmojiShortcodes(
 		query: string,
 		limit: number = 50,
-	): Promise<{ shortcode: string; emoji: string }[]> {
+	): Promise<EmojiShortcodeEntry[]> {
 		if (!this._db || !this._ready) return [];
 		return new Promise((resolve) => {
-			let exactResult: { shortcode: string; emoji: string } | null = null;
-			const prefixResults: { shortcode: string; emoji: string }[] = [];
-			const containsResults: { shortcode: string; emoji: string }[] = [];
+			let exactResult: EmojiShortcodeEntry | null = null;
+			const prefixResults: EmojiShortcodeEntry[] = [];
+			const containsResults: EmojiShortcodeEntry[] = [];
 			const store = this._db
 				.transaction(Database.EMOJI_SHORTCODES_TABLE, "readonly")
 				.objectStore(Database.EMOJI_SHORTCODES_TABLE);
@@ -549,7 +573,7 @@ export default class Database {
 			request.addEventListener("success", (event) => {
 				const cursor = (event.target as IDBRequest).result;
 				if (cursor) {
-					const value = cursor.value as { shortcode: string; emoji: string };
+					const value = cursor.value as EmojiShortcodeEntry;
 					if (value.shortcode === query) {
 						exactResult = value;
 					} else if (value.shortcode.startsWith(query)) {
@@ -568,6 +592,20 @@ export default class Database {
 			request.addEventListener("error", () => {
 				resolve([]);
 			});
+		});
+	}
+
+	public async clearEmojiShortcodes(): Promise<void> {
+		if (!this._db || !this._ready) return Promise.resolve();
+
+		return new Promise((resolve, _reject) => {
+			this._db
+				.transaction(Database.EMOJI_SHORTCODES_TABLE, "readwrite")
+				.objectStore(Database.EMOJI_SHORTCODES_TABLE)
+				.clear()
+				.addEventListener("success", async (_event) => {
+					resolve();
+				});
 		});
 	}
 

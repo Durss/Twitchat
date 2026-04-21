@@ -1039,9 +1039,9 @@ class Chat extends Vue {
 	/**
 	 * Called when selecting an emote from the emote selectors
 	 */
-	public onSelectEmote(item: TwitchatDataTypes.Emote): void {
+	public onSelectEmote(item: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji): void {
 		//TODO drop "any" once this file is migrated to composition API and we can use proper typing for refs
-		(this.$refs.chatForm as any).onSelectItem(item.code);
+		(this.$refs.chatForm as any).onSelectItem("code" in item ? item.code : item.emoji);
 	}
 
 	/**

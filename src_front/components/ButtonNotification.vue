@@ -5,7 +5,9 @@
 		@click="onClick($event)"
 		v-newflag="newflag"
 	>
-		<Icon :name="icon" class="icon" v-if="icon" />
+		<span v-if="iconEmoji" class="icon">{{ iconEmoji }}</span>
+		<img v-else-if="icon && icon.startsWith('http')" :src="icon" alt="" class="icon" />
+		<Icon v-else :name="icon" class="icon" v-if="icon" />
 		<span class="label" v-if="slots.default != undefined"><slot></slot></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
@@ -19,6 +21,7 @@ import Icon from "./Icon.vue";
 const props = withDefaults(
 	defineProps<{
 		icon?: string;
+		iconEmoji?: string;
 		count?: number;
 		disabled?: boolean;
 		newflag?: { date: number; id: string };

@@ -2520,6 +2520,24 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents a native emoji
+	 */
+	export interface Emoji {
+		/**
+		 * Textual representation of thie emoji
+		 */
+		shortcode: string;
+		/**
+		 * Unicode emoji char(s)
+		 */
+		emoji: string;
+		/**
+		 * Hyphen-separated unicode codepoints used to resolve emoji images
+		 */
+		codepoint?: string;
+	}
+
+	/**
 	 * Contains a Hype chat message details
 	 */
 	export interface HypeChatData {
