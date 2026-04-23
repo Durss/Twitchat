@@ -12,9 +12,9 @@ import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 export const storeYoutube = defineStore("youtube", {
 	state: () =>
 		({
-			youtubeAuthParams: null,
-			youtubeAuthToken: null,
-			newScopesToRequest: null,
+			youtubeAuthParams: null as IYoutubeState["youtubeAuthParams"],
+			youtubeAuthToken: null as IYoutubeState["youtubeAuthToken"],
+			newScopesToRequest: null as IYoutubeState["newScopesToRequest"],
 		}) satisfies IYoutubeState,
 
 	getters: {} satisfies IYoutubeGetters &
