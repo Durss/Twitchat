@@ -28,9 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, onBeforeMount, onBeforeUnmount, getCurrentInstance } from "vue";
 import { storeCommon } from "@/store/common/storeCommon";
 import StoreProxy from "@/store/StoreProxy";
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 
 const store = storeCommon();
 const props = withDefaults(
@@ -43,7 +43,6 @@ const props = withDefaults(
 	},
 );
 
-const instance = getCurrentInstance();
 const svg = ref("");
 const error = ref(false);
 const disposed = ref(false);
