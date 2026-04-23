@@ -44,7 +44,10 @@ export const storeCommon = defineStore("common", {
 			//If OBS params are on URL, connect
 			if (port != null && ip != null) {
 				// if(sOBS) sOBS.connectionEnabled = true;
-				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
+				void OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
+				if (authenticated) {
+					void OBSWebsocket.instance.preloadData();
+				}
 			}
 			if (authenticated) {
 				StreamdeckSocket.instance.connect(undefined, undefined, authenticated).catch(() => {

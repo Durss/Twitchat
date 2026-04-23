@@ -192,14 +192,6 @@ function buildApp() {
 	});
 
 	/**
-	 * Include an image from the asset folder
-	 */
-	const asset = (path: string): string => {
-		const map = import.meta.glob("/src_front/assets/**/*", { eager: true, import: "default" });
-		return map[`/src_front/assets/${path}`] as string;
-	};
-
-	/**
 	 * Opens up a confirm window so the user can confirm or cancel an action.
 	 */
 	const confirm = <T>(
@@ -233,7 +225,8 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.default.router = router;
 	StoreProxy.default.i18n = i18n.global;
-	StoreProxy.default.asset = asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	StoreProxy.default.asset = Utils.asset;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.main = storeMain() as unknown as StoreProxy.IMainState &
 		StoreProxy.IMainGetters &
@@ -350,7 +343,8 @@ function buildApp() {
 		.directive("autofocus", vAutofocus)
 		.directive("click2Select", vClick2Select)
 		.directive("newflag", vNewflag);
-	app.config.globalProperties.$asset = asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	app.config.globalProperties.$asset = Utils.asset;
 	app.config.globalProperties.$utils = Utils;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
