@@ -2042,6 +2042,10 @@ export interface IUsersState {
 	 */
 	myFollowings: { [key in TwitchatDataTypes.ChatPlatform]: { [key: string]: boolean } };
 	/**
+	 * List of accounts subscribed to me by platform
+	 */
+	mySubscribers: { [key in TwitchatDataTypes.ChatPlatform]: { [key: string]: boolean } };
+	/**
 	 * List of moderators by platform
 	 */
 	myMods: { [key in TwitchatDataTypes.ChatPlatform]: { [key: string]: boolean } };
@@ -2096,9 +2100,12 @@ export interface IUsersActions {
 	isAFollower(platform: TwitchatDataTypes.ChatPlatform, login: string): boolean;
 	/**
 	 * Loads channel's moderators
-	 * @param channelId
 	 */
-	preloadTwitchModerators(channelId: string): Promise<void>;
+	loadMyModerators(): Promise<void>;
+	/**
+	 * Loads channel's VIPs
+	 */
+	loadMyVIPs(): Promise<void>;
 	/**
 	 * Get a user from their id nor login.
 	 * Asynchronously load any missing data if necessary.
@@ -2252,6 +2259,10 @@ export interface IUsersActions {
 	 * Load my followers list
 	 */
 	loadMyFollowers(): Promise<void>;
+	/**
+	 * Load my subscribers list
+	 */
+	loadMySubscribers(countOnly?: boolean): Promise<void>;
 	/**
 	 * Load my VIPs list
 	 */

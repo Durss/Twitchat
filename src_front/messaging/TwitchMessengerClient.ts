@@ -159,7 +159,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				void TwitchUtils.loadEmoteSets(channel.id);
 				void TwitchUtils.loadUserBadges(channel.id);
 				void TwitchUtils.loadCheermoteList(channel.id);
-				void TwitchUtils.getRoomSettings(channel.id, true).then((settings) => {
+				void TwitchUtils.getRoomSettings(channel.id).then((settings) => {
 					if (settings) {
 						StoreProxy.stream.setRoomSettings(channel.id, settings);
 						if (
@@ -513,7 +513,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/clear": {
 					if (!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return false;
-					return await TwitchUtils.deleteMessages(channelId);
+					return await TwitchUtils.deleteMessages(channelId, undefined, true);
 				}
 				case "/color": {
 					if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
