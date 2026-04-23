@@ -452,7 +452,7 @@ export namespace TwitchatDataTypes {
 		emotesOnly?: boolean;
 		followOnly?: number | boolean;
 		chatDelay?: number;
-		slowMode?: number;
+		slowMode?: number | false;
 	}
 	export type RoomSettings = keyof IRoomSettings;
 

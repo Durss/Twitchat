@@ -129,7 +129,7 @@ class OverlayParamsRaffle extends Vue {
 		let items: TwitchatDataTypes.EntryItem[] = [];
 		if (TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			const followers = await TwitchUtils.getFollowers(null, 500);
-			items = followers.map((v) => {
+			items = followers.list.map((v) => {
 				return { id: v.user_id, label: v.user_name, data: v };
 			});
 		}
