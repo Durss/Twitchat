@@ -6,7 +6,7 @@
 		<div
 			v-for="(i, index) in filteredItems"
 			:key="i.id"
-			:ref="'item_' + i.id"
+			:ref="(el) => setItemRef(i.id, el as HTMLElement | null)"
 			:class="getClasses(index, i)"
 			@click="selectItem(i)"
 			v-tooltip="{ content: i.type == 'slashCommand' ? i.tooltipKey : '' }"
@@ -30,21 +30,21 @@
 				class="image small"
 				name="lock_fit"
 				alt="user"
-				v-tooltip="$t('global.cmd_admin')"
+				v-tooltip="t('global.cmd_admin')"
 			/>
 			<Icon
 				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.twitchCmd"
 				class="image small"
 				name="twitch"
 				alt="user"
-				v-tooltip="$t('global.cmd_twitch')"
+				v-tooltip="t('global.cmd_twitch')"
 			/>
 			<Icon
 				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needModerator"
 				class="image small"
 				name="mod"
 				alt="user"
-				v-tooltip="$t('global.cmd_mod')"
+				v-tooltip="t('global.cmd_mod')"
 			/>
 			<Icon
 				v-if="i.type == 'slashCommand' && i.isTrigger"
@@ -54,12 +54,12 @@
 
 			<div class="name">{{ i.label }}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">
-				{{ $t("global." + i.source.toLowerCase() + "_emote") }}
+				{{ t("global." + i.source.toLowerCase() + "_emote") }}
 			</div>
-			<div class="source" v-else-if="i.type == 'emote'">{{ $t("global.twitch_emote") }}</div>
-			<div class="source" v-if="i.type == 'emojiShortcode'">{{ $t("global.emoji") }}</div>
+			<div class="source" v-else-if="i.type == 'emote'">{{ t("global.twitch_emote") }}</div>
+			<div class="source" v-if="i.type == 'emojiShortcode'">{{ t("global.emoji") }}</div>
 			<div class="infos" v-if="i.type == 'slashCommand' && (i.infos || i.infosKey)">
-				{{ i.infos || $t(i.infosKey || "") }}
+				{{ i.infos || t(i.infosKey || "") }}
 			</div>
 			<div class="name alias" v-else-if="i.type == 'slashCommand' && i.alias">
 				(alias: {{ i.alias }})
@@ -71,15 +71,15 @@
 			@click="grantEmoteScope()"
 		>
 			<Icon class="image" name="lock_fit" />
-			<div class="name">{{ $t("global.emote_scope") }}</div>
+			<div class="name">{{ t("global.emote_scope") }}</div>
 		</div>
 		<div v-else-if="showEmotesLoading" class="item">
-			<Icon class="image" name="loader" /> <i>{{ $t("chat.form.loading_emotes") }}</i>
+			<Icon class="image" name="loader" /> <i>{{ t("chat.form.loading_emotes") }}</i>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
@@ -88,395 +88,396 @@ import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Database from "@/store/Database";
-import { watch } from "@vue/runtime-core";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import TTButton from "../TTButton.vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 
-@Component({
-	components: {
-		TTButton,
-	},
-	emits: ["selectItem", "close"],
-})
 /**
  * This component is used to select an emote by typing ":xxx" on the
  * message field.
  */
-class AutocompleteChatForm extends Vue {
-	@Prop
-	public search!: string;
-	@Prop
-	public emotes!: boolean;
-	@Prop
-	public users!: boolean;
-	@Prop
-	public commands!: boolean;
 
-	public selectedIndex = 0;
-	public showEmotesLoading = false;
-	public showGrantEmotesPermission = false;
-	public filteredItems: ListItem[] = [];
-	public triggerCommands: TriggerData[] = [];
+const props = defineProps<{
+	search: string;
+	emotes: boolean;
+	users: boolean;
+	commands: boolean;
+}>();
 
-	private keyUpHandler!: (e: KeyboardEvent) => void;
-	private keyDownHandler!: (e: KeyboardEvent) => void;
-	private emotesRequestToken = 0;
-	private emojiSearchToken = 0;
-	private emojiSearchPending = false;
+const emit = defineEmits<{
+	selectItem: [value: string];
+	close: [];
+}>();
 
-	public getClasses(index: number, item: ListItem): string[] {
-		let res = ["item"];
-		if (index == this.selectedIndex) res.push("selected");
-		if (item.type == "slashCommand" && item.disabled) res.push("disabled");
-		if (item.type == "slashCommand" && item.rawCmd) {
-			if (item.rawCmd.needAdmin) res.push("admin");
-			if (item.rawCmd.needModerator) res.push("mod");
-			if (item.rawCmd.needBroadcaster) res.push("mod");
-		}
-		res.push(item.type);
-		return res;
+const { t } = useI18n();
+const storeTriggers = useStoreTriggers();
+const storeAuth = useStoreAuth();
+const storeChat = useStoreChat();
+const storeTTS = useStoreTTS();
+const storeDiscord = useStoreDiscord();
+const storeUsers = useStoreUsers();
+const storeParams = useStoreParams();
+const storeStream = useStoreStream();
+
+const selectedIndex = ref(0);
+const showEmotesLoading = ref(false);
+const showGrantEmotesPermission = ref(false);
+const filteredItems = ref<ListItem[]>([]);
+
+let triggerCommands: TriggerData[] = [];
+let emotesRequestToken = 0;
+let emojiSearchToken = 0;
+
+const itemRefs = new Map<string, HTMLElement>();
+function setItemRef(id: string, el: HTMLElement | null) {
+	if (el) itemRefs.set(id, el);
+	else itemRefs.delete(id);
+}
+
+function getClasses(index: number, item: ListItem): string[] {
+	let res = ["item"];
+	if (index == selectedIndex.value) res.push("selected");
+	if (item.type == "slashCommand" && item.disabled) res.push("disabled");
+	if (item.type == "slashCommand" && item.rawCmd) {
+		if (item.rawCmd.needAdmin) res.push("admin");
+		if (item.rawCmd.needModerator) res.push("mod");
+		if (item.rawCmd.needBroadcaster) res.push("mod");
 	}
+	res.push(item.type);
+	return res;
+}
 
-	public mounted(): void {
-		this.selectedIndex = 0;
-
-		this.triggerCommands = this.$store.triggers.triggerList.filter(
-			(v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND,
-		);
-
-		this.keyUpHandler = (e: KeyboardEvent) => this.onkeyUp(e);
-		this.keyDownHandler = (e: KeyboardEvent) => this.onkeyDown(e);
-		document.addEventListener("keyup", this.keyUpHandler, true);
-		document.addEventListener("keydown", this.keyDownHandler, true);
-
-		watch(
-			() => this.search,
-			() => {
-				this.onSearchChange();
-			},
-		);
-		this.onSearchChange();
-	}
-
-	public beforeUnmount(): void {
-		this.emotesRequestToken = -1;
-		document.removeEventListener("keyup", this.keyUpHandler, true);
-		document.removeEventListener("keydown", this.keyDownHandler, true);
-	}
-
-	/**
-	 * Select an item via click or enter key
-	 * @param item
-	 */
-	public selectItem(item: ListItem): void {
-		if (item.type == "slashCommand") {
-			if (item.disabled) {
-				if (item.rawCmd && item.rawCmd.twitch_scopes) {
-					this.$store.auth.requestTwitchScopes(item.rawCmd.twitch_scopes);
-				} else if (item.rawCmd && item.rawCmd.needTTS) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
-				}
-			} else {
-				this.$emit("selectItem", item.cmd);
+/**
+ * Select an item via click or enter key
+ * @param item
+ */
+function selectItem(item: ListItem): void {
+	if (item.type == "slashCommand") {
+		if (item.disabled) {
+			if (item.rawCmd && item.rawCmd.twitch_scopes) {
+				storeAuth.requestTwitchScopes(item.rawCmd.twitch_scopes);
+			} else if (item.rawCmd && item.rawCmd.needTTS) {
+				storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
 			}
-		} else if (item.type == "emojiShortcode") {
-			this.$emit("selectItem", item.emoji);
 		} else {
-			const prefix = item.type == "user" ? "@" : "";
-			this.$emit("selectItem", prefix + item.label);
+			emit("selectItem", item.cmd);
 		}
+	} else if (item.type == "emojiShortcode") {
+		emit("selectItem", item.emoji);
+	} else {
+		const prefix = item.type == "user" ? "@" : "";
+		emit("selectItem", prefix + item.label);
 	}
+}
 
-	/**
-	 * Navigate through list via keyboard
-	 */
-	public onkeyUp(e: KeyboardEvent): void {
-		switch (e.key) {
-			case "Escape":
-				this.$emit("close");
-				break;
-			case "Enter": {
-				const item = this.filteredItems[this.selectedIndex];
-				if (item) {
-					e.preventDefault();
-					e.stopPropagation();
-					e.stopImmediatePropagation();
-					this.selectItem(item);
-				}
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Navigate through list via keyboard
-	 */
-	public onkeyDown(e: KeyboardEvent): void {
-		switch (e.key) {
-			case "PageUp": {
-				this.selectedIndex -= 10;
+/**
+ * Navigate through list via keyboard
+ */
+function onkeyUp(e: KeyboardEvent): void {
+	switch (e.key) {
+		case "Escape":
+			emit("close");
+			break;
+		case "Enter": {
+			const item = filteredItems.value[selectedIndex.value];
+			if (item) {
 				e.preventDefault();
-				break;
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				selectItem(item);
 			}
-			case "PageDown": {
-				this.selectedIndex += 10;
-				e.preventDefault();
-				break;
-			}
-			case "ArrowUp": {
-				this.selectedIndex--;
-				e.preventDefault();
-				break;
-			}
-			case "ArrowDown": {
-				this.selectedIndex++;
-				e.preventDefault();
-				break;
-			}
-			case "Tab": {
-				const selectedItem = this.filteredItems[this.selectedIndex];
-				if (selectedItem) {
-					e.preventDefault();
-					e.stopPropagation();
-					this.selectItem(selectedItem);
-				}
-				break;
-			}
-			default:
-				return;
-		}
-
-		const len = this.filteredItems.length;
-		if (len === 0) return;
-
-		this.selectedIndex = this.selectedIndex % len;
-		if (this.selectedIndex < 0) this.selectedIndex = len - 1;
-		let el = this.$refs["item_" + this.filteredItems[this.selectedIndex]!.id] as HTMLElement[];
-		if (el.length > 0) {
-			el[0]!.scrollIntoView({ block: "center", inline: "nearest" });
-		}
-	}
-
-	/**
-	 * Requests for emote scope
-	 */
-	public grantEmoteScope(): void {
-		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
-		this.$emit("close");
-	}
-
-	/**
-	 * Called when writing somehting.
-	 * Search any item matching the search
-	 */
-	private onSearchChange(): void {
-		let res: ListItem[] = [];
-		const sUsers = this.$store.users;
-		const sAuth = this.$store.auth;
-		const sChat = this.$store.chat;
-		const sTTS = this.$store.tts;
-		const sDiscord = this.$store.discord;
-		const s = this.search.toLowerCase();
-		if (s?.length > 0) {
-			//Search for users
-			if (this.users) {
-				const users = sUsers.users;
-				for (let j = 0; j < users.length; j++) {
-					const userName = users[j]!.displayNameOriginal;
-					if (userName.toLowerCase().indexOf(s) == 0) {
-						res.push({
-							type: "user",
-							label: userName,
-							id: userName,
-						});
-					}
-				}
-			}
-
-			//Search for emotes
-			if (this.emotes) {
-				let emotes = TwitchUtils.emotesCache ?? [];
-				if (TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES])) {
-					if (emotes.length === 0) {
-						// Emotes not loaded yet, load them or wait for them to load
-						this.showEmotesLoading = true;
-						this.emotesRequestToken++;
-						const currentToken = this.emotesRequestToken;
-						TwitchUtils.getEmotes()
-							.then(() => {
-								if (this.emotesRequestToken === currentToken) {
-									this.showEmotesLoading = false;
-									this.onSearchChange();
-								}
-							})
-							.catch(() => {
-								if (this.emotesRequestToken === currentToken) {
-									this.showEmotesLoading = false;
-								}
-							});
-						this.showGrantEmotesPermission = false;
-					}
-				} else {
-					this.showGrantEmotesPermission = true;
-				}
-				if (this.$store.params.appearance.bttvEmotes.value === true) {
-					emotes = emotes.concat(BTTVUtils.instance.emotes);
-				}
-
-				if (this.$store.params.appearance.sevenTVEmotes.value === true) {
-					emotes = emotes.concat(SevenTVUtils.instance.emotes);
-				}
-
-				if (this.$store.params.appearance.ffzEmotes.value === true) {
-					emotes = emotes.concat(FFZUtils.instance.emotes);
-				}
-
-				if (emotes) {
-					for (const e of emotes) {
-						if (e.code.toLowerCase().indexOf(s) > -1) {
-							res.push({
-								type: "emote",
-								label: e.code,
-								emote: e.images.url_1x,
-								id: e.id,
-								source: e.source,
-							});
-						}
-					}
-				}
-
-				//Search emoji shortcodes from IndexedDB
-				this.emojiSearchToken++;
-				this.emojiSearchPending = false;
-				const emojiToken = this.emojiSearchToken;
-				const localSearch = this.search;
-				Database.instance.searchEmojiShortcodes(s, 50).then((results) => {
-					// If search changed while getting result, ignore those results
-					if (this.emojiSearchToken !== emojiToken) return;
-					this.emojiSearchPending = false;
-					if (results.length === 0) return;
-					const emojiItems: ListItem[] = results.map((r) => ({
-						type: "emojiShortcode" as const,
-						id: "emoji_" + r.shortcode,
-						label: ":" + r.shortcode + ":",
-						emoji: r.emoji,
-					}));
-					this.filteredItems = [...this.filteredItems, ...emojiItems];
-				});
-			}
-
-			//Search for slash commands
-			if (this.commands) {
-				const currentChanId = this.$store.stream.currentChatChannel.id;
-				const me = sAuth.twitch.user;
-				const cmds = sChat.commands;
-				const hasChannelPoints = me.is_affiliate || me.is_partner;
-				const hasDiscordCmd = sDiscord.discordLinked && sDiscord.chatCmdTarget;
-				const isBroadcaster = me.id === currentChanId;
-				const isAdmin = this.$store.auth.twitch.user.is_admin === true;
-				const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
-
-				//Search in global slash commands
-				for (let j = 0; j < cmds.length; j++) {
-					const e = cmds[j] as TwitchatDataTypes.CommandData;
-					if (
-						e.cmd.toLowerCase().indexOf(s) > -1 ||
-						(e.alias?.toLowerCase().indexOf(s) ?? -1) > -1
-					) {
-						let disabled = false;
-
-						//Remove TTS related commands if TTS isn't enabled
-						if (e.needTTS === true && !sTTS.params.enabled) disabled = true;
-
-						//Remove admin specific commands if we're not an admin
-						if (e.needAdmin === true && !isAdmin) continue;
-
-						//Remove broadcaster specific commands if we're not a mod
-						if (e.needBroadcaster === true && !isBroadcaster) continue;
-
-						//Remove moderator specific commands if we're not a mod
-						if (e.needModerator === true && !isMod) continue;
-
-						//Remove channel point related commands if user isn't affiliate or partner
-						if (e.needChannelPoints === true && !hasChannelPoints) continue;
-
-						//Remove discord related command if discord not configured
-						if (e.needDiscordChan === true && !hasDiscordCmd) continue;
-
-						res.push({
-							type: "slashCommand",
-							label: e.cmd.replace(/{(.*?)\}/gi, "$1"),
-							cmd: e.cmd,
-							infos: e.details,
-							infosKey: e.detailsKey,
-							id: e.id,
-							alias: e.alias?.replace(/{(.*?)\}/gi, "$1"),
-							disabled:
-								disabled ||
-								(e.twitch_scopes !== undefined &&
-									!TwitchUtils.hasScopes(e.twitch_scopes)),
-							rawCmd: e,
-						});
-					}
-				}
-
-				//Search on custom slash commands in the triggers
-				for (const t of this.triggerCommands) {
-					if (!t.enabled) continue;
-					if (t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
-						const params = t.chatCommandParams ?? [];
-						let paramsTxt =
-							params.length > 0
-								? " " + params.map((v) => "{" + v.tag + "}").join(" ")
-								: "";
-						if (!t.enabled) {
-							paramsTxt += " " + this.$t("chat.form.trigger_cmd_disabled");
-						}
-
-						res.push({
-							type:
-								t.type == TriggerTypes.CHAT_COMMAND
-									? "chatCommand"
-									: "slashCommand",
-							label:
-								t.chatCommand + paramsTxt.replace(/\{/g, "[").replace(/\}/g, "]"),
-							cmd: t.chatCommand + paramsTxt,
-							infos: t.name ?? "",
-							isTrigger: true,
-							id: t.id,
-							disabled: !t.enabled,
-							tooltipKey: t.enabled
-								? ""
-								: this.$t("chat.form.trigger_cmd_disabled_tt"),
-						});
-					}
-				}
-			}
-
-			res.sort((a, b) => {
-				if (a.type == "slashCommand" && b.type == "slashCommand") {
-					if (a.disabled && !b.disabled) return 1;
-					if (!a.disabled && b.disabled) return -1;
-					if (a.rawCmd && !b.rawCmd) return -1;
-					if (!a.rawCmd && b.rawCmd) return 1;
-					if (a.rawCmd && b.rawCmd) {
-						if (a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
-						if (!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
-						if (a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
-						if (!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
-						if (a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
-						if (!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
-					}
-				}
-				if (a.label < b.label) return -1;
-				if (a.label > b.label) return 1;
-				return 0;
-			});
-
-			this.filteredItems = res;
+			break;
 		}
 	}
 }
+
+/**
+ * Navigate through list via keyboard
+ */
+function onkeyDown(e: KeyboardEvent): void {
+	switch (e.key) {
+		case "PageUp": {
+			selectedIndex.value -= 10;
+			e.preventDefault();
+			break;
+		}
+		case "PageDown": {
+			selectedIndex.value += 10;
+			e.preventDefault();
+			break;
+		}
+		case "ArrowUp": {
+			selectedIndex.value--;
+			e.preventDefault();
+			break;
+		}
+		case "ArrowDown": {
+			selectedIndex.value++;
+			e.preventDefault();
+			break;
+		}
+		case "Tab": {
+			const selectedItem = filteredItems.value[selectedIndex.value];
+			if (selectedItem) {
+				e.preventDefault();
+				e.stopPropagation();
+				selectItem(selectedItem);
+			}
+			break;
+		}
+		default:
+			return;
+	}
+
+	const len = filteredItems.value.length;
+	if (len === 0) return;
+
+	selectedIndex.value = selectedIndex.value % len;
+	if (selectedIndex.value < 0) selectedIndex.value = len - 1;
+	const el = itemRefs.get(filteredItems.value[selectedIndex.value]!.id);
+	if (el) {
+		el.scrollIntoView({ block: "center", inline: "nearest" });
+	}
+}
+
+/**
+ * Requests for emote scope
+ */
+function grantEmoteScope(): void {
+	TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
+	emit("close");
+}
+
+/**
+ * Called when writing somehting.
+ * Search any item matching the search
+ */
+function onSearchChange(): void {
+	let res: ListItem[] = [];
+	const s = props.search.toLowerCase();
+	if (s?.length > 0) {
+		//Search for users
+		if (props.users) {
+			const users = storeUsers.users;
+			for (let j = 0; j < users.length; j++) {
+				const userName = users[j]!.displayNameOriginal;
+				if (userName.toLowerCase().indexOf(s) == 0) {
+					res.push({
+						type: "user",
+						label: userName,
+						id: userName,
+					});
+				}
+			}
+		}
+
+		//Search for emotes
+		if (props.emotes) {
+			let emotes = TwitchUtils.emotesCache ?? [];
+			if (TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES])) {
+				if (emotes.length === 0) {
+					// Emotes not loaded yet, load them or wait for them to load
+					showEmotesLoading.value = true;
+					emotesRequestToken++;
+					const currentToken = emotesRequestToken;
+					TwitchUtils.getEmotes()
+						.then(() => {
+							if (emotesRequestToken === currentToken) {
+								showEmotesLoading.value = false;
+								onSearchChange();
+							}
+						})
+						.catch(() => {
+							if (emotesRequestToken === currentToken) {
+								showEmotesLoading.value = false;
+							}
+						});
+					showGrantEmotesPermission.value = false;
+				}
+			} else {
+				showGrantEmotesPermission.value = true;
+			}
+			if (storeParams.appearance.bttvEmotes.value === true) {
+				emotes = emotes.concat(BTTVUtils.instance.emotes);
+			}
+
+			if (storeParams.appearance.sevenTVEmotes.value === true) {
+				emotes = emotes.concat(SevenTVUtils.instance.emotes);
+			}
+
+			if (storeParams.appearance.ffzEmotes.value === true) {
+				emotes = emotes.concat(FFZUtils.instance.emotes);
+			}
+
+			if (emotes) {
+				for (const e of emotes) {
+					if (e.code.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type: "emote",
+							label: e.code,
+							emote: e.images.url_1x,
+							id: e.id,
+							source: e.source,
+						});
+					}
+				}
+			}
+
+			//Search emoji shortcodes from IndexedDB
+			emojiSearchToken++;
+			const emojiToken = emojiSearchToken;
+			Database.instance.searchEmojiShortcodes(s, 50).then((results) => {
+				// If search changed while getting result, ignore those results
+				if (emojiSearchToken !== emojiToken) return;
+				if (results.length === 0) return;
+				const emojiItems: ListItem[] = results.map((r) => ({
+					type: "emojiShortcode" as const,
+					id: "emoji_" + r.shortcode,
+					label: ":" + r.shortcode + ":",
+					emoji: r.emoji,
+				}));
+				filteredItems.value = [...filteredItems.value, ...emojiItems];
+			});
+		}
+
+		//Search for slash commands
+		if (props.commands) {
+			const currentChanId = storeStream.currentChatChannel.id;
+			const me = storeAuth.twitch.user;
+			const cmds = storeChat.commands;
+			const hasChannelPoints = me.is_affiliate || me.is_partner;
+			const hastoreDiscordCmd = storeDiscord.discordLinked && storeDiscord.chatCmdTarget;
+			const isBroadcaster = me.id === currentChanId;
+			const isAdmin = storeAuth.twitch.user.is_admin === true;
+			const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
+
+			//Search in global slash commands
+			for (let j = 0; j < cmds.length; j++) {
+				const e = cmds[j] as TwitchatDataTypes.CommandData;
+				if (
+					e.cmd.toLowerCase().indexOf(s) > -1 ||
+					(e.alias?.toLowerCase().indexOf(s) ?? -1) > -1
+				) {
+					let disabled = false;
+
+					//Remove TTS related commands if TTS isn't enabled
+					if (e.needTTS === true && !storeTTS.params.enabled) disabled = true;
+
+					//Remove admin specific commands if we're not an admin
+					if (e.needAdmin === true && !isAdmin) continue;
+
+					//Remove broadcaster specific commands if we're not a mod
+					if (e.needBroadcaster === true && !isBroadcaster) continue;
+
+					//Remove moderator specific commands if we're not a mod
+					if (e.needModerator === true && !isMod) continue;
+
+					//Remove channel point related commands if user isn't affiliate or partner
+					if (e.needChannelPoints === true && !hasChannelPoints) continue;
+
+					//Remove discord related command if discord not configured
+					if (e.needDiscordChan === true && !hastoreDiscordCmd) continue;
+
+					res.push({
+						type: "slashCommand",
+						label: e.cmd.replace(/{(.*?)\}/gi, "$1"),
+						cmd: e.cmd,
+						infos: e.details,
+						infosKey: e.detailsKey,
+						id: e.id,
+						alias: e.alias?.replace(/{(.*?)\}/gi, "$1"),
+						disabled:
+							disabled ||
+							(e.twitch_scopes !== undefined &&
+								!TwitchUtils.hasScopes(e.twitch_scopes)),
+						rawCmd: e,
+					});
+				}
+			}
+
+			//Search on custom slash commands in the triggers
+			for (const tr of triggerCommands) {
+				if (!tr.enabled) continue;
+				if (tr.chatCommand && tr.chatCommand.toLowerCase().indexOf(s) > -1) {
+					const params = tr.chatCommandParams ?? [];
+					let paramsTxt =
+						params.length > 0
+							? " " + params.map((v) => "{" + v.tag + "}").join(" ")
+							: "";
+					if (!tr.enabled) {
+						paramsTxt += " " + t("chat.form.trigger_cmd_disabled");
+					}
+
+					res.push({
+						type: tr.type == TriggerTypes.CHAT_COMMAND ? "chatCommand" : "slashCommand",
+						label: tr.chatCommand + paramsTxt.replace(/\{/g, "[").replace(/\}/g, "]"),
+						cmd: tr.chatCommand + paramsTxt,
+						infos: tr.name ?? "",
+						isTrigger: true,
+						id: tr.id,
+						disabled: !tr.enabled,
+						tooltipKey: tr.enabled ? "" : t("chat.form.trigger_cmd_disabled_tt"),
+					});
+				}
+			}
+		}
+
+		res.sort((a, b) => {
+			if (a.type == "slashCommand" && b.type == "slashCommand") {
+				if (a.disabled && !b.disabled) return 1;
+				if (!a.disabled && b.disabled) return -1;
+				if (a.rawCmd && !b.rawCmd) return -1;
+				if (!a.rawCmd && b.rawCmd) return 1;
+				if (a.rawCmd && b.rawCmd) {
+					if (a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
+					if (!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
+					if (a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
+					if (!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
+					if (a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
+					if (!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
+				}
+			}
+			if (a.label < b.label) return -1;
+			if (a.label > b.label) return 1;
+			return 0;
+		});
+
+		filteredItems.value = res;
+	}
+}
+
+watch(
+	() => props.search,
+	() => {
+		onSearchChange();
+	},
+);
+
+onMounted(() => {
+	selectedIndex.value = 0;
+
+	triggerCommands = storeTriggers.triggerList.filter(
+		(v) => v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND,
+	);
+
+	document.addEventListener("keyup", onkeyUp, true);
+	document.addEventListener("keydown", onkeyDown, true);
+
+	onSearchChange();
+});
+
+onBeforeUnmount(() => {
+	emotesRequestToken = -1;
+	document.removeEventListener("keyup", onkeyUp, true);
+	document.removeEventListener("keydown", onkeyDown, true);
+});
 
 type ListItem = UserItem | EmoteItem | CommandItem | EmojiShortcodeItem;
 
@@ -517,7 +518,6 @@ interface CommandItem {
 	rawCmd?: TwitchatDataTypes.CommandData;
 	isTrigger?: boolean;
 }
-export default toNative(AutocompleteChatForm);
 </script>
 
 <style scoped lang="less">
