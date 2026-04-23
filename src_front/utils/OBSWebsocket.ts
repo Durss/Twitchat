@@ -147,7 +147,12 @@ export default class OBSWebsocket extends EventDispatcher {
 			return false;
 		}
 
+		return true;
+	}
+
+	public async preloadData() {
 		StoreProxy.common.currentOBSScene = await this.getCurrentScene();
+		this.versionInfo = await this.socket.call("GetVersion");
 
 		// LIST ALL INPUT KINDS
 		//console.log(await this.obs.call("GetInputKindList"));
@@ -191,10 +196,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		// }
 
 		// this.getSourceSettings("COLOR_Source_test").then(console.log).catch(console.error);
-
-		this.versionInfo = await this.socket.call("GetVersion");
-
-		return true;
 	}
 
 	/**
