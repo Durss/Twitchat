@@ -1834,4 +1834,12 @@ export default class Utils {
 		const normalizedQuery = query.normalize("NFD").toLowerCase().replace(/\p{M}/gu, "");
 		return normalizedSrc.includes(normalizedQuery);
 	}
+
+	/**
+	 * Get URL of an asset
+	 */
+	public static asset(path: string): string {
+		const map = import.meta.glob("/src_front/assets/**/*", { eager: true, import: "default" });
+		return map[`/src_front/assets/${path}`] as string;
+	}
 }
