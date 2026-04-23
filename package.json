@@ -46,9 +46,9 @@
 		"fastify": "^5.8.5",
 		"fastify-raw-body": "^5.0.0",
 		"fastify-sse-v2": "^4.2.2",
-		"googleapis": "^170.0.0",
+		"googleapis": "^170.1.0",
 		"jsonwebtoken": "^9.0.3",
-		"lru-cache": "^11.2.4",
+		"lru-cache": "^11.3.5",
 		"mime-types": "^3.0.2",
 		"node-fetch": "^3.3.2",
 		"vue3-toastify": "^0.2.9"
@@ -92,9 +92,9 @@
 		"three": "^0.158.0",
 		"tmi.js": "github:Durss/tmi.js",
 		"typescript": "^5.9.3",
-		"vite": "npm:@voidzero-dev/vite-plus-core@latest",
+		"vite": "npm:@voidzero-dev/vite-plus-core@^0.1.19",
 		"vite-plugin-package-version": "^1.1.0",
-		"vite-plus": "latest",
+		"vite-plus": "^0.1.19",
 		"vue": "^3.3.9",
 		"vue-country-flag-next": "^2.3.2",
 		"vue-draggable-plus": "^0.6.1",
@@ -103,15 +103,15 @@
 		"vue-router": "^4.6.4",
 		"vue-select": "github:Durss/vue-select#beta",
 		"vue-tippy": "^6.7.1",
-		"vue-tsc": "^3.2.6",
+		"vue-tsc": "^3.2.7",
 		"vue3-carousel": "^0.15.1",
 		"vue3-marquee": "^4.2.2",
 		"vuedraggable": "^4.1.0"
 	},
 	"overrides": {
 		"uuid": "^11.1.1",
-		"vite": "npm:@voidzero-dev/vite-plus-core@latest",
-		"vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+		"vite": "npm:@voidzero-dev/vite-plus-core@^0.1.19",
+		"vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.19"
 	},
 	"packageManager": "npm@11.12.0"
 }
