@@ -81,14 +81,6 @@ function buildApp() {
 		next();
 	});
 
-	/**
-	 * Include an image from the asset folder
-	 */
-	const asset = (path: string): string => {
-		const map = import.meta.glob("/src_front/assets/**/*", { eager: true, import: "default" });
-		return map[`/src_front/assets/${path}`] as string;
-	};
-
 	window.setInitMessage("Building interface");
 	const app = createApp(AppPublic);
 	app.use(pinia)
@@ -98,13 +90,15 @@ function buildApp() {
 			directive: "tooltip",
 			component: "tooltip",
 		})
-		.provide("$asset", asset)
 		.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;
 	StoreProxy.default.public = storePublic();
 	StoreProxy.default.common = storeCommon();
-	app.config.globalProperties.$asset = asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	StoreProxy.default.asset = Utils.asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	app.config.globalProperties.$asset = Utils.asset;
 	app.config.globalProperties.$store = StoreProxy.default;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$utils = Utils;
