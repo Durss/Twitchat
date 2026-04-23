@@ -874,8 +874,8 @@ class UserCard extends AbstractSidePanel {
 						if (v) this.followDate = Utils.formatDate(new Date(v.followed_at));
 					});
 				}
-				TwitchUtils.getLastFollowers(u.id).then((v) => {
-					this.followersCount = v.total;
+				TwitchUtils.getFollowersCount([u.id]).then((v) => {
+					this.followersCount = v[u.id] || 0;
 				});
 				if (TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 					TwitchUtils.getSubscriptionState([u.id]).then((v) => {
