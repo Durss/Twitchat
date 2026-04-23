@@ -56,6 +56,7 @@
 							/>
 							<div class="title">{{ live.snippet.title }}</div>
 							<TTButton
+								@click.stop=""
 								class="broadcastLink"
 								type="link"
 								target="_blank"
