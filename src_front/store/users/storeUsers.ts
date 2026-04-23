@@ -53,7 +53,6 @@ const twitchUserBatchIdToLoad: {
 	user: TwitchatDataTypes.TwitchatUser;
 	cb?: (user: TwitchatDataTypes.TwitchatUser) => void;
 }[] = [];
-const moderatorsCache: { [key: string]: { [key: string]: true } } = {};
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
 
@@ -111,6 +110,15 @@ export const storeUsers = defineStore("users", {
 				facebook: {},
 				kick: {},
 			},
+			mySubscribers: {
+				twitchat: {},
+				twitch: {},
+				instagram: {},
+				youtube: {},
+				tiktok: {},
+				facebook: {},
+				kick: {},
+			},
 			knownBots: {
 				twitchat: {},
 				twitch: {},
@@ -158,24 +166,6 @@ export const storeUsers = defineStore("users", {
 			hashmap: { [key: string]: boolean },
 		): void {
 			this.knownBots[platform] = hashmap;
-		},
-
-		/**
-		 * Registers the bots hashmap of a platform
-		 */
-		isAFollower(platform: TwitchatDataTypes.ChatPlatform, id: string): boolean {
-			return this.myFollowers[platform][id] != undefined;
-		},
-
-		/**
-		 * Preloads twitch moderators
-		 */
-		async preloadTwitchModerators(channelId: string): Promise<void> {
-			const users = await TwitchUtils.getModerators();
-			moderatorsCache[channelId] = {};
-			users.forEach((v) => {
-				moderatorsCache[channelId]![v.user_id] = true;
-			});
 		},
 
 		/**
@@ -322,9 +312,7 @@ export const storeUsers = defineStore("users", {
 						is_banned: false,
 						is_vip: this.myVIPs[platform][user.id]!,
 						is_moderator:
-							(moderatorsCache[channelId] &&
-								moderatorsCache[channelId][user.id] === true) ||
-							channelId == user.id,
+							this.myMods[platform][user.id] === true || channelId == user.id,
 						is_broadcaster: channelId == user.id,
 						is_subscriber: forcedSubscriberState,
 						is_gifter: false,
@@ -452,12 +440,12 @@ export const storeUsers = defineStore("users", {
 										void this.loadUserPronouns(userLocal);
 
 									//Set moderator state for all connected channels
-									for (const chan in moderatorsCache) {
+									for (const chan in this.myMods[platform]) {
 										if (!userLocal.channelInfo[chan]) continue;
 
-										const cache = moderatorsCache[chan]!;
+										const cache = this.myMods[platform]!;
 										userLocal.channelInfo[chan].is_moderator =
-											cache && cache[userLocal.id] === true;
+											cache?.[userLocal.id] === true;
 									}
 									//Check follower state
 									if (
@@ -1179,15 +1167,61 @@ export const storeUsers = defineStore("users", {
 			}
 		},
 
+		/**
+		 * Get if user ID is in my followers list for a platform
+		 */
+		isAFollower(platform: TwitchatDataTypes.ChatPlatform, id: string): boolean {
+			return this.myFollowers[platform][id] != undefined;
+		},
+
+		/**
+		 * Preloads twitch moderators
+		 */
+		async loadMyModerators(): Promise<void> {
+			const users = await TwitchUtils.getModerators();
+			this.myMods.twitch = {};
+			users.forEach((v) => {
+				this.myMods.twitch[v.user_id] = true;
+				const user = StoreProxy.users.getUserFrom(
+					"twitch",
+					StoreProxy.auth.twitch.user.id,
+					v.user_id,
+					v.user_login,
+					v.user_name,
+				);
+				user.channelInfo[StoreProxy.auth.twitch.user.id]!.is_moderator = true;
+			});
+		},
+
+		/**
+		 * Preloads twitch VIPs
+		 */
+		async loadMyVIPs(): Promise<void> {
+			const users = await TwitchUtils.getVIPs();
+			this.myVIPs.twitch = {};
+			users.forEach((v) => {
+				this.myVIPs.twitch[v.user_id] = true;
+				const user = StoreProxy.users.getUserFrom(
+					"twitch",
+					StoreProxy.auth.twitch.user.id,
+					v.user_id,
+					v.user_login,
+					v.user_name,
+				);
+				user.channelInfo[StoreProxy.auth.twitch.user.id]!.is_vip = true;
+			});
+		},
+
 		async loadMyFollowings(): Promise<void> {
 			if (!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 
+			this.myFollowings.twitch = {};
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap: { [key: string]: boolean } = {};
 			followings.forEach((v) => {
 				hashmap[v.broadcaster_id] = true;
 			});
-			this.myFollowings["twitch"] = hashmap;
+			this.myFollowings.twitch = hashmap;
 		},
 
 		async loadMyFollowers(): Promise<void> {
@@ -1221,15 +1255,19 @@ export const storeUsers = defineStore("users", {
 			} catch (_error) {}
 		},
 
-		async loadMyVIPs(): Promise<void> {
-			if (!TwitchUtils.hasScopes([TwitchScopes.READ_VIPS])) return;
-
-			const vips = await TwitchUtils.getVIPs();
-			const hashmap: { [key: string]: boolean } = {};
-			vips.forEach((v) => {
-				hashmap[v.user_id] = true;
-			});
-			this.myVIPs["twitch"] = hashmap;
+		async loadMySubscribers(countOnly?: boolean): Promise<void> {
+			if (!TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return;
+			this.mySubscribers.twitch = {};
+			const totalSubs = await TwitchUtils.getSubsList(true);
+			StoreProxy.labels.updateLabelValue("SUB_COUNT", totalSubs.subs);
+			StoreProxy.labels.updateLabelValue("SUB_POINTS", totalSubs.points);
+			StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
+			if (!countOnly) {
+				const subList = await TwitchUtils.getSubsList(false);
+				subList.forEach((v) => {
+					this.mySubscribers.twitch[v.user_id] = true;
+				});
+			}
 		},
 
 		trackUser(user: TwitchatDataTypes.TwitchatUser): void {

@@ -285,46 +285,35 @@ export const storeAuth = defineStore("auth", {
 				void sRewards.loadRewards();
 				sExtension.init();
 				void sStream.loadStreamInfo("twitch", this.twitch.user.id);
-				void sUsers.preloadTwitchModerators(this.twitch.user.id);
 
 				//Loads state of current or incoming ads
 				void TwitchUtils.getAdSchedule();
 				void TwitchUtils.loadGlobalBadges();
 				void Database.instance.loadEmojiShortcodes();
-				void StoreProxy.users.loadMyFollowings();
-				void StoreProxy.users.loadMyFollowers();
-				void StoreProxy.users.loadMyVIPs();
-				void StoreProxy.users.initBlockedUsers();
+				void sUsers.loadMyFollowings();
+				void sUsers.loadMyFollowers();
+				void sUsers.loadMyVIPs();
+				void sUsers.initBlockedUsers();
+				void sUsers.loadMyModerators();
+				void sUsers.loadMySubscribers();
 				StoreProxy.stream.currentChatChannel = {
 					id: userRes.user_id,
 					name: userRes.login,
 					platform: "twitch",
 				};
 
-				// Log user info to Sentry in case I need to reach them to solve an issue
-				Sentry.setUser({ id: this.twitch.user.id, username: this.twitch.user.displayName });
-
-				//Use an anonymous method to avoid blocking loading while
-				//all twitch tags are loading
-				try {
-					if (
-						StoreProxy.auth.twitch.user.is_affiliate ||
-						StoreProxy.auth.twitch.user.is_partner
-					) {
-						void TwitchUtils.getPolls();
-						void TwitchUtils.getPredictions();
-					}
-				} catch (_e) {
-					//User is probably not an affiliate
+				if (StoreProxy.auth.twitch.user.is_affiliate) {
+					void TwitchUtils.getPolls();
+					void TwitchUtils.getPredictions();
 				}
 
 				if (TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					//Refresh followers count and latest follower regularly
 					const loadFollowers = async () => {
-						const res = await TwitchUtils.getLastFollowers(uid);
-						if (res.followers.length > 0) {
-							const last = res.followers[0]!;
-							StoreProxy.users.getUserFrom(
+						const res = await TwitchUtils.getFollowers(uid);
+						if (res.list.length > 0) {
+							const last = res.list[0]!;
+							sUsers.getUserFrom(
 								"twitch",
 								uid,
 								last.user_id,
@@ -343,23 +332,19 @@ export const storeAuth = defineStore("auth", {
 									);
 								},
 							);
-							StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", res.total);
 						}
+						StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", res.total);
 					};
 					void loadFollowers();
 					SetIntervalWorker.instance.create(() => loadFollowers(), 5 * 60000);
 				}
 
 				if (TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
-					//Refresh latest subscriber regularly
-					const loadSubscribers = async () => {
-						const res = await TwitchUtils.getSubsList(true);
-						StoreProxy.labels.updateLabelValue("SUB_COUNT", res.subs);
-						StoreProxy.labels.updateLabelValue("SUB_POINTS", res.points);
-						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
-					};
-					void loadSubscribers();
-					SetIntervalWorker.instance.create(() => loadSubscribers(), 5 * 60000);
+					//Refresh latest subscriber and sub count regularly
+					SetIntervalWorker.instance.create(
+						() => sUsers.loadMySubscribers(true),
+						5 * 60000,
+					);
 				}
 
 				//Refresh viewer count regularly
@@ -372,34 +357,6 @@ export const storeAuth = defineStore("auth", {
 				};
 				void loadViewerCount();
 				SetIntervalWorker.instance.create(() => loadViewerCount(), 60000);
-
-				//Preload moderators of the channel and flag them accordingly
-				void TwitchUtils.getModerators().then(async (res) => {
-					res.forEach((u) => {
-						const user = StoreProxy.users.getUserFrom(
-							"twitch",
-							this.twitch.user.id,
-							u.user_id,
-							u.user_login,
-							u.user_name,
-						);
-						user.channelInfo[this.twitch.user.id]!.is_moderator = true;
-					});
-				});
-
-				//Preload moderators of the channel and flag them accordingly
-				void TwitchUtils.getVIPs().then(async (res) => {
-					res.forEach((u) => {
-						const user = StoreProxy.users.getUserFrom(
-							"twitch",
-							this.twitch.user.id,
-							u.user_id,
-							u.user_login,
-							u.user_name,
-						);
-						user.channelInfo[this.twitch.user.id]!.is_vip = true;
-					});
-				});
 
 				sMain.onAuthenticated();
 
@@ -434,7 +391,10 @@ export const storeAuth = defineStore("auth", {
 			const storeLevel = parseInt(DataStore.get(DataStore.DONOR_LEVEL));
 			const prevLevel = isNaN(storeLevel) ? -1 : storeLevel;
 
-			this.twitch.user = user as Required<TwitchatDataTypes.TwitchatUser>;
+			// Log user info to Sentry in case I need to reach them to solve an issue
+			Sentry.setUser({ id: user.id, username: user.displayName });
+
+			this.twitch.user = user;
 			this.donorLevel = res.json.data.donorLevel;
 			this.donorLevelUpgrade = this.donorLevel > prevLevel;
 			this.premiumType = res.json.data.premiumType;

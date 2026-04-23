@@ -118,25 +118,28 @@ export default class AuthController extends AbstractController {
 		const result = jwt.verify(token, Config.credentials.csrf_key) as CSRFToken;
 		if (result) {
 			//Token valid only for 5 minutes
-			if(result.date > Date.now() - 5*60*1000) {
-				const jsonRes:{success:boolean, uidShare?:string} = {success:true};
+			if (result.date > Date.now() - 5 * 60 * 1000) {
+				const jsonRes: { success: boolean; uidShare?: string } = { success: true };
 				//If in the process of linking two accounts together, return ref account ID
 				if (result.uidShare && this.pendingDataSharingAuth[token]) {
 					jsonRes.uidShare = result.uidShare;
 				}
 				// Mark token as used immediately only if not in a data sharing process or
 				// if actually completing that process.
-				if(!jsonRes.uidShare || respondOnSuccess == false) {
+				if (!jsonRes.uidShare || respondOnSuccess == false) {
 					//Mark token as used immediately
 					this.usedCSRFTokens[token] = true;
 					//Cleanup used token after expiration
-					setTimeout(() => {
-						delete this.usedCSRFTokens[token];
-						delete this.pendingDataSharingAuth[token];
-					}, 5*60*1000);
+					setTimeout(
+						() => {
+							delete this.usedCSRFTokens[token];
+							delete this.pendingDataSharingAuth[token];
+						},
+						5 * 60 * 1000,
+					);
 				}
-				if(!respondOnSuccess) return result;
-				response.header('Content-Type', 'application/json');
+				if (!respondOnSuccess) return result;
+				response.header("Content-Type", "application/json");
 				response.status(200);
 				response.send(JSON.stringify(jsonRes));
 			} else {
