@@ -509,7 +509,7 @@ class CommandHelper extends Vue {
 				this.$t("params.clearChat_confirm_desc"),
 			)
 				.then(() => {
-					TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id);
+					TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id, undefined, true);
 				})
 				.catch(() => {});
 		}
