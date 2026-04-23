@@ -2,7 +2,7 @@
 	"extends": "@vue/tsconfig/tsconfig.lib.json",
 	"compilerOptions": {
 		"composite": true,
-		"types": ["node"],
+		"types": ["node"]
 	},
-	"include": ["vite.config.*"],
+	"include": ["vite.config.*"]
 }
