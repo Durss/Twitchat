@@ -1,5 +1,8 @@
 <template>
-	<div class="autocompletechatform blured-background-window">
+	<div
+		class="autocompletechatform blured-background-window"
+		v-if="filteredItems.length > 0 || showGrantEmotesPermission"
+	>
 		<div
 			v-for="(i, index) in filteredItems"
 			:key="i.id"
@@ -143,8 +146,8 @@ class AutocompleteChatForm extends Vue {
 
 		this.keyUpHandler = (e: KeyboardEvent) => this.onkeyUp(e);
 		this.keyDownHandler = (e: KeyboardEvent) => this.onkeyDown(e);
-		document.addEventListener("keyup", this.keyUpHandler);
-		document.addEventListener("keydown", this.keyDownHandler);
+		document.addEventListener("keyup", this.keyUpHandler, true);
+		document.addEventListener("keydown", this.keyDownHandler, true);
 
 		watch(
 			() => this.search,
@@ -157,8 +160,8 @@ class AutocompleteChatForm extends Vue {
 
 	public beforeUnmount(): void {
 		this.emotesRequestToken = -1;
-		document.removeEventListener("keyup", this.keyUpHandler);
-		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keyup", this.keyUpHandler, true);
+		document.removeEventListener("keydown", this.keyDownHandler, true);
 	}
 
 	/**
@@ -197,6 +200,7 @@ class AutocompleteChatForm extends Vue {
 				if (item) {
 					e.preventDefault();
 					e.stopPropagation();
+					e.stopImmediatePropagation();
 					this.selectItem(item);
 				}
 				break;
@@ -230,10 +234,12 @@ class AutocompleteChatForm extends Vue {
 				break;
 			}
 			case "Tab": {
-				e.preventDefault();
-				e.stopPropagation();
 				const selectedItem = this.filteredItems[this.selectedIndex];
-				if (selectedItem) this.selectItem(selectedItem);
+				if (selectedItem) {
+					e.preventDefault();
+					e.stopPropagation();
+					this.selectItem(selectedItem);
+				}
 				break;
 			}
 			default:
@@ -341,9 +347,11 @@ class AutocompleteChatForm extends Vue {
 
 				//Search emoji shortcodes from IndexedDB
 				this.emojiSearchToken++;
-				this.emojiSearchPending = true;
+				this.emojiSearchPending = false;
 				const emojiToken = this.emojiSearchToken;
+				const localSearch = this.search;
 				Database.instance.searchEmojiShortcodes(s, 50).then((results) => {
+					// If search changed while getting result, ignore those results
 					if (this.emojiSearchToken !== emojiToken) return;
 					this.emojiSearchPending = false;
 					if (results.length === 0) return;
@@ -466,10 +474,6 @@ class AutocompleteChatForm extends Vue {
 			});
 
 			this.filteredItems = res;
-		}
-
-		if (this.filteredItems.length == 0 && !this.showEmotesLoading && !this.emojiSearchPending) {
-			this.$emit("close");
 		}
 	}
 }
