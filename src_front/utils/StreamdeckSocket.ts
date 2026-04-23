@@ -2,7 +2,6 @@ import { Event, EventDispatcher } from "@/events/EventDispatcher";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import { ref } from "vue";
-import PublicAPI from "./PublicAPI";
 import Utils from "./Utils";
 
 /**
