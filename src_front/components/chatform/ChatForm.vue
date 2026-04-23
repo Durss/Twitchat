@@ -195,7 +195,7 @@
 								($event) => (message = ($event.target as HTMLInputElement).value)
 							"
 							@keyup.capture.tab="(e) => onTab(e)"
-							@keyup.enter="(e: Event) => sendMessage(e)"
+							@keyup.enter="(e: KeyboardEvent) => sendMessage(e)"
 							@keydown="onKeyDown"
 						/>
 
@@ -1016,7 +1016,7 @@ const pendingShoutoutCount = computed((): number => {
 const mustConnectYoutubeChan = computed((): boolean => {
 	return (
 		storeStream.currentChatChannel.platform == "youtube" &&
-		YoutubeHelper.instance.currentLiveChatIds.length === 0
+		YoutubeHelper.instance.currentLiveChatIds.value.length === 0
 	);
 });
 
@@ -1323,9 +1323,9 @@ function updateOnlineUsersTooltip(e: MouseEvent): void {
 	onlineUsersTooltip.value = res;
 }
 
-async function sendMessage(event?: Event): Promise<void> {
+async function sendMessage(event?: KeyboardEvent): Promise<void> {
 	if (message.value.length == 0) return;
-	if (openAutoComplete.value) return;
+	// if (openAutoComplete.value) return;
 
 	//Push message to history
 	if (message.value != sendHistory.value[sendHistory.value.length - 1]) {
@@ -1750,7 +1750,7 @@ function onClickMenuItem(entry: (typeof pinnedMenuItems.value)[number]): void {
 		} else {
 			confirm(t("params.clearChat_confirm_title"), t("params.clearChat_confirm_desc"))
 				.then(() => {
-					TwitchUtils.deleteMessages(storeAuth.twitch.user.id);
+					TwitchUtils.deleteMessages(storeAuth.twitch.user.id, undefined, true);
 				})
 				.catch(() => {});
 		}
