@@ -12,10 +12,10 @@
 		"types": [],
 		"outDir": "../static/lande",
 		"paths": {
-			"@/*": ["./*"],
+			"@/*": ["./*"]
 		},
-		"lib": ["es2015", "dom", "dom.iterable", "scripthost"],
+		"lib": ["es2015", "dom", "dom.iterable", "scripthost"]
 	},
 	"include": ["./**/*.ts"],
-	"exclude": ["node_modules"],
+	"exclude": ["node_modules"]
 }
