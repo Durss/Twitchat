@@ -17,8 +17,10 @@
 				<strong v-if="rankedUsers[0]?.isAnonymous">{{
 					rankedUsers[0]?.name || $t("global.loading")
 				}}</strong>
-				<a href="#" @click.stop="clickUser(rankedUsers[0]!)" v-else
-					><strong>{{ rankedUsers[0]?.name || $t("global.loading") }}</strong></a
+				<a href="#" @click.stop="openWinner()" v-else
+					><strong>{{
+						messageData.quizResult.winner.displayName || $t("global.loading")
+					}}</strong></a
 				>
 			</span>
 			<ToggleBlock
@@ -178,6 +180,10 @@ async function clickUser(user: (typeof rankedUsers.value)[0]) {
 			openUserCard(tUser);
 		},
 	);
+}
+
+function openWinner() {
+	openUserCard(props.messageData.quizResult.winner);
 }
 
 async function onExpandLeaderboard() {

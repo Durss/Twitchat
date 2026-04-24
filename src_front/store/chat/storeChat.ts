@@ -849,7 +849,7 @@ export const storeChat = defineStore("chat", {
 			if (StoreProxy.params.features.saveHistory.value === false) return;
 			Database.instance
 				.getMessageList()
-				.then((res) => {
+				.then(async (res) => {
 					if (res.length === 0) return;
 					const splitter: TwitchatDataTypes.MessageHistorySplitterData = {
 						id: Utils.getUUID(),
@@ -869,13 +869,9 @@ export const storeChat = defineStore("chat", {
 					let lastPuMessage = false;
 					let lastSub = false;
 					let lastSubgift = false;
-
 					//Parse all history
 					for (let i = res.length - 1; i >= 0; i--) {
 						const m = res[i]!;
-
-						//Filter only entries for our own channel
-						// if(m.channel_id != uid) continue;
 
 						if (
 							!lastPuEmote &&
@@ -1092,6 +1088,40 @@ export const storeChat = defineStore("chat", {
 					}
 
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+
+					function restoreReactiveUsersBatch(offset: number, batchIndex: number = 0) {
+						let i = offset;
+						let count = 0;
+						for (; i >= 0; i--) {
+							const m = res[i]!;
+							const userProps = TwitchatDataTypes.GetUserFromMessage(m);
+							if (userProps) {
+								const { user, override } = userProps;
+								// const mTyped = m as TwitchatDataTypes.GreetableMessage;
+								const colorOriginal = user.color;
+								// Make user reactive
+								const reactiveUser = StoreProxy.users.getUserFrom(
+									m.platform,
+									m.channel_id,
+									user.id,
+									user.login,
+									user.displayNameOriginal || user.displayName,
+								);
+								if (reactiveUser.color !== colorOriginal) {
+									reactiveUser.color = colorOriginal;
+								}
+								override(reactiveUser);
+								if (++count === 100) break;
+							}
+						}
+
+						if (i > 0) {
+							setTimeout(() => {
+								restoreReactiveUsersBatch(i - 1, batchIndex + 1);
+							}, batchIndex * 5000);
+						}
+					}
+					restoreReactiveUsersBatch(res.length - 1);
 				})
 				.catch((error) => {
 					console.log("DATABASE ERROR");
@@ -1464,8 +1494,10 @@ export const storeChat = defineStore("chat", {
 									}),
 								);
 								m.occurrenceCount++;
-								//Update timestamp
-								m.date = Date.now();
+								// Update timestamp
+								m.date = message.date;
+								// Set ID to the new message to avoid duplicates in DB
+								m.id = message.id;
 								message = m;
 								break;
 							}
@@ -2912,10 +2944,14 @@ export const storeChat = defineStore("chat", {
 					StoreProxy.params.features.saveHistory.value === true &&
 					message.fake !== true
 				) {
-					void Database.instance.addMessage(message).catch((error) => {
-						console.error("Database addMessage() error with reason:", error);
-						console.log(message);
-					});
+					try {
+						void Database.instance.addMessage(message).catch((error) => {
+							console.error("Database addMessage() error with reason:", error);
+							console.log(message);
+						});
+					} catch (_error) {
+						/* silent fail */
+					}
 					//If user isn't fully loaded yet, wait for it to be loaded
 					if ("user" in message && message.user) {
 						const u = message.user as TwitchatDataTypes.TwitchatUser;
