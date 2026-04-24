@@ -1156,7 +1156,7 @@ export const storeUsers = defineStore("users", {
 		},
 
 		openUserCard(
-			user: TwitchatDataTypes.TwitchatUser,
+			user: TwitchatDataTypes.TwitchatUser | null,
 			channelId?: string,
 			platform?: TwitchatDataTypes.ChatPlatform,
 		) {
@@ -1433,11 +1433,11 @@ export const storeUsers = defineStore("users", {
 			name = name.trim().substring(0, 25);
 			const uid = typeof user === "string" ? user : user.id;
 			const displayName = typeof user === "string" ? "" : user.displayNameOriginal;
-			const platformLoc = typeof user === "string" ? platform : user.platform;
+			platform = typeof user === "string" ? platform : user.platform;
 			if (name.length == 0 || name === displayName) {
 				delete this.customUsernames[uid];
 			} else {
-				//User can give up to 10 custom user names if not premium
+				//User can attribute up to 10 custom user names if not premium
 				if (
 					!this.customUsernames[uid] &&
 					!StoreProxy.auth.isPremium &&
@@ -1450,7 +1450,7 @@ export const storeUsers = defineStore("users", {
 					);
 					return false;
 				}
-				this.customUsernames[uid] = { name, platform: platformLoc, channel: channelId };
+				this.customUsernames[uid] = { name, platform, channel: channelId };
 			}
 
 			this.saveCustomUsername();

@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div ref="rootEl" :class="classes">
 		<svg
 			class="heartBg"
 			version="1.1"
@@ -8,24 +8,24 @@
 			x="0px"
 			y="0px"
 			viewBox="0 0 208.6 202.5"
-			v-if="light === false"
+			v-if="props.light === false"
 		>
 			<path
 				d="M151.6,0c-19.6,0-37,9.9-47.2,25C94,9.9,76.7,0,57.1,0C25.6,0,0,25.6,0,57.1c0,44.2,96.1,145.4,104.3,145.4S208.6,101.2,208.6,57.1C208.6,25.6,183.1,0,151.6,0z"
 			/>
 		</svg>
 
-		<div class="title" v-if="light === false">
+		<div class="title" v-if="props.light === false">
 			<p class="outline">Thank you</p>
 			<p class="text">Thank you</p>
 		</div>
 
 		<div ref="heart" class="beatingHeart" @click="burstStars(true)">
-			<div class="level" v-if="premium === false">
-				<span class="small" v-if="light === false">{{ $t("donor.level") }}</span
-				><br v-if="light === false" />{{ (donorLevel as string) + 1 }}
+			<div class="level" v-if="props.premium === false">
+				<span class="small" v-if="props.light === false">{{ $t("donor.level") }}</span
+				><br v-if="props.light === false" />{{ (donorLevel as string) + 1 }}
 			</div>
-			<div class="level" v-if="premium !== false">
+			<div class="level" v-if="props.premium !== false">
 				<Icon name="premium" alt="premium" class="icon" theme="light" />
 			</div>
 			<svg
@@ -63,7 +63,7 @@
 					class="heart_st1"
 					d="M107.8,20.5l82.8,82.8c6.4-10.4,11.6-20.5,14.7-29.5l-71-71C123.8,6,114.7,12.3,107.8,20.5z"
 				/>
-				<g v-if="premium === false">
+				<g v-if="props.premium === false">
 					<path
 						class="heart_st0"
 						d="M125.5,28c-1.1-1.1-1.1-2.2,0-3.3l9-9c1.1-1.1,2.2-1.1,3.3,0l3.4,3.4c2.1,2.1,3.2,4.3,3.3,6.6
@@ -103,7 +103,7 @@
 						l-2.1-2.1L188.9,77.7z"
 					/>
 				</g>
-				<g v-if="premium !== false">
+				<g v-if="props.premium !== false">
 					<path
 						class="heart_st0"
 						d="M166.7,19.8c8.4,4.2,14.7,10.6,18.8,19,2.8,5.8,11.4.7,8.6-5-4.8-9.8-12.7-17.8-22.4-22.6-5.7-2.9-10.7,5.7-5,8.6h0Z"
@@ -166,7 +166,7 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"
 			</svg>
 		</div>
 
-		<div class="stars" v-if="light === false">
+		<div class="stars" v-if="props.light === false">
 			<span class="star" v-for="s in stars" :style="getStarStyles(s)">
 				<svg
 					version="1.1"
@@ -185,159 +185,151 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { gsap } from "gsap/gsap-core";
-import { watch, type CSSProperties } from "vue";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch, type CSSProperties } from "vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Icon,
+const props = withDefaults(defineProps<{
+	light?: boolean;
+	premium?: boolean;
+	level?: number;
+}>(), {
+	light: false,
+	premium: false,
+	level: -1,
+});
+
+const storeAuth = useStoreAuth();
+
+const disposed = ref(false);
+const stars = ref<StarData[]>([]);
+const donorLevel = ref<number | "premium">(0);
+let prevTs = 0;
+
+const heart = useTemplateRef<HTMLDivElement>("heart");
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+
+const classes = computed((): string[] => {
+	const res: string[] = ["donorbadge"];
+	res.push(" lvl_" + donorLevel.value);
+	if (props.premium !== false) res.push("premium");
+	if (props.light !== false) res.push("light");
+	return res;
+});
+
+function getStarStyles(s: StarData): CSSProperties {
+	return {
+		opacity: s.a.toString(),
+		transform:
+			"translate(" + s.x + "px, " + s.y + "px) rotate(" + s.r + "deg) scale(" + s.s + ")",
+	};
+}
+
+watch(
+	() => props.level,
+	() => {
+		donorLevel.value = props.level;
 	},
-})
-class DonorBadge extends Vue {
-	@Prop({ type: Boolean, default: false })
-	public light!: boolean;
+);
 
-	@Prop({ type: Boolean, default: false })
-	public premium!: boolean;
-
-	@Prop({ type: Number, default: -1 })
-	public level!: number;
-
-	public disposed = false;
-	public stars: StarData[] = [];
-	public donorLevel: number | "premium" = 0;
-
-	private prevTs = 0;
-
-	public get classes(): string[] {
-		const res: string[] = ["donorbadge"];
-		res.push(" lvl_" + this.donorLevel);
-		if (this.premium !== false) res.push("premium");
-		if (this.light !== false) res.push("light");
-		return res;
+onMounted(() => {
+	if (props.premium !== false) {
+		donorLevel.value = "premium";
+	} else {
+		donorLevel.value = props.level != -1 ? props.level : storeAuth.donorLevel;
 	}
 
-	public getStarStyles(s: StarData): CSSProperties {
-		return {
-			opacity: s.a.toString(),
-			transform:
-				"translate(" + s.x + "px, " + s.y + "px) rotate(" + s.r + "deg) scale(" + s.s + ")",
-		};
-	}
+	if (props.light !== false) return;
 
-	public mounted(): void {
-		if (this.premium !== false) {
-			this.donorLevel = "premium";
-		} else {
-			this.donorLevel = this.level != -1 ? this.level : this.$store.auth.donorLevel;
-		}
-
-		watch(
-			() => this.level,
-			() => {
-				this.donorLevel = this.level;
+	//For some reason gsap overrides the translate() prop of the object when scaling it.
+	//Following line makes sure the object is properly centered
+	gsap.set(heart.value!, { xPercent: -50, yPercent: -50, left: "50%", top: "50%" });
+	gsap.fromTo(
+		heart.value!,
+		{ scale: 1.2 },
+		{
+			duration: 0.35,
+			scale: 1,
+			ease: "back.out",
+			repeat: -1,
+			repeatDelay: 1.5,
+			onRepeat: () => {
+				burstStars();
 			},
-		);
-
-		if (this.light !== false) return;
-
-		const heart = this.$refs.heart as HTMLDivElement;
-		//For some reason gsap overrides the translate() prop of the object when scalign it.
-		//Following line makes sure the object is properly centered
-		gsap.set(heart, { xPercent: -50, yPercent: -50, left: "50%", top: "50%" });
-		gsap.fromTo(
-			heart,
-			{ scale: 1.2 },
-			{
-				duration: 0.35,
-				scale: 1,
-				ease: "back.out",
-				repeat: -1,
-				repeatDelay: 1.5,
-				onRepeat: () => {
-					this.burstStars();
-				},
+		},
+	);
+	gsap.fromTo(
+		heart.value!,
+		{ scale: 1.15 },
+		{
+			duration: 0.35,
+			delay: 0.2,
+			scale: 1,
+			ease: "back.out",
+			repeat: -1,
+			repeatDelay: 1.5,
+			onRepeat: () => {
+				burstStars();
 			},
-		);
-		gsap.fromTo(
-			heart,
-			{ scale: 1.15 },
-			{
-				duration: 0.35,
-				delay: 0.2,
-				scale: 1,
-				ease: "back.out",
-				repeat: -1,
-				repeatDelay: 1.5,
-				onRepeat: () => {
-					this.burstStars();
-				},
-			},
-		);
+		},
+	);
 
-		this.prevTs = Date.now();
-		this.renderStars(this.prevTs);
+	prevTs = Date.now();
+	renderStars(prevTs);
+});
+
+onBeforeUnmount(() => {
+	disposed.value = true;
+	if (props.light !== false) return;
+	gsap.killTweensOf(heart.value!);
+});
+
+function burstStars(clickOrigin: boolean = false): void {
+	if (clickOrigin) {
+		gsap.fromTo(heart.value!, { scale: 1.2 }, { duration: 0.25, scale: 1, ease: "back.out" });
 	}
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-		if (this.light !== false) return;
-		const heart = this.$refs.heart as HTMLDivElement;
-		gsap.killTweensOf(heart);
+	const bounds = heart.value!.getBoundingClientRect();
+	for (let i = 0; i < 10; i++) {
+		const s: StarData = { x: 0, vx: 0, y: 0, vy: 0, iy: 0, r: 0, vr: 0, a: 1, va: 0, s: 0 };
+		const cx = rootEl.value!.offsetWidth / 2;
+		const cy = rootEl.value!.offsetHeight / 2;
+		s.x = cx + ((Math.random() - Math.random()) * bounds.width) / 2;
+		s.y = cy + ((Math.random() - Math.random()) * bounds.height) / 2;
+
+		const a = Math.atan2(s.y - cy, s.x - cx);
+
+		s.r = Math.random() * 360;
+		s.vx = Math.cos(a) * 5;
+		s.vy = Math.sin(a) * 3;
+		s.iy = -Math.random() * 0.1 - 0.05;
+		s.vr = (Math.random() - Math.random()) * 30;
+		s.va = Math.random() * 0.025 + 0.01;
+		s.s = Math.random() * 1 + 0.5;
+		stars.value.push(s);
 	}
+}
 
-	public burstStars(clickOrigin: boolean = false): void {
-		const heart = this.$refs.heart as HTMLDivElement;
-		const donorHolder = this.$el as HTMLDivElement;
+function renderStars(ts: number): void {
+	if (disposed.value) return;
+	requestAnimationFrame((ts: number) => renderStars(ts));
 
-		if (clickOrigin) {
-			gsap.fromTo(heart, { scale: 1.2 }, { duration: 0.25, scale: 1, ease: "back.out" });
-		}
+	const timeScale = (60 / 1000) * (ts - prevTs);
+	prevTs = ts;
 
-		const bounds = heart.getBoundingClientRect();
-		// console.log(bounds);
-		for (let i = 0; i < 10; i++) {
-			const s: StarData = { x: 0, vx: 0, y: 0, vy: 0, iy: 0, r: 0, vr: 0, a: 1, va: 0, s: 0 };
-			const cx = donorHolder.offsetWidth / 2;
-			const cy = donorHolder.offsetHeight / 2;
-			s.x = cx + ((Math.random() - Math.random()) * bounds.width) / 2;
-			s.y = cy + ((Math.random() - Math.random()) * bounds.height) / 2;
-
-			const a = Math.atan2(s.y - cy, s.x - cx);
-
-			s.r = Math.random() * 360;
-			s.vx = Math.cos(a) * 5;
-			s.vy = Math.sin(a) * 3;
-			s.iy = -Math.random() * 0.1 - 0.05;
-			s.vr = (Math.random() - Math.random()) * 30;
-			s.va = Math.random() * 0.025 + 0.01;
-			s.s = Math.random() * 1 + 0.5;
-			this.stars.push(s);
-		}
-	}
-
-	private renderStars(ts: number): void {
-		if (this.disposed) return;
-		requestAnimationFrame((ts: number) => this.renderStars(ts));
-
-		const timeScale = (60 / 1000) * (ts - this.prevTs);
-		this.prevTs = ts;
-
-		for (let i = 0; i < this.stars.length; i++) {
-			const s = this.stars[i]!;
-			s.x += s.vx; //Do not multiply by timescale. If perfs are low the hearts run out of screen
-			s.y += s.vy * timeScale;
-			s.r += s.vr * timeScale;
-			s.vx *= 0.94; //Do not multiply by timescale. If perfs are low the hearts run out of screen
-			s.vy += s.iy * timeScale;
-			s.a -= s.va * timeScale;
-			if (s.a < 0.01) {
-				this.stars.splice(i, 1);
-				i--;
-			}
+	for (let i = 0; i < stars.value.length; i++) {
+		const s = stars.value[i]!;
+		s.x += s.vx; //Do not multiply by timescale. If perfs are low the hearts run out of screen
+		s.y += s.vy * timeScale;
+		s.r += s.vr * timeScale;
+		s.vx *= 0.94; //Do not multiply by timescale. If perfs are low the hearts run out of screen
+		s.vy += s.iy * timeScale;
+		s.a -= s.va * timeScale;
+		if (s.a < 0.01) {
+			stars.value.splice(i, 1);
+			i--;
 		}
 	}
 }
@@ -354,7 +346,6 @@ interface StarData {
 	va: number;
 	s: number;
 }
-export default toNative(DonorBadge);
 </script>
 
 <style scoped lang="less">

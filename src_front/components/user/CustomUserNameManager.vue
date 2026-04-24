@@ -1,7 +1,7 @@
 <template>
 	<div class="customusernamemanager">
 		<div class="header">
-			<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
+			<button class="backBt" @click="emit('close')"><Icon name="back" /></button>
 			<h1>{{ $t("usercard.manage_usernames") }}</h1>
 		</div>
 
@@ -25,47 +25,41 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import TTButton from "../TTButton.vue";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
 import Icon from "../Icon.vue";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
-@Component({
-	components: {
-		Icon,
-		Button: TTButton,
-	},
-	emits: ["close"],
-})
-class CustomUserNameManager extends Vue {
-	public itemList: { customName: string; user: TwitchatDataTypes.TwitchatUser }[] = [];
+const emit = defineEmits<{ close: [] }>();
 
-	public async mounted(): Promise<void> {
-		this.refreshList();
+const storeUsers = useStoreUsers();
+
+const itemList = ref<{ customName: string; user: TwitchatDataTypes.TwitchatUser }[]>([]);
+
+function deleteCustomName(uid: string): void {
+	storeUsers.removeCustomUsername(uid);
+	refreshList();
+}
+
+function refreshList(): void {
+	const customUsernames = storeUsers.customUsernames;
+	itemList.value = [];
+	for (const uid in customUsernames) {
+		const u = customUsernames[uid]!;
+		itemList.value.push({
+			user: storeUsers.getUserFrom(u.platform, u.channel, uid),
+			customName: u.name,
+		});
 	}
-
-	public deleteCustomName(uid: string): void {
-		this.$store.users.removeCustomUsername(uid);
-		this.refreshList();
-	}
-
-	private refreshList(): void {
-		const customUsernames = this.$store.users.customUsernames;
-		this.itemList = [];
-		for (const uid in customUsernames) {
-			const u = customUsernames[uid]!;
-			this.itemList.push({
-				user: this.$store.users.getUserFrom(u.platform, u.channel, uid),
-				customName: u.name,
-			});
-		}
-		if (this.itemList.length == 0) {
-			this.$emit("close");
-		}
+	if (itemList.value.length == 0) {
+		emit("close");
 	}
 }
-export default toNative(CustomUserNameManager);
+
+onMounted(() => {
+	refreshList();
+});
 </script>
 
 <style scoped lang="less">

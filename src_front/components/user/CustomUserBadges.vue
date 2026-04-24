@@ -5,49 +5,43 @@
 			v-for="badge in badges"
 			:src="badge.img"
 			alt="custom badge"
-			@click="$emit('select', badge.id)"
+			@click="emit('select', badge.id)"
 			v-tooltip="tooltip || badge.name || ''"
 		/>
 	</template>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { computed } from "vue";
 
-@Component({
-	components: {},
-	emits: ["select"],
-})
-class CustomUserBadges extends Vue {
-	@Prop()
-	public user!: TwitchatDataTypes.TwitchatUser;
+const storeAuth = useStoreAuth();
+const storeUsers = useStoreUsers();
+const emit = defineEmits<{ select: [badgeid: string] }>();
+const props = defineProps<{
+	user: TwitchatDataTypes.TwitchatUser;
+	tooltip?: string;
+}>();
 
-	@Prop()
-	public tooltip!: string;
+const badges = computed(() => {
+	const isPremium = storeAuth.isPremium;
+	const res: TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
+	const badges = storeUsers.customUserBadges[props.user.id];
+	if (!badges) return [];
 
-	@Prop
-	public channelId!: string;
+	badges.forEach((badge) => {
+		let list = storeUsers.customBadgeList;
+		if (!isPremium) {
+			list = list.filter((v) => v.enabled !== false);
+		}
+		const badgeSource = list.find((v) => v.id == badge.id);
+		if (badgeSource) {
+			res.push(badgeSource);
+		}
+	});
 
-	public get badges(): TwitchatDataTypes.TwitchatCustomUserBadge[] {
-		const isPremium = this.$store.auth.isPremium;
-		const res: TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
-		const badges = this.$store.users.customUserBadges[this.user.id];
-		if (!badges) return [];
-
-		badges.forEach((badge) => {
-			let list = this.$store.users.customBadgeList;
-			if (!isPremium) {
-				list = list.filter((v) => v.enabled !== false);
-			}
-			const badgeSource = list.find((v) => v.id == badge.id);
-			if (badgeSource) {
-				res.push(badgeSource);
-			}
-		});
-
-		return res;
-	}
-}
-export default toNative(CustomUserBadges);
+	return res;
+});
 </script>
