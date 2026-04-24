@@ -959,7 +959,7 @@ export namespace TwitchatDataTypes {
 		 * depending on the trigger type
 		 */
 		genericValue: string | number;
-		winners?: TwitchatDataTypes.TwitchatUser[];
+		winners?: TwitchatUser[];
 	}
 
 	/**
@@ -1501,7 +1501,7 @@ export namespace TwitchatDataTypes {
 	}
 	export interface ChatSuggestionDataChoice {
 		id: string;
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 		label: string;
 	}
 
@@ -2619,7 +2619,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User receiving the shoutout
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Remaining duration before execution
 		 */
@@ -5866,6 +5866,140 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Extracts the user object from a message if any and returns a function tu mutate it.
+	 * Used when importing message history from DB to restore reactive user objects.
+	 * @param message
+	 * @returns
+	 */
+	export function GetUserFromMessage(
+		message: ChatMessageTypes,
+	): { user: TwitchatUser; override: (user: TwitchatUser) => void } | null {
+		switch (message.type) {
+			case TwitchatMessageType.FOLLOWING:
+			case TwitchatMessageType.SUBSCRIPTION:
+			case TwitchatMessageType.CHEER:
+			case TwitchatMessageType.REWARD:
+			case TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION:
+			case TwitchatMessageType.RAID:
+			case TwitchatMessageType.CONNECT:
+			case TwitchatMessageType.DISCONNECT:
+			case TwitchatMessageType.CLEAR_CHAT:
+			case TwitchatMessageType.BINGO:
+			case TwitchatMessageType.AUTOBAN_JOIN:
+			case TwitchatMessageType.BAN:
+			case TwitchatMessageType.UNBAN:
+			case TwitchatMessageType.MUSIC_ADDED_TO_QUEUE:
+			case TwitchatMessageType.SHOUTOUT:
+			case TwitchatMessageType.LOW_TRUST_TREATMENT:
+			case TwitchatMessageType.COUNTER_UPDATE:
+			case TwitchatMessageType.RAID_STARTED:
+			case TwitchatMessageType.USER_WATCH_STREAK:
+			case TwitchatMessageType.UNBAN_REQUEST:
+			case TwitchatMessageType.BINGO_GRID:
+			case TwitchatMessageType.BINGO_GRID_VIEWER:
+			case TwitchatMessageType.TWITCH_CELEBRATION:
+			case TwitchatMessageType.GIGANTIFIED_EMOTE:
+			case TwitchatMessageType.CUSTOM_POWER_UP:
+			case TwitchatMessageType.BLOCKED_TERMS:
+			case TwitchatMessageType.WARN_CHATTER:
+			case TwitchatMessageType.WARN_ACKNOWLEDGE:
+			case TwitchatMessageType.SUPER_STICKER:
+			case TwitchatMessageType.YOUTUBE_SUBGIFT:
+			case TwitchatMessageType.YOUTUBE_BAN:
+			case TwitchatMessageType.TIKTOK_SUB:
+			case TwitchatMessageType.TIKTOK_GIFT:
+			case TwitchatMessageType.TIKTOK_LIKE:
+			case TwitchatMessageType.TIKTOK_SHARE:
+			case TwitchatMessageType.TWITCH_CHARITY_DONATION:
+			case TwitchatMessageType.STREAMSOCKET_ACTION: {
+				if (message.user) {
+					return {
+						user: message.user,
+						override: (newUser) => {
+							message.user = newUser;
+						},
+					};
+				}
+				break;
+			}
+			case TwitchatMessageType.STREAM_ONLINE:
+			case TwitchatMessageType.STREAM_OFFLINE: {
+				if (message.info.user) {
+					return {
+						user: message.info.user,
+						override: (newUser) => {
+							message.info.user = newUser;
+						},
+					};
+				}
+				break;
+			}
+			case TwitchatMessageType.POLL:
+			case TwitchatMessageType.PREDICTION: {
+				if (message.creator) {
+					return {
+						user: message.creator,
+						override: (newUser) => {
+							message.creator = newUser;
+						},
+					};
+				}
+				break;
+			}
+
+			case TwitchatMessageType.MUSIC_START: {
+				if (message.userOrigin) {
+					return {
+						user: message.userOrigin,
+						override: (newUser) => {
+							message.userOrigin = newUser;
+						},
+					};
+				}
+				break;
+			}
+			case TwitchatMessageType.PINNED:
+			case TwitchatMessageType.UNPINNED: {
+				if (message.moderator) {
+					return {
+						user: message.moderator,
+						override: (newUser) => {
+							message.moderator = newUser;
+						},
+					};
+				}
+				break;
+			}
+
+			case TwitchatMessageType.AD_BREAK_START:
+			case TwitchatMessageType.AD_BREAK_START_CHAT:
+			case TwitchatMessageType.AD_BREAK_COMPLETE: {
+				if (message.startedBy) {
+					return {
+						user: message.startedBy,
+						override: (newUser) => {
+							message.startedBy = newUser;
+						},
+					};
+				}
+				break;
+			}
+
+			case TwitchatMessageType.QUIZ_COMPLETE: {
+				if (message.quizResult.winner) {
+					return {
+						user: message.quizResult.winner,
+						override: (newUser) => {
+							message.quizResult.winner = newUser;
+						},
+					};
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * A regular user's message
 	 */
 	export interface MessageChatData
@@ -7213,11 +7347,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that gave us a shoutout or user we gave a shoutout to
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * User that made the shoutout
 		 */
-		moderator: TwitchatDataTypes.TwitchatUser;
+		moderator: TwitchatUser;
 		/**
 		 * Stream info of the channel that gave us a shoutout
 		 */
@@ -7641,10 +7775,7 @@ export namespace TwitchatDataTypes {
 		 * User that clicked.
 		 * "null" for anonymous users
 		 */
-		user: Pick<
-			TwitchatDataTypes.TwitchatUser,
-			"channelInfo" | "id" | "login" | "platform"
-		> | null;
+		user: Pick<TwitchatUser, "channelInfo" | "id" | "login" | "platform"> | null;
 		/**
 		 * Is it an anonymous user?
 		 */
@@ -8187,11 +8318,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that requested to be unbaned
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Moderator that resolved the request (if isResolve is true)
 		 */
-		moderator?: TwitchatDataTypes.TwitchatUser;
+		moderator?: TwitchatUser;
 		/**
 		 * if isResolve is true, contains the answer given to the
 		 * unban request by the moderator.
@@ -8270,7 +8401,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that clicked.
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -8293,7 +8424,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that clicked.
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -8435,7 +8566,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Users that triggered the hate raid detection
 		 */
-		haters: TwitchatDataTypes.TwitchatUser[];
+		haters: TwitchatUser[];
 	}
 
 	/**
@@ -8446,11 +8577,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User warned
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 		/**
 		 * Moderator that sent the warning
 		 */
-		moderator: TwitchatDataTypes.TwitchatUser;
+		moderator: TwitchatUser;
 		/**
 		 * Rules the user has been warned
 		 */
@@ -8474,7 +8605,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User warned
 		 */
-		user: TwitchatDataTypes.TwitchatUser;
+		user: TwitchatUser;
 	}
 
 	/**
@@ -8991,7 +9122,7 @@ export namespace TwitchatDataTypes {
 		quizResult: {
 			quizName: string;
 			quizId: string;
-			winner: TwitchatDataTypes.TwitchatUser;
+			winner: TwitchatUser;
 			leaderboard: (QuizParams["leaderboard"][number] & { uid: string })[];
 		};
 	}
