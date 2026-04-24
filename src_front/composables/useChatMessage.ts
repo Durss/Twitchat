@@ -177,7 +177,11 @@ export function useChatMessage(
 		chanId?: string,
 		platform?: TwitchatDataTypes.ChatPlatform,
 	): void {
-		storeUsers.openUserCard(user, chanId, platform);
+		storeUsers.openUserCard(
+			user,
+			chanId || props.messageData.channel_id,
+			platform || props.messageData.platform,
+		);
 	}
 
 	/**
