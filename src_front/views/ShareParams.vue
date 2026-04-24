@@ -4,7 +4,7 @@
 
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">{{ $t("shareParams.title") }}</span>
+				<span class="title">{{ t("shareParams.title") }}</span>
 				<ClearButton @click="close()" />
 			</div>
 
@@ -17,7 +17,7 @@
 					</template>
 				</i18n-t>
 				<TTButton @click="reload()" icon="refresh" light primary>{{
-					$t("shareParams.reloadBt")
+					t("shareParams.reloadBt")
 				}}</TTButton>
 			</div>
 
@@ -30,14 +30,14 @@
 					alt="tutorial"
 				/>
 				<img v-else src="@/assets/img/data_sharing/switchAccount_en.png" alt="tutorial" />
-				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
+				<TTButton @click="close()" light alert>{{ t("global.close") }}</TTButton>
 			</div>
 
 			<div class="content error" v-else-if="error">
 				<Icon name="alert" />
 				<div v-if="errorDetails">{{ errorDetails }}</div>
-				<div v-else>{{ $t("shareParams.error") }}</div>
-				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
+				<div v-else>{{ t("shareParams.error") }}</div>
+				<TTButton @click="close()" light alert>{{ t("global.close") }}</TTButton>
 			</div>
 
 			<div class="content" v-else>
@@ -47,15 +47,15 @@
 						<strong v-else>"{{ remoteUser.display_name }}"</strong>
 					</template>
 					<template #CURRENT_USER>
-						<strong>"{{ $store.auth.twitch.user.displayNameOriginal }}"</strong>
+						<strong>"{{ storeAuth.twitch.user.displayNameOriginal }}"</strong>
 					</template>
 				</i18n-t>
 				<div class="ctas">
 					<TTButton icon="cross" @click="close()" :loading="confirming" alert>{{
-						$t("global.cancel")
+						t("global.cancel")
 					}}</TTButton>
 					<TTButton icon="checkmark" @click="confirm()" :loading="confirming" primary>{{
-						$t("shareParams.agreeBt")
+						t("shareParams.agreeBt")
 					}}</TTButton>
 				</div>
 			</div>
@@ -63,122 +63,121 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ClearButton from "@/components/ClearButton.vue";
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
-import ScopeSelector from "@/components/login/ScopeSelector.vue";
 import DataStore from "@/store/DataStore";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeMain as useStoreMain } from "@/store/storeMain";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { computed, nextTick, onBeforeMount, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ClearButton,
-		ScopeSelector,
-	},
-	emits: ["close"],
-})
-class ShareParams extends Vue {
-	public error: boolean = false;
-	public success: boolean = false;
-	public errorDetails: string = "";
-	public confirming: boolean = false;
-	public wrongAccount: boolean = false;
-	public remoteUser: TwitchDataTypes.UserInfo | null = null;
+const emit = defineEmits<{ close: [] }>();
 
-	private csrfToken: string = "";
+const { t } = useI18n();
+const storeMain = useStoreMain();
+const storeAuth = useStoreAuth();
 
-	public get classes(): string[] {
-		const res: string[] = ["shareparams", "modal"];
-		if (this.error) res.push("error");
-		if (this.success) res.push("success");
-		if (this.wrongAccount) res.push("secondary");
-		return res;
-	}
+const holder = useTemplateRef<HTMLElement>("holder");
+const dimmer = useTemplateRef<HTMLElement>("dimmer");
 
-	public async beforeMount(): Promise<void> {
-		const data = this.$store.main.tempStoreValue as { uid: string; csrf: string } | undefined;
-		if (data && data.uid && data.csrf) {
-			if (data.uid == this.$store.auth.twitch.user.id) {
-				this.wrongAccount = true;
-			} else {
-				this.csrfToken = data.csrf;
-				const res = await TwitchUtils.getUserInfo([data.uid]);
-				if (res && res.length > 0) {
-					this.remoteUser = res[0]!;
-				}
-			}
-		}
-	}
+const error = ref<boolean>(false);
+const success = ref<boolean>(false);
+const errorDetails = ref<string>("");
+const confirming = ref<boolean>(false);
+const wrongAccount = ref<boolean>(false);
+const remoteUser = ref<TwitchDataTypes.UserInfo | null>(null);
 
-	public mounted(): void {
-		this.open();
-	}
+let csrfToken: string = "";
 
-	public async open(): Promise<void> {
-		await this.$nextTick();
-		gsap.set(this.$refs.holder as HTMLElement, { marginTop: 0, opacity: 1 });
-		gsap.to(this.$refs.dimmer as HTMLElement, { duration: 0.25, opacity: 1 });
-		gsap.from(this.$refs.holder as HTMLElement, {
-			duration: 0.25,
-			marginTop: -100,
-			opacity: 0,
-			ease: "back.out",
-		});
-	}
+const classes = computed<string[]>(() => {
+	const res: string[] = ["shareparams", "modal"];
+	if (error.value) res.push("error");
+	if (success.value) res.push("success");
+	if (wrongAccount.value) res.push("secondary");
+	return res;
+});
 
-	public async close(): Promise<void> {
-		if (this.success) return;
-		if (this.confirming) return;
-
-		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		gsap.to(this.$refs.dimmer as HTMLElement, { duration: 0.25, opacity: 0, ease: "sine.in" });
-		gsap.to(this.$refs.holder as HTMLElement, {
-			duration: 0.25,
-			marginTop: -100,
-			opacity: 0,
-			ease: "back.in",
-			onComplete: () => {
-				this.$emit("close");
-			},
-		});
-	}
-
-	public async confirm(): Promise<void> {
-		this.error = false;
-		this.confirming = true;
-		this.errorDetails = "";
-		const res = await ApiHelper.call("auth/validateDataShare", "POST", {
-			token: this.csrfToken,
-		});
-		if (res.status == 200 && res.json.success === true) {
-			this.success = true;
+onBeforeMount(async () => {
+	const data = storeMain.tempStoreValue as { uid: string; csrf: string } | undefined;
+	if (data && data.uid && data.csrf) {
+		if (data.uid == storeAuth.twitch.user.id) {
+			wrongAccount.value = true;
 		} else {
-			switch (res.json.errorCode) {
-				case "CROSS_LINK":
-					this.errorDetails = this.$t("shareParams.error_cross_link");
-					break;
-				case "INVALID_CSRF":
-					this.errorDetails = this.$t("shareParams.error_csrf");
-					break;
+			csrfToken = data.csrf;
+			const res = await TwitchUtils.getUserInfo([data.uid]);
+			if (res && res.length > 0) {
+				remoteUser.value = res[0]!;
 			}
-			this.error = true;
 		}
-		this.confirming = false;
 	}
+});
 
-	public reload(): void {
-		DataStore.clear(true);
-		document.location.reload();
-	}
+onMounted(() => {
+	open();
+});
+
+async function open(): Promise<void> {
+	await nextTick();
+	gsap.set(holder.value!, { marginTop: 0, opacity: 1 });
+	gsap.to(dimmer.value!, { duration: 0.25, opacity: 1 });
+	gsap.from(holder.value!, {
+		duration: 0.25,
+		marginTop: -100,
+		opacity: 0,
+		ease: "back.out",
+	});
 }
-export default toNative(ShareParams);
+
+async function close(): Promise<void> {
+	if (success.value) return;
+	if (confirming.value) return;
+
+	gsap.killTweensOf([holder.value, dimmer.value]);
+	gsap.to(dimmer.value!, { duration: 0.25, opacity: 0, ease: "sine.in" });
+	gsap.to(holder.value!, {
+		duration: 0.25,
+		marginTop: -100,
+		opacity: 0,
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+async function confirm(): Promise<void> {
+	error.value = false;
+	confirming.value = true;
+	errorDetails.value = "";
+	const res = await ApiHelper.call("auth/validateDataShare", "POST", {
+		token: csrfToken,
+	});
+	if (res.status == 200 && res.json.success === true) {
+		success.value = true;
+	} else {
+		switch (res.json.errorCode) {
+			case "CROSS_LINK":
+				errorDetails.value = t("shareParams.error_cross_link");
+				break;
+			case "INVALID_CSRF":
+				errorDetails.value = t("shareParams.error_csrf");
+				break;
+		}
+		error.value = true;
+	}
+	confirming.value = false;
+}
+
+function reload(): void {
+	DataStore.clear(true);
+	document.location.reload();
+}
 </script>
 
 <style scoped lang="less">
