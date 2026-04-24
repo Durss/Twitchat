@@ -26,31 +26,32 @@ import {
 	getCurrentInstance,
 } from "vue";
 
-interface Props {
-	secondary?: boolean;
-	alert?: boolean;
-	premium?: boolean;
-	light?: boolean;
-	disabled?: boolean;
-	dotMode?: boolean;
-	modelValue?: number;
-	min?: number;
-	max?: number;
-	step?: number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-	secondary: false,
-	alert: false,
-	premium: false,
-	light: false,
-	disabled: false,
-	dotMode: false,
-	modelValue: 0,
-	min: 0,
-	max: 30,
-	step: 1,
-});
+const props = withDefaults(
+	defineProps<{
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		light?: boolean;
+		disabled?: boolean;
+		dotMode?: boolean;
+		modelValue?: number;
+		min?: number;
+		max?: number;
+		step?: number;
+	}>(),
+	{
+		secondary: false,
+		alert: false,
+		premium: false,
+		light: false,
+		disabled: false,
+		dotMode: false,
+		modelValue: 0,
+		min: 0,
+		max: 30,
+		step: 1,
+	},
+);
 
 const emit = defineEmits<{
 	"update:modelValue": [value: number];

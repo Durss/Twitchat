@@ -1,8 +1,8 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div
 			class="offlineTitle"
-			v-if="$store.main.offlineMode"
+			v-if="storeMain.offlineMode"
 			v-tooltip="{ content: $t('global.offlineMode'), placement: 'bottom' }"
 		>
 			<Icon name="alert" />
@@ -11,8 +11,8 @@
 			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
 				<div
 					class="column"
-					v-for="(c, index) in $store.params.chatColumnsConfig"
-					:ref="'column_' + c.id"
+					v-for="(c, index) in storeParams.chatColumnsConfig"
+					:ref="(el: any) => setColumnRef(el, c.id)"
 					:key="c.id"
 					:style="getColStyles(c)"
 				>
@@ -21,7 +21,7 @@
 							class="greetThem"
 							v-if="
 								greetColIndexTarget == c.order &&
-								$store.params.features.firstMessage.value === true
+								storeParams.features.firstMessage.value === true
 							"
 						/>
 
@@ -37,8 +37,8 @@
 					<div
 						class="dragBt"
 						v-if="
-							$store.params.chatColumnsConfig.length > 1 &&
-							(c.order == 0 || $store.params.chatColumnsConfig.length > 2)
+							storeParams.chatColumnsConfig.length > 1 &&
+							(c.order == 0 || storeParams.chatColumnsConfig.length > 2)
 						"
 						@dblclick="expandCol(c)"
 						@pointerdown="startDrag($event, c)"
@@ -48,146 +48,146 @@
 		</div>
 
 		<Teleport
-			v-if="panelsColumnTarget && buildIndex >= 1 + $store.params.chatColumnsConfig.length"
+			v-if="panelsColumnTarget && buildIndex >= 1 + storeParams.chatColumnsConfig.length"
 			:to="panelsColumnTarget"
 		>
 			<VoiceTranscript class="tts" />
 
 			<PollForm
 				class="popin"
-				v-if="$store.params.currentModal == 'poll'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'poll'"
+				@close="storeParams.closeModal()"
 			/>
 			<ChatPollForm
 				class="popin"
-				v-if="$store.params.currentModal == 'chatPoll'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'chatPoll'"
+				@close="storeParams.closeModal()"
 			/>
 			<ChatSuggestionForm
 				class="popin"
-				v-if="$store.params.currentModal == 'chatsuggForm'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'chatsuggForm'"
+				@close="storeParams.closeModal()"
 			/>
 			<RaffleForm
 				class="popin"
-				v-if="$store.params.currentModal == 'raffle'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'raffle'"
+				@close="storeParams.closeModal()"
 			/>
 			<PredictionForm
 				class="popin"
-				v-if="$store.params.currentModal == 'pred'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'pred'"
+				@close="storeParams.closeModal()"
 			/>
 			<BingoForm
 				class="popin"
-				v-if="$store.params.currentModal == 'bingo'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'bingo'"
+				@close="storeParams.closeModal()"
 			/>
 			<BingoGridForm
 				class="popin"
-				v-if="$store.params.currentModal == 'bingo_grid'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'bingo_grid'"
+				@close="storeParams.closeModal()"
 			/>
 			<LiveFollowings
 				class="popin"
-				v-if="$store.params.currentModal == 'liveStreams'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'liveStreams'"
+				@close="storeParams.closeModal()"
 			/>
 			<StreamInfoForm
 				class="popin"
-				v-if="$store.params.currentModal == 'streamInfo'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'streamInfo'"
+				@close="storeParams.closeModal()"
 			/>
 			<TTUserList
 				class="popin"
-				v-if="$store.params.currentModal == 'TTuserList'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'TTuserList'"
+				@close="storeParams.closeModal()"
 			/>
 			<PinedMessages
 				class="popin"
-				v-if="$store.params.currentModal == 'pins'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'pins'"
+				@close="storeParams.closeModal()"
 			/>
 			<TimerForm
 				class="popin"
-				v-if="$store.params.currentModal == 'timer'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'timer'"
+				@close="storeParams.closeModal()"
 			/>
 			<TriggersLogs
 				class="popin"
-				v-if="$store.params.currentModal == 'triggersLogs'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'triggersLogs'"
+				@close="storeParams.closeModal()"
 			/>
 			<HeatLogs
 				class="popin"
-				v-if="$store.params.currentModal == 'heatLogs'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'heatLogs'"
+				@close="storeParams.closeModal()"
 			/>
 			<ObsHeatLogs
 				class="popin"
-				v-if="$store.params.currentModal == 'obsHeatLogs'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'obsHeatLogs'"
+				@close="storeParams.closeModal()"
 			/>
 			<TrackedUsers
 				class="popin"
-				v-if="$store.params.currentModal == 'tracked'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'tracked'"
+				@close="storeParams.closeModal()"
 			/>
 			<WhispersState
 				class="popin"
-				v-if="$store.params.currentModal == 'whispers'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'whispers'"
+				@close="storeParams.closeModal()"
 			/>
 			<ChatSuggestionState
 				class="popin"
-				v-if="$store.params.currentModal == 'chatsuggState'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'chatsuggState'"
+				@close="storeParams.closeModal()"
 			/>
 			<MessageSearch
 				class="popin"
-				v-if="$store.params.currentModal == 'search'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'search'"
+				@close="storeParams.closeModal()"
 			/>
 			<TwitchatAnnouncement
 				class="popin"
-				v-if="$store.params.currentModal == 'twitchatAnnouncement'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'twitchatAnnouncement'"
+				@close="storeParams.closeModal()"
 			/>
 			<StreamSummary
 				class="popin"
-				v-if="$store.params.currentModal == 'streamSummary'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'streamSummary'"
+				@close="storeParams.closeModal()"
 			/>
 			<Extensions
 				class="popin"
-				v-if="$store.params.currentModal == 'extensions'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'extensions'"
+				@close="storeParams.closeModal()"
 			/>
 			<QnaForm
 				class="popin"
-				v-if="$store.params.currentModal == 'qnaForm'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'qnaForm'"
+				@close="storeParams.closeModal()"
 			/>
 			<QnaList
 				class="popin"
-				v-if="$store.params.currentModal == 'qna'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'qna'"
+				@close="storeParams.closeModal()"
 			/>
 			<GroqHistory
 				class="popin"
-				v-if="$store.params.currentModal == 'groqHistory'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'groqHistory'"
+				@close="storeParams.closeModal()"
 			/>
 			<QuizForm
 				class="popin"
-				v-if="$store.params.currentModal == 'quizForm'"
-				@close="$store.params.closeModal()"
+				v-if="storeParams.currentModal == 'quizForm'"
+				@close="storeParams.closeModal()"
 			/>
 			<UserCard class="popin" />
 		</Teleport>
 
 		<Teleport
-			v-if="panelsColumnTarget && buildIndex >= 2 + $store.params.chatColumnsConfig.length"
+			v-if="panelsColumnTarget && buildIndex >= 2 + storeParams.chatColumnsConfig.length"
 			:to="panelsColumnTarget"
 		>
 			<ChannelNotifications
@@ -198,13 +198,13 @@
 
 		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
 
-		<OutdatedDataVersionAlert v-if="$store.main.outdatedDataVersion" />
+		<OutdatedDataVersionAlert v-if="storeMain.outdatedDataVersion" />
 
 		<div class="bottom">
 			<ChatForm
 				class="chatForm"
 				ref="chatForm"
-				v-if="buildIndex >= 3 + $store.params.chatColumnsConfig.length"
+				v-if="buildIndex >= 3 + storeParams.chatColumnsConfig.length"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes"
@@ -241,8 +241,8 @@
 		<DevmodeMenu
 			class="contentWindows devmode"
 			v-if="showDevMenu"
-			@triggersLogs="$store.params.openModal('triggersLogs')"
-			@obsHeatLogs="$store.params.openModal('obsHeatLogs')"
+			@triggersLogs="storeParams.openModal('triggersLogs')"
+			@obsHeatLogs="storeParams.openModal('obsHeatLogs')"
 			@close="showDevMenu = false"
 		/>
 
@@ -295,7 +295,7 @@
 			@close="importedSettings = null"
 		/>
 
-		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
+		<Parameters v-if="buildIndex >= 5 + storeParams.chatColumnsConfig.length" />
 
 		<EmergencyFollowsListModal
 			v-if="showEmergencyFollows && !forceEmergencyFollowClose"
@@ -303,7 +303,7 @@
 		/>
 
 		<MigrationFixerModal
-			v-if="$store.main.httpMigrationFixData.length > 0 && !forceHttpFixerClose"
+			v-if="storeMain.httpMigrationFixData.length > 0 && !forceHttpFixerClose"
 			@close="forceHttpFixerClose = true"
 		/>
 
@@ -314,21 +314,18 @@
 			@click="closeDonorCard()"
 		/>
 
-		<Changelog
-			v-if="$store.params.currentModal == 'updates'"
-			@close="$store.params.closeModal()"
-		/>
+		<Changelog v-if="storeParams.currentModal == 'updates'" @close="storeParams.closeModal()" />
 
-		<Gngngn v-if="$store.params.currentModal == 'gngngn'" @close="$store.params.closeModal()" />
+		<Gngngn v-if="storeParams.currentModal == 'gngngn'" @close="storeParams.closeModal()" />
 
-		<Login v-if="$store.auth.newScopesToRequest.length > 0" scopeOnly />
+		<Login v-if="storeAuth.newScopesToRequest.length > 0" scopeOnly />
 
 		<ShareParams
-			v-if="$store.params.currentModal == 'shareParams'"
-			@close="$store.params.closeModal()"
+			v-if="storeParams.currentModal == 'shareParams'"
+			@close="storeParams.closeModal()"
 		/>
 
-		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
+		<ChatAlertMessage v-if="buildIndex >= 4 + storeParams.chatColumnsConfig.length" />
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
 
@@ -343,7 +340,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import BingoForm from "@/components/bingo/BingoForm.vue";
 import BingoGridForm from "@/components/bingo_grid/BingoGridForm.vue";
 import Changelog from "@/components/changelog/Changelog.vue";
@@ -394,9 +391,19 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch, type ComponentPublicInstance } from "@vue/runtime-core";
 import { gsap } from "gsap/gsap-core";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
+import { useI18n } from "vue-i18n";
+import type { ComponentPublicInstance } from "vue";
 import ChatAlertMessage from "../components/chatAlert/ChatAlertMessage.vue";
 import Gngngn from "../components/chatform/Gngngn.vue";
 import PinedMessages from "../components/chatform/PinedMessages.vue";
@@ -410,830 +417,763 @@ import ShareParams from "./ShareParams.vue";
 import PublicAPI from "@/utils/PublicAPI";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import QuizForm from "@/components/quiz/QuizForm.vue";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storePrediction as useStorePrediction } from "@/store/prediction/storePrediction";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storePoll as useStorePoll } from "@/store/poll/storePoll";
+import { storeChatPoll as useStoreChatPoll } from "@/store/chat_poll/storeChatPoll";
+import { storeBingo as useStoreBingo } from "@/store/bingo/storeBingo";
+import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
+import { storeEmergency as useStoreEmergency } from "@/store/emergency/storeEmergency";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { asset } from "@/composables/useAsset";
 
-@Component({
-	components: {
-		Login,
-		Gngngn,
-		QnaForm,
-		QnaList,
-		ChatForm,
-		UserList,
-		UserCard,
-		HeatLogs,
-		PollForm,
-		PinsList,
-		QuizForm,
-		Changelog,
-		TimerForm,
-		GreetThem,
-		BingoForm,
-		Extensions,
-		DonorBadge,
-		Parameters,
-		RaffleForm,
-		TTUserList,
-		ObsHeatLogs,
-		MessageList,
-		GroqHistory,
-		DevmodeMenu,
-		RewardsList,
-		ShareParams,
-		ShoutoutList,
-		TriggersLogs,
-		TrackedUsers,
-		ChatPollForm,
-		BingoGridForm,
-		MessageSearch,
-		StreamSummary,
-		WhispersState,
-		Accessibility,
-		CommandHelper,
-		EmoteSelector,
-		PinedMessages,
-		PredictionForm,
-		LiveFollowings,
-		StreamInfoForm,
-		VoiceTranscript,
-		ChatAlertMessage,
-		NonPremiumCleanup,
-		BingoGridControls,
-		SettingsImportForm,
-		ChatSuggestionForm,
-		ChatSuggestionState,
-		HelpGenocideVictims,
-		MigrationFixerModal,
-		TwitchatAnnouncement,
-		ChannelNotifications,
-		EndingCreditsControls,
-		OutdatedDataVersionAlert,
-		EmergencyFollowsListModal,
+const { t } = useI18n();
+const { getAsset } = asset();
+
+const storeMain = useStoreMain();
+const storeParams = useStoreParams();
+const storeAuth = useStoreAuth();
+const storePrediction = useStorePrediction();
+const storeStream = useStoreStream();
+const storePoll = useStorePoll();
+const storeChatPoll = useStoreChatPoll();
+const storeBingo = useStoreBingo();
+const storeRaffle = useStoreRaffle();
+const storeEmergency = useStoreEmergency();
+const storeChat = useStoreChat();
+const storeCommon = useStoreCommon();
+
+// Template refs
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const scrollable = useTemplateRef<HTMLDivElement>("scrollable");
+const donor = useTemplateRef<InstanceType<typeof DonorBadge>>("donor");
+const chatForm = useTemplateRef<InstanceType<typeof ChatForm>>("chatForm");
+const blinkLayer = useTemplateRef<HTMLDivElement>("blinkLayer");
+
+const columnRefs: Record<string, HTMLDivElement> = {};
+function setColumnRef(el: HTMLDivElement | ComponentPublicInstance | null, id: string): void {
+	if (el) columnRefs[id] = el as HTMLDivElement;
+	else delete columnRefs[id];
+}
+
+// Reactive state
+const buildIndex = ref(0);
+const showPins = ref(false);
+const showEmotes = ref(false);
+const showRewards = ref(false);
+const showDevMenu = ref(false);
+const showCredits = ref(false);
+const showCommands = ref(false);
+const showShoutout = ref(false);
+const showBingoGrid = ref(false);
+const showGazaFunds = ref(false);
+const showChatUsers = ref(false);
+const showDonorBadge = ref(true);
+const showBlinkLayer = ref(false);
+const importedSettings = ref<TriggerImportData | null>(null);
+const greetColIndexTarget = ref(0);
+const panelsColIndexTarget = ref(0);
+const forceHttpFixerClose = ref(false);
+const forceEmergencyFollowClose = ref(false);
+const panelsColumnTarget = ref<HTMLDivElement | null>(null);
+const currentNotificationContent = ref<TwitchatDataTypes.NotificationTypes>("");
+const mustDisableItems_precalc = ref(false);
+
+let disposed = false;
+let mouseX = 0;
+let mouseY = 0;
+let prevFormHeight = 0;
+let resizeDebounce = -1;
+let resizing = false;
+let closingDonorState = false;
+let draggedCol: TwitchatDataTypes.ChatColumnsConfig | null = null;
+let mouseUpHandler: (e: MouseEvent | TouchEvent) => void;
+let mouseMoveHandler: (e: MouseEvent | TouchEvent) => void;
+let windowResizeHandler: (e: Event) => void;
+let publicApiEventHandler: (e: unknown) => void;
+
+const splitViewVertical = computed(() => storeParams.appearance.splitViewVertical.value as boolean);
+const showEmergencyFollows = computed(
+	() => storeEmergency.follows.length > 0 && !storeEmergency.emergencyStarted,
+);
+const mustDisableItems = computed(() => mustDisableItems_precalc.value && !storeAuth.isPremium);
+const classes = computed(() => {
+	const res = ["chat"];
+	if (splitViewVertical.value) res.push("splitVertical");
+	if (Config.instance.DEMO_MODE) res.push("demo");
+	if (storeMain.offlineMode) res.push("offlineMode");
+	return res;
+});
+
+//Auto opens the prediction status if pending for completion
+watch(
+	() => storePrediction.data,
+	(newValue, prevValue) => {
+		let prediction = storePrediction.data;
+		const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
+		if ((prediction && prediction.pendingAnswer) || isNew)
+			setCurrentNotification("prediction", false);
 	},
-})
-class Chat extends Vue {
-	public buildIndex = 0;
-	public showQna = false;
-	public showPins = false;
-	public showQuiz = false;
-	public showEmotes = false;
-	public showRewards = false;
-	public showDevMenu = false;
-	public showCredits = false;
-	public showCommands = false;
-	public showShoutout = false;
-	public showBingoGrid = false;
-	public showGazaFunds = false;
-	public showChatUsers = false;
-	public showDonorBadge = true;
-	public showBlinkLayer = false;
-	public importedSettings: TriggerImportData | null = null;
-	public greetColIndexTarget = 0;
-	public panelsColIndexTarget = 0;
-	public forceHttpFixerClose = false;
-	public forceEmergencyFollowClose = false;
-	public panelsColumnTarget: HTMLDivElement | null = null;
-	public currentNotificationContent: TwitchatDataTypes.NotificationTypes = "";
-	public mustDisableItems_precalc: boolean = false;
+);
 
-	private disposed = false;
-	private mouseX = 0;
-	private mouseY = 0;
-	private prevFormHeight = 0;
-	private resizeDebounce = -1;
-	private resizing = false;
-	private closingDonorState = false;
-	private draggedCol: TwitchatDataTypes.ChatColumnsConfig | null = null;
+//Auto opens the raid status
+watch(
+	() => storeStream.currentRaid,
+	(newValue, prevValue) => {
+		if (newValue && !prevValue) setCurrentNotification("raid", false);
+	},
+);
 
-	private mouseUpHandler!: (e: MouseEvent | TouchEvent) => void;
-	private mouseMoveHandler!: (e: MouseEvent | TouchEvent) => void;
-	private windowResizeHandler!: (e: Event) => void;
-	private publicApiEventHandler!: (e: unknown) => void;
+//Auto opens the poll status if terminated
+watch(
+	() => storePoll.data,
+	(newValue, prevValue) => {
+		let poll = storePoll.data;
+		const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
+		if (poll && isNew) setCurrentNotification("poll", false);
+	},
+);
 
-	public get splitViewVertical(): boolean {
-		return this.$store.params.appearance.splitViewVertical.value as boolean;
-	}
-	public get showEmergencyFollows(): boolean {
-		return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted;
-	}
-	public get mustDisableItems(): boolean {
-		return this.mustDisableItems_precalc && !this.$store.auth.isPremium;
-	}
+//Auto opens the poll status if terminated
+watch(
+	() => storeChatPoll.data,
+	(newValue, prevValue) => {
+		let poll = storeChatPoll.data;
+		const isNew = !prevValue || (newValue && prevValue);
+		if (poll && isNew) setCurrentNotification("chatPoll", false);
+	},
+);
 
-	public get classes(): string[] {
-		const res = ["chat"];
-		if (this.splitViewVertical) res.push("splitVertical");
-		if (Config.instance.DEMO_MODE) res.push("demo");
-		if (this.$store.main.offlineMode) res.push("offlineMode");
-		return res;
-	}
+//Auto opens the bingo status when created
+watch(
+	() => storeBingo.data,
+	() => {
+		let bingo = storeBingo.data;
+		if (bingo) setCurrentNotification("bingo", false);
+	},
+);
 
-	public getColStyles(col: TwitchatDataTypes.ChatColumnsConfig): { [key: string]: string } {
-		let size = col.size * 100;
-		const cols = this.$store.params.chatColumnsConfig;
-		if (cols.length == 1) {
-			return {
-				width: "100%",
-				height: "100%",
-			};
-		}
-		const value = `${size}%`;
-		if (this.splitViewVertical) {
-			return {
-				height: value,
-				"min-height": "max(200px, " + value + ")",
-				"max-height": value,
-			};
-		} else {
-			return {
-				width: value,
-				"min-width": "max(200px, " + value + ")",
-				"max-width": value,
-			};
-		}
-	}
+//Auto opens the raffle status when created
+watch(
+	() => storeRaffle.raffleList,
+	(newValue, oldValue) => {
+		if (newValue.length <= oldValue.length) return;
 
-	public beforeMount(): void {
-		//Check user reached a new donor level
-		this.showDonorBadge =
-			this.$store.auth.donorLevel > -1 && this.$store.auth.donorLevelUpgrade === true;
-
-		this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
-
-		// Function that attempts to request a screen wake lock.
-		const requestWakeLock = async () => {
-			try {
-				await navigator.wakeLock.request("screen");
-			} catch (err) {
-				// const error = err as {name:string, message:string}
-				// console.error(`${error.name}, ${error.message}`);
+		let raffleliost = storeRaffle.raffleList;
+		for (let i = 0; i < raffleliost.length; i++) {
+			const raffle = raffleliost[i];
+			if (raffle && (raffle.command || raffle.reward_id)) {
+				setCurrentNotification("raffle");
+				break;
 			}
-		};
-
-		//Auto opens the prediction status if pending for completion
-		watch(
-			() => this.$store.prediction.data,
-			(newValue, prevValue) => {
-				let prediction = this.$store.prediction.data;
-				const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-				if ((prediction && prediction.pendingAnswer) || isNew)
-					this.setCurrentNotification("prediction", false);
-			},
-		);
-
-		//Auto opens the raid status
-		watch(
-			() => this.$store.stream.currentRaid,
-			(newValue, prevValue) => {
-				if (newValue && !prevValue) this.setCurrentNotification("raid", false);
-			},
-		);
-
-		//Auto opens the poll status if terminated
-		watch(
-			() => this.$store.poll.data,
-			(newValue, prevValue) => {
-				let poll = this.$store.poll.data;
-				const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-				if (poll && isNew) this.setCurrentNotification("poll", false);
-			},
-		);
-
-		//Auto opens the poll status if terminated
-		watch(
-			() => this.$store.chatPoll.data,
-			(newValue, prevValue) => {
-				let poll = this.$store.chatPoll.data;
-				const isNew = !prevValue || (newValue && prevValue);
-				if (poll && isNew) this.setCurrentNotification("chatPoll", false);
-			},
-		);
-
-		//Auto opens the bingo status when created
-		watch(
-			() => this.$store.bingo.data,
-			() => {
-				let bingo = this.$store.bingo.data;
-				if (bingo) this.setCurrentNotification("bingo", false);
-			},
-		);
-
-		//Auto opens the raffle status when created
-		watch(
-			() => this.$store.raffle.raffleList,
-			(newValue, oldValue) => {
-				if (newValue.length <= oldValue.length) return;
-
-				let raffleliost = this.$store.raffle.raffleList;
-				for (let i = 0; i < raffleliost.length; i++) {
-					const raffle = raffleliost[i];
-					if (raffle && (raffle.command || raffle.reward_id)) {
-						this.setCurrentNotification("raffle");
-						break;
-					}
-				}
-			},
-			{ deep: true },
-		);
-
-		//Auto opens the train status when created
-		watch(
-			() => this.$store.stream.hypeTrain,
-			(newValue, oldValue) => {
-				if (newValue && !oldValue) this.setCurrentNotification("train", false);
-			},
-		);
-
-		//Watch for columns changes
-		watch(
-			() => this.$store.params.chatColumnsConfig,
-			() => {
-				this.computeWindowsSizes();
-			},
-			{ deep: true },
-		);
-
-		//Watch for current modal to be displayed
-		watch(
-			() => this.$store.params.currentModal,
-			(value) => {
-				//Make sure the column holding modals is visible
-				if (this.panelsColumnTarget && value) {
-					const col = this.panelsColumnTarget.parentElement as HTMLDivElement;
-					const scrollable = this.$refs.scrollable as HTMLDivElement;
-					const scrollTo = {
-						x: col.offsetLeft - (scrollable.offsetWidth - col.offsetWidth),
-						y: col.offsetTop - (scrollable.offsetHeight - col.offsetHeight) / 2,
-					};
-					gsap.to(scrollable, { duration: 0.75, ease: "sine.inOut", scrollTo });
-				}
-			},
-		);
-
-		//Handle chat alert feature
-		watch(
-			() => this.$store.main.chatAlert,
-			async () => {
-				if (this.$store.main.chatAlert != null) {
-					if (this.$store.params.features.alertMode.value !== true) return;
-
-					const params = this.$store.main.chatAlertParams;
-					gsap.killTweensOf(this.$el);
-					if (params.shake) {
-						gsap.fromTo(
-							this.$el,
-							{ x: -10 },
-							{ duration: 0.01, x: 10, clearProps: "x", repeat: 60 },
-						);
-						gsap.fromTo(
-							this.$el,
-							{ y: -10 },
-							{ duration: 0.02, y: 10, clearProps: "y", repeat: 30 },
-						);
-					}
-					if (params.blink) {
-						this.showBlinkLayer = true;
-						await this.$nextTick();
-						const layer = this.$refs.blinkLayer as HTMLDivElement;
-						gsap.killTweensOf(layer);
-						gsap.fromTo(
-							layer,
-							{ opacity: 0 },
-							{
-								duration: 0.17,
-								opacity: 1,
-								clearProps: "opacity",
-								repeat: 3,
-								onComplete: () => {
-									this.showBlinkLayer = false;
-								},
-							},
-						);
-					}
-					if (params.sound) {
-						new Audio(this.$asset("sounds/wizz.mp3")).play();
-					}
-					if (params.vibrate) {
-						window.navigator.vibrate([200, 100, 200, 100, 200, 100, 200, 100, 1000]);
-					}
-				}
-			},
-		);
-
-		//Reset emotes cache if changing BTTV/FFZ/7TV states
-		watch(
-			() => this.$store.params.appearance.bttvEmotes.value,
-			() => {
-				this.$store.chat.emoteSelectorCache = [];
-			},
-		);
-		watch(
-			() => this.$store.params.appearance.ffzEmotes.value,
-			() => {
-				this.$store.chat.emoteSelectorCache = [];
-			},
-		);
-		watch(
-			() => this.$store.params.appearance.sevenTVEmotes.value,
-			() => {
-				this.$store.chat.emoteSelectorCache = [];
-			},
-		);
-
-		watch(
-			() => this.$store.auth.isPremium,
-			(newValue) => {
-				if (!newValue) {
-					this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
-				}
-			},
-		);
-
-		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
-		this.mouseUpHandler = () => (this.resizing = false);
-		this.mouseMoveHandler = (e: MouseEvent | TouchEvent) => this.onMouseMove(e);
-		this.windowResizeHandler = (e: Event) => this.computeChatFormHeight();
-
-		document.addEventListener("mouseup", this.mouseUpHandler);
-		document.addEventListener("touchend", this.mouseUpHandler);
-		document.addEventListener("mousemove", this.mouseMoveHandler);
-		document.addEventListener("touchmove", this.mouseMoveHandler);
-		window.addEventListener("resize", this.windowResizeHandler);
-		PublicAPI.instance.addEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(
-			"SET_CENSOR_DELETED_MESSAGES_TOGGLE",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.addEventListener(
-			"ON_OPEN_POLL_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.addEventListener(
-			"SET_OPEN_PREDICTION_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.addEventListener(
-			"ON_OPEN_RAFFLE_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_STOP_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
-		requestWakeLock();
-
-		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
-			Utils.promisedTimeout(500).then(() => {
-				this.buildIndex++;
-				//Necessary so side panels know where to open
-				this.computeWindowsSizes();
-			});
 		}
-	}
+	},
+	{ deep: true },
+);
 
-	public mounted(): void {
-		if (this.showDonorBadge) {
-			//Show donor badge
-			const el = (this.$refs.donor as ComponentPublicInstance).$el as HTMLDivElement;
-			gsap.from(el, { bottom: "-350px", duration: 2, ease: "back.out", delay: 1 });
+//Auto opens the train status when created
+watch(
+	() => storeStream.hypeTrain,
+	(newValue, oldValue) => {
+		if (newValue && !oldValue) setCurrentNotification("train", false);
+	},
+);
+
+//Watch for columns changes
+watch(
+	() => storeParams.chatColumnsConfig,
+	() => {
+		computeWindowsSizes();
+	},
+	{ deep: true },
+);
+
+//Watch for current modal to be displayed
+watch(
+	() => storeParams.currentModal,
+	(value) => {
+		//Make sure the column holding modals is visible
+		if (panelsColumnTarget.value && value) {
+			const col = panelsColumnTarget.value.parentElement as HTMLDivElement;
+			const scrollableEl = scrollable.value!;
+			const scrollTo = {
+				x: col.offsetLeft - (scrollableEl.offsetWidth - col.offsetWidth),
+				y: col.offsetTop - (scrollableEl.offsetHeight - col.offsetHeight) / 2,
+			};
+			gsap.to(scrollableEl, { duration: 0.75, ease: "sine.inOut", scrollTo });
 		}
-		this.computeWindowsSizes();
+	},
+);
 
-		// window.setTimeout(() => {
-		// 	this.$store.params.openModal("shareParams");
-		// }, 1000);
+//Handle chat alert feature
+watch(
+	() => storeMain.chatAlert,
+	async () => {
+		if (storeMain.chatAlert != null) {
+			if (storeParams.features.alertMode.value !== true) return;
+
+			const params = storeMain.chatAlertParams;
+			gsap.killTweensOf(rootEl.value);
+			if (params.shake) {
+				gsap.fromTo(
+					rootEl.value,
+					{ x: -10 },
+					{ duration: 0.01, x: 10, clearProps: "x", repeat: 60 },
+				);
+				gsap.fromTo(
+					rootEl.value,
+					{ y: -10 },
+					{ duration: 0.02, y: 10, clearProps: "y", repeat: 30 },
+				);
+			}
+			if (params.blink) {
+				showBlinkLayer.value = true;
+				await nextTick();
+				const layer = blinkLayer.value!;
+				gsap.killTweensOf(layer);
+				gsap.fromTo(
+					layer,
+					{ opacity: 0 },
+					{
+						duration: 0.17,
+						opacity: 1,
+						clearProps: "opacity",
+						repeat: 3,
+						onComplete: () => {
+							showBlinkLayer.value = false;
+						},
+					},
+				);
+			}
+			if (params.sound) {
+				new Audio(getAsset("sounds/wizz.mp3")).play();
+			}
+			if (params.vibrate) {
+				window.navigator.vibrate([200, 100, 200, 100, 200, 100, 200, 100, 1000]);
+			}
+		}
+	},
+);
+
+//Reset emotes cache if changing BTTV/FFZ/7TV states
+watch(
+	() => storeParams.appearance.bttvEmotes.value,
+	() => {
+		storeChat.emoteSelectorCache = [];
+	},
+);
+watch(
+	() => storeParams.appearance.ffzEmotes.value,
+	() => {
+		storeChat.emoteSelectorCache = [];
+	},
+);
+watch(
+	() => storeParams.appearance.sevenTVEmotes.value,
+	() => {
+		storeChat.emoteSelectorCache = [];
+	},
+);
+
+watch(
+	() => storeAuth.isPremium,
+	(newValue) => {
+		if (!newValue) {
+			mustDisableItems_precalc.value = (storeMain as any).nonPremiumLimitExceeded;
+		}
+	},
+);
+
+onBeforeMount(() => {
+	//Check user reached a new donor level
+	showDonorBadge.value = storeAuth.donorLevel > -1 && storeAuth.donorLevelUpgrade === true;
+
+	mustDisableItems_precalc.value = (storeMain as any).nonPremiumLimitExceeded;
+
+	publicApiEventHandler = (e) => onPublicApiEvent(e as any);
+	mouseUpHandler = () => (resizing = false);
+	mouseMoveHandler = (e: MouseEvent | TouchEvent) => onMouseMove(e);
+	windowResizeHandler = (e: Event) => computeChatFormHeight();
+
+	document.addEventListener("mouseup", mouseUpHandler);
+	document.addEventListener("touchend", mouseUpHandler);
+	document.addEventListener("mousemove", mouseMoveHandler);
+	document.addEventListener("touchmove", mouseMoveHandler);
+	window.addEventListener("resize", windowResizeHandler);
+	PublicAPI.instance.addEventListener("SET_POLL_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_PREDICTION_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_BINGO_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_RAFFLE_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_VIEWERS_COUNT_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_MOD_TOOLS_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener(
+		"SET_CENSOR_DELETED_MESSAGES_TOGGLE",
+		publicApiEventHandler,
+	);
+	PublicAPI.instance.addEventListener("ON_OPEN_POLL_CREATION_FORM", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_OPEN_PREDICTION_CREATION_FORM", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("ON_OPEN_RAFFLE_CREATION_FORM", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("GET_CHAT_COLUMNS_COUNT", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_CLEAR_CHAT_HIGHLIGHT", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_STOP_POLL", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_STOP_PREDICTION", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_SEND_MESSAGE", publicApiEventHandler);
+	// Attempts to request a screen wake lock.
+	navigator.wakeLock.request("screen").catch((error) => {
+		// const error = err as {name:string, message:string}
+		// console.error(`${error.name}, ${error.message}`);
+	});
+
+	for (let i = 0; i < storeParams.chatColumnsConfig.length + 10; i++) {
+		Utils.promisedTimeout(500).then(() => {
+			buildIndex.value++;
+			//Necessary so side panels know where to open
+			computeWindowsSizes();
+		});
 	}
+});
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-		document.removeEventListener("mouseup", this.mouseUpHandler);
-		document.removeEventListener("touchend", this.mouseUpHandler);
-		document.removeEventListener("mousemove", this.mouseMoveHandler);
-		document.removeEventListener("touchmove", this.mouseMoveHandler);
-		window.removeEventListener("resize", this.windowResizeHandler);
-		PublicAPI.instance.removeEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(
-			"SET_VIEWERS_COUNT_TOGGLE",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(
-			"SET_CENSOR_DELETED_MESSAGES_TOGGLE",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"ON_OPEN_POLL_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"SET_OPEN_PREDICTION_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"ON_OPEN_RAFFLE_CREATION_FORM",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"SET_SHOUTOUT_LAST_RAIDER",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"GET_CHAT_COLUMNS_COUNT",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener(
-			"SET_CLEAR_CHAT_HIGHLIGHT",
-			this.publicApiEventHandler,
-		);
-		PublicAPI.instance.removeEventListener("SET_STOP_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
-	}
-
-	public closeDonorCard(): void {
-		if (this.closingDonorState) return;
+onMounted(() => {
+	if (showDonorBadge.value) {
 		//Show donor badge
-		this.closingDonorState = true;
-		const el = (this.$refs.donor as ComponentPublicInstance).$el as HTMLDivElement;
-		gsap.to(el, {
-			bottom: "-350px",
-			duration: 1,
-			ease: "back.in",
-			onComplete: () => {
-				this.showDonorBadge = false;
-			},
-		});
+		const el = (donor.value as unknown as ComponentPublicInstance).$el as HTMLDivElement;
+		gsap.from(el, { bottom: "-350px", duration: 2, ease: "back.out", delay: 1 });
+	}
+	computeWindowsSizes();
+
+	// window.setTimeout(() => {
+	// 	this.$store.params.openModal("shareParams");
+	// }, 1000);
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+	document.removeEventListener("mouseup", mouseUpHandler);
+	document.removeEventListener("touchend", mouseUpHandler);
+	document.removeEventListener("mousemove", mouseMoveHandler);
+	document.removeEventListener("touchmove", mouseMoveHandler);
+	window.removeEventListener("resize", windowResizeHandler);
+	PublicAPI.instance.removeEventListener("SET_POLL_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_PREDICTION_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_BINGO_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_RAFFLE_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_VIEWERS_COUNT_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_MOD_TOOLS_TOGGLE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener(
+		"SET_CENSOR_DELETED_MESSAGES_TOGGLE",
+		publicApiEventHandler,
+	);
+	PublicAPI.instance.removeEventListener("ON_OPEN_POLL_CREATION_FORM", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener(
+		"SET_OPEN_PREDICTION_CREATION_FORM",
+		publicApiEventHandler,
+	);
+	PublicAPI.instance.removeEventListener("ON_OPEN_RAFFLE_CREATION_FORM", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_SHOUTOUT_LAST_RAIDER", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("GET_CHAT_COLUMNS_COUNT", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_CLEAR_CHAT_HIGHLIGHT", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_STOP_POLL", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_STOP_PREDICTION", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_SEND_MESSAGE", publicApiEventHandler);
+});
+
+function closeDonorCard(): void {
+	if (closingDonorState) return;
+	closingDonorState = true;
+	//Show donor badge
+	const el = (donor.value as unknown as ComponentPublicInstance).$el as HTMLDivElement;
+	gsap.to(el, {
+		bottom: "-350px",
+		duration: 1,
+		ease: "back.in",
+		onComplete: () => {
+			showDonorBadge.value = false;
+		},
+	});
+}
+
+/**
+ * Called when requesting an action from the public API
+ * //TODO move this to store, this has nothing to do here for the most part
+ */
+async function onPublicApiEvent(
+	e:
+		| { type: "SET_POLL_TOGGLE"; data: TwitchatEventMap["SET_POLL_TOGGLE"] }
+		| { type: "SET_PREDICTION_TOGGLE"; data: TwitchatEventMap["SET_PREDICTION_TOGGLE"] }
+		| { type: "SET_BINGO_TOGGLE"; data: TwitchatEventMap["SET_BINGO_TOGGLE"] }
+		| { type: "SET_RAFFLE_TOGGLE"; data: TwitchatEventMap["SET_RAFFLE_TOGGLE"] }
+		| {
+				type: "SET_VIEWERS_COUNT_TOGGLE";
+				data: TwitchatEventMap["SET_VIEWERS_COUNT_TOGGLE"];
+		  }
+		| { type: "SET_MOD_TOOLS_TOGGLE"; data: TwitchatEventMap["SET_MOD_TOOLS_TOGGLE"] }
+		| {
+				type: "SET_CENSOR_DELETED_MESSAGES_TOGGLE";
+				data: TwitchatEventMap["SET_CENSOR_DELETED_MESSAGES_TOGGLE"];
+		  }
+		| {
+				type: "ON_OPEN_POLL_CREATION_FORM";
+				data: TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"];
+		  }
+		| {
+				type: "SET_OPEN_PREDICTION_CREATION_FORM";
+				data: TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"];
+		  }
+		| {
+				type: "ON_OPEN_RAFFLE_CREATION_FORM";
+				data: TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"];
+		  }
+		| {
+				type: "SET_SHOUTOUT_LAST_RAIDER";
+				data: TwitchatEventMap["SET_SHOUTOUT_LAST_RAIDER"];
+		  }
+		| { type: "GET_CHAT_COLUMNS_COUNT"; data: TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"] }
+		| {
+				type: "SET_CLEAR_CHAT_HIGHLIGHT";
+				data: TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"];
+		  }
+		| { type: "SET_STOP_POLL"; data: TwitchatEventMap["SET_STOP_POLL"] }
+		| { type: "SET_STOP_PREDICTION"; data: TwitchatEventMap["SET_STOP_PREDICTION"] }
+		| { type: "SET_SEND_MESSAGE"; data: TwitchatEventMap["SET_SEND_MESSAGE"] },
+): Promise<void> {
+	let notif: TwitchatDataTypes.NotificationTypes = "";
+	let modal: TwitchatDataTypes.ModalTypes = "";
+
+	switch (e.type) {
+		case "SET_POLL_TOGGLE":
+			notif = "poll";
+			break;
+		case "SET_PREDICTION_TOGGLE":
+			notif = "prediction";
+			break;
+		case "SET_BINGO_TOGGLE":
+			notif = "bingo";
+			break;
+		case "SET_RAFFLE_TOGGLE":
+			notif = "raffle";
+			break;
+		case "SET_VIEWERS_COUNT_TOGGLE":
+			storeParams.appearance.showViewersCount.value =
+				!storeParams.appearance.showViewersCount.value;
+			storeParams.updateParams();
+			break;
+
+		case "SET_MOD_TOOLS_TOGGLE":
+			storeParams.features.showModTools.value = !storeParams.features.showModTools.value;
+			storeParams.updateParams();
+			break;
+
+		case "GET_CHAT_COLUMNS_COUNT":
+			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {
+				count: storeParams.chatColumnsConfig.length,
+			});
+			break;
+
+		case "SET_CENSOR_DELETED_MESSAGES_TOGGLE":
+			storeParams.appearance.censorDeletedMessages.value =
+				!storeParams.appearance.censorDeletedMessages.value;
+			storeParams.updateParams();
+			break;
+
+		case "ON_OPEN_POLL_CREATION_FORM":
+			storeParams.openModal("poll");
+			await nextTick();
+			break;
+		case "SET_STOP_POLL": {
+			const poll = storePoll.data;
+			if (!poll) return;
+			try {
+				await TwitchUtils.endPoll(poll.id, poll.channel_id);
+			} catch (error) {
+				storeCommon.alert(t("error.twitch_poll_delete"));
+			}
+			break;
+		}
+
+		case "SET_OPEN_PREDICTION_CREATION_FORM":
+			storeParams.openModal("pred");
+			await nextTick();
+			break;
+		case "SET_STOP_PREDICTION": {
+			const prediction = storePrediction.data;
+			if (!prediction) return;
+			try {
+				await TwitchUtils.endPrediction(
+					prediction.channel_id,
+					prediction.id,
+					prediction.outcomes[0]!.id,
+					true,
+				);
+			} catch (error) {
+				storeCommon.alert(t("error.twitch_prediction_delete"));
+			}
+			break;
+		}
+
+		case "ON_OPEN_RAFFLE_CREATION_FORM": {
+			storeParams.openModal("raffle");
+			await nextTick();
+			break;
+		}
+
+		case "SET_CLEAR_CHAT_HIGHLIGHT": {
+			storeChat.highlightChatMessageOverlay();
+			break;
+		}
+
+		case "SET_SEND_MESSAGE": {
+			if (e.data.message && e.data.message.trim().length > 0) {
+				MessengerProxy.instance.sendMessage(e.data.message);
+			}
+			break;
+		}
 	}
 
-	/**
-	 * Called when requesting an action from the public API
-	 * //TODO move this store, this has nothing to do here for the most part
-	 */
-	private async onPublicApiEvent(
-		e:
-			| { type: "SET_POLL_TOGGLE"; data: TwitchatEventMap["SET_POLL_TOGGLE"] }
-			| { type: "SET_PREDICTION_TOGGLE"; data: TwitchatEventMap["SET_PREDICTION_TOGGLE"] }
-			| { type: "SET_BINGO_TOGGLE"; data: TwitchatEventMap["SET_BINGO_TOGGLE"] }
-			| { type: "SET_RAFFLE_TOGGLE"; data: TwitchatEventMap["SET_RAFFLE_TOGGLE"] }
-			| {
-					type: "SET_VIEWERS_COUNT_TOGGLE";
-					data: TwitchatEventMap["SET_VIEWERS_COUNT_TOGGLE"];
-			  }
-			| { type: "SET_MOD_TOOLS_TOGGLE"; data: TwitchatEventMap["SET_MOD_TOOLS_TOGGLE"] }
-			| {
-					type: "SET_CENSOR_DELETED_MESSAGES_TOGGLE";
-					data: TwitchatEventMap["SET_CENSOR_DELETED_MESSAGES_TOGGLE"];
-			  }
-			| {
-					type: "ON_OPEN_POLL_CREATION_FORM";
-					data: TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"];
-			  }
-			| {
-					type: "SET_OPEN_PREDICTION_CREATION_FORM";
-					data: TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"];
-			  }
-			| {
-					type: "ON_OPEN_RAFFLE_CREATION_FORM";
-					data: TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"];
-			  }
-			| {
-					type: "SET_SHOUTOUT_LAST_RAIDER";
-					data: TwitchatEventMap["SET_SHOUTOUT_LAST_RAIDER"];
-			  }
-			| { type: "GET_CHAT_COLUMNS_COUNT"; data: TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"] }
-			| {
-					type: "SET_CLEAR_CHAT_HIGHLIGHT";
-					data: TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"];
-			  }
-			| { type: "SET_STOP_POLL"; data: TwitchatEventMap["SET_STOP_POLL"] }
-			| { type: "SET_STOP_PREDICTION"; data: TwitchatEventMap["SET_STOP_PREDICTION"] }
-			| { type: "SET_SEND_MESSAGE"; data: TwitchatEventMap["SET_SEND_MESSAGE"] },
-	): Promise<void> {
-		let notif: TwitchatDataTypes.NotificationTypes = "";
-		let modal: TwitchatDataTypes.ModalTypes = "";
-
-		switch (e.type) {
-			case "SET_POLL_TOGGLE":
-				notif = "poll";
-				break;
-			case "SET_PREDICTION_TOGGLE":
-				notif = "prediction";
-				break;
-			case "SET_BINGO_TOGGLE":
-				notif = "bingo";
-				break;
-			case "SET_RAFFLE_TOGGLE":
-				notif = "raffle";
-				break;
-			case "SET_VIEWERS_COUNT_TOGGLE":
-				this.$store.params.appearance.showViewersCount.value =
-					!this.$store.params.appearance.showViewersCount.value;
-				this.$store.params.updateParams();
-				break;
-
-			case "SET_MOD_TOOLS_TOGGLE":
-				this.$store.params.features.showModTools.value =
-					!this.$store.params.features.showModTools.value;
-				this.$store.params.updateParams();
-				break;
-
-			case "GET_CHAT_COLUMNS_COUNT":
-				PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {
-					count: this.$store.params.chatColumnsConfig.length,
-				});
-				break;
-
-			case "SET_CENSOR_DELETED_MESSAGES_TOGGLE":
-				this.$store.params.appearance.censorDeletedMessages.value =
-					!this.$store.params.appearance.censorDeletedMessages.value;
-				this.$store.params.updateParams();
-				break;
-
-			case "ON_OPEN_POLL_CREATION_FORM":
-				this.$store.params.openModal("poll");
-				await this.$nextTick();
-				break;
-			case "SET_STOP_POLL": {
-				const poll = this.$store.poll.data;
-				if (!poll) return;
-				try {
-					await TwitchUtils.endPoll(poll.id, poll.channel_id);
-				} catch (error) {
-					this.$store.common.alert(this.$t("error.twitch_poll_delete"));
-				}
-				break;
-			}
-
-			case "SET_OPEN_PREDICTION_CREATION_FORM":
-				this.$store.params.openModal("pred");
-				await this.$nextTick();
-				break;
-			case "SET_STOP_PREDICTION": {
-				const prediction = this.$store.prediction.data;
-				if (!prediction) return;
-				try {
-					await TwitchUtils.endPrediction(
-						prediction.channel_id,
-						prediction.id,
-						prediction.outcomes[0]!.id,
-						true,
-					);
-				} catch (error) {
-					this.$store.common.alert(this.$t("error.twitch_prediction_delete"));
-				}
-				break;
-			}
-
-			case "ON_OPEN_RAFFLE_CREATION_FORM": {
-				this.$store.params.openModal("raffle");
-				await this.$nextTick();
-				break;
-			}
-
-			case "SET_CLEAR_CHAT_HIGHLIGHT": {
-				this.$store.chat.highlightChatMessageOverlay();
-				break;
-			}
-
-			case "SET_SEND_MESSAGE": {
-				if (e.data.message && e.data.message.trim().length > 0) {
-					MessengerProxy.instance.sendMessage(e.data.message);
-				}
-				break;
-			}
-		}
-
-		if (notif) {
-			this.setCurrentNotification(notif);
-		}
-
-		if (modal) {
-			if (this.$store.params.currentModal == modal) {
-				this.$store.params.openModal("");
-			} else {
-				this.$store.params.openModal(modal);
-			}
-		}
+	if (notif) {
+		setCurrentNotification(notif);
 	}
 
-	public async setCurrentNotification(
-		value: TwitchatDataTypes.NotificationTypes,
-		toggle: boolean = true,
-	): Promise<void> {
-		if (this.currentNotificationContent == value && toggle) {
-			this.currentNotificationContent = "";
+	if (modal) {
+		if (storeParams.currentModal == modal) {
+			storeParams.openModal("");
 		} else {
-			this.currentNotificationContent = value;
+			storeParams.openModal(modal);
 		}
-	}
-
-	/**
-	 * Called when selecting an emote from the emote selectors
-	 */
-	public onSelectEmote(item: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji): void {
-		//TODO drop "any" once this file is migrated to composition API and we can use proper typing for refs
-		(this.$refs.chatForm as any).onSelectItem("code" in item ? item.code : item.emoji);
-	}
-
-	/**
-	 * Called when searching for a message
-	 */
-	public searchMessage(str: string): void {
-		this.$store.params.openModal("search");
-	}
-
-	/**
-	 * Called when starting window resize
-	 */
-	public startDrag(event: PointerEvent, col: TwitchatDataTypes.ChatColumnsConfig): void {
-		this.resizing = true;
-		this.draggedCol = col;
-		this.onMouseMove(event);
-		this.renderFrame();
-		(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
-	}
-
-	/**
-	 * Expand the selected col
-	 * @param col
-	 */
-	public expandCol(col: TwitchatDataTypes.ChatColumnsConfig): void {
-		const colList = this.$store.params.chatColumnsConfig;
-		let totalSize = 0;
-		for (const c of colList) {
-			totalSize += c.size;
-		}
-
-		//If there's available space on the screen
-		//expand the col to fill it
-		if (totalSize < 1) {
-			col.size += 1 - totalSize;
-		}
-	}
-
-	/**
-	 * Add a chat column
-	 */
-	public addColumn(ref: TwitchatDataTypes.ChatColumnsConfig): void {
-		let col = this.$store.params.addChatColumn(ref);
-		const colList = this.$store.params.chatColumnsConfig;
-		let totalSize = 0;
-		for (const c of colList) {
-			totalSize += c.size;
-		}
-
-		//If after adding a new column if there's still some remaining space
-		//expand the new col to fill that space
-		if (totalSize < 1) {
-			col.size += 1 - totalSize;
-		}
-
-		const holder = this.$refs.scrollable as HTMLDivElement;
-		this.$nextTick().then(() => {
-			//Scroll to to the new col
-			let colHolder = this.$refs["column_" + col.id] as HTMLDivElement[];
-			let bounds = colHolder[0]!.getBoundingClientRect();
-
-			let scrollTo = this.splitViewVertical
-				? { y: bounds.top + bounds.height - holder.offsetHeight }
-				: { x: bounds.left + bounds.width - holder.offsetWidth };
-			gsap.to(holder, { duration: 0.75, ease: "sine.inOut", scrollTo });
-			this.computeWindowsSizes();
-		});
-	}
-
-	/**
-	 * Called when user drags the columns left/right (up/down on vertical layout)
-	 */
-	public onScrollColumns(): void {}
-
-	/**
-	 * Called when the mouse moves
-	 */
-	private async onMouseMove(e: MouseEvent | TouchEvent | PointerEvent): Promise<void> {
-		if ("clientX" in e) {
-			this.mouseX = e.clientX;
-			this.mouseY = e.clientY;
-		} else if ("touches" in e) {
-			this.mouseX = e.touches[0]!.clientX;
-			this.mouseY = e.touches[0]!.clientY;
-		}
-	}
-
-	/**
-	 * Manage colmumns resize
-	 */
-	private async renderFrame(): Promise<void> {
-		if (this.disposed || !this.resizing) return;
-		requestAnimationFrame(() => this.renderFrame());
-
-		const cols = this.$store.params.chatColumnsConfig;
-		const holder = this.$refs.scrollable as HTMLDivElement;
-		const holderBounds = holder.getBoundingClientRect();
-		for (let i = 0; i < cols.length; i++) {
-			const c = cols[i];
-			if (c == this.draggedCol) {
-				const el = (this.$refs["column_" + c.id] as HTMLDivElement[])[0];
-				if (!el) continue;
-				const bounds = el.getBoundingClientRect();
-				if (this.splitViewVertical) {
-					c.size = Math.max(215, this.mouseY - bounds.top + 7) / holderBounds.height;
-				} else {
-					c.size = Math.max(215, this.mouseX - bounds.left + 7) / holderBounds.width;
-				}
-			}
-		}
-		if (cols.length == 2) {
-			//Special case if there are only 2 cols, autoresize the second one
-			//and prevent from being able to resize it independently from the
-			//first one as it's confusing people.
-			//But for more than 2 cols I'd like to keep the resize capabilities
-			//on all cols including the last.
-			cols[1]!.size = 1 - cols[0]!.size;
-		}
-
-		//For some reason few people achieve to make negative width col.
-		//It shouldn't be possible and this shouldn't change anything to
-		//that but it's here for extra security
-		cols.forEach((v) => {
-			v.size = Math.max(0, Math.min(10, v.size));
-		});
-
-		this.$store.params.saveChatColumnConfs();
-
-		this.computeWindowsSizes();
-	}
-
-	/**
-	 * Computes the form windows styles depending on the existing columns.
-	 * Search for a column that filters out messages and match the form to
-	 * its size if any so the messages stay visible.
-	 * If none found, the windows will just be displayed full screen.
-	 */
-	private async computeWindowsSizes(): Promise<void> {
-		await this.$nextTick();
-		const cols = this.$store.params.chatColumnsConfig;
-		cols.sort((a, b) => a.order - b.order);
-		let colId = "";
-		let indexPanels = 0;
-		let indexGreet = 0;
-		for (let i = 0; i < cols.length; i++) {
-			const c = cols[i]!;
-			if (c.showPanelsHere == true) {
-				colId = c.id;
-				indexPanels = i;
-			}
-			if (c.showGreetHere == true) {
-				indexGreet = i;
-			}
-		}
-
-		const colHolders = this.$refs["column_" + colId] as HTMLDivElement[];
-		let selectedCol = colHolders ? colHolders[0] : null;
-
-		if (!selectedCol) {
-			//Fallback to last col if none is selected
-			indexPanels = cols.length - 1;
-			indexGreet = cols.length - 1;
-			selectedCol = (this.$refs["column_" + cols[indexPanels]!.id] as HTMLDivElement[])[0];
-		}
-		this.greetColIndexTarget = indexGreet;
-		this.panelsColIndexTarget = indexPanels;
-		this.panelsColumnTarget = selectedCol!.getElementsByClassName(
-			"subHolder",
-		)[0] as HTMLDivElement;
-	}
-
-	private computeChatFormHeight(): void {
-		clearTimeout(this.resizeDebounce);
-		this.resizeDebounce = window.setTimeout(() => {
-			if (this.$refs.chatForm) {
-				//Compute chat form height every 60 frames
-				const chatForm = (this.$refs.chatForm as ComponentPublicInstance)
-					.$el as HTMLDivElement;
-				const bounds = chatForm.getBoundingClientRect();
-				if (bounds.height != this.prevFormHeight) {
-					this.prevFormHeight = bounds.height;
-					(document.querySelector(":root") as HTMLHtmlElement).style.setProperty(
-						"--chat-form-height",
-						bounds.height + "px",
-					);
-				}
-			}
-		}, 200);
 	}
 }
 
-export default toNative(Chat);
+async function setCurrentNotification(
+	value: TwitchatDataTypes.NotificationTypes,
+	toggle: boolean = true,
+): Promise<void> {
+	if (currentNotificationContent.value == value && toggle) {
+		currentNotificationContent.value = "";
+	} else {
+		currentNotificationContent.value = value;
+	}
+}
+
+/**
+ * Called when selecting an emote from the emote selectors
+ */
+function onSelectEmote(item: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji): void {
+	//TODO drop "any" once this file is migrated to composition API and we can use proper typing for refs
+	(chatForm.value as any).onSelectItem("code" in item ? item.code : item.emoji);
+}
+
+/**
+ * Called when searching for a message
+ */
+function searchMessage(str: string): void {
+	storeParams.openModal("search");
+}
+
+/**
+ * Called when starting window resize
+ */
+function startDrag(event: PointerEvent, col: TwitchatDataTypes.ChatColumnsConfig): void {
+	resizing = true;
+	draggedCol = col;
+	onMouseMove(event);
+	renderFrame();
+	(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
+}
+
+/**
+ * Expand the selected col
+ * @param col
+ */
+function expandCol(col: TwitchatDataTypes.ChatColumnsConfig): void {
+	const colList = storeParams.chatColumnsConfig;
+	let totalSize = 0;
+	for (const c of colList) {
+		totalSize += c.size;
+	}
+	//If there's available space on the screen
+	//expand the col to fill it
+	if (totalSize < 1) {
+		col.size += 1 - totalSize;
+	}
+}
+
+/**
+ * Add a chat column
+ */
+function addColumn(ref: TwitchatDataTypes.ChatColumnsConfig): void {
+	let col = storeParams.addChatColumn(ref);
+	const colList = storeParams.chatColumnsConfig;
+	let totalSize = 0;
+	for (const c of colList) {
+		totalSize += c.size;
+	}
+
+	//If after adding a new column if there's still some remaining space
+	//expand the new col to fill that space
+	if (totalSize < 1) {
+		col.size += 1 - totalSize;
+	}
+
+	const holder = scrollable.value!;
+	nextTick().then(() => {
+		let colHolder = columnRefs[col.id];
+		let bounds = colHolder!.getBoundingClientRect();
+
+		let scrollTo = splitViewVertical.value
+			? { y: bounds.top + bounds.height - holder.offsetHeight }
+			: { x: bounds.left + bounds.width - holder.offsetWidth };
+		gsap.to(holder, { duration: 0.75, ease: "sine.inOut", scrollTo });
+		computeWindowsSizes();
+	});
+}
+
+/**
+ * Called when user drags the columns left/right (up/down on vertical layout)
+ */
+function onScrollColumns(): void {}
+
+function getColStyles(col: TwitchatDataTypes.ChatColumnsConfig): { [key: string]: string } {
+	let size = col.size * 100;
+	const cols = storeParams.chatColumnsConfig;
+	if (cols.length == 1) {
+		return {
+			width: "100%",
+			height: "100%",
+		};
+	}
+	const value = `${size}%`;
+	if (splitViewVertical.value) {
+		return {
+			height: value,
+			"min-height": "max(200px, " + value + ")",
+			"max-height": value,
+		};
+	} else {
+		return {
+			width: value,
+			"min-width": "max(200px, " + value + ")",
+			"max-width": value,
+		};
+	}
+}
+
+/**
+ * Called when the mouse moves
+ */
+async function onMouseMove(e: MouseEvent | TouchEvent | PointerEvent): Promise<void> {
+	if ("clientX" in e) {
+		mouseX = e.clientX;
+		mouseY = e.clientY;
+	} else if ("touches" in e) {
+		mouseX = e.touches[0]!.clientX;
+		mouseY = e.touches[0]!.clientY;
+	}
+}
+
+/**
+ * Manage colmumns resize
+ */
+async function renderFrame(): Promise<void> {
+	if (disposed || !resizing) return;
+	requestAnimationFrame(() => renderFrame());
+
+	const cols = storeParams.chatColumnsConfig;
+	const holder = scrollable.value!;
+	const holderBounds = holder.getBoundingClientRect();
+	for (let i = 0; i < cols.length; i++) {
+		const c = cols[i];
+		if (c == draggedCol) {
+			const el = columnRefs[c.id];
+			if (!el) continue;
+			const bounds = el.getBoundingClientRect();
+			if (splitViewVertical.value) {
+				c.size = Math.max(215, mouseY - bounds.top + 7) / holderBounds.height;
+			} else {
+				c.size = Math.max(215, mouseX - bounds.left + 7) / holderBounds.width;
+			}
+		}
+	}
+	if (cols.length == 2) {
+		//Special case if there are only 2 cols, autoresize the second one
+		//and prevent from being able to resize it independently from the
+		//first one as it's confusing people.
+		//But for more than 2 cols I'd like to keep the resize capabilities
+		//on all cols including the last.
+		cols[1]!.size = 1 - cols[0]!.size;
+	}
+
+	//For some reason few people achieve to make negative width col.
+	//It shouldn't be possible and this shouldn't change anything to
+	//that but it's here for extra security
+	cols.forEach((v) => {
+		v.size = Math.max(0, Math.min(10, v.size));
+	});
+
+	storeParams.saveChatColumnConfs();
+	computeWindowsSizes();
+}
+
+/**
+ * Computes the form windows styles depending on the existing columns.
+ * Search for a column that filters out messages and match the form to
+ * its size if any so the messages stay visible.
+ * If none found, the windows will just be displayed full screen.
+ */
+async function computeWindowsSizes(): Promise<void> {
+	await nextTick();
+	const cols = storeParams.chatColumnsConfig;
+	cols.sort((a, b) => a.order - b.order);
+	let colId = "";
+	let indexPanels = 0;
+	let indexGreet = 0;
+	for (let i = 0; i < cols.length; i++) {
+		const c = cols[i]!;
+		if (c.showPanelsHere == true) {
+			colId = c.id;
+			indexPanels = i;
+		}
+		if (c.showGreetHere == true) {
+			indexGreet = i;
+		}
+	}
+
+	let selectedCol = columnRefs[colId] ?? null;
+
+	if (!selectedCol) {
+		//Fallback to last col if none is selected
+		indexPanels = cols.length - 1;
+		indexGreet = cols.length - 1;
+		selectedCol = columnRefs[cols[indexPanels]!.id] ?? null;
+	}
+	greetColIndexTarget.value = indexGreet;
+	panelsColIndexTarget.value = indexPanels;
+	panelsColumnTarget.value = selectedCol
+		? (selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement)
+		: null;
+}
+
+function computeChatFormHeight(): void {
+	clearTimeout(resizeDebounce);
+	resizeDebounce = window.setTimeout(() => {
+		if (chatForm.value) {
+			//Compute chat form height every 60 frames
+			const chatFormEl = (chatForm.value as unknown as ComponentPublicInstance)
+				.$el as HTMLDivElement;
+			const bounds = chatFormEl.getBoundingClientRect();
+			if (bounds.height != prevFormHeight) {
+				prevFormHeight = bounds.height;
+				(document.querySelector(":root") as HTMLHtmlElement).style.setProperty(
+					"--chat-form-height",
+					bounds.height + "px",
+				);
+			}
+		}
+	}, 200);
+}
 </script>
 
 <style scoped lang="less">
@@ -1436,3 +1376,4 @@ export default toNative(Chat);
 	}
 }
 </style>
+

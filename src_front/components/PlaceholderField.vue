@@ -24,19 +24,20 @@
 import { watch, ref, nextTick, onMounted } from "vue";
 import ContentEditable from "@/components/ContentEditable.vue";
 
-interface Props {
-	modelValue: string;
-	prefix?: string;
-	maxLength?: number;
-	placeholder?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-	modelValue: "",
-	prefix: "",
-	maxLength: 30,
-	placeholder: "...",
-});
+const props = withDefaults(
+	defineProps<{
+		modelValue: string;
+		prefix?: string;
+		maxLength?: number;
+		placeholder?: string;
+	}>(),
+	{
+		modelValue: "",
+		prefix: "",
+		maxLength: 30,
+		placeholder: "...",
+	},
+);
 
 const emit = defineEmits<{
 	"update:modelValue": [value: string];
