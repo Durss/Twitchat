@@ -15,20 +15,20 @@
 			</template>
 
 			<template #content v-if="noTooltip === false">
-				<div class="list" v-if="$store.users.customBadgeList.length > 0">
+				<div class="list" v-if="storeUsers.customBadgeList.length > 0">
 					<Button
 						light
 						secondary
 						small
 						icon="edit"
 						class="editBt"
-						@click="$emit('manageBadges')"
+						@click="emit('manageBadges')"
 						>{{ $t("usercard.manage_badgesBt") }}</Button
 					>
 
 					<button
 						:class="getBadgeClasses(badge)"
-						v-for="badge in $store.users.customBadgeList"
+						v-for="badge in storeUsers.customBadgeList"
 						:key="badge.id"
 						@click="addBadge(badge.id)"
 					>
@@ -41,74 +41,68 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
 import Icon from "../Icon.vue";
-import TTButton from "../TTButton.vue";
+import Button from "../TTButton.vue";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
-@Component({
-	components: {
-		Icon,
-		Button: TTButton,
-	},
-	emits: ["manageBadges", "limitReached"],
-})
-class CustomBadgeSelector extends Vue {
-	@Prop
-	public user!: TwitchatDataTypes.TwitchatUser;
+const props = withDefaults(defineProps<{
+	user: TwitchatDataTypes.TwitchatUser;
+	channelId: string;
+	noTooltip?: boolean;
+}>(), {
+	noTooltip: false,
+});
 
-	@Prop
-	public channelId!: string;
+const emit = defineEmits<{
+	manageBadges: [];
+	limitReached: [];
+}>();
 
-	@Prop({ type: Boolean, default: false })
-	public noTooltip!: boolean;
+const storeUsers = useStoreUsers();
+const storeAuth = useStoreAuth();
 
-	/**
-	 * Called when selecting a file for a custom badge
-	 * @param e
-	 */
-	public onSelectBadgeFile(e: Event): void {
-		const input = e.target as HTMLInputElement;
+function onSelectBadgeFile(e: Event): void {
+	const input = e.target as HTMLInputElement;
 
-		const files = input.files;
-		if (!files || files.length == 0) return;
+	const files = input.files;
+	if (!files || files.length == 0) return;
 
-		Utils.fileToBase64Img(files[0]!).then((base64Img) => {
-			const badgeId = this.$store.users.createCustomBadge(base64Img);
-			if (badgeId !== false && this.user) {
-				this.$store.users.giveCustomBadge(
-					this.user.id,
-					this.user.platform,
-					badgeId as string,
-					this.channelId,
-				);
-			}
-			input.value = "";
-		});
-	}
-
-	public getBadgeClasses(badge: TwitchatDataTypes.TwitchatCustomUserBadge): string[] {
-		const res: string[] = ["badge"];
-		if (!this.$store.auth.isPremium && badge.enabled === false) res.push("disabled");
-		return res;
-	}
-
-	public addBadge(id: string): void {
-		if (
-			!this.$store.users.giveCustomBadge(
-				this.user!.id,
-				this.user!.platform,
-				id as string,
-				this.channelId,
-			)
-		) {
-			this.$emit("limitReached");
+	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+		const badgeId = storeUsers.createCustomBadge(base64Img);
+		if (badgeId !== false && props.user) {
+			storeUsers.giveCustomBadge(
+				props.user.id,
+				props.user.platform,
+				badgeId as string,
+				props.channelId,
+			);
 		}
+		input.value = "";
+	});
+}
+
+function getBadgeClasses(badge: TwitchatDataTypes.TwitchatCustomUserBadge): string[] {
+	const res: string[] = ["badge"];
+	if (!storeAuth.isPremium && badge.enabled === false) res.push("disabled");
+	return res;
+}
+
+function addBadge(id: string): void {
+	if (
+		!storeUsers.giveCustomBadge(
+			props.user!.id,
+			props.user!.platform,
+			id as string,
+			props.channelId,
+		)
+	) {
+		emit("limitReached");
 	}
 }
-export default toNative(CustomBadgeSelector);
 </script>
 
 <style scoped lang="less">
