@@ -11,6 +11,7 @@ import { onMounted, onBeforeUnmount, type Ref } from "vue";
 export function useSidePanel(
 	rootEl: Readonly<Ref<HTMLElement | null>>,
 	emit: (event: "close") => void,
+	autoAnimateOpen = true,
 ) {
 	let closed = true;
 
@@ -72,7 +73,7 @@ export function useSidePanel(
 
 	onMounted(() => {
 		document.addEventListener("keydown", onKeyDown);
-		void open();
+		if (autoAnimateOpen) void open();
 	});
 
 	onBeforeUnmount(() => {

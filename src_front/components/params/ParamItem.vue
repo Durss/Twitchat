@@ -675,7 +675,7 @@ const props = withDefaults(
 		disabled?: boolean;
 		autofocus?: boolean;
 		childLevel?: number;
-		modelValue?: string | boolean | number | string[] | null;
+		modelValue?: any;
 		secondary?: boolean;
 		alert?: boolean;
 

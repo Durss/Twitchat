@@ -17,21 +17,22 @@ import Utils from "@/utils/Utils";
 import type { CSSProperties } from "vue";
 import { computed, ref } from "vue";
 
-interface Props {
-	percent?: number;
-	duration?: number;
-	secondary?: boolean;
-	premium?: boolean;
-	alert?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-	percent: 0,
-	duration: 1,
-	secondary: false,
-	premium: false,
-	alert: false,
-});
+const props = withDefaults(
+	defineProps<{
+		percent?: number;
+		duration?: number;
+		secondary?: boolean;
+		premium?: boolean;
+		alert?: boolean;
+	}>(),
+	{
+		percent: 0,
+		duration: 1,
+		secondary: false,
+		premium: false,
+		alert: false,
+	},
+);
 
 const timer = ref<HTMLElement>();
 
