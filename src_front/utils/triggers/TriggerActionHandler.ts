@@ -8623,10 +8623,25 @@ export default class TriggerActionHandler {
 								sub: "is_subscriber",
 							};
 							const key = keyToProp[propVal];
-							value =
-								key && user.channelInfo[message.channel_id]?.[key] === true
-									? "true"
-									: "false";
+							let statusValue = key && user.channelInfo[message.channel_id]?.[key];
+							if (
+								statusValue === undefined &&
+								key == "is_subscriber" &&
+								message.platform == "twitch"
+							) {
+								const subscriptionState = await TwitchUtils.getSubscriptionState([
+									user.id,
+								]);
+								if (
+									subscriptionState.length > 0 &&
+									user.channelInfo[message.channel_id]
+								) {
+									statusValue = user.channelInfo[
+										message.channel_id
+									]!.is_subscriber = true;
+								}
+							}
+							value = statusValue === true ? "true" : "false";
 							// if(key == "is_broadcaster" && value === undefined)
 						} else {
 							value = "false";
