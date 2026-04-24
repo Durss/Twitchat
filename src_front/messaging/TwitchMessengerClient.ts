@@ -1462,26 +1462,30 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 
-					//Add as standard message
-					const messageData: TwitchatDataTypes.MessageChatData = {
-						channel_id: channelId,
-						id: Utils.getUUID(),
-						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-						date: Date.now(),
-						platform: "twitch",
-						user,
-						message,
-						message_chunks,
-						message_html,
-						message_size,
-						answers: [],
-						twitch_watchStreak: tags["msg-param-value"] as number,
-						is_short:
-							Utils.stripHTMLTags(message_html || "").length /
-								(message?.length || 1) <
-								0.6 || message?.length < 4,
-					};
-					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
+					// Do not send watch streak on chat if no message is provided
+					if (message.length > 0) {
+						//Add as standard message
+						const messageData: TwitchatDataTypes.MessageChatData = {
+							channel_id: channelId,
+							id: Utils.getUUID(),
+							type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+							date: Date.now(),
+							platform: "twitch",
+							user,
+							message,
+							message_chunks,
+							message_html,
+							message_size,
+							answers: [],
+							twitch_watchStreak: tags["msg-param-value"] as number,
+							twitch_source: "irc",
+							is_short:
+								Utils.stripHTMLTags(message_html || "").length /
+									(message?.length || 1) <
+									0.6 || message?.length < 4,
+						};
+						this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
+					}
 				}
 
 				//Handle subgift summaries
