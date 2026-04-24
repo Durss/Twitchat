@@ -254,6 +254,7 @@ export const storeQuiz = defineStore("quiz", {
 					});
 				}
 			});
+			clone.enabled = false;
 			this.quizList.push(clone);
 			this.resetQuizState(clone.id, false);
 			void this.saveData(clone.id);
