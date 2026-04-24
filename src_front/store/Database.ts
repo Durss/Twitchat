@@ -64,17 +64,17 @@ export default class Database {
 					return;
 				}
 				this._db = (event.target as any)?.result;
-				this._db.onclose = (_e) => {
+				this._db.onclose = (e) => {
 					this._ready = false;
-					console.log("[DB] close event");
+					console.log("[DB] close event", e);
 				};
-				this._db.onabort = (_e) => {
+				this._db.onabort = (e) => {
 					this._ready = false;
-					console.log("[DB] abort event");
+					console.log("[DB] abort event", e);
 				};
-				this._db.onerror = (_e) => {
+				this._db.onerror = (e) => {
 					this._ready = false;
-					console.log("[DB] error event");
+					console.log("[DB] error event", e);
 				};
 				if (this._versionUpgraded) {
 					// await this.clearMessages();
@@ -114,17 +114,17 @@ export default class Database {
 			this._dbConnection.onupgradeneeded = (event) => {
 				this._ready = false;
 				this._db = (event.target as any)?.result;
-				this._db.onclose = (_e) => {
+				this._db.onclose = (e) => {
 					this._ready = false;
-					console.log("[DB] close event");
+					console.log("[DB] close event", e);
 				};
-				this._db.onabort = (_e) => {
+				this._db.onabort = (e) => {
 					this._ready = false;
-					console.log("[DB] abort event");
+					console.log("[DB] abort event", e);
 				};
-				this._db.onerror = (_e) => {
+				this._db.onerror = (e) => {
 					this._ready = false;
-					console.log("[DB] error event");
+					console.log("[DB] error event", e);
 				};
 				this.createMessageTable();
 				this.createGroqTable();
@@ -167,12 +167,13 @@ export default class Database {
 	public async addMessage(message: TwitchatDataTypes.ChatMessageTypes): Promise<void> {
 		if (!this._db || !this._ready) return Promise.reject("Database not ready");
 		message = toRaw(message);
+		if (message.type == "message") console.log(" > ", message.id, message.twitch_source);
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan =
 			message.channel_id != sAuth.twitch.user.id &&
 			message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
-		if (isFromRemoteChan) return Promise.resolve();
+		// if (isFromRemoteChan) return Promise.resolve();
 
 		const ignoreList: TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
@@ -227,9 +228,10 @@ export default class Database {
 				resolve();
 			});
 			query.addEventListener("error", (event) => {
-				console.error("Get message list error");
+				console.error("Add message error");
+				console.log(message);
 				console.error(event);
-				reject("[Database] Get message list error");
+				reject("[Database] Add message error");
 			});
 			query.addEventListener("onabort", (event) => {
 				const error = (event.target as IDBRequest).error;
