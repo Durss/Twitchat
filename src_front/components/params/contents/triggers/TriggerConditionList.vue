@@ -127,10 +127,13 @@ function cleanEmptyConditionNodes(group: TriggerConditionGroup): void {
 function expand(): void {
 	updatePlaceholderList();
 	expanded.value = true;
-	document.addEventListener("mousedown", handleClickOutside);
+	if (props.actionContext !== false) {
+		document.addEventListener("mousedown", handleClickOutside);
+	}
 }
 
 function handleClickOutside(event: MouseEvent): void {
+	if (!expanded.value) return;
 	const target = event.target as HTMLElement;
 	let parent = target.parentElement;
 	while (parent) {
