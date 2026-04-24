@@ -1415,7 +1415,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets the subscription state of spacific users to the authenticated user
+	 * Gets the subscription state of specific users to the authenticated user
 	 * Needs "user:read:subscriptions" scope
 	 */
 	public static async getSubscriptionState(
