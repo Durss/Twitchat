@@ -30,26 +30,27 @@ import { watch, ref, computed, onBeforeMount } from "vue";
 import Icon from "./Icon.vue";
 import ToggleButton from "./ToggleButton.vue";
 
-interface Props {
-	labels?: string[];
-	icons?: string[];
-	values?: [T, T];
-	big?: boolean;
-	small?: boolean;
-	secondary?: boolean;
-	alert?: boolean;
-	modelValue?: T;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-	labels: () => ["", ""],
-	icons: () => ["", ""],
-	values: () => [true as T, false as T],
-	big: false,
-	small: false,
-	secondary: false,
-	alert: false,
-});
+const props = withDefaults(
+	defineProps<{
+		labels?: string[];
+		icons?: string[];
+		values?: [T, T];
+		big?: boolean;
+		small?: boolean;
+		secondary?: boolean;
+		alert?: boolean;
+		modelValue?: T;
+	}>(),
+	{
+		labels: () => ["", ""],
+		icons: () => ["", ""],
+		values: () => [true as T, false as T],
+		big: false,
+		small: false,
+		secondary: false,
+		alert: false,
+	},
+);
 
 const emit = defineEmits<{
 	"update:modelValue": [value: T];

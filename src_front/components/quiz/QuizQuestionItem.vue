@@ -104,7 +104,7 @@
 				<div class="singleAnswer">
 					<icon name="quiz_answers" />
 					<ParamItem
-						:paramData="param_answer[question.id]"
+						:paramData="param_answer[question.id]!"
 						v-model="question.answer"
 						@blur="save()"
 						noBackground
@@ -172,7 +172,7 @@
 								noBounce
 							/>
 							<ParamItem
-								:paramData="param_answer[answer.id]"
+								:paramData="param_answer[answer.id]!"
 								v-model="answer.title"
 								@blur="save()"
 								noBackground
