@@ -48,16 +48,16 @@ let parsedMessageIds = new Set<string>();
 export const storeChat = defineStore("chat", {
 	state: () =>
 		({
-			searchMessages: "",
-			realHistorySize: 20000,
-			whispersUnreadCount: 0,
+			searchMessages: "" as string,
+			realHistorySize: 20000 as number,
+			whispersUnreadCount: 0 as number,
 			pinedMessages: [] as IChatState["pinedMessages"],
 			whispers: {} as IChatState["whispers"],
 			emoteSelectorCache: [] as IChatState["emoteSelectorCache"],
 			replyTo: null as IChatState["replyTo"],
 			messageMode: "message" as IChatState["messageMode"],
 			spamingFakeMessages: false as IChatState["spamingFakeMessages"],
-			securityRaidGraceEndDate: 0,
+			securityRaidGraceEndDate: 0 as number,
 			pendingAutomodMessages: [] as IChatState["pendingAutomodMessages"],
 
 			botMessages: {
@@ -133,7 +133,7 @@ export const storeChat = defineStore("chat", {
 					enabled: true,
 					message: StoreProxy.i18n.tm("params.botMessages.qnaStart"),
 				},
-			},
+			} as IChatState["botMessages"],
 			commands: [
 				{
 					id: "updates",
@@ -721,17 +721,17 @@ export const storeChat = defineStore("chat", {
 					detailsKey: "params.commands.discord",
 					needDiscordChan: true,
 				},
-			],
+			] as IChatState["commands"],
 
 			spoilerParams: {
 				permissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
 				autoSpoilNewUsers: false,
-			},
+			} as IChatState["spoilerParams"],
 
-			highlightedMessageId: null,
+			highlightedMessageId: null as IChatState["highlightedMessageId"],
 			chatHighlightOverlayParams: {
 				position: "bl",
-			},
+			} as IChatState["chatHighlightOverlayParams"],
 		}) satisfies IChatState,
 
 	getters: {
