@@ -273,6 +273,8 @@
 
 		<Icon name="loader" class="loader" v-if="loading" />
 
+		<InvoiceList />
+
 		<SponsorTable />
 
 		<div class="card-item">
@@ -308,6 +310,7 @@ import ParamsDonorList from "./ParamsDonorList.vue";
 import SearchUserForm from "@/components/params/contents/donate/SearchUserForm.vue";
 import TTButton from "@/components/TTButton.vue";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import InvoiceList from "./InvoiceList.vue";
 
 @Component({
 	components: {
@@ -318,6 +321,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 		SponsorTable,
 		SearchUserForm,
 		ParamsDonorList,
+		InvoiceList,
 	},
 	emits: [],
 })

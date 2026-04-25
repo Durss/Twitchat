@@ -37,6 +37,8 @@
 			}}</TTButton>
 		</div>
 
+		<InvoiceList />
+
 		<SponsorTable />
 
 		<div class="footer">
@@ -53,68 +55,57 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import SponsorTable from "@/components/premium/SponsorTable.vue";
-import { Component, Vue, toNative } from "vue-facing-decorator";
-import ParamsAccountPatreon from "./account/ParamsAccountPatreon.vue";
-import { gsap } from "gsap/gsap-core";
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useAuthStore } from "@/store/auth/storeAuth";
+import { storeParams as useParamsStore } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { gsap } from "gsap/gsap-core";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import ParamsAccountPatreon from "./account/ParamsAccountPatreon.vue";
+import InvoiceList from "./InvoiceList.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		SponsorTable,
-		ParamsAccountPatreon,
-	},
-	emits: [],
-})
-class ParamsPremium extends Vue {
-	public get lifetimePercent(): number {
-		return this.lifetimePercentEased;
-	}
-	public get showProgress(): boolean {
-		return (
-			this.$store.auth.premiumType != "lifetime" &&
-			this.$store.auth.premiumType != "gifted" &&
-			this.lifetimePercent > 0 &&
-			this.lifetimePercent < 100
-		);
-	}
+const storeAuth = useAuthStore();
+const storeParams = useParamsStore();
 
-	public lifetimePercentEased: number = 0;
+const labelRef = useTemplateRef("label");
+const lifetimePercent = ref(0);
+const showProgress = computed(() => {
+	return (
+		storeAuth.premiumType != "lifetime" &&
+		// storeAuth.premiumType != "gifted" &&
+		lifetimePercent.value > 0 &&
+		lifetimePercent.value < 100
+	);
+});
 
-	public async mounted(): Promise<void> {
-		const lifetime = this.$store.auth.lifetimePremiumPercent * 100;
-		if (this.showProgress) {
-			await this.$nextTick(); //wait for the progress bar to build
-			this.lifetimePercentEased = 0.0001;
-			gsap.to(this, {
-				lifetimePercentEased: lifetime,
-				duration: 2,
-				ease: "sine.out",
-				onUpdate: () => {
-					const label = this.$refs.label as HTMLDivElement;
-					label.style.clipPath = `polygon(0 0, ${this.lifetimePercentEased}% 0, ${this.lifetimePercentEased}% 100%, 0 100%)`;
-				},
-			});
-		}
-	}
-
-	public beforeUnmount(): void {
-		gsap.killTweensOf(this);
-	}
-
-	public openDonate(): void {
-		this.$store.params.openParamsPage(
-			"donate",
-			TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING,
-		);
-	}
+function openDonate(): void {
+	storeParams.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING);
 }
-export default toNative(ParamsPremium);
+
+onMounted(async () => {
+	const lifetime = storeAuth.lifetimePremiumPercent * 100;
+	lifetimePercent.value = lifetime;
+	if (showProgress.value) {
+		await nextTick(); //wait for the progress bar to build
+		lifetimePercent.value = 0.0001;
+		gsap.to(lifetimePercent, {
+			value: lifetime,
+			duration: Math.max(0.5, (lifetime / 100) * 2),
+			ease: "sine.out",
+			onUpdate: () => {
+				if (!labelRef.value) return;
+				labelRef.value.style.clipPath = `polygon(0 0, ${lifetimePercent.value}% 0, ${lifetimePercent.value}% 100%, 0 100%)`;
+			},
+		});
+	}
+});
+
+onBeforeUnmount(() => {
+	gsap.killTweensOf(lifetimePercent);
+});
 </script>
 
 <style scoped lang="less">
