@@ -173,7 +173,7 @@ export default class Database {
 			message.channel_id != sAuth.twitch.user.id &&
 			message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
-		// if (isFromRemoteChan) return Promise.resolve();
+		if (isFromRemoteChan) return Promise.resolve();
 
 		const ignoreList: TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,

@@ -439,4 +439,3 @@ function saveBadges(): void {
 	}
 }
 </style>
-
