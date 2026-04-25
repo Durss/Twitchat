@@ -1376,4 +1376,3 @@ function computeChatFormHeight(): void {
 	}
 }
 </style>
-

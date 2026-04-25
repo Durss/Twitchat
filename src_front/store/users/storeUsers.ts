@@ -189,7 +189,7 @@ export const storeUsers = defineStore("users", {
 			loadCallback?: (user: TwitchatDataTypes.TwitchatUser) => void,
 			forcedFollowState: boolean = false,
 			getPronouns: boolean = false,
-			forcedSubscriberState: boolean | undefined = undefined,
+			forcedSubscriberState?: boolean | undefined,
 			loadExtras: boolean = true,
 		): TwitchatDataTypes.TwitchatUser {
 			// const s = Date.now();

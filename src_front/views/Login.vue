@@ -584,4 +584,3 @@ function redirect(): void {
 	}
 }
 </style>
-
