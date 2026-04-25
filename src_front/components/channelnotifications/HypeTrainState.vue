@@ -143,163 +143,153 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { watch } from "@vue/runtime-core";
 import { gsap } from "gsap/gsap-core";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import Icon from "../Icon.vue";
 import ProgressBar from "../ProgressBar.vue";
 import HypeTrainStateIcon from "./HypeTrainStateIcon.vue";
 
-@Component({
-	components: {
-		ProgressBar,
-		HypeTrainStateIcon,
-	},
-})
-class HypeTrainState extends Vue {
-	public timerPercent: number = 0;
-	public timerDuration: number = 0;
-	public progressPercent: number = 0;
-	public sharedUserList: TwitchatDataTypes.TwitchatUser[] = [];
-	public conductor_subs: TwitchatDataTypes.HypeTrainConductorData | null = null;
-	public conductor_bits: TwitchatDataTypes.HypeTrainConductorData | null = null;
+const storeAuth = useStoreAuth();
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
 
-	private disposed: boolean = false;
+const timerPercent = ref(0);
+const timerDuration = ref(0);
+const progressPercent = ref(0);
+const sharedUserList = ref<TwitchatDataTypes.TwitchatUser[]>([]);
+const conductor_subs = ref<TwitchatDataTypes.HypeTrainConductorData | null>(null);
+const conductor_bits = ref<TwitchatDataTypes.HypeTrainConductorData | null>(null);
 
-	public get completeLevel(): number {
-		let level = this.trainData.level;
-		if (this.progressPercent < 100) level--;
-		return level;
+const conductor_subs_holder = useTemplateRef<HTMLDivElement>("conductor_subs_holder");
+
+let disposed = false;
+
+//This view can't exist if no hype train isn't started, it's safe to force "!"
+const trainData = computed(() => storeStream.hypeTrain!);
+
+const completeLevel = computed(() => {
+	let level = trainData.value.level;
+	if (progressPercent.value < 100) level--;
+	return level;
+});
+
+const trainProgress = computed<boolean>(() => {
+	return (
+		trainData.value.state == "START" ||
+		trainData.value.state == "PROGRESS" ||
+		trainData.value.state == "LEVEL_UP"
+	);
+});
+
+const roundProgressPercent = computed(() => {
+	return Math.max(0, Math.min(100, Math.round(progressPercent.value)));
+});
+
+const classes = computed(() => {
+	const res = ["hypetrainstate", "gameStateWindow"];
+	res.push(trainData.value.type);
+	return res;
+});
+
+onMounted(() => {
+	if (trainData.value.conductor_subs) {
+		conductor_subs.value = trainData.value.conductor_subs;
+	}
+	if (trainData.value.conductor_bits) {
+		conductor_bits.value = trainData.value.conductor_bits;
 	}
 
-	public get trainProgress(): boolean {
-		return (
-			this.trainData.state == "START" ||
-			this.trainData.state == "PROGRESS" ||
-			this.trainData.state == "LEVEL_UP"
-		);
-	}
+	watch(
+		() => trainData.value,
+		() => {
+			dataChange();
 
-	public get trainData(): TwitchatDataTypes.HypeTrainStateData {
-		//This view can't exist if no hype train isn't started, it's safe to force "!"
-		return this.$store.stream.hypeTrain!;
-	}
+			if (!trainData.value) return;
 
-	public get roundProgressPercent(): number {
-		return Math.max(0, Math.min(100, Math.round(this.progressPercent)));
-	}
+			try {
+				if (
+					conductor_subs.value &&
+					trainData.value.conductor_subs &&
+					JSON.stringify(conductor_subs.value) ==
+						JSON.stringify(trainData.value.conductor_subs)
+				)
+					return;
 
-	public get classes(): string[] {
-		const res = ["hypetrainstate", "gameStateWindow"];
-		res.push(this.trainData.type);
-		return res;
-	}
-
-	public mounted(): void {
-		if (this.trainData.conductor_subs) {
-			this.conductor_subs = this.trainData.conductor_subs;
-		}
-		if (this.trainData.conductor_bits) {
-			this.conductor_bits = this.trainData.conductor_bits;
-		}
-
-		watch(
-			() => this.trainData,
-			() => {
-				this.dataChange();
-
-				if (!this.trainData) return;
-
-				try {
-					if (
-						this.conductor_subs &&
-						this.trainData.conductor_subs &&
-						JSON.stringify(this.conductor_subs) ==
-							JSON.stringify(this.trainData.conductor_subs)
-					)
-						return;
-
-					if (this.conductor_subs) {
-						gsap.killTweensOf(this.$refs.conductor_subs_holder as HTMLDivElement);
-						gsap.to(this.$refs.conductor_subs_holder as HTMLDivElement, {
-							duration: 0.25,
-							scale: 0,
-							ease: "sine.in",
-							onComplete: () => {
-								this.conductor_subs = this.trainData?.conductor_subs ?? null;
-								if (!this.conductor_subs) return;
-								this.$nextTick().then(() => {
-									gsap.to(this.$refs.conductor_subs_holder as HTMLDivElement, {
-										duration: 0.25,
-										scale: 1,
-										ease: "sine.out",
-									});
+				if (conductor_subs.value) {
+					gsap.killTweensOf(conductor_subs_holder.value as HTMLDivElement);
+					gsap.to(conductor_subs_holder.value as HTMLDivElement, {
+						duration: 0.25,
+						scale: 0,
+						ease: "sine.in",
+						onComplete: () => {
+							conductor_subs.value = trainData.value?.conductor_subs ?? null;
+							if (!conductor_subs.value) return;
+							nextTick().then(() => {
+								gsap.to(conductor_subs_holder.value as HTMLDivElement, {
+									duration: 0.25,
+									scale: 1,
+									ease: "sine.out",
 								});
-							},
-						});
-					} else if (this.trainData.conductor_subs) {
-						this.conductor_subs = this.trainData.conductor_subs;
-					} else {
-						this.conductor_subs = null;
-					}
-				} catch (error) {
-					console.log(error);
+							});
+						},
+					});
+				} else if (trainData.value.conductor_subs) {
+					conductor_subs.value = trainData.value.conductor_subs;
+				} else {
+					conductor_subs.value = null;
 				}
-			},
-			{ deep: true },
-		);
-
-		this.renderFrame();
-		this.dataChange();
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
-
-	public dataChange(): void {
-		gsap.killTweensOf(this);
-
-		const p = Math.floor((this.trainData.currentValue / this.trainData.goal) * 100);
-		gsap.to(this, { progressPercent: p, ease: "sine.inOut", duration: 0.5 });
-
-		const me = this.$store.auth.twitch.user;
-		const uids = Object.keys(this.trainData.sharedStates || {});
-		if (uids.length > 0) {
-			uids.push(me.id);
-		}
-		uids.forEach((uid) => {
-			if (!this.sharedUserList.find((u) => u.id == uid)) {
-				this.$store.users.getUserFrom(
-					"twitch",
-					me.id,
-					uid,
-					undefined,
-					undefined,
-					(user) => {
-						this.sharedUserList.push(user);
-					},
-				);
+			} catch (error) {
+				console.log(error);
 			}
-		});
-	}
+		},
+		{ deep: true },
+	);
 
-	public openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
-		this.$store.users.openUserCard(user, this.trainData.channel_id);
-	}
+	renderFrame();
+	dataChange();
+});
 
-	private renderFrame(): void {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderFrame());
+onBeforeUnmount(() => {
+	disposed = true;
+});
 
-		const remaining = Math.max(0, this.trainData.ends_at - Date.now());
-		this.timerDuration = this.trainData.state == "APPROACHING" ? remaining : 5 * 60 * 1000;
-		this.timerPercent = 1 - remaining / this.timerDuration;
+function dataChange(): void {
+	gsap.killTweensOf({ progressPercent: progressPercent.value });
+
+	const p = Math.floor((trainData.value.currentValue / trainData.value.goal) * 100);
+	gsap.to(progressPercent, { value: p, ease: "sine.inOut", duration: 0.5 });
+
+	const me = storeAuth.twitch.user;
+	const uids = Object.keys(trainData.value.sharedStates || {});
+	if (uids.length > 0) {
+		uids.push(me.id);
 	}
+	uids.forEach((uid) => {
+		if (!sharedUserList.value.find((u) => u.id == uid)) {
+			storeUsers.getUserFrom("twitch", me.id, uid, undefined, undefined, (user) => {
+				sharedUserList.value.push(user);
+			});
+		}
+	});
 }
-export default toNative(HypeTrainState);
+
+function openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
+	storeUsers.openUserCard(user, trainData.value.channel_id);
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+	requestAnimationFrame(() => renderFrame());
+
+	const remaining = Math.max(0, trainData.value.ends_at - Date.now());
+	timerDuration.value = trainData.value.state == "APPROACHING" ? remaining : 5 * 60 * 1000;
+	timerPercent.value = 1 - remaining / timerDuration.value;
+}
 </script>
 
 <style scoped lang="less">
@@ -308,8 +298,8 @@ export default toNative(HypeTrainState);
 		position: absolute;
 		top: 0;
 		left: 50%;
-		transform: translate(-50%, -50%);
-		z-index: 2;
+		transform: translate(-50%, -60%);
+		z-index: 3;
 		a {
 			width: 30px;
 			height: 30px;
