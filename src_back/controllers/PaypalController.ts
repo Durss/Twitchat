@@ -1,4 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import * as fs from "fs";
+import * as path from "path";
 import fetch from "node-fetch";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Config from "../utils/Config.js";
@@ -361,6 +363,144 @@ export default class PaypalController extends AbstractController {
 				error: errorMessage || "an unknown error has occured",
 			}),
 		);
+	}
+
+	/**
+	 * List the caller's invoices. Returns the minimum needed to render
+	 * the profile list (date + amount); the full record is stored in the
+	 * sidecar JSON next to each PDF.
+	 */
+	private async getInvoiceList(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const twitchUser = await super.twitchUserGuard(request, response);
+		if (twitchUser == false) return;
+
+		const userFolder = path.join(Config.INVOICES_FOLDER, twitchUser.user_id);
+		const invoices: { orderId: string; date: string; amount: number; currency: string }[] = [];
+
+		if (fs.existsSync(userFolder)) {
+			for (const file of fs.readdirSync(userFolder)) {
+				if (!file.endsWith(".json")) continue;
+				try {
+					const meta = JSON.parse(
+						fs.readFileSync(path.join(userFolder, file), "utf-8"),
+					) as { orderId: string; date: string; amount: number; currency: string };
+					invoices.push({
+						orderId: meta.orderId,
+						date: meta.date,
+						amount: meta.amount,
+						currency: meta.currency,
+					});
+				} catch (error) {
+					Logger.error("Failed reading invoice metadata: " + file);
+					console.log(error);
+				}
+			}
+		}
+
+		invoices.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: { invoices } }));
+	}
+
+	/**
+	 * Generate a short-lived JWT authorizing the bearer to download a single
+	 * invoice PDF in a new tab (where the Authorization header can't be set).
+	 * Token is bound to {uid, orderId} and expires after INVOICE_TOKEN_TTL_MS.
+	 */
+	private async getInvoiceDownloadToken(
+		request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<void> {
+		const twitchUser = await super.twitchUserGuard(request, response);
+		if (twitchUser == false) return;
+
+		const orderId = (request.query as { orderId?: string }).orderId;
+		if (!orderId || !/^[A-Z0-9]{6,32}$/i.test(orderId)) {
+			response
+				.header("Content-Type", "application/json")
+				.status(400)
+				.send(JSON.stringify({ success: false, error: "Invalid order ID" }));
+			return;
+		}
+
+		const payload: InvoiceDownloadToken = {
+			uid: twitchUser.user_id,
+			orderId,
+			date: Date.now(),
+		};
+		const token = jwt.sign(payload, Config.credentials.csrf_key);
+
+		response
+			.header("Content-Type", "application/json")
+			.status(200)
+			.send(JSON.stringify({ success: true, token }));
+	}
+
+	/**
+	 * Stream a previously generated PDF invoice to its owner.
+	 * Authentication is done via a short-lived `token` query param (issued by
+	 * getInvoiceDownloadToken) so this can be opened in a new tab without an
+	 * Authorization header.
+	 */
+	private async getInvoice(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const query = request.query as { orderId?: string; token?: string };
+		const orderId = query.orderId;
+		const token = query.token;
+
+		//Reject anything that isn't a plain PayPal order ID to prevent path traversal
+		if (!orderId || !/^[A-Z0-9]{6,32}$/i.test(orderId)) {
+			response.status(400).send({ success: false, error: "Invalid order ID" });
+			return;
+		}
+
+		if (!token) {
+			response.status(401).send({ success: false, error: "Missing token" });
+			return;
+		}
+
+		let payload: InvoiceDownloadToken;
+		try {
+			payload = jwt.verify(token, Config.credentials.csrf_key) as InvoiceDownloadToken;
+		} catch {
+			response.status(401).send({ success: false, error: "Invalid token" });
+			return;
+		}
+
+		if (!payload || !payload.uid || !payload.orderId || !payload.date) {
+			response.status(401).send({ success: false, error: "Invalid token payload" });
+			return;
+		}
+		if (payload.orderId !== orderId) {
+			response.status(403).send({ success: false, error: "Token / order mismatch" });
+			return;
+		}
+		if (Date.now() - payload.date > INVOICE_TOKEN_TTL_MS) {
+			response.status(401).send({ success: false, error: "Token expired" });
+			return;
+		}
+
+		const userFolder = path.join(Config.INVOICES_FOLDER, payload.uid);
+		const filePath = path.join(userFolder, orderId + ".pdf");
+		const normalized = path.normalize(filePath);
+		if (!normalized.startsWith(path.normalize(userFolder))) {
+			response.status(403).send({ success: false, error: "Forbidden" });
+			return;
+		}
+		if (!fs.existsSync(normalized)) {
+			response.status(404).send({ success: false, error: "Invoice not found" });
+			return;
+		}
+
+		const pdf = fs.readFileSync(normalized);
+		response.header("Content-Type", "application/pdf");
+		response.header("Content-Length", pdf.length);
+		response.header(
+			"Content-Disposition",
+			'attachment; filename="twitchat-invoice-' + orderId + '.pdf"',
+		);
+		response.send(pdf);
 	}
 
 	/**
