@@ -687,7 +687,11 @@ export default class BingoGridController extends AbstractController {
 				});
 			}
 
-			await this.extensionController.notifyStateUpdate(user.user_id);
+			try {
+				await this.extensionController.notifyStateUpdate(user.user_id);
+			} catch (_error) {
+				// ignore
+			}
 
 			// Folder doesn't exist, no disk cache to update
 			response.header("Content-Type", "application/json");
@@ -829,7 +833,11 @@ export default class BingoGridController extends AbstractController {
 		// Refresh both the specific grid cache AND the all-grids cache
 		await this.refreshChannelGrid(user.user_id, gridId);
 		await this.refreshChannelGrid(user.user_id);
-		await this.extensionController.notifyStateUpdate(user.user_id);
+		try {
+			await this.extensionController.notifyStateUpdate(user.user_id);
+		} catch (_error) {
+			// ignore
+		}
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -862,7 +870,11 @@ export default class BingoGridController extends AbstractController {
 				const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 				this.channelGridsCache.delete(cacheOneKey);
 
-				await this.extensionController.notifyStateUpdate(user.user_id);
+				try {
+					await this.extensionController.notifyStateUpdate(user.user_id);
+				} catch (_error) {
+					// ignore
+				}
 			}
 
 			response.header("Content-Type", "application/json");
@@ -1121,7 +1133,11 @@ export default class BingoGridController extends AbstractController {
 					});
 				}),
 			);
-			void this.extensionController.notifyStateUpdate(streamerId);
+			try {
+				void this.extensionController.notifyStateUpdate(streamerId);
+			} catch (_error) {
+				// ignore
+			}
 		}
 	}
 }
