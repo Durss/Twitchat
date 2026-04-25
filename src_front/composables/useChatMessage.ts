@@ -17,6 +17,7 @@ export function useChatMessage(
 	},
 	emit: (event: "onRead", message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent) => void,
 	rootEl: Ref<HTMLElement | null>,
+	options?: { copyJSON?: () => void; applyStyles?: () => void },
 ) {
 	const storeAuth = useStoreAuth();
 	const storeParams = useStoreParams();
@@ -247,9 +248,12 @@ export function useChatMessage(
 	});
 
 	onMounted(() => {
+		const effectiveCopyJSON = options?.copyJSON ?? copyJSON;
+		const effectiveApplyStyles = options?.applyStyles ?? applyStyles;
+
 		clickHandler = (e: MouseEvent) => {
 			if (e.ctrlKey || e.metaKey) {
-				copyJSON();
+				effectiveCopyJSON();
 				e.stopPropagation();
 			} else {
 				emit("onRead", props.messageData, e);
@@ -257,74 +261,32 @@ export function useChatMessage(
 		};
 		rootEl.value!.addEventListener("click", clickHandler);
 
-		//Apply styles and watch for params change for chat messages
+		//Apply styles and watch for params change for chat messages.
+		//All highlight params are watched together to avoid creating ~14 watchers per message.
 		if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			applyStyles();
+			effectiveApplyStyles();
 
 			const params = storeParams.appearance;
 			watch(
-				() => params.highlight1stEver.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlight1stEver_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlight1stToday.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlight1stToday_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightMentions.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightMentions_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.raidHighlightUser.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.raidHighlightUser_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightMods.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightMods_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightVips.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightVips_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightPartners.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightPartners_color.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightSubs.value,
-				() => applyStyles(),
-			);
-			watch(
-				() => params.highlightSubs_color.value,
-				() => applyStyles(),
+				[
+					() => params.highlight1stEver.value,
+					() => params.highlight1stEver_color.value,
+					() => params.highlight1stToday.value,
+					() => params.highlight1stToday_color.value,
+					() => params.highlightMentions.value,
+					() => params.highlightMentions_color.value,
+					() => params.raidHighlightUser.value,
+					() => params.raidHighlightUser_color.value,
+					() => params.highlightMods.value,
+					() => params.highlightMods_color.value,
+					() => params.highlightVips.value,
+					() => params.highlightVips_color.value,
+					() => params.highlightPartners.value,
+					() => params.highlightPartners_color.value,
+					() => params.highlightSubs.value,
+					() => params.highlightSubs_color.value,
+				],
+				() => effectiveApplyStyles(),
 			);
 		}
 	});
