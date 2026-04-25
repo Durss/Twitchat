@@ -393,46 +393,59 @@ export default class Utils {
 		}
 
 		return permissions.all;
+	}
 
-		//Refactoring attempt
-		/*
-		let flags = 0;
-		//bit 0 = sub
-		//bit 1 = follower
-		//bit 2 = VIP
-		//bit 3 = moderator
-		//bit 4 = broadcaster
-		if(chanInfo.is_subscriber)	flags |= 1<<0;
-		if(chanInfo.is_following)	flags |= 1<<1;
-		if(chanInfo.is_vip)			flags |= 1<<2;
-		if(chanInfo.is_moderator)	flags |= 1<<3;
-		if(chanInfo.is_broadcaster)	flags |= 1<<4;
+	/**
+	 * Synchronous version of checkPermissions — skips follower state check.
+	 * Use when async is not possible and follower gating is not required.
+	 */
+	public static checkPermissionsSync(
+		permissions: TwitchatDataTypes.PermissionsData,
+		user: Pick<TwitchatDataTypes.TwitchatUser, "platform" | "id" | "login" | "channelInfo">,
+		channelId: string,
+		logToConsole: boolean = false,
+	): boolean {
+		const chanInfo = user.channelInfo[channelId];
+		if (!chanInfo) return false;
 
-		if(flags >> 4 == 1 && permissions.broadcaster === false)	return false;
-		//Refuse access if EXCLUSIVELY matching a refused role
-		if(flags == 0b01000 && permissions.mods === false)			return false;
-		if(flags == 0b00100 && permissions.vips === false)			return false;
-		if(flags == 0b00010 && permissions.follower === false)		return false;
-		if(flags == 0b00001 && permissions.subs === false)			return false;
-
-		if(chanInfo.is_following && permissions.follower === true) {
-			const duration = Date.now() - chanInfo.following_date_ms;
-			return duration >= permissions.follower_duration_ms;
+		if (logToConsole) {
+			console.log("checkPermissionsSync", permissions, user, channelId, chanInfo);
 		}
 
-		return permissions.all || flags > 0;
-		//*/
+		if (
+			permissions.usersAllowed &&
+			permissions.usersAllowed.findIndex(
+				(v) => v.toLowerCase() === user.login.toLowerCase(),
+			) > -1
+		) {
+			if (logToConsole) console.log("User specifically allowed");
+			return true;
+		}
 
-		//Old behavior
-		/*
-		const allowed = (permissions.mods && user.channelInfo[channelId].is_moderator) ||
-						(permissions.vips && user.channelInfo[channelId].is_vip) ||
-						(permissions.subs && user.channelInfo[channelId].is_subscriber) ||
-						(permissions.broadcaster !== false && user.channelInfo[channelId].is_broadcaster) ||//checking "!== false" so "undefined" counts as "true" as this prop has been added later and i want it to count as "true" by default
-						permissions.all ||
-						allowedUsers?.indexOf(user.login.toLowerCase()) != -1;
-		return allowed;
-		//*/
+		if (
+			permissions.usersRefused &&
+			permissions.usersRefused.findIndex(
+				(v) => v.toLowerCase() === user.login.toLowerCase(),
+			) > -1
+		) {
+			if (logToConsole) console.log("User specifically refused");
+			return false;
+		}
+
+		if (chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
+		if (chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster) return true;
+		if (chanInfo.is_vip && permissions.vips !== false) return true;
+		if (chanInfo.is_subscriber && permissions.subs !== false && !chanInfo.is_broadcaster) return true;
+
+		if (permissions.follower === true && !chanInfo.is_broadcaster) {
+			// Only use already-loaded follower state; no async fetch
+			if (chanInfo.is_following === true) {
+				const duration = Date.now() - (chanInfo.following_date_ms ?? 0);
+				return duration >= (permissions.follower_duration_ms ?? 0);
+			}
+		}
+
+		return permissions.all;
 	}
 
 	/**

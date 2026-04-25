@@ -216,6 +216,7 @@
 										<PermissionsForm
 											v-model="config.whispersPermissions"
 											@update:modelValue="saveData()"
+											:hasFollowerFilter="false"
 										/>
 									</ToggleBlock>
 								</template>
