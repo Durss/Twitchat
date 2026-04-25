@@ -1657,11 +1657,9 @@ async function showPrevMessage(): Promise<void> {
 	let addCount = 8;
 	let messageCountToAdd = addCount;
 	let addNext = false;
+	let messageAdded = false;
 	let i = list.length - scrollUpIndexOffset;
-
-	// Collect locally so the reactive array is mutated only once,
-	// avoiding a render per pop/unshift inside the loop.
-	const toPrepend: TwitchatDataTypes.ChatMessageTypes[] = [];
+	const removed: TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	for (; i > 0; i--) {
 		let m = list[i]!;
@@ -1669,21 +1667,18 @@ async function showPrevMessage(): Promise<void> {
 			addNext = true;
 		} else if (addNext) {
 			m = list[i - 1]!;
-			if (shouldShowMessage(m)) {
+			if (await shouldShowMessage(m)) {
 				scrollUpIndexOffset = list.length - i;
-				toPrepend.unshift(m);
+				removed.push(filteredMessages.value.pop()!);
+				filteredMessages.value.unshift(m);
+				messageAdded = true;
 				if (--messageCountToAdd == -1) break;
 			}
 		}
 	}
 
-	if (toPrepend.length > 0) {
-		const current = filteredMessages.value;
-		const popCount = toPrepend.length;
-		const removed = current.slice(-popCount);
-		filteredMessages.value = [...toPrepend, ...current.slice(0, current.length - popCount)];
-
-		for (const v of removed) pendingMessages.value.unshift(v);
+	if (messageAdded) {
+		removed.forEach((v) => pendingMessages.value.unshift(v));
 
 		// Wait for DOM to reflect the prepended messages, then adjust
 		// scrollTop so the user's visual position stays stable.
@@ -2014,18 +2009,20 @@ function replaceReadMarkerAndSelector(movingReadMark: boolean = false): void {
 
 	if (markedAsReadDate > 0) toFindCount++;
 	if (selectionDate > 0) toFindCount++;
-
 	if (toFindCount == 0) return;
 
 	let foundCount = 0;
 	for (let i = filteredMessages.value.length - 1; i >= 0; i--) {
 		const mLoc = filteredMessages.value[i]!;
+
+		// Move read marker
 		if (!markedReadItem.value && markedAsReadDate > 0 && mLoc.date <= markedAsReadDate) {
 			const div = messageRefs[mLoc.id]!;
 			markedReadItem.value = div;
 			foundCount++;
 		}
 
+		// Move selection
 		if (!selectedItem.value && selectionDate > 0 && mLoc.date <= selectionDate) {
 			//Using element IDs instead of $refs so we can target sub elements.
 			//Merged messages are handled within a message, this list doesn't have any reference
@@ -2054,6 +2051,7 @@ function replaceReadMarkerAndSelector(movingReadMark: boolean = false): void {
 				}
 			}
 		}
+
 		if (foundCount == toFindCount) break;
 	}
 
