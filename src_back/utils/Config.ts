@@ -35,6 +35,9 @@ export default class Config {
 	public static get donorsPublicList(): string {
 		return this.DONORS_DATA_FOLDER + "public_cache.json";
 	}
+	public static get INVOICES_FOLDER(): string {
+		return this.DONORS_DATA_FOLDER + "invoices/";
+	}
 	public static get donorsLevels(): number[] {
 		return [0, 20, 30, 50, 80, 100, 200, 300, 400, 500, 999999];
 	}
