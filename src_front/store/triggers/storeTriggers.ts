@@ -540,10 +540,13 @@ export const storeTriggers = defineStore("triggers", {
 
 		broadcastTriggerList(): void {
 			const triggers = this.triggerList.map((v) => {
+				const infos = TriggerUtils.getTriggerDisplayInfo(v);
 				return {
 					id: v.id,
-					name: TriggerUtils.getTriggerDisplayInfo(v).label,
+					name: infos.label,
 					disabled: v.enabled === false,
+					iconEmoji: infos.iconEmoji,
+					iconUrl: infos.iconURL,
 				};
 			});
 			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", { triggerList: triggers });

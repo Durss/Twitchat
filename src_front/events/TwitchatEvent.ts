@@ -1529,6 +1529,14 @@ export type TwitchatEventMap = {
 			 * Is the trigger currently disabled
 			 */
 			disabled: boolean;
+			/**
+			 * Custom emoji icon
+			 */
+			iconEmoji?: string;
+			/**
+			 * Custom icon file
+			 */
+			iconUrl?: string;
 		}[];
 	};
 	/**
