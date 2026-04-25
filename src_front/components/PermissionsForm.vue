@@ -29,6 +29,7 @@
 			@change="$emit('update:modelValue', modelValue)"
 		/>
 		<ParamItem
+			v-if="hasFollowerFilter"
 			noBackground
 			:paramData="param_followers"
 			class="row"
@@ -67,9 +68,15 @@ import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import { watch, reactive, computed, onBeforeMount, onMounted } from "vue";
 import ParamItem from "./params/ParamItem.vue";
 
-const props = defineProps<{
-	modelValue: TwitchatDataTypes.PermissionsData;
-}>();
+const props = withDefaults(
+	defineProps<{
+		modelValue: TwitchatDataTypes.PermissionsData;
+		hasFollowerFilter?: boolean;
+	}>(),
+	{
+		hasFollowerFilter: true,
+	},
+);
 
 const emit = defineEmits<{
 	"update:modelValue": [value: TwitchatDataTypes.PermissionsData];
