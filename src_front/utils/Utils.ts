@@ -433,9 +433,11 @@ export default class Utils {
 		}
 
 		if (chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
-		if (chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster) return true;
+		if (chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster)
+			return true;
 		if (chanInfo.is_vip && permissions.vips !== false) return true;
-		if (chanInfo.is_subscriber && permissions.subs !== false && !chanInfo.is_broadcaster) return true;
+		if (chanInfo.is_subscriber && permissions.subs !== false && !chanInfo.is_broadcaster)
+			return true;
 
 		if (permissions.follower === true && !chanInfo.is_broadcaster) {
 			// Only use already-loaded follower state; no async fetch

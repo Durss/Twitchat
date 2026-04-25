@@ -194,4 +194,3 @@ ApiHelper.call("paypal/invoice/list", "GET").then((response) => {
 	}
 }
 </style>
-

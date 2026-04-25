@@ -636,9 +636,7 @@ function rebuildChannelIdsHashmap(): void {
 	//Pre-build user block list as a Set for O(1) lookup in shouldShowMessage
 	const blockList = props.config.userBlockList;
 	userBlockSet =
-		blockList && blockList.length > 0
-			? new Set(blockList.map((v) => v.toLowerCase()))
-			: null;
+		blockList && blockList.length > 0 ? new Set(blockList.map((v) => v.toLowerCase())) : null;
 
 	fullListRefresh();
 }
@@ -1683,10 +1681,7 @@ async function showPrevMessage(): Promise<void> {
 		const current = filteredMessages.value;
 		const popCount = toPrepend.length;
 		const removed = current.slice(-popCount);
-		filteredMessages.value = [
-			...toPrepend,
-			...current.slice(0, current.length - popCount),
-		];
+		filteredMessages.value = [...toPrepend, ...current.slice(0, current.length - popCount)];
 
 		for (const v of removed) pendingMessages.value.unshift(v);
 
@@ -2601,4 +2596,3 @@ function showSelectionError(): void {
 	}
 }
 </style>
-

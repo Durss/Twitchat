@@ -49,13 +49,16 @@ import Button from "../TTButton.vue";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
-const props = withDefaults(defineProps<{
-	user: TwitchatDataTypes.TwitchatUser;
-	channelId: string;
-	noTooltip?: boolean;
-}>(), {
-	noTooltip: false,
-});
+const props = withDefaults(
+	defineProps<{
+		user: TwitchatDataTypes.TwitchatUser;
+		channelId: string;
+		noTooltip?: boolean;
+	}>(),
+	{
+		noTooltip: false,
+	},
+);
 
 const emit = defineEmits<{
 	manageBadges: [];
