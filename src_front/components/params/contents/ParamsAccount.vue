@@ -22,6 +22,8 @@
 			}}</TTButton>
 		</section>
 
+		<InvoiceList tag="section" />
+
 		<section class="card-item">
 			<div class="title">{{ $t("account.language") }}</div>
 			<AppLangSelector />
@@ -124,6 +126,7 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeAccount as useStoreAccount } from "@/store/account/storeAccount";
 import { useConfirm } from "@/composables/useConfirm";
 import { asset } from "@/composables/useAsset";
+import InvoiceList from "./InvoiceList.vue";
 
 const { t } = useI18n();
 const router = useRouter();
