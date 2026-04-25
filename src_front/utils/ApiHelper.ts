@@ -1251,4 +1251,42 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"paypal/invoice/list": {
+		GET: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data: {
+					invoices: {
+						orderId: string;
+						date: string;
+						amount: number;
+						currency: string;
+					}[];
+				};
+			};
+		};
+	};
+	"paypal/invoice": {
+		GET: {
+			parameters: {
+				orderId: string;
+			};
+			response: {
+				success: boolean;
+			};
+		};
+	};
+	"paypal/invoice/downloadToken": {
+		GET: {
+			parameters: {
+				orderId: string;
+			};
+			response: {
+				success: boolean;
+				token?: string;
+				error?: string;
+			};
+		};
+	};
 };
