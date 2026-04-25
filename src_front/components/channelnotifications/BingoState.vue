@@ -1,7 +1,7 @@
 <template>
 	<div class="bingostate gameStateWindow">
 		<div class="head" v-stickyTopShadow>
-			<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
+			<h1 class="title"><Icon name="bingo" />{{ t("bingo.state.title") }}</h1>
 			<slot />
 		</div>
 
@@ -20,7 +20,7 @@
 			</div>
 
 			<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
-				<p><Icon name="sub" />{{ $t("bingo.state.winner") }}</p>
+				<p><Icon name="sub" />{{ t("bingo.state.winner") }}</p>
 				<div class="entries">
 					<TTButton
 						v-for="w in bingoData.winners"
@@ -38,53 +38,52 @@
 			</div>
 
 			<div class="actions">
-				<TTButton @click="closeBingo()" alert>{{ $t("bingo.state.closeBt") }}</TTButton>
+				<TTButton @click="closeBingo()" alert>{{ t("bingo.state.closeBt") }}</TTButton>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, onMounted, ref } from "vue";
 import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
+import { storeBingo as useStoreBingo } from "@/store/bingo/storeBingo";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-	},
-	emits: ["close"],
-})
-class BingoState extends Vue {
-	public winnerPlaceholders: TwitchatDataTypes.PlaceholderEntry[] = [];
+const emit = defineEmits<{ close: [] }>();
 
-	public get bingoData(): TwitchatDataTypes.BingoConfig {
-		return this.$store.bingo.data!;
-	}
+const { t } = useI18n();
+const storeBingo = useStoreBingo();
+const storeAuth = useStoreAuth();
+const storeUsers = useStoreUsers();
 
-	public mounted(): void {
-		this.winnerPlaceholders = [
-			{
-				tag: "USER",
-				descKey: "bingo.username_placeholder",
-				example: this.$store.auth.twitch.user.displayName,
-			},
-		];
-	}
+const winnerPlaceholders = ref<TwitchatDataTypes.PlaceholderEntry[]>([]);
 
-	public closeBingo(): void {
-		this.$store.bingo.stopBingo();
-		this.$emit("close");
-	}
+const bingoData = computed<TwitchatDataTypes.BingoConfig>(() => storeBingo.data!);
 
-	public openUserCard(user: TwitchatDataTypes.TwitchatUser | null): void {
-		if (!user) return;
-		this.$store.users.openUserCard(user);
-	}
+onMounted(() => {
+	winnerPlaceholders.value = [
+		{
+			tag: "USER",
+			descKey: "bingo.username_placeholder",
+			example: storeAuth.twitch.user.displayName,
+		},
+	];
+});
+
+function closeBingo(): void {
+	storeBingo.stopBingo();
+	emit("close");
 }
-export default toNative(BingoState);
+
+function openUserCard(user: TwitchatDataTypes.TwitchatUser | null): void {
+	if (!user) return;
+	storeUsers.openUserCard(user);
+}
 </script>
 
 <style scoped lang="less">
