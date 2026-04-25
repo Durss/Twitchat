@@ -187,19 +187,30 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"
 
 <script setup lang="ts">
 import { gsap } from "gsap/gsap-core";
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch, type CSSProperties } from "vue";
+import {
+	computed,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+	type CSSProperties,
+} from "vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import Icon from "../Icon.vue";
 
-const props = withDefaults(defineProps<{
-	light?: boolean;
-	premium?: boolean;
-	level?: number;
-}>(), {
-	light: false,
-	premium: false,
-	level: -1,
-});
+const props = withDefaults(
+	defineProps<{
+		light?: boolean;
+		premium?: boolean;
+		level?: number;
+	}>(),
+	{
+		light: false,
+		premium: false,
+		level: -1,
+	},
+);
 
 const storeAuth = useStoreAuth();
 

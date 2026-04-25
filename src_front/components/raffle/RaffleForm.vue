@@ -1545,4 +1545,3 @@ function openValues(): void {
 	}
 }
 </style>
-
