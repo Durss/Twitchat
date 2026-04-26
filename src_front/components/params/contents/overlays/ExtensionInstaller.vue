@@ -17,9 +17,15 @@
 		</div>
 		<div class="content" v-else-if="!installed">
 			<span class="head">{{ $t("extensions.installer.install") }}</span>
-			<TTButton alert light icon="newtab" type="link" :href="extensionUrl" target="_blank">{{
-				$t("extensions.installer.installBt")
-			}}</TTButton>
+			<TTButton
+				alert
+				light
+				icon="newtab"
+				type="link"
+				:href="$config.TWITCH_EXTENSION_URL"
+				target="_blank"
+				>{{ $t("extensions.installer.installBt") }}</TTButton
+			>
 		</div>
 		<div class="content" v-else-if="!enabled">
 			<span class="head">{{ $t("extensions.installer.enable") }}</span>
@@ -54,7 +60,6 @@ class ExtensionInstaller extends Vue {
 	public enabling = false;
 	public installed = false;
 	public enableError = false;
-	public extensionUrl: string = `https://dashboard.twitch.tv/extensions/${Config.instance.TWITCH_EXTENSION_ID}-${Config.instance.TWITCH_EXTENSION_VERSION}`;
 
 	private checkinterval = -1;
 

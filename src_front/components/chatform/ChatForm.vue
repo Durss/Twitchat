@@ -507,7 +507,7 @@
 					<ButtonNotification
 						class="bingoGrid"
 						icon="bingo_grid"
-						v-if="storeBingoGrid.availableOverlayList.length > 0"
+						v-if="storeBingoGrid.gridList.filter((v) => v.enabled).length > 0"
 						:aria-label="t('chat.form.bingoGridBt_aria')"
 						v-tooltip="{ touch: 'hold', content: t('chat.form.bingoGridBt_aria') }"
 						@click="emit('update:showBingoGrid', true)"
