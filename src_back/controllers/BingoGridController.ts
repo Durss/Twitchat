@@ -141,7 +141,7 @@ export default class BingoGridController extends AbstractController {
 		// Validate UID and gridId to prevent path traversal
 		if ((uid && !/^[0-9]+$/.test(uid)) || !channelId || !/^[0-9]+$/.test(channelId)) return;
 
-		console.log("Get viewer grid list for channel", channelId, "and user", uid);
+		// console.log("Get viewer grid list for channel", channelId, "and user", uid);
 
 		const gridList = await this.getChannelGrids(channelId);
 		const isStreamerPremium = (await super.getUserPremiumState(channelId)) != "no";
@@ -902,7 +902,6 @@ export default class BingoGridController extends AbstractController {
 		const user = await super.twitchUserGuard(request, response, false);
 		if (!user) return;
 
-		console.log("UPDATE TICK STATES");
 		const body: any = request.body;
 		const gridId: string = body.gridid;
 		const states: { [cellId: string]: boolean } = body.states;
