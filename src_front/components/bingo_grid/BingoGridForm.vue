@@ -53,6 +53,12 @@
 							v-if="!maxGridReached"
 						/>
 						<TTButton
+							@click.stop
+							:copy="bingo.id"
+							icon="id"
+							v-tooltip="$t('global.copy_id')"
+						/>
+						<TTButton
 							@click.stop="storeBingoGrid.removeGrid(bingo.id)"
 							icon="trash"
 							alert
@@ -111,7 +117,9 @@
 
 								<ParamItem
 									:paramData="param_winSoundVolume[bingo.id]!"
-									@change="save(bingo, false, true)"
+									@change="
+										(prevVal, newVal) => save(bingo, false, prevVal != newVal)
+									"
 									v-model="bingo.winSoundVolume"
 								></ParamItem>
 

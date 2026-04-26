@@ -55,14 +55,9 @@
 			"perf_alert": "Looks like you have quite a lot of viewers on your stream.\nI can't guarantee my server will survive that, please make a little prayer before sharing the link with your viewers 🙏."
 		},
 		"state": {
-			"auth_bt": "Get my own grid",
-			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
-			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
+			"info": "To play Bingo, the streamer must now install the {EXTENSION} extension!",
 			"showLeaderboard_bt": "Show on overlay",
 			"hideLeaderboard_bt": "Hide from overlay",
-			"additional_cells": "Additional cells other viewers may have",
-			"grid": "grid",
-			"list": "list",
 			"footer": "Powered by {LINK}"
 		}
 	}
