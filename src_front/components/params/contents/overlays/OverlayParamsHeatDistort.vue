@@ -29,7 +29,7 @@
 					v-model="distortionList[index]"
 					@delete="deleteDistorsion"
 					@created="distortionCreated"
-					:ref="'distortion_' + item.id"
+					:ref="(el: ComponentPublicInstance | null) => { if (el) distortionRefs[item.id] = el; else delete distortionRefs[item.id] }"
 				/>
 			</template>
 
@@ -96,191 +96,165 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
-import { watch, type ComponentPublicInstance } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import HeatDistortParams from "./heat/HeatDistortParams.vue";
 import { gsap } from "gsap/gsap-core";
+import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch, type ComponentPublicInstance } from "vue";
+import HeatDistortParams from "./heat/HeatDistortParams.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		HeatDistortParams,
-	},
-	emits: [],
-})
-class OverlayParamsHeatDistort extends Vue {
-	public expandPremiumInfo: boolean = false;
-	public shaderstasticError: boolean = false;
+const storeAuth = useStoreAuth();
+const storeHeat = useStoreHeat();
+const storeParams = useStoreParams();
 
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
-	public get isPremium(): boolean {
-		return this.$store.auth.isPremium;
-	}
-	public get maxEntries(): number {
-		return this.isPremium
-			? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM
-			: Config.instance.MAX_DISTORTION_OVERLAYS;
-	}
-	public get premiumCount(): number {
-		return Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM;
-	}
-	public get distortionList(): TwitchatDataTypes.HeatDistortionData[] {
-		return this.$store.heat.distortionList;
-	}
+const expandPremiumInfo = ref<boolean>(false);
+const shaderstasticError = ref<boolean>(false);
+const error = useTemplateRef<HTMLDivElement>("error");
+const distortionRefs: Record<string, ComponentPublicInstance> = {};
 
-	public beforeMount(): void {
-		watch(
-			() => this.distortionList,
-			() => this.$store.heat.saveDistorsions(),
-			{ deep: true },
-		);
-	}
+const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
+const isPremium = computed(() => storeAuth.isPremium);
+const maxEntries = computed(() =>
+	isPremium.value
+		? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM
+		: Config.instance.MAX_DISTORTION_OVERLAYS,
+);
+const premiumCount = computed(() => Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM);
+const distortionList = computed(() => storeHeat.distortionList);
 
-	public openHeat(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.HEAT,
-		);
-	}
+onBeforeMount(() => {
+	watch(
+		() => distortionList.value,
+		() => storeHeat.saveDistorsions(),
+		{ deep: true },
+	);
+});
 
-	public openObs(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.OBS,
-		);
-	}
+function openHeat(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.HEAT,
+	);
+}
 
-	public addDistortion(): void {
-		const id = Utils.getUUID();
-		this.distortionList.push({
-			id,
-			name: "",
-			enabled: true,
-			refuseAnon: false,
-			triggerOnly: false,
-			effect: "liquid",
-			filterName: "",
-			browserSourceName: "",
-			obsItemPath: {
-				groupName: "",
-				sceneName: "",
-				source: {
-					id: 0,
-					name: "",
-				},
+function openObs(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.OBS,
+	);
+}
+
+function addDistortion(): void {
+	const id = Utils.getUUID();
+	storeHeat.distortionList.push({
+		id,
+		name: "",
+		enabled: true,
+		refuseAnon: false,
+		triggerOnly: false,
+		effect: "liquid",
+		filterName: "",
+		browserSourceName: "",
+		obsItemPath: {
+			groupName: "",
+			sceneName: "",
+			source: {
+				id: 0,
+				name: "",
 			},
-			permissions: Utils.getDefaultPermissions(),
-		});
+		},
+		permissions: Utils.getDefaultPermissions(),
+	});
 
-		this.$nextTick().then(() => {
-			const holdeList = this.$refs["distortion_" + id] as ComponentPublicInstance[];
-			const holder = holdeList[0];
-			if (!holder) return;
-			gsap.from(holder.$el, {
-				height: 0,
-				paddingTop: 0,
-				paddingBottom: 0,
-				duration: 0.35,
-				ease: "back.out",
-				clearProps: "all",
-			});
-		});
-	}
-
-	public becomePremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Called when a new distotion has been created and the overlay installed
-	 * @param sourceName
-	 * @param vo
-	 * @param suffix
-	 */
-	public async distortionCreated(
-		sourceName: string,
-		vo: TwitchatDataTypes.HeatDistortionData,
-		suffix: string,
-	): Promise<void> {
-		let filterTarget = "";
-		if (vo.obsItemPath.source.name) filterTarget = vo.obsItemPath.source.name;
-		else if (vo.obsItemPath.groupName) filterTarget = vo.obsItemPath.groupName;
-		else if (vo.obsItemPath.sceneName) filterTarget = vo.obsItemPath.sceneName;
-
-		const filterSettings = {
-			"displacement_map_source.displacement_map": sourceName,
-			effect: "displacement_map_source",
-			"displacement_map_source.color_space": 0,
-			"displacement_map_source.displace_mode": 1,
-			"displacement_map_source.displacement_strength_x": 0.05,
-			"displacement_map_source.displacement_strength_y": 0.05,
-		};
-		const filterName = ("Heat Distortion" + suffix).substring(0, 100);
-		vo.filterName = filterName;
-		vo.browserSourceName = sourceName;
-
-		const params = {
-			sourceName: filterTarget,
-			filterKind: "shadertastic_filter",
-			filterName,
-			filterSettings,
-		};
-		try {
-			await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
-		} catch (error) {
-			this.shaderstasticError = true;
-			//Remove browser source created before
-			const sceneItem = await OBSWebsocket.instance.searchSceneItemId(
-				sourceName,
-				vo.obsItemPath.sceneName,
-			);
-			if (sceneItem) {
-				await OBSWebsocket.instance.socket.call("RemoveSceneItem", {
-					sceneItemId: sceneItem.itemId,
-					sceneName: vo.obsItemPath.sceneName,
-				});
-			}
-
-			await this.$nextTick();
-			gsap.from(this.$refs["error"] as HTMLDivElement, {
-				duration: 0.5,
-				ease: "back.out",
-				padding: 0,
-				height: 0,
-				delay: 0.5,
-			});
-		}
-	}
-
-	public deleteDistorsion(data: TwitchatDataTypes.HeatDistortionData): void {
-		const holdeList = this.$refs["distortion_" + data.id] as ComponentPublicInstance[];
-		const holder = holdeList[0];
+	nextTick().then(() => {
+		const holder = distortionRefs[id];
 		if (!holder) return;
-		gsap.to(holder.$el, {
+		gsap.from(holder.$el, {
 			height: 0,
 			paddingTop: 0,
 			paddingBottom: 0,
 			duration: 0.35,
-			ease: "back.in",
-			onComplete: () => {
-				(async () => {
-					this.$store.heat.deleteDistorsion(data);
-				})();
-			},
+			ease: "back.out",
+			clearProps: "all",
+		});
+	});
+}
+
+function becomePremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
+ * Called when a new distotion has been created and the overlay installed
+ * @param sourceName
+ * @param vo
+ * @param suffix
+ */
+async function distortionCreated(
+	sourceName: string,
+	vo: TwitchatDataTypes.HeatDistortionData,
+	suffix: string,
+): Promise<void> {
+	let filterTarget = "";
+	if (vo.obsItemPath.source.name) filterTarget = vo.obsItemPath.source.name;
+	else if (vo.obsItemPath.groupName) filterTarget = vo.obsItemPath.groupName;
+	else if (vo.obsItemPath.sceneName) filterTarget = vo.obsItemPath.sceneName;
+
+	const filterSettings = {
+		"displacement_map_source.displacement_map": sourceName,
+		effect: "displacement_map_source",
+		"displacement_map_source.color_space": 0,
+		"displacement_map_source.displace_mode": 1,
+		"displacement_map_source.displacement_strength_x": 0.05,
+		"displacement_map_source.displacement_strength_y": 0.05,
+	};
+	const filterName = ("Heat Distortion" + suffix).substring(0, 100);
+	vo.filterName = filterName;
+	vo.browserSourceName = sourceName;
+
+	const params = {
+		sourceName: filterTarget,
+		filterKind: "shadertastic_filter",
+		filterName,
+		filterSettings,
+	};
+	try {
+		await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+	} catch (err) {
+		shaderstasticError.value = true;
+		//Remove browser source created before
+		const sceneItem = await OBSWebsocket.instance.searchSceneItemId(
+			sourceName,
+			vo.obsItemPath.sceneName,
+		);
+		if (sceneItem) {
+			await OBSWebsocket.instance.socket.call("RemoveSceneItem", {
+				sceneItemId: sceneItem.itemId,
+				sceneName: vo.obsItemPath.sceneName,
+			});
+		}
+
+		await nextTick();
+		gsap.from(error.value!, {
+			duration: 0.5,
+			ease: "back.out",
+			padding: 0,
+			height: 0,
+			delay: 0.5,
 		});
 	}
 }
-export default toNative(OverlayParamsHeatDistort);
+
+function deleteDistorsion(data: TwitchatDataTypes.HeatDistortionData): void {
+	storeHeat.deleteDistorsion(data);
+}
 </script>
 
 <style scoped lang="less">
