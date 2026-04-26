@@ -1,6 +1,4 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import * as fs from "fs";
-import * as path from "path";
 import fetch from "node-fetch";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Config from "../utils/Config.js";
@@ -366,6 +364,46 @@ export default class PaypalController extends AbstractController {
 	}
 
 	/**
+	 * Get an order details from its ID
+	 * @param orderID
+	 */
+	private async getOrderDetails(token: string, orderID: string): Promise<PaypalOrder> {
+		const json = await fetch(Config.PAYPAL_ENDPOINT + "/v2/checkout/orders/" + orderID, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+		})
+			.then((res) => res.json() as unknown as PaypalOrder)
+			.then((json) => {
+				return json;
+			});
+
+		return json;
+	}
+
+	/**
+	 * Get a Paypal credential token
+	 */
+	private getToken(): Promise<string> {
+		const auth = `${Config.credentials.paypal_client_id}:${Config.credentials.paypal_client_secret}`;
+		const data = "grant_type=client_credentials";
+		return fetch(Config.PAYPAL_ENDPOINT + "/v1/oauth2/token", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+				Authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
+			},
+			body: data,
+		})
+			.then((res) => res.json() as unknown as { access_token: string })
+			.then((json) => {
+				return json.access_token;
+			});
+	}
+
+	/**
 	 * List the caller's invoices. Returns the minimum needed to render
 	 * the profile list (date + amount); the full record is stored in the
 	 * sidecar JSON next to each PDF.
@@ -374,30 +412,24 @@ export default class PaypalController extends AbstractController {
 		const twitchUser = await super.twitchUserGuard(request, response);
 		if (twitchUser == false) return;
 
-		const userFolder = path.join(Config.INVOICES_FOLDER, twitchUser.user_id);
-		const invoices: { orderId: string; date: string; amount: number; currency: string }[] = [];
-
-		if (fs.existsSync(userFolder)) {
-			for (const file of fs.readdirSync(userFolder)) {
-				if (!file.endsWith(".json")) continue;
-				try {
-					const meta = JSON.parse(
-						fs.readFileSync(path.join(userFolder, file), "utf-8"),
-					) as { orderId: string; date: string; amount: number; currency: string };
-					invoices.push({
-						orderId: meta.orderId,
-						date: meta.date,
-						amount: meta.amount,
-						currency: meta.currency,
-					});
-				} catch (error) {
-					Logger.error("Failed reading invoice metadata: " + file);
-					console.log(error);
-				}
-			}
+		let invoices: { orderId: string; date: string; amount: number; currency: string }[] = [];
+		try {
+			const remote = await InvoiceUtils.listInvoices(twitchUser.user_id);
+			invoices = remote.map((m) => ({
+				orderId: m.orderId,
+				date: m.date,
+				amount: m.amount,
+				currency: m.currency,
+			}));
+		} catch (error) {
+			Logger.error("Failed listing invoices for " + twitchUser.user_id);
+			console.log(error);
+			response
+				.header("Content-Type", "application/json")
+				.status(502)
+				.send(JSON.stringify({ success: false, error: "Invoice service unavailable" }));
+			return;
 		}
-
-		invoices.sort((a, b) => (a.date < b.date ? 1 : -1));
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -481,66 +513,26 @@ export default class PaypalController extends AbstractController {
 			return;
 		}
 
-		const userFolder = path.join(Config.INVOICES_FOLDER, payload.uid);
-		const filePath = path.join(userFolder, orderId + ".pdf");
-		const normalized = path.normalize(filePath);
-		if (!normalized.startsWith(path.normalize(userFolder))) {
-			response.status(403).send({ success: false, error: "Forbidden" });
+		let stream: NodeJS.ReadableStream | null;
+		try {
+			stream = await InvoiceUtils.fetchInvoicePdf(payload.uid, orderId);
+		} catch (error) {
+			Logger.error("Failed fetching invoice PDF for " + payload.uid + "/" + orderId);
+			console.log(error);
+			response.status(502).send({ success: false, error: "Invoice service unavailable" });
 			return;
 		}
-		if (!fs.existsSync(normalized)) {
+		if (!stream) {
 			response.status(404).send({ success: false, error: "Invoice not found" });
 			return;
 		}
 
-		const pdf = fs.readFileSync(normalized);
 		response.header("Content-Type", "application/pdf");
-		response.header("Content-Length", pdf.length);
 		response.header(
 			"Content-Disposition",
 			'attachment; filename="twitchat-invoice-' + orderId + '.pdf"',
 		);
-		response.send(pdf);
-	}
-
-	/**
-	 * Get an order details from its ID
-	 * @param orderID
-	 */
-	private async getOrderDetails(token: string, orderID: string): Promise<PaypalOrder> {
-		const json = await fetch(Config.PAYPAL_ENDPOINT + "/v2/checkout/orders/" + orderID, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-		})
-			.then((res) => res.json() as unknown as PaypalOrder)
-			.then((json) => {
-				return json;
-			});
-
-		return json;
-	}
-
-	/**
-	 * Get a Paypal credential token
-	 */
-	private getToken(): Promise<string> {
-		const auth = `${Config.credentials.paypal_client_id}:${Config.credentials.paypal_client_secret}`;
-		const data = "grant_type=client_credentials";
-		return fetch(Config.PAYPAL_ENDPOINT + "/v1/oauth2/token", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-				Authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
-			},
-			body: data,
-		})
-			.then((res) => res.json() as unknown as { access_token: string })
-			.then((json) => {
-				return json.access_token;
-			});
+		return response.send(stream);
 	}
 
 	/**

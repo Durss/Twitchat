@@ -42,6 +42,21 @@ export interface InvoiceMetadata {
 	currency: string;
 }
 
+export interface InvoiceMetadata {
+	orderId: string;
+	invoiceNumber: string;
+	date: string;
+	twitchLogin: string;
+	twitchUID: string;
+	payerName: string;
+	payerEmail: string;
+	payerId: string;
+	giftedTwitchLogin?: string;
+	amount: number;
+	fees: number;
+	currency: string;
+}
+
 /**
  * Created : 25/04/2026
  *
