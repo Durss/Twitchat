@@ -36,7 +36,18 @@ export interface InvoiceMetadata {
 	payerName: string;
 	payerEmail: string;
 	payerId: string;
+	payerAddressLine1?: string;
+	payerAddressLine2?: string;
+	payerCity?: string;
+	payerState?: string;
+	payerPostCode?: string;
+	payerCountryName?: string;
+	payerCountryCode?: string;
 	giftedTwitchLogin?: string;
+	paymentMethod?: string;
+	description: string;
+	quantity: number;
+	unitPrice: number;
 	amount: number;
 	fees: number;
 	currency: string;
