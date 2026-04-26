@@ -419,7 +419,7 @@ export default class Config {
 		return this._serverConfig.tiltify_scopes;
 	}
 	/**
-	 * Twitch Extension ID
+	 * Twitch Extension Version
 	 */
 	public get TWITCH_EXTENSION_VERSION(): string {
 		return this._serverConfig.twitchExtension_version;
@@ -429,6 +429,12 @@ export default class Config {
 	 */
 	public get TWITCH_EXTENSION_ID(): string {
 		return this._serverConfig.twitchExtension_client_id;
+	}
+	/**
+	 * Twitch Extension URL
+	 */
+	public get TWITCH_EXTENSION_URL(): string {
+		return `https://dashboard.twitch.tv/extensions/${this.TWITCH_EXTENSION_ID}-${this.TWITCH_EXTENSION_VERSION}`;
 	}
 
 	/**

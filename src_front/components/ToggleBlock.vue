@@ -532,6 +532,7 @@ onUnmounted(() => {
 			font-size: 0.8em;
 			font-weight: normal;
 			font-style: italic;
+			text-align: center;
 		}
 
 		// When title would exceed 2 lines, switch to single-line scrollable

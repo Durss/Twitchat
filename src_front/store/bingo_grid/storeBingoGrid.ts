@@ -29,7 +29,6 @@ let debounceBroadcast: number = -1;
 let debounceChatAnnounce: number = -1;
 let tickDebounce: { [key: string]: number } = {};
 let chatAnnounceStack: { user: TwitchatDataTypes.TwitchatUser; count: number }[] = [];
-let overlayCheckInterval: { [key: string]: number } = {};
 //Keeps old check states of grid to be able to diff on save
 let prevGridStates: { [key: string]: boolean[] } = {};
 
@@ -37,8 +36,8 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 	state: () =>
 		({
 			gridList: [] as IBingoGridState["gridList"],
-			availableOverlayList: [] as IBingoGridState["availableOverlayList"],
 			viewersBingoCount: {} as IBingoGridState["viewersBingoCount"],
+			controlerModeCache: {} as IBingoGridState["controlerModeCache"],
 		}) satisfies IBingoGridState,
 
 	getters: {} satisfies IBingoGridGetters &
@@ -103,24 +102,8 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			/**
 			 * Get notified when a grid overlay exists
 			 */
-			PublicAPI.instance.addEventListener("SET_BINGO_GRID_OVERLAY_PRESENCE", (event) => {
-				const id = event.data!.id;
-				const ref = this.gridList.find((v) => v.id == id);
-				//Check if bingo exists
-				if (!ref || !ref.enabled) return;
-
-				//Add overlay to the list if not already done
-				if (this.availableOverlayList.findIndex((v) => v.id == id) === -1) {
-					this.availableOverlayList.push(ref);
-				}
-
-				//Schedule removal of the overlay.
-				//Will be reset before the timeout expires if the overlay
-				//still exists
-				clearTimeout(overlayCheckInterval[id]);
-				overlayCheckInterval[id] = window.setTimeout(() => {
-					this.availableOverlayList = this.availableOverlayList.filter((v) => v.id != id);
-				}, 25000);
+			PublicAPI.instance.addEventListener("SET_BINGO_GRID_OVERLAY_PRESENCE", (_event) => {
+				// Don't care anymore
 			});
 
 			/**
@@ -711,12 +694,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					}
 
 					prevGridStates[grid.id] = newStates;
-
-					if (!grid.enabled) {
-						this.availableOverlayList = this.availableOverlayList.filter(
-							(v) => v.id != grid.id,
-						);
-					}
 
 					if (broadcastToViewers) {
 						window.clearTimeout(debounceBroadcast);

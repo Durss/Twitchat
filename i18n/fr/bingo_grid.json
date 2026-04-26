@@ -55,14 +55,9 @@
 			"perf_alert": "Il sembelrait que vous ayez beaucoup de viewers.\nJe ne peux pas garantir que mon serveur tiendra le coup, pensez à faire une petite prière avant de partager le lien à vos viewers 🙏."
 		},
 		"state": {
-			"auth_bt": "Avoir ma propre grille",
-			"cell_disabled": "{USER} doit\ncocher cette case\npour l'activer",
-			"mod_info": "Vous êtes modérateur·ice de cette chaîne, les cases que vous cochez s'activeront chez tout le monde",
+			"info": "Pour jouer au Bingo il faut désormais que votre streamereuse installe l'extension {EXTENSION} !",
 			"showLeaderboard_bt": "Afficher sur l'overlay",
 			"hideLeaderboard_bt": "Masquer de l'overlay",
-			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir",
-			"grid": "grille",
-			"list": "liste",
 			"footer": "Propulsé par {LINK}"
 		}
 	}
