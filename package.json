@@ -51,7 +51,6 @@
 		"lru-cache": "^11.3.5",
 		"mime-types": "^3.0.2",
 		"node-fetch": "^3.3.2",
-		"pdfkit": "^0.18.0",
 		"vue3-toastify": "^0.2.9"
 	},
 	"devDependencies": {
@@ -68,7 +67,6 @@
 		"@types/matter-js": "^0.19.8",
 		"@types/mime-types": "^3.0.1",
 		"@types/node": "^22.19.17",
-		"@types/pdfkit": "^0.17.6",
 		"@types/three": "^0.158.3",
 		"@types/tmi.js": "^1.8.6",
 		"@vitejs/plugin-vue": "^6.0.6",
