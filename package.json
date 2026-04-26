@@ -51,7 +51,6 @@
 		"lru-cache": "^11.3.5",
 		"mime-types": "^3.0.2",
 		"node-fetch": "^3.3.2",
-		"pdfkit": "^0.18.0",
 		"vue3-toastify": "^0.2.9"
 	},
 	"devDependencies": {
