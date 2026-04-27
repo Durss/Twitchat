@@ -6,6 +6,10 @@
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
 import type { VueI18n } from "vue-i18n";
 import type { Store } from "pinia";
+import type { IStore } from "@/store/StoreProxy";
+import type Config from "@/utils/Config";
+import type { TwitchatDataTypes } from "./TwitchatDataTypes";
+import type { Reactive } from "vue";
 
 declare module "@vue/runtime-core" {
 	interface ComponentCustomProperties {
@@ -43,7 +47,26 @@ declare module "@vue/runtime-core" {
 
 		// Custom properties (from your app)
 		$asset: (path: string) => string;
-		$store: any; // Your store type
+		$store: IStore;
+		$config: Reactive<Config>;
+		$utils: typeof Utils;
+		$asset: (path: string) => string;
+		$placeDropdown: (
+			dropdownList: HTMLDivElement,
+			component: { $refs: { [key: string]: HTMLElement } },
+			params: { width: string; left: string; top: string },
+		) => void;
+		$overlayURL: (
+			id: TwitchatDataTypes.OverlayTypes,
+			params?: { k: string; v: string }[],
+		) => string;
+		$confirm: <T>(
+			title: string,
+			description?: string,
+			data?: T,
+			yesLabel?: string,
+			noLabel?: string,
+		) => Promise<T | undefined>;
 	}
 }
 
