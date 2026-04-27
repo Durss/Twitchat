@@ -29,7 +29,12 @@
 					v-model="distortionList[index]"
 					@delete="deleteDistorsion"
 					@created="distortionCreated"
-					:ref="(el: ComponentPublicInstance | null) => { if (el) distortionRefs[item.id] = el; else delete distortionRefs[item.id] }"
+					:ref="
+						(el: ComponentPublicInstance | null) => {
+							if (el) distortionRefs[item.id] = el;
+							else delete distortionRefs[item.id];
+						}
+					"
 				/>
 			</template>
 
@@ -107,7 +112,15 @@ import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch, type ComponentPublicInstance } from "vue";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	ref,
+	useTemplateRef,
+	watch,
+	type ComponentPublicInstance,
+} from "vue";
 import HeatDistortParams from "./heat/HeatDistortParams.vue";
 
 const storeAuth = useStoreAuth();
