@@ -1,20 +1,14 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
-import DataStore from "../DataStore";
-import type { ITipeeeActions, ITipeeeGetters, ITipeeeState } from "../StoreProxy";
-import ApiHelper from "@/utils/ApiHelper";
-import StoreProxy from "../StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
+import type { ITipeeeActions, ITipeeeGetters, ITipeeeState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
 let socket: WebSocket | undefined = undefined;
 let pingInterval: string = "";
@@ -24,18 +18,14 @@ let isAutoInit: boolean = false;
 let autoReconnect: boolean = false;
 
 export const storeTipeee = defineStore("tipeee", {
-	state: () =>
-		({
-			accessToken: "",
-			refreshToken: "",
-			connected: false,
-			authResult: { code: "", csrf: "" },
-		}) satisfies ITipeeeState,
+	state: (): ITipeeeState => ({
+		accessToken: "",
+		refreshToken: "",
+		connected: false,
+		authResult: { code: "", csrf: "" },
+	}),
 
-	getters: {} satisfies ITipeeeGetters &
-		ThisType<
-			UnwrapRef<ITipeeeState> & _StoreWithGetters<ITipeeeGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<ITipeeeGetters, ITipeeeState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -322,14 +312,7 @@ export const storeTipeee = defineStore("tipeee", {
 			};
 			DataStore.set(DataStore.TIPEEE, data);
 		},
-	} satisfies ITipeeeActions &
-		ThisType<
-			ITipeeeActions &
-				UnwrapRef<ITipeeeState> &
-				_StoreWithState<"raffle", ITipeeeState, ITipeeeGetters, ITipeeeActions> &
-				_StoreWithGetters<ITipeeeGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"tipeee", ITipeeeState, ITipeeeGetters, ITipeeeActions>,
 });
 
 if (import.meta.hot) {

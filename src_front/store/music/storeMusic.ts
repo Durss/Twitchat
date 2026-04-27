@@ -1,39 +1,29 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { SpotifyAuthResult } from "@/types/spotify/SpotifyDataTypes";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IMusicActions, IMusicGetters, IMusicState } from "../StoreProxy";
 import DataStore from "../DataStore";
 import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 
 export const storeMusic = defineStore("music", {
-	state: () =>
-		({
-			spotifyAuthParams: null,
+	state: (): IMusicState => ({
+		spotifyAuthParams: null,
 
-			spotifyConsecutiveErrors: 0,
+		spotifyConsecutiveErrors: 0,
 
-			musicPlayerParams: {
-				autoHide: false,
-				erase: true,
-				showCover: true,
-				showArtist: true,
-				showTitle: true,
-				showProgressbar: true,
-				openFromLeft: false,
-				noScroll: false,
-				customInfoTemplate: "",
-			},
-		}) satisfies IMusicState,
-
-	getters: {} satisfies IMusicGetters &
-		ThisType<UnwrapRef<IMusicState> & _StoreWithGetters<IMusicGetters> & PiniaCustomProperties>,
+		musicPlayerParams: {
+			autoHide: false,
+			erase: true,
+			showCover: true,
+			showArtist: true,
+			showTitle: true,
+			showProgressbar: true,
+			openFromLeft: false,
+			noScroll: false,
+			customInfoTemplate: "",
+		},
+	}),
 
 	actions: {
 		populateData(): void {
@@ -50,14 +40,7 @@ export const storeMusic = defineStore("music", {
 		setSpotifyAuthResult(value: SpotifyAuthResult | null) {
 			this.spotifyAuthParams = value;
 		},
-	} satisfies IMusicActions &
-		ThisType<
-			IMusicActions &
-				UnwrapRef<IMusicState> &
-				_StoreWithState<"music", IMusicState, IMusicGetters, IMusicActions> &
-				_StoreWithGetters<IMusicGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"music", IMusicState, IMusicGetters, IMusicActions>,
 });
 
 if (import.meta.hot) {

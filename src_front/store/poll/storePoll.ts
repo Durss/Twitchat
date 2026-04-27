@@ -1,37 +1,29 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from "../StoreProxy";
 
 export const storePoll = defineStore("poll", {
-	state: () =>
-		({
-			data: null as IPollState["data"] | null,
-			overlayParams: {
-				showTitle: true,
-				listMode: true,
-				listModeOnlyMore2: true,
-				showLabels: true,
-				showVotes: false,
-				showPercent: false,
-				showTimer: true,
-				placement: "bl",
-				resultDuration_s: 5,
-				showOnlyResult: false,
-			} as IPollState["overlayParams"],
-		}) satisfies IPollState,
+	state: (): IPollState => ({
+		data: null,
+		overlayParams: {
+			showTitle: true,
+			listMode: true,
+			listModeOnlyMore2: true,
+			showLabels: true,
+			showVotes: false,
+			showPercent: false,
+			showTimer: true,
+			placement: "bl",
+			resultDuration_s: 5,
+			showOnlyResult: false,
+		},
+	}),
 
-	getters: {} satisfies IPollGetters &
-		ThisType<UnwrapRef<IPollState> & _StoreWithGetters<IPollGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<IPollGetters, IPollState>,
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
@@ -101,14 +93,7 @@ export const storePoll = defineStore("poll", {
 			});
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} satisfies IPollActions &
-		ThisType<
-			IPollActions &
-				UnwrapRef<IPollState> &
-				_StoreWithState<"poll", IPollState, IPollGetters, IPollActions> &
-				_StoreWithGetters<IPollGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"poll", IPollState, IPollGetters, IPollActions>,
 });
 
 if (import.meta.hot) {

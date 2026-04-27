@@ -1,15 +1,9 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, {
 	type IAdminActions,
 	type IAdminGetters,
@@ -17,10 +11,7 @@ import StoreProxy, {
 } from "../StoreProxy";
 
 export const storeAdmin = defineStore("Admin", {
-	state: () => ({}) satisfies IAdminState,
-
-	getters: {} satisfies IAdminGetters &
-		ThisType<UnwrapRef<IAdminState> & _StoreWithGetters<IAdminGetters> & PiniaCustomProperties>,
+	state: (): IAdminState => ({}),
 
 	actions: {
 		async addBetaUser(login: string): Promise<void> {
@@ -224,14 +215,7 @@ export const storeAdmin = defineStore("Admin", {
 			};
 			void StoreProxy.chat.addMessage(message);
 		},
-	} satisfies IAdminActions &
-		ThisType<
-			IAdminActions &
-				UnwrapRef<IAdminState> &
-				_StoreWithState<"Admin", IAdminState, IAdminGetters, IAdminActions> &
-				_StoreWithGetters<IAdminGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Admin", IAdminState, IAdminGetters, IAdminActions>,
 });
 
 if (import.meta.hot) {

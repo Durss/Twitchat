@@ -1,17 +1,11 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { AutocompletableString } from "@/typeUtils";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
 import type { IStreamSocketActions, IStreamSocketGetters, IStreamSocketState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import DataStore from "../DataStore";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import type { AutocompletableString } from "@/typeUtils";
 
 let socket: WebSocket | undefined = undefined;
 let reconnectTimeout: number = -1;
@@ -19,20 +13,14 @@ let reconnectAttempts: number = 0;
 let autoReconnect: boolean = false;
 
 export const storeStreamSocket = defineStore("streamSocket", {
-	state: () =>
-		({
-			connected: false,
-			invalidSecret: false,
-			connecting: false,
-			socketSecret: "",
-		}) satisfies IStreamSocketState,
+	state: (): IStreamSocketState => ({
+		connected: false,
+		invalidSecret: false,
+		connecting: false,
+		socketSecret: "",
+	}),
 
-	getters: {} satisfies IStreamSocketGetters &
-		ThisType<
-			UnwrapRef<IStreamSocketState> &
-				_StoreWithGetters<IStreamSocketGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IStreamSocketGetters, IStreamSocketState>,
 
 	actions: {
 		populateData(): void {
@@ -203,19 +191,12 @@ export const storeStreamSocket = defineStore("streamSocket", {
 			// }
 			DataStore.set(DataStore.STREAM_SOCKET_SECRET, this.socketSecret);
 		},
-	} satisfies IStreamSocketActions &
-		ThisType<
-			IStreamSocketActions &
-				UnwrapRef<IStreamSocketState> &
-				_StoreWithState<
-					"streamSocket",
-					IStreamSocketState,
-					IStreamSocketGetters,
-					IStreamSocketActions
-				> &
-				_StoreWithGetters<IStreamSocketGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"streamSocket",
+		IStreamSocketState,
+		IStreamSocketGetters,
+		IStreamSocketActions
+	>,
 });
 
 if (import.meta.hot) {

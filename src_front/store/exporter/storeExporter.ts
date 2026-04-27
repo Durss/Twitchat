@@ -1,39 +1,28 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { SettingsExportData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import * as Sentry from "@sentry/vue";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import { unref, type UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { unref } from "vue";
 import DataStore from "../DataStore";
 import type { IExporterActions, IExporterGetters, IExporterState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
 export const storeExporter = defineStore("Exporter", {
-	state: () =>
-		({
-			exportingSelectedSettings: false,
-			selectedTimerIDs: [] as IExporterState["selectedTimerIDs"],
-			selectedTriggerIDs: [] as IExporterState["selectedTriggerIDs"],
-			selectedCounterIDs: [] as IExporterState["selectedCounterIDs"],
-			selectedValueIDs: [] as IExporterState["selectedValueIDs"],
-			selectedLabelIDs: [] as IExporterState["selectedLabelIDs"],
-			selectedAnimatedTextIDs: [] as IExporterState["selectedAnimatedTextIDs"],
-			selectedCustomTrainIDs: [] as IExporterState["selectedCustomTrainIDs"],
-			selectedEndingCreditsSlotIDs: [] as IExporterState["selectedEndingCreditsSlotIDs"],
-			selectedBingoGridIDs: [] as IExporterState["selectedBingoGridIDs"],
-		}) satisfies IExporterState,
-
-	getters: {} satisfies IExporterGetters &
-		ThisType<
-			UnwrapRef<IExporterState> & _StoreWithGetters<IExporterGetters> & PiniaCustomProperties
-		>,
+	state: (): IExporterState => ({
+		exportingSelectedSettings: false,
+		selectedTimerIDs: [],
+		selectedTriggerIDs: [],
+		selectedCounterIDs: [],
+		selectedValueIDs: [],
+		selectedLabelIDs: [],
+		selectedAnimatedTextIDs: [],
+		selectedCustomTrainIDs: [],
+		selectedEndingCreditsSlotIDs: [],
+		selectedBingoGridIDs: [],
+	}),
 
 	actions: {
 		async exportSelectedSettings(
@@ -340,14 +329,7 @@ export const storeExporter = defineStore("Exporter", {
 				});
 			}
 		},
-	} satisfies IExporterActions &
-		ThisType<
-			IExporterActions &
-				UnwrapRef<IExporterState> &
-				_StoreWithState<"Exporter", IExporterState, IExporterGetters, IExporterActions> &
-				_StoreWithGetters<IExporterGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Exporter", IExporterState, IExporterGetters, IExporterActions>,
 });
 
 if (import.meta.hot) {

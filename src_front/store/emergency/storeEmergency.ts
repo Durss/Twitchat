@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import DataStore from "@/store/DataStore";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
@@ -5,15 +6,8 @@ import PublicAPI from "@/utils/PublicAPI";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -21,39 +15,31 @@ const userToPrevModState: { [key: string]: { [key: string]: boolean } } = {};
 
 //TODO make this platform agnostic
 export const storeEmergency = defineStore("emergency", {
-	state: () =>
-		({
-			emergencyStarted: false,
+	state: (): IEmergencyState => ({
+		emergencyStarted: false,
 
-			params: {
-				enabled: false,
-				emotesOnly: false,
-				subOnly: false,
-				followOnly: true,
-				noTriggers: false,
-				slowMode: false,
-				followOnlyDuration: 60,
-				slowModeDuration: 10,
-				toUsers: [],
-				obsScene: "",
-				obsSources: [],
-				chatCmd: "",
-				chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
-				autoEnableOnShieldmode: true,
-				autoEnableOnFollowbot: true,
-				enableShieldMode: false,
-			} as IEmergencyState["params"],
+		params: {
+			enabled: false,
+			emotesOnly: false,
+			subOnly: false,
+			followOnly: true,
+			noTriggers: false,
+			slowMode: false,
+			followOnlyDuration: 60,
+			slowModeDuration: 10,
+			toUsers: [],
+			obsScene: "",
+			obsSources: [],
+			chatCmd: "",
+			chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
+			autoEnableOnShieldmode: true,
+			autoEnableOnFollowbot: true,
+			enableShieldMode: false,
+		},
 
-			//Stores all the people that followed during an emergency
-			follows: [] as IEmergencyState["follows"],
-		}) satisfies IEmergencyState,
-
-	getters: {} satisfies IEmergencyGetters &
-		ThisType<
-			UnwrapRef<IEmergencyState> &
-				_StoreWithGetters<IEmergencyGetters> &
-				PiniaCustomProperties
-		>,
+		//Stores all the people that followed during an emergency
+		follows: [],
+	}),
 
 	actions: {
 		populateData() {
@@ -326,19 +312,7 @@ export const storeEmergency = defineStore("emergency", {
 			);
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, saved);
 		},
-	} satisfies IEmergencyActions &
-		ThisType<
-			IEmergencyActions &
-				UnwrapRef<IEmergencyState> &
-				_StoreWithState<
-					"emergency",
-					IEmergencyState,
-					IEmergencyGetters,
-					IEmergencyActions
-				> &
-				_StoreWithGetters<IEmergencyGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"emergency", IEmergencyState, IEmergencyGetters, IEmergencyActions>,
 });
 
 if (import.meta.hot) {

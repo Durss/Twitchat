@@ -1,11 +1,5 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IStreamfogActions, IStreamfogGetters, IStreamfogState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -13,23 +7,17 @@ import StoreProxy from "../StoreProxy";
 const apiKey = "98723ce97e2788a8e2f4639302ee969f80ad4838998ab899cb34c9155bdb1c48";
 
 export const storeStreamfog = defineStore("streamfog", {
-	state: () =>
-		({
-			connected: false,
-			invalidID: false,
-			connecting: false,
-			userId: "",
-			lensesList: [] as IStreamfogState["lensesList"],
-			userLensesList: [] as IStreamfogState["userLensesList"],
-			videoList: [] as IStreamfogState["videoList"],
-		}) satisfies IStreamfogState,
+	state: (): IStreamfogState => ({
+		connected: false,
+		invalidID: false,
+		connecting: false,
+		userId: "",
+		lensesList: [],
+		userLensesList: [],
+		videoList: [],
+	}),
 
-	getters: {} satisfies IStreamfogGetters &
-		ThisType<
-			UnwrapRef<IStreamfogState> &
-				_StoreWithGetters<IStreamfogGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IStreamfogGetters, IStreamfogState>,
 
 	actions: {
 		populateData(): void {
@@ -178,19 +166,7 @@ export const storeStreamfog = defineStore("streamfog", {
 			};
 			DataStore.set(DataStore.STREAMFOG_CONFIGS, data);
 		},
-	} satisfies IStreamfogActions &
-		ThisType<
-			IStreamfogActions &
-				UnwrapRef<IStreamfogState> &
-				_StoreWithState<
-					"streamfog",
-					IStreamfogState,
-					IStreamfogGetters,
-					IStreamfogActions
-				> &
-				_StoreWithGetters<IStreamfogGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"streamfog", IStreamfogState, IStreamfogGetters, IStreamfogActions>,
 });
 
 if (import.meta.hot) {

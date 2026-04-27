@@ -1,35 +1,23 @@
 import DataStore from "@/store/DataStore";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
-import type { IStreamerbotActions, IStreamerbotGetters, IStreamerbotState } from "../StoreProxy";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { StreamerbotClient } from "@streamerbot/client";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { IStreamerbotActions, IStreamerbotGetters, IStreamerbotState } from "../StoreProxy";
 
 let initResolver!: (value: boolean) => void;
 let socket!: StreamerbotClient;
 
 export const storeStreamerbot = defineStore("streamerbot", {
-	state: () =>
-		({
-			connected: false as boolean,
-			connectionEnabled: false as boolean,
-			ip: "127.0.0.1" as string,
-			port: 8080 as number,
-			password: "" as string,
-			actionList: [] as IStreamerbotState["actionList"],
-		}) satisfies IStreamerbotState,
+	state: (): IStreamerbotState => ({
+		connected: false,
+		connectionEnabled: false,
+		ip: "127.0.0.1",
+		port: 8080,
+		password: "",
+		actionList: [],
+	}),
 
-	getters: {} satisfies IStreamerbotGetters &
-		ThisType<
-			UnwrapRef<IStreamerbotState> &
-				_StoreWithGetters<IStreamerbotGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IStreamerbotGetters, IStreamerbotState>,
 
 	actions: {
 		populateData(): void {
@@ -127,19 +115,12 @@ export const storeStreamerbot = defineStore("streamerbot", {
 			const actions = await socket.getActions();
 			this.actionList = actions.actions;
 		},
-	} satisfies IStreamerbotActions &
-		ThisType<
-			IStreamerbotActions &
-				UnwrapRef<IStreamerbotState> &
-				_StoreWithState<
-					"streamerbot",
-					IStreamerbotState,
-					IStreamerbotGetters,
-					IStreamerbotActions
-				> &
-				_StoreWithGetters<IStreamerbotGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"streamerbot",
+		IStreamerbotState,
+		IStreamerbotGetters,
+		IStreamerbotActions
+	>,
 });
 
 if (import.meta.hot) {
