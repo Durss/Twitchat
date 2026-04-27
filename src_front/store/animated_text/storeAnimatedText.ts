@@ -1,15 +1,9 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type IAnimatedTextActions,
@@ -20,17 +14,9 @@ import StoreProxy, {
 const queryIdToResolver = new Map<string, () => void>();
 
 export const storeAnimatedText = defineStore("animatedtext", {
-	state: () =>
-		({
-			animatedTextList: [] as IAnimatedTextState["animatedTextList"],
-		}) satisfies IAnimatedTextState,
-
-	getters: {} satisfies IAnimatedTextGetters &
-		ThisType<
-			UnwrapRef<IAnimatedTextState> &
-				_StoreWithGetters<IAnimatedTextGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IAnimatedTextState => ({
+		animatedTextList: [],
+	}),
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -164,19 +150,12 @@ export const storeAnimatedText = defineStore("animatedtext", {
 				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CLOSE", { id: overlayId, queryId });
 			});
 		},
-	} satisfies IAnimatedTextActions &
-		ThisType<
-			IAnimatedTextActions &
-				UnwrapRef<IAnimatedTextState> &
-				_StoreWithState<
-					"animatedtext",
-					IAnimatedTextState,
-					IAnimatedTextGetters,
-					IAnimatedTextActions
-				> &
-				_StoreWithGetters<IAnimatedTextGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"animatedtext",
+		IAnimatedTextState,
+		IAnimatedTextGetters,
+		IAnimatedTextActions
+	>,
 });
 
 if (import.meta.hot) {

@@ -1,43 +1,24 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { StoreActions } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IAccountActions, IAccountGetters, IAccountState } from "../StoreProxy";
 
 export const storeAccount = defineStore("account", {
-	state: () =>
-		({
-			syncDataWithServer: {
-				type: "boolean",
-				value: true,
-				labelKey: "params.sync_server",
-				id: 401,
-			},
-			publicDonation: {
-				type: "boolean",
-				value: false,
-				labelKey: "donor.make_public",
-				id: 402,
-			},
-		}) satisfies IAccountState,
+	state: (): IAccountState => ({
+		syncDataWithServer: {
+			type: "boolean",
+			value: true,
+			labelKey: "params.sync_server",
+			id: 401,
+		},
+		publicDonation: {
+			type: "boolean",
+			value: false,
+			labelKey: "donor.make_public",
+			id: 402,
+		},
+	}),
 
-	getters: {} satisfies IAccountGetters &
-		ThisType<
-			UnwrapRef<IAccountState> & _StoreWithGetters<IAccountGetters> & PiniaCustomProperties
-		>,
-
-	actions: {} satisfies IAccountActions &
-		ThisType<
-			IAccountActions &
-				UnwrapRef<IAccountState> &
-				_StoreWithState<"account", IAccountState, IAccountGetters, IAccountActions> &
-				_StoreWithGetters<IAccountGetters> &
-				PiniaCustomProperties
-		>,
+	actions: {} satisfies StoreActions<"account", IAccountState, IAccountGetters, IAccountActions>,
 });
 
 if (import.meta.hot) {

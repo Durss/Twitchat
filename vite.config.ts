@@ -158,6 +158,7 @@ export default defineConfig({
 				{
 					varsIgnorePattern: "^_",
 					argsIgnorePattern: "^_",
+					caughtErrors: "all",
 					caughtErrorsIgnorePattern: "^_",
 				},
 			],
@@ -166,9 +167,11 @@ export default defineConfig({
 				{
 					varsIgnorePattern: "^_",
 					argsIgnorePattern: "^_",
+					caughtErrors: "all",
 					caughtErrorsIgnorePattern: "^_",
 				},
 			],
+			"typescript/unbound-method": ["warn", { ignoreStatic: true }],
 			"typescript/no-floating-promises": [
 				"warn",
 				{

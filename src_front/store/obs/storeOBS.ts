@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import { rebuildPlaceholdersCache, TriggerTypes } from "@/types/TriggerActionDataTypes";
@@ -5,40 +6,22 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket, { type OBSInputItem } from "@/utils/OBSWebsocket";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type _StoreWithGetters,
-	type _StoreWithState,
-	type PiniaCustomProperties,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import type { IOBSActions, IOBSGetters, IOBSState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
 export const storeOBS = defineStore("obs", {
-	state: () =>
-		({
-			connectionEnabled: false as boolean,
-			sceneCommands: [] as IOBSState["sceneCommands"],
-			muteUnmuteCommands: {
-				audioSourceName: "",
-				muteCommand: "!mute",
-				unmuteCommand: "!unmute",
-			} as IOBSState["muteUnmuteCommands"],
-			commandsPermissions: Utils.getDefaultPermissions(
-				true,
-				true,
-				false,
-				false,
-				false,
-				false,
-			) as IOBSState["commandsPermissions"],
-		}) satisfies IOBSState,
-
-	getters: {} satisfies IOBSGetters &
-		ThisType<UnwrapRef<IOBSState> & _StoreWithGetters<IOBSGetters> & PiniaCustomProperties>,
+	state: (): IOBSState => ({
+		connectionEnabled: false,
+		sceneCommands: [],
+		muteUnmuteCommands: {
+			audioSourceName: "",
+			muteCommand: "!mute",
+			unmuteCommand: "!unmute",
+		},
+		commandsPermissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
+	}),
 
 	actions: {
 		populateData() {
@@ -471,14 +454,7 @@ export const storeOBS = defineStore("obs", {
 				}
 			}
 		},
-	} satisfies IOBSActions &
-		ThisType<
-			IOBSActions &
-				UnwrapRef<IOBSState> &
-				_StoreWithState<"obs", IOBSState, IOBSGetters, IOBSActions> &
-				_StoreWithGetters<IOBSGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"obs", IOBSState, IOBSGetters, IOBSActions>,
 });
 
 if (import.meta.hot) {

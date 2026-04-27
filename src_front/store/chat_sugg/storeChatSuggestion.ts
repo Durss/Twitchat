@@ -1,14 +1,8 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type {
 	IChatSuggestionActions,
 	IChatSuggestionGetters,
@@ -17,17 +11,9 @@ import type {
 import StoreProxy from "../StoreProxy";
 
 export const storeChatSuggestion = defineStore("chatSuggestion", {
-	state: () =>
-		({
-			data: null as IChatSuggestionState["data"],
-		}) satisfies IChatSuggestionState,
-
-	getters: {} satisfies IChatSuggestionGetters &
-		ThisType<
-			UnwrapRef<IChatSuggestionState> &
-				_StoreWithGetters<IChatSuggestionGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IChatSuggestionState => ({
+		data: null,
+	}),
 
 	actions: {
 		setChatSuggestion(payload: TwitchatDataTypes.ChatSuggestionData | null) {
@@ -67,19 +53,12 @@ export const storeChatSuggestion = defineStore("chatSuggestion", {
 				}
 			}
 		},
-	} satisfies IChatSuggestionActions &
-		ThisType<
-			IChatSuggestionActions &
-				UnwrapRef<IChatSuggestionState> &
-				_StoreWithState<
-					"chatSuggestion",
-					IChatSuggestionState,
-					IChatSuggestionGetters,
-					IChatSuggestionActions
-				> &
-				_StoreWithGetters<IChatSuggestionGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"chatSuggestion",
+		IChatSuggestionState,
+		IChatSuggestionGetters,
+		IChatSuggestionActions
+	>,
 });
 
 if (import.meta.hot) {

@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import SSEEvent from "@/events/SSEEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -7,14 +8,7 @@ import SSEHelper from "@/utils/SSEHelper";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type IBingoGridActions,
@@ -33,19 +27,11 @@ let chatAnnounceStack: { user: TwitchatDataTypes.TwitchatUser; count: number }[]
 let prevGridStates: { [key: string]: boolean[] } = {};
 
 export const storeBingoGrid = defineStore("bingoGrid", {
-	state: () =>
-		({
-			gridList: [] as IBingoGridState["gridList"],
-			viewersBingoCount: {} as IBingoGridState["viewersBingoCount"],
-			controlerModeCache: {} as IBingoGridState["controlerModeCache"],
-		}) satisfies IBingoGridState,
-
-	getters: {} satisfies IBingoGridGetters &
-		ThisType<
-			UnwrapRef<IBingoGridState> &
-				_StoreWithGetters<IBingoGridGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IBingoGridState => ({
+		gridList: [],
+		viewersBingoCount: {},
+		controlerModeCache: {},
+	}),
 
 	actions: {
 		/**
@@ -870,19 +856,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 		hideLeaderboard(gridId: string): void {
 			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", { id: gridId });
 		},
-	} satisfies IBingoGridActions &
-		ThisType<
-			IBingoGridActions &
-				UnwrapRef<IBingoGridState> &
-				_StoreWithState<
-					"bingoGrid",
-					IBingoGridState,
-					IBingoGridGetters,
-					IBingoGridActions
-				> &
-				_StoreWithGetters<IBingoGridGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"bingoGrid", IBingoGridState, IBingoGridGetters, IBingoGridActions>,
 });
 
 if (import.meta.hot) {

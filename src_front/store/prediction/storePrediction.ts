@@ -1,14 +1,8 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type IPredictionActions,
@@ -17,31 +11,25 @@ import StoreProxy, {
 } from "../StoreProxy";
 
 export const storePrediction = defineStore("prediction", {
-	state: () =>
-		({
-			data: null as IPredictionState["data"] | null,
-			overlayParams: {
-				showTitle: true,
-				listMode: true,
-				listModeOnlyMore2: true,
-				showLabels: true,
-				showVotes: false,
-				showVoters: false,
-				showPercent: false,
-				showTimer: true,
-				showOnlyResult: false,
-				hideUntilResolved: false,
-				resultDuration_s: 10,
-				placement: "bl",
-			},
-		}) satisfies IPredictionState,
+	state: (): IPredictionState => ({
+		data: null,
+		overlayParams: {
+			showTitle: true,
+			listMode: true,
+			listModeOnlyMore2: true,
+			showLabels: true,
+			showVotes: false,
+			showVoters: false,
+			showPercent: false,
+			showTimer: true,
+			showOnlyResult: false,
+			hideUntilResolved: false,
+			resultDuration_s: 10,
+			placement: "bl",
+		},
+	}),
 
-	getters: {} satisfies IPredictionGetters &
-		ThisType<
-			UnwrapRef<IPredictionState> &
-				_StoreWithGetters<IPredictionGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IPredictionGetters, IPredictionState>,
 
 	actions: {
 		populateData(params?: PredictionOverlayParamStoreData): void {
@@ -114,19 +102,12 @@ export const storePrediction = defineStore("prediction", {
 			});
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} satisfies IPredictionActions &
-		ThisType<
-			IPredictionActions &
-				UnwrapRef<IPredictionState> &
-				_StoreWithState<
-					"prediction",
-					IPredictionState,
-					IPredictionGetters,
-					IPredictionActions
-				> &
-				_StoreWithGetters<IPredictionGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"prediction",
+		IPredictionState,
+		IPredictionGetters,
+		IPredictionActions
+	>,
 });
 
 if (import.meta.hot) {

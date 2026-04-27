@@ -1,11 +1,5 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { StoreActions } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ILumiaActions, ILumiaGetters, ILumiaState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import DataStore from "../DataStore";
@@ -16,14 +10,10 @@ let reconnectAttempts: number = 0;
 let autoReconnect: boolean = false;
 
 export const storeLumia = defineStore("lumia", {
-	state: () =>
-		({
-			connected: false,
-			socketToken: "",
-		}) satisfies ILumiaState,
-
-	getters: {} satisfies ILumiaGetters &
-		ThisType<UnwrapRef<ILumiaState> & _StoreWithGetters<ILumiaGetters> & PiniaCustomProperties>,
+	state: (): ILumiaState => ({
+		connected: false,
+		socketToken: "",
+	}),
 
 	actions: {
 		populateData(): void {
@@ -145,14 +135,7 @@ export const storeLumia = defineStore("lumia", {
 			};
 			void DataStore.set(DataStore.LUMIA, data);
 		},
-	} satisfies ILumiaActions &
-		ThisType<
-			ILumiaActions &
-				UnwrapRef<ILumiaState> &
-				_StoreWithState<"lumia", ILumiaState, ILumiaGetters, ILumiaActions> &
-				_StoreWithGetters<ILumiaGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"lumia", ILumiaState, ILumiaGetters, ILumiaActions>,
 });
 
 if (import.meta.hot) {

@@ -1,14 +1,8 @@
 import DataStore from "@/store/DataStore";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import VoiceAction from "@/utils/voice/VoiceAction";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IVoiceActions, IVoiceGetters, IVoiceState } from "../StoreProxy";
 import VoiceController from "@/utils/voice/VoiceController";
 import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
@@ -19,25 +13,22 @@ import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import Config from "@/utils/Config";
 
 export const storeVoice = defineStore("voice", {
-	state: () =>
-		({
-			voiceActions: [] as IVoiceState["voiceActions"],
-			voiceLang: "en-US",
-			voiceText: {
-				tempText: "",
-				rawTempText: "",
-				finalText: "",
-			} as IVoiceState["voiceText"],
-
-			voicemodCurrentVoice: null as IVoiceState["voicemodCurrentVoice"],
-
-			voicemodParams: {
-				enabled: false,
-				voiceIndicator: true,
-				commandToVoiceID: {},
-				chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
-			} as IVoiceState["voicemodParams"],
-		}) satisfies IVoiceState,
+	state: (): IVoiceState => ({
+		voiceActions: [],
+		voiceLang: "en-US",
+		voiceText: {
+			tempText: "",
+			rawTempText: "",
+			finalText: "",
+		},
+		voicemodCurrentVoice: null,
+		voicemodParams: {
+			enabled: false,
+			voiceIndicator: true,
+			commandToVoiceID: {},
+			chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
+		},
+	}),
 
 	getters: {
 		voiceBotConfigured: (): boolean => {
@@ -50,12 +41,11 @@ export const storeVoice = defineStore("voice", {
 				if (VoiceAction[(a + "_IS_GLOBAL") as VAKeys] !== true) continue;
 				const id: string = a as string;
 				const action = StoreProxy.voice.voiceActions.find((v) => v.id == id);
-				// if(action && !action?.sentences) {
 				if (!action?.sentences) return false;
 			}
 			return true;
 		},
-	},
+	} satisfies StoreGetters<IVoiceGetters, IVoiceState>,
 
 	actions: {
 		populateData() {
@@ -144,14 +134,7 @@ export const storeVoice = defineStore("voice", {
 				);
 			}
 		},
-	} satisfies IVoiceActions &
-		ThisType<
-			IVoiceActions &
-				UnwrapRef<IVoiceState> &
-				_StoreWithState<"voice", IVoiceState, IVoiceGetters, IVoiceActions> &
-				_StoreWithGetters<IVoiceGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"voice", IVoiceState, IVoiceGetters, IVoiceActions>,
 });
 
 if (import.meta.hot) {

@@ -1,3 +1,4 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import {
 	LabelItemPlaceholderList,
 	type LabelItemData,
@@ -7,13 +8,7 @@ import {
 import PublicAPI from "@/utils/PublicAPI";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -28,11 +23,10 @@ let saveDebounce: number = -1;
 let lastSaveDate: number = Date.now();
 
 export const storeLabels = defineStore("labels", {
-	state: () =>
-		({
-			labelList: [] as ILabelsState["labelList"],
-			placeholders: {} as ILabelsState["placeholders"],
-		}) satisfies ILabelsState,
+	state: (): ILabelsState => ({
+		labelList: [],
+		placeholders: {},
+	}),
 
 	getters: {
 		allPlaceholders(): typeof this.placeholders {
@@ -72,7 +66,7 @@ export const storeLabels = defineStore("labels", {
 
 			return placeholders;
 		},
-	},
+	} satisfies StoreGetters<ILabelsGetters, ILabelsState>,
 
 	actions: {
 		populateData(): void {
@@ -366,14 +360,7 @@ export const storeLabels = defineStore("labels", {
 				this.saveData();
 			}
 		},
-	} satisfies ILabelsActions &
-		ThisType<
-			ILabelsActions &
-				UnwrapRef<ILabelsState> &
-				_StoreWithState<"labels", ILabelsState, ILabelsGetters, ILabelsActions> &
-				ILabelsGetters &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"labels", ILabelsState, ILabelsGetters, ILabelsActions>,
 });
 
 if (import.meta.hot) {

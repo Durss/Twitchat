@@ -1,3 +1,4 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
@@ -10,39 +11,32 @@ import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import EventSub from "@/utils/twitch/EventSub";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 import * as Sentry from "@sentry/vue";
 
 let refreshTokenTO: number = -1;
 
 export const storeAuth = defineStore("auth", {
-	state: () =>
-		({
-			authenticated: false,
-			dataSharingUserList: [] as string[],
-			newScopesToRequest: [] as TwitchScopesString[],
-			twitchat: {} as IAuthState["twitchat"],
-			twitch: {} as IAuthState["twitch"],
-			youtube: {} as IAuthState["youtube"],
-			tiktok: {} as IAuthState["tiktok"],
-			facebook: {} as IAuthState["facebook"],
-			instagram: {} as IAuthState["instagram"],
-			twitchModeratedChannels: [] as IAuthState["twitchModeratedChannels"],
-			donorLevel: -1,
-			premiumType: "",
-			noAd: false,
-			donorLevelUpgrade: false,
-			lifetimePremiumPercent: 0,
-			features: [] as IAuthState["features"],
-		}) as IAuthState,
+	state: (): IAuthState => ({
+		authenticated: false,
+		dataSharingUserList: [],
+		newScopesToRequest: [],
+		twitchat: {} as IAuthState["twitchat"],
+		twitch: {} as IAuthState["twitch"],
+		youtube: {} as IAuthState["youtube"],
+		tiktok: {} as IAuthState["tiktok"],
+		facebook: {} as IAuthState["facebook"],
+		instagram: {} as IAuthState["instagram"],
+		kick: {} as IAuthState["kick"],
+		twitchModeratedChannels: [],
+		donorLevel: -1,
+		premiumType: "",
+		noAd: false,
+		donorLevelUpgrade: false,
+		lifetimePremiumPercent: 0,
+		features: [],
+	}),
 
 	getters: {
 		isAdmin(): boolean {
@@ -51,7 +45,7 @@ export const storeAuth = defineStore("auth", {
 		isPremium(): boolean {
 			return this.premiumType != "";
 		},
-	},
+	} satisfies StoreGetters<IAuthGetters, IAuthState>,
 
 	actions: {
 		async twitch_tokenRefresh(callback?: (success: boolean) => void) {
@@ -468,14 +462,7 @@ export const storeAuth = defineStore("auth", {
 			}
 			return false;
 		},
-	} satisfies IAuthActions &
-		ThisType<
-			IAuthActions &
-				UnwrapRef<IAuthState> &
-				_StoreWithState<"auth", IAuthState, IAuthGetters, IAuthActions> &
-				_StoreWithGetters<IAuthGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"auth", IAuthState, IAuthGetters, IAuthActions>,
 });
 
 if (import.meta.hot) {

@@ -1,21 +1,15 @@
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import * as Sentry from "@sentry/vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IStreamlabsActions, IStreamlabsGetters, IStreamlabsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import * as Sentry from "@sentry/vue";
 
 let socket: WebSocket | undefined = undefined;
 let pingInterval: string = "";
@@ -28,17 +22,16 @@ let donationPageIndex: number = 0;
 let donationPrevPagesTotal: number = 0;
 
 export const storeStreamlabs = defineStore("streamlabs", {
-	state: () =>
-		({
-			accessToken: "",
-			socketToken: "",
-			connected: false,
-			authResult: { code: "", csrf: "" },
-			charityTeam: null,
-			syncingTips: false,
-			syncingCampaign: false,
-			syncingLeaderboard: false,
-		}) satisfies IStreamlabsState,
+	state: (): IStreamlabsState => ({
+		accessToken: "",
+		socketToken: "",
+		connected: false,
+		authResult: { code: "", csrf: "" },
+		charityTeam: null,
+		syncingTips: false,
+		syncingCampaign: false,
+		syncingLeaderboard: false,
+	}),
 
 	getters: {
 		isLoading: () => {
@@ -48,7 +41,7 @@ export const storeStreamlabs = defineStore("streamlabs", {
 				StoreProxy.streamlabs.syncingLeaderboard
 			);
 		},
-	},
+	} satisfies StoreGetters<IStreamlabsGetters, IStreamlabsState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -711,19 +704,12 @@ export const storeStreamlabs = defineStore("streamlabs", {
 
 			this.syncingTips = false;
 		},
-	} satisfies IStreamlabsActions &
-		ThisType<
-			IStreamlabsActions &
-				UnwrapRef<IStreamlabsState> &
-				_StoreWithState<
-					"raffle",
-					IStreamlabsState,
-					IStreamlabsGetters,
-					IStreamlabsActions
-				> &
-				_StoreWithGetters<IStreamlabsGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"streamlabs",
+		IStreamlabsState,
+		IStreamlabsGetters,
+		IStreamlabsActions
+	>,
 });
 
 if (import.meta.hot) {

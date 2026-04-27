@@ -1,16 +1,10 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IPatreonActions, IPatreonGetters, IPatreonState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -18,21 +12,15 @@ import StoreProxy from "../StoreProxy";
 let refreshTimeout: number = 0;
 
 export const storePatreon = defineStore("patreon", {
-	state: () =>
-		({
-			isMember: false,
-			userName: "",
-			userAvatar: "",
-			connected: false,
-			oauthFlowParams: null,
-			memberList: [] as IPatreonState["memberList"],
-			tierList: [] as IPatreonState["tierList"],
-		}) satisfies IPatreonState,
-
-	getters: {} satisfies IPatreonGetters &
-		ThisType<
-			UnwrapRef<IPatreonState> & _StoreWithGetters<IPatreonGetters> & PiniaCustomProperties
-		>,
+	state: (): IPatreonState => ({
+		isMember: false,
+		userName: "",
+		userAvatar: "",
+		connected: false,
+		oauthFlowParams: null,
+		memberList: [],
+		tierList: [],
+	}),
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -188,14 +176,7 @@ export const storePatreon = defineStore("patreon", {
 				StoreProxy.labels.updateLabelValue("PATREON_MEMBER_COUNT", activeMembers.length);
 			}
 		},
-	} satisfies IPatreonActions &
-		ThisType<
-			IPatreonActions &
-				UnwrapRef<IPatreonState> &
-				_StoreWithState<"patreon", IPatreonState, IPatreonGetters, IPatreonActions> &
-				_StoreWithGetters<IPatreonGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"patreon", IPatreonState, IPatreonGetters, IPatreonActions>,
 });
 
 if (import.meta.hot) {

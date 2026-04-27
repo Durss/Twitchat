@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import rewardImg from "@/assets/icons/channelPoints.svg";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -5,14 +6,8 @@ import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { LoremIpsum } from "lorem-ipsum";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import { watch, type UnwrapRef, reactive } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { watch, reactive } from "vue";
 import type { IDebugActions, IDebugGetters, IDebugState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import { GoXLRTypes } from "@/types/GoXLRTypes";
@@ -23,10 +18,7 @@ let streamInfoCache: TwitchDataTypes.ChannelInfo | null = null;
 const ponderatedRandomList: TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
 export const storeDebug = defineStore("debug", {
-	state: () => ({}) satisfies IDebugState,
-
-	getters: {} satisfies IDebugGetters &
-		ThisType<UnwrapRef<IDebugState> & _StoreWithGetters<IDebugGetters> & PiniaCustomProperties>,
+	state: (): IDebugState => ({}),
 
 	actions: {
 		async simulateMessage<
@@ -2746,14 +2738,7 @@ export const storeDebug = defineStore("debug", {
 				postOnChat,
 			)) as T;
 		},
-	} satisfies IDebugActions &
-		ThisType<
-			IDebugActions &
-				UnwrapRef<IDebugState> &
-				_StoreWithState<"Debug", IDebugState, IDebugGetters, IDebugActions> &
-				_StoreWithGetters<IDebugGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Debug", IDebugState, IDebugGetters, IDebugActions>,
 });
 
 if (import.meta.hot) {

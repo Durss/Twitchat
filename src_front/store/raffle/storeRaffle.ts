@@ -1,18 +1,12 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type IRaffleActions,
@@ -24,15 +18,11 @@ let confirmSpool: string[] = [];
 let debounceConfirm: number = -1;
 
 export const storeRaffle = defineStore("raffle", {
-	state: () =>
-		({
-			raffleList: [] as IRaffleState["raffleList"],
-		}) satisfies IRaffleState,
+	state: (): IRaffleState => ({
+		raffleList: [],
+	}),
 
-	getters: {} satisfies IRaffleGetters &
-		ThisType<
-			UnwrapRef<IRaffleState> & _StoreWithGetters<IRaffleGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IRaffleGetters, IRaffleState>,
 
 	actions: {
 		populateData() {
@@ -929,14 +919,7 @@ export const storeRaffle = defineStore("raffle", {
 			);
 			PublicAPI.instance.broadcastGlobalStates();
 		},
-	} satisfies IRaffleActions &
-		ThisType<
-			IRaffleActions &
-				UnwrapRef<IRaffleState> &
-				_StoreWithState<"raffle", IRaffleState, IRaffleGetters, IRaffleActions> &
-				_StoreWithGetters<IRaffleGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"raffle", IRaffleState, IRaffleGetters, IRaffleActions>,
 });
 
 if (import.meta.hot) {

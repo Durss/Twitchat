@@ -1,26 +1,18 @@
 import DataStore from "@/store/DataStore";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ISammiActions, ISammiGetters, ISammiState } from "../StoreProxy";
 
 export const storeSammi = defineStore("sammi", {
-	state: () =>
-		({
-			connected: false,
-			connectionEnabled: false as boolean,
-			ip: "127.0.0.1",
-			port: 9450,
-			password: "",
-		}) satisfies ISammiState,
+	state: (): ISammiState => ({
+		connected: false,
+		connectionEnabled: false,
+		ip: "127.0.0.1",
+		port: 9450,
+		password: "",
+	}),
 
-	getters: {} satisfies ISammiGetters &
-		ThisType<UnwrapRef<ISammiState> & _StoreWithGetters<ISammiGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<ISammiGetters, ISammiState>,
 
 	actions: {
 		populateData(): void {
@@ -90,14 +82,7 @@ export const storeSammi = defineStore("sammi", {
 			DataStore.set(DataStore.SAMMI_CONFIGS, data);
 			DataStore.set(DataStore.SAMMI_API_PASSWORD, this.password);
 		},
-	} satisfies ISammiActions &
-		ThisType<
-			ISammiActions &
-				UnwrapRef<ISammiState> &
-				_StoreWithState<"sammi", ISammiState, ISammiGetters, ISammiActions> &
-				_StoreWithGetters<ISammiGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"sammi", ISammiState, ISammiGetters, ISammiActions>,
 });
 
 if (import.meta.hot) {

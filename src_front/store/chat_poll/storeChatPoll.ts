@@ -1,16 +1,10 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { PollOverlayParamStoreData } from "../poll/storePoll";
 import StoreProxy, {
@@ -21,33 +15,27 @@ import StoreProxy, {
 
 let timeoutEnd = "";
 export const storeChatPoll = defineStore("chatPoll", {
-	state: () =>
-		({
-			data: null,
-			presets: {
-				duration_s: 2 * 60,
-				voteCount: 1,
-				permissions: Utils.getDefaultPermissions(),
-				history: [],
-			},
-			overlayParams: {
-				showTitle: true,
-				listMode: true,
-				listModeOnlyMore2: true,
-				showLabels: true,
-				showVotes: false,
-				showPercent: false,
-				showTimer: true,
-				resultDuration_s: 5,
-				showOnlyResult: false,
-				placement: "bl",
-			},
-		}) satisfies IChatPollState,
-
-	getters: {} satisfies IChatPollGetters &
-		ThisType<
-			UnwrapRef<IChatPollState> & _StoreWithGetters<IChatPollGetters> & PiniaCustomProperties
-		>,
+	state: (): IChatPollState => ({
+		data: null,
+		presets: {
+			duration_s: 2 * 60,
+			voteCount: 1,
+			permissions: Utils.getDefaultPermissions(),
+			history: [],
+		},
+		overlayParams: {
+			showTitle: true,
+			listMode: true,
+			listModeOnlyMore2: true,
+			showLabels: true,
+			showVotes: false,
+			showPercent: false,
+			showTimer: true,
+			resultDuration_s: 5,
+			showOnlyResult: false,
+			placement: "bl",
+		},
+	}),
 
 	actions: {
 		populateData(params?: PollOverlayParamStoreData): void {
@@ -267,14 +255,7 @@ export const storeChatPoll = defineStore("chatPoll", {
 				parameters: this.overlayParams,
 			});
 		},
-	} satisfies IChatPollActions &
-		ThisType<
-			IChatPollActions &
-				UnwrapRef<IChatPollState> &
-				_StoreWithState<"chatPoll", IChatPollState, IChatPollGetters, IChatPollActions> &
-				_StoreWithGetters<IChatPollGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"chatPoll", IChatPollState, IChatPollGetters, IChatPollActions>,
 });
 
 if (import.meta.hot) {

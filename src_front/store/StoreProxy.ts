@@ -27,6 +27,7 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
+import type { StoreInstance } from "@/types/pinia-helpers";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type {
@@ -46,189 +47,124 @@ import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/store
  * This class only exists to solve the circular imports hell
  */
 export default class StoreProxy {
-	public static account: IAccountState &
-		IAccountGetters &
-		IAccountActions & { $state: IAccountState; $reset: () => void };
-	public static auth: IAuthState &
-		IAuthGetters &
-		IAuthActions & { $state: IAuthState; $reset: () => void };
-	public static automod: IAutomodState &
-		IAutomodGetters &
-		IAutomodActions & { $state: IAutomodState; $reset: () => void };
-	public static bingo: IBingoState &
-		IBingoGetters &
-		IBingoActions & { $state: IBingoState; $reset: () => void };
-	public static bingoGrid: IBingoGridState &
-		IBingoGridGetters &
-		IBingoGridActions & { $state: IBingoGridState; $reset: () => void };
-	public static chat: IChatState &
-		IChatGetters &
-		IChatActions & { $state: IChatState; $reset: () => void };
-	public static chatSuggestion: IChatSuggestionState &
-		IChatSuggestionGetters &
-		IChatSuggestionActions & { $state: IChatSuggestionState; $reset: () => void };
-	public static emergency: IEmergencyState &
-		IEmergencyGetters &
-		IEmergencyActions & { $state: IEmergencyState; $reset: () => void };
-	public static music: IMusicState &
-		IMusicGetters &
-		IMusicActions & { $state: IMusicState; $reset: () => void };
-	public static obs: IOBSState &
-		IOBSGetters &
-		IOBSActions & { $state: IOBSState; $reset: () => void };
-	public static params: IParamsState &
-		IParamsGetters &
-		IParamsActions & { $state: IParamsState; $reset: () => void };
-	public static poll: IPollState &
-		IPollGetters &
-		IPollActions & { $state: IPollState; $reset: () => void };
-	public static chatPoll: IChatPollState &
-		IChatPollGetters &
-		IChatPollActions & { $state: IChatPollState; $reset: () => void };
-	public static prediction: IPredictionState &
-		IPredictionGetters &
-		IPredictionActions & { $state: IPredictionState; $reset: () => void };
-	public static raffle: IRaffleState &
-		IRaffleGetters &
-		IRaffleActions & { $state: IRaffleState; $reset: () => void };
-	public static stream: IStreamState &
-		IStreamGetters &
-		IStreamActions & { $state: IStreamState; $reset: () => void };
-	public static timers: ITimerState &
-		ITimerGetters &
-		ITimerActions & { $state: ITimerState; $reset: () => void };
-	public static triggers: ITriggersState &
-		ITriggersGetters &
-		ITriggersActions & { $state: ITriggersState; $reset: () => void };
-	public static tts: ITTSState &
-		ITTSGetters &
-		ITTSActions & { $state: ITTSState; $reset: () => void };
-	public static users: IUsersState &
-		IUsersGetters &
-		IUsersActions & { $state: IUsersState; $reset: () => void };
-	public static voice: IVoiceState &
-		IVoiceGetters &
-		IVoiceActions & { $state: IVoiceState; $reset: () => void };
-	public static main: IMainState &
-		IMainGetters &
-		IMainActions & { $state: IMainState; $reset: () => void };
-	public static debug: IDebugState &
-		IDebugGetters &
-		IDebugActions & { $state: IDebugState; $reset: () => void };
-	public static accessibility: IAccessibilityState &
-		IAccessibilityGetters &
-		IAccessibilityActions & { $state: IAccessibilityState; $reset: () => void };
-	public static admin: IAdminState &
-		IAdminGetters &
-		IAdminActions & { $state: IAdminState; $reset: () => void };
-	public static counters: ICountersState &
-		ICountersGetters &
-		ICountersActions & { $state: ICountersState; $reset: () => void };
-	public static rewards: IRewardsState &
-		IRewardsGetters &
-		IRewardsActions & { $state: IRewardsState; $reset: () => void };
-	public static heat: IHeatState &
-		IHeatGetters &
-		IHeatActions & { $state: IHeatState; $reset: () => void };
-	public static patreon: IPatreonState &
-		IPatreonGetters &
-		IPatreonActions & { $state: IPatreonState; $reset: () => void };
-	public static youtube: IYoutubeState &
-		IYoutubeGetters &
-		IYoutubeActions & { $state: IYoutubeState; $reset: () => void };
-	public static values: IValuesState &
-		IValuesGetters &
-		IValuesActions & { $state: IValuesState; $reset: () => void };
-	public static extension: IExtensionState &
-		IExtensionGetters &
-		IExtensionActions & { $state: IExtensionState; $reset: () => void };
-	public static qna: IQnaState &
-		IQnaGetters &
-		IQnaActions & { $state: IQnaState; $reset: () => void };
-	public static discord: IDiscordState &
-		IDiscordGetters &
-		IDiscordActions & { $state: IDiscordState; $reset: () => void };
-	public static streamlabs: IStreamlabsState &
-		IStreamlabsGetters &
-		IStreamlabsActions & { $state: IStreamlabsState; $reset: () => void };
-	public static streamelements: IStreamelementsState &
-		IStreamelementsGetters &
-		IStreamelementsActions & { $state: IStreamelementsState; $reset: () => void };
-	public static kofi: IKofiState &
-		IKofiGetters &
-		IKofiActions & { $state: IKofiState; $reset: () => void };
-	public static lumia: ILumiaState &
-		ILumiaGetters &
-		ILumiaActions & { $state: ILumiaState; $reset: () => void };
-	public static tipeee: ITipeeeState &
-		ITipeeeGetters &
-		ITipeeeActions & { $state: ITipeeeState; $reset: () => void };
-	public static common: ICommonState &
-		ICommonGetters &
-		ICommonActions & { $state: ICommonState; $reset: () => void };
-	public static labels: ILabelsState &
-		ILabelsGetters &
-		ILabelsActions & { $state: ILabelsState; $reset: () => void };
-	public static donationGoals: IDonationGoalState &
-		IDonationGoalGetters &
-		IDonationGoalActions & { $state: IDonationGoalState; $reset: () => void };
-	public static tiltify: ITiltifyState &
-		ITiltifyGetters &
-		ITiltifyActions & { $state: ITiltifyState; $reset: () => void };
-	public static tiktok: ITiktokState &
-		ITiktokGetters &
-		ITiktokActions & { $state: ITiktokState; $reset: () => void };
-	public static streamerbot: IStreamerbotState &
-		IStreamerbotGetters &
-		IStreamerbotActions & { $state: IStreamerbotState; $reset: () => void };
-	public static sammi: ISammiState &
-		ISammiGetters &
-		ISammiActions & { $state: ISammiState; $reset: () => void };
-	public static public: IPublicState &
-		IPublicGetters &
-		IPublicActions & { $state: IPublicState; $reset: () => void };
-	public static mixitup: IMixitupState &
-		IMixitupGetters &
-		IMixitupActions & { $state: IMixitupState; $reset: () => void };
-	public static twitchCharity: ITwitchCharityState &
-		ITwitchCharityGetters &
-		ITwitchCharityActions & { $state: ITwitchCharityState; $reset: () => void };
-	public static elevenLabs: IElevenLabsState &
-		IElevenLabsGetters &
-		IElevenLabsActions & { $state: IElevenLabsState; $reset: () => void };
-	public static playability: IPlayabilityState &
-		IPlayabilityGetters &
-		IPlayabilityActions & { $state: IPlayabilityState; $reset: () => void };
-	public static twitchBot: ITwitchBotState &
-		ITwitchBotGetters &
-		ITwitchBotActions & { $state: ITwitchBotState; $reset: () => void };
-	public static groq: IGroqState &
-		IGroqGetters &
-		IGroqActions & { $state: IGroqState; $reset: () => void };
-	public static animatedText: IAnimatedTextState &
-		IAnimatedTextGetters &
-		IAnimatedTextActions & { $state: IAnimatedTextState; $reset: () => void };
-	public static customTrain: ICustomTrainState &
-		ICustomTrainGetters &
-		ICustomTrainActions & { $state: ICustomTrainState; $reset: () => void };
-	public static streamSocket: IStreamSocketState &
-		IStreamSocketGetters &
-		IStreamSocketActions & { $state: IStreamSocketState; $reset: () => void };
-	public static exporter: IExporterState &
-		IExporterGetters &
-		IExporterActions & { $state: IExporterState; $reset: () => void };
-	public static endingCredits: IEndingCreditsState &
-		IEndingCreditsGetters &
-		IEndingCreditsActions & { $state: IEndingCreditsState; $reset: () => void };
-	public static quiz: IQuizState &
-		IQuizGetters &
-		IQuizActions & { $state: IQuizState; $reset: () => void };
-	public static streamfog: IStreamfogState &
-		IStreamfogGetters &
-		IStreamfogActions & { $state: IStreamfogState; $reset: () => void };
-	public static api: IAPIState &
-		IAPIGetters &
-		IAPIActions & { $state: IAPIState; $reset: () => void };
+	public static account: StoreInstance<IAccountState, IAccountGetters, IAccountActions>;
+	public static auth: StoreInstance<IAuthState, IAuthGetters, IAuthActions>;
+	public static automod: StoreInstance<IAutomodState, IAutomodGetters, IAutomodActions>;
+	public static bingo: StoreInstance<IBingoState, IBingoGetters, IBingoActions>;
+	public static bingoGrid: StoreInstance<IBingoGridState, IBingoGridGetters, IBingoGridActions>;
+	public static chat: StoreInstance<IChatState, IChatGetters, IChatActions>;
+	public static chatSuggestion: StoreInstance<
+		IChatSuggestionState,
+		IChatSuggestionGetters,
+		IChatSuggestionActions
+	>;
+	public static emergency: StoreInstance<IEmergencyState, IEmergencyGetters, IEmergencyActions>;
+	public static music: StoreInstance<IMusicState, IMusicGetters, IMusicActions>;
+	public static obs: StoreInstance<IOBSState, IOBSGetters, IOBSActions>;
+	public static params: StoreInstance<IParamsState, IParamsGetters, IParamsActions>;
+	public static poll: StoreInstance<IPollState, IPollGetters, IPollActions>;
+	public static chatPoll: StoreInstance<IChatPollState, IChatPollGetters, IChatPollActions>;
+	public static prediction: StoreInstance<
+		IPredictionState,
+		IPredictionGetters,
+		IPredictionActions
+	>;
+	public static raffle: StoreInstance<IRaffleState, IRaffleGetters, IRaffleActions>;
+	public static stream: StoreInstance<IStreamState, IStreamGetters, IStreamActions>;
+	public static timers: StoreInstance<ITimerState, ITimerGetters, ITimerActions>;
+	public static triggers: StoreInstance<ITriggersState, ITriggersGetters, ITriggersActions>;
+	public static tts: StoreInstance<ITTSState, ITTSGetters, ITTSActions>;
+	public static users: StoreInstance<IUsersState, IUsersGetters, IUsersActions>;
+	public static voice: StoreInstance<IVoiceState, IVoiceGetters, IVoiceActions>;
+	public static main: StoreInstance<IMainState, IMainGetters, IMainActions>;
+	public static debug: StoreInstance<IDebugState, IDebugGetters, IDebugActions>;
+	public static accessibility: StoreInstance<
+		IAccessibilityState,
+		IAccessibilityGetters,
+		IAccessibilityActions
+	>;
+	public static admin: StoreInstance<IAdminState, IAdminGetters, IAdminActions>;
+	public static counters: StoreInstance<ICountersState, ICountersGetters, ICountersActions>;
+	public static rewards: StoreInstance<IRewardsState, IRewardsGetters, IRewardsActions>;
+	public static heat: StoreInstance<IHeatState, IHeatGetters, IHeatActions>;
+	public static patreon: StoreInstance<IPatreonState, IPatreonGetters, IPatreonActions>;
+	public static youtube: StoreInstance<IYoutubeState, IYoutubeGetters, IYoutubeActions>;
+	public static values: StoreInstance<IValuesState, IValuesGetters, IValuesActions>;
+	public static extension: StoreInstance<IExtensionState, IExtensionGetters, IExtensionActions>;
+	public static qna: StoreInstance<IQnaState, IQnaGetters, IQnaActions>;
+	public static discord: StoreInstance<IDiscordState, IDiscordGetters, IDiscordActions>;
+	public static streamlabs: StoreInstance<
+		IStreamlabsState,
+		IStreamlabsGetters,
+		IStreamlabsActions
+	>;
+	public static streamelements: StoreInstance<
+		IStreamelementsState,
+		IStreamelementsGetters,
+		IStreamelementsActions
+	>;
+	public static kofi: StoreInstance<IKofiState, IKofiGetters, IKofiActions>;
+	public static lumia: StoreInstance<ILumiaState, ILumiaGetters, ILumiaActions>;
+	public static tipeee: StoreInstance<ITipeeeState, ITipeeeGetters, ITipeeeActions>;
+	public static common: StoreInstance<ICommonState, ICommonGetters, ICommonActions>;
+	public static labels: StoreInstance<ILabelsState, ILabelsGetters, ILabelsActions>;
+	public static donationGoals: StoreInstance<
+		IDonationGoalState,
+		IDonationGoalGetters,
+		IDonationGoalActions
+	>;
+	public static tiltify: StoreInstance<ITiltifyState, ITiltifyGetters, ITiltifyActions>;
+	public static tiktok: StoreInstance<ITiktokState, ITiktokGetters, ITiktokActions>;
+	public static streamerbot: StoreInstance<
+		IStreamerbotState,
+		IStreamerbotGetters,
+		IStreamerbotActions
+	>;
+	public static sammi: StoreInstance<ISammiState, ISammiGetters, ISammiActions>;
+	public static public: StoreInstance<IPublicState, IPublicGetters, IPublicActions>;
+	public static mixitup: StoreInstance<IMixitupState, IMixitupGetters, IMixitupActions>;
+	public static twitchCharity: StoreInstance<
+		ITwitchCharityState,
+		ITwitchCharityGetters,
+		ITwitchCharityActions
+	>;
+	public static elevenLabs: StoreInstance<
+		IElevenLabsState,
+		IElevenLabsGetters,
+		IElevenLabsActions
+	>;
+	public static playability: StoreInstance<
+		IPlayabilityState,
+		IPlayabilityGetters,
+		IPlayabilityActions
+	>;
+	public static twitchBot: StoreInstance<ITwitchBotState, ITwitchBotGetters, ITwitchBotActions>;
+	public static groq: StoreInstance<IGroqState, IGroqGetters, IGroqActions>;
+	public static animatedText: StoreInstance<
+		IAnimatedTextState,
+		IAnimatedTextGetters,
+		IAnimatedTextActions
+	>;
+	public static customTrain: StoreInstance<
+		ICustomTrainState,
+		ICustomTrainGetters,
+		ICustomTrainActions
+	>;
+	public static streamSocket: StoreInstance<
+		IStreamSocketState,
+		IStreamSocketGetters,
+		IStreamSocketActions
+	>;
+	public static exporter: StoreInstance<IExporterState, IExporterGetters, IExporterActions>;
+	public static endingCredits: StoreInstance<
+		IEndingCreditsState,
+		IEndingCreditsGetters,
+		IEndingCreditsActions
+	>;
+	public static quiz: StoreInstance<IQuizState, IQuizGetters, IQuizActions>;
+	public static streamfog: StoreInstance<IStreamfogState, IStreamfogGetters, IStreamfogActions>;
+	public static api: StoreInstance<IAPIState, IAPIGetters, IAPIActions>;
+	public static bluesky: StoreInstance<IBlueskyState, IBlueskyGetters, IBlueskyActions>;
 	public static i18n: VueI18n<
 		{},
 		{},
@@ -362,7 +298,7 @@ export interface IMainActions {
 	/**
 	 * Toggle current theme (dark/light)
 	 */
-	toggleTheme(forced?: "light" | "dark"): Promise<void>;
+	toggleTheme(forced?: "light" | "dark"): void;
 	/**
 	 * Reload all labels (use CTRL+Alt+M)
 	 */
@@ -3003,10 +2939,6 @@ export interface IStreamlabsActions {
 	 */
 	disconnectCharityCampaign(): void;
 	/**
-	 * Simulate SL Charity events
-	 */
-	simulateEvents(): Promise<void>;
-	/**
 	 * Resync personnal tips based on donation history
 	 */
 	resyncFromDonationList(): Promise<void>;
@@ -4301,4 +4233,15 @@ export interface IAPIActions {
 	 * Called when a remote action is received via SSE
 	 */
 	onRemoteAction(data?: { action: string; data?: unknown }): void;
+}
+
+export interface IBlueskyState {}
+
+export interface IBlueskyGetters {}
+
+export interface IBlueskyActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData(): void;
 }
