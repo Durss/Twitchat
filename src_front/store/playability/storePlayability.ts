@@ -4,19 +4,13 @@ import {
 	TriggerTypes,
 	type TriggerActionPlayabilityData,
 } from "@/types/TriggerActionDataTypes";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
-import type { IPlayabilityActions, IPlayabilityGetters, IPlayabilityState } from "../StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import StoreProxy from "../StoreProxy";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { IPlayabilityActions, IPlayabilityGetters, IPlayabilityState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
 let socket: WebSocket | undefined = undefined;
 let reconnectTimeout: number = -1;
@@ -24,21 +18,15 @@ let reconnectAttempts: number = 0;
 let autoReconnect: boolean = false;
 
 export const storePlayability = defineStore("playability", {
-	state: () =>
-		({
-			connected: false,
-			connectionEnabled: false as boolean,
-			ip: "127.0.0.1",
-			port: 13123,
-			mappingList: [] as IPlayabilityState["mappingList"],
-		}) satisfies IPlayabilityState,
+	state: (): IPlayabilityState => ({
+		connected: false,
+		connectionEnabled: false,
+		ip: "127.0.0.1",
+		port: 13123,
+		mappingList: [],
+	}),
 
-	getters: {} satisfies IPlayabilityGetters &
-		ThisType<
-			UnwrapRef<IPlayabilityState> &
-				_StoreWithGetters<IPlayabilityGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IPlayabilityGetters, IPlayabilityState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -270,19 +258,12 @@ export const storePlayability = defineStore("playability", {
 		loadProfile(): void {
 			socket!.send(JSON.stringify({ type: "GET_PROFILE_MAPPINGS", profile: "Twitchat" }));
 		},
-	} satisfies IPlayabilityActions &
-		ThisType<
-			IPlayabilityActions &
-				UnwrapRef<IPlayabilityState> &
-				_StoreWithState<
-					"playability",
-					IPlayabilityState,
-					IPlayabilityGetters,
-					IPlayabilityActions
-				> &
-				_StoreWithGetters<IPlayabilityGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"playability",
+		IPlayabilityState,
+		IPlayabilityGetters,
+		IPlayabilityActions
+	>,
 });
 
 if (import.meta.hot) {

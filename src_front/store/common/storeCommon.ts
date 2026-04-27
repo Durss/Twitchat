@@ -1,36 +1,24 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ICommonActions, ICommonGetters, ICommonState } from "../StoreProxy";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
 
 //Contains things shared between app and overlays
 //Only keep things necessary for the overlays here !
 export const storeCommon = defineStore("common", {
-	state: () =>
-		({
-			iconCache: {} as ICommonState["iconCache"],
-			alertData: {
-				message: "",
-				critical: false,
-				showContact: false,
-			},
-			currentOBSScene: "",
-			theme: "dark",
-		}) satisfies ICommonState,
-
-	getters: {} satisfies ICommonGetters &
-		ThisType<
-			UnwrapRef<ICommonState> & _StoreWithGetters<ICommonGetters> & PiniaCustomProperties
-		>,
+	state: (): ICommonState => ({
+		iconCache: {},
+		alertData: {
+			message: "",
+			critical: false,
+			showContact: false,
+		},
+		currentOBSScene: "",
+		theme: "dark",
+	}),
 
 	actions: {
 		async initialize(authenticated: boolean): Promise<void> {
@@ -61,14 +49,7 @@ export const storeCommon = defineStore("common", {
 			this.alertData.critical = isCritical;
 			this.alertData.showContact = showContact;
 		},
-	} satisfies ICommonActions &
-		ThisType<
-			ICommonActions &
-				UnwrapRef<ICommonState> &
-				_StoreWithState<"common", ICommonState, ICommonGetters, ICommonActions> &
-				_StoreWithGetters<ICommonGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"common", ICommonState, ICommonGetters, ICommonActions>,
 });
 
 if (import.meta.hot) {

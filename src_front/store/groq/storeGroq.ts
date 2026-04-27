@@ -1,15 +1,10 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import Groq from "groq-sdk";
 import type { ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import { reactive, type UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { reactive } from "vue";
 import Database from "../Database";
 import DataStore from "../DataStore";
 import type { IGroqActions, IGroqGetters, IGroqState } from "../StoreProxy";
@@ -30,20 +25,16 @@ const getAnonUserName = (login: string, userMap: { [login: string]: string }): s
 };
 
 export const storeGroq = defineStore("groq", {
-	state: () =>
-		({
-			enabled: false,
-			apiKey: "",
-			connected: false,
-			creditsTotal: 0,
-			creditsUsed: 0,
-			defaultModel: "llama-3.3-70b-versatile",
-			availableModels: [] as IGroqState["availableModels"],
-			answerHistory: [] as IGroqState["answerHistory"],
-		}) satisfies IGroqState,
-
-	getters: {} satisfies IGroqGetters &
-		ThisType<UnwrapRef<IGroqState> & _StoreWithGetters<IGroqGetters> & PiniaCustomProperties>,
+	state: (): IGroqState => ({
+		enabled: false,
+		apiKey: "",
+		connected: false,
+		creditsTotal: 0,
+		creditsUsed: 0,
+		defaultModel: "llama-3.3-70b-versatile",
+		availableModels: [],
+		answerHistory: [],
+	}),
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -312,14 +303,7 @@ export const storeGroq = defineStore("groq", {
 				return false;
 			}
 		},
-	} satisfies IGroqActions &
-		ThisType<
-			IGroqActions &
-				UnwrapRef<IGroqState> &
-				_StoreWithState<"Groq", IGroqState, IGroqGetters, IGroqActions> &
-				_StoreWithGetters<IGroqGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Groq", IGroqState, IGroqGetters, IGroqActions>,
 });
 
 if (import.meta.hot) {

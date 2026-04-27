@@ -1,14 +1,8 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { ITwitchBotActions, ITwitchBotGetters, ITwitchBotState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -18,20 +12,14 @@ let oAuthCsrf: string = "";
 let refreshTokenTimeout = -1;
 let popupCloseCheckInterval = -1;
 export const storeTwitchBot = defineStore("switchbot", {
-	state: () =>
-		({
-			connected: false,
-			connecting: false,
-			authToken: null,
-			userInfos: null,
-		}) satisfies ITwitchBotState,
+	state: (): ITwitchBotState => ({
+		connected: false,
+		connecting: false,
+		authToken: null,
+		userInfos: null,
+	}),
 
-	getters: {} satisfies ITwitchBotGetters &
-		ThisType<
-			UnwrapRef<ITwitchBotState> &
-				_StoreWithGetters<ITwitchBotGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<ITwitchBotGetters, ITwitchBotState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -149,19 +137,7 @@ export const storeTwitchBot = defineStore("switchbot", {
 			};
 			DataStore.set(DataStore.TWITCH_BOT, params);
 		},
-	} satisfies ITwitchBotActions &
-		ThisType<
-			ITwitchBotActions &
-				UnwrapRef<ITwitchBotState> &
-				_StoreWithState<
-					"switchbot",
-					ITwitchBotState,
-					ITwitchBotGetters,
-					ITwitchBotActions
-				> &
-				_StoreWithGetters<ITwitchBotGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"twitchbot", ITwitchBotState, ITwitchBotGetters, ITwitchBotActions>,
 });
 
 if (import.meta.hot) {

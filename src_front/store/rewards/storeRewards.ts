@@ -1,29 +1,19 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IRewardsActions, IRewardsGetters, IRewardsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
 export const storeRewards = defineStore("rewards", {
-	state: () =>
-		({
-			rewardList: [] as IRewardsState["rewardList"],
-			powerUpList: [] as IRewardsState["powerUpList"],
-		}) satisfies IRewardsState,
+	state: (): IRewardsState => ({
+		rewardList: [],
+		powerUpList: [],
+	}),
 
-	getters: {} satisfies IRewardsGetters &
-		ThisType<
-			UnwrapRef<IRewardsState> & _StoreWithGetters<IRewardsGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IRewardsGetters, IRewardsState>,
 
 	actions: {
 		async loadRewards(): Promise<TwitchDataTypes.Reward[]> {
@@ -89,14 +79,7 @@ export const storeRewards = defineStore("rewards", {
 
 			return this.powerUpList;
 		},
-	} satisfies IRewardsActions &
-		ThisType<
-			IRewardsActions &
-				UnwrapRef<IRewardsState> &
-				_StoreWithState<"raffle", IRewardsState, IRewardsGetters, IRewardsActions> &
-				_StoreWithGetters<IRewardsGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"rewards", IRewardsState, IRewardsGetters, IRewardsActions>,
 });
 
 if (import.meta.hot) {

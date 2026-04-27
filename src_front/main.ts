@@ -91,6 +91,7 @@ import { vNewflag } from "./directives/newflag";
 import { stickyTopShadow } from "./directives/stickyTopShadow";
 import Vue3Toasity, { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { storeBluesky } from "./store/bluesky/storeBluesky";
 
 window.setInitMessage("Booting app...");
 
@@ -225,23 +226,13 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.default.router = router;
 	StoreProxy.default.i18n = i18n.global;
-	// oxlint-disable-next-line typescript/unbound-method
 	StoreProxy.default.asset = Utils.asset;
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.main = storeMain() as unknown as StoreProxy.IMainState &
-		StoreProxy.IMainGetters &
-		StoreProxy.IMainActions & { $state: StoreProxy.IMainState; $reset: () => void };
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.auth = storeAuth() as unknown as StoreProxy.IAuthState &
-		StoreProxy.IAuthGetters &
-		StoreProxy.IAuthActions & { $state: StoreProxy.IAuthState; $reset: () => void };
+	StoreProxy.default.main = storeMain();
+	StoreProxy.default.auth = storeAuth();
 	StoreProxy.default.automod = storeAutomod();
 	StoreProxy.default.bingo = storeBingo();
 	StoreProxy.default.bingoGrid = storeBingoGrid();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.chat = storeChat() as unknown as StoreProxy.IChatState &
-		StoreProxy.IChatGetters &
-		StoreProxy.IChatActions & { $state: StoreProxy.IChatState; $reset: () => void };
+	StoreProxy.default.chat = storeChat();
 	StoreProxy.default.chatSuggestion = storeChatSuggestion();
 	StoreProxy.default.emergency = storeEmergency();
 	StoreProxy.default.music = storeMusic();
@@ -254,21 +245,11 @@ function buildApp() {
 	StoreProxy.default.rewards = storeRewards();
 	StoreProxy.default.stream = storeStream();
 	StoreProxy.default.timers = storeTimer();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.triggers = storeTriggers() as unknown as StoreProxy.ITriggersState &
-		StoreProxy.ITriggersGetters &
-		StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset: () => void };
+	StoreProxy.default.triggers = storeTriggers();
 	StoreProxy.default.tts = storeTTS();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.users = storeUsers() as unknown as StoreProxy.IUsersState &
-		StoreProxy.IUsersGetters &
-		StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset: () => void };
-	StoreProxy.default.voice = storeVoice() as unknown as StoreProxy.IVoiceState &
-		StoreProxy.IVoiceGetters &
-		StoreProxy.IVoiceActions & { $state: StoreProxy.IVoiceState; $reset: () => void };
-	StoreProxy.default.debug = storeDebug() as unknown as StoreProxy.IDebugState &
-		StoreProxy.IDebugGetters &
-		StoreProxy.IDebugActions & { $state: StoreProxy.IDebugState; $reset: () => void };
+	StoreProxy.default.users = storeUsers();
+	StoreProxy.default.voice = storeVoice();
+	StoreProxy.default.debug = storeDebug();
 	StoreProxy.default.accessibility = storeAccessibility();
 	StoreProxy.default.admin = storeAdmin();
 	StoreProxy.default.counters = storeCounters();
@@ -279,13 +260,8 @@ function buildApp() {
 	StoreProxy.default.account = storeAccount();
 	StoreProxy.default.extension = storeExtension();
 	StoreProxy.default.qna = storeQna();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.discord = storeDiscord() as unknown as StoreProxy.IDiscordState &
-		StoreProxy.IDiscordGetters &
-		StoreProxy.IDiscordActions & { $state: StoreProxy.IDiscordState; $reset: () => void };
-	StoreProxy.default.streamlabs = storeStreamlabs() as unknown as StoreProxy.IStreamlabsState &
-		StoreProxy.IStreamlabsGetters &
-		StoreProxy.IStreamlabsActions & { $state: StoreProxy.IStreamlabsState; $reset: () => void };
+	StoreProxy.default.discord = storeDiscord();
+	StoreProxy.default.streamlabs = storeStreamlabs();
 	StoreProxy.default.streamelements = storeStreamelements();
 	StoreProxy.default.kofi = storeKofi();
 	StoreProxy.default.lumia = storeLumia();
@@ -296,10 +272,7 @@ function buildApp() {
 	StoreProxy.default.tiktok = storeTiktok();
 	StoreProxy.default.streamerbot = storeStreamerbot();
 	StoreProxy.default.sammi = storeSammi();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.default.labels = storeLabels() as unknown as StoreProxy.ILabelsState &
-		StoreProxy.ILabelsGetters &
-		StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset: () => void };
+	StoreProxy.default.labels = storeLabels();
 	StoreProxy.default.mixitup = storeMixitup();
 	StoreProxy.default.twitchCharity = storeTwitchCharity();
 	StoreProxy.default.elevenLabs = storeElevenLabs();
@@ -314,6 +287,7 @@ function buildApp() {
 	StoreProxy.default.quiz = storeQuiz();
 	StoreProxy.default.streamfog = storeStreamfog();
 	StoreProxy.default.api = storeAPI();
+	StoreProxy.default.bluesky = storeBluesky();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach((k) => {
@@ -400,7 +374,7 @@ function buildApp() {
 
 			//Toggle light/dark mode on CTRL+Alt+K
 			if (e.key.toLowerCase() == "k" && metaKey && e.altKey) {
-				void StoreProxy.default.main.toggleTheme();
+				StoreProxy.default.main.toggleTheme();
 				e.preventDefault();
 			}
 
