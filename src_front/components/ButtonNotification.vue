@@ -5,8 +5,8 @@
 		@click="onClick($event)"
 		v-newflag="newflag"
 	>
-		<span v-if="iconEmoji" class="icon">{{ iconEmoji }}</span>
-		<img v-else-if="icon && icon.startsWith('http')" :src="icon" alt="" class="icon" />
+		<span v-if="iconEmoji" class="icon emoji">{{ iconEmoji }}</span>
+		<img v-else-if="icon && icon.startsWith('http')" :src="icon" alt="" class="icon image" />
 		<Icon v-else :name="icon" class="icon" v-if="icon" />
 		<span class="label" v-if="slots.default != undefined"><slot></slot></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
@@ -86,6 +86,17 @@ function onClick(event: MouseEvent): void {
 			margin-left: -5px;
 			width: 7px;
 			height: 7px;
+		}
+
+		&.emoji {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.25em;
+		}
+		&.image {
+			height: 1.25em;
+			width: 1.25em;
 		}
 	}
 

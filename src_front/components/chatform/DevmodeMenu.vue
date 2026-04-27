@@ -286,12 +286,6 @@
 				icon="streamlabs"
 				>Streamlabs Charity</TTButton
 			>
-			<TTButton
-				small
-				@click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')"
-				icon="streamlabs"
-				>Streamlabs Ch. spam</TTButton
-			>
 			<TTButton small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi"
 				>Kofi donation</TTButton
 			>
@@ -468,10 +462,6 @@ class DevmodeMenu extends Vue {
 		subAction?: Subaction,
 	): Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
-		if (type == "streamlabs" && subAction == "sl_charity_spam") {
-			this.$store.streamlabs.simulateEvents();
-			return;
-		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(
 			type,
 			async (message) => {
@@ -1345,7 +1335,6 @@ type Subaction =
 	| "sl_merch"
 	| "sl_patreon"
 	| "sl_charity"
-	| "sl_charity_spam"
 	| "kofi_donation"
 	| "kofi_merch"
 	| "kofi_sub"

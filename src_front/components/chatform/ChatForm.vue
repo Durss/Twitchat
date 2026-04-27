@@ -29,6 +29,7 @@
 					@end="storeParams.saveChatMenuPins()"
 				>
 					<ButtonNotification
+						class="pinnedItem"
 						v-for="element in pinnedMenuItems"
 						:key="element.item.id"
 						@mouseenter="
