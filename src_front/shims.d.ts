@@ -7,31 +7,6 @@ import type { TwitchScopesString } from "./utils/twitch/TwitchScopes";
 import type { Reactive } from "vue";
 import type Utils from "./utils/Utils";
 
-declare module "@vue/runtime-core" {
-	interface ComponentCustomProperties {
-		$store: IStore;
-		$config: Reactive<Config>;
-		$utils: typeof Utils;
-		$asset: (path: string) => string;
-		$placeDropdown: (
-			dropdownList: HTMLDivElement,
-			component: { $refs: { [key: string]: HTMLElement } },
-			params: { width: string; left: string; top: string },
-		) => void;
-		$overlayURL: (
-			id: TwitchatDataTypes.OverlayTypes,
-			params?: { k: string; v: string }[],
-		) => string;
-		$confirm: <T>(
-			title: string,
-			description?: string,
-			data?: T,
-			yesLabel?: string,
-			noLabel?: string,
-		) => Promise<T | undefined>;
-	}
-}
-
 declare global {
 	interface Window {
 		obsstudio?: any;
