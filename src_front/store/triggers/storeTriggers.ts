@@ -10,6 +10,7 @@ import {
 	type TriggerTreeItemData,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
@@ -20,15 +21,8 @@ import Utils from "@/utils/Utils";
 import WebsocketTrigger from "@/utils/WebsocketTrigger";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -37,14 +31,13 @@ let wasDiscordCmds = false;
 let enabledStateCache: { [triggerId: string]: boolean } = {};
 
 export const storeTriggers = defineStore("triggers", {
-	state: () =>
-		({
-			triggerList: [] as ITriggersState["triggerList"],
-			clipboard: [] as ITriggersState["clipboard"],
-			triggerTree: [] as ITriggersState["triggerTree"],
-			currentEditTriggerData: null as ITriggersState["currentEditTriggerData"],
-			triggerIdToFolderEnabled: {} as ITriggersState["triggerIdToFolderEnabled"],
-		}) satisfies ITriggersState,
+	state: (): ITriggersState => ({
+		triggerList: [],
+		clipboard: [],
+		triggerTree: [],
+		currentEditTriggerData: null,
+		triggerIdToFolderEnabled: {},
+	}),
 
 	getters: {
 		queues(): string[] {
@@ -61,7 +54,7 @@ export const storeTriggers = defineStore("triggers", {
 			}
 			return res;
 		},
-	},
+	} satisfies StoreGetters<ITriggersGetters, ITriggersState>,
 
 	actions: {
 		populateData() {
@@ -551,14 +544,7 @@ export const storeTriggers = defineStore("triggers", {
 			});
 			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", { triggerList: triggers });
 		},
-	} satisfies ITriggersActions &
-		ThisType<
-			ITriggersActions &
-				UnwrapRef<ITriggersState> &
-				_StoreWithState<"triggers", ITriggersState, ITriggersGetters, ITriggersActions> &
-				_StoreWithGetters<ITriggersGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>,
 });
 
 if (import.meta.hot) {

@@ -2,6 +2,7 @@ import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import DataStore from "@/store/DataStore";
 import { AD_APPROACHING_INTERVALS } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Logger from "@/utils/Logger";
 import OBSWebsocket from "@/utils/OBSWebsocket";
@@ -13,14 +14,7 @@ import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import EventSub from "@/utils/twitch/EventSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import staticEmotes from "@/utils/twitch/staticEmoteList.json";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, {
 	type IStreamActions,
 	type IStreamGetters,
@@ -35,32 +29,28 @@ const commercialTimeouts: { [key: string]: number[] } = {};
 let ignoreHypeTrainCooldown = true;
 
 export const storeStream = defineStore("stream", {
-	state: () =>
-		({
-			hypeTrain: undefined as IStreamState["hypeTrain"],
-			currentRaid: undefined as IStreamState["currentRaid"],
-			communityBoostState: undefined as IStreamState["communityBoostState"],
-			streamInfoPreset: [] as IStreamState["streamInfoPreset"],
-			lastRaider: undefined as IStreamState["lastRaider"],
-			shieldModeEnabled: false as IStreamState["shieldModeEnabled"],
-			commercial: {} as IStreamState["commercial"], //channelId => commercial infos
-			roomSettings: {} as IStreamState["roomSettings"], //channelId => settings
-			currentStreamInfo: {} as IStreamState["currentStreamInfo"], //channelId => infos
-			raidHistory: [] as IStreamState["raidHistory"],
-			connectedTwitchChans: [] as IStreamState["connectedTwitchChans"],
-			currentChatChannel: {
-				id: "",
-				name: "",
-				platform: "twitch",
-			} as IStreamState["currentChatChannel"],
-			autoconnectChans: [] as IStreamState["autoconnectChans"],
-			currentVODUrl: "",
-		}) satisfies IStreamState,
+	state: (): IStreamState => ({
+		hypeTrain: undefined,
+		currentRaid: undefined,
+		communityBoostState: undefined,
+		streamInfoPreset: [],
+		lastRaider: undefined,
+		shieldModeEnabled: false,
+		commercial: {},
+		roomSettings: {},
+		currentStreamInfo: {},
+		raidHistory: [],
+		connectedTwitchChans: [],
+		currentChatChannel: {
+			id: "",
+			name: "",
+			platform: "twitch",
+		},
+		autoconnectChans: [],
+		currentVODUrl: "",
+	}),
 
-	getters: {} satisfies IStreamGetters &
-		ThisType<
-			UnwrapRef<IStreamState> & _StoreWithGetters<IStreamGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IStreamGetters, IStreamState>,
 
 	actions: {
 		populateData(): void {
@@ -1719,14 +1709,7 @@ export const storeStream = defineStore("stream", {
 				}
 			} catch (_error) {}
 		},
-	} satisfies IStreamActions &
-		ThisType<
-			IStreamActions &
-				UnwrapRef<IStreamState> &
-				_StoreWithState<"stream", IStreamState, IStreamGetters, IStreamActions> &
-				_StoreWithGetters<IStreamGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"stream", IStreamState, IStreamGetters, IStreamActions>,
 });
 
 if (import.meta.hot) {

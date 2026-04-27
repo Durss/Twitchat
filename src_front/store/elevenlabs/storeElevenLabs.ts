@@ -1,12 +1,6 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import DataStore from "@/store/DataStore";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IElevenLabsActions, IElevenLabsGetters, IElevenLabsState } from "../StoreProxy";
 import TTSUtils from "@/utils/TTSUtils";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -32,22 +26,14 @@ function getKey(text: string, voiceId: string, modelId: string): string {
 }
 
 export const storeElevenLabs = defineStore("elevenlabs", {
-	state: () =>
-		({
-			apiKey: "",
-			connected: false,
-			voiceList: [] as IElevenLabsState["voiceList"],
-			modelList: [] as IElevenLabsState["modelList"],
-			creditsUsed: 0,
-			creditsTotal: 0,
-		}) satisfies IElevenLabsState,
-
-	getters: {} satisfies IElevenLabsGetters &
-		ThisType<
-			UnwrapRef<IElevenLabsState> &
-				_StoreWithGetters<IElevenLabsGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IElevenLabsState => ({
+		apiKey: "",
+		connected: false,
+		voiceList: [],
+		modelList: [],
+		creditsUsed: 0,
+		creditsTotal: 0,
+	}),
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -273,19 +259,12 @@ export const storeElevenLabs = defineStore("elevenlabs", {
 			} while (history && history.has_more && ++failSafe < 1000 && !onlyLatest);
 			return true;
 		},
-	} satisfies IElevenLabsActions &
-		ThisType<
-			IElevenLabsActions &
-				UnwrapRef<IElevenLabsState> &
-				_StoreWithState<
-					"elevenlabs",
-					IElevenLabsState,
-					IElevenLabsGetters,
-					IElevenLabsActions
-				> &
-				_StoreWithGetters<IElevenLabsGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"elevenlabs",
+		IElevenLabsState,
+		IElevenLabsGetters,
+		IElevenLabsActions
+	>,
 });
 
 if (import.meta.hot) {

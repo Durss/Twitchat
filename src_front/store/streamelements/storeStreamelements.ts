@@ -1,14 +1,12 @@
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type {
 	IStreamelementsActions,
@@ -16,10 +14,6 @@ import type {
 	IStreamelementsState,
 } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 let socket: WebSocket | undefined = undefined;
 let pingInterval: string = "";
@@ -29,63 +23,57 @@ let isAutoInit: boolean = false;
 let autoReconnect: boolean = false;
 
 export const storeStreamelements = defineStore("streamelements", {
-	state: () =>
-		({
-			accessToken: "",
-			refreshToken: "",
-			connected: false,
-			authResult: { code: "", csrf: "" },
-			tipLatest: {
-				amount: 0,
-				message: "",
-				username: "",
-			},
-			tipSession: 0,
-			tipTotal: 0,
-			tipCount: 0,
-			tipWeek: 0,
-			tipMonth: 0,
-			tipGoal: 0,
-			tipSessionTopDonation: {
-				amount: 0,
-				username: "",
-			},
-			tipSessionTopDonator: {
-				amount: 0,
-				username: "",
-			},
-			tipWeeklyTopDonation: {
-				amount: 0,
-				username: "",
-			},
-			tipWeeklyTopDonator: {
-				amount: 0,
-				username: "",
-			},
-			tipMonthlyTopDonation: {
-				amount: 0,
-				username: "",
-			},
-			tipMonthlyTopDonator: {
-				amount: 0,
-				username: "",
-			},
-			tipAlltimeTopDonation: {
-				amount: 0,
-				username: "",
-			},
-			tipAlltimeTopDonator: {
-				amount: 0,
-				username: "",
-			},
-		}) satisfies IStreamelementsState,
+	state: (): IStreamelementsState => ({
+		accessToken: "",
+		refreshToken: "",
+		connected: false,
+		authResult: { code: "", csrf: "" },
+		tipLatest: {
+			amount: 0,
+			message: "",
+			username: "",
+		},
+		tipSession: 0,
+		tipTotal: 0,
+		tipCount: 0,
+		tipWeek: 0,
+		tipMonth: 0,
+		tipGoal: 0,
+		tipSessionTopDonation: {
+			amount: 0,
+			username: "",
+		},
+		tipSessionTopDonator: {
+			amount: 0,
+			username: "",
+		},
+		tipWeeklyTopDonation: {
+			amount: 0,
+			username: "",
+		},
+		tipWeeklyTopDonator: {
+			amount: 0,
+			username: "",
+		},
+		tipMonthlyTopDonation: {
+			amount: 0,
+			username: "",
+		},
+		tipMonthlyTopDonator: {
+			amount: 0,
+			username: "",
+		},
+		tipAlltimeTopDonation: {
+			amount: 0,
+			username: "",
+		},
+		tipAlltimeTopDonator: {
+			amount: 0,
+			username: "",
+		},
+	}),
 
-	getters: {} satisfies IStreamelementsGetters &
-		ThisType<
-			UnwrapRef<IStreamelementsState> &
-				_StoreWithGetters<IStreamelementsGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IStreamelementsGetters, IStreamelementsState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -524,19 +512,12 @@ export const storeStreamelements = defineStore("streamelements", {
 			};
 			DataStore.set(DataStore.STREAMELEMENTS, data);
 		},
-	} satisfies IStreamelementsActions &
-		ThisType<
-			IStreamelementsActions &
-				UnwrapRef<IStreamelementsState> &
-				_StoreWithState<
-					"raffle",
-					IStreamelementsState,
-					IStreamelementsGetters,
-					IStreamelementsActions
-				> &
-				_StoreWithGetters<IStreamelementsGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"streamelements",
+		IStreamelementsState,
+		IStreamelementsGetters,
+		IStreamelementsActions
+	>,
 });
 
 if (import.meta.hot) {

@@ -1,16 +1,10 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import { type UnwrapRef } from "vue";
 import DataStore from "../DataStore";
 import type {
 	IEndingCreditsActions,
@@ -22,39 +16,31 @@ import StoreProxy from "../StoreProxy";
 let debounce: number = -1;
 
 export const storeEndingCredits = defineStore("EndingCredits", {
-	state: () =>
-		({
-			overlayData: {
-				scale: 30,
-				padding: 100,
-				paddingTitle: 30,
-				fontTitle: "Inter",
-				fontEntry: "Inter",
-				colorTitle: "#e04e00",
-				colorEntry: "#039372",
-				textShadow: 50,
-				timing: "speed",
-				startDelay: 0,
-				duration: 60,
-				speed: 200,
-				fadeSize: 50,
-				loop: true,
-				showIcons: true,
-				stickyTitle: false,
-				hideEmptySlots: true,
-				ignoreBots: true,
-				powerUpEmotes: true,
-				ignoreCustomBots: [],
-				slots: [],
-			},
-		}) satisfies IEndingCreditsState,
-
-	getters: {} satisfies IEndingCreditsGetters &
-		ThisType<
-			UnwrapRef<IEndingCreditsState> &
-				_StoreWithGetters<IEndingCreditsGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IEndingCreditsState => ({
+		overlayData: {
+			scale: 30,
+			padding: 100,
+			paddingTitle: 30,
+			fontTitle: "Inter",
+			fontEntry: "Inter",
+			colorTitle: "#e04e00",
+			colorEntry: "#039372",
+			textShadow: 50,
+			timing: "speed",
+			startDelay: 0,
+			duration: 60,
+			speed: 200,
+			fadeSize: 50,
+			loop: true,
+			showIcons: true,
+			stickyTitle: false,
+			hideEmptySlots: true,
+			ignoreBots: true,
+			powerUpEmotes: true,
+			ignoreCustomBots: [],
+			slots: [],
+		},
+	}),
 
 	actions: {
 		populateData(): void {
@@ -99,19 +85,12 @@ export const storeEndingCredits = defineStore("EndingCredits", {
 				PublicAPI.instance.broadcast("ON_ENDING_CREDITS_CONFIGS", result);
 			}, 50);
 		},
-	} satisfies IEndingCreditsActions &
-		ThisType<
-			IEndingCreditsActions &
-				UnwrapRef<IEndingCreditsState> &
-				_StoreWithState<
-					"Exporter",
-					IEndingCreditsState,
-					IEndingCreditsGetters,
-					IEndingCreditsActions
-				> &
-				_StoreWithGetters<IEndingCreditsGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"EndingCredits",
+		IEndingCreditsState,
+		IEndingCreditsGetters,
+		IEndingCreditsActions
+	>,
 });
 
 if (import.meta.hot) {

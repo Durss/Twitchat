@@ -1,15 +1,9 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, {
 	type IBingoActions,
 	type IBingoGetters,
@@ -18,13 +12,9 @@ import StoreProxy, {
 import PublicAPI from "@/utils/PublicAPI";
 
 export const storeBingo = defineStore("bingo", {
-	state: () =>
-		({
-			data: null,
-		}) satisfies IBingoState,
-
-	getters: {} satisfies IBingoGetters &
-		ThisType<UnwrapRef<IBingoState> & _StoreWithGetters<IBingoGetters> & PiniaCustomProperties>,
+	state: (): IBingoState => ({
+		data: null,
+	}),
 
 	actions: {
 		async startBingo(data: TwitchatDataTypes.BingoConfig) {
@@ -139,14 +129,7 @@ export const storeBingo = defineStore("bingo", {
 				void sChat.addMessage(m);
 			}
 		},
-	} satisfies IBingoActions &
-		ThisType<
-			IBingoActions &
-				UnwrapRef<IBingoState> &
-				_StoreWithState<"bingo", IBingoState, IBingoGetters, IBingoActions> &
-				_StoreWithGetters<IBingoGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"bingo", IBingoState, IBingoGetters, IBingoActions>,
 });
 
 if (import.meta.hot) {

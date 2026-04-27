@@ -1,17 +1,11 @@
 import DataStore from "@/store/DataStore";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type _StoreWithGetters,
-	type _StoreWithState,
-	type PiniaCustomProperties,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -99,17 +93,15 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 }
 
 export const storeQuiz = defineStore("quiz", {
-	state: () =>
-		({
-			quizList: [] as IQuizState["quizList"],
-			currentFreeAnswerStats: {
-				right: 0,
-				wrong: 0,
-			},
-		}) satisfies IQuizState,
+	state: (): IQuizState => ({
+		quizList: [],
+		currentFreeAnswerStats: {
+			right: 0,
+			wrong: 0,
+		},
+	}),
 
-	getters: {} satisfies IQuizGetters &
-		ThisType<UnwrapRef<IQuizState> & _StoreWithGetters<IQuizGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<IQuizGetters, IQuizState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -644,14 +636,7 @@ export const storeQuiz = defineStore("quiz", {
 				{} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>,
 			);
 		},
-	} satisfies IQuizActions &
-		ThisType<
-			IQuizActions &
-				UnwrapRef<IQuizState> &
-				_StoreWithState<"quiz", IQuizState, IQuizGetters, IQuizActions> &
-				_StoreWithGetters<IQuizGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"quiz", IQuizState, IQuizGetters, IQuizActions>,
 });
 
 if (import.meta.hot) {

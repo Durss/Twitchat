@@ -1,34 +1,22 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type {
 	ITwitchCharityActions,
 	ITwitchCharityGetters,
 	ITwitchCharityState,
 } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
 
 export const storeTwitchCharity = defineStore("switchcharity", {
-	state: () =>
-		({
-			currentCharity: null,
-		}) satisfies ITwitchCharityState,
+	state: (): ITwitchCharityState => ({
+		currentCharity: null,
+	}),
 
-	getters: {} satisfies ITwitchCharityGetters &
-		ThisType<
-			UnwrapRef<ITwitchCharityState> &
-				_StoreWithGetters<ITwitchCharityGetters> &
-				PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<ITwitchCharityGetters, ITwitchCharityState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -144,19 +132,12 @@ export const storeTwitchCharity = defineStore("switchcharity", {
 				this.currentCharity ? this.currentCharity.charity_name : "",
 			);
 		},
-	} satisfies ITwitchCharityActions &
-		ThisType<
-			ITwitchCharityActions &
-				UnwrapRef<ITwitchCharityState> &
-				_StoreWithState<
-					"switchcharity",
-					ITwitchCharityState,
-					ITwitchCharityGetters,
-					ITwitchCharityActions
-				> &
-				_StoreWithGetters<ITwitchCharityGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"twitch_charity",
+		ITwitchCharityState,
+		ITwitchCharityGetters,
+		ITwitchCharityActions
+	>,
 });
 
 if (import.meta.hot) {

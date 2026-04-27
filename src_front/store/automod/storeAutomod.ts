@@ -1,33 +1,21 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import DataStore from "@/store/DataStore";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import type { IAutomodActions, IAutomodGetters, IAutomodState } from "../StoreProxy";
 import UnicodeUtils from "@/utils/UnicodeUtils";
 
 export const storeAutomod = defineStore("automod", {
-	state: () =>
-		({
-			params: {
-				enabled: false,
-				banUserNames: false,
-				keywordsFilters: [],
-				exludedUsers: Utils.getDefaultPermissions(true, true, true, false, false, false),
-			},
-		}) satisfies IAutomodState,
-
-	getters: {} satisfies IAutomodGetters &
-		ThisType<
-			UnwrapRef<IAutomodState> & _StoreWithGetters<IAutomodGetters> & PiniaCustomProperties
-		>,
+	state: (): IAutomodState => ({
+		params: {
+			enabled: false,
+			banUserNames: false,
+			keywordsFilters: [],
+			exludedUsers: Utils.getDefaultPermissions(true, true, true, false, false, false),
+		},
+	}),
 
 	actions: {
 		populateData(): void {
@@ -102,14 +90,7 @@ export const storeAutomod = defineStore("automod", {
 			}
 			return null;
 		},
-	} satisfies IAutomodActions &
-		ThisType<
-			IAutomodActions &
-				UnwrapRef<IAutomodState> &
-				_StoreWithState<"automod", IAutomodState, IAutomodGetters, IAutomodActions> &
-				_StoreWithGetters<IAutomodGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"automod", IAutomodState, IAutomodGetters, IAutomodActions>,
 });
 
 if (import.meta.hot) {

@@ -1,12 +1,6 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IDiscordActions, IDiscordGetters, IDiscordState } from "../StoreProxy";
 import Utils from "@/utils/Utils";
@@ -17,22 +11,19 @@ import SSEEvent from "@/events/SSEEvent";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 
 export const storeDiscord = defineStore("discord", {
-	state: () =>
-		({
-			discordLinked: true,
-			chatCols: [],
-			banLogTarget: "",
-			banLogThread: true,
-			chatCmdTarget: "",
-			logChanTarget: "",
-			ticketChanTarget: "",
-			linkedToGuild: "",
-			reactionsEnabled: true,
-			quickActions: [] as IDiscordState["quickActions"],
-			channelList: [] as IDiscordState["channelList"],
-		}) satisfies IDiscordState,
-
-	getters: {},
+	state: (): IDiscordState => ({
+		discordLinked: true,
+		chatCols: [],
+		banLogTarget: "",
+		banLogThread: true,
+		chatCmdTarget: "",
+		logChanTarget: "",
+		ticketChanTarget: "",
+		linkedToGuild: "",
+		reactionsEnabled: true,
+		quickActions: [],
+		channelList: [],
+	}),
 
 	actions: {
 		populateData(): void {
@@ -185,14 +176,7 @@ export const storeDiscord = defineStore("discord", {
 			const channels = await ApiHelper.call("discord/channels", "GET");
 			this.channelList = channels.json.channelList;
 		},
-	} satisfies IDiscordActions &
-		ThisType<
-			IDiscordActions &
-				UnwrapRef<IDiscordState> &
-				_StoreWithState<"Discord", IDiscordState, IDiscordGetters, IDiscordActions> &
-				_StoreWithGetters<IDiscordGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Discord", IDiscordState, IDiscordGetters, IDiscordActions>,
 });
 
 if (import.meta.hot) {

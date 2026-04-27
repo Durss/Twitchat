@@ -1,14 +1,8 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import SSEEvent from "@/events/SSEEvent";
 import ApiHelper from "@/utils/ApiHelper";
 import SSEHelper from "@/utils/SSEHelper";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IAPIActions, IAPIGetters, IAPIState } from "../StoreProxy";
 import PublicAPI from "@/utils/PublicAPI";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
@@ -16,13 +10,9 @@ import { toast } from "@/utils/toast/toast";
 import ToastRemoteApiInfo from "@/utils/toast/ToastRemoteApiInfo.vue";
 
 export const storeAPI = defineStore("api", {
-	state: () =>
-		({
-			connected: false,
-		}) satisfies IAPIState,
-
-	getters: {} satisfies IAPIGetters &
-		ThisType<UnwrapRef<IAPIState> & _StoreWithGetters<IAPIGetters> & PiniaCustomProperties>,
+	state: (): IAPIState => ({
+		connected: false,
+	}),
 
 	actions: {
 		populateData(): void {
@@ -62,14 +52,7 @@ export const storeAPI = defineStore("api", {
 				type: "success",
 			});
 		},
-	} satisfies IAPIActions &
-		ThisType<
-			IAPIActions &
-				UnwrapRef<IAPIState> &
-				_StoreWithState<"api", IAPIState, IAPIGetters, IAPIActions> &
-				_StoreWithGetters<IAPIGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"api", IAPIState, IAPIGetters, IAPIActions>,
 });
 
 if (import.meta.hot) {
