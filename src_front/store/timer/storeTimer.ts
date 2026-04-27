@@ -1,17 +1,11 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type ITimerActions,
@@ -35,13 +29,11 @@ const getDefaultStyle = (): TwitchatDataTypes.TimerData["overlayParams"] => {
 };
 
 export const storeTimer = defineStore("timer", {
-	state: () =>
-		({
-			timerList: [] as ITimerState["timerList"],
-		}) satisfies ITimerState,
+	state: (): ITimerState => ({
+		timerList: [] as ITimerState["timerList"],
+	}),
 
-	getters: {} satisfies ITimerGetters &
-		ThisType<UnwrapRef<ITimerState> & _StoreWithGetters<ITimerGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<ITimerGetters, ITimerState>,
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -479,14 +471,7 @@ export const storeTimer = defineStore("timer", {
 				})),
 			});
 		},
-	} satisfies ITimerActions &
-		ThisType<
-			ITimerActions &
-				UnwrapRef<ITimerState> &
-				_StoreWithState<"timer", ITimerState, ITimerGetters, ITimerActions> &
-				_StoreWithGetters<ITimerGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"timer", ITimerState, ITimerGetters, ITimerActions>,
 });
 
 if (import.meta.hot) {

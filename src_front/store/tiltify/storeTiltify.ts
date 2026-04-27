@@ -1,36 +1,26 @@
 import SSEEvent from "@/events/SSEEvent";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SSEHelper from "@/utils/SSEHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
 import type { ITiltifyActions, ITiltifyGetters, ITiltifyState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import DataStore from "../DataStore";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
 
 export const storeTiltify = defineStore("tiltify", {
-	state: () =>
-		({
-			user: null,
-			campaignList: [] as ITiltifyState["campaignList"],
-			token: null,
-			connected: false,
-			authResult: { code: "", csrf: "" },
-		}) satisfies ITiltifyState,
+	state: (): ITiltifyState => ({
+		user: null,
+		campaignList: [],
+		token: null,
+		connected: false,
+		authResult: { code: "", csrf: "" },
+	}),
 
-	getters: {} satisfies ITiltifyGetters &
-		ThisType<
-			UnwrapRef<ITiltifyState> & _StoreWithGetters<ITiltifyGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<ITiltifyGetters, ITiltifyState>,
 
 	actions: {
 		populateData(): void {
@@ -205,14 +195,7 @@ export const storeTiltify = defineStore("tiltify", {
 			StoreProxy.donationGoals.broadcastData();
 			return { user: this.user, campaigns: this.campaignList };
 		},
-	} satisfies ITiltifyActions &
-		ThisType<
-			ITiltifyActions &
-				UnwrapRef<ITiltifyState> &
-				_StoreWithState<"tiltify", ITiltifyState, ITiltifyGetters, ITiltifyActions> &
-				_StoreWithGetters<ITiltifyGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"tiltify", ITiltifyState, ITiltifyGetters, ITiltifyActions>,
 });
 
 if (import.meta.hot) {

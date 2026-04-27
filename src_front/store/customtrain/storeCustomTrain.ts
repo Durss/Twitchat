@@ -1,16 +1,10 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -19,13 +13,10 @@ let simulationID = 0;
 const APPROACHING_TIMEOUT_PER_ACTION = 10 * 60_000;
 
 export const storeCustomTrain = defineStore("customTrain", {
-	state: () =>
-		({
-			customTrainList: [] as ICustomTrainState["customTrainList"],
-			customTrainStates: {} as ICustomTrainState["customTrainStates"],
-		}) satisfies ICustomTrainState,
-
-	getters: {},
+	state: (): ICustomTrainState => ({
+		customTrainList: [],
+		customTrainStates: {},
+	}),
 
 	actions: {
 		populateData(): void {
@@ -448,19 +439,12 @@ export const storeCustomTrain = defineStore("customTrain", {
 				train.coolDownEnd_at = 0;
 			}
 		},
-	} satisfies ICustomTrainActions &
-		ThisType<
-			ICustomTrainActions &
-				UnwrapRef<ICustomTrainState> &
-				_StoreWithState<
-					"customTrain",
-					ICustomTrainState,
-					ICustomTrainGetters,
-					ICustomTrainActions
-				> &
-				_StoreWithGetters<ICustomTrainGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"customTrain",
+		ICustomTrainState,
+		ICustomTrainGetters,
+		ICustomTrainActions
+	>,
 });
 
 if (import.meta.hot) {

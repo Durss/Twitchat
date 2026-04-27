@@ -1,12 +1,6 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type {
 	IAccessibilityActions,
 	IAccessibilityGetters,
@@ -16,17 +10,9 @@ import type {
 let ariaPoliteTimeout = -1;
 
 export const storeAccessibility = defineStore("Accessibility", {
-	state: () =>
-		({
-			ariaPolite: "",
-		}) satisfies IAccessibilityState,
-
-	getters: {} satisfies IAccessibilityGetters &
-		ThisType<
-			UnwrapRef<IAccessibilityState> &
-				_StoreWithGetters<IAccessibilityGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IAccessibilityState => ({
+		ariaPolite: "",
+	}),
 
 	actions: {
 		setAriaPolite(message: string) {
@@ -37,19 +23,12 @@ export const storeAccessibility = defineStore("Accessibility", {
 				this.ariaPolite = "";
 			}, 10000);
 		},
-	} satisfies IAccessibilityActions &
-		ThisType<
-			IAccessibilityActions &
-				UnwrapRef<IAccessibilityState> &
-				_StoreWithState<
-					"Accessibility",
-					IAccessibilityState,
-					IAccessibilityGetters,
-					IAccessibilityActions
-				> &
-				_StoreWithGetters<IAccessibilityGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"Accessibility",
+		IAccessibilityState,
+		IAccessibilityGetters,
+		IAccessibilityActions
+	>,
 });
 
 if (import.meta.hot) {

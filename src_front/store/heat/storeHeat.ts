@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import type HeatEvent from "@/events/HeatEvent";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import {
@@ -13,28 +14,17 @@ import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import DataStore from "../DataStore";
 import type { IHeatActions, IHeatGetters, IHeatState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
 export const storeHeat = defineStore("heat", {
-	state: () =>
-		({
-			screenList: [] as IHeatState["screenList"],
-			distortionList: [] as IHeatState["distortionList"],
-		}) satisfies IHeatState,
-
-	getters: {} satisfies IHeatGetters &
-		ThisType<UnwrapRef<IHeatState> & _StoreWithGetters<IHeatGetters> & PiniaCustomProperties>,
+	state: (): IHeatState => ({
+		screenList: [],
+		distortionList: [],
+	}),
 
 	actions: {
 		populateData(): void {
@@ -678,14 +668,7 @@ export const storeHeat = defineStore("heat", {
 				});
 			}
 		},
-	} satisfies IHeatActions &
-		ThisType<
-			IHeatActions &
-				UnwrapRef<IHeatState> &
-				_StoreWithState<"timer", IHeatState, IHeatGetters, IHeatActions> &
-				_StoreWithGetters<IHeatGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"heat", IHeatState, IHeatGetters, IHeatActions>,
 });
 
 if (import.meta.hot) {

@@ -1,3 +1,4 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import {
 	rebuildPlaceholdersCache,
 	type TriggerActionCountDataAction,
@@ -6,15 +7,8 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from "vue";
 import DataStore from "../DataStore";
 import type { ICountersActions, ICountersGetters, ICountersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -23,15 +17,9 @@ import Config from "@/utils/Config";
 const broadcastTimeoutDebounce: { [key: string]: number } = {};
 
 export const storeCounters = defineStore("counters", {
-	state: () =>
-		({
-			counterList: [] as ICountersState["counterList"],
-		}) satisfies ICountersState,
-
-	getters: {} satisfies ICountersGetters &
-		ThisType<
-			UnwrapRef<ICountersState> & _StoreWithGetters<ICountersGetters> & PiniaCustomProperties
-		>,
+	state: (): ICountersState => ({
+		counterList: [],
+	}),
 
 	actions: {
 		populateData(): void {
@@ -380,14 +368,7 @@ export const storeCounters = defineStore("counters", {
 				PublicAPI.instance.broadcast("ON_COUNTER_LIST", { counterList: counters });
 			}
 		},
-	} satisfies ICountersActions &
-		ThisType<
-			ICountersActions &
-				UnwrapRef<ICountersState> &
-				_StoreWithState<"counters", ICountersState, ICountersGetters, ICountersActions> &
-				_StoreWithGetters<ICountersGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"counters", ICountersState, ICountersGetters, ICountersActions>,
 });
 
 if (import.meta.hot) {

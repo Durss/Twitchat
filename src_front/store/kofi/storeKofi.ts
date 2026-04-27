@@ -1,31 +1,21 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import SSEEvent from "@/events/SSEEvent";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IKofiActions, IKofiGetters, IKofiState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import DataStore from "../DataStore";
 
 export const storeKofi = defineStore("kofi", {
-	state: () =>
-		({
-			webhooktoken: "",
-			webhooks: [] as IKofiState["webhooks"],
-			connected: false,
-		}) satisfies IKofiState,
-
-	getters: {} satisfies IKofiGetters &
-		ThisType<UnwrapRef<IKofiState> & _StoreWithGetters<IKofiGetters> & PiniaCustomProperties>,
+	state: (): IKofiState => ({
+		webhooktoken: "",
+		webhooks: [],
+		connected: false,
+	}),
 
 	actions: {
 		populateData(): void {
@@ -259,14 +249,7 @@ export const storeKofi = defineStore("kofi", {
 			};
 			DataStore.set(DataStore.KOFI_CONFIGS, data);
 		},
-	} satisfies IKofiActions &
-		ThisType<
-			IKofiActions &
-				UnwrapRef<IKofiState> &
-				_StoreWithState<"raffle", IKofiState, IKofiGetters, IKofiActions> &
-				_StoreWithGetters<IKofiGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"kofi", IKofiState, IKofiGetters, IKofiActions>,
 });
 
 if (import.meta.hot) {

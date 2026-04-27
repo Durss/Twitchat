@@ -1,17 +1,11 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
-import DataStore from "../DataStore";
-import type { ITiktokActions, ITiktokGetters, ITiktokState } from "../StoreProxy";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import StoreProxy from "../StoreProxy";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
+import type { ITiktokActions, ITiktokGetters, ITiktokState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
 let autoreconnect: boolean = false;
 let initResolver!: (value: boolean) => void;
@@ -21,18 +15,14 @@ let debouncedLikes: { [uid: string]: { count: number; to: number } } = {};
 let processedEvents: { [id: string]: true } = {};
 
 export const storeTiktok = defineStore("tiktok", {
-	state: () =>
-		({
-			connected: false,
-			connectionEnabled: false as boolean,
-			ip: "127.0.0.1",
-			port: 21213,
-		}) satisfies ITiktokState,
+	state: (): ITiktokState => ({
+		connected: false,
+		connectionEnabled: false,
+		ip: "127.0.0.1",
+		port: 21213,
+	}),
 
-	getters: {} satisfies ITiktokGetters &
-		ThisType<
-			UnwrapRef<ITiktokState> & _StoreWithGetters<ITiktokGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<ITiktokGetters, ITiktokState>,
 
 	actions: {
 		populateData(): void {
@@ -410,14 +400,7 @@ export const storeTiktok = defineStore("tiktok", {
 			};
 			DataStore.set(DataStore.TIKTOK_CONFIGS, data);
 		},
-	} satisfies ITiktokActions &
-		ThisType<
-			ITiktokActions &
-				UnwrapRef<ITiktokState> &
-				_StoreWithState<"tiktok", ITiktokState, ITiktokGetters, ITiktokActions> &
-				_StoreWithGetters<ITiktokGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"tiktok", ITiktokState, ITiktokGetters, ITiktokActions>,
 });
 
 if (import.meta.hot) {

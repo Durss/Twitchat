@@ -1,5 +1,6 @@
 import SSEEvent from "@/events/SSEEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
@@ -7,14 +8,7 @@ import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IQnaActions, IQnaGetters, IQnaState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -23,13 +17,11 @@ let deleteDebounce = -1;
 let deleteSpool: string[] = [];
 
 export const storeQna = defineStore("qna", {
-	state: () =>
-		({
-			activeSessions: [] as IQnaState["activeSessions"],
-		}) satisfies IQnaState,
+	state: (): IQnaState => ({
+		activeSessions: [],
+	}),
 
-	getters: {} satisfies IQnaGetters &
-		ThisType<UnwrapRef<IQnaState> & _StoreWithGetters<IQnaGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<IQnaGetters, IQnaState>,
 
 	actions: {
 		populateData(): void {
@@ -411,14 +403,7 @@ export const storeQna = defineStore("qna", {
 				})),
 			});
 		},
-	} satisfies IQnaActions &
-		ThisType<
-			IQnaActions &
-				UnwrapRef<IQnaState> &
-				_StoreWithState<"timer", IQnaState, IQnaGetters, IQnaActions> &
-				_StoreWithGetters<IQnaGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"qna", IQnaState, IQnaGetters, IQnaActions>,
 });
 
 if (import.meta.hot) {

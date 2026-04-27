@@ -1,17 +1,11 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy, {
 	type IDonationGoalActions,
@@ -22,17 +16,9 @@ import StoreProxy, {
 const donationGoalStatesCache: Record<string, number> = { coucou: 0 };
 
 export const storeDonationGoals = defineStore("donationGoals", {
-	state: () =>
-		({
-			overlayList: [] as IDonationGoalState["overlayList"],
-		}) satisfies IDonationGoalState,
-
-	getters: {} satisfies IDonationGoalGetters &
-		ThisType<
-			UnwrapRef<IDonationGoalState> &
-				_StoreWithGetters<IDonationGoalGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IDonationGoalState => ({
+		overlayList: [],
+	}),
 
 	actions: {
 		/**
@@ -277,19 +263,12 @@ export const storeDonationGoals = defineStore("donationGoals", {
 				overlayId: overlay.id,
 			});
 		},
-	} satisfies IDonationGoalActions &
-		ThisType<
-			IDonationGoalActions &
-				UnwrapRef<IDonationGoalState> &
-				_StoreWithState<
-					"donationGoals",
-					IDonationGoalState,
-					IDonationGoalGetters,
-					IDonationGoalActions
-				> &
-				_StoreWithGetters<IDonationGoalGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<
+		"donationGoals",
+		IDonationGoalState,
+		IDonationGoalGetters,
+		IDonationGoalActions
+	>,
 });
 
 if (import.meta.hot) {

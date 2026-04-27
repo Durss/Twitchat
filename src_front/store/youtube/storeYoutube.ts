@@ -1,26 +1,16 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
-import type { IYoutubeActions, IYoutubeGetters, IYoutubeState } from "../StoreProxy";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { IYoutubeActions, IYoutubeGetters, IYoutubeState } from "../StoreProxy";
 
 export const storeYoutube = defineStore("youtube", {
-	state: () =>
-		({
-			youtubeAuthParams: null as IYoutubeState["youtubeAuthParams"],
-			youtubeAuthToken: null as IYoutubeState["youtubeAuthToken"],
-			newScopesToRequest: null as IYoutubeState["newScopesToRequest"],
-		}) satisfies IYoutubeState,
+	state: (): IYoutubeState => ({
+		youtubeAuthParams: null,
+		youtubeAuthToken: null,
+		newScopesToRequest: null,
+	}),
 
-	getters: {} satisfies IYoutubeGetters &
-		ThisType<
-			UnwrapRef<IYoutubeState> & _StoreWithGetters<IYoutubeGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IYoutubeGetters, IYoutubeState>,
 
 	actions: {
 		setYoutubeAuthResult(value) {
@@ -34,14 +24,7 @@ export const storeYoutube = defineStore("youtube", {
 			this.youtubeAuthToken = res;
 			return true;
 		},
-	} satisfies IYoutubeActions &
-		ThisType<
-			IYoutubeActions &
-				UnwrapRef<IYoutubeState> &
-				_StoreWithState<"youtube", IYoutubeState, IYoutubeGetters, IYoutubeActions> &
-				_StoreWithGetters<IYoutubeGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"youtube", IYoutubeState, IYoutubeGetters, IYoutubeActions>,
 });
 
 if (import.meta.hot) {

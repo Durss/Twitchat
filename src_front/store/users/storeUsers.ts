@@ -6,20 +6,15 @@ import {
 	USER_CUSTOM_BADGES,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import EventSub from "@/utils/twitch/EventSub";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type _StoreWithGetters,
-	type _StoreWithState,
-	type PiniaCustomProperties,
-} from "pinia";
-import { reactive, type UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { reactive } from "vue";
 import DataStore from "../DataStore";
 import type { IUsersActions, IUsersGetters, IUsersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
@@ -57,84 +52,83 @@ let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore("users", {
-	state: () =>
-		({
-			tmpDisplayName: "…loading…",
-			pendingShoutouts: {} as IUsersState["pendingShoutouts"],
-			userCard: null as IUsersState["userCard"],
-			customUsernames: {} as IUsersState["customUsernames"],
-			customUserBadges: {} as IUsersState["customUserBadges"],
-			customBadgeList: [] as IUsersState["customBadgeList"],
-			myMods: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			myVIPs: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			blockedUsers: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			myFollowings: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			myFollowers: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			mySubscribers: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-			knownBots: {
-				twitchat: {},
-				twitch: {},
-				instagram: {},
-				youtube: {},
-				tiktok: {},
-				facebook: {},
-				kick: {},
-			},
-		}) satisfies IUsersState,
+	state: (): IUsersState => ({
+		tmpDisplayName: "…loading…",
+		pendingShoutouts: {},
+		userCard: null,
+		customUsernames: {},
+		customUserBadges: {},
+		customBadgeList: [],
+		myMods: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		myVIPs: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		blockedUsers: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		myFollowings: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		myFollowers: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		mySubscribers: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+		knownBots: {
+			twitchat: {},
+			twitch: {},
+			instagram: {},
+			youtube: {},
+			tiktok: {},
+			facebook: {},
+			kick: {},
+		},
+	}),
 
 	getters: {
 		users(): TwitchatDataTypes.TwitchatUser[] {
 			return userList;
 		},
-	},
+	} satisfies StoreGetters<IUsersGetters, IUsersState>,
 
 	actions: {
 		populateData(): void {
@@ -1636,14 +1630,7 @@ export const storeUsers = defineStore("users", {
 			delete user.channelInfo[channelId]!.is_suspicious;
 			delete user.channelInfo[channelId]!.is_restricted;
 		},
-	} satisfies IUsersActions &
-		ThisType<
-			IUsersActions &
-				UnwrapRef<IUsersState> &
-				_StoreWithState<"users", IUsersState, IUsersGetters, IUsersActions> &
-				_StoreWithGetters<IUsersGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"users", IUsersState, IUsersGetters, IUsersActions>,
 });
 
 if (import.meta.hot) {

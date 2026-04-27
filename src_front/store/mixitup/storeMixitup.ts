@@ -1,29 +1,17 @@
+import type { StoreActions } from "@/types/pinia-helpers";
 import DataStore from "@/store/DataStore";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IMixitupActions, IMixitupGetters, IMixitupState } from "../StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 export const storeMixitup = defineStore("mixitup", {
-	state: () =>
-		({
-			connected: false,
-			connectionEnabled: false as boolean,
-			ip: "127.0.0.1",
-			port: 8911,
-			commandList: [] as IMixitupState["commandList"],
-		}) satisfies IMixitupState,
-
-	getters: {} satisfies IMixitupGetters &
-		ThisType<
-			UnwrapRef<IMixitupState> & _StoreWithGetters<IMixitupGetters> & PiniaCustomProperties
-		>,
+	state: (): IMixitupState => ({
+		connected: false,
+		connectionEnabled: false,
+		ip: "127.0.0.1",
+		port: 8911,
+		commandList: [],
+	}),
 
 	actions: {
 		async populateData(): Promise<void> {
@@ -113,14 +101,7 @@ export const storeMixitup = defineStore("mixitup", {
 				throw new Error("Failed to connect to MixItUp");
 			}
 		},
-	} satisfies IMixitupActions &
-		ThisType<
-			IMixitupActions &
-				UnwrapRef<IMixitupState> &
-				_StoreWithState<"mixitup", IMixitupState, IMixitupGetters, IMixitupActions> &
-				_StoreWithGetters<IMixitupGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"mixitup", IMixitupState, IMixitupGetters, IMixitupActions>,
 });
 
 if (import.meta.hot) {

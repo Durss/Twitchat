@@ -1,30 +1,20 @@
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { JsonObject } from "type-fest";
 import DataStore from "../DataStore";
 import type { IValuesActions, IValuesGetters, IValuesState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import Utils from "@/utils/Utils";
-import Config from "@/utils/Config";
-import type { JsonObject } from "type-fest";
 
 export const storeValues = defineStore("values", {
-	state: () =>
-		({
-			valueList: [] as IValuesState["valueList"],
-		}) satisfies IValuesState,
+	state: (): IValuesState => ({
+		valueList: [],
+	}),
 
-	getters: {} satisfies IValuesGetters &
-		ThisType<
-			UnwrapRef<IValuesState> & _StoreWithGetters<IValuesGetters> & PiniaCustomProperties
-		>,
+	getters: {} satisfies StoreGetters<IValuesGetters, IValuesState>,
 
 	actions: {
 		populateData(): void {
@@ -197,14 +187,7 @@ export const storeValues = defineStore("values", {
 		saveValues(): void {
 			DataStore.set(DataStore.VALUES, this.valueList);
 		},
-	} satisfies IValuesActions &
-		ThisType<
-			IValuesActions &
-				UnwrapRef<IValuesState> &
-				_StoreWithState<"counters", IValuesState, IValuesGetters, IValuesActions> &
-				_StoreWithGetters<IValuesGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"values", IValuesState, IValuesGetters, IValuesActions>,
 });
 
 if (import.meta.hot) {

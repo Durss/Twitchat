@@ -1,27 +1,17 @@
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import type { StoreActions } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IExtensionActions, IExtensionGetters, IExtensionState } from "../StoreProxy";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 
 export const storeExtension = defineStore("Extension", {
-	state: () =>
-		({
-			availableSlots: {} as IExtensionState["availableSlots"],
-			availableExtensions: [] as IExtensionState["availableExtensions"],
-		}) satisfies IExtensionState,
-
-	getters: {} satisfies IExtensionGetters &
-		ThisType<
-			UnwrapRef<IExtensionState> &
-				_StoreWithGetters<IExtensionGetters> &
-				PiniaCustomProperties
-		>,
+	state: (): IExtensionState => ({
+		availableSlots: {
+			panel: 0,
+			overlay: 0,
+			component: 0,
+		},
+		availableExtensions: [],
+	}),
 
 	actions: {
 		init(): void {
@@ -36,19 +26,7 @@ export const storeExtension = defineStore("Extension", {
 				this.availableSlots.component = Object.keys(res.component).length;
 			});
 		},
-	} satisfies IExtensionActions &
-		ThisType<
-			IExtensionActions &
-				UnwrapRef<IExtensionState> &
-				_StoreWithState<
-					"Extension",
-					IExtensionState,
-					IExtensionGetters,
-					IExtensionActions
-				> &
-				_StoreWithGetters<IExtensionGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>,
 });
 
 if (import.meta.hot) {

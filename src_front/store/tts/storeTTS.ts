@@ -1,111 +1,103 @@
 import DataStore from "@/store/DataStore";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
 import TTSUtils from "@/utils/TTSUtils";
 import Utils from "@/utils/Utils";
-import {
-	acceptHMRUpdate,
-	defineStore,
-	type PiniaCustomProperties,
-	type _StoreWithGetters,
-	type _StoreWithState,
-} from "pinia";
-import type { UnwrapRef } from "vue";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { JsonObject } from "type-fest";
 import type { ITTSActions, ITTSGetters, ITTSState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import type { JsonObject } from "type-fest";
-import PublicAPI from "@/utils/PublicAPI";
 
 export const storeTTS = defineStore("tts", {
-	state: () =>
-		({
-			speaking: false,
-			params: {
-				elevenlabs_model: "",
-				elevenlabs_lang: "",
-				elevenlabs_style: 0,
-				elevenlabs_similarity: 0.5,
-				elevenlabs_stability: 0.5,
-				enabled: false,
-				volume: 1,
-				rate: 1,
-				pitch: 1,
-				voice: {
-					id: "",
-					platform: "system",
-				},
-				maxLength: 0,
-				maxDuration: 30,
-				timeout: 0,
-				removeEmotes: true,
-				allRemoteChans: true,
-				removeURL: true,
-				replaceURL: "link",
-				inactivityPeriod: 0,
-				readMessages: false,
-				readMessagePatern: "",
-				readWhispers: false,
-				readWhispersPattern: "",
-				readNotices: false,
-				readNoticesPattern: "",
-				readRewards: false,
-				readRewardsPattern: "",
-				readSubs: false,
-				readSubsPattern: "",
-				readSubgifts: false,
-				readSubgiftsPattern: "",
-				readBits: false,
-				readBitsMinAmount: 0,
-				readBitsPattern: "",
-				readRaids: false,
-				readRaidsPattern: "",
-				readFollow: false,
-				readFollowPattern: "",
-				readPolls: false,
-				readPollsPattern: "",
-				readPredictions: false,
-				readPredictionsPattern: "",
-				readBingos: false,
-				readBingosPattern: "",
-				readRaffle: false,
-				readRafflePattern: "",
-				read1stMessageToday: false,
-				read1stMessageTodayPattern: "",
-				read1stTimeChatters: false,
-				read1stTimeChattersPattern: "",
-				readMonitored: false,
-				readMonitoredPattern: "",
-				readRestricted: false,
-				readRestrictedPattern: "",
-				readAutomod: false,
-				readAutomodPattern: "",
-				readTimeouts: false,
-				readTimeoutsPattern: "",
-				readBans: false,
-				readBansPattern: "",
-				readUnbans: false,
-				readUnbansPattern: "",
-				readKofiTip: false,
-				readKofiTipPattern: "",
-				readKofiMerch: false,
-				readKofiMerchPattern: "",
-				readKofiSub: false,
-				readKofiSubPattern: "",
-				readStreamlabsTip: false,
-				readStreamlabsTipPattern: "",
-				readStreamlabsMerch: false,
-				readStreamlabsMerchPattern: "",
-				readStreamlabsPatreon: false,
-				readStreamlabsPatreonPattern: "",
-				readStreamelementsTip: false,
-				readStreamelementsTipPattern: "",
-				readChatPolls: false,
-				readChatPollsPattern: "",
-				ttsPerms: Utils.getDefaultPermissions(),
+	state: (): ITTSState => ({
+		speaking: false,
+		params: {
+			elevenlabs_model: "",
+			elevenlabs_lang: "",
+			elevenlabs_style: 0,
+			elevenlabs_similarity: 0.5,
+			elevenlabs_stability: 0.5,
+			enabled: false,
+			volume: 1,
+			rate: 1,
+			pitch: 1,
+			voice: {
+				id: "",
+				platform: "system",
 			},
-		}) satisfies ITTSState,
+			maxLength: 0,
+			maxDuration: 30,
+			timeout: 0,
+			removeEmotes: true,
+			allRemoteChans: true,
+			removeURL: true,
+			replaceURL: "link",
+			inactivityPeriod: 0,
+			readMessages: false,
+			readMessagePatern: "",
+			readWhispers: false,
+			readWhispersPattern: "",
+			readNotices: false,
+			readNoticesPattern: "",
+			readRewards: false,
+			readRewardsPattern: "",
+			readSubs: false,
+			readSubsPattern: "",
+			readSubgifts: false,
+			readSubgiftsPattern: "",
+			readBits: false,
+			readBitsMinAmount: 0,
+			readBitsPattern: "",
+			readRaids: false,
+			readRaidsPattern: "",
+			readFollow: false,
+			readFollowPattern: "",
+			readPolls: false,
+			readPollsPattern: "",
+			readPredictions: false,
+			readPredictionsPattern: "",
+			readBingos: false,
+			readBingosPattern: "",
+			readRaffle: false,
+			readRafflePattern: "",
+			read1stMessageToday: false,
+			read1stMessageTodayPattern: "",
+			read1stTimeChatters: false,
+			read1stTimeChattersPattern: "",
+			readMonitored: false,
+			readMonitoredPattern: "",
+			readRestricted: false,
+			readRestrictedPattern: "",
+			readAutomod: false,
+			readAutomodPattern: "",
+			readTimeouts: false,
+			readTimeoutsPattern: "",
+			readBans: false,
+			readBansPattern: "",
+			readUnbans: false,
+			readUnbansPattern: "",
+			readKofiTip: false,
+			readKofiTipPattern: "",
+			readKofiMerch: false,
+			readKofiMerchPattern: "",
+			readKofiSub: false,
+			readKofiSubPattern: "",
+			readStreamlabsTip: false,
+			readStreamlabsTipPattern: "",
+			readStreamlabsMerch: false,
+			readStreamlabsMerchPattern: "",
+			readStreamlabsPatreon: false,
+			readStreamlabsPatreonPattern: "",
+			readStreamelementsTip: false,
+			readStreamelementsTipPattern: "",
+			readChatPolls: false,
+			readChatPollsPattern: "",
+			ttsPerms: Utils.getDefaultPermissions(),
+		},
+	}),
 
-	getters: {} satisfies ITTSGetters &
-		ThisType<UnwrapRef<ITTSState> & _StoreWithGetters<ITTSGetters> & PiniaCustomProperties>,
+	getters: {} satisfies StoreGetters<ITTSGetters, ITTSState>,
 
 	actions: {
 		populateData(): void {
@@ -164,14 +156,7 @@ export const storeTTS = defineStore("tts", {
 			DataStore.set(DataStore.TTS_PARAMS, params);
 			TTSUtils.instance.enabled = params.enabled;
 		},
-	} satisfies ITTSActions &
-		ThisType<
-			ITTSActions &
-				UnwrapRef<ITTSState> &
-				_StoreWithState<"tts", ITTSState, ITTSGetters, ITTSActions> &
-				_StoreWithGetters<ITTSGetters> &
-				PiniaCustomProperties
-		>,
+	} satisfies StoreActions<"tts", ITTSState, ITTSGetters, ITTSActions>,
 });
 
 if (import.meta.hot) {
