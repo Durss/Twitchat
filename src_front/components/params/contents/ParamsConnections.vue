@@ -166,6 +166,17 @@
 				<p>Spotify</p>
 			</button>
 
+			<button
+				class="card-item"
+				:class="{ connected: storeBluesky.connected }"
+				@click="subContent = 'bluesky'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.bluesky' }"
+				key="bluesky"
+			>
+				<Icon name="bluesky" />
+				<p>Bluesky</p>
+			</button>
+
 			<!-- <button
 				class="card-item"
 				:class="{ connected: $store.streamfog.connected }"
@@ -299,33 +310,34 @@
 		</div>
 	</div>
 
-	<ConnectVoicemod v-else-if="subContent == 'voicemod'" />
-	<ConnectYoutube v-else-if="subContent == 'youtube'" />
+	<ConnectOBS v-else-if="subContent == 'obs'" />
+	<ConnectKofi v-else-if="subContent == 'kofi'" />
+	<ConnectGroq v-else-if="subContent == 'groq'" />
+	<ConnectSammi v-else-if="subContent == 'sammi'" />
+	<ConnectLumia v-else-if="subContent == 'lumia'" />
 	<ConnectGoXLR v-else-if="subContent == 'goxlr'" />
-	<ConnectStreamdeck v-else-if="subContent == 'streamdeck'" />
+	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
+	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
+	<ConnectTiltify v-else-if="subContent == 'tiltify'" />
+	<ConnectPatreon v-else-if="subContent == 'patreon'" />
+	<ConnectBluesky v-else-if="subContent == 'bluesky'" />
+	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
+	<ConnectYoutube v-else-if="subContent == 'youtube'" />
 	<ConnectDiscord v-else-if="subContent == 'discord'" />
 	<ConnectSpotify v-else-if="subContent == 'spotify'" />
-	<ConnectOBS v-else-if="subContent == 'obs'" />
-	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'heatAreas'" />
-	<ConnectWebsocket v-else-if="subContent == 'websocket'" />
-	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
-	<ConnectKofi v-else-if="subContent == 'kofi'" />
-	<ConnectLumia v-else-if="subContent == 'lumia'" />
-	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
-	<ConnectTiltify v-else-if="subContent == 'tiltify'" />
-	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
-	<ConnectPatreon v-else-if="subContent == 'patreon'" />
-	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
-	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
-	<ConnectSammi v-else-if="subContent == 'sammi'" />
-	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
-	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
-	<ConnectPlayability v-else-if="subContent == 'playability'" />
-	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
-	<ConnectGroq v-else-if="subContent == 'groq'" />
-	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
+	<ConnectVoicemod v-else-if="subContent == 'voicemod'" />
 	<ConnectStreamfog v-else-if="subContent == 'streamfog'" />
+	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
+	<ConnectWebsocket v-else-if="subContent == 'websocket'" />
+	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
+	<ConnectStreamdeck v-else-if="subContent == 'streamdeck'" />
+	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
+	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
+	<ConnectPlayability v-else-if="subContent == 'playability'" />
 	<ConnectTwitchatAPI v-else-if="subContent == 'twitchat_api'" />
+	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
+	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
+	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'heatAreas'" />
 </template>
 
 <script setup lang="ts">
@@ -387,6 +399,8 @@ import ConnectVoicemod from "./connexions/ConnectVoicemod.vue";
 import ConnectWebsocket from "./connexions/ConnectWebsocket.vue";
 import ConnectYoutube from "./connexions/ConnectYoutube.vue";
 import SearchForm from "./SearchForm.vue";
+import ConnectBluesky from "./connexions/ConnectBluesky.vue";
+import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -408,8 +422,9 @@ const storeElevenLabs = useStoreElevenLabs();
 const storeGroq = useStoreGroq();
 const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
-const contentRef = useTemplateRef("content");
+const storeBluesky = useStoreBluesky();
 
+const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);
 const subContent = ref<TwitchatDataTypes.ParamDeepSectionsStringType | "">("");
 const search = ref("");
