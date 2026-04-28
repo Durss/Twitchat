@@ -54,6 +54,8 @@
 		"vue3-toastify": "^0.2.9"
 	},
 	"devDependencies": {
+		"@atproto/api": "^0.19.11",
+		"@atproto/oauth-client-browser": "^0.3.41",
 		"@imengyu/vue3-context-menu": "^1.5.4",
 		"@intlify/unplugin-vue-i18n": "6.0.8",
 		"@popperjs/core": "^2.11.8",
