@@ -8,42 +8,42 @@
 				icon="discord"
 				primary
 				type="link"
-				:href="$config.DISCORD_BOT_URL"
+				:href="Config.instance.DISCORD_BOT_URL"
 				target="_blank"
-				>{{ $t("discord.install_bt") }}</TTButton
+				>{{ t("discord.install_bt") }}</TTButton
 			>
 		</div>
 
 		<TTButton
 			class="unlinkBt"
 			icon="offline"
-			v-if="$store.discord.discordLinked"
+			v-if="storeDiscord.discordLinked"
 			alert
 			@click="unlink()"
 			:loading="submitting"
-			>{{ $t("discord.unkinkBt", { GUILD: $store.discord.linkedToGuild }) }}</TTButton
+			>{{ t("discord.unkinkBt", { GUILD: storeDiscord.linkedToGuild }) }}</TTButton
 		>
 
 		<TTButton
 			class="refreshBt"
 			icon="refresh"
-			v-if="$store.discord.discordLinked"
+			v-if="storeDiscord.discordLinked"
 			@click="refreshChannels()"
 			:loading="refreshingChans"
-			>{{ $t("discord.refreshChansBt") }}</TTButton
+			>{{ t("discord.refreshChansBt") }}</TTButton
 		>
 
 		<div class="content">
-			<template v-if="$store.discord.discordLinked">
+			<template v-if="storeDiscord.discordLinked">
 				<section class="card-item colSelector">
 					<Icon name="split" />
-					<span>{{ $t("discord.chat_col") }}</span>
+					<span>{{ t("discord.chat_col") }}</span>
 					<div class="columnList">
 						<TTButton
-							v-for="(col, index) in $store.params.chatColumnsConfig"
+							v-for="(col, index) in storeParams.chatColumnsConfig"
 							:key="index"
 							@click="selectColumn(col.order)"
-							:secondary="$store.discord.chatCols.indexOf(col.order) > -1"
+							:secondary="storeDiscord.chatCols.indexOf(col.order) > -1"
 							>{{ index + 1 }}</TTButton
 						>
 					</div>
@@ -54,7 +54,7 @@
 					<ParamItem
 						:paramData="param_reactions"
 						noBackground
-						v-model="$store.discord.reactionsEnabled"
+						v-model="storeDiscord.reactionsEnabled"
 						@change="saveParams()"
 					/>
 					<div class="message">
@@ -64,8 +64,8 @@
 
 				<section class="card-item">
 					<Icon name="mod" />
-					<span>{{ $t("discord.channel_ban_log") }}</span>
-					<select v-model="$store.discord.banLogTarget" @change="saveParams()">
+					<span>{{ t("discord.channel_ban_log") }}</span>
+					<select v-model="storeDiscord.banLogTarget" @change="saveParams()">
 						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">
 							{{ chan.name }}
 						</option>
@@ -73,7 +73,7 @@
 					<ParamItem
 						:paramData="param_banLogThread"
 						noBackground
-						v-model="$store.discord.banLogThread"
+						v-model="storeDiscord.banLogThread"
 						@change="saveParams()"
 					/>
 				</section>
@@ -83,11 +83,11 @@
 					<i18n-t scope="global" tag="p" keypath="discord.channel_cmd">
 						<template #CMD
 							><mark>{{
-								$store.chat.commands.find((v) => v.id == "discord")?.cmd
+								storeChat.commands.find((v) => v.id == "discord")?.cmd
 							}}</mark></template
 						>
 					</i18n-t>
-					<select v-model="$store.discord.chatCmdTarget" @change="saveParams()">
+					<select v-model="storeDiscord.chatCmdTarget" @change="saveParams()">
 						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">
 							{{ chan.name }}
 						</option>
@@ -96,14 +96,14 @@
 
 				<section class="card-item">
 					<Icon name="rightClick" />
-					<span>{{ $t("discord.quick_actions") }}</span>
+					<span>{{ t("discord.quick_actions") }}</span>
 					<ParamsDiscordQuickActions channelList @change="saveParams()" />
 				</section>
 
 				<section class="card-item">
 					<Icon name="save" />
-					<span>{{ $t("discord.channel_logs") }}</span>
-					<select v-model="$store.discord.logChanTarget" @change="saveParams()">
+					<span>{{ t("discord.channel_logs") }}</span>
+					<select v-model="storeDiscord.logChanTarget" @change="saveParams()">
 						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">
 							{{ chan.name }}
 						</option>
@@ -112,7 +112,7 @@
 						<Icon name="info" />
 						<i18n-t scope="global" tag="span" keypath="discord.channel_logs_info">
 							<template #OPTION
-								><mark>{{ $t("chat.context_menu.export_discord") }}</mark></template
+								><mark>{{ t("chat.context_menu.export_discord") }}</mark></template
 							>
 						</i18n-t>
 					</div>
@@ -123,16 +123,16 @@
 					<i18n-t scope="global" tag="span" keypath="discord.public_triggers">
 						<template #TRIGGER_LINK
 							><a @click.stop="openTriggers()">{{
-								$t("params.categories.triggers")
+								t("params.categories.triggers")
 							}}</a></template
 						>
 						<template #SLASH_CMD
 							><strong>{{
-								$t("triggers.events.SLASH_COMMAND.label")
+								t("triggers.events.SLASH_COMMAND.label")
 							}}</strong></template
 						>
 						<template #OPTION
-							><strong>{{ $t("triggers.slash_cmd.param_discord") }}</strong></template
+							><strong>{{ t("triggers.slash_cmd.param_discord") }}</strong></template
 						>
 						<template #ICON><Icon name="info" /></template>
 					</i18n-t>
@@ -140,9 +140,9 @@
 
 				<section class="card-item helpDesk">
 					<Icon name="helpDesk" />
-					<span>{{ $t("discord.ticket") }}</span>
-					<span>{{ $t("discord.ticket_chan") }}</span>
-					<select v-model="$store.discord.ticketChanTarget" @change="saveParams()">
+					<span>{{ t("discord.ticket") }}</span>
+					<span>{{ t("discord.ticket_chan") }}</span>
+					<select v-model="storeDiscord.ticketChanTarget" @change="saveParams()">
 						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">
 							{{ chan.name }}
 						</option>
@@ -152,7 +152,7 @@
 						<i18n-t scope="global" tag="span" keypath="discord.ticket_chan_info">
 							<template #ACTION
 								><strong>{{
-									$t("chat.context_menu.discord_ticket")
+									t("chat.context_menu.discord_ticket")
 								}}</strong></template
 							>
 						</i18n-t>
@@ -161,7 +161,7 @@
 			</template>
 
 			<section class="card-item confirm" v-else-if="askLinkConfirmation">
-				<div>{{ $t("discord.install_confirm") }}</div>
+				<div>{{ t("discord.install_confirm") }}</div>
 				<mark class="discordName">{{ discordName }}</mark>
 				<div class="ctas">
 					<TTButton
@@ -171,14 +171,14 @@
 							askLinkConfirmation = false;
 							errorCode = '';
 						"
-						>{{ $t("global.cancel") }}</TTButton
+						>{{ t("global.cancel") }}</TTButton
 					>
 					<TTButton
 						icon="checkmark"
 						primary
 						@click="confirmLink()"
 						:loading="submitting"
-						>{{ $t("global.confirm") }}</TTButton
+						>{{ t("global.confirm") }}</TTButton
 					>
 				</div>
 			</section>
@@ -210,249 +210,244 @@
 			</section>
 		</div>
 		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">
-			{{ $t("error.discord." + errorCode, { CHANNEL: errorChan }) }}
+			{{ t("error.discord." + errorCode, { CHANNEL: errorChan }) }}
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import MessageItem from "@/components/messages/MessageItem.vue";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
-import { Component, Vue, toNative } from "vue-facing-decorator";
-import type IParameterContent from "../IParameterContent";
-import ParamsDiscordQuickActions from "../discord/ParamsDiscordQuickActions.vue";
+import { computed, nextTick, onBeforeMount, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
+import ParamsDiscordQuickActions from "../discord/ParamsDiscordQuickActions.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		MessageItem,
-		ParamsDiscordQuickActions,
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const storeDiscord = useStoreDiscord();
+const storeParams = useStoreParams();
+
+const codeInput = useTemplateRef("codeInput");
+
+const code = ref("");
+const codeLength = ref(4);
+const discordName = ref("");
+const validateDebounce = ref(-1);
+const submitting = ref(false);
+const refreshingChans = ref(false);
+const linkLoading = ref(false);
+const askLinkConfirmation = ref(false);
+const errorCode = ref("");
+const errorChan = ref("");
+const param_reactions = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "discord.reactions",
+});
+const param_banLogThread = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "discord.channel_ban_log_thread",
+});
+const messagePreview = ref<TwitchatDataTypes.MessageCustomData>({
+	channel_id: "",
+	date: Date.now(),
+	id: Utils.getUUID(),
+	platform: "twitchat",
+	type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+	message: "Lorem ipsum dolor sit amet.",
+	icon: "discord",
+	user: {
+		name: "DiscordUser",
 	},
-	emits: [],
-})
-class ConnectDiscord extends Vue implements IParameterContent {
-	public code: string = "";
-	public codeLength: number = 4;
-	public duration: number = 0;
-	public discordName: string = "";
-	public validateDebounce: number = -1;
-	public submitting: boolean = false;
-	public refreshingChans: boolean = false;
-	public linkLoading: boolean = false;
-	public askLinkConfirmation: boolean = false;
-	public errorCode: string = "";
-	public errorChan: string = "";
-	public param_reactions: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		labelKey: "discord.reactions",
-	};
-	public param_banLogThread: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		labelKey: "discord.channel_ban_log_thread",
-	};
-	public messagePreview: TwitchatDataTypes.MessageCustomData = {
-		channel_id: "",
-		date: Date.now(),
-		id: Utils.getUUID(),
-		platform: "twitchat",
-		type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
-		message: "Lorem ipsum dolor sit amet.",
-		icon: "discord",
-		user: {
-			name: "DiscordUser",
-		},
-	};
+});
 
-	/**
-	 * Get discord channel list
-	 */
-	public get channelList(): { id: string; name: string }[] {
-		let list = (this.$store.discord.channelList || []).concat();
-		list.unshift({ id: "", name: this.$t("global.select_placeholder") });
-		return list;
-	}
+/**
+ * Get discord channel list
+ */
+const channelList = computed<{ id: string; name: string }[]>(() => {
+	const list = (storeDiscord.channelList || []).concat();
+	list.unshift({ id: "", name: t("global.select_placeholder") });
+	return list;
+});
 
-	public async beforeMount(): Promise<void> {
-		this.saveParams();
-	}
+onBeforeMount(() => {
+	saveParams();
+});
 
-	public onNavigateBack(): boolean {
-		return false;
-	}
-
-	/**
-	 * Called when pressing a key on an input of the code form
-	 * @param event
-	 */
-	public onKeyDown(event: KeyboardEvent): void {
-		if (event.key == "Backspace") {
-			//Set focus to prev input
-			const inputs = this.$refs.codeInput as HTMLInputElement[];
-			let index = inputs.findIndex((v) => v === event.target);
-			let currentInput = event.target as HTMLInputElement;
-			if (currentInput.selectionEnd) {
-				//Remove all chars after the carret
-				currentInput.value = "";
-			}
-			index--;
-			if (index < 0) index = 0;
-			inputs[index]!.focus();
-			inputs[index]!.select();
-			event.stopPropagation();
-			event.preventDefault();
-			//Define new code as a concatenation of all inputs values
-			this.code = inputs
-				.map((v) => v.value)
-				.join("")
-				.substring(0, this.codeLength);
-		}
-	}
-
-	/**
-	 * Called anytime an input's value changes
-	 * cycles the focus and manage copy/paste properly
-	 * @param event
-	 */
-	public onChange(event: Event): void {
-		const inputs = this.$refs.codeInput as HTMLInputElement[];
-		const currentInput = event.target as HTMLInputElement;
+/**
+ * Called when pressing a key on an input of the code form
+ */
+function onKeyDown(event: KeyboardEvent): void {
+	if (event.key == "Backspace") {
+		//Set focus to prev input
+		const inputs = codeInput.value!;
+		let index = inputs.findIndex((v) => v === event.target);
+		let currentInput = event.target as HTMLInputElement;
 		if (currentInput.selectionEnd) {
 			//Remove all chars after the carret
-			currentInput.value = currentInput.value.substring(0, currentInput.selectionEnd);
+			currentInput.value = "";
 		}
-
-		//Set focus to next input
-		let index = inputs.findIndex((v) => v === event.target);
-		index++;
-		if (index > inputs.length - 1) index = 0;
+		index--;
+		if (index < 0) index = 0;
 		inputs[index]!.focus();
 		inputs[index]!.select();
-
+		event.stopPropagation();
+		event.preventDefault();
 		//Define new code as a concatenation of all inputs values
-		this.code = inputs
+		code.value = inputs
 			.map((v) => v.value)
 			.join("")
-			.substring(0, this.codeLength);
-
-		if (this.code.length == this.codeLength) {
-			this.linkLoading = true;
-			this.errorCode = "";
-			//Debounce updates to avoid spamming server
-			clearTimeout(this.validateDebounce);
-			this.validateDebounce = window.setTimeout(() => {
-				this.validateCode();
-			}, 500);
-		}
-	}
-
-	/**
-	 * Validate current code
-	 */
-	public async validateCode(): Promise<void> {
-		this.linkLoading = true;
-
-		const res = await this.$store.discord.validateCode(this.code);
-		if (res.success) {
-			this.discordName = res.guildName || "???";
-			this.askLinkConfirmation = true;
-		} else {
-			this.errorCode = res.errorCode || "UNKNOWN";
-		}
-
-		this.linkLoading = false;
-	}
-
-	/**
-	 * Validate discord linking
-	 */
-	public async confirmLink(): Promise<void> {
-		this.submitting = true;
-
-		const res = await this.$store.discord.submitCode(this.code);
-		if (res !== true) {
-			this.errorCode = res.code;
-			this.errorChan = res.channelName || "???";
-		}
-		this.askLinkConfirmation = false;
-
-		this.submitting = false;
-		await this.$nextTick();
-		this.saveParams();
-	}
-
-	/**
-	 * Unlink discord
-	 */
-	public async unlink(): Promise<void> {
-		this.submitting = true;
-
-		const res = await this.$store.discord.unlinkDiscord();
-		if (res !== true) this.errorCode = res;
-
-		this.submitting = false;
-	}
-
-	/**
-	 * Unlink discord
-	 */
-	public async refreshChannels(): Promise<void> {
-		this.refreshingChans = true;
-
-		await this.$store.discord.loadChannelList();
-
-		//Make sure loader is visible and avoid spam
-		await Utils.promisedTimeout(500);
-
-		this.refreshingChans = false;
-	}
-
-	/**
-	 * Called when selecting a column
-	 */
-	public selectColumn(index: number): void {
-		const arrayIndex = this.$store.discord.chatCols.indexOf(index);
-		if (arrayIndex == -1) {
-			this.$store.discord.chatCols.push(index);
-		} else {
-			this.$store.discord.chatCols.splice(arrayIndex, 1);
-		}
-		this.saveParams();
-	}
-
-	/**
-	 * Saves params
-	 */
-	public async saveParams(): Promise<void> {
-		if (this.$store.discord.reactionsEnabled) {
-			const actions: TwitchatDataTypes.MessageCustomData["actions"] = [];
-			["👌", "❤️", "😂", "😟", "⛔"].forEach((reaction) => {
-				actions.push({
-					label: reaction,
-				});
-			});
-			this.messagePreview.actions = actions;
-		} else {
-			this.messagePreview.actions = [];
-		}
-		this.$store.discord.saveParams();
-	}
-
-	/**
-	 * Open triggers page
-	 */
-	public openTriggers(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+			.substring(0, codeLength.value);
 	}
 }
-export default toNative(ConnectDiscord);
+
+/**
+ * Called anytime an input's value changes
+ * cycles the focus and manage copy/paste properly
+ */
+function onChange(event: Event): void {
+	const inputs = codeInput.value!;
+	const currentInput = event.target as HTMLInputElement;
+	if (currentInput.selectionEnd) {
+		//Remove all chars after the carret
+		currentInput.value = currentInput.value.substring(0, currentInput.selectionEnd);
+	}
+
+	//Set focus to next input
+	let index = inputs.findIndex((v) => v === event.target);
+	index++;
+	if (index > inputs.length - 1) index = 0;
+	inputs[index]!.focus();
+	inputs[index]!.select();
+
+	//Define new code as a concatenation of all inputs values
+	code.value = inputs
+		.map((v) => v.value)
+		.join("")
+		.substring(0, codeLength.value);
+
+	if (code.value.length == codeLength.value) {
+		linkLoading.value = true;
+		errorCode.value = "";
+		//Debounce updates to avoid spamming server
+		clearTimeout(validateDebounce.value);
+		validateDebounce.value = window.setTimeout(() => {
+			validateCode();
+		}, 500);
+	}
+}
+
+/**
+ * Validate current code
+ */
+async function validateCode(): Promise<void> {
+	linkLoading.value = true;
+
+	const res = await storeDiscord.validateCode(code.value);
+	if (res.success) {
+		discordName.value = res.guildName || "???";
+		askLinkConfirmation.value = true;
+	} else {
+		errorCode.value = res.errorCode || "UNKNOWN";
+	}
+
+	linkLoading.value = false;
+}
+
+/**
+ * Validate discord linking
+ */
+async function confirmLink(): Promise<void> {
+	submitting.value = true;
+
+	const res = await storeDiscord.submitCode(code.value);
+	if (res !== true) {
+		errorCode.value = res.code;
+		errorChan.value = res.channelName || "???";
+	}
+	askLinkConfirmation.value = false;
+
+	submitting.value = false;
+	await nextTick();
+	saveParams();
+}
+
+/**
+ * Unlink discord
+ */
+async function unlink(): Promise<void> {
+	submitting.value = true;
+
+	const res = await storeDiscord.unlinkDiscord();
+	if (res !== true) errorCode.value = res;
+
+	submitting.value = false;
+}
+
+/**
+ * Unlink discord
+ */
+async function refreshChannels(): Promise<void> {
+	refreshingChans.value = true;
+
+	await storeDiscord.loadChannelList();
+
+	//Make sure loader is visible and avoid spam
+	await Utils.promisedTimeout(500);
+
+	refreshingChans.value = false;
+}
+
+/**
+ * Called when selecting a column
+ */
+function selectColumn(index: number): void {
+	const arrayIndex = storeDiscord.chatCols.indexOf(index);
+	if (arrayIndex == -1) {
+		storeDiscord.chatCols.push(index);
+	} else {
+		storeDiscord.chatCols.splice(arrayIndex, 1);
+	}
+	saveParams();
+}
+
+/**
+ * Saves params
+ */
+async function saveParams(): Promise<void> {
+	if (storeDiscord.reactionsEnabled) {
+		const actions: TwitchatDataTypes.MessageCustomData["actions"] = [];
+		["👌", "❤️", "😂", "😟", "⛔"].forEach((reaction) => {
+			actions.push({
+				label: reaction,
+			});
+		});
+		messagePreview.value.actions = actions;
+	} else {
+		messagePreview.value.actions = [];
+	}
+	storeDiscord.saveParams();
+}
+
+/**
+ * Open triggers page
+ */
+function openTriggers(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+}
+
+defineExpose({
+	onNavigateBack: () => false,
+});
 </script>
 
 <style scoped lang="less">

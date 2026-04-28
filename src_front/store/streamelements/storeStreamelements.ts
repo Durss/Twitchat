@@ -26,6 +26,7 @@ export const storeStreamelements = defineStore("streamelements", {
 	state: (): IStreamelementsState => ({
 		accessToken: "",
 		refreshToken: "",
+		profile: null,
 		connected: false,
 		authResult: { code: "", csrf: "" },
 		tipLatest: {
@@ -203,6 +204,28 @@ export const storeStreamelements = defineStore("streamelements", {
 					return false;
 				}
 			}
+
+			try {
+				let opts = {
+					headers: { Authorization: "OAuth " + token },
+					method: "GET",
+				};
+				// console.log("STREAMELEMENTS: checking token validity...")
+				let profileResult = await fetch(
+					"https://api.streamelements.com/kappa/v2/users/current",
+					opts,
+				);
+				if (profileResult.status == 200) {
+					const json = (await profileResult.json()) as StreamelementsProfileData;
+					const channel = json.channels.find((v) => v.provider == "twitch");
+					if (channel) {
+						this.profile = {
+							avatar: channel.avatar,
+							name: channel.displayName ?? channel.username ?? channel.alias,
+						};
+					}
+				}
+			} catch (_error) {}
 
 			//Connect to websocket
 			return new Promise<boolean>((resolve, _reject) => {
@@ -724,4 +747,48 @@ interface StreamelementsTipAllTimeTopDonatorData {
 		activityId: string;
 	};
 	provider: string;
+}
+
+interface StreamelementsProfileData {
+	_id: string;
+	suspended: boolean;
+	teams: Array<any>;
+	channels: Array<{
+		profile: {
+			title: string;
+			headerImage: string;
+		};
+		_id: string;
+		provider: string;
+		broadcasterType: string;
+		suspended: boolean;
+		providerId: string;
+		email: string;
+		avatar: string;
+		type: string;
+		username: string;
+		alias: string;
+		displayName: string;
+		ab: Array<{
+			name: string;
+			value: string;
+		}>;
+		createdAt: string;
+		updatedAt: string;
+		country: string;
+		lastLogin: string;
+		scopesBitmask: number;
+		authorized: boolean;
+		inactive: boolean;
+		isPartner: boolean;
+		role: string;
+		moderators: Array<any>;
+	}>;
+	lastLogin: string;
+	ab: {};
+	primaryChannel: string;
+	username: string;
+	avatar: string;
+	createdAt: string;
+	updatedAt: string;
 }

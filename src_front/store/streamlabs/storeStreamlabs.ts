@@ -25,6 +25,7 @@ export const storeStreamlabs = defineStore("streamlabs", {
 	state: (): IStreamlabsState => ({
 		accessToken: "",
 		socketToken: "",
+		profile: null,
 		connected: false,
 		authResult: { code: "", csrf: "" },
 		charityTeam: null,
@@ -137,6 +138,24 @@ export const storeStreamlabs = defineStore("streamlabs", {
 				this.socketToken = token;
 				this.saveData();
 			}
+
+			try {
+				let opts = {
+					headers: { Authorization: "Bearer " + this.accessToken },
+					method: "GET",
+				};
+				// console.log("STREAMELEMENTS: checking token validity...")
+				let profileResult = await fetch("https://streamlabs.com/api/v2.0/user", opts);
+				if (profileResult.status == 200) {
+					const json = (await profileResult.json()) as StreamlabsUserData;
+					if (json.streamlabs) {
+						this.profile = {
+							avatar: json.streamlabs.thumbnail,
+							name: json.streamlabs.display_name ?? json.streamlabs.username,
+						};
+					}
+				}
+			} catch (_error) {}
 
 			autoReconnect = true;
 
@@ -483,6 +502,7 @@ export const storeStreamlabs = defineStore("streamlabs", {
 							description: teamJSON.campaign.causable.description,
 							website: teamJSON.campaign.causable.page_settings.website_url,
 						},
+						avatar: teamJSON.campaign.causable.avatar?.url.replace(/\\\//gi, "/"), //Thanks SL for sending shit url
 					};
 				} else {
 					this.charityTeam.amountGoal_cents = teamJSON.campaign.goal.amount;
@@ -716,7 +736,7 @@ if (import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeStreamlabs, import.meta.hot));
 }
 
-export interface StreamlabsStoreData {
+interface StreamlabsStoreData {
 	accessToken: string;
 	socketToken: string;
 	charityTeam: typeof StoreProxy.streamlabs.charityTeam;
@@ -730,7 +750,7 @@ interface StreamlabsWelcomeData {
 	maxPayload: number;
 }
 
-interface StreamlabsDonationData {
+export interface StreamlabsDonationData {
 	type: "donation";
 	message: {
 		priority: number;
@@ -754,7 +774,7 @@ interface StreamlabsDonationData {
 	event_id: string;
 }
 
-interface StreamlabsMerchData {
+export interface StreamlabsMerchData {
 	type: "merch";
 	message: {
 		name: string;
@@ -774,7 +794,7 @@ interface StreamlabsMerchData {
 	event_id: string;
 }
 
-interface StreamlabsPatreonPledgeData {
+export interface StreamlabsPatreonPledgeData {
 	type: "pledge";
 	message: {
 		name: string;
@@ -863,7 +883,7 @@ interface StreamlabsCharityDonationData {
 	event_id: string;
 }
 
-export interface StreamlabsCharityTeamData {
+interface StreamlabsCharityTeamData {
 	id: string;
 	display_name: string;
 	slug: string;
@@ -1022,7 +1042,7 @@ export interface StreamlabsCharityTeamData {
 	};
 }
 
-export interface StreamlabsCharityLeaderboardData {
+interface StreamlabsCharityLeaderboardData {
 	top_streamers: {
 		amount: string;
 		display_name: string;
@@ -1037,7 +1057,7 @@ export interface StreamlabsCharityLeaderboardData {
 	}[];
 }
 
-export interface StreamlabsCharityDonationHistoryEntry {
+interface StreamlabsCharityDonationHistoryEntry {
 	id: string;
 	donation: {
 		id: string;
@@ -1069,5 +1089,21 @@ export interface StreamlabsCharityDonationHistoryEntry {
 			is_live: boolean;
 			currency: string;
 		};
+	};
+}
+
+interface StreamlabsUserData {
+	streamlabs: {
+		id: number;
+		display_name: string;
+		username: string;
+		thumbnail: string;
+		primary: string;
+	};
+	twitch: {
+		id: number;
+		display_name: string;
+		name: string;
+		icon_url: string;
 	};
 }

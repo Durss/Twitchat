@@ -10,146 +10,101 @@
 			</i18n-t>
 		</div>
 
-		<div class="card-item userInfo" v-if="$store.patreon.connected">
-			<div class="title">{{ $t("patreon.connected_as") }}</div>
-			<div class="info">
-				<img class="avatar" :src="$store.patreon.userAvatar" alt="Avatar" />
-				<span class="name">{{ $store.patreon.userName }}</span>
-			</div>
-			<TTButton @click="$store.patreon.disconnect()" alert icon="offline">{{
-				$t("global.disconnect")
-			}}</TTButton>
-		</div>
+		<ProfileInfoCard
+			v-if="storePatreon.connected"
+			:avatar="storePatreon.userAvatar"
+			:name="storePatreon.userName"
+			@logout="
+				storePatreon.disconnect();
+				loadAuthURL();
+			"
+		/>
 
-		<section v-if="!$store.auth.isPremium">
+		<section v-if="!storeAuth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{
-				$t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</section>
 
-		<section v-else-if="$store.auth.isPremium && !$store.patreon.connected">
+		<section v-else-if="storeAuth.isPremium && !storePatreon.connected">
 			<TTButton
 				type="link"
 				:href="oAuthURL"
 				target="_self"
 				:loading="loading"
 				icon="newtab"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("error.patreon_connect_failed") }}
+				{{ t("error.patreon_connect_failed") }}
 			</div>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers" />{{ $t("streamelements.examples") }}</h2>
+			<h2><Icon name="whispers" />{{ t("streamelements.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeMember" />
 			<MessageItem v-else="fakeMember" :messageData="fakeMember" />
 		</section>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import MessageItem from "@/components/messages/MessageItem.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
-@Component({
-	components: {
-		TTButton,
-		MessageItem,
-	},
-	emits: [],
-})
-class ConnectPatreon extends Vue {
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeMember: TwitchatDataTypes.PatreonNewMemberData | undefined = undefined;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storePatreon = useStorePatreon();
 
-	public async mounted(): Promise<void> {
-		if (this.$store.patreon.oauthFlowParams) {
-			this.loading = true;
-			if (!(await this.$store.patreon.completeOAuthFlow())) {
-				await this.loadAuthURL();
-			} else {
-				this.loading = false;
-			}
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeMember = ref<TwitchatDataTypes.PatreonNewMemberData | undefined>(undefined);
+
+onMounted(async () => {
+	if (storePatreon.oauthFlowParams) {
+		loading.value = true;
+		if (!(await storePatreon.completeOAuthFlow())) {
+			await loadAuthURL();
 		} else {
-			await this.loadAuthURL();
+			loading.value = false;
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(
-			TwitchatDataTypes.TwitchatMessageType.PATREON,
-			(mess) => {
-				mess.eventType = "new_member";
-				this.fakeMember = mess;
-			},
-			false,
-		);
+	} else {
+		await loadAuthURL();
 	}
+	storeDebug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(
+		TwitchatDataTypes.TwitchatMessageType.PATREON,
+		(mess) => {
+			mess.eventType = "new_member";
+			fakeMember.value = mess;
+		},
+		false,
+	);
+});
 
-	/**
-	 * Disconnects from patreon
-	 */
-	public disconnect(): void {
-		this.$store.patreon.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Start authentication flow
-	 */
-	public async loadAuthURL(): Promise<void> {
-		this.loading = true;
-		this.oAuthURL = await this.$store.patreon.getOAuthURL();
-		this.loading = false;
-	}
-
-	/**
-	 * Start authentication flow
-	 */
-	public async authenticate(): Promise<void> {
-		this.loading = true;
-		document.location = this.oAuthURL;
-	}
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(ConnectPatreon);
+
+async function loadAuthURL(): Promise<void> {
+	loading.value = true;
+	oAuthURL.value = await storePatreon.getOAuthURL();
+	loading.value = false;
+}
 </script>
 
 <style scoped lang="less">
 .connectpatreon {
-	.userInfo {
-		margin: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 0.25em;
-		.info {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			flex-wrap: wrap;
-			gap: 0.5em;
-			padding: 0.25em 0.5em;
-			.avatar {
-				width: 1.75em;
-				height: 1.75em;
-				border-radius: 50%;
-			}
-			.name {
-				font-weight: bold;
-				flex-grow: 1;
-			}
-		}
-	}
-
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;

@@ -17,10 +17,10 @@
 				</i18n-t>
 			</div>
 
-			<div class="card-item secondary infos" v-if="!$store.groq.connected">
+			<div class="card-item secondary infos" v-if="!storeGroq.connected">
 				<span>
 					<Icon name="info" />
-					<span>{{ $t("groq.instructions") }}</span>
+					<span>{{ t("groq.instructions") }}</span>
 				</span>
 				<TTButton
 					class="installBt"
@@ -30,40 +30,40 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("groq.install") }}</TTButton
+					>{{ t("groq.install") }}</TTButton
 				>
 			</div>
 		</div>
 
 		<div class="content">
-			<TTButton class="connectBt" v-if="$store.groq.connected" alert @click="disconnect()">{{
-				$t("global.disconnect")
+			<TTButton class="connectBt" v-if="storeGroq.connected" alert @click="disconnect()">{{
+				t("global.disconnect")
 			}}</TTButton>
 
-			<form class="card-item" v-if="!$store.groq.connected" @submit.prevent="connect()">
+			<form class="card-item" v-if="!storeGroq.connected" @submit.prevent="connect()">
 				<ParamItem
 					noBackground
 					:paramData="param_apiKey"
-					v-model="$store.groq.apiKey"
+					v-model="storeGroq.apiKey"
 					autofocus
 				/>
 
 				<div class="ctas">
 					<TTButton type="submit" :loading="connecting" :disabled="!canConnect">{{
-						$t("global.connect")
+						t("global.connect")
 					}}</TTButton>
 				</div>
 			</form>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("groq.invalid_api_key") }}
+				{{ t("groq.invalid_api_key") }}
 			</div>
 
-			<template v-if="$store.groq.connected">
+			<template v-if="storeGroq.connected">
 				<div class="card-item infos">
 					<i18n-t scope="global" keypath="groq.usage" tag="span">
 						<template #TRIGGERS>
 							<a @click.prevent="openTriggers()">{{
-								$t("params.categories.triggers")
+								t("params.categories.triggers")
 							}}</a>
 						</template>
 					</i18n-t>
@@ -71,24 +71,24 @@
 
 				<!-- <i18n-t class="card-item" scope="global" keypath="groq.credits_usage" tag="div">
 					<template #LIMIT>
-						<strong>{{ $store.groq.creditsTotal }}</strong>
+						<strong>{{ storeGroq.creditsTotal }}</strong>
 					</template>
 					<template #REMAINING>
-						<strong>{{ $store.groq.creditsTotal - $store.groq.creditsUsed }}</strong>
+						<strong>{{ storeGroq.creditsTotal - storeGroq.creditsUsed }}</strong>
 					</template>
 				</i18n-t> -->
 
 				<form class="card-item modelList">
 					<p class="head">
-						{{ $t("groq.default_model") }} <br /><i
+						{{ t("groq.default_model") }} <br /><i
 							><a href="https://groq.com/pricing/" target="_blank">{{
-								$t("groq.models_pricing")
+								t("groq.models_pricing")
 							}}</a></i
 						>
 						<span> · </span>
 						<i
 							><a href="https://console.groq.com/settings/limits/" target="_blank">{{
-								$t("groq.models_limits")
+								t("groq.models_limits")
 							}}</a></i
 						>
 					</p>
@@ -97,15 +97,15 @@
 						<ul>
 							<li
 								v-for="model in category.models"
-								:class="{ selected: model.id == $store.groq.defaultModel }"
+								:class="{ selected: model.id == storeGroq.defaultModel }"
 							>
 								<input
 									type="radio"
 									:id="model.id"
 									:name="model.id"
-									v-model="$store.groq.defaultModel"
+									v-model="storeGroq.defaultModel"
 									:value="model.id"
-									@change="$store.groq.saveConfigs()"
+									@change="storeGroq.saveConfigs()"
 								/>
 								<label :for="model.id">
 									<span class="size"
@@ -122,79 +122,68 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
-import Checkbox from "@/components/Checkbox.vue";
+import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ParamItem from "../../ParamItem.vue";
 
-@Component({
-	components: {
-		Checkbox,
-		TTButton,
-		ParamItem,
-	},
-	emits: [],
-})
-class ConnectElevenLabs extends Vue {
-	public error = false;
-	public showSuccess = false;
-	public connecting = false;
+const { t } = useI18n();
+const storeGroq = useStoreGroq();
+const storeParams = useStoreParams();
 
-	public param_apiKey: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "password",
-		icon: "key",
-		labelKey: "groq.apiKey",
-		isPrivate: true,
-	};
+const error = ref(false);
+const connecting = ref(false);
+const param_apiKey = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "password",
+	icon: "key",
+	labelKey: "groq.apiKey",
+	isPrivate: true,
+});
 
-	public get canConnect(): boolean {
-		return this.param_apiKey.value.length >= 30;
-	}
+const canConnect = computed(() => param_apiKey.value.value.length >= 30);
 
-	/**
-	 * Get models sorted by owners
-	 * Excluding models for speech recognition
-	 */
-	public get modelCategories() {
-		type modesType = typeof this.$store.groq.availableModels;
-		const res: { name: string; models: modesType }[] = [];
-		const sorted = this.$store.groq.availableModels
-			.sort((a, b) => a.owned_by.localeCompare(b.owned_by))
-			.filter((m) => m.type == "text");
-		let category: (typeof res)[0] = { name: sorted[0]!.owned_by, models: [] };
-		for (const model of sorted) {
-			if (model.owned_by != category.name) {
-				res.push(category);
-				category = { name: model.owned_by, models: [] };
-			}
-			category.models.push(model);
+/**
+ * Get models sorted by owners
+ * Excluding models for speech recognition
+ */
+const modelCategories = computed(() => {
+	type modesType = typeof storeGroq.availableModels;
+	const res: { name: string; models: modesType }[] = [];
+	const sorted = storeGroq.availableModels
+		.sort((a, b) => a.owned_by.localeCompare(b.owned_by))
+		.filter((m) => m.type == "text");
+	let category: (typeof res)[0] = { name: sorted[0]!.owned_by, models: [] };
+	for (const model of sorted) {
+		if (model.owned_by != category.name) {
+			res.push(category);
+			category = { name: model.owned_by, models: [] };
 		}
-		res.push(category);
-		return res.filter((c) => c.models.length > 0);
+		category.models.push(model);
 	}
+	res.push(category);
+	return res.filter((c) => c.models.length > 0);
+});
 
-	public beforeMount(): void {}
-
-	public async connect(): Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		const res = await this.$store.groq.connect();
-		this.error = !res;
-		this.connecting = false;
-	}
-
-	public disconnect(): void {
-		this.$store.groq.disconnect();
-	}
-
-	public openTriggers(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
-	}
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	const res = await storeGroq.connect();
+	error.value = !res;
+	connecting.value = false;
 }
-export default toNative(ConnectElevenLabs);
+
+function disconnect(): void {
+	storeGroq.disconnect();
+}
+
+function openTriggers(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+}
 </script>
 
 <style scoped lang="less">
