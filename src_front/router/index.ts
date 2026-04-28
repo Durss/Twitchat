@@ -141,13 +141,12 @@ const routes: Array<RouteRecordRaw> = [
 				window.close();
 				return { name: "chat", query: {} };
 			}
-			const sParams = StoreProxy.params;
 			const params = {
 				code: Utils.getQueryParameterByName("code") as string,
 				csrf: Utils.getQueryParameterByName("state") as string,
 			};
 			if (params.code && !Utils.getQueryParameterByName("error")) {
-				sParams.openParamsPage(
+				StoreProxy.params.openParamsPage(
 					TwitchatDataTypes.ParameterPages.CONNECTIONS,
 					TwitchatDataTypes.ParamDeepSections.TWITCHBOT,
 				);
@@ -156,6 +155,25 @@ const routes: Array<RouteRecordRaw> = [
 				StoreProxy.common.alert(StoreProxy.i18n.t("twitch_bot.auth_refused"));
 			}
 			return { name: "chat", query: {} };
+		},
+		meta: {
+			needAuth: true,
+		},
+	},
+	{
+		path: "/bluesky/oauth",
+		name: "bluesky/auth",
+		component: Chat,
+		beforeEnter: async () => {
+			// Awaits authenticate() while location.pathname is still /bluesky/oauth
+			// so the lib's findRedirectUrl() matches the registered redirect_uri
+			// and the OAuth code/state can be consumed.
+			await StoreProxy.bluesky.authenticate();
+			StoreProxy.params.openParamsPage(
+				TwitchatDataTypes.ParameterPages.CONNECTIONS,
+				TwitchatDataTypes.ParamDeepSections.BLUESKY,
+			);
+			return { name: "chat" };
 		},
 		meta: {
 			needAuth: true,
