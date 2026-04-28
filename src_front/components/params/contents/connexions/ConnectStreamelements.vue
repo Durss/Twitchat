@@ -12,34 +12,36 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
+		<section v-if="!storeAuth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{
-				$t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</section>
 
-		<section v-else-if="!$store.streamelements.connected">
+		<section v-else-if="!storeStreamelements.connected">
 			<TTButton
 				type="link"
 				:href="oAuthURL"
 				target="_self"
 				:loading="loading"
 				icon="newtab"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("error.streamelements_connect_failed") }}
+				{{ t("error.streamelements_connect_failed") }}
 			</div>
 		</section>
 
 		<section v-else>
-			<TTButton alert icon="offline" @click="disconnect()">{{
-				$t("global.disconnect")
-			}}</TTButton>
+			<ProfileInfoCard
+				:avatar="storeStreamelements.profile?.avatar"
+				:name="storeStreamelements.profile?.name"
+				@logout="storeStreamelements.disconnect()"
+			/>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers" />{{ $t("streamelements.examples") }}</h2>
+			<h2><Icon name="whispers" />{{ t("streamelements.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation" />
 			<template v-else>
 				<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
@@ -48,79 +50,72 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import MessageItem from "@/components/messages/MessageItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		MessageItem,
-	},
-	emits: [],
-})
-class ConnectStreamelements extends Vue {
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeDonation: TwitchatDataTypes.StreamelementsDonationData | undefined = undefined;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storeStreamelements = useStoreStreamelements();
 
-	public beforeMount(): void {
-		if (!this.$store.streamelements.connected) {
-			if (this.$store.streamelements.authResult.code) {
-				//Complete oauth process
-				this.loading = true;
-				this.$store.streamelements.getAccessToken().then((success) => {
-					this.error = !success;
-					this.loading = false;
-					this.loadAuthURL();
-				});
-			} else {
-				//Preload oAuth URL
-				this.loadAuthURL();
-			}
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeDonation = ref<TwitchatDataTypes.StreamelementsDonationData | undefined>(undefined);
+
+onBeforeMount(() => {
+	if (!storeStreamelements.connected) {
+		if (storeStreamelements.authResult.code) {
+			//Complete oauth process
+			loading.value = true;
+			storeStreamelements.getAccessToken().then((success) => {
+				error.value = !success;
+				loading.value = false;
+				loadAuthURL();
+			});
+		} else {
+			//Preload oAuth URL
+			loadAuthURL();
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamelementsDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
-			(mess) => {
-				mess.eventType = "donation";
-				this.fakeDonation = mess;
-			},
-			false,
-		);
 	}
+	storeDebug.simulateMessage<TwitchatDataTypes.StreamelementsDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
+		(mess) => {
+			mess.eventType = "donation";
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+});
 
-	/**
-	 * Disconnects from streamlabs
-	 */
-	public disconnect(): void {
-		this.$store.streamelements.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * initiliaze the auth url
-	 */
-	private loadAuthURL(): void {
-		this.loading = true;
-		this.$store.streamelements.getOAuthURL().then((res) => {
-			this.oAuthURL = res;
-			this.loading = false;
-		});
-	}
+/**
+ * Opens the premium param page
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(ConnectStreamelements);
+
+/**
+ * initiliaze the auth url
+ */
+function loadAuthURL(): void {
+	loading.value = true;
+	storeStreamelements.getOAuthURL().then((res) => {
+		oAuthURL.value = res;
+		loading.value = false;
+	});
+}
 </script>
 
 <style scoped lang="less">

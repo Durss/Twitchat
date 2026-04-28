@@ -10,37 +10,37 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.tiltify.connected">
+		<section v-if="!storeTiltify.connected">
 			<TTButton
 				type="link"
 				:href="oAuthURL"
 				target="_self"
 				:loading="loading"
 				icon="online"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("error.tiltify_connect_failed") }}
+				{{ t("error.tiltify_connect_failed") }}
 			</div>
 		</section>
 
 		<template v-else>
 			<section>
 				<TTButton alert icon="offline" @click="disconnect()">
-					<div class="userInfo" v-if="$store.tiltify.user">
-						<span>{{ $t("global.disconnect") }} </span>
-						<img :src="$store.tiltify.user.avatar.src" alt="avatar" />
-						<h2>{{ $store.tiltify.user.username }}</h2>
+					<div class="userInfo" v-if="storeTiltify.user">
+						<span>{{ t("global.disconnect") }} </span>
+						<img :src="storeTiltify.user.avatar.src" alt="avatar" />
+						<h2>{{ storeTiltify.user.username }}</h2>
 					</div>
 				</TTButton>
 			</section>
 
 			<section
 				class="card-item secondary noCampaign"
-				v-if="$store.tiltify.campaignList.length == 0"
+				v-if="storeTiltify.campaignList.length == 0"
 			>
 				<Icon name="alert" />
-				<span>{{ $t("tiltify.no_campaign") }}</span>
+				<span>{{ t("tiltify.no_campaign") }}</span>
 				<TTButton
 					type="link"
 					href="https://tiltify.com/start"
@@ -48,36 +48,36 @@
 					icon="newtab"
 					light
 					secondary
-					>{{ $t("global.start") }}</TTButton
+					>{{ t("global.start") }}</TTButton
 				>
 			</section>
 			<template v-else>
 				<section class="card-item infos">
 					<strong>{{
-						$t("tiltify.campaign_list", $store.tiltify.campaignList.length)
+						t("tiltify.campaign_list", storeTiltify.campaignList.length)
 					}}</strong>
 					<div class="campaignList">
-						<div v-for="campaign in $store.tiltify.campaignList" class="campaign">
+						<div v-for="campaign in storeTiltify.campaignList" class="campaign">
 							<a :href="campaign.donate_url" target="_blank"
 								><Icon name="newtab" />{{ campaign.name }}</a
 							>
 							<TTButton
 								clear
 								icon="copy"
-								v-tooltip="$t('tiltify.copy_id_tt')"
+								v-tooltip="t('tiltify.copy_id_tt')"
 								@click="copyId(campaign.id)"
 								>#ID</TTButton
 							>
 						</div>
 					</div>
-					<span class="spaceAbove">{{ $t("tiltify.create_donation_goals") }}</span>
-					<TTButton @click="openOverlay()" icon="add">{{ $t("global.create") }}</TTButton>
+					<span class="spaceAbove">{{ t("tiltify.create_donation_goals") }}</span>
+					<TTButton @click="openOverlay()" icon="add">{{ t("global.create") }}</TTButton>
 				</section>
 			</template>
 		</template>
 
 		<section class="examples">
-			<h2><Icon name="whispers" />{{ $t("tiltify.examples") }}</h2>
+			<h2><Icon name="whispers" />{{ t("tiltify.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -86,94 +86,90 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import MessageItem from "@/components/messages/MessageItem.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		TTButton,
-		MessageItem,
-	},
-	emits: [],
-})
-class ConnectTiltify extends Vue {
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeDonation: TwitchatDataTypes.TiltifyDonationData | undefined = undefined;
+const { t } = useI18n();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storeTiltify = useStoreTiltify();
 
-	public beforeMount(): void {
-		if (!this.$store.tiltify.connected) {
-			if (this.$store.tiltify.authResult.code) {
-				//Complete oauth process
-				this.loading = true;
-				this.$store.tiltify.getAccessToken().then((success) => {
-					this.error = !success;
-					this.loading = false;
-					if (this.error) {
-						this.loadAuthURL();
-					}
-				});
-			} else {
-				//Preload oAuth URL
-				this.loadAuthURL();
-			}
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeDonation = ref<TwitchatDataTypes.TiltifyDonationData | undefined>(undefined);
+
+onBeforeMount(() => {
+	if (!storeTiltify.connected) {
+		if (storeTiltify.authResult.code) {
+			//Complete oauth process
+			loading.value = true;
+			storeTiltify.getAccessToken().then((success) => {
+				error.value = !success;
+				loading.value = false;
+				if (error.value) {
+					loadAuthURL();
+				}
+			});
+		} else {
+			//Preload oAuth URL
+			loadAuthURL();
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.TiltifyDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.TILTIFY,
-			(mess) => {
-				mess.eventType = "donation";
-				this.fakeDonation = mess;
-			},
-			false,
-		);
-		// this.$store.tiltify.connect()
-		// .then(res => {
-		// 	console.log(res)
-		// });
 	}
+	storeDebug.simulateMessage<TwitchatDataTypes.TiltifyDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TILTIFY,
+		(mess) => {
+			mess.eventType = "donation";
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+	// storeTiltify.connect()
+	// .then(res => {
+	// 	console.log(res)
+	// });
+});
 
-	/**
-	 * Disconnects from streamlabs
-	 */
-	public disconnect(): void {
-		this.$store.tiltify.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * Open donation goal overlay section
-	 */
-	public openOverlay(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.OVERLAYS,
-			"donationgoals",
-		);
-	}
-
-	/**
-	 * Copies ID to clipboard
-	 */
-	public copyId(id: string): void {
-		Utils.copyToClipboard(id);
-	}
-
-	/**
-	 * initiliaze the auth url
-	 */
-	private loadAuthURL(): void {
-		this.loading = true;
-		this.$store.tiltify.getOAuthURL().then((res) => {
-			this.oAuthURL = res;
-			this.loading = false;
-		});
-	}
+/**
+ * Disconnects from streamlabs
+ */
+function disconnect(): void {
+	storeTiltify.disconnect();
+	loadAuthURL();
 }
-export default toNative(ConnectTiltify);
+
+/**
+ * Open donation goal overlay section
+ */
+function openOverlay(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "donationgoals");
+}
+
+/**
+ * Copies ID to clipboard
+ */
+function copyId(id: string): void {
+	Utils.copyToClipboard(id);
+}
+
+/**
+ * initiliaze the auth url
+ */
+function loadAuthURL(): void {
+	loading.value = true;
+	storeTiltify.getOAuthURL().then((res) => {
+		oAuthURL.value = res;
+		loading.value = false;
+	});
+}
 </script>
 
 <style scoped lang="less">

@@ -13,7 +13,7 @@
 			<div class="card-item secondary infos">
 				<span>
 					<Icon name="info" />
-					<span>{{ $t("streamfog.instructions") }}</span>
+					<span>{{ t("streamfog.instructions") }}</span>
 				</span>
 				<TTButton
 					class="installBt"
@@ -23,7 +23,7 @@
 					target="_blank"
 					light
 					secondary
-					>{{ $t("streamfog.install") }}</TTButton
+					>{{ t("streamfog.install") }}</TTButton
 				>
 			</div>
 		</div>
@@ -33,67 +33,59 @@
 				<ParamItem
 					noBackground
 					:paramData="param_userId"
-					v-model="$store.streamfog.userId"
+					v-model="storeStreamfog.userId"
 					autofocus
 				/>
 
 				<TTButton
 					type="submit"
-					v-if="!$store.streamfog.connected"
+					v-if="!storeStreamfog.connected"
 					:loading="connecting"
 					:disabled="!canConnect"
-					>{{ $t("global.connect") }}</TTButton
+					>{{ t("global.connect") }}</TTButton
 				>
 			</form>
 
 			<div
 				class="card-item alert message error"
-				v-if="$store.streamfog.invalidID"
-				@click="$store.streamfog.invalidID = false"
+				v-if="storeStreamfog.invalidID"
+				@click="storeStreamfog.invalidID = false"
 			>
-				{{ $t(`streamfog.error_messages.${error}`) }}
+				{{ t(`streamfog.error_messages.${error}`) }}
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
+import { storeStreamfog as useStoreStreamfog } from "@/store/streamfog/storeStreamfog";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-	},
-	emits: [],
-})
-class ConnectStreamfog extends Vue {
-	public error: string = "false";
-	public connecting: boolean = false;
+const { t } = useI18n();
+const storeStreamfog = useStoreStreamfog();
 
-	public param_userId: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		labelKey: "streamfog.param_userId",
-		maxLength: 24,
-	};
+const error = ref("false");
+const connecting = ref(false);
+const param_userId = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	labelKey: "streamfog.param_userId",
+	maxLength: 24,
+});
 
-	public get canConnect(): boolean {
-		return this.param_userId.value.length >= 24;
-	}
+const canConnect = computed(() => param_userId.value.value.length >= 24);
 
-	public async connect(): Promise<void> {
-		this.error = "";
-		this.connecting = true;
-		const res = await this.$store.streamfog.connect(this.param_userId.value);
-		if (res !== true) this.error = res;
-		this.connecting = false;
-	}
+async function connect(): Promise<void> {
+	error.value = "";
+	connecting.value = true;
+	const res = await storeStreamfog.connect(param_userId.value.value);
+	if (res !== true) error.value = res;
+	connecting.value = false;
 }
-export default toNative(ConnectStreamfog);
 </script>
 
 <style scoped lang="less">
