@@ -10,35 +10,35 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
+		<section v-if="!storeAuth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{
-				$t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</section>
 
-		<template v-else-if="!$store.kofi.connected">
+		<template v-else-if="!storeKofi.connected">
 			<ol>
 				<li class="card-item">
 					<span class="index">1.</span>
 					<a href="https://ko-fi.com/manage/webhooks" target="_blank">{{
-						$t("kofi.open_dashboard")
+						t("kofi.open_dashboard")
 					}}</a>
 				</li>
 
 				<li class="card-item">
 					<span class="index">2.</span>
-					<span>{{ $t("kofi.set_url") }}</span>
+					<span>{{ t("kofi.set_url") }}</span>
 					<input type="text" :value="webhookURL" v-click2Select readonly />
 				</li>
 
 				<li class="card-item">
 					<span class="index">3.</span>
-					<span>{{ $t("kofi.find_key") }}</span>
+					<span>{{ t("kofi.find_key") }}</span>
 				</li>
 
 				<li class="card-item">
 					<span class="index">4.</span>
-					<span>{{ $t("kofi.set_token") }}</span>
+					<span>{{ t("kofi.set_token") }}</span>
 					<input type="text" v-model="token" />
 				</li>
 
@@ -49,7 +49,7 @@
 						@click="connect()"
 						:disabled="token.length < 36"
 						:loading="loading"
-						>{{ $t("global.connect") }}</TTButton
+						>{{ t("global.connect") }}</TTButton
 					>
 				</li>
 			</ol>
@@ -59,63 +59,63 @@
 
 		<section class="connected" v-else>
 			<TTButton alert @click="disconnect()" :loading="loading">{{
-				$t("global.disconnect")
+				t("global.disconnect")
 			}}</TTButton>
 
 			<ToggleBlock
-				:title="$t('global.advanced_params')"
+				:title="t('global.advanced_params')"
 				class="advancedParams"
 				small
 				:open="false"
 			>
 				<div @submit.prevent="" class="additionalWebhooks">
-					<div>{{ $t("kofi.advanced_params_header") }}</div>
+					<div>{{ t("kofi.advanced_params_header") }}</div>
 					<div
-						v-for="(wh, index) in $store.kofi.webhooks"
+						v-for="(wh, index) in storeKofi.webhooks"
 						:class="['entry', { disabled: !wh.enabled }]"
 						:key="index"
 					>
 						<div class="form">
 							<input
 								type="text"
-								@blur="$store.kofi.saveConfigs()"
+								@blur="storeKofi.saveConfigs()"
 								pattern="https?:\/\/.*"
 								v-model="wh.url"
-								:placeholder="$t('kofi.webhook_placeholder')"
+								:placeholder="t('kofi.webhook_placeholder')"
 							/>
 
 							<TTButton
 								icon="trash"
 								alert
 								@click="
-									$store.kofi.removeWebhook(wh);
-									$store.kofi.saveConfigs();
+									storeKofi.removeWebhook(wh);
+									storeKofi.saveConfigs();
 								"
 							/>
 						</div>
 						<div v-if="!wh.enabled" class="error">
-							<div><Icon name="alert" />{{ $t("kofi.disabled") }}</div>
+							<div><Icon name="alert" />{{ t("kofi.disabled") }}</div>
 							<TTButton
 								icon="offline"
-								@click="$store.kofi.restartWebhook(wh)"
+								@click="storeKofi.restartWebhook(wh)"
 								alert
 								light
-								>{{ $t("kofi.restartBt") }}</TTButton
+								>{{ t("kofi.restartBt") }}</TTButton
 							>
 						</div>
 					</div>
 					<TTButton
 						@click="addWebhook()"
-						v-if="$store.kofi.webhooks.length < 5"
+						v-if="storeKofi.webhooks.length < 5"
 						icon="add"
-						>{{ $t("kofi.add_webhookBt") }}</TTButton
+						>{{ t("kofi.add_webhookBt") }}</TTButton
 					>
 				</div>
 			</ToggleBlock>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers" />{{ $t("kofi.examples") }}</h2>
+			<h2><Icon name="whispers" />{{ t("kofi.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation || !fakeMerch || !fakeSubscription" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -126,104 +126,101 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
-import ToggleButton from "@/components/ToggleButton.vue";
 import MessageItem from "@/components/messages/MessageItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		TTButton,
-		ToggleButton,
-		MessageItem,
-		ToggleBlock,
-	},
-	emits: [],
-})
-class ConnectKofi extends Vue {
-	public token = "";
-	public error = "";
-	public loading = false;
-	public fakeDonation: TwitchatDataTypes.KofiDonationData | undefined = undefined;
-	public fakeMerch: TwitchatDataTypes.KofiMerchData | undefined = undefined;
-	public fakeSubscription: TwitchatDataTypes.KofiSubscriptionData | undefined = undefined;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeDebug = useStoreDebug();
+const storeKofi = useStoreKofi();
+const storeParams = useStoreParams();
 
-	public get webhookURL(): string {
-		return this.$config.API_PATH + "/kofi/webhook";
-	}
+const token = ref("");
+const error = ref("");
+const loading = ref(false);
+const fakeDonation = ref<TwitchatDataTypes.KofiDonationData | undefined>(undefined);
+const fakeMerch = ref<TwitchatDataTypes.KofiMerchData | undefined>(undefined);
+const fakeSubscription = ref<TwitchatDataTypes.KofiSubscriptionData | undefined>(undefined);
 
-	public beforeMount(): void {
-		this.$store.debug.simulateMessage<TwitchatDataTypes.KofiDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.KOFI,
-			(mess) => {
-				mess.eventType = "donation";
-				this.fakeDonation = mess;
-			},
-			false,
-		);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.KofiMerchData>(
-			TwitchatDataTypes.TwitchatMessageType.KOFI,
-			(mess) => {
-				mess.eventType = "merch";
-				mess.products = [
-					{ id: "123456", name: "T-shirt", quantity: 1 },
-					{ id: "234561", name: "Hoodie", quantity: 1 },
-				];
-				this.fakeMerch = mess;
-			},
-			false,
-		);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.KofiSubscriptionData>(
-			TwitchatDataTypes.TwitchatMessageType.KOFI,
-			(mess) => {
-				mess.eventType = "subscription";
-				mess.tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
-				this.fakeSubscription = mess;
-			},
-			false,
-		);
-	}
+const webhookURL = computed(() => Config.instance.API_PATH + "/kofi/webhook");
 
-	/**
-	 * Connects to kofi
-	 */
-	public async connect(): Promise<void> {
-		this.loading = true;
-		const success = await this.$store.kofi.connect(this.token);
-		this.error = !success ? this.$t("error.kofi_connect_failed") : "";
-		this.loading = false;
-	}
+onBeforeMount(() => {
+	storeDebug.simulateMessage<TwitchatDataTypes.KofiDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.KOFI,
+		(mess) => {
+			mess.eventType = "donation";
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.KofiMerchData>(
+		TwitchatDataTypes.TwitchatMessageType.KOFI,
+		(mess) => {
+			mess.eventType = "merch";
+			mess.products = [
+				{ id: "123456", name: "T-shirt", quantity: 1 },
+				{ id: "234561", name: "Hoodie", quantity: 1 },
+			];
+			fakeMerch.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.KofiSubscriptionData>(
+		TwitchatDataTypes.TwitchatMessageType.KOFI,
+		(mess) => {
+			mess.eventType = "subscription";
+			mess.tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
+			fakeSubscription.value = mess;
+		},
+		false,
+	);
+});
 
-	/**
-	 * Disconnects from kofi
-	 */
-	public async disconnect(): Promise<void> {
-		this.loading = true;
-		const success = await this.$store.kofi.disconnect();
-		this.error = !success ? this.$t("error.kofi_disconnect_failed") : "";
-		this.loading = false;
-	}
-
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Opens the premium param page
-	 */
-	public addWebhook(): void {
-		this.$store.kofi.addWebhook("");
-	}
+/**
+ * Connects to kofi
+ */
+async function connect(): Promise<void> {
+	loading.value = true;
+	const success = await storeKofi.connect(token.value);
+	error.value = !success ? t("error.kofi_connect_failed") : "";
+	loading.value = false;
 }
-export default toNative(ConnectKofi);
+
+/**
+ * Disconnects from kofi
+ */
+async function disconnect(): Promise<void> {
+	loading.value = true;
+	const success = await storeKofi.disconnect();
+	error.value = !success ? t("error.kofi_disconnect_failed") : "";
+	loading.value = false;
+}
+
+/**
+ * Opens the premium param page
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
+ * Opens the premium param page
+ */
+function addWebhook(): void {
+	storeKofi.addWebhook("");
+}
 </script>
 
 <style scoped lang="less">

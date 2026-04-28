@@ -12,34 +12,34 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
+		<section v-if="!storeAuth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{
-				$t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</section>
 
-		<section v-else-if="!$store.tipeee.connected">
+		<section v-else-if="!storeTipeee.connected">
 			<TTButton
 				type="link"
 				:href="oAuthURL"
 				target="_self"
 				:loading="loading"
 				icon="newtab"
-				>{{ $t("global.connect") }}</TTButton
+				>{{ t("global.connect") }}</TTButton
 			>
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("error.tipeee_connect_failed") }}
+				{{ t("error.tipeee_connect_failed") }}
 			</div>
 		</section>
 
 		<section v-else>
 			<TTButton alert @click="disconnect()" icon="offline">{{
-				$t("global.disconnect")
+				t("global.disconnect")
 			}}</TTButton>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers" />{{ $t("tipeee.examples") }}</h2>
+			<h2><Icon name="whispers" />{{ t("tipeee.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation || !fakeSub || !fakeResub" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -50,96 +50,97 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import MessageItem from "@/components/messages/MessageItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		TTButton,
-		MessageItem,
-	},
-	emits: [],
-})
-class ConnectTipeee extends Vue {
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeDonation: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
-	public fakeSub: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
-	public fakeResub: TwitchatDataTypes.MessageTipeeeDonationData | undefined = undefined;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storeTipeee = useStoreTipeee();
 
-	public beforeMount(): void {
-		if (!this.$store.tipeee.connected) {
-			if (this.$store.tipeee.authResult.code) {
-				//Complete oauth process
-				this.loading = true;
-				this.$store.tipeee.completeOAuthProcess().then((success) => {
-					this.error = !success;
-					this.loading = false;
-					this.loadAuthURL();
-				});
-			} else {
-				//Preload oAuth URL
-				this.loadAuthURL();
-			}
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeDonation = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
+const fakeSub = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
+const fakeResub = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
+
+onBeforeMount(() => {
+	if (!storeTipeee.connected) {
+		if (storeTipeee.authResult.code) {
+			//Complete oauth process
+			loading.value = true;
+			storeTipeee.completeOAuthProcess().then((success) => {
+				error.value = !success;
+				loading.value = false;
+				loadAuthURL();
+			});
+		} else {
+			//Preload oAuth URL
+			loadAuthURL();
 		}
-
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
-			(mess) => {
-				this.fakeDonation = mess;
-			},
-			false,
-		);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
-			(mess) => {
-				mess.recurring = true;
-				this.fakeSub = mess;
-			},
-			false,
-		);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
-			TwitchatDataTypes.TwitchatMessageType.TIPEEE,
-			(mess) => {
-				mess.recurring = true;
-				mess.recurringCount = Math.round(Math.random() * 10);
-				this.fakeResub = mess;
-			},
-			false,
-		);
 	}
 
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
+			mess.recurring = true;
+			fakeSub.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
+			mess.recurring = true;
+			mess.recurringCount = Math.round(Math.random() * 10);
+			fakeResub.value = mess;
+		},
+		false,
+	);
+});
 
-	/**
-	 * Disconnects from tipeee
-	 */
-	public disconnect(): void {
-		this.$store.tipeee.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * initiliaze the auth url
-	 */
-	private loadAuthURL(): void {
-		this.loading = true;
-		this.$store.tipeee.getOAuthURL().then((res) => {
-			this.oAuthURL = res;
-			this.loading = false;
-		});
-	}
+/**
+ * Opens the premium param page
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(ConnectTipeee);
+
+/**
+ * Disconnects from tipeee
+ */
+function disconnect(): void {
+	storeTipeee.disconnect();
+	loadAuthURL();
+}
+
+/**
+ * initiliaze the auth url
+ */
+function loadAuthURL(): void {
+	loading.value = true;
+	storeTipeee.getOAuthURL().then((res) => {
+		oAuthURL.value = res;
+		loading.value = false;
+	});
+}
 </script>
 
 <style scoped lang="less">
