@@ -1,0 +1,9 @@
+{
+	"bluesky": {
+		"header": "Connect with bluesky to automatically set your live status",
+		"param_handle": "Bluesky Handle",
+		"param_handleResolver": "Handle resolver",
+		"param_autoLive": "Automatically show your live status on Bluesky",
+		"error": "Authentication failed"
+	}
+}

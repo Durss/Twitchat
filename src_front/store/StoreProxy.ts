@@ -41,6 +41,8 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
+import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 /**
  * Created : 23/09/2022
@@ -2864,6 +2866,10 @@ export interface IDiscordActions {
 export interface IStreamlabsState {
 	accessToken: string;
 	socketToken: string;
+	profile: {
+		name: string;
+		avatar: string;
+	} | null;
 	connected: boolean;
 	authResult: { code: string; csrf: string };
 	/**
@@ -2879,6 +2885,7 @@ export interface IStreamlabsState {
 		currency: string;
 		campaignId: string;
 		pageUrl: string;
+		avatar?: string;
 		cause: {
 			id: string;
 			title: string;
@@ -2947,6 +2954,10 @@ export interface IStreamlabsActions {
 export interface IStreamelementsState {
 	accessToken: string;
 	refreshToken: string;
+	profile: {
+		name: string;
+		avatar: string;
+	} | null;
 	connected: boolean;
 	authResult: { code: string; csrf: string };
 	//All tips for current session
@@ -4235,13 +4246,56 @@ export interface IAPIActions {
 	onRemoteAction(data?: { action: string; data?: unknown }): void;
 }
 
-export interface IBlueskyState {}
+export interface IBlueskyState {
+	connected: boolean;
+	sub: string;
+	profile: Pick<
+		ProfileViewDetailed,
+		| "avatar"
+		| "displayName"
+		| "banner"
+		| "createdAt"
+		| "description"
+		| "did"
+		| "handle"
+		| "followersCount"
+		| "followsCount"
+		| "website"
+	> | null;
+	handleResolver: string;
+}
 
-export interface IBlueskyGetters {}
+export interface IBlueskyGetters {
+	session: OAuthSession | null;
+}
 
 export interface IBlueskyActions {
 	/**
 	 * Populates store from DataStorage
 	 */
-	populateData(): void;
+	populateData(): Promise<void>;
+	/**
+	 * Initializes oauthClient
+	 */
+	initClient(): Promise<BrowserOAuthClient>;
+	/**
+	 * Connects to Bluesky
+	 */
+	startOAuthProcess(handle: string): Promise<boolean>;
+	/**
+	 * Completes OAuth process
+	 */
+	authenticate(restore?: boolean): Promise<void>;
+	/**
+	 * Disconnects the user
+	 */
+	disconnect(): Promise<void>;
+	/**
+	 * Sets live status of the user
+	 */
+	setLiveStatus(live: boolean): Promise<void>;
+	/**
+	 * Saves state to storage
+	 */
+	saveState(): void;
 }
