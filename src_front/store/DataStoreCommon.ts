@@ -126,6 +126,7 @@ export default class DataStoreCommon {
 	public static STREAMDECK_CONFIGS: string = "streamDeckConfigs";
 	public static STREAMFOG_CONFIGS: string = "streamFogConfigs";
 	public static QUIZ_CONFIGS: string = "quizConfigs";
+	public static BLUESKY_CONFIGS: string = "blueskyConfigs";
 
 	protected static store: Storage;
 	protected static dataPrefix: string = "twitchat_";
@@ -168,6 +169,7 @@ export default class DataStoreCommon {
 		this.TWITCH_BOT,
 		this.EMERGENCY_FOLLOWERS,
 		this.STREAM_SOCKET_SECRET,
+		this.BLUESKY_CONFIGS,
 	];
 
 	/********************

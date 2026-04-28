@@ -108,6 +108,7 @@ export namespace TwitchatDataTypes {
 		MIXITUP: "mixitup",
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
+		BLUESKY: "bluesky",
 		VOICEMOD: "voicemod",
 		STREAMFOG: "streamfog",
 		TWITCHBOT: "twitchbot",
