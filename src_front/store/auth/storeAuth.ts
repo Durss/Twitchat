@@ -182,7 +182,7 @@ export const storeAuth = defineStore("auth", {
 
 				if (Config.instance.BETA_MODE) {
 					window.setInitMessage("checking beta access permissions");
-					const res = await ApiHelper.call("beta/user", "GET", { uid: userRes.user_id });
+					const res = await ApiHelper.call("beta/user", "GET");
 					if (res.status != 200 || res.json.data.beta !== true) {
 						console.log("Beta refused", res.json);
 						if (cb) cb(false, true);

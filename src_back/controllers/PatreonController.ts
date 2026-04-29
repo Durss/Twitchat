@@ -691,13 +691,13 @@ export default class PatreonController extends AbstractController {
 		response: FastifyReply,
 	): Promise<void> {
 		//Retreive user ID from query path
-		const { uid } = request.params as any;
+		const { uid } = request.params as { uid: string };
 		const event = request.headers["x-patreon-event"];
 
 		//Get webhook secret and twitch user ID
 		const filePath = Config.patreonUid2WebhookSecret;
 		const json = JSON.parse(fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "{}");
-		const { twitchId, secret } = json[uid];
+		const { twitchId, secret } = json[uid] || {};
 
 		//If user isn't premium, ignore event
 		if ((await this.getUserPremiumState(twitchId)) === "no") {

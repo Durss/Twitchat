@@ -69,8 +69,8 @@ export default class FileServeController extends AbstractController {
 
 		let mostRecent = 0;
 		let indexPath = "";
-		files.forEach((_v) => {
-			const file = path.join(Config.PUBLIC_ROOT, "assets", path.sep + files[0]);
+		files.forEach((v) => {
+			const file = path.join(Config.PUBLIC_ROOT, "assets", path.sep + v);
 			const stats = fs.statSync(file);
 			const d = new Date(stats.ctime).getTime();
 			if (d > mostRecent) {
