@@ -652,6 +652,17 @@ type ApiEndpoints = {
 			response: void;
 		};
 	};
+	"sse/auth": {
+		POST: {
+			parameters: void;
+			response: {
+				success: boolean;
+				token?: string;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
 	"discord/code": {
 		GET: {
 			parameters: {

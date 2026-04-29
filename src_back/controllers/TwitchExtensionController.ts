@@ -102,7 +102,7 @@ export default class TwitchExtensionController extends AbstractController {
 			.update(Config.credentials.twitchat_api_secret + ":" + headerToken)
 			.digest("hex");
 
-		if (hash !== headerHash) {
+		if (!Utils.safeStringEquals(headerHash, hash)) {
 			reply.status(401).send({ error: "Invalid request signature" });
 			return;
 		}

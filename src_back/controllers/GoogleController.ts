@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
@@ -282,7 +283,9 @@ export default class GoogleController extends AbstractController {
 			access_type: "offline",
 			scope,
 			include_granted_scopes: false,
-			state: jwt.sign({ date: Date.now() }, Config.credentials.csrf_key),
+			state: jwt.sign({ date: Date.now() }, Utils.derivedSecret("youtube_state"), {
+				algorithm: "HS256",
+			}),
 			prompt: "consent",
 			redirect_uri: redirectURI,
 			client_id: credentials.client_id,

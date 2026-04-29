@@ -2,6 +2,7 @@
  * This process takes all the JSON files within the "i18n" folder,
  * compiles them all together and output the static/labels.json file
  */
+import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -12,6 +13,13 @@ const credentialsPath = path.join("data", "credentials", "credentials.json");
 const credentials = fs.existsSync(credentialsPath)
 	? JSON.parse(fs.readFileSync(credentialsPath, "utf8"))
 	: null;
+
+// Mirrors Utils.derivedSecret("admin_reload") on the server. We can't send the
+// raw csrf_key to the reload endpoint anymore.
+// It's reused for JWT signing, so leaking it would let an attacker forge tokens.
+function deriveAdminReloadKey(csrfKey) {
+	return crypto.createHmac("sha256", csrfKey).update("twitchat:admin_reload").digest("hex");
+}
 
 console.log("\x1b[36m \n Compiling all label files into one... \x1b[0m");
 
@@ -80,7 +88,7 @@ async function processLabels() {
 			await fetch("http://localhost:3018/api/admin/labels/reload", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ key: credentials.csrf_key }),
+				body: JSON.stringify({ key: deriveAdminReloadKey(credentials.csrf_key) }),
 			});
 		} catch (_error) {
 			/* ignore */

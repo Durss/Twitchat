@@ -396,7 +396,8 @@ export default class Utils {
 	}
 
 	/**
-	 * Synchronous version of checkPermissions — skips follower state check.
+	 * Synchronous version of checkPermissions.
+	 * Skips follower state check.
 	 * Use when async is not possible and follower gating is not required.
 	 */
 	public static checkPermissionsSync(
