@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
 import { Auth, google, translate_v2 } from "googleapis";
 import jwt from "jsonwebtoken";
+import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
@@ -13,8 +14,17 @@ import AbstractController from "./AbstractController.js";
  */
 export default class GoogleController extends AbstractController {
 	private _translater!: translate_v2.Translate;
-	private _translationCache = new Map<string, string>();
-	private _userTotranslations: { [key: string]: { date: number; count: number } } = {};
+	// Bounded translation result cache (24h TTL) to avoid unbounded growth.
+	private _translationCache = new LRUCache<string, string>({
+		max: 50_000,
+		ttl: 24 * 60 * 60 * 1000,
+	});
+	// Per-user daily translation counter. Bounded so a flood of distinct
+	// user IDs can't exhaust memory; entries roll over after 24h anyway.
+	private _userTotranslations = new LRUCache<string, { date: number; count: number }>({
+		max: 100_000,
+		ttl: 24 * 60 * 60 * 1000,
+	});
 	private _allowedLanguages: string[] = [
 		"af",
 		"sq",
@@ -455,16 +465,15 @@ export default class GoogleController extends AbstractController {
 			response.send(JSON.stringify({ success: true, data: { translation } }));
 		}
 
-		if (!this._userTotranslations[userInfo.user_id]) {
-			this._userTotranslations[userInfo.user_id] = {
-				count: 0,
-				date: dateTs,
-			};
+		let userTranslations = this._userTotranslations.get(userInfo.user_id);
+		if (!userTranslations) {
+			userTranslations = { count: 0, date: dateTs };
+			this._userTotranslations.set(userInfo.user_id, userTranslations);
 		}
 
 		if (
-			this._userTotranslations[userInfo.user_id]!.date == dateTs &&
-			this._userTotranslations[userInfo.user_id]!.count >= Config.maxTranslationsPerDay
+			userTranslations.date == dateTs &&
+			userTranslations.count >= Config.maxTranslationsPerDay
 		) {
 			Logger.warn(
 				"Maximum daily translations reached for " +
@@ -472,7 +481,7 @@ export default class GoogleController extends AbstractController {
 					" #" +
 					userInfo.user_id +
 					" with " +
-					this._userTotranslations[userInfo.user_id]!.count +
+					userTranslations.count +
 					" translations",
 			);
 			response.header("Content-Type", "application/json");
@@ -515,7 +524,7 @@ export default class GoogleController extends AbstractController {
 			return;
 		}
 
-		this._userTotranslations[userInfo.user_id]!.count++;
+		userTranslations.count++;
 
 		try {
 			const res = await this._translater.translations.translate({
@@ -536,9 +545,6 @@ export default class GoogleController extends AbstractController {
 					response.status(204);
 					response.send(JSON.stringify({ success: true, data: { translation: "" } }));
 					this._translationCache.set(params.text, translation);
-					setTimeout(() => {
-						this._translationCache.delete(params.text);
-					}, 2147483647); //Cache for as much time as node allows (about 24 days)
 				} else {
 					Logger.success("Translate success:", translation);
 					response.header("Content-Type", "application/json");

@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { LRUCache } from "lru-cache";
 import Logger from "../utils/Logger.js";
 import * as URL from "url";
 import Config from "../utils/Config.js";
@@ -10,8 +11,16 @@ import AbstractController from "./AbstractController.js";
  * Created : 13/03/2022
  */
 export default class AuthController extends AbstractController {
-	private pendingDataSharingAuth: { [jwt: string]: boolean } = {};
-	private usedCSRFTokens: { [jwt: string]: boolean } = {};
+	// Bounded so a flood of CSRF/data-sharing requests can't exhaust memory.
+	// Entries auto-expire after the 5-minute token validity window.
+	private pendingDataSharingAuth = new LRUCache<string, boolean>({
+		max: 50_000,
+		ttl: 5 * 60 * 1000,
+	});
+	private usedCSRFTokens = new LRUCache<string, boolean>({
+		max: 50_000,
+		ttl: 5 * 60 * 1000,
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -102,7 +111,7 @@ export default class AuthController extends AbstractController {
 		const token = params.token;
 
 		//Check if token was already used
-		if (this.usedCSRFTokens[token]) {
+		if (this.usedCSRFTokens.has(token)) {
 			response.header("Content-Type", "application/json");
 			response.status(401);
 			response.send(
@@ -123,22 +132,15 @@ export default class AuthController extends AbstractController {
 			if (result.date > Date.now() - 5 * 60 * 1000) {
 				const jsonRes: { success: boolean; uidShare?: string } = { success: true };
 				//If in the process of linking two accounts together, return ref account ID
-				if (result.uidShare && this.pendingDataSharingAuth[token]) {
+				if (result.uidShare && this.pendingDataSharingAuth.has(token)) {
 					jsonRes.uidShare = result.uidShare;
 				}
 				// Mark token as used immediately only if not in a data sharing process or
-				// if actually completing that process.
+				// if actually completing that process. The LRU caches auto-expire
+				// entries, so no manual setTimeout cleanup is needed.
 				if (!jsonRes.uidShare || respondOnSuccess == false) {
-					//Mark token as used immediately
-					this.usedCSRFTokens[token] = true;
-					//Cleanup used token after expiration
-					setTimeout(
-						() => {
-							delete this.usedCSRFTokens[token];
-							delete this.pendingDataSharingAuth[token];
-						},
-						5 * 60 * 1000,
-					);
+					this.usedCSRFTokens.set(token, true);
+					this.pendingDataSharingAuth.delete(token);
 				}
 				if (!respondOnSuccess) return result;
 				response.header("Content-Type", "application/json");
@@ -187,7 +189,7 @@ export default class AuthController extends AbstractController {
 
 		//remember there's a data share flow initialized
 		if (params.withRef) {
-			this.pendingDataSharingAuth[token] = true;
+			this.pendingDataSharingAuth.set(token, true);
 		}
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -234,7 +236,6 @@ export default class AuthController extends AbstractController {
 
 		if (logUser) {
 			Logger.info("User using old endpooint");
-			console.log(json.access_token);
 		}
 
 		response.header("Content-Type", "application/json");
@@ -258,7 +259,7 @@ export default class AuthController extends AbstractController {
 		//Verifies a CSRF token
 		const params: any = request.body;
 		const csrf = params.token;
-		if (this.pendingDataSharingAuth[csrf]) {
+		if (this.pendingDataSharingAuth.has(csrf)) {
 			const token = await this.validateCSRFToken(request, response, false);
 			if (token !== false && token.uidShare && token.uidShare != user.user_id) {
 				//Enable data sharing
