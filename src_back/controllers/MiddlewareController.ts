@@ -8,14 +8,28 @@ import * as mime from "mime-types";
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import fastifyRateLimit, { errorResponseBuilderContext } from "@fastify/rate-limit";
+import { LRUCache } from "lru-cache";
 
 /**
  * Created : 22/02/2023
  */
 export default class MiddlewareController extends AbstractController {
-	private customRateLimit: { [key: string]: number } = {};
-	private customRateLimitAttempts: { [key: string]: number } = {};
-	private customRateLimitTimeouts: { [key: string]: NodeJS.Timeout } = {};
+	// Bounded so a flood of distinct IPs (e.g. spoofed during an attack on
+	// the rate limiter itself) can't exhaust memory. Entries auto-expire
+	// after 1h of inactivity, more than the longest realistic ban window.
+	private customRateLimit = new LRUCache<string, number>({
+		max: 100_000,
+		ttl: 60 * 60 * 1000,
+	});
+	private customRateLimitAttempts = new LRUCache<string, number>({
+		max: 100_000,
+		ttl: 60 * 60 * 1000,
+	});
+	private customRateLimitTimeouts = new LRUCache<string, NodeJS.Timeout>({
+		max: 100_000,
+		ttl: 60 * 60 * 1000,
+		dispose: (timeout) => clearTimeout(timeout),
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -50,12 +64,9 @@ export default class MiddlewareController extends AbstractController {
 				if (/\/api\/auth\/*/.test(request.url)) {
 					return false; //Force rate limiting on auth endpoints
 				}
-				//Apply rate limit only to API endpoints except config and SSE
-				return (
-					!/\/api\//.test(request.url) ||
-					request.url == "/api/configs" ||
-					request.url == "/api/sse/register"
-				);
+				// Apply rate limit only to API endpoints except /api/configs which
+				// actually only returns a static JSON
+				return !/\/api\//.test(request.url) || request.url == "/api/configs";
 			},
 			onBanReach: (request: FastifyRequest, _key: string) => {
 				this.expandCustomRateLimitDuration(request);
@@ -72,12 +83,16 @@ export default class MiddlewareController extends AbstractController {
 			},
 		});
 
-		//CORS headers
+		//CORS headers: only allow local origins in dev/local-testing.
+		//Previously these were also accepted in prod, which let any browser
+		//on the same machine as the server make CORS requests against the
+		//public API.
+		const corsOrigins: (string | RegExp)[] = [/^https?:\/\/([a-z0-9-]+\.)?twitchat\.fr$/i];
+		if (Config.LOCAL_TESTING) {
+			corsOrigins.push(/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.1\.10)(:\d+)?$/i);
+		}
 		await this.server.register(cors, {
-			origin: [
-				/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.1\.10)(:\d+)?$/i,
-				/^https?:\/\/([a-z0-9-]+\.)?twitchat\.fr$/i,
-			],
+			origin: corsOrigins,
 			methods: ["GET", "PUT", "POST", "DELETE"],
 			// decorateReply: true,
 			exposedHeaders: ["x-ratelimit-reset"],
@@ -218,16 +233,15 @@ export default class MiddlewareController extends AbstractController {
 	}
 
 	/**
-	 * Get user IP from request
-	 * @param request
+	 * Get user IP from request.
+	 *
+	 * Fastify is configured with `trustProxy: 1` in bootstrap.ts so request.ip
+	 * already resolves X-Forwarded-For from the closest trusted proxy. Reading
+	 * the raw `x-*-ip` headers ourselves would let any client spoof their IP
+	 * (and thus bypass rate-limit bans / forge IPs in 404 logs).
 	 */
 	private getIp(request: FastifyRequest): string {
-		return (
-			(request.headers["x-real-ip"] as string) || // nginx
-			(request.headers["x-client-ip"] as string) || // apache
-			(request.headers["x-forwarded-for"] as string) || // use this only if you trust the header
-			request.ip
-		); // fallback to default
+		return request.ip;
 	}
 
 	/**
@@ -239,14 +253,18 @@ export default class MiddlewareController extends AbstractController {
 	 * @param request
 	 */
 	private expandCustomRateLimitDuration(request: FastifyRequest): number {
-		if (!this.customRateLimit[this.getIp(request)]) {
-			this.customRateLimit[this.getIp(request)] = Date.now() + 5000;
-			this.customRateLimitAttempts[this.getIp(request)] = 0;
+		const ip = this.getIp(request);
+		let banUntil = this.customRateLimit.get(ip);
+		if (!banUntil) {
+			banUntil = Date.now() + 5000;
+			this.customRateLimitAttempts.set(ip, 0);
 		}
-		const attempts = ++this.customRateLimitAttempts[this.getIp(request)]!;
+		const attempts = (this.customRateLimitAttempts.get(ip) ?? 0) + 1;
+		this.customRateLimitAttempts.set(ip, attempts);
 
 		//Make custom rate limit duration exponential if user keeps trying
-		this.customRateLimit[this.getIp(request)]! += Math.pow(attempts, 3) * 1000;
-		return this.customRateLimit[this.getIp(request)]!;
+		banUntil += Math.pow(attempts, 3) * 1000;
+		this.customRateLimit.set(ip, banUntil);
+		return banUntil;
 	}
 }
