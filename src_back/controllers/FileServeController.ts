@@ -146,8 +146,8 @@ export default class FileServeController extends AbstractController {
 		response.send(AdminController.announcements_cache);
 	}
 
-	private postLog(request: FastifyRequest, response: FastifyReply): void {
-		if (!super.twitchUserGuard(request, response)) return;
+	private async postLog(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.twitchUserGuard(request, response))) return;
 
 		const body: any = request.body;
 		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0];

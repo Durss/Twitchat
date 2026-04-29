@@ -617,6 +617,19 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
+		if (!gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid grid ID",
+					errorCode: "INVALID_GRID_ID",
+				}),
+			);
+			return;
+		}
+
 		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridId);
 		const cachedGrids = await this.getChannelGrids(user.user_id);
 		if (!cachedGrids) {
@@ -857,6 +870,20 @@ export default class BingoGridController extends AbstractController {
 		try {
 			const body = request.query as { gridId: string };
 			const gridId: string = body.gridId;
+
+			if (!gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
+				response.header("Content-Type", "application/json");
+				response.status(400);
+				response.send(
+					JSON.stringify({
+						success: false,
+						error: "Invalid grid ID",
+						errorCode: "INVALID_GRID_ID",
+					}),
+				);
+				return;
+			}
+
 			const folder = Config.BINGO_GRID_ROOT(user.user_id, gridId);
 
 			await fs.promises.rm(folder, { recursive: true, force: true });
