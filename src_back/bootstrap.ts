@@ -45,10 +45,29 @@ fs.mkdirSync(Config.BINGO_ROOT, { recursive: true });
 
 I18n.instance.initialize();
 
+// Trusted proxies for resolving the real client IP from X-Forwarded-For.
+// Dynamically loading Cloudflare IPs
+const ipv4Query = await fetch("https://www.cloudflare.com/ips-v4/");
+const ipv6Query = await fetch("https://www.cloudflare.com/ips-v6/");
+const ipv4 = await ipv4Query.text();
+const ipv6 = await ipv6Query.text();
+const cloudflareIpList = [...ipv4.split("\n"), ...ipv6.split("\n")];
+const TRUSTED_PROXIES: string[] = [
+	"127.0.0.1",
+	"::1",
+	// Private ranges (in-cluster proxies, internal load balancers)
+	"10.0.0.0/8",
+	"172.16.0.0/12",
+	"192.168.0.0/16",
+	// Cloudflare IPs
+	...cloudflareIpList,
+];
+
 const server: FastifyInstance = Fastify({
 	logger: false,
 	bodyLimit: 20 * 1024 * 1024,
 	keepAliveTimeout: 300000,
+	trustProxy: TRUSTED_PROXIES,
 });
 
 await server.register(fastifyFormbody);

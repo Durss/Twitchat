@@ -41,24 +41,20 @@ export default class Utils {
 	}
 
 	public static getUUID(): string {
-		const w = () => {
-			return Math.floor((1 + Math.random()) * 0x10000)
-				.toString(16)
-				.substring(1);
-		};
-		return `${w()}${w()}-${w()}-${w()}-${w()}-${w()}${w()}${w()}`;
+		return crypto.randomUUID();
 	}
 
 	/**
-	 * Generates a 6 digits code
-	 * @returns
+	 * Generates an unbiased random code from a 32-char alphabet using
+	 * cryptographically strong randomness (callers use this for things
+	 * like Discord link codes).
 	 */
 	public static generateCode(size: number) {
 		const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+		const bytes = crypto.randomBytes(size);
 		let code = "";
-		while (code.length < size) {
-			const randomIndex = Math.floor(Math.random() * characters.length);
-			code += characters[randomIndex];
+		for (let i = 0; i < size; i++) {
+			code += characters[bytes[i]! % characters.length];
 		}
 		return code;
 	}

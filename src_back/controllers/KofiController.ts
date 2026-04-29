@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
@@ -27,9 +28,12 @@ export default class KofiController extends AbstractController {
 	private merchIdToNameCache: { [merchId: string]: string | false } = {};
 
 	/**
-	 * Stores already parsed events to avoid duplicates
+	 * Stores already parsed events to avoid duplicates. Bounded LRU with a 24h TTL.
 	 */
-	private parsedEvents: { [eventId: string]: boolean } = {};
+	private parsedEvents = new LRUCache<string, boolean>({
+		max: 100_000,
+		ttl: 24 * 60 * 60 * 1000,
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -93,16 +97,8 @@ export default class KofiController extends AbstractController {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 
-			if (this.parsedEvents[data.message_id]) return; //Event already parsed
-			this.parsedEvents[data.message_id] = true;
-
-			//Dispose data after a day to free unneccessary memory
-			setTimeout(
-				() => {
-					delete this.parsedEvents[data.verification_token];
-				},
-				24 * 3600 * 1000,
-			);
+			if (this.parsedEvents.has(data.message_id)) return; //Event already parsed
+			this.parsedEvents.set(data.message_id, true);
 
 			const user = this.hashmapCache[data.verification_token];
 			if (!user || (await super.getUserPremiumState(user.twitch)) === "no") {
@@ -237,21 +233,20 @@ export default class KofiController extends AbstractController {
 						url.searchParams.append("url", webhookPath);
 						let success = false;
 						try {
-							// Filter out array-valued headers that node-fetch doesn't support
-							const filteredHeaders: Record<string, string> = {};
-							for (const [key, value] of Object.entries(request.headers)) {
+							// Only forward a small allowlist of headers to user-defined webhooks.
+							const forwardedHeaders: Record<string, string> = {
+								host: url.host,
+							};
+							const allowedInboundHeaders = ["content-type", "user-agent"];
+							for (const headerName of allowedInboundHeaders) {
+								const value = request.headers[headerName];
 								if (typeof value === "string") {
-									filteredHeaders[key] = value!;
-								} else {
-									filteredHeaders[key] = value!.toString();
+									forwardedHeaders[headerName] = value;
 								}
 							}
 							let res = await fetch(url, {
 								method: request.method,
-								headers: {
-									...filteredHeaders,
-									host: url.host,
-								},
+								headers: forwardedHeaders,
 								body: new URLSearchParams(
 									request.body as URLSearchParams,
 								).toString(),
