@@ -110,14 +110,15 @@ export default class AdminController extends AbstractController {
 	 * Check if a user is part of beta testers
 	 */
 	private async getUser(request: FastifyRequest, response: FastifyReply) {
-		const params = request.query as any;
+		const userInfo = await super.twitchUserGuard(request, response);
+		if (userInfo == false) return;
 		let userList: string[] = [];
 		if (fs.existsSync(Config.BETA_USER_LIST)) {
 			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
 		}
 
-		const isBetaTester =
-			userList.includes(params.uid) || Config.credentials.admin_ids.includes(params.uid);
+		const uid = userInfo.user_id;
+		const isBetaTester = userList.includes(uid) || Config.credentials.admin_ids.includes(uid);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -407,7 +408,10 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Deletes an announcement
 	 */
-	private async deleteAnnouncement(request: FastifyRequest, response: FastifyReply): Promise<void> {
+	private async deleteAnnouncement(
+		request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<void> {
 		if (!(await super.adminGuard(request, response))) return;
 
 		const body: any = request.body;

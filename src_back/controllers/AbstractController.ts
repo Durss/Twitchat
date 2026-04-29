@@ -189,7 +189,7 @@ export default class AbstractController {
 		uid: string,
 	): Promise<(typeof this.premiumState_cache)[number]["type"]> {
 		const cache = this.premiumState_cache[uid];
-		if (cache != undefined && cache.date < Date.now()) return cache.type;
+		if (cache != undefined && cache.date > Date.now()) return cache.type;
 		let premiumType: (typeof this.premiumState_cache)[number]["type"] = "no";
 
 		//Check if user is part of early donors with offered premium
