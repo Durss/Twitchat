@@ -233,7 +233,7 @@ export default class GoogleController extends AbstractController {
 		request: FastifyRequest,
 		response: FastifyReply,
 	): Promise<void> {
-		if (!this.premiumGuard(request, response)) return;
+		if (!(await this.premiumGuard(request, response))) return;
 
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 
@@ -303,7 +303,7 @@ export default class GoogleController extends AbstractController {
 		request: FastifyRequest,
 		response: FastifyReply,
 	): Promise<void> {
-		if (!this.premiumGuard(request, response)) return;
+		if (!(await this.premiumGuard(request, response))) return;
 
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 		const params: any = request.body;
@@ -361,7 +361,7 @@ export default class GoogleController extends AbstractController {
 		request: FastifyRequest,
 		response: FastifyReply,
 	): Promise<void> {
-		if (!this.premiumGuard(request, response)) return;
+		if (!(await this.premiumGuard(request, response))) return;
 
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 		const params: any = request.body;

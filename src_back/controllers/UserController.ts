@@ -290,7 +290,30 @@ export default class UserController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
-		const uid: string = super.getSharedUID((request.query as any).uid ?? userInfo.user_id);
+		const requestedUid: string = (request.query as any).uid ?? userInfo.user_id;
+		const sharedUid: string = super.getSharedUID(requestedUid);
+
+		// Authorisation: caller may only read their own data, the data of someone
+		// who explicitly shares with them (getSharedUID rewrites in that case),
+		// or any data when they are an admin. Without this check, any authenticated
+		// user could pass ?uid=<victim> and read another account's stored data.
+		const isSelf = requestedUid === userInfo.user_id;
+		const isSharedToCaller = sharedUid !== requestedUid;
+		const isAdmin = Config.credentials.admin_ids.indexOf(userInfo.user_id) > -1;
+		if (!isSelf && !isSharedToCaller && !isAdmin) {
+			response.header("Content-Type", "application/json");
+			response.status(403);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "You're not allowed to access this user's data",
+					errorCode: "FORBIDDEN",
+				}),
+			);
+			return;
+		}
+
+		const uid: string = sharedUid;
 
 		//Validate UID to prevent path traversal
 		if (!/^[0-9]+$/.test(uid)) {
