@@ -38,7 +38,7 @@ export default class SSEHelper extends EventDispatcher {
 	public initialize(isMainApp: boolean): void {
 		if (this._sse) return;
 		this._isMainApp = isMainApp;
-		this.connect();
+		void this.connect();
 	}
 
 	override addEventListener<T extends keyof EventTypeMap>(
@@ -54,7 +54,7 @@ export default class SSEHelper extends EventDispatcher {
 	/**
 	 * Open SSE pipe
 	 */
-	private connect(): void {
+	private async connect(): Promise<void> {
 		console.log("[SSE] Connecting...");
 		if (this._sse) {
 			this._sse.onmessage = null;
@@ -63,10 +63,36 @@ export default class SSEHelper extends EventDispatcher {
 			this._sse.close();
 		}
 
+		// Get a short live auth token used to authenticate to SSE without
+		// sending Twitch access_token as query parameter.
+		// This would leak the token to proxy logs, referrer headers or CDN logs
+		// which isn't ideal.
+		// Ideally we would just send the twitch token in headers but that's
+		// not possible with SSE.
+		let sseToken: string;
+		try {
+			const res = await ApiHelper.call("sse/auth", "POST");
+			if (res.status !== 200 || !res.json.success || !res.json.token) {
+				throw new Error("auth-failed");
+			}
+			sseToken = res.json.token;
+		} catch (_error) {
+			console.log("[SSE] ❌ Failed to mint SSE token");
+			if (++this._failCount === 5) {
+				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
+			}
+			const delay = this._reconnectDelay || Math.random() * 5000;
+			window.setTimeout(() => {
+				this._reconnectDelay = 0;
+				void this.connect();
+			}, delay);
+			return;
+		}
+
 		this._sse = new EventSource(
 			Config.instance.API_PATH +
-				"/sse/register?token=Bearer " +
-				ApiHelper.accessToken +
+				"/sse/register?token=" +
+				encodeURIComponent(sseToken) +
 				(this._isMainApp ? "&mainApp=true" : ""),
 		);
 		this._sse.onmessage = (event) => this.onMessage(event);
@@ -90,7 +116,7 @@ export default class SSEHelper extends EventDispatcher {
 			console.log("[SSE] ⌛ Reconnect in " + delay + "ms");
 			window.setTimeout(() => {
 				this._reconnectDelay = 0;
-				this.connect();
+				void this.connect();
 			}, delay);
 		};
 
@@ -112,7 +138,7 @@ export default class SSEHelper extends EventDispatcher {
 
 			clearTimeout(this._pingFailTimeout);
 			this._pingFailTimeout = window.setTimeout(() => {
-				this.connect();
+				void this.connect();
 			}, this._expectedPingInterval);
 
 			if (json.code == "AUTHENTICATION_FAILED") {

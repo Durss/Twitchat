@@ -13,7 +13,7 @@
 		"revoke_success": "The key has been successfully revoked.\n\nGo to settings => connections => Twitchat API to generate a new one.",
 		"generate_error": "Something went wrong while generating the key. Please try again.",
 		"tutorial_title": "How to use your API key",
-		"tutorial_intro": "Every request must be signed with your private key. The key itself is never sent over the network — only a signature that proves you own it.",
+		"tutorial_intro": "Every request must be signed with your private key. The key itself is never sent over the network.",
 		"tutorial_step1": "Build the JSON body with the action you want to trigger.",
 		"tutorial_step1_detail": "{'{'}\"action\": \"SET_XXX\", \"data\": {'{'} ... {'}'}{'}'}",
 		"tutorial_step2": "Construct the signature payload by concatenating the timestamp, action, and JSON body.",

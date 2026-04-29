@@ -115,7 +115,9 @@ export default class AuthController extends AbstractController {
 			return false;
 		}
 
-		const result = jwt.verify(token, Config.credentials.csrf_key) as CSRFToken;
+		const result = jwt.verify(token, Config.credentials.csrf_key, {
+			algorithms: ["HS256"],
+		}) as CSRFToken;
 		if (result) {
 			//Token valid only for 5 minutes
 			if (result.date > Date.now() - 5 * 60 * 1000) {
@@ -181,7 +183,7 @@ export default class AuthController extends AbstractController {
 		}
 
 		//Generate a token
-		const token = jwt.sign(tokenData, Config.credentials.csrf_key);
+		const token = jwt.sign(tokenData, Config.credentials.csrf_key, { algorithm: "HS256" });
 
 		//remember there's a data share flow initialized
 		if (params.withRef) {

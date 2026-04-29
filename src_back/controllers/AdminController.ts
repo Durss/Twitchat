@@ -441,7 +441,9 @@ export default class AdminController extends AbstractController {
 	 */
 	public async postLabelsReload(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const body: any = request.body;
-		if (body.key != Config.credentials.csrf_key) {
+		// Use a per-purpose derived key (so leaking this plaintext value can't be
+		// used to forge CSRF / PayPal JWTs) and compare in constant time.
+		if (!Utils.safeStringEquals(body.key, Utils.derivedSecret("admin_reload"))) {
 			response.header("Content-Type", "application/json");
 			response.status(401);
 			response.send(JSON.stringify({ success: false }));

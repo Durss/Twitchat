@@ -15,6 +15,31 @@ export default class Utils {
 		});
 	}
 
+	/**
+	 * Constant-time string equality. Use for HMAC/signature/secret comparisons
+	 * to avoid leaking byte positions through timing.
+	 */
+	public static safeStringEquals(a: unknown, b: unknown): boolean {
+		if (typeof a !== "string" || typeof b !== "string") return false;
+		const aBuf = Buffer.from(a);
+		const bBuf = Buffer.from(b);
+		if (aBuf.length !== bBuf.length) return false;
+		return crypto.timingSafeEqual(aBuf, bBuf);
+	}
+
+	/**
+	 * Derives a purpose-bound secret from `csrf_key` so that the same root
+	 * secret can safely back several unrelated uses (CSRF tokens, PayPal
+	 * invoice JWTs, the admin reload key, etc.) without compromise of one
+	 * exposing the others. HMAC keys can't be inverted to recover the root.
+	 */
+	public static derivedSecret(purpose: string): string {
+		return crypto
+			.createHmac("sha256", Config.credentials.csrf_key)
+			.update("twitchat:" + purpose)
+			.digest("hex");
+	}
+
 	public static getUUID(): string {
 		const w = () => {
 			return Math.floor((1 + Math.random()) * 0x10000)
@@ -188,7 +213,9 @@ export default class Utils {
 	public static verifyTwitchExtensionJWT(token: string): TwitchJWTPayload {
 		const secret = Buffer.from(Config.credentials.twitchExtension_client_secret, "base64");
 		try {
-			const payload = jwt.verify(token, secret) as TwitchJWTPayload;
+			const payload = jwt.verify(token, secret, {
+				algorithms: ["HS256"],
+			}) as TwitchJWTPayload;
 
 			return payload;
 		} catch (error) {
