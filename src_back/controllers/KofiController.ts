@@ -326,7 +326,33 @@ export default class KofiController extends AbstractController {
 
 		const token = (request.body as any).token;
 
+		if (typeof token !== "string" || token.length === 0) {
+			response
+				.header("Content-Type", "application/json")
+				.status(400)
+				.send(JSON.stringify({ success: false, errorCode: "INVALID_TOKEN" }));
+			return;
+		}
+
+		// Reject if the token is already mapped to a different Twitch user.
+		// Without this check, a premium user could claim another streamer's
+		// Ko-fi verification token and silently steal incoming events.
+		const existing = this.hashmapCache[token];
+		if (existing && existing.twitch !== guard.user_id) {
+			response
+				.header("Content-Type", "application/json")
+				.status(409)
+				.send(JSON.stringify({ success: false, errorCode: "TOKEN_ALREADY_USED" }));
+			return;
+		}
+
 		try {
+			// If the user already had a different token, drop the old mapping
+			const previousToken = this.hashmapInverseCache[guard.user_id];
+			if (previousToken && previousToken !== token) {
+				delete this.hashmapCache[previousToken];
+			}
+
 			this.hashmapCache[token] = { twitch: guard.user_id };
 			this.hashmapInverseCache[guard.user_id] = token;
 
