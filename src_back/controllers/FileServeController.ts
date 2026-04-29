@@ -187,9 +187,12 @@ export default class FileServeController extends AbstractController {
 		const image = (request.query as any).image;
 		try {
 			const url = new URL(image);
-			if (!/.*cloudfront.net$/.test(url.hostname)) {
+			// Refuse any non-cloudfront URLs to reduce abuse possibilities
+			const isCloudfront =
+				url.hostname === "cloudfront.net" || url.hostname.endsWith(".cloudfront.net");
+			if (url.protocol !== "https:" || !isCloudfront) {
 				response.header("Content-Type", "application/json");
-				response.status(500);
+				response.status(400);
 				response.send(JSON.stringify({ success: false, message: "Invalid source URL" }));
 				return;
 			}

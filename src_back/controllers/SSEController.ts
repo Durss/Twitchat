@@ -1,8 +1,15 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import TwitchUtils from "../utils/TwitchUtils.js";
+import jwt from "jsonwebtoken";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import Logger from "../utils/Logger.js";
+
+interface SSERegisterToken {
+	uid: string;
+	jti: string;
+	iat?: number;
+	exp?: number;
+}
 
 // Type augmentation for FastifyReply to include 'sse' method
 declare module "fastify" {
@@ -23,6 +30,11 @@ export default class SSEController extends AbstractController {
 		}[];
 	} = {};
 
+	// Single-use JTIs minted by /api/sse/auth and consumed by /api/sse/register.
+	// Each entry self-expires when the JWT does (60s after mint).
+	private static usedSseJtis: Map<string, NodeJS.Timeout> = new Map();
+	private static readonly SSE_TOKEN_TTL_SECONDS = 60;
+
 	constructor(public server: FastifyInstance) {
 		super();
 	}
@@ -35,6 +47,10 @@ export default class SSEController extends AbstractController {
 	 * PUBLIC METHODS *
 	 ******************/
 	public initialize(): void {
+		this.server.post(
+			"/api/sse/auth",
+			async (request, response) => await this.postSseAuth(request, response),
+		);
 		this.server.get(
 			"/api/sse/register",
 			async (request, response) => await this.postRegisterSSE(request, response),
@@ -117,6 +133,29 @@ export default class SSEController extends AbstractController {
 	 * PRIVATE METHODS *
 	 *******************/
 	/**
+	 * Exchange a Twitch token (sent via Authorization header) for a short-lived
+	 * single-use JWT that can be put in the EventSource URL.
+	 * This avoids sending twitch's access_token as URL parameter which would
+	 * leak it.
+	 */
+	private async postSseAuth(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if (userInfo === false) return;
+
+		const jti = Utils.getUUID();
+		const token = jwt.sign(
+			{ uid: userInfo.user_id, jti } satisfies SSERegisterToken,
+			Utils.derivedSecret("sse_register"),
+			{ algorithm: "HS256", expiresIn: SSEController.SSE_TOKEN_TTL_SECONDS },
+		);
+
+		response
+			.header("Content-Type", "application/json")
+			.status(200)
+			.send(JSON.stringify({ success: true, token }));
+	}
+
+	/**
 	 * Init an SSE connection
 	 *
 	 * @param request
@@ -129,8 +168,13 @@ export default class SSEController extends AbstractController {
 			data: JSON.stringify({ success: true, code: SSECode.CONNECTING }),
 		});
 		const queryParams = request.query as { token: string; mainApp?: string };
-		const userInfo = await TwitchUtils.getUserFromToken(queryParams.token);
-		if (!userInfo) {
+
+		let payload: SSERegisterToken | null = null;
+		try {
+			payload = jwt.verify(queryParams.token, Utils.derivedSecret("sse_register"), {
+				algorithms: ["HS256"],
+			}) as SSERegisterToken;
+		} catch {
 			response.sse({
 				id: "error",
 				data: JSON.stringify({ success: true, code: SSECode.AUTHENTICATION_FAILED }),
@@ -138,24 +182,41 @@ export default class SSEController extends AbstractController {
 			return;
 		}
 
-		if (!SSEController.uidToResponse[userInfo.user_id])
-			SSEController.uidToResponse[userInfo.user_id] = [];
+		if (
+			!payload ||
+			!payload.uid ||
+			!payload.jti ||
+			SSEController.usedSseJtis.has(payload.jti)
+		) {
+			response.sse({
+				id: "error",
+				data: JSON.stringify({ success: true, code: SSECode.AUTHENTICATION_FAILED }),
+			});
+			return;
+		}
+
+		// Burn the JTI so the same token can't be reused. Auto-cleanup once the
+		// JWT would have expired anyway.
+		const cleanup = setTimeout(
+			() => SSEController.usedSseJtis.delete(payload!.jti),
+			SSEController.SSE_TOKEN_TTL_SECONDS * 1000,
+		);
+		SSEController.usedSseJtis.set(payload.jti, cleanup);
+
+		const uid = payload.uid;
+		if (!SSEController.uidToResponse[uid]) SSEController.uidToResponse[uid] = [];
 		const params: (typeof SSEController.uidToResponse)["string"][number] = {
 			connection: response,
 			isMainApp: !!queryParams.mainApp,
 		};
-		SSEController.uidToResponse[userInfo.user_id]!.push(params);
+		SSEController.uidToResponse[uid]!.push(params);
 		SSEController.schedulePing(params);
 
-		request.socket.on("close", () => this.closeConnection(userInfo.user_id, response));
-		request.socket.on("connectionAttemptFailed", () =>
-			this.closeConnection(userInfo.user_id, response),
-		);
-		request.socket.on("connectionAttemptTimeout", () =>
-			this.closeConnection(userInfo.user_id, response),
-		);
-		request.socket.on("timeout", () => this.closeConnection(userInfo.user_id, response));
-		request.socket.on("end", () => this.closeConnection(userInfo.user_id, response));
+		request.socket.on("close", () => this.closeConnection(uid, response));
+		request.socket.on("connectionAttemptFailed", () => this.closeConnection(uid, response));
+		request.socket.on("connectionAttemptTimeout", () => this.closeConnection(uid, response));
+		request.socket.on("timeout", () => this.closeConnection(uid, response));
+		request.socket.on("end", () => this.closeConnection(uid, response));
 
 		response.sse({
 			id: "connect",

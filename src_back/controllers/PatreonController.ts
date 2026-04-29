@@ -643,7 +643,7 @@ export default class PatreonController extends AbstractController {
 			.update(request.rawBody)
 			.digest("hex");
 
-		if (signature != hash) {
+		if (!Utils.safeStringEquals(signature, hash)) {
 			Logger.warn("[PATREON][SERVICE] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
@@ -726,7 +726,7 @@ export default class PatreonController extends AbstractController {
 				"(twitch:" + twitchId + ")",
 			);
 
-			if (signature != hash) {
+			if (!Utils.safeStringEquals(signature, hash)) {
 				Logger.warn(
 					"[PATREON][USER] Invalid webhook signature for user",
 					uid,

@@ -36,6 +36,9 @@ export default class StreamlabsController extends AbstractController {
 	 * Get socket token from access token
 	 */
 	private async getSocketToken(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const guard = await super.twitchUserGuard(request, response);
+		if (guard === false) return;
+
 		const params = request.query as any;
 		const headers = {
 			accept: "application/json",
