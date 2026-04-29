@@ -284,7 +284,7 @@ export default class ApiController extends AbstractController {
 
 		Logger.info(`[API] Executing remote action '${action}' from user ${uid}`);
 
-		// Signature is valid — forward the action to the connected frontend
+		// Signature is valid, forward the action to the connected frontend
 		const sent = SSEController.sendToUser(uid, "REMOTE_ACTION", request.body);
 		if (!sent) {
 			response

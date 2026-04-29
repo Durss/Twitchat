@@ -98,7 +98,7 @@ export default class TiltifyController extends AbstractController {
 			.update(key)
 			.digest("base64");
 
-		if (hash !== signature) {
+		if (!Utils.safeStringEquals(signature, hash)) {
 			Logger.warn("[TILTIFY] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");

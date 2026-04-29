@@ -6,6 +6,7 @@ import InvoiceUtils from "../utils/InvoiceUtils.js";
 import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
 import TwitchUtils, { TwitchUserInfos } from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
 
 interface InvoiceDownloadToken extends JwtPayload {
 	uid: string;
@@ -477,7 +478,9 @@ export default class PaypalController extends AbstractController {
 			orderId,
 			date: Date.now(),
 		};
-		const token = jwt.sign(payload, Config.credentials.csrf_key);
+		const token = jwt.sign(payload, Utils.derivedSecret("paypal_invoice"), {
+			algorithm: "HS256",
+		});
 
 		response
 			.header("Content-Type", "application/json")
@@ -509,7 +512,9 @@ export default class PaypalController extends AbstractController {
 
 		let payload: InvoiceDownloadToken;
 		try {
-			payload = jwt.verify(token, Config.credentials.csrf_key) as InvoiceDownloadToken;
+			payload = jwt.verify(token, Utils.derivedSecret("paypal_invoice"), {
+				algorithms: ["HS256"],
+			}) as InvoiceDownloadToken;
 		} catch {
 			response.status(401).send({ success: false, error: "Invalid token" });
 			return;
