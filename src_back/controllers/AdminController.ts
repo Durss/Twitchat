@@ -359,8 +359,8 @@ export default class AdminController extends AbstractController {
 	 * @param response
 	 * @returns
 	 */
-	private postAnnouncement(request: FastifyRequest, response: FastifyReply): void {
-		if (!super.adminGuard(request, response)) return;
+	private async postAnnouncement(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.adminGuard(request, response))) return;
 
 		const body: any = request.body;
 		const dateStart: number = body.dateStart || Date.now();
@@ -407,8 +407,8 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Deletes an announcement
 	 */
-	private deleteAnnouncement(request: FastifyRequest, response: FastifyReply): void {
-		if (!super.adminGuard(request, response)) return;
+	private async deleteAnnouncement(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.adminGuard(request, response))) return;
 
 		const body: any = request.body;
 		const id: string = body.id;
@@ -471,6 +471,28 @@ export default class AdminController extends AbstractController {
 		const lang: string = body.lang;
 		const json: any = {};
 		const section: string = body.section;
+
+		// Defence-in-depth: lang and section flow into the file path below, so
+		// reject anything that could escape Config.LABELS_ROOT (e.g. "../").
+		const safePart = /^[a-zA-Z0-9_-]+$/;
+		if (
+			typeof lang !== "string" ||
+			typeof section !== "string" ||
+			!safePart.test(lang) ||
+			!safePart.test(section)
+		) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid lang or section",
+					errorCode: "INVALID_PARAM",
+				}),
+			);
+			return;
+		}
+
 		json[section] = body.labels;
 
 		if (this.savingLabels) {
