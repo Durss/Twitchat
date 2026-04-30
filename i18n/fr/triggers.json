@@ -1318,6 +1318,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Actions planifiées",
+				"search_extra": ["répéter", "régulier", "planifier"],
 				"description": "Actions à exécuter régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {
@@ -1449,23 +1450,23 @@
 				"description": "Actions à executer lorsque le chargement de Twitchat est terminé"
 			},
 			"STREAM_ONLINE": {
-				"label": "Début de stream",
+				"label": "Début du stream Twitch",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"STREAM_OFFLINE": {
-				"label": "Arrêt du stream",
+				"label": "Arrêt du stream Twitch",
 				"description": "Actions à exécuter lorsque le stream est arrêté {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
-				"label": "Début de stream d'une personne que vous suivez",
+				"label": "Début de stream d'une personne que vous suivez sur Twitch",
 				"description": "Actions à exécuter lorsqu'une personne que vous suivez débute un stream {INFO}",
 				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
 				"disabled_reason": "Vous devez autoriser Twitchat à lister les personnes que vous suivez"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
-				"label": "Arrêt du stream d'une personne que vous suivez",
+				"label": "Arrêt du stream d'une personne que vous suivez sur Twitch",
 				"description": "Actions à exécuter lorsqu'une personne que vous suivez arrête son stream {INFO}",
 				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
 				"disabled_reason": "Vous devez autoriser Twitchat à lister les personnes que vous suivez"

@@ -1316,6 +1316,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Scheduled actions",
+				"search_extra": ["repeat", "regular", "schedule"],
 				"description": "Actions to execute regularly or at specific date/time"
 			},
 			"TIMER_START": {
@@ -1447,23 +1448,23 @@
 				"description": "Actions to execute after Twitchat loading completes"
 			},
 			"STREAM_ONLINE": {
-				"label": "Stream start",
+				"label": "Twitch stream start",
 				"description": "Actions to execute when stream starts {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
-				"label": "Stream stop",
+				"label": "Twitch stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
-				"label": "Followed stream start",
+				"label": "Twitch Followed stream start",
 				"description": "Actions to execute when one of your following starts a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
-				"label": "Followed stream stop",
+				"label": "Twitch Followed stream stop",
 				"description": "Actions to execute when one of your following stops a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
