@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<Icon name="overlay" class="icon" />
 		<div class="head" v-if="subContent == null">
-			{{ $t("overlay.header")
+			{{ t("overlay.header")
 			}}<SearchForm v-if="subContent == null" v-model="search" :debounceDelay="0" />
 		</div>
 
@@ -14,8 +14,8 @@
 						light
 						alert
 						small
-						@click="$store.params.openParamsPage(contentConnexions, subcontentObs)"
-						>{{ $t("overlay.connection.obsBt") }}</TTButton
+						@click="storeParams.openParamsPage(contentConnexions, subcontentObs)"
+						>{{ t("overlay.connection.obsBt") }}</TTButton
 					>
 				</template>
 				<template #DOCK>
@@ -26,7 +26,7 @@
 						small
 						@click="showDockTutorial = true"
 						v-if="!showDockTutorial"
-						>{{ $t("overlay.connection.dockBt") }}</TTButton
+						>{{ t("overlay.connection.dockBt") }}</TTButton
 					>
 				</template>
 			</i18n-t>
@@ -39,9 +39,9 @@
 					small
 					@click="showDockTutorial = false"
 					v-if="showDockTutorial"
-					>{{ $t("global.back") }}</TTButton
+					>{{ t("global.back") }}</TTButton
 				>
-				<div class="row" v-html="$t('overlay.connection.dock_tutorial')"></div>
+				<div class="row" v-html="t('overlay.connection.dock_tutorial')"></div>
 				<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen" />
 			</div>
 		</div>
@@ -55,7 +55,7 @@
 			<button
 				class="item"
 				key="quiz"
-				v-if="matchesSearch('quiz')"
+				v-if="matchesSearch('quiz') && storeAuth.featureFlags.includes('quiz')"
 				@click="subContent = 'quiz'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_overlays_quiz' }"
 			>
@@ -98,7 +98,7 @@
 			<button
 				class="item"
 				key="bingogrid"
-				v-if="matchesSearch('bingogrid')"
+				v-if="matchesSearch('bingogrid') && storeAuth.featureFlags.includes('bingo_grid')"
 				@click="subContent = 'bingogrid'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13, id: 'params_overlays_bingogrid' }"
 			>
@@ -346,160 +346,124 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import SpotifyHelper from "@/utils/music/SpotifyHelper";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import Utils from "@/utils/Utils";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import TTButton from "../../TTButton.vue";
-import type IParameterContent from "./IParameterContent";
+import SearchForm from "./SearchForm.vue";
+import OverlayParamsAdBreak from "./overlays/OverlayParamsAdBreak.vue";
+import OverlayParamsAnimatedText from "./overlays/OverlayParamsAnimatedText.vue";
+import OverlayParamsBingoGrid from "./overlays/OverlayParamsBingoGrid.vue";
+import OverlayParamsBitswall from "./overlays/OverlayParamsBitswall.vue";
+import OverlayParamsChatPoll from "./overlays/OverlayParamsChatPoll.vue";
 import OverlayParamsCounter from "./overlays/OverlayParamsCounter.vue";
+import OverlayParamsCredits from "./overlays/OverlayParamsCredits.vue";
+import OverlayParamsCustomTrain from "./overlays/OverlayParamsCustomTrain.vue";
+import OverlayParamsDonationGoal from "./overlays/OverlayParamsDonationGoal.vue";
+import OverlayParamsHeatDistort from "./overlays/OverlayParamsHeatDistort.vue";
 import OverlayParamsHighlight from "./overlays/OverlayParamsHighlight.vue";
+import OverlayParamsLabels from "./overlays/OverlayParamsLabels.vue";
+import OverlayParamsPolls from "./overlays/OverlayParamsPolls.vue";
+import OverlayParamsPredictions from "./overlays/OverlayParamsPredictions.vue";
+import OverlayParamsQuiz from "./overlays/OverlayParamsQuiz.vue";
 import OverlayParamsRaffle from "./overlays/OverlayParamsRaffle.vue";
 import OverlayParamsSpotify from "./overlays/OverlayParamsSpotify.vue";
 import OverlayParamsTimer from "./overlays/OverlayParamsTimer.vue";
 import OverlayParamsUlule from "./overlays/OverlayParamsUlule.vue";
-import OverlayParamsCredits from "./overlays/OverlayParamsCredits.vue";
-import OverlayParamsHeatDistort from "./overlays/OverlayParamsHeatDistort.vue";
-import OverlayParamsTTS from "./overlays/OverlayParamsTTS.vue";
-import OverlayParamsAdBreak from "./overlays/OverlayParamsAdBreak.vue";
-import OverlayParamsBitswall from "./overlays/OverlayParamsBitswall.vue";
-import OverlayParamsPredictions from "./overlays/OverlayParamsPredictions.vue";
-import OverlayParamsPolls from "./overlays/OverlayParamsPolls.vue";
-import OverlayParamsBingoGrid from "./overlays/OverlayParamsBingoGrid.vue";
-import OverlayParamsLabels from "./overlays/OverlayParamsLabels.vue";
-import OverlayParamsDonationGoal from "./overlays/OverlayParamsDonationGoal.vue";
-import OverlayParamsChatPoll from "./overlays/OverlayParamsChatPoll.vue";
-import OverlayParamsAnimatedText from "./overlays/OverlayParamsAnimatedText.vue";
-import OverlayParamsCustomTrain from "./overlays/OverlayParamsCustomTrain.vue";
-import Utils from "@/utils/Utils";
-import SearchForm from "./SearchForm.vue";
-import OverlayParamsQuiz from "./overlays/OverlayParamsQuiz.vue";
 
-@Component({
-	components: {
-		TTButton,
-		SearchForm,
-		OverlayParamsTTS,
-		OverlayParamsQuiz,
-		OverlayParamsPolls,
-		OverlayParamsUlule,
-		OverlayParamsTimer,
-		OverlayParamsLabels,
-		OverlayParamsRaffle,
-		OverlayParamsAdBreak,
-		OverlayParamsSpotify,
-		OverlayParamsCounter,
-		OverlayParamsCredits,
-		OverlayParamsChatPoll,
-		OverlayParamsBitswall,
-		OverlayParamsBingoGrid,
-		OverlayParamsHighlight,
-		OverlayParamsCustomTrain,
-		OverlayParamsPredictions,
-		OverlayParamsHeatDistort,
-		OverlayParamsDonationGoal,
-		OverlayParamsAnimatedText,
-	},
-	emits: [],
-})
-class ParamsOverlays extends Vue implements IParameterContent {
-	public showDockTutorial: boolean = false;
-	public subContent: TwitchatDataTypes.OverlayTypes | null = null;
-	public search: string = "";
+const { t, tm } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
 
-	private overlaySearchKeys: { [key: string]: string } = {
-		animatedtext: "overlay.animatedText.search_terms",
-		customtrain: "overlay.customTrain.search_terms",
-		donationgoals: "donation_goals.search_terms",
-		bingogrid: "overlay.bingo_grid.search_terms",
-		polls: "overlay.polls.search_terms",
-		chatPoll: "overlay.chatPoll.search_terms",
-		predictions: "overlay.predictions.search_terms",
-		wheel: "overlay.raffle.search_terms",
-		bitswall: "overlay.bitswall.search_terms",
-		credits: "overlay.credits.search_terms",
-		music: "overlay.music_common.search_terms",
-		distort: "overlay.heatDistort.search_terms",
-		adbreak: "overlay.adBreak.search_terms",
-		chathighlight: "overlay.highlight.search_terms",
-		labels: "overlay.labels.search_terms",
-		counter: "overlay.counters.search_terms",
-		timer: "overlay.timer.search_terms",
-		ulule: "overlay.ulule.search_terms",
-	};
+const showDockTutorial = ref<boolean>(false);
+const subContent = ref<TwitchatDataTypes.OverlayTypes | null>(null);
+const search = ref<string>("");
 
-	public get isAffiliate(): boolean {
-		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
-	}
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
-	public get localConnectionAvailable(): boolean {
-		return Config.instance.OBS_DOCK_CONTEXT;
-	}
-	public get exchangeChannelAvailable(): boolean {
-		return this.localConnectionAvailable || this.obsConnected;
-	}
-	public get spotifyConfigured(): boolean {
-		return SpotifyHelper.instance.connected.value;
-	}
-	public get subcontentObs(): TwitchatDataTypes.ParamDeepSectionsStringType {
-		return TwitchatDataTypes.ParamDeepSections.OBS;
-	}
-	public get contentConnexions(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.CONNECTIONS;
-	}
-	public get overlayUrl(): string {
-		return Utils.overlayURL("unified");
-	}
+const overlaySearchKeys: { [key: string]: string } = {
+	animatedtext: "overlay.animatedText.search_terms",
+	customtrain: "overlay.customTrain.search_terms",
+	donationgoals: "donation_goals.search_terms",
+	bingogrid: "overlay.bingo_grid.search_terms",
+	polls: "overlay.polls.search_terms",
+	chatPoll: "overlay.chatPoll.search_terms",
+	predictions: "overlay.predictions.search_terms",
+	wheel: "overlay.raffle.search_terms",
+	bitswall: "overlay.bitswall.search_terms",
+	credits: "overlay.credits.search_terms",
+	music: "overlay.music_common.search_terms",
+	distort: "overlay.heatDistort.search_terms",
+	adbreak: "overlay.adBreak.search_terms",
+	chathighlight: "overlay.highlight.search_terms",
+	labels: "overlay.labels.search_terms",
+	counter: "overlay.counters.search_terms",
+	timer: "overlay.timer.search_terms",
+	ulule: "overlay.ulule.search_terms",
+};
 
-	public get classes(): string[] {
-		const res = ["paramsoverlays", "parameterContent"];
-		if (this.subContent !== null) res.push("contentOpened");
-		return res;
-	}
+const isAffiliate = computed<boolean>(
+	() => storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner,
+);
+const obsConnected = computed<boolean>(() => OBSWebsocket.instance.connected.value);
+const localConnectionAvailable = computed<boolean>(() => Config.instance.OBS_DOCK_CONTEXT);
+const exchangeChannelAvailable = computed<boolean>(
+	() => localConnectionAvailable.value || obsConnected.value,
+);
+const subcontentObs = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(
+	() => TwitchatDataTypes.ParamDeepSections.OBS,
+);
+const contentConnexions = computed<TwitchatDataTypes.ParameterPagesStringType>(
+	() => TwitchatDataTypes.ParameterPages.CONNECTIONS,
+);
 
-	public mounted(): void {
-		if (this.$store.params.currentPageSubContent) {
-			this.subContent = this.$store.params
-				.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
-		}
-	}
+const classes = computed<string[]>(() => {
+	const res = ["paramsoverlays", "parameterContent"];
+	if (subContent.value !== null) res.push("contentOpened");
+	return res;
+});
 
-	public reload(): void {
-		this.subContent = null;
+onMounted(() => {
+	if (storeParams.currentPageSubContent) {
+		subContent.value = storeParams.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 	}
+});
 
-	public onNavigateBack(): boolean {
-		if (this.subContent != null) {
-			this.subContent = null;
-			return true;
-		}
-		return false;
-	}
-
-	public matchesSearch(id: string): boolean {
-		if (!this.search) return true;
-		const key = this.overlaySearchKeys[id];
-		if (!key) return true;
-		const terms = this.$tm(key) as string[];
-		if (!terms || !Array.isArray(terms)) return true;
-		return terms.some((term) => Utils.search(term, this.search));
-	}
-
-	public getLabel(id: string): string {
-		const key = this.overlaySearchKeys[id];
-		if (!key) return id;
-		const terms = this.$tm(key) as string[];
-		if (!terms || !Array.isArray(terms) || terms.length === 0) return id;
-		const label = (terms[0] as unknown as string).toString();
-		return label.charAt(0).toUpperCase() + label.slice(1);
-	}
+function reload(): void {
+	subContent.value = null;
 }
 
-export default toNative(ParamsOverlays);
+function onNavigateBack(): boolean {
+	if (subContent.value != null) {
+		subContent.value = null;
+		return true;
+	}
+	return false;
+}
+
+function matchesSearch(id: string): boolean {
+	if (!search.value) return true;
+	const key = overlaySearchKeys[id];
+	if (!key) return true;
+	const terms = tm(key) as string[];
+	if (!terms || !Array.isArray(terms)) return true;
+	return terms.some((term) => Utils.search(term, search.value));
+}
+
+function getLabel(id: string): string {
+	const key = overlaySearchKeys[id];
+	if (!key) return id;
+	const terms = tm(key) as string[];
+	if (!terms || !Array.isArray(terms) || terms.length === 0) return id;
+	const label = (terms[0] as unknown as string).toString();
+	return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+defineExpose({ reload, onNavigateBack });
 </script>
 
 <style scoped lang="less">
@@ -605,3 +569,4 @@ export default toNative(ParamsOverlays);
 	}
 }
 </style>
+
