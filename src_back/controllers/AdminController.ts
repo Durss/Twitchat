@@ -15,6 +15,7 @@ export default class AdminController extends AbstractController {
 	public static announcements_cache: string = "[]";
 	private savingLabels: boolean = false;
 	private savingPromise: Promise<void> | null = null;
+	private featureFlagsUpdateSeq = 0;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -91,6 +92,23 @@ export default class AdminController extends AbstractController {
 			"/api/admin/announcements",
 			async (request: FastifyRequest, response: FastifyReply) =>
 				this.deleteAnnouncement(request, response),
+		);
+
+		//Feature flag management
+		this.server.get(
+			"/api/admin/featureFlags",
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.getFeatureFlags(request, response),
+		);
+		this.server.post(
+			"/api/admin/featureFlags",
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.postFeatureFlag(request, response),
+		);
+		this.server.delete(
+			"/api/admin/featureFlags",
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.deleteFeatureFlag(request, response),
 		);
 
 		//Initialize cache
@@ -438,6 +456,141 @@ export default class AdminController extends AbstractController {
 	}
 
 	/**
+	 * Loads the feature flag map from disk. Missing file => empty map.
+	 */
+	private loadFeatureFlags(): { [flag: string]: string[] } {
+		if (!fs.existsSync(Config.FEATURE_FLAGS_PATH)) return {};
+		try {
+			return JSON.parse(fs.readFileSync(Config.FEATURE_FLAGS_PATH, "utf-8"));
+		} catch {
+			return {};
+		}
+	}
+
+	/**
+	 * Returns the feature flag map plus the canonical list of known flags
+	 */
+	private async getFeatureFlags(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.adminGuard(request, response))) return;
+
+		const flags = this.loadFeatureFlags();
+		// Make sure every known flag is at least present as an empty array
+		Config.FEATURE_FLAGS.forEach((flag) => {
+			if (!Array.isArray(flags[flag])) flags[flag] = [];
+		});
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(
+			JSON.stringify({
+				success: true,
+				data: { flags, knownFlags: Config.FEATURE_FLAGS },
+			}),
+		);
+	}
+
+	/**
+	 * Adds a user ID to a feature flag.
+	 * Body: { flag: string, uid: string }
+	 */
+	private async postFeatureFlag(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.adminGuard(request, response))) return;
+
+		const body: any = request.body;
+		const flag: string = body.flag;
+		const uid: string = body.uid;
+
+		if (!flag || !(Config.FEATURE_FLAGS as readonly string[]).includes(flag)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Unknown feature flag",
+					errorCode: "INVALID_FLAG",
+				}),
+			);
+			return;
+		}
+		if (!uid || !/^[0-9]+$/.test(uid)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid user ID",
+					errorCode: "INVALID_UID",
+				}),
+			);
+			return;
+		}
+
+		const flags = this.loadFeatureFlags();
+		const list = Array.isArray(flags[flag]) ? flags[flag]! : [];
+		if (!list.includes(uid)) list.push(uid);
+		flags[flag] = list;
+
+		fs.writeFileSync(Config.FEATURE_FLAGS_PATH, JSON.stringify(flags, null, "\t"), "utf-8");
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: { flags } }));
+		this.broadcastFeatureFlagsUpdate();
+	}
+
+	/**
+	 * Removes a user ID from a feature flag.
+	 * Query: ?flag=...&uid=...
+	 */
+	private async deleteFeatureFlag(
+		request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<void> {
+		if (!(await super.adminGuard(request, response))) return;
+
+		const params: any = request.query;
+		const flag: string = params.flag;
+		const uid: string = params.uid;
+
+		if (!flag || !(Config.FEATURE_FLAGS as readonly string[]).includes(flag)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Unknown feature flag",
+					errorCode: "INVALID_FLAG",
+				}),
+			);
+			return;
+		}
+		if (!uid || !/^[0-9]+$/.test(uid)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid user ID",
+					errorCode: "INVALID_UID",
+				}),
+			);
+			return;
+		}
+
+		const flags = this.loadFeatureFlags();
+		if (Array.isArray(flags[flag])) {
+			flags[flag] = flags[flag]!.filter((v) => v !== uid);
+		}
+
+		fs.writeFileSync(Config.FEATURE_FLAGS_PATH, JSON.stringify(flags, null, "\t"), "utf-8");
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: { flags } }));
+		this.broadcastFeatureFlagsUpdate();
+	}
+
+	/**
 	 * Forces labels reload from frontend
 	 * @param request
 	 * @param response
@@ -582,6 +735,26 @@ export default class AdminController extends AbstractController {
 		}
 		this.savingLabels = false;
 		globalResolver();
+	}
+
+	/**
+	 * Broadcasts feature flags update to everyone
+	 * @returns
+	 */
+	private async broadcastFeatureFlagsUpdate() {
+		this.featureFlagsUpdateSeq++;
+		const localSeq = this.featureFlagsUpdateSeq;
+		const userIDs = SSEController.connectedUserIDs();
+
+		type Flag = (typeof Config.FEATURE_FLAGS)[number];
+		const content = await Utils.readFileAsync(Config.FEATURE_FLAGS_PATH, "utf-8");
+		const flagsMap = JSON.parse(content) as { [key in Flag]?: string[] };
+		for (const uid of userIDs) {
+			const flags = await Utils.getUserFeatureFlags(uid, flagsMap);
+			// If a new feature flags update has occured since then, abort this loop
+			if (this.featureFlagsUpdateSeq != localSeq) return;
+			SSEController.sendToUser(uid, "FEATURE_FLAGS_UPDATE", flags);
+		}
 	}
 }
 

@@ -11,6 +11,7 @@
 		"chat": "Effacer le tchat",
 		"info": "Titre du stream",
 		"announcement": "Annonce Twitchat",
+		"featureFlags": "Feature flags",
 		"commercial": "Vous pourrez lancer une publicité dans {DURATION}",
 		"raid": "Lancer un raid",
 		"raid_placeholder": "pseudo...",

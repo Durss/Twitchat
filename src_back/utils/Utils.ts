@@ -255,8 +255,32 @@ export default class Utils {
 			});
 		});
 	}
+
+	/**
+	 * Gets enabled feature flags for given user
+	 * @param uid
+	 * @param flagsMap
+	 * @returns
+	 */
+	public static async getUserFeatureFlags(
+		uid: string,
+		flagsMap?: { [key in Flag]?: string[] },
+	): Promise<Flag[]> {
+		// Get user's feature flags. An empty (or missing) list means the flag is
+		// open to everyone; once any UID is listed, access is restricted to that list.
+		const forcedClosedFF: Flag[] = ["groq", "export_configs"];
+		if (!flagsMap) {
+			const content = await Utils.readFileAsync(Config.FEATURE_FLAGS_PATH, "utf-8");
+			flagsMap = JSON.parse(content) as { [key in Flag]?: string[] };
+		}
+		return Config.FEATURE_FLAGS.filter((flag) => {
+			const list = flagsMap[flag] ?? [];
+			return (list.length === 0 && !forcedClosedFF.includes(flag)) || list.includes(uid);
+		});
+	}
 }
 
+type Flag = (typeof Config.FEATURE_FLAGS)[number];
 export interface TwitchJWTPayload {
 	exp: number;
 	opaque_user_id: string;

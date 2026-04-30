@@ -26,7 +26,6 @@ const getAnonUserName = (login: string, userMap: { [login: string]: string }): s
 
 export const storeGroq = defineStore("groq", {
 	state: (): IGroqState => ({
-		enabled: false,
 		apiKey: "",
 		connected: false,
 		creditsTotal: 0,
@@ -35,6 +34,12 @@ export const storeGroq = defineStore("groq", {
 		availableModels: [],
 		answerHistory: [],
 	}),
+
+	getters: {
+		enabled: function () {
+			return StoreProxy.auth.featureFlags.includes("groq");
+		},
+	},
 
 	actions: {
 		async populateData(): Promise<void> {

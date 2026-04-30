@@ -23,7 +23,7 @@ declare module "fastify" {
  */
 export default class SSEController extends AbstractController {
 	private static uidToResponse: {
-		[key: string]: {
+		[uid: string]: {
 			pingTimeout?: NodeJS.Timeout;
 			connection: FastifyReply;
 			isMainApp: boolean;
@@ -123,10 +123,23 @@ export default class SSEController extends AbstractController {
 		return true;
 	}
 
+	/**
+	 * Get the number of active SSE connections for given user ID
+	 * @param uid
+	 * @returns
+	 */
 	public static countUserConnexions(uid: string): number {
 		return this.uidToResponse[uid]
 			? this.uidToResponse[uid].filter((v) => v.isMainApp).length
 			: 0;
+	}
+
+	/**
+	 * Get connected user IDs
+	 * @returns
+	 */
+	public static connectedUserIDs(): string[] {
+		return Object.keys(this.uidToResponse);
 	}
 
 	/*******************
@@ -293,4 +306,5 @@ export const SSECode = {
 	TWITCHEXT_CLICK: "TWITCHEXT_CLICK",
 	TWITCHEXT_QUIZ_ANSWER: "TWITCHEXT_QUIZ_ANSWER",
 	REMOTE_ACTION: "REMOTE_ACTION",
+	FEATURE_FLAGS_UPDATE: "FEATURE_FLAGS_UPDATE",
 } as const;

@@ -39,6 +39,7 @@ export namespace TwitchatDataTypes {
 		| "tracked"
 		| "whispers"
 		| "twitchatAnnouncement"
+		| "featureFlags"
 		| "streamSummary"
 		| "obsHeatLogs"
 		| "extensions"

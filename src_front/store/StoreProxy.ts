@@ -454,7 +454,14 @@ export type IAuthState = {
 	/**
 	 * List of Twitchat feature flags enabled for this user
 	 */
-	features: "export_configs"[];
+	featureFlags: (
+		| "export_configs"
+		| "groq"
+		| "quiz"
+		| "bingo_grid"
+		| "youtube"
+		| "auto_translate"
+	)[];
 } & {
 	/**
 	 * Platforms sessions
@@ -3804,7 +3811,6 @@ export interface ITwitchBotActions {
 }
 
 export interface IGroqState {
-	enabled: boolean;
 	connected: boolean;
 	apiKey: string;
 	creditsUsed: number;
@@ -3818,7 +3824,9 @@ export interface IGroqState {
 	answerHistory: TwitchatDataTypes.GroqHistoryItem[];
 }
 
-export interface IGroqGetters {}
+export interface IGroqGetters {
+	enabled: boolean;
+}
 
 export interface IGroqActions {
 	/**

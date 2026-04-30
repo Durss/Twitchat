@@ -39,6 +39,7 @@
 			</div>
 			<div class="menuItem">
 				<TTButton
+					v-if="$store.auth.featureFlags.includes('bingo_grid')"
 					@click.capture="openModal('bingo_grid')"
 					icon="bingo_grid"
 					v-tooltip="$t('cmdmenu.bingo_grid')"
@@ -48,6 +49,7 @@
 			</div>
 			<div class="menuItem">
 				<TTButton
+					v-if="$store.auth.featureFlags.includes('quiz')"
 					@click.capture="openModal('quizForm')"
 					icon="quiz"
 					v-tooltip="$t('cmdmenu.quiz')"
@@ -153,6 +155,14 @@
 			v-if="isAdmin"
 			secondary
 			>{{ $t("cmdmenu.announcement") }}</TTButton
+		>
+
+		<TTButton
+			@click.capture="openModal('featureFlags')"
+			icon="alert"
+			v-if="isAdmin"
+			secondary
+			>{{ $t("cmdmenu.featureFlags") }}</TTButton
 		>
 
 		<div class="commercial" v-tooltip="hasChannelPoints ? '' : $t('cmdmenu.not_affiliate')">

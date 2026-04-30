@@ -502,7 +502,7 @@ const searchMenuItem = computed(() => {
 onBeforeMount(async () => {
 	showCTA.value = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
 
-	if (storeAuth.features.includes("export_configs")) {
+	if (storeAuth.featureFlags.includes("export_configs")) {
 		menuEntries.push({
 			pinned: true,
 			icon: "save",

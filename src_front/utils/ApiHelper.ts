@@ -297,6 +297,42 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"admin/featureFlags": {
+		GET: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data: {
+					flags: { [flag: string]: string[] };
+					knownFlags: string[];
+				};
+			};
+		};
+		POST: {
+			parameters: {
+				flag: string;
+				uid: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+				data?: { flags: { [flag: string]: string[] } };
+			};
+		};
+		DELETE: {
+			parameters: {
+				flag: string;
+				uid: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+				data?: { flags: { [flag: string]: string[] } };
+			};
+		};
+	};
 	"admin/premium": {
 		POST: {
 			parameters: {
@@ -438,7 +474,7 @@ type ApiEndpoints = {
 					patreonLinked: string;
 					dataSharing: string[];
 					has_api_key: boolean;
-					features?: IAuthState["features"];
+					features?: IAuthState["featureFlags"];
 				};
 			};
 		};

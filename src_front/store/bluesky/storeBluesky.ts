@@ -67,7 +67,6 @@ export const storeBluesky = defineStore("bluesky", {
 					const result = await client.init();
 					session = result?.session ?? null;
 				}
-				console.log("RESULT", session);
 				if (session) {
 					this.sub = session.sub;
 					this.connected = true;
