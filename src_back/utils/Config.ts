@@ -160,6 +160,30 @@ export default class Config {
 		});
 	}
 
+	/**
+	 * Stores per-flag user ID lists. Flag keys must be one of {@link FEATURE_FLAGS}.
+	 * Format: { [flag]: string[] }
+	 */
+	public static get FEATURE_FLAGS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/featureFlags.json"),
+			beta: path.join(this.DATA_ROOT, "/featureFlags.json"),
+			prod: path.join(this.DATA_ROOT, "/featureFlags.json"),
+		});
+	}
+
+	/**
+	 * Canonical list of feature flags. Keep in sync with frontend FeatureFlag type.
+	 */
+	public static readonly FEATURE_FLAGS = [
+		"export_configs",
+		"groq",
+		"quiz",
+		"bingo_grid",
+		"youtube",
+		"auto_translate",
+	] as const;
+
 	public static get DATA_SHARING(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/dataSharing.json"),
@@ -474,9 +498,6 @@ interface Credentials {
 	dashboard_token: string;
 
 	admin_ids: string[];
-	feature_flags?: {
-		export_configs: string[];
-	};
 	csrf_key: string;
 
 	twitch_client_id: string;
