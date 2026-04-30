@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="content">
-			<form @submit.prevent="submitForm()">
+			<form class="form" @submit.prevent="submitForm()">
 				<ParamItem :paramData="param_dateStart" />
 				<ParamItem :paramData="param_dateEnd" />
 				<ParamItem v-for="title in param_title" :paramData="title" />
@@ -228,10 +228,7 @@ async function submitForm(): Promise<void> {
 	param_title.value.forEach((v) => (title[v.storage!] = v.value));
 	param_text.value.forEach((v) => (text[v.storage!] = v.value));
 
-	confirm(
-		t("announcement.create_confirm.title"),
-		t("announcement.create_confirm.description"),
-	)
+	confirm(t("announcement.create_confirm.title"), t("announcement.create_confirm.description"))
 		.then(async () => {
 			const data: Omit<TwitchatDataTypes.TwitchatAnnouncementData, "id"> = {
 				title,
@@ -274,10 +271,7 @@ async function submitForm(): Promise<void> {
 }
 
 function deleteAnnounce(id: string): void {
-	confirm(
-		t("announcement.delete_confirm.title"),
-		t("announcement.delete_confirm.description"),
-	)
+	confirm(t("announcement.delete_confirm.title"), t("announcement.delete_confirm.description"))
 		.then(async () => {
 			const options = {
 				method: "DELETE",
