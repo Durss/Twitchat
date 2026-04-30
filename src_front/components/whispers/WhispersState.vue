@@ -37,7 +37,7 @@
 				{{ $t("whispers.cant_send_2") }}
 			</div>
 
-			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
+			<form class="form" @submit.prevent="sendWhisper()" v-if="canAnswer">
 				<input
 					type="text"
 					:placeholder="$t('whispers.input_placeholder')"

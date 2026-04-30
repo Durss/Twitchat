@@ -19,7 +19,7 @@
 			<div class="answer" v-else>{{ deanonymizeUsers(entry.answer) }}</div>
 			<div class="date">{{ date }}</div>
 
-			<form @submit.prevent="onSubmit">
+			<form class="form" @submit.prevent="onSubmit">
 				<ContentEditable
 					class="input input-field"
 					tag="p"
