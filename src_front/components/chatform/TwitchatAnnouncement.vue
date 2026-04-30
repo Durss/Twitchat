@@ -14,16 +14,32 @@
 
 		<div class="content">
 			<form class="form" @submit.prevent="submitForm()">
-				<ParamItem :paramData="param_dateStart" />
-				<ParamItem :paramData="param_dateEnd" />
-				<ParamItem v-for="title in param_title" :paramData="title" />
-				<ParamItem v-for="text in param_text" :paramData="text" />
-				<ParamItem :paramData="param_versionMax" />
-				<ParamItem :paramData="param_important" />
-				<ParamItem :paramData="param_donorsOnly" />
-				<ParamItem :paramData="param_premiumOnly" />
-				<ParamItem :paramData="param_patreonOnly" />
-				<ParamItem :paramData="param_heatOnly" />
+				<ParamItem :paramData="param_dateStart" v-model="param_dateStart.value" />
+				<ParamItem :paramData="param_dateEnd" v-model="param_dateEnd.value" />
+				<ParamItem v-for="title in param_title" :paramData="title" v-model="title.value" />
+				<ParamItem v-for="text in param_text" :paramData="text" v-model="text.value" />
+				<ParamItem
+					secondary
+					:paramData="param_versionMax"
+					v-model="param_versionMax.value"
+				/>
+				<ParamItem secondary :paramData="param_important" v-model="param_important.value" />
+				<ParamItem
+					secondary
+					:paramData="param_donorsOnly"
+					v-model="param_donorsOnly.value"
+				/>
+				<ParamItem
+					secondary
+					:paramData="param_premiumOnly"
+					v-model="param_premiumOnly.value"
+				/>
+				<ParamItem
+					secondary
+					:paramData="param_patreonOnly"
+					v-model="param_patreonOnly.value"
+				/>
+				<ParamItem secondary :paramData="param_heatOnly" v-model="param_heatOnly.value" />
 				<TTButton type="submit" :loading="submitting" light secondary>{{
 					t("announcement.postBt")
 				}}</TTButton>
