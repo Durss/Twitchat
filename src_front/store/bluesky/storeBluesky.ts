@@ -45,6 +45,7 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async startOAuthProcess(handle: string) {
+			this.connected = false;
 			const client = await this.initClient();
 			try {
 				// client.signInPopup(handle);//TODO: move to popup!
@@ -92,7 +93,36 @@ export const storeBluesky = defineStore("bluesky", {
 			}
 		},
 
-		async setLiveStatus(live: boolean): Promise<void> {},
+		async setLiveStatus(live: boolean): Promise<void> {
+			if (!agent) return;
+			if (live) {
+				await agent.com.atproto.repo.putRecord({
+					repo: agent.did!,
+					collection: "app.bsky.actor.status",
+					rkey: "self",
+					record: {
+						$type: "app.bsky.actor.status",
+						status: "app.bsky.actor.status#live",
+						embed: {
+							$type: "app.bsky.embed.external",
+							external: {
+								uri: "https://twitch.tv/twitch",
+								title: "My stream",
+								description: "",
+							},
+						},
+						durationMinutes: 1,
+						createdAt: new Date().toISOString(),
+					},
+				});
+			} else {
+				await agent.com.atproto.repo.deleteRecord({
+					repo: agent.did!,
+					collection: "app.bsky.actor.status",
+					rkey: "self",
+				});
+			}
+		},
 
 		saveState() {
 			const data: IStoreData = {
