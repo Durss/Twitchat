@@ -16,7 +16,7 @@
 				>
 			</div>
 
-			<form @submit.prevent="submitForm()">
+			<form class="form" @submit.prevent="submitForm()">
 				<div class="card-item">
 					<ParamItem
 						:paramData="param_title"

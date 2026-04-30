@@ -33,7 +33,7 @@
 				>
 			</div>
 
-			<form @submit.prevent="submitForm()">
+			<form class="form" @submit.prevent="submitForm()">
 				<ParamItem
 					:paramData="param_title"
 					v-model="title"

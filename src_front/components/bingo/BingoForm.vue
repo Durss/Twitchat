@@ -22,7 +22,7 @@
 		/>
 
 		<div class="content">
-			<form @submit.prevent="onSubmit()">
+			<form class="form" @submit.prevent="onSubmit()">
 				<div class="info" v-if="mode == 'num'" v-html="t('bingo.form.number_info')"></div>
 				<div
 					class="info"

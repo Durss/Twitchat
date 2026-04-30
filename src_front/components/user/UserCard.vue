@@ -123,7 +123,11 @@
 							</tooltip>
 						</template>
 
-						<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
+						<form
+							v-else
+							class="form editLoginForm"
+							@submit.prevent="submitCustomLogin()"
+						>
 							<input
 								class=""
 								type="text"
@@ -235,7 +239,11 @@
 					</div>
 
 					<div class="ctas" v-if="isTwitchProfile">
-						<form class="warnForm" @submit.prevent="warnUser()" v-if="showWarningForm">
+						<form
+							class="form warnForm"
+							@submit.prevent="warnUser()"
+							v-if="showWarningForm"
+						>
 							<TTButton
 								type="button"
 								icon="back"
