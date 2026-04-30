@@ -1045,7 +1045,19 @@ const isModeratedChannel = computed((): boolean => {
 });
 
 const pinnedMenuItems = computed(() => {
-	const items = storeParams.pinnedMenuItems;
+	const items = storeParams.pinnedMenuItems.filter((id) => {
+		switch (id) {
+			case "bingo_grid": {
+				return storeAuth.featureFlags.includes("bingo_grid");
+			}
+			case "quiz": {
+				return storeAuth.featureFlags.includes("quiz");
+			}
+			default: {
+				return true;
+			}
+		}
+	});
 	const result: {
 		item: (typeof TwitchatDataTypes.PinnableMenuItems)[number];
 		icon: string;

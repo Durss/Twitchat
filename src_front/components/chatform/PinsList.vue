@@ -1,5 +1,5 @@
 <template>
-	<div class="pinslist blured-background-window">
+	<div class="pinslist blured-background-window" ref="rootEl">
 		<div class="scrollable">
 			<button
 				v-for="pin in pinList"
@@ -24,110 +24,110 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerUtils from "@/utils/TriggerUtils";
 import { gsap } from "gsap/gsap-core";
+import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import { Component, toNative, Vue } from "vue-facing-decorator";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {},
-	emits: ["close"],
-})
-class PinsList extends Vue {
-	private clickHandler!: (e: MouseEvent) => void;
+const emit = defineEmits<{ close: [] }>();
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeTriggers = useStoreTriggers();
+const rootEl = useTemplateRef("rootEl");
+const clickHandler = (e: MouseEvent) => onClick(e);
 
-	public get hasChannelPoints(): boolean {
-		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
-	}
+onMounted(() => {
+	document.addEventListener("mousedown", clickHandler);
+	open();
+});
 
-	public get pinList() {
-		const pins: {
-			id: (typeof TwitchatDataTypes.PinnableMenuItems)[0]["id"] | `trigger:${string}`;
-			icon: string;
-			labelKey: string;
-			label?: string;
-			pinned: boolean;
-			trigger?: TriggerData;
-		}[] = TwitchatDataTypes.PinnableMenuItems.filter((v) => {
-			if (v.id == "rewards" || v.id == "poll" || v.id == "prediction") {
-				return this.hasChannelPoints;
-			}
-			return true;
-		}).map((v) => {
-			return {
-				id: v.id,
-				icon: v.icon,
-				label: "",
-				labelKey: v.labelKey,
-				pinned: this.$store.params.pinnedMenuItems.includes(v.id),
-			};
-		});
-		const triggerPins: (typeof pins)[0][] = [];
-		this.$store.triggers.triggerList
-			.filter((v) => v.type == TriggerTypes.SLASH_COMMAND)
-			.forEach((trigger) => {
-				const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
-				triggerPins.push({
-					id: `trigger:${trigger.id}`,
-					icon: "broadcast",
-					label: triggerInfo.label,
-					labelKey: triggerInfo.labelKey || "",
-					pinned: this.$store.params.pinnedMenuItems.includes(`trigger:${trigger.id}`),
-					trigger,
-				});
+onBeforeUnmount(() => {
+	document.removeEventListener("mousedown", clickHandler);
+});
+
+const hasChannelPoints = computed(() => {
+	return storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner;
+});
+
+const pinList = computed(() => {
+	const pins: {
+		id: (typeof TwitchatDataTypes.PinnableMenuItems)[0]["id"] | `trigger:${string}`;
+		icon: string;
+		labelKey: string;
+		label?: string;
+		pinned: boolean;
+		trigger?: TriggerData;
+	}[] = TwitchatDataTypes.PinnableMenuItems.filter((v) => {
+		if (v.id == "rewards" || v.id == "poll" || v.id == "prediction") return hasChannelPoints;
+		if (v.id == "bingo_grid") return storeAuth.featureFlags.includes("bingo_grid");
+		if (v.id == "quiz") return storeAuth.featureFlags.includes("quiz");
+		return true;
+	}).map((v) => {
+		return {
+			id: v.id,
+			icon: v.icon,
+			label: "",
+			labelKey: v.labelKey,
+			pinned: storeParams.pinnedMenuItems.includes(v.id),
+		};
+	});
+	const triggerPins: (typeof pins)[0][] = [];
+	storeTriggers.triggerList
+		.filter((v) => v.type == TriggerTypes.SLASH_COMMAND)
+		.forEach((trigger) => {
+			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
+			triggerPins.push({
+				id: `trigger:${trigger.id}`,
+				icon: "broadcast",
+				label: triggerInfo.label,
+				labelKey: triggerInfo.labelKey || "",
+				pinned: storeParams.pinnedMenuItems.includes(`trigger:${trigger.id}`),
+				trigger,
 			});
-		return [...pins, ...triggerPins];
-	}
-
-	public mounted(): void {
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
-		this.open();
-	}
-
-	public beforeUnmount(): void {
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	public togglePin(id: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): void {
-		this.$store.params.toggleChatMenuPin(id);
-	}
-
-	private open(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
-	}
-
-	private close(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, {
-			duration: 0.2,
-			scaleY: 0,
-			delay: 0.1,
-			clearProps: "scaleY",
-			ease: "back.in",
-			onComplete: () => {
-				this.$emit("close");
-			},
 		});
-	}
+	return [...pins, ...triggerPins];
+});
 
-	private onClick(e: MouseEvent): void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while (target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if (target != ref) {
-			this.close();
-		}
+function togglePin(id: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): void {
+	storeParams.toggleChatMenuPin(id);
+}
+
+function open(): void {
+	gsap.killTweensOf(rootEl.value!);
+	gsap.from(rootEl.value!, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
+}
+
+function close(): void {
+	gsap.killTweensOf(rootEl.value!);
+	gsap.to(rootEl.value!, {
+		duration: 0.2,
+		scaleY: 0,
+		delay: 0.1,
+		clearProps: "scaleY",
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+function onClick(e: MouseEvent): void {
+	let target = e.target as HTMLDivElement;
+	while (target != document.body && target != rootEl.value && target) {
+		target = target.parentElement as HTMLDivElement;
+	}
+	if (target != rootEl.value) {
+		close();
 	}
 }
-export default toNative(PinsList);
 </script>
 
 <style scoped lang="less">

@@ -1,0 +1,16 @@
+{
+	"featureFlags": {
+		"title": "Feature flags",
+		"subtitle": "Donner accès à des fonctionnalités Twitchat à des utilisateurs spécifiques",
+		"param_flag": "Feature flag",
+		"search_label": "Rechercher un utilisateur Twitch à autoriser",
+		"addBt": "Autoriser",
+		"list": "Accès actuels",
+		"empty": "Aucun utilisateur assigné à ce flag",
+		"empty_open": "Accessible à toustes",
+		"remove_confirm": {
+			"title": "Révoquer l'accès ?",
+			"description": "Retirer {USER} du feature flag \"{FLAG}\" ?"
+		}
+	}
+}

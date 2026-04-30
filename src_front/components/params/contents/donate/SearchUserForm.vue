@@ -1,11 +1,14 @@
 <template>
-	<div class="searchuserform" :class="{ inline: inline !== false, upwards: upwards !== false }">
+	<div
+		class="searchuserform"
+		:class="{ inline: props.inline !== false, upwards: props.upwards !== false }"
+	>
 		<form @submit.prevent>
 			<input
 				class="giftedInput"
 				type="text"
 				maxlength="25"
-				:placeholder="$t('global.search_placeholder')"
+				:placeholder="t('global.search_placeholder')"
 				v-model="search"
 				@input="onSearch()"
 				@keydown.stop="onKeyDown($event)"
@@ -61,163 +64,163 @@
 				</button>
 			</TransitionGroup>
 		</div>
-		<div class="noResult" v-if="noResult">{{ $t("global.no_result") }}</div>
+		<div class="noResult" v-if="noResult">{{ t("global.no_result") }}</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap/gsap-core";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import { computed, nextTick, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
+const props = withDefaults(
+	defineProps<{
+		modelValue?: TwitchDataTypes.UserInfo;
+		inline?: boolean;
+		upwards?: boolean;
+		excludedUserIds?: string[];
+		staticUserList?: TwitchDataTypes.UserInfo[];
+	}>(),
+	{
+		inline: false,
+		upwards: false,
+		excludedUserIds: () => [],
+		staticUserList: () => [],
 	},
-	emits: ["close", "update:modelValue", "select"],
-})
-class SearchUserForm extends Vue {
-	@Prop()
-	public modelValue?: TwitchDataTypes.UserInfo;
+);
 
-	@Prop({ default: false })
-	public inline!: boolean;
+const emit = defineEmits<{
+	close: [];
+	"update:modelValue": [user: TwitchDataTypes.UserInfo];
+	select: [user: TwitchDataTypes.UserInfo];
+}>();
 
-	@Prop({ default: false, type: Boolean })
-	public upwards!: boolean;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
 
-	@Prop({ default: [] })
-	public excludedUserIds!: string[];
+const search = ref<string>("");
+const selectedindex = ref(0);
+const users = ref<TwitchDataTypes.UserInfo[]>([]);
+const noResult = ref<boolean>(false);
+const searching = ref<boolean>(false);
+const showResult = ref<boolean>(false);
+const showStatic = ref<boolean>(false);
+const liveStates = ref<{ [uid: string]: boolean }>({});
+const moderatedChanIds = ref<string[]>([]);
 
-	@Prop({ default: [] })
-	public staticUserList!: TwitchDataTypes.UserInfo[];
+let abortQuery: AbortController | null = null;
 
-	public search: string = "";
-	public selectedindex = 0;
-	public users: TwitchDataTypes.UserInfo[] = [];
-	public noResult: boolean = false;
-	public searching: boolean = false;
-	public showResult: boolean = false;
-	public showStatic: boolean = false;
-	public liveStates: { [uid: string]: boolean } = {};
-	public moderatedChanIds: string[] = [];
-
-	private abortQuery: AbortController | null = null;
-
-	public get staticUserListFiltered(): TwitchDataTypes.UserInfo[] {
-		return (this.staticUserList || [])
-			.filter((user) => (this.excludedUserIds || []).indexOf(user.id) === -1)
-			.sort((a, b) => {
-				if (this.moderatedChanIds.includes(a.id) && !this.moderatedChanIds.includes(b.id))
-					return -1;
-				if (!this.moderatedChanIds.includes(a.id) && this.moderatedChanIds.includes(b.id))
-					return 1;
-				return a.login.toLowerCase().localeCompare(b.login.toLowerCase());
-			});
-	}
-
-	public mounted(): void {
-		this.showStatic = true;
-		this.moderatedChanIds = this.$store.auth.twitchModeratedChannels.map(
-			(u) => u.broadcaster_id,
-		);
-	}
-
-	public onKeyDown(event: KeyboardEvent): void {
-		if (event.key == "Escape") {
-			this.clearSearch();
-		}
-		if (event.key == "ArrowDown") {
-			this.selectedindex += this.upwards !== false ? -1 : 1;
-		}
-		if (event.key == "ArrowUp") {
-			this.selectedindex += this.upwards !== false ? 1 : -1;
-		}
-		if (this.selectedindex < 0) this.selectedindex = this.users.length - 1;
-		if (this.selectedindex >= this.users.length) this.selectedindex = 0;
-		if (event.key == "Enter") {
-			this.selectUser(this.users[this.selectedindex]!);
-		}
-	}
-
-	public async onSearch(): Promise<void> {
-		this.searching = this.search != "";
-		this.noResult = false;
-		if (this.abortQuery && !this.abortQuery.signal.aborted)
-			this.abortQuery.abort("search update");
-		this.abortQuery = new AbortController();
-		if (this.searching) {
-			const signal = this.abortQuery!.signal;
-			const result = (await TwitchUtils.searchUser(this.search, 5, signal)) || [];
-			this.liveStates = result.liveStates;
-			this.users = result.users
-				.filter((user) => (this.excludedUserIds || []).indexOf(user.id) === -1)
-				.sort((a, b) => {
-					const aMod = this.moderatedChanIds.includes(a.id);
-					const bMod = this.moderatedChanIds.includes(b.id);
-					if (aMod && !bMod) return -1;
-					if (!aMod && bMod) return 1;
-					if (aMod && bMod)
-						return a.login
-							.toLowerCase()
-							.toLowerCase()
-							.localeCompare(b.login.toLowerCase().toLowerCase());
-					return 0;
-				});
-			if (!signal.aborted) {
-				this.searching = false;
-				this.noResult = this.users.length === 0;
-				await this.$nextTick();
-				this.showResult = true;
-			}
-			this.selectedindex = 0;
-		} else {
-			this.users = [];
-			this.showResult = false;
-		}
-	}
-
-	public clearSearch(): void {
-		this.search = "";
-		this.onSearch();
-		this.$emit("close");
-	}
-
-	public selectUser(user: TwitchDataTypes.UserInfo): void {
-		this.$emit("update:modelValue", user);
-		this.$emit("select", user);
-	}
-
-	public onEnter(el: Element, done: () => void) {
-		gsap.fromTo(
-			el,
-			{ opacity: 0, y: -20 },
-			{
-				y: 0,
-				opacity: 1,
-				duration: 0.25,
-				// maxHeight: "2em",
-				delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
-				onComplete: done,
-			},
-		);
-	}
-
-	public onLeave(el: Element, done: () => void) {
-		gsap.to(el, {
-			y: -20,
-			opacity: 0,
-			duration: 0.25,
-			delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
-			onComplete: done,
+const staticUserListFiltered = computed<TwitchDataTypes.UserInfo[]>(() => {
+	return (props.staticUserList || [])
+		.filter((user) => (props.excludedUserIds || []).indexOf(user.id) === -1)
+		.sort((a, b) => {
+			if (moderatedChanIds.value.includes(a.id) && !moderatedChanIds.value.includes(b.id))
+				return -1;
+			if (!moderatedChanIds.value.includes(a.id) && moderatedChanIds.value.includes(b.id))
+				return 1;
+			return a.login.toLowerCase().localeCompare(b.login.toLowerCase());
 		});
+});
+
+onMounted(() => {
+	showStatic.value = true;
+	moderatedChanIds.value = storeAuth.twitchModeratedChannels.map((u) => u.broadcaster_id);
+});
+
+function onKeyDown(event: KeyboardEvent): void {
+	if (event.key == "Escape") {
+		clearSearch();
+	}
+	if (event.key == "ArrowDown") {
+		selectedindex.value += props.upwards !== false ? -1 : 1;
+	}
+	if (event.key == "ArrowUp") {
+		selectedindex.value += props.upwards !== false ? 1 : -1;
+	}
+	if (selectedindex.value < 0) selectedindex.value = users.value.length - 1;
+	if (selectedindex.value >= users.value.length) selectedindex.value = 0;
+	if (event.key == "Enter") {
+		selectUser(users.value[selectedindex.value]!);
 	}
 }
-export default toNative(SearchUserForm);
+
+async function onSearch(): Promise<void> {
+	searching.value = search.value != "";
+	noResult.value = false;
+	if (abortQuery && !abortQuery.signal.aborted) abortQuery.abort("search update");
+	abortQuery = new AbortController();
+	if (searching.value) {
+		const signal = abortQuery!.signal;
+		const result = (await TwitchUtils.searchUser(search.value, 5, signal)) || [];
+		liveStates.value = result.liveStates;
+		users.value = result.users
+			.filter((user) => (props.excludedUserIds || []).indexOf(user.id) === -1)
+			.sort((a, b) => {
+				const aMod = moderatedChanIds.value.includes(a.id);
+				const bMod = moderatedChanIds.value.includes(b.id);
+				if (aMod && !bMod) return -1;
+				if (!aMod && bMod) return 1;
+				if (aMod && bMod)
+					return a.login
+						.toLowerCase()
+						.toLowerCase()
+						.localeCompare(b.login.toLowerCase().toLowerCase());
+				return 0;
+			});
+		if (!signal.aborted) {
+			searching.value = false;
+			noResult.value = users.value.length === 0;
+			await nextTick();
+			showResult.value = true;
+		}
+		selectedindex.value = 0;
+	} else {
+		users.value = [];
+		showResult.value = false;
+	}
+}
+
+function clearSearch(): void {
+	search.value = "";
+	onSearch();
+	emit("close");
+}
+
+function selectUser(user: TwitchDataTypes.UserInfo): void {
+	emit("update:modelValue", user);
+	emit("select", user);
+	clearSearch();
+}
+
+function onEnter(el: Element, done: () => void) {
+	gsap.fromTo(
+		el,
+		{ opacity: 0, y: -20 },
+		{
+			y: 0,
+			opacity: 1,
+			duration: 0.25,
+			// maxHeight: "2em",
+			delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
+			onComplete: done,
+		},
+	);
+}
+
+function onLeave(el: Element, done: () => void) {
+	gsap.to(el, {
+		y: -20,
+		opacity: 0,
+		duration: 0.25,
+		delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
+		onComplete: done,
+	});
+}
 </script>
 
 <style scoped lang="less">
@@ -327,9 +330,10 @@ export default toNative(SearchUserForm);
 			background-color: var(--grayout);
 		}
 		&.selected {
-			border-color: var(--color-text);
+			// border-color: var(--color-text);
 			background-color: var(--grayout);
 		}
 	}
 }
 </style>
+

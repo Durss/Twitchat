@@ -48,51 +48,6 @@ export default class UserController extends AbstractController {
 	 * GETTER / SETTERS *
 	 ********************/
 
-	/**
-	 * Reads a JSON config file with caching
-	 * Uses file mtime to invalidate cache when file changes
-	 */
-	private async readCachedJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
-		// Check if we have a pending read for this file (cache stampede prevention)
-		const pending = this._pendingFileReads.get(filePath);
-		if (pending) return pending as Promise<T>;
-
-		// Check cache
-		const cached = this._configFileCache.get(filePath);
-		if (cached) {
-			// Verify file hasn't changed (async stat is fast)
-			try {
-				const stats = await fs.promises.stat(filePath);
-				if (stats.mtimeMs === cached.mtime) {
-					return cached.data as T;
-				}
-			} catch {
-				// File doesn't exist or error, return default
-				return defaultValue;
-			}
-		}
-
-		// Read file
-		const readPromise = (async () => {
-			try {
-				const [content, stats] = await Promise.all([
-					Utils.readFileAsync(filePath, "utf-8"),
-					fs.promises.stat(filePath),
-				]);
-				const data = JSON.parse(content) as T;
-				this._configFileCache.set(filePath, { data, mtime: stats.mtimeMs });
-				return data;
-			} catch {
-				return defaultValue;
-			} finally {
-				this._pendingFileReads.delete(filePath);
-			}
-		})();
-
-		this._pendingFileReads.set(filePath, readPromise);
-		return readPromise;
-	}
-
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
@@ -227,17 +182,13 @@ export default class UserController extends AbstractController {
 			}
 		}
 
-		// Get user's feature flags
-		type Flag = keyof NonNullable<typeof Config.credentials.feature_flags>;
-		let features: Flag[] = [];
-		if (Config.credentials.feature_flags) {
-			Object.keys(Config.credentials.feature_flags).forEach((flag) => {
-				const typedFlag = flag as Flag;
-				if (Config.credentials.feature_flags![typedFlag].includes(uid)) {
-					features.push(typedFlag);
-				}
-			});
-		}
+		// Get users's feature flags
+		type Flag = (typeof Config.FEATURE_FLAGS)[number];
+		const flagsMap = await this.readCachedJsonFile<{ [key in Flag]?: string[] }>(
+			Config.FEATURE_FLAGS_PATH,
+			{},
+		);
+		const features = await Utils.getUserFeatureFlags(uid, flagsMap);
 
 		const has_api_key = fs.existsSync(path.join(Config.API_KEYS_PATH, uid + ".pem"));
 
@@ -756,7 +707,13 @@ export default class UserController extends AbstractController {
 	private async postSettingsPresets(request: FastifyRequest, response: FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
 		if (!user) return;
-		if (Config.credentials.feature_flags?.export_configs?.includes(user.user_id) !== true) {
+		const flagsMap = await this.readCachedJsonFile<{ [key: string]: string[] }>(
+			Config.FEATURE_FLAGS_PATH,
+			{},
+		);
+		const exportList = flagsMap["export_configs"] ?? [];
+		const exportAllowed = exportList.length === 0 || exportList.includes(user.user_id);
+		if (!exportAllowed) {
 			response.header("Content-Type", "application/json");
 			response.status(403);
 			response.send(
@@ -808,5 +765,50 @@ export default class UserController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, fileName: fileName + "_" + user.user_id }));
+	}
+
+	/**
+	 * Reads a JSON config file with caching
+	 * Uses file mtime to invalidate cache when file changes
+	 */
+	private async readCachedJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
+		// Check if we have a pending read for this file (cache stampede prevention)
+		const pending = this._pendingFileReads.get(filePath);
+		if (pending) return pending as Promise<T>;
+
+		// Check cache
+		const cached = this._configFileCache.get(filePath);
+		if (cached) {
+			// Verify file hasn't changed (async stat is fast)
+			try {
+				const stats = await fs.promises.stat(filePath);
+				if (stats.mtimeMs === cached.mtime) {
+					return cached.data as T;
+				}
+			} catch {
+				// File doesn't exist or error, return default
+				return defaultValue;
+			}
+		}
+
+		// Read file
+		const readPromise = (async () => {
+			try {
+				const [content, stats] = await Promise.all([
+					Utils.readFileAsync(filePath, "utf-8"),
+					fs.promises.stat(filePath),
+				]);
+				const data = JSON.parse(content) as T;
+				this._configFileCache.set(filePath, { data, mtime: stats.mtimeMs });
+				return data;
+			} catch {
+				return defaultValue;
+			} finally {
+				this._pendingFileReads.delete(filePath);
+			}
+		})();
+
+		this._pendingFileReads.set(filePath, readPromise);
+		return readPromise;
 	}
 }

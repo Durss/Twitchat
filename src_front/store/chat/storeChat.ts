@@ -1308,6 +1308,7 @@ export const storeChat = defineStore("chat", {
 
 				//Live translation if first message ever on the channel
 				if (
+					StoreProxy.auth.featureFlags.includes("auto_translate") &&
 					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 					sAuth.isPremium &&
 					sParams.features.autoTranslate.value === true &&

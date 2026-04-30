@@ -214,6 +214,9 @@ class ParamsList extends Vue implements IParameterContent {
 				}
 			}
 		}
+		if (!this.$store.auth.featureFlags.includes("auto_translate")) {
+			delete res["autoTranslate"];
+		}
 		return res;
 	}
 

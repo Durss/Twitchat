@@ -11,6 +11,7 @@
 		"chat": "Clear chat",
 		"info": "Stream info",
 		"announcement": "Twitchat announce",
+		"featureFlags": "Feature flags",
 		"commercial": "You can start a new commercial in {DURATION}",
 		"raid": "Raid someone",
 		"raid_placeholder": "user name...",
