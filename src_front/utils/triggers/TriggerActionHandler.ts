@@ -7587,7 +7587,7 @@ export default class TriggerActionHandler {
 						}
 					}
 				} else if (step.type == "groq") {
-					if (!StoreProxy.groq.connected) {
+					if (!StoreProxy.groq.connected || !StoreProxy.groq.enabled) {
 						logStep.messages.push({
 							date: Date.now(),
 							value: "❌ Groq not connect, cannot execute requested action",

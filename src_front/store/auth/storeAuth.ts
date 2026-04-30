@@ -14,6 +14,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 import * as Sentry from "@sentry/vue";
+import SSEHelper from "@/utils/SSEHelper";
 
 let refreshTokenTO: number = -1;
 
@@ -35,7 +36,7 @@ export const storeAuth = defineStore("auth", {
 		noAd: false,
 		donorLevelUpgrade: false,
 		lifetimePremiumPercent: 0,
-		features: [],
+		featureFlags: [],
 	}),
 
 	getters: {
@@ -352,6 +353,13 @@ export const storeAuth = defineStore("auth", {
 				void loadViewerCount();
 				SetIntervalWorker.instance.create(() => loadViewerCount(), 60000);
 
+				// Listen for feature flags updates
+				SSEHelper.instance.addEventListener("FEATURE_FLAGS_UPDATE", (event) => {
+					if (event.data) {
+						this.featureFlags = event.data;
+					}
+				});
+
 				sMain.onAuthenticated();
 
 				if (cb) cb(true);
@@ -394,7 +402,7 @@ export const storeAuth = defineStore("auth", {
 			this.premiumType = res.json.data.premiumType;
 			this.lifetimePremiumPercent = res.json.data.lifetimePercent || 0;
 			this.dataSharingUserList = res.json.data.dataSharing || [];
-			this.features = res.json.data.features || [];
+			this.featureFlags = res.json.data.features || [];
 			StoreProxy.discord.discordLinked = res.json.data.discordLinked === true;
 			StoreProxy.api.connected = res.json.data.has_api_key === true;
 			if (res.json.data.patreonLinked) void StoreProxy.patreon.loadMemberState();

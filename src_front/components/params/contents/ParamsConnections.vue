@@ -9,6 +9,7 @@
 
 		<div class="content" ref="content">
 			<button
+				v-if="storeAuth.featureFlags.includes('youtube')"
 				class="card-item premium"
 				:class="{ connected: youtubeConnected }"
 				@click="subContent = 'youtube'"
@@ -267,7 +268,7 @@
 
 			<button
 				class="card-item"
-				v-if="storeGroq.enabled"
+				v-if="storeAuth.featureFlags.includes('groq')"
 				:class="{ connected: storeGroq.connected }"
 				@click="subContent = 'groq'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.groq' }"
@@ -360,6 +361,7 @@ import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
 import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
@@ -423,6 +425,7 @@ const storeGroq = useStoreGroq();
 const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
 const storeBluesky = useStoreBluesky();
+const storeAuth = useStoreAuth();
 
 const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);

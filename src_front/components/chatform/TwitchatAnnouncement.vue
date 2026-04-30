@@ -1,5 +1,5 @@
 <template>
-	<div class="twitchatannouncement sidePanel" ref="rootEl">
+	<div class="twitchatannouncement sidePanel admin" ref="rootEl">
 		<div class="head">
 			<div class="title">
 				<Icon name="announcement" />
@@ -24,7 +24,7 @@
 				<ParamItem :paramData="param_premiumOnly" />
 				<ParamItem :paramData="param_patreonOnly" />
 				<ParamItem :paramData="param_heatOnly" />
-				<TTButton type="submit" :loading="submitting">{{
+				<TTButton type="submit" :loading="submitting" light secondary>{{
 					t("announcement.postBt")
 				}}</TTButton>
 			</form>

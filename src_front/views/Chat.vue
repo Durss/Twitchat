@@ -153,6 +153,11 @@
 				v-if="storeParams.currentModal == 'twitchatAnnouncement'"
 				@close="storeParams.closeModal()"
 			/>
+			<FeatureFlagsAdmin
+				class="popin"
+				v-if="storeParams.currentModal == 'featureFlags'"
+				@close="storeParams.closeModal()"
+			/>
 			<StreamSummary
 				class="popin"
 				v-if="storeParams.currentModal == 'streamSummary'"
@@ -368,6 +373,7 @@ import ShoutoutList from "@/components/chatform/ShoutoutList.vue";
 import StreamSummary from "@/components/chatform/StreamSummary.vue";
 import TTUserList from "@/components/chatform/TTUserList.vue";
 import TwitchatAnnouncement from "@/components/chatform/TwitchatAnnouncement.vue";
+import FeatureFlagsAdmin from "@/components/chatform/FeatureFlagsAdmin.vue";
 import UserList from "@/components/chatform/UserList.vue";
 import HeatLogs from "@/components/heatlogs/HeatLogs.vue";
 import MessageList from "@/components/messages/MessageList.vue";
