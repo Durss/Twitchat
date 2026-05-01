@@ -115,6 +115,7 @@ export default defineConfig({
 				overlayLabel: resolve(__dirname, "overlayLabel.html"),
 				overlaySfxr: resolve(__dirname, "overlaySfxr.html"),
 				popupAuthResult: resolve(__dirname, "popupAuthResult.html"),
+				popupBlueskyAuthResult: resolve(__dirname, "popupBlueskyAuthResult.html"),
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + pkg.version + ".js",
