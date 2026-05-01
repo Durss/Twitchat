@@ -36,6 +36,7 @@
 
 		<div v-else class="content" v-if="storeBluesky.connected">
 			<ProfileInfoCard
+				:url="'https://bsky.app/profile/' + storeBluesky.profile?.handle"
 				:avatar="storeBluesky.profile?.avatar"
 				:name="storeBluesky.profile?.displayName ?? storeBluesky.profile?.handle"
 				:details="storeBluesky.profile ? '@' + storeBluesky.profile.handle : undefined"

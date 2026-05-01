@@ -566,7 +566,12 @@ type ApiEndpoints = {
 			response: {
 				success: boolean;
 				message?: string;
-				data?: { isMember: boolean; memberName: string; memberAvatar: string };
+				data?: {
+					isMember: boolean;
+					memberName: string;
+					memberAvatar: string;
+					memberUrl: string;
+				};
 				errorCode?: string;
 			};
 		};

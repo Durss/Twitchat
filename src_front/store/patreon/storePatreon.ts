@@ -16,6 +16,7 @@ export const storePatreon = defineStore("patreon", {
 		isMember: false,
 		userName: "",
 		userAvatar: "",
+		userUrl: "",
 		connected: false,
 		oauthFlowParams: null,
 		memberList: [],
@@ -150,6 +151,7 @@ export const storePatreon = defineStore("patreon", {
 				this.isMember = res.json.data?.isMember === true;
 				this.userName = res.json.data?.memberName || "";
 				this.userAvatar = res.json.data?.memberAvatar || "";
+				this.userUrl = res.json.data?.memberUrl || "";
 				if (StoreProxy.auth.isPremium) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
 				}
