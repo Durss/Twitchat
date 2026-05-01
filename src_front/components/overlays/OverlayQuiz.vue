@@ -97,12 +97,23 @@ import Utils from "@/utils/Utils";
 import OverlayQuizLeaderboard from "./quiz/OverlayQuizLeaderboard.vue";
 import Icon from "../Icon.vue";
 import { onMounted } from "vue";
+import Overlay404 from "../params/contents/overlays/Overlay404.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
 const quizData = ref<TwitchatDataTypes.QuizParams | null>(null);
 const leaderboard = ref<TwitchatDataTypes.QuizLeaderboard | null>(null);
+const storeAuth = useStoreAuth();
 const showLeaderboard = ref(false);
 const timeRemaining = ref(3000);
 let timerInterval: number | null = null;
+
+useOverlayConnector(onConnect);
+
+const scaleFactor = ref(0);
+const resizeHandler = () => {
+	scaleFactor.value = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+};
+resizeHandler();
 
 const revealAnswers = computed(() => {
 	return quizData.value?.currentQuestionRevealed ?? false;
@@ -167,12 +178,6 @@ function isGoodAnswer(answer: { id: string; title: string; correct?: boolean }):
 	return false;
 }
 
-watch(currentQuestion, (newQuestion) => {
-	if (newQuestion) {
-		startTimer();
-	}
-});
-
 function onConnect() {
 	PublicAPI.instance.broadcast("GET_QUIZ_CONFIGS");
 	advertizePresence();
@@ -202,14 +207,6 @@ function onQuizLeaderboard(e: TwitchatEvent<"ON_QUIZ_LEADERBOARD">) {
 	showLeaderboard.value = true;
 }
 
-useOverlayConnector(onConnect);
-
-const scaleFactor = ref(0);
-const resizeHandler = () => {
-	scaleFactor.value = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-};
-resizeHandler();
-
 onMounted(() => {
 	PublicAPI.instance.addEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 	PublicAPI.instance.addEventListener("ON_QUIZ_STATE", onQuizState);
@@ -218,14 +215,17 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-	window.removeEventListener("resize", resizeHandler);
-});
-
-onBeforeUnmount(() => {
 	if (timerInterval) clearInterval(timerInterval);
 	PublicAPI.instance.removeEventListener("GET_QUIZ_OVERLAY_PRESENCE", advertizePresence);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_STATE", onQuizState);
 	PublicAPI.instance.removeEventListener("ON_QUIZ_LEADERBOARD", onQuizLeaderboard);
+	window.removeEventListener("resize", resizeHandler);
+});
+
+watch(currentQuestion, (newQuestion) => {
+	if (newQuestion) {
+		startTimer();
+	}
 });
 </script>
 
