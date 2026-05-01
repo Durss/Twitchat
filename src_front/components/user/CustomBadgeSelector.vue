@@ -80,7 +80,7 @@ function onSelectBadgeFile(e: Event): void {
 			storeUsers.giveCustomBadge(
 				props.user.id,
 				props.user.platform,
-				badgeId as string,
+				badgeId,
 				props.channelId,
 			);
 		}
@@ -95,14 +95,7 @@ function getBadgeClasses(badge: TwitchatDataTypes.TwitchatCustomUserBadge): stri
 }
 
 function addBadge(id: string): void {
-	if (
-		!storeUsers.giveCustomBadge(
-			props.user!.id,
-			props.user!.platform,
-			id as string,
-			props.channelId,
-		)
-	) {
+	if (!storeUsers.giveCustomBadge(props.user!.id, props.user!.platform, id, props.channelId)) {
 		emit("limitReached");
 	}
 }
