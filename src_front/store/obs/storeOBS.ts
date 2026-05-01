@@ -55,12 +55,7 @@ export const storeOBS = defineStore("obs", {
 			//If any OBS param exists, set it to true because the
 			//user probably configured it. Otherwise set it to false
 			if (DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === null) {
-				if (
-					DataStore.get(DataStore.OBS_PASS) ||
-					DataStore.get(DataStore.OBS_PORT) ||
-					this.muteUnmuteCommands ||
-					this.sceneCommands.length > 0
-				) {
+				if (DataStore.get(DataStore.OBS_PASS) || DataStore.get(DataStore.OBS_PORT)) {
 					this.connectionEnabled = true;
 				} else {
 					this.connectionEnabled = false;
