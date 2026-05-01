@@ -42,10 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import TriggerUtils from "@/utils/TriggerUtils";
-import { ref, onMounted } from "vue";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
-import type { TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import TriggerUtils from "@/utils/TriggerUtils";
+import { onMounted, ref } from "vue";
 
 type Entry = {
 	id: string;

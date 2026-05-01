@@ -1,7 +1,6 @@
 <template>
 	<component
-		tag="div"
-		:is="popoutMode !== false ? 'tooltip' : 'ToggleBlock'"
+		:is="popoutMode !== false ? 'tooltip' : ToggleBlock"
 		small
 		:title="$t('global.placeholder_selector_title')"
 		:open="false"
@@ -19,9 +18,8 @@
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
 		<template #content>
-			<input
-				class="placeholderSelector_searchField"
-				type="text"
+			<SearchForm
+				class="searchForm"
 				v-if="
 					search ||
 					localPlaceholders.length +
@@ -30,11 +28,14 @@
 						5
 				"
 				v-model="search"
-				:placeholder="$t('global.search_placeholder')"
-				@keydown.capture.stop="onKeyUp($event)"
+				:debounceDelay="150"
 			/>
-
-			<div :class="contentClasses">
+			<div
+				:class="{
+					tooltipContent: true,
+					popoutMode: props.popoutMode !== false,
+				}"
+			>
 				<div class="list" v-if="localPlaceholders.length > 0">
 					<template v-for="(h, index) in localPlaceholders" :key="h.tag + index">
 						<TTButton
@@ -139,174 +140,134 @@
 	</component>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
 import TTButton from "@/components/TTButton.vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import SearchForm from "./contents/SearchForm.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ToggleBlock,
-	},
-	emits: ["update:modelValue", "insert"],
-})
-class PlaceholderSelector extends Vue {
-	@Prop
-	public placeholders!: TwitchatDataTypes.PlaceholderEntry[];
-
-	@Prop
-	public target!:
+const { t } = useI18n();
+const emit = defineEmits<{ insert: [string]; "update:modelValue": [string] }>();
+const props = defineProps<{
+	placeholders: TwitchatDataTypes.PlaceholderEntry[];
+	target?:
 		| (HTMLInputElement | HTMLTextAreaElement)
-		| Promise<HTMLInputElement | HTMLTextAreaElement>;
+		| Promise<HTMLInputElement | HTMLTextAreaElement>
+		| null;
+	copyMode?: boolean;
+	popoutMode?: boolean;
+	modelValue?: string;
+}>();
+const search = ref<string>("");
+// const model = defineModel<string>();
 
-	@Prop
-	public modelValue!: string;
+const classes = computed(() => {
+	const res: string[] = ["placeholderselector"];
+	if (props.popoutMode !== false) res.push("popoutMode");
+	return res;
+});
 
-	@Prop({ default: false })
-	public copyMode!: boolean;
+const tooltipTarget = computed(() => {
+	return document.body;
+});
 
-	@Prop({ default: false })
-	public popoutMode!: boolean;
+const localPlaceholders = computed(() => {
+	const searchClean = search.value.toLowerCase().trim();
+	return props.placeholders.filter(
+		(v) =>
+			v.globalTag !== true &&
+			v.private !== true &&
+			(!searchClean ||
+				v.tag.toLowerCase().indexOf(searchClean) > -1 ||
+				t(v.descKey).toLowerCase().indexOf(searchClean) > -1),
+	);
+});
 
-	public search: string = "";
-
-	public get classes(): string[] {
-		const res: string[] = ["placeholderselector"];
-		if (this.popoutMode !== false) res.push("popoutMode");
-		return res;
-	}
-
-	public get contentClasses(): string[] {
-		const res: string[] = ["tooltipContent"];
-		if (this.popoutMode !== false) res.push("popoutMode");
-		return res;
-	}
-
-	public get tooltipTarget() {
-		return document.body;
-	}
-
-	public get localPlaceholders(): TwitchatDataTypes.PlaceholderEntry[] {
-		const search = this.search.toLowerCase().trim();
-		return this.placeholders.filter(
+const globalPlaceholders = computed(() => {
+	const searchClean = search.value.toLowerCase().trim();
+	const list = props.placeholders
+		.filter(
 			(v) =>
-				v.globalTag !== true &&
+				v.globalTag === true &&
+				!v.category &&
 				v.private !== true &&
-				(!this.search ||
-					v.tag.toLowerCase().indexOf(search) > -1 ||
-					this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
-		);
-	}
+				(!searchClean ||
+					v.tag.toLowerCase().indexOf(searchClean) > -1 ||
+					t(v.descKey).toLowerCase().indexOf(searchClean) > -1),
+		)
+		.sort((a, b) => a.tag.length - b.tag.length);
 
-	public get globalPlaceholders(): TwitchatDataTypes.PlaceholderEntry[] {
-		const search = this.search.toLowerCase().trim();
-		const list = this.placeholders
-			.filter(
-				(v) =>
-					v.globalTag === true &&
-					!v.category &&
-					v.private !== true &&
-					(!this.search ||
-						v.tag.toLowerCase().indexOf(search) > -1 ||
-						this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
-			)
-			.sort((a, b) => a.tag.length - b.tag.length);
+	return list;
+});
 
-		return list;
-	}
-
-	public get globalPlaceholderCategories(): {
+const globalPlaceholderCategories = computed<
+	{
 		key: string;
 		entries: TwitchatDataTypes.PlaceholderEntry[];
-	}[] {
-		const search = this.search.toLowerCase().trim();
-		const list = this.placeholders
-			.filter(
-				(v) =>
-					v.globalTag === true &&
-					v.category &&
-					v.private !== true &&
-					(!this.search ||
-						v.tag.toLowerCase().indexOf(search) > -1 ||
-						this.$t(v.descKey).toLowerCase().indexOf(search) > -1),
-			)
-			.sort((a, b) => {
-				if ((a.category || "") < (b.category || "")) return -1;
-				if ((a.category || "") > (b.category || "")) return 1;
-				return 0;
-			});
+	}[]
+>(() => {
+	const searchClean = search.value.toLowerCase().trim();
+	const list = props.placeholders
+		.filter(
+			(v) =>
+				v.globalTag === true &&
+				v.category &&
+				v.private !== true &&
+				(!searchClean ||
+					v.tag.toLowerCase().indexOf(searchClean) > -1 ||
+					t(v.descKey).toLowerCase().indexOf(searchClean) > -1),
+		)
+		.sort((a, b) => {
+			if ((a.category || "") < (b.category || "")) return -1;
+			if ((a.category || "") > (b.category || "")) return 1;
+			return 0;
+		});
 
-		if (list.length === 0) return [];
+	if (list.length === 0) return [];
 
-		const categories: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] }[] = [];
-		let currentCategory: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] } = {
-			key: list[0]!.category!,
-			entries: [list[0]!],
-		};
-		for (let i = 1; i < list.length; i++) {
-			const el = list[i]!;
-			if (el.category != currentCategory.key) {
-				categories.push(currentCategory);
-				currentCategory = { key: el.category!, entries: [] };
-			}
-			currentCategory.entries.push(el);
+	const categories: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] }[] = [];
+	let currentCategory: { key: string; entries: TwitchatDataTypes.PlaceholderEntry[] } = {
+		key: list[0]!.category!,
+		entries: [list[0]!],
+	};
+	for (let i = 1; i < list.length; i++) {
+		const el = list[i]!;
+		if (el.category != currentCategory.key) {
+			categories.push(currentCategory);
+			currentCategory = { key: el.category!, entries: [] };
 		}
-		categories.push(currentCategory);
-
-		return categories;
+		currentCategory.entries.push(el);
 	}
+	categories.push(currentCategory);
 
-	/**
-	 * Add a token on the text
-	 */
-	public async insert(h: TwitchatDataTypes.PlaceholderEntry): Promise<void> {
-		if (this.target) {
-			let target = this.target as HTMLInputElement | HTMLTextAreaElement;
-			//target can be a promise returning the actual target, if it's a promise
-			//wait for it to complete.
-			if ((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
-				target = await new Promise((resolve) => {
-					(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then(
-						(input: HTMLInputElement | HTMLTextAreaElement) => {
-							resolve(input);
-						},
-					);
-				});
-			}
+	return categories;
+});
+
+/**
+ * Add a token on the text
+ */
+async function insert(h: TwitchatDataTypes.PlaceholderEntry): Promise<void> {
+	if (props.target) {
+		const target = await Promise.resolve(props.target);
+		if (target) {
 			const tag = "{" + h.tag + "}";
-			let carretPos = target.selectionStart as number | 0;
-			if (!carretPos) carretPos = 0;
-			//Insert tag
+			let carretPos = target.selectionStart || 0;
+			// Append tag to text
 			const text =
 				target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
-			this.$emit("update:modelValue", text);
-		} else {
-			this.$emit("update:modelValue", this.modelValue + "{" + h.tag + "}");
-			this.$emit("insert", "{" + h.tag + "}");
+			emit("update:modelValue", text);
 		}
-	}
-
-	/**
-	 * Clear search on Escape
-	 */
-	public onKeyUp(event: KeyboardEvent): void {
-		if (event.key == "Escape") this.search = "";
+	} else {
+		// Append tag to text
+		emit("update:modelValue", props.modelValue + "{" + h.tag + "}");
+		emit("insert", "{" + h.tag + "}");
 	}
 }
-export default toNative(PlaceholderSelector);
 </script>
 
 <style lang="less" scoped>
-.placeholderSelector_searchField {
-	margin: 0 auto;
-	margin-bottom: 0.5em;
-	display: block;
-	max-width: unset;
-	min-width: unset;
-	font-size: 0.8em;
-}
 .tooltipContent {
 	gap: 0.25em;
 	display: flex;
@@ -353,8 +314,7 @@ export default toNative(PlaceholderSelector);
 		}
 	}
 }
-</style>
-<style scoped lang="less">
+
 .placeholderselector {
 	&.popoutMode {
 		border-top-right-radius: var(--border-radius);
@@ -377,5 +337,9 @@ export default toNative(PlaceholderSelector);
 			height: 1em;
 		}
 	}
+}
+
+.searchForm {
+	margin-bottom: 0.5em;
 }
 </style>
