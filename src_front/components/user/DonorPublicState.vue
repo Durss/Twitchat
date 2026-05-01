@@ -17,7 +17,7 @@
 		>
 			<template #LINK>
 				<a @click="storeParams.openParamsPage(contentDonate)"
-					>{{ $t("account.about_link") }}.</a
+					>{{ t("account.about_link") }}.</a
 				>
 			</template>
 		</i18n-t>
@@ -34,11 +34,13 @@ import ApiHelper from "@/utils/ApiHelper";
 import { computed, onMounted, ref, watch } from "vue";
 import ParamItem from "../params/ParamItem.vue";
 import Icon from "../Icon.vue";
+import { useI18n } from "vue-i18n";
 
 withDefaults(defineProps<{ noInfos?: boolean }>(), { noInfos: false });
 
 const emit = defineEmits<{ change: [] }>();
 
+const { t } = useI18n();
 const storeAccount = useStoreAccount();
 const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();

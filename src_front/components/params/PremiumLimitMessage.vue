@@ -5,12 +5,12 @@
 		:class="{ premium: !isPremium, secondary: isPremium }"
 	>
 		<template v-if="isPremium">
-			<span>{{ i18n.t(premiumLabel, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
+			<span>{{ t(premiumLabel, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
 		</template>
 		<template v-else>
-			<span>{{ i18n.t(label, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
+			<span>{{ t(label, { MAX: max, MAX_PREMIUM: maxPremium }) }}</span>
 			<TTButton icon="premium" premium light @click="openPremium()">{{
-				i18n.t("premium.become_premiumBt")
+				t("premium.become_premiumBt")
 			}}</TTButton>
 		</template>
 	</div>
@@ -24,16 +24,13 @@ import Config from "@/utils/Config";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-const i18n = useI18n();
-
-interface Props {
+const { t } = useI18n();
+const props = defineProps<{
 	label: string;
 	premiumLabel: string;
 	max: number;
 	maxPremium: number;
-}
-
-const props = defineProps<Props>();
+}>();
 const isPremium = ref(StoreProxy.auth.isPremium);
 
 /**
@@ -42,13 +39,6 @@ const isPremium = ref(StoreProxy.auth.isPremium);
 const openPremium = (): void => {
 	StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 };
-
-watch(
-	() => StoreProxy.auth.isPremium,
-	(newVal) => {
-		isPremium.value = newVal;
-	},
-);
 
 /**
  * Just debug stuff to toggle premium state when ctrl+clicking the message
@@ -59,6 +49,13 @@ function onClick(e: MouseEvent): void {
 		e.preventDefault();
 	}
 }
+
+watch(
+	() => StoreProxy.auth.isPremium,
+	(newVal) => {
+		isPremium.value = newVal;
+	},
+);
 </script>
 
 <style scoped lang="less">

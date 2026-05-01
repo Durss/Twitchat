@@ -7,7 +7,7 @@
 					:src="getCorrespondant(selectedUserId).avatarPath"
 					v-if="getCorrespondant(selectedUserId).avatarPath"
 					class="icon"
-				/>{{ $t("whispers.title") }} - {{ getCorrespondant(selectedUserId).displayName }}
+				/>{{ t("whispers.title") }} - {{ getCorrespondant(selectedUserId).displayName }}
 			</h1>
 		</div>
 
@@ -32,15 +32,15 @@
 			</div>
 
 			<div v-if="error" class="errorCard" @click="error = false">
-				{{ $t("whispers.cant_send_1") }}
+				{{ t("whispers.cant_send_1") }}
 				<br />
-				{{ $t("whispers.cant_send_2") }}
+				{{ t("whispers.cant_send_2") }}
 			</div>
 
 			<form class="form" @submit.prevent="sendWhisper()" v-if="canAnswer">
 				<input
 					type="text"
-					:placeholder="$t('whispers.input_placeholder')"
+					:placeholder="t('whispers.input_placeholder')"
 					class="dark"
 					v-model="whisper"
 					maxlength="500"
@@ -49,7 +49,7 @@
 				<TTButton class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
 			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{
-				$t("whispers.add_scope_bt")
+				t("whispers.add_scope_bt")
 			}}</TTButton>
 
 			<div class="userlist" v-if="Object.keys(storeChat.whispers).length > 0">
@@ -90,9 +90,11 @@ import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "v
 import ClearButton from "../ClearButton.vue";
 import TTButton from "../TTButton.vue";
 import ChatMessageChunksParser from "../messages/components/ChatMessageChunksParser.vue";
+import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{ close: [] }>();
 
+const { t } = useI18n();
 const storeChat = useStoreChat();
 const storeAuth = useStoreAuth();
 const storeMain = useStoreMain();
