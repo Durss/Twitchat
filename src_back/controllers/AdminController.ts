@@ -535,7 +535,7 @@ export default class AdminController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, data: { flags } }));
-		this.broadcastFeatureFlagsUpdate();
+		void this.broadcastFeatureFlagsUpdate();
 	}
 
 	/**
@@ -587,7 +587,7 @@ export default class AdminController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, data: { flags } }));
-		this.broadcastFeatureFlagsUpdate();
+		void this.broadcastFeatureFlagsUpdate();
 	}
 
 	/**
