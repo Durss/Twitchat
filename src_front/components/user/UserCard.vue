@@ -463,7 +463,7 @@
 								@click="showGroqForm = true"
 								icon="groq"
 								v-newflag="{
-									date: $config.NEW_FLAGS_DATE_V16,
+									date: Config.instance.NEW_FLAGS_DATE_V16,
 									id: 'usercard_groq',
 								}"
 								small
@@ -529,6 +529,7 @@ import CustomBadgesManager from "./CustomBadgesManager.vue";
 import CustomUserBadges from "./CustomUserBadges.vue";
 import CustomUserNameManager from "./CustomUserNameManager.vue";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
+import Config from "@/utils/Config";
 
 const emit = defineEmits<{
 	close: [];
@@ -544,10 +545,10 @@ const storeTTS = useStoreTTS();
 const storeUsers = useStoreUsers();
 const storeBluesky = useStoreBluesky();
 
-const rootEl = useTemplateRef<HTMLElement>("rootEl");
-const customUsernameRef = useTemplateRef<HTMLInputElement>("customUsername");
-const userIDRef = useTemplateRef<HTMLDivElement>("userID");
-const messagelistRef = useTemplateRef<HTMLDivElement>("messagelist");
+const rootEl = useTemplateRef("rootEl");
+const customUsernameRef = useTemplateRef("customUsername");
+const userIDRef = useTemplateRef("userID");
+const messagelistRef = useTemplateRef("messagelist");
 
 const error = ref(false);
 const loading = ref(true);
@@ -1007,7 +1008,7 @@ function toggleReadUser(): void {
  */
 function copyID(): void {
 	Utils.copyToClipboard(user.value!.id);
-	gsap.from(userIDRef.value as HTMLDivElement, { scale: 1.5, ease: "back.out" });
+	gsap.from(userIDRef.value!, { scale: 1.5, ease: "back.out" });
 }
 
 function grantModeratedScope(): void {
