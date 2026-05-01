@@ -21,9 +21,9 @@
 		</div>
 
 		<div ref="heart" class="beatingHeart" @click="burstStars(true)">
-			<div class="level" v-if="props.premium === false">
+			<div class="level" v-if="props.premium === false && donorLevel != 'premium'">
 				<span class="small" v-if="props.light === false">{{ $t("donor.level") }}</span
-				><br v-if="props.light === false" />{{ (donorLevel as string) + 1 }}
+				><br v-if="props.light === false" />{{ donorLevel + 1 }}
 			</div>
 			<div class="level" v-if="props.premium !== false">
 				<Icon name="premium" alt="premium" class="icon" theme="light" />

@@ -1458,7 +1458,7 @@ export const storeUsers = defineStore("users", {
 			return true;
 		},
 
-		createCustomBadge(img: string): boolean | string {
+		createCustomBadge(img: string): false | string {
 			let id = "";
 			//add badge to global list if necessary
 			const existingIndex = this.customBadgeList.findIndex((v) => v.img == img);
