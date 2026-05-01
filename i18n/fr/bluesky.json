@@ -2,6 +2,7 @@
 	"bluesky": {
 		"header": "Connectez votre compte Bluesky pour automatiquement apparaître en live.",
 		"param_handle": "Identifiant Bluesky",
+		"param_listDMs": "Lire vos messages privés\n(soyez notifié·e de nouveau MP dans Twitchat)",
 		"param_handleResolver": "Handle resolver",
 		"param_autoLive": "Apparaître automatiquement en live sur Bluesky",
 		"error": "Authentication failed"

@@ -1,13 +1,23 @@
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
 import type { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
+import StoreProxy from "../StoreProxy";
 import type { IBlueskyActions, IBlueskyGetters, IBlueskyState } from "../StoreProxy";
 import type { Agent } from "@atproto/api";
 
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
 let agent: Agent | null = null;
+let notifPollInterval: number = -1;
+let dmPollInterval: number = -1;
+// Empty string = first poll (seed mode: record state without dispatching)
+let lastNotifAt: string = "";
+// convoId → sentAt of last dispatched message; absent = first poll
+const lastSeenDmTimes = new Map<string, string>();
 
 export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
@@ -44,17 +54,21 @@ export const storeBluesky = defineStore("bluesky", {
 			return oauthClient;
 		},
 
-		async startOAuthProcess(handle: string) {
+		async startOAuthProcess(handle: string, readDMs: boolean = false) {
 			this.connected = false;
 			const client = await this.initClient();
 			handle = handle.replace(/^@/, "");
+			const scope = readDMs
+				? "atproto transition:generic transition:chat.bsky"
+				: "atproto transition:generic";
 			try {
 				const session = await client.signInPopup(handle, {
+					scope,
 					redirect_uri: "https://dev.twitchat.fr/popupBlueskyAuthResult",
 				});
 				if (session) {
 					//Finalize popup auth
-					this.authenticate();
+					void this.authenticate();
 				} else {
 					//Fallback to redirect
 					const url = await client.authorize(handle);
@@ -85,6 +99,7 @@ export const storeBluesky = defineStore("bluesky", {
 					const userProfile = await agent.getProfile({ actor: agent.did! });
 					this.profile = userProfile.data;
 					this.saveState();
+					this.startPolling();
 				}
 			} catch (error) {
 				console.warn("Bluesky auth failed", error);
@@ -93,6 +108,7 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async disconnect() {
+			this.stopPolling();
 			this.connected = false;
 			this.profile = null;
 			this.saveState();
@@ -129,6 +145,218 @@ export const storeBluesky = defineStore("bluesky", {
 					collection: "app.bsky.actor.status",
 					rkey: "self",
 				});
+			}
+		},
+
+		startPolling(): void {
+			if (!agent) return;
+			this.stopPolling();
+			void this.pollNotifications();
+			void this.pollDMs();
+			notifPollInterval = window.setInterval(() => void this.pollNotifications(), 30_000);
+			dmPollInterval = window.setInterval(() => void this.pollDMs(), 30_000);
+		},
+
+		stopPolling(): void {
+			clearInterval(notifPollInterval);
+			clearInterval(dmPollInterval);
+			notifPollInterval = -1;
+			dmPollInterval = -1;
+			lastNotifAt = "";
+			lastSeenDmTimes.clear();
+		},
+
+		async pollNotifications(): Promise<void> {
+			if (!agent) return;
+			try {
+				const { data } = await agent.listNotifications({ limit: 50 });
+				if (!data.notifications.length) return;
+
+				if (!lastNotifAt) {
+					// First poll: seed the cursor without dispatching historical notifications
+					lastNotifAt = data.notifications[0]!.indexedAt;
+					await agent.updateSeenNotifications();
+					return;
+				}
+
+				const newOnes = data.notifications.filter((n) => n.indexedAt > lastNotifAt);
+				if (!newOnes.length) return;
+
+				lastNotifAt = data.notifications[0]!.indexedAt;
+
+				// Process oldest-first so the chat timeline is coherent
+				for (const notif of newOnes.reverse()) {
+					const user = StoreProxy.users.getUserFrom(
+						"bluesky",
+						agent.did!,
+						notif.author.did,
+						notif.author.handle,
+						notif.author.displayName ?? notif.author.handle,
+					);
+					user.avatarPath = notif.author.avatar;
+
+					const chanInfo = user.channelInfo[agent.did!];
+					if (notif.reason === "follow" && chanInfo) {
+						if (chanInfo.is_following) {
+							// Avoid follow spam
+							return;
+						}
+						chanInfo.is_following = true;
+						chanInfo.following_date_ms = Date.now();
+						const message: TwitchatDataTypes.MessageFollowingData = {
+							channel_id: agent.did!,
+							platform: "bluesky",
+							id: Utils.getUUID(),
+							date: new Date(notif.indexedAt).getTime(),
+							followed_at: new Date(notif.indexedAt).getTime(),
+							type: TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+							user,
+						};
+						void StoreProxy.chat.addMessage(message);
+					} else if (notif.reason === "mention" || notif.reason === "reply") {
+						const record = notif.record as { text?: string };
+						const text = record.text ?? "";
+						const chunks = TwitchUtils.parseMessageToChunks(
+							text,
+							undefined,
+							true,
+							"bluesky",
+						);
+						const message: TwitchatDataTypes.MessageChatData = {
+							channel_id: agent.did!,
+							platform: "bluesky",
+							id: Utils.getUUID(),
+							date: new Date(notif.indexedAt).getTime(),
+							type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+							user,
+							message: text,
+							message_chunks: chunks,
+							message_html: TwitchUtils.messageChunksToHTML(chunks),
+							message_size: text.length,
+							answers: [],
+							is_short: text.length < 100,
+							hasMention: true,
+						};
+						void StoreProxy.chat.addMessage(message);
+					}
+				}
+
+				await agent.updateSeenNotifications();
+			} catch (e) {
+				console.warn("Bluesky notification poll failed", e);
+			}
+		},
+
+		async pollDMs(): Promise<void> {
+			if (!agent) return;
+			try {
+				const { data } = await agent.chat.bsky.convo.listConvos(
+					{ limit: 20 },
+					{
+						headers: {
+							"Atproto-Proxy": "did:web:api.bsky.chat#bsky_chat",
+						},
+					},
+				);
+
+				for (const convo of data.convos) {
+					const lastSeen = lastSeenDmTimes.get(convo.id);
+
+					if (!lastSeen) {
+						// First time seeing this convo: seed from its latest message
+						const latestMsg = convo.lastMessage as
+							| { $type?: string; sentAt?: string }
+							| undefined;
+						lastSeenDmTimes.set(
+							convo.id,
+							latestMsg?.$type === "chat.bsky.convo.defs#messageView" &&
+								latestMsg.sentAt
+								? latestMsg.sentAt
+								: new Date().toISOString(),
+						);
+						continue;
+					}
+
+					if (convo.unreadCount === 0) continue;
+
+					const { data: msgsData } = await agent.chat.bsky.convo.getMessages(
+						{
+							convoId: convo.id,
+							limit: Math.min(convo.unreadCount + 1, 20),
+						},
+						{
+							headers: {
+								"Atproto-Proxy": "did:web:api.bsky.chat#bsky_chat",
+							},
+						},
+					);
+
+					type MsgView = {
+						$type: string;
+						id: string;
+						text: string;
+						sender: { did: string };
+						sentAt: string;
+					};
+					const msgViews = (msgsData.messages as MsgView[]).filter(
+						(m) => m.$type === "chat.bsky.convo.defs#messageView",
+					);
+
+					if (!msgViews.length) continue;
+
+					// Update cursor to newest message
+					lastSeenDmTimes.set(convo.id, msgViews[0]!.sentAt);
+
+					const newMsgs = msgViews.filter((m) => m.sentAt > lastSeen);
+					if (!newMsgs.length) continue;
+
+					const me = StoreProxy.users.getUserFrom(
+						"bluesky",
+						agent.did!,
+						agent.did!,
+						this.profile?.handle,
+						this.profile?.displayName ?? this.profile?.handle,
+					);
+					me.avatarPath = this.profile?.avatar;
+
+					// Process oldest-first
+					for (const msg of newMsgs.reverse()) {
+						if (msg.sender.did === agent.did!) continue;
+
+						const member = convo.members.find((m) => m.did === msg.sender.did);
+						const sender = StoreProxy.users.getUserFrom(
+							"bluesky",
+							agent.did!,
+							msg.sender.did,
+							member?.handle,
+							member?.displayName ?? member?.handle,
+						);
+						sender.avatarPath = member?.avatar;
+
+						const chunks = TwitchUtils.parseMessageToChunks(
+							msg.text,
+							undefined,
+							true,
+							"bluesky",
+						);
+						const whisper: TwitchatDataTypes.MessageWhisperData = {
+							channel_id: agent.did!,
+							platform: "bluesky",
+							id: Utils.getUUID(),
+							date: new Date(msg.sentAt).getTime(),
+							type: TwitchatDataTypes.TwitchatMessageType.WHISPER,
+							user: sender,
+							to: me,
+							message: msg.text,
+							message_chunks: chunks,
+							message_html: TwitchUtils.messageChunksToHTML(chunks),
+							message_size: msg.text.length,
+						};
+						void StoreProxy.chat.addMessage(whisper);
+					}
+				}
+			} catch (e) {
+				console.warn("Bluesky DM poll failed", e);
 			}
 		},
 

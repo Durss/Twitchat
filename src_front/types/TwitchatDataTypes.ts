@@ -14,7 +14,8 @@ export namespace TwitchatDataTypes {
 		| "youtube"
 		| "tiktok"
 		| "facebook"
-		| "kick";
+		| "kick"
+		| "bluesky";
 
 	export type ModalTypes =
 		| ""

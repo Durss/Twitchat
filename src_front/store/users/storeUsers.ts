@@ -67,6 +67,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		myVIPs: {
 			twitchat: {},
@@ -76,6 +77,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		blockedUsers: {
 			twitchat: {},
@@ -85,6 +87,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		myFollowings: {
 			twitchat: {},
@@ -94,6 +97,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		myFollowers: {
 			twitchat: {},
@@ -103,6 +107,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		mySubscribers: {
 			twitchat: {},
@@ -112,6 +117,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 		knownBots: {
 			twitchat: {},
@@ -121,6 +127,7 @@ export const storeUsers = defineStore("users", {
 			tiktok: {},
 			facebook: {},
 			kick: {},
+			bluesky: {},
 		},
 	}),
 
