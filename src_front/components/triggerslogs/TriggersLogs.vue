@@ -57,13 +57,13 @@
 						</div>
 						<div class="date">{{ getFormattedTime(item.date) }}</div>
 						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">
-							{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}
+							{{ $t(getTriggerInfo(item.trigger).event?.labelKey!) }}
 						</div>
 						<div
 							class="subtitle"
 							v-if="
 								getTriggerInfo(item.trigger)?.label !=
-								$t(getTriggerInfo(item.trigger).event?.labelKey as string)
+								$t(getTriggerInfo(item.trigger).event?.labelKey!)
 							"
 						>
 							{{ getTriggerInfo(item.trigger)!.label }}
