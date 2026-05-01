@@ -266,6 +266,10 @@
 				"details": "Détails",
 				"revoke_key": "Révoquer la clé d'API"
 			}
+		},
+		"404": {
+			"title": "404",
+			"description": "La peage que vous cherchez a disparue 😭"
 		}
 	}
 }
