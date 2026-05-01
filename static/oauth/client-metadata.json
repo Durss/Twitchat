@@ -10,6 +10,6 @@
   "grant_types": ["authorization_code", "refresh_token"],
   "redirect_uris": ["https://dev.twitchat.fr/bluesky/oauth", "https://dev.twitchat.fr/popupBlueskyAuthResult"],
   "response_types": ["code"],
-  "scope": "atproto transition:generic",
+  "scope": "atproto transition:generic transition:chat.bsky",
   "token_endpoint_auth_method": "none"
 }

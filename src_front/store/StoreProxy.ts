@@ -4290,7 +4290,7 @@ export interface IBlueskyActions {
 	/**
 	 * Connects to Bluesky
 	 */
-	startOAuthProcess(handle: string): Promise<boolean>;
+	startOAuthProcess(handle: string, readDM?: boolean): Promise<boolean>;
 	/**
 	 * Completes OAuth process
 	 */
@@ -4303,6 +4303,22 @@ export interface IBlueskyActions {
 	 * Sets live status of the user
 	 */
 	setLiveStatus(live: boolean): Promise<void>;
+	/**
+	 * Starts polling for notifications and DMs
+	 */
+	startPolling(): void;
+	/**
+	 * Stops polling for notifications and DMs
+	 */
+	stopPolling(): void;
+	/**
+	 * Polls Bluesky notifications (follows, mentions, replies)
+	 */
+	pollNotifications(): Promise<void>;
+	/**
+	 * Polls Bluesky DMs
+	 */
+	pollDMs(): Promise<void>;
 	/**
 	 * Saves state to storage
 	 */

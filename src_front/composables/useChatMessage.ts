@@ -12,8 +12,8 @@ import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from "vue";
 export function useChatMessage(
 	props: {
 		messageData: TwitchatDataTypes.ChatMessageTypes;
-		lightMode: boolean;
-		contextMenuOff: boolean;
+		lightMode?: boolean;
+		contextMenuOff?: boolean;
 	},
 	emit: (event: "onRead", message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent) => void,
 	rootEl: Ref<HTMLElement | null>,
