@@ -64,7 +64,7 @@ const loading = ref(false);
 const storeBluesky = useStoreBluesky();
 const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
-	value: "",
+	value: "twitchdev.bsky.social",
 	labelKey: "bluesky.param_handle",
 	icon: "user",
 });
@@ -93,8 +93,8 @@ async function authenticate() {
 	const result = await storeBluesky.startOAuthProcess(param_handle.value.value);
 	if (!result) {
 		error.value = true;
-		loading.value = false;
 	}
+	loading.value = false;
 }
 </script>
 
