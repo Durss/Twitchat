@@ -5,7 +5,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="robots" content="noindex" />
-	<title>Twitchat authorization</title>
+	<title>Bluesky authorization</title>
 	<style>
 		body {
 			margin: 0;
@@ -45,10 +45,29 @@
 
 <body>
 	<img src="/twitchat.svg" />
-	<div class="result">✅ Connected</div>
-	<script>
+	<div class="result">Connecting to Bluesky...</div>
+	<script type="module">
+		let oauthClient;
+		const params = new URLSearchParams(document.location.hash);
+		const iss = params.get("iss");
+
+		async function initClient() {
+			if (oauthClient) return oauthClient;
+			const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
+			oauthClient = await BrowserOAuthClient.load({
+				clientId: document.location.origin + "/oauth/client-metadata.json",
+				handleResolver: iss,
+			});
+			return oauthClient;
+		}
+
+		async function authenticate() {
+			const client = await initClient();
+			await client.init();
+		}
+		authenticate();
 		// Notify the opener window that the auth is complete
-		if (window.opener) {
+		if (iss) {
 			let url = "";
 			if (!url) url = document.location.search;
 			const params = new URLSearchParams(url);

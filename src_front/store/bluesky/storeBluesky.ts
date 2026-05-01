@@ -47,10 +47,19 @@ export const storeBluesky = defineStore("bluesky", {
 		async startOAuthProcess(handle: string) {
 			this.connected = false;
 			const client = await this.initClient();
+			handle = handle.replace(/^@/, "");
 			try {
-				// client.signInPopup(handle);//TODO: move to popup!
-				const url = await client.authorize(handle.replace(/^@/, ""));
-				window.open(url, "_self", "noopener");
+				const session = await client.signInPopup(handle, {
+					redirect_uri: "https://dev.twitchat.fr/popupBlueskyAuthResult",
+				});
+				if (session) {
+					//Finalize popup auth
+					this.authenticate();
+				} else {
+					//Fallback to redirect
+					const url = await client.authorize(handle);
+					window.open(url, "_self", "noopener");
+				}
 			} catch (_error) {
 				return false;
 			}
@@ -84,11 +93,11 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async disconnect() {
+			this.connected = false;
+			this.profile = null;
+			this.saveState();
 			if (session) {
 				await session?.signOut();
-				this.profile = null;
-				this.connected = false;
-				this.saveState();
 			}
 		},
 
