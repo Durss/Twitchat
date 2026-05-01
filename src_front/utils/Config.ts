@@ -533,7 +533,8 @@ export default class Config {
 		this._serverConfig = data;
 	}
 
-	public getParamByKey(key: string): unknown {
+	public getParamByKey(key: string | number): unknown {
+		if (typeof key == "number") return null;
 		return this[key as keyof typeof Config.instance];
 	}
 

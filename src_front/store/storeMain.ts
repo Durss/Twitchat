@@ -99,7 +99,8 @@ export const storeMain = defineStore("main", {
 				StoreProxy.animatedText.animatedTextList.filter((v) => v.enabled).length >
 					Config.instance.MAX_ANIMATED_TEXT ||
 				StoreProxy.customTrain.customTrainList.filter((v) => v.enabled).length >
-					Config.instance.MAX_CUSTOM_TRAIN
+					Config.instance.MAX_CUSTOM_TRAIN ||
+				StoreProxy.quiz.quizList.filter((v) => v.enabled).length > Config.instance.MAX_QUIZ
 			);
 		},
 	} satisfies StoreGetters<IMainGetters, IMainState>,

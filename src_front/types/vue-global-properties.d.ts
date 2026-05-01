@@ -10,6 +10,7 @@ import type { IStore } from "@/store/StoreProxy";
 import type Config from "@/utils/Config";
 import type { TwitchatDataTypes } from "./TwitchatDataTypes";
 import type { Reactive } from "vue";
+import type Utils from "@/utils/Utils";
 
 declare module "@vue/runtime-core" {
 	interface ComponentCustomProperties {
