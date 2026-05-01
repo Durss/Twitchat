@@ -1,12 +1,17 @@
 <template>
 	<div class="card-item profileinfocard">
 		<Icon v-if="icon" class="icon" :name="icon" />
-		<div class="info">
+		<component
+			:is="url ? 'a' : 'div'"
+			:href="url"
+			:target="url ? '_blank' : undefined"
+			class="info"
+		>
 			<img v-if="avatar" class="avatar" :src="props.avatar" alt="Avatar" />
 			<Icon v-else name="user" class="avatar" />
 			<span v-if="props.name" class="name">{{ props.name }}</span>
 			<span v-if="props.details" class="details">{{ props.details }}</span>
-		</div>
+		</component>
 		<slot></slot>
 		<TTButton @click="emits('logout')" alert icon="offline">{{
 			t("global.disconnect")
@@ -26,6 +31,7 @@ const props = defineProps<{
 	name?: string;
 	details?: string;
 	icon?: string;
+	url?: string;
 }>();
 </script>
 
@@ -53,6 +59,8 @@ const props = defineProps<{
 		flex-wrap: wrap;
 		gap: 0.5em;
 		padding: 0.25em 0.5em;
+		color: var(--color-text);
+		text-decoration: none;
 		.avatar {
 			width: 3em;
 			height: 3em;

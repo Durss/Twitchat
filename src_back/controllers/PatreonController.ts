@@ -333,6 +333,7 @@ export default class PatreonController extends AbstractController {
 				let memberName =
 					json.data.attributes.first_name + " " + json.data.attributes.last_name;
 				let memberAvatar = json.data.attributes.image_url;
+				let memberUrl = json.data.attributes.url;
 				for (let i = 0; i < remoteMembershipList.length; i++) {
 					const m = remoteMembershipList[i]!;
 					if (localMemberList.findIndex((v) => v.id === m.id) > -1) {
@@ -400,7 +401,10 @@ export default class PatreonController extends AbstractController {
 				response.header("Content-Type", "application/json");
 				response.status(200);
 				response.send(
-					JSON.stringify({ success: true, data: { isMember, memberName, memberAvatar } }),
+					JSON.stringify({
+						success: true,
+						data: { isMember, memberName, memberAvatar, memberUrl },
+					}),
 				);
 			}
 		}
