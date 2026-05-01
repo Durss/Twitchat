@@ -190,6 +190,8 @@ export const storeQuiz = defineStore("quiz", {
 						q.enabled = false;
 					}
 				});
+				// Force back to true to solve an UI race condition
+				quiz.enabled = true;
 			}
 			const data: IStoreData = {
 				quizList: this.quizList,
