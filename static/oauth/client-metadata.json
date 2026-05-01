@@ -8,7 +8,7 @@
   "policy_uri": "https://dev.twitchat.fr/privacypolicy",
   "dpop_bound_access_tokens": true,
   "grant_types": ["authorization_code", "refresh_token"],
-  "redirect_uris": ["https://dev.twitchat.fr/bluesky/oauth"],
+  "redirect_uris": ["https://dev.twitchat.fr/bluesky/oauth", "https://dev.twitchat.fr/popupBlueskyAuthResult"],
   "response_types": ["code"],
   "scope": "atproto transition:generic",
   "token_endpoint_auth_method": "none"

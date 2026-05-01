@@ -38,7 +38,7 @@ const props = defineProps<{
 	align-items: center;
 	position: relative;
 
-	.icon {
+	& > .icon {
 		width: 1em;
 		height: 1em;
 		top: 0.5em;
