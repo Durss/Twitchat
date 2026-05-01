@@ -564,14 +564,14 @@
 			<PlaceholderSelector
 				class="placeholders"
 				v-if="placeholdersAsPopout && paramData.placeholderList"
-				v-model="paramData.value"
+				:modelValue="Array.isArray(paramData.value) ? '' : (paramData.value as string)"
 				:placeholders="paramData.placeholderList"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
 				:popoutMode="placeholdersAsPopout"
 				:alert="alert || errorLocal"
 				:target="placeholderTarget"
-				@update:modelValue="onEdit()"
+				@update:modelValue="onPlaceholderModelValue($event)"
 				@insert="insertPlaceholder"
 			/>
 		</div>
@@ -579,14 +579,14 @@
 		<PlaceholderSelector
 			class="placeholders"
 			v-if="!placeholdersAsPopout && paramData.placeholderList"
-			v-model="paramData.value"
+			:modelValue="Array.isArray(paramData.value) ? '' : (paramData.value as string)"
 			:placeholders="paramData.placeholderList"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
 			:target="placeholderTarget"
-			@update:modelValue="onEdit()"
+			@update:modelValue="onPlaceholderModelValue($event)"
 			@insert="insertPlaceholder"
 		/>
 
@@ -669,7 +669,7 @@ defineOptions({ name: "ParamItem" }); //This is needed so recursion works proper
 
 const props = withDefaults(
 	defineProps<{
-		paramData: TwitchatDataTypes.ParameterData<any, any, any>;
+		paramData: TwitchatDataTypes.ParameterData<any, any, any, any, any>;
 		error?: boolean;
 		errorMessage?: string;
 		disabled?: boolean;
@@ -1099,6 +1099,13 @@ function insertPlaceholder(tag: string): void {
 		// textValue.value += tag;
 	}
 	onEdit();
+}
+
+function onPlaceholderModelValue(value: string): void {
+	if (!Array.isArray(props.paramData.value)) {
+		props.paramData.value = value;
+		onEdit();
+	}
 }
 
 function setErrorState(state: boolean) {
