@@ -30,6 +30,7 @@ export const storeAuth = defineStore("auth", {
 		facebook: {} as IAuthState["facebook"],
 		instagram: {} as IAuthState["instagram"],
 		kick: {} as IAuthState["kick"],
+		bluesky: {} as IAuthState["bluesky"],
 		twitchModeratedChannels: [],
 		donorLevel: -1,
 		premiumType: "",

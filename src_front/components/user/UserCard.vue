@@ -528,6 +528,7 @@ import CustomBadgeSelector from "./CustomBadgeSelector.vue";
 import CustomBadgesManager from "./CustomBadgesManager.vue";
 import CustomUserBadges from "./CustomUserBadges.vue";
 import CustomUserNameManager from "./CustomUserNameManager.vue";
+import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 
 const emit = defineEmits<{
 	close: [];
@@ -541,6 +542,7 @@ const storeGroq = useStoreGroq();
 const storeStream = useStoreStream();
 const storeTTS = useStoreTTS();
 const storeUsers = useStoreUsers();
+const storeBluesky = useStoreBluesky();
 
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const customUsernameRef = useTemplateRef<HTMLInputElement>("customUsername");
@@ -641,6 +643,9 @@ const profilePage = computed(() => {
 		}
 		case "tiktok": {
 			return "https://www.tiktok.com/@" + user.value!.login;
+		}
+		case "bluesky": {
+			return "https://bsky.app/profile/" + user.value!.login;
 		}
 	}
 	return "#";
@@ -1136,7 +1141,8 @@ onMounted(() => {
 				}
 				isOwnChannel.value =
 					chanId == StoreProxy.auth.twitch.user.id ||
-					chanId == StoreProxy.auth.youtube.user?.id;
+					chanId == StoreProxy.auth.youtube.user?.id ||
+					chanId == storeBluesky.session?.did;
 				isSelfProfile.value = user.value.id == StoreProxy.auth.twitch.user.id;
 				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
 				canModerate.value =
