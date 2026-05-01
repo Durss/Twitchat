@@ -127,6 +127,11 @@
 				v-if="messageData.platform == 'tiktok'"
 				v-tooltip="t('chat.tiktok.platform_tiktok')"
 			/>
+			<Icon
+				name="bluesky"
+				v-if="messageData.platform == 'bluesky'"
+				v-tooltip="t('chat.bluesky.platform_bluesky')"
+			/>
 
 			<Icon
 				v-if="
@@ -436,7 +441,7 @@ const {
 	onContextMenu,
 	openUserCard,
 	getProfilePage,
-} = useChatMessage(props as any, emit as any, rootEl, {
+} = useChatMessage(props, emit, rootEl, {
 	copyJSON: copyJSONOverride,
 	applyStyles: applyStylesOverride,
 });

@@ -9,19 +9,30 @@
 		<div v-if="!storeBluesky.connected" class="card-item content">
 			<form @submit.prevent="authenticate">
 				<ParamItem
-					class="param"
+					class="param vertical"
 					:paramData="param_handle"
 					v-model="param_handle.value"
 					noBackground
 				/>
+				<ParamItem
+					class="param"
+					:paramData="param_listDMs"
+					v-model="param_listDMs.value"
+					noBackground
+				/>
 
-				<TTButton icon="newtab" type="submit" :loading="loading" :disabled="!canSubmit">{{
-					t("global.connect")
-				}}</TTButton>
+				<TTButton
+					class="submitBt"
+					icon="newtab"
+					type="submit"
+					:loading="loading"
+					:disabled="!canSubmit"
+					>{{ t("global.connect") }}</TTButton
+				>
 
 				<ToggleBlock small :title="t('global.advanced_params')" :open="false">
 					<ParamItem
-						class="param"
+						class="param vertical"
 						:paramData="param_handleResolver"
 						v-model="storeBluesky.handleResolver"
 						noBackground
@@ -65,9 +76,15 @@ const loading = ref(false);
 const storeBluesky = useStoreBluesky();
 const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
-	value: "twitchdev.bsky.social",
+	value: "",
 	labelKey: "bluesky.param_handle",
 	icon: "user",
+});
+const param_listDMs = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "bluesky.param_listDMs",
+	icon: "whispers",
 });
 const param_handleResolver = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
@@ -91,7 +108,10 @@ const canSubmit = computed(() => {
 async function authenticate() {
 	error.value = false;
 	loading.value = true;
-	const result = await storeBluesky.startOAuthProcess(param_handle.value.value);
+	const result = await storeBluesky.startOAuthProcess(
+		param_handle.value.value,
+		param_listDMs.value.value,
+	);
 	if (!result) {
 		error.value = true;
 	}
@@ -112,14 +132,17 @@ async function authenticate() {
 			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
-			align-items: center;
-			.param {
+			.param.vertical {
 				:deep(.holder) {
 					flex-direction: column;
 				}
 				:deep(.inputHolder) {
 					width: 100%;
 				}
+			}
+
+			.submitBt {
+				align-self: center;
 			}
 
 			.error {

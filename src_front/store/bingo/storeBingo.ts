@@ -33,6 +33,7 @@ export const storeBingo = defineStore("bingo", {
 					tiktok: undefined,
 					twitchat: undefined,
 					kick: undefined,
+					bluesky: undefined,
 				};
 				data.emoteValue.twitch = {
 					code: twitch.code,
