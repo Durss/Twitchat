@@ -51,17 +51,17 @@
 					<div class="recurrent">
 						<ParamItem
 							noBackground
-							:paramData="params_daily[index]"
+							:paramData="params_daily[index]!"
 							v-model="d.daily"
 						/>
 						<ParamItem
 							noBackground
-							:paramData="params_monthly[index]"
+							:paramData="params_monthly[index]!"
 							v-model="d.monthly"
 						/>
 						<ParamItem
 							noBackground
-							:paramData="params_yearly[index]"
+							:paramData="params_yearly[index]!"
 							v-model="d.yearly"
 						/>
 					</div>
