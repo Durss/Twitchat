@@ -376,6 +376,10 @@ export const storeStream = defineStore("stream", {
 				this.currentStreamInfo[channelId]!.live = true;
 				this.currentStreamInfo[channelId]!.viewers = viewerCount;
 			}
+
+			if (channelId == StoreProxy.auth.twitch.user.id) {
+				StoreProxy.bluesky.applyAutoLive();
+			}
 		},
 
 		setStreamStart(channelId: string, startedAt?: number): void {
@@ -390,14 +394,20 @@ export const storeStream = defineStore("stream", {
 				window.setTimeout(() => {
 					void TwitchUtils.getAdSchedule();
 				}, 60000);
+
+				StoreProxy.bluesky.applyAutoLive();
 			}
 		},
 
 		setStreamStop(channelId: string): void {
 			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;
 			const uid = StoreProxy.auth.twitch.user.id;
-			if (emoteOnly && channelId === uid) {
-				void TwitchUtils.setRoomSettings(uid, { emotesOnly: true });
+			if (channelId === uid) {
+				if (emoteOnly) {
+					void TwitchUtils.setRoomSettings(uid, { emotesOnly: true });
+				}
+
+				StoreProxy.bluesky.applyAutoLive();
 			}
 
 			//Send donation reminder if requested
