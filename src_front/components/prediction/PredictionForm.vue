@@ -1,8 +1,8 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div class="head" v-if="triggerMode === false">
 			<ClearButton @click="close()" />
-			<h1><Icon name="prediction" class="icon" />{{ $t("prediction.form.title") }}</h1>
+			<h1><Icon name="prediction" class="icon" />{{ t("prediction.form.title") }}</h1>
 		</div>
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceController" class="voiceHelper" />
@@ -29,7 +29,7 @@
 				</div>
 
 				<div class="card-item answers">
-					<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
+					<label for="prediction_answer">{{ t("prediction.form.outcomes") }}</label>
 					<div
 						v-for="(a, index) in answers"
 						:class="getAnswerClasses(index)"
@@ -42,13 +42,13 @@
 								v-model="answers[index]"
 								v-autofocus="index == 0 && title != ''"
 								:tabindex="index + 2"
-								:placeholder="$t('prediction.form.answer_placeholder')"
+								:placeholder="t('prediction.form.answer_placeholder')"
 								@change="onValueChange()"
 							/>
 							<div class="len">{{ answers[index]!.length }}/25</div>
 						</div>
 						<TTButton
-							:aria-label="$t('prediction.form.outcome_delete_aria')"
+							:aria-label="t('prediction.form.outcome_delete_aria')"
 							class="deleteBt"
 							icon="cross"
 							type="button"
@@ -78,7 +78,7 @@
 					v-if="triggerMode === false"
 					:loading="loading"
 					:disabled="!canSubmit"
-					>{{ $t("global.start") }}</TTButton
+					>{{ t("global.start") }}</TTButton
 				>
 				<div class="errorCard" v-if="error" @click="error = ''">{{ error }}</div>
 			</form>
@@ -86,8 +86,11 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
+import { storeMain as useStoreMain } from "@/store/storeMain";
 import {
 	TriggerEventPlaceholders,
 	type ITriggerPlaceholder,
@@ -97,231 +100,225 @@ import {
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch } from "@vue/runtime-core";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractSidePanel from "../AbstractSidePanel";
-import TTButton from "../TTButton.vue";
+import VoiceController from "@/utils/voice/VoiceController";
+import {
+	computed,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
+import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
+import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
+import PlaceholderSelector from "../params/PlaceholderSelector.vue";
 import FormVoiceControllHelper from "../voice/FormVoiceControllHelper";
 import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
-import PlaceholderSelector from "../params/PlaceholderSelector.vue";
-import DataStore from "@/store/DataStore";
-import VoiceController from "@/utils/voice/VoiceController";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ClearButton,
-		PlaceholderSelector,
-		VoiceGlobalCommandsHelper,
+const props = withDefaults(
+	defineProps<{
+		triggerMode?: boolean;
+		//This is used by the trigger action form.
+		action?: TriggerActionPredictionData;
+		triggerData?: TriggerData;
+	}>(),
+	{
+		triggerMode: false,
 	},
-	emits: ["close"],
-})
-class PredictionForm extends AbstractSidePanel {
-	@Prop({ type: Boolean, default: false })
-	public triggerMode!: boolean;
+);
 
-	//This is used by the trigger action form.
-	@Prop({ type: Object, default: {} })
-	public action!: TriggerActionPredictionData;
+const emit = defineEmits<{ close: [] }>();
 
-	@Prop
-	public triggerData!: TriggerData;
+const { t } = useI18n();
+const storeMain = useStoreMain();
+const rootEl = useTemplateRef("rootEl");
+const { close } = useSidePanel(rootEl, () => emit("close"), props.triggerMode === false);
 
-	public loading = false;
-	public error = "";
-	public title = "";
-	public answers: string[] = ["", ""];
-	public placeholderList: ITriggerPlaceholder<any>[] = [];
-	public param_duration: TwitchatDataTypes.ParameterData<number> = {
-		value: 10 * 60,
-		type: "duration",
-		min: 30,
-		max: 1800,
-		labelKey: "prediction.form.vote_duration",
-	};
-	public param_title: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		maxLength: 45,
-		labelKey: "prediction.form.question",
-		placeholderKey: "prediction.form.question_placeholder",
-	};
-	public predictionHistory: { title: string; duration: number; options: string[] }[] = [];
+const loading = ref(false);
+const error = ref("");
+const title = ref("");
+const answers = ref<string[]>(["", ""]);
+const placeholderList = ref<ITriggerPlaceholder<any>[]>([]);
+const param_duration = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 10 * 60,
+	type: "duration",
+	min: 30,
+	max: 1800,
+	labelKey: "prediction.form.vote_duration",
+});
+const param_title = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	maxLength: 45,
+	labelKey: "prediction.form.question",
+	placeholderKey: "prediction.form.question_placeholder",
+});
+const predictionHistory = ref<{ title: string; duration: number; options: string[] }[]>([]);
+const voiceController = ref<FormVoiceControllHelper>();
 
-	public voiceController!: FormVoiceControllHelper;
+const classes = computed<string[]>(() => {
+	const res = ["predictionform", "sidePanel"];
+	if (props.triggerMode !== false) res.push("embedMode");
+	return res;
+});
 
-	public get classes(): string[] {
-		const res = ["predictionform", "sidePanel"];
-		if (this.triggerMode !== false) res.push("embedMode");
-		return res;
+const canSubmit = computed<boolean>(() => {
+	return title.value.length > 1 && answers.value[0]!.length > 0 && answers.value[1]!.length > 0;
+});
+
+const filledCount = computed<number>(() => {
+	let count = 0;
+	for (let i = 0; i < answers.value.length; i++) {
+		if (answers.value[i]!.length > 0) count++;
+	}
+	return count;
+});
+
+function getAnswerClasses(index: number): string[] {
+	const res = ["answer"];
+	if (filledCount.value < 3 && index == 1) res.push("red");
+	if (index > 1 && answers.value[index]!.length == 0) res.push("disabled");
+	return res;
+}
+
+onBeforeMount(() => {
+	if (storeMain.tempStoreValue) {
+		const titlePrefill = storeMain.tempStoreValue as string;
+		if (titlePrefill) title.value = titlePrefill;
+		storeMain.tempStoreValue = null;
 	}
 
-	public get canSubmit(): boolean {
-		return this.title.length > 1 && this.answers[0]!.length > 0 && this.answers[1]!.length > 0;
-	}
-
-	public get filledCount(): number {
-		let filledCount = 0;
-		for (let i = 0; i < this.answers.length; i++) {
-			if (this.answers[i]!.length > 0) filledCount++;
-		}
-		return filledCount;
-	}
-
-	public getAnswerClasses(index: number): string[] {
-		const res = ["answer"];
-		if (this.filledCount < 3 && index == 1) res.push("red");
-		if (index > 1 && this.answers[index]!.length == 0) res.push("disabled");
-		return res;
-	}
-
-	public async beforeMount(): Promise<void> {
-		if (this.$store.main.tempStoreValue) {
-			const titlePrefill = this.$store.main.tempStoreValue as string;
-			if (titlePrefill) this.title = titlePrefill;
-			this.$store.main.tempStoreValue = null;
-		}
-
-		if (this.triggerMode != false) {
-			this.placeholderList = this.param_title.placeholderList = TriggerEventPlaceholders(
-				this.triggerData.type,
-			);
-
-			if (this.action.predictionData) {
-				this.param_duration.value = this.action.predictionData.voteDuration;
-				this.title = this.action.predictionData.title;
-				for (let i = 0; i < this.action.predictionData.answers.length; i++) {
-					this.answers[i] = this.action.predictionData.answers[i]!;
-				}
-			} else {
-				this.onValueChange();
-			}
-		} else {
-			this.param_duration.value =
-				parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10 * 60;
-
-			TwitchUtils.getPredictions().then((pred) => {
-				const done: { [key: string]: boolean } = {};
-				this.predictionHistory = pred
-					.map((v) => {
-						const options = v.outcomes.map((c) => c.title);
-						let key = v.title + v.prediction_window + options.join(",");
-						if (done[key]) return null;
-						done[key] = true;
-						return { title: v.title, duration: v.prediction_window, options };
-					})
-					.filter((v) => v != null) as typeof this.predictionHistory;
-			});
-		}
-	}
-
-	public async mounted(): Promise<void> {
-		watch(
-			() => VoiceController.instance.started.value,
-			() => {
-				if (VoiceController.instance.started.value && !this.voiceController) {
-					this.voiceController = new FormVoiceControllHelper(
-						this.$el,
-						this.close,
-						this.submitForm,
-					);
-				}
-			},
+	if (props.triggerMode != false) {
+		placeholderList.value = param_title.value.placeholderList = TriggerEventPlaceholders(
+			props.triggerData!.type,
 		);
 
-		if (this.triggerMode === false) {
-			super.open();
+		if (props.action?.predictionData) {
+			param_duration.value.value = props.action.predictionData.voteDuration;
+			title.value = props.action.predictionData.title;
+			for (let i = 0; i < props.action.predictionData.answers.length; i++) {
+				answers.value[i] = props.action.predictionData.answers[i]!;
+			}
+		} else {
+			onValueChange();
 		}
+	} else {
+		param_duration.value.value =
+			parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10 * 60;
 
-		watch(
-			() => this.answers,
-			() => {
-				let emptyCount = 0;
-				for (let i = 0; i < this.answers.length; i++) {
-					if (this.answers[i]!.length === 0) emptyCount++;
-				}
-				if (
-					emptyCount == 0 &&
-					this.answers.length < Config.instance.MAX_PREDICTION_OUTCOMES
-				) {
-					this.answers.push("");
-				} else if (emptyCount > 1 && this.answers.length > 2) {
-					while (emptyCount > 1) {
-						for (let i = 0; i < this.answers.length; i++) {
-							if (this.answers[i]!.length === 0) {
-								this.answers.splice(i, 1);
-								emptyCount--;
-								break;
-							}
+		TwitchUtils.getPredictions().then((pred) => {
+			const done: { [key: string]: boolean } = {};
+			predictionHistory.value = pred
+				.map((v) => {
+					const options = v.outcomes.map((c) => c.title);
+					let key = v.title + v.prediction_window + options.join(",");
+					if (done[key]) return null;
+					done[key] = true;
+					return { title: v.title, duration: v.prediction_window, options };
+				})
+				.filter((v) => v != null);
+		});
+	}
+});
+
+onMounted(() => {
+	watch(
+		() => VoiceController.instance.started.value,
+		() => {
+			if (VoiceController.instance.started.value && !voiceController.value) {
+				voiceController.value = new FormVoiceControllHelper(
+					rootEl.value!,
+					close,
+					submitForm,
+				);
+			}
+		},
+	);
+
+	watch(
+		() => answers.value,
+		() => {
+			let emptyCount = 0;
+			for (let i = 0; i < answers.value.length; i++) {
+				if (answers.value[i]!.length === 0) emptyCount++;
+			}
+			if (emptyCount == 0 && answers.value.length < Config.instance.MAX_PREDICTION_OUTCOMES) {
+				answers.value.push("");
+			} else if (emptyCount > 1 && answers.value.length > 2) {
+				while (emptyCount > 1) {
+					for (let i = 0; i < answers.value.length; i++) {
+						if (answers.value[i]!.length === 0) {
+							answers.value.splice(i, 1);
+							emptyCount--;
+							break;
 						}
 					}
 				}
-			},
-			{ deep: true },
+			}
+		},
+		{ deep: true },
+	);
+});
+
+onBeforeUnmount(() => {
+	if (voiceController.value) voiceController.value.dispose();
+});
+
+async function deleteAnswer(index: number): Promise<void> {
+	answers.value.splice(index, 1);
+}
+
+async function submitForm(): Promise<void> {
+	loading.value = true;
+	error.value = "";
+
+	const filtered = answers.value.filter((v) => v.length > 0);
+
+	try {
+		await TwitchUtils.createPrediction(
+			StoreProxy.auth.twitch.user.id,
+			title.value,
+			filtered,
+			param_duration.value.value,
 		);
+	} catch (e: unknown) {
+		loading.value = false;
+		error.value = (e as { message: string }).message;
+		return;
 	}
+	loading.value = false;
+	DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, param_duration.value.value);
+	close();
+}
 
-	public beforeUnmount(): void {
-		if (this.voiceController) this.voiceController.dispose();
-	}
-
-	public async deleteAnswer(index: number): Promise<void> {
-		this.answers.splice(index, 1);
-	}
-
-	public async submitForm(): Promise<void> {
-		this.loading = true;
-		this.error = "";
-
-		const answers = this.answers.filter((v) => v.length > 0);
-
-		try {
-			await TwitchUtils.createPrediction(
-				StoreProxy.auth.twitch.user.id,
-				this.title,
-				answers,
-				this.param_duration.value,
-			);
-		} catch (error: unknown) {
-			this.loading = false;
-			this.error = (error as { message: string }).message;
-			return;
-		}
-		this.loading = false;
-		DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, this.param_duration.value);
-		super.close();
-	}
-
-	/**
-	 * Called when any value is changed
-	 */
-	public onValueChange(): void {
-		if (this.action) {
-			this.action.predictionData = {
-				title: this.title,
-				answers: this.answers.filter((v) => v.length > 0),
-				voteDuration: this.param_duration.value,
-			};
-		}
-	}
-
-	/**
-	 * Selects a poll's preset
-	 * @param params
-	 */
-	public selectPreset(params: (typeof this.predictionHistory)[number]): void {
-		this.param_title.value = params.title;
-		this.param_duration.value = params.duration;
-		this.answers = params.options.concat();
-		while (this.answers.length < 5) {
-			this.answers.push("");
-		}
+/**
+ * Called when any value is changed
+ */
+function onValueChange(): void {
+	if (props.action) {
+		props.action.predictionData = {
+			title: title.value,
+			answers: answers.value.filter((v) => v.length > 0),
+			voteDuration: param_duration.value.value,
+		};
 	}
 }
-export default toNative(PredictionForm);
+
+/**
+ * Selects a poll's preset
+ * @param params
+ */
+function selectPreset(params: (typeof predictionHistory.value)[number]): void {
+	param_title.value.value = params.title;
+	param_duration.value.value = params.duration;
+	answers.value = params.options.concat();
+	while (answers.value.length < 5) {
+		answers.value.push("");
+	}
+}
 </script>
 
 <style scoped lang="less">
@@ -415,3 +412,4 @@ export default toNative(PredictionForm);
 	}
 }
 </style>
+

@@ -1,7 +1,7 @@
 <template>
-	<div class="pollform sidePanel" :class="{ embedMode: triggerMode !== false }">
+	<div class="pollform sidePanel" :class="{ embedMode: triggerMode !== false }" ref="rootEl">
 		<div class="head" v-if="triggerMode === false">
-			<h1 class="title"><Icon name="poll" class="icon" />{{ $t("poll.form.title") }}</h1>
+			<h1 class="title"><Icon name="poll" class="icon" />{{ t("poll.form.title") }}</h1>
 			<ClearButton @click="close()" />
 		</div>
 
@@ -27,7 +27,7 @@
 				/>
 
 				<div class="card-item answers">
-					<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
+					<label for="poll_answer">{{ t("poll.form.answers") }}</label>
 
 					<div class="field" v-for="(a, index) in answers.length" :key="index">
 						<input
@@ -71,7 +71,7 @@
 					:disabled="
 						title.length < 1 || answers.filter((v) => v.trim().length > 0).length < 2
 					"
-					>{{ $t("global.start") }}</TTButton
+					>{{ t("global.start") }}</TTButton
 				>
 				<div class="errorCard" v-if="error" @click="error = ''">{{ error }}</div>
 			</form>
@@ -79,220 +79,215 @@
 	</div>
 </template>
 
-<script lang="ts">
-import FormVoiceControllHelper from "@/components/voice/FormVoiceControllHelper";
+<script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
+import { storeMain as useStoreMain } from "@/store/storeMain";
 import {
 	TriggerEventPlaceholders,
+	type ITriggerPlaceholder,
 	type TriggerActionPollData,
 	type TriggerData,
-	type ITriggerPlaceholder,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch } from "vue";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractSidePanel from "../AbstractSidePanel";
-import TTButton from "../TTButton.vue";
-import ClearButton from "../ClearButton.vue";
-import ParamItem from "../params/ParamItem.vue";
-import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
-import PlaceholderSelector from "../params/PlaceholderSelector.vue";
-import DataStore from "@/store/DataStore";
 import VoiceController from "@/utils/voice/VoiceController";
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import ClearButton from "../ClearButton.vue";
+import TTButton from "../TTButton.vue";
+import ParamItem from "../params/ParamItem.vue";
+import PlaceholderSelector from "../params/PlaceholderSelector.vue";
+import FormVoiceControllHelper from "../voice/FormVoiceControllHelper";
+import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ClearButton,
-		PlaceholderSelector,
-		VoiceGlobalCommandsHelper,
+const props = withDefaults(
+	defineProps<{
+		triggerMode?: boolean;
+		//This is used by the trigger action form.
+		action?: TriggerActionPollData;
+		triggerData?: TriggerData;
+	}>(),
+	{
+		triggerMode: false,
 	},
-	emits: ["close"],
-})
-class PollForm extends AbstractSidePanel {
-	@Prop({ type: Boolean, default: false })
-	public triggerMode!: boolean;
+);
 
-	//This is used by the trigger action form.
-	@Prop({ type: Object, default: {} })
-	public action!: TriggerActionPollData;
+const emit = defineEmits<{ close: [] }>();
 
-	@Prop
-	public triggerData!: TriggerData;
+const { t } = useI18n();
+const storeMain = useStoreMain();
+const rootEl = useTemplateRef("rootEl");
+const { close } = useSidePanel(rootEl, () => emit("close"), props.triggerMode === false);
 
-	public loading: boolean = false;
-	public error = "";
-	public title = "";
-	public answers: string[] = ["", "", "", "", ""];
-	public param_title: TwitchatDataTypes.ParameterData<string> = {
-		value: "",
-		type: "string",
-		maxLength: 60,
-		labelKey: "poll.form.question",
-		placeholderKey: "prediction.form.question_placeholder",
-	};
-	public param_extraVotes: TwitchatDataTypes.ParameterData<boolean> = {
-		value: false,
-		type: "boolean",
-		labelKey: "poll.form.additional_votes",
-		icon: "add",
-	};
-	public param_points: TwitchatDataTypes.ParameterData<number> = {
-		value: 100,
-		type: "number",
-		min: 1,
-		max: 99999,
-		step: 1,
-		icon: "channelPoints",
-		labelKey: "poll.form.additional_votes_amount",
-	};
-	public param_duration: TwitchatDataTypes.ParameterData<number> = {
-		value: 2 * 60,
-		type: "duration",
-		min: 15,
-		max: 1800,
-		labelKey: "poll.form.vote_duration",
-		icon: "timer",
-	};
-	public placeholderList: ITriggerPlaceholder<any>[] = [];
-	public pollHistory: {
+const loading = ref(false);
+const error = ref("");
+const title = ref("");
+const answers = ref<string[]>(["", "", "", "", ""]);
+const param_title = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	maxLength: 60,
+	labelKey: "poll.form.question",
+	placeholderKey: "prediction.form.question_placeholder",
+});
+const param_extraVotes = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	value: false,
+	type: "boolean",
+	labelKey: "poll.form.additional_votes",
+	icon: "add",
+});
+const param_points = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 100,
+	type: "number",
+	min: 1,
+	max: 99999,
+	step: 1,
+	icon: "channelPoints",
+	labelKey: "poll.form.additional_votes_amount",
+});
+const param_duration = ref<TwitchatDataTypes.ParameterData<number>>({
+	value: 2 * 60,
+	type: "duration",
+	min: 15,
+	max: 1800,
+	labelKey: "poll.form.vote_duration",
+	icon: "timer",
+});
+const placeholderList = ref<ITriggerPlaceholder<any>[]>([]);
+const pollHistory = ref<
+	{
 		title: string;
 		duration: number;
 		options: string[];
 		channelPoints: number;
-	}[] = [];
+	}[]
+>([]);
 
-	public voiceController!: FormVoiceControllHelper;
+const voiceController = ref<FormVoiceControllHelper>();
 
-	public async beforeMount(): Promise<void> {
-		if (this.$store.main.tempStoreValue) {
-			const titlePrefill = this.$store.main.tempStoreValue as string;
-			if (titlePrefill) this.title = titlePrefill;
-			this.$store.main.tempStoreValue = null;
-		}
+onBeforeMount(() => {
+	if (storeMain.tempStoreValue) {
+		const titlePrefill = storeMain.tempStoreValue as string;
+		if (titlePrefill) title.value = titlePrefill;
+		storeMain.tempStoreValue = null;
+	}
 
-		if (this.triggerMode !== false) {
-			this.placeholderList = this.param_title.placeholderList = TriggerEventPlaceholders(
-				this.triggerData.type,
-			);
-			if (this.action.pollData) {
-				this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
-				this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
-				this.param_duration.value = this.action.pollData.voteDuration;
-				this.title = this.action.pollData.title;
-				for (let i = 0; i < this.action.pollData.answers.length; i++) {
-					this.answers[i] = this.action.pollData.answers[i]!;
-				}
-			} else {
-				this.onValueChange();
+	if (props.triggerMode !== false) {
+		placeholderList.value = param_title.value.placeholderList = TriggerEventPlaceholders(
+			props.triggerData!.type,
+		);
+		if (props.action?.pollData) {
+			param_extraVotes.value.value = props.action.pollData.pointsPerVote > 0;
+			param_points.value.value = props.action.pollData.pointsPerVote ?? 1;
+			param_duration.value.value = props.action.pollData.voteDuration;
+			title.value = props.action.pollData.title;
+			for (let i = 0; i < props.action.pollData.answers.length; i++) {
+				answers.value[i] = props.action.pollData.answers[i]!;
 			}
 		} else {
-			this.param_duration.value =
-				parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2 * 60;
-			TwitchUtils.getPolls().then((polls) => {
-				const done: { [key: string]: boolean } = {};
-				this.pollHistory = polls
-					.map((v) => {
-						const options = v.choices.map((c) => c.title);
-						const channelPoints = v.channel_points_voting_enabled
-							? v.channel_points_per_vote
-							: 0;
-						let key = v.title + v.duration + channelPoints + options.join(",");
-						if (done[key]) return null;
-						done[key] = true;
-						return { title: v.title, duration: v.duration, channelPoints, options };
-					})
-					.filter((v) => v != null) as typeof this.pollHistory;
-			});
+			onValueChange();
 		}
+	} else {
+		param_duration.value.value =
+			parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2 * 60;
+		TwitchUtils.getPolls().then((polls) => {
+			const done: { [key: string]: boolean } = {};
+			pollHistory.value = polls
+				.map((v) => {
+					const options = v.choices.map((c) => c.title);
+					const channelPoints = v.channel_points_voting_enabled
+						? v.channel_points_per_vote
+						: 0;
+					let key = v.title + v.duration + channelPoints + options.join(",");
+					if (done[key]) return null;
+					done[key] = true;
+					return { title: v.title, duration: v.duration, channelPoints, options };
+				})
+				.filter((v) => v != null);
+		});
 	}
+});
 
-	public async mounted(): Promise<void> {
-		watch(
-			() => VoiceController.instance.started.value,
-			() => {
-				if (VoiceController.instance.started.value && !this.voiceController) {
-					this.voiceController = new FormVoiceControllHelper(
-						this.$el,
-						this.close,
-						this.submitForm,
-					);
-				}
-			},
+onMounted(() => {
+	watch(
+		() => VoiceController.instance.started.value,
+		() => {
+			if (VoiceController.instance.started.value && !voiceController.value) {
+				voiceController.value = new FormVoiceControllHelper(
+					rootEl.value!,
+					close,
+					submitForm,
+				);
+			}
+		},
+	);
+});
+
+onBeforeUnmount(() => {
+	if (voiceController.value) voiceController.value.dispose();
+});
+
+async function submitForm(): Promise<void> {
+	loading.value = true;
+	error.value = "";
+
+	try {
+		await TwitchUtils.createPoll(
+			StoreProxy.auth.twitch.user.id,
+			title.value,
+			answers.value.filter((v) => v.trim().length > 0),
+			param_duration.value.value,
+			param_extraVotes.value.value ? param_points.value.value : 0,
 		);
-
-		if (this.triggerMode === false) {
-			super.open();
+	} catch (e: unknown) {
+		loading.value = false;
+		let message = (e as { message: string }).message;
+		if (message.toLowerCase().indexOf("pollalreadyactive") > -1) {
+			message = t("error.poll_active");
+		} else if (message.toLowerCase().indexOf("illegal_argument") > -1) {
+			message = t("error.poll_automod");
 		}
+		error.value = message;
+		return;
 	}
+	loading.value = false;
+	DataStore.set(DataStore.POLL_DEFAULT_DURATION, param_duration.value.value);
+	close();
+}
 
-	public beforeUnmount(): void {
-		if (this.voiceController) this.voiceController.dispose();
-	}
-
-	public async submitForm(): Promise<void> {
-		this.loading = true;
-		this.error = "";
-
-		try {
-			await TwitchUtils.createPoll(
-				StoreProxy.auth.twitch.user.id,
-				this.title,
-				this.answers.filter((v) => v.trim().length > 0),
-				this.param_duration.value,
-				this.param_extraVotes.value ? this.param_points.value : 0,
-			);
-		} catch (error: unknown) {
-			this.loading = false;
-			let message = (error as { message: string }).message;
-			if (message.toLowerCase().indexOf("pollalreadyactive") > -1) {
-				message = this.$t("error.poll_active");
-			} else if (message.toLowerCase().indexOf("illegal_argument") > -1) {
-				message = this.$t("error.poll_automod");
-			}
-			this.error = message;
-			return;
+/**
+ * Called when any value is changed
+ */
+function onValueChange(): void {
+	if (props.action) {
+		if (!param_extraVotes.value.value) {
+			param_points.value.value = 0;
 		}
-		this.loading = false;
-		DataStore.set(DataStore.POLL_DEFAULT_DURATION, this.param_duration.value);
-		this.close();
-	}
-
-	/**
-	 * Called when any value is changed
-	 */
-	public onValueChange(): void {
-		if (this.action) {
-			if (!this.param_extraVotes.value) {
-				this.param_points.value = 0;
-			}
-			this.action.pollData = {
-				title: this.title,
-				answers: this.answers.filter((v) => v.length > 0),
-				pointsPerVote: this.param_points.value,
-				voteDuration: this.param_duration.value,
-			};
-		}
-	}
-
-	/**
-	 * Selects a poll's preset
-	 * @param params
-	 */
-	public selectPreset(params: (typeof this.pollHistory)[number]): void {
-		this.param_title.value = params.title;
-		this.param_duration.value = params.duration;
-		this.param_extraVotes.value = params.channelPoints > 0;
-		this.param_points.value = params.channelPoints;
-		this.answers = params.options.concat();
-		while (this.answers.length < 5) {
-			this.answers.push("");
-		}
+		props.action.pollData = {
+			title: title.value,
+			answers: answers.value.filter((v) => v.length > 0),
+			pointsPerVote: param_points.value.value,
+			voteDuration: param_duration.value.value,
+		};
 	}
 }
-export default toNative(PollForm);
+
+/**
+ * Selects a poll's preset
+ * @param params
+ */
+function selectPreset(params: (typeof pollHistory.value)[number]): void {
+	param_title.value.value = params.title;
+	param_duration.value.value = params.duration;
+	param_extraVotes.value.value = params.channelPoints > 0;
+	param_points.value.value = params.channelPoints;
+	answers.value = params.options.concat();
+	while (answers.value.length < 5) {
+		answers.value.push("");
+	}
+}
 </script>
 
 <style scoped lang="less">
@@ -339,3 +334,4 @@ export default toNative(PollForm);
 	}
 }
 </style>
+
