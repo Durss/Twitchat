@@ -2581,6 +2581,7 @@ export interface IPatreonState {
 	isMember: boolean;
 	userName: string;
 	userAvatar: string;
+	userUrl: string;
 	connected: boolean;
 	/**
 	 * Patreon auth flow params

@@ -14,6 +14,7 @@
 			v-if="storePatreon.connected"
 			:avatar="storePatreon.userAvatar"
 			:name="storePatreon.userName"
+			:url="storePatreon.userUrl"
 			@logout="
 				storePatreon.disconnect();
 				loadAuthURL();
