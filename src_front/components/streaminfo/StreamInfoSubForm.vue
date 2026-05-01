@@ -254,7 +254,13 @@ async function populate(): Promise<void> {
 
 	param_title.value.value = param_title.value.value = props.title;
 	param_branded.value.value = props.branded === true;
-	localTags.value = param_tags.value.value = props.tags;
+	const newTags = props.tags ?? [];
+	const tagsSame =
+		localTags.value.length === newTags.length &&
+		localTags.value.every((t, i) => t === newTags[i]);
+	if (!tagsSame) {
+		localTags.value = param_tags.value.value = newTags;
+	}
 	localCategories.value = props.category ? [props.category] : [];
 	const labels = props.labels ? props.labels : [];
 

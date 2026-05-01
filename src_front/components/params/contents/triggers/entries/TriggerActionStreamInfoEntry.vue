@@ -15,91 +15,98 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import StreamInfoSubForm from "@/components/streaminfo/StreamInfoSubForm.vue";
-import ToggleBlock from "@/components/ToggleBlock.vue";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch } from "vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import ParamItem from "../../../ParamItem.vue";
-import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import type {
 	ITriggerPlaceholder,
 	TriggerActionStreamInfoData,
 	TriggerData,
 } from "@/types/TriggerActionDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { onBeforeMount, ref, watch } from "vue";
 
-@Component({
-	components: {
-		ParamItem,
-		ToggleBlock,
-		StreamInfoSubForm,
-	},
-	emits: ["update"],
-})
-class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
-	@Prop
-	declare action: TriggerActionStreamInfoData;
-	@Prop
-	declare triggerData: TriggerData;
+const props = defineProps<{
+	action: TriggerActionStreamInfoData;
+	triggerData: TriggerData;
+}>();
+const loading = ref<boolean>(true);
+const title = ref<string>("");
+const tags = ref<string[]>([]);
+const branded = ref<boolean>(false);
+const labels = ref<{ id: string; enabled: boolean }[]>([]);
+const category = ref<TwitchDataTypes.StreamCategory | null>(null);
+const placeholderList = ref<ITriggerPlaceholder<any>[]>([]);
+useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
 
-	public loading: boolean = true;
-	public title: string = "";
-	public tags: string[] = [];
-	public branded: boolean = false;
-	public labels: { id: string; enabled: boolean }[] = [];
-	public category: TwitchDataTypes.StreamCategory | null = null;
-	public placeholderList: ITriggerPlaceholder<any>[] = [];
+watch(
+	() => title.value,
+	() => onChange(),
+);
+watch(
+	() => tags.value,
+	() => onChange(),
+);
+watch(
+	() => category.value,
+	() => onChange(),
+);
+watch(
+	() => labels.value,
+	() => onChange(),
+);
+watch(
+	() => branded.value,
+	() => onChange(),
+);
 
-	public async beforeMount(): Promise<void> {
-		if (this.action.categoryId) {
-			this.category = await TwitchUtils.getCategoryByID(this.action.categoryId);
-		}
-		this.title = this.action.title;
-		this.tags = this.action.tags || [];
-		this.branded = this.action.branded === true;
-		this.labels = this.action.labels || [];
-		this.loading = false;
-
-		watch(
-			() => this.title,
-			() => this.onChange(),
-		);
-		watch(
-			() => this.tags,
-			() => this.onChange(),
-		);
-		watch(
-			() => this.category,
-			() => this.onChange(),
-		);
-		watch(
-			() => this.labels,
-			() => this.onChange(),
-		);
-		watch(
-			() => this.branded,
-			() => this.onChange(),
-		);
+onBeforeMount(async () => {
+	if (props.action.categoryId) {
+		category.value = await TwitchUtils.getCategoryByID(props.action.categoryId);
 	}
+	title.value = props.action.title;
+	tags.value = props.action.tags || [];
+	branded.value = props.action.branded === true;
+	labels.value = props.action.labels || [];
+	loading.value = false;
 
-	private onChange(): void {
-		this.action.categoryId = this.category?.id ?? "";
-		this.action.title = this.title;
-		this.action.tags = this.tags;
-		this.action.branded = this.branded;
-		this.action.labels = this.labels;
-	}
+	watch(
+		() => title.value,
+		() => onChange(),
+	);
+	watch(
+		() => tags.value,
+		() => onChange(),
+	);
+	watch(
+		() => category.value,
+		() => onChange(),
+	);
+	watch(
+		() => labels.value,
+		() => onChange(),
+	);
+	watch(
+		() => branded.value,
+		() => onChange(),
+	);
+});
 
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
-		this.placeholderList = list;
-	}
+function onChange(): void {
+	props.action.categoryId = category.value?.id ?? "";
+	props.action.title = title.value;
+	props.action.tags = tags.value;
+	props.action.branded = branded.value;
+	props.action.labels = labels.value;
 }
-export default toNative(TriggerActionStreamInfoEntry);
+
+/**
+ * Called when the available placeholder list is updated
+ */
+function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
+	placeholderList.value = list;
+}
 </script>
 
 <style scoped lang="less">
