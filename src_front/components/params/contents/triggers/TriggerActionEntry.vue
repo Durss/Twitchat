@@ -215,6 +215,7 @@
 						class="button"
 						@click="selectActionType('bingoGrid')"
 						icon="bingo_grid"
+						v-if="storeAuth.featureFlags.includes('bingo_grid')"
 						>{{ $t("triggers.actions.common.action_bingoGrid") }}</TTButton
 					>
 

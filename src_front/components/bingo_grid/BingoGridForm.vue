@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" ref="rootEl">
+	<div :class="classes" ref="rootEl" v-if="storeAuth.featureFlags.includes('bingo_grid')">
 		<div class="head" v-if="embedMode === false">
 			<ClearButton :aria-label="t('global.close')" @click="close()" />
 
@@ -325,6 +325,7 @@
 			</div>
 		</div>
 	</div>
+	<Overlay404 v-else />
 </template>
 
 <script setup lang="ts">
@@ -361,6 +362,7 @@ import ParamItem from "../params/ParamItem.vue";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 import OverlayInstaller from "../params/contents/overlays/OverlayInstaller.vue";
+import Overlay404 from "../params/contents/overlays/Overlay404.vue";
 
 const props = withDefaults(
 	defineProps<{

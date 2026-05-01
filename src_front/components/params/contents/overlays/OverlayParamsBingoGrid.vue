@@ -12,20 +12,8 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Vue, toNative } from "vue-facing-decorator";
-import OverlayInstaller from "./OverlayInstaller.vue";
+<script setup lang="ts">
 import BingoGridForm from "@/components/bingo_grid/BingoGridForm.vue";
-
-@Component({
-	components: {
-		BingoGridForm,
-		OverlayInstaller,
-	},
-	emits: [],
-})
-class OverlayParamsBingoGrid extends Vue {}
-export default toNative(OverlayParamsBingoGrid);
 </script>
 
 <style scoped lang="less">

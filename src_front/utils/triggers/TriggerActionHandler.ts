@@ -1547,6 +1547,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID: {
+				if (!StoreProxy.auth.featureFlags.includes("bingo_grid")) return;
 				let eventType: TriggerTypesValue = TriggerTypes.BINGO_GRID_CELL;
 				if (message.reset) eventType = TriggerTypes.BINGO_GRID_RESET;
 				if (message.complete) eventType = TriggerTypes.BINGO_GRID_ALL;
@@ -1568,6 +1569,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER: {
+				if (!StoreProxy.auth.featureFlags.includes("bingo_grid")) return;
 				if (
 					await this.executeTriggersByType(
 						TriggerTypes.BINGO_GRID_VIEWER_LINE,

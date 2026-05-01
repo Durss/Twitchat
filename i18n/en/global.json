@@ -266,6 +266,10 @@
 				"details": "Details",
 				"revoke_key": "Revoke API key"
 			}
+		},
+		"404": {
+			"title": "404",
+			"description": "The peage you're searching for is gone 😭"
 		}
 	}
 }

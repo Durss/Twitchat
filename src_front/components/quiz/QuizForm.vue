@@ -1,5 +1,10 @@
 <template>
-	<div class="quizform sidePanel" :class="{ embedMode }" ref="rootEl">
+	<div
+		class="quizform sidePanel"
+		:class="{ embedMode }"
+		ref="rootEl"
+		v-if="storeAuth.featureFlags.includes('quiz')"
+	>
 		<div class="head" v-if="embedMode === false">
 			<div class="title">
 				<Icon name="quiz" />
@@ -119,6 +124,7 @@
 			</div>
 		</div>
 	</div>
+	<Overlay404 v-else />
 </template>
 
 <script setup lang="ts">
@@ -137,6 +143,7 @@ import Config from "@/utils/Config";
 import { computed, onBeforeMount, ref, useTemplateRef } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import QuizQuestionList from "./QuizQuestionList.vue";
+import Overlay404 from "../params/contents/overlays/Overlay404.vue";
 
 const props = withDefaults(defineProps<{ embedMode?: boolean }>(), { embedMode: false });
 
@@ -144,10 +151,9 @@ const emit = defineEmits<{ close: [] }>();
 
 const storeAuth = useStoreAuth();
 const storeQuiz = useStoreQuiz();
-
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 
-const { close } = useSidePanel(rootEl, () => emit("close"));
+const { close } = useSidePanel(rootEl, () => emit("close"), !props.embedMode);
 
 const param_duration = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
 const param_timeBasedScore = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});

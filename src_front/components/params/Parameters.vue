@@ -57,6 +57,10 @@
 						<TTButton
 							v-for="element in pinnedMenuEntries"
 							@click="openPage(element.page, true)"
+							v-show="
+								element.page != 'exporter' ||
+								storeAuth.featureFlags.includes('export_configs')
+							"
 							class="menuItem"
 							v-newflag="element.newflag"
 							:class="
@@ -469,6 +473,12 @@ const menuEntries: MenuEntry[] = [
 		labelKey: "params.categories.timers",
 		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_timers" },
 	},
+	{
+		pinned: true,
+		icon: "save",
+		page: TwitchatDataTypes.ParameterPages.EXPORTER,
+		labelKey: "params.categories.exporter",
+	},
 ];
 
 const isDonor = computed(() => storeAuth.donorLevel > -1 || storeAuth.isPremium);
@@ -501,15 +511,6 @@ const searchMenuItem = computed(() => {
 
 onBeforeMount(async () => {
 	showCTA.value = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
-
-	if (storeAuth.featureFlags.includes("export_configs")) {
-		menuEntries.push({
-			pinned: true,
-			icon: "save",
-			page: TwitchatDataTypes.ParameterPages.EXPORTER,
-			labelKey: "params.categories.exporter",
-		});
-	}
 
 	const sectionsJSON = DataStore.get(DataStore.PARAMS_SECTIONS);
 	if (sectionsJSON) {
@@ -549,35 +550,6 @@ onMounted(async () => {
 		open();
 	}
 
-	watch(
-		() => storeParams.currentPage,
-		(
-			value: TwitchatDataTypes.ParameterPagesStringType,
-			oldValue: TwitchatDataTypes.ParameterPagesStringType,
-		) => {
-			if (value === history[history.length - 1]) history.pop();
-			if (
-				value != TwitchatDataTypes.ParameterPages.CLOSE &&
-				value != TwitchatDataTypes.ParameterPages.MAIN_MENU
-			) {
-				history.push(value);
-			}
-
-			if (value == TwitchatDataTypes.ParameterPages.CLOSE) close();
-			else open();
-
-			if (value != TwitchatDataTypes.ParameterPages.MAIN_MENU) filteredParams.value = [];
-		},
-	);
-
-	watch(
-		() => storeParams.currentParamSearch,
-		(value: string) => {
-			if (value) openPage(ParameterPages.MAIN_MENU);
-			filterParams(value);
-		},
-	);
-
 	keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
 	keyDownCaptureHandler = (e: KeyboardEvent) => onKeyDown(e, true);
 	document.addEventListener("keydown", keyDownHandler);
@@ -590,6 +562,35 @@ onBeforeUnmount(() => {
 	document.removeEventListener("keydown", keyDownHandler);
 	document.removeEventListener("keydown", keyDownCaptureHandler, { capture: true });
 });
+
+watch(
+	() => storeParams.currentPage,
+	(
+		value: TwitchatDataTypes.ParameterPagesStringType,
+		oldValue: TwitchatDataTypes.ParameterPagesStringType,
+	) => {
+		if (value === history[history.length - 1]) history.pop();
+		if (
+			value != TwitchatDataTypes.ParameterPages.CLOSE &&
+			value != TwitchatDataTypes.ParameterPages.MAIN_MENU
+		) {
+			history.push(value);
+		}
+
+		if (value == TwitchatDataTypes.ParameterPages.CLOSE) close();
+		else open();
+
+		if (value != TwitchatDataTypes.ParameterPages.MAIN_MENU) filteredParams.value = [];
+	},
+);
+
+watch(
+	() => storeParams.currentParamSearch,
+	(value: string) => {
+		if (value) openPage(ParameterPages.MAIN_MENU);
+		filterParams(value);
+	},
+);
 
 async function open(): Promise<void> {
 	if (!closed.value) return;
