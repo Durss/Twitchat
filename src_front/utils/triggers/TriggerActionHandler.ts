@@ -2432,6 +2432,15 @@ export default class TriggerActionHandler {
 		ttsID?: string,
 		forcedTriggerId?: string,
 	): Promise<boolean> {
+		if (forcedTriggerId) {
+			const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == forcedTriggerId);
+			if (trigger) {
+				if (await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
+					return true;
+				}
+			}
+			return false;
+		}
 		let key = triggerType as string;
 		let executed = false;
 		if (subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
@@ -2444,12 +2453,12 @@ export default class TriggerActionHandler {
 
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
-			if (forcedTriggerId && trigger.id != forcedTriggerId) continue;
 			if (trigger.enableForRemoteChans !== true || !isPremium) {
 				//Allow trigger exec only for our own chan or from tiktok
 				if (
 					message.channel_id != StoreProxy.auth.twitch.user.id &&
 					message.channel_id != StoreProxy.auth.youtube.user?.id &&
+					message.channel_id != StoreProxy.bluesky.session?.did &&
 					message.platform != "tiktok"
 				)
 					continue;
@@ -2475,6 +2484,36 @@ export default class TriggerActionHandler {
 		ignoreDisableState: boolean = false,
 		callStack?: TriggerActionDataTypes.TriggerCallStack,
 	): Promise<boolean> {
+		//Special case for friends stream start/stop notifications
+		if (trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
+			this.checkLiveFollowings().catch(() => {});
+			return true;
+		}
+
+		//Special case for pending shoutouts
+		if (trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
+			StoreProxy.users.executePendingShoutouts();
+			return true;
+		}
+
+		//Special case for twitchat's ad
+		if (trigger.type == TriggerTypes.TWITCHAT_AD) {
+			let text: string = StoreProxy.chat.botMessages.twitchatAd.message;
+			//If no link is found on the message, send default message
+			if (!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
+				text = StoreProxy.i18n.t("global.ad_default", { USER_MESSAGE: text });
+			}
+			await MessengerProxy.instance.sendMessage(
+				text,
+				undefined,
+				undefined,
+				undefined,
+				false,
+				false,
+			);
+			return true;
+		}
+
 		if (!trigger.enabled && !testMode && !ignoreDisableState) return false;
 
 		if (!subEvent && trigger.type == TriggerTypes.SLASH_COMMAND) {
@@ -2571,44 +2610,6 @@ export default class TriggerActionHandler {
 		];
 		if (!noLogs.includes(trigger.type))
 			log = Logger.instance.log("triggers", log) as LogTrigger;
-
-		//Special case for friends stream start/stop notifications
-		if (trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
-			this.checkLiveFollowings().catch(() => {});
-			return true;
-		}
-
-		//Special case for pending shoutouts
-		if (trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
-			StoreProxy.users.executePendingShoutouts();
-			return true;
-		}
-
-		//Special case for twitchat's ad
-		if (trigger.type == TriggerTypes.TWITCHAT_AD) {
-			let text: string = StoreProxy.chat.botMessages.twitchatAd.message;
-			//If no link is found on the message, send default message
-			if (!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
-				text = StoreProxy.i18n.t("global.ad_default", { USER_MESSAGE: text });
-			}
-			if (
-				!(await MessengerProxy.instance.sendMessage(
-					text,
-					undefined,
-					undefined,
-					undefined,
-					false,
-					false,
-				))
-			) {
-				log.entries.push({
-					date: Date.now(),
-					type: "message",
-					value: "❌ Following message was not sent: " + text,
-				});
-			}
-			return true;
-		}
 
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue; // || trigger.id;
