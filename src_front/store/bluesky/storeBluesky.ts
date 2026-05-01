@@ -12,8 +12,9 @@ import type { Agent } from "@atproto/api";
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
 let agent: Agent | null = null;
-let notifPollInterval: number = -1;
-let dmPollInterval: number = -1;
+let notifPollInterval: ReturnType<typeof setInterval> | null = null;
+let dmPollInterval: ReturnType<typeof setInterval> | null = null;
+let autoliveCheckInterval: ReturnType<typeof setInterval> | null = null;
 // Empty string = first poll (seed mode: record state without dispatching)
 let lastNotifAt: string = "";
 // convoId → sentAt of last dispatched message; absent = first poll
@@ -22,6 +23,7 @@ const lastSeenDmTimes = new Map<string, string>();
 export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
 		connected: false,
+		autoLive: false,
 		sub: "",
 		profile: null,
 		handleResolver: "https://bsky.social",
@@ -38,6 +40,7 @@ export const storeBluesky = defineStore("bluesky", {
 			if (data) {
 				this.handleResolver = data.handleResolver || this.handleResolver;
 				this.sub = data.sub;
+				this.autoLive = data.autoLive;
 				if (data.connected && data.sub) {
 					await this.authenticate(true);
 				}
@@ -117,6 +120,23 @@ export const storeBluesky = defineStore("bluesky", {
 			}
 		},
 
+		applyAutoLive() {
+			if (this.autoLive) {
+				const infos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
+				if (infos?.live) {
+					this.setLiveStatus(true);
+				} else {
+					this.setLiveStatus(false);
+				}
+			}
+		},
+
+		setAutoliveFeatureState(state: boolean) {
+			this.autoLive = state;
+			this.applyAutoLive();
+			this.saveState();
+		},
+
 		async setLiveStatus(live: boolean): Promise<void> {
 			if (!agent) return;
 			if (live) {
@@ -135,7 +155,10 @@ export const storeBluesky = defineStore("bluesky", {
 								description: "",
 							},
 						},
-						durationMinutes: 1,
+						// Only keep it for 12min so if twitchat is closed before it has a chance
+						// to set this back to off, it automatically does after 15min max.
+						// applyAutoLive() is called every 10min to refresh this
+						durationMinutes: 12,
 						createdAt: new Date().toISOString(),
 					},
 				});
@@ -151,17 +174,21 @@ export const storeBluesky = defineStore("bluesky", {
 		startPolling(): void {
 			if (!agent) return;
 			this.stopPolling();
-			void this.pollNotifications();
 			void this.pollDMs();
-			notifPollInterval = window.setInterval(() => void this.pollNotifications(), 30_000);
-			dmPollInterval = window.setInterval(() => void this.pollDMs(), 30_000);
+			void this.pollNotifications();
+			void this.applyAutoLive();
+			dmPollInterval = setInterval(() => void this.pollDMs(), 30_000);
+			notifPollInterval = setInterval(() => void this.pollNotifications(), 30_000);
+			autoliveCheckInterval = setInterval(() => this.applyAutoLive(), 10 * 60000);
 		},
 
 		stopPolling(): void {
-			clearInterval(notifPollInterval);
-			clearInterval(dmPollInterval);
-			notifPollInterval = -1;
-			dmPollInterval = -1;
+			if (dmPollInterval) clearInterval(dmPollInterval);
+			if (notifPollInterval) clearInterval(notifPollInterval);
+			if (autoliveCheckInterval) clearInterval(autoliveCheckInterval);
+			dmPollInterval = null;
+			notifPollInterval = null;
+			autoliveCheckInterval = null;
 			lastNotifAt = "";
 			lastSeenDmTimes.clear();
 		},
@@ -363,6 +390,7 @@ export const storeBluesky = defineStore("bluesky", {
 		saveState() {
 			const data: IStoreData = {
 				sub: this.sub,
+				autoLive: this.autoLive,
 				connected: this.connected,
 				handleResolver: this.handleResolver,
 			};
@@ -377,6 +405,7 @@ if (import.meta.hot) {
 
 interface IStoreData {
 	sub: string;
+	autoLive: boolean;
 	connected: boolean;
 	handleResolver: string;
 }
