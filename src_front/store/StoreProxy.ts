@@ -4257,6 +4257,7 @@ export interface IAPIActions {
 
 export interface IBlueskyState {
 	connected: boolean;
+	autoLive: boolean;
 	sub: string;
 	profile: Pick<
 		ProfileViewDetailed,
@@ -4299,6 +4300,15 @@ export interface IBlueskyActions {
 	 * Disconnects the user
 	 */
 	disconnect(): Promise<void>;
+	/**
+	 * Sets auto live based on current stream state
+	 */
+	applyAutoLive(): void;
+	/**
+	 * Updates the "auto live" feature
+	 * @param autolive
+	 */
+	setAutoliveFeatureState(autolive: boolean): void;
 	/**
 	 * Sets live status of the user
 	 */
