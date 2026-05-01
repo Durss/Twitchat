@@ -54,7 +54,11 @@
 				@logout="storeBluesky.disconnect()"
 			/>
 
-			<ParamItem :paramData="param_autoLive" v-model="param_autoLive.value" />
+			<ParamItem
+				:paramData="param_autoLive"
+				v-model="param_autoLive.value"
+				@change="storeBluesky.setAutoliveFeatureState(param_autoLive.value)"
+			/>
 		</div>
 	</div>
 </template>
@@ -94,7 +98,7 @@ const param_handleResolver = ref<TwitchatDataTypes.ParameterData<string>>({
 });
 const param_autoLive = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
-	value: false,
+	value: storeBluesky.autoLive,
 	labelKey: "bluesky.param_autoLive",
 });
 
