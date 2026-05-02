@@ -7,6 +7,15 @@ import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
+	export type FeatureFlag =
+		| "export_configs"
+		| "groq"
+		| "quiz"
+		| "bingo_grid"
+		| "youtube"
+		| "auto_translate"
+		| "join_leave_triggers";
+
 	export type ChatPlatform =
 		| "twitchat"
 		| "twitch"

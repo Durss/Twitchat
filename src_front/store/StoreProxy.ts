@@ -454,14 +454,7 @@ export type IAuthState = {
 	/**
 	 * List of Twitchat feature flags enabled for this user
 	 */
-	featureFlags: (
-		| "export_configs"
-		| "groq"
-		| "quiz"
-		| "bingo_grid"
-		| "youtube"
-		| "auto_translate"
-	)[];
+	featureFlags: TwitchatDataTypes.FeatureFlag[];
 } & {
 	/**
 	 * Platforms sessions

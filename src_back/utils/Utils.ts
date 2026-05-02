@@ -268,7 +268,7 @@ export default class Utils {
 	): Promise<Flag[]> {
 		// Get user's feature flags. An empty (or missing) list means the flag is
 		// open to everyone; once any UID is listed, access is restricted to that list.
-		const forcedClosedFF: Flag[] = ["groq", "export_configs"];
+		const forcedClosedFF: Flag[] = ["groq", "export_configs", "join_leave_triggers"];
 		if (!flagsMap) {
 			const content = await Utils.readFileAsync(Config.FEATURE_FLAGS_PATH, "utf-8");
 			flagsMap = JSON.parse(content) as { [key in Flag]?: string[] };
