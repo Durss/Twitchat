@@ -28,11 +28,7 @@ export const storeBluesky = defineStore("bluesky", {
 		profile: null,
 		handleResolver: "https://bsky.social",
 	}),
-	getters: {
-		session: function () {
-			return session;
-		},
-	} satisfies StoreGetters<IBlueskyGetters, IBlueskyState>,
+	getters: {} satisfies StoreGetters<IBlueskyGetters, IBlueskyState>,
 	actions: {
 		async populateData() {
 			const json = DataStore.get(DataStore.BLUESKY_CONFIGS);
@@ -101,6 +97,15 @@ export const storeBluesky = defineStore("bluesky", {
 					agent = new Agent(session);
 					const userProfile = await agent.getProfile({ actor: agent.did! });
 					this.profile = userProfile.data;
+					const user = StoreProxy.users.getUserFrom(
+						"bluesky",
+						userProfile.data.did,
+						userProfile.data.did,
+						userProfile.data.handle,
+						userProfile.data.displayName,
+					);
+					user.avatarPath = userProfile.data.avatar;
+					StoreProxy.auth.bluesky = { user };
 					this.saveState();
 					this.startPolling();
 				}
@@ -114,6 +119,7 @@ export const storeBluesky = defineStore("bluesky", {
 			this.stopPolling();
 			this.connected = false;
 			this.profile = null;
+			StoreProxy.auth.bluesky = null;
 			this.saveState();
 			if (session) {
 				await session?.signOut();
@@ -124,9 +130,9 @@ export const storeBluesky = defineStore("bluesky", {
 			if (this.autoLive) {
 				const infos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
 				if (infos?.live) {
-					this.setLiveStatus(true);
+					void this.setLiveStatus(true);
 				} else {
-					this.setLiveStatus(false);
+					void this.setLiveStatus(false);
 				}
 			}
 		},
@@ -219,6 +225,10 @@ export const storeBluesky = defineStore("bluesky", {
 						notif.author.did,
 						notif.author.handle,
 						notif.author.displayName ?? notif.author.handle,
+						undefined,
+						true,
+						true,
+						true,
 					);
 					user.avatarPath = notif.author.avatar;
 

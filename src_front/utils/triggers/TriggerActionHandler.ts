@@ -2457,8 +2457,8 @@ export default class TriggerActionHandler {
 				//Allow trigger exec only for our own chan or from tiktok
 				if (
 					message.channel_id != StoreProxy.auth.twitch.user.id &&
-					message.channel_id != StoreProxy.auth.youtube.user?.id &&
-					message.channel_id != StoreProxy.bluesky.session?.did &&
+					message.channel_id != StoreProxy.auth.youtube?.user.id &&
+					message.channel_id != StoreProxy.auth.bluesky?.user.id &&
 					message.platform != "tiktok"
 				)
 					continue;
