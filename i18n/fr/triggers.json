@@ -1318,7 +1318,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Actions planifiées",
-				"search_extra": ["répéter", "régulier", "planifier"],
+				"search_terms": ["répéter", "régulier", "planifier"],
 				"description": "Actions à exécuter régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {

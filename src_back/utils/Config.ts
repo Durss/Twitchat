@@ -182,6 +182,7 @@ export default class Config {
 		"bingo_grid",
 		"youtube",
 		"auto_translate",
+		"join_leave_triggers",
 	] as const;
 
 	public static get DATA_SHARING(): string {

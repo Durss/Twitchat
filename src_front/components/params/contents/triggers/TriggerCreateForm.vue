@@ -209,7 +209,7 @@ import { computed, onBeforeMount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
 
-const { t, availableLocales } = useI18n();
+const { t, te, rt, tm, availableLocales } = useI18n();
 const { getAsset } = asset();
 const storeAuth = useStoreAuth();
 const storeCounters = useStoreCounters();
@@ -316,22 +316,22 @@ watch(
 	},
 );
 watch(search, () => {
-	onSearch();
+	populate();
 });
 
-function populate(showPrivate: boolean = false): void {
+function populate(): void {
 	eventCategories.value = [];
 	const triggers = TriggerTypesDefinitionList().concat();
 	const locales = availableLocales;
 	let triggerTypeList: TriggerEntry[] = triggers
-		.filter(
-			(v) =>
-				(!showPrivate && v.private !== true) || (showPrivate == true && v.private === true),
-		)
+		.filter((v) => !v.featureFlag || storeAuth.featureFlags.includes(v.featureFlag))
 		.map((v) => {
+			const searchTermsKey = v.labelKey.split(".").splice(0, 3).join(".") + ".search_terms"; //Fragile way of getting search terms :/
+			const srcTerms = tm(searchTermsKey);
+			const searchTerms: string[] = Array.isArray(srcTerms) ? srcTerms : [];
 			return {
 				label: t(v.labelKey),
-				searchTerms: locales.map((l) => t(v.labelKey, { locale: l })),
+				searchTerms: [...locales.map((l) => t(v.labelKey, { locale: l })), ...searchTerms],
 				value: v.value,
 				trigger: v,
 				icon: getAsset("icons/" + v.icon + ".svg"),
@@ -340,7 +340,7 @@ function populate(showPrivate: boolean = false): void {
 			};
 		});
 
-	if (search.value && !showPrivate) {
+	if (search.value) {
 		const premiumSearch = search.value.toLowerCase() == "premium";
 		const reg = new RegExp(search.value, "i");
 		triggerTypeList = triggerTypeList.filter((v) => {
@@ -910,15 +910,6 @@ function listValues(): void {
 		isCategory: false,
 	});
 	subtriggerList.value = list;
-}
-
-function onSearch(): void {
-	populate();
-	Utils.sha256(search.value).then((hash) => {
-		if (hash === "09f0654a10e2dc4327e5bb0a2d8c01d703af81422d69b1d1def04bd754b47739") {
-			populate(true);
-		}
-	});
 }
 
 interface TriggerEntry {
