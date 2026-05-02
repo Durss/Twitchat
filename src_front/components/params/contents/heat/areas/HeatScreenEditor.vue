@@ -1,9 +1,9 @@
 <template>
 	<div class="heatscreeneditor">
 		<div class="form">
-			<Button icon="back" class="backBt" @click="$emit('close')">{{
+			<TTButton icon="back" class="backBt" @click="$emit('close')">{{
 				$t("global.back")
-			}}</Button>
+			}}</TTButton>
 			<ParamItem
 				:paramData="params_target"
 				v-model="params_target.value"
@@ -11,7 +11,7 @@
 			/>
 		</div>
 
-		<div class="scrollable" @wheel="onMouseWheel($event)">
+		<div ref="scrollable" class="scrollable" @wheel="onMouseWheel($event)">
 			<div
 				ref="editor"
 				:style="editorStyles"
@@ -59,12 +59,14 @@
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import {
 	computed,
+	nextTick,
 	onBeforeMount,
 	onBeforeUnmount,
 	ref,
@@ -72,17 +74,7 @@ import {
 	watch,
 	type CSSProperties,
 } from "vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import { useI18n } from "vue-i18n";
-import { useConfirm } from "@/composables/useConfirm";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 
-const { t } = useI18n();
-const { confirm } = useConfirm();
-const storeAuth = useStoreAuth();
-const storeHeat = useStoreHeat();
 const storeParams = useStoreParams();
 
 const props = defineProps<{ screen: HeatScreen }>();
@@ -90,6 +82,7 @@ const emit = defineEmits<{ update: []; close: [] }>();
 
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
+const scrollableRef = useTemplateRef<HTMLElement>("scrollable");
 
 const editMode = ref<null | "add" | "append" | "delete">(null);
 const currentArea = ref<HeatArea | null>(null);
@@ -99,8 +92,16 @@ const draggedPoint = ref<{ x: number; y: number } | null>(null);
 const draggOffset = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 const disposed = ref(false);
 const editorScale = ref(1);
+const spacePressed = ref(false);
+const isPanning = ref(false);
+const panStart = ref<{ x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null);
+
+// Pending scroll target accumulated across rapid wheel events (not yet flushed to DOM)
+let pendingScrollLeft: number | null = null;
+let pendingScrollTop: number | null = null;
 
 const keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
+const keyUpHandler = (e: KeyboardEvent) => onKeyUp(e);
 const mouseUpHandler = (e: PointerEvent) => onMouseUp(e);
 const mouseMoveHandler = (e: PointerEvent) => onMouseMove(e);
 
@@ -118,12 +119,12 @@ const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
 const editorClasses = computed(() => {
 	const res = ["editor"];
 	if (editMode.value) res.push(editMode.value);
+	if (spacePressed.value) res.push(isPanning.value ? "panning" : "space-held");
 	return res;
 });
 
 const editorStyles = computed(() => {
 	const res: CSSProperties = {};
-	res.transform = "scale(" + editorScale.value + ")";
 	res.width = editorScale.value * 100 + "%";
 	return res;
 });
@@ -141,6 +142,7 @@ onBeforeMount(() => {
 	}
 
 	document.addEventListener("keydown", keyDownHandler, { capture: true });
+	document.addEventListener("keyup", keyUpHandler);
 	document.addEventListener("pointerup", mouseUpHandler);
 	document.addEventListener("pointermove", mouseMoveHandler);
 
@@ -151,6 +153,7 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
 	disposed.value = true;
 	document.removeEventListener("keydown", keyDownHandler, { capture: true });
+	document.removeEventListener("keyup", keyUpHandler);
 	document.removeEventListener("pointerup", mouseUpHandler);
 	document.removeEventListener("pointermove", mouseMoveHandler);
 });
@@ -207,6 +210,19 @@ function getSVGPoints(p: { x: number; y: number }[]): string {
 }
 
 function addPoint(event: PointerEvent): void {
+	if (spacePressed.value) {
+		const scrollable = scrollableRef.value;
+		if (scrollable) {
+			isPanning.value = true;
+			panStart.value = {
+				x: event.clientX,
+				y: event.clientY,
+				scrollLeft: scrollable.scrollLeft,
+				scrollTop: scrollable.scrollTop,
+			};
+		}
+		return;
+	}
 	if (draggedPoint.value) return;
 
 	const editor = editorRef.value;
@@ -218,16 +234,13 @@ function addPoint(event: PointerEvent): void {
 	const [areaIndex, pointIndex] = getSegmentUnderPoint(event.x, event.y);
 
 	if (areaIndex && pointIndex && areaIndex > -1) {
-		console.log("INTERSECTION FOUND");
 		currentArea.value = props.screen.areas[areaIndex]!;
 		currentPointIndex.value = pointIndex;
 		currentArea.value.points.splice(pointIndex, 0, { x, y });
 	} else if (currentArea.value) {
-		console.log("PUSH TO current AREA");
 		currentArea.value.points.push({ x, y });
 		currentPointIndex.value = currentArea.value.points.length - 1;
 	} else {
-		console.log("CREATE NEW");
 		currentArea.value = {
 			id: Utils.getUUID(),
 			points: [{ x, y }],
@@ -266,6 +279,7 @@ function startDragPoint(
 	area: HeatArea,
 	index: number,
 ): void {
+	if (spacePressed.value) return;
 	if (event.ctrlKey || event.metaKey) {
 		area.points.splice(index, 1);
 		currentPointIndex.value = -1;
@@ -277,6 +291,7 @@ function startDragPoint(
 }
 
 function startDragArea(event: PointerEvent, area: HeatArea): void {
+	if (spacePressed.value) return;
 	if (editMode.value == "append") {
 		addPoint(event);
 	} else {
@@ -289,6 +304,12 @@ function startDragArea(event: PointerEvent, area: HeatArea): void {
 }
 
 function onKeyDown(event: KeyboardEvent): void {
+	if (event.key == " ") {
+		spacePressed.value = true;
+		event.preventDefault();
+		return;
+	}
+
 	const metaKey = event.metaKey || event.ctrlKey;
 
 	//Delete an area or a point
@@ -367,18 +388,57 @@ function onKeyDown(event: KeyboardEvent): void {
 	}
 }
 
+function onKeyUp(event: KeyboardEvent): void {
+	if (event.key == " ") {
+		spacePressed.value = false;
+	}
+}
+
 function onMouseWheel(event: WheelEvent): void {
 	if (event.deltaY == 0) return;
-	if (!event.ctrlKey && !event.metaKey) return; //require ctrl key or meta key to be pressed
-	let delta = event.deltaY > 0 ? 0.9 : 1.1;
-	let scale = editorScale.value;
-	scale *= delta;
-	scale = Math.min(3, Math.max(1, scale));
-	editorScale.value = scale;
+	if (!event.ctrlKey && !event.metaKey) return;
+
+	const scrollable = scrollableRef.value;
+	if (!scrollable) return;
+
+	const prevScale = editorScale.value;
+	const nextScale = Math.min(5, Math.max(1, prevScale * (event.deltaY > 0 ? 0.9 : 1.1)));
+	if (nextScale === prevScale) {
+		event.preventDefault();
+		return;
+	}
+
+	const rect = scrollable.getBoundingClientRect();
+	const cursorX = event.clientX - rect.left;
+	const cursorY = event.clientY - rect.top;
+
+	// Read from pending values so rapid events accumulate correctly instead of reading stale DOM
+	const currentScrollLeft = pendingScrollLeft ?? scrollable.scrollLeft;
+	const currentScrollTop = pendingScrollTop ?? scrollable.scrollTop;
+	const ratio = nextScale / prevScale;
+	pendingScrollLeft = (currentScrollLeft + cursorX) * ratio - cursorX;
+	pendingScrollTop = (currentScrollTop + cursorY) * ratio - cursorY;
+
+	editorScale.value = nextScale;
+
+	// Apply after Vue widens the editor so scrollLeft isn't clamped to the old max
+	nextTick(() => {
+		if (pendingScrollLeft === null) return;
+		scrollable.scrollLeft = pendingScrollLeft;
+		scrollable.scrollTop = pendingScrollTop!;
+		pendingScrollLeft = null;
+		pendingScrollTop = null;
+	});
+
 	event.preventDefault();
 }
 
 function onMouseUp(event: PointerEvent): void {
+	if (isPanning.value) {
+		isPanning.value = false;
+		panStart.value = null;
+		return;
+	}
 	if (draggedPoint.value || draggedArea.value) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -389,6 +449,15 @@ function onMouseUp(event: PointerEvent): void {
 }
 
 function onMouseMove(event: PointerEvent): void {
+	if (isPanning.value && panStart.value) {
+		const scrollable = scrollableRef.value;
+		if (scrollable) {
+			scrollable.scrollLeft = panStart.value.scrollLeft - (event.clientX - panStart.value.x);
+			scrollable.scrollTop = panStart.value.scrollTop - (event.clientY - panStart.value.y);
+		}
+		return;
+	}
+
 	const editor = editorRef.value;
 	if (!editor) return;
 	const bounds = editor.getBoundingClientRect();
@@ -499,7 +568,7 @@ async function refreshImage(): Promise<void> {
 	if (disposed.value) return;
 	const area = backgroundRef.value;
 	//@ts-ignore
-	if (area && this.params_showOBS.value == true && OBSWebsocket.instance.connected.value) {
+	if (area && params_showOBS.value == true && OBSWebsocket.instance.connected.value) {
 		const scene = params_target.value.value ? params_target.value.value : undefined;
 		const image = await OBSWebsocket.instance.getScreenshot(scene);
 		area.style.backgroundImage = "url(" + image + ")";
@@ -569,6 +638,20 @@ async function refreshImage(): Promise<void> {
 
 		&.add {
 			cursor: crosshair;
+		}
+		&.space-held {
+			cursor: grab;
+			:deep(polygon),
+			:deep(circle) {
+				cursor: inherit;
+			}
+		}
+		&.panning {
+			cursor: grabbing;
+			:deep(polygon),
+			:deep(circle) {
+				cursor: inherit;
+			}
 		}
 		&.append {
 			cursor: copy;
