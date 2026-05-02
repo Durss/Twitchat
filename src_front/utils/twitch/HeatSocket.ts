@@ -52,7 +52,6 @@ export default class HeatSocket extends EventDispatcher {
 			// Initial connection.
 			this.ws.addEventListener("open", () => {
 				if (localSocketIndex != this.socketIndex) {
-					console.log("IGNORE OPEN");
 					return;
 				}
 
@@ -63,7 +62,6 @@ export default class HeatSocket extends EventDispatcher {
 			// Message received.
 			this.ws.addEventListener("message", (message) => {
 				if (localSocketIndex != this.socketIndex) {
-					console.log("IGNORE MESSAGE");
 					return;
 				}
 
@@ -91,7 +89,6 @@ export default class HeatSocket extends EventDispatcher {
 				console.log(event);
 
 				if (localSocketIndex != this.socketIndex) {
-					console.log("IGNORE ERROR");
 					return;
 				}
 
@@ -104,7 +101,6 @@ export default class HeatSocket extends EventDispatcher {
 				// console.log(event);
 
 				if (localSocketIndex != this.socketIndex) {
-					console.log("IGNORE CLOSE");
 					return;
 				}
 
