@@ -172,7 +172,7 @@ class ChannelSwitcher extends Vue {
 			isRemoteChan: false,
 			color: "transparent",
 		});
-		if (this.$store.auth.youtube.user) {
+		if (this.$store.auth.youtube?.user) {
 			chans.push({
 				platform: "youtube",
 				user: this.$store.auth.youtube.user,

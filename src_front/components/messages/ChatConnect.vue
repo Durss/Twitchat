@@ -108,7 +108,7 @@ class ChatConnect extends AbstractChatMessage {
 		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId);
 		if (
 			chanId == this.$store.auth.twitch.user.id ||
-			chanId == this.$store.auth.youtube.user?.id
+			chanId == this.$store.auth.youtube?.user.id
 		) {
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 		} else {
