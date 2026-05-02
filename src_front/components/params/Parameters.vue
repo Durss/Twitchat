@@ -233,7 +233,7 @@
 				</template>
 				<ParamsList
 					v-if="isGenericListContent || filteredParams.length > 0"
-					:category="content"
+					:category="<TwitchatDataTypes.ParameterCategory>content"
 					:filteredParams="filteredParams"
 					ref="currentContent"
 				/>
@@ -675,7 +675,7 @@ async function filterParams(searchStr: string): Promise<void> {
 			const data: TwitchatDataTypes.ParameterData<unknown> = category[prop]!;
 
 			//Already done (via its parent probably), ignore it
-			if (IDsDone[data.id as number] === true) continue;
+			if (!data.id || IDsDone[data.id] === true) continue;
 
 			let label = data.label;
 			let labelKey = data.labelKey;
@@ -685,13 +685,13 @@ async function filterParams(searchStr: string): Promise<void> {
 				if (data.parent) {
 					for (const key in category) {
 						const prop = category[key]!;
-						if (prop.id == data.parent && IDsDone[prop.id as number] !== true) {
-							IDsDone[prop.id as number] = true;
+						if (prop.id == data.parent && IDsDone[prop.id] !== true) {
+							IDsDone[prop.id] = true;
 							filteredParams.value.push(prop);
 						}
 					}
 				} else {
-					IDsDone[data.id as number] = true;
+					IDsDone[data.id] = true;
 					filteredParams.value.push(data);
 				}
 			}

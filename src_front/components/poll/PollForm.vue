@@ -334,4 +334,3 @@ function selectPreset(params: (typeof pollHistory.value)[number]): void {
 	}
 }
 </style>
-
