@@ -108,7 +108,7 @@ class UserList extends Vue {
 	public get userList(): TwitchatDataTypes.TwitchatUser[] {
 		const list: TwitchatDataTypes.TwitchatUser[] = [];
 		const validIds = this.$store.stream.connectedTwitchChans.concat().map((v) => v.user.id);
-		if (this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
+		if (this.$store.auth.youtube?.user) validIds.push(this.$store.auth.youtube.user.id);
 		validIds.push(this.$store.auth.twitch.user.id);
 
 		for (const uid in this.channels) {
