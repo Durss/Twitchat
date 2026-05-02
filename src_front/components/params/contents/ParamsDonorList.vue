@@ -2,7 +2,7 @@
 	<div class="paramsdonorlist">
 		<DonorPublicState class="publicDonation" noInfos @change="loadList()" />
 
-		<div v-if="error">{{ $t("error.donor_loading") }}</div>
+		<div v-if="error">{{ t("error.donor_loading") }}</div>
 		<Icon v-if="loading" name="loader" alt="loading" class="loader" />
 
 		<div class="stats" v-if="!loading">
@@ -12,8 +12,8 @@
 			</div>
 		</div>
 
-		<div class="me" v-if="$store.auth.donorLevel > -1 && !loading && mePos > -1">
-			<DonorBadge class="badge" :level="$store.auth.donorLevel" light />
+		<div class="me" v-if="storeAuth.donorLevel > -1 && !loading && mePos > -1">
+			<DonorBadge class="badge" :level="storeAuth.donorLevel" light />
 			<div class="pos">#{{ mePos + 1 }}</div>
 			<div class="label">{{ userName }}</div>
 		</div>
@@ -41,124 +41,122 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import DonorPublicState from "@/components/user/DonorPublicState.vue";
 import StoreProxy from "@/store/StoreProxy";
 import ApiHelper from "@/utils/ApiHelper";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch, type ComponentPublicInstance } from "vue";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import {
+	computed,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	watch,
+	type ComponentPublicInstance,
+} from "vue";
+import { useI18n } from "vue-i18n";
 import InfiniteList from "../../InfiniteList.vue";
 import DonorBadge from "../../user/DonorBadge.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 
-@Component({
-	components: {
-		DonorBadge,
-		InfiniteList,
-		DonorPublicState,
-	},
-})
-class ParamsDonorList extends Vue {
-	public badges: { level: number; count: number }[] = [];
-	public itemList: { uid: string; v: number; login: string; index: number }[] = [];
-	public error = false;
-	public mePos = -1;
-	public itemSize = 40;
-	public scrollOffset = 0;
-	public loading = true;
-	public disposed = false;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
 
-	private loadingNextPage = false;
-	private localList: { uid: string; v: number }[] = [];
+const badges = ref<{ level: number; count: number }[]>([]);
+const itemList = ref<{ uid: string; v: number; login: string; index: number }[]>([]);
+const error = ref(false);
+const mePos = ref(-1);
+const itemSize = ref(40);
+const scrollOffset = ref(0);
+const loading = ref(true);
+const disposed = ref(false);
+const list = ref<ComponentPublicInstance>();
 
-	public get userName(): string {
-		return StoreProxy.auth.twitch.user.displayName;
+let loadingNextPage = false;
+let localList: { uid: string; v: number }[] = [];
+
+const userName = computed<string>(() => {
+	return StoreProxy.auth.twitch.user.displayName;
+});
+
+async function loadList(): Promise<void> {
+	loading.value = true;
+	error.value = false;
+	itemList.value = [];
+	try {
+		const headers = TwitchUtils.headers;
+		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
+		const { json } = await ApiHelper.call("user/donor/all", "GET");
+		if (disposed.value) return;
+
+		localList = json.data.list;
+		computeStats();
+		await loadNext();
+	} catch (e) {
+		console.log(e);
+		error.value = true;
 	}
-
-	public mounted(): void {
-		this.loadList();
-
-		watch(
-			() => this.scrollOffset,
-			() => {
-				const bounds = (
-					this.$refs.list as ComponentPublicInstance
-				).$el.getBoundingClientRect();
-				const scrollMax = this.itemList.length * (this.itemSize + 0) - bounds.height;
-
-				if (this.scrollOffset > scrollMax - 500) {
-					this.loadNext();
-				}
-			},
-		);
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
-
-	public async loadList(): Promise<void> {
-		this.loading = true;
-		this.error = false;
-		this.itemList = [];
-		try {
-			const headers = TwitchUtils.headers;
-			headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
-			const { json } = await ApiHelper.call("user/donor/all", "GET");
-			if (this.disposed) return;
-
-			this.localList = json.data.list;
-			this.computeStats();
-			await this.loadNext();
-		} catch (error) {
-			console.log(error);
-			this.error = true;
-		}
-		this.loading = false;
-	}
-
-	private async loadNext(): Promise<void> {
-		if (this.loadingNextPage) return;
-		this.loadingNextPage = true;
-		const items = this.localList.splice(0, 100);
-		const uids = items.map((v) => v.uid).filter((v) => v != "-1");
-		const users = await TwitchUtils.getUserInfo(uids);
-		if (this.disposed) return;
-		const res: { uid: string; v: number; login: string; index: number }[] = [];
-		for (let i = 0; i < items.length; i++) {
-			const item = {
-				uid: items[i]!.uid,
-				v: items[i]!.v,
-				login:
-					users.find((v) => v.id === items[i]!.uid)?.display_name ||
-					this.$t("donor.anon"),
-				index: res.length + this.itemList.length,
-			};
-			res.push(item);
-		}
-		this.itemList = this.itemList.concat(res);
-		this.loadingNextPage = false;
-	}
-
-	private computeStats(): void {
-		const lvl2Count: { [key: number]: number } = {};
-		const meUID = StoreProxy.auth.twitch.user.id;
-		this.mePos = -1;
-		for (let i = 0; i < this.localList.length; i++) {
-			const e = this.localList[i]!;
-			if (!lvl2Count[e.v]) lvl2Count[e.v] = 0;
-			lvl2Count[e.v]!++;
-			if (e.uid === meUID) this.mePos = i;
-		}
-
-		const res: { level: number; count: number }[] = [];
-		for (const level in lvl2Count) {
-			res.push({ level: parseInt(level), count: lvl2Count[level]! });
-		}
-		this.badges = res.reverse();
-	}
+	loading.value = false;
 }
-export default toNative(ParamsDonorList);
+
+async function loadNext(): Promise<void> {
+	if (loadingNextPage) return;
+	loadingNextPage = true;
+	const items = localList.splice(0, 100);
+	const uids = items.map((v) => v.uid).filter((v) => v != "-1");
+	const users = await TwitchUtils.getUserInfo(uids);
+	if (disposed.value) return;
+	const res: { uid: string; v: number; login: string; index: number }[] = [];
+	for (let i = 0; i < items.length; i++) {
+		const item = {
+			uid: items[i]!.uid,
+			v: items[i]!.v,
+			login: users.find((v) => v.id === items[i]!.uid)?.display_name || t("donor.anon"),
+			index: res.length + itemList.value.length,
+		};
+		res.push(item);
+	}
+	itemList.value = itemList.value.concat(res);
+	loadingNextPage = false;
+}
+
+function computeStats(): void {
+	const lvl2Count: { [key: number]: number } = {};
+	const meUID = StoreProxy.auth.twitch.user.id;
+	mePos.value = -1;
+	for (let i = 0; i < localList.length; i++) {
+		const e = localList[i]!;
+		if (!lvl2Count[e.v]) lvl2Count[e.v] = 0;
+		lvl2Count[e.v]!++;
+		if (e.uid === meUID) mePos.value = i;
+	}
+
+	const res: { level: number; count: number }[] = [];
+	for (const level in lvl2Count) {
+		res.push({ level: parseInt(level), count: lvl2Count[level]! });
+	}
+	badges.value = res.reverse();
+}
+
+onMounted(() => {
+	loadList();
+});
+
+onBeforeUnmount(() => {
+	disposed.value = true;
+});
+
+watch(
+	() => scrollOffset.value,
+	() => {
+		const bounds = (list.value as ComponentPublicInstance).$el.getBoundingClientRect();
+		const scrollMax = itemList.value.length * (itemSize.value + 0) - bounds.height;
+
+		if (scrollOffset.value > scrollMax - 500) {
+			loadNext();
+		}
+	},
+);
 </script>
 
 <style scoped lang="less">

@@ -176,7 +176,7 @@ export const storeBluesky = defineStore("bluesky", {
 			this.stopPolling();
 			void this.pollDMs();
 			void this.pollNotifications();
-			void this.applyAutoLive();
+			this.applyAutoLive();
 			dmPollInterval = setInterval(() => void this.pollDMs(), 30_000);
 			notifPollInterval = setInterval(() => void this.pollNotifications(), 30_000);
 			autoliveCheckInterval = setInterval(() => this.applyAutoLive(), 10 * 60000);

@@ -9,7 +9,7 @@
 		</div>
 
 		<section class="card-item">
-			<p>{{ $t("spoiler.message_example") }}</p>
+			<p>{{ t("spoiler.message_example") }}</p>
 			<ChatMessage
 				v-if="spoilerExample"
 				:messageData="spoilerExample"
@@ -25,7 +25,7 @@
 			v-newflag="{ date: 1693519200000, id: 'params_spoiler1stchatters' }"
 		/>
 
-		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
+		<Splitter class="splitter">{{ t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
 			<div class="card-item">
@@ -45,78 +45,71 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ChatMessage from "@/components/messages/ChatMessage.vue";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { watch } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { onBeforeMount, ref, watch } from "vue";
 import Splitter from "../../Splitter.vue";
 import PermissionsForm from "../../PermissionsForm.vue";
 import type IParameterContent from "./IParameterContent";
 import ParamItem from "../ParamItem.vue";
 import Utils from "@/utils/Utils";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Splitter,
-		ParamItem,
-		ChatMessage,
-		PermissionsForm,
-	},
-})
-class ParamsSpoiler extends Vue implements IParameterContent {
-	public spoilerExample!: TwitchatDataTypes.MessageChatData;
-	public param_autospoil: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "spoiler.autospoil_new_users",
-		icon: "firstTime",
-	};
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const storeDebug = useStoreDebug();
 
-	public chatCommandPerms: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(
-		true,
-		true,
-		false,
-		false,
-		false,
+const spoilerExample = ref<TwitchatDataTypes.MessageChatData>();
+const param_autospoil = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "spoiler.autospoil_new_users",
+	icon: "firstTime",
+});
+
+const chatCommandPerms = ref<TwitchatDataTypes.PermissionsData>(
+	Utils.getDefaultPermissions(true, true, false, false, false, false),
+);
+
+function save(): void {
+	storeChat.setSpoilerParams({
+		permissions: chatCommandPerms.value,
+		autoSpoilNewUsers: param_autospoil.value.value,
+	});
+}
+
+onBeforeMount(() => {
+	storeDebug.simulateMessage(
+		TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		(data) => {
+			const m = data as TwitchatDataTypes.MessageChatData;
+			m.spoiler = true;
+			spoilerExample.value = m;
+		},
 		false,
 	);
-	public beforeMount(): void {
-		this.$store.debug.simulateMessage(
-			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			(data) => {
-				const m = data as TwitchatDataTypes.MessageChatData;
-				m.spoiler = true;
-				this.spoilerExample = m;
-			},
-			false,
-		);
 
-		if (this.$store.chat.spoilerParams.permissions) {
-			this.chatCommandPerms = this.$store.chat.spoilerParams.permissions;
-		}
-
-		this.param_autospoil.value = this.$store.chat.spoilerParams?.autoSpoilNewUsers === true;
-
-		watch(
-			() => this.chatCommandPerms,
-			() => this.save(),
-			{ deep: true },
-		);
+	if (storeChat.spoilerParams.permissions) {
+		chatCommandPerms.value = storeChat.spoilerParams.permissions;
 	}
 
-	public onNavigateBack(): boolean {
+	param_autospoil.value.value = storeChat.spoilerParams?.autoSpoilNewUsers === true;
+});
+
+watch(
+	() => chatCommandPerms.value,
+	() => save(),
+	{ deep: true },
+);
+
+defineExpose<IParameterContent>({
+	onNavigateBack: () => {
 		return false;
-	}
-
-	public save(): void {
-		this.$store.chat.setSpoilerParams({
-			permissions: this.chatCommandPerms,
-			autoSpoilNewUsers: this.param_autospoil.value,
-		});
-	}
-}
-export default toNative(ParamsSpoiler);
+	},
+});
 </script>
 
 <style scoped lang="less">

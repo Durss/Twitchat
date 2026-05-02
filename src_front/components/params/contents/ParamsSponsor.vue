@@ -2,21 +2,21 @@
 	<div class="paramssponsor">
 		<header class="card-item" ref="head">
 			<Icon name="info" class="icon" />
-			<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
+			<p v-for="i in <string[]>tm('sponsor.head')" v-html="i"></p>
 		</header>
 
 		<div class="card-item secondary important" ref="instructions">
 			<i18n-t scope="global" keypath="sponsor.important_content1">
 				<template #LINK>
 					<a class="link" href="https://twitch.tv/durss" target="_blaink" type="link">{{
-						$t("sponsor.important_content1_link")
+						t("sponsor.important_content1_link")
 					}}</a>
 				</template>
 				<template #STRONG>
-					<strong>{{ $t("sponsor.important_content1_strong") }}</strong>
+					<strong>{{ t("sponsor.important_content1_strong") }}</strong>
 				</template>
 			</i18n-t>
-			<p v-html="$t('sponsor.important_content2')"></p>
+			<p v-html="t('sponsor.important_content2')"></p>
 			<ParamItem class="readToggle" :paramData="checkbox" secondary />
 		</div>
 
@@ -33,8 +33,8 @@
 				@click="clickPremium()"
 			>
 				<div class="labelHolder">
-					<span v-html="$t('sponsor.premium')"></span>
-					<i>{{ $t("sponsor.premium_details") }}</i>
+					<span v-html="t('sponsor.premium')"></span>
+					<i>{{ t("sponsor.premium_details") }}</i>
 				</div>
 			</Button>
 
@@ -45,10 +45,10 @@
 				premium
 				:open="false"
 				:icons="['premium']"
-				:title="$t('sponsor.premium')"
-				:subtitle="$t('sponsor.premium_subtitle')"
+				:title="t('sponsor.premium')"
+				:subtitle="t('sponsor.premium_subtitle')"
 			>
-				<p>{{ $t("sponsor.premium_details") }}</p>
+				<p>{{ t("sponsor.premium_details") }}</p>
 				<SponsorTable class="sponsorTable" />
 				<Button
 					icon="patreon"
@@ -57,7 +57,7 @@
 					target="_blank"
 					type="link"
 					premium
-					>{{ $t("sponsor.donate_patreonBt") }}</Button
+					>{{ t("sponsor.donate_patreonBt") }}</Button
 				>
 			</ToggleBlock>
 
@@ -74,9 +74,9 @@
 				@click.native.capture="clickItem()"
 			>
 				<div class="labelHolder">
-					<span v-html="$t('sponsor.donate_option.' + link.key)"></span>
-					<i v-tooltip="$t('sponsor.donate_rate')"
-						>({{ $t("sponsor.donate_option." + link.key + "_rate") }})</i
+					<span v-html="t('sponsor.donate_option.' + link.key)"></span>
+					<i v-tooltip="t('sponsor.donate_rate')"
+						>({{ t("sponsor.donate_option." + link.key + "_rate") }})</i
 					>
 				</div>
 			</Button>
@@ -84,115 +84,121 @@
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from "@/components/TTButton.vue";
-import Splitter from "@/components/Splitter.vue";
+<script setup lang="ts">
+import Button from "@/components/TTButton.vue";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { computed, onMounted, ref, useTemplateRef, type ComponentPublicInstance } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import ParamItem from "../ParamItem.vue";
 import type IParameterContent from "./IParameterContent";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import SponsorTable from "@/components/premium/SponsorTable.vue";
-import type { ComponentPublicInstance } from "vue";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 
-@Component({
-	components: {
-		Button: TTButton,
-		Splitter,
-		ParamItem,
-		ToggleBlock,
-		SponsorTable,
+const props = withDefaults(
+	defineProps<{
+		animate?: boolean;
+	}>(),
+	{
+		animate: false,
 	},
-})
-class ParamsSponsor extends Vue implements IParameterContent {
-	@Prop({ type: Boolean, default: false })
-	public animate!: boolean;
+);
 
-	public checkbox: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "sponsor.checkbox",
-	};
+const { t, tm } = useI18n();
+const route = useRoute();
+const storeParams = useStoreParams();
 
-	public get standaloneMode(): boolean {
-		return this.$route.name == "sponsor";
-	}
+const checkbox = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "sponsor.checkbox",
+});
 
-	public links: { url: string; icon: string; key: string }[] = [
-		{ url: "https://paypal.me/durss", icon: "paypal", key: "paypal" },
-		{ url: "https://www.patreon.com/join/durss", icon: "patreon", key: "patreon" },
-		{ url: "https://ko-fi.com/durss", icon: "kofi", key: "kofi" },
-		{ url: "https://www.buymeacoffee.com/durss", icon: "coffee", key: "coffee" },
-		{ url: "https://github.com/sponsors/Durss", icon: "github", key: "github" },
-	];
+const links: { url: string; icon: string; key: string }[] = [
+	{ url: "https://paypal.me/durss", icon: "paypal", key: "paypal" },
+	{ url: "https://www.patreon.com/join/durss", icon: "patreon", key: "patreon" },
+	{ url: "https://ko-fi.com/durss", icon: "kofi", key: "kofi" },
+	{ url: "https://www.buymeacoffee.com/durss", icon: "coffee", key: "coffee" },
+	{ url: "https://github.com/sponsors/Durss", icon: "github", key: "github" },
+];
 
-	public getTitle(key: string): string {
-		let res = this.$t("sponsor.donate_option." + key);
-		res += "<i v-tooltip='";
-		res += this.$t("sponsor.donate_rate").replace(/'/g, "'").replace(/"/g, '"');
-		res += "'>(" + this.$t("sponsor.donate_option." + key + "_rate") + ")</i>";
-		return res;
-	}
+const head = useTemplateRef<HTMLElement>("head");
+const instructions = useTemplateRef<HTMLDivElement>("instructions");
+const patrick = useTemplateRef<HTMLElement>("patrick");
+const premium = useTemplateRef<unknown>("premium");
+const button = useTemplateRef<unknown>("button");
 
-	public mounted(): void {
-		if (this.animate !== false) {
-			const refs = ["head", "instructions", "patrick", "premium", "button"];
-			for (let i = 0; i < refs.length; i++) {
-				let el = this.$refs[refs[i]!];
-				let list: unknown[] = [];
-				if (!Array.isArray(el)) {
-					list = [el];
-				} else {
-					list = el;
-				}
-				for (let j = 0; j < list.length; j++) {
-					let item = list[j];
-					if ((item as ComponentPublicInstance).$el)
-						item = (item as ComponentPublicInstance).$el as HTMLElement;
-					const delay = (i + j) * 0.1;
-					gsap.set(item as HTMLElement, { opacity: 0, y: -20, scale: 0.85 });
-					gsap.to(item as HTMLElement, {
-						duration: 0.5,
-						scale: 1,
-						opacity: 1,
-						y: 0,
-						clearProps: "all",
-						ease: "back.out",
-						delay,
-					});
-				}
-			}
-		}
-	}
+const standaloneMode = computed<boolean>(() => {
+	return route.name == "sponsor";
+});
 
-	public clickPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	public clickItem(): void {
-		if (this.checkbox.value === false) {
-			const target = this.$refs.instructions as HTMLDivElement;
-			//@ts-ignore
-			if (target.scrollIntoViewIfNeeded) {
-				//@ts-ignore
-				target.scrollIntoViewIfNeeded(); //Works everywhere but firefox
+onMounted(() => {
+	if (props.animate !== false) {
+		const refsMap: { [key: string]: unknown } = {
+			head: head.value,
+			instructions: instructions.value,
+			patrick: patrick.value,
+			premium: premium.value,
+			button: button.value,
+		};
+		const refs = ["head", "instructions", "patrick", "premium", "button"];
+		for (let i = 0; i < refs.length; i++) {
+			let el = refsMap[refs[i]!];
+			let list: unknown[] = [];
+			if (!Array.isArray(el)) {
+				list = [el];
 			} else {
-				target.scrollIntoView(false);
+				list = el;
 			}
-			gsap.fromTo(
-				target,
-				{ scale: 1.15, filter: "brightness(2)" },
-				{ scale: 1, filter: "brightness(1)", duration: 0.5 },
-			);
+			for (let j = 0; j < list.length; j++) {
+				let item = list[j];
+				if ((item as ComponentPublicInstance).$el)
+					item = (item as ComponentPublicInstance).$el as HTMLElement;
+				const delay = (i + j) * 0.1;
+				gsap.set(item as HTMLElement, { opacity: 0, y: -20, scale: 0.85 });
+				gsap.to(item as HTMLElement, {
+					duration: 0.5,
+					scale: 1,
+					opacity: 1,
+					y: 0,
+					clearProps: "all",
+					ease: "back.out",
+					delay,
+				});
+			}
 		}
 	}
+});
 
-	public onNavigateBack(): boolean {
-		return false;
+function clickPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+function clickItem(): void {
+	if (checkbox.value.value === false) {
+		const target = instructions.value as HTMLDivElement;
+		//@ts-ignore
+		if (target.scrollIntoViewIfNeeded) {
+			//@ts-ignore
+			target.scrollIntoViewIfNeeded(); //Works everywhere but firefox
+		} else {
+			target.scrollIntoView(false);
+		}
+		gsap.fromTo(
+			target,
+			{ scale: 1.15, filter: "brightness(2)" },
+			{ scale: 1, filter: "brightness(1)", duration: 0.5 },
+		);
 	}
 }
-export default toNative(ParamsSponsor);
+
+function onNavigateBack(): boolean {
+	return false;
+}
+
+defineExpose<IParameterContent>({ onNavigateBack });
 </script>
 
 <style scoped lang="less">

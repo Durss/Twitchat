@@ -137,338 +137,326 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket, { type OBSSourceItem } from "@/utils/OBSWebsocket";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap/gsap-core";
-import { watch, type CSSProperties } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, onBeforeMount, ref, watch, type CSSProperties } from "vue";
 import Splitter from "../../Splitter.vue";
 import ToggleBlock from "../../ToggleBlock.vue";
 import ParamItem from "../ParamItem.vue";
 import PermissionsForm from "../../PermissionsForm.vue";
 import type IParameterContent from "./IParameterContent";
 import Utils from "@/utils/Utils";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeEmergency as useStoreEmergency } from "@/store/emergency/storeEmergency";
 
-@Component({
-	components: {
-		Splitter,
-		ParamItem,
-		ToggleBlock,
-		PermissionsForm,
-	},
-})
-class ParamsEmergency extends Vue implements IParameterContent {
-	public param_obsScene: TwitchatDataTypes.ParameterData<string, string> = {
-		type: "list",
-		value: "",
+const storeAuth = useStoreAuth();
+const storeEmergency = useStoreEmergency();
+
+const param_obsScene = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "list",
+	value: "",
+});
+const param_enable = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "global.enable",
+});
+const param_enableShieldMode = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "shieldMode",
+	twitch_scopes: [TwitchScopes.SHIELD_MODE],
+	labelKey: "emergency.params.shieldmode",
+});
+const param_chatCommand = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "!emergency",
+	icon: "commands",
+	labelKey: "emergency.params.chatCommand",
+});
+const param_autoEnableOnFollowbot = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "follow",
+	tooltip: "",
+	labelKey: "emergency.params.autoEnableOnFollowbot",
+	tooltipKey: "emergency.params.autoEnableOnFollowbot_tt",
+});
+const param_autoEnableOnShieldmode = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	icon: "shieldMode",
+	tooltip: "",
+	twitch_scopes: [TwitchScopes.SHIELD_MODE],
+	labelKey: "emergency.params.autoEnableOnShieldmode",
+	tooltipKey: "emergency.params.autoEnableOnShieldmode_tt",
+});
+const param_slowMode = ref<TwitchatDataTypes.ParameterData<boolean, string, number>>({
+	type: "boolean",
+	value: false,
+	icon: "timer",
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+	labelKey: "emergency.params.slowMode",
+});
+const param_slowModeDuration = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 10,
+	max: 1800,
+	min: 1,
+	labelKey: "emergency.params.slowModeDuration",
+});
+const param_followersOnly = ref<TwitchatDataTypes.ParameterData<boolean, string, number>>({
+	type: "boolean",
+	value: false,
+	icon: "follow",
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+	labelKey: "emergency.params.followersOnly",
+});
+const param_followersOnlyDuration = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 30,
+	max: 129600,
+	min: 1,
+	labelKey: "emergency.params.followersOnlyDuration",
+});
+const param_subsOnly = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "sub",
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+	labelKey: "emergency.params.subsOnly",
+});
+const param_emotesOnly = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "emote",
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+	labelKey: "emergency.params.emotesOnly",
+});
+const param_autoTO = ref<TwitchatDataTypes.ParameterData<string[], string>>({
+	type: "editablelist",
+	value: [],
+	longText: true,
+	icon: "timeout",
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+	labelKey: "emergency.params.autoTO",
+	placeholderKey: "emergency.params.autoTO_placeholder",
+	max: 100,
+	maxLength: 25,
+});
+const param_noTrigger = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	icon: "broadcast",
+	labelKey: "emergency.params.noTrigger",
+});
+const obsSources = ref<OBSSourceItem[]>([]);
+const selectedOBSSources = ref<OBSSourceItem[]>([]);
+const selectedOBSScene = ref<TwitchatDataTypes.ParameterDataListValue<string> | null>(null);
+const chatCommandPerms = ref<TwitchatDataTypes.PermissionsData>(
+	Utils.getDefaultPermissions(true, true, false, false, false, false),
+);
+
+const holderStyles = computed<CSSProperties>(() => {
+	return {
+		opacity: param_enable.value.value === true ? 1 : 0.5,
+		pointerEvents: param_enable.value.value === true ? "all" : "none",
 	};
-	public param_enable: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "global.enable",
+});
+
+const obsConnected = computed<boolean>(() => {
+	return OBSWebsocket.instance.connected.value;
+});
+const subcontentObs = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(() => {
+	return TwitchatDataTypes.ParamDeepSections.OBS;
+});
+const contentConnexions = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
+	return TwitchatDataTypes.ParameterPages.CONNECTIONS;
+});
+const contentAutomod = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
+	return TwitchatDataTypes.ParameterPages.AUTOMOD;
+});
+const userName = computed<string>(() => {
+	return storeAuth.twitch.user.login;
+});
+
+const obsSources_filtered = computed<OBSSourceItem[]>(() => {
+	let sources = obsSources.value.concat();
+	sources = sources.filter((v) => {
+		return selectedOBSSources.value.find((s) => s.sourceName == v.sourceName) == undefined;
+	});
+	return sources;
+});
+
+const finalData = computed<TwitchatDataTypes.EmergencyParamsData>(() => {
+	return {
+		enabled: param_enable.value.value,
+		chatCmd: param_chatCommand.value.value,
+		chatCmdPerms: chatCommandPerms.value,
+		noTriggers: param_noTrigger.value.value === true,
+		emotesOnly: param_emotesOnly.value.value === true,
+		subOnly: param_subsOnly.value.value === true,
+		slowMode: param_slowMode.value.value === true,
+		followOnly: param_followersOnly.value.value === true,
+		followOnlyDuration: param_followersOnlyDuration.value.value,
+		slowModeDuration: param_slowModeDuration.value.value,
+		toUsers: param_autoTO.value.value ?? [],
+		obsScene: selectedOBSScene.value ? selectedOBSScene.value.value : "",
+		obsSources: selectedOBSSources.value
+			? selectedOBSSources.value.map((v) => v.sourceName)
+			: [],
+		autoEnableOnFollowbot: param_autoEnableOnFollowbot.value.value === true,
+		autoEnableOnShieldmode: param_autoEnableOnShieldmode.value.value === true,
+		enableShieldMode: param_enableShieldMode.value.value === true,
 	};
-	public param_enableShieldMode: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "shieldMode",
-		twitch_scopes: [TwitchScopes.SHIELD_MODE],
-		labelKey: "emergency.params.shieldmode",
-	};
-	public param_chatCommand: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "!emergency",
-		icon: "commands",
-		labelKey: "emergency.params.chatCommand",
-	};
-	public param_autoEnableOnFollowbot: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "follow",
-		tooltip: "",
-		labelKey: "emergency.params.autoEnableOnFollowbot",
-		tooltipKey: "emergency.params.autoEnableOnFollowbot_tt",
-	};
-	public param_autoEnableOnShieldmode: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		icon: "shieldMode",
-		tooltip: "",
-		twitch_scopes: [TwitchScopes.SHIELD_MODE],
-		labelKey: "emergency.params.autoEnableOnShieldmode",
-		tooltipKey: "emergency.params.autoEnableOnShieldmode_tt",
-	};
-	public param_slowMode: TwitchatDataTypes.ParameterData<boolean, string, number> = {
-		type: "boolean",
-		value: false,
-		icon: "timer",
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-		labelKey: "emergency.params.slowMode",
-	};
-	public param_slowModeDuration: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 10,
-		max: 1800,
-		min: 1,
-		labelKey: "emergency.params.slowModeDuration",
-	};
-	public param_followersOnly: TwitchatDataTypes.ParameterData<boolean, string, number> = {
-		type: "boolean",
-		value: false,
-		icon: "follow",
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-		labelKey: "emergency.params.followersOnly",
-	};
-	public param_followersOnlyDuration: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 30,
-		max: 129600,
-		min: 1,
-		labelKey: "emergency.params.followersOnlyDuration",
-	};
-	public param_subsOnly: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "sub",
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-		labelKey: "emergency.params.subsOnly",
-	};
-	public param_emotesOnly: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "emote",
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-		labelKey: "emergency.params.emotesOnly",
-	};
-	public param_autoTO: TwitchatDataTypes.ParameterData<string[], string> = {
-		type: "editablelist",
-		value: [],
-		longText: true,
-		icon: "timeout",
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-		labelKey: "emergency.params.autoTO",
-		placeholderKey: "emergency.params.autoTO_placeholder",
-		max: 100,
-		maxLength: 25,
-	};
-	public param_noTrigger: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		icon: "broadcast",
-		labelKey: "emergency.params.noTrigger",
-	};
-	public obsSources: OBSSourceItem[] = [];
-	public selectedOBSSources: OBSSourceItem[] = [];
-	public selectedOBSScene: TwitchatDataTypes.ParameterDataListValue<string> | null = null;
-	public chatCommandPerms: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(
-		true,
-		true,
-		false,
-		false,
-		false,
-		false,
+});
+
+function onNavigateBack(): boolean {
+	return false;
+}
+
+function onShowItem(el: HTMLDivElement, done: () => void): void {
+	gsap.killTweensOf(el);
+	//Delay the opening so the animation occurs after the child's animation.
+	//this way the user has more chances to see it appear than if all the
+	//animations occured at the same time
+	gsap.from(el, {
+		height: 0,
+		duration: 0.2,
+		ease: "sine.out",
+		delay: 0.5,
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+function onHideItem(el: HTMLDivElement, done: () => void): void {
+	gsap.killTweensOf(el);
+	gsap.to(el, {
+		height: 0,
+		duration: 0.2,
+		ease: "sine.out",
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+/**
+ * List OBS Scenes
+ */
+async function listOBSScenes(): Promise<void> {
+	if (!OBSWebsocket.instance.connected.value) return;
+
+	const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+	const res = await OBSWebsocket.instance.getScenes();
+	for (let i = 0; i < res.scenes.length; i++) {
+		const scene = res.scenes[i] as { sceneIndex: number; sceneName: string };
+		list.push({ label: scene.sceneName, value: scene.sceneName });
+	}
+	list.sort((a, b) => {
+		if (a.label!.toLowerCase() < b.label!.toLowerCase()) return -1;
+		if (a.label!.toLowerCase() > b.label!.toLowerCase()) return 1;
+		return 0;
+	});
+
+	param_obsScene.value.listValues = list;
+	//Prefill form from storage
+	selectedOBSScene.value = list.find((v) => v.value == storeEmergency.params.obsScene) ?? null;
+}
+
+/**
+ * Gets all the available OBS sources and sort them alphabetically
+ */
+async function listOBSSources(): Promise<void> {
+	try {
+		obsSources.value = await OBSWebsocket.instance.getSources();
+	} catch (error) {
+		//
+	}
+	obsSources.value.sort((a, b) => {
+		if (a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
+		if (a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
+		return 0;
+	});
+
+	//Prefill form from storage
+	const list = [];
+	for (const el of obsSources.value) {
+		if (
+			(storeEmergency.params.obsSources as string[]).findIndex((v) => v === el.sourceName) >
+			-1
+		) {
+			list.push(el);
+		}
+	}
+	selectedOBSSources.value = list;
+}
+
+onBeforeMount(async () => {
+	const storeParams = storeEmergency.params;
+	param_enable.value.value = storeParams.enabled;
+	param_noTrigger.value.value = storeParams.noTriggers;
+	param_autoTO.value.value = storeParams.toUsers || [];
+	param_subsOnly.value.value =
+		storeParams.subOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+	param_emotesOnly.value.value =
+		storeParams.emotesOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+	param_followersOnly.value.value =
+		storeParams.followOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+	param_followersOnlyDuration.value.value = storeParams.followOnlyDuration;
+	param_slowMode.value.value =
+		storeParams.slowMode && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+	param_slowModeDuration.value.value = storeParams.slowModeDuration;
+	param_enableShieldMode.value.value = storeParams.enableShieldMode;
+
+	param_slowMode.value.children = [param_slowModeDuration.value];
+	param_followersOnly.value.children = [param_followersOnlyDuration.value];
+
+	if (storeParams.chatCmd) {
+		param_chatCommand.value.value = storeParams.chatCmd;
+	}
+	if (storeParams.chatCmdPerms) {
+		chatCommandPerms.value = storeParams.chatCmdPerms;
+	}
+	if (storeParams.autoEnableOnFollowbot != undefined) {
+		param_autoEnableOnFollowbot.value.value = storeParams.autoEnableOnFollowbot;
+	}
+
+	param_autoEnableOnShieldmode.value.value = TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE]);
+	if (
+		storeParams.autoEnableOnShieldmode != undefined &&
+		TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
+	) {
+		param_autoEnableOnShieldmode.value.value = storeParams.autoEnableOnShieldmode;
+	}
+
+	await listOBSScenes();
+	await listOBSSources();
+
+	watch(
+		() => finalData.value,
+		() => {
+			storeEmergency.setEmergencyParams(finalData.value);
+		},
+		{ deep: true },
 	);
 
-	public get holderStyles(): CSSProperties {
-		return {
-			opacity: this.param_enable.value === true ? 1 : 0.5,
-			pointerEvents: this.param_enable.value === true ? "all" : "none",
-		};
-	}
+	watch(
+		() => OBSWebsocket.instance.connected.value,
+		() => {
+			listOBSScenes();
+			listOBSSources();
+		},
+	);
+});
 
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
-	public get subcontentObs(): TwitchatDataTypes.ParamDeepSectionsStringType {
-		return TwitchatDataTypes.ParamDeepSections.OBS;
-	}
-	public get contentConnexions(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.CONNECTIONS;
-	}
-	public get contentAutomod(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.AUTOMOD;
-	}
-	public get userName(): string {
-		return this.$store.auth.twitch.user.login;
-	}
-
-	public get obsSources_filtered(): OBSSourceItem[] {
-		let sources = this.obsSources.concat();
-		sources = sources.filter((v) => {
-			return this.selectedOBSSources.find((s) => s.sourceName == v.sourceName) == undefined;
-		});
-		return sources;
-	}
-
-	public get finalData(): TwitchatDataTypes.EmergencyParamsData {
-		return {
-			enabled: this.param_enable.value,
-			chatCmd: this.param_chatCommand.value,
-			chatCmdPerms: this.chatCommandPerms,
-			noTriggers: this.param_noTrigger.value === true,
-			emotesOnly: this.param_emotesOnly.value === true,
-			subOnly: this.param_subsOnly.value === true,
-			slowMode: this.param_slowMode.value === true,
-			followOnly: this.param_followersOnly.value === true,
-			followOnlyDuration: this.param_followersOnlyDuration.value,
-			slowModeDuration: this.param_slowModeDuration.value,
-			toUsers: this.param_autoTO.value ?? [],
-			obsScene: this.selectedOBSScene ? this.selectedOBSScene.value : "",
-			obsSources: this.selectedOBSSources
-				? this.selectedOBSSources.map((v) => v.sourceName)
-				: [],
-			autoEnableOnFollowbot: this.param_autoEnableOnFollowbot.value === true,
-			autoEnableOnShieldmode: this.param_autoEnableOnShieldmode.value === true,
-			enableShieldMode: this.param_enableShieldMode.value === true,
-		};
-	}
-
-	public async beforeMount(): Promise<void> {
-		const storeParams = this.$store.emergency.params;
-		this.param_enable.value = storeParams.enabled;
-		this.param_noTrigger.value = storeParams.noTriggers;
-		this.param_autoTO.value = storeParams.toUsers || [];
-		this.param_subsOnly.value =
-			storeParams.subOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-		this.param_emotesOnly.value =
-			storeParams.emotesOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-		this.param_followersOnly.value =
-			storeParams.followOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-		this.param_followersOnlyDuration.value = storeParams.followOnlyDuration;
-		this.param_slowMode.value =
-			storeParams.slowMode && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-		this.param_slowModeDuration.value = storeParams.slowModeDuration;
-		this.param_enableShieldMode.value = storeParams.enableShieldMode;
-
-		this.param_slowMode.children = [this.param_slowModeDuration];
-		this.param_followersOnly.children = [this.param_followersOnlyDuration];
-
-		if (storeParams.chatCmd) {
-			this.param_chatCommand.value = storeParams.chatCmd;
-		}
-		if (storeParams.chatCmdPerms) {
-			this.chatCommandPerms = storeParams.chatCmdPerms;
-		}
-		if (storeParams.autoEnableOnFollowbot != undefined) {
-			this.param_autoEnableOnFollowbot.value = storeParams.autoEnableOnFollowbot;
-		}
-
-		this.param_autoEnableOnShieldmode.value = TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE]);
-		if (
-			storeParams.autoEnableOnShieldmode != undefined &&
-			TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])
-		) {
-			this.param_autoEnableOnShieldmode.value = storeParams.autoEnableOnShieldmode;
-		}
-
-		await this.listOBSScenes();
-		await this.listOBSSources();
-
-		watch(
-			() => this.finalData,
-			() => {
-				this.$store.emergency.setEmergencyParams(this.finalData);
-			},
-			{ deep: true },
-		);
-
-		watch(
-			() => OBSWebsocket.instance.connected.value,
-			() => {
-				this.listOBSScenes();
-				this.listOBSSources();
-			},
-		);
-	}
-
-	public onNavigateBack(): boolean {
-		return false;
-	}
-
-	public onShowItem(el: HTMLDivElement, done: () => void): void {
-		gsap.killTweensOf(el);
-		//Delay the opening so the animation occurs after the child's animation.
-		//this way the user has more chances to see it appear than if all the
-		//animations occured at the same time
-		gsap.from(el, {
-			height: 0,
-			duration: 0.2,
-			ease: "sine.out",
-			delay: 0.5,
-			onComplete: () => {
-				done();
-			},
-		});
-	}
-
-	public onHideItem(el: HTMLDivElement, done: () => void): void {
-		gsap.killTweensOf(el);
-		gsap.to(el, {
-			height: 0,
-			duration: 0.2,
-			ease: "sine.out",
-			onComplete: () => {
-				done();
-			},
-		});
-	}
-
-	/**
-	 * List OBS Scenes
-	 */
-	private async listOBSScenes(): Promise<void> {
-		if (!OBSWebsocket.instance.connected.value) return;
-
-		const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-		const res = await OBSWebsocket.instance.getScenes();
-		for (let i = 0; i < res.scenes.length; i++) {
-			const scene = res.scenes[i] as { sceneIndex: number; sceneName: string };
-			list.push({ label: scene.sceneName, value: scene.sceneName });
-		}
-		list.sort((a, b) => {
-			if (a.label!.toLowerCase() < b.label!.toLowerCase()) return -1;
-			if (a.label!.toLowerCase() > b.label!.toLowerCase()) return 1;
-			return 0;
-		});
-
-		this.param_obsScene.listValues = list;
-		//Prefill form from storage
-		this.selectedOBSScene =
-			list.find((v) => v.value == this.$store.emergency.params.obsScene) ?? null;
-	}
-
-	/**
-	 * Gets all the available OBS sources and sort them alphabetically
-	 */
-	private async listOBSSources(): Promise<void> {
-		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
-		} catch (error) {
-			//
-		}
-		this.obsSources.sort((a, b) => {
-			if (a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
-			if (a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
-			return 0;
-		});
-
-		//Prefill form from storage
-		const list = [];
-		for (const el of this.obsSources) {
-			if (
-				(this.$store.emergency.params.obsSources as string[]).findIndex(
-					(v) => v === el.sourceName,
-				) > -1
-			) {
-				list.push(el);
-			}
-		}
-		this.selectedOBSSources = list;
-	}
-}
-export default toNative(ParamsEmergency);
+defineExpose<IParameterContent>({ onNavigateBack });
 </script>
 
 <style scoped lang="less">
