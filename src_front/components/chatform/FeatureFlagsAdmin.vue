@@ -90,7 +90,7 @@ import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
 import Splitter from "../Splitter.vue";
 import ParamItem from "../params/ParamItem.vue";
-import SearchUserForm from "../params/contents/donate/SearchUserForm.vue";
+import SearchUserForm from "../SearchUserForm.vue";
 
 type FlagsMap = { [flag: string]: string[] };
 
