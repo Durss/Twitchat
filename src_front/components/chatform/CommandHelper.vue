@@ -306,7 +306,7 @@ import { watch } from "vue";
 import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
 import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
-import SearchUserForm from "../params/contents/donate/SearchUserForm.vue";
+import SearchUserForm from "../SearchUserForm.vue";
 
 @Component({
 	components: {

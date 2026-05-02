@@ -307,10 +307,10 @@ import { watch } from "vue";
 import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../ParamItem.vue";
 import ParamsDonorList from "./ParamsDonorList.vue";
-import SearchUserForm from "@/components/params/contents/donate/SearchUserForm.vue";
 import TTButton from "@/components/TTButton.vue";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import InvoiceList from "./InvoiceList.vue";
+import SearchUserForm from "@/components/SearchUserForm.vue";
 
 @Component({
 	components: {
