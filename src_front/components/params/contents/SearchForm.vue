@@ -5,7 +5,7 @@
 			<Icon name="search" class="searchIcon" v-else />
 			<input
 				type="text"
-				:placeholder="$t('global.search_placeholder')"
+				:placeholder="props.placeholder ?? t('global.search_placeholder')"
 				v-model="search"
 				v-autofocus="props.autoFocus"
 				@keydown.enter="emit('submit', search)"
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import { ref, watch, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{
 	(e: "change", value: string): void;
@@ -26,11 +27,14 @@ const emit = defineEmits<{
 	(e: "submit", value: string): void;
 }>();
 
+const { t } = useI18n();
+
 const props = withDefaults(
 	defineProps<{
 		modelValue?: string;
 		debounceDelay?: number;
 		autoFocus?: boolean;
+		placeholder?: string;
 	}>(),
 	{
 		autoFocus: true,

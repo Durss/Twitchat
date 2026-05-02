@@ -277,4 +277,3 @@ function expandRows(rowIndex: number, animate: boolean = true): void {
 	}
 }
 </style>
-
