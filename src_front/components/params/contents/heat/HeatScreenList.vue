@@ -1,7 +1,7 @@
 <template>
 	<ToggleBlock
 		class="HeatScreenList"
-		:title="$t('heat.zone_interaction')"
+		:title="t('heat.zone_interaction')"
 		:open="true"
 		:icons="['polygon']"
 	>
@@ -14,14 +14,14 @@
 				v-if="!currentScreen"
 			>
 				<template #TRIGGER_LINK>
-					<a @click="openTriggers()">{{ $t("heat.areas.trigger_link") }}</a>
+					<a @click="openTriggers()">{{ t("heat.areas.trigger_link") }}</a>
 				</template>
 			</i18n-t>
 
 			<draggable
 				class="areaList"
 				v-if="!currentScreen"
-				v-model="$store.heat.screenList"
+				v-model="storeHeat.screenList"
 				group="actions"
 				item-key="id"
 				ghost-class="ghost"
@@ -53,8 +53,8 @@
 						v-else
 						label="heat.nonpremium_limit"
 						premiumLabel="heat.premium_limit"
-						:max="$config.MAX_CUSTOM_HEAT_SCREENS"
-						:maxPremium="$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM"
+						:max="Config.instance.MAX_CUSTOM_HEAT_SCREENS"
+						:maxPremium="Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM"
 					/>
 				</template>
 			</draggable>
@@ -69,96 +69,87 @@
 	</ToggleBlock>
 </template>
 
-<script lang="ts">
-import Config from "@/utils/Config";
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import HeatScreenEditor from "./areas/HeatScreenEditor.vue";
-import HeatScreenPreview from "./areas/HeatScreenPreview.vue";
+import Config from "@/utils/Config";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
+import HeatScreenEditor from "./areas/HeatScreenEditor.vue";
+import HeatScreenPreview from "./areas/HeatScreenPreview.vue";
 
-@Component({
-	components: {
-		TTButton,
-		draggable,
-		ToggleBlock,
-		HeatScreenEditor,
-		HeatScreenPreview,
-		PremiumLimitMessage,
-	},
-	emits: [],
-})
-class HeatScreenList extends Vue {
-	public currentScreen: HeatScreen | null = null;
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeHeat = useStoreHeat();
+const storeParams = useStoreParams();
+const currentScreen = ref<HeatScreen | null>(null);
 
-	public get maxScreens(): number {
-		return this.$store.auth.isPremium
-			? Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM
-			: Config.instance.MAX_CUSTOM_HEAT_SCREENS;
-	}
-	public get canCreateScreens(): boolean {
-		return this.$store.heat.screenList.length < this.maxScreens;
-	}
+const maxScreens = computed(() => {
+	return storeAuth.isPremium
+		? Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM
+		: Config.instance.MAX_CUSTOM_HEAT_SCREENS;
+});
+const canCreateScreens = computed(() => {
+	return storeHeat.screenList.length < maxScreens.value;
+});
 
-	public async beforeMount(): Promise<void> {}
-
-	public openTriggers(): void {
-		this.$store.params.currentPage = TwitchatDataTypes.ParameterPages.TRIGGERS;
-	}
-
-	/**
-	 * Called when clicking "+" (new screen) button
-	 */
-	public createScreen(): void {
-		const id = this.$store.heat.createScreen();
-		this.currentScreen = this.$store.heat.screenList.find((v) => v.id == id) || null;
-	}
-
-	/**
-	 * Called when clicking edit button
-	 */
-	public editScreen(screen: HeatScreen, saveOnly = false): void {
-		if (!saveOnly) {
-			this.currentScreen = screen;
-		}
-		this.$store.heat.updateScreen(screen);
-	}
-
-	/**
-	 * Called when clicking duplicate button
-	 */
-	public duplicateScreen(id: string): void {
-		this.$store.heat.duplicateScreen(id);
-	}
-
-	/**
-	 * Called when clicking premium button
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Called when clicking delete button
-	 */
-	public deleteScreen(id: string): void {
-		this.$confirm(
-			this.$t("heat.areas.delete_confirm.title"),
-			this.$t("heat.areas.delete_confirm.description"),
-		)
-			.then(() => {
-				this.$store.heat.deleteScreen(id);
-			})
-			.catch((error) => {
-				/*ignore*/
-			});
-	}
+function openTriggers(): void {
+	storeParams.currentPage = TwitchatDataTypes.ParameterPages.TRIGGERS;
 }
-export default toNative(HeatScreenList);
+
+/**
+ * Called when clicking "+" (new screen) button
+ */
+function createScreen(): void {
+	const id = storeHeat.createScreen();
+	currentScreen.value = storeHeat.screenList.find((v) => v.id == id) || null;
+}
+
+/**
+ * Called when clicking edit button
+ */
+function editScreen(screen: HeatScreen, saveOnly = false): void {
+	if (!saveOnly) {
+		currentScreen.value = screen;
+	}
+	storeHeat.updateScreen(screen);
+}
+
+/**
+ * Called when clicking duplicate button
+ */
+function duplicateScreen(id: string): void {
+	storeHeat.duplicateScreen(id);
+}
+
+/**
+ * Called when clicking premium button
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
+ * Called when clicking delete button
+ */
+function deleteScreen(id: string): void {
+	confirm(t("heat.areas.delete_confirm.title"), t("heat.areas.delete_confirm.description"))
+		.then(() => {
+			storeHeat.deleteScreen(id);
+		})
+		.catch((error) => {
+			/*ignore*/
+		});
+}
 </script>
 
 <style scoped lang="less">

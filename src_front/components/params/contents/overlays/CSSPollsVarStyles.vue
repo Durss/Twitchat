@@ -19,3 +19,4 @@
   background-color: #ffffff;
 }</pre>
 </template>
+<script setup lang="ts"></script>
