@@ -619,7 +619,8 @@ function fullListRefresh(scrollToBottom: boolean = true): void {
 function rebuildChannelIdsHashmap(): void {
 	//Check for all valid IDs depending on the connected platforms
 	const validIds = storeStream.connectedTwitchChans.concat().map((v) => v.user.id);
-	if (storeAuth.youtube.user) validIds.push(storeAuth.youtube.user.id);
+	if (storeAuth.youtube?.user) validIds.push(storeAuth.youtube.user.id);
+	if (storeAuth.bluesky?.user) validIds.push(storeAuth.bluesky.user.id);
 	if (storeTiktok.connected) validIds.push("tiktok");
 	validIds.push(storeAuth.twitch.user.id);
 

@@ -18,6 +18,7 @@ import type {
 	TriggerTreeItemData,
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreInstance } from "@/types/pinia-helpers";
 import type { SpotifyAuthResult } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
@@ -25,9 +26,10 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
+import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import type { BrowserOAuthClient } from "@atproto/oauth-client-browser";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
-import type { StoreInstance } from "@/types/pinia-helpers";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type {
@@ -41,8 +43,6 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
-import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 /**
  * Created : 23/09/2022
@@ -460,6 +460,18 @@ export type IAuthState = {
 	 * Platforms sessions
 	 */
 	[key in TwitchatDataTypes.ChatPlatform]: {
+		client_id?: string;
+		access_token?: string;
+		expires_in?: number;
+		scopes?: string[];
+		user: TwitchatDataTypes.TwitchatUser;
+	} | null;
+} & {
+	// Force non null twitch object as most of the app rely on it and
+	// can never actually be null.
+	// It will be quite a mess to change that if I ever want not to
+	// have a twitch-first app...
+	twitch: {
 		client_id: string;
 		access_token: string;
 		expires_in: number;
@@ -4268,9 +4280,7 @@ export interface IBlueskyState {
 	handleResolver: string;
 }
 
-export interface IBlueskyGetters {
-	session: OAuthSession | null;
-}
+export interface IBlueskyGetters {}
 
 export interface IBlueskyActions {
 	/**

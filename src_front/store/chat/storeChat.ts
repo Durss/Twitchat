@@ -1236,7 +1236,7 @@ export const storeChat = defineStore("chat", {
 			const logTimings = false; //Enable to check for perf issues
 			const isFromRemoteChan =
 				message.channel_id != sAuth.twitch.user.id &&
-				message.channel_id != sAuth.youtube.user?.id &&
+				message.channel_id != sAuth.youtube?.user.id &&
 				// Consider tiktok messages as "own" because there's no auth
 				message.platform !== "tiktok";
 
@@ -1259,7 +1259,7 @@ export const storeChat = defineStore("chat", {
 				if (
 					!message.channelSource &&
 					message.channel_id != sAuth.twitch.user.id &&
-					message.channel_id != sAuth.youtube.user?.id
+					message.channel_id != sAuth.youtube?.user.id
 				) {
 					const infos = sStream.connectedTwitchChans.find(
 						(v) => v.user.id == message.channel_id,

@@ -720,10 +720,18 @@ const channels = computed(() => {
 		isRemoteChan: false,
 		color: "transparent",
 	});
-	if (storeAuth.youtube.user) {
+	if (storeAuth.youtube?.user) {
 		chans.push({
 			platform: "youtube",
 			user: storeAuth.youtube.user,
+			isRemoteChan: false,
+			color: "transparent",
+		});
+	}
+	if (storeAuth.bluesky?.user) {
+		chans.push({
+			platform: "bluesky",
+			user: storeAuth.bluesky.user,
 			isRemoteChan: false,
 			color: "transparent",
 		});

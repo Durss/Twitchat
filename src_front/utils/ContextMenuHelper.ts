@@ -55,10 +55,17 @@ export default class ContextMenuHelper {
 		htmlNode: HTMLElement,
 	): Promise<void> {
 		const t = StoreProxy.i18n.t;
-		const myUID =
-			(message.platform == "youtube"
-				? StoreProxy.auth.youtube.user?.id
-				: StoreProxy.auth.twitch.user?.id) || "";
+		let myUID = "";
+		switch (message.platform) {
+			case "youtube":
+				myUID = StoreProxy.auth.youtube?.user?.id || "";
+				break;
+			case "bluesky":
+				myUID = StoreProxy.auth.bluesky?.user?.id || "";
+				break;
+			default:
+				myUID = StoreProxy.auth.twitch.user.id;
+		}
 		const options: MenuItem[] = [];
 		const moreOptions: MenuItem[] = [];
 		const px =

@@ -1142,8 +1142,8 @@ onMounted(() => {
 				}
 				isOwnChannel.value =
 					chanId == StoreProxy.auth.twitch.user.id ||
-					chanId == StoreProxy.auth.youtube.user?.id ||
-					chanId == storeBluesky.session?.did;
+					chanId == StoreProxy.auth.youtube?.user.id ||
+					chanId == StoreProxy.auth.bluesky?.user.id;
 				isSelfProfile.value = user.value.id == StoreProxy.auth.twitch.user.id;
 				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
 				canModerate.value =

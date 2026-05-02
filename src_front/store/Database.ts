@@ -171,8 +171,8 @@ export default class Database {
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan =
 			message.channel_id != sAuth.twitch.user.id &&
-			message.channel_id != sAuth.youtube.user?.id &&
-			message.channel_id != sAuth.bluesky.user?.id;
+			message.channel_id != sAuth.youtube?.user.id &&
+			message.channel_id != sAuth.bluesky?.user.id;
 		//Don't save messages from remote channels
 		if (isFromRemoteChan) return Promise.resolve();
 
@@ -257,7 +257,7 @@ export default class Database {
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan =
 			message.channel_id != sAuth.twitch.user.id &&
-			message.channel_id != sAuth.youtube.user?.id;
+			message.channel_id != sAuth.youtube?.user.id;
 		//Don't save messages from remote channels
 		if (isFromRemoteChan) return Promise.resolve();
 
@@ -290,7 +290,7 @@ export default class Database {
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan =
 			message.channel_id != sAuth.twitch.user.id &&
-			message.channel_id != sAuth.youtube.user?.id;
+			message.channel_id != sAuth.youtube?.user.id;
 		//Don't save messages from remote channels
 		if (isFromRemoteChan) return Promise.resolve();
 
