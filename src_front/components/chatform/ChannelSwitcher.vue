@@ -124,9 +124,9 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { gsap } from "gsap/gsap-core";
 import { reactive } from "vue";
 import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import SearchUserForm from "../params/contents/donate/SearchUserForm.vue";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
+import SearchUserForm from "../SearchUserForm.vue";
 
 @Component({
 	components: {
