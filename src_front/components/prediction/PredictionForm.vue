@@ -412,4 +412,3 @@ function selectPreset(params: (typeof predictionHistory.value)[number]): void {
 	}
 }
 </style>
-
