@@ -1,7 +1,7 @@
 <template>
 	<ToggleBlock
 		class="heatoverlayclick"
-		:title="$t('heat.overlay_interaction')"
+		:title="t('heat.overlay_interaction')"
 		:open="false"
 		:icons="['overlay']"
 	>
@@ -16,9 +16,9 @@
 				:titleKey="'heat.overlay_' + code + '.description'"
 				:placeholders="placeholders[code]"
 			>
-				<ParamItem :paramData="param_cooldown[code]" @change="onUpdateValue" />
+				<ParamItem :paramData="param_cooldown[code]!" @change="onUpdateValue" />
 				<ParamItem
-					:paramData="param_allowAnon[code]"
+					:paramData="param_allowAnon[code]!"
 					@change="onUpdateValue"
 					class="marginTop"
 				/>
@@ -27,83 +27,81 @@
 	</ToggleBlock>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import DataStore from "@/store/DataStore";
 import { TriggerEventPlaceholders, TriggerTypes } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import PostOnChatParam from "../../PostOnChatParam.vue";
 
-@Component({
-	components: {
-		ParamItem,
-		ToggleBlock,
-		PostOnChatParam,
-	},
-	emits: [],
-})
-class HeatOverlayClick extends Vue {
-	public overlayTypes: OverlayKey[] = ["spotify", "ulule"];
-	public botMessageKeys: TwitchatDataTypes.BotMessageField[] = ["heatSpotify", "heatUlule"];
-	public placeholders: Partial<{ [key in OverlayKey]: TwitchatDataTypes.PlaceholderEntry[] }> =
-		{};
-	public param_cooldown: Partial<{
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const overlayTypes = ref<OverlayKey[]>(["spotify", "ulule"]);
+const botMessageKeys = ref<TwitchatDataTypes.BotMessageField[]>(["heatSpotify", "heatUlule"]);
+const placeholders = ref<Partial<{ [key in OverlayKey]: TwitchatDataTypes.PlaceholderEntry[] }>>(
+	{},
+);
+const param_cooldown = ref<
+	Partial<{
 		[key in OverlayKey]: TwitchatDataTypes.ParameterData<number>;
-	}> = {};
-	public param_allowAnon: Partial<{
+	}>
+>({});
+const param_allowAnon = ref<
+	Partial<{
 		[key in OverlayKey]: TwitchatDataTypes.ParameterData<boolean>;
-	}> = {};
+	}>
+>({});
 
-	public mounted(): void {
-		this.placeholders["spotify"] = TriggerEventPlaceholders(TriggerTypes.MUSIC_START);
+onMounted(() => {
+	placeholders.value["spotify"] = TriggerEventPlaceholders(TriggerTypes.MUSIC_START);
 
-		this.placeholders["ulule"] = [
-			{
-				tag: "ULULE_CAMPAIGN_NAME",
-				descKey: "triggers.placeholders.ulule_campaign_name",
-				example: this.$t("triggers.placeholders.ulule_campaign_name_example"),
-			},
-			{
-				tag: "ULULE_CAMPAIGN_URL",
-				descKey: "triggers.placeholders.ulule_campaign_url",
-				example: "https://www.ulule.com",
-			},
-		];
+	placeholders.value["ulule"] = [
+		{
+			tag: "ULULE_CAMPAIGN_NAME",
+			descKey: "triggers.placeholders.ulule_campaign_name",
+			example: t("triggers.placeholders.ulule_campaign_name_example"),
+		},
+		{
+			tag: "ULULE_CAMPAIGN_URL",
+			descKey: "triggers.placeholders.ulule_campaign_url",
+			example: "https://www.ulule.com",
+		},
+	];
 
-		for (let i = 0; i < this.overlayTypes.length; i++) {
-			const code = this.overlayTypes[i]!;
-			const botMessageKey = this.botMessageKeys[i]!;
-			this.param_cooldown[code] = {
-				type: "number",
-				value: this.$store.chat.botMessages[botMessageKey].cooldown || 10,
-				min: 0,
-				max: 3600,
-				labelKey: "heat.param_cooldown",
-				icon: "timer",
-			};
-			this.param_allowAnon[code] = {
-				type: "boolean",
-				value: this.$store.chat.botMessages[botMessageKey].allowAnon === true,
-				labelKey: "heat.param_anon",
-				icon: "anon",
-				tooltipKey: "heat.anonymous",
-			};
-		}
+	for (let i = 0; i < overlayTypes.value.length; i++) {
+		const code = overlayTypes.value[i]!;
+		const botMessageKey = botMessageKeys.value[i]!;
+		param_cooldown.value[code] = {
+			type: "number",
+			value: storeChat.botMessages[botMessageKey].cooldown || 10,
+			min: 0,
+			max: 3600,
+			labelKey: "heat.param_cooldown",
+			icon: "timer",
+		};
+		param_allowAnon.value[code] = {
+			type: "boolean",
+			value: storeChat.botMessages[botMessageKey].allowAnon === true,
+			labelKey: "heat.param_anon",
+			icon: "anon",
+			tooltipKey: "heat.anonymous",
+		};
 	}
+});
 
-	public onUpdateValue(): void {
-		this.$store.chat.botMessages.heatUlule.cooldown = this.param_cooldown.ulule?.value;
-		this.$store.chat.botMessages.heatUlule.allowAnon = this.param_allowAnon.ulule?.value;
-		this.$store.chat.botMessages.heatSpotify.cooldown = this.param_cooldown.spotify?.value;
-		this.$store.chat.botMessages.heatSpotify.allowAnon = this.param_allowAnon.spotify?.value;
-		DataStore.set(DataStore.BOT_MESSAGES, this.$store.chat.botMessages);
-	}
+function onUpdateValue(): void {
+	storeChat.botMessages.heatUlule.cooldown = param_cooldown.value.ulule?.value;
+	storeChat.botMessages.heatUlule.allowAnon = param_allowAnon.value.ulule?.value;
+	storeChat.botMessages.heatSpotify.cooldown = param_cooldown.value.spotify?.value;
+	storeChat.botMessages.heatSpotify.allowAnon = param_allowAnon.value.spotify?.value;
+	DataStore.set(DataStore.BOT_MESSAGES, storeChat.botMessages);
 }
 
 type OverlayKey = "spotify" | "ulule";
-export default toNative(HeatOverlayClick);
 </script>
 
 <style scoped lang="less">
