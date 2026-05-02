@@ -250,7 +250,7 @@ export default class YoutubeHelper {
 					credits: this._creditsUsed,
 					liveID: this.currentLiveChatIds.value,
 				});
-				StoreProxy.auth.youtube.user = user;
+				StoreProxy.auth.youtube = { user };
 			}
 		} catch (_error) {}
 	}
@@ -717,7 +717,7 @@ export default class YoutubeHelper {
 			if (res.status == 200) {
 				const json: YoutubeFollowerResult = (await res.json()) as YoutubeFollowerResult;
 				const newFollowers: YoutubeFollowerResult["items"] = [];
-				const channelId = StoreProxy.auth.youtube.user.id;
+				const channelId = StoreProxy.auth.youtube!.user.id;
 				//Parse all users.
 				//Send a chat message for every new followers.
 				json.items.forEach((v) => {

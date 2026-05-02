@@ -35,7 +35,7 @@ export function useChatMessage(
 	 */
 	function canModerateUser(user: TwitchatDataTypes.TwitchatUser, channelId: string): boolean {
 		const authenticatedUser =
-			user.platform == "youtube" ? storeAuth.youtube.user : storeAuth.twitch.user;
+			user.platform == "youtube" ? storeAuth.youtube?.user : storeAuth.twitch.user;
 		//Authenticated user may be undefined if disconnecting youtube but youtube messages are
 		//loaded back from DB.
 		if (!authenticatedUser?.channelInfo[channelId]) return false;
