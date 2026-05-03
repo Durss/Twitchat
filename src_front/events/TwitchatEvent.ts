@@ -1568,7 +1568,7 @@ export type TwitchatEventMap = {
 		 */
 		params: string;
 		/**
-		 * Volume from 0 to 1
+		 * Volume from 0 to 100
 		 */
 		volume: number;
 	};

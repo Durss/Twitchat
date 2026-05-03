@@ -1,25 +1,25 @@
 {
-	"api": {
-		"header": "Exécutez {LINK} depuis des applications externes via de simples requêtes HTTP.",
-		"header_link": "des actions Twitchat",
-		"param_key": "Clé privée",
-		"click_reveal": "Cliquez pour révéler la clé",
-		"key_warning": "NE partagez la clé avec personne !",
-		"key_info": "Copiez-la et gardez-la en sécurité, Twitchat ne pourra plus l'afficher.",
-		"generate_key": "Générer une nouvelle clé",
-		"revoke_key": "Révoquer votre clé privée",
-		"revoke_key_tt": "Cela invalidera la clé précédemment générée",
-		"revoke_error": "Une erreur est survenue lors de la révocation de la clé. Veuillez réessayer.",
-		"revoke_success": "La clé a été révoquée avec succès.\n\nRendez-vous dans params => connexions => Twitchat API pour en générer une nouvelle.",
-		"generate_error": "Une erreur est survenue lors de la génération de la clé. Veuillez réessayer.",
-		"tutorial_title": "Comment utiliser votre clé API",
-		"tutorial_intro": "Chaque requête doit être signée avec votre clé privée. La clé elle-même ne doit jamais être envoyée ni partagée à qui que ce soit.",
-		"tutorial_step1": "Préparez le body JSON avec l'action que vous souhaitez déclencher et ses données:",
-		"tutorial_step1_detail": "{'{'}\"action\": \"SET_XXX\", \"data\": {'{'} ... {'}'}{'}'}",
-		"tutorial_step2": "Calculez le header de signature en concaténant le timestamp, l'action et le corps JSON:",
-		"tutorial_step3": "Appelez cet endpoint en POST:",
-		"tutorial_step4": "Ajoutez ces headers à votre requête:",
-		"tutorial_step5": "Consultez les {LINK} pour savoir ce que vous pouvez faire avec l'API.\n\nExemples de code:",
-		"tutorial_step5_link": "actions disponibles"
-	}
+  "api": {
+    "header": "Exécutez {LINK} depuis des applications externes via de simples requêtes HTTP.",
+    "header_link": "des actions Twitchat",
+    "param_key": "Clé privée",
+    "click_reveal": "Cliquez pour révéler la clé",
+    "key_warning": "NE partagez la clé avec personne !",
+    "key_info": "Copiez-la et gardez-la en sécurité, Twitchat ne pourra plus l'afficher.",
+    "generate_key": "Générer une nouvelle clé",
+    "revoke_key": "Révoquer votre clé privée",
+    "revoke_key_tt": "Cela invalidera la clé précédemment générée",
+    "revoke_error": "Une erreur est survenue lors de la révocation de la clé. Veuillez réessayer.",
+    "revoke_success": "La clé a été révoquée avec succès.\n\nRendez-vous dans params => connexions => Twitchat API pour en générer une nouvelle.",
+    "generate_error": "Une erreur est survenue lors de la génération de la clé. Veuillez réessayer.",
+    "tutorial_title": "Comment utiliser l'API Twitchat",
+    "tutorial_intro": "Chaque requête doit être signée avec votre clé privée. La clé elle-même ne doit jamais être envoyée ni partagée à qui que ce soit.",
+    "tutorial_step1": "Préparez le body JSON avec l'action que vous souhaitez déclencher et ses données:",
+    "tutorial_step1_detail": "{'{'}\"action\": \"SET_XXX\", \"data\": {'{'} ... {'}'}{'}'}",
+    "tutorial_step2": "Calculez le header de signature en concaténant le timestamp, l'action et le corps JSON:",
+    "tutorial_step3": "Appelez cet endpoint en POST:",
+    "tutorial_step4": "Ajoutez ces headers à votre requête:",
+    "tutorial_step5": "Consultez les {LINK} pour savoir ce que vous pouvez faire avec l'API.\n\nExemples de code:",
+    "tutorial_step5_link": "actions disponibles"
+  }
 }

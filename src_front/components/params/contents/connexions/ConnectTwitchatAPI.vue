@@ -19,7 +19,7 @@
 		</template>
 
 		<section v-else class="card-item form">
-			<template v-if="privateKey">
+			<template v-if="privateKey && storeApi.connected">
 				<div class="warning">
 					<Icon name="alert" />
 					<strong>{{ t("api.key_warning") }}</strong>
@@ -76,79 +76,69 @@
 			</div>
 
 			<div v-if="error" class="errorMessage">{{ error }}</div>
+		</section>
 
-			<ToggleBlock
-				:title="t('api.tutorial_title')"
-				class="tutorial"
+		<section class="card-item tutorial">
+			<h1>{{ t("api.tutorial_title") }}</h1>
+			<p>{{ t("api.tutorial_intro") }}</p>
+
+			<ol>
+				<li class="card-item">
+					<span class="index">1.</span>
+					<span>{{ t("api.tutorial_step1") }}</span>
+					<div class="codeBlock">
+						<code>{{ t("api.tutorial_step1_detail") }}</code>
+					</div>
+				</li>
+
+				<li class="card-item">
+					<span class="index">2.</span>
+					<span>{{ t("api.tutorial_step2") }}</span>
+					<div class="codeBlock">
+						<code>{{ signaturePayloadExample }}</code>
+					</div>
+				</li>
+
+				<li class="card-item">
+					<span class="index">3.</span>
+					<span>{{ t("api.tutorial_step3") }}</span>
+					<div class="codeBlock">
+						<code>POST {{ apiEndpoint }}</code>
+					</div>
+				</li>
+
+				<li class="card-item">
+					<span class="index">4.</span>
+					<span>{{ t("api.tutorial_step4") }}</span>
+					<div class="codeBlock">
+						<code>{{ headersExample }}</code>
+					</div>
+				</li>
+
+				<li class="card-item">
+					<span class="index">5.</span>
+					<i18n-t scope="global" tag="span" keypath="api.tutorial_step5">
+						<template #LINK>
+							<a :href="url" target="_blank"
+								><Icon name="newtab" />{{ t("api.tutorial_step5_link") }}</a
+							>
+						</template>
+					</i18n-t>
+				</li>
+			</ol>
+
+			<TabMenu
+				class="codeExampleTabs"
+				v-model="exampleLang"
+				:values="['javascript', 'nodejs', 'python']"
+				:labels="['JavaScript', 'Node.js', 'Python']"
 				small
-				:open="false"
-				@update:open="onTutorialToggle"
-			>
-				<p>{{ t("api.tutorial_intro") }}</p>
+			/>
+			<div class="codeExampleWrapper">
+				<pre class="codeBlock"><code v-html="activeHighlighted"></code></pre>
 
-				<ol>
-					<li class="card-item">
-						<span class="index">1.</span>
-						<span>{{ t("api.tutorial_step1") }}</span>
-						<div class="codeBlock">
-							<code>{{ t("api.tutorial_step1_detail") }}</code>
-						</div>
-					</li>
-
-					<li class="card-item">
-						<span class="index">2.</span>
-						<span>{{ t("api.tutorial_step2") }}</span>
-						<div class="codeBlock">
-							<code>{{ signaturePayloadExample }}</code>
-						</div>
-					</li>
-
-					<li class="card-item">
-						<span class="index">3.</span>
-						<span>{{ t("api.tutorial_step3") }}</span>
-						<div class="codeBlock">
-							<code>POST {{ apiEndpoint }}</code>
-						</div>
-					</li>
-
-					<li class="card-item">
-						<span class="index">4.</span>
-						<span>{{ t("api.tutorial_step4") }}</span>
-						<div class="codeBlock">
-							<code>{{ headersExample }}</code>
-						</div>
-					</li>
-
-					<li class="card-item">
-						<span class="index">5.</span>
-						<i18n-t scope="global" tag="span" keypath="api.tutorial_step5">
-							<template #LINK>
-								<a :href="url" target="_blank"
-									><Icon name="newtab" />{{ t("api.tutorial_step5_link") }}</a
-								>
-							</template>
-						</i18n-t>
-					</li>
-				</ol>
-
-				<TabMenu
-					class="codeExampleTabs"
-					v-model="exampleLang"
-					:values="['javascript', 'nodejs', 'python', 'curl']"
-					:labels="['JavaScript', 'Node.js', 'Python', 'cURL']"
-					small
-				/>
-				<div class="codeExampleWrapper">
-					<pre class="codeBlock"><code v-html="activeHighlighted"></code></pre>
-
-					<TTButton
-						class="copyBt"
-						icon="copy"
-						:copy="activeHighlightedCopy"
-						transparent
-					/>
-				</div>
-			</ToggleBlock>
+				<TTButton class="copyBt" icon="copy" :copy="activeHighlightedCopy" transparent />
+			</div>
 		</section>
 	</div>
 </template>
@@ -177,7 +167,8 @@ const deleting = ref(false);
 const error = ref("");
 const privateKey = ref("");
 const { loadHighlightJs, highlighted } = useHighlight();
-const exampleLang = ref<"javascript" | "nodejs" | "python" | "curl">("javascript");
+const exampleLang = ref<"javascript" | "nodejs" | "python">("javascript");
+loadHighlightJs();
 
 const gitBranch = Config.instance.BETA_MODE ? "v17" : "main";
 const url = `https://github.com/Durss/Twitchat/blob/${gitBranch}/PUBLIC_API.md#actions-you-can-perform`;
@@ -200,8 +191,8 @@ const nodejsExample = computed(
 		`import { createPrivateKey, sign } from "crypto";
 
 // Reconstruct private key from your twitchat_ key
-const compactKey = "${keyValue.value}";
-const seed = Buffer.from(compactKey.replace("twitchat_", ""), "base64url");
+const apiKey = "${keyValue.value}";
+const seed = Buffer.from(apiKey.replace("twitchat_", ""), "base64url");
 const prefix = Buffer.from("302e020100300506032b657004220420", "hex");
 const privateKey = createPrivateKey({
   key: Buffer.concat([prefix, seed]),
@@ -211,8 +202,9 @@ const privateKey = createPrivateKey({
 
 // Build and sign the request
 const timestamp = Date.now().toString();
-const action = "my_action";
-const body = JSON.stringify({ action, data: {} });
+const action = "ACTION_NAME";
+const actionData = {};
+const body = JSON.stringify({ action, data: actionData });
 const payload = \`\${timestamp}\\n\${action}\\n\${body}\`;
 const signature = sign(null, Buffer.from(payload), privateKey)
   .toString("base64");
@@ -234,8 +226,8 @@ console.log(await res.json());`,
 const javascriptExample = computed(
 	() =>
 		`// Decode the twitchat_ key and build the PKCS8 DER
-const compactKey = "${keyValue.value}";
-const b64 = compactKey.replace("twitchat_", "")
+const apiKey = "${keyValue.value}";
+const b64 = apiKey.replace("twitchat_", "")
   .replace(/-/g, "+").replace(/_/g, "/");
 const seed = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 const prefix = new Uint8Array([
@@ -251,8 +243,9 @@ const key = await crypto.subtle.importKey(
 
 // Build and sign the request
 const timestamp = Date.now().toString();
-const action = "my_action";
-const body = JSON.stringify({ action, data: {} });
+const action = "ACTION_NAME";
+const actionData = {};
+const body = JSON.stringify({ action, data: actionData });
 const payload = \`\${timestamp}\\n\${action}\\n\${body}\`;
 const sig = await crypto.subtle.sign(
   "Ed25519", key, new TextEncoder().encode(payload)
@@ -284,14 +277,15 @@ seed = base64.urlsafe_b64decode(compact_key.replace("twitchat_", "") + "==")
 private_key = Ed25519PrivateKey.from_private_bytes(seed)
 
 timestamp = str(int(time.time() * 1000))
-action = "my_action"
-body = json.dumps({"action": action, "data": {}})
+action = "ACTION_NAME"
+body = json.dumps({"action": action, "data": {}}, separators=(',', ':'))
 payload = f"{timestamp}\\n{action}\\n{body}"
 signature = base64.b64encode(
     private_key.sign(payload.encode())
 ).decode()
 
-res = requests.post("${apiEndpoint.value}", json=json.loads(body), headers={
+res = requests.post("${apiEndpoint.value}", data=body, headers={
+    "Content-Type": "application/json",
     "X-Twitchat-UserId": "${userId.value}",
     "X-Twitchat-Timestamp": timestamp,
     "X-Twitchat-Signature": signature,
@@ -299,29 +293,9 @@ res = requests.post("${apiEndpoint.value}", json=json.loads(body), headers={
 print(res.json())`,
 );
 
-const curlExample = computed(
-	() =>
-		`# Generate the signature using openssl (bash/zsh)
-TIMESTAMP=$(date +%s000)
-ACTION="my_action"
-BODY='{"action":"'$ACTION'","data":{}}'
-PAYLOAD="$TIMESTAMP\\n$ACTION\\n$BODY"
-
-# Sign with your private key (PEM file)
-SIGNATURE=$(echo -ne "$PAYLOAD" | openssl pkeyutl -sign -inkey key.pem | base64 -w0)
-
-curl -X POST "${apiEndpoint.value}" \\
-  -H "Content-Type: application/json" \\
-  -H "X-Twitchat-UserId: ${userId.value}" \\
-  -H "X-Twitchat-Timestamp: $TIMESTAMP" \\
-  -H "X-Twitchat-Signature: $SIGNATURE" \\
-  -d "$BODY"`,
-);
-
 const highlightedJavascript = highlighted(javascriptExample, "javascript");
 const highlightedNodejs = highlighted(nodejsExample, "javascript");
 const highlightedPython = highlighted(pythonExample, "python");
-const highlightedCurl = highlighted(curlExample, "bash");
 
 const activeHighlighted = computed(() => {
 	switch (exampleLang.value) {
@@ -329,8 +303,6 @@ const activeHighlighted = computed(() => {
 			return highlightedJavascript.value;
 		case "python":
 			return highlightedPython.value;
-		case "curl":
-			return highlightedCurl.value;
 		default:
 			return highlightedNodejs.value;
 	}
@@ -342,8 +314,6 @@ const activeHighlightedCopy = computed(() => {
 			return javascriptExample.value;
 		case "python":
 			return pythonExample.value;
-		case "curl":
-			return curlExample.value;
 		default:
 			return nodejsExample.value;
 	}
@@ -373,7 +343,7 @@ async function generateKey() {
 async function revokeKey() {
 	deleting.value = true;
 	error.value = "";
-	const success = await storeApi.deleteKey();
+	const success = await storeApi.deleteKey(false);
 	if (success) {
 		privateKey.value = "";
 	} else {
@@ -509,6 +479,7 @@ async function revokeKey() {
 					.icon {
 						vertical-align: middle;
 						margin-right: 0.1em;
+						height: 1em;
 					}
 				}
 
@@ -528,6 +499,7 @@ async function revokeKey() {
 			white-space: pre-wrap;
 			word-break: break-all;
 			tab-size: 2;
+			max-width: 600px;
 		}
 
 		pre.codeBlock {
