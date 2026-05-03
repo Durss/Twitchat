@@ -23,7 +23,7 @@
 				v-for="question in filteredQuestions"
 				:key="question.id"
 				:question="question"
-				:quizId="quiz.id"
+				:quiz="quiz"
 				:autoOpen="autoOpenQuestionID === question.id"
 				@delete="deleteQuestion"
 				@changeMode="changeQuestionMode"
