@@ -46,11 +46,11 @@
 				alt="user"
 				v-tooltip="t('global.cmd_mod')"
 			/>
-			<Icon
-				v-if="i.type == 'slashCommand' && i.isTrigger"
-				class="image trigger"
-				name="broadcast"
-			/>
+			<template v-if="i.type == 'slashCommand' && i.isTrigger">
+				<img class="image" v-if="i.iconURL" :src="i.iconURL" alt="" />
+				<span class="image emoji" v-else-if="i.iconEmoji">{{ i.iconEmoji }}</span>
+				<Icon v-else class="image trigger" name="broadcast" />
+			</template>
 
 			<div class="name">{{ i.label }}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">
@@ -424,6 +424,8 @@ function onSearchChange(): void {
 						id: tr.id,
 						disabled: !tr.enabled,
 						tooltipKey: tr.enabled ? "" : t("chat.form.trigger_cmd_disabled_tt"),
+						iconEmoji: tr.icon?.startsWith("http") ? undefined : tr.icon,
+						iconURL: tr.icon?.startsWith("http") ? tr.icon : undefined,
 					});
 				}
 			}
@@ -517,6 +519,8 @@ interface CommandItem {
 	tooltipKey?: string;
 	rawCmd?: TwitchatDataTypes.CommandData;
 	isTrigger?: boolean;
+	iconURL?: string;
+	iconEmoji?: string;
 }
 </script>
 
@@ -564,6 +568,12 @@ interface CommandItem {
 			}
 			.image {
 				padding: 5px;
+				&.emoji {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-size: 1em;
+				}
 			}
 
 			&.admin {
