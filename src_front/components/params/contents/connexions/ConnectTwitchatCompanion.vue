@@ -6,31 +6,33 @@
 			<p>{{ $t("twitchat_companion.header") }}</p>
 		</div>
 
-		<ExtensionInstaller />
+		<ExtensionInstaller v-model:extensionReady="extensionReady" />
 
-		<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{
-			t("twitchat_companion.start_quiz")
-		}}</TTButton>
-		<TTButton class="center" primary icon="bingo_grid" @click="openBingo()">{{
-			t("twitchat_companion.start_bingo")
-		}}</TTButton>
+		<template v-if="extensionReady">
+			<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{
+				t("twitchat_companion.start_quiz")
+			}}</TTButton>
+			<TTButton class="center" primary icon="bingo_grid" @click="openBingo()">{{
+				t("twitchat_companion.start_bingo")
+			}}</TTButton>
 
-		<ParamItem class="enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
+			<ParamItem class="enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
 
-		<div
-			class="content fadeHolder"
-			:style="holderStyles"
-			v-if="storeExtension.companionEnabled"
-		>
-			<HeatOverlayClick />
+			<div
+				class="content fadeHolder"
+				:style="holderStyles"
+				v-if="storeExtension.companionEnabled"
+			>
+				<HeatOverlayClick />
 
-			<HeatScreenList
-				:open="subContent == 'heatAreas'"
-				:class="subContent == 'heatAreas' ? 'selected' : ''"
-			/>
+				<HeatScreenList
+					:open="subContent == 'heatAreas'"
+					:class="subContent == 'heatAreas' ? 'selected' : ''"
+				/>
 
-			<HeatDebug />
-		</div>
+				<HeatDebug />
+			</div>
+		</template>
 	</div>
 </template>
 
@@ -51,6 +53,7 @@ const { t } = useI18n();
 const storeExtension = useStoreExtension();
 const storeParams = useStoreParams();
 
+const extensionReady = ref(false);
 const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: false,

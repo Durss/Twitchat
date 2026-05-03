@@ -155,7 +155,7 @@
 								<Icon name="info" />
 								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
 									<template #LINK>
-										<a :href="$config.HEAT_EXTENSION" target="_blank">{{
+										<a :href="$config.HEAT_EXTENSION_URL" target="_blank">{{
 											$t("changelog.heat_details_link")
 										}}</a>
 									</template>
@@ -450,7 +450,7 @@ function parseCommonPlaceholders(str: string): string {
 	const message = "Congrats for reading! Use command <input readonly value='/_hYUZ8S5_' />";
 	str = str.replace(
 		/\{HEAT\}/gi,
-		`<a href="${Config.instance.HEAT_EXTENSION}" target="_blank">Heat</a>`,
+		`<a href="${Config.instance.HEAT_EXTENSION_URL}" target="_blank">Heat</a>`,
 	);
 	str = str.replace(
 		/\{SHADERTASTIC\}/gi,

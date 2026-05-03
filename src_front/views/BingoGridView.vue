@@ -6,7 +6,7 @@
 
 		<i18n-t keypath="bingo_grid.state.info" class="card-item body" tag="div">
 			<template #EXTENSION
-				><a :href="$config.TWITCH_EXTENSION_URL" target="_blank"
+				><a :href="$config.TWITCHAT_EXTENSION_URL" target="_blank"
 					>Twichat Companion<Icon name="newtab" /></a
 			></template>
 		</i18n-t>
