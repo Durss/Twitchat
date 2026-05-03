@@ -8,6 +8,8 @@ import PublicAPI from "@/utils/PublicAPI";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import { toast } from "@/utils/toast/toast";
 import ToastRemoteApiInfo from "@/utils/toast/ToastRemoteApiInfo.vue";
+import StoreProxy from "../StoreProxy";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 export const storeAPI = defineStore("api", {
 	state: (): IAPIState => ({
@@ -30,11 +32,26 @@ export const storeAPI = defineStore("api", {
 			return false;
 		},
 
-		async deleteKey(): Promise<boolean> {
+		async deleteKey(toaster: boolean): Promise<boolean> {
 			const result = await ApiHelper.call("remote/key", "DELETE", undefined, false);
 			if (result.json.success) {
 				this.connected = false;
+
+				if (toaster) {
+					toast(StoreProxy.i18n.t("api.revoke_success"), {
+						type: "success",
+						onClick: () => {
+							StoreProxy.params.openParamsPage(
+								TwitchatDataTypes.ParameterPages.CONNECTIONS,
+								TwitchatDataTypes.ParamDeepSections.TWITCHAT_API,
+							);
+						},
+					});
+				}
 				return true;
+			}
+			if (toaster) {
+				toast(StoreProxy.i18n.t("api.revoke_error"), { type: "error" });
 			}
 			return false;
 		},

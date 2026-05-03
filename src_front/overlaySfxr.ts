@@ -118,7 +118,7 @@ function onMessage(message: IEnvelope): void {
 		requestInitialInfo();
 		connected = true;
 	} else if (message.type == "SET_PLAY_SFXR" && message.data?.params) {
-		void SFXRUtils.playSFXRFromString(message.data.params, message.data.volume || 1, false);
+		void SFXRUtils.playSFXRFromString(message.data.params, message.data.volume || 100, false);
 	}
 }
 

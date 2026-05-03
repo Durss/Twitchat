@@ -4290,7 +4290,7 @@ export interface IAPIActions {
 	/**
 	 * Deletes the stored public key, revoking API access
 	 */
-	deleteKey(): Promise<boolean>;
+	deleteKey(toaster: boolean): Promise<boolean>;
 	/**
 	 * Called when a remote action is received via SSE
 	 */
