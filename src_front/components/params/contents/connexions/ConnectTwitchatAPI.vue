@@ -125,20 +125,29 @@
 						</template>
 					</i18n-t>
 				</li>
+
+				<li class="card-item">
+					<span class="index">6.</span>
+					<span>{{ t("api.tutorial_step6") }}</span>
+					<TabMenu
+						class="codeExampleTabs"
+						v-model="exampleLang"
+						:values="['javascript', 'nodejs', 'python']"
+						:labels="['JavaScript', 'Node.js', 'Python']"
+						small
+					/>
+					<div class="codeExampleWrapper">
+						<pre class="codeBlock"><code v-html="activeHighlighted"></code></pre>
+
+						<TTButton
+							class="copyBt"
+							icon="copy"
+							:copy="activeHighlightedCopy"
+							transparent
+						/>
+					</div>
+				</li>
 			</ol>
-
-			<TabMenu
-				class="codeExampleTabs"
-				v-model="exampleLang"
-				:values="['javascript', 'nodejs', 'python']"
-				:labels="['JavaScript', 'Node.js', 'Python']"
-				small
-			/>
-			<div class="codeExampleWrapper">
-				<pre class="codeBlock"><code v-html="activeHighlighted"></code></pre>
-
-				<TTButton class="copyBt" icon="copy" :copy="activeHighlightedCopy" transparent />
-			</div>
 		</section>
 	</div>
 </template>
