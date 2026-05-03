@@ -213,7 +213,6 @@
 
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<DurationForm
-					ref="input"
 					v-if="!paramData.noInput"
 					:id="'duration' + key"
 					v-model="paramData.value"
@@ -318,7 +317,6 @@
 				<label :for="'list' + key" v-html="label" v-tooltip="tooltip"></label>
 				<select
 					v-if="!paramData.noInput"
-					ref="input"
 					:id="'list' + key"
 					v-model="paramData.value"
 					v-autofocus="autofocus"
@@ -664,6 +662,7 @@ import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
 import { asset } from "@/composables/useAsset";
 import type { VueSelectInstance } from "vue-select";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
 defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
 
@@ -720,6 +719,7 @@ const storeParams = useStoreParams();
 const { place: placeDropdown } = usePlaceDropdown();
 const { getAsset } = asset();
 
+const { isEmptySlot } = useEmptySlot();
 const rootElRef = useTemplateRef("rootEl");
 const inputRef = useTemplateRef("input");
 const vueSelectRef = useTemplateRef<VueSelectInstance>("vueSelect");
@@ -783,13 +783,13 @@ const textValue = computed({
 		} else {
 			props.paramData.value = value;
 
-			const inputEl = inputRef.value as HTMLInputElement;
-			let selectStart = inputEl.selectionStart || value.length;
-			let selectEnd = inputEl.selectionEnd;
+			const inputEl = inputRef.value;
+			let selectStart = inputEl?.selectionStart || value.length;
+			let selectEnd = inputEl?.selectionEnd || value.length;
 
 			nextTick().then(() => {
-				const newInput = inputRef.value as HTMLInputElement;
-				if (newInput == inputEl) return;
+				const newInput = inputRef.value;
+				if (!newInput || newInput == inputEl) return;
 				//In case there was a switch between a <input> and a <textarea>, set the carret
 				//to the same place it was before the switch
 				newInput.selectionStart = selectStart;
@@ -799,10 +799,13 @@ const textValue = computed({
 	},
 });
 
+const autoLongText = ref(false);
+let autoLongTextThreshold = Infinity;
+
 const longText = computed((): boolean => {
 	return (
 		props.paramData?.longText === true ||
-		(textValue.value?.length > 40 &&
+		(autoLongText.value &&
 			props.paramData.longText !== false &&
 			props.paramData.type != "password")
 	);
@@ -816,7 +819,7 @@ const showChildren = computed((): boolean => {
 		!!props.paramData.value;
 	if (props.inverseChildrenCondition) state = !state;
 
-	return (slots.default != undefined || slots.child != undefined) && state;
+	return (!isEmptySlot(slots.default) || !isEmptySlot(slots.child)) && state;
 });
 
 const premiumLocked = computed((): boolean => {
@@ -925,9 +928,43 @@ function clickItem(event: MouseEvent): void {
 }
 
 /**
+ * Checks if text fits on a simpel input, otherwise it switches to textarea
+ */
+function computeAutoLongText() {
+	// If user specifically requested a simple input, stop there
+	if (props.paramData.longText === false) {
+		autoLongText.value = false;
+		return;
+	}
+
+	const el = inputRef.value;
+	const value = ((props.paramData.value as string) ?? "").toString();
+	if (
+		props.paramData.longText !== true &&
+		props.paramData.longText !== false &&
+		props.paramData.type != "password"
+	) {
+		if (el instanceof HTMLInputElement && el.scrollWidth - el.clientWidth > 0) {
+			//Promote to textarea and remember the length at which we did
+			autoLongText.value = true;
+			autoLongTextThreshold = value.length;
+		} else if (el instanceof HTMLTextAreaElement && autoLongText.value) {
+			//Demote back to input only when value has no newlines and is materially
+			//shorter than the threshold — avoids ping-pong when value sits right at
+			//the edge of fitting in a single-line input.
+			if (!value.includes("\n") && value.length < autoLongTextThreshold - 3) {
+				autoLongText.value = false;
+				autoLongTextThreshold = Infinity;
+			}
+		}
+	}
+}
+
+/**
  * Called when value changes
  */
 function onInput(): void {
+	computeAutoLongText();
 	emit("input");
 	onEdit();
 }
@@ -1248,18 +1285,6 @@ onBeforeMount(() => {
 	}
 });
 
-watch(
-	() => storeAuth.twitch.scopes,
-	() => {
-		isMissingScope.value =
-			props.paramData.twitch_scopes !== undefined &&
-			props.paramData.twitch_scopes.length > 0 &&
-			!TwitchUtils.hasScopes(props.paramData.twitch_scopes);
-		setErrorState(props.error || isMissingScope.value);
-	},
-	{ immediate: true },
-);
-
 onMounted(() => {
 	if (props.paramData.type == "number" || props.paramData.type == "integer") {
 		watch(
@@ -1317,7 +1342,20 @@ onMounted(() => {
 	//This is necessary for default values to be applied to the
 	//v-model value on first render.
 	if (props.modelValue != null && props.modelValue != props.paramData.value) onEdit();
+	computeAutoLongText();
 });
+
+watch(
+	() => storeAuth.twitch.scopes,
+	() => {
+		isMissingScope.value =
+			props.paramData.twitch_scopes !== undefined &&
+			props.paramData.twitch_scopes.length > 0 &&
+			!TwitchUtils.hasScopes(props.paramData.twitch_scopes);
+		setErrorState(props.error || isMissingScope.value);
+	},
+	{ immediate: true },
+);
 
 watch(
 	() => props.modelValue,
