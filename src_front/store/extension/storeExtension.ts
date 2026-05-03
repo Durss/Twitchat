@@ -20,7 +20,7 @@ export const storeExtension = defineStore("Extension", {
 	getters: {
 		companionEnabled: function () {
 			return !!this.enabledExtensions.find(
-				(v) => v.id === Config.instance.TWITCH_EXTENSION_ID,
+				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
 			);
 		},
 	} satisfies StoreGetters<IExtensionGetters, IExtensionState>,
@@ -44,7 +44,7 @@ export const storeExtension = defineStore("Extension", {
 				slotType,
 			);
 
-			void this.updateInternalStates();
+			await this.updateInternalStates();
 
 			return result;
 		},
