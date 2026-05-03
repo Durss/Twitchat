@@ -39,15 +39,20 @@ function validateFreeAnswer(
 	question: TwitchatDataTypes.QuizParams["questionList"][number],
 ): boolean {
 	if (question.mode !== "freeAnswer") return false;
+	const expectedAnswer = question.answer.toLowerCase();
+	answer = answer.toLowerCase();
 	const tolerancePercent =
 		Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
 	// Max tolerance level accepts half of the answer to differ
-	const levenshteinTolerance = (tolerancePercent * question.answer.length) / 2;
+	const levenshteinTolerance = Math.ceil((tolerancePercent * expectedAnswer.length) / 1.5);
 	let isCorrect: boolean;
 	if (levenshteinTolerance > 0) {
-		isCorrect = Utils.levenshtein(answer ?? "", question.answer) <= levenshteinTolerance;
+		isCorrect = Utils.levenshtein(answer ?? "", expectedAnswer) <= levenshteinTolerance;
 	} else {
-		isCorrect = answer === question.answer;
+		isCorrect = answer === expectedAnswer;
+	}
+	if (!isCorrect) {
+		isCorrect = answer.includes(expectedAnswer);
 	}
 	return isCorrect;
 }
