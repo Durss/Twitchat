@@ -815,6 +815,7 @@ import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
 import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import { storeMusic as useStoreMusic } from "@/store/music/storeMusic";
 import { storeBingo as useStoreBingo } from "@/store/bingo/storeBingo";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 
 const emit = defineEmits<{
 	"update:showEmotes": [value: boolean];
@@ -862,6 +863,7 @@ const storeVoice = useStoreVoice();
 const storeMusic = useStoreMusic();
 const storeTTS = useStoreTTS();
 const storeBingo = useStoreBingo();
+const storeExtension = useStoreExtension();
 
 const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
 const inputRef = useTemplateRef<HTMLInputElement>("input");
@@ -1133,7 +1135,7 @@ onBeforeMount(() => {
 		creditsOverlayPresenceHandler,
 	);
 	onUpdateTrackedUserList();
-	//Leave some time to open transition to complete before showing announcements
+	//Leave some time for open transition to complete before showing announcements
 	window.setTimeout(() => {
 		loadAnnouncements();
 		showGazaBtn.value = true;
@@ -1234,8 +1236,13 @@ async function loadAnnouncements(onlyImportant: boolean = false): Promise<void> 
 				if (a.premiumOnly === true && !storeAuth.isPremium) continue;
 				//Check patreon only condition
 				if (a.patreonOnly === true && !storePatreon.isMember) continue;
-				//Check patreon only condition
-				if (a.heatOnly === true && !HeatSocket.instance.connected.value) continue;
+				//Check heat only condition
+				if (
+					a.heatOnly === true &&
+					!HeatSocket.instance.connected.value &&
+					!storeExtension.companionEnabled
+				)
+					continue;
 				//Check if within date frame
 				if (Date.now() < new Date(a.dateStart).getTime()) continue;
 				if (a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;

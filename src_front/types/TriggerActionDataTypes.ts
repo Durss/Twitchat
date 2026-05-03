@@ -1225,6 +1225,7 @@ export interface TriggerActionHeatClickData extends TriggerActionData {
 	type: "heat_click";
 	/**
 	 * Heat data to forward
+	 * Also used by Twitchat Extension since 2026
 	 */
 	heatClickData: {
 		/**
@@ -1236,8 +1237,10 @@ export interface TriggerActionHeatClickData extends TriggerActionData {
 		 */
 		y: string;
 		/**
-		 * Should the heat click event be forwarded?
-		 * Only available for a heat trigger
+		 * Should the click event be forwarded?
+		 * Only available for a Twitchat Companion or Heat trigger.
+		 * Allows to just send user's click info to the overlay as received
+		 * by the extension instead of specifying all the click's details.
 		 */
 		forward: boolean;
 		/**
@@ -8906,7 +8909,7 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 		{
 			category: TriggerEventTypeCategories.MISC,
-			icon: "heat",
+			icon: "twitchat_companion",
 			labelKey: "triggers.events.HEAT_CLICK.label",
 			value: TriggerTypes.HEAT_CLICK,
 			descriptionKey: "triggers.events.HEAT_CLICK.description",
