@@ -8,7 +8,7 @@
 		<span v-if="iconEmoji" class="icon emoji">{{ iconEmoji }}</span>
 		<img v-else-if="icon && icon.startsWith('http')" :src="icon" alt="" class="icon image" />
 		<Icon v-else :name="icon" class="icon" v-if="icon" />
-		<span class="label" v-if="slots.default != undefined"><slot></slot></span>
+		<span class="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
@@ -17,6 +17,7 @@
 import { gsap } from "gsap";
 import { getCurrentInstance, useSlots } from "vue";
 import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
 const props = withDefaults(
 	defineProps<{
@@ -34,6 +35,7 @@ const props = withDefaults(
 
 const instance = getCurrentInstance();
 const slots = useSlots();
+const { isEmptySlot } = useEmptySlot();
 
 function onClick(event: MouseEvent): void {
 	const el = instance?.proxy?.$el;

@@ -69,12 +69,12 @@ export default class TwitchUtils {
 		if (uid) this.uid = uid;
 		this.scopes = scopes;
 		this.accessToken = accessToken;
-		this.emotesCache = [];
-		this.emotesCacheHashmap = {};
-		this.cheermoteCache = {};
-		this.loadedChannelEmotes = {};
-		this.loadingChannelEmotes = {};
-		this.loadingChannelEmotesPromise = {};
+		// this.emotesCache = [];
+		// this.emotesCacheHashmap = {};
+		// this.cheermoteCache = {};
+		// this.loadedChannelEmotes = {};
+		// this.loadingChannelEmotes = {};
+		// this.loadingChannelEmotesPromise = {};
 		if (StoreProxy.chat) StoreProxy.chat.setEmoteSelectorCache([]);
 		this.refreshTokenCallback = refreshTokenCallback;
 		this.requestScopesCallback = requestScopesCallback;

@@ -3,7 +3,7 @@
 		<div class="checkmark">
 			<Icon v-if="checked" class="icon" name="checkmark" />
 		</div>
-		<span class="label" v-if="slots.default"><slot></slot></span>
+		<span class="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 		<input
 			type="checkbox"
 			class="checkboxInput"
@@ -17,6 +17,7 @@
 <script setup lang="ts" generic="T">
 import { watch, ref, computed, onMounted, useSlots } from "vue";
 import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
 const props = withDefaults(
 	defineProps<{
@@ -40,6 +41,7 @@ const emit = defineEmits<{
 }>();
 
 const slots = useSlots();
+const { isEmptySlot } = useEmptySlot();
 
 const checked = ref(false);
 
