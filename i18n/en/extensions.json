@@ -13,12 +13,12 @@
 		"scope_grant": "Twitchat requires a missing authorization to manage your extensions",
 		"installer": {
 			"loading": "Loading Twitch extension status...",
-			"install": "Install \"Twichat Companion\" extension on your channel to let your viewers play.",
+			"install": "Install \"{NAME}\" extension on your channel to let your viewers play.",
 			"installBt": "Install extension",
-			"enable": "\"Twichat Companion\" extension is\ninstalled but not enabled on your channel!",
+			"enable": "\"{NAME}\" extension is\ninstalled but not enabled on your channel!",
 			"enableBt": "Enable extension",
 			"enableError": "An error occurred while enabling the extension",
-			"ready": "The \"Twichat Companion\" extension is active on your channel!"
+			"ready": "The \"{NAME}\" extension is active on your channel!"
 		}
 	}
 }

@@ -16,19 +16,23 @@
 			</span>
 		</div>
 		<div class="content" v-else-if="!installed">
-			<span class="head">{{ $t("extensions.installer.install") }}</span>
+			<span class="head">{{
+				$t("extensions.installer.install", { NAME: props.extensionName })
+			}}</span>
 			<TTButton
 				alert
 				light
 				icon="newtab"
 				type="link"
-				:href="$config.TWITCH_EXTENSION_URL"
+				:href="$config.TWITCHAT_EXTENSION_URL"
 				target="_blank"
 				>{{ $t("extensions.installer.installBt") }}</TTButton
 			>
 		</div>
 		<div class="content" v-else-if="!enabled">
-			<span class="head">{{ $t("extensions.installer.enable") }}</span>
+			<span class="head">{{
+				$t("extensions.installer.enable", { NAME: props.extensionName })
+			}}</span>
 			<TTButton secondary light icon="twitch" @click="enableExtension" :loading="enabling">{{
 				$t("extensions.installer.enableBt")
 			}}</TTButton>
@@ -37,7 +41,7 @@
 			</div>
 		</div>
 		<!-- <div class="content complete" v-else>
-			<span> <icon name="checkmark" />{{ $t("extensions.installer.ready") }} </span>
+			<span> <icon name="checkmark" />{{ $t("extensions.installer.ready", {NAME:props.extensionName}) }} </span>
 		</div> -->
 	</div>
 </template>
@@ -46,13 +50,20 @@
 import TTButton from "@/components/TTButton.vue";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import Config from "@/utils/Config";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const loading = ref(false);
 const enabling = ref(false);
 const enableError = ref(false);
 
 const storeExtension = useStoreExtension();
+
+const props = withDefaults(defineProps<{ extensionID?: string; extensionName?: string }>(), {
+	extensionID: Config.instance.TWITCHAT_EXTENSION_ID,
+	extensionName: "Twitchat Companion",
+});
+
+const model = defineModel<boolean>("extensionReady", { default: false });
 
 let checkinterval = -1;
 let loaderDelay = -1;
@@ -75,29 +86,30 @@ onBeforeUnmount(() => {
 	window.clearInterval(checkinterval);
 });
 
+watch(
+	() => storeExtension.enabledExtensions,
+	(val) => {
+		model.value = val.findIndex((v) => v.id == props.extensionID) > -1;
+	},
+	{ immediate: true },
+);
+
 const installed = computed(() => {
-	return storeExtension.availableExtensions.find(
-		(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
-	);
+	return storeExtension.availableExtensions.find((v) => v.id == props.extensionID);
 });
 
 const enabled = computed(() => {
-	return storeExtension.enabledExtensions.find(
-		(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
-	);
+	return storeExtension.enabledExtensions.find((v) => v.id == props.extensionID);
 });
 
 async function enableExtension(): Promise<void> {
 	enabling.value = true;
 	enableError.value = false;
-	const success = await storeExtension.setExtensionState(
-		true,
-		"1",
-		"overlay",
-		storeExtension.availableExtensions.find(
-			(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
-		)!,
-	);
+	const extension = storeExtension.availableExtensions.find((v) => v.id == props.extensionID);
+	if (!extension || !extension.type.includes("overlay")) {
+		throw new Error('This component only supports "overlay" extension types.');
+	}
+	const success = await storeExtension.setExtensionState(true, "1", "overlay", extension);
 	if (!success) {
 		enableError.value = true;
 	}
