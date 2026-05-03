@@ -1,16 +1,16 @@
 <template>
-	<div class="extensions sidePanel">
+	<div class="extensions sidePanel" ref="rootEl">
 		<div class="head">
 			<ClearButton @click="close" />
 			<h1 class="title">
-				<Icon :name="reloading ? 'loader' : 'extension'" />{{ $t("extensions.title") }}
+				<Icon :name="reloading ? 'loader' : 'extension'" />{{ t("extensions.title") }}
 			</h1>
 		</div>
 
 		<div class="content scope" ref="content" v-if="!hasPermissions">
-			<p>{{ $t("extensions.scope_grant") }}</p>
+			<p>{{ t("extensions.scope_grant") }}</p>
 			<TTButton icon="lock_fit" primary @click="grantScopes()">{{
-				$t("global.grant_scope")
+				t("global.grant_scope")
 			}}</TTButton>
 		</div>
 
@@ -24,7 +24,7 @@
 				target="_blank"
 				type="link"
 				primary
-				>{{ $t("extensions.no_extension_browse") }}</TTButton
+				>{{ t("extensions.no_extension_browse") }}</TTButton
 			>
 
 			<TransitionGroup
@@ -60,11 +60,13 @@
 
 					<div class="extTypes">
 						<Tag
-							v-for="t in extension.data.type.filter((t) => t !== 'mobile')"
-							:key="t"
-							:active="extension.enabled && extension.enabledType === t"
+							v-for="extensionType in extension.data.type.filter(
+								(t) => t !== 'mobile',
+							)"
+							:key="extensionType"
+							:active="extension.enabled && extension.enabledType === extensionType"
 						>
-							{{ $t("extensions.type_" + t) }}
+							{{ t(`extensions.type_${extensionType}`) }}
 						</Tag>
 					</div>
 
@@ -74,18 +76,18 @@
 							v-model="extension.selectedValue"
 							@change="onInstall(extension)"
 						>
-							<option value="" disabled>{{ $t("extensions.slot_assign") }}</option>
+							<option value="" disabled>{{ t("extensions.slot_assign") }}</option>
 							<optgroup
 								v-for="group in getGroupedOptions(extension)"
 								:key="group.type"
-								:label="$t('extensions.type_' + group.type)"
+								:label="t(`extensions.type_${group.type}`)"
 							>
 								<option
 									v-for="slot in group.slots"
 									:key="slot.type + '_' + slot.index"
 									:value="slot.type + '_' + slot.index"
 								>
-									{{ $t("extensions.type_" + slot.type) }} #{{ slot.index }}
+									{{ t(`extensions.type_${slot.type}`) }} #{{ slot.index }}
 								</option>
 							</optgroup>
 						</select>
@@ -95,7 +97,7 @@
 							alert
 							small
 							@click="onDisable(extension)"
-							>{{ $t("global.disable") }}</TTButton
+							>{{ t("global.disable") }}</TTButton
 						>
 					</div>
 					<Icon name="loader" class="extLoader" v-else />
@@ -104,190 +106,153 @@
 
 			<div class="noExtension" v-else-if="!loading">
 				<Icon name="extension" class="emptyIcon" />
-				<p>{{ $t("extensions.no_extension") }}</p>
+				<p>{{ t("extensions.no_extension") }}</p>
 				<TTButton
 					icon="newtab"
 					href="https://dashboard.twitch.tv/extensions"
 					target="_blank"
 					type="link"
 					primary
-					>{{ $t("extensions.no_extension_browse") }}</TTButton
+					>{{ t("extensions.no_extension_browse") }}</TTButton
 				>
-				<TTButton icon="refresh" @click="loadList()">{{ $t("global.refresh") }}</TTButton>
+				<TTButton icon="refresh" @click="loadList()">{{ t("global.refresh") }}</TTButton>
 			</div>
 
 			<div class="card-item alert error" v-if="error" @click="error = false">
-				{{ $t("extensions.update_error") }}
+				{{ t("extensions.update_error") }}
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { toNative, Component } from "vue-facing-decorator";
-import AbstractSidePanel from "../AbstractSidePanel";
+import { ref, onMounted, onBeforeMount, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { useSidePanel } from "@/composables/useSidePanel";
 import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
-import ToggleButton from "../ToggleButton.vue";
-import ParamItem from "../params/ParamItem.vue";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import Tag from "../Tag.vue";
 
-@Component({
-	components: {
-		Tag,
-		Icon,
-		TTButton,
-		ParamItem,
-		ClearButton,
-		ToggleButton,
-	},
-	emits: ["close"],
-})
-class Extensions extends AbstractSidePanel {
-	public error: boolean = false;
-	public loading: boolean = true;
-	public reloading: boolean = false;
-	public hasPermissions: boolean = false;
-	public extensionList: ExtensionItem[] = [];
+const emit = defineEmits<{ close: [] }>();
 
-	public mounted(): void {
-		this.hasPermissions = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
-		super.open();
-	}
+const { t } = useI18n();
+const storeExtension = useStoreExtension();
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const { close } = useSidePanel(rootEl, () => emit("close"));
 
-	public beforeMount(): void {
-		this.loadList();
-	}
+const error = ref<boolean>(false);
+const loading = ref<boolean>(true);
+const reloading = ref<boolean>(false);
+const hasPermissions = ref<boolean>(false);
+const extensionList = ref<ExtensionItem[]>([]);
 
-	public async loadList(): Promise<void> {
-		const list = (await TwitchUtils.listExtensions(false)) || [];
-		const listEnabled = await TwitchUtils.listExtensions(true);
-		const availableSlotTypes = this.$store.extension.availableSlots;
-		const idToActive: { [key: string]: boolean } = {};
-		const idToSlotType: {
-			[key: string]: { type: TwitchDataTypes.Extension["type"][number]; index: string };
-		} = {};
-		//Check which extensions are active and in which slot type/index
-		for (const key in listEnabled) {
-			const slotType = key as keyof typeof listEnabled;
-			const section = listEnabled[slotType];
-			for (const slotId in section) {
-				if (section[slotId]!.active) {
-					const eId = section[slotId]!.id;
-					idToActive[eId] = true;
-					idToSlotType[eId] = {
-						index: slotId,
-						type: slotType,
-					};
+onBeforeMount(() => {
+	loadList();
+});
+
+onMounted(() => {
+	hasPermissions.value = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
+});
+
+async function loadList(): Promise<void> {
+	await storeExtension.updateInternalStates();
+	const list = storeExtension.availableExtensions;
+	const activeSlots = storeExtension.activeExtensionSlots;
+	const availableSlotTypes = storeExtension.availableSlots;
+
+	const items: ExtensionItem[] = list
+		.map((v) => {
+			const slotOptions: ExtensionItem["slotOptions"] = [];
+			let count = 0;
+			for (const slotType of v.type) {
+				if (slotType == "mobile") continue;
+				if (count > 0) {
+					slotOptions.push({ index: "1", type: "split" });
+				}
+				count++;
+				for (let j = 0; j < availableSlotTypes[slotType]; j++) {
+					slotOptions.push({ index: (j + 1).toString(), type: slotType });
 				}
 			}
+			const slot = activeSlots[v.id];
+			const res: ExtensionItem = {
+				data: v,
+				enabled: !!slot,
+				enabledType: slot?.type || "panel",
+				enabledIndex: slot?.index || "",
+				selectedValue: slot ? slot.type + "_" + slot.index : "",
+				slotOptions,
+				loading: false,
+			};
+			return res;
+		})
+		.filter((v) => v.data.can_activate)
+		.sort((a, b) => {
+			return a.enabled === b.enabled
+				? a.data.name.localeCompare(b.data.name)
+				: a.enabled
+					? -1
+					: 1;
+		});
+
+	extensionList.value = items;
+	loading.value = false;
+}
+
+/**
+ * Disable an extension
+ * @param ext
+ */
+async function onDisable(ext: ExtensionItem): Promise<void> {
+	await onInstall(ext, false);
+}
+
+/**
+ * Called when installing an extension on a slot
+ * @param extension
+ */
+async function onInstall(extension: ExtensionItem, enable: boolean = true): Promise<void> {
+	extension.loading = true;
+	const chunks = extension.selectedValue.split("_"); //Dirty way of extracting index and type :(
+	const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
+	const slotIndex = chunks[1]!;
+	if (await storeExtension.setExtensionState(enable, slotIndex, slotType, extension.data)) {
+		extension.enabled = enable;
+	} else {
+		error.value = true;
+	}
+	extension.loading = false;
+	reloading.value = true;
+	await loadList();
+	reloading.value = false;
+}
+
+/**
+ * Groups slot options by type for cleaner display via <optgroup>
+ */
+function getGroupedOptions(
+	ext: ExtensionItem,
+): { type: string; slots: { type: string; index: string }[] }[] {
+	const groups: { type: string; slots: { type: string; index: string }[] }[] = [];
+	let currentGroup: { type: string; slots: { type: string; index: string }[] } | null = null;
+	for (const opt of ext.slotOptions) {
+		if (opt.type === "split") continue;
+		if (!currentGroup || currentGroup.type !== opt.type) {
+			currentGroup = { type: opt.type, slots: [] };
+			groups.push(currentGroup);
 		}
-
-		//Build items data
-		const items: ExtensionItem[] = list
-			.map((v) => {
-				const slotOptions: ExtensionItem["slotOptions"] = [];
-				let count = 0;
-				for (const slotType of v.type) {
-					if (slotType == "mobile") continue; //Ignore mobile slots as they're automatic
-
-					if (count > 0) {
-						//This shows a disabled splitter on the list
-						slotOptions.push({ index: "1", type: "split" });
-					}
-					count++;
-					for (let j = 0; j < availableSlotTypes[slotType]; j++) {
-						slotOptions.push({ index: (j + 1).toString(), type: slotType });
-					}
-				}
-				const res: ExtensionItem = {
-					data: v,
-					enabled: idToActive[v.id]!,
-					enabledType: idToSlotType[v.id]?.type || "panel",
-					enabledIndex: idToSlotType[v.id]?.index || "",
-					selectedValue: idToSlotType[v.id]?.type
-						? idToSlotType[v.id]?.type + "_" + idToSlotType[v.id]?.index
-						: "",
-					slotOptions,
-					loading: false,
-				};
-				return res;
-			})
-			.filter((v) => v.data.can_activate)
-			.sort((a, b) => {
-				return a.enabled === b.enabled
-					? a.data.name.localeCompare(b.data.name)
-					: a.enabled
-						? -1
-						: 1;
-			});
-
-		this.extensionList = items;
-		this.loading = false;
+		currentGroup.slots.push(opt);
 	}
+	return groups;
+}
 
-	/**
-	 * Disable an extension
-	 * @param ext
-	 */
-	public async onDisable(ext: ExtensionItem): Promise<void> {
-		await this.onInstall(ext, false);
-	}
-
-	/**
-	 * Called when installing an extension on a slot
-	 * @param ext
-	 */
-	public async onInstall(ext: ExtensionItem, enable: boolean = true): Promise<void> {
-		ext.loading = true;
-		const chunks = ext.selectedValue.split("_"); //Dirty way of extracting index and type :(
-		const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
-		const slotIndex = chunks[1]!;
-		if (
-			await TwitchUtils.updateExtension(
-				ext.data.id,
-				ext.data.version,
-				enable,
-				slotIndex,
-				slotType,
-			)
-		) {
-			ext.enabled = enable;
-		} else {
-			this.error = true;
-		}
-		ext.loading = false;
-		this.reloading = true;
-		await this.loadList();
-		this.reloading = false;
-	}
-
-	/**
-	 * Groups slot options by type for cleaner display via <optgroup>
-	 */
-	public getGroupedOptions(
-		ext: ExtensionItem,
-	): { type: string; slots: { type: string; index: string }[] }[] {
-		const groups: { type: string; slots: { type: string; index: string }[] }[] = [];
-		let currentGroup: { type: string; slots: { type: string; index: string }[] } | null = null;
-		for (const opt of ext.slotOptions) {
-			if (opt.type === "split") continue;
-			if (!currentGroup || currentGroup.type !== opt.type) {
-				currentGroup = { type: opt.type, slots: [] };
-				groups.push(currentGroup);
-			}
-			currentGroup.slots.push(opt);
-		}
-		return groups;
-	}
-
-	public grantScopes(): void {
-		TwitchUtils.requestScopes([TwitchScopes.EXTENSIONS]);
-	}
+function grantScopes(): void {
+	TwitchUtils.requestScopes([TwitchScopes.EXTENSIONS]);
 }
 
 interface ExtensionItem {
@@ -299,7 +264,6 @@ interface ExtensionItem {
 	loading: boolean;
 	slotOptions: { type: TwitchDataTypes.Extension["type"][number] | "split"; index: string }[];
 }
-export default toNative(Extensions);
 </script>
 
 <style scoped lang="less">
@@ -459,3 +423,4 @@ export default toNative(Extensions);
 	}
 }
 </style>
+
