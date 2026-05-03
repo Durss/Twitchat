@@ -96,6 +96,8 @@ const spacePressed = ref(false);
 const isPanning = ref(false);
 const panStart = ref<{ x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null);
 
+let refreshTimeout = -1;
+
 // Pending scroll target accumulated across rapid wheel events (not yet flushed to DOM)
 let pendingScrollLeft: number | null = null;
 let pendingScrollTop: number | null = null;
@@ -152,6 +154,7 @@ onBeforeMount(() => {
 
 onBeforeUnmount(() => {
 	disposed.value = true;
+	clearTimeout(refreshTimeout);
 	document.removeEventListener("keydown", keyDownHandler, { capture: true });
 	document.removeEventListener("keyup", keyUpHandler);
 	document.removeEventListener("pointerup", mouseUpHandler);
@@ -567,14 +570,14 @@ function computeCentroid(points: { x: number; y: number }[]) {
 async function refreshImage(): Promise<void> {
 	if (disposed.value) return;
 	const area = backgroundRef.value;
-	//@ts-ignore
-	if (area && params_showOBS.value == true && OBSWebsocket.instance.connected.value) {
+	if (area && params_showOBS.value.value == true && OBSWebsocket.instance.connected.value) {
 		const scene = params_target.value.value ? params_target.value.value : undefined;
 		const image = await OBSWebsocket.instance.getScreenshot(scene);
 		area.style.backgroundImage = "url(" + image + ")";
 	}
 
-	window.setTimeout(() => refreshImage(), 60);
+	clearTimeout(refreshTimeout);
+	refreshTimeout = window.setTimeout(() => refreshImage(), 60);
 }
 </script>
 

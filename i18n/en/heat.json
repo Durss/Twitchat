@@ -8,7 +8,7 @@
 		"zone_interaction": "Custom interactive areas",
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Allow anonymous users to interact",
-		"anonymous": "By default, Heat interactions are anonymous. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
+		"anonymous": "By default, click interactions are anonymous. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
 		"click_source": "User should click...",
 		"click_source_info_title": "Caching informations",
 		"click_source_info_description": "Detecting click on OBS sources requires lots of exchanges with OBS to compute the positions of your sources. Depending on your scenes complexity this may take some time. For performance reasons, your sources positions are cached for 30s. If a source is moved, it may take up to 30s for its new position to be taken into account. If you REALLY need it, you can use the  {CMD} command to manually clear the cache.",
@@ -19,12 +19,12 @@
 		"need_OBS": "This feature needs you to connect with OBS.",
 		"need_OBS_connectBt": "Connect with OBS",
 		"max_screen_reached": "You reached the maximum of {COUNT} screen you can create",
-		"anonymous_info": "IMPORTANT: By default, clicks sent by Heat are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking Heat icon on your stream as below:",
-		"nonpremium_limit": "You created the maximum number of {MAX} heat screens. Become premium to create up to {MAX_PREMIUM} heat screens.",
-		"premium_limit": "You created the maximum number of {MAX} heat screens.",
+		"anonymous_info": "IMPORTANT: By default, clicks sent by extensions are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking extension icon on your stream as below:",
+		"nonpremium_limit": "You created the maximum number of {MAX} screens. Become premium to create up to {MAX_PREMIUM} screens.",
+		"premium_limit": "You created the maximum number of {MAX} screens.",
 		"logs": {
-			"title": "Heat logs",
-			"subtitle": "Get details about heat clicks",
+			"title": "Click logs",
+			"subtitle": "Get details about clicks",
 			"empty": "- no history -"
 		},
 		"overlay_spotify": {
@@ -36,7 +36,7 @@
 			"description": "Send a message when Ulule overlay is clicked"
 		},
 		"debug": {
-			"description": "Heat only works when you're live.\nTo help you test things without going live, click on the area below to simulate an interaction.",
+			"description": "Extension only works when you're live.\nTo help you test things without going live, click on the area below to simulate an interaction.",
 			"popout": "Open in new window",
 			"obs": "Compute OBS sources positions. These positions are refreshed only every 30s. If you moved a source, click here to get fresh positions."
 		},
