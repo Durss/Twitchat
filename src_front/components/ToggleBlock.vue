@@ -523,6 +523,7 @@ onUnmounted(() => {
 		margin: 0.25em 0;
 		font-size: 1.2em;
 		min-width: 100px;
+		text-align: center;
 
 		.titleText {
 			word-break: break-word;
@@ -532,7 +533,6 @@ onUnmounted(() => {
 			font-size: 0.8em;
 			font-weight: normal;
 			font-style: italic;
-			text-align: center;
 		}
 
 		// When title would exceed 2 lines, switch to single-line scrollable

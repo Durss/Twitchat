@@ -75,7 +75,7 @@
 							:icons="['params']"
 							small
 							:title="$t('global.settings')"
-							:open="false"
+							:open="quiz.questionList.length == 0"
 						>
 							<div class="settings">
 								<ParamItem
@@ -268,9 +268,8 @@ function initParams(): void {
 
 	.toleranceParam {
 		:deep(.holder) {
-			flex-direction: column;
 			select {
-				flex-basis: unset;
+				flex-basis: 200px;
 			}
 		}
 	}

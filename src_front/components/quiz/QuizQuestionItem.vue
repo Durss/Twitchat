@@ -1,148 +1,132 @@
 <template>
-	<div class="quizquestionitem card-item">
-		<div class="actions">
+	<ToggleBlock
+		:class="{ holder: true, hasTitle: !!question.question }"
+		:title="question.question"
+		:titleDefault="t('quiz.form.question_placeholder')"
+		:open="autoOpen"
+	>
+		<template #left_actions>
 			<Icon class="dragHandle" name="dragZone" />
+			<TTButton
+				class="modeSelector"
+				:icon="`quiz_${question.mode}`"
+				transparent
+				@click.stop="(e: MouseEvent) => selectQuestionMode(e)"
+				v-tooltip="t(`quiz.form.mode_${question.mode}.title`)"
+			/>
 
-			<div class="innerGroup">
+			<div class="durationOverride" v-tooltip="t('quiz.form.durationOverride_tt')">
 				<TTButton
-					class="modeSelector"
-					:icon="`quiz_${question.mode}`"
-					transparent
-					@click="(e: MouseEvent) => selectQuestionMode(e)"
-					v-tooltip="$t(`quiz.form.mode_${question.mode}.title`)"
-				/>
-
-				<div class="durationOverride" v-tooltip="$t('quiz.form.durationOverride_tt')">
-					<TTButton
-						v-if="!editDurationOverride"
-						icon="countdown"
-						tabindex="-1"
-						@click="setCustomDuration()"
-						:secondary="!!question.duration_s && question.duration_s > 0"
-						:transparent="!question.duration_s"
-						>{{ question.duration_s ? question.duration_s + "s" : "" }}</TTButton
-					>
-					<span v-else class="durationForm">
-						<ContentEditable
-							tag="span"
-							v-model="question.duration_s"
-							v-autofocus
-							:min="5"
-							:max="600"
-							:contenteditable="true"
-							noNl
-							numeric
-							@blur="editDurationOverride = false"
-							@submit="editDurationOverride = false"
-							@keydown.native.esc.capture.prevent
-						/>s
-					</span>
-				</div>
-
-				<div
-					class="toleranceOverride"
-					v-if="question.mode == 'freeAnswer'"
-					v-tooltip="$t('quiz.form.toleranceOverride_tt')"
+					v-if="!editDurationOverride"
+					icon="countdown"
+					tabindex="-1"
+					@click.stop="setCustomDuration()"
+					:secondary="!!question.duration_s && question.duration_s > 0"
+					:transparent="!question.duration_s"
+					>{{ question.duration_s ? question.duration_s + "s" : "" }}</TTButton
 				>
-					<TTButton
-						icon="spelling"
-						tabindex="-1"
-						@click="(e: MouseEvent | TouchEvent) => selectCustomTolerance(e)"
-						:secondary="
-							question.toleranceLevel !== undefined && question.toleranceLevel >= 0
-						"
-						:transparent="
-							question.toleranceLevel === undefined || question.toleranceLevel < 0
-						"
-						>{{
-							question.toleranceLevel == undefined
-								? ""
-								: {
-										"0": $t("quiz.form.tolerances.none").split(" ")[0],
-										"1": $t("quiz.form.tolerances.very_low").split(" ")[0],
-										"2": $t("quiz.form.tolerances.low").split(" ")[0],
-										"3": $t("quiz.form.tolerances.medium").split(" ")[0],
-										"4": $t("quiz.form.tolerances.high").split(" ")[0],
-										"5": $t("quiz.form.tolerances.very_high").split(" ")[0],
-									}[question.toleranceLevel]
-						}}</TTButton
-					>
-				</div>
+				<span v-else class="durationForm">
+					<ContentEditable
+						tag="span"
+						v-model="question.duration_s"
+						v-autofocus
+						:min="5"
+						:max="600"
+						:contenteditable="true"
+						noNl
+						numeric
+						@blur="editDurationOverride = false"
+						@submit="editDurationOverride = false"
+						@keydown.native.esc.capture.prevent
+					/>
+				</span>
 			</div>
+
+			<div
+				class="toleranceOverride"
+				v-if="question.mode == 'freeAnswer'"
+				v-tooltip="t('quiz.form.toleranceOverride_tt')"
+			>
+				<TTButton
+					icon="spelling"
+					tabindex="-1"
+					@click.stop="(e: MouseEvent | TouchEvent) => selectCustomTolerance(e)"
+					:secondary="
+						question.toleranceLevel !== undefined && question.toleranceLevel >= 0
+					"
+					:transparent="
+						question.toleranceLevel === undefined || question.toleranceLevel < 0
+					"
+					>{{
+						question.toleranceLevel == undefined
+							? ""
+							: {
+									"0": t("quiz.form.tolerances.none").split(" ")[0],
+									"1": t("quiz.form.tolerances.very_low").split(" ")[0],
+									"2": t("quiz.form.tolerances.low").split(" ")[0],
+									"3": t("quiz.form.tolerances.medium").split(" ")[0],
+									"4": t("quiz.form.tolerances.high").split(" ")[0],
+									"5": t("quiz.form.tolerances.very_high").split(" ")[0],
+								}[question.toleranceLevel]
+					}}</TTButton
+				>
+			</div>
+		</template>
+		<template #right_actions>
+			<TTButton
+				@click.stop
+				:copy="question.id"
+				icon="id"
+				v-tooltip="t('global.copy_id')"
+				class="copyIdBt"
+				small />
 
 			<TTButton
 				class="deleteBt"
 				icon="trash"
 				alert
-				v-tooltip="$t('quiz.form.deleteQuestionbt_tt')"
-				@click="$emit('delete', question.id)"
-			/>
-		</div>
-
-		<TTButton
-			@click.stop
-			:copy="question.id"
-			icon="id"
-			v-tooltip="$t('global.copy_id')"
-			class="copyIdBt"
-			small
-		/>
-
-		<div class="question">
-			<div class="questionHolder">
-				<icon name="question" />
-				<ParamItem
-					:paramData="param_question"
-					v-model="question.question"
-					@blur="save()"
-					noBackground
-					:autofocus="autoOpen"
-				/>
-			</div>
-
-			<template v-if="question.mode == 'freeAnswer'">
-				<div class="singleAnswer">
-					<icon name="quiz_answers" />
+				v-tooltip="t('quiz.form.deleteQuestionbt_tt')"
+				@click.stop="$emit('delete', question.id)"
+		/></template>
+		<div class="quizquestionitem">
+			<div class="question">
+				<div class="questionHolder">
+					<icon name="question" />
 					<ParamItem
-						:paramData="param_answer[question.id]!"
-						v-model="question.answer"
+						:paramData="param_question"
+						v-model="question.question"
 						@blur="save()"
 						noBackground
+						:autofocus="autoOpen"
 					/>
 				</div>
 
-				<div
-					class="testAnswer card-item dark"
-					:class="{ valid: isValidAnswer, testMode: freeAnswerTest.length > 0 }"
-				>
-					<icon name="test" />
-					<input
-						class="noBg"
-						:placeholder="$t('quiz.form.test_answer_placeholder')"
-						v-model="freeAnswerTest"
-						@input="testAnswer"
-					/>
-				</div>
-			</template>
+				<template v-if="question.mode == 'freeAnswer'">
+					<div class="singleAnswer">
+						<icon name="quiz_answers" />
+						<ParamItem
+							:paramData="param_answer[question.id]!"
+							v-model="question.answer"
+							@blur="save()"
+							noBackground
+						/>
+					</div>
 
-			<template v-else>
-				<ToggleBlock
-					:icons="question.mode == 'classic' ? ['quiz_answers'] : ['quiz_answers_wrong']"
-					class="answersBlock"
-					:subtitle="
-						question.mode == 'majority' ? $t('quiz.form.answers_majority_subtitle') : ''
-					"
-					:title="
-						question.mode == 'classic'
-							? $t('quiz.form.answers', { COUNT: question.answerList.length })
-							: $t('quiz.form.answers_majority', {
-									COUNT: question.answerList.length,
-								})
-					"
-					noTitleColor
-					small
-					:open="autoOpen"
-				>
+					<div
+						class="testAnswer card-item dark"
+						:class="{ valid: isValidAnswer, testMode: freeAnswerTest.length > 0 }"
+					>
+						<icon name="test" />
+						<input
+							class="noBg"
+							:placeholder="t('quiz.form.test_answer_placeholder')"
+							v-model="freeAnswerTest"
+							@input="testAnswer"
+						/>
+					</div>
+				</template>
+
+				<template v-else>
 					<div class="answerList">
 						<div
 							v-for="answer in question.answerList"
@@ -155,8 +139,8 @@
 								@click="tickAnswer(question.answerList, answer)"
 								v-tooltip="
 									answer.correct
-										? $t('quiz.form.answer_correct')
-										: $t('quiz.form.answer_wrong')
+										? t('quiz.form.answer_correct')
+										: t('quiz.form.answer_wrong')
 								"
 								:icon="answer.correct ? 'checkmark' : 'cross'"
 								:primary="answer.correct"
@@ -194,13 +178,13 @@
 							@click="addAnswer()"
 							primary
 							icon="add"
-							>{{ $t("quiz.form.addAnswer_bt") }}</TTButton
+							>{{ t("quiz.form.addAnswer_bt") }}</TTButton
 						>
 					</div>
-				</ToggleBlock>
-			</template>
+				</template>
+			</div>
 		</div>
-	</div>
+	</ToggleBlock>
 </template>
 
 <script setup lang="ts">
@@ -225,6 +209,7 @@ import {
 	type VNode,
 } from "vue";
 import { useI18n } from "vue-i18n";
+import Icon from "../Icon.vue";
 
 const props = defineProps<{
 	question: TwitchatDataTypes.QuizParams["questionList"][number];
@@ -436,13 +421,13 @@ function testAnswer(): void {
 	if (props.question.mode !== "freeAnswer") return;
 	isValidAnswer.value = storeQuiz.validateFreeAnswer(
 		freeAnswerTest.value,
-		storeQuiz.quizList.find((q) => q.enabled)!,
+		quiz.value,
 		props.question,
 	);
 }
 
 const quiz = computed(() => {
-	return storeQuiz.quizList.find((q) => q.enabled)!;
+	return storeQuiz.quizList.find((q) => q.id == props.quizId)!;
 });
 /**
  * Check for global tolerance level changes to update the free answer test validity accordingly
@@ -456,6 +441,75 @@ watch(
 </script>
 
 <style scoped lang="less">
+.holder {
+	border-inline: 1px solid transparent;
+	transition: border 0.2s;
+	&:not(.closed) {
+		border-inline: 1px solid var(--color-text-fade);
+	}
+	&:not(.hasTitle) {
+		font-style: italic;
+		:deep(.titleSection) {
+			opacity: 0.5;
+		}
+	}
+	:deep(.titleSection) {
+		font-size: 1em;
+		.titleText {
+			text-wrap: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-weight: normal;
+		}
+	}
+}
+.dragHandle {
+	flex-shrink: 0;
+	padding: 0.15em;
+	height: 1.25em;
+	cursor: grab;
+}
+
+.modeSelector {
+	flex-shrink: 0;
+	align-self: stretch;
+	:deep(.icon) {
+		max-width: 1.25em;
+	}
+}
+
+.durationOverride,
+.toleranceOverride {
+	display: flex;
+	align-self: stretch;
+	.button {
+		padding: 0.3em;
+		gap: 0.25em;
+		::v-deep(.icon) {
+			flex-shrink: 0;
+		}
+		::v-deep(.label) {
+			font-size: 0.7em;
+			flex-shrink: 0;
+		}
+	}
+
+	&.toleranceOverride {
+		::v-deep(.label) {
+			font-size: 1em;
+			margin-top: -0.5em;
+			margin-bottom: -0.5em;
+		}
+	}
+
+	.durationForm {
+		margin-top: 0.1em;
+		padding: 0.25em 0.5em;
+		font-size: 0.8em;
+		align-self: center;
+	}
+}
+
 .quizquestionitem {
 	gap: 0.5em;
 	display: flex;
@@ -463,92 +517,7 @@ watch(
 	position: relative;
 	overflow: visible;
 
-	.actions {
-		gap: 3px;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-
-		.innerGroup {
-			gap: 0.25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			flex-grow: 1;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-		}
-
-		.dragHandle {
-			flex-shrink: 0;
-			padding: 0.25em;
-			height: 1.25em;
-			cursor: grab;
-			margin-right: 1em;
-		}
-
-		.modeSelector {
-			flex-shrink: 0;
-			align-self: flex-start;
-			:deep(.icon) {
-				max-width: 1.25em;
-			}
-		}
-
-		.durationOverride,
-		.toleranceOverride {
-			display: flex;
-			.button {
-				height: 100%;
-				min-height: 100%;
-				padding-left: 0.5em;
-				padding-right: 0.5em;
-				gap: 0.25em;
-				flex-wrap: nowrap;
-				flex-shrink: 0;
-				::v-deep(.icon) {
-					flex-shrink: 0;
-				}
-				::v-deep(.label) {
-					font-size: 0.7em;
-					flex-shrink: 0;
-				}
-			}
-
-			&.toleranceOverride {
-				::v-deep(.label) {
-					font-size: 1em;
-					margin-top: -0.5em;
-					margin-bottom: -0.5em;
-				}
-			}
-
-			.durationForm {
-				margin-top: 0.1em;
-				padding: 0.25em 0.5em;
-				font-size: 0.8em;
-				align-self: center;
-			}
-		}
-	}
-
-	.deleteBt {
-		flex-shrink: 0;
-		height: 100%;
-	}
-
-	.copyIdBt {
-		position: absolute;
-		top: -0.5em;
-		left: -0.5em;
-		z-index: 1;
-		border-radius: var(--border-radius);
-		opacity: 0;
-	}
-
 	&:hover {
-		background-color: var(--background-color-secondary);
 		.copyIdBt {
 			opacity: 1;
 		}
