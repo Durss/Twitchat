@@ -1,11 +1,11 @@
 <template>
 	<div class="quizquestionlist">
-		<div class="noQuestion" v-if="quiz.questionList.length === 0">
+		<div class="noQuestion" v-if="search && quiz.questionList.length === 0">
 			{{ $t("quiz.form.no_question") }}
 		</div>
 
 		<SearchForm
-			v-if="quiz.questionList.length > 0"
+			v-if="quiz.questionList.length > 5"
 			v-model="search"
 			:debounceDelay="0"
 			:autoFocus="false"
@@ -32,17 +32,6 @@
 
 		<div class="card-item addQuestionBtns" v-if="quiz.questionList.length < maxQuestionCount">
 			<div>{{ $t("quiz.form.add_question_title") }}</div>
-			<div class="importForm">
-				<TTButton
-					icon="download"
-					type="file"
-					primary
-					accept=".csv"
-					@update:file="(file: File) => onCSVImport(file)"
-					>{{ $t("quiz.form.import_bt") }}</TTButton
-				>
-				<Icon class="icon" name="info" v-tooltip="$t('quiz.form.import_tt')" />
-			</div>
 			<TTButton
 				@click="addQuestion('classic')"
 				icon="quiz_classic"
@@ -64,6 +53,17 @@
 				v-tooltip="$t('quiz.form.mode_majority.description')"
 				>{{ $t("quiz.form.mode_majority.title") }}</TTButton
 			>
+			<div class="importForm">
+				<TTButton
+					icon="download"
+					type="file"
+					primary
+					accept=".csv"
+					@update:file="(file: File) => onCSVImport(file)"
+					>{{ $t("quiz.form.import_bt") }}</TTButton
+				>
+				<Icon class="icon" name="info" v-tooltip="$t('quiz.form.import_tt')" />
+			</div>
 		</div>
 
 		<PremiumLimitMessage
