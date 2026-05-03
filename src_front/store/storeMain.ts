@@ -5,7 +5,6 @@ import router from "@/router";
 import {
 	TriggerTypes,
 	rebuildPlaceholdersCache,
-	type IHttpPlaceholder,
 	type TriggerActionChatData,
 	type TriggerCallStack,
 	type TriggerData,
@@ -16,6 +15,7 @@ import ApiHelper from "@/utils/ApiHelper";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
 import Config, { type ServerConfig } from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
+import SFXRUtils from "@/utils/SFXRUtils";
 import SSEHelper from "@/utils/SSEHelper";
 import SchedulerHelper from "@/utils/SchedulerHelper";
 import Utils from "@/utils/Utils";
@@ -34,7 +34,6 @@ import type { JsonObject } from "type-fest";
 import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
-import SFXRUtils from "@/utils/SFXRUtils";
 
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
@@ -62,7 +61,6 @@ export const storeMain = defineStore("main", {
 		outdatedDataVersion: false,
 		offlineMode: false,
 		suspendedTriggerStacks: [],
-		httpMigrationFixData: [],
 	}),
 
 	getters: {
@@ -278,7 +276,6 @@ export const storeMain = defineStore("main", {
 			const sStream = StoreProxy.stream;
 			void StoreProxy.discord.initialize();
 			SSEHelper.instance.initialize(true);
-			void this.initHttpMigrationFixer();
 
 			//Once SSE is connected, request any stream we're a mod for to
 			//send any shared mode stuff (ex: q&a sessions)
@@ -997,82 +994,6 @@ export const storeMain = defineStore("main", {
 					triggerStack: callStack,
 				};
 				void StoreProxy.chat.addMessage(message);
-			}
-		},
-
-		async initHttpMigrationFixer(): Promise<void> {
-			this.httpMigrationFixData = [];
-			let saveRightAway = false;
-			try {
-				const backup = await ApiHelper.call("user/data/backup", "GET");
-				if (backup.status != 200 || !backup.json.success) return;
-
-				const triggers = StoreProxy.triggers.triggerList;
-				const triggersBackup = (backup.json.data[DataStore.TRIGGERS] ||
-					[]) as TriggerData[];
-				if (!triggers) return;
-				for (let i = 0; i < triggers.length; i++) {
-					const triggerNew = triggers[i];
-					if (!triggerNew) continue;
-					const triggerOld = triggersBackup.find((v) => v.id == triggerNew.id);
-					if (!triggerNew.actions) continue;
-					if (!triggerOld?.actions) continue;
-					for (let j = 0; j < triggerNew.actions.length; j++) {
-						const actionNew = triggerNew.actions[j];
-						const actionNext = triggerNew.actions[j + 1];
-						if (!actionNew) continue;
-						const actionOld = triggerOld?.actions.find((v) => v.id == actionNew.id);
-						if (!actionNew) continue;
-						if (!actionOld) continue;
-						// If it's an http action and its backup has outputPlaceholderList items
-						if (
-							actionNew.type == "http" &&
-							actionOld &&
-							actionOld.type == "http" &&
-							actionOld?.outputPlaceholderList &&
-							actionOld.outputPlaceholderList.length > 0
-						) {
-							// Get only JSON placeholders
-							const jsonPlaceholders = actionOld.outputPlaceholderList.filter(
-								(v) => v.type === "json",
-							);
-
-							// IF it has no JSON placeholder just reuse the same placeholder
-							if (!actionNew.outputPlaceholder && jsonPlaceholders.length === 0) {
-								actionNew.outputPlaceholder =
-									actionOld.outputPlaceholderList[0]?.placeholder;
-								saveRightAway = true;
-								// console.log("FIX RIGHT AWAY", actionNew.id)
-								continue;
-							}
-
-							// If there are JSON placeholders and next action isn't a json_extract
-							if (
-								(!actionNext || actionNext.type != "json_extract") &&
-								jsonPlaceholders.length > 0
-							) {
-								// console.log("MIGRATE", triggerNew.name || triggerNew.chatCommand);
-								// console.log("Must set output to HTTP_RESULT")
-								// console.log("Must add JSON extract action at position", j + 1, "with", actionOld.outputPlaceholderList);
-								this.httpMigrationFixData.push({
-									oldTriggerData: triggerOld,
-									oldTriggerAction: actionOld,
-									triggerId: triggerNew.id,
-									httpActionId: actionNew.id,
-									jsonPlaceholders:
-										actionOld.outputPlaceholderList as IHttpPlaceholder[],
-								});
-							}
-						}
-					}
-				}
-				if (saveRightAway) {
-					StoreProxy.triggers.saveTriggers();
-					await DataStore.save(true);
-				}
-			} catch (error) {
-				console.log("Failed loading backup");
-				console.error(error);
 			}
 		},
 	} satisfies StoreActions<"main", IMainState, IMainGetters, IMainActions>,
