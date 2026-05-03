@@ -26,7 +26,7 @@
 		<div class="card-item" v-if="noTrigger">{{ $t("triggers.usage") }}</div>
 
 		<div class="ctas" v-if="showForm || currentTriggerData">
-			<Button
+			<TTButton
 				class="cta resyncBt"
 				small
 				v-if="showOBSResync || showForm"
@@ -37,10 +37,10 @@
 				"
 				v-tooltip="$t('triggers.resyncOBSBt_tt')"
 				:loading="loadingOBSElements"
-				>{{ $t("triggers.resyncOBSBt") }}</Button
+				>{{ $t("triggers.resyncOBSBt") }}</TTButton
 			>
 
-			<Button
+			<TTButton
 				class="cta resyncBt"
 				small
 				icon="channelPoints"
@@ -48,10 +48,10 @@
 				@click="listRewards()"
 				v-tooltip="$t('triggers.resyncRewardsBt_tt')"
 				:loading="loadingRewards"
-				>{{ $t("triggers.resyncRewardsBt") }}</Button
+				>{{ $t("triggers.resyncRewardsBt") }}</TTButton
 			>
 
-			<Button
+			<TTButton
 				class="cta resyncBt"
 				small
 				icon="extension"
@@ -59,10 +59,10 @@
 				@click="listExtensions()"
 				v-tooltip="$t('triggers.resyncExtensionBt_tt')"
 				:loading="loadingExtension"
-				>{{ $t("triggers.resyncExtensionBt") }}</Button
+				>{{ $t("triggers.resyncExtensionBt") }}</TTButton
 			>
 
-			<Button
+			<TTButton
 				class="cta resyncBt"
 				small
 				icon="mixitup"
@@ -70,31 +70,31 @@
 				@click="listMixItUp()"
 				v-tooltip="$t('triggers.resyncmixitupBt_tt')"
 				:loading="loadingMixItUp"
-				>{{ $t("triggers.resyncmixitupBt") }}</Button
+				>{{ $t("triggers.resyncmixitupBt") }}</TTButton
 			>
 
-			<Button
+			<TTButton
 				class="cta"
 				small
 				v-if="canTestTrigger"
 				icon="test"
 				@click="testTrigger(currentTriggerData!)"
-				>{{ $t("triggers.testBt") }}</Button
+				>{{ $t("triggers.testBt") }}</TTButton
 			>
 
-			<Button
+			<TTButton
 				class="cta"
 				v-if="currentTriggerData"
 				alert
 				small
 				icon="delete"
 				@click="deleteTrigger(currentTriggerData!.id)"
-				>{{ $t("triggers.deleteBt") }}</Button
+				>{{ $t("triggers.deleteBt") }}</TTButton
 			>
 		</div>
 
 		<template v-if="showList && !showForm">
-			<Button
+			<TTButton
 				class="createBt"
 				v-if="
 					activeTriggerCount < $config.MAX_TRIGGERS ||
@@ -104,7 +104,7 @@
 				primary
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16_12, id: 'paramsparams_triggers_3' }"
 				@click="openForm()"
-				>{{ $t("triggers.add_triggerBt") }}</Button
+				>{{ $t("triggers.add_triggerBt") }}</TTButton
 			>
 
 			<div class="card-item premium premiumLimit" v-else-if="!storeAuth.isPremium">
@@ -114,9 +114,9 @@
 						MAX_PREMIUM: $config.MAX_TRIGGERS_PREMIUM,
 					})
 				}}</span>
-				<Button icon="premium" premium light @click="openPremium()">{{
+				<TTButton icon="premium" premium light @click="openPremium()">{{
 					$t("premium.become_premiumBt")
-				}}</Button>
+				}}</TTButton>
 			</div>
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{
@@ -158,6 +158,19 @@
 
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
+import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import {
 	TriggerTypes,
 	TriggerTypesDefinitionList,
@@ -174,27 +187,11 @@ import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { ref, computed, watch, onBeforeMount, onBeforeUnmount } from "vue";
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeChat as useStoreChat } from "@/store/chat/storeChat";
-import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
-import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
-import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
-import { storeMain as useStoreMain } from "@/store/storeMain";
-import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
-import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
-import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { storeValues as useStoreValues } from "@/store/values/storeValues";
-import type IParameterContent from "./IParameterContent";
 import TriggerActionList from "./triggers/TriggerActionList.vue";
 import TriggerCreateForm from "./triggers/TriggerCreateForm.vue";
 import TriggerList from "./triggers/TriggerList.vue";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Button = TTButton;
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
@@ -209,6 +206,7 @@ const storeRewards = useStoreRewards();
 const storeTriggers = useStoreTriggers();
 const storeUsers = useStoreUsers();
 const storeValues = useStoreValues();
+const storeExtension = useStoreExtension();
 
 const eventsCount = ref<number>(0);
 const showForm = ref<boolean>(false);
@@ -222,7 +220,6 @@ const obsScenes = ref<OBSSceneItem[]>([]);
 const obsSources = ref<OBSSourceItem[]>([]);
 const obsInputs = ref<OBSInputItem[]>([]);
 const rewards = ref<TwitchDataTypes.Reward[]>([]);
-const extensions = ref<TwitchDataTypes.Extension[]>([]);
 
 let renameOBSElementHandler: () => void;
 
@@ -240,6 +237,9 @@ const canManageRewards = computed<boolean>(() => {
 });
 const canManageExtensions = computed<boolean>(() => {
 	return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
+});
+const extensions = computed(() => {
+	return storeExtension.availableExtensions;
 });
 
 const showOBSResync = computed<boolean>(() => {
@@ -467,8 +467,7 @@ async function listRewards(): Promise<void> {
  */
 async function listExtensions(): Promise<void> {
 	loadingExtension.value = true;
-	const list = await TwitchUtils.listExtensions(false);
-	extensions.value = list || [];
+	await storeExtension.updateInternalStates();
 	await Utils.promisedTimeout(200); //Just make sure the loading is visible in case query runs crazy fast
 	loadingExtension.value = false;
 }

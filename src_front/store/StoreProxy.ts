@@ -2728,12 +2728,41 @@ export interface IExtensionState {
 	 * Lists all extensions installed on user's channel
 	 */
 	availableExtensions: TwitchDataTypes.Extension[];
+	/**
+	 * Lists all enabled extensions
+	 */
+	enabledExtensions: TwitchDataTypes.Extension[];
+	/**
+	 * Maps extension ID to its active slot type and index
+	 */
+	activeExtensionSlots: {
+		[extId: string]: { type: TwitchDataTypes.Extension["type"][number]; index: string };
+	};
 }
 
-export interface IExtensionGetters {}
+export interface IExtensionGetters {
+	companionEnabled: boolean;
+}
 
 export interface IExtensionActions {
 	init(): void;
+	/**
+	 * Enables/disables given extension.
+	 * Updates internal extensions states
+	 *
+	 * @param state
+	 * @param extension
+	 */
+	setExtensionState(
+		enable: boolean,
+		slotIndex: string,
+		slotType: TwitchDataTypes.Extension["type"][number],
+		extension: TwitchDataTypes.Extension,
+	): Promise<boolean>;
+	/**
+	 * Updates internal extensions states
+	 */
+	updateInternalStates(): Promise<void>;
 }
 
 export interface IQnaState {
