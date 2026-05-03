@@ -165,6 +165,7 @@ export default class ApiController extends AbstractController {
 		const timestamp = request.headers["x-twitchat-timestamp"] as string | undefined;
 		const signature = request.headers["x-twitchat-signature"] as string | undefined;
 
+		console.log(request.headers);
 		if (!uid || !timestamp || !signature) {
 			response
 				.header("Content-Type", "application/json")
