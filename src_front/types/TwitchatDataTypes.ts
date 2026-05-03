@@ -106,6 +106,7 @@ export namespace TwitchatDataTypes {
 		TTS: "tts",
 		HEAT: "heat",
 		GROQ: "groq",
+		QUIZ: "quiz",
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
@@ -136,6 +137,7 @@ export namespace TwitchatDataTypes {
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
 		PREMIUM_REMAINING: "premium_remaining",
+		TWITCHAT_COMPANION: "twitchat_companion",
 	} as const;
 	export type ParamDeepSectionsStringType =
 		| (typeof ParamDeepSections)[keyof typeof ParamDeepSections]

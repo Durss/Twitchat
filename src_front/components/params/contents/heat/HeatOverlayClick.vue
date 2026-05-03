@@ -19,6 +19,7 @@
 				<ParamItem :paramData="param_cooldown[code]!" @change="onUpdateValue" />
 				<ParamItem
 					:paramData="param_allowAnon[code]!"
+					v-model="param_allowAnon[code]!.value"
 					@change="onUpdateValue"
 					class="marginTop"
 				/>
