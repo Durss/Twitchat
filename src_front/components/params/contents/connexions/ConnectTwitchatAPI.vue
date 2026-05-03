@@ -1,6 +1,6 @@
 <template>
 	<div class="connecttwitchatapi parameterContent">
-		<Icon name="twitchat" class="icon" />
+		<Icon name="twitchat_api" class="icon" />
 
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="api.header">

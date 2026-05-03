@@ -37,7 +37,7 @@
 				*
 				key="twitchat_api"
 			>
-				<Icon name="twitchat" />
+				<Icon name="twitchat_api" />
 				<p>Twitchat API</p>
 			</button>
 
@@ -115,16 +115,18 @@
 					<small>via TikFinity</small>
 				</p>
 			</button>
-
 			<button
 				class="card-item"
-				:class="{ connected: storeTiltify.connected }"
-				@click="subContent = 'tiltify'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.tiltify' }"
-				key="tiltify"
+				:class="{ connected: storeExtension.companionEnabled }"
+				@click="subContent = 'twitchat_companion'"
+				v-newflag="{
+					date: $config.NEW_FLAGS_DATE_V17,
+					id: 'params_connect.twitchat_companion',
+				}"
+				key="twitchat_companion"
 			>
-				<Icon name="tiltify" />
-				<p>Tiltify</p>
+				<Icon name="twitchat_companion" />
+				<p>Twitchat Companion</p>
 			</button>
 
 			<button
@@ -178,6 +180,16 @@
 				<p>Bluesky</p>
 			</button>
 
+			<button
+				class="card-item"
+				:class="{ connected: obsConnected }"
+				@click="subContent = 'obs'"
+				key="obs"
+			>
+				<Icon name="obs" />
+				<p>OBS</p>
+			</button>
+
 			<!-- <button
 				class="card-item"
 				:class="{ connected: $store.streamfog.connected }"
@@ -188,27 +200,6 @@
 				<Icon name="streamfog" />
 				<p>Streamfog</p>
 			</button> -->
-
-			<button
-				class="card-item"
-				:class="{ connected: heatConnected }"
-				@click="subContent = 'heat'"
-				key="heat"
-			>
-				<Icon name="heat" />
-				<p>Heat</p>
-			</button>
-
-			<button
-				class="card-item"
-				:class="{ connected: storeStreamSocket.connected }"
-				@click="subContent = 'streamsocket'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.streamsocket' }"
-				key="streamsocket"
-			>
-				<Icon name="streamsocket" />
-				<p>StreamSocket Events</p>
-			</button>
 
 			<button
 				class="card-item"
@@ -245,6 +236,49 @@
 
 			<button
 				class="card-item"
+				:class="{ connected: storeElevenLabs.connected }"
+				@click="subContent = 'elevenlabs'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.elevenlabs' }"
+				key="elevenlabs"
+			>
+				<Icon name="elevenlabs" />
+				<p>ElevenLabs</p>
+			</button>
+
+			<button
+				class="card-item"
+				:class="{ connected: storeTiltify.connected }"
+				@click="subContent = 'tiltify'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.tiltify' }"
+				key="tiltify"
+			>
+				<Icon name="tiltify" />
+				<p>Tiltify</p>
+			</button>
+
+			<button
+				class="card-item"
+				:class="{ connected: heatConnected }"
+				@click="subContent = 'heat'"
+				key="heat"
+			>
+				<Icon name="heat" />
+				<p>Heat</p>
+			</button>
+
+			<button
+				class="card-item"
+				:class="{ connected: storeStreamSocket.connected }"
+				@click="subContent = 'streamsocket'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.streamsocket' }"
+				key="streamsocket"
+			>
+				<Icon name="streamsocket" />
+				<p>StreamSocket Events</p>
+			</button>
+
+			<button
+				class="card-item"
 				:class="{ connected: storePlayability.connected }"
 				@click="subContent = 'playability'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.playability' }"
@@ -253,17 +287,6 @@
 				<Icon name="playability" />
 				<p>PlayAbility</p>
 				<!-- <div class="beta"></div> -->
-			</button>
-
-			<button
-				class="card-item"
-				:class="{ connected: storeElevenLabs.connected }"
-				@click="subContent = 'elevenlabs'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.elevenlabs' }"
-				key="elevenlabs"
-			>
-				<Icon name="elevenlabs" />
-				<p>ElevenLabs</p>
 			</button>
 
 			<button
@@ -287,16 +310,6 @@
 			>
 				<Icon name="twitch" />
 				<p>Twitch bot</p>
-			</button>
-
-			<button
-				class="card-item"
-				:class="{ connected: obsConnected }"
-				@click="subContent = 'obs'"
-				key="obs"
-			>
-				<Icon name="obs" />
-				<p>OBS</p>
 			</button>
 
 			<button
@@ -338,6 +351,7 @@
 	<ConnectTwitchatAPI v-else-if="subContent == 'twitchat_api'" />
 	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
 	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
+	<ConnectTwitchatCompanion v-else-if="subContent == 'twitchat_companion'" />
 	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'heatAreas'" />
 </template>
 
@@ -362,6 +376,7 @@ import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
 import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
@@ -403,6 +418,8 @@ import ConnectYoutube from "./connexions/ConnectYoutube.vue";
 import SearchForm from "./SearchForm.vue";
 import ConnectBluesky from "./connexions/ConnectBluesky.vue";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
+import Config from "@/utils/Config";
+import ConnectTwitchatCompanion from "./connexions/ConnectTwitchatCompanion.vue";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -426,6 +443,7 @@ const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
 const storeBluesky = useStoreBluesky();
 const storeAuth = useStoreAuth();
+const storeExtension = useStoreExtension();
 
 const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);

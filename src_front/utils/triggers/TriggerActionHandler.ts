@@ -7273,12 +7273,11 @@ export default class TriggerActionHandler {
 							value: 'Extension found: "' + extension.name + '"',
 						});
 						if (
-							!(await TwitchUtils.updateExtension(
-								extension.id,
-								extension.version,
+							!(await StoreProxy.extension.setExtensionState(
 								step.extension.enable,
 								step.extension.slotIndex,
 								step.extension.slotType,
+								extension,
 							))
 						) {
 							logStep.messages.push({

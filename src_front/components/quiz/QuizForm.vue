@@ -23,6 +23,8 @@
 				<OverlayInstaller type="quiz" sourceSuffix="Twitchat_Quiz" />
 			</div>
 
+			<ExtensionInstaller />
+
 			<VueDraggable
 				class="quizList"
 				v-model="storeQuiz.quizList"
@@ -144,6 +146,7 @@ import { computed, onBeforeMount, ref, useTemplateRef } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import QuizQuestionList from "./QuizQuestionList.vue";
 import Overlay404 from "../params/contents/overlays/Overlay404.vue";
+import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 
 const props = withDefaults(defineProps<{ embedMode?: boolean }>(), { embedMode: false });
 

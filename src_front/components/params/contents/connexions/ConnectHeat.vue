@@ -197,6 +197,7 @@ export default toNative(ConnectHeat);
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+		transition: opacity 0.25s;
 
 		.selected {
 			border: 5px solid transparent;
