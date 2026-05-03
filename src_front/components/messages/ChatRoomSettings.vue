@@ -116,7 +116,7 @@ class ChatRoomSettings extends AbstractChatMessage {
 	public isMod: boolean = false;
 
 	public beforeMount(): void {
-		const authUser = this.$store.auth[this.messageData.platform].user;
+		const authUser = this.$store.auth[this.messageData.platform]!.user;
 		const user = this.$store.users.getUserFrom(
 			this.messageData.platform,
 			this.messageData.channel_id,

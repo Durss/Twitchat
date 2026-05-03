@@ -307,11 +307,6 @@
 			@close="forceEmergencyFollowClose = true"
 		/>
 
-		<MigrationFixerModal
-			v-if="storeMain.httpMigrationFixData.length > 0 && !forceHttpFixerClose"
-			@close="forceHttpFixerClose = true"
-		/>
-
 		<DonorBadge
 			ref="donor"
 			class="donorState"
@@ -377,7 +372,6 @@ import FeatureFlagsAdmin from "@/components/chatform/FeatureFlagsAdmin.vue";
 import UserList from "@/components/chatform/UserList.vue";
 import HeatLogs from "@/components/heatlogs/HeatLogs.vue";
 import MessageList from "@/components/messages/MessageList.vue";
-import MigrationFixerModal from "@/components/modals/MigrationFixerModal.vue";
 import GreetThem from "@/components/newusers/GreetThem.vue";
 import ObsHeatLogs from "@/components/obs/ObsHeatLogs.vue";
 import Parameters from "@/components/params/Parameters.vue";
@@ -483,7 +477,6 @@ const showBlinkLayer = ref(false);
 const importedSettings = ref<TriggerImportData | null>(null);
 const greetColIndexTarget = ref(0);
 const panelsColIndexTarget = ref(0);
-const forceHttpFixerClose = ref(false);
 const forceEmergencyFollowClose = ref(false);
 const panelsColumnTarget = ref<HTMLDivElement | null>(null);
 const currentNotificationContent = ref<TwitchatDataTypes.NotificationTypes>("");
