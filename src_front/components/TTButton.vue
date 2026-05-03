@@ -20,8 +20,8 @@
 			<Icon v-if="icon && loading" name="loader" />
 
 			<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
-			<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
-			<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
+			<span class="icon" v-if="!isEmptySlot(slots.icon)"><slot name="icon" /></span>
+			<span class="label" ref="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
 
 			<div class="clickArea"></div>
 
@@ -40,8 +40,9 @@
 <script setup lang="ts">
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import { computed, getCurrentInstance, ref, useSlots, useTemplateRef } from "vue";
+import { computed, getCurrentInstance, ref, Text, useSlots, useTemplateRef } from "vue";
 import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
 const props = withDefaults(
 	defineProps<{
@@ -95,6 +96,7 @@ const emit = defineEmits<{
 
 const slots = useSlots();
 const instance = getCurrentInstance();
+const { isEmptySlot } = useEmptySlot();
 
 const copySuccess = ref(false);
 const copyFail = ref(false);
@@ -108,7 +110,7 @@ const nodeType = computed(() => {
 
 const classes = computed(() => {
 	let list = ["button", "type-" + props.type];
-	if (!slots.default) list.push("noTitle");
+	if (isEmptySlot(slots.default)) list.push("noTitle");
 	if (props.primary !== false || copySuccess.value) list.push("primary");
 	if (props.twitch !== false) list.push("twitch");
 	if (props.secondary !== false) list.push("secondary");
