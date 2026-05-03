@@ -26,12 +26,12 @@
 
 			<template v-for="(item, index) in distortionList" :key="item.id">
 				<HeatDistortParams
-					v-model="distortionList[index]"
+					v-model="distortionList[index]!"
 					@delete="deleteDistorsion"
 					@created="distortionCreated"
 					:ref="
-						(el: ComponentPublicInstance | null) => {
-							if (el) distortionRefs[item.id] = el;
+						(el) => {
+							if (el) distortionRefs[item.id]! = el as ComponentPublicInstance;
 							else delete distortionRefs[item.id];
 						}
 					"
@@ -88,7 +88,9 @@
 				<Icon name="alert" />
 				<i18n-t scope="global" tag="span" keypath="overlay.heatDistort.install">
 					<template #HEAT>
-						<a @click="openHeat()">{{ $t("overlay.heatDistort.install_heat_link") }}</a>
+						<a @click="openTwitchatCompanion()">{{
+							$t("overlay.heatDistort.install_heat_link")
+						}}</a>
 					</template>
 					<template #SHADER>
 						<a href="https://www.shadertastic.com" target="_blank">{{
@@ -150,10 +152,10 @@ onBeforeMount(() => {
 	);
 });
 
-function openHeat(): void {
+function openTwitchatCompanion(): void {
 	storeParams.openParamsPage(
 		TwitchatDataTypes.ParameterPages.CONNECTIONS,
-		TwitchatDataTypes.ParamDeepSections.HEAT,
+		TwitchatDataTypes.ParamDeepSections.TWITCHAT_COMPANION,
 	);
 }
 

@@ -12,7 +12,7 @@
 			<div class="screenList" v-if="storeHeat.screenList.length > 0">
 				<HeatScreenPreview
 					class="screen"
-					v-for="screen in storeHeat.screenList"
+					v-for="screen in sortedScreens"
 					:key="screen.id"
 					selectAreaMode
 					@select="(id: string) => onSelectArea(id)"
@@ -157,6 +157,10 @@ const param_userCD = ref<TwitchatDataTypes.ParameterData<number>>({
 
 const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
 
+const sortedScreens = computed(() => {
+	return storeHeat.screenList.concat().sort((a, b) => (a.enabled ? -1 : 1));
+});
+
 onBeforeMount(() => {
 	if (!props.triggerData.heatAreaIds) props.triggerData.heatAreaIds = [];
 	if (!props.triggerData.permissions) {
@@ -281,8 +285,10 @@ watch(
 		flex-wrap: wrap;
 		justify-content: center;
 		margin-top: 0.5em;
+		overflow-y: auto;
+		max-height: 400px;
 		.screen {
-			width: 30%;
+			width: 80%;
 		}
 	}
 
