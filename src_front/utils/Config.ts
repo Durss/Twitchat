@@ -53,7 +53,12 @@ export default class Config {
 	/**
 	 * Heat extension URL
 	 */
-	public HEAT_EXTENSION = "https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk";
+	public HEAT_EXTENSION_URL =
+		"https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk";
+	/**
+	 * Heat extension ID
+	 */
+	public HEAT_EXTENSION_ID = "cr20njfkgll4okyrhag7xxph270sqk";
 	/**
 	 * Twitchat API path
 	 */
@@ -419,22 +424,22 @@ export default class Config {
 		return this._serverConfig.tiltify_scopes;
 	}
 	/**
-	 * Twitch Extension Version
+	 * Twitchat Extension Version
 	 */
-	public get TWITCH_EXTENSION_VERSION(): string {
+	public get TWITCHAT_EXTENSION_VERSION(): string {
 		return this._serverConfig.twitchExtension_version;
 	}
 	/**
-	 * Twitch Extension ID
+	 * Twitchat Extension ID
 	 */
-	public get TWITCH_EXTENSION_ID(): string {
+	public get TWITCHAT_EXTENSION_ID(): string {
 		return this._serverConfig.twitchExtension_client_id;
 	}
 	/**
-	 * Twitch Extension URL
+	 * Twitchat Extension URL
 	 */
-	public get TWITCH_EXTENSION_URL(): string {
-		return `https://dashboard.twitch.tv/extensions/${this.TWITCH_EXTENSION_ID}-${this.TWITCH_EXTENSION_VERSION}`;
+	public get TWITCHAT_EXTENSION_URL(): string {
+		return `https://dashboard.twitch.tv/extensions/${this.TWITCHAT_EXTENSION_ID}-${this.TWITCHAT_EXTENSION_VERSION}`;
 	}
 
 	/**
