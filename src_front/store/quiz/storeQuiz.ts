@@ -203,7 +203,7 @@ export const storeQuiz = defineStore("quiz", {
 		addQuiz(): TwitchatDataTypes.QuizParams {
 			let data: TwitchatDataTypes.QuizParams = {
 				id: Utils.getUUID(),
-				enabled: this.quizList.length === 0,
+				enabled: false,
 				title: "",
 				questionList: [],
 				durationPerQuestion_s: 20,
