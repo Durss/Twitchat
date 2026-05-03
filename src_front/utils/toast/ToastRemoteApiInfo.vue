@@ -49,13 +49,8 @@ const { contentProps: props } = defineProps<{
 
 async function revokeApiKey() {
 	deleting.value = true;
-	const success = await storeAPI.deleteKey();
+	await storeAPI.deleteKey(true);
 	deleting.value = false;
-	if (success) {
-		toast(t("api.revoke_success"), { type: "success" });
-	} else {
-		toast(t("api.revoke_error"), { type: "error" });
-	}
 }
 </script>
 
