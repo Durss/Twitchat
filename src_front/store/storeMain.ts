@@ -34,6 +34,7 @@ import type { JsonObject } from "type-fest";
 import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
+import SFXRUtils from "@/utils/SFXRUtils";
 
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
@@ -592,10 +593,22 @@ export const storeMain = defineStore("main", {
 			);
 
 			/**
-			 * Listen for highlighted message to show up the "close highlighted message" button
+			 * Request to close highlighted message
 			 */
 			PublicAPI.instance.addEventListener("ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE", () => {
 				void sChat.highlightChatMessageOverlay();
+			});
+
+			/**
+			 * Play SFX sound
+			 */
+			PublicAPI.instance.addEventListener("SET_PLAY_SFXR", (message) => {
+				if (message.data?.params) {
+					void SFXRUtils.playSFXRFromString(
+						message.data.params,
+						message.data.volume || 100,
+					);
+				}
 			});
 
 			/**
