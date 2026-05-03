@@ -1520,9 +1520,9 @@
 				"description": "Actions à exécuter lorsque quelqu'un paye pour un Hype Chat"
 			},
 			"HEAT_CLICK": {
-				"label": "Interaction Heat",
+				"label": "Click sur le stream",
 				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
-				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
+				"description_info": "(Requiert d'installer l'extension \"Twitchat Companion\" (ou \"Heat\"). Consultez la section \"Connexions\"=>\"Twitchat Companion\" pour l'installer)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip créé depuis Twitchat",

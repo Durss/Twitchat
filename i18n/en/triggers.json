@@ -1518,9 +1518,9 @@
 				"description": "Actions to execute when a user pays for a hype chat message"
 			},
 			"HEAT_CLICK": {
-				"label": "Heat click",
+				"label": "Click on the stream",
 				"description": "Actions to execute when a user clicks on your stream {INFO}",
-				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
+				"description_info": "(Needs \"Twitchat Companion\" (or \"Heat\") extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip created from Twitchat",

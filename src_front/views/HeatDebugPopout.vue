@@ -114,7 +114,7 @@ class HeatDebugPopout extends Vue {
 		}, 500);
 		px = px / bounds.width;
 		py = py / bounds.height;
-		if (HeatSocket.instance.connected.value) {
+		if (HeatSocket.instance.connected.value || this.$store.extension.companionEnabled) {
 			const uid = this.$store.auth.twitch.user.id;
 			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, metaKey, event.shiftKey, true);
 		}
