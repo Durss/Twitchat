@@ -280,16 +280,6 @@ export interface IMainState {
 	 * and loop
 	 */
 	suspendedTriggerStacks: TriggerCallStack[];
-	/**
-	 * HTTP migration fix data
-	 */
-	httpMigrationFixData: {
-		oldTriggerData: TriggerData;
-		oldTriggerAction: TriggerActionHTTPCallData;
-		triggerId: string;
-		httpActionId: string;
-		jsonPlaceholders: IHttpPlaceholder[];
-	}[];
 }
 
 export interface IMainGetters {
@@ -389,14 +379,6 @@ export interface IMainActions {
 	 * @param callstack
 	 */
 	suspendedTriggerStack(callstack: TriggerCallStack): void;
-	/**
-	 * initilizes data for trigger migration fix UI
-	 * When adding "Extract JSON data" trigger action, migration
-	 * of existing "HTTP Call" to extract data with the new action
-	 * failed on some users.
-	 * This initializes the data for that UI
-	 */
-	initHttpMigrationFixer(): Promise<void>;
 }
 
 export interface IAccountState {
