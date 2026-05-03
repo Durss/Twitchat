@@ -1186,6 +1186,7 @@ onMounted(() => {
 			]);
 			if (user.value) loadUserInfo();
 		},
+		{ immediate: true },
 	);
 
 	document.body.addEventListener("keyup", onKeyUp);
