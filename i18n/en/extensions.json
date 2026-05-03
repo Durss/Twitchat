@@ -15,7 +15,7 @@
 			"loading": "Loading Twitch extension status...",
 			"install": "Install \"Twichat Companion\" extension on your channel to let your viewers play.",
 			"installBt": "Install extension",
-			"enable": "\"Twichat Companion\" extension is installed but not enabled on your channel!",
+			"enable": "\"Twichat Companion\" extension is\ninstalled but not enabled on your channel!",
 			"enableBt": "Enable extension",
 			"enableError": "An error occurred while enabling the extension",
 			"ready": "The \"Twichat Companion\" extension is active on your channel!"

@@ -32,6 +32,7 @@ const { t } = useI18n();
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
+		white-space: pre-line;
 
 		.areaHolder {
 			overflow: hidden;

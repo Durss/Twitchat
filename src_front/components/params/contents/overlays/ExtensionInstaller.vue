@@ -10,7 +10,7 @@
 	>
 		<icon class="logo" name="extension" />
 		<div v-if="loading" class="content loader">
-			<span class="text">
+			<span class="head">
 				{{ $t("extensions.installer.loading") }}
 				<icon class="spinner" name="loader" />
 			</span>
@@ -42,101 +42,93 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import Config from "@/utils/Config";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
-@Component({
-	components: {
-		TTButton,
-	},
-	emits: [],
-})
-class ExtensionInstaller extends Vue {
-	public loading = true;
-	public enabled = false;
-	public enabling = false;
-	public installed = false;
-	public enableError = false;
+const loading = ref(false);
+const enabling = ref(false);
+const enableError = ref(false);
 
-	private checkinterval = -1;
+const storeExtension = useStoreExtension();
 
-	public mounted(): void {
-		this.loading = true;
-		this.checkExtensionStatus();
+let checkinterval = -1;
+let loaderDelay = -1;
 
-		this.checkinterval = window.setInterval(async () => {
-			if (this.enabled || this.loading) return;
-			this.checkExtensionStatus();
-		}, 3000);
+onMounted(() => {
+	//Only show loader if it takes more than 1s to load states
+	loaderDelay = window.setTimeout(() => {
+		loading.value = true;
+	}, 1000);
+
+	checkExtensionStatus();
+
+	checkinterval = window.setInterval(() => {
+		if (enabled.value || loading.value) return;
+		checkExtensionStatus();
+	}, 3000);
+});
+
+onBeforeUnmount(() => {
+	window.clearInterval(checkinterval);
+});
+
+const installed = computed(() => {
+	return storeExtension.availableExtensions.find(
+		(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
+	);
+});
+
+const enabled = computed(() => {
+	return storeExtension.enabledExtensions.find(
+		(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
+	);
+});
+
+async function enableExtension(): Promise<void> {
+	enabling.value = true;
+	enableError.value = false;
+	const success = await storeExtension.setExtensionState(
+		true,
+		"1",
+		"overlay",
+		storeExtension.availableExtensions.find(
+			(v) => v.id == Config.instance.TWITCH_EXTENSION_ID,
+		)!,
+	);
+	if (!success) {
+		enableError.value = true;
 	}
-
-	public beforeUnmount(): void {
-		window.clearInterval(this.checkinterval);
-	}
-
-	public async enableExtension(): Promise<void> {
-		this.enabling = true;
-		this.enableError = false;
-		const success = await TwitchUtils.updateExtension(
-			Config.instance.TWITCH_EXTENSION_ID,
-			Config.instance.TWITCH_EXTENSION_VERSION,
-			true,
-			"1",
-			"overlay",
-		);
-		if (success) {
-			this.enabled = true;
-		} else {
-			this.enableError = true;
-		}
-		this.enabling = false;
-	}
-
-	private checkExtensionStatus(): void {
-		Promise.all([
-			TwitchUtils.listExtensions(false).then((res) => {
-				if (!res) return;
-				this.installed =
-					res.findIndex((e) => e.id == Config.instance.TWITCH_EXTENSION_ID) > -1;
-			}),
-			TwitchUtils.listExtensions(true).then((res) => {
-				if (!res) return;
-				for (const key in res.overlay) {
-					if (!Object.hasOwn(res.overlay, key)) continue;
-
-					const element = res.overlay[key];
-					if (element?.id == Config.instance.TWITCH_EXTENSION_ID) {
-						this.installed = true;
-						this.enabled = true;
-					}
-				}
-			}),
-		]).then(([,]) => {
-			this.loading = false;
-		});
-	}
+	enabling.value = false;
 }
-export default toNative(ExtensionInstaller);
+
+async function checkExtensionStatus(): Promise<void> {
+	await storeExtension.updateInternalStates();
+	clearTimeout(loaderDelay);
+	loading.value = false;
+}
 </script>
 
 <style scoped lang="less">
 .extensioninstaller {
-	gap: 1em;
+	gap: 0.5em;
 	display: flex;
 	flex-direction: row;
 	line-height: 1.25em;
+	margin: auto;
+	// max-width: 400px;
 
 	.logo {
 		width: 2em;
 		height: auto;
+		flex-shrink: 0;
 	}
 
 	.content {
-		gap: 0.5em;
 		flex: 1;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 
@@ -152,6 +144,12 @@ export default toNative(ExtensionInstaller);
 			align-items: center;
 			justify-content: center;
 		}
+
+		.head {
+			text-wrap: balance;
+			text-align: center;
+			white-space: pre-line;
+		}
 	}
 
 	.error {
@@ -163,3 +161,4 @@ export default toNative(ExtensionInstaller);
 	}
 }
 </style>
+

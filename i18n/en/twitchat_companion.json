@@ -1,0 +1,8 @@
+{
+	"twitchat_companion": {
+		"header": "Let your viewers take part in Quizzes, Bingos, and interact with your stream simply by clicking on it.",
+		"enable_click": "Allow viewers to click the stream",
+		"start_quiz": "Start a Quiz",
+		"start_bingo": "Start a Bingo"
+	}
+}

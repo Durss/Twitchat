@@ -15,7 +15,7 @@
 			"loading": "Chargement du statut de l'extension...",
 			"install": "Installez l'extension \"Twichat Companion\" sur votre chaîne pour permettre à vos spectateurices de jouer.",
 			"installBt": "Installer l'extension",
-			"enable": "L'extension \"Twichat Companion\" est installée mais n'a pas été activée !",
+			"enable": "L'extension \"Twichat Companion\" est\ninstallée mais n'a pas été activée !",
 			"enableBt": "Activer l'extension",
 			"enableError": "Une erreur est survenue lors de l'activation de l'extension",
 			"ready": "L'extension \"Twichat Companion\" est active sur votre chaîne !"
