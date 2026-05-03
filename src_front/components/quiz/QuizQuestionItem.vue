@@ -213,7 +213,7 @@ import Icon from "../Icon.vue";
 
 const props = defineProps<{
 	question: TwitchatDataTypes.QuizParams["questionList"][number];
-	quizId: string;
+	quiz: TwitchatDataTypes.QuizParams;
 	autoOpen?: boolean;
 }>();
 
@@ -252,7 +252,7 @@ onBeforeMount(() => {
 });
 
 function save(): void {
-	storeQuiz.saveData(props.quizId);
+	storeQuiz.saveData(props.quiz.id);
 	testAnswer();
 }
 
@@ -421,19 +421,15 @@ function testAnswer(): void {
 	if (props.question.mode !== "freeAnswer") return;
 	isValidAnswer.value = storeQuiz.validateFreeAnswer(
 		freeAnswerTest.value,
-		quiz.value,
+		props.quiz,
 		props.question,
 	);
 }
-
-const quiz = computed(() => {
-	return storeQuiz.quizList.find((q) => q.id == props.quizId)!;
-});
 /**
  * Check for global tolerance level changes to update the free answer test validity accordingly
  */
 watch(
-	() => quiz.value.toleranceLevel,
+	() => props.quiz.toleranceLevel,
 	() => {
 		testAnswer();
 	},
