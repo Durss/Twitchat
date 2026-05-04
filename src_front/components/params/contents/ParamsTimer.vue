@@ -59,6 +59,7 @@
 					v-model:title="entry.title"
 					titleDefault="..."
 					:titleMaxLengh="50"
+					:disabled="!entry.enabled"
 					@update:title="storeTimer.saveData()"
 				>
 					<template #left_actions>
