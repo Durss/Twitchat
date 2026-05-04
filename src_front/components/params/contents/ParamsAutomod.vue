@@ -43,15 +43,16 @@
 				<div class="ruleList" v-if="automodData.keywordsFilters.length > 0">
 					<ToggleBlock
 						class="rule"
-						v-for="f in automodData.keywordsFilters"
-						:key="f.id"
-						:title="f.label.length > 0 ? f.label : t('automod.rule.new')"
-						:open="keywordToOpen[f.id]"
+						v-for="filter in automodData.keywordsFilters"
+						:key="filter.id"
+						:title="filter.label.length > 0 ? filter.label : t('automod.rule.new')"
+						:open="keywordToOpen[filter.id]"
+						:disabled="!filter.enabled"
 					>
 						<template #left_actions>
 							<ToggleButton
 								class="toggleButton"
-								v-model="f.enabled"
+								v-model="filter.enabled"
 								@click.stop=""
 								clear
 								v-tooltip="t('automod.rule.toggle_tt')"
@@ -62,40 +63,40 @@
 								icon="trash"
 								alert
 								class="deleteBt"
-								@click.stop="deleteRule(f)"
+								@click.stop="deleteRule(filter)"
 							/>
 						</template>
 						<div class="ruleContent">
 							<ParamItem
 								class="sync"
-								:paramData="param_ruleSync[f.id]!"
-								v-model="f.serverSync"
+								:paramData="param_ruleSync[filter.id]!"
+								v-model="filter.serverSync"
 								v-tooltip="t('automod.rule.sync_tt')"
 							/>
 							<ParamItem
 								class="emergency"
-								:paramData="param_ruleEmergency[f.id]!"
-								v-model="f.emergency"
+								:paramData="param_ruleEmergency[filter.id]!"
+								v-model="filter.emergency"
 								v-tooltip="t('automod.rule.emergency_tt')"
 							/>
 							<ParamItem
 								class="onlyFirst"
-								:paramData="param_ruleOnlyFirst[f.id]!"
-								v-model="f.firstTimeChatters"
+								:paramData="param_ruleOnlyFirst[filter.id]!"
+								v-model="filter.firstTimeChatters"
 								v-tooltip="t('automod.rule.firstTime_tt')"
 							/>
 							<ParamItem
 								class="ruleName"
-								:paramData="param_ruleLabel[f.id]!"
-								v-model="f.label"
+								:paramData="param_ruleLabel[filter.id]!"
+								v-model="filter.label"
 							/>
 							<ParamItem
 								class="rule"
-								:paramData="param_ruleRegex[f.id]!"
-								v-model="f.regex"
-								:error="keywordToValid[f.id] === false"
+								:paramData="param_ruleRegex[filter.id]!"
+								v-model="filter.regex"
+								:error="keywordToValid[filter.id] === false"
 								:errorMessage="t('automod.rule.invalid_rule')"
-								@change="onRegexChange(f)"
+								@change="onRegexChange(filter)"
 							/>
 						</div>
 					</ToggleBlock>
