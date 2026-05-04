@@ -24,6 +24,7 @@
 				:titleMaxLengh="30"
 				:open="false"
 				:key="entry.id"
+				:disabled="!entry.enabled"
 				@update:title="onChange(entry)"
 			>
 				<template #right_actions>

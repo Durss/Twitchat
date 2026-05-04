@@ -35,7 +35,7 @@
 		v-model:title="props.modelValue.name"
 		:titleDefault="sourcePathLabel"
 		class="distortionEntry"
-		:style="{ opacity: props.modelValue.enabled ? 1 : 0.5 }"
+		:disabled="!props.modelValue.enabled"
 	>
 		<template #left_actions>
 			<ToggleButton

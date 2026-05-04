@@ -76,141 +76,141 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storePrediction as useStorePrediction } from "@/store/prediction/storePrediction";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import TTButton from "../TTButton.vue";
 import ProgressBar from "../ProgressBar.vue";
 import Icon from "../Icon.vue";
 import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ProgressBar,
-		OverlayPresenceChecker,
-	},
-})
-class PredictionState extends Vue {
-	public loading = false;
-	public progressPercent = 0;
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeCommon = useStoreCommon();
+const storePrediction = useStorePrediction();
+const storeUsers = useStoreUsers();
 
-	private disposed = false;
+const loading = ref(false);
+const progressPercent = ref(0);
 
-	public get me(): TwitchatDataTypes.TwitchatUser {
-		return this.$store.auth.twitch.user;
-	}
+let disposed = false;
 
-	public get prediction(): TwitchatDataTypes.MessagePredictionData {
-		return this.$store.prediction.data!;
-	}
+const me = computed<TwitchatDataTypes.TwitchatUser>(() => storeAuth.twitch.user);
 
-	public get canAnswer(): boolean {
-		return this.prediction.channel_id == this.$store.auth.twitch.user.id;
-	}
+const prediction = computed<TwitchatDataTypes.MessagePredictionData>(
+	() => storePrediction.data!,
+);
 
-	public get classes(): string[] {
-		let res = ["predictionstate", "gameStateWindow"];
-		if (this.prediction.outcomes.length > 2) res.push("noColorMode");
-		return res;
-	}
+const canAnswer = computed<boolean>(
+	() => prediction.value.channel_id == storeAuth.twitch.user.id,
+);
 
-	public getPercent(c: TwitchatDataTypes.MessagePredictionDataOutcome): number {
-		let totalVotes = 0;
-		if (this.prediction) {
-			for (let i = 0; i < this.prediction.outcomes.length; i++) {
-				totalVotes += this.prediction.outcomes[i]!.votes;
-			}
+const classes = computed<string[]>(() => {
+	let res = ["predictionstate", "gameStateWindow"];
+	if (prediction.value.outcomes.length > 2) res.push("noColorMode");
+	return res;
+});
+
+function getPercent(c: TwitchatDataTypes.MessagePredictionDataOutcome): number {
+	let totalVotes = 0;
+	if (prediction.value) {
+		for (let i = 0; i < prediction.value.outcomes.length; i++) {
+			totalVotes += prediction.value.outcomes[i]!.votes;
 		}
-		return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 	}
-
-	public getAnswerStyles(c: TwitchatDataTypes.MessagePredictionDataOutcome): {
-		[key: string]: string;
-	} {
-		return {
-			backgroundSize: `${this.getPercent(c)}% 100%`,
-		};
-	}
-
-	public mounted(): void {
-		// const elapsed = Date.now() - this.prediction.started_at;
-		// const duration = this.prediction.duration_s*1000;
-		// const timeLeft = duration - elapsed
-		// this.progressPercent = elapsed/duration;
-		// gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
-
-		this.renderFrame();
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
-
-	public setOutcome(c: TwitchatDataTypes.MessagePredictionDataOutcome): void {
-		this.loading = true;
-		this.$confirm(
-			this.$t("prediction.state.outcome_confirm_title"),
-			this.$t("prediction.state.outcome_confirm_desc", { CHOICE: c.label }),
-		)
-			.then(async () => {
-				try {
-					await TwitchUtils.endPrediction(
-						this.prediction.channel_id,
-						this.prediction.id,
-						c.id,
-					);
-				} catch (error) {
-					this.loading = false;
-					this.$store.common.alert(this.$t("error.prediction_outcome"));
-				}
-				this.loading = false;
-			})
-			.catch(() => {
-				this.loading = false;
-			});
-	}
-
-	public deletePrediction(): void {
-		this.loading = true;
-		this.$confirm(
-			this.$t("prediction.state.delete_title"),
-			this.$t("prediction.state.delete_desc"),
-		)
-			.then(async () => {
-				try {
-					await TwitchUtils.endPrediction(
-						this.prediction.channel_id,
-						this.prediction.id,
-						"",
-						true,
-					);
-				} catch (error) {
-					this.loading = false;
-					this.$store.common.alert(this.$t("error.prediction_delete"));
-				}
-				this.loading = false;
-			})
-			.catch(() => {
-				this.loading = false;
-			});
-	}
-
-	public openUserCard(): void {
-		this.$store.users.openUserCard(this.prediction.creator!);
-	}
-
-	private renderFrame(): void {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderFrame());
-		const elapsed = Date.now() - this.prediction.started_at;
-		const duration = this.prediction.duration_s * 1000;
-		this.progressPercent = elapsed / duration;
-	}
+	return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 }
-export default toNative(PredictionState);
+
+function getAnswerStyles(c: TwitchatDataTypes.MessagePredictionDataOutcome): {
+	[key: string]: string;
+} {
+	return {
+		backgroundSize: `${getPercent(c)}% 100%`,
+	};
+}
+
+function setOutcome(c: TwitchatDataTypes.MessagePredictionDataOutcome): void {
+	loading.value = true;
+	confirm(
+		t("prediction.state.outcome_confirm_title"),
+		t("prediction.state.outcome_confirm_desc", { CHOICE: c.label }),
+	)
+		.then(async () => {
+			try {
+				await TwitchUtils.endPrediction(
+					prediction.value.channel_id,
+					prediction.value.id,
+					c.id,
+				);
+			} catch (error) {
+				loading.value = false;
+				storeCommon.alert(t("error.prediction_outcome"));
+			}
+			loading.value = false;
+		})
+		.catch(() => {
+			loading.value = false;
+		});
+}
+
+function deletePrediction(): void {
+	loading.value = true;
+	confirm(
+		t("prediction.state.delete_title"),
+		t("prediction.state.delete_desc"),
+	)
+		.then(async () => {
+			try {
+				await TwitchUtils.endPrediction(
+					prediction.value.channel_id,
+					prediction.value.id,
+					"",
+					true,
+				);
+			} catch (error) {
+				loading.value = false;
+				storeCommon.alert(t("error.prediction_delete"));
+			}
+			loading.value = false;
+		})
+		.catch(() => {
+			loading.value = false;
+		});
+}
+
+function openUserCard(): void {
+	storeUsers.openUserCard(prediction.value.creator!);
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+	requestAnimationFrame(() => renderFrame());
+	const elapsed = Date.now() - prediction.value.started_at;
+	const duration = prediction.value.duration_s * 1000;
+	progressPercent.value = elapsed / duration;
+}
+
+onMounted(() => {
+	// const elapsed = Date.now() - prediction.value.started_at;
+	// const duration = prediction.value.duration_s*1000;
+	// const timeLeft = duration - elapsed
+	// progressPercent.value = elapsed/duration;
+	// gsap.to(progressPercent, {value:1, duration:timeLeft/1000, ease:"linear"});
+
+	renderFrame();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+});
 </script>
 
 <style scoped lang="less">

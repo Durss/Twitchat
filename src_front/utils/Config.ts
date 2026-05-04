@@ -286,7 +286,7 @@ export default class Config {
 	/**
 	 * Maximum number of quizs for premium users
 	 */
-	public MAX_QUESTIONS_PER_QUIZ_PREMIUM = 100;
+	public MAX_QUESTIONS_PER_QUIZ_PREMIUM = 200;
 
 	private _serverConfig!: ServerConfig;
 

@@ -41,6 +41,7 @@
 					:titleMaxLengh="30"
 					:open="autoOpenQuizID === quiz.id"
 					:key="quiz.id"
+					:disabled="!quiz.enabled"
 					@update:title="save(quiz)"
 				>
 					<template #left_actions>

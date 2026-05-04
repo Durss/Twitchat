@@ -161,6 +161,7 @@
 							:open="false"
 							:titleMaxLengh="100"
 							:key="'item_' + element.id"
+							:disabled="!element.enabled"
 							:titleDefault="$t(getDefinitionFromSlot(element.slotType).label)"
 							:premium="getDefinitionFromSlot(element.slotType).premium"
 						>

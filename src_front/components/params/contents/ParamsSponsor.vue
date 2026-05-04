@@ -23,7 +23,7 @@
 		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" ref="patrick" />
 
 		<div class="buttons">
-			<Button
+			<TTButton
 				type="link"
 				ref="premium"
 				big
@@ -36,7 +36,7 @@
 					<span v-html="t('sponsor.premium')"></span>
 					<i>{{ t("sponsor.premium_details") }}</i>
 				</div>
-			</Button>
+			</TTButton>
 
 			<ToggleBlock
 				class="premium"
@@ -61,7 +61,7 @@
 				>
 			</ToggleBlock>
 
-			<Button
+			<TTButton
 				v-for="link in links"
 				type="link"
 				ref="button"
@@ -79,13 +79,13 @@
 						>({{ t("sponsor.donate_option." + link.key + "_rate") }})</i
 					>
 				</div>
-			</Button>
+			</TTButton>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import Button from "@/components/TTButton.vue";
+import TTButton from "@/components/TTButton.vue";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { gsap } from "gsap/gsap-core";
 import { computed, onMounted, ref, useTemplateRef, type ComponentPublicInstance } from "vue";
