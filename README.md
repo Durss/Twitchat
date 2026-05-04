@@ -1,6 +1,5 @@
-
 <div align="center">
-	<img src="https://shields.io/badge/vue-3-42b883?logo=Vue.js&labelColor=ffffff"> <img src="https://shields.io/badge/typescript-%3E=%204.5.4-3178c6?logo=TypeScript&labelColor=ffffff"> <img src="https://shields.io/badge/node-%3E=%2018.2.0-026e00?logo=node.js&labelColor=ffffff"> <img src="https://shields.io/badge/less-1d365d?logo=less&labelColor=ffffff&logoColor=000000">
+	<img src="https://shields.io/badge/vue-3-42b883?logo=Vue.js&labelColor=ffffff"> <img src="https://shields.io/badge/vite+-8-6b77f8?logo=vite&labelColor=ffffff"> <img src="https://shields.io/badge/typescript-%3E=%205.9.3-3178c6?logo=TypeScript&labelColor=ffffff"> <img src="https://shields.io/badge/node-%3E=%2018.2.0-026e00?logo=node.js&labelColor=ffffff"> <img src="https://shields.io/badge/less-1d365d?logo=less&labelColor=ffffff&logoColor=000000">
 	<br>
 	<br>
 	<br>
@@ -33,6 +32,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 <br>
 
 # Features
+
 - [x] Enable an emergency button with custom actions to prevent from follow bots and doxxing
 - [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify when an event occurs
 - [x] Control Twitchat and create polls or predictions with your voice
@@ -45,7 +45,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
 - [x] Edit your stream's info from Twitchat with possibility to create pressets
 - [x] Create a timer or a countdown with a simple command and show it on your stream
-- [x] Control spotify from chat commands *(create your own song request system)* and show currently playing track on your stream
+- [x] Control spotify from chat commands _(create your own song request system)_ and show currently playing track on your stream
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss their messages
@@ -54,10 +54,10 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Ask your viewers for suggestions with a dedicated command
 - [x] See if a user is not following the channel
 - [x] Display received whispers and answer them
-- [x] Filter some messages *(bots, commands, self, /me, etc...)*
-- [x] Customize messages display *(remove badges, show minimalist badges, remove emotes)*
-- [x] Customize messages appearance by roles *(viewers, mods, vips, subs)*
-- [x] Moderate messages *(ban, timeout, delete message)*
+- [x] Filter some messages _(bots, commands, self, /me, etc...)_
+- [x] Customize messages display _(remove badges, show minimalist badges, remove emotes)_
+- [x] Customize messages appearance by roles _(viewers, mods, vips, subs)_
+- [x] Moderate messages _(ban, timeout, delete message)_
 - [x] Allow/deny messages blocked by automod
 - [x] Display when it's the first message ever of a user on the channel
 - [x] Display mod notifications on chat (ex: "User XXX has been banned by YYY")
@@ -82,13 +82,15 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Chat suggestion feature: allow your viewers to give suggestions with a dedicated command and randomly pick one of them
 - [x] Handles "low trust" feature ([more info](https://help.twitch.tv/s/article/ban-evasion))
 - [x] And many other things....
-<br>
-<br>
-<br>
-<br>
+      <br>
+      <br>
+      <br>
+      <br>
 
 # Project setup
+
 Create a `data/credentials/credentials.json` file and set the following content after filling values :
+
 ```json
 {
 	"server_port": 3018,
@@ -159,30 +161,33 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
 	"patreon_webhook_secret": "",
-	"patreon_cipherKey":"", //64 chars hexadecimal
-	"patreon_webhook_url":"https://your_domain.com/api/patreon/user/webhook/{ID}",
+	"patreon_cipherKey": "", //64 chars hexadecimal
+	"patreon_webhook_url": "https://your_domain.com/api/patreon/user/webhook/{ID}",
 
 	"tenor_secret": "",
 	"youtube_key": "path/to/key.json",
-	"youtube_scopes": ["https://www.googleapis.com/auth/youtube.readonly", "https://www.googleapis.com/auth/youtube.force-ssl"],
+	"youtube_scopes": [
+		"https://www.googleapis.com/auth/youtube.readonly",
+		"https://www.googleapis.com/auth/youtube.force-ssl"
+	],
 	"google_key": "path/to/key.json",
 
-	"paypal_client_id":"",
-	"paypal_client_secret":"",
+	"paypal_client_id": "",
+	"paypal_client_secret": "",
 
 	"donors_remote_api_secret": "",
 	"contact_mail": "",
 
-	"discord_client_id":"",
-	"discord_public_key":"",
-	"discord_bot_token":"",
+	"discord_client_id": "",
+	"discord_public_key": "",
+	"discord_bot_token": "",
 
-	"streamlabs_client_id":"",
-	"streamlabs_client_secret":"",
-	"streamlabs_redirect_uri":"",
+	"streamlabs_client_id": "",
+	"streamlabs_client_secret": "",
+	"streamlabs_redirect_uri": "",
 
-	"streamelements_client_id":"",
-	"streamelements_client_secret":"",
+	"streamelements_client_id": "",
+	"streamelements_client_secret": "",
 
 	"tipeee_client_id": "",
 	"tipeee_client_secret": "",
@@ -197,13 +202,16 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"tiltify_api_path": "https://v5api.tiltify.com"
 }
 ```
+
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
 Write anything you want in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
 Configure the redirect URI of the twitch application to:\
+
 ```
 http://localhost:8081/oauth
 ```
-*(adapt with the proper port and domain if deploying online)*\
+
+_(adapt with the proper port and domain if deploying online)_\
 Set the same value to the `redirect_uri` property of the `credentials.json` file.\
 
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
@@ -215,41 +223,75 @@ By default the server listens on port 3018, you can change it on `credentials.js
 <br>
 
 # Environment setup
-This project has been coded with VSCode.\
-It is recommended to install these plugins:\
-Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 
-I18n-ally Plugin: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
+This project has been coded with VSCode.\
+It is recommended to install these plugins:
+
+- Vue: https://marketplace.visualstudio.com/items?itemName=Vue.volar
+- I18n-ally: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
+- Oxc for linting: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
+- Prettier for auto formatting: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+
+<br>
+<br>
+<br>
+
+# Refactoring in progress
+
+Project has initially been done with class component style.  
+Migration to standard Vue 3 Composition API (`<script setup>`) is ongoing.  
+New components must use the standard syntax/API.
+
+<!-- MIGRATION-STATS-START -->
+
+|                                    | Count   | %     |
+| ---------------------------------- | ------- | ----- |
+| Composition API (`<script setup>`) | **182** | 44.1% |
+| Class-style (vue-facing-decorator) | **231** | 55.9% |
+| **Total**                          | **413** |       |
+
+> Migration progress `[⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀]` _(44.1%)_
+
+_Last updated: 2026-05-03_
+
+<!-- MIGRATION-STATS-END -->
 
 <br>
 <br>
 <br>
 
 # Compile project
+
 ### Install dependencies
+
 ```
 npm install
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
 npm run dev
 ```
 
 ### Compiles and minifies for production
+
 ```
 npm run build
 ```
 
 ### Run server
+
 ```
 node server/boostrap.js
 ```
+
 <br>
 <br>
 <br>
 
 # Install server
+
 All the following MUST be done on a seperate folder from the GIT project.\
 [Compile the project](#compile-project) and push the content of the `server` folder on your server root.\
 Next to this file, create a `public` folder and push the content of your local `dist` folder inside it.\
@@ -272,19 +314,23 @@ Here is the expected file structure:\
 <br>
 
 # Localization
-# Adding new language
+
+## Adding new language
+
 Just create a new folder under the `i18n` folder with the ISO 639-1 code of the language.\
 Read the next section to know how to translate labels
 
-# Translating labels
+## Translating labels
+
 To make localization as easy as possible, a dedicated interface has been made that lists all available categories and labels with the possibility to edit them.\
 Any update on this interface triggers a rebuild of the compiled file as well as an update on any twitchat page opened on the same browser.\
 \
 The interface is only accessible to adminitrators and can be found here:\
-[localhost:8081/labels](https://localhost:8081/labels)\
-To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.\
+[localhost:8081/labels](http://localhost:8081/labels)\
+To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.
 
-# Adding new labels
+## Adding new labels
+
 If you need to add new labels, you'll have to edit JSON sources.\
 All label files can be found under `i18n` folder.\
 They are splitted by language then by sections.\
@@ -293,53 +339,63 @@ These are all merged into `static/labels.json` during the build process.\
 \
 Files can have any name but all labels within it must be under a single property that will be the base path to use the label. The property name is usually the same as the file's name.\
 Example:
+
 ```
 ─ en\
   ├─ global.json\
   ├─ home.json/\
   ├─ triggers.json/\
 ```
+
 `global.json` example:
+
 ```json
 {
-	"global":{
-		"hello":"World"
+	"global": {
+		"hello": "World"
 	}
 }
 ```
+
 `home.json` example:
+
 ```json
 {
-	"home":{
-		"lorem":"ipsum dolor sit amet"
+	"home": {
+		"lorem": "ipsum dolor sit amet"
 	}
 }
 ```
+
 This will output this JSON file:
+
 ```json
 {
-	"en":{
-		"global":{
-			"hello":"World"
+	"en": {
+		"global": {
+			"hello": "World"
 		},
-		"hello":{
-			"lorem":"ipsum dolor sit amet"
+		"hello": {
+			"lorem": "ipsum dolor sit amet"
 		}
 	}
 }
 ```
+
+## Get live updates of labels
+
+Start watcher with:
+
+```
+pm2 start labels-pm2.json
+```
+
+Any manual update on JSON will propagate to the frontend if you're connected as an admin.
 <br>
 <br>
 <br>
 
 # Package Stream Deck™ plugin
-Run the following command from the "streamdeck_plugin" folder:
-```
-streamdeck pack .\fr.twitchat.sdPlugin\ -f
-```
-The compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.  
-\
-Eventually make sure everyting's ok first with this:
-```
-streamdeck validate .\fr.twitchat.sdPlugin\
-```
+
+Sources for Stream Deck plugin are located here:
+https://github.com/Durss/Twitchat_Streamdeck_plugin

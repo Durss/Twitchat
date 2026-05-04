@@ -5,308 +5,435 @@
 		<div class="head" v-if="panelContext == false">
 			<i18n-t scope="global" tag="p" keypath="timers.header">
 				<template #LINK_TRIGGER>
-					<a @click="openTriggers()" target="_blank">{{ $t("timers.header_link_trigger") }}</a>
+					<a @click="openTriggers()" target="_blank">{{
+						t("timers.header_link_trigger")
+					}}</a>
 				</template>
 				<template #LINK_OVERLAY>
-					<a @click="openOverlays()" target="_blank">{{ $t("timers.header_link_overlay") }}</a>
+					<a @click="openOverlays()" target="_blank">{{
+						t("timers.header_link_overlay")
+					}}</a>
 				</template>
 			</i18n-t>
 		</div>
 
 		<section class="ctas">
-			<TTButton icon="add" v-if="canCreateTimers" @click="$store.timers.createTimer(); buildParams()">{{ $t('timers.addBt') }}</TTButton>
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("timers.premium_limit", {MAX:$config.MAX_TIMERS, MAX_PREMIUM:$config.MAX_TIMERS_PREMIUM})}}</span>
-				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
-			</div>
-			<TTButton icon="overlay" @click="openOverlays()">{{ $t('timers.overlayBt') }}</TTButton>
+			<TTButton
+				icon="add"
+				v-if="!maxReached"
+				@click="
+					storeTimer.createTimer();
+					buildParams();
+				"
+				>{{ t("timers.addBt") }}</TTButton
+			>
+
+			<PremiumLimitMessage
+				v-else
+				label="timers.nonpremium_limit"
+				premiumLabel="timers.premium_limit"
+				:max="Config.instance.MAX_TIMERS"
+				:maxPremium="Config.instance.MAX_TIMERS_PREMIUM"
+			/>
+
+			<TTButton icon="overlay" @click="openOverlays()">{{ t("timers.overlayBt") }}</TTButton>
 		</section>
 
-		<draggable class="entryList"
-		v-model="$store.timers.timerList"
-		direction="vertical"
-		group="timers"
-		item-key="id"
-		:animation="250"
-		@sort="rebuildParams()">
-			<template #item="{element:entry, index}:{element:TwitchatDataTypes.TimerData, index:number}">
-				<ToggleBlock class="timerEntry"
-				:open="false"
-				:key="entry.id"
-				:editableTitle="!entry.isDefault"
-				v-model:title="entry.title"
-				titleDefault="..."
-				:titleMaxLengh="50"
-				@update:title="$store.timers.saveData()">
+		<draggable
+			class="entryList"
+			v-model="storeTimer.timerList"
+			direction="vertical"
+			group="timers"
+			item-key="id"
+			:animation="250"
+			@sort="rebuildParams()"
+		>
+			<template
+				#item="{ element: entry }: { element: TwitchatDataTypes.TimerData; index: number }"
+			>
+				<ToggleBlock
+					class="timerEntry"
+					:open="false"
+					:key="entry.id"
+					:editableTitle="!entry.isDefault"
+					v-model:title="entry.title"
+					titleDefault="..."
+					:titleMaxLengh="50"
+					:disabled="!entry.enabled"
+					@update:title="storeTimer.saveData()"
+				>
 					<template #left_actions>
+						<ToggleButton
+							v-model="entry.enabled"
+							@click.stop
+							@change="storeTimer.saveData()"
+							v-if="
+								!entry.isDefault &&
+								((storeAuth.isPremium && entry.enabled === false) ||
+									(!storeAuth.isPremium &&
+										(entry.enabled == true || canEnableMore)))
+							"
+						/>
 						<Icon name="timer" class="timerTypeIcon" v-if="entry.type == 'timer'" />
-						<Icon name="countdown" class="timerTypeIcon" v-if="entry.type == 'countdown'" />
-						<div class="timerValue" :class="{paused:entry.paused}" v-if="entry.startAt_ms">{{ timer2Duration[entry.id]?.duration_str }}</div>
+						<Icon
+							name="countdown"
+							class="timerTypeIcon"
+							v-if="entry.type == 'countdown'"
+						/>
+						<div
+							class="timerValue"
+							:class="{ paused: entry.paused }"
+							v-if="entry.startAt_ms"
+						>
+							{{ timer2Duration[entry.id]?.duration_str }}
+						</div>
 					</template>
 
 					<template #right_actions>
-						<div class="actions" v-if="!entry.isDefault">
-							<ToggleButton v-model="entry.enabled"
-								@change="$store.timers.saveData()"
+						<template v-if="!entry.isDefault">
+							<TTButton
 								@click.stop
-								v-if="entry.enabled || canCreateTimers" />
-							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
-						</div>
-						<div class="actions" v-else>
-							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
-						</div>
+								:copy="entry.id"
+								icon="id"
+								v-tooltip="t('global.copy_id')"
+								small
+							/>
+							<TTButton
+								alert
+								icon="trash"
+								@click.stop="storeTimer.deleteTimer(entry.id)"
+							/>
+						</template>
+						<template v-else>
+							<TTButton
+								@click.stop
+								:copy="entry.id"
+								icon="id"
+								v-tooltip="t('global.copy_id')"
+								small
+							/>
+						</template>
 					</template>
 
 					<div class="content">
 						<div class="info" v-if="entry.isDefault">
 							<Icon name="info" />
-							<i18n-t scope="global" tag="span" :keypath="entry.type == 'timer'? 'timers.panel.hint_timer' : 'timers.panel.hint_countdown'">
-								<template v-if="entry.type == 'countdown'" #CMD><mark>/countdown...</mark></template>
-								<template v-if="entry.type == 'timer'" #CMD><mark>/timer...</mark></template>
+							<i18n-t
+								scope="global"
+								tag="span"
+								:keypath="
+									entry.type == 'timer'
+										? 'timers.panel.hint_timer'
+										: 'timers.panel.hint_countdown'
+								"
+							>
+								<template v-if="entry.type == 'countdown'" #CMD
+									><mark>/countdown...</mark></template
+								>
+								<template v-if="entry.type == 'timer'" #CMD
+									><mark>/timer...</mark></template
+								>
 							</i18n-t>
 						</div>
 
-						<div class="ctas">
-							<TTButton icon="play"
-							v-if="!entry.startAt_ms"
-							@click="$store.timers.timerStart(entry.id); refreshTimers()"
-							:disabled="!entry.enabled"
-							v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">{{ $t('timers.form.start') }}</TTButton>
-
-							<template v-else>
-								<TTButton icon="pause" v-if="!entry.paused"
-									@click="$store.timers.timerPause(entry.id); refreshTimers()">{{ $t('timers.form.pause') }}</TTButton>
-								<TTButton icon="play"  v-else
-									@click="$store.timers.timerUnpause(entry.id); refreshTimers()"
-									:disabled="!entry.enabled"
-									v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">{{ $t('timers.form.unpause') }}</TTButton>
-								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">{{ $t('timers.form.stop') }}</TTButton>
-							</template>
-						</div>
-
 						<template v-if="!entry.isDefault">
-							<SwitchButton v-model="entry.type"
+							<SwitchButton
+								v-model="entry.type"
 								:icons="['timer', 'countdown']"
 								:values="['timer', 'countdown']"
-								:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
-								@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
+								:labels="[
+									t('timers.form.param_type_timer'),
+									t('timers.form.param_type_countdown'),
+								]"
+								@change="
+									storeTimer.resetTimer(entry.id);
+									storeTimer.saveData();
+									checkForPlaceholderDuplicates();
+									refreshTimers();
+								"
 							></SwitchButton>
 
-							<template v-if="entry.type == 'countdown'">
-								<ParamItem :paramData="param_duration[entry.id]"
+							<ParamItem
+								v-if="entry.type == 'countdown'"
+								:paramData="param_duration[entry.id]!"
 								v-model="param_duration[entry.id]!.value"
-								@change="entry.duration_ms = param_duration[entry.id]!.value * 1000" />
-							</template>
+								@change="entry.duration_ms = param_duration[entry.id]!.value * 1000"
+							/>
 
-							<div class="card-item placeholder"
-							:class="{error:timer2PlaceholderError[entry.id]}"
-							v-tooltip="$t('timers.form.param_placeholder_tt')">
-								<Icon name="placeholder"/>
-								<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
-								<PlaceholderField class="input-field field"
+							<div
+								class="card-item placeholder"
+								:class="{ error: timer2PlaceholderError[entry.id] }"
+								v-tooltip="t('timers.form.param_placeholder_tt')"
+							>
+								<Icon name="placeholder" />
+								<span class="label">{{ t("timers.form.param_placeholder") }}</span>
+								<PlaceholderField
+									class="input-field field"
 									v-model="entry.placeholderKey"
-									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
-									@change="checkForPlaceholderDuplicates()" />
+									:prefix="entry.type == 'timer' ? 'TIMER_' : 'COUNTDOWN_'"
+									@change="checkForPlaceholderDuplicates()"
+								/>
 								<template v-if="timer2PlaceholderError[entry.id]">
-									<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
-									<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
+									<div
+										class="errorReason"
+										v-if="
+											[
+												defaultTimerPLaceholder,
+												defaultCountdownPLaceholder,
+											].includes(entry.placeholderKey)
+										"
+									>
+										{{ t("timers.form.param_placeholder_default_conflict") }}
+									</div>
+									<div class="errorReason" v-else>
+										{{ t("timers.form.param_placeholder_conflict") }}
+									</div>
 								</template>
 							</div>
 						</template>
+
+						<ParamItem
+							v-else-if="entry.type == 'countdown'"
+							:paramData="param_duration[entry.id]!"
+							v-model="param_duration[entry.id]!.value"
+							@change="entry.duration_ms = param_duration[entry.id]!.value * 1000"
+						/>
+
+						<div class="ctas">
+							<TTButton
+								icon="play"
+								v-if="!entry.startAt_ms"
+								@click="
+									storeTimer.timerStart(entry.id);
+									refreshTimers();
+								"
+								:disabled="!entry.enabled"
+								v-tooltip="entry.enabled ? '' : t('timers.form.disabled_tt')"
+								>{{ t("timers.form.start") }}</TTButton
+							>
+
+							<template v-else>
+								<TTButton
+									icon="pause"
+									v-if="!entry.paused"
+									@click="
+										storeTimer.timerPause(entry.id);
+										refreshTimers();
+									"
+									>{{ t("timers.form.pause") }}</TTButton
+								>
+								<TTButton
+									icon="play"
+									v-else
+									@click="
+										storeTimer.timerUnpause(entry.id);
+										refreshTimers();
+									"
+									:disabled="!entry.enabled"
+									v-tooltip="entry.enabled ? '' : t('timers.form.disabled_tt')"
+									>{{ t("timers.form.unpause") }}</TTButton
+								>
+								<TTButton
+									icon="stop"
+									@click="
+										storeTimer.timerStop(entry.id);
+										refreshTimers();
+									"
+									>{{ t("timers.form.stop") }}</TTButton
+								>
+							</template>
+						</div>
 					</div>
 				</ToggleBlock>
 			</template>
 		</draggable>
-
 	</div>
 </template>
 
-<script lang="ts">
-import Icon from '@/components/Icon.vue';
-import PlaceholderField from '@/components/PlaceholderField.vue';
-import SwitchButton from '@/components/SwitchButton.vue';
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import StoreProxy from '@/store/StoreProxy';
-import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import PlaceholderField from "@/components/PlaceholderField.vue";
+import SwitchButton from "@/components/SwitchButton.vue";
+import TTButton from "@/components/TTButton.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ToggleButton from "@/components/ToggleButton.vue";
+import StoreProxy from "@/store/StoreProxy";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import draggable from "vuedraggable";
+import ParamItem from "../ParamItem.vue";
+import type IParameterContent from "./IParameterContent";
+import PremiumLimitMessage from "../PremiumLimitMessage.vue";
+import Config from "@/utils/Config";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		draggable,
-		ParamItem,
-		ToggleBlock,
-		ToggleButton,
-		SwitchButton,
-		PlaceholderField,
+const props = withDefaults(
+	defineProps<{
+		panelContext?: boolean;
+	}>(),
+	{
+		panelContext: false,
 	},
-	emits:[]
-})
-class ParamsTimer extends Vue implements IParameterContent {
+);
 
-	@Prop({type:Boolean, default:false})
-	public panelContext!:boolean;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeTimer = useStoreTimer();
+const storeParams = useStoreParams();
 
-	public param_duration:Record<string, TwitchatDataTypes.ParameterData<number>> = {};
-	public timer2Duration:Record<string, ReturnType<typeof StoreProxy.timers.getTimerComputedValue>> = {};
-	public timer2PlaceholderError:Record<string, boolean> = {};
-	public defaultTimerPLaceholder = "";
-	public defaultCountdownPLaceholder = "";
+const param_duration = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
+const timer2Duration = ref<
+	Record<string, ReturnType<typeof StoreProxy.timers.getTimerComputedValue>>
+>({});
+const timer2PlaceholderError = ref<Record<string, boolean>>({});
+const defaultTimerPLaceholder = ref<string>("");
+const defaultCountdownPLaceholder = ref<string>("");
 
-	private refreshInterval = -1;
+let refreshInterval = -1;
 
-	public get canCreateTimers():boolean {
-		if(this.$store.auth.isPremium) return this.$store.timers.timerList.length < this.$config.MAX_TIMERS_PREMIUM;
-		const count = this.$store.timers.timerList.filter(v=>v.enabled != false).length - 2;
-		return count < this.$config.MAX_TIMERS;
+const maxReached = computed<boolean>(() => {
+	const count = storeTimer.timerList.filter((v) => !v.isDefault).length;
+	const max = storeAuth.isPremium
+		? Config.instance.MAX_TIMERS_PREMIUM
+		: Config.instance.MAX_TIMERS;
+	return count >= max;
+});
+
+const canEnableMore = computed<boolean>(() => {
+	if (storeAuth.isPremium) return false;
+	const count = storeTimer.timerList.filter((v) => v.enabled != false && !v.isDefault).length;
+	const max = storeAuth.isPremium
+		? Config.instance.MAX_TIMERS_PREMIUM
+		: Config.instance.MAX_TIMERS;
+	return count < max;
+});
+
+function openTriggers(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+}
+
+function openOverlays(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "timer");
+}
+
+/**
+ * Builds up local timer list
+ */
+function buildParams(): void {
+	for (const element of storeTimer.timerList) {
+		if (param_duration.value[element.id] != undefined) continue;
+		param_duration.value[element.id] = {
+			type: "duration",
+			value: (element.duration_ms || 60000) / 1000,
+			min: 0,
+			max: Number.MAX_SAFE_INTEGER,
+			icon: "countdown",
+			labelKey: "timers.form.param_duration",
+		};
+		timer2PlaceholderError.value[element.id] = false;
 	}
+	checkForPlaceholderDuplicates();
+}
 
-	public openTriggers():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
-	}
+/**
+ * Force rebuild of the parameters
+ */
+function rebuildParams(): void {
+	param_duration.value = {};
+	timer2PlaceholderError.value = {};
+	buildParams();
+}
 
-	public openOverlays():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "timer");
-	}
-
-	public mounted(): void {
-		this.refreshInterval = window.setInterval(()=>this.refreshTimers(), 100);
-		this.defaultTimerPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault)?.placeholderKey || '';
-		this.defaultCountdownPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault)?.placeholderKey || '';
-
-		this.buildParams();
-	}
-
-	public beforeUnmount(): void {
-		clearInterval(this.refreshInterval);
-	}
-
-	public onNavigateBack(): boolean { return false; }
-
-	/**
-	 * Opens the premium page
-	 */
-	public openPremium():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Builds up local timer list
-	 */
-	public buildParams():void {
-		for (const element of this.$store.timers.timerList) {
-			if(this.param_duration[element.id] != undefined) continue;
-			this.param_duration[element.id] = {type:"duration", value:(element.duration_ms || 60000)/1000, min:0, max:Number.MAX_SAFE_INTEGER, icon:"countdown", labelKey:"timers.form.param_duration"};
-			this.timer2PlaceholderError[element.id] = false;
-		}
-		this.checkForPlaceholderDuplicates();
-	}
-
-	/**
-	 * Force rebuild of the parameters
-	 */
-	public rebuildParams():void {
-		this.param_duration = {};
-		this.timer2PlaceholderError = {};
-		this.buildParams();
-	}
-
-	/**
-	 * Refreshes the running timers values
-	 */
-	public refreshTimers():void {
-		for (const element of this.$store.timers.timerList) {
-			this.timer2Duration[element.id] = this.$store.timers.getTimerComputedValue(element.id);
-		}
-	}
-
-	/**
-	 * Check for duplicate placeholders
-	 */
-	public checkForPlaceholderDuplicates() {
-		this.$store.timers.timerList.forEach(t=>{
-			this.timer2PlaceholderError[t.id] = false;
-		});
-		for (const t of this.$store.timers.timerList) {
-			if(!t.placeholderKey) continue;
-			for (const t2 of this.$store.timers.timerList) {
-				if(t2.id == t.id) continue;
-				if(t2.type != t.type) continue;
-				if(t2.placeholderKey && t2.placeholderKey.toUpperCase() == t.placeholderKey.toUpperCase()) {
-					this.timer2PlaceholderError[t.id] = true;
-					break;
-				}
-			}
-		}
-
-		rebuildPlaceholdersCache();
+/**
+ * Refreshes the running timers values
+ */
+function refreshTimers(): void {
+	for (const element of storeTimer.timerList) {
+		timer2Duration.value[element.id] = storeTimer.getTimerComputedValue(element.id);
 	}
 }
-export default toNative(ParamsTimer);
+
+/**
+ * Check for duplicate placeholders
+ */
+function checkForPlaceholderDuplicates() {
+	storeTimer.timerList.forEach((t) => {
+		timer2PlaceholderError.value[t.id] = false;
+	});
+	for (const t of storeTimer.timerList) {
+		if (!t.placeholderKey) continue;
+		for (const t2 of storeTimer.timerList) {
+			if (t2.id == t.id) continue;
+			if (t2.type != t.type) continue;
+			if (
+				t2.placeholderKey &&
+				t2.placeholderKey.toUpperCase() == t.placeholderKey.toUpperCase()
+			) {
+				timer2PlaceholderError.value[t.id] = true;
+				break;
+			}
+		}
+	}
+
+	rebuildPlaceholdersCache();
+}
+
+onMounted(() => {
+	refreshInterval = window.setInterval(() => refreshTimers(), 100);
+	defaultTimerPLaceholder.value =
+		storeTimer.timerList.find((v) => v.type == "timer" && v.isDefault)?.placeholderKey || "";
+	defaultCountdownPLaceholder.value =
+		storeTimer.timerList.find((v) => v.type == "countdown" && v.isDefault)?.placeholderKey ||
+		"";
+
+	buildParams();
+});
+
+onBeforeUnmount(() => {
+	clearInterval(refreshInterval);
+});
+
+defineExpose<IParameterContent>({
+	onNavigateBack: () => {
+		return false;
+	},
+});
 </script>
 
 <style scoped lang="less">
-.paramstimer{
-
-	.premiumLimit {
-		white-space: pre-line;
-		.button {
-			display: flex;
-			margin: auto;
-			margin-top: .5em;
-		}
-	}
-
+.paramstimer {
 	.ctas {
 		align-items: center;
 	}
 
 	.entryList {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		// width: 100%;
 		width: calc(100% - 2em);
 		margin: auto;
 
-		.info{
+		.info {
 			text-align: center;
-			font-size: .8em;
-			margin-bottom: .25em;
+			font-size: 0.8em;
+			margin-bottom: 0.25em;
 			.icon {
 				height: 1em;
-				margin-right: .5em;
-			}
-		}
-
-		.actions {
-			gap: .25em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			margin: -.25em 0;
-			align-self: stretch;
-			.actionBt {
-				width: 1.5em;
-				min-width: 1.5em;
-				border-radius: 0;
-				align-self: stretch;
-				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
-				}
+				margin-right: 0.5em;
 			}
 		}
 
 		.timerTypeIcon {
 			width: 1em;
+			z-index: 1;
+		}
+
+		.togglebutton {
 			z-index: 1;
 		}
 
@@ -318,10 +445,11 @@ export default toNative(ParamsTimer);
 			border-radius: 0;
 			align-self: stretch;
 			align-items: center;
-			margin: -.25em 0;
-			margin-left: -2em;
-			padding: 0 .5em;
-			padding-left: 2em;
+			margin-left: -6.5em;
+			padding: 0 0.5em;
+			padding-left: 6.25em;
+			z-index: 0;
+			font-size: 0.75em;
 
 			&.paused {
 				background-color: var(--color-secondary-fader);
@@ -331,17 +459,17 @@ export default toNative(ParamsTimer);
 		.content {
 			display: flex;
 			flex-direction: column;
-			gap: .25em;
+			gap: 0.25em;
 
 			.placeholder {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				row-gap: .25em;
+				row-gap: 0.25em;
 				.icon {
 					width: 1em;
 					height: 1em;
-					margin-right: .5em;
+					margin-right: 0.5em;
 				}
 				.label {
 					flex-grow: 1;
@@ -353,9 +481,9 @@ export default toNative(ParamsTimer);
 
 					.errorReason {
 						background-color: var(--color-alert);
-						margin: -.5em;
+						margin: -0.5em;
 						margin-top: 0;
-						padding: .25em;
+						padding: 0.25em;
 						width: calc(100% + 1em);
 						text-align: center;
 					}
@@ -365,7 +493,7 @@ export default toNative(ParamsTimer);
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				gap: .25em;
+				gap: 0.25em;
 				justify-content: center;
 			}
 		}

@@ -1,108 +1,143 @@
 <template>
 	<div class="goxlrconnectform">
-		<TTButton type="submit"
+		<TTButton
+			type="submit"
 			v-if="!connected"
 			@click="connect()"
-			:loading="connecting">{{ $t('global.connect') }}</TTButton>
+			:loading="connecting"
+			icon="online"
+			>{{ t("global.connect") }}</TTButton
+		>
 
-		<ToggleBlock v-if="!connected" :title="$t('global.advanced_params')" small :open="false">
-			<form @submit.prevent="connect()">
-				<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
+		<ToggleBlock v-if="!connected" :title="t('global.advanced_params')" small :open="false">
+			<form class="card-item" @submit.prevent="connect()">
+				<ParamItem
+					:paramData="param_ip"
+					v-model="param_ip.value"
+					@change="onIpChange()"
+					noBackground
+				/>
 
-				<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
+				<i18n-t
+					scope="global"
+					class="card-item secondary security"
+					tag="div"
+					v-if="securityWarning"
+					keypath="goxlr.connect_form.ip_security"
+				>
 					<template #LINK>
-						<a :href="discordURL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
+						<a :href="Config.instance.DISCORD_URL" target="_blank">{{
+							t("goxlr.connect_form.ip_security_link")
+						}}</a>
 					</template>
 				</i18n-t>
 
-				<ParamItem :paramData="param_port" v-model="param_port.value" />
-
-				<TTButton type="submit" :loading="connecting"
-					:disabled="!isPremium"
-					v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</TTButton>
-				<div class="card-item alert message error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
+				<ParamItem :paramData="param_port" v-model="param_port.value" noBackground />
 			</form>
 		</ToggleBlock>
 
-		<template v-else>
-			<TTButton class="disconnectBt" type="button"
-				@click="disconnect()" alert>{{ $t("global.disconnect") }}</TTButton>
+		<BrowserPermissionChecker
+			v-if="error"
+			@click="error = false"
+			class="card-item alert error"
+			:errorMessage="t('error.local_network_access_denied')"
+			:permissionName="'local-network-access'"
+		>
+			{{ t("goxlr.connect_failed") }}
+		</BrowserPermissionChecker>
+
+		<template v-else-if="connected">
+			<TTButton
+				class="disconnectBt"
+				type="button"
+				@click="disconnect()"
+				alert
+				icon="offline"
+				>{{ t("global.disconnect") }}</TTButton
+			>
 		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+<script setup lang="ts">
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import TTButton from "@/components/TTButton.vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
+import Config from "@/utils/Config";
+import { ref, computed, onBeforeMount } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import ParamItem from "../../ParamItem.vue";
+import BrowserPermissionChecker from "@/components/BrowserPermissionChecker.vue";
 
-@Component({
-	components:{
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-	emits:[],
-})
-class GoXLRConnectForm extends Vue {
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
 
-	public error:boolean = false;
-	public opened:boolean = true;
-	public fxEnabled:boolean = false;
-	public connecting:boolean = false;
-	public securityWarning:boolean = false;
-	public selectedPresetIndex:number = 0;
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"127.0.0.1", label:"IP"};
-	public param_port:TwitchatDataTypes.ParameterData<number> = {type:"number", value:14564, label:"Port"};
+const error = ref<boolean>(false);
+const opened = ref<boolean>(true);
+const fxEnabled = ref<boolean>(false);
+const connecting = ref<boolean>(false);
+const securityWarning = ref<boolean>(false);
+const selectedPresetIndex = ref<number>(0);
+const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "127.0.0.1",
+	label: "IP",
+});
+const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 14564,
+	label: "Port",
+});
 
-	public get connected():boolean { return GoXLRSocket.instance.connected.value; }
-	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get isPremium():boolean { return this.$store.auth.isPremium; }
+const connected = computed((): boolean => {
+	return GoXLRSocket.instance.connected.value;
+});
 
-	public async connect():Promise<void> {
-		this.error = false;
-		this.connecting = true;
-		try {
-			let res = await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
-				if(!this.$store.auth.isPremium) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+async function connect(): Promise<void> {
+	error.value = false;
+	connecting.value = true;
+	try {
+		let res = await GoXLRSocket.instance
+			.connect(param_ip.value.value, param_port.value.value)
+			.catch(() => {
+				if (!storeAuth.isPremium) {
+					storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}
 			});
-			if(!res) this.error = true;
-		}catch(error) {
-			console.log(error);
-			this.error = true;
-		}
-		const state = GoXLRSocket.instance.status.value;
-		if(state) {
-			this.fxEnabled = state.effects.is_enabled;
-			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
-		}
-		this.connecting = false;
+		if (!res) error.value = true;
+	} catch (err) {
+		console.log(err);
+		error.value = true;
 	}
-
-	public beforeMount():void {
-		this.opened = !this.connected;
+	const state = GoXLRSocket.instance.status.value;
+	if (state) {
+		fxEnabled.value = state.effects.is_enabled;
+		selectedPresetIndex.value = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
 	}
-
-	public disconnect():void {
-		GoXLRSocket.instance.disconnect();
-	}
-
-	public onIpChange():void {
-		this.securityWarning = (this.param_ip.value.trim() != "127.0.0.1" && this.param_ip.value.trim() != "localhost")
-	}
-
+	connecting.value = false;
 }
-export default toNative(GoXLRConnectForm);
+
+onBeforeMount(() => {
+	opened.value = !connected.value;
+});
+
+function disconnect(): void {
+	connecting.value = false;
+	GoXLRSocket.instance.disconnect();
+}
+
+function onIpChange(): void {
+	securityWarning.value =
+		param_ip.value.value.trim() != "127.0.0.1" && param_ip.value.value.trim() != "localhost";
+}
 </script>
 
 <style scoped lang="less">
-.goxlrconnectform{
+.goxlrconnectform {
 	// width: 100%;
 	max-width: 500px;
 	align-self: center;
@@ -119,16 +154,18 @@ export default toNative(GoXLRConnectForm);
 	form {
 		margin: auto;
 		width: fit-content;
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
-		:deep(.inputHolder), :deep(input) {
+		:deep(.inputHolder),
+		:deep(input) {
 			flex-basis: 150px !important;
 			flex-grow: unset;
 		}
-	}
-	.message {
-		text-align: center;
+
+		.security {
+			white-space: pre-line;
+		}
 	}
 	.error {
 		cursor: pointer;

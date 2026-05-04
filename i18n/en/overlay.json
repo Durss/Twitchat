@@ -11,8 +11,7 @@
 		"install_success_exists": "There already was a browser source for this overlay on your scenes.\nIt has been copied to your current scene.",
 		"install_error": "Something went wrong when installing the overlay:\n{ERROR}",
 		"youtube_demo_tt": "Watch a tutorial",
-		"title_install": "Install",
-		"title_settings": "Settings",
+		"title_install": "Install overlay",
 		"install_instructions_title": "Instructions",
 		"overlay_not_configured": "Overlay not configured or hidden",
 		"css_colors": "CSS example to change colors. Set this on your OBS browser source parameters.",
@@ -24,6 +23,7 @@
 			"dock_tutorial": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way"
 		},
 		"raffle": {
+			"search_terms": ["animated wheel", "raffle", "wheel", "spin"],
 			"title": "Animated wheel",
 			"head": "Shows an animated wheel when doing a raffle.",
 			"css": "You can change the appearance of the wheel using these CSS selectors on the OBS browser source parameters.",
@@ -31,14 +31,15 @@
 			"testBt": "Start a test animation"
 		},
 		"timer": {
+			"search_terms": ["timers", "timer", "countdown", "stopwatch"],
 			"header": "Create timers, control them from Triggers, and display their status on your stream",
 			"default_timer": "This overlay is tied with {CMD} commands",
 			"default_title": "My timer",
 			"css": "Change the appearance of the timer using these CSS selectors on the OBS browser source parameters.",
 			"createTimer_bt": "Edit timers",
 			"param_style": "Overlay style",
-			"param_style_text":"Text",
-			"param_style_bar":"Progress bar",
+			"param_style_text": "Text",
+			"param_style_bar": "Progress bar",
 			"param_showIcon": "Show icon",
 			"param_bgColor": "Background color",
 			"param_bgEnabled": "Show background",
@@ -49,10 +50,11 @@
 			"param_progressStyle": "Progress type",
 			"param_progressStyle_empty": "Empty",
 			"param_progressStyle_fill": "Fill",
-			"premium_limit":"You reached the maximum number timers you can create.",
-			"non_premium_limit":"You reached the maximum number of timers.\nBecome premium to create up to {MAX} timers."
+			"premium_limit": "You reached the maximum number timers you can create.",
+			"non_premium_limit": "You reached the maximum number of timers.\nBecome premium to create up to {MAX} timers."
 		},
 		"counters": {
+			"search_terms": ["counters", "counters", "count", "leaderboard"],
 			"title": "Counters",
 			"head": "Add any of your counters to your stream by setting their URL on a browser source",
 			"head_empty": "Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
@@ -65,6 +67,7 @@
 			}
 		},
 		"highlight": {
+			"search_terms": ["chat highlight", "message highlight", "highlight", "chat"],
 			"title": "Message highlight",
 			"instruction": "Shows a user's message or a clip on your stream.",
 			"css": "You can change the appearance of the message using these CSS selectors on the OBS browser source parameters.",
@@ -73,6 +76,7 @@
 			"alternative_tool": "Check out {URL} for a dedicated tool doing this with much more options"
 		},
 		"music_common": {
+			"search_terms": ["music player", "music", "track", "playlist", "player"],
 			"music": "Display currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.",
 			"css": "You can change the appearance of the player using these CSS selectors on the OBS browser source parameters.",
 			"no_scroll": "Disable scrolling",
@@ -94,9 +98,11 @@
 			"triggerBt": "triggers"
 		},
 		"spotify": {
+			"search_terms": ["spotify", "music", "track", "playlist"],
 			"connectBt": "Connect Spotify"
 		},
 		"ulule": {
+			"search_terms": ["ulule", "crowdfunding", "project", "funding"],
 			"title": "Ulule",
 			"css": "You can change the appearance of the progress bar using these CSS selectors on the OBS browser source parameters.",
 			"description": "Integrate a progress bar for your {LINK} project.",
@@ -108,10 +114,17 @@
 			"project_goals_tt": "If you have multiple donation tiers, specify them here so the progress doesn't remains filled once the main goal has been reached"
 		},
 		"credits": {
+			"search_terms": [
+				"ending credits",
+				"credits",
+				"rolling credits",
+				"credit roll",
+				"roll",
+				"end"
+			],
 			"title": "Ending credits",
 			"head": "Shows a rolling ending credits.",
 			"css": "You can change the appearance of the credits using these CSS selectors on the OBS browser source parameters.",
-			"slot_list": "Sections",
 			"add_slotBt": "Add a category",
 			"param_timing": "Scroll timing",
 			"param_timing_speed": "Speed",
@@ -165,7 +178,6 @@
 			"param_currency": "Currency",
 			"param_layout": "Entries layout",
 			"param_maxItems": "Max entries to show",
-			"param_customHTML": "Custom HTML template",
 			"param_showAmounts": "Show amounts",
 			"param_uniqueUsers": "Unique users\n(multiple events of the same user are merged into 1)",
 			"param_filterRewards": "Only show some rewards",
@@ -278,10 +290,17 @@
 			"param_showPuCeleb": "Celebrations"
 		},
 		"heatDistort": {
+			"search_terms": [
+				"obs source distortion",
+				"distortion",
+				"heat",
+				"shadertastic",
+				"distort"
+			],
 			"title": "OBS source distortion",
 			"description": "This overlay makes it possible for your viewers to distort your stream rendering by clicking on it.",
 			"install": "This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
-			"install_heat_link": "configure Heat extension",
+			"install_heat_link": "configure Twitchat Companion extension",
 			"install_shader_link": "install Shadertastic",
 			"install_instructions": "<ul><li>Set width to twice the viewport size (ex: 3840px for 1920px stream).</li><li>Set height to viewport's height (ex: 1080px).</li><li>Hide the source out of screen</li><li>Set framerate to 60fps</li><li>Add Shadertastic filter to the parent scene<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"select_target": "Select the OBS item you want the effect to be applied to",
@@ -302,7 +321,7 @@
 			"shadertastic_missing": "Shadertastic filter couldn't be created.\nHave you installed {URL}?",
 			"shadertastic_missing_url": "Shadertastic OBS plugin",
 			"heat_disabled": "You need to enable {LINK}.",
-			"heat_disabled_link": "heat connection",
+			"heat_disabled_link": "Twitchat companion",
 			"testBt": "Simulate clicks",
 			"distorsions": {
 				"ripples": "Liquid ripples",
@@ -312,10 +331,12 @@
 			}
 		},
 		"tts": {
+			"search_terms": ["text to speech", "tts", "speech", "text"],
 			"title": "Text to speech",
 			"description": "Allows you to read messages from an overlay so you can better control audio."
 		},
 		"adBreak": {
+			"search_terms": ["ad break indicator", "ads", "commercial", "progress"],
 			"title": "Ad-break indicator",
 			"css": "You can change the appearance of the elements bar using these CSS selectors on the OBS browser source parameters.",
 			"description": "Show when an ad-break is coming or running.\n{DASHBOARD_LINK} must be enabled on your channel.",
@@ -339,20 +360,22 @@
 			"testBt": "Test"
 		},
 		"bitswall": {
+			"search_terms": ["bits wall", "bits", "cheermotes", "wall", "cheer"],
 			"title": "Bits wall",
-			"head": "Cheers sent by viewers will fall on your screen.\nViewers can \"break\" cheers by clicking them with Heat extension.",
+			"head": "Cheers sent by viewers will fall on your screen.\nViewers can \"break\" cheers by clicking them with Twitchat Companion extension.",
 			"testBt": "Send bits",
 			"simulate_pinned": "Simulate pinned cheers",
 			"simulate_pinned_level": "Level",
 			"install_instructions": "<ul><li>Set width to twice the viewport size (ex: 3840px for 1920px stream).</li><li>Set height to viewport's height (ex: 1080px).</li><li>Hide the source out of screen</li><li>Set framerate to 60fps</li><li>Add Shadertastic filter to the parent scene<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"param_size": "Maximum cheermote sizes {VALUE}%\n(a pinned cheer drops bigger cheermotes depending on the pin level)",
-			"param_break": "Allow viewers to break cheermotes\n(Needs <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>Heat extension</a> install on your channel)",
+			"param_break": "Allow viewers to break cheermotes\n(Needs <a href='https://dashboard.twitch.tv/extensions/zo8hnik5ey8nv1zcb97hh65sol97a2' target='_blank'>Twitchat Companion</a> extension installed on your channel)",
 			"param_break_senderOnly": "Allow viewers to break <strong><u>ONLY</u></strong> their own cheers",
 			"param_textureAlpha": "Cheermotes opacity ({VALUE}%)",
 			"param_cristalEffect": "Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)",
 			"param_durations": "Durations before destroying cheermotes"
 		},
 		"predictions": {
+			"search_terms": ["predictions", "prediction"],
 			"title": "Predictions",
 			"head": "Show current prediction on your stream",
 			"css": "You can change the appearance of the prediction using these CSS selectors on the OBS browser source parameters.",
@@ -371,6 +394,7 @@
 			"param_resultDuration": "Show result duration"
 		},
 		"polls": {
+			"search_terms": ["polls", "poll"],
 			"title": "Polls",
 			"head": "Show current poll on your stream",
 			"css": "You can change the appearance of the poll using these CSS selectors on the OBS browser source parameters.",
@@ -387,6 +411,7 @@
 			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
 		},
 		"chatPoll": {
+			"search_terms": ["chat polls", "chat", "polls"],
 			"title": "Chat polls",
 			"head": "Show current chat poll on your stream.\nTo start a chat poll use {CMD} command or the commands menu{MENU}at the bottom of the screen.",
 			"css": "@:overlay.polls.css",
@@ -401,16 +426,18 @@
 			"param_placement": "@:overlay.polls.param_placement",
 			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
 			"param_resultDuration": "@:overlay.polls.param_resultDuration",
-			"non_premium_limit":"You reached the maximum number of answers.\nBecome premium to set up to {MAX} answers."
+			"non_premium_limit": "You reached the maximum number of answers.\nBecome premium to set up to {MAX} answers."
 		},
 		"bingo_grid": {
+			"search_terms": ["bingo grids", "bingo", "grids"],
 			"head": "Show interactive bingo grids"
 		},
 		"labels": {
+			"search_terms": ["labels"],
 			"head": "Show labels on your stream",
 			"addBt": "Create new label",
 			"premium_limit": "You reached the maximum number of labels you can create",
-			"non_premium_limit": "You reached the maximum number of labels you can create.\nBecome premium to create up to {MAX} labels.",
+			"non_premium_limit": "You reached the maximum number of {MAX} labels you can create.\nBecome premium to create up to {MAX_PREMIUM} labels.",
 			"default_title": "My label",
 			"togle_value": "Value",
 			"delete_confirm": {
@@ -623,13 +650,14 @@
 			}
 		},
 		"animatedText": {
+			"search_terms": ["animated text", "text", "animation", "animate"],
 			"header": "Show animated text on your stream\nControl them from the {TRIGGERS}",
 			"add_bt": "Create overlay",
-			"default_title":"Animated text",
+			"default_title": "Animated text",
 			"premium_limit": "You reached the maximum number of overlays you can create",
-			"non_premium_limit":"You reached the maximum number of animated text overlays.\nBecome premium to set up to {MAX} overlays.",
-			"test_bt":"Test",
-			"test_default":"Hello from <b>Twitchat</b>!",
+			"non_premium_limit": "You reached the maximum number of {MAX} animated text overlay.\nBecome premium to set up to {MAX_PREMIUM} overlays.",
+			"test_bt": "Test",
+			"test_default": "Hello from <b>Twitchat</b>!",
 			"param_animDurationScale": "Animation speed",
 			"param_animStrength": "Animation amplitude",
 			"param_animStyle": "Animation type",
@@ -654,16 +682,17 @@
 			}
 		},
 		"customTrain": {
+			"search_terms": ["custom hype train", "train"],
 			"header": "Create custom hype trains linked to tips from external platforms",
 			"add_bt": "Create custom train",
-			"default_title":"Hype Train",
-			"premium_limit": "You reached the maximum number of custom trains you can create",
-			"non_premium_limit":"You reached the maximum number of custom trains.\nBecome premium to create up to {MAX} custom trains.",
+			"default_title": "Hype Train",
+			"premium_limit": "You reached the maximum number of {MAX} custom trains you can create",
+			"non_premium_limit": "You reached the maximum number of {MAX} custom trains.\nBecome premium to create up to {MAX_PREMIUM} custom trains.",
 			"simulate_bt": "Simulate fake Train",
 			"state_cooldown_tt": "Train is on cooldown\nClick to reset.",
 			"state_expire_tt": "Train ends in...",
-			"connectPlatform_tt":"This platform has not been connected",
-			"connectPlatform_twitchCharity_tt":"You have not linked any charity campaign with your Twitch account",
+			"connectPlatform_tt": "This platform has not been connected",
+			"connectPlatform_twitchCharity_tt": "You have not linked any charity campaign with your Twitch account",
 			"delete_confirm": {
 				"title": "Delete entry",
 				"message": "Are you sure you want to delete this entry?"
@@ -701,7 +730,10 @@
 			"param_successLabel_summary": "Level {'{'}LEVEL{'}'} reached at {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 New all time record 🏆",
 			"param_platforms": "Chose tip platforms accepted for this train",
-			"allTimeRecord_title":"All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
+			"allTimeRecord_title": "All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
+		},
+		"quiz": {
+			"search_terms": ["quiz", "trivia"]
 		}
 	}
 }

@@ -3,146 +3,189 @@
 		<Icon name="heat" alt="heat icon" class="icon" />
 
 		<div class="head">
-			<p>{{ $t("heat.header") }}</p>
-			<TTButton class="installBt" :href="$config.HEAT_EXTENSION"
-				type="link" primary
+			<p>{{ t("heat.header") }}</p>
+			<TTButton
+				class="installBt"
+				:href="Config.instance.HEAT_EXTENSION_URL"
+				type="link"
+				primary
 				icon="newtab"
-				target="_blank">{{ $t("heat.install") }}</TTButton>
+				target="_blank"
+				>{{ t("heat.install") }}</TTButton
+			>
 		</div>
 
-		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" @change="toggleState()" />
+		<ExtensionInstaller
+			:extensionID="Config.instance.HEAT_EXTENSION_ID"
+			:extensionName="'Heat'"
+			v-model:extensionReady="extensionReady"
+		/>
 
-		<Icon name="loader" v-if="connecting" />
-		<ParamItem :paramData="param_debugChan" v-model="param_debugChan.value" v-if="debugMode" @change="changeChannel" />
+		<template v-if="extensionReady">
+			<ParamItem
+				class="item enableBt"
+				:paramData="param_enabled"
+				v-model="param_enabled.value"
+				@change="toggleState()"
+			/>
 
-		<div class="fadeHolder" :style="holderStyles">
-			<HeatOverlayClick />
-			<HeatScreenList :open="subContent == 'heatAreas'" :class="subContent == 'heatAreas'? 'selected' : ''" />
-			<HeatDebug />
-		</div>
+			<Icon name="loader" v-if="connecting" />
+			<ParamItem
+				:paramData="param_debugChan"
+				v-model="param_debugChan.value"
+				v-if="debugMode"
+				@change="changeChannel"
+			/>
 
-		<div class="card-item infos">
-			<Icon name="info"/>
-			<span>{{ $t("heat.anonymous_info") }}</span>
-			<img v-if="$i18n.locale == 'fr'" src="@/assets/img/heat_anonymous_fr.gif" alt="anonymous heat tutorial">
-			<img v-else src="@/assets/img/heat_anonymous_en.gif" alt="anonymous heat tutorial">
-		</div>
+			<div class="fadeHolder" :style="holderStyles">
+				<HeatOverlayClick />
+				<HeatScreenList
+					:open="subContent == 'heatAreas'"
+					:class="subContent == 'heatAreas' ? 'selected' : ''"
+				/>
+				<HeatDebug />
+			</div>
+
+			<div class="card-item infos">
+				<Icon name="info" />
+				<span>{{ t("heat.anonymous_info") }}</span>
+				<img
+					v-if="$i18n.locale == 'fr'"
+					src="@/assets/img/heat_anonymous_fr.gif"
+					alt="anonymous heat tutorial"
+				/>
+				<img
+					v-else
+					src="@/assets/img/heat_anonymous_en.gif"
+					alt="anonymous heat tutorial"
+				/>
+			</div>
+		</template>
 
 		<div class="youtubeLinks">
 			<a href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank">
-				<img src="@/assets/img/youtube_heat1.jpg" alt="youtube example" class="youtubeBt">
+				<img src="@/assets/img/youtube_heat1.jpg" alt="youtube example" class="youtubeBt" />
 			</a>
 			<a href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank">
-				<img src="@/assets/img/youtube_heat2.jpg" alt="youtube example" class="youtubeBt">
+				<img src="@/assets/img/youtube_heat2.jpg" alt="youtube example" class="youtubeBt" />
 			</a>
 		</div>
 
-		<a href="https://ko-fi.com/scottmadethis" target="_blank" class="donate">{{ $t("heat.donate") }}</a>
+		<a href="https://ko-fi.com/scottmadethis" target="_blank" class="donate">{{
+			t("heat.donate")
+		}}</a>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import HeatSocket from '@/utils/twitch/HeatSocket';
-import type { CSSProperties } from 'vue';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import HeatDebug from './../heat/HeatDebug.vue';
-import HeatOverlayClick from './../heat/HeatOverlayClick.vue';
-import HeatScreenList from './../heat/HeatScreenList.vue';
-import Icon from '@/components/Icon.vue';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import DataStore from "@/store/DataStore";
+import { storeAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import HeatSocket from "@/utils/twitch/HeatSocket";
+import { computed, onBeforeMount, onBeforeUnmount, ref, type CSSProperties } from "vue";
+import ParamItem from "../../ParamItem.vue";
+import HeatDebug from "./../heat/HeatDebug.vue";
+import HeatOverlayClick from "./../heat/HeatOverlayClick.vue";
+import HeatScreenList from "./../heat/HeatScreenList.vue";
+import Icon from "@/components/Icon.vue";
+import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
+import { useI18n } from "vue-i18n";
+import type IParameterContent from "../IParameterContent";
+import Config from "@/utils/Config";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		ParamItem,
-		HeatDebug,
-		HeatScreenList,
-		HeatOverlayClick,
-	},
-	emits:[],
-})
-class ConnectHeat extends Vue {
+const { t } = useI18n();
+const storeAuthInstance = storeAuth();
+const storeParams = useStoreParams();
 
-	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
-	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
-	public debugMode:boolean = false;
-	public connecting:boolean = false;
+const extensionReady = ref(false);
+const param_debugChan = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	label: "Channel ID",
+	icon: "debug",
+});
+const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "global.enable",
+});
+const debugMode = ref<boolean>(false);
+const connecting = ref<boolean>(false);
 
-	private debouncer:number = -1;
-	private keyupHandler!:(e:KeyboardEvent) => void;
+let debouncer: number = -1;
+let keyupHandler!: (e: KeyboardEvent) => void;
 
-	public get subContent() { return this.$store.params.currentPageSubContent; }
+const subContent = computed(() => storeParams.currentPageSubContent);
 
-	public get holderStyles():CSSProperties {
-		return {
-			opacity:this.param_enabled.value === true? 1 : .5,
-			pointerEvents:this.param_enabled.value === true? "all" : "none",
-		};
-	}
+const holderStyles = computed<CSSProperties>(() => {
+	return {
+		opacity: param_enabled.value.value === true ? 1 : 0.5,
+		pointerEvents: param_enabled.value.value === true ? "all" : "none",
+	};
+});
 
-	public beforeMount():void {
-		if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
-			this.param_enabled.value = true;
-		}
-		this.param_debugChan.value = this.$store.auth.twitch.user.id;
-
-		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		document.addEventListener("keyup", this.keyupHandler);
-	}
-
-	public beforeUnmount():void {
-		document.removeEventListener("keyup", this.keyupHandler);
-	}
-
-	public onNavigateBack(): boolean { return false; }
-
-	/**
-	 * Called when debug channel ID is updated
-	 */
-	public changeChannel():void {
-		clearTimeout(this.debouncer);
-		this.debouncer = window.setTimeout(async ()=> {
-			this.connecting = true;
-			await HeatSocket.instance.connect(this.param_debugChan.value);
-			this.connecting = false;
-		}, 500);
-	}
-
-	/**
-	 * Called when toggling the "enabled" state
-	 */
-	public toggleState():void {
-		if(this.param_enabled.value) {
-			HeatSocket.instance.connect( this.$store.auth.twitch.user.id );
-		}else{
-			HeatSocket.instance.disconnect();
-		}
-		DataStore.set(DataStore.HEAT_ENABLED, this.param_enabled.value);
-	}
-
-	/**
-	 * Show a debug field on CTRL+ALT+D
-	 * @param e
-	 */
-	public onKeyUp(e:KeyboardEvent):void {
-		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
-			this.debugMode = !this.debugMode;
-			e.preventDefault();
-		}
-	}
-
+/**
+ * Called when debug channel ID is updated
+ */
+function changeChannel(): void {
+	clearTimeout(debouncer);
+	debouncer = window.setTimeout(async () => {
+		connecting.value = true;
+		await HeatSocket.instance.connect(param_debugChan.value.value);
+		connecting.value = false;
+	}, 500);
 }
-export default toNative(ConnectHeat);
+
+/**
+ * Called when toggling the "enabled" state
+ */
+function toggleState(): void {
+	if (param_enabled.value.value) {
+		HeatSocket.instance.connect(storeAuthInstance.twitch.user.id);
+	} else {
+		HeatSocket.instance.disconnect();
+	}
+	DataStore.set(DataStore.HEAT_ENABLED, param_enabled.value.value);
+}
+
+/**
+ * Show a debug field on CTRL+ALT+D
+ * @param e
+ */
+function onKeyUp(e: KeyboardEvent): void {
+	if (e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+		debugMode.value = !debugMode.value;
+		e.preventDefault();
+	}
+}
+
+onBeforeMount(() => {
+	if (DataStore.get(DataStore.HEAT_ENABLED) === "true") {
+		param_enabled.value.value = true;
+	}
+	param_debugChan.value.value = storeAuthInstance.twitch.user.id;
+
+	keyupHandler = (e: KeyboardEvent) => onKeyUp(e);
+	document.addEventListener("keyup", keyupHandler);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("keyup", keyupHandler);
+});
+
+defineExpose<IParameterContent>({
+	onNavigateBack: () => {
+		return false;
+	},
+});
 </script>
 
 <style scoped lang="less">
-.paramsheat{
+.paramsheat {
 	.installBt {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.youtubeLinks {
@@ -162,12 +205,12 @@ export default toNative(ConnectHeat);
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
-
+		transition: opacity 0.25s;
 
 		.selected {
 			border: 5px solid transparent;
 			border-radius: 1em;
-			animation: blink .5s 3 forwards;
+			animation: blink 0.5s 3 forwards;
 			animation-delay: 1s;
 			@keyframes blink {
 				0% {
@@ -193,12 +236,12 @@ export default toNative(ConnectHeat);
 		background-color: var(--color-secondary-fader);
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 		}
 		img {
 			display: block;
 			margin: auto;
-			margin-top: 1em
+			margin-top: 1em;
 		}
 	}
 }

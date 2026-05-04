@@ -5,31 +5,50 @@
 			<div class="subtitle">Get logs about what happens with OBS-websocket</div>
 			<ClearButton @click="close" />
 		</div>
-		
+
 		<div class="content entries">
 			<div class="card-item searchForm">
 				<ParamItem :paramData="param_search" @change="onSearch()" noBackground />
 				<Icon name="loader" class="loader" v-if="searching" />
-				<button v-else-if="search" @click="param_search.value = search = ''; searching=false;"><Icon name="cross" /></button>
+				<button
+					v-else-if="search"
+					@click="
+						param_search.value = search = '';
+						searching = false;
+					"
+				>
+					<Icon name="cross" />
+				</button>
 			</div>
-			
-			
+
 			<div v-if="logs.length == 0" class="noResult">- no result -</div>
 			<template v-else>
 				<div class="ctas">
-					<TTButton class="downloadBt" icon="download" @click="downloadLogs()">Download logs</TTButton>
-					<TTButton class="resetBt" icon="download" alert @click="clearLogs()">Clear logs</TTButton>
+					<TTButton class="downloadBt" icon="download" @click="downloadLogs()"
+						>Download logs</TTButton
+					>
+					<TTButton class="resetBt" icon="download" alert @click="clearLogs()"
+						>Clear logs</TTButton
+					>
 				</div>
-				
+
 				<div v-for="(log, index) in logs" class="card-item entry">
 					<div class="head" @click="expandState[index] = !expandState[index]">
 						<div class="row">
 							<span class="date">{{ formatDate(log.date) }}</span>
 							<span>{{ log.info }}</span>
 						</div>
-						<button v-if="log.data"><Icon :name="expandState[index] === true? 'hide' : 'show'" /></button>
+						<button v-if="log.data">
+							<Icon :name="expandState[index] === true ? 'hide' : 'show'" />
+						</button>
 					</div>
-					<div class="body" v-click2Select v-if="log.data != undefined && expandState[index]">{{ JSON.stringify(log.data) }}</div>
+					<div
+						class="body"
+						v-click2Select
+						v-if="log.data != undefined && expandState[index]"
+					>
+						{{ JSON.stringify(log.data) }}
+					</div>
 				</div>
 			</template>
 		</div>
@@ -37,85 +56,94 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Logger from '@/utils/Logger';
-import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ParamItem from '../params/ParamItem.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Logger from "@/utils/Logger";
+import Utils from "@/utils/Utils";
+import { toNative, Component } from "vue-facing-decorator";
+import AbstractSidePanel from "../AbstractSidePanel";
+import TTButton from "../TTButton.vue";
+import ClearButton from "../ClearButton.vue";
+import ParamItem from "../params/ParamItem.vue";
 
 @Component({
-	components:{
+	components: {
 		TTButton,
 		ParamItem,
 		ClearButton,
 	},
-	emits:["close"]
+	emits: ["close"],
 })
 class ObsHeatLogs extends AbstractSidePanel {
+	public search: string = "";
+	public searching: boolean = false;
+	public expandState: boolean[] = [];
+	public param_search: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "",
+		placeholder: "search...",
+	};
 
-	public search:string = "";
-	public searching:boolean = false;
-	public expandState:boolean[] = [];
-	public param_search:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"search..."};
-
-	private searchTO:number = -1;
+	private searchTO: number = -1;
 
 	public get logs() {
 		this.expandState = [];
-		if(this.param_search.value) {
+		if (this.param_search.value) {
 			const reg = new RegExp(this.search, "gi");
-			return Logger.instance.getLogs("obs").filter(v=> {
-				reg.lastIndex = 0
-				return reg.test(v.info)
+			return Logger.instance.getLogs("obs").filter((v) => {
+				reg.lastIndex = 0;
+				return reg.test(v.info);
 			});
-		}else{
+		} else {
 			return Logger.instance.getLogs("obs");
 		}
 	}
-	
-	public formatDate(date:number) {
+
+	public formatDate(date: number) {
 		const d = new Date(date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds())+"."+Utils.toDigits(d.getMilliseconds(),3);
+		return (
+			Utils.toDigits(d.getHours()) +
+			":" +
+			Utils.toDigits(d.getMinutes()) +
+			":" +
+			Utils.toDigits(d.getSeconds()) +
+			"." +
+			Utils.toDigits(d.getMilliseconds(), 3)
+		);
 	}
 
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		this.open();
 	}
 
-	public async clearLogs():Promise<void> {
-		Logger.instance.clear("obs")
+	public async clearLogs(): Promise<void> {
+		Logger.instance.clear("obs");
 	}
 
-	public async downloadLogs():Promise<void> {
+	public async downloadLogs(): Promise<void> {
 		const data = JSON.stringify(this.logs);
-		const blob = new Blob([data], { type: 'application/json' });
+		const blob = new Blob([data], { type: "application/json" });
 		const url = window.URL.createObjectURL(blob);
 		window.open(url, "_blank");
 	}
 
-	public async onSearch():Promise<void> {
+	public async onSearch(): Promise<void> {
 		this.searching = true;
 		clearTimeout(this.searchTO);
-		this.searchTO = window.setTimeout(()=>{
+		this.searchTO = window.setTimeout(() => {
 			this.search = this.param_search.value;
 			this.searching = false;
-		}, 250)
+		}, 250);
 	}
-
 }
 export default toNative(ObsHeatLogs);
 </script>
 
 <style scoped lang="less">
-.obsheatlogs{
-
+.obsheatlogs {
 	.searchForm {
 		margin: 0 auto;
 		display: flex;
-		gap: .5em;
+		gap: 0.5em;
 		flex-direction: row;
 		align-items: center;
 		flex-shrink: 0;
@@ -123,7 +151,7 @@ export default toNative(ObsHeatLogs);
 			color: var(--color-text);
 			height: 1em;
 			margin-left: -2em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			cursor: pointer;
 			z-index: 1;
 			.icon {
@@ -140,17 +168,17 @@ export default toNative(ObsHeatLogs);
 
 	.ctas {
 		margin: 0 auto;
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 	}
 
 	.entries {
-		gap: .5em;
-		font-size: .8em;
+		gap: 0.5em;
+		font-size: 0.8em;
 		.entry {
 			flex-shrink: 0;
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
 			.head {
@@ -161,8 +189,8 @@ export default toNative(ObsHeatLogs);
 				.row {
 					flex-grow: 1;
 					.date {
-						font-size: .7em;
-						margin-right: .5em;
+						font-size: 0.7em;
+						margin-right: 0.5em;
 					}
 				}
 				button {
@@ -175,8 +203,8 @@ export default toNative(ObsHeatLogs);
 				}
 			}
 			.body {
-				font-size: .9em;
-				font-family: 'Courier New', Courier, monospace;
+				font-size: 0.9em;
+				font-family: "Courier New", Courier, monospace;
 				word-wrap: break-word;
 				max-height: 500px;
 				overflow-y: auto;

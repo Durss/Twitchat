@@ -1,123 +1,126 @@
 <template>
 	<div class="triggerconditionlistgroupitem">
-		<template v-for="c in condition " :key="c.id">
-			<div class="group" v-if="c.type == 'group'" :class="{'card-item':c.conditions.length > 1}">
-				<TTButton class="operator" small secondary noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
-					$t('triggers.condition.operators.' + c.operator) }}</TTButton>
+		<template v-for="c in condition" :key="c.id">
+			<div
+				class="group"
+				v-if="c.type == 'group'"
+				:class="{ 'card-item': c.conditions.length > 1 }"
+			>
+				<TTButton
+					class="operator"
+					small
+					secondary
+					noBounce
+					v-if="c.conditions.length > 1"
+					@click="toggleOperator(c)"
+					>{{ $t("triggers.condition.operators." + c.operator) }}</TTButton
+				>
 
 				<VueDraggable
-				class="list"
-				v-model="c.conditions"
-				:animation="250"
-				:forceFallback="false"
-				:handle="'.dragIcon'"
-				group="triggerCondition">
+					class="list"
+					v-model="c.conditions"
+					:animation="250"
+					:forceFallback="false"
+					:handle="'.dragIcon'"
+					group="triggerCondition"
+					@end="$store.triggers.saveTriggers()"
+				>
 					<div class="item" v-for="element in c.conditions" :key="element.id">
 						<TriggerConditionListGroupItem
 							:placeholderList="placeholderList"
 							:triggerData="triggerData"
 							:parentCondition="c"
-							:condition="[element]" />
+							:condition="[element]"
+						/>
 					</div>
 				</VueDraggable>
 
-				<TTButton class="addBt"
-				small
-				icon="add"
-				@click="addItem(c)"
-				v-tooltip=" $t('triggers.condition.add_tt') ">
-					{{ $t('triggers.condition.add_tt') }}
+				<TTButton
+					class="addBt"
+					small
+					icon="add"
+					@click="addItem(c)"
+					v-tooltip="$t('triggers.condition.add_tt')"
+				>
+					{{ $t("triggers.condition.add_tt") }}
 				</TTButton>
 			</div>
 
-			<TriggerConditionListItem class="item" v-else-if=" c.type == 'condition' "
+			<TriggerConditionListItem
+				class="item"
+				v-else-if="c.type == 'condition'"
 				:triggerData="triggerData"
 				:placeholderList="placeholderList"
 				:parentCondition="parentCondition"
-				:condition="c" />
-
+				:condition="c"
+			/>
 		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import type { ITriggerPlaceholder, TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import TriggerConditionListItem from './TriggerConditionListItem.vue';
-import { VueDraggable } from 'vue-draggable-plus';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import type {
+	ITriggerPlaceholder,
+	TriggerCondition,
+	TriggerConditionGroup,
+	TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import Utils from "@/utils/Utils";
+import { VueDraggable } from "vue-draggable-plus";
+import TriggerConditionListItem from "./TriggerConditionListItem.vue";
 
-@Component({
-	name: "TriggerConditionListGroupItem",
-	components: {
-		TTButton,
-		ParamItem,
-		VueDraggable,
-		TriggerConditionListItem,
-	},
-	emits: ["delete"],
-})
-class TriggerConditionListGroupItem extends Vue {
+defineOptions({ name: "TriggerConditionListGroupItem" });
 
-	@Prop
-	public triggerData!: TriggerData;
+const props = defineProps<{
+	triggerData: TriggerData;
+	condition: (TriggerConditionGroup | TriggerCondition)[];
+	parentCondition: TriggerConditionGroup;
+	placeholderList: ITriggerPlaceholder<string>[];
+}>();
 
-	@Prop
-	public condition!: (TriggerConditionGroup | TriggerCondition)[];
+defineEmits<{
+	delete: [];
+}>();
 
-	@Prop
-	public parentCondition!: TriggerConditionGroup;
-
-	@Prop
-	public placeholderList!: ITriggerPlaceholder<string>[];
-
-	public addItem(item: TriggerCondition | TriggerConditionGroup): void {
-		if (item.type == "condition") {
-			const index = this.parentCondition.conditions.findIndex(v => v.id === item.id);
-			this.parentCondition.conditions.splice(index, 1, {
-				id: Utils.getUUID(),
-				type: "group",
-				conditions: [item, {
+function addItem(item: TriggerCondition | TriggerConditionGroup): void {
+	if (item.type == "condition") {
+		const index = props.parentCondition.conditions.findIndex((v) => v.id === item.id);
+		props.parentCondition.conditions.splice(index, 1, {
+			id: Utils.getUUID(),
+			type: "group",
+			conditions: [
+				item,
+				{
 					id: Utils.getUUID(),
 					type: "condition",
 					operator: "=",
 					placeholder: "",
 					value: "",
-				}],
-				operator: "AND",
-			})
-		} else if (item.type == "group") {
-			item.conditions.push({
-				id: Utils.getUUID(),
-				type: "condition",
-				operator: "=",
-				placeholder: "",
-				value: "",
-			});
-		}
+				},
+			],
+			operator: "AND",
+		});
+	} else if (item.type == "group") {
+		item.conditions.push({
+			id: Utils.getUUID(),
+			type: "condition",
+			operator: "=",
+			placeholder: "",
+			value: "",
+		});
 	}
-
-	public deleteItem(item: TriggerCondition | TriggerConditionGroup): void {
-		const index = this.parentCondition.conditions.findIndex(v => v.id === item.id);
-		if (index === -1) return;//Item not found
-		this.parentCondition.conditions.splice(index, 1);
-	}
-
-	public toggleOperator(item: TriggerConditionGroup): void {
-		item.operator = (item.operator == "AND") ? "OR" : "AND";
-	}
-
 }
 
-export default toNative(TriggerConditionListGroupItem);
+function toggleOperator(item: TriggerConditionGroup): void {
+	item.operator = item.operator == "AND" ? "OR" : "AND";
+}
 </script>
 
 <style scoped lang="less">
 .triggerconditionlistgroupitem {
 	.list {
-		gap: .25em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
 	}
@@ -125,7 +128,7 @@ export default toNative(TriggerConditionListGroupItem);
 		overflow: visible;
 		flex-grow: 1;
 		position: relative;
-		padding-left: .5em;
+		padding-left: 0.5em;
 		border-left: 1px solid var(--color-text);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
@@ -134,22 +137,22 @@ export default toNative(TriggerConditionListGroupItem);
 		.draggable {
 			display: flex;
 			flex-direction: column;
-			gap: .25em;
+			gap: 0.25em;
 		}
 
-		&>.addBt {
+		& > .addBt {
 			margin: auto;
-			margin-top: .25em;
+			margin-top: 0.25em;
 			display: none;
 		}
 
 		&:hover {
-			&>.addBt {
+			& > .addBt {
 				display: flex;
 			}
 		}
 
-		&>.operator {
+		& > .operator {
 			position: absolute;
 			top: 50%;
 			left: 0;
@@ -158,11 +161,11 @@ export default toNative(TriggerConditionListGroupItem);
 			transform: rotate(-90deg) translate(-50%, -50%);
 			font-weight: bold;
 			padding: 1px 5px;
-			font-size: .7em;
+			font-size: 0.7em;
 
 			:deep(.label) {
-				letter-spacing: .3em;
-				margin-right: -.3em; //Removes space after last letter
+				letter-spacing: 0.3em;
+				margin-right: -0.3em; //Removes space after last letter
 			}
 		}
 

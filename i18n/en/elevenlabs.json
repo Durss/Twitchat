@@ -1,11 +1,28 @@
 {
 	"elevenlabs": {
-		"header":"Connect Twitchat with {LINK} and use it to read messages with realistic voices",
-		"instructions":"You need to create an account on ElevenLabs and request an API Key",
-		"install":"Create API Key",
+		"header": "Connect Twitchat with {LINK} and use it to read messages with realistic voices",
+		"instructions": "You need to create an account on ElevenLabs and request an API Key",
+		"install": "Create API Key",
 		"invalid_api_key": "Invalid API key",
-		"apiKey":"API Key",
-		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
-		"usage":"You can now use ElevenLabs to read messages on the {TTS} section or read anything you want from the {TRIGGERS} thanks to the ElevenLabs action."
+		"apiKey": "API Key",
+		"credits_usage": "Remaining credits: {REMAINING}/{LIMIT}",
+		"usage": "You can now use ElevenLabs to read messages on the {TTS} section or read anything you want from the {TRIGGERS} thanks to the ElevenLabs action.",
+		"errors": {
+			"CANNOT_ACCESS_SUBSCRIPTION": "Cannot access subscription details.",
+			"CANNOT_LIST_VOICES": "Cannot retrieve the list of voices",
+			"CANNOT_LIST_MODELS": "Cannot retrieve the list of models",
+			"CANNOT_READ_HISTORY": "Cannot read history (used for caching)",
+			"NO_TTS_ACCESS": "Grant \"Text to Speech\" access in your ElevenLabs API key settings.",
+			"PAYMENT_REQUIRED": "You must provide payment information in your ElevenLabs account.",
+			"INVALID_KEY": "Invalid API key",
+			"UNKNOWN": "Unknown error"
+		},
+		"error_resolution": "You must grant read access to {SOURCE} in your ElevenLabs API Key settings.",
+		"error_resolution_source": {
+			"CANNOT_ACCESS_SUBSCRIPTION": "Administration => User",
+			"CANNOT_LIST_VOICES": "Endpoints => Voices",
+			"CANNOT_LIST_MODELS": "Administration => Models",
+			"CANNOT_READ_HISTORY": "Administration => History"
+		}
 	}
 }

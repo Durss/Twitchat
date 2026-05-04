@@ -1,13 +1,13 @@
 {
 	"groq": {
-		"header":"Groq is a cheap and super fast AI\nGenerate content from triggers or ask for a conversation summary",
-		"disclaimer":"{GROQ} is NOT related to {GROK} from the fascist nazi fucker called musk",
-		"instructions":"You need to create an account on Groq and request an API Key",
-		"install":"Create API Key",
+		"header": "Groq is a cheap and super fast AI\nGenerate content from triggers or ask for a conversation summary",
+		"disclaimer": "{GROQ} is NOT related to {GROK} from the fascist nazi fucker called musk",
+		"instructions": "You need to create an account on Groq and request an API Key",
+		"install": "Create API Key",
 		"invalid_api_key": "Invalid API key",
-		"apiKey":"API Key",
-		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
-		"usage":"You can now use Groq AI to generate content from the {TRIGGERS}.\nAlso, when opening a conversation between users you'll get an option to generate a summary of the conversation so you don't have to read it all.",
+		"apiKey": "API Key",
+		"credits_usage": "Remaining credits: {REMAINING}/{LIMIT}",
+		"usage": "You can now use Groq AI to generate content from the {TRIGGERS}.\nAlso, when opening a conversation between users you'll get an option to generate a summary of the conversation so you don't have to read it all.",
 		"default_model": "Choose default model to use",
 		"models_pricing": "check pricing",
 		"models_limits": "check rate limits",
@@ -27,11 +27,11 @@
 		"param_preprompt_placeholder": "Give instructions on what you want Groq to analyse...",
 		"reprompt_placeholder": "Ask another question...",
 		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages",
-		"history":{
-			"title":"Generation history",
-			"delete_confirm":{
-				"title":"Delete entry?",
-				"message":"This cannot bu undone!"
+		"history": {
+			"title": "Generation history",
+			"delete_confirm": {
+				"title": "Delete entry?",
+				"message": "This cannot bu undone!"
 			}
 		}
 	}

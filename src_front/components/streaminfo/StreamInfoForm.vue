@@ -1,264 +1,340 @@
 <template>
-	<div class="streaminfo sidePanel">
+	<div class="streaminfo sidePanel" ref="rootEl">
 		<div class="head">
-			<h1 class="title"><Icon name="info" class="icon" />{{ $t("stream.form_title") }}</h1>
+			<h1 class="title"><Icon name="info" class="icon" />{{ t("stream.form_title") }}</h1>
 			<ClearButton @click="close()" />
 		</div>
 
 		<div class="content">
 			<transition name="scale">
-				<div class="success card-item primary" v-if="updateSuccess" @click="updateSuccess = false">{{$t("stream.update_done")}}</div>
+				<div
+					class="success card-item primary"
+					v-if="updateSuccess"
+					@click="updateSuccess = false"
+				>
+					{{ t("stream.update_done") }}
+				</div>
 			</transition>
 
-			<div v-if="presets.length > 0" class="presets">
-				<div class="list">
-					<div v-for="p in presets" :key="p.id" class="preset">
-						<TTButton class="button" @click="applyPreset(p)"
-							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</TTButton>
+			<div v-if="storeStream.streamInfoPreset.length > 0" class="presets">
+				<VueDraggable
+					class="list"
+					v-model="storeStream.streamInfoPreset"
+					:group="{ name: 'streamPresets' }"
+					:animation="250"
+					@end="storeStream.saveStreamInfoPreset()"
+				>
+					<div v-for="p in storeStream.streamInfoPreset" :key="p.id" class="preset">
+						<TTButton
+							class="button"
+							@click="applyPreset(p)"
+							v-tooltip="t('stream.preset_setBt_tt')"
+							:loading="saving"
+							>{{ p.name }}</TTButton
+						>
 
-						<TTButton class="button" @click="editPreset(p)"
-							icon="edit" secondary
-							v-tooltip="$t('stream.preset_editBt_tt')" />
+						<TTButton
+							class="button"
+							@click="editPreset(p)"
+							icon="edit"
+							secondary
+							v-tooltip="t('stream.preset_editBt_tt')"
+						/>
 
-						<TTButton class="button delete" @click="deletePreset(p)"
-							icon="trash" alert
-							v-tooltip="$t('stream.preset_deleteBt_tt')" />
+						<TTButton
+							class="button delete"
+							@click="deletePreset(p)"
+							icon="trash"
+							alert
+							v-tooltip="t('stream.preset_deleteBt_tt')"
+						/>
 					</div>
-				</div>
+				</VueDraggable>
 			</div>
 
 			<Icon class="loader" name="loader" v-if="loading" />
 
 			<div v-else class="form">
-				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-model:branded="branded" v-model:labels="labels" />
+				<StreamInfoSubForm
+					v-model:title="title"
+					v-model:tags="tags"
+					v-model:category="category"
+					v-model:branded="branded"
+					v-model:labels="labels"
+				/>
 
-				<ParamItem class="card-item save" :paramData="param_savePreset" v-model="param_savePreset.value" v-if="!presetEditing" />
+				<ParamItem
+					class="card-item save"
+					:paramData="param_savePreset"
+					v-model="param_savePreset.value"
+					v-if="!presetEditing"
+				/>
 
 				<div class="actions">
-					<TTButton class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</TTButton>
-					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{ presetEditing? $t('global.update') : $t('global.submit') }}</TTButton>
+					<TTButton
+						class="submitBt"
+						@click="cancelPresetEdit()"
+						:loading="saving"
+						alert
+						v-if="presetEditing"
+						>{{ t("global.cancel") }}</TTButton
+					>
+					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{
+						presetEditing ? t("global.update") : t("global.submit")
+					}}</TTButton>
 				</div>
 
-				<div class="card-item alert error" v-if="error" @click="error = ''"><Icon name="alert" />{{error}}</div>
+				<div class="card-item alert error" v-if="error" @click="error = ''">
+					<Icon name="alert" />{{ error }}
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import AutoCompleteForm from '../params/AutoCompleteForm.vue';
-import ParamItem from '../params/ParamItem.vue';
-import StreamInfoSubForm from './StreamInfoSubForm.vue';
+<script setup lang="ts">
+import { useConfirm } from "@/composables/useConfirm";
+import { useSidePanel } from "@/composables/useSidePanel";
+import StoreProxy from "@/store/StoreProxy";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import ClearButton from "../ClearButton.vue";
+import TTButton from "../TTButton.vue";
+import ParamItem from "../params/ParamItem.vue";
+import StreamInfoSubForm from "./StreamInfoSubForm.vue";
+import { VueDraggable } from "vue-draggable-plus";
 
-@Component({
-	components:{
-		TTButton,
-		ParamItem,
-		ClearButton,
-		ToggleBlock,
-		AutoCompleteForm,
-		StreamInfoSubForm,
-	},
-	emits:["close"]
-})
-class StreamInfoForm extends AbstractSidePanel {
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public param_savePreset:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
-	public param_namePreset:TwitchatDataTypes.ParameterData<string>						= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const { t } = useI18n();
+const storeStream = useStoreStream();
+const storeCommon = useStoreCommon();
+const { confirm } = useConfirm();
+const { close } = useSidePanel(rootEl, emit);
 
-	public title:string = "";
-	public error:string = "";
-	public tags:string[] = [];
-	public branded:boolean = false;
-	public updateSuccess:boolean = false;
-	public labels:{id:string, enabled:boolean}[] = [];
-	public category:TwitchDataTypes.StreamCategory|null = null;
+const param_savePreset = ref<TwitchatDataTypes.ParameterData<boolean, unknown, string>>({
+	value: false,
+	type: "boolean",
+	labelKey: "stream.form_save_preset",
+});
+const param_namePreset = ref<TwitchatDataTypes.ParameterData<string>>({
+	value: "",
+	type: "string",
+	maxLength: 50,
+	labelKey: "stream.form_save_preset_name",
+	placeholderKey: "stream.form_save_preset_name_placeholder",
+});
 
-	public saving:boolean = false;
-	public loading:boolean = true;
-	public forceOpenForm:boolean = true;
-	public presetEditing:TwitchatDataTypes.StreamInfoPreset|null = null;
+const title = ref("");
+const error = ref("");
+const tags = ref<string[]>([]);
+const branded = ref(false);
+const updateSuccess = ref(false);
+const labels = ref<{ id: string; enabled: boolean }[]>([]);
+const category = ref<TwitchDataTypes.StreamCategory | null>(null);
 
-	public get presets():TwitchatDataTypes.StreamInfoPreset[] {
-		return this.$store.stream.streamInfoPreset;
+const saving = ref(false);
+const loading = ref(true);
+const forceOpenForm = ref(true);
+const presetEditing = ref<TwitchatDataTypes.StreamInfoPreset | null>(null);
+
+/**
+ * Updates stream info when submitting form
+ */
+async function updateStreamInfo(): Promise<void> {
+	saving.value = true;
+	if (param_savePreset.value.value === true || presetEditing.value) {
+		const preset: TwitchatDataTypes.StreamInfoPreset = {
+			name: presetEditing.value?.name?.substring(0, 50) ?? param_namePreset.value.value,
+			id: Utils.getUUID(),
+			title: title.value,
+		};
+		preset.labels = labels.value;
+		preset.branded = branded.value;
+		if (category.value) preset.categoryID = category.value.id;
+		if (tags.value.length > 0) preset.tags = tags.value.concat();
+		if (presetEditing.value) preset.id = presetEditing.value.id;
+		storeStream.saveStreamInfoPreset(preset);
 	}
-
-	public beforeMount(): void {
-	}
-
-	public async mounted():Promise<void> {
-		this.param_savePreset.children = [this.param_namePreset];
-
-		this.populate();
-	}
-
-	/**
-	 * Updates stream info when submitting form
-	 */
-	public async updateStreamInfo():Promise<void> {
-		this.saving = true;
-		if(this.param_savePreset.value === true || this.presetEditing) {
-			const preset:TwitchatDataTypes.StreamInfoPreset = {
-				name:this.presetEditing?.name?.substring(0, 50) ?? this.param_namePreset.value,
-				id:Utils.getUUID(),
-				title:this.title,
-			}
-			preset.labels = this.labels;
-			preset.branded = this.branded;
-			if(this.category) preset.categoryID = this.category.id
-			if(this.tags.length > 0) preset.tags = this.tags.concat();
-			if(this.presetEditing) preset.id = this.presetEditing.id;
-			this.$store.stream.saveStreamInfoPreset(preset)
-		}
-		//If not editing, update the stream info
-		if(!this.presetEditing) {
-			const channelId = StoreProxy.auth.twitch.user.id;
-			try {
-				if(await this.$store.stream.updateStreamInfos("twitch", channelId, this.title, this.category?.id ?? "", this.tags, this.branded, this.labels)) {
-					this.updateSuccess = true;
-					window.setTimeout(()=>{
-						this.updateSuccess = false;
-					}, 5000);
-				}else{
-					this.error = this.$t("error.stream_info_updating");
-				}
-			}catch(error:any) {
-				this.error = this.$t("error.stream_info_updating")+"\n\n"+error.message.replace(/TagsRequest\.Tags /i, "");
-			}
-		}else {
-			this.presetEditing = null;
-			this.forceOpenForm = false;
-		}
-		this.saving = false;
-		this.param_savePreset.value = false;
-	}
-
-	public cancelPresetEdit():void {
-		this.presetEditing = null;
-		this.forceOpenForm = false;
-	}
-
-	/**
-	 * Delete specified preset
-	 * @param p
-	 */
-	public async deletePreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
-		this.$confirm(this.$t("stream.form_delete_confirm.title"), this.$t("stream.form_delete_confirm.description"))
-		.then(()=>{
-			this.$store.stream.deleteStreamInfoPreset(p);
-		}).catch(()=>{});
-	}
-
-	/**
-	 * Edit a preset
-	 * @param p
-	 */
-	public async editPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
-		this.loading = true;
-		this.forceOpenForm = true;
-		this.presetEditing = p;
-
-		try {
-			this.title = p.title;
-			this.labels = p.labels || [];
-			this.branded = p.branded === true;
-			if(p.categoryID) {
-				const game = await TwitchUtils.getCategoryByID(p.categoryID);
-				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
-				this.category = game;
-				if(p.tags){
-					this.tags = p.tags.concat();
-				}
-			}
-		}catch(error) {
-			this.$store.common.alert( this.$t("stream.stream_info_preset_edit") );
-		}
-
-		this.loading = false;
-	}
-
-	/**
-	 * Applies a preset
-	 * @param p
-	 */
-	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
-		this.saving = true;
+	//If not editing, update the stream info
+	if (!presetEditing.value) {
 		const channelId = StoreProxy.auth.twitch.user.id;
 		try {
-			if(await this.$store.stream.updateStreamInfos("twitch", channelId, p.title, p.categoryID as string, p.tags, p.branded, p.labels)) {
-				this.updateSuccess = true;
-				window.setTimeout(()=>{
-					this.updateSuccess = false;
+			if (
+				await storeStream.updateStreamInfos(
+					"twitch",
+					channelId,
+					title.value,
+					category.value?.id ?? "",
+					tags.value,
+					branded.value,
+					labels.value,
+				)
+			) {
+				updateSuccess.value = true;
+				window.setTimeout(() => {
+					updateSuccess.value = false;
 				}, 5000);
-			}else{
-				this.$store.common.alert( this.$t("error.stream_info_updating") );
+			} else {
+				error.value = t("error.stream_info_updating");
 			}
-		}catch(error) {}
-		this.saving = false;
-		this.populate();
-	}
-
-	/**
-	 * Populate form with current stream info
-	 */
-	private async populate():Promise<void> {
-		this.loading = true;
-		const channelId = StoreProxy.auth.twitch.user.id;
-		let [streamInfos] = await TwitchUtils.getCurrentStreamInfo([channelId]);
-		const result = await TwitchUtils.getChannelInfo([channelId]);
-		const channelInfos = result[0];
-		try {
-			let title:string = "";
-			let gameId:string = "";
-			let tags:string[] = [];
-			if(streamInfos) {
-				title = streamInfos.title;
-				gameId = streamInfos.game_id;
-				tags = streamInfos.tags;
-			}else if(channelInfos){
-				//Fallback to channel info if we're not live
-				title = channelInfos.title;
-				gameId = channelInfos.game_id;
-				tags = channelInfos.tags;
-			}
-			this.title = title;
-			this.branded = channelInfos?.is_branded_content === true;
-			this.labels = channelInfos?.content_classification_labels.filter(v=>v != "MatureGame").map(v=> { return {id:v, enabled:true}}) || [];
-			this.tags = tags.concat();
-			if(gameId) {
-				const game = await TwitchUtils.getCategoryByID(gameId);
-				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
-				this.category = game;
-			}
-		}catch(error) {
-			console.log(error);
-			this.$store.common.alert( this.$t("error.stream_info_loading") );
+		} catch (err: any) {
+			error.value =
+				t("error.stream_info_updating") +
+				"\n\n" +
+				err.message.replace(/TagsRequest\.Tags /i, "");
 		}
+	} else {
+		presetEditing.value = null;
+		forceOpenForm.value = false;
+	}
+	saving.value = false;
+	param_savePreset.value.value = false;
+}
 
-		this.loading = false;
+function cancelPresetEdit(): void {
+	presetEditing.value = null;
+	forceOpenForm.value = false;
+}
+
+/**
+ * Delete specified preset
+ * @param p
+ */
+async function deletePreset(p: TwitchatDataTypes.StreamInfoPreset): Promise<void> {
+	confirm(t("stream.form_delete_confirm.title"), t("stream.form_delete_confirm.description"))
+		.then(() => {
+			storeStream.deleteStreamInfoPreset(p);
+		})
+		.catch(() => {});
+}
+
+/**
+ * Edit a preset
+ * @param p
+ */
+async function editPreset(p: TwitchatDataTypes.StreamInfoPreset): Promise<void> {
+	loading.value = true;
+	forceOpenForm.value = true;
+	presetEditing.value = p;
+
+	try {
+		title.value = p.title;
+		labels.value = p.labels || [];
+		branded.value = p.branded === true;
+		if (p.categoryID) {
+			const game = await TwitchUtils.getCategoryByID(p.categoryID);
+			game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
+			category.value = game;
+			if (p.tags) {
+				tags.value = p.tags.concat();
+			}
+		}
+	} catch (err) {
+		storeCommon.alert(t("stream.stream_info_preset_edit"));
 	}
 
+	loading.value = false;
 }
-export default toNative(StreamInfoForm);
+
+/**
+ * Applies a preset
+ * @param p
+ */
+async function applyPreset(p: TwitchatDataTypes.StreamInfoPreset): Promise<void> {
+	saving.value = true;
+	const channelId = StoreProxy.auth.twitch.user.id;
+	try {
+		if (
+			await storeStream.updateStreamInfos(
+				"twitch",
+				channelId,
+				p.title,
+				p.categoryID as string,
+				p.tags,
+				p.branded,
+				p.labels,
+			)
+		) {
+			updateSuccess.value = true;
+			window.setTimeout(() => {
+				updateSuccess.value = false;
+			}, 5000);
+		} else {
+			storeCommon.alert(t("error.stream_info_updating"));
+		}
+	} catch (err) {}
+	saving.value = false;
+	populate();
+}
+
+/**
+ * Populate form with current stream info
+ */
+async function populate(): Promise<void> {
+	loading.value = true;
+	const channelId = StoreProxy.auth.twitch.user.id;
+	let [streamInfos] = await TwitchUtils.getCurrentStreamInfo([channelId]);
+	const result = await TwitchUtils.getChannelInfo([channelId]);
+	const channelInfos = result[0];
+	try {
+		let titleVal: string = "";
+		let gameId: string = "";
+		let tagsVal: string[] = [];
+		if (streamInfos) {
+			titleVal = streamInfos.title;
+			gameId = streamInfos.game_id;
+			tagsVal = streamInfos.tags;
+		} else if (channelInfos) {
+			//Fallback to channel info if we're not live
+			titleVal = channelInfos.title;
+			gameId = channelInfos.game_id;
+			tagsVal = channelInfos.tags;
+		}
+		title.value = titleVal;
+		branded.value = channelInfos?.is_branded_content === true;
+		labels.value =
+			channelInfos?.content_classification_labels
+				.filter((v) => v != "MatureGame")
+				.map((v) => {
+					return { id: v, enabled: true };
+				}) || [];
+		tags.value = tagsVal.concat();
+		if (gameId) {
+			const game = await TwitchUtils.getCategoryByID(gameId);
+			game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
+			category.value = game;
+		}
+	} catch (err) {
+		console.log(err);
+		storeCommon.alert(t("error.stream_info_loading"));
+	}
+
+	loading.value = false;
+}
+
+onMounted(() => {
+	param_savePreset.value.children = [param_namePreset.value];
+	populate();
+});
 </script>
 
 <style scoped lang="less">
-.streaminfo{
+.streaminfo {
 	.presets {
 		width: 100%;
 		text-align: center;
-		.list{
-			gap: .5em;
+		.list {
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
@@ -302,18 +378,18 @@ export default toNative(StreamInfoForm);
 		gap: 1em;
 		flex-direction: row;
 		justify-content: center;
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.error {
 		cursor: pointer;
-		margin-top: .5em;
+		margin-top: 0.5em;
 		text-align: center;
 		white-space: pre-line;
 		.icon {
 			height: 1em;
 			vertical-align: middle;
-			margin-right: .5em;
+			margin-right: 0.5em;
 		}
 	}
 
@@ -322,11 +398,11 @@ export default toNative(StreamInfoForm);
 		text-align: center;
 		cursor: pointer;
 		&.scale-enter-active {
-			transition: all .25s;
+			transition: all 0.25s;
 		}
 
 		&.scale-leave-active {
-			transition: all .25s;
+			transition: all 0.25s;
 		}
 
 		&.scale-enter-from,
@@ -340,7 +416,7 @@ export default toNative(StreamInfoForm);
 	}
 
 	.save {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 }
 </style>

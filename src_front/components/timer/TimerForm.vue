@@ -1,9 +1,9 @@
 <template>
-	<div class="timerform sidePanel">
+	<div class="timerform sidePanel" ref="rootEl">
 		<div class="head">
 			<ClearButton @click="close()" />
-			<h1><Icon name="timer" class="icon" />{{ $t("timers.panel.title") }}</h1>
-			<div class="description">{{ $t("timers.panel.description") }}</div>
+			<h1><Icon name="timer" class="icon" />{{ t("timers.panel.title") }}</h1>
+			<div class="description">{{ t("timers.panel.description") }}</div>
 		</div>
 
 		<div class="content">
@@ -12,34 +12,24 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, toNative } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import ClearButton from '../ClearButton.vue';
-import ParamsTimer from '../params/contents/ParamsTimer.vue';
+<script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
+import { useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import ClearButton from "../ClearButton.vue";
+import ParamsTimer from "../params/contents/ParamsTimer.vue";
 
-@Component({
-	components:{
-		ClearButton,
-		ParamsTimer,
-	},
-	emits:["close"]
-})
-class TimerForm extends AbstractSidePanel {
+const emit = defineEmits<{ close: [] }>();
 
-
-	public async mounted():Promise<void> {
-		super.open();
-	}
-
-}
-export default toNative(TimerForm);
+const { t } = useI18n();
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const { close } = useSidePanel(rootEl, () => emit("close"));
 </script>
 
 <style scoped lang="less">
-.timerform{
+.timerform {
 	.demo {
-		width:auto;
+		width: auto;
 		align-self: center;
 		justify-self: center;
 	}

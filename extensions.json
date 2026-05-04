@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"VoidZero.vite-plus-extension-pack",
+		"oxc.oxc-vscode",
+		"esbenp.prettier-vscode",
+		"Vue.volar"
+	]
+}

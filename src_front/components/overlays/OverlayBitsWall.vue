@@ -1,9 +1,15 @@
 <template>
 	<div :class="classes" @click="onClick">
 		<div class="instructions" v-if="shaderMode">
-			<img src="@/assets/img/shader_warning.png"/>
+			<img src="@/assets/img/shader_warning.png" />
 		</div>
-		<canvas class="debug" ref="debug" :style="{width:sceneWidth*2+'px', height:sceneHeight+'px'}" :width="sceneWidth*2" :height="sceneHeight"></canvas>
+		<canvas
+			class="debug"
+			ref="debug"
+			:style="{ width: sceneWidth * 2 + 'px', height: sceneHeight + 'px' }"
+			:width="sceneWidth * 2"
+			:height="sceneHeight"
+		></canvas>
 	</div>
 </template>
 
@@ -18,72 +24,71 @@ import cheer1000_tex from "@/assets/img/bitswall/1000_tex.png";
 import cheer100_tex from "@/assets/img/bitswall/100_tex.png";
 import cheer1_tex from "@/assets/img/bitswall/1_tex.png";
 import cheer5000_tex from "@/assets/img/bitswall/5000_tex.png";
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
+import TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
 import * as Matter from "matter-js";
-import * as PIXI from 'pixi.js';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
+import * as PIXI from "pixi.js";
+import { toNative, Component } from "vue-facing-decorator";
+import AbstractOverlay from "./AbstractOverlay";
 import { gsap } from "gsap/gsap-core";
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
-let engine!:Matter.Engine;
-let runner!:Matter.Runner;
-let app!:PIXI.Application;
-let textureHolder!:PIXI.Container;
-let displacementHolder!:PIXI.Container;
-let textureMask!:PIXI.Graphics;
-let displacementMask!:PIXI.Graphics;
-let displacementBackground!:PIXI.Graphics;
-let floor!:Matter.Body;
-let bodyId2Data:{[key:string]:CheermoteData} = {}
+let engine!: Matter.Engine;
+let runner!: Matter.Runner;
+let app!: PIXI.Application;
+let textureHolder!: PIXI.Container;
+let displacementHolder!: PIXI.Container;
+let textureMask!: PIXI.Graphics;
+let displacementMask!: PIXI.Graphics;
+let displacementBackground!: PIXI.Graphics;
+let floor!: Matter.Body;
+let bodyId2Data: { [key: string]: CheermoteData } = {};
 @Component({
-	components:{},
-	emits:[],
+	components: {},
+	emits: [],
 })
 class OverlayBitsWall extends AbstractOverlay {
+	public shaderMode: boolean = false;
+	public engineReady: boolean = false;
+	public sceneWidth: number = 300;
+	public sceneHeight: number = 300;
+	public parameters: TwitchatDataTypes.BitsWallOverlayData | null = null;
 
-	public shaderMode:boolean = false;
-	public engineReady:boolean = false;
-	public sceneWidth:number = 300;
-	public sceneHeight:number = 300;
-	public parameters:TwitchatDataTypes.BitsWallOverlayData|null = null;
+	private globalScale: number = 1;
+	private globalScale_prev: number = 1;
+	private interval: number = -1;
+	private lastFrameTime: number = performance.now();
+	private frameCount: number = 0;
+	private fps: number = 0;
+	private disposed: boolean = false;
+	private bitsHandler!: (e: TwitchatEvent<"ON_BITS">) => void;
+	private paramsDataHandler!: (e: TwitchatEvent<"ON_BITSWALL_OVERLAY_CONFIGS">) => void;
+	private overlayPresenceHandler!: (e: TwitchatEvent<"GET_BITSWALL_OVERLAY_PRESENCE">) => void;
+	private heatEventHandler!: (event: { detail: TwitchatDataTypes.HeatClickData }) => void;
+	private resizeHandler!: (e: Event) => void;
 
-	private globalScale:number = 1;
-	private globalScale_prev:number = 1;
-	private interval:number = -1;
-	private lastFrameTime:number = performance.now();
-	private frameCount:number = 0;
-	private fps:number = 0;
-	private disposed:boolean = false;
-	private bitsHandler!:(e:TwitchatEvent)=>void;
-	private paramsDataHandler!:(e:TwitchatEvent)=>void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
-	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
-	private resizeHandler!:(e:Event) => void;
-
-	public get classes():string[] {
-		const res:string[] = ["overlaybitswall"];
-		if(this.shaderMode == true) res.push("shaderMode");
+	public get classes(): string[] {
+		const res: string[] = ["overlaybitswall"];
+		if (this.shaderMode == true) res.push("shaderMode");
 		return res;
 	}
 
-	public beforeMount():void {
-		this.bitsHandler = (e:TwitchatEvent) => this.onBits(e);
-		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
+	public beforeMount(): void {
+		this.bitsHandler = (e) => this.onBits(e);
+		this.paramsDataHandler = (e) => this.onParamsData(e);
 		this.heatEventHandler = (e) => this.onHeatClick(e);
 		this.resizeHandler = (e) => this.onResize(e);
 		//@ts-ignore
 		window.addEventListener("heat-click", this.heatEventHandler);
 		window.addEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, this.paramsDataHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BITS, this.bitsHandler);
+		PublicAPI.instance.addEventListener("ON_BITSWALL_OVERLAY_CONFIGS", this.paramsDataHandler);
+		PublicAPI.instance.addEventListener("ON_BITS", this.bitsHandler);
 	}
 
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		this.shaderMode = new URL(document.location.href).searchParams.get("mode") === "shader";
 		this.createEngine();
 
@@ -93,7 +98,7 @@ class OverlayBitsWall extends AbstractOverlay {
 		await this.preloadTextures();
 
 		/*
-		this.onBits(new TwitchatEvent("BITS",{
+		this.onBits(new TwitchatEvent("ON_BITS",{
 				channel:"",
 				message:"",
 				message_chunks:[],
@@ -110,26 +115,47 @@ class OverlayBitsWall extends AbstractOverlay {
 			}));
 		//*/
 
-		PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE);
-		
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE); }
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_PRESENCE");
 
+		this.overlayPresenceHandler = () => {
+			PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_PRESENCE");
+		};
+		PublicAPI.instance.addEventListener(
+			"GET_BITSWALL_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 
 		//@ts-ignore
-		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, scaleX:number, scaleY:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
-			const hash = await Utils.sha256(document.location.href)
-			
-			if(event.detail.page != hash) return;
-			
-			const vw = document.body.clientWidth;
-			const vh = document.body.clientHeight;
-			const offsetX = this.shaderMode? -vw / 2 : 0;
-			this.hitPoint(event.detail.x * vw + offsetX, event.detail.y * vh, event.detail.uid);
-		});
+		window.addEventListener(
+			"heat-click",
+			async (event: {
+				detail: {
+					x: number;
+					y: number;
+					scaleX: number;
+					scaleY: number;
+					uid: string;
+					shift: boolean;
+					alt: boolean;
+					ctrl: boolean;
+					testMode: boolean;
+					login: string;
+					page: string;
+				};
+			}): Promise<void> => {
+				const hash = await Utils.sha256(document.location.href);
+
+				if (event.detail.page != hash) return;
+
+				const vw = document.body.clientWidth;
+				const vh = document.body.clientHeight;
+				const offsetX = this.shaderMode ? -vw / 2 : 0;
+				this.hitPoint(event.detail.x * vw + offsetX, event.detail.y * vh, event.detail.uid);
+			},
+		);
 	}
 
-	public async beforeUnmount():Promise<void> {
+	public async beforeUnmount(): Promise<void> {
 		try {
 			await PIXI.Assets.unloadBundle("textures");
 			(this.$el as HTMLDivElement).removeChild(app.view as HTMLCanvasElement);
@@ -140,11 +166,11 @@ class OverlayBitsWall extends AbstractOverlay {
 			//@ts-ignore
 			app = null;
 			// app.destroy(true, true);
-		}catch(error) {
+		} catch (error) {
 			console.error(error);
 		}
 
-		while(engine.world.bodies.length > 0) {
+		while (engine.world.bodies.length > 0) {
 			const b = engine.world.bodies[0]!;
 			Matter.Composite.remove(engine.world, b);
 		}
@@ -154,31 +180,22 @@ class OverlayBitsWall extends AbstractOverlay {
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BITS, this.bitsHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_BITS", this.bitsHandler);
+		PublicAPI.instance.removeEventListener(
+			"GET_BITSWALL_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 	}
-	
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS);
+
+	public requestInfo(): void {
+		PublicAPI.instance.broadcast("GET_BITSWALL_OVERLAY_CONFIGS");
 	}
 
 	/**
 	 * Called when bits are received
 	 */
-	public async onBits(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as {
-			channel:string;
-			message:string;
-			message_chunks:TwitchatDataTypes.ParseMessageChunk[] | undefined;
-			user: {
-				id:string;
-				login:string;
-				displayName:string;
-			},
-			bits:number;
-			pinned:boolean;
-			pinLevel:number;
-		};
+	public async onBits(e: TwitchatEvent<"ON_BITS">): Promise<void> {
+		const data = e.data;
 		const bits = data.bits;
 		function decomposeNumber(number: number, values: number[]): number[] {
 			values.sort((a, b) => b - a); // Sort the values in descending order
@@ -192,38 +209,47 @@ class OverlayBitsWall extends AbstractOverlay {
 
 			return decomposedValues;
 		}
-		const scales = [.5, 1.25, 1.7, 2.2, 3]
-		const res = Utils.shuffle(decomposeNumber(bits, [1,100,1000,5000,10000]));
+		const scales = [0.5, 1.25, 1.7, 2.2, 3];
+		const res = Utils.shuffle(decomposeNumber(bits, [1, 100, 1000, 5000, 10000]));
 		for (let i = 0; i < res.length; i++) {
 			const bits = res[i] as keyof typeof scales;
 			await Utils.promisedTimeout(100);
-			if(this.disposed) return;
-			const scaleOffset = data.pinned? ((data.pinLevel || -1) + 1) / 8 + 1 : 1;
-			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
+			if (this.disposed) return;
+			const scaleOffset = data.pinned ? ((data.pinLevel || -1) + 1) / 8 + 1 : 1;
+			const index =
+				{ "1": 0, "100": 1, "1000": 2, "5000": 3, "10000": 4 }[bits.toString()] || 0;
 			const scale = scales[index]! * scaleOffset;
-			
-			this.createCheermote({guid: Utils.getUUID(),index, scale, scaleOriginal:scale, scale_prev:scale, uid:data.user.id, destroyed:false});
+
+			this.createCheermote({
+				guid: Utils.getUUID(),
+				index,
+				scale,
+				scaleOriginal: scale,
+				scale_prev: scale,
+				uid: data.user.id,
+				destroyed: false,
+			});
 		}
 	}
 
 	/**
 	 * Called when clicking on overlay
-	 * @param e 
+	 * @param e
 	 */
-	public onClick(e:MouseEvent):void {
+	public onClick(e: MouseEvent): void {
 		this.hitPoint(e.clientX, e.clientY);
 	}
-	
+
 	/**
 	 * Called when clicking via heat
-	 * @param event 
+	 * @param event
 	 */
-	private async onHeatClick(event:{detail:TwitchatDataTypes.HeatClickData}):Promise<void> {
+	private async onHeatClick(event: { detail: TwitchatDataTypes.HeatClickData }): Promise<void> {
 		const overlayID = Utils.getQueryParameterByName("twitchat_overlay_id") || "";
 
 		//Check if the heat event is for the current page, first check via overlay ID, then via URL hash
 		const hash = await Utils.sha256(document.location.href);
-		if(event.detail.twitchatOverlayID != overlayID && event.detail.page != hash) return;
+		if (event.detail.twitchatOverlayID != overlayID && event.detail.page != hash) return;
 
 		const x = event.detail.x * document.body.clientWidth;
 		const y = event.detail.y * document.body.clientHeight;
@@ -233,49 +259,53 @@ class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Called on window's resize
 	 */
-	public onResize(e?:Event):void {
+	public onResize(e?: Event): void {
 		const vw = document.body.clientWidth;
 		const vh = document.body.clientHeight;
-		this.sceneWidth = this.shaderMode? vw/2 : vw;
+		this.sceneWidth = this.shaderMode ? vw / 2 : vw;
 		this.sceneHeight = vh;
-		if(this.shaderMode) {
+		if (this.shaderMode) {
 			displacementMask.clear();
 			displacementMask.beginFill(0xffffff);
-			displacementMask.drawRect(0,0,vw/2, vh);
+			displacementMask.drawRect(0, 0, vw / 2, vh);
 			displacementMask.endFill();
-			
+
 			textureMask.clear();
 			textureMask.beginFill(0xffffff);
-			textureMask.drawRect(vw/2,0,vw/2, vh);
+			textureMask.drawRect(vw / 2, 0, vw / 2, vh);
 			textureMask.endFill();
 
 			displacementBackground.clear();
 			displacementBackground.beginFill(0x808000);
-			displacementBackground.drawRect(0, 0, vw/2, vh);
-			textureHolder.position.set(vw/2, 0);
-		}else{
+			displacementBackground.drawRect(0, 0, vw / 2, vh);
+			textureHolder.position.set(vw / 2, 0);
+		} else {
 			textureHolder.position.set(0, 0);
 		}
 
 		const w = floor.bounds.max.x - floor.bounds.min.x;
 		Matter.Body.scale(floor, this.sceneWidth / w, 1);
-		Matter.Body.setPosition(floor, {x:this.sceneWidth/2, y:this.sceneHeight + (floor.bounds.max.y - floor.bounds.min.y)/2})
+		Matter.Body.setPosition(floor, {
+			x: this.sceneWidth / 2,
+			y: this.sceneHeight + (floor.bounds.max.y - floor.bounds.min.y) / 2,
+		});
 	}
 
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParamsData(e:TwitchatEvent):Promise<void> {
-		if(e.data) {
-			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
-			if(this.shaderMode) {
-				this.sceneWidth = document.body.clientWidth/2;
-			}else{
+	private async onParamsData(e: TwitchatEvent<"ON_BITSWALL_OVERLAY_CONFIGS">): Promise<void> {
+		if (e.data) {
+			this.parameters = e.data;
+			if (this.shaderMode) {
+				this.sceneWidth = document.body.clientWidth / 2;
+			} else {
 				this.sceneWidth = document.body.clientWidth;
 			}
-			this.globalScale = (this.parameters?.size || 25)/200 + .5;
-			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
-			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity ?? 75) / 100;
+			this.globalScale = (this.parameters?.size || 25) / 200 + 0.5;
+			engine.render.bounds.max = { x: this.sceneWidth, y: document.body.clientHeight };
+			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha =
+				(this.parameters.opacity ?? 75) / 100;
 			this.onResize();
 		}
 	}
@@ -283,183 +313,235 @@ class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Call this with click coordinate to break any
 	 * cheermote under that point
-	 * @param x 
-	 * @param y 
+	 * @param x
+	 * @param y
 	 */
-	private hitPoint(x:number, y:number, uid:string = ""):void {
-		if(!this.parameters?.break) return;
-		const p1 = {x:x, y:y};
-		const p2 = {x:x+1, y:y+1};
+	private hitPoint(x: number, y: number, uid: string = ""): void {
+		if (!this.parameters?.break) return;
+		const p1 = { x: x, y: y };
+		const p2 = { x: x + 1, y: y + 1 };
 		var bodies = Matter.Composite.allBodies(engine.world);
 		const res = Matter.Query.ray(bodies, p1, p2);
-		res.forEach(v=> {
+		res.forEach((v) => {
 			const body = v.bodyA;
 			const data = bodyId2Data[body.parent.id] as CheermoteData;
 			const cheerIndex = data.index;
-			
+
 			//If only senders can break their own cheermotes, don't break
 			//it unless it belongs the user that clicked
-			if(this.parameters?.break_senderOnly
-			&& uid != data.uid) return;
-			
+			if (this.parameters?.break_senderOnly && uid != data.uid) return;
+
 			this.breakCheermote(body.parent, true);
-			const pos = {x:body.position.x, y:body.position.y};
-			if(cheerIndex > 0) {
+			const pos = { x: body.position.x, y: body.position.y };
+			if (cheerIndex > 0) {
 				let count = 0;
 				let bits = 0;
 				let scale = data.scaleOriginal;
-				switch(cheerIndex) {
+				switch (cheerIndex) {
 					case 4: {
 						count = 10;
 						bits = 3;
-						scale *= .85;
+						scale *= 0.85;
 						break;
 					}
 					case 3: {
 						count = 5;
 						bits = 2;
-						scale *= .75;
+						scale *= 0.75;
 						break;
 					}
 					case 2: {
 						count = 10;
 						bits = 1;
-						scale *= .7;
+						scale *= 0.7;
 						break;
 					}
 					case 1: {
 						count = 100;
 						bits = 0;
-						scale *= .65;
+						scale *= 0.65;
 						break;
 					}
 				}
 				for (let i = 0; i < count; i++) {
-					window.setTimeout(()=> {
-						this.createCheermote({guid: Utils.getUUID(),index:bits, scaleOriginal:scale, scale, uid:data.uid, scale_prev:scale, destroyed:false}, pos);
+					window.setTimeout(() => {
+						this.createCheermote(
+							{
+								guid: Utils.getUUID(),
+								index: bits,
+								scaleOriginal: scale,
+								scale,
+								uid: data.uid,
+								scale_prev: scale,
+								destroyed: false,
+							},
+							pos,
+						);
 					}, 30 * i);
 				}
 			}
-		})
+		});
 	}
 
 	/**
 	 * Preload image textures
 	 */
-	private async preloadTextures():Promise<void> {
+	private async preloadTextures(): Promise<void> {
 		PIXI.Assets.addBundle("textures", {
-			t0:cheer1_tex,
-			t1:cheer100_tex,
-			t2:cheer1000_tex,
-			t3:cheer5000_tex,
-			t4:cheer10000_tex,
-			d0:cheer1,
-			d1:cheer100,
-			d2:cheer1000,
-			d3:cheer5000,
-			d4:cheer10000,
-		})
+			t0: cheer1_tex,
+			t1: cheer100_tex,
+			t2: cheer1000_tex,
+			t3: cheer5000_tex,
+			t4: cheer10000_tex,
+			d0: cheer1,
+			d1: cheer100,
+			d2: cheer1000,
+			d3: cheer5000,
+			d4: cheer10000,
+		});
 
 		await PIXI.Assets.loadBundle("textures");
 	}
 
 	/**
 	 * Creates a cheermote instance
-	 * 
-	 * @param bits 
-	 * @param scale 
+	 *
+	 * @param bits
+	 * @param scale
 	 */
-	private createCheermote(data:CheermoteData, pos?:{x:number, y:number}):void {
+	private createCheermote(data: CheermoteData, pos?: { x: number; y: number }): void {
 		const index = data.index;
-		const s1 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-t"+index));
-		s1.anchor.set(.5,.5);
+		const s1 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-t" + index));
+		s1.anchor.set(0.5, 0.5);
 		data.spriteTexture = s1;
 		textureHolder.addChild(s1);
 
-		if(this.shaderMode) {
-			const s2 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-d"+index));
-			s2.anchor.set(.5,.5);
+		if (this.shaderMode) {
+			const s2 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-d" + index));
+			s2.anchor.set(0.5, 0.5);
 			data.spriteDisplace = s2;
 			displacementHolder.addChild(s2);
 		}
 
-		const vertices_1 = [[{x:0, y:128}, {x:157, y:128}, {x:79, y:0}]];
-		const vertices_100 = [[{x:0, y:89}, {x:50, y:128}, {x:101, y:90}, {x:50, y:0}]];
-		const vertices_1000 = [[{x:64, y:0}, {x:0, y:62}, {x:32, y:128}, {x:95, y:128}, {x:128, y:62}]];
-		const vertices_5000 = [[{x:56, y:0}, {x:0, y:45}, {x:0, y:82}, {x:56, y:128}, {x:112, y:82}, {x:112, y:45}]];
-		const vertices_10000 = [
-			[{x:108.75, y:0}, {x:0, y:64}, {x:108.75, y:128}],
-			[{x:36.25, y:0}, {x:36.25, y:128}, {x:145, y:64}],
+		const vertices_1 = [
+			[
+				{ x: 0, y: 128 },
+				{ x: 157, y: 128 },
+				{ x: 79, y: 0 },
+			],
 		];
-		
+		const vertices_100 = [
+			[
+				{ x: 0, y: 89 },
+				{ x: 50, y: 128 },
+				{ x: 101, y: 90 },
+				{ x: 50, y: 0 },
+			],
+		];
+		const vertices_1000 = [
+			[
+				{ x: 64, y: 0 },
+				{ x: 0, y: 62 },
+				{ x: 32, y: 128 },
+				{ x: 95, y: 128 },
+				{ x: 128, y: 62 },
+			],
+		];
+		const vertices_5000 = [
+			[
+				{ x: 56, y: 0 },
+				{ x: 0, y: 45 },
+				{ x: 0, y: 82 },
+				{ x: 56, y: 128 },
+				{ x: 112, y: 82 },
+				{ x: 112, y: 45 },
+			],
+		];
+		const vertices_10000 = [
+			[
+				{ x: 108.75, y: 0 },
+				{ x: 0, y: 64 },
+				{ x: 108.75, y: 128 },
+			],
+			[
+				{ x: 36.25, y: 0 },
+				{ x: 36.25, y: 128 },
+				{ x: 145, y: 64 },
+			],
+		];
+
 		const velocity = [10, 20, 30, 40, 50][index]!;
-		const restitution = [.25, .15, .1, .05, .01][index]!;
-		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][index || 0]!;
+		const restitution = [0.25, 0.15, 0.1, 0.05, 0.01][index]!;
+		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][
+			index || 0
+		]!;
 		const margin = document.body.clientWidth / 10;
 		const px = Math.random() * (this.sceneWidth - margin * 2) + margin;
 		const body = Matter.Bodies.fromVertices(px, -200 - Math.random() * 200, path, {
-													label:"cheermote",
-													restitution,
-													render:{
-														visible:false,
-													},
-													// density,
-													// mass:(density*10000),
-													// inverseMass:1/(density*10000),
-													// frictionAir,
-													frictionAir:0,
-													friction:.5
-												});
+			label: "cheermote",
+			restitution,
+			render: {
+				visible: false,
+			},
+			// density,
+			// mass:(density*10000),
+			// inverseMass:1/(density*10000),
+			// frictionAir,
+			frictionAir: 0,
+			friction: 0.5,
+		});
 		bodyId2Data[body.id] = data;
 		Matter.Body.scale(body, data.scale, data.scale);
-		Matter.Body.setVelocity(body, {x:0, y:(velocity - Math.random()*5) * 2});
+		Matter.Body.setVelocity(body, { x: 0, y: (velocity - Math.random() * 5) * 2 });
 		Matter.Body.setAngle(body, Math.random() * Math.PI * 2);
-		Matter.Body.setAngularVelocity(body, (Math.random() - Math.random()) * Math.PI * .05);
+		Matter.Body.setAngularVelocity(body, (Math.random() - Math.random()) * Math.PI * 0.05);
 		Matter.Composite.add(engine.world, body);
-		if(pos) {
+		if (pos) {
 			Matter.Body.setPosition(body, pos);
 		}
 
 		let duration = 10000 * (index + 1);
-		const key = ["1", "100", "1000", "5000", "10000"][index || 0] as keyof TwitchatDataTypes.BitsWallOverlayData["break_durations"];
-		if(this.parameters?.break_durations) {
+		const key = ["1", "100", "1000", "5000", "10000"][
+			index || 0
+		] as keyof TwitchatDataTypes.BitsWallOverlayData["break_durations"];
+		if (this.parameters?.break_durations) {
 			duration = (this.parameters!.break_durations![key] || 10) * 1000;
 		}
-		window.setTimeout(()=>this.breakCheermote(body), duration);
+		window.setTimeout(() => this.breakCheermote(body), duration);
 	}
 
 	/**
 	 * Crates the game engine
 	 */
-	private async createEngine():Promise<void> {
+	private async createEngine(): Promise<void> {
 		const vh = document.body.clientHeight;
 
-		engine = Matter.Engine.create({enableSleeping: false});
+		engine = Matter.Engine.create({ enableSleeping: false });
 		let renderer = Matter.Render.create({
-			bounds:{
-				min:{x:0, y:0},
-				max:{x:this.sceneWidth, y:vh},
+			bounds: {
+				min: { x: 0, y: 0 },
+				max: { x: this.sceneWidth, y: vh },
 			},
 			engine: engine,
 			options: {
-				background:"transparent",
-				wireframeBackground:"transparent",
-				width:this.sceneWidth,
-				height:vh,
-				wireframes:true,
+				background: "transparent",
+				wireframeBackground: "transparent",
+				width: this.sceneWidth,
+				height: vh,
+				wireframes: true,
 			},
 		});
-		
+
 		// add mouse control
 		const mouse = Matter.Mouse.create(this.$el);
 		const mouseConstraint = Matter.MouseConstraint.create(engine, {
 			mouse: mouse,
 			constraint: {
-                stiffness: 0.2,
+				stiffness: 0.2,
 				render: {
-					visible: false
-				}
-			}
+					visible: false,
+				},
+			},
 		});
 
 		Matter.Composite.add(engine.world, mouseConstraint);
@@ -472,50 +554,54 @@ class OverlayBitsWall extends AbstractOverlay {
 		this.engineReady = true;
 
 		//create floor
-		floor = Matter.Bodies.rectangle(this.sceneWidth/2,
-											vh+25+1,
-											this.sceneWidth,
-											150,
-											{ isStatic: true, label:"fix", render:{visible:false} });
-		let wallR = Matter.Bodies.rectangle(this.sceneWidth,
-											vh/2,
-											10,
-											vh,
-											{ isStatic: true, label:"fix", render:{visible:false} });
-		let wallL = Matter.Bodies.rectangle(0,
-											vh/2,
-											10,
-											vh,
-											{ isStatic: true, label:"fix", render:{visible:false} });
+		floor = Matter.Bodies.rectangle(this.sceneWidth / 2, vh + 25 + 1, this.sceneWidth, 150, {
+			isStatic: true,
+			label: "fix",
+			render: { visible: false },
+		});
+		let wallR = Matter.Bodies.rectangle(this.sceneWidth, vh / 2, 10, vh, {
+			isStatic: true,
+			label: "fix",
+			render: { visible: false },
+		});
+		let wallL = Matter.Bodies.rectangle(0, vh / 2, 10, vh, {
+			isStatic: true,
+			label: "fix",
+			render: { visible: false },
+		});
 		Matter.Composite.add(engine.world, [floor]);
 		// Matter.Composite.add(engine.world, [wallL, wallR]);
 
 		// this.renderFrame();
-		runner = Matter.Runner.create({isFixed:true, delta:1000/60});
+		runner = Matter.Runner.create({ isFixed: true, delta: 1000 / 60 });
 		Matter.Runner.run(runner, engine);
 		Matter.Render.run(renderer);
-		Matter.Events.on(engine.render, 'afterRender', () => this.renderFrame());
+		Matter.Events.on(engine.render, "afterRender", () => this.renderFrame());
 
-		app = new PIXI.Application({background:"#000000", backgroundAlpha:0, resizeTo:document.body});
+		app = new PIXI.Application({
+			background: "#000000",
+			backgroundAlpha: 0,
+			resizeTo: document.body,
+		});
 
-		if(this.shaderMode) {
+		if (this.shaderMode) {
 			displacementMask = new PIXI.Graphics();
 			displacementMask.beginFill(0xffffff);
-			displacementMask.drawRect(0,0,this.sceneWidth,vh);
+			displacementMask.drawRect(0, 0, this.sceneWidth, vh);
 			displacementMask.endFill();
-	
+
 			textureMask = new PIXI.Graphics();
 			textureMask.beginFill(0xffffff);
-			textureMask.drawRect(this.sceneWidth,0,this.sceneWidth, vh);
+			textureMask.drawRect(this.sceneWidth, 0, this.sceneWidth, vh);
 			textureMask.endFill();
-	
+
 			displacementHolder = new PIXI.Container();
 			displacementHolder.mask = displacementMask;
-	
+
 			displacementBackground = new PIXI.Graphics();
 			displacementBackground.beginFill(0x808000);
 			displacementBackground.drawRect(0, 0, this.sceneWidth, vh);
-	
+
 			//only add after 10s.
 			//An instructions message is displayed on the left part of the viewport to
 			//tell the user they want ot hide it out of screen.
@@ -524,12 +610,12 @@ class OverlayBitsWall extends AbstractOverlay {
 			//#808000 background over it after 10s
 			window.setTimeout(() => {
 				app.stage.addChildAt(displacementBackground, 0);
-			}, 10000)
+			}, 10000);
 			app.stage.addChild(displacementHolder);
 		}
 
 		textureHolder = new PIXI.Container();
-		if(textureMask) textureHolder.mask = textureMask;
+		if (textureMask) textureHolder.mask = textureMask;
 		textureHolder.position.set(this.sceneWidth, 0);
 		textureHolder.filters = [new PIXI.AlphaFilter(1)];
 		app.stage.addChild(textureHolder);
@@ -540,9 +626,9 @@ class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Render the game
 	 */
-	private renderFrame():void {
-		if(this.disposed) return;
-		
+	private renderFrame(): void {
+		if (this.disposed) return;
+
 		const now = performance.now();
 		this.frameCount++;
 
@@ -552,9 +638,9 @@ class OverlayBitsWall extends AbstractOverlay {
 			this.frameCount = 0;
 			this.lastFrameTime = now;
 		}
-		
-		const physicsRatio = 30/this.fps;
-		runner.delta = 1000/this.fps;
+
+		const physicsRatio = 30 / this.fps;
+		runner.delta = 1000 / this.fps;
 		const vph = document.body.clientHeight;
 		const vpw = document.body.clientWidth;
 		// Matter.Runner.tick(, engine, physicsRatio);
@@ -593,72 +679,86 @@ class OverlayBitsWall extends AbstractOverlay {
 		for (let i = 1; i < engine.world.bodies.length; i++) {
 			const body = engine.world.bodies[i]!;
 
-			if(body.label  == "cheermote") {
+			if (body.label == "cheermote") {
 				const data = bodyId2Data[body.id]!;
-				
+
 				const w = body.bounds.max.x - body.bounds.min.x;
-				if(body.position.y > vph + 800
-				|| body.position.x < -w/2
-				|| body.position.x > this.sceneWidth + w/2) {
+				if (
+					body.position.y > vph + 800 ||
+					body.position.x < -w / 2 ||
+					body.position.x > this.sceneWidth + w / 2
+				) {
 					data.destroyed = true;
 					this.unmountCheermote(body);
 					continue;
 				}
 
-				if(rescale) {
+				if (rescale) {
 					const factor = (data.scale * this.globalScale) / data.scale_prev;
-					data.scale_prev = (data.scale * this.globalScale);
+					data.scale_prev = data.scale * this.globalScale;
 					Matter.Body.scale(body, factor, factor);
 				}
 
-				if(data.spriteTexture) {
+				if (data.spriteTexture) {
 					const scale = data.scale * this.globalScale;
 					const index = data.index;
-					const angle = body.angle - Math.PI/2;
+					const angle = body.angle - Math.PI / 2;
 					const offset = offsets[index]! * scale;
 					data.spriteTexture.scale.set(scale, scale);
-					data.spriteTexture.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
+					data.spriteTexture.position.set(
+						body.position.x + Math.cos(angle) * offset,
+						body.position.y + Math.sin(angle) * offset,
+					);
 					data.spriteTexture.rotation = body.angle;
 				}
-				if(data.spriteDisplace) {
+				if (data.spriteDisplace) {
 					const scale = data.scale * this.globalScale;
 					const index = data.index;
-					const angle = body.angle - Math.PI/2;
+					const angle = body.angle - Math.PI / 2;
 					const offset = offsets[index]! * scale;
 					data.spriteDisplace.scale.set(scale, scale);
-					data.spriteDisplace.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
+					data.spriteDisplace.position.set(
+						body.position.x + Math.cos(angle) * offset,
+						body.position.y + Math.sin(angle) * offset,
+					);
 					data.spriteDisplace.rotation = body.angle;
 				}
 			}
 		}
 	}
 
-	private breakCheermote(body:Matter.Body, userOrigin:boolean = false):void {
+	private breakCheermote(body: Matter.Body, userOrigin: boolean = false): void {
 		const data = bodyId2Data[body.id] as CheermoteData;
-		if(!data || data.destroyed) return;
+		if (!data || data.destroyed) return;
 		gsap.killTweensOf(data);
 		data.destroyed = true;
 
-		gsap.to(data, {scale:0, duration:userOrigin? .15 : .5, ease:userOrigin? "none" : "back.in(10)", onUpdate:(a)=>{
-			const factor = (data.scale * this.globalScale) / data.scale_prev;
-			data.scale_prev = (data.scale * this.globalScale);
-			Matter.Body.scale(body, factor, factor);
-		}, onComplete:()=>{
-			this.unmountCheermote(body);
-		}})
+		gsap.to(data, {
+			scale: 0,
+			duration: userOrigin ? 0.15 : 0.5,
+			ease: userOrigin ? "none" : "back.in(10)",
+			onUpdate: (a) => {
+				const factor = (data.scale * this.globalScale) / data.scale_prev;
+				data.scale_prev = data.scale * this.globalScale;
+				Matter.Body.scale(body, factor, factor);
+			},
+			onComplete: () => {
+				this.unmountCheermote(body);
+			},
+		});
 	}
 
-	private unmountCheermote(body:Matter.Body):void {
+	private unmountCheermote(body: Matter.Body): void {
 		const data = bodyId2Data[body.id] as CheermoteData;
 		gsap.killTweensOf(data);
 		data.destroyed = true;
 		delete bodyId2Data[body.id];
 		Matter.Composite.remove(engine.world, body, true);
-		if(data.spriteTexture) {
+		if (data.spriteTexture) {
 			textureHolder.removeChild(data.spriteTexture);
 			data.spriteTexture.destroy();
 		}
-		if(data.spriteDisplace) {
+		if (data.spriteDisplace) {
 			displacementHolder.removeChild(data.spriteDisplace);
 			data.spriteDisplace.destroy();
 		}
@@ -666,15 +766,15 @@ class OverlayBitsWall extends AbstractOverlay {
 }
 
 interface CheermoteData {
-	index:number;
-	uid:string;
-	scale:number;
-	scaleOriginal:number;
-	spriteTexture?:PIXI.Sprite;
-	spriteDisplace?:PIXI.Sprite;
-	scale_prev:number;
-	destroyed:boolean;
-	guid:string;
+	index: number;
+	uid: string;
+	scale: number;
+	scaleOriginal: number;
+	spriteTexture?: PIXI.Sprite;
+	spriteDisplace?: PIXI.Sprite;
+	scale_prev: number;
+	destroyed: boolean;
+	guid: string;
 }
 export default toNative(OverlayBitsWall);
 </script>

@@ -4,10 +4,10 @@
 		"ban_usernames": "Bannir les personnes dont le pseudo correspond à une règle",
 		"delete_confirm_title": "Supprimer la règle ?",
 		"delete_confirm_description": "Cela ne peut pas être annulé",
-		"disclaimers":{
-			"why":{
-				"title":"Pourquoi cette fonctionnalité ?",
-				"contents":[
+		"disclaimers": {
+			"why": {
+				"title": "Pourquoi cette fonctionnalité ?",
+				"contents": [
 					"Twitch a déjà une fonctionnalité de \"termes bloqués\", mais elle est très basique et ne permet pas un filtrage complexe.",
 					"Si vous bloquez le mot <mark>twitchat</mark>, les viewers peuvent facilement contourner cette restriction en écrivant <mark>twit_chat</mark> ou <mark>twitch🅐t</mark> et une infinité d'alternatives.",
 					"",
@@ -20,10 +20,10 @@
 					"<strong>Attention</strong> cependant, ce processus a un coût sur les performances et peut ralentir un peu Twitchat si vous avez beaucoup de règles et que vous recevez beaucoup de messages."
 				]
 			},
-			"delete":{
-				"title":"La suppression d'un message est-elle efficace contre le doxxing* ?",
-				"contents":[
-					"Non.", 
+			"delete": {
+				"title": "La suppression d'un message est-elle efficace contre le doxxing* ?",
+				"contents": [
+					"Non.",
 					"",
 					"Mais c'est le seul moyen de modérer un message après son envoi.",
 					"Le principal problème est que des extensions comme <a href=\"https://betterttv.com\" target=\"_blank\">BetterTTV</a> permettent aux viewers de conserver les messages supprimés.",
@@ -37,31 +37,31 @@
 				]
 			}
 		},
-		"rule":{
-			"title":"Vos règles",
-			"new":"Nouvelle règle",
-			"add":"Créer une règle",
-			"toggle_tt":"Activer/désactiver la règle",
-			"name":"Nom de la règle",
-			"keywords":"Règle (accepte les <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Tester vos regexp</a>)",
-			"sync":"Enregistrer sur le serveur",
-			"sync_tt":"Si la règle contient des informations personnelles vous pouvez choisir de ne pas l'enregistrer sur le serveur.\nLa règle sera perdue si vous videz vos cookies.",
-			"emergency":"Démarrer le mode urgence",
-			"emergency_tt":"Si un message correspond à cette règle, le mode urgence sera activé",
-			"firstTime":"Appliquer seulement aux personnes parlant pour la 1ère fois dans votre tchat",
-			"firstTime_tt":"Appliquer cette règle uniquement aux 1er messages sur votre chaîne",
-			"invalid_rule":"Règle invalide"
+		"rule": {
+			"title": "Vos règles",
+			"new": "Nouvelle règle",
+			"add": "Créer une règle",
+			"toggle_tt": "Activer/désactiver la règle",
+			"name": "Nom de la règle",
+			"keywords": "Règle (accepte les <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Tester vos regexp</a>)",
+			"sync": "Enregistrer sur le serveur",
+			"sync_tt": "Si la règle contient des informations personnelles vous pouvez choisir de ne pas l'enregistrer sur le serveur.\nLa règle sera perdue si vous videz vos cookies.",
+			"emergency": "Démarrer le mode urgence",
+			"emergency_tt": "Si un message correspond à cette règle, le mode urgence sera activé",
+			"firstTime": "Appliquer seulement aux personnes parlant pour la 1ère fois dans votre tchat",
+			"firstTime_tt": "Appliquer cette règle uniquement aux 1er messages sur votre chaîne",
+			"invalid_rule": "Règle invalide"
 		},
 		"test": {
-			"title":"Tester vos règles",
-			"input_placeholder":"message...",
-			"result_tt":"Message nettoyé avec caractères spéciaux remplacés par leur équivalent latin",
-			"blocked_title":"Message bloqué par la règle : | Message bloqué par les règles : ",
-			"no_block":"Ce message passe l'automod"
+			"title": "Tester vos règles",
+			"input_placeholder": "message...",
+			"result_tt": "Message nettoyé avec caractères spéciaux remplacés par leur équivalent latin",
+			"blocked_title": "Message bloqué par la règle : | Message bloqué par les règles : ",
+			"no_block": "Ce message passe l'automod"
 		},
 		"options": {
-			"title":"Options",
-			"exclude_users":"Exclure ces personnes de l'automod: "
+			"title": "Options",
+			"exclude_users": "Exclure ces personnes de l'automod: "
 		}
 	}
 }

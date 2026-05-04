@@ -77,7 +77,8 @@
 			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
 			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
 			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !",
-			"loading_emotes": "Chargement des emotes..."
+			"loading_emotes": "Chargement des emotes...",
+			"quizBt_aria": "Quiz"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -145,7 +146,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok cadeaux",
 				"tiktok_share": "Tiktok partages",
-				"private_mod_message": "Messages de modération privés"
+				"private_mod_message": "Messages de modération privés",
+				"quiz_complete": "Résultat d'un quiz"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -175,9 +177,9 @@
 			"title": "Le salon {ROOM} a les restrictions suivantes :",
 			"sub_only": "Sub uniquement",
 			"emote_only": "Emote uniquement",
-			"follow_only": "Followers uniquement",
-			"slow_mode": "Mode lent",
-			"chat_delay": "Délai de tchat",
+			"follow_only": "Followers uniquement|Followers uniquement ({DURATION}m)",
+			"slow_mode": "Mode lent|Mode lent ({DURATION}s)",
+			"chat_delay": "Délai de tchat|Délai de tchat ({DURATION}s)",
 			"unsetBt": "retirer"
 		},
 		"raffle": {
@@ -237,20 +239,23 @@
 			"sub_prime": "{USER} a pris un abonnement avec Prime.",
 			"resub": "{USER} a renouvelé son abonnement de niveau {TIER}.",
 			"resub_prime": "{USER} a pris un abonnement avec Prime.",
-			"sub_duration": "Abonné·e depuis {COUNT} mois.",
-			"sub_streak": "{COUNT} mois d'abonnement consécutifs.",
-			"sub_prepaid": "A pris {COUNT} mois d'abonnement en avance",
+			"sub_duration": "Abonné·e depuis {COUNT}.",
+			"sub_streak": "{COUNT} d'abonnement consécutifs.",
+			"sub_prepaid": "A pris {COUNT} d'abonnement en avance",
 			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à la communauté : {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à la communauté : {LIST}",
 			"sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
-			"sub_gift_months": "{USER} a offert {MONTHS} mois d'abonnement de niveau {TIER} à {LIST}",
+			"sub_gift_months": "{USER} a offert {MONTHS} d'abonnement de niveau {TIER} à {LIST}",
 			"sub_gift_upgrade": "{USER} continue l'abonnement offert par {GIFTER}",
-			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme"
+			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme",
+			"duration_months": "{COUNT} mois",
+			"duration_years": "{COUNT} an | {COUNT} ans"
 		},
 		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
 		"combo": "{USER} a envoyé 1 bit depuis les Combos | {USER} a envoyé {BITS} bits depuis les Combos",
 		"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
 		"train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
-		"follow": "{USER} suit la chaîne",
+		"follow": "{USER} vous suit",
+		"follow_remote": "{USER} suit la chaîne",
 		"raid": {
 			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes."
 		},
@@ -537,6 +542,9 @@
 		"tiktok": {
 			"platform_tiktok": "Message reçu\nsur TikTok"
 		},
+		"bluesky": {
+			"platform_bluesky": "Message reçu\nsur Bluesky"
+		},
 		"celebration": {
 			"message": "{USER} a acheté le Power-Up \"Célébration de chaîne\" pour {PRICE}",
 			"message_tmp": "{USER} a obtenu le Power-Up \"Célébration de chaîne\""
@@ -620,6 +628,11 @@
 		},
 		"many_replies": {
 			"label": "Ce message attire l'attention avec {COUNT} réponses directes ou indirectes"
+		},
+		"quiz_result": {
+			"title": "Quiz \"{TITLE}\" terminé.",
+			"leaderboard_bt": "Classement",
+			"search_placeholder": "Chercher un pseudo..."
 		}
 	}
 }

@@ -5,28 +5,31 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	box-shadow: 0 0 5px 3px rgba(0, 0, 0, .4);
+	box-shadow: 0 0 5px 3px rgba(0, 0, 0, 0.4);
 	max-width: var(--vw);
+
+	&.admin {
+		background-color: var(--color-secondary-dark);
+	}
 
 	&.embedMode {
 		background-color: unset;
 		box-shadow: unset;
 		padding: 0;
-		&>.content {
+		& > .content {
 			padding: 0;
-			gap: .25em;
-			form {
-				gap: .25em;
+			.form {
+				gap: 0.25em;
 			}
 		}
 	}
 
-	&>.head {
+	& > .head {
 		z-index: 1;
 		padding-bottom: 0;
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 0.5em;
 		padding: 1em;
 		border-bottom: 1px solid var(--splitter-color);
 		width: 100%;
@@ -41,23 +44,28 @@
 		}
 
 		.description {
-			font-size: .9em;
+			font-size: 0.9em;
 			font-style: italic;
 			line-height: 1.3em;
 			white-space: pre-line;
 		}
-		&>.icon, &>.title>.icon, &>h1>.icon {
+		& > .icon,
+		& > .title > .icon,
+		& > h1 > .icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
+		}
+		& > .title > .icon {
+			height: 1.35em;
 		}
 	}
 	&:has(.tabmenu) {
-		&>.head {
+		& > .head {
 			margin-bottom: 1em;
 		}
 	}
 
-	&>.tabmenu {
+	& > .tabmenu {
 		justify-self: stretch;
 		max-width: 600px;
 		width: 100%;
@@ -71,7 +79,7 @@
 		white-space: pre-line;
 	}
 
-	&>.content {
+	& > .content {
 		padding: 1em;
 		width: 100%;
 		max-width: 600px;
@@ -82,10 +90,10 @@
 		flex-direction: column;
 		gap: 1em;
 
-		form, .form {
+		.form {
 			display: flex;
 			flex-direction: column;
-			gap: 1em;
+			gap: 0.5em;
 		}
 
 		.paramitem {
@@ -97,33 +105,34 @@
 		.splitter {
 			height: 1px;
 			background-color: var(--color-light-fadest);
-			margin: .25em 10px;
+			margin: 0.25em 10px;
 		}
 
 		.tips {
 			.bevel();
-			padding: .5em;
+			padding: 0.5em;
 			border-radius: var(--border-radius);
 			background-color: var(--color-dark-fadest);
-			font-size: .8em;
+			font-size: 0.8em;
 			line-height: 1.4em;
-			img, .icon {
+			img,
+			.icon {
 				height: 1em;
-				margin-right: .25em;
+				margin-right: 0.25em;
 			}
 		}
 	}
 
 	.configs {
 		// margin: 0 auto 1em auto;
-		&>.content {
+		& > .content {
 			display: flex;
 			flex-direction: column;
 			align-items: stretch;
 			justify-content: stretch;
-			gap: .5em;
+			gap: 0.5em;
 			.details {
-				font-size: .8em;
+				font-size: 0.8em;
 			}
 		}
 	}

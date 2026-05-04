@@ -1,54 +1,52 @@
 import AppPublic from "@/AppPublic.vue";
-import '@/less/index.less';
-import router from '@/router/public';
-import * as StoreProxy from '@/store/StoreProxy';
+import "@/less/index.less";
+import router from "@/router/public";
+import * as StoreProxy from "@/store/StoreProxy";
 import Config from "@/utils/Config";
 import CSSPlugin from "gsap/CSSPlugin";
 import CustomEase from "gsap/CustomEase";
 import ScrollToPlugin from "gsap/ScrollToPlugin";
-import { gsap } from 'gsap/gsap-core';
-import { createPinia } from 'pinia';
-import 'tippy.js/animations/scale.css';
-import 'tippy.js/dist/tippy.css';
+import { gsap } from "gsap/gsap-core";
+import { createPinia } from "pinia";
+import "tippy.js/animations/scale.css";
+import "tippy.js/dist/tippy.css";
 import { createApp } from "vue";
-import { createI18n } from 'vue-i18n';
+import { createI18n } from "vue-i18n";
 import type { NavigationGuardNext, RouteLocation } from "vue-router";
 import VueTippy, { setDefaultProps } from "vue-tippy";
-import { storeCommon } from './store/common/storeCommon';
+import { storeCommon } from "./store/common/storeCommon";
 import { storePublic } from "./store/storePublic";
+import Utils from "./utils/Utils";
 
 setDefaultProps({
-	theme:"twitchat",
-	animation:"scale",
-	duration:100,
-	allowHTML:true,
-	maxWidth:250,
+	theme: "twitchat",
+	animation: "scale",
+	duration: 100,
+	allowHTML: true,
+	maxWidth: 250,
 });
-
 
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin);
 const pinia = createPinia();
 
-let lang: string = navigator.language || (<any>navigator)['userLanguage'];
+let lang: string = navigator.language || (<any>navigator)["userLanguage"];
 lang = lang.substring(0, 2).toLowerCase();
 const i18n = createI18n<true>({
-	locale:lang,
-	fallbackLocale: 'en',
+	locale: lang,
+	fallbackLocale: "en",
 	legacy: true,
 	globalInjection: true,
 	warnHtmlMessage: false,
-	silentFallbackWarn:!Config.instance.IS_PROD,
-	silentTranslationWarn:!Config.instance.IS_PROD,
+	silentFallbackWarn: !Config.instance.IS_PROD,
+	silentTranslationWarn: !Config.instance.IS_PROD,
 	// modifiers:{
 	// 	strong:(str)=> "<strong>"+str+"</strong>",
 	// }
 });
 
-
-
 //Load labels before everything else so they are available when
 //initializing stores data
-(async()=> {
+void (async () => {
 	try {
 		window.setInitMessage("loading labels");
 		const labelsRes = await fetch("/labels.json");
@@ -56,10 +54,10 @@ const i18n = createI18n<true>({
 		for (const lang in labelsJSON) {
 			i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
 		}
-	}catch(error) {
+	} catch (error) {
 		console.log(error);
 		window.setTimeout(() => {
-			StoreProxy.default.common.alert( "An error occured when loading labels :(" );
+			StoreProxy.default.common.alert("An error occured when loading labels :(");
 		}, 1000);
 	}
 	buildApp();
@@ -71,12 +69,11 @@ function buildApp() {
 	 */
 	router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
 		const sPublic = StoreProxy.default.public;
-		const needAdmin = to.meta.needAdmin === true;
 
 		if (!sPublic.initComplete) {
 			try {
-				await sPublic.startApp();
-			}catch(error) {
+				sPublic.startApp();
+			} catch (error) {
 				console.log(error);
 			}
 		}
@@ -84,69 +81,68 @@ function buildApp() {
 		next();
 	});
 
-	/**
-	 * Include an image from the asset folder
-	 */
-	const asset = (path:string):string => {
-		const map = import.meta.glob('/src_front/assets/**/*', { eager: true, import: 'default' });
-		return map[`/src_front/assets/${path}`] as string;
-	}
-
 	window.setInitMessage("Building interface");
 	const app = createApp(AppPublic);
 	app.use(pinia)
-	.use(router)
-	.use(i18n)
-	.use(VueTippy,{
-		directive: "tooltip",
-		component: "tooltip",
-	})
-	.provide("$asset", asset)
-	.provide("$store", StoreProxy.default);
+		.use(router)
+		.use(i18n)
+		.use(VueTippy, {
+			directive: "tooltip",
+			component: "tooltip",
+		})
+		.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.public = storePublic();
 	StoreProxy.default.common = storeCommon();
-	app.config.globalProperties.$asset = asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	StoreProxy.default.asset = Utils.asset;
+	// oxlint-disable-next-line typescript/unbound-method
+	app.config.globalProperties.$asset = Utils.asset;
 	app.config.globalProperties.$store = StoreProxy.default;
 	app.config.globalProperties.$config = Config.instance;
+	app.config.globalProperties.$utils = Utils;
 
-	StoreProxy.default.common.initialize(false).then(()=>{
-		app.mount('#app');
+	void StoreProxy.default.common.initialize(false).then(() => {
+		app.mount("#app");
 	});
 
+	document.addEventListener(
+		"keyup",
+		(e: KeyboardEvent) => {
+			//Given a Sentry error, a user apparently succeeded to have an
+			//"undefined" e.key value on an up to date Edge browser
+			if (!e.key) return;
+			const metaKey = e.metaKey || e.ctrlKey;
 
-	document.addEventListener("keyup", (e:KeyboardEvent)=> {
-		//Given a Sentry error, a user apparently succeeded to have an
-		//"undefined" e.key value on an up to date Edge browser
-		if(!e.key) return;
-		const metaKey = e.metaKey || e.ctrlKey;
-
-		//Toggle light/dark mode on CTRL+Shift+K
-		if(e.key.toLowerCase() == "k" && metaKey && e.altKey) {
-			const list = document.body.classList;
-			if(list.contains("dark")) {
-				list.remove("dark");
-				list.add("light");
-			}else{
-				list.remove("light");
-				list.add("dark");
+			//Toggle light/dark mode on CTRL+Shift+K
+			if (e.key.toLowerCase() == "k" && metaKey && e.altKey) {
+				const list = document.body.classList;
+				if (list.contains("dark")) {
+					list.remove("dark");
+					list.add("light");
+				} else {
+					list.remove("light");
+					list.add("dark");
+				}
 			}
-		}
 
-		//Reload labels on CTRL+Shift+L
-		if(e.key.toLowerCase() == "l" && metaKey && e.altKey) {
-			StoreProxy.default.public.reloadLabels();
-			e.preventDefault();
-		}
+			//Reload labels on CTRL+Shift+L
+			if (e.key.toLowerCase() == "l" && metaKey && e.altKey) {
+				void StoreProxy.default.public.reloadLabels();
+				e.preventDefault();
+			}
 
-		//Walk through available locales on CTRL+Shift+M
-		if(e.key.toLowerCase() == "m" && metaKey && e.altKey) {
-			const locales = i18n.global.availableLocales;
-			// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
-			i18n.global.locale.value = locales[(locales.indexOf(i18n.global.locale.value) + 1)%locales.length];
-			e.preventDefault();
-		}
-	}, true);
+			//Walk through available locales on CTRL+Shift+M
+			if (e.key.toLowerCase() == "m" && metaKey && e.altKey) {
+				const locales = i18n.global.availableLocales;
+				// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+				i18n.global.locale.value =
+					// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+					locales[(locales.indexOf(i18n.global.locale.value) + 1) % locales.length];
+				e.preventDefault();
+			}
+		},
+		true,
+	);
 }

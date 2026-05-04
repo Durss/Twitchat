@@ -1,50 +1,45 @@
 /**
-* Created : 19/01/2022
-*/
+ * Created : 19/01/2022
+ */
 export default class ChatCypherPlugin {
-
-
-	private static _instance:ChatCypherPlugin;
+	private static _instance: ChatCypherPlugin;
 	private _cypherKey = "";
-	private buff_to_base64 = (buff:number[]) => btoa(String.fromCharCode.apply(null, buff));
-	private base64_to_buf = (b64:string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+	private buff_to_base64 = (buff: number[]) => btoa(String.fromCharCode.apply(null, buff));
+	private base64_to_buf = (b64: string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 	private enc = new TextEncoder();
 	private dec = new TextDecoder();
 	private chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
 	private charsReplacements = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
-	private regMatch!:RegExp;
+	private regMatch!: RegExp;
 
-	constructor() {
-	}
+	constructor() {}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	static get instance():ChatCypherPlugin {
-		if(!ChatCypherPlugin._instance) {
+	 * GETTER / SETTERS *
+	 ********************/
+	static get instance(): ChatCypherPlugin {
+		if (!ChatCypherPlugin._instance) {
 			ChatCypherPlugin._instance = new ChatCypherPlugin();
 		}
 		return ChatCypherPlugin._instance;
 	}
 
-	public set cypherKey(value:string) {
+	public set cypherKey(value: string) {
 		this._cypherKey = value;
 	}
 
-
-
 	/******************
-	* PUBLIC METHODS *
-	******************/
+	 * PUBLIC METHODS *
+	 ******************/
 	/**
 	 * Initializes the plugin
 	 */
-	public initialize(key:string):void {
+	public initialize(key: string): void {
 		let safeChars = this.charsReplacements;
 		//Remove chars commonly used to avoid too much false positive
 		safeChars = safeChars.replace(/([[\]|])/gi, "");
-		this.regMatch = new RegExp("["+safeChars+"]", "g");
-		if(key){
+		this.regMatch = new RegExp("[" + safeChars + "]", "g");
+		if (key) {
 			this._cypherKey = key;
 		}
 	}
@@ -55,8 +50,8 @@ export default class ChatCypherPlugin {
 	 * @param message
 	 * @returns
 	 */
-	public isCypherCandidate(message:string):boolean {
-		if(!this._cypherKey) return false;
+	public isCypherCandidate(message: string): boolean {
+		if (!this._cypherKey) return false;
 		this.regMatch.lastIndex = 0;
 		return this.regMatch.test(message);
 	}
@@ -67,15 +62,14 @@ export default class ChatCypherPlugin {
 	 * @param data
 	 * @returns
 	 */
-	public async encrypt(data:string):Promise<string> {
+	public async encrypt(data: string): Promise<string> {
 		const encryptedData = await this.encryptData(data, this._cypherKey);
 		let result = "";
-		for(let i=0; i < encryptedData.length; i++) {
-			result += this.charsReplacements[ this.chars.indexOf(encryptedData.charAt(i)) ];
+		for (let i = 0; i < encryptedData.length; i++) {
+			result += this.charsReplacements[this.chars.indexOf(encryptedData.charAt(i))];
 		}
 		return result;
 	}
-
 
 	/**
 	 * Decrypts a message
@@ -83,30 +77,32 @@ export default class ChatCypherPlugin {
 	 * @param data
 	 * @returns
 	 */
-	public async decrypt(encryptedData:string):Promise<string> {
-		if(!encryptedData) return "";
+	public async decrypt(encryptedData: string): Promise<string> {
+		if (!encryptedData) return "";
 		let result = "";
-		for(let i=0; i < encryptedData.length; i++) {
-			result += this.chars[ this.charsReplacements.indexOf(encryptedData.charAt(i)) ];
+		for (let i = 0; i < encryptedData.length; i++) {
+			result += this.chars[this.charsReplacements.indexOf(encryptedData.charAt(i))];
 		}
 
 		const decryptedData = await this.decryptData(result, this._cypherKey);
 		return decryptedData || encryptedData;
 	}
 
-
-
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
-	private getPasswordKey (password:string):Promise<CryptoKey> {
+	private getPasswordKey(password: string): Promise<CryptoKey> {
 		return window.crypto.subtle.importKey("raw", this.enc.encode(password), "PBKDF2", false, [
 			"deriveKey",
 		]);
 	}
 
-	private deriveKey(passwordKey:CryptoKey, salt:ArrayBuffer, keyUsage:KeyUsage[]):Promise<CryptoKey> {
+	private deriveKey(
+		passwordKey: CryptoKey,
+		salt: ArrayBuffer,
+		keyUsage: KeyUsage[],
+	): Promise<CryptoKey> {
 		return window.crypto.subtle.deriveKey(
 			{
 				name: "PBKDF2",
@@ -117,7 +113,7 @@ export default class ChatCypherPlugin {
 			passwordKey,
 			{ name: "AES-GCM", length: 256 },
 			false,
-			keyUsage
+			keyUsage,
 		);
 	}
 
@@ -133,19 +129,19 @@ export default class ChatCypherPlugin {
 					iv: iv,
 				},
 				aesKey,
-				this.enc.encode(secretData)
+				this.enc.encode(secretData),
 			);
 
 			const encryptedContentArr = new Uint8Array(encryptedContent);
 			const buff = new Uint8Array(
-				salt.byteLength + iv.byteLength + encryptedContentArr.byteLength
+				salt.byteLength + iv.byteLength + encryptedContentArr.byteLength,
 			);
 			buff.set(salt, 0);
 			buff.set(iv, salt.byteLength);
 			buff.set(encryptedContentArr, salt.byteLength + iv.byteLength);
-			const base64Buff = this.buff_to_base64((buff as unknown) as number[]);
+			const base64Buff = this.buff_to_base64(buff as unknown as number[]);
 			return base64Buff;
-		} catch (e) {
+		} catch (_e) {
 			//console.log(`Error - ${e}`);
 			return "";
 		}
@@ -165,11 +161,11 @@ export default class ChatCypherPlugin {
 					iv: iv,
 				},
 				aesKey,
-				data
+				data,
 			);
 			return this.dec.decode(decryptedContent);
-		} catch (e) {
-			//console.log(`Error - ${e}`);
+		} catch (_error) {
+			//console.log(`Error - ${_error}`);
 			return "";
 		}
 	}

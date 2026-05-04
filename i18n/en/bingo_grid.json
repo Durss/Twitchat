@@ -10,15 +10,15 @@
 			"lock_bt_tt": "Lock cell",
 			"shuffle_bt": "Shuffle cells",
 			"reset_bt": "Untick all",
-			"clear_labels_bt":"Clear cells",
+			"clear_labels_bt": "Clear cells",
 			"clear_labels_confirm": {
-				"title":"Clear cells?",
-				"description":"All cells will be cleared.\nThis cannot be undone.."
+				"title": "Clear cells?",
+				"description": "All cells will be cleared.\nThis cannot be undone.."
 			},
 			"param_title": "Grid name",
 			"param_size": "Grid sizes",
-			"param_background_color":"Background color",
-			"param_background_alpha":"Background opacity ({VALUE}%)",
+			"param_background_color": "Background color",
+			"param_background_alpha": "Background opacity ({VALUE}%)",
 			"param_text_color": "Text color",
 			"param_text_size": "Text size",
 			"param_show_grid": "Show borders",
@@ -33,13 +33,14 @@
 			"param_chatAnnouncementEnabled": "Announce viewers' bingos on chat",
 			"param_chatAnnouncement": "Message to send on chat",
 			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
+			"overlayParams_title": "Stream overlay settings",
 			"send_chat_url_tt": "Send to chat",
 			"winners_placeholder": "Viewers that got bingos",
-			"add_cellBt": "Add cell",
+			"add_cellBt": "Add",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
 			"premium_limit": "You reached the maximum bingo grid count you can create.",
-			"non_premium_limit": "@:bingo_grid.premium_limit \nBecome a premium member to create up to {MAX} bingo grids.",
+			"non_premium_limit": "@:bingo_grid.premium_limit \nBecome a premium member to create up to {MAX_PREMIUM} bingo grids.",
 			"share": "Share this grid with your viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",
@@ -49,19 +50,14 @@
 				"description": "Bingo grid will be deleted\nThis cannot be undone.",
 				"title": "Delete grid?"
 			},
-			"additional_cells":"Additional cells",
-			"premium_multiplayer":"Become premium to enable Multi player mode.\nAnytime a viewer gets a bingo their name and score will show up on the overlay and on chat, you'll be able to show the leaderboard and your mods will be able to tick cells for you.",
+			"additional_cells": "Additional cells",
+			"premium_multiplayer": "Become premium to enable Multi player mode.\nAnytime a viewer gets a bingo their name and score will show up on the overlay and on chat, you'll be able to show the leaderboard and your mods will be able to tick cells for you.",
 			"perf_alert": "Looks like you have quite a lot of viewers on your stream.\nI can't guarantee my server will survive that, please make a little prayer before sharing the link with your viewers 🙏."
 		},
 		"state": {
-			"auth_bt": "Get my own grid",
-			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
-			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
+			"info": "To play Bingo, the streamer must now install the {EXTENSION} extension!",
 			"showLeaderboard_bt": "Show on overlay",
 			"hideLeaderboard_bt": "Hide from overlay",
-			"additional_cells": "Additional cells other viewers may have",
-			"grid": "grid",
-			"list": "list",
 			"footer": "Powered by {LINK}"
 		}
 	}

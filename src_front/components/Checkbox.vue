@@ -1,76 +1,83 @@
 <template>
 	<div :class="classes">
 		<div class="checkmark">
-			<Icon v-if="checked" class="icon" name="checkmark"/>
+			<Icon v-if="checked" class="icon" name="checkmark" />
 		</div>
-		<span class="label" v-if="$slots.default"><slot></slot></span>
-		<input type="checkbox" class="checkboxInput" ref="checkbox" v-model="checked" @change="onChange()" />
+		<span class="label" v-if="!isEmptySlot(slots.default)"><slot /></span>
+		<input
+			type="checkbox"
+			class="checkboxInput"
+			ref="checkbox"
+			v-model="checked"
+			@change="onChange()"
+		/>
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from 'vue';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import Icon from './Icon.vue';
+<script setup lang="ts" generic="T">
+import { watch, ref, computed, onMounted, useSlots } from "vue";
+import Icon from "./Icon.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot";
 
-@Component({
-	components:{
-		Icon,
+const props = withDefaults(
+	defineProps<{
+		modelValue?: T;
+		values?: [T, T];
+		secondary?: boolean;
+		primary?: boolean;
+		alert?: boolean;
+	}>(),
+	{
+		values: () => [true as T, false as T],
+		secondary: false,
+		primary: false,
+		alert: false,
 	},
-	emits:["update:modelValue", "change"],
-})
-class Checkbox extends Vue {
+);
 
-	@Prop({default: false})
-	public modelValue!:unknown;
+const emit = defineEmits<{
+	"update:modelValue": [value: T];
+	change: [value: T];
+}>();
 
-	@Prop({type:Array, default: [true, false]})
-	public values!:unknown[];
+const slots = useSlots();
+const { isEmptySlot } = useEmptySlot();
 
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
+const checked = ref(false);
 
-	@Prop({type:Boolean, default: false})
-	public primary!:boolean;
+const classes = computed(() => {
+	const res: string[] = ["checkbox"];
+	if (props.primary !== false) res.push("primary");
+	if (props.secondary !== false) res.push("secondary");
+	if (props.alert !== false) res.push("alert");
+	if (!slots.default) res.push("noLabel");
+	return res;
+});
 
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	public checked = false;
-
-	public mounted():void {
-		this.checked = this.modelValue === this.values[0];
-		watch(()=>this.modelValue, ()=>{
-			this.checked = this.modelValue === this.values[0];
-		});
-	}
-
-	public get classes():string[] {
-		const res:string[] = ["checkbox"];
-		if(this.primary !== false) res.push("primary")
-		if(this.secondary !== false) res.push("secondary")
-		if(this.alert !== false) res.push("alert")
-		if(!this.$slots.default) res.push("noLabel")
-		return res;
-	}
-
-	public onChange():void {
-		this.$emit("update:modelValue", this.checked? this.values[0] : this.values[1]);
-		this.$emit("change", this.checked? this.values[0] : this.values[1]);
-	}
-
+function onChange(): void {
+	emit("update:modelValue", checked.value ? props.values[0] : props.values[1]);
+	emit("change", checked.value ? props.values[0] : props.values[1]);
 }
-export default toNative(Checkbox);
+
+onMounted(() => {
+	checked.value = props.modelValue === props.values[0];
+	watch(
+		() => props.modelValue,
+		() => {
+			checked.value = props.modelValue === props.values[0];
+		},
+	);
+});
 </script>
 
 <style scoped lang="less">
-.checkbox{
+.checkbox {
 	cursor: pointer;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	position: relative;
-	color:var(--color-text);
+	color: var(--color-text);
 
 	&.noLabel {
 		height: 1em;
@@ -81,7 +88,7 @@ export default toNative(Checkbox);
 
 	.checkmark {
 		border: 1px solid currentColor;
-		border-radius: .25em;
+		border-radius: 0.25em;
 		padding: 0;
 		aspect-ratio: 1;
 		height: 1em;
@@ -99,7 +106,7 @@ export default toNative(Checkbox);
 
 	.label {
 		flex-grow: 1;
-		margin-left: .35em;
+		margin-left: 0.35em;
 		justify-self: flex-start;
 		text-align: left;
 		// width: max-content;
@@ -107,13 +114,13 @@ export default toNative(Checkbox);
 
 	&:hover {
 		.checkmark {
-			background-color: var(--background-color-fader)
+			background-color: var(--background-color-fader);
 		}
 	}
 
 	.checkboxInput {
 		pointer-events: all;
-		opacity: .0001;
+		opacity: 0.0001;
 		position: absolute;
 		padding: 0;
 		margin: 0;
@@ -125,34 +132,34 @@ export default toNative(Checkbox);
 		z-index: 1000;
 		cursor: pointer;
 	}
-	&.primary{
-		color:var(--color-primary);
+	&.primary {
+		color: var(--color-primary);
 
 		&:hover {
-			color:var(--color-primary-light);
+			color: var(--color-primary-light);
 			.checkmark {
-				background-color: var(--color-primary-fadest)
+				background-color: var(--color-primary-fadest);
 			}
 		}
 	}
 
-	&.secondary{
-		color:var(--color-secondary);
+	&.secondary {
+		color: var(--color-secondary);
 
 		&:hover {
-			color:var(--color-secondary-light);
+			color: var(--color-secondary-light);
 			.checkmark {
-				background-color: var(--color-secondary-fadest)
+				background-color: var(--color-secondary-fadest);
 			}
 		}
 	}
-	&.alert{
-		color:var(--color-alert);
+	&.alert {
+		color: var(--color-alert);
 
 		&:hover {
-			color:var(--color-alert-light);
+			color: var(--color-alert-light);
 			.checkmark {
-				background-color: var(--color-alert-fadest)
+				background-color: var(--color-alert-fadest);
 			}
 		}
 	}

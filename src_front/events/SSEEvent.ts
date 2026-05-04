@@ -1,13 +1,13 @@
-import type { KofiEventData } from '@/store/kofi/storeKofi';
-import type { TiltifyCauseEventData, TiltifyDonationEventData } from '@/store/tiltify/storeTiltify';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Event } from './EventDispatcher';
+import type { KofiEventData } from "@/store/kofi/storeKofi";
+import type { TiltifyCauseEventData, TiltifyDonationEventData } from "@/store/tiltify/storeTiltify";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Event } from "./EventDispatcher";
+import type { IAuthState } from "@/store/StoreProxy";
 
 /**
-* Created : 21/06/2023
-*/
+ * Created : 21/06/2023
+ */
 export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
-
 	public static ON_CONNECT = "ON_CONNECT" as const;
 	public static FAILED_CONNECT = "FAILED_CONNECT" as const;
 	public static KO_FI_EVENT = "KO_FI_EVENT" as const;
@@ -31,26 +31,29 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
 	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
+	public static TWITCHEXT_CLICK = "TWITCHEXT_CLICK" as const;
+	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
+	public static REMOTE_ACTION = "REMOTE_ACTION" as const;
+	public static FEATURE_FLAGS_UPDATE = "FEATURE_FLAGS_UPDATE" as const;
 
-	constructor(eventType:T, public data?:EventTypeMap[T]) {
+	constructor(
+		eventType: T,
+		public data?: EventTypeMap[T],
+	) {
 		super(eventType);
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-
-
+	 * GETTER / SETTERS *
+	 ********************/
 
 	/******************
-	* PUBLIC METHODS *
-	******************/
-
-
+	 * PUBLIC METHODS *
+	 ******************/
 
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 }
 
 export type EventTypeMap = {
@@ -63,121 +66,161 @@ export type EventTypeMap = {
 	KO_FI_FAILED_WEBHOOK: string;
 	TILTIFY_EVENT: TiltifyDonationEventData | TiltifyCauseEventData;
 	NOTIFICATION: {
-			messageId:string;
-			col:number[];
-			message:string;
-			quote:string;
-			highlightColor:string;
-			style:TwitchatDataTypes.MessageCustomData["style"];
-			username:string;
-			actions:TwitchatDataTypes.MessageCustomData["actions"];
-		};
-	BINGO_GRID_UPDATE:{
-		force:true;
-	} | {
-		force:false;
-		grid:{
-			enabled:boolean;
-			title:string;
-			cols:number;
-			rows:number;
-			entries:TwitchatDataTypes.BingoGridConfig["entries"];
-			additionalEntries?:TwitchatDataTypes.BingoGridConfig["entries"];
-		};
+		messageId: string;
+		col: number[];
+		message: string;
+		quote: string;
+		highlightColor: string;
+		style: TwitchatDataTypes.MessageCustomData["style"];
+		username: string;
+		actions: TwitchatDataTypes.MessageCustomData["actions"];
 	};
+	BINGO_GRID_UPDATE:
+		| {
+				force: true;
+		  }
+		| {
+				force: false;
+				grid: {
+					enabled: boolean;
+					title: string;
+					cols: number;
+					rows: number;
+					entries: TwitchatDataTypes.BingoGridConfig["entries"];
+					additionalEntries?: TwitchatDataTypes.BingoGridConfig["entries"];
+				};
+		  };
 	BINGO_GRID_BINGO_COUNT: {
-			gridId:string;
-			uid:string;
-			login:string;
-			count:number;
-		};
+		gridId: string;
+		uid: string;
+		count: number;
+		login?: string;
+	};
 	BINGO_GRID_CELL_STATES: {
-			gridId:string;
-			states:{[cellId:string]:boolean};
-		}
+		gridId: string;
+		states: { [cellId: string]: boolean };
+	};
 	TRIGGER_SLASH_COMMAND: {
-			command:"link" | "say" | "ask";
-			params: {
-				name:string;
-				value:string;
-			}[];
-		};
+		command: "link" | "say" | "ask";
+		params: {
+			name: string;
+			value: string;
+		}[];
+	};
 	BINGO_GRID_UNTICK_ALL: void;
 	BINGO_GRID_MODERATOR_TICK: {
-			gridId:string;
-			uid:string;
-			states:{[cellid:string]:boolean};
-		};
+		gridId: string;
+		uid: string;
+		states: { [cellid: string]: boolean };
+	};
 	SHARED_MOD_INFO_REQUEST: void;
 	QNA_STATE: {
-		sessions:TwitchatDataTypes.QnaSession[];
+		sessions: TwitchatDataTypes.QnaSession[];
 	};
-	QNA_ACTION: IQnaAddMessageAction
-			| IQnaDelMessageAction
-			| IQnaCloseAction
-			| IQnaDeleteAction
-			| IQnaHighlightMessageAction;
+	QNA_ACTION:
+		| IQnaAddMessageAction
+		| IQnaDelMessageAction
+		| IQnaCloseAction
+		| IQnaDeleteAction
+		| IQnaHighlightMessageAction;
 	SPOIL_MESSAGE: {
-		messageId:string;
-		moderatorId:string;
+		messageId: string;
+		moderatorId: string;
 	};
 	PATREON_MEMBER_CREATE: {
-		uid:string;
+		uid: string;
 		user: {
 			username: string;
 			avatar: string;
 			url: string;
-		},
+		};
 		tier: {
 			amount: number;
 			title: string;
 			description: string;
-		}
+		};
 	};
 	PRIVATE_MOD_MESSAGE: {
-		from_uid:string;
-		from_login:string;
-		message:TwitchatDataTypes.ParseMessageChunk[];
-		action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
-		messageId:string;
-		messageIdParent:string;
+		from_uid: string;
+		from_login: string;
+		message: TwitchatDataTypes.ParseMessageChunk[];
+		action: TwitchatDataTypes.MessagePrivateModeratorData["action"];
+		messageId: string;
+		messageIdParent: string;
 		messageParentFallback?: TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"];
 	};
 	PRIVATE_MOD_MESSAGE_ANSWER: {
-		messageId:string;
-		answer:boolean;
+		messageId: string;
+		answer: boolean;
 	};
 	SERVER_UPDATE: {
-		delay:number;
+		delay: number;
 	};
-}
+	TWITCHEXT_CLICK: {
+		px: number;
+		py: number;
+		alt: boolean;
+		ctrl: boolean;
+		shift: boolean;
+		userId?: string;
+	};
+	TWITCHEXT_QUIZ_ANSWER: {
+		userId?: string;
+		opaqueUserId: string;
+		/**
+		 * The ID of the quiz being answered.
+		 */
+		quizId: string;
+		/**
+		 * The ID of the question being answered.
+		 */
+		questionId: string;
+		/**
+		 * For non-free answer questions, the ID of the selected answer.
+		 */
+		answerId?: string;
+		/**
+		 * For free answer questions, the raw text answer provided by the user.
+		 */
+		answerText?: string;
+		/**
+		 * Delay with streamer
+		 */
+		delay_ms: number;
+	};
+	REMOTE_ACTION: {
+		action: string;
+		data?: unknown;
+	};
+	FEATURE_FLAGS_UPDATE: IAuthState["featureFlags"];
+};
 
 interface AbstractQnaAciton {
-	moderatorId:string;
+	moderatorId: string;
 }
 
 interface IQnaAddMessageAction extends AbstractQnaAciton {
-	action:"add_message";
-	message:TwitchatDataTypes.QnaSession["messages"][number];
-	sessionId:string;
+	action: "add_message";
+	message: TwitchatDataTypes.QnaSession["messages"][number];
+	sessionId: string;
 }
 
 interface IQnaHighlightMessageAction extends AbstractQnaAciton {
-	action:"highlight_message";
-	messageId:string;
-	sessionId:string;
+	action: "highlight_message";
+	messageId: string;
+	sessionId: string;
 }
 
 interface IQnaDelMessageAction extends AbstractQnaAciton {
-	action:"del_message";
-	messageId:string;
-	sessionId:string;
+	action: "del_message";
+	messageId: string;
+	sessionId: string;
 }
 interface IQnaCloseAction extends AbstractQnaAciton {
-	action:"close_session";
-	sessionId:string;
+	action: "close_session";
+	sessionId: string;
 }
 interface IQnaDeleteAction extends AbstractQnaAciton {
-	action:"delete_session";
-	sessionId:string;
+	action: "delete_session";
+	sessionId: string;
 }

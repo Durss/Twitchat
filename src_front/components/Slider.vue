@@ -1,178 +1,203 @@
 <template>
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
-		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()" ref="input">
+		<input
+			type="range"
+			v-model.number="localValue"
+			:min="min"
+			:max="max"
+			:step="step"
+			@pointerdown.capture.stop=""
+			@input="renderBar()"
+			ref="input"
+		/>
 		<div class="gratuations" :style="gratuationsStyles"></div>
 		<div class="fill" :style="fillStyles"></div>
 	</div>
 </template>
 
-<script lang="ts">
-import { watch, type CSSProperties } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import {
+	watch,
+	type CSSProperties,
+	ref,
+	computed,
+	onMounted,
+	onBeforeUnmount,
+	getCurrentInstance,
+} from "vue";
 
-@Component({
-	components:{},
-	emits:["update:modelValue", "stop", "start", "change"],
-})
-class Slider extends Vue {
+const props = withDefaults(
+	defineProps<{
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		light?: boolean;
+		disabled?: boolean;
+		dotMode?: boolean;
+		modelValue?: number;
+		min?: number;
+		max?: number;
+		step?: number;
+	}>(),
+	{
+		secondary: false,
+		alert: false,
+		premium: false,
+		light: false,
+		disabled: false,
+		dotMode: false,
+		modelValue: 0,
+		min: 0,
+		max: 30,
+		step: 1,
+	},
+);
 
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
+const emit = defineEmits<{
+	"update:modelValue": [value: number];
+	stop: [];
+	start: [];
+	change: [value: number];
+}>();
 
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
+const instance = getCurrentInstance();
+const input = ref<HTMLInputElement>();
 
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
+const localValue = ref(0);
+const pressed = ref(false);
+const fillPercent = ref(20);
 
-	@Prop({type:Boolean, default: false})
-	public light!:boolean;
+let mouseUpHandler: (e: PointerEvent) => void;
+let mouseMoveHandler: (e: PointerEvent) => void;
 
-	@Prop({type:Boolean, default: false})
-	public disabled!:boolean;
+const classes = computed(() => {
+	let res: string[] = ["slider"];
+	if (props.secondary !== false) res.push("secondary");
+	if (props.alert !== false) res.push("alert");
+	if (props.premium !== false) res.push("premium");
+	if (props.light) res.push("light");
+	if (props.disabled) res.push("disabled");
+	if (props.dotMode) res.push("dotMode");
+	return res;
+});
 
-	@Prop({type:Boolean, default: false})
-	public dotMode!:boolean;
-
-	@Prop({type:Number, default: 0})
-	public modelValue!:number;
-
-	@Prop({type:Number, default: 0})
-	public min!:number;
-
-	@Prop({type:Number, default: 30})
-	public max!:number;
-
-	@Prop({type:Number, default: 1})
-	public step!:number;
-
-	public localValue:number = 0;
-
-	private pressed:boolean = false;
-	private fillPercent:number = 20;
-	private mouseUpHandler!:(e:PointerEvent) => void;
-	private mouseMoveHandler!:(e:PointerEvent) => void;
-
-	public get classes():string[] {
-		let res:string[] = ["slider"];
-		if(this.secondary !== false) res.push("secondary");
-		if(this.alert !== false) res.push("alert");
-		if(this.premium !== false) res.push("premium");
-		if(this.light) res.push("light");
-		if(this.disabled) res.push("disabled");
-		if(this.dotMode) res.push("dotMode");
-		return res;
-	}
-
-	public get fillStyles():CSSProperties {
-		if(this.dotMode !== false) {
-			return {
-				left: (this.fillPercent * 100)+"%"
-			};
-		}else{
-			return {
-				width: (this.fillPercent * 100)+"%"
-			};
-		}
-	}
-
-	public get gratuationsStyles():CSSProperties {
-		const ratio = Math.abs(this.max - this.min) / this.step;
-		if(ratio > 50) return {backgroundSize:"110%, 50%"};
+const fillStyles = computed<CSSProperties>(() => {
+	if (props.dotMode !== false) {
 		return {
-			backgroundSize: (100/ratio)+"% 50%",
+			left: fillPercent.value * 100 + "%",
+		};
+	} else {
+		return {
+			width: fillPercent.value * 100 + "%",
 		};
 	}
+});
 
-	public mounted():void {
-		this.localValue = this.modelValue;
-		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
-		this.mouseUpHandler = (e:PointerEvent) => this.onMouseUp(e);
-		this.mouseMoveHandler = (e:PointerEvent) => this.onMouseMove(e);
-		document.addEventListener("pointerup", this.mouseUpHandler);
-		document.addEventListener("pointermove", this.mouseMoveHandler);
+const gratuationsStyles = computed<CSSProperties>(() => {
+	const ratio = Math.abs(props.max - props.min) / props.step;
+	if (ratio > 50) return { backgroundSize: "110%, 50%" };
+	return {
+		backgroundSize: 100 / ratio + "% 50%",
+	};
+});
 
-		watch(()=>this.min, ()=> this.updateLimit());
-		watch(()=>this.max, ()=> this.updateLimit());
-		watch(()=>this.modelValue, ()=> {
-			this.localValue = this.modelValue;
-			this.renderBar();
-		});
-	}
-	
-	public beforeUnmount():void {
-		document.removeEventListener("pointerup", this.mouseUpHandler)
-		document.removeEventListener("pointermove", this.mouseMoveHandler)
-	}
-
-	public renderBar():void {
-		this.fillPercent = (this.localValue - this.min)/(this.max - this.min);
-		this.$emit("update:modelValue", this.localValue);
-		this.$emit("change", this.localValue);
-	}
-
-	public onMouseWheel(e?:WheelEvent):void {
-		//Don't allow control via mouse wheel if not focused
-		if(document.activeElement != this.$refs.input) return;
-
-		const add = e? (e.deltaY > 0)? -1 : 1 : 0;
-		let v = this.localValue + add * this.step;
-		//Rounding to compensate for bad JS maths.
-		//For JS: 0.2 + 0.1 = 0.30000000000000004
-		v = Math.round(v/this.step) / (1/this.step);
-		const nonClampedValue = v;
-		v = Math.max(this.min, Math.min(this.max, v));
-		if(v === nonClampedValue && e) e.preventDefault();
-		this.localValue = v;
-		this.renderBar();
-		this.$emit("stop");
-	}
-
-	public onMouseUp(e:PointerEvent):void {
-		this.pressed = false;
-		this.$emit("stop");
-	}
-	
-	public onMouseDown(e:PointerEvent):void {
-		this.pressed = true;
-		(e.target as HTMLDivElement).setPointerCapture(e.pointerId);
-		this.onMouseMove(e);
-		this.$emit("start");
-	}
-	
-	public onMouseMove(e:PointerEvent):void {
-		if(!this.pressed) return;
-
-		const bounds = (this.$el as HTMLElement).getBoundingClientRect();
-		//Compute percent of the width clicked
-		let percent = Math.max(0, Math.min(1, (e.clientX - bounds.left) / bounds.width));
-		//Compute value and round it to the nearest step
-		let value = percent * (this.max-this.min) + this.min;
-		//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
-		//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
-		value = Math.round(value/this.step) / (1/this.step);
-		//Set local values
-		this.localValue = value;
-		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
-	}
-	
-	private updateLimit():void {
-		//Compute percent of the width clicked
-		//Compute value and round it to the nearest step
-		let value = this.fillPercent * (this.max-this.min) + this.min;
-		//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
-		//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
-		value = Math.round(value/this.step) / (1/this.step);
-		//Set local values
-		this.localValue = value;
-		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
-	}
+function renderBar(): void {
+	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
+	emit("update:modelValue", localValue.value);
+	emit("change", localValue.value);
 }
-export default toNative(Slider);
+
+function onMouseWheel(e?: WheelEvent): void {
+	//Don't allow control via mouse wheel if not focused
+	if (document.activeElement != input.value) return;
+
+	const add = e ? (e.deltaY > 0 ? -1 : 1) : 0;
+	let v = localValue.value + add * props.step;
+	//Rounding to compensate for bad JS maths.
+	//For JS: 0.2 + 0.1 = 0.30000000000000004
+	v = Math.round(v / props.step) / (1 / props.step);
+	const nonClampedValue = v;
+	v = Math.max(props.min, Math.min(props.max, v));
+	if (v === nonClampedValue && e) e.preventDefault();
+	localValue.value = v;
+	renderBar();
+	emit("stop");
+}
+
+function onMouseUp(e: PointerEvent): void {
+	pressed.value = false;
+	emit("stop");
+}
+
+function onMouseDown(e: PointerEvent): void {
+	pressed.value = true;
+	(e.target as HTMLDivElement).setPointerCapture(e.pointerId);
+	onMouseMove(e);
+	emit("start");
+}
+
+function onMouseMove(e: PointerEvent): void {
+	if (!pressed.value) return;
+
+	const bounds = (instance?.proxy?.$el as HTMLElement)?.getBoundingClientRect();
+	if (!bounds) return;
+	//Compute percent of the width clicked
+	let percent = Math.max(0, Math.min(1, (e.clientX - bounds.left) / bounds.width));
+	//Compute value and round it to the nearest step
+	let value = percent * (props.max - props.min) + props.min;
+	//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
+	//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
+	value = Math.round(value / props.step) / (1 / props.step);
+	//Set local values
+	localValue.value = value;
+	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
+}
+
+function updateLimit(): void {
+	//Compute percent of the width clicked
+	//Compute value and round it to the nearest step
+	let value = fillPercent.value * (props.max - props.min) + props.min;
+	//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
+	//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
+	value = Math.round(value / props.step) / (1 / props.step);
+	//Set local values
+	localValue.value = value;
+	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
+}
+
+onMounted(() => {
+	localValue.value = props.modelValue;
+	fillPercent.value = (localValue.value - props.min) / (props.max - props.min);
+	mouseUpHandler = (e: PointerEvent) => onMouseUp(e);
+	mouseMoveHandler = (e: PointerEvent) => onMouseMove(e);
+	document.addEventListener("pointerup", mouseUpHandler);
+	document.addEventListener("pointermove", mouseMoveHandler);
+
+	watch(
+		() => props.min,
+		() => updateLimit(),
+	);
+	watch(
+		() => props.max,
+		() => updateLimit(),
+	);
+	watch(
+		() => props.modelValue,
+		() => {
+			localValue.value = props.modelValue;
+			renderBar();
+		},
+	);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("pointerup", mouseUpHandler);
+	document.removeEventListener("pointermove", mouseMoveHandler);
+});
 </script>
 
 <style scoped lang="less">
-.slider{
+.slider {
 	.bevel();
 	height: 1em;
 	position: relative;
@@ -197,7 +222,7 @@ export default toNative(Slider);
 		background-repeat: repeat-x;
 		background-position: left center;
 	}
-	
+
 	.fill {
 		.emboss();
 		position: relative;
@@ -238,10 +263,10 @@ export default toNative(Slider);
 	}
 
 	&.disabled {
-		opacity: .5;
+		opacity: 0.5;
 		pointer-events: none;
 	}
-	
+
 	&.secondary {
 		background-color: var(--color-secondary-fadest);
 		.fill {
@@ -249,10 +274,15 @@ export default toNative(Slider);
 		}
 		.gratuations {
 			@c2: var(--color-secondary-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.alert {
 		background-color: var(--color-alert-fadest);
 		.fill {
@@ -260,10 +290,15 @@ export default toNative(Slider);
 		}
 		.gratuations {
 			@c2: var(--color-alert-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.light {
 		background-color: var(--color-light-fadest);
 		.fill {
@@ -271,10 +306,15 @@ export default toNative(Slider);
 		}
 		.gratuations {
 			@c2: var(--color-light-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
-	
+
 	&.premium {
 		background-color: var(--color-premium-fadest);
 		.fill {
@@ -282,7 +322,12 @@ export default toNative(Slider);
 		}
 		.gratuations {
 			@c2: var(--color-premium-light);
-			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+			background-image: linear-gradient(
+				90deg,
+				transparent 0%,
+				transparent calc(100% - 1px),
+				@c2 100%
+			);
 		}
 	}
 }

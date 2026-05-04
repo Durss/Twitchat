@@ -4,44 +4,30 @@ import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 import type { SFXR } from "./types/jsfxr";
 import type { TwitchScopesString } from "./utils/twitch/TwitchScopes";
-
-declare module '*.vue' {
-	import type { DefineComponent } from 'vue';
-	const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>;
-	export default component;
-	interface ElementAttrs extends AriaAttributes, DOMAttributes<T> {
-	}
-}
-
-declare module '@vue/runtime-core' {
-	interface ComponentCustomProperties {
-		$store: IStore,
-		$config: Config,
-		$asset: (path:string) => string,
-		$placeDropdown: (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => void,
-		$overlayURL: (id:TwitchatDataTypes.OverlayTypes, params?:{k:string, v:string}[]) => string,
-		$confirm: <T>(title: string,
-			description?: string,
-			data?: T,
-			yesLabel?:string,
-			noLabel?:string,
-			STTOrigin?:boolean) => Promise<T|undefined>,
-	}
-}
+import type { Reactive } from "vue";
+import type Utils from "./utils/Utils";
 
 declare global {
 	interface Window {
 		obsstudio?: any;
-		queryLocalFonts?(options?:{postscriptNames?:string[]}):Promise<{family:string, fullName:string, postscriptName:string, style:""}[]>;
-		setInitMessage(message:string):void;
-		authCallback(code:string, csrfToken:string):void;
-    	jsfxr: {sfxr:SFXR};
+		queryLocalFonts?(options?: {
+			postscriptNames?: string[];
+		}): Promise<{ family: string; fullName: string; postscriptName: string; style: "" }[]>;
+		setInitMessage(message: string): void;
+		authCallback(code: string, csrfToken: string): void;
+		jsfxr: { sfxr: SFXR };
+	}
+
+	interface Navigator {
+		brave: {
+			isBrave: () => Promise<boolean>;
+		};
 	}
 
 	interface Array<T> {
 		findLastIndex(
 			predicate: (value: T, index: number, obj: T[]) => unknown,
-			thisArg?: any
+			thisArg?: any,
 		): number;
 	}
 
@@ -74,15 +60,15 @@ declare global {
 		PAIDY: "paidy",
 	} as const;
 	type PAYPAL_FUNDING_TYPE = typeof PaypalFunding;
-	type PAYPAL_FUNDING_VALUES = typeof PaypalFunding[keyof typeof PaypalFunding];
+	type PAYPAL_FUNDING_VALUES = (typeof PaypalFunding)[keyof typeof PaypalFunding];
 	type PAYPAL_BUTTON = {
-		focus:()=>void;
-		close:()=>void;
-		hide:()=>void;
-		isEligible:()=>void;
-		show:()=>void;
-		render:(divID:string)=>void;
-	}
+		focus: () => void;
+		close: () => void;
+		hide: () => void;
+		isEligible: () => void;
+		show: () => void;
+		render: (divID: string) => void;
+	};
 	const PAYPAL_ORDER = {
 		orderID: "",
 		payerID: "",
@@ -90,8 +76,8 @@ declare global {
 		billingToken: "",
 		facilitatorAccessToken: "",
 		paymentSource: "paypal",
-		giftUserId : "",
-	}
+		giftUserId: "",
+	};
 	type PAYPAL_ORDER_TYPE = typeof PAYPAL_ORDER;
 
 	type PAYPAL_ORDER_ACTION = {
@@ -107,29 +93,29 @@ declare global {
 				amount: {
 					currency_code: string;
 					value: string;
-				  };
+				};
 				payee: {
 					email_address: string;
 					merchant_id: string;
-				  };
+				};
 				shipping: {
 					name: {
 						full_name: string;
-					  };
+					};
 					address: {
 						address_line_1: string;
 						admin_area_2: string;
 						admin_area_1: string;
 						postal_code: string;
 						country_code: string;
-					  };
-				  };
-			  }[];
+					};
+				};
+			}[];
 			payer: {
 				name: {
 					given_name: string;
 					surname: string;
-				  };
+				};
 				email_address: string;
 				payer_id: string;
 				address: {
@@ -138,33 +124,40 @@ declare global {
 					admin_area_1: string;
 					postal_code: string;
 					country_code: string;
-				  };
-			  };
+				};
+			};
 			create_time: string;
 			links: {
 				href: string;
 				rel: string;
 				method: string;
-			  }[];
-		  };
+			}[];
+		};
 		handlers: any[];
 		dispatching: boolean;
-	  }
+	};
 
 	const paypal: {
-		FUNDING:PAYPAL_FUNDING_TYPE;
-		Buttons:(params:{
-			fundingSource:PAYPAL_FUNDING_VALUES;
-			style:{
-				layout?: 'vertical' | 'horizontal';
-				color?: 'blue' | 'gold' | 'silver' | 'blue' | 'white' | 'black' | '';
-				shape?: 'rect' | 'pill';
-				label?: 'paypal' | 'checkout' | 'buynow' | 'pay' | 'installment';
+		FUNDING: PAYPAL_FUNDING_TYPE;
+		Buttons: (params: {
+			fundingSource: PAYPAL_FUNDING_VALUES;
+			style: {
+				layout?: "vertical" | "horizontal";
+				color?: "blue" | "gold" | "silver" | "white" | "black" | "";
+				shape?: "rect" | "pill";
+				label?: "paypal" | "checkout" | "buynow" | "pay" | "installment";
 			};
 			onCancel?: () => void;
 			onError?: () => void;
 			createOrder?: () => Promise<string>;
-			onApprove?: (order:PAYPAL_ORDER_TYPE, action:{order:{get:()=>PAYPAL_ORDER_ACTION}, redirect:()=>void, restart:()=>void}) => Promise<void>;
-		})=>PAYPAL_BUTTON;
-	}
+			onApprove?: (
+				order: PAYPAL_ORDER_TYPE,
+				action: {
+					order: { get: () => PAYPAL_ORDER_ACTION };
+					redirect: () => void;
+					restart: () => void;
+				},
+			) => Promise<void>;
+		}) => PAYPAL_BUTTON;
+	};
 }

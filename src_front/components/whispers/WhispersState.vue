@@ -1,170 +1,203 @@
 <template>
-	<div class="whispersstate sidePanel">
+	<div class="whispersstate sidePanel" ref="rootEl">
 		<div class="head">
 			<ClearButton @click="close" />
-			<h1 class="title" v-if="isConversation"><img :src="getCorrespondant(selectedUserId).avatarPath" v-if="getCorrespondant(selectedUserId).avatarPath" class="icon">{{ $t('whispers.title') }} - {{ getCorrespondant(selectedUserId).displayName }}</h1>
+			<h1 class="title" v-if="isConversation">
+				<img
+					:src="getCorrespondant(selectedUserId).avatarPath"
+					v-if="getCorrespondant(selectedUserId).avatarPath"
+					class="icon"
+				/>{{ t("whispers.title") }} - {{ getCorrespondant(selectedUserId).displayName }}
+			</h1>
 		</div>
 
 		<div class="content" v-if="isConversation">
 			<div class="messageList" ref="messageList">
-				<div v-for="m in $store.chat.whispers[selectedUserId]!.messages" :key="m.id" :class="messageClasses(m)">
-					<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{getTime(m)}}</span>
+				<div
+					v-for="m in storeChat.whispers[selectedUserId]!.messages"
+					:key="m.id"
+					:class="messageClasses(m)"
+				>
+					<span class="chatMessageTime" v-if="storeParams.appearance.displayTime.value">{{
+						getTime(m)
+					}}</span>
 					<div class="text">
-						<ChatMessageChunksParser :chunks="m.message_chunks" :channel="m.channel_id" :platform="m.platform" />
+						<ChatMessageChunksParser
+							:chunks="m.message_chunks"
+							:channel="m.channel_id"
+							:platform="m.platform"
+						/>
 					</div>
 				</div>
 			</div>
 
 			<div v-if="error" class="errorCard" @click="error = false">
-				{{ $t('whispers.cant_send_1') }}
-				<br>
-				{{ $t('whispers.cant_send_2') }}
+				{{ t("whispers.cant_send_1") }}
+				<br />
+				{{ t("whispers.cant_send_2") }}
 			</div>
 
-			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
-				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500" v-autofocus>
+			<form class="form" @submit.prevent="sendWhisper()" v-if="canAnswer">
+				<input
+					type="text"
+					:placeholder="t('whispers.input_placeholder')"
+					class="dark"
+					v-model="whisper"
+					maxlength="500"
+					v-autofocus
+				/>
 				<TTButton class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
-			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</TTButton>
+			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{
+				t("whispers.add_scope_bt")
+			}}</TTButton>
 
-			<div class="userlist" v-if="Object.keys($store.chat.whispers).length > 0">
-				<div v-for="whispers, key in $store.chat.whispers" :key="key" class="user">
-					<TTButton small class="login" @click="selectedUserId = <string>key" :selected="selectedUserId == key">{{ getCorrespondant(<string>key).displayName }}</TTButton>
-					<TTButton small class="delete" icon="trash" @click="deleteWhispers(<string>key)" alert></TTButton>
+			<div class="userlist" v-if="Object.keys(storeChat.whispers).length > 0">
+				<div v-for="(whispers, key) in storeChat.whispers" :key="key" class="user">
+					<TTButton
+						small
+						class="login"
+						@click="selectedUserId = <string>key"
+						:selected="selectedUserId == key"
+						>{{ getCorrespondant(key).displayName }}</TTButton
+					>
+					<TTButton
+						small
+						class="delete"
+						icon="trash"
+						@click="deleteWhispers(<string>key)"
+						alert
+					></TTButton>
 				</div>
 			</div>
 		</div>
 
-		<div class="content" v-else>
-		</div>
+		<div class="content" v-else></div>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
-import ClearButton from '../ClearButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import { watch } from 'vue';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+<script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
+import ClearButton from "../ClearButton.vue";
+import TTButton from "../TTButton.vue";
+import ChatMessageChunksParser from "../messages/components/ChatMessageChunksParser.vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		TTButton,
-		ToggleBlock,
-		ClearButton,
-		ChatMessageChunksParser,
-	},
-	emits:["close"]
-})
-class WhispersState extends AbstractSidePanel {
+const emit = defineEmits<{ close: [] }>();
 
-	public error = false;
-	public whisper:string | null = null;
-	public selectedUserId:string = "";
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const storeAuth = useStoreAuth();
+const storeMain = useStoreMain();
+const storeParams = useStoreParams();
 
-	public get canAnswer():boolean {
-		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE]);
+const rootEl = useTemplateRef("rootEl");
+const messageList = useTemplateRef("messageList");
+
+const { close } = useSidePanel(rootEl, () => emit("close"));
+
+const error = ref(false);
+const whisper = ref<string | null>(null);
+const selectedUserId = ref("");
+
+const canAnswer = computed((): boolean => TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE]));
+
+const isConversation = computed((): boolean => Object.keys(storeChat.whispers).length > 0);
+
+function getCorrespondant(uid: string): TwitchatDataTypes.TwitchatUser {
+	const whispers = storeChat.whispers[uid]!;
+	const me = storeAuth.twitch.user.id;
+	return whispers.to.id == me ? whispers.from : whispers.to;
+}
+
+onBeforeMount(() => {
+	selectedUserId.value = Object.keys(storeChat.whispers)[0]!;
+	storeChat.whispersUnreadCount = 0;
+
+	if (
+		storeMain.tempStoreValue &&
+		typeof storeMain.tempStoreValue === "object" &&
+		"type" in storeMain.tempStoreValue &&
+		storeMain.tempStoreValue.type == "user"
+	) {
+		const data = storeMain.tempStoreValue as {
+			type: string;
+			user: TwitchatDataTypes.TwitchatUser;
+		};
+		selectedUserId.value = data.user.id;
+		storeMain.tempStoreValue = null;
 	}
 
-	public get isConversation():boolean {
-		return Object.keys(this.$store.chat.whispers).length > 0;
-	}
-
-	public get currentUser():TwitchatDataTypes.TwitchatUser {
-		//TODO Is this thing necessary?
-		return this.$store.chat.whispers[this.selectedUserId]!.messages.find(v=> v.user.id == this.selectedUserId)!.user;
-	}
-
-	public getCorrespondant(uid:string):TwitchatDataTypes.TwitchatUser {
-		const whispers = this.$store.chat.whispers[uid]!;
-		const me = this.$store.auth.twitch.user.id;
-		return whispers.to.id == me? whispers.from : whispers.to;
-	}
-
-	public beforeMount():void {
-		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0]!;
-		this.$store.chat.whispersUnreadCount = 0;
-		
-		if(this.$store.main.tempStoreValue
-		&& typeof this.$store.main.tempStoreValue === "object"
-		&& "type" in this.$store.main.tempStoreValue
-		&& this.$store.main.tempStoreValue.type == "user") {
-			const data = this.$store.main.tempStoreValue as {type:string, user:TwitchatDataTypes.TwitchatUser};
-			this.selectedUserId = data.user.id;
-			this.$store.main.tempStoreValue = null;
-		}
-
-		watch(()=>this.selectedUserId, async ()=>{
+	watch(
+		() => selectedUserId.value,
+		async () => {
 			//Force scroll for a few frames in case there are
 			//emotes to be loaded. If we were not waiting for this
 			//the scroll might to be at the bottom
 			for (let i = 0; i < 10; i++) {
-				await this.$nextTick();
-				this.scrollToBottom();
+				await nextTick();
+				scrollToBottom();
 			}
-		});
-	}
+		},
+	);
+});
 
-	public mounted():void {
-		this.open();
-	}
-
-	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {
-		let classes:string[] = ["message"];
-		if(whisper.user.id == this.$store.auth.twitch.user.id) classes.push("isMe");
-		return classes;
-	}
-
-	public getTime(whisper:TwitchatDataTypes.MessageWhisperData):string {
-		const d = new Date(whisper.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
-
-	public requestTwitchScope():void {
-		this.$store.auth.requestTwitchScopes([TwitchScopes.WHISPER_MANAGE]);
-	}
-
-	public async sendWhisper():Promise<void> {
-		if(!this.whisper || !this.selectedUserId) return;
-
-		this.error = false;
-
-		try {
-			await TwitchUtils.whisper(this.whisper, undefined, this.selectedUserId);
-		}catch(error) {
-			this.error = true;
-		}
-		this.scrollToBottom();
-
-		this.whisper = "";
-	}
-
-	public deleteWhispers(uid:string):void {
-		this.$store.chat.closeWhispers(uid);
-		if(this.selectedUserId == uid && this.isConversation) {
-			this.selectedUserId = Object.keys(this.$store.chat.whispers)[0]!;
-		}
-		if(!this.isConversation) this.close();
-	}
-
-	private scrollToBottom():void {
-		const div = this.$refs.messageList as HTMLDivElement;
-		div.scrollTo(0, div.scrollHeight);
-	}
-
+function messageClasses(whisper: TwitchatDataTypes.MessageWhisperData): string[] {
+	let classes: string[] = ["message"];
+	if (whisper.user.id == storeAuth.twitch.user.id) classes.push("isMe");
+	return classes;
 }
-export default toNative(WhispersState);
+
+function getTime(whisper: TwitchatDataTypes.MessageWhisperData): string {
+	const d = new Date(whisper.date);
+	return Utils.toDigits(d.getHours()) + ":" + Utils.toDigits(d.getMinutes());
+}
+
+function requestTwitchScope(): void {
+	storeAuth.requestTwitchScopes([TwitchScopes.WHISPER_MANAGE]);
+}
+
+async function sendWhisper(): Promise<void> {
+	if (!whisper.value || !selectedUserId.value) return;
+
+	error.value = false;
+
+	try {
+		await TwitchUtils.whisper(whisper.value, undefined, selectedUserId.value);
+	} catch (e) {
+		error.value = true;
+	}
+	scrollToBottom();
+
+	whisper.value = "";
+}
+
+function deleteWhispers(uid: string): void {
+	storeChat.closeWhispers(uid);
+	if (selectedUserId.value == uid && isConversation.value) {
+		selectedUserId.value = Object.keys(storeChat.whispers)[0]!;
+	}
+	if (!isConversation.value) close();
+}
+
+function scrollToBottom(): void {
+	const div = messageList.value!;
+	div.scrollTo(0, div.scrollHeight);
+}
 </script>
 
 <style scoped lang="less">
-.whispersstate{
-	.head>.title>.icon {
+.whispersstate {
+	.head > .title > .icon {
 		border-radius: 50%;
 	}
 	.content {
@@ -173,7 +206,7 @@ export default toNative(WhispersState);
 		flex-direction: column;
 		justify-content: flex-start;
 		width: 100%;
-		margin:auto;
+		margin: auto;
 
 		.userlistToggle {
 			width: 100%;
@@ -196,7 +229,7 @@ export default toNative(WhispersState);
 				.delete {
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
-					padding: 0 .5em;
+					padding: 0 0.5em;
 				}
 			}
 		}
@@ -206,7 +239,7 @@ export default toNative(WhispersState);
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
-			gap: .5em;
+			gap: 0.5em;
 
 			.message {
 				display: flex;
@@ -214,17 +247,17 @@ export default toNative(WhispersState);
 				align-items: baseline;
 				align-self: flex-start;
 				position: relative;
-				padding: .5em;
+				padding: 0.5em;
 				line-height: 1.25em;
 				// width: auto;
 				max-width: 80%;
-				border-radius: .5em;
+				border-radius: 0.5em;
 				font-size: var(--messageSize);
 				color: var(--color-text);
 				background-color: var(--color-primary-fadest);
 				flex-shrink: 0;
 
-				.chatMessageTime + *{
+				.chatMessageTime + * {
 					padding-left: 3em;
 				}
 
@@ -238,13 +271,13 @@ export default toNative(WhispersState);
 					margin-right: 0;
 					background-color: var(--color-secondary-fadest);
 
-					.chatMessageTime + *{
+					.chatMessageTime + * {
 						padding-left: 0;
 						padding-right: 3em;
 					}
 				}
 
-				:deep( .emote ) {
+				:deep(.emote) {
 					max-height: 2em;
 					vertical-align: middle;
 					object-fit: fill;

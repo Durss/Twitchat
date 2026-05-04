@@ -11,6 +11,7 @@
 		"header_select_obs_filter": "Select the OBS filter to monitor",
 		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
 		"trigger_name": "Custom name",
+		"trigger_icon": "Custom icon",
 		"enableForRemoteChans": "Enabled for other channels",
 		"enableForRemoteChans_tt": "This option allows the trigger to be active on channels other than your own",
 		"add_triggerBt": "Create a trigger",
@@ -34,6 +35,7 @@
 		"triggers_list_raw": "Raw list",
 		"triggers_list_cat": "Categories",
 		"create_folder": "Create folder",
+		"search_in_actions": "Search in actions",
 		"create_counterBt": "Create counters",
 		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
@@ -141,7 +143,6 @@
 			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custom placeholders for later use on any action of the trigger",
 			"param_cmd_params_placeholder": "parameter",
 			"param_cmd_params_example": "Command usage example:",
-			"param_cmd_params_example_result": "Result:",
 			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",
 			"format_error": "Command must start with a \" / \"",
 			"grant_discord_rights": "Grant permission to your discord members"
@@ -408,7 +409,7 @@
 				"loop_delails": "This may make twitchat unstable."
 			},
 			"triggerToggle": {
-				"select": "Select the trigger you want to control",
+				"select": "Select the trigger or folder you want to control",
 				"selected": "Trigger to update",
 				"action": "Action",
 				"action_enable": "Enable trigger",
@@ -745,18 +746,18 @@
 				}
 			},
 			"sfxr": {
-				"preset_pickupCoin":"Pickup coin",
-				"preset_laserShoot":"Laser shoot",
-				"preset_explosion":"Explosion",
-				"preset_powerUp":"Power up",
-				"preset_hitHurt":"Hit hurt",
-				"preset_jump":"Jump",
-				"preset_blipSelect":"Blip select",
-				"preset_synth":"Synth",
-				"preset_tone":"Tone",
-				"preset_click":"Click",
-				"preset_random":"Random",
-				"preset_custom":"Custom...",
+				"preset_pickupCoin": "Pickup coin",
+				"preset_laserShoot": "Laser shoot",
+				"preset_explosion": "Explosion",
+				"preset_powerUp": "Power up",
+				"preset_hitHurt": "Hit hurt",
+				"preset_jump": "Jump",
+				"preset_blipSelect": "Blip select",
+				"preset_synth": "Synth",
+				"preset_tone": "Tone",
+				"preset_click": "Click",
+				"preset_random": "Random",
+				"preset_custom": "Custom...",
 				"param_volume": "Volume",
 				"param_waitForComplete": "Wait for audio to complete\n(trigger's execution will be paused until audio completes)",
 				"param_playOnOverlay": "Play audio on overlay instead of Twitchat",
@@ -831,6 +832,8 @@
 			"followage": "Following date",
 			"followage_ms": "Following date in milliseconds",
 			"winner": "Winner name",
+			"quiz_name": "Quiz name",
+			"quiz_id": "Quiz ID",
 			"bingo_number": "Number to guess",
 			"bingo_emote": "Emote to guess",
 			"bingo_custom": "Custom text to guess",
@@ -1313,6 +1316,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Scheduled actions",
+				"search_terms": ["repeat", "regular", "schedule"],
 				"description": "Actions to execute regularly or at specific date/time"
 			},
 			"TIMER_START": {
@@ -1358,7 +1362,7 @@
 				"description": "Actions to execute after closing an highlighted message"
 			},
 			"CHAT_ALERT": {
-				"label": "Chat alert",
+				"label": "Twitchat !alert command",
 				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
 				"description_info": "(Parameters => @:params.categories.features => @:params.alertMode )"
 			},
@@ -1444,23 +1448,23 @@
 				"description": "Actions to execute after Twitchat loading completes"
 			},
 			"STREAM_ONLINE": {
-				"label": "Stream start",
+				"label": "Twitch stream start",
 				"description": "Actions to execute when stream starts {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
-				"label": "Stream stop",
+				"label": "Twitch stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
-				"label": "Followed stream start",
+				"label": "Twitch Followed stream start",
 				"description": "Actions to execute when one of your following starts a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
-				"label": "Followed stream stop",
+				"label": "Twitch Followed stream stop",
 				"description": "Actions to execute when one of your following stops a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
@@ -1514,9 +1518,9 @@
 				"description": "Actions to execute when a user pays for a hype chat message"
 			},
 			"HEAT_CLICK": {
-				"label": "Heat click",
+				"label": "Click on the stream",
 				"description": "Actions to execute when a user clicks on your stream {INFO}",
-				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
+				"description_info": "(Needs \"Twitchat Companion\" (or \"Heat\") extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip created from Twitchat",
@@ -1819,18 +1823,22 @@
 				"label": "Twitch Combo",
 				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
 			},
-			"OBS_CONNECTED":{
+			"OBS_CONNECTED": {
 				"label": "OBS connected",
 				"description": "Actions to execute when Twitchat connects to OBS websocket"
 			},
-			"OBS_DISCONNECTED":{
+			"OBS_DISCONNECTED": {
 				"label": "OBS disconnected",
 				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
 			},
-			"MANY_REPLIES":{
+			"MANY_REPLIES": {
 				"label": "A message received many replies",
 				"description": "Actions to execute when a message receives many replies",
 				"disabled_reason": "You need to enable this feature first in @:params.categories.features section"
+			},
+			"QUIZ_COMPLETE": {
+				"label": "Quiz complete",
+				"description": "Actions to execute when a quiz is completed"
 			}
 		},
 		"musicEvents": {

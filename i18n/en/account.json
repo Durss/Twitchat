@@ -1,17 +1,23 @@
 {
-	"account":{
-		"connected_as":"Connected as {USER}",
-		"donation_public":"Makes your login visible by everyone on the donor list under {LINK}",
-		"about_link":"@:params.categories.donate section",
-		"installBt":"Install Twitchat",
-		"updatesBt":"Latest updates",
-		"erase_dataBt":"Erase local parameters",
-		"erase_confirm_title":"Erase local parameters?",
-		"erase_confirm_description":"This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.",
-		"authorization":"Authorizations",
-		"language":"Interface language",
+	"account": {
+		"connected_as": "Connected as {USER}",
+		"donation_public": "Makes your login visible by everyone on the donor list under {LINK}",
+		"about_link": "@:params.categories.donate section",
+		"installBt": "Install Twitchat",
+		"updatesBt": "Latest updates",
+		"erase_dataBt": "Erase local parameters",
+		"erase_confirm_title": "Erase local parameters?",
+		"erase_confirm_description": "This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.",
+		"authorization": "Authorizations",
+		"language": "Interface language",
+		"invoices": {
+			"title": "Your invoices",
+			"date": "Date",
+			"id": "Order ID",
+			"amount": "Amount"
+		},
 		"share": {
-			"info":"If you want to share your parameters between multiple accounts, click the \"Connect\" button below and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
+			"info": "If you want to share your parameters between multiple accounts, click the \"Connect\" button below and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
 			"connectBt": "Connect",
 			"sharingList": "Currently sharing with",
 			"unlinkBt": "Unlink",

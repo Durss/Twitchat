@@ -1,0 +1,5 @@
+# Commits to ignore in git blame (formatting, linting, etc.)
+# https://git-scm.com/docs/git-blame#Documentation/git-blame.txt---ignore-revs-fileltfilegt
+
+# chore: formatting and fixing all linting issues
+89d9432630d61be8c84971d606cfa6babbfb5c31

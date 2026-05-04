@@ -4,23 +4,20 @@
 </template>
 
 <script lang="ts">
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import { toNative, Component, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		ToggleBlock,
 	},
-	emits:[],
+	emits: [],
 })
-class OverlayParamsTTS extends Vue {
-
-}
+class OverlayParamsTTS extends Vue {}
 export default toNative(OverlayParamsTTS);
 </script>
 
 <style scoped lang="less">
-.overlayparamstts{
-	
+.overlayparamstts {
 }
 </style>

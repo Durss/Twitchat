@@ -1,47 +1,47 @@
 {
 	"bingo": {
-		"goal_emote":"Find one of the global Twitch emotes",
-		"goal_number":"Find a number between {MIN} and {MAX}",
-		"goal_custom":"Find the secret word(s)!",
+		"goal_emote": "Find one of the global Twitch emotes",
+		"goal_number": "Find a number between {MIN} and {MAX}",
+		"goal_custom": "Find the secret word(s)!",
 
 		"form": {
-			"title":"Create bingo",
-			"closeBt_aria":"Close bingo form",
-			"description":"Let your viewers guess a number or an emote",
-			"title_emote":"Emote",
-			"title_number":"Number",
-			"title_custom":"Custom",
-			"min_value":"Min value",
-			"max_value":"Max value",
-			"custom_value":"Message",
-			"custom_value_tolerance":"Orthographic tolereance",
-			"custom_value_tolerances":{
-				"none":"None",
-				"very_low":"Very low",
-				"low":"Low",
-				"medium":"Medium",
-				"high":"High",
-				"very_high":"Very high"
+			"title": "Create bingo",
+			"closeBt_aria": "Close bingo form",
+			"description": "Let your viewers guess a number or an emote",
+			"title_emote": "Emote",
+			"title_number": "Number",
+			"title_custom": "Custom",
+			"min_value": "Min value",
+			"max_value": "Max value",
+			"custom_value": "Message",
+			"custom_value_tolerance": "Orthographic tolereance",
+			"custom_value_tolerances": {
+				"none": "None",
+				"very_low": "Very low",
+				"low": "Low",
+				"medium": "Medium",
+				"high": "High",
+				"very_high": "Very high"
 			},
-			"startBt":"Start bingo",
-			"custom_placeholder":"message...",
+			"startBt": "Start bingo",
+			"custom_placeholder": "message...",
 
-			"winner_placeholder":"User name",
-			"goal_placeholder":"Explain what to find",
+			"winner_placeholder": "User name",
+			"goal_placeholder": "Explain what to find",
 
-			"number_info":"Your viewers will have to send a number between the min and max values <i>(included)</i> in the chat",
-			"emote_info":"Your viewers will have to send one of the <strong>{COUNT} global</strong> twitch emotes on your chat <i>(smileys excluded)</i>",
-			"custom_info":"Your viewers will have to send the following message",
+			"number_info": "Your viewers will have to send a number between the min and max values <i>(included)</i> in the chat",
+			"emote_info": "Your viewers will have to send one of the <strong>{COUNT} global</strong> twitch emotes on your chat <i>(smileys excluded)</i>",
+			"custom_info": "Your viewers will have to send the following message",
 
-			"username_placeholder":"User name",
+			"username_placeholder": "User name",
 
-			"announce_start":"Announce bingo start on chat",
-			"announce_winner":"Post bingo winner on chat"
+			"announce_start": "Announce bingo start on chat",
+			"announce_winner": "Post bingo winner on chat"
 		},
-		"state":{
-			"title":"Bingo",
-			"winner":"Winner",
-			"closeBt":"Close bingo"
+		"state": {
+			"title": "Bingo",
+			"winner": "Winner",
+			"closeBt": "Close bingo"
 		}
 	}
 }

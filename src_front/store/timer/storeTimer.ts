@@ -1,344 +1,386 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import TwitchatEvent from "@/events/TwitchatEvent";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import PublicAPI from "@/utils/PublicAPI";
+import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
+import StoreProxy, {
+	type ITimerActions,
+	type ITimerGetters,
+	type ITimerState,
+} from "../StoreProxy";
 
-const countdownTO:Record<string, string> = {};
-const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
+const countdownTO: Record<string, string> = {};
+const getDefaultStyle = (): TwitchatDataTypes.TimerData["overlayParams"] => {
 	return {
-		style:"text",
-		bgColor:"#ffffff",
-		showIcon:true,
-		bgEnabled:true,
-		textFont:"Roboto",
-		textSize:32,
-		textColor:"#18181b",
-		progressSize:10,
-		progressStyle:"empty",
-	}
-}
+		style: "text",
+		bgColor: "#ffffff",
+		showIcon: true,
+		bgEnabled: true,
+		textFont: "Roboto",
+		textSize: 32,
+		textColor: "#18181b",
+		progressSize: 10,
+		progressStyle: "empty",
+	};
+};
 
-export const storeTimer = defineStore('timer', {
-	state: () => ({
-		timerList: [] as TwitchatDataTypes.TimerData[],
-		selectedTimerIDs:[],
-	} as ITimerState),
+export const storeTimer = defineStore("timer", {
+	state: (): ITimerState => ({
+		timerList: [] as ITimerState["timerList"],
+	}),
 
-
-
-	getters: {
-	} as ITimerGetters
-	& ThisType<UnwrapRef<ITimerState> & _StoreWithGetters<ITimerGetters> & PiniaCustomProperties>
-	& _GettersTree<ITimerState>,
-
-
+	getters: {} satisfies StoreGetters<ITimerGetters, ITimerState>,
 
 	actions: {
-		async populateData():Promise<void> {
+		async populateData(): Promise<void> {
 			const json = DataStore.get(DataStore.TIMERS_CONFIGS);
-			if(json) {
+			if (json) {
 				const data = JSON.parse(json) as IStoreData;
-				this.timerList = data.timerList
+				this.timerList = data.timerList;
 			}
 
 			// Create default time/countdown if missing
-			if (!this.timerList.some(timer => timer.isDefault && timer.type === "countdown")) {
-				const defaultCountdown:TwitchatDataTypes.TimerData = {
-					id:Utils.getUUID(),
-					type:"countdown",
-					placeholderKey:"DEFAULT",
-					title:StoreProxy.i18n.t("timers.default_countdown_title"),
-					duration_ms:60_000,
-					enabled:true,
-					isDefault:true,
-					paused:false,
-					startAt_ms:0,
-					offset_ms:0,
-					pauseDuration_ms:0,
+			if (!this.timerList.some((timer) => timer.isDefault && timer.type === "countdown")) {
+				const defaultCountdown: TwitchatDataTypes.TimerData = {
+					id: Utils.getUUID(),
+					type: "countdown",
+					placeholderKey: "DEFAULT",
+					title: StoreProxy.i18n.t("timers.default_countdown_title"),
+					duration_ms: 60_000,
+					enabled: true,
+					isDefault: true,
+					paused: false,
+					startAt_ms: 0,
+					offset_ms: 0,
+					pauseDuration_ms: 0,
 					overlayParams: getDefaultStyle(),
-				}
+				};
 				this.timerList.unshift(defaultCountdown);
 			}
-			if (!this.timerList.some(timer => timer.isDefault && timer.type === "timer")) {
-				const defaultTimer:TwitchatDataTypes.TimerData = {
-					id:Utils.getUUID(),
-					type:"timer",
-					placeholderKey:"DEFAULT",
-					title:StoreProxy.i18n.t("timers.default_timer_title"),
-					enabled:true,
-					isDefault:true,
-					paused:false,
-					startAt_ms:0,
-					offset_ms:0,
-					pauseDuration_ms:0,
-					duration_ms:0,
+			if (!this.timerList.some((timer) => timer.isDefault && timer.type === "timer")) {
+				const defaultTimer: TwitchatDataTypes.TimerData = {
+					id: Utils.getUUID(),
+					type: "timer",
+					placeholderKey: "DEFAULT",
+					title: StoreProxy.i18n.t("timers.default_timer_title"),
+					enabled: true,
+					isDefault: true,
+					paused: false,
+					startAt_ms: 0,
+					offset_ms: 0,
+					pauseDuration_ms: 0,
+					duration_ms: 0,
 					overlayParams: getDefaultStyle(),
-				}
+				};
 				this.timerList.unshift(defaultTimer);
 			}
 
 			// Temporary fix. Few users got their timers initialized with old labels
 			// that were missing the required labels. This fixes it.
 			// TODO: remove this in the future (added 30/08/25)
-			this.timerList.forEach(v=> {
-				if(v.title == "timers.default_countdown_title"
-				|| v.title == "timers.default.countdown_title") {
+			this.timerList.forEach((v) => {
+				if (
+					v.title == "timers.default_countdown_title" ||
+					v.title == "timers.default.countdown_title"
+				) {
 					v.title = StoreProxy.i18n.t("timers.default_countdown_title");
 				}
-				if(v.title == "timers.default_timer_title"
-				|| v.title == "timers.default.timer_title") {
+				if (
+					v.title == "timers.default_timer_title" ||
+					v.title == "timers.default.timer_title"
+				) {
 					v.title = StoreProxy.i18n.t("timers.default_timer_title");
 				}
-			})
+			});
 
 			this.saveData();
 
 			/**
 			 * Called when timer overlay requests for a timer info
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
-				if(event.data?.id) {
+			PublicAPI.instance.addEventListener("GET_TIMER", (event) => {
+				if (event.data?.id) {
 					this.broadcastStates(event.data.id);
-				}else{
+				} else {
 					//Broadcast default timers states
 					for (const entry of this.timerList) {
-						if(!entry.isDefault) continue;
+						if (!entry.isDefault) continue;
 						this.broadcastStates(entry.id);
 					}
 				}
 			});
+
+			const timerAddHandler = (
+				event: TwitchatEvent<"SET_TIMER_ADD" | "SET_COUNTDOWN_ADD">,
+			) => {
+				const durationStr = event.data?.value ?? "0";
+				const type: TwitchatDataTypes.TimerData["type"] =
+					event.type == "SET_TIMER_ADD" ? "timer" : "countdown";
+				const defaultTimer = this.timerList.find((v) => v.type == type && v.isDefault);
+				const timerId = event.data?.id || defaultTimer?.id;
+				const timer = this.timerList.find((v) => v.id == timerId);
+				const durationMs = isNaN(parseInt(durationStr))
+					? 0
+					: parseFloat(durationStr) * 1000;
+				if (!timer) return;
+				if (durationMs > 0) {
+					this.timerAdd(timer.id, durationMs);
+				} else {
+					this.timerRemove(timer.id, -durationMs);
+				}
+			};
+
+			PublicAPI.instance.addEventListener("SET_TIMER_ADD", timerAddHandler);
+			PublicAPI.instance.addEventListener("SET_COUNTDOWN_ADD", timerAddHandler);
+
+			PublicAPI.instance.addEventListener("GET_TIMER_LIST", () => this.broadcastTimerList());
 		},
 
-		broadcastStates(id?:string) {
+		broadcastStates(id?: string) {
 			for (const entry of this.timerList) {
-				if(id && entry.id !== id) continue;
+				if (id && entry.id !== id) continue;
 
-				if(entry.type === "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+				if (entry.type === "timer") {
+					PublicAPI.instance.broadcast("ON_TIMER_START", entry);
 				}
 
-				if(entry.type === "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+				if (entry.type === "countdown") {
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_START", entry);
 				}
 			}
 		},
 
 		createTimer() {
 			// +2 is to account for the default timer and countdown
-			if(!StoreProxy.auth.isPremium && this.timerList.filter(v=>!v.isDefault && v.enabled).length >= Config.instance.MAX_TIMERS + 2) return;
-			const data:TwitchatDataTypes.TimerData = {
-				id:Utils.getUUID(),
-				type:"timer",
-				placeholderKey:"",
-				title:"",
-				enabled:true,
-				isDefault:false,
-				paused:false,
-				startAt_ms:0,
-				offset_ms:0,
-				pauseDuration_ms:0,
-				duration_ms:0,
+			if (
+				!StoreProxy.auth.isPremium &&
+				this.timerList.filter((v) => !v.isDefault && v.enabled).length >=
+					Config.instance.MAX_TIMERS + 2
+			)
+				return;
+			const data: TwitchatDataTypes.TimerData = {
+				id: Utils.getUUID(),
+				type: "timer",
+				placeholderKey: "",
+				title: "",
+				enabled: true,
+				isDefault: false,
+				paused: false,
+				startAt_ms: 0,
+				offset_ms: 0,
+				pauseDuration_ms: 0,
+				duration_ms: 60_000,
 				overlayParams: getDefaultStyle(),
-			}
+			};
 			this.timerList.push(data);
 			this.saveData();
 		},
 
-		deleteTimer(id:string) {
-			const index = this.timerList.findIndex(t=> t.id === id);
-			if(index == -1) return;
-			StoreProxy.main.confirm(StoreProxy.i18n.t("timers.delete_confirm.title"), StoreProxy.i18n.t("timers.delete_confirm.message"))
-			.then(()=> {
-				this.timerList.splice(index, 1);
-				this.saveData();
-			}).catch(_=> {});
+		deleteTimer(id: string) {
+			const index = this.timerList.findIndex((t) => t.id === id);
+			if (index == -1) return;
+			StoreProxy.main
+				.confirm(
+					StoreProxy.i18n.t("timers.delete_confirm.title"),
+					StoreProxy.i18n.t("timers.delete_confirm.message"),
+				)
+				.then(() => {
+					this.timerList.splice(index, 1);
+					this.saveData();
+				})
+				.catch((_) => {});
 		},
 
-		timerStart(id:string) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry || !entry.enabled) return;
+		timerStart(id: string) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry || !entry.enabled) return;
 
-			let message:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData|null = null;
+			let message:
+				| TwitchatDataTypes.MessageTimerData
+				| TwitchatDataTypes.MessageCountdownData
+				| null = null;
 			this.resetTimer(id);
 
 			entry.startAt_ms = Date.now();
-			switch(entry.type) {
+			switch (entry.type) {
 				case "timer": {
-					const data:TwitchatDataTypes.MessageTimerData = {
-						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
-						platform:"twitchat",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						timer_id:entry.id,
-						channel_id:StoreProxy.auth.twitch.user.id,
-						startedAt_ms:Date.now(),
-						startedAt_str:Utils.formatDate(new Date(), true),
+					const data: TwitchatDataTypes.MessageTimerData = {
+						type: TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform: "twitchat",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						timer_id: entry.id,
+						channel_id: StoreProxy.auth.twitch.user.id,
+						startedAt_ms: Date.now(),
+						startedAt_str: Utils.formatDate(new Date(), true),
 						duration_ms: 0,
 						duration_str: "0",
-						stopped:false,
+						stopped: false,
 					};
 					message = data;
 					break;
 				}
-				case "countdown":{
-					const data:TwitchatDataTypes.MessageCountdownData = {
-						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-						platform:"twitchat",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						countdown_id:entry.id,
-						channel_id:StoreProxy.auth.twitch.user.id,
-						startedAt_ms:Date.now(),
-						startedAt_str:Utils.formatDate(new Date(), true),
+				case "countdown": {
+					const data: TwitchatDataTypes.MessageCountdownData = {
+						type: TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+						platform: "twitchat",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						countdown_id: entry.id,
+						channel_id: StoreProxy.auth.twitch.user.id,
+						startedAt_ms: Date.now(),
+						startedAt_str: Utils.formatDate(new Date(), true),
 						duration_ms: entry.duration_ms,
 						duration_str: Utils.formatDuration(entry.duration_ms, true),
-						aborted:false,
-						complete:false,
+						aborted: false,
+						complete: false,
 					};
 					message = data;
 				}
 			}
-			if(message) StoreProxy.chat.addMessage(message);
+			if (message) void StoreProxy.chat.addMessage(message);
 
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
-		timerAdd(id:string, duration:number) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry) return;
-			if(entry.type == "timer") {
+		timerAdd(id: string, duration: number) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry) return;
+			if (entry.type == "timer") {
 				entry.offset_ms += duration;
-			}else if(entry.type == "countdown") {
+			} else if (entry.type == "countdown") {
 				entry.duration_ms += duration;
-				this.broadcastStates();
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
-		timerRemove(id:string, duration:number) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry || !entry.startAt_ms) return;
-			if(entry.type == "timer") {
+		timerRemove(id: string, duration: number) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry || !entry.startAt_ms) return;
+			if (entry.type == "timer") {
 				const elapsed = Date.now() - entry.startAt_ms;
 				entry.offset_ms -= duration;
-				if(elapsed + entry.offset_ms < 0) entry.offset_ms = -elapsed;
-			}else if(entry.type == "countdown") {
+				if (elapsed + entry.offset_ms < 0) entry.offset_ms = -elapsed;
+			} else if (entry.type == "countdown") {
 				entry.duration_ms -= duration;
-				if(entry.duration_ms < 0) entry.duration_ms = 0;
+				if (entry.duration_ms < 0) entry.duration_ms = 0;
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
-		timerPause(id:string) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry || !entry.startAt_ms || entry.paused) return;
+		timerPause(id: string) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry || !entry.startAt_ms || entry.paused) return;
 			entry.paused = true;
 			entry.pausedAt_ms = Date.now();
-			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
-			this.broadcastStates();
+			if (entry.type == "countdown" && countdownTO[entry.id])
+				SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
-		timerUnpause(id:string) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry || !entry.enabled) return;
-			if(entry.paused && entry.startAt_ms) {
+		timerUnpause(id: string) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry || !entry.enabled) return;
+			if (entry.paused && entry.startAt_ms) {
 				entry.paused = false;
-				if(entry.type == "timer") {
+				if (entry.type == "timer") {
 					entry.offset_ms -= Date.now() - (entry.pausedAt_ms || 0);
-				}else{
+				} else {
 					entry.pauseDuration_ms += Date.now() - (entry.pausedAt_ms || 0);
 				}
 				entry.pausedAt_ms = 0;
-				this.broadcastStates();
+				this.broadcastStates(id);
 				this.saveData();
-			}else{
+			} else {
 				this.timerStart(id);
 			}
 		},
 
-		timerStop(id:string) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry || !entry.startAt_ms) return;
-			if(entry.paused) this.timerUnpause(id);
+		timerStop(id: string) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry || !entry.startAt_ms) return;
+			if (entry.paused) this.timerUnpause(id);
 			entry.endAt_ms = Date.now();
 			const duration = this.getTimerComputedValue(id);
-			let message!:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData;
-			switch(entry.type) {
-				case "timer":{
-					const data:TwitchatDataTypes.MessageTimerData = {
-						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
-						platform:"twitchat",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						timer_id:entry.id,
-						channel_id:StoreProxy.auth.twitch.user.id,
-						startedAt_ms:entry.startAt_ms,
-						startedAt_str:Utils.formatDate(new Date(entry.startAt_ms), true),
-						duration_ms:duration.duration_ms,
-						duration_str:duration.duration_str,
-						stopped:true,
+			let message!:
+				| TwitchatDataTypes.MessageTimerData
+				| TwitchatDataTypes.MessageCountdownData;
+			switch (entry.type) {
+				case "timer": {
+					const data: TwitchatDataTypes.MessageTimerData = {
+						type: TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform: "twitchat",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						timer_id: entry.id,
+						channel_id: StoreProxy.auth.twitch.user.id,
+						startedAt_ms: entry.startAt_ms,
+						startedAt_str: Utils.formatDate(new Date(entry.startAt_ms), true),
+						duration_ms: duration.duration_ms,
+						duration_str: duration.duration_str,
+						stopped: true,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
 					break;
 				}
-				case "countdown":{
+				case "countdown": {
 					const aborted = duration.duration_ms > 0;
-					const finalDuration_ms = aborted? entry.endAt_ms - entry.startAt_ms - entry.pauseDuration_ms : entry.duration_ms;
+					const finalDuration_ms = aborted
+						? entry.endAt_ms - entry.startAt_ms - entry.pauseDuration_ms
+						: entry.duration_ms;
 					const finalDuration_str = Utils.formatDuration(finalDuration_ms, true);
 
-					const data:TwitchatDataTypes.MessageCountdownData = {
-						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-						platform:"twitchat",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						countdown_id:entry.id,
-						channel_id:StoreProxy.auth.twitch.user.id,
-						startedAt_ms:entry.startAt_ms,
-						startedAt_str:Utils.formatDate(new Date(entry.startAt_ms), true),
-						duration_ms:entry.duration_ms,
-						duration_str:Utils.formatDuration(entry.duration_ms, true),
+					const data: TwitchatDataTypes.MessageCountdownData = {
+						type: TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+						platform: "twitchat",
+						id: Utils.getUUID(),
+						date: Date.now(),
+						countdown_id: entry.id,
+						channel_id: StoreProxy.auth.twitch.user.id,
+						startedAt_ms: entry.startAt_ms,
+						startedAt_str: Utils.formatDate(new Date(entry.startAt_ms), true),
+						duration_ms: entry.duration_ms,
+						duration_str: Utils.formatDuration(entry.duration_ms, true),
 						aborted,
-						complete:true,
-						endedAt_ms:Date.now(),
-						endedAt_str:Utils.formatDate(new Date(), true),
+						complete: true,
+						endedAt_ms: Date.now(),
+						endedAt_str: Utils.formatDate(new Date(), true),
 						finalDuration_ms,
 						finalDuration_str,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 					break;
 				}
 			}
-			StoreProxy.chat.addMessage(message);
+			void StoreProxy.chat.addMessage(message);
 
 			this.resetTimer(id);
 			this.saveData();
 		},
 
-		resetTimer(id:string) {
-			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry) return;
-			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
-			if(entry.startAt_ms) {
-				if(entry.type == "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
-				}else if(entry.type == "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+		resetTimer(id: string) {
+			const entry = this.timerList.find((t) => t.id === id);
+			if (!entry) return;
+			if (countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
+			if (entry.startAt_ms) {
+				if (entry.type == "timer") {
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
+				} else if (entry.type == "countdown") {
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 				}
 			}
-			delete entry.pausedAt_ms
-			delete entry.endAt_ms
+			delete entry.pausedAt_ms;
+			delete entry.endAt_ms;
 			delete entry.startAt_ms;
 			delete countdownTO[entry.id];
 			entry.offset_ms = 0;
@@ -346,76 +388,96 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		saveData() {
-			const data:IStoreData = {
-				timerList:this.timerList
+			const data: IStoreData = {
+				timerList: this.timerList,
 			};
 			DataStore.set(DataStore.TIMERS_CONFIGS, data);
 
 			// Schedule countdown ends
 			for (const entry of this.timerList) {
-				if(entry.type != "countdown") continue;
-				if(countdownTO[entry.id]) {
+				if (entry.type != "countdown") continue;
+				if (countdownTO[entry.id]) {
 					SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 					delete countdownTO[entry.id];
 				}
-				if(entry.paused || !entry.startAt_ms) continue;
+				if (entry.paused || !entry.startAt_ms) continue;
 
-				countdownTO[entry.id] = SetTimeoutWorker.instance.create(()=> {
+				countdownTO[entry.id] = SetTimeoutWorker.instance.create(() => {
 					this.timerStop(entry.id);
 				}, this.getTimerComputedValue(entry.id).duration_ms);
 			}
+			this.broadcastTimerList();
 		},
 
-		getTimerComputedValue(id:string):{duration_ms:number, duration_str:string} {
-			const entry = this.timerList.find(t=> t.id === id);
+		getTimerComputedValue(id: string): { duration_ms: number; duration_str: string } {
+			const entry = this.timerList.find((t) => t.id === id);
 
 			// No timer found or timer not started
-			if(!entry || !entry.startAt_ms) return {duration_ms:0, duration_str:""};
+			if (!entry || !entry.startAt_ms) return { duration_ms: 0, duration_str: "" };
 
-			if(entry.type === "timer")  {
+			if (entry.type === "timer") {
 				let elapsed = 0;
-				if(entry.paused) {
+				if (entry.paused) {
 					elapsed = entry.pausedAt_ms! - entry.startAt_ms + entry.offset_ms;
-				}else{
+				} else {
 					elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
 				}
-				return  {
+				return {
 					duration_ms: elapsed,
-					duration_str: Utils.formatDuration(Math.ceil(elapsed/500)*500, true, StoreProxy.i18n.t("global.date_days"))
-				}
-			}
-
-			else if(entry.type === "countdown")  {
-				let elapsed = 0
-				if(entry.paused) {
+					duration_str: Utils.formatDuration(
+						Math.ceil(elapsed / 500) * 500,
+						true,
+						StoreProxy.i18n.t("global.date_days"),
+					),
+				};
+			} else if (entry.type === "countdown") {
+				let elapsed = 0;
+				if (entry.paused) {
 					elapsed = entry.pausedAt_ms! - entry.startAt_ms + entry.offset_ms;
-				}else{
+				} else {
 					elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
 				}
 				elapsed -= entry.pauseDuration_ms;
 				const remaining = Math.max(0, entry.duration_ms - elapsed);
 
-				return  {
+				return {
 					duration_ms: remaining,
-					duration_str: Utils.formatDuration(Math.ceil(remaining/500)*500, true, StoreProxy.i18n.t("global.date_days"))
-				}
+					duration_str: Utils.formatDuration(
+						Math.ceil(remaining / 500) * 500,
+						true,
+						StoreProxy.i18n.t("global.date_days"),
+					),
+				};
 			}
 
-			return {duration_ms:0, duration_str:""}
-		}
-	} as ITimerActions
-	& ThisType<ITimerActions
-		& UnwrapRef<ITimerState>
-		& _StoreWithState<"timer", ITimerState, ITimerGetters, ITimerActions>
-		& _StoreWithGetters<ITimerGetters>
-		& PiniaCustomProperties
-	>,
-})
+			return { duration_ms: 0, duration_str: "" };
+		},
 
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeTimer, import.meta.hot))
+		broadcastTimerList() {
+			PublicAPI.instance.broadcast("ON_TIMER_LIST", {
+				timerList: this.timerList.map((c) => ({
+					id: c.id,
+					title: c.title,
+					enabled: c.enabled,
+					type: c.type,
+					duration_ms: c.duration_ms,
+					offset_ms: c.offset_ms,
+					paused: c.paused,
+					pauseDuration_ms: c.pauseDuration_ms,
+					startAt_ms: c.startAt_ms,
+					endAt_ms: c.endAt_ms,
+					pausedAt_ms: c.pausedAt_ms,
+					isDefault: c.isDefault,
+				})),
+			});
+		},
+	} satisfies StoreActions<"timer", ITimerState, ITimerGetters, ITimerActions>,
+});
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTimer, import.meta.hot));
 }
 
 interface IStoreData {
-	timerList:TwitchatDataTypes.TimerData[];
+	timerList: TwitchatDataTypes.TimerData[];
 }

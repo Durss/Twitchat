@@ -7,66 +7,83 @@ import * as fs from "fs";
 import SSEController, { SSECode } from "./SSEController.js";
 import fetch from "node-fetch";
 import Utils from "../utils/Utils.js";
+import { AutocompletableString } from "@/utils/typeUtils.js";
 
 /**
-* Created : 06/09/2024 
-*/
+ * Created : 06/09/2024
+ */
 export default class TiltifyController extends AbstractController {
+	private credentialToken: AuthToken | null = null;
+	private fact2UidMap: FactIdToUsers = {};
+	private parsedEvents: { [id: string]: boolean } = {};
+	private apiPath: string = "";
 
-	private credentialToken:AuthToken | null = null;
-	private fact2UidMap:FactIdToUsers = {};
-	private parsedEvents:{[id:string]:boolean} = {};
-	private apiPath:string = ""
-	
-	constructor(public server:FastifyInstance) {
+	constructor(public server: FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	
-	
-	
+	 * GETTER / SETTERS *
+	 ********************/
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public async initialize():Promise<void> {
-		this.server.get('/api/tiltify/info', async (request, response) => await this.getInfo(request, response));
-		this.server.post('/api/tiltify/auth', async (request, response) => await this.postAuth(request, response));
-		this.server.delete('/api/tiltify/auth', async (request, response) => await this.deleteAuth(request, response));
-		this.server.post('/api/tiltify/token/refresh', async (request, response) => await this.postRefreshToken(request, response));
-		this.server.post('/api/tiltify/webhook', async (request, response) => await this.postWebhook(request, response));
+	 * PUBLIC METHODS *
+	 ******************/
+	public async initialize(): Promise<void> {
+		this.server.get(
+			"/api/tiltify/info",
+			async (request, response) => await this.getInfo(request, response),
+		);
+		this.server.post(
+			"/api/tiltify/auth",
+			async (request, response) => await this.postAuth(request, response),
+		);
+		this.server.delete(
+			"/api/tiltify/auth",
+			async (request, response) => await this.deleteAuth(request, response),
+		);
+		this.server.post(
+			"/api/tiltify/token/refresh",
+			async (request, response) => await this.postRefreshToken(request, response),
+		);
+		this.server.post(
+			"/api/tiltify/webhook",
+			async (request, response) => await this.postWebhook(request, response),
+		);
 
 		this.apiPath = Config.credentials.tiltify_api_path;
 
-		if(Config.credentials.tiltify_client_id && Config.credentials.tiltify_client_secret && this.apiPath) {
+		if (
+			Config.credentials.tiltify_client_id &&
+			Config.credentials.tiltify_client_secret &&
+			this.apiPath
+		) {
 			await this.generateCredentialToken();
 			await this.enableWebhook();
-	
-			if(fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
-				this.fact2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_FACT_2_UID_MAP, "utf-8") || "{}");
+
+			if (fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
+				this.fact2UidMap = JSON.parse(
+					fs.readFileSync(Config.TILTIFY_FACT_2_UID_MAP, "utf-8") || "{}",
+				);
 			}
 		}
 	}
-	
-	
-	
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
 	/**
 	 * Called when receiving a webhook event
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
-	private async postWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const body = request.body as WebhookDonationEvent|WebhookCampaignEvent;
-		
+	private async postWebhook(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const body = request.body as WebhookDonationEvent | WebhookCampaignEvent;
+
 		//If that event has already been parsed, ignore it
-		if(this.parsedEvents[body.meta.id] === true) {
+		if (this.parsedEvents[body.meta.id] === true) {
 			response.status(200);
 			response.send("OK");
 			return;
@@ -75,60 +92,61 @@ export default class TiltifyController extends AbstractController {
 		//Verify signature
 		const signature = request.headers["x-tiltify-signature"];
 		const timestamp = request.headers["x-tiltify-timestamp"];
-		const key = timestamp+"."+JSON.stringify(request.body);
-		const hash = crypto.createHmac('sha256', Config.credentials.tiltify_webhook_verify)
-		.update(key)
-		.digest('base64');
+		const key = timestamp + "." + JSON.stringify(request.body);
+		const hash = crypto
+			.createHmac("sha256", Config.credentials.tiltify_webhook_verify)
+			.update(key)
+			.digest("base64");
 
-		if(hash !== signature) {
+		if (!Utils.safeStringEquals(signature, hash)) {
 			Logger.warn("[TILTIFY] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
 			return;
 		}
 
-		if(body.meta.event_type != "public:direct:fact_updated" || (body.meta.event_type == "public:direct:fact_updated"
-		&& (body as WebhookCampaignEvent).data.livestream)) {
-			Utils.logToFile("tiltify", JSON.stringify({type:body.meta.event_type, data:body}));
+		if (
+			body.meta.event_type != "public:direct:fact_updated" ||
+			(body.meta.event_type == "public:direct:fact_updated" &&
+				(body as WebhookCampaignEvent).data.livestream)
+		) {
+			Utils.logToFile("tiltify", JSON.stringify({ type: body.meta.event_type, data: body }));
 		}
 
-		try{
-
-			if(body.meta.event_type == "public:direct:donation_updated") {
+		try {
+			if (body.meta.event_type == "public:direct:donation_updated") {
 				const typedBody = body as WebhookDonationEvent;
-				const data:SSETiltifyDonationEventData = {
+				const data: SSETiltifyDonationEventData = {
 					type: "donation",
 					amount: parseFloat(typedBody.data.amount.value),
 					currency: typedBody.data.amount.currency,
 					message: typedBody.data.donor_comment,
 					username: typedBody.data.donor_name,
-					campaignId:typedBody.data.campaign_id,
+					campaignId: typedBody.data.campaign_id,
 				};
 
-				if(typedBody.meta.subscription_source_type == "test") {
+				if (typedBody.meta.subscription_source_type == "test") {
 					//Force existing campaign ID if testing so it actually
 					//does something on Twitchat
 					for (const id in this.fact2UidMap) {
-						if(this.fact2UidMap[id].type != "campaign") continue;
+						if (this.fact2UidMap[id]!.type != "campaign") continue;
 						data.campaignId = id;
 						break;
 					}
 				}
-	
+
 				//Send info to connected users
 				const fact = this.fact2UidMap[data.campaignId];
-				if(fact) {
-					(fact.users || []).forEach(uid=>{
+				if (fact) {
+					(fact.users || []).forEach((uid) => {
 						SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
-					})
-				}else{
+					});
+				} else {
 					Logger.warn("[TILTIFY] Campaign not found:", data.campaignId);
 				}
-	
-			}else
-			if(body.meta.event_type == "public:direct:fact_updated") {
+			} else if (body.meta.event_type == "public:direct:fact_updated") {
 				const typedBody = body as WebhookCampaignEvent;
-				const data:SSETiltifyCauseEventData = {
+				const data: SSETiltifyCauseEventData = {
 					type: "cause_update",
 					amount_goal: parseFloat(typedBody.data.goal.value),
 					currency: typedBody.data.goal.currency,
@@ -141,24 +159,23 @@ export default class TiltifyController extends AbstractController {
 					campaignId: typedBody.data.id,
 				};
 
-				if(typedBody.meta.subscription_source_type == "test") {
+				if (typedBody.meta.subscription_source_type == "test") {
 					//Force existing cause ID if testing so it actually
 					//does something on Twitchat
 					for (const id in this.fact2UidMap) {
-						if(this.fact2UidMap[id].type != "cause") continue;
+						if (this.fact2UidMap[id]!.type != "cause") continue;
 						data.causeId = id;
 						break;
 					}
 				}
 
 				//Send info to connected users
-				const fact = this.fact2UidMap[data.causeId];
-				(fact.users || []).forEach(uid=>{
+				const fact = this.fact2UidMap[data.causeId]!;
+				(fact.users || []).forEach((uid) => {
 					SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
 				});
 			}
-	
-		}catch(error) {
+		} catch (error) {
 			Logger.error("[TILTIFY] Webhook pasring error");
 			console.log(error);
 		}
@@ -170,89 +187,106 @@ export default class TiltifyController extends AbstractController {
 
 	/**
 	 * Get all user's info
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
-	private async getInfo(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	private async getInfo(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const twitchUser = await super.twitchUserGuard(request, response);
-		if(twitchUser == false) return;
+		if (twitchUser == false) return;
 
 		const params = request.query as any;
 		const accessToken = params.token as string;
-		if(!accessToken) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({success:false, errorCode:"UNAUTHORIZED", error:"Invalid or missing access token"}));
+		if (!accessToken) {
+			response
+				.header("Content-Type", "application/json")
+				.status(401)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "UNAUTHORIZED",
+						error: "Invalid or missing access token",
+					}),
+				);
 			return;
 		}
 
 		const options = {
-			method:"GET",
-			headers:{
-				"content-type":"application/json",
-				"Authorization":"Bearer "+accessToken,
+			method: "GET",
+			headers: {
+				"content-type": "application/json",
+				Authorization: "Bearer " + accessToken,
 			},
-		}
+		};
 
-		const userRes = await fetch(this.apiPath+"/api/public/current-user", options);
-		if(userRes.status != 200) throw("Failed loading user info with status "+userRes.status);
-		const userJSON = (await userRes.json() as {data:any}).data;
-		
-		const campaignsRes = await fetch(this.apiPath+`/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
-		if(campaignsRes.status != 200) throw("Failed loading user's teams and campaigns with status "+userRes.status);
-		let campaignsJSON:IntegrationList = [];
+		const userRes = await fetch(this.apiPath + "/api/public/current-user", options);
+		if (userRes.status != 200) throw "Failed loading user info with status " + userRes.status;
+		const userJSON = ((await userRes.json()) as { data: any }).data;
+
+		const campaignsRes = await fetch(
+			this.apiPath + `/api/public/users/${userJSON.id}/integration_events?limit=100`,
+			options,
+		);
+		if (campaignsRes.status != 200)
+			throw "Failed loading user's teams and campaigns with status " + userRes.status;
+		let campaignsJSON: IntegrationList = [];
 		try {
-			campaignsJSON = (await campaignsRes.json() as {data:IntegrationList}).data;
-		}catch(error) {
+			campaignsJSON = ((await campaignsRes.json()) as { data: IntegrationList }).data;
+		} catch (error) {
 			Logger.error("[TILTIFY] Failed loading Tiltify campaigns");
 			console.log(error);
 			console.log(await campaignsRes.text());
 		}
 
 		let mapUpdated = false;
-		campaignsJSON.forEach(c => {
-			this.subscribeToCampaign(c.id);
+		campaignsJSON.forEach(async (c) => {
+			await this.subscribeToCampaign(c.id);
 			//Register campaign
-			if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
-			if(!this.fact2UidMap[c.id].users.includes(twitchUser.user_id)) {
-				this.fact2UidMap[c.id].users.push(twitchUser.user_id);
+			if (!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = { type: "campaign", users: [] };
+			if (!this.fact2UidMap[c.id]!.users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.id]!.users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 			//Register cause
 			//"public:direct:fact_updated" webhook event only gives a cause ID, not
 			//a campaign ID, that's why we need this association
-			if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
-			if(!this.fact2UidMap[c.cause_id].users.includes(twitchUser.user_id)) {
-				this.fact2UidMap[c.cause_id].users.push(twitchUser.user_id);
+			if (!this.fact2UidMap[c.cause_id])
+				this.fact2UidMap[c.cause_id] = { type: "cause", users: [] };
+			if (!this.fact2UidMap[c.cause_id]!.users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.cause_id]!.users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 		});
 
-		if(mapUpdated) {
-			fs.writeFileSync(Config.TILTIFY_FACT_2_UID_MAP, JSON.stringify(this.fact2UidMap), "utf-8");
+		if (mapUpdated) {
+			fs.writeFileSync(
+				Config.TILTIFY_FACT_2_UID_MAP,
+				JSON.stringify(this.fact2UidMap),
+				"utf-8",
+			);
 		}
 
-		response.header('Content-Type', 'application/json')
-		.status(200)
-		.send(JSON.stringify({success:true, user:userJSON, campaigns:campaignsJSON}));
+		response
+			.header("Content-Type", "application/json")
+			.status(200)
+			.send(JSON.stringify({ success: true, user: userJSON, campaigns: campaignsJSON }));
 	}
 
 	/**
 	 * Called when connecting with tiltify
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
-	private async postAuth(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	private async postAuth(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const result = await super.twitchUserGuard(request, response);
-		if(result == false) return;
+		if (result == false) return;
 
 		const headers = {
-			"content-type":"application/json",
+			"content-type": "application/json",
 		};
 
-		const url = new URL(this.apiPath+"/oauth/token");
+		const url = new URL(this.apiPath + "/oauth/token");
 		url.searchParams.set("grant_type", "authorization_code");
 		url.searchParams.set("client_id", Config.credentials.tiltify_client_id);
 		url.searchParams.set("client_secret", Config.credentials.tiltify_client_secret);
@@ -260,165 +294,208 @@ export default class TiltifyController extends AbstractController {
 		url.searchParams.set("code", (request.body as any).code);
 
 		try {
-			const slRes = await fetch(url, {method:"POST", headers});
-			const token = await slRes.json();
+			const slRes = await fetch(url, { method: "POST", headers });
+			const token = (await slRes.json()) as AuthToken;
 
-			response.header('Content-Type', 'application/json')
-			.status(200)
-			.send(JSON.stringify({success:token.access_token !== undefined, token}));
-		}catch(error) {
-			response.header('Content-Type', 'application/json')
-			.status(500)
-			.send(JSON.stringify({success:false, errorCode:"JSON_PARSING_FAILED", error:"json parsing failed"}));
+			response
+				.header("Content-Type", "application/json")
+				.status(200)
+				.send(JSON.stringify({ success: token.access_token !== undefined, token }));
+		} catch (_error) {
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "JSON_PARSING_FAILED",
+						error: "json parsing failed",
+					}),
+				);
 		}
 	}
 
 	/**
 	 * Called when disconnecting from tiltify.
 	 * Cleanup webhooks
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
-	private async deleteAuth(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	private async deleteAuth(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const twitchUser = await super.twitchUserGuard(request, response);
-		if(twitchUser == false) return;
+		if (twitchUser == false) return;
 
 		const params = request.query as any;
 		const accessToken = params.token as string;
 		const options = {
-			method:"GET",
-			headers:{
-				"content-type":"application/json",
-				"Authorization":"Bearer "+accessToken,
+			method: "GET",
+			headers: {
+				"content-type": "application/json",
+				Authorization: "Bearer " + accessToken,
 			},
-		}
+		};
 
 		try {
-			const userRes = await fetch(this.apiPath+"/api/public/current-user", options);
-			if(userRes.status != 200) throw("Failed loading user info with status "+userRes.status);
-			const userJSON = (await userRes.json() as {data:any}).data;
-			
-			const campaignsRes = await fetch(this.apiPath+`/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
-			if(campaignsRes.status != 200) throw("Failed loading user's teams and campaigns with status "+userRes.status);
-			let campaignsJSON:IntegrationList = [];
+			const userRes = await fetch(this.apiPath + "/api/public/current-user", options);
+			if (userRes.status != 200)
+				throw "Failed loading user info with status " + userRes.status;
+			const userJSON = ((await userRes.json()) as { data: any }).data;
+
+			const campaignsRes = await fetch(
+				this.apiPath + `/api/public/users/${userJSON.id}/integration_events?limit=100`,
+				options,
+			);
+			if (campaignsRes.status != 200)
+				throw "Failed loading user's teams and campaigns with status " + userRes.status;
+			let campaignsJSON: IntegrationList = [];
 			try {
-				campaignsJSON = (await campaignsRes.json() as {data:IntegrationList}).data;
-			}catch(error) {
+				campaignsJSON = ((await campaignsRes.json()) as { data: IntegrationList }).data;
+			} catch (error) {
 				Logger.error("[TILTIFY][DISCONNECT] Failed loading Tiltify campaigns");
 				console.log(error);
 				console.log(await campaignsRes.text());
 			}
-	
+
 			let mapUpdated = false;
-			campaignsJSON.forEach(c => {
-				this.unsubscribeFromCampaign(c.id);
+			campaignsJSON.forEach(async (c) => {
+				await this.unsubscribeFromCampaign(c.id);
 				//Register campaign
-				if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
-				const factIndex = this.fact2UidMap[c.id].users.findIndex(v=>v === twitchUser.user_id);
-				if(factIndex > -1) {
-					this.fact2UidMap[c.id].users.splice(factIndex, 1);
+				if (!this.fact2UidMap[c.id])
+					this.fact2UidMap[c.id] = { type: "campaign", users: [] };
+				const factIndex = this.fact2UidMap[c.id]!.users.findIndex(
+					(v) => v === twitchUser.user_id,
+				);
+				if (factIndex > -1) {
+					this.fact2UidMap[c.id]!.users.splice(factIndex, 1);
 					mapUpdated = true;
 				}
 				//Unregister cause
 				//"public:direct:fact_updated" webhook event only gives a cause ID, not
 				//a campaign ID, that's why we need this association
-				if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
-				const causeIndex = this.fact2UidMap[c.cause_id].users.findIndex(v=>v === twitchUser.user_id);
-				if(causeIndex > -1) {
-					this.fact2UidMap[c.cause_id].users.splice(causeIndex, 1);
+				if (!this.fact2UidMap[c.cause_id])
+					this.fact2UidMap[c.cause_id] = { type: "cause", users: [] };
+				const causeIndex = this.fact2UidMap[c.cause_id]!.users.findIndex(
+					(v) => v === twitchUser.user_id,
+				);
+				if (causeIndex > -1) {
+					this.fact2UidMap[c.cause_id]!.users.splice(causeIndex, 1);
 					mapUpdated = true;
 				}
 			});
-	
-			if(mapUpdated) {
-				fs.writeFileSync(Config.TILTIFY_FACT_2_UID_MAP, JSON.stringify(this.fact2UidMap), "utf-8");
+
+			if (mapUpdated) {
+				fs.writeFileSync(
+					Config.TILTIFY_FACT_2_UID_MAP,
+					JSON.stringify(this.fact2UidMap),
+					"utf-8",
+				);
 			}
-			Logger.success("[TILTIFY][DISCONNECT] Disconnected "+twitchUser.user_id+"'s webhooks");
-		}catch(error) {
+			Logger.success(
+				"[TILTIFY][DISCONNECT] Disconnected " + twitchUser.user_id + "'s webhooks",
+			);
+		} catch (error) {
 			console.log(error);
 		}
-		
-		response.header('Content-Type', 'application/json')
-		.status(200)
-		.send(JSON.stringify({success:true}));
+
+		response
+			.header("Content-Type", "application/json")
+			.status(200)
+			.send(JSON.stringify({ success: true }));
 	}
 
 	/**
 	 * Refresh a user token
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
-	private async postRefreshToken(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	private async postRefreshToken(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const result = await super.twitchUserGuard(request, response);
-		if(result == false) return;
+		if (result == false) return;
 
 		const headers = {
-			"content-type":"application/json",
+			"content-type": "application/json",
 		};
 		const body = {
-			grant_type:		"refresh_token",
-			client_id:		Config.credentials.tiltify_client_id,
-			client_secret:	Config.credentials.tiltify_client_secret,
-			refresh_token:	(request.body as any).refreshToken,
+			grant_type: "refresh_token",
+			client_id: Config.credentials.tiltify_client_id,
+			client_secret: Config.credentials.tiltify_client_secret,
+			refresh_token: (request.body as any).refreshToken,
 		};
 
 		let text = "";
 		try {
-			const slRes = await fetch(this.apiPath+"/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
+			const slRes = await fetch(this.apiPath + "/oauth/token", {
+				method: "POST",
+				headers,
+				body: JSON.stringify(body),
+			});
 			text = await slRes.text();
 			const token = JSON.parse(text);
 
-			if(!token.access_token) {
+			if (!token.access_token) {
 				Logger.error("[TILTIFY] Unable to refresh tiltify token");
 				console.log(text);
-				response.header('Content-Type', 'application/json')
-				.status(500)
-				.send(JSON.stringify({success:false, errorCode:"UNNKOWN", error:token.error_description || "unknown error"}));
-			}else{
-				response.header('Content-Type', 'application/json')
-				.status(200)
-				.send(JSON.stringify({success:true, token:token}));
+				response
+					.header("Content-Type", "application/json")
+					.status(500)
+					.send(
+						JSON.stringify({
+							success: false,
+							errorCode: "UNNKOWN",
+							error: token.error_description || "unknown error",
+						}),
+					);
+			} else {
+				response
+					.header("Content-Type", "application/json")
+					.status(200)
+					.send(JSON.stringify({ success: true, token: token }));
 			}
-
-		}catch(error) {
+		} catch (error) {
 			Logger.error("[TILTIFY] Unable to refresh tiltify token");
 			console.log(error);
-			response.header('Content-Type', 'application/json')
-			.status(500)
-			.send(JSON.stringify({success:false, errorCode:"JSON_PARSING_FAILED", error:"json parsing failed"}));
+			response
+				.header("Content-Type", "application/json")
+				.status(500)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "JSON_PARSING_FAILED",
+						error: "json parsing failed",
+					}),
+				);
 		}
 	}
 
 	/**
 	 * Subscribes to a user's campaign
-	 * @returns 
+	 * @returns
 	 */
-	private async subscribeToCampaign(campaignId:string):Promise<void> {
-		if(!this.credentialToken) {
+	private async subscribeToCampaign(campaignId: string): Promise<void> {
+		if (!this.credentialToken) {
 			Logger.error("[TILTIFY] Cannot create webhook because credential token is missing");
 			return;
 		}
 
 		const webhookId = Config.credentials.tiltify_webhook_id;
-		const url = this.apiPath+`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
+		const url =
+			this.apiPath +
+			`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
 		const headers = {
-			"content-type":"application/json",
-			"Authorization": "Bearer "+this.credentialToken.access_token,
+			"content-type": "application/json",
+			Authorization: "Bearer " + this.credentialToken.access_token,
 		};
 		const body = {
-			event_types: [
-				"public:direct:donation_updated",
-				"public:direct:fact_updated",
-			]
+			event_types: ["public:direct:donation_updated", "public:direct:fact_updated"],
 		};
 
-		const res = await fetch(url, {method:"PUT", headers, body:JSON.stringify(body)});
-		if(res.status == 200) {
+		const res = await fetch(url, { method: "PUT", headers, body: JSON.stringify(body) });
+		if (res.status == 200) {
 			// const json = await res.json();
-			Logger.info("[TILTIFY] Webhook created for \""+campaignId+"\"");
-		}else{
+			Logger.info('[TILTIFY] Webhook created for "' + campaignId + '"');
+		} else {
 			// Logger.error("[TILTIFY] Failed subscribing to campaign");
 			// const text = await res.text();
 			// console.log(text);
@@ -427,27 +504,29 @@ export default class TiltifyController extends AbstractController {
 
 	/**
 	 * Unsubscribes from a user's campaign
-	 * @returns 
+	 * @returns
 	 */
-	private async unsubscribeFromCampaign(campaignId:string):Promise<void> {
-		if(!this.credentialToken) {
+	private async unsubscribeFromCampaign(campaignId: string): Promise<void> {
+		if (!this.credentialToken) {
 			Logger.error("[TILTIFY] Cannot delete webhook because credential token is missing");
 			return;
 		}
 
 		const webhookId = Config.credentials.tiltify_webhook_id;
-		const url = this.apiPath+`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
+		const url =
+			this.apiPath +
+			`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
 		const headers = {
-			"content-type":"application/json",
-			"Authorization": "Bearer "+this.credentialToken.access_token,
+			"content-type": "application/json",
+			Authorization: "Bearer " + this.credentialToken.access_token,
 		};
 
-		const res = await fetch(url, {method:"DELETE", headers});
-		if(res.status == 200) {
+		const res = await fetch(url, { method: "DELETE", headers });
+		if (res.status == 200) {
 			// const json = await res.json();
-			Logger.info("[TILTIFY] Webhook deleted for \""+campaignId+"\"");
-		}else{
-			Logger.error("[TILTIFY] Failed unsubscribing from campaign \""+campaignId+"\"");
+			Logger.info('[TILTIFY] Webhook deleted for "' + campaignId + '"');
+		} else {
+			Logger.error('[TILTIFY] Failed unsubscribing from campaign "' + campaignId + '"');
 			const text = await res.text();
 			console.log(text);
 		}
@@ -456,28 +535,35 @@ export default class TiltifyController extends AbstractController {
 	/**
 	 * Generates an app access token
 	 */
-	private async generateCredentialToken():Promise<void> {
-		const headers = {"content-type":"application/json"};
+	private async generateCredentialToken(): Promise<void> {
+		const headers = { "content-type": "application/json" };
 		const body = {
-			"grant_type": "client_credentials",
-			"client_id": Config.credentials.tiltify_client_id,
-			"client_secret": Config.credentials.tiltify_client_secret,
-			"scope": "webhooks:write"
-		}
-		
-		const res = await fetch(this.apiPath+"/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
-		if(res.status == 200) {
-			const json = await res.json() as AuthToken;
+			grant_type: "client_credentials",
+			client_id: Config.credentials.tiltify_client_id,
+			client_secret: Config.credentials.tiltify_client_secret,
+			scope: "webhooks:write",
+		};
+
+		const res = await fetch(this.apiPath + "/oauth/token", {
+			method: "POST",
+			headers,
+			body: JSON.stringify(body),
+		});
+		if (res.status == 200) {
+			const json = (await res.json()) as AuthToken;
 			this.credentialToken = json;
-			setTimeout(()=>{
-				this.generateCredentialToken();
-			}, (json.expires_in-60) * 1000)
-		}else{
+			setTimeout(
+				() => {
+					void this.generateCredentialToken();
+				},
+				(json.expires_in - 60) * 1000,
+			);
+		} else {
 			const text = await res.text();
 			Logger.error("[TILTIFY] Failed generating credential token!");
 			console.log(text);
-			setTimeout(()=>{
-				this.generateCredentialToken();
+			setTimeout(() => {
+				void this.generateCredentialToken();
 			}, 5000);
 		}
 	}
@@ -485,24 +571,26 @@ export default class TiltifyController extends AbstractController {
 	/**
 	 * Enables the webhook
 	 */
-	private async enableWebhook():Promise<void> {
+	private async enableWebhook(): Promise<void> {
 		const headers = {
-			"content-type":"application/json",
-			"Authorization": "Bearer "+this.credentialToken!.access_token,
+			"content-type": "application/json",
+			Authorization: "Bearer " + this.credentialToken!.access_token,
 		};
-		
+
 		const webhookId = Config.credentials.tiltify_webhook_id;
-		const res = await fetch(this.apiPath+`/api/private/webhook_endpoints/${webhookId}/activate`, {method:"POST", headers});
-		if(res.status == 200) {
-			const json = await res.json() as {data:WebhookEnableResult};
-			Logger.info("[TILTIFY] Webhook enabled: "+json.data.description);
-		}else{
+		const res = await fetch(
+			this.apiPath + `/api/private/webhook_endpoints/${webhookId}/activate`,
+			{ method: "POST", headers },
+		);
+		if (res.status == 200) {
+			const json = (await res.json()) as { data: WebhookEnableResult };
+			Logger.info("[TILTIFY] Webhook enabled: " + json.data.description);
+		} else {
 			const text = await res.text();
 			Logger.error("[TILTIFY] Failed enabling webhook!");
 			console.log(text);
 		}
 	}
-
 }
 
 interface AuthToken {
@@ -554,7 +642,7 @@ interface WebhookDonationEvent {
 		event_type: "public:direct:donation_updated";
 		generated_at: string;
 		subscription_source_id: string;
-		subscription_source_type: "test" | string;
+		subscription_source_type: "test" | AutocompletableString;
 	};
 }
 
@@ -636,7 +724,7 @@ interface WebhookCampaignEvent {
 		event_type: "public:direct:fact_updated";
 		generated_at: string;
 		subscription_source_id: string;
-		subscription_source_type: "test" | string;
+		subscription_source_type: "test" | AutocompletableString;
 	};
 }
 
@@ -746,28 +834,28 @@ type IntegrationList = {
 	donate_url: string;
 	has_schedule: boolean;
 	supporting_type?: string;
-}[]
+}[];
 
-type FactIdToUsers = {[campaignId:string]:{type:"cause"|"campaign", users:string[]}}
+type FactIdToUsers = { [campaignId: string]: { type: "cause" | "campaign"; users: string[] } };
 
-export interface SSETiltifyDonationEventData{
-	type:"donation";
-	amount:number;
-	currency:string;
-	message:string;
-	username:string;
-	campaignId:string;
+export interface SSETiltifyDonationEventData {
+	type: "donation";
+	amount: number;
+	currency: string;
+	message: string;
+	username: string;
+	campaignId: string;
 }
 
-export interface SSETiltifyCauseEventData{
-	type:"cause_update";
-	amount_raised:number;
-	total_amount_raised:number;
-	amount_goal:number;
-	currency:string;
-	donateUrl:string;
-	title:string;
-	description:string;
-	causeId:string;
-	campaignId:string;
+export interface SSETiltifyCauseEventData {
+	type: "cause_update";
+	amount_raised: number;
+	total_amount_raised: number;
+	amount_goal: number;
+	currency: string;
+	donateUrl: string;
+	title: string;
+	description: string;
+	causeId: string;
+	campaignId: string;
 }

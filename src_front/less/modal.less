@@ -4,11 +4,11 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 2;
+	z-index: 5;
 
-	&>.dimmer {
+	& > .dimmer {
 		backdrop-filter: blur(5px);
-		background-color: rgba(0,0,0,.5);
+		background-color: rgba(0, 0, 0, 0.5);
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -17,7 +17,7 @@
 		opacity: 1;
 	}
 
-	&>.holder {
+	& > .holder {
 		.center();
 		z-index: 2;
 		position: absolute;
@@ -35,37 +35,35 @@
 		box-shadow: var(--box-shadow);
 		background-color: var(--background-color-secondary);
 
-		&>.head {
+		& > .head {
 			padding-bottom: 0;
 			display: flex;
 			flex-direction: row;
 			.icon {
 				height: 1em;
 			}
-			&>.title {
+			& > .title {
 				flex-grow: 1;
 				font-size: 1.5em;
 				text-align: center;
 			}
-			&>.close, &>.icon:not(.loader) {
+			& > .close,
+			& > .icon:not(.loader) {
 				width: 1em;
 				height: 1em;
 				max-width: 1em;
 				max-height: 1em;
 				padding: 0;
-				border-radius: .5em;
+				border-radius: 0.5em;
 				background-color: transparent;
-				:deep(.icon) {
-					max-height: 1em;
-				}
 			}
 		}
 
-		&>.content {
+		& > .content {
 			flex-grow: 1;
 			overflow-x: visible;
 			overflow-y: auto;
-			padding: 2px;//Avoids scroll to appear if content is small. No idea why.
+			padding: 2px; //Avoids scroll to appear if content is small. No idea why.
 		}
 	}
 }

@@ -1,16 +1,17 @@
 {
-	"values":{
-		"header":"Create custom values for use in {LINK_TRIGGER}",
-		"header_link_trigger":"the Triggers",
-		"addBt":"Create new value",
-		"editBt":"Edit value",
-		"max_values_reached":"Vous avez atteint le maximum de {COUNT} valeurs pouvant être créées",
-		"user_not_found":"user not found",
+	"values": {
+		"header": "Create custom values for use in {LINK_TRIGGER}",
+		"header_link_trigger": "the Triggers",
+		"addBt": "Create new value",
+		"editBt": "Edit value",
+		"user_not_found": "user not found",
+		"nonpremium_limit": "You created the maximum number of {MAX} values. Become premium to create up to {MAX_PREMIUM} values.",
+		"premium_limit": "You created the maximum number of {MAX} values.",
 
-		"form":{
-			"name":"Name",
-			"name_conflict":"A value with the same name already exists",
-			"value":"Value",
+		"form": {
+			"name": "Name",
+			"name_conflict": "A value with the same name already exists",
+			"value": "Value",
 			"more": "More options",
 			"username": "Name",
 			"userValue": "Value",
@@ -22,17 +23,17 @@
 			"clear_all_users": "Delete all users",
 			"reset_all_users": "Reset all users",
 			"no_users": "no user yet",
-			"search":"Search user..."
+			"search": "Search user..."
 		},
 		"delete_confirm": {
 			"title": "Delete?",
 			"desc": "Any trigger having a reference to this value will stop working properly."
 		},
-		"reset_users_confirm":{
+		"reset_users_confirm": {
 			"title": "Reset?",
 			"desc": "Reset all users to empty value?"
 		},
-		"delete_users_confirm":{
+		"delete_users_confirm": {
 			"title": "Delete?",
 			"desc": "Delete all users?"
 		}

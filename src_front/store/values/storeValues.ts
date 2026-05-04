@@ -1,42 +1,47 @@
-import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy';
-import StoreProxy from '../StoreProxy';
-import Utils from '@/utils/Utils';
-import Config from '@/utils/Config';
-import type {JsonObject} from "type-fest";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { JsonObject } from "type-fest";
+import DataStore from "../DataStore";
+import type { IValuesActions, IValuesGetters, IValuesState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
-export const storeValues = defineStore('values', {
-	state: () => ({
+export const storeValues = defineStore("values", {
+	state: (): IValuesState => ({
 		valueList: [],
-		selectedValueIDs: [],
-	} as IValuesState),
+	}),
 
-
-
-	getters: {
-	} as IValuesGetters
-	& ThisType<UnwrapRef<IValuesState> & _StoreWithGetters<IValuesGetters> & PiniaCustomProperties>
-	& _GettersTree<IValuesState>,
-
-
+	getters: {} satisfies StoreGetters<IValuesGetters, IValuesState>,
 
 	actions: {
-		populateData():void {
+		populateData(): void {
 			//Init values
 			const valuesParams = DataStore.get(DataStore.VALUES);
-			if(valuesParams) {
-				Utils.mergeRemoteObject(JSON.parse(valuesParams), (this.valueList as unknown) as JsonObject);
+			if (valuesParams) {
+				Utils.mergeRemoteObject(
+					JSON.parse(valuesParams),
+					this.valueList as unknown as JsonObject,
+				);
 			}
 		},
 
-		addValue(data:TwitchatDataTypes.ValueData):void {
-			//User can create up to 3 values if not premium
-			if(!StoreProxy.auth.isPremium && this.valueList.length >= Config.instance.MAX_VALUES) {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.max_values", {COUNT:Config.instance.MAX_VALUES}));
+		addValue(data: TwitchatDataTypes.ValueData): void {
+			const max = StoreProxy.auth.isPremium
+				? Config.instance.MAX_VALUES_PREMIUM
+				: Config.instance.MAX_VALUES;
+			const label = StoreProxy.auth.isPremium
+				? "values.premium_limit"
+				: "values.nonpremium_limit";
+			if (this.valueList.length >= max) {
+				StoreProxy.common.alert(
+					StoreProxy.i18n.t(label, {
+						MAX: Config.instance.MAX_VALUES,
+						MAX_PREMIUM: Config.instance.MAX_VALUES_PREMIUM,
+					}),
+				);
 				return;
 			}
 			this.valueList.push(data);
@@ -44,33 +49,39 @@ export const storeValues = defineStore('values', {
 			rebuildPlaceholdersCache();
 		},
 
-		editValueParams(id:string, data:Partial<TwitchatDataTypes.ValueData>):void {
+		editValueParams(id: string, data: Partial<TwitchatDataTypes.ValueData>): void {
 			let prevValue = "";
 			for (const d of this.valueList) {
-				if(d!.id == id) {
+				if (d!.id == id) {
 					prevValue = d.value;
-					if(data.value) d.value = data.value;
-					if(data.name) d.name = data.name;
-					if(data.placeholderKey) d.placeholderKey = data.placeholderKey;
-					if(data.perUser != undefined) d.perUser = data.perUser;
+					if (data.value) d.value = data.value;
+					if (data.name) d.name = data.name;
+					if (data.placeholderKey) d.placeholderKey = data.placeholderKey;
+					if (data.perUser != undefined) d.perUser = data.perUser;
 
 					//If placeholder has been updated, update it on all triggers
-					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (d.placeholderKey ?? "").toLowerCase()) {
-						StoreProxy.triggers.renameValuePlaceholder(d.placeholderKey, data.placeholderKey);
+					if (
+						data.placeholderKey &&
+						data.placeholderKey.toLowerCase() != (d.placeholderKey ?? "").toLowerCase()
+					) {
+						StoreProxy.triggers.renameValuePlaceholder(
+							d.placeholderKey,
+							data.placeholderKey,
+						);
 					}
 
-					if(d.value != prevValue) {
-						const message:TwitchatDataTypes.MessageValueUpdateData = {
-							date:Date.now(),
-							type:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
-							id:Utils.getUUID(),
-							platform:"twitchat",
-							value:d,
+					if (d.value != prevValue) {
+						const message: TwitchatDataTypes.MessageValueUpdateData = {
+							date: Date.now(),
+							type: TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
+							id: Utils.getUUID(),
+							platform: "twitchat",
+							value: d,
 							newValue: d.value,
 							oldValue: prevValue,
-							channel_id:StoreProxy.auth.twitch.user.id,
+							channel_id: StoreProxy.auth.twitch.user.id,
 						};
-						StoreProxy.chat.addMessage(message);
+						void StoreProxy.chat.addMessage(message);
 					}
 					break;
 				}
@@ -78,20 +89,26 @@ export const storeValues = defineStore('values', {
 			this.saveValues();
 		},
 
-		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void {
+		updateValue(
+			id: string,
+			value: string,
+			user?: TwitchatDataTypes.TwitchatUser,
+			userId?: string,
+			interpretMaths?: boolean,
+		): void {
 			let prevValue = "";
-			if(interpretMaths) {
+			if (interpretMaths) {
 				const num = Utils.evalMath(value);
-				if(num !== null && !isNaN(num)) value = num.toString();
+				if (num !== null && !isNaN(num)) value = num.toString();
 			}
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i]!.id == id) {
+				if (this.valueList[i]!.id == id) {
 					const entry = this.valueList[i]!;
 
-					if(entry.perUser) {
-						if(!entry.users) entry.users = {};
-						const uid = (user? user.id : userId) || "";
-						if(uid) {
+					if (entry.perUser) {
+						if (!entry.users) entry.users = {};
+						const uid = (user ? user.id : userId) || "";
+						if (uid) {
 							prevValue = entry.users![uid]?.value || "";
 							entry.users![uid] = {
 								value: value,
@@ -99,16 +116,16 @@ export const storeValues = defineStore('values', {
 								login: user?.login || entry.users![uid]?.platform,
 							};
 						}
-					}else{
+					} else {
 						prevValue = entry.value;
 						entry.value = value;
 					}
-					
+
 					//Do not execute triggers if editing a user by their ID.
 					//If only "userId" is given, don't execute it so we can update
 					//loads of values at once without cloagging the trigger system
-					if(!userId && value != prevValue) {
-						const message:TwitchatDataTypes.MessageValueUpdateData = {
+					if (!userId && value != prevValue) {
+						const message: TwitchatDataTypes.MessageValueUpdateData = {
 							date: Date.now(),
 							type: TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
 							id: Utils.getUUID(),
@@ -118,9 +135,9 @@ export const storeValues = defineStore('values', {
 							oldValue: prevValue,
 							channel_id: StoreProxy.auth.twitch.user.id,
 						};
-						StoreProxy.chat.addMessage(message);
-						
-						if(!entry.perUser) {
+						void StoreProxy.chat.addMessage(message);
+
+						if (!entry.perUser) {
 							//Tell overlays potentially using this value to update
 							StoreProxy.labels.broadcastPlaceholders();
 						}
@@ -132,13 +149,13 @@ export const storeValues = defineStore('values', {
 			this.saveValues();
 		},
 
-		deleteValueEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+		deleteValueEntry(id: string, user?: TwitchatDataTypes.TwitchatUser, userId?: string): void {
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i]!.id == id) {
+				if (this.valueList[i]!.id == id) {
 					const entry = this.valueList[i]!;
-					if(entry.perUser) {
-						if(!entry.users) entry.users = {};
-						const uid = (user? user.id : userId) || "";
+					if (entry.perUser) {
+						if (!entry.users) entry.users = {};
+						const uid = (user ? user.id : userId) || "";
 						delete entry.users[uid];
 					}
 					break;
@@ -148,9 +165,9 @@ export const storeValues = defineStore('values', {
 			this.saveValues();
 		},
 
-		delValue(data:TwitchatDataTypes.ValueData):void {
+		delValue(data: TwitchatDataTypes.ValueData): void {
 			for (let i = 0; i < this.valueList.length; i++) {
-				if(this.valueList[i]!.id == data.id) {
+				if (this.valueList[i]!.id == data.id) {
 					this.valueList.splice(i, 1);
 					break;
 				}
@@ -160,28 +177,19 @@ export const storeValues = defineStore('values', {
 			// Delete triggers related to the deleted value
 			const triggers = StoreProxy.triggers.triggerList;
 			for (const t of triggers) {
-				if(t.valueId === data.id){
+				if (t.valueId === data.id) {
 					StoreProxy.triggers.deleteTrigger(t.id);
 				}
 			}
 			rebuildPlaceholdersCache();
 		},
 
-		saveValues():void {
+		saveValues(): void {
 			DataStore.set(DataStore.VALUES, this.valueList);
-		}
+		},
+	} satisfies StoreActions<"values", IValuesState, IValuesGetters, IValuesActions>,
+});
 
-
-	} as IValuesActions
-	& ThisType<IValuesActions
-		& UnwrapRef<IValuesState>
-		& _StoreWithState<"counters", IValuesState, IValuesGetters, IValuesActions>
-		& _StoreWithGetters<IValuesGetters>
-		& PiniaCustomProperties
-	>,
-})
-
-
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeValues, import.meta.hot))
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeValues, import.meta.hot));
 }

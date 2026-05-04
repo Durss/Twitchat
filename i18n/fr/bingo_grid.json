@@ -1,30 +1,30 @@
 {
 	"bingo_grid": {
 		"form": {
-			"title":"Grilles de Bingo",
-			"closeBt_aria":"Fermer le formulaire",
-			"description":"Créez des grilles d'objectifs à réaliser. Parfait pour les streams react !",
-			"default_title":"Grille de bingo",
-			"install_title":"Installer l'overlay",
-			"add_bt":"Créer une nouvelle grille",
-			"lock_bt_tt":"Vérouiller cette case",
-			"shuffle_bt":"Mélanger les entrées",
-			"reset_bt":"Tout décocher",
-			"clear_labels_bt":"Effacer les cases",
+			"title": "Grilles de Bingo",
+			"closeBt_aria": "Fermer le formulaire",
+			"description": "Créez des grilles d'objectifs à réaliser. Parfait pour les streams react !",
+			"default_title": "Grille de bingo",
+			"install_title": "Installer l'overlay",
+			"add_bt": "Créer une nouvelle grille",
+			"lock_bt_tt": "Vérouiller cette case",
+			"shuffle_bt": "Mélanger les entrées",
+			"reset_bt": "Tout décocher",
+			"clear_labels_bt": "Effacer les cases",
 			"clear_labels_confirm": {
-				"title":"Tout effacer ?",
-				"description":"Toutes les cases seront vidées.\nCette action est irreversible."
+				"title": "Tout effacer ?",
+				"description": "Toutes les cases seront vidées.\nCette action est irreversible."
 			},
-			"param_title":"Nom de la grille",
-			"param_size":"Taille de la grille",
-			"param_background_color":"Couleur de fond",
-			"param_background_alpha":"Opacité du fond ({VALUE}%)",
-			"param_text_color":"Couleur du texte",
-			"param_text_size":"Taille du texte",
-			"param_show_grid":"Afficher les bordures",
-			"param_chat_cmd":"Commande",
-			"param_chat_cmd_enabled":"Cocher des cases depuis le tchat",
-			"param_heat_enabled":"Cocher des cases via l'extension Heat",
+			"param_title": "Nom de la grille",
+			"param_size": "Taille de la grille",
+			"param_background_color": "Couleur de fond",
+			"param_background_alpha": "Opacité du fond ({VALUE}%)",
+			"param_text_color": "Couleur du texte",
+			"param_text_size": "Taille du texte",
+			"param_show_grid": "Afficher les bordures",
+			"param_chat_cmd": "Commande",
+			"param_chat_cmd_enabled": "Cocher des cases depuis le tchat",
+			"param_heat_enabled": "Cocher des cases via l'extension Heat",
 			"param_additional_cells": "Cases additionelles\n(seront utilisées lors du mélange de la grille et distribuées aléatoirement aux viewers)",
 			"param_winSoundVolume": "Volume de la notification lorsqu'un·e viewer remplit un bingo",
 			"param_autoHide": "Afficher/Masquer la grille automatiquement en fonction des activités",
@@ -33,35 +33,31 @@
 			"param_chatAnnouncementEnabled": "Annoncer les bingos de viewers dans le tchat",
 			"param_chatAnnouncement": "Message à envoyer en tchat",
 			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
+			"overlayParams_title": "Paramètres de l'overlay de stream",
 			"send_chat_url_tt": "Envoyer en tchat",
 			"winners_placeholder": "Viewers ayant eu des bingos",
 			"add_cellBt": "Ajouter",
-			"chat_cmd_usage":"Utilisez la commande {CMD}",
-			"heat_usage":"@:heat.header",
+			"chat_cmd_usage": "Utilisez la commande {CMD}",
+			"heat_usage": "@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",
-			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} grilles de bingo.",
+			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX_PREMIUM} grilles de bingo.",
 			"share": "Partagez cette grille à vos viewers",
 			"leaderBoard": {
 				"open_bt": "{COUNT} viewer|{COUNT} viewers",
 				"open_bt_tt": "Classement viewers"
 			},
-			"delete_confirm":{
-				"title":"Supprimer grille ?",
-				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
+			"delete_confirm": {
+				"title": "Supprimer grille ?",
+				"description": "La grille de bingo sera supprimée.\nCette action est irréversible."
 			},
-			"additional_cells":"Cases additionnelles",
-			"premium_multiplayer":"Devenez premium pour activer le mode multi-joueur.\nLe pseudo des viewers remportant un bingo apparaîtra dans l'overlay ainsi qu'en tchat, un classement pourra y être affiché et vos modos pourront cocher les cases pour vous.",
+			"additional_cells": "Cases additionnelles",
+			"premium_multiplayer": "Devenez premium pour activer le mode multi-joueur.\nLe pseudo des viewers remportant un bingo apparaîtra dans l'overlay ainsi qu'en tchat, un classement pourra y être affiché et vos modos pourront cocher les cases pour vous.",
 			"perf_alert": "Il sembelrait que vous ayez beaucoup de viewers.\nJe ne peux pas garantir que mon serveur tiendra le coup, pensez à faire une petite prière avant de partager le lien à vos viewers 🙏."
 		},
-		"state":{
-			"auth_bt": "Avoir ma propre grille",
-			"cell_disabled": "{USER} doit\ncocher cette case\npour l'activer",
-			"mod_info": "Vous êtes modérateur·ice de cette chaîne, les cases que vous cochez s'activeront chez tout le monde",
+		"state": {
+			"info": "Pour jouer au Bingo il faut désormais que votre streamereuse installe l'extension {EXTENSION} !",
 			"showLeaderboard_bt": "Afficher sur l'overlay",
 			"hideLeaderboard_bt": "Masquer de l'overlay",
-			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir",
-			"grid": "grille",
-			"list": "liste",
 			"footer": "Propulsé par {LINK}"
 		}
 	}

@@ -9,20 +9,30 @@
 		</div>
 
 		<section class="card-item">
-			<p>{{ $t('spoiler.message_example') }}</p>
-			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
+			<p>{{ t("spoiler.message_example") }}</p>
+			<ChatMessage
+				v-if="spoilerExample"
+				:messageData="spoilerExample"
+				class="example"
+				lightMode
+			/>
 		</section>
 
-		<ParamItem :paramData="param_autospoil" v-model="param_autospoil.value" @change="save()" v-newflag="{date:1693519200000, id:'params_spoiler1stchatters'}" />
+		<ParamItem
+			:paramData="param_autospoil"
+			v-model="param_autospoil.value"
+			@change="save()"
+			v-newflag="{ date: 1693519200000, id: 'params_spoiler1stchatters' }"
+		/>
 
-		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
+		<Splitter class="splitter">{{ t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
 			<div class="card-item">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
-				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial" />
 			</div>
 
 			<div class="card-item">
@@ -35,72 +45,83 @@
 	</div>
 </template>
 
-<script lang="ts">
-import ChatMessage from '@/components/messages/ChatMessage.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Splitter from '../../Splitter.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
-import type IParameterContent from './IParameterContent';
-import ParamItem from '../ParamItem.vue';
-import Utils from '@/utils/Utils';
+<script setup lang="ts">
+import ChatMessage from "@/components/messages/ChatMessage.vue";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { onBeforeMount, ref, watch } from "vue";
+import Splitter from "../../Splitter.vue";
+import PermissionsForm from "../../PermissionsForm.vue";
+import type IParameterContent from "./IParameterContent";
+import ParamItem from "../ParamItem.vue";
+import Utils from "@/utils/Utils";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Splitter,
-		ParamItem,
-		ChatMessage,
-		PermissionsForm,
-	}
-})
-class ParamsSpoiler extends Vue implements IParameterContent {
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const storeDebug = useStoreDebug();
 
-	public spoilerExample!: TwitchatDataTypes.MessageChatData;
-	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
+const spoilerExample = ref<TwitchatDataTypes.MessageChatData>();
+const param_autospoil = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "spoiler.autospoil_new_users",
+	icon: "firstTime",
+});
 
-	public chatCommandPerms: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false)
-	public beforeMount(): void {
+const chatCommandPerms = ref<TwitchatDataTypes.PermissionsData>(
+	Utils.getDefaultPermissions(true, true, false, false, false, false),
+);
 
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data) => {
+function save(): void {
+	storeChat.setSpoilerParams({
+		permissions: chatCommandPerms.value,
+		autoSpoilNewUsers: param_autospoil.value.value,
+	});
+}
+
+onBeforeMount(() => {
+	storeDebug.simulateMessage(
+		TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		(data) => {
 			const m = data as TwitchatDataTypes.MessageChatData;
 			m.spoiler = true;
-			this.spoilerExample = m;
-		}, false);
+			spoilerExample.value = m;
+		},
+		false,
+	);
 
-		if (this.$store.chat.spoilerParams.permissions) {
-			this.chatCommandPerms = this.$store.chat.spoilerParams.permissions;
-		}
-
-		this.param_autospoil.value = this.$store.chat.spoilerParams?.autoSpoilNewUsers === true;
-
-		watch(() => this.chatCommandPerms, () => this.save(), { deep: true })
+	if (storeChat.spoilerParams.permissions) {
+		chatCommandPerms.value = storeChat.spoilerParams.permissions;
 	}
 
-	public onNavigateBack(): boolean { return false; }
+	param_autospoil.value.value = storeChat.spoilerParams?.autoSpoilNewUsers === true;
+});
 
-	public save():void {
-		this.$store.chat.setSpoilerParams({
-			permissions: this.chatCommandPerms,
-			autoSpoilNewUsers: this.param_autospoil.value,
-		});
-	}
+watch(
+	() => chatCommandPerms.value,
+	() => save(),
+	{ deep: true },
+);
 
-}
-export default toNative(ParamsSpoiler);
+defineExpose<IParameterContent>({
+	onNavigateBack: () => {
+		return false;
+	},
+});
 </script>
 
 <style scoped lang="less">
 .paramsspoiler {
-
 	.example {
 		background-color: var(--background-color-primary);
-		padding: .5em;
+		padding: 0.5em;
 		position: relative;
 	}
 
 	.title {
-		margin-bottom: .5em;
+		margin-bottom: 0.5em;
 	}
 
 	.form {
@@ -112,7 +133,7 @@ export default toNative(ParamsSpoiler);
 		.tuto {
 			max-width: 100%;
 			margin: auto;
-			margin-top: .5em;
+			margin-top: 0.5em;
 			display: block;
 		}
 
@@ -136,5 +157,5 @@ export default toNative(ParamsSpoiler);
 			}
 		}
 	}
-
-}</style>
+}
+</style>

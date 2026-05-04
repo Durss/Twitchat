@@ -58,6 +58,7 @@
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "YouTube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
 			"bingoGridBt_aria": "Bingo grids",
+			"quizBt_aria": "Quiz",
 			"groqBt_aria": "Groq answers",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
@@ -145,7 +146,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok gifts",
 				"tiktok_share": "Tiktok share",
-				"private_mod_message": "Private mod messages"
+				"private_mod_message": "Private mod messages",
+				"quiz_complete": "Quiz result"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -175,9 +177,9 @@
 			"title": "{ROOM} room has the following restrictions:",
 			"sub_only": "Sub only",
 			"emote_only": "Emote only",
-			"follow_only": "Followers only",
-			"slow_mode": "Slow mode",
-			"chat_delay": "Chat delay",
+			"follow_only": "Followers only|Followers only ({DURATION}m)",
+			"slow_mode": "Slow mode|Slow mode ({DURATION}s)",
+			"chat_delay": "Chat delay|Chat delay ({DURATION}s)",
 			"unsetBt": "unset"
 		},
 		"raffle": {
@@ -237,20 +239,23 @@
 			"sub_prime": "{USER} subscribed with Prime.",
 			"resub": "{USER} resubscribed at tier {TIER}.",
 			"resub_prime": "{USER} resubscribed with Prime.",
-			"sub_duration": "Subscribed for {COUNT} month. | Subscribed for {COUNT} months.",
-			"sub_streak": "{COUNT} month streak | {COUNT} months streak",
-			"sub_prepaid": "Subscribed for {COUNT} months in advance.",
+			"sub_duration": "Subscribed for {COUNT}.",
+			"sub_streak": "{COUNT} streak.",
+			"sub_prepaid": "Subscribed for {COUNT} in advance.",
 			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to the community: {LIST}",
 			"sub_gift_total": "They gifted {COUNT} sub on this channel. | They gifted {COUNT} subs on this channel.",
-			"sub_gift_months": "{USER} gifted {MONTHS} months of Tier {TIER} to {LIST}",
+			"sub_gift_months": "{USER} gifted {MONTHS} of Tier {TIER} to {LIST}",
 			"sub_gift_upgrade": "{USER} is continuing the Gift Sub they got from {GIFTER}",
-			"sub_gift_upgrade_anon": "{USER} is continuing the Gift Sub they got from an anonymous user"
+			"sub_gift_upgrade_anon": "{USER} is continuing the Gift Sub they got from an anonymous user",
+			"duration_months": "{COUNT} month | {COUNT} months",
+			"duration_years": "{COUNT} year | {COUNT} years"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
 		"combo": "{USER} sent {BITS} bit from Combos | {USER} sent {BITS} bits from Combos",
 		"boosted": "Your channel has been boosted to {COUNT} people",
 		"train_cooldown": "Hype train can be started again by your viewers!",
-		"follow": "{USER} follows the channel",
+		"follow": "{USER} vous suit",
+		"follow_remote": "{USER} follows the channel",
 		"raid": {
 			"text": "{USER} is raiding with a party of {COUNT}."
 		},
@@ -537,6 +542,9 @@
 		"tiktok": {
 			"platform_tiktok": "Message received\non TikTok"
 		},
+		"bluesky": {
+			"platform_bluesky": "Message received\non Bluesky"
+		},
 		"celebration": {
 			"message": "{USER} redeemed the Power Up \"On-screen Celebration\" for {PRICE}",
 			"message_tmp": "{USER} redeemed the Power Up \"On-screen Celebration\""
@@ -620,6 +628,11 @@
 		},
 		"many_replies": {
 			"label": "This message is getting attention with {COUNT} direct or indirect replies"
+		},
+		"quiz_result": {
+			"title": "Quiz \"{TITLE}\" completed.",
+			"leaderboard_bt": "Leaderboard",
+			"search_placeholder": "Search user..."
 		}
 	}
 }
