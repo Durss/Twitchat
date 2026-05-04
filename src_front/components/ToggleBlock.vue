@@ -235,6 +235,7 @@ const rootClasses = computed(() => [
 		medium: props.medium && !props.small,
 		noBackground: props.noBackground,
 		noTitleColor: props.noTitleColor,
+		disabled: props.disabled,
 	},
 ]);
 
@@ -247,7 +248,6 @@ const rootStyles = computed<CSSProperties>(() => {
 async function toggle(forcedState?: boolean): Promise<void> {
 	const targetState = forcedState ?? !isOpen.value;
 	if (targetState === isOpen.value) return;
-	if (props.disabled && targetState) return;
 
 	gsap.killTweensOf(contentRef.value);
 
@@ -447,10 +447,6 @@ onUnmounted(() => {
 .toggleblock {
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
-
-	&:not(.small) {
-		.emboss();
-	}
 
 	// Header
 	.header {
@@ -820,6 +816,20 @@ onUnmounted(() => {
 
 	&.noBackground {
 		background-color: transparent;
+	}
+
+	&:not(.small) {
+		.emboss();
+	}
+
+	&.disabled {
+		& > .header {
+			opacity: 0.5;
+			background-color: var(--toggle-block-header-background);
+			@c1: var(--background-color-fadest);
+			@c2: var(--background-color-transparent);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
+		}
 	}
 }
 </style>

@@ -91,6 +91,7 @@
 					:open="false"
 					:key="entry.counter.id"
 					:title="entry.counter.name"
+					:disabled="!entry.counter.enabled"
 				>
 					<template #left_actions>
 						<ToggleButton

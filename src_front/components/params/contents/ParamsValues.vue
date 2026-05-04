@@ -95,6 +95,7 @@
 					:open="false"
 					:key="entry.value.id"
 					:title="entry.value.name"
+					:disabled="!entry.value.enabled"
 				>
 					<template #left_actions>
 						<ToggleButton

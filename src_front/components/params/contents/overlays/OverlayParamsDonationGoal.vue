@@ -32,6 +32,7 @@
 				:titleMaxLengh="30"
 				:open="false"
 				:key="overlay.id"
+				:disabled="!overlay.enabled"
 				@update:title="save(overlay.id)"
 			>
 				<template #left_actions>

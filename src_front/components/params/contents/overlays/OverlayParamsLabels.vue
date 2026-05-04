@@ -32,6 +32,7 @@
 				:titleMaxLengh="30"
 				:open="false"
 				:key="label.id"
+				:disabled="!label.enabled"
 				@update:title="save(label)"
 			>
 				<template #left_actions>

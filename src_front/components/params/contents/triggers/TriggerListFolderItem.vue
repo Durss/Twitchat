@@ -36,6 +36,7 @@
 					}
 				"
 				:titleDefault="'folder'"
+				:disabled="!folder.enabled || props.parentDisabled === true"
 				@dragstart="startDrag(folder)"
 				@drop="onDrop($event, folder)"
 				@dragenter="onDragEnter($event, folder)"
@@ -53,10 +54,6 @@
 						v-model="folder.color.value"
 						@change="$emit('change', $event)"
 					/>
-					<Icon name="broadcast" />
-					<div class="count">x{{ countTriggerItems(folder) }}</div>
-				</template>
-				<template #right_actions>
 					<ToggleButton
 						class="triggerToggle"
 						v-model="folder.enabled"
@@ -64,6 +61,12 @@
 						@change="onToggleFolder(folder)"
 						data-close-popout
 					/>
+				</template>
+				<template #right_actions>
+					<div class="triggerCounter">
+						<Icon name="broadcast" />
+						<div class="count">x{{ countTriggerItems(folder) }}</div>
+					</div>
 					<TTButton
 						class="deleteBt"
 						icon="add"
@@ -84,14 +87,15 @@
 
 				<div
 					@drop.stop
-					:class="
-						folder.enabled === false && selectMode === false
-							? 'childList disabled'
-							: 'childList'
-					"
+					:class="{
+						childList: true,
+						disabled: folder.enabled === false && selectMode === false,
+					}"
 				>
 					<TriggerListFolderItem
-						:class="!folder.items || folder.items.length == 0 ? 'emptyChildren' : ''"
+						:class="{
+							emptyChildren: !folder.items || folder.items.length == 0,
+						}"
 						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
@@ -99,6 +103,7 @@
 						:selectMode="selectMode"
 						:forceDisableOption="forceDisableOption"
 						:triggerId="triggerId"
+						:parentDisabled="!folder.enabled || props.parentDisabled === true"
 						@change="onChange"
 						@changeState="onToggleTrigger(folder, $event)"
 						@delete="$emit('delete', $event)"
@@ -166,14 +171,16 @@ const props = withDefaults(
 		triggerId?: string | null;
 		items: (TriggerListEntry | TriggerListFolderEntry)[];
 		level?: number;
+		parentDisabled?: boolean;
 	}>(),
 	{
 		rewards: () => [],
-		noEdit: false,
-		forceDisableOption: false,
-		selectMode: false,
-		triggerId: null,
 		level: 0,
+		triggerId: null,
+		noEdit: false,
+		selectMode: false,
+		parentDisabled: false,
+		forceDisableOption: false,
 	},
 );
 
@@ -424,6 +431,12 @@ function vibrate(el: HTMLElement): void {
 		align-self: center;
 	}
 
+	.triggerCounter {
+		gap: 0.25em;
+		display: flex;
+		margin-right: 0.5em;
+	}
+
 	.childList {
 		position: relative;
 		.emptyFolder {
@@ -446,10 +459,10 @@ function vibrate(el: HTMLElement): void {
 		.triggerlistitem {
 			transition: opacity 0.5s;
 		}
-		&.disabled {
-			.triggerlistitem {
-				opacity: 0.5;
-			}
+	}
+	.folder.disabled {
+		.triggerlistitem {
+			opacity: 0.35;
 		}
 	}
 	.colorSelector {

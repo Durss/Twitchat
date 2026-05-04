@@ -27,6 +27,7 @@
 					:titleMaxLengh="30"
 					:open="false"
 					:key="bingo.id"
+					:disabled="!bingo.enabled"
 					@update:title="save(bingo, true)"
 				>
 					<template #left_actions>
