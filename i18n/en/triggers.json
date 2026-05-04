@@ -1362,7 +1362,7 @@
 				"description": "Actions to execute after closing an highlighted message"
 			},
 			"CHAT_ALERT": {
-				"label": "Chat alert",
+				"label": "Twitchat !alert command",
 				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
 				"description_info": "(Parameters => @:params.categories.features => @:params.alertMode )"
 			},

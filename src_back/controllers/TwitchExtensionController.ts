@@ -73,17 +73,21 @@ export default class TwitchExtensionController extends AbstractController {
 			.update(Config.credentials.twitchat_api_secret + ":" + channelId)
 			.digest("hex");
 
-		const res = await fetch(url, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"x-twitchat-verify": hash,
-			},
-			body: JSON.stringify({
-				channelId,
-			}),
-		});
-		console.log("Twitchat API response:", res.status, await res.text());
+		try {
+			const res = await fetch(url, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"x-twitchat-verify": hash,
+				},
+				body: JSON.stringify({
+					channelId,
+				}),
+			});
+			console.log("Twitchat API response:", res.status, await res.text());
+		} catch (_error) {
+			Logger.error('Failed calling EBS "stateUpdate" endpoint');
+		}
 	}
 
 	/*******************

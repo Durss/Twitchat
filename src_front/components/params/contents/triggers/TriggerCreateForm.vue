@@ -377,6 +377,7 @@ function populate(): void {
 	for (let i = 0; i < triggerTypeList.length; i++) {
 		const ev = triggerTypeList[i]!;
 		if (!ev.trigger) continue;
+		if (ev.trigger.disabled) continue;
 		if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
 			if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
 			const cat: TriggerCategory = {
