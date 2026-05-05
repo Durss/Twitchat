@@ -158,7 +158,7 @@ async function doConnect(): Promise<void> {
 		const res = await StreamdeckSocket.instance.connect(
 			param_secretKey.value.value,
 			param_ip.value.value,
-			false,
+			true,
 		);
 		if (!res) {
 			errorMessage.value = "UNKNOWN_ERROR";
