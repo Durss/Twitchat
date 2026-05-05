@@ -16,7 +16,7 @@
 				t("twitchat_companion.start_bingo")
 			}}</TTButton>
 
-			<ParamItem class="enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
+			<ParamItem class="enableBt" :paramData="param_captureClicks" v-model="storeExtension.ebsConfigs.captureClicks" @change="onChangeClickCapture" />
 
 			<div
 				class="content fadeHolder"
@@ -54,7 +54,7 @@ const storeExtension = useStoreExtension();
 const storeParams = useStoreParams();
 
 const extensionReady = ref(false);
-const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
+const param_captureClicks = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: false,
 	labelKey: "twitchat_companion.enable_click",
@@ -62,8 +62,8 @@ const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 
 const holderStyles = computed<StyleValue>(() => {
 	return {
-		opacity: param_enabled.value.value === true ? 1 : 0.5,
-		pointerEvents: param_enabled.value.value === true ? "all" : "none",
+		opacity: param_captureClicks.value.value === true ? 1 : 0.5,
+		pointerEvents: param_captureClicks.value.value === true ? "all" : "none",
 	};
 });
 
@@ -84,6 +84,12 @@ function openBingo() {
 		TwitchatDataTypes.ParamDeepSections.BINGO_GRID,
 	);
 }
+
+async function onChangeClickCapture() {
+	storeExtension.ebsConfigs.captureClicks = param_captureClicks.value.value === true
+	storeExtension.updateEBSConfigs();
+}
+
 </script>
 
 <style scoped lang="less">

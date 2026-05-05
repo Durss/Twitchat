@@ -6,7 +6,7 @@
 			<div v-else-if="currentQuestion" class="content">
 				<div class="question">
 					<h3>{{ currentQuestion.question }}</h3>
-					<div class="timer">
+					<div class="timer" v-if="!revealAnswers">
 						<svg class="timer-svg" viewBox="0 0 100 100">
 							<circle class="timer-bg" cx="50" cy="50" r="45" />
 							<circle
