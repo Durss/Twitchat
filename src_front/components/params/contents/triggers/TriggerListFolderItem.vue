@@ -12,6 +12,7 @@
 		:disabled="noEdit !== false"
 		@start="dragging = true"
 		@end="onDragEnd()"
+		@change="onSortChange()"
 	>
 		<template
 			#item="{
@@ -37,7 +38,7 @@
 				"
 				:titleDefault="'folder'"
 				:disabled="!folder.enabled || props.parentDisabled === true"
-				@dragstart="startDrag(folder)"
+				@dragstart="startDrag(folder, $event)"
 				@drop="onDrop($event, folder)"
 				@dragenter="onDragEnter($event, folder)"
 				@dragleave="onDragLeave($event, folder)"
@@ -125,7 +126,7 @@
 				:selectMode="selectMode"
 				:forceDisableOption="forceDisableOption"
 				:entryData="folder"
-				@dragstart="startDrag(folder)"
+				@dragstart="startDrag(folder, $event)"
 				@changeState="onToggleTrigger(folder, $event)"
 				@delete="$emit('delete', $event)"
 				@duplicate="$emit('duplicate', $event, folder)"
@@ -137,6 +138,14 @@
 	</draggable>
 </template>
 
+<script lang="ts">
+import type { TriggerListEntry, TriggerListFolderEntry } from "./TriggerList.vue";
+
+// Shared across all recursive instances so onDrop in one instance can read
+// the entry whose dragstart fired in a deeper (innermost) instance.
+let draggedEntry: TriggerListEntry | TriggerListFolderEntry | null = null;
+</script>
+
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
@@ -147,7 +156,6 @@ import { Linear, gsap } from "gsap/gsap-core";
 import { nextTick, onBeforeMount, ref, watch, type ComponentPublicInstance } from "vue";
 import draggable from "vuedraggable";
 import ParamItem from "../../ParamItem.vue";
-import type { TriggerListEntry, TriggerListFolderEntry } from "./TriggerList.vue";
 import TriggerListItem from "./TriggerListItem.vue";
 import { useI18n } from "vue-i18n";
 import { useConfirm } from "@/composables/useConfirm";
@@ -199,7 +207,6 @@ const dragging = ref<boolean>(false);
 const localItems = ref<(TriggerListEntry | TriggerListFolderEntry)[]>([]);
 const folderRefs = ref<{ [key: string]: ComponentPublicInstance | undefined }>({});
 
-let draggedEntry: TriggerListEntry | TriggerListFolderEntry | null = null;
 let droppedOnFolder = false;
 const dragCounter: { [id: string]: number } = {};
 
@@ -235,6 +242,19 @@ function onDragEnd(): void {
 }
 
 /**
+ * Fires on BOTH source and destination instances after a cross-list move
+ * (and on source after a same-list reorder). vuedraggable's alterList
+ * builds a NEW array via spread and emits update:modelValue, which means
+ * our localItems is reassigned to a new reference. Without this handler,
+ * the destination instance never propagates that change up — its parent's
+ * `folder.items` reference stays pointing at the old (empty) array, so the
+ * dragged item disappears when the tree is rebuilt.
+ */
+function onSortChange(): void {
+	onChange();
+}
+
+/**
  * Called when clicking delete button on a folder
  * @param id
  */
@@ -262,7 +282,12 @@ async function deleteFolder(folder: TriggerListFolderEntry): Promise<void> {
  * Called when starting to drag an item
  * @param entry
  */
-function startDrag(entry: TriggerListEntry | TriggerListFolderEntry): void {
+function startDrag(entry: TriggerListEntry | TriggerListFolderEntry, event: DragEvent): void {
+	// dragstart bubbles through ancestor folders' ToggleBlocks. Without this
+	// guard the outermost ancestor would overwrite draggedEntry and onDrop
+	// would move the wrong item (the ancestor instead of the dragged folder).
+	if ((event as DragEvent & { _draggedEntrySet?: boolean })._draggedEntrySet) return;
+	(event as DragEvent & { _draggedEntrySet?: boolean })._draggedEntrySet = true;
 	draggedEntry = entry;
 	dragCounter[entry.id] = 0;
 }
