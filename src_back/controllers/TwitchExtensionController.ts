@@ -60,6 +60,14 @@ export default class TwitchExtensionController extends AbstractController {
 			{ preHandler: this.authHook.bind(this) },
 			async (request, response) => await this.postQuizAnswer(request, response),
 		);
+		this.server.get(
+			"/api/twitch/extension/config",
+			async (request, response) => await this.getEBSConfig(request, response),
+		);
+		this.server.post(
+			"/api/twitch/extension/config",
+			async (request, response) => await this.setEBSConfig(request, response),
+		);
 		return this;
 	}
 
@@ -68,17 +76,13 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param channelId
 	 */
 	public async notifyStateUpdate(channelId: string): Promise<void> {
-		const url = Config.credentials.twitchat_api_path + "twitchat/stateUpdate";
-		const hash = createHash("sha512")
-			.update(Config.credentials.twitchat_api_secret + ":" + channelId)
-			.digest("hex");
-
 		try {
-			const res = await fetch(url, {
+			const res = await fetch(Config.credentials.twitchat_api_path + "twitchat/stateUpdate", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"x-twitchat-verify": hash,
+					"x-twitchat-verify": getHash(channelId),
+					"x-twitchat-channel": channelId,
 				},
 				body: JSON.stringify({
 					channelId,
@@ -107,7 +111,7 @@ export default class TwitchExtensionController extends AbstractController {
 			.digest("hex");
 
 		if (!Utils.safeStringEquals(headerHash, hash)) {
-			reply.status(401).send({ error: "Invalid request signature" });
+			reply.status(401).send({ success: false, error: "Invalid request signature" });
 			return;
 		}
 
@@ -252,4 +256,84 @@ export default class TwitchExtensionController extends AbstractController {
 		response.status(200);
 		response.send(JSON.stringify({ success: true, state: { bingos, quiz } }));
 	}
+
+	/**
+	 * Get current EBS config for current user
+	 */
+	public async getEBSConfig(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+		console.log("Sign as", user.user_id);
+		try {
+			const res = await fetch(Config.credentials.twitchat_api_path + "extension/config", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"x-twitchat-verify": getHash(user.user_id),
+					"x-twitchat-channel": user.user_id,
+				},
+			});
+			let config = "";
+			let success = false;
+			if (res.status === 200) {
+				const json = (await res.json()) as { success: boolean; content: string };
+				config = json.content;
+				success = json.success;
+			} else {
+				console.log(await res.text());
+			}
+			response.header("Content-Type", "application/json");
+			response.status(res.status);
+			response.send(JSON.stringify({ success, config }));
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
+			response.status(500);
+			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));
+		}
+	}
+
+	/**
+	 * Set current EBS config for current user
+	 */
+	public async setEBSConfig(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const params = request.body as {
+			segment?: "broadcaster" | "global" | "developer";
+			config: unknown;
+		};
+
+		try {
+			const res = await fetch(Config.credentials.twitchat_api_path + "extension/config", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"x-twitchat-verify": getHash(user.user_id),
+					"x-twitchat-channel": user.user_id,
+				},
+				body: JSON.stringify({ segment: params.segment, content: params.config }),
+			});
+			let config = "";
+			let success = false;
+			if (res.status === 200) {
+				const json = (await res.json()) as { success: boolean; content: string };
+				config = json.content;
+				success = json.success;
+			}
+			response.header("Content-Type", "application/json");
+			response.status(res.status);
+			response.send(JSON.stringify({ success, config }));
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
+			response.status(500);
+			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));
+		}
+	}
+}
+
+function getHash(uid: string): string {
+	return createHash("sha512")
+		.update(Config.credentials.twitchat_api_secret + ":" + uid)
+		.digest("hex");
 }

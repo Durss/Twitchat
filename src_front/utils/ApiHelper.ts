@@ -1,4 +1,4 @@
-import StoreProxy, { type IAuthState } from "@/store/StoreProxy";
+import StoreProxy, { type IAuthState, type IExtensionState } from "@/store/StoreProxy";
 import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
 import type { SettingsExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
@@ -1337,6 +1337,26 @@ type ApiEndpoints = {
 			response: {
 				success: boolean;
 				token?: string;
+				error?: string;
+			};
+		};
+	};
+	"twitch/extension/config": {
+		GET: {
+			parameters: void;
+			response: {
+				success: boolean;
+				config?: IExtensionState["ebsConfigs"];
+				error?: string;
+			};
+		};
+		POST: {
+			parameters: {
+				config: IExtensionState["ebsConfigs"];
+				segment?: "broadcast" | "global" | "developer";
+			};
+			response: {
+				success: boolean;
 				error?: string;
 			};
 		};

@@ -4,6 +4,7 @@ import type { IExtensionActions, IExtensionGetters, IExtensionState } from "../S
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
+import ApiHelper from "@/utils/ApiHelper";
 
 export const storeExtension = defineStore("Extension", {
 	state: (): IExtensionState => ({
@@ -15,6 +16,7 @@ export const storeExtension = defineStore("Extension", {
 		availableExtensions: [],
 		enabledExtensions: [],
 		activeExtensionSlots: {},
+		ebsConfigs: { captureClicks: false },
 	}),
 
 	getters: {
@@ -26,8 +28,14 @@ export const storeExtension = defineStore("Extension", {
 	} satisfies StoreGetters<IExtensionGetters, IExtensionState>,
 
 	actions: {
-		init(): void {
-			void this.updateInternalStates();
+		async populateData() {
+			await this.updateInternalStates();
+			if (this.companionEnabled) {
+				const res = await ApiHelper.call("twitch/extension/config", "GET");
+				if (res.json.config) {
+					this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+				}
+			}
 		},
 
 		async setExtensionState(
@@ -83,6 +91,16 @@ export const storeExtension = defineStore("Extension", {
 				this.activeExtensionSlots = slots;
 				this.enabledExtensions = extensions;
 			}
+		},
+
+		async updateEBSConfigs(): Promise<boolean> {
+			const res = await ApiHelper.call("twitch/extension/config", "POST", {
+				config: {
+					captureClicks: this.ebsConfigs.captureClicks,
+				},
+			});
+			// const getVal = await ApiHelper.call("twitch/extension/config", "GET");
+			return res.status === 200 && res.json.success === true;
 		},
 	} satisfies StoreActions<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>,
 });
