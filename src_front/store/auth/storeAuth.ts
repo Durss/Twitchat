@@ -215,7 +215,6 @@ export const storeAuth = defineStore("auth", {
 				const sUsers = StoreProxy.users;
 				const sStream = StoreProxy.stream;
 				const sRewards = StoreProxy.rewards;
-				const sExtension = StoreProxy.extension;
 
 				try {
 					window.setInitMessage("migrating local parameter data");
@@ -279,7 +278,6 @@ export const storeAuth = defineStore("auth", {
 				void MessengerProxy.instance.connect();
 				void EventSub.instance.connect();
 				void sRewards.loadRewards();
-				sExtension.init();
 				void sStream.loadStreamInfo("twitch", this.twitch.user.id);
 
 				//Loads state of current or incoming ads

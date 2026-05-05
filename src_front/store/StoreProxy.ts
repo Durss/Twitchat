@@ -2720,6 +2720,12 @@ export interface IExtensionState {
 	activeExtensionSlots: {
 		[extId: string]: { type: TwitchDataTypes.Extension["type"][number]; index: string };
 	};
+	/**
+	 * Directly tied to actual twitch EBS config.
+	 */
+	ebsConfigs: {
+		captureClicks: boolean;
+	};
 }
 
 export interface IExtensionGetters {
@@ -2727,7 +2733,11 @@ export interface IExtensionGetters {
 }
 
 export interface IExtensionActions {
-	init(): void;
+	/**
+	 * Populates data from data store value
+	 */
+	populateData(): Promise<void>;
+
 	/**
 	 * Enables/disables given extension.
 	 * Updates internal extensions states
@@ -2745,6 +2755,10 @@ export interface IExtensionActions {
 	 * Updates internal extensions states
 	 */
 	updateInternalStates(): Promise<void>;
+	/**
+	 * Updates EBS extension config
+	 */
+	updateEBSConfigs(): Promise<boolean>;
 }
 
 export interface IQnaState {
