@@ -59,9 +59,10 @@
 				"title": "Vote Majoritaire",
 				"description": "Question à choix majoritaire.\n\nUniquement des fausses réponses.\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes"
 			},
-			"live_progress_warning": {
+			"lost_progress_warning": {
 				"title": "Quiz en cours",
-				"description": "Si vous activez ce quiz vous perdrez la progression du quiz \"{NAME}\""
+				"description_other": "Si vous activez ce quiz vous perdrez la progression du quiz \"{NAME}\"",
+				"description_self": "Si vous désactivez ce quiz vous perdrez sa progression !"
 			},
 			"overlay_name": "de Quiz"
 		},
