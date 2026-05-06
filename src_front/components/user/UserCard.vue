@@ -374,12 +374,7 @@
 										})
 									"
 									@click.stop="openUserCard($event, modedChan.broadcaster_login)"
-									:href="
-										'https://www.twitch.tv/popout/' +
-										modedChan.broadcaster_login +
-										'/viewercard/' +
-										user!.login
-									"
+									:href="`https://www.twitch.tv/popout/${modedChan.broadcaster_login}/viewercard/${user!.login}`"
 									target="_blank"
 									>{{ modedChan.broadcaster_name }}</TTButton
 								>
@@ -443,8 +438,20 @@
 							<div class="title">{{ t("usercard.streaming") }}</div>
 						</div>
 						<div class="infos">
-							<div class="title">{{ currentStream.title }}</div>
-							<mark class="game">{{ currentStream.game_name }}</mark>
+							<img
+								:src="
+									currentStream.thumbnail_url
+										.replace('{width}', '480')
+										.replace('{height}', '270')
+								"
+							/>
+							<div class="streamHeader">
+								<div class="streamTitle">{{ currentStream.title }}</div>
+								<div class="streamCategory">{{ currentStream.game_name }}</div>
+							</div>
+							<div class="streamViewerCount">
+								<Icon name="user" />{{ currentStream.viewer_count }}
+							</div>
 						</div>
 					</div>
 
@@ -1441,11 +1448,62 @@ onBeforeUnmount(() => {
 		.liveInfo {
 			align-self: center;
 			flex-shrink: 0;
+			position: relative;
+			transition: width 0.25s;
+			width: 200px;
 			.infos {
+				position: relative;
+				img {
+					width: 100%;
+					aspect-ratio: 16/9;
+				}
 				.game {
+					position: absolute;
 					margin-top: 0.25em;
 					display: inline-block;
+					bottom: 5px;
+					right: 5px;
+					font-size: 0.8em;
+					text-align: right;
+					width: calc(100% - 10px);
 				}
+				.streamHeader {
+					position: absolute;
+					top: 0;
+					left: 0;
+					max-width: 100%;
+					background-color: rgba(0, 0, 0, 0.4);
+					padding: 5px;
+					border-radius: var(--border-radius);
+					.streamTitle,
+					.streamCategory {
+						overflow: hidden;
+						text-overflow: ellipsis;
+						text-wrap: nowrap;
+					}
+					.streamCategory {
+						font-size: 0.8em;
+						font-style: italic;
+						margin-top: 0.25em;
+					}
+				}
+				.streamViewerCount {
+					position: absolute;
+					bottom: 2px;
+					right: 0;
+					background-color: rgba(0, 0, 0, 0.4);
+					padding: 5px;
+					border-radius: var(--border-radius);
+					font-size: 0.8em;
+					.icon {
+						height: 0.8em;
+						margin-right: 0.25em;
+					}
+				}
+			}
+
+			&:hover {
+				width: 100%;
 			}
 		}
 
