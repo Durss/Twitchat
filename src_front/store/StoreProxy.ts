@@ -2726,6 +2726,10 @@ export interface IExtensionState {
 	ebsConfigs: {
 		captureClicks: boolean;
 	};
+	/**
+	 * Tells if EBS config is being updated
+	 */
+	ebsConfigUpdating: boolean;
 }
 
 export interface IExtensionGetters {
@@ -4160,7 +4164,7 @@ export interface IQuizActions {
 	 * Resets given quiz
 	 * @param quizId
 	 */
-	resetQuizState(quizId: string, confirm?: boolean): void;
+	resetQuizState(quizId: string, confirm?: boolean, save?: boolean): void;
 	/**
 	 * Reveal answer for current question of given quiz ID
 	 * @param quizId

@@ -16,7 +16,13 @@
 				t("twitchat_companion.start_bingo")
 			}}</TTButton>
 
-			<ParamItem class="enableBt" :paramData="param_captureClicks" v-model="storeExtension.ebsConfigs.captureClicks" @change="onChangeClickCapture" />
+			<ParamItem
+				class="enableBt"
+				:paramData="param_captureClicks"
+				:loading="storeExtension.ebsConfigUpdating"
+				v-model="storeExtension.ebsConfigs.captureClicks"
+				@change="onChangeClickCapture"
+			/>
 
 			<div
 				class="content fadeHolder"
@@ -86,10 +92,9 @@ function openBingo() {
 }
 
 async function onChangeClickCapture() {
-	storeExtension.ebsConfigs.captureClicks = param_captureClicks.value.value === true
+	storeExtension.ebsConfigs.captureClicks = param_captureClicks.value.value === true;
 	storeExtension.updateEBSConfigs();
 }
-
 </script>
 
 <style scoped lang="less">
