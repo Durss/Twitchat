@@ -15,7 +15,8 @@ export default class QuizController extends AbstractController {
 	 */
 	private cachedQuizzes = new LRUCache<string, QuizParams>({
 		max: 10000,
-		ttl: 1000 * 60 * 5, // 5 minutes TTL
+		ttl: 1000 * 60 * 60, // 1h TTL
+		// ttl: 1000 * 10, // 5 minutes TTL
 	});
 
 	private extensionController!: TwitchExtensionController;

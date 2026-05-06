@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, onBeforeMount } from "vue";
 import Icon from "@/components/Icon.vue";
+import { computed, ref, watch } from "vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -79,15 +79,13 @@ function onChange(): void {
 	emit("change", localValue.value);
 }
 
-onBeforeMount(() => {
-	localValue.value = props.modelValue;
-	watch(
-		() => props.modelValue,
-		() => {
-			localValue.value = props.modelValue;
-		},
-	);
-});
+watch(
+	() => props.modelValue,
+	() => {
+		localValue.value = props.modelValue;
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="less">

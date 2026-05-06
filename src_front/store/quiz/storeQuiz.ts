@@ -155,6 +155,10 @@ export const storeQuiz = defineStore("quiz", {
 					eventData.opaqueUserId,
 				);
 			});
+
+			SSEHelper.instance.addEventListener("ON_CONNECT", async (_event) => {
+				this.broadcastQuizState(false, true);
+			});
 		},
 
 		async saveData(
@@ -163,9 +167,10 @@ export const storeQuiz = defineStore("quiz", {
 			directBroadcast?: boolean,
 		): Promise<void> {
 			const quiz = quizId ? this.quizList.find((q) => q.id === quizId) : undefined;
+			if (!quiz) return;
 
 			// Are we saving a specifc quiz that's enabled?
-			if (quiz?.enabled) {
+			if (quiz.enabled) {
 				const otherActiveQuiz = this.quizList.filter(
 					(q) =>
 						q.enabled && q.id !== quizId && Object.keys(q.leaderboard || {}).length > 0,
@@ -175,8 +180,8 @@ export const storeQuiz = defineStore("quiz", {
 					const t = StoreProxy.i18n.t;
 					try {
 						await StoreProxy.main.confirm(
-							t("quiz.form.live_progress_warning.title"),
-							t("quiz.form.live_progress_warning.description", {
+							t("quiz.form.lost_progress_warning.title"),
+							t("quiz.form.lost_progress_warning.description_other", {
 								NAME: otherActiveQuiz?.title,
 							}),
 						);
@@ -186,7 +191,6 @@ export const storeQuiz = defineStore("quiz", {
 						return;
 					}
 					this.resetQuizState(otherActiveQuiz.id, false);
-					this.resetQuizState(quiz.id, false);
 				}
 
 				// Disable all other quizzes
@@ -197,7 +201,20 @@ export const storeQuiz = defineStore("quiz", {
 				});
 				// Force back to true to solve an UI race condition
 				quiz.enabled = true;
+			} else if (!quiz.enabled && Object.keys(quiz.leaderboard || {}).length > 0) {
+				const t = StoreProxy.i18n.t;
+				try {
+					await StoreProxy.main.confirm(
+						t("quiz.form.lost_progress_warning.title"),
+						t("quiz.form.lost_progress_warning.description_self"),
+					);
+				} catch (_error) {
+					// User cancelled, enable it back
+					quiz.enabled = true;
+					return;
+				}
 			}
+			if (!quiz.enabled) this.resetQuizState(quiz.id, false, false);
 			const data: IStoreData = {
 				quizList: this.quizList,
 			};
@@ -366,14 +383,14 @@ export const storeQuiz = defineStore("quiz", {
 			quiz.questionStarted_at = new Date().toISOString();
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
 			if (index < quiz.questionList.length - 1) {
-				quiz.currentQuestionId = quiz.questionList[index + 1]!.id;
-				currentQuiz = quiz;
 				currentQuestion = quiz.questionList[index + 1] || null;
+				if (currentQuestion) quiz.currentQuestionId = currentQuestion.id;
+				currentQuiz = quiz;
 			}
 			void this.saveData(quizId, false, true);
 		},
 
-		resetQuizState(quizId: string, confirm: boolean = true): void {
+		resetQuizState(quizId: string, confirm: boolean = true, save: boolean = true): void {
 			const reset = () => {
 				const quiz = this.quizList.find((v) => v.id === quizId);
 				if (!quiz) return;
@@ -387,7 +404,7 @@ export const storeQuiz = defineStore("quiz", {
 				quiz.leaderboard = {};
 				quiz.quizStarted_at = "";
 				quiz.questionStarted_at = "";
-				void this.saveData(quizId, false, true);
+				if (save) void this.saveData(quizId, false, true);
 			};
 			if (confirm) {
 				StoreProxy.main

@@ -59,9 +59,10 @@
 				"title": "Majority",
 				"description": "Majority choice question.\n\nAll answers are wrong.\nViewers must guess which answer will receive the most votes."
 			},
-			"live_progress_warning": {
+			"lost_progress_warning": {
 				"title": "Quiz in progress",
-				"description": "If you enable this quiz, you will lose the progress of the quiz \"{NAME}\""
+				"description_other": "If you enable this quiz, you will lose the progress of the quiz \"{NAME}\"",
+				"description_self": "If you disable this quiz you'll lose it's progress!"
 			},
 			"overlay_name": "Quiz"
 		},

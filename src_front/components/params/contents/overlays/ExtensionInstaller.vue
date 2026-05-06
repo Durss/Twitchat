@@ -24,7 +24,11 @@
 				light
 				icon="newtab"
 				type="link"
-				:href="$config.TWITCHAT_EXTENSION_URL"
+				:href="
+					extensionID
+						? `https://dashboard.twitch.tv/extensions/${extensionID}`
+						: $config.TWITCHAT_EXTENSION_URL
+				"
 				target="_blank"
 				>{{ $t("extensions.installer.installBt") }}</TTButton
 			>

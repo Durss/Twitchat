@@ -45,8 +45,10 @@
 					v-tooltip="{ content: tooltip, followCursor: 'horizontal' }"
 				></label>
 
+				<Icon class="loader" name="loader" v-if="loading" />
+
 				<ToggleButton
-					v-if="!paramData.noInput"
+					v-else-if="!paramData.noInput"
 					class="toggleButton"
 					v-model="paramData.value"
 					:secondary="secondary"
@@ -82,8 +84,10 @@
 					v-tooltip="tooltip"
 				></label>
 
+				<Icon class="loader" name="loader" v-if="loading" />
+
 				<TTButton
-					v-if="typeof paramData.value == 'string'"
+					v-else-if="typeof paramData.value == 'string'"
 					@click="
 						paramData.value = 0;
 						clampValue();
@@ -146,9 +150,11 @@
 						class="privateIcon"
 						v-tooltip="t('global.private_field')"
 					/>
+
+					<Icon class="loader" name="loader" v-if="loading" />
 					<textarea
 						ref="input"
-						v-if="longText && !paramData.noInput"
+						v-else-if="longText && !paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
 						rows="3"
@@ -212,8 +218,10 @@
 				/>
 
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<DurationForm
-					v-if="!paramData.noInput"
+					v-else-if="!paramData.noInput"
 					:id="'duration' + key"
 					v-model="paramData.value"
 					:allowMs="paramData.allowMs"
@@ -243,7 +251,9 @@
 				/>
 
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<Icon class="loader" name="loader" v-if="loading" />
 				<div
+					v-else
 					class="inputHolder input-field"
 					:style="{ backgroundColor: paramData.value as string }"
 				>
@@ -282,7 +292,10 @@
 				/>
 
 				<label v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<Slider
+					v-else
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
@@ -315,8 +328,10 @@
 				/>
 
 				<label :for="'list' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<select
-					v-if="!paramData.noInput"
+					v-else-if="!paramData.noInput"
 					:id="'list' + key"
 					v-model="paramData.value"
 					v-autofocus="autofocus"
@@ -358,7 +373,10 @@
 				/>
 
 				<label :for="'editablelist' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<vue-select
+					v-else
 					class="listField"
 					label="label"
 					ref="vueSelect"
@@ -414,7 +432,10 @@
 				/>
 
 				<label :for="'imagelist' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<vue-select
+					v-else
 					class="listField"
 					label="label"
 					ref="vueSelect"
@@ -472,7 +493,9 @@
 				<label :for="'editablelist' + key" v-html="label" v-tooltip="tooltip"></label>
 
 				<div class="listField">
+					<Icon class="loader" name="loader" v-if="loading" />
 					<vue-select
+						v-else
 						class="listField"
 						label="label"
 						ref="vueSelect"
@@ -522,8 +545,10 @@
 					v-tooltip="tooltip"
 					v-html="label"
 				></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
 				<input
-					v-if="!paramData.noInput"
+					v-else-if="!paramData.noInput"
 					type="text"
 					class="filePath"
 					v-model="paramData.value"
@@ -550,7 +575,9 @@
 			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field">
+					<Icon class="loader" name="loader" v-if="loading" />
 					<PlaceholderField
+						v-else
 						v-model="paramData.value"
 						:maxLength="paramData.maxLength"
 						:disabled="readonly"
@@ -559,9 +586,13 @@
 				</div>
 			</div>
 
+			<Icon
+				name="loader"
+				v-if="placeholdersAsPopout && paramData.placeholderList && loading"
+			/>
 			<PlaceholderSelector
 				class="placeholders"
-				v-if="placeholdersAsPopout && paramData.placeholderList"
+				v-else-if="placeholdersAsPopout && paramData.placeholderList"
 				:modelValue="Array.isArray(paramData.value) ? '' : (paramData.value as string)"
 				:placeholders="paramData.placeholderList"
 				:secondary="secondary"
@@ -663,6 +694,7 @@ import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
 import { asset } from "@/composables/useAsset";
 import type { VueSelectInstance } from "vue-select";
 import { useEmptySlot } from "@/composables/useEmptySlot";
+import Icon from "../Icon.vue";
 
 defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
 
@@ -677,7 +709,6 @@ const props = withDefaults(
 		modelValue?: any;
 		secondary?: boolean;
 		alert?: boolean;
-
 		premium?: boolean;
 		noPremiumLock?: boolean;
 		noBackground?: boolean;
@@ -687,6 +718,7 @@ const props = withDefaults(
 		placeholdersAsPopout?: boolean;
 		forceChildDisplay?: boolean;
 		readonly?: boolean;
+		loading?: boolean;
 	}>(),
 	{
 		errorMessage: "",
@@ -1017,17 +1049,18 @@ async function onEdit(): Promise<void> {
 	) {
 		const prevValue = props.modelValue;
 		emit("update:modelValue", props.paramData.value);
-		emit("change", prevValue, props.paramData.value);
-		if (props.paramData.editCallback) {
-			props.paramData.editCallback(props.paramData);
+		if (prevValue != props.paramData.value) {
+			emit("change", prevValue, props.paramData.value);
+			if (props.paramData.editCallback) {
+				props.paramData.editCallback(props.paramData);
+			}
 		}
 	}
 
 	buildChildren();
 
-	nextTick().then(() => {
-		isLocalUpdate = false;
-	});
+	await nextTick();
+	isLocalUpdate = false;
 }
 
 /**
@@ -1544,6 +1577,13 @@ watch(
 
 		.toggleButton {
 			align-self: flex-start;
+		}
+
+		.loader {
+			align-self: center;
+			height: 1.25em;
+			width: 1.25em;
+			margin: unset;
 		}
 
 		.toggle,

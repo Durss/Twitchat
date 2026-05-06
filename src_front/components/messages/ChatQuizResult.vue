@@ -154,6 +154,10 @@ const rankedUsers = computed(() => {
 	return users;
 });
 
+const rankWidth = computed(() => {
+	return rankedUsers.value[rankedUsers.value.length - 1]!.rank.toString().length + 1 + "ch";
+});
+
 const twitchUsers = rankedUsers.value
 	.filter((u) => !u.isAnonymous && u.platform === "twitch" && !u.name)
 	.map((u) => u.uid);
@@ -289,6 +293,7 @@ watch(userSearch, () => {
 			font-size: 0.9em;
 			border-bottom: 1px solid rgba(0, 0, 0, 1);
 			content-visibility: paint;
+			border-radius: 5px;
 
 			&.clickable {
 				cursor: pointer;
@@ -309,12 +314,12 @@ watch(userSearch, () => {
 			}
 
 			&.is-me {
-				border: 0.2em solid var(--color-secondary);
+				border: 1px solid var(--color-secondary);
 			}
 
 			.rank {
 				font-weight: bold;
-				min-width: 2.5rem;
+				min-width: v-bind(rankWidth);
 				text-align: left;
 				flex-shrink: 0;
 				font-variant: tabular-nums;
@@ -331,6 +336,7 @@ watch(userSearch, () => {
 				border-radius: 50%;
 				object-fit: cover;
 				flex-shrink: 0;
+				vertical-align: middle;
 			}
 
 			.avatar.anon {

@@ -5,6 +5,9 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
 import ApiHelper from "@/utils/ApiHelper";
+import Utils from "@/utils/Utils";
+
+let lastEBSCall_ts = 0;
 
 export const storeExtension = defineStore("Extension", {
 	state: (): IExtensionState => ({
@@ -16,6 +19,7 @@ export const storeExtension = defineStore("Extension", {
 		availableExtensions: [],
 		enabledExtensions: [],
 		activeExtensionSlots: {},
+		ebsConfigUpdating: false,
 		ebsConfigs: { captureClicks: false },
 	}),
 
@@ -94,13 +98,24 @@ export const storeExtension = defineStore("Extension", {
 		},
 
 		async updateEBSConfigs(): Promise<boolean> {
+			this.ebsConfigUpdating = true;
+			const elapsed = Date.now() - lastEBSCall_ts;
+			const toWait = 3000 - elapsed;
+			if (toWait > 0) {
+				// EBS edition has a 20 times per minute rate limit which corresponds
+				// to "every 3s max". Here we add a fake timeout to make sure we
+				// don't call this endpoint more often
+				await Utils.promisedTimeout(toWait);
+			}
 			const res = await ApiHelper.call("twitch/extension/config", "POST", {
 				config: {
 					captureClicks: this.ebsConfigs.captureClicks,
 				},
 			});
-			// const getVal = await ApiHelper.call("twitch/extension/config", "GET");
-			return res.status === 200 && res.json.success === true;
+			lastEBSCall_ts = Date.now();
+			this.ebsConfigUpdating = false;
+			const success = res.status === 200 && res.json.success === true;
+			return success;
 		},
 	} satisfies StoreActions<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>,
 });
