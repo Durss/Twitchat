@@ -6,9 +6,9 @@
 			<p>{{ $t("twitchat_companion.header") }}</p>
 		</div>
 
-		<ExtensionInstaller v-model:extensionReady="extensionReady" />
+		<ExtensionInstaller />
 
-		<template v-if="extensionReady">
+		<template v-if="storeExtension.companionEnabled">
 			<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{
 				t("twitchat_companion.start_quiz")
 			}}</TTButton>
@@ -21,56 +21,66 @@
 				:paramData="param_captureClicks"
 				:loading="storeExtension.ebsConfigUpdating"
 				v-model="storeExtension.ebsConfigs.captureClicks"
-				@change="onChangeClickCapture"
-			/>
-
-			<div
-				class="content fadeHolder"
-				:style="holderStyles"
-				v-if="storeExtension.companionEnabled"
+				@change="onChangeEBSSetting('clicks')"
 			>
-				<HeatOverlayClick />
+				<div
+					class="content"
+					v-if="
+						storeExtension.ebsConfigs.captureClicks &&
+						(!storeExtension.ebsConfigUpdating || lastChangedState != 'clicks')
+					"
+				>
+					<HeatOverlayClick light />
 
-				<HeatScreenList
-					:open="subContent == 'heatAreas'"
-					:class="subContent == 'heatAreas' ? 'selected' : ''"
-				/>
+					<HeatScreenList
+						light
+						:open="subContent == 'heatAreas'"
+						:class="subContent == 'heatAreas' ? 'selected' : ''"
+					/>
 
-				<HeatDebug />
-			</div>
+					<HeatDebug /></div
+			></ParamItem>
+
+			<ParamItem
+				class="enableBt"
+				:paramData="param_captureKeys"
+				:loading="storeExtension.ebsConfigUpdating"
+				v-model="storeExtension.ebsConfigs.captureKeys"
+				@change="onChangeEBSSetting('keys')"
+			/>
 		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, ref, type StyleValue } from "vue";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import HeatDebug from "../heat/HeatDebug.vue";
 import HeatOverlayClick from "../heat/HeatOverlayClick.vue";
 import HeatScreenList from "../heat/HeatScreenList.vue";
 import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
-import TTButton from "@/components/TTButton.vue";
-import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const storeExtension = useStoreExtension();
 const storeParams = useStoreParams();
 
-const extensionReady = ref(false);
+const lastChangedState = ref<"clicks" | "keys" | null>(null);
 const param_captureClicks = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: false,
+	icon: "click",
 	labelKey: "twitchat_companion.enable_click",
 });
-
-const holderStyles = computed<StyleValue>(() => {
-	return {
-		opacity: param_captureClicks.value.value === true ? 1 : 0.5,
-		pointerEvents: param_captureClicks.value.value === true ? "all" : "none",
-	};
+const param_captureKeys = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "font",
+	labelKey: "twitchat_companion.enable_keys",
 });
 
 const subContent = computed(() => {
@@ -91,8 +101,7 @@ function openBingo() {
 	);
 }
 
-async function onChangeClickCapture() {
-	storeExtension.ebsConfigs.captureClicks = param_captureClicks.value.value === true;
+async function onChangeEBSSetting(section: typeof lastChangedState.value) {
 	storeExtension.updateEBSConfigs();
 }
 </script>
@@ -104,28 +113,26 @@ async function onChangeClickCapture() {
 	}
 
 	.content {
-		gap: 1em;
+		margin-top: 0.5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 	}
 
-	.fadeHolder {
-		transition: opacity 0.25s;
-		.selected {
-			border: 5px solid transparent;
-			border-radius: 1em;
-			animation: blink 0.5s 3 forwards;
-			animation-delay: 1s;
-			@keyframes blink {
-				0% {
-					border-color: var(--color-secondary);
-				}
-				50% {
-					border-color: transparent;
-				}
-				100% {
-					border-color: var(--color-secondary);
-				}
+	.selected {
+		border: 5px solid transparent;
+		border-radius: 1em;
+		animation: blink 0.5s 3 forwards;
+		animation-delay: 1s;
+		@keyframes blink {
+			0% {
+				border-color: var(--color-secondary);
+			}
+			50% {
+				border-color: transparent;
+			}
+			100% {
+				border-color: var(--color-secondary);
 			}
 		}
 	}

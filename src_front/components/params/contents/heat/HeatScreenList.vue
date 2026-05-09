@@ -3,6 +3,9 @@
 		class="HeatScreenList"
 		:title="t('heat.zone_interaction')"
 		:open="true"
+		:primary="props.primary"
+		:secondary="props.secondary"
+		:light="props.light"
 		:icons="['polygon']"
 	>
 		<div class="content">
@@ -88,6 +91,7 @@ import HeatScreenPreview from "./areas/HeatScreenPreview.vue";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();
+const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();
 const storeAuth = useStoreAuth();
 const storeHeat = useStoreHeat();
 const storeParams = useStoreParams();
