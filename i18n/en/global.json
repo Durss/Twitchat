@@ -270,6 +270,14 @@
 		"404": {
 			"title": "404",
 			"description": "The peage you're searching for is gone 😭"
+		},
+		"languages": {
+			"fr": "Français",
+			"en": "English",
+			"de": "Deutsch",
+			"es": "Español",
+			"it": "Italiano",
+			"nl": "Nederlands"
 		}
 	}
 }

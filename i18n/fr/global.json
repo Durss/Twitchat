@@ -270,6 +270,14 @@
 		"404": {
 			"title": "404",
 			"description": "La peage que vous cherchez a disparue 😭"
+		},
+		"languages": {
+			"fr": "Français",
+			"en": "English",
+			"de": "Deutsch",
+			"es": "Español",
+			"it": "Italiano",
+			"nl": "Nederlands"
 		}
 	}
 }
