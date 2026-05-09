@@ -382,6 +382,7 @@ const UserDataSchema = {
 					addToContextMenu: { type: "boolean" },
 					addToDiscord: { type: "boolean" },
 					rewardId: { type: "string", maxLength: 100 },
+					powerUpId: { type: "string", maxLength: 100 },
 					name: { type: "string", maxLength: 100 },
 					icon: { type: "string", maxLength: 500 },
 					chatCommand: { type: "string", maxLength: 100 },

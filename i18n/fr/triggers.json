@@ -3,12 +3,13 @@
 		"header": "Exécutez des actions en réaction à {COUNT} types d'évènements",
 		"header_select_trigger": "Choisissez un type d'événement parmi les {COUNT} disponibles",
 		"header_select_reward": "Choisissez une récompense de points de chaîne",
+		"header_select_powerUp": "Choisissez un Power Up",
 		"header_select_counter": "Choisissez un compteur",
 		"header_select_value": "Choisissez une valeur",
 		"header_select_obs_scene": "Choisissez une scène OBS",
 		"header_select_obs_source": "Choisissez une source OBS",
-		"header_select_obs_input": "Choisissez l'entrée audio OBS",
-		"header_select_obs_filter": "Choisissez le filtre OBS",
+		"header_select_obs_input": "Choisissez une entrée audio OBS",
+		"header_select_obs_filter": "Choisissez un filtre OBS",
 		"usage": "Les Triggers permettent d'exécuter des actions en réponse à des évènements. Vous pouvez créer des choses simples comme des commandes de tchat et d'autres plus complexes comme un système de song request si vous avez lié Spotify à Twitchat.",
 		"trigger_name": "Nom personnalisé",
 		"trigger_icon": "Icône personnalisée",
@@ -26,6 +27,8 @@
 		"resyncExtensionBt_tt": "Si vous avez ajouté ou modifié le status d'une extension, cliquez pour récupérer les changements",
 		"resyncmixitupBt": "Rafraîchir Mix It Up",
 		"resyncmixitupBt_tt": "Si vous avez ajouté ou modifié des commandes Mix It Up, cliquez pour récupérer les changements",
+		"resyncPowerUpsBt": "Rafraîchir les Power ups",
+		"resyncPowerUpsBt_tt": "Si vous avez modifié vos Power Ups, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
 		"delete_actions_confirm": "Supprimer toutes les action ?",
@@ -44,7 +47,9 @@
 		"missing_trigger": "TRIGGER SUPPRIMÉ",
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
-		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
+		"missing_reward_scope": "CHARGEMENT DE LA RÉCOMPENSE IMPOSSIBLE",
+		"missing_powerup": "POWER UP SUPPRIMÉ",
+		"missing_powerup_scope": "CHARGEMENT DU POWER UP IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"http_placeholder": "Placeholder HTTP {NAME}",
 		"json_placeholder": "Placeholder JSON {NAME}",
@@ -84,6 +89,11 @@
 			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lister vos récompenses de points de chaîne",
 			"all_rewards": "N'importe quelle récompense"
+		},
+		"powerups": {
+			"require": "Ces événéments nécessitent de {URL}",
+			"require_url": "lister vos Power Ups",
+			"all_powerups": "N'importe quel power Up"
 		},
 		"schedule": {
 			"conflict": "Une action programmée du même nom existe déjà",
@@ -1076,6 +1086,9 @@
 			"power_up_emote": "Code de l'mote géante",
 			"power_up_emote_url": "URL de l'mote géante",
 			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'",
+			"powerUpID": "ID tu Power Up",
+			"power_up_id": "ID du Power Up",
+			"power_up_title": "Titre du Power Up",
 			"superchat_tier": "Superchat tier (1 => 11)",
 			"supersticker_tier": "Super sticker tier (1 => 6)",
 			"supersticker_id": "ID du sticker",
@@ -1706,6 +1719,10 @@
 				"label": "Power UP: célébration",
 				"description": "Actions à exécuter lorsqu'une célébration est reçue"
 			},
+			"POWER_UP_CUSTOM": {
+				"label": "Custom Power Up",
+				"description": "Actions à exécuter lorsqu'un Power Up personnalisé est acheté"
+			},
 			"YOUTUBE_SUPER_CHAT": {
 				"label": "Super chat reçu sur YouTube",
 				"description": "Actions à exécuter lorsqu'une personne envoie super chat sur YouTube"
@@ -1837,7 +1854,8 @@
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",
-				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
+				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch",
+				"disabled_reason": "Twitch a supprimé cette fonctionnalité"
 			},
 			"OBS_CONNECTED": {
 				"label": "OBS connecté",

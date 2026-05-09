@@ -221,6 +221,7 @@
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
+							:powerUps="powerUps"
 							:extensions="extensions"
 							:triggerData="triggerData"
 							@delete="deleteAction(element.id)"
@@ -312,6 +313,7 @@ const props = withDefaults(
 		obsSources?: OBSSourceItem[];
 		obsInputs?: OBSInputItem[];
 		rewards?: TwitchDataTypes.Reward[];
+		powerUps?: TwitchDataTypes.CustomPowerUp[];
 		extensions?: TwitchDataTypes.Extension[];
 	}>(),
 	{

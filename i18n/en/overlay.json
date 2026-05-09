@@ -480,11 +480,6 @@
 				"CHEER_AVATAR": "Bits received - Avatar",
 				"CHEER_AMOUNT": "Bits received - Amount",
 
-				"COMBO_ID": "Combo Bits received - User ID",
-				"COMBO_NAME": "Combo Bits received - Username",
-				"COMBO_AVATAR": "Combo Bits received - Avatar",
-				"COMBO_AMOUNT": "Combo Bits received - Amount",
-
 				"FOLLOWER_COUNT": "Followers - total",
 
 				"FOLLOWER_ID": "Follower - User ID",
@@ -628,6 +623,12 @@
 				"POWER_UP_MESSAGE_ID": "Power-up Message - User ID",
 				"POWER_UP_MESSAGE_NAME": "Power-up Message - Username",
 				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - Avatar",
+
+				"POWER_UP_CUSTOM_ID": "Custom Power-up - User ID",
+				"POWER_UP_CUSTOM_NAME": "Custom Power-up - Username",
+				"POWER_UP_CUSTOM_AVATAR": "Custom Power-up - Avatar",
+				"POWER_UP_CUSTOM_TITLE": "Custom Power-up - Title",
+				"POWER_UP_CUSTOM_COST": "Custom Power-up - Cost",
 
 				"PATREON_USER": "Subscriber Username",
 				"PATREON_TITLE": "Subscription title",

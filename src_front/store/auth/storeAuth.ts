@@ -278,6 +278,7 @@ export const storeAuth = defineStore("auth", {
 				void MessengerProxy.instance.connect();
 				void EventSub.instance.connect();
 				void sRewards.loadRewards();
+				void sRewards.loadPowerUps();
 				void sStream.loadStreamInfo("twitch", this.twitch.user.id);
 
 				//Loads state of current or incoming ads

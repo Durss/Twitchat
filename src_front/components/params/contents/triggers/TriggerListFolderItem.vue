@@ -100,6 +100,7 @@
 						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
+						:powerUps="powerUps"
 						:noEdit="noEdit"
 						:selectMode="selectMode"
 						:forceDisableOption="forceDisableOption"
@@ -173,6 +174,7 @@ const storeTriggers = useStoreTriggers();
 const props = withDefaults(
 	defineProps<{
 		rewards?: TwitchDataTypes.Reward[];
+		powerUps?: TwitchDataTypes.CustomPowerUp[];
 		noEdit?: boolean;
 		forceDisableOption?: boolean;
 		selectMode?: boolean;
@@ -183,6 +185,7 @@ const props = withDefaults(
 	}>(),
 	{
 		rewards: () => [],
+		powerUps: () => [],
 		level: 0,
 		triggerId: null,
 		noEdit: false,

@@ -706,7 +706,6 @@ export default class TwitchUtils {
 		if (this.loadingChannelEmotes[channelId])
 			return this.loadingChannelEmotesPromise[channelId];
 		this.loadingChannelEmotes[channelId] = true;
-		console.log("LOAD EMOTE SETS FOR CHANNEL", channelId);
 
 		this.loadingChannelEmotesPromise[channelId] = new Promise<void>((resolve) => {
 			void (async () => {
@@ -828,19 +827,20 @@ export default class TwitchUtils {
 		onlyManageable: boolean = false,
 	): Promise<TwitchDataTypes.Reward[]> {
 		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
+		if (!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner)
+			return [];
 
 		if (!onlyManageable && this.rewardsCache.length > 0 && !forceReload)
 			return this.rewardsCache.concat();
 		if (onlyManageable && this.rewardsManageableCache.length > 0 && !forceReload)
 			return this.rewardsManageableCache.concat();
-		const options = {
-			method: "GET",
-		};
 		let rewards: TwitchDataTypes.Reward[] = [];
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
 		url.searchParams.append("broadcaster_id", this.uid);
 		if (onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
-		const res = await this.callApi(url, options);
+		const res = await this.callApi(url, {
+			method: "GET",
+		});
 		const json = await res.json();
 		if (res.status == 200) {
 			rewards = json.data;
@@ -928,9 +928,6 @@ export default class TwitchUtils {
 	public static async loadRedemptions(): Promise<TwitchDataTypes.RewardRedemption[]> {
 		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 
-		const options = {
-			method: "GET",
-		};
 		let redemptions: TwitchDataTypes.RewardRedemption[] = [];
 
 		const url = new URL(
@@ -938,7 +935,9 @@ export default class TwitchUtils {
 		);
 		url.searchParams.append("broadcaster_id", this.uid);
 
-		const res = await this.callApi(url, options);
+		const res = await this.callApi(url, {
+			method: "GET",
+		});
 		if (res.status == 200) {
 			const json = await res.json();
 			redemptions = json.data;
@@ -1011,6 +1010,28 @@ export default class TwitchUtils {
 			if (manageableIndex > -1) this.rewardsManageableCache[manageableIndex] = json.data[0];
 		}
 		return res.status == 200;
+	}
+
+	/**
+	 * Get list of custom power ups
+	 */
+	public static async getCustomPowerUps(): Promise<TwitchDataTypes.CustomPowerUp[]> {
+		if (!this.hasScopes([TwitchScopes.READ_CHEER])) return [];
+		if (!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner)
+			return [];
+
+		let powerups: TwitchDataTypes.CustomPowerUp[] = [];
+		const url = new URL(Config.instance.TWITCH_API_PATH + "bits/custom_power_ups");
+		url.searchParams.append("broadcaster_id", this.uid);
+		const res = await this.callApi(url, {
+			method: "GET",
+		});
+		if (res.status == 200) {
+			powerups = (await res.json()).data || [];
+		} else {
+			return [];
+		}
+		return powerups;
 	}
 
 	/**

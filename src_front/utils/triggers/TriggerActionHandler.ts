@@ -242,6 +242,31 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+				const id = message.powerUpId;
+				await this.executeTriggersByType(
+					TriggerTypes.POWER_UP_CUSTOM,
+					message,
+					testMode,
+					"*",
+					undefined,
+					forcedTriggerId,
+				);
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.POWER_UP_CUSTOM,
+						message,
+						testMode,
+						id,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
@@ -360,24 +385,6 @@ export default class TriggerActionHandler {
 				if (
 					await this.executeTriggersByType(
 						TriggerTypes.CHEER,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
-				break;
-			}
-
-			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
-				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
-
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TWITCH_COMBO,
 						message,
 						testMode,
 						undefined,
@@ -2308,6 +2315,10 @@ export default class TriggerActionHandler {
 
 				case TriggerTypes.REWARD_REDEEM:
 					keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId;
+					break;
+
+				case TriggerTypes.POWER_UP_CUSTOM:
+					keys[0] += this.HASHMAP_KEY_SPLITTER + t.powerUpId;
 					break;
 
 				case TriggerTypes.OBS_SCENE:

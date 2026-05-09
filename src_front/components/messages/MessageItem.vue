@@ -123,7 +123,6 @@ import ChatPrivateModerator from "./ChatPrivateModerator.vue";
 import ChatChatPollResult from "./ChatChatPollResult.vue";
 import ChatCustomTrainSummary from "./ChatCustomTrainSummary.vue";
 import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
-import ChatTwitchCombo from "./ChatTwitchCombo.vue";
 import ChatManyReplies from "./ChatManyReplies.vue";
 import ChatQuizResult from "./ChatQuizResult.vue";
 import ChatCustomPowerUp from "./ChatCustomPowerUp.vue";
@@ -232,7 +231,6 @@ const componentRef = computed<VueComponent | null>(() => {
 		connect: ChatConnect,
 		disconnect: ChatConnect,
 		gigantified_emote: ChatGiantEmote,
-		twitch_combo: ChatTwitchCombo,
 		custom_train_summary: ChatCustomTrainSummary,
 		streamsocket_action: ChatStreamSocketAction,
 		many_replies: ChatManyReplies,

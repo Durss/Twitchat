@@ -16,6 +16,7 @@
 		<TriggerListFolderItem
 			v-model:items="filteredTriggerList"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:noEdit="noEdit || hasSearch"
 			:triggerId="triggerId"
 			@change="onUpdateList"
@@ -58,11 +59,13 @@ const storeTriggers = useStoreTriggers();
 const props = withDefaults(
 	defineProps<{
 		rewards?: TwitchDataTypes.Reward[];
+		powerUps?: TwitchDataTypes.CustomPowerUp[];
 		noEdit?: boolean;
 		triggerId?: string | null;
 	}>(),
 	{
 		rewards: () => [],
+		powerUps: () => [],
 		noEdit: false,
 		triggerId: null,
 	},

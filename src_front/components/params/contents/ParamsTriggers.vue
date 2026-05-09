@@ -54,6 +54,17 @@
 			<TTButton
 				class="cta resyncBt"
 				small
+				icon="bits"
+				v-if="canReadBits && isAffiliate"
+				@click="listPowerUps()"
+				v-tooltip="$t('triggers.resyncPowerUpsBt_tt')"
+				:loading="loadingRewards"
+				>{{ $t("triggers.resyncPowerUpsBt") }}</TTButton
+			>
+
+			<TTButton
+				class="cta resyncBt"
+				small
 				icon="extension"
 				v-if="canManageExtensions"
 				@click="listExtensions()"
@@ -133,6 +144,7 @@
 			:obsSources="obsSources"
 			:obsInputs="obsInputs"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:folderTarget="createFolderTarget"
 		/>
 
@@ -143,6 +155,7 @@
 			:obsSources="obsSources"
 			:obsInputs="obsInputs"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:extensions="extensions"
 		/>
 
@@ -152,6 +165,7 @@
 			@testTrigger="testTrigger($event)"
 			@createTrigger="createTriggerWithinFolder($event)"
 			:rewards="rewards"
+			:powerUps="powerUps"
 		/>
 	</div>
 </template>
@@ -211,6 +225,7 @@ const storeExtension = useStoreExtension();
 const eventsCount = ref<number>(0);
 const showForm = ref<boolean>(false);
 const loadingRewards = ref<boolean>(false);
+const loadingPowerUps = ref<boolean>(false);
 const loadingMixItUp = ref<boolean>(false);
 const loadingExtension = ref<boolean>(false);
 const loadingOBSElements = ref<boolean>(false);
@@ -220,6 +235,7 @@ const obsScenes = ref<OBSSceneItem[]>([]);
 const obsSources = ref<OBSSourceItem[]>([]);
 const obsInputs = ref<OBSInputItem[]>([]);
 const rewards = ref<TwitchDataTypes.Reward[]>([]);
+const powerUps = ref<TwitchDataTypes.CustomPowerUp[]>([]);
 
 let renameOBSElementHandler: () => void;
 
@@ -234,6 +250,9 @@ const isAffiliate = computed<boolean>(() => {
 });
 const canManageRewards = computed<boolean>(() => {
 	return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]);
+});
+const canReadBits = computed<boolean>(() => {
+	return TwitchUtils.hasScopes([TwitchScopes.READ_CHEER]);
 });
 const canManageExtensions = computed<boolean>(() => {
 	return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
@@ -274,6 +293,9 @@ onBeforeMount(() => {
 	}
 	if (TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 		listRewards();
+	}
+	if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+		listPowerUps();
 	}
 	if (TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
 		listExtensions();
@@ -335,6 +357,9 @@ onBeforeMount(() => {
 		() => {
 			if (TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				listRewards();
+			}
+			if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+				listPowerUps();
 			}
 		},
 	);
@@ -463,6 +488,16 @@ async function listRewards(): Promise<void> {
 }
 
 /**
+ * Lists the power ups
+ */
+async function listPowerUps(): Promise<void> {
+	loadingPowerUps.value = true;
+	powerUps.value = await storeRewards.loadPowerUps();
+	await Utils.promisedTimeout(200); //Just make sure the loading is visible in case query runs crazy fast
+	loadingPowerUps.value = false;
+}
+
+/**
  * Lists twitch extensions
  */
 async function listExtensions(): Promise<void> {
@@ -578,7 +613,7 @@ function testTrigger(trigger: TriggerData): void {
 							(v) => v.id == trigger.rewardId,
 						);
 						if (twitchReward) {
-							(m as TwitchatDataTypes.MessageRewardRedeemData).reward = {
+							m.reward = {
 								id: twitchReward.id,
 								cost: twitchReward.cost,
 								description: twitchReward.prompt,
@@ -589,6 +624,16 @@ function testTrigger(trigger: TriggerData): void {
 									hd: twitchReward.image?.url_4x,
 								},
 							};
+						}
+					} else //Power Up redeem simulation
+					 if (m.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP) {
+						let powerUp = storeRewards.powerUpList.find(
+							(v) => v.id == trigger.powerUpId,
+						);
+						if (powerUp) {
+							m.powerUpId = powerUp.id;
+							m.cost = powerUp.bits;
+							m.powerUpTitle = powerUp.title;
 						}
 					} else //OBS scene change simulation
 					 if (m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {

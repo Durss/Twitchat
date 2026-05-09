@@ -31,7 +31,6 @@ export default class EventSub {
 	private lastRecentFollowers: TwitchatDataTypes.MessageFollowingData[] = [];
 	private debounceAutomodTermsUpdate: number = -1;
 	private debouncedAutomodTerms: TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
-	private debouncedCombos: { [uid: string]: { bits: number; to: number } } = {};
 	private sessionID: string = "";
 	private connectURL: string = "";
 	private chanSubscriptions: { [chanId: string]: { topic: string; uid: string; id: string }[] } =
@@ -267,26 +266,6 @@ export default class EventSub {
 				}
 				void this.hypeTrainEvent(entry.topic, entry.data);
 			}
-		}
-	}
-
-	public simulateComboSpam(): void {
-		const me = StoreProxy.auth.twitch.user;
-		const obj: TwitchEventSubDataTypes.BitsUseEvent = {
-			broadcaster_user_id: me.id,
-			broadcaster_user_login: me.login,
-			broadcaster_user_name: me.displayNameOriginal,
-			user_id: me.id,
-			user_login: me.login,
-			user_name: me.displayNameOriginal,
-			bits: Utils.pickRand([5, 10, 25, 50, 100]),
-			type: "combo",
-			power_up: null,
-			message: null,
-			custom_power_up: null,
-		};
-		for (let i = 0; i < 10; i++) {
-			void this.bitsUsed(TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, obj);
 		}
 	}
 
@@ -3122,26 +3101,6 @@ export default class EventSub {
 			false,
 		);
 		switch (event.type) {
-			case "combo": {
-				let debounced = this.debouncedCombos[user.id];
-				if (!debounced) this.debouncedCombos[user.id] = debounced = { bits: 0, to: -1 };
-				else window.clearTimeout(debounced.to);
-				debounced.bits += event.bits || 0;
-				debounced.to = window.setTimeout(() => {
-					const m: TwitchatDataTypes.MessageTwitchComboData = {
-						id: Utils.getUUID(),
-						date: Date.now(),
-						platform: "twitch",
-						channel_id: event.broadcaster_user_id,
-						type: TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO,
-						user,
-						bits: debounced.bits,
-					};
-					delete this.debouncedCombos[user.id];
-					void StoreProxy.chat.addMessage(m);
-				}, 5_000);
-				break;
-			}
 			case "power_up": {
 				if (event.power_up && event.power_up.type == "celebration") {
 					const m: TwitchatDataTypes.MessageTwitchCelebrationData = {
@@ -3212,6 +3171,24 @@ export default class EventSub {
 					cost: event.bits,
 				};
 				void StoreProxy.chat.addMessage(m);
+				if (event.message?.text) {
+					const chat: TwitchatDataTypes.MessageChatData = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitch",
+						channel_id: event.broadcaster_user_id,
+						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						user,
+						message: event.message?.text || "",
+						message_chunks: chunks,
+						message_html: TwitchUtils.messageChunksToHTML(chunks),
+						message_size: TwitchUtils.computeMessageSize(chunks),
+						answers: [],
+						is_short: false,
+						twitch_powerup: true,
+					};
+					void StoreProxy.chat.addMessage(chat);
+				}
 				break;
 			}
 		}

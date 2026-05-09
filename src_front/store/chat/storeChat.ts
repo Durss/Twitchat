@@ -858,7 +858,6 @@ export const storeChat = defineStore("chat", {
 
 					let lastRaid = false;
 					let lastCheer = false;
-					let lastCombo = false;
 					let lastReward = false;
 					let lastPuEmote = false;
 					let lastPuCelebration = false;
@@ -955,23 +954,6 @@ export const storeChat = defineStore("chat", {
 								m.user.id,
 							);
 							StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", m.bits);
-						}
-						if (
-							!lastCombo &&
-							m.type === TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO
-						) {
-							lastCombo = true;
-							StoreProxy.labels.updateLabelValue("COMBO_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue(
-								"COMBO_NAME",
-								m.user.displayNameOriginal,
-							);
-							StoreProxy.labels.updateLabelValue(
-								"COMBO_AVATAR",
-								m.user.avatarPath || "",
-								m.user.id,
-							);
-							StoreProxy.labels.updateLabelValue("COMBO_AMOUNT", m.bits);
 						}
 						if (
 							!lastReward &&
@@ -2020,25 +2002,6 @@ export const storeChat = defineStore("chat", {
 						break;
 					}
 
-					//New combo cheer
-					case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
-						if (!isFromRemoteChan) {
-							message = message as TwitchatDataTypes.MessageTwitchComboData;
-							StoreProxy.labels.updateLabelValue("COMBO_ID", message.user.id);
-							StoreProxy.labels.updateLabelValue(
-								"COMBO_NAME",
-								message.user.displayNameOriginal,
-							);
-							StoreProxy.labels.updateLabelValue(
-								"COMBO_AVATAR",
-								message.user.avatarPath || "",
-								message.user.id,
-							);
-							StoreProxy.labels.updateLabelValue("COMBO_AMOUNT", message.bits);
-						}
-						break;
-					}
-
 					//New kofi event
 					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 						if (!isFromRemoteChan) {
@@ -2738,6 +2701,26 @@ export const storeChat = defineStore("chat", {
 								message.emoteID +
 								"/default/light/3.0",
 						);
+						break;
+					}
+
+					//Twitch custom power Up
+					case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+						StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_NAME",
+							message.user.displayNameOriginal,
+						);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_AVATAR",
+							message.user.avatarPath || "",
+							message.user.id,
+						);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_TITLE",
+							message.powerUpTitle,
+						);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_COST", message.cost);
 						break;
 					}
 

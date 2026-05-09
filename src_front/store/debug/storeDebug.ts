@@ -1846,6 +1846,25 @@ export const storeDebug = defineStore("debug", {
 						powerUpTitle: "My awesome power-up",
 					};
 					data = m;
+					if (chunks.length > 0) {
+						const chat: TwitchatDataTypes.MessageChatData = {
+							id: Utils.getUUID(),
+							date: Date.now(),
+							platform: "twitch",
+							channel_id: uid,
+							type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+							user,
+							message,
+							message_html: TwitchUtils.messageChunksToHTML(chunks),
+							message_chunks: chunks,
+							message_size: TwitchUtils.computeMessageSize(chunks),
+							answers: [],
+							is_short: false,
+							twitch_powerup: true,
+							fake: true,
+						};
+						void StoreProxy.chat.addMessage(chat);
+					}
 					break;
 				}
 
@@ -2265,21 +2284,6 @@ export const storeDebug = defineStore("debug", {
 						actionName: "My action name",
 						bits: Math.round(Math.random() * 100),
 						sku: "my_sku_id",
-						user: fakeUser,
-					};
-
-					data = m;
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
-					const m: TwitchatDataTypes.MessageTwitchComboData = {
-						id: Utils.getUUID(),
-						type,
-						date: Date.now(),
-						channel_id: StoreProxy.auth.twitch.user.id,
-						platform: "twitch",
-						bits: Math.round(Math.random() * 100),
 						user: fakeUser,
 					};
 

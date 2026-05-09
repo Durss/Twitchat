@@ -488,7 +488,7 @@ export default class Config {
 	}
 
 	/**
-	 * Fake Twitch "highlight my message" reward
+	 * Fake "any" reward
 	 */
 	public get allRewards(): TwitchDataTypes.Reward {
 		const img = StoreProxy.asset("icons/channelPoints.svg");
@@ -528,6 +528,190 @@ export default class Config {
 				url_4x: img,
 			},
 			should_redemptions_skip_request_queue: false,
+		};
+	}
+
+	/**
+	 * Fake "any" power up
+	 */
+	public get allPowerups(): TwitchDataTypes.CustomPowerUp {
+		const img = StoreProxy.asset("img/powerup/bits.png");
+		const defaultImg = StoreProxy.asset("icons/bits.svg");
+		return {
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
+			id: "*",
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			bits: -1,
+			title: StoreProxy.i18n.t("triggers.powerups.all_powerups"),
+			prompt: "",
+			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x: defaultImg,
+				url_2x: defaultImg,
+				url_4x: defaultImg,
+			},
+			cooldown_expires_at: null,
+			redemptions_redeemed_current_stream: null,
+		};
+	}
+
+	/**
+	 * Fake Twitch "message effect" power up
+	 */
+	public get messageEffectPowerup(): TwitchDataTypes.CustomPowerUp {
+		const img = StoreProxy.asset("img/powerup/message-effect-icon.png");
+		const defaultImg = StoreProxy.asset("icons/bits.svg");
+		return {
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
+			id: "message_effect",
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			bits: 30,
+			title: "Message effect",
+			prompt: "",
+			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x: defaultImg,
+				url_2x: defaultImg,
+				url_4x: defaultImg,
+			},
+			cooldown_expires_at: null,
+			redemptions_redeemed_current_stream: null,
+		};
+	}
+
+	/**
+	 * Fake Twitch "gigantified emote" power up
+	 */
+	public get gigantifiedEmotePowerup(): TwitchDataTypes.CustomPowerUp {
+		const img = StoreProxy.asset("img/powerup/gigantify-icon.png");
+		const defaultImg = StoreProxy.asset("icons/bits.svg");
+		return {
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
+			id: "gigantify_an_emote",
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			bits: 30,
+			title: "Gigantified emote",
+			prompt: "",
+			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x: defaultImg,
+				url_2x: defaultImg,
+				url_4x: defaultImg,
+			},
+			cooldown_expires_at: null,
+			redemptions_redeemed_current_stream: null,
+		};
+	}
+
+	/**
+	 * Fake Twitch "celebration" power up
+	 */
+	public get celebrationPowerup(): TwitchDataTypes.CustomPowerUp {
+		const img = StoreProxy.asset("img/powerup/celebration-icon.png");
+		const defaultImg = StoreProxy.asset("icons/bits.svg");
+		return {
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
+			id: "celebration",
+			image: {
+				url_1x: img,
+				url_2x: img,
+				url_4x: img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			bits: 30,
+			title: "Celebration",
+			prompt: "",
+			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x: defaultImg,
+				url_2x: defaultImg,
+				url_4x: defaultImg,
+			},
+			cooldown_expires_at: null,
+			redemptions_redeemed_current_stream: null,
 		};
 	}
 

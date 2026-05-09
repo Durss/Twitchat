@@ -1046,6 +1046,10 @@ function updateBadges(): void {
 				type: TwitchatDataTypes.MessageBadgeDataType.WATCH_STREAK,
 				label: mess.twitch_watchStreak!.toString(),
 			});
+		if (mess.twitch_powerup)
+			localInfoBadges.push({
+				type: TwitchatDataTypes.MessageBadgeDataType.POWER_UP,
+			});
 		if (mess.twitch_isFirstMessage === true)
 			localInfoBadges.push({
 				type: TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER,

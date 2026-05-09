@@ -1111,7 +1111,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
 		bits: number;
-		type: "cheer" | "power_up" | "combo" | "custom_power_up";
+		type: "cheer" | "power_up" | "custom_power_up";
 		power_up:
 			| null
 			| {
