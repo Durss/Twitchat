@@ -1210,6 +1210,7 @@ function updateBadges(): void {
 	&.gigantifiedEmote {
 		:deep(.chunk:last-child .emote) {
 			height: 5em;
+			width: 5em;
 			max-height: 5em;
 			display: block;
 		}
