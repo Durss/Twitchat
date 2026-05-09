@@ -43,6 +43,7 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { AppBskyFeedDefs } from "@atproto/api";
 
 /**
  * Created : 23/09/2022
@@ -2513,7 +2514,9 @@ export interface IHeatState {
 	distortionList: TwitchatDataTypes.HeatDistortionData[];
 }
 
-export interface IHeatGetters {}
+export interface IHeatGetters {
+	enabled: boolean;
+}
 
 export interface IHeatActions {
 	/**
@@ -2725,6 +2728,7 @@ export interface IExtensionState {
 	 */
 	ebsConfigs: {
 		captureClicks: boolean;
+		captureKeys: boolean;
 	};
 	/**
 	 * Tells if EBS config is being updated
@@ -4319,7 +4323,7 @@ export interface IBlueskyActions {
 	/**
 	 * Initializes oauthClient
 	 */
-	initClient(): Promise<BrowserOAuthClient>;
+	initClient(): Promise<BrowserOAuthClient | null>;
 	/**
 	 * Connects to Bluesky
 	 */
@@ -4341,6 +4345,15 @@ export interface IBlueskyActions {
 	 * @param autolive
 	 */
 	setAutoliveFeatureState(autolive: boolean): void;
+	/**
+	 * Get latest posts (excluding reposts)
+	 */
+	getLatestPosts(): Promise<false | AppBskyFeedDefs.FeedViewPost[]>;
+	/**
+	 * Posts a message to bluesky
+	 * @param message
+	 */
+	postMessage(message: string): Promise<boolean>;
 	/**
 	 * Sets live status of the user
 	 */

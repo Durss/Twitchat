@@ -175,6 +175,8 @@
 				"action_tts_tt": "This needs the <strong>text to speech</strong> feature to be enabled",
 				"action_music": "Control Spotify",
 				"action_music_tt": "You need to connect Spotify on the <strong>Connexions</strong> section",
+				"action_bluesky": "Bluesky",
+				"action_bluesky_tt": "You need to connect Bluesky on the <strong>Connexions</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect with Voicemod",
 				"action_discord": "Discord",
@@ -764,6 +766,18 @@
 				"param_playOnOverlay_info": "Add the following overlay to OBS.\nIt's the same overlay for all sound effect actions, don't add it more than once!",
 				"param_custom": "Export a configuration from <a href='https://tsfxr.jdmnk.dev' target='_blank'>this site</a> or <a href='https://sfxr.me' target='_blank'>this one</a>",
 				"param_custom_error": "Invalid data"
+			},
+			"bluesky": {
+				"param_action": "Action",
+				"param_post": "Message to post on Bluesky",
+				"param_getPostPlaceholderMessage": "Placeholder to save post message on",
+				"param_getPostPlaceholderURL": "Placeholder to save post URL on",
+				"placeholder_message": "Bluesky post emssage",
+				"placeholder_url": "Bluesky post URL",
+				"actions": {
+					"post": "Post a message",
+					"get_latest_post": "Get latest post"
+				}
 			}
 		},
 		"categories": {

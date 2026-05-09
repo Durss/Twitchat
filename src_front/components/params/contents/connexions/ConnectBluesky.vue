@@ -83,6 +83,7 @@ const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	value: "",
 	labelKey: "bluesky.param_handle",
 	icon: "user",
+	longText: false,
 });
 const param_listDMs = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
@@ -95,6 +96,7 @@ const param_handleResolver = ref<TwitchatDataTypes.ParameterData<string>>({
 	value: "https://bsky.social/",
 	labelKey: "bluesky.param_handleResolver",
 	icon: "internet",
+	longText: false,
 });
 const param_autoLive = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",

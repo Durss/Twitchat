@@ -7947,6 +7947,99 @@ export default class TriggerActionHandler {
 							});
 						}
 					}
+				} else if (step.type == "bluesky") {
+					if (!step.blueskyData) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: `❌ Bluesky action missing data`,
+						});
+					} else {
+						logStep.messages.push({
+							date: Date.now(),
+							value: `Executing Bluesky action "${step.blueskyData.action}"`,
+						});
+						switch (step.blueskyData.action) {
+							case "post": {
+								const message = (step.blueskyData.postMessage ?? "").trim();
+								if (message.length < 2) {
+									logStep.messages.push({
+										date: Date.now(),
+										value: "❌ Message too short. Size:" + message.length,
+									});
+									log.error = true;
+									logStep.error = true;
+								} else {
+									const success = await StoreProxy.bluesky.postMessage(message);
+									if (success) {
+										logStep.messages.push({
+											date: Date.now(),
+											value: "✔ Successfully posted message to Bluesky",
+										});
+									} else {
+										logStep.messages.push({
+											date: Date.now(),
+											value: `❌ Something went wrong when posting this message to Bluesky: "${message}"`,
+										});
+										log.error = true;
+										logStep.error = true;
+									}
+								}
+								break;
+							}
+
+							case "get_latest_post": {
+								const handle = StoreProxy.bluesky.profile?.handle;
+								if (!handle) {
+									logStep.messages.push({
+										date: Date.now(),
+										value: `❌ Cannot retrieve your Bluesky handle.`,
+									});
+									log.error = true;
+									logStep.error = true;
+								} else {
+									const postList = await StoreProxy.bluesky.getLatestPosts();
+									if (postList === false) {
+										logStep.messages.push({
+											date: Date.now(),
+											value: `❌ Something went wrong when loading your latest message from Bluesky.`,
+										});
+										log.error = true;
+										logStep.error = true;
+									} else if (postList.length == 0) {
+										logStep.messages.push({
+											date: Date.now(),
+											value: `❌ No post found on account ${handle}`,
+										});
+										log.error = true;
+										logStep.error = true;
+									} else {
+										const postEntry = postList[0]!;
+										logStep.messages.push({
+											date: Date.now(),
+											value: `✔ Successfully loaded latest message from Bluesky. CID: ${postEntry.post.cid}`,
+										});
+										if (step.blueskyData.getPostPlaceholderMessage) {
+											dynamicPlaceholders[
+												step.blueskyData.getPostPlaceholderMessage
+											] = postEntry.post.record.text as string;
+										}
+										if (
+											step.blueskyData.getPostPlaceholderURL &&
+											postEntry.post.uri
+										) {
+											dynamicPlaceholders[
+												step.blueskyData.getPostPlaceholderURL
+											] =
+												"https://bsky.app/profile/" +
+												handle +
+												"/post/" +
+												postEntry.post.uri.replace(/.*\/(.*?)/gi, "$1");
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			} catch (error: any) {
 				console.error(error);
