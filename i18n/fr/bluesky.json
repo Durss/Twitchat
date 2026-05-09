@@ -1,6 +1,6 @@
 {
 	"bluesky": {
-		"header": "Connectez votre compte Bluesky pour automatiquement apparaître en live.",
+		"header": "Connectez votre compte Bluesky pour automatiquement apparaître en live ou être notifié·e de nouveau followers et messages privés.",
 		"param_handle": "Identifiant Bluesky",
 		"param_listDMs": "Lire vos messages privés\n(soyez notifié·e de nouveau MP dans Twitchat)",
 		"param_handleResolver": "Handle resolver",

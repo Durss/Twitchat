@@ -1,6 +1,6 @@
 {
 	"bluesky": {
-		"header": "Connect with bluesky to automatically set your live status",
+		"header": "Connect with bluesky to automatically set your live status or be notified about new followers and DMs",
 		"param_handle": "Bluesky Handle",
 		"param_listDMs": "Read private messages\n(to get notified of new DM in Twitchat)",
 		"param_handleResolver": "Handle resolver",
