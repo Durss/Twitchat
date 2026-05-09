@@ -320,6 +320,17 @@
 
 					<TTButton
 						class="button"
+						@click.capture="selectActionType('bluesky')"
+						icon="bluesky"
+						:disabled="!blueskyConnected"
+						v-tooltip="
+							blueskyConnected ? '' : $t('triggers.actions.common.action_bluesky_tt')
+						"
+						>{{ $t("triggers.actions.common.action_bluesky") }}</TTButton
+					>
+
+					<TTButton
+						class="button"
 						@click.capture="selectActionType('voicemod')"
 						icon="voicemod"
 						:disabled="!voicemodEnabled"
@@ -770,6 +781,12 @@
 				:action="action"
 				:triggerData="triggerData"
 			/>
+			<TriggerActionBlueskyEntry
+				v-else-if="action.type == 'bluesky'"
+				:action="action"
+				:triggerData="triggerData"
+				triggerMode
+			/>
 			<RaffleForm
 				v-else-if="action.type == 'raffle'"
 				:action="action"
@@ -824,6 +841,7 @@ import PredictionForm from "@/components/prediction/PredictionForm.vue";
 import { storeAnimatedText as useStoreAnimatedText } from "@/store/animated_text/storeAnimatedText";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
+import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
 import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
@@ -867,6 +885,7 @@ import RaffleForm from "../../../raffle/RaffleForm.vue";
 import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerActionAnimateTextEntry from "./entries/TriggerActionAnimateTextEntry.vue";
 import TriggerActionBingoGridEntry from "./entries/TriggerActionBingoGridEntry.vue";
+import TriggerActionBlueskyEntry from "./entries/TriggerActionBlueskyEntry.vue";
 import TriggerActionChatEntry from "./entries/TriggerActionChatEntry.vue";
 import TriggerActionClickHeatEntry from "./entries/TriggerActionClickHeatEntry.vue";
 import TriggerActionCountEntry from "./entries/TriggerActionCountEntry.vue";
@@ -948,6 +967,7 @@ const storeMixitup = useStoreMixitup();
 const storeGroq = useStoreGroq();
 const storeBingoGrid = useStoreBingoGrid();
 const storePlayability = useStorePlayability();
+const storeBluesky = useStoreBluesky();
 
 const actionList = ref<HTMLDivElement | null>(null);
 const opened = ref(false);
@@ -961,6 +981,7 @@ const canEditStreamInfo = ref(false);
 const lumiaConnected = computed(() => storeLumia.connected);
 const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
 const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
+const blueskyConnected = computed(() => storeBluesky.connected);
 const voicemodEnabled = computed(() => VoicemodWebSocket.instance.connected.value);
 const discordEnabled = computed(() => storeDiscord.discordLinked === true);
 const goxlrEnabled = computed(() => GoXLRSocket.instance.connected.value);

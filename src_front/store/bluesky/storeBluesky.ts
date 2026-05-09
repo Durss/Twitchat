@@ -7,7 +7,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy from "../StoreProxy";
 import type { IBlueskyActions, IBlueskyGetters, IBlueskyState } from "../StoreProxy";
-import type { Agent } from "@atproto/api";
+import type { Agent, AppBskyFeedDefs } from "@atproto/api";
 
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
@@ -46,16 +46,21 @@ export const storeBluesky = defineStore("bluesky", {
 		async initClient() {
 			if (oauthClient) return oauthClient;
 			const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
-			oauthClient = await BrowserOAuthClient.load({
-				clientId: document.location.origin + "/oauth/client-metadata.json",
-				handleResolver: this.handleResolver,
-			});
+			try {
+				oauthClient = await BrowserOAuthClient.load({
+					clientId: document.location.origin + "/oauth/client-metadata.json",
+					handleResolver: this.handleResolver,
+				});
+			} catch (error) {
+				console.log(error);
+			}
 			return oauthClient;
 		},
 
 		async startOAuthProcess(handle: string, readDMs: boolean = false) {
 			this.connected = false;
 			const client = await this.initClient();
+			if (!client) return false;
 			handle = handle.replace(/^@/, "");
 			const scope = readDMs
 				? "atproto transition:generic transition:chat.bsky"
@@ -83,6 +88,7 @@ export const storeBluesky = defineStore("bluesky", {
 			if (this.connected) return;
 			try {
 				const client = await this.initClient();
+				if (!client) return;
 				if (restore) {
 					session = await client.restore(this.sub);
 				} else {
@@ -141,6 +147,34 @@ export const storeBluesky = defineStore("bluesky", {
 			this.autoLive = state;
 			this.applyAutoLive();
 			this.saveState();
+		},
+
+		async getLatestPosts(): Promise<false | AppBskyFeedDefs.FeedViewPost[]> {
+			if (!agent) return false;
+			const feed = await agent.getAuthorFeed({
+				actor: agent.assertDid,
+				includePins: false,
+				filter: "posts_no_replies",
+				limit: 100,
+			});
+			if (!feed.success) return false;
+			return feed.data.feed.filter((v) => !v.reason && v.post.record && v.post.record.text);
+		},
+
+		async postMessage(message: string): Promise<boolean> {
+			if (!agent) return false;
+			try {
+				const result = await agent.post({
+					createdAt: new Date().toISOString(),
+					text: message,
+				});
+				if (result.uri) {
+					return true;
+				}
+			} catch (error) {
+				console.error(error);
+			}
+			return false;
 		},
 
 		async setLiveStatus(live: boolean): Promise<void> {

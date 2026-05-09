@@ -1296,6 +1296,20 @@ const UserDataSchema = {
 										},
 									},
 								},
+
+								blueskyData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: { type: "string", maxLength: 50 },
+										postMessage: { type: "string", maxLength: 300 },
+										getPostPlaceholderMessage: {
+											type: "string",
+											maxLength: 30,
+										},
+										getPostPlaceholderURL: { type: "string", maxLength: 30 },
+									},
+								},
 							},
 						},
 					},

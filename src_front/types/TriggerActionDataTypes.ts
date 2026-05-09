@@ -113,7 +113,8 @@ export type TriggerActionTypes =
 	| TriggerActionAnimatedTextData
 	| TriggerActionCustomTrainData
 	| TriggerActionSFXRData
-	| TriggerActionJSONExtractData;
+	| TriggerActionJSONExtractData
+	| TriggerActionBlueskyData;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
@@ -1658,7 +1659,7 @@ interface TriggerActionAnimatedTextData_ActionHide extends TriggerActionAnimated
 export interface TriggerActionCustomTrainData extends TriggerActionData {
 	type: "custom_train";
 	customTrainData: {
-		/**
+		/**-
 		 * Train ID to control
 		 */
 		trainId: string;
@@ -1718,6 +1719,19 @@ export interface TriggerActionJSONExtractData extends TriggerActionData {
 		 * Extract placeholders with JSONPath
 		 */
 		outputPlaceholderList?: IHttpPlaceholder[];
+	};
+}
+
+/**
+ * Contains data about a Bluesky action
+ */
+export interface TriggerActionBlueskyData extends TriggerActionData {
+	type: "bluesky";
+	blueskyData?: {
+		action: "post" | "get_latest_post";
+		postMessage?: string;
+		getPostPlaceholderMessage?: string;
+		getPostPlaceholderURL?: string;
 	};
 }
 
