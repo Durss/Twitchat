@@ -29,6 +29,8 @@
 		"resyncPowerUpsBt_tt": "If you added or modified a Custom Power Up, click to get those changes",
 		"resyncmixitupBt": "Resync Mix It Up",
 		"resyncmixitupBt_tt": "If you added or modified a Mix It Up command, click to get those changes",
+		"resyncPowerUpsBt": "Resync Power ups",
+		"resyncPowerUpsBt_tt": "If you added or modified a Custom Power Up, click to get those changes",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"delete_actions_confirm": "Delete all actions?",
@@ -1856,7 +1858,8 @@
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",
-				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
+				"description": "Actions to execute when a viewer sends bits from Twitch Combo",
+				"disabled_reason": "Twitch disabled that feature"
 			},
 			"OBS_CONNECTED": {
 				"label": "OBS connected",

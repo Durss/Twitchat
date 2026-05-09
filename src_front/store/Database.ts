@@ -167,7 +167,6 @@ export default class Database {
 	public async addMessage(message: TwitchatDataTypes.ChatMessageTypes): Promise<void> {
 		if (!this._db || !this._ready) return Promise.reject("Database not ready");
 		message = toRaw(message);
-		if (message.type == "message") console.log(" > ", message.id, message.twitch_source);
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan =
 			message.channel_id != sAuth.twitch.user.id &&

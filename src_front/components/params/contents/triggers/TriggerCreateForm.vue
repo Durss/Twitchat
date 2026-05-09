@@ -10,7 +10,7 @@
 			keypath="triggers.obs.require"
 		>
 			<template #URL>
-				<a @click="openOBS()">{{ $t("triggers.obs.require_url") }}</a>
+				<a @click="openOBS()">{{ t("triggers.obs.require_url") }}</a>
 			</template>
 		</i18n-t>
 
@@ -22,7 +22,19 @@
 			keypath="triggers.rewards.require"
 		>
 			<template #URL>
-				<a @click="requestRewardsScope()">{{ $t("triggers.rewards.require_url") }}</a>
+				<a @click="requestRewardsScope()">{{ t("triggers.rewards.require_url") }}</a>
+			</template>
+		</i18n-t>
+
+		<i18n-t
+			scope="global"
+			tag="div"
+			class="card-item alert require"
+			v-if="needPowerUps"
+			keypath="triggers.powerups.require"
+		>
+			<template #URL>
+				<a @click="requestPowerUpsScope()">{{ t("triggers.powerups.require_url") }}</a>
 			</template>
 		</i18n-t>
 
@@ -46,7 +58,7 @@
 		/>
 
 		<div class="card-item noResult" v-if="search && eventCategories.length === 0">
-			{{ $t("global.no_result") }}
+			{{ t("global.no_result") }}
 		</div>
 
 		<!-- Main menu -->
@@ -66,7 +78,7 @@
 			>
 				<div class="head">
 					<Icon :name="icon" v-for="icon in c.category.icons" />
-					<span class="label">{{ $t(c.category.labelKey) }}</span>
+					<span class="label">{{ t(c.category.labelKey) }}</span>
 				</div>
 
 				<i18n-t
@@ -77,7 +89,7 @@
 					keypath="triggers.music.require"
 				>
 					<template #URL>
-						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
+						<a @click="openConnexions()">{{ t("triggers.music.require_url") }}</a>
 					</template>
 				</i18n-t>
 
@@ -89,7 +101,7 @@
 					keypath="triggers.obs.require"
 				>
 					<template #URL>
-						<a @click="openOBS()">{{ $t("triggers.obs.require_url") }}</a>
+						<a @click="openOBS()">{{ t("triggers.obs.require_url") }}</a>
 					</template>
 				</i18n-t>
 
@@ -101,10 +113,10 @@
 					keypath="triggers.count.require"
 				>
 					<template #URL_COUNTERS>
-						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
+						<a @click="openCounters()">{{ t("triggers.count.require_counters") }}</a>
 					</template>
 					<template #URL_VALUES>
-						<a @click="openValues()">{{ $t("triggers.count.require_values") }}</a>
+						<a @click="openValues()">{{ t("triggers.count.require_values") }}</a>
 					</template>
 				</i18n-t>
 
@@ -125,12 +137,12 @@
 						:disabled="disabledEntry(e)"
 						v-tooltip="
 							disabledEntry(e)
-								? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt')
+								? t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt')
 								: ''
 						"
 						@click.capture="disabledEntry(e) ? requestScope(e) : selectTriggerType(e)"
 					>
-						{{ $t(e.labelKey!) }}
+						{{ t(e.labelKey!) }}
 					</TTButton>
 				</div>
 			</div>
@@ -221,7 +233,7 @@ import { computed, onBeforeMount, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
 
-const { t, te, rt, tm, availableLocales } = useI18n();
+const { t, tm, availableLocales } = useI18n();
 const { getAsset } = asset();
 const storeAuth = useStoreAuth();
 const storeCounters = useStoreCounters();
@@ -388,24 +400,26 @@ function populate(): void {
 		);
 	}
 
-	let currCat = triggerTypeList[0]!.trigger!.category;
-	let catEvents: TriggerTypeDefinition[] = [];
-	for (let i = 0; i < triggerTypeList.length; i++) {
-		const ev = triggerTypeList[i]!;
-		if (!ev.trigger) continue;
-		if (ev.trigger.disabled) continue;
-		if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
-			if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
-			const cat: TriggerCategory = {
-				category: catEvents[0]!.category,
-				events: catEvents,
-			};
-			eventCategories.value.push(cat);
-			catEvents = [ev.trigger];
-		} else {
-			catEvents.push(ev.trigger);
+	if (triggerTypeList.length > 0) {
+		let currCat = triggerTypeList[0]!.trigger!.category;
+		let catEvents: TriggerTypeDefinition[] = [];
+		for (let i = 0; i < triggerTypeList.length; i++) {
+			const ev = triggerTypeList[i]!;
+			if (!ev.trigger) continue;
+			if (ev.trigger.disabled) continue;
+			if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
+				if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
+				const cat: TriggerCategory = {
+					category: catEvents[0]!.category,
+					events: catEvents,
+				};
+				eventCategories.value.push(cat);
+				catEvents = [ev.trigger];
+			} else {
+				catEvents.push(ev.trigger);
+			}
+			currCat = ev.trigger.category;
 		}
-		currCat = ev.trigger.category;
 	}
 
 	eventCategories.value.forEach((v) => {
@@ -423,6 +437,12 @@ function disabledEntry(e: TriggerTypeDefinition): boolean {
 	if (
 		e.value == TriggerTypes.REWARD_REDEEM &&
 		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))
+	)
+		return true;
+
+	if (
+		e.value == TriggerTypes.POWER_UP_CUSTOM &&
+		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.READ_CHEER]))
 	)
 		return true;
 	if (
@@ -839,6 +859,10 @@ function selectSubType(entry: TriggerEntry, parentItem?: TriggerEntry): void {
 			temporaryTrigger.powerUpId = entry.value;
 			break;
 
+		case TriggerTypes.POWER_UP_CUSTOM:
+			temporaryTrigger.powerUpId = entry.value;
+			break;
+
 		case TriggerTypes.OBS_SCENE:
 			temporaryTrigger.obsScene = entry.value;
 			break;
@@ -907,6 +931,10 @@ function openValues(): void {
 
 function requestRewardsScope(): void {
 	storeAuth.requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
+}
+
+function requestPowerUpsScope(): void {
+	storeAuth.requestTwitchScopes([TwitchScopes.READ_CHEER]);
 }
 
 function listCounters(): void {

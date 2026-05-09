@@ -20,11 +20,8 @@
 				<template #NAME>
 					<strong>{{ messageData.powerUpTitle }}</strong>
 				</template>
-				<template #PRICE>
-					<strong>{{ messageData.cost }}</strong>
-					<Icon class="bitsIcon" name="bits" />
-				</template>
 			</i18n-t>
+			<div class="cost">{{ messageData.cost }} <Icon class="bitsIcon" name="bits" /></div>
 		</div>
 	</div>
 </template>
@@ -51,8 +48,16 @@ export default toNative(ChatCustomPowerUp);
 <style scoped lang="less">
 .chatcustompowerup {
 	.cost {
-		font-size: 0.7em;
-		font-style: italic;
+		font-size: 1.25em;
+		gap: 0.2em;
+		display: flex;
+		font-weight: bold;
+		flex-direction: row;
+		align-items: center;
+		flex-shrink: 0;
+		.icon {
+			height: 0.9em;
+		}
 	}
 
 	.emote {
@@ -65,6 +70,7 @@ export default toNative(ChatCustomPowerUp);
 	}
 
 	.holder {
+		gap: 1em;
 		width: 100%;
 		display: flex;
 		flex-direction: row;
@@ -80,13 +86,6 @@ export default toNative(ChatCustomPowerUp);
 			height: 1.25em;
 			margin-right: 5px;
 			flex-shrink: 0;
-		}
-
-		.bitsIcon {
-			width: 1em;
-			height: 1em;
-			margin-left: 2px;
-			margin-bottom: -1px;
 		}
 	}
 }

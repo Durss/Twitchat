@@ -706,7 +706,6 @@ export default class TwitchUtils {
 		if (this.loadingChannelEmotes[channelId])
 			return this.loadingChannelEmotesPromise[channelId];
 		this.loadingChannelEmotes[channelId] = true;
-		console.log("LOAD EMOTE SETS FOR CHANNEL", channelId);
 
 		this.loadingChannelEmotesPromise[channelId] = new Promise<void>((resolve) => {
 			void (async () => {
@@ -944,9 +943,6 @@ export default class TwitchUtils {
 	public static async loadRedemptions(): Promise<TwitchDataTypes.RewardRedemption[]> {
 		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 
-		const options = {
-			method: "GET",
-		};
 		let redemptions: TwitchDataTypes.RewardRedemption[] = [];
 
 		const url = new URL(
@@ -954,7 +950,9 @@ export default class TwitchUtils {
 		);
 		url.searchParams.append("broadcaster_id", this.uid);
 
-		const res = await this.callApi(url, options);
+		const res = await this.callApi(url, {
+			method: "GET",
+		});
 		if (res.status == 200) {
 			const json = await res.json();
 			redemptions = json.data;
@@ -1042,7 +1040,6 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", this.uid);
 		const res = await this.callApi(url, {
 			method: "GET",
-			headers: this.headers,
 		});
 		if (res.status == 200) {
 			powerups = (await res.json()).data || [];
@@ -3453,7 +3450,7 @@ export default class TwitchUtils {
 						),
 					};
 					// Add it as standard chat message
-					StoreProxy.chat.addMessage(pinnnedMessage);
+					void StoreProxy.chat.addMessage(pinnnedMessage);
 				}
 				const notification: TwitchatDataTypes.MessagePinData = {
 					platform: "twitchat",
@@ -3473,7 +3470,7 @@ export default class TwitchUtils {
 					unpinAt_ms: new Date(message.ends_at).getTime(),
 					updatedAt_ms: 0,
 				};
-				StoreProxy.chat.addMessage(notification);
+				void StoreProxy.chat.addMessage(notification);
 			} else if (!message) {
 				this.currentlyPinnedMessageId = "";
 			}

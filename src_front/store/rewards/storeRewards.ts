@@ -1,7 +1,7 @@
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { toast } from "@/utils/toast/toast";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IRewardsActions, IRewardsGetters, IRewardsState } from "../StoreProxy";
@@ -17,21 +17,12 @@ export const storeRewards = defineStore("rewards", {
 
 	actions: {
 		async loadRewards(): Promise<TwitchDataTypes.Reward[]> {
-			//Permission not granted?
-			if (!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
-			//Not at least affiliate?
-			if (
-				!StoreProxy.auth.twitch.user.is_affiliate &&
-				!StoreProxy.auth.twitch.user.is_partner
-			)
-				return [];
-
 			try {
 				this.rewardList = await TwitchUtils.getRewards(true);
 			} catch (error) {
 				this.rewardList = [];
 				console.log(error);
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.rewards_loading"));
+				toast(StoreProxy.i18n.t("error.rewards_loading"), { type: "error" });
 				return [];
 			}
 
@@ -58,7 +49,7 @@ export const storeRewards = defineStore("rewards", {
 			} catch (error) {
 				this.powerUpList = [];
 				console.log(error);
-
+				toast(StoreProxy.i18n.t("error.powerups_loading"), { type: "error" });
 				return [];
 			}
 

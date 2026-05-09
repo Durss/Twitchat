@@ -563,35 +563,6 @@ export const LabelItemPlaceholderList = [
 	} as const,
 
 	{
-		tag: "COMBO_NAME",
-		type: "string",
-		category: "twitch",
-		descriptionKey: "overlay.labels.placeholders.COMBO_NAME",
-		backup: true,
-	} as const,
-	{
-		tag: "COMBO_ID",
-		type: "string",
-		category: "twitch",
-		descriptionKey: "overlay.labels.placeholders.COMBO_ID",
-		backup: true,
-	} as const,
-	{
-		tag: "COMBO_AVATAR",
-		type: "image",
-		category: "twitch",
-		descriptionKey: "overlay.labels.placeholders.COMBO_AVATAR",
-		backup: true,
-	} as const,
-	{
-		tag: "COMBO_AMOUNT",
-		type: "number",
-		category: "twitch",
-		descriptionKey: "overlay.labels.placeholders.COMBO_AMOUNT",
-		backup: true,
-	} as const,
-
-	{
 		tag: "FOLLOWER_NAME",
 		type: "string",
 		category: "twitch",
