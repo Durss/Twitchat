@@ -1,7 +1,7 @@
 <template>
 	<div class="quizquestionlist">
 		<div class="noQuestion" v-if="search && quiz.questionList.length === 0">
-			{{ $t("quiz.form.no_question") }}
+			{{ t("quiz.form.no_question") }}
 		</div>
 
 		<SearchForm
@@ -20,7 +20,7 @@
 			@end="$store.quiz.saveData()"
 		>
 			<QuizQuestionItem
-				v-for="question in filteredQuestions"
+				v-for="question in visibleQuestions"
 				:key="question.id"
 				:question="question"
 				:quiz="quiz"
@@ -31,27 +31,27 @@
 		</VueDraggable>
 
 		<div class="card-item addQuestionBtns" v-if="quiz.questionList.length < maxQuestionCount">
-			<div>{{ $t("quiz.form.add_question_title") }}</div>
+			<div>{{ t("quiz.form.add_question_title") }}</div>
 			<TTButton
 				@click="addQuestion('classic')"
 				icon="quiz_classic"
 				primary
-				v-tooltip="$t('quiz.form.mode_classic.description')"
-				>{{ $t("quiz.form.mode_classic.title") }}</TTButton
+				v-tooltip="t('quiz.form.mode_classic.description')"
+				>{{ t("quiz.form.mode_classic.title") }}</TTButton
 			>
 			<TTButton
 				@click="addQuestion('freeAnswer')"
 				icon="quiz_freeAnswer"
 				primary
-				v-tooltip="$t('quiz.form.mode_freeAnswer.description')"
-				>{{ $t("quiz.form.mode_freeAnswer.title") }}</TTButton
+				v-tooltip="t('quiz.form.mode_freeAnswer.description')"
+				>{{ t("quiz.form.mode_freeAnswer.title") }}</TTButton
 			>
 			<TTButton
 				@click="addQuestion('majority')"
 				icon="quiz_majority"
 				primary
-				v-tooltip="$t('quiz.form.mode_majority.description')"
-				>{{ $t("quiz.form.mode_majority.title") }}</TTButton
+				v-tooltip="t('quiz.form.mode_majority.description')"
+				>{{ t("quiz.form.mode_majority.title") }}</TTButton
 			>
 			<div class="importForm">
 				<TTButton
@@ -60,9 +60,42 @@
 					primary
 					accept=".csv"
 					@update:file="(file: File) => onCSVImport(file)"
-					>{{ $t("quiz.form.import_bt") }}</TTButton
+					>{{ t("quiz.form.import_bt") }}</TTButton
 				>
-				<Icon class="icon" name="info" v-tooltip="$t('quiz.form.import_tt')" />
+				<Icon class="sideItem" name="info" v-tooltip="t('quiz.form.import_tt')" />
+			</div>
+			<div class="importForm" v-if="!availableLanguages">
+				<TTButton
+					icon="download"
+					type="file"
+					primary
+					accept=".csv"
+					@update:file="(file: File) => onOpenquizzdbCSVImport(file)"
+					>{{ t("quiz.form.importOpenQuizzDB_bt") }}</TTButton
+				>
+				<TTButton
+					class="sideItem"
+					type="link"
+					target="_blank"
+					href="https://www.openquizzdb.org/listing/"
+					icon="openquizzdb"
+					light
+					v-tooltip="t('quiz.form.importOpenQuizzDB_tt')"
+				/>
+			</div>
+			<div class="importForm languageList" v-else>
+				<span class="title"
+					><Icon name="openquizzdb" />{{ t("quiz.form.importOpenQuizzDB_lang") }}</span
+				>
+				<TTButton
+					light
+					v-for="lang in availableLanguages"
+					@click="finalizeOpenquizdbImport(lang)"
+				>
+					<CountryFlag :country="lang == 'en' ? 'gb' : lang" class="flag" />{{
+						t(`global.languages.${lang}`)
+					}}</TTButton
+				>
 			</div>
 		</div>
 
@@ -86,10 +119,13 @@ import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import QuizQuestionItem from "./QuizQuestionItem.vue";
+import { toast } from "@/utils/toast/toast";
+import CountryFlag from "vue-country-flag-next";
+import Icon from "../Icon.vue";
 
 const props = defineProps<{
 	quiz: TwitchatDataTypes.QuizParams;
@@ -101,13 +137,19 @@ const storeQuiz = useStoreQuiz();
 const storeAuth = useStoreAuth();
 
 const search = ref("");
+const availableLanguages = ref<string[] | null>(null);
 const autoOpenQuestionID = ref<string | null>(null);
+let openquizzdbCSV = "";
 
 const maxQuestionCount = computed(() => {
 	return storeAuth.isPremium
 		? Config.instance.MAX_QUESTIONS_PER_QUIZ_PREMIUM
 		: Config.instance.MAX_QUESTIONS_PER_QUIZ;
 });
+
+const BATCH_SIZE = 10;
+const visibleCount = ref(BATCH_SIZE);
+let batchRafId = 0;
 
 const filteredQuestions = computed(() => {
 	const s = search.value.trim().toLowerCase();
@@ -121,6 +163,27 @@ const filteredQuestions = computed(() => {
 		}
 	});
 });
+
+const visibleQuestions = computed(() => filteredQuestions.value.slice(0, visibleCount.value));
+
+function scheduleNextBatch(): void {
+	if (batchRafId) cancelAnimationFrame(batchRafId);
+	batchRafId = requestAnimationFrame(() => {
+		batchRafId = 0;
+		if (visibleCount.value >= filteredQuestions.value.length) return;
+		visibleCount.value += BATCH_SIZE;
+		if (visibleCount.value < filteredQuestions.value.length) scheduleNextBatch();
+	});
+}
+
+watch(
+	filteredQuestions,
+	() => {
+		visibleCount.value = BATCH_SIZE;
+		if (filteredQuestions.value.length > BATCH_SIZE) scheduleNextBatch();
+	},
+	{ immediate: true },
+);
 
 function save(): void {
 	storeQuiz.saveData(props.quiz.id);
@@ -223,44 +286,114 @@ function changeQuestionMode(
 	save();
 }
 
-function onCSVImport(file: File): void {
-	if (file.type != "text/csv" && !file.name.endsWith(".csv")) {
-		storeCommon.alert(t("quiz.form.import_invalid_file"));
-		return;
+async function onCSVImport(file: File): Promise<void> {
+	let isValid = file.type == "text/csv" && file.name.endsWith(".csv");
+	if (isValid) {
+		const content = await file.text();
+		openquizzdbCSV = content;
+		const firstRow = content.split("\n")[0]?.split(";");
+		if (isValid && !firstRow) isValid = false;
+		if (isValid && firstRow!.length < 3) isValid = false;
+		if (isValid && !isNaN(parseInt(firstRow![0]!))) isValid = false; // Filter openquizzdb
+		if (isValid) {
+			const questions = content
+				.split("\n")
+				.map((line) => line.split(";"))
+				.filter((line) => line.length > 0);
+			questions.forEach((line) => {
+				const questionText = line[0]!.trim();
+				if (!questionText) return;
+				const answerList = line.slice(1).filter((a) => a.trim());
+
+				if (answerList.length === 1) {
+					props.quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "freeAnswer",
+						question: questionText,
+						answer: answerList[0]!.trim(),
+					});
+				} else if (answerList.length >= 2) {
+					props.quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "classic",
+						question: questionText,
+						answerList: answerList.map((a, index) => ({
+							id: Utils.getUUID(),
+							title: a.trim(),
+							correct: index === 0,
+						})),
+					});
+				}
+			});
+			save();
+		}
+	}
+	if (!isValid) toast(t("quiz.form.import_invalid_file"), { type: "error" });
+}
+
+async function onOpenquizzdbCSVImport(file: File): Promise<void> {
+	let isValid = file.type == "text/csv" && file.name.endsWith(".csv");
+
+	if (isValid) {
+		const content = await file.text();
+		openquizzdbCSV = content;
+		const firstRow = content.split("\n")[0]?.split(";");
+		if (isValid && !firstRow) isValid = false;
+		if (isValid && firstRow!.length < 8) isValid = false;
+		if (isValid && isNaN(parseInt(firstRow![0]!))) isValid = false;
+		if (isValid && firstRow![1]!.length != 2) isValid = false;
+		if (isValid) {
+			availableLanguages.value = [];
+			const langDone = new Set<string>();
+			/// Extract available languages
+			content.split("\n").forEach((row) => {
+				const [index, lang] = row.split(";");
+				if (!lang || langDone.has(lang)) return;
+				langDone.add(lang);
+				availableLanguages.value!.push(lang);
+			});
+		}
 	}
 
-	file.text().then((content) => {
-		const questions = content
-			.split("\n")
-			.map((line) => line.split(";"))
-			.filter((line) => line.length > 0);
-		questions.forEach((line) => {
-			const questionText = line[0]!.trim();
-			if (!questionText) return;
-			const answersText = line.slice(1).filter((a) => a.trim());
+	if (!isValid) toast(t("quiz.form.import_invalid_file"), { type: "error" });
+	else if (availableLanguages.value?.length == 1) {
+		finalizeOpenquizdbImport(availableLanguages.value[0]!);
+	}
+}
 
-			if (answersText.length === 1) {
-				props.quiz.questionList.push({
-					id: Utils.getUUID(),
-					mode: "freeAnswer",
-					question: questionText,
-					answer: answersText[0]!.trim(),
-				});
-			} else if (answersText.length >= 2) {
-				props.quiz.questionList.push({
-					id: Utils.getUUID(),
-					mode: "classic",
-					question: questionText,
-					answerList: answersText.map((a, index) => ({
-						id: Utils.getUUID(),
-						title: a.trim(),
-						correct: index === 0,
-					})),
-				});
-			}
+function finalizeOpenquizdbImport(langRef: string): void {
+	availableLanguages.value = null;
+	const content = openquizzdbCSV;
+	const questions = content
+		.split("\n")
+		.map((line) => line.split(";"))
+		.filter((line) => line.length > 0);
+	questions.forEach((line) => {
+		const [
+			index,
+			lang,
+			question,
+			answer1,
+			answer2,
+			answer3,
+			answer4,
+			level,
+			details,
+			wikipediaUrl,
+		] = line;
+		if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang != langRef) return;
+		props.quiz.questionList.push({
+			id: Utils.getUUID(),
+			mode: "classic",
+			question: question,
+			answerList: [answer1, answer2, answer3, answer4].map((a, index) => ({
+				id: Utils.getUUID(),
+				title: a.trim(),
+				correct: index === 0,
+			})),
 		});
-		save();
 	});
+	save();
 }
 </script>
 
@@ -324,12 +457,18 @@ function onCSVImport(file: File): void {
 				border-bottom-right-radius: var(--border-radius);
 			}
 
-			& > .icon {
-				cursor: help;
-				padding: 0.25em;
-				background-color: var(--color-secondary);
+			& > .sideItem {
 				height: auto;
 				max-width: 1.5em;
+				flex-shrink: 1;
+				min-width: unset;
+			}
+
+			& > .sideItem.icon {
+				cursor: help;
+				padding: 0.25em;
+				color: var(--color-primary);
+				background-color: var(--color-light);
 			}
 
 			& > .icon:first-child {
@@ -339,6 +478,37 @@ function onCSVImport(file: File): void {
 			& > .icon:last-child {
 				border-top-right-radius: var(--border-radius);
 				border-bottom-right-radius: var(--border-radius);
+			}
+
+			&.languageList {
+				background-color: var(--color-primary);
+				border-radius: var(--border-radius);
+				margin: auto;
+				align-self: center;
+				justify-self: center;
+				padding: 0.5em;
+				gap: 0.25em;
+				flex-direction: column;
+				align-items: center;
+
+				.title {
+					display: flex;
+					align-items: center;
+					font-weight: bold;
+					margin-bottom: 0.5em;
+					.icon {
+						margin-right: 0.5em;
+					}
+				}
+
+				.flag {
+					margin-right: -5px !important;
+					vertical-align: middle !important;
+				}
+
+				& > * {
+					border-radius: var(--border-radius);
+				}
 			}
 		}
 	}
