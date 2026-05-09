@@ -1750,10 +1750,6 @@ watch(
 			width: 100%;
 		}
 
-		&:has(.list, .number, .time) .paramIcon {
-			margin-top: 0.4em;
-		}
-
 		img.paramIcon {
 			height: 1em;
 			margin-right: 0.5em;

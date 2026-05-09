@@ -20,7 +20,7 @@ export const storeExtension = defineStore("Extension", {
 		enabledExtensions: [],
 		activeExtensionSlots: {},
 		ebsConfigUpdating: false,
-		ebsConfigs: { captureClicks: false },
+		ebsConfigs: { captureClicks: false, captureKeys: false },
 	}),
 
 	getters: {
@@ -110,6 +110,7 @@ export const storeExtension = defineStore("Extension", {
 			const res = await ApiHelper.call("twitch/extension/config", "POST", {
 				config: {
 					captureClicks: this.ebsConfigs.captureClicks,
+					captureKeys: this.ebsConfigs.captureKeys,
 				},
 			});
 			lastEBSCall_ts = Date.now();

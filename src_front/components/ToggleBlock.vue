@@ -121,7 +121,6 @@ import {
 import ContentEditable from "./ContentEditable.vue";
 import Icon from "./Icon.vue";
 
-// Props
 const props = withDefaults(
 	defineProps<{
 		icons?: string[];
@@ -134,6 +133,7 @@ const props = withDefaults(
 		primary?: boolean;
 		secondary?: boolean;
 		premium?: boolean;
+		light?: boolean;
 		small?: boolean;
 		medium?: boolean;
 		disabled?: boolean;
@@ -147,30 +147,16 @@ const props = withDefaults(
 	{
 		icons: () => [],
 		open: true,
-		error: false,
-		alert: false,
-		primary: false,
-		secondary: false,
-		premium: false,
-		small: false,
-		medium: false,
-		disabled: false,
-		noBackground: false,
-		noArrow: false,
-		noTitleColor: false,
-		editableTitle: false,
 		titleMaxLength: 100,
 		customColor: "",
 	},
 );
 
-// Emits
 const emit = defineEmits<{
 	"update:open": [value: boolean];
 	"update:title": [value: string];
 }>();
 
-// Template refs
 const headerRef = useTemplateRef<HTMLElement>("headerRef");
 const contentRef = useTemplateRef<HTMLElement>("contentRef");
 const rightActionsRef = useTemplateRef<HTMLElement>("rightActionsRef");
@@ -178,7 +164,6 @@ const titleRef = useTemplateRef<HTMLElement>("titleRef");
 const titleMeasureRef = useTemplateRef<HTMLElement>("titleMeasureRef");
 const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("titleEditRef");
 
-// State
 const isOpen = ref(props.open);
 const isClosing = ref(false);
 const contentVisible = ref(props.open);
@@ -191,11 +176,8 @@ const isSingleLineMode = ref(false);
 // Drag state
 let dragCount = 0;
 let dragTimeout: number | undefined;
-
-// Observers
 let resizeObserver: ResizeObserver | null = null;
 
-// Computed
 const hasThemedHeader = computed(
 	() =>
 		(props.error || props.alert || props.primary || props.secondary || props.premium) &&
@@ -231,6 +213,7 @@ const rootClasses = computed(() => [
 		primary: props.primary,
 		secondary: props.secondary,
 		premium: props.premium,
+		light: props.light,
 		small: props.small,
 		medium: props.medium && !props.small,
 		noBackground: props.noBackground,
@@ -244,7 +227,6 @@ const rootStyles = computed<CSSProperties>(() => {
 	return { backgroundColor: `${props.customColor}20` };
 });
 
-// Methods
 async function toggle(forcedState?: boolean): Promise<void> {
 	const targetState = forcedState ?? !isOpen.value;
 	if (targetState === isOpen.value) return;
@@ -389,7 +371,6 @@ function detectPopoutClose(e: MouseEvent): void {
 	}
 }
 
-// Watchers
 watch(
 	() => props.open,
 	(newVal) => toggle(newVal),
@@ -410,7 +391,6 @@ watch(
 	},
 );
 
-// Lifecycle
 onMounted(() => {
 	// Observer for both title overflow and actions collapse
 	resizeObserver = new ResizeObserver(() => {
@@ -719,7 +699,7 @@ onUnmounted(() => {
 	}
 
 	&.secondary {
-		background-color: var(--color-secondary-fadest);
+		background-color: var(--grayout-fadest);
 		.header {
 			color: var(--color-light);
 			background-color: var(--color-secondary);
@@ -743,6 +723,20 @@ onUnmounted(() => {
 		}
 		.collapseToggle:hover {
 			background-color: var(--color-premium);
+		}
+	}
+
+	&.light {
+		background-color: var(--grayout-fadest);
+		.header {
+			color: var(--color-dark);
+			background-color: var(--color-light);
+			&:hover {
+				background-color: var(--color-light-dark);
+			}
+		}
+		.collapseToggle:hover {
+			background-color: var(--color-text);
 		}
 	}
 

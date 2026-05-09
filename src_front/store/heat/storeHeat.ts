@@ -1,4 +1,4 @@
-import type { StoreActions } from "@/types/pinia-helpers";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type HeatEvent from "@/events/HeatEvent";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import {
@@ -19,12 +19,23 @@ import type { JsonObject } from "type-fest";
 import DataStore from "../DataStore";
 import type { IHeatActions, IHeatGetters, IHeatState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import Config from "@/utils/Config";
 
 export const storeHeat = defineStore("heat", {
 	state: (): IHeatState => ({
 		screenList: [],
 		distortionList: [],
 	}),
+
+	getters: {
+		enabled: function (): boolean {
+			return (
+				StoreProxy.extension.enabledExtensions.findIndex(
+					(v) => v.id == Config.instance.HEAT_EXTENSION_ID,
+				) > -1
+			);
+		},
+	} satisfies StoreGetters<IHeatGetters, IHeatState>,
 
 	actions: {
 		populateData(): void {
