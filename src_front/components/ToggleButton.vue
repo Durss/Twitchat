@@ -2,7 +2,21 @@
 	<div :class="classes" data-noselect>
 		<Icon name="checkmark" class="checkmark" />
 		<div class="circle">
-			<Icon v-if="loading === true" name="loader" class="loading" />
+			<svg
+				v-if="props.loading === true"
+				class="loader"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 37.21 37.21"
+			>
+				<path
+					style="fill: rgba(0, 0, 0, 0.4)"
+					d="M18.6,0C8.33,0,0,8.33,0,18.6s8.33,18.6,18.6,18.6,18.6-8.33,18.6-18.6S28.88,0,18.6,0ZM18.6,31.57c-7.16,0-12.97-5.81-12.97-12.97s5.81-12.97,12.97-12.97,12.97,5.81,12.97,12.97-5.81,12.97-12.97,12.97Z"
+				/>
+				<path
+					style="fill: #fff"
+					d="M18.6,0c-4.09,0-4.09,5.64,0,5.64,7.16,0,12.97,5.81,12.97,12.97,0,3.69,5.64,3.69,5.64,0C37.21,8.33,28.88,0,18.6,0Z"
+				/>
+			</svg>
 		</div>
 		<Icon name="cross" class="cross" />
 		<input
@@ -11,7 +25,7 @@
 			v-model="localValue"
 			class="input"
 			@change="onChange()"
-			:disabled="disabled !== false"
+			:disabled="props.disabled !== false || props.loading !== false"
 		/>
 	</div>
 </template>
@@ -64,7 +78,8 @@ const classes = computed(() => {
 	if (props.alert !== false) res.push("alert");
 	if (props.premium !== false) res.push("premium");
 	if (props.noCheckmark !== false) res.push("noCheckmark");
-	if (props.disabled !== false) res.push("disabled");
+	if (props.loading !== false) res.push("loading");
+	if (props.disabled !== false || props.loading !== false) res.push("disabled");
 	if (
 		(props.inverseState === false && localValue.value) ||
 		(props.inverseState !== false && !localValue.value)
@@ -74,7 +89,7 @@ const classes = computed(() => {
 });
 
 function onChange(): void {
-	if (props.disabled) return;
+	if (props.disabled || props.loading) return;
 	emit("update:modelValue", localValue.value);
 	emit("change", localValue.value);
 }
@@ -116,7 +131,6 @@ watch(
 		top: 50%;
 		transform: translateY(-50%);
 		left: 2px;
-		background-color: var(--color-primary);
 		background-color: var(--color-light);
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
@@ -218,6 +232,11 @@ watch(
 		}
 	}
 
+	&.loading {
+		opacity: 1;
+		cursor: wait;
+	}
+
 	&.big {
 		font-size: 1.2em;
 	}
@@ -259,6 +278,24 @@ watch(
 			.circle {
 				background-color: var(--color-light);
 			}
+		}
+	}
+
+	&.loading {
+		background-color: var(--background-color-fade);
+		.circle {
+			background-color: transparent;
+		}
+	}
+	.loader {
+		color: var(--color-light);
+		width: 100%;
+		height: 100%;
+		animation: loader-animation 0.6s infinite linear;
+	}
+	@keyframes loader-animation {
+		to {
+			transform: rotate(360deg);
 		}
 	}
 }

@@ -418,8 +418,8 @@ import ConnectYoutube from "./connexions/ConnectYoutube.vue";
 import SearchForm from "./SearchForm.vue";
 import ConnectBluesky from "./connexions/ConnectBluesky.vue";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
-import Config from "@/utils/Config";
 import ConnectTwitchatCompanion from "./connexions/ConnectTwitchatCompanion.vue";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -444,6 +444,7 @@ const storeStreamSocket = useStoreStreamSocket();
 const storeBluesky = useStoreBluesky();
 const storeAuth = useStoreAuth();
 const storeExtension = useStoreExtension();
+const storeHeat = useStoreHeat();
 
 const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);
@@ -454,7 +455,7 @@ const youtubeConnected = computed(() => YoutubeHelper.instance.connected.value);
 const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
 const voicemodConnected = computed(() => VoicemodWebSocket.instance.connected.value);
 const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
-const heatConnected = computed(() => HeatSocket.instance.connected.value);
+const heatConnected = computed(() => HeatSocket.instance.connected.value && storeHeat.enabled);
 const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
 const wsCustomConnected = computed(() => WebsocketTrigger.instance.connected.value);
 const streamdeckConnected = computed(() => StreamdeckSocket.instance.connected.value);

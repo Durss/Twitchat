@@ -3,6 +3,9 @@
 		class="heatoverlayclick"
 		:title="t('heat.overlay_interaction')"
 		:open="false"
+		:primary="props.primary"
+		:secondary="props.secondary"
+		:light="props.light"
 		:icons="['overlay']"
 	>
 		<div class="content">
@@ -40,6 +43,7 @@ import ParamItem from "../../ParamItem.vue";
 import PostOnChatParam from "../../PostOnChatParam.vue";
 
 const { t } = useI18n();
+const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();
 const storeChat = useStoreChat();
 const overlayTypes = ref<OverlayKey[]>(["spotify", "ulule"]);
 const botMessageKeys = ref<TwitchatDataTypes.BotMessageField[]>(["heatSpotify", "heatUlule"]);

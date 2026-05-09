@@ -300,6 +300,9 @@
 import ParamItem from "@/components/params/ParamItem.vue";
 import SwitchButton from "@/components/SwitchButton.vue";
 import TTButton from "@/components/TTButton.vue";
+import { useHighlight } from "@/composables/useHighlight";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import {
 	type ITriggerPlaceholder,
 	type TriggerActionObsData,
@@ -310,15 +313,12 @@ import {
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from "@/utils/OBSWebsocket";
 import { default as OBSWebSocket, type OBSInputItem } from "@/utils/OBSWebsocket";
-import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { ref, computed, watch, onBeforeMount, onMounted, nextTick } from "vue";
-import { useHighlight } from "@/composables/useHighlight";
 
 const { t, tm } = useI18n();
 const storeParams = useStoreParams();
-const { loadHighlightJs, highlight } = useHighlight();
+const { highlight } = useHighlight();
 
 const props = withDefaults(
 	defineProps<{
@@ -1086,8 +1086,6 @@ async function cleanupData(): Promise<void> {
 		delete props.action.hotKeyAction;
 	}
 }
-
-// Lifecycle
 
 onBeforeMount(() => {
 	if (props.action.obsAction == undefined) props.action.obsAction = "sources";
