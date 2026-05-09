@@ -303,6 +303,7 @@ export default class TriggerUtils {
 				a.type != "raffle" &&
 				a.type != "obs" &&
 				a.type != "groq" &&
+				a.type != "bluesky" &&
 				a.type != "json_extract"
 			)
 				continue;
@@ -446,6 +447,38 @@ export default class TriggerUtils {
 						},
 						example: "Hello world",
 					});
+				}
+			} else if (a.type == "bluesky") {
+				if (a.blueskyData?.action == "get_latest_post") {
+					if (a.blueskyData.getPostPlaceholderMessage) {
+						placeholdersList.push({
+							tag: a.blueskyData.getPostPlaceholderMessage.toUpperCase(),
+							pointer: "",
+							isUserID: false,
+							numberParsable: true,
+							descKey: "triggers.actions.bluesky.placeholder_message",
+							descReplacedValues: {
+								NAME:
+									"{" +
+									a.blueskyData.getPostPlaceholderMessage.toUpperCase() +
+									"}",
+							},
+							example: "Hello world",
+						});
+					}
+					if (a.blueskyData.getPostPlaceholderURL) {
+						placeholdersList.push({
+							tag: a.blueskyData.getPostPlaceholderURL.toUpperCase(),
+							pointer: "",
+							isUserID: false,
+							numberParsable: true,
+							descKey: "triggers.actions.bluesky.placeholder_url",
+							descReplacedValues: {
+								NAME: "{" + a.blueskyData.getPostPlaceholderURL.toUpperCase() + "}",
+							},
+							example: "https://bsky.app",
+						});
+					}
 				}
 			}
 		}
