@@ -488,7 +488,7 @@ export default class Config {
 	}
 
 	/**
-	 * Fake Twitch "highlight my message" reward
+	 * Fake "any" reward
 	 */
 	public get allRewards(): TwitchDataTypes.Reward {
 		const img = StoreProxy.asset("icons/channelPoints.svg");

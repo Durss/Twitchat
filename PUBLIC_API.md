@@ -109,9 +109,6 @@ connect(ip, port pass).then(()=> {
 
 Events fired by Twitchat that you can listen to.
 
-> [!WARNING]  
-> These **CANNOT** be used from HTTP remote API, only via OBSWebsocket.
-
 - [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
 - [ON_AD_BREAK_OVERLAY_DATA](#on_ad_break_overlay_data)
 - [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)
@@ -166,7 +163,7 @@ Events fired by Twitchat that you can listen to.
 - [ON_PREDICTION_PROGRESS](#on_prediction_progress)
 - [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)
 - [ON_QNA_SESSION_LIST](#on_qna_session_list)
-- [ON_QUIZ_LEADERBOARD](#ON_QUIZ_LEADERBOARD)
+- [ON_QUIZ_LEADERBOARD](#on_quiz_leaderboard)
 - [ON_QUIZ_OVERLAY_PRESENCE](#on_quiz_overlay_presence)
 - [ON_QUIZ_STATE](#on_quiz_state)
 - [ON_REWARD_REDEEM](#on_reward_redeem)
@@ -1135,7 +1132,8 @@ type ON_CHAT_POLL_PROGRESS = {
 					| "youtube"
 					| "tiktok"
 					| "facebook"
-					| "kick";
+					| "kick"
+					| "bluesky";
 			};
 		};
 		/**
@@ -1473,7 +1471,8 @@ type ON_COUNTER_UPDATE = {
 					| "youtube"
 					| "tiktok"
 					| "facebook"
-					| "kick";
+					| "kick"
+					| "bluesky";
 				/**
 				 * Value of that user
 				 */
@@ -2684,6 +2683,42 @@ type ON_GLOBAL_STATES = {
 		 */
 		enabled: boolean;
 	}[];
+	/**
+	 * Contains currently enabled quiz info.
+	 */
+	currentQuiz?: {
+		/**
+		 * Animated text ID
+		 */
+		id: string;
+		/**
+		 * Animated text name
+		 */
+		name: string;
+		/**
+		 * Timer start time, in ISO format
+		 */
+		timerStartedAt: string;
+		/**
+		 * Current question duration
+		 */
+		questionDuration_ms: number;
+		/**
+		 * Is current answer revealed?
+		 */
+		answerRevealed: boolean;
+		/**
+		 * Question index
+		 */
+		questionIndex: number;
+		/**
+		 * Total number of questions
+		 */
+		totalQuestions: number;
+	};
+	/**
+	 * Details about a message pending for automod review.
+	 */
 	pendingAutomodMessage: null | {
 		/**
 		 * Channel ID where the message was sent
@@ -2802,10 +2837,6 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 			| "CHEER_ID"
 			| "CHEER_AVATAR"
 			| "CHEER_AMOUNT"
-			| "COMBO_NAME"
-			| "COMBO_ID"
-			| "COMBO_AVATAR"
-			| "COMBO_AMOUNT"
 			| "FOLLOWER_NAME"
 			| "FOLLOWER_ID"
 			| "FOLLOWER_AVATAR"
@@ -2838,6 +2869,11 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 			| "POWER_UP_MESSAGE_ID"
 			| "POWER_UP_MESSAGE_NAME"
 			| "POWER_UP_MESSAGE_AVATAR"
+			| "POWER_UP_CUSTOM_ID"
+			| "POWER_UP_CUSTOM_NAME"
+			| "POWER_UP_CUSTOM_AVATAR"
+			| "POWER_UP_CUSTOM_TITLE"
+			| "POWER_UP_CUSTOM_COST"
 			| "KOFI_TIP_NAME"
 			| "KOFI_TIP_AMOUNT"
 			| "KOFI_MERCH_USER"
@@ -3407,7 +3443,8 @@ type ON_POLL_PROGRESS = {
 				| "youtube"
 				| "tiktok"
 				| "facebook"
-				| "kick";
+				| "kick"
+				| "bluesky";
 			login: string;
 			/**
 			 * Get the display name of the user.
@@ -3662,7 +3699,15 @@ type ON_POLL_PROGRESS = {
 		isFake?: boolean;
 		id: string;
 		date: number;
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 		/**
 		 * Defines infos about the channel this message comes from.
 		 * Only set for messages received from channels other than ours
@@ -3763,7 +3808,8 @@ type ON_PREDICTION_PROGRESS = {
 				| "youtube"
 				| "tiktok"
 				| "facebook"
-				| "kick";
+				| "kick"
+				| "bluesky";
 			login: string;
 			/**
 			 * Get the display name of the user.
@@ -4038,7 +4084,15 @@ type ON_PREDICTION_PROGRESS = {
 		isFake?: boolean;
 		id: string;
 		date: number;
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 		/**
 		 * Defines infos about the channel this message comes from.
 		 * Only set for messages received from channels other than ours
@@ -4120,37 +4174,38 @@ Receive quiz overlay leaderboard
 
 ```typescript
 type ON_QUIZ_LEADERBOARD = {
-	leaderboard: {
-		[key: string]: {
-			/**
-			 * Is the user anonymous?
-			 * true when user has chose not to grant access to their user info on extension
-			 */
-			isAnonymous: boolean;
-			/**
-			 * Platform used to play the quiz
-			 */
-			platform:
-				| "twitchat"
-				| "twitch"
-				| "instagram"
-				| "youtube"
-				| "tiktok"
-				| "facebook"
-				| "kick";
-			/**
-			 * User name
-			 */
-			name: string;
-			/**
-			 * user's avatar URL
-			 */
-			avatarPath?: string;
-			/**
-			 * User score
-			 */
-			score: number;
-		};
+	[key: string]: {
+		/**
+		 * Is the user anonymous?
+		 * true when user has chose not to grant access to their user info on extension
+		 */
+		anon: boolean;
+		/**
+		 * Platform used to play the quiz
+		 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+		 */
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
+		/**
+		 * User name
+		 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+		 */
+		name: string;
+		/**
+		 * User's avatar URL
+		 */
+		avatarPath: string;
+		/**
+		 * User score
+		 */
+		score: number;
 	};
 };
 ```
@@ -4223,6 +4278,60 @@ type ON_QUIZ_STATE = {
 		 */
 		currentQuestionRevealed?: boolean;
 		/**
+		 * Contains scores for current question
+		 */
+		currentQuestionScores?: {
+			[key: string]: number;
+		};
+		/**
+		 * Contains scores for current question
+		 */
+		currentQuestionVotes?: {
+			[key: string]: {
+				answer: string;
+				voted_at: string;
+			};
+		};
+		/**
+		 * Contains cumulated scores for all questions
+		 */
+		leaderboard: {
+			[key: string]: {
+				/**
+				 * Is the user anonymous?
+				 * true when user has chose not to grant access to their user info on extension
+				 */
+				anon: boolean;
+				/**
+				 * Platform used to play the quiz
+				 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+				 */
+				platform?:
+					| undefined
+					| "twitchat"
+					| "twitch"
+					| "instagram"
+					| "youtube"
+					| "tiktok"
+					| "facebook"
+					| "kick"
+					| "bluesky";
+				/**
+				 * User name
+				 * empty for twitch users to reduce data storage, it can be retrieved from Twitch API using the user ID if needed
+				 */
+				name?: string;
+				/**
+				 * User's avatar URL
+				 */
+				avatarPath?: string;
+				/**
+				 * User score
+				 */
+				score: number;
+			};
+		};
+		/**
 		 * Votes for the current question.
 		 */
 		currentQuestionStats?: {
@@ -4259,7 +4368,6 @@ type ON_QUIZ_STATE = {
 					id: string;
 					/**
 					 * Question mode.
-					 * classic: earn points by answering questions correctly
 					 */
 					mode: "classic" | "majority" | "freeAnswer";
 					/**
@@ -4301,7 +4409,6 @@ type ON_QUIZ_STATE = {
 					id: string;
 					/**
 					 * Question mode.
-					 * classic: earn points by answering questions correctly
 					 */
 					mode: "classic" | "majority" | "freeAnswer";
 					/**
@@ -4315,7 +4422,7 @@ type ON_QUIZ_STATE = {
 			  } & {
 					/**
 					 * Question mode.
-					 * classic: earn points by answering questions correctly
+					 * majority: earn points by being part of the most popular answer
 					 */
 					mode: "majority";
 					/**
@@ -4339,7 +4446,6 @@ type ON_QUIZ_STATE = {
 					id: string;
 					/**
 					 * Question mode.
-					 * classic: earn points by answering questions correctly
 					 */
 					mode: "classic" | "majority" | "freeAnswer";
 					/**
@@ -4942,6 +5048,14 @@ type ON_TRIGGER_LIST = {
 		 * Is the trigger currently disabled
 		 */
 		disabled: boolean;
+		/**
+		 * Custom emoji icon
+		 */
+		iconEmoji?: string;
+		/**
+		 * Custom icon file
+		 */
+		iconUrl?: string;
 	}[];
 };
 ```
@@ -5088,6 +5202,9 @@ Actions you can request Twitchat to perform.
 - [SET_PREDICTION_TOGGLE](#set_prediction_toggle)
 - [SET_QNA_HIGHLIGHT](#set_qna_highlight)
 - [SET_QNA_SKIP](#set_qna_skip)
+- [SET_QUIZ_NEXT_QUESTION](#set_quiz_next_question)
+- [SET_QUIZ_REVEAL](#set_quiz_reveal)
+- [SET_QUIZ_TOGGLE_LEADERBOARD](#set_quiz_toggle_leaderboard)
 - [SET_RAFFLE_PICK_WINNER](#set_raffle_pick_winner)
 - [SET_RAFFLE_TOGGLE](#set_raffle_toggle)
 - [SET_SEND_CUSTOM_CHAT_MESSAGE](#set_send_custom_chat_message)
@@ -5479,7 +5596,15 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 	message?: string;
 	user?: {
 		id: string;
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 		login: string;
 		/**
 		 * Get the display name of the user.
@@ -5707,7 +5832,15 @@ type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 	message?: string;
 	user?: {
 		id: string;
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 		login: string;
 		/**
 		 * Get the display name of the user.
@@ -6490,7 +6623,15 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 	}[];
 	/**
 	 * Resubscription events
@@ -6520,7 +6661,15 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 	}[];
 	/**
 	 * Subgift events
@@ -6549,7 +6698,15 @@ type SET_ENDING_CREDITS_DATA = {
 		/**
 		 * Chat platform of the subscription
 		 */
-		platform: "twitchat" | "twitch" | "instagram" | "youtube" | "tiktok" | "facebook" | "kick";
+		platform:
+			| "twitchat"
+			| "twitch"
+			| "instagram"
+			| "youtube"
+			| "tiktok"
+			| "facebook"
+			| "kick"
+			| "bluesky";
 	}[];
 	/**
 	 * Bits events
@@ -7081,7 +7238,7 @@ type SET_PLAY_SFXR = {
 	 */
 	params: string;
 	/**
-	 * Volume from 0 to 1
+	 * Volume from 0 to 100
 	 */
 	volume: number;
 };
@@ -7129,6 +7286,45 @@ type SET_QNA_SKIP = {
 	 */
 	id: string;
 };
+```
+
+</details>
+
+#### SET_QUIZ_NEXT_QUESTION
+
+Moves to the next question in the current quiz
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_QUIZ_NEXT_QUESTION = void;
+```
+
+</details>
+
+#### SET_QUIZ_REVEAL
+
+Reveals the answer for current quiz question
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_QUIZ_REVEAL = void;
+```
+
+</details>
+
+#### SET_QUIZ_TOGGLE_LEADERBOARD
+
+Toggle quiz leaderboard display
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_QUIZ_TOGGLE_LEADERBOARD = void;
 ```
 
 </details>
@@ -7528,9 +7724,6 @@ type SET_VOICE_CONTROL_STATE = {
 
 Data you can request from Twitchat.
 
-> [!WARNING]  
-> These **CANNOT** be used from HTTP remote API, only via OBSWebsocket.
-
 - [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
 - [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)
 - [GET_ALL_COUNTERS](#get_all_counters)
@@ -7883,3 +8076,4 @@ Receive answer with: [ON_TRIGGER_LIST](#on_trigger_list)
 
 Request wheel overlay presence  
 Receive answer with: [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)
+

@@ -31,7 +31,6 @@ export default class EventSub {
 	private lastRecentFollowers: TwitchatDataTypes.MessageFollowingData[] = [];
 	private debounceAutomodTermsUpdate: number = -1;
 	private debouncedAutomodTerms: TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
-	private debouncedCombos: { [uid: string]: { bits: number; to: number } } = {};
 	private sessionID: string = "";
 	private connectURL: string = "";
 	private chanSubscriptions: { [chanId: string]: { topic: string; uid: string; id: string }[] } =
@@ -270,26 +269,6 @@ export default class EventSub {
 		}
 	}
 
-	public simulateComboSpam(): void {
-		const me = StoreProxy.auth.twitch.user;
-		const obj: TwitchEventSubDataTypes.BitsUseEvent = {
-			broadcaster_user_id: me.id,
-			broadcaster_user_login: me.login,
-			broadcaster_user_name: me.displayNameOriginal,
-			user_id: me.id,
-			user_login: me.login,
-			user_name: me.displayNameOriginal,
-			bits: Utils.pickRand([5, 10, 25, 50, 100]),
-			type: "combo",
-			power_up: null,
-			message: null,
-			custom_power_up: null,
-		};
-		for (let i = 0; i < 10; i++) {
-			void this.bitsUsed(TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, obj);
-		}
-	}
-
 	/**
 	 * Connect to a channel chan.
 	 * Will connect to appropriate topics depending on wether we're a mod
@@ -468,13 +447,13 @@ export default class EventSub {
 			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
 			if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
-				this.createSubscription(
+				void this.createSubscription(
 					channelId,
 					myUID,
 					TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE,
 					"1",
 				);
-				this.createSubscription(
+				void this.createSubscription(
 					channelId,
 					myUID,
 					TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM,
@@ -1082,7 +1061,7 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM: {
-				this.customPowerUpUsed(
+				void this.customPowerUpUsed(
 					topic,
 					payload.event as TwitchEventSubDataTypes.CustomPowerUpUseEvent,
 				);
@@ -3136,26 +3115,6 @@ export default class EventSub {
 			false,
 		);
 		switch (event.type) {
-			case "combo": {
-				let debounced = this.debouncedCombos[user.id];
-				if (!debounced) this.debouncedCombos[user.id] = debounced = { bits: 0, to: -1 };
-				else window.clearTimeout(debounced.to);
-				debounced.bits += event.bits || 0;
-				debounced.to = window.setTimeout(() => {
-					const m: TwitchatDataTypes.MessageTwitchComboData = {
-						id: Utils.getUUID(),
-						date: Date.now(),
-						platform: "twitch",
-						channel_id: event.broadcaster_user_id,
-						type: TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO,
-						user,
-						bits: debounced.bits,
-					};
-					delete this.debouncedCombos[user.id];
-					void StoreProxy.chat.addMessage(m);
-				}, 5_000);
-				break;
-			}
 			case "power_up": {
 				if (event.power_up && event.power_up.type == "celebration") {
 					const m: TwitchatDataTypes.MessageTwitchCelebrationData = {
@@ -3245,7 +3204,7 @@ export default class EventSub {
 			powerUpTitle: event.custom_power_up?.title || "",
 			cost: event.custom_power_up.bits,
 		};
-		StoreProxy.chat.addMessage(m);
+		void StoreProxy.chat.addMessage(m);
 		if (event.user_input) {
 			const chat: TwitchatDataTypes.MessageChatData = {
 				id: Utils.getUUID(),

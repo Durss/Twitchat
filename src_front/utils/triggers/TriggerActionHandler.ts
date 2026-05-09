@@ -397,24 +397,6 @@ export default class TriggerActionHandler {
 				break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
-				if (this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
-
-				if (
-					await this.executeTriggersByType(
-						TriggerTypes.TWITCH_COMBO,
-						message,
-						testMode,
-						undefined,
-						undefined,
-						forcedTriggerId,
-					)
-				) {
-					return;
-				}
-				break;
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 				const eventType =
 					message.isStart === true

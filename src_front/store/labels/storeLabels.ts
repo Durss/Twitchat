@@ -245,7 +245,7 @@ export const storeLabels = defineStore("labels", {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
 			}
-			console.log("CLEARING LABEL VALUES FOR USER " + userId);
+
 			const userIdKeyList: LabelItemPlaceholderTag[] = [
 				"SUB_ID",
 				"SUBGIFT_ID",
@@ -256,7 +256,6 @@ export const storeLabels = defineStore("labels", {
 				"SUPER_CHAT_ID",
 				"SUPER_STICKER_ID",
 				"CHEER_ID",
-				"COMBO_ID",
 				"FOLLOWER_ID",
 				"FOLLOWER_GENERIC_ID",
 				"REWARD_ID",
@@ -265,6 +264,7 @@ export const storeLabels = defineStore("labels", {
 				"POWER_UP_GIANTIFIED_ID",
 				"POWER_UP_CELEBRATION_ID",
 				"POWER_UP_MESSAGE_ID",
+				"POWER_UP_CUSTOM_ID",
 			];
 			let hasClearedValue = false;
 			for (const key of userIdKeyList) {

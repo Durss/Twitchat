@@ -251,7 +251,6 @@
 			"duration_years": "{COUNT} year | {COUNT} years"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
-		"combo": "{USER} sent {BITS} bit from Combos | {USER} sent {BITS} bits from Combos",
 		"boosted": "Your channel has been boosted to {COUNT} people",
 		"train_cooldown": "Hype train can be started again by your viewers!",
 		"follow": "{USER} vous suit",
@@ -555,8 +554,7 @@
 			"message_tmp": "{USER} redeemed the Power Up \"Gigantify emote\""
 		},
 		"custom_power_up": {
-			"message": "{USER} redeemed the Custom Power Up \"{NAME}\" for {PRICE}",
-			"message_tmp": "{USER} redeemed the Custom Power Up \"{NAME}\""
+			"message": "{USER} redeemed the Power Up \"{NAME}\""
 		},
 		"blocked_terms": {
 			"add_permitted": "{USER} added {TERMS} to permitted terms",

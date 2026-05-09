@@ -850,7 +850,6 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 		case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER:
 		case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:
 		case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
-		case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO:
 		case TwitchatDataTypes.TwitchatMessageType.CHEER:
 		case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
 			return props.config.filters.cheer === true;

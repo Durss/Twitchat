@@ -1858,7 +1858,8 @@
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",
-				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
+				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch",
+				"disabled_reason": "Twitch a supprimé cette fonctionnalité"
 			},
 			"OBS_CONNECTED": {
 				"label": "OBS connecté",
