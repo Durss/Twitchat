@@ -98,7 +98,8 @@ export namespace TwitchatDataTypes {
 		| "donationgoals"
 		| "animatedtext"
 		| "customtrain"
-		| "quiz";
+		| "quiz"
+		| "sfxr";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -4863,7 +4864,6 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_AD: "twitchat_ad",
 		YOUTUBE_BAN: "youtube_ban",
 		MANY_REPLIES: "many_replies",
-		TWITCH_COMBO: "twitch_combo",
 		TIKTOK_SHARE: "tiktok_share",
 		VALUE_UPDATE: "value_update",
 		GOXLR_BUTTON: "goxlr_button",
@@ -4997,7 +4997,6 @@ export namespace TwitchatDataTypes {
 		tiktok_gift: true,
 		tiktok_like: true,
 		tiktok_share: true,
-		twitch_combo: true,
 		many_replies: true,
 		quiz_complete: true,
 		super_sticker: true,
@@ -5229,7 +5228,6 @@ export namespace TwitchatDataTypes {
 		| MessageCustomTrainSummaryData
 		| MessageCustomTrainFailData
 		| MessageStreamSocketActionData
-		| MessageTwitchComboData
 		| MessageObsWsConnectStateChangeData
 		| MessageManyRepliesData
 		| MessageQuizCompleteData
@@ -9100,21 +9098,6 @@ export namespace TwitchatDataTypes {
 		bits: number;
 		/**
 		 * User that triggered the action
-		 */
-		user: TwitchatUser;
-	}
-
-	/**
-	 * Message sent when someone uses the "combo" feature on Twitch
-	 */
-	export interface MessageTwitchComboData extends AbstractTwitchatMessage {
-		type: "twitch_combo";
-		/**
-		 * Number of bits used to trigger the combo
-		 */
-		bits: number;
-		/**
-		 * User that made the combo
 		 */
 		user: TwitchatUser;
 	}

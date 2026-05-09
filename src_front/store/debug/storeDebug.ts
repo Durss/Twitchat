@@ -2291,21 +2291,6 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
-					const m: TwitchatDataTypes.MessageTwitchComboData = {
-						id: Utils.getUUID(),
-						type,
-						date: Date.now(),
-						channel_id: StoreProxy.auth.twitch.user.id,
-						platform: "twitch",
-						bits: Math.round(Math.random() * 100),
-						user: fakeUser,
-					};
-
-					data = m;
-					break;
-				}
-
 				case TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES: {
 					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(
 						TwitchatDataTypes.TwitchatMessageType.MESSAGE,

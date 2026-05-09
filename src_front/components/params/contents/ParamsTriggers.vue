@@ -108,12 +108,16 @@
 			<TTButton
 				class="createBt"
 				v-if="
-					activeTriggerCount < $config.MAX_TRIGGERS ||
-					(storeAuth.isPremium && activeTriggerCount < $config.MAX_TRIGGERS_PREMIUM)
+					activeTriggerCount < Config.instance.MAX_TRIGGERS ||
+					(storeAuth.isPremium &&
+						activeTriggerCount < Config.instance.MAX_TRIGGERS_PREMIUM)
 				"
 				icon="add"
 				primary
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16_12, id: 'paramsparams_triggers_3' }"
+				v-newflag="{
+					date: Config.instance.NEW_FLAGS_DATE_V16_12,
+					id: 'paramsparams_triggers_3',
+				}"
 				@click="openForm()"
 				>{{ $t("triggers.add_triggerBt") }}</TTButton
 			>
@@ -121,8 +125,8 @@
 			<div class="card-item premium premiumLimit" v-else-if="!storeAuth.isPremium">
 				<span>{{
 					$t("triggers.nonpremium_limit", {
-						MAX: $config.MAX_TRIGGERS,
-						MAX_PREMIUM: $config.MAX_TRIGGERS_PREMIUM,
+						MAX: Config.instance.MAX_TRIGGERS,
+						MAX_PREMIUM: Config.instance.MAX_TRIGGERS_PREMIUM,
 					})
 				}}</span>
 				<TTButton icon="premium" premium light @click="openPremium()">{{
@@ -131,7 +135,7 @@
 			</div>
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{
-					$t("triggers.premium_limit", { MAX: $config.MAX_TRIGGERS_PREMIUM })
+					$t("triggers.premium_limit", { MAX: Config.instance.MAX_TRIGGERS_PREMIUM })
 				}}</span>
 			</div>
 		</template>
@@ -206,6 +210,7 @@ import { useI18n } from "vue-i18n";
 import TriggerActionList from "./triggers/TriggerActionList.vue";
 import TriggerCreateForm from "./triggers/TriggerCreateForm.vue";
 import TriggerList from "./triggers/TriggerList.vue";
+import Config from "@/utils/Config";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
@@ -488,7 +493,7 @@ async function listRewards(): Promise<void> {
 }
 
 /**
- * Lists Power ups
+ * Lists the power ups
  */
 async function listPowerUps(): Promise<void> {
 	loadingPowerUps.value = true;
@@ -613,7 +618,7 @@ function testTrigger(trigger: TriggerData): void {
 							(v) => v.id == trigger.rewardId,
 						);
 						if (twitchReward) {
-							(m as TwitchatDataTypes.MessageRewardRedeemData).reward = {
+							m.reward = {
 								id: twitchReward.id,
 								cost: twitchReward.cost,
 								description: twitchReward.prompt,

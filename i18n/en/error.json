@@ -30,6 +30,7 @@
 		"cmd_missing_api": "This command cannot be used outside of official Twitch chat yet :(",
 		"no_pin_api": "Twitch doesn't allow to pin messages outside of official Twitch chat yet.",
 		"rewards_loading": "An error occurred while loading your rewards",
+		"powerups_loading": "An error occurred while loading your power ups",
 		"obs_scenes_loading": "An error occurred while loading your OBS scenes",
 		"obs_sources_loading": "An error occurred while loading your OBS sources",
 		"room_settings_update": "An error occured when updating room's settings",
