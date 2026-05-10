@@ -58,7 +58,8 @@
 			"info": "Pour jouer au Bingo il faut désormais que votre streamereuse installe l'extension {EXTENSION} !",
 			"showLeaderboard_bt": "Afficher sur l'overlay",
 			"hideLeaderboard_bt": "Masquer de l'overlay",
-			"footer": "Propulsé par {LINK}"
+			"footer": "Propulsé par {LINK}",
+			"disable_bingo_tt": "Désactiver la grille"
 		}
 	}
 }
