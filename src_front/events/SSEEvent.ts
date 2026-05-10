@@ -17,7 +17,6 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static NOTIFICATION = "NOTIFICATION" as const;
 	public static BINGO_GRID_UPDATE = "BINGO_GRID_UPDATE" as const;
 	public static BINGO_GRID_BINGO_COUNT = "BINGO_GRID_BINGO_COUNT" as const;
-	public static BINGO_GRID_CELL_STATES = "BINGO_GRID_CELL_STATES" as const;
 	public static TRIGGER_SLASH_COMMAND = "TRIGGER_SLASH_COMMAND" as const;
 	public static AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED" as const;
 	public static BINGO_GRID_UNTICK_ALL = "BINGO_GRID_UNTICK_ALL" as const;
@@ -95,10 +94,6 @@ export type EventTypeMap = {
 		uid: string;
 		count: number;
 		login?: string;
-	};
-	BINGO_GRID_CELL_STATES: {
-		gridId: string;
-		states: { [cellId: string]: boolean };
 	};
 	TRIGGER_SLASH_COMMAND: {
 		command: "link" | "say" | "ask";

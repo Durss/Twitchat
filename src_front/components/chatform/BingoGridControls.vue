@@ -124,7 +124,13 @@
 					}}</TTButton
 				>
 			</div>
-			<ToggleButton v-model="grid.enabled" class="togglebutton" small />
+			<ToggleButton
+				v-model="grid.enabled"
+				class="togglebutton"
+				small
+				@change="storeBingoGrid.saveData(grid.id, undefined, true)"
+				v-tooltip="t('bingo_grid.state.disable_bingo_tt')"
+			/>
 		</div>
 
 		<SearchForm
@@ -164,20 +170,16 @@ import { storeBingoGrid as useStoreBingoGrids } from "@/store/bingo_grid/storeBi
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Checkbox from "../Checkbox.vue";
 import SearchForm from "../params/contents/SearchForm.vue";
 import ToggleBlock from "../ToggleBlock.vue";
-import TTButton from "../TTButton.vue";
-import { useConfirm } from "@/composables/useConfirm";
-import { onBeforeUnmount } from "vue";
-import { useI18n } from "vue-i18n";
 import ToggleButton from "../ToggleButton.vue";
-import { watch } from "vue";
+import TTButton from "../TTButton.vue";
 
 const { t } = useI18n();
 const storeUsers = useStoreUsers();
-const { confirm } = useConfirm();
 const storeBingoGrid = useStoreBingoGrids();
 const emits = defineEmits<{ close: [] }>();
 const rootEl = useTemplateRef("rootEl");

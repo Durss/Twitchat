@@ -276,6 +276,40 @@ export default class BingoGridController extends AbstractController {
 	}
 
 	/**
+	 * Called when a streamer or mod ticks cells from the public page
+	 *
+	 * @param {*} request
+	 * @param {*} response
+	 */
+	public async moderateEntries(
+		channelId: string,
+		moderatorId: string,
+		gridId: string,
+		states: { [cellId: string]: boolean },
+	) {
+		const grid = await this.getChannelGrids(channelId, gridId);
+		if (!grid) {
+			return false;
+		}
+
+		try {
+			await this.setTickStates(channelId, gridId, states);
+		} catch (error) {
+			Logger.error("Failed updating tick states by moderator");
+			console.log(error);
+			return false;
+		}
+
+		SSEController.sendToUser(channelId, SSETopic.BINGO_GRID_MODERATOR_TICK, {
+			gridId: gridId,
+			uid: moderatorId,
+			states,
+		});
+
+		return true;
+	}
+
+	/**
 	 * Saves a viewer's grid to memory cache and marks for disk flush
 	 */
 	private saveViewerGrid(
@@ -347,10 +381,6 @@ export default class BingoGridController extends AbstractController {
 		this.server.post(
 			"/api/bingogrid/shuffle",
 			async (request, response) => await this.shuffleEntries(request, response),
-		);
-		this.server.post(
-			"/api/bingogrid/moderate",
-			async (request, response) => await this.moderateEntries(request, response),
 		);
 
 		// Periodic flush of viewer grids to disk (every 5 seconds)
@@ -990,74 +1020,6 @@ export default class BingoGridController extends AbstractController {
 	private async shuffleEntries(request: FastifyRequest, response: FastifyReply) {
 		await this.streamerGridUpdate(request, response, true);
 	}
-
-	/**
-	 * Called when a streamer or mod ticks cells from the public page
-	 *
-	 * @param {*} request
-	 * @param {*} response
-	 */
-	private async moderateEntries(request: FastifyRequest, response: FastifyReply) {
-		const user = await super.twitchUserGuard(request, response, false);
-		if (!user) {
-			response.header("Content-Type", "application/json");
-			response.status(401);
-			response.send({
-				success: false,
-				error: "invalid access token",
-				errorCode: "INVALID_ACCESS_TOKEN",
-			});
-			return;
-		}
-
-		const body: any = request.body;
-		const uid: string = body.uid;
-		const gridId: string = body.gridid;
-		const states: { [cellId: string]: boolean } = body.states;
-		const grid = await this.getChannelGrids(uid, gridId);
-		if (!grid) {
-			response.header("Content-Type", "application/json");
-			response.status(404);
-			response.send({ success: false });
-			return;
-		}
-
-		//Check if user is a streamer's mod or the streamer themself
-		if (user.user_id != uid) {
-			const moderatedChans = await TwitchUtils.getModeratedChannels(
-				user.user_id,
-				request.headers.authorization!,
-			);
-			if (moderatedChans.findIndex((v) => v.broadcaster_id == uid) == -1) {
-				response.header("Content-Type", "application/json");
-				response.status(401);
-				response.send({ success: false, error: "not a mod", errorCode: "NOT_A_MODERATOR" });
-				return;
-			}
-		}
-
-		try {
-			await this.setTickStates(uid, gridId, states);
-		} catch (error) {
-			Logger.error("Failed updating tick states by moderator");
-			console.log(error);
-			response.header("Content-Type", "application/json");
-			response.status(404);
-			response.send({ success: false });
-			return;
-		}
-
-		SSEController.sendToUser(uid, SSETopic.BINGO_GRID_MODERATOR_TICK, {
-			gridId: gridId,
-			uid: user.user_id,
-			states,
-		});
-
-		response.header("Content-Type", "application/json");
-		response.status(200);
-		response.send({ success: true });
-	}
-
 	/**
 	 * Shuffles a grid items
 	 * @param grid
@@ -1152,11 +1114,6 @@ export default class BingoGridController extends AbstractController {
 						}
 					}
 					this.saveViewerGrid(streamerId, gridId, viewerId, viewerCache);
-					// Send new states to viewer
-					SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_CELL_STATES, {
-						gridId,
-						states,
-					});
 				}),
 			);
 			try {

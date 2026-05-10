@@ -1090,20 +1090,6 @@ type ApiEndpoints = {
 			};
 		};
 	};
-	"bingogrid/moderate": {
-		POST: {
-			parameters: {
-				uid: string;
-				gridid: string;
-				states: { [cellId: string]: boolean };
-			};
-			response: {
-				success: boolean;
-				error?: string;
-				errorCode?: string;
-			};
-		};
-	};
 	log: {
 		POST: {
 			parameters: {
