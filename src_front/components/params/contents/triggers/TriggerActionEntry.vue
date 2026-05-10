@@ -146,7 +146,7 @@
 						class="button"
 						@click="selectActionType('customChat')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V11,
+							date: 0,
 							id: 'params_triggerAction_ttnotif',
 						}"
 						icon="info"
@@ -159,7 +159,7 @@
 						v-if="isAffiliate"
 						icon="channelPoints"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V11,
+							date: 0,
 							id: 'params_triggerAction_rewards',
 						}"
 						:disabled="!canManageRewards"
@@ -171,7 +171,7 @@
 						@click.capture="selectActionType('extension')"
 						icon="extension"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V11,
+							date: 0,
 							id: 'params_triggerAction_extension',
 						}"
 						:disabled="!canManageExtensions"
@@ -200,7 +200,7 @@
 						class="button"
 						@click.capture="selectActionType('chat_poll')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_chatpoll',
 						}"
 						icon="chatPoll"
@@ -261,7 +261,7 @@
 					<TTButton
 						class="button"
 						@click="selectActionType('value')"
-						v-newflag="{ date: 1693519200000, id: 'params_triggerAction_value' }"
+						v-newflag="{ date: 0, id: 'params_triggerAction_value' }"
 						icon="placeholder"
 						>{{ $t("triggers.actions.common.action_value") }}</TTButton
 					>
@@ -278,7 +278,7 @@
 						class="button"
 						@click="selectActionType('timer')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_timer',
 						}"
 						icon="timer"
@@ -345,7 +345,7 @@
 						@click.capture="selectActionType('discord')"
 						icon="discord"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V12,
+							date: 0,
 							id: 'params_triggerAction_discord',
 						}"
 						:disabled="!discordEnabled"
@@ -358,7 +358,7 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('goxlr')"
-						v-newflag="{ date: 1693519200000, id: 'params_triggerAction_goxlr' }"
+						v-newflag="{ date: 0, id: 'params_triggerAction_goxlr' }"
 						icon="goxlr"
 						premium
 						:disabled="!goxlrEnabled"
@@ -385,7 +385,7 @@
 						@click.capture="selectActionType('streamerbot')"
 						:disabled="!storeStreamerbot.connected"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V15,
+							date: 0,
 							id: 'params_triggerAction_streamerbot',
 						}"
 						v-tooltip="
@@ -402,7 +402,7 @@
 						@click.capture="selectActionType('sammi')"
 						:disabled="!storeSammi.connected"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V15,
+							date: 0,
 							id: 'params_triggerAction_sammi',
 						}"
 						v-tooltip="
@@ -419,7 +419,7 @@
 						@click.capture="selectActionType('mixitup')"
 						:disabled="!storeMixitup.connected"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V15,
+							date: 0,
 							id: 'params_triggerAction_mixitup',
 						}"
 						v-tooltip="
@@ -436,7 +436,7 @@
 						@click.capture="selectActionType('playability')"
 						:disabled="!storePlayability.connected"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V15,
+							date: 0,
 							id: 'params_triggerAction_playability',
 						}"
 						v-tooltip="
@@ -454,7 +454,7 @@
 						v-if="storeGroq.enabled"
 						:disabled="!storeGroq.connected"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_groq',
 						}"
 						v-tooltip="
@@ -467,7 +467,7 @@
 					<TTButton
 						class="button"
 						@click.capture="selectActionType('customBadges')"
-						v-newflag="{ date: 1693519200000, id: 'params_triggerAction_custombadges' }"
+						v-newflag="{ date: 0, id: 'params_triggerAction_custombadges' }"
 						icon="badge"
 						>{{ $t("triggers.actions.common.action_customBadges") }}</TTButton
 					>
@@ -476,7 +476,7 @@
 						class="button"
 						@click.capture="selectActionType('customUsername')"
 						v-newflag="{
-							date: 1693519200000,
+							date: 0,
 							id: 'params_triggerAction_customusername',
 						}"
 						icon="user"
@@ -488,7 +488,7 @@
 						@click.capture="selectActionType('animated_text')"
 						:disabled="!canAnimateText"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_animateText',
 						}"
 						v-tooltip="
@@ -505,7 +505,7 @@
 						@click.capture="selectActionType('custom_train')"
 						:disabled="!canControlCustomTrain"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_customTrain',
 						}"
 						v-tooltip="
@@ -535,7 +535,7 @@
 						class="button"
 						@click="selectActionType('trigger_stop')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16,
+							date: 0,
 							id: 'params_triggerAction_trigger_stop',
 						}"
 						icon="stop"
@@ -550,7 +550,7 @@
 						class="button"
 						@click="selectActionType('sfxr')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16_5,
+							date: 0,
 							id: 'params_triggerAction_sfxr',
 						}"
 						icon="unmute"
@@ -565,7 +565,7 @@
 						class="button"
 						@click="selectActionType('json_extract')"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V16_5,
+							date: 0,
 							id: 'params_triggerAction_jsonExtract',
 						}"
 						icon="placeholder"
@@ -585,7 +585,7 @@
 						@click.capture="selectActionType('heat_click')"
 						:disabled="!heatClickEnabled"
 						v-newflag="{
-							date: $config.NEW_FLAGS_DATE_V11,
+							date: 0,
 							id: 'params_triggerAction_clickHeat',
 						}"
 						v-tooltip="

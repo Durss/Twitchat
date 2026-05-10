@@ -281,7 +281,11 @@
 </template>
 
 <script setup lang="ts">
+import DataStore from "@/store/DataStore";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { gsap } from "gsap/gsap-core";
 import {
 	computed,
 	nextTick,
@@ -292,9 +296,11 @@ import {
 	useTemplateRef,
 	watch,
 } from "vue";
-import { gsap } from "gsap/gsap-core";
-import TTButton from "../TTButton.vue";
+import { VueDraggable } from "vue-draggable-plus";
+import { useI18n } from "vue-i18n";
+import ToggleBlock from "../../components/ToggleBlock.vue";
 import ClearButton from "../ClearButton.vue";
+import TTButton from "../TTButton.vue";
 import ThemeSelector from "../ThemeSelector.vue";
 import DonorState from "../user/DonorState.vue";
 import type IParameterContent from "./contents/IParameterContent";
@@ -306,25 +312,18 @@ import ParamsConnections from "./contents/ParamsConnections.vue";
 import ParamsCounters from "./contents/ParamsCounters.vue";
 import ParamsDonate from "./contents/ParamsDonate.vue";
 import ParamsEmergency from "./contents/ParamsEmergency.vue";
+import ParamsExporter from "./contents/ParamsExporter.vue";
 import ParamsList from "./contents/ParamsList.vue";
 import ParamsOverlays from "./contents/ParamsOverlays.vue";
 import ParamsPremium from "./contents/ParamsPremium.vue";
 import ParamsSpoiler from "./contents/ParamsSpoiler.vue";
 import ParamsTTS from "./contents/ParamsTTS.vue";
+import ParamsTimer from "./contents/ParamsTimer.vue";
 import ParamsTriggers from "./contents/ParamsTriggers.vue";
 import ParamsTwitchatAd from "./contents/ParamsTwitchatAd.vue";
 import ParamsValues from "./contents/ParamsValues.vue";
 import ParamsVoiceBot from "./contents/ParamsVoiceBot.vue";
-import ToggleBlock from "../../components/ToggleBlock.vue";
-import DataStore from "@/store/DataStore";
-import Config from "@/utils/Config";
-import { VueDraggable } from "vue-draggable-plus";
-import ParamsTimer from "./contents/ParamsTimer.vue";
-import ParamsExporter from "./contents/ParamsExporter.vue";
 import SearchForm from "./contents/SearchForm.vue";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { useI18n } from "vue-i18n";
 
 interface MenuEntry {
 	pinned: boolean;
@@ -362,7 +361,7 @@ const button_donate: MenuEntry = {
 	icon: "coin",
 	page: TwitchatDataTypes.ParameterPages.DONATE,
 	labelKey: "params.categories.donate",
-	newflag: { date: 1693519200000, id: "params_donate" },
+	newflag: { date: 0, id: "params_donate" },
 	theme: "secondary",
 };
 const button_premium: MenuEntry = {
@@ -370,7 +369,7 @@ const button_premium: MenuEntry = {
 	icon: "premium",
 	page: TwitchatDataTypes.ParameterPages.PREMIUM,
 	labelKey: "params.categories.premium",
-	newflag: { date: 1693519200000, id: "params_premium" },
+	newflag: { date: 0, id: "params_premium" },
 	theme: "premium",
 };
 
@@ -386,42 +385,42 @@ const menuEntries: MenuEntry[] = [
 		icon: "params",
 		page: TwitchatDataTypes.ParameterPages.FEATURES,
 		labelKey: "params.categories.features",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "params_chatfeatures_2" },
+		newflag: { date: 0, id: "params_chatfeatures_2" },
 	},
 	{
 		pinned: true,
 		icon: "show",
 		page: TwitchatDataTypes.ParameterPages.APPEARANCE,
 		labelKey: "params.categories.appearance",
-		newflag: { date: 1771444874612, id: "params_chatappearance_3" },
+		newflag: { date: 0, id: "params_chatappearance_3" },
 	},
 	{
 		pinned: true,
 		icon: "overlay",
 		page: TwitchatDataTypes.ParameterPages.OVERLAYS,
 		labelKey: "params.categories.overlays",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_overlays_4" },
+		newflag: { date: 0, id: "params_overlays_4" },
 	},
 	{
 		pinned: true,
 		icon: "offline",
 		page: TwitchatDataTypes.ParameterPages.CONNECTIONS,
 		labelKey: "params.categories.connexions",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_connexion_2" },
+		newflag: { date: 0, id: "params_connexion_2" },
 	},
 	{
 		pinned: false,
 		icon: "broadcast",
 		page: TwitchatDataTypes.ParameterPages.TRIGGERS,
 		labelKey: "params.categories.triggers",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16_12, id: "paramsparams_triggers_3" },
+		newflag: { date: 0, id: "paramsparams_triggers_3" },
 	},
 	{
 		pinned: false,
 		icon: "placeholder",
 		page: TwitchatDataTypes.ParameterPages.VALUES,
 		labelKey: "params.categories.values",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V11, id: "paramsparams_values" },
+		newflag: { date: 0, id: "paramsparams_values" },
 	},
 	{
 		pinned: true,
@@ -464,14 +463,14 @@ const menuEntries: MenuEntry[] = [
 		icon: "info",
 		page: TwitchatDataTypes.ParameterPages.ABOUT,
 		labelKey: "params.categories.about",
-		newflag: { date: 1693519200000, id: "params_about" },
+		newflag: { date: 0, id: "params_about" },
 	},
 	{
 		pinned: false,
 		icon: "timer",
 		page: TwitchatDataTypes.ParameterPages.TIMERS,
 		labelKey: "params.categories.timers",
-		newflag: { date: Config.instance.NEW_FLAGS_DATE_V16, id: "params_timers" },
+		newflag: { date: 0, id: "params_timers" },
 	},
 	{
 		pinned: true,

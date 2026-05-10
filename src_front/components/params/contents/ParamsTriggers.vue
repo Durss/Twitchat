@@ -113,7 +113,7 @@
 				"
 				icon="add"
 				primary
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16_12, id: 'paramsparams_triggers_3' }"
+				v-newflag="{ date: 0, id: 'paramsparams_triggers_3' }"
 				@click="openForm()"
 				>{{ $t("triggers.add_triggerBt") }}</TTButton
 			>

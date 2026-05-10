@@ -9,7 +9,7 @@
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
 
-				<div class="ctas" v-newflag="{ date: 1759253466000, id: 'gaza:araborg' }">
+				<div class="ctas">
 					<div class="head">
 						<a href="https://arab.org/click-to-help/palestine/" target="_blank"
 							><strong>Arab.org <Icon name="newtab" /></strong

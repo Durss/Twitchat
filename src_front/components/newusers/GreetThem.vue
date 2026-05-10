@@ -34,7 +34,6 @@
 					icon="date"
 					v-tooltip="$t('greet.resetBt')"
 					@click.stop="resetHistory()"
-					v-newflag="{ date: 1693519200000, id: 'greetThem_clear' }"
 				/>
 			</div>
 
