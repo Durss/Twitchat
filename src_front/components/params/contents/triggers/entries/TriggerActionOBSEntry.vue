@@ -784,92 +784,82 @@ function onActionChange(): void {
  * Prefills the form
  */
 async function prefillForm(cleanData: boolean = true): Promise<void> {
-	let list: SourceItem[] = [];
-	//Add "--- Scenes ---" splitter
+	const list: SourceItem[] = [];
+
+	//Add "select..." placeholder entry
 	list.push({
-		labelKey: "triggers.actions.obs.param_source_splitter_scenes",
-		value: "__scenes__",
-		disabled: true,
-		type: "scene",
-		name: "__scene__",
+		labelKey: "global.select_placeholder",
+		value: "",
+		name: "",
+		type: "source",
 	});
-	//Add "current scene "item"
-	list.push({
-		labelKey: "triggers.actions.obs.param_source_currentScene",
-		value: "scene_" + t("triggers.actions.obs.param_source_currentScene"),
-		type: "scene",
-		name: t("triggers.actions.obs.param_source_currentScene"),
-	});
-	//Add existing OBS scenes
-	list = list.concat(
-		props.obsScenes.map<SourceItem>((v) => {
-			return {
-				label: v.sceneName,
-				value: "scene_" + v.sceneName,
-				type: "scene",
-				name: v.sceneName,
-			};
-		}),
-	);
-	//Get all OBS sources
+
+	//Build "Sources" group
 	if (props.obsSources.length > 0) {
 		list.push({
 			labelKey: "triggers.actions.obs.param_source_splitter_sources",
 			value: "__sources__",
-			disabled: true,
-			name: "__scene__",
+			name: "__sources__",
 			type: "source",
+			group: props.obsSources.map<SourceItem>((v) => ({
+				label: v.sourceName,
+				value: "source_" + v.sourceName,
+				type: "source",
+				name: v.sourceName,
+			})),
 		});
-		list = list.concat(
-			props.obsSources.map<SourceItem>((v) => {
-				return {
-					label: v.sourceName,
-					value: "source_" + v.sourceName,
-					type: "source",
-					name: v.sourceName,
-				};
-			}),
-		);
 	}
 
-	//Get all OBS inputs.
+	//Build "Inputs" group.
 	//Inputs are only really useful for a very specific case.
 	//All inputs are also sources except for global audio devices defined on:
 	//File => Settings => Audio => Global Audio Devices
 	//If any is defined there they'll be listed in the inputs
 	let inputs = JSON.parse(JSON.stringify(props.obsInputs)) as OBSInputItem[];
 	//Dedupe entries as inputs are mostly sources
+	const knownNames = list.flatMap((entry) => (entry.group as SourceItem[]) ?? [entry]);
 	inputs = inputs.filter((v) => {
-		if (list.find((w) => w.name.toLowerCase() == v.inputName.toLowerCase())) return false;
+		if (knownNames.find((w) => w.name.toLowerCase() == v.inputName.toLowerCase())) return false;
 		return true;
 	});
 	if (inputs.length > 0) {
 		list.push({
 			labelKey: "triggers.actions.obs.param_source_splitter_inputs",
 			value: "__inputs__",
-			disabled: true,
 			name: "__input__",
 			type: "input",
+			group: inputs.map<SourceItem>((v) => ({
+				label: v.inputName,
+				value: "input_" + v.inputName,
+				type: "input",
+				name: v.inputName,
+			})),
 		});
-		list = list.concat(
-			inputs.map<SourceItem>((v) => {
-				return {
-					label: v.inputName,
-					value: "input_" + v.inputName,
-					type: "input",
-					name: v.inputName,
-				};
-			}),
-		);
 	}
 
-	//Add "select..." placeholder entry
-	list.unshift({
-		labelKey: "global.select_placeholder",
-		value: "",
-		name: "",
-		type: "source",
+	//Build "Scenes" group with current scene + existing OBS scenes
+	const scenesGroup: SourceItem[] = [
+		{
+			labelKey: "triggers.actions.obs.param_source_currentScene",
+			value: "scene_" + t("triggers.actions.obs.param_source_currentScene"),
+			type: "scene",
+			name: t("triggers.actions.obs.param_source_currentScene"),
+		},
+		...props.obsScenes.map<SourceItem>((v) => ({
+			label: v.sceneName,
+			value: "scene_" + v.sceneName,
+			type: "scene",
+			name: v.sceneName,
+		})),
+	];
+	list.push({
+		labelKey: "triggers.actions.obs.param_source_splitter_scenes",
+		value: "__scenes__",
+		name: "__scene__",
+		type: "scene",
+		group: scenesGroup,
 	});
+
 	param_source_conf.value.listValues = list;
 
 	await onSourceChanged(true, cleanData);
@@ -1126,20 +1116,35 @@ onMounted(async () => {
 	await prefillForm(false);
 
 	const list = param_source_conf.value.listValues as SourceItem[];
+	const allItems: SourceItem[] = list.flatMap(
+		(entry) => (entry.group as SourceItem[]) ?? [entry],
+	);
 	//If entry does not exist on the available items, push a fake
 	//item to avoid losing it
-	if (sourceNameBackup && !list.find((v) => v.name == sourceNameBackup)) {
+	if (sourceNameBackup && !allItems.find((v) => v.name == sourceNameBackup)) {
 		selectedSourceName.value = "source_" + sourceNameBackup;
-		list.push({
+		const fake: SourceItem = {
 			label: sourceNameBackup,
 			value: selectedSourceName.value,
 			name: sourceNameBackup,
 			type: "source",
-		});
+		};
+		const sourcesGroup = list.find((v) => v.value == "__sources__");
+		if (sourcesGroup?.group) {
+			(sourcesGroup.group as SourceItem[]).push(fake);
+		} else {
+			list.push({
+				labelKey: "triggers.actions.obs.param_source_splitter_sources",
+				value: "__sources__",
+				name: "__sources__",
+				type: "source",
+				group: [fake],
+			});
+		}
 	} else {
-		const source = list.find((v: SourceItem) => v.value == "source_" + sourceNameBackup);
-		const scene = list.find((v: SourceItem) => v.value == "scene_" + sourceNameBackup);
-		const input = list.find((v: SourceItem) => v.value == "input_" + sourceNameBackup);
+		const source = allItems.find((v) => v.value == "source_" + sourceNameBackup);
+		const scene = allItems.find((v) => v.value == "scene_" + sourceNameBackup);
+		const input = allItems.find((v) => v.value == "input_" + sourceNameBackup);
 		selectedSourceName.value = (
 			actionBackup == "switch_to"
 				? scene?.value
