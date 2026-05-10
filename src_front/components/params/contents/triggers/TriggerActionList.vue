@@ -57,6 +57,10 @@
 						@click="(event: MouseEvent) => openEmoteSelector(event)"
 						transparent
 						class="emoteBt"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggers_emote',
+						}"
 					>
 						<img
 							v-if="triggerData.icon && triggerData.icon?.indexOf('http') > -1"
