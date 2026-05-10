@@ -40,11 +40,7 @@
 				<ParamItem :paramData="param_readRaids" v-model="param_readRaids.value" />
 				<ParamItem :paramData="param_readRewards" v-model="param_readRewards.value" />
 				<ParamItem :paramData="param_readPolls" v-model="param_readPolls.value" />
-				<ParamItem
-					:paramData="param_readChatPolls"
-					v-model="param_readChatPolls.value"
-					v-newflag="{ date: Config.instance.NEW_FLAGS_DATE_V16, id: 'tts_chatpolls' }"
-				/>
+				<ParamItem :paramData="param_readChatPolls" v-model="param_readChatPolls.value" />
 				<ParamItem
 					:paramData="param_readPredictions"
 					v-model="param_readPredictions.value"

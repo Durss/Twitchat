@@ -18,12 +18,7 @@
 			/>
 		</section>
 
-		<ParamItem
-			:paramData="param_autospoil"
-			v-model="param_autospoil.value"
-			@change="save()"
-			v-newflag="{ date: 1693519200000, id: 'params_spoiler1stchatters' }"
-		/>
+		<ParamItem :paramData="param_autospoil" v-model="param_autospoil.value" @change="save()" />
 
 		<Splitter class="splitter">{{ t("spoiler.command.title") }}</Splitter>
 

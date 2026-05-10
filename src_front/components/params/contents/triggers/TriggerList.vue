@@ -5,7 +5,6 @@
 			icon="folder"
 			v-if="!triggerId && folderTriggerList.length > 0"
 			@click="addFolder()"
-			v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'triggers_folder' }"
 			>{{ t("triggers.create_folder") }}</TTButton
 		>
 		<SearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
