@@ -56,6 +56,11 @@ export default class TwitchExtensionController extends AbstractController {
 			async (request, response) => await this.postBingoCount(request, response),
 		);
 		this.server.post(
+			"/api/twitch/extension/bingo/states",
+			{ preHandler: this.authHook.bind(this) },
+			async (request, response) => await this.postBingoStates(request, response),
+		);
+		this.server.post(
 			"/api/twitch/extension/quiz/answer",
 			{ preHandler: this.authHook.bind(this) },
 			async (request, response) => await this.postQuizAnswer(request, response),
@@ -172,6 +177,47 @@ export default class TwitchExtensionController extends AbstractController {
 				request.twitchExtensionUser!.user_id,
 				params.gridId,
 				params.count,
+			);
+			response.header("Content-Type", "application/json");
+			response.status(200);
+			response.send(JSON.stringify({ success: true }));
+		} catch (error) {
+			Logger.error(error);
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(JSON.stringify({ success: false, message: "unauthorized" }));
+		}
+	}
+
+	/**
+	 * Receive a bingo state from extension
+	 * Used when moderators tick cells
+	 * @param request
+	 * @param response
+	 */
+	private async postBingoStates(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!request.twitchExtensionUser!.user_id) return;
+
+		//Only allow mods
+		const allowedRoles = ["broadcaster", "moderator"];
+		if (!allowedRoles.includes(request.twitchExtensionUser!.role)) {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(JSON.stringify({ success: false, message: "unauthorized" }));
+			return;
+		}
+
+		const params = request.body as {
+			states: { [cellId: string]: boolean };
+			gridId: string;
+		};
+
+		try {
+			await this._bingoController.moderateEntries(
+				request.twitchExtensionUser!.channel_id,
+				request.twitchExtensionUser!.user_id,
+				params.gridId,
+				params.states,
 			);
 			response.header("Content-Type", "application/json");
 			response.status(200);

@@ -58,7 +58,8 @@
 			"info": "To play Bingo, the streamer must now install the {EXTENSION} extension!",
 			"showLeaderboard_bt": "Show on overlay",
 			"hideLeaderboard_bt": "Hide from overlay",
-			"footer": "Powered by {LINK}"
+			"footer": "Powered by {LINK}",
+			"disable_bingo_tt": "Disable grid"
 		}
 	}
 }
