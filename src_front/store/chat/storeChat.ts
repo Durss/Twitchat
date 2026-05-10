@@ -862,6 +862,7 @@ export const storeChat = defineStore("chat", {
 					let lastPuEmote = false;
 					let lastPuCelebration = false;
 					let lastPuMessage = false;
+					let lastPuCustom = false;
 					let lastSub = false;
 					let lastSubgift = false;
 					//Parse all history
@@ -921,6 +922,28 @@ export const storeChat = defineStore("chat", {
 								"POWER_UP_CELEBRATION_IMAGE",
 								m.emoteURL,
 							);
+						}
+
+						if (
+							!lastPuCustom &&
+							m.type === TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP
+						) {
+							StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue(
+								"POWER_UP_CUSTOM_NAME",
+								m.user.displayNameOriginal,
+							);
+							StoreProxy.labels.updateLabelValue(
+								"POWER_UP_CUSTOM_AVATAR",
+								m.user.avatarPath || "",
+								m.user.id,
+							);
+							StoreProxy.labels.updateLabelValue(
+								"POWER_UP_CUSTOM_TITLE",
+								m.powerUpTitle,
+							);
+							StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_COST", m.cost);
+							break;
 						}
 
 						if (
