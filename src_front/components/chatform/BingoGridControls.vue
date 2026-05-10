@@ -134,7 +134,7 @@
 		/>
 	</div>
 
-	<div class="bingogridcontrols blured-background-window leaderboard" v-else>
+	<div class="bingogridcontrols blured-background-window leaderboard" ref="rootEl" v-else>
 		<Icon name="leaderboard" />
 		<div class="list">
 			<div
@@ -155,7 +155,7 @@
 		<TTButton class="showBt" icon="hide" @click="hideLeaderboard()">{{
 			t("bingo_grid.state.hideLeaderboard_bt")
 		}}</TTButton>
-		<TTButton class="backBt" icon="back" @click="leaderBoardID = ''" transparent />
+		<TTButton class="backBt" icon="back" @click.stop="leaderBoardID = ''" transparent />
 	</div>
 </template>
 
