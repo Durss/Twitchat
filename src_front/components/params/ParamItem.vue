@@ -1218,9 +1218,20 @@ function updateSelectedListValue(): void {
 		(props.paramData.type == "list" || props.paramData.type == "imagelist") &&
 		props.paramData.listValues
 	) {
-		props.paramData.selectedListValue = props.paramData.listValues.find(
-			(v) => v.value == props.paramData.value,
-		);
+		let found;
+		for (const entry of props.paramData.listValues) {
+			if (entry.group) {
+				const v = entry.group.find((v) => v.value == props.paramData.value);
+				if (v) {
+					found = v;
+					break;
+				}
+			} else if (entry.value == props.paramData.value) {
+				found = entry;
+				break;
+			}
+		}
+		props.paramData.selectedListValue = found;
 	}
 }
 
