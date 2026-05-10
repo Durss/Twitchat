@@ -3795,7 +3795,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.subs",
 			defaultLabel: "overlay.credits.labels.subs",
 			amountLabel: "overlay.credits.amounts.subs",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13_4,
 		},
 		{
 			id: "follows",
@@ -3834,7 +3833,6 @@ export namespace TwitchatDataTypes {
 			icon: "watchStreak",
 			label: "overlay.credits.categories.powerups",
 			defaultLabel: "overlay.credits.labels.powerups",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
 		},
 		{
 			id: "tiktokLikes",
@@ -3845,7 +3843,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.tiktokLikes",
 			defaultLabel: "overlay.credits.labels.tiktokLikes",
 			amountLabel: "overlay.credits.amounts.tiktokLikes",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
 		},
 		{
 			id: "tiktokShares",
@@ -3856,7 +3853,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.tiktokShares",
 			defaultLabel: "overlay.credits.labels.tiktokShares",
 			amountLabel: "overlay.credits.amounts.tiktokShares",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
 		},
 		{
 			id: "tiktokGifts",
@@ -3867,7 +3863,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.tiktokGifts",
 			defaultLabel: "overlay.credits.labels.tiktokGifts",
 			amountLabel: "overlay.credits.amounts.tiktokGifts",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
 		},
 		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",		amountLabel:"overlay.credits.amounts.hypechats"},
 		{
@@ -3958,7 +3953,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.tips",
 			defaultLabel: "overlay.credits.labels.tips",
 			amountLabel: "overlay.credits.amounts.tips",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
 		},
 		{
 			id: "merch",
@@ -3968,7 +3962,6 @@ export namespace TwitchatDataTypes {
 			icon: "label",
 			label: "overlay.credits.categories.merch",
 			defaultLabel: "overlay.credits.labels.merch",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
 		},
 		{
 			id: "ytSuperchat",
@@ -3979,7 +3972,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.ytSuperchat",
 			defaultLabel: "overlay.credits.labels.ytSuperchat",
 			amountLabel: "overlay.credits.amounts.tips",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
 		},
 		{
 			id: "ytSuperSticker",
@@ -3990,7 +3982,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.ytSuperSticker",
 			defaultLabel: "overlay.credits.labels.ytSuperSticker",
 			amountLabel: "overlay.credits.amounts.tips",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
 		},
 		{
 			id: "patreonMembers",
@@ -4001,7 +3992,6 @@ export namespace TwitchatDataTypes {
 			label: "overlay.credits.categories.patreonMembers",
 			defaultLabel: "overlay.credits.labels.patreonMembers",
 			amountLabel: "overlay.credits.amounts.patreonMembers",
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
 		},
 		{
 			id: "text",
@@ -5320,21 +5310,21 @@ export namespace TwitchatDataTypes {
 			labelKey: "chat.filters.message_types.tiktok_like",
 			icon: "follow",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.TIKTOK_GIFT,
 			labelKey: "chat.filters.message_types.tiktok_gift",
 			icon: "gift",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.TIKTOK_SHARE,
 			labelKey: "chat.filters.message_types.tiktok_share",
 			icon: "share",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.RAID,
@@ -5376,14 +5366,14 @@ export namespace TwitchatDataTypes {
 			labelKey: "chat.filters.message_types.unban_request",
 			icon: "unbanRequest",
 			scopes: [TwitchScopes.UNBAN_REQUESTS],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.PRIVATE_MOD_MESSAGE,
 			labelKey: "chat.filters.message_types.private_mod_message",
 			icon: "mod",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.NOTICE,
@@ -5399,7 +5389,7 @@ export namespace TwitchatDataTypes {
 				TwitchScopes.READ_MODERATORS,
 				TwitchScopes.READ_VIPS,
 			],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.REWARD,
@@ -5470,49 +5460,49 @@ export namespace TwitchatDataTypes {
 			labelKey: "chat.filters.message_types.twitch_charity_donation",
 			icon: "twitch_charity",
 			scopes: [TwitchScopes.CHARITY_READ],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V15,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.KOFI,
 			labelKey: "chat.filters.message_types.kofi",
 			icon: "kofi",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.STREAMLABS,
 			labelKey: "chat.filters.message_types.streamlabs",
 			icon: "streamlabs",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.STREAMELEMENTS,
 			labelKey: "chat.filters.message_types.streamelements",
 			icon: "streamelements",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.TIPEEE,
 			labelKey: "chat.filters.message_types.tipeee",
 			icon: "tipeee",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V12,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.TILTIFY,
 			labelKey: "chat.filters.message_types.tiltify",
 			icon: "tiltify",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13_7,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.PATREON,
 			labelKey: "chat.filters.message_types.patreon",
 			icon: "patreon",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V13_7,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.COUNTDOWN,
@@ -5547,7 +5537,7 @@ export namespace TwitchatDataTypes {
 			labelKey: "chat.filters.message_types.stream_socket_action",
 			icon: "streamsocket",
 			scopes: [],
-			newFlag: Config.instance.NEW_FLAGS_DATE_V16,
+			newFlag: 0,
 		},
 		{
 			type: TwitchatMessageType.JOIN,

@@ -43,7 +43,6 @@
 					@click.capture="openModal('bingo_grid')"
 					icon="bingo_grid"
 					v-tooltip="$t('cmdmenu.bingo_grid')"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V13, id: 'cmdhelper.bingo_grid' }"
 					>{{ $t("cmdmenu.bingo_grid") }}</TTButton
 				>
 			</div>
@@ -61,7 +60,6 @@
 				<TTButton
 					@click.capture="openModal('timer')"
 					v-tooltip="$t('cmdmenu.timer')"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'cmdhelper.timers' }"
 					icon="timer"
 					>{{ $t("cmdmenu.timer") }}</TTButton
 				>
@@ -71,7 +69,6 @@
 					@click.capture="openModal('qnaForm')"
 					icon="qna"
 					v-tooltip="$t('cmdmenu.qna')"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'cmdhelper.qna' }"
 					>{{ $t("cmdmenu.qna") }}</TTButton
 				>
 			</div>
@@ -79,7 +76,6 @@
 				<TTButton
 					@click.capture="openModal('chatPoll')"
 					v-tooltip="$t('cmdmenu.chatPoll')"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'cmdhelper.chat_poll' }"
 					icon="chatPoll"
 					>{{ $t("cmdmenu.chatPoll") }}</TTButton
 				>
@@ -115,7 +111,6 @@
 					@click.capture="openModal('extensions')"
 					icon="extension"
 					v-tooltip="$t('cmdmenu.extensions')"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'cmdhelper.extensions' }"
 					:disabled="!canEditStreamInfos"
 					>{{ $t("cmdmenu.extensions") }}</TTButton
 				>

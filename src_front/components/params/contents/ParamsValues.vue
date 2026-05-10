@@ -33,20 +33,12 @@
 					:errorMessage="t('values.form.name_conflict')"
 				/>
 				<ParamItem :paramData="param_value" />
-				<ParamItem
-					:paramData="param_more"
-					v-model="param_more.value"
-					v-newflag="{ date: Config.instance.NEW_FLAGS_DATE_V11, id: 'values_form_more' }"
-				>
+				<ParamItem :paramData="param_more" v-model="param_more.value">
 					<ParamItem
 						class="child"
 						noBackground
 						:paramData="param_userSpecific"
 						v-model="param_userSpecific.value"
-						v-newflag="{
-							date: Config.instance.NEW_FLAGS_DATE_V11,
-							id: 'values_form_more_peruser',
-						}"
 					/>
 					<ParamItem class="child" noBackground :paramData="param_placeholder" />
 				</ParamItem>

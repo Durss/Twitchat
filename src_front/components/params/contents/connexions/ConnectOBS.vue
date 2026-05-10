@@ -44,7 +44,6 @@
 
 			<ToggleBlock
 				class="block browserSources"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'obs_browsersources' }"
 				v-if="connected"
 				:open="false"
 				:icons="['internet']"

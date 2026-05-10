@@ -115,7 +115,7 @@
 						<Button
 							small
 							secondary
-							v-newflag="{ date: 1695691108070, id: 'params_clearHistory' }"
+							v-newflag="{ date: 0, id: 'params_clearHistory' }"
 							@click="storeChat.clearHistory()"
 							icon="trash"
 							>{{ t("params.clearHistory") }}</Button
