@@ -7,7 +7,14 @@
 			@click="addFolder()"
 			>{{ t("triggers.create_folder") }}</TTButton
 		>
-		<SearchForm v-if="!triggerId && folderTriggerList.length > 0" v-model="debouncedSearch">
+		<SearchForm
+			v-if="!triggerId && folderTriggerList.length > 0"
+			v-model="debouncedSearch"
+			v-newflag="{
+				date: Config.instance.NEW_FLAGS_DATE_V17,
+				id: 'params_triggers_search',
+			}"
+		>
 			<Checkbox class="searchActions" v-model="searchInActions">{{
 				t("triggers.search_in_actions")
 			}}</Checkbox>
@@ -50,6 +57,7 @@ import { useI18n } from "vue-i18n";
 import SearchForm from "../SearchForm.vue";
 import TriggerListFolderItem from "./TriggerListFolderItem.vue";
 import { onBeforeMount } from "vue";
+import Config from "@/utils/Config";
 
 const { t } = useI18n();
 const { confirm } = useConfirm();
