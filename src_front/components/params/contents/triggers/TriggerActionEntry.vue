@@ -326,6 +326,10 @@
 						v-tooltip="
 							blueskyConnected ? '' : $t('triggers.actions.common.action_bluesky_tt')
 						"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggerAction_bluesky',
+						}"
 						>{{ $t("triggers.actions.common.action_bluesky") }}</TTButton
 					>
 
@@ -923,6 +927,7 @@ import TriggerActionValueEntry from "./entries/TriggerActionValueEntry.vue";
 import TriggerActionVibratePhoneEntry from "./entries/TriggerActionVibratePhoneEntry.vue";
 import TriggerActionVoicemodEntry from "./entries/TriggerActionVoicemodEntry.vue";
 import TriggerActionWSEntry from "./entries/TriggerActionWSEntry.vue";
+import Config from "@/utils/Config";
 
 const { t } = useI18n();
 
