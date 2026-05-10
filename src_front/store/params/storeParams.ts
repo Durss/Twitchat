@@ -1,9 +1,8 @@
-import type { StoreActions } from "@/types/pinia-helpers";
 import DataStore from "@/store/DataStore";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
+import type { StoreActions } from "@/types/pinia-helpers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Config from "@/utils/Config";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
@@ -32,7 +31,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.spoilersEnabled",
 				id: 216,
 				icon: "spoiler",
-				storage: { vnew: { date: 1693519200000, id: "params_chatspoiler" } },
 			},
 			alertMode: {
 				type: "boolean",
@@ -55,7 +53,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.saveHistory",
 				id: 224,
 				icon: "history",
-				storage: { vnew: { date: 1693519200000, id: "params_chathistory" } },
 			},
 			antiHateRaid: {
 				type: "boolean",
@@ -63,12 +60,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.antiHateRaid",
 				id: 232,
 				icon: "block",
-				storage: {
-					vnew: {
-						date: Config.instance.NEW_FLAGS_DATE_V13,
-						id: "params_antihateraid",
-					},
-				},
 				twitch_scopes: [TwitchScopes.BLOCKED_TERMS],
 			},
 			antiHateRaidDeleteMessage: {
@@ -78,12 +69,6 @@ export const storeParams = defineStore("params", {
 				id: 234,
 				parent: 232,
 				icon: "trash",
-				storage: {
-					vnew: {
-						date: Config.instance.NEW_FLAGS_DATE_V13,
-						id: "params_antihateraiddelete",
-					},
-				},
 			},
 			antiHateRaidEmergency: {
 				type: "boolean",
@@ -92,12 +77,6 @@ export const storeParams = defineStore("params", {
 				id: 235,
 				parent: 232,
 				icon: "emergency",
-				storage: {
-					vnew: {
-						date: Config.instance.NEW_FLAGS_DATE_V13,
-						id: "params_antihateraidemergency",
-					},
-				},
 			},
 			autoTranslate: {
 				type: "boolean",
@@ -105,9 +84,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.autoTranslate",
 				id: 229,
 				icon: "translate",
-				storage: {
-					vnew: { date: Config.instance.NEW_FLAGS_DATE_V11, id: "params_translate" },
-				},
 				premiumOnly: true,
 				example: "translate_messages.png",
 			},
@@ -150,12 +126,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.manyRepliesAlert",
 				id: 236,
 				icon: "reply_many",
-				storage: {
-					vnew: {
-						date: Config.instance.NEW_FLAGS_DATE_V16_12,
-						id: "manyRepliesAlert",
-					},
-				},
 			},
 			manyRepliesAlertThreshold: {
 				type: "number",
@@ -173,7 +143,6 @@ export const storeParams = defineStore("params", {
 				id: 225,
 				icon: "merge",
 				example: "merge_messages.gif",
-				storage: { vnew: { date: 1693519200000, id: "params_chatmerge" } },
 			},
 			mergeConsecutive_maxSize: {
 				type: "number",
@@ -347,12 +316,6 @@ export const storeParams = defineStore("params", {
 				id: 47,
 				icon: "avatar",
 				example: "multichat.png",
-				storage: {
-					vnew: {
-						date: Config.instance.NEW_FLAGS_DATE_V13,
-						id: "params_multiChatAvatar",
-					},
-				},
 			},
 			multiChatColor: {
 				type: "boolean",
@@ -368,9 +331,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.sharedChatHide",
 				id: 49,
 				icon: "sharedChat",
-				storage: {
-					vnew: { date: Config.instance.NEW_FLAGS_DATE_V15, id: "params_sharedChat" },
-				},
 			},
 			hideAnswersTo: {
 				type: "boolean",
@@ -379,7 +339,6 @@ export const storeParams = defineStore("params", {
 				id: 52,
 				icon: "user",
 				example: "hideAnswersTo.png",
-				storage: { vnew: { date: 1771444874612, id: "params_hideAnswersTo" } },
 			},
 			fadeAnswers: {
 				type: "boolean",
@@ -387,7 +346,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.fadeAnswers",
 				icon: "reply",
 				id: 54,
-				storage: { vnew: { date: 1771444874612, id: "params_fadeAnswers" } },
 			},
 			highlightusernames: {
 				type: "boolean",
@@ -396,7 +354,6 @@ export const storeParams = defineStore("params", {
 				id: 44,
 				icon: "user",
 				example: "clickable_mentions.png",
-				storage: { vnew: { date: 1693519200000, id: "params_chathighlightmentions" } },
 			},
 			highlightMods: {
 				type: "boolean",
@@ -555,7 +512,6 @@ export const storeParams = defineStore("params", {
 				id: 53,
 				icon: "hand",
 				example: "helloBadge.png",
-				storage: { vnew: { date: 1771444874612, id: "params_helloBadge" } },
 			},
 			firstUserBadge: {
 				type: "boolean",
@@ -572,7 +528,6 @@ export const storeParams = defineStore("params", {
 				id: 46,
 				icon: "date",
 				example: "recent_account.png",
-				storage: { vnew: { date: 1693519200000, id: "params_chatrecentbadge" } },
 			},
 			translateNames: {
 				type: "boolean",
@@ -612,7 +567,6 @@ export const storeParams = defineStore("params", {
 				id: 43,
 				icon: "raid",
 				example: "raid_infos.png",
-				storage: { vnew: { date: 1693519200000, id: "params_chatraidinfo" } },
 			},
 			alternateMessageBackground: {
 				type: "boolean",
@@ -694,9 +648,6 @@ export const storeParams = defineStore("params", {
 				labelKey: "params.adhdFont",
 				id: 50,
 				icon: "font",
-				storage: {
-					vnew: { date: Config.instance.NEW_FLAGS_DATE_V16_5, id: "params_adhdFont" },
-				},
 			},
 			defaultSize: {
 				type: "slider",

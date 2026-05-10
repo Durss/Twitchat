@@ -168,7 +168,6 @@
 				<TTButton
 					v-if="storeGroq.enabled && storeGroq.connected && !showSummaryForm"
 					@click="showSummaryForm = true"
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'chat_conversation_groq' }"
 					icon="groq"
 					small
 					>{{ $t("groq.summarize_bt") }}</TTButton

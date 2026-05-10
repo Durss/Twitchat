@@ -345,13 +345,7 @@
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
-									<div
-										class="card-item tierList"
-										v-newflag="{
-											date: $config.NEW_FLAGS_DATE_V13_4,
-											id: 'endingcredits_slot_sub_tiers',
-										}"
-									>
+									<div class="card-item tierList">
 										<ParamItem
 											:paramData="param_showSubsPrime[element.id]"
 											v-model="element.showSubsPrime"
@@ -382,18 +376,10 @@
 									<ParamItem
 										:paramData="param_showAllActiveSubs[element.id]"
 										v-model="element.showAllSubs"
-										v-newflag="{
-											date: $config.NEW_FLAGS_DATE_V13_4,
-											id: 'endingcredits_slot_sub_tiers',
-										}"
 									/>
 									<ParamItem
 										:paramData="param_showAllActiveSubgifters[element.id]"
 										v-model="element.showAllSubgifters"
-										v-newflag="{
-											date: $config.NEW_FLAGS_DATE_V13_4,
-											id: 'endingcredits_slot_sub_tiers',
-										}"
 									/>
 									<template
 										v-if="
@@ -421,26 +407,14 @@
 										<ParamItem
 											:paramData="param_showSubsTiktok[element.id]"
 											v-model="element.showSubsTiktok"
-											v-newflag="{
-												date: $config.NEW_FLAGS_DATE_V15,
-												id: 'endingcredits_slot_tiktokSub',
-											}"
 										/>
 										<ParamItem
 											:paramData="param_showSubsYoutube[element.id]"
 											v-model="element.showSubsYoutube"
-											v-newflag="{
-												date: $config.NEW_FLAGS_DATE_V13,
-												id: 'endingcredits_slot_ytSub',
-											}"
 										/>
 										<ParamItem
 											:paramData="param_showSubgiftsYoutube[element.id]"
 											v-model="element.showSubgiftsYoutube"
-											v-newflag="{
-												date: $config.NEW_FLAGS_DATE_V13,
-												id: 'endingcredits_slot_ytSubgift',
-											}"
 										/>
 										<ParamItem
 											:paramData="param_showBadges[element.id]"
@@ -513,10 +487,6 @@
 										:paramData="param_showSubsKofi[element.id]"
 										v-model="element.showSubsKofi"
 										noPremiumLock
-										v-newflag="{
-											date: $config.NEW_FLAGS_DATE_V13_6,
-											id: 'endingcredits_slot_kofiSub',
-										}"
 									/>
 									<ParamItem
 										:paramData="param_showTipsTipeee[element.id]"

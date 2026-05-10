@@ -1,11 +1,6 @@
 <template>
 	<div class="groqchannelaction">
-		<ButtonNotification
-			icon="groq"
-			class="button"
-			@click.stop="open"
-			v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'groq_chanaction_0' }"
-		></ButtonNotification>
+		<ButtonNotification icon="groq" class="button" @click.stop="open"></ButtonNotification>
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<GroqSummaryFilterForm

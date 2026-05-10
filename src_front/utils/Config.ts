@@ -76,20 +76,7 @@ export default class Config {
 	/**
 	 * Date for features additions
 	 */
-	public NEW_FLAGS_DATE_V11 = new Date("01 01 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V12 = new Date("02 24 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V13 = new Date("08 30 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V13_1 = new Date("08 30 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V13_4 = new Date("09 01 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V13_6 = new Date("09 13 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V13_7 = new Date("09 10 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V14_2 = new Date("10 15 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V15 = new Date("11 30 2024 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V16 = new Date("04 01 2025 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V16_1 = new Date("05 15 2025 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V16_5 = new Date("08 05 2025 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V16_12 = new Date("11 05 2025 01:00:00").getTime();
-	public NEW_FLAGS_DATE_V17 = new Date("05 01 2026 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V17 = new Date("07 01 2026 01:00:00").getTime();
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */

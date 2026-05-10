@@ -85,7 +85,7 @@
 				class="card-item premium"
 				:class="{ connected: storePatreon.connected }"
 				@click="subContent = 'patreon'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.patreon' }"
+				v-newflag="{ date: 0, id: 'params_connect.patreon' }"
 				key="patreon"
 			>
 				<Icon name="patreon" />
@@ -106,7 +106,7 @@
 				class="card-item"
 				:class="{ connected: storeTiktok.connected }"
 				@click="subContent = 'tiktok'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.tiktok' }"
+				v-newflag="{ date: 0, id: 'params_connect.tiktok' }"
 				key="tiktok"
 			>
 				<Icon name="tiktok" />
@@ -205,7 +205,7 @@
 				class="card-item"
 				:class="{ connected: storeStreamerbot.connected }"
 				@click="subContent = 'streamerbot'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.stramerbot' }"
+				v-newflag="{ date: 0, id: 'params_connect.stramerbot' }"
 				key="streamer_bot"
 			>
 				<Icon name="streamerbot" />
@@ -216,7 +216,7 @@
 				class="card-item"
 				:class="{ connected: storeSammi.connected }"
 				@click="subContent = 'sammi'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.sammi' }"
+				v-newflag="{ date: 0, id: 'params_connect.sammi' }"
 				key="sammi"
 			>
 				<Icon name="sammi" />
@@ -227,7 +227,7 @@
 				class="card-item"
 				:class="{ connected: storeMixitup.connected }"
 				@click="subContent = 'mixitup'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.mixitup' }"
+				v-newflag="{ date: 0, id: 'params_connect.mixitup' }"
 				key="miu"
 			>
 				<Icon name="mixitup" />
@@ -238,7 +238,7 @@
 				class="card-item"
 				:class="{ connected: storeElevenLabs.connected }"
 				@click="subContent = 'elevenlabs'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.elevenlabs' }"
+				v-newflag="{ date: 0, id: 'params_connect.elevenlabs' }"
 				key="elevenlabs"
 			>
 				<Icon name="elevenlabs" />
@@ -249,7 +249,7 @@
 				class="card-item"
 				:class="{ connected: storeTiltify.connected }"
 				@click="subContent = 'tiltify'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13_7, id: 'params_connect.tiltify' }"
+				v-newflag="{ date: 0, id: 'params_connect.tiltify' }"
 				key="tiltify"
 			>
 				<Icon name="tiltify" />
@@ -270,7 +270,7 @@
 				class="card-item"
 				:class="{ connected: storeStreamSocket.connected }"
 				@click="subContent = 'streamsocket'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.streamsocket' }"
+				v-newflag="{ date: 0, id: 'params_connect.streamsocket' }"
 				key="streamsocket"
 			>
 				<Icon name="streamsocket" />
@@ -281,7 +281,7 @@
 				class="card-item"
 				:class="{ connected: storePlayability.connected }"
 				@click="subContent = 'playability'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.playability' }"
+				v-newflag="{ date: 0, id: 'params_connect.playability' }"
 				key="playability"
 			>
 				<Icon name="playability" />
@@ -294,7 +294,7 @@
 				v-if="storeAuth.featureFlags.includes('groq')"
 				:class="{ connected: storeGroq.connected }"
 				@click="subContent = 'groq'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_connect.groq' }"
+				v-newflag="{ date: 0, id: 'params_connect.groq' }"
 				key="groq"
 			>
 				<Icon name="groq" />
@@ -305,7 +305,7 @@
 				class="card-item"
 				:class="{ connected: storeTwitchBot.connected }"
 				@click="subContent = 'twitchbot'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V15, id: 'params_connect.twitchbot' }"
+				v-newflag="{ date: 0, id: 'params_connect.twitchbot' }"
 				key="twitch_bot"
 			>
 				<Icon name="twitch" />

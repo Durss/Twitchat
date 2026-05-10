@@ -7796,7 +7796,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.TWITCHAT,
 			icon: "highlight",
 			labelKey: "triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.label",
@@ -7821,7 +7820,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.TWITCHAT,
 			icon: "twitchat",
 			labelKey: "triggers.events.TWITCHAT_STARTED.label",
@@ -7830,7 +7828,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_1,
 			category: TriggerEventTypeCategories.TWITCHAT,
 			icon: "broadcast",
 			labelKey: "triggers.events.WEBSOCKET_TOPIC.label",
@@ -7839,7 +7836,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16_12,
 			disabledReasonLabelKey: "triggers.events.MANY_REPLIES.disabled_reason",
 			category: TriggerEventTypeCategories.TWITCHAT,
 			icon: "reply_many",
@@ -7867,7 +7863,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CHAT_REWARDS,
 			icon: "reply",
 			labelKey: "triggers.events.MESSAGE_ANSWER.label",
@@ -7983,7 +7978,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			premium: true,
 			category: TriggerEventTypeCategories.YOUTUBE,
 			icon: "youtube",
@@ -7993,7 +7987,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			premium: true,
 			category: TriggerEventTypeCategories.YOUTUBE,
 			icon: "youtube",
@@ -8003,7 +7996,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			premium: true,
 			category: TriggerEventTypeCategories.YOUTUBE,
 			icon: "youtube",
@@ -8013,7 +8005,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			premium: true,
 			category: TriggerEventTypeCategories.YOUTUBE,
 			icon: "youtube",
@@ -8024,7 +8015,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.TIKTOK,
 			icon: "tiktok",
 			labelKey: "triggers.events.TIKTOK_SUB.label",
@@ -8033,7 +8023,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.TIKTOK,
 			icon: "tiktok",
 			labelKey: "triggers.events.TIKTOK_GIFT.label",
@@ -8042,7 +8031,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.TIKTOK,
 			icon: "tiktok",
 			labelKey: "triggers.events.TIKTOK_LIKE.label",
@@ -8051,7 +8039,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.TIKTOK,
 			icon: "tiktok",
 			labelKey: "triggers.events.TIKTOK_SHARE.label",
@@ -8061,7 +8048,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "poll",
 			labelKey: "triggers.events.POLL_START.label",
@@ -8078,7 +8064,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.POLL,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "prediction",
 			labelKey: "triggers.events.PREDICTION_START.label",
@@ -8095,7 +8080,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.PREDICTION,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "chatPoll",
 			labelKey: "triggers.events.CHAT_POLL_START.label",
@@ -8104,7 +8088,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CHAT_POLL,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "chatPoll",
 			labelKey: "triggers.events.CHAT_POLL_RESULT.label",
@@ -8113,7 +8096,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CHAT_POLL,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "ticket",
 			labelKey: "triggers.events.RAFFLE_PICK_WINNER.label",
@@ -8138,7 +8120,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "bingo_grid",
 			labelKey: "triggers.events.BINGO_GRID_VIEWER_LINE.label",
@@ -8148,7 +8129,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "bingo_grid",
 			labelKey: "triggers.events.BINGO_GRID_LINE.label",
@@ -8158,7 +8138,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "bingo_grid",
 			labelKey: "triggers.events.BINGO_GRID_ALL.label",
@@ -8168,7 +8147,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "bingo_grid",
 			labelKey: "triggers.events.BINGO_GRID_CELL.label",
@@ -8178,7 +8156,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.GAMES,
 			icon: "bingo_grid",
 			labelKey: "triggers.events.BINGO_GRID_RESET.label",
@@ -8223,7 +8200,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CHEER,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.SUBITS,
 			icon: "watchStreak",
 			labelKey: "triggers.events.POWER_UP_MESSAGE.label",
@@ -8232,7 +8208,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.SUBITS,
 			icon: "watchStreak",
 			labelKey: "triggers.events.POWER_UP_GIANT_EMOTE.label",
@@ -8241,7 +8216,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.SUBITS,
 			icon: "watchStreak",
 			labelKey: "triggers.events.POWER_UP_CELEBRATION.label",
@@ -8259,7 +8233,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16_1,
 			disabled: true,
 			disabledReasonLabelKey: "triggers.events.TWITCH_COMBO.disabled_reason",
 			category: TriggerEventTypeCategories.SUBITS,
@@ -8268,8 +8241,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.TWITCH_COMBO,
 			descriptionKey: "triggers.events.TWITCH_COMBO.description",
 		},
-
-		// {newDate:1693519200000, category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
 		{
 			disabled: true,
 			disabledReasonLabelKey: "triggers.events.HYPE_TRAIN_APPROACHING.disabled_reason",
@@ -8324,7 +8295,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CUSTOM_TRAIN,
 			icon: "train",
 			labelKey: "triggers.events.CUSTOM_TRAIN_START.label",
@@ -8333,7 +8303,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_START,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CUSTOM_TRAIN,
 			icon: "train",
 			labelKey: "triggers.events.CUSTOM_TRAIN_LEVEL_UP.label",
@@ -8342,7 +8311,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CUSTOM_TRAIN,
 			icon: "train",
 			labelKey: "triggers.events.CUSTOM_TRAIN_COMPLETE.label",
@@ -8351,7 +8319,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CUSTOM_TRAIN,
 			icon: "train",
 			labelKey: "triggers.events.CUSTOM_TRAIN_FAIL.label",
@@ -8360,7 +8327,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.CUSTOM_TRAIN,
 			icon: "train",
 			labelKey: "triggers.events.CUSTOM_TRAIN_COOLDOWN.label",
@@ -8455,7 +8421,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.UNBAN,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "alert",
 			labelKey: "triggers.events.WARN_CHATTER.label",
@@ -8464,7 +8429,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "alert",
 			labelKey: "triggers.events.WARN_ACKNOWLEDGE.label",
@@ -8509,7 +8473,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.UNMOD,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "clearChat",
 			labelKey: "triggers.events.CLEAR_CHAT.label",
@@ -8518,7 +8481,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "sub",
 			labelKey: "triggers.events.SUB_ONLY_ON.label",
@@ -8528,7 +8490,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "sub",
 			labelKey: "triggers.events.SUB_ONLY_OFF.label",
@@ -8538,7 +8499,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "follow",
 			labelKey: "triggers.events.FOLLOW_ONLY_ON.label",
@@ -8548,7 +8508,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "follow",
 			labelKey: "triggers.events.FOLLOW_ONLY_OFF.label",
@@ -8558,7 +8517,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "emote",
 			labelKey: "triggers.events.EMOTE_ONLY_ON.label",
@@ -8568,7 +8526,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "emote",
 			labelKey: "triggers.events.EMOTE_ONLY_OFF.label",
@@ -8578,7 +8535,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "slow",
 			labelKey: "triggers.events.SLOW_MODE_ON.label",
@@ -8588,7 +8544,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "slow",
 			labelKey: "triggers.events.SLOW_MODE_OFF.label",
@@ -8598,7 +8553,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "shield",
 			labelKey: "triggers.events.MONITOR_ON.label",
@@ -8607,7 +8561,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "lock_fit",
 			labelKey: "triggers.events.RESTRICT_ON.label",
@@ -8616,7 +8569,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.MOD,
 			icon: "lock_fit",
 			labelKey: "triggers.events.MONITOR_RESTRICT_OFF.label",
@@ -8838,7 +8790,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.OBS,
 			icon: "recordStart",
 			labelKey: "triggers.events.OBS_RECORDING_START.label",
@@ -8848,7 +8799,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.OBS,
 			icon: "recordStop",
 			labelKey: "triggers.events.OBS_RECORDING_STOP.label",
@@ -8951,7 +8901,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.MISC,
 			icon: "streamsocket",
 			labelKey: "triggers.events.STREAMSOCKET_ACTION.label",
@@ -8960,7 +8909,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V16,
 			category: TriggerEventTypeCategories.MISC,
 			icon: "goal",
 			labelKey: "triggers.events.GOAL_STEP_COMPLETE.label",
@@ -9067,7 +9015,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		},
 
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.STREAMLABS,
 			icon: "streamlabs",
@@ -9077,7 +9024,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.STREAMLABS,
 			icon: "streamlabs",
@@ -9087,7 +9033,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.STREAMLABS,
 			icon: "streamlabs",
@@ -9097,7 +9042,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.STREAMLABS,
 			icon: "streamlabs",
 			labelKey: "triggers.events.STREAMLABS_CHARITY_TIP.label",
@@ -9106,7 +9050,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.KOFI,
 			icon: "kofi",
@@ -9116,7 +9059,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.KOFI,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.KOFI,
 			icon: "kofi",
@@ -9126,7 +9068,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.KOFI,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.KOFI,
 			icon: "kofi",
@@ -9136,7 +9077,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.KOFI,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V14_2,
 			premium: true,
 			category: TriggerEventTypeCategories.KOFI,
 			icon: "kofi",
@@ -9146,7 +9086,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.KOFI,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.STREAMELEMENTS,
 			icon: "streamelements",
@@ -9156,7 +9095,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.TIPEEE,
 			icon: "tipeee",
@@ -9166,7 +9104,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIPEEE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.TIPEEE,
 			icon: "tipeee",
@@ -9176,7 +9113,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIPEEE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V12,
 			premium: true,
 			category: TriggerEventTypeCategories.TIPEEE,
 			icon: "tipeee",
@@ -9186,7 +9122,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TIPEEE,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V15,
 			category: TriggerEventTypeCategories.TWITCH_CHARITY,
 			icon: "twitch_charity",
 			labelKey: "triggers.events.TWITCH_CHARITY_DONATION.label",
@@ -9195,7 +9130,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.TILTIFY,
 			icon: "tiltify",
 			labelKey: "triggers.events.TILTIFY_TIP.label",
@@ -9204,7 +9138,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.TILTIFY,
 		},
 		{
-			newDate: Config.instance.NEW_FLAGS_DATE_V13_7,
 			category: TriggerEventTypeCategories.PATREON,
 			icon: "patreon",
 			labelKey: "triggers.events.PATREON_NEW_MEMBER.label",

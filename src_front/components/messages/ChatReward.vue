@@ -22,7 +22,6 @@
 							: $t('chat.reward.refund_tt')
 					"
 					class="refundBt"
-					v-newflag="{ date: 1707175801147, id: 'chat.reward.refundBt' }"
 					icon="refundPoints"
 				></TTButton>
 
@@ -65,7 +64,6 @@
 					@click.stop="refund(messageData)"
 					v-tooltip="$t('chat.reward.refund_tt')"
 					class="refundBt"
-					v-newflag="{ date: 1707175801147, id: 'chat.reward.refundBt' }"
 					icon="refundPoints"
 				></TTButton>
 				<ChatMessageChunksParser
@@ -85,7 +83,6 @@
 					@click.stop="refund(child)"
 					v-tooltip="$t('chat.reward.refund_tt')"
 					class="refundBt"
-					v-newflag="{ date: 1707175801147, id: 'chat.reward.refundBt' }"
 					icon="refundPoints"
 				></TTButton>
 				<ChatMessageChunksParser

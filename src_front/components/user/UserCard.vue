@@ -469,10 +469,6 @@
 								v-if="!showGroqForm"
 								@click="showGroqForm = true"
 								icon="groq"
-								v-newflag="{
-									date: Config.instance.NEW_FLAGS_DATE_V16,
-									id: 'usercard_groq',
-								}"
 								small
 								>{{ t("groq.summarize_bt") }}</TTButton
 							>

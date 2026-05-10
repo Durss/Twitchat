@@ -67,7 +67,7 @@
 				key="animatedtext"
 				v-if="matchesSearch('animatedtext')"
 				@click="subContent = 'animatedtext'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_overlays_animatedText' }"
+				v-newflag="{ date: 0, id: 'params_overlays_animatedText' }"
 			>
 				<img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text" />
 				<span>{{ getLabel("animatedtext") }}</span>
@@ -77,7 +77,7 @@
 				key="customtrain"
 				v-if="matchesSearch('customtrain')"
 				@click="subContent = 'customtrain'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_overlays_customTrain' }"
+				v-newflag="{ date: 0, id: 'params_overlays_customTrain' }"
 			>
 				<img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train" />
 				<span>{{ getLabel("customtrain") }}</span>
@@ -88,7 +88,7 @@
 				v-if="matchesSearch('donationgoals')"
 				@click="subContent = 'donationgoals'"
 				v-newflag="{
-					date: $config.NEW_FLAGS_DATE_V13_7,
+					date: 0,
 					id: 'params_overlays_donationgoals',
 				}"
 			>
@@ -100,7 +100,7 @@
 				key="bingogrid"
 				v-if="matchesSearch('bingogrid') && storeAuth.featureFlags.includes('bingo_grid')"
 				@click="subContent = 'bingogrid'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13, id: 'params_overlays_bingogrid' }"
+				v-newflag="{ date: 0, id: 'params_overlays_bingogrid' }"
 			>
 				<img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid" />
 				<span>{{ getLabel("bingogrid") }}</span>
@@ -110,7 +110,7 @@
 				key="polls"
 				v-if="isAffiliate && matchesSearch('polls')"
 				@click="subContent = 'polls'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V12, id: 'params_overlays_poll' }"
+				v-newflag="{ date: 0, id: 'params_overlays_poll' }"
 			>
 				<img src="@/assets/img/overlays/polls.jpg" alt="Polls" />
 				<span>{{ getLabel("polls") }}</span>
@@ -120,7 +120,7 @@
 				key="chatPoll"
 				v-if="matchesSearch('chatPoll')"
 				@click="subContent = 'chatPoll'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_overlays_chatpoll' }"
+				v-newflag="{ date: 0, id: 'params_overlays_chatpoll' }"
 			>
 				<img src="@/assets/img/overlays/chat_poll.jpg" alt="Polls" />
 				<span>{{ getLabel("chatPoll") }}</span>
@@ -130,7 +130,7 @@
 				key="predictions"
 				v-if="isAffiliate && matchesSearch('predictions')"
 				@click="subContent = 'predictions'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V12, id: 'params_overlays_prediction' }"
+				v-newflag="{ date: 0, id: 'params_overlays_prediction' }"
 			>
 				<img src="@/assets/img/overlays/predictions.jpg" alt="Predictions" />
 				<span>{{ getLabel("predictions") }}</span>
@@ -149,7 +149,7 @@
 				key="bitswall"
 				v-if="matchesSearch('bitswall')"
 				@click="subContent = 'bitswall'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'overlay_bitswall' }"
+				v-newflag="{ date: 0, id: 'overlay_bitswall' }"
 			>
 				<img src="@/assets/img/overlays/bits_wall.jpg" alt="Bits wall" />
 				<span>{{ getLabel("bitswall") }}</span>
@@ -159,7 +159,7 @@
 				key="credits"
 				v-if="matchesSearch('credits')"
 				@click="subContent = 'credits'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'overlay_credits' }"
+				v-newflag="{ date: 0, id: 'overlay_credits' }"
 			>
 				<img src="@/assets/img/overlays/ending_credits.jpg" alt="Ending Credits" />
 				<span>{{ getLabel("credits") }}</span>
@@ -178,7 +178,7 @@
 				key="distort"
 				v-if="matchesSearch('distort')"
 				@click="subContent = 'distort'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'overlay_distort' }"
+				v-newflag="{ date: 0, id: 'overlay_distort' }"
 			>
 				<img
 					src="@/assets/img/overlays/interractive_distortions.jpg"
@@ -191,7 +191,7 @@
 				key="adbreak"
 				v-if="matchesSearch('adbreak')"
 				@click="subContent = 'adbreak'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'overlay_adbreak' }"
+				v-newflag="{ date: 0, id: 'overlay_adbreak' }"
 			>
 				<img src="@/assets/img/overlays/ad_break.jpg" alt="Ad break indicator" />
 				<span>{{ getLabel("adbreak") }}</span>
@@ -210,7 +210,7 @@
 				key="labels"
 				v-if="matchesSearch('labels')"
 				@click="subContent = 'labels'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V13, id: 'params_overlays_labels' }"
+				v-newflag="{ date: 0, id: 'params_overlays_labels' }"
 			>
 				<img src="@/assets/img/overlays/labels.jpg" alt="Labels" />
 				<span>{{ getLabel("labels") }}</span>
@@ -229,7 +229,7 @@
 				key="timer"
 				v-if="matchesSearch('timer')"
 				@click="subContent = 'timer'"
-				v-newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'params_overlays_timers' }"
+				v-newflag="{ date: 0, id: 'params_overlays_timers' }"
 			>
 				<img src="@/assets/img/overlays/timer.jpg" alt="Timers" />
 				<span>{{ getLabel("timer") }}</span>

@@ -8,7 +8,6 @@
 					draggable="false"
 					icon="params"
 					@click="toggleParams()"
-					:newflag="{ date: $config.NEW_FLAGS_DATE_V16_12, id: 'chatform_params_8' }"
 				/>
 
 				<ButtonNotification
@@ -17,7 +16,6 @@
 					draggable="false"
 					icon="commands"
 					@click="emit('update:showCommands', true)"
-					:newflag="{ date: $config.NEW_FLAGS_DATE_V16, id: 'chatform_cmds_3' }"
 				/>
 
 				<VueDraggable
@@ -484,7 +482,6 @@
 						class="qna"
 						icon="qna"
 						v-if="qnaSessionActive"
-						v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'chatform_qna' }"
 						:aria-label="t('chat.form.qnaBt_aria')"
 						v-tooltip="{ touch: 'hold', content: t('chat.form.qnaBt_aria') }"
 						@click="openModal('qna')"
@@ -496,7 +493,6 @@
 						class="credits"
 						icon="credits"
 						v-if="creditsOverlayRunning"
-						v-newflag="{ date: $config.NEW_FLAGS_DATE_V11, id: 'chatform_credits' }"
 						:aria-label="t('chat.form.creditsBt_aria')"
 						v-tooltip="{ touch: 'hold', content: t('chat.form.creditsBt_aria') }"
 						@click="emit('update:showCredits', true)"
@@ -617,7 +613,6 @@
 
 				<ButtonNotification
 					v-if="showGazaBtn"
-					v-newflag="{ date: 1759253466000, id: 'gaza' }"
 					v-tooltip="{
 						touch: 'hold',
 						content: t('gaza.tooltip'),

@@ -110,7 +110,6 @@
 					"
 					icon="leaderboard"
 					small
-					v-newflag="{ date: $config.NEW_FLAGS_DATE_V13, id: 'bingogrid_leaderboard' }"
 					v-tooltip="t('bingo_grid.form.leaderBoard.open_bt_tt')"
 					@click="openLeaderBoard(grid)"
 					>{{
