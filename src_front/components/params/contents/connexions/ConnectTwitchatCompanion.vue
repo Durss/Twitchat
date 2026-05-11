@@ -18,6 +18,7 @@
 
 			<ParamItem
 				class="enableBt"
+				:class="{ expand: param_captureClicks.value }"
 				:paramData="param_captureClicks"
 				:loading="storeExtension.ebsConfigUpdating"
 				v-model="storeExtension.ebsConfigs.captureClicks"
@@ -135,6 +136,9 @@ async function onChangeEBSSetting(section: typeof lastChangedState.value) {
 				border-color: var(--color-secondary);
 			}
 		}
+	}
+	.expand {
+		width: 100%;
 	}
 }
 </style>

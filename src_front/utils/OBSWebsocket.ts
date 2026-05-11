@@ -151,7 +151,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	public async preloadData() {
-		StoreProxy.common.currentOBSScene = await this.getCurrentScene();
+		StoreProxy.common.updateCurrentObsScene(await this.getCurrentScene());
 		this.versionInfo = await this.socket.call("GetVersion");
 
 		// LIST ALL INPUT KINDS
