@@ -8,6 +8,7 @@ import Config from "../utils/Config.js";
 import BingoGridController from "./BingoGridController.js";
 import QuizController from "./QuizController.js";
 import fetch from "node-fetch";
+import UserController from "./UserController.js";
 
 /**
  * The extension code itself isn't part of this repository.
@@ -21,6 +22,7 @@ import fetch from "node-fetch";
 export default class TwitchExtensionController extends AbstractController {
 	private _bingoController!: BingoGridController;
 	private _quizController!: QuizController;
+	private _userController!: UserController;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -36,9 +38,11 @@ export default class TwitchExtensionController extends AbstractController {
 	public initialize(
 		bingoController: BingoGridController,
 		quizController: QuizController,
+		userController: UserController,
 	): TwitchExtensionController {
 		this._bingoController = bingoController;
 		this._quizController = quizController;
+		this._userController = userController;
 		this.server.decorateRequest("twitchExtensionUser", null);
 		this.server.get(
 			"/api/twitch/extension/streamerstate",
@@ -293,14 +297,16 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response
 	 */
 	private async getStreamerState(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		const streamerId = request.twitchExtensionUser!.channel_id;
+		const channelId = request.twitchExtensionUser!.channel_id;
 		const viewerId = request.twitchExtensionUser!.user_id;
-		const bingos = await this._bingoController.getViewerGridList(streamerId, viewerId);
-		const quiz = this._quizController.getStreamerQuiz(streamerId);
+		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
+		const quiz = this._quizController.getStreamerQuiz(channelId);
+		const ckickableArea = this._userController.getActiveHeatScreenAreas(channelId);
+		console.log("BROADCAST", ckickableArea);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, state: { bingos, quiz } }));
+		response.send(JSON.stringify({ success: true, state: { bingos, quiz, ckickableArea } }));
 	}
 
 	/**

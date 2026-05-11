@@ -90,7 +90,10 @@ await server.register(fastifyRawBody, {
 //Create controllers
 const discord = new DiscordController(server).initialize();
 await new MiddlewareController(server).initialize();
-void new UserController(server, discord).initialize();
+const userController = new UserController(server, discord);
+void userController.initialize().then(() => {
+	userController.setTwitchExtensionController(extensionController);
+});
 void new FileServeController(server).initialize();
 void new AuthController(server).initialize();
 void new DonorController(server).initialize();
@@ -113,6 +116,7 @@ const quizController = new QuizController(server).initialize();
 const extensionController = new TwitchExtensionController(server).initialize(
 	bingoController,
 	quizController,
+	userController,
 );
 
 bingoController.setTwitchExtensionController(extensionController);
