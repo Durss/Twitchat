@@ -539,6 +539,15 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"user/heat_areas/cache": {
+		DELETE: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data: any;
+			};
+		};
+	};
 	"patreon/user/authenticate": {
 		POST: {
 			parameters: {
