@@ -5,6 +5,7 @@ import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { ICommonActions, ICommonGetters, ICommonState } from "../StoreProxy";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
+import StoreProxy from "../StoreProxy";
 
 //Contains things shared between app and overlays
 //Only keep things necessary for the overlays here !
@@ -42,6 +43,11 @@ export const storeCommon = defineStore("common", {
 					/*ignore*/
 				});
 			}
+		},
+
+		updateCurrentObsScene(scene: string): void {
+			this.currentOBSScene = scene;
+			StoreProxy.heat.updateActiveScreens();
 		},
 
 		alert(message: string, isCritical: boolean = false, showContact: boolean = false) {

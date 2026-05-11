@@ -20,7 +20,10 @@ import DataStore from "../DataStore";
 import type { IHeatActions, IHeatGetters, IHeatState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import Config from "@/utils/Config";
+import ApiHelper from "@/utils/ApiHelper";
 
+let activeAreaDiff = "";
+let invalidateTimeout = -1;
 export const storeHeat = defineStore("heat", {
 	state: (): IHeatState => ({
 		screenList: [],
@@ -53,6 +56,7 @@ export const storeHeat = defineStore("heat", {
 			if (heatDistortionParams) {
 				this.distortionList = JSON.parse(heatDistortionParams);
 			}
+			this.updateActiveScreens();
 		},
 
 		createScreen(): string {
@@ -64,7 +68,7 @@ export const storeHeat = defineStore("heat", {
 			};
 			this.screenList.push(screen);
 
-			this.saveScreens();
+			this.updateActiveScreens();
 			return screen.id;
 		},
 
@@ -78,7 +82,7 @@ export const storeHeat = defineStore("heat", {
 
 			this.screenList.push(screen!);
 
-			this.saveScreens();
+			this.updateActiveScreens();
 		},
 
 		deleteScreen(id: string): void {
@@ -86,7 +90,7 @@ export const storeHeat = defineStore("heat", {
 			if (index == -1) return;
 			this.screenList.splice(index, 1);
 
-			this.saveScreens();
+			this.updateActiveScreens();
 		},
 
 		updateScreen(data: HeatScreen): void {
@@ -97,10 +101,10 @@ export const storeHeat = defineStore("heat", {
 				this.screenList[index] = data;
 			}
 
-			this.saveScreens();
+			this.updateActiveScreens();
 		},
 
-		saveScreens(): void {
+		async saveScreens(): Promise<void> {
 			for (const screen of this.screenList) {
 				for (let j = 0; j < screen.areas.length; j++) {
 					const a = screen.areas[j]!;
@@ -110,7 +114,36 @@ export const storeHeat = defineStore("heat", {
 					}
 				}
 			}
-			DataStore.set(DataStore.HEAT_SCREENS, this.screenList);
+			await DataStore.set(DataStore.HEAT_SCREENS, this.screenList);
+		},
+
+		updateActiveScreens(): void {
+			clearTimeout(invalidateTimeout);
+			const obsScene = StoreProxy.common.currentOBSScene;
+			this.screenList.forEach((v) => {
+				v.active = (!v.activeOBSScene || v.activeOBSScene == obsScene) && v.enabled;
+			});
+			console.log("UPDATE ACTIVE");
+
+			void this.saveScreens().then(() => {
+				console.log("SAVED!");
+				// Check if active areas changed, if so, invalidate server cache
+				const res = this.screenList
+					.filter((v) => v.active)
+					.map((v) => v.areas)
+					.flat()
+					.filter((v) => v.showAreaOnExtension)
+					.map((v) => v.id)
+					.sort((a, b) => a.localeCompare(b))
+					.join();
+				console.log(res, "\n", activeAreaDiff);
+				if (res != activeAreaDiff) {
+					activeAreaDiff = res;
+					invalidateTimeout = window.setTimeout(() => {
+						void ApiHelper.call("user/heat_areas/cache", "DELETE");
+					}, 1000);
+				}
+			});
 		},
 
 		async handleClickEvent(event: HeatEvent): Promise<void> {
@@ -137,10 +170,13 @@ export const storeHeat = defineStore("heat", {
 			const isOverlay =
 				StoreProxy.chat.botMessages.heatSpotify.enabled ||
 				StoreProxy.chat.botMessages.heatUlule.enabled;
+			const isScreen = StoreProxy.heat.screenList.filter(
+				(v) => v.enabled && (v.areas || []).length > 0,
+			);
 			const isDistortion = this.distortionList.filter((v) => v.enabled).length > 0;
 
 			//If nothing requests for heat click events, ignore it
-			if (!isTrigger && !isOverlay && !isDistortion) {
+			if (!isTrigger && !isOverlay && !isDistortion && !isScreen) {
 				log.info = "Ignoring click because nothing needs it.";
 				Logger.instance.log("heat", log);
 				return;

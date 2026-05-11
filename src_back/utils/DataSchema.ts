@@ -2030,6 +2030,7 @@ const UserDataSchema = {
 					id: { type: "string", maxLength: 40 },
 					enabled: { type: "boolean" },
 					activeOBSScene: { type: "string", maxLength: 100 },
+					active: { type: "boolean" },
 					areas: {
 						type: "array",
 						minItems: 0,
@@ -2039,6 +2040,7 @@ const UserDataSchema = {
 							additionalProperties: false,
 							properties: {
 								id: { type: "string", maxLength: 40 },
+								showAreaOnExtension: { type: "boolean" },
 								points: {
 									type: "array",
 									minItems: 0,

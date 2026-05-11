@@ -1,5 +1,5 @@
 <template>
-	<tooltip :content="timer.title || 'Test tooltip'" placement="left">
+	<tooltip :content="timer.title" placement="left">
 		<div
 			class="timercountdowninfoentry"
 			:class="{ paused: timer.paused, hovered: hover }"

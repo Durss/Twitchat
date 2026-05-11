@@ -182,8 +182,9 @@ export const storeOBS = defineStore("obs", {
 						const e = event.data as { sceneName: string };
 						//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
 						if (!StoreProxy.common.currentOBSScene) {
-							StoreProxy.common.currentOBSScene =
-								await OBSWebsocket.instance.getCurrentScene();
+							StoreProxy.common.updateCurrentObsScene(
+								await OBSWebsocket.instance.getCurrentScene(),
+							);
 						} else //Ignore if old and new scene are the same
 						//For some reason, leaving studio mode on OBS triggers 2 scene change events
 						if (StoreProxy.common.currentOBSScene == e.sceneName) return;
@@ -198,6 +199,8 @@ export const storeOBS = defineStore("obs", {
 							channel_id: StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.common.currentOBSScene = e.sceneName;
+
+						StoreProxy.common.updateCurrentObsScene(e.sceneName);
 						void TriggerActionHandler.instance.execute(m);
 						rebuildPlaceholdersCache();
 					}, 30);

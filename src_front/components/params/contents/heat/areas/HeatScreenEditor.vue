@@ -1,13 +1,19 @@
 <template>
-	<div class="heatscreeneditor">
+	<div ref="root" class="heatscreeneditor">
 		<div class="form">
-			<TTButton icon="back" class="backBt" @click="$emit('close')">{{
+			<TTButton icon="back" class="backBt" @click="$emit('close')" light>{{
 				$t("global.back")
 			}}</TTButton>
 			<ParamItem
 				:paramData="params_target"
 				v-model="params_target.value"
 				@change="onSelectOBSScene()"
+			/>
+			<ParamItem
+				:paramData="params_showOBS"
+				v-model="params_showOBS.value"
+				v-if="obsConnected"
+				class="shrink"
 			/>
 		</div>
 
@@ -25,7 +31,7 @@
 							:points="getSVGPoints(area.points)"
 							:class="fillClasses(area)"
 							@contextmenu.prevent="onRightClickArea(area)"
-							@pointerdown.stop="startDragArea($event, area)"
+							@pointerdown="onPolygonPointerDown($event, area)"
 						/>
 
 						<circle
@@ -38,7 +44,7 @@
 							@click="selectPoint(area, index)"
 							@dblclick="resetCurrentArea()"
 							@contextmenu.prevent="onRightClickPoint(area, index)"
-							@pointerdown.stop="startDragPoint($event, p, area, index)"
+							@pointerdown="onPointPointerDown($event, p, area, index)"
 						/>
 					</g>
 				</svg>
@@ -47,10 +53,10 @@
 
 		<div class="form">
 			<ParamItem
-				:paramData="params_showOBS"
-				v-model="params_showOBS.value"
-				v-if="obsConnected"
-				class="shrink"
+				class="premium"
+				v-if="currentArea && currentAreaExtensionButtonParam"
+				:paramData="currentAreaExtensionButtonParam"
+				v-model="currentArea!.showAreaOnExtension"
 			/>
 		</div>
 	</div>
@@ -83,10 +89,11 @@ const emit = defineEmits<{ update: []; close: [] }>();
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
 const scrollableRef = useTemplateRef<HTMLElement>("scrollable");
-
+const rootRef = useTemplateRef<HTMLElement>("root");
 const editMode = ref<null | "add" | "append" | "delete">(null);
 const currentArea = ref<HeatArea | null>(null);
 const currentPointIndex = ref(-1);
+const isBuilding = ref(false);
 const draggedArea = ref<HeatArea | null>(null);
 const draggedPoint = ref<{ x: number; y: number } | null>(null);
 const draggOffset = ref<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -95,7 +102,6 @@ const editorScale = ref(1);
 const spacePressed = ref(false);
 const isPanning = ref(false);
 const panStart = ref<{ x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null);
-
 let refreshTimeout = -1;
 
 // Pending scroll target accumulated across rapid wheel events (not yet flushed to DOM)
@@ -106,6 +112,7 @@ const keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
 const keyUpHandler = (e: KeyboardEvent) => onKeyUp(e);
 const mouseUpHandler = (e: PointerEvent) => onMouseUp(e);
 const mouseMoveHandler = (e: PointerEvent) => onMouseMove(e);
+const documentPointerDownHandler = (e: PointerEvent) => onDocumentPointerDown(e);
 
 const params_showOBS = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
@@ -116,6 +123,25 @@ const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "list",
 	value: "",
 	labelKey: "heat.areas.target",
+});
+
+const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
+
+function ensureExtensionButtonParam(areaId: string): TwitchatDataTypes.ParameterData<boolean> {
+	if (!param_showExtensionButton.value[areaId]) {
+		param_showExtensionButton.value[areaId] = {
+			type: "boolean",
+			value: false,
+			premiumOnly: true,
+			labelKey: "heat.areas.show_extension_button",
+		};
+	}
+	return param_showExtensionButton.value[areaId]!;
+}
+
+const currentAreaExtensionButtonParam = computed(() => {
+	if (!currentArea.value) return null;
+	return ensureExtensionButtonParam(currentArea.value.id);
 });
 
 const editorClasses = computed(() => {
@@ -143,10 +169,15 @@ onBeforeMount(() => {
 		});
 	}
 
+	for (const area of props.screen.areas) {
+		ensureExtensionButtonParam(area.id);
+	}
+
 	document.addEventListener("keydown", keyDownHandler, { capture: true });
 	document.addEventListener("keyup", keyUpHandler);
 	document.addEventListener("pointerup", mouseUpHandler);
 	document.addEventListener("pointermove", mouseMoveHandler);
+	document.addEventListener("pointerdown", documentPointerDownHandler);
 
 	populateOBSScenes();
 	refreshImage();
@@ -159,6 +190,7 @@ onBeforeUnmount(() => {
 	document.removeEventListener("keyup", keyUpHandler);
 	document.removeEventListener("pointerup", mouseUpHandler);
 	document.removeEventListener("pointermove", mouseMoveHandler);
+	document.removeEventListener("pointerdown", documentPointerDownHandler);
 });
 
 watch(
@@ -186,6 +218,7 @@ async function populateOBSScenes(): Promise<void> {
 }
 
 function onSelectOBSScene(): void {
+	console.log(params_target.value.value);
 	if (params_target.value.value == "obs") {
 		storeParams.openParamsPage(
 			TwitchatDataTypes.ParameterPages.CONNECTIONS,
@@ -236,22 +269,29 @@ function addPoint(event: PointerEvent): void {
 
 	const [areaIndex, pointIndex] = getSegmentUnderPoint(event.x, event.y);
 
-	if (areaIndex && pointIndex && areaIndex > -1) {
+	const newPoint = { x, y };
+
+	if (areaIndex > -1 && pointIndex > -1) {
 		currentArea.value = props.screen.areas[areaIndex]!;
 		currentPointIndex.value = pointIndex;
-		currentArea.value.points.splice(pointIndex, 0, { x, y });
-	} else if (currentArea.value) {
-		currentArea.value.points.push({ x, y });
+		currentArea.value.points.splice(pointIndex, 0, newPoint);
+	} else if (isBuilding.value && currentArea.value) {
+		currentArea.value.points.push(newPoint);
 		currentPointIndex.value = currentArea.value.points.length - 1;
+	} else if (currentArea.value) {
+		resetCurrentArea();
+		return;
 	} else {
 		currentArea.value = {
 			id: Utils.getUUID(),
-			points: [{ x, y }],
+			points: [newPoint],
 		};
 		currentPointIndex.value = 0;
 		props.screen.areas.push(currentArea.value);
+		isBuilding.value = true;
 	}
 
+	draggedPoint.value = newPoint;
 	emit("update");
 }
 
@@ -274,6 +314,14 @@ function onRightClickPoint(area: HeatArea, pointIndex: number): void {
 function resetCurrentArea(): void {
 	currentArea.value = null;
 	currentPointIndex.value = -1;
+	isBuilding.value = false;
+}
+
+function onDocumentPointerDown(event: PointerEvent): void {
+	if (!currentArea.value) return;
+	const target = event.target as Node | null;
+	if (target && rootRef.value?.contains(target)) return;
+	resetCurrentArea();
 }
 
 function startDragPoint(
@@ -293,6 +341,23 @@ function startDragPoint(
 	}
 }
 
+function onPolygonPointerDown(event: PointerEvent, area: HeatArea): void {
+	if (spacePressed.value) return;
+	event.stopPropagation();
+	startDragArea(event, area);
+}
+
+function onPointPointerDown(
+	event: PointerEvent,
+	point: { x: number; y: number },
+	area: HeatArea,
+	index: number,
+): void {
+	if (spacePressed.value) return;
+	event.stopPropagation();
+	startDragPoint(event, point, area, index);
+}
+
 function startDragArea(event: PointerEvent, area: HeatArea): void {
 	if (spacePressed.value) return;
 	if (editMode.value == "append") {
@@ -303,6 +368,7 @@ function startDragArea(event: PointerEvent, area: HeatArea): void {
 		draggedArea.value = area;
 		draggOffset.value.x = event.x;
 		draggOffset.value.y = event.y;
+		isBuilding.value = false;
 	}
 }
 
@@ -399,7 +465,7 @@ function onKeyUp(event: KeyboardEvent): void {
 
 function onMouseWheel(event: WheelEvent): void {
 	if (event.deltaY == 0) return;
-	if (!event.ctrlKey && !event.metaKey) return;
+	// if (!event.ctrlKey && !event.metaKey) return;
 
 	const scrollable = scrollableRef.value;
 	if (!scrollable) return;
@@ -468,7 +534,7 @@ function onMouseMove(event: PointerEvent): void {
 	const [areaIndex, pointIndex] = getSegmentUnderPoint(event.x, event.y);
 
 	editMode.value = null;
-	if (areaIndex && pointIndex && areaIndex > -1 && pointIndex > -1) editMode.value = "append";
+	if (areaIndex > -1 && pointIndex > -1) editMode.value = "append";
 
 	if (draggedPoint.value) {
 		//Move a single point
@@ -504,9 +570,9 @@ function onMouseMove(event: PointerEvent): void {
  * @param x
  * @param y
  */
-function getSegmentUnderPoint(x: number, y: number): number[] {
+function getSegmentUnderPoint(x: number, y: number): [number, number] {
 	const editor = editorRef.value;
-	if (!editor) return [];
+	if (!editor) return [-1, -1];
 	const bounds = editor.getBoundingClientRect();
 	x = (x - bounds.x) / bounds.width;
 	y = (y - bounds.y) / bounds.height;
@@ -585,15 +651,16 @@ async function refreshImage(): Promise<void> {
 .heatscreeneditor {
 	.scrollable {
 		width: 100%;
-		aspect-ratio: 16/9.1; //No idea why this weird ratio avoids scrollbar to show up when zoomed out
+		aspect-ratio: 16/9;
 		overflow: auto;
+		outline: 1px solid var(--color-text);
 	}
 
 	.editor {
-		border: 1px solid var(--color-text);
 		cursor: crosshair;
 		user-select: none;
 		position: relative;
+		overflow: hidden;
 		width: 100%;
 		aspect-ratio: 16/9;
 		.background {
@@ -665,6 +732,7 @@ async function refreshImage(): Promise<void> {
 	}
 
 	.form {
+		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
 		gap: 0.25em;
@@ -682,6 +750,10 @@ async function refreshImage(): Promise<void> {
 		.backBt {
 			text-transform: capitalize;
 			align-self: center;
+		}
+
+		.premium {
+			background-color: var(--color-premium-fade);
 		}
 	}
 }

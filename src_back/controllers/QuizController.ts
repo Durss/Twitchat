@@ -51,20 +51,20 @@ export default class QuizController extends AbstractController {
 
 	/**
 	 * Get quizs for a streamer, optionally filtered by quizId
-	 * @param uid Streamer UID
+	 * @param channelId Streamer UID
 	 * @param quizId Optional quiz ID to filter by
 	 * @returns Quiz cache data or null if not found
 	 */
-	public getStreamerQuiz(uid: string, quizId?: string): QuizParams | undefined {
+	public getStreamerQuiz(channelId: string, quizId?: string): QuizParams | undefined {
 		//Validate UID and quizId (if provided) to prevent path traversal
-		if (!uid || !/^[0-9]+$/.test(uid)) return undefined;
+		if (!channelId || !/^[0-9]+$/.test(channelId)) return undefined;
 		if (quizId && !/^[a-zA-Z0-9_-]+$/.test(quizId)) return undefined;
 
 		// Check LRU cache first
-		if (this.cachedQuizzes.has(uid)) return this.cachedQuizzes.get(uid);
+		if (this.cachedQuizzes.has(channelId)) return this.cachedQuizzes.get(channelId);
 
 		// No cache found, load user data from disk and generate cache
-		const userFilePath = Config.USER_DATA_PATH + uid + ".json";
+		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
 		const found = fs.existsSync(userFilePath);
 		if (found) {
 			const data = JSON.parse(fs.readFileSync(userFilePath, { encoding: "utf8" })) as {
@@ -74,10 +74,10 @@ export default class QuizController extends AbstractController {
 			const quiz = data.quizConfigs?.quizList?.find(
 				(q) => q.enabled && (!quizId || q.id === quizId),
 			);
-			return this.setCache(uid, quiz, false);
+			return this.setCache(channelId, quiz, false);
 		}
 
-		return this.setCache(uid, undefined, false);
+		return this.setCache(channelId, undefined, false);
 	}
 
 	/*******************

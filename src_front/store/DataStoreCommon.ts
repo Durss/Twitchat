@@ -335,7 +335,7 @@ export default class DataStoreCommon {
 		const str = typeof value == "string" ? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
 
-		if (save) void this.save();
+		if (save) await this.save();
 	}
 
 	/**

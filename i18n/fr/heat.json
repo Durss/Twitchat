@@ -46,6 +46,7 @@
 			"target": "Zones actives pour la scène OBS",
 			"target_always": "N'importe laquelle",
 			"show_obs": "Afficher capture OBS",
+			"show_extension_button": "Afficher la zone clickable dans l'extension Twitchat Companion",
 			"connect_obs": "🔗 Connecter OBS",
 			"delete_confirm": {
 				"title": "Supprimer la zone ?",

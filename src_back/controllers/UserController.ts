@@ -11,6 +11,21 @@ import AbstractController from "./AbstractController.js";
 import DiscordController from "./DiscordController.js";
 import { PatreonMember } from "./PatreonController.js";
 import SSEController from "./SSEController.js";
+import TwitchExtensionController from "./TwitchExtensionController.js";
+
+interface HeatExtensionArea {
+	id: string;
+	showAreaOnExtension?: boolean;
+	points: { x: number; y: number }[];
+}
+
+interface HeatScreenData {
+	id: string;
+	enabled: boolean;
+	active?: boolean;
+	activeOBSScene: string;
+	areas: HeatExtensionArea[];
+}
 
 /**
  * Created : 13/03/2022
@@ -37,6 +52,17 @@ export default class UserController extends AbstractController {
 	 */
 	private _pendingFileReads = new Map<string, Promise<any>>();
 
+	/**
+	 * Cache of active heat screen areas per user (Twitch extension exposure).
+	 * Invalidated explicitly via DELETE /api/user/heat_areas/cache.
+	 */
+	private _heatAreasCache = new LRUCache<string, HeatExtensionArea[]>({
+		max: 10000,
+		ttl: 1000 * 60 * 60, // 1 hour
+	});
+
+	private extensionController!: TwitchExtensionController;
+
 	constructor(
 		public server: FastifyInstance,
 		private discordController: DiscordController,
@@ -48,10 +74,14 @@ export default class UserController extends AbstractController {
 	 * GETTER / SETTERS *
 	 ********************/
 
+	public setTwitchExtensionController(controller: TwitchExtensionController): void {
+		this.extensionController = controller;
+	}
+
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-	public async initialize(): Promise<void> {
+	public async initialize(): Promise<UserController> {
 		this.server.get(
 			"/api/user",
 			async (request, response) => await this.getUserState(request, response),
@@ -89,6 +119,11 @@ export default class UserController extends AbstractController {
 			async (request, response) => await this.deleteDataShare(request, response),
 		);
 
+		this.server.delete(
+			"/api/user/heat_areas/cache",
+			async (request, response) => await this.deleteHeatAreasCache(request, response),
+		);
+
 		this.server.get(
 			"/api/user/settingsPreset",
 			async (request, response) => await this.getSettingsPresets(request, response),
@@ -99,11 +134,64 @@ export default class UserController extends AbstractController {
 		);
 
 		super.preloadData();
+		return this;
+	}
+
+	/**
+	 * Get the heat screen areas a user wants exposed through the Twitch extension.
+	 * Only areas of "active" heat screens whose `showAreaOnExtension` flag is true are returned.
+	 * Returns an empty array if the user is not premium.
+	 */
+	public async getActiveHeatScreenAreas(uid: string): Promise<HeatExtensionArea[]> {
+		if (!/^[0-9]+$/.test(uid)) return [];
+
+		const cached = this._heatAreasCache.get(uid);
+		if (cached) return cached;
+
+		if ((await super.getUserPremiumState(uid)) === "no") {
+			this._heatAreasCache.set(uid, []);
+			return [];
+		}
+
+		const userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
+		let areas: HeatExtensionArea[] = [];
+		try {
+			const raw = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			const data = JSON.parse(raw) as { heatScreens?: HeatScreenData[] };
+			const screens = data.heatScreens ?? [];
+			areas = screens
+				.filter((screen) => screen.active === true)
+				.flatMap((screen) =>
+					(screen.areas ?? []).filter((area) => area.showAreaOnExtension === true),
+				);
+		} catch {
+			areas = [];
+		}
+
+		this._heatAreasCache.set(uid, areas);
+		return areas;
 	}
 
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+
+	/**
+	 * Invalidate the active heat screen areas cache for the calling user.
+	 */
+	private async deleteHeatAreasCache(request: FastifyRequest, response: FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if (userInfo == false) return;
+
+		this._heatAreasCache.delete(userInfo.user_id);
+		await this.getActiveHeatScreenAreas(userInfo.user_id);
+
+		await this.extensionController.notifyStateUpdate(userInfo.user_id);
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
 
 	/**
 	 * Get a user's donor/admin state

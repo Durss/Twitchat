@@ -768,6 +768,11 @@ const isMissingScope = ref(false);
 
 let isLocalUpdate = false;
 let childrenExpanded = false;
+// Tracks the last value we've reconciled with the parent. We can't compare
+// against props.modelValue because callers commonly do `v-model="x.value"`
+// while also passing `:paramData="x"`, so modelValue and paramData.value are
+// the same reactive reference and would always look equal.
+let lastValue: unknown = undefined;
 
 const textValue = computed({
 	get(): string {
@@ -1047,10 +1052,15 @@ async function onEdit(): Promise<void> {
 		(props.paramData.type != "number" && props.paramData.type != "integer") ||
 		props.paramData.value !== ""
 	) {
-		const prevValue = props.modelValue;
+		const prevValue = lastValue;
 		emit("update:modelValue", props.paramData.value);
 		if (prevValue != props.paramData.value) {
-			emit("change", prevValue, props.paramData.value);
+			lastValue = props.paramData.value;
+			emit(
+				"change",
+				prevValue as string | boolean | number | string[] | null,
+				props.paramData.value,
+			);
 			if (props.paramData.editCallback) {
 				props.paramData.editCallback(props.paramData);
 			}
@@ -1270,6 +1280,7 @@ onBeforeMount(() => {
 	if (props.modelValue !== null && props.modelValue !== undefined) {
 		props.paramData.value = props.modelValue;
 	}
+	lastValue = props.modelValue ?? props.paramData.value;
 
 	//If it's a boolean and modelValue is undefined, force it to false
 	if (props.paramData.type == "boolean" && props.modelValue == undefined) {
@@ -1316,11 +1327,9 @@ onBeforeMount(() => {
 						}
 					})
 					.catch((error) => {
-						console.log("FONT FAILLURE");
 						console.log(error);
 					});
 			} catch (error) {
-				console.log("FONT FAILLURE2");
 				console.log(error);
 			}
 		} else {
@@ -1404,8 +1413,12 @@ watch(
 watch(
 	() => props.modelValue,
 	(value: string | number | boolean | string[] | null | undefined) => {
-		if (value !== null && value !== undefined) {
+		// Skip when modelValue is the same reference as paramData.value (common
+		// `v-model="x.value"` + `:paramData="x"` pattern). Otherwise we'd overwrite
+		// lastValue with the new value before onEdit can detect the change.
+		if (value !== null && value !== undefined && value !== props.paramData.value) {
 			props.paramData.value = value;
+			lastValue = value;
 		}
 	},
 );

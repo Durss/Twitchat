@@ -2550,7 +2550,11 @@ export interface IHeatActions {
 	/**
 	 * Save screens to server
 	 */
-	saveScreens(): void;
+	saveScreens(): Promise<void>;
+	/**
+	 * Request to update currently active screens
+	 */
+	updateActiveScreens(): void;
 	/**
 	 * Handles a heat click event
 	 * @param event
@@ -3276,6 +3280,11 @@ export interface ICommonActions {
 	 * Initialize common processes
 	 */
 	initialize(authenticated: boolean): Promise<void>;
+	/**
+	 * Update cached OBS scene
+	 * @param scene
+	 */
+	updateCurrentObsScene(scene: string): void;
 	/**
 	 * Opens up an alert at the top of the app on red bar
 	 * @param message
