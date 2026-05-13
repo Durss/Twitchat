@@ -297,7 +297,23 @@ export const storeAuth = defineStore("auth", {
 					platform: "twitch",
 				};
 
-				if (StoreProxy.auth.twitch.user.is_affiliate) {
+				// If user isn't at least affiliate, check if they're enrolled.
+				// To date, twitch provides no way to know if user has enrolled or not,
+				// "broadcaster_type" remains empty in both cases.
+				// To work around that we request for user's channel points rewards.
+				// Endpoint retrns a 403 if user isn't at least enrolled.
+				if (!this.twitch.user.is_affiliate) {
+					await TwitchUtils.getRewards(true, undefined, true)
+						.then(() => {
+							this.twitch.user.is_affiliate = true;
+						})
+						.catch((error) => {
+							if (error.message === "NOT_ENROLLED") {
+								this.twitch.user.is_affiliate = false;
+							}
+						});
+				}
+				if (this.twitch.user.is_affiliate) {
 					void TwitchUtils.getPolls();
 					void TwitchUtils.getPredictions();
 				}
