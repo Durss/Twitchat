@@ -297,9 +297,6 @@ export const storeAuth = defineStore("auth", {
 					platform: "twitch",
 				};
 
-				// Log user info to Sentry in case I need to reach them to solve an issue
-				Sentry.setUser({ id: this.twitch.user.id, username: this.twitch.user.displayName });
-
 				// If user isn't at least affiliate, check if they're enrolled.
 				// To date, twitch provides no way to know if user has enrolled or not,
 				// "broadcaster_type" remains empty in both cases.
