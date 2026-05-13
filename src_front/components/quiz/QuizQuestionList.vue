@@ -53,54 +53,153 @@
 				v-tooltip="t('quiz.form.mode_majority.description')"
 				>{{ t("quiz.form.mode_majority.title") }}</TTButton
 			>
-			<div class="importForm">
+		</div>
+		<div class="card-item importHolder">
+			<template v-if="!showImportOptions">
+				<TTButton @click="showImportOptions = true">{{
+					t("quiz.form.import_bt")
+				}}</TTButton>
 				<TTButton
-					icon="download"
-					type="file"
-					primary
-					accept=".csv"
-					@update:file="(file: File) => onCSVImport(file)"
-					>{{ t("quiz.form.import_bt") }}</TTButton
+					@click="storeQuiz.exportCSV(quiz.id)"
+					icon="upload"
+					:disabled="quiz.questionList.length === 0"
+					>{{ t("quiz.form.export_bt") }}</TTButton
 				>
-				<Icon class="sideItem" name="info" v-tooltip="t('quiz.form.import_tt')" />
-			</div>
-			<div class="importForm" v-if="!availableLanguages">
-				<TTButton
-					icon="download"
-					type="file"
-					primary
-					accept=".csv"
-					@update:file="(file: File) => onOpenquizzdbCSVImport(file)"
-					>{{ t("quiz.form.importOpenQuizzDB_bt") }}</TTButton
-				>
-				<TTButton
-					class="sideItem"
-					type="link"
-					target="_blank"
-					href="https://www.openquizzdb.org/listing/"
-					icon="openquizzdb"
-					light
-					v-tooltip="t('quiz.form.importOpenQuizzDB_tt')"
+			</template>
+			<template v-if="showImportOptions">
+				<ClearButton
+					icon="back"
+					class="backBt"
+					@click="
+						availableLanguages
+							? (availableLanguages = null)
+							: (showImportOptions = false)
+					"
 				/>
-			</div>
-			<div class="importForm languageList" v-else>
-				<span class="title"
-					><Icon name="openquizzdb" />{{ t("quiz.form.importOpenQuizzDB_lang") }}</span
-				>
-				<TTButton
-					light
-					v-for="lang in availableLanguages"
-					@click="finalizeOpenquizdbImport(lang)"
-				>
-					<CountryFlag :country="lang == 'en' ? 'gb' : lang" class="flag" />{{
-						t(`global.languages.${lang}`)
-					}}</TTButton
-				>
-			</div>
+				<template v-if="!availableLanguages">
+					<i18n-t
+						tag="span"
+						class="instructions"
+						keypath="quiz.form.importOpenQuizzDB_title"
+					>
+						<template #URL>
+							<a href="https://www.openquizzdb.org/listing" target="_blank"
+								>OpenQuizzDB.org<Icon name="newtab"
+							/></a>
+						</template>
+					</i18n-t>
+					<TTButton
+						icon="download"
+						type="file"
+						primary
+						accept=".csv"
+						@update:file="(file: File) => onOpenquizzdbCSVImport(file)"
+						>{{ t("quiz.form.importOpenQuizzDB_bt") }}</TTButton
+					>
+					<Splitter class="splitter">{{ t("global.or") }}</Splitter>
+					<span class="instructions">{{ t("quiz.form.importCSV_title") }}</span>
+					<TTButton
+						icon="download"
+						type="file"
+						primary
+						accept=".csv"
+						@update:file="(file: File) => onCSVImport(file)"
+						>{{ t("quiz.form.importCSV_bt") }}</TTButton
+					>
+					<ToggleBlock
+						class="format"
+						small
+						:title="t('quiz.form.importCSV_format')"
+						:open="false"
+					>
+						<div class="tableHolder">
+							<table>
+								<tr>
+									<td>classic</td>
+									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+									<td>
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
+									</td>
+									<td>
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 5 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 6 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_duration") }}
+									</td>
+								</tr>
+								<tr>
+									<td>majority</td>
+									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+									<td>
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
+									</td>
+									<td>
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_duration") }}
+									</td>
+								</tr>
+								<tr>
+									<td>freeAnswer</td>
+									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+									<td>{{ t("quiz.form.importCSV_format_col_answer") }}</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_duration") }}
+									</td>
+									<td class="optional">
+										{{ t("quiz.form.importCSV_format_col_tolerance") }}<br />(0
+										-> 5)
+									</td>
+								</tr>
+							</table>
+						</div>
+						<ul class="formatNotes">
+							<li v-html="t('quiz.form.importCSV_format_note_separator')"></li>
+							<li v-html="t('quiz.form.importCSV_format_note_correct')"></li>
+							<li v-html="t('quiz.form.importCSV_format_note_optional')"></li>
+						</ul>
+					</ToggleBlock>
+				</template>
+				<div class="languageList" v-else>
+					<span class="title"
+						><Icon name="openquizzdb" />{{
+							t("quiz.form.importOpenQuizzDB_lang")
+						}}</span
+					>
+					<TTButton
+						light
+						v-for="lang in availableLanguages"
+						@click="finalizeOpenquizdbImport(lang)"
+					>
+						<CountryFlag :country="lang == 'en' ? 'gb' : lang" class="flag" />{{
+							t(`global.languages.${lang}`)
+						}}</TTButton
+					>
+				</div>
+			</template>
 		</div>
 
 		<PremiumLimitMessage
-			v-else
+			v-if="quiz.questionList.length >= maxQuestionCount"
 			label="quiz.form.nonpremium_question_limit"
 			premiumLabel="quiz.form.premium_question_limit"
 			:max="$config.MAX_QUESTIONS_PER_QUIZ"
@@ -114,7 +213,6 @@ import SearchForm from "@/components/params/contents/SearchForm.vue";
 import PremiumLimitMessage from "@/components/params/PremiumLimitMessage.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
@@ -126,20 +224,22 @@ import QuizQuestionItem from "./QuizQuestionItem.vue";
 import { toast } from "@/utils/toast/toast";
 import CountryFlag from "vue-country-flag-next";
 import Icon from "../Icon.vue";
+import ClearButton from "../ClearButton.vue";
+import Splitter from "../Splitter.vue";
+import ToggleBlock from "../ToggleBlock.vue";
 
 const props = defineProps<{
 	quiz: TwitchatDataTypes.QuizParams;
 }>();
 
 const { t } = useI18n();
-const storeCommon = useStoreCommon();
 const storeQuiz = useStoreQuiz();
 const storeAuth = useStoreAuth();
 
 const search = ref("");
+const showImportOptions = ref(false);
 const availableLanguages = ref<string[] | null>(null);
 const autoOpenQuestionID = ref<string | null>(null);
-let openquizzdbCSV = "";
 
 const maxQuestionCount = computed(() => {
 	return storeAuth.isPremium
@@ -287,128 +387,34 @@ function changeQuestionMode(
 }
 
 async function onCSVImport(file: File): Promise<void> {
-	let isValid = file.type == "text/csv" && file.name.endsWith(".csv");
-	if (isValid) {
-		const content = await file.text();
-		openquizzdbCSV = content;
-		const firstRow = content.split("\n")[0]?.split(";");
-		if (isValid && !firstRow) isValid = false;
-		if (isValid && firstRow!.length < 3) isValid = false;
-		if (isValid && !isNaN(parseInt(firstRow![0]!))) isValid = false; // Filter openquizzdb
-		if (isValid) {
-			const questions = content
-				.split("\n")
-				.map((line) => line.split(";"))
-				.filter((line) => line.length > 0);
-			questions.forEach((line) => {
-				const questionText = line[0]!.trim();
-				if (!questionText) return;
-				const answerList = line.slice(1).filter((a) => a.trim());
-
-				if (answerList.length === 1) {
-					props.quiz.questionList.push({
-						id: Utils.getUUID(),
-						mode: "freeAnswer",
-						question: questionText,
-						answer: answerList[0]!.trim(),
-					});
-				} else if (answerList.length >= 2) {
-					props.quiz.questionList.push({
-						id: Utils.getUUID(),
-						mode: "classic",
-						question: questionText,
-						answerList: answerList.map((a, index) => ({
-							id: Utils.getUUID(),
-							title: a.trim(),
-							correct: index === 0,
-						})),
-					});
-				}
-			});
-			save();
-		}
-	}
-	if (!isValid) toast(t("quiz.form.import_invalid_file"), { type: "error" });
+	const ok = await storeQuiz.importCSV(props.quiz.id, file);
+	if (!ok) toast(t("quiz.form.import_invalid_file"), { type: "error" });
+	scheduleNextBatch();
 }
 
 async function onOpenquizzdbCSVImport(file: File): Promise<void> {
-	let isValid = file.type == "text/csv" && file.name.endsWith(".csv");
-
-	if (isValid) {
-		const content = await file.text();
-		openquizzdbCSV = content;
-		const firstRow = content.split("\n")[0]?.split(";");
-		if (isValid && !firstRow) isValid = false;
-		if (isValid && firstRow!.length < 8) isValid = false;
-		if (isValid && isNaN(parseInt(firstRow![0]!))) isValid = false;
-		if (isValid && firstRow![1]!.length != 2) isValid = false;
-		if (isValid) {
-			availableLanguages.value = [];
-			const langDone = new Set<string>();
-			/// Extract available languages
-			content.split("\n").forEach((row) => {
-				const [index, lang] = row.split(";");
-				if (!lang || langDone.has(lang)) return;
-				langDone.add(lang);
-				availableLanguages.value!.push(lang);
-			});
-		}
+	const languages = await storeQuiz.parseOpenquizzdbCSV(file);
+	if (!languages) {
+		toast(t("quiz.form.import_invalid_file"), { type: "error" });
+		return;
 	}
-
-	if (!isValid) toast(t("quiz.form.import_invalid_file"), { type: "error" });
-	else if (availableLanguages.value?.length == 1) {
-		finalizeOpenquizdbImport(availableLanguages.value[0]!);
+	availableLanguages.value = languages;
+	if (languages.length === 1) {
+		finalizeOpenquizdbImport(languages[0]!);
 	}
 }
 
 function finalizeOpenquizdbImport(langRef: string): void {
 	availableLanguages.value = null;
-	const content = openquizzdbCSV;
-	const questions = content
-		.split("\n")
-		.map((line) => line.split(";"))
-		.filter((line) => line.length > 0);
-	questions.forEach((line) => {
-		const [
-			index,
-			lang,
-			question,
-			answer1,
-			answer2,
-			answer3,
-			answer4,
-			level,
-			details,
-			wikipediaUrl,
-		] = line;
-		if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang != langRef) return;
-		props.quiz.questionList.push({
-			id: Utils.getUUID(),
-			mode: "classic",
-			question: question,
-			answerList: [answer1, answer2, answer3, answer4].map((a, index) => ({
-				id: Utils.getUUID(),
-				title: a.trim(),
-				correct: index === 0,
-			})),
-		});
-	});
-	save();
+	showImportOptions.value = false;
+	storeQuiz.importOpenquizzdbCSV(props.quiz.id, langRef);
+	scheduleNextBatch();
 }
 </script>
 
 <style scoped lang="less">
 .quizquestionlist {
 	display: contents;
-
-	.splitter {
-		margin: 1em 0;
-		.icon {
-			height: 1em;
-			margin-right: 0.25em;
-			vertical-align: middle;
-		}
-	}
 
 	.noQuestion {
 		text-align: center;
@@ -435,80 +441,99 @@ function finalizeOpenquizdbImport(langRef: string): void {
 		.button {
 			min-width: 120px;
 		}
+	}
 
-		.importForm {
+	.importHolder {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		position: relative;
+		padding-left: 2em;
+		padding-right: 2em;
+
+		.backBt {
+			left: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			padding: 0.5em;
+			right: auto;
+		}
+
+		.splitter {
+			align-self: stretch;
+			margin: 1em 0;
+		}
+		.instructions {
+			line-height: 1.1em;
+			text-align: left;
+			align-self: flex-start;
+			.icon {
+				vertical-align: middle;
+			}
+		}
+
+		.languageList {
+			gap: 0.25em;
+			flex-direction: column;
+			align-items: center;
 			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			flex: 1 1 100%;
-			.button {
-				flex-wrap: nowrap;
+
+			.title {
+				display: flex;
+				align-items: center;
+				font-weight: bold;
+				margin-bottom: 0.5em;
+				.icon {
+					margin-right: 0.5em;
+				}
+			}
+
+			.flag {
+				margin-right: -5px !important;
+				vertical-align: middle !important;
 			}
 
 			& > * {
-				border-radius: 0;
-			}
-			& > *:first-child {
-				border-top-left-radius: var(--border-radius);
-				border-bottom-left-radius: var(--border-radius);
-			}
-			& > *:last-child {
-				border-top-right-radius: var(--border-radius);
-				border-bottom-right-radius: var(--border-radius);
-			}
-
-			& > .sideItem {
-				height: auto;
-				max-width: 1.5em;
-				flex-shrink: 1;
-				min-width: unset;
-			}
-
-			& > .sideItem.icon {
-				cursor: help;
-				padding: 0.25em;
-				color: var(--color-primary);
-				background-color: var(--color-light);
-			}
-
-			& > .icon:first-child {
-				border-top-left-radius: var(--border-radius);
-				border-bottom-left-radius: var(--border-radius);
-			}
-			& > .icon:last-child {
-				border-top-right-radius: var(--border-radius);
-				border-bottom-right-radius: var(--border-radius);
-			}
-
-			&.languageList {
-				background-color: var(--color-primary);
 				border-radius: var(--border-radius);
-				margin: auto;
-				align-self: center;
-				justify-self: center;
-				padding: 0.5em;
-				gap: 0.25em;
-				flex-direction: column;
-				align-items: center;
+			}
+		}
 
-				.title {
-					display: flex;
-					align-items: center;
-					font-weight: bold;
-					margin-bottom: 0.5em;
-					.icon {
-						margin-right: 0.5em;
-					}
-				}
+		.format {
+			max-width: 100%;
+		}
 
-				.flag {
-					margin-right: -5px !important;
-					vertical-align: middle !important;
-				}
+		.tableHolder {
+			overflow: auto;
+			padding-bottom: 0.5em;
+		}
+		td {
+			padding: 0.25em 0.5em;
+			border: 1px solid var(--color-text);
+			font-family: "Courier New", Courier, monospace;
+			white-space: nowrap;
+			&:first-child {
+				font-style: italic;
+				font-size: 0.8em;
+			}
+			&.optional {
+				opacity: 0.5;
+				font-style: italic;
+			}
+		}
 
-				& > * {
-					border-radius: var(--border-radius);
-				}
+		.formatNotes {
+			margin: 0.5em 0 0 0;
+			padding-left: 1.2em;
+			font-size: 0.9em;
+			line-height: 1.3em;
+			text-align: left;
+			align-self: stretch;
+			code {
+				font-family: "Courier New", Courier, monospace;
+				padding: 0 0.25em;
+				border-radius: 0.25em;
+				background-color: var(--background-color-fadest);
 			}
 		}
 	}

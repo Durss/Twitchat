@@ -19,7 +19,7 @@
 
 		<div class="content" ref="content">
 			<div class="overlayInstallCard">
-				<h1><Icon name="obs" />{{ $t("quiz.form.install_title") }}</h1>
+				<h1><Icon name="obs" />{{ t("quiz.form.install_title") }}</h1>
 				<OverlayInstaller type="quiz" sourceSuffix="Twitchat_Quiz" />
 			</div>
 
@@ -37,11 +37,20 @@
 					v-for="quiz in storeQuiz.quizList"
 					editableTitle
 					v-model:title="quiz.title"
-					:titleDefault="$t('quiz.form.default_title')"
+					:titleDefault="t('quiz.form.default_title')"
 					:titleMaxLengh="30"
 					:open="autoOpenQuizID === quiz.id"
 					:key="quiz.id"
 					:disabled="!quiz.enabled"
+					:subtitle="
+						t(
+							'quiz.form.question_count',
+							{
+								COUNT: quiz.questionList.length,
+							},
+							quiz.questionList.length,
+						)
+					"
 					@update:title="save(quiz)"
 				>
 					<template #left_actions>
@@ -59,14 +68,14 @@
 							@click.stop="duplicateQuiz(quiz.id)"
 							data-close-popout
 							icon="copy"
-							v-tooltip="$t('global.duplicate')"
+							v-tooltip="t('global.duplicate')"
 							v-if="!maxQuizReached"
 						/>
 						<TTButton
 							@click.stop
 							:copy="quiz.id"
 							icon="id"
-							v-tooltip="$t('global.copy_id')"
+							v-tooltip="t('global.copy_id')"
 						/>
 						<TTButton @click.stop="storeQuiz.removeQuiz(quiz.id)" icon="trash" alert />
 					</template>
@@ -75,7 +84,7 @@
 						<ToggleBlock
 							:icons="['params']"
 							small
-							:title="$t('global.settings')"
+							:title="t('global.settings')"
 							:open="quiz.questionList.length == 0"
 						>
 							<div class="settings">
@@ -114,7 +123,7 @@
 					v-if="storeAuth.isPremium || storeQuiz.quizList.length < $config.MAX_QUIZ"
 					@click="addQuiz()"
 					icon="add"
-					>{{ $t("quiz.form.add_bt") }}</TTButton
+					>{{ t("quiz.form.add_bt") }}</TTButton
 				>
 
 				<PremiumLimitMessage
@@ -148,11 +157,13 @@ import { VueDraggable } from "vue-draggable-plus";
 import QuizQuestionList from "./QuizQuestionList.vue";
 import Overlay404 from "../params/contents/overlays/Overlay404.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
+import { useI18n } from "vue-i18n";
 
 const props = withDefaults(defineProps<{ embedMode?: boolean }>(), { embedMode: false });
 
 const emit = defineEmits<{ close: [] }>();
 
+const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeQuiz = useStoreQuiz();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");

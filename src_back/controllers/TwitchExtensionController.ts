@@ -315,7 +315,6 @@ export default class TwitchExtensionController extends AbstractController {
 	public async getEBSConfig(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const user = await super.twitchUserGuard(request, response);
 		if (!user) return;
-		console.log("Sign as", user.user_id);
 		try {
 			const res = await fetch(Config.credentials.twitchat_api_path + "extension/config", {
 				method: "GET",
