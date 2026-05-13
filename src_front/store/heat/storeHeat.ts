@@ -123,10 +123,8 @@ export const storeHeat = defineStore("heat", {
 			this.screenList.forEach((v) => {
 				v.active = (!v.activeOBSScene || v.activeOBSScene == obsScene) && v.enabled;
 			});
-			console.log("UPDATE ACTIVE");
 
 			void this.saveScreens().then(() => {
-				console.log("SAVED!");
 				// Check if active areas changed, if so, invalidate server cache
 				const res = this.screenList
 					.filter((v) => v.active)
@@ -136,7 +134,6 @@ export const storeHeat = defineStore("heat", {
 					.map((v) => v.id)
 					.sort((a, b) => a.localeCompare(b))
 					.join();
-				console.log(res, "\n", activeAreaDiff);
 				if (res != activeAreaDiff) {
 					activeAreaDiff = res;
 					invalidateTimeout = window.setTimeout(() => {

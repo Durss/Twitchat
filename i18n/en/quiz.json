@@ -4,10 +4,21 @@
 			"title": "Quiz",
 			"subtitle": "Create your own interactive quiz!",
 			"add_bt": "Create a quiz",
-			"import_bt": "Import questions (.csv)",
-			"import_tt": "Import questions from a .csv file.\nOne question per line.\n\nMultiple choice question:\n3 to 7 columns (question;correct answer;wrong answer;...)\n\nFree answer question:\n2 columns (question;answer)",
+			"import_bt": "Import questions",
+			"export_bt": "Export questions as CSV",
+			"importCSV_bt": "Import Twitchat CSV",
+			"importCSV_title": "Import questions from a Twitchat exported CSV file:",
+			"importCSV_format": "CSV format details",
+			"importCSV_format_col_question": "Question",
+			"importCSV_format_col_answer": "Answer",
+			"importCSV_format_col_answer_n": "Answer {N}",
+			"importCSV_format_col_duration": "Duration (s)",
+			"importCSV_format_col_tolerance": "Tolerance",
+			"importCSV_format_note_correct": "In <strong>classic</strong> mode, prefix correct answers with <strong>*</strong> (eg. <code>*Twitchat</code>)",
+			"importCSV_format_note_optional": "<strong>Duration</strong> and <strong>Tolerance</strong> are optional. Leave them empty to use the quiz's default values",
+			"importCSV_format_note_separator": "Columns are separated with a semicolon <code>;</code>",
 			"importOpenQuizzDB_bt": "Import Openquizzdb CSV",
-			"importOpenQuizzDB_tt": "Open Openquizdb",
+			"importOpenQuizzDB_title": "Head over {URL} to download a Quiz as a CSV file then click button bellow:",
 			"importOpenQuizzDB_lang": "Choose language to import:",
 			"import_invalid_file": "Invalid file format. Please upload a CSV file with the correct structure.",
 			"addQuestion_bt": "Add question",
@@ -21,6 +32,7 @@
 			"non_premium_limit": "You reached the limit of {MAX} quiz you can create.\nBecome a premium member to create up to {MAX_PREMIUM} quizzes.",
 			"premium_question_limit": "You reached the limit of {MAX} questions you can add.",
 			"nonpremium_question_limit": "You reached the limit of {MAX} questions you can add.\nBecome a premium to add up to {MAX_PREMIUM} questions.",
+			"question_count": "({COUNT} question)|({COUNT} questions)",
 			"tolerances": {
 				"undefined": "        🗑️",
 				"none": "😠 None",
@@ -84,3 +96,4 @@
 		}
 	}
 }
+
