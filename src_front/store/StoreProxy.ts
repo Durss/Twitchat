@@ -4234,6 +4234,27 @@ export interface IQuizActions {
 		quizId: string,
 		questionId: string,
 	): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>;
+	/**
+	 * Imports questions from a generic CSV file into the given quiz.
+	 * @returns true if the file was valid and questions were imported
+	 */
+	importCSV(quizId: string, file: File): Promise<boolean>;
+	/**
+	 * Exports the question list of the given quiz as a CSV file and
+	 * triggers a browser download.
+	 */
+	exportCSV(quizId: string): void;
+	/**
+	 * Parses an OpenQuizzDB CSV file and returns the list of available languages.
+	 * The CSV content is cached internally and used by importOpenquizzdbCSV().
+	 * @returns the available languages, or null if the file is invalid
+	 */
+	parseOpenquizzdbCSV(file: File): Promise<string[] | null>;
+	/**
+	 * Finalizes an OpenQuizzDB import using the previously parsed CSV,
+	 * keeping only questions matching the given language.
+	 */
+	importOpenquizzdbCSV(quizId: string, langRef: string): void;
 }
 
 export interface IStreamfogState {

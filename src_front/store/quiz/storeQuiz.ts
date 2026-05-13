@@ -14,8 +14,59 @@ import StoreProxy from "../StoreProxy";
 let currentQuiz: TwitchatDataTypes.QuizParams | null = null;
 let currentQuestion: TwitchatDataTypes.QuizParams["questionList"][number] | null = null;
 let broadcastDebounceTO = -1;
+// Cached OpenQuizzDB CSV between language detection and final import
+let openquizzdbCSVCache = "";
 const POINTS_PER_QUESTION = 100;
 const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const CLASSIC_ANSWER_SLOTS = 6;
+const MAJORITY_ANSWER_SLOTS = 4;
+
+/**
+ * Parses CSV content into rows of cells. Supports double-quoted cells with
+ * escaped quotes (""), and embedded separators / newlines inside quoted cells.
+ */
+function parseCSVRows(content: string, sep: string): string[][] {
+	const rows: string[][] = [];
+	let row: string[] = [];
+	let cell = "";
+	let inQuotes = false;
+	const pushRow = () => {
+		if (row.length > 1 || (row.length === 1 && row[0] !== "")) rows.push(row);
+		row = [];
+	};
+	for (let i = 0; i < content.length; i++) {
+		const c = content[i]!;
+		if (inQuotes) {
+			if (c === '"') {
+				if (content[i + 1] === '"') {
+					cell += '"';
+					i++;
+				} else {
+					inQuotes = false;
+				}
+			} else {
+				cell += c;
+			}
+		} else if (c === '"' && cell === "") {
+			inQuotes = true;
+		} else if (c === sep) {
+			row.push(cell);
+			cell = "";
+		} else if (c === "\n" || c === "\r") {
+			if (c === "\r" && content[i + 1] === "\n") i++;
+			row.push(cell);
+			cell = "";
+			pushRow();
+		} else {
+			cell += c;
+		}
+	}
+	if (cell !== "" || row.length > 0) {
+		row.push(cell);
+		pushRow();
+	}
+	return rows;
+}
 
 interface AnswerScoreParams {
 	quiz: TwitchatDataTypes.QuizParams;
@@ -614,6 +665,184 @@ export const storeQuiz = defineStore("quiz", {
 				userData.score += score;
 			}
 			return summary;
+		},
+
+		async importCSV(quizId: string, file: File): Promise<boolean> {
+			if (file.type !== "text/csv" || !file.name.endsWith(".csv")) return false;
+			const quiz = this.quizList.find((v) => v.id === quizId);
+			if (!quiz) return false;
+
+			let content = await file.text();
+			if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
+
+			const rows = parseCSVRows(content, ";");
+			const knownModes = new Set(["classic", "majority", "freeAnswer"]);
+			if (!rows.some((r) => knownModes.has((r[0] || "").trim()))) return false;
+
+			const parseDuration = (raw: string | undefined): number | undefined => {
+				const n = parseInt((raw || "").trim());
+				return isNaN(n) || n <= 0 ? undefined : n;
+			};
+			const parseTolerance = (
+				raw: string | undefined,
+			): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
+				const trimmed = (raw || "").trim();
+				if (!trimmed) return undefined;
+				const n = parseInt(trimmed);
+				if (isNaN(n) || n < 0 || n > 5) return undefined;
+				return n as 0 | 1 | 2 | 3 | 4 | 5;
+			};
+
+			let added = 0;
+			for (const row of rows) {
+				const mode = (row[0] || "").trim();
+				const questionText = (row[1] || "").trim();
+				if (!questionText) continue;
+
+				if (mode === "classic") {
+					const duration = parseDuration(row[CLASSIC_ANSWER_SLOTS + 2]);
+					const answerList: { id: string; title: string; correct?: boolean }[] = [];
+					for (let i = 0; i < CLASSIC_ANSWER_SLOTS; i++) {
+						const raw = (row[i + 2] || "").trim();
+						if (!raw) continue;
+						const correct = raw.startsWith("*");
+						const title = (correct ? raw.slice(1) : raw).trim();
+						if (!title) continue;
+						answerList.push({ id: Utils.getUUID(), title, correct });
+					}
+					if (answerList.length < 2) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "classic",
+						question: questionText,
+						duration_s: duration,
+						answerList,
+					});
+					added++;
+				} else if (mode === "majority") {
+					const duration = parseDuration(row[MAJORITY_ANSWER_SLOTS + 2]);
+					const answerList: { id: string; title: string }[] = [];
+					for (let i = 0; i < MAJORITY_ANSWER_SLOTS; i++) {
+						const title = (row[i + 2] || "").trim();
+						if (!title) continue;
+						answerList.push({ id: Utils.getUUID(), title });
+					}
+					if (answerList.length < 2) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "majority",
+						question: questionText,
+						duration_s: duration,
+						answerList,
+					});
+					added++;
+				} else if (mode === "freeAnswer") {
+					const answer = (row[2] || "").trim();
+					if (!answer) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "freeAnswer",
+						question: questionText,
+						duration_s: parseDuration(row[3]),
+						answer,
+						toleranceLevel: parseTolerance(row[4]),
+					});
+					added++;
+				}
+			}
+
+			if (added === 0) return false;
+			void this.saveData(quizId);
+			return true;
+		},
+
+		exportCSV(quizId: string): void {
+			const quiz = this.quizList.find((v) => v.id === quizId);
+			if (!quiz) return;
+
+			const escape = (v: string | number | undefined | null): string => {
+				if (v === undefined || v === null || v === "") return "";
+				const s = String(v);
+				if (/[;"\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+				return s;
+			};
+
+			const rows: string[] = [];
+			for (const q of quiz.questionList) {
+				const cols: string[] = [q.mode, escape(q.question)];
+				if (q.mode === "freeAnswer") {
+					cols.push(escape(q.answer));
+					cols.push(escape(q.duration_s));
+					cols.push(escape(q.toleranceLevel));
+				} else {
+					const slots =
+						q.mode === "classic" ? CLASSIC_ANSWER_SLOTS : MAJORITY_ANSWER_SLOTS;
+					const isClassic = q.mode === "classic";
+					for (let i = 0; i < slots; i++) {
+						const a = q.answerList[i];
+						if (!a) {
+							cols.push("");
+							continue;
+						}
+						const prefix = isClassic && (a as { correct?: boolean }).correct ? "*" : "";
+						cols.push(escape(prefix + (a.title || "")));
+					}
+					cols.push(escape(q.duration_s));
+				}
+				rows.push(cols.join(";"));
+			}
+
+			const csv = "﻿" + rows.join("\r\n");
+			const safeName =
+				(quiz.title || "quiz").replace(/[^a-z0-9\-_]+/gi, "_").slice(0, 60) || "quiz";
+			Utils.downloadFile(safeName + ".csv", csv, undefined, "text/csv");
+		},
+
+		async parseOpenquizzdbCSV(file: File): Promise<string[] | null> {
+			if (file.type !== "text/csv" || !file.name.endsWith(".csv")) return null;
+			const content = await file.text();
+			const firstRow = content.split("\n")[0]?.split(";");
+			if (!firstRow) return null;
+			if (firstRow.length < 8) return null;
+			if (isNaN(parseInt(firstRow[0]!))) return null;
+			if (firstRow[1]!.length !== 2) return null;
+
+			openquizzdbCSVCache = content;
+			const languages: string[] = [];
+			const langDone = new Set<string>();
+			content.split("\n").forEach((row) => {
+				const [, lang] = row.split(";");
+				if (!lang || langDone.has(lang)) return;
+				langDone.add(lang);
+				languages.push(lang);
+			});
+			return languages;
+		},
+
+		importOpenquizzdbCSV(quizId: string, langRef: string): void {
+			const quiz = this.quizList.find((v) => v.id === quizId);
+			if (!quiz) return;
+			const content = openquizzdbCSVCache;
+			const questions = content
+				.split("\n")
+				.map((line) => line.split(";"))
+				.filter((line) => line.length > 0);
+			questions.forEach((line) => {
+				const [, lang, question, answer1, answer2, answer3, answer4] = line;
+				if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang !== langRef) return;
+				quiz.questionList.push({
+					id: Utils.getUUID(),
+					mode: "classic",
+					question: question,
+					answerList: [answer1, answer2, answer3, answer4].map((a, index) => ({
+						id: Utils.getUUID(),
+						title: a.trim(),
+						correct: index === 0,
+					})),
+				});
+			});
+			openquizzdbCSVCache = "";
+			void this.saveData(quizId);
 		},
 
 		computeQuestionStats(

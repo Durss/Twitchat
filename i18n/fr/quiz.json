@@ -4,10 +4,21 @@
 			"title": "Quiz",
 			"subtitle": "Créez votre propre quiz interactif !",
 			"add_bt": "Créer un quiz",
-			"import_bt": "Importer des questions (.csv)",
-			"import_tt": "Importer des questions depuis un fichier .csv.\nUne question par ligne.\n\nQuestion à choix multiples :\n3 à 7 colonnes (question;bonne réponse;mauvaise réponse;...)\n\nQuestion à réponse libre :\n2 colonnes (question;réponse)",
+			"import_bt": "Importer des questions",
+			"export_bt": "Exporter les questions en CSV",
+			"importCSV_bt": "Importer un CSV Twitchat",
+			"importCSV_title": "Importer des questions depuis un fichier CSV exporté depuis Twitchat :",
+			"importCSV_format": "Détails sur le format CSV",
+			"importCSV_format_col_question": "Question",
+			"importCSV_format_col_answer": "Réponse",
+			"importCSV_format_col_answer_n": "Réponse {N}",
+			"importCSV_format_col_duration": "Durée (s)",
+			"importCSV_format_col_tolerance": "Tolérance",
+			"importCSV_format_note_correct": "En mode <strong>classic</strong>, préfixez les bonnes réponses par <strong>*</strong> (ex. <code>*Twitchat</code>)",
+			"importCSV_format_note_optional": "La <strong>durée</strong> et la <strong>tolérance</strong> sont optionnelles. Laissez-les vides pour utiliser les valeurs par défaut du quiz",
+			"importCSV_format_note_separator": "Les colonnes sont séparées par un point-virgule <code>;</code>",
 			"importOpenQuizzDB_bt": "Importer un CSV Openquizzdb",
-			"importOpenQuizzDB_tt": "Ouvrir Openquizdb",
+			"importOpenQuizzDB_title": "Rendez-vous sur {URL} pour télécharger un Quiz au format CSV puis cliquez le bouton ci-dessous :",
 			"importOpenQuizzDB_lang": "Choisissez la langue à importer :",
 			"import_invalid_file": "Format de fichier invalide. Veuillez télécharger un fichier CSV avec la structure correcte.",
 			"addQuestion_bt": "Ajouter une question",
@@ -21,6 +32,7 @@
 			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} quiz que vous pouvez créer.\nDevenez membre premium pour en créer jusqu'à {MAX_PREMIUM}.",
 			"premium_question_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} questions que vous pouvez ajouter.",
 			"nonpremium_question_limit": "Vous avez atteint le nombre maximum de {MAX} questions que vous pouvez ajouter.\nDevenez premium pour en ajouter jusqu'à {MAX_PREMIUM}.",
+			"question_count": "({COUNT} question)|({COUNT} questions)",
 			"tolerances": {
 				"undefined": "         🗑️",
 				"none": "😠 Aucune",
@@ -84,3 +96,4 @@
 		}
 	}
 }
+
