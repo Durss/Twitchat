@@ -453,6 +453,7 @@ watch(
 		font-size: 1em;
 		.titleText {
 			text-wrap: nowrap;
+			line-height: 1.25em;
 			overflow: hidden !important;
 			text-overflow: ellipsis;
 			font-weight: normal;
