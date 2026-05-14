@@ -148,7 +148,7 @@ export default class TwitchExtensionController extends AbstractController {
 				alt: params.alt,
 				ctrl: params.ctrl,
 				shift: params.shift,
-				userId: request.twitchExtensionUser!.user_id,
+				userId: getUserID(request),
 			});
 			response.header("Content-Type", "application/json");
 			response.status(200);
@@ -167,8 +167,8 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response
 	 */
 	private async postBingoCount(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		// Reject anonymous users
-		if (!request.twitchExtensionUser!.user_id) return;
+		const uid = getUserID(request);
+		const isAnon = request.twitchExtensionUser!.is_unlinked === true;
 
 		const params = request.body as {
 			count: number;
@@ -178,9 +178,11 @@ export default class TwitchExtensionController extends AbstractController {
 		try {
 			await this._bingoController.setBingoCount(
 				request.twitchExtensionUser!.channel_id,
-				request.twitchExtensionUser!.user_id,
+				uid,
 				params.gridId,
 				params.count,
+				undefined,
+				isAnon,
 			);
 			response.header("Content-Type", "application/json");
 			response.status(200);
@@ -200,7 +202,7 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response
 	 */
 	private async postBingoStates(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		if (!request.twitchExtensionUser!.user_id) return;
+		const uid = getUserID(request);
 
 		//Only allow mods
 		const allowedRoles = ["broadcaster", "moderator"];
@@ -219,7 +221,7 @@ export default class TwitchExtensionController extends AbstractController {
 		try {
 			await this._bingoController.moderateEntries(
 				request.twitchExtensionUser!.channel_id,
-				request.twitchExtensionUser!.user_id,
+				uid,
 				params.gridId,
 				params.states,
 			);
@@ -298,11 +300,10 @@ export default class TwitchExtensionController extends AbstractController {
 	 */
 	private async getStreamerState(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const channelId = request.twitchExtensionUser!.channel_id;
-		const viewerId = request.twitchExtensionUser!.user_id;
+		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
 		const quiz = this._quizController.getStreamerQuiz(channelId);
-		const ckickableArea = this._userController.getActiveHeatScreenAreas(channelId);
-		console.log("BROADCAST", ckickableArea);
+		const ckickableArea = await this._userController.getActiveHeatScreenAreas(channelId);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -387,4 +388,8 @@ function getHash(uid: string): string {
 	return createHash("sha512")
 		.update(Config.credentials.twitchat_api_secret + ":" + uid)
 		.digest("hex");
+}
+
+function getUserID(request: FastifyRequest): string {
+	return request.twitchExtensionUser!.user_id ?? request.twitchExtensionUser!.opaque_user_id;
 }
