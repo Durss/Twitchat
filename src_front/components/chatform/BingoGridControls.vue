@@ -150,8 +150,12 @@
 				)"
 				:key="entry.user.id"
 			>
-				<img class="avatar" :src="entry.user.avatarPath" alt="avatar" />
-				<a class="name" @click="openUserCard(entry.user)">{{ entry.user.displayName }}</a>
+				<Icon v-if="entry.user.anonymous == true" class="avatar anon" name="anon" />
+				<img v-else class="avatar" :src="entry.user.avatarPath" alt="avatar" />
+				<span v-if="entry.user.anonymous == true">{{ entry.user.displayName }}</span>
+				<a v-else class="name" @click="openUserCard(entry.user)">{{
+					entry.user.displayName
+				}}</a>
 				<strong class="count">x{{ entry.count }}</strong>
 			</div>
 		</div>
@@ -177,6 +181,7 @@ import SearchForm from "../params/contents/SearchForm.vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import ToggleButton from "../ToggleButton.vue";
 import TTButton from "../TTButton.vue";
+import Icon from "../Icon.vue";
 
 const { t } = useI18n();
 const storeUsers = useStoreUsers();
@@ -400,6 +405,11 @@ function toggleRenderMode(gridId: string): void {
 					border-radius: 50%;
 					width: 2em;
 					height: 2em;
+
+					&.anon {
+						padding: 0.2em;
+						border: 1px solid var(--color-text);
+					}
 				}
 				.count {
 					font-weight: 1.5em;
