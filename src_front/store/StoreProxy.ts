@@ -582,9 +582,7 @@ export interface IBingoGridState {
 	/**
 	 * Stores the number of bingos of the viewers
 	 */
-	viewersBingoCount: {
-		[gridId: string]: { user: TwitchatDataTypes.TwitchatUser; count: number }[];
-	};
+	viewersBingoCount: { user: TwitchatDataTypes.TwitchatUser; count: number }[];
 	/**
 	 * Rendering mode of the grid on the control form
 	 */
@@ -661,14 +659,12 @@ export interface IBingoGridActions {
 	removeCustomCell(gridId: string, cellId: string): void;
 	/**
 	 * Shows the leaderboard for the given grid on its overlay
-	 * @param gridId
 	 */
-	showLeaderboard(gridId: string): void;
+	showLeaderboard(): void;
 	/**
 	 * Hides the leaderboard for the given grid on its overlay
-	 * @param gridId
 	 */
-	hideLeaderboard(gridId: string): void;
+	hideLeaderboard(): void;
 }
 
 export interface IChatState {

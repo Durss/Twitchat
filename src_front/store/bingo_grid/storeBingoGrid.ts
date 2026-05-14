@@ -29,7 +29,7 @@ let prevGridStates: { [key: string]: boolean[] } = {};
 export const storeBingoGrid = defineStore("bingoGrid", {
 	state: (): IBingoGridState => ({
 		gridList: [],
-		viewersBingoCount: {},
+		viewersBingoCount: [],
 		controlerModeCache: {},
 	}),
 
@@ -65,12 +65,11 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			/**
 			 * Called when bingo grid overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_BINGO_GRID_CONFIGS", (e) => {
-				const bingo = StoreProxy.bingoGrid.gridList.find((v) => v.id == e.data!.id);
+			PublicAPI.instance.addEventListener("GET_BINGO_GRID_CONFIGS", (_event) => {
+				const bingo = StoreProxy.bingoGrid.gridList.find((v) => v.enabled);
 				if (bingo) {
 					if (!bingo.enabled) return;
 					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {
-						id: e.data!.id,
 						bingo,
 						newVerticalBingos: [],
 						newHorizontalBingos: [],
@@ -79,7 +78,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				} else {
 					//Tell the overlay requested bingo couldn't be found
 					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {
-						id: e.data!.id,
 						bingo: null,
 					});
 				}
@@ -135,9 +133,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					const [userDetails] = await TwitchUtils.getUserInfo([user.id]);
 					if (userDetails) user.avatarPath = userDetails.profile_image_url;
 				}
-				if (!this.viewersBingoCount[event.data.gridId])
-					this.viewersBingoCount[event.data.gridId] = [];
-				const list = this.viewersBingoCount[event.data.gridId]!;
+				const list = this.viewersBingoCount!;
 				let entry = list.find((v) => v.user.id === user.id);
 				let isNewBingo = false;
 				if (!entry) {
@@ -154,14 +150,14 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				}
 
 				//Sort viewers by bingo count
-				const prevCount = this.viewersBingoCount[event.data.gridId]!.length;
-				this.viewersBingoCount[event.data.gridId] = list.filter((v) => v.count > 0);
+				const prevCount = this.viewersBingoCount.length;
+				this.viewersBingoCount = list.filter((v) => v.count > 0);
 				//Force leaderboard close if there were bingos before and there are none now
 				//In this case the "hide leaderboard" button is not accessible anymore on the
 				//UI because the "leader board" section is only there when there is at least
 				//one person on the leaderboar.
-				if (this.viewersBingoCount[event.data.gridId]!.length == 0 && prevCount > 0) {
-					this.hideLeaderboard(event.data.gridId);
+				if (this.viewersBingoCount.length == 0 && prevCount > 0) {
+					this.hideLeaderboard();
 				}
 
 				//If there actually is a new bingo
@@ -402,21 +398,21 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			});
 		},
 
-		resetLabels(id: string): void {
+		resetLabels(gridId: string): void {
 			StoreProxy.main
 				.confirm(
 					StoreProxy.i18n.t("bingo_grid.form.clear_labels_confirm.title"),
 					StoreProxy.i18n.t("bingo_grid.form.clear_labels_confirm.description"),
 				)
 				.then(() => {
-					const grid = this.gridList.find((g) => g.id === id);
+					const grid = this.gridList.find((g) => g.id === gridId);
 					if (!grid) return;
 					const entries = grid.entries.filter((v) => !!v);
 					for (const entry of entries) {
 						if (entry.lock) continue;
 						entry.label = "";
 					}
-					void this.saveData(id);
+					void this.saveData(gridId);
 				})
 				.catch(() => {});
 		},
@@ -431,7 +427,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			//Reset diff array
 			prevGridStates[grid.id] = [];
 			//Reset viewers bingo counts
-			this.viewersBingoCount[grid.id] = [];
+			this.viewersBingoCount = [];
 			grid.entries.forEach(
 				(entry) => (entry.check = forcedState == undefined ? false : forcedState),
 			);
@@ -491,6 +487,67 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			cellId?: string,
 			broadcastToViewers: boolean = false,
 		): Promise<void> {
+			const targetGrid = gridId ? this.gridList.find((g) => g.id === gridId) : undefined;
+
+			// Are we saving a specific grid that's enabled?
+			if (targetGrid && targetGrid.enabled) {
+				const otherActiveGrid = this.gridList.filter(
+					(g) => g.enabled && g.id !== gridId && g.entries.some((e) => e.check === true),
+				)[0];
+				// Are we about to lose live grid progress?
+				if (otherActiveGrid) {
+					const t = StoreProxy.i18n.t;
+					try {
+						await StoreProxy.main.confirm(
+							t("bingo_grid.form.lost_progress_warning.title"),
+							t("bingo_grid.form.lost_progress_warning.description_other", {
+								NAME: otherActiveGrid.title,
+							}),
+						);
+					} catch (_error) {
+						// User cancelled, disable the grid
+						targetGrid.enabled = false;
+						return;
+					}
+					await this.resetCheckStates(otherActiveGrid.id, false, false);
+				}
+
+				// Disable all other grids
+				this.gridList.forEach((g) => {
+					if (g.id !== gridId) {
+						g.enabled = false;
+					}
+				});
+				// Force back to true to solve a UI race condition
+				targetGrid.enabled = true;
+			} else if (
+				targetGrid &&
+				!targetGrid.enabled &&
+				targetGrid.entries.some((e) => e.check === true)
+			) {
+				const t = StoreProxy.i18n.t;
+				try {
+					await StoreProxy.main.confirm(
+						t("bingo_grid.form.lost_progress_warning.title"),
+						t("bingo_grid.form.lost_progress_warning.description_self"),
+					);
+				} catch (_error) {
+					// User cancelled, enable it back
+					targetGrid.enabled = true;
+					return;
+				}
+				await this.resetCheckStates(targetGrid.id, false, false);
+			}
+			if (targetGrid) {
+				if (!targetGrid.enabled) {
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: null });
+				} else {
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: targetGrid });
+				}
+			} else {
+				console.log("No target grid");
+			}
+
 			if (++saveCountPending != 20) clearTimeout(debounceSave);
 			debounceSave = window.setTimeout(() => {
 				saveCountPending = 0;
@@ -673,13 +730,15 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							message.complete = true;
 							void StoreProxy.chat.addMessage(message);
 						}
-						PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {
-							id: gridId,
-							bingo: grid,
-							newVerticalBingos,
-							newHorizontalBingos,
-							newDiagonalBingos,
-						});
+
+						if (grid.enabled) {
+							PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {
+								bingo: grid,
+								newVerticalBingos,
+								newHorizontalBingos,
+								newDiagonalBingos,
+							});
+						}
 					}
 
 					prevGridStates[grid.id] = newStates;
@@ -776,7 +835,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						message.user,
 						message.channel_id,
 					);
-					// console.log("User allowed? ", allowed);
 					if (!allowed) continue;
 
 					const [xStrt, yStrt] = (message.message || "")
@@ -786,7 +844,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						.split(":");
 					const x = (parseInt(xStrt!) || 0) - 1;
 					const y = (parseInt(yStrt!) || 0) - 1;
-					// console.log("Tick", x+1, y+1);
 					if (x >= 0 && x < grid.cols && y >= 0 && y < grid.rows) {
 						const cell = grid.entries[x + y * grid.cols]!;
 						this.toggleCell(grid.id, cell.id);
@@ -814,8 +871,11 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			grid.additionalEntries = grid.additionalEntries.filter((e) => e.id != cellId);
 		},
 
-		showLeaderboard(gridId: string): void {
-			const viewers = this.viewersBingoCount[gridId];
+		showLeaderboard(): void {
+			const grid = this.gridList.find((v) => v.enabled);
+			if (!grid) return;
+			const gridId = grid.id;
+			const viewers = this.viewersBingoCount;
 			if (!viewers || !viewers.length) return;
 			//Add fake users
 			// for (let i = 0; i < 15; i++) {
@@ -857,8 +917,8 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", data);
 		},
 
-		hideLeaderboard(gridId: string): void {
-			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", { id: gridId });
+		hideLeaderboard(): void {
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", {});
 		},
 	} satisfies StoreActions<"bingoGrid", IBingoGridState, IBingoGridGetters, IBingoGridActions>,
 });
