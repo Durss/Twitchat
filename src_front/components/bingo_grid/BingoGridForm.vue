@@ -11,6 +11,12 @@
 		</div>
 
 		<div class="content">
+			<div class="overlayInstallCard">
+				<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
+				<OverlayInstaller type="bingogrid" />
+			</div>
+
+			<ExtensionInstaller />
 			<VueDraggable
 				class="gridList"
 				v-model="storeBingoGrid.gridList"
@@ -36,12 +42,7 @@
 							v-model="bingo.enabled"
 							@click.stop
 							@change="save(bingo, true)"
-							v-if="
-								storeAuth.isPremium ||
-								bingo.enabled ||
-								storeBingoGrid.gridList.filter((v) => v.enabled).length <
-									$config.MAX_BINGO_GRIDS
-							"
+							:disabled="!storeAuth.isPremium && storeBingoGrid.gridList.length > 1"
 						/>
 					</template>
 
@@ -67,18 +68,6 @@
 					</template>
 
 					<div class="form">
-						<div class="overlayInstallCard">
-							<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
-							<OverlayInstaller
-								type="bingogrid"
-								:sourceSuffix="bingo.title"
-								:id="bingo.id"
-								:queryParams="{ bid: bingo.id }"
-							/>
-						</div>
-
-						<ExtensionInstaller />
-
 						<ToggleBlock
 							:icons="['overlay']"
 							:title="t('bingo_grid.form.overlayParams_title')"
@@ -450,6 +439,9 @@ function setLabelRef(id: string, el: ComponentPublicInstance | null): void {
 
 onBeforeMount(() => {
 	initParams();
+	if (!storeAuth.isPremium && storeBingoGrid.gridList.filter((v) => v.enabled).length === 0) {
+		storeBingoGrid.gridList[0]!.enabled = true;
+	}
 });
 
 /**
