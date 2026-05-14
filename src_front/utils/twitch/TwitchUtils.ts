@@ -828,7 +828,7 @@ export default class TwitchUtils {
 	public static async getRewards(
 		forceReload = false,
 		onlyManageable: boolean = false,
-		bypassWalls: boolean,
+		bypassWalls: boolean = false,
 	): Promise<TwitchDataTypes.Reward[]> {
 		if (!bypassWalls && !this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 		if (
