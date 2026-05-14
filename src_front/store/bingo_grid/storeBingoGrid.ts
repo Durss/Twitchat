@@ -110,18 +110,21 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				if (!event.data) return;
 				if (event.data.count <= 0) return;
 				const channelId = StoreProxy.auth.twitch.user.id;
+				const isAnon = event.data.isAnon === true;
+				const name = isAnon ? Utils.getNameFromOpaqueId(event.data.uid) : event.data.login;
 				const user = StoreProxy.users.getUserFrom(
-					"twitch",
+					isAnon ? "twitchat" : "twitch",
 					StoreProxy.auth.twitch.user.id,
 					event.data.uid,
-					event.data.login,
-					event.data.login,
+					name,
+					name,
 					undefined,
 					undefined,
 					false,
 					undefined,
 					false,
 				);
+				user.anonymous = event.data.isAnon;
 
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[channelId]!;
@@ -836,6 +839,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						return {
 							user_name: v.user.displayNameOriginal,
 							user_pic: v.user.avatarPath,
+							isAnon: v.user.anonymous === true,
 							score: v.count,
 							pos: 0,
 						};

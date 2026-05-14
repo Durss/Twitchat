@@ -512,6 +512,7 @@ export type TwitchatEventMap = {
 		scores?: {
 			user_name: string;
 			user_pic: string | undefined;
+			isAnon: boolean;
 			score: number;
 			pos: number;
 		}[];

@@ -94,6 +94,7 @@ export type EventTypeMap = {
 		uid: string;
 		count: number;
 		login?: string;
+		isAnon?: boolean;
 	};
 	TRIGGER_SLASH_COMMAND: {
 		command: "link" | "say" | "ask";

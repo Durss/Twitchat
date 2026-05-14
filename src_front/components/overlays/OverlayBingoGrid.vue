@@ -74,7 +74,14 @@
 							:class="'pos_' + entry.pos"
 						>
 							<div class="pos">#{{ entry.pos + 1 }}</div>
-							<img :src="entry.user_pic" alt="avatar" v-if="entry.user_pic" />
+							<Icon v-if="entry.isAnon" name="anon" class="avatar anon" />
+							<img
+								v-else
+								class="avatar"
+								:src="entry.user_pic"
+								alt="avatar"
+								v-if="entry.user_pic"
+							/>
 							<div class="username">{{ entry.user_name }}</div>
 							<div class="score">
 								<Icon name="sub" class="star" />
@@ -471,6 +478,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 0,
 								score: 8,
 								user_name: "Cailloute",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png",
 							},
@@ -478,6 +486,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 1,
 								score: 5,
 								user_name: "ChezMarino",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png",
 							},
@@ -485,6 +494,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 1,
 								score: 5,
 								user_name: "Shakawah",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-50x50.png",
 							},
@@ -492,6 +502,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 2,
 								score: 4,
 								user_name: "Euphoriasis",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/87b7b0d0-73e7-4bbd-9d50-40cdcfe0c18a-profile_image-50x50.jpeg",
 							},
@@ -499,6 +510,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 3,
 								score: 3,
 								user_name: "Kapacino",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/ea9b8b0b-d170-43c0-a2fa-2cd4fbdde5e2-profile_image-50x50.png",
 							},
@@ -506,6 +518,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 								pos: 4,
 								score: 2,
 								user_name: "Durss",
+								isAnon: false,
 								user_pic:
 									"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-50x50.png",
 							},
@@ -1252,10 +1265,15 @@ export default toNative(OverlayBingoGrid);
 					font-weight: bold;
 					font-size: 0.4em;
 				}
-				& > img {
+				.avatar {
 					height: 1em;
 					border-radius: 50%;
 					flex-shrink: 0;
+
+					&.anon {
+						padding: 0.1em;
+						border: 0.05em solid currentColor;
+					}
 				}
 				.score {
 					height: 1em;
