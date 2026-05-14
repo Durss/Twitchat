@@ -420,20 +420,11 @@ export type TwitchatEventMap = {
 	 * Request bingo grid configuration
 	 * @answer ON_BINGO_GRID_CONFIGS
 	 */
-	GET_BINGO_GRID_CONFIGS: {
-		/**
-		 * Bingo grid ID to get parameters for
-		 */
-		id: string;
-	};
+	GET_BINGO_GRID_CONFIGS: void;
 	/**
 	 * Receive a bingo grid configuration
 	 */
 	ON_BINGO_GRID_CONFIGS: {
-		/**
-		 * Bingo grid ID
-		 */
-		id: string;
 		/**
 		 * Bingo configs
 		 */
@@ -456,20 +447,11 @@ export type TwitchatEventMap = {
 	/**
 	 * Advertise bingo grid overlay presence
 	 */
-	SET_BINGO_GRID_OVERLAY_PRESENCE: {
-		/**
-		 * Bingo grid ID to advertise presence of
-		 */
-		id: string;
-	};
+	SET_BINGO_GRID_OVERLAY_PRESENCE: void;
 	/**
 	 * Set bingo grid visibility
 	 */
 	SET_BINGO_GRID_VISIBILITY: {
-		/**
-		 * Bingo grid ID to change visibility of
-		 **/
-		id: string;
 		/**
 		 * Show or hide the bingo grid
 		 * Omit to toggle current visibility
@@ -480,10 +462,6 @@ export type TwitchatEventMap = {
 	 * Triggered when a viewer completes a bingo
 	 */
 	ON_BINGO_GRID_VIEWER_EVENT: {
-		/**
-		 * Bingo grid ID
-		 */
-		id: string;
 		/**
 		 * User info
 		 */
@@ -501,10 +479,6 @@ export type TwitchatEventMap = {
 	 * Receive bingo grid leaderboard
 	 */
 	ON_BINGO_GRID_LEADER_BOARD: {
-		/**
-		 * Bingo grid ID
-		 */
-		id: string;
 		/**
 		 * Scoreboard entries
 		 * Set to undefined to hide the leaderboard

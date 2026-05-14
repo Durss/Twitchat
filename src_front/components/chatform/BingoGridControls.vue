@@ -1,12 +1,8 @@
 <template>
-	<div
-		ref="rootEl"
-		class="bingogridcontrols blured-background-window"
-		v-if="!leaderBoardID || storeBingoGrid.viewersBingoCount[leaderBoardID]?.length === 0"
-	>
+	<div ref="rootEl" class="bingogridcontrols blured-background-window" v-if="!showLeaderboard">
 		<div
 			v-for="grid in gridList"
-			class="card-item entry"
+			class="entry"
 			:title="grid.title"
 			:open="false"
 			:key="grid.id"
@@ -104,22 +100,18 @@
 					v-tooltip="t('bingo_grid.form.reset_bt')"
 				/>
 				<TTButton
-					v-if="
-						storeBingoGrid.viewersBingoCount[grid.id] &&
-						storeBingoGrid.viewersBingoCount[grid.id]!.length > 0
-					"
+					v-if="storeBingoGrid.viewersBingoCount.length > 0"
 					icon="leaderboard"
 					small
 					v-tooltip="t('bingo_grid.form.leaderBoard.open_bt_tt')"
-					@click="openLeaderBoard(grid)"
+					@click="showLeaderboard = true"
 					>{{
 						t(
 							"bingo_grid.form.leaderBoard.open_bt",
 							{
-								COUNT: Object.keys(storeBingoGrid.viewersBingoCount[grid.id]!)
-									.length,
+								COUNT: Object.keys(storeBingoGrid.viewersBingoCount).length,
 							},
-							Object.keys(storeBingoGrid.viewersBingoCount[grid.id]!).length,
+							Object.keys(storeBingoGrid.viewersBingoCount).length,
 						)
 					}}</TTButton
 				>
@@ -145,9 +137,7 @@
 		<div class="list">
 			<div
 				class="entry"
-				v-for="entry in storeBingoGrid.viewersBingoCount[leaderBoardID]!.sort(
-					(a, b) => b.count - a.count,
-				)"
+				v-for="entry in storeBingoGrid.viewersBingoCount.sort((a, b) => b.count - a.count)"
 				:key="entry.user.id"
 			>
 				<Icon v-if="entry.user.anonymous == true" class="avatar anon" name="anon" />
@@ -159,13 +149,21 @@
 				<strong class="count">x{{ entry.count }}</strong>
 			</div>
 		</div>
-		<TTButton class="showBt" icon="show" @click="showLeaderboard()">{{
+		<TTButton class="showBt" icon="show" @click="openLeaderboard()">{{
 			t("bingo_grid.state.showLeaderboard_bt")
 		}}</TTButton>
-		<TTButton class="showBt" icon="hide" @click="hideLeaderboard()">{{
+		<TTButton class="showBt" icon="hide" @click="closeLeaderboard()">{{
 			t("bingo_grid.state.hideLeaderboard_bt")
 		}}</TTButton>
-		<TTButton class="backBt" icon="back" @click.stop="leaderBoardID = ''" transparent />
+		<TTButton
+			class="backBt"
+			icon="back"
+			@click.stop="
+				showLeaderboard = false;
+				closeLeaderboard();
+			"
+			transparent
+		/>
 	</div>
 </template>
 
@@ -188,9 +186,9 @@ const storeUsers = useStoreUsers();
 const storeBingoGrid = useStoreBingoGrids();
 const emits = defineEmits<{ close: [] }>();
 const rootEl = useTemplateRef("rootEl");
-const search = ref<string>("");
-const loading = ref<boolean>(false);
-const leaderBoardID = ref<string>("");
+const search = ref("");
+const loading = ref(false);
+const showLeaderboard = ref(false);
 const clickHandler = (e: MouseEvent) => onClick(e);
 
 const gridList = computed(() => storeBingoGrid.gridList.filter((v) => v.enabled));
@@ -214,14 +212,6 @@ watch(
 );
 
 /**
- * Open grid's leaderboard
- * @param gridId
- */
-function openLeaderBoard(grid: TwitchatDataTypes.BingoGridConfig): void {
-	leaderBoardID.value = grid.id;
-}
-
-/**
  * Opens up a user card
  * @param user
  */
@@ -232,15 +222,15 @@ function openUserCard(user: TwitchatDataTypes.TwitchatUser, chanId?: string): vo
 /**
  * Sends current leadeboard to the overlay
  */
-function showLeaderboard(): void {
-	storeBingoGrid.showLeaderboard(leaderBoardID.value);
+function openLeaderboard(): void {
+	storeBingoGrid.showLeaderboard();
 }
 
 /**
  * Hides current leadeboard from the overlay
  */
-function hideLeaderboard(): void {
-	storeBingoGrid.hideLeaderboard(leaderBoardID.value);
+function closeLeaderboard(): void {
+	storeBingoGrid.hideLeaderboard();
 }
 
 /**
