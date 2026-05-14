@@ -139,9 +139,8 @@ export default class BingoGridController extends AbstractController {
 		uid?: string,
 	): Promise<IViewerGridCacheData[] | void> {
 		// Validate UID and gridId to prevent path traversal
-		if ((uid && !/^[0-9]+$/.test(uid)) || !channelId || !/^[0-9]+$/.test(channelId)) return;
-
-		// console.log("Get viewer grid list for channel", channelId, "and user", uid);
+		if ((uid && !/^[a-zA-Z0-9_-]+$/.test(uid)) || !channelId || !/^[0-9]+$/.test(channelId))
+			return;
 
 		const gridList = await this.getChannelGrids(channelId);
 		const isStreamerPremium = (await super.getUserPremiumState(channelId)) != "no";
@@ -213,6 +212,7 @@ export default class BingoGridController extends AbstractController {
 		gridId: string,
 		count: number,
 		login?: string,
+		isAnon?: boolean,
 	): Promise<boolean> {
 		const grid = await this.getViewerGrid(streamerId, gridId, viewerId);
 		if (grid) {
@@ -269,6 +269,7 @@ export default class BingoGridController extends AbstractController {
 				uid: viewerId,
 				login,
 				count,
+				isAnon,
 			});
 			return true;
 		}
@@ -511,7 +512,7 @@ export default class BingoGridController extends AbstractController {
 		const gridId: string = (request.query as any).gridid;
 
 		//Validate UID and gridId to prevent path traversal
-		if (!uid || !/^[0-9]+$/.test(uid) || !gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
+		if (!uid || !/^[a-zA-Z0-9_-]+$/.test(uid) || !gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
 			response.header("Content-Type", "application/json");
 			response.status(400);
 			response.send(
