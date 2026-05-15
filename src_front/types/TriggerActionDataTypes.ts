@@ -114,7 +114,8 @@ export type TriggerActionTypes =
 	| TriggerActionCustomTrainData
 	| TriggerActionSFXRData
 	| TriggerActionJSONExtractData
-	| TriggerActionBlueskyData;
+	| TriggerActionBlueskyData
+	| TriggerActionMeldStudioData;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
@@ -406,6 +407,11 @@ export const TriggerEventTypeCategories = {
 		id: 11,
 		labelKey: "triggers.categories.obs",
 		icons: ["obs"],
+	} as TriggerEventTypeCategory,
+	MELD_STUDIO: {
+		id: 24,
+		labelKey: "triggers.categories.meldStudio",
+		icons: ["meldStudio"],
 	} as TriggerEventTypeCategory,
 	MISC: {
 		id: 12,
@@ -1736,6 +1742,55 @@ export interface TriggerActionBlueskyData extends TriggerActionData {
 }
 
 /**
+ * Contains data about a Meld Studio action
+ */
+export interface TriggerActionMeldStudioData extends TriggerActionData {
+	type: "meldstudio";
+	meldstudioData?:
+		| { action: "unset" }
+		| {
+				action: "layer_visibility";
+				sceneId: string;
+				layerId: string;
+				sourceAction: "show" | "hide" | "toggle";
+		  }
+		| {
+				action: "toggle_effect";
+				sceneId: string;
+				layerId: string;
+				effectId: string;
+				sourceAction: "show" | "hide" | "toggle";
+		  }
+		| {
+				action: "track_mute";
+				trackId: string;
+				effectAction: "mute" | "unmute" | "toggle";
+		  }
+		| {
+				action: "show_scene";
+				sceneId: string;
+		  }
+		| {
+				action: "screenshot";
+		  }
+		| {
+				action: "clip_record";
+		  }
+		| {
+				action: "start_record";
+		  }
+		| {
+				action: "stop_record";
+		  }
+		| {
+				action: "start_stream";
+		  }
+		| {
+				action: "stop_stream";
+		  };
+}
+
+/**
  * Represents a tree structure item.
  * Either a trigger folder or a trigger item entry
  */
@@ -2069,6 +2124,10 @@ export const TriggerTypes = {
 	MANY_REPLIES: "172",
 	QUIZ_COMPLETE: "179",
 	POWER_UP_CUSTOM: "180",
+	MELDSTUDIO_START_STREAM: "181",
+	MELDSTUDIO_STOP_STREAM: "182",
+	MELDSTUDIO_SCENE_CHANGE: "183",
+	MELDSTUDIO_SOURCE_VISIBILITY_CHANGE: "184",
 	MODIVERSARY: "187",
 
 	TWITCHAT_AD: "ad",
@@ -8831,6 +8890,44 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			descriptionKey: "triggers.events.OBS_FILTER_OFF.description",
 			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
+		},
+
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "online",
+			labelKey: "triggers.events.MELDSTUDIO_START_STREAM.label",
+			value: TriggerTypes.MELDSTUDIO_START_STREAM,
+			descriptionKey: "triggers.events.MELDSTUDIO_START_STREAM.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_START_STREAM,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "offline",
+			labelKey: "triggers.events.MELDSTUDIO_STOP_STREAM.label",
+			value: TriggerTypes.MELDSTUDIO_STOP_STREAM,
+			descriptionKey: "triggers.events.MELDSTUDIO_STOP_STREAM.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_STOP_STREAM,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "list",
+			labelKey: "triggers.events.MELDSTUDIO_SCENE_CHANGE.label",
+			value: TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
+			descriptionKey: "triggers.events.MELDSTUDIO_SCENE_CHANGE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_SCENE_CHANGE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "show",
+			labelKey: "triggers.events.MELDSTUDIO_SOURCE_VISIBILITY_CHANGE.label",
+			value: TriggerTypes.MELDSTUDIO_SOURCE_VISIBILITY_CHANGE,
+			descriptionKey: "triggers.events.MELDSTUDIO_SOURCE_VISIBILITY_CHANGE.description",
+			testMessageType:
+				TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_SOURCE_VISIBILITY_CHANGE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 
 		{
