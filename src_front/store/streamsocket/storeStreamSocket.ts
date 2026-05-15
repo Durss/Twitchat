@@ -6,6 +6,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type { IStreamSocketActions, IStreamSocketGetters, IStreamSocketState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import { toast } from "@/utils/toast/toast";
 
 let socket: WebSocket | undefined = undefined;
 let reconnectTimeout: number = -1;
@@ -31,8 +32,10 @@ export const storeStreamSocket = defineStore("streamSocket", {
 				if (this.socketSecret) {
 					void this.connect(this.socketSecret).then((success) => {
 						if (!success) {
-							StoreProxy.common.alert(
-								StoreProxy.i18n.t("error.streamSocket_connect_failed"),
+							toast(
+								"[StreamSocket] " +
+									StoreProxy.i18n.t("error.streamSocket_connect_failed"),
+								{ type: "error" },
 							);
 						}
 					});

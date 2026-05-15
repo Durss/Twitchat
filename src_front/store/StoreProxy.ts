@@ -6,11 +6,10 @@ import type {
 	LabelItemPlaceholder,
 	LabelItemPlaceholderTag,
 } from "@/types/ILabelOverlayData";
+import type { MeldStudio } from "@/types/MeldStudioTypes";
 import type {
-	IHttpPlaceholder,
 	SettingsExportData,
 	TriggerActionCountDataAction,
-	TriggerActionHTTPCallData,
 	TriggerActionPlayabilityData,
 	TriggerActionTypes,
 	TriggerCallStack,
@@ -26,6 +25,7 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
+import type { AppBskyFeedDefs } from "@atproto/api";
 import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import type { BrowserOAuthClient } from "@atproto/oauth-client-browser";
 import type { StreamerbotAction } from "@streamerbot/client";
@@ -43,7 +43,6 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type { AppBskyFeedDefs } from "@atproto/api";
 
 /**
  * Created : 23/09/2022
@@ -168,6 +167,11 @@ export default class StoreProxy {
 	public static streamfog: StoreInstance<IStreamfogState, IStreamfogGetters, IStreamfogActions>;
 	public static api: StoreInstance<IAPIState, IAPIGetters, IAPIActions>;
 	public static bluesky: StoreInstance<IBlueskyState, IBlueskyGetters, IBlueskyActions>;
+	public static meldStudio: StoreInstance<
+		IMeldStudioState,
+		IMeldStudioGetters,
+		IMeldStudioActions
+	>;
 	public static i18n: VueI18n<
 		{},
 		{},
@@ -4411,5 +4415,37 @@ export interface IBlueskyActions {
 	/**
 	 * Saves state to storage
 	 */
-	saveState(): void;
+	saveConfigs(): void;
+}
+
+export interface IMeldStudioState {
+	connected: boolean;
+	connecting: boolean;
+	connectionEnabled: boolean;
+	ip: string;
+	port: number;
+	password: string;
+}
+
+export interface IMeldStudioGetters {
+	meld: MeldStudio | null;
+}
+
+export interface IMeldStudioActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData(): void;
+	/**
+	 * Connect to Meld
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects from Meld
+	 */
+	disconnect(): void;
+	/**
+	 * Saves current data to server
+	 */
+	saveConfigs(): void;
 }

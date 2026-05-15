@@ -190,6 +190,17 @@
 				<p>OBS</p>
 			</button>
 
+			<button
+				class="card-item"
+				:class="{ connected: storeMeldStudio.connected }"
+				@click="subContent = 'meldStudio'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.meldStudio' }"
+				key="meldStudio"
+			>
+				<Icon name="meldStudio" />
+				<p>Meld Studio</p>
+			</button>
+
 			<!-- <button
 				class="card-item"
 				:class="{ connected: $store.streamfog.connected }"
@@ -346,6 +357,7 @@
 	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
 	<ConnectStreamdeck v-else-if="subContent == 'streamdeck'" />
 	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
+	<ConnectMeldStudio v-else-if="subContent == 'meldStudio'" />
 	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
 	<ConnectPlayability v-else-if="subContent == 'playability'" />
 	<ConnectTwitchatAPI v-else-if="subContent == 'twitchat_api'" />
@@ -357,11 +369,16 @@
 
 <script setup lang="ts">
 import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
 import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
+import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
 import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
 import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
@@ -375,8 +392,6 @@ import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
 import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import StreamdeckSocket from "@/utils/StreamdeckSocket";
@@ -388,6 +403,8 @@ import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import SearchForm from "./SearchForm.vue";
+import ConnectBluesky from "./connexions/ConnectBluesky.vue";
 import ConnectDiscord from "./connexions/ConnectDiscord.vue";
 import ConnectElevenLabs from "./connexions/ConnectElevenLabs.vue";
 import ConnectGoXLR from "./connexions/ConnectGoXLR.vue";
@@ -412,14 +429,11 @@ import ConnectTiltify from "./connexions/ConnectTiltify.vue";
 import ConnectTipeee from "./connexions/ConnectTipeee.vue";
 import ConnectTwitchBot from "./connexions/ConnectTwitchBot.vue";
 import ConnectTwitchatAPI from "./connexions/ConnectTwitchatAPI.vue";
+import ConnectTwitchatCompanion from "./connexions/ConnectTwitchatCompanion.vue";
 import ConnectVoicemod from "./connexions/ConnectVoicemod.vue";
 import ConnectWebsocket from "./connexions/ConnectWebsocket.vue";
 import ConnectYoutube from "./connexions/ConnectYoutube.vue";
-import SearchForm from "./SearchForm.vue";
-import ConnectBluesky from "./connexions/ConnectBluesky.vue";
-import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
-import ConnectTwitchatCompanion from "./connexions/ConnectTwitchatCompanion.vue";
-import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
+import ConnectMeldStudio from "./connexions/ConnectMeldStudio.vue";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
@@ -445,6 +459,7 @@ const storeBluesky = useStoreBluesky();
 const storeAuth = useStoreAuth();
 const storeExtension = useStoreExtension();
 const storeHeat = useStoreHeat();
+const storeMeldStudio = useStoreMeldStudio();
 
 const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);
