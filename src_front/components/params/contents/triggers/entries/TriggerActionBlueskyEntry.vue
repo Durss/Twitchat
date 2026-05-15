@@ -1,4 +1,3 @@
-''
 <template>
 	<div class="triggeractionblueskyentry triggerActionForm" v-if="action.blueskyData">
 		<ParamItem :paramData="param_action" v-model="action.blueskyData.action" noBackground />
@@ -33,9 +32,6 @@ import type {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { onBeforeMount, ref } from "vue";
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
 
 const props = withDefaults(
 	defineProps<{

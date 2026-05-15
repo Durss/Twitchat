@@ -296,6 +296,23 @@
 
 					<TTButton
 						class="button"
+						@click.capture="selectActionType('meldstudio')"
+						icon="meldStudio"
+						:disabled="!storeMeldStudio.connected"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggerAction_meldstudio',
+						}"
+						v-tooltip="
+							storeMeldStudio.connected
+								? ''
+								: $t('triggers.actions.common.action_meldstudio_tt')
+						"
+						>{{ $t("triggers.actions.common.action_meldstudio") }}</TTButton
+					>
+
+					<TTButton
+						class="button"
 						@click.capture="selectActionType('tts')"
 						icon="tts"
 						:disabled="!storeTTS.params.enabled"
@@ -791,6 +808,12 @@
 				:triggerData="triggerData"
 				triggerMode
 			/>
+			<TriggerActionMeldStudioEntry
+				v-else-if="action.type == 'meldstudio'"
+				:action="action"
+				:triggerData="triggerData"
+				triggerMode
+			/>
 			<RaffleForm
 				v-else-if="action.type == 'raffle'"
 				:action="action"
@@ -851,6 +874,7 @@ import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
 import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
+import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
 import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
@@ -873,6 +897,7 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import Config from "@/utils/Config";
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from "@/utils/OBSWebsocket";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
@@ -927,7 +952,7 @@ import TriggerActionValueEntry from "./entries/TriggerActionValueEntry.vue";
 import TriggerActionVibratePhoneEntry from "./entries/TriggerActionVibratePhoneEntry.vue";
 import TriggerActionVoicemodEntry from "./entries/TriggerActionVoicemodEntry.vue";
 import TriggerActionWSEntry from "./entries/TriggerActionWSEntry.vue";
-import Config from "@/utils/Config";
+import TriggerActionMeldStudioEntry from "./entries/TriggerActionMeldStudioEntry.vue";
 
 const { t } = useI18n();
 
@@ -973,6 +998,7 @@ const storeGroq = useStoreGroq();
 const storeBingoGrid = useStoreBingoGrid();
 const storePlayability = useStorePlayability();
 const storeBluesky = useStoreBluesky();
+const storeMeldStudio = useStoreMeldStudio();
 
 const actionList = ref<HTMLDivElement | null>(null);
 const opened = ref(false);
@@ -1256,6 +1282,16 @@ function selectActionType(type: TriggerActionStringTypes): void {
 				storeParams.openParamsPage(
 					TwitchatDataTypes.ParameterPages.CONNECTIONS,
 					TwitchatDataTypes.ParamDeepSections.OBS,
+				);
+				return;
+			}
+			break;
+		}
+		case "meldstudio": {
+			if (!storeMeldStudio.connected) {
+				storeParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.MELD_STUDIO,
 				);
 				return;
 			}

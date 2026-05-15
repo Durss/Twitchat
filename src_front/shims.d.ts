@@ -3,6 +3,7 @@ import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 import type { SFXR } from "./types/jsfxr";
+import type { QWebChannelConstructor, QWebChannelTransport } from "./types/qwebchannel";
 import type { TwitchScopesString } from "./utils/twitch/TwitchScopes";
 import type { Reactive } from "vue";
 import type Utils from "./utils/Utils";
@@ -16,6 +17,8 @@ declare global {
 		setInitMessage(message: string): void;
 		authCallback(code: string, csrfToken: string): void;
 		jsfxr: { sfxr: SFXR };
+		QWebChannel?: QWebChannelConstructor;
+		qt?: { webChannelTransport: QWebChannelTransport };
 	}
 
 	interface Navigator {
@@ -136,6 +139,8 @@ declare global {
 		handlers: any[];
 		dispatching: boolean;
 	};
+
+	const QWebChannel: QWebChannelConstructor;
 
 	const paypal: {
 		FUNDING: PAYPAL_FUNDING_TYPE;

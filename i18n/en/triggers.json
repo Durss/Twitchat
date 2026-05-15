@@ -183,6 +183,8 @@
 				"action_triggerToggle": "Toggle trigger",
 				"action_obs": "Control OBS",
 				"action_obs_tt": "You need to connect with OBS on the <strong>Connexions</strong> section",
+				"action_meldstudio": "Control Meld Studio",
+				"action_meldstudio_tt": "You need to connect with Meld Studio on the <strong>Connexions</strong> section",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "This needs the <strong>text to speech</strong> feature to be enabled",
 				"action_music": "Control Spotify",
@@ -790,6 +792,22 @@
 					"post": "Post a message",
 					"get_latest_post": "Get latest post"
 				}
+			},
+			"meldstudio": {
+				"param_action": "Action",
+				"actions": {
+					"unset": "@:global.select_placeholder",
+					"layer_visibility": "Control source",
+					"toggle_effect": "Control effect",
+					"track_mute": "Control Audio",
+					"screenshot": "Screenshot",
+					"show_scene": "Change current scene",
+					"clip_record": "Record a clip",
+					"start_record": "Start recording",
+					"stop_record": "Stop Recording",
+					"start_stream": "Start streaming",
+					"stop_stream": "Stop streaming"
+				}
 			}
 		},
 		"categories": {
@@ -804,6 +822,7 @@
 			"music": "Spotify",
 			"timer": "Temporal events",
 			"obs": "OBS",
+			"meldStudio": "Meld Studio",
 			"misc": "Miscellaneous",
 			"count_and_values": "Counters & Values",
 			"goxlr": "GoXLR",
@@ -1457,11 +1476,11 @@
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
 			"OBS_START_STREAM": {
-				"label": "Start streaming (OBS)",
+				"label": "Start streaming",
 				"description": "Actions to execute when starting stream"
 			},
 			"OBS_STOP_STREAM": {
-				"label": "Stop streaming (OBS)",
+				"label": "Stop streaming",
 				"description": "Actions to execute when stoping stream"
 			},
 			"OBS_RECORDING_START": {
@@ -1877,6 +1896,23 @@
 			"QUIZ_COMPLETE": {
 				"label": "Quiz complete",
 				"description": "Actions to execute when a quiz is completed"
+			},
+			"MELDSTUDIO_START_STREAM": {
+				"label": "Start streaming",
+				"description": "Actions to execute when starting stream"
+			},
+			"MELDSTUDIO_STOP_STREAM": {
+				"label": "Stop streaming",
+				"description": "Actions to execute when stoping stream"
+			},
+			"MELDSTUDIO_SCENE_CHANGE": {
+				"label": "Switch to scene",
+				"description": "Actions to execute when switching to {SUB_ITEM_NAME} Meld Studio scene",
+				"description_any": "Actions to execute when switching to any Meld Studio scene"
+			},
+			"MELDSTUDIO_SOURCE_VISIBILITY_CHANGE": {
+				"label": "Source visibility change",
+				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio source changes"
 			}
 		},
 		"musicEvents": {

@@ -833,6 +833,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.emergency.populateData();
 			void StoreProxy.groq.populateData();
 			void StoreProxy.quiz.populateData();
+			StoreProxy.meldStudio.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
 			StoreProxy.customTrain.populateData();
