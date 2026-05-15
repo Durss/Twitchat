@@ -112,7 +112,7 @@ export const storeBluesky = defineStore("bluesky", {
 					);
 					user.avatarPath = userProfile.data.avatar;
 					StoreProxy.auth.bluesky = { user };
-					this.saveState();
+					this.saveConfigs();
 					this.startPolling();
 				}
 			} catch (error) {
@@ -126,7 +126,7 @@ export const storeBluesky = defineStore("bluesky", {
 			this.connected = false;
 			this.profile = null;
 			StoreProxy.auth.bluesky = null;
-			this.saveState();
+			this.saveConfigs();
 			if (session) {
 				await session?.signOut();
 			}
@@ -146,7 +146,7 @@ export const storeBluesky = defineStore("bluesky", {
 		setAutoliveFeatureState(state: boolean) {
 			this.autoLive = state;
 			this.applyAutoLive();
-			this.saveState();
+			this.saveConfigs();
 		},
 
 		async getLatestPosts(): Promise<false | AppBskyFeedDefs.FeedViewPost[]> {
@@ -431,7 +431,7 @@ export const storeBluesky = defineStore("bluesky", {
 			}
 		},
 
-		saveState() {
+		saveConfigs() {
 			const data: IStoreData = {
 				sub: this.sub,
 				autoLive: this.autoLive,

@@ -92,6 +92,7 @@ import { stickyTopShadow } from "./directives/stickyTopShadow";
 import Vue3Toasity, { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { storeBluesky } from "./store/bluesky/storeBluesky";
+import { storeMeldStudio } from "./store/meldstudio/storeMeldStudio";
 
 window.setInitMessage("Booting app...");
 
@@ -288,6 +289,7 @@ function buildApp() {
 	StoreProxy.default.streamfog = storeStreamfog();
 	StoreProxy.default.api = storeAPI();
 	StoreProxy.default.bluesky = storeBluesky();
+	StoreProxy.default.meldStudio = storeMeldStudio();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach((k) => {

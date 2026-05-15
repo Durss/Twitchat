@@ -180,6 +180,8 @@
 				"action_triggerToggle": "Activer/Désactiver un trigger",
 				"action_obs": "Contrôler OBS",
 				"action_obs_tt": "Vous devez connecter OBS dans la section <strong>Connexions</strong>",
+				"action_meldstudio": "Contrôler Meld Studio",
+				"action_meldstudio_tt": "Vous devez connecter Meld Studio dans la section <strong>Connexions</strong>",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité de <strong>text to speech</strong> dans les paramètres",
 				"action_music": "Contrôler Spotify",
@@ -788,6 +790,22 @@
 					"post": "Poster un message",
 					"get_latest_post": "Récupérer le dernier post"
 				}
+			},
+			"meldstudio": {
+				"param_action": "Action",
+				"actions": {
+					"unset": "@:global.select_placeholder",
+					"layer_visibility": "Contrôler une source",
+					"toggle_effect": "Contrôler un effet",
+					"track_mute": "Contrôler de l'audio",
+					"screenshot": "Capture d'écran",
+					"show_scene": "Changer de scène",
+					"clip_record": "Enregistrer un clip",
+					"start_record": "Lancer l'enregistrement",
+					"stop_record": "Arrêter l'enregistrement",
+					"start_stream": "Lancer le stream",
+					"stop_stream": "Arrêter le stream"
+				}
 			}
 		},
 		"categories": {
@@ -802,6 +820,7 @@
 			"music": "Spotify",
 			"timer": "Évènements temporels",
 			"obs": "OBS",
+			"meldStudio": "Meld Studio",
 			"misc": "Autres",
 			"count_and_values": "Compteurs & Valeurs",
 			"goxlr": "GoXLR",
@@ -1873,6 +1892,23 @@
 			"QUIZ_COMPLETE": {
 				"label": "Quiz terminé",
 				"description": "Actions à exécuter lorsqu'un quiz est terminé"
+			},
+			"MELDSTUDIO_START_STREAM": {
+				"label": "Lancement du stream",
+				"description": "Actions à executer lorsque vous démarrez le stream"
+			},
+			"MELDSTUDIO_STOP_STREAM": {
+				"label": "Arrêt du stream",
+				"description": "Actions à executer lorsque vous arrêtez le stream"
+			},
+			"MELDSTUDIO_SCENE_CHANGE": {
+				"label": "Changement de scène",
+				"description": "Actions à exécuter lorsque la scène Meld Studio {SUB_ITEM_NAME} devient active",
+				"description_any": "Actions à exécuter lorsque n'importe quelle scène Meld Studio devient active"
+			},
+			"MELDSTUDIO_SOURCE_VISIBILITY_CHANGE": {
+				"label": "Source visibility change",
+				"description": "Actions à exécuter lorsque la visibilité de la source Meld Studio {SUB_ITEM_NAME} change"
 			}
 		},
 		"musicEvents": {

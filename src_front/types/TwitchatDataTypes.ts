@@ -131,6 +131,7 @@ export namespace TwitchatDataTypes {
 		ELEVENLABS: "elevenlabs",
 		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
+		MELD_STUDIO: "meldStudio",
 		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
 		STREAMERBOT: "streamerbot",
@@ -4920,6 +4921,9 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_APPROACHING: "hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN: "hype_train_cooled_down",
 		CLIP_CREATION_COMPLETE: "clip_creation_complete",
+		MELDSTUDIO_STOP_STREAM: "meldstudio_stop_stream",
+		MELDSTUDIO_START_STREAM: "meldstudio_start_stream",
+		MELDSTUDIO_SCENE_CHANGE: "meldstudio_scene_change",
 		TWITCH_CHARITY_DONATION: "twitch_charity_donation",
 		SUSPENDED_TRIGGER_STACK: "suspended_trigger_stack",
 		CLIP_PENDING_PUBLICATION: "clip_pending_publication",
@@ -4927,6 +4931,7 @@ export namespace TwitchatDataTypes {
 		OBS_PLAYBACK_STATE_UPDATE: "obs_playback_state_update",
 		OBS_WS_CONNECT_STATE_CHANGE: "obs_ws_connect_state_change",
 		COMMUNITY_CHALLENGE_CONTRIBUTION: "community_challenge_contribution",
+		MELDSTUDIO_SOURCE_VISIBILITY_CHANGE: "meldstudio_source_visibility_change",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -5051,11 +5056,15 @@ export namespace TwitchatDataTypes {
 		suspended_trigger_stack: true,
 		hype_train_approaching: false,
 		clip_creation_complete: false,
+		meldstudio_stop_stream: false,
+		meldstudio_start_stream: false,
 		clip_pending_publication: true,
 		community_boost_complete: true,
+		meldstudio_scene_change: false,
 		obs_playback_state_update: false,
 		obs_ws_connect_state_change: false,
 		community_challenge_contribution: true,
+		meldstudio_source_visibility_change: false,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 	/**
@@ -5218,7 +5227,11 @@ export namespace TwitchatDataTypes {
 		| MessageObsWsConnectStateChangeData
 		| MessageManyRepliesData
 		| MessageQuizCompleteData
-		| MessageTwitchCustomPowerUpData;
+		| MessageTwitchCustomPowerUpData
+		| MessageMeldStudioStartStreamData
+		| MessageMeldStudioStopStreamData
+		| MessageMeldStudioSceneChange
+		| MessageMeldSourceVisibilityChange;
 
 	/**
 	 * Defines any message that could be deleted.
@@ -7492,6 +7505,41 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageOBSStopStreamData extends AbstractTwitchatMessage {
 		type: "obs_stop_stream";
+	}
+
+	/**
+	 * Represents an Meld Studio start stream event
+	 */
+	export interface MessageMeldStudioStartStreamData extends AbstractTwitchatMessage {
+		type: "meldstudio_start_stream";
+	}
+
+	/**
+	 * Represents an Meld Studio stop stream event
+	 */
+	export interface MessageMeldStudioStopStreamData extends AbstractTwitchatMessage {
+		type: "meldstudio_stop_stream";
+	}
+
+	/**
+	 * Represents an Meld Studio scene change event
+	 */
+	export interface MessageMeldStudioSceneChange extends AbstractTwitchatMessage {
+		type: "meldstudio_scene_change";
+		meldstudioSceneChange: {
+			sceneId: string;
+		};
+	}
+
+	/**
+	 * Represents an Meld Studio source visibility change event
+	 */
+	export interface MessageMeldSourceVisibilityChange extends AbstractTwitchatMessage {
+		type: "meldstudio_source_visibility_change";
+		meldstudioSourceVisibilityChange: {
+			sourceId: string;
+			visible: boolean;
+		};
 	}
 
 	/**
