@@ -176,7 +176,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							))
 						) {
 							const data = {
-								id: event.data.gridId,
 								user: {
 									name: user.displayNameOriginal,
 									id: user.id,
@@ -660,6 +659,13 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 							if (allTicked) prevDiagonalBingos.push(1);
 						}
 
+						//Total bingo lines currently active on the grid (before filtering
+						//newXBingos to deltas). Used to register the streamer in the leaderboard.
+						const streamerTotalBingos =
+							newVerticalBingos.length +
+							newHorizontalBingos.length +
+							newDiagonalBingos.length;
+
 						newVerticalBingos = newVerticalBingos.filter(
 							(index) => prevVerticalBingos.indexOf(index) == -1,
 						);
@@ -669,6 +675,23 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						newDiagonalBingos = newDiagonalBingos.filter(
 							(index) => prevDiagonalBingos.indexOf(index) == -1,
 						);
+
+						//Register the streamer in the viewer bingo leaderboard. The SSE
+						//handler only registers remote viewers, so without this the
+						//streamer's own bingos would never appear in the leaderboard.
+						const streamer = StoreProxy.auth.twitch.user;
+						let streamerEntry = this.viewersBingoCount.find(
+							(v) => v.user.id === streamer.id,
+						);
+						if (streamerEntry) {
+							streamerEntry.count = streamerTotalBingos;
+						} else if (streamerTotalBingos > 0) {
+							this.viewersBingoCount.push({
+								count: streamerTotalBingos,
+								user: streamer,
+							});
+						}
+						this.viewersBingoCount = this.viewersBingoCount.filter((v) => v.count > 0);
 
 						const buildMessage = (): TwitchatDataTypes.MessageBingoGridData => {
 							let x = -1;
@@ -738,6 +761,22 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 								newHorizontalBingos,
 								newDiagonalBingos,
 							});
+
+							if (
+								newVerticalBingos.length > 0 ||
+								newHorizontalBingos.length > 0 ||
+								newDiagonalBingos.length > 0
+							) {
+								const data = {
+									user: {
+										name: streamer.displayNameOriginal,
+										id: streamer.id,
+										avatar: streamer.avatarPath || "",
+									},
+									count: streamerTotalBingos,
+								};
+								PublicAPI.instance.broadcast("ON_BINGO_GRID_VIEWER_EVENT", data);
+							}
 						}
 					}
 
