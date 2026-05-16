@@ -1,3 +1,5 @@
+import type { TwitchEventSubDataTypes } from "./TwitchEventSubDataTypes";
+
 export namespace TwitchDataTypes {
 	export interface ModeratorUser {
 		user_id: string;
@@ -565,5 +567,23 @@ export namespace TwitchDataTypes {
 		clip_id:string;
 		landscape_download_url:string;
 		portrait_download_url:string|null;
+	}
+
+	export interface PinnedChatMessage {
+		message_id: string;
+		broadcaster_id: string;
+		sender_user_id: string;
+		sender_user_login: string;
+		sender_user_name: string;
+		pinned_by_user_id: string;
+		pinned_by_user_login: string;
+		pinned_by_user_name: string;
+		message: {
+			text: string;
+			fragments: TwitchEventSubDataTypes.MessageFragments;
+		};
+		starts_at: string;
+		ends_at: string;
+		updated_at: string;
 	}
 }

@@ -32,6 +32,7 @@ export default class TwitchUtils {
 	private static loadingChannelEmotes:{[uid:string]:boolean} = {};
 	private static loadingChannelEmotesPromise:{[uid:string]:Promise<void>} = {};
 	private static loadedChannelEmotes:{[uid:string]:boolean} = {};
+	private static currentlyPinnedMessageId:string = "";
 	private static requestScopesCallback:(scopes:TwitchScopesString[])=>void;
 	private static refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>;
 
@@ -3084,15 +3085,18 @@ export default class TwitchUtils {
 	 * @param uid user ID
 	 * @param reason warning message
 	 */
-	public static async sendMessage(channelID: string, message:string, replyToID?:string, sendAsBot:boolean = true): Promise<boolean> {
+	public static async sendMessage(channelID: string, message:string, replyToID?:string, sendAsBot:boolean = true, pin:boolean = false): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.CHAT_WRITE_EVENTSUB])) return false;
 
 		while(message.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
-			const body:{[key:string]:string|number} = {
+			const body:{[key:string]:string|number|boolean} = {
 				broadcaster_id: channelID,
 				sender_id: this.uid,
 				message: message.substring(0, 499),
+			}
+			if(pin) {
+				body.pin = true;
 			}
 			if(replyToID) {
 				body.reply_parent_message_id = replyToID;
@@ -3226,6 +3230,154 @@ export default class TwitchUtils {
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers);
 			return this.unsetSuspiciousUser(channelId, userId);
+		}
+		return false;
+	}
+
+	/**
+	 * Get currently pinned message.
+	 * Notifies on tchat if a new message got pinned
+	 */
+	public static async getPinnedMessage(channelId:string): Promise<TwitchDataTypes.PinnedChatMessage|null> {
+		if (!this.hasScopes([TwitchScopes.DELETE_MESSAGES])) return null;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/pins");
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.PinnedChatMessage[]};
+			const message = json.data.length > 0? json.data[0]! : null;
+			if(message && message.message_id != this.currentlyPinnedMessageId) {
+				this.currentlyPinnedMessageId = message.message_id;
+				let pinnnedMessage:TwitchatDataTypes.MessageChatData|null = null;
+				let messageList = StoreProxy.chat.messages;
+				// Search for message in history
+				for (let index = messageList.length-1; index > 0; index--) {
+					const element = messageList[index];
+					if(element?.id === message.message_id) {
+						pinnnedMessage = element as TwitchatDataTypes.MessageChatData;
+						pinnnedMessage.is_pinned = true;
+					}
+				}
+				if(!pinnnedMessage) {
+					// Fallback to custom parsing of the message
+					const message_chunks = await this.eventsubFragmentsToTwitchatChunks(message.message.fragments, channelId);
+					pinnnedMessage = {
+						platform:"twitch",
+						date:Date.now(),
+						id:message.message_id,
+						channel_id:channelId,
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						answers:[],
+						message:message.message.text,
+						message_chunks,
+						is_short:false,
+						is_pinned: true,
+						message_html:this.messageChunksToHTML(message_chunks),
+						message_size:this.computeMessageSize(message_chunks),
+						user:StoreProxy.users.getUserFrom("twitch", channelId, message.sender_user_id, message.sender_user_login, message.sender_user_name),
+					};
+					// Add it as standard chat message
+					StoreProxy.chat.addMessage(pinnnedMessage);
+				}
+				const notification:TwitchatDataTypes.MessagePinData = {
+					platform:"twitchat",
+					id:Utils.getUUID(),
+					date:Date.now(),
+					channel_id: channelId,
+					chatMessage:pinnnedMessage,
+					moderator:StoreProxy.users.getUserFrom("twitch", channelId, message.pinned_by_user_id, message.pinned_by_user_login, message.pinned_by_user_name),
+					pinnedAt_ms: new Date(message.starts_at).getTime(),
+					type:TwitchatDataTypes.TwitchatMessageType.PINNED,
+					unpinAt_ms:new Date(message.ends_at).getTime(),
+					updatedAt_ms:0,
+				}
+				StoreProxy.chat.addMessage(notification);
+			}else{
+				this.currentlyPinnedMessageId = "";
+			}
+			return message;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.getPinnedMessage(channelId);
+		}
+		return null;
+	}
+
+	/**
+	 * Pin given chat message
+	 */
+	public static async pinMessage(channelId:string, message:TwitchatDataTypes.MessageChatData, duration_s?:number): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.DELETE_MESSAGES])) return false;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/pins");
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("message_id", message.id);
+		if(duration_s) url.searchParams.append("duration_seconds", Math.min(1800, Math.max(30, duration_s)).toString());
+
+		const res = await this.callApi(url, {
+			method: "PUT",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			setTimeout(()=> {
+				void this.getPinnedMessage(channelId);
+			}, 1000)
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.pinMessage(channelId, message, duration_s);
+		}
+		return false;
+	}
+
+	/**
+	 * Updates currently pinned message
+	 */
+	public static async updatePinnedMessage(channelId:string, messageId:string, duration_s:number): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.DELETE_MESSAGES])) return false;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/pins");
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("message_id", messageId);
+		if(duration_s) url.searchParams.append("duration_seconds", Math.min(1800, Math.max(30, duration_s)).toString());
+
+		const res = await this.callApi(url, {
+			method: "PATCH",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.updatePinnedMessage(channelId, messageId, duration_s);
+		}
+		return false;
+	}
+
+	/**
+	 * Upins currently pinned message
+	 */
+	public static async unpinMessage(channelId:string, messageId:string): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.DELETE_MESSAGES])) return false;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/pins");
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("message_id", messageId);
+
+		const res = await this.callApi(url, {
+			method: "DELETE",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.unpinMessage(channelId, messageId);
 		}
 		return false;
 	}

@@ -261,6 +261,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Removing all of them to avoid that...
 		text = text.replace(/^\\+/gi, "");
 
+		let pinMessage = false;
 		if(text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi).filter(v => v != "");
 			let cmd = (chunks.shift() as string).toLowerCase();
@@ -504,6 +505,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const comment = chunks[0];
 					return await TwitchUtils.createStreamMarker(comment);
 				}
+				case "/pin": {
+					pinMessage = true;
+					break;
+				}
 
 				//TODO
 				case "/uniquechat": return false;
@@ -516,8 +521,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
 			await TwitchUtils.sendMessage(channelId, text, replyTo.id, sendAsBot);
 		}else{
+			if(pinMessage) {
+				if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
+					return false;
+				}
+			}
 			// this._client.say(this._channelIdToLogin[channelId], text);
-			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot);
+			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot, pinMessage);
+		}
+		// If message got pinned, wait a little and ask for latest pinned message
+		// TODO: remove once eventsub supports pinned message events
+		if(pinMessage) {
+			setTimeout(()=> {
+				TwitchUtils.getPinnedMessage(channelId);
+			}, 1000)
 		}
 		return true
 	}
@@ -647,7 +664,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
-		let prepaidMonths = this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1);
+		let prepaidMonths = this.getNumValueFromTag(tags["msg-param-multimonth-duration"], 1);
 		let isNewMultimonth = tags["msg-param-multimonth-tenure"] === false;
 		if(!isNewMultimonth || (prepaidMonths != 3 && prepaidMonths != 6)) prepaidMonths = 1;
 		const res:TwitchatDataTypes.MessageSubscriptionData = {
@@ -664,8 +681,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_primeUpgrade: false,
 			is_targetedSubgift:tags["msg-param-community-gift-id"] == undefined,
 			months:prepaidMonths,
-			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], -1),
-			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], -1),
+			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], 1),
+			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], 1),
 			raw_data:{tags, methods, message},
 			message_size:0,
 		}
@@ -957,7 +974,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			channel_id,
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags, channel_id),
-			bits:this.getNumValueFromTag(tags.bits||"0", -1),
+			bits:this.getNumValueFromTag(tags.bits||"0", 0),
 			message,
 			message_chunks:chunks,
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
@@ -1187,7 +1204,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
-					const total = this.getNumValueFromTag(tags["msg-param-sender-count"], -1);
+					const total = this.getNumValueFromTag(tags["msg-param-sender-count"], 1);
 					// console.log("User", user);
 					// console.log("Channel", channelId);
 					// console.log("Total", total);

@@ -61,6 +61,9 @@ export const LabelItemPlaceholderList = [
 	{tag:"SUB_ID",								type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_ID", backup:true} as const,
 	{tag:"SUB_AVATAR",							type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_AVATAR", backup:true} as const,
 	{tag:"SUB_TIER",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_TIER", backup:true} as const,
+	{tag:"SUB_MONTHS_TOTAL",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_MONTHS_TOTAL", backup:true} as const,
+	{tag:"SUB_MONTHS_STREAK",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_MONTHS_STREAK", backup:true} as const,
+	{tag:"SUB_MONTHS_PREPAID",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_MONTHS_PREPAID", backup:true} as const,
 
 	{tag:"SUBGIFT_NAME",						type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_NAME", backup:true} as const,
 	{tag:"SUBGIFT_ID",							type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_ID", backup:true} as const,

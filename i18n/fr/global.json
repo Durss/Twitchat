@@ -217,7 +217,7 @@
 			"moderator:manage:blocked_terms": "Gérer les banwords",
 			"moderator:manage:banned_users": "Bannir/débannir des personnes",
 			"moderator:manage:announcements": "Utiliser la commande /announce",
-			"moderator:manage:chat_messages": "Supprimer des messages",
+			"moderator:manage:chat_messages": "Épingler/Supprimer des messages",
 			"moderator:manage:chat_settings": "Passer en follow only, sub only, etc...",
 			"moderator:read:chatters": "Lister les personnes présentes dans votre tchat",
 			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier",

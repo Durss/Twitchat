@@ -33,6 +33,7 @@ let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number, ignore:boolean}} = {};
 let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
 let parsedMessageIds = new Set<string>();
+let timeoutPinnedCheck = -1;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -688,6 +689,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"pin",
 				cmd:"/pin {message}",
+				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
 				detailsKey:"params.commands.pin",
 			},
 			{
@@ -889,6 +891,9 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("SUB_NAME", m.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_AVATAR", m.user.avatarPath || "", m.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_TOTAL", m.totalSubDuration);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_STREAK", m.streakMonths);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_PREPAID", m.months);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", m.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", m.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
@@ -1218,22 +1223,22 @@ export const storeChat = defineStore('chat', {
 
 
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							if(message.twitch_gigantifiedEmote) {
-								const emote = message.message_chunks.findLast(v=>v.type == "emote");
-								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_ID", message.user.id);
-								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_NAME", message.user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_AVATAR", message.user.avatarPath || "", message.user.id);
-								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_CODE", emote?.value || "");
-								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_IMAGE", emote?.emoteHD || "");
-							}
-
-							if(message.twitch_animationId) {
-								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_ID", message.user.id);
-								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_AVATAR", message.user.avatarPath || "", message.user.id);
-							}
 							//Reset ad schedule if necessary
 							if(!isFromRemoteChan) {
+								if(message.twitch_gigantifiedEmote) {
+									const emote = message.message_chunks.findLast(v=>v.type == "emote");
+									StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_ID", message.user.id);
+									StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_NAME", message.user.displayNameOriginal);
+									StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_AVATAR", message.user.avatarPath || "", message.user.id);
+									StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_CODE", emote?.value || "");
+									StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_IMAGE", emote?.emoteHD || "");
+								}
+	
+								if(message.twitch_animationId) {
+									StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_ID", message.user.id);
+									StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
+									StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_AVATAR", message.user.avatarPath || "", message.user.id);
+								}
 								if(/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
 									SchedulerHelper.instance.resetAdSchedule(message);
 								}
@@ -1336,6 +1341,15 @@ export const storeChat = defineStore('chat', {
 										//It's not a first time chatter ignore this message
 										antiHateRaidCounter[key].ignore = true;
 									}
+								}
+
+								// If message is sent by a mod, check if it got pinned
+								// TODO: remove once eventsub supports pinned message events
+								if(message.user.channelInfo[sAuth.twitch.user.id]?.is_moderator) {
+									clearTimeout(timeoutPinnedCheck);
+									timeoutPinnedCheck = window.setTimeout(()=> {
+										TwitchUtils.getPinnedMessage(message.channel_id);
+									}, 1000)
 								}
 							}
 
@@ -1820,6 +1834,9 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_TIER", message.tier);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_TOTAL", message.totalSubDuration);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_STREAK", message.streakMonths);
+							StoreProxy.labels.updateLabelValue("SUB_MONTHS_PREPAID", message.months);
 
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);

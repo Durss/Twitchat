@@ -438,6 +438,9 @@
 				"SUB_NAME": "Sub - Pseudo",
 				"SUB_AVATAR": "Sub - Avatar",
 				"SUB_TIER": "Sub - Niveau",
+				"SUB_MONTHS_TOTAL": "Sub - Nombre total de mois d'abonnement",
+				"SUB_MONTHS_STREAK": "Sub - Nombre de mois d'affilé",
+				"SUB_MONTHS_PREPAID": "Sub - Nombre de mois prépayés",
 
 				"SUBGIFT_ID": "Subgift - ID utilisateur·ice",
 				"SUBGIFT_NAME": "Subgift - Pseudo",

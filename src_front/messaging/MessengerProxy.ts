@@ -417,11 +417,6 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/pin") {
-			StoreProxy.common.alert(StoreProxy.i18n.t("error.cmd_missing_api"));
-			return true;
-		}else
-
 		if(cmd == "/so" || cmd == "/shoutout") {
 			//Make a shoutout
 			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
