@@ -3450,7 +3450,7 @@ export default class TwitchUtils {
 						),
 					};
 					// Add it as standard chat message
-					StoreProxy.chat.addMessage(pinnnedMessage);
+					void StoreProxy.chat.addMessage(pinnnedMessage);
 				}
 				const notification: TwitchatDataTypes.MessagePinData = {
 					platform: "twitchat",
@@ -3470,7 +3470,7 @@ export default class TwitchUtils {
 					unpinAt_ms: new Date(message.ends_at).getTime(),
 					updatedAt_ms: 0,
 				};
-				StoreProxy.chat.addMessage(notification);
+				void StoreProxy.chat.addMessage(notification);
 			} else if (!message) {
 				this.currentlyPinnedMessageId = "";
 			}
