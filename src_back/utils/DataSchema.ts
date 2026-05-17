@@ -1737,7 +1737,14 @@ const UserDataSchema = {
 				obsSources: {
 					type: "array",
 					minItems: 0,
-					maxItems: 1000,
+					maxItems: 10,
+					items: { type: "string", maxLength: 500 },
+				},
+				meldStudioScene: { type: "string", maxLength: 100 },
+				meldStudioLayers: {
+					type: "array",
+					minItems: 0,
+					maxItems: 10,
 					items: { type: "string", maxLength: 100 },
 				},
 				autoEnableOnFollowbot: { type: "boolean" },

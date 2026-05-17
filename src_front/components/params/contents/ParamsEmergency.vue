@@ -2,12 +2,12 @@
 	<div class="paramsemergency parameterContent">
 		<Icon name="emergency" />
 
-		<p class="head">{{ $t("emergency.header") }}</p>
+		<p class="head">{{ t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" v-model="param_enable.value" />
 
 		<div class="fadeHolder" :style="holderStyles">
 			<section>
-				<Splitter class="splitter">{{ $t("emergency.start.title") }}</Splitter>
+				<Splitter class="splitter">{{ t("emergency.start.title") }}</Splitter>
 				<ParamItem
 					:paramData="param_autoEnableOnShieldmode"
 					v-model="param_autoEnableOnShieldmode.value"
@@ -19,7 +19,7 @@
 				<div class="card-item">
 					<ParamItem class="chatCommand" noBackground :paramData="param_chatCommand" />
 					<ToggleBlock
-						:title="$t('emergency.start.chatCommand_users')"
+						:title="t('emergency.start.chatCommand_users')"
 						:open="false"
 						small
 					>
@@ -31,16 +31,16 @@
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store.params.openParamsPage(contentAutomod)">{{
-								$t("emergency.start.also_link")
+								t("emergency.start.also_link")
 							}}</a>
 						</template>
 					</i18n-t>
 				</div>
-				<div class="card-item">{{ $t("emergency.start.followbot_info") }}</div>
+				<div class="card-item">{{ t("emergency.start.followbot_info") }}</div>
 			</section>
 
 			<section>
-				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
+				<Splitter class="splitter">{{ t("emergency.actions.title") }}</Splitter>
 				<ParamItem
 					:paramData="param_enableShieldMode"
 					v-model="param_enableShieldMode.value"
@@ -91,7 +91,7 @@
 											subcontentObs,
 										)
 									"
-									>{{ $t("emergency.actions.obs_connect_link") }}</a
+									>{{ t("emergency.actions.obs_connect_link") }}</a
 								>
 							</template>
 						</i18n-t>
@@ -101,11 +101,11 @@
 				<template v-else>
 					<div class="card-item labeled">
 						<Icon name="list" class="paramIcon" />
-						<p>{{ $t("emergency.actions.obs_scene") }}</p>
+						<p>{{ t("emergency.actions.obs_scene") }}</p>
 						<vue-select
 							class="sourceSelector"
 							label="label"
-							:placeholder="$t('emergency.actions.obs_scene_select')"
+							:placeholder="t('emergency.actions.obs_scene_select')"
 							v-model="selectedOBSScene"
 							:options="param_obsScene.listValues"
 							:calculate-position="$placeDropdown"
@@ -116,16 +116,75 @@
 					<div class="card-item labeled">
 						<Icon name="show" class="paramIcon" />
 						<p>
-							{{ $t("emergency.actions.obs_sources") }} <br /><i>{{
-								$t("emergency.actions.obs_sources_example")
+							{{ t("emergency.actions.obs_sources") }} <br /><i>{{
+								t("emergency.actions.obs_sources_example")
 							}}</i>
 						</p>
 						<vue-select
 							class="sourceSelector"
 							label="sourceName"
-							:placeholder="$t('emergency.actions.obs_sources_select')"
+							:placeholder="t('emergency.actions.obs_sources_select')"
 							v-model="selectedOBSSources"
 							:options="obsSources_filtered"
+							:calculate-position="$placeDropdown"
+							appendToBody
+							multiple
+						></vue-select>
+					</div>
+				</template>
+
+				<div v-if="!meldStudioConnected">
+					<div class="card-item alert">
+						<Icon name="info" class="paramIcon" />
+						<i18n-t
+							scope="global"
+							class="label"
+							tag="span"
+							keypath="emergency.actions.meldStudio_connect"
+						>
+							<template #LINK>
+								<a
+									@click="
+										$store.params.openParamsPage(
+											contentConnexions,
+											subcontentMeldStudio,
+										)
+									"
+									>{{ t("emergency.actions.meldStudio_connect_link") }}</a
+								>
+							</template>
+						</i18n-t>
+					</div>
+				</div>
+
+				<template v-else>
+					<div class="card-item labeled">
+						<Icon name="list" class="paramIcon" />
+						<p>{{ t("emergency.actions.meldStudio_scene") }}</p>
+						<vue-select
+							class="sourceSelector"
+							label="label"
+							:placeholder="t('emergency.actions.meldStudio_scene_select')"
+							v-model="selectedMeldStudioScene"
+							:options="meldStudioScenes"
+							:calculate-position="$placeDropdown"
+							appendToBody
+						></vue-select>
+					</div>
+
+					<div class="card-item labeled">
+						<Icon name="show" class="paramIcon" />
+						<p>
+							{{ t("emergency.actions.meldStudio_layers") }} <br /><i>{{
+								t("emergency.actions.meldStudio_layers_example")
+							}}</i>
+						</p>
+						<vue-select
+							class="sourceSelector"
+							label="label"
+							:placeholder="t('emergency.actions.meldStudio_layers_select')"
+							v-model="selectedMeldStudioLayers"
+							:options="meldStudioLayers_filtered"
 							:calculate-position="$placeDropdown"
 							appendToBody
 							multiple
@@ -152,9 +211,23 @@ import type IParameterContent from "./IParameterContent";
 import Utils from "@/utils/Utils";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeEmergency as useStoreEmergency } from "@/store/emergency/storeEmergency";
+import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeEmergency = useStoreEmergency();
+const storeMeldStudio = useStoreMeldStudio();
+
+interface MeldStudioLayerOption {
+	id: string;
+	label: string;
+	parent: string;
+}
+interface MeldStudioSceneOption {
+	value: string;
+	label: string;
+}
 
 const param_obsScene = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	type: "list",
@@ -257,6 +330,8 @@ const param_noTrigger = ref<TwitchatDataTypes.ParameterData<boolean>>({
 const obsSources = ref<OBSSourceItem[]>([]);
 const selectedOBSSources = ref<OBSSourceItem[]>([]);
 const selectedOBSScene = ref<TwitchatDataTypes.ParameterDataListValue<string> | null>(null);
+const selectedMeldStudioScene = ref<MeldStudioSceneOption | null>(null);
+const selectedMeldStudioLayers = ref<MeldStudioLayerOption[]>([]);
 const chatCommandPerms = ref<TwitchatDataTypes.PermissionsData>(
 	Utils.getDefaultPermissions(true, true, false, false, false, false),
 );
@@ -271,8 +346,14 @@ const holderStyles = computed<CSSProperties>(() => {
 const obsConnected = computed<boolean>(() => {
 	return OBSWebsocket.instance.connected.value;
 });
+const meldStudioConnected = computed<boolean>(() => {
+	return storeMeldStudio.connected;
+});
 const subcontentObs = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(() => {
 	return TwitchatDataTypes.ParamDeepSections.OBS;
+});
+const subcontentMeldStudio = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(() => {
+	return TwitchatDataTypes.ParamDeepSections.MELD_STUDIO;
 });
 const contentConnexions = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
 	return TwitchatDataTypes.ParameterPages.CONNECTIONS;
@@ -284,12 +365,56 @@ const userName = computed<string>(() => {
 	return storeAuth.twitch.user.login;
 });
 
+const MAX_SELECTED_SOURCES = 10;
+
 const obsSources_filtered = computed<OBSSourceItem[]>(() => {
+	if (selectedOBSSources.value.length >= MAX_SELECTED_SOURCES) return [];
 	let sources = obsSources.value.concat();
 	sources = sources.filter((v) => {
 		return selectedOBSSources.value.find((s) => s.sourceName == v.sourceName) == undefined;
 	});
 	return sources;
+});
+
+const meldStudioScenes = computed<MeldStudioSceneOption[]>(() => {
+	const list: MeldStudioSceneOption[] = storeMeldStudio.sceneList.map((scene) => ({
+		value: scene.id,
+		label: scene.name,
+	}));
+	list.sort((a, b) => {
+		if (a.label.toLowerCase() < b.label.toLowerCase()) return -1;
+		if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+		return 0;
+	});
+	return list;
+});
+
+const meldStudioLayerOptions = computed<MeldStudioLayerOption[]>(() => {
+	const sceneNameById: Record<string, string> = {};
+	for (const scene of storeMeldStudio.sceneList) {
+		sceneNameById[scene.id] = scene.name;
+	}
+	const list: MeldStudioLayerOption[] = storeMeldStudio.layerList.map((layer) => {
+		const sceneName = sceneNameById[layer.parent] ?? "?";
+		return {
+			id: layer.id,
+			parent: layer.parent,
+			label: `${sceneName} > ${layer.name}`,
+		};
+	});
+	list.sort((a, b) => {
+		if (a.label.toLowerCase() < b.label.toLowerCase()) return -1;
+		if (a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+		return 0;
+	});
+	return list;
+});
+
+const meldStudioLayers_filtered = computed<MeldStudioLayerOption[]>(() => {
+	if (selectedMeldStudioLayers.value.length >= MAX_SELECTED_SOURCES) return [];
+	return meldStudioLayerOptions.value.filter((v) => {
+		return selectedMeldStudioLayers.value.find((s) => s.id == v.id) == undefined;
+	});
 });
 
 const finalData = computed<TwitchatDataTypes.EmergencyParamsData>(() => {
@@ -308,6 +433,10 @@ const finalData = computed<TwitchatDataTypes.EmergencyParamsData>(() => {
 		obsScene: selectedOBSScene.value ? selectedOBSScene.value.value : "",
 		obsSources: selectedOBSSources.value
 			? selectedOBSSources.value.map((v) => v.sourceName)
+			: [],
+		meldStudioScene: selectedMeldStudioScene.value ? selectedMeldStudioScene.value.value : "",
+		meldStudioLayers: selectedMeldStudioLayers.value
+			? selectedMeldStudioLayers.value.map((v) => v.id)
 			: [],
 		autoEnableOnFollowbot: param_autoEnableOnFollowbot.value.value === true,
 		autoEnableOnShieldmode: param_autoEnableOnShieldmode.value.value === true,
@@ -398,6 +527,20 @@ async function listOBSSources(): Promise<void> {
 	selectedOBSSources.value = list;
 }
 
+/**
+ * Prefill the Meld Studio scene / layers selectors from storage
+ */
+function refreshMeldStudioSelection(): void {
+	const storedScene = storeEmergency.params.meldStudioScene;
+	selectedMeldStudioScene.value =
+		meldStudioScenes.value.find((v) => v.value == storedScene) ?? null;
+
+	const storedLayers = storeEmergency.params.meldStudioLayers || [];
+	selectedMeldStudioLayers.value = meldStudioLayerOptions.value.filter(
+		(v) => storedLayers.indexOf(v.id) > -1,
+	);
+}
+
 onBeforeMount(async () => {
 	const storeParams = storeEmergency.params;
 	param_enable.value.value = storeParams.enabled;
@@ -438,6 +581,7 @@ onBeforeMount(async () => {
 
 	await listOBSScenes();
 	await listOBSSources();
+	refreshMeldStudioSelection();
 
 	watch(
 		() => finalData.value,
@@ -453,6 +597,15 @@ onBeforeMount(async () => {
 			listOBSScenes();
 			listOBSSources();
 		},
+	);
+
+	watch(
+		() => storeMeldStudio.connected,
+		() => refreshMeldStudioSelection(),
+	);
+	watch(
+		() => [storeMeldStudio.sceneList.length, storeMeldStudio.layerList.length],
+		() => refreshMeldStudioSelection(),
 	);
 });
 
@@ -472,6 +625,9 @@ defineExpose<IParameterContent>({ onNavigateBack });
 					}
 					p {
 						display: inline;
+					}
+					.v-select {
+						margin-top: 0.5em;
 					}
 				}
 			}

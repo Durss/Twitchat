@@ -19,7 +19,14 @@
 			"obs_scene_select": "Select a scene...",
 			"obs_sources": "Hide following OBS sources",
 			"obs_sources_example": "(ex: streamelements alerts)",
-			"obs_sources_select": "Select one or more sources..."
+			"obs_sources_select": "Select one or more sources...",
+			"meldStudio_connect": "{LINK} to switch to a specific scene and hide layers (ex: alerts)",
+			"meldStudio_connect_link": "Connect with Meld Studio",
+			"meldStudio_scene": "Switch Meld Studio to the following scene",
+			"meldStudio_scene_select": "Select a scene...",
+			"meldStudio_layers": "Hide following Meld Studio layers",
+			"meldStudio_layers_example": "(ex: streamelements alerts)",
+			"meldStudio_layers_select": "Select one or more layers..."
 		},
 		"params": {
 			"shieldmode": "Enable Twitch shield mode",

@@ -2046,6 +2046,8 @@ export namespace TwitchatDataTypes {
 		toUsers: string[];
 		obsScene: string;
 		obsSources: string[];
+		meldStudioScene: string;
+		meldStudioLayers: string[];
 		autoEnableOnShieldmode: boolean;
 		enableShieldMode: boolean;
 		/**

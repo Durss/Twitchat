@@ -30,6 +30,8 @@ export const storeEmergency = defineStore("emergency", {
 			toUsers: [],
 			obsScene: "",
 			obsSources: [],
+			meldStudioScene: "",
+			meldStudioLayers: [],
 			chatCmd: "",
 			chatCmdPerms: Utils.getDefaultPermissions(true, true, false, false, false, false),
 			autoEnableOnShieldmode: true,
@@ -163,6 +165,22 @@ export const storeEmergency = defineStore("emergency", {
 						void OBSWebsocket.instance.setSourceState(s, false);
 					}
 				}
+				const meld = StoreProxy.meldStudio.meld;
+				if (meld) {
+					if (this.params.meldStudioScene) {
+						meld.showScene(this.params.meldStudioScene);
+					}
+					if (this.params.meldStudioLayers) {
+						for (const layerId of this.params.meldStudioLayers) {
+							const layer = StoreProxy.meldStudio.layerList.find(
+								(v) => v.id === layerId,
+							);
+							if (layer && layer.visible) {
+								meld.toggleLayer(layer.parent, layerId);
+							}
+						}
+					}
+				}
 			} else {
 				//DISABLE EMERGENCY MODE
 				//Unset all changes
@@ -208,6 +226,17 @@ export const storeEmergency = defineStore("emergency", {
 				if (this.params.obsSources) {
 					for (const s of this.params.obsSources) {
 						void OBSWebsocket.instance.setSourceState(s, true);
+					}
+				}
+				const meld = StoreProxy.meldStudio.meld;
+				if (meld && this.params.meldStudioLayers) {
+					for (const layerId of this.params.meldStudioLayers) {
+						const layer = StoreProxy.meldStudio.layerList.find(
+							(v) => v.id === layerId,
+						);
+						if (layer && !layer.visible) {
+							meld.toggleLayer(layer.parent, layerId);
+						}
 					}
 				}
 				TriggerActionHandler.instance.emergencyMode = false;

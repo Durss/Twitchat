@@ -24,30 +24,35 @@
 							p.id == 212 &&
 							p.value === true &&
 							!isOBSConnected &&
+							!storeMeldStudio.connected &&
 							!missingScopeStates[p.id!]
 						"
 						class="config"
 					>
 						<div class="card-item alert">
 							<Icon name="alert" theme="light" />
-							<i18n-t
-								scope="global"
-								class="label"
-								tag="p"
-								keypath="global.obs_connect"
+							<p class="label">{{ t("global.streamSoftware_connect") }}</p>
+							<TTButton
+								light
+								alert
+								@click="
+									$store.params.openParamsPage(contentConnexions, subcontentObs)
+								"
+								icon="obs"
+								>OBS</TTButton
 							>
-								<template #LINK>
-									<a
-										@click="
-											storeParams.openParamsPage(
-												contentConnexions,
-												subcontentObs,
-											)
-										"
-										>{{ t("global.obs_connect_link") }}</a
-									>
-								</template>
-							</i18n-t>
+							<TTButton
+								light
+								alert
+								@click="
+									$store.params.openParamsPage(
+										contentConnexions,
+										subcontentMeldStudio,
+									)
+								"
+								icon="meldStudio"
+								>Meld Studio</TTButton
+							>
 						</div>
 					</div>
 
@@ -169,6 +174,7 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
 
 const Button = TTButton;
 
@@ -187,6 +193,7 @@ const storeChat = useStoreChat();
 const storeDebug = useStoreDebug();
 const storeMain = useStoreMain();
 const storeParams = useStoreParams();
+const storeMeldStudio = useStoreMeldStudio();
 
 const buildIndex = ref<number>(0);
 const highlightId = ref<string>("");
@@ -233,6 +240,9 @@ const params = computed<{ [key: string]: TwitchatDataTypes.ParameterData<unknown
 
 const subcontentObs = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(() => {
 	return TwitchatDataTypes.ParamDeepSections.OBS;
+});
+const subcontentMeldStudio = computed<TwitchatDataTypes.ParamDeepSectionsStringType>(() => {
+	return TwitchatDataTypes.ParamDeepSections.MELD_STUDIO;
 });
 const contentConnexions = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
 	return TwitchatDataTypes.ParameterPages.CONNECTIONS;
@@ -451,7 +461,8 @@ defineExpose<IParameterContent>({
 			}
 
 			.label {
-				display: inline;
+				display: inline-block;
+				margin-bottom: 0.5em;
 				strong {
 					padding: 0.25em 0.5em;
 					border-radius: 0.5em;
