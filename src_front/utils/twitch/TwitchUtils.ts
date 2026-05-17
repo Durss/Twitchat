@@ -3297,7 +3297,7 @@ export default class TwitchUtils {
 					updatedAt_ms:0,
 				}
 				StoreProxy.chat.addMessage(notification);
-			}else{
+			}else if(!message){
 				this.currentlyPinnedMessageId = "";
 			}
 			return message;
