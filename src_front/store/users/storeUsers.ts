@@ -409,9 +409,9 @@ export const storeUsers = defineStore("users", {
 										// userLocal.login = "❌("+fallbackLogin+")";
 										userLocal.login = fallbackLogin;
 									userLocal.errored = true;
-									console.log("Twitch did not return user data for:", userLocal);
-									console.log("Requested these IDs/Logins:", ids, logins);
-									console.log("Received:", res);
+									// console.log("Twitch did not return user data for:", userLocal);
+									// console.log("Requested these IDs/Logins:", ids, logins);
+									// console.log("Received:", res);
 								} else {
 									//User sent back by API
 									//Update user info with the API data

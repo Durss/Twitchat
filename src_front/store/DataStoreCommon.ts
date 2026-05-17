@@ -128,7 +128,6 @@ export default class DataStoreCommon {
 	public static QUIZ_CONFIGS: string = "quizConfigs";
 	public static BLUESKY_CONFIGS: string = "blueskyConfigs";
 	public static MELD_STUDIO_CONFIGS: string = "meldStudioConfigs";
-	public static MELD_STUDIO_PASSWORD: string = "meldStudioPassword";
 
 	protected static store: Storage;
 	protected static dataPrefix: string = "twitchat_";

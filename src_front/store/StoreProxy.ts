@@ -6,7 +6,13 @@ import type {
 	LabelItemPlaceholder,
 	LabelItemPlaceholderTag,
 } from "@/types/ILabelOverlayData";
-import type { MeldStudio } from "@/types/MeldStudioTypes";
+import type {
+	MeldStudio,
+	MeldStudioAudioTrack,
+	MeldStudioEffect,
+	MeldStudioLayer,
+	MeldStudioScene,
+} from "@/types/MeldStudioTypes";
 import type {
 	SettingsExportData,
 	TriggerActionCountDataAction,
@@ -4424,7 +4430,10 @@ export interface IMeldStudioState {
 	connectionEnabled: boolean;
 	ip: string;
 	port: number;
-	password: string;
+	sceneList: (MeldStudioScene & { id: string })[];
+	layerList: (MeldStudioLayer & { id: string })[];
+	effectList: (MeldStudioEffect & { id: string })[];
+	trackList: (MeldStudioAudioTrack & { id: string })[];
 }
 
 export interface IMeldStudioGetters {

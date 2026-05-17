@@ -7964,6 +7964,8 @@ export default class TriggerActionHandler {
 							date: Date.now(),
 							value: `❌ Bluesky action missing data`,
 						});
+						log.error = true;
+						logStep.error = true;
 					} else {
 						logStep.messages.push({
 							date: Date.now(),
@@ -8048,6 +8050,152 @@ export default class TriggerActionHandler {
 										}
 									}
 								}
+							}
+						}
+					}
+				} else if (step.type == "meldstudio") {
+					if (!step.meldstudioData) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: `❌ Meld Studio action missing data`,
+						});
+						log.error = true;
+						logStep.error = true;
+					} else {
+						logStep.messages.push({
+							date: Date.now(),
+							value: `Execute Meld Studio action "${step.meldstudioData.action}"`,
+						});
+						switch (step.meldstudioData.action) {
+							case "show_scene": {
+								logStep.messages.push({
+									date: Date.now(),
+									value: `Show scene ID "${step.meldstudioData.sceneId}"`,
+								});
+								StoreProxy.meldStudio.meld?.showScene(step.meldstudioData.sceneId);
+								break;
+							}
+							case "screenshot": {
+								StoreProxy.meldStudio.meld?.sendCommand("meld.screenshot");
+								break;
+							}
+							case "start_record": {
+								StoreProxy.meldStudio.meld?.sendCommand(
+									"meld.startRecordingAction",
+								);
+								break;
+							}
+							case "stop_record": {
+								StoreProxy.meldStudio.meld?.sendCommand("meld.stopRecordingAction");
+								break;
+							}
+							case "start_stream": {
+								StoreProxy.meldStudio.meld?.sendCommand(
+									"meld.startStreamingAction",
+								);
+								break;
+							}
+							case "stop_stream": {
+								StoreProxy.meldStudio.meld?.sendCommand("meld.stopStreamingAction");
+								break;
+							}
+							case "clip": {
+								switch (step.meldstudioData.subAction) {
+									case "record": {
+										StoreProxy.meldStudio.meld?.sendCommand("meld.recordClip");
+										break;
+									}
+									case "show": {
+										StoreProxy.meldStudio.meld?.sendCommand("meld.replay.show");
+										break;
+									}
+									case "hide": {
+										StoreProxy.meldStudio.meld?.sendCommand(
+											"meld.replay.dismiss",
+										);
+										break;
+									}
+								}
+								break;
+							}
+							case "layer_visibility": {
+								const layerId = step.meldstudioData.layerId;
+								const currentShowState =
+									StoreProxy.meldStudio.layerList.find((v) => v.id === layerId)
+										?.visible === true;
+								let newShowState = !currentShowState;
+								switch (step.meldstudioData.subAction) {
+									case "show": {
+										newShowState = true;
+										break;
+									}
+									case "hide": {
+										newShowState = false;
+										break;
+									}
+								}
+								logStep.messages.push({
+									date: Date.now(),
+									value: `Switch layer "${step.meldstudioData.sceneId}" visibility from "${currentShowState}" to "${newShowState}"`,
+								});
+								if (currentShowState != newShowState)
+									StoreProxy.meldStudio.meld?.toggleLayer(
+										step.meldstudioData.sceneId,
+										layerId,
+									);
+								break;
+							}
+							case "toggle_effect": {
+								const effectId = step.meldstudioData.effectId;
+								const currentShowState =
+									StoreProxy.meldStudio.effectList.find((v) => v.id === effectId)
+										?.enabled === true;
+								let newShowState = !currentShowState;
+								switch (step.meldstudioData.subAction) {
+									case "show": {
+										newShowState = true;
+										break;
+									}
+									case "hide": {
+										newShowState = false;
+										break;
+									}
+								}
+								logStep.messages.push({
+									date: Date.now(),
+									value: `Switch effect "${step.meldstudioData.effectId}" visibility from "${currentShowState}" to "${newShowState}"`,
+								});
+								if (currentShowState != newShowState)
+									StoreProxy.meldStudio.meld?.toggleEffect(
+										step.meldstudioData.sceneId,
+										step.meldstudioData.layerId,
+										effectId,
+									);
+								break;
+							}
+							case "track_mute": {
+								const trackId = step.meldstudioData.trackId;
+								const currentMuteState =
+									StoreProxy.meldStudio.trackList.find((v) => v.id === trackId)
+										?.muted === true;
+								let newMutedState = !currentMuteState;
+								switch (step.meldstudioData.subAction) {
+									case "mute": {
+										newMutedState = true;
+										break;
+									}
+									case "unmute": {
+										newMutedState = false;
+										break;
+									}
+								}
+								logStep.messages.push({
+									date: Date.now(),
+									value: `Switch track "${step.meldstudioData.trackId}" from "${currentMuteState ? "muted" : "not"}" to "${newMutedState ? "muted" : "not"}"`,
+								});
+								if (currentMuteState != newMutedState)
+									StoreProxy.meldStudio.meld?.toggleMute(trackId);
+								break;
 							}
 						}
 					}

@@ -1310,6 +1310,19 @@ const UserDataSchema = {
 										getPostPlaceholderURL: { type: "string", maxLength: 30 },
 									},
 								},
+
+								meldstudioData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: { type: "string", maxLength: 50 },
+										sceneId: { type: "string", maxLength: 50 },
+										layerId: { type: "string", maxLength: 50 },
+										effectId: { type: "string", maxLength: 50 },
+										trackId: { type: "string", maxLength: 50 },
+										subAction: { type: "string", maxLength: 50 },
+									},
+								},
 							},
 						},
 					},
@@ -3211,6 +3224,16 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				userId: { type: "string", maxLength: 50 },
+			},
+		},
+
+		meldStudioConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				connectionEnabled: { type: "boolean" },
+				ip: { type: "string", maxLength: 100 },
+				port: { type: "integer", minimum: 0, maximum: 65535 },
 			},
 		},
 	},
