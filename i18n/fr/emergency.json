@@ -19,7 +19,14 @@
 			"obs_scene_select": "Selectionnez une scène...",
 			"obs_sources": "Masquer les sources OBS",
 			"obs_sources_example": "(ex: alertes streamelements)",
-			"obs_sources_select": "Sélectionnez 1 ou plusieurs sources..."
+			"obs_sources_select": "Sélectionnez 1 ou plusieurs sources...",
+			"meldStudio_connect": "{LINK} pour changer de scène ou masquer des layers (ex: vos alertes)",
+			"meldStudio_connect_link": "Liez Meld Studio",
+			"meldStudio_scene": "Changer de scène Meld Studio",
+			"meldStudio_scene_select": "Selectionnez une scène...",
+			"meldStudio_layers": "Masquer les layers Meld Studio",
+			"meldStudio_layers_example": "(ex: alertes streamelements)",
+			"meldStudio_layers_select": "Sélectionnez 1 ou plusieurs layers..."
 		},
 		"params": {
 			"shieldmode": "Activer le mode bouclier Twitch",
