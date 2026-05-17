@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" ref="rootEl">
+	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<template v-if="showReadAlert">
@@ -47,9 +47,9 @@
 						$t("changelog.forceRead.sorryBt")
 					}}</TTButton>
 					<!-- <TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton> -->
-					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()">{{
-						$t("changelog.forceRead.reminderBt")
-					}}</TTButton>
+					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()"
+						>{{ $t("changelog.forceRead.reminderBt") }}
+					</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
@@ -60,9 +60,10 @@
 					:items-to-show="1"
 					v-model="currentSlide"
 					:wrap-around="true"
+					:mouseDrag="items.length > 1"
 					@slide-start="onSlideStart"
 				>
-					<template #addons>
+					<template #addons v-if="items.length > 1">
 						<Navigation />
 						<Pagination />
 					</template>
@@ -97,8 +98,8 @@
 										:icon="item.i"
 										:premium="item.p"
 										@click="currentSlide = index + 1"
-										>{{ item.l }}</TTButton
-									>
+										>{{ item.l }}
+									</TTButton>
 								</li>
 								<li>
 									<TTButton secondary @click="currentSlide = items.length - 1"
@@ -130,17 +131,20 @@
 								:light="item.p === true"
 								:premium="item.p === true"
 								@click="
-									storeParams.openParamsPage(
+									$store.params.openParamsPage(
 										item.a.param as TwitchatDataTypes.ParameterPagesStringType,
 										item.a.subparam,
 									)
 								"
-								>{{ item.a.l }}</TTButton
+							>
+								{{ item.a.l }}</TTButton
 							>
 
 							<div class="demo" v-if="(item.v || item.g) && currentSlide == index">
 								<img v-if="item.g" :src="item.g" lazy />
-								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
+								<div v-if="item.v" class="placeholder">
+									<Icon name="play" />
+								</div>
 								<video
 									@click="($event) => ($event.target as HTMLVideoElement).play()"
 									v-if="item.v"
@@ -173,18 +177,21 @@
 								>{{ $t("changelog.streamdeck_plugin") }}</TTButton
 							>
 
+							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
+							<!-- <Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" /> -->
+
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton
 									secondary
 									icon="coin"
-									@click="storeParams.openParamsPage(contentDonate)"
+									@click="$store.params.openParamsPage(contentDonate)"
 									v-if="item.i == 'donate'"
 									>{{ $t("params.categories.donate") }}</TTButton
 								>
 								<TTButton
 									premium
 									icon="premium"
-									@click="storeParams.openParamsPage(contentPremium)"
+									@click="$store.params.openParamsPage(contentPremium)"
 									v-if="!isPremium"
 									>{{ $t("premium.become_premiumBt") }}</TTButton
 								>
@@ -193,8 +200,8 @@
 									icon="sub"
 									@click="showPremiumFeatures = true"
 									v-if="!showPremiumFeatures && !isPremium"
-									>{{ $t("premium.features_title") }}</TTButton
-								>
+									>{{ $t("premium.features_title") }}
+								</TTButton>
 								<SponsorTable
 									class="premiumTable"
 									v-if="showPremiumFeatures"
@@ -312,11 +319,13 @@ onBeforeMount(() => {
 	list.forEach((v) => {
 		v.html = parseCommonPlaceholders(v.d || "");
 	});
-	list.unshift({
-		l: "",
-		i: "toc",
-		html: "",
-	});
+	if (list.length > 1) {
+		list.unshift({
+			l: "",
+			i: "toc",
+			html: "",
+		});
+	}
 	items.value = list;
 });
 
@@ -383,7 +392,7 @@ async function close(forceClose: boolean = false, fuMode: boolean = true): Promi
 	let minSlidesToRead = Math.floor(items.value.length * 0.8 - 2); //-1 to ignore TOC and Donate slides
 	const didntReadAll = [...slideCountRead].length < minSlidesToRead; //don't care about last slide
 	readAtSpeedOfLight.value = Date.now() - openedAt < minSlidesToRead * 2000 && !didntReadAll;
-	if (!forceClose && (didntReadAll || readAtSpeedOfLight.value)) {
+	if (items.value.length > 1 && !forceClose && (didntReadAll || readAtSpeedOfLight.value)) {
 		showReadAlert.value = true;
 		return;
 	}
