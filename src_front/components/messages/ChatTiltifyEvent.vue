@@ -1,9 +1,13 @@
 <template>
-	<div class="chattiltifyevent chatMessage highlight"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+	<div
+		class="chattiltifyevent chatMessage highlight"
+		@contextmenu="onContextMenu($event, messageData, $el)"
+	>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
-		<Icon name="tiltify" alt="tiltify" class="icon"/>
+		<Icon name="tiltify" alt="tiltify" class="icon" />
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="labelKey">
@@ -14,48 +18,51 @@
 					<strong>{{ messageData.amountFormatted }}</strong>
 				</template>
 				<template #CAMPAIGN v-if="messageData.eventType == 'donation'">
-					<a :href="messageData.campaign.url" target="_blank"><strong>{{ messageData.campaign.title }}</strong></a>
+					<a :href="messageData.campaign.url" target="_blank"
+						><strong>{{ messageData.campaign.title }}</strong></a
+					>
 				</template>
 			</i18n-t>
-			<div class="quote" v-if="(messageData.eventType == 'donation') && messageData.message">
-				<ChatMessageChunksParser :chunks="messageData.message_chunks"></ChatMessageChunksParser>
+			<div class="quote" v-if="messageData.eventType == 'donation' && messageData.message">
+				<ChatMessageChunksParser
+					:chunks="messageData.message_chunks"
+				></ChatMessageChunksParser>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 
 @Component({
-	components:{
+	components: {
 		ChatMessageChunksParser,
 	},
-	emits:["onRead"],
+	emits: ["onRead"],
 })
 class ChatTiltifyEvent extends AbstractChatMessage {
-	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageTiltifyData;
+	declare messageData: TwitchatDataTypes.MessageTiltifyData;
 
-	public get labelKey():string {
+	public get labelKey(): string {
 		switch (this.messageData.eventType) {
-			case "donation": return "chat.tiltify.donation";
+			case "donation":
+				return "chat.tiltify.donation";
 		}
 		return "";
 	}
-
 }
 export default toNative(ChatTiltifyEvent);
 </script>
 
 <style scoped lang="less">
-.chattiltifyevent{
+.chattiltifyevent {
 	.quote {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 }
 </style>

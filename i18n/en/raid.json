@@ -1,6 +1,6 @@
 {
 	"raid": {
-		"raiding": "Raiding {USER} with {VIEWERS} viewers {TIMER}",
+		"viewers": "Viewers",
 		"copy_logins": "Copy logins",
 		"banned_users": "You may want to tel {USER}'s moderators that the following banned users may join their channel:",
 		"banned_users_title": "1 banned user may join the raid |{COUNT} banned users may join the raid",
@@ -15,6 +15,7 @@
 		"raid_liveBt": "Live channels",
 		"raid_historyBt": "Raid history",
 		"remote_chat": "Connect to {USER}'s chat",
+		"cancel_raid": "Cancel raid",
 		"target_channel_previous_raid": "Your last raid was on this same channel.",
 		"target_channel_offline": "The channel you're raiding is offline!"
 	}

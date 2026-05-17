@@ -1,145 +1,183 @@
 <template>
 	<div class="overlayadbreak" v-if="show">
-
 		<template v-if="component == 'bar'">
-			<div id="progress"
-				ref="holder"
-				:class="progressClasses"
-				:style="progressStyles">
-				<span v-if="label" key="labelbar"
-					ref="label" class="label"
+			<div id="progress" ref="holder" :class="progressClasses" :style="progressStyles">
+				<span
+					v-if="label"
+					key="labelbar"
+					ref="label"
+					class="label"
 					:style="labelStyles"
-					v-html="label"></span>
+					v-html="label"
+				></span>
 			</div>
-
 		</template>
 
-		<div v-if="component == 'text'"
-		id="text"
-		ref="holder"
-		:class="progressClasses"
-		:style="progressStyles">
-			<span class="label" key="labeltext"
-			:style="labelStyles"
-			v-if="label" v-html="label"></span>
+		<div
+			v-if="component == 'text'"
+			id="text"
+			ref="holder"
+			:class="progressClasses"
+			:style="progressStyles"
+		>
+			<span
+				class="label"
+				key="labeltext"
+				:style="labelStyles"
+				v-if="label"
+				v-html="label"
+			></span>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import DOMPurify from 'isomorphic-dompurify';
-import { gsap } from 'gsap/gsap-core';
+import TwitchatEvent from "@/events/TwitchatEvent";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { gsap } from "gsap/gsap-core";
+import DOMPurify from "isomorphic-dompurify";
+import type { CSSProperties } from "vue";
+import { Component, toNative } from "vue-facing-decorator";
+import AbstractOverlay from "./AbstractOverlay";
 
 @Component({
-	components:{},
-	emits:[],
+	components: {},
+	emits: [],
 })
 class OverlayAdBreak extends AbstractOverlay {
+	public show: boolean = false;
+	public label: string = "";
+	public adType: AdType = "none";
+	public component: TwitchatDataTypes.AdBreakOverlayData["runningStyle"] = "bar";
+	public adData: TwitchatDataTypes.CommercialData | null = null;
+	public parameters: TwitchatDataTypes.AdBreakOverlayData | null = null;
 
-	public show:boolean = false;
-	public label:string = "";
-	public adType:AdType = "none";
-	public component:TwitchatDataTypes.AdBreakOverlayData["runningStyle"] = "bar";
-	public adData:TwitchatDataTypes.CommercialData|null = null;
-	public parameters:TwitchatDataTypes.AdBreakOverlayData|null = null;
+	private disposed: boolean = false;
+	private hidding: boolean = false;
+	private progressPercent: number = 0;
 
-	private disposed:boolean = false;
-	private hidding:boolean = false;
-	private progressPercent:number = 0;
+	private adBreakDataHandler!: (e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_DATA">) => void;
+	private adBreakParamsHandler!: (e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_CONFIGS">) => void;
+	private overlayPresenceHandler!: () => void;
 
-	private adBreakDataHandler!:(e:TwitchatEvent<TwitchatDataTypes.CommercialData>) => void;
-	private adBreakParamsHandler!:(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>) => void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
-
-	public get progressClasses():string[] {
-		const res:string[] = [this.adType];
-		const style = this.adType == "approaching"? this.parameters?.approachingStyle : this.parameters?.runningStyle;
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		res.push(style!, "position-"+placement);
+	public get progressClasses(): string[] {
+		const res: string[] = [this.adType];
+		const style =
+			this.adType == "approaching"
+				? this.parameters?.approachingStyle
+				: this.parameters?.runningStyle;
+		const placement =
+			this.adType == "approaching"
+				? this.parameters?.approachingPlacement
+				: this.parameters?.runningPlacement;
+		res.push(style!, "position-" + placement);
 		return res;
 	}
 
-	public get progressStyles():CSSProperties {
-		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const thickness	= (this.adType == "approaching"? this.parameters?.approachingThickness : this.parameters?.runningThickness) || 20;
-		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:CSSProperties = {};
+	public get progressStyles(): CSSProperties {
+		const placement =
+			this.adType == "approaching"
+				? this.parameters?.approachingPlacement
+				: this.parameters?.runningPlacement;
+		const thickness =
+			(this.adType == "approaching"
+				? this.parameters?.approachingThickness
+				: this.parameters?.runningThickness) || 20;
+		const color =
+			this.adType == "approaching"
+				? this.parameters?.approachingColor
+				: this.parameters?.runningColor;
+		const res: CSSProperties = {};
 		res.backgroundColor = color;
-		if(this.component === "bar") {
-			switch(placement) {
+		if (this.component === "bar") {
+			switch (placement) {
 				case "t":
 				case "b": {
 					res.width = "100vw";
-					res.transform = "scaleX("+this.progressPercent+")";
-					res.height = thickness+"px";
-					break
+					res.transform = "scaleX(" + this.progressPercent + ")";
+					res.height = thickness + "px";
+					break;
 				}
 				// case "l":
 				case "r": {
 					res.height = "100vh";
-					res.transform = "scaleY("+this.progressPercent+")";
-					res.width = thickness+"px";
-					break
+					res.transform = "scaleY(" + this.progressPercent + ")";
+					res.width = thickness + "px";
+					break;
 				}
 				case "l": {
 					res.height = "100vh";
-					res.transform = "scaleY("+this.progressPercent+")";
-					res.width = thickness+"px";
-					break
+					res.transform = "scaleY(" + this.progressPercent + ")";
+					res.width = thickness + "px";
+					break;
 				}
 			}
 		}
 		return res;
 	}
 
-	public get labelStyles():CSSProperties {
-		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
-		const fontSize	= (this.adType == "approaching"? this.parameters?.approachingSize : this.parameters?.runningSize) || 20;
-		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:CSSProperties = {};
-		res.fontSize = fontSize+"px";
-		if(this.component === "bar") {
-			switch(placement) {
+	public get labelStyles(): CSSProperties {
+		const placement =
+			this.adType == "approaching"
+				? this.parameters?.approachingPlacement
+				: this.parameters?.runningPlacement;
+		const fontSize =
+			(this.adType == "approaching"
+				? this.parameters?.approachingSize
+				: this.parameters?.runningSize) || 20;
+		const color =
+			this.adType == "approaching"
+				? this.parameters?.approachingColor
+				: this.parameters?.runningColor;
+		const res: CSSProperties = {};
+		res.fontSize = fontSize + "px";
+		if (this.component === "bar") {
+			switch (placement) {
 				case "t":
 				case "b": {
-					res.transform = "scaleX("+1/this.progressPercent+")";
-					break
+					res.transform = "scaleX(" + 1 / this.progressPercent + ")";
+					break;
 				}
 				case "l":
 				case "r": {
-					res.transform = "scaleY("+1/this.progressPercent+")";
+					res.transform = "scaleY(" + 1 / this.progressPercent + ")";
 					// if(placement == "l") {
 					// 	res.left = "10px";
 					// }
-					break
+					break;
 				}
 			}
 		}
 		//Define text color based on background's brightness
 		const hsl = Utils.rgb2hsl(parseInt((color || "#ffffff").replace("#", ""), 16));
-		const minL = .65;
-		if(hsl.l < minL) {
+		const minL = 0.65;
+		if (hsl.l < minL) {
 			res.color = "#ffffff";
-		}else{
+		} else {
 			res.color = "#000000";
 		}
 		return res;
 	}
 
 	public beforeMount(): void {
-		this.adBreakDataHandler = (e) => this.onAdBreak(e);
-		this.adBreakParamsHandler = (e) => this.onParameters(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE); }
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		this.adBreakDataHandler = (e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_DATA">) =>
+			this.onAdBreak(e);
+		this.adBreakParamsHandler = (e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_CONFIGS">) =>
+			this.onParameters(e);
+		this.overlayPresenceHandler = () => {
+			PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_PRESENCE");
+		};
+		PublicAPI.instance.addEventListener("ON_AD_BREAK_OVERLAY_DATA", this.adBreakDataHandler);
+		PublicAPI.instance.addEventListener(
+			"ON_AD_BREAK_OVERLAY_CONFIGS",
+			this.adBreakParamsHandler,
+		);
+		PublicAPI.instance.addEventListener(
+			"GET_AD_BREAK_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 		this.renderFrame();
 
 		/*
@@ -164,25 +202,30 @@ class OverlayAdBreak extends AbstractOverlay {
 			remainingSnooze: 3,
 		};
 		//*/
-
 	}
 
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS);
+	public requestInfo(): void {
+		PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_CONFIGS");
 	}
 
 	public beforeUnmount(): void {
 		this.disposed = true;
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_AD_BREAK_OVERLAY_DATA", this.adBreakDataHandler);
+		PublicAPI.instance.removeEventListener(
+			"ON_AD_BREAK_OVERLAY_CONFIGS",
+			this.adBreakParamsHandler,
+		);
+		PublicAPI.instance.removeEventListener(
+			"GET_AD_BREAK_OVERLAY_PRESENCE",
+			this.overlayPresenceHandler,
+		);
 	}
 
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParameters(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>):Promise<void> {
-		if(e.data) {
+	private async onParameters(e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_CONFIGS">): Promise<void> {
+		if (e.data) {
 			this.parameters = e.data;
 		}
 	}
@@ -190,89 +233,104 @@ class OverlayAdBreak extends AbstractOverlay {
 	/**
 	 * Called when API sends an ad break info
 	 */
-	private onAdBreak(e:TwitchatEvent<TwitchatDataTypes.CommercialData>):void {
-		if(e.data) {
+	private onAdBreak(e: TwitchatEvent<"ON_AD_BREAK_OVERLAY_DATA">): void {
+		if (e.data) {
 			this.show = false;
 			this.adData = e.data;
 		}
 	}
 
-	private renderFrame():void {
-		if(this.disposed) return;
+	private renderFrame(): void {
+		if (this.disposed) return;
 
-		requestAnimationFrame(()=>this.renderFrame());
+		requestAnimationFrame(() => this.renderFrame());
 
-		if(!this.adData || !this.parameters) return;
+		if (!this.adData || !this.parameters) return;
 
-		let isAdComing		= false;
-		let isAdRunning		= false;
-		let duration:number	= (this.parameters?.approachingDelay || 30) * 1000;
-		let startDate:number= 0;
-		if(this.adData.prevAdStart_at + this.adData.currentAdDuration_ms >= Date.now()){
-			isAdRunning		= true;
-			startDate		= this.adData.prevAdStart_at + this.adData.currentAdDuration_ms;
-			duration		= this.adData.currentAdDuration_ms;
-		}else
-		if(Date.now() > this.adData.nextAdStart_at && Date.now() < this.adData.nextAdStart_at + this.adData.currentAdDuration_ms) {
-			isAdRunning		= true;
-			startDate		= this.adData.nextAdStart_at + this.adData.currentAdDuration_ms;
-			duration		= this.adData.currentAdDuration_ms;
-		}else
-		if(this.adData.nextAdStart_at > 0 && this.adData.nextAdStart_at - Date.now() < duration) {
-			isAdComing		= true;
-			startDate		= this.adData.nextAdStart_at;
+		let isAdComing = false;
+		let isAdRunning = false;
+		let duration: number = (this.parameters?.approachingDelay || 30) * 1000;
+		let startDate: number = 0;
+		if (this.adData.prevAdStart_at + this.adData.currentAdDuration_ms >= Date.now()) {
+			isAdRunning = true;
+			startDate = this.adData.prevAdStart_at + this.adData.currentAdDuration_ms;
+			duration = this.adData.currentAdDuration_ms;
+		} else if (
+			Date.now() > this.adData.nextAdStart_at &&
+			Date.now() < this.adData.nextAdStart_at + this.adData.currentAdDuration_ms
+		) {
+			isAdRunning = true;
+			startDate = this.adData.nextAdStart_at + this.adData.currentAdDuration_ms;
+			duration = this.adData.currentAdDuration_ms;
+		} else if (
+			this.adData.nextAdStart_at > 0 &&
+			this.adData.nextAdStart_at - Date.now() < duration
+		) {
+			isAdComing = true;
+			startDate = this.adData.nextAdStart_at;
 		}
 		this.progressPercent = 1 - (startDate - Date.now()) / duration;
 
-		if(this.progressPercent >= 1) {
+		if (this.progressPercent >= 1) {
 			this.adType = "none";
 			this.doHide();
 			return;
 		}
 
-		if(!isAdRunning && !isAdComing) {
+		if (!isAdRunning && !isAdComing) {
 			this.adType = "none";
 			this.doHide();
 			return;
 		}
-		if(isAdRunning && this.parameters?.showRunning !== true) {
+		if (isAdRunning && this.parameters?.showRunning !== true) {
 			this.adType = "none";
 			this.doHide();
 			return;
 		}
-		if(isAdComing && this.parameters?.showApproaching !== true) {
+		if (isAdComing && this.parameters?.showApproaching !== true) {
 			this.adType = "none";
 			this.doHide();
 			return;
 		}
 
-		this.adType		= isAdRunning? "running" : "approaching";
-		this.component	= this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
+		this.adType = isAdRunning ? "running" : "approaching";
+		this.component =
+			this.adType == "approaching"
+				? this.parameters!.approachingStyle
+				: this.parameters!.runningStyle;
 
-		if(this.progressPercent <= 0) {
+		if (this.progressPercent <= 0) {
 			this.doHide();
 			return;
-		}else{
+		} else {
 			this.doShow();
 		}
 
-		let label = this.adType == "approaching"? this.parameters?.approachingLabel : this.parameters?.runningLabel;
-		this.label = DOMPurify.sanitize(label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "");
+		let label =
+			this.adType == "approaching"
+				? this.parameters?.approachingLabel
+				: this.parameters?.runningLabel;
+		this.label = DOMPurify.sanitize(
+			label?.replace(
+				/\{TIMER\}/gi,
+				Utils.formatDuration(Math.round((startDate - Date.now()) / 1000) * 1000),
+			) || "",
+		);
 	}
 
-	private doShow():void {
-		if(this.show) return;
+	private doShow(): void {
+		if (this.show) return;
 		this.show = true;
-		if(this.component == "text") {
+		if (this.component == "text") {
 			this.showCard();
 		}
 	}
 
-	private doHide():void {
-		if(this.hidding || !this.show) return;
-		if(this.component == "text") {
+	private doHide(): void {
+		if (this.hidding || !this.show) return;
+		if (this.component == "text") {
 			this.hideCard();
-		}else{
+		} else {
 			this.show = false;
 		}
 	}
@@ -280,68 +338,121 @@ class OverlayAdBreak extends AbstractOverlay {
 	/**
 	 * Open the text card
 	 */
-	private async showCard():Promise<void> {
+	private async showCard(): Promise<void> {
 		this.show = true;
 		this.hidding = false;
 		await this.$nextTick();
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
+		const placement =
+			this.adType == "approaching"
+				? this.parameters?.approachingPlacement
+				: this.parameters?.runningPlacement;
 		const holder = this.$refs.holder as HTMLDivElement;
-		if(!holder || !placement) return;
+		if (!holder || !placement) return;
 
 		const bounds = holder.getBoundingClientRect();
 
-		if(placement.indexOf("r") > -1){
-			gsap.from(holder, {x:"100%", duration:.35, ease:"sine.out", clearProps:"x"});
-		}else
-		if(placement.indexOf("l") > -1){
-			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:.35, ease:"sine.out", clearProps:"x"});
-		}else
-		if(placement == "t"){
-			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:.35, ease:"sine.out", clearProps:"y"});
-		}else
-		if(placement == "b"){
-			gsap.from(holder, {y:"100%", duration:.35, ease:"sine.out", clearProps:"y"});
-		}else
-		if(placement == "m"){
-			gsap.from(holder, {scale:0, duration:.35, ease:"back.out", clearProps:"transform"});
+		if (placement.indexOf("r") > -1) {
+			gsap.from(holder, { x: "100%", duration: 0.35, ease: "sine.out", clearProps: "x" });
+		} else if (placement.indexOf("l") > -1) {
+			gsap.from(holder, {
+				x: -(bounds.x + bounds.width),
+				duration: 0.35,
+				ease: "sine.out",
+				clearProps: "x",
+			});
+		} else if (placement == "t") {
+			gsap.from(holder, {
+				y: -(bounds.y + bounds.height),
+				duration: 0.35,
+				ease: "sine.out",
+				clearProps: "y",
+			});
+		} else if (placement == "b") {
+			gsap.from(holder, { y: "100%", duration: 0.35, ease: "sine.out", clearProps: "y" });
+		} else if (placement == "m") {
+			gsap.from(holder, {
+				scale: 0,
+				duration: 0.35,
+				ease: "back.out",
+				clearProps: "transform",
+			});
 		}
 	}
 
 	/**
 	 * Closes the text card
 	 */
-	private async hideCard():Promise<void> {
+	private async hideCard(): Promise<void> {
 		this.hidding = true;
-		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
+		const placement =
+			this.adType == "approaching"
+				? this.parameters?.approachingPlacement
+				: this.parameters?.runningPlacement;
 		const holder = this.$refs.holder as HTMLDivElement;
-		if(!holder || !placement) return;
+		if (!holder || !placement) return;
 
-		if(placement.indexOf("r") > -1){
-			gsap.to(holder, {x:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
-		}else
-		if(placement.indexOf("l") > -1){
-			gsap.to(holder, {x:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
-		}else
-		if(placement == "t"){
-			gsap.to(holder, {y:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
-		}else
-		if(placement == "b"){
-			gsap.to(holder, {y:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
-		}else
-		if(placement == "m"){
-			gsap.to(holder, {scale:0, duration:.35, ease:"back.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"transform"});
+		if (placement.indexOf("r") > -1) {
+			gsap.to(holder, {
+				x: "100%",
+				duration: 0.35,
+				ease: "sine.in",
+				onComplete: () => {
+					this.adType = "none";
+				},
+				clearProps: "x",
+			});
+		} else if (placement.indexOf("l") > -1) {
+			gsap.to(holder, {
+				x: "-100%",
+				duration: 0.35,
+				ease: "sine.in",
+				onComplete: () => {
+					this.adType = "none";
+				},
+				clearProps: "x",
+			});
+		} else if (placement == "t") {
+			gsap.to(holder, {
+				y: "-100%",
+				duration: 0.35,
+				ease: "sine.in",
+				onComplete: () => {
+					this.adType = "none";
+				},
+				clearProps: "y",
+			});
+		} else if (placement == "b") {
+			gsap.to(holder, {
+				y: "100%",
+				duration: 0.35,
+				ease: "sine.in",
+				onComplete: () => {
+					this.adType = "none";
+				},
+				clearProps: "y",
+			});
+		} else if (placement == "m") {
+			gsap.to(holder, {
+				scale: 0,
+				duration: 0.35,
+				ease: "back.in",
+				onComplete: () => {
+					this.adType = "none";
+				},
+				clearProps: "transform",
+			});
 		}
 		await Utils.promisedTimeout(350);
 		this.show = false;
 	}
 }
 
-type AdType = "approaching"|"running"|"none";
+type AdType = "approaching" | "running" | "none";
 export default toNative(OverlayAdBreak);
 </script>
 
 <style scoped lang="less">
-.overlayadbreak{
+.overlayadbreak {
 	font-variant-numeric: tabular-nums;
 	.bar {
 		position: absolute;
@@ -353,9 +464,9 @@ export default toNative(OverlayAdBreak);
 
 		.label {
 			z-index: 1;
-			padding: .5em;
-			border-bottom-left-radius: .5em;
-			border-bottom-right-radius: .5em;
+			padding: 0.5em;
+			border-bottom-left-radius: 0.5em;
+			border-bottom-right-radius: 0.5em;
 			margin: auto 0;
 			background-color: inherit;
 			// background-color: rgba(0, 255, 0, .5);
@@ -371,8 +482,8 @@ export default toNative(OverlayAdBreak);
 			.label {
 				align-self: flex-end;
 				border-radius: 0;
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
+				border-top-left-radius: 0.5em;
+				border-top-right-radius: 0.5em;
 			}
 		}
 		&.position-l {
@@ -387,8 +498,8 @@ export default toNative(OverlayAdBreak);
 				margin: auto;
 				margin-top: 0;
 				border-radius: 0;
-				border-top-right-radius: .5em;
-				border-bottom-right-radius: .5em;
+				border-top-right-radius: 0.5em;
+				border-bottom-right-radius: 0.5em;
 			}
 		}
 		&.position-r {
@@ -400,8 +511,8 @@ export default toNative(OverlayAdBreak);
 				margin: auto;
 				margin-bottom: 0;
 				border-radius: 0;
-				border-top-left-radius: .5em;
-				border-bottom-left-radius: .5em;
+				border-top-left-radius: 0.5em;
+				border-bottom-left-radius: 0.5em;
 			}
 		}
 		// &.position-r,
@@ -428,7 +539,7 @@ export default toNative(OverlayAdBreak);
 
 	.text {
 		@margin: 1vh;
-		@borderRadius: .5em;
+		@borderRadius: 0.5em;
 
 		position: absolute;
 		display: inline-flex;
@@ -436,7 +547,7 @@ export default toNative(OverlayAdBreak);
 		align-items: center;
 		font-size: 1.25em;
 		background-color: var(--color-light);
-		padding: .5em;
+		padding: 0.5em;
 		border-top-right-radius: @borderRadius;
 		border-bottom-right-radius: @borderRadius;
 		// box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
@@ -457,7 +568,7 @@ export default toNative(OverlayAdBreak);
 		}
 
 		&.position-tr {
-			top: .5em;
+			top: 0.5em;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: @borderRadius;
@@ -501,13 +612,12 @@ export default toNative(OverlayAdBreak);
 		}
 
 		&.position-br {
-			bottom: .5em;
+			bottom: 0.5em;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: @borderRadius;
 			border-bottom-left-radius: @borderRadius;
 		}
 	}
-
 }
 </style>

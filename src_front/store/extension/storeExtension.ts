@@ -1,45 +1,126 @@
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { UnwrapRef } from 'vue'
-import type { IExtensionActions, IExtensionGetters, IExtensionState } from '../StoreProxy'
-import TwitchUtils from '@/utils/twitch/TwitchUtils'
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { IExtensionActions, IExtensionGetters, IExtensionState } from "../StoreProxy";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import Config from "@/utils/Config";
+import ApiHelper from "@/utils/ApiHelper";
+import Utils from "@/utils/Utils";
 
-export const storeExtension = defineStore('Extension', {
-	state: () => ({
-		availableSlots:{},
-		availableExtensions:{},
-	} as IExtensionState),
+let lastEBSCall_ts = 0;
 
-
+export const storeExtension = defineStore("Extension", {
+	state: (): IExtensionState => ({
+		availableSlots: {
+			panel: 0,
+			overlay: 0,
+			component: 0,
+		},
+		availableExtensions: [],
+		enabledExtensions: [],
+		activeExtensionSlots: {},
+		ebsConfigUpdating: false,
+		ebsConfigs: { captureClicks: false, captureKeys: false },
+	}),
 
 	getters: {
-	} as IExtensionGetters
-	& ThisType<UnwrapRef<IExtensionState> & _StoreWithGetters<IExtensionGetters> & PiniaCustomProperties>
-	& _GettersTree<IExtensionState>,
-
-
+		companionEnabled: function () {
+			return !!this.enabledExtensions.find(
+				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
+			);
+		},
+	} satisfies StoreGetters<IExtensionGetters, IExtensionState>,
 
 	actions: {
-		init():void {
-			TwitchUtils.listExtensions(false).then(res => {
-				if(!res) return;
-				this.availableExtensions = res;
-			});
-			TwitchUtils.listExtensions(true).then(res => {
-				if(!res) return;
-				this.availableSlots.panel = Object.keys(res.panel).length;
-				this.availableSlots.overlay = Object.keys(res.overlay).length;
-				this.availableSlots.component = Object.keys(res.component).length;
-			});
+		async populateData() {
+			await this.updateInternalStates();
+			if (this.companionEnabled) {
+				const res = await ApiHelper.call("twitch/extension/config", "GET");
+				if (res.json.config) {
+					this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+				}
+			}
 		},
-	} as IExtensionActions
-	& ThisType<IExtensionActions
-		& UnwrapRef<IExtensionState>
-		& _StoreWithState<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>
-		& _StoreWithGetters<IExtensionGetters>
-		& PiniaCustomProperties
-	>,
-})
 
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeExtension, import.meta.hot))
+		async setExtensionState(
+			enable: boolean,
+			slotIndex: string,
+			slotType: TwitchDataTypes.Extension["type"][number],
+			extension: TwitchDataTypes.Extension,
+		): Promise<boolean> {
+			const result = await TwitchUtils.updateExtension(
+				extension.id,
+				extension.version,
+				enable,
+				slotIndex,
+				slotType,
+			);
+
+			await this.updateInternalStates();
+
+			return result;
+		},
+
+		async updateInternalStates(): Promise<void> {
+			const [list, listEnabled] = await Promise.all([
+				TwitchUtils.listExtensions(false),
+				TwitchUtils.listExtensions(true),
+			]);
+
+			if (list) this.availableExtensions = list;
+
+			if (listEnabled) {
+				this.availableSlots.panel = Object.keys(listEnabled.panel).length;
+				this.availableSlots.overlay = Object.keys(listEnabled.overlay).length;
+				this.availableSlots.component = Object.keys(listEnabled.component).length;
+
+				const slots: IExtensionState["activeExtensionSlots"] = {};
+				const extensions: TwitchDataTypes.Extension[] = [];
+				const keys: (keyof typeof listEnabled)[] = ["component", "overlay", "panel"];
+				for (const slotType of keys) {
+					const category = listEnabled[slotType];
+					for (const slotId in category) {
+						const element = category[slotId];
+						if (!element?.active) continue;
+						slots[element.id] = { type: slotType, index: slotId };
+						extensions.push({
+							can_activate: true,
+							id: element.id,
+							name: element.name,
+							version: element.version,
+							type: [slotType],
+						});
+					}
+				}
+				this.activeExtensionSlots = slots;
+				this.enabledExtensions = extensions;
+			}
+		},
+
+		async updateEBSConfigs(): Promise<boolean> {
+			this.ebsConfigUpdating = true;
+			const elapsed = Date.now() - lastEBSCall_ts;
+			const toWait = 3000 - elapsed;
+			if (toWait > 0) {
+				// EBS edition has a 20 times per minute rate limit which corresponds
+				// to "every 3s max". Here we add a fake timeout to make sure we
+				// don't call this endpoint more often
+				await Utils.promisedTimeout(toWait);
+			}
+			const res = await ApiHelper.call("twitch/extension/config", "POST", {
+				config: {
+					captureClicks: this.ebsConfigs.captureClicks,
+					captureKeys: this.ebsConfigs.captureKeys,
+				},
+			});
+			lastEBSCall_ts = Date.now();
+			this.ebsConfigUpdating = false;
+			const success = res.status === 200 && res.json.success === true;
+			return success;
+		},
+	} satisfies StoreActions<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>,
+});
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeExtension, import.meta.hot));
 }

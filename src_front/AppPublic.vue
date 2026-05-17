@@ -7,23 +7,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Alert from './views/AlertView.vue';
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import Alert from "./views/AlertView.vue";
 
 @Component({
-	components:{
+	components: {
 		Alert,
 	},
-	emits:[],
+	emits: [],
 })
-class AppPublic extends Vue {
-
-}
+class AppPublic extends Vue {}
 export default toNative(AppPublic);
 </script>
 
 <style scoped lang="less">
-.apppublic{
+.apppublic {
 	// min-width: 100vw;
 	// min-height: 100vh;
 	color: var(--color-text);

@@ -1,236 +1,292 @@
 <template>
 	<div class="custombadgesmanager">
 		<div class="header">
-			<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
-			<h1>{{ $t("usercard.manage_badges") }}</h1>
+			<button class="backBt" @click="emit('close')"><Icon name="back" /></button>
+			<h1>{{ t("usercard.manage_badges") }}</h1>
 		</div>
 
 		<Icon class="loader" name="loader" v-if="loading" />
-		
-		<template v-else>
-			<div class="badgeList">
-				<Button class="addBt" v-tooltip="$t('usercard.add_badgeBt_tt')"
-				type="file"
-				accept="image/*"
-				transparent
-				theme="secondary"
-				@change="onAddBadgeFile">
-					<template #icon><Icon name="add" theme="secondary" /></template>
-				</Button>
 
-				<button :class="getBadgeClasses(badge.id)" v-for="badge in badgesList" :key="badge.id"
-				@click="selectBadge(badge.id)"><img :src="badge.img"></button>
+		<template v-else>
+			<PremiumLimitMessage
+				v-if="!canCreateBadge"
+				premiumLabel="usercard.badge_premium_limit"
+				label="usercard.badge_nonPremium_limit"
+				:max="$config.MAX_CUSTOM_BADGES"
+				:maxPremium="$config.MAX_CUSTOM_BADGES_PREMIUM"
+			/>
+
+			<div class="badgeList">
+				<TTButton
+					class="addBt"
+					v-tooltip="t('usercard.add_badgeBt_tt')"
+					v-if="canCreateBadge"
+					type="file"
+					accept="image/*"
+					transparent
+					theme="secondary"
+					@change="onAddBadgeFile"
+				>
+					<template #icon><Icon name="add" theme="secondary" /></template>
+				</TTButton>
+
+				<button
+					:class="getBadgeClasses(badge.id)"
+					v-for="badge in badgesList"
+					:key="badge.id"
+					@click="selectBadge(badge.id)"
+				>
+					<img :src="badge.img" />
+				</button>
 			</div>
 
 			<template v-if="selectedBadgeId">
-				
-				<div class="card-item secondary disabledInfo" v-if="!$store.auth.isPremium && selectedBadge?.enabled === false">
-					<div>{{ $t("usercard.badge_disabled") }}</div>
-					<i18n-t scope="global" keypath="usercard.badge_diusabled_notPremium" v-if="!canEnableABadge">
-						<template #MAX>{{ $config.MAX_CUSTOM_BADGES }}</template>
-						<template #MAX_PREMIUM>{{ $config.MAX_CUSTOM_BADGES_PREMIUM }}</template>
-					</i18n-t>
-					<div v-else class="enableToggle">
-						<label for="reactivate_badge" @click="selectedBadge!.enabled = !selectedBadge!.enabled; saveBadges()">{{ $t("usercard.badge_users_reactivate") }}</label>
-						<ToggleButton secondary id="reactivate_badge" v-model="selectedBadge!.enabled" @change="saveBadges()" />
+				<div
+					class="card-item secondary disabledInfo"
+					v-if="selectedBadge?.enabled === false"
+				>
+					<div>{{ t("usercard.badge_disabled") }}</div>
+					<div class="enableToggle" v-if="storeAuth.isPremium">
+						<label
+							for="reactivate_badge"
+							@click="
+								selectedBadge!.enabled = !selectedBadge!.enabled;
+								saveBadges();
+							"
+							>{{ t("usercard.badge_users_reactivate") }}</label
+						>
+						<ToggleButton
+							id="reactivate_badge"
+							v-model="selectedBadge!.enabled"
+							@change="saveBadges()"
+						/>
 					</div>
 				</div>
-				
-				<input class="badgeName" type="text" v-model="badgeName" :placeholder="$t('usercard.badge_name_placeholder')" maxlength="50">
+
+				<input
+					class="badgeName"
+					type="text"
+					v-model="badgeName"
+					:placeholder="t('usercard.badge_name_placeholder')"
+					maxlength="50"
+				/>
 
 				<div class="ctas">
-					<Button icon="trash" alert @click="deleteBadge(selectedBadgeId)">{{ $t("usercard.delete_badge") }}</Button>
-					<Button icon="upload" type="file" @change="onSelectBadgeFile">{{ $t("usercard.replace_badge_file") }}</Button>
+					<TTButton icon="trash" alert @click="deleteBadge(selectedBadgeId)">{{
+						t("usercard.delete_badge")
+					}}</TTButton>
+					<TTButton icon="upload" type="file" @change="onSelectBadgeFile">{{
+						t("usercard.replace_badge_file")
+					}}</TTButton>
 				</div>
-	
-				<h2>{{ $t("usercard.badge_users") }}</h2>
+
+				<h2>{{ t("usercard.badge_users") }}</h2>
 				<div class="userList" v-if="getUserList(selectedBadgeId).length > 0">
 					<div class="user" v-for="user in getUserList(selectedBadgeId)" :key="user.id">
-						<button class="removeBt" @click="removeBadgeFromUser(selectedBadgeId, user)"><Icon name="cross" theme="alert" /></button>
+						<button
+							class="removeBt"
+							@click="removeBadgeFromUser(selectedBadgeId, user)"
+						>
+							<Icon name="cross" theme="alert" />
+						</button>
 						<span>{{ user.displayName }}</span>
 					</div>
 				</div>
-				<div class="noUser" v-else>{{ $t("usercard.badge_users_none") }}</div>
+				<div class="noUser" v-else>{{ t("usercard.badge_users_none") }}</div>
 			</template>
 		</template>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import { watch } from 'vue';
-import ToggleButton from '../ToggleButton.vue';
-import Config from '@/utils/Config';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
+import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { useConfirm } from "@/composables/useConfirm";
+import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
+import ToggleButton from "../ToggleButton.vue";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components:{
-		Button: TTButton,
-		ToggleButton,
-	},
-	emits:["close"],
-})
-class CustomBadgesManager extends Vue {
+const emit = defineEmits<{ close: [] }>();
 
-	public loading:boolean = true;
-	public badgeName:string = "";
-	public selectedBadgeId:string = "";
-	
-	private userList:TwitchatDataTypes.TwitchatUser[] = [];
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeUsers = useStoreUsers();
+const { confirm } = useConfirm();
 
-	public get badgesList() { return this.$store.users.customBadgeList; }
-	public get selectedBadge() { return this.$store.users.customBadgeList.find(v=>v.id == this.selectedBadgeId); }
-	public get canEnableABadge() { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
+const loading = ref<boolean>(true);
+const badgeName = ref<string>("");
+const selectedBadgeId = ref<string>("");
 
-	/**
-	 * Get classes for the given badge ID
-	 */
-	public getBadgeClasses(badgeId:string):string[] {
-		this.$store.users
-		const res = ["badge"];
-		const badge = this.$store.users.customBadgeList.find(v=>v.id == badgeId);
-		if(this.selectedBadgeId == badgeId) res.push("selected");
-		if(badge && badge.enabled === false && !this.$store.auth.isPremium) res.push("disabled");
-		return res;
-	}
+const userList = ref<TwitchatDataTypes.TwitchatUser[]>([]);
 
-	/**
-	 * Get users related to the given badge ID
-	 */
-	public getUserList(badgeId:string):TwitchatDataTypes.TwitchatUser[] {
-		const res:TwitchatDataTypes.TwitchatUser[] = [];
-		const userBadges = this.$store.users.customUserBadges;
-		for (const uid in userBadges) {
-			if(userBadges[uid]!.findIndex(v=> v.id == badgeId) > -1) {
-				const user = this.userList.find(v=>v.id == uid);
-				if(user) res.push(user);
-			}
-		}
-		return res;
-	}
+const badgesList = computed(() => storeUsers.customBadgeList);
+const selectedBadge = computed(() =>
+	storeUsers.customBadgeList.find((v) => v.id == selectedBadgeId.value),
+);
+const canCreateBadge = computed(
+	() =>
+		storeUsers.customBadgeList.length <
+		(storeAuth.isPremium
+			? Config.instance.MAX_CUSTOM_BADGES_PREMIUM
+			: Config.instance.MAX_CUSTOM_BADGES),
+);
 
-	public beforeMount():void {
-		const userBadges = this.$store.users.customUserBadges;
-		const uids = Object.keys(userBadges);
-		const channelId = this.$store.auth.twitch.user.id;
-		this.userList = [];
-		uids.forEach(id=> {
-			if(userBadges[id]!.length === 0) return;
-			this.userList.push(this.$store.users.getUserFrom(userBadges[id]![0]!.platform, channelId, id));
-		});
-		this.loading = false;
-
-		watch(()=>this.badgeName, ()=> this.onUpdateName());
-
-		this.selectBadge(this.$store.users.customBadgeList[0]!.id);
-	}
-
-	/**
-	 * Called when selecting a file for a custom badge
-	 * @param e 
-	 */
-	public onAddBadgeFile(e:Event):void {
-		const input = (e.target as HTMLInputElement);
-
-		const files = input.files;
-		if(!files || files.length == 0) return;
-
-		Utils.fileToBase64Img(files[0]!).then(base64Img=> {
-			this.$store.users.createCustomBadge(base64Img);
-		});
-	}
-
-	/**
-	 * Called when selecting a file for a custom badge
-	 * @param e 
-	 */
-	public onSelectBadgeFile(e:Event):void {
-		const input = (e.target as HTMLInputElement);
-
-		const files = input.files;
-		if(!files || files.length == 0) return;
-
-		Utils.fileToBase64Img(files[0]!).then(base64Img=> {
-			this.$store.users.updateCustomBadgeImage(this.selectedBadgeId, base64Img);
-			input.value = "";
-		});
-	}
-
-	/**
-	 * Selects a badge
-	 * @param badgeId 
-	 */
-	public selectBadge(badgeId:string):void {
-		const badge = this.$store.users.customBadgeList.find(v=>v.id == badgeId);
-		if(!badge) return;
-		this.selectedBadgeId = badge.id;
-		this.badgeName = badge.name || "";
-	}
-
-	/**
-	 * Delete a badge
-	 * @param badgeId 
-	 */
-	public deleteBadge(badgeId:string):void {
-		this.$store.main.confirm(this.$t("usercard.delete_badge_confirm.title"), this.$t("usercard.delete_badge_confirm.description"))
-		.then(v=> {
-			this.$store.users.deleteCustomBadge(badgeId);
-			this.$nextTick().then(()=>{
-				if(this.$store.users.customBadgeList.length > 0) {
-					this.selectedBadgeId = this.$store.users.customBadgeList[0]!.id;
-				}else{
-					this.selectedBadgeId = "";
-				}
-			})
-		}).catch(()=>{/*ignore*/})
-	}
-
-	/**
-	 * Removes the given badge from the user
-	 * @param user 
-	 */
-	public removeBadgeFromUser(badgeId:string, user:TwitchatDataTypes.TwitchatUser):void {
-		const channelId = this.$store.auth.twitch.user.id;
-		this.$store.users.removeCustomBadge(user.id, badgeId, channelId);
-	}
-
-	/**
-	 * Called when badge name is updated
-	 */
-	public onUpdateName():void {
-		const badge = this.$store.users.customBadgeList.find(v=>v.id == this.selectedBadgeId);
-		if(!badge) return;
-		this.$store.users.updateCustomBadgeName(badge.id, this.badgeName);
-	}
-
-	/**
-	 * Saves custom user badges
-	 */
-	public saveBadges():void {
-		console.log("save");
-		this.$store.users.saveCustomBadges();
-	}
-
+/**
+ * Get classes for the given badge ID
+ */
+function getBadgeClasses(badgeId: string): string[] {
+	const res = ["badge"];
+	const badge = storeUsers.customBadgeList.find((v) => v.id == badgeId);
+	if (selectedBadgeId.value == badgeId) res.push("selected");
+	if (badge && badge.enabled === false) res.push("disabled");
+	return res;
 }
-export default toNative(CustomBadgesManager);
+
+/**
+ * Get users related to the given badge ID
+ */
+function getUserList(badgeId: string): TwitchatDataTypes.TwitchatUser[] {
+	const res: TwitchatDataTypes.TwitchatUser[] = [];
+	const userBadges = storeUsers.customUserBadges;
+	for (const uid in userBadges) {
+		if (userBadges[uid]!.findIndex((v) => v.id == badgeId) > -1) {
+			const user = userList.value.find((v) => v.id == uid);
+			if (user) res.push(user);
+		}
+	}
+	return res;
+}
+
+onBeforeMount(() => {
+	const userBadges = storeUsers.customUserBadges;
+	const uids = Object.keys(userBadges);
+	const channelId = storeAuth.twitch.user.id;
+	userList.value = [];
+	uids.forEach((id) => {
+		if (userBadges[id]!.length === 0) return;
+		userList.value.push(storeUsers.getUserFrom(userBadges[id]![0]!.platform, channelId, id));
+	});
+	loading.value = false;
+
+	selectBadge(storeUsers.customBadgeList[0]!.id);
+});
+
+watch(
+	() => badgeName.value,
+	() => onUpdateName(),
+);
+
+/**
+ * Called when selecting a file for a custom badge
+ * @param e
+ */
+function onAddBadgeFile(e: Event): void {
+	const input = e.target as HTMLInputElement;
+
+	const files = input.files;
+	if (!files || files.length == 0) return;
+
+	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+		storeUsers.createCustomBadge(base64Img);
+	});
+}
+
+/**
+ * Called when selecting a file for a custom badge
+ * @param e
+ */
+function onSelectBadgeFile(e: Event): void {
+	const input = e.target as HTMLInputElement;
+
+	const files = input.files;
+	if (!files || files.length == 0) return;
+
+	Utils.fileToBase64Img(files[0]!).then((base64Img) => {
+		storeUsers.updateCustomBadgeImage(selectedBadgeId.value, base64Img);
+		input.value = "";
+	});
+}
+
+/**
+ * Selects a badge
+ * @param badgeId
+ */
+function selectBadge(badgeId: string): void {
+	const badge = storeUsers.customBadgeList.find((v) => v.id == badgeId);
+	if (!badge) return;
+	selectedBadgeId.value = badge.id;
+	badgeName.value = badge.name || "";
+}
+
+/**
+ * Delete a badge
+ * @param badgeId
+ */
+function deleteBadge(badgeId: string): void {
+	confirm(
+		t("usercard.delete_badge_confirm.title"),
+		t("usercard.delete_badge_confirm.description"),
+	)
+		.then(() => {
+			storeUsers.deleteCustomBadge(badgeId);
+			nextTick().then(() => {
+				if (storeUsers.customBadgeList.length > 0) {
+					selectedBadgeId.value = storeUsers.customBadgeList[0]!.id;
+				} else {
+					selectedBadgeId.value = "";
+				}
+			});
+		})
+		.catch(() => {
+			/*ignore*/
+		});
+}
+
+/**
+ * Removes the given badge from the user
+ * @param user
+ */
+function removeBadgeFromUser(badgeId: string, user: TwitchatDataTypes.TwitchatUser): void {
+	const channelId = storeAuth.twitch.user.id;
+	storeUsers.removeCustomBadge(user.id, badgeId, channelId);
+}
+
+/**
+ * Called when badge name is updated
+ */
+function onUpdateName(): void {
+	const badge = storeUsers.customBadgeList.find((v) => v.id == selectedBadgeId.value);
+	if (!badge) return;
+	storeUsers.updateCustomBadgeName(badge.id, badgeName.value);
+}
+
+/**
+ * Saves custom user badges
+ */
+function saveBadges(): void {
+	storeUsers.saveCustomBadges();
+}
 </script>
 
 <style scoped lang="less">
-.custombadgesmanager{
-	padding-bottom: 4px;//No idea why but this avoids scrollbar to show up when unnecessary
+.custombadgesmanager {
+	padding-bottom: 4px; //No idea why but this avoids scrollbar to show up when unnecessary
 
 	.header {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		.backBt {
-			padding: .85em 1em;
-			color:var(--color-text);
+			padding: 0.85em 1em;
+			color: var(--color-text);
 			.icon {
 				height: 1em;
-				transition: transform .15s;
+				transition: transform 0.15s;
 			}
 			&:hover {
 				.icon {
@@ -248,12 +304,11 @@ export default toNative(CustomBadgesManager);
 	h2 {
 		font-size: 1.5em;
 		text-align: center;
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
-
 	.badgeList {
-		gap:5px;
+		gap: 5px;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -262,11 +317,11 @@ export default toNative(CustomBadgesManager);
 		.badge {
 			width: 32px;
 			height: 32px;
-			opacity: .75;
+			opacity: 0.75;
 			// outline: 1px solid var(--color-text);
 			background-color: var(--color-text);
-			box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, .5);
-			transition: all .1s;
+			box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.5);
+			transition: all 0.1s;
 			img {
 				width: 100%;
 				height: 100%;
@@ -282,11 +337,21 @@ export default toNative(CustomBadgesManager);
 			}
 
 			&.disabled {
-				outline: 1px dashed var(--color-text);
-				opacity: .35;
+				outline: 2px dashed var(--color-alert);
+				background-color: transparent;
+				background-image: repeating-linear-gradient(
+					-45deg,
+					var(--color-alert),
+					var(--color-alert) 5px,
+					transparent 5px,
+					transparent 10px
+				);
+				img {
+					opacity: 0.35;
+				}
 			}
 		}
-	
+
 		.addBt {
 			height: 32px;
 			border: 1px dashed var(--color-secondary);
@@ -320,11 +385,11 @@ export default toNative(CustomBadgesManager);
 	.disabledInfo {
 		text-align: center;
 		.enableToggle {
-			gap: .5em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
-			margin-top: .5em;
+			margin-top: 0.5em;
 			label {
 				cursor: pointer;
 			}
@@ -340,12 +405,12 @@ export default toNative(CustomBadgesManager);
 	.ctas {
 		text-align: center;
 		.button:not(:last-child) {
-			margin-right: .5em;
+			margin-right: 0.5em;
 		}
 	}
 
 	.userList {
-		row-gap: .5em;
+		row-gap: 0.5em;
 		column-gap: 1em;
 		display: flex;
 		flex-direction: row;
@@ -355,8 +420,8 @@ export default toNative(CustomBadgesManager);
 			.removeBt {
 				vertical-align: middle;
 				.icon {
-					height: .8em;
-					margin-right: .25em;
+					height: 0.8em;
+					margin-right: 0.25em;
 				}
 			}
 		}
@@ -372,6 +437,5 @@ export default toNative(CustomBadgesManager);
 		display: block;
 		width: fit-content;
 	}
-	
 }
 </style>

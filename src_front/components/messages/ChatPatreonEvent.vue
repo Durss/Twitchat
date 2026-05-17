@@ -1,14 +1,24 @@
 <template>
-	<div class="chatpatreonevent chatMessage highlight"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
+	<div
+		class="chatpatreonevent chatMessage highlight"
+		@contextmenu="onContextMenu($event, messageData, $el)"
+	>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+			time
+		}}</span>
 
-		<Icon name="patreon" alt="patreon" class="icon"/>
+		<Icon name="patreon" alt="patreon" class="icon" />
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" keypath="chat.patreon.new_member">
 				<template #USER>
-					<a :href="messageData.user.url" target="_blank"><strong><Icon class="icon" name="newtab" />{{ messageData.user.username }}</strong></a>
+					<a :href="messageData.user.url" target="_blank"
+						><strong
+							><Icon class="icon" name="newtab" />{{
+								messageData.user.username
+							}}</strong
+						></a
+					>
 				</template>
 				<template #AMOUNT v-if="messageData.eventType == 'new_member'">
 					<strong>{{ messageData.tier.amount }}</strong>
@@ -22,29 +32,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 @Component({
-	components:{},
-	emits:["onRead"],
+	components: {},
+	emits: ["onRead"],
 })
 class ChatPatreonEvent extends AbstractChatMessage {
-
 	@Prop
-	declare messageData:TwitchatDataTypes.MessagePatreonData;
-
+	declare messageData: TwitchatDataTypes.MessagePatreonData;
 }
 export default toNative(ChatPatreonEvent);
 </script>
 
 <style scoped lang="less">
-.chatpatreonevent{
+.chatpatreonevent {
 	a .icon {
 		height: 1em;
 		vertical-align: middle;
-		margin-right: .25em
+		margin-right: 0.25em;
 	}
 }
 </style>

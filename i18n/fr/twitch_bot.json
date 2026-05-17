@@ -1,5 +1,5 @@
 {
-	"twitch_bot":{
+	"twitch_bot": {
 		"header": "Connectez un compte Twitch secondaire avec lequel envoyer les messages de bot",
 		"auth_refused": "Vous avez refusez l'accès à votre compte Twitch",
 		"auth_hint": "Cliquez le lien indiqué ci-dessous pour vous connecter avec votre compte secondaire",

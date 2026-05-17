@@ -75,10 +75,7 @@ export default class Config {
 	public static get credentials(): Credentials {
 		if (!this.credentialsCache) {
 			this.credentialsCache = JSON.parse(
-				fs.readFileSync(
-					this.CREDENTIALS_ROOT + "credentials.json",
-					"utf8",
-				),
+				fs.readFileSync(this.CREDENTIALS_ROOT + "credentials.json", "utf8"),
 			);
 		}
 		return this.credentialsCache;
@@ -163,6 +160,31 @@ export default class Config {
 		});
 	}
 
+	/**
+	 * Stores per-flag user ID lists. Flag keys must be one of {@link FEATURE_FLAGS}.
+	 * Format: { [flag]: string[] }
+	 */
+	public static get FEATURE_FLAGS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/featureFlags.json"),
+			beta: path.join(this.DATA_ROOT, "/featureFlags.json"),
+			prod: path.join(this.DATA_ROOT, "/featureFlags.json"),
+		});
+	}
+
+	/**
+	 * Canonical list of feature flags. Keep in sync with frontend FeatureFlag type.
+	 */
+	public static readonly FEATURE_FLAGS = [
+		"export_configs",
+		"groq",
+		"quiz",
+		"bingo_grid",
+		"youtube",
+		"auto_translate",
+		"join_leave_triggers",
+	] as const;
+
 	public static get DATA_SHARING(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/dataSharing.json"),
@@ -187,6 +209,14 @@ export default class Config {
 		});
 	}
 
+	public static get API_KEYS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/apiKeys/"),
+			beta: path.join(this.DATA_ROOT, "/apiKeys/"),
+			prod: path.join(this.DATA_ROOT, "/apiKeys/"),
+		});
+	}
+
 	public static get BINGO_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/bingo"),
@@ -198,17 +228,12 @@ export default class Config {
 	public static get SETTINGS_PRESETS_FOLDER(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/sharedSettings/"),
-			beta: path.join(
-				this.DATA_ROOT,
-				"../../twitchat/data/sharedSettings/",
-			),
+			beta: path.join(this.DATA_ROOT, "../../twitchat/data/sharedSettings/"),
 			prod: path.join(this.DATA_ROOT, "/sharedSettings/"),
 		});
 	}
 
-	public static LOGS_PATH(
-		category: (typeof Utils.allowedLogCategories)[number],
-	): string {
+	public static LOGS_PATH(category: (typeof Utils.allowedLogCategories)[number]): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/" + category + ".json"),
 			beta: path.join(this.LOGS_FOLDER, "/" + category + ".json"),
@@ -216,30 +241,11 @@ export default class Config {
 		});
 	}
 
-	public static BINGO_VIEWER_FILE(
-		streamerId: string,
-		bingoId: string,
-		viewerId: string,
-	): string {
+	public static BINGO_VIEWER_FILE(streamerId: string, bingoId: string, viewerId: string): string {
 		return this.getEnvData({
-			dev: path.join(
-				this.BINGO_GRID_ROOT(streamerId, bingoId) +
-					"/" +
-					viewerId +
-					".json",
-			),
-			beta: path.join(
-				this.BINGO_GRID_ROOT(streamerId, bingoId) +
-					"/" +
-					viewerId +
-					".json",
-			),
-			prod: path.join(
-				this.BINGO_GRID_ROOT(streamerId, bingoId) +
-					"/" +
-					viewerId +
-					".json",
-			),
+			dev: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId) + "/" + viewerId + ".json"),
+			beta: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId) + "/" + viewerId + ".json"),
+			prod: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId) + "/" + viewerId + ".json"),
 		});
 	}
 
@@ -293,10 +299,7 @@ export default class Config {
 				if (json[code] > 0) {
 					//No more credits
 					json[code]--;
-					fs.writeFileSync(
-						filepath,
-						JSON.stringify(json, null, "\t"),
-					);
+					fs.writeFileSync(filepath, JSON.stringify(json, null, "\t"));
 					return true;
 				}
 				return false;
@@ -427,9 +430,7 @@ export default class Config {
 		if (!this.credentials.youtube_key) return null;
 		const filePath = this.CREDENTIALS_ROOT + this.credentials.youtube_key;
 		if (!fs.existsSync(filePath)) return null;
-		const file = JSON.parse(
-			fs.readFileSync(filePath, "utf-8") || "{web:{}}",
-		);
+		const file = JSON.parse(fs.readFileSync(filePath, "utf-8") || "{web:{}}");
 		return file.web;
 	}
 
@@ -455,48 +456,36 @@ export default class Config {
 			if (fs.existsSync(this.confPath)) {
 				const content: string = fs.readFileSync(this.confPath, "utf8");
 				this.envName = <EnvName>content;
-				const str: string =
-					'  :: Current environment "' + content + '" ::  ';
+				const str: string = '  :: Current environment "' + content + '" ::  ';
 				const head: string = str.replace(/./g, " ");
 				console.log("\n");
 				console.log(LogStyle.BgGreen + head + LogStyle.Reset);
 				console.log(
-					LogStyle.Bright +
-						LogStyle.BgGreen +
-						LogStyle.FgWhite +
-						str +
-						LogStyle.Reset,
+					LogStyle.Bright + LogStyle.BgGreen + LogStyle.FgWhite + str + LogStyle.Reset,
 				);
 				console.log(LogStyle.BgGreen + head + LogStyle.Reset);
 				console.log("\n");
 			} else {
 				this.envName = "dev";
 				fs.writeFileSync(this.confPath, this.envName);
-				const str: string =
-					'  /!\\ Missing file "./' + this.confPath + '" /!\\  ';
+				const str: string = '  /!\\ Missing file "./' + this.confPath + '" /!\\  ';
 				const head: string = str.replace(/./g, " ");
 				console.log("\n");
 				console.log(LogStyle.BgRed + head + LogStyle.Reset);
 				console.log(
-					LogStyle.Bright +
-						LogStyle.BgRed +
-						LogStyle.FgWhite +
-						str +
-						LogStyle.Reset,
+					LogStyle.Bright + LogStyle.BgRed + LogStyle.FgWhite + str + LogStyle.Reset,
 				);
 				console.log(LogStyle.BgRed + head + LogStyle.Reset);
 				console.log("\n");
 				console.log(
-					'Creating env.conf file automatically and set it to "' +
-						this.envName +
-						'"\n\n',
+					'Creating env.conf file automatically and set it to "' + this.envName + '"\n\n',
 				);
 			}
 		}
 
 		//Get the data from hashmap
 		if (map[this.envName] != undefined) return map[this.envName];
-		return map[Object.keys(map)[0]];
+		return map[Object.keys(map)[0]!];
 	}
 }
 
@@ -510,15 +499,19 @@ interface Credentials {
 	dashboard_token: string;
 
 	admin_ids: string[];
-	feature_flags?: {
-		export_configs: string[];
-	};
 	csrf_key: string;
 
 	twitch_client_id: string;
 	twitch_client_secret: string;
 	twitch_redirect_uri: string;
 	twitch_scopes: string[];
+
+	twitchExtension_version: string;
+	twitchExtension_client_id: string;
+	twitchExtension_client_secret: string;
+
+	twitchat_api_path: string;
+	twitchat_api_secret: string;
 
 	spotify_client_id: string;
 	spotify_client_secret: string;

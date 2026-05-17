@@ -1,8 +1,8 @@
 {
 	"params": {
 		"sync_server": "Save all parameters to Twitchat server",
-		"more_params":"More settings",
-		"customize_sections":"Drag menu items in and out here",
+		"more_params": "More settings",
+		"customize_sections": "Drag menu items in and out here",
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",
@@ -38,8 +38,8 @@
 			"stream_title": "Last stream title",
 			"stream_category": "Last stream category"
 		},
-		"liveMessages":"Show latest messages when chat paused",
-		"liveAlerts":"Get notified when someone you follow starts or ends a live (5min delay)",
+		"liveMessages": "Show latest messages when chat paused",
+		"liveAlerts": "Get notified when someone you follow starts or ends a live (5min delay)",
 		"censorDeletedMessages": "Censor deleted messages",
 		"multiChatAvatar": "Show channels profile pic next to messages from other channels",
 		"multiChatColor": "Also show a background color",
@@ -203,8 +203,8 @@
 			"shieldOff": "Stop shield mode",
 			"clips": "Create a clip. Duration between 5 and 60 seconds",
 			"marker": "Add a stream marker",
-			"tts": "Start reading the messages of a user",
-			"ttsoff": "Stop reading a user's messages",
+			"tts": "Read a message with text to speech",
+			"ttsuser": "Start/stop reading the messages of a user",
 			"userlist": "List users",
 			"userdata": "Get a user's data",
 			"betaadd": "Add a user to the beta-testers",

@@ -1,0 +1,15 @@
+{
+  "client_id": "https://dev.twitchat.fr/oauth/client-metadata.json",
+  "application_type": "web",
+  "client_name": "Twitchat",
+  "client_uri": "https://dev.twitchat.fr",
+  "logo_uri": "https://dev.twitchat.fr/logo.png",
+  "tos_uri": "https://dev.twitchat.fr/termsofuse",
+  "policy_uri": "https://dev.twitchat.fr/privacypolicy",
+  "dpop_bound_access_tokens": true,
+  "grant_types": ["authorization_code", "refresh_token"],
+  "redirect_uris": ["https://dev.twitchat.fr/bluesky/oauth", "https://dev.twitchat.fr/popupBlueskyAuthResult"],
+  "response_types": ["code"],
+  "scope": "atproto transition:generic transition:chat.bsky",
+  "token_endpoint_auth_method": "none"
+}

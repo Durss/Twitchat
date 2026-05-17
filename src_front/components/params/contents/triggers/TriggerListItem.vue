@@ -1,157 +1,228 @@
 <template>
-	<div class="triggerlistitem"
-	@click="selectMode !== false ? (selected = !selected) : null"
-	:class="{disabled:triggerTypeDef?.disabled === true}"
-	@mouseenter="over=true" @mouseleave="over=false"
-	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
-
-		<button class="button"
-		@click="$emit('select', entryData.trigger)"
-		v-tooltip="{content:tooltipText,placement:'left',theme:triggerTypeDef?.disabled? 'alert' : 'twitchat'}">
-			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
-			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
+	<div
+		class="triggerlistitem"
+		@click="selectMode !== false ? (selected = !selected) : null"
+		:class="{
+			deprecated: triggerTypeDef?.disabled === true,
+			disabled: entryData.trigger.enabled === false,
+		}"
+		@mouseenter="over = true"
+		@mouseleave="over = false"
+		v-newflag="{
+			date: entryData.trigger.created_at || 0,
+			duration: 2 * 60000,
+			id: 'trigger_' + entryData.trigger.id,
+		}"
+	>
+		<button
+			class="button"
+			@click="$emit('select', entryData.trigger)"
+			v-tooltip="{
+				content: tooltipText,
+				placement: 'auto',
+				theme: triggerTypeDef?.disabled ? 'alert' : 'twitchat',
+			}"
+		>
+			<div v-if="entryData.iconEmoji">{{ entryData.iconEmoji }}</div>
+			<img
+				v-else-if="entryData.iconURL"
+				:src="entryData.iconURL"
+				class="icon"
+				:style="{ backgroundColor: entryData.iconBgColor }"
+			/>
+			<Icon
+				v-else-if="entryData.icon"
+				:name="entryData.icon"
+				class="icon"
+				:style="{ backgroundColor: entryData.iconBgColor }"
+			/>
 			<div class="label">
-				<span>{{entryData.label}}</span>
+				<span>{{ entryData.label }}</span>
 				<slot></slot>
-				<span class="triggerId"
+				<span
+					class="triggerId"
 					v-click2Select
-					v-if="$store.main.devmode && over && selectMode === false"
-					@click.stop="">{{ entryData.trigger.id }}</span>
+					v-if="storeMain.devmode && over && selectMode === false"
+					@click.stop=""
+					>{{
+				}}</span>
 			</div>
 		</button>
 
-		<div class="toggle"
-		v-if="noEdit === false || forceDisableOption !== false">
-			<ToggleButton v-model="entryData.trigger.enabled"
-			@change="$emit('changeState', $el)"
-			:aria-label="entryData.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
-		</div>
-
-		<div class="toggle"
-		v-if="noEdit !== false || selectMode !== false">
+		<div class="toggle" v-if="noEdit === false || forceDisableOption !== false">
 			<ToggleButton
-			v-model="selected"
-			:aria-label="entryData.trigger.enabled? 'trigger selected' : 'trigger unselected'"/>
+				v-model="entryData.trigger.enabled"
+				@change="$emit('changeState', $el)"
+				:aria-label="entryData.trigger.enabled ? 'trigger enabled' : 'trigger disabled'"
+			/>
 		</div>
 
-		<button class="testBt" @click="$emit('testTrigger',entryData.trigger)"
-		v-if="noEdit === false && toggleMode === false"
-		:disabled="!entryData.canTest"
-		v-tooltip="$t('triggers.testBt')">
+		<div class="toggle" v-if="noEdit !== false || selectMode !== false">
+			<ToggleButton
+				v-model="selected"
+				:aria-label="entryData.trigger.enabled ? 'trigger selected' : 'trigger unselected'"
+			/>
+		</div>
+
+		<TTButton
+			v-if="noEdit === false && storeMain.devmode"
+			v-tooltip="$t('global.copy')"
+			class="copyIdBt"
+			transparent
+			icon="id"
+			:copy="entryData.trigger.id"
+		/>
+
+		<button
+			class="testBt"
+			@click="$emit('testTrigger', entryData.trigger)"
+			v-if="noEdit === false && toggleMode === false"
+			:disabled="!entryData.canTest"
+			v-tooltip="$t('triggers.testBt')"
+		>
 			<Icon name="test" class="icon" />
 		</button>
 
-		<button class="duplicateBt" @click="$emit('duplicate',entryData)"
-		v-if="noEdit === false && toggleMode === false"
-		v-tooltip="$t('global.duplicate')">
+		<button
+			class="duplicateBt"
+			@click="$emit('duplicate', entryData)"
+			v-if="noEdit === false && toggleMode === false"
+			v-tooltip="$t('global.duplicate')"
+		>
 			<Icon name="copy" class="icon" />
 		</button>
 
-		<button class="deleteBt" @click="$emit('delete',entryData)"
-		v-if="noEdit === false && toggleMode === false"
-		v-tooltip="$t('triggers.deleteBt')">
+		<button
+			class="deleteBt"
+			@click="$emit('delete', entryData)"
+			v-if="noEdit === false && toggleMode === false"
+			v-tooltip="$t('triggers.deleteBt')"
+		>
 			<Icon name="trash" class="icon" />
 		</button>
-		
 	</div>
 </template>
 
-<script lang="ts">
-import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerSubTypeLabel, TriggerTypesDefinitionList, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+<script setup lang="ts">
+import ToggleButton from "@/components/ToggleButton.vue";
+import {
+	TriggerSubTypeLabel,
+	TriggerTypesDefinitionList,
+	type TriggerTypeDefinition,
+} from "@/types/TriggerActionDataTypes";
 import type { TriggerListEntry } from "./TriggerList.vue";
-import TriggerUtils from '@/utils/TriggerUtils';
-import { watch } from 'vue';
-// import Checkbox from '@/components/Checkbox.vue';
+import TriggerUtils from "@/utils/TriggerUtils";
+import { ref, watch } from "vue";
+import TTButton from "@/components/TTButton.vue";
+import { useI18n } from "vue-i18n";
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { storeExporter as useStoreExporter } from "@/store/exporter/storeExporter";
 
-@Component({
-	components:{
-		// Checkbox,
-		ToggleButton,
+const { t } = useI18n();
+const storeMain = useStoreMain();
+const storeExporter = useStoreExporter();
+
+const props = withDefaults(
+	defineProps<{
+		entryData: TriggerListEntry;
+		noEdit?: boolean;
+		forceDisableOption?: boolean;
+		selectMode?: boolean;
+		toggleMode?: boolean;
+	}>(),
+	{
+		noEdit: false,
+		forceDisableOption: false,
+		selectMode: false,
+		toggleMode: false,
 	},
-	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
-})
-class TriggerListItem extends Vue {
+);
 
-	@Prop
-	public entryData!:TriggerListEntry;
+defineEmits<{
+	changeState: [el: HTMLElement];
+	delete: [entry: TriggerListEntry];
+	testTrigger: [entry: TriggerListEntry["trigger"]];
+	select: [entry: TriggerListEntry["trigger"]];
+	duplicate: [entry: TriggerListEntry];
+}>();
 
-	@Prop({default:false})
-	public noEdit!:boolean;
+const over = ref<boolean>(false);
+const selected = ref<boolean>(false);
+const tooltipText = ref<string>("");
+const triggerTypeDef = ref<TriggerTypeDefinition | undefined>(undefined);
 
-	@Prop({default:false})
-	public forceDisableOption!:boolean;
+triggerTypeDef.value = TriggerTypesDefinitionList().find(
+	(v) => v.value === props.entryData.trigger.type,
+);
+const info = TriggerUtils.getTriggerDisplayInfo(props.entryData.trigger);
+const event = TriggerTypesDefinitionList().find((v) => v.value === props.entryData.trigger.type);
+if (triggerTypeDef.value?.disabled === true && triggerTypeDef.value.disabledReasonLabelKey)
+	tooltipText.value = t(triggerTypeDef.value.disabledReasonLabelKey, {
+		SUB_ITEM_NAME: TriggerSubTypeLabel(props.entryData.trigger),
+	});
+else if (!event) tooltipText.value = "unknown category";
+else
+	tooltipText.value = t(info.descriptionKey || event?.descriptionKey || event?.labelKey, {
+		SUB_ITEM_NAME: TriggerSubTypeLabel(props.entryData.trigger),
+	});
 
-	@Prop({default:false})
-	public selectMode!:boolean;
+selected.value = storeExporter.selectedTriggerIDs.includes(props.entryData.trigger.id);
 
-	@Prop({default:false})
-	public toggleMode!:boolean;
-
-	public over:boolean = false;
-	public selected:boolean = false;
-	public tooltipText:string = "";
-	public triggerDisplayInfo:ReturnType<typeof TriggerUtils.getTriggerDisplayInfo>|undefined = undefined
-	public triggerTypeDef:TriggerTypeDefinition|undefined = undefined;
-	
-	public beforeMount(): void {
-		this.triggerTypeDef = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
-		this.triggerDisplayInfo = TriggerUtils.getTriggerDisplayInfo(this.entryData.trigger);
-		const event = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
-		if(this.triggerTypeDef?.disabled === true && this.triggerTypeDef.disabledReasonLabelKey) this.tooltipText = this.$t(this.triggerTypeDef.disabledReasonLabelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
-		else if(!event) this.tooltipText = "unknown category"
-		else this.tooltipText = this.$t(this.triggerDisplayInfo.descriptionKey ||event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
-
-		this.selected = this.$store.exporter.selectedTriggerIDs.includes(this.entryData.trigger.id);
-
-		watch(() => this.selected, (newVal) => {
-			if(newVal) this.$store.exporter.selectedTriggerIDs.push(this.entryData.trigger.id);
-			else this.$store.exporter.selectedTriggerIDs.splice(this.$store.exporter.selectedTriggerIDs.indexOf(this.entryData.trigger.id), 1);
-		});
-	}
-
-}
-export default toNative(TriggerListItem);
+watch(
+	() => selected.value,
+	(newVal) => {
+		if (newVal) storeExporter.selectedTriggerIDs.push(props.entryData.trigger.id);
+		else
+			storeExporter.selectedTriggerIDs.splice(
+				storeExporter.selectedTriggerIDs.indexOf(props.entryData.trigger.id),
+				1,
+			);
+	},
+);
 </script>
 
 <style scoped lang="less">
-.triggerlistitem{
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+.triggerlistitem {
+	box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
 	background-color: var(--background-color-fadest);
-	border-radius: .5em;
+	border-radius: 0.5em;
 	padding: 0;
 	display: flex;
 	flex-direction: row;
 	min-height: 1.5em;
 	position: relative;
-	transition: background-color .1s;
-	// overflow: hidden;
+	transition: background-color 0.1s;
+	overflow: hidden;
 
 	&:hover {
 		background-color: var(--background-color-fader);
 	}
 
-	&.disabled {
+	&.deprecated {
 		background-color: var(--color-alert);
 		&:hover {
 			background-color: var(--color-alert-light);
 		}
 	}
+	&.disabled {
+		.button > .icon,
+		.label {
+			opacity: 0.5;
+		}
+	}
 	.label {
-		display: flex;
-		align-items: flex-start;
-		flex-direction: column;
+		transition: opacity 0.1s;
+		text-align: left;
 	}
 	.selectCb {
-		margin: auto .25em;
+		margin: auto 0.25em;
 	}
 
 	.button {
 		display: flex;
 		flex-direction: row;
-		gap: .25em;
-		padding: 0 .5em 0 0;
+		gap: 0.25em;
+		padding: 0 0.5em 0 0;
 		align-items: center;
 		flex-grow: 1;
 		overflow: hidden;
@@ -160,45 +231,39 @@ export default toNative(TriggerListItem);
 		.icon {
 			height: 1.5em;
 			width: 1.5em;
-			padding: .25em;
+			padding: 0.25em;
 			object-fit: fill;
+			transition: opacity 0.1s;
 		}
 	}
 	.toggle {
 		display: flex;
 		align-items: center;
-		padding: 0 .5em;
+		padding: 0 0.5em;
 		border-left: 1px solid var(--color-dark-light);
 	}
-	.deleteBt, .testBt, .duplicateBt {
+	.copyIdBt {
+		padding: 0;
+		width: 1.5em;
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
+	.deleteBt,
+	.testBt,
+	.duplicateBt {
 		color: var(--color-text);
 		flex-shrink: 0;
 		.icon {
-			height: .9em;
-			padding: 0 .5em;
+			height: 0.9em;
+			padding: 0 0.5em;
 		}
 
 		&:disabled,
 		&[disabled] {
 			pointer-events: none;
 			.icon {
-				opacity: .35;
+				opacity: 0.35;
 			}
-		}
-	}
-	
-
-	.triggerId {
-		.bevel();
-		cursor: help !important;
-		font-size: .8em;
-		font-family: 'Courier New', Courier, monospace;
-		opacity: .75;
-		padding: 2px 5px;
-		&::before {
-			content: "ID: ";
-			font-family: Inter;
-			font-weight: bold;
 		}
 	}
 }
