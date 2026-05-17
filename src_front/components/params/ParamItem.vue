@@ -1481,6 +1481,10 @@ watch(
 		background-color: var(--background-color-fadest);
 		background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
 	}
+	&.disabled {
+		overflow: hidden;
+		border-radius: var(--border-radius);
+	}
 
 	&.longText {
 		.content {

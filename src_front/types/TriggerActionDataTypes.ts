@@ -1752,19 +1752,19 @@ export interface TriggerActionMeldStudioData extends TriggerActionData {
 				action: "layer_visibility";
 				sceneId: string;
 				layerId: string;
-				sourceAction: "show" | "hide" | "toggle";
+				subAction: "show" | "hide" | "toggle";
 		  }
 		| {
 				action: "toggle_effect";
 				sceneId: string;
 				layerId: string;
 				effectId: string;
-				sourceAction: "show" | "hide" | "toggle";
+				subAction: "show" | "hide" | "toggle";
 		  }
 		| {
 				action: "track_mute";
 				trackId: string;
-				effectAction: "mute" | "unmute" | "toggle";
+				subAction: "mute" | "unmute" | "toggle";
 		  }
 		| {
 				action: "show_scene";
@@ -1774,7 +1774,8 @@ export interface TriggerActionMeldStudioData extends TriggerActionData {
 				action: "screenshot";
 		  }
 		| {
-				action: "clip_record";
+				action: "clip";
+				subAction: "record" | "show" | "hide";
 		  }
 		| {
 				action: "start_record";
