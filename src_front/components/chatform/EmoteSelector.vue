@@ -889,6 +889,7 @@ onBeforeUnmount(() => {
 		font-size: 0.8em;
 		margin-left: unset;
 		.list {
+			width: 300px;
 			max-height: 300px;
 		}
 		.userList {

@@ -61,7 +61,10 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		connectionEnabled: false,
 		ip: "127.0.0.1",
 		port: 9450,
-		password: "",
+		sceneList: [],
+		layerList: [],
+		effectList: [],
+		trackList: [],
 	}),
 
 	getters: {
@@ -74,12 +77,10 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		populateData(): void {
 			const json = DataStore.get(DataStore.MELD_STUDIO_CONFIGS);
 			if (json) {
-				const pass = DataStore.get(DataStore.MELD_STUDIO_CONFIGS);
 				const data = JSON.parse(json) as IStoreData;
 				this.ip = data.ip || "127.0.0.1";
 				this.port = data.port || 13376;
 				this.connectionEnabled = data.connectionEnabled ?? true;
-				this.password = pass || "";
 				if (this.connectionEnabled) {
 					void this.connect();
 				}
@@ -110,11 +111,36 @@ export const storeMeldStudio = defineStore("meldstudio", {
 						meldInstance = channel.objects.meld;
 						if (!meldInstance) return;
 
-						// Called anytime something's changed on the scenes configurations
-						meldInstance.sessionChanged.connect(() => {
+						const parseSessionData = () => {
 							if (!meldInstance) return;
-							console.log("Session changed::", meldInstance.session.items);
-						});
+							const items = meldInstance.session.items;
+							this.sceneList = [];
+							this.layerList = [];
+							this.effectList = [];
+							this.trackList = [];
+							for (const id in items) {
+								if (!Object.hasOwn(items, id)) continue;
+								const item = items[id]!;
+								switch (item.type) {
+									case "scene":
+										this.sceneList.push({ ...item, id });
+										break;
+									case "effect":
+										this.effectList.push({ ...item, id });
+										break;
+									case "layer":
+										this.layerList.push({ ...item, id });
+										break;
+									case "track":
+										this.trackList.push({ ...item, id });
+										break;
+								}
+							}
+						};
+
+						// Called anytime something's changed on the scenes configurations
+						meldInstance.sessionChanged.connect(() => parseSessionData());
+						parseSessionData();
 
 						// Called when streaming is started/stoped
 						meldInstance.isStreamingChanged.connect(() => {
@@ -178,7 +204,6 @@ export const storeMeldStudio = defineStore("meldstudio", {
 				connectionEnabled: this.connectionEnabled,
 			};
 			DataStore.set(DataStore.MELD_STUDIO_CONFIGS, data);
-			DataStore.set(DataStore.MELD_STUDIO_PASSWORD, this.password);
 		},
 	} satisfies StoreActions<
 		"meldstudio",
