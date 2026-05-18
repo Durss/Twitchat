@@ -362,7 +362,6 @@ function populate(): void {
 				value: v.value,
 				trigger: v,
 				icon: getAsset("icons/" + v.icon + ".svg"),
-				isCategory: false,
 				newDate: v.newDate,
 			};
 		});
@@ -631,7 +630,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 				return {
 					label: v.title,
 					searchTerms: [v.title],
-					isCategory: false,
 					value: v.id,
 					background: v.background_color,
 					labelSmall: v.cost > 0 ? v.cost + "pts" : "",
@@ -651,7 +649,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 				return {
 					label: v.title,
 					searchTerms: [v.title],
-					isCategory: false,
 					value: v.id,
 					background: v.background_color,
 					labelSmall: v.bits > 0 ? v.bits + "bits" : "",
@@ -673,7 +670,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 					searchTerms: [v.sceneName],
 					value: v.sceneName,
 					icon: "",
-					isCategory: false,
 				};
 			});
 			const defaultName = t("triggers.obs.anyScene");
@@ -682,7 +678,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 				searchTerms: [defaultName],
 				value: ANY_OBS_SCENE,
 				icon: "",
-				isCategory: false,
 			});
 			subtriggerList.value = list;
 			emit("updateHeader", "triggers.header_select_obs_scene");
@@ -699,7 +694,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 					searchTerms: [v.sourceName],
 					value: v.sourceName,
 					icon: "",
-					isCategory: false,
 				};
 			});
 			subtriggerList.value = list;
@@ -718,7 +712,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 					label: v.sourceName,
 					searchTerms: [v.sourceName],
 					value: v.sourceName,
-					isCategory: false,
 					icon: "",
 				};
 			});
@@ -728,7 +721,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 						label: v.inputName,
 						searchTerms: [v.inputName],
 						value: v.inputName,
-						isCategory: false,
 						icon: "",
 					};
 				}),
@@ -756,7 +748,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 						searchTerms: [v.filterName],
 						value: v.filterName,
 						icon: "",
-						isCategory: false,
 					};
 				});
 			}
@@ -801,7 +792,6 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 					searchTerms: [v.inputName],
 					value: v.inputName,
 					icon: "",
-					isCategory: false,
 				};
 			});
 			subtriggerList.value = list;
@@ -950,7 +940,6 @@ function listCounters(): void {
 				searchTerms: [v.name],
 				value: v.id,
 				icon: "",
-				isCategory: false,
 			};
 		});
 	const defaultName = t("triggers.count.any_counter");
@@ -959,7 +948,6 @@ function listCounters(): void {
 		searchTerms: [defaultName],
 		value: ANY_COUNTER,
 		icon: "",
-		isCategory: false,
 	});
 	subtriggerList.value = list;
 }
@@ -977,7 +965,6 @@ function listValues(): void {
 				searchTerms: [v.name],
 				value: v.id,
 				icon: "",
-				isCategory: false,
 			};
 		});
 	const defaultName = t("triggers.count.any_value");
@@ -986,7 +973,6 @@ function listValues(): void {
 		searchTerms: [defaultName],
 		value: ANY_VALUE,
 		icon: "",
-		isCategory: false,
 	});
 	subtriggerList.value = list;
 }
@@ -999,7 +985,6 @@ interface TriggerEntry {
 	subValues?: TriggerEntry[];
 	background?: string;
 	trigger?: TriggerTypeDefinition;
-	isCategory: boolean;
 	icon: string;
 	newDate?: number;
 }
