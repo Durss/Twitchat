@@ -783,7 +783,7 @@ export default class TwitchUtils {
 	public static async getRewards(
 		forceReload = false,
 		onlyManageable: boolean = false,
-		bypassWalls: boolean,
+		bypassWalls: boolean = false,
 	): Promise<TwitchDataTypes.Reward[]> {
 		if (!bypassWalls && !this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 		if (
@@ -797,7 +797,7 @@ export default class TwitchUtils {
 			return this.rewardsCache.concat();
 		if (
 			!bypassWalls &&
-			onlyManageable &&
+			onlyManageable &&	
 			this.rewardsManageableCache.length > 0 &&
 			!forceReload
 		)
@@ -808,6 +808,7 @@ export default class TwitchUtils {
 		if (onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
 		const res = await this.callApi(url, {
 			method: "GET",
+			headers: this.headers,
 		});
 		const json = await res.json();
 		if (res.status == 200) {
