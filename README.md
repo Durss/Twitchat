@@ -243,7 +243,7 @@ npm run build
 
 ### Run server
 ```
-node server/boostrap.js
+node server/bootstrap.js
 ```
 <br>
 <br>
