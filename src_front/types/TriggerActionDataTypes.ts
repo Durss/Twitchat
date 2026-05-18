@@ -486,7 +486,6 @@ export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataLi
 	disabled?: boolean;
 	disabledReasonLabelKey?: string;
 	descriptionKey?: string;
-	isCategory?: boolean;
 	testMessageType?: TwitchatDataTypes.TwitchatMessageStringType;
 	testNoticeType?: TwitchatDataTypes.TwitchatNoticeStringType;
 	goxlrMiniCompatible?: boolean;
@@ -7910,7 +7909,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			icon: "chatCommand",
 			labelKey: "triggers.events.CHAT_COMMAND.label",
 			value: TriggerTypes.CHAT_COMMAND,
-			isCategory: true,
 			descriptionKey: "triggers.events.CHAT_COMMAND.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		},
@@ -7935,7 +7933,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			icon: "channelPoints",
 			labelKey: "triggers.events.REWARD_REDEEM.label",
 			value: TriggerTypes.REWARD_REDEEM,
-			isCategory: true,
 			descriptionKey: "triggers.events.REWARD_REDEEM.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.REWARD,
 		},
@@ -8715,7 +8712,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.SCHEDULE.label",
 			value: TriggerTypes.SCHEDULE,
 			descriptionKey: "triggers.events.SCHEDULE.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			testNoticeType: TwitchatDataTypes.TwitchatNoticeType.GENERIC,
 		},
@@ -8758,7 +8754,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_CONNECTED.label",
 			value: TriggerTypes.OBS_CONNECTED,
 			descriptionKey: "triggers.events.OBS_CONNECTED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_WS_CONNECT_STATE_CHANGE,
 		},
 		{
@@ -8767,7 +8762,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_DISCONNECTED.label",
 			value: TriggerTypes.OBS_DISCONNECTED,
 			descriptionKey: "triggers.events.OBS_DISCONNECTED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_WS_CONNECT_STATE_CHANGE,
 		},
 		{
@@ -8776,7 +8770,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_SCENE.label",
 			value: TriggerTypes.OBS_SCENE,
 			descriptionKey: "triggers.events.OBS_SCENE.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
 		},
 		{
@@ -8785,7 +8778,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_SOURCE_ON.label",
 			value: TriggerTypes.OBS_SOURCE_ON,
 			descriptionKey: "triggers.events.OBS_SOURCE_ON.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
 		},
 		{
@@ -8794,7 +8786,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_SOURCE_OFF.label",
 			value: TriggerTypes.OBS_SOURCE_OFF,
 			descriptionKey: "triggers.events.OBS_SOURCE_OFF.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
 		},
 		{
@@ -8819,7 +8810,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_INPUT_MUTE.label",
 			value: TriggerTypes.OBS_INPUT_MUTE,
 			descriptionKey: "triggers.events.OBS_INPUT_MUTE.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
 		},
 		{
@@ -8828,7 +8818,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_INPUT_UNMUTE.label",
 			value: TriggerTypes.OBS_INPUT_UNMUTE,
 			descriptionKey: "triggers.events.OBS_INPUT_UNMUTE.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
 		},
 		{
@@ -8837,7 +8826,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_PLAYBACK_STARTED.label",
 			value: TriggerTypes.OBS_PLAYBACK_STARTED,
 			descriptionKey: "triggers.events.OBS_PLAYBACK_STARTED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
 		},
 		{
@@ -8846,7 +8834,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_PLAYBACK_ENDED.label",
 			value: TriggerTypes.OBS_PLAYBACK_ENDED,
 			descriptionKey: "triggers.events.OBS_PLAYBACK_ENDED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
 		},
 		{
@@ -8855,7 +8842,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_RECORDING_START.label",
 			value: TriggerTypes.OBS_RECORDING_START,
 			descriptionKey: "triggers.events.OBS_RECORDING_START.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START,
 		},
 		{
@@ -8864,23 +8850,17 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_RECORDING_STOP.label",
 			value: TriggerTypes.OBS_RECORDING_STOP,
 			descriptionKey: "triggers.events.OBS_RECORDING_STOP.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP,
 		},
 		//These event require are not super relevant as they can only be triggered from OBS 28+ after clicking
 		//a media source, then using the media player buttons... I don't think much people use those so I
 		//chose to disable them for now.
-		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"pause", labelKey:"triggers.events.OBS_PLAYBACK_PAUSED.label", value:TriggerTypes.OBS_PLAYBACK_PAUSED, descriptionKey:"triggers.events.OBS_PLAYBACK_PAUSED.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
-		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"loop", labelKey:"triggers.events.OBS_PLAYBACK_RESTARTED.label", value:TriggerTypes.OBS_PLAYBACK_RESTARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_RESTARTED.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
-		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"next", labelKey:"triggers.events.OBS_PLAYBACK_NEXT.label", value:TriggerTypes.OBS_PLAYBACK_NEXT, descriptionKey:"triggers.events.OBS_PLAYBACK_NEXT.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
-		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"prev", labelKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.label", value:TriggerTypes.OBS_PLAYBACK_PREVIOUS, descriptionKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
 		{
 			category: TriggerEventTypeCategories.OBS,
 			icon: "graphicFilters",
 			labelKey: "triggers.events.OBS_FILTER_ON.label",
 			value: TriggerTypes.OBS_FILTER_ON,
 			descriptionKey: "triggers.events.OBS_FILTER_ON.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
 		},
 		{
@@ -8889,7 +8869,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.OBS_FILTER_OFF.label",
 			value: TriggerTypes.OBS_FILTER_OFF,
 			descriptionKey: "triggers.events.OBS_FILTER_OFF.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
 		},
 
@@ -9021,7 +9000,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_EDIT.label",
 			value: TriggerTypes.COUNTER_EDIT,
 			descriptionKey: "triggers.events.COUNTER_EDIT.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9030,7 +9008,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_ADD.label",
 			value: TriggerTypes.COUNTER_ADD,
 			descriptionKey: "triggers.events.COUNTER_ADD.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9039,7 +9016,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_DEL.label",
 			value: TriggerTypes.COUNTER_DEL,
 			descriptionKey: "triggers.events.COUNTER_DEL.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9048,7 +9024,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_MAXED.label",
 			value: TriggerTypes.COUNTER_MAXED,
 			descriptionKey: "triggers.events.COUNTER_MAXED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9057,7 +9032,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_MINED.label",
 			value: TriggerTypes.COUNTER_MINED,
 			descriptionKey: "triggers.events.COUNTER_MINED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9066,7 +9040,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.COUNTER_LOOPED.label",
 			value: TriggerTypes.COUNTER_LOOPED,
 			descriptionKey: "triggers.events.COUNTER_LOOPED.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 		},
 		{
@@ -9075,7 +9048,6 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			labelKey: "triggers.events.VALUE_UPDATE.label",
 			value: TriggerTypes.VALUE_UPDATE,
 			descriptionKey: "triggers.events.VALUE_UPDATE.description",
-			isCategory: true,
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
 		},
 
