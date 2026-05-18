@@ -254,15 +254,25 @@ export const storeAuth = defineStore('auth', {
 				// Log user info to Sentry in case I need to reach them to solve an issue
 				Sentry.setUser({id: this.twitch.user.id, username: this.twitch.user.displayName});
 
-				//Use an anonymous method to avoid blocking loading while
-				//all twitch tags are loading
-				try {
-					if(StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner) {
-						TwitchUtils.getPolls();
-						TwitchUtils.getPredictions();
-					}
-				}catch(e) {
-					//User is probably not an affiliate
+				// If user isn't at least affiliate, check if they're enrolled.
+				// To date, twitch provides no way to know if user has enrolled or not,
+				// "broadcaster_type" remains empty in both cases.
+				// To work around that we request for user's channel points rewards.
+				// Endpoint retrns a 403 if user isn't at least enrolled.
+				if (!this.twitch.user.is_affiliate) {
+					await TwitchUtils.getRewards(true, undefined, true)
+						.then(() => {
+							this.twitch.user.is_affiliate = true;
+						})
+						.catch((error) => {
+							if (error.message === "NOT_ENROLLED") {
+								this.twitch.user.is_affiliate = false;
+							}
+						});
+				}
+				if (this.twitch.user.is_affiliate) {
+					void TwitchUtils.getPolls();
+					void TwitchUtils.getPredictions();
 				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {

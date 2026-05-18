@@ -776,24 +776,44 @@ export default class TwitchUtils {
 
 	/**
 	 * Get the rewards list
+	 * @param forceReload if true, bypass local cache
+	 * @param onlyManageable return only manageable rewards?
+	 * @param bypassWalls if true, bypasses scope chech and cache. Throws if receiving a 403. Used to detect if we're enrolled
 	 */
-	public static async getRewards(forceReload = false, onlyManageable: boolean = false): Promise<TwitchDataTypes.Reward[]> {
-		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
+	public static async getRewards(
+		forceReload = false,
+		onlyManageable: boolean = false,
+		bypassWalls: boolean,
+	): Promise<TwitchDataTypes.Reward[]> {
+		if (!bypassWalls && !this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
+		if (
+			!bypassWalls &&
+			!StoreProxy.auth.twitch.user.is_affiliate &&
+			!StoreProxy.auth.twitch.user.is_partner
+		)
+			return [];
 
-		if (!onlyManageable && this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache.concat();
-		if (onlyManageable && this.rewardsManageableCache.length > 0 && !forceReload) return this.rewardsManageableCache.concat();
-		const options = {
-			method: "GET",
-			headers: this.headers,
-		}
+		if (!bypassWalls && !onlyManageable && this.rewardsCache.length > 0 && !forceReload)
+			return this.rewardsCache.concat();
+		if (
+			!bypassWalls &&
+			onlyManageable &&
+			this.rewardsManageableCache.length > 0 &&
+			!forceReload
+		)
+			return this.rewardsManageableCache.concat();
 		let rewards: TwitchDataTypes.Reward[] = [];
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
 		url.searchParams.append("broadcaster_id", this.uid);
 		if (onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
-		const res = await this.callApi(url, options);
+		const res = await this.callApi(url, {
+			method: "GET",
+		});
 		const json = await res.json();
 		if (res.status == 200) {
 			rewards = json.data;
+		} else if (bypassWalls && res.status == 403) {
+			throw new Error("NOT_ENROLLED");
 		} else {
 			return [];
 		}
