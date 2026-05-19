@@ -4934,8 +4934,10 @@ export namespace TwitchatDataTypes {
 		COMMUNITY_BOOST_COMPLETE: "community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE: "obs_playback_state_update",
 		OBS_WS_CONNECT_STATE_CHANGE: "obs_ws_connect_state_change",
+		MELDSTUDIO_TRACK_MUTE_CHANGE: "meldstudio_track_mute_change",
 		COMMUNITY_CHALLENGE_CONTRIBUTION: "community_challenge_contribution",
-		MELDSTUDIO_SOURCE_VISIBILITY_CHANGE: "meldstudio_source_visibility_change",
+		MELDSTUDIO_LAYER_VISIBILITY_CHANGE: "meldstudio_layer_visibility_change",
+		MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: "meldstudio_effect_visibility_change",
 	} as const;
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
@@ -5068,8 +5070,10 @@ export namespace TwitchatDataTypes {
 		meldstudio_scene_change: false,
 		obs_playback_state_update: false,
 		obs_ws_connect_state_change: false,
+		meldstudio_track_mute_change: false,
 		community_challenge_contribution: true,
-		meldstudio_source_visibility_change: false,
+		meldstudio_effect_visibility_change: false,
+		meldstudio_layer_visibility_change: false,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 	/**
@@ -5237,7 +5241,9 @@ export namespace TwitchatDataTypes {
 		| MessageMeldStudioStartStreamData
 		| MessageMeldStudioStopStreamData
 		| MessageMeldStudioSceneChange
-		| MessageMeldSourceVisibilityChange;
+		| MessageMeldStudioLayerVisibilityChange
+		| MessageMeldStudioEffectVisibilityChange
+		| MessageMeldStudioTrackMuteChange;
 
 	/**
 	 * Defines any message that could be deleted.
@@ -7542,17 +7548,43 @@ export namespace TwitchatDataTypes {
 		type: "meldstudio_scene_change";
 		meldstudioSceneChange: {
 			sceneId: string;
+			sceneName: string;
 		};
 	}
 
 	/**
-	 * Represents an Meld Studio source visibility change event
+	 * Represents an Meld Studio layer visibility change event
 	 */
-	export interface MessageMeldSourceVisibilityChange extends AbstractTwitchatMessage {
-		type: "meldstudio_source_visibility_change";
-		meldstudioSourceVisibilityChange: {
-			sourceId: string;
+	export interface MessageMeldStudioLayerVisibilityChange extends AbstractTwitchatMessage {
+		type: "meldstudio_layer_visibility_change";
+		meldstudioLayerVisibilityChange: {
+			layerId: string;
+			layerName: string;
 			visible: boolean;
+		};
+	}
+
+	/**
+	 * Represents an Meld Studio filter visibility change event
+	 */
+	export interface MessageMeldStudioEffectVisibilityChange extends AbstractTwitchatMessage {
+		type: "meldstudio_effect_visibility_change";
+		meldstudioFilterVisibilityChange: {
+			effectId: string;
+			effectName: string;
+			enabled: boolean;
+		};
+	}
+
+	/**
+	 * Represents an Meld Studio track mute state change event
+	 */
+	export interface MessageMeldStudioTrackMuteChange extends AbstractTwitchatMessage {
+		type: "meldstudio_track_mute_change";
+		meldstudioTrackMuteChange: {
+			trackId: string;
+			trackName: string;
+			muted: boolean;
 		};
 	}
 

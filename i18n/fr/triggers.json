@@ -794,7 +794,7 @@
 			"meldstudio": {
 				"param_action": "Action",
 				"param_scene": "Scène",
-				"param_layer": "Calque",
+				"param_layer": "Layer",
 				"param_effect": "Effet",
 				"param_track": "Piste audio",
 				"param_subAction_visibility": "Visibilité",
@@ -1925,8 +1925,8 @@
 				"description": "Actions à exécuter lorsque la scène Meld Studio {SUB_ITEM_NAME} devient active",
 				"description_any": "Actions à exécuter lorsque n'importe quelle scène Meld Studio devient active"
 			},
-			"MELDSTUDIO_SOURCE_VISIBILITY_CHANGE": {
-				"label": "Source visibility change",
+			"MELDSTUDIO_LERY_VISIBILITY_CHANGE": {
+				"label": "Changement de visibilité d'un Layer",
 				"description": "Actions à exécuter lorsque la visibilité de la source Meld Studio {SUB_ITEM_NAME} change"
 			}
 		},
