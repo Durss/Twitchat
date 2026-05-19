@@ -65,6 +65,9 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		layerList: [],
 		effectList: [],
 		trackList: [],
+		currentSCene: "",
+		visibilityCache: {},
+		muteCache: {},
 	}),
 
 	getters: {
@@ -111,7 +114,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 						meldInstance = channel.objects.meld;
 						if (!meldInstance) return;
 
-						const parseSessionData = () => {
+						const onSessionDataUpdate = (isFirstSync: boolean) => {
 							if (!meldInstance) return;
 							const items = meldInstance.session.items;
 							this.sceneList = [];
@@ -136,11 +139,73 @@ export const storeMeldStudio = defineStore("meldstudio", {
 										break;
 								}
 							}
+
+							const baseTriggerEvent: TwitchatDataTypes.AbstractTwitchatMessage = {
+								id: Utils.getUUID(),
+								date: Date.now(),
+								platform: "twitchat",
+								channel_id: StoreProxy.auth.twitch.user.id,
+								type: "message",
+							};
+
+							// Check for layer visibility change
+							this.layerList.forEach((v) => {
+								if (!isFirstSync && v.visible != this.visibilityCache[v.id]) {
+									const event: TwitchatDataTypes.MessageMeldStudioLayerVisibilityChange =
+										{
+											...baseTriggerEvent,
+											type: TwitchatDataTypes.TwitchatMessageType
+												.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
+											meldstudioLayerVisibilityChange: {
+												layerId: v.id,
+												layerName: v.name,
+												visible: v.visible,
+											},
+										};
+									void TriggerActionHandler.instance.execute(event);
+								}
+								this.visibilityCache[v.id] = v.visible;
+							});
+
+							// Check for effect visibility change
+							this.effectList.forEach((v) => {
+								if (!isFirstSync && v.enabled != this.visibilityCache[v.id]) {
+									const event: TwitchatDataTypes.MessageMeldStudioEffectVisibilityChange =
+										{
+											...baseTriggerEvent,
+											type: TwitchatDataTypes.TwitchatMessageType
+												.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
+											meldstudioFilterVisibilityChange: {
+												effectId: v.id,
+												effectName: v.name,
+												enabled: v.enabled,
+											},
+										};
+									void TriggerActionHandler.instance.execute(event);
+								}
+								this.visibilityCache[v.id] = v.enabled;
+							});
+
+							// Check for scene change
+							const newScene = this.sceneList.find((v) => v.current);
+							if (!isFirstSync && newScene && newScene.id != this.currentSCene) {
+								const event: TwitchatDataTypes.MessageMeldStudioSceneChange = {
+									...baseTriggerEvent,
+									type: TwitchatDataTypes.TwitchatMessageType
+										.MELDSTUDIO_SCENE_CHANGE,
+									meldstudioSceneChange: {
+										sceneId: newScene.id,
+										sceneName: newScene.name,
+									},
+								};
+								void TriggerActionHandler.instance.execute(event);
+							}
+							if (newScene) this.currentSCene = newScene.id;
 						};
 
 						// Called anytime something's changed on the scenes configurations
-						meldInstance.sessionChanged.connect(() => parseSessionData());
-						parseSessionData();
+						meldInstance.sessionChanged.connect(() => onSessionDataUpdate(false));
+						onSessionDataUpdate(true);
 
 						// Called when streaming is started/stoped
 						meldInstance.isStreamingChanged.connect(() => {

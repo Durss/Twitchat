@@ -1925,7 +1925,7 @@
 				"description": "Actions to execute when switching to {SUB_ITEM_NAME} Meld Studio scene",
 				"description_any": "Actions to execute when switching to any Meld Studio scene"
 			},
-			"MELDSTUDIO_SOURCE_VISIBILITY_CHANGE": {
+			"MELDSTUDIO_LERY_VISIBILITY_CHANGE": {
 				"label": "Source visibility change",
 				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio source changes"
 			}

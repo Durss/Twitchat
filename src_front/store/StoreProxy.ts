@@ -4434,6 +4434,9 @@ export interface IMeldStudioState {
 	layerList: (MeldStudioLayer & { id: string })[];
 	effectList: (MeldStudioEffect & { id: string })[];
 	trackList: (MeldStudioAudioTrack & { id: string })[];
+	currentSCene: string;
+	visibilityCache: { [layerOrFilterId: string]: boolean };
+	muteCache: { [trackId: string]: boolean };
 }
 
 export interface IMeldStudioGetters {
