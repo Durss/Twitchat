@@ -149,6 +149,10 @@ export interface TriggerData {
 	 */
 	rewardId?:string;
 	/**
+	 * Power Up ID for custom power up related events
+	 */
+	powerUpId?: string;
+	/**
 	 * Delay before an ad starts
 	 */
 	adBreakDelay?:number;
@@ -1872,6 +1876,7 @@ export const TriggerTypes = {
 	OBS_CONNECTED:"170",
 	OBS_DISCONNECTED:"171",
 	MANY_REPLIES:"172",
+	POWER_UP_CUSTOM: "180",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2074,6 +2079,31 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"EMOTE", descKey:'triggers.placeholders.power_up_emote', pointer:"emoteID", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{tag:"EMOTE_URL", descKey:'triggers.placeholders.power_up_emote_url', pointer:"emoteURL", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{tag:"BITS", descKey:'triggers.placeholders.bits', pointer:"cost", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
+	];
+
+	map[TriggerTypes.POWER_UP_CUSTOM] = [
+		{
+			tag: "BITS",
+			descKey: "triggers.placeholders.bits",
+			pointer: "cost",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
+		{
+			tag: "POWER_UP_ID",
+			descKey: "triggers.placeholders.power_up_id",
+			pointer: "powerUpId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
+		{
+			tag: "POWER_UP_TITLE",
+			descKey: "triggers.placeholders.power_up_title",
+			pointer: "powerUpTitle",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
+		...map[TriggerTypes.ANY_MESSAGE]!,
 	];
 
 	map[TriggerTypes.ANNOUNCEMENTS] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -3147,6 +3177,14 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_MESSAGE.label", value:TriggerTypes.POWER_UP_MESSAGE, descriptionKey:"triggers.events.POWER_UP_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_GIANT_EMOTE.label", value:TriggerTypes.POWER_UP_GIANT_EMOTE, descriptionKey:"triggers.events.POWER_UP_GIANT_EMOTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_CELEBRATION.label", value:TriggerTypes.POWER_UP_CELEBRATION, descriptionKey:"triggers.events.POWER_UP_CELEBRATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION},
+		{
+			category: TriggerEventTypeCategories.SUBITS,
+			icon: "watchStreak",
+			labelKey: "triggers.events.POWER_UP_CUSTOM.label",
+			value: TriggerTypes.POWER_UP_CUSTOM,
+			descriptionKey: "triggers.events.POWER_UP_CUSTOM.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
+		},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V16_1, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.TWITCH_COMBO.label", value:TriggerTypes.TWITCH_COMBO, descriptionKey:"triggers.events.TWITCH_COMBO.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO},
 
 		// {newDate:1693519200000, category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
@@ -3341,6 +3379,9 @@ export const TriggerSubTypeLabel = (triggerData:TriggerData):string|undefined =>
 
 		case TriggerTypes.REWARD_REDEEM:
 			return StoreProxy.rewards.rewardList.find(v=>v.id == triggerData.rewardId)?.title ?? "REWARD NOT FOUND";
+
+		case TriggerTypes.POWER_UP_CUSTOM:
+			return StoreProxy.rewards.powerUpList.find(v=>v.id == triggerData.powerUpId)?.title ?? "CUSTOM POWER UP NOT FOUND";
 
 		case TriggerTypes.OBS_SCENE:
 			return triggerData.obsScene || "...";

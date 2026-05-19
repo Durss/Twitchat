@@ -10,6 +10,7 @@ import StoreProxy from '../StoreProxy';
 export const storeRewards = defineStore('rewards', {
 	state: () => ({
 		rewardList: [],
+		powerUpList: [],
 	} as IRewardsState),
 
 
@@ -55,6 +56,33 @@ export const storeRewards = defineStore('rewards', {
 			this.rewardList.unshift(Config.instance.allRewards);
 
 			return this.rewardList;
+		},
+		async loadPowerUps(): Promise<TwitchDataTypes.CustomPowerUp[]> {
+			try {
+				this.powerUpList = await TwitchUtils.getCustomPowerUps();
+			} catch (error) {
+				this.powerUpList = [];
+				console.log(error);
+				
+				return [];
+			}
+
+			//Sort by cost and name
+			this.powerUpList = this.powerUpList.sort((a, b) => {
+				if (a.bits < b.bits) return -1;
+				if (a.bits > b.bits) return 1;
+				if (a.title.toLowerCase() < b.title.toLowerCase()) return -1;
+				if (a.title.toLowerCase() > b.title.toLowerCase()) return 1;
+				return 0;
+			});
+
+			// Add static default power ups
+			// this.powerUpList.unshift(Config.instance.messageEffectPowerup);
+			// this.powerUpList.unshift(Config.instance.gigantifiedEmotePowerup);
+			// this.powerUpList.unshift(Config.instance.celebrationPowerup);
+			this.powerUpList.unshift(Config.instance.allPowerups);
+
+			return this.powerUpList;
 		},
 
 	} as IRewardsActions

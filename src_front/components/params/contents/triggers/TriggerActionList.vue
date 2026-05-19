@@ -138,6 +138,7 @@
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
+							:powerUps="powerUps"
 							:extensions="extensions"
 							:triggerData="triggerData"
 							@delete="deleteAction(element.id)"
@@ -217,6 +218,8 @@ class TriggerActionList extends Vue {
 	public obsInputs!:OBSInputItem[];
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
+	@Prop({default:[]})
+	public powerUps!:TwitchDataTypes.CustomPowerUp[];
 	@Prop({default:[]})
 	public extensions!:TwitchDataTypes.Extension[];
 

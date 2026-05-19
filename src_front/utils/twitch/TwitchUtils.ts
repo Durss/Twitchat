@@ -977,6 +977,29 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Get list of custom power ups
+	 */
+	public static async getCustomPowerUps(): Promise<TwitchDataTypes.CustomPowerUp[]> {
+		if (!this.hasScopes([TwitchScopes.READ_CHEER])) return [];
+		if (!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner)
+			return [];
+
+		let powerups: TwitchDataTypes.CustomPowerUp[] = [];
+		const url = new URL(Config.instance.TWITCH_API_PATH + "bits/custom_power_ups");
+		url.searchParams.append("broadcaster_id", this.uid);
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200) {
+			powerups = (await res.json()).data || [];
+		} else {
+			return [];
+		}
+		return powerups;
+	}
+
+	/**
 	 * Get the moderators list of a channel
 	 * Limited to our own channel
 	 */

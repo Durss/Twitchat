@@ -28,6 +28,17 @@
 				v-tooltip="$t('triggers.resyncRewardsBt_tt')"
 				:loading="loadingRewards">{{ $t('triggers.resyncRewardsBt') }}</Button>
 
+			<Button
+				class="cta resyncBt"
+				small
+				icon="bits"
+				v-if="canReadBits && isAffiliate"
+				@click="listPowerUps()"
+				v-tooltip="$t('triggers.resyncPowerUpsBt_tt')"
+				:loading="loadingRewards"
+				>{{ $t("triggers.resyncPowerUpsBt") }}</Button
+			>
+
 			<Button class="cta resyncBt" small
 				icon="extension"
 				v-if="canManageExtensions"
@@ -78,6 +89,7 @@
 			:obsSources="obsSources"
 			:obsInputs="obsInputs"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:folderTarget="createFolderTarget" />
 
 		<TriggerActionList
@@ -87,13 +99,15 @@
 			:obsSources="obsSources"
 			:obsInputs="obsInputs"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:extensions="extensions" />
 
 		<TriggerList v-if="showList && !showForm"
 			@select="onSelectTrigger($event)"
 			@testTrigger="testTrigger($event)"
 			@createTrigger="createTriggerWithinFolder($event)"
-			:rewards="rewards" />
+			:rewards="rewards"
+			:powerUps="powerUps" />
 	</div>
 </template>
 
@@ -131,6 +145,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
+	public loadingPowerUps:boolean = false;
 	public loadingMixItUp:boolean = false;
 	public loadingExtension:boolean = false;
 	public loadingOBSElements:boolean = false;
@@ -141,12 +156,14 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
 	public extensions:TwitchDataTypes.Extension[] = [];
+	public powerUps:TwitchDataTypes.CustomPowerUp[] = [];
 
 	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
 	public get currentTriggerData():TriggerData|null { return this.$store.triggers.currentEditTriggerData; }
 	public get showList():boolean { return this.currentTriggerData == null; }
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }
+	public get canReadBits():boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_CHEER]); }
 	public get canManageExtensions():boolean { return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]); }
 
 	public get showOBSResync():boolean {
@@ -181,6 +198,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		}
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 			this.listRewards();
+		}
+		if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+			this.listPowerUps();
 		}
 		if(TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
 			this.listExtensions();
@@ -234,6 +254,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		watch(()=>this.$store.auth.newScopesToRequest, () => {
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				this.listRewards();
+			}
+			if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+				this.listPowerUps();
 			}
 		});
 	}
@@ -358,6 +381,16 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Lists Power ups
+	 */
+	public async listPowerUps():Promise<void> {
+		this.loadingPowerUps = true;
+		this.powerUps = await this.$store.rewards.loadPowerUps();
+		await Utils.promisedTimeout(200); //Just make sure the loading is visible in case query runs crazy fast
+		this.loadingPowerUps = false;
+	}
+
+	/**
 	 * Lists twitch extensions
 	 */
 	public async listExtensions():Promise<void> {
@@ -465,7 +498,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						//Inject actual reward data
 						let twitchReward = this.$store.rewards.rewardList.find(v=> v.id == trigger.rewardId);
 						if(twitchReward) {
-							(m as TwitchatDataTypes.MessageRewardRedeemData).reward = {
+							m.reward = {
 								id:twitchReward.id,
 								cost:twitchReward.cost,
 								description:twitchReward.prompt,
@@ -477,10 +510,17 @@ class ParamsTriggers extends Vue implements IParameterContent {
 								},
 							};
 						}
-					}else
-
-					//OBS scene change simulation
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
+					} else //Power Up redeem simulation
+					 if (m.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP) {
+						let powerUp = this.$store.rewards.powerUpList.find(
+							(v) => v.id == trigger.powerUpId,
+						);
+						if (powerUp) {
+							m.powerUpId = powerUp.id;
+							m.cost = powerUp.bits;
+							m.powerUpTitle = powerUp.title;
+						}
+					} else if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
 						m.sceneName = trigger.obsScene!;
 					}else
 

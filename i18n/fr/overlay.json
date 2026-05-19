@@ -601,6 +601,12 @@
 				"POWER_UP_MESSAGE_ID": "Power-up Message - ID utilisateur·ice",
 				"POWER_UP_MESSAGE_NAME": "Power-up Message - Pseudo",
 				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - Avatar",
+				
+				"POWER_UP_CUSTOM_ID": "Custom Power-up - ID utilisateur·ice",
+				"POWER_UP_CUSTOM_NAME": "Custom Power-up - Pseudo",
+				"POWER_UP_CUSTOM_AVATAR": "Custom Power-up - Avatar",
+				"POWER_UP_CUSTOM_TITLE": "Custom Power-up - Titre",
+				"POWER_UP_CUSTOM_COST": "Custom Power-up - Prix",
 
 				"PATREON_USER": "Pseudo de l'abonné·e",
 				"PATREON_TITLE": "Titre de l'abonnement",

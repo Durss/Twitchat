@@ -159,6 +159,42 @@ export const LabelItemPlaceholderList = [
 	{tag:"POWER_UP_MESSAGE_NAME",				type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_NAME", backup:true} as const,
 	{tag:"POWER_UP_MESSAGE_AVATAR",				type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_AVATAR", backup:true} as const,
 
+	{
+		tag: "POWER_UP_CUSTOM_ID",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_ID",
+		backup: true,
+	} as const,
+	{
+		tag: "POWER_UP_CUSTOM_NAME",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_NAME",
+		backup: true,
+	} as const,
+	{
+		tag: "POWER_UP_CUSTOM_AVATAR",
+		type: "image",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_AVATAR",
+		backup: true,
+	} as const,
+	{
+		tag: "POWER_UP_CUSTOM_TITLE",
+		type: "string",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_TITLE",
+		backup: true,
+	} as const,
+	{
+		tag: "POWER_UP_CUSTOM_COST",
+		type: "number",
+		category: "twitch",
+		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_COST",
+		backup: true,
+	} as const,
+
 	{tag:"KOFI_TIP_NAME",						type:"string",	category:"kofi", descriptionKey:"overlay.labels.placeholders.KOFI_TIP_NAME", backup:true} as const,
 	{tag:"KOFI_TIP_AMOUNT",						type:"number",	category:"kofi", descriptionKey:"overlay.labels.placeholders.KOFI_TIP_AMOUNT", backup:true} as const,
 	{tag:"KOFI_MERCH_USER",						type:"string",	category:"kofi", descriptionKey:"overlay.labels.placeholders.KOFI_MERCH_USER", backup:true} as const,

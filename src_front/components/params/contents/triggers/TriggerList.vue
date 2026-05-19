@@ -7,6 +7,7 @@
 		<TriggerListFolderItem
 			v-model:items="folderTriggerList"
 			:rewards="rewards"
+			:powerUps="powerUps"
 			:noEdit="noEdit"
 			:triggerId="triggerId"
 			@change="onUpdateList"
@@ -49,6 +50,9 @@ class TriggerList extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
+
+	@Prop({default:[]})
+	public powerUps!:TwitchDataTypes.CustomPowerUp[];
 
 	@Prop({default:false})
 	public noEdit!:boolean;

@@ -323,6 +323,7 @@ export default class EventSub {
 			// }
 			if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM, "beta");
 			}
 
 			//Don't need it
@@ -680,6 +681,11 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE: {
 				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				this.bitsUsed(topic, payload.event as TwitchEventSubDataTypes.BitsUseEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CUSTOM_POWER_UP_REDEEM: {
+				this.customPowerUpUsed(topic, payload.event as TwitchEventSubDataTypes.CustomPowerUpUseEvent);
 				break;
 			}
 
@@ -2105,32 +2111,53 @@ export default class EventSub {
 				}
 				break;
 			}
+		}
+	}
 
-			case "custom_power_up": {
-				const chunks = TwitchUtils.parseMessageToChunks(
-					event.message?.text || "",
-					undefined,
-					true,
-					"twitch",
-				);
-				const m: TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
-					id: Utils.getUUID(),
-					date: Date.now(),
-					platform: "twitch",
-					channel_id: event.broadcaster_user_id,
-					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
-					user,
-					message: event.message?.text || "",
-					message_chunks: chunks,
-					message_html: TwitchUtils.messageChunksToHTML(chunks),
-					message_size: TwitchUtils.computeMessageSize(chunks),
-					powerUpId: event.custom_power_up?.reward_id || "",
-					powerUpTitle: event.custom_power_up?.title || "",
-					cost: event.bits,
-				};
-				StoreProxy.chat.addMessage(m);
-				break;
-			}
+	/**
+	 * Called when a user redeems a custom power up
+	 */
+	private async customPowerUpUsed(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.CustomPowerUpUseEvent):Promise<void> {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		const chunks = TwitchUtils.parseMessageToChunks(
+			event.user_input || "",
+			undefined,
+			true,
+			"twitch",
+		);
+		const m: TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
+			id: Utils.getUUID(),
+			date: Date.now(),
+			platform: "twitch",
+			channel_id: event.broadcaster_user_id,
+			type: TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
+			user,
+			message: event.user_input || "",
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
+			powerUpId: event.custom_power_up?.id || "",
+			powerUpTitle: event.custom_power_up?.title || "",
+			cost: event.custom_power_up.bits,
+		};
+		StoreProxy.chat.addMessage(m);
+		if (event.user_input) {
+			const chat: TwitchatDataTypes.MessageChatData = {
+				id: Utils.getUUID(),
+				date: Date.now(),
+				platform: "twitch",
+				channel_id: event.broadcaster_user_id,
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				user,
+				message: event.user_input || "",
+				message_chunks: chunks,
+				message_html: TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
+				answers: [],
+				is_short: false,
+				twitch_powerup: true,
+			};
+			void StoreProxy.chat.addMessage(chat);
 		}
 	}
 

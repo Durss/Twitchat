@@ -53,6 +53,7 @@
 						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
+						:powerUps="powerUps"
 						:noEdit="noEdit"
 						:selectMode="selectMode"
 						:forceDisableOption="forceDisableOption"
@@ -116,6 +117,9 @@ class TriggerListFolderItem extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
+
+	@Prop({default:[]})
+	public powerUps!:TwitchDataTypes.CustomPowerUp[];
 
 	@Prop({default:false})
 	public noEdit!:boolean;

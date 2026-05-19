@@ -103,6 +103,28 @@ export default class TriggerUtils {
 				break;
 			}
 
+			case TriggerTypes.POWER_UP_CUSTOM: {
+				if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+					const powerUp = StoreProxy.rewards.powerUpList.find(
+						(v) => v.id == trigger.powerUpId,
+					);
+					if (!result.label) {
+						if (powerUp) {
+							result.label = powerUp.title;
+						} else {
+							result.label = StoreProxy.i18n.t("triggers.missing_powerup");
+						}
+					}
+					if (powerUp && powerUp.image) {
+						result.iconURL = powerUp.image.url_2x ?? powerUp.image.url_1x;
+						result.iconBgColor = powerUp.background_color;
+					}
+				} else if (!result.label) {
+					result.label = StoreProxy.i18n.t("triggers.missing_powerup_scope");
+				}
+				break;
+			}
+
 			case TriggerTypes.OBS_SCENE: {
 				if(!result.label && trigger.obsScene) result.label = trigger.obsScene;
 

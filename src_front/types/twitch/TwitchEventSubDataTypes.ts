@@ -60,6 +60,7 @@ export namespace TwitchEventSubDataTypes {
 		DELETE_MESSAGE: "channel.chat.message_delete",
 		WHISPERS: "user.whisper.message",
 		BITS_USE: "channel.bits.use",
+		CUSTOM_POWER_UP_REDEEM: "channel.custom_power_up_redemption.add",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -1121,6 +1122,25 @@ export namespace TwitchEventSubDataTypes {
 			text:string;
 			fragments:MessageFragments;
 		} | null;
+	}
+
+	export interface CustomPowerUpUseEvent {
+		broadcaster_user_id: string
+		broadcaster_user_login: string
+		broadcaster_user_name: string
+		id: string
+		user_id: string
+		user_login: string
+		user_name: string
+		user_input: string
+		status: string
+		custom_power_up: {
+			id: string
+			title: string
+			bits: number
+			prompt: string
+		}
+		redeemed_at: string
 	}
 }
 

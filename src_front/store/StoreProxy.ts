@@ -2304,6 +2304,10 @@ export interface IRewardsState {
 	 * Twitch channel point rewards list of the authenticated user
 	 */
 	rewardList:TwitchDataTypes.Reward[];
+	/**
+	 * List of custom power ups
+	 */
+	powerUpList: TwitchDataTypes.CustomPowerUp[];
 }
 
 export interface IRewardsGetters {
@@ -2314,6 +2318,10 @@ export interface IRewardsActions {
 	 * Load twitch channel point rewards
 	 */
 	loadRewards():Promise<TwitchDataTypes.Reward[]>;
+	/**
+	 * Load twitch custom power ups
+	 */
+	loadPowerUps(): Promise<TwitchDataTypes.CustomPowerUp[]>;
 }
 
 

@@ -18,6 +18,18 @@
 			</template>
 		</i18n-t>
 
+		<i18n-t
+			scope="global"
+			tag="div"
+			class="card-item alert require"
+			v-if="needPowerUps"
+			keypath="triggers.powerups.require"
+		>
+			<template #URL>
+				<a @click="requestPowerUpsScope()">{{ $t("triggers.powerups.require_url") }}</a>
+			</template>
+		</i18n-t>
+
 		<div class="card-item searchForm" v-else-if="subtriggerList.length == 0">
 			<input v-model="search" @input="onSearch()" :placeholder="$t('global.search_placeholder')" v-autofocus>
 		</div>
@@ -138,10 +150,13 @@ class TriggerCreateForm extends Vue {
 	public obsInputs!:OBSInputItem[];
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
+	@Prop({default:[]})
+	public powerUps!:TwitchDataTypes.CustomPowerUp[];
 
 	public search = "";
 	public showLoading = false;
 	public needRewards = false;
+	public needPowerUps = false;
 	public needObsConnect = false;
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
 	public subtriggerList:TriggerEntry[] = [];
@@ -238,6 +253,7 @@ class TriggerCreateForm extends Vue {
 		if(!this.$store.auth.twitch.user.is_affiliate && !this.$store.auth.twitch.user.is_partner) {
 			triggerTypeList = triggerTypeList.filter(v=> {
 				return v.value != TriggerTypes.REWARD_REDEEM
+				&& v.value != TriggerTypes.POWER_UP_CUSTOM
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 			})
@@ -248,33 +264,35 @@ class TriggerCreateForm extends Vue {
 			triggerTypeList = triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
 		}
 
-		//Extract available trigger categories
-		let currCat = triggerTypeList[0]!.trigger!.category;
-		let catEvents:TriggerTypeDefinition[] = [];
-		for (let i = 0; i < triggerTypeList.length; i++) {
-			const ev = triggerTypeList[i]!;
-			if(!ev.trigger) continue;
-			if(ev.trigger.category != currCat || i === triggerTypeList.length-1) {
-				if(i === triggerTypeList.length-1) catEvents.push(ev.trigger);
-				const cat:TriggerCategory = {
-					category:catEvents[0]!.category,
-					events:catEvents,
-				};
-				this.eventCategories.push(cat);
-				catEvents = [ev.trigger];
-			}else{
-				catEvents.push(ev.trigger);
+		if (triggerTypeList.length > 0) {
+			//Extract available trigger categories
+			let currCat = triggerTypeList[0]!.trigger!.category;
+			let catEvents:TriggerTypeDefinition[] = [];
+			for (let i = 0; i < triggerTypeList.length; i++) {
+				const ev = triggerTypeList[i]!;
+				if(!ev.trigger) continue;
+				if(ev.trigger.category != currCat || i === triggerTypeList.length-1) {
+					if(i === triggerTypeList.length-1) catEvents.push(ev.trigger);
+					const cat:TriggerCategory = {
+						category:catEvents[0]!.category,
+						events:catEvents,
+					};
+					this.eventCategories.push(cat);
+					catEvents = [ev.trigger];
+				}else{
+					catEvents.push(ev.trigger);
+				}
+				currCat = ev.trigger.category
 			}
-			currCat = ev.trigger.category
-		}
 
-		this.eventCategories.forEach(v => {
-			let newDate = 0;
-			v.events.forEach(w => {
-				if(w.newDate) newDate = Math.max(newDate, w.newDate);
+			this.eventCategories.forEach(v => {
+				let newDate = 0;
+				v.events.forEach(w => {
+					if(w.newDate) newDate = Math.max(newDate, w.newDate);
+				})
+				if(newDate > 0) v.newDate = newDate;
 			})
-			if(newDate > 0) v.newDate = newDate;
-		})
+		}
 	}
 
 	/**
@@ -284,6 +302,7 @@ class TriggerCreateForm extends Vue {
 		if(e.disabled === true) return true;
 
 		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))) return true;
+		if(e.value == TriggerTypes.POWER_UP_CUSTOM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.READ_CHEER]))) return true;
 		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))) return true;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;
 		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) return true;
@@ -321,6 +340,7 @@ class TriggerCreateForm extends Vue {
 	 */
 	public requestScope(e:TriggerTypeDefinition):void {
 		if(e.value == TriggerTypes.REWARD_REDEEM && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS])) return;
+		if(e.value == TriggerTypes.POWER_UP_CUSTOM && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.READ_CHEER])) return;
 		if(e.value == TriggerTypes.POLL_RESULT && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) return;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) return;
 		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])) return;
@@ -382,6 +402,26 @@ class TriggerCreateForm extends Vue {
 				});
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_reward");
+			}
+		} else if (e.value == TriggerTypes.POWER_UP_CUSTOM) {
+			if (!TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+				this.needPowerUps = true;
+				return;
+			} else {
+				this.needPowerUps = false;
+				const list = this.powerUps.map((v): TriggerEntry => {
+					return {
+						label: v.title,
+						searchTerms: [v.title],
+						isCategory: false,
+						value: v.id,
+						background: v.background_color,
+						labelSmall: v.bits > 0 ? v.bits + "bits" : "",
+						icon: v.image?.url_2x ?? this.$asset("icons/bits.svg"),
+					};
+				});
+				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_powerUp");
 			}
 		}else
 
@@ -573,6 +613,8 @@ class TriggerCreateForm extends Vue {
 		switch(this.selectedTriggerType.value) {
 			case TriggerTypes.REWARD_REDEEM: this.temporaryTrigger.rewardId = entry.value; break;
 
+			case TriggerTypes.POWER_UP_CUSTOM: this.temporaryTrigger.powerUpId = entry.value; break;
+
 			case TriggerTypes.OBS_SCENE: this.temporaryTrigger.obsScene = entry.value; break;
 
 			case TriggerTypes.OBS_SOURCE_ON:
@@ -640,6 +682,13 @@ class TriggerCreateForm extends Vue {
 	 */
 	public requestRewardsScope():void {
 		this.$store.auth.requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
+	}
+
+	/**
+	 * Requests access to power ups
+	 */
+	public requestPowerUpsScope():void {
+		this.$store.auth.requestTwitchScopes([TwitchScopes.READ_CHEER]);
 	}
 
 	/**

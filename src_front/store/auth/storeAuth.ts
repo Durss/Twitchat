@@ -234,6 +234,7 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				EventSub.instance.connect();
 				sRewards.loadRewards();
+				sRewards.loadPowerUps();
 				sExtension.init();
 				sStream.loadStreamInfo("twitch", this.twitch.user.id);
 				sUsers.preloadTwitchModerators(this.twitch.user.id);

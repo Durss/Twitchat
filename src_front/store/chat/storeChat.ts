@@ -2002,6 +2002,26 @@ export const storeChat = defineStore('chat', {
 						break;
 					}
 
+					//Twitch custom power Up
+					case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+						StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_NAME",
+							message.user.displayNameOriginal,
+						);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_AVATAR",
+							message.user.avatarPath || "",
+							message.user.id,
+						);
+						StoreProxy.labels.updateLabelValue(
+							"POWER_UP_CUSTOM_TITLE",
+							message.powerUpTitle,
+						);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_COST", message.cost);
+						break;
+					}
+
 					//YouTube Super sticker
 					case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
 						StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);

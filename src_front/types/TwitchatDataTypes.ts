@@ -3590,6 +3590,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_watchStreak?:number;
 		/**
+		 * Is custom power up?
+		 */
+		twitch_powerup?: boolean;
+		/**
 		 * true if user used the "presentation" feature
 		 * @deprecated feature removed by twitch
 		 */

@@ -146,6 +146,31 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+				const id = message.powerUpId;
+				await this.executeTriggersByType(
+					TriggerTypes.POWER_UP_CUSTOM,
+					message,
+					testMode,
+					"*",
+					undefined,
+					forcedTriggerId,
+				);
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.POWER_UP_CUSTOM,
+						message,
+						testMode,
+						id,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
@@ -967,6 +992,10 @@ export default class TriggerActionHandler {
 				case TriggerTypes.AD_APPROACHING: keys[0] += this.HASHMAP_KEY_SPLITTER + (t.adBreakDelay || 0).toString(); break;
 
 				case TriggerTypes.REWARD_REDEEM: keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId; break;
+
+				case TriggerTypes.POWER_UP_CUSTOM:
+					keys[0] += this.HASHMAP_KEY_SPLITTER + t.powerUpId;
+					break;
 
 				case TriggerTypes.OBS_SCENE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsScene; break;
 
