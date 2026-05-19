@@ -271,6 +271,33 @@ Here is the expected file structure:\
 <br>
 <br>
 
+## Docker
+
+Make sure `data/credentials/credentials.json` exists and is filled in before starting the container (see [Project setup](#project-setup)).
+
+### Build the image
+
+```sh
+docker build -t twitchat .
+```
+
+### Run with Docker
+
+```sh
+docker run -d \
+  --name twitchat \
+  --restart unless-stopped \
+  -p 3018:3018 \
+  -v ./data:/opt/twitchat/data \
+  twitchat
+```
+
+### Run with Docker Compose
+
+```sh
+docker compose up -d
+```
+
 # Localization
 # Adding new language
 Just create a new folder under the `i18n` folder with the ISO 639-1 code of the language.\
