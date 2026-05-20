@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3018/api"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3018/api"]
       interval: 30s
       timeout: 5s
       start_period: 10s
