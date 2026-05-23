@@ -58,6 +58,7 @@
 		"persistentData_placeholder": "Persistent data placeholder {NAME}",
 		"nonpremium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"premium_limit": "You created the maximum number of {MAX} triggers.",
+		"premium_trigger": "You need to be premium to use this trigger event",
 		"add_action": "Add action",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",
@@ -1437,72 +1438,99 @@
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when switching to {SUB_ITEM_NAME} OBS scene",
 				"description_any": "Actions to execute when switching to any OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when showing {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when hiding {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_INPUT_MUTE": {
 				"label": "Audio source mute",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is muted"
 			},
 			"OBS_INPUT_UNMUTE": {
 				"label": "Audio source unmute",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is unmuted"
 			},
 			"OBS_PLAYBACK_STARTED": {
 				"label": "Media playback started",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source starts to play"
 			},
 			"OBS_PLAYBACK_ENDED": {
 				"label": "Media playback ended",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source ends playing"
 			},
 			"OBS_PLAYBACK_PAUSED": {
 				"label": "Media playback paused",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is paused"
 			},
 			"OBS_PLAYBACK_RESTARTED": {
 				"label": "Media playback restarted",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is restarted"
 			},
 			"OBS_PLAYBACK_NEXT": {
 				"label": "Media playing next item in queue",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays next item in queue"
 			},
 			"OBS_PLAYBACK_PREVIOUS": {
 				"label": "Media playing previous item in queue",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays previous item in queue"
 			},
 			"OBS_FILTER_ON": {
 				"label": "Filter enabled",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is enabled"
 			},
 			"OBS_FILTER_OFF": {
 				"label": "Filter disabled",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
 			"OBS_START_STREAM": {
 				"label": "Start streaming",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when starting stream"
 			},
 			"OBS_STOP_STREAM": {
 				"label": "Stop streaming",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when stoping stream"
 			},
 			"OBS_RECORDING_START": {
 				"label": "Start recording",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when starting recording"
 			},
 			"OBS_RECORDING_STOP": {
 				"label": "Stop recording",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when stoping recording"
+			},
+			"OBS_CONNECTED": {
+				"label": "OBS connected",
+				"search_terms": ["obs"],
+				"description": "Actions to execute when Twitchat connects to OBS websocket"
+			},
+			"OBS_DISCONNECTED": {
+				"label": "OBS disconnected",
+				"search_terms": ["obs"],
+				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
 			},
 			"TWITCHAT_STARTED": {
 				"label": "Twitchat ready",
@@ -1689,18 +1717,22 @@
 			},
 			"KOFI_DONATION": {
 				"label": "Received a donation on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when receiving a donation on Ko-fi"
 			},
 			"KOFI_MERCH": {
 				"label": "Merch bought on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when a merch item is bought on Ko-fi"
 			},
 			"KOFI_SUBSCRIPTION": {
 				"label": "Someone subscribed on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when someone subscribes (monthly) on Ko-fi"
 			},
 			"KOFI_COMMISSION": {
 				"label": "Someone requested a commission on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when somone requestes for a commission on Ko-fi"
 			},
 			"STREAMELEMENTS_DONATION": {
@@ -1893,14 +1925,6 @@
 				"description": "Actions to execute when a viewer sends bits from Twitch Combo",
 				"disabled_reason": "Twitch disabled that feature"
 			},
-			"OBS_CONNECTED": {
-				"label": "OBS connected",
-				"description": "Actions to execute when Twitchat connects to OBS websocket"
-			},
-			"OBS_DISCONNECTED": {
-				"label": "OBS disconnected",
-				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
-			},
 			"MANY_REPLIES": {
 				"label": "A message received many replies",
 				"description": "Actions to execute when a message receives many replies",
@@ -1912,19 +1936,23 @@
 			},
 			"MELDSTUDIO_START_STREAM": {
 				"label": "Start streaming",
+				"search_terms": ["meld", "studio"],
 				"description": "Actions to execute when starting stream"
 			},
 			"MELDSTUDIO_STOP_STREAM": {
 				"label": "Stop streaming",
+				"search_terms": ["meld", "studio"],
 				"description": "Actions to execute when stoping stream"
 			},
 			"MELDSTUDIO_SCENE_CHANGE": {
 				"label": "Switch to scene",
+				"search_terms": ["meld", "studio"],
 				"description": "Actions to execute when switching to {SUB_ITEM_NAME} Meld Studio scene",
 				"description_any": "Actions to execute when switching to any Meld Studio scene"
 			},
 			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
 				"label": "Media playback restarted",
+				"search_terms": ["meld", "studio"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio layer visibility changes"
 			}
 		},

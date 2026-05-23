@@ -2,7 +2,17 @@
 	<div ref="rootEl" class="triggeractionlist">
 		<div class="card-item alert description" v-if="triggerDef?.disabledReasonKey" data-noselect>
 			<Icon name="alert" class="icon" theme="light" />
-			{{ $t(triggerDef.disabledReasonKey) }}
+			{{ t(triggerDef.disabledReasonKey) }}
+		</div>
+
+		<div class="card-item premium" v-if="triggerDef?.event?.premium && !storeAuth.isPremium">
+			<Icon name="premium" />
+			<div class="content">
+				<span>{{ t("triggers.premium_trigger") }}</span>
+				<TTButton premium light @click="openPremium()">{{
+					t("premium.become_premiumBt")
+				}}</TTButton>
+			</div>
 		</div>
 
 		<div class="card-item secondary description" data-noselect>
@@ -16,21 +26,21 @@
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
 				</template>
-				<template #INFO v-if="$te(triggerDef?.descriptionKey + '_info')">
+				<template #INFO v-if="te(triggerDef?.descriptionKey + '_info')">
 					<i18n-t
 						tag="i"
 						class="details"
 						scope="global"
-						v-if="$te(triggerDef?.descriptionKey + '_info')"
+						v-if="te(triggerDef?.descriptionKey + '_info')"
 						:keypath="triggerDef?.descriptionKey + '_info'"
 					>
-						<template #CMD v-if="$te(triggerDef?.descriptionKey + '_info_cmd')">
-							<mark>{{ $t(triggerDef?.descriptionKey + "_info_cmd") }}</mark>
+						<template #CMD v-if="te(triggerDef?.descriptionKey + '_info_cmd')">
+							<mark>{{ t(triggerDef?.descriptionKey + "_info_cmd") }}</mark>
 						</template>
 					</i18n-t>
 				</template>
-				<template #CMD v-if="$te(triggerDef?.descriptionKey + '_cmd')">
-					<mark v-html="$t(triggerDef?.descriptionKey + '_cmd')"></mark>
+				<template #CMD v-if="te(triggerDef?.descriptionKey + '_cmd')">
+					<mark v-html="t(triggerDef?.descriptionKey + '_cmd')"></mark>
 				</template>
 			</i18n-t>
 		</div>
@@ -43,7 +53,7 @@
 				:paramData="param_enableForRemoteChans"
 				v-if="allowedOnRemoteChans"
 				v-model="triggerData.enableForRemoteChans"
-				v-tooltip="{ content: $t('triggers.enableForRemoteChans_tt'), placement: 'bottom' }"
+				v-tooltip="{ content: t('triggers.enableForRemoteChans_tt'), placement: 'bottom' }"
 				class="premiumOption"
 			/>
 			<ParamItem
@@ -103,9 +113,9 @@
 			<TriggerActionAnyMessageParams v-if="isAnyMessages" :triggerData="triggerData" />
 
 			<div class="queue">
-				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
+				<div class="info" v-tooltip="t('triggers.trigger_queue_info')">
 					<Icon name="list" class="icon" />
-					<span>{{ $t("triggers.trigger_queue") }}</span>
+					<span>{{ t("triggers.trigger_queue") }}</span>
 				</div>
 				<ParamItem
 					noBackground
@@ -117,7 +127,7 @@
 						<ParamItem
 							noBackground
 							class="priority"
-							v-tooltip="$t('triggers.trigger_queue_priority')"
+							v-tooltip="t('triggers.trigger_queue_priority')"
 							:paramData="param_queue_priority"
 							v-model="triggerData.queuePriority"
 						/>
@@ -194,7 +204,7 @@
 				data-noselect
 				primary
 				big
-				>{{ $t("triggers.add_action") }}</TTButton
+				>{{ t("triggers.add_action") }}</TTButton
 			>
 
 			<draggable
@@ -269,7 +279,7 @@ import {
 	type TriggerData,
 	type TriggerTypesValue,
 } from "@/types/TriggerActionDataTypes";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from "@/utils/OBSWebsocket";
 import TriggerUtils from "@/utils/TriggerUtils";
@@ -302,9 +312,13 @@ import TriggerConditionList from "./TriggerConditionList.vue";
 import TriggerGoXLRParams from "./TriggerGoXLRParams.vue";
 import { useConfirm } from "@/composables/useConfirm";
 import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
 const storeTriggers = useStoreTriggers();
 const rootElRef = useTemplateRef("rootEl");
 const emoteSelectorRef = useTemplateRef("emoteSelector");
@@ -737,6 +751,13 @@ async function highlightItemById(id: string): Promise<void> {
 }
 
 /**
+ * Open premium section
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
  * Open emote selector
  */
 function openEmoteSelector(event: MouseEvent): void {
@@ -952,11 +973,27 @@ onBeforeUnmount(() => {
 		}
 	}
 
+	& > .premium {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		align-self: center;
+		.icon {
+			height: 3em;
+			vertical-align: middle;
+		}
+		.content {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+	}
+
 	& > .params,
 	& > .conditions,
 	& > .description {
-		box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
-
 		& > .head {
 			text-align: center;
 			margin-bottom: 0.5em;

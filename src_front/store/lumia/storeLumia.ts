@@ -34,10 +34,10 @@ export const storeLumia = defineStore("lumia", {
 		},
 
 		async connect(token: string, isReconnect: boolean = false): Promise<boolean> {
-			if (!StoreProxy.auth.isPremium) return Promise.resolve(false);
+			if (!StoreProxy.auth.isPremium) return false;
 
 			//Token changed
-			if (isReconnect && token != this.socketToken) return Promise.resolve(false);
+			if (isReconnect && token != this.socketToken) return false;
 
 			this.disconnect();
 

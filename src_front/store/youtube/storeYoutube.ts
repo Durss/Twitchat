@@ -2,6 +2,7 @@ import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IYoutubeActions, IYoutubeGetters, IYoutubeState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
 export const storeYoutube = defineStore("youtube", {
 	state: (): IYoutubeState => ({
@@ -18,6 +19,7 @@ export const storeYoutube = defineStore("youtube", {
 		},
 
 		async authenticate(): Promise<boolean> {
+			if (!StoreProxy.auth.isPremium) return false;
 			if (!this.youtubeAuthParams) return false;
 			const res = await YoutubeHelper.instance.authenticate(this.youtubeAuthParams.code);
 			if (!res) return false;

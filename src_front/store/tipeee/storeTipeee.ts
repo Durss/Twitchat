@@ -102,10 +102,10 @@ export const storeTipeee = defineStore("tipeee", {
 		},
 
 		async connect(token: string, isReconnect: boolean = false): Promise<boolean> {
-			if (!StoreProxy.auth.isPremium) return Promise.resolve(false);
+			if (!StoreProxy.auth.isPremium) return false;
 
 			//Token changed
-			if (isReconnect && token != this.accessToken) return Promise.resolve(false);
+			if (isReconnect && token != this.accessToken) return false;
 
 			this.disconnect(false);
 

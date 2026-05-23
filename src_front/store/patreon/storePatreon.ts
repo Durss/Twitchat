@@ -28,6 +28,7 @@ export const storePatreon = defineStore("patreon", {
 			SSEHelper.instance.addEventListener("PATREON_MEMBER_CREATE", (event) => {
 				const data = event.data;
 				if (!data) return;
+				if (!StoreProxy.auth.isPremium) return false;
 
 				const message: TwitchatDataTypes.MessagePatreonData = {
 					channel_id: StoreProxy.auth.twitch.user.id,

@@ -396,8 +396,9 @@ function populate(): void {
 			if (ev.trigger.disabled) continue;
 			if (ev.trigger.category != currCat || i === triggerTypeList.length - 1) {
 				if (i === triggerTypeList.length - 1) catEvents.push(ev.trigger);
+				if (!catEvents[0]) continue;
 				const cat: TriggerCategory = {
-					category: catEvents[0]!.category,
+					category: catEvents[0].category,
 					events: catEvents,
 				};
 				eventCategories.value.push(cat);
