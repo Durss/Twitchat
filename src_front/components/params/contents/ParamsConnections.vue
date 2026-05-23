@@ -516,7 +516,7 @@ defineExpose({ allowHighlight, onNavigateBack, reload });
 
 <style scoped lang="less">
 .paramsconnexions {
-	max-width: calc(100vw - 350px) !important;
+	max-width: 100% !important;
 
 	.content {
 		align-self: center;

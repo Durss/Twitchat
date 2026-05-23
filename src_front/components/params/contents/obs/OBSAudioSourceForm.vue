@@ -38,7 +38,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSInputItem } from "@/utils/OBSWebsocket";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
-import { watch } from "@vue/runtime-core";
+import { watch } from "vue";
 import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";
 
