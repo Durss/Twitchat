@@ -78,6 +78,7 @@ export default class YoutubeHelper {
 	 * Connect to Youtube if a refresh token is available
 	 */
 	public connect(): void {
+		if (!StoreProxy.auth.isPremium) return;
 		Logger.instance.log("youtube", {
 			log: "Connecting to Youtube",
 			credits: this._creditsUsed,
