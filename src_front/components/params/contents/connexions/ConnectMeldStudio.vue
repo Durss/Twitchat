@@ -27,13 +27,11 @@
 		<template #fields>
 			<ParamItem noBackground :paramData="param_ip" v-model="storeMeldStudio.ip" />
 			<ParamItem noBackground :paramData="param_port" v-model="storeMeldStudio.port" />
-			<ParamItem noBackground :paramData="param_pass" v-model="storeMeldStudio.password" />
 		</template>
 	</ConnectionForm>
 </template>
 
 <script setup lang="ts">
-import TTButton from "@/components/TTButton.vue";
 import { useConnectionForm } from "@/composables/useConnectionForm";
 import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -44,7 +42,7 @@ import ConnectionForm from "./ConnectionForm.vue";
 
 const { t } = useI18n();
 const storeMeldStudio = useStoreMeldStudio();
-const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectionForm(
+const { error, showSuccess, doConnect, doDisconnect } = useConnectionForm(
 	() => storeMeldStudio.connect(),
 	() => storeMeldStudio.disconnect(),
 );
@@ -61,13 +59,6 @@ const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
 	labelKey: "meldStudio.port",
 	min: 0,
 	max: 13376,
-});
-const param_pass = ref<TwitchatDataTypes.ParameterData<string>>({
-	value: "",
-	type: "string",
-	labelKey: "meldStudio.pass",
-	maxLength: 100,
-	isPrivate: true,
 });
 
 const canConnect = computed(() => storeMeldStudio.ip.length >= 7);

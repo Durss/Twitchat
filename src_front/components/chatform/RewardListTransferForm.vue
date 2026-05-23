@@ -1,7 +1,7 @@
 <template>
 	<div class="rewardlisttransferform">
 		<ul class="steps">
-			<template v-for="(label, index) in $tm('rewards.manage.transfer_steps')">
+			<template v-for="(label, index) in <string[]>$tm('rewards.manage.transfer_steps')">
 				<li class="card-item" v-if="index < 3 || reward.image">
 					<span class="index">{{ index + 1 }}</span>
 					<i18n-t

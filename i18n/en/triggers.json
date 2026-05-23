@@ -25,8 +25,6 @@
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
 		"resyncExtensionBt": "Resync Twitch extensions",
 		"resyncExtensionBt_tt": "If you added or modified the status of an extension, click to get those changes",
-		"resyncPowerUpsBt": "Resync Power ups",
-		"resyncPowerUpsBt_tt": "If you added or modified a Custom Power Up, click to get those changes",
 		"resyncmixitupBt": "Resync Mix It Up",
 		"resyncmixitupBt_tt": "If you added or modified a Mix It Up command, click to get those changes",
 		"resyncPowerUpsBt": "Resync Power ups",
@@ -1925,9 +1923,9 @@
 				"description": "Actions to execute when switching to {SUB_ITEM_NAME} Meld Studio scene",
 				"description_any": "Actions to execute when switching to any Meld Studio scene"
 			},
-			"MELDSTUDIO_LERY_VISIBILITY_CHANGE": {
-				"label": "Source visibility change",
-				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio source changes"
+			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
+				"label": "Media playback restarted",
+				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio layer visibility changes"
 			}
 		},
 		"musicEvents": {
