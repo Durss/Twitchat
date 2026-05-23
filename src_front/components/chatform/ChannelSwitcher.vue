@@ -7,8 +7,8 @@
 				touch: 'hold',
 				content:
 					channels.length == 1
-						? $t('chat.form.connect_extra_chan')
-						: $t('chat.form.extra_chan_tt', {
+						? t('chat.form.connect_extra_chan')
+						: t('chat.form.extra_chan_tt', {
 								USER: currentChannel.user.displayNameOriginal,
 							}),
 			}"
@@ -29,7 +29,7 @@
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<template v-if="showForm && !user">
-				<p class="head"><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
+				<p class="head"><Icon name="online" />{{ t("chat.form.connect_extra_chan") }}</p>
 				<SearchUserForm
 					v-model="user"
 					:staticUserList="liveFollingList"
@@ -39,7 +39,7 @@
 					inline
 				/>
 				<!-- <input type="text" v-model="youtubeUrl" @keyup.enter="connectYoutube"> -->
-				<p class="infos"><Icon name="info" />{{ $t("chat.form.extra_chan_info") }}</p>
+				<p class="infos"><Icon name="info" />{{ t("chat.form.extra_chan_info") }}</p>
 			</template>
 
 			<template v-else-if="userParams"> </template>
@@ -70,7 +70,7 @@
 						icon="offline"
 						transparent
 						medium
-						v-tooltip="$t('global.disconnect')"
+						v-tooltip="t('global.disconnect')"
 						@click.capture.stop="disconnect(entry.user)"
 					/>
 
@@ -78,7 +78,7 @@
 						v-if="
 							entry.isRemoteChan &&
 							(canPinChans ||
-								$store.stream.autoconnectChans.find(
+								storeStream.autoconnectChans.find(
 									(v) =>
 										v.id == entry.user.id && v.platform == entry.user.platform,
 								))
@@ -87,7 +87,7 @@
 						transparent
 						medium
 						:icon="
-							$store.stream.autoconnectChans.find(
+							storeStream.autoconnectChans.find(
 								(v) => v.id == entry.user.id && v.platform == entry.user.platform,
 							)
 								? 'pin'
@@ -107,7 +107,7 @@
 				<TTButton
 					class="addChanBt"
 					icon="add"
-					v-if="$store.stream.connectedTwitchChans.length < 6"
+					v-if="storeStream.connectedTwitchChans.length < 6"
 					@click="showForm = true"
 					transparent
 					medium
@@ -117,257 +117,28 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { reactive } from "vue";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	reactive,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import SearchUserForm from "../SearchUserForm.vue";
-
-@Component({
-	components: {
-		TTButton,
-		SearchUserForm,
-	},
-	emits: ["update:modelValue", "update:platform", "update:name", "change"],
-})
-class ChannelSwitcher extends Vue {
-	@Prop({ default: "", type: String })
-	public modelValue!: string;
-
-	@Prop({ default: "twitch", type: String })
-	public platform!: string;
-
-	@Prop({ default: "", type: String })
-	public name!: string;
-
-	public expand: boolean = false;
-	public showForm: boolean = false;
-	public youtubeUrl: string = "";
-	public currentChannelId: string = "";
-	public user: TwitchDataTypes.UserInfo | null = null;
-	public userParams: TwitchatDataTypes.TwitchatUser | null = null;
-	public liveFollingList: TwitchDataTypes.UserInfo[] = [];
-
-	private clickHandler!: (e: MouseEvent) => void;
-
-	public get canPinChans(): boolean {
-		return this.$store.stream.autoconnectChans.length < 6;
-	}
-
-	public get currentChannel(): (typeof this.channels)[number] | undefined {
-		return this.channels.find((v) => v.user.id == this.currentChannelId);
-	}
-
-	public get channels(): ChannelEntry[] {
-		let chans: ChannelEntry[] = reactive([]);
-
-		chans.push({
-			platform: "twitch",
-			user: this.$store.auth.twitch.user,
-			isRemoteChan: false,
-			color: "transparent",
-		});
-		if (this.$store.auth.youtube?.user) {
-			chans.push({
-				platform: "youtube",
-				user: this.$store.auth.youtube.user,
-				isRemoteChan: false,
-				color: "transparent",
-			});
-		}
-
-		this.$store.stream.connectedTwitchChans.forEach((entry) => {
-			chans.push({
-				platform: "twitch",
-				user: entry.user,
-				isRemoteChan: true,
-				color: entry.color,
-			});
-		});
-
-		return chans;
-	}
-
-	public beforeMount(): void {
-		if (this.channels.findIndex((v) => v.user.id === this.modelValue) == -1) {
-			this.currentChannelId = this.channels[0]!.user.id;
-		} else {
-			this.currentChannelId = this.modelValue;
-		}
-
-		this.$watch(
-			() => this.modelValue,
-			() => {
-				this.currentChannelId = this.modelValue;
-			},
-		);
-
-		this.loadLiveFollowing();
-		this.clickHandler = (e: MouseEvent) => this.onClickDOM(e);
-		document.addEventListener("click", this.clickHandler, true);
-	}
-
-	public async beforeUnmount(): Promise<void> {
-		document.removeEventListener("click", this.clickHandler, true);
-	}
-
-	/**
-	 * Loads currently live following for fast channel access
-	 */
-	public async loadLiveFollowing(): Promise<void> {
-		this.liveFollingList = [];
-		const list = await TwitchUtils.getActiveFollowedStreams();
-		this.liveFollingList = await TwitchUtils.getUserInfo(list.map((v) => v.user_id));
-	}
-
-	/**
-	 * Called when selecting a twitch user after searching for them
-	 */
-	public async onSelectUser(user?: TwitchDataTypes.UserInfo): Promise<void> {
-		if (user) this.user = user;
-		if (!this.user) return;
-		const ttUser = await this.$store.users.getUserFrom(
-			"twitch",
-			this.user.id,
-			this.user.id,
-			this.user.login,
-			this.user.display_name,
-		);
-		this.$store.stream.connectToExtraChan(ttUser);
-		this.user = null;
-		this.showForm = false;
-	}
-
-	/**
-	 * Called when selecting a connected channel to make it the current one
-	 */
-	public onSelectChannel(
-		channelId: string,
-		channelName: string,
-		platform: TwitchatDataTypes.ChatPlatform,
-	): void {
-		this.$emit("update:name", channelName);
-		this.$emit("update:platform", platform);
-		this.$emit("update:modelValue", channelId);
-		this.$emit("change", channelId);
-		this.close();
-	}
-
-	/**
-	 * Calle dwhen right clicking button.
-	 * Cycles through connected channels for faster switch
-	 */
-	public cycleChannel(event: MouseEvent): void {
-		event.preventDefault();
-		let index = this.channels.findIndex((v) => v.user.id == this.currentChannelId);
-		index = ++index % this.channels.length;
-		const channel = this.channels[index];
-		if (channel) {
-			this.onSelectChannel(channel.user.id, channel.user.login, channel.platform);
-		}
-	}
-
-	/**
-	 * Disconnect from given twitch channel
-	 */
-	public disconnect(user: TwitchatDataTypes.TwitchatUser): void {
-		if (this.$store.stream.currentChatChannel.id === user.id) {
-			const channel = this.channels[0];
-			if (channel) {
-				this.$store.stream.currentChatChannel.id = channel.user.id;
-				this.$store.stream.currentChatChannel.name = channel.user.login;
-				this.$store.stream.currentChatChannel.platform = channel.platform;
-			}
-		}
-		this.$store.stream.disconnectFromExtraChan(user);
-	}
-
-	/**
-	 * Toggle pin states of an entry
-	 */
-	public togglePinState(entry: ChannelEntry): void {
-		const pinned =
-			this.$store.stream.autoconnectChans.findIndex(
-				(v) => v.id == entry.user.id && v.platform == entry.user.platform,
-			) == -1;
-		this.$store.stream.setExtraChanAutoconnectState(entry.user, pinned);
-	}
-
-	/**
-	 * Open params form for a user
-	 */
-	public openParams(user: TwitchatDataTypes.TwitchatUser): void {
-		this.userParams = user;
-	}
-
-	/**
-	 * Opens the window
-	 */
-	public async open(event: MouseEvent): Promise<void> {
-		this.loadLiveFollowing();
-		event.stopPropagation();
-		event.preventDefault();
-		if (this.expand) {
-			this.onClickDOM(event);
-			return;
-		}
-		this.expand = true;
-		await this.$nextTick();
-		const holder = this.$refs.popin as HTMLDivElement;
-		gsap.killTweensOf(holder);
-		gsap.fromTo(
-			holder,
-			{ scaleY: 0 },
-			{ duration: 0.25, scaleY: 1, ease: "back.out", delay: 0.05 },
-		);
-	}
-
-	/**
-	 * Closes the window
-	 */
-	public close(): void {
-		const holder = this.$refs.popin as HTMLDivElement;
-		if (!holder) return;
-		gsap.killTweensOf(holder);
-		gsap.to(holder, {
-			duration: 0.1,
-			scaleY: 0,
-			clearProps: "scaleY",
-			ease: "back.in",
-			onComplete: () => {
-				this.expand = false;
-				this.showForm = false;
-			},
-		});
-	}
-
-	public connectYoutube(): void {
-		YoutubeHelper.instance.connectToLiveByURL(this.youtubeUrl);
-	}
-
-	/**
-	 * Detects click outside of the window to close it
-	 */
-	private onClickDOM(e: MouseEvent): void {
-		if (!this.expand) return;
-		const holder = this.$refs.popin as HTMLDivElement;
-		if (!holder) return;
-
-		let target = e.target as HTMLElement;
-		while (target != document.body && target != holder && target != null) {
-			target = target.parentElement as HTMLElement;
-		}
-		if (target === document.body) {
-			this.close();
-		}
-	}
-}
-export default toNative(ChannelSwitcher);
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
 interface ChannelEntry {
 	platform: TwitchatDataTypes.ChatPlatform;
@@ -375,6 +146,255 @@ interface ChannelEntry {
 	color: string;
 	isRemoteChan: boolean;
 }
+
+const props = withDefaults(
+	defineProps<{
+		modelValue?: string;
+		platform?: string;
+		name?: string;
+	}>(),
+	{
+		modelValue: "",
+		platform: "twitch",
+		name: "",
+	},
+);
+
+const emit = defineEmits<{
+	"update:modelValue": [value: string];
+	"update:platform": [value: string];
+	"update:name": [value: string];
+	change: [value: string];
+}>();
+
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
+
+const expand = ref<boolean>(false);
+const showForm = ref<boolean>(false);
+const youtubeUrl = ref<string>("");
+const currentChannelId = ref<string>("");
+const user = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
+const userParams = ref<TwitchatDataTypes.TwitchatUser | null>(null);
+const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
+
+const popin = useTemplateRef<HTMLDivElement>("popin");
+
+let clickHandler!: (e: MouseEvent) => void;
+
+const canPinChans = computed<boolean>(() => {
+	return storeStream.autoconnectChans.length < 6;
+});
+
+const channels = computed<ChannelEntry[]>(() => {
+	let chans: ChannelEntry[] = reactive([]);
+
+	chans.push({
+		platform: "twitch",
+		user: storeAuth.twitch.user,
+		isRemoteChan: false,
+		color: "transparent",
+	});
+	if (storeAuth.youtube?.user) {
+		chans.push({
+			platform: "youtube",
+			user: storeAuth.youtube.user,
+			isRemoteChan: false,
+			color: "transparent",
+		});
+	}
+
+	storeStream.connectedTwitchChans.forEach((entry) => {
+		chans.push({
+			platform: "twitch",
+			user: entry.user,
+			isRemoteChan: true,
+			color: entry.color,
+		});
+	});
+
+	return chans;
+});
+
+const currentChannel = computed<ChannelEntry | undefined>(() => {
+	return channels.value.find((v) => v.user.id == currentChannelId.value);
+});
+
+/**
+ * Loads currently live following for fast channel access
+ */
+async function loadLiveFollowing(): Promise<void> {
+	liveFollingList.value = [];
+	const list = await TwitchUtils.getActiveFollowedStreams();
+	liveFollingList.value = await TwitchUtils.getUserInfo(list.map((v) => v.user_id));
+}
+
+/**
+ * Called when selecting a twitch user after searching for them
+ */
+async function onSelectUser(selected?: TwitchDataTypes.UserInfo): Promise<void> {
+	if (selected) user.value = selected;
+	if (!user.value) return;
+	const ttUser = await storeUsers.getUserFrom(
+		"twitch",
+		user.value.id,
+		user.value.id,
+		user.value.login,
+		user.value.display_name,
+	);
+	storeStream.connectToExtraChan(ttUser);
+	user.value = undefined;
+	showForm.value = false;
+}
+
+/**
+ * Called when selecting a connected channel to make it the current one
+ */
+function onSelectChannel(
+	channelId: string,
+	channelName: string,
+	platform: TwitchatDataTypes.ChatPlatform,
+): void {
+	emit("update:name", channelName);
+	emit("update:platform", platform);
+	emit("update:modelValue", channelId);
+	emit("change", channelId);
+	close();
+}
+
+/**
+ * Calle dwhen right clicking button.
+ * Cycles through connected channels for faster switch
+ */
+function cycleChannel(event: MouseEvent): void {
+	event.preventDefault();
+	let index = channels.value.findIndex((v) => v.user.id == currentChannelId.value);
+	index = ++index % channels.value.length;
+	const channel = channels.value[index];
+	if (channel) {
+		onSelectChannel(channel.user.id, channel.user.login, channel.platform);
+	}
+}
+
+/**
+ * Disconnect from given twitch channel
+ */
+function disconnect(target: TwitchatDataTypes.TwitchatUser): void {
+	if (storeStream.currentChatChannel.id === target.id) {
+		const channel = channels.value[0];
+		if (channel) {
+			storeStream.currentChatChannel.id = channel.user.id;
+			storeStream.currentChatChannel.name = channel.user.login;
+			storeStream.currentChatChannel.platform = channel.platform;
+		}
+	}
+	storeStream.disconnectFromExtraChan(target);
+}
+
+/**
+ * Toggle pin states of an entry
+ */
+function togglePinState(entry: ChannelEntry): void {
+	const pinned =
+		storeStream.autoconnectChans.findIndex(
+			(v) => v.id == entry.user.id && v.platform == entry.user.platform,
+		) == -1;
+	storeStream.setExtraChanAutoconnectState(entry.user, pinned);
+}
+
+/**
+ * Open params form for a user
+ */
+function openParams(target: TwitchatDataTypes.TwitchatUser): void {
+	userParams.value = target;
+}
+
+/**
+ * Opens the window
+ */
+async function open(event: MouseEvent): Promise<void> {
+	loadLiveFollowing();
+	event.stopPropagation();
+	event.preventDefault();
+	if (expand.value) {
+		onClickDOM(event);
+		return;
+	}
+	expand.value = true;
+	await nextTick();
+	const holder = popin.value!;
+	gsap.killTweensOf(holder);
+	gsap.fromTo(
+		holder,
+		{ scaleY: 0 },
+		{ duration: 0.25, scaleY: 1, ease: "back.out", delay: 0.05 },
+	);
+}
+
+/**
+ * Closes the window
+ */
+function close(): void {
+	const holder = popin.value;
+	if (!holder) return;
+	gsap.killTweensOf(holder);
+	gsap.to(holder, {
+		duration: 0.1,
+		scaleY: 0,
+		clearProps: "scaleY",
+		ease: "back.in",
+		onComplete: () => {
+			expand.value = false;
+			showForm.value = false;
+		},
+	});
+}
+
+function connectYoutube(): void {
+	YoutubeHelper.instance.connectToLiveByURL(youtubeUrl.value);
+}
+
+/**
+ * Detects click outside of the window to close it
+ */
+function onClickDOM(e: MouseEvent): void {
+	if (!expand.value) return;
+	const holder = popin.value;
+	if (!holder) return;
+
+	let target = e.target as HTMLElement;
+	while (target != document.body && target != holder && target != null) {
+		target = target.parentElement as HTMLElement;
+	}
+	if (target === document.body) {
+		close();
+	}
+}
+
+onBeforeMount(() => {
+	if (channels.value.findIndex((v) => v.user.id === props.modelValue) == -1) {
+		currentChannelId.value = channels.value[0]!.user.id;
+	} else {
+		currentChannelId.value = props.modelValue;
+	}
+
+	watch(
+		() => props.modelValue,
+		() => {
+			currentChannelId.value = props.modelValue;
+		},
+	);
+
+	loadLiveFollowing();
+	clickHandler = (e: MouseEvent) => onClickDOM(e);
+	document.addEventListener("click", clickHandler, true);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("click", clickHandler, true);
+});
 </script>
 
 <style scoped lang="less">
