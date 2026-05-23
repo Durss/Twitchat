@@ -139,12 +139,12 @@ export const storeStreamelements = defineStore("streamelements", {
 		},
 
 		async connect(token: string, isReconnect: boolean = false): Promise<boolean> {
-			if (!StoreProxy.auth.isPremium) return Promise.resolve(false);
+			if (!StoreProxy.auth.isPremium) return false;
 
 			//Token changed
 			if (isReconnect && token != this.accessToken) {
 				// console.log("STREAMELEMENTS: do not reconnect because token changed",token, this.accessToken)
-				return Promise.resolve(false);
+				return false;
 			}
 
 			if (!this.connected && !isReconnect) this.disconnect();

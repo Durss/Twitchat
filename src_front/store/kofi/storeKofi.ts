@@ -71,6 +71,7 @@ export const storeKofi = defineStore("kofi", {
 		},
 
 		async connect(token: string): Promise<boolean> {
+			if (!StoreProxy.auth.isPremium) return false;
 			this.connected = false;
 			this.webhooktoken = token;
 			const result = await ApiHelper.call(
@@ -98,6 +99,7 @@ export const storeKofi = defineStore("kofi", {
 		},
 
 		onEvent(data: KofiEventData): void {
+			if (!StoreProxy.auth.isPremium) return;
 			const me = StoreProxy.auth.twitch.user;
 			switch (data.type) {
 				case "Donation": {
