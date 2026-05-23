@@ -12,7 +12,7 @@ import type { TwitchatDataTypes } from "./TwitchatDataTypes";
 import type { Reactive } from "vue";
 import type Utils from "@/utils/Utils";
 
-declare module "@vue/runtime-core" {
+declare module "vue" {
 	interface ComponentCustomProperties {
 		// Vue Router
 		$route: RouteLocationNormalizedLoaded;

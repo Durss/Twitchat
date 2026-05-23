@@ -19,7 +19,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import { watch, type ComponentPublicInstance } from "@vue/runtime-core";
+import { watch, type ComponentPublicInstance } from "vue";
 import { gsap } from "gsap/gsap-core";
 import { toNative, Component, Vue } from "vue-facing-decorator";
 import ParamItem from "../../ParamItem.vue";

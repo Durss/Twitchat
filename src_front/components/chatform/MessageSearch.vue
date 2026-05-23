@@ -45,7 +45,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { watch } from "@vue/runtime-core";
+import { watch } from "vue";
 import { toNative, Component } from "vue-facing-decorator";
 import AbstractSidePanel from "../AbstractSidePanel";
 import TTButton from "../TTButton.vue";
