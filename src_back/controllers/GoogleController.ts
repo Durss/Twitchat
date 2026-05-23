@@ -293,7 +293,7 @@ export default class GoogleController extends AbstractController {
 			access_type: "offline",
 			scope,
 			include_granted_scopes: false,
-			state: jwt.sign({ date: Date.now() }, Utils.derivedSecret("youtube_state"), {
+			state: jwt.sign({ date: Date.now() }, Config.credentials.csrf_key, {
 				algorithm: "HS256",
 			}),
 			prompt: "consent",
