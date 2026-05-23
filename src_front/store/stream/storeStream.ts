@@ -1663,6 +1663,7 @@ export const storeStream = defineStore("stream", {
 			this.connectedTwitchChans.push({ user, color: colors[0]! });
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			void EventSub.instance.connectToChannel(user);
+			void TwitchUtils.getPinnedMessage(user.id);
 		},
 
 		async disconnectFromExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {

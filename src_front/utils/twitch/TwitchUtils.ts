@@ -35,7 +35,6 @@ export default class TwitchUtils {
 	private static loadingChannelEmotes: { [uid: string]: boolean } = {};
 	private static loadingChannelEmotesPromise: { [uid: string]: Promise<void> } = {};
 	private static loadedChannelEmotes: { [uid: string]: boolean } = {};
-	private static currentlyPinnedMessageId: string = "";
 	private static requestScopesCallback: (scopes: TwitchScopesString[]) => void;
 	private static refreshTokenCallback: () => Promise<false | TwitchDataTypes.AuthTokenResult>;
 	private static userInfoCache = new Map<string, TwitchDataTypes.UserInfo>();
@@ -1013,7 +1012,6 @@ export default class TwitchUtils {
 
 		const res = await this.callApi(url, {
 			method: "PATCH",
-			headers: this.headers,
 			body: JSON.stringify(data),
 		});
 		if (res.status == 200) {
@@ -3405,13 +3403,15 @@ export default class TwitchUtils {
 
 		const res = await this.callApi(url, {
 			method: "GET",
-			headers: this.headers,
 		});
 		if (res.status == 200 || res.status == 204) {
 			const json = (await res.json()) as { data: TwitchDataTypes.PinnedChatMessage[] };
 			const message = json.data.length > 0 ? json.data[0]! : null;
-			if (message && message.message_id != this.currentlyPinnedMessageId) {
-				this.currentlyPinnedMessageId = message.message_id;
+			if (
+				message &&
+				message.message_id !=
+					StoreProxy.chat.pinnedTwitchMessage[message.broadcaster_id]?.message_id
+			) {
 				let pinnnedMessage: TwitchatDataTypes.MessageChatData | null = null;
 				let messageList = StoreProxy.chat.messages;
 				// Search for message in history
@@ -3471,8 +3471,11 @@ export default class TwitchUtils {
 					updatedAt_ms: 0,
 				};
 				void StoreProxy.chat.addMessage(notification);
-			} else if (!message) {
-				this.currentlyPinnedMessageId = "";
+			}
+			if (message) {
+				StoreProxy.chat.setPinnedMessage(channelId, message);
+			} else {
+				StoreProxy.chat.setPinnedMessage(channelId, null);
 			}
 			return message;
 		} else if (res.status == 429) {
@@ -3503,7 +3506,6 @@ export default class TwitchUtils {
 
 		const res = await this.callApi(url, {
 			method: "PUT",
-			headers: this.headers,
 		});
 		if (res.status == 200 || res.status == 204) {
 			setTimeout(() => {
@@ -3538,7 +3540,6 @@ export default class TwitchUtils {
 
 		const res = await this.callApi(url, {
 			method: "PATCH",
-			headers: this.headers,
 		});
 		if (res.status == 200 || res.status == 204) {
 			return true;
@@ -3561,9 +3562,9 @@ export default class TwitchUtils {
 
 		const res = await this.callApi(url, {
 			method: "DELETE",
-			headers: this.headers,
 		});
 		if (res.status == 200 || res.status == 204) {
+			StoreProxy.chat.setPinnedMessage(channelId, null);
 			return true;
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers);

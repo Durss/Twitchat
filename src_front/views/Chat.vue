@@ -228,6 +228,8 @@
 				@update:showCredits="(v: boolean) => (showCredits = v)"
 				v-model:showBingoGrid="showBingoGrid"
 				@update:showBingoGrid="(v: boolean) => (showBingoGrid = v)"
+				v-model:showPinnedMessage="showPinnedMessage"
+				@update:showPinnedMessage="(v: boolean) => (showPinnedMessage = v)"
 				v-model:showGazaFunds="showGazaFunds"
 				@update:showGazaFunds="(v: boolean) => (showGazaFunds = v)"
 				v-model:showPins="showPins"
@@ -290,6 +292,12 @@
 			class="contentWindows bingoGrid"
 			v-if="showBingoGrid"
 			@close="showBingoGrid = false"
+		/>
+
+		<PinnedChatForm
+			class="contentWindows pinnedMessage"
+			v-if="showPinnedMessage"
+			@close="showPinnedMessage = false"
 		/>
 
 		<PinsList class="contentWindows pins" v-if="showPins" @close="showPins = false" />
@@ -430,6 +438,7 @@ import { storeEmergency as useStoreEmergency } from "@/store/emergency/storeEmer
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { asset } from "@/composables/useAsset";
+import PinnedChatForm from "@/components/chatform/PinnedChatForm.vue";
 
 const { t } = useI18n();
 const { getAsset } = asset();
@@ -474,6 +483,7 @@ const showGazaFunds = ref(false);
 const showChatUsers = ref(false);
 const showDonorBadge = ref(true);
 const showBlinkLayer = ref(false);
+const showPinnedMessage = ref(false);
 const importedSettings = ref<TriggerImportData | null>(null);
 const greetColIndexTarget = ref(0);
 const panelsColIndexTarget = ref(0);

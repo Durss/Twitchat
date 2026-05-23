@@ -451,10 +451,6 @@ Receive a bingo grid configuration
 ```typescript
 type ON_BINGO_GRID_CONFIGS = {
 	/**
-	 * Bingo grid ID
-	 */
-	id: string;
-	/**
 	 * Bingo configs
 	 */
 	bingo: null | {
@@ -721,16 +717,13 @@ Receive bingo grid leaderboard
 ```typescript
 type ON_BINGO_GRID_LEADER_BOARD = {
 	/**
-	 * Bingo grid ID
-	 */
-	id: string;
-	/**
 	 * Scoreboard entries
 	 * Set to undefined to hide the leaderboard
 	 */
 	scores?: {
 		user_name: string;
 		user_pic: string;
+		isAnon: boolean;
 		score: number;
 		pos: number;
 	}[];
@@ -748,10 +741,6 @@ Triggered when a viewer completes a bingo
 
 ```typescript
 type ON_BINGO_GRID_VIEWER_EVENT = {
-	/**
-	 * Bingo grid ID
-	 */
-	id: string;
 	/**
 	 * User info
 	 */
@@ -2737,6 +2726,23 @@ type ON_GLOBAL_STATES = {
 			displayName: string;
 		};
 	};
+	/**
+	 * Details about currently pinned message if any
+	 */
+	pinnedMessage: null | {
+		/**
+		 * User name who posted the message
+		 */
+		login: string;
+		/**
+		 * Content of the message (without emotes)
+		 */
+		text: string;
+		/**
+		 * ID of the message
+		 */
+		id: string;
+	};
 };
 ```
 
@@ -2797,6 +2803,9 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 			| "SUB_ID"
 			| "SUB_AVATAR"
 			| "SUB_TIER"
+			| "SUB_MONTHS_TOTAL"
+			| "SUB_MONTHS_STREAK"
+			| "SUB_MONTHS_PREPAID"
 			| "SUBGIFT_NAME"
 			| "SUBGIFT_ID"
 			| "SUBGIFT_AVATAR"
@@ -5215,6 +5224,7 @@ Actions you can request Twitchat to perform.
 - [SET_STOP_PREDICTION](#set_stop_prediction)
 - [SET_TIMER_ADD](#set_timer_add)
 - [SET_TRIGGER_STATE](#set_trigger_state)
+- [SET_UNPIN_TWITCH_MESSAGE](#set_unpin_twitch_message)
 - [SET_VIEWERS_COUNT_TOGGLE](#set_viewers_count_toggle)
 - [SET_VOICE_CONTROL_STATE](#set_voice_control_state)
 
@@ -5271,12 +5281,7 @@ Advertise bingo grid overlay presence
 <summary>JSON parameters</summary>
 
 ```typescript
-type SET_BINGO_GRID_OVERLAY_PRESENCE = {
-	/**
-	 * Bingo grid ID to advertise presence of
-	 */
-	id: string;
-};
+type SET_BINGO_GRID_OVERLAY_PRESENCE = void;
 ```
 
 </details>
@@ -5290,10 +5295,6 @@ Set bingo grid visibility
 
 ```typescript
 type SET_BINGO_GRID_VISIBILITY = {
-	/**
-	 * Bingo grid ID to change visibility of
-	 */
-	id: string;
 	/**
 	 * Show or hide the bingo grid
 	 * Omit to toggle current visibility
@@ -7697,6 +7698,19 @@ type SET_TRIGGER_STATE = {
 
 </details>
 
+#### SET_UNPIN_TWITCH_MESSAGE
+
+Request to unpin currently pinned message on Twitch
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_UNPIN_TWITCH_MESSAGE = void;
+```
+
+</details>
+
 #### SET_VIEWERS_COUNT_TOGGLE
 
 Toggle viewers count display
@@ -7802,12 +7816,7 @@ Receive answer with: [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
 <summary>JSON parameters</summary>
 
 ```typescript
-type GET_BINGO_GRID_CONFIGS = {
-	/**
-	 * Bingo grid ID to get parameters for
-	 */
-	id: string;
-};
+type GET_BINGO_GRID_CONFIGS = void;
 ```
 
 </details>

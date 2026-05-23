@@ -47,6 +47,7 @@
 			"clearTTSBt_aria": "Skip all pending TTS",
 			"resetVoiceBt_aria": "Reset voice effect",
 			"shoutoutBt_aria": "Pending shoutouts",
+			"pinBt_aria": "Pinned Twitch message",
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:",
 			"quoting": "Quoting {USER}:",
@@ -262,6 +263,14 @@
 			"pinned": "{MODERATOR} pinned the following message:",
 			"unpinned": "The following message has been automatically unpinned:",
 			"unpinned_by": "{MODERATOR} unpinned the following message:"
+		},
+		"pinned_message": {
+			"indefinite": "Pinned until the end of stream",
+			"ends_in": "Unpins in {DURATION}",
+			"expired": "Expired",
+			"param_duration": "Duration",
+			"param_indefinite": "Pin until the end of stream",
+			"unpin_bt": "Unpin"
 		},
 		"join_leave": {
 			"join": "joined the chat room {CHANNEL}",

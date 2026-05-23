@@ -291,6 +291,7 @@ export const storeAuth = defineStore("auth", {
 				void sUsers.initBlockedUsers();
 				void sUsers.loadMyModerators();
 				void sUsers.loadMySubscribers();
+				void TwitchUtils.getPinnedMessage(this.twitch.user.id);
 				StoreProxy.stream.currentChatChannel = {
 					id: userRes.user_id,
 					name: userRes.login,
