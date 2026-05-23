@@ -91,6 +91,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		},
 
 		async connect(): Promise<boolean> {
+			if (!this.connectionEnabled) return false;
 			this.connecting = true;
 			clearTimeout(reconnectTimeout);
 			await loadQWebChannel();

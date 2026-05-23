@@ -38,18 +38,6 @@
 			</template>
 		</i18n-t>
 
-		<i18n-t
-			scope="global"
-			tag="div"
-			class="card-item alert require"
-			v-if="needPowerUps"
-			keypath="triggers.powerups.require"
-		>
-			<template #URL>
-				<a @click="requestPowerUpsScope()">{{ $t("triggers.powerups.require_url") }}</a>
-			</template>
-		</i18n-t>
-
 		<SearchForm
 			class="searchForm"
 			:debounceDelay="100"
@@ -436,12 +424,6 @@ function disabledEntry(e: TriggerTypeDefinition): boolean {
 	if (
 		e.value == TriggerTypes.REWARD_REDEEM &&
 		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))
-	)
-		return true;
-
-	if (
-		e.value == TriggerTypes.POWER_UP_CUSTOM &&
-		(!hasChannelPoints.value || !TwitchUtils.hasScopes([TwitchScopes.READ_CHEER]))
 	)
 		return true;
 	if (
@@ -844,9 +826,6 @@ function selectSubType(entry: TriggerEntry, parentItem?: TriggerEntry): void {
 	switch (selectedTriggerType.value.value) {
 		case TriggerTypes.REWARD_REDEEM:
 			temporaryTrigger.rewardId = entry.value;
-			break;
-		case TriggerTypes.POWER_UP_CUSTOM:
-			temporaryTrigger.powerUpId = entry.value;
 			break;
 
 		case TriggerTypes.POWER_UP_CUSTOM:
