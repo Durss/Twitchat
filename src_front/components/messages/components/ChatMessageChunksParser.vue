@@ -12,16 +12,14 @@
 		<template v-if="chunk.type == 'user'">
 			<a
 				class="login"
-				v-if="$store.params.appearance.highlightusernames.value == true"
+				v-if="storeParams.appearance.highlightusernames.value == true"
 				@click.stop="openProfile(chunk.username!)"
 				:style="getUserClasses(chunk.username!)"
 				target="_blank"
 				>{{ chunk.value }}</a
 			>
 			<mark
-				v-else-if="
-					new RegExp('@?' + $store.auth.twitch.user?.login, 'gi').test(chunk.value)
-				"
+				v-else-if="new RegExp('@?' + storeAuth.twitch.user?.login, 'gi').test(chunk.value)"
 				>{{ chunk.value }}</mark
 			>
 			<template v-else>{{ chunk.value }}</template>
@@ -31,7 +29,7 @@
 			:class="chunk.type"
 			v-else-if="
 				(chunk.type == 'emote' || chunk.type == 'cheermote') &&
-				$store.params.appearance.showEmotes.value !== false
+				storeParams.appearance.showEmotes.value !== false
 			"
 			:content="
 				chunk.emoteHD
@@ -57,7 +55,7 @@
 				name="copy"
 				theme="secondary"
 				class="copyBt"
-				v-tooltip="$t('global.copy')"
+				v-tooltip="t('global.copy')"
 				@click.stop="copyLink($event, chunk)"
 			/>
 			<a @click.stop="" :href="chunk.href" target="_blank">{{ chunk.value }}</a>
@@ -67,112 +65,101 @@
 	</span>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import type { CSSProperties } from "vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { computed, type CSSProperties } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
-@Component({
-	components: {},
-	emits: [],
-})
-class ChatMessageChunksParser extends Vue {
-	@Prop
-	public platform!: TwitchatDataTypes.ChatPlatform;
+const props = defineProps<{
+	platform: TwitchatDataTypes.ChatPlatform;
+	channel: string;
+	chunks: TwitchatDataTypes.ParseMessageChunk[];
+	largeEmote?: boolean;
+	forceSpoiler?: boolean;
+	containsSpoiler?: boolean;
+}>();
 
-	@Prop
-	public channel!: string;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeCommon = useStoreCommon();
+const storeParams = useStoreParams();
+const storeUsers = useStoreUsers();
 
-	@Prop({ default: false, type: Boolean })
-	public largeEmote!: boolean;
+const colorDarken = computed<string>(() => {
+	return storeCommon.theme == "dark" ? "none" : "brightness(0.8)";
+});
 
-	@Prop({ default: false, type: Boolean })
-	public forceSpoiler!: boolean;
+const spoiledChunks = computed<TwitchatDataTypes.ParseMessageChunk[]>(() => {
+	if (
+		(!props.forceSpoiler && !props.containsSpoiler) ||
+		storeParams.features.spoilersEnabled.value !== true
+	)
+		return props.chunks;
 
-	@Prop({ default: false, type: Boolean })
-	public containsSpoiler!: boolean;
+	const chunks: TwitchatDataTypes.ParseMessageChunk[] = [];
 
-	@Prop
-	public chunks!: TwitchatDataTypes.ParseMessageChunk[];
-
-	public get colorDarken(): string {
-		return this.$store.common.theme == "dark" ? "none" : "brightness(0.8)";
-	}
-
-	public get spoiledChunks(): TwitchatDataTypes.ParseMessageChunk[] {
-		if (
-			(!this.forceSpoiler && !this.containsSpoiler) ||
-			this.$store.params.features.spoilersEnabled.value !== true
-		)
-			return this.chunks;
-
-		const chunks: TwitchatDataTypes.ParseMessageChunk[] = [];
-
-		for (let i = 0; i < this.chunks.length; i++) {
-			const chunk = JSON.parse(JSON.stringify(this.chunks[i]));
-			if (chunk.type == "text" && chunk.value.indexOf("||") > -1) {
-				const spoilChunks = chunk.value.split("||");
-				for (let j = 0; j < spoilChunks.length; j++) {
-					const spoilChunk = spoilChunks[j];
-					if (spoilChunk != "") chunks.push({ type: "text", value: spoilChunk });
-					if (j < spoilChunks.length - 1) {
-						chunks.push({ type: "text", value: "||" });
-					}
+	for (let i = 0; i < props.chunks.length; i++) {
+		const chunk = JSON.parse(JSON.stringify(props.chunks[i]));
+		if (chunk.type == "text" && chunk.value.indexOf("||") > -1) {
+			const spoilChunks = chunk.value.split("||");
+			for (let j = 0; j < spoilChunks.length; j++) {
+				const spoilChunk = spoilChunks[j];
+				if (spoilChunk != "") chunks.push({ type: "text", value: spoilChunk });
+				if (j < spoilChunks.length - 1) {
+					chunks.push({ type: "text", value: "||" });
 				}
-			} else {
-				chunks.push(chunk);
 			}
+		} else {
+			chunks.push(chunk);
 		}
+	}
 
-		let isSpoiler = false;
-		for (const chunk of chunks) {
-			if (chunk.type == "text" && chunk.value == "||") {
-				isSpoiler = !isSpoiler;
-				chunk.spoilerTag = true;
-			} else if (isSpoiler) {
-				chunk.spoiler = true;
-			}
-			if (this.forceSpoiler === true) chunk.spoiler = true;
+	let isSpoiler = false;
+	for (const chunk of chunks) {
+		if (chunk.type == "text" && chunk.value == "||") {
+			isSpoiler = !isSpoiler;
+			chunk.spoilerTag = true;
+		} else if (isSpoiler) {
+			chunk.spoiler = true;
 		}
-
-		return chunks;
+		if (props.forceSpoiler === true) chunk.spoiler = true;
 	}
 
-	public copyLink(e: MouseEvent, chunk: TwitchatDataTypes.ParseMessageChunk): void {
-		Utils.copyToClipboard(chunk.value);
-		e.stopPropagation();
-		gsap.fromTo(
-			e.currentTarget,
-			{ scale: 1.5, filter: "brightness(4)" },
-			{ scale: 1, filter: "brightness(1)", duration: 0.2, clearProps: "all" },
-		);
-	}
+	return chunks;
+});
 
-	public openProfile(username: string): void {
-		const channelId = this.channel || this.$store.auth.twitch.user.id;
-		const user = this.$store.users.getUserFrom(
-			this.platform || "twitch",
-			channelId,
-			undefined,
-			username,
-		);
-		this.$store.users.openUserCard(user, channelId, this.platform);
-	}
-
-	public getUserClasses(username: string): CSSProperties {
-		if (!this.$store.auth.twitch.user) return { color: "#c400da" };
-		const color = this.$store.users.getUserColorFromLogin(username, this.platform || "twitch");
-		if (color) {
-			return {
-				color: color,
-			};
-		}
-		return {};
-	}
+function copyLink(e: MouseEvent, chunk: TwitchatDataTypes.ParseMessageChunk): void {
+	Utils.copyToClipboard(chunk.value);
+	e.stopPropagation();
+	gsap.fromTo(
+		e.currentTarget,
+		{ scale: 1.5, filter: "brightness(4)" },
+		{ scale: 1, filter: "brightness(1)", duration: 0.2, clearProps: "all" },
+	);
 }
-export default toNative(ChatMessageChunksParser);
+
+function openProfile(username: string): void {
+	const channelId = props.channel || storeAuth.twitch.user.id;
+	const user = storeUsers.getUserFrom(props.platform || "twitch", channelId, undefined, username);
+	storeUsers.openUserCard(user, channelId, props.platform);
+}
+
+function getUserClasses(username: string): CSSProperties {
+	if (!storeAuth.twitch.user) return { color: "#c400da" };
+	const color = storeUsers.getUserColorFromLogin(username, props.platform || "twitch");
+	if (color) {
+		return {
+			color: color,
+		};
+	}
+	return {};
+}
 </script>
 
 <style scoped lang="less">
@@ -194,3 +181,4 @@ export default toNative(ChatMessageChunksParser);
 	}
 }
 </style>
+
