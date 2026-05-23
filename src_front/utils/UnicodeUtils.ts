@@ -1,12 +1,10 @@
-import GraphemeSplitter from "grapheme-splitter";
-
 /**
  * Created : 25/08/2022
  */
 export default class UnicodeUtils {
 	private static _instance: UnicodeUtils;
 
-	private gSplitter = new GraphemeSplitter();
+	private segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 
 	constructor() {}
 
@@ -63,8 +61,8 @@ export default class UnicodeUtils {
 		exceptions: string,
 	): string {
 		let u: string[] = [];
-		for (let t = this.gSplitter.splitGraphemes(src), m = 0; m < t.length; m++) {
-			const a = t[m]!;
+		for (const seg of this.segmenter.segment(src)) {
+			const a = seg.segment;
 			if (exceptions.indexOf(a) != -1) {
 				u.push(a);
 				continue;
