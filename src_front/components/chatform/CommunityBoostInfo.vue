@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { watch } from "@vue/runtime-core";
+import { watch } from "vue";
 import { gsap } from "gsap/gsap-core";
 import { toNative, Component, Vue } from "vue-facing-decorator";
 import Icon from "../Icon.vue";

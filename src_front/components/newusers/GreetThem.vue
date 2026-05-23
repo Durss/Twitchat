@@ -86,7 +86,7 @@ import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
-import { watch, type ComponentPublicInstance } from "@vue/runtime-core";
+import { watch, type ComponentPublicInstance } from "vue";
 import { Component, toNative, Vue } from "vue-facing-decorator";
 import ButtonNotification from "../ButtonNotification.vue";
 import Icon from "../Icon.vue";
