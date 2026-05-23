@@ -121,6 +121,8 @@ export default class PublicAPI extends EventDispatcher {
 			StoreProxy.chat.pendingAutomodMessages[
 				StoreProxy.chat.pendingAutomodMessages.length - 1
 			];
+		const pinnedTwitchMessage =
+			StoreProxy.chat.pinnedTwitchMessage[StoreProxy.auth.twitch.user.id];
 		const currentQuiz = StoreProxy.quiz.quizList.find((v) => v.enabled);
 		const currentQuizQuestion = currentQuiz?.questionList.find(
 			(v) => v.id == currentQuiz.currentQuestionId,
@@ -198,6 +200,13 @@ export default class PublicAPI extends EventDispatcher {
 							displayName: lastAutomod.user.displayName,
 						},
 					},
+			pinnedMessage: pinnedTwitchMessage
+				? {
+						id: pinnedTwitchMessage.message_id,
+						login: pinnedTwitchMessage.sender_user_login,
+						text: pinnedTwitchMessage.message.text,
+					}
+				: null,
 		};
 		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}

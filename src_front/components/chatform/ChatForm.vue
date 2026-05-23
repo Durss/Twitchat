@@ -395,8 +395,8 @@
 					<ButtonNotification
 						:aria-label="t('chat.form.pinsBt_aria')"
 						icon="save"
-						v-if="storeChat.pinedMessages.length > 0"
-						:count="storeChat.pinedMessages.length"
+						v-if="storeChat.savedMessages.length > 0"
+						:count="storeChat.savedMessages.length"
 						v-tooltip="{
 							touch: 'hold',
 							content: t('chat.form.saveBt_aria'),
@@ -522,6 +522,18 @@
 						:aria-label="t('chat.form.quizBt_aria')"
 						v-tooltip="{ touch: 'hold', content: t('chat.form.quizBt_aria') }"
 						@click="openNotifications('quiz')"
+					/>
+				</transition>
+
+				<transition name="blink">
+					<ButtonNotification
+						class="pin"
+						icon="pin"
+						v-if="pinnedMessagesCount > 0"
+						:count="pinnedMessagesCount > 1 ? pinnedMessagesCount : undefined"
+						:aria-label="t('chat.form.pinBt_aria')"
+						v-tooltip="{ touch: 'hold', content: t('chat.form.pinBt_aria') }"
+						@click="emit('update:showPinnedMessage', true)"
 					/>
 				</transition>
 
@@ -820,6 +832,7 @@ const emit = defineEmits<{
 	"update:showShoutout": [value: boolean];
 	"update:showCredits": [value: boolean];
 	"update:showBingoGrid": [value: boolean];
+	"update:showPinnedMessage": [value: boolean];
 	"update:showQuiz": [value: boolean];
 	"update:showGroqHistory": [value: boolean];
 	"update:showGazaFunds": [value: boolean];
@@ -939,6 +952,10 @@ const announcementMessage = computed((): TwitchatDataTypes.ParseMessageChunk[] =
 
 const showObsBtn = computed((): boolean => {
 	return storeOBS.connectionEnabled === true && !OBSWebsocket.instance.connected.value;
+});
+
+const pinnedMessagesCount = computed((): number => {
+	return Object.keys(storeChat.pinnedTwitchMessage).length;
 });
 
 const qnaSessionActive = computed((): boolean => {

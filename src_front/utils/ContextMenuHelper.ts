@@ -204,93 +204,130 @@ export default class ContextMenuHelper {
 			//Pin / Unpin message
 			if (
 				message.platform == "twitch" &&
+				StoreProxy.auth.twitch.user.channelInfo[message.channel_id]?.is_moderator &&
 				message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			) {
+				const isPinned =
+					StoreProxy.chat.pinnedTwitchMessage[message.channel_id]?.message_id ==
+					message.id;
 				options.push({
 					label:
-						message.is_pinned === true
+						isPinned === true
 							? t("chat.context_menu.unpin_twitch")
 							: t("chat.context_menu.pin_twitch"),
 					icon:
-						message.is_pinned === true
+						isPinned === true
 							? this.getIcon("icons/unpin.svg")
 							: this.getIcon("icons/pin.svg"),
 					onClick: () => {
 						if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-							if (message.is_pinned === true) {
+							if (isPinned === true) {
 								void TwitchUtils.unpinMessage(message.channel_id, message.id);
 							} else {
 								void TwitchUtils.pinMessage(message.channel_id, message);
 							}
 						}
 					},
-					children: [
-						{
-							label: "∞",
-							customClass: "largeLabel",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(message.channel_id, message);
-								}
-							},
-						},
-						{
-							label: "1m",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(message.channel_id, message, 60);
-								}
-							},
-						},
-						{
-							label: "5m",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(
-										message.channel_id,
-										message,
-										5 * 60,
-									);
-								}
-							},
-						},
-						{
-							label: "10m",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(
-										message.channel_id,
-										message,
-										10 * 60,
-									);
-								}
-							},
-						},
-						{
-							label: "15m",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(
-										message.channel_id,
-										message,
-										15 * 60,
-									);
-								}
-							},
-						},
-						{
-							label: "30m",
-							onClick: () => {
-								if (TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) {
-									void TwitchUtils.pinMessage(
-										message.channel_id,
-										message,
-										30 * 60,
-									);
-								}
-							},
-						},
-					],
+					children: isPinned
+						? []
+						: [
+								{
+									label: "∞",
+									customClass: "largeLabel",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+											);
+										}
+									},
+								},
+								{
+									label: "1m",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+												60,
+											);
+										}
+									},
+								},
+								{
+									label: "5m",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+												5 * 60,
+											);
+										}
+									},
+								},
+								{
+									label: "10m",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+												10 * 60,
+											);
+										}
+									},
+								},
+								{
+									label: "15m",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+												15 * 60,
+											);
+										}
+									},
+								},
+								{
+									label: "30m",
+									onClick: () => {
+										if (
+											TwitchUtils.requestScopes([
+												TwitchScopes.DELETE_MESSAGES,
+											])
+										) {
+											void TwitchUtils.pinMessage(
+												message.channel_id,
+												message,
+												30 * 60,
+											);
+										}
+									},
+								},
+							],
 				});
 			}
 

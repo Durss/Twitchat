@@ -700,11 +700,10 @@ export interface IChatState {
 	 */
 	whispersUnreadCount: number;
 	/**
-	 * Lists of pinned messages.
-	 * Contains all the messages pinned via twitch feautre as well
-	 * as all messages "saved" via the "save" option on right click
+	 * Lists of saved messages.
+	 * Contains all the messages saved via the "save" option on right click
 	 */
-	pinedMessages: (TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData)[];
+	savedMessages: (TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData)[];
 	/**
 	 * Emote cache for the emote selector for faster init later
 	 */
@@ -757,6 +756,10 @@ export interface IChatState {
 	 * Pending automod messages to be reviewed by the user
 	 */
 	pendingAutomodMessages: TwitchatDataTypes.MessageChatData[];
+	/**
+	 * Currently pinned message on Twitch for connected channels
+	 */
+	pinnedTwitchMessage: { [channelId: string]: TwitchDataTypes.PinnedChatMessage };
 }
 
 export interface IChatGetters {
@@ -940,6 +943,10 @@ export interface IChatActions {
 	 * @param message
 	 */
 	notifyManyReplies(message: TwitchatDataTypes.MessageChatData): void;
+	/**
+	 * Set currently pined message
+	 */
+	setPinnedMessage(channelId: string, message: TwitchDataTypes.PinnedChatMessage | null): void;
 }
 
 export interface IChatPollState {

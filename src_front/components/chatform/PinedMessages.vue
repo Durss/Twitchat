@@ -7,16 +7,16 @@
 					scope="global"
 					tag="h1"
 					keypath="pin.title"
-					:plural="$store.chat.pinedMessages.length"
+					:plural="$store.chat.savedMessages.length"
 				>
-					<template #COUNT>{{ $store.chat.pinedMessages.length }}</template>
+					<template #COUNT>{{ $store.chat.savedMessages.length }}</template>
 				</i18n-t>
 			</div>
 			<ClearButton @click="close()" />
 		</div>
 		<div class="content">
 			<div class="list">
-				<div v-for="m in $store.chat.pinedMessages" :key="m.id" class="messageItem">
+				<div v-for="m in $store.chat.savedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<TTButton
 						:aria-label="$t('pin.highlightBt_aria')"
@@ -84,7 +84,7 @@ class PinedMessages extends AbstractSidePanel {
 		m: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData,
 	): Promise<void> {
 		this.$store.chat.unsaveMessage(m);
-		if (this.$store.chat.pinedMessages.length === 0) {
+		if (this.$store.chat.savedMessages.length === 0) {
 			this.close();
 		}
 	}

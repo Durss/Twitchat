@@ -632,13 +632,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			// this._client.say(this._channelIdToLogin[channelId], text);
 			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot, pinMessage);
 		}
-		// If message got pinned, wait a little and ask for latest pinned message
-		// TODO: remove once eventsub supports pinned message events
-		if (pinMessage) {
-			setTimeout(() => {
-				TwitchUtils.getPinnedMessage(channelId);
-			}, 1000);
-		}
 		return true;
 	}
 

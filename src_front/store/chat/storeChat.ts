@@ -4,6 +4,7 @@ import GlobalEvent from "@/events/GlobalEvent";
 import SSEEvent from "@/events/SSEEvent";
 import DataStore from "@/store/DataStore";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { type TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import ChatCypherPlugin from "@/utils/ChatCypherPlugin";
 import Config from "@/utils/Config";
@@ -40,13 +41,14 @@ let antiHateRaidCounter: {
 let currentHateRaidAlert!: TwitchatDataTypes.MessageHateRaidData;
 let parsedMessageIds = new Set<string>();
 let timeoutPinnedCheck = -1;
+let timeoutAutoUnpinCheck = -1;
 
 export const storeChat = defineStore("chat", {
 	state: (): IChatState => ({
 		searchMessages: "",
 		realHistorySize: 20000,
 		whispersUnreadCount: 0,
-		pinedMessages: [],
+		savedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
 		replyTo: null,
@@ -54,6 +56,7 @@ export const storeChat = defineStore("chat", {
 		spamingFakeMessages: false,
 		securityRaidGraceEndDate: 0,
 		pendingAutomodMessages: [],
+		pinnedTwitchMessage: {},
 
 		botMessages: {
 			raffleStart: {
@@ -777,6 +780,11 @@ export const storeChat = defineStore("chat", {
 			PublicAPI.instance.addEventListener("SET_AUTOMOD_REJECT", () =>
 				actOnLastAutomod(false),
 			);
+			PublicAPI.instance.addEventListener("SET_UNPIN_TWITCH_MESSAGE", () => {
+				const message = this.pinnedTwitchMessage[StoreProxy.auth.twitch.user.id];
+				if (!message) return;
+				void TwitchUtils.unpinMessage(message.broadcaster_id, message.message_id);
+			});
 
 			//Listen for moderator event spoiling messages remotely
 			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event) => {
@@ -1717,8 +1725,8 @@ export const storeChat = defineStore("chat", {
 								if (message.user.channelInfo[sAuth.twitch.user.id]?.is_moderator) {
 									clearTimeout(timeoutPinnedCheck);
 									timeoutPinnedCheck = window.setTimeout(() => {
-										TwitchUtils.getPinnedMessage(message.channel_id);
-									}, 1000);
+										void TwitchUtils.getPinnedMessage(message.channel_id);
+									}, 5000);
 								}
 							}
 
@@ -3394,17 +3402,17 @@ export const storeChat = defineStore("chat", {
 			message: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData,
 		) {
 			message.is_saved = true;
-			this.pinedMessages.push(message);
+			this.savedMessages.push(message);
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
 
 		unsaveMessage(
 			message: TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData,
 		) {
-			this.pinedMessages.forEach((v, index) => {
+			this.savedMessages.forEach((v, index) => {
 				if (v.id == message.id) {
 					message.is_saved = false;
-					this.pinedMessages.splice(index, 1);
+					this.savedMessages.splice(index, 1);
 					EventBus.instance.dispatchEvent(
 						new GlobalEvent(GlobalEvent.UNPIN_MESSAGE, message),
 					);
@@ -3660,6 +3668,25 @@ export const storeChat = defineStore("chat", {
 				message,
 			};
 			void this.addMessage(notif);
+		},
+
+		setPinnedMessage(
+			channelId: string,
+			message: TwitchDataTypes.PinnedChatMessage | null,
+		): void {
+			if (message == null) {
+				delete this.pinnedTwitchMessage[channelId];
+			} else {
+				this.pinnedTwitchMessage[channelId] = message;
+			}
+			clearTimeout(timeoutAutoUnpinCheck);
+			if (message && message.ends_at) {
+				const endsIn = new Date(message.ends_at).getTime() - Date.now();
+				timeoutAutoUnpinCheck = window.setTimeout(() => {
+					void TwitchUtils.getPinnedMessage(channelId);
+				}, endsIn + 1000);
+			}
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"chat", IChatState, IChatGetters, IChatActions>,
 });
