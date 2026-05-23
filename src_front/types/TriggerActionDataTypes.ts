@@ -2127,7 +2127,7 @@ export const TriggerTypes = {
 	MELDSTUDIO_START_STREAM: "181",
 	MELDSTUDIO_STOP_STREAM: "182",
 	MELDSTUDIO_SCENE_CHANGE: "183",
-	MELDSTUDIO_LERY_VISIBILITY_CHANGE: "184",
+	MELDSTUDIO_LAYER_VISIBILITY_CHANGE: "184",
 	MODIVERSARY: "187",
 
 	TWITCHAT_AD: "ad",
@@ -8902,11 +8902,11 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 		{
 			category: TriggerEventTypeCategories.MELD_STUDIO,
 			icon: "show",
-			labelKey: "triggers.events.MELDSTUDIO_LERY_VISIBILITY_CHANGE.label",
-			value: TriggerTypes.MELDSTUDIO_LERY_VISIBILITY_CHANGE,
-			descriptionKey: "triggers.events.MELDSTUDIO_LERY_VISIBILITY_CHANGE.description",
+			labelKey: "triggers.events.MELDSTUDIO_LAYER_VISIBILITY_CHANGE.label",
+			value: TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
+			descriptionKey: "triggers.events.MELDSTUDIO_LAYER_VISIBILITY_CHANGE.description",
 			testMessageType:
-				TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_LERY_VISIBILITY_CHANGE,
+				TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
 			newDate: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 

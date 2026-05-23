@@ -928,6 +928,7 @@ export const storeChat = defineStore("chat", {
 							!lastPuCustom &&
 							m.type === TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP
 						) {
+							lastPuCustom = true;
 							StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_ID", m.user.id);
 							StoreProxy.labels.updateLabelValue(
 								"POWER_UP_CUSTOM_NAME",
@@ -943,7 +944,6 @@ export const storeChat = defineStore("chat", {
 								m.powerUpTitle,
 							);
 							StoreProxy.labels.updateLabelValue("POWER_UP_CUSTOM_COST", m.cost);
-							break;
 						}
 
 						if (

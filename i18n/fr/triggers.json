@@ -1925,9 +1925,9 @@
 				"description": "Actions à exécuter lorsque la scène Meld Studio {SUB_ITEM_NAME} devient active",
 				"description_any": "Actions à exécuter lorsque n'importe quelle scène Meld Studio devient active"
 			},
-			"MELDSTUDIO_LERY_VISIBILITY_CHANGE": {
+			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
 				"label": "Changement de visibilité d'un Layer",
-				"description": "Actions à exécuter lorsque la visibilité de la source Meld Studio {SUB_ITEM_NAME} change"
+				"description": "Actions à exécuter lorsque la visibilité du layer Meld Studio {SUB_ITEM_NAME} change"
 			}
 		},
 		"musicEvents": {
