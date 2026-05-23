@@ -146,6 +146,7 @@ import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeYoutube as useStoreYoutube } from "@/store/youtube/storeYoutube";
 import ParamItem from "../../ParamItem.vue";
+import { toast } from "@/utils/toast/toast";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
@@ -198,7 +199,7 @@ onBeforeMount(async () => {
 			token: youtubeAuthParams.csrf,
 		});
 		if (!csrf.success) {
-			storeCommon.alert(csrf.message || "Youtube authentication failed");
+			toast(csrf.message || "Youtube authentication failed", { type: "error" });
 		} else {
 			try {
 				if (!(await storeYoutube.authenticate())) {
