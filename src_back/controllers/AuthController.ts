@@ -124,40 +124,48 @@ export default class AuthController extends AbstractController {
 			return false;
 		}
 
-		const result = jwt.verify(token, Config.credentials.csrf_key, {
-			algorithms: ["HS256"],
-		}) as CSRFToken;
-		if (result) {
-			//Token valid only for 5 minutes
-			if (result.date > Date.now() - 5 * 60 * 1000) {
-				const jsonRes: { success: boolean; uidShare?: string } = { success: true };
-				//If in the process of linking two accounts together, return ref account ID
-				if (result.uidShare && this.pendingDataSharingAuth.has(token)) {
-					jsonRes.uidShare = result.uidShare;
+		try {
+			const result = jwt.verify(token, Config.credentials.csrf_key, {
+				algorithms: ["HS256"],
+			}) as CSRFToken;
+			if (result) {
+				//Token valid only for 5 minutes
+				if (result.date > Date.now() - 5 * 60 * 1000) {
+					const jsonRes: { success: boolean; uidShare?: string } = { success: true };
+					//If in the process of linking two accounts together, return ref account ID
+					if (result.uidShare && this.pendingDataSharingAuth.has(token)) {
+						jsonRes.uidShare = result.uidShare;
+					}
+					// Mark token as used immediately only if not in a data sharing process or
+					// if actually completing that process. The LRU caches auto-expire
+					// entries, so no manual setTimeout cleanup is needed.
+					if (!jsonRes.uidShare || respondOnSuccess == false) {
+						this.usedCSRFTokens.set(token, true);
+						this.pendingDataSharingAuth.delete(token);
+					}
+					if (!respondOnSuccess) return result;
+					response.header("Content-Type", "application/json");
+					response.status(200);
+					response.send(JSON.stringify(jsonRes));
+				} else {
+					//Token expired
+					response.header("Content-Type", "application/json");
+					response.status(200);
+					response.send(
+						JSON.stringify({
+							success: false,
+							message: "CSRF token expired, please try again",
+						}),
+					);
 				}
-				// Mark token as used immediately only if not in a data sharing process or
-				// if actually completing that process. The LRU caches auto-expire
-				// entries, so no manual setTimeout cleanup is needed.
-				if (!jsonRes.uidShare || respondOnSuccess == false) {
-					this.usedCSRFTokens.set(token, true);
-					this.pendingDataSharingAuth.delete(token);
-				}
-				if (!respondOnSuccess) return result;
-				response.header("Content-Type", "application/json");
-				response.status(200);
-				response.send(JSON.stringify(jsonRes));
 			} else {
-				//Token expired
+				//Invalid token
 				response.header("Content-Type", "application/json");
 				response.status(200);
-				response.send(
-					JSON.stringify({
-						success: false,
-						message: "CSRF token expired, please try again",
-					}),
-				);
+				response.send(JSON.stringify({ success: false, message: "Invalid CSRF token" }));
 			}
-		} else {
+		} catch (error) {
+			console.error(error);
 			//Invalid token
 			response.header("Content-Type", "application/json");
 			response.status(200);
