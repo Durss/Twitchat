@@ -78,7 +78,6 @@
 		"concurrently": "^7.6.0",
 		"dom-to-image-more": "^3.7.2",
 		"dpdm": "^3.15.1",
-		"grapheme-splitter": "^1.0.4",
 		"groq-sdk": "^0.9.1",
 		"gsap": "^3.15.0",
 		"highlight.js": "^11.11.1",
