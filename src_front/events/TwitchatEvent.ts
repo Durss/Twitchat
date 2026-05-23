@@ -1954,11 +1954,15 @@ export type TwitchatEventMap = {
 	SET_QUIZ_TOGGLE_LEADERBOARD: void;
 
 	/**
+	 * Request to unpin currently pinned message on Twitch
+	 */
+	SET_UNPIN_TWITCH_MESSAGE: void;
+
+	/**
 	 * Requests for global states
 	 * @answer ON_GLOBAL_STATES
 	 */
 	GET_GLOBAL_STATES: undefined;
-
 	/**
 	 * Response to GET_GLOBAL_STATES
 	 */
@@ -2154,6 +2158,23 @@ export type TwitchatEventMap = {
 				login: string;
 				displayName: string;
 			};
+		} | null;
+		/**
+		 * Details about currently pinned message if any
+		 */
+		pinnedMessage: {
+			/**
+			 * User name who posted the message
+			 */
+			login: string;
+			/**
+			 * Content of the message as pure text
+			 */
+			text: string;
+			/**
+			 * ID of the message
+			 */
+			id: string;
 		} | null;
 	};
 
