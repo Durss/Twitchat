@@ -1,6 +1,6 @@
 <template>
-	<div :class="classes" :style="styles" @contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
+	<div :class="classes" :style="styles" @contextmenu="onContextMenu($event, messageData, rootEl!)" ref="rootEl">
+		<span class="chatMessageTime" v-if="storeParams.appearance.displayTime.value">{{
 			time
 		}}</span>
 
@@ -57,145 +57,144 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import Database from "@/store/Database";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import TriggerUtils from "@/utils/TriggerUtils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { gsap } from "gsap/gsap-core";
-import type { CSSProperties } from "vue";
-import { Component, Prop, toNative } from "vue-facing-decorator";
+import { computed, ref, useTemplateRef, type CSSProperties } from "vue";
 import ClearButton from "../ClearButton.vue";
 import Icon from "../Icon.vue";
-import TTButton from "../TTButton.vue";
-import AbstractChatMessage from "./AbstractChatMessage";
+import Button from "../TTButton.vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 
-@Component({
-	components: {
-		Icon,
-		Button: TTButton,
-		ClearButton,
-		ChatMessageChunksParser,
-	},
-	emits: ["onRead"],
-})
-class ChatCustomMessage extends AbstractChatMessage {
-	public loading: boolean = false;
+const props = withDefaults(
+	defineProps<{
+		messageData: TwitchatDataTypes.MessageCustomData;
+		demo?: boolean;
+	}>(),
+	{ demo: false },
+);
 
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageCustomData;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	@Prop({ default: false, type: Boolean })
-	declare demo: boolean;
+const storeParams = useStoreParams();
+const storeTriggers = useStoreTriggers();
 
-	public get classes(): string[] {
-		const res = ["chatcustommessage", "chatMessage"];
-		if (this.messageData.icon) res.push("hasIcon");
-		switch (this.messageData.style) {
-			case "highlight":
-				res.push("highlight");
-				break;
-			case "error":
-				res.push("highlight", "alert");
-				break;
-			case "warn":
-				res.push("highlight", "error");
-				break;
-		}
-		return res;
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+const { time, onContextMenu, deleteMessage } = useChatMessage(props, emit, rootEl);
+
+const loading = ref(false);
+
+const classes = computed<string[]>(() => {
+	const res = ["chatcustommessage", "chatMessage"];
+	if (props.messageData.icon) res.push("hasIcon");
+	switch (props.messageData.style) {
+		case "highlight":
+			res.push("highlight");
+			break;
+		case "error":
+			res.push("highlight", "alert");
+			break;
+		case "warn":
+			res.push("highlight", "error");
+			break;
 	}
+	return res;
+});
 
-	public get styles(): CSSProperties {
-		const res: CSSProperties = {};
-		if (
-			this.messageData.highlightColor &&
-			this.messageData.style == "highlight" &&
-			this.messageData.highlightColor != "default" &&
-			this.messageData.highlightColor != "#000000" &&
-			this.messageData.highlightColor?.length > 0
-		) {
-			res.border = "1px solid " + this.messageData.highlightColor;
-			res.backgroundColor = this.messageData.highlightColor + "10";
-		}
-		return res;
+const styles = computed<CSSProperties>(() => {
+	const res: CSSProperties = {};
+	if (
+		props.messageData.highlightColor &&
+		props.messageData.style == "highlight" &&
+		props.messageData.highlightColor != "default" &&
+		props.messageData.highlightColor != "#000000" &&
+		props.messageData.highlightColor?.length > 0
+	) {
+		res.border = "1px solid " + props.messageData.highlightColor;
+		res.backgroundColor = props.messageData.highlightColor + "10";
 	}
+	return res;
+});
 
-	public get userStyles(): CSSProperties {
-		const res: CSSProperties = {};
-		if (
-			this.messageData.user?.color &&
-			this.messageData.user.color != "default" &&
-			this.messageData.user.color.length > 0
-		) {
-			res.color = this.messageData.user.color;
-		}
-		return res;
+const userStyles = computed<CSSProperties>(() => {
+	const res: CSSProperties = {};
+	if (
+		props.messageData.user?.color &&
+		props.messageData.user.color != "default" &&
+		props.messageData.user.color.length > 0
+	) {
+		res.color = props.messageData.user.color;
 	}
+	return res;
+});
 
-	public async onClickButton(
-		button: NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number],
-	): Promise<void> {
-		if (this.demo !== false) return;
+async function onClickButton(
+	button: NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number],
+): Promise<void> {
+	if (props.demo !== false) return;
 
-		switch (button.actionType) {
-			case "trigger": {
-				this.loading = true;
-				const trigger = this.$store.triggers.triggerList.find(
-					(v) => v.id == button.triggerId,
+	switch (button.actionType) {
+		case "trigger": {
+			loading.value = true;
+			const trigger = storeTriggers.triggerList.find((v) => v.id == button.triggerId);
+			if (trigger)
+				await TriggerActionHandler.instance.executeTrigger(
+					trigger,
+					props.messageData,
+					false,
 				);
-				if (trigger)
-					await TriggerActionHandler.instance.executeTrigger(
-						trigger,
-						this.messageData,
-						false,
-					);
-				this.loading = false;
-				break;
-			}
-			case "message": {
-				const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
-				MessengerProxy.instance.sendMessage(message);
-				break;
-			}
-			case "discord": {
-				this.loading = true;
-				const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
-				try {
-					const res = await ApiHelper.call(
-						"discord/answer",
-						"POST",
-						{ message: message, data: button.data },
-						false,
-					);
-					if (res.status == 200) {
-						this.messageData.actions = [];
-						Database.instance.updateMessage(this.messageData);
-					} else {
-						gsap.killTweensOf(this.$el);
-						gsap.fromTo(
-							this.$el,
-							{ x: -5 },
-							{ duration: 0.01, x: 5, clearProps: "x", repeat: 30 },
-						);
-						gsap.fromTo(
-							this.$el,
-							{ y: -5 },
-							{ duration: 0.02, y: 5, clearProps: "y", repeat: 15 },
-						);
-					}
-				} catch (error) {}
-				this.loading = false;
-				break;
-			}
-			case "url":
-				break; //<a> tag already handled the action
+			loading.value = false;
+			break;
 		}
+		case "message": {
+			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
+			MessengerProxy.instance.sendMessage(message);
+			break;
+		}
+		case "discord": {
+			loading.value = true;
+			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
+			try {
+				const res = await ApiHelper.call(
+					"discord/answer",
+					"POST",
+					{ message: message, data: button.data },
+					false,
+				);
+				if (res.status == 200) {
+					props.messageData.actions = [];
+					Database.instance.updateMessage(props.messageData);
+				} else {
+					gsap.killTweensOf(rootEl.value!);
+					gsap.fromTo(
+						rootEl.value!,
+						{ x: -5 },
+						{ duration: 0.01, x: 5, clearProps: "x", repeat: 30 },
+					);
+					gsap.fromTo(
+						rootEl.value!,
+						{ y: -5 },
+						{ duration: 0.02, y: 5, clearProps: "y", repeat: 15 },
+					);
+				}
+			} catch (error) {}
+			loading.value = false;
+			break;
+		}
+		case "url":
+			break; //<a> tag already handled the action
 	}
 }
-export default toNative(ChatCustomMessage);
 </script>
 
 <style scoped lang="less">
