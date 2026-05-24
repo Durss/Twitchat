@@ -1,5 +1,22 @@
 <template>
-	<div class="triggeractionmeldstudioentry triggerActionForm" v-if="action.meldstudioData">
+	<div class="triggeractionmeldstudioentry triggerActionForm" v-if="!storeMeldStudio.connected">
+		<div class="info warn">
+			<Icon name="info" alt="info" theme="light" />
+			<i18n-t
+				scope="global"
+				class="label"
+				tag="p"
+				keypath="triggers.actions.meldstudio.connect"
+			>
+				<template #LINK>
+					<a @click="openMeldConnect()">{{
+						t("triggers.actions.meldstudio.connect_link")
+					}}</a>
+				</template>
+			</i18n-t>
+		</div>
+	</div>
+	<div class="triggeractionmeldstudioentry triggerActionForm" v-else-if="action.meldstudioData">
 		<ParamItem :paramData="param_action" v-model="action.meldstudioData.action" noBackground />
 		<ParamItem
 			v-if="
@@ -57,13 +74,15 @@
 import ParamItem from "@/components/params/ParamItem.vue";
 import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type {
 	ITriggerPlaceholder,
 	TriggerActionMeldStudioData,
 	TriggerData,
 } from "@/types/TriggerActionDataTypes";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 type MeldAction = NonNullable<TriggerActionMeldStudioData["meldstudioData"]>["action"];
 type MeldLayerVisibilitySubAction = Extract<
 	NonNullable<TriggerActionMeldStudioData["meldstudioData"]>,
@@ -78,6 +97,8 @@ type MeldLayerMClipSubAction = Extract<
 	{ action: "clip" }
 >["subAction"];
 
+const { t } = useI18n();
+const storeParams = useStoreParams();
 const storeMeldStudio = useStoreMeldStudio();
 const props = defineProps<{
 	action: TriggerActionMeldStudioData;
@@ -267,6 +288,13 @@ for (const key in actions) {
 		value: key as ActionKeys,
 		labelKey: `triggers.actions.meldstudio.actions.${key}`,
 	});
+}
+
+function openMeldConnect(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.MELD_STUDIO,
+	);
 }
 
 onBeforeMount(() => {
