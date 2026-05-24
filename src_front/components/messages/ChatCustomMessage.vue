@@ -198,16 +198,6 @@ async function onClickButton(
 
 <style scoped lang="less">
 .chatcustommessage {
-	max-width: 100%;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	.closeBt {
-		padding: 0.35em;
-		position: relative;
-		flex-shrink: 0;
-		align-self: flex-start;
-	}
 	.messageHolder {
 		overflow: hidden;
 		row-gap: 0.25em;
@@ -218,6 +208,7 @@ async function onClickButton(
 		justify-content: flex-end;
 		align-items: center;
 		flex-grow: 1;
+		padding-right: 1.5em;
 		.content {
 			flex-grow: 1;
 			.icon {
