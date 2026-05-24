@@ -9,9 +9,12 @@
 			class="search"
 		/>
 		<div class="list" ref="list">
-			<!-- <TTButton small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
-			<!-- <TTButton small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</TTButton>
-			<TTButton small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</TTButton> -->
+			<TTButton small @click="simulateEvent($event, 'ad_break_start_chat')" icon="ad"
+				>Commercial start</TTButton
+			>
+			<TTButton small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad"
+				>Commercial approach</TTButton
+			>
 			<TTButton small @click="simulateCommercialSequence()" icon="ad"
 				>Commercial sequence</TTButton
 			>
@@ -1246,7 +1249,8 @@ function simulateCommercialSequence(): void {
 		prevAdStart_at: 0,
 		remainingSnooze: 3,
 		currentAdDuration_ms: 15,
-		nextAdStart_at: Date.now() + 0.5 * 60 * 1000,
+		// nextAdStart_at: Date.now() + 0.5 * 60 * 1000,
+		nextAdStart_at: Date.now() + 10 * 60 * 1000,
 		nextSnooze_at: Date.now() + 1 * 60 * 1000,
 	};
 	storeStream.setCommercialInfo(channelId, params);
@@ -1350,4 +1354,3 @@ function doSearch() {
 	}
 }
 </style>
-
