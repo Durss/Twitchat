@@ -1,10 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
 import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import type { PatreonMember } from "./PatreonController.js";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
+
+type PremiumType = "no" | "lifetime" | "temporary" | "early_gift" | "gift";
 
 /**
  * Created : 14/12/2022
@@ -24,15 +27,13 @@ export default class AbstractController {
 	protected static _dataSharing: { [uid: string]: string } = {};
 
 	/**
-	 * Twitch user ID to cache expiration date.
+	 * Twitch user ID to premium state.
 	 * An entry exists only if user is part of premium members
 	 */
-	private premiumState_cache: {
-		[key: string]: {
-			date: number;
-			type: "no" | "lifetime" | "temporary" | "early_gift" | "gift";
-		};
-	} = {};
+	private premiumState_cache = new LRUCache<string, PremiumType>({
+		max: 1_000,
+		ttl: 2 * 60 * 1000,
+	});
 
 	constructor() {}
 
@@ -47,6 +48,17 @@ export default class AbstractController {
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+	/**
+	 * Clears the premium state cache.
+	 */
+	protected clearPremiumCache(uid?: string): void {
+		if (uid) {
+			this.premiumState_cache.delete(uid);
+		} else {
+			this.premiumState_cache.clear();
+		}
+	}
+
 	/**
 	 * Preloads the early donors and data sharing on a local cache
 	 */
@@ -185,12 +197,10 @@ export default class AbstractController {
 	 * Get if given user ID is premium or not
 	 * @param uid
 	 */
-	protected async getUserPremiumState(
-		uid: string,
-	): Promise<(typeof this.premiumState_cache)[number]["type"]> {
-		const cache = this.premiumState_cache[uid];
-		if (cache != undefined && cache.date > Date.now()) return cache.type;
-		let premiumType: (typeof this.premiumState_cache)[number]["type"] = "no";
+	protected async getUserPremiumState(uid: string): Promise<PremiumType> {
+		const cached = this.premiumState_cache.get(uid);
+		if (cached != undefined) return cached;
+		let premiumType: PremiumType = "no";
 
 		//Check if user is part of early donors with offered premium
 		if (AbstractController._earlyDonors[uid] === true) {
@@ -240,7 +250,7 @@ export default class AbstractController {
 		if (premiumType != "no") {
 			//Remember the user is premium for a few minutes to avoid
 			//processing premium check too often
-			this.premiumState_cache[uid] = { date: Date.now() + 10 * 60 * 1000, type: premiumType };
+			this.premiumState_cache.set(uid, premiumType);
 		}
 
 		return premiumType;
@@ -357,7 +367,7 @@ export default class AbstractController {
 			fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
 		}
 		AbstractController._giftedPremium[uid] = true;
-		delete this.premiumState_cache[uid];
+		this.premiumState_cache.delete(uid);
 
 		Logger.info("🎁🎁🎁Gifted premium to user " + uid + "🎁🎁🎁");
 		return true;
@@ -381,7 +391,7 @@ export default class AbstractController {
 			fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
 		}
 		AbstractController._giftedPremium[uid] = false;
-		delete this.premiumState_cache[uid];
+		this.premiumState_cache.delete(uid);
 
 		Logger.info("🎁❌❌Gifted premium removed from user " + uid + "❌❌🎁");
 		return true;

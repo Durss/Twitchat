@@ -148,6 +148,9 @@
 					<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
 						#{{ user.id }}
 					</div>
+					<div v-if="premiumType" class="userID">
+						Premium type: <strong>{{ premiumType }}</strong>
+					</div>
 				</div>
 
 				<ChatModTools
@@ -533,6 +536,7 @@ import CustomUserBadges from "./CustomUserBadges.vue";
 import CustomUserNameManager from "./CustomUserNameManager.vue";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import Config from "@/utils/Config";
+import ApiHelper from "@/utils/ApiHelper";
 
 const emit = defineEmits<{
 	close: [];
@@ -570,6 +574,7 @@ const createDateElapsed = ref("");
 const followDate = ref("");
 const channelColor = ref("");
 const userDescription = ref("");
+const premiumType = ref("");
 const canModerate = ref(false);
 const isOwnChannel = ref(false);
 const isSelfProfile = ref(false);
@@ -773,6 +778,15 @@ async function loadUserInfo(): Promise<void> {
 		customLogin.value = user.value?.displayName || "";
 		loadHistory(user.value!.id);
 		return;
+	}
+
+	if (storeAuth.isAdmin) {
+		premiumType.value = "";
+		ApiHelper.call("admin/user/premiumState", "GET", { uid: user.value!.id }).then((res) => {
+			if (res.json.success) {
+				premiumType.value = res.json.premiumState;
+			}
+		});
 	}
 
 	try {

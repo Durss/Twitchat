@@ -264,6 +264,15 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"admin/user/premiumState": {
+		GET: {
+			parameters: { uid: string };
+			response: {
+				success: true;
+				premiumState: "no" | "lifetime" | "temporary" | "early_gift" | "gift";
+			};
+		};
+	};
 	"admin/beta/user/migrateToProduction": {
 		POST: {
 			parameters: {

@@ -172,6 +172,7 @@ export default class DonorController extends AbstractController {
 			console.log(error);
 			return false;
 		}
+		super.clearPremiumCache();
 		return true;
 	}
 }
