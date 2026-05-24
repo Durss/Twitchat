@@ -10,12 +10,12 @@ import Utils from "./Utils";
 export default class StreamdeckSocket extends EventDispatcher {
 	private static _instance: StreamdeckSocket;
 	public connected = ref(false);
+	public enabledRef = ref(false);
 	private _socket!: WebSocket;
 	private _tryAgainTo: number = -1;
 	private _isMainApp: boolean = false;
 	private _secretKey: string = "";
 	private _ip: string = "";
-	private _enabled: boolean = false;
 
 	constructor() {
 		super();
@@ -26,7 +26,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 		if (params?.ip) {
 			this._ip = params.ip;
 		}
-		this._enabled = !!params.enabled;
+		this.enabledRef.value = !!params.enabled;
 	}
 
 	/********************
@@ -48,16 +48,16 @@ export default class StreamdeckSocket extends EventDispatcher {
 	}
 
 	public set enabled(value: boolean) {
-		if (value == this._enabled) return;
+		if (value == this.enabledRef.value) return;
 		if (!value) {
 			this.disconnect();
 		}
-		this._enabled = value;
+		this.enabledRef.value = value;
 		this.saveConfigs();
 	}
 
 	public get enabled(): boolean {
-		return this._enabled;
+		return this.enabledRef.value;
 	}
 
 	/******************
@@ -69,7 +69,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	public connect(secretKey?: string, ip?: string, isMainApp: boolean = false): Promise<boolean> {
 		let isManualConnect = !!ip || !!secretKey;
 		this.connected.value = false;
-		if (!this._enabled) return Promise.resolve(false);
+		if (!this.enabledRef.value) return Promise.resolve(false);
 		if (isMainApp === true) this._isMainApp = true;
 		if (secretKey) this._secretKey = secretKey.substring(0, 100);
 		if (ip) this._ip = ip;
@@ -191,7 +191,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 		const data: StoreData = {
 			ip: this.ip && this.ip != "127.0.0.1" ? this.ip : "",
 			secretKey: this._secretKey || "",
-			enabled: this._enabled,
+			enabled: this.enabledRef.value,
 		};
 		DataStore.set(DataStore.STREAMDECK_CONFIGS, data);
 	}

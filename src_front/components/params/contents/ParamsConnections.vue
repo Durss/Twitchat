@@ -11,7 +11,7 @@
 			<button
 				v-if="storeAuth.featureFlags.includes('youtube')"
 				class="card-item premium"
-				:class="{ connected: youtubeConnected }"
+				:class="{ connected: youtubeConnected, disabled: youtubeDisabled }"
 				@click="subContent = 'youtube'"
 				key="youtube"
 			>
@@ -21,7 +21,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: goxlrConnected }"
+				:class="{ connected: goxlrConnected, disabled: goxlrDisabled }"
 				@click="subContent = 'goxlr'"
 				key="goxlr"
 			>
@@ -31,7 +31,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeApi.connected }"
+				:class="{ connected: storeApi.connected, disabled: !storeApi.connected }"
 				@click="subContent = 'twitchat_api'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.twitchat_api' }"
 				*
@@ -43,7 +43,10 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeStreamelements.connected }"
+				:class="{
+					connected: storeStreamelements.connected,
+					disabled: streamelementsDisabled,
+				}"
 				@click="subContent = 'streamelements'"
 				key="streamelements"
 			>
@@ -63,7 +66,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeTipeee.connected }"
+				:class="{ connected: storeTipeee.connected, disabled: tipeeeDisabled }"
 				@click="subContent = 'tipeee'"
 				key="tipeee"
 			>
@@ -73,7 +76,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeLumia.connected }"
+				:class="{ connected: storeLumia.connected, disabled: lumiaDisabled }"
 				@click="subContent = 'lumia'"
 				key="lumia"
 			>
@@ -83,7 +86,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storePatreon.connected }"
+				:class="{ connected: storePatreon.connected, disabled: patreonDisabled }"
 				@click="subContent = 'patreon'"
 				v-newflag="{ date: 0, id: 'params_connect.patreon' }"
 				key="patreon"
@@ -94,7 +97,7 @@
 
 			<button
 				class="card-item premium half"
-				:class="{ connected: storeStreamlabs.connected }"
+				:class="{ connected: storeStreamlabs.connected, disabled: streamlabsDisabled }"
 				@click="subContent = 'streamlabs'"
 				key="streamlabs"
 			>
@@ -104,7 +107,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeTiktok.connected }"
+				:class="{ connected: storeTiktok.connected, disabled: tiktokDisabled }"
 				@click="subContent = 'tiktok'"
 				v-newflag="{ date: 0, id: 'params_connect.tiktok' }"
 				key="tiktok"
@@ -131,7 +134,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: voicemodConnected }"
+				:class="{ connected: voicemodConnected, disabled: voicemodDisabled }"
 				@click="subContent = 'voicemod'"
 				key="voicemod"
 			>
@@ -141,7 +144,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: streamdeckConnected }"
+				:class="{ connected: streamdeckConnected, disabled: streamdeckDisabled }"
 				@click="subContent = 'streamdeck'"
 				key="stream deck"
 			>
@@ -151,7 +154,10 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeDiscord.discordLinked }"
+				:class="{
+					connected: storeDiscord.discordLinked,
+					disabled: !storeDiscord.discordLinked,
+				}"
 				@click="subContent = 'discord'"
 				key="discord"
 			>
@@ -161,7 +167,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: spotifyConnected }"
+				:class="{ connected: spotifyConnected, disabled: spotifyDisabled }"
 				@click="subContent = 'spotify'"
 				key="spotify"
 			>
@@ -171,7 +177,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeBluesky.connected }"
+				:class="{ connected: storeBluesky.connected, disabled: blueskyDisabled }"
 				@click="subContent = 'bluesky'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.bluesky' }"
 				key="bluesky"
@@ -182,7 +188,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: obsConnected }"
+				:class="{ connected: obsConnected, disabled: obsDisabled }"
 				@click="subContent = 'obs'"
 				key="obs"
 			>
@@ -192,7 +198,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeMeldStudio.connected }"
+				:class="{ connected: storeMeldStudio.connected, disabled: meldStudioDisabled }"
 				@click="subContent = 'meldStudio'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.meldStudio' }"
 				key="meldStudio"
@@ -214,7 +220,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeStreamerbot.connected }"
+				:class="{ connected: storeStreamerbot.connected, disabled: streamerbotDisabled }"
 				@click="subContent = 'streamerbot'"
 				v-newflag="{ date: 0, id: 'params_connect.stramerbot' }"
 				key="streamer_bot"
@@ -225,7 +231,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeSammi.connected }"
+				:class="{ connected: storeSammi.connected, disabled: sammiDisabled }"
 				@click="subContent = 'sammi'"
 				v-newflag="{ date: 0, id: 'params_connect.sammi' }"
 				key="sammi"
@@ -236,7 +242,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeMixitup.connected }"
+				:class="{ connected: storeMixitup.connected, disabled: mixitupDisabled }"
 				@click="subContent = 'mixitup'"
 				v-newflag="{ date: 0, id: 'params_connect.mixitup' }"
 				key="miu"
@@ -247,7 +253,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeElevenLabs.connected }"
+				:class="{ connected: storeElevenLabs.connected, disabled: elevenlabsDisabled }"
 				@click="subContent = 'elevenlabs'"
 				v-newflag="{ date: 0, id: 'params_connect.elevenlabs' }"
 				key="elevenlabs"
@@ -258,7 +264,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeTiltify.connected }"
+				:class="{ connected: storeTiltify.connected, disabled: tiltifyDisabled }"
 				@click="subContent = 'tiltify'"
 				v-newflag="{ date: 0, id: 'params_connect.tiltify' }"
 				key="tiltify"
@@ -269,7 +275,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: heatConnected }"
+				:class="{ connected: heatConnected, disabled: heatDisabled }"
 				@click="subContent = 'heat'"
 				key="heat"
 			>
@@ -279,7 +285,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeStreamSocket.connected }"
+				:class="{ connected: storeStreamSocket.connected, disabled: streamsocketDisabled }"
 				@click="subContent = 'streamsocket'"
 				v-newflag="{ date: 0, id: 'params_connect.streamsocket' }"
 				key="streamsocket"
@@ -290,7 +296,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storePlayability.connected }"
+				:class="{ connected: storePlayability.connected, disabled: playabilityDisabled }"
 				@click="subContent = 'playability'"
 				v-newflag="{ date: 0, id: 'params_connect.playability' }"
 				key="playability"
@@ -303,7 +309,7 @@
 			<button
 				class="card-item"
 				v-if="storeAuth.featureFlags.includes('groq')"
-				:class="{ connected: storeGroq.connected }"
+				:class="{ connected: storeGroq.connected, disabled: groqDisabled }"
 				@click="subContent = 'groq'"
 				v-newflag="{ date: 0, id: 'params_connect.groq' }"
 				key="groq"
@@ -314,7 +320,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: storeTwitchBot.connected }"
+				:class="{ connected: storeTwitchBot.connected, disabled: twitchbotDisabled }"
 				@click="subContent = 'twitchbot'"
 				v-newflag="{ date: 0, id: 'params_connect.twitchbot' }"
 				key="twitch_bot"
@@ -325,7 +331,7 @@
 
 			<button
 				class="card-item"
-				:class="{ connected: wsCustomConnected }"
+				:class="{ connected: wsCustomConnected, disabled: wsCustomDisabled }"
 				@click="subContent = 'websocket'"
 				key="websocket"
 			>
@@ -368,6 +374,7 @@
 </template>
 
 <script setup lang="ts">
+import { useConnectionStates } from "@/composables/useConnectionStates";
 import { storeAPI as useStoreAPI } from "@/store/api/storeAPI";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
@@ -375,7 +382,6 @@ import { storeDiscord as useStoreDiscord } from "@/store/discord/storeDiscord";
 import { storeElevenLabs as useStoreElevenLabs } from "@/store/elevenlabs/storeElevenLabs";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
-import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
 import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
 import { storeLumia as useStoreLumia } from "@/store/lumia/storeLumia";
 import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeMeldStudio";
@@ -393,15 +399,7 @@ import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
 import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
 import { storeTwitchBot as useStoreTwitchBot } from "@/store/twitchbot/storeTwitchBot";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import OBSWebsocket from "@/utils/OBSWebsocket";
-import StreamdeckSocket from "@/utils/StreamdeckSocket";
-import WebsocketTrigger from "@/utils/WebsocketTrigger";
-import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
-import SpotifyHelper from "@/utils/music/SpotifyHelper";
-import HeatSocket from "@/utils/twitch/HeatSocket";
-import VoicemodWebSocket from "@/utils/voice/VoicemodWebSocket";
-import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
-import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
+import { nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "./SearchForm.vue";
 import ConnectBluesky from "./connexions/ConnectBluesky.vue";
@@ -458,22 +456,49 @@ const storeStreamSocket = useStoreStreamSocket();
 const storeBluesky = useStoreBluesky();
 const storeAuth = useStoreAuth();
 const storeExtension = useStoreExtension();
-const storeHeat = useStoreHeat();
 const storeMeldStudio = useStoreMeldStudio();
+
+const {
+	youtubeConnected,
+	goxlrConnected,
+	voicemodConnected,
+	spotifyConnected,
+	heatConnected,
+	obsConnected,
+	wsCustomConnected,
+	streamdeckConnected,
+	obsDisabled,
+	goxlrDisabled,
+	heatDisabled,
+	tiktokDisabled,
+	meldStudioDisabled,
+	sammiDisabled,
+	mixitupDisabled,
+	playabilityDisabled,
+	streamerbotDisabled,
+	voicemodDisabled,
+	streamdeckDisabled,
+	wsCustomDisabled,
+	blueskyDisabled,
+	tiltifyDisabled,
+	groqDisabled,
+	elevenlabsDisabled,
+	streamelementsDisabled,
+	streamlabsDisabled,
+	tipeeeDisabled,
+	streamsocketDisabled,
+	twitchbotDisabled,
+	lumiaDisabled,
+	spotifyDisabled,
+	patreonDisabled,
+	youtubeDisabled,
+	refreshOAuthConfigured,
+} = useConnectionStates();
 
 const contentRef = useTemplateRef("content");
 const allowHighlight = ref<boolean>(true);
 const subContent = ref<TwitchatDataTypes.ParamDeepSectionsStringType | "">("");
 const search = ref("");
-
-const youtubeConnected = computed(() => YoutubeHelper.instance.connected.value);
-const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
-const voicemodConnected = computed(() => VoicemodWebSocket.instance.connected.value);
-const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
-const heatConnected = computed(() => HeatSocket.instance.connected.value && storeHeat.enabled);
-const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
-const wsCustomConnected = computed(() => WebsocketTrigger.instance.connected.value);
-const streamdeckConnected = computed(() => StreamdeckSocket.instance.connected.value);
 
 onBeforeMount(async () => {
 	await nextTick();
@@ -510,6 +535,10 @@ watch(
 		subContent.value = newVal;
 	},
 );
+
+watch(subContent, (v) => {
+	if (v === "") refreshOAuthConfigured();
+});
 
 defineExpose({ allowHighlight, onNavigateBack, reload });
 </script>
@@ -624,6 +653,12 @@ defineExpose({ allowHighlight, onNavigateBack, reload });
 				border-right-color: var(--color-primary);
 				&::after {
 					background-color: var(--color-primary);
+				}
+			}
+			&.disabled {
+				border-right-color: #888;
+				&::after {
+					background-color: #888;
 				}
 			}
 		}
