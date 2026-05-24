@@ -4,31 +4,20 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
 import Splitter from "../Splitter.vue";
-import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Icon,
-		Splitter,
-	},
-	emits: ["onRead"],
-})
-class ChatHistorySplitter extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageHistorySplitterData;
-
-	@Prop
-	declare childrenList: TwitchatDataTypes.MessageHistorySplitterData[];
-}
-export default toNative(ChatHistorySplitter);
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageHistorySplitterData;
+}>();
+const emits = defineEmits<{
+	onRead: [];
+}>();
 </script>
 
 <style scoped lang="less">
 .chathistorysplitter {
+	line-height: 0.8em;
 }
 </style>
