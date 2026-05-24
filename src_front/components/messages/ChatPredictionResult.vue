@@ -33,14 +33,16 @@
 					<div class="infos">
 						<Icon class="check" name="checkmark" />
 						<span class="label">{{ o.label }}</span>
-						<div class="percent">{{ getOutcomePercent(o) }}%</div>
-						<div class="users">
-							<Icon class="icon" name="user" />
-							{{ o.voters }}
-						</div>
-						<div class="points">
-							<Icon class="icon" name="channelPoints" />
-							{{ o.votes.toLocaleString() }}
+						<div class="details">
+							<div class="percent">{{ getOutcomePercent(o) }}%</div>
+							<div class="users">
+								<Icon class="icon" name="user" />
+								{{ o.voters }}
+							</div>
+							<div class="points">
+								<Icon class="icon" name="channelPoints" />
+								{{ o.votes.toLocaleString() }}
+							</div>
 						</div>
 					</div>
 					<div :style="getOutcomeStyles(o)" class="bar"></div>
