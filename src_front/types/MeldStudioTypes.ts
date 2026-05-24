@@ -57,6 +57,10 @@ export interface MeldStudioScene {
 	 * Whether the scene is staged to be presented next
 	 */
 	staged: boolean;
+	/**
+	 * Whether the scene is in vertical orientation
+	 */
+	vertical: boolean;
 }
 
 /**
@@ -80,6 +84,10 @@ export interface MeldStudioLayer {
 	 * Whether the layer is currently being rendered
 	 */
 	visible: boolean;
+	/**
+	 * Whether the layer is effectively visible after taking parent visibility into account
+	 */
+	isEffectivelyVisible: boolean;
 	/**
 	 * Height of the layer in the scene
 	 */
@@ -260,6 +268,15 @@ export interface MeldStudio extends QObject {
 	isRecordingChanged: QSignal<[]>;
 
 	// ---------------------------------------------------------------------------
+	// CLIENT
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Identifies the connected client to Meld Studio.
+	 */
+	setClientName(name: string): void;
+
+	// ---------------------------------------------------------------------------
 	// SCENE MANAGEMENT
 	// ---------------------------------------------------------------------------
 
@@ -287,6 +304,12 @@ export interface MeldStudio extends QObject {
 	 * Triggers a session update and (if registered) `gainUpdated`.
 	 */
 	toggleMute(trackId: MeldStudioId): void;
+
+	/**
+	 * Sets the mute status of an audio track to an explicit value.
+	 * Triggers a session update and (if registered) `gainUpdated`.
+	 */
+	setMuted(trackId: MeldStudioId, muted: boolean): void;
 
 	/**
 	 * Toggles monitoring status of an audio track

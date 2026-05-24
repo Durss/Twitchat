@@ -2459,6 +2459,8 @@ export default class TriggerActionHandler {
 		ttsID?: string,
 		forcedTriggerId?: string,
 	): Promise<boolean> {
+		// Ignore "any xxx" trigger when testing a specifc trigger
+		if (subEvent == "*" && testMode && forcedTriggerId) return false;
 		if (forcedTriggerId) {
 			const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == forcedTriggerId);
 			if (trigger) {
@@ -8191,26 +8193,23 @@ export default class TriggerActionHandler {
 							}
 							case "track_mute": {
 								const trackId = step.meldstudioData.trackId;
-								const currentMuteState =
-									StoreProxy.meldStudio.trackList.find((v) => v.id === trackId)
-										?.muted === true;
-								let newMutedState = !currentMuteState;
 								switch (step.meldstudioData.subAction) {
 									case "mute": {
-										newMutedState = true;
+										StoreProxy.meldStudio.meld?.setMuted(trackId, true);
 										break;
 									}
 									case "unmute": {
-										newMutedState = false;
+										StoreProxy.meldStudio.meld?.setMuted(trackId, false);
 										break;
+									}
+									case "toggle": {
+										StoreProxy.meldStudio.meld?.toggleMute(trackId);
 									}
 								}
 								logStep.messages.push({
 									date: Date.now(),
-									value: `Switch track "${step.meldstudioData.trackId}" from "${currentMuteState ? "muted" : "not"}" to "${newMutedState ? "muted" : "not"}"`,
+									value: `Switch track "${step.meldstudioData.trackId}" mute state to "${step.meldstudioData.subAction}"`,
 								});
-								if (currentMuteState != newMutedState)
-									StoreProxy.meldStudio.meld?.toggleMute(trackId);
 								break;
 							}
 						}

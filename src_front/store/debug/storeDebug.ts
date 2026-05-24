@@ -1863,7 +1863,7 @@ export const storeDebug = defineStore("debug", {
 							twitch_powerup: true,
 							fake: true,
 						};
-						void StoreProxy.chat.addMessage(chat);
+						void StoreProxy.chat.addMessage(chat, false);
 					}
 					break;
 				}

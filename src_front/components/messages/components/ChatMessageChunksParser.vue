@@ -77,9 +77,9 @@ import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
 const props = defineProps<{
-	platform: TwitchatDataTypes.ChatPlatform;
-	channel: string;
 	chunks: TwitchatDataTypes.ParseMessageChunk[];
+	channel?: string;
+	platform?: TwitchatDataTypes.ChatPlatform;
 	largeEmote?: boolean;
 	forceSpoiler?: boolean;
 	containsSpoiler?: boolean;

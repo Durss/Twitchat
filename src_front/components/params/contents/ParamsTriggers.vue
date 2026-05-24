@@ -586,6 +586,7 @@ function testTrigger(trigger: TriggerData): void {
 							true,
 							trigger.chatCommand,
 						);
+						return;
 					} else //Chat message simulation
 					 if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch (triggerEvent.value) {
@@ -790,6 +791,8 @@ function testTrigger(trigger: TriggerData): void {
 							"api_queue",
 							"api_playlist",
 							"max_duration",
+							"no_active_device",
+							"spotify_max_per_user_reached",
 						]);
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failCode = code;
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = t(
@@ -875,6 +878,8 @@ function testTrigger(trigger: TriggerData): void {
 						const fakeMessage =
 							await storeDebug.simulateMessage<TwitchatDataTypes.MessageChatData>(
 								TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+								undefined,
+								false,
 							);
 						(m as TwitchatDataTypes.MessageChatData).answersTo = fakeMessage;
 					} else if (triggerEvent.value == TriggerTypes.POLL_START) {

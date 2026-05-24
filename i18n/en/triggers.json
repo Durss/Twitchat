@@ -809,6 +809,8 @@
 				"param_subAction_record": "Record a clip",
 				"param_subAction_replay": "Show clip replay",
 				"param_subAction_stopReplay": "Stop clip replay",
+				"connect": "You need to {LINK}",
+				"connect_link": "connect with Meld Studio",
 				"actions": {
 					"unset": "@:global.select_placeholder",
 					"layer_visibility": "Control source",
