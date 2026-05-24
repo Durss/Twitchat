@@ -1,9 +1,5 @@
 <template>
 	<div class="chatadbreakstarted chatMessage highlight" ref="rootEl">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="ad" alt="follow" class="icon" />
 
 		<i18n-t scope="global" tag="span" keypath="chat.ad_break_start.label">
@@ -38,7 +34,7 @@ const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageAdBreakStartData;
 }>();
 const duration = Utils.formatDuration(props.messageData.duration_s * 1000);
-const { time, openUserCard } = useChatMessage(props, emit, rootEl);
+const { openUserCard } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">

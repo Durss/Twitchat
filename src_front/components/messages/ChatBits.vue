@@ -3,10 +3,6 @@
 		<div class="fader" ref="fader" v-if="messageData.pinned"></div>
 		<div class="fill" ref="fill" v-if="messageData.pinned"></div>
 
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="bits" alt="bits" class="icon" />
 
 		<div class="holder">

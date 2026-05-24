@@ -1,8 +1,5 @@
 <template>
 	<div class="chatroomsettings chatMessage highlight primary">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon class="icon lock" name="lock" />
 		<div class="content">
 			<div>

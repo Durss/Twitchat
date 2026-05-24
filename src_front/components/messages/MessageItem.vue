@@ -33,6 +33,7 @@
 			class="message"
 			:is="componentRef"
 			:messageData="messageData"
+			:data-msg-time="showTime ? messageTime : null"
 			@showConversation="$emit('showConversation', $event)"
 			@showUserMessages="$emit('showUserMessages', $event)"
 			@onRead="
@@ -50,82 +51,86 @@
 		<div v-else class="message card-item secondary">
 			No compontent found for type: <strong>{{ messageData.type }}</strong>
 		</div>
+
+		<MessageTime class="time" v-if="showTime" :messageData="props.messageData" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import ChatMessage from "@/components/messages/ChatMessage.vue";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, type Component as VueComponent } from "vue";
 import ChatAd from "./ChatAd.vue";
+import ChatAdBreakStarted from "./ChatAdBreakStarted.vue";
 import ChatAutobanJoin from "./ChatAutobanJoin.vue";
+import ChatAutomodTermsUpdate from "./ChatAutomodTermsUpdate.vue";
 import ChatBan from "./ChatBan.vue";
 import ChatBingoResult from "./ChatBingoResult.vue";
 import ChatBits from "./ChatBits.vue";
+import ChatCelebration from "./ChatCelebration.vue";
+import ChatChatPollResult from "./ChatChatPollResult.vue";
 import ChatClear from "./ChatClear.vue";
 import ChatCommunityBoost from "./ChatCommunityBoost.vue";
 import ChatCommunityChallengeContribution from "./ChatCommunityChallengeContribution.vue";
 import ChatConnect from "./ChatConnect.vue";
 import ChatCountdownResult from "./ChatCountdownResult.vue";
+import ChatCustomMessage from "./ChatCustomMessage.vue";
+import ChatCustomPowerUp from "./ChatCustomPowerUp.vue";
+import ChatCustomTrainSummary from "./ChatCustomTrainSummary.vue";
 import ChatFollow from "./ChatFollow.vue";
 import ChatFollowbotEvents from "./ChatFollowbotEvents.vue";
+import ChatGiantEmote from "./ChatGiantEmote.vue";
+import ChatHateRaid from "./ChatHateRaid.vue";
+import ChatHistorySplitter from "./ChatHistorySplitter.vue";
+import ChatHypeChatMessage from "./ChatHypeChatMessage.vue";
 import ChatHypeTrainCooldown from "./ChatHypeTrainCooldown.vue";
 import ChatHypeTrainResult from "./ChatHypeTrainResult.vue";
 import ChatJoinLeave from "./ChatJoinLeave.vue";
+import ChatKofiEvent from "./ChatKofiEvent.vue";
 import ChatLowTrustTreatment from "./ChatLowTrustTreatment.vue";
+import ChatManyReplies from "./ChatManyReplies.vue";
 import ChatMessageClipPending from "./ChatMessageClipPending.vue";
 import ChatNotice from "./ChatNotice.vue";
+import ChatPatreonEvent from "./ChatPatreonEvent.vue";
 import ChatPinNotice from "./ChatPinNotice.vue";
 import ChatPollResult from "./ChatPollResult.vue";
 import ChatPredictionResult from "./ChatPredictionResult.vue";
+import ChatPrivateModerator from "./ChatPrivateModerator.vue";
+import ChatQuizResult from "./ChatQuizResult.vue";
 import ChatRaffleResult from "./ChatRaffleResult.vue";
 import ChatRaid from "./ChatRaid.vue";
 import ChatReward from "./ChatReward.vue";
 import ChatRoomSettings from "./ChatRoomSettings.vue";
 import ChatScopeRequester from "./ChatScopeRequester.vue";
 import ChatShoutout from "./ChatShoutout.vue";
-import ChatStreamOnOff from "./ChatStreamOnOff.vue";
-import ChatSubscription from "./ChatSubscription.vue";
-import ChatTimerResult from "./ChatTimerResult.vue";
-import ChatUnban from "./ChatUnban.vue";
-import ChatWatchStreak from "./ChatWatchStreak.vue";
-import ChatHypeChatMessage from "./ChatHypeChatMessage.vue";
-import ChatHistorySplitter from "./ChatHistorySplitter.vue";
-import ChatTrackAddedToQueue from "./ChatTrackAddedToQueue.vue";
-import ChatAdBreakStarted from "./ChatAdBreakStarted.vue";
-import ChatCustomMessage from "./ChatCustomMessage.vue";
-import ChatStreamlabsEvent from "./ChatStreamlabsEvent.vue";
-import ChatKofiEvent from "./ChatKofiEvent.vue";
 import ChatStreamelementsEvent from "./ChatStreamelementsEvent.vue";
-import ChatUnbanRequest from "./ChatUnbanRequest.vue";
-import ChatTipeeeEvent from "./ChatTipeeeEvent.vue";
-import ChatTrackStart from "./ChatTrackStart.vue";
-import ChatCelebration from "./ChatCelebration.vue";
-import ChatGiantEmote from "./ChatGiantEmote.vue";
-import ChatAutomodTermsUpdate from "./ChatAutomodTermsUpdate.vue";
-import ChatHateRaid from "./ChatHateRaid.vue";
-import ChatWarnUser from "./ChatWarnUser.vue";
-import ChatWarnAcknowledgment from "./ChatWarnAcknowledgment.vue";
-import ChatYoutubeSuperChat from "./ChatYoutubeSuperChat.vue";
-import ChatYoutubeSuperSticker from "./ChatYoutubeSuperSticker.vue";
-import ChatYoutubeSubscription from "./ChatYoutubeSubscription.vue";
-import ChatYoutubeSubgift from "./ChatYoutubeSubgift.vue";
-import ChatTiltifyEvent from "./ChatTiltifyEvent.vue";
-import ChatPatreonEvent from "./ChatPatreonEvent.vue";
-import ChatTikTokSub from "./ChatTikTokSub.vue";
+import ChatStreamlabsEvent from "./ChatStreamlabsEvent.vue";
+import ChatStreamOnOff from "./ChatStreamOnOff.vue";
+import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
+import ChatSubscription from "./ChatSubscription.vue";
+import ChatSuspendedTriggerStack from "./ChatSuspendedTriggerStack.vue";
 import ChatTikTokGift from "./ChatTikTokGift.vue";
 import ChatTikTokLike from "./ChatTikTokLike.vue";
 import ChatTikTokShare from "./ChatTikTokShare.vue";
-import ChatSuspendedTriggerStack from "./ChatSuspendedTriggerStack.vue";
+import ChatTikTokSub from "./ChatTikTokSub.vue";
+import ChatTiltifyEvent from "./ChatTiltifyEvent.vue";
+import ChatTimerResult from "./ChatTimerResult.vue";
+import ChatTipeeeEvent from "./ChatTipeeeEvent.vue";
+import ChatTrackAddedToQueue from "./ChatTrackAddedToQueue.vue";
+import ChatTrackStart from "./ChatTrackStart.vue";
 import ChatTwitchCharityDonation from "./ChatTwitchCharityDonation.vue";
-import ChatPrivateModerator from "./ChatPrivateModerator.vue";
-import ChatChatPollResult from "./ChatChatPollResult.vue";
-import ChatCustomTrainSummary from "./ChatCustomTrainSummary.vue";
-import ChatStreamSocketAction from "./ChatStreamSocketAction.vue";
-import ChatManyReplies from "./ChatManyReplies.vue";
-import ChatQuizResult from "./ChatQuizResult.vue";
-import ChatCustomPowerUp from "./ChatCustomPowerUp.vue";
+import ChatUnban from "./ChatUnban.vue";
+import ChatUnbanRequest from "./ChatUnbanRequest.vue";
+import ChatWarnAcknowledgment from "./ChatWarnAcknowledgment.vue";
+import ChatWarnUser from "./ChatWarnUser.vue";
+import ChatWatchStreak from "./ChatWatchStreak.vue";
+import ChatYoutubeSubgift from "./ChatYoutubeSubgift.vue";
+import ChatYoutubeSubscription from "./ChatYoutubeSubscription.vue";
+import ChatYoutubeSuperChat from "./ChatYoutubeSuperChat.vue";
+import ChatYoutubeSuperSticker from "./ChatYoutubeSuperSticker.vue";
+import MessageTime from "./MessageTime.vue";
+import { useMessageTime } from "@/composables/useMessageTime";
 import ChatModiversary from "./ChatModiversary.vue";
 
 const props = withDefaults(
@@ -141,7 +146,7 @@ const props = withDefaults(
 	},
 );
 
-defineEmits<{
+const emit = defineEmits<{
 	onRead: [m: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
 	showConversation: [event: any];
 	showUserMessages: [event: any];
@@ -152,6 +157,12 @@ defineEmits<{
 }>();
 
 const storeParams = useStoreParams();
+const noTimeTypes: TwitchatDataTypes.TwitchatMessageStringType[] = ["history_splitter", "notice"];
+
+const messageTime = useMessageTime(() => props.messageData);
+const showTime = computed(
+	() => !noTimeTypes.includes(props.messageData.type) && storeParams.appearance.displayTime.value,
+);
 
 // Utility type to extract keys where value is literally true
 type KeysWithTrueValue<T> = keyof {
@@ -282,6 +293,32 @@ const componentRef = computed<VueComponent | null>(() => {
 	.message {
 		width: 100%;
 		position: relative;
+
+		&[data-msg-time]:not(.highlight)::after {
+			content: "00:00";
+			display: inline;
+			visibility: hidden;
+			font-size: 0.7em;
+			font-family: var(--font-roboto);
+			margin-right: 4px;
+			pointer-events: none;
+		}
+
+		&[data-msg-time].highlight {
+			padding-bottom: 0.75em;
+		}
+	}
+
+	.time {
+		position: absolute;
+		bottom: 0.5em;
+		right: 0.5em;
+	}
+
+	&:has(.highlight) {
+		.time {
+			bottom: 0.25em;
+		}
 	}
 }
 </style>

@@ -128,10 +128,6 @@
 		align-self: flex-start;
 	}
 
-	.chatMessageTime + * {
-		margin-left: 3em;
-	}
-
 	.userlink {
 		font-weight: bold;
 		color: var(--color-secondary);
@@ -199,17 +195,6 @@
 	}
 }
 
-.chatMessageTime {
-	//Set in absolute position with fixed width to avoid reflow
-	//of the chat message everytime the timer changes
-	position: absolute;
-	font-size: 0.8em;
-	font-family: var(--font-roboto);
-	width: 3em;
-	text-align: right;
-	align-self: flex-start;
-}
-
 body.light {
 	.chatMessage {
 		&.success {
@@ -253,6 +238,9 @@ body.light {
 				.infos {
 					display: flex;
 					flex-direction: row;
+					flex-wrap: wrap;
+					align-items: center;
+					justify-content: flex-end;
 
 					.check {
 						flex-shrink: 0;
@@ -269,14 +257,21 @@ body.light {
 						overflow: hidden;
 						text-overflow: ellipsis;
 						white-space: nowrap;
-						flex: 1;
+						flex: 1 1 auto;
+						min-width: 0;
+						margin-right: auto;
+					}
+
+					.details {
+						display: flex;
+						flex-direction: row;
+						flex-shrink: 0;
 					}
 
 					.users {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						flex-shrink: 0;
 					}
 
 					.percent,

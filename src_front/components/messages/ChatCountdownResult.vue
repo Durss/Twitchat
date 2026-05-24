@@ -1,8 +1,5 @@
 <template>
 	<div class="chatcountdownresult chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="countdown" alt="icon" class="icon" />
 		<i18n-t
 			scope="global"

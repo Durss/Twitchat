@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes" @mouseover="$emit('onOverMessage', messageData, $event)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon v-if="messageData.restricted" name="lock_fit" alt="notice" />
 		<Icon v-else name="shield" alt="notice" />
 

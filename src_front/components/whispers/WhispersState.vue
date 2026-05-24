@@ -18,16 +18,15 @@
 					:key="m.id"
 					:class="messageClasses(m)"
 				>
-					<span class="chatMessageTime" v-if="storeParams.appearance.displayTime.value">{{
-						getTime(m)
-					}}</span>
 					<div class="text">
 						<ChatMessageChunksParser
 							:chunks="m.message_chunks"
 							:channel="m.channel_id"
 							:platform="m.platform"
 						/>
+						<span class="time invisible">00:00</span>
 					</div>
+					<span class="time">{{ getTime(m) }}</span>
 				</div>
 			</div>
 
@@ -87,10 +86,10 @@ import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { computed, nextTick, onBeforeMount, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
 import TTButton from "../TTButton.vue";
 import ChatMessageChunksParser from "../messages/components/ChatMessageChunksParser.vue";
-import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{ close: [] }>();
 
@@ -257,8 +256,23 @@ function scrollToBottom(): void {
 				background-color: var(--color-primary-fadest);
 				flex-shrink: 0;
 
-				.chatMessageTime + * {
-					padding-left: 3em;
+				.time {
+					font-size: 0.8em;
+					font-family: var(--font-roboto);
+					text-align: right;
+					align-self: flex-start;
+					opacity: 0.7;
+					margin-left: 0.5em;
+					position: absolute;
+					bottom: 0.25em;
+					right: 0.5em;
+					&.invisible {
+						visibility: hidden;
+						position: relative;
+						display: inline;
+						bottom: unset;
+						right: unset;
+					}
 				}
 
 				.text {
@@ -270,11 +284,6 @@ function scrollToBottom(): void {
 					align-self: flex-end;
 					margin-right: 0;
 					background-color: var(--color-secondary-fadest);
-
-					.chatMessageTime + * {
-						padding-left: 0;
-						padding-right: 3em;
-					}
 				}
 
 				:deep(.emote) {

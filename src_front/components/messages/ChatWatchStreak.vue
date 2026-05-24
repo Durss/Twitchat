@@ -3,10 +3,6 @@
 		class="chatwatchstreak chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="watchStreak" alt="notice" class="icon" />
 
 		<div class="holder">

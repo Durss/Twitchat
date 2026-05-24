@@ -3,10 +3,6 @@
 		class="chatshoutout chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="shoutout" alt="shoutout" class="icon" />
 
 		<div class="messageHolder">

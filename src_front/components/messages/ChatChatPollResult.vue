@@ -1,8 +1,5 @@
 <template>
 	<div class="chatpollresult chatMessage highlight pollResult">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="chatPoll" alt="icon" class="icon" />
 		<div class="content">
 			<div class="title">{{ messageData.poll.title }}</div>

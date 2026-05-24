@@ -1,9 +1,6 @@
 <template>
 	<div class="chatfollowbotevents chatMessage highlight">
 		<div class="head" @click.stop="expand = !expand">
-			<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-				time
-			}}</span>
 			<Icon name="shield" class="icon" theme="light" />
 			<Icon name="follow" class="icon" theme="light" />
 			<span class="label">{{

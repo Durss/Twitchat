@@ -1378,7 +1378,7 @@ export default class ContextMenuHelper {
 					if (!window.getComputedStyle(htmlNode).getPropertyValue("background")) {
 						clone.style.background = bgcolor;
 					}
-					clone.querySelector(".chatMessageTime")?.remove();
+					clone.querySelector(".messagetime")?.remove();
 					clone.querySelectorAll("button").forEach((v) => v.remove());
 					const imgs = clone.querySelectorAll("img");
 					let loaded = 0;

@@ -3,10 +3,6 @@
 		class="chatunban chatMessage highlight success"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="unban" alt="notice" class="icon" />
 
 		<i18n-t

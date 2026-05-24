@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-		<!-- {{messageData.channel}} -->
 		<Icon :name="icon" :theme="theme" />
 		<span class="message" v-html="message"></span>
 	</div>

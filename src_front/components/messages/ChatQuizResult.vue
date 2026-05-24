@@ -1,8 +1,5 @@
 <template>
 	<div class="chatquizresult chatMessage highlight" ref="rootEl">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="quiz" alt="icon" class="icon" />
 		<div class="content">
 			<i18n-t scope="global" keypath="chat.quiz_result.title" class="title" tag="span">
