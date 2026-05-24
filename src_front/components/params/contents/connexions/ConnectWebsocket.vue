@@ -42,7 +42,7 @@ import ConnectionForm from "./ConnectionForm.vue";
 
 const { t } = useI18n();
 
-const enabled = ref(false);
+const enabled = WebsocketTrigger.instance.enabled;
 
 const { connecting, error, showSuccess, doConnect, doDisconnect } = useConnectionForm(
 	async () => {
