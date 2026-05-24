@@ -15,6 +15,7 @@ let meldInstance: MeldStudio | null;
 let _channel: QWebChannelInstance | null = null;
 let reconnectTimeout = -1;
 let reconnectDelay = 2000;
+let userRequestedDisconnect = false;
 
 function loadQWebChannel(): Promise<void> {
 	if (typeof window.QWebChannel === "function") return Promise.resolve();
@@ -93,6 +94,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		async connect(): Promise<boolean> {
 			if (!this.connectionEnabled) return false;
 			this.connecting = true;
+			userRequestedDisconnect = false;
 			clearTimeout(reconnectTimeout);
 			await loadQWebChannel();
 			if (socket != null) {
@@ -233,12 +235,11 @@ export const storeMeldStudio = defineStore("meldstudio", {
 					});
 				};
 
-				socket.onclose = (event) => {
+				socket.onclose = () => {
 					meldInstance = null;
 					this.connected = false;
 					this.connecting = false;
-					//FIXME: this code is also sent when meld is closed which block auto reconnect
-					if (event.code !== 1000) {
+					if (!userRequestedDisconnect) {
 						reconnectDelay = Math.min(60000, reconnectDelay * 2);
 						clearTimeout(reconnectTimeout);
 						reconnectTimeout = window.setTimeout(() => {
@@ -257,6 +258,8 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		},
 
 		disconnect(): void {
+			userRequestedDisconnect = true;
+			clearTimeout(reconnectTimeout);
 			if (!socket) return;
 			socket.onopen = null;
 			socket.close();
