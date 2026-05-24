@@ -31,13 +31,14 @@
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
 						<div class="avatar">
-							<img
-								v-if="user!.avatarPath"
-								:src="user!.avatarPath"
-								alt="avatar"
-								class="large"
-								referrerpolicy="no-referrer"
-							/>
+							<div class="imageHolder" :class="{ live: !!currentStream }">
+								<img
+									v-if="user!.avatarPath"
+									alt="avatar"
+									:src="user!.avatarPath"
+									referrerpolicy="no-referrer"
+								/>
+							</div>
 
 							<img
 								v-if="!isOwnChannel && channel?.avatarPath"
@@ -49,13 +50,6 @@
 								v-tooltip="channel.displayName"
 								referrerpolicy="no-referrer"
 							/>
-						</div>
-
-						<div class="live" v-if="currentStream">
-							LIVE -
-							<span class="viewers"
-								>{{ currentStream.viewer_count }}<Icon name="user"
-							/></span>
 						</div>
 					</a>
 					<div class="title">
@@ -152,6 +146,28 @@
 						Premium type: <strong>{{ premiumType }}</strong>
 					</div>
 				</div>
+
+				<a
+					:href="profilePage"
+					target="_blank"
+					class="card-item secondary liveInfo"
+					v-if="currentStream"
+				>
+					<img
+						:src="
+							currentStream.thumbnail_url
+								.replace('{width}', '480')
+								.replace('{height}', '270')
+						"
+					/>
+					<div class="streamHeader">
+						<div class="streamTitle">{{ currentStream.title }}</div>
+						<div class="streamCategory">{{ currentStream.game_name }}</div>
+					</div>
+					<div class="streamViewerCount">
+						<Icon name="user" />{{ currentStream.viewer_count }}
+					</div>
+				</a>
 
 				<ChatModTools
 					v-if="isTwitchProfile && canModerate"
@@ -434,28 +450,6 @@
 								</template>
 							</tooltip>
 						</template>
-					</div>
-
-					<div class="card-item secondary liveInfo" v-if="currentStream">
-						<div class="header">
-							<div class="title">{{ t("usercard.streaming") }}</div>
-						</div>
-						<div class="infos">
-							<img
-								:src="
-									currentStream.thumbnail_url
-										.replace('{width}', '480')
-										.replace('{height}', '270')
-								"
-							/>
-							<div class="streamHeader">
-								<div class="streamTitle">{{ currentStream.title }}</div>
-								<div class="streamCategory">{{ currentStream.game_name }}</div>
-							</div>
-							<div class="streamViewerCount">
-								<Icon name="user" />{{ currentStream.viewer_count }}
-							</div>
-						</div>
 					</div>
 
 					<div class="card-item description quote" v-if="userDescription">
@@ -1267,6 +1261,34 @@ onBeforeUnmount(() => {
 				text-decoration: none;
 			}
 
+			.live::before {
+				content: "";
+				position: absolute;
+				top: -3px;
+				left: -3px;
+				width: calc(100% + 6px);
+				height: calc(100% + 6px);
+				background: red;
+				z-index: 0;
+				border-radius: inherit;
+				pointer-events: none;
+				background-image: conic-gradient(
+					from 90deg,
+					violet,
+					indigo,
+					blue,
+					green,
+					yellow,
+					orange,
+					red,
+					violet
+				);
+			}
+			.live img {
+				position: relative;
+				z-index: 1;
+			}
+
 			.title {
 				font-size: 1.5em;
 				display: flex;
@@ -1353,30 +1375,6 @@ onBeforeUnmount(() => {
 				margin-bottom: 0.25em;
 			}
 
-			.live {
-				position: relative;
-				display: block;
-				background-color: var(--color-alert);
-				color: var(--color-light);
-				font-weight: bold;
-				font-size: 0.7em;
-				padding: 0.35em 0.75em;
-				border-radius: 0.5em;
-				width: fit-content;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				z-index: 1;
-				box-shadow: 0 -0.25em 0.5em rgba(0, 0, 0, 0.5);
-
-				.viewers {
-					font-weight: normal;
-					.icon {
-						height: 0.8em;
-						margin-left: 2px;
-					}
-				}
-			}
-
 			.userID {
 				font-size: 0.7em;
 				cursor: copy;
@@ -1385,12 +1383,13 @@ onBeforeUnmount(() => {
 
 			.avatar {
 				position: relative;
-				.large {
+				.imageHolder {
 					width: 5em;
 					height: 5em;
 					border-radius: 50%;
 					margin: auto;
 					display: block;
+					overflow: hidden;
 					transition:
 						width 0.25s,
 						height 0.25s,
@@ -1399,6 +1398,10 @@ onBeforeUnmount(() => {
 						width: 10em;
 						height: 10em;
 						border-radius: 5px;
+					}
+					img {
+						width: 100%;
+						height: 100%;
 					}
 				}
 				.mini {
@@ -1457,58 +1460,73 @@ onBeforeUnmount(() => {
 
 		.liveInfo {
 			align-self: center;
-			flex-shrink: 0;
+			margin-left: auto;
+			margin-right: auto;
 			position: relative;
 			transition: width 0.25s;
 			width: 200px;
-			.infos {
-				position: relative;
-				img {
-					width: 100%;
-					aspect-ratio: 16/9;
+			line-height: 1.05em;
+			cursor: pointer;
+			&::before {
+				content: "LIVE";
+				position: absolute;
+				color: var(--color-light);
+				font-weight: bold;
+				font-size: 0.7em;
+				padding: 0.2em 0.5em;
+				border-radius: 0.5em;
+				box-shadow: 0 -0.25em 0.5em rgba(0, 0, 0, 0.5);
+				background-color: red;
+				top: 0;
+				right: 0;
+				z-index: 1;
+			}
+			img {
+				width: 100%;
+				aspect-ratio: 16/9;
+			}
+			.game {
+				position: absolute;
+				margin-top: 0.25em;
+				display: inline-block;
+				bottom: 5px;
+				right: 5px;
+				font-size: 0.8em;
+				text-align: right;
+				width: calc(100% - 10px);
+			}
+			.streamHeader {
+				position: absolute;
+				top: 0;
+				left: 0;
+				max-width: 100%;
+				background-color: rgba(0, 0, 0, 0.4);
+				padding: 0.2em 0.5em;
+				border-radius: var(--border-radius);
+				width: calc(100% - 2.5em);
+				.streamTitle,
+				.streamCategory {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					text-wrap: nowrap;
 				}
-				.game {
-					position: absolute;
+				.streamCategory {
+					font-size: 0.8em;
+					font-style: italic;
 					margin-top: 0.25em;
-					display: inline-block;
-					bottom: 5px;
-					right: 5px;
-					font-size: 0.8em;
-					text-align: right;
-					width: calc(100% - 10px);
 				}
-				.streamHeader {
-					position: absolute;
-					top: 0;
-					left: 0;
-					max-width: 100%;
-					background-color: rgba(0, 0, 0, 0.4);
-					padding: 5px;
-					border-radius: var(--border-radius);
-					.streamTitle,
-					.streamCategory {
-						overflow: hidden;
-						text-overflow: ellipsis;
-						text-wrap: nowrap;
-					}
-					.streamCategory {
-						font-size: 0.8em;
-						font-style: italic;
-						margin-top: 0.25em;
-					}
-				}
-				.streamViewerCount {
-					position: absolute;
-					bottom: 2px;
-					right: 0;
-					background-color: rgba(0, 0, 0, 0.4);
-					padding: 5px;
-					border-radius: var(--border-radius);
-					font-size: 0.8em;
-					.icon {
-						height: 0.8em;
-						margin-right: 0.25em;
-					}
+			}
+			.streamViewerCount {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				background-color: rgba(0, 0, 0, 0.4);
+				padding: 0.2em 0.5em;
+				border-radius: var(--border-radius);
+				font-size: 0.8em;
+				.icon {
+					height: 0.8em;
+					margin-right: 0.25em;
 				}
 			}
 
