@@ -3,10 +3,6 @@
 		class="chattipeeevent chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="tipeee" alt="tipeee" class="icon" />
 
 		<div class="messageHolder">

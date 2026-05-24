@@ -2,10 +2,6 @@
 	<div class="chatscoperequester chatMessage highlight error">
 		<ClearButton @click="deleteMessage()" />
 
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="lock_fit" />
 
 		<div class="info">

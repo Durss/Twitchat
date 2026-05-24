@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="unbanRequest" alt="notice" class="icon" />
 
 		<div class="content">

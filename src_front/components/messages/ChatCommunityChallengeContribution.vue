@@ -1,12 +1,9 @@
 <template>
 	<div
 		class="chatcommunitychallengecontribution chatMessage highlight"
+		ref="rootEl"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="channelPoints" alt="reward" class="icon" />
 
 		<div class="holder">
@@ -44,26 +41,24 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { toNative, Component, Prop } from "vue-facing-decorator";
 import AbstractChatMessage from "./AbstractChatMessage";
+import { computed, useTemplateRef } from "vue";
+import { useChatMessage } from "@/composables/useChatMessage";
 
-@Component({
-	components: {},
-	emits: ["onRead"],
-})
-class ChatCommunityChallengeContribution extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageCommunityChallengeContributionData;
-
-	public get percent(): number {
-		return Math.floor(
-			(this.messageData.challenge.progress / this.messageData.challenge.goal) * 100,
-		);
-	}
-}
-export default toNative(ChatCommunityChallengeContribution);
+const rootEl = useTemplateRef("rootEl");
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageCommunityChallengeContributionData;
+}>();
+const emit = defineEmits<{ onRead: [] }>();
+const { openUserCard, onContextMenu } = useChatMessage(props, emit, rootEl);
+const percent = computed(() => {
+	return Math.floor(
+		(props.messageData.challenge.progress / props.messageData.challenge.goal) * 100,
+	);
+});
 </script>
 
 <style scoped lang="less">
@@ -79,8 +74,7 @@ export default toNative(ChatCommunityChallengeContribution);
 		}
 	}
 
-	.icon,
-	.chatMessageTime {
+	.icon {
 		align-self: center;
 	}
 

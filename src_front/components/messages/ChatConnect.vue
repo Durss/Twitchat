@@ -1,18 +1,24 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon class="icon" :name="messageData.type == 'connect' ? 'checkmark' : 'cross'" />
 
-		<div class="holder">
-			<i18n-t
-				scope="global"
-				class="label"
-				tag="span"
-				v-if="messageData.type == 'connect'"
-				keypath="chat.connect.on"
+		<i18n-t
+			scope="global"
+			class="label"
+			tag="span"
+			v-if="messageData.type == 'connect'"
+			keypath="chat.connect.on"
+		>
+			<template #PLATFORM
+				><strong>{{ messageData.platform }}</strong></template
 			>
+			<template #ROOM
+				><strong>{{ channelName }}</strong></template
+			>
+		</i18n-t>
+
+		<template v-else>
+			<i18n-t scope="global" class="label" tag="span" keypath="chat.connect.off">
 				<template #PLATFORM
 					><strong>{{ messageData.platform }}</strong></template
 				>
@@ -21,26 +27,15 @@
 				>
 			</i18n-t>
 
-			<template v-else>
-				<i18n-t scope="global" class="label" tag="span" keypath="chat.connect.off">
-					<template #PLATFORM
-						><strong>{{ messageData.platform }}</strong></template
-					>
-					<template #ROOM
-						><strong>{{ channelName }}</strong></template
-					>
-				</i18n-t>
-
-				<TTButton
-					v-if="showReconnectBt"
-					icon="online"
-					primary
-					small
-					@click.stop="reconnectChan()"
-					>{{ $t("global.reconnect") }}</TTButton
-				>
-			</template>
-		</div>
+			<TTButton
+				v-if="showReconnectBt"
+				icon="online"
+				primary
+				small
+				@click.stop="reconnectChan()"
+				>{{ $t("global.reconnect") }}</TTButton
+			>
+		</template>
 	</div>
 </template>
 
@@ -127,19 +122,11 @@ export default toNative(ChatConnect);
 <style scoped lang="less">
 .chatconnect {
 	font-style: italic;
-	.holder {
-		gap: 1em;
-		display: inline-flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		row-gap: 0.25em;
-		align-items: center;
-		flex-grow: 1;
+	gap: 0.5em;
 
-		.label {
-			flex-basis: 100px;
-			flex-grow: 1;
-		}
+	.label {
+		flex-basis: 100px;
+		flex-grow: 1;
 	}
 }
 </style>

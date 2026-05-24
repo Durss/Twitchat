@@ -3,10 +3,6 @@
 		class="chatstreamelementsevent chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="streamelements" alt="streamelements" class="icon" />
 
 		<div class="messageHolder">

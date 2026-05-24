@@ -4,10 +4,6 @@
 		:class="'tier_' + Math.min(7, messageData.tier)"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="youtube" alt="notice" class="icon" />
 
 		<img

@@ -1,9 +1,5 @@
 <template>
 	<div class="chatmanyreplies chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="reply_many" class="icon" />
 
 		<div class="holder">

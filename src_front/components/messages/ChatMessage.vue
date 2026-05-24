@@ -106,10 +106,6 @@
 				messageData.user.is_blocked !== true || messageData.user.stop_block_censor === true
 			"
 		>
-			<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-				time
-			}}</span>
-
 			<ChatModTools
 				:messageData="messageData"
 				class="mod"
@@ -369,7 +365,16 @@ import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { CSSProperties } from "vue";
-import { computed, onBeforeMount, onMounted, ref, toRaw, useTemplateRef, watch } from "vue";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onMounted,
+	ref,
+	toRaw,
+	useTemplateRef,
+	watch,
+} from "vue";
 import { useI18n } from "vue-i18n";
 import TTButton from "../TTButton.vue";
 import CustomUserBadges from "../user/CustomUserBadges.vue";
@@ -377,7 +382,6 @@ import MessageTranslation from "./MessageTranslation.vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 import ChatMessageInfoBadges from "./components/ChatMessageInfoBadges.vue";
 import ChatModTools from "./components/ChatModTools.vue";
-import { nextTick } from "vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -433,7 +437,6 @@ const requestClipDLPermission = ref(false);
 let staticClasses: string[] = [];
 
 const {
-	time,
 	canModerateMessage,
 	canModerateUser_local,
 	copyJSON,

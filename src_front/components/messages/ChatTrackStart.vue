@@ -1,9 +1,5 @@
 <template>
 	<div class="chattrackstart chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="music" alt="notice" class="icon" />
 		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 

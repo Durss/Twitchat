@@ -1,8 +1,5 @@
 <template>
 	<div class="chatraffleresult chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="ticket" alt="icon" class="icon" />
 
 		<i18n-t
