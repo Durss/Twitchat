@@ -976,7 +976,7 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 			return props.config.filters.music_added_to_queue == true;
 		}
 
-		case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
+		case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT: {
 			return props.config.filters.ad_break_start_chat === true;
 		}
 

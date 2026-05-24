@@ -1,5 +1,5 @@
 <template>
-	<div class="chatadbreakstarted chatMessage highlight">
+	<div class="chatadbreakstarted chatMessage highlight" ref="rootEl">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
 			time
 		}}</span>
@@ -23,30 +23,22 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
+import { useTemplateRef } from "vue";
 import Icon from "../Icon.vue";
 
-@Component({
-	components: {
-		Icon,
-	},
-	emits: ["onRead"],
-})
-class ChatAdBreakStarted extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageAdBreakStartData;
-
-	public duration: string = "";
-
-	public beforeMount(): void {
-		this.duration = Utils.formatDuration(this.messageData.duration_s * 1000);
-	}
-}
-export default toNative(ChatAdBreakStarted);
+const rootEl = useTemplateRef("rootEl");
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageAdBreakStartData;
+}>();
+const duration = Utils.formatDuration(props.messageData.duration_s * 1000);
+const { time, openUserCard } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
