@@ -334,6 +334,8 @@ export default class PaypalController extends AbstractController {
 					}
 					const donorLevel = Config.donorsLevels.findIndex((v) => v > params.amount) - 1;
 
+					super.clearPremiumCache(params.twitchUID);
+
 					response.header("Content-Type", "application/json");
 					response.status(200);
 					response.send(

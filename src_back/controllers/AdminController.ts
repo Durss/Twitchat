@@ -35,35 +35,39 @@ export default class AdminController extends AbstractController {
 		);
 		this.server.get(
 			"/api/beta/user/hasData",
-			async (request, response) => await this.getUserHasData(request, response),
+			async (request, response) => await this.getUserHasBetaData(request, response),
+		);
+		this.server.get(
+			"/api/admin/user/premiumState",
+			async (request, response) => await this.getUserPremiumStateQuery(request, response),
 		);
 		this.server.post(
 			"/api/beta/user/migrateToProduction",
-			async (request, response) => await this.migrateUser(request, response),
+			async (request, response) => await this.migrateBetaUserToProd(request, response),
 		);
 		this.server.post(
 			"/api/admin/beta/user",
-			async (request, response) => await this.addUser(request, response),
+			async (request, response) => await this.addBetaUser(request, response),
 		);
 		this.server.post(
 			"/api/admin/beta/user/migrateToProduction",
-			async (request, response) => await this.migrateUserAdmin(request, response),
+			async (request, response) => await this.migrateUserToProdAdmin(request, response),
 		);
 		this.server.post(
 			"/api/admin/premium",
-			async (request, response) => await this.postPremium(request, response),
+			async (request, response) => await this.postGiftPremium(request, response),
 		);
 		this.server.delete(
 			"/api/admin/premium",
-			async (request, response) => await this.deletePremium(request, response),
+			async (request, response) => await this.deleteGiftPremium(request, response),
 		);
 		this.server.delete(
 			"/api/admin/beta/user",
-			async (request, response) => await this.delUser(request, response),
+			async (request, response) => await this.delBetaUser(request, response),
 		);
 		this.server.delete(
 			"/api/admin/beta/user/all",
-			async (request, response) => await this.removeAllUsers(request, response),
+			async (request, response) => await this.removeAllBetaUsers(request, response),
 		);
 
 		//Updates labels
@@ -146,7 +150,21 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Check if a user has data on the beta server
 	 */
-	private async getUserHasData(request: FastifyRequest, response: FastifyReply) {
+	private async getUserPremiumStateQuery(request: FastifyRequest, response: FastifyReply) {
+		if (!(await this.adminGuard(request, response))) return;
+		const params = request.query as { uid: string };
+		const state = await super.getUserPremiumState(params.uid);
+		console.log("state");
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, premiumState: state }));
+	}
+
+	/**
+	 * Check if a user has data on the beta server
+	 */
+	private async getUserHasBetaData(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
@@ -188,7 +206,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Add a user to the beta list
 	 */
-	private async addUser(request: FastifyRequest, response: FastifyReply) {
+	private async addBetaUser(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		const params = request.body as any;
@@ -233,7 +251,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Migrate a user's data from beta to production
 	 */
-	private async migrateUser(request: FastifyRequest, response: FastifyReply) {
+	private async migrateBetaUserToProd(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
@@ -259,7 +277,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Migrate a user's data from beta to production (Admin mode)
 	 */
-	private async migrateUserAdmin(request: FastifyRequest, response: FastifyReply) {
+	private async migrateUserToProdAdmin(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		const params: any = request.body;
@@ -296,7 +314,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Removes a user from the beta list
 	 */
-	private async delUser(request: FastifyRequest, response: FastifyReply) {
+	private async delBetaUser(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		const params = request.query as any;
@@ -334,7 +352,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Removes all users from the beta list
 	 */
-	private async removeAllUsers(request: FastifyRequest, response: FastifyReply) {
+	private async removeAllBetaUsers(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		fs.writeFileSync(Config.BETA_USER_LIST, JSON.stringify([]));
@@ -347,7 +365,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Gifts premium to a user
 	 */
-	private async postPremium(request: FastifyRequest, response: FastifyReply) {
+	private async postGiftPremium(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		const params: any = request.body;
@@ -361,7 +379,7 @@ export default class AdminController extends AbstractController {
 	/**
 	 * Remove premium gift from a user
 	 */
-	private async deletePremium(request: FastifyRequest, response: FastifyReply) {
+	private async deleteGiftPremium(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
 
 		const params = request.query as any;
