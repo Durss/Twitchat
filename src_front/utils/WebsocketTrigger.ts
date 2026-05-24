@@ -1,3 +1,4 @@
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { ref } from "vue";
@@ -9,6 +10,7 @@ import Utils from "./Utils";
  */
 export default class WebsocketTrigger {
 	public connected = ref(false);
+	public enabled = ref(true);
 
 	private reconnectTimeout!: number;
 	private socket!: WebSocket;
@@ -16,6 +18,13 @@ export default class WebsocketTrigger {
 	private static _instance: WebsocketTrigger;
 
 	constructor() {
+		const paramsStr = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
+		if (paramsStr) {
+			try {
+				const params = JSON.parse(paramsStr) as { connectionEnabled?: boolean };
+				this.enabled.value = params.connectionEnabled ?? true;
+			} catch (_e) {}
+		}
 		window.addEventListener("beforeunload", () => {
 			if (this.connected.value) void this.disconnect();
 		});

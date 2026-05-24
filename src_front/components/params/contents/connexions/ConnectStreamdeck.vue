@@ -119,7 +119,7 @@ import ConnectionForm from "./ConnectionForm.vue";
 
 const { t } = useI18n();
 
-const enabled = ref(false);
+const enabled = StreamdeckSocket.instance.enabledRef;
 const error = ref(false);
 const errorMessage = ref("");
 const connecting = ref(false);
@@ -145,7 +145,6 @@ const connected = StreamdeckSocket.instance.connected;
 onBeforeMount(() => {
 	param_ip.value.value = StreamdeckSocket.instance.ip;
 	param_secretKey.value.value = StreamdeckSocket.instance.secretKey;
-	enabled.value = StreamdeckSocket.instance.enabled == true;
 	onIpChange();
 });
 
