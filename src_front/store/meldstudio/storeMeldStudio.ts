@@ -115,6 +115,8 @@ export const storeMeldStudio = defineStore("meldstudio", {
 						meldInstance = channel.objects.meld;
 						if (!meldInstance) return;
 
+						meldInstance.setClientName("Twitchat");
+
 						const onSessionDataUpdate = (isFirstSync: boolean) => {
 							if (!meldInstance) return;
 							const items = meldInstance.session.items;
@@ -235,8 +237,9 @@ export const storeMeldStudio = defineStore("meldstudio", {
 					meldInstance = null;
 					this.connected = false;
 					this.connecting = false;
-					reconnectDelay = Math.min(60000, reconnectDelay * 2);
+					//FIXME: this code is also sent when meld is closed which block auto reconnect
 					if (event.code !== 1000) {
+						reconnectDelay = Math.min(60000, reconnectDelay * 2);
 						clearTimeout(reconnectTimeout);
 						reconnectTimeout = window.setTimeout(() => {
 							void this.connect();
