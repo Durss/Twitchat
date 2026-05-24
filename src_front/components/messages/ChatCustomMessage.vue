@@ -1,9 +1,10 @@
 <template>
-	<div :class="classes" :style="styles" @contextmenu="onContextMenu($event, messageData, rootEl!)" ref="rootEl">
-		<span class="chatMessageTime" v-if="storeParams.appearance.displayTime.value">{{
-			time
-		}}</span>
-
+	<div
+		:class="classes"
+		:style="styles"
+		@contextmenu="onContextMenu($event, messageData, rootEl!)"
+		ref="rootEl"
+	>
 		<div class="messageHolder">
 			<div class="content">
 				<Icon v-if="messageData.icon" :name="messageData.icon" />
@@ -61,7 +62,6 @@
 import { useChatMessage } from "@/composables/useChatMessage";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import Database from "@/store/Database";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
@@ -86,11 +86,10 @@ const emit = defineEmits<{
 	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
 }>();
 
-const storeParams = useStoreParams();
 const storeTriggers = useStoreTriggers();
 
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
-const { time, onContextMenu, deleteMessage } = useChatMessage(props, emit, rootEl);
+const { onContextMenu, deleteMessage } = useChatMessage(props, emit, rootEl);
 
 const loading = ref(false);
 
@@ -276,3 +275,4 @@ async function onClickButton(
 	}
 }
 </style>
+

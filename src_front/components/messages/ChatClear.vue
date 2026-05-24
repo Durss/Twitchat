@@ -3,10 +3,6 @@
 		class="chatclear chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
 			<template #ROOM
 				><strong>#{{ room }}</strong></template

@@ -3,10 +3,6 @@
 		class="chattiltifyevent chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="tiltify" alt="tiltify" class="icon" />
 
 		<div class="messageHolder">

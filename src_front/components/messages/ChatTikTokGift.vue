@@ -1,9 +1,5 @@
 <template>
 	<div class="chattiktokgift chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="gift" alt="gift" class="icon" />
 		<Icon name="tiktok" alt="tiktok" class="icon" />
 

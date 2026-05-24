@@ -3,10 +3,6 @@
 		class="chatwarnuser chatMessage highlight error"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="alert" alt="alert" class="icon" />
 
 		<div class="messageHolder">

@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes" ref="rootEl">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon :name="messageData.type == 'pinned' ? 'pin' : 'unpin'" alt="notice" class="icon" />
 
 		<div class="holder">

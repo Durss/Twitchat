@@ -1,8 +1,5 @@
 <template>
 	<div class="chathypetrainresult chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="train" alt="icon" class="icon" />
 		<div class="infoHolder">
 			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">

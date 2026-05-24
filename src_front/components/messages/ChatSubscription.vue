@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon v-if="messageData.is_gift" name="gift" alt="gift" class="icon" />
 		<Icon v-else-if="messageData.tier == 'prime'" name="prime" alt="prime" class="icon" />
 		<Icon v-else name="sub" alt="sub" class="icon" />

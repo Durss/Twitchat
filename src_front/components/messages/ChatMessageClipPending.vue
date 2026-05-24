@@ -1,9 +1,5 @@
 <template>
 	<div class="chatmessageclippending chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="clip" alt="notice" class="icon" />
 
 		<div class="loading" v-if="loading && !error">

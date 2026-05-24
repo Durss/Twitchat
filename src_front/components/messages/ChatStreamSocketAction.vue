@@ -3,10 +3,6 @@
 		class="chatstreamsocketaction chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="streamsocket" alt="streamsocket" class="icon" />
 
 		<i18n-t scope="global" keypath="chat.stream_socket.action" tag="span" class="holder">

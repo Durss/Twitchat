@@ -1,9 +1,5 @@
 <template>
 	<div class="chatautobanjoin chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="mod" alt="mod" />
 
 		<div class="holder">

@@ -1,9 +1,5 @@
 <template>
 	<div class="chatsuspendedtriggerstack chatMessage highlight alert">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<div class="head">
 			<Icon name="broadcast" alt="icon" class="icon" />
 			<span class="info">{{ $t("chat.suspended_trigger_stack.title") }}</span>

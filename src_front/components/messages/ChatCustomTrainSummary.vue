@@ -3,10 +3,6 @@
 		class="chatcustomtrainsummary chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="train" alt="train" class="icon" />
 
 		<div class="messageHolder">

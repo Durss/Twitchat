@@ -3,10 +3,6 @@
 		class="chatcustompowerup chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<div class="holder">
 			<Icon name="watchStreak" />
 			<i18n-t scope="global" class="label" tag="span" keypath="chat.custom_power_up.message">

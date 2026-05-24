@@ -3,10 +3,6 @@
 		class="chatprivatemoderatorevent chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="mod" alt="moderator" class="icon" />
 
 		<div class="messageHolder">

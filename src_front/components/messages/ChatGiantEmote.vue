@@ -3,10 +3,6 @@
 		class="chatgiantemote chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<div class="holder">
 			<Icon name="watchStreak" />
 			<i18n-t

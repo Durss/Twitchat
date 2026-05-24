@@ -2,10 +2,6 @@
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
 		<div class="fill" ref="fill"></div>
 
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="hypeChat" alt="hypeChat" class="icon" theme="light" />
 
 		<div class="holder">

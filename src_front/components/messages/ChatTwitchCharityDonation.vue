@@ -3,10 +3,6 @@
 		class="chattwitchcharitydonation chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="twitch_charity" alt="twitch charity" class="icon charityIcon" />
 
 		<div class="messageHolder">

@@ -3,10 +3,6 @@
 		class="chatkofievent chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="kofi" alt="kofi" class="icon" />
 
 		<div class="messageHolder">

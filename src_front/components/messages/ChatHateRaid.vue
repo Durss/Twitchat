@@ -1,9 +1,5 @@
 <template>
 	<div class="chathateraid chatMessage highlight alert">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="raid" alt="raid" class="icon" />
 
 		<div class="content">

@@ -3,9 +3,6 @@
 		class="chatbingoresult chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
 		<Icon name="bingo" alt="icon" class="icon" />
 
 		<i18n-t scope="global" tag="div" keypath="chat.bingo.title">

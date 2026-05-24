@@ -24,11 +24,11 @@ export function useChatMessage(
 	const storeChat = useStoreChat();
 	const storeUsers = useStoreUsers();
 
-	const time = ref("");
 	const canModerateMessage = ref(false);
 	const canModerateUser_local = ref(false);
-	let refreshTimeout: number = -1;
 	let clickHandler: (e: MouseEvent) => void;
+	let hoverEnterHandler: (() => void) | undefined;
+	let hoverLeaveHandler: (() => void) | undefined;
 
 	/**
 	 * Check if the currently authenticated user can moderate the message
@@ -49,35 +49,6 @@ export function useChatMessage(
 			(user.id == authenticatedUser.id &&
 				authenticatedUser.channelInfo[channelId]?.is_moderator)
 		);
-	}
-
-	/**
-	 * Refreshes the date at a regular interval if needed
-	 */
-	function refreshDate() {
-		const elapsedMode = storeParams.appearance.displayTimeRelative.value === true;
-		const d = new Date(props.messageData.date);
-
-		if (elapsedMode) {
-			const elapsed = Date.now() - d.getTime();
-			const step =
-				elapsed < 60000
-					? 1000
-					: elapsed < 60000 * 5
-						? 5000
-						: elapsed < 60000 * 10
-							? 10000
-							: 60000;
-
-			time.value = Utils.elapsedDuration(d.getTime(), step);
-
-			clearTimeout(refreshTimeout);
-			refreshTimeout = window.setTimeout(() => {
-				refreshDate();
-			}, step);
-		} else {
-			time.value = Utils.toDigits(d.getHours()) + ":" + Utils.toDigits(d.getMinutes());
-		}
 	}
 
 	/**
@@ -105,6 +76,12 @@ export function useChatMessage(
 		if (props.messageData.automod) return;
 
 		const holder = rootEl.value! as HTMLElement;
+		//Remove any previous hover listeners so repeated calls don't stack them.
+		if (hoverEnterHandler) holder.removeEventListener("mouseenter", hoverEnterHandler);
+		if (hoverLeaveHandler) holder.removeEventListener("mouseleave", hoverLeaveHandler);
+		hoverEnterHandler = undefined;
+		hoverLeaveHandler = undefined;
+
 		const params = storeParams.appearance;
 		const chanInfo = props.messageData.user.channelInfo[props.messageData.channel_id];
 		let color = "";
@@ -134,8 +111,18 @@ export function useChatMessage(
 			color = params.highlightSubs_color.value as string;
 		}
 		if (color) {
+			const baseBg = color + "10";
+			const hoverBg = color + "30";
 			holder.style.border = "1px solid " + color + "90";
-			holder.style.backgroundColor = color + "10";
+			holder.style.backgroundColor = baseBg;
+			hoverEnterHandler = () => {
+				holder.style.backgroundColor = hoverBg;
+			};
+			hoverLeaveHandler = () => {
+				holder.style.backgroundColor = baseBg;
+			};
+			holder.addEventListener("mouseenter", hoverEnterHandler);
+			holder.addEventListener("mouseleave", hoverLeaveHandler);
 		} else {
 			holder.style.border = "";
 			holder.style.backgroundColor = "";
@@ -235,16 +222,6 @@ export function useChatMessage(
 				//If message is not older than 6h. Passed this we cannot delete a message on Twitch
 				Date.now() - props.messageData.date < 6 * 60 * 60000;
 		}
-
-		refreshDate();
-		//Watch for "relative" param update to refresh time accordingly
-		watch(
-			() => storeParams.appearance.displayTimeRelative.value,
-			() => {
-				clearTimeout(refreshTimeout);
-				refreshDate();
-			},
-		);
 	});
 
 	onMounted(() => {
@@ -292,16 +269,15 @@ export function useChatMessage(
 	});
 
 	onBeforeUnmount(() => {
-		clearTimeout(refreshTimeout);
 		rootEl.value?.removeEventListener("click", clickHandler);
+		if (hoverEnterHandler) rootEl.value?.removeEventListener("mouseenter", hoverEnterHandler);
+		if (hoverLeaveHandler) rootEl.value?.removeEventListener("mouseleave", hoverLeaveHandler);
 	});
 
 	return {
-		time,
 		canModerateMessage,
 		canModerateUser_local,
 		canModerateUser,
-		refreshDate,
 		copyJSON,
 		applyStyles,
 		onContextMenu,

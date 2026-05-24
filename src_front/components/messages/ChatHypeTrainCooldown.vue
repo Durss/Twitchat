@@ -1,9 +1,5 @@
 <template>
 	<div class="chathypetraincooldown chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<Icon name="train" alt="train" class="icon" />
 
 		<span>{{ $t("chat.train_cooldown") }}</span>

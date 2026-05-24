@@ -3,10 +3,6 @@
 		class="chatyoutubesubgift chatMessage highlight"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<div class="iconList">
 			<Icon name="gift" alt="notice" class="icon subIcon" />
 			<Icon name="youtube" alt="notice" class="icon" />

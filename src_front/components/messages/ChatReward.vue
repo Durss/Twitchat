@@ -1,9 +1,5 @@
 <template>
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{
-			time
-		}}</span>
-
 		<div class="holder">
 			<div v-for="entry in rewardList" :key="entry.vo.id" class="item">
 				<img
