@@ -37,4 +37,3 @@ const extraGap = computed(() => {
 	}
 }
 </style>
-

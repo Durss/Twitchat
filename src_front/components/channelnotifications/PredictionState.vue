@@ -105,13 +105,9 @@ let disposed = false;
 
 const me = computed<TwitchatDataTypes.TwitchatUser>(() => storeAuth.twitch.user);
 
-const prediction = computed<TwitchatDataTypes.MessagePredictionData>(
-	() => storePrediction.data!,
-);
+const prediction = computed<TwitchatDataTypes.MessagePredictionData>(() => storePrediction.data!);
 
-const canAnswer = computed<boolean>(
-	() => prediction.value.channel_id == storeAuth.twitch.user.id,
-);
+const canAnswer = computed<boolean>(() => prediction.value.channel_id == storeAuth.twitch.user.id);
 
 const classes = computed<string[]>(() => {
 	let res = ["predictionstate", "gameStateWindow"];
@@ -163,10 +159,7 @@ function setOutcome(c: TwitchatDataTypes.MessagePredictionDataOutcome): void {
 
 function deletePrediction(): void {
 	loading.value = true;
-	confirm(
-		t("prediction.state.delete_title"),
-		t("prediction.state.delete_desc"),
-	)
+	confirm(t("prediction.state.delete_title"), t("prediction.state.delete_desc"))
 		.then(async () => {
 			try {
 				await TwitchUtils.endPrediction(

@@ -432,4 +432,3 @@ export function isMeldStudioEffect(item: MeldStudioSessionItem): item is MeldStu
 export function isMeldStudioAudioTrack(item: MeldStudioSessionItem): item is MeldStudioAudioTrack {
 	return item.type === "track";
 }
-
