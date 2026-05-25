@@ -390,6 +390,7 @@ const UserDataSchema = {
 					obsScene: { type: "string", maxLength: 200 },
 					obsInput: { type: "string", maxLength: 200 },
 					obsFilter: { type: "string", maxLength: 200 },
+					meldItem: { type: "string", maxLength: 200 },
 					created_at: { type: "integer", minimum: 0, maximum: 32503672800000 },
 					adBreakDelay: { type: "integer", minimum: 0, maximum: 5 * 60000 },
 					goxlrButtons: {

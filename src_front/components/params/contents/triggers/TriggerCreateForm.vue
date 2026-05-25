@@ -18,6 +18,18 @@
 			scope="global"
 			tag="div"
 			class="card-item alert require"
+			v-if="needMeldConnect"
+			keypath="triggers.meldstudio.require"
+		>
+			<template #URL>
+				<a @click="openMeldStudio()">{{ t("triggers.meldstudio.require_url") }}</a>
+			</template>
+		</i18n-t>
+
+		<i18n-t
+			scope="global"
+			tag="div"
+			class="card-item alert require"
 			v-if="needRewards"
 			keypath="triggers.rewards.require"
 		>
@@ -193,6 +205,7 @@ import TTButton from "@/components/TTButton.vue";
 import { asset } from "@/composables/useAsset";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeMeldStudio as useStoreeldStudio } from "@/store/meldstudio/storeMeldStudio";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
@@ -200,6 +213,7 @@ import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import type { TriggerEventTypeCategory } from "@/types/TriggerActionDataTypes";
 import {
 	ANY_COUNTER,
+	ANY_MELDSTUDIO_SCENE,
 	ANY_OBS_SCENE,
 	ANY_VALUE,
 	TriggerEventTypeCategories,
@@ -229,6 +243,7 @@ const storeValues = useStoreValues();
 const storeTriggers = useStoreTriggers();
 const storeParams = useStoreParams();
 const storeMain = useStoreMain();
+const storeMeldStudio = useStoreeldStudio();
 
 const props = withDefaults(
 	defineProps<{
@@ -259,6 +274,7 @@ const showLoading = ref(false);
 const needRewards = ref(false);
 const needPowerUps = ref(false);
 const needObsConnect = ref(false);
+const needMeldConnect = ref(false);
 const selectedTriggerType = ref<TriggerTypeDefinition | null>(null);
 const subtriggerList = ref<TriggerEntry[]>([]);
 const eventCategories = ref<TriggerCategory[]>([]);
@@ -790,6 +806,81 @@ async function selectTriggerType(e: TriggerTypeDefinition): Promise<void> {
 	) {
 		listCounters();
 		emit("updateHeader", "triggers.header_select_counter");
+	} else if (e.value == TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE) {
+		if (!storeMeldStudio.connected) {
+			needMeldConnect.value = true;
+			return;
+		} else {
+			needMeldConnect.value = false;
+			const list = storeMeldStudio.layerList.map((v): TriggerEntry => {
+				return {
+					label: v.name,
+					searchTerms: [v.name],
+					value: v.id,
+					icon: "",
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_meld_layer");
+		}
+	} else if (e.value == TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE) {
+		if (!storeMeldStudio.connected) {
+			needMeldConnect.value = true;
+			return;
+		} else {
+			needMeldConnect.value = false;
+			const list = storeMeldStudio.effectList.map((v): TriggerEntry => {
+				return {
+					label: v.name,
+					searchTerms: [v.name],
+					value: v.id,
+					icon: "",
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_meld_effect");
+		}
+	} else if (e.value == TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE) {
+		if (!storeMeldStudio.connected) {
+			needMeldConnect.value = true;
+			return;
+		} else {
+			needMeldConnect.value = false;
+			const list = storeMeldStudio.trackList.map((v): TriggerEntry => {
+				return {
+					label: v.name,
+					searchTerms: [v.name],
+					value: v.id,
+					icon: "",
+				};
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_meld_track");
+		}
+	} else if (e.value == TriggerTypes.MELDSTUDIO_SCENE_CHANGE) {
+		if (!storeMeldStudio.connected) {
+			needMeldConnect.value = true;
+			return;
+		} else {
+			needMeldConnect.value = false;
+			const list = storeMeldStudio.sceneList.map((v): TriggerEntry => {
+				return {
+					label: v.name,
+					searchTerms: [v.name],
+					value: v.id,
+					icon: "",
+				};
+			});
+			const defaultName = t("triggers.meldstudio.anyScene");
+			list.unshift({
+				label: defaultName,
+				searchTerms: [defaultName],
+				value: ANY_MELDSTUDIO_SCENE,
+				icon: "",
+			});
+			subtriggerList.value = list;
+			emit("updateHeader", "triggers.header_select_meld_scene");
+		}
 	}
 
 	if (e.value == TriggerTypes.VALUE_UPDATE) {
@@ -868,6 +959,13 @@ function selectSubType(entry: TriggerEntry, parentItem?: TriggerEntry): void {
 			temporaryTrigger.counterId = entry.value;
 			break;
 
+		case TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE:
+		case TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE:
+		case TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE:
+		case TriggerTypes.MELDSTUDIO_SCENE_CHANGE:
+			temporaryTrigger.meldItem = entry.value;
+			break;
+
 		case TriggerTypes.VALUE_UPDATE:
 			temporaryTrigger.valueId = entry.value;
 			break;
@@ -888,6 +986,13 @@ function openOBS(): void {
 	storeParams.openParamsPage(
 		TwitchatDataTypes.ParameterPages.CONNECTIONS,
 		TwitchatDataTypes.ParamDeepSections.OBS,
+	);
+}
+
+function openMeldStudio(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.MELD_STUDIO,
 	);
 }
 

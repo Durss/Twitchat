@@ -1,6 +1,7 @@
 import StoreProxy from "@/store/StoreProxy";
 import {
 	ANY_COUNTER,
+	ANY_MELDSTUDIO_SCENE,
 	ANY_OBS_SCENE,
 	ANY_VALUE,
 	TriggerEventPlaceholders,
@@ -193,6 +194,41 @@ export default class TriggerUtils {
 			case TriggerTypes.OBS_INPUT_MUTE:
 			case TriggerTypes.OBS_INPUT_UNMUTE: {
 				if (!result.label && trigger.obsInput) result.label = trigger.obsInput;
+				break;
+			}
+			case TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: {
+				if (!result.label && trigger.meldItem)
+					result.label =
+						StoreProxy.meldStudio.effectList.find((l) => l.id === trigger.meldItem)
+							?.name || result.label;
+				break;
+			}
+			case TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE: {
+				if (!result.label && trigger.meldItem)
+					result.label =
+						StoreProxy.meldStudio.layerList.find((l) => l.id === trigger.meldItem)
+							?.name || result.label;
+				break;
+			}
+			case TriggerTypes.MELDSTUDIO_SCENE_CHANGE: {
+				if (!result.label && trigger.meldItem)
+					result.label =
+						StoreProxy.meldStudio.sceneList.find((l) => l.id === trigger.meldItem)
+							?.name || result.label;
+
+				if (trigger.meldItem == ANY_MELDSTUDIO_SCENE) {
+					result.labelKey = "triggers.meldstudio.anyScene";
+					result.descriptionKey =
+						"triggers.events.MELDSTUDIO_SCENE_CHANGE.description_any";
+					result.label = trigger.name || StoreProxy.i18n.t(result.labelKey);
+				}
+				break;
+			}
+			case TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE: {
+				if (!result.label && trigger.meldItem)
+					result.label =
+						StoreProxy.meldStudio.trackList.find((l) => l.id === trigger.meldItem)
+							?.name || result.label;
 				break;
 			}
 
