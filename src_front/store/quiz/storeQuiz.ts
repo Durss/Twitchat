@@ -683,9 +683,7 @@ export const storeQuiz = defineStore("quiz", {
 				const n = parseInt((raw || "").trim());
 				return isNaN(n) || n <= 0 ? undefined : n;
 			};
-			const parseTolerance = (
-				raw: string | undefined,
-			): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
+			const parseTolerance = (raw: string | undefined): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
 				const trimmed = (raw || "").trim();
 				if (!trimmed) return undefined;
 				const n = parseInt(trimmed);
@@ -829,7 +827,8 @@ export const storeQuiz = defineStore("quiz", {
 				.filter((line) => line.length > 0);
 			questions.forEach((line) => {
 				const [, lang, question, answer1, answer2, answer3, answer4] = line;
-				if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang !== langRef) return;
+				if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang !== langRef)
+					return;
 				quiz.questionList.push({
 					id: Utils.getUUID(),
 					mode: "classic",

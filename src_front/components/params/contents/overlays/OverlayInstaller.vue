@@ -285,4 +285,3 @@ function onDragButtonStart(event: DragEvent): void {
 	}
 }
 </style>
-

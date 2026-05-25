@@ -521,4 +521,3 @@ async function onObsSourceCreated(data: { sourceName: string }): Promise<void> {
 	}
 }
 </style>
-

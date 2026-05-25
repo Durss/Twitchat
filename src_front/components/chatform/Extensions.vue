@@ -423,4 +423,3 @@ interface ExtensionItem {
 	}
 }
 </style>
-

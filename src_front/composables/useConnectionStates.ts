@@ -66,9 +66,7 @@ export function useConnectionStates() {
 	const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
 	const voicemodConnected = computed(() => VoicemodWebSocket.instance.connected.value);
 	const spotifyConnected = computed(() => SpotifyHelper.instance.connected.value);
-	const heatConnected = computed(
-		() => HeatSocket.instance.connected.value && storeHeat.enabled,
-	);
+	const heatConnected = computed(() => HeatSocket.instance.connected.value && storeHeat.enabled);
 	const obsConnected = computed(() => OBSWebsocket.instance.connected.value);
 	const wsCustomConnected = computed(() => WebsocketTrigger.instance.connected.value);
 	const streamdeckConnected = computed(() => StreamdeckSocket.instance.connected.value);

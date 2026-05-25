@@ -102,4 +102,3 @@ export type QWebChannelConstructor = new (
 		| QWebChannelBuiltInConverter
 		| Array<QWebChannelConverter | QWebChannelBuiltInConverter>,
 ) => QWebChannelInstance;
-

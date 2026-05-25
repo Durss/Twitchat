@@ -6,7 +6,6 @@ import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
-import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
 /**

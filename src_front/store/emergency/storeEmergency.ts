@@ -231,9 +231,7 @@ export const storeEmergency = defineStore("emergency", {
 				const meld = StoreProxy.meldStudio.meld;
 				if (meld && this.params.meldStudioLayers) {
 					for (const layerId of this.params.meldStudioLayers) {
-						const layer = StoreProxy.meldStudio.layerList.find(
-							(v) => v.id === layerId,
-						);
+						const layer = StoreProxy.meldStudio.layerList.find((v) => v.id === layerId);
 						if (layer && !layer.visible) {
 							meld.toggleLayer(layer.parent, layerId);
 						}
