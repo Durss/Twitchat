@@ -152,13 +152,20 @@ export default class AdminController extends AbstractController {
 	 */
 	private async getUserPremiumStateQuery(request: FastifyRequest, response: FastifyReply) {
 		if (!(await this.adminGuard(request, response))) return;
-		const params = request.query as { uid: string };
-		const state = await super.getUserPremiumState(params.uid);
-		console.log("state");
+		const { uid } = request.query as { uid: string };
+		const premiumState = await super.getUserPremiumState(uid);
+
+		let amountDonated = 0;
+		const json: { [key: string]: number } = JSON.parse(
+			fs.readFileSync(Config.donorsList, "utf8"),
+		);
+		if (json.hasOwnProperty(uid)) {
+			amountDonated = json[uid]!;
+		}
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, premiumState: state }));
+		response.send(JSON.stringify({ success: true, premiumState, amountDonated }));
 	}
 
 	/**
