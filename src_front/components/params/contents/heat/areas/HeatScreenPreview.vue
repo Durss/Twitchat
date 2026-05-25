@@ -230,4 +230,3 @@ function getAreaClasses(areaID: string): string[] {
 	}
 }
 </style>
-

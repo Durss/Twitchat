@@ -177,4 +177,3 @@ async function checkExtensionStatus(): Promise<void> {
 	}
 }
 </style>
-

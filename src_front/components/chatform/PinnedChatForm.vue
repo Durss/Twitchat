@@ -419,4 +419,3 @@ function onClick(e: MouseEvent): void {
 	}
 }
 </style>
-

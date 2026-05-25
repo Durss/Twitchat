@@ -2735,7 +2735,7 @@ type ON_GLOBAL_STATES = {
 		 */
 		login: string;
 		/**
-		 * Content of the message (without emotes)
+		 * Content of the message as pure text
 		 */
 		text: string;
 		/**
