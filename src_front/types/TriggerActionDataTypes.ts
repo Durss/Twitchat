@@ -192,6 +192,10 @@ export interface TriggerData {
 	 */
 	obsFilter?: string;
 	/**
+	 * Meld Studio layer ID for layer visibility related events
+	 */
+	meldItem?: string;
+	/**
 	 * Counter ID for counters related events
 	 */
 	counterId?: string;
@@ -1926,6 +1930,7 @@ export interface TriggerImportData {
 }
 
 export const ANY_OBS_SCENE = "any_obs_scene";
+export const ANY_MELDSTUDIO_SCENE = "any_meldstudio_scene";
 export const ANY_COUNTER = "any_counter";
 export const ANY_VALUE = "any_value";
 export const AD_APPROACHING_INTERVALS = [
@@ -2128,6 +2133,8 @@ export const TriggerTypes = {
 	MELDSTUDIO_STOP_STREAM: "182",
 	MELDSTUDIO_SCENE_CHANGE: "183",
 	MELDSTUDIO_LAYER_VISIBILITY_CHANGE: "184",
+	MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: "185",
+	MELDSTUDIO_TRACK_MUTE_CHANGE: "186",
 	MODIVERSARY: "187",
 
 	TWITCHAT_AD: "ad",
@@ -4881,6 +4888,109 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageOBSSceneChangedData>,
+	];
+
+	map[TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE] = [
+		{
+			tag: "LAYER_VISIBLE",
+			descKey: "triggers.placeholders.meldstudio_layer_visible",
+			pointer: "meldstudioLayerVisibilityChange.visible",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
+		{
+			tag: "LAYER_NAME",
+			descKey: "triggers.placeholders.meldstudio_layer_name",
+			pointer: "meldstudioLayerVisibilityChange.layerName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
+		{
+			tag: "LAYER_ID",
+			descKey: "triggers.placeholders.meldstudio_layer_id",
+			pointer: "meldstudioLayerVisibilityChange.layerId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
+	];
+
+	map[TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE] = [
+		{
+			tag: "EFFECT_ENABLED",
+			descKey: "triggers.placeholders.meldstudio_effect_enabled",
+			pointer: "meldstudioFilterVisibilityChange.enabled",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
+		{
+			tag: "EFFECT_NAME",
+			descKey: "triggers.placeholders.meldstudio_effect_name",
+			pointer: "meldstudioFilterVisibilityChange.effectName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
+		{
+			tag: "EFFECT_ID",
+			descKey: "triggers.placeholders.meldstudio_effect_id",
+			pointer: "meldstudioFilterVisibilityChange.effectId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
+	];
+
+	map[TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE] = [
+		{
+			tag: "TRACK_ENABLED",
+			descKey: "triggers.placeholders.meldstudio_track_muted",
+			pointer: "meldstudioTrackMuteChange.muted",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
+		{
+			tag: "TRACK_NAME",
+			descKey: "triggers.placeholders.meldstudio_track_name",
+			pointer: "meldstudioTrackMuteChange.trackName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
+		{
+			tag: "TRACK_ID",
+			descKey: "triggers.placeholders.meldstudio_track_id",
+			pointer: "meldstudioTrackMuteChange.trackId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
+	];
+
+	map[TriggerTypes.MELDSTUDIO_SCENE_CHANGE] = [
+		{
+			tag: "PREV_SCENE_NAME",
+			descKey: "triggers.placeholders.meldstudio_prev_scene_name",
+			pointer: "meldstudioSceneChange.prev_sceneName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
+		{
+			tag: "PREV_SCENE_ID",
+			descKey: "triggers.placeholders.meldstudio_prev_scene_id",
+			pointer: "meldstudioSceneChange.prev_sceneId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
+		{
+			tag: "NEW_SCENE_NAME",
+			descKey: "triggers.placeholders.meldstudio_scene_name",
+			pointer: "meldstudioSceneChange.sceneName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
+		{
+			tag: "NEW_SCENE_ID",
+			descKey: "triggers.placeholders.meldstudio_scene_id",
+			pointer: "meldstudioSceneChange.sceneId",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
 	];
 
 	map[TriggerTypes.HEAT_CLICK] = [
@@ -8909,6 +9019,25 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 				TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
 			newDate: Config.instance.NEW_FLAGS_DATE_V17,
 		},
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "graphicFilters",
+			labelKey: "triggers.events.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE.label",
+			value: TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
+			descriptionKey: "triggers.events.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE.description",
+			testMessageType:
+				TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.MELD_STUDIO,
+			icon: "mute",
+			labelKey: "triggers.events.MELDSTUDIO_TRACK_MUTE_CHANGE.label",
+			value: TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE,
+			descriptionKey: "triggers.events.MELDSTUDIO_TRACK_MUTE_CHANGE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_TRACK_MUTE_CHANGE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
 
 		{
 			category: TriggerEventTypeCategories.MISC,
@@ -9434,6 +9563,30 @@ export const TriggerSubTypeLabel = (triggerData: TriggerData): string | undefine
 			return (
 				StoreProxy.counters.counterList.find((v) => v.id == triggerData.counterId)?.name ??
 				"COUNTER NOT FOUND"
+			);
+
+		case TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE:
+			return (
+				StoreProxy.meldStudio.layerList.find((v) => v.id == triggerData.meldItem)?.name ??
+				"LAYER NOT FOUND"
+			);
+
+		case TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE:
+			return (
+				StoreProxy.meldStudio.effectList.find((v) => v.id == triggerData.meldItem)?.name ??
+				"EFFECT NOT FOUND"
+			);
+
+		case TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE:
+			return (
+				StoreProxy.meldStudio.trackList.find((v) => v.id == triggerData.meldItem)?.name ??
+				"TRACK NOT FOUND"
+			);
+
+		case TriggerTypes.MELDSTUDIO_SCENE_CHANGE:
+			return (
+				StoreProxy.meldStudio.sceneList.find((v) => v.id == triggerData.meldItem)?.name ??
+				"SCENE NOT FOUND"
 			);
 
 		case TriggerTypes.VALUE_UPDATE:

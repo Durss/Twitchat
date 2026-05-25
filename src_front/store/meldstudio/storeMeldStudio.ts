@@ -66,7 +66,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		layerList: [],
 		effectList: [],
 		trackList: [],
-		currentSCene: "",
+		currentSCene: null,
 		visibilityCache: {},
 		muteCache: {},
 	}),
@@ -156,7 +156,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 							// Check for layer visibility change
 							this.layerList.forEach((v) => {
 								if (!isFirstSync && v.visible != this.visibilityCache[v.id]) {
-									const event: TwitchatDataTypes.MessageMeldStudioLayerVisibilityChange =
+									const event: TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData =
 										{
 											...baseTriggerEvent,
 											type: TwitchatDataTypes.TwitchatMessageType
@@ -175,7 +175,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 							// Check for effect visibility change
 							this.effectList.forEach((v) => {
 								if (!isFirstSync && v.enabled != this.visibilityCache[v.id]) {
-									const event: TwitchatDataTypes.MessageMeldStudioEffectVisibilityChange =
+									const event: TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData =
 										{
 											...baseTriggerEvent,
 											type: TwitchatDataTypes.TwitchatMessageType
@@ -191,21 +191,44 @@ export const storeMeldStudio = defineStore("meldstudio", {
 								this.visibilityCache[v.id] = v.enabled;
 							});
 
+							// Check for track mute change
+							this.trackList.forEach((v) => {
+								if (!isFirstSync && v.muted != this.muteCache[v.id]) {
+									const event: TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData =
+										{
+											...baseTriggerEvent,
+											type: TwitchatDataTypes.TwitchatMessageType
+												.MELDSTUDIO_TRACK_MUTE_CHANGE,
+											meldstudioTrackMuteChange: {
+												trackId: v.id,
+												trackName: v.name,
+												muted: v.muted,
+											},
+										};
+									void TriggerActionHandler.instance.execute(event);
+								}
+								this.muteCache[v.id] = v.muted;
+							});
+
 							// Check for scene change
 							const newScene = this.sceneList.find((v) => v.current);
-							if (!isFirstSync && newScene && newScene.id != this.currentSCene) {
-								const event: TwitchatDataTypes.MessageMeldStudioSceneChange = {
+							if (!isFirstSync && newScene && newScene.id != this.currentSCene?.id) {
+								const event: TwitchatDataTypes.MessageMeldStudioSceneChangeData = {
 									...baseTriggerEvent,
 									type: TwitchatDataTypes.TwitchatMessageType
 										.MELDSTUDIO_SCENE_CHANGE,
 									meldstudioSceneChange: {
 										sceneId: newScene.id,
 										sceneName: newScene.name,
+										prev_sceneId: this.currentSCene?.id || "",
+										prev_sceneName: this.currentSCene?.name || "",
 									},
 								};
 								void TriggerActionHandler.instance.execute(event);
 							}
-							if (newScene) this.currentSCene = newScene.id;
+							if (newScene) {
+								this.currentSCene = { name: newScene.name, id: newScene.id };
+							}
 						};
 
 						// Called anytime something's changed on the scenes configurations

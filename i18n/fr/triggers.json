@@ -10,6 +10,10 @@
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez une entrée audio OBS",
 		"header_select_obs_filter": "Choisissez un filtre OBS",
+		"header_select_meld_layer": "Choisissez un layer Meld Studio",
+		"header_select_meld_effect": "Choisissez un effet Meld Studio",
+		"header_select_meld_track": "Choisissez une piste audio Meld Studio",
+		"header_select_meld_scene": "Choisissez une scène Meld Studio",
 		"usage": "Les Triggers permettent d'exécuter des actions en réponse à des évènements. Vous pouvez créer des choses simples comme des commandes de tchat et d'autres plus complexes comme un système de song request si vous avez lié Spotify à Twitchat.",
 		"trigger_name": "Nom personnalisé",
 		"trigger_icon": "Icône personnalisée",
@@ -77,6 +81,11 @@
 		"obs": {
 			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lier twitchat à OBS",
+			"anyScene": "N'importe quelle scène"
+		},
+		"meldstudio": {
+			"require": "Ces événéments nécessitent de {URL}",
+			"require_url": "lier twitchat à Meld Studio",
 			"anyScene": "N'importe quelle scène"
 		},
 		"count": {
@@ -1170,7 +1179,20 @@
 			"custom_train_record": "Est-ce un record du train ?",
 			"streamsocket_action_id": "ID de l'action",
 			"streamsocket_action_name": "Nom de l'action",
-			"streamsocket_action_bits": "Prix de l'action en bits"
+			"streamsocket_action_bits": "Prix de l'action en bits",
+			"meldstudio_layer_visible": "Layer visible?",
+			"meldstudio_layer_name": "Nom du layer",
+			"meldstudio_layer_id": "ID du layer",
+			"meldstudio_effect_enabled": "Effet activé ?",
+			"meldstudio_effect_name": "Nom de l'effet",
+			"meldstudio_effect_id": "ID de l'effet",
+			"meldstudio_track_muted": "Piste audio mute ?",
+			"meldstudio_track_name": "Nom de la piste audio",
+			"meldstudio_track_id": "ID de la piste audio",
+			"meldstudio_prev_scene_name": "Nom de la scène précédente",
+			"meldstudio_prev_scene_id": "ID de la scène précédente",
+			"meldstudio_scene_name": "Nom de la scène courante",
+			"meldstudio_scene_id": "ID de la scène courante"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1951,13 +1973,23 @@
 			"MELDSTUDIO_SCENE_CHANGE": {
 				"label": "Changement de scène",
 				"search_terms": ["meld", "studio"],
-				"description": "Actions à exécuter lorsque la scène Meld Studio {SUB_ITEM_NAME} devient active",
+				"description": "Actions à exécuter lorsque la scène Meld Studio \"{SUB_ITEM_NAME}\" devient active",
 				"description_any": "Actions à exécuter lorsque n'importe quelle scène Meld Studio devient active"
 			},
 			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
 				"label": "Changement de visibilité d'un Layer",
 				"search_terms": ["meld", "studio"],
-				"description": "Actions à exécuter lorsque la visibilité du layer Meld Studio {SUB_ITEM_NAME} change"
+				"description": "Actions à exécuter lorsque la visibilité du layer Meld Studio \"{SUB_ITEM_NAME}\" change"
+			},
+			"MELDSTUDIO_EFFECT_VISIBILITY_CHANGE": {
+				"label": "Effet activé/désactivé",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsque l'effet Meld Studio \"{SUB_ITEM_NAME}\" est activé ou désactivé"
+			},
+			"MELDSTUDIO_TRACK_MUTE_CHANGE": {
+				"label": "Piste audio mise en sourdine/réactivée",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsqu'une piste audio Meld Studio \"{SUB_ITEM_NAME}\" est mise en sourdine ou réactivée"
 			}
 		},
 		"musicEvents": {

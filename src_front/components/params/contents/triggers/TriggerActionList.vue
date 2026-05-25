@@ -376,12 +376,6 @@ const param_name = ref<TwitchatDataTypes.ParameterData<string>>({
 	longText: false,
 	maxLength: 100,
 });
-const param_icon = ref<TwitchatDataTypes.ParameterData<string>>({
-	type: "editablelist",
-	value: "",
-	icon: "emote",
-	labelKey: "triggers.trigger_icon",
-});
 const param_queue = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "editablelist",
 	value: "",

@@ -10,6 +10,10 @@
 		"header_select_obs_source": "Select an OBS source",
 		"header_select_obs_input": "Select an OBS input to monitor",
 		"header_select_obs_filter": "Select an OBS filter to monitor",
+		"header_select_meld_layer": "Select a Meld Studio layer",
+		"header_select_meld_effect": "Select a Meld Studio effect",
+		"header_select_meld_track": "Select a Meld Studio audio track",
+		"header_select_meld_scene": "Select a Meld Studio scene",
 		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
 		"trigger_name": "Custom name",
 		"trigger_icon": "Custom icon",
@@ -77,6 +81,11 @@
 		"obs": {
 			"require": "This trigger need you to {URL}",
 			"require_url": "connect with OBS",
+			"anyScene": "Any scene"
+		},
+		"meldstudio": {
+			"require": "This trigger need you to {URL}",
+			"require_url": "connect with Meld Studio",
 			"anyScene": "Any scene"
 		},
 		"count": {
@@ -1168,7 +1177,20 @@
 			"custom_train_record": "Is train record?",
 			"streamsocket_action_id": "Action ID",
 			"streamsocket_action_name": "Action Name",
-			"streamsocket_action_bits": "Action price in bits"
+			"streamsocket_action_bits": "Action price in bits",
+			"meldstudio_layer_visible": "Layer visible?",
+			"meldstudio_layer_name": "Layer name",
+			"meldstudio_layer_id": "Layer ID",
+			"meldstudio_effect_enabled": "Effect enabled?",
+			"meldstudio_effect_name": "Effect name",
+			"meldstudio_effect_id": "Effect ID",
+			"meldstudio_track_muted": "Audio track mute ?",
+			"meldstudio_track_name": "Audio track name",
+			"meldstudio_track_id": "Audio track ID",
+			"meldstudio_prev_scene_name": "Previous scene name",
+			"meldstudio_prev_scene_id": "Previous scene ID",
+			"meldstudio_scene_name": "Current scene name",
+			"meldstudio_scene_id": "Current scene ID"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1949,13 +1971,23 @@
 			"MELDSTUDIO_SCENE_CHANGE": {
 				"label": "Switch to scene",
 				"search_terms": ["meld", "studio"],
-				"description": "Actions to execute when switching to {SUB_ITEM_NAME} Meld Studio scene",
+				"description": "Actions to execute when switching to \"{SUB_ITEM_NAME}\" Meld Studio scene",
 				"description_any": "Actions to execute when switching to any Meld Studio scene"
 			},
 			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
-				"label": "Media playback restarted",
+				"label": "Layer visibility changed",
 				"search_terms": ["meld", "studio"],
-				"description": "Actions to execute when {SUB_ITEM_NAME} Meld Studio layer visibility changes"
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio layer visibility changes"
+			},
+			"MELDSTUDIO_EFFECT_VISIBILITY_CHANGE": {
+				"label": "Effect enabled/disabled",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio effect is enabled or disabled"
+			},
+			"MELDSTUDIO_TRACK_MUTE_CHANGE": {
+				"label": "Track mute state changed",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio track mute status changes"
 			}
 		},
 		"musicEvents": {
