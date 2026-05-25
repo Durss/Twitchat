@@ -142,8 +142,18 @@
 					<div class="userID" v-tooltip="t('global.copy')" @click="copyID()" ref="userID">
 						#{{ user.id }}
 					</div>
-					<div v-if="premiumType" class="userID">
-						Premium type: <strong>{{ premiumType }}</strong>
+					<div v-if="premiumType" class="card-item userID">
+						Premium type:
+						<strong>{{
+							{
+								temporary: "Patreon",
+								lifetime: "Lifetime",
+								early_gift: "Early donor",
+								gift: "Gifted",
+								no: "not premium",
+							}[premiumType]
+						}}</strong>
+						<em v-if="amountDonated > 0">({{ amountDonated.toFixed(2) }}€)</em>
 					</div>
 				</div>
 
@@ -569,6 +579,7 @@ const followDate = ref("");
 const channelColor = ref("");
 const userDescription = ref("");
 const premiumType = ref("");
+const amountDonated = ref(0);
 const canModerate = ref(false);
 const isOwnChannel = ref(false);
 const isSelfProfile = ref(false);
@@ -779,6 +790,7 @@ async function loadUserInfo(): Promise<void> {
 		ApiHelper.call("admin/user/premiumState", "GET", { uid: user.value!.id }).then((res) => {
 			if (res.json.success) {
 				premiumType.value = res.json.premiumState;
+				amountDonated.value = res.json.amountDonated;
 			}
 		});
 	}
@@ -1479,11 +1491,25 @@ onBeforeUnmount(() => {
 				background-color: red;
 				top: 0;
 				right: 0;
-				z-index: 1;
+				z-index: 2;
+			}
+			&::after {
+				content: "";
+				position: absolute;
+				top: 0.5em;
+				left: 0.5em;
+				width: calc(100% - 1em);
+				height: calc(100% - 1em);
+				background: var(--grayout);
+				z-index: 0;
+				border-radius: inherit;
+				pointer-events: none;
 			}
 			img {
 				width: 100%;
 				aspect-ratio: 16/9;
+				z-index: 1;
+				position: relative;
 			}
 			.game {
 				position: absolute;
@@ -1497,6 +1523,7 @@ onBeforeUnmount(() => {
 			}
 			.streamHeader {
 				position: absolute;
+				z-index: 2;
 				top: 0;
 				left: 0;
 				max-width: 100%;
@@ -1518,6 +1545,7 @@ onBeforeUnmount(() => {
 			}
 			.streamViewerCount {
 				position: absolute;
+				z-index: 2;
 				bottom: 0;
 				right: 0;
 				background-color: rgba(0, 0, 0, 0.4);
