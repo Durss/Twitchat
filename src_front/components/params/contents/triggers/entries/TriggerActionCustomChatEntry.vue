@@ -480,6 +480,7 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 			"youtube",
 			"kofi",
 			"tipeee",
+			"meldStudio",
 		].filter((v) => validKeys.includes(v));
 		keys.unshift("");
 		this.iconList = keys.map((v) => {

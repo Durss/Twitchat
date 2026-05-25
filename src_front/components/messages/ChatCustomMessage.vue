@@ -198,6 +198,7 @@ async function onClickButton(
 
 <style scoped lang="less">
 .chatcustommessage {
+	position: relative;
 	.messageHolder {
 		overflow: hidden;
 		row-gap: 0.25em;
@@ -266,4 +267,3 @@ async function onClickButton(
 	}
 }
 </style>
-

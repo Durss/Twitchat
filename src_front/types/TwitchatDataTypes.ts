@@ -5240,10 +5240,10 @@ export namespace TwitchatDataTypes {
 		| MessageTwitchCustomPowerUpData
 		| MessageMeldStudioStartStreamData
 		| MessageMeldStudioStopStreamData
-		| MessageMeldStudioSceneChange
-		| MessageMeldStudioLayerVisibilityChange
-		| MessageMeldStudioEffectVisibilityChange
-		| MessageMeldStudioTrackMuteChange;
+		| MessageMeldStudioSceneChangeData
+		| MessageMeldStudioLayerVisibilityChangeData
+		| MessageMeldStudioEffectVisibilityChangeData
+		| MessageMeldStudioTrackMuteChangeData;
 
 	/**
 	 * Defines any message that could be deleted.
@@ -7544,18 +7544,20 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents an Meld Studio scene change event
 	 */
-	export interface MessageMeldStudioSceneChange extends AbstractTwitchatMessage {
+	export interface MessageMeldStudioSceneChangeData extends AbstractTwitchatMessage {
 		type: "meldstudio_scene_change";
 		meldstudioSceneChange: {
 			sceneId: string;
 			sceneName: string;
+			prev_sceneId: string;
+			prev_sceneName: string;
 		};
 	}
 
 	/**
 	 * Represents an Meld Studio layer visibility change event
 	 */
-	export interface MessageMeldStudioLayerVisibilityChange extends AbstractTwitchatMessage {
+	export interface MessageMeldStudioLayerVisibilityChangeData extends AbstractTwitchatMessage {
 		type: "meldstudio_layer_visibility_change";
 		meldstudioLayerVisibilityChange: {
 			layerId: string;
@@ -7567,7 +7569,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents an Meld Studio filter visibility change event
 	 */
-	export interface MessageMeldStudioEffectVisibilityChange extends AbstractTwitchatMessage {
+	export interface MessageMeldStudioEffectVisibilityChangeData extends AbstractTwitchatMessage {
 		type: "meldstudio_effect_visibility_change";
 		meldstudioFilterVisibilityChange: {
 			effectId: string;
@@ -7579,7 +7581,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents an Meld Studio track mute state change event
 	 */
-	export interface MessageMeldStudioTrackMuteChange extends AbstractTwitchatMessage {
+	export interface MessageMeldStudioTrackMuteChangeData extends AbstractTwitchatMessage {
 		type: "meldstudio_track_mute_change";
 		meldstudioTrackMuteChange: {
 			trackId: string;

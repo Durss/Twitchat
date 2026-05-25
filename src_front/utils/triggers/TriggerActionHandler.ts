@@ -2249,6 +2249,110 @@ export default class TriggerActionHandler {
 				}
 				break;
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_LAYER_VISIBILITY_CHANGE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE,
+						message,
+						testMode,
+						message.meldstudioLayerVisibilityChange.layerId,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE,
+						message,
+						testMode,
+						message.meldstudioFilterVisibilityChange.effectId,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_SCENE_CHANGE: {
+				await this.executeTriggersByType(
+					TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
+					message,
+					testMode,
+					TriggerActionDataTypes.ANY_MELDSTUDIO_SCENE,
+					undefined,
+					forcedTriggerId,
+				);
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_SCENE_CHANGE,
+						message,
+						testMode,
+						message.meldstudioSceneChange.sceneId,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_TRACK_MUTE_CHANGE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE,
+						message,
+						testMode,
+						message.meldstudioTrackMuteChange.trackId,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_START_STREAM: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_START_STREAM,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_STOP_STREAM: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.MELDSTUDIO_STOP_STREAM,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
 		}
 	}
 
@@ -2364,6 +2468,13 @@ export default class TriggerActionHandler {
 				case TriggerTypes.OBS_INPUT_MUTE:
 				case TriggerTypes.OBS_INPUT_UNMUTE:
 					keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsInput;
+					break;
+
+				case TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE:
+				case TriggerTypes.MELDSTUDIO_SCENE_CHANGE:
+				case TriggerTypes.MELDSTUDIO_LAYER_VISIBILITY_CHANGE:
+				case TriggerTypes.MELDSTUDIO_EFFECT_VISIBILITY_CHANGE:
+					keys[0] += this.HASHMAP_KEY_SPLITTER + t.meldItem;
 					break;
 
 				case TriggerTypes.COUNTER_EDIT:
