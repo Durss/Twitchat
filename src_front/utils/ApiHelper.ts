@@ -269,6 +269,7 @@ type ApiEndpoints = {
 			parameters: { uid: string };
 			response: {
 				success: true;
+				amountDonated: number;
 				premiumState: "no" | "lifetime" | "temporary" | "early_gift" | "gift";
 			};
 		};
