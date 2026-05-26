@@ -61,7 +61,7 @@ export const storeMeldStudio = defineStore("meldstudio", {
 		connecting: false,
 		connectionEnabled: false,
 		ip: "127.0.0.1",
-		port: 9450,
+		port: 13376,
 		sceneList: [],
 		layerList: [],
 		effectList: [],
