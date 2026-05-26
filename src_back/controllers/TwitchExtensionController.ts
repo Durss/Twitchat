@@ -55,6 +55,11 @@ export default class TwitchExtensionController extends AbstractController {
 			async (request, response) => await this.postClickEvent(request, response),
 		);
 		this.server.post(
+			"/api/twitch/extension/keys",
+			{ preHandler: this.authHook.bind(this) },
+			async (request, response) => await this.postKeysEvent(request, response),
+		);
+		this.server.post(
 			"/api/twitch/extension/bingo/count",
 			{ preHandler: this.authHook.bind(this) },
 			async (request, response) => await this.postBingoCount(request, response),
@@ -149,6 +154,31 @@ export default class TwitchExtensionController extends AbstractController {
 				ctrl: params.ctrl,
 				shift: params.shift,
 				userId: getUserID(request),
+			});
+			response.header("Content-Type", "application/json");
+			response.status(200);
+			response.send(JSON.stringify({ success: true }));
+		} catch (error) {
+			Logger.error(error);
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(JSON.stringify({ success: false, message: "unauthorized" }));
+		}
+	}
+
+	/**
+	 * Receive a keys events from extension
+	 * @param request
+	 * @param response
+	 */
+	private async postKeysEvent(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const params = request.body as {
+			keys: string[];
+		};
+
+		try {
+			SSEController.sendToUser(request.twitchExtensionUser!.channel_id, "TWITCHEXT_KEYS", {
+				keys: params.keys,
 			});
 			response.header("Content-Type", "application/json");
 			response.status(200);
@@ -303,11 +333,11 @@ export default class TwitchExtensionController extends AbstractController {
 		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
 		const quiz = this._quizController.getStreamerQuiz(channelId);
-		const ckickableArea = await this._userController.getActiveHeatScreenAreas(channelId);
+		const clickableAreas = await this._userController.getActiveHeatScreenAreas(channelId);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, state: { bingos, quiz, ckickableArea } }));
+		response.send(JSON.stringify({ success: true, state: { bingos, quiz, clickableAreas } }));
 	}
 
 	/**
@@ -331,7 +361,9 @@ export default class TwitchExtensionController extends AbstractController {
 				const json = (await res.json()) as { success: boolean; content: string };
 				config = json.content;
 				success = json.success;
+				console.log("GOT EBS CONFIG:", json);
 			} else {
+				console.log("Failed to get EBS config, Twitchat API response:", res.status);
 				console.log(await res.text());
 			}
 			response.header("Content-Type", "application/json");

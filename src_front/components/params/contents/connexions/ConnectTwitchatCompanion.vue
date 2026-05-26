@@ -48,7 +48,14 @@
 				:loading="storeExtension.ebsConfigUpdating"
 				v-model="storeExtension.ebsConfigs.captureKeys"
 				@change="onChangeEBSSetting('keys')"
-			/>
+			>
+				<img
+					class="demo"
+					src="@/assets/img/companion/keycapture.gif"
+					alt="key capture demo"
+					width="400"
+				/>
+			</ParamItem>
 		</template>
 	</div>
 </template>
@@ -139,6 +146,11 @@ async function onChangeEBSSetting(section: typeof lastChangedState.value) {
 	}
 	.expand {
 		width: 100%;
+	}
+
+	.demo {
+		display: block;
+		margin: auto;
 	}
 }
 </style>
