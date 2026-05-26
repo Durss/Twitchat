@@ -1,7 +1,7 @@
 <template>
 	<div ref="root" class="heatscreeneditor">
 		<div class="form">
-			<TTButton icon="back" class="backBt" @click="$emit('close')" light>{{
+			<TTButton icon="back" class="backBt" @click="emit('close')" light>{{
 				$t("global.back")
 			}}</TTButton>
 			<ParamItem
@@ -29,7 +29,7 @@
 					<g v-for="area in screen.areas" :key="'area_' + screen.id">
 						<polygon
 							:points="getSVGPoints(area.points)"
-							:class="fillClasses(area)"
+							:class="{ selected: area.id == currentArea?.id }"
 							@contextmenu.prevent="onRightClickArea(area)"
 							@pointerdown="onPolygonPointerDown($event, area)"
 						/>
@@ -39,7 +39,7 @@
 							:key="screen.id + '_' + index"
 							:cx="p.x * 100 + '%'"
 							:cy="p.y * 100 + '%'"
-							r="15px"
+							:r="area.id == currentArea?.id ? '15px' : '8px'"
 							:class="pointClasses(area, index)"
 							@click="selectPoint(area, index)"
 							@dblclick="resetCurrentArea()"
@@ -57,6 +57,7 @@
 				v-if="currentArea && currentAreaExtensionButtonParam"
 				:paramData="currentAreaExtensionButtonParam"
 				v-model="currentArea!.showAreaOnExtension"
+				@change="emit('update')"
 			/>
 		</div>
 	</div>
@@ -88,8 +89,8 @@ const emit = defineEmits<{ update: []; close: [] }>();
 
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
-const scrollableRef = useTemplateRef<HTMLElement>("scrollable");
-const rootRef = useTemplateRef<HTMLElement>("root");
+const scrollableRef = useTemplateRef("scrollable");
+const rootRef = useTemplateRef("root");
 const editMode = ref<null | "add" | "append" | "delete">(null);
 const currentArea = ref<HeatArea | null>(null);
 const currentPointIndex = ref(-1);
@@ -97,6 +98,7 @@ const isBuilding = ref(false);
 const draggedArea = ref<HeatArea | null>(null);
 const draggedPoint = ref<{ x: number; y: number } | null>(null);
 const draggOffset = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const draggOriginalOffset = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 const disposed = ref(false);
 const editorScale = ref(1);
 const spacePressed = ref(false);
@@ -218,7 +220,6 @@ async function populateOBSScenes(): Promise<void> {
 }
 
 function onSelectOBSScene(): void {
-	console.log(params_target.value.value);
 	if (params_target.value.value == "obs") {
 		storeParams.openParamsPage(
 			TwitchatDataTypes.ParameterPages.CONNECTIONS,
@@ -228,11 +229,6 @@ function onSelectOBSScene(): void {
 	}
 	props.screen.activeOBSScene = params_target.value.value;
 	emit("update");
-}
-
-function fillClasses(area: HeatArea): string[] {
-	if (area.id != currentArea.value?.id) return [];
-	return ["selected"];
 }
 
 function pointClasses(area: HeatArea, index: number): string[] {
@@ -291,8 +287,24 @@ function addPoint(event: PointerEvent): void {
 		isBuilding.value = true;
 	}
 
+	if (event.shiftKey) {
+		applyShiftSnap(newPoint, currentArea.value, currentPointIndex.value);
+	}
+
 	draggedPoint.value = newPoint;
 	emit("update");
+}
+
+function applyShiftSnap(point: { x: number; y: number }, area: HeatArea, index: number): void {
+	const len = area.points.length;
+	if (len < 2) return;
+	const prev = area.points[(index - 1 + len) % len];
+	if (!prev || prev === point) return;
+	if (Math.abs(point.x - prev.x) < Math.abs(point.y - prev.y)) {
+		point.x = prev.x;
+	} else {
+		point.y = prev.y;
+	}
 }
 
 function selectPoint(area: HeatArea, index: number): void {
@@ -368,6 +380,8 @@ function startDragArea(event: PointerEvent, area: HeatArea): void {
 		draggedArea.value = area;
 		draggOffset.value.x = event.x;
 		draggOffset.value.y = event.y;
+		draggOriginalOffset.value.x = event.x;
+		draggOriginalOffset.value.y = event.y;
 		isBuilding.value = false;
 	}
 }
@@ -508,7 +522,12 @@ function onMouseUp(event: PointerEvent): void {
 		panStart.value = null;
 		return;
 	}
-	if (draggedPoint.value || draggedArea.value) {
+	let offsetX = event.x - draggOriginalOffset.value.x;
+	let offsetY = event.y - draggOriginalOffset.value.y;
+	if (
+		(draggedPoint.value || draggedArea.value) &&
+		(Math.abs(offsetX) > 0.5 || Math.abs(offsetY) > 0.5)
+	) {
 		event.preventDefault();
 		event.stopPropagation();
 		emit("update");
@@ -540,6 +559,9 @@ function onMouseMove(event: PointerEvent): void {
 		//Move a single point
 		draggedPoint.value.x = (event.x - bounds.x) / bounds.width;
 		draggedPoint.value.y = (event.y - bounds.y) / bounds.height;
+		if (event.shiftKey && currentArea.value) {
+			applyShiftSnap(draggedPoint.value, currentArea.value, currentPointIndex.value);
+		}
 	}
 
 	if (draggedArea.value) {
@@ -602,7 +624,7 @@ function getSegmentUnderPoint(x: number, y: number): [number, number] {
 				Math.pow(point.x * 1920 - x * 1920, 2) + Math.pow(point.y * 1080 - y * 1080, 2),
 			);
 			const distFromSegment = dist1 + dist2 - dist;
-			if (distFromSegment < 2 && distFromSegment < minDist) {
+			if (distFromSegment < 0.5 && distFromSegment < minDist) {
 				areaIndex = i;
 				pointIndex = j;
 				minDist = distFromSegment;

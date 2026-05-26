@@ -31,6 +31,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
 	public static TWITCHEXT_CLICK = "TWITCHEXT_CLICK" as const;
+	public static TWITCHEXT_KEYS = "TWITCHEXT_KEYS" as const;
 	public static TWITCHEXT_QUIZ_ANSWER = "TWITCHEXT_QUIZ_ANSWER" as const;
 	public static REMOTE_ACTION = "REMOTE_ACTION" as const;
 	public static FEATURE_FLAGS_UPDATE = "FEATURE_FLAGS_UPDATE" as const;
@@ -159,6 +160,9 @@ export type EventTypeMap = {
 		ctrl: boolean;
 		shift: boolean;
 		userId?: string;
+	};
+	TWITCHEXT_KEYS: {
+		keys: string[];
 	};
 	TWITCHEXT_QUIZ_ANSWER: {
 		userId?: string;

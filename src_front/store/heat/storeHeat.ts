@@ -118,27 +118,29 @@ export const storeHeat = defineStore("heat", {
 		},
 
 		updateActiveScreens(): void {
-			clearTimeout(invalidateTimeout);
 			const obsScene = StoreProxy.common.currentOBSScene;
 			this.screenList.forEach((v) => {
 				v.active = (!v.activeOBSScene || v.activeOBSScene == obsScene) && v.enabled;
 			});
+			// Check if active areas changed, if so, invalidate server cache
+			const diff = this.screenList
+				.filter((v) => v.active)
+				.map((v) => v.areas)
+				.flat()
+				.filter((v) => v.showAreaOnExtension)
+				.map((v) => v.id)
+				.sort((a, b) => a.localeCompare(b))
+				.join();
+			if (diff != activeAreaDiff) {
+				clearTimeout(invalidateTimeout);
+			}
 
 			void this.saveScreens().then(() => {
-				// Check if active areas changed, if so, invalidate server cache
-				const res = this.screenList
-					.filter((v) => v.active)
-					.map((v) => v.areas)
-					.flat()
-					.filter((v) => v.showAreaOnExtension)
-					.map((v) => v.id)
-					.sort((a, b) => a.localeCompare(b))
-					.join();
-				if (res != activeAreaDiff) {
-					activeAreaDiff = res;
+				if (diff != activeAreaDiff) {
+					activeAreaDiff = diff;
 					invalidateTimeout = window.setTimeout(() => {
 						void ApiHelper.call("user/heat_areas/cache", "DELETE");
-					}, 1000);
+					}, 3000);
 				}
 			});
 		},

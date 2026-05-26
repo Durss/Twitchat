@@ -162,7 +162,21 @@ export default class UserController extends AbstractController {
 			areas = screens
 				.filter((screen) => screen.active === true)
 				.flatMap((screen) =>
-					(screen.areas ?? []).filter((area) => area.showAreaOnExtension === true),
+					(screen.areas ?? [])
+						.filter((area) => area.showAreaOnExtension === true)
+						.map((v) => {
+							return {
+								id: v.id,
+								points: v.points
+									// Cap numbers precisions
+									.map((p) => ({
+										x: parseFloat(p.x.toFixed(6)),
+										y: parseFloat(p.y.toFixed(6)),
+									}))
+									// Make sure only valid points are returned
+									.filter((p) => !isNaN(p.x) && !isNaN(p.y)),
+							};
+						}),
 				);
 		} catch {
 			areas = [];

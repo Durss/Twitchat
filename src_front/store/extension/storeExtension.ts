@@ -38,6 +38,7 @@ export const storeExtension = defineStore("Extension", {
 				const res = await ApiHelper.call("twitch/extension/config", "GET");
 				if (res.json.config) {
 					this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+					this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
 				}
 			}
 		},
