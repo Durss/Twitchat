@@ -135,9 +135,14 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 	if (quiz.timeBasedScoring) {
 		const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
 		const speedMult =
-			(new Date(votedAt).getTime() - new Date(quiz.questionStarted_at).getTime()) /
-			questionDuration;
-		score *= speedMult;
+			Math.min(
+				questionDuration,
+				Math.max(
+					0,
+					new Date(votedAt).getTime() - new Date(quiz.questionStarted_at).getTime(),
+				),
+			) / questionDuration;
+		score = Math.round(score * (1 - speedMult));
 	}
 
 	// Avoid losing points if the quiz isn't configured for it
@@ -370,11 +375,15 @@ export const storeQuiz = defineStore("quiz", {
 			}
 
 			// Clamp delay to 10s max or question duration
+			// EDIT: Removed as quiz isn't in sync with overlay anymore
+			/*
 			delay_ms = Math.min(
 				(question.duration_s || quiz.durationPerQuestion_s || 10) * 1000,
 				delay_ms,
 			);
 			const votedAt = new Date(Date.now() - delay_ms).toISOString();
+			//*/
+			const votedAt = new Date().toISOString();
 
 			// Check if question is still accepting answers based on duration
 			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;

@@ -154,7 +154,10 @@ export default class QuizController extends AbstractController {
 		broadcast: boolean = true,
 	): QuizParams | undefined {
 		if (quiz) {
-			quiz.questionList = quiz.questionList.filter((q) => q.id === quiz.currentQuestionId);
+			quiz.questionList = quiz.questionList.map((q) => {
+				if (q && q.id === quiz.currentQuestionId) return q;
+				return null;
+			});
 			const question = quiz.questionList[0];
 			// Don't delete correct answer if question is currently revealed
 			if (question && !quiz.currentQuestionRevealed) {
@@ -288,86 +291,89 @@ export type QuizParams = {
 	/**
 	 * List of questions
 	 */
-	questionList: ({
-		/**
-		 * Question ID
-		 */
-		id: string;
-		/**
-		 * Question mode.
-		 */
-		mode: "classic" | "majority" | "freeAnswer";
-		/**
-		 * Number of seconds to answer this question (overrides durationPerQuestion_s)
-		 */
-		duration_s?: number;
-		/**
-		 * Question text
-		 */
-		question: string;
-	} & (
-		| {
+	questionList: (
+		| null
+		| ({
+				/**
+				 * Question ID
+				 */
+				id: string;
 				/**
 				 * Question mode.
-				 * classic: earn points by answering questions correctly
 				 */
-				mode: "classic";
+				mode: "classic" | "majority" | "freeAnswer";
 				/**
-				 * Possible answers for this question
+				 * Number of seconds to answer this question (overrides durationPerQuestion_s)
 				 */
-				answerList: {
-					/**
-					 * Answer ID
-					 */
-					id: string;
-					/**
-					 * Answer text
-					 */
-					title: string;
-					/**
-					 * Is this the answer correct ?
-					 */
-					correct?: boolean;
-				}[];
-		  }
-		| {
+				duration_s?: number;
 				/**
-				 * Question mode.
-				 * majority: earn points by being part of the most popular answer
+				 * Question text
 				 */
-				mode: "majority";
-				/**
-				 * Possible answers for this question
-				 */
-				answerList: {
-					/**
-					 * Answer ID
-					 */
-					id: string;
-					/**
-					 * Answer text
-					 */
-					title: string;
-				}[];
-		  }
-		| {
-				/**
-				 * Question mode.
-				 * freeAnswer: viewers must type the answer on chat or extension
-				 */
-				mode: "freeAnswer";
-				/**
-				 * Expected answer
-				 */
-				answer?: string;
-				/**
-				 * Orthographic tolerance for answer matching in "freeAnswer" mode.
-				 * Overrides the global quiz tolerance level.
-				 * 0 = exact match
-				 * ...
-				 * 5 = very tolerant
-				 */
-				toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
-		  }
-	))[];
+				question: string;
+		  } & (
+				| {
+						/**
+						 * Question mode.
+						 * classic: earn points by answering questions correctly
+						 */
+						mode: "classic";
+						/**
+						 * Possible answers for this question
+						 */
+						answerList: {
+							/**
+							 * Answer ID
+							 */
+							id: string;
+							/**
+							 * Answer text
+							 */
+							title: string;
+							/**
+							 * Is this the answer correct ?
+							 */
+							correct?: boolean;
+						}[];
+				  }
+				| {
+						/**
+						 * Question mode.
+						 * majority: earn points by being part of the most popular answer
+						 */
+						mode: "majority";
+						/**
+						 * Possible answers for this question
+						 */
+						answerList: {
+							/**
+							 * Answer ID
+							 */
+							id: string;
+							/**
+							 * Answer text
+							 */
+							title: string;
+						}[];
+				  }
+				| {
+						/**
+						 * Question mode.
+						 * freeAnswer: viewers must type the answer on chat or extension
+						 */
+						mode: "freeAnswer";
+						/**
+						 * Expected answer
+						 */
+						answer?: string;
+						/**
+						 * Orthographic tolerance for answer matching in "freeAnswer" mode.
+						 * Overrides the global quiz tolerance level.
+						 * 0 = exact match
+						 * ...
+						 * 5 = very tolerant
+						 */
+						toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
+				  }
+		  ))
+	)[];
 };
