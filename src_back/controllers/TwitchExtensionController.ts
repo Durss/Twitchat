@@ -361,7 +361,6 @@ export default class TwitchExtensionController extends AbstractController {
 				const json = (await res.json()) as { success: boolean; content: string };
 				config = json.content;
 				success = json.success;
-				console.log("GOT EBS CONFIG:", json);
 			} else {
 				console.log("Failed to get EBS config, Twitchat API response:", res.status);
 				console.log(await res.text());
