@@ -44,7 +44,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ onRead: [] }>();
 const rootEl = useTemplateRef("rootEl");
-const { openUserCard, onContextMenu, time } = useChatMessage(props, emit, rootEl);
+const { openUserCard, onContextMenu } = useChatMessage(props, emit, rootEl);
 
 const classes = computed(() => {
 	let res = ["chatfollow", "chatMessage", "highlight"];

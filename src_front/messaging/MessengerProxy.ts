@@ -185,7 +185,7 @@ export default class MessengerProxy {
 	 */
 	private onMessage(e: MessengerClientEvent): void {
 		if (e.data && typeof e.data != "string") {
-			StoreProxy.chat.addMessage(e.data);
+			void StoreProxy.chat.addMessage(e.data);
 		}
 	}
 

@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>();
 
 const rootEl = useTemplateRef("rootEl");
-const { time, openUserCard } = useChatMessage(props, emit, rootEl);
+const { openUserCard } = useChatMessage(props, emit, rootEl);
 
 const classes = computed(() => {
 	const res = ["chatpinnotice", "chatMessage", "highlight"];

@@ -1084,7 +1084,7 @@ function updateBadges(): void {
 			localInfoBadges.push({
 				type: TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER,
 			});
-		if (mess.twitch_modiversary)
+		if ((mess.twitch_modiversary || 0) > 0)
 			localInfoBadges.push({
 				type: TwitchatDataTypes.MessageBadgeDataType.MODIVERSARY,
 				label: mess.twitch_modiversary!.toString(),
