@@ -1877,6 +1877,7 @@ export const TriggerTypes = {
 	OBS_DISCONNECTED:"171",
 	MANY_REPLIES:"172",
 	POWER_UP_CUSTOM: "180",
+	MODIVERSARY: "187",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2519,14 +2520,26 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.USER_WATCH_STREAK] = [
+		{tag:"STREAK_COUNT", descKey:'triggers.placeholders.watch_streak', pointer:"streak", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
+		{tag:"POINTS_EARNED", descKey:'triggers.placeholders.points_earned', pointer:"channelPointsEarned", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageWatchStreakData, "chatMessage"> & {chatMessage:SafeMessage}>,
 		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		...commonUserTags,
-		{tag:"STREAK_COUNT", descKey:'triggers.placeholders.watch_streak', pointer:"streak", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
-		{tag:"POINTS_EARNED", descKey:'triggers.placeholders.points_earned', pointer:"channelPointsEarned", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
+	];
+
+	map[TriggerTypes.MODIVERSARY] = [
+		{tag:"MONTHS", descKey:'triggers.placeholders.modiversary', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageModiversaryData, "chatMessage"> & {chatMessage:SafeMessage}>,
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageModiversaryData>,
+		...commonUserTags,
 	];
 
 	map[TriggerTypes.OBS_SCENE] = [
@@ -3143,6 +3156,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.USER, icon:"follow", labelKey:"triggers.events.FOLLOW.label", value:TriggerTypes.FOLLOW, descriptionKey:"triggers.events.FOLLOW.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.FOLLOWING},
 		{category:TriggerEventTypeCategories.USER, icon:"raid", labelKey:"triggers.events.RAID.label", value:TriggerTypes.RAID, descriptionKey:"triggers.events.RAID.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID},
 		{category:TriggerEventTypeCategories.USER, icon:"watchStreak", labelKey:"triggers.events.USER_WATCH_STREAK.label", value:TriggerTypes.USER_WATCH_STREAK, descriptionKey:"triggers.events.USER_WATCH_STREAK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16_17, category:TriggerEventTypeCategories.USER, icon:"modiversary", labelKey:"triggers.events.MODIVERSARY.label", value:TriggerTypes.MODIVERSARY, descriptionKey:"triggers.events.MODIVERSARY.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY},
 		{category:TriggerEventTypeCategories.USER, icon:"online", labelKey:"triggers.events.USER_JOIN.label", value:TriggerTypes.USER_JOIN, descriptionKey:"triggers.events.USER_JOIN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.JOIN, private:true},
 		{category:TriggerEventTypeCategories.USER, icon:"offline", labelKey:"triggers.events.USER_LEAVE.label", value:TriggerTypes.USER_LEAVE, descriptionKey:"triggers.events.USER_LEAVE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LEAVE, private:true},
 

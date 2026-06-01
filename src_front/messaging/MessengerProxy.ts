@@ -116,6 +116,7 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DISCONNECTED, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.WATCH_STREAK, (e:MessengerClientEvent)=> this.onMessage(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.MODIVERSARY, (e:MessengerClientEvent)=> this.onMessage(e));
 	}
 
 	/**
@@ -123,7 +124,8 @@ export default class MessengerProxy {
 	 * @param e
 	 */
 	private onMessage(e:MessengerClientEvent):void {
-		if(e.data && typeof e.data != "string") {//Typeof check only here for linting
+		console.log("[MESSENGER PROXY] ON MESSAGE", e)
+		if(e.data && typeof e.data != "string") {
 			StoreProxy.chat.addMessage(e.data);
 		}
 	}
@@ -132,7 +134,7 @@ export default class MessengerProxy {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e:MessengerClientEvent):void {
-		if(e.data && typeof e.data == "string") {//Typeof check only here for linting
+		if(e.data && typeof e.data == "string") {
 			StoreProxy.chat.deleteMessageByID(e.data, undefined, false);
 		}
 	}

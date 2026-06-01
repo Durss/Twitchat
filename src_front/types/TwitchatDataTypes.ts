@@ -534,6 +534,7 @@ export namespace TwitchatDataTypes {
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
 		HYPE_CHAT: "hypeChat",
+		MODIVERSARY: "modiversary",
 		NEW_ACCOUNT: "new_account",
 		WATCH_STREAK: "watchStreak",
 		PRESENTATION: "presentation",
@@ -2832,6 +2833,7 @@ export namespace TwitchatDataTypes {
 		HISTORY_SPLITTER:"history_splitter",
 		TWITCHAT_STARTED:"twitchat_started",
 		OBS_START_STREAM:"obs_start_stream",
+		USER_MODIVERSARY:"user_modiversary",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
 		CUSTOM_TRAIN_FAIL:"custom_train_fail",
@@ -2957,6 +2959,7 @@ export namespace TwitchatDataTypes {
 		warn_acknowledge:true,
 		obs_stop_stream:false,
 		websocket_topic:false,
+		user_modiversary:true,
 		gigantified_emote:true,
 		twitchat_started:false,
 		credits_complete:false,
@@ -3164,6 +3167,7 @@ export namespace TwitchatDataTypes {
 									| MessageTwitchComboData
 									| MessageObsWsConnectStateChangeData
 									| MessageManyRepliesData
+									| MessageModiversaryData
 									| MessageTwitchCustomPowerUpData
 	;
 
@@ -3344,6 +3348,7 @@ export namespace TwitchatDataTypes {
 		user_watch_streak:false,
 		gigantified_emote:false,
 		custom_power_up:false,
+		user_modiversary:false,
 	}
 	export interface MergeableMessage {
 		/**
@@ -3369,6 +3374,7 @@ export namespace TwitchatDataTypes {
 		message:true,
 		following:true,
 		subscription:true,
+		user_modiversary:true,
 		user_watch_streak:true,
 	}
 	export interface GreetableMessage extends AbstractTwitchatMessage {
@@ -3402,6 +3408,7 @@ export namespace TwitchatDataTypes {
 		message:true,
 		super_chat:true,
 		subscription:true,
+		user_modiversary:true,
 		user_watch_streak:true,
 		private_mod_message:true,
 		youtube_subscription:true,
@@ -3614,6 +3621,11 @@ export namespace TwitchatDataTypes {
 		 * true if user used the "highlight my message" channel point reward
 		 */
 		twitch_isHighlighted?: boolean;
+		/**
+		 * Set if user shared a "modiversary" message
+		 * Contains the number of months they've been mod
+		 */
+		twitch_modiversary?: number;
 		/**
 		 * Define if emote should be displayed in giant
 		 */
@@ -6524,6 +6536,37 @@ export namespace TwitchatDataTypes {
 		 * New connection state
 		 */
 		message: MessageChatData;
+	}
 
+	/**
+	 * Represents a user modiversary event
+	 */
+	export interface MessageModiversaryData extends GreetableMessage, TranslatableMessage {
+		type:"user_modiversary";
+		/**
+		 * User that created the marker
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of months the user has been a moderator for
+		 */
+		months:number;
+		/**
+		 * Text message content
+		 */
+		message?:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:ParseMessageChunk[];
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
+		message_html?:string;
+		/**
+		 * @see MergeableMessage
+		 */
+		message_size:number;
 	}
 }

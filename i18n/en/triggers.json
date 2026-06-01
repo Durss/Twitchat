@@ -938,6 +938,7 @@
 			"old_value": "Old value",
 			"watch_streak": "Watch streak streams count",
 			"points_earned": "Watch streak channel points earned",
+			"modiversary": "Modiversary months count",
 			"obs_scene": "Current OBS scene name",
 			"viewer_count": "Viewers watching your stream",
 			"obs_scene_name": "Name of the new OBS scene",
@@ -1519,7 +1520,11 @@
 			},
 			"USER_WATCH_STREAK": {
 				"label": "Watch streak",
-				"description": "Actions to execute when a user share their watch streak"
+				"description": "Actions to execute when a user shares their watch streak"
+			},
+			"MODIVERSARY": {
+				"label": "Moderator anniversary",
+				"description": "Actions to execute when a mod shares their modiversary"
 			},
 			"HYPE_CHAT": {
 				"label": "Hype chat",

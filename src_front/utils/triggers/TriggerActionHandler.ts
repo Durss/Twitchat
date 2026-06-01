@@ -82,7 +82,6 @@ export default class TriggerActionHandler {
 	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
-
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
 			const mLoc = message as TwitchatDataTypes.GreetableMessage;
@@ -467,6 +466,12 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK:{
 				if(await this.executeTriggersByType(TriggerTypes.USER_WATCH_STREAK, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY:{
+				if(await this.executeTriggersByType(TriggerTypes.MODIVERSARY, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}

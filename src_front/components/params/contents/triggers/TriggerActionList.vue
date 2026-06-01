@@ -281,6 +281,7 @@ class TriggerActionList extends Vue {
 			TriggerTypes.SLOW_MODE_OFF,
 			TriggerTypes.RAID,
 			TriggerTypes.RAID_STARTED,
+			TriggerTypes.MODIVERSARY,
 		]
 		return allowList.includes(this.triggerData.type);
 	}

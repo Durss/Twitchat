@@ -1139,20 +1139,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//the "raw_message" event.
 		//Let's wait a frame so the props are parsed
 		await Utils.promisedTimeout(0);
-		const category = (parsed.tags as tmi.ChatUserstate)["msg-param-category"] as string;
+		const tags = parsed.tags as tmi.ChatUserstate;
+		const category = tags["msg-param-category"] as string;
 		switch(parsed.command) {
 			case "USERNOTICE": {
 				//Handle announcement messages
-				if(((parsed.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
+				if(tags["msg-id"] === "announcement") {
 					const params = parsed.params as string[];
-					const tags = parsed.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
 					this.onMessage(params[0]!, tags, params[1]!, false);
 				}else
 
 				//Handle viewer milestone (AKA consecutive watched streams)
 				if(category === "watch-streak" || category === "watch-fk") {
-					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
 
@@ -1196,12 +1195,58 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					};
 					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 				}
+						
+				if(tags["msg-id"] === "modiversary") {
+					const channelId = tags["room-id"] as string;
+					const user = this.getUserFromTags(tags, channelId);
+
+					const params = parsed.params as string[];
+					const message = params[1] || "";
+					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true || !tags["emotes-raw"]);
+					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
+					const message_size = TwitchUtils.computeMessageSize(message_chunks);
+
+					//Add modiversary specific message
+					const eventData:TwitchatDataTypes.MessageModiversaryData = {
+						channel_id: channelId,
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY,
+						date:Date.now(),
+						platform:"twitch",
+						months:tags["msg-param-months"] as number,
+						user,
+						message,
+						message_chunks,
+						message_html,
+						message_size,
+					};
+					console.log("SEND MODIVERSARY", eventData);
+					this.dispatchEvent(new MessengerClientEvent("MODIVERSARY", eventData));
+
+					//Add as standard message
+					const messageData:TwitchatDataTypes.MessageChatData = {
+						channel_id: channelId,
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						date:Date.now(),
+						platform:"twitch",
+						user,
+						message,
+						message_chunks,
+						message_html,
+						message_size,
+						answers:[],
+						twitch_modiversary:eventData.months,
+						is_short:Utils.stripHTMLTags(message_html || "").length / (message?.length||1) < .6 || message?.length < 4,
+					};
+					console.log("SEND MODIVERSARY AS MESSAGE", messageData);
+					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
+				}
 
 				//Handle subgift summaries
 				//Grabs the number of subgifts made on the channel and store it to the user
-				if((parsed.tags as tmi.ChatUserstate)["msg-param-sender-count"]) {
+				if(tags["msg-param-sender-count"]) {
 					// console.log("RECEIVED SUBGIFT INFO", data);
-					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
 					const total = this.getNumValueFromTag(tags["msg-param-sender-count"], 1);

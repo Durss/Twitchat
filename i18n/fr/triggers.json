@@ -938,6 +938,7 @@
 			"old_value": "Ancienne valeur",
 			"watch_streak": "Nombre de streams consécutifs vus",
 			"points_earned": "Pts de chaîne gagnés via un visionnage consécutif ",
+			"modiversary": "Nombre de mois en tant que modo",
 			"obs_scene": "Scène OBS courante",
 			"viewer_count": "Nombre de viewers",
 			"obs_scene_name": "Nom de la nouvelle scène OBS",
@@ -1520,6 +1521,10 @@
 			"USER_WATCH_STREAK": {
 				"label": "Série de visionnage",
 				"description": "Actions à exécuter lorsque quelqu'un partage sa série de visionnages"
+			},
+			"MODIVERSARY": {
+				"label": "Anniversaire de modération",
+				"description": "Actions à exécuter lorsque'un·e modérateurice partage son anniversaire de modération"
 			},
 			"HYPE_CHAT": {
 				"label": "Hype chat",

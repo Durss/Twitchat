@@ -2121,6 +2121,32 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY: {
+					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true);
+					message.twitch_modiversary = Math.round(Math.random() * 10 + 1) * 12;
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageModiversaryData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:message.user,
+						channel_id:uid,
+						months:message.twitch_modiversary,
+						message:message.message,
+						message_html:message.message_html,
+						message_chunks:message.message_chunks,
+						message_size:message.message_size,
+					};
+
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is missing implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

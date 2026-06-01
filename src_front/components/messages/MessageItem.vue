@@ -97,6 +97,7 @@ import ChatStreamSocketAction from './ChatStreamSocketAction.vue';
 import ChatTwitchCombo from './ChatTwitchCombo.vue';
 import ChatManyReplies from './ChatManyReplies.vue';
 import ChatCustomPowerUp from './ChatCustomPowerUp.vue';
+import ChatModiversary from './ChatModiversary.vue';
 
 @Component({
 	name: "MessageItem",
@@ -270,6 +271,7 @@ class MessageItem extends Vue {
 			streamsocket_action: ChatStreamSocketAction,
 			many_replies: ChatManyReplies,
 			custom_power_up: ChatCustomPowerUp,
+			user_modiversary: ChatModiversary
 		};
 		if (!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

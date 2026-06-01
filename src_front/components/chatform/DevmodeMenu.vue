@@ -37,6 +37,8 @@
 				user</Button>
 			<Button small @click="simulateEvent($event, 'message', 'presentation')"
 				icon="firstTime">Presentation</Button>
+			<Button small @click="simulateEvent($event, 'user_modiversary')"
+				icon="modiversary">Modiversary</Button>
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
@@ -45,7 +47,7 @@
 				emote</Button>
 			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up
 				celebration</Button>
-			<Button small @click="simulateEvent($event, 'custom_power_up')" icon="powerup">Custom Power Up</Button>
+			<Button small @click="simulateEvent($event, 'custom_power_up')" icon="watchStreak">Custom Power Up</Button>
 			<Button small @click="simulateEvent($event, 'twitch_combo')" icon="bits">Combo</Button>
 			<Button small @click="simulateComboSpam()" icon="bits">Combo spam</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
@@ -239,7 +241,6 @@ class DevmodeMenu extends Vue {
 				case "presentation": (message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent": (message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "no_message": {
-					console.log("OKOKO");
 					(message as TwitchatDataTypes.MessageCheerData).message = "";
 					(message as TwitchatDataTypes.MessageCheerData).message_size = 0;
 					(message as TwitchatDataTypes.MessageCheerData).message_html = "";
