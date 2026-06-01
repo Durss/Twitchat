@@ -736,6 +736,7 @@ class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
+			case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY:
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				return this.config.filters.notice === true;
 			}

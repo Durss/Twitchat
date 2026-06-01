@@ -50,6 +50,8 @@ class ChatMessageInfoBadges extends Vue {
 			new_account:"alert",
 			powerUp:"watchStreak",
 			watchStreak:"watchStreak",
+			modiversary:"modiversary",
+			whisper:"whispers"
 		};
 		if(hashmap[info.type]) {
 			return hashmap[info.type] || "";

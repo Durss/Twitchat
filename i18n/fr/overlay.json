@@ -485,6 +485,11 @@
 				"WATCH_STREAK_AVATAR": "Visionnages consécutifs - Avatar",
 				"WATCH_STREAK_COUNT": "Visionnages consécutifs - Nombre",
 
+				"MODIVERSARY_ID": "Anniversaire de modo - ID utilisateur·ice",
+				"MODIVERSARY_NAME": "Anniversaire de modo - Pseudo",
+				"MODIVERSARY_AVATAR": "Anniversaire de modo - Avatar",
+				"MODIVERSARY_COUNT": "Anniversaire de modo - Count",
+
 				"KOFI_TIP_NAME": "Don - Pseudo",
 				"KOFI_TIP_AMOUNT": "Don - Montant",
 				"KOFI_MERCH_USER": "Merch - Pseudo",

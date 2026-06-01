@@ -762,6 +762,7 @@ class ChatMessage extends AbstractChatMessage {
 			if((mess.twitch_watchStreak || 0) > 0)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WATCH_STREAK, label:mess.twitch_watchStreak!.toString()});
 			if(mess.twitch_powerup)						infoBadges.push({type: TwitchatDataTypes.MessageBadgeDataType.POWER_UP});
 			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
+			if((mess.twitch_modiversary) || 0 > 0)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.MODIVERSARY, label:mess.twitch_modiversary!.toString(), tooltipLabelParams:{MONTHS:mess.twitch_modiversary!.toString()}});
 			if(mess.twitch_gigantifiedEmote
 			|| mess.twitch_animationId )				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.POWER_UP});
 

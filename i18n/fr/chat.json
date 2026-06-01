@@ -456,7 +456,8 @@
 				"new_account_hour": "h",
 				"new_account_minute": "Min",
 				"watchStreak": "Série de visionnages",
-				"powerUp": "Power up"
+				"powerUp": "Power up",
+				"modiversary": "Anniversaire de modération - {MONTHS} mois"
 			}
 		},
 		"scope_request": {
@@ -620,6 +621,9 @@
 		},
 		"many_replies": {
 			"label": "Ce message attire l'attention avec {COUNT} réponses directes ou indirectes"
+		},
+		"user_modiversary": {
+			"label": "🎉 {USER} fête ses {MONTHS} mois en tant que modérateurice !"
 		}
 	}
 }

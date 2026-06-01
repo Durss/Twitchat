@@ -143,6 +143,11 @@ export const LabelItemPlaceholderList = [
 	{tag:"WATCH_STREAK_AVATAR",					type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.WATCH_STREAK_AVATAR", backup:true} as const,
 	{tag:"WATCH_STREAK_COUNT",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.WATCH_STREAK_COUNT", backup:true} as const,
 
+	{tag:"MODIVERSARY_NAME",					type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.MODIVERSARY_NAME", backup:true} as const,
+	{tag:"MODIVERSARY_ID",						type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.MODIVERSARY_ID", backup:true} as const,
+	{tag:"MODIVERSARY_AVATAR",					type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.MODIVERSARY_AVATAR", backup:true} as const,
+	{tag:"MODIVERSARY_COUNT",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.MODIVERSARY_COUNT", backup:true} as const,
+
 	{tag:"POWER_UP_GIANTIFIED_ID",				type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_ID", backup:true} as const,
 	{tag:"POWER_UP_GIANTIFIED_NAME",			type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_NAME", backup:true} as const,
 	{tag:"POWER_UP_GIANTIFIED_AVATAR",			type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_AVATAR", backup:true} as const,

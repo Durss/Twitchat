@@ -1020,7 +1020,7 @@ export const storeChat = defineStore('chat', {
 			const sChatPoll = StoreProxy.chatPoll;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
-			const logTimings = false;//Enable to check for perf issues
+			const logTimings = true;//Enable to check for perf issues
 			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id
 									&& message.channel_id != sAuth.youtube.user?.id
 									// Consider tiktok messages as "own" because there's no auth
@@ -1480,13 +1480,25 @@ export const storeChat = defineStore('chat', {
 						break;
 					}
 
-					//Reward redeem
+					//Watch streak
 					case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
 						if(!isFromRemoteChan) {
 							StoreProxy.labels.updateLabelValue("WATCH_STREAK_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("WATCH_STREAK_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("WATCH_STREAK_COUNT", message.streak);
+						}
+						break;
+					}
+
+					//Modiversary
+					case TwitchatDataTypes.TwitchatMessageType.USER_MODIVERSARY: {
+						console.log("Modiversary detected", message);
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("MODIVERSARY_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("MODIVERSARY_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("MODIVERSARY_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("MODIVERSARY_COUNT", message.months);
 						}
 						break;
 					}

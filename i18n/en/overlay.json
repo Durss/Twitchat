@@ -485,6 +485,11 @@
 				"WATCH_STREAK_AVATAR": "Watch streak - Avatar",
 				"WATCH_STREAK_COUNT": "Watch streak - Count",
 
+				"MODIVERSARY_ID": "Modiversary - User ID",
+				"MODIVERSARY_NAME": "Modiversary - Username",
+				"MODIVERSARY_AVATAR": "Modiversary - Avatar",
+				"MODIVERSARY_COUNT": "Modiversary - Count",
+
 				"KOFI_TIP_NAME": "Donation - Username",
 				"KOFI_TIP_AMOUNT": "Donation - Amount",
 				"KOFI_MERCH_USER": "Merch - Username",
