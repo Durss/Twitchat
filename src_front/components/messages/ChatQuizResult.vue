@@ -77,17 +77,15 @@
 
 <script setup lang="ts">
 import { useChatMessage } from "@/composables/useChatMessage";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, reactive, useTemplateRef, watch } from "vue";
-import InfiniteList from "../InfiniteList.vue";
-import Utils from "@/utils/Utils";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
-import { ref } from "vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { computed, nextTick, reactive, ref, useTemplateRef, watch } from "vue";
+import InfiniteList from "../InfiniteList.vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import SearchForm from "../params/contents/SearchForm.vue";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { nextTick } from "vue";
 
 const props = defineProps<{
 	messageData: TwitchatDataTypes.MessageQuizCompleteData;
@@ -100,7 +98,7 @@ const emit = defineEmits<{
 }>();
 
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
-const { time, openUserCard } = useChatMessage(props, emit, rootEl);
+const { openUserCard } = useChatMessage(props, emit, rootEl);
 const storeAuth = useStoreAuth();
 const storeUsers = useStoreUsers();
 const listRef = useTemplateRef("infiniteList");
