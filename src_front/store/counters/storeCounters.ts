@@ -364,9 +364,8 @@ export const storeCounters = defineStore("counters", {
 					perUser: v.perUser === true,
 				};
 			});
-			if (counters) {
-				PublicAPI.instance.broadcast("ON_COUNTER_LIST", { counterList: counters });
-			}
+			PublicAPI.instance.broadcast("ON_COUNTER_LIST", { counterList: counters });
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"counters", ICountersState, ICountersGetters, ICountersActions>,
 });

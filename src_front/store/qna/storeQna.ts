@@ -402,6 +402,7 @@ export const storeQna = defineStore("qna", {
 					open: v.open,
 				})),
 			});
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"qna", IQnaState, IQnaGetters, IQnaActions>,
 });

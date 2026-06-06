@@ -1008,11 +1008,7 @@ export const storeParams = defineStore("params", {
 				this.chatColumnsConfig.push(col);
 				this.chatColumnStates.push({ paused: false });
 			}
-			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
-
-			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {
-				count: this.chatColumnsConfig.length,
-			});
+			this.saveChatColumnConfs();
 			return col;
 		},
 
@@ -1039,9 +1035,6 @@ export const storeParams = defineStore("params", {
 				this.chatColumnsConfig[this.chatColumnsConfig.length - 1]!.showGreetHere = true;
 
 			this.saveChatColumnConfs();
-			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {
-				count: this.chatColumnsConfig.length,
-			});
 		},
 
 		moveChatColumn(column: TwitchatDataTypes.ChatColumnsConfig, direction: -1 | 1): void {
@@ -1058,6 +1051,11 @@ export const storeParams = defineStore("params", {
 
 		saveChatColumnConfs(): void {
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
+
+			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {
+				count: this.chatColumnsConfig.length,
+			});
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		setGreetThemAutoDelete(value: number): void {
