@@ -24,7 +24,9 @@
 		<div class="list search" v-if="filteredUsers.length > 0 && filter">
 			<div class="item">
 				<div class="emotes">
-					<div v-if="filteredEmotes.length == 0">{{ t("global.no_result") }}</div>
+					<div v-if="filteredEmotes.length == 0 && filteredEmojis.length == 0">
+						{{ t("global.no_result") }}
+					</div>
 					<img
 						class="emote"
 						v-for="e in cappedFilteredEmotes"
