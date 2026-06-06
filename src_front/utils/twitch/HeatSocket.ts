@@ -132,6 +132,7 @@ export default class HeatSocket extends EventDispatcher {
 			ctrl,
 			alt,
 			shift,
+			undefined,
 			testMode,
 		);
 		this.dispatchEvent(event);

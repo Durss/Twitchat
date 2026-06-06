@@ -145,15 +145,12 @@ export default class TwitchExtensionController extends AbstractController {
 			alt: boolean;
 			ctrl: boolean;
 			shift: boolean;
+			areaId?: string;
 		};
 
 		try {
 			SSEController.sendToUser(request.twitchExtensionUser!.channel_id, "TWITCHEXT_CLICK", {
-				px: params.px,
-				py: params.py,
-				alt: params.alt,
-				ctrl: params.ctrl,
-				shift: params.shift,
+				...params,
 				userId: getUserID(request),
 			});
 			response.header("Content-Type", "application/json");
