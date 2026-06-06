@@ -165,7 +165,7 @@ export default class PublicAPI extends EventDispatcher {
 				return {
 					id: v.id,
 					name: infos.label,
-					enabled: v.enabled === false,
+					enabled: v.enabled,
 					iconEmoji: infos.iconEmoji,
 					iconUrl: infos.iconURL,
 				};

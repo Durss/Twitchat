@@ -8,6 +8,7 @@ import type { JsonObject } from "type-fest";
 import DataStore from "../DataStore";
 import type { IValuesActions, IValuesGetters, IValuesState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import PublicAPI from "@/utils/PublicAPI";
 
 export const storeValues = defineStore("values", {
 	state: (): IValuesState => ({
@@ -186,6 +187,7 @@ export const storeValues = defineStore("values", {
 
 		saveValues(): void {
 			DataStore.set(DataStore.VALUES, this.valueList);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"values", IValuesState, IValuesGetters, IValuesActions>,
 });
