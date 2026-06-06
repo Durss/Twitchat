@@ -82,7 +82,7 @@
 						light
 						@click="
 							currentQuiz.enabled = false;
-							store.resetQuizState(currentQuiz.id, false);
+							store.saveData(currentQuiz.id);
 						"
 						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed"
 						>{{ $t("quiz.state.disable_bt") }}</TTButton
