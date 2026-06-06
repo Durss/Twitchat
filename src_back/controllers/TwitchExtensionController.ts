@@ -89,7 +89,7 @@ export default class TwitchExtensionController extends AbstractController {
 	 * Notify all clients of a streamer that extension state has been updated
 	 * @param channelId
 	 */
-	public async notifyStateUpdate(channelId: string): Promise<void> {
+	public async notifyStateUpdate(channelId: string, notifyUserIds?: string[]): Promise<void> {
 		try {
 			const res = await fetch(Config.credentials.twitchat_api_path + "twitchat/stateUpdate", {
 				method: "POST",
@@ -100,6 +100,7 @@ export default class TwitchExtensionController extends AbstractController {
 				},
 				body: JSON.stringify({
 					channelId,
+					notifyUserIds,
 				}),
 			});
 			console.log("Twitchat API response:", res.status, await res.text());
@@ -272,9 +273,6 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @param response
 	 */
 	private async postQuizAnswer(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		// Reject anonymous users
-		// if(!request.twitchExtensionUser!.user_id) return;
-
 		const params = request.body as {
 			/**
 			 * The ID of the quiz being answered.
@@ -308,7 +306,7 @@ export default class TwitchExtensionController extends AbstractController {
 					answerId: params.answerId,
 					answerText: params.answerText,
 					delay_ms: params.delay_ms,
-					userId: request.twitchExtensionUser!.user_id,
+					userId: getUserID(request),
 					opaqueUserId: request.twitchExtensionUser!.opaque_user_id,
 				},
 			);
