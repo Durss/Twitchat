@@ -160,6 +160,7 @@ export type EventTypeMap = {
 		ctrl: boolean;
 		shift: boolean;
 		userId?: string;
+		areaId?: string;
 	};
 	TWITCHEXT_KEYS: {
 		keys: string[];
