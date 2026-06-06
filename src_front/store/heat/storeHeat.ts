@@ -1,5 +1,5 @@
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
-import type HeatEvent from "@/events/HeatEvent";
+import HeatEvent from "@/events/HeatEvent";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import {
 	TriggerTypes,
@@ -21,6 +21,7 @@ import type { IHeatActions, IHeatGetters, IHeatState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import Config from "@/utils/Config";
 import ApiHelper from "@/utils/ApiHelper";
+import SSEHelper from "@/utils/SSEHelper";
 
 let activeAreaDiff = "";
 let invalidateTimeout = -1;
@@ -57,6 +58,20 @@ export const storeHeat = defineStore("heat", {
 				this.distortionList = JSON.parse(heatDistortionParams);
 			}
 			this.updateActiveScreens();
+			SSEHelper.instance.addEventListener("TWITCHEXT_CLICK", (event) => {
+				if (!event.data) return;
+				void this.handleClickEvent(
+					new HeatEvent(
+						HeatEvent.CLICK,
+						{ x: event.data.px, y: event.data.py },
+						event.data.userId,
+						event.data.ctrl,
+						event.data.alt,
+						event.data.shift,
+						event.data.areaId,
+					),
+				);
+			});
 		},
 
 		createScreen(): string {
@@ -182,7 +197,8 @@ export const storeHeat = defineStore("heat", {
 			}
 
 			const channelId = StoreProxy.auth.twitch.user.id;
-			const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
+			// Anon user IDs start either with A- (for non logged users) or U- for anons
+			const anonymous = /(A|U)-/gi.test(event.uid || "A-");
 			log.anonymous = anonymous;
 			let user!: Pick<
 				TwitchatDataTypes.TwitchatUser,
@@ -234,7 +250,7 @@ export const storeHeat = defineStore("heat", {
 				};
 			}
 
-			//If user is banned, ignore its click
+			//If user is banned, ignore their click
 			if (user.channelInfo![channelId]?.is_banned) {
 				log.info =
 					'User "' + user.login + '" is banned from your channel. Ingore their click.';
@@ -259,6 +275,23 @@ export const storeHeat = defineStore("heat", {
 				},
 			};
 			void TriggerActionHandler.instance.execute(message);
+
+			if (event.areaId) {
+				const clone = JSON.parse(
+					JSON.stringify(message),
+				) as TwitchatDataTypes.MessageHeatClickData;
+				clone.areaId = event.areaId;
+				void TriggerActionHandler.instance.execute(clone);
+				log.targets.push({
+					customAreaID: event.areaId,
+					x: event.coordinates.x,
+					y: event.coordinates.y,
+				});
+				Logger.instance.log("heat", log);
+				// Stop there if user specifically requested to click on a custom area
+				// from Twichat Companion extension
+				return;
+			}
 
 			//Parse all custom areas
 			const screens = StoreProxy.heat.screenList;

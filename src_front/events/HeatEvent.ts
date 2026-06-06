@@ -13,6 +13,7 @@ export default class HeatEvent extends Event {
 		public ctrl?: boolean,
 		public alt?: boolean,
 		public shift?: boolean,
+		public areaId?: string,
 		public testMode?: boolean,
 	) {
 		super(eventType);
