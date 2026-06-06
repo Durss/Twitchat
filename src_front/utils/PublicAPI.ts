@@ -6,6 +6,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 import Utils from "./Utils";
 import VoiceController from "./voice/VoiceController";
+import TriggerUtils from "./TriggerUtils";
 
 /**
  * Created : 14/04/2022
@@ -130,20 +131,50 @@ export default class PublicAPI extends EventDispatcher {
 		const currentQuizQuestionIndex =
 			currentQuiz?.questionList.findIndex((v) => v.id == currentQuiz.currentQuestionId) ?? -1;
 		const states: TwitchatEventMap["ON_GLOBAL_STATES"] = {
-			activeCountdowns: StoreProxy.timers.timerList
-				.filter((v) => v.startAt_ms && v.type == "countdown")
+			countdowns: StoreProxy.timers.timerList
+				.filter((v) => v.type == "countdown")
 				// oxlint-disable-next-line no-unused-vars
 				.map(({ overlayParams, placeholderKey, ...rest }) => rest),
-			activeTimers: StoreProxy.timers.timerList
-				.filter((v) => v.startAt_ms && v.type == "timer")
+			timers: StoreProxy.timers.timerList
+				.filter((v) => v.type == "timer")
 				// oxlint-disable-next-line no-unused-vars
 				.map(({ overlayParams, placeholderKey, ...rest }) => rest),
 			lastRaiderName: StoreProxy.stream.lastRaider?.login,
 			emergencyMode: StoreProxy.emergency.emergencyStarted,
 			censorshipEnabled: StoreProxy.params.appearance.censorDeletedMessages.value as boolean,
-			counterValues: StoreProxy.counters.counterList
+			counterList: StoreProxy.counters.counterList
 				.filter((v) => v.perUser === false)
-				.map((v) => ({ id: v.id, value: v.value })),
+				.map((v) => ({
+					id: v.id,
+					value: v.value,
+					name: v.name,
+					enabled: v.enabled || false,
+					perUser: v.perUser,
+				})),
+			valueList: StoreProxy.values.valueList
+				.filter((v) => v.perUser === false)
+				.map((v) => ({
+					id: v.id,
+					value: v.value,
+					name: v.name,
+					enabled: v.enabled || false,
+					perUser: v.perUser,
+				})),
+			triggerList: StoreProxy.triggers.triggerList.map((v) => {
+				const infos = TriggerUtils.getTriggerDisplayInfo(v);
+				return {
+					id: v.id,
+					name: infos.label,
+					enabled: v.enabled === false,
+					iconEmoji: infos.iconEmoji,
+					iconUrl: infos.iconURL,
+				};
+			}),
+			qnaSessionList: StoreProxy.qna.activeSessions.map((v) => ({
+				id: v.id,
+				command: v.command,
+				open: v.open,
+			})),
 			hasActiveChatAlert: StoreProxy.main.chatAlert != null,
 			moderationToolsVisible: StoreProxy.params.features.showModTools.value as boolean,
 			ttsSpeaking: StoreProxy.tts.speaking,

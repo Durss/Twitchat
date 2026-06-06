@@ -2470,9 +2470,9 @@ Response to GET_GLOBAL_STATES
 ```typescript
 type ON_GLOBAL_STATES = {
 	/**
-	 * List of active timer and their state
+	 * List of timers and their state
 	 */
-	activeTimers: {
+	timers: {
 		id: string;
 		/**
 		 * Is the default timer/countdown
@@ -2516,11 +2516,15 @@ type ON_GLOBAL_STATES = {
 		 * Type of entry, timer or countdown
 		 */
 		type: "timer" | "countdown";
+		/**
+		 * Name of the timer/countdown
+		 */
+		title: string;
 	}[];
 	/**
-	 * List of active countdowns and their state
+	 * List of countdowns and their state
 	 */
-	activeCountdowns: {
+	countdowns: {
 		id: string;
 		/**
 		 * Is the default timer/countdown
@@ -2564,13 +2568,99 @@ type ON_GLOBAL_STATES = {
 		 * Type of entry, timer or countdown
 		 */
 		type: "timer" | "countdown";
+		/**
+		 * Name of the timer/countdown
+		 */
+		title: string;
 	}[];
 	/**
-	 * Current counter values
+	 * Counter list
 	 */
-	counterValues: {
+	counterList: {
+		/**
+		 * Counter ID
+		 */
 		id: string;
+		/**
+		 * Counter's value
+		 */
 		value: number;
+		/**
+		 * Counter's name
+		 */
+		name: string;
+		/**
+		 * Counter enabled ?
+		 */
+		enabled: boolean;
+		/**
+		 * Is per user counter?
+		 */
+		perUser: boolean;
+	}[];
+	/**
+	 * Value list
+	 */
+	valueList: {
+		/**
+		 * Value ID
+		 */
+		id: string;
+		/**
+		 * Value's value
+		 */
+		value: string;
+		/**
+		 * Value's name
+		 */
+		name: string;
+		/**
+		 * Value enabled?
+		 */
+		enabled: boolean;
+		/**
+		 * Is per user value?
+		 */
+		perUser: boolean;
+	}[];
+	/**
+	 * Trigger list
+	 */
+	triggerList: {
+		/**
+		 * Trigger ID
+		 */
+		id: string;
+		/**
+		 * Trigger name
+		 */
+		name: string;
+		/**
+		 * Is the trigger currently enabled
+		 */
+		enabled: boolean;
+		/**
+		 * Custom emoji icon
+		 */
+		iconEmoji?: string;
+		/**
+		 * Custom icon file
+		 */
+		iconUrl?: string;
+	}[];
+	qnaSessionList: {
+		/**
+		 * Session ID
+		 */
+		id: string;
+		/**
+		 * Chat command to use to submit a question
+		 */
+		command: string;
+		/**
+		 * Is session open for new questions?
+		 */
+		open: boolean;
 	}[];
 	/**
 	 * Current emergency mode state

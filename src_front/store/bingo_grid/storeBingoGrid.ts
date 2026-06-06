@@ -805,6 +805,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					gridList: this.gridList,
 				};
 				DataStore.set(DataStore.BINGO_GRIDS, data);
+				PublicAPI.instance.broadcastGlobalStates();
 			}, 500);
 		},
 
