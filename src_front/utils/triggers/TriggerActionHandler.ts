@@ -8152,6 +8152,16 @@ export default class TriggerActionHandler {
 											date: Date.now(),
 											value: `❌ No post found on account ${handle}`,
 										});
+										if (step.blueskyData.getPostPlaceholderMessage) {
+											dynamicPlaceholders[
+												step.blueskyData.getPostPlaceholderMessage
+											] = "no post found";
+										}
+										if (step.blueskyData.getPostPlaceholderURL) {
+											dynamicPlaceholders[
+												step.blueskyData.getPostPlaceholderURL
+											] = "https://bsky.app/profile/" + handle;
+										}
 										log.error = true;
 										logStep.error = true;
 									} else {
