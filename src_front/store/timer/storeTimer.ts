@@ -470,6 +470,7 @@ export const storeTimer = defineStore("timer", {
 					isDefault: c.isDefault,
 				})),
 			});
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"timer", ITimerState, ITimerGetters, ITimerActions>,
 });

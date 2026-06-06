@@ -543,6 +543,7 @@ export const storeTriggers = defineStore("triggers", {
 				};
 			});
 			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", { triggerList: triggers });
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>,
 });
