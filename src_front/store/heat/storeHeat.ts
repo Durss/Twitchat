@@ -198,7 +198,7 @@ export const storeHeat = defineStore("heat", {
 
 			const channelId = StoreProxy.auth.twitch.user.id;
 			// Anon user IDs start either with A- (for non logged users) or U- for anons
-			const anonymous = /(A|U)-/gi.test(event.uid || "A-");
+			const anonymous = /(A|U)/gi.test(event.uid || "A-");
 			log.anonymous = anonymous;
 			let user!: Pick<
 				TwitchatDataTypes.TwitchatUser,
