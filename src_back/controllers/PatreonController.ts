@@ -116,7 +116,13 @@ export default class PatreonController extends AbstractController {
 			await this.authenticateLocal();
 			// Give it time to the server before make bunch of requests
 			setTimeout(() => {
-				void this.rebuildUserWebhooks();
+				//Don't use try/catch here: rebuildUserWebhooks() is async so a throw
+				//becomes a rejected promise that a synchronous try/catch can't catch.
+				//An unhandled rejection would crash the whole process.
+				this.rebuildUserWebhooks().catch((error) => {
+					Logger.error("[PATREON][USER] rebuildUserWebhooks failed");
+					console.log(error);
+				});
 			}, 2 * 60000);
 
 			if (!fs.existsSync(Config.PATREON_DATA_FOLDER)) {
@@ -1386,7 +1392,15 @@ export default class PatreonController extends AbstractController {
 		);
 
 		for (const twitchId in tokens) {
-			const oldToken = JSON.parse(Utils.decrypt(tokens[twitchId])) as PatreonToken;
+			let oldToken: PatreonToken;
+			try {
+				oldToken = JSON.parse(Utils.decrypt(tokens[twitchId])) as PatreonToken;
+			} catch (_error) {
+				//Token can't be decrypted (wrong cipher key or corrupted entry).
+				//Skip this user instead of aborting the whole rebuild.
+				Logger.warn("[PATREON][USER] Couldn't decrypt token for user " + twitchId);
+				continue;
+			}
 			const token = await this.refreshUserToken(oldToken, twitchId);
 			if (!token) {
 				Logger.warn("[PATREON][USER] Couldn't refresh token for user " + twitchId);
