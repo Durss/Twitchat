@@ -454,8 +454,8 @@ export default class Config {
 		//Grab env name the first time
 		if (!this.envName) {
 			if (fs.existsSync(this.confPath)) {
-				const content: string = fs.readFileSync(this.confPath, "utf8");
-				this.envName = <EnvName>content;
+				const content = fs.readFileSync(this.confPath, "utf8").trim() as EnvName;
+				this.envName = content;
 				const str: string = '  :: Current environment "' + content + '" ::  ';
 				const head: string = str.replace(/./g, " ");
 				console.log("\n");
