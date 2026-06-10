@@ -198,7 +198,7 @@ export default class GoogleController extends AbstractController {
 
 		if (Config.credentials.google_key) {
 			//Authenticate with google API for translation API
-			const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
+			const auth = new Auth.GoogleAuth({
 				keyFilename: Config.CREDENTIALS_ROOT + Config.credentials.google_key,
 				scopes: ["https://www.googleapis.com/auth/cloud-platform"],
 			});
