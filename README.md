@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://shields.io/badge/vue-3-42b883?logo=Vue.js&labelColor=ffffff"> <img src="https://shields.io/badge/vite+-8-6b77f8?logo=vite&labelColor=ffffff"> <img src="https://shields.io/badge/typescript-%3E=%205.9.3-3178c6?logo=TypeScript&labelColor=ffffff"> <img src="https://shields.io/badge/node-%3E=%2018.2.0-026e00?logo=node.js&labelColor=ffffff"> <img src="https://shields.io/badge/less-1d365d?logo=less&labelColor=ffffff&logoColor=000000">
+	<img src="https://shields.io/badge/vue-3.5-42b883?logo=Vue.js&labelColor=ffffff"> <img src="https://shields.io/badge/vite+-8-6b77f8?logo=vite&labelColor=ffffff"> <img src="https://shields.io/badge/typescript-%3E=%205.9.3-3178c6?logo=TypeScript&labelColor=ffffff"> <img src="https://shields.io/badge/node-%3E=%2024.16.0-026e00?logo=node.js&labelColor=ffffff"> <img src="https://shields.io/badge/less-1d365d?logo=less&labelColor=ffffff&logoColor=000000">
 	<br>
 	<br>
 	<br>
@@ -395,7 +395,7 @@ Any manual update on JSON will propagate to the frontend if you're connected as 
 <br>
 <br>
 
-# Package Stream Deck™ plugin
+# Stream Deck™ plugin
 
 Sources for Stream Deck plugin are located here:
 https://github.com/Durss/Twitchat_Streamdeck_plugin
