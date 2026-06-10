@@ -17,6 +17,9 @@ let broadcastDebounceTO = -1;
 // Cached OpenQuizzDB CSV between language detection and final import
 let openquizzdbCSVCache = "";
 const POINTS_PER_QUESTION = 100;
+// Extra time during which votes are still accepted after the question's
+// duration has elapsed, to compensate for slow connections
+const VOTE_GRACE_PERIOD_MS = 1000;
 const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const CLASSIC_ANSWER_SLOTS = 6;
 const MAJORITY_ANSWER_SLOTS = 4;
@@ -130,10 +133,13 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 		rawScore = majorityWinnerIds.has(answerId) ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
 	}
 
-	// Apply time-based speed multiplier
+	// Apply time-based speed multiplier.
+	// The grace period is included in the scoring window so votes received
+	// during it still get a (small) non-zero score
 	let score = rawScore;
 	if (quiz.timeBasedScoring) {
-		const questionDuration = (question.duration_s ?? quiz.durationPerQuestion_s) * 1000;
+		const questionDuration =
+			(question.duration_s ?? quiz.durationPerQuestion_s) * 1000 + VOTE_GRACE_PERIOD_MS;
 		const speedMult =
 			Math.min(
 				questionDuration,
@@ -383,13 +389,16 @@ export const storeQuiz = defineStore("quiz", {
 			);
 			const votedAt = new Date(Date.now() - delay_ms).toISOString();
 			//*/
-			const votedAt = new Date().toISOString();
-
-			// Check if question is still accepting answers based on duration
+			// Check if question is still accepting answers based on duration.
+			// A grace period is granted past the question's end to compensate
+			// for slow connections.
 			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
-			if (new Date(quiz.questionStarted_at).getTime() + totalTime < Date.now()) {
+			const questionEndsAt = new Date(quiz.questionStarted_at).getTime() + totalTime;
+			if (questionEndsAt + VOTE_GRACE_PERIOD_MS < Date.now()) {
 				return;
 			}
+
+			const votedAt = new Date().toISOString();
 
 			if (!quiz.leaderboard) {
 				quiz.leaderboard = {};
