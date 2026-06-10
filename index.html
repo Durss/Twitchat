@@ -724,6 +724,7 @@
 			// SHow beta tag if on beta or localhost
 			if (
 				document.location.host.indexOf("beta") > -1 ||
+				document.location.host.indexOf("alpha") > -1 ||
 				document.location.host.indexOf("localhost") > -1
 			) {
 				document.querySelector(".beta").style.display = "inline-block";
