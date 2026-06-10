@@ -1124,7 +1124,9 @@ export const storeChat = defineStore("chat", {
 									user.id,
 									user.login,
 									user.displayNameOriginal || user.displayName,
+									undefined, undefined, undefined, undefined, false
 								);
+								// reactiveUser.channelInfo = user.channelInfo || reactiveUser.channelInfo;
 								if (reactiveUser.color !== colorOriginal) {
 									reactiveUser.color = colorOriginal;
 								}

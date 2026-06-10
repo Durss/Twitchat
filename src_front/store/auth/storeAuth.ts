@@ -345,6 +345,8 @@ export const storeAuth = defineStore("auth", {
 								},
 							);
 						}
+						//define if user is exempt from ads or not based on their followers count
+						this.noAd = res.total < Config.instance.AD_MIN_FOLLOWERS_COUNT;
 						StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", res.total);
 					};
 					void loadFollowers();
@@ -431,11 +433,6 @@ export const storeAuth = defineStore("auth", {
 			// }
 			if (res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
 
-			//Async loading of followers count to define if user is exempt
-			//from ads or not
-			const followers = await TwitchUtils.getFollowersCount([this.twitch.user.id]);
-			this.noAd = followers[this.twitch.user.id]! < Config.instance.AD_MIN_FOLLOWERS_COUNT;
-			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]!);
 		},
 
 		async twitch_updateAuthScopes(code: string): Promise<boolean> {
