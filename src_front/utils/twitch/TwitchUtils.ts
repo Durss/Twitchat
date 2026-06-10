@@ -1285,7 +1285,6 @@ export default class TwitchUtils {
 			const uid = userIds.shift()!;
 			const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
 			url.searchParams.append("broadcaster_id", uid);
-			url.searchParams.append("first", "100");
 			const res = await this.callApi(url);
 			if (res.status == 200) {
 				const json: {
