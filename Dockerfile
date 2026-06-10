@@ -1,19 +1,11 @@
 # Production-only dependencies
 FROM node:24-alpine AS deps
-# The repo's .npmrc sets legacy-peer-deps=true (and the lockfile was generated with
-# it), but .dockerignore excludes .npmrc — replicate the setting so npm ci matches
-# the lockfile instead of failing with EUSAGE "out of sync".
-ENV NPM_CONFIG_LEGACY_PEER_DEPS=true
 WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # Build stage — full deps available
 FROM node:24-alpine AS builder
-
-# Match the repo's .npmrc (excluded by .dockerignore); without it npm ci resolves
-# peers strictly and rejects the lockfile as out of sync.
-ENV NPM_CONFIG_LEGACY_PEER_DEPS=true
 
 WORKDIR /src
 
