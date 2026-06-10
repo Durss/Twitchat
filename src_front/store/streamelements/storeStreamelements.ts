@@ -100,6 +100,7 @@ export const storeStreamelements = defineStore("streamelements", {
 			let statePrefix = "";
 			if (/^localhost|127\.0\.0\.1/gi.test(document.location.host)) statePrefix = "local-";
 			if (/^beta/gi.test(document.location.host)) statePrefix = "beta-";
+			if (/^alpha/gi.test(document.location.host)) statePrefix = "alpha-";
 
 			const url = new URL("https://api.streamelements.com/oauth2/authorize");
 			url.searchParams.set("client_id", Config.instance.STREAMELEMENTS_CLIENT_ID);

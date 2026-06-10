@@ -60,7 +60,7 @@
 				id="clip_player"
 				:src="
 					clipData.url +
-					'&autoplay=true&parent=twitchat.fr&parent=localhost&parent=beta.twitchat.fr'
+					'&autoplay=true&parent=twitchat.fr&parent=localhost&parent=beta.twitchat.fr&parent=alpha.twitchat.fr'
 				"
 				width="990"
 				height="557"

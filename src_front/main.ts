@@ -341,7 +341,7 @@ function buildApp() {
 			integrations: [dedupeIntegration()],
 			//@ts-ignore
 			environment:
-				{ "beta.twitchat.fr": "beta", "twitchat.fr": "prod" }[document.location.hostname] ||
+				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[document.location.hostname] ||
 				document.location.hostname,
 			tracesSampleRate: 1.0,
 			ignoreErrors: [
