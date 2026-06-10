@@ -342,6 +342,11 @@ const routes: Array<RouteRecordRaw> = [
 					document.location.href =
 						"https://beta.twitchat.fr/streamelements/auth?" +
 						new URLSearchParams(params);
+				} else if (/alpha-/gi.test(params.csrf)) {
+					params.csrf = params.csrf.replace(/^.*?-/, "");
+					document.location.href =
+						"https://alpha.twitchat.fr/streamelements/auth?" +
+						new URLSearchParams(params);
 				} else if (/local-/gi.test(params.csrf)) {
 					params.csrf = params.csrf.replace(/^.*?-/, "");
 					document.location.href =

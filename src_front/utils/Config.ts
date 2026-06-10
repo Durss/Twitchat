@@ -316,6 +316,7 @@ export default class Config {
 		// }
 		return (
 			document.location.host.indexOf("beta") > -1 ||
+			document.location.host.indexOf("alpha") > -1 ||
 			document.location.host.indexOf("localhost") > -1
 		);
 	}
