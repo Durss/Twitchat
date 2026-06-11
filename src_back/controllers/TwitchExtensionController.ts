@@ -177,6 +177,7 @@ export default class TwitchExtensionController extends AbstractController {
 		try {
 			SSEController.sendToUser(request.twitchExtensionUser!.channel_id, "TWITCHEXT_KEYS", {
 				keys: params.keys,
+				userId: getUserID(request),
 			});
 			response.header("Content-Type", "application/json");
 			response.status(200);
