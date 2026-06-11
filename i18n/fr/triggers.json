@@ -1018,6 +1018,9 @@
 			"heat_key_alt": "Touche ALT enfoncée ?",
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
+			"companion_keys_text": "Texte imprimable saisi par le viewer",
+			"companion_keys_list": "Toutes les touches saisies par le viewer (tableau JSON)",
+			"companion_keys_anonymous": "Le·a viewer est anonyme ?",
 			"clip_url": "URL du clip",
 			"timer_id": "{NAME} ID du minuteur",
 			"timer_paused": "{NAME} Chronomètre mis en pause ?",
@@ -1640,6 +1643,11 @@
 				"label": "Click sur le stream",
 				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
 				"description_info": "(Requiert d'installer l'extension \"Twitchat Companion\" (ou \"Heat\"). Consultez la section \"Connexions\"=>\"Twitchat Companion\" pour l'installer)"
+			},
+			"TWITCHAT_COMPANION_KEYS": {
+				"label": "Touches saisies sur le stream",
+				"description": "Actions à exécuter lorsqu'un·e viewer saisit des touches sur le stream {INFO}",
+				"description_info": "(Requiert d'installer l'extension \"Twitchat Companion\". Consultez la section \"Connexions\"=>\"Twitchat Companion\" pour l'installer)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip créé depuis Twitchat",

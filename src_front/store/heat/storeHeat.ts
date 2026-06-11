@@ -72,6 +72,89 @@ export const storeHeat = defineStore("heat", {
 					),
 				);
 			});
+
+			//Keys typed by a viewer on the stream's overlay through the
+			//"Twitchat Companion" extension. Fire the related trigger.
+			SSEHelper.instance.addEventListener("TWITCHEXT_KEYS", async (event) => {
+				if (!event.data) return;
+
+				//Nothing listens for those keys, ignore the event
+				const hasTrigger =
+					StoreProxy.triggers.triggerList.find(
+						(v) => v.type == TriggerTypes.TWITCHAT_COMPANION_KEYS,
+					) != undefined;
+				if (!hasTrigger) return;
+
+				const keys = event.data.keys;
+				const userId = event.data.userId;
+				//Keep only printable characters (single char keys) to build the text
+				const text = keys.filter((k) => k.length === 1).join("");
+
+				const channelId = StoreProxy.auth.twitch.user.id;
+				// Anon user IDs start either with A- (for non logged users) or U- for anons
+				const anonymous = /(A|U)/gi.test(userId || "A-");
+				let user!: Pick<
+					TwitchatDataTypes.TwitchatUser,
+					"id" | "login" | "channelInfo" | "anonymous" | "platform"
+				>;
+				if (!anonymous) {
+					//Load user data
+					user = await new Promise((resolve) => {
+						StoreProxy.users.getUserFrom(
+							"twitch",
+							channelId,
+							userId,
+							undefined,
+							undefined,
+							(user) => {
+								resolve(user);
+							},
+							undefined,
+							undefined,
+							undefined,
+							false,
+						);
+					});
+				} else {
+					//Create a fake partial user with only ID set so the trigger's cooldowns
+					//can properly be applied later.
+					const channelInfo: { [key: string]: TwitchatDataTypes.UserChannelInfo } = {};
+					channelInfo[channelId] = {
+						badges: [],
+						following_date_ms: -1,
+						is_banned: false,
+						is_broadcaster: false,
+						is_following: false,
+						is_gifter: false,
+						is_moderator: false,
+						is_new: false,
+						is_raider: false,
+						is_subscriber: false,
+						is_vip: false,
+						online: true,
+					};
+					user = {
+						id: userId || "anon",
+						login: "anon",
+						channelInfo,
+						anonymous: true,
+						platform: "twitch",
+					};
+				}
+
+				const message: TwitchatDataTypes.MessageCompanionKeysData = {
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitch",
+					type: TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS,
+					channel_id: channelId,
+					user,
+					anonymous,
+					keys,
+					text,
+				};
+				void TriggerActionHandler.instance.execute(message);
+			});
 		},
 
 		createScreen(): string {

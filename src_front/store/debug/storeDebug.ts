@@ -1529,6 +1529,23 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS: {
+					const keys = ["h", "e", "l", "l", "o", " ", "w", "o", "r", "l", "d"];
+					const m: TwitchatDataTypes.MessageCompanionKeysData = {
+						platform: "twitch",
+						type,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: user.id,
+						user,
+						anonymous: false,
+						keys,
+						text: keys.filter((k) => k.length === 1).join(""),
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON: {
 					const m: TwitchatDataTypes.MessageGoXLRButtonData = {
 						platform: "twitch",

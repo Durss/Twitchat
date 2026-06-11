@@ -1016,6 +1016,9 @@
 			"heat_key_alt": "Is ALT key pressed?",
 			"heat_key_shift": "Is SHIFT key pressed?",
 			"heat_key_ctrl": "Is CTRL key pressed?",
+			"companion_keys_text": "Printable text typed by the viewer",
+			"companion_keys_list": "All keys typed by the viewer (JSON array)",
+			"companion_keys_anonymous": "Is the viewer anonymous?",
 			"clip_url": "Clip URL",
 			"timer_id": "{NAME} Timer ID",
 			"timer_paused": "{NAME} Timer paused ?",
@@ -1638,6 +1641,11 @@
 				"label": "Click on the stream",
 				"description": "Actions to execute when a user clicks on your stream {INFO}",
 				"description_info": "(Needs \"Twitchat Companion\" (or \"Heat\") extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
+			},
+			"TWITCHAT_COMPANION_KEYS": {
+				"label": "Keys typed on the stream",
+				"description": "Actions to execute when a viewer types keys over your stream {INFO}",
+				"description_info": "(Needs \"Twitchat Companion\" extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip created from Twitchat",

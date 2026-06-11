@@ -2,7 +2,7 @@
 FROM node:24-alpine AS deps
 WORKDIR /src
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 # Build stage — full deps available
 FROM node:24-alpine AS builder
@@ -17,7 +17,7 @@ RUN apk add --no-cache git \
     && git config --global url."https://github.com/".insteadOf "git@github.com:"
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 RUN npm run build
