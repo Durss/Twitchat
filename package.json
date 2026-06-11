@@ -8,7 +8,7 @@
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"devall": "npm run server/start && npm run labels/start && concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
-		"build": "npm run i18n && npm run migration:stats && vp pack && vp build && npm run server/build",
+		"build": "npm run i18n && vp pack && vp build && npm run server/build",
 		"tunnel": "cloudflared tunnel run dev",
 		"front/watch": "vp dev --host",
 		"front/watch-force": "vp dev --host --force",

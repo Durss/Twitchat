@@ -37,7 +37,7 @@ import { computed, ref } from "vue";
  * when false and `connected` is also false, it renders red (configured but failing).
  *
  * OAuth tokens persisted only in DataStore (Spotify, Patreon, YouTube) are not
- * reactive — call `refreshOAuthConfigured()` after a connect/disconnect flow
+ * reactive, call `refreshOAuthConfigured()` after a connect/disconnect flow
  * completes to refresh those flags.
  */
 export function useConnectionStates() {

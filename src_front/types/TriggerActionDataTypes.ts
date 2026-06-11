@@ -2136,6 +2136,7 @@ export const TriggerTypes = {
 	MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: "185",
 	MELDSTUDIO_TRACK_MUTE_CHANGE: "186",
 	MODIVERSARY: "187",
+	TWITCHAT_COMPANION_KEYS: "188",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -5081,6 +5082,63 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 				{ labelKey: "global.no", value: false },
 			],
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
+	];
+
+	map[TriggerTypes.TWITCHAT_COMPANION_KEYS] = [
+		{
+			tag: "TEXT",
+			descKey: "triggers.placeholders.companion_keys_text",
+			pointer: "text",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		{
+			tag: "KEYS",
+			descKey: "triggers.placeholders.companion_keys_list",
+			pointer: "keys",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		{
+			tag: USER_ID,
+			descKey: "triggers.placeholders.user_id",
+			pointer: "user.id",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		{
+			tag: USER_FOLLOWAGE,
+			descKey: "triggers.placeholders.followage",
+			pointer: "user",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		{
+			tag: USER_FOLLOWAGE_MS,
+			descKey: "triggers.placeholders.followage_ms",
+			pointer: "user",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
+		...commonUserTags,
+		{
+			tag: "USER_ANONYMOUS",
+			descKey: "triggers.placeholders.companion_keys_anonymous",
+			pointer: "anonymous",
+			numberParsable: false,
+			isUserID: false,
+			values: [
+				{ labelKey: "global.yes", value: true },
+				{ labelKey: "global.no", value: false },
+			],
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 	];
 
 	map[TriggerTypes.CLIP_CREATED] = [
@@ -9089,6 +9147,15 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.HEAT_CLICK,
 			descriptionKey: "triggers.events.HEAT_CLICK.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+		},
+		{
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+			category: TriggerEventTypeCategories.MISC,
+			icon: "twitchat_companion",
+			labelKey: "triggers.events.TWITCHAT_COMPANION_KEYS.label",
+			value: TriggerTypes.TWITCHAT_COMPANION_KEYS,
+			descriptionKey: "triggers.events.TWITCHAT_COMPANION_KEYS.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS,
 		},
 		{
 			category: TriggerEventTypeCategories.MISC,

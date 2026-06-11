@@ -249,7 +249,7 @@ function onDragEnd(): void {
  * (and on source after a same-list reorder). vuedraggable's alterList
  * builds a NEW array via spread and emits update:modelValue, which means
  * our localItems is reassigned to a new reference. Without this handler,
- * the destination instance never propagates that change up — its parent's
+ * the destination instance never propagates that change up. Its parent's
  * `folder.items` reference stays pointing at the old (empty) array, so the
  * dragged item disappears when the tree is rebuilt.
  */

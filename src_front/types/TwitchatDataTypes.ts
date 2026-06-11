@@ -4930,6 +4930,7 @@ export namespace TwitchatDataTypes {
 		MELDSTUDIO_SCENE_CHANGE: "meldstudio_scene_change",
 		TWITCH_CHARITY_DONATION: "twitch_charity_donation",
 		SUSPENDED_TRIGGER_STACK: "suspended_trigger_stack",
+		TWITCHAT_COMPANION_KEYS: "twitchat_companion_keys",
 		CLIP_PENDING_PUBLICATION: "clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE: "community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE: "obs_playback_state_update",
@@ -5064,6 +5065,7 @@ export namespace TwitchatDataTypes {
 		hype_train_approaching: false,
 		clip_creation_complete: false,
 		meldstudio_stop_stream: false,
+		twitchat_companion_keys: false,
 		meldstudio_start_stream: false,
 		clip_pending_publication: true,
 		community_boost_complete: true,
@@ -5182,6 +5184,7 @@ export namespace TwitchatDataTypes {
 		| MessageWatchStreakData
 		| MessageHypeChatData
 		| MessageHeatClickData
+		| MessageCompanionKeysData
 		| MessageGoXLRButtonData
 		| MessageGoXLRFXEnableChangeData
 		| MessageGoXLRSampleCompleteData
@@ -7906,6 +7909,33 @@ export namespace TwitchatDataTypes {
 		 * Clicked OBS source
 		 */
 		obsSource?: string;
+	}
+
+	/**
+	 * Represents a sequence of keys typed by a viewer on the stream's overlay
+	 * through the "Twitchat Companion" extension.
+	 */
+	export interface MessageCompanionKeysData extends AbstractTwitchatMessage {
+		type: "twitchat_companion_keys";
+		channel_id: string;
+		/**
+		 * User that typed the keys.
+		 * Anonymous users get a partial user with only their (anonymous) ID set.
+		 */
+		user: Pick<TwitchatUser, "channelInfo" | "id" | "login" | "platform"> | null;
+		/**
+		 * Is it an anonymous user?
+		 */
+		anonymous: boolean;
+		/**
+		 * All the keys typed by the viewer, in order.
+		 * May contain non-printable keys (e.g. "Enter", "Backspace", "ArrowLeft").
+		 */
+		keys: string[];
+		/**
+		 * Concatenation of every printable character typed by the viewer.
+		 */
+		text: string;
 	}
 
 	/**

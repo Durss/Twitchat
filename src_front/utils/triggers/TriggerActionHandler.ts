@@ -1091,6 +1091,22 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.TWITCHAT_COMPANION_KEYS,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE: {
 				if (
 					await this.executeTriggersByType(
@@ -2819,17 +2835,26 @@ export default class TriggerActionHandler {
 				message.type !== TwitchatDataTypes.TwitchatMessageType.CUSTOM &&
 				message.type !== TwitchatDataTypes.TwitchatMessageType.PATREON
 			) {
-				//Special case for Heat click messages that have a limited type definition.
-				if (message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
-					//Get the full user from those limited data
-					if (message.anonymous && trigger.heatAllowAnon !== true) {
+				//Special case for Heat click and Companion keys messages that have a
+				//limited user type definition.
+				if (
+					message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK ||
+					message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_COMPANION_KEYS
+				) {
+					//Get the full user from those limited data.
+					//Heat clicks can be restricted to non-anonymous users.
+					if (
+						message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK &&
+						message.anonymous &&
+						trigger.heatAllowAnon !== true
+					) {
 						return false;
 					}
 					executingUser = StoreProxy.users.getUserFrom(
 						message.platform,
 						message.channel_id,
-						message.user.id,
-						message.user.login,
+						message.user!.id,
+						message.user!.login,
 						undefined,
 						undefined,
 						undefined,

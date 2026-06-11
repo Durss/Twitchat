@@ -164,6 +164,7 @@ export type EventTypeMap = {
 	};
 	TWITCHEXT_KEYS: {
 		keys: string[];
+		userId?: string;
 	};
 	TWITCHEXT_QUIZ_ANSWER: {
 		userId?: string;
