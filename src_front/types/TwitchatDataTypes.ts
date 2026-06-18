@@ -4548,6 +4548,12 @@ export namespace TwitchatDataTypes {
 		 */
 		toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
 		/**
+		 * Maximum number of users allowed to answer each question.
+		 * Only the first X users to answer are accepted.
+		 * 0 or undefined = unlimited.
+		 */
+		maxAnswers?: number;
+		/**
 		 * List of questions
 		 */
 		questionList: ({
@@ -4563,6 +4569,11 @@ export namespace TwitchatDataTypes {
 			 * Number of seconds to answer this question (overrides durationPerQuestion_s)
 			 */
 			duration_s?: number;
+			/**
+			 * Maximum number of users allowed to answer this question.
+			 * Only the first X users to answer are accepted (overrides quiz's maxAnswers).
+			 */
+			maxAnswers?: number;
 			/**
 			 * Question text
 			 */
