@@ -105,6 +105,7 @@ export default class DataStoreCommon {
 	public static AUTOCONNECT_CHANS: string = "autoconnectChans";
 	public static DONATION_GOALS: string = "donationGoals";
 	public static TILTIFY_TOKEN: string = "tiltifyToken";
+	public static STREAMERSONGLIST_TOKEN: string = "streamersonglistToken";
 	public static RAFFLES_RUNNING: string = "rafflesRunning";
 	public static TIKTOK_CONFIGS: string = "tiktokConfigs";
 	public static STREAMERBOT_CONFIGS: string = "streamerbotConfigs";
@@ -162,6 +163,7 @@ export default class DataStoreCommon {
 		this.STREAMELEMENTS,
 		this.TIPEEE,
 		this.TILTIFY_TOKEN,
+		this.STREAMERSONGLIST_TOKEN,
 		this.STREAMLABS_CHARITY_CACHE,
 		this.STREAMERBOT_WS_PASSWORD,
 		this.SAMMI_API_PASSWORD,

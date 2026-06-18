@@ -393,6 +393,31 @@ const routes: Array<RouteRecordRaw> = [
 		},
 	},
 	{
+		path: "/oauth/ssl",
+		name: "streamersonglist/auth",
+		redirect: () => {
+			const sParams = StoreProxy.params;
+			const sSSL = StoreProxy.streamersonglist;
+			if (Utils.getQueryParameterByName("code")) {
+				const params = {
+					code: Utils.getQueryParameterByName("code") as string,
+					csrf: Utils.getQueryParameterByName("state") as string,
+				};
+				sSSL.setAuthResult(params.code, params.csrf);
+				sParams.openParamsPage(
+					TwitchatDataTypes.ParameterPages.CONNECTIONS,
+					TwitchatDataTypes.ParamDeepSections.STREAMERSONGLIST,
+				);
+			} else {
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.streamersonglist_denied"));
+			}
+			return { name: "chat", query: {} };
+		},
+		meta: {
+			needAuth: true,
+		},
+	},
+	{
 		path: "/goxlr",
 		name: "goxlr",
 		component: GoXLRDebug,

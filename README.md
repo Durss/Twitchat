@@ -199,7 +199,12 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"tiltify_webhook_id": "",
 	"tiltify_redirect_uri": "http://localhost:8081/tiltify/auth",
 	"tiltify_scopes": "public webhooks:write",
-	"tiltify_api_path": "https://v5api.tiltify.com"
+	"tiltify_api_path": "https://v5api.tiltify.com",
+
+	"streamersonglist_client_id": "",
+	"streamersonglist_client_secret": "",
+	"streamersonglist_redirect_uri": "http://localhost:8081/oauth/ssl",
+	"streamersonglist_scopes": "streamer.song.* streamer.queue.* user.song-request.* offline_access"
 }
 ```
 
