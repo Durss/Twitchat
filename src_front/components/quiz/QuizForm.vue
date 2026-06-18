@@ -104,6 +104,19 @@
 									@change="save(quiz)"
 								/>
 								<ParamItem
+									:paramData="param_maxAnswers[quiz.id]!"
+									v-model="param_maxAnswers[quiz.id]!.value"
+									@change="onMaxAnswersChange(quiz)"
+								>
+									<ParamItem
+										class="child"
+										noBackground
+										:paramData="param_maxAnswersValue[quiz.id]!"
+										v-model="quiz.maxAnswers"
+										@change="save(quiz)"
+									/>
+								</ParamItem>
+								<ParamItem
 									:paramData="param_tolerance[quiz.id]!"
 									v-model="quiz.toleranceLevel"
 									@change="save(quiz)"
@@ -174,6 +187,10 @@ const param_duration = ref<Record<string, TwitchatDataTypes.ParameterData<number
 const param_timeBasedScore = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 const param_looseOnFail = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 const param_tolerance = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
+const param_maxAnswers = ref<Record<string, TwitchatDataTypes.ParameterData<boolean, any, any>>>(
+	{},
+);
+const param_maxAnswersValue = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
 const autoOpenQuizID = ref<string | null>(null);
 
 const maxQuizReached = computed((): boolean => {
@@ -196,6 +213,22 @@ onBeforeMount(() => {
  */
 function save(quiz: TwitchatDataTypes.QuizParams): void {
 	storeQuiz.saveData(quiz.id);
+}
+
+/**
+ * Enable/disable the "first X answers" limit and persist it.
+ * Stores 0 when disabled (= unlimited).
+ */
+function onMaxAnswersChange(quiz: TwitchatDataTypes.QuizParams): void {
+	const toggle = param_maxAnswers.value[quiz.id];
+	if (!toggle) return;
+	if (toggle.value === false) {
+		quiz.maxAnswers = 0;
+	} else {
+		quiz.maxAnswers = quiz.maxAnswers && quiz.maxAnswers > 0 ? quiz.maxAnswers : 1;
+		param_maxAnswersValue.value[quiz.id]!.value = quiz.maxAnswers;
+	}
+	save(quiz);
 }
 
 /**
@@ -250,6 +283,20 @@ function initParams(): void {
 				value: true,
 				labelKey: "quiz.form.param_loose_on_fail",
 				icon: "sad",
+			};
+			param_maxAnswers.value[id] = {
+				type: "boolean",
+				value: (quiz.maxAnswers ?? 0) > 0,
+				labelKey: "quiz.form.param_max_answers",
+				icon: "max",
+			};
+			param_maxAnswersValue.value[id] = {
+				type: "number",
+				value: quiz.maxAnswers && quiz.maxAnswers > 0 ? quiz.maxAnswers : 1,
+				min: 1,
+				max: 100000,
+				labelKey: "quiz.form.param_max_answers_value",
+				icon: "max",
 			};
 		}
 

@@ -42,6 +42,39 @@
 				</span>
 			</div>
 
+			<div class="maxAnswersOverride" v-tooltip="t('quiz.form.maxAnswersOverride_tt')">
+				<TTButton
+					v-if="!editMaxAnswersOverride"
+					icon="max"
+					tabindex="-1"
+					@click.stop="setCustomMaxAnswers()"
+					:secondary="question.maxAnswers !== undefined"
+					:transparent="question.maxAnswers === undefined"
+					>{{
+						question.maxAnswers === undefined
+							? ""
+							: question.maxAnswers > 0
+								? question.maxAnswers
+								: "∞"
+					}}</TTButton
+					>
+				<span v-else class="durationForm">
+					<ContentEditable
+						tag="span"
+						v-model="question.maxAnswers"
+						v-autofocus
+						:min="0"
+						:max="100000"
+						:contenteditable="true"
+						noNl
+						numeric
+						@blur="editMaxAnswersOverride = false"
+						@submit="editMaxAnswersOverride = false"
+						@keydown.native.esc.capture.prevent
+					/>
+				</span>
+			</div>
+
 			<div
 				class="toleranceOverride"
 				v-if="question.mode == 'freeAnswer'"
@@ -238,6 +271,7 @@ const param_question = ref<TwitchatDataTypes.ParameterData<string>>({
 const param_answer = ref<Record<string, TwitchatDataTypes.ParameterData<string>>>({});
 const freeAnswerTest = ref("");
 const editDurationOverride = ref(false);
+const editMaxAnswersOverride = ref(false);
 const isValidAnswer = ref(false);
 
 watch(
@@ -276,6 +310,16 @@ function setCustomDuration(): void {
 	} else {
 		props.question.duration_s = 30;
 		editDurationOverride.value = true;
+	}
+	save();
+}
+
+function setCustomMaxAnswers(): void {
+	if (props.question.maxAnswers !== undefined) {
+		delete props.question.maxAnswers;
+	} else {
+		props.question.maxAnswers = props.quiz.maxAnswers || 10;
+		editMaxAnswersOverride.value = true;
 	}
 	save();
 }
@@ -476,6 +520,7 @@ watch(
 }
 
 .durationOverride,
+.maxAnswersOverride,
 .toleranceOverride {
 	display: flex;
 	align-self: stretch;
