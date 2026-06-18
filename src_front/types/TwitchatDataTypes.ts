@@ -140,6 +140,7 @@ export namespace TwitchatDataTypes {
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
 		CLICKABLE_AREAS: "clickableareas",
+		STREAMERSONGLIST: "streamersonglist",
 		PREMIUM_REMAINING: "premium_remaining",
 		TWITCHAT_COMPANION: "twitchat_companion",
 	} as const;

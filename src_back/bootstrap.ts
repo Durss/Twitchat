@@ -22,6 +22,7 @@ import RemoteModController from "./controllers/RemoteModController.js";
 import SSEController from "./controllers/SSEController.js";
 import SpotifyController from "./controllers/SpotifyController.js";
 import StreamelementsController from "./controllers/StreamelementsController.js";
+import StreamerSongListController from "./controllers/StreamerSongListController.js";
 import StreamlabsController from "./controllers/StreamlabsController.js";
 import TiltifyController from "./controllers/TiltifyController.js";
 import TipeeeController from "./controllers/TipeeeController.js";
@@ -155,6 +156,7 @@ new KofiController(server).initialize();
 new TipeeeController(server).initialize().catch(bootError("TipeeeController"));
 new RemoteModController(server).initialize();
 new TiltifyController(server).initialize().catch(bootError("TiltifyController"));
+void new StreamerSongListController(server).initialize();
 const bingoController = new BingoGridController(server).initialize();
 const quizController = new QuizController(server).initialize();
 const extensionController = new TwitchExtensionController(server).initialize(
