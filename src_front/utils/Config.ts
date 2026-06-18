@@ -412,6 +412,18 @@ export default class Config {
 		return this._serverConfig.tiltify_scopes;
 	}
 	/**
+	 * StreamerSongList client ID
+	 */
+	public get STREAMERSONGLIST_CLIENT_ID(): string {
+		return this._serverConfig.streamersonglist_client_id;
+	}
+	/**
+	 * StreamerSongList scopes
+	 */
+	public get STREAMERSONGLIST_SCOPES(): string {
+		return this._serverConfig.streamersonglist_scopes;
+	}
+	/**
 	 * Twitchat Extension Version
 	 */
 	public get TWITCHAT_EXTENSION_VERSION(): string {
@@ -739,6 +751,8 @@ export interface ServerConfig {
 	tipeee_redirect_uri: string;
 	tiltify_client_id: string;
 	tiltify_scopes: string;
+	streamersonglist_client_id: string;
+	streamersonglist_scopes: string;
 	twitchExtension_version: string;
 	twitchExtension_client_id: string;
 }

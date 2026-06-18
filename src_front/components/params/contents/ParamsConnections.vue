@@ -177,6 +177,23 @@
 
 			<button
 				class="card-item"
+				:class="{
+					connected: storeStreamerSongList.connected,
+					disabled: streamersonglistDisabled,
+				}"
+				@click="subContent = 'streamersonglist'"
+				v-newflag="{
+					date: $config.NEW_FLAGS_DATE_V17,
+					id: 'params_connect.streamersonglist',
+				}"
+				key="streamersonglist"
+			>
+				<Icon name="streamersonglist" />
+				<p>Streamer Song List</p>
+			</button>
+
+			<button
+				class="card-item"
 				:class="{ connected: storeBluesky.connected, disabled: blueskyDisabled }"
 				@click="subContent = 'bluesky'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.bluesky' }"
@@ -356,6 +373,7 @@
 	<ConnectYoutube v-else-if="subContent == 'youtube'" />
 	<ConnectDiscord v-else-if="subContent == 'discord'" />
 	<ConnectSpotify v-else-if="subContent == 'spotify'" />
+	<ConnectStreamerSongList v-else-if="subContent == 'streamersonglist'" />
 	<ConnectVoicemod v-else-if="subContent == 'voicemod'" />
 	<ConnectStreamfog v-else-if="subContent == 'streamfog'" />
 	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
@@ -393,6 +411,7 @@ import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
 import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
 import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeStreamerSongList as useStoreStreamerSongList } from "@/store/streamersonglist/storeStreamerSongList";
 import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
 import { storeTiktok as useStoreTiktok } from "@/store/tiktok/storeTiktok";
 import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
@@ -417,6 +436,7 @@ import ConnectPlayability from "./connexions/ConnectPlayability.vue";
 import ConnectSammi from "./connexions/ConnectSammi.vue";
 import ConnectSpotify from "./connexions/ConnectSpotify.vue";
 import ConnectStreamSocket from "./connexions/ConnectStreamSocket.vue";
+import ConnectStreamerSongList from "./connexions/ConnectStreamerSongList.vue";
 import ConnectStreamdeck from "./connexions/ConnectStreamdeck.vue";
 import ConnectStreamelements from "./connexions/ConnectStreamelements.vue";
 import ConnectStreamerBot from "./connexions/ConnectStreamerBot.vue";
@@ -453,6 +473,7 @@ const storeElevenLabs = useStoreElevenLabs();
 const storeGroq = useStoreGroq();
 const storeTwitchBot = useStoreTwitchBot();
 const storeStreamSocket = useStoreStreamSocket();
+const storeStreamerSongList = useStoreStreamerSongList();
 const storeBluesky = useStoreBluesky();
 const storeAuth = useStoreAuth();
 const storeExtension = useStoreExtension();
@@ -481,6 +502,7 @@ const {
 	wsCustomDisabled,
 	blueskyDisabled,
 	tiltifyDisabled,
+	streamersonglistDisabled,
 	groqDisabled,
 	elevenlabsDisabled,
 	streamelementsDisabled,

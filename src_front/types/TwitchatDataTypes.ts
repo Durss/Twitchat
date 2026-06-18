@@ -138,6 +138,7 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_API: "twitchat_api",
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
+		STREAMERSONGLIST: "streamersonglist",
 		PREMIUM_REMAINING: "premium_remaining",
 		TWITCHAT_COMPANION: "twitchat_companion",
 	} as const;

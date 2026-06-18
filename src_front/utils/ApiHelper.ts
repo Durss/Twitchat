@@ -1,5 +1,10 @@
 import StoreProxy, { type IAuthState, type IExtensionState } from "@/store/StoreProxy";
 import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
+import type {
+	SSLQueueEntry,
+	SSLToken,
+	SSLUserInfo,
+} from "@/store/streamersonglist/storeStreamerSongList";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
 import type { SettingsExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -1270,6 +1275,56 @@ type ApiEndpoints = {
 			response: {
 				success: boolean;
 				token?: TiltifyToken;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"streamersonglist/info": {
+		GET: {
+			parameters: {
+				token: string;
+			};
+			response: {
+				success: boolean;
+				user: SSLUserInfo;
+				queue: SSLQueueEntry[];
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"streamersonglist/auth": {
+		POST: {
+			parameters: {
+				code: string;
+			};
+			response: {
+				success: boolean;
+				token: SSLToken;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+		DELETE: {
+			parameters: {
+				token: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"streamersonglist/token/refresh": {
+		POST: {
+			parameters: {
+				refreshToken: string;
+			};
+			response: {
+				success: boolean;
+				token?: SSLToken;
 				error?: string;
 				errorCode?: string;
 			};

@@ -569,5 +569,10 @@ interface Credentials {
 	tiltify_scopes: string;
 	tiltify_api_path: string;
 
+	streamersonglist_client_id: string;
+	streamersonglist_client_secret: string;
+	streamersonglist_redirect_uri: string;
+	streamersonglist_scopes: string;
+
 	kofi_proxy: string;
 }
