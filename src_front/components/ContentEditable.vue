@@ -155,7 +155,16 @@ function onKeyDown(event: KeyboardEvent) {
 				return;
 			}
 		}
-		if (!/[\d]/.test(event.key)) {
+		// Only block printable non-digit characters. Navigation/editing keys
+		// (arrows, backspace, delete, home, end, tab…) and keyboard shortcuts
+		// (ctrl/cmd + …) have a key name longer than 1 char or hold a modifier,
+		// so they must be let through, otherwise the caret can't even be moved.
+		if (
+			event.key.length === 1 &&
+			!event.ctrlKey &&
+			!event.metaKey &&
+			!/[\d]/.test(event.key)
+		) {
 			event.preventDefault();
 		}
 	}

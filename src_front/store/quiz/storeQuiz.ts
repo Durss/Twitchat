@@ -293,6 +293,7 @@ export const storeQuiz = defineStore("quiz", {
 				durationPerQuestion_s: 20,
 				loosePointsOnFail: false,
 				timeBasedScoring: false,
+				maxAnswers: 0,
 				currentQuestionId: "",
 				quizStarted_at: "",
 				questionStarted_at: "",
@@ -412,6 +413,14 @@ export const storeQuiz = defineStore("quiz", {
 
 			// Check if user already voted for this question
 			if (quiz.currentQuestionVotes[uid]) {
+				return;
+			}
+
+			// Enforce the "first X users" limit. Only the first X users to answer
+			// the question are accepted, any further answer is ignored.
+			// Question's value overrides the quiz's, 0 (or undefined) = unlimited.
+			const maxAnswers = question.maxAnswers ?? quiz.maxAnswers ?? 0;
+			if (maxAnswers > 0 && Object.keys(quiz.currentQuestionVotes).length >= maxAnswers) {
 				return;
 			}
 
