@@ -13,6 +13,7 @@ import { storePlayability as useStorePlayability } from "@/store/playability/sto
 import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
 import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/storeStreamerbot";
+import { storeStreamerSongList as useStoreStreamerSongList } from "@/store/streamersonglist/storeStreamerSongList";
 import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
 import { storeStreamloots as useStoreStreamloots } from "@/store/streamloots/storeStreamloots";
 import { storeStreamSocket as useStoreStreamSocket } from "@/store/streamsocket/storeStreamSocket";
@@ -59,6 +60,7 @@ export function useConnectionStates() {
 	const storeTwitchBot = useStoreTwitchBot();
 	const storeStreamSocket = useStoreStreamSocket();
 	const storeStreamloots = useStoreStreamloots();
+	const storeStreamerSongList = useStoreStreamerSongList();
 	const storeBluesky = useStoreBluesky();
 	const storeHeat = useStoreHeat();
 	const storeMeldStudio = useStoreMeldStudio();
@@ -90,6 +92,7 @@ export function useConnectionStates() {
 
 	const blueskyDisabled = computed(() => !storeBluesky.sub);
 	const tiltifyDisabled = computed(() => storeTiltify.token == null);
+	const streamersonglistDisabled = computed(() => storeStreamerSongList.token == null);
 	const groqDisabled = computed(() => !storeGroq.apiKey);
 	const elevenlabsDisabled = computed(() => !storeElevenLabs.apiKey);
 	const streamelementsDisabled = computed(() => !storeStreamelements.accessToken);
@@ -135,6 +138,7 @@ export function useConnectionStates() {
 		wsCustomDisabled,
 		blueskyDisabled,
 		tiltifyDisabled,
+		streamersonglistDisabled,
 		groqDisabled,
 		elevenlabsDisabled,
 		streamelementsDisabled,

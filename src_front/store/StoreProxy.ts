@@ -49,6 +49,11 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { StreamlootsEvent } from "@/types/StreamlootsTypes";
+import type {
+	SSLQueueEntry,
+	SSLToken,
+	SSLUserInfo,
+} from "./streamersonglist/storeStreamerSongList";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 
 /**
@@ -123,6 +128,11 @@ export default class StoreProxy {
 		IDonationGoalActions
 	>;
 	public static tiltify: StoreInstance<ITiltifyState, ITiltifyGetters, ITiltifyActions>;
+	public static streamersonglist: StoreInstance<
+		IStreamerSongListState,
+		IStreamerSongListGetters,
+		IStreamerSongListActions
+	>;
 	public static tiktok: StoreInstance<ITiktokState, ITiktokGetters, ITiktokActions>;
 	public static streamerbot: StoreInstance<
 		IStreamerbotState,
@@ -3856,6 +3866,47 @@ export interface ITiltifyActions {
 	 * Loads info about the user and their campaigns
 	 */
 	loadInfos(): Promise<{ user: TiltifyUser; campaigns: TiltifyCampaign[] }>;
+}
+
+export interface IStreamerSongListState {
+	user: SSLUserInfo | null;
+	queue: SSLQueueEntry[];
+	connected: boolean;
+	token: SSLToken | null;
+	authResult: { code: string; csrf: string };
+}
+
+export interface IStreamerSongListGetters {}
+
+export interface IStreamerSongListActions {
+	/**
+	 * Populates the store from the persisted token (and refreshes it)
+	 */
+	populateData(): void;
+	/**
+	 * Get the oAuth URL for StreamerSongList
+	 */
+	getOAuthURL(): Promise<string>;
+	/**
+	 * Stores the code/csrf returned by the OAuth redirect
+	 */
+	setAuthResult(code: string, csrf: string): void;
+	/**
+	 * Exchanges the OAuth code for an access token
+	 */
+	getAccessToken(): Promise<boolean>;
+	/**
+	 * Called when authentication completes
+	 */
+	onAuthenticated(): Promise<void>;
+	/**
+	 * Disconnects from StreamerSongList
+	 */
+	disconnect(): Promise<boolean>;
+	/**
+	 * Loads info about the connected user and their song queue
+	 */
+	loadInfos(): Promise<{ user: SSLUserInfo; queue: SSLQueueEntry[] }>;
 }
 
 export interface ITiktokState {

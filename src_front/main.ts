@@ -91,6 +91,7 @@ import { storeStreamfog } from "./store/streamfog/storeStreamfog";
 import { storeStreamloots } from "./store/streamloots/storeStreamloots";
 import { storeStreamSocket } from "./store/streamsocket/storeStreamSocket";
 import { storeTiktok } from "./store/tiktok/storeTiktok";
+import { storeStreamerSongList } from "./store/streamersonglist/storeStreamerSongList";
 import { storeTiltify } from "./store/tiltify/storeTiltify";
 import { storeTwitchCharity } from "./store/twitch_charity/storeTwitchCharity";
 import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
@@ -296,6 +297,7 @@ function buildApp() {
 	StoreProxy.default.common = storeCommon();
 	StoreProxy.default.donationGoals = storeDonationGoals();
 	StoreProxy.default.tiltify = storeTiltify();
+	StoreProxy.default.streamersonglist = storeStreamerSongList();
 	StoreProxy.default.tiktok = storeTiktok();
 	StoreProxy.default.streamerbot = storeStreamerbot();
 	StoreProxy.default.sammi = storeSammi();
