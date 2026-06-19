@@ -88,7 +88,7 @@ export const storeHeat = defineStore("heat", {
 				const keys = event.data.keys;
 				const userId = event.data.userId;
 				//Keep only printable characters (single char keys) to build the text
-				const text = keys.filter((k) => k.length === 1).join("");
+				const text = keys.join("");
 
 				const channelId = StoreProxy.auth.twitch.user.id;
 				// Anon user IDs start either with A- (for non logged users) or U- for anons
