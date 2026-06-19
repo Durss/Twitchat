@@ -4483,6 +4483,12 @@ export namespace TwitchatDataTypes {
 		 */
 		currentQuestionRevealed?: boolean;
 		/**
+		 * If true, forces the question's countdown to stop on overlays and extension
+		 * without altering questionStarted_at (which is needed for time-based scoring).
+		 * Used to close answering early, e.g. when the max answers count is reached.
+		 */
+		forceCountdownStop?: boolean;
+		/**
 		 * Contains scores for current question
 		 */
 		currentQuestionScores?: { [uid: string]: number };
@@ -4554,6 +4560,13 @@ export namespace TwitchatDataTypes {
 		 */
 		maxAnswers?: number;
 		/**
+		 * If true, answers are displayed in a random order on the overlay.
+		 * Only applies to "classic" and "majority" modes.
+		 * undefined = enabled (default for retro compatibility).
+		 * Can be overridden per question.
+		 */
+		shuffleAnswers?: boolean;
+		/**
 		 * List of questions
 		 */
 		questionList: ({
@@ -4574,6 +4587,11 @@ export namespace TwitchatDataTypes {
 			 * Only the first X users to answer are accepted (overrides quiz's maxAnswers).
 			 */
 			maxAnswers?: number;
+			/**
+			 * If true, answers are displayed in a random order on the overlay
+			 * (overrides quiz's shuffleAnswers).
+			 */
+			shuffleAnswers?: boolean;
 			/**
 			 * Question text
 			 */

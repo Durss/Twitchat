@@ -3071,9 +3071,12 @@ const UserDataSchema = {
 							timeBasedScoring: { type: "boolean" },
 							enabled: { type: "boolean" },
 							toleranceLevel: { type: "integer", minimum: 0, maximum: 5 },
+							maxAnswers: { type: "integer", minimum: 0, maximum: 100000 },
+							shuffleAnswers: { type: "boolean" },
 							quizStarted_at: { type: "string", maxLength: 150 },
 							currentQuestionId: { type: "string", maxLength: 50 },
 							currentQuestionRevealed: { type: "boolean" },
+							forceCountdownStop: { type: "boolean" },
 							currentQuestionScores: {
 								type: "object",
 								propertyNames: { maxLength: 50 },
@@ -3160,6 +3163,8 @@ const UserDataSchema = {
 												mode: { const: "classic" },
 												question: { type: "string", maxLength: 300 },
 												duration_s: { type: "integer" },
+												maxAnswers: { type: "integer", minimum: 0, maximum: 100000 },
+												shuffleAnswers: { type: "boolean" },
 												answerList: {
 													type: "array",
 													items: {
@@ -3185,6 +3190,8 @@ const UserDataSchema = {
 												mode: { const: "majority" },
 												question: { type: "string", maxLength: 300 },
 												duration_s: { type: "integer" },
+												maxAnswers: { type: "integer", minimum: 0, maximum: 100000 },
+												shuffleAnswers: { type: "boolean" },
 												answerList: {
 													type: "array",
 													items: {
@@ -3209,6 +3216,8 @@ const UserDataSchema = {
 												mode: { const: "freeAnswer" },
 												question: { type: "string", maxLength: 300 },
 												duration_s: { type: "integer" },
+												maxAnswers: { type: "integer", minimum: 0, maximum: 100000 },
+												shuffleAnswers: { type: "boolean" },
 												toleranceLevel: {
 													type: "integer",
 													minimum: 0,

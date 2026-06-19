@@ -186,7 +186,10 @@ const isLastQuestion = computed(
 	() => currentQuestionIndex.value === (currentQuiz.value?.questionList.length ?? 0) - 1,
 );
 const showProgressbar = computed(
-	() => Boolean(currentQuiz.value?.questionStarted_at) && progressPercent.value < 1,
+	() =>
+		Boolean(currentQuiz.value?.questionStarted_at) &&
+		!currentQuiz.value?.forceCountdownStop &&
+		progressPercent.value < 1,
 );
 const liveStats = computed(() =>
 	store.computeQuestionStats(currentQuiz.value!.id, currentQuestion.value!.id),
