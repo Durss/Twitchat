@@ -2747,7 +2747,11 @@ export interface IExtensionState {
 	 * Maps extension ID to its active slot type and index
 	 */
 	activeExtensionSlots: {
-		[extId: string]: { type: TwitchDataTypes.Extension["type"][number]; index: string };
+		[extId: string]: {
+			type: TwitchDataTypes.Extension["type"][number];
+			index: string;
+			version: string;
+		};
 	};
 	/**
 	 * Directly tied to actual twitch EBS config.
