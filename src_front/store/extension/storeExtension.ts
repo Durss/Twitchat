@@ -102,7 +102,11 @@ export const storeExtension = defineStore("Extension", {
 					for (const slotId in category) {
 						const element = category[slotId];
 						if (!element?.active) continue;
-						slots[element.id] = { type: slotType, index: slotId };
+						slots[element.id] = {
+							type: slotType,
+							index: slotId,
+							version: element.version,
+						};
 						extensions.push({
 							can_activate: true,
 							id: element.id,

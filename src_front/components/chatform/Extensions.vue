@@ -179,7 +179,10 @@ async function loadList(): Promise<void> {
 					slotOptions.push({ index: (j + 1).toString(), type: slotType });
 				}
 			}
-			const slot = activeSlots[v.id];
+			const slot =
+				activeSlots[v.id] && activeSlots[v.id]?.version === v.version
+					? activeSlots[v.id]
+					: undefined;
 			const res: ExtensionItem = {
 				data: v,
 				enabled: !!slot,
