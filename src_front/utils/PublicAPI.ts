@@ -216,6 +216,7 @@ export default class PublicAPI extends EventDispatcher {
 								currentQuiz.durationPerQuestion_s ??
 								10) * 1000,
 						answerRevealed: currentQuiz.currentQuestionRevealed == true,
+						forceCountdownStop: currentQuiz.forceCountdownStop == true,
 						questionIndex: currentQuizQuestionIndex,
 						totalQuestions: currentQuiz.questionList.length,
 					}

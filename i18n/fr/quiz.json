@@ -26,8 +26,9 @@
 			"answer_correct": "Bonne réponse",
 			"answer_wrong": "Mauvaise réponse",
 			"deleteQuestionbt_tt": "Supprimer la question",
-			"durationOverride_tt": "Durée personnalisée pour cette question",
-			"maxAnswersOverride_tt": "Limite de réponses personnalisée pour cette question\n(n'accepter que les X premiers)",
+			"durationOverride_tt": "Durée pour cette question",
+			"maxAnswersOverride_tt": "Limite de réponses pour cette question",
+			"shuffleOverride_tt": "Mélanger les réponses de cette question",
 			"toleranceOverride_tt": "Tolérance personnalisée pour cette question",
 			"premium_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} quizs que vous pouvez créer.",
 			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} quiz que vous pouvez créer.\nDevenez membre premium pour en créer jusqu'à {MAX_PREMIUM}.",
@@ -43,6 +44,11 @@
 				"high": "😲 Haute",
 				"very_high": "🥳 Très haute"
 			},
+			"shuffle_states": {
+				"default": "Défaut",
+				"on": "Oui",
+				"off": "Non"
+			},
 			"delete_confirm": {
 				"description": "Le quiz sera supprimé\nCette action est irréversible.",
 				"title": "Supprimer le quiz ?"
@@ -54,6 +60,7 @@
 			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
 			"param_max_answers": "Limiter les réponses par question\n(n'accepter que les premières personnes à répondre)",
 			"param_max_answers_value": "Accepter uniquement la première réponse|Accepter uniquement les {VALUE} premières réponses",
+			"param_shuffle_answers": "Mélanger les réponses\n(ordre aléatoire des réponses sur l'overlay)",
 			"param_tolerance": "Tolérance orthographique\n(pour les questions à réponse libre)",
 			"no_question": "aucune question",
 			"question_placeholder": "question...",

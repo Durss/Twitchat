@@ -9,6 +9,19 @@ import Utils from "@/utils/Utils";
 
 let lastEBSCall_ts = 0;
 
+/**
+ * Defines version AFTER which a feature is available.
+ * If something exists on v 0.0.2 only set previous
+ * version "0.0.1" as reference.
+ * It does NOT define the version number from which
+ * the feature is available.
+ */
+const FEATURE_VERSIONS = {
+	shuffleAnswers: "0.0.1",
+} as const;
+
+export type EtensionFeature = keyof typeof FEATURE_VERSIONS;
+
 export const storeExtension = defineStore("Extension", {
 	state: (): IExtensionState => ({
 		availableSlots: {
@@ -27,6 +40,12 @@ export const storeExtension = defineStore("Extension", {
 		companionEnabled: function () {
 			return !!this.enabledExtensions.find(
 				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
+			);
+		},
+		companionVersion: function () {
+			return (
+				this.enabledExtensions.find((v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID)
+					?.version || "0.0.0"
 			);
 		},
 	} satisfies StoreGetters<IExtensionGetters, IExtensionState>,
@@ -118,6 +137,10 @@ export const storeExtension = defineStore("Extension", {
 			this.ebsConfigUpdating = false;
 			const success = res.status === 200 && res.json.success === true;
 			return success;
+		},
+
+		hasFeature(feature: EtensionFeature): boolean {
+			return Utils.compareSementicVersion(this.companionVersion, FEATURE_VERSIONS[feature]);
 		},
 	} satisfies StoreActions<"Extension", IExtensionState, IExtensionGetters, IExtensionActions>,
 });

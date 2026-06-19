@@ -25,7 +25,8 @@
 					:transparent="!question.duration_s"
 					>{{ question.duration_s ? question.duration_s + "s" : "" }}</TTButton
 				>
-				<span v-else class="durationForm">
+				<span v-else class="form">
+					<Icon name="countdown" />
 					<ContentEditable
 						tag="span"
 						v-model="question.duration_s"
@@ -45,7 +46,7 @@
 			<div class="maxAnswersOverride" v-tooltip="t('quiz.form.maxAnswersOverride_tt')">
 				<TTButton
 					v-if="!editMaxAnswersOverride"
-					icon="max"
+					icon="halt"
 					tabindex="-1"
 					@click.stop="setCustomMaxAnswers()"
 					:secondary="question.maxAnswers !== undefined"
@@ -57,8 +58,9 @@
 								? question.maxAnswers
 								: "∞"
 					}}</TTButton
-					>
-				<span v-else class="durationForm">
+				>
+				<span v-else class="form">
+					<Icon name="halt" />
 					<ContentEditable
 						tag="span"
 						v-model="question.maxAnswers"
@@ -73,6 +75,27 @@
 						@keydown.native.esc.capture.prevent
 					/>
 				</span>
+			</div>
+
+			<div
+				class="shuffleOverride"
+				v-if="question.mode !== 'freeAnswer' && storeExtension.hasFeature('shuffleAnswers')"
+				v-tooltip="t('quiz.form.shuffleOverride_tt')"
+			>
+				<TTButton
+					icon="shuffle"
+					tabindex="-1"
+					@click.stop="(e: MouseEvent | TouchEvent) => selectShuffleOverride(e)"
+					:secondary="question.shuffleAnswers !== undefined"
+					:transparent="question.shuffleAnswers === undefined"
+					>{{
+						question.shuffleAnswers === undefined
+							? ""
+							: question.shuffleAnswers
+								? t("quiz.form.shuffle_states.on")
+								: t("quiz.form.shuffle_states.off")
+					}}</TTButton
+				>
 			</div>
 
 			<div
@@ -160,12 +183,19 @@
 				</template>
 
 				<template v-else>
-					<div class="answerList">
+					<VueDraggable
+						class="answerList"
+						v-model="question.answerList"
+						handle=".answerDragHandle"
+						:animation="250"
+						@end="save()"
+					>
 						<div
 							v-for="answer in question.answerList"
 							class="answer"
 							:key="'answer_' + answer.id"
 						>
+							<Icon class="answerDragHandle" name="dragZone" />
 							<TTButton
 								v-if="$utils.isClassicQuizAnswer(question.mode, answer)"
 								class="correctToggle"
@@ -202,18 +232,16 @@
 								alert
 							/>
 						</div>
+					</VueDraggable>
 
-						<TTButton
-							:sortable="false"
-							:draggable="false"
-							class="addBt"
-							v-if="question.answerList.length < (question.mode == 'classic' ? 6 : 4)"
-							@click="addAnswer()"
-							primary
-							icon="add"
-							>{{ t("quiz.form.addAnswer_bt") }}</TTButton
-						>
-					</div>
+					<TTButton
+						class="addBt"
+						v-if="question.answerList.length < (question.mode == 'classic' ? 6 : 4)"
+						@click="addAnswer()"
+						primary
+						icon="add"
+						>{{ t("quiz.form.addAnswer_bt") }}</TTButton
+					>
 				</template>
 			</div>
 		</div>
@@ -232,7 +260,6 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import ContextMenu, { type MenuOptions } from "@imengyu/vue3-context-menu";
 import {
-	computed,
 	h,
 	onBeforeMount,
 	ref,
@@ -241,8 +268,10 @@ import {
 	type RendererNode,
 	type VNode,
 } from "vue";
+import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
 import Icon from "../Icon.vue";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 
 const props = defineProps<{
 	question: TwitchatDataTypes.QuizParams["questionList"][number];
@@ -261,6 +290,7 @@ const emit = defineEmits<{
 const { t, tm } = useI18n();
 const storeCommon = useStoreCommon();
 const storeQuiz = useStoreQuiz();
+const storeExtension = useStoreExtension();
 
 const param_question = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
@@ -324,6 +354,55 @@ function setCustomMaxAnswers(): void {
 	save();
 }
 
+function selectShuffleOverride(event: MouseEvent | TouchEvent): void {
+	if (props.question.mode === "freeAnswer") return;
+	const question = props.question;
+	const px =
+		event.type == "touchstart"
+			? (event as TouchEvent).touches[0]!.clientX
+			: (event as MouseEvent).x;
+	const py =
+		event.type == "touchstart"
+			? (event as TouchEvent).touches[0]!.clientY
+			: (event as MouseEvent).y;
+	const menu: MenuOptions = {
+		theme: "mac " + storeCommon.theme,
+		x: px,
+		y: py,
+		items: [
+			{
+				customClass:
+					question.shuffleAnswers === undefined ? "no-margin selected" : "no-margin",
+				label: t("quiz.form.shuffle_states.default"),
+				onClick: () => {
+					delete question.shuffleAnswers;
+					save();
+				},
+			},
+			{
+				customClass: question.shuffleAnswers === true ? "no-margin selected" : "no-margin",
+				label: t("quiz.form.shuffle_states.on"),
+				onClick: () => {
+					question.shuffleAnswers = true;
+					save();
+				},
+			},
+			{
+				customClass: question.shuffleAnswers === false ? "no-margin selected" : "no-margin",
+				label: t("quiz.form.shuffle_states.off"),
+				onClick: () => {
+					question.shuffleAnswers = false;
+					save();
+				},
+			},
+		],
+		mouseScroll: true,
+		closeWhenScroll: false,
+		updownButtonSpaceholder: false,
+	};
+	ContextMenu.showContextMenu(menu);
+}
+
 function tickAnswer(
 	answerList: Extract<
 		TwitchatDataTypes.QuizParams["questionList"][number],
@@ -375,8 +454,8 @@ function selectCustomTolerance(event: MouseEvent | TouchEvent): void {
 			customClass:
 				(key == "undefined" && question.toleranceLevel === undefined) ||
 				question.toleranceLevel === index - 1
-					? "selected"
-					: "",
+					? "no-margin selected"
+					: "no-margin",
 			label: t("quiz.form.tolerances." + key),
 			preserveIconWidth: false,
 			onClick: ((index) => {
@@ -403,19 +482,21 @@ function selectQuestionMode(event: MouseEvent): void {
 		items: [
 			{
 				icon: getIcon("icons/quiz_classic.svg"),
-				customClass: props.question.mode === "classic" ? "selected" : "",
+				customClass: props.question.mode === "classic" ? "no-margin selected" : "no-margin",
 				label: t("quiz.form.mode_classic.title"),
 				onClick: () => emit("changeMode", props.question, "classic"),
 			},
 			{
 				icon: getIcon("icons/quiz_freeAnswer.svg"),
-				customClass: props.question.mode === "freeAnswer" ? "selected" : "",
+				customClass:
+					props.question.mode === "freeAnswer" ? "no-margin selected" : "no-margin",
 				label: t("quiz.form.mode_freeAnswer.title"),
 				onClick: () => emit("changeMode", props.question, "freeAnswer"),
 			},
 			{
 				icon: getIcon("icons/quiz_majority.svg"),
-				customClass: props.question.mode === "majority" ? "selected" : "",
+				customClass:
+					props.question.mode === "majority" ? "no-margin selected" : "no-margin",
 				label: t("quiz.form.mode_majority.title"),
 				onClick: () => emit("changeMode", props.question, "majority"),
 			},
@@ -521,6 +602,7 @@ watch(
 
 .durationOverride,
 .maxAnswersOverride,
+.shuffleOverride,
 .toleranceOverride {
 	display: flex;
 	align-self: stretch;
@@ -544,11 +626,23 @@ watch(
 		}
 	}
 
-	.durationForm {
-		margin-top: 0.1em;
-		padding: 0.25em 0.5em;
-		font-size: 0.8em;
-		align-self: center;
+	.form {
+		padding: 0.3em;
+		gap: 0.25em;
+		display: flex;
+		align-self: stretch;
+		align-items: center;
+		flex-direction: row;
+		background-color: var(--background-color-secondary);
+
+		span:not(.icon) {
+			font-size: 0.7em;
+		}
+
+		.icon {
+			height: 1em;
+			flex-shrink: 0;
+		}
 	}
 }
 
@@ -671,6 +765,32 @@ watch(
 				display: flex;
 				position: relative;
 				flex-direction: row;
+				.answerDragHandle {
+					position: absolute;
+					left: 50%;
+					top: 0;
+					bottom: 0;
+					width: 1.25em;
+					height: 0em;
+					z-index: 1;
+					cursor: grab;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-top-left-radius: var(--border-radius);
+					border-top-right-radius: var(--border-radius);
+					background-color: var(--background-color-fader);
+					visibility: hidden;
+					padding: 0.25em;
+					transform: translate(-50%, -100%);
+					transition: height 0.15s;
+					pointer-events: none;
+				}
+				&:hover .answerDragHandle {
+					height: 1.25em;
+					visibility: visible;
+					pointer-events: auto;
+				}
 				.correctToggle {
 					flex-shrink: 0;
 				}
@@ -699,7 +819,7 @@ watch(
 						}
 					}
 				}
-				& > *:first-child {
+				& > *:nth-child(2) {
 					border-top-left-radius: var(--border-radius);
 					border-bottom-left-radius: var(--border-radius);
 					&.paramitem::v-deep(.content) {

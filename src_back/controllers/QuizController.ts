@@ -224,6 +224,12 @@ export type QuizParams = {
 	 */
 	currentQuestionRevealed?: boolean;
 	/**
+	 * If true, forces the question's countdown to stop on overlays and extension
+	 * without altering questionStarted_at (which is needed for time-based scoring).
+	 * Used to close answering early, e.g. when the max answers count is reached.
+	 */
+	forceCountdownStop?: boolean;
+	/**
 	 * Contains scores for current question
 	 */
 	currentQuestionScores?: { [uid: string]: number };
@@ -290,11 +296,17 @@ export type QuizParams = {
 	toleranceLevel?: 0 | 1 | 2 | 3 | 4 | 5;
 	/**
 	 * Maximum number of users allowed to answer each question.
-	 * Only the first X users to answer are accepted, any further answer is ignored.
+	 * Only the first X users to answer are accepted.
 	 * 0 or undefined = unlimited.
-	 * Can be overridden per question.
 	 */
 	maxAnswers?: number;
+	/**
+	 * If true, answers are displayed in a random order on the overlay.
+	 * Only applies to "classic" and "majority" modes.
+	 * undefined = enabled (default for retro compatibility).
+	 * Can be overridden per question.
+	 */
+	shuffleAnswers?: boolean;
 	/**
 	 * List of questions
 	 */
@@ -316,9 +328,13 @@ export type QuizParams = {
 				/**
 				 * Maximum number of users allowed to answer this question.
 				 * Only the first X users to answer are accepted (overrides quiz's maxAnswers).
-				 * undefined = use quiz's maxAnswers, 0 = unlimited.
 				 */
 				maxAnswers?: number;
+				/**
+				 * If true, answers are displayed in a random order on the overlay
+				 * (overrides quiz's shuffleAnswers).
+				 */
+				shuffleAnswers?: boolean;
 				/**
 				 * Question text
 				 */

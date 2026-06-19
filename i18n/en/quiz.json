@@ -26,9 +26,10 @@
 			"answer_correct": "Correct answer",
 			"answer_wrong": "Wrong answer",
 			"deleteQuestionbt_tt": "Delete the question",
-			"durationOverride_tt": "Custom duration for this question",
-			"maxAnswersOverride_tt": "Custom answers limit for this question\n(only accept the first X users)",
-			"toleranceOverride_tt": "Custom tolerance for this question",
+			"durationOverride_tt": "Duration for this question",
+			"maxAnswersOverride_tt": "Answers limit for this question",
+			"shuffleOverride_tt": "Shuffle answers",
+			"toleranceOverride_tt": "Tolerance for this question",
 			"premium_limit": "You reached the limit of {MAX} quizzes you can create.",
 			"non_premium_limit": "You reached the limit of {MAX} quiz you can create.\nBecome a premium member to create up to {MAX_PREMIUM} quizzes.",
 			"premium_question_limit": "You reached the limit of {MAX} questions you can add.",
@@ -43,6 +44,11 @@
 				"high": "😲 High",
 				"very_high": "🥳 Very high"
 			},
+			"shuffle_states": {
+				"default": "Default",
+				"on": "On",
+				"off": "Off"
+			},
 			"delete_confirm": {
 				"description": "Quiz will be deleted\nThis cannot be undone.",
 				"title": "Delete quiz?"
@@ -54,6 +60,7 @@
 			"param_loose_on_fail": "Lose points on fail\n(wrong answers remove points)",
 			"param_max_answers": "Limit answers per question\n(only accept the first users to answer)",
 			"param_max_answers_value": "Only accept the first answer|Only accept the {VALUE} first answers",
+			"param_shuffle_answers": "Shuffle answers\n(randomize answers order on the overlay)",
 			"param_tolerance": "Spelling tolerance\n(for free answer questions)",
 			"no_question": "no question",
 			"question_placeholder": "question...",

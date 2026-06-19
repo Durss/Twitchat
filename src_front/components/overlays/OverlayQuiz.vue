@@ -6,7 +6,7 @@
 			<div v-else-if="currentQuestion" class="content">
 				<div class="question">
 					<h3>{{ currentQuestion.question }}</h3>
-					<div class="timer" v-if="!revealAnswers">
+					<div class="timer" v-if="!revealAnswers && timeRemaining > 0">
 						<svg class="timer-svg" viewBox="0 0 100 100">
 							<circle class="timer-bg" cx="50" cy="50" r="45" />
 							<circle
@@ -14,12 +14,11 @@
 								cx="50"
 								cy="50"
 								r="45"
-								v-if="!revealAnswers && timeRemaining > 0"
 								:style="{ strokeDashoffset: circleOffsetAngle }"
 							/>
 						</svg>
 						<transition name="scale">
-							<div class="timer-text" v-if="!revealAnswers && timeRemaining > 0">
+							<div class="timer-text">
 								{{ Math.round(timeRemaining / 1000) }}
 							</div>
 						</transition>
@@ -88,21 +87,17 @@
 </template>
 
 <script setup lang="ts">
-import PublicAPI from "@/utils/PublicAPI";
-import { useOverlayConnector } from "../../composables/useOverlayConnector";
-import { computed, onBeforeUnmount, ref, watch } from "vue";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import OverlayQuizLeaderboard from "./quiz/OverlayQuizLeaderboard.vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useOverlayConnector } from "../../composables/useOverlayConnector";
 import Icon from "../Icon.vue";
-import { onMounted } from "vue";
-import Overlay404 from "../params/contents/overlays/Overlay404.vue";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import OverlayQuizLeaderboard from "./quiz/OverlayQuizLeaderboard.vue";
 
 const quizData = ref<TwitchatDataTypes.QuizParams | null>(null);
 const leaderboard = ref<TwitchatDataTypes.QuizLeaderboard | null>(null);
-const storeAuth = useStoreAuth();
 const showLeaderboard = ref(false);
 const timeRemaining = ref(3000);
 let timerInterval: number | null = null;
@@ -127,16 +122,21 @@ const currentQuestion = computed(() => {
 
 const answerList = computed(() => {
 	if (currentQuestion.value && currentQuestion.value.mode !== "freeAnswer") {
-		const seed =
-			parseInt(currentQuestion.value!.id.replace(/[^0-9]/g, "").substring(0, 4), 16) ||
-			Date.now();
-		const seededRnd = Utils.seededRandom(seed);
-		let a = currentQuestion.value.answerList.concat();
-		for (let i = a.length - 1; i > 0; i--) {
-			const j = Math.floor(seededRnd() * (i + 1));
-			[a[i]!, a[j]!] = [a[j]!, a[i]!];
+		let list = currentQuestion.value.answerList.concat();
+		// Per-question override wins, else fall back to quiz-level, else enabled (default)
+		const shouldShuffle =
+			currentQuestion.value.shuffleAnswers ?? quizData.value?.shuffleAnswers ?? true;
+		if (shouldShuffle) {
+			const seed =
+				parseInt(currentQuestion.value!.id.replace(/[^0-9]/g, "").substring(0, 4), 16) ||
+				Date.now();
+			const seededRnd = Utils.seededRandom(seed);
+			for (let i = list.length - 1; i > 0; i--) {
+				const j = Math.floor(seededRnd() * (i + 1));
+				[list[i]!, list[j]!] = [list[j]!, list[i]!];
+			}
 		}
-		return a;
+		return list;
 	}
 });
 
@@ -151,6 +151,11 @@ const circleOffsetAngle = computed(() => {
 
 function startTimer() {
 	if (timerInterval) clearInterval(timerInterval);
+	// Countdown was forced to stop (e.g. max answers reached or answer revealed)
+	if (quizData.value?.forceCountdownStop) {
+		timeRemaining.value = 0;
+		return;
+	}
 	const started_at = quizData.value?.questionStarted_at;
 	if (!started_at) return;
 	timeRemaining.value = new Date(started_at).getTime() - Date.now() + duration.value * 1000;
@@ -227,6 +232,18 @@ watch(currentQuestion, (newQuestion) => {
 		startTimer();
 	}
 });
+
+// Force the countdown to stop without altering questionStarted_at (used to close
+// answering early, e.g. when the max answers count is reached).
+watch(
+	() => quizData.value?.forceCountdownStop,
+	(stop) => {
+		if (stop) {
+			if (timerInterval) clearInterval(timerInterval);
+			timeRemaining.value = 0;
+		}
+	},
+);
 </script>
 
 <style scoped lang="less">

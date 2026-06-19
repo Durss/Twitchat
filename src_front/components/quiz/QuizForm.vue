@@ -117,6 +117,12 @@
 									/>
 								</ParamItem>
 								<ParamItem
+									v-if="storeExtension.hasFeature('shuffleAnswers')"
+									:paramData="param_shuffleAnswers[quiz.id]!"
+									v-model="quiz.shuffleAnswers"
+									@change="save(quiz)"
+								/>
+								<ParamItem
 									:paramData="param_tolerance[quiz.id]!"
 									v-model="quiz.toleranceLevel"
 									@change="save(quiz)"
@@ -171,6 +177,7 @@ import QuizQuestionList from "./QuizQuestionList.vue";
 import Overlay404 from "../params/contents/overlays/Overlay404.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 import { useI18n } from "vue-i18n";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 
 const props = withDefaults(defineProps<{ embedMode?: boolean }>(), { embedMode: false });
 
@@ -179,6 +186,7 @@ const emit = defineEmits<{ close: [] }>();
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeQuiz = useStoreQuiz();
+const storeExtension = useStoreExtension();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 
 const { close } = useSidePanel(rootEl, () => emit("close"), !props.embedMode);
@@ -191,6 +199,7 @@ const param_maxAnswers = ref<Record<string, TwitchatDataTypes.ParameterData<bool
 	{},
 );
 const param_maxAnswersValue = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
+const param_shuffleAnswers = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 const autoOpenQuizID = ref<string | null>(null);
 
 const maxQuizReached = computed((): boolean => {
@@ -288,7 +297,7 @@ function initParams(): void {
 				type: "boolean",
 				value: (quiz.maxAnswers ?? 0) > 0,
 				labelKey: "quiz.form.param_max_answers",
-				icon: "max",
+				icon: "halt",
 			};
 			param_maxAnswersValue.value[id] = {
 				type: "number",
@@ -296,7 +305,12 @@ function initParams(): void {
 				min: 1,
 				max: 100000,
 				labelKey: "quiz.form.param_max_answers_value",
-				icon: "max",
+			};
+			param_shuffleAnswers.value[id] = {
+				type: "boolean",
+				value: quiz.shuffleAnswers !== false,
+				labelKey: "quiz.form.param_shuffle_answers",
+				icon: "shuffle",
 			};
 		}
 

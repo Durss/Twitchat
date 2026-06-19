@@ -49,6 +49,7 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { EtensionFeature } from "./extension/storeExtension";
 
 /**
  * Created : 23/09/2022
@@ -2763,6 +2764,7 @@ export interface IExtensionState {
 
 export interface IExtensionGetters {
 	companionEnabled: boolean;
+	companionVersion: string;
 }
 
 export interface IExtensionActions {
@@ -2792,6 +2794,8 @@ export interface IExtensionActions {
 	 * Updates EBS extension config
 	 */
 	updateEBSConfigs(): Promise<boolean>;
+
+	hasFeature(feature: EtensionFeature): boolean;
 }
 
 export interface IQnaState {
