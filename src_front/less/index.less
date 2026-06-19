@@ -547,6 +547,7 @@ mark {
 	&.mx-menu-ghost-host {
 		overflow: unset; //necessery for shit old safari -_-
 		.mx-context-menu {
+			overflow: hidden;
 			padding-top: 0 !important;
 			padding-bottom: 0 !important;
 			box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px 2px;
@@ -567,6 +568,10 @@ mark {
 						var(--color-alert-fadest) 0%,
 						rgba(255, 0, 0, 0) 100%
 					);
+				}
+				.mx-context-menu-item.no-margin {
+					margin: 0;
+					border-radius: 0;
 				}
 				.mx-context-menu-item.selected {
 					background-color: var(--color-primary-fade);

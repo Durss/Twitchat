@@ -180,6 +180,12 @@ export const storeQuiz = defineStore("quiz", {
 				this.quizList = [];
 			}
 
+			// Default answer shuffling to enabled for quizzes saved before
+			// the option existed, so it keeps its historical behavior.
+			this.quizList.forEach((quiz) => {
+				quiz.shuffleAnswers ??= true;
+			});
+
 			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (_eevent) => {
 				this.broadcastQuizState(true);
 			});
@@ -294,6 +300,7 @@ export const storeQuiz = defineStore("quiz", {
 				loosePointsOnFail: false,
 				timeBasedScoring: false,
 				maxAnswers: 0,
+				shuffleAnswers: true,
 				currentQuestionId: "",
 				quizStarted_at: "",
 				questionStarted_at: "",
@@ -420,7 +427,8 @@ export const storeQuiz = defineStore("quiz", {
 			// the question are accepted, any further answer is ignored.
 			// Question's value overrides the quiz's, 0 (or undefined) = unlimited.
 			const maxAnswers = question.maxAnswers ?? quiz.maxAnswers ?? 0;
-			if (maxAnswers > 0 && Object.keys(quiz.currentQuestionVotes).length >= maxAnswers) {
+			const answersCount = Object.keys(quiz.currentQuestionVotes).length;
+			if (maxAnswers > 0 && answersCount >= maxAnswers) {
 				return;
 			}
 
@@ -446,6 +454,15 @@ export const storeQuiz = defineStore("quiz", {
 				}
 			}
 
+			// If the limited answers count has been reached, force the countdown to
+			// stop so no more users can answer.
+			if (maxAnswers > 0 && answersCount + 1 >= maxAnswers) {
+				quiz.forceCountdownStop = true;
+				void ApiHelper.call("quiz/broadcast", "PUT", {
+					quiz,
+				});
+			}
+
 			void this.saveData(quizId, true);
 		},
 
@@ -455,6 +472,7 @@ export const storeQuiz = defineStore("quiz", {
 			this.currentFreeAnswerStats.right = 0;
 			this.currentFreeAnswerStats.wrong = 0;
 			delete quiz.currentQuestionRevealed;
+			delete quiz.forceCountdownStop;
 			delete quiz.currentQuestionStats;
 			delete quiz.currentQuestionVotes;
 			delete quiz.currentQuestionScores;
@@ -474,6 +492,7 @@ export const storeQuiz = defineStore("quiz", {
 				if (!quiz) return;
 				quiz.currentQuestionId = "";
 				delete quiz.currentQuestionRevealed;
+				delete quiz.forceCountdownStop;
 				delete quiz.currentQuestionStats;
 				delete quiz.currentQuestionVotes;
 				delete quiz.currentQuestionScores;
@@ -504,9 +523,10 @@ export const storeQuiz = defineStore("quiz", {
 			if (!quiz) return;
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
-			// Compute scores, must run before resetting questionStarted_at (needed for time-based scoring)
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
-			quiz.questionStarted_at = new Date(0).toISOString();
+			// Force the countdown to stop on overlays/extension. We keep questionStarted_at
+			// untouched so time-based scoring stays valid (scores computed just above).
+			quiz.forceCountdownStop = true;
 			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
 
 			// If this is the last question, compute the final leaderboard and send a message to chat with the winner

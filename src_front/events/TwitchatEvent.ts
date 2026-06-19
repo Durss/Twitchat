@@ -2217,6 +2217,11 @@ export type TwitchatEventMap = {
 			 */
 			answerRevealed: boolean;
 			/**
+			 * If true, the question countdown was forced to stop early
+			 * (e.g. max answers reached). timerStartedAt is left untouched.
+			 */
+			forceCountdownStop: boolean;
+			/**
 			 * Question index
 			 */
 			questionIndex: number;
