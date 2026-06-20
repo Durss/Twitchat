@@ -27,6 +27,9 @@ RUN echo -n prod > env.conf
 FROM node:24-alpine
 
 ENV NODE_ENV=production
+# Fixed internal listen port read by the app (src_back/bootstrap.ts). Per-environment
+# host ports are mapped in docker-compose.yml; this stays constant inside the container.
+ENV PORT=3018
 
 # su-exec lets the entrypoint drop from root to the node user after fixing volume perms.
 RUN apk add --no-cache su-exec && \
