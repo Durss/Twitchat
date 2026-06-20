@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
+import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
@@ -30,6 +32,10 @@ export default class DonorController extends AbstractController {
 		this.server.post(
 			"/api/user/donor/anon",
 			async (request, response) => await this.setAnonState(request, response),
+		);
+		this.server.post(
+			"/api/user/donor/all",
+			async (request, response) => await this.setAllDonors(request, response),
 		);
 
 		//Update donors data when donor list source is updated
@@ -137,6 +143,60 @@ export default class DonorController extends AbstractController {
 
 			this.updatePublicDonorsList();
 		}
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
+
+	/**
+	 * Overwrites the full donors list.
+	 * Called by remote donor service
+	 */
+	private async setAllDonors(request: FastifyRequest, response: FastifyReply) {
+		const secret = Config.credentials.donors_remote_api_secret;
+		if (!secret || !Utils.safeStringEquals(request.headers.authorization, secret)) {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					errorCode: "UNAUTHORIZED",
+					message: "You're not allowed to call this endpoint",
+				}),
+			);
+			return;
+		}
+
+		//Validate the payload: a flat map of "twitch user ID" => "donated amount".
+		const body: any = request.body;
+		if (
+			body == null ||
+			typeof body !== "object" ||
+			Array.isArray(body) ||
+			Object.values(body).some((v) => typeof v !== "number")
+		) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					errorCode: "INVALID_BODY",
+					message: "Body must be a map of Twitch user IDs to donation amounts",
+				}),
+			);
+			return;
+		}
+
+		fs.writeFileSync(Config.donorsList, JSON.stringify(body), "utf-8");
+
+		//Rebuild the public list right away. The fs.watchFile() above would
+		//eventually pick the change up, but only after its poll interval.
+		this.updatePublicDonorsList();
+
+		Logger.success(
+			"Donors list updated from remote service (" + Object.keys(body).length + " donors)",
+		);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
