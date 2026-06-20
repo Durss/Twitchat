@@ -6,7 +6,7 @@
 			<p>{{ $t("twitchat_companion.header") }}</p>
 		</div>
 
-		<ExtensionInstaller />
+		<ExtensionInstaller no-error-state />
 
 		<template v-if="storeExtension.companionEnabled">
 			<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{

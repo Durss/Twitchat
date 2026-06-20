@@ -373,7 +373,9 @@ export default class TwitchExtensionController extends AbstractController {
 		} catch (_error) {
 			response.header("Content-Type", "application/json");
 			response.status(500);
-			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));
+			response.send(
+				JSON.stringify({ success: false, message: "Could not contact EBS server" }),
+			);
 		}
 	}
 

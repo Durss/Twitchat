@@ -37,6 +37,11 @@ export const storeExtension = defineStore("Extension", {
 	}),
 
 	getters: {
+		companionInstalled: function () {
+			return !!this.availableExtensions.find(
+				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
+			);
+		},
 		companionEnabled: function () {
 			return !!this.enabledExtensions.find(
 				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,

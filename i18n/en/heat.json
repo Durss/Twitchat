@@ -1,8 +1,9 @@
 {
 	"heat": {
 		"header": "Heat is a Twitch extension allowing your viewers to interact with your stream by clicking on it",
-		"install": "Install Heat extension",
 		"donate": "🎁 Please consider donating to Scott, Heat's creator",
+		"alertnative": "Twitchat now provides its own extension capable of the same thing as Heat and much more!",
+		"alertnative_bt": "See Twitchat Companion",
 		"debug_interaction": "Simulate click",
 		"overlay_interaction": "Interactive Twitchat overlays",
 		"zone_interaction": "Custom interactive areas",

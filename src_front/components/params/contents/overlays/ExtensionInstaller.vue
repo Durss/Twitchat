@@ -4,7 +4,7 @@
 		:class="{
 			primary: installed && enabled && !loading,
 			secondary: installed && !enabled && !loading,
-			alert: !installed && !loading,
+			alert: !installed && !loading && noErrorState !== true,
 		}"
 		v-if="loading || !installed || !enabled"
 	>
@@ -20,8 +20,8 @@
 				$t("extensions.installer.install", { NAME: props.extensionName })
 			}}</span>
 			<TTButton
-				alert
-				light
+				:alert="noErrorState !== true"
+				:light="noErrorState !== true"
 				icon="newtab"
 				type="link"
 				:href="
@@ -62,10 +62,13 @@ const enableError = ref(false);
 
 const storeExtension = useStoreExtension();
 
-const props = withDefaults(defineProps<{ extensionID?: string; extensionName?: string }>(), {
-	extensionID: Config.instance.TWITCHAT_EXTENSION_ID,
-	extensionName: "Twitchat Companion",
-});
+const props = withDefaults(
+	defineProps<{ extensionID?: string; extensionName?: string; noErrorState?: boolean }>(),
+	{
+		extensionID: Config.instance.TWITCHAT_EXTENSION_ID,
+		extensionName: "Twitchat Companion",
+	},
+);
 
 const model = defineModel<boolean>("extensionReady", { default: false });
 
