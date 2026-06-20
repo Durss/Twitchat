@@ -165,6 +165,7 @@ function selectItem(item: ListItem): void {
 				storeAuth.requestTwitchScopes(item.rawCmd.twitch_scopes);
 			} else if (item.rawCmd && item.rawCmd.needTTS) {
 				storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
+				emit("close");
 			}
 		} else {
 			emit("selectItem", item.cmd);

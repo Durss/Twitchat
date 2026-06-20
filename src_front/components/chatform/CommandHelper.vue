@@ -1,13 +1,13 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div class="grid">
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('poll')"
 					icon="poll"
 					:disabled="!canCreatePoll"
-					v-tooltip="hasChannelPoints ? $t('cmdmenu.poll') : $t('cmdmenu.not_affiliate')"
-					>{{ $t("cmdmenu.poll") }}</TTButton
+					v-tooltip="hasChannelPoints ? t('cmdmenu.poll') : t('cmdmenu.not_affiliate')"
+					>{{ t("cmdmenu.poll") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
@@ -16,130 +16,128 @@
 					icon="prediction"
 					:disabled="!canCreatePrediction"
 					v-tooltip="
-						hasChannelPoints ? $t('cmdmenu.prediction') : $t('cmdmenu.not_affiliate')
+						hasChannelPoints ? t('cmdmenu.prediction') : t('cmdmenu.not_affiliate')
 					"
-					>{{ $t("cmdmenu.prediction") }}</TTButton
+					>{{ t("cmdmenu.prediction") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('raffle')"
-					v-tooltip="$t('cmdmenu.raffle')"
+					v-tooltip="t('cmdmenu.raffle')"
 					icon="ticket"
-					>{{ $t("cmdmenu.raffle") }}</TTButton
+					>{{ t("cmdmenu.raffle") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('bingo')"
-					v-tooltip="$t('cmdmenu.bingo')"
+					v-tooltip="t('cmdmenu.bingo')"
 					icon="bingo"
-					>{{ $t("cmdmenu.bingo") }}</TTButton
+					>{{ t("cmdmenu.bingo") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
-					v-if="$store.auth.featureFlags.includes('bingo_grid')"
+					v-if="storeAuth.featureFlags.includes('bingo_grid')"
 					@click.capture="openModal('bingo_grid')"
 					icon="bingo_grid"
-					v-tooltip="$t('cmdmenu.bingo_grid')"
-					>{{ $t("cmdmenu.bingo_grid") }}</TTButton
+					v-tooltip="t('cmdmenu.bingo_grid')"
+					>{{ t("cmdmenu.bingo_grid") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
-					v-if="$store.auth.featureFlags.includes('quiz')"
+					v-if="storeAuth.featureFlags.includes('quiz')"
 					@click.capture="openModal('quizForm')"
 					icon="quiz"
-					v-tooltip="$t('cmdmenu.quiz')"
+					v-tooltip="t('cmdmenu.quiz')"
 					v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'cmdhelper.quiz' }"
-					>{{ $t("cmdmenu.quiz") }}</TTButton
+					>{{ t("cmdmenu.quiz") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('timer')"
-					v-tooltip="$t('cmdmenu.timer')"
+					v-tooltip="t('cmdmenu.timer')"
 					icon="timer"
-					>{{ $t("cmdmenu.timer") }}</TTButton
+					>{{ t("cmdmenu.timer") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('qnaForm')"
 					icon="qna"
-					v-tooltip="$t('cmdmenu.qna')"
-					>{{ $t("cmdmenu.qna") }}</TTButton
+					v-tooltip="t('cmdmenu.qna')"
+					>{{ t("cmdmenu.qna") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('chatPoll')"
-					v-tooltip="$t('cmdmenu.chatPoll')"
+					v-tooltip="t('cmdmenu.chatPoll')"
 					icon="chatPoll"
-					>{{ $t("cmdmenu.chatPoll") }}</TTButton
+					>{{ t("cmdmenu.chatPoll") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('chatsuggForm')"
-					v-tooltip="$t('cmdmenu.suggestions')"
+					v-tooltip="t('cmdmenu.suggestions')"
 					icon="chatSugg"
-					>{{ $t("cmdmenu.suggestions") }}</TTButton
+					>{{ t("cmdmenu.suggestions") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="clearChat()"
 					icon="clearChat"
-					v-tooltip="$t('cmdmenu.chat')"
+					v-tooltip="t('cmdmenu.chat')"
 					:disabled="!canClearChat"
-					>{{ $t("cmdmenu.chat") }}</TTButton
+					>{{ t("cmdmenu.chat") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('streamInfo')"
 					icon="info"
-					v-tooltip="$t('cmdmenu.info')"
+					v-tooltip="t('cmdmenu.info')"
 					:disabled="!canEditStreamInfos"
-					>{{ $t("cmdmenu.info") }}</TTButton
+					>{{ t("cmdmenu.info") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="openModal('extensions')"
 					icon="extension"
-					v-tooltip="$t('cmdmenu.extensions')"
+					v-tooltip="t('cmdmenu.extensions')"
 					:disabled="!canEditStreamInfos"
-					>{{ $t("cmdmenu.extensions") }}</TTButton
+					>{{ t("cmdmenu.extensions") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="
 						if (hasChannelPoints) {
-							$emit('update:showRewards', true);
+							emit('update:showRewards', true);
 							close();
 						}
 					"
 					icon="channelPoints"
-					v-tooltip="
-						hasChannelPoints ? $t('cmdmenu.rewards') : $t('cmdmenu.not_affiliate')
-					"
+					v-tooltip="hasChannelPoints ? t('cmdmenu.rewards') : t('cmdmenu.not_affiliate')"
 					:disabled="!hasChannelPoints"
-					>{{ $t("cmdmenu.rewards") }}</TTButton
+					>{{ t("cmdmenu.rewards") }}</TTButton
 				>
 			</div>
 			<div class="menuItem">
 				<TTButton
 					@click.capture="
-						$emit('update:showChatUsers', true);
+						emit('update:showChatUsers', true);
 						close();
 					"
-					v-tooltip="$t('cmdmenu.chatters')"
+					v-tooltip="t('cmdmenu.chatters')"
 					icon="user"
-					>{{ $t("cmdmenu.chatters") }}</TTButton
+					>{{ t("cmdmenu.chatters") }}</TTButton
 				>
 			</div>
 		</div>
@@ -149,7 +147,7 @@
 			icon="announcement"
 			v-if="isAdmin"
 			secondary
-			>{{ $t("cmdmenu.announcement") }}</TTButton
+			>{{ t("cmdmenu.announcement") }}</TTButton
 		>
 
 		<TTButton
@@ -157,10 +155,10 @@
 			icon="alert"
 			v-if="isAdmin"
 			secondary
-			>{{ $t("cmdmenu.featureFlags") }}</TTButton
+			>{{ t("cmdmenu.featureFlags") }}</TTButton
 		>
 
-		<div class="commercial" v-tooltip="hasChannelPoints ? '' : $t('cmdmenu.not_affiliate')">
+		<div class="commercial" v-tooltip="hasChannelPoints ? '' : t('cmdmenu.not_affiliate')">
 			<TTButton
 				aria-label="Start a 30s ad"
 				v-if="adCooldown == 0"
@@ -168,7 +166,7 @@
 				@click.capture="startAd(30)"
 				:disabled="!canStartCommercial"
 				icon="coin"
-				>{{ $t("cmdmenu.start_ad") }}</TTButton
+				>{{ t("cmdmenu.start_ad") }}</TTButton
 			>
 			<TTButton
 				aria-label="Start a 60s ad"
@@ -211,7 +209,7 @@
 				>3'00</TTButton
 			>
 			<div v-if="adCooldown > 0" class="card-item alert cooldown">
-				{{ $t("cmdmenu.commercial", { DURATION: adCooldownFormatted }) }}
+				{{ t("cmdmenu.commercial", { DURATION: adCooldownFormatted }) }}
 			</div>
 		</div>
 
@@ -248,10 +246,10 @@
 			noBackground
 		/>
 
-		<div class="card-item raid" v-if="$store.stream.currentRaid">
+		<div class="card-item raid" v-if="storeStream.currentRaid">
 			<div class="title">
 				<Icon name="raid" />
-				Raiding {{ $store.stream.currentRaid!.user.displayName }}
+				Raiding {{ storeStream.currentRaid!.user.displayName }}
 			</div>
 			<TTButton
 				aria-label="Cancel raid"
@@ -259,13 +257,13 @@
 				type="button"
 				icon="cross"
 				alert
-				>{{ $t("global.cancel") }}</TTButton
+				>{{ t("global.cancel") }}</TTButton
 			>
 		</div>
 
 		<div class="card-item raid" v-else>
 			<label class="title" for="raid_input">
-				<Icon name="raid" />{{ $t("cmdmenu.raid") }}
+				<Icon name="raid" />{{ t("cmdmenu.raid") }}
 			</label>
 
 			<SearchUserForm
@@ -277,19 +275,19 @@
 			/>
 
 			<div v-else class="missingScope">
-				<p>{{ $t("cmdmenu.scope_grant") }}</p>
+				<p>{{ t("cmdmenu.scope_grant") }}</p>
 				<TTButton icon="unlock" alert small @click="requestRaidScopes()">{{
-					$t("cmdmenu.scope_grantBt")
+					t("cmdmenu.scope_grantBt")
 				}}</TTButton>
 			</div>
 			<a class="whoStreams" @click.prevent="openModal('liveStreams')">{{
-				$t("cmdmenu.whoslive")
+				t("cmdmenu.whoslive")
 			}}</a>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -297,378 +295,373 @@ import Utils from "@/utils/Utils";
 import { TwitchChannelModerateV2Scopes, TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap/gsap-core";
-import { watch } from "vue";
-import { Component, Prop, toNative, Vue } from "vue-facing-decorator";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
+import { useI18n } from "vue-i18n";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePrediction as useStorePrediction } from "@/store/prediction/storePrediction";
+import { storePoll as useStorePoll } from "@/store/poll/storePoll";
+import { useConfirm } from "@/composables/useConfirm";
 import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
 import SearchUserForm from "../SearchUserForm.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		SearchUserForm,
-	},
-	emits: ["close", "update:showChatUsers", "update:showRewards"],
-})
-class CommandHelper extends Vue {
-	@Prop()
-	public showChatUsers!: boolean;
+defineProps<{
+	showChatUsers: boolean;
+	showRewards: boolean;
+}>();
 
-	@Prop()
-	public showRewards!: boolean;
+const emit = defineEmits<{
+	close: [];
+	"update:showChatUsers": [value: boolean];
+	"update:showRewards": [value: boolean];
+}>();
 
-	public raidUser: TwitchDataTypes.UserInfo | null = null;
-	public channelId: string = "";
-	public adCooldown: number = 0;
-	public canEditStreamInfos: boolean = false;
-	public canStartCommercial: boolean = false;
-	public canClearChat: boolean = false;
-	public canRaid: boolean = false;
-	public canCreatePrediction: boolean = false;
-	public canCreatePoll: boolean = false;
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeStream = useStoreStream();
+const storeParams = useStoreParams();
+const storePrediction = useStorePrediction();
+const storePoll = useStorePoll();
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
 
-	public param_followOnly: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-	};
-	public param_subOnly: TwitchatDataTypes.ParameterData<boolean | undefined> = {
-		type: "boolean",
-		value: false,
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-	};
-	public param_emotesOnly: TwitchatDataTypes.ParameterData<boolean | undefined> = {
-		type: "boolean",
-		value: false,
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-	};
-	public param_slowMode: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
-	};
+const raidUser = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
+const adCooldown = ref<number>(0);
+const canEditStreamInfos = ref<boolean>(false);
+const canStartCommercial = ref<boolean>(false);
+const canClearChat = ref<boolean>(false);
+const canRaid = ref<boolean>(false);
+const canCreatePrediction = ref<boolean>(false);
+const canCreatePoll = ref<boolean>(false);
 
-	private ignoreUpdates = false;
-	private adCooldownInterval = -1;
+const param_followOnly = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+});
+const param_subOnly = ref<TwitchatDataTypes.ParameterData<boolean | undefined>>({
+	type: "boolean",
+	value: false,
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+});
+const param_emotesOnly = ref<TwitchatDataTypes.ParameterData<boolean | undefined>>({
+	type: "boolean",
+	value: false,
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+});
+const param_slowMode = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	twitch_scopes: [TwitchScopes.SET_ROOM_SETTINGS],
+});
 
-	public get classes(): string[] {
-		const res = ["commandhelper", "blured-background-window"];
-		if (this.hasChannelPoints) res.push("isAffiliate");
-		return res;
+let ignoreUpdates = false;
+let adCooldownInterval = -1;
+
+const classes = computed<string[]>(() => {
+	const res = ["commandhelper", "blured-background-window"];
+	if (hasChannelPoints.value) res.push("isAffiliate");
+	return res;
+});
+
+const adCooldownFormatted = computed<string>(() => {
+	return Utils.formatDuration(adCooldown.value);
+});
+const hasChannelPoints = computed<boolean>(() => {
+	return storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner;
+});
+const isAdmin = computed<boolean>(() => {
+	return storeAuth.twitch.user.is_admin === true;
+});
+
+onBeforeMount(() => {
+	param_followOnly.value.labelKey = "cmdmenu.followersOnly";
+	param_subOnly.value.labelKey = "cmdmenu.subsOnly";
+	param_emotesOnly.value.labelKey = "cmdmenu.emotesOnly";
+	param_slowMode.value.labelKey = "cmdmenu.slowMode";
+
+	const uid = storeAuth.twitch.user.id;
+
+	document.addEventListener("mousedown", onClick);
+
+	watch(
+		() => storeStream.commercial[uid]!.prevAdStart_at,
+		() => {
+			adCooldown.value = storeStream.commercial[uid]!.prevAdStart_at - Date.now();
+		},
+	);
+
+	const channelId = storeAuth.twitch.user.id;
+	watch(
+		() => storeStream.roomSettings[channelId],
+		() => {
+			populateSettings();
+		},
+		{ deep: true },
+	);
+
+	adCooldown.value = Math.max(0, storeStream.commercial[uid]!.prevAdStart_at - Date.now());
+	adCooldownInterval = window.setInterval(() => {
+		if (adCooldown.value === 0) return;
+		adCooldown.value -= 1000;
+		if (adCooldown.value < 0) adCooldown.value = 0;
+	}, 1000);
+
+	watch(
+		() => storeAuth.twitch.scopes,
+		() => {
+			canEditStreamInfos.value = TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
+			canStartCommercial.value =
+				TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && hasChannelPoints.value;
+			canClearChat.value = TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]);
+			canRaid.value = TwitchUtils.hasScopes([
+				TwitchScopes.START_RAID,
+				...TwitchChannelModerateV2Scopes,
+			]);
+
+			canCreatePrediction.value =
+				hasChannelPoints.value &&
+				TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]) &&
+				(storePrediction.data?.id == undefined ||
+					storePrediction.data?.channel_id !== StoreProxy.auth.twitch.user.id);
+
+			canCreatePoll.value =
+				hasChannelPoints.value &&
+				TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]) &&
+				(storePoll.data?.id == undefined ||
+					storePoll.data?.channel_id !== StoreProxy.auth.twitch.user.id);
+		},
+		{ immediate: true },
+	);
+
+	populateSettings();
+});
+
+onMounted(async () => {
+	await nextTick();
+	open();
+});
+
+onBeforeUnmount(() => {
+	clearInterval(adCooldownInterval);
+	document.removeEventListener("mousedown", onClick);
+});
+
+function startAd(duration: number): void {
+	if (!canStartCommercial.value) {
+		storeAuth.requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
+	} else {
+		const uid = storeAuth.twitch.user.id;
+		storeStream.startCommercial(uid, duration);
+		close();
 	}
+}
 
-	private clickHandler!: (e: MouseEvent) => void;
-
-	public get adCooldownFormatted(): string {
-		return Utils.formatDuration(this.adCooldown);
-	}
-	public get hasChannelPoints(): boolean {
-		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
-	}
-	public get isAdmin(): boolean {
-		return this.$store.auth.twitch.user.is_admin === true;
-	}
-
-	public async beforeMount(): Promise<void> {
-		//Fake raid to test "raiding" card
-		// this.$store.stream.currentRaid = {
-		// 	channel_id:this.$store.auth.twitch.user.id,
-		// 	startedAt:Date.now(),
-		// 	timerDuration_s:9999999999,
-		// 	user:this.$store.auth.twitch.user,
-		// 	viewerCount:855,
-		// };
-
-		this.param_followOnly.labelKey = "cmdmenu.followersOnly";
-		this.param_subOnly.labelKey = "cmdmenu.subsOnly";
-		this.param_emotesOnly.labelKey = "cmdmenu.emotesOnly";
-		this.param_slowMode.labelKey = "cmdmenu.slowMode";
-
-		const uid = this.$store.auth.twitch.user.id;
-
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
-
-		watch(
-			() => this.$store.stream.commercial[uid]!.prevAdStart_at,
-			() => {
-				this.adCooldown = this.$store.stream.commercial[uid]!.prevAdStart_at - Date.now();
-			},
-		);
-
-		const channelId = this.$store.auth.twitch.user.id;
-		watch(
-			() => this.$store.stream.roomSettings[channelId],
-			() => {
-				this.populateSettings();
-			},
-			{ deep: true },
-		);
-
-		this.adCooldown = Math.max(
-			0,
-			this.$store.stream.commercial[uid]!.prevAdStart_at - Date.now(),
-		);
-		this.adCooldownInterval = window.setInterval(() => {
-			if (this.adCooldown === 0) return;
-			this.adCooldown -= 1000;
-			if (this.adCooldown < 0) this.adCooldown = 0;
-		}, 1000);
-
-		watch(
-			() => this.$store.auth.twitch.scopes,
-			() => {
-				this.canEditStreamInfos = TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
-				this.canStartCommercial =
-					TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints;
-				this.canClearChat = TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]);
-				this.canRaid = TwitchUtils.hasScopes([
-					TwitchScopes.START_RAID,
-					...TwitchChannelModerateV2Scopes,
-				]);
-
-				this.canCreatePrediction =
-					this.hasChannelPoints &&
-					TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]) &&
-					(this.$store.prediction.data?.id == undefined ||
-						this.$store.prediction.data?.channel_id !== StoreProxy.auth.twitch.user.id);
-
-				this.canCreatePoll =
-					this.hasChannelPoints &&
-					TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]) &&
-					(this.$store.poll.data?.id == undefined ||
-						this.$store.poll.data?.channel_id !== StoreProxy.auth.twitch.user.id);
-			},
-			{ immediate: true },
-		);
-
-		this.populateSettings();
-	}
-
-	public async mounted(): Promise<void> {
-		await this.$nextTick();
-		this.open();
-	}
-
-	public beforeUnmount(): void {
-		clearInterval(this.adCooldownInterval);
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	public startAd(duration: number): void {
-		if (!this.canStartCommercial) {
-			this.$store.auth.requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
-		} else {
-			const uid = this.$store.auth.twitch.user.id;
-			this.$store.stream.startCommercial(uid, duration);
-			this.close();
-		}
-	}
-
-	public openModal(type: TwitchatDataTypes.ModalTypes): void {
-		switch (type) {
-			case "poll": {
-				if (!this.hasChannelPoints) return;
-				if (!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
-					return;
-				}
-				if (!this.canCreatePoll) return;
-				break;
+function openModal(type: TwitchatDataTypes.ModalTypes): void {
+	switch (type) {
+		case "poll": {
+			if (!hasChannelPoints.value) return;
+			if (!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
+				storeAuth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
+				return;
 			}
-			case "pred": {
-				if (!this.hasChannelPoints) return;
-				if (!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
-					return;
-				}
-				if (!this.canCreatePrediction) return;
-				break;
+			if (!canCreatePoll.value) return;
+			break;
+		}
+		case "pred": {
+			if (!hasChannelPoints.value) return;
+			if (!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
+				storeAuth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+				return;
 			}
-			case "streamInfo": {
-				if (!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
-					return;
-				}
-				break;
+			if (!canCreatePrediction.value) return;
+			break;
+		}
+		case "streamInfo": {
+			if (!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) {
+				storeAuth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+				return;
 			}
-			case "extensions": {
-				if (!TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
-					this.$store.auth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
-					return;
-				}
-				break;
+			break;
+		}
+		case "extensions": {
+			if (!TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
+				storeAuth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
+				return;
 			}
-		}
-		this.$store.params.openModal(type);
-		this.close();
-	}
-
-	public clearChat(): void {
-		if (!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-			this.$store.auth.requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
-		} else {
-			this.$confirm(
-				this.$t("params.clearChat_confirm_title"),
-				this.$t("params.clearChat_confirm_desc"),
-			)
-				.then(() => {
-					TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id, undefined, true);
-				})
-				.catch(() => {});
+			break;
 		}
 	}
+	storeParams.openModal(type);
+	close();
+}
 
-	private open(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, { duration: 0.1, translateX: "-115%", delay: 0.2, ease: "sine.out" });
-		gsap.fromTo(
-			ref,
-			{ scaleX: 1.1 },
-			{
-				duration: 0.5,
-				delay: 0.3,
-				scaleX: 1,
-				clearProps: "scaleX,translateX",
-				ease: "elastic.out(1)",
-			},
-		);
-
-		// const elements = (this.$el as HTMLDivElement).childNodes;
-		// let delay = .2;
-		// elements.forEach(v=> {
-		// 	gsap.from(v, {opacity:.1, duration:.25, delay, translateY:-10, ease:"sine.out"});
-		// 	delay += .025;
-		// })
-	}
-
-	public close(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, { duration: 0.1, scaleX: 1.1, ease: "sin.in" });
-		gsap.to(ref, {
-			duration: 0.1,
-			translateX: "-100%",
-			scaleX: 1,
-			delay: 0.1,
-			clearProps: "translateX",
-			ease: "sin.out",
-			onComplete: () => {
-				this.$emit("close");
-			},
-		});
-	}
-
-	/**
-	 * Populates the settings from storage
-	 */
-	private async populateSettings(): Promise<void> {
-		this.ignoreUpdates = true;
-
-		const channelId = this.$store.auth.twitch.user.id;
-		let settings = this.$store.stream.roomSettings[channelId] ?? {};
-		this.param_followOnly.value = typeof settings.followOnly == "number";
-		this.param_subOnly.value = settings.subOnly;
-		this.param_emotesOnly.value = settings.emotesOnly;
-		this.param_slowMode.value = typeof settings.slowMode == "number" && settings.slowMode > 0;
-
-		await this.$nextTick();
-		this.ignoreUpdates = false;
-	}
-
-	/**
-	 * Detect click outside view to close it
-	 */
-	private onClick(e: MouseEvent): void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while (target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if (target != ref) {
-			this.close();
-		}
-	}
-
-	public async raid(): Promise<void> {
-		if (!this.raidUser) return;
-		//This timeout avoids auto confirmation if submitting the form
-		//with enter key
-		await Utils.promisedTimeout(100);
-
-		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser.login + " ?")
-			.then(async () => {
-				TwitchUtils.raidChannel(this.raidUser!.login);
-				this.raidUser = null;
+function clearChat(): void {
+	if (!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+		storeAuth.requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
+	} else {
+		confirm(t("params.clearChat_confirm_title"), t("params.clearChat_confirm_desc"))
+			.then(() => {
+				TwitchUtils.deleteMessages(storeAuth.twitch.user.id, undefined, true);
 			})
 			.catch(() => {});
 	}
+}
 
-	public cancelRaid(): void {
-		TwitchUtils.raidCancel();
+function open(): void {
+	const el = rootEl.value!;
+	gsap.killTweensOf(el);
+	gsap.from(el, { duration: 0.1, translateX: "-115%", delay: 0.2, ease: "sine.out" });
+	gsap.fromTo(
+		el,
+		{ scaleX: 1.1 },
+		{
+			duration: 0.5,
+			delay: 0.3,
+			scaleX: 1,
+			clearProps: "scaleX,translateX",
+			ease: "elastic.out(1)",
+		},
+	);
+
+	// const elements = (rootEl.value!).childNodes;
+	// let delay = .2;
+	// elements.forEach(v=> {
+	// 	gsap.from(v, {opacity:.1, duration:.25, delay, translateY:-10, ease:"sine.out"});
+	// 	delay += .025;
+	// })
+}
+
+function close(): void {
+	const el = rootEl.value!;
+	gsap.killTweensOf(el);
+	gsap.to(el, { duration: 0.1, scaleX: 1.1, ease: "sin.in" });
+	gsap.to(el, {
+		duration: 0.1,
+		translateX: "-100%",
+		scaleX: 1,
+		delay: 0.1,
+		clearProps: "translateX",
+		ease: "sin.out",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+/**
+ * Populates the settings from storage
+ */
+async function populateSettings(): Promise<void> {
+	ignoreUpdates = true;
+
+	const channelId = storeAuth.twitch.user.id;
+	let settings = storeStream.roomSettings[channelId] ?? {};
+	param_followOnly.value.value = typeof settings.followOnly == "number";
+	param_subOnly.value.value = settings.subOnly;
+	param_emotesOnly.value.value = settings.emotesOnly;
+	param_slowMode.value.value = typeof settings.slowMode == "number" && settings.slowMode > 0;
+
+	await nextTick();
+	ignoreUpdates = false;
+}
+
+/**
+ * Detect click outside view to close it
+ */
+function onClick(e: MouseEvent): void {
+	let target = e.target as HTMLDivElement;
+	const el = rootEl.value!;
+	while (target != document.body && target != el && target) {
+		target = target.parentElement as HTMLDivElement;
 	}
-
-	public setFollowOnly(): void {
-		if (this.ignoreUpdates) return;
-
-		let settings: TwitchatDataTypes.IRoomSettings = {};
-		settings.followOnly = this.param_followOnly.value === true ? 30 : false;
-
-		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
-	}
-
-	public setSubOnly(): void {
-		if (this.ignoreUpdates) return;
-
-		let settings: TwitchatDataTypes.IRoomSettings = {};
-		settings.subOnly = this.param_subOnly.value === true;
-
-		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
-	}
-
-	public setEmoteOnly(): void {
-		if (this.ignoreUpdates) return;
-
-		let settings: TwitchatDataTypes.IRoomSettings = {};
-		settings.emotesOnly = this.param_emotesOnly.value === true;
-
-		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
-	}
-
-	public setSlowMode(): void {
-		if (this.ignoreUpdates) return;
-
-		let settings: TwitchatDataTypes.IRoomSettings = {};
-		settings.slowMode = this.param_slowMode.value === true ? 5 : 0;
-
-		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
-	}
-
-	public requestRoomSettingsScopes(): void {
-		if (TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS])) return;
-		this.$store.auth.requestTwitchScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-	}
-
-	public requestRaidScopes(): void {
-		if (TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]))
-			return;
-		this.$store.auth.requestTwitchScopes([
-			TwitchScopes.START_RAID,
-			...TwitchChannelModerateV2Scopes,
-		]);
-	}
-
-	public onTogglePin(pinId: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): void {
-		this.$store.params.toggleChatMenuPin(pinId);
-	}
-
-	public isPinned(pinId: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): boolean {
-		return this.$store.params.pinnedMenuItems.findIndex((v) => v == pinId) > -1;
+	if (target != el) {
+		close();
 	}
 }
-export default toNative(CommandHelper);
+
+async function raid(): Promise<void> {
+	if (!raidUser.value) return;
+	//This timeout avoids auto confirmation if submitting the form
+	//with enter key
+	await Utils.promisedTimeout(100);
+
+	confirm("Raid ?", "Are you sure you want to raid " + raidUser.value.login + " ?")
+		.then(async () => {
+			TwitchUtils.raidChannel(raidUser.value!.login);
+			raidUser.value = undefined;
+		})
+		.catch(() => {});
+}
+
+function cancelRaid(): void {
+	TwitchUtils.raidCancel();
+}
+
+function setFollowOnly(): void {
+	if (ignoreUpdates) return;
+
+	let settings: TwitchatDataTypes.IRoomSettings = {};
+	settings.followOnly = param_followOnly.value.value === true ? 30 : false;
+
+	TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+}
+
+function setSubOnly(): void {
+	if (ignoreUpdates) return;
+
+	let settings: TwitchatDataTypes.IRoomSettings = {};
+	settings.subOnly = param_subOnly.value.value === true;
+
+	TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+}
+
+function setEmoteOnly(): void {
+	if (ignoreUpdates) return;
+
+	let settings: TwitchatDataTypes.IRoomSettings = {};
+	settings.emotesOnly = param_emotesOnly.value.value === true;
+
+	TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+}
+
+function setSlowMode(): void {
+	if (ignoreUpdates) return;
+
+	let settings: TwitchatDataTypes.IRoomSettings = {};
+	settings.slowMode = param_slowMode.value.value === true ? 5 : 0;
+
+	TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+}
+
+function requestRoomSettingsScopes(): void {
+	if (TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS])) return;
+	storeAuth.requestTwitchScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+}
+
+function requestRaidScopes(): void {
+	if (TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes])) return;
+	storeAuth.requestTwitchScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
+}
+
+function onTogglePin(pinId: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): void {
+	storeParams.toggleChatMenuPin(pinId);
+}
+
+function isPinned(pinId: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"]): boolean {
+	return storeParams.pinnedMenuItems.findIndex((v) => v == pinId) > -1;
+}
 </script>
 
 <style scoped lang="less">
