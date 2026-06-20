@@ -4,7 +4,7 @@
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<GroqSummaryFilterForm
-				:messageList="$store.chat.messages"
+				:messageList="storeChat.messages"
 				@complete="close"
 				standalone
 			/>
@@ -12,90 +12,82 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { gsap } from "gsap/gsap-core";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { nextTick, onBeforeMount, onBeforeUnmount, ref, useTemplateRef } from "vue";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import ButtonNotification from "../ButtonNotification.vue";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
 
-@Component({
-	components: {
-		ButtonNotification,
-		GroqSummaryFilterForm,
-	},
-	emits: [],
-})
-class GroqChannelAction extends Vue {
-	public expand: boolean = false;
-	private clickHandler!: (e: MouseEvent) => void;
+const storeChat = useStoreChat();
+const popin = useTemplateRef<HTMLDivElement>("popin");
 
-	public beforeMount(): void {
-		this.clickHandler = (e: MouseEvent) => this.onClickDOM(e);
-		document.addEventListener("click", this.clickHandler, true);
+const expand = ref<boolean>(false);
+
+onBeforeMount(() => {
+	document.addEventListener("click", onClickDOM, true);
+});
+
+onBeforeUnmount(() => {
+	storeChat.messageMode = "message";
+	document.removeEventListener("click", onClickDOM, true);
+});
+
+/**
+ * Opens the window
+ */
+async function open(event: MouseEvent): Promise<void> {
+	event.stopPropagation();
+	event.preventDefault();
+	if (expand.value) {
+		onClickDOM(event);
+		return;
 	}
+	expand.value = true;
+	await nextTick();
+	const holder = popin.value!;
+	gsap.killTweensOf(holder);
+	gsap.fromTo(
+		holder,
+		{ scaleY: 0 },
+		{ duration: 0.25, scaleY: 1, ease: "back.out", delay: 0.05 },
+	);
+}
 
-	public async beforeUnmount(): Promise<void> {
-		this.$store.chat.messageMode = "message";
-		document.removeEventListener("click", this.clickHandler, true);
+/**
+ * Closes the window
+ */
+function close(): void {
+	const holder = popin.value;
+	if (!holder) return;
+	gsap.killTweensOf(holder);
+	gsap.to(holder, {
+		duration: 0.1,
+		scaleY: 0,
+		clearProps: "scaleY",
+		ease: "back.in",
+		onComplete: () => {
+			expand.value = false;
+		},
+	});
+}
+
+/**
+ * Detects click outside of the window to close it
+ */
+function onClickDOM(e: MouseEvent): void {
+	if (!expand.value) return;
+	const holder = popin.value;
+	if (!holder) return;
+
+	let target = e.target as HTMLElement;
+	while (target != document.body && target != holder && target != null) {
+		target = target.parentElement as HTMLElement;
 	}
-
-	/**
-	 * Opens the window
-	 */
-	public async open(event: MouseEvent): Promise<void> {
-		event.stopPropagation();
-		event.preventDefault();
-		if (this.expand) {
-			this.onClickDOM(event);
-			return;
-		}
-		this.expand = true;
-		await this.$nextTick();
-		const holder = this.$refs.popin as HTMLDivElement;
-		gsap.killTweensOf(holder);
-		gsap.fromTo(
-			holder,
-			{ scaleY: 0 },
-			{ duration: 0.25, scaleY: 1, ease: "back.out", delay: 0.05 },
-		);
-	}
-
-	/**
-	 * Closes the window
-	 */
-	public close(): void {
-		const holder = this.$refs.popin as HTMLDivElement;
-		if (!holder) return;
-		gsap.killTweensOf(holder);
-		gsap.to(holder, {
-			duration: 0.1,
-			scaleY: 0,
-			clearProps: "scaleY",
-			ease: "back.in",
-			onComplete: () => {
-				this.expand = false;
-			},
-		});
-	}
-
-	/**
-	 * Detects click outside of the window to close it
-	 */
-	private onClickDOM(e: MouseEvent): void {
-		if (!this.expand) return;
-		const holder = this.$refs.popin as HTMLDivElement;
-		if (!holder) return;
-
-		let target = e.target as HTMLElement;
-		while (target != document.body && target != holder && target != null) {
-			target = target.parentElement as HTMLElement;
-		}
-		if (target === document.body) {
-			this.close();
-		}
+	if (target === document.body) {
+		close();
 	}
 }
-export default toNative(GroqChannelAction);
 </script>
 
 <style scoped lang="less">
