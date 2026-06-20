@@ -4,87 +4,82 @@
 			class="loader"
 			name="loader"
 			v-if="state.id == 'progress'"
-			v-tooltip="$t('global.messageExport.tooltip')"
+			v-tooltip="t('global.messageExport.tooltip')"
 		/>
 		<div class="message error" v-else-if="state.id == 'error'">
-			{{ $t("global.messageExport.error", state.params) }}
+			{{ t("global.messageExport.error", state.params) }}
 		</div>
 		<div class="message error" v-else-if="state.id == 'error_discord_access'">
-			{{ $t("error.discord.MISSING_ACCESS", state.params) }}
+			{{ t("error.discord.MISSING_ACCESS", state.params) }}
 		</div>
 		<div class="message" v-else>
 			<div v-if="state.id == 'complete_downloadOnly' || state.id == 'complete'">
 				<Icon name="checkmark" />{{
-					$t("global.messageExport.complete_downloaded", state.params)
+					t("global.messageExport.complete_downloaded", state.params)
 				}}
 			</div>
 			<div v-if="state.id == 'complete_downloadOnly' || state.id == 'discord'">
 				<Icon name="checkmark" />{{
-					$t("global.messageExport.complete_discord", state.params)
+					t("global.messageExport.complete_discord", state.params)
 				}}
 			</div>
 			<div v-if="state.id == 'complete_copyOnly' || state.id == 'complete'">
 				<Icon name="checkmark" />{{
-					$t("global.messageExport.complete_copied", state.params)
+					t("global.messageExport.complete_copied", state.params)
 				}}
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { toNative, Component, Vue } from "vue-facing-decorator";
+<script setup lang="ts">
+import { storeMain as useStoreMain } from "@/store/storeMain";
+import { computed, onBeforeUnmount, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Icon from "../Icon.vue";
-import { watch } from "vue";
 
-@Component({
-	components: {
-		Icon,
-	},
-	emits: [],
-})
-class MessageExportIndicator extends Vue {
-	private closeTimeout: number = -1;
+const { t } = useI18n();
+const storeMain = useStoreMain();
 
-	public get state() {
-		return this.$store.main.messageExportState!;
-	}
+let closeTimeout: number = -1;
 
-	public get classes(): string[] {
-		const res: string[] = [];
-		if (this.state.id == "error" || this.state.id == "error_discord_access") res.push("error");
-		return res;
-	}
+const state = computed(() => {
+	return storeMain.messageExportState!;
+});
 
-	public close() {
-		if (this.state.id == "progress") return;
-		this.$store.main.messageExportState = null;
-	}
+const classes = computed<string[]>(() => {
+	const res: string[] = [];
+	if (state.value.id == "error" || state.value.id == "error_discord_access") res.push("error");
+	return res;
+});
 
-	public mounted(): void {
-		watch(
-			() => this.state,
-			() => {
-				//Auto close after success
-				if (
-					this.state.id == "complete" ||
-					this.state.id == "discord" ||
-					this.state.id == "complete_copyOnly" ||
-					this.state.id == "complete_downloadOnly"
-				) {
-					this.closeTimeout = window.setTimeout(() => {
-						this.$store.main.messageExportState = null;
-					}, 7000);
-				}
-			},
-		);
-	}
-
-	public beforeUnmount(): void {
-		clearTimeout(this.closeTimeout);
-	}
+function close() {
+	if (state.value.id == "progress") return;
+	storeMain.messageExportState = null;
 }
-export default toNative(MessageExportIndicator);
+
+onMounted(() => {
+	watch(
+		() => state.value,
+		() => {
+			//Auto close after success
+			if (
+				state.value.id == "complete" ||
+				state.value.id == "discord" ||
+				state.value.id == "complete_copyOnly" ||
+				state.value.id == "complete_downloadOnly"
+			) {
+				closeTimeout = window.setTimeout(() => {
+					storeMain.messageExportState = null;
+				}, 7000);
+			}
+		},
+	);
+});
+
+onBeforeUnmount(() => {
+	clearTimeout(closeTimeout);
+});
 </script>
 
 <style scoped lang="less">
