@@ -9,7 +9,7 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
-    image: twitchat:latest
+    image: ghcr.io/durss/twitchat:latest
     ports:
       - "3018:3018"
     restart: unless-stopped
