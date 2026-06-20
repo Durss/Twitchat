@@ -122,8 +122,13 @@ const extensionController = new TwitchExtensionController(server).initialize(
 bingoController.setTwitchExtensionController(extensionController);
 quizController.setTwitchExtensionController(extensionController);
 
+// In Docker the bind port is fixed via the PORT env (set in the Dockerfile), so every
+// container listens on the same internal port and only the published host port varies
+// per environment (see docker-compose.yml). Outside Docker it falls back to credentials.json.
+const port = Number(process.env["PORT"]) || Config.credentials.server_port;
+
 try {
-	await server.listen({ port: Config.credentials.server_port, host: "0.0.0.0" });
+	await server.listen({ port, host: "0.0.0.0" });
 } catch (err) {
 	Logger.error("Server init error");
 	console.log(err);
@@ -131,5 +136,5 @@ try {
 }
 
 Logger.success("=========================");
-Logger.success("Server ready on port " + Config.credentials.server_port);
+Logger.success("Server ready on port " + port);
 Logger.success("=========================");
