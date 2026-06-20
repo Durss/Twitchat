@@ -45,11 +45,11 @@ import GoXLRSocket from "../goxlr/GoXLRSocket";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
-import { evalMath } from "../utils/evalMath";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
 import { TriggerTypes, type TriggerTypesValue } from "@/types/TriggerTypes";
+import { evalMath } from "../utils/evalMath";
 
 /**
  * Condition operators reading nothing but the value they're given.
@@ -2453,6 +2453,53 @@ export default class TriggerActionHandler {
 				if (
 					await this.executeTriggersByType(
 						eventToTrigger[message.event],
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMERSONGLIST_QUEUE_ADD,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_REMOVE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMERSONGLIST_QUEUE_REMOVE,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_UPDATE: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.STREAMERSONGLIST_QUEUE_UPDATE,
 						message,
 						testMode,
 						undefined,

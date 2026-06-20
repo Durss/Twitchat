@@ -1,6 +1,11 @@
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import Utils from "@/utils/Utils";
+import { Centrifuge } from "centrifuge";
+import type { PublicationContext, Subscription } from "centrifuge";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import type {
@@ -16,11 +21,66 @@ import StoreProxy from "../StoreProxy";
  */
 const SSL_AUTHORIZE_URL = "https://id.staging.streamersonglist.com/oauth2/auth";
 
+/**
+ * SSL REST API base URL
+ */
+const SSL_API_BASE = "https://api.staging.streamersonglist.com";
+
+/**
+ * Websocket URL
+ */
+const SSL_EVENTS_URL = "wss://events.staging.streamersonglist.com/connection/websocket";
+
+let centrifuge: Centrifuge | null = null;
+let subscription: Subscription | null = null;
+
+/**
+ * Envelope wrapping every socket event.
+ * When "data" is null the client is expected to refetch the related resource over the REST API.
+ */
+interface SSLEventEnvelope {
+	type: string;
+	data: unknown;
+}
+
+/**
+ * Payload of a "queue_add" event
+ */
+interface SSLQueueDetails {
+	id: number;
+	note: string | null;
+	createdAt: string; // ISO-8601
+	songId: number | null;
+	nonlistSong: string | null;
+	streamerId: number;
+	position: number;
+	song: {
+		title: string;
+		artist: string;
+		lastPlayed: string | null; // ISO-8601
+		lastPlayedFrom: string;
+		timesPlayed: number;
+		comment: string | null;
+		capo: string | null;
+		attributes: { name: string; image: string | null }[];
+	};
+	requests: {
+		id: number;
+		name: string;
+		amount: number;
+		requestText: string;
+		source: string;
+		createdAt: string; // ISO-8601
+		user: { username: string; platform: string } | null;
+	}[];
+}
+
 export const storeStreamerSongList = defineStore("streamersonglist", {
 	state: (): IStreamerSongListState => ({
 		user: null,
 		queue: [],
 		token: null,
+		streamerId: null,
 		connected: false,
 		authResult: { code: "", csrf: "" },
 	}),
@@ -102,6 +162,8 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 			await this.loadInfos();
 			this.connected = true;
 
+			void this.connectToSocket();
+
 			window.setTimeout(
 				async () => {
 					const res = await ApiHelper.call("streamersonglist/token/refresh", "POST", {
@@ -117,9 +179,11 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 		},
 
 		async disconnect(): Promise<boolean> {
+			this.disconnectSocket();
 			this.connected = false;
 			this.user = null;
 			this.queue = [];
+			this.streamerId = null;
 			const token = this.token;
 			DataStore.remove(DataStore.STREAMERSONGLIST_TOKEN);
 			this.token = null;
@@ -144,6 +208,125 @@ export const storeStreamerSongList = defineStore("streamersonglist", {
 			this.user = infos.json.user;
 			this.queue = infos.json.queue || [];
 			return { user: this.user, queue: this.queue };
+		},
+
+		async connectToSocket(): Promise<void> {
+			if (!this.token) return;
+			if (centrifuge) return; //Already connected/connecting
+
+			//Resolve streamer ID to the subscribe to their events
+			if (this.streamerId == null) {
+				try {
+					const res = await fetch(SSL_API_BASE + "/users/self", {
+						headers: { Authorization: "Bearer " + this.token.access_token },
+					});
+					if (!res.ok) throw new Error("HTTP " + res.status);
+					const self = (await res.json()) as { id?: number };
+					if (typeof self.id !== "number") throw new Error("Missing streamer ID");
+					this.streamerId = self.id;
+				} catch (error) {
+					console.error("[StreamerSongList] Could not resolve streamer ID", error);
+					return;
+				}
+			}
+
+			//Builds the common fields shared by every Twitchat trigger message.
+			const baseEvent = (): TwitchatDataTypes.AbstractTwitchatMessage => ({
+				id: Utils.getUUID(),
+				date: Date.now(),
+				platform: "twitchat",
+				channel_id: StoreProxy.auth.twitch.user.id,
+				type: "message",
+			});
+
+			centrifuge = new Centrifuge(SSL_EVENTS_URL);
+			centrifuge.on("error", (ctx) => {
+				console.warn("[StreamerSongList] Socket error", ctx);
+			});
+
+			//"streamer:{id}" is the public channel carrying every streamer's events
+			subscription = centrifuge.newSubscription("streamer:" + this.streamerId);
+			subscription.on("publication", (ctx: PublicationContext) => {
+				const envelope = ctx.data as SSLEventEnvelope | null;
+				if (!envelope || !envelope.type) return;
+
+				switch (envelope.type) {
+					case "queue_add": {
+						const details = envelope.data as SSLQueueDetails | null;
+						if (!details) break;
+						const songTitle = details.song?.title || details.nonlistSong || "";
+						const songArtist = details.song?.artist || "";
+						const requestedBy = details.requests?.[0]?.name || "";
+						//Keep the local queue in sync
+						this.queue.push({
+							id: details.id,
+							songName: songTitle,
+							requestedBy: requestedBy || undefined,
+						});
+						const message: TwitchatDataTypes.MessageStreamerSongListQueueAddData = {
+							...baseEvent(),
+							type: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD,
+							streamerSongListQueueAdd: {
+								songId: details.id.toString(),
+								songTitle,
+								songArtist,
+								requestedBy,
+								note: details.note || "",
+							},
+						};
+						void TriggerActionHandler.instance.execute(message);
+						break;
+					}
+
+					case "queue_remove": {
+						const id = (envelope.data as { id: number } | null)?.id;
+						if (id == null) break;
+						const removed = this.queue.find((v) => v.id === id);
+						this.queue = this.queue.filter((v) => v.id !== id);
+						const message: TwitchatDataTypes.MessageStreamerSongListQueueRemoveData = {
+							...baseEvent(),
+							type: TwitchatDataTypes.TwitchatMessageType
+								.STREAMERSONGLIST_QUEUE_REMOVE,
+							streamerSongListQueueRemove: {
+								songId: id.toString(),
+								songTitle: removed?.songName || "",
+							},
+						};
+						void TriggerActionHandler.instance.execute(message);
+						break;
+					}
+
+					case "queue_update": {
+						//Bulk change (reorder, ...): refetch the queue, then notify.
+						void this.loadInfos().finally(() => {
+							const message: TwitchatDataTypes.MessageStreamerSongListQueueUpdateData =
+								{
+									...baseEvent(),
+									type: TwitchatDataTypes.TwitchatMessageType
+										.STREAMERSONGLIST_QUEUE_UPDATE,
+								};
+							void TriggerActionHandler.instance.execute(message);
+						});
+						break;
+					}
+
+					//Other categories (play_history / song / saved-queue) carry no
+					//payload and aren't surfaced as triggers yet.
+				}
+			});
+			subscription.subscribe();
+			centrifuge.connect();
+		},
+
+		disconnectSocket(): void {
+			if (subscription) {
+				subscription.unsubscribe();
+				subscription = null;
+			}
+			if (centrifuge) {
+				centrifuge.disconnect();
+				centrifuge = null;
+			}
 		},
 
 		//TODO queue management actions (add / remove / reorder song requests)
@@ -185,4 +368,3 @@ export interface SSLQueueEntry {
 	songName: string;
 	requestedBy?: string;
 }
-

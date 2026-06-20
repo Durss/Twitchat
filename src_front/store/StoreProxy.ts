@@ -3730,6 +3730,7 @@ export interface IStreamerSongListState {
 	queue: SSLQueueEntry[];
 	connected: boolean;
 	token: SSLToken | null;
+	streamerId: number | null;
 	authResult: { code: string; csrf: string };
 }
 
@@ -3764,6 +3765,14 @@ export interface IStreamerSongListActions {
 	 * Loads info about the connected user and their song queue
 	 */
 	loadInfos(): Promise<{ user: SSLUserInfo; queue: SSLQueueEntry[] }>;
+	/**
+	 * Connect to SSL socket for live events
+	 */
+	connectToSocket(): Promise<void>;
+	/**
+	 * Closes socket
+	 */
+	disconnectSocket(): void;
 }
 
 export interface ITiktokState {
