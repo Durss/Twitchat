@@ -98,7 +98,7 @@ export default class TriggerActionHandler {
 				message.type as TwitchatDataTypes.GreetableMessageTypes
 			] === true
 		) {
-			const mLoc = message as TwitchatDataTypes.GreetableMessage;
+			const mLoc = message as TwitchatDataTypes.GreetableMessages;
 			if (mLoc.todayFirst === true) {
 				await this.executeTriggersByType(
 					TriggerTypes.FIRST_TODAY,
@@ -3138,7 +3138,7 @@ export default class TriggerActionHandler {
 				message.type as TwitchatDataTypes.GreetableMessageTypes
 			] === true
 		) {
-			channel_id = (message as TwitchatDataTypes.GreetableMessage).channel_id;
+			channel_id = (message as TwitchatDataTypes.GreetableMessages).channel_id;
 		}
 
 		if (!passesCondition) {

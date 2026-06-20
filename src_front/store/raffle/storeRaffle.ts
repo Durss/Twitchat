@@ -473,7 +473,7 @@ export const storeRaffle = defineStore("raffle", {
 						TwitchatDataTypes.GreetableMessageTypesString[
 							message.type as TwitchatDataTypes.GreetableMessageTypes
 						] === true
-							? (message as TwitchatDataTypes.GreetableMessage).user
+							? (message as TwitchatDataTypes.GreetableMessages).user
 							: null;
 					const existingEntry = user
 						? raffle.entries.find((v) => v.id == user.id)
