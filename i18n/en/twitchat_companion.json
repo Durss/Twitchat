@@ -1,6 +1,6 @@
 {
 	"twitchat_companion": {
-		"header": "Let your viewers take part in Quizzes, Bingos, and interact with your stream simply by clicking on it.",
+		"header": "Let your viewers take part in Quizzes, Bingos, and interact with your stream simply by clicking or writing on it.",
 		"enable_click": "Allow viewers to click the stream",
 		"enable_keys": "Allow viewers to type on the extension",
 		"start_quiz": "Start a Quiz",

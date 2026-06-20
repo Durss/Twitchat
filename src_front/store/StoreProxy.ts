@@ -2767,6 +2767,7 @@ export interface IExtensionState {
 }
 
 export interface IExtensionGetters {
+	companionInstalled: boolean;
 	companionEnabled: boolean;
 	companionVersion: string;
 }
