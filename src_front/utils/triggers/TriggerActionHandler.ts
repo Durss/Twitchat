@@ -2152,6 +2152,42 @@ export default class TriggerActionHandler {
 				);
 				break;
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD: {
+				this.executeTriggersByType(
+					TriggerTypes.STREAMERSONGLIST_QUEUE_ADD,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_REMOVE: {
+				this.executeTriggersByType(
+					TriggerTypes.STREAMERSONGLIST_QUEUE_REMOVE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_UPDATE: {
+				this.executeTriggersByType(
+					TriggerTypes.STREAMERSONGLIST_QUEUE_UPDATE,
+					message,
+					testMode,
+					undefined,
+					undefined,
+					forcedTriggerId,
+				);
+				break;
+			}
 		}
 	}
 
