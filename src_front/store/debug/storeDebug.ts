@@ -2421,6 +2421,53 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD: {
+					const m: TwitchatDataTypes.MessageStreamerSongListQueueAddData = {
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: uid,
+						streamerSongListQueueAdd: {
+							songId: Math.round(Math.random() * 100000).toString(),
+							songTitle: "Never Gonna Give You Up",
+							songArtist: "Rick Astley",
+							requestedBy: fakeUser.displayName,
+							note: "",
+						},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_REMOVE: {
+					const m: TwitchatDataTypes.MessageStreamerSongListQueueRemoveData = {
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_REMOVE,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: uid,
+						streamerSongListQueueRemove: {
+							songId: Math.round(Math.random() * 100000).toString(),
+							songTitle: "Never Gonna Give You Up",
+						},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_UPDATE: {
+					const m: TwitchatDataTypes.MessageStreamerSongListQueueUpdateData = {
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_UPDATE,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: uid,
+					};
+					data = m;
+					break;
+				}
+
 				default: {
 					let message =
 						'The request message type "' +

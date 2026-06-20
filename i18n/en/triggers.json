@@ -848,6 +848,7 @@
 			"timer": "Temporal events",
 			"obs": "OBS",
 			"meldStudio": "Meld Studio",
+			"streamersonglist": "StreamerSongList",
 			"misc": "Miscellaneous",
 			"count_and_values": "Counters & Values",
 			"goxlr": "GoXLR",
@@ -1193,7 +1194,12 @@
 			"meldstudio_prev_scene_name": "Previous scene name",
 			"meldstudio_prev_scene_id": "Previous scene ID",
 			"meldstudio_scene_name": "Current scene name",
-			"meldstudio_scene_id": "Current scene ID"
+			"meldstudio_scene_id": "Current scene ID",
+			"ssl_song_title": "Song title",
+			"ssl_song_artist": "Song artist",
+			"ssl_requested_by": "User who requested the song",
+			"ssl_note": "Request note",
+			"ssl_song_id": "Queue entry ID"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1996,6 +2002,21 @@
 				"label": "Track mute state changed",
 				"search_terms": ["meld", "studio"],
 				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio track mute status changes"
+			},
+			"STREAMERSONGLIST_QUEUE_ADD": {
+				"label": "Song added to queue",
+				"search_terms": ["streamersonglist", "ssl", "song", "request", "queue"],
+				"description": "Actions to execute when a song is added to the StreamerSongList queue"
+			},
+			"STREAMERSONGLIST_QUEUE_REMOVE": {
+				"label": "Song removed from queue",
+				"search_terms": ["streamersonglist", "ssl", "song", "request", "queue"],
+				"description": "Actions to execute when a song is removed from the StreamerSongList queue"
+			},
+			"STREAMERSONGLIST_QUEUE_UPDATE": {
+				"label": "Queue updated",
+				"search_terms": ["streamersonglist", "ssl", "song", "request", "queue"],
+				"description": "Actions to execute when the StreamerSongList queue changes (reorder, bulk update, ...)"
 			}
 		},
 		"musicEvents": {

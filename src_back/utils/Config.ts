@@ -146,7 +146,7 @@ export default class Config {
 
 	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "/../../userData_fake_production/"),
+			dev: path.join(__dirname, "../../twitchat/data/userData/"),
 			beta: path.join(__dirname, "../../twitchat/data/userData/"),
 			prod: path.join(__dirname, "../../twitchat/data/userData/"),
 		});

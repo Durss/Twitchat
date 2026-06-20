@@ -73,6 +73,7 @@
 		"@types/tmi.js": "^1.8.6",
 		"@vitejs/plugin-vue": "^6.0.7",
 		"@vue/tsconfig": "^0.5.1",
+		"centrifuge": "^5.7.0",
 		"concurrently": "^10.0.3",
 		"dom-to-image-more": "^3.7.2",
 		"dpdm": "^3.15.1",

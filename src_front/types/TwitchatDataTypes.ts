@@ -4935,8 +4935,11 @@ export namespace TwitchatDataTypes {
 		CLIP_PENDING_PUBLICATION: "clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE: "community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE: "obs_playback_state_update",
+		STREAMERSONGLIST_QUEUE_ADD: "streamersonglist_queue_add",
 		OBS_WS_CONNECT_STATE_CHANGE: "obs_ws_connect_state_change",
 		MELDSTUDIO_TRACK_MUTE_CHANGE: "meldstudio_track_mute_change",
+		STREAMERSONGLIST_QUEUE_UPDATE: "streamersonglist_queue_update",
+		STREAMERSONGLIST_QUEUE_REMOVE: "streamersonglist_queue_remove",
 		COMMUNITY_CHALLENGE_CONTRIBUTION: "community_challenge_contribution",
 		MELDSTUDIO_LAYER_VISIBILITY_CHANGE: "meldstudio_layer_visibility_change",
 		MELDSTUDIO_EFFECT_VISIBILITY_CHANGE: "meldstudio_effect_visibility_change",
@@ -5072,11 +5075,14 @@ export namespace TwitchatDataTypes {
 		community_boost_complete: true,
 		meldstudio_scene_change: false,
 		obs_playback_state_update: false,
+		streamersonglist_queue_add: false,
 		obs_ws_connect_state_change: false,
 		meldstudio_track_mute_change: false,
+		streamersonglist_queue_remove: false,
+		streamersonglist_queue_update: false,
 		community_challenge_contribution: true,
-		meldstudio_effect_visibility_change: false,
 		meldstudio_layer_visibility_change: false,
+		meldstudio_effect_visibility_change: false,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 	/**
@@ -5247,7 +5253,10 @@ export namespace TwitchatDataTypes {
 		| MessageMeldStudioSceneChangeData
 		| MessageMeldStudioLayerVisibilityChangeData
 		| MessageMeldStudioEffectVisibilityChangeData
-		| MessageMeldStudioTrackMuteChangeData;
+		| MessageMeldStudioTrackMuteChangeData
+		| MessageStreamerSongListQueueAddData
+		| MessageStreamerSongListQueueRemoveData
+		| MessageStreamerSongListQueueUpdateData;
 
 	/**
 	 * Defines any message that could be deleted.
@@ -7592,6 +7601,38 @@ export namespace TwitchatDataTypes {
 			trackName: string;
 			muted: boolean;
 		};
+	}
+
+	/**
+	 * Represents a StreamerSongList "song added to queue" event
+	 */
+	export interface MessageStreamerSongListQueueAddData extends AbstractTwitchatMessage {
+		type: "streamersonglist_queue_add";
+		streamerSongListQueueAdd: {
+			songId: string;
+			songTitle: string;
+			songArtist: string;
+			requestedBy: string;
+			note: string;
+		};
+	}
+
+	/**
+	 * Represents a StreamerSongList "song removed from queue" event
+	 */
+	export interface MessageStreamerSongListQueueRemoveData extends AbstractTwitchatMessage {
+		type: "streamersonglist_queue_remove";
+		streamerSongListQueueRemove: {
+			songId: string;
+			songTitle: string;
+		};
+	}
+
+	/**
+	 * Represents a StreamerSongList "queue updated" event (reorder, bulk change, ...)
+	 */
+	export interface MessageStreamerSongListQueueUpdateData extends AbstractTwitchatMessage {
+		type: "streamersonglist_queue_update";
 	}
 
 	/**

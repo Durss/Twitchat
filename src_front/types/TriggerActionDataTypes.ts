@@ -407,6 +407,11 @@ export const TriggerEventTypeCategories = {
 		labelKey: "triggers.categories.music",
 		icons: ["spotify"],
 	} as TriggerEventTypeCategory,
+	STREAMER_SONG_LIST: {
+		id: 25,
+		labelKey: "triggers.categories.streamersonglist",
+		icons: ["streamersonglist"],
+	} as TriggerEventTypeCategory,
 	OBS: {
 		id: 11,
 		labelKey: "triggers.categories.obs",
@@ -2137,6 +2142,9 @@ export const TriggerTypes = {
 	MELDSTUDIO_TRACK_MUTE_CHANGE: "186",
 	MODIVERSARY: "187",
 	TWITCHAT_COMPANION_KEYS: "188",
+	STREAMERSONGLIST_QUEUE_ADD: "189",
+	STREAMERSONGLIST_QUEUE_REMOVE: "190",
+	STREAMERSONGLIST_QUEUE_UPDATE: "191",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -4992,6 +5000,61 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
+	];
+
+	map[TriggerTypes.STREAMERSONGLIST_QUEUE_ADD] = [
+		{
+			tag: "SONG_TITLE",
+			descKey: "triggers.placeholders.ssl_song_title",
+			pointer: "streamerSongListQueueAdd.songTitle",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueAddData>,
+		{
+			tag: "SONG_ARTIST",
+			descKey: "triggers.placeholders.ssl_song_artist",
+			pointer: "streamerSongListQueueAdd.songArtist",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueAddData>,
+		{
+			tag: "REQUESTED_BY",
+			descKey: "triggers.placeholders.ssl_requested_by",
+			pointer: "streamerSongListQueueAdd.requestedBy",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueAddData>,
+		{
+			tag: "NOTE",
+			descKey: "triggers.placeholders.ssl_note",
+			pointer: "streamerSongListQueueAdd.note",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueAddData>,
+		{
+			tag: "SONG_ID",
+			descKey: "triggers.placeholders.ssl_song_id",
+			pointer: "streamerSongListQueueAdd.songId",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueAddData>,
+	];
+
+	map[TriggerTypes.STREAMERSONGLIST_QUEUE_REMOVE] = [
+		{
+			tag: "SONG_TITLE",
+			descKey: "triggers.placeholders.ssl_song_title",
+			pointer: "streamerSongListQueueRemove.songTitle",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueRemoveData>,
+		{
+			tag: "SONG_ID",
+			descKey: "triggers.placeholders.ssl_song_id",
+			pointer: "streamerSongListQueueRemove.songId",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamerSongListQueueRemoveData>,
 	];
 
 	map[TriggerTypes.HEAT_CLICK] = [
@@ -9094,6 +9157,34 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.MELDSTUDIO_TRACK_MUTE_CHANGE,
 			descriptionKey: "triggers.events.MELDSTUDIO_TRACK_MUTE_CHANGE.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.MELDSTUDIO_TRACK_MUTE_CHANGE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+
+		{
+			category: TriggerEventTypeCategories.STREAMER_SONG_LIST,
+			icon: "add",
+			labelKey: "triggers.events.STREAMERSONGLIST_QUEUE_ADD.label",
+			value: TriggerTypes.STREAMERSONGLIST_QUEUE_ADD,
+			descriptionKey: "triggers.events.STREAMERSONGLIST_QUEUE_ADD.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_ADD,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.STREAMER_SONG_LIST,
+			icon: "trash",
+			labelKey: "triggers.events.STREAMERSONGLIST_QUEUE_REMOVE.label",
+			value: TriggerTypes.STREAMERSONGLIST_QUEUE_REMOVE,
+			descriptionKey: "triggers.events.STREAMERSONGLIST_QUEUE_REMOVE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_REMOVE,
+			newDate: Config.instance.NEW_FLAGS_DATE_V17,
+		},
+		{
+			category: TriggerEventTypeCategories.STREAMER_SONG_LIST,
+			icon: "refresh",
+			labelKey: "triggers.events.STREAMERSONGLIST_QUEUE_UPDATE.label",
+			value: TriggerTypes.STREAMERSONGLIST_QUEUE_UPDATE,
+			descriptionKey: "triggers.events.STREAMERSONGLIST_QUEUE_UPDATE.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.STREAMERSONGLIST_QUEUE_UPDATE,
 			newDate: Config.instance.NEW_FLAGS_DATE_V17,
 		},
 

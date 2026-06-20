@@ -848,6 +848,7 @@
 			"timer": "Évènements temporels",
 			"obs": "OBS",
 			"meldStudio": "Meld Studio",
+			"streamersonglist": "StreamerSongList",
 			"misc": "Autres",
 			"count_and_values": "Compteurs & Valeurs",
 			"goxlr": "GoXLR",
@@ -1195,7 +1196,12 @@
 			"meldstudio_prev_scene_name": "Nom de la scène précédente",
 			"meldstudio_prev_scene_id": "ID de la scène précédente",
 			"meldstudio_scene_name": "Nom de la scène courante",
-			"meldstudio_scene_id": "ID de la scène courante"
+			"meldstudio_scene_id": "ID de la scène courante",
+			"ssl_song_title": "Titre du morceau",
+			"ssl_song_artist": "Artiste du morceau",
+			"ssl_requested_by": "Personne ayant demandé le morceau",
+			"ssl_note": "Note de la demande",
+			"ssl_song_id": "ID de l'entrée dans la file"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1998,6 +2004,21 @@
 				"label": "Piste audio mise en sourdine/réactivée",
 				"search_terms": ["meld", "studio"],
 				"description": "Actions à exécuter lorsqu'une piste audio Meld Studio \"{SUB_ITEM_NAME}\" est mise en sourdine ou réactivée"
+			},
+			"STREAMERSONGLIST_QUEUE_ADD": {
+				"label": "Morceau ajouté à la file",
+				"search_terms": ["streamersonglist", "ssl", "morceau", "demande", "file"],
+				"description": "Actions à exécuter lorsqu'un morceau est ajouté à la file StreamerSongList"
+			},
+			"STREAMERSONGLIST_QUEUE_REMOVE": {
+				"label": "Morceau retiré de la file",
+				"search_terms": ["streamersonglist", "ssl", "morceau", "demande", "file"],
+				"description": "Actions à exécuter lorsqu'un morceau est retiré de la file StreamerSongList"
+			},
+			"STREAMERSONGLIST_QUEUE_UPDATE": {
+				"label": "File mise à jour",
+				"search_terms": ["streamersonglist", "ssl", "morceau", "demande", "file"],
+				"description": "Actions à exécuter lorsque la file StreamerSongList change (réorganisation, mise à jour, ...)"
 			}
 		},
 		"musicEvents": {
