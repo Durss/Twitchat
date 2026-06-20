@@ -91,18 +91,21 @@ export default class TwitchExtensionController extends AbstractController {
 	 */
 	public async notifyStateUpdate(channelId: string, notifyUserIds?: string[]): Promise<void> {
 		try {
-			const res = await fetch(Config.credentials.twitchat_api_path + "twitchat/stateUpdate", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"x-twitchat-verify": getHash(channelId),
-					"x-twitchat-channel": channelId,
+			const res = await fetch(
+				Config.credentials.twitchat_extension_api_path + "twitchat/stateUpdate",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-twitchat-verify": getHash(channelId),
+						"x-twitchat-channel": channelId,
+					},
+					body: JSON.stringify({
+						channelId,
+						notifyUserIds,
+					}),
 				},
-				body: JSON.stringify({
-					channelId,
-					notifyUserIds,
-				}),
-			});
+			);
 			console.log("Twitchat API response:", res.status, await res.text());
 		} catch (_error) {
 			Logger.error('Failed calling EBS "stateUpdate" endpoint');
@@ -122,7 +125,7 @@ export default class TwitchExtensionController extends AbstractController {
 		const headerToken = request.headers.authorization!;
 		const headerHash = request.headers["x-twitchat-verify"];
 		const hash = createHash("sha512")
-			.update(Config.credentials.twitchat_api_secret + ":" + headerToken)
+			.update(Config.credentials.twitchat_extension_api_secret + ":" + headerToken)
 			.digest("hex");
 
 		if (!Utils.safeStringEquals(headerHash, hash)) {
@@ -343,14 +346,17 @@ export default class TwitchExtensionController extends AbstractController {
 		const user = await super.twitchUserGuard(request, response);
 		if (!user) return;
 		try {
-			const res = await fetch(Config.credentials.twitchat_api_path + "extension/config", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"x-twitchat-verify": getHash(user.user_id),
-					"x-twitchat-channel": user.user_id,
+			const res = await fetch(
+				Config.credentials.twitchat_extension_api_path + "extension/config",
+				{
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"x-twitchat-verify": getHash(user.user_id),
+						"x-twitchat-channel": user.user_id,
+					},
 				},
-			});
+			);
 			let config = "";
 			let success = false;
 			if (res.status === 200) {
@@ -384,15 +390,18 @@ export default class TwitchExtensionController extends AbstractController {
 		};
 
 		try {
-			const res = await fetch(Config.credentials.twitchat_api_path + "extension/config", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"x-twitchat-verify": getHash(user.user_id),
-					"x-twitchat-channel": user.user_id,
+			const res = await fetch(
+				Config.credentials.twitchat_extension_api_path + "extension/config",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-twitchat-verify": getHash(user.user_id),
+						"x-twitchat-channel": user.user_id,
+					},
+					body: JSON.stringify({ segment: params.segment, content: params.config }),
 				},
-				body: JSON.stringify({ segment: params.segment, content: params.config }),
-			});
+			);
 			let config = "";
 			let success = false;
 			if (res.status === 200) {
@@ -413,7 +422,7 @@ export default class TwitchExtensionController extends AbstractController {
 
 function getHash(uid: string): string {
 	return createHash("sha512")
-		.update(Config.credentials.twitchat_api_secret + ":" + uid)
+		.update(Config.credentials.twitchat_extension_api_secret + ":" + uid)
 		.digest("hex");
 }
 

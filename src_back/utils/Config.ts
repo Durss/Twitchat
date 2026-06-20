@@ -510,8 +510,8 @@ interface Credentials {
 	twitchExtension_client_id: string;
 	twitchExtension_client_secret: string;
 
-	twitchat_api_path: string;
-	twitchat_api_secret: string;
+	twitchat_extension_api_path: string;
+	twitchat_extension_api_secret: string;
 
 	spotify_client_id: string;
 	spotify_client_secret: string;
