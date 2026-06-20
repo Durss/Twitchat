@@ -288,14 +288,17 @@ export default class PaypalController extends AbstractController {
 				}
 
 				//Add donor to donor list via remote service
-				const resRemote = await fetch(Config.DONORS_REMOTE_ENDPOINT + "api/donate", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: Config.credentials.donors_remote_api_secret,
+				const resRemote = await fetch(
+					Config.credentials.donors_endpoint_url + "api/donate",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: Config.credentials.donors_remote_api_secret,
+						},
+						body: JSON.stringify(params),
 					},
-					body: JSON.stringify(params),
-				});
+				);
 				const jsonRemote = (await resRemote.json()) as {
 					success: boolean;
 					id?: string;

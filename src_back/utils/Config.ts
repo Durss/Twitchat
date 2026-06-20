@@ -404,17 +404,6 @@ export default class Config {
 	}
 
 	/**
-	 * External endpoint that manages donors through google sheet (not part of this repository)
-	 */
-	public static get DONORS_REMOTE_ENDPOINT(): string {
-		return this.getEnvData({
-			dev: "http://127.0.0.1:3025/",
-			beta: "http://127.0.0.1:3025/",
-			prod: "http://127.0.0.1:3025/",
-		});
-	}
-
-	/**
 	 * Gets youtube client ID if any
 	 */
 	public static get YOUTUBE_CREDENTIALS(): {
@@ -570,4 +559,6 @@ interface Credentials {
 	tiltify_api_path: string;
 
 	kofi_proxy: string;
+
+	donors_endpoint_url: string;
 }
