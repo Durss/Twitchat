@@ -68,7 +68,7 @@ export const storeBluesky = defineStore("bluesky", {
 			try {
 				const session = await client.signInPopup(handle, {
 					scope,
-					redirect_uri: "https://dev.twitchat.fr/popupBlueskyAuthResult",
+					redirect_uri: `https://${document.location.host}/popupBlueskyAuthResult.html`,
 				});
 				if (session) {
 					//Finalize popup auth
