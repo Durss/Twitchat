@@ -1124,7 +1124,11 @@ export const storeChat = defineStore("chat", {
 									user.id,
 									user.login,
 									user.displayNameOriginal || user.displayName,
-									undefined, undefined, undefined, undefined, false
+									undefined,
+									undefined,
+									undefined,
+									undefined,
+									false,
 								);
 								// reactiveUser.channelInfo = user.channelInfo || reactiveUser.channelInfo;
 								if (reactiveUser.color !== colorOriginal) {
@@ -1317,7 +1321,7 @@ export const storeChat = defineStore("chat", {
 
 				//Check if it's a greetable message
 				if (TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
-					const greetable = message as TwitchatDataTypes.GreetableMessage;
+					const greetable = message as TwitchatDataTypes.GreetableMessages;
 					this.flagMessageAsFirstToday(greetable);
 				}
 
@@ -3299,7 +3303,7 @@ export const storeChat = defineStore("chat", {
 				if (Date.now() - m.date > 2 * 60000) break;
 
 				if (!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
-				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				const mTyped = m as TwitchatDataTypes.GreetableMessages;
 				if (mTyped.user.id == uid && mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					window.setTimeout(
@@ -3332,7 +3336,7 @@ export const storeChat = defineStore("chat", {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i]!;
 				if (!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
-				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				const mTyped = m as TwitchatDataTypes.GreetableMessages;
 				if (mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					window.setTimeout(
@@ -3517,7 +3521,7 @@ export const storeChat = defineStore("chat", {
 			}
 		},
 
-		flagMessageAsFirstToday(message: TwitchatDataTypes.GreetableMessage): void {
+		flagMessageAsFirstToday(message: TwitchatDataTypes.GreetableMessages): void {
 			const user = message.user;
 			const has5hPassed =
 				(user.channelInfo[message.channel_id]!.lastActivityDate || 0) + 5 * 60 * 60 * 1000 <

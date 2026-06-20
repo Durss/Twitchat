@@ -5823,6 +5823,7 @@ export namespace TwitchatDataTypes {
 		ChatMessageTypes,
 		{ is_greetable_message?: boolean }
 	>["type"];
+	export type GreetableMessages = Extract<ChatMessageTypes, { is_greetable_message?: boolean }>;
 	//Ensure the object contains all requested keys
 	//This object is used to check if a message type is a greetable message
 	export const GreetableMessageTypesString: Record<GreetableMessageTypes, boolean> = {
@@ -5834,7 +5835,7 @@ export namespace TwitchatDataTypes {
 		user_modiversary: true,
 		user_watch_streak: true,
 	};
-	export interface GreetableMessage extends AbstractTwitchatMessage {
+	interface GreetableMessage extends AbstractTwitchatMessage {
 		/**
 		 * Do not use this property.
 		 * It's only here for the GreetableMessageTypes type definition
