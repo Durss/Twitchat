@@ -705,6 +705,12 @@ export const storeChat = defineStore("chat", {
 				detailsKey: "params.commands.pin",
 			},
 			{
+				id: "unpin",
+				cmd: "/unpin",
+				twitch_scopes: [TwitchScopes.DELETE_MESSAGES],
+				detailsKey: "params.commands.unpin",
+			},
+			{
 				id: "triggerlogs",
 				cmd: "/triggerlogs",
 				detailsKey: "params.commands.triggerlogs",
