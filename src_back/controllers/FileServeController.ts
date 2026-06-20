@@ -56,6 +56,17 @@ export default class FileServeController extends AbstractController {
 		this.server.post("/api/log", async (request: FastifyRequest, response: FastifyReply) =>
 			this.postLog(request, response),
 		);
+
+		//Bluesky (AT Protocol) OAuth client metadata.
+		//Served dynamically rather than from a static file so the document
+		//reflects the domain it's requested from (twitchat.fr, beta.twitchat.fr,
+		//localhost in dev...). This explicit route takes precedence over the
+		//@fastify/static wildcard.
+		this.server.get(
+			"/oauth/client-metadata.json",
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.getBlueskyClientMetadata(request, response),
+		);
 	}
 
 	/*******************
@@ -138,6 +149,56 @@ export default class FileServeController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(config);
+	}
+
+	/**
+	 * Serves the Bluesky (AT Protocol) OAuth client metadata.
+	 *
+	 * The AT Protocol OAuth spec requires the "client_id" to be the exact URL
+	 * the metadata document is served from, and the client loads it via
+	 * `document.location.origin + "/oauth/client-metadata.json"`. As Twitchat
+	 * runs on several domains we can't hardcode it, so the requesting origin is
+	 * injected into the document on the fly.
+	 */
+	private getBlueskyClientMetadata(request: FastifyRequest, response: FastifyReply): void {
+		//Only reflect domains we actually serve so a spoofed Host header can't
+		//inject arbitrary domains into the generated metadata.
+		const hostname = request.hostname;
+		const isTwitchat = /^([a-z0-9-]+\.)?twitchat\.fr$/i.test(hostname);
+		const isLocal = /^(localhost|127\.0\.0\.1|192\.168\.1\.10)$/i.test(hostname);
+		if (!isTwitchat && !(Config.LOCAL_TESTING && isLocal)) {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(JSON.stringify({ success: false, error: "Not found" }));
+			return;
+		}
+
+		//twitchat.fr domains are always served over HTTPS (prod, beta, dev tunnel)
+		//and the AT Protocol spec requires an HTTPS client_id. Behind the dev tunnel
+		//the internal hops are plain HTTP, so we can't trust request.protocol here;
+		//only loopback dev hosts keep the raw protocol.
+		const protocol = isTwitchat ? "https" : request.protocol;
+		const origin = protocol + "://" + request.host;
+		const metadata = {
+			client_id: origin + "/oauth/client-metadata.json",
+			application_type: "web",
+			client_name: "Twitchat",
+			client_uri: origin,
+			logo_uri: origin + "/logo.png",
+			tos_uri: origin + "/termsofuse",
+			policy_uri: origin + "/privacypolicy",
+			dpop_bound_access_tokens: true,
+			grant_types: ["authorization_code", "refresh_token"],
+			redirect_uris: [origin + "/bluesky/oauth", origin + "/popupBlueskyAuthResult.html"],
+			response_types: ["code"],
+			scope: "atproto transition:generic transition:chat.bsky",
+			token_endpoint_auth_method: "none",
+		};
+
+		response.header("Content-Type", "application/json");
+		response.header("Cache-Control", "public, max-age=300");
+		response.status(200);
+		response.send(JSON.stringify(metadata));
 	}
 
 	private getAnnouncements(_request: FastifyRequest, response: FastifyReply): void {

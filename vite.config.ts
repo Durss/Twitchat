@@ -34,6 +34,14 @@ export default defineConfig({
 				changeOrigin: true,
 				secure: false,
 			},
+			"/oauth/client-metadata.json": {
+				//target is the origin only; the request path is appended automatically.
+				target: "http://localhost:3018",
+				//keep the original Host (e.g. dev.twitchat.fr) so the backend injects
+				//the right domain into the generated client metadata.
+				changeOrigin: false,
+				secure: false,
+			},
 		},
 	},
 
