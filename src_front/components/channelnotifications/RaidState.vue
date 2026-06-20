@@ -155,197 +155,190 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import MessengerProxy from "@/messaging/MessengerProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import type { ComponentPublicInstance } from "vue";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, type ComponentPublicInstance } from "vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import ToggleBlock from "../ToggleBlock.vue";
 import TTButton from "../TTButton.vue";
 import ProgressBar from "../ProgressBar.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ProgressBar,
-		ToggleBlock,
-	},
-})
-class RaidState extends Vue {
-	public timeLeft = "";
-	public loading = false;
-	public isOwnRaid = false;
-	public canceling = false;
-	public censorCount = false;
-	public canRemoteConnect = false;
-	public remoteConnecting = false;
-	public coolingDownSpam = false;
-	public raidingLatestRaid = false;
-	public targetChannelOffline = false;
-	public user: TwitchatDataTypes.TwitchatUser | null = null;
-	public remoteChan: TwitchatDataTypes.TwitchatUser | null = null;
-	public bannedOnline: TwitchatDataTypes.TwitchatUser[] = [];
-	public timedoutOnline: TwitchatDataTypes.TwitchatUser[] = [];
-	public roomSettings: TwitchatDataTypes.IRoomSettings | null = null;
-	public timerPercent: number = 0;
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
 
-	private timerInterval: number = -1;
+const timeLeft = ref("");
+const loading = ref(false);
+const isOwnRaid = ref(false);
+const canceling = ref(false);
+const censorCount = ref(false);
+const canRemoteConnect = ref(false);
+const remoteConnecting = ref(false);
+const coolingDownSpam = ref(false);
+const raidingLatestRaid = ref(false);
+const targetChannelOffline = ref(false);
+const user = ref<TwitchatDataTypes.TwitchatUser | null>(null);
+const remoteChan = ref<TwitchatDataTypes.TwitchatUser | null>(null);
+const bannedOnline = ref<TwitchatDataTypes.TwitchatUser[]>([]);
+const timedoutOnline = ref<TwitchatDataTypes.TwitchatUser[]>([]);
+const roomSettings = ref<TwitchatDataTypes.IRoomSettings | null>(null);
+const timerPercent = ref<number>(0);
 
-	public get raidInfo() {
-		return this.$store.stream.currentRaid!;
+const copyBt = useTemplateRef<ComponentPublicInstance>("copyBt");
+
+let timerInterval: number = -1;
+
+const raidInfo = computed(() => storeStream.currentRaid!);
+
+const isModeratedChan = computed(() => {
+	if (!user.value) return false;
+	const chaninfo = storeAuth.twitch.user.channelInfo[user.value.id];
+	if (!chaninfo) return false;
+	return chaninfo.is_broadcaster || chaninfo.is_moderator;
+});
+
+function getBanDuration(user: TwitchatDataTypes.TwitchatUser): string {
+	const chanInfo = user.channelInfo[storeAuth.twitch.user.id];
+	if (!chanInfo || !chanInfo.banEndDate) return "???";
+	const remaining = chanInfo.banEndDate! - Date.now();
+	return Utils.formatDuration(remaining) + "s";
+}
+
+function updateTimer(): void {
+	const seconds = raidInfo.value.timerDuration_s * 1000 - (Date.now() - raidInfo.value.startedAt);
+	if (seconds <= 0) {
+		storeStream.onRaidComplete();
+		return;
 	}
-	public get isModeratedChan() {
-		if (!this.user) return false;
-		const chaninfo = this.$store.auth.twitch.user.channelInfo[this.user.id];
-		if (!chaninfo) return false;
-		return chaninfo.is_broadcaster || chaninfo.is_moderator;
+	timeLeft.value = Utils.formatDuration(seconds);
+	timerPercent.value = 1 - seconds / (raidInfo.value.timerDuration_s * 1000);
+}
+
+async function cancelRaid(): Promise<void> {
+	canceling.value = true;
+	await TwitchUtils.raidCancel();
+	await Utils.promisedTimeout(500);
+	canceling.value = false;
+}
+
+async function spamLink(): Promise<void> {
+	coolingDownSpam.value = true;
+	for (let i = 0; i < 10; i++) {
+		MessengerProxy.instance.sendMessage("https://twitch.tv/" + raidInfo.value.user.login, [
+			"twitch",
+		]);
+		await Utils.promisedTimeout(50);
 	}
+	await Utils.promisedTimeout(1000);
+	coolingDownSpam.value = false;
+}
 
-	public getBanDuration(user: TwitchatDataTypes.TwitchatUser): string {
-		const chanInfo = user.channelInfo[this.$store.auth.twitch.user.id];
-		if (!chanInfo || !chanInfo.banEndDate) return "???";
-		const remaining = chanInfo.banEndDate! - Date.now();
-		return Utils.formatDuration(remaining) + "s";
-	}
+function openSummary(): void {
+	storeParams.openModal("streamSummary");
+}
 
-	public async mounted(): Promise<void> {
-		this.updateTimer();
-		this.timerInterval = window.setInterval(() => {
-			this.updateTimer();
-		}, 250);
+function openUserCard(u: TwitchatDataTypes.TwitchatUser): void {
+	storeUsers.openUserCard(u);
+}
 
-		this.censorCount = this.$store.params.appearance.showViewersCount.value !== true;
+function copybannedUsers(): void {
+	const list = bannedOnline.value.concat().concat(timedoutOnline.value);
+	Utils.copyToClipboard(list.map((v) => v.login).join(", "));
+	const bt = copyBt.value!;
+	gsap.fromTo(bt.$el, { filter: "brightness(3)" }, { filter: "brightness(1)", duration: 0.25 });
+}
 
-		this.canRemoteConnect =
-			this.$store.stream.connectedTwitchChans.findIndex(
-				(v) => v.user.id === this.raidInfo.user.id,
-			) == -1;
+/**
+ * Connect to raided chat
+ */
+function remoteConnect(): void {
+	remoteConnecting.value = true;
+	storeStream.connectToExtraChan(user.value!);
+	window.setTimeout(() => {
+		canRemoteConnect.value = false;
+	}, 500);
+}
 
-		const raid = this.$store.stream.currentRaid;
-		if (raid) {
-			this.loading = true;
-			this.user = raid.user;
-			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
-			const liveInfos = await TwitchUtils.getCurrentStreamInfo([this.user.id]);
-			this.targetChannelOffline = liveInfos.length == 0;
-			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0]!;
-			this.raidingLatestRaid = latestRaid && latestRaid.uid === raid.user.id;
-			this.isOwnRaid = this.$store.auth.twitch.user.id == raid.channel_id;
-			if (!this.isOwnRaid) {
-				this.remoteChan = await this.$store.users.getUserFrom(
-					"twitch",
-					this.$store.auth.twitch.user.id,
-					raid.channel_id,
-				);
-			}
-			this.loading = false;
+onMounted(async () => {
+	updateTimer();
+	timerInterval = window.setInterval(() => {
+		updateTimer();
+	}, 250);
+
+	censorCount.value = storeParams.appearance.showViewersCount.value !== true;
+
+	canRemoteConnect.value =
+		storeStream.connectedTwitchChans.findIndex((v) => v.user.id === raidInfo.value.user.id) ==
+		-1;
+
+	const raid = storeStream.currentRaid;
+	if (raid) {
+		loading.value = true;
+		user.value = raid.user;
+		roomSettings.value = await TwitchUtils.getRoomSettings(user.value.id);
+		const liveInfos = await TwitchUtils.getCurrentStreamInfo([user.value.id]);
+		targetChannelOffline.value = liveInfos.length == 0;
+		const latestRaid = (storeStream.raidHistory || []).slice(-1)[0]!;
+		raidingLatestRaid.value = latestRaid && latestRaid.uid === raid.user.id;
+		isOwnRaid.value = storeAuth.twitch.user.id == raid.channel_id;
+		if (!isOwnRaid.value) {
+			remoteChan.value = await storeUsers.getUserFrom(
+				"twitch",
+				storeAuth.twitch.user.id,
+				raid.channel_id,
+			);
 		}
+		loading.value = false;
+	}
 
-		const userlist = this.$store.users.users;
-		const me = this.$store.auth.twitch.user;
-		const bannedOnline: TwitchatDataTypes.TwitchatUser[] = [];
-		const timedoutOnline: TwitchatDataTypes.TwitchatUser[] = [];
-		//Check for banned and timedout users still connected to the chat
-		for (const u of userlist) {
-			//User online?
-			if (u.platform === "twitch") {
-				if (u.channelInfo[me.id]?.is_banned === true) {
-					if (u.channelInfo[me.id]?.banEndDate != undefined) {
-						//User timedout
-						if (u.channelInfo[me.id]?.online === true) timedoutOnline.push(u);
-					} else if (u.channelInfo[me.id]?.lastActivityDate) {
-						//User perma ban
-						bannedOnline.push(u);
-					}
+	const userlist = storeUsers.users;
+	const me = storeAuth.twitch.user;
+	const bannedOnlineList: TwitchatDataTypes.TwitchatUser[] = [];
+	const timedoutOnlineList: TwitchatDataTypes.TwitchatUser[] = [];
+	//Check for banned and timedout users still connected to the chat
+	for (const u of userlist) {
+		//User online?
+		if (u.platform === "twitch") {
+			if (u.channelInfo[me.id]?.is_banned === true) {
+				if (u.channelInfo[me.id]?.banEndDate != undefined) {
+					//User timedout
+					if (u.channelInfo[me.id]?.online === true) timedoutOnlineList.push(u);
+				} else if (u.channelInfo[me.id]?.lastActivityDate) {
+					//User perma ban
+					bannedOnlineList.push(u);
 				}
 			}
 		}
-		/* Add fake banned users
-		let u = this.$store.users.getUserFrom("twitch", me.id, "2521956","marinelepen","marinelepen");
-		u.channelInfo[me.id].online = true;
-		u.channelInfo[me.id].is_banned = true;
-		u.channelInfo[me.id].lastActivityDate = Date.now();
-		u.channelInfo[me.id].banEndDate = Date.now() + (Math.random()*20*60*1000);
-		timedoutOnline.push(u);
-		u = this.$store.users.getUserFrom("twitch", me.id, "441488346","jordanbardella","jordanbardella");
-		u.channelInfo[me.id].online = true;
-		u.channelInfo[me.id].is_banned = true;
-		u.channelInfo[me.id].lastActivityDate = Date.now();
-		bannedOnline.push(u);
-		//*/
-
-		this.bannedOnline = bannedOnline;
-		this.timedoutOnline = timedoutOnline;
 	}
+	/* Add fake banned users
+	let u = this.$store.users.getUserFrom("twitch", me.id, "2521956","marinelepen","marinelepen");
+	u.channelInfo[me.id].online = true;
+	u.channelInfo[me.id].is_banned = true;
+	u.channelInfo[me.id].lastActivityDate = Date.now();
+	u.channelInfo[me.id].banEndDate = Date.now() + (Math.random()*20*60*1000);
+	timedoutOnline.push(u);
+	u = this.$store.users.getUserFrom("twitch", me.id, "441488346","jordanbardella","jordanbardella");
+	u.channelInfo[me.id].online = true;
+	u.channelInfo[me.id].is_banned = true;
+	u.channelInfo[me.id].lastActivityDate = Date.now();
+	bannedOnline.push(u);
+	//*/
 
-	public beforeUnmount(): void {
-		clearInterval(this.timerInterval);
-	}
+	bannedOnline.value = bannedOnlineList;
+	timedoutOnline.value = timedoutOnlineList;
+});
 
-	public updateTimer(): void {
-		const seconds =
-			this.raidInfo.timerDuration_s * 1000 - (Date.now() - this.raidInfo.startedAt);
-		if (seconds <= 0) {
-			this.$store.stream.onRaidComplete();
-			return;
-		}
-		this.timeLeft = Utils.formatDuration(seconds);
-		this.timerPercent = 1 - seconds / (this.raidInfo.timerDuration_s * 1000);
-	}
-
-	public async cancelRaid(): Promise<void> {
-		this.canceling = true;
-		await TwitchUtils.raidCancel();
-		await Utils.promisedTimeout(500);
-		this.canceling = false;
-	}
-
-	public async spamLink(): Promise<void> {
-		this.coolingDownSpam = true;
-		for (let i = 0; i < 10; i++) {
-			MessengerProxy.instance.sendMessage("https://twitch.tv/" + this.raidInfo.user.login, [
-				"twitch",
-			]);
-			await Utils.promisedTimeout(50);
-		}
-		await Utils.promisedTimeout(1000);
-		this.coolingDownSpam = false;
-	}
-
-	public openSummary(): void {
-		this.$store.params.openModal("streamSummary");
-	}
-
-	public openUserCard(u: TwitchatDataTypes.TwitchatUser): void {
-		this.$store.users.openUserCard(u);
-	}
-
-	public copybannedUsers(): void {
-		const list = this.bannedOnline.concat().concat(this.timedoutOnline);
-		Utils.copyToClipboard(list.map((v) => v.login).join(", "));
-		const bt = this.$refs.copyBt as ComponentPublicInstance;
-		gsap.fromTo(
-			bt.$el,
-			{ filter: "brightness(3)" },
-			{ filter: "brightness(1)", duration: 0.25 },
-		);
-	}
-
-	/**
-	 * Connect to raided chat
-	 */
-	public remoteConnect(): void {
-		this.remoteConnecting = true;
-		this.$store.stream.connectToExtraChan(this.user!);
-		window.setTimeout(() => {
-			this.canRemoteConnect = false;
-		}, 500);
-	}
-}
-export default toNative(RaidState);
+onBeforeUnmount(() => {
+	clearInterval(timerInterval);
+});
 </script>
 
 <style scoped lang="less">

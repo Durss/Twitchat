@@ -909,7 +909,7 @@ export interface IChatActions {
 	 * Flags a message as their first one today
 	 * @param message
 	 */
-	flagMessageAsFirstToday(message: TwitchatDataTypes.GreetableMessage): void;
+	flagMessageAsFirstToday(message: TwitchatDataTypes.GreetableMessages): void;
 	/**
 	 * Reset the greeting history.
 	 */

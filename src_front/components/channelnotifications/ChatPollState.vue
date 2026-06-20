@@ -31,92 +31,82 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeChatPoll as useStoreChatPoll } from "@/store/chat_poll/storeChatPoll";
 import ProgressBar from "../ProgressBar.vue";
 import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
 import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ProgressBar,
-		OverlayPresenceChecker,
-	},
-})
-class ChatPollState extends Vue {
-	public progressPercent = 0;
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeChatPoll = useStoreChatPoll();
 
-	private disposed = false;
+const progressPercent = ref(0);
 
-	public get poll(): TwitchatDataTypes.ChatPollData {
-		return this.$store.chatPoll.data!;
-	}
+let disposed = false;
 
-	public get me(): TwitchatDataTypes.TwitchatUser {
-		return this.$store.auth.twitch.user;
-	}
+const poll = computed<TwitchatDataTypes.ChatPollData>(() => storeChatPoll.data!);
 
-	public getPercent(c: TwitchatDataTypes.MessagePollDataChoice): number {
-		let totalVotes = 0;
-		if (this.poll) {
-			for (let i = 0; i < this.poll.choices.length; i++) {
-				totalVotes += this.poll.choices[i]!.votes;
-			}
+function getPercent(c: TwitchatDataTypes.MessagePollDataChoice): number {
+	let totalVotes = 0;
+	if (poll.value) {
+		for (let i = 0; i < poll.value.choices.length; i++) {
+			totalVotes += poll.value.choices[i]!.votes;
 		}
-		return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 	}
-
-	public getAnswerStyles(c: TwitchatDataTypes.MessagePollDataChoice): { [key: string]: string } {
-		let res: { [key: string]: string } = {};
-		res.backgroundSize = `${this.getPercent(c)}% 100%`;
-		return res;
-	}
-
-	public getAnswerClasses(c: TwitchatDataTypes.MessagePollDataChoice): string[] {
-		let res: string[] = ["choice"];
-
-		let max = 0;
-		this.poll.choices.forEach((v) => {
-			max = Math.max(max, v.votes);
-		});
-		if (c.votes == max) res.push("win");
-		else res.push("lose");
-
-		return res;
-	}
-
-	public mounted(): void {
-		this.renderFrame();
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
-
-	public endPoll(): void {
-		this.$confirm(
-			this.$t("poll.state.closeConfirm.title"),
-			this.$t("poll.state.closeConfirm.message"),
-		)
-			.then(async () => {
-				this.$store.chatPoll.setCurrentPoll(null);
-			})
-			.catch(() => {});
-	}
-
-	private renderFrame(): void {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderFrame());
-		const elapsed = Date.now() - this.poll.started_at;
-		const duration = this.poll.duration_s * 1000;
-		this.progressPercent = elapsed / duration;
-	}
+	return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 }
-export default toNative(ChatPollState);
+
+function getAnswerStyles(c: TwitchatDataTypes.MessagePollDataChoice): { [key: string]: string } {
+	let res: { [key: string]: string } = {};
+	res.backgroundSize = `${getPercent(c)}% 100%`;
+	return res;
+}
+
+function getAnswerClasses(c: TwitchatDataTypes.MessagePollDataChoice): string[] {
+	let res: string[] = ["choice"];
+
+	let max = 0;
+	poll.value.choices.forEach((v) => {
+		max = Math.max(max, v.votes);
+	});
+	if (c.votes == max) res.push("win");
+	else res.push("lose");
+
+	return res;
+}
+
+function endPoll(): void {
+	confirm(
+		t("poll.state.closeConfirm.title"),
+		t("poll.state.closeConfirm.message"),
+	)
+		.then(async () => {
+			storeChatPoll.setCurrentPoll(null);
+		})
+		.catch(() => {});
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+	requestAnimationFrame(() => renderFrame());
+	const elapsed = Date.now() - poll.value.started_at;
+	const duration = poll.value.duration_s * 1000;
+	progressPercent.value = elapsed / duration;
+}
+
+onMounted(() => {
+	renderFrame();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+});
 </script>
 
 <style scoped lang="less">

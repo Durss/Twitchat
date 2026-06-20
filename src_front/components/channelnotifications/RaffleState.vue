@@ -33,9 +33,9 @@
 			<slot />
 		</div>
 		<div class="body" ref="content">
-			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10">
+			<div class="card-item secondary warning" v-if="storeRaffle.raffleList.length >= 10">
 				<Icon name="alert" />{{
-					$t("raffle.state_many_raffles", { COUNT: $store.raffle.raffleList.length })
+					$t("raffle.state_many_raffles", { COUNT: storeRaffle.raffleList.length })
 				}}
 			</div>
 
@@ -116,12 +116,12 @@
 				class="small"
 				v-model="raffleData.autoClose"
 				:paramData="param_autoClose"
-				@change="$store.raffle.saveData()"
+				@change="storeRaffle.saveData()"
 			/>
 
 			<OverlayPresenceChecker
 				:overlayName="$t('raffle.overlay_name')"
-				:overlayType="'raffle'"
+				:overlayType="'wheel'"
 			/>
 		</div>
 
@@ -142,270 +142,261 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import OBSWebsocket from "@/utils/OBSWebsocket";
 import PublicAPI from "@/utils/PublicAPI";
 import { gsap } from "gsap/gsap-core";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
+import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import Icon from "../Icon.vue";
 import ProgressBar from "../ProgressBar.vue";
 import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
-import OverlayInstaller from "../params/contents/overlays/OverlayInstaller.vue";
 import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		ProgressBar,
-		OverlayInstaller,
-		OverlayPresenceChecker,
-	},
-	emits: ["close"],
-})
-class RaffleState extends Vue {
-	public picking: boolean = false;
-	public disposed: boolean = false;
-	public transitionDirection: "left" | "right" = "right";
-	public timerPercent: number = 0;
-	public raffleData: TwitchatDataTypes.RaffleData | null = null;
-	public winnerPlaceholders!: TwitchatDataTypes.PlaceholderEntry[];
-	public param_autoClose: TwitchatDataTypes.ParameterData<boolean> = {
-		value: true,
-		type: "boolean",
-		labelKey: "raffle.params.param_autoClose",
-		icon: "trash",
-	};
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeAuth = useStoreAuth();
+const storeRaffle = useStoreRaffle();
+const storeRewards = useStoreRewards();
+const storeTimer = useStoreTimer();
+const storeUsers = useStoreUsers();
 
-	private validRaffleTypes: TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public get obsConnected(): boolean {
-		return OBSWebsocket.instance.connected.value;
+const picking = ref<boolean>(false);
+const timerPercent = ref<number>(0);
+const raffleData = ref<TwitchatDataTypes.RaffleData | null>(null);
+const winnerPlaceholders = ref<TwitchatDataTypes.PlaceholderEntry[]>([]);
+const param_autoClose = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	value: true,
+	type: "boolean",
+	labelKey: "raffle.params.param_autoClose",
+	icon: "trash",
+});
+
+const content = useTemplateRef<HTMLDivElement>("content");
+const methods = useTemplateRef<HTMLElement>("methods");
+
+let disposed = false;
+
+const validRaffleTypes: TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
+
+const canPick = computed<boolean>(() => {
+	if (!raffleData.value) return false;
+	return (
+		raffleData.value.entries &&
+		raffleData.value.entries.length > 0 &&
+		(raffleData.value.winners == undefined ||
+			raffleData.value.winners?.length < raffleData.value.entries.length)
+	);
+});
+
+const cumulatedEntryCount = computed<number>(() => {
+	if (!raffleData.value) return 0;
+	let count = 0;
+	raffleData.value.entries.forEach((v) => {
+		count += v.joinCount;
+	});
+	return count;
+});
+
+const rewardName = computed<string>(() => {
+	if (!raffleData.value || !raffleData.value.reward_id) return "";
+	const reward = storeRewards.rewardList.find((v) => v.id == raffleData.value!.reward_id);
+	return reward?.title || "";
+});
+
+const availableRaffleList = computed<TwitchatDataTypes.RaffleData[]>(() => {
+	return storeRaffle.raffleList.filter((v) => validRaffleTypes.includes(v.mode));
+});
+
+const tipPlatforms = computed<string[]>(() => {
+	if (!raffleData.value) return [];
+	let platforms: string[] = [];
+	if (raffleData.value.tip_kofi) {
+		let label = "Ko-Fi";
+		if ((raffleData.value.tip_kofi_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_kofi_minAmount + "🪙)";
+		platforms.push(label);
 	}
-
-	public get canPick(): boolean {
-		if (!this.raffleData) return false;
-		return (
-			this.raffleData.entries &&
-			this.raffleData.entries.length > 0 &&
-			(this.raffleData.winners == undefined ||
-				this.raffleData.winners?.length < this.raffleData.entries.length)
-		);
+	if (raffleData.value.tip_streamlabs) {
+		let label = "Streamlabs";
+		if ((raffleData.value.tip_streamlabs_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_streamlabs_minAmount + "🪙)";
+		platforms.push(label);
 	}
-
-	public get cumulatedEntryCount(): number {
-		if (!this.raffleData) return 0;
-		let count = 0;
-		this.raffleData.entries.forEach((v) => {
-			count += v.joinCount;
-		});
-		return count;
+	if (raffleData.value.tip_streamlabsCharity) {
+		let label = "Streamlabs Charity";
+		if ((raffleData.value.tip_streamlabsCharity_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_streamlabsCharity_minAmount + "🪙)";
+		platforms.push(label);
 	}
-
-	public get rewardName(): string {
-		if (!this.raffleData || !this.raffleData.reward_id) return "";
-		const reward = this.$store.rewards.rewardList.find(
-			(v) => v.id == this.raffleData!.reward_id,
-		);
-		return reward?.title || "";
+	if (raffleData.value.tip_streamelements) {
+		let label = "Streamelements";
+		if ((raffleData.value.tip_streamelements_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_streamelements_minAmount + "🪙)";
+		platforms.push(label);
 	}
-
-	public get availableRaffleList(): TwitchatDataTypes.RaffleData[] {
-		return this.$store.raffle.raffleList.filter((v) => this.validRaffleTypes.includes(v.mode));
+	if (raffleData.value.tip_tipeee) {
+		let label = "Tipeee";
+		if ((raffleData.value.tip_tipeee_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_tipeee_minAmount + "🪙)";
+		platforms.push(label);
 	}
-
-	public get tipPlatforms(): string[] {
-		if (!this.raffleData) return [];
-		let platforms: string[] = [];
-		if (this.raffleData.tip_kofi) {
-			let label = "Ko-Fi";
-			if ((this.raffleData.tip_kofi_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_kofi_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		if (this.raffleData.tip_streamlabs) {
-			let label = "Streamlabs";
-			if ((this.raffleData.tip_streamlabs_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_streamlabs_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		if (this.raffleData.tip_streamlabsCharity) {
-			let label = "Streamlabs Charity";
-			if ((this.raffleData.tip_streamlabsCharity_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_streamlabsCharity_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		if (this.raffleData.tip_streamelements) {
-			let label = "Streamelements";
-			if ((this.raffleData.tip_streamelements_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_streamelements_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		if (this.raffleData.tip_tipeee) {
-			let label = "Tipeee";
-			if ((this.raffleData.tip_tipeee_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_tipeee_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		if (this.raffleData.tip_tiltify) {
-			let label = "Tiltify";
-			if ((this.raffleData.tip_tiltify_minAmount || 0) > 0)
-				label += " (" + this.raffleData.tip_tiltify_minAmount + "🪙)";
-			platforms.push(label);
-		}
-		return platforms;
+	if (raffleData.value.tip_tiltify) {
+		let label = "Tiltify";
+		if ((raffleData.value.tip_tiltify_minAmount || 0) > 0)
+			label += " (" + raffleData.value.tip_tiltify_minAmount + "🪙)";
+		platforms.push(label);
 	}
+	return platforms;
+});
 
-	public getUserFromEntry(
-		entry: TwitchatDataTypes.RaffleEntry,
-	): TwitchatDataTypes.TwitchatUser | null {
-		if (!entry.user) return null;
-		return this.$store.users.getUserFrom(
-			entry.user.platform,
-			entry.user.channel_id,
-			entry.user.id,
-		);
-	}
+function getUserFromEntry(
+	entry: TwitchatDataTypes.RaffleEntry,
+): TwitchatDataTypes.TwitchatUser | null {
+	if (!entry.user) return null;
+	return storeUsers.getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
+}
 
-	public beforeMount(): void {
-		this.winnerPlaceholders = [
-			{
-				tag: "USER",
-				descKey: "raffle.params.username_placeholder",
-				example: this.$store.auth.twitch.user.displayName,
-			},
-		];
-		this.raffleData = this.availableRaffleList.length > 0 ? this.availableRaffleList[0]! : null;
-		//Check if wheel's overlay exists
-		PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
-	}
-
-	public mounted(): void {
-		this.renderFrame();
-	}
-
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
-
-	public closeRaffle(): void {
-		if (!this.raffleData) return;
-		this.$confirm(
-			this.$t("raffle.delete_confirm.title"),
-			this.$t("raffle.delete_confirm.description"),
-		)
-			.then(async () => {
-				let index = this.availableRaffleList.findIndex(
-					(v) => v.sessionId! == this.raffleData!.sessionId!,
-				);
-				this.$store.raffle.stopRaffle(this.raffleData!.sessionId!);
-				//If there are other raffles, switch to previous one
-				if (this.availableRaffleList.length > 0) {
-					if (--index < 0) index = this.availableRaffleList.length - 1;
-					this.raffleData = this.availableRaffleList[index]!;
-				} else {
-					this.raffleData = null;
-				}
-				this.$emit("close");
-			})
-			.catch(() => {
-				//ignore
-			});
-	}
-
-	public openUserCard(user: TwitchatDataTypes.TwitchatUser | null): void {
-		if (!user) return;
-		this.$store.users.openUserCard(user);
-	}
-
-	public expandDurationBy(duration_s: number): void {
-		if (this.timerPercent >= 1) {
-			this.raffleData!.duration_s = duration_s;
-			this.raffleData!.created_at = Date.now();
-		} else {
-			this.raffleData!.duration_s += duration_s;
-		}
-		if (this.raffleData?.showCountdownOverlay) {
-			const defaultCd = this.$store.timers.timerList.find(
-				(v) => v.type == "countdown" && v.isDefault,
+function closeRaffle(): void {
+	if (!raffleData.value) return;
+	confirm(t("raffle.delete_confirm.title"), t("raffle.delete_confirm.description"))
+		.then(async () => {
+			let index = availableRaffleList.value.findIndex(
+				(v) => v.sessionId! == raffleData.value!.sessionId!,
 			);
-			if (defaultCd) this.$store.timers.timerAdd(defaultCd?.id, 60_000);
-		}
-	}
-
-	public async pickWinner(): Promise<void> {
-		if (!this.raffleData) return;
-
-		this.picking = true;
-
-		await this.$store.raffle.pickWinner(this.raffleData.sessionId!);
-
-		this.picking = false;
-	}
-
-	public async nextRaffle(): Promise<void> {
-		if (!this.raffleData) return;
-
-		const holder = this.$refs.content as HTMLDivElement;
-		const cmdHolder = this.$refs.methods as HTMLElement;
-		gsap.to([holder, cmdHolder], {
-			opacity: 0,
-			x: -10,
-			duration: 0.1,
-			onComplete: () => {
-				let index = this.availableRaffleList.findIndex(
-					(v) => v.sessionId! == this.raffleData!.sessionId!,
-				);
-				let newIndex = ++index % this.availableRaffleList.length;
-				this.raffleData = this.availableRaffleList[newIndex]!;
-				gsap.fromTo(
-					[holder, cmdHolder],
-					{ x: 10, opacity: 0 },
-					{ opacity: 1, x: 0, duration: 0.1 },
-				);
-			},
+			storeRaffle.stopRaffle(raffleData.value!.sessionId!);
+			//If there are other raffles, switch to previous one
+			if (availableRaffleList.value.length > 0) {
+				if (--index < 0) index = availableRaffleList.value.length - 1;
+				raffleData.value = availableRaffleList.value[index]!;
+			} else {
+				raffleData.value = null;
+			}
+			emit("close");
+		})
+		.catch(() => {
+			//ignore
 		});
+}
+
+function openUserCard(user: TwitchatDataTypes.TwitchatUser | null): void {
+	if (!user) return;
+	storeUsers.openUserCard(user);
+}
+
+function expandDurationBy(duration_s: number): void {
+	if (timerPercent.value >= 1) {
+		raffleData.value!.duration_s = duration_s;
+		raffleData.value!.created_at = Date.now();
+	} else {
+		raffleData.value!.duration_s += duration_s;
 	}
-
-	public async prevRaffle(): Promise<void> {
-		if (!this.raffleData) return;
-
-		const holder = this.$refs.content as HTMLDivElement;
-		const cmdHolder = this.$refs.methods as HTMLElement;
-		gsap.to([holder, cmdHolder], {
-			opacity: 0,
-			x: 10,
-			duration: 0.1,
-			onComplete: () => {
-				let index = this.availableRaffleList.findIndex(
-					(v) => v.sessionId! == this.raffleData!.sessionId!,
-				);
-				let newIndex = index - 1;
-				if (newIndex < 0) newIndex = this.availableRaffleList.length - 1;
-				this.raffleData = this.availableRaffleList[newIndex]!;
-				gsap.fromTo(
-					[holder, cmdHolder],
-					{ x: -10, opacity: 0 },
-					{ opacity: 1, x: 0, duration: 0.1 },
-				);
-			},
-		});
-	}
-
-	private renderFrame(): void {
-		if (this.disposed) return;
-		if (!this.raffleData) return;
-
-		requestAnimationFrame(() => this.renderFrame());
-		const elapsed = Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration = this.raffleData.duration_s * 1000;
-		this.timerPercent = 1 - (duration - elapsed) / duration;
+	if (raffleData.value?.showCountdownOverlay) {
+		const defaultCd = storeTimer.timerList.find((v) => v.type == "countdown" && v.isDefault);
+		if (defaultCd) storeTimer.timerAdd(defaultCd?.id, 60_000);
 	}
 }
-export default toNative(RaffleState);
+
+async function pickWinner(): Promise<void> {
+	if (!raffleData.value) return;
+
+	picking.value = true;
+
+	await storeRaffle.pickWinner(raffleData.value.sessionId!);
+
+	picking.value = false;
+}
+
+async function nextRaffle(): Promise<void> {
+	if (!raffleData.value) return;
+
+	const holder = content.value!;
+	const cmdHolder = methods.value!;
+	gsap.to([holder, cmdHolder], {
+		opacity: 0,
+		x: -10,
+		duration: 0.1,
+		onComplete: () => {
+			let index = availableRaffleList.value.findIndex(
+				(v) => v.sessionId! == raffleData.value!.sessionId!,
+			);
+			let newIndex = ++index % availableRaffleList.value.length;
+			raffleData.value = availableRaffleList.value[newIndex]!;
+			gsap.fromTo(
+				[holder, cmdHolder],
+				{ x: 10, opacity: 0 },
+				{ opacity: 1, x: 0, duration: 0.1 },
+			);
+		},
+	});
+}
+
+async function prevRaffle(): Promise<void> {
+	if (!raffleData.value) return;
+
+	const holder = content.value!;
+	const cmdHolder = methods.value!;
+	gsap.to([holder, cmdHolder], {
+		opacity: 0,
+		x: 10,
+		duration: 0.1,
+		onComplete: () => {
+			let index = availableRaffleList.value.findIndex(
+				(v) => v.sessionId! == raffleData.value!.sessionId!,
+			);
+			let newIndex = index - 1;
+			if (newIndex < 0) newIndex = availableRaffleList.value.length - 1;
+			raffleData.value = availableRaffleList.value[newIndex]!;
+			gsap.fromTo(
+				[holder, cmdHolder],
+				{ x: -10, opacity: 0 },
+				{ opacity: 1, x: 0, duration: 0.1 },
+			);
+		},
+	});
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+	if (!raffleData.value) return;
+
+	requestAnimationFrame(() => renderFrame());
+	const elapsed = Date.now() - new Date(raffleData.value.created_at).getTime();
+	const duration = raffleData.value.duration_s * 1000;
+	timerPercent.value = 1 - (duration - elapsed) / duration;
+}
+
+onBeforeMount(() => {
+	winnerPlaceholders.value = [
+		{
+			tag: "USER",
+			descKey: "raffle.params.username_placeholder",
+			example: storeAuth.twitch.user.displayName,
+		},
+	];
+	raffleData.value = availableRaffleList.value.length > 0 ? availableRaffleList.value[0]! : null;
+	//Check if wheel's overlay exists
+	PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
+});
+
+onMounted(() => {
+	renderFrame();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+});
 </script>
 
 <style scoped lang="less">
