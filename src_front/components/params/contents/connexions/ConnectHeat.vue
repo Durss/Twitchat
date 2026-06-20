@@ -4,18 +4,25 @@
 
 		<div class="head">
 			<p>{{ t("heat.header") }}</p>
-			<TTButton
-				class="installBt"
-				:href="Config.instance.HEAT_EXTENSION_URL"
-				type="link"
-				primary
-				icon="newtab"
-				target="_blank"
-				>{{ t("heat.install") }}</TTButton
-			>
+		</div>
+
+		<div class="card-item secondary alternative">
+			<Icon name="info" />
+			<div class="content">
+				<span>{{ t("heat.alertnative") }}</span>
+				<TTButton
+					class="installBt"
+					secondary
+					light
+					icon="newtab"
+					@click="openCompanion()"
+					>{{ t("heat.alertnative_bt") }}</TTButton
+				>
+			</div>
 		</div>
 
 		<ExtensionInstaller
+			no-error-state
 			:extensionID="Config.instance.HEAT_EXTENSION_ID"
 			:extensionName="'Heat'"
 			v-model:extensionReady="extensionReady"
@@ -82,7 +89,7 @@ import TTButton from "@/components/TTButton.vue";
 import DataStore from "@/store/DataStore";
 import { storeAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import { computed, onBeforeMount, onBeforeUnmount, ref, type CSSProperties } from "vue";
 import ParamItem from "../../ParamItem.vue";
@@ -161,6 +168,13 @@ function onKeyUp(e: KeyboardEvent): void {
 	}
 }
 
+function openCompanion() {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.TWITCHAT_COMPANION,
+	);
+}
+
 onBeforeMount(() => {
 	if (DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 		param_enabled.value.value = true;
@@ -184,8 +198,24 @@ defineExpose<IParameterContent>({
 
 <style scoped lang="less">
 .paramsheat {
-	.installBt {
-		margin-top: 0.5em;
+	.alternative {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: row;
+
+		& > .icon {
+			width: 2em;
+			height: auto;
+			flex-shrink: 0;
+		}
+		.content {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+			text-wrap: balance;
+			align-items: center;
+			text-align: center;
+		}
 	}
 
 	.youtubeLinks {

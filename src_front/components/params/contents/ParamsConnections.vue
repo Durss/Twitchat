@@ -120,7 +120,10 @@
 			</button>
 			<button
 				class="card-item"
-				:class="{ connected: storeExtension.companionEnabled }"
+				:class="{
+					connected: storeExtension.companionEnabled,
+					disabled: !storeExtension.companionInstalled,
+				}"
 				@click="subContent = 'twitchat_companion'"
 				v-newflag="{
 					date: $config.NEW_FLAGS_DATE_V17,
