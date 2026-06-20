@@ -228,7 +228,7 @@ export default class Config {
 	public static get SETTINGS_PRESETS_FOLDER(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/sharedSettings/"),
-			beta: path.join(this.DATA_ROOT, "../../twitchat/data/sharedSettings/"),
+			beta: path.join(this.DATA_ROOT, "/sharedSettings/"),
 			prod: path.join(this.DATA_ROOT, "/sharedSettings/"),
 		});
 	}
@@ -332,7 +332,7 @@ export default class Config {
 	public static get DONORS_DATA_FOLDER(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/donors/"),
-			beta: path.join(this.DATA_ROOT, "../../twitchat/data/donors/"),
+			beta: path.join(this.DATA_ROOT, "/donors/"),
 			prod: path.join(this.DATA_ROOT, "/donors/"),
 		});
 	}
