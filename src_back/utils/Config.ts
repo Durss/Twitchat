@@ -490,6 +490,7 @@ interface Credentials {
 	server_port: number;
 	dashboard_url: string;
 	dashboard_token: string;
+	twitchat_baseURL: string;
 
 	admin_ids: string[];
 	csrf_key: string;
