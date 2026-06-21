@@ -63,6 +63,7 @@ const param_action = ref<
 const param_post = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	value: "",
+	longText: true,
 	labelKey: "triggers.actions.bluesky.param_post",
 });
 const param_getPostPlaceholderMessage = ref<TwitchatDataTypes.ParameterData<string>>({
