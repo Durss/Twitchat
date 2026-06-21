@@ -57,7 +57,7 @@ export const storeExtension = defineStore("Extension", {
 
 	actions: {
 		async populateData() {
-			await this.updateInternalStates();
+			await this.updateInternalStates(true);
 		},
 
 		async setExtensionState(
@@ -79,7 +79,7 @@ export const storeExtension = defineStore("Extension", {
 			return result;
 		},
 
-		async updateInternalStates(): Promise<void> {
+		async updateInternalStates(isInit?: boolean): Promise<void> {
 			const [list, listEnabled] = await Promise.all([
 				TwitchUtils.listExtensions(false),
 				TwitchUtils.listExtensions(true),
@@ -118,7 +118,7 @@ export const storeExtension = defineStore("Extension", {
 				this.enabledExtensions = extensions;
 			}
 
-			if (this.companionEnabled) {
+			if (isInit && this.companionEnabled) {
 				ApiHelper.call("twitch/extension/config", "GET")
 					.then((res) => {
 						if (res.json.config) {
