@@ -58,13 +58,6 @@ export const storeExtension = defineStore("Extension", {
 	actions: {
 		async populateData() {
 			await this.updateInternalStates();
-			if (this.companionEnabled) {
-				const res = await ApiHelper.call("twitch/extension/config", "GET");
-				if (res.json.config) {
-					this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
-					this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
-				}
-			}
 		},
 
 		async setExtensionState(
@@ -123,6 +116,23 @@ export const storeExtension = defineStore("Extension", {
 				}
 				this.activeExtensionSlots = slots;
 				this.enabledExtensions = extensions;
+			}
+
+			if (this.companionEnabled) {
+				ApiHelper.call("twitch/extension/config", "GET")
+					.then((res) => {
+						if (res.json.config) {
+							this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+							this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
+
+							// This makes sure EBS config contain the server-declared "env" prop
+							// letting clients know which env the streamer is running on.
+							// This makes sure EBS server knows to which env reroute viewer
+							// queries to.
+							void this.updateEBSConfigs();
+						}
+					})
+					.catch((_) => {});
 			}
 		},
 

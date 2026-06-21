@@ -388,9 +388,8 @@ export default class TwitchExtensionController extends AbstractController {
 
 		const params = request.body as {
 			segment?: "broadcaster" | "global" | "developer";
-			config: unknown;
+			config: { captureClicks: boolean; captureKeys: boolean };
 		};
-
 		try {
 			const res = await fetch(
 				Config.credentials.twitchat_extension_api_path + "extension/config",
@@ -401,13 +400,20 @@ export default class TwitchExtensionController extends AbstractController {
 						"x-twitchat-verify": getHash(user.user_id),
 						"x-twitchat-channel": user.user_id,
 					},
-					body: JSON.stringify({ segment: params.segment, content: params.config }),
+					body: JSON.stringify({
+						segment: params.segment,
+						content: { ...params.config, env: Config.credentials.twitchat_baseURL },
+					}),
 				},
 			);
-			let config = "";
+			let config: EBSConfiguration = {
+				captureClicks: false,
+				captureKeys: false,
+				env: Config.envName,
+			};
 			let success = false;
 			if (res.status === 200) {
-				const json = (await res.json()) as { success: boolean; content: string };
+				const json = (await res.json()) as { success: boolean; content: EBSConfiguration };
 				config = json.content;
 				success = json.success;
 			}
@@ -431,3 +437,9 @@ function getHash(uid: string): string {
 function getUserID(request: FastifyRequest): string {
 	return request.twitchExtensionUser!.user_id ?? request.twitchExtensionUser!.opaque_user_id;
 }
+
+type EBSConfiguration = {
+	captureClicks: boolean;
+	captureKeys: boolean;
+	env: string;
+};
