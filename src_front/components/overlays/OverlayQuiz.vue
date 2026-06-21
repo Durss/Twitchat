@@ -265,7 +265,7 @@ watch(
 		left: 0;
 		right: 0;
 		width: 60%;
-		bottom: 50px;
+		bottom: calc(50px / v-bind(scaleFactor));
 	}
 
 	.content {
