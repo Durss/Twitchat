@@ -136,8 +136,9 @@ async function checkExtensionStatus(): Promise<void> {
 	display: flex;
 	flex-direction: row;
 	line-height: 1.25em;
-	margin: auto;
-	// max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	flex-shrink: 0;
 
 	.logo {
 		width: 2em;
