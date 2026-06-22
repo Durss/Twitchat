@@ -30,6 +30,13 @@
 						<polygon
 							:points="getSVGPoints(area.points)"
 							:class="{ selected: area.id == currentArea?.id }"
+							:stroke-width="5 / editorScale + 'px'"
+							:stroke="
+								area.showAreaOnExtension
+									? 'var(--color-premium)'
+									: 'var(--color-text)'
+							"
+							v-tooltip="area.showAreaOnExtension == true && area.title"
 							@contextmenu.prevent="onRightClickArea(area)"
 							@pointerdown="onPolygonPointerDown($event, area)"
 						/>
@@ -39,7 +46,7 @@
 							:key="screen.id + '_' + index"
 							:cx="p.x * 100 + '%'"
 							:cy="p.y * 100 + '%'"
-							:r="area.id == currentArea?.id ? '15px' : '8px'"
+							:r="(area.id == currentArea?.id ? 15 : 8) / editorScale + 'px'"
 							:class="pointClasses(area, index)"
 							@click="selectPoint(area, index)"
 							@dblclick="resetCurrentArea()"
@@ -127,23 +134,37 @@ const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
 	labelKey: "heat.areas.target",
 });
 
-const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
+const param_showExtensionButton = ref<
+	Record<string, TwitchatDataTypes.ParameterData<boolean, unknown, string>>
+>({});
 
-function ensureExtensionButtonParam(areaId: string): TwitchatDataTypes.ParameterData<boolean> {
-	if (!param_showExtensionButton.value[areaId]) {
-		param_showExtensionButton.value[areaId] = {
+function ensureExtensionButtonParam(
+	area: HeatArea,
+): TwitchatDataTypes.ParameterData<boolean, unknown, string> {
+	if (!param_showExtensionButton.value[area.id]) {
+		const titleParam: TwitchatDataTypes.ParameterData<string> = {
+			type: "string",
+			value: area.title ?? "",
+			maxLength: 500,
+			labelKey: "heat.areas.show_extension_button_title",
+			editCallback: (data) => {
+				area.title = data.value;
+			},
+		};
+		param_showExtensionButton.value[area.id] = {
 			type: "boolean",
 			value: false,
 			premiumOnly: true,
 			labelKey: "heat.areas.show_extension_button",
+			children: [titleParam],
 		};
 	}
-	return param_showExtensionButton.value[areaId]!;
+	return param_showExtensionButton.value[area.id]!;
 }
 
 const currentAreaExtensionButtonParam = computed(() => {
 	if (!currentArea.value) return null;
-	return ensureExtensionButtonParam(currentArea.value.id);
+	return ensureExtensionButtonParam(currentArea.value);
 });
 
 const editorClasses = computed(() => {
@@ -172,7 +193,7 @@ onBeforeMount(() => {
 	}
 
 	for (const area of props.screen.areas) {
-		ensureExtensionButtonParam(area.id);
+		ensureExtensionButtonParam(area);
 	}
 
 	document.addEventListener("keydown", keyDownHandler, { capture: true });
@@ -387,6 +408,11 @@ function startDragArea(event: PointerEvent, area: HeatArea): void {
 }
 
 function onKeyDown(event: KeyboardEvent): void {
+	//Do not copy/past actions if focus is on a form input
+	const nodeName = (event.target as HTMLElement).nodeName;
+	if (["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
+	console.log("dfpkfdpkfd");
+
 	if (event.key == " ") {
 		spacePressed.value = true;
 		event.preventDefault();
@@ -705,8 +731,7 @@ async function refreshImage(): Promise<void> {
 			z-index: 1;
 			:deep(polygon) {
 				fill: var(--color-text-fader);
-				stroke-width: 5px;
-				stroke: var(--color-text);
+				// stroke: var(--color-text);
 				cursor: grab;
 				&:active {
 					cursor: grabbing;
@@ -714,7 +739,6 @@ async function refreshImage(): Promise<void> {
 
 				&.selected {
 					fill: var(--color-secondary-fader);
-					stroke-width: 5px;
 					stroke: var(--color-secondary);
 				}
 			}

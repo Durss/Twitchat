@@ -122,6 +122,7 @@ function createScreen(): void {
  * Called when clicking edit button
  */
 function editScreen(screen: HeatScreen, saveOnly = false): void {
+	console.log("UPDATE!");
 	if (!saveOnly) {
 		currentScreen.value = screen;
 	}
