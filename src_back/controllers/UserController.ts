@@ -15,6 +15,7 @@ import TwitchExtensionController from "./TwitchExtensionController.js";
 
 interface HeatExtensionArea {
 	id: string;
+	title: string;
 	showAreaOnExtension?: boolean;
 	points: { x: number; y: number }[];
 }
@@ -167,6 +168,7 @@ export default class UserController extends AbstractController {
 						.map((v) => {
 							return {
 								id: v.id,
+								title: v.title,
 								points: v.points
 									// Cap numbers precisions
 									.map((p) => ({
@@ -632,12 +634,6 @@ export default class UserController extends AbstractController {
 			if (codeValid) {
 				super.giftPremium(userInfo.user_id);
 				try {
-					Utils.sendSMSAlert(
-						"[TWITCHAT] " +
-							userInfo.login +
-							" got premium membership with code " +
-							body.code,
-					);
 					Utils.sendDashboardNotification(
 						"Gift code redeemed",
 						userInfo.login + " got premium membership with code " + body.code,
@@ -645,7 +641,7 @@ export default class UserController extends AbstractController {
 						"success",
 					);
 				} catch (_) {
-					Logger.error("Unable to send SMS alert for premium code usage.");
+					Logger.error("Unable to send alert for premium code usage.");
 				}
 			}
 		}

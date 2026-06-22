@@ -1,8 +1,9 @@
 {
 	"heat": {
 		"header": "Heat est une extension Twitch permettant à vos viewer d'interagir en cliquant sur votre stream",
-		"install": "Installer l'extension Heat",
 		"donate": "🎁 Soutenez Scott, le créateur de l'extension Heat",
+		"alertnative": "Twitchat propose une extension capable de faire la même chose que Heat ainsi que plein d'autres fonctionnalités!",
+		"alertnative_bt": "Voir Twitchat Companion",
 		"debug_interaction": "Simuler un clic",
 		"overlay_interaction": "Overlays Twitchat interactifs",
 		"zone_interaction": "Zones interactives personnalisées",
@@ -47,6 +48,7 @@
 			"target_always": "N'importe laquelle",
 			"show_obs": "Afficher capture OBS",
 			"show_extension_button": "Afficher la zone clickable dans l'extension Twitchat Companion",
+			"show_extension_button_title": "Titre",
 			"connect_obs": "🔗 Connecter OBS",
 			"delete_confirm": {
 				"title": "Supprimer la zone ?",

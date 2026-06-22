@@ -254,7 +254,7 @@
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
 		"boosted": "Your channel has been boosted to {COUNT} people",
 		"train_cooldown": "Hype train can be started again by your viewers!",
-		"follow": "{USER} vous suit",
+		"follow": "{USER} follows you",
 		"follow_remote": "{USER} follows the channel",
 		"raid": {
 			"text": "{USER} is raiding with a party of {COUNT}."

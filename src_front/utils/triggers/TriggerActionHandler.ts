@@ -8127,16 +8127,24 @@ export default class TriggerActionHandler {
 						});
 						switch (step.blueskyData.action) {
 							case "post": {
-								const message = (step.blueskyData.postMessage ?? "").trim();
-								if (message.length < 2) {
+								let postedMessage = await this.parsePlaceholders(
+									dynamicPlaceholders,
+									actionPlaceholders,
+									trigger,
+									message,
+									(step.blueskyData.postMessage ?? "").trim(),
+									subEvent,
+								);
+								if (postedMessage.length < 2) {
 									logStep.messages.push({
 										date: Date.now(),
-										value: "❌ Message too short. Size:" + message.length,
+										value: "❌ Message too short. Size:" + postedMessage.length,
 									});
 									log.error = true;
 									logStep.error = true;
 								} else {
-									const success = await StoreProxy.bluesky.postMessage(message);
+									const success =
+										await StoreProxy.bluesky.postMessage(postedMessage);
 									if (success) {
 										logStep.messages.push({
 											date: Date.now(),
@@ -8145,7 +8153,7 @@ export default class TriggerActionHandler {
 									} else {
 										logStep.messages.push({
 											date: Date.now(),
-											value: `❌ Something went wrong when posting this message to Bluesky: "${message}"`,
+											value: `❌ Something went wrong when posting this message to Bluesky: "${postedMessage}"`,
 										});
 										log.error = true;
 										logStep.error = true;

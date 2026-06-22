@@ -34,7 +34,6 @@
 				:class="{ connected: storeApi.connected, disabled: !storeApi.connected }"
 				@click="subContent = 'twitchat_api'"
 				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'params_connect.twitchat_api' }"
-				*
 				key="twitchat_api"
 			>
 				<Icon name="twitchat_api" />
@@ -120,7 +119,10 @@
 			</button>
 			<button
 				class="card-item"
-				:class="{ connected: storeExtension.companionEnabled }"
+				:class="{
+					connected: storeExtension.companionEnabled,
+					disabled: !storeExtension.companionInstalled,
+				}"
 				@click="subContent = 'twitchat_companion'"
 				v-newflag="{
 					date: $config.NEW_FLAGS_DATE_V17,

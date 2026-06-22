@@ -37,6 +37,11 @@ export const storeExtension = defineStore("Extension", {
 	}),
 
 	getters: {
+		companionInstalled: function () {
+			return !!this.availableExtensions.find(
+				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
+			);
+		},
 		companionEnabled: function () {
 			return !!this.enabledExtensions.find(
 				(v) => v.id === Config.instance.TWITCHAT_EXTENSION_ID,
@@ -52,14 +57,7 @@ export const storeExtension = defineStore("Extension", {
 
 	actions: {
 		async populateData() {
-			await this.updateInternalStates();
-			if (this.companionEnabled) {
-				const res = await ApiHelper.call("twitch/extension/config", "GET");
-				if (res.json.config) {
-					this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
-					this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
-				}
-			}
+			await this.updateInternalStates(true);
 		},
 
 		async setExtensionState(
@@ -81,7 +79,7 @@ export const storeExtension = defineStore("Extension", {
 			return result;
 		},
 
-		async updateInternalStates(): Promise<void> {
+		async updateInternalStates(isInit?: boolean): Promise<void> {
 			const [list, listEnabled] = await Promise.all([
 				TwitchUtils.listExtensions(false),
 				TwitchUtils.listExtensions(true),
@@ -118,6 +116,23 @@ export const storeExtension = defineStore("Extension", {
 				}
 				this.activeExtensionSlots = slots;
 				this.enabledExtensions = extensions;
+			}
+
+			if (isInit && this.companionEnabled) {
+				ApiHelper.call("twitch/extension/config", "GET")
+					.then((res) => {
+						if (res.json.config) {
+							this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+							this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
+
+							// This makes sure EBS config contain the server-declared "env" prop
+							// letting clients know which env the streamer is running on.
+							// This makes sure EBS server knows to which env reroute viewer
+							// queries to.
+							void this.updateEBSConfigs();
+						}
+					})
+					.catch((_) => {});
 			}
 		},
 

@@ -2767,6 +2767,7 @@ export interface IExtensionState {
 }
 
 export interface IExtensionGetters {
+	companionInstalled: boolean;
 	companionEnabled: boolean;
 	companionVersion: string;
 }
@@ -2793,7 +2794,7 @@ export interface IExtensionActions {
 	/**
 	 * Updates internal extensions states
 	 */
-	updateInternalStates(): Promise<void>;
+	updateInternalStates(isInit?: boolean): Promise<void>;
 	/**
 	 * Updates EBS extension config
 	 */

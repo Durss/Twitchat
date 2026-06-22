@@ -17,7 +17,7 @@
 		<template #header>
 			<i18n-t scope="global" tag="span" keypath="meldStudio.header">
 				<template #LINK>
-					<a href="https://meldStudio.solutions" target="_blank"
+					<a href="https://meldstudio.co" target="_blank"
 						><Icon name="newtab" />Meld Studio</a
 					>
 				</template>
@@ -54,11 +54,11 @@ const param_ip = ref<TwitchatDataTypes.ParameterData<string>>({
 	maxLength: 100,
 });
 const param_port = ref<TwitchatDataTypes.ParameterData<number>>({
-	value: 0,
+	value: 13376,
 	type: "number",
 	labelKey: "meldStudio.port",
 	min: 0,
-	max: 13376,
+	max: 65535,
 });
 
 const canConnect = computed(() => storeMeldStudio.ip.length >= 7);

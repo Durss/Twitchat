@@ -8,6 +8,7 @@ export interface HeatScreen {
 
 export interface HeatArea {
 	id: string;
+	title?: string;
 	showAreaOnExtension?: boolean;
 	points: {
 		/**

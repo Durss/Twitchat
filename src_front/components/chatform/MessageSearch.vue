@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div class="head">
 			<div class="title">
 				<Icon name="search" />
@@ -36,91 +36,89 @@
 			</div>
 
 			<div class="noResult" v-if="messages.length == 0">
-				{{ $t("search.no_result", { SEARCH: search }) }}
+				{{ t("search.no_result", { SEARCH: search }) }}
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { useSidePanel } from "@/composables/useSidePanel";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { watch } from "vue";
-import { toNative, Component } from "vue-facing-decorator";
-import AbstractSidePanel from "../AbstractSidePanel";
-import TTButton from "../TTButton.vue";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
 import ChatMessage from "../messages/ChatMessage.vue";
 
-@Component({
-	components: {
-		Button: TTButton,
-		ClearButton,
-		ChatMessage,
-	},
-	emits: ["close"],
-})
-class MessageSearch extends AbstractSidePanel {
-	public search = "";
-	public messages: TwitchatDataTypes.ChatMessageTypes[] = [];
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	public get classes(): string[] {
-		let res = ["messagesearch", "sidePanel"];
-		if (this.messages.length > 0) res.push("hasResult");
-		return res;
-	}
+const { t } = useI18n();
+const storeChat = useStoreChat();
+const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
+const holder = useTemplateRef<HTMLDivElement>("holder");
+const { open, close: closePanel } = useSidePanel(rootEl, emit, false);
 
-	public mounted(): void {
-		watch(
-			() => this.$store.chat.searchMessages,
-			() => {
-				this.updateList();
-			},
-		);
-		this.updateList();
-		super.open();
-	}
+const search = ref<string>("");
+const messages = ref<TwitchatDataTypes.MessageChatData[]>([]);
 
-	public async close(): Promise<void> {
-		this.$store.chat.doSearchMessages("");
-		super.close();
-	}
+const classes = computed<string[]>(() => {
+	let res = ["messagesearch", "sidePanel"];
+	if (messages.value.length > 0) res.push("hasResult");
+	return res;
+});
 
-	private async updateList(): Promise<void> {
-		if (this.$store.chat.searchMessages.length === 0) return;
+onMounted(() => {
+	watch(
+		() => storeChat.searchMessages,
+		() => {
+			updateList();
+		},
+	);
+	updateList();
+	open();
+});
 
-		if (this.search != this.$store.chat.searchMessages) {
-			//If search has changed clear all current results
-			//to make sure items are properly updated.
-			//If an item from the prev search is still there
-			//with the new search, the highlight wouldn't be
-			//updated if we wouldn't remove it first.
-			this.search = this.$store.chat.searchMessages;
-			this.messages = [];
-			await this.$nextTick();
-		}
-
-		const list = this.$store.chat.messages.concat();
-		const result: TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (const m of list) {
-			if (m.type != "message") continue;
-			//Remove any HTML tag to avoid wrong search results
-			const text = Utils.stripHTMLTags(m.message);
-			// const text = m.message.replace(/<[^>]*?>/gi, "");
-			if (
-				new RegExp(this.search, "gim").test(text) ||
-				m.user.displayName.toLowerCase() == this.search.toLowerCase()
-			) {
-				result.push(m);
-			}
-		}
-		this.messages = result;
-		await this.$nextTick();
-		const holder = this.$refs.holder as HTMLDivElement;
-		holder.scrollTop = holder.scrollHeight;
-	}
+async function close(): Promise<void> {
+	storeChat.doSearchMessages("");
+	closePanel();
 }
-export default toNative(MessageSearch);
+
+async function updateList(): Promise<void> {
+	if (storeChat.searchMessages.length === 0) return;
+
+	if (search.value != storeChat.searchMessages) {
+		//If search has changed clear all current results
+		//to make sure items are properly updated.
+		//If an item from the prev search is still there
+		//with the new search, the highlight wouldn't be
+		//updated if we wouldn't remove it first.
+		search.value = storeChat.searchMessages;
+		messages.value = [];
+		await nextTick();
+	}
+
+	const list = storeChat.messages.concat();
+	const result: TwitchatDataTypes.MessageChatData[] = [];
+	for (const m of list) {
+		if (m.type != "message") continue;
+		//Remove any HTML tag to avoid wrong search results
+		const text = Utils.stripHTMLTags(m.message);
+		// const text = m.message.replace(/<[^>]*?>/gi, "");
+		if (
+			new RegExp(search.value, "gim").test(text) ||
+			m.user.displayName.toLowerCase() == search.value.toLowerCase()
+		) {
+			result.push(m);
+		}
+	}
+	messages.value = result;
+	await nextTick();
+	holder.value!.scrollTop = holder.value!.scrollHeight;
+}
 </script>
 
 <style scoped lang="less">

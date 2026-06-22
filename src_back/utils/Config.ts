@@ -10,9 +10,13 @@ const __dirname = path.dirname(__filename);
  * Created by Durss
  */
 export default class Config {
-	private static envName: EnvName;
+	private static _envName: EnvName;
 	private static confPath: string = "env.conf";
 	private static credentialsCache: Credentials;
+
+	public static get envName() {
+		return this._envName;
+	}
 
 	public static get maxTranslationsPerDay(): number {
 		return 200;
@@ -269,9 +273,9 @@ export default class Config {
 	}
 
 	/**
-	 * Get if SMS warning for patreon requesting authentication is enabled
+	 * Get if warning for patreon requesting authentication is enabled
 	 */
-	public static get SMS_WARN_PATREON_AUTH(): boolean {
+	public static get ALERT_PATREON_AUTH_FAILURE(): boolean {
 		return this.getEnvData({
 			dev: false,
 			beta: true,
@@ -404,17 +408,6 @@ export default class Config {
 	}
 
 	/**
-	 * External endpoint that manages donors through google sheet (not part of this repository)
-	 */
-	public static get DONORS_REMOTE_ENDPOINT(): string {
-		return this.getEnvData({
-			dev: "http://127.0.0.1:3025/",
-			beta: "http://127.0.0.1:3025/",
-			prod: "http://127.0.0.1:3025/",
-		});
-	}
-
-	/**
 	 * Gets youtube client ID if any
 	 */
 	public static get YOUTUBE_CREDENTIALS(): {
@@ -452,10 +445,10 @@ export default class Config {
 	 */
 	private static getEnvData(map: any): any {
 		//Grab env name the first time
-		if (!this.envName) {
+		if (!this._envName) {
 			if (fs.existsSync(this.confPath)) {
 				const content = fs.readFileSync(this.confPath, "utf8").trim() as EnvName;
-				this.envName = content;
+				this._envName = content;
 				const str: string = '  :: Current environment "' + content + '" ::  ';
 				const head: string = str.replace(/./g, " ");
 				console.log("\n");
@@ -466,8 +459,8 @@ export default class Config {
 				console.log(LogStyle.BgGreen + head + LogStyle.Reset);
 				console.log("\n");
 			} else {
-				this.envName = "dev";
-				fs.writeFileSync(this.confPath, this.envName);
+				this._envName = "dev";
+				fs.writeFileSync(this.confPath, this._envName);
 				const str: string = '  /!\\ Missing file "./' + this.confPath + '" /!\\  ';
 				const head: string = str.replace(/./g, " ");
 				console.log("\n");
@@ -478,13 +471,15 @@ export default class Config {
 				console.log(LogStyle.BgRed + head + LogStyle.Reset);
 				console.log("\n");
 				console.log(
-					'Creating env.conf file automatically and set it to "' + this.envName + '"\n\n',
+					'Creating env.conf file automatically and set it to "' +
+						this._envName +
+						'"\n\n',
 				);
 			}
 		}
 
 		//Get the data from hashmap
-		if (map[this.envName] != undefined) return map[this.envName];
+		if (map[this._envName] != undefined) return map[this._envName];
 		return map[Object.keys(map)[0]!];
 	}
 }
@@ -493,10 +488,9 @@ type EnvName = "dev" | "prod" | "beta";
 
 interface Credentials {
 	server_port: number;
-	sms_uid?: string;
-	sms_token?: string;
 	dashboard_url: string;
 	dashboard_token: string;
+	twitchat_baseURL: string;
 
 	admin_ids: string[];
 	csrf_key: string;
@@ -570,4 +564,6 @@ interface Credentials {
 	tiltify_api_path: string;
 
 	kofi_proxy: string;
+
+	donors_endpoint_url: string;
 }

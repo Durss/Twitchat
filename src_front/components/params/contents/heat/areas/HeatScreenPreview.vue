@@ -5,6 +5,7 @@
 				v-for="area in polygons"
 				:points="area.svgData"
 				:class="getAreaClasses(area.id)"
+				v-tooltip="area.title"
 				@click="emit('select', area.id)"
 			/>
 		</svg>
@@ -91,11 +92,12 @@ const canEnable = computed<boolean>(() => {
 	);
 });
 
-const polygons = computed<{ id: string; svgData: string }[]>(() => {
+const polygons = computed(() => {
 	if (!props.screen) return [];
 	return props.screen.areas.map((v) => {
 		return {
 			id: v.id,
+			title: v.title,
 			svgData: v.points.map((w) => w.x * 1920 + "," + w.y * 1080).join(","),
 		};
 	});

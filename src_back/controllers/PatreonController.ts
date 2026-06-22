@@ -17,7 +17,7 @@ export default class PatreonController extends AbstractController {
 	private isFirstAuth: boolean = true;
 	private campaignId: string = "";
 	private tokenRefresh!: NodeJS.Timeout;
-	private smsWarned: boolean = false;
+	private alertSent: boolean = false;
 	private patreonApiDown: boolean = false;
 	private webhookDebounce: NodeJS.Timeout | null = null;
 	private userAgent = "Twitchat.fr server service";
@@ -529,7 +529,7 @@ export default class PatreonController extends AbstractController {
 				} catch (_error) {
 					this.patreonApiDown = true;
 				}
-				this.smsWarned = false;
+				this.alertSent = false;
 				this.isFirstAuth = false;
 
 				//Schedule token refresh
@@ -549,7 +549,7 @@ export default class PatreonController extends AbstractController {
 
 		if (!token) {
 			Logger.warn("[PATREON][SERVICE] Please connect to patreon !", this.authURL);
-			this.sendSMSAlert(
+			this.sendAlert(
 				"Patreon auth is down",
 				"Patreon authentication is down server-side! " + this.authURL,
 				{ text: "Authenticate", url: this.authURL },
@@ -658,7 +658,7 @@ export default class PatreonController extends AbstractController {
 			response.status(401);
 			response.send("Unauthorized");
 			this.patreonApiDown = true;
-			this.sendSMSAlert(
+			this.sendAlert(
 				"patreon signature",
 				"Patreon Webhook failed, invalid signature " + signature,
 			);
@@ -934,17 +934,16 @@ export default class PatreonController extends AbstractController {
 	}
 
 	/**
-	 * Send myself an SMS if something went wrong
+	 * Send myself an alert if something went wrong
 	 */
-	private sendSMSAlert(
+	private sendAlert(
 		title: string,
 		message: string,
 		action?: { text: string; url: string },
 	): void {
-		if (!this.smsWarned && Config.SMS_WARN_PATREON_AUTH) {
-			Utils.sendSMSAlert(message);
+		if (!this.alertSent && Config.ALERT_PATREON_AUTH_FAILURE) {
 			Utils.sendDashboardNotification(title, message, action);
-			this.smsWarned = true;
+			this.alertSent = true;
 			this.patreonApiDown = true;
 		}
 	}

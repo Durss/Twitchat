@@ -641,6 +641,7 @@ export const storeQuiz = defineStore("quiz", {
 			if (!currentQuestion || !currentQuiz) return;
 			const answer = (message.message ?? "").trim();
 			let answerId: string | undefined = undefined;
+			let hasAnswered = false;
 			if (currentQuestion.mode !== "freeAnswer") {
 				if (answer.length == 1) {
 					// Search if answer matches an answer index, either letter (A, B, C...) or number (1, 2, 3...)
@@ -648,6 +649,7 @@ export const storeQuiz = defineStore("quiz", {
 					if (index === -1) index = parseInt(answer) - 1;
 					if (index >= 0 && index < currentQuestion.answerList.length) {
 						answerId = currentQuestion.answerList[index]!.id;
+						hasAnswered = true;
 					}
 				}
 				// Search if answer matches an actual text answer
@@ -655,20 +657,25 @@ export const storeQuiz = defineStore("quiz", {
 					currentQuestion.answerList.forEach((a) => {
 						if (a.title.trim().toLowerCase() === answer.toLowerCase()) {
 							answerId = a.id;
+							hasAnswered = true;
 						}
 					});
 				}
+			} else {
+				hasAnswered = true;
 			}
-			// Handle the answer
-			void this.handleAnswer(
-				message.platform,
-				0,
-				currentQuiz.id,
-				currentQuestion.id,
-				answerId,
-				answerId ? undefined : answer,
-				message.user.id,
-			);
+			if (hasAnswered) {
+				// Handle the answer
+				void this.handleAnswer(
+					message.platform,
+					0,
+					currentQuiz.id,
+					currentQuestion.id,
+					answerId,
+					answerId ? undefined : answer,
+					message.user.id,
+				);
+			}
 		},
 
 		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {

@@ -611,6 +611,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					pinMessage = true;
 					break;
 				}
+				case "/unpin": {
+					pinMessage = true;
+					const message =
+						StoreProxy.chat.pinnedTwitchMessage[StoreProxy.auth.twitch.user.id];
+					if (!message) return true;
+					return await TwitchUtils.unpinMessage(
+						message.broadcaster_id,
+						message.message_id,
+					);
+				}
 
 				//TODO
 				case "/uniquechat":

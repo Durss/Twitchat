@@ -141,7 +141,7 @@ const answerList = computed(() => {
 });
 
 const duration = computed(() => {
-	return quizData.value?.durationPerQuestion_s ?? currentQuestion.value?.duration_s ?? 30;
+	return currentQuestion.value?.duration_s ?? quizData.value?.durationPerQuestion_s ?? 30;
 });
 
 const circleOffsetAngle = computed(() => {
@@ -265,7 +265,7 @@ watch(
 		left: 0;
 		right: 0;
 		width: 60%;
-		bottom: 50px;
+		bottom: calc(50px / v-bind(scaleFactor));
 	}
 
 	.content {

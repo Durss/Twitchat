@@ -627,13 +627,10 @@ interface CommandItem {
 		.infos {
 			font-size: 0.7em;
 			font-style: italic;
-			text-align: right;
 			padding-right: 0.5em;
 			opacity: 0.8;
 			flex-shrink: 0;
-			flex-basis: auto;
-			align-self: flex-end;
-			justify-self: flex-end;
+			max-width: 100%;
 		}
 
 		.image {

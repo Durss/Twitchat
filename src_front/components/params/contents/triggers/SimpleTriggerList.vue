@@ -82,12 +82,15 @@ function classes(selected: boolean): string[] {
 }
 
 onMounted(() => {
-	entryList.value = TriggerUtils.getFlatFolderList().map((folder) => ({
-		id: folder.id,
-		label: folder.name || "???",
-		icon: "folder",
-		color: folder.color,
-	}));
+	entryList.value = [];
+	if (props.allowFolders) {
+		entryList.value = TriggerUtils.getFlatFolderList().map((folder) => ({
+			id: folder.id,
+			label: folder.name || "???",
+			icon: "folder",
+			color: folder.color,
+		}));
+	}
 
 	const triggers = storeTriggers.triggerList;
 	triggers.forEach((t) => {
