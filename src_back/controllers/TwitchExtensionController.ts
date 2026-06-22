@@ -307,7 +307,7 @@ export default class TwitchExtensionController extends AbstractController {
 					answerId: params.answerId,
 					answerText: params.answerText,
 					delay_ms: params.delay_ms,
-					userId: getUserID(request),
+					userId: request.twitchExtensionUser!.user_id,
 					opaqueUserId: request.twitchExtensionUser!.opaque_user_id,
 				},
 			);
