@@ -425,7 +425,7 @@
 				"beta": "Fonctionnalité expérimentale ?{BR} Si vous rencontrez un problème {LINK}",
 				"beta_link": "faites-le moi savoir sur Discord",
 				"warning_title": "Information importante",
-				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
+				"warning": "Les tags spéciaux risquent de ne pas être disponibles dans le trigger sélectionné.",
 				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis une <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponibles car le trigger ne sera pas exécuté par un message de tchat.",
 				"select": "Sélectionnez le trigger à exécuter",
 				"selected": "Trigger à exécuter",
