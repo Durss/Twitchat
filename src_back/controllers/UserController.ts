@@ -15,6 +15,7 @@ import TwitchExtensionController from "./TwitchExtensionController.js";
 
 interface HeatExtensionArea {
 	id: string;
+	title: string;
 	showAreaOnExtension?: boolean;
 	points: { x: number; y: number }[];
 }
@@ -167,6 +168,7 @@ export default class UserController extends AbstractController {
 						.map((v) => {
 							return {
 								id: v.id,
+								title: v.title,
 								points: v.points
 									// Cap numbers precisions
 									.map((p) => ({
