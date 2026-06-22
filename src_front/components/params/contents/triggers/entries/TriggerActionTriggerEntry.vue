@@ -12,7 +12,7 @@
 				{{ $t("triggers.actions.trigger.select") }}
 			</div>
 
-			<SimpleTriggerList class="list" @select="onSelectTrigger" />
+			<SimpleTriggerList class="list" @select="onSelectTrigger" :allowFolders="false" />
 		</div>
 
 		<div class="card-item field" v-else>
@@ -20,6 +20,7 @@
 			<div class="item title">{{ $t("triggers.actions.trigger.selected") }}</div>
 			<SimpleTriggerList
 				:filteredItemId="action.triggerId"
+				:allowFolders="false"
 				@click="action.triggerId = ''"
 				primary
 			/>
