@@ -48,6 +48,7 @@
 			"target_always": "Any",
 			"show_obs": "Show OBS scene preview",
 			"show_extension_button": "Show clickable area on Twitchat Companion extension",
+			"show_extension_button_title": "Title",
 			"connect_obs": "🔗 Connect with OBS",
 			"delete_confirm": {
 				"title": "Delete area?",
