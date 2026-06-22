@@ -7,7 +7,14 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
 import StoreProxy from "../StoreProxy";
 import type { IBlueskyActions, IBlueskyGetters, IBlueskyState } from "../StoreProxy";
-import type { Agent, AppBskyFeedDefs } from "@atproto/api";
+import type {
+	Agent,
+	AppBskyEmbedExternal,
+	AppBskyEmbedImages,
+	AppBskyFeedDefs,
+	RichText,
+	$Typed,
+} from "@atproto/api";
 
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
@@ -164,10 +171,24 @@ export const storeBluesky = defineStore("bluesky", {
 		async postMessage(message: string): Promise<boolean> {
 			if (!agent) return false;
 			try {
-				const result = await agent.post({
+				// make mentions, links and hashtags clickable
+				const { RichText } = await import("@atproto/api");
+				const richText = new RichText({ text: message });
+				await richText.detectFacets(agent);
+
+				const record: Parameters<Agent["post"]>[0] = {
 					createdAt: new Date().toISOString(),
-					text: message,
-				});
+					text: richText.text,
+					facets: richText.facets,
+				};
+
+				// Generate an embed for the message: a preview card for the last link,
+				// or an image embed if the only link(s) point directly to images.
+				// Embed generation must never prevent the message from being posted.
+				const embed = await buildEmbed(richText);
+				if (embed) record.embed = embed;
+
+				const result = await agent.post(record);
 				if (result.uri) {
 					return true;
 				}
@@ -442,6 +463,179 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 	} satisfies StoreActions<"bluesky", IBlueskyState, IBlueskyGetters, IBlueskyActions>,
 });
+
+/**
+ * Builds the embed that best fits the links in the message:
+ * - the last regular link gets a preview card (app.bsky.embed.external),
+ * - if the message only contains direct image link(s), the last one is embedded
+ *   as an actual image (app.bsky.embed.images).
+ * Returns undefined when there's no link or the embed couldn't be built.
+ */
+async function buildEmbed(
+	richText: RichText,
+): Promise<$Typed<AppBskyEmbedExternal.Main> | $Typed<AppBskyEmbedImages.Main> | undefined> {
+	if (!agent) return;
+
+	const links: string[] = [];
+	for (const segment of richText.segments()) {
+		if (segment.isLink() && segment.link) links.push(segment.link.uri);
+	}
+	if (!links.length) return;
+
+	// Search for a non image URL and attempt to build a card
+	const lastRegularLink = links.findLast(
+		(url) => !/\.(jpe?g|png|gif|webp|avif)(\?|#|$)/i.test(url),
+	);
+	if (lastRegularLink) return buildLinkCardEmbed(lastRegularLink);
+
+	// No embed found; fallback to image embed attempt
+	return buildImageEmbed(links[links.length - 1]!);
+}
+
+/**
+ * Builds an "external" embed (link preview card) for the given link, or undefined
+ * if its metadata couldn't be fetched.
+ */
+async function buildLinkCardEmbed(
+	url: string,
+): Promise<$Typed<AppBskyEmbedExternal.Main> | undefined> {
+	if (!agent) return;
+	try {
+		// cardyb is Bluesky's public card-generation service (same one used by the
+		// official web client). It's CORS-enabled.
+		const res = await fetch(
+			"https://cardyb.bsky.app/v1/extract?url=" + encodeURIComponent(url),
+		);
+		if (!res.ok) return;
+		const card = (await res.json()) as {
+			error?: string;
+			title?: string;
+			description?: string;
+			image?: string;
+		};
+		if (card.error) return;
+
+		const external: AppBskyEmbedExternal.External = {
+			uri: url,
+			title: card.title ?? "",
+			description: card.description ?? "",
+		};
+
+		// Attach a thumbnail when one is available. Any failure here just drops the
+		// thumbnail rather than the whole card.
+		if (card.image) {
+			const thumb = await uploadThumb(card.image);
+			if (thumb) external.thumb = thumb;
+		}
+
+		return { $type: "app.bsky.embed.external", external };
+	} catch (error) {
+		console.warn("Bluesky link card generation failed", error);
+		return;
+	}
+}
+
+/**
+ * Builds an "images" embed for a direct image link, downloading it through
+ * cardyb's image proxy (arbitrary image hosts often block cross-origin fetches,
+ * the proxy serves them with permissive CORS). Returns undefined on failure.
+ */
+async function buildImageEmbed(url: string): Promise<$Typed<AppBskyEmbedImages.Main> | undefined> {
+	if (!agent) return;
+	try {
+		const res = await fetch("https://cardyb.bsky.app/v1/image?url=" + encodeURIComponent(url));
+		if (!res.ok) return;
+		const blob = await res.blob();
+		if (!blob.type.startsWith("image/")) return;
+
+		// Capture the aspect ratio (optional) so Bluesky lays the image out properly.
+		let aspectRatio: AppBskyEmbedImages.Image["aspectRatio"];
+		try {
+			const bitmap = await createImageBitmap(blob);
+			aspectRatio = { width: bitmap.width, height: bitmap.height };
+			bitmap.close();
+		} catch {
+			// ignore
+		}
+
+		const image = await uploadImageBlob(blob);
+		if (!image) return;
+
+		return {
+			$type: "app.bsky.embed.images",
+			images: [{ alt: "", image, ...(aspectRatio ? { aspectRatio } : {}) }],
+		};
+	} catch (error) {
+		console.warn("Bluesky image embed generation failed", error);
+		return;
+	}
+}
+
+/**
+ * Downloads a thumbnail image and uploads it as a blob.
+ */
+async function uploadThumb(imageUrl: string) {
+	if (!agent) return;
+	try {
+		const res = await fetch(imageUrl);
+		if (!res.ok) return;
+		return await uploadImageBlob(await res.blob());
+	} catch (error) {
+		console.warn("Bluesky thumbnail upload failed", error);
+		return;
+	}
+}
+
+/**
+ * Uploads an image blob, downscaling it first if it exceeds Bluesky's ~1MB blob
+ * limit.
+ */
+async function uploadImageBlob(blob: Blob) {
+	if (!agent) return;
+	// Bluesky rejects blobs larger than 1MB.
+	const MAX_BYTES = 976 * 1024;
+	if (blob.size > MAX_BYTES) {
+		const resized = await downscaleImage(blob, MAX_BYTES);
+		if (!resized) return;
+		blob = resized;
+	}
+
+	const bytes = new Uint8Array(await blob.arrayBuffer());
+	const uploaded = await agent.uploadBlob(bytes, {
+		encoding: blob.type || "image/jpeg",
+	});
+	return uploaded.data.blob;
+}
+
+/**
+ * Re-encodes an image as a JPEG that fits under maxBytes by capping its
+ * dimensions and progressively lowering quality. Returns undefined if it can't
+ * be brought under the limit.
+ */
+async function downscaleImage(blob: Blob, maxBytes: number): Promise<Blob | undefined> {
+	const bitmap = await createImageBitmap(blob);
+	const canvas = document.createElement("canvas");
+	const ctx = canvas.getContext("2d");
+	if (!ctx) {
+		bitmap.close();
+		return;
+	}
+
+	const MAX_SIZE = 1000;
+	const scale = Math.min(1, MAX_SIZE / Math.max(bitmap.width, bitmap.height));
+	canvas.width = Math.round(bitmap.width * scale);
+	canvas.height = Math.round(bitmap.height * scale);
+	ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+	bitmap.close();
+
+	for (let quality = 0.9; quality >= 0.4; quality -= 0.1) {
+		const out = await new Promise<Blob | null>((resolve) =>
+			canvas.toBlob(resolve, "image/jpeg", quality),
+		);
+		if (out && out.size <= maxBytes) return out;
+	}
+	return;
+}
 
 if (import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeBluesky, import.meta.hot));
