@@ -6,11 +6,11 @@
  * @author John Vrbanac
  * @license MIT License
  **/
-export class Event {
-	private _type: string;
+export class Event<EventType = string> {
+	private _type: EventType;
 	private _target: unknown;
 
-	constructor(type: string, targetObj?: unknown) {
+	constructor(type: EventType, targetObj?: unknown) {
 		this._type = type;
 		this._target = targetObj;
 	}
@@ -19,7 +19,7 @@ export class Event {
 		return this._target;
 	}
 
-	public get type(): string {
+	public get type(): EventType {
 		return this._type;
 	}
 }

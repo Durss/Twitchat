@@ -423,7 +423,7 @@ import Accessibility from "./Accessibility.vue";
 import Login from "./Login.vue";
 import ShareParams from "./ShareParams.vue";
 import PublicAPI from "@/utils/PublicAPI";
-import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import type { TwitchatEventOf } from "@/events/TwitchatEvent";
 import QuizForm from "@/components/quiz/QuizForm.vue";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
@@ -503,7 +503,7 @@ let draggedCol: TwitchatDataTypes.ChatColumnsConfig | null = null;
 let mouseUpHandler: (e: MouseEvent | TouchEvent) => void;
 let mouseMoveHandler: (e: MouseEvent | TouchEvent) => void;
 let windowResizeHandler: (e: Event) => void;
-let publicApiEventHandler: (e: unknown) => void;
+let publicApiEventHandler: (e: Parameters<typeof onPublicApiEvent>[0]) => void;
 
 const splitViewVertical = computed(() => storeParams.appearance.splitViewVertical.value as boolean);
 const showEmergencyFollows = computed(
@@ -703,7 +703,7 @@ onBeforeMount(() => {
 
 	mustDisableItems_precalc.value = (storeMain as any).nonPremiumLimitExceeded;
 
-	publicApiEventHandler = (e) => onPublicApiEvent(e as any);
+	publicApiEventHandler = (e) => onPublicApiEvent(e);
 	mouseUpHandler = () => (resizing = false);
 	mouseMoveHandler = (e: MouseEvent | TouchEvent) => onMouseMove(e);
 	windowResizeHandler = (e: Event) => computeChatFormHeight();
@@ -811,44 +811,24 @@ function closeDonorCard(): void {
  * //TODO move this to store, this has nothing to do here for the most part
  */
 async function onPublicApiEvent(
-	e:
-		| { type: "SET_POLL_TOGGLE"; data: TwitchatEventMap["SET_POLL_TOGGLE"] }
-		| { type: "SET_PREDICTION_TOGGLE"; data: TwitchatEventMap["SET_PREDICTION_TOGGLE"] }
-		| { type: "SET_BINGO_TOGGLE"; data: TwitchatEventMap["SET_BINGO_TOGGLE"] }
-		| { type: "SET_RAFFLE_TOGGLE"; data: TwitchatEventMap["SET_RAFFLE_TOGGLE"] }
-		| {
-				type: "SET_VIEWERS_COUNT_TOGGLE";
-				data: TwitchatEventMap["SET_VIEWERS_COUNT_TOGGLE"];
-		  }
-		| { type: "SET_MOD_TOOLS_TOGGLE"; data: TwitchatEventMap["SET_MOD_TOOLS_TOGGLE"] }
-		| {
-				type: "SET_CENSOR_DELETED_MESSAGES_TOGGLE";
-				data: TwitchatEventMap["SET_CENSOR_DELETED_MESSAGES_TOGGLE"];
-		  }
-		| {
-				type: "ON_OPEN_POLL_CREATION_FORM";
-				data: TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"];
-		  }
-		| {
-				type: "SET_OPEN_PREDICTION_CREATION_FORM";
-				data: TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"];
-		  }
-		| {
-				type: "ON_OPEN_RAFFLE_CREATION_FORM";
-				data: TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"];
-		  }
-		| {
-				type: "SET_SHOUTOUT_LAST_RAIDER";
-				data: TwitchatEventMap["SET_SHOUTOUT_LAST_RAIDER"];
-		  }
-		| { type: "GET_CHAT_COLUMNS_COUNT"; data: TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"] }
-		| {
-				type: "SET_CLEAR_CHAT_HIGHLIGHT";
-				data: TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"];
-		  }
-		| { type: "SET_STOP_POLL"; data: TwitchatEventMap["SET_STOP_POLL"] }
-		| { type: "SET_STOP_PREDICTION"; data: TwitchatEventMap["SET_STOP_PREDICTION"] }
-		| { type: "SET_SEND_MESSAGE"; data: TwitchatEventMap["SET_SEND_MESSAGE"] },
+	e: TwitchatEventOf<
+		| "SET_POLL_TOGGLE"
+		| "SET_PREDICTION_TOGGLE"
+		| "SET_BINGO_TOGGLE"
+		| "SET_RAFFLE_TOGGLE"
+		| "SET_VIEWERS_COUNT_TOGGLE"
+		| "SET_MOD_TOOLS_TOGGLE"
+		| "SET_CENSOR_DELETED_MESSAGES_TOGGLE"
+		| "ON_OPEN_POLL_CREATION_FORM"
+		| "SET_OPEN_PREDICTION_CREATION_FORM"
+		| "ON_OPEN_RAFFLE_CREATION_FORM"
+		| "SET_SHOUTOUT_LAST_RAIDER"
+		| "GET_CHAT_COLUMNS_COUNT"
+		| "SET_CLEAR_CHAT_HIGHLIGHT"
+		| "SET_STOP_POLL"
+		| "SET_STOP_PREDICTION"
+		| "SET_SEND_MESSAGE"
+	>,
 ): Promise<void> {
 	let notif: TwitchatDataTypes.NotificationTypes = "";
 	let modal: TwitchatDataTypes.ModalTypes = "";

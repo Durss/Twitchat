@@ -13,7 +13,7 @@ import type { AutocompletableString } from "@/typeUtils";
 export default class TwitchatEvent<
 	EventName extends keyof TwitchatEventMap,
 	Data = TwitchatEventMap[EventName],
-> extends Event {
+> extends Event<EventName> {
 	constructor(
 		type: EventName,
 		public data: Data,
@@ -21,6 +21,16 @@ export default class TwitchatEvent<
 		super(type);
 	}
 }
+
+/**
+ * Distributes a union of event names into a union of TwitchatEvent instances.
+ * Unlike `TwitchatEvent<"A" | "B">` (a single type whose `type` and `data` are
+ * independent unions), this produces `TwitchatEvent<"A"> | TwitchatEvent<"B">`,
+ * a proper discriminated union where checking `.type` narrows `.data`.
+ */
+export type TwitchatEventOf<T extends keyof TwitchatEventMap> = T extends keyof TwitchatEventMap
+	? TwitchatEvent<T>
+	: never;
 
 export type TwitchatEventMap = {
 	/**
