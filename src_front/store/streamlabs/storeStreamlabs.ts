@@ -387,12 +387,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				}
 	
 				const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
+				console.log("GOT TEAM INFOS", teamJSON)
 				if(!this.charityTeam) {
 					this.charityTeam = {
 						id:teamJSON.id,
 						teamURL:url,
 						title:teamJSON.display_name,
-						amountGoal_cents:teamJSON.campaign.goal.amount,
+						amountGoal_cents:teamJSON.goal.amount,
 						amountRaised_cents:teamJSON.amount_raised,
 						amountRaisedPersonnal_cents:0,
 						currency:teamJSON.goal.currency,
@@ -406,7 +407,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						}
 					};
 				}else{
-					this.charityTeam.amountGoal_cents = teamJSON.campaign.goal.amount;
+					this.charityTeam.amountGoal_cents = teamJSON.goal.amount;
 					this.charityTeam.amountRaised_cents = teamJSON.amount_raised;
 				}
 	
@@ -454,6 +455,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			}catch(error){
 				this.charityTeam = null;
 				this.syncingCampaign = false;
+				console.log(error)
 				return false;
 			}
 
@@ -968,11 +970,6 @@ export interface StreamlabsCharityTeamData {
 				name: string;
 			}[];
 			rating?: any;
-		};
-		goal: {
-			id: string;
-			amount: number;
-			completed: boolean;
 		};
 		page_settings: {
 			description: string;
