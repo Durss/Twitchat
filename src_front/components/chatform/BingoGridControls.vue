@@ -51,7 +51,12 @@
 							class="entry"
 							:secondary="entry.lock"
 							:key="entry.id"
-							:style="{ opacity: entry.label ? 1 : 0.25 }"
+							:style="{
+								color:
+									entry.label.trim().length > 0
+										? undefined
+										: 'var(--color-alert)',
+							}"
 							v-model="entry.check"
 							v-tooltip="entry.label"
 							@click.capture.stop="storeBingoGrid.toggleCell(grid.id, entry.id)"
@@ -88,12 +93,14 @@
 					@click="toggleRenderMode(grid.id)"
 				/>
 				<TTButton
+					v-if="!grid.remoteOwnerId"
 					icon="shuffle"
 					:loading="loading"
 					@click="shuffleGrid(grid.id)"
 					v-tooltip="t('bingo_grid.form.shuffle_bt')"
 				/>
 				<TTButton
+					v-if="!grid.remoteOwnerId"
 					icon="refresh"
 					:loading="loading"
 					@click="untickAll(grid.id)"
@@ -117,6 +124,7 @@
 				>
 			</div>
 			<ToggleButton
+				v-if="!grid.remoteOwnerId"
 				v-model="grid.enabled"
 				class="togglebutton"
 				small

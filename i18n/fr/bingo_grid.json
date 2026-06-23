@@ -65,6 +65,29 @@
 			"hideLeaderboard_bt": "Masquer de l'overlay",
 			"footer": "Propulsé par {LINK}",
 			"disable_bingo_tt": "Désactiver la grille"
+		},
+		"share_streamer": {
+			"title": "Partager avec un·e autre streamer·euse",
+			"description": "Partagez votre grille active, \"{GRID}\" à un·e autre streamereuse pour qu'iel puisse jouer avec vous.",
+			"no_grid": "Activez d'abord une grille pour la partager.",
+			"from": "Partagée par {OWNER}",
+			"unlink_tt": "Délier la grille partagée",
+			"sent": "Invitation envoyée à {USER}.",
+			"offline": "{USER} n'est pas connecté·e à Twitchat et ne peut pas recevoir l'invitation.",
+			"error": "Impossible d'envoyer l'invitation.",
+			"accepted": "{USER} a accepté votre invitation de grille de bingo !",
+			"accept_failed": "Impossible d'accepter l'invitation. Elle a peut-être expiré.",
+			"revoked": "{OWNER} a fermé la grille de bingo partagée.",
+			"lose_link": {
+				"title": "Délier la grille partagée ?",
+				"description": "Activer cette grille déliera la grille partagée par {NAME}."
+			},
+			"invite": {
+				"title": "Invitation à une grille de bingo",
+				"message": "{OWNER} souhaite partager sa grille de bingo « {GRID} » avec vous.",
+				"accept": "Accepter",
+				"decline": "Refuser"
+			}
 		}
 	}
 }

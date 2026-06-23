@@ -21,6 +21,9 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED" as const;
 	public static BINGO_GRID_UNTICK_ALL = "BINGO_GRID_UNTICK_ALL" as const;
 	public static BINGO_GRID_MODERATOR_TICK = "BINGO_GRID_MODERATOR_TICK" as const;
+	public static BINGO_GRID_SHARE_INVITE = "BINGO_GRID_SHARE_INVITE" as const;
+	public static BINGO_GRID_SHARE_ACCEPTED = "BINGO_GRID_SHARE_ACCEPTED" as const;
+	public static BINGO_GRID_SHARE_REVOKED = "BINGO_GRID_SHARE_REVOKED" as const;
 	public static SHARED_MOD_INFO_REQUEST = "SHARED_MOD_INFO_REQUEST" as const;
 	public static QNA_STATE = "QNA_STATE" as const;
 	public static QNA_ACTION = "QNA_ACTION" as const;
@@ -82,6 +85,7 @@ export type EventTypeMap = {
 		| {
 				force: false;
 				grid: {
+					id?: string;
 					enabled: boolean;
 					title: string;
 					cols: number;
@@ -109,6 +113,20 @@ export type EventTypeMap = {
 		gridId: string;
 		uid: string;
 		states: { [cellid: string]: boolean };
+	};
+	BINGO_GRID_SHARE_INVITE: {
+		token: string;
+		ownerName: string;
+		gridTitle: string;
+	};
+	BINGO_GRID_SHARE_ACCEPTED: {
+		gridId: string;
+		receiverId: string;
+		receiverName: string;
+	};
+	BINGO_GRID_SHARE_REVOKED: {
+		ownerId: string;
+		gridId: string;
 	};
 	SHARED_MOD_INFO_REQUEST: void;
 	QNA_STATE: {

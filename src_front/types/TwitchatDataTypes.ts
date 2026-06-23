@@ -1088,6 +1088,20 @@ export namespace TwitchatDataTypes {
 		 * Which users can be announced on overlay ?
 		 */
 		overlayAnnouncementPermissions: PermissionsData;
+		/**
+		 * Set ONLY on grids shared TO this user by another streamer.
+		 * The user ID of the grid owner. Ephemeral, never persisted.
+		 */
+		remoteOwnerId?: string;
+		/**
+		 * Display name of the grid owner (for shared grids). Ephemeral, never persisted.
+		 */
+		remoteOwnerName?: string;
+		/**
+		 * Durable link/capability JWT presented to the server on every tick of a
+		 * shared grid. Ephemeral, never persisted.
+		 */
+		remoteToken?: string;
 	}
 
 	/**

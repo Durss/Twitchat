@@ -2,9 +2,12 @@ import type { StoreActions } from "@/types/pinia-helpers";
 import SSEEvent from "@/events/SSEEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
+import { toast } from "@/utils/toast/toast";
+import ToastBingoGridShare from "@/utils/toast/ToastBingoGridShare.vue";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
@@ -25,6 +28,29 @@ let tickDebounce: { [key: string]: number } = {};
 let chatAnnounceStack: { user: TwitchatDataTypes.TwitchatUser; count: number }[] = [];
 //Keeps old check states of grid to be able to diff on save
 let prevGridStates: { [key: string]: boolean[] } = {};
+
+/**
+ * Applies an owner-sourced grid snapshot onto a local (remote/linked) grid,
+ * preserving the ephemeral remote* fields.
+ */
+function applyRemoteSnapshot(
+	grid: TwitchatDataTypes.BingoGridConfig,
+	snap: {
+		enabled: boolean;
+		title: string;
+		cols: number;
+		rows: number;
+		entries: TwitchatDataTypes.BingoGridConfig["entries"];
+		additionalEntries?: TwitchatDataTypes.BingoGridConfig["entries"];
+	},
+): void {
+	grid.title = snap.title;
+	grid.cols = snap.cols;
+	grid.rows = snap.rows;
+	grid.entries = snap.entries;
+	grid.additionalEntries = snap.additionalEntries;
+	grid.enabled = snap.enabled;
+}
 
 export const storeBingoGrid = defineStore("bingoGrid", {
 	state: (): IBingoGridState => ({
@@ -60,6 +86,13 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					});
 					grid.entries = Array.from(uniqueEntries.values());
 				});
+			}
+
+			// Make sure any linked grid is cleared
+			try {
+				void ApiHelper.call("bingogrid/share/reset", "POST", undefined, false);
+			} catch (_error) {
+				// ignore
 			}
 
 			/**
@@ -279,6 +312,118 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					void this.saveData(grid.id);
 				},
 			);
+
+			/**
+			 * Called when another streamer invites us to one of their bingo grids
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_SHARE_INVITE, (event) => {
+				if (!event.data) return;
+				toast(ToastBingoGridShare, {
+					autoClose: false,
+					closeOnClick: false,
+					contentProps: {
+						token: event.data.token,
+						ownerName: event.data.ownerName,
+						gridTitle: event.data.gridTitle,
+					},
+				});
+			});
+
+			/**
+			 * Called when a streamer we shared a grid with accepts the invite
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_SHARE_ACCEPTED, (event) => {
+				if (!event.data) return;
+				toast(
+					StoreProxy.i18n.t("bingo_grid.share_streamer.accepted", {
+						USER: event.data.receiverName,
+					}),
+					{ type: "success", autoClose: 4000 },
+				);
+			});
+
+			/**
+			 * Called when the owner disabled/deleted a grid we were linked to.
+			 * The backend already cleaned up: just drop the grid locally.
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_SHARE_REVOKED, (event) => {
+				if (!event.data) return;
+				const { ownerId, gridId } = event.data;
+				const grid = this.gridList.find(
+					(g) => g.remoteOwnerId == ownerId && g.id == gridId,
+				);
+				if (!grid) return;
+				this.gridList = this.gridList.filter((g) => g.id != gridId);
+				//Clear the overlay if it was showing this grid
+				PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: null });
+				void this.saveData();
+				toast(
+					StoreProxy.i18n.t("bingo_grid.share_streamer.revoked", {
+						OWNER: grid.remoteOwnerName,
+					}),
+					{ type: "warning", autoClose: 5000 },
+				);
+			});
+
+			/**
+			 * Re-arm shared-grid live push after an SSE (re)connect, and reconcile
+			 * the linked grids with the owner's current state.
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, async () => {
+				for (const grid of this.gridList) {
+					if (!grid.remoteOwnerId || !grid.remoteToken) continue;
+					try {
+						const res = await ApiHelper.call(
+							"bingogrid/share/subscribe",
+							"POST",
+							{ linkToken: grid.remoteToken },
+							false,
+						);
+						if (res.json.success && res.json.grid) {
+							applyRemoteSnapshot(grid, res.json.grid);
+							void this.saveData(grid.id);
+						}
+					} catch (_error) {
+						// ignore, will retry on next reconnect
+					}
+				}
+			});
+
+			/**
+			 * Owner's structure changes (shuffle/resize/relabel/enable) reach us as
+			 * a BINGO_GRID_UPDATE. Only act on our linked (remote) grids.
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, async (event) => {
+				const data = event.data;
+				if (!data) return;
+				if (data.force === false) {
+					//A card was pushed (e.g. relabel): apply it to the linked grid.
+					const incoming = data.grid;
+					const grid = this.gridList.find((g) => g.remoteOwnerId && g.id == incoming.id);
+					if (!grid) return;
+					applyRemoteSnapshot(grid, incoming);
+					void this.saveData(grid.id);
+				} else {
+					//Owner reshuffled/rebuilt the grid: re-fetch our own randomized card.
+					for (const grid of this.gridList) {
+						if (!grid.remoteOwnerId || !grid.remoteToken) continue;
+						try {
+							const res = await ApiHelper.call(
+								"bingogrid/share/subscribe",
+								"POST",
+								{ linkToken: grid.remoteToken },
+								false,
+							);
+							if (res.json.success && res.json.grid) {
+								applyRemoteSnapshot(grid, res.json.grid);
+								void this.saveData(grid.id);
+							}
+						} catch (_error) {
+							// ignore
+						}
+					}
+				}
+			});
 		},
 
 		addGrid(): TwitchatDataTypes.BingoGridConfig {
@@ -420,6 +565,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			id: string,
 			forcedState?: boolean,
 			callEndpoint: boolean = true,
+			callSaveEndpoint: boolean = true,
 		): Promise<void> {
 			const grid = this.gridList.find((g) => g.id === id);
 			if (!grid) return;
@@ -434,7 +580,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				grid.additionalEntries.forEach(
 					(entry) => (entry.check = forcedState == undefined ? false : forcedState),
 				);
-			void this.saveData(id);
+			if (callSaveEndpoint) void this.saveData(id);
 
 			const message: TwitchatDataTypes.MessageBingoGridData = {
 				id: Utils.getUUID(),
@@ -485,16 +631,50 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			gridId?: string,
 			cellId?: string,
 			broadcastToViewers: boolean = false,
+			confirmDisable: boolean = true,
 		): Promise<void> {
 			const targetGrid = gridId ? this.gridList.find((g) => g.id === gridId) : undefined;
 
 			// Are we saving a specific grid that's enabled?
 			if (targetGrid && targetGrid.enabled) {
+				// Enabling one of our OWN grids while a shared (remote) grid is
+				// active drops the shared link. Warn before proceeding.
+				if (!targetGrid.remoteOwnerId) {
+					const linkedGrid = this.gridList.find(
+						(g) => g.remoteOwnerId && g.enabled && g.id !== gridId,
+					);
+					if (linkedGrid) {
+						const t = StoreProxy.i18n.t;
+						try {
+							await StoreProxy.main.confirm(
+								t("bingo_grid.share_streamer.lose_link.title"),
+								t("bingo_grid.share_streamer.lose_link.description", {
+									NAME: linkedGrid.remoteOwnerName || "",
+								}),
+							);
+						} catch (_error) {
+							// User cancelled, keep the link and disable the grid back
+							targetGrid.enabled = false;
+							return;
+						}
+						const linkToken = linkedGrid.remoteToken;
+						this.gridList = this.gridList.filter((g) => g.id !== linkedGrid.id);
+						if (linkToken) {
+							void ApiHelper.call(
+								"bingogrid/share/unlink",
+								"POST",
+								{ linkToken },
+								false,
+							);
+						}
+					}
+				}
+
 				const otherActiveGrid = this.gridList.filter(
 					(g) => g.enabled && g.id !== gridId && g.entries.some((e) => e.check === true),
 				)[0];
 				// Are we about to lose live grid progress?
-				if (otherActiveGrid) {
+				if (otherActiveGrid && confirmDisable) {
 					const t = StoreProxy.i18n.t;
 					try {
 						await StoreProxy.main.confirm(
@@ -782,7 +962,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 
 					prevGridStates[grid.id] = newStates;
 
-					if (broadcastToViewers) {
+					if (broadcastToViewers && !grid.remoteOwnerId) {
 						window.clearTimeout(debounceBroadcast);
 						debounceBroadcast = window.setTimeout(() => {
 							//Debounce this call as it will fire an event to every connected viewer
@@ -802,7 +982,9 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				}
 
 				const data: IStoreData = {
-					gridList: this.gridList,
+					//Never persist remote (shared) grids: the link is ephemeral and
+					//must be lost on refresh.
+					gridList: this.gridList.filter((g) => !g.remoteOwnerId),
 				};
 				DataStore.set(DataStore.BINGO_GRIDS, data);
 				PublicAPI.instance.broadcastGlobalStates();
@@ -826,11 +1008,22 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					grid.entries.forEach((v) => (states[v.id] = v.check));
 					if (grid.additionalEntries)
 						grid.additionalEntries.forEach((v) => (states[v.id] = v.check));
-					if (StoreProxy.auth.isPremium)
+					if (grid.remoteOwnerId) {
+						//Shared grid: route the tick to the owner's master via the
+						//share endpoint (authorized by the link token).
+						if (grid.remoteToken)
+							void ApiHelper.call(
+								"bingogrid/share/tick",
+								"POST",
+								{ linkToken: grid.remoteToken, states },
+								false,
+							);
+					} else if (StoreProxy.auth.isPremium) {
 						void ApiHelper.call("bingogrid/tickStates", "POST", {
 							states,
 							gridid: grid.id,
 						});
+					}
 				}, 1000);
 			}
 			if (cell.check) {
@@ -959,6 +1152,139 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 
 		hideLeaderboard(): void {
 			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", {});
+		},
+
+		async shareGrid(gridId: string, user: TwitchDataTypes.UserInfo): Promise<void> {
+			const t = StoreProxy.i18n.t;
+			try {
+				const res = await ApiHelper.call(
+					"bingogrid/share",
+					"POST",
+					{ gridid: gridId, targetId: user.id },
+					false,
+				);
+				if (res.json.success) {
+					toast(t("bingo_grid.share_streamer.sent", { USER: user.display_name }), {
+						type: "success",
+						autoClose: 4000,
+					});
+				} else if (res.json.errorCode == "USER_OFFLINE") {
+					toast(t("bingo_grid.share_streamer.offline", { USER: user.display_name }), {
+						type: "warning",
+						autoClose: 5000,
+					});
+				} else {
+					toast(t("bingo_grid.share_streamer.error"), { type: "error", autoClose: 5000 });
+				}
+			} catch (_error) {
+				toast(t("bingo_grid.share_streamer.error"), { type: "error", autoClose: 5000 });
+			}
+		},
+
+		async acceptSharedGrid(inviteToken: string): Promise<void> {
+			const t = StoreProxy.i18n.t;
+			let res;
+			try {
+				res = await ApiHelper.call(
+					"bingogrid/share/accept",
+					"POST",
+					{ token: inviteToken },
+					false,
+				);
+			} catch (_error) {
+				toast(t("bingo_grid.share_streamer.accept_failed"), {
+					type: "error",
+					autoClose: 5000,
+				});
+				return;
+			}
+
+			const json = res.json;
+			if (!json.success || !json.grid || !json.linkToken || !json.ownerId) {
+				toast(t("bingo_grid.share_streamer.accept_failed"), {
+					type: "error",
+					autoClose: 5000,
+				});
+				return;
+			}
+
+			const snap = json.grid;
+			const config: TwitchatDataTypes.BingoGridConfig = {
+				id: snap.id,
+				title: snap.title,
+				enabled: true,
+				showGrid: true,
+				textColor: "#ffffff",
+				winSoundVolume: 100,
+				textSize: 20,
+				cols: snap.cols,
+				rows: snap.rows,
+				entries: snap.entries,
+				additionalEntries: snap.additionalEntries,
+				backgroundAlpha: 45,
+				backgroundColor: "#000000",
+				autoShowHide: false,
+				chatAnnouncementEnabled: false,
+				chatAnnouncement: StoreProxy.i18n.t(
+					"bingo_grid.form.param_chatAnnouncement_default",
+				),
+				//Announce viewers' bingos on this streamer's overlay too (shared pool):
+				//a bingo by any viewer of either channel shows on every linked overlay.
+				overlayAnnouncement: true,
+				overlayAnnouncementPermissions: Utils.getDefaultPermissions(),
+				chatCmd: undefined,
+				chatCmdPermissions: Utils.getDefaultPermissions(
+					true,
+					true,
+					false,
+					false,
+					false,
+					false,
+				),
+				heatClick: false,
+				heatClickPermissions: Utils.getDefaultPermissions(
+					true,
+					true,
+					false,
+					false,
+					false,
+					false,
+				),
+				remoteOwnerId: json.ownerId,
+				remoteOwnerName: json.ownerName,
+				remoteToken: json.linkToken,
+			};
+
+			// Force disable of any enabled grid
+			const otherActiveGrid = this.gridList.filter((g) => g.enabled)[0];
+			if (otherActiveGrid) {
+			}
+			this.gridList.forEach((grid) => {
+				if (grid.enabled) {
+					grid.enabled = false;
+					void this.resetCheckStates(grid.id, false, false, false);
+				}
+			});
+
+			const index = this.gridList.findIndex((g) => g.id == config.id);
+			if (index > -1) this.gridList.splice(index, 1, config);
+			else this.gridList.push(config);
+
+			console.log("SAVE", config.title);
+			void this.saveData(config.id, undefined, true, false);
+		},
+
+		unlinkSharedGrid(gridId: string): void {
+			const grid = this.gridList.find((g) => g.id == gridId);
+			if (!grid || !grid.remoteOwnerId) return;
+			const linkToken = grid.remoteToken;
+			this.gridList = this.gridList.filter((g) => g.id != gridId);
+			//Clear the overlay if it was showing this grid
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: null });
+			void this.saveData();
+			if (linkToken) {
+				void ApiHelper.call("bingogrid/share/unlink", "POST", { linkToken }, false);
+			}
 		},
 	} satisfies StoreActions<"bingoGrid", IBingoGridState, IBingoGridGetters, IBingoGridActions>,
 });

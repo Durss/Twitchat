@@ -229,6 +229,31 @@ export default class Config {
 		});
 	}
 
+	/**
+	 * Persisted snapshot of the ephemeral bingo grid sharing push index.
+	 * Kept directly under DATA_ROOT (not under BINGO_ROOT) so the bingo file
+	 * cleanup task never touches it.
+	 */
+	public static get BINGO_SHARE_TARGETS_FILE(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/bingoShareTargets.json"),
+			beta: path.join(this.DATA_ROOT, "/bingoShareTargets.json"),
+			prod: path.join(this.DATA_ROOT, "/bingoShareTargets.json"),
+		});
+	}
+
+	/**
+	 * Persisted snapshot of the bingo grid mirror read-resolution index
+	 * (receiver/grid -> owner). Kept directly under DATA_ROOT.
+	 */
+	public static get BINGO_MIRROR_OWNERS_FILE(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/bingoMirrorOwners.json"),
+			beta: path.join(this.DATA_ROOT, "/bingoMirrorOwners.json"),
+			prod: path.join(this.DATA_ROOT, "/bingoMirrorOwners.json"),
+		});
+	}
+
 	public static get SETTINGS_PRESETS_FOLDER(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/sharedSettings/"),

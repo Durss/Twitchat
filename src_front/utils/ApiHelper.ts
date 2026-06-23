@@ -1109,6 +1109,100 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"bingogrid/share": {
+		POST: {
+			parameters: {
+				gridid: string;
+				targetId: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"bingogrid/share/accept": {
+		POST: {
+			parameters: {
+				token: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+				linkToken?: string;
+				ownerId?: string;
+				ownerName?: string;
+				gridId?: string;
+				grid?: {
+					id: string;
+					enabled: boolean;
+					title: string;
+					cols: number;
+					rows: number;
+					entries: TwitchatDataTypes.BingoGridConfig["entries"];
+					additionalEntries?: TwitchatDataTypes.BingoGridConfig["entries"];
+				};
+			};
+		};
+	};
+	"bingogrid/share/tick": {
+		POST: {
+			parameters: {
+				linkToken: string;
+				states: { [cellId: string]: boolean };
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"bingogrid/share/subscribe": {
+		POST: {
+			parameters: {
+				linkToken: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+				grid?: {
+					id: string;
+					enabled: boolean;
+					title: string;
+					cols: number;
+					rows: number;
+					entries: TwitchatDataTypes.BingoGridConfig["entries"];
+					additionalEntries?: TwitchatDataTypes.BingoGridConfig["entries"];
+				} | null;
+			};
+		};
+	};
+	"bingogrid/share/unlink": {
+		POST: {
+			parameters: {
+				linkToken: string;
+			};
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
+	"bingogrid/share/reset": {
+		POST: {
+			parameters: void;
+			response: {
+				success: boolean;
+				error?: string;
+				errorCode?: string;
+			};
+		};
+	};
 	log: {
 		POST: {
 			parameters: {
