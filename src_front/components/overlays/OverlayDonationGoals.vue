@@ -11,7 +11,7 @@
 					:index="index"
 					:currentValue="localRaised"
 					:data="goalToParams[goal.id]"
-					:id="currentIndex == index ? 'item current_donation_goal' : 'item '"
+					:id="currentIndex == index ? 'current_donation_goal' : 'item'"
 				>
 					<OverlayDonationGoalAlert
 						class="notification"
