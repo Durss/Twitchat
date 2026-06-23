@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import EventBus from "@/events/EventBus";
 import GlobalEvent from "@/events/GlobalEvent";
-import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import type { TwitchatEventOf } from "@/events/TwitchatEvent";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import DataStore from "@/store/DataStore";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
@@ -131,7 +131,9 @@ let mouseY = 0;
 
 let mouseUpHandler!: (e: MouseEvent | TouchEvent) => void;
 let mouseMoveHandler!: (e: MouseEvent | TouchEvent) => void;
-let publicApiEventHandler!: (e: unknown) => void;
+let publicApiEventHandler!: (
+	e: TwitchatEventOf<"SET_GREET_FEED_READ_ALL" | "SET_GREET_FEED_READ">,
+) => void;
 let deleteMessageHandler!: (e: GlobalEvent) => void;
 let addMessageHandler!: (e: GlobalEvent) => void;
 
@@ -208,7 +210,8 @@ onBeforeMount(() => {
 	}
 	//*/
 
-	publicApiEventHandler = (e) => onPublicApiEvent(e as any);
+	publicApiEventHandler = (e: TwitchatEventOf<"SET_GREET_FEED_READ_ALL" | "SET_GREET_FEED_READ">) =>
+		onPublicApiEvent(e);
 	mouseUpHandler = () => (resizing = false);
 	mouseMoveHandler = (e: MouseEvent | TouchEvent) => onMouseMove(e);
 	deleteMessageHandler = (e: GlobalEvent) => onDeleteMessage(e);
@@ -282,13 +285,11 @@ function onDeleteMessage(e: GlobalEvent): void {
  * Called when requesting an action from the public API
  */
 function onPublicApiEvent(
-	e:
-		| { type: "GREET_FEED_READ"; data: TwitchatEventMap["SET_GREET_FEED_READ"] }
-		| { type: "GREET_FEED_READ_ALL"; data: TwitchatEventMap["SET_GREET_FEED_READ_ALL"] },
+	e: TwitchatEventOf<"SET_GREET_FEED_READ_ALL" | "SET_GREET_FEED_READ">,
 ): void {
 	let readCount = 0;
 	switch (e.type) {
-		case "GREET_FEED_READ": {
+		case "SET_GREET_FEED_READ": {
 			if (e.data && !isNaN(e.data.messageCount)) {
 				readCount = e.data.messageCount;
 			} else {
@@ -296,7 +297,7 @@ function onPublicApiEvent(
 			}
 			break;
 		}
-		case "GREET_FEED_READ_ALL": {
+		case "SET_GREET_FEED_READ_ALL": {
 			readCount = messages.value.length;
 			break;
 		}
@@ -544,4 +545,3 @@ function renderFrame(): void {
 	}
 }
 </style>
-

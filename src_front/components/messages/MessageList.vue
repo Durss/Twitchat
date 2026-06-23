@@ -221,7 +221,7 @@ import { Linear } from "gsap/all";
 import { gsap } from "gsap/gsap-core";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
-import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import type { TwitchatEventOf } from "@/events/TwitchatEvent";
 import * as Sentry from "@sentry/vue";
 
 const props = withDefaults(
@@ -292,7 +292,23 @@ let prevTouchMove!: TouchEvent;
 let touchDragOffset = 0;
 let filteredChanIDs: { [key: string]: boolean } | null = null;
 let userBlockSet: Set<string> | null = null;
-let publicApiEventHandler!: (e: unknown) => void;
+let publicApiEventHandler!: (
+	e: TwitchatEventOf<
+		| "SET_CHAT_FEED_SELECT"
+		| "SET_CHAT_FEED_READ"
+		| "SET_CHAT_FEED_READ_ALL"
+		| "SET_CHAT_FEED_PAUSE_STATE"
+		| "SET_CHAT_FEED_SCROLL"
+		| "SET_CHAT_FEED_SCROLL_BOTTOM"
+		| "SET_CHAT_FEED_SELECT_ACTION_CANCEL"
+		| "SET_CHAT_FEED_SELECT_ACTION_DELETE"
+		| "SET_CHAT_FEED_SELECT_ACTION_BAN"
+		| "SET_CHAT_FEED_SELECT_CHOOSING_ACTION"
+		| "SET_CHAT_FEED_SELECT_ACTION_SAVE"
+		| "SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT"
+		| "SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT"
+	>,
+) => void;
 let deleteMessageHandler!: (e: GlobalEvent) => void;
 let addMessageHandler!: (e: GlobalEvent) => void;
 let reloadListHandler!: (e: GlobalEvent) => void;
@@ -387,7 +403,7 @@ watch(lockScroll, () => {
 });
 
 onBeforeMount(() => {
-	publicApiEventHandler = (e) => onPublicApiEvent(e as any);
+	publicApiEventHandler = (e: Parameters<typeof publicApiEventHandler>[0]) => onPublicApiEvent(e);
 	deleteMessageHandler = (e: GlobalEvent) => onDeleteMessage(e);
 	addMessageHandler = (e: GlobalEvent) => onAddMessage(e);
 	reloadListHandler = (e: GlobalEvent) => fullListRefresh(e.type == GlobalEvent.RELOAD_MESSAGES);
@@ -1097,58 +1113,13 @@ function onDeleteMessage(e: GlobalEvent): void {
 /**
  * Called when requesting an action from the public API
  */
-function onPublicApiEvent(
-	e:
-		| { type: "SET_CHAT_FEED_SELECT"; data: TwitchatEventMap["SET_CHAT_FEED_SELECT"] }
-		| { type: "SET_CHAT_FEED_READ"; data: TwitchatEventMap["SET_CHAT_FEED_READ"] }
-		| { type: "SET_CHAT_FEED_READ_ALL"; data: TwitchatEventMap["SET_CHAT_FEED_READ_ALL"] }
-		| {
-				type: "SET_CHAT_FEED_PAUSE_STATE";
-				data: TwitchatEventMap["SET_CHAT_FEED_PAUSE_STATE"];
-		  }
-		| { type: "SET_CHAT_FEED_SCROLL"; data: TwitchatEventMap["SET_CHAT_FEED_SCROLL"] }
-		| {
-				type: "SET_CHAT_FEED_SCROLL_BOTTOM";
-				data: TwitchatEventMap["SET_CHAT_FEED_SCROLL_BOTTOM"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_CANCEL";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_CANCEL"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_DELETE";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_DELETE"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_BAN";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_BAN"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_CHOOSING_ACTION";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_CHOOSING_ACTION"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_SAVE";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_SAVE"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT"];
-		  }
-		| {
-				type: "SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT";
-				data: TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT"];
-		  },
-): void {
+function onPublicApiEvent(e: Parameters<typeof publicApiEventHandler>[0]): void {
 	let count =
-		e.type == "SET_CHAT_FEED_READ" && e.data.count && !isNaN(e.data.count as number)
-			? e.data.count
-			: 0;
+		e.type == "SET_CHAT_FEED_READ" && e.data.count && !isNaN(e.data.count) ? e.data.count : 0;
 	let scrollBy =
-		e.type == "SET_CHAT_FEED_SCROLL" && e.data.scrollBy && !isNaN(e.data.scrollBy as number)
+		e.type == "SET_CHAT_FEED_SCROLL" && e.data.scrollBy && !isNaN(e.data.scrollBy)
 			? e.data.scrollBy
 			: 100;
-	if (typeof scrollBy == "string") scrollBy = parseInt(scrollBy);
 	const col = e.data?.colIndex || 0;
 	if (col != props.config.order) return;
 
