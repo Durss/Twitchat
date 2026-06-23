@@ -65,6 +65,29 @@
 			"hideLeaderboard_bt": "Hide from overlay",
 			"footer": "Powered by {LINK}",
 			"disable_bingo_tt": "Disable grid"
+		},
+		"share_streamer": {
+			"title": "Share with another streamer",
+			"description": "Share your currently active grid, \"{GRID}\", to another streamer so they can play with you.",
+			"no_grid": "Enable a grid first to share it.",
+			"from": "Shared by {OWNER}",
+			"unlink_tt": "Unlink shared grid",
+			"sent": "Invite sent to {USER}.",
+			"offline": "{USER} isn't connected to Twitchat and can't receive the invite.",
+			"error": "Couldn't send the invite.",
+			"accepted": "{USER} accepted your bingo grid invite!",
+			"accept_failed": "Couldn't accept the invite. It may have expired.",
+			"revoked": "{OWNER} closed the shared bingo grid.",
+			"lose_link": {
+				"title": "Lose shared grid?",
+				"description": "Enabling this grid will unlink the grid shared by {NAME}."
+			},
+			"invite": {
+				"title": "Bingo grid invitation",
+				"message": "{OWNER} wants to share their bingo grid \"{GRID}\" with you.",
+				"accept": "Accept",
+				"decline": "Decline"
+			}
 		}
 	}
 }

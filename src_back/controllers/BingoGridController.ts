@@ -1,7 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import jwt from "jsonwebtoken";
 import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
+import { LRUPersistence } from "../utils/lruPersistence.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
@@ -40,6 +42,55 @@ export default class BingoGridController extends AbstractController {
 	 * Prevents cache stampede by tracking in-flight refresh operations
 	 */
 	private refreshingGrids = new Map<string, Promise<IStreamerGridsCacheData | void>>();
+
+	/**
+	 * Single-use JTI replay guard for share invite tokens.
+	 * Each entry self-expires when the JWT does.
+	 */
+	private usedShareJtis = new Map<string, NodeJS.Timeout>();
+	private static readonly SHARE_INVITE_TTL_SECONDS = 120;
+
+	/**
+	 * Contains which channels a grid updates must be forwarded with
+	 * Key format: "[ownerId]/[gridId]" -> receiver IDs.
+	 */
+	private sharePushTargets = new LRUCache<string, Set<string>>({
+		max: 5000,
+		ttl: 1000 * 60 * 60 * 24, // 24h
+	});
+
+	/**
+	 * Stores which channel a receiver/gridId tupple should resolve to.
+	 * This way, if a streamer requestes for a shared grid, it will
+	 * actually resolve to the owner's grid
+	 * Key format: "[receiverId]/[gridId]" -> ownerId.
+	 */
+	private mirrorOwners = new LRUCache<string, string>({
+		max: 5000,
+		ttl: 1000 * 60 * 60 * 24, // 24h
+	});
+
+	/**
+	 * Persists {@link sharePushTargets} to disk so the receivers' live updates
+	 * survive a server reboot (until their link tokens expire).
+	 */
+	private sharePushPersistence = new LRUPersistence<string, Set<string>, string[]>({
+		cache: this.sharePushTargets,
+		fileName: Config.BINGO_SHARE_TARGETS_FILE,
+		serialize: (set) => Array.from(set),
+		deserialize: (arr) => new Set(arr),
+		name: "bingoShareTargets",
+	});
+
+	/**
+	 * Persists {@link mirrorOwners} so the receivers' viewers keep being served
+	 * from the owner's pool across a server reboot.
+	 */
+	private mirrorOwnersPersistence = new LRUPersistence<string, string>({
+		cache: this.mirrorOwners,
+		fileName: Config.BINGO_MIRROR_OWNERS_FILE,
+		name: "bingoMirrorOwners",
+	});
 
 	private extensionController!: TwitchExtensionController;
 
@@ -142,39 +193,76 @@ export default class BingoGridController extends AbstractController {
 		if ((uid && !/^[a-zA-Z0-9_-]+$/.test(uid)) || !channelId || !/^[0-9]+$/.test(channelId))
 			return;
 
-		const gridList = await this.getChannelGrids(channelId);
-		const isStreamerPremium = (await super.getUserPremiumState(channelId)) != "no";
-		const users = await TwitchUtils.getUsers(undefined, [channelId]);
-		const ownerName = users && users.length > 0 ? users[0]!.display_name : "anonymous";
+		// Build the list of grids visible on this channel: the channel's own grids
+		// plus every grid shared WITH this channel (served from the owner's pool,
+		// so the receiver's viewers play from the owner's data).
+		type GridSource = {
+			grid: IGrid;
+			storageUid: string;
+			ownerName: string;
+			premium: boolean;
+		};
+		const sources: GridSource[] = [];
+
+		const mirrors = this.getMirrorsForReceiver(channelId);
+
+		// A shared (mirrored) grid replaces the receiver's own bingo: while linked,
+		// only serve the mirrored grid(s) so the extension doesn't also show the
+		// receiver's own (now force-disabled) grids.
+		if (mirrors.length === 0) {
+			const ownGrids = await this.getChannelGrids(channelId);
+			if (ownGrids) {
+				const ownPremium = (await super.getUserPremiumState(channelId)) != "no";
+				for (const grid of ownGrids.data) {
+					sources.push({
+						grid,
+						storageUid: channelId,
+						ownerName: ownGrids.ownerName,
+						premium: ownPremium,
+					});
+				}
+			}
+		}
+
+		for (const { gridId, ownerId } of mirrors) {
+			const ownerGrids = await this.getChannelGrids(ownerId, gridId);
+			const grid = ownerGrids && ownerGrids.data.find((g) => g.id == gridId);
+			if (ownerGrids && grid) {
+				const ownerPremium = (await super.getUserPremiumState(ownerId)) != "no";
+				sources.push({
+					grid,
+					storageUid: ownerId,
+					ownerName: ownerGrids.ownerName,
+					premium: ownerPremium,
+				});
+			}
+		}
+
 		const result = new Array<IViewerGridCacheData>();
 
-		if (!gridList) return;
-
-		for (const grid of gridList.data) {
+		for (const { grid, storageUid, ownerName, premium } of sources) {
 			const gridId = grid.id;
 
 			let data = grid;
-			if (uid && isStreamerPremium) {
-				const cached = await this.getViewerGrid(channelId, gridId, uid);
+			if (uid && premium) {
+				const cached = await this.getViewerGrid(storageUid, gridId, uid);
 				//Return cached data
 				if (cached) {
 					data = cached.data;
 
-					const cache: IViewerGridCacheData = {
+					result.push({
 						data,
-						ownerId: channelId,
+						ownerId: storageUid,
 						ownerName,
 						date: Date.now(),
-					};
-
-					result.push(cache);
+					});
 
 					//Generate user's grid
 				} else {
 					data = JSON.parse(JSON.stringify(grid)) as typeof grid;
 					//Don't shuffle broadcaster so their public grid is the same
 					//as the overlay one
-					if (channelId != uid) {
+					if (storageUid != uid) {
 						try {
 							this.shuffleGridEntries(data);
 						} catch (_error) {
@@ -184,19 +272,19 @@ export default class BingoGridController extends AbstractController {
 
 					const cache: IViewerGridCacheData = {
 						data,
-						ownerId: channelId,
+						ownerId: storageUid,
 						ownerName,
 						date: Date.now(),
 					};
 
-					this.saveViewerGrid(channelId, gridId, uid, cache);
+					this.saveViewerGrid(storageUid, gridId, uid, cache);
 
 					result.push(cache);
 				}
 			} else {
 				result.push({
 					data,
-					ownerId: channelId,
+					ownerId: storageUid,
 					ownerName,
 					date: Date.now(),
 				});
@@ -214,7 +302,11 @@ export default class BingoGridController extends AbstractController {
 		login?: string,
 		isAnon?: boolean,
 	): Promise<boolean> {
-		const grid = await this.getViewerGrid(streamerId, gridId, viewerId);
+		// A viewer playing from a receiver's channel is part of the owner's single
+		// pool: resolve to the owner so the card is read and the count recorded
+		// against that pool.
+		const ownerId = this.resolveOwner(streamerId, gridId);
+		const grid = await this.getViewerGrid(ownerId, gridId, viewerId);
 		if (grid) {
 			//Count actual possible number of bingo
 			const rows = grid.data.rows;
@@ -264,13 +356,22 @@ export default class BingoGridController extends AbstractController {
 			//Limit bingo count to the maximum possible so users cannot cheat
 			//by simply sending 999999 as the count.
 			count = Math.min(maxBingoCount, count);
-			SSEController.sendToUser(streamerId, SSETopic.BINGO_GRID_BINGO_COUNT, {
-				gridId: gridId,
-				uid: viewerId,
-				login,
-				count,
-				isAnon,
-			});
+			// Announce the bingo on the owner's overlay AND every linked streamer's
+			// overlay (one shared pool / leaderboard).
+			const recipients = new Set<string>([ownerId]);
+			const shareSet = this.sharePushTargets.get(this.getShareKey(ownerId, gridId));
+			if (shareSet) {
+				for (const receiverId of shareSet) recipients.add(receiverId);
+			}
+			for (const target of recipients) {
+				SSEController.sendToUser(target, SSETopic.BINGO_GRID_BINGO_COUNT, {
+					gridId: gridId,
+					uid: viewerId,
+					login,
+					count,
+					isAnon,
+				});
+			}
 			return true;
 		}
 		return false;
@@ -288,26 +389,551 @@ export default class BingoGridController extends AbstractController {
 		gridId: string,
 		states: { [cellId: string]: boolean },
 	) {
-		const grid = await this.getChannelGrids(channelId, gridId);
+		// Resolve mirrored grids to the owner (the single master).
+		const ownerId = this.resolveOwner(channelId, gridId);
+
+		// On a mirror channel, only the broadcaster (the receiver streamer) may
+		// tick the master, the receiver's moderators cannot.
+		if (ownerId != channelId && moderatorId != channelId) {
+			return false;
+		}
+
+		const grid = await this.getChannelGrids(ownerId, gridId);
 		if (!grid) {
 			return false;
 		}
 
 		try {
-			await this.setTickStates(channelId, gridId, states);
+			await this.setTickStates(ownerId, gridId, states);
 		} catch (error) {
 			Logger.error("Failed updating tick states by moderator");
 			console.log(error);
 			return false;
 		}
 
-		SSEController.sendToUser(channelId, SSETopic.BINGO_GRID_MODERATOR_TICK, {
-			gridId: gridId,
-			uid: moderatorId,
-			states,
-		});
+		// Notify the grid owner (their Twitchat must reflect the extension tick,
+		// even when the broadcaster themselves ticked) and every linked streamer.
+		const recipients = new Set<string>([ownerId]);
+		const shareTargets = this.sharePushTargets.get(this.getShareKey(ownerId, gridId));
+		if (shareTargets) {
+			for (const receiverId of shareTargets) recipients.add(receiverId);
+		}
+		for (const target of recipients) {
+			SSEController.sendToUser(target, SSETopic.BINGO_GRID_MODERATOR_TICK, {
+				gridId: gridId,
+				uid: moderatorId,
+				states,
+			});
+		}
 
 		return true;
+	}
+
+	/*****************************
+	 * GRID SHARING (Phase 1)    *
+	 *****************************/
+	private getShareKey(ownerId: string, gridId: string): string {
+		return `${ownerId}/${gridId}`;
+	}
+
+	/**
+	 * Registers (or refreshes) a receiver as a live-update target of a shared grid,
+	 * and the reverse read-resolution mirror index.
+	 */
+	private addShareTarget(ownerId: string, gridId: string, receiverId: string): void {
+		const key = this.getShareKey(ownerId, gridId);
+		const set = this.sharePushTargets.get(key) || new Set<string>();
+		set.add(receiverId);
+		// Re-set to refresh the cache TTL.
+		this.sharePushTargets.set(key, set);
+		// Mirror index (receiver/grid -> owner) used to resolve viewer reads.
+		this.mirrorOwners.set(this.getShareKey(receiverId, gridId), ownerId);
+	}
+
+	/**
+	 * Returns the receiver's OWN randomized card for a shared grid (like a viewer),
+	 * generating and persisting it under the owner's pool on first access. The card
+	 * keeps the owner's cell IDs, so tick states sync by ID while the layout differs.
+	 */
+	private async getOrCreateReceiverCard(
+		ownerId: string,
+		gridId: string,
+		receiverId: string,
+	): Promise<IGrid | null> {
+		const existing = await this.getViewerGrid(ownerId, gridId, receiverId);
+		if (existing) return existing.data;
+
+		const grids = await this.getChannelGrids(ownerId, gridId);
+		const grid = grids && grids.data.find((g) => g.id == gridId);
+		if (!grids || !grid) return null;
+
+		const card = JSON.parse(JSON.stringify(grid)) as IGrid;
+		try {
+			this.shuffleGridEntries(card);
+		} catch (_error) {
+			Logger.error("Failed shuffling shared bingo grid for receiver", receiverId);
+		}
+		this.saveViewerGrid(ownerId, gridId, receiverId, {
+			data: card,
+			ownerId,
+			ownerName: grids.ownerName,
+			date: Date.now(),
+		});
+		return card;
+	}
+
+	/**
+	 * Resolves a channel access to the owning channel for a shared (mirrored)
+	 * grid, or returns the channel itself when it isn't a mirror.
+	 */
+	private resolveOwner(channelId: string, gridId: string): string {
+		return this.mirrorOwners.get(this.getShareKey(channelId, gridId)) || channelId;
+	}
+
+	/**
+	 * Kills every link to a grid: tells linked receivers to unlink, drops the
+	 * push + mirror indexes, and refreshes their extension viewers. Called when
+	 * the owner disables or deletes the grid.
+	 */
+	private revokeShares(ownerId: string, gridId: string): void {
+		const key = this.getShareKey(ownerId, gridId);
+		const set = this.sharePushTargets.get(key);
+		if (!set) return;
+		for (const receiverId of set) {
+			SSEController.sendToUser(receiverId, SSETopic.BINGO_GRID_SHARE_REVOKED, {
+				ownerId,
+				gridId,
+			});
+			this.mirrorOwners.delete(this.getShareKey(receiverId, gridId));
+			try {
+				void this.extensionController.notifyStateUpdate(receiverId);
+			} catch (_error) {
+				// ignore
+			}
+		}
+		this.sharePushTargets.delete(key);
+	}
+
+	/**
+	 * Lists every grid mirrored TO the given channel (i.e. grids shared with this
+	 * streamer so their viewers can play from the owner's pool).
+	 */
+	private getMirrorsForReceiver(receiverId: string): Array<{ gridId: string; ownerId: string }> {
+		const prefix = receiverId + "/";
+		const res: Array<{ gridId: string; ownerId: string }> = [];
+		for (const [key, ownerId] of this.mirrorOwners.entries()) {
+			if (key.startsWith(prefix)) {
+				res.push({ gridId: key.substring(prefix.length), ownerId });
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * Broadcasts a tick to the grid owner and every streamer the grid is shared
+	 * with, except the originator of the tick.
+	 */
+	private notifyShareTargets(
+		ownerId: string,
+		gridId: string,
+		states: { [cellId: string]: boolean },
+		originatorId: string,
+	): void {
+		const recipients = new Set<string>();
+		if (ownerId != originatorId) recipients.add(ownerId);
+		const set = this.sharePushTargets.get(this.getShareKey(ownerId, gridId));
+		if (set) {
+			for (const receiverId of set) {
+				if (receiverId != originatorId) recipients.add(receiverId);
+			}
+		}
+		for (const uid of recipients) {
+			SSEController.sendToUser(uid, SSETopic.BINGO_GRID_MODERATOR_TICK, {
+				gridId,
+				uid: originatorId,
+				states,
+			});
+		}
+	}
+
+	/**
+	 * Owner shares one of their enabled grids with another streamer.
+	 * Mints a short-lived (2min) single-use invite token and pushes it to the
+	 * target via SSE as a toaster invite.
+	 */
+	private async createShare(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.premiumGuard(request, response);
+		if (!user) return;
+
+		const body = request.body as { gridid?: string; targetId?: string };
+		const gridId = body.gridid || "";
+		const targetId = body.targetId || "";
+
+		response.header("Content-Type", "application/json");
+
+		if (!/^[a-zA-Z0-9_-]+$/.test(gridId) || !/^[0-9]+$/.test(targetId)) {
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid parameters",
+					errorCode: "INVALID_PARAMS",
+				}),
+			);
+			return;
+		}
+
+		if (targetId == user.user_id) {
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Cannot share with yourself",
+					errorCode: "INVALID_TARGET",
+				}),
+			);
+			return;
+		}
+
+		const grids = await this.getChannelGrids(user.user_id, gridId);
+		const grid = grids && grids.data.find((g) => g.id == gridId);
+		if (!grids || !grid || !grid.enabled) {
+			response.status(404);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Grid not found or disabled",
+					errorCode: "NOT_FOUND",
+				}),
+			);
+			return;
+		}
+
+		const jti = Utils.getUUID();
+		const token = jwt.sign(
+			{
+				ownerId: user.user_id,
+				ownerName: grids.ownerName,
+				gridId,
+				gridTitle: grid.title,
+				targetId,
+				jti,
+			} satisfies BingoShareInviteToken,
+			Utils.derivedSecret("bingo_grid_invite"),
+			{ algorithm: "HS256", expiresIn: BingoGridController.SHARE_INVITE_TTL_SECONDS },
+		);
+
+		const delivered = SSEController.sendToUser(targetId, SSETopic.BINGO_GRID_SHARE_INVITE, {
+			token,
+			ownerName: grids.ownerName,
+			gridTitle: grid.title,
+		});
+
+		if (!delivered) {
+			response.status(200);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "User not connected to Twitchat",
+					errorCode: "USER_OFFLINE",
+				}),
+			);
+			return;
+		}
+
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
+
+	/**
+	 * Receiver accepts a share invite. Verifies the invite token, registers the
+	 * receiver as a live-update target, mints a durable link token and returns
+	 * the current grid snapshot.
+	 */
+	private async acceptShare(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const body = request.body as { token?: string };
+		response.header("Content-Type", "application/json");
+
+		let payload: BingoShareInviteToken;
+		try {
+			payload = jwt.verify(body.token || "", Utils.derivedSecret("bingo_grid_invite"), {
+				algorithms: ["HS256"],
+			}) as BingoShareInviteToken;
+		} catch {
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid or expired token",
+					errorCode: "INVALID_TOKEN",
+				}),
+			);
+			return;
+		}
+
+		if (payload.targetId != user.user_id || this.usedShareJtis.has(payload.jti)) {
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid token",
+					errorCode: "INVALID_TOKEN",
+				}),
+			);
+			return;
+		}
+
+		// Burn the JTI so the invite can't be reused. Auto-cleanup once expired.
+		const cleanup = setTimeout(
+			() => this.usedShareJtis.delete(payload.jti),
+			BingoGridController.SHARE_INVITE_TTL_SECONDS * 1000,
+		);
+		this.usedShareJtis.set(payload.jti, cleanup);
+
+		const grids = await this.getChannelGrids(payload.ownerId, payload.gridId);
+		const grid = grids && grids.data.find((g) => g.id == payload.gridId);
+		if (!grid || !grid.enabled) {
+			response.status(404);
+			response.send(
+				JSON.stringify({ success: false, error: "Grid not found", errorCode: "NOT_FOUND" }),
+			);
+			return;
+		}
+
+		this.addShareTarget(payload.ownerId, payload.gridId, user.user_id);
+
+		// Give the receiver their own randomized card (like a viewer), sharing the
+		// owner's cell IDs so ticks stay in sync.
+		const card =
+			(await this.getOrCreateReceiverCard(payload.ownerId, payload.gridId, user.user_id)) ||
+			grid;
+
+		// Refresh the receiver's extension right away so the shared grid shows up
+		// immediately (otherwise it only appears on the next state update).
+		try {
+			await this.extensionController.notifyStateUpdate(user.user_id);
+		} catch (_error) {
+			// ignore
+		}
+
+		const linkToken = jwt.sign(
+			{
+				ownerId: payload.ownerId,
+				ownerName: payload.ownerName,
+				gridId: payload.gridId,
+				receiverId: user.user_id,
+			} satisfies BingoShareLinkToken,
+			Utils.derivedSecret("bingo_grid_link"),
+			{ algorithm: "HS256", expiresIn: "24h" },
+		);
+
+		// Inform the owner that their grid got linked.
+		SSEController.sendToUser(payload.ownerId, SSETopic.BINGO_GRID_SHARE_ACCEPTED, {
+			gridId: payload.gridId,
+			receiverId: user.user_id,
+			receiverName: user.login,
+		});
+
+		response.status(200);
+		response.send(
+			JSON.stringify({
+				success: true,
+				linkToken,
+				ownerId: payload.ownerId,
+				ownerName: payload.ownerName,
+				gridId: payload.gridId,
+				grid: card,
+			}),
+		);
+	}
+
+	/**
+	 * Verifies a link token and returns its payload, or sends an error response.
+	 */
+	private verifyLinkToken(
+		token: string,
+		callerId: string,
+		response: FastifyReply,
+	): BingoShareLinkToken | null {
+		let payload: BingoShareLinkToken;
+		try {
+			payload = jwt.verify(token, Utils.derivedSecret("bingo_grid_link"), {
+				algorithms: ["HS256"],
+			}) as BingoShareLinkToken;
+		} catch {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid or expired token",
+					errorCode: "INVALID_TOKEN",
+				}),
+			);
+			return null;
+		}
+		if (payload.receiverId != callerId) {
+			response.header("Content-Type", "application/json");
+			response.status(403);
+			response.send(
+				JSON.stringify({ success: false, error: "Forbidden", errorCode: "FORBIDDEN" }),
+			);
+			return null;
+		}
+		return payload;
+	}
+
+	/**
+	 * Receiver (co-host) ticks a cell of a shared grid. Applies it to the owner's
+	 * master grid and broadcasts to the owner + any other linked streamers.
+	 */
+	private async shareTick(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const body = request.body as {
+			linkToken?: string;
+			states?: { [cellId: string]: boolean };
+		};
+		const payload = this.verifyLinkToken(body.linkToken || "", user.user_id, response);
+		if (!payload) return;
+
+		// Refresh the receiver's delivery membership.
+		this.addShareTarget(payload.ownerId, payload.gridId, user.user_id);
+
+		try {
+			await this.setTickStates(payload.ownerId, payload.gridId, body.states || {});
+		} catch (error) {
+			Logger.error("Failed updating tick states from shared grid");
+			console.log(error);
+			response.header("Content-Type", "application/json");
+			response.status(500);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "failed to update grid",
+					errorCode: "GRID_UPDATE_FAILED",
+				}),
+			);
+			return;
+		}
+
+		this.notifyShareTargets(payload.ownerId, payload.gridId, body.states || {}, user.user_id);
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
+
+	/**
+	 * Receiver (re)registers for live updates (e.g. after an SSE reconnect) and
+	 * gets the current grid snapshot to reconcile with.
+	 */
+	private async subscribeShare(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const body = request.body as { linkToken?: string };
+		const payload = this.verifyLinkToken(body.linkToken || "", user.user_id, response);
+		if (!payload) return;
+
+		this.addShareTarget(payload.ownerId, payload.gridId, user.user_id);
+
+		// Return the receiver's own randomized card (with its current synced check
+		// states) so the receiver reconciles to it after a reconnect/reshuffle.
+		const grid = await this.getOrCreateReceiverCard(
+			payload.ownerId,
+			payload.gridId,
+			user.user_id,
+		);
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, grid: grid || null }));
+	}
+
+	/**
+	 * Receiver removes the link. Drops them from the delivery index.
+	 */
+	private async unlinkShare(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const body = request.body as { linkToken?: string };
+		let payload: BingoShareLinkToken | null = null;
+		try {
+			payload = jwt.verify(body.linkToken || "", Utils.derivedSecret("bingo_grid_link"), {
+				algorithms: ["HS256"],
+			}) as BingoShareLinkToken;
+		} catch {
+			// Invalid/expired token: nothing to clean, still answer success.
+		}
+
+		if (payload && payload.receiverId == user.user_id) {
+			const key = this.getShareKey(payload.ownerId, payload.gridId);
+			const set = this.sharePushTargets.get(key);
+			if (set) {
+				set.delete(user.user_id);
+				if (set.size == 0) this.sharePushTargets.delete(key);
+				else this.sharePushTargets.set(key, set);
+			}
+			this.mirrorOwners.delete(this.getShareKey(user.user_id, payload.gridId));
+			// Refresh the receiver's extension so the grid disappears from it.
+			try {
+				await this.extensionController.notifyStateUpdate(user.user_id);
+			} catch (_error) {
+				// ignore
+			}
+		}
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
+
+	/**
+	 * Drops every link where the given user is the receiver.
+	 */
+	private clearReceiverShares(receiverId: string): boolean {
+		const mirrors = this.getMirrorsForReceiver(receiverId);
+		for (const { gridId, ownerId } of mirrors) {
+			const key = this.getShareKey(ownerId, gridId);
+			const set = this.sharePushTargets.get(key);
+			if (set) {
+				set.delete(receiverId);
+				if (set.size == 0) this.sharePushTargets.delete(key);
+				else this.sharePushTargets.set(key, set);
+			}
+			this.mirrorOwners.delete(this.getShareKey(receiverId, gridId));
+		}
+		return mirrors.length > 0;
+	}
+
+	/**
+	 * Called by the receiver's app on startup: the front-end link is ephemeral, so
+	 * after a refresh it has forgotten any links. Drop them on the backend too and
+	 * resync the extension so a stale mirrored grid doesn't linger.
+	 */
+	private async resetShares(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
+
+		const hadShares = this.clearReceiverShares(user.user_id);
+		console.log("Had shares?", hadShares);
+		if (hadShares) {
+			try {
+				await this.extensionController.notifyStateUpdate(user.user_id);
+			} catch (_error) {
+				// ignore
+			}
+		}
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
 	}
 
 	/**
@@ -383,6 +1009,36 @@ export default class BingoGridController extends AbstractController {
 			"/api/bingogrid/shuffle",
 			async (request, response) => await this.shuffleEntries(request, response),
 		);
+		this.server.post(
+			"/api/bingogrid/share",
+			async (request, response) => await this.createShare(request, response),
+		);
+		this.server.post(
+			"/api/bingogrid/share/accept",
+			async (request, response) => await this.acceptShare(request, response),
+		);
+		this.server.post(
+			"/api/bingogrid/share/tick",
+			async (request, response) => await this.shareTick(request, response),
+		);
+		this.server.post(
+			"/api/bingogrid/share/subscribe",
+			async (request, response) => await this.subscribeShare(request, response),
+		);
+		this.server.post(
+			"/api/bingogrid/share/unlink",
+			async (request, response) => await this.unlinkShare(request, response),
+		);
+		this.server.post(
+			"/api/bingogrid/share/reset",
+			async (request, response) => await this.resetShares(request, response),
+		);
+
+		// Restore the shared-grid indexes from disk, then start the periodic save
+		// loops. Loading first avoids the empty in-memory caches being flushed
+		// over the snapshots before they are restored.
+		void this.sharePushPersistence.load().then(() => this.sharePushPersistence.start());
+		void this.mirrorOwnersPersistence.load().then(() => this.mirrorOwnersPersistence.start());
 
 		// Periodic flush of viewer grids to disk (every 5 seconds)
 		setInterval(() => {
@@ -525,7 +1181,11 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
-		const gridCache = await this.getChannelGrids(uid, gridId);
+		// Resolve mirrored grids to the owner so every viewer (from any channel)
+		// plays a card generated from, and stored under, the owner's data.
+		const storageUid = this.resolveOwner(uid, gridId);
+
+		const gridCache = await this.getChannelGrids(storageUid, gridId);
 		if (!gridCache || !gridCache.data || !gridCache.data[0]?.enabled) {
 			response.header("Content-Type", "application/json");
 			response.status(404);
@@ -543,12 +1203,12 @@ export default class BingoGridController extends AbstractController {
 		let data: IViewerGridCacheData["data"] | null = null;
 		let multiplayerMode = false;
 
-		if ((await super.getUserPremiumState(uid)) != "no") {
+		if ((await super.getUserPremiumState(storageUid)) != "no") {
 			multiplayerMode = true;
 			//If user is authenticated, generate a unique randomized grid for them
 			const user = await super.twitchUserGuard(request, response, false);
 			if (user) {
-				const cached = await this.getViewerGrid(uid, gridId, user.user_id);
+				const cached = await this.getViewerGrid(storageUid, gridId, user.user_id);
 				//Return cached data
 				if (cached) {
 					data = cached.data;
@@ -558,7 +1218,7 @@ export default class BingoGridController extends AbstractController {
 					const grid = originalGrid.data.find((v) => v.id == gridId);
 					if (grid) {
 						data = grid;
-						if (user.user_id != uid) {
+						if (user.user_id != storageUid) {
 							//Don't shuffle broadcaster so their public grid is the same
 							//as the overlay one
 							try {
@@ -568,9 +1228,9 @@ export default class BingoGridController extends AbstractController {
 							}
 						}
 
-						this.saveViewerGrid(uid, gridId, user.user_id, {
+						this.saveViewerGrid(storageUid, gridId, user.user_id, {
 							data,
-							ownerId: uid,
+							ownerId: storageUid,
 							ownerName: originalGrid.ownerName,
 							date: Date.now(),
 						});
@@ -704,6 +1364,26 @@ export default class BingoGridController extends AbstractController {
 			const clone = { ...cachedGrids };
 			clone.data = [gridRef];
 			this.channelGridsCache.set(cacheOneKey, clone);
+		}
+
+		if (!gridRef.enabled) {
+			// Disabling a grid kills every link associated with it.
+			this.revokeShares(user.user_id, gridId);
+		} else {
+			// Each linked receiver has their own randomized card stored as a viewer
+			// of the owner's pool, so the regular viewer loop below already pushes
+			// their relabeled/reshuffled card. We only need to refresh their
+			// extension viewers so those re-fetch from the resolved owner data.
+			const shareTargets = this.sharePushTargets.get(this.getShareKey(user.user_id, gridId));
+			if (shareTargets) {
+				for (const receiverId of shareTargets) {
+					try {
+						void this.extensionController.notifyStateUpdate(receiverId);
+					} catch (_error) {
+						// ignore
+					}
+				}
+			}
 		}
 
 		let files: string[];
@@ -915,6 +1595,9 @@ export default class BingoGridController extends AbstractController {
 				return;
 			}
 
+			// Deleting a grid kills every link associated with it.
+			this.revokeShares(user.user_id, gridId);
+
 			const folder = Config.BINGO_GRID_ROOT(user.user_id, gridId);
 
 			await fs.promises.rm(folder, { recursive: true, force: true });
@@ -978,6 +1661,9 @@ export default class BingoGridController extends AbstractController {
 			});
 			return;
 		}
+
+		// Propagate the owner's own ticks to any streamer this grid is shared with.
+		this.notifyShareTargets(user.user_id, gridId, states, user.user_id);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -1122,6 +1808,18 @@ export default class BingoGridController extends AbstractController {
 			} catch (_error) {
 				// ignore
 			}
+			// Refresh the extension viewers of every streamer this grid is shared
+			// with so they see the master tick (their cards live in the owner pool).
+			const shareSet = this.sharePushTargets.get(this.getShareKey(streamerId, gridId));
+			if (shareSet) {
+				for (const receiverId of shareSet) {
+					try {
+						void this.extensionController.notifyStateUpdate(receiverId);
+					} catch (_error) {
+						// ignore
+					}
+				}
+			}
 		}
 	}
 }
@@ -1152,4 +1850,24 @@ interface IViewerGridCacheData {
 	ownerId: string;
 	ownerName: string;
 	data: IGrid;
+}
+
+interface BingoShareInviteToken {
+	ownerId: string;
+	ownerName: string;
+	gridId: string;
+	gridTitle: string;
+	targetId: string;
+	jti: string;
+	iat?: number;
+	exp?: number;
+}
+
+interface BingoShareLinkToken {
+	ownerId: string;
+	ownerName: string;
+	gridId: string;
+	receiverId: string;
+	iat?: number;
+	exp?: number;
 }
