@@ -633,8 +633,9 @@ export interface IBingoGridActions {
 	 * @param id
 	 * @param forcedState
 	 * @param callEndpoint
+	 * @param callSaveEndpoint
 	 */
-	resetCheckStates(id: string, forcedState?: boolean, callEndpoint?: boolean): Promise<void>;
+	resetCheckStates(id: string, forcedState?: boolean, callEndpoint?: boolean, callSaveEndpoint?: boolean): Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -646,7 +647,12 @@ export interface IBingoGridActions {
 	 * @param cellId [optional] cell ID that's been clicked
 	 * @param broadcastViewers [optional] tells the viewers the grid got edited. Don't set this "true" when only ticking a cell
 	 */
-	saveData(gridId?: string, cellId?: string, broadcastViewers?: boolean): Promise<void>;
+	saveData(
+		gridId?: string,
+		cellId?: string,
+		broadcastViewers?: boolean,
+		confirmDisable?: boolean,
+	): Promise<void>;
 	/**
 	 * Inverse the check state of the given cell ID.
 	 * @param gridId
@@ -676,6 +682,22 @@ export interface IBingoGridActions {
 	 * Hides the leaderboard for the given grid on its overlay
 	 */
 	hideLeaderboard(): void;
+	/**
+	 * Sends an ephemeral invite to share the given grid with another streamer.
+	 * @param gridId grid to share
+	 * @param user the streamer to invite
+	 */
+	shareGrid(gridId: string, user: TwitchDataTypes.UserInfo): Promise<void>;
+	/**
+	 * Accepts a grid share invite and links the shared grid locally.
+	 * @param inviteToken the 2min invite token received via SSE
+	 */
+	acceptSharedGrid(inviteToken: string): Promise<void>;
+	/**
+	 * Unlinks a shared (remote) grid.
+	 * @param gridId
+	 */
+	unlinkSharedGrid(gridId: string): void;
 }
 
 export interface IChatState {

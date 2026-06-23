@@ -12,7 +12,9 @@
 				v-model="search"
 				@input="onSearch()"
 				@keydown.stop="onKeyDown($event)"
-				v-autofocus
+				@focus="emit('focus')"
+				@blur="emit('blur')"
+				v-autofocus="autofocus"
 			/>
 			<Icon v-if="searching" name="loader" class="loader" />
 			<TTButton
@@ -85,10 +87,10 @@ const props = withDefaults(
 		upwards?: boolean;
 		excludedUserIds?: string[];
 		staticUserList?: TwitchDataTypes.UserInfo[];
+		autofocus?: boolean;
 	}>(),
 	{
-		inline: false,
-		upwards: false,
+		autofocus: true,
 		excludedUserIds: () => [],
 		staticUserList: () => [],
 	},
@@ -96,6 +98,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	close: [];
+	focus: [];
+	blur: [];
 	"update:modelValue": [user: TwitchDataTypes.UserInfo];
 	select: [user: TwitchDataTypes.UserInfo];
 }>();

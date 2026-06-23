@@ -17,16 +17,126 @@
 			</div>
 
 			<ExtensionInstaller />
+
+			<div class="card-item premium shareWithStreamer" v-if="storeAuth.isPremium">
+				<h1><Icon name="user" />{{ t("bingo_grid.share_streamer.title") }}</h1>
+				<div class="description" v-if="activeGrid">
+					{{ t("bingo_grid.share_streamer.description", { GRID: activeGrid?.title }) }}
+				</div>
+				<SearchUserForm
+					v-if="activeGrid"
+					inline
+					:excludedUserIds="[storeAuth.twitch.user.id]"
+					:staticUserList="staticSearchList"
+					:autofocus="false"
+					@select="onShareSelect"
+					@focus="searchFocused = true"
+					@blur="searchFocused = false"
+				/>
+				<div class="noGrid" v-else>{{ t("bingo_grid.share_streamer.no_grid") }}</div>
+			</div>
+
+			<div class="linkedList" v-if="linkedGrids.length > 0">
+				<div class="linkedEntry" v-for="bingo in linkedGrids" :key="bingo.id">
+					<div class="linkedRow">
+						<Icon name="bingo_grid" class="icon" />
+						<div class="info">
+							<span class="gridTitle">{{
+								bingo.title || t("bingo_grid.form.default_title")
+							}}</span>
+							<span class="from">{{
+								t("bingo_grid.share_streamer.from", {
+									OWNER: bingo.remoteOwnerName,
+								})
+							}}</span>
+						</div>
+						<TTButton
+							alert
+							icon="trash"
+							v-tooltip="t('bingo_grid.share_streamer.unlink_tt')"
+							@click="storeBingoGrid.unlinkSharedGrid(bingo.id)"
+						/>
+					</div>
+
+					<!-- Overlay appearance is local to this streamer: editable even
+					     though the grid's game data is owned by another streamer. -->
+					<ToggleBlock
+						v-if="param_textColor[bingo.id]"
+						:icons="['overlay']"
+						:title="t('bingo_grid.form.overlayParams_title')"
+						:open="false"
+						small
+					>
+						<div class="overlayParams">
+							<ParamItem
+								:paramData="param_textColor[bingo.id]!"
+								v-model="bingo.textColor"
+								@change="save(bingo)"
+							/>
+							<ParamItem
+								:paramData="param_textSize[bingo.id]!"
+								v-model="bingo.textSize"
+								@change="save(bingo)"
+							/>
+							<ParamItem
+								:paramData="param_showGrid[bingo.id]!"
+								v-model="bingo.showGrid"
+								@change="save(bingo)"
+							/>
+							<ParamItem
+								:paramData="param_backgroundColor[bingo.id]!"
+								v-model="bingo.backgroundColor"
+								@change="save(bingo)"
+							/>
+							<ParamItem
+								:paramData="param_backgroundAlpha[bingo.id]!"
+								v-model="bingo.backgroundAlpha"
+								@change="save(bingo)"
+							/>
+							<ParamItem
+								:paramData="param_winSoundVolume[bingo.id]!"
+								@change="(prevVal, newVal) => save(bingo, false, prevVal != newVal)"
+								v-model="bingo.winSoundVolume"
+							/>
+							<ParamItem
+								:paramData="param_autoHide[bingo.id]!"
+								@change="save(bingo)"
+								v-model="bingo.autoShowHide"
+							/>
+						</div>
+					</ToggleBlock>
+
+					<ParamItem
+						:paramData="param_overlayAnnouncement[bingo.id]!"
+						v-model="bingo.overlayAnnouncement"
+						@change="save(bingo)"
+					>
+						<div class="parameter-child">
+							<ToggleBlock
+								:title="t('bingo_grid.form.param_overlayAnnouncement_permissions')"
+								small
+								:open="false"
+								noTitle
+							>
+								<PermissionsForm
+									v-model="bingo.overlayAnnouncementPermissions"
+								></PermissionsForm>
+							</ToggleBlock>
+						</div>
+					</ParamItem>
+				</div>
+			</div>
+
 			<VueDraggable
 				class="gridList"
-				v-model="storeBingoGrid.gridList"
+				v-model="editableGrids"
 				:group="{ name: 'bingo_grids' }"
 				handle=".header"
 				:animation="250"
 				@end="storeBingoGrid.saveData()"
 			>
 				<ToggleBlock
-					v-for="bingo in storeBingoGrid.gridList"
+					v-for="bingo in editableGrids"
 					editableTitle
 					v-model:title="bingo.title"
 					:titleDefault="t('bingo_grid.form.default_title')"
@@ -324,10 +434,10 @@ import { asset } from "@/composables/useAsset";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { type TriggerActionBingoGridData, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -337,13 +447,14 @@ import {
 	onBeforeMount,
 	ref,
 	useTemplateRef,
+	watch,
 	type ComponentPublicInstance,
 } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import ClearButton from "../ClearButton.vue";
 import PermissionsForm from "../PermissionsForm.vue";
+import SearchUserForm from "../SearchUserForm.vue";
 import TTButton from "../TTButton.vue";
 import ToggleBlock from "../ToggleBlock.vue";
 import ToggleButton from "../ToggleButton.vue";
@@ -351,8 +462,8 @@ import ChatMessage from "../messages/ChatMessage.vue";
 import ParamItem from "../params/ParamItem.vue";
 import PremiumLimitMessage from "../params/PremiumLimitMessage.vue";
 import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
-import OverlayInstaller from "../params/contents/overlays/OverlayInstaller.vue";
 import Overlay404 from "../params/contents/overlays/Overlay404.vue";
+import OverlayInstaller from "../params/contents/overlays/OverlayInstaller.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -369,12 +480,10 @@ const props = withDefaults(
 const emit = defineEmits<{ close: [] }>();
 
 const { t } = useI18n();
-const router = useRouter();
 const { getAsset } = asset();
 const storeAuth = useStoreAuth();
 const storeBingoGrid = useStoreBingoGrid();
 const storeStream = useStoreStream();
-const storeParams = useStoreParams();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const { close } = useSidePanel(rootEl, () => emit("close"), props.embedMode === false);
 
@@ -401,6 +510,8 @@ const param_overlayAnnouncement = ref<{ [key: string]: TwitchatDataTypes.Paramet
 const param_messagePreview = ref<{ [key: string]: TwitchatDataTypes.MessageChatData }>({});
 const param_showMessage = ref<{ [key: string]: boolean }>({});
 const isDragging = ref(false);
+const searchFocused = ref(false);
+const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
 
 const labelRefs: Record<string, ComponentPublicInstance> = {};
 const lockedItems: {
@@ -421,11 +532,58 @@ const classes = computed<string[]>(() => {
 	return res;
 });
 
+const staticSearchList = computed(() => {
+	return searchFocused.value ? liveFollingList.value : undefined;
+});
+
+/**
+ * Editable (non-shared) grids. The VueDraggable binds to this so shared grids
+ * are never reordered/persisted with the user's own grids.
+ */
+const editableGrids = computed<TwitchatDataTypes.BingoGridConfig[]>({
+	get() {
+		return storeBingoGrid.gridList.filter((g) => !g.remoteOwnerId);
+	},
+	set(list) {
+		const linked = storeBingoGrid.gridList.filter((g) => g.remoteOwnerId);
+		storeBingoGrid.gridList = [...list, ...linked];
+		void storeBingoGrid.saveData();
+	},
+});
+
+/**
+ * Grids shared TO this user by another streamer (rendered as read-only rows
+ * with editable overlay params).
+ */
+const linkedGrids = computed<TwitchatDataTypes.BingoGridConfig[]>(() =>
+	storeBingoGrid.gridList.filter((g) => g.remoteOwnerId),
+);
+
+//A shared grid can be accepted (via SSE) while the form is open. Make sure its
+//overlay params get initialized so they can be customized.
+watch(
+	() => linkedGrids.value.length,
+	() => initParams(),
+);
+
+/**
+ * The currently enabled own grid that the share field will share.
+ */
+const activeGrid = computed<TwitchatDataTypes.BingoGridConfig | undefined>(() =>
+	storeBingoGrid.gridList.find((g) => g.enabled && !g.remoteOwnerId),
+);
+
+function onShareSelect(user: TwitchDataTypes.UserInfo): void {
+	if (!activeGrid.value) return;
+	void storeBingoGrid.shareGrid(activeGrid.value.id, user);
+}
+
 const maxGridReached = computed<boolean>(() => {
+	const count = editableGrids.value.length;
 	if (storeAuth.isPremium) {
-		return storeBingoGrid.gridList.length >= Config.instance.MAX_BINGO_GRIDS_PREMIUM;
+		return count >= Config.instance.MAX_BINGO_GRIDS_PREMIUM;
 	} else {
-		return storeBingoGrid.gridList.length >= Config.instance.MAX_BINGO_GRIDS;
+		return count >= Config.instance.MAX_BINGO_GRIDS;
 	}
 });
 
@@ -551,6 +709,17 @@ async function renderPreview(id: string, rawMessage: string): Promise<void> {
 	param_messagePreview.value[id]!.twitch_announcementColor = announcementColor;
 	param_showMessage.value[id] = prevState;
 }
+
+/**
+ * Loads currently live following for fast channel access
+ */
+async function loadLiveFollowing(): Promise<void> {
+	liveFollingList.value = [];
+	const list = await TwitchUtils.getActiveFollowedStreams();
+	liveFollingList.value = await TwitchUtils.getUserInfo(list.map((v) => v.user_id));
+}
+
+loadLiveFollowing();
 
 /**
  * Create parameters for a bingo entry
@@ -698,6 +867,71 @@ function initParams(): void {
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.shareWithStreamer {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+		background-color: var(--color-premium-fadest);
+		h1 {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			.icon {
+				height: 1em;
+			}
+		}
+		.description {
+			font-size: 0.8em;
+			text-align: center;
+		}
+		.noGrid {
+			font-style: italic;
+			text-align: center;
+			opacity: 0.7;
+			font-size: 0.9em;
+		}
+	}
+
+	.linkedList {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--grayout);
+		border-radius: var(--border-radius);
+		padding: 0.5em;
+		.linkedEntry {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+		}
+		.linkedRow {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			.icon {
+				height: 1.5em;
+				flex-shrink: 0;
+			}
+			.info {
+				display: flex;
+				flex-direction: column;
+				flex-grow: 1;
+				overflow: hidden;
+				.gridTitle {
+					font-weight: bold;
+				}
+				.from {
+					font-size: 0.8em;
+					opacity: 0.8;
+				}
+			}
+		}
 	}
 
 	.entryList {
