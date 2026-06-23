@@ -1479,6 +1479,7 @@ onBeforeUnmount(() => {
 			width: 200px;
 			line-height: 1.05em;
 			cursor: pointer;
+			flex-shrink: 0;
 			&::before {
 				content: "LIVE";
 				position: absolute;
