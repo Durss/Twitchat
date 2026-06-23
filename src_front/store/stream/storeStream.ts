@@ -378,7 +378,7 @@ export const storeStream = defineStore("stream", {
 			}
 
 			if (channelId == StoreProxy.auth.twitch.user.id) {
-				StoreProxy.bluesky.applyAutoLive();
+				void StoreProxy.bluesky.applyAutoLive();
 			}
 		},
 
@@ -395,7 +395,7 @@ export const storeStream = defineStore("stream", {
 					void TwitchUtils.getAdSchedule();
 				}, 60000);
 
-				StoreProxy.bluesky.applyAutoLive();
+				void StoreProxy.bluesky.applyAutoLive();
 			}
 		},
 
@@ -407,7 +407,7 @@ export const storeStream = defineStore("stream", {
 					void TwitchUtils.setRoomSettings(uid, { emotesOnly: true });
 				}
 
-				StoreProxy.bluesky.applyAutoLive();
+				void StoreProxy.bluesky.applyAutoLive();
 			}
 
 			//Send donation reminder if requested
