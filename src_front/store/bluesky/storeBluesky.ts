@@ -22,6 +22,7 @@ let agent: Agent | null = null;
 let notifPollInterval: ReturnType<typeof setInterval> | null = null;
 let dmPollInterval: ReturnType<typeof setInterval> | null = null;
 let autoliveCheckInterval: ReturnType<typeof setInterval> | null = null;
+let currentlyLive = false;
 // Empty string = first poll (seed mode: record state without dispatching)
 let lastNotifAt: string = "";
 // convoId → sentAt of last dispatched message; absent = first poll
@@ -139,20 +140,30 @@ export const storeBluesky = defineStore("bluesky", {
 			}
 		},
 
-		applyAutoLive() {
+		async applyAutoLive() {
 			if (this.autoLive) {
 				const infos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
 				if (infos?.live) {
 					void this.setLiveStatus(true);
+					return;
 				} else {
-					void this.setLiveStatus(false);
+					const res = await TwitchUtils.getChannelInfo([StoreProxy.auth.twitch.user.id]);
+					if (res.length == 1) {
+						void this.setLiveStatus(
+							true,
+							"https://twitch.tv/" + StoreProxy.auth.twitch.user.login,
+							res[0]?.title,
+						);
+						return;
+					}
 				}
 			}
+			void this.setLiveStatus(false);
 		},
 
 		setAutoliveFeatureState(state: boolean) {
 			this.autoLive = state;
-			this.applyAutoLive();
+			void this.applyAutoLive();
 			this.saveConfigs();
 		},
 
@@ -198,8 +209,9 @@ export const storeBluesky = defineStore("bluesky", {
 			return false;
 		},
 
-		async setLiveStatus(live: boolean): Promise<void> {
+		async setLiveStatus(live: boolean, url?: string, title?: string): Promise<void> {
 			if (!agent) return;
+			if (live === currentlyLive) return;
 			if (live) {
 				await agent.com.atproto.repo.putRecord({
 					repo: agent.did!,
@@ -211,9 +223,9 @@ export const storeBluesky = defineStore("bluesky", {
 						embed: {
 							$type: "app.bsky.embed.external",
 							external: {
-								uri: "https://twitch.tv/twitch",
-								title: "My stream",
-								description: "",
+								uri: url,
+								title,
+								description: title,
 							},
 						},
 						// Only keep it for 12min so if twitchat is closed before it has a chance
@@ -223,12 +235,14 @@ export const storeBluesky = defineStore("bluesky", {
 						createdAt: new Date().toISOString(),
 					},
 				});
+				currentlyLive = true;
 			} else {
 				await agent.com.atproto.repo.deleteRecord({
 					repo: agent.did!,
 					collection: "app.bsky.actor.status",
 					rkey: "self",
 				});
+				currentlyLive = false;
 			}
 		},
 
@@ -237,7 +251,7 @@ export const storeBluesky = defineStore("bluesky", {
 			this.stopPolling();
 			void this.pollDMs();
 			void this.pollNotifications();
-			this.applyAutoLive();
+			void this.applyAutoLive();
 			dmPollInterval = setInterval(() => void this.pollDMs(), 30_000);
 			notifPollInterval = setInterval(() => void this.pollNotifications(), 30_000);
 			autoliveCheckInterval = setInterval(() => this.applyAutoLive(), 10 * 60000);
