@@ -2475,6 +2475,23 @@ const UserDataSchema = {
 						},
 					},
 				},
+				linkedGridStyle: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						textColor: { type: "string", maxLength: 10 },
+						textSize: { type: "number", minimum: 1, maximum: 100 },
+						showGrid: { type: "boolean" },
+						backgroundColor: { type: "string", maxLength: 10 },
+						backgroundAlpha: { type: "number", minimum: 0, maximum: 100 },
+						winSoundVolume: { type: "number", minimum: 0, maximum: 100 },
+						autoShowHide: { type: "boolean" },
+						overlayAnnouncement: { type: "boolean" },
+						overlayAnnouncementPermissions: {
+							$ref: "defs.json#/definitions/permissions",
+						},
+					},
+				},
 			},
 		},
 		overlayLabels: {

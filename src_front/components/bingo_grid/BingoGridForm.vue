@@ -19,7 +19,7 @@
 			<ExtensionInstaller />
 
 			<div class="card-item premium shareWithStreamer" v-if="storeAuth.isPremium">
-				<h1><Icon name="user" />{{ t("bingo_grid.share_streamer.title") }}</h1>
+				<h2><Icon name="user" />{{ t("bingo_grid.share_streamer.title") }}</h2>
 				<div class="description" v-if="activeGrid">
 					{{ t("bingo_grid.share_streamer.description", { GRID: activeGrid?.title }) }}
 				</div>
@@ -36,95 +36,94 @@
 				<div class="noGrid" v-else>{{ t("bingo_grid.share_streamer.no_grid") }}</div>
 			</div>
 
-			<div class="linkedList" v-if="linkedGrids.length > 0">
-				<div class="linkedEntry" v-for="bingo in linkedGrids" :key="bingo.id">
-					<div class="linkedRow">
-						<Icon name="bingo_grid" class="icon" />
-						<div class="info">
-							<span class="gridTitle">{{
-								bingo.title || t("bingo_grid.form.default_title")
-							}}</span>
-							<span class="from">{{
-								t("bingo_grid.share_streamer.from", {
-									OWNER: bingo.remoteOwnerName,
-								})
-							}}</span>
-						</div>
-						<TTButton
-							alert
-							icon="trash"
-							v-tooltip="t('bingo_grid.share_streamer.unlink_tt')"
-							@click="storeBingoGrid.unlinkSharedGrid(bingo.id)"
+			<div class="card-item linkedList" v-if="linkedGrids.length > 0">
+				<div class="linkedRow" v-for="bingo in linkedGrids" :key="bingo.id">
+					<Icon name="bingo_grid" class="icon" />
+					<div class="info">
+						<span class="gridTitle">{{
+							bingo.title || t("bingo_grid.form.default_title")
+						}}</span>
+						<span class="from">{{
+							t("bingo_grid.share_streamer.from", {
+								OWNER: bingo.remoteOwnerName,
+							})
+						}}</span>
+					</div>
+					<TTButton
+						alert
+						icon="trash"
+						v-tooltip="t('bingo_grid.share_streamer.unlink_tt')"
+						@click="storeBingoGrid.unlinkSharedGrid(bingo.id)"
+					/>
+				</div>
+
+				<!-- Single style shared by ALL linked grids -->
+				<ToggleBlock
+					:icons="['overlay']"
+					:title="t('bingo_grid.form.overlayParams_title')"
+					:open="false"
+					small
+				>
+					<div class="overlayParams">
+						<ParamItem
+							:paramData="linkedParam_textColor"
+							v-model="storeBingoGrid.linkedGridStyle.textColor"
+							@change="saveLinkedStyle()"
+						/>
+						<ParamItem
+							:paramData="linkedParam_textSize"
+							v-model="storeBingoGrid.linkedGridStyle.textSize"
+							@change="saveLinkedStyle()"
+						/>
+						<ParamItem
+							:paramData="linkedParam_showGrid"
+							v-model="storeBingoGrid.linkedGridStyle.showGrid"
+							@change="saveLinkedStyle()"
+						/>
+						<ParamItem
+							:paramData="linkedParam_backgroundColor"
+							v-model="storeBingoGrid.linkedGridStyle.backgroundColor"
+							@change="saveLinkedStyle()"
+						/>
+						<ParamItem
+							:paramData="linkedParam_backgroundAlpha"
+							v-model="storeBingoGrid.linkedGridStyle.backgroundAlpha"
+							@change="saveLinkedStyle()"
+						/>
+						<ParamItem
+							:paramData="linkedParam_winSoundVolume"
+							@change="(prevVal, newVal) => saveLinkedStyle(prevVal != newVal)"
+							v-model="storeBingoGrid.linkedGridStyle.winSoundVolume"
+						/>
+						<ParamItem
+							:paramData="linkedParam_autoHide"
+							@change="saveLinkedStyle()"
+							v-model="storeBingoGrid.linkedGridStyle.autoShowHide"
 						/>
 					</div>
+				</ToggleBlock>
 
-					<!-- Overlay appearance is local to this streamer: editable even
-					     though the grid's game data is owned by another streamer. -->
-					<ToggleBlock
-						v-if="param_textColor[bingo.id]"
-						:icons="['overlay']"
-						:title="t('bingo_grid.form.overlayParams_title')"
-						:open="false"
-						small
-					>
-						<div class="overlayParams">
-							<ParamItem
-								:paramData="param_textColor[bingo.id]!"
-								v-model="bingo.textColor"
-								@change="save(bingo)"
-							/>
-							<ParamItem
-								:paramData="param_textSize[bingo.id]!"
-								v-model="bingo.textSize"
-								@change="save(bingo)"
-							/>
-							<ParamItem
-								:paramData="param_showGrid[bingo.id]!"
-								v-model="bingo.showGrid"
-								@change="save(bingo)"
-							/>
-							<ParamItem
-								:paramData="param_backgroundColor[bingo.id]!"
-								v-model="bingo.backgroundColor"
-								@change="save(bingo)"
-							/>
-							<ParamItem
-								:paramData="param_backgroundAlpha[bingo.id]!"
-								v-model="bingo.backgroundAlpha"
-								@change="save(bingo)"
-							/>
-							<ParamItem
-								:paramData="param_winSoundVolume[bingo.id]!"
-								@change="(prevVal, newVal) => save(bingo, false, prevVal != newVal)"
-								v-model="bingo.winSoundVolume"
-							/>
-							<ParamItem
-								:paramData="param_autoHide[bingo.id]!"
-								@change="save(bingo)"
-								v-model="bingo.autoShowHide"
-							/>
-						</div>
-					</ToggleBlock>
-
-					<ParamItem
-						:paramData="param_overlayAnnouncement[bingo.id]!"
-						v-model="bingo.overlayAnnouncement"
-						@change="save(bingo)"
-					>
-						<div class="parameter-child">
-							<ToggleBlock
-								:title="t('bingo_grid.form.param_overlayAnnouncement_permissions')"
-								small
-								:open="false"
-								noTitle
-							>
-								<PermissionsForm
-									v-model="bingo.overlayAnnouncementPermissions"
-								></PermissionsForm>
-							</ToggleBlock>
-						</div>
-					</ParamItem>
-				</div>
+				<ParamItem
+					:paramData="linkedParam_overlayAnnouncement"
+					v-model="storeBingoGrid.linkedGridStyle.overlayAnnouncement"
+					@change="saveLinkedStyle()"
+				>
+					<div class="parameter-child">
+						<ToggleBlock
+							:title="t('bingo_grid.form.param_overlayAnnouncement_permissions')"
+							small
+							:open="false"
+							noTitle
+						>
+							<PermissionsForm
+								v-model="
+									storeBingoGrid.linkedGridStyle.overlayAnnouncementPermissions
+								"
+								@update:modelValue="saveLinkedStyle()"
+							></PermissionsForm>
+						</ToggleBlock>
+					</div>
+				</ParamItem>
 			</div>
 
 			<VueDraggable
@@ -133,7 +132,6 @@
 				:group="{ name: 'bingo_grids' }"
 				handle=".header"
 				:animation="250"
-				@end="storeBingoGrid.saveData()"
 			>
 				<ToggleBlock
 					v-for="bingo in editableGrids"
@@ -509,6 +507,64 @@ const param_overlayAnnouncement = ref<{ [key: string]: TwitchatDataTypes.Paramet
 );
 const param_messagePreview = ref<{ [key: string]: TwitchatDataTypes.MessageChatData }>({});
 const param_showMessage = ref<{ [key: string]: boolean }>({});
+
+//Single set of params for the style shared by ALL linked (shared-to-us) grids.
+const linkedParam_textColor = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "color",
+	value: "#ffffff",
+	labelKey: "bingo_grid.form.param_text_color",
+	icon: "color",
+});
+const linkedParam_textSize = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 20,
+	min: 2,
+	max: 100,
+	labelKey: "bingo_grid.form.param_text_size",
+	icon: "fontSize",
+});
+const linkedParam_showGrid = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "bingo_grid.form.param_show_grid",
+	icon: "show",
+});
+const linkedParam_backgroundColor = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "color",
+	value: "#000000",
+	labelKey: "bingo_grid.form.param_background_color",
+	icon: "color",
+});
+const linkedParam_backgroundAlpha = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	value: 45,
+	min: 0,
+	max: 100,
+	labelKey: "bingo_grid.form.param_background_alpha",
+	icon: "color",
+});
+const linkedParam_winSoundVolume = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	value: 100,
+	min: 0,
+	max: 100,
+	step: 10,
+	labelKey: "bingo_grid.form.param_winSoundVolume",
+	icon: "volume",
+});
+const linkedParam_autoHide = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "bingo_grid.form.param_autoHide",
+	icon: "show",
+});
+const linkedParam_overlayAnnouncement = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "bingo_grid.form.param_overlayAnnouncement",
+	icon: "announcement",
+	premiumOnly: true,
+});
 const isDragging = ref(false);
 const searchFocused = ref(false);
 const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
@@ -626,6 +682,19 @@ function save(
 }
 
 /**
+ * Persists the global linked-grid style and applies it to all linked grids.
+ */
+function saveLinkedStyle(playWinSound: boolean = false): void {
+	storeBingoGrid.saveLinkedGridStyle();
+
+	if (playWinSound && storeBingoGrid.linkedGridStyle.winSoundVolume) {
+		const audio = new Audio(getAsset("sounds/win.mp3"));
+		audio.volume = storeBingoGrid.linkedGridStyle.winSoundVolume / 100;
+		audio.play();
+	}
+}
+
+/**
  * Create a new grid
  */
 function addGrid(): void {
@@ -719,7 +788,13 @@ async function loadLiveFollowing(): Promise<void> {
 	liveFollingList.value = await TwitchUtils.getUserInfo(list.map((v) => v.user_id));
 }
 
-loadLiveFollowing();
+if (storeAuth.isPremium) {
+	try {
+		loadLiveFollowing();
+	} catch (_) {
+		// ignore
+	}
+}
 
 /**
  * Create parameters for a bingo entry
@@ -875,7 +950,8 @@ function initParams(): void {
 		flex-direction: column;
 		flex-shrink: 0;
 		background-color: var(--color-premium-fadest);
-		h1 {
+		color: var(--color-text);
+		h2 {
 			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
@@ -901,14 +977,8 @@ function initParams(): void {
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
-		background-color: var(--grayout);
-		border-radius: var(--border-radius);
+		background-color: var(--background-color-primary);
 		padding: 0.5em;
-		.linkedEntry {
-			gap: 0.5em;
-			display: flex;
-			flex-direction: column;
-		}
 		.linkedRow {
 			gap: 0.5em;
 			display: flex;

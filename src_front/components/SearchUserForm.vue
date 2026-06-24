@@ -90,6 +90,8 @@ const props = withDefaults(
 		autofocus?: boolean;
 	}>(),
 	{
+		inline: false,
+		upwards: false,
 		autofocus: true,
 		excludedUserIds: () => [],
 		staticUserList: () => [],

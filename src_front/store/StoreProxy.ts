@@ -591,6 +591,10 @@ export interface IBingoGridState {
 	 */
 	gridList: TwitchatDataTypes.BingoGridConfig[];
 	/**
+	 * Display/overlay style applied to every grid shared with us.
+	 */
+	linkedGridStyle: TwitchatDataTypes.BingoGridLinkedStyle;
+	/**
 	 * Stores the number of bingos of the viewers
 	 */
 	viewersBingoCount: { user: TwitchatDataTypes.TwitchatUser; count: number }[];
@@ -703,6 +707,10 @@ export interface IBingoGridActions {
 	 * @param gridId
 	 */
 	unlinkSharedGrid(gridId: string): void;
+	/**
+	 * Save linked grid styles
+	 */
+	saveLinkedGridStyle(): void;
 }
 
 export interface IChatState {
