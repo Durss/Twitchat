@@ -635,7 +635,12 @@ export interface IBingoGridActions {
 	 * @param callEndpoint
 	 * @param callSaveEndpoint
 	 */
-	resetCheckStates(id: string, forcedState?: boolean, callEndpoint?: boolean, callSaveEndpoint?: boolean): Promise<void>;
+	resetCheckStates(
+		id: string,
+		forcedState?: boolean,
+		callEndpoint?: boolean,
+		callSaveEndpoint?: boolean,
+	): Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -4378,6 +4383,8 @@ export interface IAPIActions {
 export interface IBlueskyState {
 	connected: boolean;
 	autoLive: boolean;
+	dmsAlerts: boolean;
+	mentionsAlerts: boolean;
 	sub: string;
 	profile: Pick<
 		ProfileViewDetailed,

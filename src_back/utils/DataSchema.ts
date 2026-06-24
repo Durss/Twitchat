@@ -3266,6 +3266,19 @@ const UserDataSchema = {
 				port: { type: "integer", minimum: 0, maximum: 65535 },
 			},
 		},
+
+		blueskyConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				connected: { type: "boolean" },
+				autoLive: { type: "boolean" },
+				dmsAlerts: { type: "boolean" },
+				mentionsAlerts: { type: "boolean" },
+				sub: { type: "string", maxLength: 100 },
+				handleResolver: { type: "string", maxLength: 100 },
+			},
+		},
 	},
 };
 
