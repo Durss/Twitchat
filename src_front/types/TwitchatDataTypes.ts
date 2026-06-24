@@ -1105,6 +1105,24 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Display/overlay style shared by ALL grids linked TO this user by other
+	 * streamers. The linked grids themselves are ephemeral (never persisted),
+	 * but this style is persisted globally and re-applied to any linked grid.
+	 */
+	export type BingoGridLinkedStyle = Pick<
+		BingoGridConfig,
+		| "textColor"
+		| "textSize"
+		| "showGrid"
+		| "backgroundColor"
+		| "backgroundAlpha"
+		| "winSoundVolume"
+		| "autoShowHide"
+		| "overlayAnnouncement"
+		| "overlayAnnouncementPermissions"
+	>;
+
+	/**
 	 * Donation goal overlay params
 	 */
 	export interface DonationGoalOverlayConfig {

@@ -922,7 +922,6 @@ export default class BingoGridController extends AbstractController {
 		if (!user) return;
 
 		const hadShares = this.clearReceiverShares(user.user_id);
-		console.log("Had shares?", hadShares);
 		if (hadShares) {
 			try {
 				await this.extensionController.notifyStateUpdate(user.user_id);
