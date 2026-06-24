@@ -196,7 +196,7 @@ class OverlayParamsRaffle extends Vue {
 			winner: Utils.pickRand(items).id,
 			skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 		};
-		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_START", data);
+		PublicAPI.instance.broadcast("SET_WHEEL_OVERLAY_START", data);
 		await Utils.promisedTimeout(100);
 		this.loading = false;
 	}

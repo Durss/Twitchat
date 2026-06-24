@@ -915,8 +915,17 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a wheel overlay data
 	 */
 	export interface WheelData {
+		/**
+		 * Raffle items
+		 */
 		items: EntryItem[];
+		/**
+		 * Winning entry ID
+		 */
 		winner: string;
+		/**
+		 * Raffle session ID returned by ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
+		 */
 		sessionId: string;
 		/**
 		 * @private

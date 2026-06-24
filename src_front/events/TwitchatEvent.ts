@@ -883,7 +883,7 @@ export type TwitchatEventMap = {
 	/**
 	 * Triggered when wheel overlay animation starts
 	 */
-	ON_WHEEL_OVERLAY_START: TwitchatDataTypes.WheelData;
+	SET_WHEEL_OVERLAY_START: TwitchatDataTypes.WheelData;
 	/**
 	 * Triggered when wheel overlay animation completes
 	 */
