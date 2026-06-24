@@ -179,7 +179,6 @@ Events fired by Twitchat that you can listen to.
 - [ON_VOICEMOD_VOICE_CHANGE](#on_voicemod_voice_change)
 - [ON_WHEEL_OVERLAY_ANIMATION_COMPLETE](#on_wheel_overlay_animation_complete)
 - [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)
-- [ON_WHEEL_OVERLAY_START](#on_wheel_overlay_start)
 
 #### ON_AD_BREAK_OVERLAY_CONFIGS
 
@@ -687,6 +686,20 @@ type ON_BINGO_GRID_CONFIGS = {
 			 */
 			usersRefused: string[];
 		};
+		/**
+		 * Set ONLY on grids shared TO this user by another streamer.
+		 * The user ID of the grid owner. Ephemeral, never persisted.
+		 */
+		remoteOwnerId?: string;
+		/**
+		 * Display name of the grid owner (for shared grids). Ephemeral, never persisted.
+		 */
+		remoteOwnerName?: string;
+		/**
+		 * Durable link/capability JWT presented to the server on every tick of a
+		 * shared grid. Ephemeral, never persisted.
+		 */
+		remoteToken?: string;
 	};
 	/**
 	 * Row indexes to show a bingo animation on
@@ -2786,6 +2799,11 @@ type ON_GLOBAL_STATES = {
 		 * Is current answer revealed?
 		 */
 		answerRevealed: boolean;
+		/**
+		 * If true, the question countdown was forced to stop early
+		 * (e.g. max answers reached). timerStartedAt is left untouched.
+		 */
+		forceCountdownStop: boolean;
 		/**
 		 * Question index
 		 */
@@ -5287,26 +5305,6 @@ type ON_WHEEL_OVERLAY_ANIMATION_COMPLETE = {
 
 Advertise for wheel overlay presence
 
-#### ON_WHEEL_OVERLAY_START
-
-Triggered when wheel overlay animation starts
-
-<details>
-<summary>JSON parameters</summary>
-
-```typescript
-type ON_WHEEL_OVERLAY_START = {
-	items: {
-		id: string;
-		label: string;
-	}[];
-	winner: string;
-	sessionId: string;
-};
-```
-
-</details>
-
 # Actions you can perform
 
 Actions you can request Twitchat to perform.
@@ -5370,6 +5368,7 @@ Actions you can request Twitchat to perform.
 - [SET_UNPIN_TWITCH_MESSAGE](#set_unpin_twitch_message)
 - [SET_VIEWERS_COUNT_TOGGLE](#set_viewers_count_toggle)
 - [SET_VOICE_CONTROL_STATE](#set_voice_control_state)
+- [SET_WHEEL_OVERLAY_START](#set_wheel_overlay_start)
 
 #### SET_ANIMATED_TEXT_CONTENT
 
@@ -7872,6 +7871,35 @@ type SET_VOICE_CONTROL_STATE = {
 	 * Omit to toggle current state
 	 */
 	enabled?: boolean;
+};
+```
+
+</details>
+
+#### SET_WHEEL_OVERLAY_START
+
+Triggered when wheel overlay animation starts
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_WHEEL_OVERLAY_START = {
+	/**
+	 * Raffle items
+	 */
+	items: {
+		id: string;
+		label: string;
+	}[];
+	/**
+	 * Winning entry ID
+	 */
+	winner: string;
+	/**
+	 * Raffle session ID
+	 */
+	sessionId: string;
 };
 ```
 

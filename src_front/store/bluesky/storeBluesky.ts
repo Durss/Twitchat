@@ -32,6 +32,8 @@ export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
 		connected: false,
 		autoLive: false,
+		dmsAlerts: false,
+		mentionsAlerts: false,
 		sub: "",
 		profile: null,
 		handleResolver: "https://bsky.social",
@@ -44,7 +46,9 @@ export const storeBluesky = defineStore("bluesky", {
 			if (data) {
 				this.handleResolver = data.handleResolver || this.handleResolver;
 				this.sub = data.sub;
-				this.autoLive = data.autoLive;
+				this.autoLive = data.autoLive === true;
+				this.dmsAlerts = data.dmsAlerts === true;
+				this.mentionsAlerts = data.mentionsAlerts === true;
 				if (data.connected && data.sub) {
 					await this.authenticate(true);
 				}
@@ -269,7 +273,7 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async pollNotifications(): Promise<void> {
-			if (!agent) return;
+			if (!agent || !this.mentionsAlerts) return;
 			try {
 				const { data } = await agent.listNotifications({ limit: 50 });
 				if (!data.notifications.length) return;
@@ -354,7 +358,7 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async pollDMs(): Promise<void> {
-			if (!agent) return;
+			if (!agent || !this.dmsAlerts) return;
 			try {
 				const { data } = await agent.chat.bsky.convo.listConvos(
 					{ limit: 20 },
@@ -470,6 +474,8 @@ export const storeBluesky = defineStore("bluesky", {
 			const data: IStoreData = {
 				sub: this.sub,
 				autoLive: this.autoLive,
+				dmsAlerts: this.dmsAlerts,
+				mentionsAlerts: this.mentionsAlerts,
 				connected: this.connected,
 				handleResolver: this.handleResolver,
 			};
@@ -658,6 +664,8 @@ if (import.meta.hot) {
 interface IStoreData {
 	sub: string;
 	autoLive: boolean;
+	dmsAlerts: boolean;
+	mentionsAlerts: boolean;
 	connected: boolean;
 	handleResolver: string;
 }

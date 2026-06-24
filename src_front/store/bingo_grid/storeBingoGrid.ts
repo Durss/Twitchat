@@ -52,11 +52,50 @@ function applyRemoteSnapshot(
 	grid.enabled = snap.enabled;
 }
 
+/**
+ * Default display style for linked (shared-to-us) grids.
+ */
+function getDefaultLinkedStyle(): TwitchatDataTypes.BingoGridLinkedStyle {
+	return {
+		textColor: "#ffffff",
+		textSize: 20,
+		showGrid: true,
+		backgroundColor: "#000000",
+		backgroundAlpha: 45,
+		winSoundVolume: 100,
+		autoShowHide: false,
+		overlayAnnouncement: true,
+		overlayAnnouncementPermissions: Utils.getDefaultPermissions(),
+	};
+}
+
+/**
+ * Copies the global linked-grid style onto a linked grid. Permissions are
+ * cloned so each grid keeps its own reference.
+ */
+function applyLinkedStyle(
+	grid: TwitchatDataTypes.BingoGridConfig,
+	style: TwitchatDataTypes.BingoGridLinkedStyle,
+): void {
+	grid.textColor = style.textColor;
+	grid.textSize = style.textSize;
+	grid.showGrid = style.showGrid;
+	grid.backgroundColor = style.backgroundColor;
+	grid.backgroundAlpha = style.backgroundAlpha;
+	grid.winSoundVolume = style.winSoundVolume;
+	grid.autoShowHide = style.autoShowHide;
+	grid.overlayAnnouncement = style.overlayAnnouncement;
+	grid.overlayAnnouncementPermissions = JSON.parse(
+		JSON.stringify(style.overlayAnnouncementPermissions),
+	);
+}
+
 export const storeBingoGrid = defineStore("bingoGrid", {
 	state: (): IBingoGridState => ({
 		gridList: [],
 		viewersBingoCount: [],
 		controlerModeCache: {},
+		linkedGridStyle: getDefaultLinkedStyle(),
 	}),
 
 	actions: {
@@ -68,6 +107,10 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			if (json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.gridList = data.gridList || [];
+				if (data.linkedGridStyle) {
+					//Merge over defaults so missing fields stay valid.
+					this.linkedGridStyle = { ...getDefaultLinkedStyle(), ...data.linkedGridStyle };
+				}
 
 				//Caching cells states
 				this.gridList.forEach((grid) => {
@@ -982,9 +1025,9 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				}
 
 				const data: IStoreData = {
-					//Never persist remote (shared) grids: the link is ephemeral and
-					//must be lost on refresh.
+					// exclude linked grid from save
 					gridList: this.gridList.filter((g) => !g.remoteOwnerId),
+					linkedGridStyle: this.linkedGridStyle,
 				};
 				DataStore.set(DataStore.BINGO_GRIDS, data);
 				PublicAPI.instance.broadcastGlobalStates();
@@ -1255,10 +1298,10 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				remoteToken: json.linkToken,
 			};
 
+			//Apply the global linked grid confs
+			applyLinkedStyle(config, this.linkedGridStyle);
+
 			// Force disable of any enabled grid
-			const otherActiveGrid = this.gridList.filter((g) => g.enabled)[0];
-			if (otherActiveGrid) {
-			}
 			this.gridList.forEach((grid) => {
 				if (grid.enabled) {
 					grid.enabled = false;
@@ -1270,7 +1313,6 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 			if (index > -1) this.gridList.splice(index, 1, config);
 			else this.gridList.push(config);
 
-			console.log("SAVE", config.title);
 			void this.saveData(config.id, undefined, true, false);
 		},
 
@@ -1286,6 +1328,18 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				void ApiHelper.call("bingogrid/share/unlink", "POST", { linkToken }, false);
 			}
 		},
+
+		saveLinkedGridStyle(): void {
+			const linkedGrids = this.gridList.filter((g) => g.remoteOwnerId);
+			linkedGrids.forEach((grid) => applyLinkedStyle(grid, this.linkedGridStyle));
+			//Re-broadcast the active linked grid so the overlay updates live.
+			const enabledLinked = linkedGrids.find((g) => g.enabled);
+			if (enabledLinked) {
+				PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: enabledLinked });
+			}
+			//Persist the style (saveData with no gridId only writes to storage).
+			void this.saveData();
+		},
 	} satisfies StoreActions<"bingoGrid", IBingoGridState, IBingoGridGetters, IBingoGridActions>,
 });
 
@@ -1295,4 +1349,5 @@ if (import.meta.hot) {
 
 interface IStoreData {
 	gridList: TwitchatDataTypes.BingoGridConfig[];
+	linkedGridStyle?: TwitchatDataTypes.BingoGridLinkedStyle;
 }

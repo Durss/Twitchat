@@ -5,6 +5,8 @@
 		"param_listDMs": "Lire vos messages privés\n(soyez notifié·e de nouveau MP dans Twitchat)",
 		"param_handleResolver": "Handle resolver",
 		"param_autoLive": "Apparaître automatiquement en live sur Bluesky",
+		"param_dmsAlerts": "Recevoir les messages privés",
+		"param_mentionAlerts": "Recevoir les messages me mentionnant",
 		"error": "Authentication failed"
 	}
 }

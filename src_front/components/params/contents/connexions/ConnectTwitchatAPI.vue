@@ -75,7 +75,7 @@
 				>
 			</div>
 
-			<div v-if="error" class="errorMessage">{{ error }}</div>
+			<div v-if="error" class="card-item alert errorMessage">{{ error }}</div>
 		</section>
 
 		<section class="card-item tutorial">
@@ -408,7 +408,6 @@ async function revokeKey() {
 	}
 
 	.errorMessage {
-		color: var(--color-alert);
 		text-align: center;
 	}
 

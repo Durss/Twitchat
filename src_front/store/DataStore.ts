@@ -124,7 +124,7 @@ export default class DataStore extends DataStoreCommon {
 						void this.save();
 					}
 				},
-				force ? 0 : 1500,
+				force ? 0 : 5000,
 			);
 		});
 	}

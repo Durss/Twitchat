@@ -860,7 +860,7 @@ export const storeRaffle = defineStore("raffle", {
 					sessionId: data.sessionId,
 					skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 				};
-				PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_START", apiData);
+				PublicAPI.instance.broadcast("SET_WHEEL_OVERLAY_START", apiData);
 			} else {
 				//no wheel overlay found, just announce the winner
 				this.onRaffleComplete(sessionId, winner);

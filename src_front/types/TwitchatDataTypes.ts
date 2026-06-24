@@ -915,8 +915,17 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a wheel overlay data
 	 */
 	export interface WheelData {
+		/**
+		 * Raffle items
+		 */
 		items: EntryItem[];
+		/**
+		 * Winning entry ID
+		 */
 		winner: string;
+		/**
+		 * Raffle session ID returned by ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
+		 */
 		sessionId: string;
 		/**
 		 * @private
@@ -1103,6 +1112,24 @@ export namespace TwitchatDataTypes {
 		 */
 		remoteToken?: string;
 	}
+
+	/**
+	 * Display/overlay style shared by ALL grids linked TO this user by other
+	 * streamers. The linked grids themselves are ephemeral (never persisted),
+	 * but this style is persisted globally and re-applied to any linked grid.
+	 */
+	export type BingoGridLinkedStyle = Pick<
+		BingoGridConfig,
+		| "textColor"
+		| "textSize"
+		| "showGrid"
+		| "backgroundColor"
+		| "backgroundAlpha"
+		| "winSoundVolume"
+		| "autoShowHide"
+		| "overlayAnnouncement"
+		| "overlayAnnouncementPermissions"
+	>;
 
 	/**
 	 * Donation goal overlay params
