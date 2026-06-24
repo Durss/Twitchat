@@ -51,7 +51,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import type { ComponentPublicInstance, CSSProperties } from "vue";
+import type { CSSProperties } from "vue";
 import { Component, toNative, Vue } from "vue-facing-decorator";
 import InfiniteList from "../InfiniteList.vue";
 
@@ -76,9 +76,11 @@ class OverlaysRaffleWheel extends Vue {
 	private itemsCount = 15;
 	private selectedItemIndex = 0;
 	private sessionId = "";
+	private animationId = 0;
+	private completeTimeoutId = -1;
 	private winnerData!: TwitchatDataTypes.EntryItem;
 	private resizeDebounce!: number;
-	private prevBiggestItem!: HTMLDivElement;
+	private prevBiggestItem?: HTMLDivElement;
 	private resizeHandler!: () => void;
 	private startWheelHandler!: (e: TwitchatEvent<"SET_WHEEL_OVERLAY_START">) => void;
 	private wheelPresenceHandler!: () => void;
@@ -139,6 +141,10 @@ class OverlaysRaffleWheel extends Vue {
 	}
 
 	public beforeUnmount(): void {
+		//Invalidate any pending async callback (gsap onComplete, setTimeout)
+		this.animationId++;
+		clearTimeout(this.completeTimeoutId);
+		clearTimeout(this.resizeDebounce);
 		gsap.killTweensOf(this);
 		window.removeEventListener("resize", this.resizeHandler);
 		PublicAPI.instance.removeEventListener("SET_WHEEL_OVERLAY_START", this.startWheelHandler);
@@ -149,9 +155,33 @@ class OverlaysRaffleWheel extends Vue {
 	}
 
 	/**
+	 * Stops any ongoing animation and clears pending timers/tweens.
+	 * Incrementing the animation ID invalidates any stale async callback
+	 * (gsap onComplete, setTimeout) so a previous raffle can no longer mutate
+	 * the state of a freshly started one.
+	 */
+	private resetAnimation(): void {
+		this.animationId++;
+		clearTimeout(this.completeTimeoutId);
+		clearTimeout(this.resizeDebounce);
+		gsap.killTweensOf(this);
+		const items = (this.$el as HTMLElement | undefined)?.querySelectorAll(".rotating-holder");
+		if (items && items.length > 0) gsap.killTweensOf(items);
+		this.stars = [];
+		this.animStep = 0;
+		this.frameIndex = 0;
+		this.scrollOffset = 0;
+		this.listDisplayed = false;
+		this.prevBiggestItem = undefined;
+	}
+
+	/**
 	 * Populates the list
 	 */
 	private async populate(): Promise<void> {
+		//Guard against being called before any valid raffle data is set
+		if (!this.winnerData || this.itemList.length === 0) return;
+
 		this.listHeight = document.body.clientHeight;
 		this.itemSize = (this.listHeight / this.itemsCount) * 1.2;
 		this.animStep = 0;
@@ -211,6 +241,9 @@ class OverlaysRaffleWheel extends Vue {
 	public renderFrame(ts: number): void {
 		const timeScale = (60 / 1000) * (ts - this.prevTs);
 		this.prevTs = ts;
+
+		//Captured so deferred callbacks can detect a newer raffle and bail out
+		const animId = this.animationId;
 
 		if (this.stars.length > 0) {
 			for (let i = 0; i < this.stars.length; i++) {
@@ -273,6 +306,7 @@ class OverlaysRaffleWheel extends Vue {
 				if (i == 0) {
 					//* Comment to avoid rotation
 					tween.eventCallback("onComplete", () => {
+						if (animId !== this.animationId) return;
 						this.animStep = 2;
 						this.endOffset =
 							this.selectedItemIndex * this.itemSize -
@@ -285,7 +319,9 @@ class OverlaysRaffleWheel extends Vue {
 							duration,
 							ease: "sine.inOut",
 							onComplete: () => {
-								window.setTimeout(() => {
+								if (animId !== this.animationId) return;
+								this.completeTimeoutId = window.setTimeout(() => {
+									if (animId !== this.animationId) return;
 									this.onAnimationComplete();
 								}, 500);
 							},
@@ -315,43 +351,70 @@ class OverlaysRaffleWheel extends Vue {
 		) {
 			this.prevBiggestItem.classList.remove("selected");
 			this.prevBiggestItem
-				.getElementsByClassName("wheel-item")[0]!
-				.classList.remove("selected");
+				.getElementsByClassName("wheel-item")[0]
+				?.classList.remove("selected");
 		}
 		if (biggestItem) {
 			if (this.scrollOffset > this.endOffset * 0.8) {
 				biggestItem.classList.add("selected");
-				biggestItem.getElementsByClassName("wheel-item")[0]!.classList.add("selected");
+				biggestItem.getElementsByClassName("wheel-item")[0]?.classList.add("selected");
 			}
 			this.prevBiggestItem = biggestItem;
 		}
 	}
 
 	public async onStartWheel(e: TwitchatEvent<"SET_WHEEL_OVERLAY_START">): Promise<void> {
-		const winner = e.data.items.find((v) => v.id == e.data.winner);
+		const data = e.data;
+		if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+			console.log("Invalid wheel data", data);
+			return;
+		}
+		const winner = data.items.find((v) => v.id == data.winner);
 		if (!winner) {
-			console.log("Invalid winner ID", e.data.winner);
+			console.log("Invalid winner ID", data.winner);
 			return;
 		}
 
-		this.sessionId = e.data.sessionId;
+		//Stop any in-progress animation before swapping the data so its pending
+		//tweens/timeouts can neither crash nor interfere with the new raffle
+		this.resetAnimation();
+		const animId = this.animationId;
+
+		this.sessionId = data.sessionId;
 		this.winnerData = winner;
 		this.itemList = [];
-		this.skin = e.data.skin || "";
+		this.skin = data.skin || "";
 		await this.$nextTick(); //Let vue unmount the component
-		this.itemList = e.data.items;
+		//A newer raffle may have started while we awaited; abort if so
+		if (animId !== this.animationId) return;
+		//Copy the array since populate() shuffles/mutates it in place
+		this.itemList = data.items.slice();
 		this.listDisplayed = false;
-		gsap.killTweensOf(this);
 		this.populate();
 	}
 
 	private async onAnimationComplete(): Promise<void> {
+		const animId = this.animationId;
 		await this.$nextTick();
+		//Bail if a new raffle started (or the component unmounted) while awaiting
+		if (animId !== this.animationId) return;
 
 		this.animStep = 3;
-		const root = this.$el as HTMLDivElement;
+		const root = this.$el as HTMLDivElement | undefined;
+		const selectedItem = root?.querySelector<HTMLDivElement>(".rotating-holder.selected");
+		if (!root || !selectedItem) {
+			//Animation ended in an unexpected state (e.g. data swapped mid-flight).
+			//Clean up and still notify so the raffle system isn't left waiting.
+			this.itemList = [];
+			PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_ANIMATION_COMPLETE", {
+				winner: this.winnerData,
+				sessionId: this.sessionId,
+				delay: 5000,
+			});
+			return;
+		}
+
 		const items = [...root.querySelectorAll<HTMLDivElement>(".rotating-holder")];
-		const selectedItem = root.querySelector<HTMLDivElement>(".rotating-holder.selected")!;
 
 		gsap.set(selectedItem, { scale: "1", rotate: 0, x: 0, y: 0 });
 		gsap.from(selectedItem, {
@@ -381,6 +444,7 @@ class OverlaysRaffleWheel extends Vue {
 			stagger: 0.035,
 			delay: 3,
 			onComplete: () => {
+				if (animId !== this.animationId) return;
 				//Reset everything to free up memory
 				this.itemList = [];
 			},
