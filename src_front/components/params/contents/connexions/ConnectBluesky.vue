@@ -59,6 +59,16 @@
 				v-model="param_autoLive.value"
 				@change="storeBluesky.setAutoliveFeatureState(param_autoLive.value)"
 			/>
+			<ParamItem
+				:paramData="param_mentionsAlerts"
+				v-model="storeBluesky.mentionsAlerts"
+				@change="storeBluesky.saveConfigs()"
+			/>
+			<ParamItem
+				:paramData="param_dmsAlerts"
+				v-model="storeBluesky.dmsAlerts"
+				@change="storeBluesky.saveConfigs()"
+			/>
 		</div>
 	</div>
 </template>
@@ -82,6 +92,7 @@ const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	value: "",
 	labelKey: "bluesky.param_handle",
+	placeholder: "you@bsky.social",
 	icon: "user",
 	longText: false,
 });
@@ -100,8 +111,21 @@ const param_handleResolver = ref<TwitchatDataTypes.ParameterData<string>>({
 });
 const param_autoLive = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
+	icon: "live",
 	value: storeBluesky.autoLive,
 	labelKey: "bluesky.param_autoLive",
+});
+const param_mentionsAlerts = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	icon: "user",
+	value: storeBluesky.mentionsAlerts,
+	labelKey: "bluesky.param_mentionAlerts",
+});
+const param_dmsAlerts = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	icon: "whispers",
+	value: storeBluesky.dmsAlerts,
+	labelKey: "bluesky.param_dmsAlerts",
 });
 
 const canSubmit = computed(() => {

@@ -170,7 +170,6 @@ export default class DataStoreCommon {
 		this.TWITCH_BOT,
 		this.EMERGENCY_FOLLOWERS,
 		this.STREAM_SOCKET_SECRET,
-		this.BLUESKY_CONFIGS,
 	];
 
 	/********************
