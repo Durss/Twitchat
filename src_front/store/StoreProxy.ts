@@ -591,6 +591,10 @@ export interface IBingoGridState {
 	 */
 	gridList: TwitchatDataTypes.BingoGridConfig[];
 	/**
+	 * Display/overlay style applied to every grid shared with us.
+	 */
+	linkedGridStyle: TwitchatDataTypes.BingoGridLinkedStyle;
+	/**
 	 * Stores the number of bingos of the viewers
 	 */
 	viewersBingoCount: { user: TwitchatDataTypes.TwitchatUser; count: number }[];
@@ -635,7 +639,12 @@ export interface IBingoGridActions {
 	 * @param callEndpoint
 	 * @param callSaveEndpoint
 	 */
-	resetCheckStates(id: string, forcedState?: boolean, callEndpoint?: boolean, callSaveEndpoint?: boolean): Promise<void>;
+	resetCheckStates(
+		id: string,
+		forcedState?: boolean,
+		callEndpoint?: boolean,
+		callSaveEndpoint?: boolean,
+	): Promise<void>;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -698,6 +707,10 @@ export interface IBingoGridActions {
 	 * @param gridId
 	 */
 	unlinkSharedGrid(gridId: string): void;
+	/**
+	 * Save linked grid styles
+	 */
+	saveLinkedGridStyle(): void;
 }
 
 export interface IChatState {
@@ -4378,6 +4391,8 @@ export interface IAPIActions {
 export interface IBlueskyState {
 	connected: boolean;
 	autoLive: boolean;
+	dmsAlerts: boolean;
+	mentionsAlerts: boolean;
 	sub: string;
 	profile: Pick<
 		ProfileViewDetailed,

@@ -2475,6 +2475,23 @@ const UserDataSchema = {
 						},
 					},
 				},
+				linkedGridStyle: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						textColor: { type: "string", maxLength: 10 },
+						textSize: { type: "number", minimum: 1, maximum: 100 },
+						showGrid: { type: "boolean" },
+						backgroundColor: { type: "string", maxLength: 10 },
+						backgroundAlpha: { type: "number", minimum: 0, maximum: 100 },
+						winSoundVolume: { type: "number", minimum: 0, maximum: 100 },
+						autoShowHide: { type: "boolean" },
+						overlayAnnouncement: { type: "boolean" },
+						overlayAnnouncementPermissions: {
+							$ref: "defs.json#/definitions/permissions",
+						},
+					},
+				},
 			},
 		},
 		overlayLabels: {
@@ -3264,6 +3281,19 @@ const UserDataSchema = {
 				connectionEnabled: { type: "boolean" },
 				ip: { type: "string", maxLength: 100 },
 				port: { type: "integer", minimum: 0, maximum: 65535 },
+			},
+		},
+
+		blueskyConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				connected: { type: "boolean" },
+				autoLive: { type: "boolean" },
+				dmsAlerts: { type: "boolean" },
+				mentionsAlerts: { type: "boolean" },
+				sub: { type: "string", maxLength: 100 },
+				handleResolver: { type: "string", maxLength: 100 },
 			},
 		},
 	},
