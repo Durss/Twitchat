@@ -59,7 +59,7 @@ export const storeAPI = defineStore("api", {
 		onRemoteAction(data?: { action: keyof TwitchatEventMap; data?: unknown }): void {
 			if (!data?.data || !data?.action) return;
 			if (!StoreProxy.auth.isPremium) return;
-			PublicAPI.instance.broadcast(data.action, data.data, true, true);
+			PublicAPI.instance.broadcast(data.action, data.data, true, false);
 
 			toast(ToastRemoteApiInfo, {
 				autoClose: 4_000,

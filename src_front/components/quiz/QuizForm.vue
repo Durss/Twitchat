@@ -104,6 +104,7 @@
 									@change="save(quiz)"
 								/>
 								<ParamItem
+									v-if="storeExtension.hasFeature('limitAnswers')"
 									:paramData="param_maxAnswers[quiz.id]!"
 									v-model="param_maxAnswers[quiz.id]!.value"
 									@change="onMaxAnswersChange(quiz)"

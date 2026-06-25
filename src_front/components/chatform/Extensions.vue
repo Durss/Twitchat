@@ -372,9 +372,14 @@ interface ExtensionItem {
 				display: flex;
 				align-items: center;
 				gap: 0.5em;
+				width: 100%;
+				flex-wrap: wrap;
+				justify-content: center;
 
 				.slotSelect {
 					flex-grow: 1;
+					width: auto;
+					min-width: 0;
 				}
 			}
 

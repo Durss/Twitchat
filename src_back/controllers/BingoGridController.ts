@@ -214,6 +214,9 @@ export default class BingoGridController extends AbstractController {
 			if (ownGrids) {
 				const ownPremium = (await super.getUserPremiumState(channelId)) != "no";
 				for (const grid of ownGrids.data) {
+					// Never serve a disabled grid to viewers, even if a stale cache
+					// entry still holds it
+					if (!grid.enabled) continue;
 					sources.push({
 						grid,
 						storageUid: channelId,
@@ -227,7 +230,9 @@ export default class BingoGridController extends AbstractController {
 		for (const { gridId, ownerId } of mirrors) {
 			const ownerGrids = await this.getChannelGrids(ownerId, gridId);
 			const grid = ownerGrids && ownerGrids.data.find((g) => g.id == gridId);
-			if (ownerGrids && grid) {
+			// Skip a shared grid the owner has disabled (the mirror may briefly
+			// outlive the owner's disable before revokeShares cleans it up).
+			if (ownerGrids && grid && grid.enabled) {
 				const ownerPremium = (await super.getUserPremiumState(ownerId)) != "no";
 				sources.push({
 					grid,
@@ -1346,8 +1351,14 @@ export default class BingoGridController extends AbstractController {
 			cached.enabled = gridRef.enabled;
 			cached.additionalEntries = gridRef.additionalEntries;
 
+			// Keep the all-grids cache enabled-only (same contract as
+			// refreshChannelGrid) so a just-disabled grid is dropped from it
+			// immediately and getViewerGridList stops serving it to the extension.
 			const cacheAllKey = this.getChannelGridCacheKey(user.user_id);
-			this.channelGridsCache.set(cacheAllKey, cachedGrids);
+			this.channelGridsCache.set(cacheAllKey, {
+				...cachedGrids,
+				data: cachedGrids.data.filter((g) => g.enabled),
+			});
 
 			const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 			const clone = { ...cachedGrids };
@@ -1356,8 +1367,13 @@ export default class BingoGridController extends AbstractController {
 		} else {
 			// Add new grid to existing cache
 			cachedGrids.data.push(gridRef);
+			// Enabled-only contract (see above): a newly pushed grid only stays in
+			// the all-grids cache while it's enabled.
 			const cacheAllKey = this.getChannelGridCacheKey(user.user_id);
-			this.channelGridsCache.set(cacheAllKey, cachedGrids);
+			this.channelGridsCache.set(cacheAllKey, {
+				...cachedGrids,
+				data: cachedGrids.data.filter((g) => g.enabled),
+			});
 
 			const cacheOneKey = this.getChannelGridCacheKey(user.user_id, gridId);
 			const clone = { ...cachedGrids };
@@ -1553,9 +1569,6 @@ export default class BingoGridController extends AbstractController {
 			);
 		}
 
-		// Refresh both the specific grid cache AND the all-grids cache
-		await this.refreshChannelGrid(user.user_id, gridId);
-		await this.refreshChannelGrid(user.user_id);
 		try {
 			await this.extensionController.notifyStateUpdate(user.user_id);
 		} catch (_error) {
