@@ -22,7 +22,9 @@ import StoreProxy, {
 let saveCountPending: number = 0;
 let debounceSave: number = -1;
 let debounceShuffle: number = -1;
-let debounceBroadcast: number = -1;
+//Per-grid debounce so switching grids doesn't cancel a sibling grid's pending
+//broadcast (a single shared timer used to drop the previous grid's PUT).
+const debounceBroadcast: { [gridId: string]: number } = {};
 let debounceChatAnnounce: number = -1;
 let tickDebounce: { [key: string]: number } = {};
 let chatAnnounceStack: { user: TwitchatDataTypes.TwitchatUser; count: number }[] = [];
@@ -88,6 +90,29 @@ function applyLinkedStyle(
 	grid.overlayAnnouncementPermissions = JSON.parse(
 		JSON.stringify(style.overlayAnnouncementPermissions),
 	);
+}
+
+/**
+ * Debounced (per-grid) push of a grid's full state to the backend, which fans it
+ * out to every connected viewer and notifies the extension. Keyed per grid id so
+ * switching grids never cancels a sibling grid's pending push.
+ */
+function broadcastGridToViewers(grid: TwitchatDataTypes.BingoGridConfig): void {
+	window.clearTimeout(debounceBroadcast[grid.id]);
+	debounceBroadcast[grid.id] = window.setTimeout(() => {
+		//Debounce this call as it will fire an event to every connected viewer
+		void ApiHelper.call("bingogrid", "PUT", {
+			gridid: grid.id,
+			grid: {
+				cols: grid.cols,
+				rows: grid.rows,
+				title: grid.title,
+				entries: grid.entries,
+				enabled: grid.enabled,
+				additionalEntries: grid.additionalEntries,
+			},
+		});
+	}, 3000);
 }
 
 export const storeBingoGrid = defineStore("bingoGrid", {
@@ -736,8 +761,16 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 
 				// Disable all other grids
 				this.gridList.forEach((g) => {
-					if (g.id !== gridId) {
+					if (g.id !== gridId && g.enabled) {
 						g.enabled = false;
+						// Push the implicit disable so the extension/viewers drop this
+						// grid, instead of relying on the ~5s user-data disk sync (which
+						// previously left the backend thinking it was still enabled and
+						// kept the old grid showing in the extension). Shared grids are
+						// never broadcast by the receiver.
+						if (broadcastToViewers && !g.remoteOwnerId) {
+							broadcastGridToViewers(g);
+						}
 					}
 				});
 				// Force back to true to solve a UI race condition
@@ -1006,21 +1039,7 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 					prevGridStates[grid.id] = newStates;
 
 					if (broadcastToViewers && !grid.remoteOwnerId) {
-						window.clearTimeout(debounceBroadcast);
-						debounceBroadcast = window.setTimeout(() => {
-							//Debounce this call as it will fire an event to every connected viewer
-							void ApiHelper.call("bingogrid", "PUT", {
-								gridid: grid.id,
-								grid: {
-									cols: grid.cols,
-									rows: grid.rows,
-									title: grid.title,
-									entries: grid.entries,
-									enabled: grid.enabled,
-									additionalEntries: grid.additionalEntries,
-								},
-							});
-						}, 3000);
+						broadcastGridToViewers(grid);
 					}
 				}
 
