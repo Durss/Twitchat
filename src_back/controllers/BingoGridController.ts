@@ -214,6 +214,9 @@ export default class BingoGridController extends AbstractController {
 			if (ownGrids) {
 				const ownPremium = (await super.getUserPremiumState(channelId)) != "no";
 				for (const grid of ownGrids.data) {
+					// Never serve a disabled grid to viewers, even if a stale cache
+					// entry still holds it
+					if (!grid.enabled) continue;
 					sources.push({
 						grid,
 						storageUid: channelId,
@@ -227,7 +230,9 @@ export default class BingoGridController extends AbstractController {
 		for (const { gridId, ownerId } of mirrors) {
 			const ownerGrids = await this.getChannelGrids(ownerId, gridId);
 			const grid = ownerGrids && ownerGrids.data.find((g) => g.id == gridId);
-			if (ownerGrids && grid) {
+			// Skip a shared grid the owner has disabled (the mirror may briefly
+			// outlive the owner's disable before revokeShares cleans it up).
+			if (ownerGrids && grid && grid.enabled) {
 				const ownerPremium = (await super.getUserPremiumState(ownerId)) != "no";
 				sources.push({
 					grid,
