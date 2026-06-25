@@ -19,7 +19,7 @@ let openquizzdbCSVCache = "";
 const POINTS_PER_QUESTION = 100;
 // Extra time during which votes are still accepted after the question's
 // duration has elapsed, to compensate for slow connections
-const VOTE_GRACE_PERIOD_MS = 1000;
+const VOTE_GRACE_PERIOD_MS = 2000;
 const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const CLASSIC_ANSWER_SLOTS = 6;
 const MAJORITY_ANSWER_SLOTS = 4;
@@ -297,8 +297,8 @@ export const storeQuiz = defineStore("quiz", {
 				title: "",
 				questionList: [],
 				durationPerQuestion_s: 20,
-				loosePointsOnFail: false,
-				timeBasedScoring: false,
+				loosePointsOnFail: true,
+				timeBasedScoring: true,
 				maxAnswers: 0,
 				shuffleAnswers: true,
 				currentQuestionId: "",
