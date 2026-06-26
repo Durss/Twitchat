@@ -169,6 +169,19 @@ export default class QuizController extends AbstractController {
 					delete question.answer;
 				}
 			}
+
+			// Register the server-time at which the question was started to better sync
+			// timers on viewer's side
+			if (broadcast) {
+				const prev = this.cachedQuizzes.get(uid);
+				const isNewQuestion =
+					!prev ||
+					prev.currentQuestionId !== quiz.currentQuestionId ||
+					prev.questionStarted_at !== quiz.questionStarted_at;
+				quiz.questionStarted_at_server = isNewQuestion
+					? new Date().toISOString()
+					: prev?.questionStarted_at_server;
+			}
 		}
 		this.cachedQuizzes.set(uid, quiz);
 
@@ -215,6 +228,14 @@ export type QuizParams = {
 	 * UTC date at which the current question started
 	 */
 	questionStarted_at: string;
+	/**
+	 * UTC date at which the current question started, stamped on the server
+	 * instead of the streamer's browser as it used to be.
+	 * Sent to extension viewers so they can run an accurate countdown independent
+	 * of local clock skew. Stamped in setCache() on each new question.
+	 * Never persisted and not used for scoring.
+	 */
+	questionStarted_at_server?: string;
 	/**
 	 * Current question ID
 	 */
