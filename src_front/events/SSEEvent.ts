@@ -207,6 +207,15 @@ export type EventTypeMap = {
 		 * Delay with streamer
 		 */
 		delay_ms: number;
+		/**
+		 * Elapsed time (ms) between the server-stamped question start
+		 * (questionStarted_at_server) and the moment the server received this answer.
+		 * Lets time-based scoring use the same server clock the viewer's countdown ran
+		 * on, instead of the streamer's local clock. Absent when the server can't
+		 * resolve it (e.g. no server anchor / stale question), in which case scoring
+		 * falls back to the streamer's local clock.
+		 */
+		serverVotedElapsed_ms?: number;
 	};
 	REMOTE_ACTION: {
 		action: string;

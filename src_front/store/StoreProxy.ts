@@ -4223,6 +4223,7 @@ export interface IQuizActions {
 		answerText?: string,
 		userId?: string,
 		opaqueUserId?: string,
+		serverVotedElapsed_ms?: number,
 	): Promise<void>;
 	/**
 	 * Saves data to server
