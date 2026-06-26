@@ -298,6 +298,20 @@ export default class TwitchExtensionController extends AbstractController {
 		};
 
 		try {
+			// Measure how long after the server-stamped question start this answer reached
+			// the server. This is the same clock the viewer's countdown ran on, so feeding
+			// it to time-based scoring keeps the points consistent with what the viewer saw
+			// (and removes the streamer's local clock skew + relay latency). Only trust it
+			// for the current question; otherwise let the streamer score on its own clock.
+			const quiz = this._quizController.getStreamerQuiz(request.twitchExtensionUser!.channel_id);
+			let serverVotedElapsed_ms: number | undefined;
+			if (quiz?.questionStarted_at_server && quiz.currentQuestionId === params.questionId) {
+				serverVotedElapsed_ms = Math.max(
+					0,
+					Date.now() - new Date(quiz.questionStarted_at_server).getTime(),
+				);
+			}
+
 			SSEController.sendToUser(
 				request.twitchExtensionUser!.channel_id,
 				"TWITCHEXT_QUIZ_ANSWER",
@@ -307,6 +321,7 @@ export default class TwitchExtensionController extends AbstractController {
 					answerId: params.answerId,
 					answerText: params.answerText,
 					delay_ms: params.delay_ms,
+					serverVotedElapsed_ms,
 					userId: request.twitchExtensionUser!.user_id,
 					opaqueUserId: request.twitchExtensionUser!.opaque_user_id,
 				},

@@ -221,6 +221,7 @@ export const storeQuiz = defineStore("quiz", {
 					eventData.answerText,
 					eventData.userId,
 					eventData.opaqueUserId,
+					eventData.serverVotedElapsed_ms,
 				);
 			});
 
@@ -356,6 +357,7 @@ export const storeQuiz = defineStore("quiz", {
 			answerText?: string,
 			userId?: string,
 			opaqueUserId?: string,
+			serverVotedElapsed_ms?: number,
 		): Promise<void> {
 			const quiz = this.quizList.filter((q) => q.id === quizId)[0];
 			if (!quiz || !quiz.enabled) return;
@@ -388,25 +390,28 @@ export const storeQuiz = defineStore("quiz", {
 				}
 			}
 
-			// Clamp delay to 10s max or question duration
-			// EDIT: Removed as quiz isn't in sync with overlay anymore
-			/*
-			delay_ms = Math.min(
-				(question.duration_s || quiz.durationPerQuestion_s || 10) * 1000,
-				delay_ms,
+			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
+			// Prefer the server-measured elapsed (same clock the viewer's countdown ran on)
+			// so gating and time-based scoring match what the viewer actually saw. Fall back
+			// to the streamer's local clock for answers that didn't transit the extension
+			// (e.g. chat votes) or when the server couldn't resolve it.
+			const elapsed = Math.max(
+				0,
+				serverVotedElapsed_ms ?? Date.now() - new Date(quiz.questionStarted_at).getTime(),
 			);
-			const votedAt = new Date(Date.now() - delay_ms).toISOString();
-			//*/
+
 			// Check if question is still accepting answers based on duration.
 			// A grace period is granted past the question's end to compensate
 			// for slow connections.
-			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
-			const questionEndsAt = new Date(quiz.questionStarted_at).getTime() + totalTime;
-			if (questionEndsAt + VOTE_GRACE_PERIOD_MS < Date.now()) {
+			if (elapsed > totalTime + VOTE_GRACE_PERIOD_MS) {
 				return;
 			}
 
-			const votedAt = new Date().toISOString();
+			// Encode the elapsed back onto the streamer's start so downstream scoring
+			// (immediate freeAnswer + reveal-time recompute, which both read voted_at and
+			// subtract questionStarted_at) derives the speed multiplier from the elapsed we
+			// chose, regardless of which clock measured it.
+			const votedAt = new Date(new Date(quiz.questionStarted_at).getTime() + elapsed).toISOString();
 
 			if (!quiz.leaderboard) {
 				quiz.leaderboard = {};
