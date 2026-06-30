@@ -60,7 +60,9 @@
 
 		<div class="form">
 			<ParamItem
-				v-if="currentArea && currentAreaTitleParam"
+				v-if="
+					currentArea && currentAreaTitleParam && storeExtension.hasFeature('areaTitles')
+				"
 				:paramData="currentAreaTitleParam"
 				v-model="currentArea.title"
 				@change="emit('update')"
@@ -79,6 +81,7 @@
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -96,6 +99,7 @@ import {
 } from "vue";
 
 const storeParams = useStoreParams();
+const storeExtension = useStoreExtension();
 
 const props = defineProps<{ screen: HeatScreen }>();
 const emit = defineEmits<{ update: []; close: [] }>();

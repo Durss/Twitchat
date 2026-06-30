@@ -19,6 +19,7 @@ let lastEBSCall_ts = 0;
 const FEATURE_VERSIONS = {
 	shuffleAnswers: "0.0.1",
 	limitAnswers: "0.0.1",
+	areaTitles: "0.0.1",
 } as const;
 
 export type EtensionFeature = keyof typeof FEATURE_VERSIONS;
