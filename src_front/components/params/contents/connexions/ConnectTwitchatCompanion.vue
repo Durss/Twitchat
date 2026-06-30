@@ -151,6 +151,7 @@ async function onChangeEBSSetting(section: typeof lastChangedState.value) {
 	.demo {
 		display: block;
 		margin: auto;
+		margin-top: 0.5em;
 	}
 }
 </style>
