@@ -1441,18 +1441,11 @@ export const storeStream = defineStore("stream", {
 						break;
 					}
 					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-						//Twitch API is broken for now, they don't send the emote used for
-						//the celebration.
-						//Still, I put things in place in anticipation for this fix, so the
-						//emote URL is there but invalid for now. It contains "/null/".
-						//This condition is here to ignore celebrations until they fix that.
-						if (m.emoteURL.indexOf("/null/") === -1) {
-							result.powerups.push({
-								login: m.user.displayNameOriginal,
-								type: "celebration",
-								emoteUrl: m.emoteURL,
-							});
-						}
+						result.powerups.push({
+							login: m.user.displayNameOriginal,
+							type: "celebration",
+							emoteUrl: m.emoteURL,
+						});
 						break;
 					}
 
