@@ -1430,6 +1430,9 @@ async function sendMessage(event?: KeyboardEvent): Promise<void> {
 	} else if (cmd == "/giftlogs") {
 		Logger.instance.download("subgifts");
 		message.value = "";
+	} else if (cmd == "/quizlogs") {
+		Logger.instance.download("quiz");
+		message.value = "";
 	} else if (cmd == "/__demo_mode__") {
 		Config.instance.DEMO_MODE = !Config.instance.DEMO_MODE;
 		message.value = "";
