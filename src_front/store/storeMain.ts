@@ -291,7 +291,8 @@ export const storeMain = defineStore("main", {
 			if (
 				DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" &&
 				sAuth.donorLevel == -1 &&
-				!sAuth.isPremium
+				!sAuth.isPremium &&
+				!sAuth.noAd
 			) {
 				window.setTimeout(() => {
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
