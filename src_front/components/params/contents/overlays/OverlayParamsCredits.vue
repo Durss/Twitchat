@@ -586,8 +586,6 @@
 									<ParamItem
 										:paramData="param_showPuCeleb[element.id]"
 										v-model="element.showPuCeleb"
-										disabled
-										v-tooltip="$t('overlay.credits.param_pu_celeb_tt')"
 									/>
 								</template>
 
