@@ -60,10 +60,16 @@
 
 		<div class="form">
 			<ParamItem
+				v-if="currentArea && currentAreaTitleParam"
+				:paramData="currentAreaTitleParam"
+				v-model="currentArea.title"
+				@change="emit('update')"
+			/>
+			<ParamItem
 				class="premium"
 				v-if="currentArea && currentAreaExtensionButtonParam"
 				:paramData="currentAreaExtensionButtonParam"
-				v-model="currentArea!.showAreaOnExtension"
+				v-model="currentArea.showAreaOnExtension"
 				@change="emit('update')"
 			/>
 		</div>
@@ -134,29 +140,30 @@ const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
 	labelKey: "heat.areas.target",
 });
 
-const param_showExtensionButton = ref<
-	Record<string, TwitchatDataTypes.ParameterData<boolean, unknown, string>>
->({});
+const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 
-function ensureExtensionButtonParam(
-	area: HeatArea,
-): TwitchatDataTypes.ParameterData<boolean, unknown, string> {
-	if (!param_showExtensionButton.value[area.id]) {
-		const titleParam: TwitchatDataTypes.ParameterData<string> = {
+const param_areaTitle = ref<Record<string, TwitchatDataTypes.ParameterData<string>>>({});
+
+function ensureTitleParam(area: HeatArea) {
+	if (!param_areaTitle.value[area.id]) {
+		param_areaTitle.value[area.id] = {
 			type: "string",
-			value: area.title ?? "",
 			maxLength: 500,
+			value: area.title || "",
+			icon: "label",
 			labelKey: "heat.areas.show_extension_button_title",
-			editCallback: (data) => {
-				area.title = data.value;
-			},
 		};
+	}
+	return param_areaTitle.value[area.id]!;
+}
+function ensureExtensionButtonParam(area: HeatArea) {
+	if (!param_showExtensionButton.value[area.id]) {
 		param_showExtensionButton.value[area.id] = {
 			type: "boolean",
 			value: false,
+			icon: "show",
 			premiumOnly: true,
 			labelKey: "heat.areas.show_extension_button",
-			children: [titleParam],
 		};
 	}
 	return param_showExtensionButton.value[area.id]!;
@@ -164,7 +171,16 @@ function ensureExtensionButtonParam(
 
 const currentAreaExtensionButtonParam = computed(() => {
 	if (!currentArea.value) return null;
-	return ensureExtensionButtonParam(currentArea.value);
+	const param = ensureExtensionButtonParam(currentArea.value);
+	param.value = currentArea.value.showAreaOnExtension == true;
+	return param;
+});
+
+const currentAreaTitleParam = computed(() => {
+	if (!currentArea.value) return null;
+	const param = ensureTitleParam(currentArea.value);
+	param.value = currentArea.value.title ?? "";
+	return param;
 });
 
 const editorClasses = computed(() => {
@@ -411,7 +427,6 @@ function onKeyDown(event: KeyboardEvent): void {
 	//Do not copy/past actions if focus is on a form input
 	const nodeName = (event.target as HTMLElement).nodeName;
 	if (["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
-	console.log("dfpkfdpkfd");
 
 	if (event.key == " ") {
 		spacePressed.value = true;
