@@ -147,16 +147,22 @@ export const storeBluesky = defineStore("bluesky", {
 		async applyAutoLive() {
 			if (this.autoLive) {
 				const infos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
-				if (infos?.live) {
-					void this.setLiveStatus(true);
+				if (infos?.live && infos.user) {
+					void this.setLiveStatus(
+						true,
+						"https://twitch.tv/" + infos.user?.login,
+						infos.title,
+					);
 					return;
 				} else {
-					const res = await TwitchUtils.getChannelInfo([StoreProxy.auth.twitch.user.id]);
+					const res = await TwitchUtils.getCurrentStreamInfo([
+						StoreProxy.auth.twitch.user.id,
+					]);
 					if (res.length == 1) {
 						void this.setLiveStatus(
 							true,
-							"https://twitch.tv/" + StoreProxy.auth.twitch.user.login,
-							res[0]?.title,
+							"https://twitch.tv/" + res[0]!.user_login,
+							res[0]!.title,
 						);
 						return;
 					}
@@ -183,8 +189,8 @@ export const storeBluesky = defineStore("bluesky", {
 			return feed.data.feed.filter((v) => !v.reason && v.post.record && v.post.record.text);
 		},
 
-		async postMessage(message: string): Promise<boolean> {
-			if (!agent) return false;
+		async postMessage(message: string): Promise<{ success: boolean; error?: string }> {
+			if (!agent) return { success: false, error: "Agent not initialized" };
 			try {
 				// make mentions, links and hashtags clickable
 				const { RichText } = await import("@atproto/api");
@@ -205,12 +211,12 @@ export const storeBluesky = defineStore("bluesky", {
 
 				const result = await agent.post(record);
 				if (result.uri) {
-					return true;
+					return { success: true };
 				}
-			} catch (error) {
-				console.error(error);
+			} catch (error: any) {
+				return { success: false, error: error.message ?? JSON.stringify(error) };
 			}
-			return false;
+			return { success: false, error: "Unknown error" };
 		},
 
 		async setLiveStatus(live: boolean, url?: string, title?: string): Promise<void> {

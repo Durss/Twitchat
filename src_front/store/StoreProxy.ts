@@ -4451,7 +4451,7 @@ export interface IBlueskyActions {
 	 * Posts a message to bluesky
 	 * @param message
 	 */
-	postMessage(message: string): Promise<boolean>;
+	postMessage(message: string): Promise<{ success: boolean; error?: string }>;
 	/**
 	 * Sets live status of the user
 	 */
