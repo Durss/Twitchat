@@ -227,6 +227,7 @@
 			"streamTags": "Modifier les tags du stream",
 			"triggerlogs": "@:triggers.logs.title",
 			"heatlogs": "@:heat.logs.title",
+			"quizlogs": "Télécharger les logs de Quiz",
 			"snooze_ad_break": "Reporter une publicité en approche de 5min",
 			"discord": "Envoyer un message sur Discord",
 			"warn": "Envoyer un avertissement",

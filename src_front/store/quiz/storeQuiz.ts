@@ -2,6 +2,7 @@ import DataStore from "@/store/DataStore";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
+import Logger from "@/utils/Logger";
 import PublicAPI from "@/utils/PublicAPI";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
@@ -360,14 +361,57 @@ export const storeQuiz = defineStore("quiz", {
 			serverVotedElapsed_ms?: number,
 		): Promise<void> {
 			const quiz = this.quizList.filter((q) => q.id === quizId)[0];
-			if (!quiz || !quiz.enabled) return;
+			if (!quiz || !quiz.enabled) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: quiz not found or not enabled",
+					accepted: false,
+					reason: !quiz ? "quiz_not_found" : "quiz_disabled",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
 			const question = quiz.questionList.filter((q) => q.id === questionId)[0];
-			if (!question) return;
+			if (!question) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: question not found in quiz",
+					accepted: false,
+					reason: "question_not_found",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
 			const uid = userId || opaqueUserId;
-			if (!uid) return;
+			if (!uid) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: no user id provided (neither userId nor opaqueUserId)",
+					accepted: false,
+					reason: "no_user_id",
+					quizId,
+					questionId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
 
 			// Initialize leaderboard entry for user if not present
 			if (!quiz.leaderboard[uid]) {
+				Logger.instance.log("quiz", {
+					info: "New participant joined the quiz leaderboard",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { anon: !!opaqueUserId && !userId },
+				});
 				quiz.leaderboard[uid] = {
 					anon: !!opaqueUserId && !userId,
 					score: 0,
@@ -404,6 +448,26 @@ export const storeQuiz = defineStore("quiz", {
 			// A grace period is granted past the question's end to compensate
 			// for slow connections.
 			if (elapsed > totalTime + VOTE_GRACE_PERIOD_MS) {
+				Logger.instance.log("quiz", {
+					info:
+						"Answer refused: too late (elapsed " +
+						Math.round(elapsed) +
+						"ms > " +
+						(totalTime + VOTE_GRACE_PERIOD_MS) +
+						"ms allowed)",
+					accepted: false,
+					reason: "too_late",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: {
+						elapsed,
+						totalTime,
+						gracePeriod_ms: VOTE_GRACE_PERIOD_MS,
+						elapsedSource: serverVotedElapsed_ms != undefined ? "server" : "local",
+					},
+				});
 				return;
 			}
 
@@ -425,6 +489,16 @@ export const storeQuiz = defineStore("quiz", {
 
 			// Check if user already voted for this question
 			if (quiz.currentQuestionVotes[uid]) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: user already voted for this question",
+					accepted: false,
+					reason: "already_voted",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { previousAnswer: quiz.currentQuestionVotes[uid]?.answer },
+				});
 				return;
 			}
 
@@ -434,6 +508,21 @@ export const storeQuiz = defineStore("quiz", {
 			const maxAnswers = question.maxAnswers ?? quiz.maxAnswers ?? 0;
 			const answersCount = Object.keys(quiz.currentQuestionVotes).length;
 			if (maxAnswers > 0 && answersCount >= maxAnswers) {
+				Logger.instance.log("quiz", {
+					info:
+						"Answer refused: max answers limit reached (" +
+						answersCount +
+						"/" +
+						maxAnswers +
+						")",
+					accepted: false,
+					reason: "max_answers_reached",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { maxAnswers, answersCount },
+				});
 				return;
 			}
 
@@ -443,7 +532,11 @@ export const storeQuiz = defineStore("quiz", {
 				voted_at: votedAt,
 			};
 
+			// For freeAnswer, correctness is known immediately so we expose it in the
+			// log. For classic/majority, final scoring happens at reveal time.
+			let freeAnswerCorrect: boolean | undefined;
 			if (question.mode === "freeAnswer") {
+				freeAnswerCorrect = validateFreeAnswer(answerText ?? "", quiz, question);
 				const score = computeAnswerScore({
 					quiz,
 					question,
@@ -459,10 +552,44 @@ export const storeQuiz = defineStore("quiz", {
 				}
 			}
 
+			Logger.instance.log("quiz", {
+				info:
+					"Answer accepted (" +
+					question.mode +
+					(freeAnswerCorrect != undefined
+						? ", " + (freeAnswerCorrect ? "correct" : "wrong")
+						: "") +
+					")",
+				accepted: true,
+				quizId,
+				questionId,
+				uid,
+				platform,
+				data: {
+					mode: question.mode,
+					answer: answerId ?? answerText ?? "",
+					votedAt,
+					elapsed,
+					answerIndex: answersCount + 1,
+					freeAnswerCorrect,
+				},
+			});
+
 			// If the limited answers count has been reached, force the countdown to
 			// stop so no more users can answer.
 			if (maxAnswers > 0 && answersCount + 1 >= maxAnswers) {
 				quiz.forceCountdownStop = true;
+				Logger.instance.log("quiz", {
+					info:
+						"Max answers limit reached (" +
+						(answersCount + 1) +
+						"/" +
+						maxAnswers +
+						"), forcing countdown to stop",
+					quizId,
+					questionId,
+					data: { maxAnswers },
+				});
 				void ApiHelper.call("quiz/broadcast", "PUT", {
 					quiz,
 				});
@@ -473,7 +600,14 @@ export const storeQuiz = defineStore("quiz", {
 
 		startNextQuestion(quizId: string): void {
 			const quiz = this.quizList.find((v) => v.id === quizId);
-			if (!quiz) return;
+			if (!quiz) {
+				Logger.instance.log("quiz", {
+					info: "startNextQuestion ignored: quiz not found",
+					reason: "quiz_not_found",
+					quizId,
+				});
+				return;
+			}
 			this.currentFreeAnswerStats.right = 0;
 			this.currentFreeAnswerStats.wrong = 0;
 			delete quiz.currentQuestionRevealed;
@@ -487,6 +621,32 @@ export const storeQuiz = defineStore("quiz", {
 				currentQuestion = quiz.questionList[index + 1] || null;
 				if (currentQuestion) quiz.currentQuestionId = currentQuestion.id;
 				currentQuiz = quiz;
+				Logger.instance.log("quiz", {
+					info:
+						"Started question " +
+						(index + 2) +
+						"/" +
+						quiz.questionList.length +
+						" (mode: " +
+						currentQuestion?.mode +
+						")",
+					quizId,
+					questionId: currentQuestion?.id,
+					data: {
+						questionIndex: index + 1,
+						total: quiz.questionList.length,
+						mode: currentQuestion?.mode,
+						question: currentQuestion?.question,
+						startedAt: quiz.questionStarted_at,
+					},
+				});
+			} else {
+				Logger.instance.log("quiz", {
+					info: "startNextQuestion called but already on the last question; no next question started",
+					quizId,
+					questionId: quiz.currentQuestionId,
+					data: { questionIndex: index, total: quiz.questionList.length },
+				});
 			}
 			void this.saveData(quizId, false, true);
 		},
@@ -506,6 +666,10 @@ export const storeQuiz = defineStore("quiz", {
 				quiz.leaderboard = {};
 				quiz.quizStarted_at = "";
 				quiz.questionStarted_at = "";
+				Logger.instance.log("quiz", {
+					info: "Quiz state reset (leaderboard, scores and votes cleared)",
+					quizId,
+				});
 				if (save) void this.saveData(quizId, false, true);
 			};
 			if (confirm) {
@@ -525,10 +689,33 @@ export const storeQuiz = defineStore("quiz", {
 
 		revealAnswer(quizId: string): void {
 			const quiz = this.quizList.find((v) => v.id === quizId);
-			if (!quiz) return;
+			if (!quiz) {
+				Logger.instance.log("quiz", {
+					info: "revealAnswer ignored: quiz not found",
+					reason: "quiz_not_found",
+					quizId,
+				});
+				return;
+			}
 			quiz.currentQuestionRevealed = true;
 			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
 			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
+			const revealQuestion = quiz.questionList.find((q) => q.id === quiz.currentQuestionId);
+			Logger.instance.log("quiz", {
+				info:
+					"Revealed answer (mode: " +
+					(revealQuestion?.mode ?? "?") +
+					", " +
+					Object.keys(quiz.currentQuestionVotes || {}).length +
+					" vote(s))",
+				quizId,
+				questionId: quiz.currentQuestionId,
+				data: {
+					mode: revealQuestion?.mode,
+					voteCount: Object.keys(quiz.currentQuestionVotes || {}).length,
+					scores: quiz.currentQuestionScores,
+				},
+			});
 			// Force the countdown to stop on overlays/extension. We keep questionStarted_at
 			// untouched so time-based scoring stays valid (scores computed just above).
 			quiz.forceCountdownStop = true;
@@ -536,6 +723,12 @@ export const storeQuiz = defineStore("quiz", {
 
 			// If this is the last question, compute the final leaderboard and send a message to chat with the winner
 			if (index === quiz.questionList.length - 1) {
+				Logger.instance.log("quiz", {
+					info: "Last question revealed: quiz complete, computing final leaderboard",
+					quizId,
+					questionId: quiz.currentQuestionId,
+					data: { participants: Object.keys(quiz.leaderboard || {}).length },
+				});
 				const leaderboard = Object.entries(quiz.leaderboard || {})
 					.map(([uid, data]) => ({
 						uid,

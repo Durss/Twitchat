@@ -18,6 +18,7 @@ export default class Logger {
 		youtube: [],
 		triggers: [],
 		subgifts: [],
+		quiz: [],
 	});
 
 	constructor() {}
@@ -79,6 +80,7 @@ type LogsHistory = {
 	youtube: LogYoutube[];
 	triggers: LogTrigger[];
 	subgifts: LogSubGifts[];
+	quiz: LogQuiz[];
 };
 
 type LogsKey = keyof LogsHistory;
@@ -91,6 +93,7 @@ type LogData = {
 	youtube: Omit<LogYoutube, "date">;
 	triggers: Omit<LogTrigger, "date">;
 	subgifts: Omit<LogSubGifts, "date">;
+	quiz: Omit<LogQuiz, "date">;
 };
 
 interface AbstractLog {
@@ -169,5 +172,27 @@ export interface LogSubGifts {
 	id: string;
 	merged: boolean;
 	reason?: string;
+	data?: unknown;
+}
+
+export interface LogQuiz extends AbstractLog {
+	/** Human readable description of what happened */
+	info: string;
+	/** Quiz concerned by this entry, when available */
+	quizId?: string;
+	/** Question concerned by this entry, when available */
+	questionId?: string;
+	/** User the entry is about (real or opaque/anon id), when available */
+	uid?: string;
+	/** Platform the answer came from, when relevant */
+	platform?: TwitchatDataTypes.ChatPlatform;
+	/**
+	 * Whether an incoming answer was accepted (true) or refused (false).
+	 * Left undefined for entries that aren't about an answer.
+	 */
+	accepted?: boolean;
+	/** When an answer is refused, explains why */
+	reason?: string;
+	/** Any extra contextual data */
 	data?: unknown;
 }

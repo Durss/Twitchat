@@ -721,6 +721,11 @@ export const storeChat = defineStore("chat", {
 				detailsKey: "params.commands.heatlogs",
 			},
 			{
+				id: "quizlogs",
+				cmd: "/quizlogs",
+				detailsKey: "params.commands.quizlogs",
+			},
+			{
 				id: "discord",
 				cmd: "/discord {message}",
 				detailsKey: "params.commands.discord",
