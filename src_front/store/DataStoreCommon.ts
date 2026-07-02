@@ -67,7 +67,6 @@ export default class DataStoreCommon {
 	public static ULULE_CURRENCY: string = "ululeCurrency";
 	public static HEAT_ENABLED: string = "heatEnabled";
 	public static HEAT_SCREENS: string = "heatScreens";
-	public static PATREON_AUTH_TOKEN: string = "patreonAuthToken";
 	public static CUSTOM_USERNAMES: string = "customUsernames";
 	public static CUSTOM_BADGE_LIST: string = "customBadgeList";
 	public static CUSTOM_USER_BADGES: string = "customUserBadges";

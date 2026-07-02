@@ -8,6 +8,7 @@ import { storeMeldStudio as useStoreMeldStudio } from "@/store/meldstudio/storeM
 import { storeMixitup as useStoreMixitup } from "@/store/mixitup/storeMixitup";
 import { storeOBS as useStoreOBS } from "@/store/obs/storeOBS";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
 import { storePlayability as useStorePlayability } from "@/store/playability/storePlayability";
 import { storeSammi as useStoreSammi } from "@/store/sammi/storeSammi";
 import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
@@ -61,6 +62,7 @@ export function useConnectionStates() {
 	const storeMeldStudio = useStoreMeldStudio();
 	const storeOBS = useStoreOBS();
 	const storeVoice = useStoreVoice();
+	const storePatreon = useStorePatreon();
 
 	const youtubeConnected = computed(() => YoutubeHelper.instance.connected.value);
 	const goxlrConnected = computed(() => GoXLRSocket.instance.connected.value);
@@ -96,15 +98,13 @@ export function useConnectionStates() {
 	const lumiaDisabled = computed(() => !storeLumia.socketToken);
 
 	const spotifyConfiguredRef = ref(!!DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN));
-	const patreonConfiguredRef = ref(!!DataStore.get(DataStore.PATREON_AUTH_TOKEN));
 	const youtubeConfiguredRef = ref(!!DataStore.get(DataStore.YOUTUBE_AUTH_TOKEN));
 	const spotifyDisabled = computed(() => !spotifyConfiguredRef.value);
-	const patreonDisabled = computed(() => !patreonConfiguredRef.value);
+	const patreonDisabled = computed(() => !storePatreon.isMember);
 	const youtubeDisabled = computed(() => !youtubeConfiguredRef.value);
 
 	function refreshOAuthConfigured(): void {
 		spotifyConfiguredRef.value = !!DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-		patreonConfiguredRef.value = !!DataStore.get(DataStore.PATREON_AUTH_TOKEN);
 		youtubeConfiguredRef.value = !!DataStore.get(DataStore.YOUTUBE_AUTH_TOKEN);
 	}
 
