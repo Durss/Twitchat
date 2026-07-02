@@ -200,6 +200,7 @@
 			"empty_slot": "Aucune entrée ☹️",
 			"premium_only": "Vous devez être membre premium pour afficher le contenu de cette section",
 			"sub_duration": "{MONTHS} mois",
+			"patreon_connect": "Vous devez lier votre compte Patreon",
 			"grant_fonts_access": "Accorder l'accès aux polices système",
 			"categories": {
 				"text": "Texte libre",

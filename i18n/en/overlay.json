@@ -211,6 +211,7 @@
 			"empty_slot": "No entry ☹️",
 			"premium_only": "Become Premium to show this section content",
 			"sub_duration": "{MONTHS} month | {MONTHS} months",
+			"patreon_connect": "You must link your Patreon account",
 			"grant_fonts_access": "Grant fonts access",
 			"categories": {
 				"cheers": "Bits",
