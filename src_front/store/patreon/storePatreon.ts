@@ -5,7 +5,6 @@ import Config from "@/utils/Config";
 import SSEHelper from "@/utils/SSEHelper";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import DataStore from "../DataStore";
 import type { IPatreonActions, IPatreonGetters, IPatreonState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -75,7 +74,6 @@ export const storePatreon = defineStore("patreon", {
 			this.connected = false;
 			this.isMember = false;
 			clearTimeout(refreshTimeout);
-			DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
 		},
 
 		/**
