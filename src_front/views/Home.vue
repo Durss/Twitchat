@@ -229,7 +229,7 @@ const enabledLocales = computed((): string[] => {
 });
 
 function getLetter(): string {
-	return Utils.pickRand("twitchat".split(""));
+	return Utils.pickRand("twitchat".split(""))!;
 }
 
 const sections = computed(

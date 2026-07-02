@@ -707,6 +707,8 @@ export const storeStream = defineStore("stream", {
 			const messages: TwitchatDataTypes.ChatMessageTypes[] = [];
 			const chatters: { [key: string]: TwitchatDataTypes.StreamSummaryData["chatters"][0] } =
 				{};
+			//Maps custom power-up IDs to their icon URL for the "powerups" credits slot
+			const customPowerUpIcons: { [id: string]: string } = {};
 
 			if (simulate) {
 				//Generate fake messages
@@ -726,7 +728,7 @@ export const storeStream = defineStore("stream", {
 						await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(
 							TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 							(message) => {
-								const emote = Utils.pickRand(emotes);
+								const emote = Utils.pickRand(emotes)!;
 								message.message_chunks.push({
 									type: "emote",
 									value: emote.name,
@@ -750,7 +752,7 @@ export const storeStream = defineStore("stream", {
 								message.twitch_animationId = Utils.pickRand([
 									"simmer",
 									"rainbow-eclipse",
-								]);
+								])!;
 							},
 							false,
 						),
@@ -767,7 +769,7 @@ export const storeStream = defineStore("stream", {
 									message.pinDuration_ms = 360000;
 									message.pinLevel = Utils.pickRand([
 										0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-									]);
+									])!;
 								}
 							},
 							false,
@@ -851,6 +853,13 @@ export const storeStream = defineStore("stream", {
 					messages.push(
 						await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(
 							TwitchatDataTypes.TwitchatMessageType.REWARD,
+							undefined,
+							false,
+						),
+					);
+					messages.push(
+						await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTwitchCustomPowerUpData>(
+							TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP,
 							undefined,
 							false,
 						),
@@ -996,7 +1005,7 @@ export const storeStream = defineStore("stream", {
 											"Mug",
 											"Stickers",
 											"Pins",
-										]),
+										])!,
 										quantity: 1,
 									},
 									{
@@ -1008,7 +1017,7 @@ export const storeStream = defineStore("stream", {
 											"Mug",
 											"Stickers",
 											"Pins",
-										]),
+										])!,
 										quantity: 1,
 									},
 								];
@@ -1039,7 +1048,7 @@ export const storeStream = defineStore("stream", {
 									"Mug",
 									"Stickers",
 									"Pins",
-								]);
+								])!;
 							},
 							false,
 						),
@@ -1073,7 +1082,7 @@ export const storeStream = defineStore("stream", {
 						| TwitchatDataTypes.StreamSummaryData["subs"][number] = {
 						uid: user.id,
 						login: user.displayNameOriginal,
-						tier: Utils.pickRand([1, 2, 3, "prime"]),
+						tier: Utils.pickRand([1, 2, 3, "prime"])!,
 						fromActiveSubs: true,
 						platform: "twitch",
 					};
@@ -1085,7 +1094,7 @@ export const storeStream = defineStore("stream", {
 						const subgiftData =
 							subData as TwitchatDataTypes.StreamSummaryData["subgifts"][number];
 						subgiftData.total = Math.round(Math.random() * 100 + 1);
-						subgiftData.tier = Utils.pickRand([1, 2, 3]);
+						subgiftData.tier = Utils.pickRand([1, 2, 3])!;
 						result.subgifts.push(subgiftData);
 					}
 				}
@@ -1163,6 +1172,20 @@ export const storeStream = defineStore("stream", {
 				}
 			}
 
+			//Load custom power-up definitions so we can display their icons in the "powerups" slot
+			if (parameters?.slots.some((v) => v.slotType == "powerups")) {
+				const powerUps = await TwitchUtils.getCustomPowerUps();
+				powerUps.forEach((p) => {
+					console.log(p);
+					customPowerUpIcons[p.id] =
+						p.image?.url_2x ||
+						p.image?.url_1x ||
+						p.image?.url_4x ||
+						p.default_image?.url_2x ||
+						p.default_image?.url_1x;
+				});
+			}
+
 			for (const m of messages) {
 				let userLogin: string = "";
 				let userChaninfo: TwitchatDataTypes.UserChannelInfo | null = null;
@@ -1175,7 +1198,8 @@ export const storeStream = defineStore("stream", {
 					m.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT ||
 					m.type == TwitchatDataTypes.TwitchatMessageType.BAN ||
 					m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE ||
-					m.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION
+					m.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION ||
+					m.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP
 				) {
 					userLogin = m.user.login;
 					userChaninfo = m.user.channelInfo[channelId]!;
@@ -1449,6 +1473,17 @@ export const storeStream = defineStore("stream", {
 						break;
 					}
 
+					case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
+						result.powerups.push({
+							login: m.user.displayNameOriginal,
+							type: "custom",
+							emoteUrl: customPowerUpIcons[m.powerUpId],
+							powerUpId: m.powerUpId,
+							powerUpName: m.powerUpTitle,
+						});
+						break;
+					}
+
 					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 						if (m.eventType == "donation") {
 							result.tips.push({
@@ -1609,7 +1644,23 @@ export const storeStream = defineStore("stream", {
 
 			if (includeParams && parameters != null) {
 				result.params = parameters;
-
+				let streamInfo = this.currentStreamInfo[channelId];
+				if (!streamInfo) {
+					const result = await TwitchUtils.getCurrentStreamInfo([channelId]);
+					if (result.length > 0) {
+						streamInfo = {
+							category: result[0]!.game_name,
+							started_at: new Date(result[0]!.started_at).getTime(),
+							live: false,
+							previewUrl: "",
+							tags: result[0]!.tags,
+							title: result[0]!.title,
+							viewers: 0,
+							lastSoDoneDate: 0,
+						};
+						this.currentStreamInfo[channelId] = streamInfo;
+					}
+				}
 				const startDateBackup = this.currentStreamInfo[channelId]!.started_at;
 				if (simulate || !startDateBackup) {
 					this.currentStreamInfo[channelId]!.started_at =

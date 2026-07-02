@@ -76,7 +76,8 @@ export default class Utils {
 	 * @param a
 	 * @param removeFromSource
 	 */
-	public static pickRand<T>(a: T[], removeFromSource: boolean = false): T {
+	public static pickRand<T>(a: T[], removeFromSource: boolean = false): T | null {
+		if (!a || a.length === 0) return null;
 		const index = Math.floor(Math.random() * a.length);
 		const res = a[index]!;
 		if (removeFromSource) a.splice(index, 1);

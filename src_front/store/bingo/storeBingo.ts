@@ -24,7 +24,7 @@ export const storeBingo = defineStore("bingo", {
 				let emotes = await TwitchUtils.getEmotes();
 				emoteCount = emotes.length;
 				emotes = emotes.filter((v) => v.is_public === true);
-				const twitch = Utils.pickRand(emotes);
+				const twitch = Utils.pickRand(emotes)!;
 				data.emoteValue = {
 					twitch: undefined,
 					facebook: undefined,

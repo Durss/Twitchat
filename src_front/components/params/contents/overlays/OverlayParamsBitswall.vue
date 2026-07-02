@@ -353,7 +353,7 @@ function testOverlay(pinLevel: number = -1): void {
 			login: user.login,
 			displayName: user.displayNameOriginal,
 		},
-		bits: Utils.pickRand([115, 410, 715, 1510, 5210, 18410]),
+		bits: Utils.pickRand([115, 410, 715, 1510, 5210, 18410])!,
 		pinned: pinLevel > -1,
 		pinLevel: pinLevel - 1,
 	};

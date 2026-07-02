@@ -5904,7 +5904,7 @@ export default class TriggerActionHandler {
 
 						//Pick an item from a custom list
 					} else if (step.mode == "list" && step.placeholder) {
-						const value = Utils.pickRand(step.list, step.removePickedEntry);
+						const value = Utils.pickRand(step.list, step.removePickedEntry)!;
 						const parsedValue = await this.parsePlaceholders(
 							dynamicPlaceholders,
 							actionPlaceholders,
@@ -5993,7 +5993,7 @@ export default class TriggerActionHandler {
 						const users = source?.users;
 						if (source && users && step.valueCounterPlaceholders) {
 							if (Object.keys(users).length > 0) {
-								uid = Utils.pickRand(Object.keys(users));
+								uid = Utils.pickRand(Object.keys(users))!;
 
 								//Attempt to load user name.
 								await new Promise<void>((resolve, _reject) => {
@@ -6109,7 +6109,7 @@ export default class TriggerActionHandler {
 								.toString()
 								.split(new RegExp(step.valueSplitter, ""));
 							entries = entries.map((v) => v.trim());
-							const value = Utils.pickRand(entries, step.removePickedEntry);
+							const value = Utils.pickRand(entries, step.removePickedEntry)!;
 							if (step.removePickedEntry) {
 								source.value = entries
 									.filter((v) => v != value)

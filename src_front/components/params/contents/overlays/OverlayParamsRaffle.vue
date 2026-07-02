@@ -193,7 +193,7 @@ class OverlayParamsRaffle extends Vue {
 		const data: TwitchatDataTypes.WheelData = {
 			items,
 			sessionId: Utils.getUUID(),
-			winner: Utils.pickRand(items).id,
+			winner: Utils.pickRand(items)!.id,
 			skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 		};
 		PublicAPI.instance.broadcast("SET_WHEEL_OVERLAY_START", data);

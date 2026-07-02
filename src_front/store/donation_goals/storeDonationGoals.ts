@@ -258,7 +258,7 @@ export const storeDonationGoals = defineStore("donationGoals", {
 				skin,
 			});
 			PublicAPI.instance.broadcast("ON_DONATION_EVENT", {
-				username: Utils.pickRand(users).displayName,
+				username: Utils.pickRand(users)!.displayName,
 				amount: addedAmount.toString(),
 				overlayId: overlay.id,
 			});

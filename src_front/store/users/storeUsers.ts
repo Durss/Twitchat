@@ -514,7 +514,7 @@ export const storeUsers = defineStore("users", {
 				"#ff69b4",
 				"#8a2be2",
 				"#00ff7f",
-			]);
+			])!;
 
 			if (user.id) hashmaps.idToUser[user.id] = user;
 			if (user.login) hashmaps.loginToUser[user.login] = user;

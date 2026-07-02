@@ -181,7 +181,7 @@ onBeforeMount(() => {
 		TwitchatDataTypes.TwitchatMessageType.KOFI,
 		(mess) => {
 			mess.eventType = "subscription";
-			mess.tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
+			mess.tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"])!;
 			fakeSubscription.value = mess;
 		},
 		false,

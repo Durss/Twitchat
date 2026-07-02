@@ -330,7 +330,6 @@ export namespace TwitchDataTypes {
 		broadcaster_login: string;
 		broadcaster_id: string;
 		id: string;
-		image: any;
 		background_color: string;
 		is_enabled: boolean;
 		bits: number;
@@ -351,6 +350,11 @@ export namespace TwitchDataTypes {
 		};
 		is_paused: boolean;
 		is_in_stock: boolean;
+		image: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
 		default_image: {
 			url_1x: string;
 			url_2x: string;

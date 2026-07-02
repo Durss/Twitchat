@@ -210,10 +210,10 @@ renderFrame();
 
 async function fakeVote(): Promise<void> {
 	if (!fakeVotes.value || !currentQuestion.value || !showProgressbar.value) return;
-	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers()).id;
+	const fakeUserId = Utils.pickRand(await TwitchUtils.getFakeUsers())!.id;
 	let delayMs = Math.random() * 5000;
 	if (currentQuestion.value.mode !== "freeAnswer") {
-		const answer = Utils.pickRand(currentQuestion.value.answerList);
+		const answer = Utils.pickRand(currentQuestion.value.answerList)!;
 		const answerId = answer.id;
 		store.handleAnswer(
 			"twitch",

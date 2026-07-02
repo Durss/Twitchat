@@ -13,6 +13,7 @@ import StoreProxy from "../StoreProxy";
 import { GoXLRTypes } from "@/types/GoXLRTypes";
 import StickerList from "../../utils/youtube/sticker_list.json";
 import staticEmotes from "@/utils/twitch/staticEmoteList.json";
+import type { i } from "mathjs";
 
 let streamInfoCache: TwitchDataTypes.ChannelInfo | null = null;
 const ponderatedRandomList: TwitchatDataTypes.TwitchatMessageStringType[] = [];
@@ -43,7 +44,7 @@ export const storeDebug = defineStore("debug", {
 				true,
 				false,
 			);
-			const fakeUser: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
+			const fakeUser: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers)!;
 
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
@@ -64,7 +65,7 @@ export const storeDebug = defineStore("debug", {
 							"bleedPurple",
 							"NotLikeThis",
 							"twitchRaid",
-						]);
+						])!;
 						message =
 							message.substring(0, i) + " " + emote + " " + message.substring(i + 1);
 						i += emote.length + 1;
@@ -80,8 +81,8 @@ export const storeDebug = defineStore("debug", {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const users = fakeUsers.concat().splice(0, 5);
 					const sent = Math.random() > 0.5;
-					const to = sent ? Utils.pickRand(users) : user;
-					const from = sent ? user : Utils.pickRand(users);
+					const to = sent ? Utils.pickRand(users)! : user;
+					const from = sent ? user : Utils.pickRand(users)!;
 					const m: TwitchatDataTypes.MessageWhisperData = {
 						id: Utils.getUUID(),
 						platform: "twitch",
@@ -161,18 +162,18 @@ export const storeDebug = defineStore("debug", {
 						months: Math.random() > 0.75 ? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
 						totalSubDuration: Math.floor(Math.random() * 46),
-						tier: Utils.pickRand([1, 2, 3, "prime"]),
+						tier: Utils.pickRand([1, 2, 3, "prime"])!,
 						is_gift: false,
 						is_giftUpgrade: false,
 						is_resub: false,
 						is_primeUpgrade: false,
 						is_targetedSubgift: false,
-						gift_upgradeSender: Utils.pickRand(fakeUsers),
+						gift_upgradeSender: Utils.pickRand(fakeUsers)!,
 					};
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					// oxlint-disable-next-line no-dupe-else-if
 					if (Math.random() > 0.8) {
-						m.tier = Utils.pickRand([1, 2, 3]);
+						m.tier = Utils.pickRand([1, 2, 3])!;
 						m.is_gift = true;
 						m.gift_count = Math.floor(Math.random() * 20) + 1;
 						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
@@ -266,12 +267,9 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-					let reward!: TwitchDataTypes.Reward;
-					if (user.is_affiliate || user.is_partner) {
-						reward = Utils.pickRand(
-							(await TwitchUtils.getRewards()).filter((v) => v.is_enabled === true),
-						);
-					}
+					let reward = Utils.pickRand(
+						(await TwitchUtils.getRewards()).filter((v) => v.is_enabled === true),
+					);
 					if (!reward) reward = Config.instance.highlightMyMessageReward;
 					//Use one of the user's rewards
 					const img = reward.image ?? reward.default_image;
@@ -285,7 +283,7 @@ export const storeDebug = defineStore("debug", {
 						channel_id: uid,
 						date: Date.now(),
 						type,
-						user: Utils.pickRand(fakeUsers),
+						user: Utils.pickRand(fakeUsers)!,
 						message_size: 0,
 						reward: {
 							id: reward.id,
@@ -346,9 +344,9 @@ export const storeDebug = defineStore("debug", {
 							"minecraft",
 							"art",
 							"makers & crafting",
-						]),
+						])!,
 					);
-					const chan = Utils.pickRand(res);
+					const chan = Utils.pickRand(res)!;
 					const user = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve) => {
 						StoreProxy.users.getUserFrom(
 							"twitch",
@@ -404,7 +402,7 @@ export const storeDebug = defineStore("debug", {
 						allTimeHighTotal: 100000,
 						isAllTimeRecord: Math.random() > 0.5,
 						isSharedTrain: Math.random() > 0.5,
-						type: Utils.pickRand(["regular", "golden_kappa", "treasure"]),
+						type: Utils.pickRand(["regular", "golden_kappa", "treasure"])!,
 						sharedStates: {},
 					};
 					const m: TwitchatDataTypes.MessageHypeTrainEventData = {
@@ -485,7 +483,7 @@ export const storeDebug = defineStore("debug", {
 							TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
 							TwitchatDataTypes.TwitchatMessageType.CHEER,
 						];
-						const t = Utils.pickRand(types);
+						const t = Utils.pickRand(types)!;
 						await this.simulateMessage<
 							| TwitchatDataTypes.MessageCheerData
 							| TwitchatDataTypes.MessageSubscriptionData
@@ -537,8 +535,8 @@ export const storeDebug = defineStore("debug", {
 						);
 					}
 
-					const conductor_subs = Utils.pickRand(fakeUsers);
-					const conductor_bits = Utils.pickRand(fakeUsers);
+					const conductor_subs = Utils.pickRand(fakeUsers)!;
+					const conductor_bits = Utils.pickRand(fakeUsers)!;
 					//Load avatars if necessary
 					if (!conductor_subs.avatarPath) {
 						const profile = (await TwitchUtils.getUserInfo([conductor_subs.id]))[0];
@@ -575,7 +573,7 @@ export const storeDebug = defineStore("debug", {
 							allTimeHighTotal: 100000,
 							isAllTimeRecord: Math.random() > 0.5,
 							isSharedTrain: Math.random() > 0.5,
-							type: Utils.pickRand(["regular", "golden_kappa", "treasure"]),
+							type: Utils.pickRand(["regular", "golden_kappa", "treasure"])!,
 							state: "COMPLETED",
 							conductor_subs: {
 								user: conductor_subs,
@@ -722,7 +720,7 @@ export const storeDebug = defineStore("debug", {
 						started_at: Date.now() - 2 * 60 * 1000,
 						ended_at: Date.now(),
 						pendingAnswer: false,
-						winner: Utils.pickRand(outcomes),
+						winner: Utils.pickRand(outcomes)!,
 						totalPoints,
 						totalUsers,
 					};
@@ -824,7 +822,54 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID: {
-					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
+					let grid: TwitchatDataTypes.BingoGridConfig | null = Utils.pickRand(
+						StoreProxy.bingoGrid.gridList,
+					);
+					if (!grid) {
+						grid = {
+							id: Utils.getUUID(),
+							title: "My awesome grid",
+							cols: 5,
+							rows: 5,
+							entries: [],
+							autoShowHide: false,
+							backgroundAlpha: 0.5,
+							backgroundColor: "#000000",
+							chatAnnouncementEnabled: false,
+							chatCmdPermissions: Utils.getDefaultPermissions(
+								true,
+								true,
+								false,
+								false,
+								false,
+								false,
+							),
+							enabled: true,
+							heatClick: false,
+							heatClickPermissions: Utils.getDefaultPermissions(
+								true,
+								true,
+								false,
+								false,
+								false,
+								false,
+							),
+							chatAnnouncement: "",
+							overlayAnnouncement: true,
+							overlayAnnouncementPermissions: Utils.getDefaultPermissions(
+								true,
+								true,
+								false,
+								false,
+								false,
+								false,
+							),
+							showGrid: true,
+							textColor: "#FFFFFF",
+							textSize: 16,
+							winSoundVolume: 0.5,
+						};
+					}
 					const x = Math.round(Math.random() * grid.cols);
 					const y = Math.round(Math.random() * grid.rows);
 					const label = grid.entries[x * y]?.label || "";
@@ -897,7 +942,7 @@ export const storeDebug = defineStore("debug", {
 						type,
 						date: Date.now(),
 						id: Utils.getUUID(),
-						winner: Utils.pickRand(entries),
+						winner: Utils.pickRand(entries)!,
 						raffleData: {
 							created_at: Date.now() - 30000,
 							duration_s: 60,
@@ -916,7 +961,7 @@ export const storeDebug = defineStore("debug", {
 							maxEntries: 0,
 							entries: [],
 							customEntries: entries.map((v) => v.label).join(","),
-							winners: [Utils.pickRand(entries)],
+							winners: [Utils.pickRand(entries)!],
 						},
 						channel_id: uid,
 					};
@@ -975,7 +1020,7 @@ export const storeDebug = defineStore("debug", {
 						id: Utils.getUUID(),
 						date: Date.now(),
 						received: false,
-						user: Utils.pickRand(fakeUsers),
+						user: Utils.pickRand(fakeUsers)!,
 						viewerCount: Math.round(Math.random() * 999),
 						moderator: user,
 						stream: {
@@ -1316,12 +1361,12 @@ export const storeDebug = defineStore("debug", {
 						{ name: "Clean mic", id: "fake-id-01" },
 						{ name: "Robot", id: "fake-id-02" },
 						{ name: "Megaphone", id: "fake-id-03" },
-					]);
+					])!;
 					const sound = Utils.pickRand([
 						{ name: "Fart", id: "fake-id-01" },
 						{ name: "Honk", id: "fake-id-02" },
 						{ name: "Scream", id: "fake-id-03" },
-					]);
+					])!;
 					const m: TwitchatDataTypes.MessageVoicemodData = {
 						id: Utils.getUUID(),
 						date: Date.now(),
@@ -1453,8 +1498,8 @@ export const storeDebug = defineStore("debug", {
 						id: Utils.getUUID(),
 						user: fakeUser,
 						channel_id: uid,
-						streak: Utils.pickRand([3, 5, 7, 10, 15]), //Not sure these are valid values
-						channelPointsEarned: Utils.pickRand([350, 450]), //Not sure there are other valid values
+						streak: Utils.pickRand([3, 5, 7, 10, 15])!, //Not sure these are valid values
+						channelPointsEarned: Utils.pickRand([350, 450])!, //Not sure there are other valid values
 						message,
 						message_html: TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks: chunks,
@@ -1480,11 +1525,11 @@ export const storeDebug = defineStore("debug", {
 							false,
 							false,
 						)) as TwitchatDataTypes.MessageChatData;
-					const level = Utils.pickRand([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+					const level = Utils.pickRand([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])!;
 					userMessage.twitch_hypeChat = {
 						level,
 						amount: [1.2, 6, 12, 24, 60, 120, 240, 360, 480, 600][level] || 1,
-						currency: Utils.pickRand(["EUR", "USD", "CHF", "CA", "GBP"]),
+						currency: Utils.pickRand(["EUR", "USD", "CHF", "CA", "GBP"])!,
 						duration_s:
 							[
 								30,
@@ -1552,7 +1597,7 @@ export const storeDebug = defineStore("debug", {
 						type,
 						date: Date.now(),
 						id: Utils.getUUID(),
-						button: Utils.pickRand(GoXLRTypes.ButtonTypes.concat()),
+						button: Utils.pickRand(GoXLRTypes.ButtonTypes.concat())!,
 						pressed: Math.random() > 0.5,
 						channel_id: uid,
 					};
@@ -1567,7 +1612,7 @@ export const storeDebug = defineStore("debug", {
 						date: Date.now(),
 						id: Utils.getUUID(),
 						enabled: Math.random() > 0.5,
-						fxIndex: Utils.pickRand([0, 1, 2, 3, 4, 5]),
+						fxIndex: Utils.pickRand([0, 1, 2, 3, 4, 5])!,
 						channel_id: uid,
 					};
 					data = m;
@@ -1585,12 +1630,12 @@ export const storeDebug = defineStore("debug", {
 							"SamplerBottomLeft",
 							"SamplerBottomRight",
 							"SamplerTopRight",
-						]),
+						])!,
 						bank: Utils.pickRand([
 							"SamplerSelectA",
 							"SamplerSelectB",
 							"SamplerSelectC",
-						]),
+						])!,
 						channel_id: uid,
 					};
 					data = m;
@@ -1604,7 +1649,7 @@ export const storeDebug = defineStore("debug", {
 						type,
 						date: Date.now(),
 						id: Utils.getUUID(),
-						duration_s: Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120]),
+						duration_s: Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120])!,
 						startedBy: user,
 						channel_id: uid,
 					};
@@ -1618,7 +1663,7 @@ export const storeDebug = defineStore("debug", {
 						type,
 						date: Date.now(),
 						id: Utils.getUUID(),
-						duration_s: Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120]),
+						duration_s: Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120])!,
 						startedBy: user,
 						channel_id: uid,
 					};
@@ -1807,7 +1852,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-					const emote = Utils.pickRand(staticEmotes);
+					const emote = Utils.pickRand(staticEmotes)!;
 					const m: TwitchatDataTypes.MessageTwitchCelebrationData = {
 						platform: "twitch",
 						type,
@@ -1825,7 +1870,7 @@ export const storeDebug = defineStore("debug", {
 
 				case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-					const emote = Utils.pickRand(staticEmotes);
+					const emote = Utils.pickRand(staticEmotes)!;
 					const m: TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
 						platform: "twitch",
 						type,
@@ -1847,6 +1892,11 @@ export const storeDebug = defineStore("debug", {
 
 				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					let powerUp = Utils.pickRand(
+						(await TwitchUtils.getCustomPowerUps()).filter(
+							(v) => v.is_enabled === true,
+						),
+					);
 					const m: TwitchatDataTypes.MessageTwitchCustomPowerUpData = {
 						platform: "twitch",
 						type,
@@ -1854,13 +1904,13 @@ export const storeDebug = defineStore("debug", {
 						id: Utils.getUUID(),
 						channel_id: uid,
 						user: fakeUser,
-						cost: Utils.pickRand([40, 60, 80, 100, 500, 1000]),
+						cost: Utils.pickRand([40, 60, 80, 100, 500, 1000])!,
 						message,
 						message_html: TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks: chunks,
 						message_size: 0,
-						powerUpId: "fake-power-up-id",
-						powerUpTitle: "My awesome power-up",
+						powerUpId: powerUp?.id || "fake-power-up-id",
+						powerUpTitle: powerUp?.title || "My awesome power-up",
 					};
 					data = m;
 					if (chunks.length > 0) {
@@ -1942,7 +1992,7 @@ export const storeDebug = defineStore("debug", {
 					type keyType = keyof typeof StickerList;
 					const keys = Object.keys(StickerList) as keyType[];
 					const tier = Math.ceil(Math.random() * 7);
-					const stickerId = Utils.pickRand(keys);
+					const stickerId = Utils.pickRand(keys)!;
 					const m: TwitchatDataTypes.MessageYoutubeSuperStickerData = {
 						date: Date.now(),
 						id: Utils.getUUID(),
@@ -2003,7 +2053,7 @@ export const storeDebug = defineStore("debug", {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC: {
-					const topic = Utils.pickRand(["topic1", "topic2", "topic3"]);
+					const topic = Utils.pickRand(["topic1", "topic2", "topic3"])!;
 					const m: TwitchatDataTypes.MessageWebsocketTopicData = {
 						date: Date.now(),
 						id: Utils.getUUID(),
@@ -2141,7 +2191,7 @@ export const storeDebug = defineStore("debug", {
 						message: message,
 						message_chunks: chunks,
 						message_html: TwitchUtils.messageChunksToHTML(chunks),
-						action: Utils.pickRand(["dm", "dm_mods", "question", "message"]),
+						action: Utils.pickRand(["dm", "dm_mods", "question", "message"])!,
 					};
 
 					data = m;
@@ -2358,9 +2408,9 @@ export const storeDebug = defineStore("debug", {
 					const leaderboard: TwitchatDataTypes.MessageQuizCompleteData["quizResult"]["leaderboard"] =
 						[];
 					const fakeUsers = (await TwitchUtils.getFakeUsers()).concat();
-					let winner: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers, true);
+					let winner: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers, true)!;
 					for (let i = 0; i < Math.min(10, fakeUsers.length); i++) {
-						const fakeUser = i == 0 ? winner : Utils.pickRand(fakeUsers, true);
+						const fakeUser = i == 0 ? winner : Utils.pickRand(fakeUsers, true)!;
 						const anon = Math.random() > 0.8;
 						leaderboard.push({
 							uid: anon ? "ANON_" + fakeUser.id : fakeUser.id,
@@ -2473,7 +2523,7 @@ export const storeDebug = defineStore("debug", {
 				true,
 				false,
 			);
-			const fakeUser: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
+			const fakeUser: TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers)!;
 
 			switch (noticeType) {
 				case TwitchatDataTypes.TwitchatNoticeType.VIP: {
@@ -2648,7 +2698,7 @@ export const storeDebug = defineStore("debug", {
 						date: Date.now(),
 						id: Utils.getUUID(),
 						noticeId: noticeType,
-						message: StoreProxy.i18n.t(Utils.pickRand(keys), {
+						message: StoreProxy.i18n.t(Utils.pickRand(keys)!, {
 							USER: user.displayName,
 						}),
 						channel_id: uid,
@@ -2741,7 +2791,7 @@ export const storeDebug = defineStore("debug", {
 				}
 			}
 
-			const messageType = forcedType ? forcedType : Utils.pickRand(ponderatedRandomList);
+			const messageType = forcedType ? forcedType : Utils.pickRand(ponderatedRandomList)!;
 			return (await this.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(
 				messageType,
 				(data) => {

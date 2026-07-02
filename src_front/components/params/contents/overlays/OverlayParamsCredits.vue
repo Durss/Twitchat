@@ -555,10 +555,18 @@
 										noPremiumLock
 									/>
 									<ParamItem
+										v-if="
+											(param_patreonTiers[element.id]!.children ?? [])
+												.length > 0
+										"
 										:paramData="param_patreonTiers[element.id]!"
 										v-model="element.patreonTiers"
 										noPremiumLock
 									/>
+									<div class="card-item secondary" v-else>
+										<Icon name="alert" />
+										{{ t("overlay.credits.patreon_no_tiers") }}
+									</div>
 									<ParamItem
 										:paramData="param_sortByName[element.id]!"
 										v-model="element.sortByNames"
@@ -601,6 +609,10 @@
 									<ParamItem
 										:paramData="param_showPuCeleb[element.id]!"
 										v-model="element.showPuCeleb"
+									/>
+									<ParamItem
+										:paramData="param_filterPowerUps[element.id]!"
+										v-model="element.filterPowerUps"
 									/>
 								</template>
 
@@ -958,6 +970,9 @@ const param_showTipsStreamelements = ref<{
 const param_showPuSkin = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 const param_showPuEmote = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 const param_showPuCeleb = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_filterPowerUps = ref<{
+	[key: string]: TwitchatDataTypes.ParameterData<boolean, unknown, boolean>;
+}>({});
 const param_anonLastNames = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 const param_showTotalAmount = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 const param_currency = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
@@ -1562,7 +1577,7 @@ async function addSlot(
 		param_showPuCeleb.value[id] = {
 			type: "boolean",
 			value: entry.showPuCeleb,
-			icon: "watchStreak",
+			icon: "party",
 			labelKey: "overlay.credits.param_showPuCeleb",
 		};
 		param_sortByAmounts.value[id] = {
@@ -1572,6 +1587,45 @@ async function addSlot(
 			labelKey: "overlay.credits.param_sortByPuCount",
 			premiumOnly: true,
 		};
+		if (entry.filterPowerUps == undefined) {
+			entry.filterPowerUps = false;
+			entry.powerUpIds = [];
+		}
+		param_filterPowerUps.value[id] = {
+			type: "boolean",
+			value: entry.filterPowerUps,
+			icon: "watchStreak",
+			labelKey: "overlay.credits.param_filterPowerUps",
+			twitch_scopes: [TwitchScopes.READ_CHEER],
+		};
+		let powerUps: TwitchDataTypes.CustomPowerUp[] = [];
+		if (TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+			powerUps = (await TwitchUtils.getCustomPowerUps()).sort((a, b) => a.bits - b.bits);
+		}
+		const puChildren: TwitchatDataTypes.ParameterData<
+			boolean,
+			unknown,
+			unknown,
+			TwitchDataTypes.CustomPowerUp
+		>[] = [];
+		for (const p of powerUps) {
+			puChildren.push({
+				type: "boolean",
+				value: entry.powerUpIds!.includes(p.id),
+				iconURL: p.default_image?.url_1x || p.image.url_1x,
+				label: p.title,
+				storage: p,
+				editCallback: (data) => {
+					if (data.value === true && !entry.powerUpIds!.includes(data.storage!.id)) {
+						entry.powerUpIds!.push(data.storage!.id);
+					}
+					if (data.value === false && entry.powerUpIds!.includes(data.storage!.id)) {
+						entry.powerUpIds = entry.powerUpIds!.filter((v) => v !== data.storage!.id);
+					}
+				},
+			});
+		}
+		param_filterPowerUps.value[id]!.children = puChildren;
 	} else if (slotDef.id == "patreonMembers") {
 		if (entry.currency == undefined) entry.currency = "€";
 		if (entry.sortByNames == undefined) entry.sortByNames = true;

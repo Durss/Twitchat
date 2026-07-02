@@ -1320,7 +1320,7 @@ async function previewSubMessage(
 			if (entry.type == "automod") {
 				let words: string[] = [];
 				do {
-					words.push(Utils.pickRand(dataCast.message.split(" ")));
+					words.push(Utils.pickRand(dataCast.message.split(" "))!);
 				} while (Math.random() > 0.5);
 
 				dataCast.twitch_automod = { reasons: ["bullying"], words };

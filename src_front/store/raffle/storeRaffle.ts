@@ -823,7 +823,7 @@ export const storeRaffle = defineStore("raffle", {
 					return;
 				}
 
-				winner = Utils.pickRand(list);
+				winner = Utils.pickRand(list)!;
 			}
 
 			//Ask if a wheel overlay exists
