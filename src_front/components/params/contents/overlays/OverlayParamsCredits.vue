@@ -530,7 +530,25 @@
 									/>
 								</template>
 
-								<template v-if="element.slotType == 'patreonMembers'">
+								<div
+									class="card-item alert requirement"
+									v-if="
+										element.slotType == 'patreonMembers' &&
+										!storePatreon.isMember
+									"
+								>
+									<span>{{ t("overlay.credits.patreon_connect") }}</span>
+									<TTButton icon="patreon" light alert @click="openPatreon">{{
+										t("patreon.linkBt")
+									}}</TTButton>
+								</div>
+
+								<template
+									v-if="
+										element.slotType == 'patreonMembers' &&
+										storePatreon.isMember
+									"
+								>
 									<ParamItem
 										:paramData="param_anonLastNames[element.id]!"
 										v-model="element.anonLastNames"
@@ -1098,6 +1116,16 @@ function getOverlayPresence(showLoader: boolean = false): void {
  */
 function openPremium(): void {
 	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
+
+/**
+ * Opens the Patreon connection
+ */
+function openPatreon(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.PATREON,
+	);
 }
 
 /**
@@ -1909,6 +1937,12 @@ watch(
 					align-items: center;
 					justify-content: center;
 					overflow: visible;
+				}
+				.requirement {
+					gap: 0.5em;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
 				}
 			}
 			&.premium {
