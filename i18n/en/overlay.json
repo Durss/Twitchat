@@ -181,6 +181,7 @@
 			"param_showAmounts": "Show amounts",
 			"param_uniqueUsers": "Unique users\n(multiple events of the same user are merged into 1)",
 			"param_filterRewards": "Only show some rewards",
+			"param_filterPowerUps": "Only show some custom power-ups",
 			"param_showRewardUsers": "Show user list for each reward",
 			"param_ignoreBots": "Hide bot accounts",
 			"param_ignoreCustomBots": "Hide custom accounts",
@@ -212,6 +213,7 @@
 			"premium_only": "Become Premium to show this section content",
 			"sub_duration": "{MONTHS} month | {MONTHS} months",
 			"patreon_connect": "You must link your Patreon account",
+			"patreon_no_tiers": "You do not have a creator page on Patreon or have not created any subscription tiers yet.",
 			"grant_fonts_access": "Grant fonts access",
 			"categories": {
 				"cheers": "Bits",

@@ -598,7 +598,7 @@ async function simulateEvent(
 						"cosmic-abyss";
 					break;
 				case "giantEmote": {
-					const emote = Utils.pickRand(staticEmotes);
+					const emote = Utils.pickRand(staticEmotes)!;
 					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({
 						type: "emote",
 						value: emote.name,
@@ -726,11 +726,11 @@ async function simulateEvent(
 				}
 				case "hypeChat": {
 					const m = message as TwitchatDataTypes.MessageChatData;
-					const level = Utils.pickRand([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+					const level = Utils.pickRand([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])!;
 					m.twitch_hypeChat = {
 						level,
 						amount: [1.2, 6, 12, 24, 60, 120, 240, 360, 480, 600][level]!,
-						currency: Utils.pickRand(["EUR", "USD", "CHF", "GBP"]),
+						currency: Utils.pickRand(["EUR", "USD", "CHF", "GBP"])!,
 						duration_s: [
 							30,
 							150,
@@ -790,7 +790,7 @@ async function simulateEvent(
 						recipients.push(
 							Utils.pickRand(
 								StoreProxy.users.users.filter((v) => v.errored !== true),
-							),
+							)!,
 						);
 					}
 					m.gift_count = recipients.length;
@@ -960,7 +960,7 @@ async function fakeConversation(): Promise<void> {
 				"#ff69b4",
 				"#8a2be2",
 				"#00ff7f",
-			]),
+			])!,
 			platform: "twitch",
 			pronouns: "",
 			pronounsLabel: "",
@@ -1073,7 +1073,7 @@ async function simulateMultichanGifts(): Promise<void> {
 				m.user.channelInfo[m.channel_id]!.totalSubgifts = Math.round(Math.random() * 100);
 				for (let i = 0; i < count; i++) {
 					recipients.push(
-						Utils.pickRand(StoreProxy.users.users.filter((v) => v.errored !== true)),
+						Utils.pickRand(StoreProxy.users.users.filter((v) => v.errored !== true))!,
 					);
 				}
 				m.gift_count = recipients.length;
@@ -1107,7 +1107,7 @@ async function simulateMultichanGifts(): Promise<void> {
 				for (let i = 0; i < count; i++) {
 					const user = Utils.pickRand(
 						StoreProxy.users.users.filter((v) => v.errored !== true),
-					);
+					)!;
 					let newUser = await storeUsers.getUserFrom(
 						"twitch",
 						secondaryChan.id,
@@ -1135,7 +1135,7 @@ function simulateAutomod(): void {
 		const m = message as TwitchatDataTypes.MessageChatData;
 		let words: string[] = [];
 		do {
-			words.push(Utils.pickRand(m.message.split(" ")));
+			words.push(Utils.pickRand(m.message.split(" "))!);
 		} while (Math.random() > 0.5);
 
 		m.twitch_automod = { reasons: ["bullying"], words };

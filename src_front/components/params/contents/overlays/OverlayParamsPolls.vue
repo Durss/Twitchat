@@ -339,7 +339,7 @@ class OverlayParamsPolls extends Vue {
 		const fakeVotes = () => {
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
-				const choice = Utils.pickRand(poll.choices);
+				const choice = Utils.pickRand(poll.choices)!;
 				choice.votes += Math.round(Math.random() * 100);
 			}
 			this.$store.poll.setCurrentPoll(poll);

@@ -371,7 +371,7 @@ class OverlayParamsPredictions extends Vue {
 		const fakeVotes = () => {
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
-				const outcome = Utils.pickRand(predi.outcomes);
+				const outcome = Utils.pickRand(predi.outcomes)!;
 				outcome.voters++;
 				outcome.votes += Math.round(Math.random() * 100);
 			}

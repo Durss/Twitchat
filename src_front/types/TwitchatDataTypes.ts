@@ -3145,13 +3145,22 @@ export namespace TwitchatDataTypes {
 			 */
 			skinID?: TwitchatDataTypes.MessageChatData["twitch_animationId"];
 			/**
-			 * Emote URL for "gigantifiedemote" type
+			 * Emote URL for "gigantifiedemote" type.
+			 * Also holds the power-up icon URL for "custom" type
 			 */
 			emoteUrl?: string;
 			/**
 			 * Type of powerup
 			 */
-			type: "animation" | "gigantifiedemote" | "celebration";
+			type: "animation" | "gigantifiedemote" | "celebration" | "custom";
+			/**
+			 * ID of the custom power-up for "custom" type
+			 */
+			powerUpId?: string;
+			/**
+			 * Name of the custom power-up for "custom" type
+			 */
+			powerUpName?: string;
 		}[];
 		/**
 		 * Super chat events
@@ -4278,6 +4287,14 @@ export namespace TwitchatDataTypes {
 		 * Reward IDs to show if filterRewards is true
 		 */
 		rewardIds?: string[];
+		/**
+		 * Should we filter custom power-ups ?
+		 */
+		filterPowerUps?: boolean;
+		/**
+		 * Custom power-up IDs to show if filterPowerUps is true
+		 */
+		powerUpIds?: string[];
 		/**
 		 * @deprecated only here for data migration typing
 		 */

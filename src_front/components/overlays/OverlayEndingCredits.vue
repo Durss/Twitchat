@@ -474,6 +474,21 @@
 					</div>
 
 					<div
+						v-if="item.params.slotType == 'powerups'"
+						v-for="entry in getCustomPowerups(item.params)"
+						class="item"
+					>
+						<img
+							v-if="entry.icon"
+							:src="entry.icon"
+							alt="power-up icon"
+							class="rewardIcon"
+						/>
+						<span class="info">{{ entry.name }}</span>
+						<span class="count">x{{ entry.total }}</span>
+					</div>
+
+					<div
 						v-if="item.params.slotType == 'patreonMembers'"
 						v-for="entry in getPatreonMembers(item.params).splice(
 							0,
@@ -1031,6 +1046,40 @@ class OverlayEndingCredits extends AbstractOverlay {
 		return [...emotes, ...anims].splice(0, params.maxEntries);
 	}
 
+	/**
+	 * Groups custom power-ups by their type and counts the redemptions.
+	 * Displayed like channel point rewards (icon + name + count).
+	 */
+	public getCustomPowerups(item: TwitchatDataTypes.EndingCreditsSlotParams) {
+		const res: {
+			powerUpId: string;
+			name: string;
+			icon?: string;
+			total: number;
+		}[] = [];
+		const done: { [key: string]: number } = {};
+		(this.data?.powerups || [])
+			.filter((v) => v.type == "custom")
+			.forEach((v) => {
+				//Only show selected power-ups if requested
+				if (item.filterPowerUps === true) {
+					if (!(item.powerUpIds || []).includes(v.powerUpId!)) return;
+				}
+				//Power-up not parsed yet, create an entry
+				if (done[v.powerUpId!] === undefined) {
+					const entry: (typeof res)[0] = {
+						powerUpId: v.powerUpId!,
+						name: v.powerUpName || "",
+						icon: v.emoteUrl,
+						total: 0,
+					};
+					done[v.powerUpId!] = res.push(entry) - 1;
+				}
+				res[done[v.powerUpId!]!]!.total++;
+			});
+		return res.sort((a, b) => b.total - a.total).splice(0, item.maxEntries);
+	}
+
 	public getRewards(item: TwitchatDataTypes.EndingCreditsSlotParams) {
 		const res: {
 			total: number;
@@ -1209,7 +1258,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				count = this.getMerch(item).length;
 				break;
 			case "powerups":
-				count = this.getSortedPowerups(item).length;
+				count = this.getSortedPowerups(item).length + this.getCustomPowerups(item).length;
 				break;
 			case "shoutouts":
 				count = (this.data?.shoutouts || []).length;
@@ -1857,11 +1906,12 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 		this.powerUpEmoteProps = [];
 
-		let powerups = this.data.powerups.concat();
+		//Exclude custom power-ups, they have no emote to make fly
+		let powerups = this.data.powerups.filter((v) => v.type != "custom");
 
 		if (powerups.length > 0) {
 			//20 items min
-			while (powerups.length < 20) powerups.push(Utils.pickRand(powerups));
+			while (powerups.length < 20) powerups.push(Utils.pickRand(powerups)!);
 			//50 items max
 			powerups = Utils.shuffle(powerups).splice(0, 50);
 

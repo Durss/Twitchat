@@ -822,7 +822,7 @@ export default class MessengerProxy {
 			}
 		} else if ((isAdmin && cmd == "/fakeso") || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
-			let user = Utils.pickRand(fakeUsers);
+			let user = Utils.pickRand(fakeUsers)!;
 			if (params[0] && params[0] != "true" && params[0] != "false") {
 				user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]!);
 				if (!user) return true;
@@ -843,7 +843,7 @@ export default class MessengerProxy {
 		} else if (isAdmin && cmd == "/fakesolist") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
-				const user = Utils.pickRand(fakeUsers);
+				const user = Utils.pickRand(fakeUsers)!;
 				const userInfos = await TwitchUtils.getUserInfo([user.id]);
 				user.avatarPath = userInfos[0]!.profile_image_url;
 				if (!StoreProxy.users.pendingShoutouts[channelId]) {
@@ -969,7 +969,7 @@ export default class MessengerProxy {
 								}
 							}
 							if (channelSources.length > 0) {
-								m.channelSource = Utils.pickRand(channelSources);
+								m.channelSource = Utils.pickRand(channelSources)!;
 							}
 						},
 						forcedType,

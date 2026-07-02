@@ -1366,7 +1366,7 @@ async function submitForm(): Promise<void> {
 		subs.value = Utils.shuffle(await TwitchUtils.getSubsList(false));
 		if (subsFiltered.value.length == 0) return;
 		let interval = window.setInterval(() => {
-			winnerTmp.value = Utils.pickRand(subsFiltered.value).user_name;
+			winnerTmp.value = Utils.pickRand(subsFiltered.value)!.user_name;
 		}, 70);
 		winner.value = null;
 		pickingEntry.value = true;

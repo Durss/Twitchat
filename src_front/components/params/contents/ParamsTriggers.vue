@@ -726,7 +726,7 @@ function testTrigger(trigger: TriggerData): void {
 						sub.is_gift = true;
 						const recipients = [];
 						do {
-							recipients.push(Utils.pickRand(storeUsers.users));
+							recipients.push(Utils.pickRand(storeUsers.users)!);
 						} while (Math.random() > 0.25);
 						sub.gift_recipients = recipients;
 						sub.gift_count = recipients.length;
@@ -750,7 +750,7 @@ function testTrigger(trigger: TriggerData): void {
 						if (trigger.heatClickSource == "area" && trigger.heatAreaIds) {
 							(m as TwitchatDataTypes.MessageHeatClickData).areaId = Utils.pickRand(
 								trigger.heatAreaIds,
-							);
+							)!;
 						}
 						if (trigger.heatClickSource == "obs" && trigger.heatObsSource) {
 							(m as TwitchatDataTypes.MessageHeatClickData).obsSource =
@@ -763,7 +763,7 @@ function testTrigger(trigger: TriggerData): void {
 						//Force a button
 						(m as TwitchatDataTypes.MessageGoXLRButtonData).button = Utils.pickRand(
 							trigger.goxlrButtons!,
-						);
+						)!;
 						(m as TwitchatDataTypes.MessageGoXLRButtonData).pressed =
 							triggerEvent.value == TriggerTypes.GOXLR_BUTTON_PRESSED;
 					} else if (
@@ -773,7 +773,7 @@ function testTrigger(trigger: TriggerData): void {
 						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).enabled =
 							triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED;
 						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).fxIndex =
-							Utils.pickRand([0, 1, 2, 3, 4, 5]);
+							Utils.pickRand([0, 1, 2, 3, 4, 5])!;
 					} else if (triggerEvent.value == TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE) {
 						//Remove ban duration so it counts as a ban, not a timeout
 						(
@@ -793,7 +793,7 @@ function testTrigger(trigger: TriggerData): void {
 							"max_duration",
 							"no_active_device",
 							"spotify_max_per_user_reached",
-						]);
+						])!;
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failCode = code;
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = t(
 							"triggers.actions.music.fail_reasons." + code,
@@ -844,7 +844,7 @@ function testTrigger(trigger: TriggerData): void {
 							"Bronze",
 							"Silver",
 							"Poop",
-						]);
+						])!;
 					} else if (triggerEvent.value == TriggerTypes.KOFI_COMMISSION) {
 						(m as TwitchatDataTypes.KofiCommissionData).eventType = "commission";
 						(m as TwitchatDataTypes.KofiCommissionData).amount = amount;
@@ -859,7 +859,7 @@ function testTrigger(trigger: TriggerData): void {
 							Math.round(Math.random() * 10);
 					} else if (triggerEvent.value == TriggerTypes.POWER_UP_MESSAGE) {
 						(m as TwitchatDataTypes.MessageChatData).twitch_animationId =
-							Utils.pickRand(["rainbow-eclipse", "simmer"]);
+							Utils.pickRand(["rainbow-eclipse", "simmer"])!;
 					} else if (triggerEvent.value == TriggerTypes.VOICEMOD) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundName;
