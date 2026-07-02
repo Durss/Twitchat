@@ -755,8 +755,29 @@ class OverlayEndingCredits extends AbstractOverlay {
 				//Split first and second word with a space, split the next words with a dot.
 				const chunks = login.split(" ");
 				if (chunks.length > 1) {
+					const punctuations = [
+						".",
+						",",
+						";",
+						":",
+						"!",
+						"?",
+						"-",
+						"_",
+						"(",
+						")",
+						"[",
+						"]",
+						"{",
+						"}",
+						"'",
+						'"',
+						"`",
+						"|",
+					];
 					login = chunks
-						.map((v, i) => (i == 0 ? v + " " : v[0]!.toUpperCase() + "."))
+						.filter((v) => v.trim() != "" && !punctuations.includes(v.trim()))
+						.map((v, i) => (i == 0 ? v + " " : (v[0] ?? "").toUpperCase() + "."))
 						.join("");
 					login = login.substring(0, login.length - 1);
 					v.login = login;
