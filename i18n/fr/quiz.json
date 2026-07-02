@@ -1,0 +1,108 @@
+{
+	"quiz": {
+		"form": {
+			"title": "Quiz",
+			"subtitle": "Créez votre propre quiz interactif !",
+			"add_bt": "Créer un quiz",
+			"import_bt": "Importer des questions",
+			"export_bt": "Exporter les questions en CSV",
+			"importCSV_bt": "Importer un CSV Twitchat",
+			"importCSV_title": "Importer des questions depuis un fichier CSV exporté depuis Twitchat :",
+			"importCSV_format": "Détails sur le format CSV",
+			"importCSV_format_col_question": "Question",
+			"importCSV_format_col_answer": "Réponse",
+			"importCSV_format_col_answer_n": "Réponse {N}",
+			"importCSV_format_col_duration": "Durée (s)",
+			"importCSV_format_col_tolerance": "Tolérance",
+			"importCSV_format_note_correct": "En mode <strong>classic</strong>, préfixez les bonnes réponses par <strong>*</strong> (ex. <code>*Twitchat</code>)",
+			"importCSV_format_note_optional": "La <strong>durée</strong> et la <strong>tolérance</strong> sont optionnelles. Laissez-les vides pour utiliser les valeurs par défaut du quiz",
+			"importCSV_format_note_separator": "Les colonnes sont séparées par un point-virgule <code>;</code>",
+			"importOpenQuizzDB_bt": "Importer un CSV Openquizzdb",
+			"importOpenQuizzDB_title": "Rendez-vous sur {URL} pour télécharger un Quiz au format CSV puis cliquez le bouton ci-dessous :",
+			"importOpenQuizzDB_lang": "Choisissez la langue à importer :",
+			"import_invalid_file": "Format de fichier invalide. Veuillez télécharger un fichier CSV avec la structure correcte.",
+			"addQuestion_bt": "Ajouter une question",
+			"addAnswer_bt": "Ajouter une réponse",
+			"answer_correct": "Bonne réponse",
+			"answer_wrong": "Mauvaise réponse",
+			"deleteQuestionbt_tt": "Supprimer la question",
+			"durationOverride_tt": "Durée pour cette question",
+			"maxAnswersOverride_tt": "Maximum de personnes pouvant répondre",
+			"shuffleOverride_tt": "Mélanger les réponses de cette question",
+			"toleranceOverride_tt": "Tolérance personnalisée pour cette question",
+			"premium_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} quizs que vous pouvez créer.",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de {MAX} quiz que vous pouvez créer.\nDevenez membre premium pour en créer jusqu'à {MAX_PREMIUM}.",
+			"premium_question_limit": "Vous avez atteint le nombre maximum de {MAX_PREMIUM} questions que vous pouvez ajouter.",
+			"nonpremium_question_limit": "Vous avez atteint le nombre maximum de {MAX} questions que vous pouvez ajouter.\nDevenez premium pour en ajouter jusqu'à {MAX_PREMIUM}.",
+			"question_count": "({COUNT} question)|({COUNT} questions)",
+			"tolerances": {
+				"undefined": "         🗑️",
+				"none": "😠 Aucune",
+				"very_low": "🧐 Très basse",
+				"low": "🤨 Basse",
+				"medium": "😁 Moyenne",
+				"high": "😲 Haute",
+				"very_high": "🥳 Très haute"
+			},
+			"shuffle_states": {
+				"default": "Défaut",
+				"on": "Oui",
+				"off": "Non"
+			},
+			"delete_confirm": {
+				"description": "Le quiz sera supprimé\nCette action est irréversible.",
+				"title": "Supprimer le quiz ?"
+			},
+			"default_title": "Mon Quiz",
+			"install_title": "Installer l'overlay",
+			"param_duration": "Durée par question ({VALUE} secondes)",
+			"param_time_based_scoring": "Score basé sur le temps\n(plus de points pour les réponses rapides)",
+			"param_loose_on_fail": "Perdre des points en cas d'erreur\n(les mauvaises réponses retirent des points)",
+			"param_max_answers": "N'accepter que les premières personnes à répondre",
+			"param_max_answers_value": "Accepter uniquement la première personne|Accepter uniquement les {VALUE} premières personnes",
+			"param_shuffle_answers": "Mélanger les réponses\n(ordre aléatoire des réponses sur l'overlay)",
+			"param_tolerance": "Tolérance orthographique\n(pour les questions à réponse libre)",
+			"no_question": "aucune question",
+			"question_placeholder": "question...",
+			"answer_placeholder": "réponse...",
+			"test_answer_placeholder": "tester une réponse...",
+			"answers": "{COUNT} Réponses",
+			"answers_majority": "{COUNT} Réponses",
+			"answers_majority_subtitle": " (fausses uniquement)",
+			"param_answer_duration": "Durée",
+			"createBt": "Créer",
+			"add_question_title": "Ajouter une question",
+			"mode_classic": {
+				"title": "Réponse à choix",
+				"description": "Question à choix multiples"
+			},
+			"mode_freeAnswer": {
+				"title": "Réponse libre",
+				"description": "Question à réponse libre"
+			},
+			"mode_majority": {
+				"title": "Vote Majoritaire",
+				"description": "Question à choix majoritaire.\n\nUniquement des fausses réponses.\nLes spectateurices doivent estimer quelle réponse recevra le plus de votes"
+			},
+			"lost_progress_warning": {
+				"title": "Quiz en cours",
+				"description_other": "Si vous activez ce quiz vous perdrez la progression du quiz \"{NAME}\"",
+				"description_self": "Si vous désactivez ce quiz vous perdrez sa progression !"
+			},
+			"overlay_name": "de Quiz"
+		},
+		"state": {
+			"start_bt": "Démarrer le quiz",
+			"showAnswer_bt": "Révéler la réponse",
+			"nextQuestion_bt": "Question suivante",
+			"leaderboard_bt": "Afficher le classement",
+			"resetQuiz_bt": "Réinitialiser le quiz",
+			"disable_bt": "Clore le quiz",
+			"reset_confirm": {
+				"title": "Réinitialiser le quiz ?",
+				"description": "La progression du quiz sera perdue\nCette action est irréversible."
+			},
+			"questionIndex": "Question {INDEX}/{TOTAL}"
+		}
+	}
+}

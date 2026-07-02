@@ -1,76 +1,81 @@
 <template>
 	<div class="customusernamemanager">
 		<div class="header">
-			<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
+			<button class="backBt" @click="emit('close')"><Icon name="back" /></button>
 			<h1>{{ $t("usercard.manage_usernames") }}</h1>
 		</div>
 
 		<div class="list">
 			<div class="card-item user" v-for="item in itemList">
-				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(item.user.id)"><Icon name="cross" theme="alert" /></button>
-				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ item.user.displayNameOriginal }}</span>
-				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ item.customName }})</span>
+				<button
+					class="deleteBt"
+					v-tooltip="$t('usercard.manage_usernames_removeBt')"
+					@click="deleteCustomName(item.user.id)"
+				>
+					<Icon name="cross" theme="alert" />
+				</button>
+				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{
+					item.user.displayNameOriginal
+				}}</span>
+				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')"
+					>({{ item.customName }})</span
+				>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import Icon from '../Icon.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import Icon from "../Icon.vue";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 
-@Component({
-	components:{
-		Icon,
-		Button: TTButton,
-	},
-	emits:["close"],
-})
-class CustomUserNameManager extends Vue {
+const emit = defineEmits<{ close: [] }>();
 
-	public itemList:{customName:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
+const storeUsers = useStoreUsers();
 
-	public async mounted():Promise<void> {
-		this.refreshList();
-	}
+const itemList = ref<{ customName: string; user: TwitchatDataTypes.TwitchatUser }[]>([]);
 
-	public deleteCustomName(uid:string):void {
-		this.$store.users.removeCustomUsername(uid);
-		this.refreshList();
-	}
-
-	private refreshList():void {
-		const customUsernames = this.$store.users.customUsernames;
-		this.itemList = [];
-		for (const uid in customUsernames) {
-			const u = customUsernames[uid]!;
-			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
-		}
-		if(this.itemList.length == 0){
-			this.$emit("close");
-		}
-	}
-
+function deleteCustomName(uid: string): void {
+	storeUsers.removeCustomUsername(uid);
+	refreshList();
 }
-export default toNative(CustomUserNameManager);
+
+function refreshList(): void {
+	const customUsernames = storeUsers.customUsernames;
+	itemList.value = [];
+	for (const uid in customUsernames) {
+		const u = customUsernames[uid]!;
+		itemList.value.push({
+			user: storeUsers.getUserFrom(u.platform, u.channel, uid),
+			customName: u.name,
+		});
+	}
+	if (itemList.value.length == 0) {
+		emit("close");
+	}
+}
+
+onMounted(() => {
+	refreshList();
+});
 </script>
 
 <style scoped lang="less">
-.customusernamemanager{
-	padding-bottom: 4px;//No idea why but this avoids scrollbar to show up when unnecessary
+.customusernamemanager {
+	padding-bottom: 4px; //No idea why but this avoids scrollbar to show up when unnecessary
 
 	.header {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		.backBt {
-			padding: .85em 1em;
-			color:var(--color-text);
+			padding: 0.85em 1em;
+			color: var(--color-text);
 			.icon {
 				height: 1em;
-				transition: transform .15s;
+				transition: transform 0.15s;
 			}
 			&:hover {
 				.icon {
@@ -88,11 +93,11 @@ export default toNative(CustomUserNameManager);
 	h2 {
 		font-size: 1.5em;
 		text-align: center;
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	.list {
-		gap: .5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

@@ -1,89 +1,96 @@
 <template>
 	<div :class="classes">
 		<div class="fill" :style="barStyles"></div>
-		<div class="timer" ref="timer" :style="timerStyles" v-if="percent<1 && duration != undefined">{{timeLeft}}</div>
+		<div
+			class="timer"
+			ref="timer"
+			:style="timerStyles"
+			v-if="percent < 1 && duration != undefined"
+		>
+			{{ timeLeft }}
+		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import Utils from "@/utils/Utils";
+import type { CSSProperties } from "vue";
+import { computed, ref } from "vue";
 
-@Component({
-	components:{}
-})
-class ProgressBar extends Vue {
+const props = withDefaults(
+	defineProps<{
+		percent?: number;
+		duration?: number;
+		secondary?: boolean;
+		premium?: boolean;
+		alert?: boolean;
+	}>(),
+	{
+		percent: 0,
+		duration: 1,
+		secondary: false,
+		premium: false,
+		alert: false,
+	},
+);
 
-	@Prop({type:Number,default:0})
-	public percent!:number;
+const timer = ref<HTMLElement>();
 
-	@Prop({ type:Number, default:1})
-	public duration!:number;//In ms
+const timeLeft = computed(() =>
+	Utils.formatDuration(props.duration * Math.max(0, Math.min(1, 1 - props.percent))),
+);
 
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
+const elapsedPercent = computed(() => Math.max(0, Math.min(1, 1 - props.percent)));
 
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
+const classes = computed(() => {
+	const list = ["progressbar"];
+	if (props.secondary !== false) list.push("secondary");
+	if (props.premium !== false) list.push("premium");
+	if (props.alert !== false) list.push("alert");
+	return list;
+});
 
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
+const barStyles = computed<CSSProperties>(() => {
+	return {
+		transform: `scaleX(${elapsedPercent.value * 100}%)`,
+	};
+});
 
-	public get timeLeft():string { return Utils.formatDuration(this.duration * Math.max(0, Math.min(1, (1-this.percent)))) }
-
-	public get elapsedPercent():number { return Math.max(0, Math.min(1, (1-this.percent))); }
-
-	public get classes():string[] {
-		const list = ["progressbar"];
-		if(this.secondary !== false) list.push("secondary");
-		if(this.premium !== false) list.push("premium");
-		if(this.alert !== false) list.push("alert");
-		return list;
-	}
-
-	public get barStyles():CSSProperties {
+const timerStyles = computed<CSSProperties>(() => {
+	if (timer.value) {
+		const parent = timer.value.parentElement!.getBoundingClientRect();
+		const bounds = timer.value.getBoundingClientRect();
+		const barSize = elapsedPercent.value * parent.width;
+		let px = barSize - bounds.width;
+		const offset = -px / bounds.width;
+		if (px < 0) px -= barSize - bounds.width;
 		return {
-			transform: `scaleX(${this.elapsedPercent*100}%)`,
-		}
+			right: "auto",
+			transform: "translateX(" + px + "px)",
+			backgroundPositionX: offset > 0 ? offset * 100 + "%" : "0%",
+		};
+	} else {
+		return {
+			right: props.percent * 100 + "%",
+		};
 	}
-
-	public get timerStyles():CSSProperties {
-		if(this.$refs.timer) {
-			let parent = (this.$el as HTMLElement).getBoundingClientRect();
-			let bounds = (this.$refs.timer as HTMLElement).getBoundingClientRect();
-			let barSize = this.elapsedPercent * parent.width;
-			let px = barSize - bounds.width;
-			let offset = -px / bounds.width;
-			if(px < 0) px -= barSize - bounds.width;
-			return {
-				right:"auto",
-				transform: "translateX("+px+"px)",
-				backgroundPositionX: offset > 0? (offset*100)+"%" : "0%"
-			}
-		}else{
-			return {
-				right: (this.percent*100)+"%",
-			}
-		}
-	}
-}
-export default toNative(ProgressBar);
+});
 </script>
 
 <style scoped lang="less">
-.progressbar{
-	height: 5px;
+.progressbar {
+	height: 2px;
 	width: 100%;
-	@bg: #555;
 	@bg: var(--grayout);
 	background: @bg;
 	position: relative;
-	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
+	@shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+	flex-shrink: 0;
+	pointer-events: none;
 
 	.fill {
 		box-shadow: @shadow;
-		height: 4px;
+		height: 2px;
 		width: 100%;
 		background-color: var(--color-primary);
 		transform-origin: left;
@@ -94,17 +101,16 @@ export default toNative(ProgressBar);
 	.timer {
 		position: absolute;
 		font-family: var(--font-roboto);
-		background-color: var(--color-primary);
 		color: var(--color-light);
 		top: 0;
-		font-size: 15px;
+		font-size: 0.8em;
 		padding: 2px 5px;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: @shadow;
 		transform: translateX(0);
 		will-change: transform;
-		@c:var(--color-primary);
+		@c: var(--color-primary);
 		background-color: @c;
 		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 		background-size: 200% 100%;

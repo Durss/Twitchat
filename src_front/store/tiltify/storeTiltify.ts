@@ -1,161 +1,177 @@
-import SSEEvent from '@/events/SSEEvent';
-import ApiHelper from '@/utils/ApiHelper';
-import Config from '@/utils/Config';
-import SSEHelper from '@/utils/SSEHelper';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import type { ITiltifyActions, ITiltifyGetters, ITiltifyState } from '../StoreProxy';
-import StoreProxy from '../StoreProxy';
-import DataStore from '../DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
+import SSEEvent from "@/events/SSEEvent";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
+import Config from "@/utils/Config";
+import SSEHelper from "@/utils/SSEHelper";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
+import type { ITiltifyActions, ITiltifyGetters, ITiltifyState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
+export const storeTiltify = defineStore("tiltify", {
+	state: (): ITiltifyState => ({
+		user: null,
+		campaignList: [],
+		token: null,
+		connected: false,
+		authResult: { code: "", csrf: "" },
+	}),
 
-export const storeTiltify = defineStore('tiltify', {
-	state: () => ({
-		user:null,
-		campaignList:[],
-		token:null,
-		connected:false,
-		authResult:{code:"", csrf:""},
-	} as ITiltifyState),
-
-
-
-	getters: {
-		
-	} as ITiltifyGetters
-	& ThisType<UnwrapRef<ITiltifyState> & _StoreWithGetters<ITiltifyGetters> & PiniaCustomProperties>
-	& _GettersTree<ITiltifyState>,
-
-
+	getters: {} satisfies StoreGetters<ITiltifyGetters, ITiltifyState>,
 
 	actions: {
-		populateData():void {
+		populateData(): void {
 			const tokenJSON = DataStore.get(DataStore.TILTIFY_TOKEN);
-			if(tokenJSON) {
+			if (tokenJSON) {
 				const token = JSON.parse(tokenJSON) as TiltifyToken;
-				ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:token.refresh_token}, false)
-				.then(result => {
-					if(result.json.token) {
+				void ApiHelper.call(
+					"tiltify/token/refresh",
+					"POST",
+					{ refreshToken: token.refresh_token },
+					false,
+				).then((result) => {
+					if (result.json.token) {
 						this.token = result.json.token;
-						this.onAuthenticated();
-					}else{
+						void this.onAuthenticated();
+					} else {
 						DataStore.remove(DataStore.TILTIFY_TOKEN);
 						StoreProxy.common.alert(StoreProxy.i18n.t("error.tiltify_connect_failed"));
 					}
-				})
+				});
 			}
 
 			SSEHelper.instance.addEventListener(SSEEvent.TILTIFY_EVENT, (event) => {
 				const data = event.data;
-				if(!data) return;
+				if (!data) return;
 				this.onEvent(event.data);
 			});
 		},
-		
-		setAuthResult(code:string, csrf:string):void {
+
+		setAuthResult(code: string, csrf: string): void {
 			this.authResult.code = code;
 			this.authResult.csrf = csrf;
 		},
 
-		async getOAuthURL():Promise<string> {
+		async getOAuthURL(): Promise<string> {
 			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
-			const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"tiltify/auth"}).href;
+			const redirectURI =
+				document.location.origin + StoreProxy.router.resolve({ name: "tiltify/auth" }).href;
 
 			const url = new URL("https://v5api.tiltify.com/oauth/authorize");
-			url.searchParams.set("client_id",Config.instance.TILTIFY_CLIENT_ID);
-			url.searchParams.set("redirect_uri",redirectURI);
-			url.searchParams.set("scope",Config.instance.TILTIFY_SCOPES);
-			url.searchParams.set("response_type","code");
+			url.searchParams.set("client_id", Config.instance.TILTIFY_CLIENT_ID);
+			url.searchParams.set("redirect_uri", redirectURI);
+			url.searchParams.set("scope", Config.instance.TILTIFY_SCOPES);
+			url.searchParams.set("response_type", "code");
 			url.searchParams.set("state", csrfToken.json.token);
 			return url.href;
 		},
 
-		async getAccessToken():Promise<boolean> {
+		async getAccessToken(): Promise<boolean> {
 			try {
-				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {token:this.authResult.csrf});
-				if(!csrfResult.json.success) return false;
-				const result = await ApiHelper.call("tiltify/auth", "POST", this.authResult, false)
-				if(result.json.success) {
+				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {
+					token: this.authResult.csrf,
+				});
+				if (!csrfResult.json.success) return false;
+				const result = await ApiHelper.call("tiltify/auth", "POST", this.authResult, false);
+				if (result.json.success) {
 					this.token = result.json.token;
 					await this.onAuthenticated();
 					return true;
 				}
 				return false;
-			}catch(error){
+			} catch (_error) {
 				return false;
 			}
 		},
 
-		async onAuthenticated():Promise<void> {
+		async onAuthenticated(): Promise<void> {
 			DataStore.set(DataStore.TILTIFY_TOKEN, this.token);
-			
+
 			await this.loadInfos();
 			this.connected = true;
-			
-			window.setTimeout(async ()=> {
-				const res = await ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:this.token!.refresh_token});
-				if(res.status == 200 && res.json.token) {
-					this.token = res.json.token;
-					this.onAuthenticated();
-				}
-			}, (this.token!.expires_in - 60) * 1000);
 
+			window.setTimeout(
+				async () => {
+					const res = await ApiHelper.call("tiltify/token/refresh", "POST", {
+						refreshToken: this.token!.refresh_token,
+					});
+					if (res.status == 200 && res.json.token) {
+						this.token = res.json.token;
+						void this.onAuthenticated();
+					}
+				},
+				(this.token!.expires_in - 60) * 1000,
+			);
 		},
 
-		async disconnect():Promise<boolean> {
+		async disconnect(): Promise<boolean> {
 			this.connected = false;
 			DataStore.remove(DataStore.TILTIFY_TOKEN);
-			const result = await ApiHelper.call("tiltify/auth", "DELETE", {token:this.token!.access_token}, false);
-			if(result.json.success) {
-				return true
+			const result = await ApiHelper.call(
+				"tiltify/auth",
+				"DELETE",
+				{ token: this.token!.access_token },
+				false,
+			);
+			if (result.json.success) {
+				return true;
 			}
 			return false;
 		},
 
-		onEvent(data:TiltifyDonationEventData | TiltifyCauseEventData):void {
+		onEvent(data: TiltifyDonationEventData | TiltifyCauseEventData): void {
 			const me = StoreProxy.auth.twitch.user;
-			switch(data.type) {
+			switch (data.type) {
 				case "donation": {
-					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
-					const campaign = this.campaignList.find(v=>v.id === data.campaignId);
-					const message:TwitchatDataTypes.TiltifyDonationData = {
-						id:Utils.getUUID(),
-						eventType:"donation",
-						platform:"twitch",
-						channel_id:me.id,
-						type:TwitchatDataTypes.TwitchatMessageType.TILTIFY,
-						date:Date.now(),
-						userName:data.username,
-						amount:data.amount,
-						amountFormatted:data.amount+""+data.currency,
-						currency:data.currency,
-						message:data.message,
+					const chunks = TwitchUtils.parseMessageToChunks(
+						data.message || "",
+						undefined,
+						true,
+					);
+					const campaign = this.campaignList.find((v) => v.id === data.campaignId);
+					const message: TwitchatDataTypes.TiltifyDonationData = {
+						id: Utils.getUUID(),
+						eventType: "donation",
+						platform: "twitch",
+						channel_id: me.id,
+						type: TwitchatDataTypes.TwitchatMessageType.TILTIFY,
+						date: Date.now(),
+						userName: data.username,
+						amount: data.amount,
+						amountFormatted: data.amount + "" + data.currency,
+						currency: data.currency,
+						message: data.message,
 						message_chunks: chunks,
-						message_html:TwitchUtils.messageChunksToHTML(chunks),
-						campaign:{
-							id:data.campaignId,
-							title:campaign?.name || "CAMPAIGN_NOT_FOUND",
-							url:campaign?.url || "https://tiltify.com",
-						}
+						message_html: TwitchUtils.messageChunksToHTML(chunks),
+						campaign: {
+							id: data.campaignId,
+							title: campaign?.name || "CAMPAIGN_NOT_FOUND",
+							url: campaign?.url || "https://tiltify.com",
+						},
+					};
+					if (/^\/.*/.test(message.campaign.url)) {
+						message.campaign.url = "https://tiltify.com" + message.campaign.url;
 					}
-					if(/^\/.*/.test(message.campaign.url)) {
-						message.campaign.url = "https://tiltify.com" + message.campaign.url
-					}
-					StoreProxy.chat.addMessage(message);
-					StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "tiltify", message.campaign.id);
+					void StoreProxy.chat.addMessage(message);
+					StoreProxy.donationGoals.onDonation(
+						message.userName,
+						message.amount.toString(),
+						"tiltify",
+						message.campaign.id,
+					);
 					break;
 				}
 
 				case "cause_update": {
-					let campaign = this.campaignList.find(v=>v.id === data.campaignId);
-					if(!campaign) {
-						campaign = this.campaignList.find(v=>v.cause_id === data.causeId);
+					let campaign = this.campaignList.find((v) => v.id === data.campaignId);
+					if (!campaign) {
+						campaign = this.campaignList.find((v) => v.cause_id === data.causeId);
 						break;
 					}
-					
+
 					campaign.amount_raised.value = data.amount_raised.toString();
 					campaign.total_amount_raised.value = data.total_amount_raised.toString();
 					campaign.goal.value = data.amount_goal.toString();
@@ -166,29 +182,24 @@ export const storeTiltify = defineStore('tiltify', {
 			}
 		},
 
-		async loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}> {
-			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
+		async loadInfos(): Promise<{ user: TiltifyUser; campaigns: TiltifyCampaign[] }> {
+			const infos = await ApiHelper.call(
+				"tiltify/info",
+				"GET",
+				{ token: this.token!.access_token },
+				false,
+				0,
+			);
 			this.campaignList = infos.json.campaigns;
 			this.user = infos.json.user;
 			StoreProxy.donationGoals.broadcastData();
-			return {user:this.user, campaigns:this.campaignList};
-		}
-	
-	} as ITiltifyActions
-	& ThisType<ITiltifyActions
-		& UnwrapRef<ITiltifyState>
-		& _StoreWithState<"tiltify", ITiltifyState, ITiltifyGetters, ITiltifyActions>
-		& _StoreWithGetters<ITiltifyGetters>
-		& PiniaCustomProperties
-	>,
-})
+			return { user: this.user, campaigns: this.campaignList };
+		},
+	} satisfies StoreActions<"tiltify", ITiltifyState, ITiltifyGetters, ITiltifyActions>,
+});
 
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeTiltify, import.meta.hot))
-}
-
-interface TiltifyStoreData {
-	
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTiltify, import.meta.hot));
 }
 
 export interface TiltifyToken {
@@ -200,26 +211,26 @@ export interface TiltifyToken {
 	token_type: string;
 }
 
-export interface TiltifyDonationEventData{
-	type:"donation";
-	amount:number;
-	currency:string;
-	message:string;
-	username:string;
-	campaignId:string;
+export interface TiltifyDonationEventData {
+	type: "donation";
+	amount: number;
+	currency: string;
+	message: string;
+	username: string;
+	campaignId: string;
 }
 
-export interface TiltifyCauseEventData{
-	type:"cause_update";
-	amount_raised:number;
-	total_amount_raised:number;
-	amount_goal:number;
-	currency:string;
-	donateUrl:string;
-	title:string;
-	description:string;
-	causeId:string;
-	campaignId:string;
+export interface TiltifyCauseEventData {
+	type: "cause_update";
+	amount_raised: number;
+	total_amount_raised: number;
+	amount_goal: number;
+	currency: string;
+	donateUrl: string;
+	title: string;
+	description: string;
+	causeId: string;
+	campaignId: string;
 }
 
 export interface TiltifyUser {

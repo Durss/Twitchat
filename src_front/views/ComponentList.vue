@@ -1,8 +1,14 @@
 <template>
 	<div class="componentlist">
 		<Splitter>Message parsing</Splitter>
+		<AppLangSelector />
 		<div class="card-item section message">
-			<ChatMessageChunksParser :chunks="messageChunks" v-if="messageChunks" channel="29961813" platform="twitch" />
+			<ChatMessageChunksParser
+				:chunks="messageChunks"
+				v-if="messageChunks"
+				channel="29961813"
+				platform="twitch"
+			/>
 		</div>
 
 		<Splitter>Buttons</Splitter>
@@ -16,64 +22,534 @@
 			</div>
 
 			<div class="list">
-				<Button href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal big</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					primary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary big</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					secondary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary big</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					alert
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert big</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					premium
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert big</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary :disabled="disabled" :loading="loading" :selected="selected">Primary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					primary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					secondary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					alert
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					premium
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal small</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					primary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary small</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					secondary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary small</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					alert
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert small</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					premium
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert small</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal big icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary big icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary big icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert big icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert big icon</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected">Primary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert icon</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Normal small icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Primary small icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Secondary small icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert small icon</TTButton
+				>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+					>Alert small icon</TTButton
+				>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					big
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
 
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected" />
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					primary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					secondary
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					alert
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
+				<TTButton
+					href="https://twitchat.fr"
+					target="_blank"
+					:type="type"
+					icon="twitchat"
+					premium
+					small
+					:disabled="disabled"
+					:loading="loading"
+					:selected="selected"
+				/>
 			</div>
 
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<TTButton
+				href="https://twitchat.fr"
+				target="_blank"
+				:type="type"
+				icon="twitchat"
+				big
+				:disabled="disabled"
+				:loading="loading"
+				:selected="selected"
+				>Full width button</TTButton
+			>
+			<TTButton
+				href="https://twitchat.fr"
+				target="_blank"
+				:type="type"
+				icon="twitchat"
+				:disabled="disabled"
+				:loading="loading"
+				:selected="selected"
+				>Full width button</TTButton
+			>
+			<TTButton
+				href="https://twitchat.fr"
+				target="_blank"
+				:type="type"
+				icon="twitchat"
+				small
+				:disabled="disabled"
+				:loading="loading"
+				:selected="selected"
+				>Full width button</TTButton
+			>
 		</div>
 
 		<Splitter>Switch buttons</Splitter>
@@ -118,7 +594,13 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Medium box" medium key="toggle2">
@@ -128,11 +610,23 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Small box" subtitle="subtitle" small key="toggle3">
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Title" primary subtitle="subtitle" key="toggle4">
@@ -142,7 +636,13 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Medium box" primary medium key="toggle5">
@@ -152,11 +652,23 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Small box" small medium primary key="toggle6">
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Title" secondary subtitle="subtitle" key="toggle7">
@@ -166,7 +678,13 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Medium box" secondary medium key="toggle8">
@@ -176,11 +694,23 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Small box" small medium secondary key="toggle9">
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Title" premium subtitle="subtitle" key="toggle10">
@@ -190,7 +720,13 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Medium box" premium medium key="toggle11">
@@ -200,21 +736,49 @@
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
 			<ToggleBlock title="Small box" small medium premium key="toggle12">
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 
-			<ToggleBlock title="Error" error key="toggle13">
+			<ToggleBlock title="No title color" noTitleColor small key="toggle13">
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
+			</ToggleBlock>
+
+			<ToggleBlock title="Error" error key="toggle14">
 				<template #left_actions>
 					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
 					<Icon name="cross" class="icon" />
 				</template>
-				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+				<div>
+					Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat
+					mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit
+					ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem
+					laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt
+					magna cupidatat reprehenderit.
+				</div>
 			</ToggleBlock>
 		</div>
 
@@ -226,7 +790,9 @@
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" alert />
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" premium />
 			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" />
-			<Button class="restartBt" @click="resetProgressbars()" icon="refresh">Restart</Button>
+			<TTButton class="restartBt" @click="resetProgressbars()" icon="refresh"
+				>Restart</TTButton
+			>
 		</div>
 
 		<Splitter>Sliders</Splitter>
@@ -243,32 +809,137 @@
 
 		<div class="card-item section tabmenus">
 			<div>
-				<TabMenu big :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu big primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu big secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu big alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu big premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu
+					big
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					big
+					primary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					big
+					secondary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					big
+					alert
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					big
+					premium
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
 			</div>
 			<div>
-				<TabMenu :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					primary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					secondary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					alert
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					premium
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
 			</div>
 			<div>
-				<TabMenu small :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu small primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu small secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu small alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
-				<TabMenu small premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu
+					small
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					small
+					primary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					small
+					secondary
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					small
+					alert
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
+				<TabMenu
+					small
+					premium
+					:values="[0, 1, 2]"
+					:labels="['item 1', 'item 2', 'item 3']"
+					:icons="[null, 'twitchat', 'spotify']"
+				/>
 			</div>
+		</div>
+
+		<Splitter>Placeholder</Splitter>
+
+		<div class="card-item section center">
+			<PlaceholderField
+				v-model="placeholderTest"
+				prefix="TEST_"
+				label="Placeholder"
+				placeholder="name..."
+			/>
+		</div>
+
+		<Splitter>Permissions</Splitter>
+
+		<div class="card-item section center">
+			<PermissionsForm v-model="permissions" />
+		</div>
+
+		<Splitter>Currency</Splitter>
+
+		<div class="card-item section center">
+			<CurrencyPatternInput v-model="currency" />
 		</div>
 
 		<Splitter>Parameters</Splitter>
 
 		<div class="card-item section params">
-			<ParamItem :paramData="param_bool" />
+			<ParamItem :paramData="param_bool" v-model="param_bool.value" />
 			<ParamItem :paramData="param_color" />
 			<ParamItem :paramData="param_slider" />
 			<ParamItem :paramData="param_text" />
@@ -290,41 +961,47 @@
 			<!-- Voluntary wrong icon name to show error state -->
 			<Icon name="voluntary_error" class="icon" />
 
-			<Icon v-for="(icon, index) in iconList"
+			<Icon
+				v-for="(icon, index) in iconList"
 				class="icon"
 				:key="icon"
 				:name="icon"
 				@click="reloadIcon(index)"
-				@mouseover="openTooltip($event, icon)" />
+				@mouseover="openTooltip($event, icon)"
+			/>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import Checkbox from '@/components/Checkbox.vue';
-import Icon from '@/components/Icon.vue';
-import ProgressBar from '@/components/ProgressBar.vue';
-import Slider from '@/components/Slider.vue';
-import Splitter from '@/components/Splitter.vue';
-import SwitchButton from '@/components/SwitchButton.vue';
-import TabMenu from '@/components/TabMenu.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import type { TwitchDataTypes } from '@/types//twitch/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import staticEmotes from '@/utils/twitch/staticEmoteList.json';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import { useTippy } from 'vue-tippy';
-import ToggleButton from '@/components/ToggleButton.vue';
-import DurationForm from '@/components/DurationForm.vue';
+import TTButton from "@/components/TTButton.vue";
+import Checkbox from "@/components/Checkbox.vue";
+import Icon from "@/components/Icon.vue";
+import ProgressBar from "@/components/ProgressBar.vue";
+import Slider from "@/components/Slider.vue";
+import Splitter from "@/components/Splitter.vue";
+import SwitchButton from "@/components/SwitchButton.vue";
+import TabMenu from "@/components/TabMenu.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import ChatMessageChunksParser from "@/components/messages/components/ChatMessageChunksParser.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
+import type { TwitchDataTypes } from "@/types//twitch/TwitchDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import staticEmotes from "@/utils/twitch/staticEmoteList.json";
+import { toNative, Component, Vue } from "vue-facing-decorator";
+import { useTippy } from "vue-tippy";
+import ToggleButton from "@/components/ToggleButton.vue";
+import PlaceholderField from "@/components/PlaceholderField.vue";
+import Utils from "@/utils/Utils";
+import PermissionsForm from "@/components/PermissionsForm.vue";
+import CurrencyPatternInput from "@/components/CurrencyPatternInput.vue";
+import AppLangSelector from "@/components/AppLangSelector.vue";
 
 @Component({
-	components:{
+	components: {
 		Icon,
-		Button: TTButton,
+		TTButton,
 		Slider,
 		TabMenu,
 		Checkbox,
@@ -334,58 +1011,117 @@ import DurationForm from '@/components/DurationForm.vue';
 		ProgressBar,
 		SwitchButton,
 		ToggleButton,
-		DurationForm,
+		AppLangSelector,
+		PermissionsForm,
+		PlaceholderField,
+		CurrencyPatternInput,
 		ChatMessageChunksParser,
 	},
-	emits:[],
+	emits: [],
 })
 class ComponentList extends Vue {
+	public type: "button" | "link" = "button";
+	public time: number = 0;
+	public currency = "${AMOUNT}€";
+	public lang: string = "fr";
+	public placeholderTest: string = "";
+	public disposed: boolean = false;
+	public loading: boolean = false;
+	public selected: boolean = false;
+	public disabled: boolean = false;
+	public progresses: number[] = [];
+	public iconList: string[] = [];
+	public permissions = Utils.getDefaultPermissions(false, false, true, false, true, true);
+	public messageChunks: TwitchatDataTypes.ParseMessageChunk[] = [];
 
-	public type:"button"|"link" = "button";
-	public time:number = 0;
-	public disposed:boolean = false;
-	public loading:boolean = false;
-	public selected:boolean = false;
-	public disabled:boolean = false;
-	public progresses:number[] = [];
-	public iconList:string[] = [];
-	public messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+	public param_bool: TwitchatDataTypes.ParameterData<boolean> = {
+		type: "boolean",
+		value: false,
+		labelKey: "global.enabled",
+	};
+	public param_color: TwitchatDataTypes.ParameterData<string> = {
+		type: "color",
+		value: "#ff0000",
+		label: "Color",
+	};
+	public param_slider: TwitchatDataTypes.ParameterData<number> = {
+		type: "slider",
+		value: 0,
+		label: "Slider",
+		min: 0,
+		max: 10,
+	};
+	public param_text: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "",
+		label: "Text",
+		placeholder: "value...",
+	};
+	public param_textLong: TwitchatDataTypes.ParameterData<string> = {
+		type: "string",
+		value: "",
+		longText: true,
+		label: "Text",
+		placeholder: "value...",
+	};
+	public param_number: TwitchatDataTypes.ParameterData<number> = {
+		type: "number",
+		value: 0,
+		label: "Count",
+	};
+	public param_list: TwitchatDataTypes.ParameterData<string, string> = {
+		type: "list",
+		value: "",
+		listValues: [
+			{ value: "item1", label: "Item 1" },
+			{ value: "item2", label: "Item 2" },
+			{ value: "item1", label: "Item 3" },
+		],
+		label: "List",
+	};
+	public param_listEdit: TwitchatDataTypes.ParameterData<string[], string> = {
+		type: "editablelist",
+		value: ["Item 2"],
+		maxLength: 10,
+		max: 2,
+		options: ["Item 1", "Item 2", "Item 3"],
+		label: "Editable List",
+	};
+	public param_duration: TwitchatDataTypes.ParameterData<number> = {
+		type: "duration",
+		value: 10 * 60,
+		label: "Duration ({VALUE}s)",
+	};
 
-	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enabled"};
-	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
-	public param_slider:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, label:"Slider", min:0, max:10};
-	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Text", placeholder:"value..."};
-	public param_textLong:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"Text", placeholder:"value..."};
-	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
-	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
-	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:10, max:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:10*60, label:"Duration ({VALUE}s)"};
+	private tooltipCreated: { [key: string]: boolean } = {};
 
-	private tooltipCreated:{[key:string]:boolean} = {};
-
-	public async mounted():Promise<void> {
+	public async mounted(): Promise<void> {
 		this.resetProgressbars();
 		this.renderFrame();
 		let iconList = import.meta.glob("@/assets/icons/*.svg");
-		const keys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
+		const keys = Object.keys(iconList).map((v) => v.replace(/.*\/(.*?).svg/, "$1"));
 		this.iconList = keys;
 		const emotes = staticEmotes as TwitchDataTypes.Emote[];
-		TwitchUtils.loadEmoteSets("", emotes).then(()=> {
-			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss 2.54 sit amet LUL hehe durss consectetur google.fr DinoDance", undefined, true);
+		TwitchUtils.loadEmoteSets("", emotes).then(() => {
+			this.messageChunks = TwitchUtils.parseMessageToChunks(
+				"Lorem ipsum @durss 2.54 sit amet LUL hehe durss consectetur google.fr DinoDance",
+				undefined,
+				true,
+			);
 			TwitchUtils.highlightChunks(this.messageChunks, ["@durss"]);
 			// this.messageChunks = TwitchUtils.parseMessageToChunks("/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype", undefined, true);
-		})
+		});
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		this.disposed = true;
 	}
 
-	public resetProgressbars():void {
-		this.progresses = [.25,.25,.25,.95];
+	public resetProgressbars(): void {
+		this.progresses = [0.25, 0.25, 0.25, 0.95];
 	}
 
-	public async reloadIcon(index:number):Promise<void> {
+	public async reloadIcon(index: number): Promise<void> {
 		let prevName = this.iconList[index]!;
 		this.iconList[index] = "";
 		await this.$nextTick();
@@ -400,29 +1136,27 @@ class ComponentList extends Vue {
 	 * @param event
 	 * @param iconName
 	 */
-	public openTooltip(event:MouseEvent, iconName:string):void {
-		if(this.tooltipCreated[iconName] === true) return;
+	public openTooltip(event: MouseEvent, iconName: string): void {
+		if (this.tooltipCreated[iconName] === true) return;
 		this.tooltipCreated[iconName] = true;
 		useTippy(event.currentTarget as HTMLImageElement, {
 			content: iconName,
 		});
 	}
 
-
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderFrame());
+	private renderFrame(): void {
+		if (this.disposed) return;
+		requestAnimationFrame(() => this.renderFrame());
 		for (let i = 0; i < this.progresses.length; i++) {
-			this.progresses[i]! += .00003;
+			this.progresses[i]! += 0.00003;
 		}
 	}
-
 }
 export default toNative(ComponentList);
 </script>
 
 <style scoped lang="less">
-.componentlist{
+.componentlist {
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
@@ -438,7 +1172,7 @@ export default toNative(ComponentList);
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		color:var(--color-text);
+		color: var(--color-text);
 		.icon {
 			width: 4em;
 			height: 4em;
@@ -464,7 +1198,7 @@ export default toNative(ComponentList);
 		}
 		.list {
 			display: grid;
-			gap: .5em;
+			gap: 0.5em;
 			grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 			justify-items: flex-start;
 			align-items: flex-start;
@@ -481,14 +1215,14 @@ export default toNative(ComponentList);
 
 	.toggles {
 		display: grid;
-		gap: .5em;
+		gap: 0.5em;
 		grid-template-columns: 1fr 1fr 1fr;
 		justify-items: center;
 		align-items: stretch;
 	}
 
 	.toggleBlocks {
-		padding: .5em;
+		padding: 0.5em;
 		@itemWidth: 400px;
 		display: grid;
 		gap: 1em;
@@ -502,10 +1236,10 @@ export default toNative(ComponentList);
 		gap: 1em;
 		justify-items: flex-start;
 		align-items: flex-start;
-		&>div{
+		& > div {
 			display: flex;
 			flex-direction: column;
-			gap: .5em;
+			gap: 0.5em;
 		}
 	}
 
@@ -514,7 +1248,7 @@ export default toNative(ComponentList);
 		flex-direction: column;
 		flex-wrap: wrap;
 		gap: 1em;
-		&> div {
+		& > div {
 			// flex-basis: 300px;
 			margin-bottom: 1em;
 		}
@@ -529,15 +1263,19 @@ export default toNative(ComponentList);
 		flex-direction: column;
 	}
 
-	.params{
+	.params {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
 		color: var(--color-text);
-		&>* {
+		& > * {
 			width: 600px;
 		}
+	}
+	.center {
+		align-items: center;
+		justify-content: center;
 	}
 }
 </style>

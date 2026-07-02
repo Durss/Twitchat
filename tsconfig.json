@@ -1,56 +1,28 @@
 {
 	"extends": "@vue/tsconfig/tsconfig.dom.json",
 	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
-		"strict": true,
-		"jsx": "preserve",
-		"moduleResolution": "node",
+		"composite": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"incremental": true,
 		"tsBuildInfoFile": "./.tsbuildinfo",
-		"skipLibCheck": true,
 		"allowJs": true,
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true,
-		"useDefineForClassFields": true,
 		"sourceMap": true,
-		"ignoreDeprecations": "5.0",
+		"noImplicitAny": true,
 		"noUncheckedIndexedAccess": true,
-		"baseUrl": ".",
-		"types": [
-			"vite/client",
-			"@types/dom-screen-wake-lock",
-			"vue3-marquee/dist/vue3-marquee.d.ts"
-		],
+		"types": ["@types/dom-screen-wake-lock", "vue3-marquee"],
 		"paths": {
-			"@/*": [
-				"src_front/*"
-			]
+			"@/*": ["./src_front/*"]
 		},
-		"lib": [
-			"esnext",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		]
+		"lib": ["esnext", "dom", "dom.iterable"]
 	},
 	"include": [
+		"env.d.ts",
 		"src_front/**/*.ts",
 		"src_front/**/*.tsx",
 		"src_front/**/*.vue",
 		"tests/**/*.ts",
 		"tests/**/*.tsx"
 	],
-	"exclude": [
-		"node_modules",
-		"server"
-	],
-	"references": [
-		{
-			"path": "./tsconfig.vite.json"
-		}
-	]
+	"exclude": ["node_modules", "server"],
+	"references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,16 +1,16 @@
 {
 	"alert": {
-		"header":"Laissez vos modérateurs vous alerter en cas d'urgence",
-		"command_title":"Commande de tchat",
-		"actions":"Actions",
-		"actions_triggers":"Faire plus d'actions avec les {LINK}",
-		"actions_triggers_link":"Triggers",
-		"command":"Commande",
-		"option_popin":"Afficher le message en Pop-in",
-		"option_shake":"Secouer l'interface",
-		"option_blink":"Faire clignoter l'interface",
-		"option_sound":"Son de wizz",
-		"option_vibrate":"Faire vibrer (sur mobile uniquement)",
-		"testBt":"Tester"
+		"header": "Laissez vos modérateurs vous alerter en cas d'urgence",
+		"command_title": "Commande de tchat",
+		"actions": "Actions",
+		"actions_triggers": "Faire plus d'actions avec les {LINK}",
+		"actions_triggers_link": "Triggers",
+		"command": "Commande",
+		"option_popin": "Afficher le message en Pop-in",
+		"option_shake": "Secouer l'interface",
+		"option_blink": "Faire clignoter l'interface",
+		"option_sound": "Son de wizz",
+		"option_vibrate": "Faire vibrer (sur mobile uniquement)",
+		"testBt": "Tester"
 	}
 }

@@ -10,8 +10,13 @@
 		"header_select_obs_source": "Select an OBS source",
 		"header_select_obs_input": "Select an OBS input to monitor",
 		"header_select_obs_filter": "Select an OBS filter to monitor",
+		"header_select_meld_layer": "Select a Meld Studio layer",
+		"header_select_meld_effect": "Select a Meld Studio effect",
+		"header_select_meld_track": "Select a Meld Studio audio track",
+		"header_select_meld_scene": "Select a Meld Studio scene",
 		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
 		"trigger_name": "Custom name",
+		"trigger_icon": "Custom icon",
 		"enableForRemoteChans": "Enabled for other channels",
 		"enableForRemoteChans_tt": "This option allows the trigger to be active on channels other than your own",
 		"add_triggerBt": "Create a trigger",
@@ -24,19 +29,20 @@
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
 		"resyncExtensionBt": "Resync Twitch extensions",
 		"resyncExtensionBt_tt": "If you added or modified the status of an extension, click to get those changes",
-		"resyncPowerUpsBt": "Resync Power ups",
-		"resyncPowerUpsBt_tt": "If you added or modified a Custom Power Up, click to get those changes",
 		"resyncmixitupBt": "Resync Mix It Up",
 		"resyncmixitupBt_tt": "If you added or modified a Mix It Up command, click to get those changes",
+		"resyncPowerUpsBt": "Resync Power ups",
+		"resyncPowerUpsBt_tt": "If you added or modified a Custom Power Up, click to get those changes",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
-		"delete_actions_confirm": "Delete all actions?",
+		"delete_actions_confirm": "Delete selected actions?",
 		"reorder_tt": "Reorder",
 		"noChannelPoints_tt": "You are not a Twitch affiliate or you have refused Twitchat to control this",
 		"triggers_list": "Your triggers {COUNT}",
 		"triggers_list_raw": "Raw list",
 		"triggers_list_cat": "Categories",
 		"create_folder": "Create folder",
+		"search_in_actions": "Search in actions",
 		"create_counterBt": "Create counters",
 		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
@@ -56,6 +62,7 @@
 		"persistentData_placeholder": "Persistent data placeholder {NAME}",
 		"nonpremium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"premium_limit": "You created the maximum number of {MAX} triggers.",
+		"premium_trigger": "You need to be premium to use this trigger event",
 		"add_action": "Add action",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",
@@ -74,6 +81,11 @@
 		"obs": {
 			"require": "This trigger need you to {URL}",
 			"require_url": "connect with OBS",
+			"anyScene": "Any scene"
+		},
+		"meldstudio": {
+			"require": "This trigger need you to {URL}",
+			"require_url": "connect with Meld Studio",
 			"anyScene": "Any scene"
 		},
 		"count": {
@@ -151,7 +163,6 @@
 			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custom placeholders for later use on any action of the trigger",
 			"param_cmd_params_placeholder": "parameter",
 			"param_cmd_params_example": "Command usage example:",
-			"param_cmd_params_example_result": "Result:",
 			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",
 			"format_error": "Command must start with a \" / \"",
 			"grant_discord_rights": "Grant permission to your discord members"
@@ -180,10 +191,14 @@
 				"action_triggerToggle": "Toggle trigger",
 				"action_obs": "Control OBS",
 				"action_obs_tt": "You need to connect with OBS on the <strong>Connexions</strong> section",
+				"action_meldstudio": "Control Meld Studio",
+				"action_meldstudio_tt": "You need to connect with Meld Studio on the <strong>Connexions</strong> section",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "This needs the <strong>text to speech</strong> feature to be enabled",
 				"action_music": "Control Spotify",
 				"action_music_tt": "You need to connect Spotify on the <strong>Connexions</strong> section",
+				"action_bluesky": "Bluesky",
+				"action_bluesky_tt": "You need to connect Bluesky on the <strong>Connexions</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect with Voicemod",
 				"action_discord": "Discord",
@@ -350,9 +365,9 @@
 				"param_browserEvent_param": "Event parameter",
 				"param_source": "OBS Element",
 				"param_source_currentScene": "Current scene",
-				"param_source_splitter_scenes": "━━━━━━ Scenes ━━━━━━",
-				"param_source_splitter_sources": "━━━━━━ Sources ━━━━━━",
-				"param_source_splitter_inputs": "━━━━━━ Inputs ━━━━━━",
+				"param_source_splitter_scenes": "Scenes",
+				"param_source_splitter_sources": "Sources",
+				"param_source_splitter_inputs": "Inputs",
 				"param_filter": "Source filter",
 				"param_filter_none": "- none -",
 				"param_text": "Text to write on source",
@@ -418,7 +433,7 @@
 				"loop_delails": "This may make twitchat unstable."
 			},
 			"triggerToggle": {
-				"select": "Select the trigger you want to control",
+				"select": "Select the trigger or folder you want to control",
 				"selected": "Trigger to update",
 				"action": "Action",
 				"action_enable": "Enable trigger",
@@ -773,6 +788,51 @@
 				"param_playOnOverlay_info": "Add the following overlay to OBS.\nIt's the same overlay for all sound effect actions, don't add it more than once!",
 				"param_custom": "Export a configuration from <a href='https://tsfxr.jdmnk.dev' target='_blank'>this site</a> or <a href='https://sfxr.me' target='_blank'>this one</a>",
 				"param_custom_error": "Invalid data"
+			},
+			"bluesky": {
+				"param_action": "Action",
+				"param_post": "Message to post on Bluesky",
+				"param_getPostPlaceholderMessage": "Placeholder to save post message on",
+				"param_getPostPlaceholderURL": "Placeholder to save post URL on",
+				"placeholder_message": "Bluesky post emssage",
+				"placeholder_url": "Bluesky post URL",
+				"actions": {
+					"post": "Post a message",
+					"get_latest_post": "Get latest post"
+				}
+			},
+			"meldstudio": {
+				"param_action": "Action",
+				"param_scene": "Scene",
+				"param_layer": "Layer",
+				"param_effect": "Effect",
+				"param_track": "Audio track",
+				"param_subAction_visibility": "Visibility",
+				"param_subAction_audio": "Audio",
+				"param_subAction_clip": "Clip action",
+				"param_subAction_show": "Show",
+				"param_subAction_hide": "Hide",
+				"param_subAction_mute": "Mute",
+				"param_subAction_unmute": "Unmute",
+				"param_subAction_toggle": "Toggle",
+				"param_subAction_record": "Record a clip",
+				"param_subAction_replay": "Show clip replay",
+				"param_subAction_stopReplay": "Stop clip replay",
+				"connect": "You need to {LINK}",
+				"connect_link": "connect with Meld Studio",
+				"actions": {
+					"unset": "@:global.select_placeholder",
+					"layer_visibility": "Control source",
+					"toggle_effect": "Control effect",
+					"track_mute": "Control audio track",
+					"screenshot": "Make a screenshot",
+					"show_scene": "Change current scene",
+					"clip": "Clip",
+					"start_record": "Start recording",
+					"stop_record": "Stop Recording",
+					"start_stream": "Start streaming",
+					"stop_stream": "Stop streaming"
+				}
 			}
 		},
 		"categories": {
@@ -787,6 +847,7 @@
 			"music": "Spotify",
 			"timer": "Temporal events",
 			"obs": "OBS",
+			"meldStudio": "Meld Studio",
 			"misc": "Miscellaneous",
 			"count_and_values": "Counters & Values",
 			"goxlr": "GoXLR",
@@ -841,6 +902,8 @@
 			"followage": "Following date",
 			"followage_ms": "Following date in milliseconds",
 			"winner": "Winner name",
+			"quiz_name": "Quiz name",
+			"quiz_id": "Quiz ID",
 			"bingo_number": "Number to guess",
 			"bingo_emote": "Emote to guess",
 			"bingo_custom": "Custom text to guess",
@@ -953,6 +1016,9 @@
 			"heat_key_alt": "Is ALT key pressed?",
 			"heat_key_shift": "Is SHIFT key pressed?",
 			"heat_key_ctrl": "Is CTRL key pressed?",
+			"companion_keys_text": "Printable text typed by the viewer",
+			"companion_keys_list": "All keys typed by the viewer (JSON array)",
+			"companion_keys_anonymous": "Is the viewer anonymous?",
 			"clip_url": "Clip URL",
 			"timer_id": "{NAME} Timer ID",
 			"timer_paused": "{NAME} Timer paused ?",
@@ -1114,7 +1180,20 @@
 			"custom_train_record": "Is train record?",
 			"streamsocket_action_id": "Action ID",
 			"streamsocket_action_name": "Action Name",
-			"streamsocket_action_bits": "Action price in bits"
+			"streamsocket_action_bits": "Action price in bits",
+			"meldstudio_layer_visible": "Layer visible?",
+			"meldstudio_layer_name": "Layer name",
+			"meldstudio_layer_id": "Layer ID",
+			"meldstudio_effect_enabled": "Effect enabled?",
+			"meldstudio_effect_name": "Effect name",
+			"meldstudio_effect_id": "Effect ID",
+			"meldstudio_track_muted": "Audio track mute ?",
+			"meldstudio_track_name": "Audio track name",
+			"meldstudio_track_id": "Audio track ID",
+			"meldstudio_prev_scene_name": "Previous scene name",
+			"meldstudio_prev_scene_id": "Previous scene ID",
+			"meldstudio_scene_name": "Current scene name",
+			"meldstudio_scene_id": "Current scene ID"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1326,6 +1405,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Scheduled actions",
+				"search_terms": ["repeat", "regular", "schedule"],
 				"description": "Actions to execute regularly or at specific date/time"
 			},
 			"TIMER_START": {
@@ -1371,7 +1451,7 @@
 				"description": "Actions to execute after closing an highlighted message"
 			},
 			"CHAT_ALERT": {
-				"label": "Chat alert",
+				"label": "Twitchat !alert command",
 				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
 				"description_info": "(Parameters => @:params.categories.features => @:params.alertMode )"
 			},
@@ -1385,95 +1465,122 @@
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when switching to {SUB_ITEM_NAME} OBS scene",
 				"description_any": "Actions to execute when switching to any OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when showing {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when hiding {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_INPUT_MUTE": {
 				"label": "Audio source mute",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is muted"
 			},
 			"OBS_INPUT_UNMUTE": {
 				"label": "Audio source unmute",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is unmuted"
 			},
 			"OBS_PLAYBACK_STARTED": {
 				"label": "Media playback started",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source starts to play"
 			},
 			"OBS_PLAYBACK_ENDED": {
 				"label": "Media playback ended",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source ends playing"
 			},
 			"OBS_PLAYBACK_PAUSED": {
 				"label": "Media playback paused",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is paused"
 			},
 			"OBS_PLAYBACK_RESTARTED": {
 				"label": "Media playback restarted",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is restarted"
 			},
 			"OBS_PLAYBACK_NEXT": {
 				"label": "Media playing next item in queue",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays next item in queue"
 			},
 			"OBS_PLAYBACK_PREVIOUS": {
 				"label": "Media playing previous item in queue",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays previous item in queue"
 			},
 			"OBS_FILTER_ON": {
 				"label": "Filter enabled",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is enabled"
 			},
 			"OBS_FILTER_OFF": {
 				"label": "Filter disabled",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
 			"OBS_START_STREAM": {
-				"label": "Start streaming (OBS)",
+				"label": "Start streaming",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when starting stream"
 			},
 			"OBS_STOP_STREAM": {
-				"label": "Stop streaming (OBS)",
+				"label": "Stop streaming",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when stoping stream"
 			},
 			"OBS_RECORDING_START": {
 				"label": "Start recording",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when starting recording"
 			},
 			"OBS_RECORDING_STOP": {
 				"label": "Stop recording",
+				"search_terms": ["obs"],
 				"description": "Actions to execute when stoping recording"
+			},
+			"OBS_CONNECTED": {
+				"label": "OBS connected",
+				"search_terms": ["obs"],
+				"description": "Actions to execute when Twitchat connects to OBS websocket"
+			},
+			"OBS_DISCONNECTED": {
+				"label": "OBS disconnected",
+				"search_terms": ["obs"],
+				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
 			},
 			"TWITCHAT_STARTED": {
 				"label": "Twitchat ready",
 				"description": "Actions to execute after Twitchat loading completes"
 			},
 			"STREAM_ONLINE": {
-				"label": "Stream start",
+				"label": "Twitch stream start",
 				"description": "Actions to execute when stream starts {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
-				"label": "Stream stop",
+				"label": "Twitch stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
-				"label": "Followed stream start",
+				"label": "Twitch Followed stream start",
 				"description": "Actions to execute when one of your following starts a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
-				"label": "Followed stream stop",
+				"label": "Twitch Followed stream stop",
 				"description": "Actions to execute when one of your following stops a stream {INFO}",
 				"description_info": "(you might have to wait up to 5min before receiving that info)",
 				"disabled_reason": "You must allow Twitchat to list your followings"
@@ -1531,9 +1638,14 @@
 				"description": "Actions to execute when a user pays for a hype chat message"
 			},
 			"HEAT_CLICK": {
-				"label": "Heat click",
+				"label": "Click on the stream",
 				"description": "Actions to execute when a user clicks on your stream {INFO}",
-				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
+				"description_info": "(Needs \"Twitchat Companion\" (or \"Heat\") extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
+			},
+			"TWITCHAT_COMPANION_KEYS": {
+				"label": "Keys typed on the stream",
+				"description": "Actions to execute when a viewer types keys over your stream {INFO}",
+				"description_info": "(Needs \"Twitchat Companion\" extension. See \"connexions\" => \"Twitchat Companion\" section to install it)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip created from Twitchat",
@@ -1637,18 +1749,22 @@
 			},
 			"KOFI_DONATION": {
 				"label": "Received a donation on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when receiving a donation on Ko-fi"
 			},
 			"KOFI_MERCH": {
 				"label": "Merch bought on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when a merch item is bought on Ko-fi"
 			},
 			"KOFI_SUBSCRIPTION": {
 				"label": "Someone subscribed on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when someone subscribes (monthly) on Ko-fi"
 			},
 			"KOFI_COMMISSION": {
 				"label": "Someone requested a commission on Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions to execute when somone requestes for a commission on Ko-fi"
 			},
 			"STREAMELEMENTS_DONATION": {
@@ -1838,20 +1954,48 @@
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",
-				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
-			},
-			"OBS_CONNECTED": {
-				"label": "OBS connected",
-				"description": "Actions to execute when Twitchat connects to OBS websocket"
-			},
-			"OBS_DISCONNECTED": {
-				"label": "OBS disconnected",
-				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
+				"description": "Actions to execute when a viewer sends bits from Twitch Combo",
+				"disabled_reason": "Twitch disabled that feature"
 			},
 			"MANY_REPLIES": {
 				"label": "A message received many replies",
 				"description": "Actions to execute when a message receives many replies",
 				"disabled_reason": "You need to enable this feature first in @:params.categories.features section"
+			},
+			"QUIZ_COMPLETE": {
+				"label": "Quiz complete",
+				"description": "Actions to execute when a quiz is completed"
+			},
+			"MELDSTUDIO_START_STREAM": {
+				"label": "Start streaming",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when starting stream"
+			},
+			"MELDSTUDIO_STOP_STREAM": {
+				"label": "Stop streaming",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when stoping stream"
+			},
+			"MELDSTUDIO_SCENE_CHANGE": {
+				"label": "Switch to scene",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when switching to \"{SUB_ITEM_NAME}\" Meld Studio scene",
+				"description_any": "Actions to execute when switching to any Meld Studio scene"
+			},
+			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
+				"label": "Layer visibility changed",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio layer visibility changes"
+			},
+			"MELDSTUDIO_EFFECT_VISIBILITY_CHANGE": {
+				"label": "Effect enabled/disabled",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio effect is enabled or disabled"
+			},
+			"MELDSTUDIO_TRACK_MUTE_CHANGE": {
+				"label": "Track mute state changed",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions to execute when \"{SUB_ITEM_NAME}\" Meld Studio track mute status changes"
 			}
 		},
 		"musicEvents": {

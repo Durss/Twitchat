@@ -1,0 +1,63 @@
+{
+	"options": {
+		"typeAware": true
+	},
+	"rules": {
+		"no-unused-vars": [
+			"warn",
+			{
+				"varsIgnorePattern": "^_",
+				"argsIgnorePattern": "^_",
+				"caughtErrors": "all",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		],
+		"typescript/no-unused-vars": [
+			"warn",
+			{
+				"varsIgnorePattern": "^_",
+				"argsIgnorePattern": "^_",
+				"caughtErrors": "all",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		],
+		"typescript/no-floating-promises": [
+			"warn",
+			{
+				"allowForKnownSafeCalls": [
+					{ "from": "file", "name": "set", "path": "src_front/store/DataStoreCommon.ts" },
+					{
+						"from": "file",
+						"name": ["incrementLabelValue", "updateLabelValue"],
+						"path": "src_front/store/labels/storeLabels.ts"
+					},
+					{
+						"from": "file",
+						"name": ["incrementLabelValue", "updateLabelValue"],
+						"path": "src_front/store/StoreProxy.ts"
+					},
+					{
+						"from": "file",
+						"name": "broadcast",
+						"path": "src_front/utils/PublicAPI.ts"
+					},
+					{
+						"from": "file",
+						"name": "sendMessage",
+						"path": "src_front/messaging/MessengerProxy.ts"
+					},
+					{
+						"from": "file",
+						"name": ["deleteMessage", "updateMessage", "addMessage"],
+						"path": "src_front/store/Database.ts"
+					},
+					{
+						"from": "package",
+						"name": "push",
+						"package": "vue-router"
+					}
+				]
+			}
+		]
+	}
+}

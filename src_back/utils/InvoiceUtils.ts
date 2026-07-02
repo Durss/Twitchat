@@ -36,6 +36,32 @@ export interface InvoiceMetadata {
 	payerName: string;
 	payerEmail: string;
 	payerId: string;
+	payerAddressLine1?: string;
+	payerAddressLine2?: string;
+	payerCity?: string;
+	payerState?: string;
+	payerPostCode?: string;
+	payerCountryName?: string;
+	payerCountryCode?: string;
+	giftedTwitchLogin?: string;
+	paymentMethod?: string;
+	description: string;
+	quantity: number;
+	unitPrice: number;
+	amount: number;
+	fees: number;
+	currency: string;
+}
+
+export interface InvoiceMetadata {
+	orderId: string;
+	invoiceNumber: string;
+	date: string;
+	twitchLogin: string;
+	twitchUID: string;
+	payerName: string;
+	payerEmail: string;
+	payerId: string;
 	giftedTwitchLogin?: string;
 	amount: number;
 	fees: number;
@@ -66,12 +92,7 @@ export default class InvoiceUtils {
 			headers: { "Content-Type": "application/json" },
 		});
 		if (!res.ok) {
-			throw new Error(
-				"Invoice API responded " +
-					res.status +
-					": " +
-					(await res.text()),
-			);
+			throw new Error("Invoice API responded " + res.status + ": " + (await res.text()));
 		}
 		return (await res.json()) as { invoiceNumber: string };
 	}
@@ -79,12 +100,8 @@ export default class InvoiceUtils {
 	/**
 	 * Lists invoices for a single Twitch user, newest first.
 	 */
-	public static async listInvoices(
-		twitchUID: string,
-	): Promise<InvoiceMetadata[]> {
-		const res = await this.callApi(
-			"/invoices?twitchUID=" + encodeURIComponent(twitchUID),
-		);
+	public static async listInvoices(twitchUID: string): Promise<InvoiceMetadata[]> {
+		const res = await this.callApi("/invoices?twitchUID=" + encodeURIComponent(twitchUID));
 		if (!res.ok) {
 			throw new Error("Invoice API responded " + res.status);
 		}
@@ -102,10 +119,7 @@ export default class InvoiceUtils {
 		orderId: string,
 	): Promise<NodeJS.ReadableStream | null> {
 		const res = await this.callApi(
-			"/invoices/" +
-				encodeURIComponent(twitchUID) +
-				"/" +
-				encodeURIComponent(orderId),
+			"/invoices/" + encodeURIComponent(twitchUID) + "/" + encodeURIComponent(orderId),
 		);
 		if (res.status === 404) return null;
 		if (!res.ok) {
@@ -133,4 +147,3 @@ export default class InvoiceUtils {
 		});
 	}
 }
-

@@ -1,23 +1,23 @@
 <template>
 	<div class="accessibility">
-		<div aria-live="polite" role="alert" class="ariaPolite">{{$store.accessibility.ariaPolite}}</div>
+		<div aria-live="polite" role="alert" class="ariaPolite">
+			{{ $store.accessibility.ariaPolite }}
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { toNative, Component, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{}
+	components: {},
 })
-class Accessibility extends Vue {
-
-}
+class Accessibility extends Vue {}
 export default toNative(Accessibility);
 </script>
 
 <style scoped lang="less">
-.accessibility{
+.accessibility {
 	.ariaPolite {
 		position: absolute;
 		top: 0;

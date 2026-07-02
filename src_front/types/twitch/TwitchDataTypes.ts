@@ -7,8 +7,7 @@ export namespace TwitchDataTypes {
 		user_name: string;
 	}
 
-	export interface VIPUser extends ModeratorUser {
-	}
+	export interface VIPUser extends ModeratorUser {}
 
 	export interface ModeratedUser {
 		broadcaster_id: string;
@@ -16,17 +15,17 @@ export namespace TwitchDataTypes {
 		broadcaster_name: string;
 	}
 
-	export interface BannedUser{
-        user_id: string;
-        user_login: string;
-        user_name: string;
-        expires_at: Date;
-        created_at: Date;
-        reason: string;
-        moderator_id: string;
-        moderator_login: string;
-        moderator_name: string;
-    }
+	export interface BannedUser {
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		expires_at: Date;
+		created_at: Date;
+		reason: string;
+		moderator_id: string;
+		moderator_login: string;
+		moderator_name: string;
+	}
 
 	export interface Token {
 		client_id: string;
@@ -70,8 +69,8 @@ export namespace TwitchDataTypes {
 		title: string;
 		delay: number;
 		tags: string[];
-		is_branded_content:boolean;
-		content_classification_labels:string[];
+		is_branded_content: boolean;
+		content_classification_labels: string[];
 	}
 
 	export interface UserInfo {
@@ -93,7 +92,7 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface Badge {
-		id:string,
+		id: string;
 		image_url_1x: string;
 		image_url_2x: string;
 		image_url_4x: string;
@@ -180,28 +179,27 @@ export namespace TwitchDataTypes {
 				user_name: string;
 				type: string;
 				total: number;
-			}>
+			}>;
 			shared_train_participants: Array<{
 				broadcaster_user_id: string;
 				broadcaster_user_login: string;
 				broadcaster_user_name: string;
-			}>
+			}>;
 			started_at: string;
 			expires_at: string;
 			type: string;
-		}
+		};
 		all_time_high: {
 			level: number;
 			total: number;
 			achieved_at: string;
-		}
+		};
 		shared_all_time_high: {
 			level: number;
 			total: number;
 			achieved_at: string;
-		}
+		};
 	}
-
 
 	export interface Prediction {
 		id: string;
@@ -332,7 +330,6 @@ export namespace TwitchDataTypes {
 		broadcaster_login: string;
 		broadcaster_id: string;
 		id: string;
-		image: any;
 		background_color: string;
 		is_enabled: boolean;
 		bits: number;
@@ -353,6 +350,11 @@ export namespace TwitchDataTypes {
 		};
 		is_paused: boolean;
 		is_in_stock: boolean;
+		image: {
+			url_1x: string;
+			url_2x: string;
+			url_4x: string;
+		};
 		default_image: {
 			url_1x: string;
 			url_2x: string;
@@ -390,7 +392,7 @@ export namespace TwitchDataTypes {
 		gifter_login: string;
 		gifter_name: string;
 		is_gift: boolean;
-		tier: "1000"|"2000"|"3000"|"prime";
+		tier: "1000" | "2000" | "3000" | "prime";
 		plan_name: string;
 		user_id: string;
 		user_name: string;
@@ -404,20 +406,19 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface LiveChannelSearchResult {
-		broadcaster_language: string
-		broadcaster_login: string
-		display_name: string
-		game_id: string
-		game_name: string
-		id: string
-		is_live: boolean
-		tag_ids: any[]
-		tags: any[]
-		thumbnail_url: string
-		title: string
-		started_at: string
+		broadcaster_language: string;
+		broadcaster_login: string;
+		display_name: string;
+		game_id: string;
+		game_name: string;
+		id: string;
+		is_live: boolean;
+		tag_ids: any[];
+		tags: any[];
+		thumbnail_url: string;
+		title: string;
+		started_at: string;
 	}
-
 
 	export interface StreamTag {
 		tag_id: string;
@@ -445,9 +446,9 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface BlockedUser {
-		user_id:string;
-		user_login:string;
-		display_name:string;
+		user_id: string;
+		user_login: string;
+		display_name: string;
 	}
 
 	export interface RoomState {
@@ -456,7 +457,15 @@ export namespace TwitchDataTypes {
 		prefix: string;
 		command: string;
 		params: string[];
-		msgid:"followers_on"|"followers_off"|"subs_on"|"subs_off"|"emote_only_on"|"emote_only_off"|"slow_on"|"slow_off"
+		msgid:
+			| "followers_on"
+			| "followers_off"
+			| "subs_on"
+			| "subs_off"
+			| "emote_only_on"
+			| "emote_only_off"
+			| "slow_on"
+			| "slow_off";
 		tags: {
 			"emote-only": boolean;
 			"followers-only": string;
@@ -467,7 +476,7 @@ export namespace TwitchDataTypes {
 			"subs-only": boolean;
 			channel: string;
 		};
-		markedAsRead?:boolean;
+		markedAsRead?: boolean;
 	}
 
 	export interface ChattersUnofficialEndpoint {
@@ -484,74 +493,91 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface EventsubSubscription {
-        id: string;
-        status: "enabled" | "user_removed" | "moderator_removed" | "version_removed" | "websocket_disconnected" | "websocket_failed_ping_pong" | "websocket_received_inbound_traffic" | "websocket_connection_unused" | "websocket_internal_error" | "websocket_network_timeout" | "websocket_network_error";
-        type: string;
-        version: string;
-        condition: {
+		id: string;
+		status:
+			| "enabled"
+			| "user_removed"
+			| "moderator_removed"
+			| "version_removed"
+			| "websocket_disconnected"
+			| "websocket_failed_ping_pong"
+			| "websocket_received_inbound_traffic"
+			| "websocket_connection_unused"
+			| "websocket_internal_error"
+			| "websocket_network_timeout"
+			| "websocket_network_error";
+		type: string;
+		version: string;
+		condition: {
 			broadcaster_user_id: string;
 			moderator_user_id: string;
 		};
-        created_at: string;
-        transport: {
+		created_at: string;
+		transport: {
 			method: string;
 			session_id: string;
 			connected_at: Date;
 			disconnected_at: Date;
 		};
-        cost: number;
+		cost: number;
 	}
 
 	export interface AdSchedule {
-		next_ad_at:string|number;
-		last_ad_at:string|number;
-		snooze_refresh_at:string|number;
-		duration:number;
-		preroll_free_time:number;
-		snooze_count:number;
+		next_ad_at: string | number;
+		last_ad_at: string | number;
+		snooze_refresh_at: string | number;
+		duration: number;
+		preroll_free_time: number;
+		snooze_count: number;
 	}
 
 	export type AdSnooze = Pick<AdSchedule, "snooze_count" | "snooze_refresh_at" | "next_ad_at">;
 
 	export interface Extension {
-		id:string;
-		version:string;
-		name:string;
-		can_activate:boolean;
-		type:("component"|"mobile"|"overlay"|"panel")[];
+		id: string;
+		version: string;
+		name: string;
+		can_activate: boolean;
+		type: ("component" | "mobile" | "overlay" | "panel")[];
 	}
 
 	export interface ActiveExtensions {
-		panel:{[key:string]:{
-			id:string;
-			version:string;
-			name:string;
-			active:boolean;
-		}},
-		overlay:{[key:string]:{
-			id:string;
-			version:string;
-			name:string;
-			active:boolean;
-		}},
-		component:{[key:string]:{
-			id:string;
-			version:string;
-			name:string;
-			active:boolean;
-			x:number;
-			y:number;
-		}},
+		panel: {
+			[key: string]: {
+				id: string;
+				version: string;
+				name: string;
+				active: boolean;
+			};
+		};
+		overlay: {
+			[key: string]: {
+				id: string;
+				version: string;
+				name: string;
+				active: boolean;
+			};
+		};
+		component: {
+			[key: string]: {
+				id: string;
+				version: string;
+				name: string;
+				active: boolean;
+				x: number;
+				y: number;
+			};
+		};
 	}
 
-	export interface BlockedTerm{
-		broadcaster_id:string;
-		moderator_id:string;
-		id:string;
-		text:string;
-		created_at:string;
-		updated_at:string;
-		expires_at?:string;
+	export interface BlockedTerm {
+		broadcaster_id: string;
+		moderator_id: string;
+		id: string;
+		text: string;
+		created_at: string;
+		updated_at: string;
+		expires_at?: string;
 	}
 
 	export interface CharityCampaign {
@@ -567,12 +593,12 @@ export namespace TwitchDataTypes {
 			value: number;
 			currency: string;
 			decimal_places: number;
-		}
+		};
 		target_amount: {
 			value: number;
 			currency: string;
 			decimal_places: number;
-		}
+		};
 	}
 
 	export interface VOD {
@@ -599,9 +625,9 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface ClipDL {
-		clip_id:string;
-		landscape_download_url:string;
-		portrait_download_url:string|null;
+		clip_id: string;
+		landscape_download_url: string;
+		portrait_download_url: string | null;
 	}
 
 	export interface PinnedChatMessage {

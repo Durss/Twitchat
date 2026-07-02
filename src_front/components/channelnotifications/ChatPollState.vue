@@ -1,117 +1,118 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title"><Icon name="chatPoll" /><span>{{poll.title}}</span></h1>
-
-		<ProgressBar
-			secondary
-			:percent="progressPercent"
-			:duration="poll.duration_s*1000" />
-
-		<div class="choices">
-			<div v-for="(c, index) in poll.choices"
-				:key="index"
-				:style="getAnswerStyles(c)"
-				:class="getAnswerClasses(c)"
-			>
-				<div class="label">{{c.label}}</div>
-				<div class="percent">{{getPercent(c)}}% ({{c.votes}})</div>
-			</div>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="chatPoll" />{{ poll.title.substring(0, 50) }}</h1>
+			<ProgressBar secondary :percent="progressPercent" :duration="poll.duration_s * 1000" />
+			<slot />
 		</div>
 
-		<div class="item actions">
-			<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
+		<div class="body">
+			<div class="choices">
+				<div
+					v-for="(c, index) in poll.choices"
+					:key="index"
+					:style="getAnswerStyles(c)"
+					:class="getAnswerClasses(c)"
+				>
+					<div class="label">{{ c.label }}</div>
+					<div class="percent">{{ getPercent(c) }}% ({{ c.votes }})</div>
+				</div>
+			</div>
+
+			<div class="actions">
+				<TTButton alert @click="endPoll()">{{ $t("poll.state.endBt") }}</TTButton>
+			</div>
+
+			<OverlayPresenceChecker
+				:overlayName="$t('chatPoll.state.overlay_name')"
+				:overlayType="'chatPoll'"
+			/>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
-import ProgressBar from '../ProgressBar.vue';
-import TTButton from '../TTButton.vue';
-import Icon from '../Icon.vue';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfirm } from "@/composables/useConfirm";
+import { storeChatPoll as useStoreChatPoll } from "@/store/chat_poll/storeChatPoll";
+import ProgressBar from "../ProgressBar.vue";
+import TTButton from "../TTButton.vue";
+import Icon from "../Icon.vue";
+import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-		ProgressBar,
-	}
-})
-class ChatPollState extends Vue {
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeChatPoll = useStoreChatPoll();
 
-	public progressPercent = 0;
+const progressPercent = ref(0);
 
-	private disposed = false;
+let disposed = false;
 
-	public get poll():TwitchatDataTypes.ChatPollData { return this.$store.chatPoll.data!; }
+const poll = computed<TwitchatDataTypes.ChatPollData>(() => storeChatPoll.data!);
 
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
-
-	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice):number {
-		let totalVotes = 0;
-		if(this.poll) {
-			for (let i = 0; i < this.poll.choices.length; i++) {
-				totalVotes += this.poll.choices[i]!.votes;
-			}
+function getPercent(c: TwitchatDataTypes.MessagePollDataChoice): number {
+	let totalVotes = 0;
+	if (poll.value) {
+		for (let i = 0; i < poll.value.choices.length; i++) {
+			totalVotes += poll.value.choices[i]!.votes;
 		}
-		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
-
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):{[key:string]:string} {
-		let res:{[key:string]:string} = {};
-		res.backgroundSize = `${this.getPercent(c)}% 100%`;
-		return res;
-	}
-
-	public getAnswerClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
-		let res:string[] = ["choice"];
-
-		let max = 0;
-		this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
-		if(c.votes == max) res.push("win");
-		else res.push("lose");
-
-		return res;
-	}
-
-	public mounted():void {
-		this.renderFrame();
-	}
-
-	public beforeUnmount():void {
-		this.disposed = true;
-	}
-
-	public endPoll():void {
-		this.$confirm(this.$t("poll.state.closeConfirm.title"), this.$t("poll.state.closeConfirm.message"))
-		.then(async ()=> {
-			this.$store.chatPoll.setCurrentPoll(null)
-		}).catch(()=> {
-		});
-	}
-
-	private renderFrame():void {
-		if(this.disposed) return;
-		requestAnimationFrame(()=>this.renderFrame());
-		const elapsed = Date.now() - this.poll.started_at;
-		const duration = this.poll.duration_s * 1000;
-		this.progressPercent = elapsed/duration;
-	}
+	return Math.round((c.votes / Math.max(1, totalVotes)) * 100);
 }
-export default toNative(ChatPollState);
+
+function getAnswerStyles(c: TwitchatDataTypes.MessagePollDataChoice): { [key: string]: string } {
+	let res: { [key: string]: string } = {};
+	res.backgroundSize = `${getPercent(c)}% 100%`;
+	return res;
+}
+
+function getAnswerClasses(c: TwitchatDataTypes.MessagePollDataChoice): string[] {
+	let res: string[] = ["choice"];
+
+	let max = 0;
+	poll.value.choices.forEach((v) => {
+		max = Math.max(max, v.votes);
+	});
+	if (c.votes == max) res.push("win");
+	else res.push("lose");
+
+	return res;
+}
+
+function endPoll(): void {
+	confirm(
+		t("poll.state.closeConfirm.title"),
+		t("poll.state.closeConfirm.message"),
+	)
+		.then(async () => {
+			storeChatPoll.setCurrentPoll(null);
+		})
+		.catch(() => {});
+}
+
+function renderFrame(): void {
+	if (disposed) return;
+	requestAnimationFrame(() => renderFrame());
+	const elapsed = Date.now() - poll.value.started_at;
+	const duration = poll.value.duration_s * 1000;
+	progressPercent.value = elapsed / duration;
+}
+
+onMounted(() => {
+	renderFrame();
+});
+
+onBeforeUnmount(() => {
+	disposed = true;
+});
 </script>
 
 <style scoped lang="less">
-.pollstate{
-	.title > span {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		display: inline-block;
-	}
+.pollstate {
 	.creator {
-		font-size: .8em;
+		font-size: 0.8em;
 		text-align: center;
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
@@ -124,10 +125,10 @@ export default toNative(ChatPollState);
 			display: flex;
 			flex-direction: row;
 			border-radius: var(--border-radius);
-			padding: .25em .5em;
+			padding: 0.25em 0.5em;
 			font-size: em;
 			background-color: var(--color-secondary-fadest);
-			transition: background-size .2s;
+			transition: background-size 0.2s;
 			justify-content: space-between;
 			background-repeat: no-repeat;
 			.label {

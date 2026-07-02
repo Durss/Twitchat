@@ -1,111 +1,126 @@
 <template>
 	<span :class="classes" v-html="svg" v-if="svg"></span>
-
-	<svg class="icon" v-else-if="error" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-		width="27.9px" height="27.9px" viewBox="0 0 27.9 27.9" style="enable-background:new 0 0 27.9 27.9;" xml:space="preserve">
-	<path style="fill:#CC0000;" d="M24.9,27.9H3.1c-1.7,0-3.1-1.4-3.1-3.1V3.1C0,1.4,1.4,0,3.1,0h21.8c1.7,0,3.1,1.4,3.1,3.1v21.8
-		C27.9,26.5,26.5,27.9,24.9,27.9z"/>
-	<polygon style="fill:#FFFFFF;" points="17.3,7.3 14,10.6 10.6,7.3 7.3,10.6 10.6,14 7.3,17.3 10.6,20.6 14,17.3 17.3,20.6
-		20.6,17.3 17.3,14 20.6,10.6 "/>
+	<svg
+		class="icon"
+		v-else-if="error"
+		version="1.1"
+		xmlns="http://www.w3.org/2000/svg"
+		xmlns:xlink="http://www.w3.org/1999/xlink"
+		x="0px"
+		y="0px"
+		width="27.9px"
+		height="27.9px"
+		viewBox="0 0 27.9 27.9"
+		style="enable-background: new 0 0 27.9 27.9"
+		xml:space="preserve"
+	>
+		<path
+			style="fill: #cc0000"
+			d="M24.9,27.9H3.1c-1.7,0-3.1-1.4-3.1-3.1V3.1C0,1.4,1.4,0,3.1,0h21.8c1.7,0,3.1,1.4,3.1,3.1v21.8
+		C27.9,26.5,26.5,27.9,24.9,27.9z"
+		/>
+		<polygon
+			style="fill: #ffffff"
+			points="17.3,7.3 14,10.6 10.6,7.3 7.3,10.6 10.6,14 7.3,17.3 10.6,20.6 14,17.3 17.3,20.6
+		20.6,17.3 17.3,14 20.6,10.6 "
+		/>
 	</svg>
-
-
 </template>
 
-<script lang="ts">
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts">
+import { storeCommon } from "@/store/common/storeCommon";
+import StoreProxy from "@/store/StoreProxy";
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 
-@Component({
-	components:{},
-	emits:[],
-})
-class Icon extends Vue {
+const store = storeCommon();
+const props = withDefaults(
+	defineProps<{
+		name: string;
+		theme?: string;
+	}>(),
+	{
+		theme: "",
+	},
+);
 
-	@Prop
-	public name!:string;
+const svg = ref("");
+const error = ref(false);
+const disposed = ref(false);
 
-	@Prop({type:String, default:""})
-	public theme!:string;
+const classes = computed(() => {
+	let res = ["icon"];
+	if (props.theme == "dark") res.push("dark");
+	if (props.theme == "light") res.push("light");
+	if (props.theme == "primary") res.push("primary");
+	if (props.theme == "secondary") res.push("secondary");
+	if (props.theme == "alert") res.push("alert");
+	if (props.theme == "premium") res.push("premium");
+	if (props.theme == "twitch") res.push("twitch");
+	return res;
+});
 
-	public svg:string = "";
-	public error:boolean = false;
-	private disposed:boolean = false;
+async function loadImage(): Promise<void> {
+	if (disposed.value) return;
+	// Couldn't figure out why but there are quite many sentry issues
+	// about this.$store being undefined here
+	const cacheMap = store.iconCache || {};
 
-	public get classes():string[] {
-		let res = ["icon"];
-		if(this.theme == "dark") res.push("dark");
-		if(this.theme == "light") res.push("light");
-		if(this.theme == "primary") res.push("primary");
-		if(this.theme == "secondary") res.push("secondary");
-		if(this.theme == "alert") res.push("alert");
-		if(this.theme == "premium") res.push("premium");
-		if(this.theme == "twitch") res.push("twitch");
-		return res;
+	// store.iconCache = {};//Disable cache for debug
+	let cache = cacheMap[props.name];
+
+	//Icon is pending for loading, wait for it
+	if (cache && typeof cache != "string") {
+		await cache;
+		cache = cacheMap[props.name];
 	}
 
-	public beforeMount():void {
-		this.loadImage();
-
-		watch(()=>this.name, ()=>this.loadImage());
+	//If icon is loaded, load it from cache
+	if (cache && typeof cache == "string") {
+		svg.value = cache;
+		return;
 	}
 
-	public beforeUnmount():void {
-		this.disposed = true;
-	}
+	//Icon not yet loaded, load it
+	try {
+		if (!StoreProxy.asset) throw "$asset not available";
 
-	private async loadImage():Promise<void> {
-		if(this.disposed) return;
-		// Couldn't figure out why but there are quite many sentry issues
-		// about this.$store being undefined here
-		const cacheMap = this.$store?.common?.iconCache || {};
-
-		// this.$store.common.iconCache = {};//Disable cache for debug
-		let cache = cacheMap[this.name];
-		
-		//Icon is pending for loading, wait for it
-		if(cache && typeof cache != "string") {
-			await cache;
-			cache = cacheMap[this.name];
+		const url = StoreProxy.asset("icons/" + props.name + ".svg");
+		if (url.endsWith("undefined")) {
+			throw "icon not found";
 		}
-
-		//If icon is loaded, load it from cache
-		if(cache && typeof cache == "string") {
-			this.svg = cache;
-			return;
-		}
-
-		//Icon not yet loaded, load it
-		try {
-			const url = this.$asset("icons/"+this.name+".svg");
-			if(/undefined$/.test(url)) {
-				throw("icon not found");
-			}
-			cacheMap[this.name] = fetch(url)
-			.then(async (imgRes) => {
-				if(imgRes.status <200 || imgRes.status > 204) {
-					this.error = true;
-				}else{
-					this.svg = (await imgRes.text())
+		cacheMap[props.name] = fetch(url).then(async (imgRes) => {
+			if (imgRes.status < 200 || imgRes.status > 204) {
+				error.value = true;
+			} else {
+				svg.value = (await imgRes.text())
 					// .replace(/<style[^<keep]*<\/ ?style>/gim, "")//Cleanup styles
-					.replace(/<!--[^<]*-->/g, "")//Cleanup comments
-					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
-					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-					.replace(/>\s+</g, '><');//cleanup spaces between tags
-					cacheMap[this.name] = this.svg;
-				}
-			});
-		}catch(error) {
-			this.error = true;
-		}
+					.replace(/<!--[^<]*-->/g, "") //Cleanup comments
+					.replace(/<\?xml[^<]*>/g, "") //cleanup <xml> header
+					.replace(/\s+/g, " ") // Replace multiple spaces with a single space
+					.replace(/>\s+</g, "><"); //cleanup spaces between tags
+				cacheMap[props.name] = svg.value;
+			}
+		});
+	} catch (err) {
+		console.log("Error loading icon", props.name, err);
+		error.value = true;
 	}
-
-
 }
-export default toNative(Icon);
+
+onBeforeMount(() => {
+	loadImage();
+	watch(
+		() => props.name,
+		() => loadImage(),
+	);
+});
+
+onBeforeUnmount(() => {
+	disposed.value = true;
+});
 </script>
 <style scoped lang="less">
-.icon{
+.icon {
 	display: inline-block;
 	// color: inherit;
 	:deep(svg) {
