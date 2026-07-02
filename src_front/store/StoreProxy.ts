@@ -4437,7 +4437,7 @@ export interface IBlueskyActions {
 	/**
 	 * Sets auto live based on current stream state
 	 */
-	applyAutoLive(): Promise<void>;
+	applyAutoLive(foreRefresh?: boolean): Promise<void>;
 	/**
 	 * Updates the "auto live" feature
 	 * @param autolive
@@ -4455,7 +4455,12 @@ export interface IBlueskyActions {
 	/**
 	 * Sets live status of the user
 	 */
-	setLiveStatus(live: boolean, url?: string, title?: string): Promise<void>;
+	setLiveStatus(
+		live: boolean,
+		url?: string,
+		title?: string,
+		foreRefresh?: boolean,
+	): Promise<void>;
 	/**
 	 * Starts polling for notifications and DMs
 	 */

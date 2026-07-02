@@ -144,7 +144,7 @@ export const storeBluesky = defineStore("bluesky", {
 			}
 		},
 
-		async applyAutoLive() {
+		async applyAutoLive(foreRefresh?: boolean) {
 			if (this.autoLive) {
 				const infos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
 				if (infos?.live && infos.user) {
@@ -152,6 +152,7 @@ export const storeBluesky = defineStore("bluesky", {
 						true,
 						"https://twitch.tv/" + infos.user?.login,
 						infos.title,
+						foreRefresh,
 					);
 					return;
 				} else {
@@ -163,12 +164,13 @@ export const storeBluesky = defineStore("bluesky", {
 							true,
 							"https://twitch.tv/" + res[0]!.user_login,
 							res[0]!.title,
+							foreRefresh,
 						);
 						return;
 					}
 				}
 			}
-			void this.setLiveStatus(false);
+			void this.setLiveStatus(false, undefined, undefined, foreRefresh);
 		},
 
 		setAutoliveFeatureState(state: boolean) {
@@ -219,9 +221,14 @@ export const storeBluesky = defineStore("bluesky", {
 			return { success: false, error: "Unknown error" };
 		},
 
-		async setLiveStatus(live: boolean, url?: string, title?: string): Promise<void> {
+		async setLiveStatus(
+			live: boolean,
+			url?: string,
+			title?: string,
+			foreRefresh?: boolean,
+		): Promise<void> {
 			if (!agent) return;
-			if (live === currentlyLive) return;
+			if (live === currentlyLive && foreRefresh !== true) return;
 			if (live) {
 				await agent.com.atproto.repo.putRecord({
 					repo: agent.did!,
@@ -241,7 +248,7 @@ export const storeBluesky = defineStore("bluesky", {
 						// Only keep it for 12min so if twitchat is closed before it has a chance
 						// to set this back to off, it automatically does after 15min max.
 						// applyAutoLive() is called every 10min to refresh this
-						durationMinutes: 12,
+						durationMinutes: 30,
 						createdAt: new Date().toISOString(),
 					},
 				});
@@ -264,7 +271,7 @@ export const storeBluesky = defineStore("bluesky", {
 			void this.applyAutoLive();
 			dmPollInterval = setInterval(() => void this.pollDMs(), 30_000);
 			notifPollInterval = setInterval(() => void this.pollNotifications(), 30_000);
-			autoliveCheckInterval = setInterval(() => this.applyAutoLive(), 10 * 60000);
+			autoliveCheckInterval = setInterval(() => this.applyAutoLive(true), 28 * 60_000);
 		},
 
 		stopPolling(): void {
