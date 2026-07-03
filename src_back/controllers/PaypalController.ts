@@ -355,7 +355,7 @@ export default class PaypalController extends AbstractController {
 			console.log(error);
 			response.header("Content-Type", "application/json");
 			response.status(500);
-			response.send(JSON.stringify({ success: false, error }));
+			response.send(JSON.stringify({ success: false, error: "PayPal checkout failed" }));
 			return;
 		}
 
