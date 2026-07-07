@@ -12,8 +12,16 @@ export default class QuizController extends AbstractController {
 	/**
 	 * LRU cache for streamer quizzes with automatic eviction
 	 * Key format: "[uid]/[quizId]"
+	 *
+	 * The value is wrapped so a cached entry with `quiz: undefined` can mean
+	 * "this streamer has no active quiz" and be authoritative: it stops
+	 * {@link getStreamerQuiz} from falling back to a (possibly stale) disk read.
+	 * This matters when a quiz is disabled, because the extension broadcast
+	 * (which sends `quiz: undefined`) reaches us before the streamer's user file
+	 * has been persisted with `enabled: false`. A wrapper is required because
+	 * lru-cache treats a raw `set(key, undefined)` as a delete.
 	 */
-	private cachedQuizzes = new LRUCache<string, QuizParams>({
+	private cachedQuizzes = new LRUCache<string, { quiz?: QuizParams }>({
 		max: 10000,
 		ttl: 1000 * 60 * 60, // 1h TTL
 		// ttl: 1000 * 10, // 5 minutes TTL
@@ -60,8 +68,11 @@ export default class QuizController extends AbstractController {
 		if (!channelId || !/^[0-9]+$/.test(channelId)) return undefined;
 		if (quizId && !/^[a-zA-Z0-9_-]+$/.test(quizId)) return undefined;
 
-		// Check LRU cache first
-		if (this.cachedQuizzes.has(channelId)) return this.cachedQuizzes.get(channelId);
+		// Check LRU cache first. A cached entry is authoritative, even when it
+		// holds no quiz ("no active quiz"), and must NOT trigger a disk read:
+		// otherwise a just-disabled quiz whose `enabled:false` isn't persisted yet
+		// would be served again.
+		if (this.cachedQuizzes.has(channelId)) return this.cachedQuizzes.get(channelId)?.quiz;
 
 		// No cache found, load user data from disk and generate cache
 		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
@@ -173,7 +184,7 @@ export default class QuizController extends AbstractController {
 			// Register the server-time at which the question was started to better sync
 			// timers on viewer's side
 			if (broadcast) {
-				const prev = this.cachedQuizzes.get(uid);
+				const prev = this.cachedQuizzes.get(uid)?.quiz;
 				const isNewQuestion =
 					!prev ||
 					prev.currentQuestionId !== quiz.currentQuestionId ||
@@ -183,7 +194,7 @@ export default class QuizController extends AbstractController {
 					: prev?.questionStarted_at_server;
 			}
 		}
-		this.cachedQuizzes.set(uid, quiz);
+		this.cachedQuizzes.set(uid, { quiz });
 
 		if (broadcast) {
 			void this.extensionController.notifyStateUpdate(uid);
