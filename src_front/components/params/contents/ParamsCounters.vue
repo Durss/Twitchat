@@ -91,7 +91,7 @@
 					:open="false"
 					:key="entry.counter.id"
 					:title="entry.counter.name"
-					:disabled="!entry.counter.enabled"
+					:disabled="entry.counter.enabled === false"
 				>
 					<template #left_actions>
 						<ToggleButton
@@ -102,7 +102,8 @@
 							v-if="
 								(storeAuth.isPremium && entry.counter.enabled === false) ||
 								(!storeAuth.isPremium &&
-									(entry.counter.enabled == true || canEnableMore))
+									entry.counter.enabled == false &&
+									!canEnableMore)
 							"
 						/>
 					</template>

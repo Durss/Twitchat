@@ -87,7 +87,7 @@
 					:open="false"
 					:key="entry.value.id"
 					:title="entry.value.name"
-					:disabled="!entry.value.enabled"
+					:disabled="entry.value.enabled == false"
 				>
 					<template #left_actions>
 						<ToggleButton
@@ -97,7 +97,8 @@
 							v-if="
 								(storeAuth.isPremium && entry.value.enabled === false) ||
 								(!storeAuth.isPremium &&
-									(entry.value.enabled == true || canEnableMore))
+									entry.value.enabled == false &&
+									canEnableMore)
 							"
 						/>
 					</template>
