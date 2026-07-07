@@ -56,145 +56,97 @@
 		</div>
 		<div class="card-item importHolder">
 			<template v-if="!showImportOptions">
-				<TTButton @click="showImportOptions = true">{{
+				<TTButton @click="showImportOptions = true" icon="save">{{
 					t("quiz.form.import_bt")
 				}}</TTButton>
+			</template>
+			<template v-if="showImportOptions">
+				<ClearButton icon="back" class="backBt" @click="showImportOptions = false" />
 				<TTButton
 					@click="storeQuiz.exportCSV(quiz.id)"
 					icon="upload"
 					:disabled="quiz.questionList.length === 0"
 					>{{ t("quiz.form.export_bt") }}</TTButton
 				>
-			</template>
-			<template v-if="showImportOptions">
-				<ClearButton
-					icon="back"
-					class="backBt"
-					@click="
-						availableLanguages
-							? (availableLanguages = null)
-							: (showImportOptions = false)
-					"
-				/>
-				<template v-if="!availableLanguages">
-					<i18n-t
-						tag="span"
-						class="instructions"
-						keypath="quiz.form.importOpenQuizzDB_title"
-					>
-						<template #URL>
-							<a href="https://www.openquizzdb.org/listing" target="_blank"
-								>OpenQuizzDB.org<Icon name="newtab"
-							/></a>
-						</template>
-					</i18n-t>
-					<TTButton
-						icon="download"
-						type="file"
-						primary
-						accept=".csv"
-						@update:file="(file: File) => onOpenquizzdbCSVImport(file)"
-						>{{ t("quiz.form.importOpenQuizzDB_bt") }}</TTButton
-					>
-					<Splitter class="splitter">{{ t("global.or") }}</Splitter>
-					<span class="instructions">{{ t("quiz.form.importCSV_title") }}</span>
-					<TTButton
-						icon="download"
-						type="file"
-						primary
-						accept=".csv"
-						@update:file="(file: File) => onCSVImport(file)"
-						>{{ t("quiz.form.importCSV_bt") }}</TTButton
-					>
-					<ToggleBlock
-						class="format"
-						small
-						:title="t('quiz.form.importCSV_format')"
-						:open="false"
-					>
-						<div class="tableHolder">
-							<table>
-								<tr>
-									<td>classic</td>
-									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
-									<td>
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
-									</td>
-									<td>
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 5 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 6 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_duration") }}
-									</td>
-								</tr>
-								<tr>
-									<td>majority</td>
-									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
-									<td>
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
-									</td>
-									<td>
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_duration") }}
-									</td>
-								</tr>
-								<tr>
-									<td>freeAnswer</td>
-									<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
-									<td>{{ t("quiz.form.importCSV_format_col_answer") }}</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_duration") }}
-									</td>
-									<td class="optional">
-										{{ t("quiz.form.importCSV_format_col_tolerance") }}<br />(0
-										-> 5)
-									</td>
-								</tr>
-							</table>
-						</div>
-						<ul class="formatNotes">
-							<li v-html="t('quiz.form.importCSV_format_note_separator')"></li>
-							<li v-html="t('quiz.form.importCSV_format_note_correct')"></li>
-							<li v-html="t('quiz.form.importCSV_format_note_optional')"></li>
-						</ul>
-					</ToggleBlock>
-				</template>
-				<div class="languageList" v-else>
-					<span class="title"
-						><Icon name="openquizzdb" />{{
-							t("quiz.form.importOpenQuizzDB_lang")
-						}}</span
-					>
-					<TTButton
-						light
-						v-for="lang in availableLanguages"
-						@click="finalizeOpenquizdbImport(lang)"
-					>
-						<CountryFlag :country="lang == 'en' ? 'gb' : lang" class="flag" />{{
-							t(`global.languages.${lang}`)
-						}}</TTButton
-					>
-				</div>
+				<TTButton
+					icon="download"
+					type="file"
+					accept=".csv"
+					@update:file="(file: File) => onCSVImport(file)"
+					>{{ t("quiz.form.importCSV_bt") }}</TTButton
+				>
+				<ToggleBlock
+					class="format"
+					small
+					:title="t('quiz.form.importCSV_format')"
+					:open="false"
+				>
+					<div class="tableHolder">
+						<table>
+							<tr>
+								<td>classic</td>
+								<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+								<td>
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
+								</td>
+								<td>
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 5 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 6 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_duration") }}
+								</td>
+							</tr>
+							<tr>
+								<td>majority</td>
+								<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+								<td>
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 1 }) }}
+								</td>
+								<td>
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 2 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 3 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_answer_n", { N: 4 }) }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_duration") }}
+								</td>
+							</tr>
+							<tr>
+								<td>freeAnswer</td>
+								<td>{{ t("quiz.form.importCSV_format_col_question") }}</td>
+								<td>{{ t("quiz.form.importCSV_format_col_answer") }}</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_duration") }}
+								</td>
+								<td class="optional">
+									{{ t("quiz.form.importCSV_format_col_tolerance") }}<br />(0 ->
+									5)
+								</td>
+							</tr>
+						</table>
+					</div>
+					<ul class="formatNotes">
+						<li v-html="t('quiz.form.importCSV_format_note_separator')"></li>
+						<li v-html="t('quiz.form.importCSV_format_note_correct')"></li>
+						<li v-html="t('quiz.form.importCSV_format_note_optional')"></li>
+					</ul>
+				</ToggleBlock>
 			</template>
 		</div>
 
@@ -238,7 +190,6 @@ const storeAuth = useStoreAuth();
 
 const search = ref("");
 const showImportOptions = ref(false);
-const availableLanguages = ref<string[] | null>(null);
 const autoOpenQuestionID = ref<string | null>(null);
 
 const maxQuestionCount = computed(() => {
@@ -391,25 +342,6 @@ async function onCSVImport(file: File): Promise<void> {
 	if (!ok) toast(t("quiz.form.import_invalid_file"), { type: "error" });
 	scheduleNextBatch();
 }
-
-async function onOpenquizzdbCSVImport(file: File): Promise<void> {
-	const languages = await storeQuiz.parseOpenquizzdbCSV(file);
-	if (!languages) {
-		toast(t("quiz.form.import_invalid_file"), { type: "error" });
-		return;
-	}
-	availableLanguages.value = languages;
-	if (languages.length === 1) {
-		finalizeOpenquizdbImport(languages[0]!);
-	}
-}
-
-function finalizeOpenquizdbImport(langRef: string): void {
-	availableLanguages.value = null;
-	showImportOptions.value = false;
-	storeQuiz.importOpenquizzdbCSV(props.quiz.id, langRef);
-	scheduleNextBatch();
-}
 </script>
 
 <style scoped lang="less">
@@ -463,40 +395,6 @@ function finalizeOpenquizdbImport(langRef: string): void {
 		.splitter {
 			align-self: stretch;
 			margin: 1em 0;
-		}
-		.instructions {
-			line-height: 1.1em;
-			text-align: left;
-			align-self: flex-start;
-			.icon {
-				vertical-align: middle;
-			}
-		}
-
-		.languageList {
-			gap: 0.25em;
-			flex-direction: column;
-			align-items: center;
-			display: flex;
-
-			.title {
-				display: flex;
-				align-items: center;
-				font-weight: bold;
-				margin-bottom: 0.5em;
-				.icon {
-					margin-right: 0.5em;
-				}
-			}
-
-			.flag {
-				margin-right: -5px !important;
-				vertical-align: middle !important;
-			}
-
-			& > * {
-				border-radius: var(--border-radius);
-			}
 		}
 
 		.format {

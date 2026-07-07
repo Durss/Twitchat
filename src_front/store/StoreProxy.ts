@@ -4302,17 +4302,6 @@ export interface IQuizActions {
 	 * triggers a browser download.
 	 */
 	exportCSV(quizId: string): void;
-	/**
-	 * Parses an OpenQuizzDB CSV file and returns the list of available languages.
-	 * The CSV content is cached internally and used by importOpenquizzdbCSV().
-	 * @returns the available languages, or null if the file is invalid
-	 */
-	parseOpenquizzdbCSV(file: File): Promise<string[] | null>;
-	/**
-	 * Finalizes an OpenQuizzDB import using the previously parsed CSV,
-	 * keeping only questions matching the given language.
-	 */
-	importOpenquizzdbCSV(quizId: string, langRef: string): void;
 }
 
 export interface IStreamfogState {

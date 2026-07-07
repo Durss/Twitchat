@@ -15,8 +15,6 @@ import StoreProxy from "../StoreProxy";
 let currentQuiz: TwitchatDataTypes.QuizParams | null = null;
 let currentQuestion: TwitchatDataTypes.QuizParams["questionList"][number] | null = null;
 let broadcastDebounceTO = -1;
-// Cached OpenQuizzDB CSV between language detection and final import
-let openquizzdbCSVCache = "";
 const POINTS_PER_QUESTION = 100;
 // Extra time during which votes are still accepted after the question's
 // duration has elapsed, to compensate for slow connections
@@ -475,7 +473,9 @@ export const storeQuiz = defineStore("quiz", {
 			// (immediate freeAnswer + reveal-time recompute, which both read voted_at and
 			// subtract questionStarted_at) derives the speed multiplier from the elapsed we
 			// chose, regardless of which clock measured it.
-			const votedAt = new Date(new Date(quiz.questionStarted_at).getTime() + elapsed).toISOString();
+			const votedAt = new Date(
+				new Date(quiz.questionStarted_at).getTime() + elapsed,
+			).toISOString();
 
 			if (!quiz.leaderboard) {
 				quiz.leaderboard = {};
@@ -1046,54 +1046,6 @@ export const storeQuiz = defineStore("quiz", {
 			const safeName =
 				(quiz.title || "quiz").replace(/[^a-z0-9\-_]+/gi, "_").slice(0, 60) || "quiz";
 			Utils.downloadFile(safeName + ".csv", csv, undefined, "text/csv");
-		},
-
-		async parseOpenquizzdbCSV(file: File): Promise<string[] | null> {
-			if (file.type !== "text/csv" || !file.name.endsWith(".csv")) return null;
-			const content = await file.text();
-			const firstRow = content.split("\n")[0]?.split(";");
-			if (!firstRow) return null;
-			if (firstRow.length < 8) return null;
-			if (isNaN(parseInt(firstRow[0]!))) return null;
-			if (firstRow[1]!.length !== 2) return null;
-
-			openquizzdbCSVCache = content;
-			const languages: string[] = [];
-			const langDone = new Set<string>();
-			content.split("\n").forEach((row) => {
-				const [, lang] = row.split(";");
-				if (!lang || langDone.has(lang)) return;
-				langDone.add(lang);
-				languages.push(lang);
-			});
-			return languages;
-		},
-
-		importOpenquizzdbCSV(quizId: string, langRef: string): void {
-			const quiz = this.quizList.find((v) => v.id === quizId);
-			if (!quiz) return;
-			const content = openquizzdbCSVCache;
-			const questions = content
-				.split("\n")
-				.map((line) => line.split(";"))
-				.filter((line) => line.length > 0);
-			questions.forEach((line) => {
-				const [, lang, question, answer1, answer2, answer3, answer4] = line;
-				if (!question || !answer1 || !answer2 || !answer3 || !answer4 || lang !== langRef)
-					return;
-				quiz.questionList.push({
-					id: Utils.getUUID(),
-					mode: "classic",
-					question: question,
-					answerList: [answer1, answer2, answer3, answer4].map((a, index) => ({
-						id: Utils.getUUID(),
-						title: a.trim(),
-						correct: index === 0,
-					})),
-				});
-			});
-			openquizzdbCSVCache = "";
-			void this.saveData(quizId);
 		},
 
 		computeQuestionStats(
