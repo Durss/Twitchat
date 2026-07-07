@@ -3196,7 +3196,7 @@ const UserDataSchema = {
 															id: { type: "string", maxLength: 50 },
 															title: {
 																type: "string",
-																maxLength: 130,
+																maxLength: 250,
 															},
 															correct: { type: "boolean" },
 														},
@@ -3227,7 +3227,7 @@ const UserDataSchema = {
 															id: { type: "string", maxLength: 50 },
 															title: {
 																type: "string",
-																maxLength: 130,
+																maxLength: 250,
 															},
 														},
 													},
@@ -3253,7 +3253,7 @@ const UserDataSchema = {
 													minimum: 0,
 													maximum: 5,
 												},
-												answer: { type: "string", maxLength: 130 },
+												answer: { type: "string", maxLength: 250 },
 											},
 											required: ["mode"],
 										},
