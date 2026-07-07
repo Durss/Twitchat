@@ -55,7 +55,7 @@
 
 			<button
 				class="card-item premium"
-				:class="{ connected: storeKofi.connected }"
+				:class="{ connected: storeKofi.connected, disabled: !storeKofi.connected }"
 				@click="subContent = 'kofi'"
 				key="kofi"
 			>
