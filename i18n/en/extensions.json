@@ -11,9 +11,10 @@
 		"type_component": "Component",
 		"update_error": "Something went wrong when updating the extension",
 		"scope_grant": "Twitchat requires a missing authorization to manage your extensions",
+		"scope_grantBt": "Grant permission",
 		"installer": {
 			"loading": "Loading Twitch extension status...",
-			"install": "Install \"{NAME}\" extension on your channel to let your viewers play.",
+			"install": "Install \"{NAME}\" extension on your\nchannel to let your viewers play.",
 			"installBt": "Install extension",
 			"enable": "\"{NAME}\" extension is\ninstalled but not enabled on your channel!",
 			"enableBt": "Enable extension",

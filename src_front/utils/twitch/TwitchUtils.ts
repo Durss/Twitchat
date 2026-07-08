@@ -13,6 +13,7 @@ import Database from "@/store/Database";
 import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 import type { AutocompletableString } from "@/typeUtils";
 import DOMPurify from "isomorphic-dompurify";
+import { ref } from "vue";
 
 /**
  * Created : 19/01/2021
@@ -30,7 +31,7 @@ export default class TwitchUtils {
 	private static adblockAlertSent: boolean = false;
 	private static callHistory: { date: number; path: string; params: URLSearchParams }[] = [];
 	private static uid: string = "";
-	private static scopes: string[] = [];
+	private static scopes = ref<string[]>([]);
 	private static accessToken: string = "";
 	private static loadingChannelEmotes: { [uid: string]: boolean } = {};
 	private static loadingChannelEmotesPromise: { [uid: string]: Promise<void> } = {};
@@ -67,7 +68,7 @@ export default class TwitchUtils {
 		uid?: string,
 	): void {
 		if (uid) this.uid = uid;
-		this.scopes = scopes;
+		this.scopes.value = scopes;
 		this.accessToken = accessToken;
 		// this.emotesCache = [];
 		// this.emotesCacheHashmap = {};
@@ -3599,7 +3600,7 @@ export default class TwitchUtils {
 		}
 
 		for (const scope of scopes) {
-			if (this.scopes.indexOf(scope) == -1) {
+			if (this.scopes.value.indexOf(scope) == -1) {
 				return false;
 			}
 		}

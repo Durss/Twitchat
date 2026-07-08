@@ -4,9 +4,9 @@
 		:class="{
 			primary: installed && enabled && !loading,
 			secondary: installed && !enabled && !loading,
-			alert: !installed && !loading && noErrorState !== true,
+			alert: !loading && noErrorState !== true && (!installed || !grantedPermission),
 		}"
-		v-if="loading || !installed || !enabled"
+		v-if="loading || !grantedPermission || !installed || !enabled"
 	>
 		<icon class="logo" name="extension" />
 		<div v-if="loading" class="content loader">
@@ -14,6 +14,16 @@
 				{{ $t("extensions.installer.loading") }}
 				<icon class="spinner" name="loader" />
 			</span>
+		</div>
+		<div class="content" v-else-if="!grantedPermission">
+			<span class="head">{{ $t("extensions.scope_grant") }}</span>
+			<TTButton
+				:alert="noErrorState !== true"
+				:light="noErrorState !== true"
+				icon="lock_fit"
+				@click="grantPermission"
+				>{{ $t("extensions.scope_grantBt") }}</TTButton
+			>
 		</div>
 		<div class="content" v-else-if="!installed">
 			<span class="head">{{
@@ -52,8 +62,12 @@
 
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import Utils from "@/utils/Utils";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const loading = ref(false);
@@ -61,6 +75,7 @@ const enabling = ref(false);
 const enableError = ref(false);
 
 const storeExtension = useStoreExtension();
+const storeAuth = useStoreAuth();
 
 const props = withDefaults(
 	defineProps<{ extensionID?: string; extensionName?: string; noErrorState?: boolean }>(),
@@ -101,6 +116,12 @@ watch(
 	{ immediate: true },
 );
 
+const grantedPermission = computed(() => {
+	//Read the reactive store scopes list directly so this computed re-evaluates
+	//whenever the granted permissions change.
+	return (storeAuth.twitch.scopes || []).includes(TwitchScopes.EXTENSIONS);
+});
+
 const installed = computed(() => {
 	return storeExtension.availableExtensions.find((v) => v.id == props.extensionID);
 });
@@ -108,6 +129,10 @@ const installed = computed(() => {
 const enabled = computed(() => {
 	return storeExtension.enabledExtensions.find((v) => v.id == props.extensionID);
 });
+
+function grantPermission(): void {
+	storeAuth.newScopesToRequest = [TwitchScopes.EXTENSIONS];
+}
 
 async function enableExtension(): Promise<void> {
 	enabling.value = true;

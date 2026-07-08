@@ -138,6 +138,8 @@
 			:debounce-delay="0"
 			:placeholder="t('global.search_placeholder')"
 		/>
+
+		<ExtensionInstaller class="extensionInstaller" />
 	</div>
 
 	<div class="bingogridcontrols blured-background-window leaderboard" ref="rootEl" v-else>
@@ -188,6 +190,7 @@ import ToggleBlock from "../ToggleBlock.vue";
 import ToggleButton from "../ToggleButton.vue";
 import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
+import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 
 const { t } = useI18n();
 const storeUsers = useStoreUsers();

@@ -138,13 +138,13 @@
 						><Icon name="cross" />{{ store.currentFreeAnswerStats.wrong }}</span
 					>
 				</div>
-				<!-- <div>{{ store.liveState?.questionVotes[currentQuestion.id]?.map(v => v.answer).join(", ") }}</div> -->
 			</template>
 
 			<OverlayPresenceChecker
 				:overlayName="$t('quiz.form.overlay_name')"
 				:overlayType="'quiz'"
 			/>
+			<ExtensionInstaller class="extensionInstaller" />
 		</div>
 	</div>
 </template>
@@ -158,6 +158,7 @@ import { computed, onBeforeUnmount, ref } from "vue";
 import ProgressBar from "../ProgressBar.vue";
 import TTButton from "../TTButton.vue";
 import OverlayPresenceChecker from "./OverlayPresenceChecker.vue";
+import ExtensionInstaller from "../params/contents/overlays/ExtensionInstaller.vue";
 
 const store = storeQuiz();
 const auth = storeAuth();
