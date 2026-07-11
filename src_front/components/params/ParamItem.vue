@@ -154,10 +154,11 @@
 					<Icon class="loader" name="loader" v-if="loading" />
 					<textarea
 						ref="input"
-						v-else-if="longText && !paramData.noInput"
+						v-else-if="useTextarea && !paramData.noInput"
+						:class="{ autoGrow: autoGrow, multiline: autoMultiline }"
 						:tabindex="tabindex"
 						v-model="textValue"
-						rows="3"
+						:rows="autoGrow ? 1 : 3"
 						:id="'text' + key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
@@ -676,6 +677,7 @@ import {
 	type ComponentPublicInstance,
 	useTemplateRef,
 	onBeforeMount,
+	onBeforeUnmount,
 } from "vue";
 import { useI18n } from "vue-i18n";
 import { gsap } from "gsap/gsap-core";
@@ -819,33 +821,45 @@ const textValue = computed({
 			props.paramData.value = h! * 3600 + m! * 60 + s! || 0;
 		} else {
 			props.paramData.value = value;
-
-			const inputEl = inputRef.value;
-			let selectStart = inputEl?.selectionStart || value.length;
-			let selectEnd = inputEl?.selectionEnd || value.length;
-
-			nextTick().then(() => {
-				const newInput = inputRef.value;
-				if (!newInput || newInput == inputEl) return;
-				//In case there was a switch between a <input> and a <textarea>, set the carret
-				//to the same place it was before the switch
-				newInput.selectionStart = selectStart;
-				newInput.selectionEnd = selectEnd;
-			});
 		}
 	},
 });
 
-const autoLongText = ref(false);
-let autoLongTextThreshold = Infinity;
+// `autoMultiline` drives ONLY the multi-line column CSS layout (label on top,
+// full-width field). Unlike the previous implementation it never swaps the DOM
+// element, so the browser's native undo history and caret survive as the field
+// grows. See `autoResize()`.
+const autoMultiline = ref(false);
+let autoMultilineThreshold = Infinity;
+// Height (px) auto-growth is capped at before overflowing/scrolling. Kept in JS
+// (rather than CSS max-height) so a manual resize can grow past it. See autoResize().
+const AUTO_GROW_MAX_HEIGHT = 200;
+// Once the user drags the resize handle in multi-line mode we stop auto-fitting the
+// height and let their chosen size stick. `autoGrowHeight` is the last height we set
+// programmatically, used by the ResizeObserver to tell our own changes from a drag.
+let userResizedMultiline = false;
+let autoGrowHeight = -1;
+let resizeObserver: ResizeObserver | null = null;
 
-const longText = computed((): boolean => {
+// A free-text string is rendered as a single, always-mounted <textarea> (rather
+// than an <input> that later gets swapped for a <textarea>, which used to wipe
+// the undo history and caret). `autoGrow` is the subset of those whose height
+// follows their content instead of a fixed row count.
+const useTextarea = computed((): boolean => {
+	return props.paramData.type == "string" && props.paramData.longText !== false;
+});
+
+const autoGrow = computed((): boolean => {
 	return (
-		props.paramData?.longText === true ||
-		(autoLongText.value &&
-			props.paramData.longText !== false &&
-			props.paramData.type != "password")
+		props.paramData.type == "string" &&
+		props.paramData.longText !== true &&
+		props.paramData.longText !== false
 	);
+});
+
+// Whether the multi-line column layout is active.
+const multiline = computed((): boolean => {
+	return useTextarea.value && (props.paramData.longText === true || autoMultiline.value);
 });
 
 const showChildren = computed((): boolean => {
@@ -880,7 +894,7 @@ const classes = computed((): string[] => {
 	if (props.paramData.type == "string" && props.paramData.value !== "") res.push("unselected");
 	if (errorLocal.value !== false) res.push("error");
 	else if (isMissingScope.value) res.push("error");
-	if (longText.value) res.push("longText");
+	if (multiline.value) res.push("longText");
 	if (label.value == "") res.push("noLabel");
 	if (props.autoFade !== false) res.push("autoFade");
 	if (props.childLevel > 0) res.push("child");
@@ -965,34 +979,41 @@ function clickItem(event: MouseEvent): void {
 }
 
 /**
- * Checks if text fits on a simpel input, otherwise it switches to textarea
+ * Grows the auto-mode <textarea> to fit its content and toggles the multi-line
+ * column layout. Because the element is never swapped (unlike the old
+ * <input> → <textarea> promotion) the native undo stack and caret are kept.
  */
-function computeAutoLongText() {
-	// If user specifically requested a simple input, stop there
-	if (props.paramData.longText === false) {
-		autoLongText.value = false;
-		return;
-	}
-
+function autoResize(): void {
 	const el = inputRef.value;
+	if (!autoGrow.value || !(el instanceof HTMLTextAreaElement)) return;
+
 	const value = ((props.paramData.value as string) ?? "").toString();
-	if (
-		props.paramData.longText !== true &&
-		props.paramData.longText !== false &&
-		props.paramData.type != "password"
-	) {
-		if (el instanceof HTMLInputElement && el.scrollWidth - el.clientWidth > 0) {
-			//Promote to textarea and remember the length at which we did
-			autoLongText.value = true;
-			autoLongTextThreshold = value.length;
-		} else if (el instanceof HTMLTextAreaElement && autoLongText.value) {
-			//Demote back to input only when value has no newlines and is materially
-			//shorter than the threshold — avoids ping-pong when value sits right at
-			//the edge of fitting in a single-line input.
-			if (!value.includes("\n") && value.length < autoLongTextThreshold - 3) {
-				autoLongText.value = false;
-				autoLongTextThreshold = Infinity;
-			}
+
+	if (!autoMultiline.value) {
+		// Single-line mode: the field is capped to one row by CSS. Promote to the
+		// multi-line layout as soon as the content no longer fits on that row.
+		if (value.includes("\n") || el.scrollHeight > el.clientHeight + 1) {
+			autoMultiline.value = true;
+			autoMultilineThreshold = value.length;
+			nextTick(autoResize);
+		}
+	} else {
+		// Multi-line mode: match the field height to its content, capped so the
+		// field doesn't grow without bound (it scrolls past the cap instead). Once
+		// the user has dragged the resize handle we leave their height alone.
+		if (!userResizedMultiline) {
+			el.style.height = "auto";
+			el.style.height = Math.min(el.scrollHeight, AUTO_GROW_MAX_HEIGHT) + "px";
+			autoGrowHeight = el.offsetHeight;
+		}
+		// ...and only demote back to a single line once the value is materially
+		// shorter, so we don't ping-pong right at the wrapping boundary.
+		if (!value.includes("\n") && value.length < autoMultilineThreshold - 3) {
+			autoMultiline.value = false;
+			autoMultilineThreshold = Infinity;
+			userResizedMultiline = false;
+			autoGrowHeight = -1;
+			el.style.height = "";
 		}
 	}
 }
@@ -1001,7 +1022,7 @@ function computeAutoLongText() {
  * Called when value changes
  */
 function onInput(): void {
-	computeAutoLongText();
+	autoResize();
 	emit("input");
 	onEdit();
 }
@@ -1386,8 +1407,7 @@ onMounted(() => {
 		}
 	}
 
-	//Set this to true so we keep focus on the text field when it switches
-	//between <input> and <textarea> depending on the text length
+	//Set this to true so the text field keeps focus across re-renders.
 	//This won't affect first rendering, only subsequent ones
 	autofocusLocal.value = true;
 
@@ -1395,7 +1415,27 @@ onMounted(() => {
 	//This is necessary for default values to be applied to the
 	//v-model value on first render.
 	if (props.modelValue != null && props.modelValue != props.paramData.value) onEdit();
-	computeAutoLongText();
+	nextTick(autoResize);
+
+	// Auto-grow fields become manually resizable once they've expanded to
+	// multi-line. Watch for a height that we didn't set ourselves (i.e. the user
+	// dragged the resize handle) and, from then on, stop auto-fitting the height.
+	if (autoGrow.value && inputRef.value instanceof HTMLTextAreaElement) {
+		resizeObserver = new ResizeObserver(() => {
+			const el = inputRef.value;
+			if (!(el instanceof HTMLTextAreaElement)) return;
+			if (!autoMultiline.value || userResizedMultiline || autoGrowHeight < 0) return;
+			if (Math.abs(el.offsetHeight - autoGrowHeight) > 1) {
+				userResizedMultiline = true;
+			}
+		});
+		resizeObserver.observe(inputRef.value);
+	}
+});
+
+onBeforeUnmount(() => {
+	resizeObserver?.disconnect();
+	resizeObserver = null;
 });
 
 watch(
@@ -1425,7 +1465,10 @@ watch(
 
 watch(
 	() => props.paramData.value,
-	() => onEdit(),
+	() => {
+		onEdit();
+		nextTick(autoResize);
+	},
 	{ deep: true },
 );
 
@@ -1814,6 +1857,20 @@ watch(
 		textarea {
 			resize: vertical;
 			min-height: 2em;
+
+			// Auto-mode field: height is driven by autoResize() so we disable the
+			// manual resize handle and cap the growth (in JS), scrolling past the cap.
+			&.autoGrow {
+				resize: none;
+				overflow-y: auto;
+
+				// Once it has grown to multi-line, allow manual vertical resizing.
+				// The cap is enforced in JS while auto-growing, so drop it here to
+				// let a manual resize grow the field freely.
+				&.multiline {
+					resize: vertical;
+				}
+			}
 		}
 	}
 
