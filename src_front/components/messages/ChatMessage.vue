@@ -149,6 +149,11 @@
 				<span class="deleted" v-if="getDeletedMessage(m)">{{getDeletedMessage(m)}}</span>
 			</span>
 
+			<br v-if="gifInfo">
+			<div v-if="gifInfo" class="gif">
+				<img :src="gifInfo.url" :alt="gifInfo.description" v-tooltip="{maxWidth: '100vw', content:gifTooltip}" />
+			</div>
+
 			<br v-if="clipInfo">
 			<div v-if="clipInfo" class="clip">
 				<img :src="clipInfo.thumbnail_url" alt="thumbnail" @click.stop="openClip()">
@@ -204,6 +209,7 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{
@@ -247,6 +253,7 @@ class ChatMessage extends AbstractChatMessage {
 	public hypeChat:TwitchatDataTypes.HypeChatData|null = null;
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
+	public gifInfo:TwitchatDataTypes.MessageChatData["twitch_gif"]|null = null;
 	public clipHighlightLoading:boolean = false;
 	public highlightOverlayAvailable:boolean = false;
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
@@ -458,6 +465,10 @@ class ChatMessage extends AbstractChatMessage {
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
+
+			if(this.messageData.twitch_gif) {
+				this.gifInfo = this.messageData.twitch_gif;
+			}
 
 			watch(()=> mess.twitch_isSuspicious, () => this.updateBadges());
 			watch(()=> mess.is_saved, () => this.updateSavedState());
@@ -685,6 +696,20 @@ class ChatMessage extends AbstractChatMessage {
 		if(this.childrenList) {
 			this.childrenList.forEach(m=>m.spoiler = false);
 		}
+	}
+
+	/**
+	 * Get GIF's tooltip content (used for the v-tooltip directive)
+	 */
+	public get gifTooltip():string {
+		if(!this.gifInfo) return "";
+		// DOMPurify neutralises attribute breakout in the URL (e.g. a quote +
+		// onerror=), strips dangerous src protocols (javascript:, etc.), and
+		// escapes any markup in the Giphy-supplied description.
+		return DOMPurify.sanitize(
+			`<img src="${this.gifInfo.url}" style="display:inline-block; max-width:50vw; max-height:500px;" />`
+			+ `<div style="font-style:italic; font-size:0.8em; text-align:center;">${this.gifInfo.description || ''}</div>`
+		);
 	}
 
 	/**
@@ -1124,6 +1149,13 @@ export default toNative(ChatMessage);
 			&:hover {
 				outline: 1px solid var(--color-text-fade);
 			}
+		}
+	}
+
+	.gif {
+		img {
+			height: 5em;
+			max-height: 5em;
 		}
 	}
 

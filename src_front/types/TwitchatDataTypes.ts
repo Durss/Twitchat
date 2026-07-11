@@ -3647,6 +3647,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";
 		/**
+		 * GIF data sent by the user
+		 */
+		twitch_gif?:{url:string, description:string};
+		/**
 		 * Get youtube live chat ID this message has been sent to
 		 */
 		youtube_liveId?: string;

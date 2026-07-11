@@ -48,6 +48,7 @@
 			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up
 				celebration</Button>
 			<Button small @click="simulateEvent($event, 'custom_power_up')" icon="watchStreak">Custom Power Up</Button>
+			<Button small @click="simulateEvent($event, 'message', 'gif')" icon="watchStreak">GIF</Button>
 			<Button small @click="simulateEvent($event, 'twitch_combo')" icon="bits">Combo</Button>
 			<Button small @click="simulateComboSpam()" icon="bits">Combo spam</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
@@ -361,6 +362,22 @@ class DevmodeMenu extends Vue {
 					m.message_chunks = chunks;
 					m.message_html = str;
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
+					break;
+				}
+				case "gif": {
+					const m = message as TwitchatDataTypes.MessageChatData;
+					let str = "";
+					m.message = str;
+					m.message_chunks = [];
+					m.message_html = str;
+					m.message_size = 0;
+					m.twitch_gif = Utils.pickRand([{
+						url: "https://media0.giphy.com/media/AhvmkDdoQd8rM1CcI0/giphy.gif?cid=095d7a5dklakb5xhhpjn4qly2g6g47z3t741qpm9g411oue1&ep=v1_gifs_trending&rid=giphy.gif&ct=g",
+						description: "I Dont Care Shrug GIF by Puss In Boots",
+					}, {
+						url:"https://media4.giphy.com/media/ini6Wv1uZNnLwpz8BS/giphy.gif?cid=095d7a5dklakb5xhhpjn4qly2g6g47z3t741qpm9g411oue1&ep=v1_gifs_trending&rid=giphy.gif&ct=g",
+						description: "Conan O Brien Everything GIF by GIPHY News",
+					}]);
 					break;
 				}
 				case "gift": {
@@ -861,6 +878,7 @@ type Subaction = "first"
 	| "skin1"
 	| "skin2"
 	| "skin3"
+	| "gif"
 	| "no_message"
 	| "giantEmote";
 

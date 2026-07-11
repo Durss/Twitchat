@@ -846,6 +846,21 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 		if(tags["msg-id"] === "animated-message") data.twitch_animationId = tags["animation-id"];
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
+		if(tags["gifs"]) {
+			const chunks:string[] = tags["gifs"].split("|");
+			const url = chunks.find(v=>v.indexOf("url=") === 0)?.replace("url=", "");
+			if(url) {
+				data.twitch_gif = {
+					url,
+					description:data.message.replace(/^\[|\]$/g, ""),
+				}
+				// clear message content as it's just the GIF description
+				data.message = "";
+				data.message_chunks = [];
+				data.message_html = "";
+				data.message_size = 0;
+			}
+		}
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {
@@ -1220,7 +1235,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_html,
 						message_size,
 					};
-					console.log("SEND MODIVERSARY", eventData);
 					this.dispatchEvent(new MessengerClientEvent("MODIVERSARY", eventData));
 
 					//Add as standard message
@@ -1239,7 +1253,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						twitch_modiversary:eventData.months,
 						is_short:Utils.stripHTMLTags(message_html || "").length / (message?.length||1) < .6 || message?.length < 4,
 					};
-					console.log("SEND MODIVERSARY AS MESSAGE", messageData);
 					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 				}
 
