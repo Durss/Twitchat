@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
-import { Auth, google, translate_v2 } from "googleapis";
+import { translate_v2 } from "@googleapis/translate";
+import { GoogleAuth, OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
@@ -198,7 +199,7 @@ export default class GoogleController extends AbstractController {
 
 		if (Config.credentials.google_key) {
 			//Authenticate with google API for translation API
-			const auth = new Auth.GoogleAuth({
+			const auth = new GoogleAuth({
 				keyFilename: Config.CREDENTIALS_ROOT + Config.credentials.google_key,
 				scopes: ["https://www.googleapis.com/auth/cloud-platform"],
 			});
@@ -282,7 +283,7 @@ export default class GoogleController extends AbstractController {
 		}
 
 		// Generate a url that asks permissions for the Drive activity scope
-		const oauth2Client = new google.auth.OAuth2({
+		const oauth2Client = new OAuth2Client({
 			clientId: credentials.client_id,
 			clientSecret: credentials.client_secret,
 			redirectUri: credentials.redirect_uris[0],
@@ -348,7 +349,7 @@ export default class GoogleController extends AbstractController {
 		}
 
 		// Generate a url that asks permissions for the Drive activity scope
-		const oauth2Client = new google.auth.OAuth2({
+		const oauth2Client = new OAuth2Client({
 			clientId: credentials.client_id,
 			clientSecret: credentials.client_secret,
 			redirectUri: credentials.redirect_uris[0],
@@ -405,7 +406,7 @@ export default class GoogleController extends AbstractController {
 			return;
 		}
 
-		const oauth2Client = new google.auth.OAuth2({
+		const oauth2Client = new OAuth2Client({
 			clientId: credentials.client_id,
 			clientSecret: credentials.client_secret,
 			redirectUri: redirectURI,
