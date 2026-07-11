@@ -774,7 +774,7 @@ async function simulateEvent(
 							url: "https://media4.giphy.com/media/ini6Wv1uZNnLwpz8BS/giphy.gif?cid=095d7a5dklakb5xhhpjn4qly2g6g47z3t741qpm9g411oue1&ep=v1_gifs_trending&rid=giphy.gif&ct=g",
 							description: "Conan O Brien Everything GIF by GIPHY News",
 						},
-					]);
+					])!;
 					break;
 				}
 				case "gift": {

@@ -435,7 +435,6 @@ const automodReasons = ref("");
 const hypeChat = ref<TwitchatDataTypes.HypeChatData | null>(null);
 const badges = ref<TwitchatDataTypes.TwitchatUserBadge[]>([]);
 const clipInfo = ref<TwitchDataTypes.ClipInfo | null>(null);
-const gifInfo = ref<TwitchatDataTypes.MessageChatData["twitch_gif"] | null>(null);
 const clipHighlightLoading = ref(false);
 const highlightOverlayAvailable = ref(false);
 const infoBadges = ref<TwitchatDataTypes.MessageBadgeData[]>([]);
@@ -672,20 +671,26 @@ const miniBadges = computed<{ label: string; class?: string }[]>(() => {
 });
 
 /**
+ * Does message contains a GIF?
+ */
+const gifInfo = computed(() => {
+	return (
+		props.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+		props.messageData.twitch_gif
+	);
+});
+
+/**
  * Get GIF's tooltip content (used for the v-tooltip directive)
  */
 const gifTooltip = computed(() => {
-	if (
-		props.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE ||
-		!props.messageData.twitch_gif
-	)
-		return "";
+	if (!gifInfo.value) return "";
 	// DOMPurify neutralises attribute breakout in the URL (e.g. a quote +
 	// onerror=), strips dangerous src protocols (javascript:, etc.), and
 	// escapes any markup in the Giphy-supplied description.
 	return DOMPurify.sanitize(
-		`<img src="${props.messageData.twitch_gif.url}" style="display:inline-block; max-width:50vw; max-height:500px;" />` +
-			`<div style="font-style:italic; font-size:0.8em; text-align:center;">${props.messageData.twitch_gif.description || ""}</div>`,
+		`<img src="${gifInfo.value.url}" style="display:inline-block; max-width:50vw; max-height:500px;" />` +
+			`<div style="font-style:italic; font-size:0.8em; text-align:center;">${gifInfo.value.description || ""}</div>`,
 	);
 });
 
