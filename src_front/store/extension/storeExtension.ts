@@ -82,23 +82,23 @@ export const storeExtension = defineStore("Extension", {
 		},
 
 		async updateInternalStates(isInit?: boolean): Promise<void> {
-			const [list, listEnabled] = await Promise.all([
+			const [allExtensions, enabledExtensions] = await Promise.all([
 				TwitchUtils.listExtensions(false),
 				TwitchUtils.listExtensions(true),
 			]);
 
-			if (list) this.availableExtensions = list;
+			if (allExtensions) this.availableExtensions = allExtensions;
 
-			if (listEnabled) {
-				this.availableSlots.panel = Object.keys(listEnabled.panel).length;
-				this.availableSlots.overlay = Object.keys(listEnabled.overlay).length;
-				this.availableSlots.component = Object.keys(listEnabled.component).length;
+			if (enabledExtensions) {
+				this.availableSlots.panel = Object.keys(enabledExtensions.panel).length;
+				this.availableSlots.overlay = Object.keys(enabledExtensions.overlay).length;
+				this.availableSlots.component = Object.keys(enabledExtensions.component).length;
 
 				const slots: IExtensionState["activeExtensionSlots"] = {};
 				const extensions: TwitchDataTypes.Extension[] = [];
-				const keys: (keyof typeof listEnabled)[] = ["component", "overlay", "panel"];
+				const keys: (keyof typeof enabledExtensions)[] = ["component", "overlay", "panel"];
 				for (const slotType of keys) {
-					const category = listEnabled[slotType];
+					const category = enabledExtensions[slotType];
 					for (const slotId in category) {
 						const element = category[slotId];
 						if (!element?.active) continue;
@@ -126,13 +126,13 @@ export const storeExtension = defineStore("Extension", {
 						if (res.json.config) {
 							this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
 							this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
-
-							// This makes sure EBS config contain the server-declared "env" prop
-							// letting clients know which env the streamer is running on.
-							// This makes sure EBS server knows to which env reroute viewer
-							// queries to.
-							void this.updateEBSConfigs();
 						}
+
+						// This makes sure EBS config contain the server-declared "env" prop
+						// letting clients know which env the streamer is running on.
+						// This makes sure EBS server knows to which env reroute viewer
+						// queries to.
+						void this.updateEBSConfigs();
 					})
 					.catch((_) => {});
 			}
