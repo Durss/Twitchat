@@ -1,6 +1,23 @@
 {
 	"i18n-ally.localesPaths": ["i18n"],
 	"i18n-ally.keystyle": "nested",
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/.git/**": true,
+		"**/dist/**": true,
+		"**/server/**": true,
+		"**/static/**": true,
+		"**/.tsbuildinfo": true
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/dist": true,
+		"**/server": true,
+		"**/*.tsbuildinfo": true
+	},
+	"files.exclude": {
+		"**/.tsbuildinfo": true
+	},
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"oxc.lint.run": "onType",
