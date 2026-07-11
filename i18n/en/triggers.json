@@ -865,6 +865,7 @@
 			"trigger_name": "Current trigger name",
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
+			"user_login": "User login",
 			"user_customName": "User name custom",
 			"user_id": "User ID",
 			"parent_user": "Parent message - User name",

@@ -865,6 +865,7 @@
 			"trigger_name": "Nom du trigger actuel",
 			"trigger_id": "ID du trigger actuel",
 			"user": "Pseudo",
+			"user_login": "Login",
 			"user_customName": "Pseudo personnalisé",
 			"user_id": "ID utilisateur",
 			"parent_user": "Message parent - Pseudo",

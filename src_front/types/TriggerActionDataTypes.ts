@@ -2186,6 +2186,7 @@ export interface ITriggerPlaceholder<
 
 export const USER_ID: string = "USER_ID";
 export const USER_NAME: string = "USER";
+export const USER_LOGIN: string = "USER_LOGIN";
 export const USER_DISPLAY_NAME: string = "USER_CUSTOM_NAME";
 export const USER_AVATAR: string = "AVATAR";
 export const USER_FOLLOWAGE: string = "USER_FOLLOWAGE";
@@ -2380,6 +2381,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					isUserID: false,
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
+					tag: USER_LOGIN,
+					descKey: "triggers.placeholders.user_login",
+					pointer: "user.login",
+					numberParsable: false,
+					isUserID: false,
+				} as ITriggerPlaceholder<SafeMessage>,
+				{
 					tag: USER_DISPLAY_NAME,
 					descKey: "triggers.placeholders.user_customName",
 					pointer: "user.displayName",
@@ -2459,6 +2467,15 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "message.user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<
+			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
+		>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "message.user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<
@@ -2606,6 +2623,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -2746,6 +2770,15 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "chatMessage.user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<
+			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
+		>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "chatMessage.user.displayName",
@@ -2825,6 +2858,15 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "chatMessage.user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<
+			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
+		>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "chatMessage.user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<
@@ -3104,6 +3146,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -3238,6 +3287,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.sub_gifter_customName",
 			pointer: "user.displayName",
@@ -3320,6 +3376,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
@@ -3409,6 +3472,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -3450,6 +3520,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
@@ -3546,6 +3623,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -3587,6 +3671,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.shoutout_in",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
@@ -3643,6 +3734,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
+		{
 			tag: USER_ID,
 			descKey: "triggers.placeholders.user_id",
 			pointer: "user.id",
@@ -3692,6 +3790,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<SafeReward>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<SafeReward>,
@@ -3773,6 +3878,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.track_added_by",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
@@ -3870,6 +3982,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "userOrigin.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "userOrigin.displayName",
@@ -3911,6 +4030,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.track_added_by",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
@@ -4059,6 +4185,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "info.user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "info.user.displayName",
@@ -4100,6 +4233,15 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "message.user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<
+			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
+		>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "message.user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<
@@ -4223,6 +4365,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
@@ -4359,6 +4508,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					isUserID: false,
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
+					tag: USER_LOGIN,
+					descKey: "triggers.placeholders.user_login",
+					pointer: "user.login",
+					numberParsable: false,
+					isUserID: false,
+				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
+				{
 					tag: USER_DISPLAY_NAME,
 					descKey: "triggers.placeholders.user_customName",
 					pointer: "user.displayName",
@@ -4393,6 +4549,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
@@ -4442,6 +4605,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -4480,6 +4650,16 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					tag: USER_NAME,
 					descKey: "triggers.placeholders.user",
 					pointer: "info.user.displayNameOriginal",
+					numberParsable: false,
+					isUserID: false,
+				} as ITriggerPlaceholder<
+					| TwitchatDataTypes.MessageStreamOnlineData
+					| TwitchatDataTypes.MessageStreamOfflineData
+				>,
+				{
+					tag: USER_LOGIN,
+					descKey: "triggers.placeholders.user_login",
+					pointer: "info.user.login",
 					numberParsable: false,
 					isUserID: false,
 				} as ITriggerPlaceholder<
@@ -4612,6 +4792,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -4705,6 +4892,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 					isUserID: false,
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
+					tag: USER_LOGIN,
+					descKey: "triggers.placeholders.user_login",
+					pointer: "user.login",
+					numberParsable: false,
+					isUserID: false,
+				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+				{
 					tag: USER_ID,
 					descKey: "triggers.placeholders.counter_userid",
 					pointer: "user.id",
@@ -4763,6 +4957,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<SafeMessage>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<SafeMessage>,
@@ -4840,6 +5041,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
@@ -5233,6 +5441,15 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.ad_break_user",
 			pointer: "startedBy.displayNameOriginal",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<
+			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
+		>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "startedBy.login",
 			numberParsable: true,
 			isUserID: false,
 		} as ITriggerPlaceholder<
@@ -5757,6 +5974,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -5820,6 +6044,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
@@ -5946,6 +6177,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -6028,6 +6266,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -6097,6 +6342,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
@@ -6172,6 +6424,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
@@ -6335,6 +6594,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
@@ -6516,6 +6782,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -6589,6 +6862,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -6630,6 +6910,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
@@ -6686,6 +6973,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+		{
 			tag: USER_DISPLAY_NAME,
 			descKey: "triggers.placeholders.user_customName",
 			pointer: "user.displayName",
@@ -6720,6 +7014,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
@@ -6928,6 +7229,13 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			tag: USER_NAME,
 			descKey: "triggers.placeholders.user",
 			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
