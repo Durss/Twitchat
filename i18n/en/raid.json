@@ -1,5 +1,6 @@
 {
 	"raid": {
+		"open_channel_tt": "Open channel",
 		"viewers": "Viewers",
 		"copy_logins": "Copy logins",
 		"banned_users": "You may want to tel {USER}'s moderators that the following banned users may join their channel:",

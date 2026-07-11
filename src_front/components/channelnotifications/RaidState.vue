@@ -4,9 +4,15 @@
 			<div class="subHolder">
 				<h1 class="title">
 					<icon name="raid" />
-					{{ raidInfo.user.displayName }}
+					<a
+						:href="'https://twitch.tv/' + raidInfo.user.login"
+						target="_blank"
+						v-tooltip="t('raid.open_channel_tt')"
+					>
+						{{ raidInfo.user.displayName }}
 
-					<img :src="user.avatarPath" alt="avatar" class="avatar" />
+						<img :src="user.avatarPath" alt="avatar" class="avatar" />
+					</a>
 
 					<img
 						v-if="!isOwnRaid && remoteChan && !remoteChan.temporary"
@@ -21,20 +27,20 @@
 					<mark
 						class="viewerCount"
 						@click="censorCount = !censorCount"
-						v-tooltip="$t('raid.viewers')"
+						v-tooltip="t('raid.viewers')"
 					>
 						<icon name="show" />
 						<span v-if="!censorCount">{{ raidInfo.viewerCount }}</span>
 						<span v-else class="censored">{{ raidInfo.viewerCount }}</span>
 					</mark>
 					<mark v-if="roomSettings?.subOnly == true"
-						><icon name="sub" />{{ $t("raid.sub_only") }}</mark
+						><icon name="sub" />{{ t("raid.sub_only") }}</mark
 					>
 					<mark v-if="roomSettings?.followOnly == true"
-						><icon name="follow" />{{ $t("raid.follower_only") }}</mark
+						><icon name="follow" />{{ t("raid.follower_only") }}</mark
 					>
 					<mark v-if="roomSettings?.emotesOnly == true"
-						><icon name="emote" />{{ $t("raid.emote_only") }}</mark
+						><icon name="emote" />{{ t("raid.emote_only") }}</mark
 					>
 				</div>
 			</div>
@@ -61,7 +67,7 @@
 					@click="cancelRaid()"
 					v-if="isOwnRaid"
 					:loading="canceling"
-					v-tooltip="$t('raid.cancel_raid')"
+					v-tooltip="t('raid.cancel_raid')"
 				/>
 				<TTButton
 					light
@@ -69,7 +75,7 @@
 					v-if="canRemoteConnect"
 					:loading="remoteConnecting"
 					icon="offline"
-					v-tooltip="$t('raid.remote_chat', { USER: user!.displayNameOriginal })"
+					v-tooltip="t('raid.remote_chat', { USER: user!.displayNameOriginal })"
 				/>
 				<TTButton
 					light
@@ -77,23 +83,23 @@
 					v-if="isOwnRaid"
 					:loading="coolingDownSpam"
 					icon="whispers"
-					v-tooltip="$t('raid.spam_linkBt')"
+					v-tooltip="t('raid.spam_linkBt')"
 				/>
 				<TTButton
 					light
 					@click="openSummary()"
 					v-if="isOwnRaid"
 					icon="poll"
-					v-tooltip="$t('raid.stream_summaryBt')"
+					v-tooltip="t('raid.stream_summaryBt')"
 				/>
 			</div>
 
 			<div class="card-item infos" v-if="!isModeratedChan && raidingLatestRaid">
-				<Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}
+				<Icon name="info" />{{ t("raid.target_channel_previous_raid") }}
 			</div>
 
 			<div class="card-item infos alert" v-if="targetChannelOffline">
-				<Icon name="alert" />{{ $t("raid.target_channel_offline") }}
+				<Icon name="alert" />{{ t("raid.target_channel_offline") }}
 			</div>
 
 			<ToggleBlock
@@ -103,7 +109,7 @@
 				medium
 				:open="false"
 				:title="
-					$t(
+					t(
 						'raid.banned_users_title',
 						{ COUNT: bannedOnline.length + timedoutOnline.length },
 						bannedOnline.length + timedoutOnline.length,
@@ -143,13 +149,13 @@
 				</ul>
 				<div class="actions">
 					<TTButton ref="copyBt" icon="copy" alert @click="copybannedUsers()">{{
-						$t("raid.copy_logins")
+						t("raid.copy_logins")
 					}}</TTButton>
 				</div>
 			</ToggleBlock>
 
 			<div class="card-item infos" v-if="isOwnRaid">
-				{{ $t("raid.cant_force", { TIMER: timeLeft }) }}
+				{{ t("raid.cant_force", { TIMER: timeLeft }) }}
 			</div>
 		</div>
 	</div>
@@ -161,7 +167,14 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, type ComponentPublicInstance } from "vue";
+import {
+	computed,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	type ComponentPublicInstance,
+} from "vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
@@ -169,7 +182,9 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import ToggleBlock from "../ToggleBlock.vue";
 import TTButton from "../TTButton.vue";
 import ProgressBar from "../ProgressBar.vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeStream = useStoreStream();
@@ -355,6 +370,15 @@ onBeforeUnmount(() => {
 			.censored {
 				filter: blur(5px);
 			}
+		}
+
+		.title a {
+			gap: 0.25em;
+			color: var(--color-light);
+			text-decoration: none;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 		}
 
 		mark {
