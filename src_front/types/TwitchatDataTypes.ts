@@ -94,7 +94,7 @@ export namespace TwitchatDataTypes {
 		| "polls"
 		| "chatPoll"
 		| "bingogrid"
-		| "labels"
+		| "label"
 		| "donationgoals"
 		| "animatedtext"
 		| "customtrain"
@@ -6304,7 +6304,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * GIF data sent by the user
 		 */
-		twitch_gif?:{url:string, description:string};
+		twitch_gif?: { url: string; description: string };
 		/**
 		 * Get youtube live chat ID this message has been sent to
 		 */

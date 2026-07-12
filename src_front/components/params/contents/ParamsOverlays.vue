@@ -209,7 +209,7 @@
 				class="item"
 				key="labels"
 				v-if="matchesSearch('labels')"
-				@click="subContent = 'labels'"
+				@click="subContent = 'label'"
 				v-newflag="{ date: 0, id: 'params_overlays_labels' }"
 			>
 				<img src="@/assets/img/overlays/labels.jpg" alt="Labels" />
@@ -319,8 +319,8 @@
 			/>
 			<OverlayParamsLabels
 				class="block"
-				:open="subContent == 'labels'"
-				v-if="subContent == 'labels'"
+				:open="subContent == 'label'"
+				v-if="subContent == 'label'"
 			/>
 			<OverlayParamsDonationGoal
 				class="block"
