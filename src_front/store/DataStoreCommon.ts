@@ -152,7 +152,6 @@ export default class DataStoreCommon {
 		this.TOOLTIP_AUTO_OPEN,
 		this.POLL_DEFAULT_DURATION,
 		this.PREDICTION_DEFAULT_DURATION,
-		this.PATREON_AUTH_TOKEN,
 		this.ANNOUNCEMENTS_READ,
 		this.NEW_FLAGS,
 		this.SENT_MESSAGE_HISTORY,

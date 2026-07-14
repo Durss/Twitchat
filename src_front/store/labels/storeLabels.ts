@@ -142,6 +142,7 @@ export const storeLabels = defineStore("labels", {
 				title: "",
 				html: "",
 				css: "",
+				triggerContent: "",
 				placeholder: "",
 				mode: "placeholder",
 				fontFamily: "",
@@ -359,6 +360,31 @@ export const storeLabels = defineStore("labels", {
 				this.labelList.push(clone);
 				this.saveData();
 			}
+		},
+
+		async setLabelContent(labelId: string, content: string): Promise<boolean> {
+			if (!ready) {
+				//Store not yet ready, wait for it to be ready
+				await readyPromise;
+			}
+			const label = this.labelList.find((v) => v.id == labelId);
+			if (!label) return false;
+
+			//Only labels tied to the "TRIGGER" placeholder or in "html" mode can be
+			//controlled this way. This guarantees no automatic update overrides the
+			//content afterwards.
+			//The content is stored on the label itself (rather than on the shared
+			//global "TRIGGER" placeholder) so multiple labels can be controlled
+			//independently. saveData() propagates the change to the related overlay.
+			if (label.mode == "html") {
+				label.html = content;
+			} else if (label.mode == "placeholder" && label.placeholder == "TRIGGER") {
+				label.triggerContent = content;
+			} else {
+				return false;
+			}
+			this.saveData(labelId);
+			return true;
 		},
 	} satisfies StoreActions<"labels", ILabelsState, ILabelsGetters, ILabelsActions>,
 });

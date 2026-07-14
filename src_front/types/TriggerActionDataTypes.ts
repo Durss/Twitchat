@@ -93,6 +93,7 @@ export type TriggerActionTypes =
 	| TriggerCustomBadgesData
 	| TriggerCustomUsernameData
 	| TriggerActionValueData
+	| TriggerActionLabelData
 	| TriggerActionCustomMessageData
 	| TriggerActionHeatClickData
 	| TriggerActionRewardData
@@ -1465,6 +1466,26 @@ export interface TriggerActionValueData extends TriggerActionData {
 	 * Defines if arithmetic operators should be interpreted
 	 */
 	interpretMaths?: boolean;
+}
+
+export interface TriggerActionLabelData extends TriggerActionData {
+	type: "label";
+	/**
+	 * Data of the label overlay to control
+	 */
+	labelData: {
+		/**
+		 * ID of the label overlay to control (@see LabelItemData).
+		 * Only labels bound to the "TRIGGER" placeholder or set in "html" mode
+		 * can be controlled, so no automatic update overrides the content afterwards.
+		 */
+		labelId: string;
+		/**
+		 * New content to set on the label.
+		 * Supports placeholders and HTML.
+		 */
+		content: string;
+	};
 }
 
 export type TriggerActionRandomDataMode = "list" | "number" | "trigger" | "value" | "counter";

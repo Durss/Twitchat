@@ -57,11 +57,7 @@
 						v-tooltip="t('global.duplicate')"
 						v-if="!maxLabelsReached"
 					/>
-					<TTButton
-						@click.stop="storeLabels.removeLabel(label.id)"
-						icon="trash"
-						alert
-					/>
+					<TTButton @click.stop="storeLabels.removeLabel(label.id)" icon="trash" alert />
 				</template>
 
 				<div class="form">
@@ -101,6 +97,21 @@
 						v-model="label.placeholder"
 						@change="save(label)"
 					/>
+					<Transition name="expand">
+						<div
+							v-if="label.mode == 'placeholder' && label.placeholder === 'TRIGGER'"
+							class="triggerModeInfo"
+						>
+							<Icon name="info" /><i18n-t
+								scope="global"
+								keypath="overlay.labels.param_labelValue_triggers"
+							>
+								<template #TRIGGERS
+									><a href="#" @click="openTriggers">Triggers</a></template
+								>
+							</i18n-t>
+						</div>
+					</Transition>
 
 					<ParamItem
 						:paramData="param_labelValueFont[label.id]!"
@@ -194,6 +205,7 @@ import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
+import Icon from "@/components/Icon.vue";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
@@ -206,17 +218,18 @@ const param_labelValue = ref<{ [key: string]: TwitchatDataTypes.ParameterData<st
 const param_labelValueFont = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
 const param_labelValueSize = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
 const param_textColor = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
-const param_backgroundEnabled = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_backgroundEnabled = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>(
+	{},
+);
 const param_backgroundColor = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
-const param_textAlign = ref<{
-	[key: string]: TwitchatDataTypes.ParameterData<LabelItemData["textAlign"]>;
-}>({});
 const param_scrollable = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 
 const placeholders: TwitchatDataTypes.PlaceholderEntry[] = [];
 
 const maxLabelsReached = computed<boolean>(() => {
-	const max = storeAuth.isPremium ? Config.instance.MAX_LABELS_PREMIUM : Config.instance.MAX_LABELS;
+	const max = storeAuth.isPremium
+		? Config.instance.MAX_LABELS_PREMIUM
+		: Config.instance.MAX_LABELS;
 	return storeLabels.labelList.length >= max;
 });
 
@@ -238,13 +251,6 @@ onBeforeMount(() => {
 	});
 	initParams();
 });
-
-/**
- * Opens the premium section
- */
-function openPremium(): void {
-	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-}
 
 /**
  * Saves given label
@@ -270,6 +276,10 @@ function save(label: LabelItemData): void {
 function duplicateLabel(label: LabelItemData): void {
 	storeLabels.duplicateLabel(label.id);
 	initParams();
+}
+
+function openTriggers(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 }
 
 /**
@@ -366,7 +376,10 @@ function initParams(): void {
 		if (group.value) values.push(group);
 
 		param_labelValue.value[id]!.listValues = values;
-		param_customText.value[id]!.placeholderList = placeholders;
+		// Hide 'trigger' label from HTML mode
+		param_customText.value[id]!.placeholderList = placeholders.filter(
+			(v) => v.tag != "TRIGGER",
+		);
 	});
 }
 </script>
@@ -402,9 +415,31 @@ function initParams(): void {
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: flex-end;
-			.button {
-				width: 2em;
-				opacity: 1; //Do not fade when disabled as its holder will already be faded
+		}
+
+		.triggerModeInfo {
+			overflow: hidden;
+			max-height: 3em;
+			background-color: var(--background-color-fadest);
+			margin: 0 0.5em;
+			margin-top: -0.5em;
+			text-align: center;
+			padding: 0.25em;
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+			transition: all 0.25s ease-in-out;
+
+			&.expand-enter-from,
+			&.expand-leave-to {
+				max-height: 0;
+				padding-top: 0;
+				padding-bottom: 0;
+				opacity: 0;
+			}
+
+			.icon {
+				margin-right: 0.5em;
+				vertical-align: middle;
 			}
 		}
 	}
@@ -419,3 +454,4 @@ function initParams(): void {
 	}
 }
 </style>
+

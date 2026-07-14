@@ -441,6 +441,7 @@
 			"param_customText": "Texte personnalisé (supporte le HTML)",
 			"param_customCSS": "CSS personnalisé",
 			"param_labelValue": "Valeur à afficher",
+			"param_labelValue_triggers": "Contrôlez la valeuyr de ce Label depuis les {TRIGGERS}",
 			"param_labelValueFont": "Style du texte",
 			"param_labelValueSize": "Taille du texte",
 			"param_textColor": "Couleur du texte",
@@ -449,6 +450,7 @@
 			"param_textAlign": "Alignement du texte",
 			"param_scrollable": "Faire défiler le texte",
 			"placeholders": {
+				"TRIGGER": "Contrôler le label depuis les triggers",
 				"COUNTER": "Compteur - {NAME}",
 				"VALUE": "Valeur - {NAME}",
 				"SUB_COUNT": "Subs - total",

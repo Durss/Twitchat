@@ -266,6 +266,14 @@
 						>{{ $t("triggers.actions.common.action_value") }}</TTButton
 					>
 
+					<TTButton
+						class="button"
+						@click="selectActionType('label')"
+						v-newflag="{ date: 0, id: 'params_triggerAction_label' }"
+						icon="label"
+						>{{ $t("triggers.actions.common.action_label") }}</TTButton
+					>
+
 					<TTButton class="button" @click="selectActionType('count')" icon="count">{{
 						$t("triggers.actions.common.action_count")
 					}}</TTButton>
@@ -689,6 +697,11 @@
 				:action="action"
 				:triggerData="triggerData"
 			/>
+			<TriggerActionLabelEntry
+				v-else-if="action.type == 'label'"
+				:action="action"
+				:triggerData="triggerData"
+			/>
 			<TriggerActionCountEntry
 				v-else-if="action.type == 'count'"
 				:action="action"
@@ -931,6 +944,7 @@ import TriggerActionGroqEntry from "./entries/TriggerActionGroqEntry.vue";
 import TriggerActionHTTPCall from "./entries/TriggerActionHTTPCall.vue";
 import TriggerActionHighlightEntry from "./entries/TriggerActionHighlightEntry.vue";
 import TriggerActionJSONExtract from "./entries/TriggerActionJSONExtract.vue";
+import TriggerActionLabelEntry from "./entries/TriggerActionLabelEntry.vue";
 import TriggerActionLumiaEntry from "./entries/TriggerActionLumiaEntry.vue";
 import TriggerActionMixitupEntry from "./entries/TriggerActionMixitupEntry.vue";
 import TriggerActionMusicEntry from "./entries/TriggerActionMusicEntry.vue";
@@ -1126,6 +1140,7 @@ const icons = computed(() => {
 	else if (props.action.type == "chat_poll") icons.push("chatPoll");
 	else if (props.action.type == "count") icons.push("count");
 	else if (props.action.type == "value") icons.push("placeholder");
+	else if (props.action.type == "label") icons.push("label");
 	else if (props.action.type == "random") icons.push("dice_placeholder");
 	else if (props.action.type == "stream_infos") icons.push("info");
 	else if (props.action.type == "delay") icons.push("timer");

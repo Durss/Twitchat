@@ -24,6 +24,13 @@ export interface LabelItemData {
 	 */
 	html: string;
 	/**
+	 * Content set by a trigger when mode is "placeholder" and placeholder is
+	 * "TRIGGER". Stored per-label (rather than on the shared global "TRIGGER"
+	 * placeholder) so multiple labels bound to "TRIGGER" can be controlled
+	 * independently. Supports HTML.
+	 */
+	triggerContent?: string;
+	/**
 	 * Custom CSS for this label if mode is "html"
 	 */
 	css: string;
@@ -73,34 +80,46 @@ export interface LabelItemPlaceholder {
 	descriptionKeyName?: string;
 }
 
-type AssertExact<T, Expected> = [T] extends [Expected]
-	? [Expected] extends [T]
-		? true
-		: never
-	: never;
-type Test1 = AssertExact<
-	LabelItemPlaceholder["type"],
+type PlaceholderType =
 	| "string"
 	| "number"
 	| "image"
-	| "duration"
 	| "date"
 	| "time"
 	| "datetime"
-	| "hours"
-	| "minutes"
-	| "seconds"
 	| "day"
 	| "month"
 	| "year"
->;
-
-//If there's an error on TypeCheck var that's because one of the labels
-//below has an invalid "type" value
-// oxlint-disable-next-line no-unused-vars
-const TypeCheck: Test1 = true;
+	| "hours"
+	| "minutes"
+	| "seconds"
+	| "duration";
+type PlaceholderCategory =
+	| "_trigger_"
+	| "date"
+	| "twitch"
+	| "youtube"
+	| "generic"
+	| "kofi"
+	| "streamlabs"
+	| "streamlabs_charity"
+	| "tiltify"
+	| "patreon"
+	| "streamelements"
+	| "tipeee"
+	| "twitch_charity"
+	| "voicemod"
+	| "music"
+	| "tiktok";
 
 export const LabelItemPlaceholderList = [
+	{
+		tag: "TRIGGER",
+		type: "string",
+		category: "_trigger_",
+		descriptionKey: "overlay.labels.placeholders.TRIGGER",
+		backup: true,
+	} as const,
 	{
 		tag: "DATE",
 		type: "date",
@@ -1264,6 +1283,12 @@ export const LabelItemPlaceholderList = [
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS",
 		backup: true,
 	} as const,
-] as const;
+] as const satisfies {
+	tag: string;
+	type: PlaceholderType;
+	category: PlaceholderCategory;
+	descriptionKey: string;
+	backup: boolean;
+}[];
 
 export type LabelItemPlaceholderTag = (typeof LabelItemPlaceholderList)[number]["tag"];

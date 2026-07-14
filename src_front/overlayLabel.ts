@@ -339,19 +339,27 @@ function renderValue(): void {
 	timerOffsets = {};
 	mustRefreshRegularly = false;
 	if (parameters.mode == "placeholder") {
-		const phRef = placeholders[parameters.placeholder]!;
-		if (phRef.type == "image") {
-			html =
-				'<img src="' +
-				parsePlaceholders("{" + value + "}") +
-				'" onload="' +
-				setScrollSpeed() +
-				'">';
+		if (parameters.placeholder == "TRIGGER") {
+			//Trigger-controlled labels store their content on the label itself
+			//(per-label) rather than on the shared global "TRIGGER" placeholder,
+			//so multiple labels bound to "TRIGGER" can be updated independently.
+			html = parsePlaceholders(parameters.triggerContent || "");
+			mustRefreshRegularly = Object.keys(timerOffsets).length > 0;
 		} else {
-			html = parsePlaceholders("{" + value + "}" || "");
+			const phRef = placeholders[parameters.placeholder]!;
+			if (phRef.type == "image") {
+				html =
+					'<img src="' +
+					parsePlaceholders("{" + value + "}") +
+					'" onload="' +
+					setScrollSpeed() +
+					'">';
+			} else {
+				html = parsePlaceholders("{" + value + "}" || "");
+			}
+			mustRefreshRegularly =
+				timerPlaceholder.findIndex((v) => v.tag.toLowerCase() === value.toLowerCase()) > -1;
 		}
-		mustRefreshRegularly =
-			timerPlaceholder.findIndex((v) => v.tag.toLowerCase() === value.toLowerCase()) > -1;
 	} else if (parameters.mode == "html") {
 		html = parsePlaceholders(value);
 		for (let i = 0; i < timerPlaceholder.length; i++) {

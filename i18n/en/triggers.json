@@ -211,6 +211,7 @@
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
 				"action_value": "Update a value",
+				"action_label": "Edit a label",
 				"action_random": "Random value",
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
@@ -522,6 +523,13 @@
 				"user_source_everyone": "All entries",
 				"user_source_chatters": "All users on chat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+			},
+			"label": {
+				"info": "Update the content of a Label overlay. Only labels associated with value \" @:overlay.labels.placeholders.TRIGGER \" or set in HTML mode can be controlled. Manage your labels on the {LABELS} section.",
+				"info_labels": "Overlays",
+				"no_label": "You don't have any controllable label yet. First create a label using the \"TRIGGER\" placeholder or switch it to HTML mode.",
+				"select_label": "Label to control",
+				"content_label": "Content to set (supports HTML and placeholders)"
 			},
 			"random": {
 				"min_label": "Min value (included)",

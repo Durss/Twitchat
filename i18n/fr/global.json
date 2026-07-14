@@ -75,6 +75,7 @@
 		"placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
 		"placeholder_selector_insert": "Insérer",
 		"placeholder_selector_categories": {
+			"_trigger_": "Triggers",
 			"misc": "Divers",
 			"stream": "Infos de stream",
 			"timer": "Chrono & compte à rebours",

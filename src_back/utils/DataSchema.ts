@@ -711,6 +711,14 @@ const UserDataSchema = {
 									items: { type: "string", maxLength: 100 },
 								},
 								newValue: { type: "string", maxLength: 1000000 },
+								labelData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										labelId: { type: "string", maxLength: 40 },
+										content: { type: "string", maxLength: 10000 },
+									},
+								},
 								values: {
 									type: "array",
 									minItems: 0,
@@ -2512,6 +2520,7 @@ const UserDataSchema = {
 							placeholder: { type: "string", maxLength: 100 },
 							html: { type: "string", maxLength: 10000 },
 							css: { type: "string", maxLength: 10000 },
+							triggerContent: { type: "string", maxLength: 10000 },
 							mode: { enum: ["html", "placeholder"] },
 							fontSize: { type: "number", minimum: 0, maximum: 300 },
 							fontFamily: { type: "string", maxLength: 200 },

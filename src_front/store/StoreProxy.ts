@@ -3462,6 +3462,15 @@ export interface ILabelsActions {
 	 * @param labelId
 	 */
 	duplicateLabel(labelId: string): void;
+	/**
+	 * Sets the content of a controllable label.
+	 * Only works for labels bound to the "TRIGGER" placeholder or set in "html"
+	 * mode, so no automatic update overrides the content afterwards.
+	 * @param labelId id of the label to control
+	 * @param content new content (supports HTML)
+	 * @returns true if the label could be controlled, false otherwise
+	 */
+	setLabelContent(labelId: string, content: string): Promise<boolean>;
 }
 
 export interface IDonationGoalState {

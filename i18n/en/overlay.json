@@ -450,6 +450,7 @@
 			"param_customText": "Custom text (supports HTML)",
 			"param_customCSS": "Custom CSS",
 			"param_labelValue": "Value to display",
+			"param_labelValue_triggers": "This label can be controled from the {TRIGGERS}",
 			"param_labelValueFont": "Font style",
 			"param_labelValueSize": "Text size",
 			"param_textColor": "Text color",
@@ -458,6 +459,8 @@
 			"param_textAlign": "Text alignment",
 			"param_scrollable": "Make text scroll horizontally",
 			"placeholders": {
+				"TRIGGER": "Control label from the triggers",
+
 				"COUNTER": "Counter - {NAME}",
 				"VALUE": "Value - {NAME}",
 

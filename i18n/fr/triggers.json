@@ -210,6 +210,7 @@
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_value": "Modifier une valeur",
+				"action_label": "Éditer un label",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
@@ -522,6 +523,13 @@
 				"user_source_everyone": "Toutes les Valeurs existantes",
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
+			},
+			"label": {
+				"info": "Met à jour le contenu d'un Label. Seuls les labels liés à la valeur \" @:overlay.labels.placeholders.TRIGGER \" ou en mode HTML peuvent être contrôlés. Gérez vos labels dans la section {LABELS}.",
+				"info_labels": "Overlays",
+				"no_label": "Vous n'avez aucun label contrôlable pour le moment. Créez d'abord un label utilisant le placeholder « TRIGGER » ou passez-le en mode HTML.",
+				"select_label": "Label à contrôler",
+				"content_label": "Contenu à définir (supporte le HTML et les placeholders)"
 			},
 			"random": {
 				"min_label": "Valeur min (inclus)",

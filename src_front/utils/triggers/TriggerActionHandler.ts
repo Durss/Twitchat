@@ -5842,6 +5842,46 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
+				} else //Handle label overlay control trigger action
+				if (step.type == "label") {
+					const label = StoreProxy.labels.labelList.find(
+						(v) => v.id == step.labelData?.labelId,
+					);
+					if (!label) {
+						log.error = true;
+						logStep.error = true;
+						logStep.messages.push({
+							date: Date.now(),
+							value: "❌ Requested label not found. It may have been deleted.",
+						});
+					} else if (
+						label.mode != "html" &&
+						!(label.mode == "placeholder" && label.placeholder == "TRIGGER")
+					) {
+						log.error = true;
+						logStep.error = true;
+						logStep.messages.push({
+							date: Date.now(),
+							value:
+								'❌ Label "' +
+								label.title +
+								'" can only be controlled if it uses the "TRIGGER" placeholder or the "HTML" mode.',
+						});
+					} else {
+						const content = await this.parsePlaceholders(
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							step.labelData.content || "",
+							subEvent,
+						);
+						await StoreProxy.labels.setLabelContent(label.id, content);
+						logStep.messages.push({
+							date: Date.now(),
+							value: 'Set label "' + label.title + '" content to: ' + content,
+						});
+					}
 				} else //Handle random generator trigger action
 				if (step.type == "random") {
 					logStep.messages.push({
