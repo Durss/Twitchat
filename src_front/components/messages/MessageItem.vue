@@ -277,8 +277,9 @@ const componentRef = computed<VueComponent | null>(() => {
 	}
 
 	.side {
-		width: 5px;
+		width: 4px;
 		opacity: 0.35;
+		flex-shrink: 0;
 		background-color: currentColor;
 	}
 
@@ -313,6 +314,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		position: absolute;
 		bottom: 0.5em;
 		right: 0.5em;
+		pointer-events: none;
 	}
 
 	&:has(.highlight) {
