@@ -3321,6 +3321,7 @@ export interface ICommonActions {
 	 * @param message
 	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
 	 * @param showContact defines if contact info should be displayed (discord link)
+	 * @deprecated use global `toast` method instead
 	 */
 	alert(message: string, isCritical?: boolean, showContact?: boolean): void;
 }
