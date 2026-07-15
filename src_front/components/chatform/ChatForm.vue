@@ -1928,6 +1928,7 @@ watch(
 
 		for (let i = carretPos; i >= 0; i--) {
 			const currentChar = newVal.charAt(i);
+			const prevChar = i > 0 ? newVal.charAt(i - 1) : " ";
 			const nextChar = newVal.charAt(i + 1);
 			const offset = currentChar == ":" || currentChar == "@" ? 1 : 0;
 			if (/\s/gi.test(currentChar)) {
@@ -1936,9 +1937,11 @@ watch(
 			}
 
 			if (
-				currentChar == ":" ||
-				currentChar == "@" ||
-				((currentChar == "/" || currentChar == "!") && carretPos == 1) ||
+				(currentChar == ":" && /\s/.test(prevChar)) ||
+				(currentChar == "@" && /\s/.test(prevChar)) ||
+				((currentChar == "/" || currentChar == "!") &&
+					/\s/.test(prevChar) &&
+					carretPos == 1) ||
 				(i == 0 && autoCompleteSearch.value)
 			) {
 				autoCompleteUsers.value = currentChar == "@";
