@@ -121,33 +121,6 @@ function getCorrespondant(uid: string): TwitchatDataTypes.TwitchatUser {
 onBeforeMount(() => {
 	selectedUserId.value = Object.keys(storeChat.whispers)[0]!;
 	storeChat.whispersUnreadCount = 0;
-
-	if (
-		storeMain.tempStoreValue &&
-		typeof storeMain.tempStoreValue === "object" &&
-		"type" in storeMain.tempStoreValue &&
-		storeMain.tempStoreValue.type == "user"
-	) {
-		const data = storeMain.tempStoreValue as {
-			type: string;
-			user: TwitchatDataTypes.TwitchatUser;
-		};
-		selectedUserId.value = data.user.id;
-		storeMain.tempStoreValue = null;
-	}
-
-	watch(
-		() => selectedUserId.value,
-		async () => {
-			//Force scroll for a few frames in case there are
-			//emotes to be loaded. If we were not waiting for this
-			//the scroll might to be at the bottom
-			for (let i = 0; i < 10; i++) {
-				await nextTick();
-				scrollToBottom();
-			}
-		},
-	);
 });
 
 function messageClasses(whisper: TwitchatDataTypes.MessageWhisperData): string[] {
@@ -192,6 +165,39 @@ function scrollToBottom(): void {
 	const div = messageList.value!;
 	div.scrollTo(0, div.scrollHeight);
 }
+
+watch(
+	() => selectedUserId.value,
+	async () => {
+		//Force scroll for a few frames in case there are
+		//emotes to be loaded. If we were not waiting for this
+		//the scroll might to be at the bottom
+		for (let i = 0; i < 10; i++) {
+			await nextTick();
+			scrollToBottom();
+		}
+	},
+);
+
+watch(
+	() => storeMain.tempStoreValue,
+	() => {
+		if (
+			storeMain.tempStoreValue &&
+			typeof storeMain.tempStoreValue === "object" &&
+			"type" in storeMain.tempStoreValue &&
+			storeMain.tempStoreValue.type == "user"
+		) {
+			const data = storeMain.tempStoreValue as {
+				type: string;
+				user: TwitchatDataTypes.TwitchatUser;
+			};
+			selectedUserId.value = data.user.id;
+			storeMain.tempStoreValue = null;
+		}
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="less">
