@@ -82,6 +82,10 @@ export default class TwitchExtensionController extends AbstractController {
 			"/api/twitch/extension/config",
 			async (request, response) => await this.setEBSConfig(request, response),
 		);
+		this.server.delete(
+			"/api/twitch/extension/config",
+			async (request, response) => await this.deleteEBSConfig(request, response),
+		);
 		return this;
 	}
 
@@ -303,7 +307,9 @@ export default class TwitchExtensionController extends AbstractController {
 			// it to time-based scoring keeps the points consistent with what the viewer saw
 			// (and removes the streamer's local clock skew + relay latency). Only trust it
 			// for the current question; otherwise let the streamer score on its own clock.
-			const quiz = this._quizController.getStreamerQuiz(request.twitchExtensionUser!.channel_id);
+			const quiz = this._quizController.getStreamerQuiz(
+				request.twitchExtensionUser!.channel_id,
+			);
 			let serverVotedElapsed_ms: number | undefined;
 			if (quiz?.questionStarted_at_server && quiz.currentQuestionId === params.questionId) {
 				serverVotedElapsed_ms = Math.max(
@@ -347,6 +353,8 @@ export default class TwitchExtensionController extends AbstractController {
 		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
 		const quiz = this._quizController.getStreamerQuiz(channelId);
+		console.log(bingos);
+		console.log(quiz);
 		const clickableAreas = await this._userController.getActiveHeatScreenAreas(channelId);
 
 		response.header("Content-Type", "application/json");
@@ -436,6 +444,48 @@ export default class TwitchExtensionController extends AbstractController {
 			response.status(res.status);
 			response.send(JSON.stringify({ success, config }));
 		} catch (_error) {
+			response.header("Content-Type", "application/json");
+			response.status(500);
+			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));
+		}
+	}
+
+	/**
+	 * Deletes current EBS config for current user
+	 * Only used for debug purpose
+	 */
+	public async deleteEBSConfig(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const user = await super.adminGuard(request, response);
+		if (!user) return;
+
+		const params = request.query as {
+			segment?: "broadcaster" | "global" | "developer";
+		};
+		try {
+			const queryParams = new URLSearchParams();
+			if (params.segment) queryParams.set("segment", params.segment);
+			const res = await fetch(
+				Config.credentials.twitchat_extension_api_path +
+					"extension/config?" +
+					queryParams.toString(),
+				{
+					method: "DELETE",
+					headers: {
+						"x-twitchat-verify": getHash(user.user_id),
+						"x-twitchat-channel": user.user_id,
+					},
+				},
+			);
+			let success = false;
+			if (res.status === 200) {
+				const json = (await res.json()) as { success: boolean; content: EBSConfiguration };
+				success = json.success;
+			}
+			response.header("Content-Type", "application/json");
+			response.status(res.status);
+			response.send(JSON.stringify({ success }));
+		} catch (_error) {
+			console.log(_error);
 			response.header("Content-Type", "application/json");
 			response.status(500);
 			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));

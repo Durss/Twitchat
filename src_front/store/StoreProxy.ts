@@ -2768,11 +2768,16 @@ export interface IExtensionState {
 	ebsConfigs: {
 		captureClicks: boolean;
 		captureKeys: boolean;
+		env?: string;
 	};
 	/**
 	 * Tells if EBS config is being updated
 	 */
 	ebsConfigUpdating: boolean;
+	/**
+	 * Tells if EBS has been configured for this account
+	 */
+	ebsConfigured: boolean;
 }
 
 export interface IExtensionGetters {
@@ -2805,10 +2810,21 @@ export interface IExtensionActions {
 	 */
 	updateInternalStates(isInit?: boolean): Promise<void>;
 	/**
+	 * Gets current EBS extension config
+	 */
+	getEBSConfigs(): Promise<void>;
+	/**
 	 * Updates EBS extension config
 	 */
 	updateEBSConfigs(): Promise<boolean>;
-
+	/**
+	 * Clears EBS extension config
+	 * Only used for debugging purpose
+	 */
+	clearEBSConfigs(): Promise<boolean>;
+	/**
+	 * Check if currently installed extension version has given feature
+	 */
 	hasFeature(feature: EtensionFeature): boolean;
 }
 

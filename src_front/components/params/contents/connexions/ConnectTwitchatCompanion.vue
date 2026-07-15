@@ -6,9 +6,17 @@
 			<p>{{ $t("twitchat_companion.header") }}</p>
 		</div>
 
-		<ExtensionInstaller no-error-state />
+		<ExtensionInstaller no-error-state @extensionReady="storeExtension.updateEBSConfigs()" />
 
 		<template v-if="storeExtension.companionEnabled">
+			<TTButton
+				v-if="storeAuth.isAdmin"
+				class="center"
+				secondary
+				icon="trash"
+				@click="clearEBSConf()"
+				>Clear EBS conf</TTButton
+			>
 			<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{
 				t("twitchat_companion.start_quiz")
 			}}</TTButton>
@@ -72,10 +80,12 @@ import HeatDebug from "../heat/HeatDebug.vue";
 import HeatOverlayClick from "../heat/HeatOverlayClick.vue";
 import HeatScreenList from "../heat/HeatScreenList.vue";
 import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth.js";
 
 const { t } = useI18n();
 const storeExtension = useStoreExtension();
 const storeParams = useStoreParams();
+const storeAuth = useStoreAuth();
 
 const lastChangedState = ref<"clicks" | "keys" | null>(null);
 const param_captureClicks = ref<TwitchatDataTypes.ParameterData<boolean>>({
@@ -90,6 +100,13 @@ const param_captureKeys = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	icon: "font",
 	labelKey: "twitchat_companion.enable_keys",
 });
+
+storeExtension.getEBSConfigs();
+
+// Ensure EBS is configured
+if (storeExtension.companionEnabled && !storeExtension.ebsConfigured) {
+	storeExtension.updateEBSConfigs();
+}
 
 const subContent = computed(() => {
 	return storeParams.currentPageSubContent;
@@ -111,6 +128,10 @@ function openBingo() {
 
 async function onChangeEBSSetting(section: typeof lastChangedState.value) {
 	storeExtension.updateEBSConfigs();
+}
+
+function clearEBSConf() {
+	storeExtension.clearEBSConfigs();
 }
 </script>
 

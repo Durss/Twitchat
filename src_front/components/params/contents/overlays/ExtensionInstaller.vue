@@ -2,9 +2,9 @@
 	<div
 		class="extensioninstaller card-item"
 		:class="{
-			primary: installed && enabled && !loading,
-			secondary: installed && !enabled && !loading,
-			alert: !loading && noErrorState !== true && (!installed || !grantedPermission),
+			primary: variant == 'primary',
+			secondary: variant == 'secondary',
+			alert: variant == 'alert',
 		}"
 		v-if="loading || !grantedPermission || !installed || !enabled"
 	>
@@ -18,8 +18,9 @@
 		<div class="content" v-else-if="!grantedPermission">
 			<span class="head">{{ $t("extensions.scope_grant") }}</span>
 			<TTButton
-				:alert="noErrorState !== true"
-				:light="noErrorState !== true"
+				:alert="variant == 'alert'"
+				:secondary="variant == 'secondary'"
+				:light="variant != ''"
 				icon="lock_fit"
 				@click="grantPermission"
 				>{{ $t("extensions.scope_grantBt") }}</TTButton
@@ -30,8 +31,9 @@
 				$t("extensions.installer.install", { NAME: props.extensionName })
 			}}</span>
 			<TTButton
-				:alert="noErrorState !== true"
-				:light="noErrorState !== true"
+				:alert="variant == 'alert'"
+				:secondary="variant == 'secondary'"
+				:light="variant != ''"
 				icon="newtab"
 				type="link"
 				:href="
@@ -64,10 +66,8 @@
 import TTButton from "@/components/TTButton.vue";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-import Utils from "@/utils/Utils";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const loading = ref(false);
@@ -76,6 +76,9 @@ const enableError = ref(false);
 
 const storeExtension = useStoreExtension();
 const storeAuth = useStoreAuth();
+const emit = defineEmits<{
+	extensionReady: [];
+}>();
 
 const props = withDefaults(
 	defineProps<{ extensionID?: string; extensionName?: string; noErrorState?: boolean }>(),
@@ -116,6 +119,19 @@ watch(
 	{ immediate: true },
 );
 
+const variant = computed(() => {
+	if (!grantedPermission.value) return "secondary";
+	if (installed.value && enabled.value && !loading.value) return "primary";
+	if (installed.value && !enabled.value && !loading.value) return "secondary";
+	if (
+		!loading.value &&
+		props.noErrorState !== true &&
+		(!installed.value || !grantedPermission.value)
+	)
+		return "alert";
+	return "";
+});
+
 const grantedPermission = computed(() => {
 	//Read the reactive store scopes list directly so this computed re-evaluates
 	//whenever the granted permissions change.
@@ -153,6 +169,16 @@ async function checkExtensionStatus(): Promise<void> {
 	clearTimeout(loaderDelay);
 	loading.value = false;
 }
+
+const ready = computed(() => !!installed.value && !!enabled.value);
+
+watch(
+	ready,
+	(isReady) => {
+		if (isReady) emit("extensionReady");
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="less">

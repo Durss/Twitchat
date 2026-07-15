@@ -35,6 +35,7 @@ export const storeExtension = defineStore("Extension", {
 		enabledExtensions: [],
 		activeExtensionSlots: {},
 		ebsConfigUpdating: false,
+		ebsConfigured: false,
 		ebsConfigs: { captureClicks: false, captureKeys: false },
 	}),
 
@@ -121,21 +122,30 @@ export const storeExtension = defineStore("Extension", {
 			}
 
 			if (isInit && this.companionEnabled) {
-				ApiHelper.call("twitch/extension/config", "GET")
-					.then((res) => {
-						if (res.json.config) {
-							this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
-							this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
-						}
+				await this.getEBSConfigs();
 
-						// This makes sure EBS config contain the server-declared "env" prop
-						// letting clients know which env the streamer is running on.
-						// This makes sure EBS server knows to which env reroute viewer
-						// queries to.
-						void this.updateEBSConfigs();
-					})
-					.catch((_) => {});
+				// This makes sure EBS config contain the server-declared "env" prop
+				// letting clients know which env the streamer is running on.
+				// This makes sure EBS server knows to which env reroute viewer
+				// queries to.
+				void this.updateEBSConfigs();
 			}
+		},
+
+		async getEBSConfigs(): Promise<void> {
+			await ApiHelper.call("twitch/extension/config", "GET")
+				.then((res) => {
+					if (res.json.config) {
+						this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
+						this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
+						this.ebsConfigured = !!res.json.config.env;
+					} else {
+						this.ebsConfigs.captureClicks = false;
+						this.ebsConfigs.captureKeys = false;
+						this.ebsConfigured = !!false;
+					}
+				})
+				.catch((_) => {});
 		},
 
 		async updateEBSConfigs(): Promise<boolean> {
@@ -154,10 +164,16 @@ export const storeExtension = defineStore("Extension", {
 					captureKeys: this.ebsConfigs.captureKeys,
 				},
 			});
+			await this.getEBSConfigs();
 			lastEBSCall_ts = Date.now();
 			this.ebsConfigUpdating = false;
-			const success = res.status === 200 && res.json.success === true;
-			return success;
+			return res.status === 200 && res.json.success === true;
+		},
+
+		async clearEBSConfigs(): Promise<boolean> {
+			const res = await ApiHelper.call("twitch/extension/config", "DELETE", {});
+			await this.getEBSConfigs();
+			return res.status === 200 && res.json.success === true;
 		},
 
 		hasFeature(feature: EtensionFeature): boolean {

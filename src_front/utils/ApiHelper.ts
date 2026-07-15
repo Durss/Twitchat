@@ -1459,5 +1459,14 @@ type ApiEndpoints = {
 				error?: string;
 			};
 		};
+		DELETE: {
+			parameters: {
+				segment?: "broadcast" | "global" | "developer";
+			};
+			response: {
+				success: boolean;
+				error?: string;
+			};
+		};
 	};
 };
