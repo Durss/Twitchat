@@ -257,7 +257,7 @@
 				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
 				"commands_list": "Chat commands",
-				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command",
+				"use_slash_cmd": "Use trigger \"@:triggers.events.SLASH_COMMAND.label{''}\" for this kind of command",
 				"reset_cooldown_tt": "Reset current cooldowns"
 			},
 			"delete_message": {
@@ -525,7 +525,7 @@
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"label": {
-				"info": "Update the content of a Label overlay. Only labels associated with value \" @:overlay.labels.placeholders.TRIGGER \" or set in HTML mode can be controlled. Manage your labels on the {LABELS} section.",
+				"info": "Update the content of a Label overlay. Only labels associated with value \"@:overlay.labels.placeholders.TRIGGER{''}\" or set in HTML mode can be controlled. Manage your labels on the {LABELS} section.",
 				"info_labels": "Overlays",
 				"no_label": "You don't have any controllable label yet. First create a label using the \"TRIGGER\" placeholder or switch it to HTML mode.",
 				"select_label": "Label to control",
@@ -549,10 +549,10 @@
 				"value": "Value",
 				"value_splitter": "Entries separator\n(char that seperates entries)",
 				"value_id": "Value to pick an entry from",
-				"value_no_values": "It's only possible to pick a random entry from a per-user Value.\nCreate a value with \" @:values.form.value_user \" option enabled.",
+				"value_no_values": "It's only possible to pick a random entry from a per-user Value.\nCreate a value with \"@:values.form.value_user{''}\" option enabled.",
 				"counter": "Counter",
 				"counter_id": "Counter to pick an entry from",
-				"counter_no_values": "It's only possible to pick a random entry from a per-user Counter.\nCreate a counter with \" @:counters.form.value_user \" option enabled.",
+				"counter_no_values": "It's only possible to pick a random entry from a per-user Counter.\nCreate a counter with \"@:counters.form.value_user{''}\" option enabled.",
 				"placeholder_tuto": "Define placeholders names to which extract corresponding data:",
 				"placeholder_user_id": "User ID",
 				"placeholder_user_name": "User name (Twitch only)",

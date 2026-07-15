@@ -99,7 +99,7 @@
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
 			"show_panels_here": "Formulaires de sondage, prédiction, ...",
-			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
+			"show_greet_here": "Afficher \"@:greet.title{''}\" dans cette colonne",
 			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"background_color": "Couleur de fond",

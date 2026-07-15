@@ -257,7 +257,7 @@
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
 				"commands_list": "Commandes de tchat",
-				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande",
+				"use_slash_cmd": "Utilisez le trigger \"@:triggers.events.SLASH_COMMAND.label{''}\" pour ce type de commande",
 				"reset_cooldown_tt": "Réinitialiser\nles cooldowns\nen cours"
 			},
 			"delete_message": {
@@ -525,7 +525,7 @@
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"label": {
-				"info": "Met à jour le contenu d'un Label. Seuls les labels liés à la valeur \" @:overlay.labels.placeholders.TRIGGER \" ou en mode HTML peuvent être contrôlés. Gérez vos labels dans la section {LABELS}.",
+				"info": "Met à jour le contenu d'un Label. Seuls les labels liés à la valeur \"@:overlay.labels.placeholders.TRIGGER{''}\" ou en mode HTML peuvent être contrôlés. Gérez vos labels dans la section {LABELS}.",
 				"info_labels": "Overlays",
 				"no_label": "Vous n'avez aucun label contrôlable pour le moment. Créez d'abord un label utilisant le placeholder « TRIGGER » ou passez-le en mode HTML.",
 				"select_label": "Label à contrôler",
@@ -548,10 +548,10 @@
 				"value": "Valeur",
 				"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
 				"value_id": "Valeur dans laquelle tirer une entrée",
-				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \" @:values.form.value_user \" activée.",
+				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \"@:values.form.value_user{''}\" activée.",
 				"counter": "Compteur",
 				"counter_id": "Compteur dans lequel tirer une entrée",
-				"counter_no_values": "Il n'est possible de tirer une entrée aléatoire d'un Compteur que pour les Compteurs par utilisateur.\nCréez un Compteur avec l'option \" @:counters.form.value_user \" activée.",
+				"counter_no_values": "Il n'est possible de tirer une entrée aléatoire d'un Compteur que pour les Compteurs par utilisateur.\nCréez un Compteur avec l'option \"@:counters.form.value_user{''}\" activée.",
 				"placeholder_label": "Nom du placeholder",
 				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
 				"placeholder_user_id": "ID de la personne",

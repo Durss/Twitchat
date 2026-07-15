@@ -220,7 +220,7 @@
 			"pin": "Envoyer un message et l'épingler",
 			"unpin": "Désépingler le message actuellement épinglé",
 			"clear": "Effacer le tchat",
-			"greetduration": "Définir la durée de conservation des messages de la section \" @:greet.title \"",
+			"greetduration": "Définir la durée de conservation des messages de la section \"@:greet.title{''}\"",
 			"betamigrate": "Migre les données utilisateurice de la beta vers la prod",
 			"streamTitle": "Modifier le titre du stream",
 			"streamCategory": "Modifier la category du stream",

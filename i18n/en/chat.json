@@ -99,7 +99,7 @@
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
 			"show_panels_here": "Poll, prediction, ..., forms",
-			"show_greet_here": "Show \" @:greet.title \" on this column",
+			"show_greet_here": "Show \"@:greet.title{''}\" on this column",
 			"show_user_badges": "Show only users with badges...",
 			"hide_user_badges": "Hide users with badges...",
 			"background_color": "Background color",
