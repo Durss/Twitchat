@@ -30,19 +30,17 @@
 						<strong>{{ messageData.gift_recipients?.length }}</strong>
 					</template>
 					<template #MONTHS>
-						<strong
-							v-tooltip="
-								messageData.months < 12
-									? ''
-									: $t(
-											'chat.subscription.duration_months',
-											{ COUNT: messageData.months || 1 },
-											messageData.months || 1,
-										)
-							"
-							>{{
-								formatedDuration(messageData.months > 0 ? messageData.months : 1)
-							}}</strong
+						<strong>{{
+							formatedDuration(messageData.months > 0 ? messageData.months : 1)
+						}}</strong>
+						<i v-if="messageData.months > 12">
+							({{
+								$t(
+									"chat.subscription.duration_months",
+									{ COUNT: messageData.months },
+									messageData.months,
+								)
+							}})</i
 						>
 					</template>
 					<template #LIST>
@@ -170,17 +168,15 @@
 					:plural="messageData.totalSubDuration"
 				>
 					<template #COUNT>
-						<strong
-							v-tooltip="
-								messageData.totalSubDuration < 12
-									? ''
-									: $t(
-											'chat.subscription.duration_months',
-											{ COUNT: messageData.totalSubDuration },
-											messageData.totalSubDuration,
-										)
-							"
-							>{{ formatedDuration(messageData.totalSubDuration) }}</strong
+						<strong>{{ formatedDuration(messageData.totalSubDuration) }}</strong>
+						<i v-if="messageData.totalSubDuration > 12">
+							({{
+								$t(
+									"chat.subscription.duration_months",
+									{ COUNT: messageData.totalSubDuration },
+									messageData.totalSubDuration,
+								)
+							}})</i
 						>
 					</template>
 				</i18n-t>
@@ -193,17 +189,15 @@
 						:plural="messageData.months"
 					>
 						<template #COUNT>
-							<strong
-								v-tooltip="
-									messageData.months < 12
-										? ''
-										: $t(
-												'chat.subscription.duration_months',
-												{ COUNT: messageData.months },
-												messageData.months,
-											)
-								"
-								>{{ formatedDuration(messageData.months) }}</strong
+							<strong>{{ formatedDuration(messageData.months) }}</strong>
+							<i v-if="messageData.months > 12">
+								({{
+									$t(
+										"chat.subscription.duration_months",
+										{ COUNT: messageData.months },
+										messageData.months,
+									)
+								}})</i
 							>
 						</template>
 					</i18n-t>
@@ -214,22 +208,20 @@
 					scope="global"
 					tag="div"
 					class="additional"
-					v-if="messageData.streakMonths > 0"
+					v-if="messageData.streakMonths > 1"
 					keypath="chat.subscription.sub_streak"
 					:plural="messageData.streakMonths"
 				>
 					<template #COUNT>
-						<strong
-							v-tooltip="
-								messageData.streakMonths < 12
-									? ''
-									: $t(
-											'chat.subscription.duration_months',
-											{ COUNT: messageData.streakMonths },
-											messageData.streakMonths,
-										)
-							"
-							>{{ formatedDuration(messageData.streakMonths) }}</strong
+						<strong>{{ formatedDuration(messageData.streakMonths) }}</strong>
+						<i v-if="messageData.streakMonths > 12">
+							({{
+								$t(
+									"chat.subscription.duration_months",
+									{ COUNT: messageData.streakMonths },
+									messageData.streakMonths,
+								)
+							}})</i
 						>
 					</template>
 				</i18n-t>
