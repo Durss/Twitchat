@@ -29,7 +29,6 @@ interface BatchItem {
 //Having this list reactive kills performances while being
 //unnecessary
 const userList: TwitchatDataTypes.TwitchatUser[] = [];
-//FIXME few duplicates happen in the userlist
 
 //TODO make massive refactoring on user ban/block logic. There are ban/block calls everywhere on the app intead of here.
 
@@ -498,30 +497,32 @@ export const storeUsers = defineStore("users", {
 			}
 
 			//Attribute a random color to the user (overwrite that externally if necessary)
-			user.color = Utils.pickRand([
-				"#ff0000",
-				"#0000ff",
-				"#008000",
-				"#b22222",
-				"#ff7f50",
-				"#9acd32",
-				"#ff4500",
-				"#2e8b57",
-				"#daa520",
-				"#d2691e",
-				"#5f9ea0",
-				"#1e90ff",
-				"#ff69b4",
-				"#8a2be2",
-				"#00ff7f",
-			])!;
+			if (!user.color) {
+				user.color = Utils.pickRand([
+					"#ff0000",
+					"#0000ff",
+					"#008000",
+					"#b22222",
+					"#ff7f50",
+					"#9acd32",
+					"#ff4500",
+					"#2e8b57",
+					"#daa520",
+					"#d2691e",
+					"#5f9ea0",
+					"#1e90ff",
+					"#ff69b4",
+					"#8a2be2",
+					"#00ff7f",
+				])!;
+			}
 
 			if (user.id) hashmaps.idToUser[user.id] = user;
 			if (user.login) hashmaps.loginToUser[user.login] = user;
 			if (user.displayNameOriginal)
 				hashmaps.displayNameToUser[user.displayNameOriginal] = user;
 
-			userList.push(user);
+			if (!userExisted) userList.push(user);
 
 			if (user.temporary != true) {
 				if (loadCallback) loadCallback(user);
