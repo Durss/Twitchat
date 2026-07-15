@@ -112,17 +112,14 @@ let lang: string = navigator.language || (<any>navigator)["userLanguage"];
 lang = lang.substring(0, 2).toLowerCase();
 const sLang = DataStore.get(DataStore.LANGUAGE);
 if (sLang) lang = sLang;
-const i18n = createI18n<true>({
+const i18n = createI18n<false>({
 	locale: lang,
 	fallbackLocale: "en",
-	legacy: true,
+	legacy: false,
 	globalInjection: true,
 	warnHtmlMessage: false,
-	silentFallbackWarn: !Config.instance.IS_PROD,
-	silentTranslationWarn: !Config.instance.IS_PROD,
-	// modifiers:{
-	// 	strong:(str)=> "<strong>"+str+"</strong>",
-	// }
+	fallbackWarn: Config.instance.IS_PROD,
+	missingWarn: Config.instance.IS_PROD,
 });
 
 //Load labels before everything else so they are available when
@@ -341,8 +338,9 @@ function buildApp() {
 			integrations: [dedupeIntegration()],
 			//@ts-ignore
 			environment:
-				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[document.location.hostname] ||
-				document.location.hostname,
+				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[
+					document.location.hostname
+				] || document.location.hostname,
 			tracesSampleRate: 1.0,
 			ignoreErrors: [
 				"[-]", //Custom tag to ignore errors coming from specific parts of the app
@@ -383,11 +381,8 @@ function buildApp() {
 			//Walk through available locales on CTRL+Alt+M
 			if (e.key.toLowerCase() == "m" && metaKey && e.altKey) {
 				const locales = i18n.global.availableLocales;
-				// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
 				i18n.global.locale.value =
-					// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
-					locales[(locales.indexOf(i18n.global.locale.value) + 1) % locales.length];
-				// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+					locales[(locales.indexOf(i18n.global.locale.value) + 1) % locales.length]!;
 				DataStore.set(DataStore.LANGUAGE, i18n.global.locale.value);
 				e.preventDefault();
 			}

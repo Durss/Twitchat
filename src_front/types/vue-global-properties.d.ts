@@ -4,7 +4,7 @@
  */
 
 import type { Router, RouteLocationNormalizedLoaded } from "vue-router";
-import type { VueI18n } from "vue-i18n";
+import type { ExportedGlobalComposer } from "vue-i18n";
 import type { Store } from "pinia";
 import type { IStore } from "@/store/StoreProxy";
 import type Config from "@/utils/Config";
@@ -17,8 +17,7 @@ declare module "vue" {
 		// Vue Router
 		$route: RouteLocationNormalizedLoaded;
 		$router: Router;
-		// Vue i18n (legacy mode)
-		$i18n: VueI18n;
+		$i18n: ExportedGlobalComposer;
 		$t: {
 			(key: string): string;
 			(key: string, value: number, { locale: string }): string;
@@ -30,16 +29,6 @@ declare module "vue" {
 			(key: string, values: Record<string, unknown>, count: number): string;
 			// Support for pluralization with values and count
 			(key: string, values: (string | number)[], count: number): string;
-		};
-		/**
-		 * @deprecated Use $t with count parameter instead
-		 * $t("labelKey", count, { ...params })
-		 */
-		$tc: {
-			(key: string, choice?: number): string;
-			(key: string, choice: number, values: Record<string, unknown>): string;
-			(key: string, choice: number, locale: string): string;
-			(key: string, choice: number, values: Record<string, unknown>, locale: string): string;
 		};
 		$tm: (key: string) => unknown;
 		$te: (key: string, locale?: string) => boolean;

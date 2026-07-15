@@ -36,20 +36,20 @@ import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsk
 import type { BrowserOAuthClient } from "@atproto/oauth-client-browser";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
-import type { Composer, VueI18n } from "vue-i18n";
+import type { Composer } from "vue-i18n";
 import type { Router } from "vue-router";
 import type {
 	ElevenlabsError,
 	ElevenLabsModel,
 	ElevenLabsVoice,
 } from "./elevenlabs/storeElevenLabs";
+import type { EtensionFeature } from "./extension/storeExtension";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { Lense, Video } from "./streamfog/storeStreamfog";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type { EtensionFeature } from "./extension/storeExtension";
 
 /**
  * Created : 23/09/2022
@@ -179,33 +179,7 @@ export default class StoreProxy {
 		IMeldStudioGetters,
 		IMeldStudioActions
 	>;
-	public static i18n: VueI18n<
-		{},
-		{},
-		{},
-		string,
-		never,
-		string,
-		Composer<{}, {}, {}, string, never, string>
-	> & {
-		// Dirty typing override.
-		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
-		// doesn't match the actual API.
-		// I couldn't find a way to make it understand the t() function now supports
-		// pluralization
-		t: {
-			(key: string): string;
-			(key: string, locale: string): string;
-			(key: string, values: Record<string, unknown>): string;
-			(key: string, values: Record<string, unknown>, locale: string): string;
-			// Support for pluralization with count as second parameter
-			(key: string, count: number): string;
-			// Support for pluralization with values and count
-			(key: string, values: Record<string, unknown>, count: number): string;
-			// Support for pluralization with values and count
-			(key: string, values: (string | number)[], count: number): string;
-		};
-	};
+	public static i18n: Composer<{}, {}, {}, string, never, string>;
 	public static router: Router;
 	public static asset: (path: string) => string;
 }

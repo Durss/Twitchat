@@ -107,7 +107,7 @@ export default defineConfig({
 	],
 
 	optimizeDeps: {
-		exclude: ["vue-facing-decorator"],
+		exclude: ["vue-facing-decorator", "vue-i18n"],
 		entries: [],
 	},
 
@@ -136,10 +136,6 @@ export default defineConfig({
 			{
 				find: "@",
 				replacement: fileURLToPath(new URL("./src_front", import.meta.url)),
-			},
-			{
-				find: "vue-i18n",
-				replacement: "vue-i18n/dist/vue-i18n.esm-bundler.js",
 			},
 		],
 	},
