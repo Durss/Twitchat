@@ -1151,6 +1151,9 @@
 			"supersticker_tier": "Super sticker tier (1 => 6)",
 			"supersticker_id": "ID du sticker",
 			"supersticker_url": "URL du sticker",
+			"jewels_amount": "Nombre de Jewels",
+			"jewels_gift_name": "Nom du cadeau",
+			"jewels_gift_url": "URL de l'image du cadeau",
 			"youtube_sub_tier": "Nom de l'abonnement",
 			"youtube_sub_months": "Durées d'abonnement en mois",
 			"ws_topic": "Topic du message",
@@ -1841,6 +1844,10 @@
 			"YOUTUBE_SUPER_STICKER": {
 				"label": "Super sticker reçu sur YouTube",
 				"description": "Actions à exécuter lorsqu'une personne envoie un super sticker sur YouTube"
+			},
+			"YOUTUBE_JEWELS": {
+				"label": "Jewels reçus sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne envoie des Jewels sur YouTube"
 			},
 			"YOUTUBE_SUBSCRIPTION": {
 				"label": "Abonnement reçu sur YouTube",

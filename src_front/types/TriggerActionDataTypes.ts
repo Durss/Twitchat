@@ -2158,6 +2158,7 @@ export const TriggerTypes = {
 	MELDSTUDIO_TRACK_MUTE_CHANGE: "186",
 	MODIVERSARY: "187",
 	TWITCHAT_COMPANION_KEYS: "188",
+	YOUTUBE_JEWELS: "189",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -6358,6 +6359,72 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 	];
 
+	map[TriggerTypes.YOUTUBE_JEWELS] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "user.displayNameOriginal",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: USER_DISPLAY_NAME,
+			descKey: "triggers.placeholders.user_customName",
+			pointer: "user.displayName",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: USER_ID,
+			descKey: "triggers.placeholders.user_id",
+			pointer: "user.id",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: USER_AVATAR,
+			descKey: "triggers.placeholders.user_avatar",
+			pointer: "user.avatarPath",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: USER_CUSTOM_BADGES,
+			descKey: "triggers.placeholders.user_custom_badges",
+			pointer: "__user_custom_badges__",
+			numberParsable: false,
+			isUserID: false,
+		},
+		{
+			tag: "AMOUNT",
+			descKey: "triggers.placeholders.jewels_amount",
+			pointer: "amount",
+			numberParsable: true,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: "GIFT_NAME",
+			descKey: "triggers.placeholders.jewels_gift_name",
+			pointer: "gift_name",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+		{
+			tag: "GIFT_URL",
+			descKey: "triggers.placeholders.jewels_gift_url",
+			pointer: "gift_url",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
+	];
+
 	map[TriggerTypes.YOUTUBE_SUBSCRIPTION] = [
 		{
 			tag: USER_NAME,
@@ -8548,6 +8615,15 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.YOUTUBE_SUPER_STICKER,
 			descriptionKey: "triggers.events.YOUTUBE_SUPER_STICKER.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER,
+		},
+		{
+			premium: true,
+			category: TriggerEventTypeCategories.YOUTUBE,
+			icon: "youtube_jewels",
+			labelKey: "triggers.events.YOUTUBE_JEWELS.label",
+			value: TriggerTypes.YOUTUBE_JEWELS,
+			descriptionKey: "triggers.events.YOUTUBE_JEWELS.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT,
 		},
 		{
 			premium: true,

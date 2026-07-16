@@ -1656,6 +1656,22 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.YOUTUBE_JEWELS,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 				if (
 					await this.executeTriggersByType(
