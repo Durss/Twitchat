@@ -140,7 +140,8 @@ export interface YoutubeMessages {
 			| YoutubeTombstoneMessage
 			| YoutubeSponsorOnlyModeOn
 			| YoutubeSponsorOnlyModeOff
-			| YoutubeChatEnded;
+			| YoutubeChatEnded
+			| YoutubeGiftEventMessage;
 		authorDetails: {
 			channelId: string;
 			channelUrl: string;
@@ -296,6 +297,49 @@ interface YoutubeSuperStickerMessage extends AbstractYoutubeTextMessage {
 			 * https://youtube.googleapis.com/super_stickers/sticker_ids_to_urls.csv
 			 */
 			stickerId: string;
+		};
+	};
+}
+
+interface YoutubeGiftEventMessage extends AbstractYoutubeTextMessage {
+	type: "giftEvent";
+	giftEventDetails: {
+		giftMetadata: {
+			/**
+			 * Jewels amount
+			 */
+			jewelsAmount: number;
+			/**
+			 * Gift name
+			 */
+			giftName: string;
+			/**
+			 * Gift image URL
+			 */
+			giftUrl: string;
+			/**
+			 * Image Alt text
+			 */
+			altText: string;
+			/**
+			 * Language of the Alt text
+			 */
+			language: string;
+			/**
+			 * The combo count of the gift; 0 if not a combo.
+			 */
+			comboCount: number;
+			/**
+			 * Whether the gift has a visual effect.
+			 */
+			hasVisualEffect: boolean;
+			/**
+			 * Gift durations
+			 */
+			giftDuration: {
+				seconds: number;
+				nanos: number;
+			};
 		};
 	};
 }

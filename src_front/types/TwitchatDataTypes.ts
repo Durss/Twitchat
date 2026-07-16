@@ -5000,6 +5000,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS: "hype_train_progress",
 		HYPE_TRAIN_COMPLETE: "hype_train_complete",
 		LOW_TRUST_TREATMENT: "low_trust_treatment",
+		YOUTUBE_JEWELS_GIFT: "youtube_jewels_gift",
 		CUSTOM_TRAIN_SUMMARY: "custom_train_summary",
 		CHAT_HIGHLIGHT_CLOSE: "chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION: "youtube_subscription",
@@ -5126,6 +5127,7 @@ export namespace TwitchatDataTypes {
 		hype_train_cancel: false,
 		hype_train_summary: true,
 		goxlr_sound_input: false,
+		youtube_jewels_gift: true,
 		private_mod_message: true,
 		raffle_pick_winner: false,
 		low_trust_treatment: true,
@@ -5304,6 +5306,7 @@ export namespace TwitchatDataTypes {
 		| MessageYoutubeSubscriptionData
 		| MessageYoutubeSubgiftData
 		| MessageYoutubeBanData
+		| MessageYoutubeJewelsGiftData
 		| MessageWebsocketTopicData
 		| MessageTiltifyData
 		| MessageTwitchatStartedData
@@ -8918,6 +8921,33 @@ export namespace TwitchatDataTypes {
 		 * Sticker's ID
 		 */
 		sticker_id: string;
+		/**
+		 * Youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents a jewels gift on youtube
+	 */
+	export interface MessageYoutubeJewelsGiftData extends AbstractTwitchatMessage {
+		type: "youtube_jewels_gift";
+		/**
+		 * User that offered the subgifts
+		 */
+		user: TwitchatUser;
+		/**
+		 * Jewels amount
+		 */
+		amount: number;
+		/**
+		 * Super sticker to be displayed
+		 */
+		gift_url: string;
+		/**
+		 * Sticker's ID
+		 */
+		gift_name: string;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */

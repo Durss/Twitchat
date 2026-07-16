@@ -844,6 +844,7 @@ function shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
 		case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB:
 		case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION:
 		case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT:
+		case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT:
 		case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 			return props.config.filters.subscription === true;
 		}

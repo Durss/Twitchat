@@ -353,8 +353,6 @@ export default class TwitchExtensionController extends AbstractController {
 		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
 		const quiz = this._quizController.getStreamerQuiz(channelId);
-		console.log(bingos);
-		console.log(quiz);
 		const clickableAreas = await this._userController.getActiveHeatScreenAreas(channelId);
 
 		response.header("Content-Type", "application/json");

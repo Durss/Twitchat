@@ -132,6 +132,7 @@ import ChatYoutubeSuperSticker from "./ChatYoutubeSuperSticker.vue";
 import MessageTime from "./MessageTime.vue";
 import { useMessageTime } from "@/composables/useMessageTime";
 import ChatModiversary from "./ChatModiversary.vue";
+import ChatYoutubeJewelsGift from "./ChatYoutubeJewelsGift.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -249,6 +250,7 @@ const componentRef = computed<VueComponent | null>(() => {
 		quiz_complete: ChatQuizResult,
 		custom_power_up: ChatCustomPowerUp,
 		user_modiversary: ChatModiversary,
+		youtube_jewels_gift: ChatYoutubeJewelsGift,
 	};
 	if (!Object.hasOwn(map, props.messageData.type)) {
 		console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", props.messageData.type);

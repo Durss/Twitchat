@@ -1,36 +1,34 @@
-import type { StoreActions } from "@/types/pinia-helpers";
 import rewardImg from "@/assets/icons/channelPoints.svg";
+import { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import staticEmotes from "@/utils/twitch/staticEmoteList.json";
 import { LoremIpsum } from "lorem-ipsum";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { watch, reactive } from "vue";
+import { reactive, watch } from "vue";
+import StickerList from "../../utils/youtube/sticker_list.json";
 import type { IDebugActions, IDebugGetters, IDebugState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
-import { GoXLRTypes } from "@/types/GoXLRTypes";
-import StickerList from "../../utils/youtube/sticker_list.json";
-import staticEmotes from "@/utils/twitch/staticEmoteList.json";
-import type { i } from "mathjs";
 
 let streamInfoCache: TwitchDataTypes.ChannelInfo | null = null;
 const ponderatedRandomList: TwitchatDataTypes.TwitchatMessageStringType[] = [];
+type MT = TwitchatDataTypes.ChatMessageTypes;
 
 export const storeDebug = defineStore("debug", {
 	state: (): IDebugState => ({}),
 
 	actions: {
-		async simulateMessage<
-			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
-		>(
+		async simulateMessage<T extends MT = MT>(
 			type: TwitchatDataTypes.TwitchatMessageStringType,
 			hook?: (message: T) => boolean | void | Promise<boolean | void>,
 			postOnChat: boolean = true,
 			allowConversations: boolean = true,
 		): Promise<T> {
-			let data!: TwitchatDataTypes.ChatMessageTypes;
+			let data!: MT;
 			const uid: string = StoreProxy.auth.twitch.user.id;
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 
@@ -2052,6 +2050,25 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT: {
+					const m: TwitchatDataTypes.MessageYoutubeJewelsGiftData = {
+						date: Date.now(),
+						id: Utils.getUUID(),
+						platform: "youtube",
+						type,
+						user: fakeUser,
+						channel_id: uid,
+						youtube_liveId: Utils.getUUID(),
+						amount: Utils.pickRand([
+							440, 550, 800, 250, 500, 1000, 200, 67, 100, 30, 10,
+						])!,
+						gift_name: "Amazing gift",
+						gift_url: "/favicon.png",
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC: {
 					const topic = Utils.pickRand(["topic1", "topic2", "topic3"])!;
 					const m: TwitchatDataTypes.MessageWebsocketTopicData = {
@@ -2503,9 +2520,7 @@ export const storeDebug = defineStore("debug", {
 			return data as T;
 		},
 
-		async simulateNotice<
-			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
-		>(
+		async simulateNotice<T extends MT = MT>(
 			noticeType?: TwitchatDataTypes.TwitchatNoticeStringType,
 			hook?: (message: T) => boolean | void | Promise<boolean | void>,
 			postOnChat: boolean = true,
@@ -2730,9 +2745,7 @@ export const storeDebug = defineStore("debug", {
 			return data as T;
 		},
 
-		async sendRandomFakeMessage<
-			T extends TwitchatDataTypes.ChatMessageTypes = TwitchatDataTypes.ChatMessageTypes,
-		>(
+		async sendRandomFakeMessage<T extends MT = MT>(
 			postOnChat: boolean,
 			forcedMessage?: string,
 			hook?: (message: T) => void | Promise<void>,
@@ -2792,7 +2805,7 @@ export const storeDebug = defineStore("debug", {
 			}
 
 			const messageType = forcedType ? forcedType : Utils.pickRand(ponderatedRandomList)!;
-			return (await this.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(
+			return (await this.simulateMessage<MT>(
 				messageType,
 				(data) => {
 					if (data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

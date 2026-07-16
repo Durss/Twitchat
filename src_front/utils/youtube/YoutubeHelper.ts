@@ -1491,6 +1491,22 @@ export default class YoutubeHelper {
 				return null;
 			}
 
+			case "giftEvent": {
+				const data: TwitchatDataTypes.MessageYoutubeJewelsGiftData = {
+					date: new Date(m.snippet.publishedAt).getTime(),
+					id: m.id,
+					platform: "youtube",
+					type: TwitchatDataTypes.TwitchatMessageType.YOUTUBE_JEWELS_GIFT,
+					user,
+					channel_id: channelId,
+					youtube_liveId: liveId,
+					amount: m.snippet.giftEventDetails.giftMetadata.jewelsAmount,
+					gift_url: m.snippet.giftEventDetails.giftMetadata.giftUrl,
+					gift_name: m.snippet.giftEventDetails.giftMetadata.giftName,
+				};
+				return data;
+			}
+
 			case "giftMembershipReceivedEvent": {
 				break;
 			}

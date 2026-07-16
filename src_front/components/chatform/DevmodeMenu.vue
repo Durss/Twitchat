@@ -175,6 +175,12 @@
 			<TTButton small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube"
 				>Youtube Subgift</TTButton
 			>
+			<TTButton
+				small
+				@click="simulateEvent($event, 'youtube_jewels_gift')"
+				icon="youtube_jewels"
+				>Youtube Jewels</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'message', 'tiktok')" icon="tiktok"
 				>TikTok message</TTButton
 			>

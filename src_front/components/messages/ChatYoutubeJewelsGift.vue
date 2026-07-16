@@ -1,7 +1,6 @@
 <template>
 	<div
 		class="chatyoutubesupersticker chatMessage highlight"
-		:class="'tier_' + Math.min(7, messageData.tier)"
 		@contextmenu="onContextMenu($event, messageData, $el)"
 	>
 		<Icon name="youtube" alt="notice" class="icon" />
@@ -24,19 +23,23 @@
 				"
 				>{{ messageData.user.displayName }}</a
 			>
-			<div class="amount">{{ messageData.amountDisplay }}</div>
+			<div class="amount">
+				<img src="@/assets/icons/youtube_jewels.svg" alt="jewels" class="icon" />{{
+					messageData.amount
+				}}
+			</div>
 		</div>
 
 		<tooltip
 			:content="
-				'<center><img src=' + messageData.sticker_url + ' width=\'200\' class=\'emote\'>'
+				'<center><img src=' + messageData.gift_url + ' width=\'200\' class=\'emote\'>'
 			"
 		>
 			<img
-				:src="messageData.sticker_url"
+				:src="messageData.gift_url"
 				class="sticker"
 				alt="sticker"
-				v-if="messageData.sticker_url"
+				v-if="messageData.gift_url"
 				referrerpolicy="no-referrer"
 			/>
 		</tooltip>
@@ -59,7 +62,7 @@ import MessageTranslation from "./MessageTranslation.vue";
 })
 class ChatYoutubeSuperSticker extends AbstractChatMessage {
 	@Prop
-	declare messageData: TwitchatDataTypes.MessageYoutubeSuperStickerData;
+	declare messageData: TwitchatDataTypes.MessageYoutubeJewelsGiftData;
 }
 export default toNative(ChatYoutubeSuperSticker);
 </script>
@@ -87,51 +90,14 @@ export default toNative(ChatYoutubeSuperSticker);
 		align-items: flex-start;
 	}
 
-	a {
-		color: #000000;
-	}
-
 	.amount {
+		gap: 0.25em;
+		display: flex;
 		font-size: 1.5em;
-	}
-
-	&.tier_1 {
-		font-weight: normal;
-		color: #000;
-		background-color: #1e88e5;
-	}
-	&.tier_2 {
-		font-weight: normal;
-		color: #000;
-		background-color: #00e5ff;
-	}
-	&.tier_3 {
-		font-weight: normal;
-		color: #000;
-		background-color: #1de9b6;
-	}
-	&.tier_4 {
-		font-weight: normal;
-		color: #000;
-		background-color: #ffca28;
-	}
-	&.tier_5 {
-		a {
-			color: #ffffff;
+		align-items: center;
+		.icon {
+			height: 1em;
 		}
-		background-color: #e91e63;
-	}
-	&.tier_6 {
-		a {
-			color: #ffffff;
-		}
-		background-color: #e91e63;
-	}
-	&.tier_7 {
-		a {
-			color: #ffffff;
-		}
-		background-color: #e62117;
 	}
 }
 </style>
