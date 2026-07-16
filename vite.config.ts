@@ -127,6 +127,14 @@ export default defineConfig({
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + pkg.version + ".js",
+				advancedChunks: {
+					groups: [
+						{
+							name: "vue-vendor",
+							test: /[\\/]node_modules[\\/](@?vue|@intlify|pinia|@imengyu|@popperjs)/,
+						},
+					],
+				},
 			},
 		},
 	},
