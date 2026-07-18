@@ -39,12 +39,7 @@
 				</div>
 			</div>
 
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ t("overlay.counters.css") }}</div>
 				<div class="cssCategory">{{ t("overlay.counters.css_example.simple") }}</div>
 				<ul class="cssStructure">

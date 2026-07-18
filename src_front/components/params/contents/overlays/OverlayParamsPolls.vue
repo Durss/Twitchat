@@ -18,12 +18,7 @@
 			</div>
 			<OverlayInstaller type="polls" @obsSourceCreated="getOverlayPresence(true)" />
 
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<CSSPollsVarStyles />
 				<div class="cssHead">{{ t("overlay.polls.css") }}</div>
 				<ul class="cssStructure">
@@ -278,10 +273,7 @@ onBeforeMount(() => {
 		checkingOverlayPresence.value = false;
 		clearTimeout(subcheckTimeout);
 	};
-	PublicAPI.instance.addEventListener(
-		"ON_POLLS_OVERLAY_PRESENCE",
-		overlayPresenceHandler,
-	);
+	PublicAPI.instance.addEventListener("ON_POLLS_OVERLAY_PRESENCE", overlayPresenceHandler);
 
 	//Regularly check if the overlay exists
 	checkInterval = window.setInterval(() => getOverlayPresence(), 2000);
@@ -293,10 +285,7 @@ onBeforeUnmount(() => {
 	clearTimeout(simulateEndTimeout);
 	clearInterval(checkInterval);
 	clearTimeout(subcheckTimeout);
-	PublicAPI.instance.removeEventListener(
-		"ON_POLLS_OVERLAY_PRESENCE",
-		overlayPresenceHandler,
-	);
+	PublicAPI.instance.removeEventListener("ON_POLLS_OVERLAY_PRESENCE", overlayPresenceHandler);
 });
 
 /**

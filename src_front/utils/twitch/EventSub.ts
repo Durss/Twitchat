@@ -1758,10 +1758,10 @@ export default class EventSub {
 	 * @param payload
 	 */
 	private automaticRewardRedeem(
-		topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
-		event: TwitchEventSubDataTypes.AutomaticRewardRedeemEvent,
+		_topic: TwitchEventSubDataTypes.SubscriptionStringTypes,
+		_event: TwitchEventSubDataTypes.AutomaticRewardRedeemEvent,
 	): void {
-		return;
+		/*
 		if (event.reward.type != "celebration") return;
 		const user = StoreProxy.users.getUserFrom(
 			"twitch",
@@ -1790,6 +1790,7 @@ export default class EventSub {
 				"/default/light/3.0",
 		};
 		void StoreProxy.chat.addMessage(m);
+		*/
 	}
 
 	/**

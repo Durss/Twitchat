@@ -82,10 +82,7 @@ function getAnswerClasses(c: TwitchatDataTypes.MessagePollDataChoice): string[] 
 }
 
 function endPoll(): void {
-	confirm(
-		t("poll.state.closeConfirm.title"),
-		t("poll.state.closeConfirm.message"),
-	)
+	confirm(t("poll.state.closeConfirm.title"), t("poll.state.closeConfirm.message"))
 		.then(async () => {
 			storeChatPoll.setCurrentPoll(null);
 		})

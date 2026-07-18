@@ -16,12 +16,7 @@
 			<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
 
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>

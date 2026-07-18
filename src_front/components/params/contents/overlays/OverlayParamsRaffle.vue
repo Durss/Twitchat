@@ -15,12 +15,7 @@
 		<section class="overlayInstallCard">
 			<h1><Icon name="obs" />{{ t("overlay.title_install") }}</h1>
 			<OverlayInstaller type="wheel" @obsSourceCreated="getOverlayPresence(true)" />
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ t("overlay.raffle.css") }}</div>
 				<ul class="cssStructure">
 					<li>#wheel-item { ... }</li>
@@ -86,10 +81,7 @@ const overlayPresenceHandler = () => {
 };
 
 onMounted(() => {
-	PublicAPI.instance.addEventListener(
-		"ON_WHEEL_OVERLAY_PRESENCE",
-		overlayPresenceHandler,
-	);
+	PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_PRESENCE", overlayPresenceHandler);
 
 	//Regularly check if the overlay exists
 	checkInterval = window.setInterval(() => getOverlayPresence(), 2000);
@@ -98,10 +90,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
 	clearInterval(checkInterval);
 	clearTimeout(subcheckTimeout);
-	PublicAPI.instance.removeEventListener(
-		"ON_WHEEL_OVERLAY_PRESENCE",
-		overlayPresenceHandler,
-	);
+	PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_PRESENCE", overlayPresenceHandler);
 });
 
 /**

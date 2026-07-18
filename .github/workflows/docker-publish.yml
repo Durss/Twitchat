@@ -53,4 +53,3 @@ jobs:
                   provenance: false # single-arch deploy: keep the package manifest clean
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
-

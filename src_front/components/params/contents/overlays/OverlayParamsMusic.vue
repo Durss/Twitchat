@@ -15,12 +15,7 @@
 
 			<OverlayInstaller type="music" :sourceTransform="{ width: 400, height: 100 }" />
 
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ t("overlay.music_common.css") }}</div>
 				<ul class="cssStructure">
 					<li>#music_holder { ... }</li>

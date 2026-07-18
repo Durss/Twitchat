@@ -16,12 +16,7 @@
 			<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller type="predictions" @obsSourceCreated="getOverlayPresence(true)" />
 
-			<ToggleBlock
-				class="shrink"
-				small
-				:title="t('overlay.css_customization')"
-				:open="false"
-			>
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<CSSPollsVarStyles />
 				<div class="cssHead">{{ t("overlay.predictions.css") }}</div>
 				<ul class="cssStructure">
@@ -307,10 +302,7 @@ onBeforeMount(() => {
 		checkingOverlayPresence.value = false;
 		clearTimeout(subcheckTimeout);
 	};
-	PublicAPI.instance.addEventListener(
-		"ON_PREDICTIONS_OVERLAY_PRESENCE",
-		overlayPresenceHandler,
-	);
+	PublicAPI.instance.addEventListener("ON_PREDICTIONS_OVERLAY_PRESENCE", overlayPresenceHandler);
 
 	//Regularly check if the overlay exists
 	checkInterval = window.setInterval(() => getOverlayPresence(), 2000);

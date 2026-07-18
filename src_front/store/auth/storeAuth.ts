@@ -432,7 +432,6 @@ export const storeAuth = defineStore("auth", {
 			// 	this.twitch.user.donor.isPremiumDonor = false
 			// }
 			if (res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
-
 		},
 
 		async twitch_updateAuthScopes(code: string): Promise<boolean> {

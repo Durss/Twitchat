@@ -552,7 +552,7 @@ export default class DiscordController extends AbstractController {
 * **__Platform__**: ${json.messagePlatform}`;
 			if (json.message) {
 				body.content += "\n**__Message__**:";
-				body.content += "```" + json.message.replace("`", "\`") + "```";
+				body.content += "```" + json.message.replace("`", "`") + "```";
 			}
 			console.log(
 				`Posting message image to discord for ${user.login} in guild ${guild.guildName}`,

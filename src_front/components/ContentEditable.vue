@@ -159,12 +159,7 @@ function onKeyDown(event: KeyboardEvent) {
 		// (arrows, backspace, delete, home, end, tab…) and keyboard shortcuts
 		// (ctrl/cmd + …) have a key name longer than 1 char or hold a modifier,
 		// so they must be let through, otherwise the caret can't even be moved.
-		if (
-			event.key.length === 1 &&
-			!event.ctrlKey &&
-			!event.metaKey &&
-			!/[\d]/.test(event.key)
-		) {
+		if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !/[\d]/.test(event.key)) {
 			event.preventDefault();
 		}
 	}

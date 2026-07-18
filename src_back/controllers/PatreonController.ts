@@ -1020,7 +1020,6 @@ export default class PatreonController extends AbstractController {
 				}
 			}
 		}
-		return { success: false };
 	}
 
 	/**

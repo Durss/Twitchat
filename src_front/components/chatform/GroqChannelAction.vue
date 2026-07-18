@@ -3,11 +3,7 @@
 		<ButtonNotification icon="groq" class="button" @click.stop="open"></ButtonNotification>
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
-			<GroqSummaryFilterForm
-				:messageList="storeChat.messages"
-				@complete="close"
-				standalone
-			/>
+			<GroqSummaryFilterForm :messageList="storeChat.messages" @complete="close" standalone />
 		</div>
 	</div>
 </template>

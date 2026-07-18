@@ -210,8 +210,9 @@ onBeforeMount(() => {
 	}
 	//*/
 
-	publicApiEventHandler = (e: TwitchatEventOf<"SET_GREET_FEED_READ_ALL" | "SET_GREET_FEED_READ">) =>
-		onPublicApiEvent(e);
+	publicApiEventHandler = (
+		e: TwitchatEventOf<"SET_GREET_FEED_READ_ALL" | "SET_GREET_FEED_READ">,
+	) => onPublicApiEvent(e);
 	mouseUpHandler = () => (resizing = false);
 	mouseMoveHandler = (e: MouseEvent | TouchEvent) => onMouseMove(e);
 	deleteMessageHandler = (e: GlobalEvent) => onDeleteMessage(e);

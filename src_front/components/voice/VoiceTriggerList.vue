@@ -52,7 +52,7 @@
 					</template>
 
 					<div class="content">
-						<label :for="'select' + index">{{ $t('voice.select_action') }}</label>
+						<label :for="'select' + index">{{ $t("voice.select_action") }}</label>
 
 						<vue-select
 							:id="'select' + index"

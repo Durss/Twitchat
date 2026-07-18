@@ -1008,4 +1008,3 @@ async function hideText(): Promise<void> {
 	}
 }
 </style>
-

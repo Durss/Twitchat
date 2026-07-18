@@ -654,7 +654,6 @@ export const storeStream = defineStore("stream", {
 				[uid: string]: TwitchatDataTypes.StreamSummaryData["tiktokLikes"][number];
 			} = {};
 			let prevDate = 0;
-			const $tm = StoreProxy.i18n.tm;
 			const result: TwitchatDataTypes.StreamSummaryData = {
 				streamDuration: 0,
 				follows: [],
@@ -680,10 +679,10 @@ export const storeStream = defineStore("stream", {
 				tiktokShares: [],
 				patreonMembers: [],
 				labels: {
-					no_entry: $tm("overlay.credits.empty_slot"),
-					train: $tm("train.ending_credits"),
-					premium_only: $tm("overlay.credits.premium_only"),
-					sub_duration: $tm("overlay.credits.sub_duration"),
+					no_entry: StoreProxy.i18n.tm("overlay.credits.empty_slot"),
+					train: StoreProxy.i18n.tm("train.ending_credits"),
+					premium_only: StoreProxy.i18n.tm("overlay.credits.premium_only"),
+					sub_duration: StoreProxy.i18n.tm("overlay.credits.sub_duration"),
 				},
 			};
 
