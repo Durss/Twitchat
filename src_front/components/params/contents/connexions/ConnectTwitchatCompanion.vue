@@ -47,7 +47,7 @@
 						:class="subContent == 'heatAreas' ? 'selected' : ''"
 					/>
 
-					<HeatDebug /></div
+					<HeatDebug light /></div
 			></ParamItem>
 
 			<ParamItem

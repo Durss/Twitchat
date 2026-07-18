@@ -1,9 +1,6 @@
 <template>
 	<div ref="root" class="heatscreeneditor">
 		<div class="form">
-			<TTButton icon="back" class="backBt" @click="emit('close')" light>{{
-				$t("global.back")
-			}}</TTButton>
 			<ParamItem
 				:paramData="params_target"
 				v-model="params_target.value"
@@ -102,7 +99,7 @@ const storeParams = useStoreParams();
 const storeExtension = useStoreExtension();
 
 const props = defineProps<{ screen: HeatScreen }>();
-const emit = defineEmits<{ update: []; close: [] }>();
+const emit = defineEmits<{ update: [] }>();
 
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
@@ -809,11 +806,6 @@ async function refreshImage(): Promise<void> {
 		}
 
 		.shrink {
-			align-self: center;
-		}
-
-		.backBt {
-			text-transform: capitalize;
 			align-self: center;
 		}
 

@@ -188,6 +188,16 @@
 			</button>
 			<button
 				class="item"
+				key="clickableareas"
+				v-if="matchesSearch('clickableareas')"
+				@click="subContent = 'clickableareas'"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'overlay_clickableareas' }"
+			>
+				<img src="@/assets/img/overlays/clickable_areas.jpg" alt="Clickable Areas" />
+				<span>{{ getLabel("clickableareas") }}</span>
+			</button>
+			<button
+				class="item"
 				key="adbreak"
 				v-if="matchesSearch('adbreak')"
 				@click="subContent = 'adbreak'"
@@ -342,6 +352,11 @@
 				:open="subContent == 'quiz'"
 				v-if="subContent == 'quiz'"
 			/>
+			<OverlayParamsClickableAreas
+				class="block"
+				:open="subContent == 'clickableareas'"
+				v-if="subContent == 'clickableareas'"
+			/>
 		</div>
 	</div>
 </template>
@@ -376,6 +391,7 @@ import OverlayParamsRaffle from "./overlays/OverlayParamsRaffle.vue";
 import OverlayParamsSpotify from "./overlays/OverlayParamsSpotify.vue";
 import OverlayParamsTimer from "./overlays/OverlayParamsTimer.vue";
 import OverlayParamsUlule from "./overlays/OverlayParamsUlule.vue";
+import OverlayParamsClickableAreas from "./overlays/OverlayParamsClickableAreas.vue";
 
 const { t, tm } = useI18n();
 const storeAuth = useStoreAuth();
@@ -404,6 +420,8 @@ const overlaySearchKeys: { [key: string]: string } = {
 	counter: "overlay.counters.search_terms",
 	timer: "overlay.timer.search_terms",
 	ulule: "overlay.ulule.search_terms",
+	quiz: "overlay.quiz.search_terms",
+	clickableareas: "overlay.clickableareas.search_terms",
 };
 
 const isAffiliate = computed<boolean>(

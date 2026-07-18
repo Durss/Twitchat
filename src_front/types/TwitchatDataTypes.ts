@@ -86,6 +86,7 @@ export namespace TwitchatDataTypes {
 		| "ulule"
 		| "heatdebug"
 		| "distort"
+		| "clickableareas"
 		| "unified"
 		| "tts"
 		| "adbreak"

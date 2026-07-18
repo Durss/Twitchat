@@ -62,12 +62,20 @@
 				</template>
 			</draggable>
 
-			<HeatScreenEditor
-				v-else
-				:screen="currentScreen"
-				@update="editScreen(currentScreen!, true)"
-				@close="currentScreen = null"
-			/>
+			<template v-else>
+				<TTButton
+					icon="back"
+					class="backBt"
+					@click="currentScreen = null"
+					:light="props.light"
+					>{{ $t("global.back") }}</TTButton
+				>
+
+				<HeatScreenEditor
+					:screen="currentScreen"
+					@update="editScreen(currentScreen!, true)"
+				/>
+			</template>
 		</div>
 	</ToggleBlock>
 </template>
@@ -191,6 +199,11 @@ function deleteScreen(id: string): void {
 					}
 				}
 			}
+		}
+
+		.backBt {
+			text-transform: capitalize;
+			align-self: center;
 		}
 	}
 }

@@ -287,9 +287,11 @@
 		"heatDistort": {
 			"search_terms": [
 				"Distorsion de source OBS",
+				"clic",
 				"distortion",
 				"obs",
 				"shadertastic",
+				"intéract",
 				"heat"
 			],
 			"title": "Distorsion de source OBS",
@@ -708,6 +710,17 @@
 		},
 		"quiz": {
 			"search_terms": ["quiz", "trivia"]
+		},
+		"clickableareas": {
+			"search_terms": [
+				"Zones clickables",
+				"click",
+				"clic",
+				"zone",
+				"clickable",
+				"interaction",
+				"heat"
+			]
 		}
 	}
 }

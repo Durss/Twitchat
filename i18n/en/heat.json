@@ -4,7 +4,7 @@
 		"donate": "🎁 Please consider donating to Scott, Heat's creator",
 		"alertnative": "Twitchat now provides its own extension capable of the same thing as Heat and much more!",
 		"alertnative_bt": "See Twitchat Companion",
-		"debug_interaction": "Simulate click",
+		"debug_interaction": "Simulate interactions",
 		"overlay_interaction": "Interactive Twitchat overlays",
 		"zone_interaction": "Custom interactive areas",
 		"param_cooldown": "Cooldown ({VALUE}s)",

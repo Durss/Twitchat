@@ -3,8 +3,10 @@
 		class="heatdebug"
 		:title="t('heat.debug_interaction')"
 		:open="false"
+		:primary="props.primary"
+		:secondary="props.secondary"
+		:light="props.light"
 		:icons="['debug']"
-		secondary
 	>
 		<div class="content">
 			<div>{{ t("heat.debug.description") }}</div>
@@ -22,6 +24,7 @@ import HeatDebugPopout from "@/views/HeatDebugPopout.vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();
 </script>
 
 <style scoped lang="less">
