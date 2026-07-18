@@ -4,8 +4,8 @@
 			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{
-						$t("triggers.actions.music.header_link")
+					<a @click="storeParams.openParamsPage(contentConnexions, 'spotify')">{{
+						t("triggers.actions.music.header_link")
 					}}</a>
 				</template>
 			</i18n-t>
@@ -51,7 +51,11 @@
 						noBackground
 					/>
 				</ParamItem>
-				<ParamItem :paramData="param_maxPerUser" v-model="param_maxPerUser.value">
+				<ParamItem
+					:paramData="param_maxPerUser"
+					v-model="param_maxPerUser.value"
+					@change="onMaxPerUserChange"
+				>
 					<ParamItem
 						:paramData="param_maxPerUser_value"
 						v-model="action.maxPerUser"
@@ -68,9 +72,12 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
+import ParamItem from "@/components/params/ParamItem.vue";
 import TTButton from "@/components/TTButton.vue";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { SpotifyScopes } from "@/types/spotify/SpotifyDataTypes";
 import {
 	MusicTriggerEvents,
@@ -87,213 +94,210 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import ParamItem from "../../../ParamItem.vue";
-import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
+import { computed, onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-	},
-})
-class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
-	@Prop
-	declare action: TriggerActionMusicEntryData;
+const props = defineProps<{
+	action: TriggerActionMusicEntryData;
+	triggerData: TriggerData;
+}>();
 
-	@Prop
-	declare triggerData: TriggerData;
+const { t } = useI18n();
+const storeParams = useStoreParams();
 
-	public param_actions: TwitchatDataTypes.ParameterData<
-		TriggerMusicTypesValue,
-		TriggerMusicTypesValue
-	> = {
-		type: "list",
-		value: "0",
-		listValues: [],
-		icon: "music",
-		labelKey: "triggers.actions.music.param_actions",
-	};
-	public param_limitDuration: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "timer",
-		labelKey: "triggers.actions.music.param_limit_duration",
-	};
-	public param_maxDuration: TwitchatDataTypes.ParameterData<number> = {
-		type: "duration",
-		value: 300,
-		icon: "timer",
-		max: 3600,
-		labelKey: "triggers.actions.music.param_max_duration",
-	};
-	public param_track: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		longText: true,
-		value: "",
-		icon: "music",
-		maxLength: 500,
-		labelKey: "triggers.actions.music.param_track",
-	};
-	public param_confirmSongRequest: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		longText: true,
-		value: "",
-		icon: "checkmark",
-		maxLength: 500,
-		labelKey: "triggers.actions.music.param_confirmSongRequest",
-	};
-	public param_failSongRequest: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		longText: true,
-		value: "{FAIL_REASON}",
-		icon: "cross",
-		maxLength: 500,
-		labelKey: "triggers.actions.music.param_failSongRequest",
-	};
-	public param_playlist: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		icon: "info",
-		maxLength: 500,
-		labelKey: "triggers.actions.music.param_playlist",
-	};
-	public param_playlistPos: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		icon: "info",
-		labelKey: "triggers.actions.music.param_playlistPos",
-	};
-	public param_playlistPosIndex: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		min: 0,
-		max: 9999999,
-		icon: "info",
-		labelKey: "triggers.actions.music.param_playlistPosIndex",
-	};
-	public param_selection: TwitchatDataTypes.ParameterData<TriggerActionMusicEntryDataSelection> =
-		{
-			type: "list",
-			value: "1",
-			icon: "search",
-			labelKey: "triggers.actions.music.param_selection",
-		};
-	public param_maxPerUser: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "user",
-		labelKey: "triggers.actions.music.param_limit_perUser",
-	};
-	public param_maxPerUser_value: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		min: 0,
-		max: 99,
-		icon: "number",
-		labelKey: "triggers.actions.music.param_max_perUser",
-	};
+const param_actions = ref<
+	TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue>
+>({
+	type: "list",
+	value: "0",
+	listValues: [],
+	icon: "music",
+	labelKey: "triggers.actions.music.param_actions",
+});
+const param_limitDuration = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "timer",
+	labelKey: "triggers.actions.music.param_limit_duration",
+});
+const param_maxDuration = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "duration",
+	value: 300,
+	icon: "timer",
+	max: 3600,
+	labelKey: "triggers.actions.music.param_max_duration",
+});
+const param_track = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	longText: true,
+	value: "",
+	icon: "music",
+	maxLength: 500,
+	labelKey: "triggers.actions.music.param_track",
+});
+const param_confirmSongRequest = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	longText: true,
+	value: "",
+	icon: "checkmark",
+	maxLength: 500,
+	labelKey: "triggers.actions.music.param_confirmSongRequest",
+});
+const param_failSongRequest = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	longText: true,
+	value: "{FAIL_REASON}",
+	icon: "cross",
+	maxLength: 500,
+	labelKey: "triggers.actions.music.param_failSongRequest",
+});
+const param_playlist = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	icon: "info",
+	maxLength: 500,
+	labelKey: "triggers.actions.music.param_playlist",
+});
+const param_playlistPos = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	icon: "info",
+	labelKey: "triggers.actions.music.param_playlistPos",
+});
+const param_playlistPosIndex = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	min: 0,
+	max: 9999999,
+	icon: "info",
+	labelKey: "triggers.actions.music.param_playlistPosIndex",
+});
+const param_selection = ref<TwitchatDataTypes.ParameterData<TriggerActionMusicEntryDataSelection>>({
+	type: "list",
+	value: "1",
+	icon: "search",
+	labelKey: "triggers.actions.music.param_selection",
+});
+const param_maxPerUser = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "user",
+	labelKey: "triggers.actions.music.param_limit_perUser",
+});
+const param_maxPerUser_value = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	min: 0,
+	max: 99,
+	icon: "number",
+	labelKey: "triggers.actions.music.param_max_perUser",
+});
 
-	public get spotifyConnected(): boolean {
-		return SpotifyHelper.instance.connected.value;
-	}
-	public get showTrackInput(): boolean {
-		return (
-			this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE ||
-			this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST
-		);
-	}
-	public get showPlaylistInput(): boolean {
-		return (
-			this.param_actions.value == TriggerMusicTypes.START_PLAYLIST ||
-			this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST
-		);
-	}
-	public get isPlaylistEditAction(): boolean {
-		return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
-	}
-	public get contentOverlays(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.OVERLAYS;
-	}
-	public get contentConnexions(): TwitchatDataTypes.ParameterPagesStringType {
-		return TwitchatDataTypes.ParameterPages.CONNECTIONS;
-	}
-	public get canEditSpotifyPlaylists(): boolean {
-		return SpotifyHelper.instance.hasScopes([
-			SpotifyScopes.EDIT_PRIVATE_PLAYLISTS,
-			SpotifyScopes.EDIT_PUBLIC_PLAYLISTS,
-		]);
-	}
+const spotifyConnected = computed(() => {
+	return SpotifyHelper.instance.connected.value || true;
+});
+const showTrackInput = computed(() => {
+	return (
+		param_actions.value.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE ||
+		param_actions.value.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST
+	);
+});
+const showPlaylistInput = computed(() => {
+	return (
+		param_actions.value.value == TriggerMusicTypes.START_PLAYLIST ||
+		param_actions.value.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST
+	);
+});
+const isPlaylistEditAction = computed(() => {
+	return param_actions.value.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
+});
+const contentConnexions = computed<TwitchatDataTypes.ParameterPagesStringType>(() => {
+	return TwitchatDataTypes.ParameterPages.CONNECTIONS;
+});
+const canEditSpotifyPlaylists = computed<boolean>(() => {
+	return SpotifyHelper.instance.hasScopes([
+		SpotifyScopes.EDIT_PRIVATE_PLAYLISTS,
+		SpotifyScopes.EDIT_PUBLIC_PLAYLISTS,
+	]);
+});
 
-	public beforeMount(): void {
-		//List all available trigger types
-		let events: TwitchatDataTypes.ParameterDataListValue<TriggerMusicTypesValue>[] = [];
-		events.push({ labelKey: "triggers.actions.music.param_actions_default", value: "0" });
-		MusicTriggerEvents().forEach((v) => {
-			events.push({ labelKey: v.labelKey, value: v.value });
+/**
+ * Called when the available placeholder list is updated
+ */
+function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
+	param_track.value.placeholderList = list;
+	param_confirmSongRequest.value.placeholderList = list.concat(
+		TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE),
+	);
+	param_failSongRequest.value.placeholderList = list.concat(
+		TriggerActionPlaceholders(props.action.type),
+		TriggerEventPlaceholders(TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED),
+	);
+	param_playlist.value.placeholderList = list;
+	param_playlistPosIndex.value.placeholderList = list.filter((v) => v.numberParsable);
+}
+
+useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
+
+onBeforeMount(() => {
+	//List all available trigger types
+	let events: TwitchatDataTypes.ParameterDataListValue<TriggerMusicTypesValue>[] = [];
+	events.push({ labelKey: "triggers.actions.music.param_actions_default", value: "0" });
+	MusicTriggerEvents().forEach((v) => {
+		events.push({ labelKey: v.labelKey, value: v.value });
+	});
+
+	param_actions.value.value = props.action.musicAction
+		? props.action.musicAction
+		: events[0]!.value;
+	param_actions.value.listValues = events;
+
+	let selections: TwitchatDataTypes.ParameterDataListValue<TriggerActionMusicEntryDataSelection>[] =
+		[];
+	for (const element of TriggerActionMusicEntryDataSelectionList) {
+		selections.push({
+			value: element,
+			labelKey: "triggers.actions.music.param_selection_options." + element,
 		});
-
-		this.param_actions.value = this.action.musicAction
-			? this.action.musicAction
-			: events[0]!.value;
-		this.param_actions.listValues = events;
-
-		let selections: TwitchatDataTypes.ParameterDataListValue<TriggerActionMusicEntryDataSelection>[] =
-			[];
-		for (const element of TriggerActionMusicEntryDataSelectionList) {
-			selections.push({
-				value: element,
-				labelKey: "triggers.actions.music.param_selection_options." + element,
-			});
-		}
-		// Spotify limited search from 50 to 10 results.
-		// If a selection type is no more available, fallback to largest available "top10"
-		if (
-			this.action.musicSelectionType &&
-			!TriggerActionMusicEntryDataSelectionList.includes(this.action.musicSelectionType)
-		) {
-			this.action.musicSelectionType =
-				TriggerActionMusicEntryDataSelectionList[
-					TriggerActionMusicEntryDataSelectionList.length - 1
-				]!;
-		}
-		this.param_selection.value = this.action.musicSelectionType
-			? this.action.musicSelectionType
-			: selections[0]!.value;
-		this.param_selection.listValues = selections;
-
-		if (this.action.playlistAddToEnd === undefined) this.action.playlistAddToEnd = true;
-		if (!this.action.track) this.action.track = "";
-		if (!this.action.failMessage) this.action.failMessage = "";
-		if (!this.action.confirmMessage) this.action.confirmMessage = "";
-		if ((this.action.maxPerUser || 0) > 0) this.param_maxPerUser.value = true;
 	}
-
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
-		this.param_track.placeholderList = list;
-		this.param_confirmSongRequest.placeholderList = list.concat(
-			TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE),
-		);
-		this.param_failSongRequest.placeholderList = list.concat(
-			TriggerActionPlaceholders(this.action.type),
-			TriggerEventPlaceholders(TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED),
-		);
-		this.param_playlist.placeholderList = list;
-		this.param_playlistPosIndex.placeholderList = list.filter((v) => v.numberParsable);
+	// Spotify limited search from 50 to 10 results.
+	// If a selection type is no more available, fallback to largest available "top10"
+	if (
+		props.action.musicSelectionType &&
+		!TriggerActionMusicEntryDataSelectionList.includes(props.action.musicSelectionType)
+	) {
+		props.action.musicSelectionType =
+			TriggerActionMusicEntryDataSelectionList[
+				TriggerActionMusicEntryDataSelectionList.length - 1
+			]!;
 	}
+	param_selection.value.value = props.action.musicSelectionType
+		? props.action.musicSelectionType
+		: selections[0]!.value;
+	param_selection.value.listValues = selections;
 
-	/**
-	 * Start Spotify oAuth flow with fresh new scopes
-	 */
-	public spotifyAuth(): void {
-		SpotifyHelper.instance.startAuthFlow();
+	if (props.action.playlistAddToEnd === undefined) props.action.playlistAddToEnd = true;
+	if (!props.action.track) props.action.track = "";
+	if (!props.action.failMessage) props.action.failMessage = "";
+	if (!props.action.confirmMessage) props.action.confirmMessage = "";
+	if ((props.action.maxPerUser || 0) > 0) param_maxPerUser.value.value = true;
+});
+
+/**
+ * Start Spotify oAuth flow with fresh new scopes
+ */
+function spotifyAuth(): void {
+	SpotifyHelper.instance.startAuthFlow();
+}
+
+/**
+ * Resets "max per user" value when toggle is disabled
+ */
+function onMaxPerUserChange(): void {
+	if (!param_maxPerUser.value.value) {
+		props.action.maxPerUser = 0;
 	}
 }
-export default toNative(TriggerActionMusicEntry);
 </script>
 
 <style scoped lang="less">
