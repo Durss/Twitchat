@@ -1,10 +1,10 @@
 <template>
 	<div class="overlayparamsdonationgoal overlayParamsSection">
-		<div class="header">{{ $t("donation_goals.header") }}</div>
+		<div class="header">{{ t("donation_goals.header") }}</div>
 
 		<div class="createForm">
 			<TTButton class="addBt" v-if="!maxOverlaysReached" @click="addGrid()" icon="add">{{
-				$t("donation_goals.create_bt")
+				t("donation_goals.create_bt")
 			}}</TTButton>
 
 			<PremiumLimitMessage
@@ -18,17 +18,17 @@
 
 		<VueDraggable
 			class="overlayList"
-			v-model="$store.donationGoals.overlayList"
+			v-model="storeDonationGoals.overlayList"
 			:group="{ name: 'bingo_grids' }"
 			handle=".header"
-			animation="250"
-			@end="$store.donationGoals.saveData()"
+			:animation="250"
+			@end="storeDonationGoals.saveData()"
 		>
 			<ToggleBlock
-				v-for="overlay in $store.donationGoals.overlayList"
+				v-for="overlay in storeDonationGoals.overlayList"
 				editableTitle
 				v-model:title="overlay.title"
-				:titleDefault="$t('donation_goals.default_title')"
+				:titleDefault="t('donation_goals.default_title')"
 				:titleMaxLengh="30"
 				:open="false"
 				:key="overlay.id"
@@ -39,12 +39,12 @@
 					<div class="leftActions">
 						<ToggleButton
 							v-model="overlay.enabled"
-							@click.native.stop
+							@click.stop
 							@change="save(overlay.id)"
 							v-if="
-								$store.auth.isPremium ||
+								storeAuth.isPremium ||
 								overlay.enabled ||
-								$store.donationGoals.overlayList.filter((v) => v.enabled).length <
+								storeDonationGoals.overlayList.filter((v) => v.enabled).length <
 									$config.MAX_DONATION_GOALS
 							"
 						/>
@@ -56,17 +56,17 @@
 						@click.stop="duplicateGrid(overlay.id)"
 						data-close-popout
 						icon="copy"
-						v-tooltip="$t('global.duplicate')"
+						v-tooltip="t('global.duplicate')"
 						v-if="!maxOverlaysReached"
 					/>
 					<TTButton
 						@click.stop
 						:copy="overlay.id"
 						icon="id"
-						v-tooltip="$t('global.copy_id')"
+						v-tooltip="t('global.copy_id')"
 					/>
 					<TTButton
-						@click.stop="$store.donationGoals.removeOverlay(overlay.id)"
+						@click.stop="storeDonationGoals.removeOverlay(overlay.id)"
 						icon="trash"
 						alert
 					/>
@@ -74,7 +74,7 @@
 
 				<div class="form">
 					<div class="overlayInstallCard">
-						<h1><Icon name="obs" />{{ $t("donation_goals.install_title") }}</h1>
+						<h1><Icon name="obs" />{{ t("donation_goals.install_title") }}</h1>
 						<OverlayInstaller
 							type="donationgoals"
 							:sourceSuffix="overlay.title"
@@ -90,12 +90,12 @@
 						<input type="number" step="any" v-model="simulatedAmount" />
 						<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 						<TTButton icon="test" type="submit">{{
-							$t("donation_goals.simulate_bt")
+							t("donation_goals.simulate_bt")
 						}}</TTButton>
 					</form>
 
 					<ParamItem
-						:paramData="param_dataSource[overlay.id]"
+						:paramData="param_dataSource[overlay.id]!"
 						v-model="overlay.dataSource"
 						@change="save(overlay.id)"
 					>
@@ -103,42 +103,42 @@
 							class="card-item alert missingCharity"
 							v-if="
 								overlay.dataSource == 'streamlabs_charity' &&
-								$store.streamlabs.charityTeam == null
+								storeStreamlabs.charityTeam == null
 							"
 						>
-							<div>{{ $t("donation_goals.streamlabs_charity_not_connected") }}</div>
+							<div>{{ t("donation_goals.streamlabs_charity_not_connected") }}</div>
 							<TTButton icon="streamlabs" @click="openStreamlabs" light alert>{{
-								$t("global.connect")
+								t("global.connect")
 							}}</TTButton>
 						</div>
 						<div
 							class="card-item alert missingCharity"
-							v-if="overlay.dataSource == 'tiltify' && !$store.tiltify.connected"
+							v-if="overlay.dataSource == 'tiltify' && !storeTiltify.connected"
 						>
-							<div>{{ $t("donation_goals.tiltify_not_connected") }}</div>
+							<div>{{ t("donation_goals.tiltify_not_connected") }}</div>
 							<TTButton icon="tiltify" @click="openTiltify" light alert>{{
-								$t("global.connect")
+								t("global.connect")
 							}}</TTButton>
 						</div>
 						<div
 							class="card-item alert missingCharity"
 							v-else-if="
 								overlay.dataSource == 'tiltify' &&
-								$store.tiltify.campaignList.length == 0
+								storeTiltify.campaignList.length == 0
 							"
 						>
-							<div>{{ $t("donation_goals.tiltify_no_campaign") }}</div>
+							<div>{{ t("donation_goals.tiltify_no_campaign") }}</div>
 						</div>
 						<div
 							class="card-item alert missingCharity"
 							v-else-if="
 								overlay.dataSource == 'counter' &&
-								$store.counters.counterList.length == 0
+								storeCounters.counterList.length == 0
 							"
 						>
-							<div>{{ $t("donation_goals.counter_empty") }}</div>
+							<div>{{ t("donation_goals.counter_empty") }}</div>
 							<TTButton icon="counter" @click="openCounters" light alert>{{
-								$t("donation_goals.counter_createBt")
+								t("donation_goals.counter_createBt")
 							}}</TTButton>
 						</div>
 						<div
@@ -147,23 +147,23 @@
 								overlay.dataSource == 'twitch_charity' && !canListTwitchCharities
 							"
 						>
-							<div>{{ $t("donation_goals.twitch_charity_not_connected") }}</div>
+							<div>{{ t("donation_goals.twitch_charity_not_connected") }}</div>
 							<TTButton
 								icon="twitch_charity"
 								@click="grantCharityScope"
 								light
 								alert
-								>{{ $t("global.grant_scope") }}</TTButton
+								>{{ t("global.grant_scope") }}</TTButton
 							>
 						</div>
 						<div
 							class="card-item alert missingCharity"
 							v-else-if="
 								overlay.dataSource == 'twitch_charity' &&
-								!$store.twitchCharity.currentCharity
+								!storeTwitchCharity.currentCharity
 							"
 						>
-							<div>{{ $t("donation_goals.twitch_charity_no_campaign") }}</div>
+							<div>{{ t("donation_goals.twitch_charity_no_campaign") }}</div>
 							<TTButton
 								type="link"
 								href="https://dashboard.twitch.tv/charity/"
@@ -171,12 +171,12 @@
 								icon="newtab"
 								alert
 								light
-								>{{ $t("donation_goals.twitch_charity_open") }}</TTButton
+								>{{ t("donation_goals.twitch_charity_open") }}</TTButton
 							>
 						</div>
 
 						<ParamItem
-							:paramData="param_campaignId[overlay.id]"
+							:paramData="param_campaignId[overlay.id]!"
 							v-model="overlay.campaignId"
 							@change="save(overlay.id)"
 							v-if="
@@ -190,7 +190,7 @@
 						/>
 
 						<ParamItem
-							:paramData="param_counterId[overlay.id]"
+							:paramData="param_counterId[overlay.id]!"
 							v-model="overlay.counterId"
 							@change="save(overlay.id)"
 							v-if="
@@ -205,20 +205,20 @@
 							class="parameter-child charityDetails"
 							v-if="
 								overlay.dataSource == 'twitch_charity' &&
-								$store.twitchCharity.currentCharity != null
+								storeTwitchCharity.currentCharity != null
 							"
 						>
 							<div class="holder">
 								<span
 									><Icon name="twitch_charity" />{{
-										$t("donation_goals.param_campaignId")
+										t("donation_goals.param_campaignId")
 									}}:</span
 								>
 								<a
-									:href="$store.twitchCharity.currentCharity!.charity_website"
+									:href="storeTwitchCharity.currentCharity!.charity_website"
 									target="_blank"
 									><Icon name="newtab" />{{
-										$store.twitchCharity.currentCharity!.charity_name
+										storeTwitchCharity.currentCharity!.charity_name
 									}}</a
 								>
 							</div>
@@ -228,59 +228,59 @@
 							class="parameter-child charityDetails"
 							v-if="
 								overlay.dataSource == 'streamlabs_charity' &&
-								$store.streamlabs.charityTeam != null
+								storeStreamlabs.charityTeam != null
 							"
 						>
 							<div class="holder">
 								<span
 									><Icon name="streamlabs" />{{
-										$t("donation_goals.param_campaignId")
+										t("donation_goals.param_campaignId")
 									}}:</span
 								>
-								<a :href="$store.streamlabs.charityTeam.pageUrl" target="_blank"
+								<a :href="storeStreamlabs.charityTeam.pageUrl" target="_blank"
 									><Icon name="newtab" />{{
-										$store.streamlabs.charityTeam.title
+										storeStreamlabs.charityTeam.title
 									}}</a
 								>
 							</div>
 							<div class="amount">
-								<p>{{ $t("streamlabs.raised_personnal") }}</p>
+								<p>{{ t("streamlabs.raised_personnal") }}</p>
 								<strong>{{
-									$store.streamlabs.charityTeam.amountRaisedPersonnal_cents / 100
+									storeStreamlabs.charityTeam.amountRaisedPersonnal_cents / 100
 								}}</strong
 								><span class="currency">{{
-									$store.streamlabs.charityTeam.currency
+									storeStreamlabs.charityTeam.currency
 								}}</span>
-								<template v-if="$store.streamlabs.charityTeam.amountGoal_cents > 0">
+								<template v-if="storeStreamlabs.charityTeam.amountGoal_cents > 0">
 									/
 									<strong>{{
-										$store.streamlabs.charityTeam.amountGoal_cents / 100
+										storeStreamlabs.charityTeam.amountGoal_cents / 100
 									}}</strong
 									><span class="currency">{{
-										$store.streamlabs.charityTeam.currency
+										storeStreamlabs.charityTeam.currency
 									}}</span>
 								</template>
 							</div>
 							<div class="amount">
-								<p>{{ $t("streamlabs.raised_team") }}</p>
+								<p>{{ t("streamlabs.raised_team") }}</p>
 								<strong>{{
-									$store.streamlabs.charityTeam.amountRaised_cents / 100
+									storeStreamlabs.charityTeam.amountRaised_cents / 100
 								}}</strong
 								><span class="currency">{{
-									$store.streamlabs.charityTeam.currency
+									storeStreamlabs.charityTeam.currency
 								}}</span>
 							</div>
 							<TTButton
 								icon="refresh"
 								@click="resyncTips()"
-								:loading="$store.streamlabs.isLoading"
-								>{{ $t("donation_goals.import_streamlabs_resync") }}</TTButton
+								:loading="storeStreamlabs.isLoading"
+								>{{ t("donation_goals.import_streamlabs_resync") }}</TTButton
 							>
 							<TTButton
 								icon="download"
 								v-if="!showSLCGoalImport"
 								@click="showSLCGoalImport = true"
-								>{{ $t("donation_goals.import_streamlabs_goals") }}</TTButton
+								>{{ t("donation_goals.import_streamlabs_goals") }}</TTButton
 							>
 							<ul v-else-if="!showSLCGoalSuccess">
 								<i18n-t
@@ -290,17 +290,17 @@
 								>
 									<template #LINK>
 										<a
-											:href="$t('donation_goals.import_streamlabs_step1_url')"
+											:href="t('donation_goals.import_streamlabs_step1_url')"
 											target="_blank"
 											><Icon name="newtab" />{{
-												$t("donation_goals.import_streamlabs_step1_link")
+												t("donation_goals.import_streamlabs_step1_link")
 											}}</a
 										>
 									</template>
 								</i18n-t>
 								<li>
 									<label for="slc_dg_import_url">{{
-										$t("donation_goals.import_streamlabs_step2")
+										t("donation_goals.import_streamlabs_step2")
 									}}</label>
 									<form @submit.prevent="importDonationGoalsFromSLC(overlay)">
 										<input
@@ -314,7 +314,7 @@
 											:loading="importingSLCGoals"
 											icon="download"
 											primary
-											>{{ $t("global.import") }}</TTButton
+											>{{ t("global.import") }}</TTButton
 										>
 									</form>
 								</li>
@@ -325,39 +325,39 @@
 								v-if="showSLCGoalSuccess"
 							>
 								<Icon name="checkmark" />
-								{{ $t("donation_goals.import_streamlabs_complete") }}
+								{{ t("donation_goals.import_streamlabs_complete") }}
 							</div>
 						</div>
 					</ParamItem>
 					<ParamItem
-						:paramData="param_currency[overlay.id]"
+						:paramData="param_currency[overlay.id]!"
 						v-model="overlay.currency"
 						@change="save(overlay.id)"
 						class="currencyField"
 					/>
 					<ParamItem
-						:paramData="param_color[overlay.id]"
+						:paramData="param_color[overlay.id]!"
 						v-model="overlay.color"
 						@change="save(overlay.id)"
 					/>
 					<ParamItem
-						:paramData="param_notifyTips[overlay.id]"
+						:paramData="param_notifyTips[overlay.id]!"
 						v-model="overlay.notifyTips"
 						@change="save(overlay.id)"
 						v-if="overlay.dataSource != 'counter'"
 					/>
 					<ParamItem
-						:paramData="param_autoDisplay[overlay.id]"
+						:paramData="param_autoDisplay[overlay.id]!"
 						v-model="overlay.autoDisplay"
 						@change="save(overlay.id)"
 					/>
 					<ParamItem
-						:paramData="param_hideDone[overlay.id]"
+						:paramData="param_hideDone[overlay.id]!"
 						v-model="overlay.hideDone"
 						@change="save(overlay.id)"
 					>
 						<ParamItem
-							:paramData="param_hideDelay[overlay.id]"
+							:paramData="param_hideDelay[overlay.id]!"
 							v-model="overlay.hideDelay"
 							@change="save(overlay.id)"
 							:childLevel="1"
@@ -365,12 +365,12 @@
 						/>
 					</ParamItem>
 					<ParamItem
-						:paramData="param_limitEntryCount[overlay.id]"
+						:paramData="param_limitEntryCount[overlay.id]!"
 						v-model="overlay.limitEntryCount"
 						@change="save(overlay.id)"
 					>
 						<ParamItem
-							:paramData="param_maxDisplayedEntries[overlay.id]"
+							:paramData="param_maxDisplayedEntries[overlay.id]!"
 							v-model="overlay.maxDisplayedEntries"
 							@change="save(overlay.id)"
 							:childLevel="1"
@@ -378,7 +378,7 @@
 						/>
 					</ParamItem>
 
-					<Splitter>{{ $t("donation_goals.goal_list") }}</Splitter>
+					<Splitter>{{ t("donation_goals.goal_list") }}</Splitter>
 
 					<div class="goalItemList" v-if="overlay.goalList.length > 0">
 						<div
@@ -399,7 +399,7 @@
 								@click.stop
 								:copy="goal.id"
 								icon="id"
-								v-tooltip="$t('global.copy_id')"
+								v-tooltip="t('global.copy_id')"
 								class="copyIdBt"
 								small
 							/>
@@ -411,14 +411,14 @@
 								rows="1"
 								maxlength="150"
 								v-model="goal.title"
-								:placeholder="$t('donation_goals.param_goal_title_placeholder')"
+								:placeholder="t('donation_goals.param_goal_title_placeholder')"
 								@change="save(overlay.id)"
 								@blur="goal.title = goal.title.substring(0, 150)"
 							></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
 							<ParamItem
 								class="secret"
-								:paramData="param_goal_secret[goal.id]"
+								:paramData="param_goal_secret[goal.id]!"
 								v-model="goal.secret"
 								@change="
 									onSecretChange(goal);
@@ -429,7 +429,7 @@
 								<div class="parameter-child secretOptions">
 									<div class="holder option">
 										<label :for="'secret_blur_' + goal.id">{{
-											$t("donation_goals.param_goal_secret_blur")
+											t("donation_goals.param_goal_secret_blur")
 										}}</label>
 										<input
 											type="radio"
@@ -444,7 +444,7 @@
 								<div class="parameter-child secretOptions">
 									<div class="holder option">
 										<label :for="'secret_preogressive_' + goal.id">{{
-											$t("donation_goals.param_goal_secret_progressive")
+											t("donation_goals.param_goal_secret_progressive")
 										}}</label>
 										<input
 											type="radio"
@@ -461,7 +461,7 @@
 					</div>
 
 					<TTButton @click="addGoal(overlay)" icon="add" class="addGoalBt">{{
-						$t("donation_goals.add_goal_bt")
+						t("donation_goals.add_goal_bt")
 					}}</TTButton>
 				</div>
 			</ToggleBlock>
@@ -469,414 +469,409 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
 import Splitter from "@/components/Splitter.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
+import { storeDonationGoals as useStoreDonationGoals } from "@/store/donation_goals/storeDonationGoals";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
+import { storeTwitchCharity as useStoreTwitchCharity } from "@/store/twitch_charity/storeTwitchCharity";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Utils from "@/utils/Utils";
-import { VueDraggable } from "vue-draggable-plus";
-import { Component, toNative, Vue } from "vue-facing-decorator";
-import ParamItem from "../../ParamItem.vue";
-import OverlayInstaller from "./OverlayInstaller.vue";
-import DurationForm from "@/components/DurationForm.vue";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Config from "@/utils/Config";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
+import { computed, onBeforeMount, ref } from "vue";
+import { VueDraggable } from "vue-draggable-plus";
+import { useI18n } from "vue-i18n";
+import ParamItem from "../../ParamItem.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
+import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components: {
-		TTButton,
-		Splitter,
-		ParamItem,
-		ToggleBlock,
-		ToggleButton,
-		DurationForm,
-		VueDraggable,
-		OverlayInstaller,
-		PremiumLimitMessage,
-	},
-	emits: [],
-})
-class OverlayParamsDonationGoal extends Vue {
-	public simulatedAmount: number = 10;
-	public slcGoalImportURL: string = "";
-	public importingSLCGoals: boolean = false;
-	public showSLCGoalImport: boolean = false;
-	public showSLCGoalSuccess: boolean = false;
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeTiltify = useStoreTiltify();
+const storeCounters = useStoreCounters();
+const storeStreamlabs = useStoreStreamlabs();
+const storeDonationGoals = useStoreDonationGoals();
+const storeTwitchCharity = useStoreTwitchCharity();
 
-	public param_color: { [overlayId: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_showCurrency: { [overlayId: string]: TwitchatDataTypes.ParameterData<string> } =
-		{};
-	public param_currency: { [overlayId: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_notifyTips: { [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> } = {};
-	public param_autoDisplay: { [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> } =
-		{};
-	public param_hideDone: { [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> } = {};
-	public param_hideDelay: { [overlayId: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_limitEntryCount: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<boolean>;
-	} = {};
-	public param_maxDisplayedEntries: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<number>;
-	} = {};
-	public param_goal_secret: { [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> } =
-		{};
-	public param_goal_secret_type: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<
-			TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number]["secret_type"]
-		>;
-	} = {};
-	public param_dataSource: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<
-			TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"],
-			TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]
-		>;
-	} = {};
-	public param_campaignId: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<string, string>;
-	} = {};
-	public param_counterId: {
-		[overlayId: string]: TwitchatDataTypes.ParameterData<string, string>;
-	} = {};
+const simulatedAmount = ref(10);
+const slcGoalImportURL = ref("");
+const importingSLCGoals = ref(false);
+const showSLCGoalImport = ref(false);
+const showSLCGoalSuccess = ref(false);
 
-	private prevSimulatedAmount = 0;
+const param_color = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_showCurrency = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<string> }>(
+	{},
+);
+const param_currency = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_notifyTips = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_autoDisplay = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> }>(
+	{},
+);
+const param_hideDone = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_hideDelay = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_limitEntryCount = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<boolean>;
+}>({});
+const param_maxDisplayedEntries = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<number>;
+}>({});
+const param_goal_secret = ref<{ [overlayId: string]: TwitchatDataTypes.ParameterData<boolean> }>(
+	{},
+);
+const param_goal_secret_type = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<
+		TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number]["secret_type"]
+	>;
+}>({});
+const param_dataSource = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<
+		TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"],
+		TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]
+	>;
+}>({});
+const param_campaignId = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<string, string>;
+}>({});
+const param_counterId = ref<{
+	[overlayId: string]: TwitchatDataTypes.ParameterData<string, string>;
+}>({});
 
-	public get maxOverlaysReached(): boolean {
-		const max = this.$store.auth.isPremium
-			? this.$config.MAX_DONATION_GOALS_PREMIUM
-			: this.$config.MAX_DONATION_GOALS;
-		return this.$store.donationGoals.overlayList.length >= max;
+let prevSimulatedAmount = 0;
+
+const maxOverlaysReached = computed(() => {
+	const max = storeAuth.isPremium
+		? Config.instance.MAX_DONATION_GOALS_PREMIUM
+		: Config.instance.MAX_DONATION_GOALS;
+	return storeDonationGoals.overlayList.length >= max;
+});
+
+/**
+ * Get if charity read scope has been granted
+ */
+const canListTwitchCharities = computed(() => {
+	return TwitchUtils.hasScopes([TwitchScopes.CHARITY_READ]);
+});
+
+/**
+ * Save data to storage
+ */
+onBeforeMount(() => {
+	initParams();
+});
+
+/**
+ * Opens Tiltify parameters
+ */
+function openTiltify(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.TILTIFY,
+	);
+}
+
+/**
+ * Opens Streamlabs parameters
+ */
+function openStreamlabs(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.STREAMLABS,
+	);
+}
+
+/**
+ * Opens Counters parameters
+ */
+function openCounters(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+}
+
+/**
+ * Request for charity scope
+ */
+function grantCharityScope(): void {
+	TwitchUtils.requestScopes([TwitchScopes.CHARITY_READ]);
+}
+
+/**
+ * Save data to storage
+ */
+function save(overlayId: string): void {
+	storeDonationGoals.saveData(overlayId);
+}
+
+/**
+ * Create a new grid
+ */
+function addGrid(): void {
+	storeDonationGoals.addOverlay();
+	initParams();
+}
+
+/**
+ * Duplicate given grid ID
+ */
+function duplicateGrid(id: string): void {
+	storeDonationGoals.duplicateOverlay(id);
+	initParams();
+}
+
+/**
+ * Add a goal entry
+ */
+function addGoal(
+	overlay: TwitchatDataTypes.DonationGoalOverlayConfig,
+	title: string = "",
+	amount: number = 0,
+): void {
+	const goal: TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
+		id: Utils.getUUID(),
+		amount,
+		title,
+		secret: false,
+		secret_type: "blur",
+	};
+
+	param_goal_secret.value[goal.id] = {
+		type: "boolean",
+		value: false,
+		labelKey: "donation_goals.param_goal_secret",
+		icon: "anon",
+	};
+
+	param_maxDisplayedEntries.value[overlay.id]!.max = overlay.goalList.length;
+
+	overlay.goalList.push(goal);
+
+	save(overlay.id);
+}
+
+/**
+ * Removes a goal
+ */
+function removeGoal(overlay: TwitchatDataTypes.DonationGoalOverlayConfig, goalId: string): void {
+	for (let i = 0; i < overlay.goalList.length; i++) {
+		const goal = overlay.goalList[i]!;
+		if (goal.id != goalId) continue;
+		overlay.goalList.splice(i, 1);
+		i--;
 	}
+	save(overlay.id);
+}
 
-	/**
-	 * Get if charity read scope has been granted
-	 */
-	public get canListTwitchCharities(): boolean {
-		return TwitchUtils.hasScopes([TwitchScopes.CHARITY_READ]);
-	}
-
-	/**
-	 * Save data to storage
-	 */
-	public beforeMount(): void {
-		this.initParams();
-	}
-
-	/**
-	 * Opens Tiltify parameters
-	 */
-	public openTiltify(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.TILTIFY,
-		);
-	}
-
-	/**
-	 * Opens Streamlabs parameters
-	 */
-	public openStreamlabs(): void {
-		this.$store.params.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.STREAMLABS,
-		);
-	}
-
-	/**
-	 * Opens Counters parameters
-	 */
-	public openCounters(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
-	}
-
-	/**
-	 * Request for charity scope
-	 */
-	public grantCharityScope(): void {
-		TwitchUtils.requestScopes([TwitchScopes.CHARITY_READ]);
-	}
-
-	/**
-	 * Save data to storage
-	 */
-	public save(overlayId: string): void {
-		this.$store.donationGoals.saveData(overlayId);
-	}
-
-	/**
-	 * Create a new grid
-	 */
-	public addGrid(): void {
-		this.$store.donationGoals.addOverlay();
-		this.initParams();
-	}
-
-	/**
-	 * Duplicate given grid ID
-	 */
-	public duplicateGrid(id: string): void {
-		this.$store.donationGoals.duplicateOverlay(id);
-		this.initParams();
-	}
-
-	/**
-	 * Opens the premium section
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Add a goal entry
-	 */
-	public addGoal(
-		overlay: TwitchatDataTypes.DonationGoalOverlayConfig,
-		title: string = "",
-		amount: number = 0,
-	): void {
-		const goal: TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
-			id: Utils.getUUID(),
-			amount,
-			title,
-			secret: false,
-			secret_type: "blur",
+/**
+ * Import donation goals from streamlabs charity
+ * @param id
+ */
+async function importDonationGoalsFromSLC(
+	overlay: TwitchatDataTypes.DonationGoalOverlayConfig,
+): Promise<void> {
+	importingSLCGoals.value = true;
+	const token = slcGoalImportURL.value.split("/").pop();
+	const goalRes = await fetch("https://streamlabscharity.com/api/v1/widgets/milestones/" + token);
+	if (goalRes) {
+		const goalJSON = (await goalRes.json()) as {
+			campaign: { milestones: { display_name: string; amount: number }[] };
 		};
+		goalJSON.campaign.milestones.forEach((v) => {
+			addGoal(overlay, v.display_name, v.amount / 100);
+		});
+		showSLCGoalSuccess.value = true;
+	}
+	importingSLCGoals.value = false;
+}
 
-		this.param_goal_secret[goal.id] = {
+/**
+ * Simulates a new amount
+ */
+function simulateAmount(overlayId: string, forcedAmount?: number): void {
+	if (forcedAmount != undefined) simulatedAmount.value = forcedAmount;
+	storeDonationGoals.simulateDonation(
+		overlayId,
+		simulatedAmount.value,
+		simulatedAmount.value - prevSimulatedAmount,
+	);
+	prevSimulatedAmount = simulatedAmount.value;
+}
+
+/**
+ * Called when secret state of a goal is changed.
+ * Initialize the default secret style
+ */
+function onSecretChange(goal: TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][0]): void {
+	if (goal.secret && !goal.secret_type) {
+		goal.secret_type = "blur";
+	}
+}
+
+function resyncTips(): void {
+	storeStreamlabs.resyncCharityTips();
+}
+
+/**
+ * Create parameters for a bingo entry
+ * @param id
+ */
+function initParams(): void {
+	storeDonationGoals.overlayList.forEach((overlay) => {
+		const id = overlay.id;
+
+		//Ignore if already initialized
+		if (param_notifyTips.value[id]) return;
+		if (overlay.hideDelay === undefined) overlay.hideDelay = 10;
+
+		param_color.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "donation_goals.param_color",
+			icon: "color",
+		};
+		param_showCurrency.value[id] = {
 			type: "boolean",
-			value: false,
-			labelKey: "donation_goals.param_goal_secret",
-			icon: "anon",
+			value: "",
+			labelKey: "donation_goals.param_showCurrency",
+			icon: "coin",
 		};
+		param_currency.value[id] = {
+			type: "string",
+			value: "",
+			maxLength: 5,
+			labelKey: "donation_goals.param_currency",
+			icon: "font",
+		};
+		param_notifyTips.value[id] = {
+			type: "boolean",
+			value: overlay.notifyTips,
+			labelKey: "donation_goals.param_notifyTips",
+			icon: "notification",
+		};
+		param_autoDisplay.value[id] = {
+			type: "boolean",
+			value: overlay.autoDisplay,
+			labelKey: "donation_goals.param_autoDisplay",
+			icon: "hide",
+		};
+		param_hideDone.value[id] = {
+			type: "boolean",
+			value: overlay.hideDone,
+			labelKey: "donation_goals.param_hideDone",
+			icon: "timer",
+		};
+		param_hideDelay.value[id] = {
+			type: "duration",
+			value: overlay.hideDelay || 10,
+			max: 600,
+			labelKey: "donation_goals.param_hideDelay",
+			icon: "timer",
+		};
+		param_limitEntryCount.value[id] = {
+			type: "boolean",
+			value: overlay.limitEntryCount,
+			labelKey: "donation_goals.param_limitEntryCount",
+			icon: "number",
+		};
+		param_maxDisplayedEntries.value[id] = {
+			type: "number",
+			value: overlay.maxDisplayedEntries,
+			min: 0,
+			max: overlay.goalList.length,
+			labelKey: "donation_goals.param_maxDisplayedEntries",
+			icon: "number",
+		};
+		param_campaignId.value[id] = {
+			type: "list",
+			value: "",
+			labelKey: "donation_goals.param_campaignId",
+			icon: "charity",
+		};
+		param_counterId.value[id] = {
+			type: "list",
+			value: "",
+			labelKey: "donation_goals.param_counterId",
+			icon: "count",
+		};
+		param_dataSource.value[id] = {
+			type: "list",
+			value: overlay.dataSource,
+			labelKey: "donation_goals.param_dataSource",
+			icon: "charity",
+			editCallback: (data) => {
+				switch (data.value) {
+					case "streamlabs_charity": {
+						param_campaignId.value[id]!.listValues = [];
+						param_campaignId.value[id]!.icon = "streamlabs";
+						break;
+					}
 
-		this.param_maxDisplayedEntries[overlay.id]!.max = overlay.goalList.length;
+					case "tiltify": {
+						const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+						storeTiltify.campaignList.forEach((c) => {
+							list.push({
+								value: c.id,
+								label: c.name,
+							});
+						});
+						param_campaignId.value[id]!.listValues = list;
+						param_campaignId.value[id]!.icon = "tiltify";
+						break;
+					}
 
-		overlay.goalList.push(goal);
-
-		this.save(overlay.id);
-	}
-
-	/**
-	 * Removes a goal
-	 */
-	public removeGoal(overlay: TwitchatDataTypes.DonationGoalOverlayConfig, goalId: string): void {
-		for (let i = 0; i < overlay.goalList.length; i++) {
-			const goal = overlay.goalList[i]!;
-			if (goal.id != goalId) continue;
-			overlay.goalList.splice(i, 1);
-			i--;
-		}
-		this.save(overlay.id);
-	}
-
-	/**
-	 * Import donation goals from streamlabs charity
-	 * @param id
-	 */
-	public async importDonationGoalsFromSLC(
-		overlay: TwitchatDataTypes.DonationGoalOverlayConfig,
-	): Promise<void> {
-		this.importingSLCGoals = true;
-		const token = this.slcGoalImportURL.split("/").pop();
-		const goalRes = await fetch(
-			"https://streamlabscharity.com/api/v1/widgets/milestones/" + token,
-		);
-		if (goalRes) {
-			const goalJSON = (await goalRes.json()) as {
-				campaign: { milestones: { display_name: string; amount: number }[] };
-			};
-			goalJSON.campaign.milestones.forEach((v) => {
-				this.addGoal(overlay, v.display_name, v.amount / 100);
-			});
-			this.showSLCGoalSuccess = true;
-		}
-		this.importingSLCGoals = false;
-	}
-
-	/**
-	 * Simulates a new amount
-	 */
-	public simulateAmount(overlayId: string, forcedAmount?: number): void {
-		if (forcedAmount != undefined) this.simulatedAmount = forcedAmount;
-		this.$store.donationGoals.simulateDonation(
-			overlayId,
-			this.simulatedAmount,
-			this.simulatedAmount - this.prevSimulatedAmount,
-		);
-		this.prevSimulatedAmount = this.simulatedAmount;
-	}
-
-	/**
-	 * Called when secret state of a goal is changed.
-	 * Initialize the default secret style
-	 */
-	public onSecretChange(goal: TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][0]): void {
-		if (goal.secret && !goal.secret_type) {
-			goal.secret_type = "blur";
-		}
-	}
-
-	public resyncTips(): void {
-		this.$store.streamlabs.resyncCharityTips();
-	}
-
-	/**
-	 * Create parameters for a bingo entry
-	 * @param id
-	 */
-	private initParams(): void {
-		this.$store.donationGoals.overlayList.forEach((overlay) => {
-			const id = overlay.id;
-
-			//Ignore if already initialized
-			if (this.param_notifyTips[id]) return;
-			if (overlay.hideDelay === undefined) overlay.hideDelay = 10;
-
-			this.param_color[id] = {
-				type: "color",
-				value: "",
-				labelKey: "donation_goals.param_color",
-				icon: "color",
-			};
-			this.param_showCurrency[id] = {
-				type: "boolean",
-				value: "",
-				labelKey: "donation_goals.param_showCurrency",
-				icon: "coin",
-			};
-			this.param_currency[id] = {
-				type: "string",
-				value: "",
-				maxLength: 5,
-				labelKey: "donation_goals.param_currency",
-				icon: "font",
-			};
-			this.param_notifyTips[id] = {
-				type: "boolean",
-				value: overlay.notifyTips,
-				labelKey: "donation_goals.param_notifyTips",
-				icon: "notification",
-			};
-			this.param_autoDisplay[id] = {
-				type: "boolean",
-				value: overlay.autoDisplay,
-				labelKey: "donation_goals.param_autoDisplay",
-				icon: "hide",
-			};
-			this.param_hideDone[id] = {
-				type: "boolean",
-				value: overlay.hideDone,
-				labelKey: "donation_goals.param_hideDone",
-				icon: "timer",
-			};
-			this.param_hideDelay[id] = {
-				type: "duration",
-				value: overlay.hideDelay || 10,
-				max: 600,
-				labelKey: "donation_goals.param_hideDelay",
-				icon: "timer",
-			};
-			this.param_limitEntryCount[id] = {
-				type: "boolean",
-				value: overlay.limitEntryCount,
-				labelKey: "donation_goals.param_limitEntryCount",
-				icon: "number",
-			};
-			this.param_maxDisplayedEntries[id] = {
-				type: "number",
-				value: overlay.maxDisplayedEntries,
-				min: 0,
-				max: overlay.goalList.length,
-				labelKey: "donation_goals.param_maxDisplayedEntries",
-				icon: "number",
-			};
-			this.param_campaignId[id] = {
-				type: "list",
-				value: "",
-				labelKey: "donation_goals.param_campaignId",
-				icon: "charity",
-			};
-			this.param_counterId[id] = {
-				type: "list",
-				value: "",
-				labelKey: "donation_goals.param_counterId",
-				icon: "count",
-			};
-			this.param_dataSource[id] = {
-				type: "list",
-				value: overlay.dataSource,
-				labelKey: "donation_goals.param_dataSource",
-				icon: "charity",
-				editCallback: (data) => {
-					switch (data.value) {
-						case "streamlabs_charity": {
-							this.param_campaignId[id]!.listValues = [];
-							this.param_campaignId[id]!.icon = "streamlabs";
-							break;
-						}
-
-						case "tiltify": {
-							const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-							this.$store.tiltify.campaignList.forEach((c) => {
+					case "counter": {
+						const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+						storeCounters.counterList
+							.filter((c) => c.perUser !== true)
+							.forEach((c) => {
 								list.push({
 									value: c.id,
 									label: c.name,
 								});
 							});
-							this.param_campaignId[id]!.listValues = list;
-							this.param_campaignId[id]!.icon = "tiltify";
-							break;
-						}
-
-						case "counter": {
-							const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-							this.$store.counters.counterList
-								.filter((c) => c.perUser !== true)
-								.forEach((c) => {
-									list.push({
-										value: c.id,
-										label: c.name,
-									});
-								});
-							this.param_counterId[id]!.listValues = list;
-						}
+						param_counterId.value[id]!.listValues = list;
 					}
-				},
-			};
-			//Make sure the campaign list is up to date on init
-			this.param_dataSource[id].editCallback!(this.param_dataSource[id]);
+				}
+			},
+		};
+		//Make sure the campaign list is up to date on init
+		param_dataSource.value[id].editCallback!(param_dataSource.value[id]);
 
-			this.param_dataSource[id].listValues = [
-				{ value: "tiltify", label: "Tiltify" },
-				{ value: "streamlabs_charity", label: "Streamlabs Charity" },
-				{ value: "twitch_charity", labelKey: "donation_goals.twitch_charity" },
-				{ value: "counter", labelKey: "donation_goals.counter_entry" },
-				{ value: "twitch_subs", labelKey: "donation_goals.twitch_subs_entry" },
-				{ value: "twitch_followers", labelKey: "donation_goals.twitch_followers_entry" },
-			];
+		param_dataSource.value[id].listValues = [
+			{ value: "tiltify", label: "Tiltify" },
+			{ value: "streamlabs_charity", label: "Streamlabs Charity" },
+			{ value: "twitch_charity", labelKey: "donation_goals.twitch_charity" },
+			{ value: "counter", labelKey: "donation_goals.counter_entry" },
+			{ value: "twitch_subs", labelKey: "donation_goals.twitch_subs_entry" },
+			{ value: "twitch_followers", labelKey: "donation_goals.twitch_followers_entry" },
+		];
 
-			overlay.goalList
-				.sort((a, b) => a.amount - b.amount)
-				.forEach((goal) => {
-					this.param_goal_secret[goal.id] = {
-						type: "boolean",
-						value: goal.secret,
-						labelKey: "donation_goals.param_goal_secret",
-						icon: "anon",
-					};
-					this.param_goal_secret_type[goal.id] = {
-						type: "string",
-						value: "blur",
-						labelKey: "donation_goals.param_goal_secret",
-						icon: "anon",
-					};
-				});
-		});
-	}
+		overlay.goalList
+			.sort((a, b) => a.amount - b.amount)
+			.forEach((goal) => {
+				param_goal_secret.value[goal.id] = {
+					type: "boolean",
+					value: goal.secret,
+					labelKey: "donation_goals.param_goal_secret",
+					icon: "anon",
+				};
+				param_goal_secret_type.value[goal.id] = {
+					type: "string",
+					value: "blur",
+					labelKey: "donation_goals.param_goal_secret",
+					icon: "anon",
+				};
+			});
+	});
 }
-export default toNative(OverlayParamsDonationGoal);
 </script>
 
 <style scoped lang="less">
@@ -1090,3 +1085,4 @@ export default toNative(OverlayParamsDonationGoal);
 	}
 }
 </style>
+

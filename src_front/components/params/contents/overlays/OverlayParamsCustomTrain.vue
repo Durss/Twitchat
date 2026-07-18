@@ -1,34 +1,34 @@
 <template>
 	<div class="overlayparamscustomtrain overlayParamsSection">
-		<div class="header">{{ $t("overlay.customTrain.header") }}</div>
+		<div class="header">{{ t("overlay.customTrain.header") }}</div>
 
 		<section>
 			<TTButton class="addBt" v-if="!maxTrainsReached" @click="addEntry()" icon="add">{{
-				$t("overlay.customTrain.add_bt")
+				t("overlay.customTrain.add_bt")
 			}}</TTButton>
 
 			<PremiumLimitMessage
 				v-else
 				label="overlay.customTrain.non_premium_limit"
 				premiumLabel="overlay.customTrain.premium_limit"
-				:max="$config.MAX_CUSTOM_TRAIN"
-				:maxPremium="$config.MAX_CUSTOM_TRAIN_PREMIUM"
+				:max="Config.instance.MAX_CUSTOM_TRAIN"
+				:maxPremium="Config.instance.MAX_CUSTOM_TRAIN_PREMIUM"
 			/>
 		</section>
 
 		<VueDraggable
 			class="entryList"
-			v-model="$store.customTrain.customTrainList"
+			v-model="storeCustomTrain.customTrainList"
 			:group="{ name: 'labels' }"
 			handle=".header"
-			animation="250"
-			@end="$store.customTrain.saveData()"
+			:animation="250"
+			@end="storeCustomTrain.saveData()"
 		>
 			<ToggleBlock
-				v-for="entry in $store.customTrain.customTrainList"
+				v-for="entry in storeCustomTrain.customTrainList"
 				editableTitle
 				v-model:title="entry.title"
-				:titleDefault="$t('overlay.customTrain.default_title')"
+				:titleDefault="t('overlay.customTrain.default_title')"
 				:titleMaxLengh="30"
 				:open="false"
 				:key="entry.id"
@@ -41,10 +41,10 @@
 						@change="onChange(entry)"
 						@click.stop
 						v-if="
-							$store.auth.isPremium ||
+							storeAuth.isPremium ||
 							entry.enabled ||
-							$store.customTrain.customTrainList.filter((v) => v.enabled).length <
-								$config.MAX_CUSTOM_TRAIN
+							storeCustomTrain.customTrainList.filter((v) => v.enabled).length <
+								Config.instance.MAX_CUSTOM_TRAIN
 						"
 					/>
 
@@ -55,7 +55,7 @@
 							:class="{ cooldown: train2Timer[entry.id]!.cooldown }"
 							@click.stop="
 								train2Timer[entry.id]!.cooldown
-									? $store.customTrain.resetCooldown(entry.id)
+									? storeCustomTrain.resetCooldown(entry.id)
 									: null
 							"
 						>
@@ -71,11 +71,11 @@
 						@click.stop
 						:copy="entry.id"
 						icon="id"
-						v-tooltip="$t('global.copy_id')"
+						v-tooltip="t('global.copy_id')"
 						small
 					/>
 					<TTButton
-						@click.stop="$store.customTrain.deleteCustomTrain(entry.id)"
+						@click.stop="storeCustomTrain.deleteCustomTrain(entry.id)"
 						icon="trash"
 						alert
 					/>
@@ -106,7 +106,7 @@
 						</i18n-t>
 					</div>
 					<div class="overlayInstallCard">
-						<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
+						<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 						<OverlayInstaller
 							type="customtrain"
 							:sourceSuffix="entry.title"
@@ -120,25 +120,25 @@
 							icon="test"
 							@click="simulateTrain(entry.id)"
 							:disabled="entry.levelAmounts.length <= 1"
-							>{{ $t("overlay.customTrain.simulate_bt") }}</TTButton
+							>{{ t("overlay.customTrain.simulate_bt") }}</TTButton
 						>
 					</div>
 
 					<div class="card-item platforms">
-						<strong>{{ $t("overlay.customTrain.param_platforms") }}</strong>
+						<strong>{{ t("overlay.customTrain.param_platforms") }}</strong>
 						<div class="platformsList">
 							<TTButton
 								class="platform"
 								small
 								v-tooltip="
-									!$store.streamlabs.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeStreamlabs.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.streamlabs.connected"
-								:primary="$store.streamlabs.connected && entry.platforms.streamlabs"
+								:disabled="!storeStreamlabs.connected"
+								:primary="storeStreamlabs.connected && entry.platforms.streamlabs"
 								@click.capture="
-									!$store.streamlabs.connected
+									!storeStreamlabs.connected
 										? openConnections('streamlabs')
 										: (entry.platforms.streamlabs = !entry.platforms.streamlabs)
 								"
@@ -150,17 +150,16 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.streamelements.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeStreamelements.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.streamelements.connected"
+								:disabled="!storeStreamelements.connected"
 								:primary="
-									$store.streamelements.connected &&
-									entry.platforms.streamelements
+									storeStreamelements.connected && entry.platforms.streamelements
 								"
 								@click.capture="
-									!$store.streamelements.connected
+									!storeStreamelements.connected
 										? openConnections('streamelements')
 										: (entry.platforms.streamelements =
 												!entry.platforms.streamelements)
@@ -173,14 +172,14 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.tipeee.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeTipeee.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.tipeee.connected"
-								:primary="$store.tipeee.connected && entry.platforms.tipeee"
+								:disabled="!storeTipeee.connected"
+								:primary="storeTipeee.connected && entry.platforms.tipeee"
 								@click.capture="
-									!$store.tipeee.connected
+									!storeTipeee.connected
 										? openConnections('tipeee')
 										: (entry.platforms.tipeee = !entry.platforms.tipeee)
 								"
@@ -192,14 +191,14 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.kofi.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeKofi.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.kofi.connected"
-								:primary="$store.kofi.connected && entry.platforms.kofi"
+								:disabled="!storeKofi.connected"
+								:primary="storeKofi.connected && entry.platforms.kofi"
 								@click.capture="
-									!$store.kofi.connected
+									!storeKofi.connected
 										? openConnections('kofi')
 										: (entry.platforms.kofi = !entry.platforms.kofi)
 								"
@@ -211,14 +210,14 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.patreon.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storePatreon.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.patreon.connected"
-								:primary="$store.patreon.connected && entry.platforms.patreon"
+								:disabled="!storePatreon.connected"
+								:primary="storePatreon.connected && entry.platforms.patreon"
 								@click.capture="
-									!$store.patreon.connected
+									!storePatreon.connected
 										? openConnections('patreon')
 										: (entry.platforms.patreon = !entry.platforms.patreon)
 								"
@@ -230,14 +229,14 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.tiltify.connected
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeTiltify.connected
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.tiltify.connected"
-								:primary="$store.tiltify.connected && entry.platforms.tiltify"
+								:disabled="!storeTiltify.connected"
+								:primary="storeTiltify.connected && entry.platforms.tiltify"
 								@click.capture="
-									!$store.tiltify.connected
+									!storeTiltify.connected
 										? openConnections('tiltify')
 										: (entry.platforms.tiltify = !entry.platforms.tiltify)
 								"
@@ -249,17 +248,17 @@
 								class="platform"
 								small
 								v-tooltip="
-									!$store.streamlabs.charityTeam
-										? $t('overlay.customTrain.connectPlatform_tt')
+									!storeStreamlabs.charityTeam
+										? t('overlay.customTrain.connectPlatform_tt')
 										: ''
 								"
-								:disabled="!$store.streamlabs.charityTeam"
+								:disabled="!storeStreamlabs.charityTeam"
 								:primary="
-									$store.streamlabs.charityTeam != null &&
+									storeStreamlabs.charityTeam != null &&
 									entry.platforms.streamlabs_charity
 								"
 								@click.capture="
-									!$store.streamlabs.charityTeam
+									!storeStreamlabs.charityTeam
 										? openConnections('streamlabs')
 										: (entry.platforms.streamlabs_charity =
 												!entry.platforms.streamlabs_charity)
@@ -273,23 +272,23 @@
 								small
 								target="_blank"
 								v-tooltip="
-									!$store.twitchCharity.currentCharity
-										? $t('overlay.customTrain.connectPlatform_twitchCharity_tt')
+									!storeTwitchCharity.currentCharity
+										? t('overlay.customTrain.connectPlatform_twitchCharity_tt')
 										: ''
 								"
-								:class="{ disabled: !$store.twitchCharity.currentCharity }"
+								:class="{ disabled: !storeTwitchCharity.currentCharity }"
 								:primary="
-									$store.twitchCharity.currentCharity &&
+									storeTwitchCharity.currentCharity != null &&
 									entry.platforms.twitch_charity
 								"
-								:type="!$store.twitchCharity.currentCharity ? 'link' : 'button'"
+								:type="!storeTwitchCharity.currentCharity ? 'link' : 'button'"
 								:href="
-									!$store.twitchCharity.currentCharity
+									!storeTwitchCharity.currentCharity
 										? 'https://dashboard.twitch.tv/charity/'
 										: null
 								"
 								@click.capture="
-									!$store.twitchCharity.currentCharity
+									!storeTwitchCharity.currentCharity
 										? null
 										: (entry.platforms.twitch_charity =
 												!entry.platforms.twitch_charity)
@@ -303,24 +302,24 @@
 					<div class="themeBlock">
 						<div class="font">
 							<ParamItem
-								:paramData="param_textFont[entry.id]"
+								:paramData="param_textFont[entry.id]!"
 								v-model="entry.textFont"
 								@change="onChange(entry)"
 							/>
 							<ParamItem
-								:paramData="param_textSize[entry.id]"
+								:paramData="param_textSize[entry.id]!"
 								v-model="entry.textSize"
 								@change="onChange(entry)"
 							/>
 						</div>
 						<div class="colors">
 							<ParamItem
-								:paramData="param_colorFill[entry.id]"
+								:paramData="param_colorFill[entry.id]!"
 								v-model="entry.colorFill"
 								@change="onChange(entry)"
 							/>
 							<ParamItem
-								:paramData="param_colorBg[entry.id]"
+								:paramData="param_colorBg[entry.id]!"
 								v-model="entry.colorBg"
 								@change="onChange(entry)"
 							/>
@@ -334,7 +333,7 @@
 					<div class="card-item trainRender">
 						<strong
 							><Icon name="timer" />{{
-								$t("overlay.customTrain.param_approaching")
+								t("overlay.customTrain.param_approaching")
 							}}</strong
 						>
 						<OverlayCustomTrainRenderer
@@ -360,14 +359,14 @@
 							editable
 						/>
 						<ParamItem
-							:paramData="param_approachEventCount[entry.id]"
+							:paramData="param_approachEventCount[entry.id]!"
 							v-model="entry.approachEventCount"
 							@change="onChange(entry)"
 							:childLevel="1"
 							noBackground
 						/>
 						<ParamItem
-							:paramData="param_triggerEventCount[entry.id]"
+							:paramData="param_triggerEventCount[entry.id]!"
 							v-model="entry.triggerEventCount"
 							@change="onChange(entry)"
 							:childLevel="1"
@@ -378,7 +377,7 @@
 					<div class="card-item trainRender">
 						<strong
 							><Icon name="train" />{{
-								$t("overlay.customTrain.param_progress")
+								t("overlay.customTrain.param_progress")
 							}}</strong
 						>
 						<OverlayCustomTrainRenderer
@@ -399,14 +398,14 @@
 							editable
 						/>
 						<ParamItem
-							:paramData="param_levelsDuration_ms[entry.id]"
+							:paramData="param_levelsDuration_ms[entry.id]!"
 							v-model="entry.levelsDuration_s"
 							@change="onChange(entry)"
 							:childLevel="1"
 							noBackground
 						/>
 						<ParamItem
-							:paramData="param_levelAmounts[entry.id]"
+							:paramData="param_levelAmounts[entry.id]!"
 							v-model="param_levelAmounts[entry.id]!.value"
 							@change="onChange(entry, true)"
 							:childLevel="1"
@@ -414,7 +413,7 @@
 						/>
 						<div class="offset info">
 							{{
-								$t("overlay.customTrain.param_levelAmounts_count", {
+								t("overlay.customTrain.param_levelAmounts_count", {
 									COUNT: entry.levelAmounts.length,
 								})
 							}}
@@ -428,7 +427,7 @@
 						>
 							<template #LINK>
 								<a @click.prevent="openDonationForm()">{{
-									$t("overlay.customTrain.param_levelAmounts_plz_link")
+									t("overlay.customTrain.param_levelAmounts_plz_link")
 								}}</a>
 							</template>
 							<template #EMOJI>
@@ -440,7 +439,7 @@
 					<div class="card-item trainRender">
 						<strong
 							><Icon name="train_boost" />{{
-								$t("overlay.customTrain.param_levelUp")
+								t("overlay.customTrain.param_levelUp")
 							}}</strong
 						>
 						<OverlayCustomTrainRenderer
@@ -471,14 +470,14 @@
 							<template #PLACEHOLDER><strong v-click2Select>{X}</strong></template>
 						</i18n-t>
 						<ParamItem
-							:paramData="param_postLevelUpOnChat[entry.id]"
+							:paramData="param_postLevelUpOnChat[entry.id]!"
 							v-model="entry.postLevelUpOnChat"
 							@change="onChange(entry)"
 							:childLevel="1"
 							noBackground
 						>
 							<ParamItem
-								:paramData="param_postLevelUpMessage[entry.id]"
+								:paramData="param_postLevelUpMessage[entry.id]!"
 								v-model="entry.postLevelUpChatMessage"
 								@change="onChange(entry)"
 								:childLevel="1"
@@ -489,7 +488,7 @@
 
 					<div class="card-item trainRender">
 						<strong
-							><Icon name="sub" />{{ $t("overlay.customTrain.param_record") }}</strong
+							><Icon name="sub" />{{ t("overlay.customTrain.param_record") }}</strong
 						>
 						<OverlayCustomTrainRenderer
 							class="train"
@@ -515,13 +514,13 @@
 						<div class="colors">
 							<ParamItem
 								class="child"
-								:paramData="param_recordColorFill[entry.id]"
+								:paramData="param_recordColorFill[entry.id]!"
 								v-model="entry.recordColorFill"
 								@change="onChange(entry)"
 								noBackground
 							/>
 							<ParamItem
-								:paramData="param_recordColorBg[entry.id]"
+								:paramData="param_recordColorBg[entry.id]!"
 								v-model="entry.recordColorBg"
 								@change="onChange(entry)"
 								noBackground
@@ -532,7 +531,7 @@
 					<div class="card-item trainRender">
 						<strong
 							><Icon name="leaderboard" />{{
-								$t("overlay.customTrain.param_success")
+								t("overlay.customTrain.param_success")
 							}}</strong
 						>
 						<OverlayCustomTrainRenderer
@@ -554,7 +553,7 @@
 							editable
 						/>
 						<ParamItem
-							:paramData="param_cooldownDuration_ms[entry.id]"
+							:paramData="param_cooldownDuration_ms[entry.id]!"
 							v-model="entry.cooldownDuration_s"
 							@change="onChange(entry)"
 							:childLevel="1"
@@ -562,14 +561,14 @@
 						/>
 
 						<ParamItem
-							:paramData="param_postSuccessOnChat[entry.id]"
+							:paramData="param_postSuccessOnChat[entry.id]!"
 							v-model="entry.postSuccessOnChat"
 							@change="onChange(entry)"
 							:childLevel="1"
 							noBackground
 						>
 							<ParamItem
-								:paramData="param_postSuccessMessage[entry.id]"
+								:paramData="param_postSuccessMessage[entry.id]!"
 								v-model="entry.postSuccessChatMessage"
 								@change="onChange(entry)"
 								:childLevel="1"
@@ -580,7 +579,7 @@
 
 					<div class="card-item trainRender">
 						<strong
-							><Icon name="sad" />{{ $t("overlay.customTrain.param_failed") }}</strong
+							><Icon name="sad" />{{ t("overlay.customTrain.param_failed") }}</strong
 						>
 						<OverlayCustomTrainRenderer
 							class="train"
@@ -615,426 +614,439 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import CurrencyPatternInput from "@/components/CurrencyPatternInput.vue";
 import Icon from "@/components/Icon.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
+import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
 import OverlayCustomTrainRenderer from "@/components/overlays/custom_train/OverlayCustomTrainRenderer.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCustomTrain as useStoreCustomTrain } from "@/store/customtrain/storeCustomTrain";
+import { storeKofi as useStoreKofi } from "@/store/kofi/storeKofi";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
+import { storeStreamelements as useStoreStreamelements } from "@/store/streamelements/storeStreamelements";
+import { storeStreamlabs as useStoreStreamlabs } from "@/store/streamlabs/storeStreamlabs";
+import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
+import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
+import { storeTwitchCharity as useStoreTwitchCharity } from "@/store/twitch_charity/storeTwitchCharity";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	useTemplateRef,
+	watch,
+	type ComponentPublicInstance,
+} from "vue";
 import { VueDraggable } from "vue-draggable-plus";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { useI18n } from "vue-i18n";
 import TTButton from "../../../TTButton.vue";
 import ToggleBlock from "../../../ToggleBlock.vue";
 import ParamItem from "../../ParamItem.vue";
-import OverlayInstaller from "./OverlayInstaller.vue";
-import CurrencyPatternInput from "@/components/CurrencyPatternInput.vue";
-import EmoteSelector from "@/components/chatform/EmoteSelector.vue";
-import Utils from "@/utils/Utils";
-import { watch, type ComponentPublicInstance } from "vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
+import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-		VueDraggable,
-		ToggleButton,
-		EmoteSelector,
-		OverlayInstaller,
-		CurrencyPatternInput,
-		OverlayCustomTrainRenderer,
-		PremiumLimitMessage,
-	},
-})
-class OverlayParamsCustomTrain extends Vue {
-	public showEmoteSelector: boolean = false;
-	public emoteSelector_y: string = "0";
-	public emoteSelector_x: string = "0";
-	public emoteSelectorOrigin: { x: number; y: number } = { x: 0, y: 0 };
-	public train2Timer: Record<string, { timer: string; tooltip: string; cooldown: boolean }> = {};
-	public train2Record: Record<string, ReturnType<typeof Utils.getAllTimeRecord>> = {};
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeCustomTrain = useStoreCustomTrain();
+const storeStreamlabs = useStoreStreamlabs();
+const storeStreamelements = useStoreStreamelements();
+const storeTipeee = useStoreTipeee();
+const storeKofi = useStoreKofi();
+const storePatreon = useStorePatreon();
+const storeTiltify = useStoreTiltify();
+const storeTwitchCharity = useStoreTwitchCharity();
 
-	public param_colorFill: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_colorBg: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_recordColorFill: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_recordColorBg: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_textFont: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_textSize: { [key: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_currency: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_approachEventCount: { [key: string]: TwitchatDataTypes.ParameterData<number> } =
-		{};
-	public param_triggerEventCount: { [key: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_cooldownDuration_ms: { [key: string]: TwitchatDataTypes.ParameterData<number> } =
-		{};
-	public param_levelsDuration_ms: { [key: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_postLevelUpOnChat: { [key: string]: TwitchatDataTypes.ParameterData<boolean> } =
-		{};
-	public param_postLevelUpMessage: { [key: string]: TwitchatDataTypes.ParameterData<string> } =
-		{};
-	public param_postSuccessOnChat: { [key: string]: TwitchatDataTypes.ParameterData<boolean> } =
-		{};
-	public param_postSuccessMessage: { [key: string]: TwitchatDataTypes.ParameterData<string> } =
-		{};
-	public param_levelAmounts: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
+const emoteSelector = useTemplateRef<ComponentPublicInstance>("emoteSelector");
 
-	private emoteSelectorTarget: {
-		entry: TwitchatDataTypes.CustomTrainData;
-		step: "approaching" | "success" | "failed" | "levelUp" | "record";
-	} | null = null;
-	private clickHandler!: (e: MouseEvent) => void;
-	private keyHandler!: (e: KeyboardEvent) => void;
-	private refreshInterval: number = -1;
+const showEmoteSelector = ref(false);
+const emoteSelector_y = ref("0");
+const emoteSelector_x = ref("0");
+const emoteSelectorOrigin = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+const train2Timer = ref<Record<string, { timer: string; tooltip: string; cooldown: boolean }>>({});
+const train2Record = ref<Record<string, ReturnType<typeof Utils.getAllTimeRecord>>>({});
 
-	public get maxTrainsReached(): boolean {
-		const max = this.$store.auth.isPremium
-			? this.$config.MAX_CUSTOM_TRAIN_PREMIUM
-			: this.$config.MAX_CUSTOM_TRAIN;
-		return this.$store.customTrain.customTrainList.length >= max;
+const param_colorFill = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_colorBg = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_recordColorFill = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_recordColorBg = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_textFont = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_textSize = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_currency = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_approachEventCount = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>(
+	{},
+);
+const param_triggerEventCount = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_cooldownDuration_ms = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>(
+	{},
+);
+const param_levelsDuration_ms = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_postLevelUpOnChat = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>(
+	{},
+);
+const param_postLevelUpMessage = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>(
+	{},
+);
+const param_postSuccessOnChat = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>(
+	{},
+);
+const param_postSuccessMessage = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>(
+	{},
+);
+const param_levelAmounts = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+
+let emoteSelectorTarget: {
+	entry: TwitchatDataTypes.CustomTrainData;
+	step: "approaching" | "success" | "failed" | "levelUp" | "record";
+} | null = null;
+let clickHandler!: (e: MouseEvent) => void;
+let keyHandler!: (e: KeyboardEvent) => void;
+let refreshInterval: number = -1;
+
+const maxTrainsReached = computed(() => {
+	const max = storeAuth.isPremium
+		? Config.instance.MAX_CUSTOM_TRAIN_PREMIUM
+		: Config.instance.MAX_CUSTOM_TRAIN;
+	return storeCustomTrain.customTrainList.length >= max;
+});
+
+onBeforeMount(() => {
+	initParams();
+
+	refreshInterval = window.setInterval(() => refreshTimers(), 100);
+	clickHandler = (e: MouseEvent) => onClick(e);
+	keyHandler = (e: KeyboardEvent) => onKeyboardEvent(e);
+	document.addEventListener("click", clickHandler, true);
+	document.addEventListener("keydown", keyHandler, true);
+	rebuildRecordsMap();
+});
+
+onBeforeUnmount(() => {
+	clearInterval(refreshInterval);
+	document.removeEventListener("click", clickHandler, true);
+	document.removeEventListener("keydown", keyHandler, true);
+});
+
+/**
+ * Create parameters for a bingo entry
+ * @param id
+ */
+function initParams(): void {
+	storeCustomTrain.customTrainList.forEach((entry) => {
+		const id = entry.id;
+		if (param_colorFill.value[id]) return;
+		param_colorFill.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.customTrain.param_colorFill",
+			icon: "color",
+		};
+		param_colorBg.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.customTrain.param_colorBg",
+			icon: "color",
+		};
+		param_recordColorFill.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.customTrain.param_recordColorFill",
+			icon: "color",
+		};
+		param_recordColorBg.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.customTrain.param_recordColorBg",
+			icon: "color",
+		};
+		param_textFont.value[id] = {
+			type: "font",
+			value: "",
+			labelKey: "overlay.customTrain.param_textFont",
+			icon: "font",
+		};
+		param_textSize.value[id] = {
+			type: "slider",
+			value: 40,
+			min: 20,
+			max: 80,
+			labelKey: "overlay.customTrain.param_textSize",
+			icon: "fontSize",
+		};
+		param_currency.value[id] = {
+			type: "string",
+			value: "",
+			labelKey: "overlay.customTrain.param_currency",
+			icon: "coin",
+		};
+		param_approachEventCount.value[id] = {
+			type: "number",
+			value: 2,
+			min: 2,
+			max: 25,
+			labelKey: "overlay.customTrain.param_approachEventCount",
+			icon: "notification",
+		};
+		param_triggerEventCount.value[id] = {
+			type: "number",
+			value: 2,
+			min: 2,
+			max: 11,
+			labelKey: "overlay.customTrain.param_triggerEventCount",
+			icon: "notification",
+		};
+		param_cooldownDuration_ms.value[id] = {
+			type: "duration",
+			value: 0,
+			min: 30 * 60,
+			max: 24 * 3600,
+			labelKey: "overlay.customTrain.param_cooldownDuration_ms",
+			icon: "timer",
+		};
+		param_levelsDuration_ms.value[id] = {
+			type: "duration",
+			value: 5 * 6,
+			min: 30,
+			max: 30 * 60,
+			labelKey: "overlay.customTrain.param_levelsDuration_ms",
+			icon: "countdown",
+		};
+		param_postLevelUpOnChat.value[id] = {
+			type: "boolean",
+			value: false,
+			labelKey: "overlay.customTrain.param_postLevelUpOnChat",
+			icon: "whispers",
+		};
+		param_postLevelUpMessage.value[id] = {
+			type: "string",
+			value: "",
+			longText: true,
+			maxLength: 400,
+		};
+		param_postSuccessOnChat.value[id] = {
+			type: "boolean",
+			value: false,
+			labelKey: "overlay.customTrain.param_postSuccessOnChat",
+			icon: "whispers",
+		};
+		param_postSuccessMessage.value[id] = {
+			type: "string",
+			value: "",
+			longText: true,
+			maxLength: 400,
+		};
+		param_levelAmounts.value[id] = {
+			type: "string",
+			value: "",
+			longText: true,
+			maxLength: 1000,
+			labelKey: "overlay.customTrain.param_levelAmounts",
+		};
+
+		param_postLevelUpMessage.value[id].placeholderList = [
+			{ tag: "LEVEL", descKey: "triggers.placeholders.custom_train_level" },
+			{ tag: "AMOUNT", descKey: "triggers.placeholders.custom_train_amountLeft" },
+		];
+		param_postSuccessMessage.value[id].placeholderList =
+			param_postLevelUpMessage.value[id].placeholderList.concat();
+		param_levelAmounts.value[id].value = entry.levelAmounts.join(", ");
+	});
+}
+
+/**
+ * Saves data on change
+ * @param entry
+ */
+function onChange(entry: TwitchatDataTypes.CustomTrainData, rebuildRecord: boolean = false): void {
+	//Make sure user doesn't hack this value
+	entry.triggerEventCount = Math.max(
+		Math.min(entry.triggerEventCount, param_triggerEventCount.value[entry.id]!.max!),
+		0,
+	);
+
+	const levels = (param_levelAmounts.value[entry.id]!.value.match(/(\d|\.)+/g) || [])
+		.filter((v) => !isNaN(parseFloat(v)))
+		.map((v) => parseFloat(v))
+		.sort((a, b) => a - b);
+	entry.levelAmounts = levels;
+
+	storeCustomTrain.saveData();
+	storeCustomTrain.broadcastStates(entry.id);
+	if (rebuildRecord) {
+		rebuildRecordsMap();
 	}
+}
 
-	public beforeMount(): void {
-		this.initParams();
+/**
+ * Opens the premium section
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+}
 
-		this.refreshInterval = window.setInterval(() => this.refreshTimers(), 100);
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		this.keyHandler = (e: KeyboardEvent) => this.onKeyboardEvent(e);
-		document.addEventListener("click", this.clickHandler, true);
-		document.addEventListener("keydown", this.keyHandler, true);
+/**
+ * Saves given label
+ */
+function addEntry(): void {
+	storeCustomTrain.createCustomTrain();
+	initParams();
+}
 
-		watch(
-			() => this.$store.customTrain.customTrainList.length,
-			(newLength, oldLength) => {
-				if (newLength != oldLength) {
-					this.rebuildRecordsMap();
-				}
-			},
-		);
-		this.rebuildRecordsMap();
-	}
+/**
+ * Tests the text
+ */
+function simulateTrain(overlayId: string): void {
+	storeCustomTrain.simulateTrain(overlayId);
+}
 
-	public beforeUnmount(): void {
-		clearInterval(this.refreshInterval);
-		document.removeEventListener("click", this.clickHandler, true);
-		document.removeEventListener("keydown", this.keyHandler, true);
-	}
+/**
+ * Opens connections params
+ */
+function openConnections(subSection: TwitchatDataTypes.ParamDeepSectionsStringType): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, subSection);
+}
 
-	/**
-	 * Create parameters for a bingo entry
-	 * @param id
-	 */
-	private initParams(): void {
-		this.$store.customTrain.customTrainList.forEach((entry) => {
-			const id = entry.id;
-			if (this.param_colorFill[id]) return;
-			this.param_colorFill[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.customTrain.param_colorFill",
-				icon: "color",
-			};
-			this.param_colorBg[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.customTrain.param_colorBg",
-				icon: "color",
-			};
-			this.param_recordColorFill[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.customTrain.param_recordColorFill",
-				icon: "color",
-			};
-			this.param_recordColorBg[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.customTrain.param_recordColorBg",
-				icon: "color",
-			};
-			this.param_textFont[id] = {
-				type: "font",
-				value: "",
-				labelKey: "overlay.customTrain.param_textFont",
-				icon: "font",
-			};
-			this.param_textSize[id] = {
-				type: "slider",
-				value: 40,
-				min: 20,
-				max: 80,
-				labelKey: "overlay.customTrain.param_textSize",
-				icon: "fontSize",
-			};
-			this.param_currency[id] = {
-				type: "string",
-				value: "",
-				labelKey: "overlay.customTrain.param_currency",
-				icon: "coin",
-			};
-			this.param_approachEventCount[id] = {
-				type: "number",
-				value: 2,
-				min: 2,
-				max: 25,
-				labelKey: "overlay.customTrain.param_approachEventCount",
-				icon: "notification",
-			};
-			this.param_triggerEventCount[id] = {
-				type: "number",
-				value: 2,
-				min: 2,
-				max: 11,
-				labelKey: "overlay.customTrain.param_triggerEventCount",
-				icon: "notification",
-			};
-			this.param_cooldownDuration_ms[id] = {
-				type: "duration",
-				value: 0,
-				min: 30 * 60,
-				max: 24 * 3600,
-				labelKey: "overlay.customTrain.param_cooldownDuration_ms",
-				icon: "timer",
-			};
-			this.param_levelsDuration_ms[id] = {
-				type: "duration",
-				value: 5 * 6,
-				min: 30,
-				max: 30 * 60,
-				labelKey: "overlay.customTrain.param_levelsDuration_ms",
-				icon: "countdown",
-			};
-			this.param_postLevelUpOnChat[id] = {
-				type: "boolean",
-				value: false,
-				labelKey: "overlay.customTrain.param_postLevelUpOnChat",
-				icon: "whispers",
-			};
-			this.param_postLevelUpMessage[id] = {
-				type: "string",
-				value: "",
-				longText: true,
-				maxLength: 400,
-			};
-			this.param_postSuccessOnChat[id] = {
-				type: "boolean",
-				value: false,
-				labelKey: "overlay.customTrain.param_postSuccessOnChat",
-				icon: "whispers",
-			};
-			this.param_postSuccessMessage[id] = {
-				type: "string",
-				value: "",
-				longText: true,
-				maxLength: 400,
-			};
-			this.param_levelAmounts[id] = {
-				type: "string",
-				value: "",
-				longText: true,
-				maxLength: 1000,
-				labelKey: "overlay.customTrain.param_levelAmounts",
-			};
+/**
+ * Opens donation form
+ */
+function openDonationForm(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
+}
 
-			this.param_postLevelUpMessage[id].placeholderList = [
-				{ tag: "LEVEL", descKey: "triggers.placeholders.custom_train_level" },
-				{ tag: "AMOUNT", descKey: "triggers.placeholders.custom_train_amountLeft" },
-			];
-			this.param_postSuccessMessage[id].placeholderList =
-				this.param_postLevelUpMessage[id].placeholderList.concat();
-			this.param_levelAmounts[id].value = entry.levelAmounts.join(", ");
-		});
-	}
-
-	/**
-	 * Saves data on change
-	 * @param entry
-	 */
-	public onChange(
-		entry: TwitchatDataTypes.CustomTrainData,
-		rebuildRecord: boolean = false,
-	): void {
-		//Make sure user doesn't hack this value
-		entry.triggerEventCount = Math.max(
-			Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id]!.max!),
-			0,
-		);
-
-		const levels = (this.param_levelAmounts[entry.id]!.value.match(/(\d|\.)+/g) || [])
-			.filter((v) => !isNaN(parseFloat(v)))
-			.map((v) => parseFloat(v))
-			.sort((a, b) => a - b);
-		entry.levelAmounts = levels;
-
-		this.$store.customTrain.saveData();
-		this.$store.customTrain.broadcastStates(entry.id);
-		if (rebuildRecord) {
-			this.rebuildRecordsMap();
-		}
-	}
-
-	/**
-	 * Opens the premium section
-	 */
-	public openPremium(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Saves given label
-	 */
-	public addEntry(): void {
-		this.$store.customTrain.createCustomTrain();
-		this.initParams();
-	}
-
-	/**
-	 * Tests the text
-	 */
-	public simulateTrain(overlayId: string): void {
-		this.$store.customTrain.simulateTrain(overlayId);
-	}
-
-	/**
-	 * Opens connections params
-	 */
-	public openConnections(subSection: TwitchatDataTypes.ParamDeepSectionsStringType): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, subSection);
-	}
-
-	/**
-	 * Opens donation form
-	 */
-	public openDonationForm(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
-	}
-
-	/**
-	 * Detect click outside emote selector
-	 */
-	public onClick(e: MouseEvent): void {
-		if (this.showEmoteSelector) {
-			const emoteSelector = (this.$refs["emoteSelector"] as ComponentPublicInstance).$el;
-			if (!emoteSelector.contains(e.target as Node)) {
-				this.showEmoteSelector = false;
-			}
-		}
-	}
-
-	/**
-	 * Close emote picker on escape
-	 */
-	public onKeyboardEvent(e: KeyboardEvent): void {
-		if (e.key === "Escape" && this.showEmoteSelector) {
-			this.showEmoteSelector = false;
-			e.stopPropagation();
-			e.preventDefault();
-		}
-	}
-
-	/**
-	 * Open emote selector
-	 */
-	public async openEmoteSelector(
-		entry: TwitchatDataTypes.CustomTrainData,
-		step: NonNullable<typeof this.emoteSelectorTarget>["step"],
-		event: MouseEvent,
-	): Promise<void> {
-		this.emoteSelectorTarget = { entry, step };
-		this.showEmoteSelector = true;
-		await this.$nextTick();
-		this.emoteSelectorOrigin = { x: event.clientX, y: event.clientY };
-		this.replaceEmoteSelector();
-	}
-
-	/**
-	 * Replaces emote selector position
-	 */
-	public replaceEmoteSelector(): void {
-		const bounds = (
-			this.$refs["emoteSelector"] as ComponentPublicInstance
-		).$el.getBoundingClientRect();
-		let x =
-			this.emoteSelectorOrigin.x < window.innerWidth / 2
-				? this.emoteSelectorOrigin.x
-				: this.emoteSelectorOrigin.x - bounds.width;
-		let y =
-			this.emoteSelectorOrigin.y < window.innerHeight / 2
-				? this.emoteSelectorOrigin.y
-				: this.emoteSelectorOrigin.y - bounds.height;
-		const marginBottom = 70;
-		if (x + bounds.width > window.innerWidth) x = window.innerWidth - bounds.width;
-		if (y + bounds.height > window.innerHeight - marginBottom)
-			y = window.innerHeight - marginBottom - bounds.height;
-		this.emoteSelector_x = x + "px";
-		this.emoteSelector_y = y + "px";
-	}
-
-	/**
-	 * Called after selecting an emote
-	 */
-	public async onSelectEmote(
-		emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji,
-	): Promise<void> {
-		const urlOrEmoji =
-			"images" in emote
-				? emote.images.url_2x || emote.images.url_4x || emote.images.url_1x
-				: emote.emoji;
-		switch (this.emoteSelectorTarget?.step) {
-			case "approaching":
-				this.emoteSelectorTarget.entry.approachingEmote = urlOrEmoji;
-				break;
-			case "levelUp":
-				this.emoteSelectorTarget.entry.levelUpEmote = urlOrEmoji;
-				break;
-			case "failed":
-				this.emoteSelectorTarget.entry.failedEmote = urlOrEmoji;
-				break;
-			case "success":
-				this.emoteSelectorTarget.entry.successEmote = urlOrEmoji;
-				break;
-			case "record":
-				this.emoteSelectorTarget.entry.recordEmote = urlOrEmoji;
-				break;
-		}
-	}
-
-	/**
-	 * Refreshes the running timers values
-	 */
-	public refreshTimers(): void {
-		for (const id in this.$store.customTrain.customTrainStates) {
-			const state = this.$store.customTrain.customTrainStates[id];
-		}
-		for (const train of this.$store.customTrain.customTrainList) {
-			const date =
-				train.coolDownEnd_at > Date.now() ? train.coolDownEnd_at : train.expires_at;
-			if (date > Date.now()) {
-				const isCooldown = date == train.coolDownEnd_at;
-				this.train2Timer[train.id] = {
-					timer: Utils.formatDuration(date - Date.now(), true),
-					tooltip: isCooldown
-						? this.$t("overlay.customTrain.state_cooldown_tt")
-						: this.$t("overlay.customTrain.state_expire_tt"),
-					cooldown: isCooldown,
-				};
-			} else {
-				delete this.train2Timer[train.id];
-			}
-		}
-	}
-
-	/**
-	 * Builds up an hashmap of all time records for each custom train
-	 */
-	private rebuildRecordsMap(): void {
-		for (const id in this.$store.customTrain.customTrainList) {
-			const entry = this.$store.customTrain.customTrainList[id]!;
-			const record = Utils.getAllTimeRecord(entry);
-			if (record) this.train2Record[entry.id] = record;
+/**
+ * Detect click outside emote selector
+ */
+function onClick(e: MouseEvent): void {
+	if (showEmoteSelector.value) {
+		const emoteSelectorEl = emoteSelector.value!.$el;
+		if (!emoteSelectorEl.contains(e.target as Node)) {
+			showEmoteSelector.value = false;
 		}
 	}
 }
-export default toNative(OverlayParamsCustomTrain);
+
+/**
+ * Close emote picker on escape
+ */
+function onKeyboardEvent(e: KeyboardEvent): void {
+	if (e.key === "Escape" && showEmoteSelector.value) {
+		showEmoteSelector.value = false;
+		e.stopPropagation();
+		e.preventDefault();
+	}
+}
+
+/**
+ * Open emote selector
+ */
+async function openEmoteSelector(
+	entry: TwitchatDataTypes.CustomTrainData,
+	step: NonNullable<typeof emoteSelectorTarget>["step"],
+	event: MouseEvent,
+): Promise<void> {
+	emoteSelectorTarget = { entry, step };
+	showEmoteSelector.value = true;
+	await nextTick();
+	emoteSelectorOrigin.value = { x: event.clientX, y: event.clientY };
+	replaceEmoteSelector();
+}
+
+/**
+ * Replaces emote selector position
+ */
+function replaceEmoteSelector(): void {
+	const bounds = emoteSelector.value!.$el.getBoundingClientRect();
+	let x =
+		emoteSelectorOrigin.value.x < window.innerWidth / 2
+			? emoteSelectorOrigin.value.x
+			: emoteSelectorOrigin.value.x - bounds.width;
+	let y =
+		emoteSelectorOrigin.value.y < window.innerHeight / 2
+			? emoteSelectorOrigin.value.y
+			: emoteSelectorOrigin.value.y - bounds.height;
+	const marginBottom = 70;
+	if (x + bounds.width > window.innerWidth) x = window.innerWidth - bounds.width;
+	if (y + bounds.height > window.innerHeight - marginBottom)
+		y = window.innerHeight - marginBottom - bounds.height;
+	emoteSelector_x.value = x + "px";
+	emoteSelector_y.value = y + "px";
+}
+
+/**
+ * Called after selecting an emote
+ */
+async function onSelectEmote(
+	emote: TwitchatDataTypes.Emote | TwitchatDataTypes.Emoji,
+): Promise<void> {
+	const urlOrEmoji =
+		"images" in emote
+			? emote.images.url_2x || emote.images.url_4x || emote.images.url_1x
+			: emote.emoji;
+	switch (emoteSelectorTarget?.step) {
+		case "approaching":
+			emoteSelectorTarget.entry.approachingEmote = urlOrEmoji;
+			break;
+		case "levelUp":
+			emoteSelectorTarget.entry.levelUpEmote = urlOrEmoji;
+			break;
+		case "failed":
+			emoteSelectorTarget.entry.failedEmote = urlOrEmoji;
+			break;
+		case "success":
+			emoteSelectorTarget.entry.successEmote = urlOrEmoji;
+			break;
+		case "record":
+			emoteSelectorTarget.entry.recordEmote = urlOrEmoji;
+			break;
+	}
+}
+
+/**
+ * Refreshes the running timers values
+ */
+function refreshTimers(): void {
+	for (const train of storeCustomTrain.customTrainList) {
+		const date = train.coolDownEnd_at > Date.now() ? train.coolDownEnd_at : train.expires_at;
+		if (date > Date.now()) {
+			const isCooldown = date == train.coolDownEnd_at;
+			train2Timer.value[train.id] = {
+				timer: Utils.formatDuration(date - Date.now(), true),
+				tooltip: isCooldown
+					? t("overlay.customTrain.state_cooldown_tt")
+					: t("overlay.customTrain.state_expire_tt"),
+				cooldown: isCooldown,
+			};
+		} else {
+			delete train2Timer.value[train.id];
+		}
+	}
+}
+
+/**
+ * Builds up an hashmap of all time records for each custom train
+ */
+function rebuildRecordsMap(): void {
+	for (const id in storeCustomTrain.customTrainList) {
+		const entry = storeCustomTrain.customTrainList[id]!;
+		const record = Utils.getAllTimeRecord(entry);
+		if (record) train2Record.value[entry.id] = record;
+	}
+}
+
+watch(
+	() => storeCustomTrain.customTrainList.length,
+	(newLength, oldLength) => {
+		if (newLength != oldLength) {
+			rebuildRecordsMap();
+		}
+	},
+);
 </script>
 
 <style scoped lang="less">
@@ -1224,3 +1236,4 @@ export default toNative(OverlayParamsCustomTrain);
 	}
 }
 </style>
+

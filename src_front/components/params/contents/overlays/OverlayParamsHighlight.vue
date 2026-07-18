@@ -6,23 +6,23 @@
 			class="youtubeTutorialBt"
 		>
 			<Icon name="youtube" theme="light" />
-			<span>{{ $t("overlay.youtube_demo_tt") }}</span>
+			<span>{{ t("overlay.youtube_demo_tt") }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
 
-		<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
+		<div class="header">{{ t("overlay.highlight.instruction") }}</div>
 
 		<section class="overlayInstallCard">
-			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
+			<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock
 				class="shrink"
 				small
-				:title="$t('overlay.css_customization')"
+				:title="t('overlay.css_customization')"
 				:open="false"
 			>
-				<div class="cssHead">{{ $t("overlay.highlight.css") }}</div>
+				<div class="cssHead">{{ t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>
 					<li class="sublist">
@@ -88,13 +88,13 @@
 
 		<section class="card-item">
 			<div class="placement">
-				<p>{{ $t("overlay.highlight.message_pos") }}</p>
+				<p>{{ t("overlay.highlight.message_pos") }}</p>
 				<PlacementSelector v-model="placement" />
 			</div>
 
 			<div class="center" v-if="overlayExists">
 				<TTButton @click="testOverlay()" icon="test">{{
-					$t("overlay.highlight.testBt")
+					t("overlay.highlight.testBt")
 				}}</TTButton>
 			</div>
 
@@ -105,7 +105,7 @@
 			/>
 
 			<div class="center card-item alert" v-else-if="!overlayExists">
-				{{ $t("overlay.overlay_not_configured") }}
+				{{ t("overlay.overlay_not_configured") }}
 			</div>
 		</section>
 
@@ -119,116 +119,108 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import PlacementSelector from "@/components/PlacementSelector.vue";
-import StoreProxy from "@/store/StoreProxy";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { LoremIpsum } from "lorem-ipsum";
-import { watch } from "vue";
-import { Component, toNative, Vue } from "vue-facing-decorator";
-import TTButton from "../../../TTButton.vue";
-import ToggleBlock from "../../../ToggleBlock.vue";
+import { onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ToggleBlock,
-		OverlayInstaller,
-		PlacementSelector,
-	},
-})
-class OverlayParamsHighlight extends Vue {
-	public overlayExists = false;
-	public checkingOverlayPresence = false;
-	public placement: TwitchatDataTypes.ScreenPosition = "bl";
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeChat = useStoreChat();
+const storeUsers = useStoreUsers();
 
-	private checkInterval: number = -1;
-	private subcheckTimeout: number = -1;
-	private overlayPresenceHandler!: () => void;
+const overlayExists = ref(false);
+const checkingOverlayPresence = ref(false);
+const placement = ref<TwitchatDataTypes.ScreenPosition>("bl");
 
-	public beforeMount(): void {
-		this.placement = this.$store.chat.chatHighlightOverlayParams.position;
+let checkInterval: number = -1;
+let subcheckTimeout: number = -1;
+let overlayPresenceHandler!: () => void;
 
-		this.overlayPresenceHandler = () => {
-			this.overlayExists = true;
-			clearTimeout(this.subcheckTimeout);
-		};
-		PublicAPI.instance.addEventListener(
-			"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
-			this.overlayPresenceHandler,
-		);
+watch(placement, () => {
+	const data: TwitchatDataTypes.ChatHighlightParams = {
+		position: placement.value,
+	};
+	storeChat.setChatHighlightOverlayParams(data);
+});
 
-		//Regularly check if the overlay exists
-		this.getOverlayPresence(true);
-		this.checkInterval = window.setInterval(() => this.getOverlayPresence(), 2000);
+onBeforeMount(() => {
+	placement.value = storeChat.chatHighlightOverlayParams.position;
 
-		watch(
-			() => this.placement,
-			() => {
-				const data: TwitchatDataTypes.ChatHighlightParams = {
-					position: this.placement,
-				};
-				this.$store.chat.setChatHighlightOverlayParams(data);
-			},
-		);
-	}
+	overlayPresenceHandler = () => {
+		overlayExists.value = true;
+		clearTimeout(subcheckTimeout);
+	};
+	PublicAPI.instance.addEventListener(
+		"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+		overlayPresenceHandler,
+	);
 
-	/**
-	 * Checks if overlay exists
-	 */
-	public getOverlayPresence(showLoader: boolean = false): void {
-		if (showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
-		clearTimeout(this.subcheckTimeout);
-		//If after 1,5s the overlay didn't answer, assume it doesn't exist
-		this.subcheckTimeout = window.setTimeout(() => {
-			this.overlayExists = false;
-			this.checkingOverlayPresence = false;
-		}, 1500);
-	}
+	//Regularly check if the overlay exists
+	getOverlayPresence(true);
+	checkInterval = window.setInterval(() => getOverlayPresence(), 2000);
+});
 
-	public beforeUnmount(): void {
-		clearInterval(this.checkInterval);
-		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(
-			"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
-			this.overlayPresenceHandler,
-		);
-	}
+onBeforeUnmount(() => {
+	clearInterval(checkInterval);
+	clearTimeout(subcheckTimeout);
+	PublicAPI.instance.removeEventListener(
+		"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+		overlayPresenceHandler,
+	);
+});
 
-	public async testOverlay(): Promise<void> {
-		const lorem = new LoremIpsum({
-			sentencesPerParagraph: { max: 3, min: 1 },
-			wordsPerSentence: { max: 16, min: 4 },
-		});
-
-		const uid = StoreProxy.auth.twitch.user.id;
-		const text = lorem.generateParagraphs(1) + " TakeNRG";
-		const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
-		const message: TwitchatDataTypes.MessageChatData = {
-			id: Utils.getUUID(),
-			platform: "twitch",
-			date: Date.now(),
-			type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			user: this.$store.users.getUserFrom("twitch", uid, uid),
-			answers: [],
-			channel_id: uid,
-			message: text,
-			message_chunks: chunks,
-			message_html: TwitchUtils.messageChunksToHTML(chunks),
-			message_size: TwitchUtils.computeMessageSize(chunks),
-			is_short: false,
-		};
-		this.$store.chat.highlightChatMessageOverlay(message);
-	}
+/**
+ * Checks if overlay exists
+ */
+function getOverlayPresence(showLoader: boolean = false): void {
+	if (showLoader) checkingOverlayPresence.value = true;
+	PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
+	clearTimeout(subcheckTimeout);
+	//If after 1,5s the overlay didn't answer, assume it doesn't exist
+	subcheckTimeout = window.setTimeout(() => {
+		overlayExists.value = false;
+		checkingOverlayPresence.value = false;
+	}, 1500);
 }
-export default toNative(OverlayParamsHighlight);
+
+async function testOverlay(): Promise<void> {
+	const lorem = new LoremIpsum({
+		sentencesPerParagraph: { max: 3, min: 1 },
+		wordsPerSentence: { max: 16, min: 4 },
+	});
+
+	const uid = storeAuth.twitch.user.id;
+	const text = lorem.generateParagraphs(1) + " TakeNRG";
+	const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
+	const message: TwitchatDataTypes.MessageChatData = {
+		id: Utils.getUUID(),
+		platform: "twitch",
+		date: Date.now(),
+		type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		user: storeUsers.getUserFrom("twitch", uid, uid),
+		answers: [],
+		channel_id: uid,
+		message: text,
+		message_chunks: chunks,
+		message_html: TwitchUtils.messageChunksToHTML(chunks),
+		message_size: TwitchUtils.computeMessageSize(chunks),
+		is_short: false,
+	};
+	storeChat.highlightChatMessageOverlay(message);
+}
 </script>
 
 <style scoped lang="less">

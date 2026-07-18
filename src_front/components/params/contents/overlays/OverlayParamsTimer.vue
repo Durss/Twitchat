@@ -6,19 +6,19 @@
 			<Icon name="newtab" theme="light" />
 		</a> -->
 
-		<div class="header">{{ $t("overlay.timer.header") }}</div>
+		<div class="header">{{ t("overlay.timer.header") }}</div>
 
 		<section>
 			<TTButton @click="openTimerParams" icon="edit">{{
-				$t("overlay.timer.createTimer_bt")
+				t("overlay.timer.createTimer_bt")
 			}}</TTButton>
 		</section>
 
 		<section class="timerList">
 			<ToggleBlock
-				v-for="entry in $store.timers.timerList"
+				v-for="entry in storeTimer.timerList"
 				:title="entry.title"
-				:titleDefault="$t('overlay.timer.default_title')"
+				:titleDefault="t('overlay.timer.default_title')"
 				:titleMaxLengh="30"
 				:open="false"
 				:key="entry.id"
@@ -42,7 +42,7 @@
 					</div>
 
 					<div class="overlayInstallCard">
-						<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
+						<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 						<OverlayInstaller
 							type="timer"
 							:sourceSuffix="entry.title"
@@ -52,7 +52,7 @@
 					</div>
 
 					<ParamItem
-						:paramData="param_style[entry.id]"
+						:paramData="param_style[entry.id]!"
 						v-model="entry.overlayParams.style"
 						class="selectList"
 						v-if="!entry.isDefault && entry.type == 'countdown'"
@@ -61,17 +61,17 @@
 
 					<template v-if="entry.overlayParams.style != 'bar'">
 						<ParamItem
-							:paramData="param_showIcon[entry.id]"
+							:paramData="param_showIcon[entry.id]!"
 							v-model="entry.overlayParams.showIcon"
 							@change="onChange(entry)"
 						/>
 						<ParamItem
-							:paramData="param_bgEnabled[entry.id]"
+							:paramData="param_bgEnabled[entry.id]!"
 							v-model="entry.overlayParams.bgEnabled"
 							@change="onChange(entry)"
 						>
 							<ParamItem
-								:paramData="param_bgColor[entry.id]"
+								:paramData="param_bgColor[entry.id]!"
 								v-model="entry.overlayParams.bgColor"
 								:childLevel="1"
 								noBackground
@@ -79,18 +79,18 @@
 							/>
 						</ParamItem>
 						<ParamItem
-							:paramData="param_textFont[entry.id]"
+							:paramData="param_textFont[entry.id]!"
 							v-model="entry.overlayParams.textFont"
 							class="selectList"
 							@change="onChange(entry)"
 						/>
 						<ParamItem
-							:paramData="param_textSize[entry.id]"
+							:paramData="param_textSize[entry.id]!"
 							v-model="entry.overlayParams.textSize"
 							@change="onChange(entry)"
 						/>
 						<ParamItem
-							:paramData="param_textColor[entry.id]"
+							:paramData="param_textColor[entry.id]!"
 							v-model="entry.overlayParams.textColor"
 							@change="onChange(entry)"
 						/>
@@ -98,18 +98,18 @@
 
 					<template v-else>
 						<ParamItem
-							:paramData="param_progressStyle[entry.id]"
+							:paramData="param_progressStyle[entry.id]!"
 							v-model="entry.overlayParams.progressStyle"
 							class="selectList"
 							@change="onChange(entry)"
 						/>
 						<ParamItem
-							:paramData="param_bgColor[entry.id]"
+							:paramData="param_bgColor[entry.id]!"
 							v-model="entry.overlayParams.bgColor"
 							@change="onChange(entry)"
 						/>
 						<ParamItem
-							:paramData="param_progressSize[entry.id]"
+							:paramData="param_progressSize[entry.id]!"
 							v-model="entry.overlayParams.progressSize"
 							@change="onChange(entry)"
 						/>
@@ -142,138 +142,133 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import ToggleBlock from "../../../ToggleBlock.vue";
+import TTButton from "../../../TTButton.vue";
 import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
-import Icon from "@/components/Icon.vue";
-import TTButton from "../../../TTButton.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-		OverlayInstaller,
-	},
-})
-class OverlayParamsTimer extends Vue {
-	public param_style: {
-		[key: string]: TwitchatDataTypes.ParameterData<
-			string,
+const { t } = useI18n();
+const storeTimer = useStoreTimer();
+const storeParams = useStoreParams();
+
+const param_style = ref<{
+	[key: string]: TwitchatDataTypes.ParameterData<
+		string,
+		TwitchatDataTypes.TimerData["overlayParams"]["style"]
+	>;
+}>({});
+const param_bgColor = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_bgEnabled = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_textFont = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_textSize = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_textColor = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
+const param_showIcon = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
+const param_progressSize = ref<{ [key: string]: TwitchatDataTypes.ParameterData<number> }>({});
+const param_progressStyle = ref<{
+	[key: string]: TwitchatDataTypes.ParameterData<
+		string,
+		TwitchatDataTypes.TimerData["overlayParams"]["progressStyle"]
+	>;
+}>({});
+
+onBeforeMount(() => {
+	initParams();
+});
+
+/**
+ * Create parameters for a bingo entry
+ * @param id
+ */
+function initParams(): void {
+	storeTimer.timerList.forEach((entry) => {
+		const id = entry.id;
+		if (param_style.value[id]) return;
+		const styleList: TwitchatDataTypes.ParameterDataListValue<
 			TwitchatDataTypes.TimerData["overlayParams"]["style"]
-		>;
-	} = {};
-	public param_bgColor: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_bgEnabled: { [key: string]: TwitchatDataTypes.ParameterData<boolean> } = {};
-	public param_textFont: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_textSize: { [key: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_textColor: { [key: string]: TwitchatDataTypes.ParameterData<string> } = {};
-	public param_showIcon: { [key: string]: TwitchatDataTypes.ParameterData<boolean> } = {};
-	public param_progressSize: { [key: string]: TwitchatDataTypes.ParameterData<number> } = {};
-	public param_progressStyle: {
-		[key: string]: TwitchatDataTypes.ParameterData<
-			string,
+		>[] = [
+			{ value: "text", labelKey: "overlay.timer.param_style_text" },
+			{ value: "bar", labelKey: "overlay.timer.param_style_bar" },
+		];
+		const progressStyleList: TwitchatDataTypes.ParameterDataListValue<
 			TwitchatDataTypes.TimerData["overlayParams"]["progressStyle"]
-		>;
-	} = {};
-
-	public beforeMount(): void {
-		this.initParams();
-	}
-
-	/**
-	 * Create parameters for a bingo entry
-	 * @param id
-	 */
-	private initParams(): void {
-		this.$store.timers.timerList.forEach((entry) => {
-			const id = entry.id;
-			if (this.param_style[id]) return;
-			const styleList: TwitchatDataTypes.ParameterDataListValue<
-				TwitchatDataTypes.TimerData["overlayParams"]["style"]
-			>[] = [
-				{ value: "text", labelKey: "overlay.timer.param_style_text" },
-				{ value: "bar", labelKey: "overlay.timer.param_style_bar" },
-			];
-			const progressStyleList: TwitchatDataTypes.ParameterDataListValue<
-				TwitchatDataTypes.TimerData["overlayParams"]["progressStyle"]
-			>[] = [
-				{ value: "empty", labelKey: "overlay.timer.param_progressStyle_empty" },
-				{ value: "fill", labelKey: "overlay.timer.param_progressStyle_fill" },
-			];
-			this.param_style[id] = {
-				type: "list",
-				value: "",
-				labelKey: "overlay.timer.param_style",
-				icon: "css",
-				listValues: styleList,
-			};
-			this.param_bgColor[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.timer.param_bgColor",
-				icon: "color",
-			};
-			this.param_showIcon[id] = {
-				type: "boolean",
-				value: true,
-				labelKey: "overlay.timer.param_showIcon",
-				icon: entry.type == "timer" ? "timer" : "countdown",
-			};
-			this.param_bgEnabled[id] = {
-				type: "boolean",
-				value: true,
-				labelKey: "overlay.timer.param_bgEnabled",
-				icon: "overlay",
-			};
-			this.param_textFont[id] = {
-				type: "font",
-				value: "",
-				labelKey: "overlay.timer.param_textFont",
-				icon: "font",
-			};
-			this.param_textSize[id] = {
-				type: "number",
-				value: 20,
-				labelKey: "overlay.timer.param_textSize",
-				icon: "fontSize",
-			};
-			this.param_textColor[id] = {
-				type: "color",
-				value: "",
-				labelKey: "overlay.timer.param_textColor",
-				icon: "color",
-			};
-			this.param_progressSize[id] = {
-				type: "number",
-				value: 10,
-				labelKey: "overlay.timer.param_progressSize",
-				icon: "scale",
-			};
-			this.param_progressStyle[id] = {
-				type: "list",
-				value: "",
-				labelKey: "overlay.timer.param_progressStyle",
-				icon: "color",
-				listValues: progressStyleList,
-			};
-		});
-	}
-
-	public onChange(entry: TwitchatDataTypes.TimerData): void {
-		this.$store.timers.saveData();
-		this.$store.timers.broadcastStates(entry.id);
-	}
-
-	public openTimerParams(): void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TIMERS);
-	}
+		>[] = [
+			{ value: "empty", labelKey: "overlay.timer.param_progressStyle_empty" },
+			{ value: "fill", labelKey: "overlay.timer.param_progressStyle_fill" },
+		];
+		param_style.value[id] = {
+			type: "list",
+			value: "",
+			labelKey: "overlay.timer.param_style",
+			icon: "css",
+			listValues: styleList,
+		};
+		param_bgColor.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.timer.param_bgColor",
+			icon: "color",
+		};
+		param_showIcon.value[id] = {
+			type: "boolean",
+			value: true,
+			labelKey: "overlay.timer.param_showIcon",
+			icon: entry.type == "timer" ? "timer" : "countdown",
+		};
+		param_bgEnabled.value[id] = {
+			type: "boolean",
+			value: true,
+			labelKey: "overlay.timer.param_bgEnabled",
+			icon: "overlay",
+		};
+		param_textFont.value[id] = {
+			type: "font",
+			value: "",
+			labelKey: "overlay.timer.param_textFont",
+			icon: "font",
+		};
+		param_textSize.value[id] = {
+			type: "number",
+			value: 20,
+			labelKey: "overlay.timer.param_textSize",
+			icon: "fontSize",
+		};
+		param_textColor.value[id] = {
+			type: "color",
+			value: "",
+			labelKey: "overlay.timer.param_textColor",
+			icon: "color",
+		};
+		param_progressSize.value[id] = {
+			type: "number",
+			value: 10,
+			labelKey: "overlay.timer.param_progressSize",
+			icon: "scale",
+		};
+		param_progressStyle.value[id] = {
+			type: "list",
+			value: "",
+			labelKey: "overlay.timer.param_progressStyle",
+			icon: "color",
+			listValues: progressStyleList,
+		};
+	});
 }
-export default toNative(OverlayParamsTimer);
+
+function onChange(entry: TwitchatDataTypes.TimerData): void {
+	storeTimer.saveData();
+	storeTimer.broadcastStates(entry.id);
+}
+
+function openTimerParams(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TIMERS);
+}
 </script>
 
 <style scoped lang="less">
