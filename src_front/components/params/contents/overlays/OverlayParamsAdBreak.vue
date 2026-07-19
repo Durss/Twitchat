@@ -1,10 +1,10 @@
 <template>
 	<div class="overlayparamsadbreak overlayParamsSection">
 		<div class="card-item alert center" v-if="!scopeGranted">
-			<p>{{ $t("overlay.heatDistort.needs_scope") }}</p>
-			<Button class="button" icon="obs" light alert @click="grantScopes()">{{
-				$t("overlay.heatDistort.grant_scopeBt")
-			}}</Button>
+			<p>{{ t("overlay.heatDistort.needs_scope") }}</p>
+			<TTButton class="button" icon="obs" light alert @click="grantScopes()">{{
+				t("overlay.heatDistort.grant_scopeBt")
+			}}</TTButton>
 		</div>
 
 		<a
@@ -13,7 +13,7 @@
 			class="youtubeTutorialBt"
 		>
 			<Icon name="youtube" theme="light" />
-			<span>{{ $t("overlay.youtube_demo_tt") }}</span>
+			<span>{{ t("overlay.youtube_demo_tt") }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
 
@@ -22,13 +22,13 @@
 				<a
 					href="https://dashboard.twitch.tv/monetization/ads/ads-manager"
 					target="_blank"
-					>{{ $t("overlay.adBreak.description_link") }}</a
+					>{{ t("overlay.adBreak.description_link") }}</a
 				>
 			</template>
 		</i18n-t>
 
 		<section class="overlayInstallCard">
-			<h1><Icon name="obs" />{{ $t("bingo_grid.form.install_title") }}</h1>
+			<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 
 			<OverlayInstaller type="adbreak" />
 
@@ -82,7 +82,7 @@
 						<div class="holder">
 							<p>
 								<Icon name="move" class="icon" />{{
-									$t("overlay.adBreak.param_placement")
+									t("overlay.adBreak.param_placement")
 								}}
 							</p>
 							<PlacementSelector
@@ -99,15 +99,15 @@
 					/>
 
 					<div class="center" v-if="overlayExists">
-						<Button
+						<TTButton
 							:loading="testingApproaching"
 							@click="testApproaching()"
 							icon="test"
-							>{{ $t("overlay.adBreak.testBt") }}</Button
+							>{{ t("overlay.adBreak.testBt") }}</TTButton
 						>
 					</div>
 					<div class="center card-item alert" v-if="!overlayExists">
-						{{ $t("overlay.overlay_not_configured") }}
+						{{ t("overlay.overlay_not_configured") }}
 					</div>
 				</div>
 			</ParamItem>
@@ -143,7 +143,7 @@
 						<div class="holder">
 							<p>
 								<Icon name="move" class="icon" />{{
-									$t("overlay.adBreak.param_placement")
+									t("overlay.adBreak.param_placement")
 								}}
 							</p>
 							<PlacementSelector
@@ -160,12 +160,12 @@
 					/>
 
 					<div class="center" v-if="overlayExists">
-						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{
-							$t("overlay.adBreak.testBt")
-						}}</Button>
+						<TTButton :loading="testingRunning" @click="testRunning()" icon="test">{{
+							t("overlay.adBreak.testBt")
+						}}</TTButton>
 					</div>
 					<div class="center card-item alert" v-if="!overlayExists">
-						{{ $t("overlay.overlay_not_configured") }}
+						{{ t("overlay.overlay_not_configured") }}
 					</div>
 				</div>
 			</ParamItem>
@@ -173,258 +173,234 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import PlacementSelector from "@/components/PlacementSelector.vue";
-import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import DataStore from "@/store/DataStore";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { watch } from "vue";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components: {
-		Icon,
-		Button: TTButton,
-		ParamItem,
-		ToggleBlock,
-		OverlayInstaller,
-		PlacementSelector,
-	},
-	emits: [],
-})
-class OverlayParamsAdBreak extends Vue {
-	public overlayExists = false;
-	public testingRunning = false;
-	public testingApproaching = false;
+const { t } = useI18n();
 
-	public param_showApproaching: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "timer",
-		labelKey: "overlay.adBreak.param_showApproaching",
-	};
-	public param_showRunning: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		icon: "play",
-		labelKey: "overlay.adBreak.param_showRunning",
-	};
-	public param_approachingDelay: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 30,
-		max: 5 * 60,
-		icon: "timer",
-		labelKey: "overlay.adBreak.param_approachingDelay",
-	};
-	public param_approachingStyle: TwitchatDataTypes.ParameterData<
+const overlayExists = ref(false);
+const testingRunning = ref(false);
+const testingApproaching = ref(false);
+
+const param_showApproaching = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "timer",
+	labelKey: "overlay.adBreak.param_showApproaching",
+});
+const param_showRunning = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	icon: "play",
+	labelKey: "overlay.adBreak.param_showRunning",
+});
+const param_approachingDelay = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 30,
+	max: 5 * 60,
+	icon: "timer",
+	labelKey: "overlay.adBreak.param_approachingDelay",
+});
+const param_approachingStyle = ref<
+	TwitchatDataTypes.ParameterData<
 		TwitchatDataTypes.AdBreakOverlayData["approachingStyle"],
 		TwitchatDataTypes.AdBreakOverlayData["approachingStyle"]
-	> = {
-		type: "list",
-		value: "bar",
-		listValues: [],
-		icon: "overlay",
-		labelKey: "overlay.adBreak.param_style",
-	};
-	public param_runningStyle: TwitchatDataTypes.ParameterData<
+	>
+>({
+	type: "list",
+	value: "bar",
+	listValues: [],
+	icon: "overlay",
+	labelKey: "overlay.adBreak.param_style",
+});
+const param_runningStyle = ref<
+	TwitchatDataTypes.ParameterData<
 		TwitchatDataTypes.AdBreakOverlayData["runningStyle"],
 		TwitchatDataTypes.AdBreakOverlayData["runningStyle"]
-	> = {
-		type: "list",
-		value: "bar",
-		listValues: [],
-		icon: "overlay",
-		labelKey: "overlay.adBreak.param_style",
-	};
-	public param_approachingSize: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 10,
-		min: 10,
-		max: 100,
-		icon: "fontSize",
-		labelKey: "overlay.adBreak.param_size",
-	};
-	public param_runningSize: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 10,
-		min: 10,
-		max: 100,
-		icon: "fontSize",
-		labelKey: "overlay.adBreak.param_size",
-	};
-	public param_approachingThickness: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 10,
-		min: 0,
-		max: 100,
-		icon: "thickness",
-		labelKey: "overlay.adBreak.param_thickness",
-	};
-	public param_runningThickness: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 10,
-		min: 0,
-		max: 100,
-		icon: "thickness",
-		labelKey: "overlay.adBreak.param_thickness",
-	};
-	public param_approachingColor: TwitchatDataTypes.ParameterData<string> = {
-		type: "color",
-		value: "#ffffff",
-		icon: "pipette",
-		labelKey: "overlay.adBreak.param_color",
-	};
-	public param_runningColor: TwitchatDataTypes.ParameterData<string> = {
-		type: "color",
-		value: "#ffffff",
-		icon: "pipette",
-		labelKey: "overlay.adBreak.param_color",
-	};
-	public param_approachingLabel: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "{TIMER}s",
-		longText: true,
-		maxLength: 500,
-		icon: "font",
-		labelKey: "overlay.adBreak.param_label",
-	};
-	public param_runningLabel: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "{TIMER}s",
-		longText: true,
-		maxLength: 500,
-		icon: "font",
-		labelKey: "overlay.adBreak.param_label",
-	};
+	>
+>({
+	type: "list",
+	value: "bar",
+	listValues: [],
+	icon: "overlay",
+	labelKey: "overlay.adBreak.param_style",
+});
+const param_approachingSize = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 10,
+	min: 10,
+	max: 100,
+	icon: "fontSize",
+	labelKey: "overlay.adBreak.param_size",
+});
+const param_runningSize = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 10,
+	min: 10,
+	max: 100,
+	icon: "fontSize",
+	labelKey: "overlay.adBreak.param_size",
+});
+const param_approachingThickness = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 10,
+	min: 0,
+	max: 100,
+	icon: "thickness",
+	labelKey: "overlay.adBreak.param_thickness",
+});
+const param_runningThickness = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 10,
+	min: 0,
+	max: 100,
+	icon: "thickness",
+	labelKey: "overlay.adBreak.param_thickness",
+});
+const param_approachingColor = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "color",
+	value: "#ffffff",
+	icon: "pipette",
+	labelKey: "overlay.adBreak.param_color",
+});
+const param_runningColor = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "color",
+	value: "#ffffff",
+	icon: "pipette",
+	labelKey: "overlay.adBreak.param_color",
+});
+const param_approachingLabel = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "{TIMER}s",
+	longText: true,
+	maxLength: 500,
+	icon: "font",
+	labelKey: "overlay.adBreak.param_label",
+});
+const param_runningLabel = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "{TIMER}s",
+	longText: true,
+	maxLength: 500,
+	icon: "font",
+	labelKey: "overlay.adBreak.param_label",
+});
 
-	public localData: TwitchatDataTypes.AdBreakOverlayData = {
-		showApproaching: false,
-		showRunning: false,
-		approachingDelay: 30,
-		approachingStyle: "bar",
-		runningStyle: "text",
-		approachingSize: 15,
-		runningSize: 15,
-		approachingThickness: 5,
-		runningThickness: 5,
-		approachingColor: "#e04e00",
-		runningColor: "#b71f1f",
-		approachingPlacement: "b",
-		runningPlacement: "br",
-		approachingLabel: "{TIMER}s",
-		runningLabel: "{TIMER}s",
-	};
+const localData = ref<TwitchatDataTypes.AdBreakOverlayData>({
+	showApproaching: false,
+	showRunning: false,
+	approachingDelay: 30,
+	approachingStyle: "bar",
+	runningStyle: "text",
+	approachingSize: 15,
+	runningSize: 15,
+	approachingThickness: 5,
+	runningThickness: 5,
+	approachingColor: "#e04e00",
+	runningColor: "#b71f1f",
+	approachingPlacement: "b",
+	runningPlacement: "br",
+	approachingLabel: t("overlay.adBreak.ad_approaching"),
+	runningLabel: t("overlay.adBreak.ad_running"),
+});
 
-	private checkInterval: number = -1;
-	private subcheckTimeout: number = -1;
-	private overlayPresenceHandler!: () => void;
+let checkInterval: number = -1;
+let subcheckTimeout: number = -1;
 
-	public get scopeGranted(): boolean {
-		return TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
-	}
+const scopeGranted = computed<boolean>(() =>
+	TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]),
+);
 
-	public beforeMount(): void {
-		this.localData.approachingLabel = this.$t("overlay.adBreak.ad_approaching");
-		this.localData.runningLabel = this.$t("overlay.adBreak.ad_running");
-		this.param_runningStyle.listValues = this.param_approachingStyle.listValues = [
-			{ value: "bar", labelKey: "overlay.adBreak.param_styles.bar" },
-			{ value: "text", labelKey: "overlay.adBreak.param_styles.text" },
-		];
-
-		this.param_approachingLabel.placeholderList = this.param_runningLabel.placeholderList = [
-			{ tag: "TIMER", descKey: "overlay.adBreak.param_label_placeholder_timer" },
-		];
-
-		const storeData = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);
-		if (storeData) {
-			this.localData = JSON.parse(storeData) as TwitchatDataTypes.AdBreakOverlayData;
-		}
-
-		watch(
-			() => this.localData,
-			() => this.onChange(),
-			{ deep: true },
-		);
-
-		this.overlayPresenceHandler = () => {
-			this.overlayExists = true;
-			clearTimeout(this.subcheckTimeout);
-		};
-		PublicAPI.instance.addEventListener(
-			"ON_AD_BREAK_OVERLAY_PRESENCE",
-			this.overlayPresenceHandler,
-		);
-
-		//Regularly check if the overlay exists
-		this.checkInterval = window.setInterval(() => {
-			PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_PRESENCE");
-			clearTimeout(this.subcheckTimeout);
-			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = window.setTimeout(() => {
-				this.overlayExists = false;
-			}, 1500);
-		}, 2000);
-
-		//Forces first data init save
-		this.onChange();
-	}
-
-	public beforeUnmount(): void {
-		clearInterval(this.checkInterval);
-		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(
-			"ON_AD_BREAK_OVERLAY_PRESENCE",
-			this.overlayPresenceHandler,
-		);
-	}
-
-	public grantScopes(): void {
-		TwitchUtils.requestScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
-	}
-
-	public onChange(): void {
-		DataStore.set(DataStore.AD_BREAK_OVERLAY_PARAMS, this.localData);
-		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_CONFIGS", this.localData);
-	}
-
-	public testApproaching(): void {
-		this.testingApproaching = true;
-		const data: TwitchatDataTypes.CommercialData = {
-			currentAdDuration_ms: 0,
-			prevAdStart_at: 0,
-			nextAdStart_at: Date.now() + this.localData.approachingDelay * 1000,
-			nextSnooze_at: 0,
-			remainingSnooze: 3,
-		};
-		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
-		window.setTimeout(() => {
-			this.testingApproaching = false;
-		}, 250);
-	}
-
-	public testRunning(): void {
-		this.testingRunning = true;
-		const data: TwitchatDataTypes.CommercialData = {
-			currentAdDuration_ms: 30000,
-			prevAdStart_at: Date.now(),
-			nextAdStart_at: 0,
-			nextSnooze_at: 0,
-			remainingSnooze: 3,
-		};
-		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
-		window.setTimeout(() => {
-			this.testingRunning = false;
-		}, 250);
-	}
+function grantScopes(): void {
+	TwitchUtils.requestScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
 }
-export default toNative(OverlayParamsAdBreak);
+
+function onChange(): void {
+	DataStore.set(DataStore.AD_BREAK_OVERLAY_PARAMS, localData.value);
+	PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_CONFIGS", localData.value);
+}
+
+function testApproaching(): void {
+	testingApproaching.value = true;
+	const data: TwitchatDataTypes.CommercialData = {
+		currentAdDuration_ms: 0,
+		prevAdStart_at: 0,
+		nextAdStart_at: Date.now() + localData.value.approachingDelay * 1000,
+		nextSnooze_at: 0,
+		remainingSnooze: 3,
+	};
+	PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
+	window.setTimeout(() => {
+		testingApproaching.value = false;
+	}, 250);
+}
+
+function testRunning(): void {
+	testingRunning.value = true;
+	const data: TwitchatDataTypes.CommercialData = {
+		currentAdDuration_ms: 30000,
+		prevAdStart_at: Date.now(),
+		nextAdStart_at: 0,
+		nextSnooze_at: 0,
+		remainingSnooze: 3,
+	};
+	PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
+	window.setTimeout(() => {
+		testingRunning.value = false;
+	}, 250);
+}
+
+param_runningStyle.value.listValues = param_approachingStyle.value.listValues = [
+	{ value: "bar", labelKey: "overlay.adBreak.param_styles.bar" },
+	{ value: "text", labelKey: "overlay.adBreak.param_styles.text" },
+];
+
+param_approachingLabel.value.placeholderList = param_runningLabel.value.placeholderList = [
+	{ tag: "TIMER", descKey: "overlay.adBreak.param_label_placeholder_timer" },
+];
+
+const storeData = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);
+if (storeData) {
+	localData.value = JSON.parse(storeData) as TwitchatDataTypes.AdBreakOverlayData;
+}
+
+watch(localData, () => onChange(), { deep: true });
+
+const overlayPresenceHandler = () => {
+	overlayExists.value = true;
+	clearTimeout(subcheckTimeout);
+};
+PublicAPI.instance.addEventListener("ON_AD_BREAK_OVERLAY_PRESENCE", overlayPresenceHandler);
+
+//Regularly check if the overlay exists
+checkInterval = window.setInterval(() => {
+	PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_PRESENCE");
+	clearTimeout(subcheckTimeout);
+	//If after 1,5s the overlay didn't answer, assume it doesn't exist
+	subcheckTimeout = window.setTimeout(() => {
+		overlayExists.value = false;
+	}, 1500);
+}, 2000);
+
+//Forces first data init save
+onChange();
+
+onBeforeUnmount(() => {
+	clearInterval(checkInterval);
+	clearTimeout(subcheckTimeout);
+	PublicAPI.instance.removeEventListener("ON_AD_BREAK_OVERLAY_PRESENCE", overlayPresenceHandler);
+});
 </script>
 
 <style scoped lang="less">
