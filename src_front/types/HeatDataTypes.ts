@@ -10,6 +10,10 @@ export interface HeatScreen {
 export interface HeatArea {
 	id: string;
 	/**
+	 * Is area enabled?
+	 */
+	enabled?: boolean;
+	/**
 	 * Area title, shown on twitchat companion
 	 */
 	title?: string;

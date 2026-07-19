@@ -372,7 +372,7 @@
 	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
 	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
 	<ConnectTwitchatCompanion v-else-if="subContent == 'twitchat_companion'" />
-	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'heatAreas'" />
+	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'clickableareas'" />
 </template>
 
 <script setup lang="ts">

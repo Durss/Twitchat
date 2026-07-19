@@ -218,8 +218,8 @@ function onSelectArea(id: string): void {
 
 function openHeatParams(): void {
 	storeParams.openParamsPage(
-		TwitchatDataTypes.ParameterPages.CONNECTIONS,
-		TwitchatDataTypes.ParamDeepSections.HEAT_AREAS,
+		TwitchatDataTypes.ParameterPages.OVERLAYS,
+		TwitchatDataTypes.ParamDeepSections.CLICKABLE_AREAS,
 	);
 }
 

@@ -16,6 +16,7 @@ import TwitchExtensionController from "./TwitchExtensionController.js";
 interface HeatExtensionArea {
 	id: string;
 	title: string;
+	enabled?: boolean;
 	showAreaOnExtension?: boolean;
 	cooldown_s?: number;
 	points: { x: number; y: number }[];
@@ -165,7 +166,9 @@ export default class UserController extends AbstractController {
 				.filter((screen) => screen.active === true)
 				.flatMap((screen) =>
 					(screen.areas ?? [])
-						.filter((area) => area.showAreaOnExtension === true)
+						.filter(
+							(area) => area.showAreaOnExtension === true && area.enabled !== false,
+						)
 						.map((v) => {
 							return {
 								id: v.id,

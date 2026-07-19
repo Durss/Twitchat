@@ -2071,6 +2071,7 @@ const UserDataSchema = {
 							properties: {
 								id: { type: "string", maxLength: 40 },
 								title: { type: "string", maxLength: 500 },
+								enabled: { type: "boolean" },
 								showAreaOnExtension: { type: "boolean" },
 								cooldown_s: {
 									type: "number",

@@ -253,7 +253,17 @@ export const storeHeat = defineStore("heat", {
 					const points = v.points
 						.map((p) => p.x.toFixed(6) + "/" + p.y.toFixed(6))
 						.join(";");
-					return v.id + "|" + v.cooldown_s + "|" + (v.title || "") + "|" + points;
+					return (
+						v.id +
+						"|" +
+						v.cooldown_s +
+						"|" +
+						v.enabled +
+						"|" +
+						(v.title || "") +
+						"|" +
+						points
+					);
 				})
 				.sort((a, b) => a.localeCompare(b))
 				.join();
@@ -391,8 +401,8 @@ export const storeHeat = defineStore("heat", {
 					.map((v) => v.areas)
 					.flat()
 					.find((v) => v.id == event.areaId);
-				// Area not found ignore click
-				if (!area) return;
+				// Area not found or disabled ignore click
+				if (!area || area.enabled === false) return;
 
 				const clone = JSON.parse(
 					JSON.stringify(message),
@@ -424,6 +434,7 @@ export const storeHeat = defineStore("heat", {
 				if (s.activeOBSScene && s.activeOBSScene != obsScene) continue;
 				//Parse all areas
 				for (const a of s.areas) {
+					if (a.enabled === false) return;
 					const isInside = Utils.isPointInsidePolygon(
 						{ x: event.coordinates.x, y: event.coordinates.y },
 						a.points,

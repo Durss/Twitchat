@@ -12,7 +12,10 @@
 					<g v-for="area in screen.areas" :key="'area_' + screen.id">
 						<polygon
 							:points="getSVGPoints(area.points)"
-							:class="{ selected: area.id == currentArea?.id }"
+							:class="{
+								selected: area.id == currentArea?.id,
+								disabled: area?.enabled === false,
+							}"
 							:stroke-width="5 / editorScale + 'px'"
 							:stroke="
 								area.showAreaOnExtension
@@ -50,6 +53,12 @@
 			</div>
 
 			<div class="form" v-else>
+				<ParamItem
+					v-if="currentEnabledParam"
+					:paramData="currentEnabledParam"
+					v-model="currentArea.enabled"
+					@change="emit('update')"
+				/>
 				<ParamItem
 					v-if="currentAreaTitleParam && storeExtension.hasFeature('areasTitle')"
 					:paramData="currentAreaTitleParam"
@@ -136,6 +145,7 @@ const documentPointerDownHandler = (e: PointerEvent) => onDocumentPointerDown(e)
 const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 const param_areaTitle = ref<Record<string, TwitchatDataTypes.ParameterData<string>>>({});
 const param_cooldown = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
+const param_enabled = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 
 function ensureTitleParam(area: HeatArea) {
 	if (!param_areaTitle.value[area.id]) {
@@ -144,7 +154,7 @@ function ensureTitleParam(area: HeatArea) {
 			maxLength: 500,
 			value: area.title || "",
 			icon: "label",
-			labelKey: "heat.areas.show_extension_button_title",
+			labelKey: "heat.areas.param_show_extension_button_title",
 		};
 	}
 	return param_areaTitle.value[area.id]!;
@@ -157,7 +167,7 @@ function ensureExtensionButtonParam(area: HeatArea) {
 			value: false,
 			icon: "show",
 			premiumOnly: true,
-			labelKey: "heat.areas.show_extension_button",
+			labelKey: "heat.areas.param_show_extension_button",
 		};
 	}
 	return param_showExtensionButton.value[area.id]!;
@@ -171,10 +181,22 @@ function ensureCooldownParam(area: HeatArea) {
 			icon: "timer",
 			max: 3600 * 24 - 1,
 			premiumOnly: true,
-			labelKey: "heat.areas.cooldown",
+			labelKey: "param_cooldown",
 		};
 	}
 	return param_cooldown.value[area.id]!;
+}
+
+function ensureEnabledParam(area: HeatArea) {
+	if (!param_enabled.value[area.id]) {
+		param_enabled.value[area.id] = {
+			type: "boolean",
+			value: true,
+			icon: "disable",
+			labelKey: "heat.areas.param_enabled",
+		};
+	}
+	return param_enabled.value[area.id]!;
 }
 
 const currentAreaExtensionButtonParam = computed(() => {
@@ -195,6 +217,14 @@ const currentAreaCooldownParam = computed(() => {
 	if (!currentArea.value) return null;
 	const param = ensureCooldownParam(currentArea.value);
 	param.value = currentArea.value.cooldown_s || 0;
+	return param;
+});
+
+const currentEnabledParam = computed(() => {
+	if (!currentArea.value) return null;
+	currentArea.value.enabled = currentArea.value.enabled ?? true;
+	const param = ensureEnabledParam(currentArea.value);
+	param.value = currentArea.value.enabled;
 	return param;
 });
 
@@ -743,6 +773,12 @@ async function refreshImage(): Promise<void> {
 				&.selected {
 					fill: var(--color-secondary-fader);
 					stroke: var(--color-secondary);
+				}
+
+				&.disabled {
+					fill: var(--color-text-fadest);
+					stroke: var(--color-text-fader);
+					stroke-dasharray: 10 10;
 				}
 			}
 			:deep(circle) {
