@@ -625,6 +625,17 @@
 						icon="distort"
 						>{{ $t("triggers.actions.common.action_heat_click") }}</TTButton
 					>
+
+					<TTButton
+						class="button"
+						@click="selectActionType('clickable_area')"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggerAction_clickableArea',
+						}"
+						icon="polygon"
+						>{{ $t("triggers.actions.common.action_clickable_area") }}</TTButton
+					>
 				</div>
 			</div>
 
@@ -745,6 +756,11 @@
 			/>
 			<TriggerActionClickHeatEntry
 				v-else-if="action.type == 'heat_click'"
+				:action="action"
+				:triggerData="triggerData"
+			/>
+			<TriggerActionClickableAreaEntry
+				v-else-if="action.type == 'clickable_area'"
 				:action="action"
 				:triggerData="triggerData"
 			/>
@@ -930,6 +946,7 @@ import TriggerActionBingoGridEntry from "./entries/TriggerActionBingoGridEntry.v
 import TriggerActionBlueskyEntry from "./entries/TriggerActionBlueskyEntry.vue";
 import TriggerActionChatEntry from "./entries/TriggerActionChatEntry.vue";
 import TriggerActionClickHeatEntry from "./entries/TriggerActionClickHeatEntry.vue";
+import TriggerActionClickableAreaEntry from "./entries/TriggerActionClickableAreaEntry.vue";
 import TriggerActionCountEntry from "./entries/TriggerActionCountEntry.vue";
 import TriggerActionCustomBadge from "./entries/TriggerActionCustomBadge.vue";
 import TriggerActionCustomChatEntry from "./entries/TriggerActionCustomChatEntry.vue";
@@ -1148,6 +1165,7 @@ const icons = computed(() => {
 	else if (props.action.type == "customBadges") icons.push("badge");
 	else if (props.action.type == "customUsername") icons.push("user");
 	else if (props.action.type == "heat_click") icons.push("distort");
+	else if (props.action.type == "clickable_area") icons.push("polygon");
 	else if (props.action.type == "reward") icons.push("channelPoints");
 	else if (props.action.type == "extension") icons.push("extension");
 	else if (props.action.type == "bingoGrid") icons.push("bingo_grid");

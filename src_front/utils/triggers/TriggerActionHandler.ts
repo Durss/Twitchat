@@ -4891,6 +4891,57 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
+				} else //Handle clickable area toggle action
+				if (step.type == "clickable_area") {
+					const areaIds = step.clickableAreaData?.areaIds || [];
+					if (areaIds.length === 0) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "❌ Clickable area: no area defined",
+						});
+						log.error = true;
+						logStep.error = true;
+					} else {
+						const action = step.clickableAreaData.action;
+						const areas = StoreProxy.heat.screenList
+							.map((v) => v.areas)
+							.flat()
+							.filter((v) => areaIds.includes(v.id));
+
+						for (const area of areas) {
+							switch (action) {
+								case "enable":
+									area.enabled = true;
+									break;
+								case "disable":
+									area.enabled = false;
+									break;
+								case "toggle":
+									area.enabled = area.enabled === false;
+									break;
+							}
+							logStep.messages.push({
+								date: Date.now(),
+								value: `${action} clickable area "${area.title || area.id}". New state is: ${area.enabled}`,
+							});
+						}
+
+						const missing = areaIds.filter(
+							(id) => areas.findIndex((v) => v.id == id) == -1,
+						);
+						if (missing.length > 0) {
+							logStep.messages.push({
+								date: Date.now(),
+								value: `❌ Clickable area(s) not found: ${missing.join(", ")}`,
+							});
+							log.error = true;
+							logStep.error = true;
+						}
+
+						if (areas.length > 0) {
+							StoreProxy.heat.updateActiveScreens();
+						}
+					}
 				} else //Handle http call trigger action
 				if (step.type == "http") {
 					const headers: { [key: string]: string } = {};

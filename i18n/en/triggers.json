@@ -224,6 +224,7 @@
 				"action_customUsername": "Custom username",
 				"action_heat_click": "Click a distortion",
 				"action_heat_click_tt": "You first need to create a distortion to use this action",
+				"action_clickable_area": "Toggle clickable area",
 				"action_lumia": "Control Lumia Stream",
 				"action_lumia_tt": "You first need to connect with Lumia Stream",
 				"action_streamerbot": "Streamer.bot action",
@@ -440,6 +441,16 @@
 				"action_enable": "Enable trigger",
 				"action_disable": "Disable trigger",
 				"action_toggle": "Toggle trigger state"
+			},
+			"clickable_area": {
+				"select": "Select the clickable areas to control",
+				"no_area": "You don't have any clickable area yet",
+				"create_areaBt": "Create clickable areas",
+				"action": "Action",
+				"action_enable": "Enable areas",
+				"action_disable": "Disable areas",
+				"action_toggle": "Toggle areas state",
+				"max_area_reached": "You cannot select more than {MAX} areas"
 			},
 			"tts": {
 				"header": "This feature needs you to enable {LINK} feature",

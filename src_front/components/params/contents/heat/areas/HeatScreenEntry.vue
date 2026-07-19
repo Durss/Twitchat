@@ -98,7 +98,7 @@ const obsConnected = computed(() => {
 const params_showOBS = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
 	value: true,
-	labelKey: "heat.areas.show_obs",
+	labelKey: "heat.areas.param_show_obs",
 });
 const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "list",

@@ -1257,6 +1257,20 @@ const UserDataSchema = {
 									},
 								},
 
+								clickableAreaData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: { enum: ["enable", "disable", "toggle"] },
+										areaIds: {
+											type: "array",
+											minItems: 0,
+											maxItems: 100,
+											items: { type: "string", maxLength: 40 },
+										},
+									},
+								},
+
 								sfxr: {
 									type: "object",
 									additionalProperties: false,

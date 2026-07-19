@@ -223,6 +223,7 @@
 				"action_customUsername": "Pseudo personnalisé",
 				"action_heat_click": "Cliquer une distorsion",
 				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour utiliser cette action",
+				"action_clickable_area": "Activer/Désactiver une zone cliquable",
 				"action_lumia": "Contrôler Lumia Stream",
 				"action_lumia_tt": "Vous devez connecter Lumia Stream",
 				"action_bingoGrid": "Grille de bingo",
@@ -440,6 +441,16 @@
 				"action_enable": "Activer le trigger",
 				"action_disable": "Désactiver le trigger",
 				"action_toggle": "Inverser l'état du trigger"
+			},
+			"clickable_area": {
+				"select": "Sélectionnez les zones cliquables à contrôler",
+				"no_area": "Vous n'avez encore aucune zone cliquable",
+				"create_areaBt": "Créer des zones cliquables",
+				"action": "Action à exécuter",
+				"action_enable": "Activer les zones",
+				"action_disable": "Désactiver les zones",
+				"action_toggle": "Inverser l'état des zones",
+				"max_area_reached": "Vous ne pouvez pas sélectionner plus de {MAX} zones"
 			},
 			"tts": {
 				"header": "Veuillez activer la fonctionnalité {LINK}",

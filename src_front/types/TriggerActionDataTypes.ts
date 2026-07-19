@@ -96,6 +96,7 @@ export type TriggerActionTypes =
 	| TriggerActionLabelData
 	| TriggerActionCustomMessageData
 	| TriggerActionHeatClickData
+	| TriggerActionClickableAreaData
 	| TriggerActionRewardData
 	| TriggerActionExtensionData
 	| TriggerActionDiscordData
@@ -1274,6 +1275,21 @@ export interface TriggerActionHeatClickData extends TriggerActionData {
 		 * Distortion overlay ID to forward the click to
 		 */
 		overlayId: string;
+	};
+}
+
+export type TriggerActionClickableAreaDataAction = "enable" | "disable" | "toggle";
+export interface TriggerActionClickableAreaData extends TriggerActionData {
+	type: "clickable_area";
+	clickableAreaData: {
+		/**
+		 * IDs of the clickable areas to enable/disable/toggle
+		 */
+		areaIds: string[];
+		/**
+		 * Action to perform
+		 */
+		action: TriggerActionClickableAreaDataAction;
 	};
 }
 
