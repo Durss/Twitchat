@@ -1,19 +1,5 @@
 <template>
 	<div ref="root" class="heatscreeneditor">
-		<div class="form">
-			<ParamItem
-				:paramData="params_target"
-				v-model="params_target.value"
-				@change="onSelectOBSScene()"
-			/>
-			<ParamItem
-				:paramData="params_showOBS"
-				v-model="params_showOBS.value"
-				v-if="obsConnected"
-				class="shrink"
-			/>
-		</div>
-
 		<div ref="scrollable" class="scrollable" @wheel="onMouseWheel($event)">
 			<div
 				ref="editor"
@@ -21,7 +7,7 @@
 				:class="editorClasses"
 				@pointerdown="($event) => addPoint($event)"
 			>
-				<div ref="background" class="background" v-if="params_showOBS.value"></div>
+				<div ref="background" class="background" v-if="props.obsPreview"></div>
 				<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
 					<g v-for="area in screen.areas" :key="'area_' + screen.id">
 						<polygon
@@ -66,7 +52,11 @@
 			/>
 			<ParamItem
 				class="premium"
-				v-if="currentArea && currentAreaExtensionButtonParam"
+				v-if="
+					currentArea &&
+					currentAreaExtensionButtonParam &&
+					storeExtension.hasFeature('areaTitles')
+				"
 				:paramData="currentAreaExtensionButtonParam"
 				v-model="currentArea.showAreaOnExtension"
 				@change="emit('update')"
@@ -76,10 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import TTButton from "@/components/TTButton.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
@@ -91,14 +79,12 @@ import {
 	onBeforeUnmount,
 	ref,
 	useTemplateRef,
-	watch,
 	type CSSProperties,
 } from "vue";
 
-const storeParams = useStoreParams();
 const storeExtension = useStoreExtension();
 
-const props = defineProps<{ screen: HeatScreen }>();
+const props = defineProps<{ screen: HeatScreen; obsPreview?: boolean }>();
 const emit = defineEmits<{ update: [] }>();
 
 const editorRef = useTemplateRef("editor");
@@ -129,17 +115,6 @@ const keyUpHandler = (e: KeyboardEvent) => onKeyUp(e);
 const mouseUpHandler = (e: PointerEvent) => onMouseUp(e);
 const mouseMoveHandler = (e: PointerEvent) => onMouseMove(e);
 const documentPointerDownHandler = (e: PointerEvent) => onDocumentPointerDown(e);
-
-const params_showOBS = ref<TwitchatDataTypes.ParameterData<boolean>>({
-	type: "boolean",
-	value: true,
-	labelKey: "heat.areas.show_obs",
-});
-const params_target = ref<TwitchatDataTypes.ParameterData<string>>({
-	type: "list",
-	value: "",
-	labelKey: "heat.areas.target",
-});
 
 const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
 
@@ -197,10 +172,6 @@ const editorStyles = computed(() => {
 	return res;
 });
 
-const obsConnected = computed(() => {
-	return OBSWebsocket.instance.connected.value;
-});
-
 onBeforeMount(() => {
 	if (props.screen.areas.length == 0) {
 		props.screen.areas.push({
@@ -219,7 +190,6 @@ onBeforeMount(() => {
 	document.addEventListener("pointermove", mouseMoveHandler);
 	document.addEventListener("pointerdown", documentPointerDownHandler);
 
-	populateOBSScenes();
 	refreshImage();
 });
 
@@ -233,42 +203,6 @@ onBeforeUnmount(() => {
 	document.removeEventListener("pointerdown", documentPointerDownHandler);
 });
 
-watch(
-	() => OBSWebsocket.instance.connected.value,
-	() => {
-		populateOBSScenes();
-	},
-);
-
-async function populateOBSScenes(): Promise<void> {
-	params_target.value.listValues = [{ value: "", labelKey: "heat.areas.target_always" }];
-
-	if (OBSWebsocket.instance.connected.value) {
-		const scenes = await OBSWebsocket.instance.getScenes();
-		scenes.scenes.forEach((v) => {
-			params_target.value.listValues!.push({ value: v.sceneName, label: v.sceneName });
-		});
-	} else {
-		params_target.value.listValues!.push({
-			value: "obs",
-			labelKey: "heat.areas.connect_obs",
-		});
-	}
-	params_target.value.value = props.screen.activeOBSScene;
-}
-
-function onSelectOBSScene(): void {
-	if (params_target.value.value == "obs") {
-		storeParams.openParamsPage(
-			TwitchatDataTypes.ParameterPages.CONNECTIONS,
-			TwitchatDataTypes.ParamDeepSections.OBS,
-		);
-		return;
-	}
-	props.screen.activeOBSScene = params_target.value.value;
-	emit("update");
-}
-
 function pointClasses(area: HeatArea, index: number): string[] {
 	if (area.id != currentArea.value?.id) return [];
 	if (index == currentPointIndex.value) return ["selected"];
@@ -280,6 +214,7 @@ function getSVGPoints(p: { x: number; y: number }[]): string {
 }
 
 function addPoint(event: PointerEvent): void {
+	if (event.button == 2) return; //Ignore right click
 	if (spacePressed.value) {
 		const scrollable = scrollableRef.value;
 		if (scrollable) {
@@ -369,6 +304,7 @@ function resetCurrentArea(): void {
 
 function onDocumentPointerDown(event: PointerEvent): void {
 	if (!currentArea.value) return;
+	if (event.button == 2) return; //Ignore right click
 	const target = event.target as Node | null;
 	if (target && rootRef.value?.contains(target)) return;
 	resetCurrentArea();
@@ -700,8 +636,8 @@ function computeCentroid(points: { x: number; y: number }[]) {
 async function refreshImage(): Promise<void> {
 	if (disposed.value) return;
 	const area = backgroundRef.value;
-	if (area && params_showOBS.value.value == true && OBSWebsocket.instance.connected.value) {
-		const scene = params_target.value.value ? params_target.value.value : undefined;
+	if (area && props.obsPreview == true && OBSWebsocket.instance.connected.value) {
+		const scene = props.screen.activeOBSScene ? props.screen.activeOBSScene : undefined;
 		const image = await OBSWebsocket.instance.getScreenshot(scene);
 		area.style.backgroundImage = "url(" + image + ")";
 	}
@@ -799,15 +735,6 @@ async function refreshImage(): Promise<void> {
 		flex-direction: column;
 		gap: 0.25em;
 		margin-top: 0.5em;
-
-		&:first-of-type {
-			margin-top: 0;
-			margin-bottom: 0.5em;
-		}
-
-		.shrink {
-			align-self: center;
-		}
 
 		.premium {
 			background-color: var(--color-premium-fade);

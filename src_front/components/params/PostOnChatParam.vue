@@ -16,6 +16,7 @@
 			:alert="alert"
 			:noBackground="noBackground"
 			v-model="enabledParam.value"
+			:disabled="disabled"
 		>
 			<PlaceholderSelector
 				class="placeholders"
@@ -65,17 +66,12 @@ const props = withDefaults(
 		text?: string;
 		prefix?: string;
 		enabled?: boolean;
+		disabled?: boolean;
 	}>(),
 	{
 		titleKey: "",
-		noToggle: false,
-		clearToggle: false,
-		secondary: false,
-		alert: false,
-		noBackground: false,
 		text: "",
 		prefix: "",
-		enabled: false,
 	},
 );
 
@@ -179,6 +175,9 @@ async function saveParams(saveToStore = true): Promise<void> {
 
 	if (enabledParam.value.value && isFirstRender) {
 		isFirstRender = false;
+
+		// Need to wait 2 renders after a refactor of the ParamItem
+		await nextTick();
 		await nextTick();
 		placeholderTarget.value = paramItem.value!.$el.getElementsByTagName("textarea")[0];
 	}

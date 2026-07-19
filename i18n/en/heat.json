@@ -10,6 +10,7 @@
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Allow anonymous users to interact",
 		"anonymous": "By default, click interactions are anonymous. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
+		"default_title": "Screen",
 		"click_source": "User should click...",
 		"click_source_info_title": "Caching informations",
 		"click_source_info_description": "Detecting click on OBS sources requires lots of exchanges with OBS to compute the positions of your sources. Depending on your scenes complexity this may take some time. For performance reasons, your sources positions are cached for 30s. If a source is moved, it may take up to 30s for its new position to be taken into account. If you REALLY need it, you can use the  {CMD} command to manually clear the cache.",
@@ -23,6 +24,10 @@
 		"anonymous_info": "IMPORTANT: By default, clicks sent by extensions are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking extension icon on your stream as below:",
 		"nonpremium_limit": "You created the maximum number of {MAX} screens. Become premium to create up to {MAX_PREMIUM} screens.",
 		"premium_limit": "You created the maximum number of {MAX} screens.",
+		"add_bt": "Add screen",
+		"interactive_areas_bt": "Create interactive areas",
+		"must_enable_extension": "This feature needs you to use {COMPANION} or {HEAT} extension on your stream.",
+		"must_enable_clicks": "You have Twitchat Companion installed but have not allowed your viewers to click on your stream",
 		"logs": {
 			"title": "Click logs",
 			"subtitle": "Get details about clicks",
@@ -51,7 +56,7 @@
 			"show_extension_button_title": "Title",
 			"connect_obs": "🔗 Connect with OBS",
 			"delete_confirm": {
-				"title": "Delete area?",
+				"title": "Delete screen?",
 				"description": "This cannot be undone."
 			}
 		}

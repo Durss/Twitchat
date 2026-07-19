@@ -56,6 +56,8 @@
 				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
+			<div class="titleSection" v-else></div>
+
 			<!-- Hidden element for measuring natural title height at fixed width -->
 			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">
 				{{ title || titleDefault }}

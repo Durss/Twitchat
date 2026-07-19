@@ -194,7 +194,7 @@ const param_maxPerUser_value = ref<TwitchatDataTypes.ParameterData<number>>({
 });
 
 const spotifyConnected = computed(() => {
-	return SpotifyHelper.instance.connected.value || true;
+	return SpotifyHelper.instance.connected.value;
 });
 const showTrackInput = computed(() => {
 	return (

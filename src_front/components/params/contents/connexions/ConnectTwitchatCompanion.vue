@@ -23,6 +23,9 @@
 			<TTButton class="center" primary icon="bingo_grid" @click="openBingo()">{{
 				t("twitchat_companion.start_bingo")
 			}}</TTButton>
+			<TTButton class="center" primary icon="click" @click="openAreasOverlay">{{
+				t("heat.interactive_areas_bt")
+			}}</TTButton>
 
 			<ParamItem
 				class="enableBt"
@@ -30,7 +33,7 @@
 				:paramData="param_captureClicks"
 				:loading="storeExtension.ebsConfigUpdating"
 				v-model="storeExtension.ebsConfigs.captureClicks"
-				@change="onChangeEBSSetting('clicks')"
+				@change="onChangeEBSSetting()"
 			>
 				<div
 					class="content"
@@ -40,22 +43,15 @@
 					"
 				>
 					<HeatOverlayClick light />
-
-					<HeatScreenList
-						light
-						:open="subContent == 'heatAreas'"
-						:class="subContent == 'heatAreas' ? 'selected' : ''"
-					/>
-
-					<HeatDebug light /></div
-			></ParamItem>
+				</div>
+			</ParamItem>
 
 			<ParamItem
 				class="enableBt"
 				:paramData="param_captureKeys"
 				:loading="storeExtension.ebsConfigUpdating"
 				v-model="storeExtension.ebsConfigs.captureKeys"
-				@change="onChangeEBSSetting('keys')"
+				@change="onChangeEBSSetting()"
 			>
 				<img
 					class="demo"
@@ -70,17 +66,15 @@
 
 <script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth.js";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
-import HeatDebug from "../heat/HeatDebug.vue";
 import HeatOverlayClick from "../heat/HeatOverlayClick.vue";
-import HeatScreenList from "../heat/HeatScreenList.vue";
 import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth.js";
 
 const { t } = useI18n();
 const storeExtension = useStoreExtension();
@@ -126,12 +120,19 @@ function openBingo() {
 	);
 }
 
-async function onChangeEBSSetting(section: typeof lastChangedState.value) {
-	storeExtension.updateEBSConfigs();
+function openAreasOverlay() {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.OVERLAYS,
+		TwitchatDataTypes.ParamDeepSections.CLICKABLE_AREAS,
+	);
+}
+
+async function onChangeEBSSetting() {
+	void storeExtension.updateEBSConfigs();
 }
 
 function clearEBSConf() {
-	storeExtension.clearEBSConfigs();
+	void storeExtension.clearEBSConfigs();
 }
 </script>
 

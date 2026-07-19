@@ -1,9 +1,5 @@
 <template>
-	<div
-		class="overlayparamsheatdistort overlayParamsSection"
-		:title="$t('overlay.heatDistort.title')"
-		:icons="['distort']"
-	>
+	<div class="overlayparamsheatdistort overlayParamsSection">
 		<a
 			href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD"
 			target="_blank"

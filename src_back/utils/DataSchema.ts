@@ -2058,6 +2058,7 @@ const UserDataSchema = {
 				properties: {
 					id: { type: "string", maxLength: 40 },
 					enabled: { type: "boolean" },
+					title: { type: "string", maxLength: 50 },
 					activeOBSScene: { type: "string", maxLength: 100 },
 					active: { type: "boolean" },
 					areas: {

@@ -10,58 +10,28 @@
 			/>
 		</svg>
 
-		<div class="obsSceneName" v-if="props.screen.activeOBSScene">
+		<div class="obsSceneName" v-if="props.screen.activeOBSScene && showObsScene">
 			<Icon name="obs" />{{ props.screen.activeOBSScene }}
-		</div>
-
-		<div class="enableBt" v-if="props.selectAreaMode === false && canEnable">
-			<ToggleButton
-				v-model="props.screen.enabled"
-				@click.stop
-				@change="emit('update')"
-				:alert="!props.screen.enabled"
-			/>
-		</div>
-
-		<div class="ctas" v-if="props.selectAreaMode === false && props.renderOnly == false">
-			<button v-tooltip="t('global.edit')"><Icon name="edit" theme="primary" /></button>
-			<button
-				@click.stop="emit('duplicate', props.screen.id)"
-				v-tooltip="t('global.duplicate')"
-				v-if="props.canDuplicate !== false"
-			>
-				<Icon name="copy" theme="primary" />
-			</button>
-			<button @click.stop="emit('delete', props.screen.id)" v-tooltip="t('global.delete')">
-				<Icon name="trash" theme="alert" />
-			</button>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
-import ToggleButton from "@/components/ToggleButton.vue";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeHeat as useStoreHeat } from "@/store/heat/storeHeat";
-import Config from "@/utils/Config";
 
 const props = withDefaults(
 	defineProps<{
 		screen: HeatScreen;
 		selectAreaMode?: boolean;
 		selectedAreas?: string[];
-		canDuplicate?: boolean;
 		renderOnly?: boolean;
+		showObsScene?: boolean;
 	}>(),
 	{
-		selectAreaMode: false,
 		selectedAreas: () => [],
-		canDuplicate: false,
-		renderOnly: false,
+		showObsScene: true,
 	},
 );
 
@@ -72,24 +42,11 @@ const emit = defineEmits<{
 	select: [id: string];
 }>();
 
-const { t } = useI18n();
-const storeAuth = useStoreAuth();
-const storeHeat = useStoreHeat();
-
 const classes = computed<string[]>(() => {
 	const res = ["heatscreenpreview"];
 	if (props.selectAreaMode === false && props.renderOnly === false) res.push("noSelect");
 	if (!props.screen.enabled) res.push("disabled");
 	return res;
-});
-
-const canEnable = computed<boolean>(() => {
-	if (props.renderOnly !== false) return false;
-	let max = Config.instance.MAX_CUSTOM_HEAT_SCREENS;
-	if (storeAuth.isPremium) max = Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM;
-	return (
-		storeHeat.screenList.filter((v) => v.enabled).length < max || props.screen.enabled != false
-	);
 });
 
 const polygons = computed(() => {
@@ -120,10 +77,9 @@ function getAreaClasses(areaID: string): string[] {
 
 	.obsSceneName {
 		position: absolute;
-		bottom: 0;
-		left: 0;
-		filter: drop-shadow(1px 1px 1px var(--color-text-inverse))
-			drop-shadow(-1px -1px 1px var(--color-text-inverse));
+		top: 3px;
+		right: 3px;
+		filter: drop-shadow(1px 1px 0px var(--color-text-inverse));
 
 		.icon {
 			height: 1em;
@@ -132,47 +88,8 @@ function getAreaClasses(areaID: string): string[] {
 		}
 	}
 
-	.ctas {
-		position: absolute;
-		top: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		gap: 5px;
-		flex-direction: row;
-		background-color: var(--color-light);
-		padding: 5px;
-		border-bottom-left-radius: var(--border-radius);
-		border-bottom-right-radius: var(--border-radius);
-		display: none;
-		button {
-			height: 1.25em;
-			.icon {
-				height: 100%;
-			}
-		}
-	}
-
-	.enableBt {
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		display: none;
-		background-color: var(--color-light);
-		padding: 3px;
-		border-top-left-radius: var(--border-radius);
-		border-top-right-radius: var(--border-radius);
-		color: var(--color-text-inverse);
-	}
-
-	&:hover {
+	&:not(.noSelect):hover {
 		border-style: solid;
-		.ctas {
-			display: flex;
-		}
-		.enableBt {
-			display: block;
-		}
 		.obsSceneName {
 			display: none;
 		}

@@ -6,18 +6,13 @@
 			<p>{{ t("heat.header") }}</p>
 		</div>
 
-		<div class="card-item secondary alternative">
+		<div class="card-item primary alternative">
 			<Icon name="info" />
 			<div class="content">
 				<span>{{ t("heat.alertnative") }}</span>
-				<TTButton
-					class="installBt"
-					secondary
-					light
-					icon="newtab"
-					@click="openCompanion()"
-					>{{ t("heat.alertnative_bt") }}</TTButton
-				>
+				<TTButton class="installBt" primary light icon="newtab" @click="openCompanion()">{{
+					t("heat.alertnative_bt")
+				}}</TTButton>
 			</div>
 		</div>
 
@@ -45,12 +40,10 @@
 			/>
 
 			<div class="fadeHolder" :style="holderStyles">
+				<TTButton @click="openAreasOverlay" icon="click" primary>{{
+					t("heat.interactive_areas_bt")
+				}}</TTButton>
 				<HeatOverlayClick />
-				<HeatScreenList
-					:open="subContent == 'heatAreas'"
-					:class="subContent == 'heatAreas' ? 'selected' : ''"
-				/>
-				<HeatDebug />
 			</div>
 
 			<div class="card-item infos">
@@ -85,22 +78,20 @@
 </template>
 
 <script setup lang="ts">
+import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import DataStore from "@/store/DataStore";
 import { storeAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import { computed, onBeforeMount, onBeforeUnmount, ref, type CSSProperties } from "vue";
-import ParamItem from "../../ParamItem.vue";
-import HeatDebug from "./../heat/HeatDebug.vue";
-import HeatOverlayClick from "./../heat/HeatOverlayClick.vue";
-import HeatScreenList from "./../heat/HeatScreenList.vue";
-import Icon from "@/components/Icon.vue";
-import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
 import { useI18n } from "vue-i18n";
+import ParamItem from "../../ParamItem.vue";
 import type IParameterContent from "../IParameterContent";
-import Config from "@/utils/Config";
+import ExtensionInstaller from "../overlays/ExtensionInstaller.vue";
+import HeatOverlayClick from "./../heat/HeatOverlayClick.vue";
 
 const { t } = useI18n();
 const storeAuthInstance = storeAuth();
@@ -175,6 +166,13 @@ function openCompanion() {
 	);
 }
 
+function openAreasOverlay() {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.OVERLAYS,
+		TwitchatDataTypes.ParamDeepSections.CLICKABLE_AREAS,
+	);
+}
+
 onBeforeMount(() => {
 	if (DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 		param_enabled.value.value = true;
@@ -202,6 +200,7 @@ defineExpose<IParameterContent>({
 		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
+		margin: auto;
 
 		& > .icon {
 			width: 2em;
@@ -236,24 +235,7 @@ defineExpose<IParameterContent>({
 		display: flex;
 		flex-direction: column;
 		transition: opacity 0.25s;
-
-		.selected {
-			border: 5px solid transparent;
-			border-radius: 1em;
-			animation: blink 0.5s 3 forwards;
-			animation-delay: 1s;
-			@keyframes blink {
-				0% {
-					border-color: var(--color-secondary);
-				}
-				50% {
-					border-color: transparent;
-				}
-				100% {
-					border-color: var(--color-secondary);
-				}
-			}
-		}
+		align-items: center;
 	}
 
 	.donate {

@@ -2,6 +2,7 @@ export interface HeatScreen {
 	id: string;
 	areas: HeatArea[];
 	enabled: boolean;
+	title?: string;
 	active?: boolean;
 	activeOBSScene: string;
 }

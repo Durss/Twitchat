@@ -2565,7 +2565,7 @@ export interface IHeatActions {
 	/**
 	 * Delete a screen by its ID
 	 */
-	deleteScreen(id: string): void;
+	deleteScreen(id: string): Promise<void>;
 	/**
 	 * Update an existing screen
 	 */

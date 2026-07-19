@@ -147,35 +147,6 @@ onBeforeMount(() => {
 	param_customTemplateToggle.value.children = [param_customTemplate.value];
 	param_customTemplateToggle.value.value = params.customInfoTemplate?.length > 0;
 	param_customTemplate.value.value = params.customInfoTemplate;
-
-	watch(
-		() => param_autoHideErase.value.value,
-		() => {
-			saveData();
-		},
-	);
-
-	watch(
-		() => storeMusic.musicPlayerParams,
-		() => {
-			saveData();
-		},
-		{ deep: true },
-	);
-
-	watch(
-		() => param_customTemplateToggle.value.value,
-		() => {
-			saveData();
-		},
-	);
-
-	watch(
-		() => param_customTemplate.value.value,
-		() => {
-			saveData();
-		},
-	);
 });
 
 function saveData(): void {
@@ -188,6 +159,19 @@ function saveData(): void {
 	//This forces overlay refresh
 	SpotifyHelper.instance.getCurrentTrack();
 }
+
+watch(
+	[
+		() => param_autoHideErase.value.value,
+		() => storeMusic.musicPlayerParams,
+		() => param_customTemplateToggle.value.value,
+		() => param_customTemplate.value.value,
+	],
+	() => {
+		saveData();
+	},
+	{ deep: true },
+);
 </script>
 
 <style scoped lang="less">

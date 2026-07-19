@@ -887,6 +887,7 @@ const icon = computed((): string => {
 
 const classes = computed((): string[] => {
 	const res = ["paramitem"];
+	res.push("type-" + props.paramData.type);
 	if (props.noBackground === false) {
 		res.push("card-item");
 	}
@@ -1527,6 +1528,9 @@ watch(
 	&.disabled {
 		overflow: hidden;
 		border-radius: var(--border-radius);
+		& > * {
+			pointer-events: none;
+		}
 	}
 
 	&.longText {
@@ -1673,7 +1677,7 @@ watch(
 				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
-				line-height: 1.25em;
+				line-height: 1.1em;
 				cursor: pointer;
 			}
 			&.number,
@@ -1721,7 +1725,7 @@ watch(
 				}
 
 				label {
-					margin-top: 0.4em;
+					margin-top: 0.25em;
 				}
 			}
 
@@ -1829,7 +1833,7 @@ watch(
 
 		.list {
 			label {
-				margin-top: 0.4em;
+				margin-top: 0.25em;
 				flex-basis: unset;
 			}
 
@@ -1856,7 +1860,6 @@ watch(
 
 		textarea {
 			resize: vertical;
-			min-height: 2em;
 
 			// Auto-mode field: height is driven by autoResize() so we disable the
 			// manual resize handle and cap the growth (in JS), scrolling past the cap.
@@ -1884,7 +1887,7 @@ watch(
 				}
 			}
 			label {
-				margin-top: 0.4em;
+				margin-top: 0.25em;
 			}
 		}
 	}
@@ -1965,6 +1968,26 @@ watch(
 			flex-direction: row;
 			.listField {
 				flex-basis: 300px;
+			}
+		}
+	}
+
+	&.type-list,
+	&.type-editablelist,
+	&.type-imagelist,
+	&.type-string:not(.longText) {
+		.content {
+			& > .icon {
+				margin-top: 0.25em;
+			}
+		}
+	}
+	&.type-string:not(.longText) {
+		& > .content {
+			& > .holder {
+				& > label {
+					margin-top: 0.25em;
+				}
 			}
 		}
 	}

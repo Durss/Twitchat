@@ -127,6 +127,7 @@
 		"patreon_max_linked": "Vous ne pouvez lier plus de 2 comptes Twitch au même compte Patreon.",
 		"streamSocket_connect_failed": "Impossible de se connecter à l'extension Twitch.\nAssurez-vous de l'avoir installée sur votre chaîne et d'avoir défini le bon \"secret\".",
 		"streamFog_connect_failed": "Impossible de se connecter à Streamfog.",
-		"local_network_access_denied": "Vous avez refusé d'accorder l'accès à votre réseau local à Twitchat.\nVérifiez les paramètres de votre navigateur pour l'autoriser."
+		"local_network_access_denied": "Vous avez refusé d'accorder l'accès à votre réseau local à Twitchat.\nVérifiez les paramètres de votre navigateur pour l'autoriser.",
+		"failed_updating_ebs": "Une erreur est survenue lors de la configuration"
 	}
 }

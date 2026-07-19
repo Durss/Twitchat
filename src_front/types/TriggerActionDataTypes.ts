@@ -2311,7 +2311,10 @@ let eventPlaceholderValuesCache: Partial<{
 		values: TwitchatDataTypes.ParameterDataListValue<unknown>[];
 	};
 }> = {};
-export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceholder<any>[] {
+export function TriggerEventPlaceholders(
+	key: TriggerTypesValue,
+	onlyForRequestedType: boolean = false,
+): ITriggerPlaceholder<any>[] {
 	if (eventPlaceholdersCache && eventPlaceholdersCache[key]) {
 		return eventPlaceholdersCache[key] ?? [];
 	}
@@ -7378,1006 +7381,1008 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 	];
 
-	const counters = StoreProxy.counters.counterList;
-	const counterPlaceholders: ITriggerPlaceholder<any>[] = [];
-	for (const c of counters) {
-		if (c.placeholderKey) {
-			counterPlaceholders.push({
-				category: "counter",
-				tag: COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey.toUpperCase(),
-				descKey: "triggers.placeholders.counter_global_value",
-				descReplacedValues: { NAME: c.name },
-				pointer: "__counter__.value",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: (c.value || 123).toString(),
-			} as ITriggerPlaceholder<TwitchatDataTypes.CounterData, string, "__counter__">);
-		}
-	}
-
-	const values = StoreProxy.values.valueList;
-	const valuePlaceholders: ITriggerPlaceholder<any>[] = [];
-	for (const v of values) {
-		if (v.placeholderKey) {
-			valuePlaceholders.push({
-				category: "value",
-				tag: VALUE_PLACEHOLDER_PREFIX + v.placeholderKey.toUpperCase(),
-				descKey: "triggers.placeholders.value_global_value",
-				descReplacedValues: { NAME: v.name },
-				pointer: "__value__.value",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "Lorem ipsum",
-			} as ITriggerPlaceholder<TwitchatDataTypes.ValueData, string, "__value__">);
-		}
-	}
-
-	const timers = StoreProxy.timers.timerList;
-	const timersPlaceholders: ITriggerPlaceholder<any>[] = [];
-	for (const t of timers) {
-		if (t.placeholderKey) {
-			const prefix =
-				t.type == "timer" ? STOPWATCH_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
-			const tagBase = prefix + t.placeholderKey.toUpperCase();
-			timersPlaceholders.push({
-				category: "timer",
-				tag: tagBase + "_PAUSED",
-				descKey: "triggers.placeholders.timer_paused",
-				descReplacedValues: { NAME: t.title },
-				pointer: "__timer__.paused",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				storage: t.id,
-				values: [
-					{ labelKey: "global.yes", value: true },
-					{ labelKey: "global.no", value: false },
-				],
-			} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, boolean, "__timer__">);
-			if (t.type == "timer") {
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_ELAPSED",
-					descKey: "triggers.placeholders.timer_duration_formatted",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.elapsed_formatted",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "60000",
-					storage: t.id,
-				});
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_ELAPSED_MS",
-					descKey: "triggers.placeholders.timer_duration_ms",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.elapsed_ms",
+	if (!onlyForRequestedType) {
+		const counters = StoreProxy.counters.counterList;
+		const counterPlaceholders: ITriggerPlaceholder<any>[] = [];
+		for (const c of counters) {
+			if (c.placeholderKey) {
+				counterPlaceholders.push({
+					category: "counter",
+					tag: COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey.toUpperCase(),
+					descKey: "triggers.placeholders.counter_global_value",
+					descReplacedValues: { NAME: c.name },
+					pointer: "__counter__.value",
 					numberParsable: true,
 					isUserID: false,
 					globalTag: true,
-					example: "60",
-					storage: t.id,
-				});
-			}
-			if (t.type == "countdown") {
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_DURATION",
-					descKey: "triggers.placeholders.countdown_duration_formatted",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.duration_formatted",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "60000",
-					storage: t.id,
-				});
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_DURATION_MS",
-					descKey: "triggers.placeholders.countdown_duration_ms",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.duration_ms",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "60",
-					storage: t.id,
-				});
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_REMAINING",
-					descKey: "triggers.placeholders.countdown_remaining_formatted",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.remaining_formatted",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "60000",
-					storage: t.id,
-				});
-				timersPlaceholders.push({
-					category: "timer",
-					tag: tagBase + "_REMAINING_MS",
-					descKey: "triggers.placeholders.countdown_remaining_ms",
-					descReplacedValues: { NAME: t.title },
-					pointer: "__timer__.remaining_ms",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "60",
-					storage: t.id,
-				});
+					example: (c.value || 123).toString(),
+				} as ITriggerPlaceholder<TwitchatDataTypes.CounterData, string, "__counter__">);
 			}
 		}
-	}
 
-	//Add global placeholders where missing
-	let k!: TriggerTypesValue;
-	const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
-	for (k in map) {
-		let entry = map[k]!;
-		if (entry.findIndex((v) => v.tag == "MY_LOGIN") == -1) {
-			entry.push({
-				tag: "MY_ID",
-				descKey: "triggers.placeholders.my_user_id",
-				pointer: "__me__.id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "123456",
-			} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
-			entry.push({
-				tag: "MY_LOGIN",
-				descKey: "triggers.placeholders.my_user",
-				pointer: "__me__.login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
-		}
-		if (entry.findIndex((v) => v.tag == "NOW") == -1) {
-			entry.push({
-				tag: "NOW",
-				descKey: "triggers.placeholders.now",
-				pointer: "__date__.now",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: Date.now().toString(),
-			});
-			entry.push({
-				tag: "DATE",
-				descKey: "triggers.placeholders.date",
-				pointer: "__date__.date",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: Utils.formatDate(new Date(), false),
-			});
-			entry.push({
-				tag: "TIME",
-				descKey: "triggers.placeholders.time",
-				pointer: "__date__.time",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: Utils.formatDate(new Date(), true, true),
-			});
-			entry.push({
-				tag: "DATETIME",
-				descKey: "triggers.placeholders.datetime",
-				pointer: "__date__.datetime",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: Utils.formatDate(new Date(), true),
-			});
-			entry.push({
-				tag: "PLATFORM",
-				descKey: "triggers.placeholders.platform",
-				pointer: "platform",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "twitch",
-				values: [
-					{ label: "Twitch", value: "twitch" },
-					{ label: "YouTube", value: "youtube" },
-					{ label: "TikTok", value: "tiktok" },
-				],
-			} as ITriggerPlaceholder<TwitchatDataTypes.AbstractTwitchatMessage>);
-		}
-		if (entry.findIndex((v) => v.tag == "MY_STREAM_TITLE") == -1) {
-			entry.push({
-				category: "stream",
-				tag: "MY_STREAM_TITLE",
-				descKey: "triggers.placeholders.my_stream_title",
-				pointer: "__my_stream__.title",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Talking about stuff",
-			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
-			entry.push({
-				category: "stream",
-				tag: "MY_STREAM_CATEGORY",
-				descKey: "triggers.placeholders.my_stream_category",
-				pointer: "__my_stream__.category",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Just chatting",
-			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
-			entry.push({
-				category: "stream",
-				tag: "VIEWER_COUNT",
-				descKey: "triggers.placeholders.viewer_count",
-				pointer: "__my_stream__.viewers",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "333",
-			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
-			entry.push({
-				category: "stream",
-				tag: "MY_STREAM_DURATION",
-				descKey: "triggers.placeholders.my_stream_duration",
-				pointer: "__my_stream__.duration",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "01:23:45",
-			});
-			entry.push({
-				category: "stream",
-				tag: "MY_STREAM_DURATION_MS",
-				descKey: "triggers.placeholders.my_stream_duration_ms",
-				pointer: "__my_stream__.duration_ms",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "16200000",
-			});
-			entry.push({
-				category: "stream",
-				tag: "MY_STREAM_LIVE",
-				descKey: "triggers.placeholders.my_stream_live",
-				pointer: "__my_stream__.live",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				values: [
-					{ labelKey: "global.yes", value: true },
-					{ labelKey: "global.no", value: false },
-				],
-				example: "false",
-			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, boolean, "__my_stream__">);
-			entry.push({
-				category: "stream",
-				tag: "CURRENT_VOD_URL",
-				descKey: "triggers.placeholders.current_vod_url",
-				pointer: "__current_vod__",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "https://www.twitch.tv/videos/123456",
-			});
+		const values = StoreProxy.values.valueList;
+		const valuePlaceholders: ITriggerPlaceholder<any>[] = [];
+		for (const v of values) {
+			if (v.placeholderKey) {
+				valuePlaceholders.push({
+					category: "value",
+					tag: VALUE_PLACEHOLDER_PREFIX + v.placeholderKey.toUpperCase(),
+					descKey: "triggers.placeholders.value_global_value",
+					descReplacedValues: { NAME: v.name },
+					pointer: "__value__.value",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "Lorem ipsum",
+				} as ITriggerPlaceholder<TwitchatDataTypes.ValueData, string, "__value__">);
+			}
 		}
 
-		if (entry.findIndex((v) => v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {
-			entry.push({
-				tag: "ULULE_CAMPAIGN_NAME",
-				descKey: "triggers.placeholders.ulule_campaign_name",
-				pointer: "__ulule__.name",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "My ulule campaign",
-			});
-		}
-
-		if (entry.findIndex((v) => v.tag == "ULULE_CAMPAIGN_URL") == -1 && hasUlule) {
-			entry.push({
-				tag: "ULULE_CAMPAIGN_URL",
-				descKey: "triggers.placeholders.ulule_campaign_url",
-				pointer: "__ulule__.url",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "https://ulule.com",
-			});
-		}
-
-		if (
-			entry.findIndex((v) => v.tag == "TRIGGER_NAME") == -1 &&
-			key != TriggerTypes.GLOBAL_PLACEHOLDERS
-		) {
-			entry.push({
-				tag: "TRIGGER_NAME",
-				descKey: "triggers.placeholders.trigger_name",
-				pointer: "__trigger__.name",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "My trigger",
-			});
-			entry.push({
-				tag: "TRIGGER_ID",
-				descKey: "triggers.placeholders.trigger_id",
-				pointer: "__trigger__.id",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "00000000-0000-0000-0000-000000000000",
-			});
-		}
-
-		if (entry.findIndex((v) => v.tag == "OBS_SCENE") == -1) {
-			entry.push({
-				tag: "OBS_SCENE",
-				descKey: "triggers.placeholders.obs_scene",
-				pointer: "__obs__.scene",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "OBS scene",
-			});
-		}
-
-		if (
-			entry.findIndex((v) => v.tag == "TWITCH_LAST_SUB") == -1 &&
-			TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])
-		) {
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUB",
-				descKey: "triggers.placeholders.last_sub",
-				pointer: "__twitch__.lastsub_login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUB_ID",
-				descKey: "triggers.placeholders.last_sub_id",
-				pointer: "__twitch__.lastsub_id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "29961813",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUB_TIER",
-				descKey: "triggers.placeholders.last_sub_tier",
-				pointer: "__twitch__.lastsub_tier",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "1",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUBGIFTER",
-				descKey: "triggers.placeholders.last_subgifter",
-				pointer: "__twitch__.lastsubgifter_login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUBGIFTER_ID",
-				descKey: "triggers.placeholders.last_subgifter_id",
-				pointer: "__twitch__.lastsubgifter_id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "29961813",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUBGIFTER_TIER",
-				descKey: "triggers.placeholders.last_subgifter_tier",
-				pointer: "__twitch__.lastsubgifter_tier",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "1",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_SUBGIFT_COUNT",
-				descKey: "triggers.placeholders.last_subgift_count",
-				pointer: "__twitch__.lastsubgift_count",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "1",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_TOTAL_SUBS_ACTIVE",
-				descKey: "triggers.placeholders.total_sub",
-				pointer: "__twitch__.totalsubs",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "1312",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_PARTNER_PLUS_POINTS",
-				descKey: "triggers.placeholders.partner_plus_points",
-				pointer: "__twitch__.partnerpluspoints",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "1312",
-				private: true,
-			});
-		}
-		if (
-			entry.findIndex((v) => v.tag == "TWITCH_LAST_FOLLOW") == -1 &&
-			TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])
-		) {
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_FOLLOW",
-				descKey: "triggers.placeholders.last_follow",
-				pointer: "__twitch__.lastFollow_login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_FOLLOW_ID",
-				descKey: "triggers.placeholders.last_follow_id",
-				pointer: "__twitch__.lastfollow_id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "29961813",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_TOTAL_FOLLOWERS",
-				descKey: "triggers.placeholders.total_follow",
-				pointer: "__twitch__.totalfollowers",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "1312",
-			});
-		}
-		if (entry.findIndex((v) => v.tag == "TWITCH_LAST_CHEER") == -1) {
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_CHEER",
-				descKey: "triggers.placeholders.last_cheer",
-				pointer: "__twitch__.lastcheer_login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_CHEER_ID",
-				descKey: "triggers.placeholders.last_cheer_id",
-				pointer: "__twitch__.lastcheer_id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "29961813",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_CHEER_AMOUNT",
-				descKey: "triggers.placeholders.last_cheer_amount",
-				pointer: "__twitch__.lastcheer_amount",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "1312",
-			});
-		}
-		if (entry.findIndex((v) => v.tag == "TWITCH_LAST_RAID") == -1) {
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_RAID",
-				descKey: "triggers.placeholders.last_raid",
-				pointer: "__twitch__.lastraid_login",
-				numberParsable: false,
-				isUserID: false,
-				globalTag: true,
-				example: "Durss",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_RAID_ID",
-				descKey: "triggers.placeholders.last_raid_id",
-				pointer: "__twitch__.lastraid_id",
-				numberParsable: false,
-				isUserID: true,
-				globalTag: true,
-				example: "29961813",
-			});
-			entry.push({
-				category: "twitch",
-				tag: "TWITCH_LAST_RAID_VIEWERS",
-				descKey: "triggers.placeholders.last_raid_viewers",
-				pointer: "__twitch__.lastraid_viewers",
-				numberParsable: true,
-				isUserID: false,
-				globalTag: true,
-				example: "1312",
-			});
-		}
-
-		//If a music service is available, concat the music service helpers
-		if (
-			SpotifyHelper.instance.connected.value &&
-			entry.findIndex((v) => v.tag == "CURRENT_TRACK_ARTIST") == -1
-		) {
-			entry.push(
-				{
-					category: "music",
-					tag: "CURRENT_TRACK_ARTIST",
-					descKey: "triggers.placeholders.track_artist",
-					pointer: "__current_track__.artist",
+		const timers = StoreProxy.timers.timerList;
+		const timersPlaceholders: ITriggerPlaceholder<any>[] = [];
+		for (const t of timers) {
+			if (t.placeholderKey) {
+				const prefix =
+					t.type == "timer" ? STOPWATCH_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
+				const tagBase = prefix + t.placeholderKey.toUpperCase();
+				timersPlaceholders.push({
+					category: "timer",
+					tag: tagBase + "_PAUSED",
+					descKey: "triggers.placeholders.timer_paused",
+					descReplacedValues: { NAME: t.title },
+					pointer: "__timer__.paused",
 					numberParsable: false,
 					isUserID: false,
 					globalTag: true,
-					example: "Mitchiri Neko",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_TRACK_TITLE",
-					descKey: "triggers.placeholders.track_title",
-					pointer: "__current_track__.title",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "Mitchiri Neko march",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_TRACK_ALBUM",
-					descKey: "triggers.placeholders.track_album",
-					pointer: "__current_track__.album",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "Fake Album",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_TRACK_COVER",
-					descKey: "triggers.placeholders.track_cover",
-					pointer: "__current_track__.cover",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: StoreProxy.asset("img/musicExampleCover.jpg"),
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_TRACK_URL",
-					descKey: "triggers.placeholders.track_url",
-					pointer: "__current_track__.url",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example:
-						"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_PLAYLIST_TITLE",
-					descKey: "triggers.placeholders.playlist_title",
-					pointer: "__current_track__.playlist.title",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example:
-						"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_PLAYLIST_URL",
-					descKey: "triggers.placeholders.playlist_url",
-					pointer: "__current_track__.playlist.url",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example:
-						"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "CURRENT_PLAYLIST_COVER",
-					descKey: "triggers.placeholders.playlist_cover",
-					pointer: "__current_track__.playlist.cover",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example:
-						"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
-				} as ITriggerPlaceholder<
-					TwitchatDataTypes.MusicTrackDataKeys,
-					string,
-					"__current_track__"
-				>,
-				{
-					category: "music",
-					tag: "SPOTIFY_IS_PLAYING",
-					descKey: "triggers.placeholders.spotify_is_playing",
-					pointer: "__current_track__.spotify_is_playing",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
+					storage: t.id,
 					values: [
 						{ labelKey: "global.yes", value: true },
 						{ labelKey: "global.no", value: false },
 					],
-				},
+				} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, boolean, "__timer__">);
+				if (t.type == "timer") {
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_ELAPSED",
+						descKey: "triggers.placeholders.timer_duration_formatted",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.elapsed_formatted",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "60000",
+						storage: t.id,
+					});
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_ELAPSED_MS",
+						descKey: "triggers.placeholders.timer_duration_ms",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.elapsed_ms",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "60",
+						storage: t.id,
+					});
+				}
+				if (t.type == "countdown") {
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_DURATION",
+						descKey: "triggers.placeholders.countdown_duration_formatted",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.duration_formatted",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "60000",
+						storage: t.id,
+					});
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_DURATION_MS",
+						descKey: "triggers.placeholders.countdown_duration_ms",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.duration_ms",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "60",
+						storage: t.id,
+					});
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_REMAINING",
+						descKey: "triggers.placeholders.countdown_remaining_formatted",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.remaining_formatted",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "60000",
+						storage: t.id,
+					});
+					timersPlaceholders.push({
+						category: "timer",
+						tag: tagBase + "_REMAINING_MS",
+						descKey: "triggers.placeholders.countdown_remaining_ms",
+						descReplacedValues: { NAME: t.title },
+						pointer: "__timer__.remaining_ms",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "60",
+						storage: t.id,
+					});
+				}
+			}
+		}
+
+		//Add global placeholders where missing
+		let k!: TriggerTypesValue;
+		const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
+		for (k in map) {
+			let entry = map[k]!;
+			if (entry.findIndex((v) => v.tag == "MY_LOGIN") == -1) {
+				entry.push({
+					tag: "MY_ID",
+					descKey: "triggers.placeholders.my_user_id",
+					pointer: "__me__.id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "123456",
+				} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
+				entry.push({
+					tag: "MY_LOGIN",
+					descKey: "triggers.placeholders.my_user",
+					pointer: "__me__.login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
+			}
+			if (entry.findIndex((v) => v.tag == "NOW") == -1) {
+				entry.push({
+					tag: "NOW",
+					descKey: "triggers.placeholders.now",
+					pointer: "__date__.now",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: Date.now().toString(),
+				});
+				entry.push({
+					tag: "DATE",
+					descKey: "triggers.placeholders.date",
+					pointer: "__date__.date",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: Utils.formatDate(new Date(), false),
+				});
+				entry.push({
+					tag: "TIME",
+					descKey: "triggers.placeholders.time",
+					pointer: "__date__.time",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: Utils.formatDate(new Date(), true, true),
+				});
+				entry.push({
+					tag: "DATETIME",
+					descKey: "triggers.placeholders.datetime",
+					pointer: "__date__.datetime",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: Utils.formatDate(new Date(), true),
+				});
+				entry.push({
+					tag: "PLATFORM",
+					descKey: "triggers.placeholders.platform",
+					pointer: "platform",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "twitch",
+					values: [
+						{ label: "Twitch", value: "twitch" },
+						{ label: "YouTube", value: "youtube" },
+						{ label: "TikTok", value: "tiktok" },
+					],
+				} as ITriggerPlaceholder<TwitchatDataTypes.AbstractTwitchatMessage>);
+			}
+			if (entry.findIndex((v) => v.tag == "MY_STREAM_TITLE") == -1) {
+				entry.push({
+					category: "stream",
+					tag: "MY_STREAM_TITLE",
+					descKey: "triggers.placeholders.my_stream_title",
+					pointer: "__my_stream__.title",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Talking about stuff",
+				} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
+				entry.push({
+					category: "stream",
+					tag: "MY_STREAM_CATEGORY",
+					descKey: "triggers.placeholders.my_stream_category",
+					pointer: "__my_stream__.category",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Just chatting",
+				} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
+				entry.push({
+					category: "stream",
+					tag: "VIEWER_COUNT",
+					descKey: "triggers.placeholders.viewer_count",
+					pointer: "__my_stream__.viewers",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "333",
+				} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
+				entry.push({
+					category: "stream",
+					tag: "MY_STREAM_DURATION",
+					descKey: "triggers.placeholders.my_stream_duration",
+					pointer: "__my_stream__.duration",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "01:23:45",
+				});
+				entry.push({
+					category: "stream",
+					tag: "MY_STREAM_DURATION_MS",
+					descKey: "triggers.placeholders.my_stream_duration_ms",
+					pointer: "__my_stream__.duration_ms",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "16200000",
+				});
+				entry.push({
+					category: "stream",
+					tag: "MY_STREAM_LIVE",
+					descKey: "triggers.placeholders.my_stream_live",
+					pointer: "__my_stream__.live",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					values: [
+						{ labelKey: "global.yes", value: true },
+						{ labelKey: "global.no", value: false },
+					],
+					example: "false",
+				} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, boolean, "__my_stream__">);
+				entry.push({
+					category: "stream",
+					tag: "CURRENT_VOD_URL",
+					descKey: "triggers.placeholders.current_vod_url",
+					pointer: "__current_vod__",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "https://www.twitch.tv/videos/123456",
+				});
+			}
+
+			if (entry.findIndex((v) => v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {
+				entry.push({
+					tag: "ULULE_CAMPAIGN_NAME",
+					descKey: "triggers.placeholders.ulule_campaign_name",
+					pointer: "__ulule__.name",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "My ulule campaign",
+				});
+			}
+
+			if (entry.findIndex((v) => v.tag == "ULULE_CAMPAIGN_URL") == -1 && hasUlule) {
+				entry.push({
+					tag: "ULULE_CAMPAIGN_URL",
+					descKey: "triggers.placeholders.ulule_campaign_url",
+					pointer: "__ulule__.url",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "https://ulule.com",
+				});
+			}
+
+			if (
+				entry.findIndex((v) => v.tag == "TRIGGER_NAME") == -1 &&
+				key != TriggerTypes.GLOBAL_PLACEHOLDERS
+			) {
+				entry.push({
+					tag: "TRIGGER_NAME",
+					descKey: "triggers.placeholders.trigger_name",
+					pointer: "__trigger__.name",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "My trigger",
+				});
+				entry.push({
+					tag: "TRIGGER_ID",
+					descKey: "triggers.placeholders.trigger_id",
+					pointer: "__trigger__.id",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "00000000-0000-0000-0000-000000000000",
+				});
+			}
+
+			if (entry.findIndex((v) => v.tag == "OBS_SCENE") == -1) {
+				entry.push({
+					tag: "OBS_SCENE",
+					descKey: "triggers.placeholders.obs_scene",
+					pointer: "__obs__.scene",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "OBS scene",
+				});
+			}
+
+			if (
+				entry.findIndex((v) => v.tag == "TWITCH_LAST_SUB") == -1 &&
+				TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])
+			) {
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUB",
+					descKey: "triggers.placeholders.last_sub",
+					pointer: "__twitch__.lastsub_login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUB_ID",
+					descKey: "triggers.placeholders.last_sub_id",
+					pointer: "__twitch__.lastsub_id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "29961813",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUB_TIER",
+					descKey: "triggers.placeholders.last_sub_tier",
+					pointer: "__twitch__.lastsub_tier",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "1",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUBGIFTER",
+					descKey: "triggers.placeholders.last_subgifter",
+					pointer: "__twitch__.lastsubgifter_login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUBGIFTER_ID",
+					descKey: "triggers.placeholders.last_subgifter_id",
+					pointer: "__twitch__.lastsubgifter_id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "29961813",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUBGIFTER_TIER",
+					descKey: "triggers.placeholders.last_subgifter_tier",
+					pointer: "__twitch__.lastsubgifter_tier",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "1",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_SUBGIFT_COUNT",
+					descKey: "triggers.placeholders.last_subgift_count",
+					pointer: "__twitch__.lastsubgift_count",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "1",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_TOTAL_SUBS_ACTIVE",
+					descKey: "triggers.placeholders.total_sub",
+					pointer: "__twitch__.totalsubs",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "1312",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_PARTNER_PLUS_POINTS",
+					descKey: "triggers.placeholders.partner_plus_points",
+					pointer: "__twitch__.partnerpluspoints",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "1312",
+					private: true,
+				});
+			}
+			if (
+				entry.findIndex((v) => v.tag == "TWITCH_LAST_FOLLOW") == -1 &&
+				TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])
+			) {
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_FOLLOW",
+					descKey: "triggers.placeholders.last_follow",
+					pointer: "__twitch__.lastFollow_login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_FOLLOW_ID",
+					descKey: "triggers.placeholders.last_follow_id",
+					pointer: "__twitch__.lastfollow_id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "29961813",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_TOTAL_FOLLOWERS",
+					descKey: "triggers.placeholders.total_follow",
+					pointer: "__twitch__.totalfollowers",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "1312",
+				});
+			}
+			if (entry.findIndex((v) => v.tag == "TWITCH_LAST_CHEER") == -1) {
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_CHEER",
+					descKey: "triggers.placeholders.last_cheer",
+					pointer: "__twitch__.lastcheer_login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_CHEER_ID",
+					descKey: "triggers.placeholders.last_cheer_id",
+					pointer: "__twitch__.lastcheer_id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "29961813",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_CHEER_AMOUNT",
+					descKey: "triggers.placeholders.last_cheer_amount",
+					pointer: "__twitch__.lastcheer_amount",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "1312",
+				});
+			}
+			if (entry.findIndex((v) => v.tag == "TWITCH_LAST_RAID") == -1) {
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_RAID",
+					descKey: "triggers.placeholders.last_raid",
+					pointer: "__twitch__.lastraid_login",
+					numberParsable: false,
+					isUserID: false,
+					globalTag: true,
+					example: "Durss",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_RAID_ID",
+					descKey: "triggers.placeholders.last_raid_id",
+					pointer: "__twitch__.lastraid_id",
+					numberParsable: false,
+					isUserID: true,
+					globalTag: true,
+					example: "29961813",
+				});
+				entry.push({
+					category: "twitch",
+					tag: "TWITCH_LAST_RAID_VIEWERS",
+					descKey: "triggers.placeholders.last_raid_viewers",
+					pointer: "__twitch__.lastraid_viewers",
+					numberParsable: true,
+					isUserID: false,
+					globalTag: true,
+					example: "1312",
+				});
+			}
+
+			//If a music service is available, concat the music service helpers
+			if (
+				SpotifyHelper.instance.connected.value &&
+				entry.findIndex((v) => v.tag == "CURRENT_TRACK_ARTIST") == -1
+			) {
+				entry.push(
+					{
+						category: "music",
+						tag: "CURRENT_TRACK_ARTIST",
+						descKey: "triggers.placeholders.track_artist",
+						pointer: "__current_track__.artist",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "Mitchiri Neko",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_TRACK_TITLE",
+						descKey: "triggers.placeholders.track_title",
+						pointer: "__current_track__.title",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "Mitchiri Neko march",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_TRACK_ALBUM",
+						descKey: "triggers.placeholders.track_album",
+						pointer: "__current_track__.album",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "Fake Album",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_TRACK_COVER",
+						descKey: "triggers.placeholders.track_cover",
+						pointer: "__current_track__.cover",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: StoreProxy.asset("img/musicExampleCover.jpg"),
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_TRACK_URL",
+						descKey: "triggers.placeholders.track_url",
+						pointer: "__current_track__.url",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example:
+							"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_PLAYLIST_TITLE",
+						descKey: "triggers.placeholders.playlist_title",
+						pointer: "__current_track__.playlist.title",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example:
+							"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_PLAYLIST_URL",
+						descKey: "triggers.placeholders.playlist_url",
+						pointer: "__current_track__.playlist.url",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example:
+							"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "CURRENT_PLAYLIST_COVER",
+						descKey: "triggers.placeholders.playlist_cover",
+						pointer: "__current_track__.playlist.cover",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example:
+							"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
+					} as ITriggerPlaceholder<
+						TwitchatDataTypes.MusicTrackDataKeys,
+						string,
+						"__current_track__"
+					>,
+					{
+						category: "music",
+						tag: "SPOTIFY_IS_PLAYING",
+						descKey: "triggers.placeholders.spotify_is_playing",
+						pointer: "__current_track__.spotify_is_playing",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+				);
+			}
+
+			//If a goxlr is connected concat available placeholder
+			if (
+				GoXLRSocket.instance.connected.value &&
+				entry.findIndex((v) => v.tag == "GOXLR_COUGH") == -1
+			) {
+				entry.push(
+					{
+						category: "goxlr",
+						tag: "GOXLR_COUGH",
+						descKey: "triggers.placeholders.goxlr_cough",
+						pointer: "__goxlr__.cough",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_PROFILE",
+						descKey: "triggers.placeholders.goxlr_profile",
+						pointer: "__goxlr__.profile",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_MIC",
+						descKey: "triggers.placeholders.goxlr_input_mic",
+						pointer: "__goxlr__.input.mic",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_CHAT",
+						descKey: "triggers.placeholders.goxlr_input_chat",
+						pointer: "__goxlr__.input.chat",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_MUSIC",
+						descKey: "triggers.placeholders.goxlr_input_music",
+						pointer: "__goxlr__.input.music",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_GAME",
+						descKey: "triggers.placeholders.goxlr_input_game",
+						pointer: "__goxlr__.input.game",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_CONSOLE",
+						descKey: "triggers.placeholders.goxlr_input_console",
+						pointer: "__goxlr__.input.console",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_LINEIN",
+						descKey: "triggers.placeholders.goxlr_input_linein",
+						pointer: "__goxlr__.input.linein",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_SYSTEM",
+						descKey: "triggers.placeholders.goxlr_input_system",
+						pointer: "__goxlr__.input.system",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_INPUT_SAMPLE",
+						descKey: "triggers.placeholders.goxlr_input_sample",
+						pointer: "__goxlr__.input.sample",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "128",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_ENABLED",
+						descKey: "triggers.placeholders.goxlr_fx_state",
+						pointer: "__goxlr__.fx.enabled",
+						numberParsable: true,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_PRESET",
+						descKey: "triggers.placeholders.goxlr_fx_preset",
+						pointer: "__goxlr__.fx.preset",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "3",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_MEGAPHONE",
+						descKey: "triggers.placeholders.goxlr_megaphone",
+						pointer: "__goxlr__.fx.megaphone",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_ROBOT",
+						descKey: "triggers.placeholders.goxlr_robot",
+						pointer: "__goxlr__.fx.robot",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_HARDTUNE",
+						descKey: "triggers.placeholders.goxlr_hardtune",
+						pointer: "__goxlr__.fx.hardtune",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "true",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_REVERB",
+						descKey: "triggers.placeholders.goxlr_reverb",
+						pointer: "__goxlr__.fx.reverb",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "12",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_PITCH",
+						descKey: "triggers.placeholders.goxlr_pitch",
+						pointer: "__goxlr__.fx.pitch",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "-5",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_ECHO",
+						descKey: "triggers.placeholders.goxlr_echo",
+						pointer: "__goxlr__.fx.echo",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "50",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FX_GENDER",
+						descKey: "triggers.placeholders.goxlr_gender",
+						pointer: "__goxlr__.fx.gender",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "-12",
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FADER_1_MUTE",
+						descKey: "triggers.placeholders.goxlr_fader_1_mute",
+						pointer: "__goxlr__.fader.a",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "false",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FADER_2_MUTE",
+						descKey: "triggers.placeholders.goxlr_fader_2_mute",
+						pointer: "__goxlr__.fader.b",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "false",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FADER_3_MUTE",
+						descKey: "triggers.placeholders.goxlr_fader_3_mute",
+						pointer: "__goxlr__.fader.c",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "false",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+					{
+						category: "goxlr",
+						tag: "GOXLR_FADER_4_MUTE",
+						descKey: "triggers.placeholders.goxlr_fader_4_mute",
+						pointer: "__goxlr__.fader.d",
+						numberParsable: false,
+						isUserID: false,
+						globalTag: true,
+						example: "false",
+						values: [
+							{ labelKey: "global.yes", value: true },
+							{ labelKey: "global.no", value: false },
+						],
+					},
+				);
+			}
+
+			/* DISABLED BECAUSE OF S*** AS HELL STREAMELEMENTS API THAT DOESN'T WORK
+			if(StoreProxy.streamelements.connected && entry.findIndex(v=>v.tag == "STREAMELEMENTS_TIP_LATEST_AMOUNT") == -1) {
+				entry.push(
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_AMOUNT", pointer:"__streamelements__.tipLatest.amount", descKey:"triggers.placeholders.sl_tipLatest_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_MESSAGE", pointer:"__streamelements__.tipLatest.message", descKey:"triggers.placeholders.sl_tipLatest_message", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_USERNAME", pointer:"__streamelements__.tipLatest.username", descKey:"triggers.placeholders.sl_tipLatest_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION", pointer:"__streamelements__.tipSession", descKey:"triggers.placeholders.sl_tipSession", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_TOTAL", pointer:"__streamelements__.tipTotal", descKey:"triggers.placeholders.sl_tipTotal", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_COUNT", pointer:"__streamelements__.tipCount", descKey:"triggers.placeholders.sl_tipCount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEK", pointer:"__streamelements__.tipWeek", descKey:"triggers.placeholders.sl_tipWeek", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTH", pointer:"__streamelements__.tipMonth", descKey:"triggers.placeholders.sl_tipMonth", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_GOAL", pointer:"__streamelements__.tipGoal", descKey:"triggers.placeholders.sl_tipGoal", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipSessionTopDonation.amount", descKey:"triggers.placeholders.sl_tipSessionTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipSessionTopDonation.username", descKey:"triggers.placeholders.sl_tipSessionTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEKLY_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipWeeklyTopDonation.amount", descKey:"triggers.placeholders.sl_tipWeeklyTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEKLY_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipWeeklyTopDonation.username", descKey:"triggers.placeholders.sl_tipWeeklyTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTHLY_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipMonthlyTopDonation.amount", descKey:"triggers.placeholders.sl_tipMonthlyTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTHLY_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipMonthlyTopDonation.username", descKey:"triggers.placeholders.sl_tipMonthlyTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_ALLTIME_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipAlltimeTopDonation.amount", descKey:"triggers.placeholders.sl_tipAlltimeTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
+					{category:"streamlabs", tag:"STREAMELEMENTS_TIP_ALLTIME_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipAlltimeTopDonation.username", descKey:"triggers.placeholders.sl_tipAlltimeTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__test__">,
+				);
+			}
+			//*/
+
+			entry = entry.concat(counterPlaceholders);
+			entry = entry.concat(valuePlaceholders);
+			entry = entry.concat(timersPlaceholders);
+			map[k] = entry;
+		}
+
+		//Inject custom values
+		for (const triggerType in eventPlaceholderValuesCache) {
+			let typedKey = triggerType as TriggerTypesValue;
+			if (!map[typedKey]) continue;
+			const placeholder = map[typedKey].find(
+				(v) => v.tag == eventPlaceholderValuesCache[typedKey]?.tag,
 			);
+			if (!placeholder) continue;
+			placeholder.values = eventPlaceholderValuesCache[typedKey]!.values;
 		}
-
-		//If a goxlr is connected concat available placeholder
-		if (
-			GoXLRSocket.instance.connected.value &&
-			entry.findIndex((v) => v.tag == "GOXLR_COUGH") == -1
-		) {
-			entry.push(
-				{
-					category: "goxlr",
-					tag: "GOXLR_COUGH",
-					descKey: "triggers.placeholders.goxlr_cough",
-					pointer: "__goxlr__.cough",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_PROFILE",
-					descKey: "triggers.placeholders.goxlr_profile",
-					pointer: "__goxlr__.profile",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_MIC",
-					descKey: "triggers.placeholders.goxlr_input_mic",
-					pointer: "__goxlr__.input.mic",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_CHAT",
-					descKey: "triggers.placeholders.goxlr_input_chat",
-					pointer: "__goxlr__.input.chat",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_MUSIC",
-					descKey: "triggers.placeholders.goxlr_input_music",
-					pointer: "__goxlr__.input.music",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_GAME",
-					descKey: "triggers.placeholders.goxlr_input_game",
-					pointer: "__goxlr__.input.game",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_CONSOLE",
-					descKey: "triggers.placeholders.goxlr_input_console",
-					pointer: "__goxlr__.input.console",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_LINEIN",
-					descKey: "triggers.placeholders.goxlr_input_linein",
-					pointer: "__goxlr__.input.linein",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_SYSTEM",
-					descKey: "triggers.placeholders.goxlr_input_system",
-					pointer: "__goxlr__.input.system",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_INPUT_SAMPLE",
-					descKey: "triggers.placeholders.goxlr_input_sample",
-					pointer: "__goxlr__.input.sample",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "128",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_ENABLED",
-					descKey: "triggers.placeholders.goxlr_fx_state",
-					pointer: "__goxlr__.fx.enabled",
-					numberParsable: true,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_PRESET",
-					descKey: "triggers.placeholders.goxlr_fx_preset",
-					pointer: "__goxlr__.fx.preset",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "3",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_MEGAPHONE",
-					descKey: "triggers.placeholders.goxlr_megaphone",
-					pointer: "__goxlr__.fx.megaphone",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_ROBOT",
-					descKey: "triggers.placeholders.goxlr_robot",
-					pointer: "__goxlr__.fx.robot",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_HARDTUNE",
-					descKey: "triggers.placeholders.goxlr_hardtune",
-					pointer: "__goxlr__.fx.hardtune",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "true",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_REVERB",
-					descKey: "triggers.placeholders.goxlr_reverb",
-					pointer: "__goxlr__.fx.reverb",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "12",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_PITCH",
-					descKey: "triggers.placeholders.goxlr_pitch",
-					pointer: "__goxlr__.fx.pitch",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "-5",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_ECHO",
-					descKey: "triggers.placeholders.goxlr_echo",
-					pointer: "__goxlr__.fx.echo",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "50",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FX_GENDER",
-					descKey: "triggers.placeholders.goxlr_gender",
-					pointer: "__goxlr__.fx.gender",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "-12",
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FADER_1_MUTE",
-					descKey: "triggers.placeholders.goxlr_fader_1_mute",
-					pointer: "__goxlr__.fader.a",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "false",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FADER_2_MUTE",
-					descKey: "triggers.placeholders.goxlr_fader_2_mute",
-					pointer: "__goxlr__.fader.b",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "false",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FADER_3_MUTE",
-					descKey: "triggers.placeholders.goxlr_fader_3_mute",
-					pointer: "__goxlr__.fader.c",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "false",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-				{
-					category: "goxlr",
-					tag: "GOXLR_FADER_4_MUTE",
-					descKey: "triggers.placeholders.goxlr_fader_4_mute",
-					pointer: "__goxlr__.fader.d",
-					numberParsable: false,
-					isUserID: false,
-					globalTag: true,
-					example: "false",
-					values: [
-						{ labelKey: "global.yes", value: true },
-						{ labelKey: "global.no", value: false },
-					],
-				},
-			);
-		}
-
-		/* DISABLED BECAUSE OF S*** AS HELL STREAMELEMENTS API THAT DOESN'T WORK
-		if(StoreProxy.streamelements.connected && entry.findIndex(v=>v.tag == "STREAMELEMENTS_TIP_LATEST_AMOUNT") == -1) {
-			entry.push(
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_AMOUNT", pointer:"__streamelements__.tipLatest.amount", descKey:"triggers.placeholders.sl_tipLatest_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_MESSAGE", pointer:"__streamelements__.tipLatest.message", descKey:"triggers.placeholders.sl_tipLatest_message", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_LATEST_USERNAME", pointer:"__streamelements__.tipLatest.username", descKey:"triggers.placeholders.sl_tipLatest_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION", pointer:"__streamelements__.tipSession", descKey:"triggers.placeholders.sl_tipSession", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_TOTAL", pointer:"__streamelements__.tipTotal", descKey:"triggers.placeholders.sl_tipTotal", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_COUNT", pointer:"__streamelements__.tipCount", descKey:"triggers.placeholders.sl_tipCount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEK", pointer:"__streamelements__.tipWeek", descKey:"triggers.placeholders.sl_tipWeek", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTH", pointer:"__streamelements__.tipMonth", descKey:"triggers.placeholders.sl_tipMonth", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_GOAL", pointer:"__streamelements__.tipGoal", descKey:"triggers.placeholders.sl_tipGoal", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipSessionTopDonation.amount", descKey:"triggers.placeholders.sl_tipSessionTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_SESSION_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipSessionTopDonation.username", descKey:"triggers.placeholders.sl_tipSessionTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEKLY_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipWeeklyTopDonation.amount", descKey:"triggers.placeholders.sl_tipWeeklyTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_WEEKLY_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipWeeklyTopDonation.username", descKey:"triggers.placeholders.sl_tipWeeklyTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTHLY_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipMonthlyTopDonation.amount", descKey:"triggers.placeholders.sl_tipMonthlyTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_MONTHLY_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipMonthlyTopDonation.username", descKey:"triggers.placeholders.sl_tipMonthlyTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_ALLTIME_TOP_DONATION_AMOUNT", pointer:"__streamelements__.tipAlltimeTopDonation.amount", descKey:"triggers.placeholders.sl_tipAlltimeTopDonation_amount", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__streamlabs__">,
-				{category:"streamlabs", tag:"STREAMELEMENTS_TIP_ALLTIME_TOP_DONATION_USERNAME", pointer:"__streamelements__.tipAlltimeTopDonation.username", descKey:"triggers.placeholders.sl_tipAlltimeTopDonation_username", numberParsable:false, isUserID:false, globalTag:true, example:""} as ITriggerPlaceholder<IStreamelementsState, string, "__test__">,
-			);
-		}
-		//*/
-
-		entry = entry.concat(counterPlaceholders);
-		entry = entry.concat(valuePlaceholders);
-		entry = entry.concat(timersPlaceholders);
-		map[k] = entry;
-	}
-
-	//Inject custom values
-	for (const triggerType in eventPlaceholderValuesCache) {
-		let typedKey = triggerType as TriggerTypesValue;
-		if (!map[typedKey]) continue;
-		const placeholder = map[typedKey].find(
-			(v) => v.tag == eventPlaceholderValuesCache[typedKey]?.tag,
-		);
-		if (!placeholder) continue;
-		placeholder.values = eventPlaceholderValuesCache[typedKey]!.values;
 	}
 
 	eventPlaceholdersCache = reactive(map);

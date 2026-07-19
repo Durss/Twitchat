@@ -14,6 +14,7 @@
 				v-for="(code, index) in overlayTypes"
 				:key="code"
 				:icon="code"
+				:disabled="code == 'spotify' && !spotifyEnabled"
 				:botMessageKey="botMessageKeys[index]"
 				noBackground
 				:titleKey="'heat.overlay_' + code + '.description'"
@@ -37,10 +38,11 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import DataStore from "@/store/DataStore";
 import { TriggerEventPlaceholders, TriggerTypes } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import PostOnChatParam from "../../PostOnChatParam.vue";
+import SpotifyHelper from "@/utils/music/SpotifyHelper.js";
 
 const { t } = useI18n();
 const props = defineProps<{ primary?: boolean; secondary?: boolean; light?: boolean }>();
@@ -61,8 +63,12 @@ const param_allowAnon = ref<
 	}>
 >({});
 
+const spotifyEnabled = computed(() => SpotifyHelper.instance.connected.value);
+
 onMounted(() => {
-	placeholders.value["spotify"] = TriggerEventPlaceholders(TriggerTypes.MUSIC_START);
+	placeholders.value["spotify"] = TriggerEventPlaceholders(TriggerTypes.MUSIC_START).filter((t) =>
+		t.tag.toUpperCase().startsWith("CURRENT_TRACK"),
+	);
 
 	placeholders.value["ulule"] = [
 		{

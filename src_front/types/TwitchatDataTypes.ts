@@ -127,7 +127,7 @@ export namespace TwitchatDataTypes {
 		STREAMFOG: "streamfog",
 		TWITCHBOT: "twitchbot",
 		WEBSOCKET: "websocket",
-		HEAT_AREAS: "heatAreas",
+		// HEAT_AREAS: "heatAreas",
 		STREAMLABS: "streamlabs",
 		ELEVENLABS: "elevenlabs",
 		BINGO_GRID: "bingogrid",
@@ -139,6 +139,7 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_API: "twitchat_api",
 		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
+		CLICKABLE_AREAS: "clickableareas",
 		PREMIUM_REMAINING: "premium_remaining",
 		TWITCHAT_COMPANION: "twitchat_companion",
 	} as const;

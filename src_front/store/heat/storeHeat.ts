@@ -183,12 +183,20 @@ export const storeHeat = defineStore("heat", {
 			this.updateActiveScreens();
 		},
 
-		deleteScreen(id: string): void {
-			const index = this.screenList.findIndex((v) => v.id == id);
-			if (index == -1) return;
-			this.screenList.splice(index, 1);
+		async deleteScreen(id: string): Promise<void> {
+			StoreProxy.main
+				.confirm(
+					StoreProxy.i18n.t("heat.areas.delete_confirm.title"),
+					StoreProxy.i18n.t("heat.areas.delete_confirm.description"),
+				)
+				.then(() => {
+					const index = this.screenList.findIndex((v) => v.id == id);
+					if (index == -1) return;
+					this.screenList.splice(index, 1);
 
-			this.updateActiveScreens();
+					this.updateActiveScreens();
+				})
+				.catch((_) => {});
 		},
 
 		updateScreen(data: HeatScreen): void {

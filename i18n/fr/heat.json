@@ -10,6 +10,7 @@
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Autorisez les personnes anonymes à interagir",
 		"anonymous": "Par défaut les interactions sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
+		"default_title": "Écran",
 		"click_source": "L'utilisateur·ice doit cliquer...",
 		"click_source_info_title": "Informations de mise en cache",
 		"click_source_info_description": "La détection du clique sur une source OBS nécessite beaucoup d'échanges avec OBS pour calculer la position de vos sources. Selon la complexité de vos scènes OBS ceci peut prendre du temps. Pour des raisons de performance, la position de vos sources est mise en cache durant 30 secondes. Si une source est déplacée il peut falloir attendre jusqu'à 30s pour que sa nouvelle position soit prise en compte. Si vous en avez VRAIMENT besoin, la commande {CMD} permet de vider le cache.",
@@ -23,6 +24,10 @@
 		"anonymous_info": "IMPORTANT : Par défaut les clicks envoyés par l'extension sont anonymes. Pour ne pas être anonymes, les viewers doivent accorder l'accès à leur ID en cliquant l'icône de l'extension sur votre stream comme ci-dessous :",
 		"nonpremium_limit": "Vous avez créé le nombre maximum de {MAX} écrans. Devenez premium pour créer jusqu'à {MAX_PREMIUM} écrans.",
 		"premium_limit": "Vous avez créé le nombre maximum de {MAX} écrans.",
+		"add_bt": "Ajouter un écran",
+		"interactive_areas_bt": "Créez des zones interactives",
+		"must_enable_extension": "Cette fonctionnalité requier d'utiliser l'extension {COMPANION} ou {HEAT} sur votre stream.",
+		"must_enable_clicks": "Vous avez installé l'extension Twitchat Companion mais n'avez pas autorisé vos viewers à cliquer sur le stream",
 		"logs": {
 			"title": "Logs de clicks",
 			"subtitle": "Retrouvez les détails des clicks",
@@ -51,7 +56,7 @@
 			"show_extension_button_title": "Titre",
 			"connect_obs": "🔗 Connecter OBS",
 			"delete_confirm": {
-				"title": "Supprimer la zone ?",
+				"title": "Supprimer l'écran ?",
 				"description": "La suppression ne pourra pas être annulée."
 			}
 		}
