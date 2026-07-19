@@ -63,6 +63,37 @@
 				</div>
 
 				<template v-if="globalPlaceholders.length + globalPlaceholderCategories.length > 0">
+					<!-- Single category with no uncategorized global placeholder:
+					     flatten it at root to avoid a lone collapsable subcategory -->
+					<div class="list" v-if="flattenedCategoryEntries.length > 0">
+						<template
+							v-for="(h, index) in flattenedCategoryEntries"
+							:key="h.tag + index"
+						>
+							<TTButton
+								primary
+								small
+								@click="insert(h)"
+								:copy="copyMode !== false ? '{' + h.tag + '}' : undefined"
+								v-tooltip="
+									copyMode !== false
+										? $t('global.copy')
+										: $t('global.placeholder_selector_insert')
+								"
+								>&#123;{{ h.tag }}&#125;</TTButton
+							>
+
+							<i18n-t scope="global" :keypath="h.descKey" tag="span">
+								<template
+									v-for="(value, name) in h.descReplacedValues ?? {}"
+									v-slot:[name]
+								>
+									<mark>{{ value }}</mark>
+								</template>
+							</i18n-t>
+						</template>
+					</div>
+
 					<ToggleBlock
 						class="misc"
 						key="misc"
@@ -101,7 +132,9 @@
 
 					<ToggleBlock
 						class="global"
-						v-for="c in globalPlaceholderCategories"
+						v-for="c in flattenedCategoryEntries.length > 0
+							? []
+							: globalPlaceholderCategories"
 						:key="c.key"
 						small
 						:open="search.length > 0"
@@ -243,6 +276,17 @@ const globalPlaceholderCategories = computed<
 	categories.push(currentCategory);
 
 	return categories;
+});
+
+/**
+ * When there's a single global category and no uncategorized global
+ * placeholder, returns that category's entries so they can be flattened
+ * at the root instead of being nested under a lone category
+ */
+const flattenedCategoryEntries = computed<TwitchatDataTypes.PlaceholderEntry[]>(() => {
+	if (globalPlaceholders.value.length > 0) return [];
+	if (globalPlaceholderCategories.value.length !== 1) return [];
+	return globalPlaceholderCategories.value[0]!.entries;
 });
 
 /**
