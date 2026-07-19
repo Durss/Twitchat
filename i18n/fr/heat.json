@@ -55,6 +55,7 @@
 			"show_extension_button": "Afficher la zone clickable dans l'extension Twitchat Companion",
 			"show_extension_button_title": "Titre",
 			"connect_obs": "🔗 Connecter OBS",
+			"use_companion": "Utilisez l'extension Twitchat Companion au lieu de Heat pour afficher les zones sur votre stream et permettre aux viewer de les cliquer aussi sur mobile.",
 			"delete_confirm": {
 				"title": "Supprimer l'écran ?",
 				"description": "La suppression ne pourra pas être annulée."

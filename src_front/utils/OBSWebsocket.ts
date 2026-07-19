@@ -14,7 +14,7 @@ import Utils from "./Utils";
 export default class OBSWebsocket extends EventDispatcher {
 	private static _instance: OBSWebsocket;
 
-	public connected = ref<boolean>(false);
+	public connected = ref(false);
 	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
 	//As this class is also used on the "overlay" page, importing TriggerType would
 	//drastically enlarge its bundle size because TriggerActionDataTypes as dependencies to
@@ -132,10 +132,12 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 			const portValue = port && port?.length > 0 && port != "0" ? ":" + port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, { rpcVersion: 1 });
-			if (!this.connected.value) {
-				this.dispatchEvent(new TwitchatEvent("ON_OBS_WEBSOCKET_CONNECTED", undefined));
-			}
+			let wasConnected = this.connected.value;
 			this.connected.value = true;
+			if (!wasConnected) {
+				this.dispatchEvent(new TwitchatEvent("ON_OBS_WEBSOCKET_CONNECTED", undefined));
+				void this.preloadData();
+			}
 		} catch (error) {
 			console.log(error);
 			if (this.autoReconnect) {

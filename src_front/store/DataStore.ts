@@ -17,7 +17,7 @@ import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
 export default class DataStore extends DataStoreCommon {
 	protected static saveTO: number = -1;
 	private static abortQuery: AbortController | null = null;
-	private static savePromiseResolver: Function | null = null;
+	private static savePromiseResolver: Function[] = [];
 	private static isSaving: boolean = false;
 	private static pendingSave: boolean = false;
 
@@ -35,37 +35,42 @@ export default class DataStore extends DataStoreCommon {
 	 */
 	static override async save(force: boolean = false): Promise<void> {
 		if (!force) {
-			if (!this.syncToServer) return; //User wants to only save data locally
-			if (!this.dataImported) return; //Don't export anything before importing data first
-			if (!StoreProxy.auth.twitch.access_token) return;
-			if (StoreProxy.main.outdatedDataVersion) return;
-			if (StoreProxy.main.offlineMode) return;
-		}
-
-		//If a save is currently in progress (API call running), mark that we need
-		//another save after it completes, don't try to abort and restart
-		if (this.isSaving) {
-			this.pendingSave = true;
-			return;
-		}
-
-		//Clear any pending debounce timeout and resolve its promise
-		if (this.saveTO !== -1) {
-			clearTimeout(this.saveTO);
-			this.saveTO = -1;
-		}
-		if (this.savePromiseResolver) {
-			this.savePromiseResolver();
-			this.savePromiseResolver = null;
+			//Nothing will be sent to the server, release any awaiting caller
+			if (
+				!this.syncToServer || //User wants to only save data locally
+				!this.dataImported || //Don't export anything before importing data first
+				!StoreProxy.auth.twitch.access_token ||
+				StoreProxy.main.outdatedDataVersion ||
+				StoreProxy.main.offlineMode
+			) {
+				this.flushSavePromises();
+				return;
+			}
 		}
 
 		return new Promise((resolve) => {
-			this.savePromiseResolver = resolve;
+			//Callers are only resolved once data actually reached the server so
+			//awaiting save() can safely be used to sequence server side actions
+			//depending on fresh data (ex: heat areas cache invalidation)
+			this.savePromiseResolver.push(resolve);
+
+			//If a save is currently in progress (API call running), mark that we need
+			//another save after it completes, don't try to abort and restart
+			if (this.isSaving) {
+				this.pendingSave = true;
+				return;
+			}
+
+			//Clear any pending debounce timeout, this call restarts it
+			if (this.saveTO !== -1) {
+				clearTimeout(this.saveTO);
+				this.saveTO = -1;
+			}
+
 			this.saveTO = window.setTimeout(
 				async () => {
 					this.saveTO = -1;
 					this.isSaving = true;
-					this.savePromiseResolver = null;
 
 					const data = JSON.parse(JSON.stringify(this.rawStore));
 
@@ -116,17 +121,29 @@ export default class DataStore extends DataStoreCommon {
 					if (force) this.dataImported = true;
 
 					this.isSaving = false;
-					resolve();
 
-					//If another save was requested while we were saving, trigger it now
+					//If another save was requested while we were saving, trigger it now.
+					//Awaiting callers are resolved by that next save so they only get
+					//released once their own data reached the server
 					if (this.pendingSave) {
 						this.pendingSave = false;
 						void this.save();
+					} else {
+						this.flushSavePromises();
 					}
 				},
 				force ? 0 : 5000,
 			);
 		});
+	}
+
+	/**
+	 * Resolve all callers awaiting for a save to complete
+	 */
+	private static flushSavePromises(): void {
+		const resolvers = this.savePromiseResolver;
+		this.savePromiseResolver = [];
+		resolvers.forEach((resolve) => resolve());
 	}
 
 	/**

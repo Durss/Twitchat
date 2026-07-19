@@ -2072,6 +2072,11 @@ const UserDataSchema = {
 								id: { type: "string", maxLength: 40 },
 								title: { type: "string", maxLength: 500 },
 								showAreaOnExtension: { type: "boolean" },
+								cooldown_s: {
+									type: "number",
+									minimum: 0,
+									maximum: Number.MAX_SAFE_INTEGER,
+								},
 								points: {
 									type: "array",
 									minItems: 0,

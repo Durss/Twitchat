@@ -8,7 +8,12 @@
 		:title-default="t('heat.default_title')"
 	>
 		<template #left_actions>
-			<ToggleButton @click.stop v-if="canEnable" v-model="props.data.enabled" />
+			<ToggleButton
+				@click.stop
+				v-if="canEnable"
+				v-model="props.data.enabled"
+				@change="storeHeat.updateActiveScreens()"
+			/>
 			<HeatScreenPreview :screen="props.data" :showObsScene="false" class="preview small" />
 		</template>
 		<template #right_actions>
@@ -35,7 +40,12 @@
 			/>
 		</div>
 
-		<HeatScreenEditor :screen="props.data" :obsPreview="params_showOBS.value" class="preview" />
+		<HeatScreenEditor
+			:screen="props.data"
+			:obsPreview="params_showOBS.value"
+			class="preview"
+			@update="storeHeat.updateActiveScreens()"
+		/>
 	</ToggleBlock>
 </template>
 
@@ -65,7 +75,6 @@ const storeHeat = useStoreHeat();
 if (!props.data.title) props.data.title = "";
 
 const maxScreens = computed(() => {
-	return 1;
 	return storeAuth.isPremium
 		? Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM
 		: Config.instance.MAX_CUSTOM_HEAT_SCREENS;
@@ -124,6 +133,7 @@ function onSelectOBSScene(): void {
 		return;
 	}
 	props.data.activeOBSScene = params_target.value.value;
+	storeHeat.updateActiveScreens();
 }
 
 /**

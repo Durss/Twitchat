@@ -1975,6 +1975,7 @@ watch(
 	&.type-list,
 	&.type-editablelist,
 	&.type-imagelist,
+	&.type-number,
 	&.type-string:not(.longText) {
 		.content {
 			& > .icon {

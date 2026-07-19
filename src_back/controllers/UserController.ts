@@ -17,6 +17,7 @@ interface HeatExtensionArea {
 	id: string;
 	title: string;
 	showAreaOnExtension?: boolean;
+	cooldown_s?: number;
 	points: { x: number; y: number }[];
 }
 
@@ -169,6 +170,7 @@ export default class UserController extends AbstractController {
 							return {
 								id: v.id,
 								title: v.title,
+								cooldown_s: v.cooldown_s,
 								points: v.points
 									// Cap numbers precisions
 									.map((p) => ({

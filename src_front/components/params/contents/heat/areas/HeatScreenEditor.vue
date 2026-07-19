@@ -41,33 +41,47 @@
 			</div>
 		</div>
 
-		<div class="form">
-			<ParamItem
-				v-if="
-					currentArea && currentAreaTitleParam && storeExtension.hasFeature('areaTitles')
-				"
-				:paramData="currentAreaTitleParam"
-				v-model="currentArea.title"
-				@change="emit('update')"
-			/>
-			<ParamItem
-				class="premium"
-				v-if="
-					currentArea &&
-					currentAreaExtensionButtonParam &&
-					storeExtension.hasFeature('areaTitles')
-				"
-				:paramData="currentAreaExtensionButtonParam"
-				v-model="currentArea.showAreaOnExtension"
-				@change="emit('update')"
-			/>
-		</div>
+		<template v-if="currentArea">
+			<div class="card-item primary companion" v-if="!storeExtension.companionEnabled">
+				<p>{{ t("heat.areas.use_companion") }}</p>
+				<TTButton icon="twitchat_companion" light @click="openCompanion()">{{
+					t("heat.alertnative_bt")
+				}}</TTButton>
+			</div>
+
+			<div class="form" v-else>
+				<ParamItem
+					v-if="currentAreaTitleParam && storeExtension.hasFeature('areasTitle')"
+					:paramData="currentAreaTitleParam"
+					v-model="currentArea.title"
+					@change="emit('update')"
+				/>
+				<ParamItem
+					class="premium"
+					v-if="
+						currentAreaExtensionButtonParam && storeExtension.hasFeature('areasTitle')
+					"
+					:paramData="currentAreaExtensionButtonParam"
+					v-model="currentArea.showAreaOnExtension"
+					@change="emit('update')"
+				/>
+				<ParamItem
+					class="premium"
+					v-if="currentAreaCooldownParam && storeExtension.hasFeature('areasCooldown')"
+					:paramData="currentAreaCooldownParam"
+					v-model="currentArea.cooldown_s"
+					@change="emit('update')"
+				/>
+			</div>
+		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
 import ParamItem from "@/components/params/ParamItem.vue";
+import TTButton from "@/components/TTButton.vue";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
@@ -81,7 +95,10 @@ import {
 	useTemplateRef,
 	type CSSProperties,
 } from "vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
+const storeParams = useStoreParams();
 const storeExtension = useStoreExtension();
 
 const props = defineProps<{ screen: HeatScreen; obsPreview?: boolean }>();
@@ -117,8 +134,8 @@ const mouseMoveHandler = (e: PointerEvent) => onMouseMove(e);
 const documentPointerDownHandler = (e: PointerEvent) => onDocumentPointerDown(e);
 
 const param_showExtensionButton = ref<Record<string, TwitchatDataTypes.ParameterData<boolean>>>({});
-
 const param_areaTitle = ref<Record<string, TwitchatDataTypes.ParameterData<string>>>({});
+const param_cooldown = ref<Record<string, TwitchatDataTypes.ParameterData<number>>>({});
 
 function ensureTitleParam(area: HeatArea) {
 	if (!param_areaTitle.value[area.id]) {
@@ -132,6 +149,7 @@ function ensureTitleParam(area: HeatArea) {
 	}
 	return param_areaTitle.value[area.id]!;
 }
+
 function ensureExtensionButtonParam(area: HeatArea) {
 	if (!param_showExtensionButton.value[area.id]) {
 		param_showExtensionButton.value[area.id] = {
@@ -145,6 +163,20 @@ function ensureExtensionButtonParam(area: HeatArea) {
 	return param_showExtensionButton.value[area.id]!;
 }
 
+function ensureCooldownParam(area: HeatArea) {
+	if (!param_cooldown.value[area.id]) {
+		param_cooldown.value[area.id] = {
+			type: "duration",
+			value: 0,
+			icon: "timer",
+			max: 3600 * 24 - 1,
+			premiumOnly: true,
+			labelKey: "heat.areas.cooldown",
+		};
+	}
+	return param_cooldown.value[area.id]!;
+}
+
 const currentAreaExtensionButtonParam = computed(() => {
 	if (!currentArea.value) return null;
 	const param = ensureExtensionButtonParam(currentArea.value);
@@ -156,6 +188,13 @@ const currentAreaTitleParam = computed(() => {
 	if (!currentArea.value) return null;
 	const param = ensureTitleParam(currentArea.value);
 	param.value = currentArea.value.title ?? "";
+	return param;
+});
+
+const currentAreaCooldownParam = computed(() => {
+	if (!currentArea.value) return null;
+	const param = ensureCooldownParam(currentArea.value);
+	param.value = currentArea.value.cooldown_s || 0;
 	return param;
 });
 
@@ -202,6 +241,13 @@ onBeforeUnmount(() => {
 	document.removeEventListener("pointermove", mouseMoveHandler);
 	document.removeEventListener("pointerdown", documentPointerDownHandler);
 });
+
+function openCompanion(): void {
+	storeParams.openParamsPage(
+		TwitchatDataTypes.ParameterPages.CONNECTIONS,
+		TwitchatDataTypes.ParamDeepSections.TWITCHAT_COMPANION,
+	);
+}
 
 function pointClasses(area: HeatArea, index: number): string[] {
 	if (area.id != currentArea.value?.id) return [];
@@ -362,8 +408,9 @@ function startDragArea(event: PointerEvent, area: HeatArea): void {
 
 function onKeyDown(event: KeyboardEvent): void {
 	//Do not copy/past actions if focus is on a form input
-	const nodeName = (event.target as HTMLElement).nodeName;
-	if (["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
+	const target = event.target as HTMLElement;
+	if (["TEXTAREA", "INPUT"].indexOf(target.nodeName) > -1) return;
+	if (target.getAttribute("contenteditable")) return;
 
 	if (event.key == " ") {
 		spacePressed.value = true;
@@ -649,6 +696,10 @@ async function refreshImage(): Promise<void> {
 
 <style scoped lang="less">
 .heatscreeneditor {
+	gap: 0.5em;
+	display: flex;
+	flex-direction: column;
+
 	.scrollable {
 		width: 100%;
 		aspect-ratio: 16/9;
@@ -730,15 +781,16 @@ async function refreshImage(): Promise<void> {
 	}
 
 	.form {
+		gap: 0.25em;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.companion {
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
-		gap: 0.25em;
-		margin-top: 0.5em;
-
-		.premium {
-			background-color: var(--color-premium-fade);
-		}
+		align-items: center;
 	}
 }
 </style>

@@ -1,6 +1,6 @@
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import HeatEvent from "@/events/HeatEvent";
-import type { HeatScreen } from "@/types/HeatDataTypes";
+import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import {
 	TriggerTypes,
 	type TriggerActionChatData,
@@ -25,6 +25,21 @@ import SSEHelper from "@/utils/SSEHelper";
 
 let activeAreaDiff = "";
 let invalidateTimeout = -1;
+const userCooldowns = new Map<string, number>();
+
+/**
+ * Apply area cooldown if any
+ * @returns true if user is on cooldown
+ */
+function isCooledDown(area: HeatArea, userId: string): boolean {
+	if (StoreProxy.auth.isPremium) return false;
+	if (!area.cooldown_s) return false;
+	if (!userCooldowns.has(userId)) {
+		userCooldowns.set(userId, Date.now() + area.cooldown_s);
+	}
+	return Date.now() < userCooldowns.get(userId)!;
+}
+
 export const storeHeat = defineStore("heat", {
 	state: (): IHeatState => ({
 		screenList: [],
@@ -228,26 +243,29 @@ export const storeHeat = defineStore("heat", {
 			this.screenList.forEach((v) => {
 				v.active = (!v.activeOBSScene || v.activeOBSScene == obsScene) && v.enabled;
 			});
-			// Check if active areas changed, if so, invalidate server cache
-			const diff = this.screenList
+			// Check if active areas changed, if so, invalidate server cache.
+			let diff = this.screenList
 				.filter((v) => v.active)
 				.map((v) => v.areas)
 				.flat()
 				.filter((v) => v.showAreaOnExtension)
-				.map((v) => v.id)
+				.map((v) => {
+					const points = v.points
+						.map((p) => p.x.toFixed(6) + "/" + p.y.toFixed(6))
+						.join(";");
+					return v.id + "|" + v.cooldown_s + "|" + (v.title || "") + "|" + points;
+				})
 				.sort((a, b) => a.localeCompare(b))
 				.join();
-			if (diff != activeAreaDiff) {
-				clearTimeout(invalidateTimeout);
-			}
-
+			diff += this.screenList.map((v) => v.activeOBSScene).join("|");
 			void this.saveScreens().then(() => {
-				if (diff != activeAreaDiff) {
-					activeAreaDiff = diff;
-					invalidateTimeout = window.setTimeout(() => {
-						void ApiHelper.call("user/heat_areas/cache", "DELETE");
-					}, 3000);
-				}
+				if (diff == activeAreaDiff) return;
+				activeAreaDiff = diff;
+				//Multiple edits can be saved at once, debounce the invalidation
+				clearTimeout(invalidateTimeout);
+				invalidateTimeout = window.setTimeout(() => {
+					void ApiHelper.call("user/heat_areas/cache", "DELETE");
+				}, 1000);
 			});
 		},
 
@@ -367,11 +385,23 @@ export const storeHeat = defineStore("heat", {
 			};
 			void TriggerActionHandler.instance.execute(message);
 
+			// Requested to specifically click an area ID
 			if (event.areaId) {
+				const area = this.screenList
+					.map((v) => v.areas)
+					.flat()
+					.find((v) => v.id == event.areaId);
+				// Area not found ignore click
+				if (!area) return;
+
 				const clone = JSON.parse(
 					JSON.stringify(message),
 				) as TwitchatDataTypes.MessageHeatClickData;
 				clone.areaId = event.areaId;
+
+				// Apply cooldown if any
+				if (isCooledDown(area, user.id)) return;
+
 				void TriggerActionHandler.instance.execute(clone);
 				log.targets.push({
 					customAreaID: event.areaId,
@@ -398,8 +428,8 @@ export const storeHeat = defineStore("heat", {
 						{ x: event.coordinates.x, y: event.coordinates.y },
 						a.points,
 					);
-					//If click is inside the area, execute the trigger
-					if (isInside) {
+					//If click is inside the area and user isn't on cooldown, execute the trigger
+					if (isInside && !isCooledDown(a, user.id)) {
 						log.targets.push({
 							customAreaID: a.id,
 							x: event.coordinates.x,

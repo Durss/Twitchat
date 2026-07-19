@@ -27,12 +27,13 @@
 				<Icon name="newtab" />
 			</button>
 			<button
+				:disabled="loading"
 				class="cacheBt"
 				@click="clearOBSCache()"
 				v-tooltip="t('heat.debug.obs')"
 				v-if="obsConnected"
 			>
-				<Icon name="obs" />
+				<Icon :name="loading ? 'loader' : 'obs'" />
 			</button>
 		</div>
 	</div>
@@ -45,6 +46,7 @@ import DataStore from "@/store/DataStore";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import HeatSocket from "@/utils/twitch/HeatSocket";
+import Utils from "@/utils/Utils";
 import {
 	computed,
 	onBeforeUnmount,
@@ -74,6 +76,7 @@ const area = useTemplateRef("area");
 const cursor = useTemplateRef("cursor");
 
 const isPopout = ref(false);
+const loading = ref(false);
 const clicks = ref<ClickData[]>([]);
 
 let disposed: boolean = false;
@@ -159,11 +162,14 @@ function goFullscreen(): void {
 	window.open(url, "heatDebug", params);
 }
 
-function clearOBSCache(): void {
+async function clearOBSCache(): Promise<void> {
+	loading.value = true;
 	OBSWebsocket.instance.clearSourceTransformCache();
 	if (window.opener?.clearOBSCache) {
 		window.opener.clearOBSCache();
 	}
+	await Utils.promisedTimeout(1000);
+	loading.value = false;
 }
 
 /**

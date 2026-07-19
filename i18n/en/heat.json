@@ -52,9 +52,11 @@
 			"target": "Active only on OBS scene",
 			"target_always": "Any",
 			"show_obs": "Show OBS scene preview",
+			"cooldown": "Cooldown",
 			"show_extension_button": "Show clickable area on Twitchat Companion extension",
 			"show_extension_button_title": "Title",
 			"connect_obs": "🔗 Connect with OBS",
+			"use_companion": "Use Twitchat Companion extension instead of Heat to show the clickable areas to your viewers on your stream and make them clickable also on mobile.",
 			"delete_confirm": {
 				"title": "Delete screen?",
 				"description": "This cannot be undone."

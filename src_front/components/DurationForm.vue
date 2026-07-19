@@ -123,15 +123,15 @@ const inputM = ref<ComponentPublicInstance>();
 const inputS = ref<ComponentPublicInstance>();
 
 const showDays = computed(() => {
-	return props.max > 24 * 60 * 60;
+	return props.max >= 24 * 60 * 60;
 });
 
 const showHours = computed(() => {
-	return props.max > 60 * 60;
+	return props.max >= 60 * 60;
 });
 
 const showMinutes = computed(() => {
-	return props.max > 60;
+	return props.max >= 60;
 });
 
 function onChange(): void {
