@@ -6299,7 +6299,7 @@ Clear any current message or clip displayed in chat highlight overlay
 
 #### SET_CLICKABLE_AREA_STATE
 
-Request to unpin currently pinned message on Twitch
+Change the enabled state of a clickable area
 
 <details>
 <summary>JSON parameters</summary>

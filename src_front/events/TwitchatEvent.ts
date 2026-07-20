@@ -1970,7 +1970,7 @@ export type TwitchatEventMap = {
 	SET_UNPIN_TWITCH_MESSAGE: void;
 
 	/**
-	 * Request to unpin currently pinned message on Twitch
+	 * Change the enabled state of a clickable area
 	 */
 	SET_CLICKABLE_AREA_STATE: {
 		/**
