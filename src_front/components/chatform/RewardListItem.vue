@@ -148,24 +148,27 @@ onBeforeMount(() => {
 /**
  * Makes sure the cost is a number within the min/max range
  */
-function validateCostValue(): void {
+function validateCostValue(save: boolean = true): void {
 	let txt = localCost.value;
 	txt = txt.replace(",", ".").replace(/[^\d.]/g, "");
 	let v = Math.max(1, Math.min(1000000000, parseFloat(txt)));
 	if (isNaN(v)) v = 0;
 
-	if (v == props.reward.cost) return;
-
+	const changed = v != props.reward.cost;
 	props.reward.cost = v;
 	localCost.value = v.toString();
 
-	loading.value = true;
-	clearTimeout(updateDebounce);
-	updateDebounce = window.setTimeout(async () => {
-		await TwitchUtils.updateReward(props.reward.id, { cost: props.reward.cost });
-		await Utils.promisedTimeout(250);
-		loading.value = false;
-	}, 250);
+	if (!changed) return;
+
+	if (save) {
+		loading.value = true;
+		clearTimeout(updateDebounce);
+		updateDebounce = window.setTimeout(async () => {
+			await TwitchUtils.updateReward(props.reward.id, { cost: props.reward.cost });
+			await Utils.promisedTimeout(250);
+			loading.value = false;
+		}, 250);
+	}
 }
 
 /**
@@ -201,14 +204,14 @@ function onKeyDown(event: KeyboardEvent): void {
 			break;
 	}
 	if (add != 0) {
-		props.reward.cost += add;
-		localCost.value = props.reward.cost.toString();
-		validateCostValue();
+		localCost.value = String(parseInt(localCost.value) + add);
+		// validateCostValue(false);
 	} else {
 		let parsed = parseInt(localCost.value);
 		if (isNaN(parsed)) parsed = 0;
 		parsed = Math.max(1, Math.min(1000000000, parsed));
 		localCost.value = parsed.toString();
+		// validateCostValue(false);
 	}
 }
 

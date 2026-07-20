@@ -98,6 +98,12 @@ const localValue = ref<TwitchDataTypes.RewardEdition>({
 	max_per_stream: 0,
 	max_per_user_per_stream: 0,
 	global_cooldown_seconds: 0,
+	is_global_cooldown_enabled: false,
+	is_max_per_stream_enabled: false,
+	is_max_per_user_per_stream_enabled: false,
+	is_paused: false,
+	is_user_input_required: false,
+	should_redemptions_skip_request_queue: false,
 });
 
 const param_title = ref<TwitchatDataTypes.ParameterData<string>>({
