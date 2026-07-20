@@ -181,7 +181,7 @@ function ensureCooldownParam(area: HeatArea) {
 			icon: "timer",
 			max: 3600 * 24 - 1,
 			premiumOnly: true,
-			labelKey: "param_cooldown",
+			labelKey: "heat.areas.param_cooldown",
 		};
 	}
 	return param_cooldown.value[area.id]!;
