@@ -6,6 +6,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSSourceItem } from "@/utils/OBSWebsocket";
 import { Event } from "./EventDispatcher";
 import type { AutocompletableString } from "@/typeUtils";
+import type { HeatArea } from "@/types/HeatDataTypes";
 
 /**
  * Created : 14/04/2022
@@ -1969,6 +1970,20 @@ export type TwitchatEventMap = {
 	SET_UNPIN_TWITCH_MESSAGE: void;
 
 	/**
+	 * Request to unpin currently pinned message on Twitch
+	 */
+	SET_CLICKABLE_AREA_STATE: {
+		/**
+		 * Area ID
+		 */
+		id: string;
+		/**
+		 * New area state
+		 */
+		state: true | false | "toggle";
+	};
+
+	/**
 	 * Requests for global states
 	 * @answer ON_GLOBAL_STATES
 	 */
@@ -2278,6 +2293,23 @@ export type TwitchatEventMap = {
 			 */
 			id: string;
 		} | null;
+		/**
+		 * Available clickable areas grouped by screens
+		 */
+		clickableAreas: {
+			/**
+			 * Screen ID
+			 */
+			id: string;
+			/**
+			 * Screen Title
+			 */
+			title?: string;
+			/**
+			 * Screen Areas
+			 */
+			areas: Pick<HeatArea, "id" | "enabled" | "points" | "title">[];
+		}[];
 	};
 
 	/**

@@ -2436,6 +2436,14 @@ type ON_ENDING_CREDITS_CONFIGS = {
 		 * Reward IDs to show if filterRewards is true
 		 */
 		rewardIds?: string[];
+		/**
+		 * Should we filter custom power-ups ?
+		 */
+		filterPowerUps?: boolean;
+		/**
+		 * Custom power-up IDs to show if filterPowerUps is true
+		 */
+		powerUpIds?: string[];
 		showPremiumWarning?: boolean;
 	}[];
 	/**
@@ -2851,6 +2859,46 @@ type ON_GLOBAL_STATES = {
 		 */
 		id: string;
 	};
+	/**
+	 * Available clickable areas grouped by screens
+	 */
+	clickableAreas: {
+		/**
+		 * Screen ID
+		 */
+		id: string;
+		/**
+		 * Screen Title
+		 */
+		title?: string;
+		/**
+		 * Screen Areas
+		 */
+		areas: {
+			id: string;
+			/**
+			 * Is area enabled?
+			 */
+			enabled?: boolean;
+			/**
+			 * Area title, shown on twitchat companion
+			 */
+			title?: string;
+			/**
+			 * Areas points
+			 */
+			points: {
+				/**
+				 * X position in percent
+				 */
+				x: number;
+				/**
+				 * Y position in percent
+				 */
+				y: number;
+			}[];
+		}[];
+	}[];
 };
 ```
 
@@ -2890,6 +2938,7 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 		 */
 		placeholder:
 			| ""
+			| "TRIGGER"
 			| "DATE"
 			| "TIME"
 			| "DATE_TIME"
@@ -3055,6 +3104,13 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 		 * HTML content if mode is "html"
 		 */
 		html: string;
+		/**
+		 * Content set by a trigger when mode is "placeholder" and placeholder is
+		 * "TRIGGER". Stored per-label (rather than on the shared global "TRIGGER"
+		 * placeholder) so multiple labels bound to "TRIGGER" can be controlled
+		 * independently. Supports HTML.
+		 */
+		triggerContent?: string;
 		/**
 		 * Custom CSS for this label if mode is "html"
 		 */
@@ -5335,6 +5391,7 @@ Actions you can request Twitchat to perform.
 - [SET_CHAT_POLL_START](#set_chat_poll_start)
 - [SET_CHAT_POLL_STOP](#set_chat_poll_stop)
 - [SET_CLEAR_CHAT_HIGHLIGHT](#set_clear_chat_highlight)
+- [SET_CLICKABLE_AREA_STATE](#set_clickable_area_state)
 - [SET_COUNTDOWN_ADD](#set_countdown_add)
 - [SET_COUNTER_ADD](#set_counter_add)
 - [SET_EMERGENCY_MODE](#set_emergency_mode)
@@ -6240,6 +6297,28 @@ Triggerd when a chat poll ends
 
 Clear any current message or clip displayed in chat highlight overlay
 
+#### SET_CLICKABLE_AREA_STATE
+
+Request to unpin currently pinned message on Twitch
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_CLICKABLE_AREA_STATE = {
+	/**
+	 * Area ID
+	 */
+	id: string;
+	/**
+	 * New area state
+	 */
+	state: false | true | "toggle";
+};
+```
+
+</details>
+
 #### SET_COUNTDOWN_ADD
 
 Add time to a countdown
@@ -6701,6 +6780,14 @@ type SET_ENDING_CREDITS_DATA = {
 			 * Reward IDs to show if filterRewards is true
 			 */
 			rewardIds?: string[];
+			/**
+			 * Should we filter custom power-ups ?
+			 */
+			filterPowerUps?: boolean;
+			/**
+			 * Custom power-up IDs to show if filterPowerUps is true
+			 */
+			powerUpIds?: string[];
 			showPremiumWarning?: boolean;
 		}[];
 		/**
@@ -7155,13 +7242,22 @@ type SET_ENDING_CREDITS_DATA = {
 		 */
 		skinID?: undefined | "simmer" | "rainbow-eclipse" | "cosmic-abyss";
 		/**
-		 * Emote URL for "gigantifiedemote" type
+		 * Emote URL for "gigantifiedemote" type.
+		 * Also holds the power-up icon URL for "custom" type
 		 */
 		emoteUrl?: string;
 		/**
 		 * Type of powerup
 		 */
-		type: "animation" | "gigantifiedemote" | "celebration";
+		type: "animation" | "gigantifiedemote" | "celebration" | "custom";
+		/**
+		 * ID of the custom power-up for "custom" type
+		 */
+		powerUpId?: string;
+		/**
+		 * Name of the custom power-up for "custom" type
+		 */
+		powerUpName?: string;
 	}[];
 	/**
 	 * Super chat events
@@ -7897,7 +7993,7 @@ type SET_WHEEL_OVERLAY_START = {
 	 */
 	winner: string;
 	/**
-	 * Raffle session ID
+	 * Raffle session ID returned by ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
 	 */
 	sessionId: string;
 };
@@ -8256,3 +8352,4 @@ Receive answer with: [ON_TRIGGER_LIST](#on_trigger_list)
 
 Request wheel overlay presence  
 Receive answer with: [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)
+

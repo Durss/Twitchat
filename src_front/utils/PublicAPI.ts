@@ -239,6 +239,16 @@ export default class PublicAPI extends EventDispatcher {
 						text: pinnedTwitchMessage.message.text,
 					}
 				: null,
+			clickableAreas: StoreProxy.heat.screenList.map((s) => ({
+				id: s.id,
+				title: s.title,
+				areas: s.areas.map((a) => ({
+					id: a.id,
+					enabled: a.enabled,
+					title: a.title,
+					points: a.points,
+				})),
+			})),
 		};
 		PublicAPI.instance.broadcast("ON_GLOBAL_STATES", states);
 	}

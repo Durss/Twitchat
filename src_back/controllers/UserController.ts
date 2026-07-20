@@ -205,6 +205,8 @@ export default class UserController extends AbstractController {
 		if (userInfo == false) return;
 
 		this._heatAreasCache.delete(userInfo.user_id);
+
+		// Rebuild cache before notifying everyone
 		await this.getActiveHeatScreenAreas(userInfo.user_id);
 
 		await this.extensionController.notifyStateUpdate(userInfo.user_id);

@@ -73,6 +73,28 @@ export const storeHeat = defineStore("heat", {
 				this.distortionList = JSON.parse(heatDistortionParams);
 			}
 			this.updateActiveScreens();
+
+			PublicAPI.instance.addEventListener("SET_CLICKABLE_AREA_STATE", (event) => {
+				const area = this.screenList
+					.map((v) => v.areas)
+					.flat()
+					.find((v) => v.id == event.data.id);
+				if (area) {
+					switch (event.data.state) {
+						case true:
+							area.enabled = true;
+							break;
+						case false:
+							area.enabled = false;
+							break;
+						default:
+						case "toggle":
+							area.enabled = !area.enabled;
+					}
+					this.updateActiveScreens();
+				}
+			});
+
 			SSEHelper.instance.addEventListener("TWITCHEXT_CLICK", (event) => {
 				if (!event.data) return;
 				void this.handleClickEvent(
@@ -268,14 +290,21 @@ export const storeHeat = defineStore("heat", {
 				.sort((a, b) => a.localeCompare(b))
 				.join();
 			diff += this.screenList.map((v) => v.activeOBSScene).join("|");
+			if (diff != activeAreaDiff) {
+				PublicAPI.instance.broadcastGlobalStates();
+				clearTimeout(invalidateTimeout);
+			}
 			void this.saveScreens().then(() => {
+				// We can reach this place multiple times at once.
+				// Every DataStore.save() is debounced and queued, and they're all resolved
+				// at once which would call this methods multiple times at once.
+				// The debounce inside is here to solve that issue.
 				if (diff == activeAreaDiff) return;
 				activeAreaDiff = diff;
-				//Multiple edits can be saved at once, debounce the invalidation
 				clearTimeout(invalidateTimeout);
 				invalidateTimeout = window.setTimeout(() => {
 					void ApiHelper.call("user/heat_areas/cache", "DELETE");
-				}, 1000);
+				}, 100);
 			});
 		},
 
