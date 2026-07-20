@@ -2,9 +2,9 @@
 	<div :class="classes">
 		<TTButton
 			@click.stop
-			:copy="reward.id"
+			:copy="props.reward.id"
 			icon="id"
-			v-tooltip="$t('global.copy_id')"
+			v-tooltip="t('global.copy_id')"
 			class="copyIdBt"
 			small
 		/>
@@ -17,23 +17,23 @@
 				:no-nl="true"
 				:no-html="true"
 				v-model="localCost"
-				:contenteditable="manageable !== false"
+				:contenteditable="props.manageable !== false"
 				@blur="validateCostValue()"
 				@keydown="onKeyDown($event)"
 			/>
 
-			<div class="indicators" v-if="reward.is_paused || !reward.is_enabled">
+			<div class="indicators" v-if="props.reward.is_paused || !props.reward.is_enabled">
 				<Icon
 					name="pause"
 					class="indicator"
-					v-if="reward.is_paused"
-					v-tooltip="$t('rewards.manage.pause_tt')"
+					v-if="props.reward.is_paused"
+					v-tooltip="t('rewards.manage.pause_tt')"
 				/>
 				<Icon
 					name="ban"
 					class="indicator"
-					v-if="!reward.is_enabled"
-					v-tooltip="$t('rewards.manage.disable_tt')"
+					v-if="!props.reward.is_enabled"
+					v-tooltip="t('rewards.manage.disable_tt')"
 				/>
 			</div>
 		</div>
@@ -45,12 +45,12 @@
 				:no-nl="true"
 				:no-html="true"
 				v-model="localTitle"
-				:contenteditable="manageable !== false"
+				:contenteditable="props.manageable !== false"
 				@blur="updateTitle()"
 			/>
 
 			<TTButton
-				v-if="manageable === true"
+				v-if="props.manageable === true"
 				class="settingsBt"
 				small
 				transparent
@@ -59,279 +59,279 @@
 			/>
 		</div>
 		<TTButton
-			v-if="manageable === false"
+			v-if="props.manageable === false"
 			icon="twitchat"
-			@click="$emit('transfer', reward)"
+			@click="emit('transfer', props.reward)"
 			small
 			secondary
-			>{{ $t("rewards.manage.transferBt") }}</TTButton
+			>{{ t("rewards.manage.transferBt") }}</TTButton
 		>
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import ContentEditable from "@/components/ContentEditable.vue";
+import { useConfirm } from "@/composables/useConfirm";
 import StoreProxy from "@/store/StoreProxy";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
+import { TriggerTypes } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type * as CMTypes from "@imengyu/vue3-context-menu";
 import ContextMenu from "@imengyu/vue3-context-menu";
-import { h, type RendererElement, type RendererNode, type CSSProperties, type VNode } from "vue";
-import ContentEditable from "@/components/ContentEditable.vue";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
-import TTButton from "../TTButton.vue";
+import {
+	computed,
+	h,
+	onBeforeMount,
+	ref,
+	type CSSProperties,
+	type RendererElement,
+	type RendererNode,
+	type VNode,
+} from "vue";
+import { useI18n } from "vue-i18n";
 import Icon from "../Icon.vue";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-import { TriggerTypes } from "@/types/TriggerActionDataTypes";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import TTButton from "../TTButton.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ContentEditable,
-	},
-	emits: ["transfer", "edit", "delete"],
-})
-class RewardListItem extends Vue {
-	@Prop
-	public reward!: TwitchDataTypes.Reward;
+const props = defineProps<{
+	reward: TwitchDataTypes.Reward;
+	manageable?: boolean;
+}>();
 
-	@Prop({ default: false, type: Boolean })
-	public manageable!: boolean;
+const emit = defineEmits<{
+	transfer: [reward: TwitchDataTypes.Reward];
+	edit: [reward: TwitchDataTypes.Reward];
+	delete: [];
+}>();
 
-	public localCost: string = "";
-	public localTitle: string = "";
-	public loading: boolean = false;
+const { t } = useI18n();
+const { confirm } = useConfirm();
+const storeTriggers = useStoreTriggers();
+const storeDebug = useStoreDebug();
 
-	private updateDebounce: number = -1;
+const localCost = ref("");
+const localTitle = ref("");
+const loading = ref(false);
 
-	public get icon(): string {
-		if (this.reward.image?.url_2x) return this.reward.image.url_2x;
-		return this.reward.default_image.url_1x;
-	}
+let updateDebounce: number = -1;
 
-	public get classes(): string[] {
-		const res = ["rewardlistitem"];
-		if (this.loading) res.push("loading");
-		if (this.reward.is_paused || !this.reward.is_enabled || this.manageable === false)
-			res.push("disabled");
-		return res;
-	}
+const icon = computed(() => {
+	if (props.reward.image?.url_2x) return props.reward.image.url_2x;
+	return props.reward.default_image.url_1x;
+});
 
-	public get styles(): CSSProperties {
-		const res = {
-			backgroundColor: this.reward.background_color,
-		};
-		return res;
-	}
+const classes = computed(() => {
+	const res = ["rewardlistitem"];
+	if (loading.value) res.push("loading");
+	if (props.reward.is_paused || !props.reward.is_enabled || props.manageable === false)
+		res.push("disabled");
+	return res;
+});
 
-	public beforeMount(): void {
-		this.localCost = this.reward.cost.toString();
-		this.localTitle = this.reward.title;
-	}
+const styles = computed<CSSProperties>(() => {
+	const res = {
+		backgroundColor: props.reward.background_color,
+	};
+	return res;
+});
 
-	/**
-	 * Makes sure the cost is a number within the min/max range
-	 */
-	public validateCostValue(): void {
-		let txt = this.localCost;
-		txt = txt.replace(",", ".").replace(/[^\d.]/g, "");
-		let v = Math.max(1, Math.min(1000000000, parseFloat(txt)));
-		if (isNaN(v)) v = 0;
+onBeforeMount(() => {
+	localCost.value = props.reward.cost.toString();
+	localTitle.value = props.reward.title;
+});
 
-		if (v == this.reward.cost) return;
+/**
+ * Makes sure the cost is a number within the min/max range
+ */
+function validateCostValue(): void {
+	let txt = localCost.value;
+	txt = txt.replace(",", ".").replace(/[^\d.]/g, "");
+	let v = Math.max(1, Math.min(1000000000, parseFloat(txt)));
+	if (isNaN(v)) v = 0;
 
-		this.reward.cost = v;
-		this.localCost = v.toString();
+	if (v == props.reward.cost) return;
 
-		this.loading = true;
-		clearTimeout(this.updateDebounce);
-		this.updateDebounce = window.setTimeout(async () => {
-			await TwitchUtils.updateReward(this.reward.id, { cost: this.reward.cost });
-			await Utils.promisedTimeout(250);
-			this.loading = false;
-		}, 250);
-	}
+	props.reward.cost = v;
+	localCost.value = v.toString();
 
-	/**
-	 * Called when enabling/disabling reward
-	 * @param reward
-	 */
-	public async updateRewardState(): Promise<void> {
-		this.loading = true;
-		await TwitchUtils.updateReward(this.reward.id, { is_paused: this.reward.is_paused });
+	loading.value = true;
+	clearTimeout(updateDebounce);
+	updateDebounce = window.setTimeout(async () => {
+		await TwitchUtils.updateReward(props.reward.id, { cost: props.reward.cost });
 		await Utils.promisedTimeout(250);
-		this.loading = false;
+		loading.value = false;
+	}, 250);
+}
+
+/**
+ * Called when enabling/disabling reward
+ * @param reward
+ */
+async function updateTitle(): Promise<void> {
+	localTitle.value = localTitle.value.substring(0, 45);
+	if (localTitle.value == props.reward.title) return;
+
+	loading.value = true;
+	if (await TwitchUtils.updateReward(props.reward.id, { title: localTitle.value })) {
+		props.reward.title = localTitle.value;
+	} else {
+		localTitle.value = props.reward.title;
 	}
+	await Utils.promisedTimeout(250);
+	loading.value = false;
+}
 
-	/**
-	 * Called when enabling/disabling reward
-	 * @param reward
-	 */
-	public async updateTitle(): Promise<void> {
-		this.localTitle = this.localTitle.substring(0, 45);
-		if (this.localTitle == this.reward.title) return;
-
-		this.loading = true;
-		if (await TwitchUtils.updateReward(this.reward.id, { title: this.localTitle })) {
-			this.reward.title = this.localTitle;
-		} else {
-			this.localTitle = this.reward.title;
-		}
-		await Utils.promisedTimeout(250);
-		this.loading = false;
+/**
+ * Increment/Decrement value with up and down keyboard arrows
+ * @param event
+ */
+function onKeyDown(event: KeyboardEvent): void {
+	let add = 0;
+	switch (event.key) {
+		case "ArrowUp":
+			add = 1;
+			break;
+		case "ArrowDown":
+			add = -1;
+			break;
 	}
-
-	/**
-	 * Increment/Decrement value with up and down keyboard arrows
-	 * @param event
-	 */
-	public onKeyDown(event: KeyboardEvent): void {
-		let add = 0;
-		switch (event.key) {
-			case "ArrowUp":
-				add = 1;
-				break;
-			case "ArrowDown":
-				add = -1;
-				break;
-		}
-		if (add != 0) {
-			this.reward.cost += add;
-			this.localCost = this.reward.cost.toString();
-			this.validateCostValue();
-		} else {
-			let parsed = parseInt(this.localCost);
-			if (isNaN(parsed)) parsed = 0;
-			parsed = Math.max(1, Math.min(1000000000, parsed));
-			this.localCost = parsed.toString();
-		}
-	}
-
-	public async openMenu(e: MouseEvent): Promise<void> {
-		if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
-
-		e.preventDefault();
-		const options: CMTypes.MenuItem[] = [];
-		options.push({
-			label: this.reward.is_paused
-				? this.$t("rewards.manage.contextmenu_unpause")
-				: this.$t("rewards.manage.contextmenu_pause"),
-			icon: this.getIcon(this.reward.is_paused ? "icons/play.svg" : "icons/pause.svg"),
-			onClick: async () => {
-				this.loading = true;
-				await TwitchUtils.updateReward(this.reward.id, {
-					is_paused: !this.reward.is_paused,
-				});
-				await Utils.promisedTimeout(250);
-				this.reward.is_paused = !this.reward.is_paused;
-				this.loading = false;
-			},
-		});
-		options.push({
-			label: this.reward.is_enabled
-				? this.$t("rewards.manage.contextmenu_disable")
-				: this.$t("rewards.manage.contextmenu_enable"),
-			icon: this.getIcon("icons/disable.svg"),
-			onClick: async () => {
-				this.loading = true;
-				await TwitchUtils.updateReward(this.reward.id, {
-					is_enabled: !this.reward.is_enabled,
-				});
-				await Utils.promisedTimeout(250);
-				this.reward.is_enabled = !this.reward.is_enabled;
-				this.loading = false;
-			},
-		});
-		options.push({
-			label: this.$t("rewards.manage.contextmenu_edit"),
-			icon: this.getIcon("icons/edit.svg"),
-			onClick: () => {
-				this.$emit("edit", this.reward);
-			},
-		});
-		options.push({
-			label: this.$t("rewards.manage.contextmenu_delete"),
-			icon: this.getIcon("icons/trash.svg"),
-			customClass: "alert",
-			onClick: () => {
-				this.$confirm(
-					this.$t("rewards.manage.contextmenu_delete_confirm_title"),
-					this.$t("rewards.manage.contextmenu_delete_confirm_desc"),
-				)
-					.then(async () => {
-						await TwitchUtils.deleteReward(this.reward.id);
-						this.$emit("delete");
-					})
-					.catch(() => {
-						/* ignore */
-					});
-			},
-		});
-
-		const relatedTriggers = this.$store.triggers.triggerList.filter(
-			(v) => v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == this.reward.id,
-		);
-		if (relatedTriggers.length > 0) {
-			options.push({
-				label: this.$t("rewards.manage.contextmenu_trigger"),
-				icon: this.getIcon("icons/broadcast.svg"),
-				customClass: "alert",
-				onClick: () => {
-					relatedTriggers.forEach((t) => {
-						this.$store.debug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(
-							TwitchatDataTypes.TwitchatMessageType.REWARD,
-							(message) => {
-								message.reward = {
-									color: this.reward.background_color,
-									cost: this.reward.cost,
-									description: this.reward.prompt,
-									icon: {
-										sd: this.reward.image
-											? this.reward.image.url_1x
-											: this.reward.default_image.url_1x,
-										hd: this.reward.image
-											? this.reward.image.url_4x
-											: this.reward.default_image.url_4x,
-									},
-									id: this.reward.id,
-									title: this.reward.title,
-								};
-								void TriggerActionHandler.instance.executeTrigger(
-									t,
-									message,
-									false,
-								);
-							},
-							false,
-						);
-					});
-				},
-			});
-		}
-
-		ContextMenu.showContextMenu({
-			theme: "mac " + StoreProxy.common.theme,
-			x: e.x,
-			y: e.y,
-			items: options,
-			closeWhenScroll: false,
-		});
-	}
-
-	private getIcon(icon: string): VNode<RendererNode, RendererElement> {
-		return h("img", {
-			src: StoreProxy.asset(icon),
-			style: {
-				width: "1em",
-				height: "1em",
-			},
-		});
+	if (add != 0) {
+		props.reward.cost += add;
+		localCost.value = props.reward.cost.toString();
+		validateCostValue();
+	} else {
+		let parsed = parseInt(localCost.value);
+		if (isNaN(parsed)) parsed = 0;
+		parsed = Math.max(1, Math.min(1000000000, parsed));
+		localCost.value = parsed.toString();
 	}
 }
-export default toNative(RewardListItem);
+
+async function openMenu(e: MouseEvent): Promise<void> {
+	if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
+
+	e.preventDefault();
+	const options: CMTypes.MenuItem[] = [];
+	options.push({
+		label: props.reward.is_paused
+			? t("rewards.manage.contextmenu_unpause")
+			: t("rewards.manage.contextmenu_pause"),
+		icon: getIcon(props.reward.is_paused ? "icons/play.svg" : "icons/pause.svg"),
+		onClick: async () => {
+			loading.value = true;
+			await TwitchUtils.updateReward(props.reward.id, {
+				is_paused: !props.reward.is_paused,
+			});
+			await Utils.promisedTimeout(250);
+			props.reward.is_paused = !props.reward.is_paused;
+			loading.value = false;
+		},
+	});
+	options.push({
+		label: props.reward.is_enabled
+			? t("rewards.manage.contextmenu_disable")
+			: t("rewards.manage.contextmenu_enable"),
+		icon: getIcon("icons/disable.svg"),
+		onClick: async () => {
+			loading.value = true;
+			await TwitchUtils.updateReward(props.reward.id, {
+				is_enabled: !props.reward.is_enabled,
+			});
+			await Utils.promisedTimeout(250);
+			props.reward.is_enabled = !props.reward.is_enabled;
+			loading.value = false;
+		},
+	});
+	options.push({
+		label: t("rewards.manage.contextmenu_edit"),
+		icon: getIcon("icons/edit.svg"),
+		onClick: () => {
+			emit("edit", props.reward);
+		},
+	});
+	options.push({
+		label: t("rewards.manage.contextmenu_delete"),
+		icon: getIcon("icons/trash.svg"),
+		customClass: "alert",
+		onClick: () => {
+			confirm(
+				t("rewards.manage.contextmenu_delete_confirm_title"),
+				t("rewards.manage.contextmenu_delete_confirm_desc"),
+			)
+				.then(async () => {
+					await TwitchUtils.deleteReward(props.reward.id);
+					emit("delete");
+				})
+				.catch(() => {
+					/* ignore */
+				});
+		},
+	});
+
+	const relatedTriggers = storeTriggers.triggerList.filter(
+		(v) => v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == props.reward.id,
+	);
+	if (relatedTriggers.length > 0) {
+		options.push({
+			label: t("rewards.manage.contextmenu_trigger"),
+			icon: getIcon("icons/broadcast.svg"),
+			customClass: "alert",
+			onClick: () => {
+				relatedTriggers.forEach((trigger) => {
+					storeDebug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(
+						TwitchatDataTypes.TwitchatMessageType.REWARD,
+						(message) => {
+							message.reward = {
+								color: props.reward.background_color,
+								cost: props.reward.cost,
+								description: props.reward.prompt,
+								icon: {
+									sd: props.reward.image
+										? props.reward.image.url_1x
+										: props.reward.default_image.url_1x,
+									hd: props.reward.image
+										? props.reward.image.url_4x
+										: props.reward.default_image.url_4x,
+								},
+								id: props.reward.id,
+								title: props.reward.title,
+							};
+							void TriggerActionHandler.instance.executeTrigger(
+								trigger,
+								message,
+								false,
+							);
+						},
+						false,
+					);
+				});
+			},
+		});
+	}
+
+	ContextMenu.showContextMenu({
+		theme: "mac " + StoreProxy.common.theme,
+		x: e.x,
+		y: e.y,
+		items: options,
+		closeWhenScroll: false,
+	});
+}
+
+function getIcon(icon: string): VNode<RendererNode, RendererElement> {
+	return h("img", {
+		src: StoreProxy.asset(icon),
+		style: {
+			width: "1em",
+			height: "1em",
+		},
+	});
+}
 </script>
 
 <style scoped lang="less">

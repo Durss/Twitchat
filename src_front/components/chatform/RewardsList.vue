@@ -1,21 +1,21 @@
 <template>
-	<div class="rewardslist blured-background-window">
+	<div class="rewardslist blured-background-window" ref="rootEl">
 		<div v-if="!scopeGranted" class="scope scrollable">
-			<p>{{ $t("rewards.manage.scope_grant") }}</p>
+			<p>{{ t("rewards.manage.scope_grant") }}</p>
 			<TTButton icon="lock_fit" primary @click="grantScopes()">{{
-				$t("rewards.manage.scope_grantBt")
+				t("rewards.manage.scope_grantBt")
 			}}</TTButton>
 		</div>
 
 		<div v-else-if="loading && !rewardToTransfer" class="loader scrollable">
 			<Icon class="loader" name="loader" />
-			<p>{{ $t("global.loading") }}</p>
+			<p>{{ t("global.loading") }}</p>
 		</div>
 
 		<div v-else-if="rewardToTransfer" class="transfer scrollable">
 			<div class="head">
 				<TTButton icon="back" @click="rewardToTransfer = null" class="backBt" transparent />
-				<h1>{{ $t("rewards.manage.transfer_title") }}</h1>
+				<h1>{{ t("rewards.manage.transfer_title") }}</h1>
 			</div>
 			<RewardListTransferForm :reward="rewardToTransfer" @transferDone="loadRewards(true)" />
 		</div>
@@ -23,7 +23,7 @@
 		<div v-else-if="rewardToEdit" class="edit scrollable">
 			<div class="head">
 				<TTButton icon="back" @click="rewardToEdit = null" class="backBt" transparent />
-				<h1>{{ $t("rewards.manage.edit_title") }}</h1>
+				<h1>{{ t("rewards.manage.edit_title") }}</h1>
 			</div>
 			<RewardListEditForm :reward="rewardToEdit" @complete="onCreateComplete()" />
 		</div>
@@ -31,7 +31,7 @@
 		<div v-else-if="createReward" class="create scrollable">
 			<div class="head">
 				<TTButton icon="back" @click="createReward = false" class="backBt" transparent />
-				<h1>{{ $t("rewards.manage.create_title") }}</h1>
+				<h1>{{ t("rewards.manage.create_title") }}</h1>
 			</div>
 			<RewardListEditForm @complete="onCreateComplete()" />
 		</div>
@@ -43,12 +43,12 @@
 					icon="refresh"
 					transparent
 					@click="loadRewards(true)"
-					v-tooltip="$t('global.refresh')"
+					v-tooltip="t('global.refresh')"
 				/>
 
 				<div class="list">
 					<div class="head">
-						<h1>{{ $t("rewards.manage.title") }}</h1>
+						<h1>{{ t("rewards.manage.title") }}</h1>
 					</div>
 					<button @click="createReward = true" class="createRewardBt">
 						<Icon name="add" />
@@ -65,9 +65,9 @@
 
 				<div class="list" v-if="nonManageableRewards.length > 0">
 					<div class="head">
-						<h1>{{ $t("rewards.manage.not_manageable_title") }}</h1>
+						<h1>{{ t("rewards.manage.not_manageable_title") }}</h1>
 					</div>
-					<p class="subtitle">{{ $t("rewards.manage.not_manageable_description") }}</p>
+					<p class="subtitle">{{ t("rewards.manage.not_manageable_description") }}</p>
 					<RewardListItem
 						v-for="r in nonManageableRewards"
 						:key="r.id"
@@ -81,158 +81,142 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+/**
+ * This displays all the user's rewards.
+ */
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap/gsap-core";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import ClearButton from "../ClearButton.vue";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
-import ToggleButton from "../ToggleButton.vue";
 import RewardListEditForm from "./RewardListEditForm.vue";
 import RewardListItem from "./RewardListItem.vue";
 import RewardListTransferForm from "./RewardListTransferForm.vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		ClearButton,
-		ToggleButton,
-		RewardListItem,
-		RewardListEditForm,
-		RewardListTransferForm,
-	},
-	emits: ["close"],
-})
-/**
- * This displays all the user's rewards.
- */
-class RewardsList extends Vue {
-	public loading: boolean = true;
-	public createReward: boolean = false;
-	public rewardToEdit: TwitchDataTypes.Reward | null = null;
-	public rewardToTransfer: TwitchDataTypes.Reward | null = null;
-	public nonManageableRewards: TwitchDataTypes.Reward[] = [];
-	public manageableRewards: TwitchDataTypes.Reward[] = [];
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	private clickHandler!: (e: MouseEvent) => void;
+const { t } = useI18n();
 
-	public get scopeGranted(): boolean {
-		return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]);
+const rootEl = useTemplateRef("rootEl");
+
+const loading = ref(true);
+const createReward = ref(false);
+const rewardToEdit = ref<TwitchDataTypes.Reward | null>(null);
+const rewardToTransfer = ref<TwitchDataTypes.Reward | null>(null);
+const nonManageableRewards = ref<TwitchDataTypes.Reward[]>([]);
+const manageableRewards = ref<TwitchDataTypes.Reward[]>([]);
+
+const scopeGranted = computed(() => TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]));
+
+const clickHandler = (e: MouseEvent) => onClick(e);
+
+onMounted(() => {
+	open();
+	loadRewards();
+
+	document.addEventListener("mousedown", clickHandler);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("mousedown", clickHandler);
+});
+
+function transferReward(reward: TwitchDataTypes.Reward): void {
+	if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
+
+	rewardToTransfer.value = reward;
+}
+
+function onCreateComplete(): void {
+	createReward.value = false;
+	rewardToEdit.value = null;
+	loadRewards(true);
+}
+
+function onDeleteReward(): void {
+	loadRewards(true);
+}
+
+function grantScopes(): void {
+	TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS, TwitchScopes.MANAGE_REWARDS]);
+}
+
+async function loadRewards(forceReload: boolean = false): Promise<void> {
+	loading.value = true;
+	try {
+		nonManageableRewards.value = await TwitchUtils.getRewards(forceReload);
+		manageableRewards.value = await TwitchUtils.getRewards(forceReload, true);
+	} catch (e) {
+		//User is probably not an affiliate
+		loading.value = false;
+		return;
 	}
+	// rewards.value = rewards.value.filter(v => v.is_enabled);
+	manageableRewards.value.sort((a, b) => a.cost - b.cost);
+	loading.value = false;
 
-	public mounted(): void {
-		this.open();
-		this.loadRewards();
+	//Filter out manageable rewards from the list
+	nonManageableRewards.value = nonManageableRewards.value
+		.filter((v) => manageableRewards.value.findIndex((w) => w.id == v.id) == -1)
+		.sort((a, b) => a.cost - b.cost);
+}
 
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
+function open(): void {
+	const ref = rootEl.value!;
+	gsap.killTweensOf(ref);
+	gsap.from(ref, {
+		duration: 0.2,
+		scaleX: 0,
+		delay: 0.1,
+		clearProps: "scaleX",
+		ease: "back.out",
+	});
+	gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
+}
+
+function close(): void {
+	if (rewardToTransfer.value) return;
+	const ref = rootEl.value!;
+	gsap.killTweensOf(ref);
+	gsap.to(ref, { duration: 0.3, scaleX: 0, ease: "back.in" });
+	gsap.to(ref, {
+		duration: 0.2,
+		scaleY: 0,
+		delay: 0.1,
+		clearProps: "scaleY, scaleX",
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+function onClick(e: MouseEvent): void {
+	let target = e.target as HTMLDivElement;
+	const ref = rootEl.value!;
+	while (
+		target != document.body &&
+		target != ref &&
+		target &&
+		!target.classList.contains("confirmView") &&
+		target.dataset.type != "ContextSubMenu"
+	) {
+		target = target.parentElement as HTMLDivElement;
 	}
-
-	public beforeUnmount(): void {
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	public transferReward(reward: TwitchDataTypes.Reward): void {
-		if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
-
-		this.rewardToTransfer = reward;
-	}
-
-	public onTranferComplete(): void {
-		this.rewardToTransfer = null;
-		this.loadRewards(true);
-	}
-
-	public onCreateComplete(): void {
-		this.createReward = false;
-		this.rewardToEdit = null;
-		this.loadRewards(true);
-	}
-
-	public onDeleteReward(): void {
-		this.loadRewards(true);
-	}
-
-	public grantScopes(): void {
-		TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS, TwitchScopes.MANAGE_REWARDS]);
-	}
-
-	public async loadRewards(forceReload: boolean = false): Promise<void> {
-		this.loading = true;
-		try {
-			this.nonManageableRewards = await TwitchUtils.getRewards(forceReload);
-			this.manageableRewards = await TwitchUtils.getRewards(forceReload, true);
-		} catch (e) {
-			//User is probably not an affiliate
-			this.loading = false;
-			return;
-		}
-		// this.rewards = this.rewards.filter(v => v.is_enabled);
-		this.manageableRewards.sort((a, b) => a.cost - b.cost);
-		this.loading = false;
-
-		//Filter out manageable rewards from the list
-		this.nonManageableRewards = this.nonManageableRewards
-			.filter((v) => this.manageableRewards.findIndex((w) => w.id == v.id) == -1)
-			.sort((a, b) => a.cost - b.cost);
-	}
-
-	private open(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, {
-			duration: 0.2,
-			scaleX: 0,
-			delay: 0.1,
-			clearProps: "scaleX",
-			ease: "back.out",
-		});
-		gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
-	}
-
-	private close(): void {
-		if (this.rewardToTransfer) return;
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, { duration: 0.3, scaleX: 0, ease: "back.in" });
-		gsap.to(ref, {
-			duration: 0.2,
-			scaleY: 0,
-			delay: 0.1,
-			clearProps: "scaleY, scaleX",
-			ease: "back.in",
-			onComplete: () => {
-				this.$emit("close");
-			},
-		});
-	}
-
-	private onClick(e: MouseEvent): void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while (
-			target != document.body &&
-			target != ref &&
-			target &&
-			!target.classList.contains("confirmView") &&
-			target.dataset.type != "ContextSubMenu"
-		) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if (
-			target != ref &&
-			!target.classList.contains("confirmView") &&
-			target.dataset.type != "ContextSubMenu"
-		) {
-			this.close();
-		}
+	if (
+		target != ref &&
+		!target.classList.contains("confirmView") &&
+		target.dataset.type != "ContextSubMenu"
+	) {
+		close();
 	}
 }
-export default toNative(RewardsList);
 </script>
 
 <style scoped lang="less">
