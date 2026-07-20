@@ -2519,11 +2519,20 @@ export interface IRewardsState {
 	 * List of custom power ups
 	 */
 	powerUpList: TwitchDataTypes.CustomPowerUp[];
+	/**
+	 * Defines rewards that are considered jumpscares
+	 * A jumpscare reward is anounced with a delay on the feed.
+	 */
+	jumpscareReward: { [rewardId: string]: boolean };
 }
 
 export interface IRewardsGetters {}
 
 export interface IRewardsActions {
+	/**
+	 * Populates store from DataStore
+	 */
+	populateData(): void;
 	/**
 	 * Load twitch channel point rewards
 	 */
@@ -2532,6 +2541,16 @@ export interface IRewardsActions {
 	 * Load twitch custom power ups
 	 */
 	loadPowerUps(): Promise<TwitchDataTypes.CustomPowerUp[]>;
+	/**
+	 * Flags a reward as being a jumpscare or not
+	 * @param rewardId
+	 * @param enabled
+	 */
+	setJumpscareReward(rewardId: string, enabled: boolean): void;
+	/**
+	 * Saves data to server
+	 */
+	saveData(): void;
 }
 
 export interface IHeatState {

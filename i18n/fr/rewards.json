@@ -43,7 +43,8 @@
 			"contextmenu_disable": "Masquer",
 			"contextmenu_delete": "Supprimer",
 			"contextmenu_delete_confirm_title": "Supprimer cette récompense ?",
-			"contextmenu_delete_confirm_desc": "Cette action est irréversible"
+			"contextmenu_delete_confirm_desc": "Cette action est irréversible",
+			"jumpscare_tt": "Mode Jump Scare.\n\nSi actif, vous serez notifié·e après un délais de 3 secondes."
 		}
 	}
 }

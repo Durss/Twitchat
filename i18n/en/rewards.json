@@ -43,7 +43,8 @@
 			"contextmenu_disable": "Disable",
 			"contextmenu_delete": "Delete",
 			"contextmenu_delete_confirm_title": "Delete this reward?",
-			"contextmenu_delete_confirm_desc": "This cannot be undone"
+			"contextmenu_delete_confirm_desc": "This cannot be undone",
+			"jumpscare_tt": "Jump Scare mode.\n\nWhen enabled, you'll get notified about the reward redeem 3 seconds later."
 		}
 	}
 }

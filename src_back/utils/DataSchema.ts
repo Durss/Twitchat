@@ -3326,6 +3326,17 @@ const UserDataSchema = {
 				handleResolver: { type: "string", maxLength: 100 },
 			},
 		},
+
+		jumpscareRewards: {
+			type: "object",
+			additionalProperties: false,
+			maxProperties: 10000,
+			patternProperties: {
+				".{1,50}": {
+					type: "boolean",
+				},
+			},
+		},
 	},
 };
 

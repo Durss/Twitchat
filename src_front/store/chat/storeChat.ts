@@ -3049,7 +3049,22 @@ export const storeChat = defineStore("chat", {
 					messageList.shift();
 				}
 
-				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+				const jumpscareID =
+					(message.type == TwitchatDataTypes.TwitchatMessageType.REWARD &&
+						message.reward.id) ||
+					(message.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM_POWER_UP &&
+						message.powerUpId);
+				if (jumpscareID && StoreProxy.rewards.jumpscareReward[jumpscareID]) {
+					setTimeout(() => {
+						EventBus.instance.dispatchEvent(
+							new GlobalEvent(GlobalEvent.ADD_MESSAGE, message),
+						);
+					}, 3000);
+				} else {
+					EventBus.instance.dispatchEvent(
+						new GlobalEvent(GlobalEvent.ADD_MESSAGE, message),
+					);
+				}
 			}
 
 			const e = Date.now();

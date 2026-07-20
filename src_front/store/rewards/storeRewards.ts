@@ -4,6 +4,7 @@ import Config from "@/utils/Config";
 import { toast } from "@/utils/toast/toast";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
 import type { IRewardsActions, IRewardsGetters, IRewardsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
@@ -11,11 +12,19 @@ export const storeRewards = defineStore("rewards", {
 	state: (): IRewardsState => ({
 		rewardList: [],
 		powerUpList: [],
+		jumpscareReward: {},
 	}),
 
 	getters: {} satisfies StoreGetters<IRewardsGetters, IRewardsState>,
 
 	actions: {
+		populateData(): void {
+			const json = DataStore.get(DataStore.JUMPSCARE_REWARDS);
+			if (json) {
+				this.jumpscareReward = JSON.parse(json) as IRewardsState["jumpscareReward"];
+			}
+		},
+
 		async loadRewards(): Promise<TwitchDataTypes.Reward[]> {
 			try {
 				this.rewardList = await TwitchUtils.getRewards(true);
@@ -69,6 +78,17 @@ export const storeRewards = defineStore("rewards", {
 			this.powerUpList.unshift(Config.instance.allPowerups);
 
 			return this.powerUpList;
+		},
+
+		setJumpscareReward(rewardId: string, enabled: boolean): void {
+			//Only keep enabled entries to avoid bloating the storage
+			if (enabled) this.jumpscareReward[rewardId] = true;
+			else delete this.jumpscareReward[rewardId];
+			this.saveData();
+		},
+
+		saveData(): void {
+			DataStore.set(DataStore.JUMPSCARE_REWARDS, this.jumpscareReward);
 		},
 	} satisfies StoreActions<"rewards", IRewardsState, IRewardsGetters, IRewardsActions>,
 });

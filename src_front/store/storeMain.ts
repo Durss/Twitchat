@@ -823,6 +823,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.values.populateData();
 			StoreProxy.tiktok.populateData();
 			StoreProxy.tipeee.populateData();
+			StoreProxy.rewards.populateData();
 			StoreProxy.patreon.populateData();
 			StoreProxy.tiltify.populateData();
 			StoreProxy.discord.populateData();

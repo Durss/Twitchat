@@ -58,6 +58,15 @@
 				icon="settings"
 			/>
 		</div>
+
+		<div
+			class="jumpscare"
+			v-tooltip="t('rewards.manage.jumpscare_tt')"
+			@click="jumpscare = !jumpscare"
+		>
+			<Icon name="fear" /><ToggleButton small @click.capture.stop v-model="jumpscare" />
+		</div>
+
 		<TTButton
 			v-if="props.manageable === false"
 			icon="twitchat"
@@ -97,6 +106,8 @@ import {
 import { useI18n } from "vue-i18n";
 import Icon from "../Icon.vue";
 import TTButton from "../TTButton.vue";
+import ToggleButton from "../ToggleButton.vue";
+import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards.js";
 
 const props = defineProps<{
 	reward: TwitchDataTypes.Reward;
@@ -113,12 +124,18 @@ const { t } = useI18n();
 const { confirm } = useConfirm();
 const storeTriggers = useStoreTriggers();
 const storeDebug = useStoreDebug();
+const storeRewards = useStoreRewards();
 
 const localCost = ref("");
 const localTitle = ref("");
 const loading = ref(false);
 
 let updateDebounce: number = -1;
+
+const jumpscare = computed<boolean>({
+	get: () => storeRewards.jumpscareReward[props.reward.id] === true,
+	set: (value) => storeRewards.setJumpscareReward(props.reward.id, value),
+});
 
 const icon = computed(() => {
 	if (props.reward.image?.url_2x) return props.reward.image.url_2x;
@@ -339,7 +356,7 @@ function getIcon(icon: string): VNode<RendererNode, RendererElement> {
 
 <style scoped lang="less">
 .rewardlistitem {
-	// gap: .5em;
+	gap: 0.25em;
 	display: flex;
 	flex-direction: column;
 	width: calc(25% - 0.5em);
@@ -442,12 +459,23 @@ function getIcon(icon: string): VNode<RendererNode, RendererElement> {
 			text-align: center;
 			flex-grow: 1;
 			border-radius: 5px;
-			padding: 0.5em;
+			// padding: 0.5em;
 			max-width: calc(100% - 1em);
 		}
 		.settingsBt {
 			width: 1.5em;
 			flex-shrink: 0;
+		}
+	}
+
+	.jumpscare {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		cursor: pointer;
+		.icon {
+			height: 1em;
 		}
 	}
 
