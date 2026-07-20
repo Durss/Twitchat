@@ -48,7 +48,7 @@
 
 				<div class="list">
 					<div class="head">
-						<h1>{{ t("rewards.manage.title") }}</h1>
+						<h1><Icon name="channelPoints" /> {{ t("rewards.manage.title") }}</h1>
 					</div>
 					<button @click="createReward = true" class="createRewardBt">
 						<Icon name="add" />
@@ -65,7 +65,10 @@
 
 				<div class="list" v-if="nonManageableRewards.length > 0">
 					<div class="head">
-						<h1>{{ t("rewards.manage.not_manageable_title") }}</h1>
+						<h1>
+							<Icon name="channelPoints" />
+							{{ t("rewards.manage.not_manageable_title") }}
+						</h1>
 					</div>
 					<p class="subtitle">{{ t("rewards.manage.not_manageable_description") }}</p>
 					<RewardListItem
@@ -74,6 +77,19 @@
 						:reward="r"
 						:manageable="false"
 						@transfer="transferReward"
+					/>
+				</div>
+
+				<div class="list" v-if="powerUps.length > 0">
+					<div class="head">
+						<h1><Icon name="bits" /> {{ t("rewards.manage.powerups_title") }}</h1>
+					</div>
+					<RewardListItem
+						v-for="p in powerUps"
+						:key="p.id"
+						:reward="p"
+						:manageable="false"
+						power-up
 					/>
 				</div>
 			</div>
@@ -85,7 +101,9 @@
 /**
  * This displays all the user's rewards.
  */
+import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import Config from "@/utils/Config";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { gsap } from "gsap/gsap-core";
@@ -102,6 +120,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const storeRewards = useStoreRewards();
 
 const rootEl = useTemplateRef("rootEl");
 
@@ -111,6 +130,11 @@ const rewardToEdit = ref<TwitchDataTypes.Reward | null>(null);
 const rewardToTransfer = ref<TwitchDataTypes.Reward | null>(null);
 const nonManageableRewards = ref<TwitchDataTypes.Reward[]>([]);
 const manageableRewards = ref<TwitchDataTypes.Reward[]>([]);
+
+//Filter out the fake "all power ups" entry only used by triggers
+const powerUps = computed(() =>
+	storeRewards.powerUpList.filter((v) => v.id != Config.instance.allPowerups.id),
+);
 
 const scopeGranted = computed(() => TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]));
 
@@ -157,6 +181,9 @@ async function loadRewards(forceReload: boolean = false): Promise<void> {
 		loading.value = false;
 		return;
 	}
+	//Power Ups aren't cached like rewards are, always reload them
+	await storeRewards.loadPowerUps();
+
 	// rewards.value = rewards.value.filter(v => v.is_enabled);
 	manageableRewards.value.sort((a, b) => a.cost - b.cost);
 	loading.value = false;
@@ -320,11 +347,19 @@ function onClick(e: MouseEvent): void {
 			margin-bottom: -1em;
 
 			h1 {
-				text-align: center;
+				gap: 0.5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: center;
 				flex-grow: 1;
 				padding: 0.5em;
 				padding-bottom: 1em;
 				line-height: 1em;
+
+				& > .icon {
+					height: 1em;
+				}
 			}
 
 			.backBt {

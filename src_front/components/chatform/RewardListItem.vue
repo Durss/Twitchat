@@ -11,16 +11,20 @@
 		<div class="infos" :style="styles">
 			<img :src="icon" alt="reward icon" />
 
-			<ContentEditable
-				class="cost"
-				tag="p"
-				:no-nl="true"
-				:no-html="true"
-				v-model="localCost"
-				:contenteditable="props.manageable !== false"
-				@blur="validateCostValue()"
-				@keydown="onKeyDown($event)"
-			/>
+			<p class="cost" v-if="props.powerUp === true"><Icon name="bits" />{{ localCost }}</p>
+			<p class="cost" v-else>
+				<Icon name="channelPoints" />
+
+				<ContentEditable
+					tag="p"
+					:no-nl="true"
+					:no-html="true"
+					v-model="localCost"
+					:contenteditable="props.manageable !== false"
+					@blur="validateCostValue()"
+					@keydown="onKeyDown($event)"
+				/>
+			</p>
 
 			<div class="indicators" v-if="props.reward.is_paused || !props.reward.is_enabled">
 				<Icon
@@ -68,9 +72,9 @@
 		</div>
 
 		<TTButton
-			v-if="props.manageable === false"
+			v-if="props.manageable === false && props.powerUp !== true"
 			icon="twitchat"
-			@click="emit('transfer', props.reward)"
+			@click="emit('transfer', editableReward)"
 			small
 			secondary
 			>{{ t("rewards.manage.transferBt") }}</TTButton
@@ -110,8 +114,12 @@ import ToggleButton from "../ToggleButton.vue";
 import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards.js";
 
 const props = defineProps<{
-	reward: TwitchDataTypes.Reward;
+	reward: TwitchDataTypes.Reward | TwitchDataTypes.CustomPowerUp;
 	manageable?: boolean;
+	/**
+	 * Power Ups are display only. They cannot be edited nor transfered
+	 */
+	powerUp?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -137,6 +145,14 @@ const jumpscare = computed<boolean>({
 	set: (value) => storeRewards.setJumpscareReward(props.reward.id, value),
 });
 
+const cost = computed(() => ("bits" in props.reward ? props.reward.bits : props.reward.cost));
+
+/**
+ * All edition features are guarded against Power Ups which are display only.
+ * This spares narrowing the union on every single one of them.
+ */
+const editableReward = computed(() => props.reward as TwitchDataTypes.Reward);
+
 const icon = computed(() => {
 	if (props.reward.image?.url_2x) return props.reward.image.url_2x;
 	return props.reward.default_image.url_1x;
@@ -158,7 +174,7 @@ const styles = computed<CSSProperties>(() => {
 });
 
 onBeforeMount(() => {
-	localCost.value = props.reward.cost.toString();
+	localCost.value = cost.value.toString();
 	localTitle.value = props.reward.title;
 });
 
@@ -166,13 +182,16 @@ onBeforeMount(() => {
  * Makes sure the cost is a number within the min/max range
  */
 function validateCostValue(save: boolean = true): void {
+	if (props.powerUp === true) return;
+
+	const reward = editableReward.value;
 	let txt = localCost.value;
 	txt = txt.replace(",", ".").replace(/[^\d.]/g, "");
 	let v = Math.max(1, Math.min(1000000000, parseFloat(txt)));
 	if (isNaN(v)) v = 0;
 
-	const changed = v != props.reward.cost;
-	props.reward.cost = v;
+	const changed = v != reward.cost;
+	reward.cost = v;
 	localCost.value = v.toString();
 
 	if (!changed) return;
@@ -181,7 +200,7 @@ function validateCostValue(save: boolean = true): void {
 		loading.value = true;
 		clearTimeout(updateDebounce);
 		updateDebounce = window.setTimeout(async () => {
-			await TwitchUtils.updateReward(props.reward.id, { cost: props.reward.cost });
+			await TwitchUtils.updateReward(reward.id, { cost: reward.cost });
 			await Utils.promisedTimeout(250);
 			loading.value = false;
 		}, 250);
@@ -193,14 +212,17 @@ function validateCostValue(save: boolean = true): void {
  * @param reward
  */
 async function updateTitle(): Promise<void> {
+	if (props.powerUp === true) return;
+
+	const reward = editableReward.value;
 	localTitle.value = localTitle.value.substring(0, 45);
-	if (localTitle.value == props.reward.title) return;
+	if (localTitle.value == reward.title) return;
 
 	loading.value = true;
-	if (await TwitchUtils.updateReward(props.reward.id, { title: localTitle.value })) {
-		props.reward.title = localTitle.value;
+	if (await TwitchUtils.updateReward(reward.id, { title: localTitle.value })) {
+		reward.title = localTitle.value;
 	} else {
-		localTitle.value = props.reward.title;
+		localTitle.value = reward.title;
 	}
 	await Utils.promisedTimeout(250);
 	loading.value = false;
@@ -233,37 +255,39 @@ function onKeyDown(event: KeyboardEvent): void {
 }
 
 async function openMenu(e: MouseEvent): Promise<void> {
+	if (props.powerUp === true) return;
 	if (!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
 
+	const reward = editableReward.value;
 	e.preventDefault();
 	const options: CMTypes.MenuItem[] = [];
 	options.push({
-		label: props.reward.is_paused
+		label: reward.is_paused
 			? t("rewards.manage.contextmenu_unpause")
 			: t("rewards.manage.contextmenu_pause"),
-		icon: getIcon(props.reward.is_paused ? "icons/play.svg" : "icons/pause.svg"),
+		icon: getIcon(reward.is_paused ? "icons/play.svg" : "icons/pause.svg"),
 		onClick: async () => {
 			loading.value = true;
-			await TwitchUtils.updateReward(props.reward.id, {
-				is_paused: !props.reward.is_paused,
+			await TwitchUtils.updateReward(reward.id, {
+				is_paused: !reward.is_paused,
 			});
 			await Utils.promisedTimeout(250);
-			props.reward.is_paused = !props.reward.is_paused;
+			reward.is_paused = !reward.is_paused;
 			loading.value = false;
 		},
 	});
 	options.push({
-		label: props.reward.is_enabled
+		label: reward.is_enabled
 			? t("rewards.manage.contextmenu_disable")
 			: t("rewards.manage.contextmenu_enable"),
 		icon: getIcon("icons/disable.svg"),
 		onClick: async () => {
 			loading.value = true;
-			await TwitchUtils.updateReward(props.reward.id, {
-				is_enabled: !props.reward.is_enabled,
+			await TwitchUtils.updateReward(reward.id, {
+				is_enabled: !reward.is_enabled,
 			});
 			await Utils.promisedTimeout(250);
-			props.reward.is_enabled = !props.reward.is_enabled;
+			reward.is_enabled = !reward.is_enabled;
 			loading.value = false;
 		},
 	});
@@ -271,7 +295,7 @@ async function openMenu(e: MouseEvent): Promise<void> {
 		label: t("rewards.manage.contextmenu_edit"),
 		icon: getIcon("icons/edit.svg"),
 		onClick: () => {
-			emit("edit", props.reward);
+			emit("edit", reward);
 		},
 	});
 	options.push({
@@ -284,7 +308,7 @@ async function openMenu(e: MouseEvent): Promise<void> {
 				t("rewards.manage.contextmenu_delete_confirm_desc"),
 			)
 				.then(async () => {
-					await TwitchUtils.deleteReward(props.reward.id);
+					await TwitchUtils.deleteReward(reward.id);
 					emit("delete");
 				})
 				.catch(() => {
@@ -294,7 +318,7 @@ async function openMenu(e: MouseEvent): Promise<void> {
 	});
 
 	const relatedTriggers = storeTriggers.triggerList.filter(
-		(v) => v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == props.reward.id,
+		(v) => v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == reward.id,
 	);
 	if (relatedTriggers.length > 0) {
 		options.push({
@@ -307,19 +331,19 @@ async function openMenu(e: MouseEvent): Promise<void> {
 						TwitchatDataTypes.TwitchatMessageType.REWARD,
 						(message) => {
 							message.reward = {
-								color: props.reward.background_color,
-								cost: props.reward.cost,
-								description: props.reward.prompt,
+								color: reward.background_color,
+								cost: reward.cost,
+								description: reward.prompt,
 								icon: {
-									sd: props.reward.image
-										? props.reward.image.url_1x
-										: props.reward.default_image.url_1x,
-									hd: props.reward.image
-										? props.reward.image.url_4x
-										: props.reward.default_image.url_4x,
+									sd: reward.image
+										? reward.image.url_1x
+										: reward.default_image.url_1x,
+									hd: reward.image
+										? reward.image.url_4x
+										: reward.default_image.url_4x,
 								},
-								id: props.reward.id,
-								title: props.reward.title,
+								id: reward.id,
+								title: reward.title,
 							};
 							void TriggerActionHandler.instance.executeTrigger(
 								trigger,
@@ -416,6 +440,9 @@ function getIcon(icon: string): VNode<RendererNode, RendererElement> {
 		}
 
 		.cost {
+			gap: 0.25em;
+			display: flex;
+			flex-direction: row;
 			font-size: 0.7em;
 			padding: 0.5em;
 			border-radius: 5px;
@@ -424,6 +451,10 @@ function getIcon(icon: string): VNode<RendererNode, RendererElement> {
 			font-weight: normal;
 			margin-bottom: 5px;
 			max-width: 100%;
+			.icon {
+				height: 1em;
+				vertical-align: -0.15em;
+			}
 		}
 		.indicators {
 			gap: 0.5em;
