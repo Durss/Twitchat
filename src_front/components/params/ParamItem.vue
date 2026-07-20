@@ -594,7 +594,7 @@
 			<PlaceholderSelector
 				class="placeholders"
 				v-else-if="placeholdersAsPopout && paramData.placeholderList"
-				:modelValue="Array.isArray(paramData.value) ? '' : (paramData.value as string)"
+				:modelValue="placeholderModelValue"
 				:placeholders="paramData.placeholderList"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
@@ -609,7 +609,7 @@
 		<PlaceholderSelector
 			class="placeholders"
 			v-if="!placeholdersAsPopout && paramData.placeholderList"
-			:modelValue="Array.isArray(paramData.value) ? '' : (paramData.value as string)"
+			:modelValue="placeholderModelValue"
 			:placeholders="paramData.placeholderList"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
@@ -775,6 +775,12 @@ let childrenExpanded = false;
 // while also passing `:paramData="x"`, so modelValue and paramData.value are
 // the same reactive reference and would always look equal.
 let lastValue: unknown = undefined;
+
+const placeholderModelValue = computed<string>(() => {
+	const value = props.paramData.value;
+	if (Array.isArray(value) || value == null) return "";
+	return typeof value === "string" ? value : String(value);
+});
 
 const textValue = computed({
 	get(): string {
