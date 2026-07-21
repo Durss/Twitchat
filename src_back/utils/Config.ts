@@ -525,7 +525,6 @@ interface Credentials {
 	twitch_redirect_uri: string;
 	twitch_scopes: string[];
 
-	twitchExtension_version: string;
 	twitchExtension_client_id: string;
 	twitchExtension_client_secret: string;
 

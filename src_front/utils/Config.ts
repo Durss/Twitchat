@@ -412,12 +412,6 @@ export default class Config {
 		return this._serverConfig.tiltify_scopes;
 	}
 	/**
-	 * Twitchat Extension Version
-	 */
-	public get TWITCHAT_EXTENSION_VERSION(): string {
-		return this._serverConfig.twitchExtension_version;
-	}
-	/**
 	 * Twitchat Extension ID
 	 */
 	public get TWITCHAT_EXTENSION_ID(): string {
@@ -427,7 +421,7 @@ export default class Config {
 	 * Twitchat Extension URL
 	 */
 	public get TWITCHAT_EXTENSION_URL(): string {
-		return `https://dashboard.twitch.tv/extensions/${this.TWITCHAT_EXTENSION_ID}-${this.TWITCHAT_EXTENSION_VERSION}`;
+		return `https://dashboard.twitch.tv/extensions/${this.TWITCHAT_EXTENSION_ID}`;
 	}
 
 	/**
@@ -739,6 +733,5 @@ export interface ServerConfig {
 	tipeee_redirect_uri: string;
 	tiltify_client_id: string;
 	tiltify_scopes: string;
-	twitchExtension_version: string;
 	twitchExtension_client_id: string;
 }

@@ -112,7 +112,9 @@ export default class TwitchExtensionController extends AbstractController {
 			);
 			console.log("Twitchat API response:", res.status, await res.text());
 		} catch (_error) {
-			Logger.error('Failed calling EBS "stateUpdate" endpoint');
+			Logger.error(
+				`Failed calling EBS "${Config.credentials.twitchat_extension_api_path + "twitchat/stateUpdate"}" endpoint`,
+			);
 		}
 	}
 
