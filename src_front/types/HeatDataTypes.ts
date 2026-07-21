@@ -1,3 +1,5 @@
+import type { TwitchatDataTypes } from "./TwitchatDataTypes";
+
 export interface HeatScreen {
 	id: string;
 	areas: HeatArea[];
@@ -27,6 +29,11 @@ export interface HeatArea {
 	 * Areas will be disabled
 	 */
 	cooldown_s?: number;
+	/**
+	 * Users allowed to click this area.
+	 * Area will be shown on extension only if they have the permissions
+	 */
+	permissions?: TwitchatDataTypes.PermissionsData;
 	/**
 	 * Areas points
 	 */

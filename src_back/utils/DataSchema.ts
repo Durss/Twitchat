@@ -2092,6 +2092,7 @@ const UserDataSchema = {
 									minimum: 0,
 									maximum: Number.MAX_SAFE_INTEGER,
 								},
+								permissions: { $ref: "defs.json#/definitions/permissions" },
 								points: {
 									type: "array",
 									minItems: 0,

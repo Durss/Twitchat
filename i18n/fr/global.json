@@ -240,6 +240,7 @@
 			"moderator:manage:suspicious_users": "Gérer l'état suspect/restreint des utilisateurices",
 			"channel:read:charity": "Read your Twitch Charity campaigns"
 		},
+		"permissions_title": "Permissions",
 		"permissions": {
 			"broadcaster": "Diffuseur",
 			"mods": "Modos",

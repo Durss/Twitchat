@@ -15,11 +15,63 @@ import TwitchExtensionController from "./TwitchExtensionController.js";
 
 interface HeatExtensionArea {
 	id: string;
-	title: string;
+	/**
+	 * Is area enabled?
+	 */
 	enabled?: boolean;
+	/**
+	 * Area title, shown on twitchat companion
+	 */
+	title?: string;
+	/**
+	 * Show this area on the extension?
+	 * (only for twitchat companion)
+	 */
 	showAreaOnExtension?: boolean;
+	/**
+	 * Cooldown in seconds
+	 * Areas will be disabled
+	 */
 	cooldown_s?: number;
-	points: { x: number; y: number }[];
+	/**
+	 * Users allowed to click this area.
+	 * Area will be shown on extension only if they have the permissions
+	 */
+	permissions?: {
+		/**
+		 * Allow followers ?
+		 */
+		follower: boolean;
+		/**
+		 * Allow moderators ?
+		 */
+		mods: boolean;
+		/**
+		 * Allow VIPS ?
+		 */
+		vips: boolean;
+		/**
+		 * Allow subscribers ?
+		 */
+		subs: boolean;
+		/**
+		 * Allow everyone
+		 */
+		all: boolean;
+	};
+	/**
+	 * Areas points
+	 */
+	points: {
+		/**
+		 * X position in percent
+		 */
+		x: number;
+		/**
+		 * Y position in percent
+		 */
+		y: number;
+	}[];
 }
 
 interface HeatScreenData {
@@ -174,6 +226,7 @@ export default class UserController extends AbstractController {
 								id: v.id,
 								title: v.title,
 								cooldown_s: v.cooldown_s,
+								permissions: v.permissions,
 								points: v.points
 									// Cap numbers precisions
 									.map((p) => ({

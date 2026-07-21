@@ -1,75 +1,79 @@
 <template>
 	<div class="permissionsform">
 		<ParamItem
-			v-if="hasBroadcasterFilter"
+			v-if="props.hasBroadcasterFilter"
 			noBackground
 			:paramData="param_broadcaster"
 			class="row"
-			v-model="modelValue.broadcaster"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.broadcaster"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
+			v-if="props.hasModFilter"
 			noBackground
 			:paramData="param_mods"
 			class="row"
-			v-model="modelValue.mods"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.mods"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
+			v-if="props.hasVipFilter"
 			noBackground
 			:paramData="param_vips"
 			class="row"
-			v-model="modelValue.vips"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.vips"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
+			v-if="props.hasSubFilter"
 			noBackground
 			:paramData="param_subs"
 			class="row"
-			v-model="modelValue.subs"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.subs"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
-			v-if="hasFollowerFilter"
+			v-if="props.hasFollowerFilter"
 			noBackground
 			:paramData="param_followers"
 			class="row"
-			v-model="modelValue.follower"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.follower"
+			@change="$emit('update:modelValue', props.modelValue)"
 		>
 			<ParamItem
-				v-if="hasFollowerDurationFilter"
+				v-if="props.hasFollowerDurationFilter"
 				noBackground
 				:paramData="param_followers_ms"
 				class="row"
 				:childLevel="1"
-				v-model="modelValue.follower_duration_ms"
-				@change="$emit('update:modelValue', modelValue)"
+				v-model="props.modelValue.follower_duration_ms"
+				@change="$emit('update:modelValue', props.modelValue)"
 			>
 			</ParamItem>
 		</ParamItem>
 		<ParamItem
+			v-if="props.hasAllFilter"
 			noBackground
 			:paramData="param_all"
 			class="row"
-			v-model="modelValue.all"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.all"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
-			v-if="hasUserNameFilter"
+			v-if="props.hasUserNameFilter"
 			noBackground
 			:paramData="param_allowed"
 			class="row allow"
-			v-model="modelValue.usersAllowed"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.usersAllowed"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 		<ParamItem
-			v-if="hasUserNameFilter"
+			v-if="props.hasUserNameFilter"
 			noBackground
 			:paramData="param_refused"
 			class="row refuse"
-			v-model="modelValue.usersRefused"
-			@change="$emit('update:modelValue', modelValue)"
+			v-model="props.modelValue.usersRefused"
+			@change="$emit('update:modelValue', props.modelValue)"
 		/>
 
 		<div v-if="noSelection" class="card-item alert">{{ $t("global.permissions.nobody") }}</div>
@@ -85,15 +89,23 @@ import ParamItem from "./params/ParamItem.vue";
 const props = withDefaults(
 	defineProps<{
 		modelValue: TwitchatDataTypes.PermissionsData;
+		hasAllFilter?: boolean;
+		hasModFilter?: boolean;
+		hasVipFilter?: boolean;
+		hasSubFilter?: boolean;
 		hasUserNameFilter?: boolean;
 		hasFollowerFilter?: boolean;
 		hasBroadcasterFilter?: boolean;
 		hasFollowerDurationFilter?: boolean;
 	}>(),
 	{
+		hasAllFilter: true,
+		hasModFilter: true,
+		hasVipFilter: true,
+		hasSubFilter: true,
 		hasUserNameFilter: true,
 		hasFollowerFilter: true,
-		hasBroadcasterPermission: true,
+		hasBroadcasterFilter: true,
 		hasFollowerDurationFilter: true,
 	},
 );

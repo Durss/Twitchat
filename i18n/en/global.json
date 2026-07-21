@@ -240,6 +240,7 @@
 			"moderator:manage:suspicious_users": "Manage suspicious/restricted users states",
 			"channel:read:charity": "Read your Twitch charity campaigns"
 		},
+		"permissions_title": "Permissions",
 		"permissions": {
 			"broadcaster": "Broadcaster",
 			"mods": "Moderators",

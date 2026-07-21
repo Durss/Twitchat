@@ -692,7 +692,7 @@ watch(
 	() => storeAuth.isPremium,
 	(newValue) => {
 		if (!newValue) {
-			mustDisableItems_precalc.value = (storeMain as any).nonPremiumLimitExceeded;
+			mustDisableItems_precalc.value = storeMain.nonPremiumLimitExceeded;
 		}
 	},
 );
@@ -701,7 +701,7 @@ onBeforeMount(() => {
 	//Check user reached a new donor level
 	showDonorBadge.value = storeAuth.donorLevel > -1 && storeAuth.donorLevelUpgrade === true;
 
-	mustDisableItems_precalc.value = (storeMain as any).nonPremiumLimitExceeded;
+	mustDisableItems_precalc.value = storeMain.nonPremiumLimitExceeded;
 
 	publicApiEventHandler = (e) => onPublicApiEvent(e);
 	mouseUpHandler = () => (resizing = false);

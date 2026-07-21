@@ -21,6 +21,7 @@ const FEATURE_VERSIONS = {
 	limitAnswers: "0.0.1",
 	areasTitle: "0.0.1",
 	areasCooldown: "0.0.2",
+	areasPermissions: "0.0.3",
 } as const;
 
 export type EtensionFeature = keyof typeof FEATURE_VERSIONS;

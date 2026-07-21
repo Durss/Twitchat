@@ -81,6 +81,23 @@
 					v-model="currentArea.cooldown_s"
 					@change="emit('update')"
 				/>
+				<ToggleBlock
+					v-if="storeExtension.hasFeature('areasPermissions')"
+					class="permissions"
+					:icons="['lock_fit']"
+					:title="t('global.permissions_title')"
+					:open="false"
+					premium
+					medium
+					premiumLock
+				>
+					<PermissionsForm
+						v-model="permissions"
+						:hasVipFilter="false"
+						:hasUserNameFilter="false"
+						:hasFollowerDurationFilter="false"
+					></PermissionsForm>
+				</ToggleBlock>
 			</div>
 		</template>
 	</div>
@@ -88,6 +105,8 @@
 
 <script setup lang="ts">
 import ParamItem from "@/components/params/ParamItem.vue";
+import PermissionsForm from "@/components/PermissionsForm.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
@@ -112,6 +131,7 @@ const storeExtension = useStoreExtension();
 
 const props = defineProps<{ screen: HeatScreen; obsPreview?: boolean }>();
 const emit = defineEmits<{ update: [] }>();
+const roles = ref<TwitchatDataTypes.PermissionsData>(Utils.getDefaultPermissions());
 
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
@@ -198,6 +218,14 @@ function ensureEnabledParam(area: HeatArea) {
 	}
 	return param_enabled.value[area.id]!;
 }
+
+const permissions = computed({
+	get: () => currentArea.value?.permissions || Utils.getDefaultPermissions(),
+	set: (value: TwitchatDataTypes.PermissionsData) => {
+		console.log("SET");
+		currentArea.value!.permissions = value;
+	},
+});
 
 const currentAreaExtensionButtonParam = computed(() => {
 	if (!currentArea.value) return null;
@@ -827,6 +855,24 @@ async function refreshImage(): Promise<void> {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.permissions {
+		&:not(.premiumLocked) {
+			background-color: transparent;
+			:deep(.header) {
+				background-color: var(--color-premium-fadest);
+			}
+			& > :deep(.content) {
+				background-color: var(--color-premium-fadest);
+			}
+
+			&:hover {
+				:deep(.header) {
+					background-color: var(--color-premium-fader);
+				}
+			}
+		}
 	}
 }
 </style>
