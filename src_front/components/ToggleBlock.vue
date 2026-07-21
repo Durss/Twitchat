@@ -7,12 +7,10 @@
 		@drop.prevent
 	>
 		<div class="header" ref="headerRef" @click="toggle()">
-			<!-- Left actions slot -->
-			<div class="leftActions">
+			<div class="leftActions" v-if="!isEmptySlot(slots.left_actions)">
 				<slot name="left_actions" />
 			</div>
 
-			<!-- Icons -->
 			<Icon
 				v-for="icon in displayIcons"
 				:key="icon"
@@ -21,7 +19,6 @@
 				class="headerIcon"
 			/>
 
-			<!-- Title section -->
 			<div
 				v-if="editableTitle"
 				class="titleSection editable"
@@ -58,20 +55,21 @@
 
 			<div class="titleSection" v-else></div>
 
-			<!-- Hidden element for measuring natural title height at fixed width -->
 			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">
 				{{ title || titleDefault }}
 			</div>
 
-			<!-- Custom title slot -->
-			<slot name="title" />
+			<slot v-if="!isEmptySlot(slots.title)" name="title" />
 
-			<!-- Right actions (hidden when collapsed) -->
-			<div ref="rightActionsRef" class="rightActions" :class="{ hidden: actionsCollapsed }">
+			<div
+				v-if="!isEmptySlot(slots.right_actions)"
+				ref="rightActionsRef"
+				class="rightActions"
+				:class="{ hidden: actionsCollapsed }"
+			>
 				<slot name="right_actions" />
 			</div>
 
-			<!-- Collapsed actions button -->
 			<button
 				v-if="actionsCollapsed"
 				type="button"
@@ -81,7 +79,6 @@
 				<Icon name="settings" />
 			</button>
 
-			<!-- Default mode: arrow on right -->
 			<button
 				v-if="!noArrow"
 				type="button"
@@ -91,20 +88,27 @@
 				<Icon name="arrowRight" />
 			</button>
 
-			<!-- Collapsed actions popout -->
-			<div v-if="actionsMenuOpen" class="actionsPopout" @click.capture="detectPopoutClose">
+			<div
+				v-if="!isEmptySlot(slots.right_actions) && actionsMenuOpen"
+				class="actionsPopout"
+				@click.capture="detectPopoutClose"
+			>
 				<slot name="right_actions" />
 			</div>
 
-			<!-- Custom background color overlay -->
 			<div v-if="customColor" class="customBg" :style="{ backgroundColor: customColor }" />
 		</div>
 
-		<!-- Collapsible content -->
-		<div v-if="contentVisible" ref="contentRef" class="content">
-			<slot />
-			<slot name="content" />
+		<div
+			v-if="contentVisible && (!isEmptySlot(slots.default) || !isEmptySlot(slots.content))"
+			ref="contentRef"
+			class="content"
+		>
+			<slot v-if="!isEmptySlot(slots.default)" />
+			<slot v-if="!isEmptySlot(slots.content)" name="content" />
 		</div>
+
+		<PremiumLockLayer v-if="props.premium && premiumLock" />
 	</div>
 </template>
 
@@ -116,12 +120,16 @@ import {
 	onMounted,
 	onUnmounted,
 	ref,
+	useSlots,
 	useTemplateRef,
 	watch,
 	type CSSProperties,
 } from "vue";
 import ContentEditable from "./ContentEditable.vue";
 import Icon from "./Icon.vue";
+import PremiumLockLayer from "./PremiumLockLayer.vue";
+import { useEmptySlot } from "@/composables/useEmptySlot.js";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth.js";
 
 const props = withDefaults(
 	defineProps<{
@@ -135,6 +143,7 @@ const props = withDefaults(
 		primary?: boolean;
 		secondary?: boolean;
 		premium?: boolean;
+		premiumLock?: boolean;
 		light?: boolean;
 		small?: boolean;
 		medium?: boolean;
@@ -159,11 +168,14 @@ const emit = defineEmits<{
 	"update:title": [value: string];
 }>();
 
-const headerRef = useTemplateRef<HTMLElement>("headerRef");
-const contentRef = useTemplateRef<HTMLElement>("contentRef");
-const rightActionsRef = useTemplateRef<HTMLElement>("rightActionsRef");
-const titleRef = useTemplateRef<HTMLElement>("titleRef");
-const titleMeasureRef = useTemplateRef<HTMLElement>("titleMeasureRef");
+const slots = useSlots();
+const { isEmptySlot } = useEmptySlot();
+const storeAuth = useStoreAuth();
+const headerRef = useTemplateRef("headerRef");
+const contentRef = useTemplateRef("contentRef");
+const rightActionsRef = useTemplateRef("rightActionsRef");
+const titleRef = useTemplateRef("titleRef");
+const titleMeasureRef = useTemplateRef("titleMeasureRef");
 const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("titleEditRef");
 
 const isOpen = ref(props.open);
@@ -221,6 +233,7 @@ const rootClasses = computed(() => [
 		noBackground: props.noBackground,
 		noTitleColor: props.noTitleColor,
 		disabled: props.disabled,
+		premiumLocked: props.premiumLock && !storeAuth.isPremium,
 	},
 ]);
 
@@ -427,6 +440,7 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .toggleblock {
+	position: relative;
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
 
@@ -466,6 +480,9 @@ onUnmounted(() => {
 		}
 		&.right {
 			margin-left: -0.5em;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 	}
 
@@ -728,6 +745,15 @@ onUnmounted(() => {
 		}
 	}
 
+	&.premiumLocked {
+		overflow: hidden;
+		background-color: var(--color-premium-fadest);
+		.header {
+			background-color: transparent;
+			opacity: 0.5;
+		}
+	}
+
 	&.light {
 		background-color: var(--grayout-fadest);
 		.header {
@@ -744,7 +770,16 @@ onUnmounted(() => {
 
 	// ===== Sizes =====
 	&.medium > .header {
-		font-size: 0.8em;
+		// font-size: 0.8em;
+		gap: 0.5em;
+		.icon {
+			width: 1em;
+		}
+		h2 {
+			font-weight: inherit;
+			font-size: 1rem;
+			text-align: left;
+		}
 	}
 
 	&.small {
