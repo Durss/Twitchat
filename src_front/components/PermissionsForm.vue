@@ -1,6 +1,7 @@
 <template>
 	<div class="permissionsform">
 		<ParamItem
+			v-if="hasBroadcasterFilter"
 			noBackground
 			:paramData="param_broadcaster"
 			class="row"
@@ -35,7 +36,18 @@
 			class="row"
 			v-model="modelValue.follower"
 			@change="$emit('update:modelValue', modelValue)"
-		/>
+		>
+			<ParamItem
+				v-if="hasFollowerDurationFilter"
+				noBackground
+				:paramData="param_followers_ms"
+				class="row"
+				:childLevel="1"
+				v-model="modelValue.follower_duration_ms"
+				@change="$emit('update:modelValue', modelValue)"
+			>
+			</ParamItem>
+		</ParamItem>
 		<ParamItem
 			noBackground
 			:paramData="param_all"
@@ -44,6 +56,7 @@
 			@change="$emit('update:modelValue', modelValue)"
 		/>
 		<ParamItem
+			v-if="hasUserNameFilter"
 			noBackground
 			:paramData="param_allowed"
 			class="row allow"
@@ -51,6 +64,7 @@
 			@change="$emit('update:modelValue', modelValue)"
 		/>
 		<ParamItem
+			v-if="hasUserNameFilter"
 			noBackground
 			:paramData="param_refused"
 			class="row refuse"
@@ -71,10 +85,16 @@ import ParamItem from "./params/ParamItem.vue";
 const props = withDefaults(
 	defineProps<{
 		modelValue: TwitchatDataTypes.PermissionsData;
+		hasUserNameFilter?: boolean;
 		hasFollowerFilter?: boolean;
+		hasBroadcasterFilter?: boolean;
+		hasFollowerDurationFilter?: boolean;
 	}>(),
 	{
+		hasUserNameFilter: true,
 		hasFollowerFilter: true,
+		hasBroadcasterPermission: true,
+		hasFollowerDurationFilter: true,
 	},
 );
 
@@ -158,7 +178,6 @@ const noSelection = computed(() => {
 
 onBeforeMount(() => {
 	if (props.modelValue.follower === undefined) props.modelValue.follower = false;
-	param_followers.children = [param_followers_ms];
 	param_followers_ms.value = (props.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
 
 	watch(
