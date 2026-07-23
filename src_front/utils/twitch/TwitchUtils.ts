@@ -14,6 +14,7 @@ import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataT
 import type { AutocompletableString } from "@/typeUtils";
 import DOMPurify from "isomorphic-dompurify";
 import { ref } from "vue";
+import { PREFIX_SPACER, SUFFIX_SPACER } from "@/store/stream/storeStream";
 
 /**
  * Created : 19/01/2021
@@ -1634,7 +1635,13 @@ export default class TwitchUtils {
 
 		const body: { [key: string]: any } = {};
 
-		if (title) body.title = title;
+		if (title) {
+			const prefixParam = StoreProxy.stream.streamInfoPrefixSuffix.prefix;
+			const suffixParam = StoreProxy.stream.streamInfoPrefixSuffix.suffix;
+			const prefix = prefixParam && prefixParam.length > 0 ? prefixParam + PREFIX_SPACER : "";
+			const suffix = suffixParam && suffixParam.length > 0 ? SUFFIX_SPACER + suffixParam : "";
+			body.title = prefix + title + suffix;
+		}
 		if (categoryID) body.game_id = categoryID;
 		if (branded != undefined) body.is_branded_content = branded;
 		if (labels && labels.length > 0)

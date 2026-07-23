@@ -189,7 +189,10 @@ populate();
  * @param search
  * @param callback
  */
-async function searchCategory(search: string, callback: (data: unknown[]) => {}): Promise<void> {
+async function searchCategory(
+	search: string,
+	callback: (data: TwitchDataTypes.StreamCategory[]) => void,
+): Promise<void> {
 	callback(await TwitchUtils.searchCategory(search));
 }
 
@@ -252,7 +255,7 @@ function sanitizeTag(value: string): string {
 async function populate(): Promise<void> {
 	if (loadingLabels.value) return;
 
-	param_title.value.value = param_title.value.value = props.title;
+	param_title.value.value = props.title;
 	param_branded.value.value = props.branded === true;
 	const newTags = props.tags ?? [];
 	const tagsSame =

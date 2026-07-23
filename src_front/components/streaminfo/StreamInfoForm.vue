@@ -52,6 +52,28 @@
 				</VueDraggable>
 			</div>
 
+			<div
+				class="card-item prefix"
+				v-newflag="{ date: $config.NEW_FLAGS_DATE_V17, id: 'cmdhelper.quiz' }"
+			>
+				<div>{{ t("stream.prefixInfo") }}</div>
+				<div class="fields">
+					<ContentEditable
+						tag="span"
+						v-model="prefix"
+						:maxLength="50"
+						:placeholder="t('stream.prefix')"
+					/>
+					<span class="placeholder">{{ t("stream.title_placeholder") }}</span>
+					<ContentEditable
+						tag="span"
+						v-model="suffix"
+						:maxLength="50"
+						:placeholder="t('stream.suffix')"
+					/>
+				</div>
+			</div>
+
 			<Icon class="loader" name="loader" v-if="loading" />
 
 			<div v-else class="form">
@@ -97,7 +119,11 @@ import { useConfirm } from "@/composables/useConfirm";
 import { useSidePanel } from "@/composables/useSidePanel";
 import StoreProxy from "@/store/StoreProxy";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
-import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import {
+	PREFIX_SPACER,
+	SUFFIX_SPACER,
+	storeStream as useStoreStream,
+} from "@/store/stream/storeStream";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
@@ -109,6 +135,7 @@ import TTButton from "../TTButton.vue";
 import ParamItem from "../params/ParamItem.vue";
 import StreamInfoSubForm from "./StreamInfoSubForm.vue";
 import { VueDraggable } from "vue-draggable-plus";
+import ContentEditable from "../ContentEditable.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -120,6 +147,15 @@ const storeStream = useStoreStream();
 const storeCommon = useStoreCommon();
 const { confirm } = useConfirm();
 const { close } = useSidePanel(rootEl, emit);
+
+const prefix = computed({
+	get: () => storeStream.streamInfoPrefixSuffix.prefix,
+	set: (value: string) => storeStream.saveStreamInfoPrefixSuffix(value, suffix.value),
+});
+const suffix = computed({
+	get: () => storeStream.streamInfoPrefixSuffix.suffix,
+	set: (value: string) => storeStream.saveStreamInfoPrefixSuffix(prefix.value, value),
+});
 
 const param_savePreset = ref<TwitchatDataTypes.ParameterData<boolean, unknown, string>>({
 	value: false,
@@ -283,24 +319,20 @@ async function applyPreset(p: TwitchatDataTypes.StreamInfoPreset): Promise<void>
 async function populate(): Promise<void> {
 	loading.value = true;
 	const channelId = StoreProxy.auth.twitch.user.id;
-	let [streamInfos] = await TwitchUtils.getCurrentStreamInfo([channelId]);
 	const result = await TwitchUtils.getChannelInfo([channelId]);
 	const channelInfos = result[0];
 	try {
 		let titleVal: string = "";
 		let gameId: string = "";
 		let tagsVal: string[] = [];
-		if (streamInfos) {
-			titleVal = streamInfos.title;
-			gameId = streamInfos.game_id;
-			tagsVal = streamInfos.tags;
-		} else if (channelInfos) {
-			//Fallback to channel info if we're not live
+		if (channelInfos) {
 			titleVal = channelInfos.title;
 			gameId = channelInfos.game_id;
 			tagsVal = channelInfos.tags;
 		}
-		title.value = titleVal;
+		title.value = titleVal
+			.replace(new RegExp("^.*?" + PREFIX_SPACER, ""), "")
+			.replace(new RegExp(SUFFIX_SPACER + ".*?$", ""), "");
 		branded.value = channelInfos?.is_branded_content === true;
 		labels.value =
 			channelInfos?.content_classification_labels
@@ -417,6 +449,40 @@ onMounted(() => {
 
 	.save {
 		margin-top: 0.5em;
+	}
+
+	.prefix {
+		gap: 0.25em;
+		display: flex;
+		flex-direction: column;
+		overflow: visible;
+
+		.fields {
+			align-self: center;
+
+			& > * {
+				padding: 0.25em 0.5em;
+				display: inline-block;
+			}
+
+			:not(.placeholder) {
+				margin: 0 0.5em;
+				gap: 0.5em;
+				flex: 1;
+				border-radius: var(--border-radius);
+				background-color: var(--background-color-fader);
+			}
+
+			& > span:nth-child(1) {
+				text-align: right;
+			}
+
+			.placeholder {
+				font-style: italic;
+				opacity: 0.5;
+				padding: 0.25em 0;
+			}
+		}
 	}
 }
 </style>

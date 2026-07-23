@@ -17,6 +17,10 @@
 		"form_branded": "Contenu promotionnel",
 		"update_done": "Les infos de stream ont bien été mises à jour",
 		"form_labels_title": "Classification de contenu",
+		"prefix": "prefix...",
+		"suffix": "suffix...",
+		"prefixInfo": "Suffix et prefix automatiquement ajoutés lorsque vous modifiez votre titre de stream depuis Twitchat",
+		"title_placeholder": "[titre du stream]",
 		"form_delete_confirm": {
 			"title": "Supprimer preset ?",
 			"description": "Cette action ne pourra pas être annulée."

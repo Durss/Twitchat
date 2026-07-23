@@ -29,6 +29,7 @@ export default class DataStoreCommon {
 	public static SPOTIFY_APP_PARAMS: string = "spotifyAppParams";
 	public static SPOTIFY_AUTH_TOKEN: string = "spotifyAuthToken";
 	public static STREAM_INFO_PRESETS: string = "streamInfoPresets";
+	public static STREAM_INFO_PREFIX_SUFFIX: string = "streamInfoPrefixSuffix";
 	public static TTS_PARAMS: string = "ttsParams";
 	public static EMERGENCY_PARAMS: string = "emergencyParams";
 	public static EMERGENCY_FOLLOWERS: string = "emergencyFollowers";

@@ -1538,6 +1538,10 @@ export interface IStreamState {
 	 */
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	/**
+	 * Prefix and suffix automatically added around the stream title
+	 */
+	streamInfoPrefixSuffix: { prefix: string; suffix: string };
+	/**
 	 * Info about the latest received raid
 	 */
 	lastRaider: TwitchatDataTypes.TwitchatUser | undefined;
@@ -1668,6 +1672,12 @@ export interface IStreamActions {
 	 * @param preset
 	 */
 	deleteStreamInfoPreset(preset: TwitchatDataTypes.StreamInfoPreset): void;
+	/**
+	 * Save the stream title's prefix and suffix
+	 * @param prefix
+	 * @param suffix
+	 */
+	saveStreamInfoPrefixSuffix(prefix: string, suffix: string): void;
 	/**
 	 * Get the commercial info for the given channel
 	 * @param channelId

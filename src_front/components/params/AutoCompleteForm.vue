@@ -10,7 +10,6 @@
 					@keyup="onSearchChange()"
 					@focus="onFocus()"
 					v-model="search"
-					:disabled="!canSelect"
 					:placeholder="t('global.search_placeholder')"
 				/>
 			</div>
@@ -85,8 +84,6 @@ const classes = computed(() => {
 	if (loading.value) res.push("loading");
 	return res;
 });
-
-const canSelect = computed(() => props.modelValue.length < props.maxItems);
 
 watch(
 	() => props.modelValue,

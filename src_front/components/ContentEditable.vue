@@ -2,10 +2,12 @@
 	<component
 		:is="tag"
 		ref="elementRef"
+		class="editableField"
+		:style="{ '--placeholder': isEmpty ? '\'' + placeholder + '\'' : undefined }"
 		:contenteditable="computedContentEditableValue"
-		:class="$attrs['class']"
 		@input="update(false)"
-		@blur="update(true)"
+		@blur="onBlur"
+		@keypress.capture="onKeypress"
 		@keydown.capture="onKeyDown"
 	></component>
 </template>
@@ -13,7 +15,7 @@
 <script setup lang="ts">
 /**
  * Extracted from the following inactive repository while fixing an issue
- * that emits warnings on the console:
+ * that emits warnings on the console and adding few features:
  * https://github.com/hl037/vue-contenteditable
  */
 import { computed, nextTick, onMounted, useTemplateRef, watch } from "vue";
@@ -21,6 +23,7 @@ import { computed, nextTick, onMounted, useTemplateRef, watch } from "vue";
 const props = withDefaults(
 	defineProps<{
 		tag: string;
+		placeholder?: string;
 		noHtml?: boolean;
 		noNl?: boolean;
 		modelValue?: string | number;
@@ -28,26 +31,34 @@ const props = withDefaults(
 		float?: boolean;
 		min?: number;
 		max?: number;
-		maxLength?: number;
 		contenteditable?: boolean;
+		maxLength?: number;
 	}>(),
 	{
-		tag: "div",
-		noHtml: false,
-		noNl: false,
+		modelValue: "",
+		noHtml: true,
+		contenteditable: true,
 		numeric: false,
 		float: false,
 		min: Number.NEGATIVE_INFINITY,
 		max: Number.POSITIVE_INFINITY,
-		maxLength: undefined,
-		contenteditable: true,
 	},
 );
 
 const emit = defineEmits<{
-	(e: "update:modelValue", value: string | number): void;
-	(e: "submit", value: string | number): void;
+	"update:modelValue": [value: string | number];
+	submit: [value: string | number];
+	cancel: [];
+	blur: [];
 }>();
+
+const isEmpty = computed(() => {
+	// "\n" is the default value after clearing a content-editable's content
+	const value = props.modelValue;
+	// Numeric fields are never considered empty (no placeholder to display)
+	if (typeof value !== "string") return false;
+	return value.length == 0 || value == "\n";
+});
 
 const computedContentEditableValue = computed(() => {
 	if (!props.contenteditable) return false;
@@ -58,10 +69,6 @@ const elementRef$ = useTemplateRef<HTMLElement>("elementRef");
 
 function focus() {
 	elementRef$.value?.focus();
-}
-
-function blur() {
-	elementRef$.value?.blur();
 }
 
 function moveCaretTo(position: number) {
@@ -88,17 +95,15 @@ function moveCaretTo(position: number) {
 	}
 }
 
-function currentContent() {
+function currentContent(): string | number {
 	if (elementRef$.value == null) {
 		return props.numeric ? Number(props.modelValue) || 0 : (props.modelValue ?? "");
 	}
 	let content: string | number =
-		props.noHtml || props.numeric != false
-			? elementRef$.value.innerText
-			: elementRef$.value.innerHTML;
-	if (props.numeric != false) {
-		content = parseFloat(content.replace(",", "."));
-		if (props.float === false) {
+		props.noHtml || props.numeric ? elementRef$.value.innerText : elementRef$.value.innerHTML;
+	if (props.numeric) {
+		content = parseFloat((content as string).replace(",", "."));
+		if (!props.float) {
 			content = Math.floor(content);
 		}
 	}
@@ -106,9 +111,9 @@ function currentContent() {
 }
 
 function updateContent(newcontent: string | number) {
-	if (props.numeric != false && typeof newcontent === "string") {
+	if (props.numeric && typeof newcontent === "string") {
 		newcontent = parseFloat(newcontent.replace(",", "."));
-		if (props.float === false) {
+		if (!props.float) {
 			newcontent = Math.floor(newcontent);
 		}
 	}
@@ -117,28 +122,49 @@ function updateContent(newcontent: string | number) {
 		if (isNaN(newcontent)) newcontent = 0;
 		newcontent = newcontent.toString();
 	}
-	if (!elementRef$.value) return;
-	if (props.noHtml || props.numeric != false) {
-		elementRef$.value.innerText = newcontent;
+	if (props.noHtml || props.numeric) {
+		elementRef$.value!.innerText = newcontent.trim();
 	} else {
-		elementRef$.value.innerHTML = newcontent;
+		elementRef$.value!.innerHTML = newcontent.trim();
 	}
 }
 
 async function update(isBlurEvent: boolean) {
+	// Browsers insert a stray <br> (or <div><br></div>) when the field is
+	// fully erased, to keep the caret/line-height. Remove it so the DOM stays
+	// empty. textContent === '' is true when only that <br> remains.
+	const el = elementRef$.value;
+	if (el && el.textContent === "" && el.childNodes.length > 0) {
+		el.replaceChildren();
+	}
 	if (props.maxLength != undefined) await limitLabelSize();
-	if (isBlurEvent) updateContent(currentContent());
+	// On blur, re-render the normalized value so the displayed content matches
+	// the emitted model. Only done for numeric fields, which clamp to min/max
+	// and drop invalid characters, so the field never shows an out-of-range or
+	// non-numeric value. currentContent() below then reads back the clamped value.
+	if (isBlurEvent && props.numeric) updateContent(currentContent());
 	emit("update:modelValue", currentContent());
+}
+
+async function onBlur() {
+	await update(true);
+	emit("blur");
+}
+
+function onKeypress(event: KeyboardEvent) {
+	if (event.key == "Enter" && props.noNl) {
+		event.preventDefault();
+		emit("submit", currentContent());
+	}
 }
 
 function onKeyDown(event: KeyboardEvent) {
 	if (event.key == "Escape") {
 		event.preventDefault();
-		event.stopPropagation();
-		blur();
+		emit("cancel");
 		return;
 	}
-	if (props.numeric != false) {
+	if (props.numeric) {
 		if (props.min < 0) {
 			// Allow minus sign only at the start for numeric values
 			const caretPos = window.getSelection()?.getRangeAt(0).startOffset ?? 0;
@@ -149,7 +175,7 @@ function onKeyDown(event: KeyboardEvent) {
 			// Allow comma or dot for float values only if not already present
 			if (
 				(event.key == "." || event.key == ",") &&
-				props.float !== false &&
+				props.float &&
 				!/,|\./g.test(currentContent().toString())
 			) {
 				return;
@@ -163,10 +189,6 @@ function onKeyDown(event: KeyboardEvent) {
 			event.preventDefault();
 		}
 	}
-	if (event.key == "Enter" && props.noNl) {
-		event.preventDefault();
-		emit("submit", currentContent());
-	}
 }
 
 /**
@@ -178,8 +200,8 @@ async function limitLabelSize(): Promise<void> {
 	if (text.length <= (props.maxLength ?? text.length)) return;
 	if (sel && sel.rangeCount > 0 && elementRef$.value) {
 		//Save caret index
-		var range = sel.getRangeAt(0);
-		let caretIndex = range.startOffset;
+		const range = sel.getRangeAt(0);
+		const caretIndex = range.startOffset;
 		await nextTick();
 		//Limit label's size
 		text = text.substring(0, props.maxLength ?? text.length);
@@ -200,7 +222,7 @@ onMounted(() => {
 
 watch(
 	() => props.modelValue,
-	(newval, oldval) => {
+	(newval) => {
 		if (newval != currentContent()) {
 			updateContent(newval ?? "");
 		}
@@ -209,22 +231,38 @@ watch(
 
 watch(
 	() => props.noHtml,
-	(newval, oldval) => {
+	() => {
 		updateContent(props.modelValue ?? "");
 	},
 );
 
 watch(
 	() => props.tag,
-	(newval, oldval) => {
+	() => {
 		updateContent(props.modelValue ?? "");
 	},
 	{ flush: "post" },
 );
 
 defineExpose({
-	blur,
 	focus,
 	moveCaretTo,
+	blur: () => {
+		elementRef$.value?.blur();
+	},
 });
 </script>
+<style lang="less" scoped>
+.editableField {
+	// Needded to see caret when content is empty
+	display: block;
+	&::after {
+		content: var(--placeholder);
+		display: inline;
+		width: 100px;
+		font-style: italic;
+		top: 0;
+		pointer-events: none;
+	}
+}
+</style>

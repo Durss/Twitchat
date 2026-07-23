@@ -21,6 +21,9 @@ import StoreProxy, {
 	type IStreamState,
 } from "../StoreProxy";
 
+export const PREFIX_SPACER = "឴"; // This is not a standard space
+export const SUFFIX_SPACER = "឵"; // This is not a standard space
+
 const commercialTimeouts: { [key: string]: number[] } = {};
 // Given a user's feedback, "hype train cooldown" notification is sent multiple times
 // dunno if i can actually trust them, but just in case this flag makes it so a
@@ -34,6 +37,7 @@ export const storeStream = defineStore("stream", {
 		currentRaid: undefined,
 		communityBoostState: undefined,
 		streamInfoPreset: [],
+		streamInfoPrefixSuffix: { prefix: "", suffix: "" },
 		lastRaider: undefined,
 		shieldModeEnabled: false,
 		commercial: {},
@@ -58,6 +62,14 @@ export const storeStream = defineStore("stream", {
 			const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);
 			if (presets) {
 				this.streamInfoPreset = JSON.parse(presets);
+			}
+
+			//Init stream title's prefix and suffix
+			const prefixSuffix = DataStore.get(DataStore.STREAM_INFO_PREFIX_SUFFIX);
+			if (prefixSuffix) {
+				const json = JSON.parse(prefixSuffix) as { prefix?: string; suffix?: string };
+				this.streamInfoPrefixSuffix.prefix = json.prefix || "";
+				this.streamInfoPrefixSuffix.suffix = json.suffix || "";
 			}
 
 			//Init raid history
@@ -445,6 +457,12 @@ export const storeStream = defineStore("stream", {
 				this.streamInfoPreset.splice(index, 1);
 			}
 			DataStore.set(DataStore.STREAM_INFO_PRESETS, this.streamInfoPreset);
+		},
+
+		saveStreamInfoPrefixSuffix(prefix: string, suffix: string): void {
+			this.streamInfoPrefixSuffix.prefix = prefix.substring(0, 50);
+			this.streamInfoPrefixSuffix.suffix = suffix.substring(0, 50);
+			DataStore.set(DataStore.STREAM_INFO_PREFIX_SUFFIX, this.streamInfoPrefixSuffix);
 		},
 
 		getCommercialInfo(channelId: string): TwitchatDataTypes.CommercialData {

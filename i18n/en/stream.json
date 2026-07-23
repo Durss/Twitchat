@@ -17,6 +17,10 @@
 		"form_branded": "Branded Content",
 		"update_done": "Stream info updated successfully",
 		"form_labels_title": "Content Classification",
+		"prefix": "prefix...",
+		"suffix": "suffix...",
+		"prefixInfo": "Automatic prefix and suffix add anytime you update your stream title from Twitchat",
+		"title_placeholder": "[stream title]",
 		"form_delete_confirm": {
 			"title": "Delete preset?",
 			"description": "This cannot be undone."

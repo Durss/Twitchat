@@ -1427,6 +1427,14 @@ const UserDataSchema = {
 				},
 			},
 		},
+		streamInfoPrefixSuffix: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				prefix: { type: "string", maxLength: 50 },
+				suffix: { type: "string", maxLength: 50 },
+			},
+		},
 		"p:hideChat": { type: "boolean" },
 		"p:bttvEmotes": { type: "boolean" },
 		"p:ffzEmotes": { type: "boolean" },
