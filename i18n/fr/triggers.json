@@ -922,6 +922,12 @@
 			"followage": "Date de follow",
 			"followage_ms": "Date de follow en millisecondes",
 			"winner": "Pseudo de la personne gagnante",
+			"user_platform": "Plateforme de l'utilisateur·rice",
+			"raffle_type": "Type de tirage au sort (chat, sub, tips, ...)",
+			"raffle_entry_count": "Nombre total de participations au tirage au sort",
+			"raffle_join_count": "Nombre de participations de cette personne",
+			"raffle_tip_amount": "Montant du don (tirages en mode dons)",
+			"raffle_tip_platform": "Plateforme du don (tirages en mode dons)",
 			"winner_id": "ID de la personne gagnante",
 			"winner_platform": "Plateforme de la personne gagnante",
 			"quiz_name": "Nom du quiz",
@@ -1308,6 +1314,10 @@
 			"CHAT_POLL_RESULT": {
 				"label": "Résultat de sondage de tchat",
 				"description": "Actions à exécuter lorsqu'un sondage de tchat termine"
+			},
+			"RAFFLE_JOIN": {
+				"label": "Participation à un tirage au sort",
+				"description": "Actions à exécuter lorsque quelqu'un rejoint un tirage au sort en cours"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Résultat de tirage au sort",

@@ -2175,6 +2175,7 @@ export const TriggerTypes = {
 	MODIVERSARY: "187",
 	TWITCHAT_COMPANION_KEYS: "188",
 	YOUTUBE_JEWELS: "189",
+	RAFFLE_JOIN: "190",
 
 	TWITCHAT_AD: "ad",
 	TWITCHAT_LIVE_FRIENDS: "live_friends",
@@ -3151,6 +3152,86 @@ export function TriggerEventPlaceholders(
 			isUserID: false,
 			example: "twitch",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
+	];
+
+	map[TriggerTypes.RAFFLE_JOIN] = [
+		{
+			tag: USER_NAME,
+			descKey: "triggers.placeholders.user",
+			pointer: "entry.label",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: USER_LOGIN,
+			descKey: "triggers.placeholders.user_login",
+			pointer: "user.login",
+			numberParsable: false,
+			isUserID: false,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: USER_ID,
+			descKey: "triggers.placeholders.user_id",
+			pointer: "user.id",
+			numberParsable: false,
+			isUserID: true,
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "USER_PLATFORM",
+			descKey: "triggers.placeholders.user_platform",
+			pointer: "user.platform",
+			numberParsable: false,
+			isUserID: false,
+			example: "twitch",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "RAFFLE_TYPE",
+			descKey: "triggers.placeholders.raffle_type",
+			pointer: "raffleData.mode",
+			numberParsable: false,
+			isUserID: false,
+			values: [
+				{ label: "chat", value: "chat" },
+				{ label: "tips", value: "tips" },
+				{ label: "sub", value: "sub" },
+			] satisfies {
+				label: string;
+				value: TwitchatDataTypes.RaffleData["mode"];
+			}[],
+			example: "chat",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "ENTRY_COUNT",
+			descKey: "triggers.placeholders.raffle_entry_count",
+			pointer: "entryCount",
+			numberParsable: true,
+			isUserID: false,
+			example: "42",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "JOIN_COUNT",
+			descKey: "triggers.placeholders.raffle_join_count",
+			pointer: "entry.joinCount",
+			numberParsable: true,
+			isUserID: false,
+			example: "1",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "TIP_AMOUNT",
+			descKey: "triggers.placeholders.raffle_tip_amount",
+			pointer: "entry.tip.amount",
+			numberParsable: false,
+			isUserID: false,
+			example: "5€",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
+		{
+			tag: "TIP_PLATFORM",
+			descKey: "triggers.placeholders.raffle_tip_platform",
+			pointer: "entry.tip.source",
+			numberParsable: false,
+			isUserID: false,
+			example: "kofi",
+		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
 	];
 
 	map[TriggerTypes.RAFFLE_RESULT] = [
@@ -8753,6 +8834,14 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 			value: TriggerTypes.RAFFLE_PICK_WINNER,
 			descriptionKey: "triggers.events.RAFFLE_PICK_WINNER.description",
 			testMessageType: TwitchatDataTypes.TwitchatMessageType.RAFFLE,
+		},
+		{
+			category: TriggerEventTypeCategories.GAMES,
+			icon: "ticket",
+			labelKey: "triggers.events.RAFFLE_JOIN.label",
+			value: TriggerTypes.RAFFLE_JOIN,
+			descriptionKey: "triggers.events.RAFFLE_JOIN.description",
+			testMessageType: TwitchatDataTypes.TwitchatMessageType.RAFFLE_JOIN,
 		},
 		{
 			category: TriggerEventTypeCategories.GAMES,

@@ -922,6 +922,12 @@
 			"followage": "Following date",
 			"followage_ms": "Following date in milliseconds",
 			"winner": "Winner name",
+			"user_platform": "User platform",
+			"raffle_type": "Raffle type (chat, sub, tips, ...)",
+			"raffle_entry_count": "Total number of entries in the raffle",
+			"raffle_join_count": "Number of times this user joined",
+			"raffle_tip_amount": "Tip amount (tips-mode raffles)",
+			"raffle_tip_platform": "Tip platform (tips-mode raffles)",
 			"quiz_name": "Quiz name",
 			"quiz_id": "Quiz ID",
 			"bingo_number": "Number to guess",
@@ -1216,7 +1222,9 @@
 			"meldstudio_prev_scene_name": "Previous scene name",
 			"meldstudio_prev_scene_id": "Previous scene ID",
 			"meldstudio_scene_name": "Current scene name",
-			"meldstudio_scene_id": "Current scene ID"
+			"meldstudio_scene_id": "Current scene ID",
+			"winner_id": "Winner ID",
+			"winner_platform": "Platform user joined from"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1306,6 +1314,10 @@
 			"CHAT_POLL_RESULT": {
 				"label": "Chat poll result",
 				"description": "Actions to execute when a chat poll completes"
+			},
+			"RAFFLE_JOIN": {
+				"label": "User joins a raffle",
+				"description": "Actions to execute when someone enters a running raffle"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Raffle result",

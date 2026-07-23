@@ -4945,6 +4945,7 @@ export namespace TwitchatDataTypes {
 		MUSIC_START: "music_start",
 		TWITCHAT_AD: "twitchat_ad",
 		YOUTUBE_BAN: "youtube_ban",
+		RAFFLE_JOIN: "raffle_join",
 		MANY_REPLIES: "many_replies",
 		TIKTOK_SHARE: "tiktok_share",
 		VALUE_UPDATE: "value_update",
@@ -5088,6 +5089,7 @@ export namespace TwitchatDataTypes {
 		tiktok_like: true,
 		tiktok_share: true,
 		many_replies: true,
+		raffle_join: false,
 		quiz_complete: true,
 		super_sticker: true,
 		value_update: false,
@@ -5231,6 +5233,7 @@ export namespace TwitchatDataTypes {
 		| MessageClearChatData
 		| MessageRaffleData
 		| MessageRafflePickWinnerData
+		| MessageRaffleJoinData
 		| MessageBingoData
 		| MessageCountdownData
 		| MessageAutobanJoinData
@@ -7057,6 +7060,30 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageRafflePickWinnerData extends AbstractTwitchatMessage {
 		type: "raffle_pick_winner";
+	}
+
+	/**
+	 * Represents someone joining a running raffle
+	 */
+	export interface MessageRaffleJoinData extends AbstractTwitchatMessage {
+		type: "raffle_join";
+		/**
+		 * The raffle the user joined
+		 */
+		raffleData: RaffleData;
+		/**
+		 * The entry that was created or updated by this join
+		 */
+		entry: RaffleEntry;
+		/**
+		 * Total number of entries in the raffle after this join
+		 */
+		entryCount: number;
+		/**
+		 * User that joined the raffle.
+		 * Undefined for tip-based entries not bound to an actual user.
+		 */
+		user?: TwitchatUser;
 	}
 
 	/**

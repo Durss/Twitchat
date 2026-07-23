@@ -979,6 +979,52 @@ export const storeDebug = defineStore("debug", {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.RAFFLE_JOIN: {
+					const entry: TwitchatDataTypes.RaffleEntry = {
+						id: fakeUser.id,
+						label: fakeUser.displayNameOriginal,
+						score: 0,
+						joinCount: 1,
+						user: {
+							channel_id: uid,
+							platform: "twitch",
+							id: fakeUser.id,
+						},
+					};
+					const m: TwitchatDataTypes.MessageRaffleJoinData = {
+						platform: "twitch",
+						type,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						channel_id: uid,
+						raffleData: {
+							created_at: Date.now() - 30000,
+							duration_s: 60,
+							followRatio: 0,
+							subRatio: 0,
+							subT2Ratio: 0,
+							subT3Ratio: 0,
+							vipRatio: 0,
+							subgiftRatio: 0,
+							mode: "chat",
+							command: "!join",
+							multipleJoin: false,
+							autoClose: false,
+							subMode_excludeGifted: false,
+							subMode_includeGifters: false,
+							showCountdownOverlay: false,
+							maxEntries: 0,
+							entries: [entry],
+							customEntries: "",
+						},
+						entry,
+						entryCount: 1,
+						user: fakeUser,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
 					const m: TwitchatDataTypes.MessageTwitchatAdData = {
 						platform: "twitchat",

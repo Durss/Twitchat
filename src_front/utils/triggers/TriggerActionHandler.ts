@@ -519,6 +519,22 @@ export default class TriggerActionHandler {
 				break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.RAFFLE_JOIN: {
+				if (
+					await this.executeTriggersByType(
+						TriggerTypes.RAFFLE_JOIN,
+						message,
+						testMode,
+						undefined,
+						undefined,
+						forcedTriggerId,
+					)
+				) {
+					return;
+				}
+				break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
 				const event = message.complete
 					? TriggerTypes.COUNTDOWN_STOP

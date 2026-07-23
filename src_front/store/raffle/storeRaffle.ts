@@ -478,11 +478,13 @@ export const storeRaffle = defineStore("raffle", {
 					const existingEntry = user
 						? raffle.entries.find((v) => v.id == user.id)
 						: false;
+					let joinedEntry: TwitchatDataTypes.RaffleEntry;
 					if (existingEntry) {
 						//User already entered, increment their score or stop there
 						//depending on the raffle's param
 						if (raffle.multipleJoin !== true) return;
 						existingEntry.joinCount++;
+						joinedEntry = existingEntry;
 					} else {
 						//User is not already on the list, create it
 						const entry: (typeof raffle.entries)[number] = {
@@ -503,7 +505,22 @@ export const storeRaffle = defineStore("raffle", {
 							};
 						}
 						raffle.entries.push(entry);
+						joinedEntry = entry;
 					}
+
+					//Execute "user joined a raffle" related triggers
+					const raffleJoinMessage: TwitchatDataTypes.MessageRaffleJoinData = {
+						id: Utils.getUUID(),
+						channel_id: message.channel_id,
+						date: Date.now(),
+						platform: message.platform,
+						type: TwitchatDataTypes.TwitchatMessageType.RAFFLE_JOIN,
+						raffleData: raffle,
+						entry: joinedEntry,
+						entryCount: raffle.entries.length,
+						user: user || undefined,
+					};
+					void TriggerActionHandler.instance.execute(raffleJoinMessage);
 
 					const messageParams =
 						raffle.messages?.raffleJoin || StoreProxy.chat.botMessages.raffleJoin;
