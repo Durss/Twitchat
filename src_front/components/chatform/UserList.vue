@@ -112,9 +112,7 @@ const storeParams = useStoreParams();
 const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
 const rootEl = useTemplateRef("rootEl");
-const infos = useTemplateRef("infos");
 
-const showInfo = ref(false);
 const myChannelId = ref("");
 const channels = ref<{ [key: string]: ChannelUserList }>({});
 const currentChanId = ref("");
