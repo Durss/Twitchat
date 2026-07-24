@@ -11,53 +11,48 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import VoiceAction from "@/utils/voice/VoiceAction";
-import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
+import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {},
-})
-class VoiceGlobalCommandsHelper extends Vue {
-	@Prop({
-		type: Boolean,
-		default: false,
-	})
-	public confirmMode!: boolean;
+const props = withDefaults(defineProps<{ confirmMode?: boolean }>(), {
+	confirmMode: false,
+});
 
-	public actions: { label: string; action: VoiceAction }[] = [];
+const { t } = useI18n();
+const storeVoice = useStoreVoice();
 
-	public mounted(): void {
-		// const actions = this.$store.voice.voiceActions;
-		type VAKeys = keyof typeof VoiceAction;
-		const actions = Object.keys(VoiceAction);
+const actions = ref<{ label: string; action: VoiceAction }[]>([]);
 
-		//Search for global labels
-		for (let i = 0; i < actions.length; i++) {
-			const a = actions[i];
-			const isGlobal =
-				Object.prototype.hasOwnProperty.call(VoiceAction, a + "_IS_GLOBAL") === true;
-			if (!isGlobal) continue; //Ignore non global commands
+onMounted(() => {
+	// const actions = storeVoice.voiceActions;
+	type VAKeys = keyof typeof VoiceAction;
+	const keys = Object.keys(VoiceAction);
 
-			const id: string = VoiceAction[a as VAKeys] as string;
-			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(
-				(v) => v.id == id,
-			);
-			if (action) {
-				if (
-					this.confirmMode === false ||
-					(this.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))
-				) {
-					this.actions.push({
-						action,
-						label: this.$t("voice.commands." + id),
-					});
-				}
+	//Search for global labels
+	for (let i = 0; i < keys.length; i++) {
+		const a = keys[i];
+		const isGlobal =
+			Object.prototype.hasOwnProperty.call(VoiceAction, a + "_IS_GLOBAL") === true;
+		if (!isGlobal) continue; //Ignore non global commands
+
+		const id: string = VoiceAction[a as VAKeys] as string;
+		const action = (storeVoice.voiceActions as VoiceAction[]).find((v) => v.id == id);
+		if (action) {
+			if (
+				props.confirmMode === false ||
+				(props.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))
+			) {
+				actions.value.push({
+					action,
+					label: t("voice.commands." + id),
+				});
 			}
 		}
 	}
-}
-export default toNative(VoiceGlobalCommandsHelper);
+});
 </script>
 
 <style scoped lang="less">

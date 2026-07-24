@@ -1,6 +1,6 @@
 <template>
 	<div class="voicetranscript">
-		<div class="holder" ref="holder" v-if="show" @click="hide(true)">
+		<div class="holder" ref="rootEl" v-if="show" @click="hide(true)">
 			<div class="padder">
 				<Icon name="microphone" alt="mic" class="icon" theme="light" />
 				<div class="text">{{ text }}</div>
@@ -9,67 +9,62 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
 import { gsap } from "gsap/gsap-core";
-import { watch } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 
-@Component({
-	components: {},
-})
-class VoiceTranscript extends Vue {
-	public show: boolean = false;
+const storeVoice = useStoreVoice();
 
-	public get text(): string {
-		// return "Cillum reprehenderit incididunt";
-		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo. Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
-		if (this.$store.voice.voiceText.rawTempText) return this.$store.voice.voiceText.rawTempText;
-		return this.$store.voice.voiceText.finalText;
-	}
+const show = ref(false);
+const rootEl = useTemplateRef("rootEl");
 
-	public mounted(): void {
-		watch(
-			() => this.$store.voice.voiceText.rawTempText,
-			async () => {
-				if (!this.show) {
-					this.show = true;
-					await this.$nextTick();
-					const holder = this.$refs.holder as HTMLDivElement;
-					gsap.killTweensOf(holder);
-					gsap.to(holder, { duration: 0.25, y: "0%" });
-				}
-			},
-		);
-		watch(
-			() => this.$store.voice.voiceText.finalText,
-			async (value: string) => {
-				if (value != "") {
-					this.hide();
-				}
-			},
-		);
-	}
+const text = computed(() => {
+	if (storeVoice.voiceText.rawTempText) return storeVoice.voiceText.rawTempText;
+	return storeVoice.voiceText.finalText;
+});
 
-	public hide(force: boolean = false): void {
-		if (!this.show) return;
+onMounted(() => {
+	watch(
+		() => storeVoice.voiceText.rawTempText,
+		async () => {
+			if (!show.value) {
+				show.value = true;
+				await nextTick();
+				const holder = rootEl.value!;
+				gsap.killTweensOf(holder);
+				gsap.to(holder, { duration: 0.25, y: "0%" });
+			}
+		},
+	);
+	watch(
+		() => storeVoice.voiceText.finalText,
+		async (value: string) => {
+			if (value != "") {
+				hide();
+			}
+		},
+	);
+});
 
-		const holder = this.$refs.holder as HTMLDivElement;
-		gsap.killTweensOf(holder);
-		let len = this.$store.voice.voiceText.finalText.length;
-		if (isNaN(len) || len < 0) len = 1;
-		const delay = force ? 0 : Math.min(2, len * 0.025);
-		gsap.to(holder, {
-			delay,
-			duration: 0.25,
-			y: "120%",
-			clearProps: "all",
-			onComplete: () => {
-				this.show = false;
-			},
-		});
-	}
+function hide(force: boolean = false): void {
+	if (!show.value) return;
+
+	const holder = rootEl.value!;
+	gsap.killTweensOf(holder);
+	let len = storeVoice.voiceText.finalText.length;
+	if (isNaN(len) || len < 0) len = 1;
+	const delay = force ? 0 : Math.min(2, len * 0.025);
+	gsap.to(holder, {
+		delay,
+		duration: 0.25,
+		y: "120%",
+		clearProps: "all",
+		onComplete: () => {
+			show.value = false;
+		},
+	});
 }
-export default toNative(VoiceTranscript);
 </script>
 
 <style scoped lang="less">
