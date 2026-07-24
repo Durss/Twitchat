@@ -1,7 +1,7 @@
 <template>
 	<div class="obsscenes">
 		<div v-if="sceneParams.length == 0" class="card-item secondary noScene">
-			{{ $t("obs.scenes_empty") }}
+			{{ t("obs.scenes_empty") }}
 		</div>
 		<div class="list" v-else>
 			<ParamItem
@@ -16,79 +16,79 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeOBS as useStoreOBS } from "@/store/obs/storeOBS";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import { watch, type ComponentPublicInstance } from "vue";
 import { gsap } from "gsap/gsap-core";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { nextTick, onMounted, ref, useTemplateRef, watch, type ComponentPublicInstance } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 
-@Component({
-	components: {
-		ParamItem,
-	},
-})
-class OBSScenes extends Vue {
-	public sceneParams: TwitchatDataTypes.ParameterData<
+const { t } = useI18n();
+const storeOBS = useStoreOBS();
+
+const param = useTemplateRef<ComponentPublicInstance[]>("param");
+
+const sceneParams = ref<
+	TwitchatDataTypes.ParameterData<
 		string,
 		unknown,
 		unknown,
 		{ sceneIndex: number; sceneName: string }
-	>[] = [];
+	>[]
+>([]);
 
-	public mounted(): void {
-		watch(
-			() => OBSWebsocket.instance.connected.value,
-			() => {
-				this.listScenes();
-			},
+onMounted(() => {
+	watch(
+		() => OBSWebsocket.instance.connected.value,
+		() => {
+			listScenes();
+		},
+	);
+	listScenes();
+});
+
+function onSceneCommandUpdate(): void {
+	const params = sceneParams.value
+		.map((v) => {
+			return { scene: v.storage!, command: v.value };
+		})
+		.filter((v) => (v.command ?? "") != "");
+	storeOBS.setOBSSceneCommands(params);
+}
+
+async function listScenes(): Promise<void> {
+	sceneParams.value = [];
+	const res = await OBSWebsocket.instance.getScenes();
+	const storedScenes = storeOBS.sceneCommands;
+	for (let i = 0; i < res.scenes.length; i++) {
+		const scene = res.scenes[i] as { sceneIndex: number; sceneName: string };
+		const storedScene = storedScenes.find(
+			(s: { scene: { sceneName: string } }) => s.scene.sceneName === scene.sceneName,
 		);
-		this.listScenes();
-	}
-
-	public onSceneCommandUpdate(): void {
-		const params = this.sceneParams
-			.map((v) => {
-				return { scene: v.storage!, command: v.value };
-			})
-			.filter((v) => (v.command ?? "") != "");
-		this.$store.obs.setOBSSceneCommands(params);
-	}
-
-	private async listScenes(): Promise<void> {
-		this.sceneParams = [];
-		const res = await OBSWebsocket.instance.getScenes();
-		const storedScenes = this.$store.obs.sceneCommands;
-		for (let i = 0; i < res.scenes.length; i++) {
-			const scene = res.scenes[i] as { sceneIndex: number; sceneName: string };
-			const storedScene = storedScenes.find(
-				(s: { scene: { sceneName: string } }) => s.scene.sceneName === scene.sceneName,
-			);
-			const value = storedScene ? storedScene.command : "";
-			this.sceneParams.push({
-				type: "string",
-				value,
-				label: scene.sceneName,
-				storage: scene,
-				placeholder: "!command",
-			});
-		}
-		await this.$nextTick();
-		const items = (this.$refs.param as ComponentPublicInstance[]).map((v) => v.$el);
-		gsap.from(items, {
-			height: 0,
-			paddingTop: 0,
-			marginTop: 0,
-			paddingBottom: 0,
-			marginBottom: 0,
-			duration: 0.25,
-			stagger: 0.05,
-			clearProps: "all",
+		const value = storedScene ? storedScene.command : "";
+		sceneParams.value.push({
+			type: "string",
+			value,
+			label: scene.sceneName,
+			storage: scene,
+			placeholder: "!command",
 		});
 	}
+	await nextTick();
+	const items = (param.value ?? []).map((v) => v.$el);
+	gsap.from(items, {
+		height: 0,
+		paddingTop: 0,
+		marginTop: 0,
+		paddingBottom: 0,
+		marginBottom: 0,
+		duration: 0.25,
+		stagger: 0.05,
+		clearProps: "all",
+	});
 }
-export default toNative(OBSScenes);
 </script>
 
 <style scoped lang="less">

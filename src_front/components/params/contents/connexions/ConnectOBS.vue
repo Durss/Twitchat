@@ -74,7 +74,6 @@ import type IParameterContent from "../IParameterContent";
 
 const storeOBS = useStoreOBS();
 
-const connected = ref(false);
 const openConnectForm = ref(false);
 const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	type: "boolean",
@@ -84,6 +83,8 @@ const param_enabled = ref<TwitchatDataTypes.ParameterData<boolean>>({
 const permissions = ref<TwitchatDataTypes.PermissionsData>(
 	Utils.getDefaultPermissions(true, true, false, false, false, false),
 );
+
+const connected = computed(() => OBSWebsocket.instance.connected.value);
 
 const holderStyles = computed<CSSProperties>(() => ({
 	opacity: param_enabled.value.value === true ? 1 : 0.5,
@@ -106,7 +107,6 @@ watch(
 watch(
 	() => OBSWebsocket.instance.connected.value,
 	() => {
-		connected.value = OBSWebsocket.instance.connected.value;
 		if (!connected.value) openConnectForm.value = true;
 	},
 );
@@ -117,7 +117,6 @@ onMounted(() => {
 	const ip = DataStore.get(DataStore.OBS_IP);
 
 	if (port != undefined || pass != undefined || ip != undefined) {
-		connected.value = OBSWebsocket.instance.connected.value;
 		openConnectForm.value = !connected.value;
 	} else {
 		openConnectForm.value = true;
@@ -143,7 +142,6 @@ async function onPermissionChange(): Promise<void> {
  * Called when changing OBS credentials
  */
 function paramUpdate(): void {
-	connected.value = false;
 	storeOBS.connectionEnabled = param_enabled.value.value;
 	DataStore.set(DataStore.OBS_CONNECTION_ENABLED, param_enabled.value.value);
 	if (!param_enabled.value.value) {

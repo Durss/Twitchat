@@ -5,7 +5,7 @@
 			class="refreshAllBt"
 			@click="refreshAllSource()"
 			:loading="refreshingAll"
-			>{{ $t("obs.browser_sources_refresh_all") }}</Button
+			>{{ t("obs.browser_sources_refresh_all") }}</Button
 		>
 
 		<div class="card-item row" v-for="entry in sources" ref="row">
@@ -19,101 +19,99 @@
 				@click="refreshSource(entry)"
 				:primary="entry.success"
 				:loading="entry.loading"
-				>{{ $t("obs.browser_sources_refresh") }}</Button
+				>{{ t("obs.browser_sources_refresh") }}</Button
 			>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from "@/components/TTButton.vue";
+<script setup lang="ts">
+import Button from "@/components/TTButton.vue";
 import OBSWebsocket, { type OBSInputItem } from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { nextTick, onMounted, ref, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components: {
-		Button: TTButton,
-	},
-	emits: [],
-})
-class OBSBrowserSources extends Vue {
-	public refreshingAll: boolean = false;
-	public sources: {
-		loading: boolean;
-		success: boolean;
-		source: OBSInputItem;
-		url: string;
-		localFile: boolean;
-	}[] = [];
-
-	public async mounted(): Promise<void> {
-		const res = await OBSWebsocket.instance.socket.call("GetInputList", {
-			inputKind: "browser_source",
-		});
-		const sources = res.inputs as unknown as OBSInputItem[];
-		this.sources = sources
-			.filter((v) => v.inputKind == "browser_source")
-			.map((v) => {
-				return { loading: false, success: false, source: v, url: "", localFile: false };
-			});
-
-		this.sources.forEach((v) => {
-			OBSWebsocket.instance
-				.getSourceSettings<{
-					is_local_file: boolean;
-					url: string;
-					local_file: string;
-				}>(v.source.inputName)
-				.then((res) => {
-					v.localFile = res.inputSettings.is_local_file === true;
-					if (v.localFile) {
-						v.url = (res.inputSettings.local_file as string) || "";
-					} else {
-						v.url = (res.inputSettings.url as string) || "";
-					}
-				});
-		});
-
-		await this.$nextTick();
-
-		const items = this.$refs.row as HTMLDivElement[];
-		gsap.from(items, {
-			height: 0,
-			scaleY: 0,
-			paddingTop: 0,
-			marginTop: 0,
-			duration: 0.25,
-			stagger: 0.025,
-			delay: 0.25,
-			clearProps: "all",
-		});
-	}
-
-	public async refreshSource(entry: (typeof this.sources)[0]): Promise<void> {
-		entry.loading = true;
-		await OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {
-			inputName: entry.source.inputName,
-			propertyName: "refreshnocache",
-		});
-		await Utils.promisedTimeout(200);
-		entry.loading = false;
-		entry.success = true;
-		Utils.promisedTimeout(1000).then(() => {
-			entry.success = false;
-		});
-	}
-
-	public async refreshAllSource(): Promise<void> {
-		this.refreshingAll = true;
-		for (const source of this.sources) {
-			await this.refreshSource(source);
-		}
-		this.refreshingAll = false;
-	}
+interface BrowserSourceEntry {
+	loading: boolean;
+	success: boolean;
+	source: OBSInputItem;
+	url: string;
+	localFile: boolean;
 }
-export default toNative(OBSBrowserSources);
+
+const { t } = useI18n();
+
+const row = useTemplateRef<HTMLDivElement[]>("row");
+
+const refreshingAll = ref(false);
+const sources = ref<BrowserSourceEntry[]>([]);
+
+onMounted(async () => {
+	const res = await OBSWebsocket.instance.socket.call("GetInputList", {
+		inputKind: "browser_source",
+	});
+	const inputs = res.inputs as unknown as OBSInputItem[];
+	sources.value = inputs
+		.filter((v) => v.inputKind == "browser_source")
+		.map((v) => {
+			return { loading: false, success: false, source: v, url: "", localFile: false };
+		});
+
+	sources.value.forEach((v) => {
+		OBSWebsocket.instance
+			.getSourceSettings<{
+				is_local_file: boolean;
+				url: string;
+				local_file: string;
+			}>(v.source.inputName)
+			.then((res) => {
+				v.localFile = res.inputSettings.is_local_file === true;
+				if (v.localFile) {
+					v.url = (res.inputSettings.local_file as string) || "";
+				} else {
+					v.url = (res.inputSettings.url as string) || "";
+				}
+			});
+	});
+
+	await nextTick();
+
+	const items = row.value ?? [];
+	gsap.from(items, {
+		height: 0,
+		scaleY: 0,
+		paddingTop: 0,
+		marginTop: 0,
+		duration: 0.25,
+		stagger: 0.025,
+		delay: 0.25,
+		clearProps: "all",
+	});
+});
+
+async function refreshSource(entry: BrowserSourceEntry): Promise<void> {
+	entry.loading = true;
+	await OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {
+		inputName: entry.source.inputName,
+		propertyName: "refreshnocache",
+	});
+	await Utils.promisedTimeout(200);
+	entry.loading = false;
+	entry.success = true;
+	Utils.promisedTimeout(1000).then(() => {
+		entry.success = false;
+	});
+}
+
+async function refreshAllSource(): Promise<void> {
+	refreshingAll.value = true;
+	for (const source of sources.value) {
+		await refreshSource(source);
+	}
+	refreshingAll.value = false;
+}
 </script>
 
 <style scoped lang="less">
