@@ -813,66 +813,66 @@
 					big
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					big
 					primary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					big
 					secondary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					big
 					alert
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					big
 					premium
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 			</div>
 			<div>
 				<TabMenu
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					primary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					secondary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					alert
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					premium
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 			</div>
 			<div>
@@ -880,35 +880,35 @@
 					small
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					small
 					primary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					small
 					secondary
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					small
 					alert
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 				<TabMenu
 					small
 					premium
 					:values="[0, 1, 2]"
 					:labels="['item 1', 'item 2', 'item 3']"
-					:icons="[null, 'twitchat', 'spotify']"
+					:icons="['', 'twitchat', 'spotify']"
 				/>
 			</div>
 		</div>
@@ -973,7 +973,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import Checkbox from "@/components/Checkbox.vue";
 import Icon from "@/components/Icon.vue";
@@ -989,7 +989,6 @@ import type { TwitchDataTypes } from "@/types//twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import staticEmotes from "@/utils/twitch/staticEmoteList.json";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import { useTippy } from "vue-tippy";
 import ToggleButton from "@/components/ToggleButton.vue";
 import PlaceholderField from "@/components/PlaceholderField.vue";
@@ -997,162 +996,137 @@ import Utils from "@/utils/Utils";
 import PermissionsForm from "@/components/PermissionsForm.vue";
 import CurrencyPatternInput from "@/components/CurrencyPatternInput.vue";
 import AppLangSelector from "@/components/AppLangSelector.vue";
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 
-@Component({
-	components: {
-		Icon,
-		TTButton,
-		Slider,
-		TabMenu,
-		Checkbox,
-		Splitter,
-		ParamItem,
-		ToggleBlock,
-		ProgressBar,
-		SwitchButton,
-		ToggleButton,
-		AppLangSelector,
-		PermissionsForm,
-		PlaceholderField,
-		CurrencyPatternInput,
-		ChatMessageChunksParser,
-	},
-	emits: [],
-})
-class ComponentList extends Vue {
-	public type: "button" | "link" = "button";
-	public time: number = 0;
-	public currency = "${AMOUNT}€";
-	public lang: string = "fr";
-	public placeholderTest: string = "";
-	public disposed: boolean = false;
-	public loading: boolean = false;
-	public selected: boolean = false;
-	public disabled: boolean = false;
-	public progresses: number[] = [];
-	public iconList: string[] = [];
-	public permissions = Utils.getDefaultPermissions(false, false, true, false, true, true);
-	public messageChunks: TwitchatDataTypes.ParseMessageChunk[] = [];
+const type = ref<"button" | "link">("button");
+const currency = ref("${AMOUNT}€");
+const placeholderTest = ref("");
+const disposed = ref(false);
+const loading = ref(false);
+const selected = ref(false);
+const disabled = ref(false);
+const progresses = ref<number[]>([]);
+const iconList = ref<string[]>([]);
+const permissions = ref(Utils.getDefaultPermissions(false, false, true, false, true, true));
+const messageChunks = ref<TwitchatDataTypes.ParseMessageChunk[]>([]);
 
-	public param_bool: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: false,
-		labelKey: "global.enabled",
-	};
-	public param_color: TwitchatDataTypes.ParameterData<string> = {
-		type: "color",
-		value: "#ff0000",
-		label: "Color",
-	};
-	public param_slider: TwitchatDataTypes.ParameterData<number> = {
-		type: "slider",
-		value: 0,
-		label: "Slider",
-		min: 0,
-		max: 10,
-	};
-	public param_text: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		label: "Text",
-		placeholder: "value...",
-	};
-	public param_textLong: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "",
-		longText: true,
-		label: "Text",
-		placeholder: "value...",
-	};
-	public param_number: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 0,
-		label: "Count",
-	};
-	public param_list: TwitchatDataTypes.ParameterData<string, string> = {
-		type: "list",
-		value: "",
-		listValues: [
-			{ value: "item1", label: "Item 1" },
-			{ value: "item2", label: "Item 2" },
-			{ value: "item1", label: "Item 3" },
-		],
-		label: "List",
-	};
-	public param_listEdit: TwitchatDataTypes.ParameterData<string[], string> = {
-		type: "editablelist",
-		value: ["Item 2"],
-		maxLength: 10,
-		max: 2,
-		options: ["Item 1", "Item 2", "Item 3"],
-		label: "Editable List",
-	};
-	public param_duration: TwitchatDataTypes.ParameterData<number> = {
-		type: "duration",
-		value: 10 * 60,
-		label: "Duration ({VALUE}s)",
-	};
+const param_bool = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "global.enabled",
+});
+const param_color = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "color",
+	value: "#ff0000",
+	label: "Color",
+});
+const param_slider = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "slider",
+	value: 0,
+	label: "Slider",
+	min: 0,
+	max: 10,
+});
+const param_text = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	label: "Text",
+	placeholder: "value...",
+});
+const param_textLong = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	longText: true,
+	label: "Text",
+	placeholder: "value...",
+});
+const param_number = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 0,
+	label: "Count",
+});
+const param_list = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "list",
+	value: "",
+	listValues: [
+		{ value: "item1", label: "Item 1" },
+		{ value: "item2", label: "Item 2" },
+		{ value: "item1", label: "Item 3" },
+	],
+	label: "List",
+});
+const param_listEdit = ref<TwitchatDataTypes.ParameterData<string[], string>>({
+	type: "editablelist",
+	value: ["Item 2"],
+	maxLength: 10,
+	max: 2,
+	options: ["Item 1", "Item 2", "Item 3"],
+	label: "Editable List",
+});
+const param_duration = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "duration",
+	value: 10 * 60,
+	label: "Duration ({VALUE}s)",
+});
 
-	private tooltipCreated: { [key: string]: boolean } = {};
+const tooltipCreated: { [key: string]: boolean } = {};
 
-	public async mounted(): Promise<void> {
-		this.resetProgressbars();
-		this.renderFrame();
-		let iconList = import.meta.glob("@/assets/icons/*.svg");
-		const keys = Object.keys(iconList).map((v) => v.replace(/.*\/(.*?).svg/, "$1"));
-		this.iconList = keys;
-		const emotes = staticEmotes as TwitchDataTypes.Emote[];
-		TwitchUtils.loadEmoteSets("", emotes).then(() => {
-			this.messageChunks = TwitchUtils.parseMessageToChunks(
-				"Lorem ipsum @durss 2.54 sit amet LUL hehe durss consectetur google.fr DinoDance",
-				undefined,
-				true,
-			);
-			TwitchUtils.highlightChunks(this.messageChunks, ["@durss"]);
-			// this.messageChunks = TwitchUtils.parseMessageToChunks("/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype", undefined, true);
-		});
-	}
+onMounted(async () => {
+	resetProgressbars();
+	renderFrame();
+	let iconListGlob = import.meta.glob("@/assets/icons/*.svg");
+	const keys = Object.keys(iconListGlob).map((v) => v.replace(/.*\/(.*?).svg/, "$1"));
+	iconList.value = keys;
+	const emotes = staticEmotes as TwitchDataTypes.Emote[];
+	TwitchUtils.loadEmoteSets("", emotes).then(() => {
+		messageChunks.value = TwitchUtils.parseMessageToChunks(
+			"Lorem ipsum @durss 2.54 sit amet LUL hehe durss consectetur google.fr DinoDance",
+			undefined,
+			true,
+		);
+		TwitchUtils.highlightChunks(messageChunks.value, ["@durss"]);
+		// messageChunks.value = TwitchUtils.parseMessageToChunks("/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype", undefined, true);
+	});
+});
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-	}
+onBeforeUnmount(() => {
+	disposed.value = true;
+});
 
-	public resetProgressbars(): void {
-		this.progresses = [0.25, 0.25, 0.25, 0.95];
-	}
+function resetProgressbars(): void {
+	progresses.value = [0.25, 0.25, 0.25, 0.95];
+}
 
-	public async reloadIcon(index: number): Promise<void> {
-		let prevName = this.iconList[index]!;
-		this.iconList[index] = "";
-		await this.$nextTick();
-		this.iconList[index]! = prevName;
-	}
+async function reloadIcon(index: number): Promise<void> {
+	let prevName = iconList.value[index]!;
+	iconList.value[index] = "";
+	await nextTick();
+	iconList.value[index]! = prevName;
+}
 
-	/**
-	 * Create tooltip only when hovering the image.
-	 * This avoids huge lag on build if creating tooltip on every items
-	 * at once.
-	 *
-	 * @param event
-	 * @param iconName
-	 */
-	public openTooltip(event: MouseEvent, iconName: string): void {
-		if (this.tooltipCreated[iconName] === true) return;
-		this.tooltipCreated[iconName] = true;
-		useTippy(event.currentTarget as HTMLImageElement, {
-			content: iconName,
-		});
-	}
+/**
+ * Create tooltip only when hovering the image.
+ * This avoids huge lag on build if creating tooltip on every items
+ * at once.
+ *
+ * @param event
+ * @param iconName
+ */
+function openTooltip(event: MouseEvent, iconName: string): void {
+	if (tooltipCreated[iconName] === true) return;
+	tooltipCreated[iconName] = true;
+	useTippy(event.currentTarget as HTMLImageElement, {
+		content: iconName,
+	});
+}
 
-	private renderFrame(): void {
-		if (this.disposed) return;
-		requestAnimationFrame(() => this.renderFrame());
-		for (let i = 0; i < this.progresses.length; i++) {
-			this.progresses[i]! += 0.00003;
-		}
+function renderFrame(): void {
+	if (disposed.value) return;
+	requestAnimationFrame(() => renderFrame());
+	for (let i = 0; i < progresses.value.length; i++) {
+		progresses.value[i]! += 0.00003;
 	}
 }
-export default toNative(ComponentList);
 </script>
 
 <style scoped lang="less">

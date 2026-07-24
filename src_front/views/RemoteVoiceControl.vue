@@ -3,9 +3,6 @@
 		<div class="card-item primary block head">
 			<Icon name="voice" alt="voice icon" class="icon" />
 			<p>{{ $t("voice.remote.title") }}</p>
-			<p class="install">
-				<span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong>
-			</p>
 		</div>
 
 		<ToggleBlock
@@ -25,36 +22,21 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import DataStore from "@/store/DataStore";
 import OBSWebsocket from "@/utils/OBSWebsocket";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { computed, onMounted, ref } from "vue";
 import ToggleBlock from "../components/ToggleBlock.vue";
 import OBSConnectForm from "../components/params/contents/obs/OBSConnectForm.vue";
 import VoiceControlForm from "../components/voice/VoiceControlForm.vue";
 
-@Component({
-	components: {
-		ToggleBlock,
-		OBSConnectForm,
-		VoiceControlForm,
-	},
-})
-class RemoteVoiceControl extends Vue {
-	public loading: boolean = false;
-	public connectError: boolean = false;
-	public connectSuccess: boolean = false;
-	public showStorageModal: boolean = false;
+const showStorageModal = ref(false);
 
-	public get connected(): boolean {
-		return OBSWebsocket.instance.connected.value;
-	}
+const connected = computed(() => OBSWebsocket.instance.connected.value);
 
-	public mounted(): void {
-		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
-	}
-}
-export default toNative(RemoteVoiceControl);
+onMounted(() => {
+	showStorageModal.value = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
+});
 </script>
 
 <style scoped lang="less">

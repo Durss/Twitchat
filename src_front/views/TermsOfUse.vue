@@ -719,28 +719,19 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ThemeSelector from "@/components/ThemeSelector.vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { onMounted } from "vue";
 
-@Component({
-	components: {
-		ThemeSelector,
-	},
-	emits: [],
-})
-class TermsOfUse extends Vue {
-	public mounted(): void {
-		//Force scroll to hash if any
-		//Doesn't work by default because of the loading delay
-		let hash = window.location.hash;
-		if (hash) {
-			let elem = document.getElementById(hash.substring(1));
-			if (elem) elem.scrollIntoView({ behavior: "auto", block: "center" });
-		}
+onMounted(() => {
+	//Force scroll to hash if any
+	//Doesn't work by default because of the loading delay
+	let hash = window.location.hash;
+	if (hash) {
+		let elem = document.getElementById(hash.substring(1));
+		if (elem) elem.scrollIntoView({ behavior: "auto", block: "center" });
 	}
-}
-export default toNative(TermsOfUse);
+});
 </script>
 
 <style scoped lang="less">

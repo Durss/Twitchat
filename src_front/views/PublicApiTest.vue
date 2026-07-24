@@ -1,5 +1,22 @@
 <template>
 	<div class="publicapitest">
+		<div class="connectForm blured-background-window">
+			<form @submit.prevent="connect()" v-if="!connected">
+				<ParamItem :paramData="obsPort_conf" class="param" />
+				<ParamItem :paramData="obsPass_conf" class="param" />
+				<ParamItem :paramData="obsIP_conf" class="param" />
+				<TTButton type="submit" class="connectBt" :loading="loading">Connect</TTButton>
+			</form>
+			<TTButton
+				v-else
+				@click="disconnect()"
+				class="connectBt"
+				:loading="loading"
+				alert
+				icon="cross"
+				>Disconnect</TTButton
+			>
+		</div>
 		<div class="lists">
 			<div class="list events">
 				<div class="head">Public API events logger</div>
@@ -38,110 +55,120 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
-import ParamItem from "@/components/params/ParamItem.vue";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import type TwitchatEvent from "@/events/TwitchatEvent";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { storeOBS as useStoreOBS } from "@/store/obs/storeOBS";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { onBeforeMount, ref } from "vue";
+import OBSWebsocket from "@/utils/OBSWebsocket";
+import ParamItem from "@/components/params/ParamItem.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		ToggleBlock,
-	},
-})
-class PublicApiTest extends Vue {
-	public eventList: {
+const storeOBS = useStoreOBS();
+
+const eventList = ref<
+	{
 		key: keyof TwitchatEventMap;
 		active: boolean;
 		data: any | null;
 		ts: string;
-	}[] = [];
+	}[]
+>([]);
 
-	public loading = false;
-	public connectError = false;
-	public connectSuccess = false;
-	public openConnectForm = false;
-	public obsPort_conf: TwitchatDataTypes.ParameterData<number> = {
-		type: "number",
-		value: 4455,
-		min: 0,
-		max: 65535,
-		step: 1,
-		fieldName: "obsport",
-		labelKey: "obs.form_port",
-	};
-	public obsPass_conf: TwitchatDataTypes.ParameterData<string> = {
-		type: "password",
-		value: "",
-		fieldName: "obspass",
-		labelKey: "obs.form_pass",
-	};
-	public obsIP_conf: TwitchatDataTypes.ParameterData<string> = {
-		type: "string",
-		value: "127.0.0.1",
-		fieldName: "obsip",
-		labelKey: "obs.form_ip",
-	};
+const loading = ref(false);
+const connected = ref(false);
+const connectError = ref(false);
+const connectSuccess = ref(false);
+const openConnectForm = ref(false);
+const obsPort_conf = ref<TwitchatDataTypes.ParameterData<number>>({
+	type: "number",
+	value: 4455,
+	min: 0,
+	max: 65535,
+	step: 1,
+	fieldName: "obsport",
+	labelKey: "obs.form_port",
+});
+const obsPass_conf = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "password",
+	value: "",
+	fieldName: "obspass",
+	labelKey: "obs.form_pass",
+});
+const obsIP_conf = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "127.0.0.1",
+	fieldName: "obsip",
+	labelKey: "obs.form_ip",
+});
 
-	public beforeMount(): void {
-		this.eventList = EventList.concat()
-			.map((v) => {
-				return { key: v, active: false, data: null, ts: "" };
-			})
-			.sort((a, b) => {
-				if (a.key < b.key) return -1;
-				if (a.key > b.key) return 1;
-				return 0;
-			});
-
-		this.initAPI();
-	}
-
-	/**
-	 * Connect to OBS websocket
-	 */
-	public async connect(): Promise<void> {
-		this.loading = true;
-		this.connectSuccess = false;
-		this.connectError = false;
-
-		//Make sure OBS will connect
-		this.$store.obs.connectionEnabled = true;
-
-		this.connectSuccess = true;
-		this.initAPI();
-		window.setTimeout(() => {
-			this.connectSuccess = false;
-			this.openConnectForm = false;
-		}, 3000);
-	}
-
-	private initAPI(): void {
-		//@ts-ignore
-		this.eventList.forEach((v) => {
-			PublicAPI.instance.addEventListener(v.key, (e: TwitchatEvent<typeof v.key>) => {
-				try {
-					const index = this.eventList.findIndex((v) => v.key === e.type);
-					if (index == -1) return;
-					const obj = this.eventList.splice(index, 1)[0];
-					if (obj) {
-						obj.active = true;
-						obj.data = e.data;
-						obj.ts = Utils.jsonToTS(e.data);
-					}
-				} catch (error) {
-					console.log(error);
-				}
-			});
+onBeforeMount(() => {
+	eventList.value = EventList.concat()
+		.map((v) => {
+			return { key: v, active: false, data: null, ts: "" };
+		})
+		.sort((a, b) => {
+			if (a.key < b.key) return -1;
+			if (a.key > b.key) return 1;
+			return 0;
 		});
-	}
+
+	initAPI();
+});
+
+/**
+ * Connect to OBS websocket
+ */
+async function connect(): Promise<void> {
+	loading.value = true;
+	connectSuccess.value = false;
+	connectError.value = false;
+
+	//Make sure OBS will connect
+	storeOBS.connectionEnabled = true;
+
+	connected.value = await OBSWebsocket.instance.connect(
+		obsPort_conf.value.value.toString(),
+		obsPass_conf.value.value,
+		false,
+		obsIP_conf.value.value,
+	);
+	PublicAPI.instance.initialize(false);
+
+	connectSuccess.value = true;
+	loading.value = false;
+	initAPI();
+	window.setTimeout(() => {
+		connectSuccess.value = false;
+		openConnectForm.value = false;
+	}, 3000);
+}
+async function disconnect(): Promise<void> {
+	await OBSWebsocket.instance.disconnect();
+}
+
+function initAPI(): void {
+	eventList.value.forEach((v) => {
+		PublicAPI.instance.addEventListener(v.key, (e: TwitchatEvent<typeof v.key>) => {
+			try {
+				const index = eventList.value.findIndex((v) => v.key === e.type);
+				if (index == -1) return;
+				const obj = eventList.value.splice(index, 1)[0];
+				if (obj) {
+					obj.active = true;
+					obj.data = e.data;
+					obj.ts = Utils.jsonToTS(e.data);
+					eventList.value.unshift(obj); //Bring to top
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		});
+	});
 }
 
 const EventList: (keyof TwitchatEventMap)[] = [
@@ -322,7 +349,6 @@ const EventList: (keyof TwitchatEventMap)[] = [
 	"ON_OBS_STREAM_STATE",
 	"ON_OBS_RECORD_STATE",
 ];
-export default toNative(PublicApiTest);
 </script>
 
 <style scoped lang="less">

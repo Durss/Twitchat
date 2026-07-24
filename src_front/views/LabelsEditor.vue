@@ -104,7 +104,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import AppLangSelector from "@/components/AppLangSelector.vue";
 import LabelsEditorEntry from "@/components/LabelsEditorEntry.vue";
 import TTButton from "@/components/TTButton.vue";
@@ -113,292 +113,283 @@ import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import type { RemoveIndexSignature } from "@intlify/core-base";
 import { gsap } from "gsap/gsap-core";
-import { Component, Vue, toNative } from "vue-facing-decorator";
+import { useI18n } from "vue-i18n";
 import type { LocaleMessageValue, VueMessageType } from "vue-i18n";
 
 //@ts-ignore
 import { BlobWriter, TextReader, ZipWriter } from "https://deno.land/x/zipjs@v2.7.32/index.js";
 import type { JsonObject } from "type-fest";
-import { watch } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 
-@Component({
-	components: {
-		TTButton,
-		AppLangSelector,
-		LabelsEditorEntry,
-	},
-	emits: [],
-})
-class LabelsEditor extends Vue {
-	public selectedSectionKey: string = "";
-	public selectedSectionLabels: RemoveIndexSignature<{
+const { locale } = useI18n();
+
+const selectedSectionKey = ref("");
+const selectedSectionLabels = ref<RemoveIndexSignature<{
+	[x: string]: LocaleMessageValue<VueMessageType>;
+}> | null>(null);
+const labelsCurrent = ref<
+	RemoveIndexSignature<{
 		[x: string]: LocaleMessageValue<VueMessageType>;
-	}> | null = null;
-	public labelsCurrent: RemoveIndexSignature<{
-		[x: string]: LocaleMessageValue<VueMessageType>;
-	}> = {};
-	public labelsRef: RemoveIndexSignature<{ [x: string]: LocaleMessageValue<VueMessageType> }> =
-		{};
-	public progresses: { [key: string]: { total: number; done: number } } = {};
-	public langRef = "en";
-	public search = "";
-	public searchKeys: string[][] = [];
-	public pathToSelect: string[] = [];
-	public noResult: boolean = false;
+	}>
+>({});
+const labelsRef = ref<RemoveIndexSignature<{ [x: string]: LocaleMessageValue<VueMessageType> }>>(
+	{},
+);
+const progresses = ref<{ [key: string]: { total: number; done: number } }>({});
+const langRef = ref("en");
+const search = ref("");
+const searchKeys = ref<string[][]>([]);
+const pathToSelect = ref<string[]>([]);
+const noResult = ref(false);
 
-	private currentErrorIndex = -1;
+let currentErrorIndex = -1;
 
-	public getProgressClasses(section: string): string[] {
-		const res: string[] = [];
-		const progress = this.progresses[section]!;
-		if (progress.done / progress.total < 0.9) res.push("alert");
-		else if (progress.done / progress.total < 1) res.push("secondary");
-		else if (progress.done / progress.total > 1) res.push("premium");
-		else res.push("primary");
-		return res;
-	}
+function getProgressClasses(section: string): string[] {
+	const res: string[] = [];
+	const progress = progresses.value[section]!;
+	if (progress.done / progress.total < 0.9) res.push("alert");
+	else if (progress.done / progress.total < 1) res.push("secondary");
+	else if (progress.done / progress.total > 1) res.push("premium");
+	else res.push("primary");
+	return res;
+}
 
-	public beforeMount() {
-		const reloadLabels = () => {
-			this.labelsRef = StoreProxy.i18n.getLocaleMessage(this.langRef);
-			this.computeProgresses(true);
-			if (this.selectedSectionKey) {
-				this.onSelectSection(this.selectedSectionKey, [], true);
-			}
-		};
-		reloadLabels();
-		watch(
-			() => this.langRef,
-			() => reloadLabels(),
-		);
-		watch(
-			() => this.$i18n.locale,
-			() => {
-				this.computeProgresses(true);
-				if (this.selectedSectionKey) {
-					this.onSelectSection(this.selectedSectionKey, [], true);
-				}
-			},
-		);
-		this.computeProgresses();
-	}
-
-	public onSelectSection(
-		key: string,
-		pathToSelect: string[] = [],
-		force: boolean = false,
-		event?: MouseEvent,
-	): void {
-		if (event && (event.ctrlKey || event.metaKey)) {
-			this.langRef = key;
-			this.computeProgresses();
-			return;
+onBeforeMount(() => {
+	const reloadLabels = () => {
+		labelsRef.value = StoreProxy.i18n.getLocaleMessage(langRef.value);
+		computeProgresses(true);
+		if (selectedSectionKey.value) {
+			onSelectSection(selectedSectionKey.value, [], true);
 		}
-		if (this.selectedSectionKey === key && !force) return;
-		let labelsRef = this.labelsRef[key as keyof typeof this.labelsRef];
-		let labelsCurrent = this.labelsCurrent[key as keyof typeof this.labelsCurrent];
+	};
+	reloadLabels();
+	watch(
+		() => langRef.value,
+		() => reloadLabels(),
+	);
+	watch(
+		() => locale.value,
+		() => {
+			computeProgresses(true);
+			if (selectedSectionKey.value) {
+				onSelectSection(selectedSectionKey.value, [], true);
+			}
+		},
+	);
+	computeProgresses();
+});
 
-		const mergeJSON = (json1: JsonObject, json2: JsonObject) => {
-			let mergedJSON = { ...json1 };
+function onSelectSection(
+	key: string,
+	pathToSelectParam: string[] = [],
+	force: boolean = false,
+	event?: MouseEvent,
+): void {
+	if (event && (event.ctrlKey || event.metaKey)) {
+		langRef.value = key;
+		computeProgresses();
+		return;
+	}
+	if (selectedSectionKey.value === key && !force) return;
+	let sectionRef = labelsRef.value[key as keyof typeof labelsRef.value];
+	let sectionCurrent = labelsCurrent.value[key as keyof typeof labelsCurrent.value];
 
-			for (let key in json2) {
-				if (json2.hasOwnProperty(key)) {
-					if (mergedJSON.hasOwnProperty(key)) {
-						if (!Array.isArray(mergedJSON[key]) && !Array.isArray(json2[key])) {
-							if (
-								typeof mergedJSON[key] === "object" &&
-								typeof json2[key] === "object"
-							) {
-								mergedJSON[key] = mergeJSON(
-									mergedJSON[key] as JsonObject,
-									json2[key] as JsonObject,
-								);
-							} else {
-								mergedJSON[key] = json2[key]!;
-							}
+	const mergeJSON = (json1: JsonObject, json2: JsonObject) => {
+		let mergedJSON = { ...json1 };
+
+		for (let key in json2) {
+			if (json2.hasOwnProperty(key)) {
+				if (mergedJSON.hasOwnProperty(key)) {
+					if (!Array.isArray(mergedJSON[key]) && !Array.isArray(json2[key])) {
+						if (typeof mergedJSON[key] === "object" && typeof json2[key] === "object") {
+							mergedJSON[key] = mergeJSON(
+								mergedJSON[key] as JsonObject,
+								json2[key] as JsonObject,
+							);
+						} else {
+							mergedJSON[key] = json2[key]!;
 						}
-					} else {
-						mergedJSON[key] = json2[key]!;
 					}
-				}
-			}
-			return mergedJSON;
-		};
-
-		this.selectedSectionLabels = mergeJSON(labelsRef, labelsCurrent);
-		this.selectedSectionKey = key;
-		this.currentErrorIndex = -1;
-		this.pathToSelect = pathToSelect;
-		this.computeProgresses();
-	}
-
-	public async downloadSection(): Promise<void> {
-		const json: any = {};
-		json[this.selectedSectionKey] = this.selectedSectionLabels;
-		Utils.downloadFile(this.selectedSectionKey + ".json", JSON.stringify(json));
-	}
-
-	public async exportZIP(): Promise<void> {
-		const messages = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
-		const zipFileWriter = new BlobWriter();
-		const zipWriter = new ZipWriter(zipFileWriter);
-		for (const key in messages) {
-			let json: any = {};
-			json[key] = messages[key as keyof typeof messages];
-			const file = new TextReader(JSON.stringify(json));
-			await zipWriter.add(key + ".json", file);
-		}
-		await zipWriter.close();
-		const zipFileBlob = await zipFileWriter.getData();
-		Utils.downloadFile("labels_" + this.$i18n.locale + ".zip", zipFileBlob);
-	}
-
-	public computeProgresses(forceAll: boolean = false): void {
-		const ref = this.labelsRef;
-		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
-		this.labelsCurrent = labels;
-		if (labels == undefined) return;
-		const buildPaths = (obj: any, parentPath: string[] = []): string[][] => {
-			let paths: any = [];
-
-			for (const key in obj) {
-				const currentPath: string[] = [...parentPath, key];
-
-				//Ignore array items
-				if (Array.isArray(obj[key])) {
-					continue;
-				} else if (
-					typeof obj[key] === "object" &&
-					obj[key] !== null &&
-					Object.keys(obj[key]).length > 0
-				) {
-					paths = paths.concat(buildPaths(obj[key], currentPath));
 				} else {
-					paths.push(currentPath);
+					mergedJSON[key] = json2[key]!;
 				}
 			}
-
-			return paths;
-		};
-
-		const sections: string[] =
-			this.selectedSectionKey && !forceAll ? [this.selectedSectionKey] : Object.keys(ref);
-		for (let h = 0; h < sections.length; h++) {
-			let total = 0;
-			let done = 0;
-			const section = sections[h]!;
-			let keys = buildPaths(ref[section as keyof typeof ref], [section]).concat(
-				buildPaths(labels[section as keyof typeof ref], [section]),
-			);
-			let keysDone: { [key: string]: boolean } = {};
-			//Dedupe key paths
-			keys = keys.filter((a) => {
-				if (keysDone[a.join(".")] == true) return false;
-				keysDone[a.join(".")] = true;
-				return true;
-			});
-
-			for (let i = 0; i < keys.length; i++) {
-				total++;
-				let chunks = keys[i]!;
-				let rootLabels: typeof labels | null = labels;
-				let rootRef = ref;
-				for (let j = 0; j < chunks.length; j++) {
-					const key = chunks[j];
-					rootLabels = rootLabels[key as keyof typeof rootLabels];
-					rootRef = rootRef[key as keyof typeof rootRef];
-					if (rootRef == undefined) {
-						//Item is missing from ref, add 1 to total done so it overflows
-						//the expected amount
-						total--;
-						break;
-					} else if (rootLabels == undefined || (rootLabels == "" && rootRef != "")) {
-						rootLabels = null;
-						// done --;
-						break;
-					}
-				}
-				if (rootLabels != undefined && rootLabels != null) done++;
-			}
-			this.progresses[section] = { done, total };
 		}
-	}
+		return mergedJSON;
+	};
 
-	public nextError(): void {
-		this.currentErrorIndex++;
-		const list = document.getElementsByClassName("missingLabel");
-		const item = list[this.currentErrorIndex % list.length]!;
-		const bounds = item.getBoundingClientRect();
-		const holder = document.body.getElementsByClassName("app")[0]!; //Yup. Absolutely dirty.
-		gsap.to(holder, {
-			duration: 0.5,
-			scrollTo: { y: bounds.top + holder.scrollTop - document.body.clientHeight / 2.5 },
-		});
-		gsap.fromTo(
-			item,
-			{ scaleY: 1.5, filter: "brightness(2)" },
-			{
-				duration: 0.25,
-				scaleY: 1,
-				filter: "brightness(1)",
-				clearProps: "filter,scaleY",
-				delay: 0.5,
-				immediateRender: false,
-			},
+	selectedSectionLabels.value = mergeJSON(sectionRef, sectionCurrent);
+	selectedSectionKey.value = key;
+	currentErrorIndex = -1;
+	pathToSelect.value = pathToSelectParam;
+	computeProgresses();
+}
+
+async function downloadSection(): Promise<void> {
+	const json: any = {};
+	json[selectedSectionKey.value] = selectedSectionLabels.value;
+	Utils.downloadFile(selectedSectionKey.value + ".json", JSON.stringify(json));
+}
+
+async function exportZIP(): Promise<void> {
+	const messages = StoreProxy.i18n.getLocaleMessage(locale.value);
+	const zipFileWriter = new BlobWriter();
+	const zipWriter = new ZipWriter(zipFileWriter);
+	for (const key in messages) {
+		let json: any = {};
+		json[key] = messages[key as keyof typeof messages];
+		const file = new TextReader(JSON.stringify(json));
+		await zipWriter.add(key + ".json", file);
+	}
+	await zipWriter.close();
+	const zipFileBlob = await zipFileWriter.getData();
+	Utils.downloadFile("labels_" + locale.value + ".zip", zipFileBlob);
+}
+
+function computeProgresses(forceAll: boolean = false): void {
+	const refLabels = labelsRef.value;
+	const labels = StoreProxy.i18n.getLocaleMessage(locale.value);
+	labelsCurrent.value = labels;
+	if (labels == undefined) return;
+	const buildPaths = (obj: any, parentPath: string[] = []): string[][] => {
+		let paths: any = [];
+
+		for (const key in obj) {
+			const currentPath: string[] = [...parentPath, key];
+
+			//Ignore array items
+			if (Array.isArray(obj[key])) {
+				continue;
+			} else if (
+				typeof obj[key] === "object" &&
+				obj[key] !== null &&
+				Object.keys(obj[key]).length > 0
+			) {
+				paths = paths.concat(buildPaths(obj[key], currentPath));
+			} else {
+				paths.push(currentPath);
+			}
+		}
+
+		return paths;
+	};
+
+	const sections: string[] =
+		selectedSectionKey.value && !forceAll ? [selectedSectionKey.value] : Object.keys(refLabels);
+	for (let h = 0; h < sections.length; h++) {
+		let total = 0;
+		let done = 0;
+		const section = sections[h]!;
+		let keys = buildPaths(refLabels[section as keyof typeof refLabels], [section]).concat(
+			buildPaths(labels[section as keyof typeof refLabels], [section]),
 		);
-	}
+		let keysDone: { [key: string]: boolean } = {};
+		//Dedupe key paths
+		keys = keys.filter((a) => {
+			if (keysDone[a.join(".")] == true) return false;
+			keysDone[a.join(".")] = true;
+			return true;
+		});
 
-	public doSearch(): void {
-		if (this.search.length < 2) return;
-		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
-		const searchValueWithPaths = (
-			json: any,
-			searchWord: string,
-			currentPath: string[] = [],
-		): string[][] => {
-			let matchingPaths: string[][] = [];
-
-			for (const key in json) {
-				const newPath: string[] = currentPath.concat(key);
-
-				if (typeof json[key] === "object") {
-					// Recursively search in nested objects
-					const nestedMatches = searchValueWithPaths(json[key], searchWord, newPath);
-					matchingPaths = matchingPaths.concat(nestedMatches);
-				} else if (
-					typeof json[key] === "string" &&
-					json[key].toLowerCase().includes(searchWord)
-				) {
-					// Check if the string value contains the search word
-					matchingPaths.push(newPath);
+		for (let i = 0; i < keys.length; i++) {
+			total++;
+			let chunks = keys[i]!;
+			let rootLabels: typeof labels | null = labels;
+			let rootRef = refLabels;
+			for (let j = 0; j < chunks.length; j++) {
+				const key = chunks[j];
+				rootLabels = rootLabels[key as keyof typeof rootLabels];
+				rootRef = rootRef[key as keyof typeof rootRef];
+				if (rootRef == undefined) {
+					//Item is missing from ref, add 1 to total done so it overflows
+					//the expected amount
+					total--;
+					break;
+				} else if (rootLabels == undefined || (rootLabels == "" && rootRef != "")) {
+					rootLabels = null;
+					// done --;
+					break;
 				}
 			}
-
-			return matchingPaths;
-		};
-		this.selectedSectionLabels = null;
-		this.selectedSectionKey = "";
-		this.searchKeys = searchValueWithPaths(labels, this.search.toLowerCase());
-		this.noResult = this.searchKeys.length == 0;
-		window.setTimeout(() => {
-			this.noResult = false;
-		}, 1000);
-	}
-
-	public async saveSection(section?: string): Promise<void> {
-		if (!section) section = this.selectedSectionKey;
-		if (!section) return;
-		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
-
-		let body = {
-			section,
-			lang: this.$i18n.locale,
-			labels: labels[section as keyof typeof labels],
-		};
-		await ApiHelper.call("admin/labels", "POST", body, false);
+			if (rootLabels != undefined && rootLabels != null) done++;
+		}
+		progresses.value[section] = { done, total };
 	}
 }
-export default toNative(LabelsEditor);
+
+function nextError(): void {
+	currentErrorIndex++;
+	const list = document.getElementsByClassName("missingLabel");
+	const item = list[currentErrorIndex % list.length]!;
+	const bounds = item.getBoundingClientRect();
+	const holder = document.body.getElementsByClassName("app")[0]!; //Yup. Absolutely dirty.
+	gsap.to(holder, {
+		duration: 0.5,
+		scrollTo: { y: bounds.top + holder.scrollTop - document.body.clientHeight / 2.5 },
+	});
+	gsap.fromTo(
+		item,
+		{ scaleY: 1.5, filter: "brightness(2)" },
+		{
+			duration: 0.25,
+			scaleY: 1,
+			filter: "brightness(1)",
+			clearProps: "filter,scaleY",
+			delay: 0.5,
+			immediateRender: false,
+		},
+	);
+}
+
+function doSearch(): void {
+	if (search.value.length < 2) return;
+	const labels = StoreProxy.i18n.getLocaleMessage(locale.value);
+	const searchValueWithPaths = (
+		json: any,
+		searchWord: string,
+		currentPath: string[] = [],
+	): string[][] => {
+		let matchingPaths: string[][] = [];
+
+		for (const key in json) {
+			const newPath: string[] = currentPath.concat(key);
+
+			if (typeof json[key] === "object") {
+				// Recursively search in nested objects
+				const nestedMatches = searchValueWithPaths(json[key], searchWord, newPath);
+				matchingPaths = matchingPaths.concat(nestedMatches);
+			} else if (
+				typeof json[key] === "string" &&
+				json[key].toLowerCase().includes(searchWord)
+			) {
+				// Check if the string value contains the search word
+				matchingPaths.push(newPath);
+			}
+		}
+
+		return matchingPaths;
+	};
+	selectedSectionLabels.value = null;
+	selectedSectionKey.value = "";
+	searchKeys.value = searchValueWithPaths(labels, search.value.toLowerCase());
+	noResult.value = searchKeys.value.length == 0;
+	window.setTimeout(() => {
+		noResult.value = false;
+	}, 1000);
+}
+
+async function saveSection(section?: string): Promise<void> {
+	if (!section) section = selectedSectionKey.value;
+	if (!section) return;
+	const labels = StoreProxy.i18n.getLocaleMessage(locale.value);
+
+	let body = {
+		section,
+		lang: locale.value,
+		labels: labels[section as keyof typeof labels],
+	};
+	await ApiHelper.call("admin/labels", "POST", body, false);
+}
 </script>
 
 <style scoped lang="less">

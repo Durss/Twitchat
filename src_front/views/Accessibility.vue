@@ -6,14 +6,7 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { toNative, Component, Vue } from "vue-facing-decorator";
-
-@Component({
-	components: {},
-})
-class Accessibility extends Vue {}
-export default toNative(Accessibility);
+<script setup lang="ts">
 </script>
 
 <style scoped lang="less">

@@ -28,12 +28,20 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
-import { defineAsyncComponent, type ComponentPublicInstance } from "vue";
-import { Component, toNative, Vue } from "vue-facing-decorator";
+import {
+	computed,
+	defineAsyncComponent,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	type ComponentPublicInstance,
+} from "vue";
+import { useRouter } from "vue-router";
 const OverlayBitsWall = defineAsyncComponent({
 	loader: () => import("@/components/overlays/OverlayBitsWall.vue"),
 });
@@ -92,81 +100,53 @@ const OverlayQuiz = defineAsyncComponent({
 	loader: () => import("@/components/overlays/OverlayQuiz.vue"),
 });
 
-@Component({
-	components: {
-		OverlayQuiz,
-		OverlayPoll,
-		OverlayUlule,
-		OverlayTimer,
-		OverlayAdBreak,
-		OverlayCounter,
-		OverlayDistort,
-		OverlayChatPoll,
-		OverlayBitsWall,
-		OverlayHeatDebug,
-		OverlayBingoGrid,
-		OverlayCustomTrain,
-		OverlayPredictions,
-		OverlayMusicPlayer,
-		OverlaysRaffleWheel,
-		OverlayDonationGoals,
-		OverlayEndingCredits,
-		OverlayChatHighlight,
-		OverlayAnimatedText,
-	},
-})
-class Overlay extends Vue {
-	public overlay: TwitchatDataTypes.OverlayTypes | "" = "";
+const router = useRouter();
 
-	private heatEventHandler!: (event: { detail: TwitchatDataTypes.HeatClickData }) => void;
+const music = ref<ComponentPublicInstance | null>(null);
+const overlay = ref<TwitchatDataTypes.OverlayTypes | "">("");
 
-	public get classes(): string[] {
-		const res: string[] = ["overlay"];
-		if (this.overlay == "unified") res.push("unified");
-		return res;
-	}
+let heatEventHandler!: (event: { detail: TwitchatDataTypes.HeatClickData }) => void;
 
-	public beforeMount(): void {
-		this.overlay = this.$router.currentRoute.value.params.id as TwitchatDataTypes.OverlayTypes;
-	}
+const classes = computed<string[]>(() => {
+	const res: string[] = ["overlay"];
+	if (overlay.value == "unified") res.push("unified");
+	return res;
+});
 
-	public mounted(): void {
-		this.heatEventHandler = (e) => this.onHeatClick(e);
-		//@ts-ignore
-		window.addEventListener("heat-click", this.heatEventHandler);
-	}
+onBeforeMount(() => {
+	overlay.value = router.currentRoute.value.params.id as TwitchatDataTypes.OverlayTypes;
+});
 
-	public beforeUnmount(): void {
-		//@ts-ignore
-		window.removeEventListener("heat-click", this.heatEventHandler);
-	}
+onMounted(() => {
+	heatEventHandler = (e) => onHeatClick(e);
+	//@ts-ignore
+	window.addEventListener("heat-click", heatEventHandler);
+});
 
-	private async onHeatClick(event: { detail: TwitchatDataTypes.HeatClickData }): Promise<void> {
-		//Check if the heat event is for the current page
-		const hash = await Utils.sha256(document.location.href);
-		if (event.detail.page != hash) return;
+onBeforeUnmount(() => {
+	//@ts-ignore
+	window.removeEventListener("heat-click", heatEventHandler);
+});
 
-		const px = event.detail.x * document.body.clientWidth;
-		const py = event.detail.y * document.body.clientHeight;
+async function onHeatClick(event: { detail: TwitchatDataTypes.HeatClickData }): Promise<void> {
+	//Check if the heat event is for the current page
+	const hash = await Utils.sha256(document.location.href);
+	if (event.detail.page != hash) return;
 
-		const player = this.$refs.music as ComponentPublicInstance;
+	const px = event.detail.x * document.body.clientWidth;
+	const py = event.detail.y * document.body.clientHeight;
 
-		//Check if it matches the player's bounds
-		if (this.overlay === "unified" && player) {
-			const bounds = player.$el.getBoundingClientRect();
-			// Check if the point is over the player
-			if (
-				px >= bounds.left &&
-				px <= bounds.right &&
-				py >= bounds.top &&
-				py <= bounds.bottom
-			) {
-				PublicAPI.instance.broadcast("ON_MUSIC_PLAYER_HEAT_CLICK", event.detail);
-			}
+	const player = music.value;
+
+	//Check if it matches the player's bounds
+	if (overlay.value === "unified" && player) {
+		const bounds = player.$el.getBoundingClientRect();
+		// Check if the point is over the player
+		if (px >= bounds.left && px <= bounds.right && py >= bounds.top && py <= bounds.bottom) {
+			PublicAPI.instance.broadcast("ON_MUSIC_PLAYER_HEAT_CLICK", event.detail);
 		}
 	}
 }
-export default toNative(Overlay);
 </script>
 
 <style scoped lang="less">

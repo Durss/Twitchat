@@ -979,10 +979,7 @@
 				us at {{ $config.CONTACT_MAIL }} . Within sixty (60) days of receipt of an appeal,
 				we will inform you in writing of any action taken or not taken in response to the
 				appeal, including a written explanation of the reasons for the decisions. If your
-				appeal if denied, you may contact the
-				<a href="Attorney General to submit a complaint" target="_blank"
-					>Attorney General to submit a complaint</a
-				>.
+				appeal.
 			</p>
 
 			<h2 id="policyupdates">15. DO WE MAKE UPDATES TO THIS NOTICE?</h2>
@@ -1102,101 +1099,99 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import TTButton from "@/components/TTButton.vue";
 import ClearButton from "@/components/ClearButton.vue";
 import Icon from "@/components/Icon.vue";
 import ThemeSelector from "@/components/ThemeSelector.vue";
 import ApiHelper from "@/utils/ApiHelper";
-import { toNative, Component, Vue } from "vue-facing-decorator";
 import Login from "./Login.vue";
 import DataStore from "@/store/DataStore";
 import Utils from "@/utils/Utils";
 import Config from "@/utils/Config";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { useConfirm } from "@/composables/useConfirm";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
-@Component({
-	components: {
-		Icon,
-		Login,
-		Button: TTButton,
-		ClearButton,
-		ThemeSelector,
-	},
-	emits: [],
-})
-class PrivacyPolicy extends Vue {
-	public confirmation: string = "";
-	public showDeleteInput: boolean = false;
-	public showDataManager: boolean = false;
-	public auhtenticating: boolean = true;
-	public auhtenticated: boolean = false;
-	public showLoginForm: boolean = false;
-	public downloadingData: boolean = false;
-	public deletingData: boolean = false;
-	public deleteDone: boolean = false;
+const Button = TTButton;
 
-	public mounted(): void {
-		//Force scroll to hash if any
-		//Doesn't work by default because of the loading delay
-		let hash = window.location.hash;
-		if (hash) {
-			let elem = document.getElementById(hash.substring(1));
-			if (elem) elem.scrollIntoView({ behavior: "auto", block: "center" });
-		}
+const storeAuth = useStoreAuth();
+const storeCommon = useStoreCommon();
+const { confirm } = useConfirm();
+const route = useRoute();
+
+const confirmation = ref<string>("");
+const showDeleteInput = ref<boolean>(false);
+const showDataManager = ref<boolean>(false);
+const auhtenticating = ref<boolean>(true);
+const auhtenticated = ref<boolean>(false);
+const showLoginForm = ref<boolean>(false);
+const downloadingData = ref<boolean>(false);
+const deletingData = ref<boolean>(false);
+const deleteDone = ref<boolean>(false);
+
+onMounted(() => {
+	//Force scroll to hash if any
+	//Doesn't work by default because of the loading delay
+	let hash = window.location.hash;
+	if (hash) {
+		let elem = document.getElementById(hash.substring(1));
+		if (elem) elem.scrollIntoView({ behavior: "auto", block: "center" });
 	}
+});
 
-	public openDataMnagerForm(): void {
-		this.showDataManager = true;
-		this.auhtenticating = true;
-		this.$store.auth
-			.twitch_tokenRefresh()
-			.then((result) => {
-				this.auhtenticated = result !== false;
-				this.auhtenticating = false;
-				DataStore.set(DataStore.REDIRECT, this.$route.fullPath, false);
-			})
-			.catch(() => {
-				this.auhtenticated = false;
-				this.auhtenticating = false;
-			});
-	}
-
-	public downloadData(): void {
-		this.downloadingData = true;
-		ApiHelper.call("user/data", "GET").then(async (result) => {
-			if (result.json.success) {
-				const data = JSON.stringify(result.json.data);
-				Utils.downloadFile("twitchat_data.json", data);
-				await Utils.promisedTimeout(1000);
-			} else {
-				this.$store.common.alert(
-					"Something went wrong when downloading your data. Please try again or contact us at " +
-						Config.instance.CONTACT_MAIL,
-				);
-			}
-			this.downloadingData = false;
+function openDataMnagerForm(): void {
+	showDataManager.value = true;
+	auhtenticating.value = true;
+	storeAuth
+		.twitch_tokenRefresh()
+		.then((result) => {
+			auhtenticated.value = result !== false;
+			auhtenticating.value = false;
+			DataStore.set(DataStore.REDIRECT, route.fullPath, false);
+		})
+		.catch(() => {
+			auhtenticated.value = false;
+			auhtenticating.value = false;
 		});
-	}
-
-	public deleteData(): void {
-		this.deletingData = true;
-		this.$confirm(
-			"Delete your data?",
-			"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>Cette action est irréversible</strong>!",
-		)
-			.then(() => {
-				ApiHelper.call("user/data", "DELETE").then(() => {
-					this.deletingData = false;
-					this.deleteDone = true;
-					DataStore.clear();
-				});
-			})
-			.catch(() => {
-				this.deletingData = false;
-			});
-	}
 }
-export default toNative(PrivacyPolicy);
+
+function downloadData(): void {
+	downloadingData.value = true;
+	ApiHelper.call("user/data", "GET").then(async (result) => {
+		if (result.json.success) {
+			const data = JSON.stringify(result.json.data);
+			Utils.downloadFile("twitchat_data.json", data);
+			await Utils.promisedTimeout(1000);
+		} else {
+			storeCommon.alert(
+				"Something went wrong when downloading your data. Please try again or contact us at " +
+					Config.instance.CONTACT_MAIL,
+			);
+		}
+		downloadingData.value = false;
+	});
+}
+
+function deleteData(): void {
+	deletingData.value = true;
+	confirm(
+		"Delete your data?",
+		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>Cette action est irréversible</strong>!",
+	)
+		.then(() => {
+			ApiHelper.call("user/data", "DELETE").then(() => {
+				deletingData.value = false;
+				deleteDone.value = true;
+				DataStore.clear();
+			});
+		})
+		.catch(() => {
+			deletingData.value = false;
+		});
+}
 </script>
 
 <style scoped lang="less">
@@ -1207,6 +1202,7 @@ export default toNative(PrivacyPolicy);
 	.loader {
 		margin: auto;
 		height: 2em;
+		width: 2em;
 		display: block;
 	}
 
