@@ -1,8 +1,8 @@
 <template>
-	<div class="shoutoutlist blured-background-window">
+	<div class="shoutoutlist blured-background-window" ref="rootEl">
 		<draggable
 			class="list"
-			v-model="$store.users.pendingShoutouts[channelId]"
+			v-model="storeUsers.pendingShoutouts[channelId]"
 			direction="vertical"
 			group="users"
 			item-key="id"
@@ -22,7 +22,7 @@
 					<Icon
 						name="dragZone"
 						class="drag"
-						v-if="$store.users.pendingShoutouts[channelId]!.length > 1"
+						v-if="storeUsers.pendingShoutouts[channelId]!.length > 1"
 					/>
 					<Button
 						class="deleteBt"
@@ -50,125 +50,124 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import draggable from "vuedraggable";
-import TTButton from "../TTButton.vue";
-import { watch } from "vue";
+import Button from "../TTButton.vue";
 
-@Component({
-	components: {
-		Button: TTButton,
-		draggable,
-	},
-	emits: ["close"],
-})
-class ShoutoutList extends Vue {
-	public channelId: string = "";
-	public timerOffset: number = 0;
+const emit = defineEmits<{
+	close: [];
+}>();
 
-	private refreshInterval: number = -1;
-	private clickHandler!: (e: MouseEvent) => void;
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
+const rootEl = useTemplateRef("rootEl");
 
-	public getDelay(duration: number) {
-		return Math.floor(duration - this.timerOffset * 1000);
+const channelId = ref("");
+const timerOffset = ref(0);
+
+let refreshInterval: number = -1;
+let clickHandler!: (e: MouseEvent) => void;
+
+function getDelay(duration: number) {
+	return Math.floor(duration - timerOffset.value * 1000);
+}
+
+function getFormattedDuration(duration: number): string {
+	return Utils.formatDuration(Math.max(0, Math.floor(duration - timerOffset.value * 1000)));
+}
+
+onBeforeMount(() => {
+	channelId.value = storeStream.currentChatChannel.id;
+});
+
+onMounted(() => {
+	clickHandler = (e: MouseEvent) => onClick(e);
+	document.addEventListener("mousedown", clickHandler);
+	open();
+
+	//This interval updates a local timer used to keep updating
+	//times even if source data are not actually updated.
+	//The source data are updated, as of today, every 5s as defined
+	//by the SchedulerHelper that executes only every 5s.
+	//This local timer offset is here to get the view updating every
+	//seconds even though the data entries are updated every 5s.
+	refreshInterval = window.setInterval(() => {
+		timerOffset.value++;
+	}, 1000);
+});
+
+onBeforeUnmount(() => {
+	document.removeEventListener("mousedown", clickHandler);
+	clearTimeout(refreshInterval);
+});
+
+function onMoveItem(): void {
+	//Forces timers refresh
+	storeUsers.executePendingShoutouts();
+}
+
+function deleteItem(item: TwitchatDataTypes.ShoutoutHistoryItem): void {
+	const list = storeUsers.pendingShoutouts[channelId.value]!;
+	const index = list.findIndex((v) => v.id == item.id);
+	list.splice(index, 1);
+	if (list.length === 0) close();
+}
+
+function open(): void {
+	const element = rootEl.value!;
+	gsap.killTweensOf(element);
+	gsap.from(element, {
+		duration: 0.2,
+		scaleX: 0,
+		delay: 0.1,
+		clearProps: "scaleX",
+		ease: "back.out",
+	});
+	gsap.from(element, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
+}
+
+function close(): void {
+	const element = rootEl.value!;
+	gsap.killTweensOf(element);
+	gsap.to(element, { duration: 0.3, scaleX: 0, ease: "back.in" });
+	gsap.to(element, {
+		duration: 0.2,
+		scaleY: 0,
+		delay: 0.1,
+		clearProps: "scaleY, scaleX",
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+function onClick(e: MouseEvent): void {
+	let target = e.target as HTMLDivElement;
+	const ref = rootEl.value!;
+	while (target != document.body && target != ref && target) {
+		target = target.parentElement as HTMLDivElement;
 	}
-
-	public getFormattedDuration(duration: number): string {
-		return Utils.formatDuration(Math.max(0, Math.floor(duration - this.timerOffset * 1000)));
-	}
-
-	public beforeMount(): void {
-		this.channelId = this.$store.stream.currentChatChannel.id;
-	}
-
-	public mounted(): void {
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
-		this.open();
-
-		//This interval updates a local timer used to keep updating
-		//times even if source data are not actually updated.
-		//The source data are updated, as of today, every 5s as defined
-		//by the SchedulerHelper that executes only every 5s.
-		//This local timer offset is here to get the view updating every
-		//seconds even though the data entries are updated every 5s.
-		this.refreshInterval = window.setInterval(() => {
-			this.timerOffset++;
-		}, 1000);
-
-		//Watch for any change on the list and reset the local timer
-		watch(
-			() => this.$store.users.pendingShoutouts[this.channelId],
-			() => {
-				this.timerOffset = 0;
-			},
-			{ deep: true },
-		);
-	}
-
-	public beforeUnmount(): void {
-		document.removeEventListener("mousedown", this.clickHandler);
-		clearTimeout(this.refreshInterval);
-	}
-
-	public onMoveItem(): void {
-		//Forces timers refresh
-		this.$store.users.executePendingShoutouts();
-	}
-
-	public deleteItem(item: TwitchatDataTypes.ShoutoutHistoryItem): void {
-		const list = this.$store.users.pendingShoutouts[this.channelId]!;
-		const index = list.findIndex((v) => v.id == item.id);
-		list.splice(index, 1);
-		if (list.length === 0) this.close();
-	}
-
-	private open(): void {
-		const element = this.$el as HTMLDivElement;
-		gsap.killTweensOf(element);
-		gsap.from(element, {
-			duration: 0.2,
-			scaleX: 0,
-			delay: 0.1,
-			clearProps: "scaleX",
-			ease: "back.out",
-		});
-		gsap.from(element, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
-	}
-
-	private close(): void {
-		const element = this.$el as HTMLDivElement;
-		gsap.killTweensOf(element);
-		gsap.to(element, { duration: 0.3, scaleX: 0, ease: "back.in" });
-		gsap.to(element, {
-			duration: 0.2,
-			scaleY: 0,
-			delay: 0.1,
-			clearProps: "scaleY, scaleX",
-			ease: "back.in",
-			onComplete: () => {
-				this.$emit("close");
-			},
-		});
-	}
-
-	private onClick(e: MouseEvent): void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while (target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if (target != ref) {
-			//Close if clicking out of the holder
-			this.close();
-		}
+	if (target != ref) {
+		//Close if clicking out of the holder
+		close();
 	}
 }
-export default toNative(ShoutoutList);
+
+//Watch for any change on the list and reset the local timer
+watch(
+	() => storeUsers.pendingShoutouts[channelId.value],
+	() => {
+		timerOffset.value = 0;
+	},
+	{ deep: true },
+);
 </script>
 
 <style scoped lang="less">

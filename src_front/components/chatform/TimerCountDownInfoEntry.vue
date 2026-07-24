@@ -5,35 +5,32 @@
 			:class="{ paused: timer.paused, hovered: hover }"
 			@mouseenter="hover = true"
 			@mouseleave="hover = false"
-			@click="$store.timers.timerStop(timer.id)"
+			@click="storeTimer.timerStop(timer.id)"
 		>
 			<Icon name="countdown" alt="countdown" v-if="timer.type == 'countdown'" />
 			<Icon name="timer" alt="timer" v-else />
 			<div class="value">{{ label }}</div>
-			<div class="stopLabel">{{ $t("global.stop") }}</div>
+			<div class="stopLabel">{{ t("global.stop") }}</div>
 			<slot></slot>
 		</div>
 	</tooltip>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
 
-@Component({
-	components: {},
-	emits: [],
-})
-class TimerCountDownInfoEntry extends Vue {
-	@Prop()
-	public timer!: TwitchatDataTypes.TimerData;
+defineProps<{
+	timer: TwitchatDataTypes.TimerData;
+	label: string;
+}>();
 
-	@Prop()
-	public label!: string;
+const { t } = useI18n();
+const storeTimer = useStoreTimer();
 
-	public hover: boolean = false;
-}
-export default toNative(TimerCountDownInfoEntry);
+const hover = ref(false);
 </script>
 
 <style scoped lang="less">

@@ -793,6 +793,7 @@ onUnmounted(() => {
 			border-bottom: none;
 			border-radius: var(--border-radius);
 			color: var(--color-secondary);
+			padding-left: 0.5em;
 
 			&:hover {
 				background-color: var(--color-dark-fadest);

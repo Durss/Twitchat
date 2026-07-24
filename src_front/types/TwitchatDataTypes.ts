@@ -3477,6 +3477,7 @@ export namespace TwitchatDataTypes {
 		 */
 		messages: {
 			votes: number;
+			date: number;
 			channelId: string;
 			platform: ChatPlatform;
 			message: {

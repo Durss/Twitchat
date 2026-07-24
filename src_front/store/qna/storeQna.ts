@@ -230,6 +230,7 @@ export const storeQna = defineStore("qna", {
 
 			const qnaMessage: TwitchatDataTypes.QnaSession["messages"][number] = {
 				channelId: message.channel_id,
+				date: message.date,
 				message: {
 					id: message.id,
 					chunks,

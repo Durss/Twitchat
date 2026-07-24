@@ -6,42 +6,41 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from "vue";
-import { toNative, Component, Vue, Prop } from "vue-facing-decorator";
+<script setup lang="ts">
+import { onMounted, ref, watch } from "vue";
 
-@Component({
-	components: {},
-	emits: [],
-})
-class TextSplitter extends Vue {
-	@Prop({ default: "", type: String })
-	public message!: string;
+const props = withDefaults(
+	defineProps<{
+		message?: string;
+	}>(),
+	{
+		message: "",
+	},
+);
 
-	public chunks: string[][] = [];
+const chunks = ref<string[][]>([]);
 
-	public mounted(): void {
-		this.renderText();
-		watch(
-			() => this.message,
-			() => this.renderText(),
-		);
-	}
+onMounted(() => {
+	renderText();
+});
 
-	private renderText(): void {
-		const slotText = this.message || "";
-		const wordList = slotText.split(" ");
-		const words = wordList.map((word, wordIndex) => {
-			const letterList = Array.from(word).map((letter, letterIndex) => {
-				return letter;
-			});
-			if (wordIndex < wordList.length) letterList.push(" ");
-			return letterList;
+watch(
+	() => props.message,
+	() => renderText(),
+);
+
+function renderText(): void {
+	const slotText = props.message || "";
+	const wordList = slotText.split(" ");
+	const words = wordList.map((word, wordIndex) => {
+		const letterList = Array.from(word).map((letter, letterIndex) => {
+			return letter;
 		});
-		this.chunks = words;
-	}
+		if (wordIndex < wordList.length) letterList.push(" ");
+		return letterList;
+	});
+	chunks.value = words;
 }
-export default toNative(TextSplitter);
 </script>
 
 <style scoped lang="less">

@@ -1,5 +1,5 @@
 <template>
-	<div class="userlist blured-background-window">
+	<div class="userlist blured-background-window" ref="rootEl">
 		<div v-if="currentChan">
 			<template v-for="(chan, key) in currentChan.users">
 				<ToggleBlock
@@ -36,7 +36,7 @@
 									name="timeout"
 									v-tooltip="getBanDuration(u.channelInfo[currentChanId]!)"
 								/>
-								<Icon v-else name="ban" v-tooltip="$t('userlist.banned_tt')" />
+								<Icon v-else name="ban" v-tooltip="t('userlist.banned_tt')" />
 							</div>
 							<span>{{ u.displayName }}</span>
 						</a>
@@ -50,9 +50,9 @@
 			:open="false"
 			small
 			v-if="currentChanId == myChannelId"
-			:title="$t('userlist.infoBt')"
+			:title="t('userlist.infoBt')"
 		>
-			<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
+			<p class="info" v-for="e in tm('userlist.infos')" v-html="e"></p>
 		</ToggleBlock>
 
 		<div class="users" v-if="userList.length > 1">
@@ -65,246 +65,29 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import StoreProxy from "@/store/StoreProxy";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import { watch } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
-import TTButton from "../TTButton.vue";
+import {
+	computed,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
+import { useI18n } from "vue-i18n";
 import TabMenu from "../TabMenu.vue";
 import ToggleBlock from "../ToggleBlock.vue";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-
-@Component({
-	components: {
-		Button: TTButton,
-		TabMenu,
-		ToggleBlock,
-	},
-	emits: ["close"],
-})
-class UserList extends Vue {
-	public showInfo: boolean = false;
-	public myChannelId!: string;
-	public channels: { [key: string]: ChannelUserList } = {};
-	public currentChanId: string = "";
-
-	public get currentChan(): ChannelUserList {
-		return this.channels[this.currentChanId]!;
-	}
-	public get canListFollowers(): boolean {
-		return (
-			this.$store.params.appearance.highlightNonFollowers.value === true &&
-			TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])
-		);
-	}
-
-	private debounceTo: number = -1;
-	private clickHandler!: (e: MouseEvent) => void;
-
-	public get userList(): TwitchatDataTypes.TwitchatUser[] {
-		const list: TwitchatDataTypes.TwitchatUser[] = [];
-		const validIds = this.$store.stream.connectedTwitchChans.concat().map((v) => v.user.id);
-		if (this.$store.auth.youtube?.user) validIds.push(this.$store.auth.youtube.user.id);
-		validIds.push(this.$store.auth.twitch.user.id);
-
-		for (const uid in this.channels) {
-			const chan = this.channels[uid]!;
-
-			//Not connected to chan anymore? Skip entry
-			if (validIds.findIndex((v) => v == uid) == -1) continue;
-
-			list.push(this.$store.users.getUserFrom(chan.platform, chan.channelId, chan.channelId));
-		}
-		return list;
-	}
-
-	public getRole(key: string): string {
-		return (this.$tm("userlist.roles") as { [key: string]: string })[key]!;
-	}
-
-	public getBanDuration(chanInfo: TwitchatDataTypes.UserChannelInfo): string {
-		const remaining = chanInfo.banEndDate! - Date.now();
-		return Utils.formatDuration(remaining) + "s";
-	}
-
-	public userClasses(user: TwitchatDataTypes.TwitchatUser): string[] {
-		let res = ["user"];
-		if (this.canListFollowers && user.channelInfo[this.currentChanId!]?.is_following === false)
-			res.push("noFollow");
-		return res;
-	}
-
-	public beforeMount(): void {
-		this.myChannelId = StoreProxy.auth.twitch.user.id;
-	}
-
-	public mounted(): void {
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
-		watch(
-			() => this.$store.users.users,
-			() => {
-				this.updateList();
-			},
-		);
-		this.updateList();
-		this.open();
-	}
-
-	public beforeUnmount(): void {
-		this.channels = {};
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	public async toggleInfos(): Promise<void> {
-		if (this.showInfo) {
-			const holder = this.$refs.infos as HTMLDivElement;
-			gsap.to(holder, {
-				duration: 0.5,
-				height: 0,
-				minHeight: 0,
-				marginTop: 0,
-				paddingTop: 0,
-				paddingBottom: 0,
-				ease: "sine.inOut",
-				clearProps: "all",
-				onComplete: () => {
-					this.showInfo = false;
-				},
-			});
-		} else {
-			this.showInfo = true;
-			await this.$nextTick();
-			const holder = this.$refs.infos as HTMLDivElement;
-			const bounds = holder.getBoundingClientRect();
-			holder.style.overflow = "hidden";
-			holder.style.height = bounds.height + "px";
-			holder.style.minHeight = bounds.height + "px";
-			gsap.from(holder, {
-				duration: 0.5,
-				minHeight: 0,
-				height: 0,
-				marginTop: 0,
-				paddingTop: 0,
-				paddingBottom: 0,
-				clearProps: "all",
-				ease: "sine.inOut",
-			});
-		}
-	}
-
-	public openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
-		this.$store.users.openUserCard(user, this.currentChanId!);
-	}
-
-	private open(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
-	}
-
-	private close(): void {
-		const ref = this.$el as HTMLDivElement;
-		gsap.killTweensOf(ref);
-		gsap.to(ref, {
-			duration: 0.2,
-			scaleY: 0,
-			delay: 0.1,
-			clearProps: "scaleY",
-			ease: "back.in",
-			onComplete: () => {
-				this.$emit("close");
-			},
-		});
-	}
-
-	private onClick(e: MouseEvent): void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while (target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if (target != ref) {
-			this.close();
-		}
-	}
-
-	private updateList(): void {
-		clearTimeout(this.debounceTo);
-		const isInit = Object.keys(this.channels).length == 0;
-
-		this.debounceTo = window.setTimeout(
-			() => {
-				// const s = Date.now();
-				const userList = this.$store.users.users;
-
-				const channels: { [key: string]: ChannelUserList } = {};
-				for (const user of userList) {
-					for (const chan in user.channelInfo) {
-						const chanInfo = user.channelInfo[chan];
-						if (
-							chanInfo &&
-							chanInfo.online &&
-							user.temporary !== true &&
-							user.errored !== true
-						) {
-							if (!channels[chan]) {
-								channels[chan] = {
-									channelId: chan,
-									platform: user.platform,
-									users: {
-										broadcaster: [],
-										mods: [],
-										vips: [],
-										subs: [],
-										viewers: [],
-										bots: [],
-									},
-								};
-							}
-							const chanData = channels[chan];
-							if (chanInfo && chanInfo.is_broadcaster)
-								chanData.users.broadcaster = [user];
-							else if (user.is_bot) chanData.users.bots.push(user);
-							else if (chanInfo && chanInfo.is_moderator)
-								chanData.users.mods.push(user);
-							else if (chanInfo && chanInfo.is_vip) chanData.users.vips.push(user);
-							//Removed because not accurate as I don't load subscriber state everytime.
-							//To date, the subscriber state is only given when user talks on chat
-							// else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
-							else chanData.users.viewers.push(user);
-						}
-					}
-				}
-
-				for (const chan in channels) {
-					//Sort users by their names
-					const chanData = channels[chan]!.users;
-					type keys = keyof typeof chanData;
-					for (const cat in chanData) {
-						chanData[cat as keys].sort((a, b) => {
-							const n1 = a.displayName.toLowerCase();
-							const n2 = b.displayName.toLowerCase();
-							if (n1 > n2) return 1;
-							if (n1 < n2) return -1;
-							return 0;
-						});
-					}
-				}
-
-				this.channels = channels;
-				if (isInit) {
-					this.currentChanId = this.myChannelId;
-				}
-			},
-			isInit ? 0 : 500,
-		);
-	}
-}
 
 interface ChannelUserList {
 	channelId: string;
@@ -318,7 +101,199 @@ interface ChannelUserList {
 		bots: TwitchatDataTypes.TwitchatUser[];
 	};
 }
-export default toNative(UserList);
+
+const emit = defineEmits<{
+	close: [];
+}>();
+
+const { t, tm } = useI18n();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const storeStream = useStoreStream();
+const storeUsers = useStoreUsers();
+const rootEl = useTemplateRef("rootEl");
+const infos = useTemplateRef("infos");
+
+const showInfo = ref(false);
+const myChannelId = ref("");
+const channels = ref<{ [key: string]: ChannelUserList }>({});
+const currentChanId = ref("");
+
+let debounceTo: number = -1;
+let clickHandler!: (e: MouseEvent) => void;
+
+const currentChan = computed(() => {
+	return channels.value[currentChanId.value]!;
+});
+
+const canListFollowers = computed(() => {
+	return (
+		storeParams.appearance.highlightNonFollowers.value === true &&
+		TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])
+	);
+});
+
+const userList = computed(() => {
+	const list: TwitchatDataTypes.TwitchatUser[] = [];
+	const validIds = storeStream.connectedTwitchChans.concat().map((v) => v.user.id);
+	if (storeAuth.youtube?.user) validIds.push(storeAuth.youtube.user.id);
+	validIds.push(storeAuth.twitch.user.id);
+
+	for (const uid in channels.value) {
+		const chan = channels.value[uid]!;
+
+		//Not connected to chan anymore? Skip entry
+		if (validIds.findIndex((v) => v == uid) == -1) continue;
+
+		list.push(storeUsers.getUserFrom(chan.platform, chan.channelId, chan.channelId));
+	}
+	return list;
+});
+
+function getRole(key: string): string {
+	return (tm("userlist.roles") as { [key: string]: string })[key]!;
+}
+
+function getBanDuration(chanInfo: TwitchatDataTypes.UserChannelInfo): string {
+	const remaining = chanInfo.banEndDate! - Date.now();
+	return Utils.formatDuration(remaining) + "s";
+}
+
+function userClasses(user: TwitchatDataTypes.TwitchatUser): string[] {
+	let res = ["user"];
+	if (canListFollowers.value && user.channelInfo[currentChanId.value!]?.is_following === false)
+		res.push("noFollow");
+	return res;
+}
+
+onBeforeMount(() => {
+	myChannelId.value = StoreProxy.auth.twitch.user.id;
+});
+
+onMounted(() => {
+	clickHandler = (e: MouseEvent) => onClick(e);
+	document.addEventListener("mousedown", clickHandler);
+	watch(
+		() => storeUsers.users,
+		() => {
+			updateList();
+		},
+	);
+	updateList();
+	open();
+});
+
+onBeforeUnmount(() => {
+	channels.value = {};
+	document.removeEventListener("mousedown", clickHandler);
+});
+
+function openUserCard(user: TwitchatDataTypes.TwitchatUser): void {
+	storeUsers.openUserCard(user, currentChanId.value!);
+}
+
+function open(): void {
+	const ref = rootEl.value!;
+	gsap.killTweensOf(ref);
+	gsap.from(ref, { duration: 0.3, scaleY: 0, clearProps: "scaleY", ease: "back.out" });
+}
+
+function close(): void {
+	const ref = rootEl.value!;
+	gsap.killTweensOf(ref);
+	gsap.to(ref, {
+		duration: 0.2,
+		scaleY: 0,
+		delay: 0.1,
+		clearProps: "scaleY",
+		ease: "back.in",
+		onComplete: () => {
+			emit("close");
+		},
+	});
+}
+
+function onClick(e: MouseEvent): void {
+	let target = e.target as HTMLDivElement;
+	const ref = rootEl.value!;
+	while (target != document.body && target != ref && target) {
+		target = target.parentElement as HTMLDivElement;
+	}
+	if (target != ref) {
+		close();
+	}
+}
+
+function updateList(): void {
+	clearTimeout(debounceTo);
+	const isInit = Object.keys(channels.value).length == 0;
+
+	debounceTo = window.setTimeout(
+		() => {
+			// const s = Date.now();
+			const userList = storeUsers.users;
+
+			const channelsList: { [key: string]: ChannelUserList } = {};
+			for (const user of userList) {
+				for (const chan in user.channelInfo) {
+					const chanInfo = user.channelInfo[chan];
+					if (
+						chanInfo &&
+						chanInfo.online &&
+						user.temporary !== true &&
+						user.errored !== true
+					) {
+						if (!channelsList[chan]) {
+							channelsList[chan] = {
+								channelId: chan,
+								platform: user.platform,
+								users: {
+									broadcaster: [],
+									mods: [],
+									vips: [],
+									subs: [],
+									viewers: [],
+									bots: [],
+								},
+							};
+						}
+						const chanData = channelsList[chan];
+						if (chanInfo && chanInfo.is_broadcaster)
+							chanData.users.broadcaster = [user];
+						else if (user.is_bot) chanData.users.bots.push(user);
+						else if (chanInfo && chanInfo.is_moderator) chanData.users.mods.push(user);
+						else if (chanInfo && chanInfo.is_vip) chanData.users.vips.push(user);
+						//Removed because not accurate as I don't load subscriber state everytime.
+						//To date, the subscriber state is only given when user talks on chat
+						// else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
+						else chanData.users.viewers.push(user);
+					}
+				}
+			}
+
+			for (const chan in channelsList) {
+				//Sort users by their names
+				const chanData = channelsList[chan]!.users;
+				type keys = keyof typeof chanData;
+				for (const cat in chanData) {
+					chanData[cat as keys].sort((a, b) => {
+						const n1 = a.displayName.toLowerCase();
+						const n2 = b.displayName.toLowerCase();
+						if (n1 > n2) return 1;
+						if (n1 < n2) return -1;
+						return 0;
+					});
+				}
+			}
+
+			channels.value = channelsList;
+			if (isInit) {
+				currentChanId.value = myChannelId.value;
+			}
+		},
+		isInit ? 0 : 500,
+	);
+}
 </script>
 
 <style scoped lang="less">

@@ -33,11 +33,8 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerUtils from "@/utils/TriggerUtils";
 import { gsap } from "gsap/gsap-core";
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
-import { Component, toNative, Vue } from "vue-facing-decorator";
-import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{ close: [] }>();
-const { t } = useI18n();
 const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeTriggers = useStoreTriggers();
