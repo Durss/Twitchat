@@ -19,7 +19,7 @@
 		"form_labels_title": "Content Classification",
 		"prefix": "prefix...",
 		"suffix": "suffix...",
-		"prefixInfo": "Automatic prefix and suffix add anytime you update your stream title from Twitchat",
+		"prefixInfo": "Automatic prefix and suffix added anytime you update your stream title from Twitchat",
 		"title_placeholder": "[stream title]",
 		"form_delete_confirm": {
 			"title": "Delete preset?",
