@@ -8,7 +8,13 @@
 			>{{ t("obs.browser_sources_refresh_all") }}</Button
 		>
 
-		<div class="card-item row" v-for="entry in sources" ref="row">
+		<SearchForm v-model="search" :debounce-delay="0" :auto-focus="false" v-if="sources.length > 0" />
+
+		<div
+			class="card-item row"
+			v-for="entry in filteredSources"
+			ref="row"
+			:key="entry.source.inputName">
 			<div class="infos">
 				<p class="name">{{ entry.source.inputName }}</p>
 				<p class="url" v-if="entry.localFile">{{ entry.url }}</p>
@@ -26,11 +32,12 @@
 </template>
 
 <script setup lang="ts">
+import SearchForm from "@/components/params/contents/SearchForm.vue";
 import Button from "@/components/TTButton.vue";
 import OBSWebsocket, { type OBSInputItem } from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import { nextTick, onMounted, ref, useTemplateRef } from "vue";
+import { computed, nextTick, onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 interface BrowserSourceEntry {
@@ -47,6 +54,17 @@ const row = useTemplateRef<HTMLDivElement[]>("row");
 
 const refreshingAll = ref(false);
 const sources = ref<BrowserSourceEntry[]>([]);
+const search = ref("");
+
+const filteredSources = computed(() => {
+	const query = search.value.trim().toLowerCase();
+	if (!query) return sources.value;
+	return sources.value.filter(
+		(entry) =>
+			entry.source.inputName.toLowerCase().includes(query) ||
+			entry.url.toLowerCase().includes(query),
+	);
+});
 
 onMounted(async () => {
 	const res = await OBSWebsocket.instance.socket.call("GetInputList", {
