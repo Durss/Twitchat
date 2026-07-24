@@ -15,7 +15,7 @@
 			:id="props.modelValue.id"
 			:sourceSuffix="sourceSuffix"
 			:disabled="props.modelValue.obsItemPath.sceneName == ''"
-			:sourceTransform="{ positionX: -3840, width: 3840 }"
+			:sourceTransform="{ positionX: -1920, width: 3840 }"
 			:sceneName="props.modelValue.obsItemPath.sceneName"
 			@obsSourceCreated="onObsSourceCreated"
 		>

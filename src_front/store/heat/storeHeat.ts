@@ -22,6 +22,7 @@ import StoreProxy from "../StoreProxy";
 import Config from "@/utils/Config";
 import ApiHelper from "@/utils/ApiHelper";
 import SSEHelper from "@/utils/SSEHelper";
+import HeatSocket from "@/utils/twitch/HeatSocket";
 
 let activeAreaDiff = "";
 let invalidateTimeout = -1;
@@ -94,6 +95,17 @@ export const storeHeat = defineStore("heat", {
 					this.updateActiveScreens();
 				}
 			});
+
+			/**
+			 * Called when a user clicks on the stream
+			 * Detects for a few twitch overlay being clicked as well as all the custom areas
+			 */
+			HeatSocket.instance.addEventListener(
+				HeatEvent.CLICK,
+				async (event: HeatEvent): Promise<void> => {
+					void this.handleClickEvent(event);
+				},
+			);
 
 			SSEHelper.instance.addEventListener("TWITCHEXT_CLICK", (event) => {
 				if (!event.data) return;
@@ -463,7 +475,7 @@ export const storeHeat = defineStore("heat", {
 				if (s.activeOBSScene && s.activeOBSScene != obsScene) continue;
 				//Parse all areas
 				for (const a of s.areas) {
-					if (a.enabled === false) return;
+					if (a.enabled === false) continue;
 					const isInside = Utils.isPointInsidePolygon(
 						{ x: event.coordinates.x, y: event.coordinates.y },
 						a.points,

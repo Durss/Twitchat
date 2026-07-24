@@ -1,5 +1,4 @@
 import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
-import HeatEvent from "@/events/HeatEvent";
 import SSEEvent from "@/events/SSEEvent";
 import router from "@/router";
 import {
@@ -608,17 +607,6 @@ export const storeMain = defineStore("main", {
 					);
 				}
 			});
-
-			/**
-			 * Called when a user clicks on the stream
-			 * Detects for a few twitch overlay being clicked as well as all the custom areas
-			 */
-			HeatSocket.instance.addEventListener(
-				HeatEvent.CLICK,
-				async (event: HeatEvent): Promise<void> => {
-					void StoreProxy.heat.handleClickEvent(event);
-				},
-			);
 
 			/**
 			 * Handle GoXLR button events (press/release)

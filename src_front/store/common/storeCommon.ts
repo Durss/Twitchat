@@ -43,7 +43,7 @@ export const storeCommon = defineStore("common", {
 
 		updateCurrentObsScene(scene: string): void {
 			this.currentOBSScene = scene;
-			StoreProxy.heat.updateActiveScreens();
+			if (StoreProxy.heat) StoreProxy.heat.updateActiveScreens();
 		},
 
 		alert(message: string, isCritical: boolean = false, showContact: boolean = false) {
