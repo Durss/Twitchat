@@ -504,6 +504,7 @@ const UserDataSchema = {
 										"createchapter",
 										"hotKey",
 										"screenshot",
+										"audioTracks",
 										"setPersistedData",
 										"getPersistedData",
 									],
@@ -581,6 +582,14 @@ const UserDataSchema = {
 								persistedDataPlaceholder: { type: "string", maxLength: 30 },
 								persistedDataKey: { type: "string", maxLength: 100 },
 								persistedDataValue: { type: "string", maxLength: 1000 },
+								audioTracks: {
+									type: "array",
+									minItems: 0,
+									maxItems: 6,
+									items: {
+										enum: ["unchanged", "enable", "disable", "toggle"],
+									},
+								},
 								headers: {
 									type: "array",
 									minItems: 0,
