@@ -2,7 +2,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
 import * as THREE from "three";
-import { ComponentBase, Prop, Vue } from "vue-facing-decorator";
+import { onBeforeUnmount, onMounted } from "vue";
 
 /**
  * Following vars are declared here instead as class props
@@ -20,72 +20,77 @@ let renderLeftMesh!: THREE.Mesh;
 let renderRightMesh!: THREE.Mesh;
 let uvOffsetAttribute!: THREE.InstancedBufferAttribute;
 
-@ComponentBase({
-	name: "AbstractDistortion",
-})
-export default class AbstractDistortion extends Vue {
-	@Prop()
-	public params!: TwitchatDataTypes.HeatDistortionData;
+export interface IDistortItem {
+	x: number;
+	y: number;
+	scale: number;
+	frame: number;
+	alphaSpeed: number;
+	scaleSpeed: number;
+	angle: number;
+	id: string;
+}
 
-	protected items: IDistortItem[] = [];
-	private maxInstances = 1000;
-	private uvOffsets: number[] = [];
-	private shCols = 8;
-	private shRows = 8;
-	private uvScaleX = 1;
-	private uvScaleY = 1;
-	private frames = 128;
-	private offscreenMatrix: THREE.Matrix4 = new THREE.Matrix4();
-	private disposed: boolean = false;
-	private hasOverlay: boolean = false;
+export interface SpritesheetConfig {
+	cols: number;
+	rows: number;
+	uvScaleX: number;
+	uvScaleY: number;
+	frames: number;
+	texture: string;
+	overlay?: string;
+}
 
-	private clickHandler!: (e: MouseEvent) => void;
+/**
+ * Helpers exposed to a distortion's custom item factory.
+ * Mirrors what the former `super.*` calls used to provide.
+ */
+export interface DistortionContext {
+	/** Default item factory (equivalent to the former `super.buildItem`) */
+	buildItem(px?: number, py?: number): IDistortItem;
+	/** Removes an item from the render loop */
+	removeItem(item: IDistortItem): void;
+}
 
-	private heatEventHandler!: (event: { detail: TwitchatDataTypes.HeatClickData }) => void;
+interface DistortionProps {
+	params: TwitchatDataTypes.HeatDistortionData;
+}
 
-	public mounted(): void {
-		this.clickHandler = (e: MouseEvent) => this.onClick(e);
-		this.heatEventHandler = (e) => this.onHeatClick(e);
+/**
+ * Shared logic for all heat distortion overlays.
+ * Each distortion provides a factory building its own items on top of the
+ * default one, and gets back an `initialize()` to bootstrap the THREE scene.
+ */
+export function useDistortion(
+	props: DistortionProps,
+	buildItemFactory: (ctx: DistortionContext) => (px?: number, py?: number) => IDistortItem,
+) {
+	const items: IDistortItem[] = [];
+	const maxInstances = 1000;
+	const uvOffsets: number[] = [];
+	const offscreenMatrix: THREE.Matrix4 = new THREE.Matrix4();
+	let shCols = 8;
+	let shRows = 8;
+	let uvScaleX = 1;
+	let uvScaleY = 1;
+	let frames = 128;
+	let disposed = false;
+	let hasOverlay = false;
 
-		//@ts-ignore
-		window.addEventListener("heat-click", this.heatEventHandler);
-		document.body.addEventListener("click", this.clickHandler);
+	let clickHandler!: (e: MouseEvent) => void;
+	let heatEventHandler!: (event: { detail: TwitchatDataTypes.HeatClickData }) => void;
+
+	//Item factory provided by the concrete distortion, layered on top of buildItem()
+	const buildCustomItem = buildItemFactory({ buildItem, removeItem });
+
+	function onClick(e: MouseEvent): void {
+		const vec3 = screenToWorld(e.clientX, e.clientY);
+		addItem(buildCustomItem(vec3.x, vec3.y));
 	}
 
-	public beforeUnmount(): void {
-		this.disposed = true;
-
-		//@ts-ignore
-		window.removeEventListener("heat-click", this.heatEventHandler);
-		document.body.removeEventListener("click", this.clickHandler);
-
-		while (this.items.length > 0) {
-			gsap.killTweensOf(this.items[0]!, undefined, false);
-			this.removeItem(this.items[0]!);
-		}
-
-		renderer.domElement.remove();
-
-		scene.clear();
-		camera.clear();
-		instancedDistortMesh.clear();
-		if (instancedShadowMesh) {
-			instancedShadowMesh.clear();
-		}
-		renderer.setRenderTarget(null);
-		renderer.dispose();
-		renderTargetLeft.dispose();
-		renderTargetRight.dispose();
-	}
-
-	private onClick(e: MouseEvent): void {
-		const vec3 = this.screenToWorld(e.clientX, e.clientY);
-		this.addItem(this.buildItem(vec3.x, vec3.y));
-	}
-
-	protected async onHeatClick(event: { detail: TwitchatDataTypes.HeatClickData }): Promise<void> {
-		if (this.params.enabled == false) return;
-		if (event.detail.twitchatOverlayID != this.params.id) return;
+	async function onHeatClick(event: { detail: TwitchatDataTypes.HeatClickData }): Promise<void> {
+		if (props.params.enabled == false) return;
+		if (event.detail.twitchatOverlayID != props.params.id) return;
 
 		const data = event.detail;
 		const infos: TwitchatDataTypes.UserChannelInfo = {
@@ -117,32 +122,24 @@ export default class AbstractDistortion extends Vue {
 		//Stop there if user isn't allowed
 		if (
 			!event.detail.testMode &&
-			!(await Utils.checkPermissions(this.params.permissions, user, data.channelId))
+			!(await Utils.checkPermissions(props.params.permissions, user, data.channelId))
 		)
 			return;
 
-		const vec3 = this.screenToWorld(
+		const vec3 = screenToWorld(
 			(event.detail.x * window.innerWidth) / 2,
 			event.detail.y * window.innerHeight,
 		);
-		this.addItem(this.buildItem(vec3.x, vec3.y));
+		addItem(buildCustomItem(vec3.x, vec3.y));
 	}
 
-	protected async initialize(spritesheet: {
-		cols: number;
-		rows: number;
-		uvScaleX: number;
-		uvScaleY: number;
-		frames: number;
-		texture: string;
-		overlay?: string;
-	}): Promise<void> {
-		this.shCols = spritesheet.cols;
-		this.shRows = spritesheet.rows;
-		this.frames = spritesheet.frames;
-		this.uvScaleX = spritesheet.uvScaleX;
-		this.uvScaleY = spritesheet.uvScaleY;
-		this.hasOverlay = spritesheet.overlay != undefined;
+	async function initialize(spritesheet: SpritesheetConfig): Promise<void> {
+		shCols = spritesheet.cols;
+		shRows = spritesheet.rows;
+		frames = spritesheet.frames;
+		uvScaleX = spritesheet.uvScaleX;
+		uvScaleY = spritesheet.uvScaleY;
+		hasOverlay = spritesheet.overlay != undefined;
 
 		// Create a scene
 		scene = new THREE.Scene();
@@ -179,9 +176,7 @@ export default class AbstractDistortion extends Vue {
 		const backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x808000 });
 		const background = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
 		background.position.x = (-frustumSize * aspectRatio) / 4;
-		window.setTimeout(() => {
-			scene.add(background);
-		}, 10000);
+		scene.add(background);
 
 		// Set up a RenderTarget with half of the viewport width
 		renderTargetLeft = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
@@ -211,7 +206,7 @@ export default class AbstractDistortion extends Vue {
 		scene.add(renderRightMesh);
 
 		//Generate texture
-		const canvasTexture = await this.generateSpritesheet(spritesheet.texture);
+		const canvasTexture = await generateSpritesheet(spritesheet.texture);
 		const texture = new THREE.CanvasTexture(canvasTexture);
 		const geometry = new THREE.PlaneGeometry(0.5, 0.5);
 		const materialDistort = new THREE.ShaderMaterial({
@@ -226,7 +221,7 @@ export default class AbstractDistortion extends Vue {
 				varying vec2 vUv;
 
 				void main() {
-					vUv = uv * vec2(${this.uvScaleX}, ${this.uvScaleY}) + uvOffset;
+					vUv = uv * vec2(${uvScaleX}, ${uvScaleY}) + uvOffset;
 					vec4 worldPosition = instanceMatrix * vec4(position, 1.0);
 					gl_Position = projectionMatrix * modelViewMatrix * worldPosition;
 				}
@@ -241,23 +236,19 @@ export default class AbstractDistortion extends Vue {
 			`,
 		});
 
-		for (let i = 0; i < this.maxInstances; i++) {
-			this.uvOffsets.push(1 - this.uvScaleX, 1 - this.uvScaleY);
+		for (let i = 0; i < maxInstances; i++) {
+			uvOffsets.push(1 - uvScaleX, 1 - uvScaleY);
 		}
 
-		uvOffsetAttribute = new THREE.InstancedBufferAttribute(new Float32Array(this.uvOffsets), 2);
+		uvOffsetAttribute = new THREE.InstancedBufferAttribute(new Float32Array(uvOffsets), 2);
 
 		// Create an InstancedMesh for distortions
-		instancedDistortMesh = new THREE.InstancedMesh(
-			geometry,
-			materialDistort,
-			this.maxInstances,
-		);
+		instancedDistortMesh = new THREE.InstancedMesh(geometry, materialDistort, maxInstances);
 		instancedDistortMesh.count = 0;
 		instancedDistortMesh.geometry.setAttribute("uvOffset", uvOffsetAttribute);
 
-		if (this.hasOverlay) {
-			const canvasTexture2 = await this.generateSpritesheet(spritesheet.overlay!);
+		if (hasOverlay) {
+			const canvasTexture2 = await generateSpritesheet(spritesheet.overlay!);
 			const textureOverlay = new THREE.CanvasTexture(canvasTexture2);
 
 			const materialOverlay = materialDistort.clone();
@@ -271,46 +262,42 @@ export default class AbstractDistortion extends Vue {
 			materialOverlay.uniforms.texture1!.value = textureOverlay;
 
 			// Create an InstancedMesh for overlay
-			instancedShadowMesh = new THREE.InstancedMesh(
-				geometry,
-				materialOverlay,
-				this.maxInstances,
-			);
+			instancedShadowMesh = new THREE.InstancedMesh(geometry, materialOverlay, maxInstances);
 			instancedShadowMesh.count = 0;
 			instancedShadowMesh.geometry.setAttribute("uvOffset", uvOffsetAttribute);
 		}
 
-		const pos = this.screenToWorld(window.innerWidth * 10, window.innerHeight * 10);
-		this.offscreenMatrix.setPosition(pos.x, pos.y, 0);
+		const pos = screenToWorld(window.innerWidth * 10, window.innerHeight * 10);
+		offscreenMatrix.setPosition(pos.x, pos.y, 0);
 
 		// Set random positions, scales, and rotations for instances
 		// for (let i = 0; i < 10; i++) {
 		// addItem();
 		// }
-		// this.addItem(this.buildItem());
-		this.renderFrame();
+		// addItem(buildItem());
+		renderFrame();
 	}
 
-	public renderFrame(): void {
-		if (this.disposed) return;
+	function renderFrame(): void {
+		if (disposed) return;
 
 		const rotationMatrix = new THREE.Matrix4();
-		requestAnimationFrame(() => this.renderFrame());
+		requestAnimationFrame(() => renderFrame());
 
-		const offsetUvY = 1 - this.uvScaleY * this.shRows;
-		// let screenW = this.screenToWorld(window.innerWidth,0).x;
+		const offsetUvY = 1 - uvScaleY * shRows;
+		// let screenW = screenToWorld(window.innerWidth,0).x;
 
-		for (let i = 0; i < this.items.length; i++) {
-			const item = this.items[i]!;
-			if (!this.computeItem(item)) {
-				this.removeItem(item);
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i]!;
+			if (!computeItem(item)) {
+				removeItem(item);
 				i--;
 				continue;
 			}
 			// item.angle += Math.PI/200;
 			rotationMatrix.makeRotationZ(item.angle);
 
-			const frame = Math.max(0, Math.min(this.frames - 1, Math.floor(item.frame)));
+			const frame = Math.max(0, Math.min(frames - 1, Math.floor(item.frame)));
 			if (frame <= 0 && item.alphaSpeed < 0) {
 				item.alphaSpeed = -item.alphaSpeed * 0.5;
 			}
@@ -322,12 +309,12 @@ export default class AbstractDistortion extends Vue {
 			matrix.scale(new THREE.Vector3(item.scale, item.scale, 1));
 			instancedDistortMesh.geometry.attributes.uvOffset!.setXY(
 				i,
-				(frame % this.shCols) * this.uvScaleX,
-				1 - offsetUvY - this.uvScaleY - Math.floor(frame / this.shCols) * this.uvScaleY,
+				(frame % shCols) * uvScaleX,
+				1 - offsetUvY - uvScaleY - Math.floor(frame / shCols) * uvScaleY,
 			);
 
 			instancedDistortMesh.setMatrixAt(i, matrix);
-			if (this.hasOverlay) {
+			if (hasOverlay) {
 				const matrix2 = new THREE.Matrix4();
 				instancedShadowMesh.getMatrixAt(i, matrix2);
 				// matrix2.makeTranslation(item.x + screenW, item.y, 0);
@@ -336,8 +323,8 @@ export default class AbstractDistortion extends Vue {
 				// frame = Math.round(frame/2);
 				instancedShadowMesh.geometry.attributes.uvOffset!.setXY(
 					i,
-					(frame % this.shCols) * this.uvScaleX,
-					1 - offsetUvY - this.uvScaleY - Math.floor(frame / this.shCols) * this.uvScaleY,
+					(frame % shCols) * uvScaleX,
+					1 - offsetUvY - uvScaleY - Math.floor(frame / shCols) * uvScaleY,
 				);
 				instancedShadowMesh.setMatrixAt(i, matrix2);
 			}
@@ -345,7 +332,7 @@ export default class AbstractDistortion extends Vue {
 
 		instancedDistortMesh.instanceMatrix.needsUpdate = true;
 		instancedDistortMesh.geometry.attributes.uvOffset!.needsUpdate = true;
-		if (this.hasOverlay) {
+		if (hasOverlay) {
 			instancedShadowMesh.instanceMatrix.needsUpdate = true;
 			instancedShadowMesh.geometry.attributes.uvOffset!.needsUpdate = true;
 		}
@@ -353,7 +340,7 @@ export default class AbstractDistortion extends Vue {
 		// Render the scene
 		renderer.setRenderTarget(renderTargetLeft);
 		renderer.render(instancedDistortMesh, camera);
-		if (this.hasOverlay) {
+		if (hasOverlay) {
 			renderer.setRenderTarget(renderTargetRight);
 			renderer.render(instancedShadowMesh, camera);
 		}
@@ -361,20 +348,20 @@ export default class AbstractDistortion extends Vue {
 		renderer.render(scene, camera);
 	}
 
-	protected computeItem(item: IDistortItem): boolean {
+	function computeItem(item: IDistortItem): boolean {
 		item.scaleSpeed *= 0.995;
 		item.scale += item.scaleSpeed;
 		item.frame += item.alphaSpeed;
-		return !(item.frame >= this.shCols * this.shRows - 1 && item.alphaSpeed > 0);
+		return !(item.frame >= shCols * shRows - 1 && item.alphaSpeed > 0);
 	}
 
-	protected buildItem(px?: number, py?: number): IDistortItem {
-		const vec3 = this.screenToWorld(window.innerWidth, window.innerHeight);
+	function buildItem(px?: number, py?: number): IDistortItem {
+		const vec3 = screenToWorld(window.innerWidth, window.innerHeight);
 		return {
 			x: px ?? Math.random() * vec3.x - vec3.x / 2,
 			y: py ?? Math.random() * vec3.y - vec3.y / 2,
 			scale: 0,
-			frame: this.frames,
+			frame: frames,
 			alphaSpeed: -(Math.random() * 0.5) - 1,
 			scaleSpeed: Math.random() * 0.05 + 0.05,
 			// scaleSpeed:Math.random() * 0.05 + .01,
@@ -383,34 +370,34 @@ export default class AbstractDistortion extends Vue {
 		};
 	}
 
-	protected removeItem(data: IDistortItem): void {
-		const index = this.items.findIndex((v) => v.id == data.id);
+	function removeItem(data: IDistortItem): void {
+		const index = items.findIndex((v) => v.id == data.id);
 		if (index == -1) return;
 
-		instancedDistortMesh.setMatrixAt(index, this.offscreenMatrix);
+		instancedDistortMesh.setMatrixAt(index, offscreenMatrix);
 		instancedDistortMesh.count--;
-		if (this.hasOverlay) {
-			instancedShadowMesh.setMatrixAt(index, this.offscreenMatrix);
+		if (hasOverlay) {
+			instancedShadowMesh.setMatrixAt(index, offscreenMatrix);
 			instancedShadowMesh.count--;
 		}
-		this.items.splice(index, 1);
+		items.splice(index, 1);
 	}
 
-	protected addItem(data: IDistortItem): number {
-		const index = this.items.length;
+	function addItem(data: IDistortItem): number {
+		const index = items.length;
 		instancedDistortMesh.count++;
 		instancedDistortMesh.geometry.attributes.uvOffset!.setXY(index, 0, 0);
 		instancedDistortMesh.setMatrixAt(index, new THREE.Matrix4());
-		if (this.hasOverlay) {
+		if (hasOverlay) {
 			instancedShadowMesh.count++;
 			instancedShadowMesh.geometry.attributes.uvOffset!.setXY(index, 0, 0);
 			instancedShadowMesh.setMatrixAt(index, new THREE.Matrix4());
 		}
-		this.items.push(data);
+		items.push(data);
 		return index;
 	}
 
-	protected screenToWorld(px: number, py: number): THREE.Vector3 {
+	function screenToWorld(px: number, py: number): THREE.Vector3 {
 		return new THREE.Vector3(
 			(px / window.innerWidth) * 2 * 2 - 1,
 			-(py / window.innerHeight) * 2 + 1,
@@ -421,7 +408,7 @@ export default class AbstractDistortion extends Vue {
 	/**
 	 * Generates a spritesheet of an image with 128 levels of opacity
 	 */
-	private async generateSpritesheet(imagePath: string): Promise<HTMLCanvasElement> {
+	async function generateSpritesheet(imagePath: string): Promise<HTMLCanvasElement> {
 		const image = new Image();
 		image.src = imagePath;
 		try {
@@ -465,15 +452,42 @@ export default class AbstractDistortion extends Vue {
 		// document.body.appendChild(canvas);
 		return canvas;
 	}
+
+	onMounted(() => {
+		clickHandler = (e: MouseEvent) => onClick(e);
+		heatEventHandler = (e) => onHeatClick(e);
+
+		//@ts-ignore
+		window.addEventListener("heat-click", heatEventHandler);
+		document.body.addEventListener("click", clickHandler);
+	});
+
+	onBeforeUnmount(() => {
+		disposed = true;
+
+		//@ts-ignore
+		window.removeEventListener("heat-click", heatEventHandler);
+		document.body.removeEventListener("click", clickHandler);
+
+		while (items.length > 0) {
+			gsap.killTweensOf(items[0]!, undefined, false);
+			removeItem(items[0]!);
+		}
+
+		renderer.domElement.remove();
+
+		scene.clear();
+		camera.clear();
+		instancedDistortMesh.clear();
+		if (instancedShadowMesh) {
+			instancedShadowMesh.clear();
+		}
+		renderer.setRenderTarget(null);
+		renderer.dispose();
+		renderTargetLeft.dispose();
+		renderTargetRight.dispose();
+	});
+
+	return { initialize };
 }
 
-export interface IDistortItem {
-	x: number;
-	y: number;
-	scale: number;
-	frame: number;
-	alphaSpeed: number;
-	scaleSpeed: number;
-	angle: number;
-	id: string;
-}

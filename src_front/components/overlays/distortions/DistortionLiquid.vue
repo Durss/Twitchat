@@ -2,36 +2,21 @@
 	<div class="distortionliquid"></div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ripples from "@/assets/img/distortions/ripples.png";
 import ripplesShadow from "@/assets/img/distortions/ripples_shadow.png";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractDistortion, { type IDistortItem } from "./AbstractDistortion";
 import { gsap } from "gsap/gsap-core";
+import { onMounted } from "vue";
+import { useDistortion, type IDistortItem } from "./useDistortion";
 
-@Component({
-	components: {},
-	emits: [],
-})
-class DistortionLiquid extends AbstractDistortion {
-	@Prop()
-	declare params: TwitchatDataTypes.HeatDistortionData;
+const props = defineProps<{
+	params: TwitchatDataTypes.HeatDistortionData;
+}>();
 
-	public mounted(): void {
-		super.initialize({
-			cols: 16,
-			rows: 8,
-			uvScaleX: 256 / 4096,
-			uvScaleY: 256 / 2048,
-			frames: 128,
-			texture: ripples,
-			overlay: ripplesShadow,
-		});
-	}
-
-	protected buildItem(px?: number, py?: number): IDistortItem {
-		const item = super.buildItem(px, py);
+const { initialize } = useDistortion(props, ({ buildItem, removeItem }) => {
+	return (px?: number, py?: number): IDistortItem => {
+		const item = buildItem(px, py);
 		if (px != undefined) item.x = px;
 		if (py != undefined) item.y = py;
 		item.alphaSpeed = 0;
@@ -46,13 +31,24 @@ class DistortionLiquid extends AbstractDistortion {
 			ease: "none",
 			duration: Math.max(1, scale * 0.25),
 			onComplete: () => {
-				this.removeItem(item);
+				removeItem(item);
 			},
 		});
 		return item;
-	}
-}
-export default toNative(DistortionLiquid);
+	};
+});
+
+onMounted(() => {
+	initialize({
+		cols: 16,
+		rows: 8,
+		uvScaleX: 256 / 4096,
+		uvScaleY: 256 / 2048,
+		frames: 128,
+		texture: ripples,
+		overlay: ripplesShadow,
+	});
+});
 </script>
 
 <style scoped lang="less">

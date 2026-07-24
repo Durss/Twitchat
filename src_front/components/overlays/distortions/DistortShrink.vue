@@ -2,35 +2,20 @@
 	<div class="distortshrink"></div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import bubbles from "@/assets/img/distortions/bubble.png";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractDistortion, { type IDistortItem } from "./AbstractDistortion";
-import { gsap } from "gsap/gsap-core";
-import { Elastic } from "gsap/gsap-core";
+import { gsap, Elastic } from "gsap/gsap-core";
+import { onMounted } from "vue";
+import { useDistortion, type IDistortItem } from "./useDistortion";
 
-@Component({
-	components: {},
-	emits: [],
-})
-class DistortShrink extends AbstractDistortion {
-	@Prop()
-	declare params: TwitchatDataTypes.HeatDistortionData;
+const props = defineProps<{
+	params: TwitchatDataTypes.HeatDistortionData;
+}>();
 
-	public mounted(): void {
-		super.initialize({
-			cols: 16,
-			rows: 8,
-			uvScaleX: 256 / 4096,
-			uvScaleY: 256 / 2048,
-			frames: 128,
-			texture: bubbles,
-		});
-	}
-
-	protected buildItem(px?: number, py?: number): IDistortItem {
-		const item = super.buildItem(px, py);
+const { initialize } = useDistortion(props, ({ buildItem, removeItem }) => {
+	return (px?: number, py?: number): IDistortItem => {
+		const item = buildItem(px, py);
 		item.alphaSpeed = 0;
 		item.frame = Math.round(Math.random() * 50);
 		item.scale = 0.001;
@@ -50,13 +35,23 @@ class DistortShrink extends AbstractDistortion {
 			delay: 5,
 			immediateRender: false,
 			onComplete: () => {
-				this.removeItem(item);
+				removeItem(item);
 			},
 		});
 		return item;
-	}
-}
-export default toNative(DistortShrink);
+	};
+});
+
+onMounted(() => {
+	initialize({
+		cols: 16,
+		rows: 8,
+		uvScaleX: 256 / 4096,
+		uvScaleY: 256 / 2048,
+		frames: 128,
+		texture: bubbles,
+	});
+});
 </script>
 
 <style scoped lang="less">
