@@ -276,6 +276,18 @@
 			</template>
 		</template>
 
+		<template v-else-if="action.obsAction === 'audioTracks'">
+			<ParamItem :paramData="param_audio_source_conf" v-model="selectedSourceName" />
+			<template v-if="selectedSourceName && action.audioTracks">
+				<ParamItem
+					v-for="(conf, index) in param_audioTracks_conf"
+					:key="index"
+					:paramData="conf"
+					v-model="action.audioTracks[index]"
+				/>
+			</template>
+		</template>
+
 		<template
 			v-if="
 				action.obsAction === 'setPersistedData' || action.obsAction === 'getPersistedData'
@@ -305,6 +317,7 @@ import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlac
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import {
 	type ITriggerPlaceholder,
+	type TriggerActionObsAudioTrackState,
 	type TriggerActionObsData,
 	type TriggerActionObsDataAction,
 	type TriggerActionObsSourceDataAction,
@@ -357,7 +370,19 @@ const param_sourceAction_conf = ref<
 	icon: "show",
 	labelKey: "triggers.actions.obs.param_sourceAction",
 });
-const param_source_conf = ref<TwitchatDataTypes.ParameterData<string, string, string>>({
+const param_source_conf = ref<
+	TwitchatDataTypes.ParameterData<string, string, string, any, unknown, SourceItem>
+>({
+	type: "list",
+	value: "",
+	listValues: [],
+	icon: "list",
+	children: [],
+	labelKey: "triggers.actions.obs.param_source",
+});
+const param_audio_source_conf = ref<
+	TwitchatDataTypes.ParameterData<string, string, string, any, unknown, SourceItem>
+>({
 	type: "list",
 	value: "",
 	listValues: [],
@@ -592,8 +617,13 @@ const param_colorAlpha_conf = ref<TwitchatDataTypes.ParameterData<number>>({
 	max: 100,
 	labelKey: "triggers.actions.obs.param_colorAlpha_conf",
 });
+const param_audioTracks_conf = ref<
+	TwitchatDataTypes.ParameterData<
+		TriggerActionObsAudioTrackState,
+		TriggerActionObsAudioTrackState
+	>[]
+>([]);
 
-const colorMode = ref<boolean>(false);
 const selectedSourceName = ref<string>("");
 const filters = ref<OBSFilter[]>([]);
 
@@ -720,7 +750,7 @@ const isInvalidScreenFilePath = computed<boolean>(() => {
  */
 const isMediaSource = computed<boolean>(() => {
 	let sourceName = param_source_conf.value.selectedListValue
-		? (param_source_conf.value.selectedListValue as SourceItem).name
+		? param_source_conf.value.selectedListValue.name
 		: "";
 	const inputKind = props.obsSources.find((v) => v.sourceName == sourceName)?.inputKind;
 	param_media_conf.value.labelKey = "triggers.actions.obs.param_media";
@@ -736,7 +766,7 @@ const isMediaSource = computed<boolean>(() => {
  */
 const isSlideshowSource = computed<boolean>(() => {
 	let sourceName = param_source_conf.value.selectedListValue
-		? (param_source_conf.value.selectedListValue as SourceItem).name
+		? param_source_conf.value.selectedListValue.name
 		: "";
 	const inputKind = props.obsSources.find((v) => v.sourceName == sourceName)?.inputKind;
 	return inputKind == "slideshow";
@@ -767,6 +797,14 @@ function changeColorToggle(): void {
  * Called when selecting a new action and on init
  */
 function onActionChange(): void {
+	if (props.action.obsAction == "audioTracks") {
+		if (!Array.isArray(props.action.audioTracks) || props.action.audioTracks.length != 6) {
+			props.action.audioTracks = Array.from(
+				{ length: 6 },
+				(): TriggerActionObsAudioTrackState => "unchanged",
+			);
+		}
+	}
 	if (props.action.obsAction == "hotKey") {
 		OBSWebSocket.instance.getHotkeys().then((list) => {
 			const disallowList = ["libobs", "ObsBrowser", "MediaSource"];
@@ -817,7 +855,7 @@ async function prefillForm(cleanData: boolean = true): Promise<void> {
 	//If any is defined there they'll be listed in the inputs
 	let inputs = JSON.parse(JSON.stringify(props.obsInputs)) as OBSInputItem[];
 	//Dedupe entries as inputs are mostly sources
-	const knownNames = list.flatMap((entry) => (entry.group as SourceItem[]) ?? [entry]);
+	const knownNames = list.flatMap((entry) => entry.group ?? [entry]);
 	inputs = inputs.filter((v) => {
 		if (knownNames.find((w) => w.name.toLowerCase() == v.inputName.toLowerCase())) return false;
 		return true;
@@ -862,6 +900,10 @@ async function prefillForm(cleanData: boolean = true): Promise<void> {
 
 	param_source_conf.value.listValues = list;
 
+	param_audio_source_conf.value.listValues = list.filter(
+		(v) => v.type == "source" || v.type == "input",
+	);
+
 	await onSourceChanged(true, cleanData);
 }
 
@@ -902,7 +944,11 @@ async function onSourceChanged(
 			list.push({ label: props.action.filterName, value: props.action.filterName });
 		}
 		param_filter_conf.value.value = props.action.filterName || list[0]!.value;
-		if (list.length > 1 && props.action.obsAction != "screenshot") {
+		if (
+			list.length > 1 &&
+			props.action.obsAction != "screenshot" &&
+			props.action.obsAction != "audioTracks"
+		) {
 			param_filter_conf.value.listValues = list;
 			param_source_conf.value.children = [param_filter_conf.value];
 		} else {
@@ -939,7 +985,7 @@ function updateFilter(cleanData: boolean = true): void {
  */
 function updateActionsList(): void {
 	const values: TwitchatDataTypes.ParameterDataListValue<TriggerActionObsSourceDataAction>[] = [];
-	const selectedItem = param_source_conf.value.selectedListValue as SourceItem | undefined;
+	const selectedItem = param_source_conf.value.selectedListValue;
 
 	if (param_filter_conf.value.value == "") {
 		if (selectedItem && selectedItem.type != "scene") {
@@ -1075,6 +1121,10 @@ async function cleanupData(): Promise<void> {
 	if (props.action.obsAction != "hotKey") {
 		delete props.action.hotKeyAction;
 	}
+
+	if (props.action.obsAction != "audioTracks") {
+		delete props.action.audioTracks;
+	}
 }
 
 onBeforeMount(() => {
@@ -1107,6 +1157,31 @@ onMounted(async () => {
 	}
 	param_transformEasing_conf.value.listValues = easingList;
 
+	//Build the 6 audio track state selectors
+	const audioTrackStates: TwitchatDataTypes.ParameterDataListValue<TriggerActionObsAudioTrackState>[] =
+		[
+			{ labelKey: "triggers.actions.obs.param_audioTrack_unchanged", value: "unchanged" },
+			{ labelKey: "triggers.actions.obs.param_audioTrack_enable", value: "enable" },
+			{ labelKey: "triggers.actions.obs.param_audioTrack_disable", value: "disable" },
+			{ labelKey: "triggers.actions.obs.param_audioTrack_toggle", value: "toggle" },
+		];
+	param_audioTracks_conf.value = Array.from(
+		{ length: 6 },
+		(
+			_,
+			i,
+		): TwitchatDataTypes.ParameterData<
+			TriggerActionObsAudioTrackState,
+			TriggerActionObsAudioTrackState
+		> => ({
+			type: "list",
+			value: "unchanged",
+			listValues: audioTrackStates,
+			icon: "microphone",
+			label: t("triggers.actions.obs.param_audioTrack", { INDEX: i + 1 }),
+		}),
+	);
+
 	// this.transformEasing_conf.editCallback = (param) => this.action.animateEasing = param.value;
 	// this.transformDuration_conf.editCallback = (param) => this.action.animateDuration = param.value;
 	// this.transformEasing_conf.value = this.action.animateEasing ?? "sine.out";
@@ -1115,10 +1190,8 @@ onMounted(async () => {
 	//Prefill forms
 	await prefillForm(false);
 
-	const list = param_source_conf.value.listValues as SourceItem[];
-	const allItems: SourceItem[] = list.flatMap(
-		(entry) => (entry.group as SourceItem[]) ?? [entry],
-	);
+	const list = param_source_conf.value.listValues ?? [];
+	const allItems: SourceItem[] = list.flatMap((entry) => entry.group ?? [entry]);
 	//If entry does not exist on the available items, push a fake
 	//item to avoid losing it
 	if (sourceNameBackup && !allItems.find((v) => v.name == sourceNameBackup)) {
@@ -1131,7 +1204,7 @@ onMounted(async () => {
 		};
 		const sourcesGroup = list.find((v) => v.value == "__sources__");
 		if (sourcesGroup?.group) {
-			(sourcesGroup.group as SourceItem[]).push(fake);
+			sourcesGroup.group.push(fake);
 		} else {
 			list.push({
 				labelKey: "triggers.actions.obs.param_source_splitter_sources",
@@ -1214,6 +1287,10 @@ onMounted(async () => {
 		value: "screenshot",
 	});
 	actionList.push({
+		labelKey: "triggers.actions.obs.param_obs_action_audiotracks",
+		value: "audioTracks",
+	});
+	actionList.push({
 		labelKey: "triggers.actions.obs.param_obs_action_getPersistedData",
 		value: "getPersistedData",
 	});
@@ -1265,10 +1342,12 @@ onMounted(async () => {
 	watch(
 		() => selectedSourceName.value,
 		() => {
-			if (param_source_conf.value.selectedListValue) {
-				props.action.sourceName = (
-					param_source_conf.value.selectedListValue as SourceItem
-				).name;
+			const target =
+				props.action.obsAction === "audioTracks"
+					? param_audio_source_conf
+					: param_source_conf;
+			if (target.value.selectedListValue) {
+				props.action.sourceName = target.value.selectedListValue.name;
 			} else {
 				props.action.sourceName = "";
 			}
@@ -1280,6 +1359,7 @@ onMounted(async () => {
 interface SourceItem extends TwitchatDataTypes.ParameterDataListValue<string> {
 	type: "scene" | "source" | "input";
 	name: string;
+	group?: SourceItem[];
 }
 </script>
 

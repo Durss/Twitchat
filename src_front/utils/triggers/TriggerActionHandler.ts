@@ -4031,6 +4031,59 @@ export default class TriggerActionHandler {
 								}
 							}
 						}
+					} else if (step.obsAction == "audioTracks") {
+						if (!sourceName) {
+							logStep.messages.push({
+								date: Date.now(),
+								value: "❌ Cannot update audio tracks, source name is missing.",
+							});
+							log.error = true;
+							logStep.error = true;
+						} else {
+							const states = step.audioTracks || [];
+							const inputAudioTracks: { [key: string]: boolean } = {};
+							//"toggle" needs the current state to flip the bits
+							let currentTracks: { [key: string]: boolean } = {};
+							if (states.some((s) => s === "toggle")) {
+								const res = await OBSWebSocket.instance.socket.call(
+									"GetInputAudioTracks",
+									{ inputName: sourceName },
+								);
+								currentTracks = (res.inputAudioTracks || {}) as {
+									[key: string]: boolean;
+								};
+							}
+							states.forEach((state, index) => {
+								//OBS track keys are 1-indexed ("1" … "6")
+								const trackKey = (index + 1).toString();
+								if (state === "enable") {
+									inputAudioTracks[trackKey] = true;
+								} else if (state === "disable") {
+									inputAudioTracks[trackKey] = false;
+								} else if (state === "toggle") {
+									inputAudioTracks[trackKey] = !currentTracks[trackKey];
+								}
+							});
+							if (Object.keys(inputAudioTracks).length > 0) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'Update audio tracks of "' +
+										sourceName +
+										'": ' +
+										JSON.stringify(inputAudioTracks),
+								});
+								await OBSWebSocket.instance.socket.call("SetInputAudioTracks", {
+									inputName: sourceName,
+									inputAudioTracks,
+								});
+							} else {
+								logStep.messages.push({
+									date: Date.now(),
+									value: "No audio track change requested.",
+								});
+							}
+						}
 					} else if (step.obsAction == "getPersistedData") {
 						logStep.messages.push({
 							date: Date.now(),

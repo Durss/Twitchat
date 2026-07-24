@@ -3,7 +3,7 @@
 		:is="tag"
 		ref="elementRef"
 		class="editableField"
-		:style="{ '--placeholder': isEmpty ? '\'' + placeholder + '\'' : undefined }"
+		:style="{ '--placeholder': isEmpty && placeholder ? '\'' + placeholder + '\'' : undefined }"
 		:contenteditable="computedContentEditableValue"
 		@input="update(false)"
 		@blur="onBlur"
@@ -258,11 +258,14 @@ defineExpose({
 	display: block;
 	&::after {
 		content: var(--placeholder);
-		display: inline;
-		width: 100px;
+		display: inline-block;
+		// width: 100px;
 		font-style: italic;
-		top: 0;
+		// top: 0;
 		pointer-events: none;
+		font-style: italic;
+		opacity: 0.5;
+		text-transform: initial;
 	}
 }
 </style>

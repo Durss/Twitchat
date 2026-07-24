@@ -2,20 +2,18 @@
 	<div class="placeholderfield" @click.stop="focusInput">
 		<span>{</span>
 		<span class="prefix" v-if="prefix">{{ prefix }}</span>
-		<p :class="{ inputHolder: true, empty: modelValue.length === 0 }">
-			<span class="placeholder" v-if="modelValue.length === 0">{{ placeholder }}</span>
-			<ContentEditable
-				tag="span"
-				ref="input"
-				:class="{ input: true }"
-				:contenteditable="true"
-				:no-nl="true"
-				:no-html="true"
-				v-model="localValue"
-				@input="limitPlaceholderSize()"
-				@blur="$emit('blur')"
-			/>
-		</p>
+		<ContentEditable
+			tag="p"
+			ref="input"
+			:class="{ inputHolder: true, empty: modelValue.length === 0 }"
+			:contenteditable="true"
+			:no-nl="true"
+			:placeholder="placeholder"
+			:no-html="true"
+			v-model="localValue"
+			@input="limitPlaceholderSize()"
+			@blur="$emit('blur')"
+		/>
 		<span>}</span>
 	</div>
 </template>
@@ -116,22 +114,10 @@ onMounted(() => {
 			position: relative;
 			display: block;
 			.input {
-				position: absolute;
 				left: 50%;
 				transform: translate(-50%);
 			}
 		}
-		.placeholder {
-			font-style: italic;
-			opacity: 0.5;
-			text-transform: initial;
-		}
-	}
-	.input {
-		margin: 0 0.25em;
-		min-width: 1em;
-		text-align: center;
-		cursor: text;
 	}
 	.prefix {
 		opacity: 0.7;

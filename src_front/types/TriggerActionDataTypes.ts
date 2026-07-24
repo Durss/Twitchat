@@ -558,8 +558,10 @@ export type TriggerActionObsDataAction =
 	| "createchapter"
 	| "hotKey"
 	| "screenshot"
+	| "audioTracks"
 	| "getPersistedData"
 	| "setPersistedData";
+export type TriggerActionObsAudioTrackState = "unchanged" | "enable" | "disable" | "toggle";
 export type TriggerActionObsSourceDataAction =
 	| "show"
 	| "hide"
@@ -738,6 +740,13 @@ export interface TriggerActionObsData extends TriggerActionData {
 	 * Placeholder to save the persisted data to
 	 */
 	persistedDataPlaceholder?: string;
+	/**
+	 * Per-track state for the "audioTracks" action.
+	 * OBS exposes 6 audio tracks per input.
+	 * Index 0 = track 1 … index 5 = track 6.
+	 * Only tracks not set to "unchanged" are sent to OBS.
+	 */
+	audioTracks?: TriggerActionObsAudioTrackState[];
 }
 
 export interface TriggerActionChatData extends TriggerActionData {

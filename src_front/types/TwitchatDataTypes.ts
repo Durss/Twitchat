@@ -695,6 +695,10 @@ export namespace TwitchatDataTypes {
 		ChildValueType = unknown,
 		StorageType = any,
 		ListStorageType = unknown,
+		ListValueType extends ParameterDataListValue<
+			ListType,
+			ListStorageType
+		> = ParameterDataListValue<ListType, ListStorageType>,
 	> {
 		id?: number;
 		/**
@@ -726,11 +730,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?: TwitchatDataTypes.ParameterDataListValue<ListType, ListStorageType>[];
+		listValues?: ListValueType[];
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?: ParameterDataListValue<ListType, ListStorageType>;
+		selectedListValue?: ListValueType;
 		/**
 		 * List values for the "editablelist" type
 		 */
