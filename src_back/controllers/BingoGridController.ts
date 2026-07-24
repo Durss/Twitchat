@@ -1749,6 +1749,22 @@ export default class BingoGridController extends AbstractController {
 		}
 	}
 	/**
+	 * Applies a set of {cellId: checked} states onto a grid's entries (both main
+	 * and additional). Shared by every cache layer that has to mirror a tick.
+	 */
+	private applyStates(grid: IGrid, states: { [cellId: string]: boolean }): void {
+		for (const cellId in states) {
+			const state = states[cellId]!;
+			let entry = grid.entries.find((v) => v.id === cellId);
+			if (entry) entry.check = state;
+			if (grid.additionalEntries) {
+				entry = grid.additionalEntries.find((v) => v.id === cellId);
+				if (entry) entry.check = state;
+			}
+		}
+	}
+
+	/**
 	 * Updates the tick states of the given grid's cells
 	 * @param streamerId
 	 * @param gridId
@@ -1760,76 +1776,70 @@ export default class BingoGridController extends AbstractController {
 		states: { [cellId: string]: boolean },
 	): Promise<void> {
 		const cache = await this.getChannelGrids(streamerId, gridId);
-		if (cache) {
-			const grid = cache.data.find((v) => v.id == gridId);
-			if (!grid) {
-				throw new Error("Grid not found");
-			}
-			// Update cache
-			for (const cellId in states) {
-				const state = states[cellId]!;
-				let entry = grid.entries.find((v) => v.id === cellId);
-				if (entry) entry.check = state;
-				if (grid.additionalEntries) {
-					entry = grid.additionalEntries.find((v) => v.id === cellId);
-					if (entry) entry.check = state;
-				}
-			}
+		if (!cache) return;
 
-			// Update viewers caches
-			const folder = Config.BINGO_GRID_ROOT(streamerId, gridId);
-			let files: string[];
-			try {
-				files = await fs.promises.readdir(folder);
-			} catch {
-				return; // Folder doesn't exist, nothing to update
-			}
+		const grid = cache.data.find((v) => v.id == gridId);
+		if (!grid) {
+			throw new Error("Grid not found");
+		}
+		// Update the per-grid channel cache (channelId/gridId key)
+		this.applyStates(grid, states);
 
-			await Promise.all(
-				files.map(async (file) => {
-					const viewerId = file.split(".")[0]!;
+		// Update local cache right away. This makes sure that a user requesting
+		// for a grid mid-game gets a fresh one
+		const allGrids = this.channelGridsCache.get(this.getChannelGridCacheKey(streamerId));
+		if (allGrids) {
+			const allGrid = allGrids.data.find((v) => v.id == gridId);
+			if (allGrid) this.applyStates(allGrid, states);
+		}
 
-					// Try memory cache first
-					let viewerCache = await this.getViewerGrid(streamerId, gridId, viewerId);
-					if (!viewerCache) {
-						// Fallback to disk
-						try {
-							const content = await Utils.readFileAsync(folder + "/" + file, "utf-8");
-							viewerCache = JSON.parse(content) as IViewerGridCacheData;
-						} catch {
-							return; // Skip unreadable files
-						}
-					}
+		// List all viewers with a grid saved on disk
+		const folder = Config.BINGO_GRID_ROOT(streamerId, gridId);
+		let files: string[] = [];
+		try {
+			files = await fs.promises.readdir(folder);
+		} catch {
+			// Folder may not exist yet; in-memory cards are still handled below.
+		}
 
-					viewerCache.date = Date.now();
-					const grid = viewerCache.data;
-					for (const cellId in states) {
-						const state = states[cellId]!;
-						let entry = grid.entries.find((v) => v.id === cellId);
-						if (entry) entry.check = state;
-						if (grid.additionalEntries) {
-							entry = grid.additionalEntries.find((v) => v.id === cellId);
-							if (entry) entry.check = state;
-						}
-					}
-					this.saveViewerGrid(streamerId, gridId, viewerId, viewerCache);
-				}),
-			);
-			try {
-				void this.extensionController.notifyStateUpdate(streamerId);
-			} catch (_error) {
-				// ignore
-			}
-			// Refresh the extension viewers of every streamer this grid is shared
-			// with so they see the master tick (their cards live in the owner pool).
-			const shareSet = this.sharePushTargets.get(this.getShareKey(streamerId, gridId));
-			if (shareSet) {
-				for (const receiverId of shareSet) {
-					try {
-						void this.extensionController.notifyStateUpdate(receiverId);
-					} catch (_error) {
-						// ignore
-					}
+		const viewerIds = new Set<string>();
+		for (const file of files) {
+			const viewerId = file.split(".")[0];
+			if (viewerId) viewerIds.add(viewerId);
+		}
+
+		// Extract all viewers that have LRU cached grids which may not yet
+		// be saved on disk and merge them with IDs found on disk.
+		const memPrefix = `${streamerId}/${gridId}/`;
+		for (const key of this.dirtyViewerGrids) {
+			if (key.startsWith(memPrefix)) viewerIds.add(key.substring(memPrefix.length));
+		}
+
+		await Promise.all(
+			[...viewerIds].map(async (viewerId) => {
+				// getViewerGrid checks the memory cache first, then disk.
+				const viewerCache = await this.getViewerGrid(streamerId, gridId, viewerId);
+				if (!viewerCache) return; // Nothing to update
+				viewerCache.date = Date.now();
+				this.applyStates(viewerCache.data, states);
+				this.saveViewerGrid(streamerId, gridId, viewerId, viewerCache);
+			}),
+		);
+
+		try {
+			void this.extensionController.notifyStateUpdate(streamerId);
+		} catch (_error) {
+			// ignore
+		}
+		// Refresh the extension viewers of every streamer this grid is shared
+		// with so they see the master tick (their cards live in the owner pool).
+		const shareSet = this.sharePushTargets.get(this.getShareKey(streamerId, gridId));
+		if (shareSet) {
+			for (const receiverId of shareSet) {
+				try {
+					void this.extensionController.notifyStateUpdate(receiverId);
+				} catch (_error) {
+					// ignore
 				}
 			}
 		}
