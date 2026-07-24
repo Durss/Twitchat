@@ -26,6 +26,9 @@
 					{{ t("global.no_result") }}
 				</div>
 				<div v-else v-for="(m, index) in messages" :key="m.message.id" class="messageItem">
+					<div class="votes" v-if="m.votes > 1" v-tooltip="t('qna.list.votes_tt')">
+						<Icon name="reply" />x<strong>{{ m.votes }}</strong>
+					</div>
 					<MessageItem
 						class="message"
 						:messageData="buildFakeMessage(m)"
@@ -98,6 +101,7 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import ClearButton from "../ClearButton.vue";
 import TTButton from "../TTButton.vue";
 import MessageItem from "../messages/MessageItem.vue";
+import Icon from "../Icon.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -292,6 +296,23 @@ function buildFakeMessage(
 				width: fit-content;
 				min-width: fit-content;
 				align-self: flex-start;
+			}
+
+			.votes {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				padding: 4px;
+				border-radius: var(--border-radius);
+				background-color: var(--color-secondary);
+				font-size: 12px;
+				flex-shrink: 0;
+
+				.icon {
+					height: 0.8em;
+					flex-shrink: 0;
+					margin-right: 2px;
+				}
 			}
 		}
 	}
