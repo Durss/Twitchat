@@ -9470,7 +9470,7 @@ export default class TriggerActionHandler {
 	 */
 	private async checkLiveFollowings(notify: boolean = true): Promise<boolean> {
 		//User requested not to be alerted, stop there
-		if (StoreProxy.params.features.liveAlerts.value !== true) return false;
+		const postMessage = StoreProxy.params.features.liveAlerts.value === true;
 		if (!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return false;
 
 		try {
@@ -9530,7 +9530,11 @@ export default class TriggerActionHandler {
 						};
 						this.liveChannelCache[uid]!.viewers = 0;
 						this.liveChannelCache[uid]!.live = false;
-						await StoreProxy.chat.addMessage(message);
+						if (postMessage) {
+							await StoreProxy.chat.addMessage(message);
+						} else {
+							await TriggerActionHandler.instance.execute(message);
+						}
 						dateOffset++;
 					}
 				}
@@ -9547,7 +9551,11 @@ export default class TriggerActionHandler {
 							info: liveChannels[uid]!,
 							channel_id,
 						};
-						await StoreProxy.chat.addMessage(message);
+						if (postMessage) {
+							await StoreProxy.chat.addMessage(message);
+						} else {
+							await TriggerActionHandler.instance.execute(message);
+						}
 						dateOffset++;
 					}
 				}
