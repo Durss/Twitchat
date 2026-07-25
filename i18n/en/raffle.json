@@ -21,6 +21,13 @@
 			"description": "Let users enter raffle by making a donation",
 			"minAmount_suffix": "min"
 		},
+		"patreon": {
+			"title": "Patreon",
+			"description": "Randomly pick someone amongst your Patreon members",
+			"tiers": "Select the tiers to pick a winner from",
+			"startBt_aria": "Pick a member",
+			"startBt": "Pick a member {COUNT}"
+		},
 		"list": {
 			"title": "List",
 			"description": "Set a custom list of entries and randomly pick one",
@@ -72,6 +79,7 @@
 			"tip_tiltify": "Tiltify",
 			"tip_minAmount": "Min tip amount",
 			"tip_ponderate": "Tickets per tip amount | 1($,€,£…) = 1 ticket\n(leave 0 to only give 1 ticket per tip) | {VALUE}($,€,£…) = 1 ticket\n(leave 0 to only give 1 ticket per tip)",
+			"patreon_tier_chances": "Chances | {VALUE} chance | {VALUE} chances",
 			"duration": "Raffle duration ({VALUE} minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",

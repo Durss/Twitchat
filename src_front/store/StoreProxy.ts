@@ -2638,6 +2638,10 @@ export interface IPatreonState {
 	} | null;
 	memberList: IPatreonMember[];
 	tierList: IPatreonTier[];
+	/**
+	 * Is the member and tier lists currently loading?
+	 */
+	loadingMemberList: boolean;
 }
 
 export interface IPatreonGetters {}

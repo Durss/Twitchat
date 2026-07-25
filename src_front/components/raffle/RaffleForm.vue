@@ -11,15 +11,9 @@
 		<TabMenu
 			class="menu"
 			v-model="localData.mode"
-			:values="['chat', 'sub', 'tips', 'manual', 'values']"
-			:labels="[
-				t('raffle.chat.title'),
-				t('raffle.subs.title'),
-				t('raffle.tips.title'),
-				t('raffle.list.title'),
-				t('raffle.values.title'),
-			]"
-			:icons="['whispers', 'sub', 'coin', 'list', 'placeholder']"
+			:values="tabs.values"
+			:labels="tabs.labels"
+			:icons="tabs.icons"
 		/>
 
 		<div class="content">
@@ -476,6 +470,69 @@
 
 			<form
 				class="form"
+				v-else-if="localData.mode == 'patreon'"
+				@submit.prevent="submitForm()"
+			>
+				<div class="card-item info">{{ t("raffle.patreon.description") }}</div>
+
+				<div class="card-item tierList">
+					<span class="title"
+						>{{ t("raffle.patreon.tiers")
+						}}<Icon name="loader" class="loader" v-if="storePatreon.loadingMemberList"
+					/></span>
+					<ParamItem
+						noBackground
+						v-for="entry in param_patreonTiers"
+						:key="entry.toggle.storage"
+						:paramData="entry.toggle"
+						v-model="entry.toggle.value"
+						@change="onPatreonTierChange()"
+					>
+						<ParamItem
+							class="child"
+							noBackground
+							:paramData="entry.chances"
+							v-model="entry.chances.value"
+							@change="onPatreonTierChange()"
+						/>
+					</ParamItem>
+				</div>
+
+				<div class="card-item winner" v-if="winner" ref="winnerHolder">
+					<div class="head">Winner</div>
+					<div class="user">🎉 {{ winner }} 🎉</div>
+				</div>
+				<div class="card-item winner" v-if="winnerTmp">
+					<div class="user">{{ winnerTmp }}</div>
+				</div>
+
+				<PostOnChatParam
+					:botMessageKey="triggerMode ? undefined : 'raffleSubsWinner'"
+					:placeholders="winnerSubsPlaceholders"
+					v-model:text="localData.messages!.raffleWinner!.message"
+					v-model:enabled="localData.messages!.raffleWinner!.enabled"
+					icon="announcement"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+
+				<TTButton
+					type="submit"
+					v-if="triggerMode === false"
+					:loading="pickingEntry"
+					:aria-label="t('raffle.patreon.startBt_aria')"
+					:disabled="patreonMembersFiltered.length == 0"
+					icon="patreon"
+				>
+					<i18n-t scope="global" keypath="raffle.patreon.startBt">
+						<template #COUNT>
+							<i class="small">({{ patreonMembersFiltered.length }})</i>
+						</template>
+					</i18n-t>
+				</TTButton>
+			</form>
+
+			<form
+				class="form"
 				v-else-if="localData.mode == 'manual'"
 				@submit.prevent="submitForm()"
 			>
@@ -537,33 +594,6 @@
 					</template>
 				</i18n-t>
 
-				<ParamItem
-					:paramData="param_values"
-					v-model="param_values.value"
-					@change="onValueChange()"
-				/>
-
-				<ParamItem
-					:paramData="param_values_remove"
-					v-model="localData.removeWinningEntry"
-				/>
-
-				<ParamItem
-					class="splitterField"
-					v-if="param_values.selectedListValue?.value.perUser !== true"
-					:paramData="param_values_splitter"
-					v-model="localData.value_splitter"
-				/>
-
-				<PostOnChatParam
-					:botMessageKey="triggerMode ? undefined : 'raffleValuesWinner'"
-					:placeholders="winnerValuesPlaceholders"
-					v-model:text="localData.messages!.raffleWinner!.message"
-					v-model:enabled="localData.messages!.raffleWinner!.enabled"
-					icon="announcement"
-					titleKey="raffle.configs.postOnChat_winner"
-				/>
-
 				<TTButton
 					type="submit"
 					v-if="triggerMode === false"
@@ -603,9 +633,11 @@
 </template>
 
 <script setup lang="ts">
+import { useSidePanel } from "@/composables/useSidePanel";
 import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
 import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
 import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
@@ -619,7 +651,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { gsap } from "gsap";
+import VoiceController from "@/utils/voice/VoiceController";
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
@@ -630,8 +662,6 @@ import ParamItem from "../params/ParamItem.vue";
 import PostOnChatParam from "../params/PostOnChatParam.vue";
 import FormVoiceControllHelper from "../voice/FormVoiceControllHelper";
 import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
-import VoiceController from "@/utils/voice/VoiceController";
-import { useSidePanel } from "@/composables/useSidePanel";
 
 const props = withDefaults(
 	defineProps<{
@@ -652,8 +682,9 @@ const storeRewards = useStoreRewards();
 const storeValues = useStoreValues();
 const storeRaffle = useStoreRaffle();
 const storeParams = useStoreParams();
+const storePatreon = useStorePatreon();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
-const { close } = useSidePanel(rootEl, () => emit("close"));
+const { close, open } = useSidePanel(rootEl, () => emit("close"), false);
 
 const pickingEntry = ref(false);
 const winner = ref<string | null>(null);
@@ -988,6 +1019,13 @@ const param_trigger_waitForWinner = ref<TwitchatDataTypes.ParameterData<boolean>
 	labelKey: "raffle.params.trigger_waitForWinner",
 	icon: "countdown",
 });
+//One entry per patreon tier. The "storage" prop of the toggle contains the tier ID
+const param_patreonTiers = ref<
+	{
+		toggle: TwitchatDataTypes.ParameterData<boolean, unknown, unknown, string>;
+		chances: TwitchatDataTypes.ParameterData<number>;
+	}[]
+>([]);
 
 const localData = ref<TwitchatDataTypes.RaffleData>({
 	mode: "chat",
@@ -1012,6 +1050,7 @@ const localData = ref<TwitchatDataTypes.RaffleData>({
 	value_id: undefined,
 	value_splitter: undefined,
 	removeWinningEntry: false,
+	patreon_tiers: [],
 	tip_kofi: false,
 	tip_streamlabs: false,
 	tip_streamlabsCharity: false,
@@ -1052,6 +1091,30 @@ const localData = ref<TwitchatDataTypes.RaffleData>({
 const isAffiliate = computed(
 	() => storeAuth.twitch.user.is_affiliate || storeAuth.twitch.user.is_partner,
 );
+
+const tabs = computed(() => {
+	const values: TwitchatDataTypes.RaffleData["mode"][] = [
+		"chat",
+		"sub",
+		"tips",
+		"manual",
+		"values",
+	];
+	const labels = [
+		t("raffle.chat.title"),
+		t("raffle.subs.title"),
+		t("raffle.tips.title"),
+		t("raffle.list.title"),
+		t("raffle.values.title"),
+	];
+	const icons = ["whispers", "sub", "coin", "list", "placeholder"];
+	if (storePatreon.connected) {
+		values.splice(3, 0, "patreon");
+		labels.splice(3, 0, t("raffle.patreon.title"));
+		icons.splice(3, 0, "patreon");
+	}
+	return { values, labels, icons };
+});
 
 /**
  * Gets subs filtered by the current filters
@@ -1095,6 +1158,21 @@ const valueCount = computed(() => {
 	} else {
 		return 0;
 	}
+});
+
+/**
+ * Gets the active patreon members entitled to at least one of the selected tiers
+ */
+const patreonMembersFiltered = computed(() => {
+	const tierIds = param_patreonTiers.value
+		.filter((v) => v.toggle.value === true)
+		.map((v) => v.toggle.storage);
+	if (tierIds.length == 0) return [];
+	return storePatreon.memberList.filter((member) => {
+		return member.relationships.currently_entitled_tiers.data.some((t) =>
+			tierIds.includes(t.id),
+		);
+	});
 });
 
 const startPlaceholders = computed((): TwitchatDataTypes.PlaceholderEntry[] => {
@@ -1180,16 +1258,14 @@ const canListSubs = computed(() => TwitchUtils.hasScopes([TwitchScopes.LIST_SUBS
 
 onMounted(async () => {
 	if (!props.triggerMode) {
-		gsap.set(rootEl.value!, { translateY: 0 });
-		gsap.from(rootEl.value!, {
-			duration: 0.4,
-			translateY: "100%",
-			clearProps: "transform",
-			ease: "back.out",
-		});
+		open();
 	}
 
 	onValueChange();
+
+	//Refresh patreon members so tiers and their member counts are up to date.
+	//Tiers already loaded are kept displayed while this updates in the background
+	if (storePatreon.connected) void storePatreon.loadMemberList();
 
 	pickingEntry.value = true;
 	subs.value = await TwitchUtils.getSubsList(false);
@@ -1310,6 +1386,8 @@ onMounted(() => {
 			DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 	}
 
+	buildPatreonTierParams();
+
 	watch(
 		() => localData.value,
 		() => onValueChange(),
@@ -1347,6 +1425,11 @@ watch(
 	() => onValueChange(),
 );
 
+watch(
+	() => storePatreon.tierList,
+	() => buildPatreonTierParams(),
+);
+
 /**
  * Create a raffle
  */
@@ -1358,11 +1441,9 @@ async function submitForm(): Promise<void> {
 	) as typeof localData.value;
 	payload.messages = undefined;
 
-	//Force autoclose for those raffle types as they don't need to persist
-	if (payload.mode == "manual" || payload.mode == "values") payload.autoClose = true;
-
 	//Sub mode specifics
 	if (localData.value.mode == "sub") {
+		// The following just does a random animation
 		subs.value = Utils.shuffle(await TwitchUtils.getSubsList(false));
 		if (subsFiltered.value.length == 0) return;
 		let interval = window.setInterval(() => {
@@ -1370,7 +1451,26 @@ async function submitForm(): Promise<void> {
 		}, 70);
 		winner.value = null;
 		pickingEntry.value = true;
-		await Utils.promisedTimeout(2000);
+		// Make sure animation lasts at least a second
+		await Utils.promisedTimeout(1000);
+		// Wait for actual raffle callback
+		payload.resultCallback = (w: TwitchatDataTypes.RaffleEntry) => {
+			clearInterval(interval);
+			winnerTmp.value = null;
+			winner.value = w.label;
+		};
+	} else //Patreon mode specifics
+	 if (localData.value.mode == "patreon") {
+		// The following just does a random animation
+		if (patreonMembersFiltered.value.length == 0) return;
+		let interval = window.setInterval(() => {
+			winnerTmp.value = Utils.pickRand(patreonMembersFiltered.value)!.attributes.full_name;
+		}, 70);
+		winner.value = null;
+		pickingEntry.value = true;
+		// Make sure animation lasts at least a second
+		await Utils.promisedTimeout(1000);
+		// Wait for actual raffle callback
 		payload.resultCallback = (w: TwitchatDataTypes.RaffleEntry) => {
 			clearInterval(interval);
 			winnerTmp.value = null;
@@ -1439,6 +1539,53 @@ function onValueChange(): void {
 	}
 
 	localData.value.value_id = param_values.value.selectedListValue?.value.id;
+}
+
+/**
+ * Creates one toggle param for every patreon tier.
+ * Called when tiers are (re)loaded.
+ */
+function buildPatreonTierParams(): void {
+	const selection = localData.value.patreon_tiers || [];
+	param_patreonTiers.value = storePatreon.tierList.map((tier) => {
+		const prevParam = param_patreonTiers.value.find((v) => v.toggle.storage == tier.id);
+		const prevSelection = selection.find((v) => v.id == tier.id);
+
+		const memberCount = storePatreon.memberList.filter((member) => {
+			return member.relationships.currently_entitled_tiers.data.some((t) => t.id == tier.id);
+		}).length;
+		return {
+			toggle: {
+				type: "boolean",
+				//Keep current selection state or select everything by default
+				value: prevParam ? prevParam.toggle.value : false,
+				label: `(🙂 ${memberCount}) (💵 ${tier.attributes.amount_cents / 100}) ${tier.attributes.title}`,
+				storage: tier.id,
+				icon: "patreon",
+				disabled: memberCount == 0,
+			},
+			chances: {
+				type: "number",
+				value: prevParam ? prevParam.chances.value : prevSelection?.chances || 1,
+				min: 1,
+				max: 100,
+				icon: "ticket",
+				labelKey: "raffle.params.patreon_tier_chances",
+			},
+		};
+	});
+	onPatreonTierChange();
+}
+
+/**
+ * Called when toggling a patreon tier or changing its chances
+ */
+function onPatreonTierChange(): void {
+	localData.value.patreon_tiers = param_patreonTiers.value
+		.filter((v) => v.toggle.value === true)
+		.map((v) => {
+			return { id: v.toggle.storage!, chances: v.chances.value };
+		});
 }
 
 function requestSubPermission(): void {
@@ -1521,6 +1668,22 @@ function openValues(): void {
 				font-size: 0.9em;
 				font-style: italic;
 				text-align: center;
+			}
+
+			.tierList {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25em;
+				& > .title {
+					text-align: center;
+					font-weight: bold;
+					margin-bottom: 0.25em;
+					.loader {
+						height: 1em;
+						margin-left: 0.5em;
+						vertical-align: middle;
+					}
+				}
 			}
 
 			.splitterField {

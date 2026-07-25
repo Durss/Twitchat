@@ -21,6 +21,13 @@
 			"description": "Permettez à vos viewers d'entrer dans le tirage au sort en faisant un don",
 			"minAmount_suffix": "min"
 		},
+		"patreon": {
+			"title": "Patreon",
+			"description": "Sélectionner une personne au hasard parmi vos membres Patreon",
+			"tiers": "Sélectionnez les tiers concernés par le tirage au sort",
+			"startBt_aria": "Lancer le tirage au sort",
+			"startBt": "Lancer {COUNT}"
+		},
 		"list": {
 			"title": "Liste",
 			"description": "Définissez une liste d'entrées personnalisées pour le tirage au sort",
@@ -72,6 +79,7 @@
 			"tip_tiltify": "Tiltify",
 			"tip_minAmount": "Don minimum pour participer",
 			"tip_ponderate": "Tickets par paliers de dons | 1($,€,£…) = 1 ticket\n(laisser à 0 pour ne distribuer qu'un ticket par don) | {VALUE}($,€,£…) = 1 ticket\n(laisser à 0 pour ne distribuer qu'un ticket par don)",
+			"patreon_tier_chances": "Chances | {VALUE} chance | {VALUE} chances",
 			"duration": "Durée du tirage ({VALUE} minutes)",
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",

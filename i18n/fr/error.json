@@ -56,6 +56,7 @@
 		"raffle": {
 			"pick_winner_no_raffle": "Vous devez d'abord lancer un tirage au sort avant de pouvoir sélectionner une personne gagnante",
 			"pick_winner_no_subs": "Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
+			"pick_winner_no_patreon": "Vous ne pouvez lancer un tirage au sort parmi vos membres Patreon. Aucun membre actif ne correspond aux tiers sélectionnés.",
 			"pick_winner_no_entry": "Aucune personne n'a rejoint le tirage au sort"
 		},
 		"youtube_denied": "Vous avez refusé l'accès à votre compte YouTube",

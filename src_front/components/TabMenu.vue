@@ -113,6 +113,11 @@ onMounted(() => {
 	flex-direction: row;
 	row-gap: 5px;
 	overflow: hidden;
+	overflow-x: auto;
+
+	&::-webkit-scrollbar {
+		height: 4px;
+	}
 
 	.tabItem {
 		flex-grow: 1;

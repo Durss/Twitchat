@@ -695,10 +695,8 @@ export namespace TwitchatDataTypes {
 		ChildValueType = unknown,
 		StorageType = any,
 		ListStorageType = unknown,
-		ListValueType extends ParameterDataListValue<
-			ListType,
-			ListStorageType
-		> = ParameterDataListValue<ListType, ListStorageType>,
+		ListValueType extends ParameterDataListValue<ListType, ListStorageType> =
+			ParameterDataListValue<ListType, ListStorageType>,
 	> {
 		id?: number;
 		/**
@@ -1280,7 +1278,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Raffle mode
 		 */
-		mode: "chat" | "sub" | "manual" | "values" | "tips";
+		mode: "chat" | "sub" | "manual" | "values" | "tips" | "patreon";
 		/**
 		 * Chat command to start the raffle (if mode is "chat")
 		 */
@@ -1373,6 +1371,12 @@ export namespace TwitchatDataTypes {
 		 * Ponderate twitch charity entries based on tip amount
 		 */
 		tip_twitchCharity_ponderate?: number;
+		/**
+		 * Patreon tiers members must be subscribed to to be part of the
+		 * entries, with the number of chances given to their members
+		 * (if mode is "patreon")
+		 */
+		patreon_tiers?: { id: string; chances: number }[];
 		/**
 		 * Value ID (if mode is "values")
 		 */

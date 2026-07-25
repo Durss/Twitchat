@@ -9,6 +9,8 @@ import type { IPatreonActions, IPatreonGetters, IPatreonState } from "../StorePr
 import StoreProxy from "../StoreProxy";
 
 let refreshTimeout: number = 0;
+let lastMemberListLoad = 0;
+let loadingPromise: Promise<void> | null = null;
 
 export const storePatreon = defineStore("patreon", {
 	state: (): IPatreonState => ({
@@ -20,6 +22,7 @@ export const storePatreon = defineStore("patreon", {
 		oauthFlowParams: null,
 		memberList: [],
 		tierList: [],
+		loadingMemberList: false,
 	}),
 
 	actions: {
@@ -162,20 +165,37 @@ export const storePatreon = defineStore("patreon", {
 		 * Get the user's member list
 		 */
 		async loadMemberList(): Promise<void> {
-			const res = await ApiHelper.call("patreon/user/memberList", "GET");
-			if (res.status == 200) {
-				this.memberList = res.json.data.memberList;
-				this.tierList = res.json.data.tierList;
-				// const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
-				const activeMembers = this.memberList.filter((m) => {
-					return (
-						m.attributes.patron_status == "active_patron" &&
-						m.attributes.currently_entitled_amount_cents > 0
-					);
-				});
+			// Cache data for a minute
+			if (Date.now() - lastMemberListLoad < 60000) return;
+			// Return pending request if any
+			if (loadingPromise) return loadingPromise;
+			this.loadingMemberList = true;
+			loadingPromise = (async () => {
+				try {
+					const res = await ApiHelper.call("patreon/user/memberList", "GET");
+					if (res.status == 200) {
+						this.memberList = res.json.data.memberList;
+						this.tierList = res.json.data.tierList;
+						// const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
+						const activeMembers = this.memberList.filter((m) => {
+							return (
+								m.attributes.patron_status == "active_patron" &&
+								m.attributes.currently_entitled_amount_cents > 0
+							);
+						});
 
-				StoreProxy.labels.updateLabelValue("PATREON_MEMBER_COUNT", activeMembers.length);
-			}
+						StoreProxy.labels.updateLabelValue(
+							"PATREON_MEMBER_COUNT",
+							activeMembers.length,
+						);
+						lastMemberListLoad = Date.now();
+					}
+				} finally {
+					this.loadingMemberList = false;
+					loadingPromise = null;
+				}
+			})();
+			return loadingPromise;
 		},
 	} satisfies StoreActions<"patreon", IPatreonState, IPatreonGetters, IPatreonActions>,
 });

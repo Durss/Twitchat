@@ -47,6 +47,15 @@ export const storeRaffle = defineStore("raffle", {
 		},
 
 		async startRaffle(payload: TwitchatDataTypes.RaffleData) {
+			//Force autoclose for those raffle types as they don't need to persist
+			if (
+				payload.mode == "manual" ||
+				payload.mode == "values" ||
+				payload.mode == "sub" ||
+				payload.mode == "patreon"
+			)
+				payload.autoClose = true;
+
 			this.raffleList.push(payload);
 			while (this.raffleList.length > 20) {
 				this.raffleList.shift();
@@ -173,6 +182,11 @@ export const storeRaffle = defineStore("raffle", {
 					void this.pickWinner(payload.sessionId, payload);
 					break;
 				}
+
+				case "patreon": {
+					void this.pickWinner(payload.sessionId, payload);
+					break;
+				}
 			}
 
 			this.saveData();
@@ -270,6 +284,7 @@ export const storeRaffle = defineStore("raffle", {
 				tips: StoreProxy.chat.botMessages.raffleTipsWinner,
 				manual: StoreProxy.chat.botMessages.raffleListWinner,
 				values: StoreProxy.chat.botMessages.raffleValuesWinner,
+				patreon: StoreProxy.chat.botMessages.raffleSubsWinner,
 			};
 			const messageParams = raffleEntry.messages?.raffleWinner || map[raffleEntry.mode];
 			if (messageParams.enabled) {
@@ -278,7 +293,8 @@ export const storeRaffle = defineStore("raffle", {
 					if (
 						raffleEntry.mode == "chat" ||
 						raffleEntry.mode == "sub" ||
-						raffleEntry.mode == "tips"
+						raffleEntry.mode == "tips" ||
+						raffleEntry.mode == "patreon"
 					) {
 						message = message.replace(/\{USER\}/gi, winner.label);
 					} else {
@@ -772,6 +788,41 @@ export const storeRaffle = defineStore("raffle", {
 					});
 					data.entries = items;
 
+					//Pick from Patreon
+				} else if (data.mode == "patreon") {
+					//Refresh members so the draw is made on up to date data
+					await StoreProxy.patreon.loadMemberList();
+					const tiers = data.patreon_tiers || [];
+					const items: TwitchatDataTypes.RaffleEntry[] = [];
+					StoreProxy.patreon.memberList.forEach((v) => {
+						if (v.attributes.patron_status != "active_patron") return;
+						const entitledTiers = v.relationships.currently_entitled_tiers.data;
+						//Give the member as many tickets as defined on the tier they're
+						//entitled to. Keep the best one if they match multiple tiers.
+						let chances = 0;
+						tiers.forEach((tier) => {
+							if (entitledTiers.some((t) => t.id == tier.id)) {
+								chances = Math.max(chances, tier.chances || 1);
+							}
+						});
+						//Member isn't entitled to any of the selected tiers
+						if (chances === 0) return;
+
+						items.push({
+							id: v.id,
+							label: v.attributes.full_name,
+							score: 1,
+							joinCount: chances,
+						});
+					});
+					if (items.length === 0) {
+						StoreProxy.common.alert(
+							StoreProxy.i18n.t("error.raffle.pick_winner_no_patreon"),
+						);
+						return;
+					}
+					data.entries = items;
+
 					//Pick from Value
 				} else if (data.mode == "values") {
 					const val = StoreProxy.values.valueList.find((v) => v.id == data.value_id);
@@ -930,6 +981,7 @@ export const storeRaffle = defineStore("raffle", {
 						v.mode != "sub" &&
 						v.mode != "manual" &&
 						v.mode != "values" &&
+						v.mode != "patreon" &&
 						v.ghost !== true
 					);
 				}),

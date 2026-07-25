@@ -452,7 +452,7 @@ export default class PatreonController extends AbstractController {
 			);
 			if (campaignMembers.members) {
 				campaignMembers.members = campaignMembers.members.filter(
-					(v) => v.attributes.patron_status === "active_patron",
+					(v) => v.attributes.patron_status === "active_patron" || true,
 				);
 				memberList = campaignMembers.members;
 			} else {

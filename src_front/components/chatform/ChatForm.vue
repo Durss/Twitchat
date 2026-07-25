@@ -964,7 +964,12 @@ const qnaSessionActive = computed((): boolean => {
 
 const raffleListActive = computed((): TwitchatDataTypes.RaffleData[] => {
 	return storeRaffle.raffleList.filter(
-		(v) => v.mode != "manual" && v.mode != "values" && v.mode != "sub" && v.ghost !== true,
+		(v) =>
+			v.mode != "manual" &&
+			v.mode != "values" &&
+			v.mode != "sub" &&
+			v.mode != "patreon" &&
+			v.ghost !== true,
 	);
 });
 
