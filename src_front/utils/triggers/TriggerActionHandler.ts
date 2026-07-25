@@ -92,6 +92,9 @@ export default class TriggerActionHandler {
 		testMode = false,
 		forcedTriggerId?: string,
 	): Promise<void> {
+		const hasMultipleOccurences =
+			message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
+			message.occurrenceCount != undefined;
 		//Check if it's a greetable message
 		if (
 			TwitchatDataTypes.GreetableMessageTypesString[
@@ -99,7 +102,7 @@ export default class TriggerActionHandler {
 			] === true
 		) {
 			const mLoc = message as TwitchatDataTypes.GreetableMessages;
-			if (mLoc.todayFirst === true) {
+			if (mLoc.todayFirst === true && !hasMultipleOccurences) {
 				await this.executeTriggersByType(
 					TriggerTypes.FIRST_TODAY,
 					message,
@@ -114,7 +117,7 @@ export default class TriggerActionHandler {
 		switch (message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today"
-				if (message.twitch_isFirstMessage === true) {
+				if (message.twitch_isFirstMessage === true && !hasMultipleOccurences) {
 					await this.executeTriggersByType(
 						TriggerTypes.FIRST_ALL_TIME,
 						message,
@@ -126,7 +129,7 @@ export default class TriggerActionHandler {
 				} else if (message.todayFirst === true) {
 					//Do nothing, it's already done before the switch
 					//Keep this condition to avoid having both "returning" and "today first" triggered
-				} else if (message.twitch_isReturning === true) {
+				} else if (message.twitch_isReturning === true && !hasMultipleOccurences) {
 					await this.executeTriggersByType(
 						TriggerTypes.RETURNING_USER,
 						message,
