@@ -1859,4 +1859,41 @@ export default class Utils {
 		const map = import.meta.glob("/src_front/assets/**/*", { eager: true, import: "default" });
 		return map[`/src_front/assets/${path}`] as string;
 	}
+
+	/**
+	 * Anonymizes a full name.
+	 * Keeps the first word and only the First letter of the other words
+	 * Split first and second word with a space, split the next words with a dot.
+	 */
+	public static anonymizeFullName(fullName: string): string {
+		const chunks = fullName.split(" ");
+		if (chunks.length > 1) {
+			const punctuations = [
+				".",
+				",",
+				";",
+				":",
+				"!",
+				"?",
+				"-",
+				"_",
+				"(",
+				")",
+				"[",
+				"]",
+				"{",
+				"}",
+				"'",
+				'"',
+				"`",
+				"|",
+			];
+			fullName = chunks
+				.filter((v) => v.trim() != "" && !punctuations.includes(v.trim()))
+				.map((v, i) => (i == 0 ? v + " " : (v[0] ?? "").toUpperCase() + "."))
+				.join("");
+			fullName = fullName.substring(0, fullName.length - 1);
+		}
+		return fullName;
+	}
 }

@@ -500,7 +500,18 @@
 
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
-					<div class="user">🎉 {{ winner }} 🎉</div>
+					<div class="user">
+						🎉 {{ patreonWinner?.attributes.full_name || winner }} 🎉
+					</div>
+					<a
+						v-if="patreonWinner?.attributes"
+						target="_blank"
+						:href="
+							'https://www.patreon.com/members?query=' +
+							encodeURIComponent(patreonWinner.attributes.full_name)
+						"
+						><Icon name="newtab" /> {{ t("raffle.patreon.openSearch") }}</a
+					>
 				</div>
 				<div class="card-item winner" v-if="winnerTmp">
 					<div class="user">{{ winnerTmp }}</div>
@@ -637,7 +648,7 @@ import { useSidePanel } from "@/composables/useSidePanel";
 import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storePatreon as useStorePatreon } from "@/store/patreon/storePatreon";
+import { storePatreon as useStorePatreon, type IPatreonMember } from "@/store/patreon/storePatreon";
 import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
 import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
@@ -689,6 +700,7 @@ const { close, open } = useSidePanel(rootEl, () => emit("close"), false);
 const pickingEntry = ref(false);
 const winner = ref<string | null>(null);
 const winnerTmp = ref<string | null>(null);
+const patreonWinner = ref<IPatreonMember | null>(null);
 const voiceController = ref<FormVoiceControllHelper | undefined>(undefined);
 const subs = ref<TwitchDataTypes.Subscriber[]>([]);
 
@@ -1441,6 +1453,7 @@ async function submitForm(): Promise<void> {
 	) as typeof localData.value;
 	payload.messages = undefined;
 
+	let autoStopPicking = true;
 	//Sub mode specifics
 	if (localData.value.mode == "sub") {
 		// The following just does a random animation
@@ -1451,6 +1464,7 @@ async function submitForm(): Promise<void> {
 		}, 70);
 		winner.value = null;
 		pickingEntry.value = true;
+		autoStopPicking = false;
 		// Make sure animation lasts at least a second
 		await Utils.promisedTimeout(1000);
 		// Wait for actual raffle callback
@@ -1458,6 +1472,7 @@ async function submitForm(): Promise<void> {
 			clearInterval(interval);
 			winnerTmp.value = null;
 			winner.value = w.label;
+			pickingEntry.value = false;
 		};
 	} else //Patreon mode specifics
 	 if (localData.value.mode == "patreon") {
@@ -1468,6 +1483,7 @@ async function submitForm(): Promise<void> {
 		}, 70);
 		winner.value = null;
 		pickingEntry.value = true;
+		autoStopPicking = false;
 		// Make sure animation lasts at least a second
 		await Utils.promisedTimeout(1000);
 		// Wait for actual raffle callback
@@ -1475,6 +1491,8 @@ async function submitForm(): Promise<void> {
 			clearInterval(interval);
 			winnerTmp.value = null;
 			winner.value = w.label;
+			patreonWinner.value = patreonMembersFiltered.value.find((v) => v.id == w.id) ?? null;
+			pickingEntry.value = false;
 		};
 	}
 
@@ -1485,7 +1503,7 @@ async function submitForm(): Promise<void> {
 	} else {
 		await Utils.promisedTimeout(500);
 	}
-	pickingEntry.value = false;
+	if (autoStopPicking) pickingEntry.value = false;
 
 	if (!props.triggerMode && localData.value.mode == "manual") {
 		param_customEntries.value.value = payload.customEntries;
@@ -1642,6 +1660,15 @@ function openValues(): void {
 				.user {
 					padding: 0.5em;
 					text-align: center;
+				}
+				a {
+					text-align: center;
+					display: block;
+					color: var(--color-light);
+					.icon {
+						height: 1em;
+						vertical-align: middle;
+					}
 				}
 			}
 

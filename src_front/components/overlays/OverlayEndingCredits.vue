@@ -764,39 +764,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if (params.anonLastNames == true) {
 			members = members.map((v) => {
 				v = JSON.parse(JSON.stringify(v));
-				let login = v.login.trim();
-				//Keep the first first word as is.
-				//Only keep first letter of the rest of the words.
-				//Split first and second word with a space, split the next words with a dot.
-				const chunks = login.split(" ");
-				if (chunks.length > 1) {
-					const punctuations = [
-						".",
-						",",
-						";",
-						":",
-						"!",
-						"?",
-						"-",
-						"_",
-						"(",
-						")",
-						"[",
-						"]",
-						"{",
-						"}",
-						"'",
-						'"',
-						"`",
-						"|",
-					];
-					login = chunks
-						.filter((v) => v.trim() != "" && !punctuations.includes(v.trim()))
-						.map((v, i) => (i == 0 ? v + " " : (v[0] ?? "").toUpperCase() + "."))
-						.join("");
-					login = login.substring(0, login.length - 1);
-					v.login = login;
-				}
+				v.login = Utils.anonymizeFullName(v.login.trim());
 				return v;
 			});
 		}

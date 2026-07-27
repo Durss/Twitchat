@@ -795,7 +795,7 @@ export const storeRaffle = defineStore("raffle", {
 					const tiers = data.patreon_tiers || [];
 					const items: TwitchatDataTypes.RaffleEntry[] = [];
 					StoreProxy.patreon.memberList.forEach((v) => {
-						if (v.attributes.patron_status != "active_patron") return;
+						// if (v.attributes.patron_status != "active_patron") return;
 						const entitledTiers = v.relationships.currently_entitled_tiers.data;
 						//Give the member as many tickets as defined on the tier they're
 						//entitled to. Keep the best one if they match multiple tiers.
@@ -810,7 +810,7 @@ export const storeRaffle = defineStore("raffle", {
 
 						items.push({
 							id: v.id,
-							label: v.attributes.full_name,
+							label: Utils.anonymizeFullName(v.attributes.full_name.trim()),
 							score: 1,
 							joinCount: chances,
 						});

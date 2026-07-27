@@ -26,7 +26,8 @@
 			"description": "Randomly pick someone amongst your Patreon members",
 			"tiers": "Select the tiers to pick a winner from",
 			"startBt_aria": "Pick a member",
-			"startBt": "Pick a member {COUNT}"
+			"startBt": "Pick a member {COUNT}",
+			"openSearch": "Find on Patreon"
 		},
 		"list": {
 			"title": "List",

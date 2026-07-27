@@ -26,7 +26,8 @@
 			"description": "Sélectionner une personne au hasard parmi vos membres Patreon",
 			"tiers": "Sélectionnez les tiers concernés par le tirage au sort",
 			"startBt_aria": "Lancer le tirage au sort",
-			"startBt": "Lancer {COUNT}"
+			"startBt": "Lancer {COUNT}",
+			"openSearch": "Retrouver sur Patreon"
 		},
 		"list": {
 			"title": "Liste",

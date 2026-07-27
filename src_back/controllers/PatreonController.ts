@@ -454,7 +454,7 @@ export default class PatreonController extends AbstractController {
 				// campaignMembers.members = campaignMembers.members.filter(
 				// 	(v) => v.attributes.patron_status === "active_patron",
 				// );
-				memberList = campaignMembers.members;
+				memberList = campaignMembers.members.filter((v) => v.attributes.full_name); //Some users are missing name, ignore them
 			} else {
 				Logger.error("Something went wrong loading campaign members");
 			}
