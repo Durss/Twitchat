@@ -2637,6 +2637,7 @@ export interface IPatreonState {
 		csrf: string;
 	} | null;
 	memberList: IPatreonMember[];
+	activeMemberList: IPatreonMember[];
 	tierList: IPatreonTier[];
 	/**
 	 * Is the member and tier lists currently loading?

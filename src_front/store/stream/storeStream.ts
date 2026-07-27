@@ -1628,36 +1628,32 @@ export const storeStream = defineStore("stream", {
 			const valueMap = new Map<string, number>();
 			tiers.forEach((item) => valueMap.set(item.id, item.attributes.amount_cents));
 
-			result.patreonMembers = StoreProxy.patreon.memberList
-				.filter((v) => v.attributes.patron_status == "active_patron")
-				.map((v) => {
-					//Find entitled tier that has the highest amount value
-					let maxId: string | null = null;
-					let maxValue = -Infinity;
-					(v.relationships.currently_entitled_tiers.data || [{ id: "" }]).forEach(
-						(item) => {
-							const value = valueMap.get(item.id);
-							if (value !== undefined && value > maxValue) {
-								maxValue = value;
-								maxId = item.id;
-							}
-						},
-					);
-
-					const entry: (typeof result.patreonMembers)[number] = {
-						uid: v.id,
-						login: v.attributes.full_name,
-						months: v.relationships.pledge_history.data.filter((v) =>
-							/^(subscription):/.test(v.id),
-						).length,
-						tier: maxId || "",
-						lifetimeAmount: v.attributes.lifetime_support_cents / 100,
-					};
-					if (entry.login.trim() == "Noa") {
-						console.log(v.relationships.pledge_history.data);
+			result.patreonMembers = StoreProxy.patreon.activeMemberList.map((v) => {
+				//Find entitled tier that has the highest amount value
+				let maxId: string | null = null;
+				let maxValue = -Infinity;
+				(v.relationships.currently_entitled_tiers.data || [{ id: "" }]).forEach((item) => {
+					const value = valueMap.get(item.id);
+					if (value !== undefined && value > maxValue) {
+						maxValue = value;
+						maxId = item.id;
 					}
-					return entry;
 				});
+
+				const entry: (typeof result.patreonMembers)[number] = {
+					uid: v.id,
+					login: v.attributes.full_name,
+					months: v.relationships.pledge_history.data.filter((v) =>
+						/^(subscription):/.test(v.id),
+					).length,
+					tier: maxId || "",
+					lifetimeAmount: v.attributes.lifetime_support_cents / 100,
+				};
+				if (entry.login.trim() == "Noa") {
+					console.log(v.relationships.pledge_history.data);
+				}
+				return entry;
+			});
 
 			if (includeParams && parameters != null) {
 				result.params = parameters;

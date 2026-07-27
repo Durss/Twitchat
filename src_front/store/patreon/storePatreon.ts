@@ -21,6 +21,7 @@ export const storePatreon = defineStore("patreon", {
 		connected: false,
 		oauthFlowParams: null,
 		memberList: [],
+		activeMemberList: [],
 		tierList: [],
 		loadingMemberList: false,
 	}),
@@ -177,7 +178,7 @@ export const storePatreon = defineStore("patreon", {
 						this.memberList = res.json.data.memberList;
 						this.tierList = res.json.data.tierList;
 						// const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
-						const activeMembers = this.memberList.filter((m) => {
+						this.activeMemberList = this.memberList.filter((m) => {
 							return (
 								m.attributes.patron_status == "active_patron" &&
 								m.attributes.currently_entitled_amount_cents > 0
@@ -186,7 +187,7 @@ export const storePatreon = defineStore("patreon", {
 
 						StoreProxy.labels.updateLabelValue(
 							"PATREON_MEMBER_COUNT",
-							activeMembers.length,
+							this.activeMemberList.length,
 						);
 						lastMemberListLoad = Date.now();
 					}
