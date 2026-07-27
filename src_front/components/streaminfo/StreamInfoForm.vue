@@ -331,8 +331,8 @@ async function populate(): Promise<void> {
 			tagsVal = channelInfos.tags;
 		}
 		title.value = titleVal
-			.replace(new RegExp("^.*?" + PREFIX_SPACER, ""), "")
-			.replace(new RegExp(SUFFIX_SPACER + ".*?$", ""), "");
+			.replace(new RegExp("^.*" + PREFIX_SPACER, ""), "")
+			.replace(new RegExp(SUFFIX_SPACER + ".*$", ""), "");
 		branded.value = channelInfos?.is_branded_content === true;
 		labels.value =
 			channelInfos?.content_classification_labels

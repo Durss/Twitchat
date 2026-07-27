@@ -1636,6 +1636,10 @@ export default class TwitchUtils {
 		const body: { [key: string]: any } = {};
 
 		if (title) {
+			// Cleanup eventual prefix or suffix
+			title = title
+				.replace(new RegExp("^.*" + PREFIX_SPACER, ""), "")
+				.replace(new RegExp(SUFFIX_SPACER + ".*$", ""), "");
 			const prefixParam = StoreProxy.stream.streamInfoPrefixSuffix.prefix;
 			const suffixParam = StoreProxy.stream.streamInfoPrefixSuffix.suffix;
 			const prefix = prefixParam && prefixParam.length > 0 ? prefixParam + PREFIX_SPACER : "";
