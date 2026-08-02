@@ -102,6 +102,7 @@
 		},
 		"quick": {
 			"title": "Quiz rapide",
+			"header": "Créé un quiz éphémère à question unique.\nSi un vrai Quiz est déjà en cours, il sera mis en pause et reprendra une fois celui-ci fermé.",
 			"submit_bt": "Démarrer",
 			"badge": "Quiz rapide"
 		}

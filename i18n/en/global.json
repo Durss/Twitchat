@@ -105,6 +105,7 @@
 		"cmd_mod": "Moderator command",
 		"cmd_admin": "Admin command",
 		"cmd_twitch": "Twtich command",
+		"cmd_premium": "Premium command",
 		"emote_scope": "Grant access to all my emotes",
 		"empty_list1": "No entry exist.",
 		"empty_list2": "Write to create one.",

@@ -29,22 +29,25 @@
 				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needAdmin"
 				class="image small"
 				name="lock_fit"
-				alt="user"
 				v-tooltip="t('global.cmd_admin')"
 			/>
 			<Icon
 				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.twitchCmd"
 				class="image small"
 				name="twitch"
-				alt="user"
 				v-tooltip="t('global.cmd_twitch')"
 			/>
 			<Icon
 				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needModerator"
 				class="image small"
 				name="mod"
-				alt="user"
 				v-tooltip="t('global.cmd_mod')"
+			/>
+			<Icon
+				v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needPremium"
+				class="image small"
+				name="premium"
+				v-tooltip="t('global.cmd_premium')"
 			/>
 			<template v-if="i.type == 'slashCommand' && i.isTrigger">
 				<img class="image" v-if="i.iconURL" :src="i.iconURL" alt="" />
@@ -149,6 +152,7 @@ function getClasses(index: number, item: ListItem): string[] {
 		if (item.rawCmd.needAdmin) res.push("admin");
 		if (item.rawCmd.needModerator) res.push("mod");
 		if (item.rawCmd.needBroadcaster) res.push("mod");
+		if (item.rawCmd.needPremium) res.push("premium");
 	}
 	res.push(item.type);
 	return res;
@@ -439,6 +443,8 @@ function onSearchChange(): void {
 				if (a.rawCmd && !b.rawCmd) return -1;
 				if (!a.rawCmd && b.rawCmd) return 1;
 				if (a.rawCmd && b.rawCmd) {
+					if (a.rawCmd.needPremium && !b.rawCmd.needPremium) return -1;
+					if (!a.rawCmd.needPremium && b.rawCmd.needPremium) return 1;
 					if (a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
 					if (!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
 					if (a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
@@ -592,6 +598,14 @@ interface CommandItem {
 				&.selected,
 				&:hover {
 					background-color: var(--color-primary-fader);
+				}
+			}
+			&.premium {
+				background-color: var(--color-premium-fadest);
+
+				&.selected,
+				&:hover {
+					background-color: var(--color-premium-fader);
 				}
 			}
 			&.disabled {

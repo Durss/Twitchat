@@ -1014,6 +1014,7 @@ export default class MessengerProxy {
 				.promptTemplate("quiz", {
 					icon: "quiz",
 					titleLabel: "quiz.quick.title",
+					headerLabel: "quiz.quick.header",
 					submitLabelKey: "quiz.quick.submit_bt",
 				})
 				.then((quiz) => {

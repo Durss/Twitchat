@@ -6,15 +6,19 @@
 			:noToggle="true"
 			@changeMode="changeQuestionMode"
 		/>
+		<PremiumLockLayer />
 	</div>
 </template>
 
 <script setup lang="ts">
+import PremiumLockLayer from "@/components/PremiumLockLayer.vue";
 import QuizQuestionItem from "@/components/quiz/QuizQuestionItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import { computed, reactive } from "vue";
 
+const storeAuth = useStoreAuth();
 const props = defineProps<{
 	payload?: TwitchatDataTypes.PromptTemplates["quiz"]["payload"];
 }>();
@@ -45,6 +49,7 @@ const quiz = reactive<TwitchatDataTypes.QuizParams>({
 });
 
 const isValid = computed(() => {
+	if (!storeAuth.isPremium) return false;
 	const question = quiz.questionList[0];
 	if (!question || question.question.trim().length === 0) return false;
 	if (question.mode == "freeAnswer") return question.answer.trim().length > 0;
@@ -71,6 +76,7 @@ defineExpose({ isValid, getResult });
 
 <style scoped lang="less">
 .promptquickquiz {
+	position: relative;
 }
 </style>
 

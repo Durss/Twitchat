@@ -102,6 +102,7 @@
 		},
 		"quick": {
 			"title": "Quick quiz",
+			"header": "Create an ephemeral 1 question quiz.\nIf a real quiz is already running, it's paused and resumed once this one is closed.",
 			"submit_bt": "Start",
 			"badge": "Quick quiz"
 		}

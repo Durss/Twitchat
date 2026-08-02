@@ -1623,6 +1623,7 @@ export namespace TwitchatDataTypes {
 		needModerator?: boolean;
 		needBroadcaster?: boolean;
 		needDiscordChan?: boolean;
+		needPremium?: boolean;
 		twitchCmd?: boolean;
 		twitch_scopes?: TwitchScopesString[];
 	}

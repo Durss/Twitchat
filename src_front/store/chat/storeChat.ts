@@ -644,6 +644,7 @@ export const storeChat = defineStore("chat", {
 				cmd: "/quickquiz",
 				detailsKey: "params.commands.quickquiz",
 				needBroadcaster: true,
+				needPremium: true,
 			},
 			{
 				id: "betaadd",

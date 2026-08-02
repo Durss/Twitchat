@@ -3,16 +3,17 @@
 		<div class="dimmer" ref="dimmer" @click="cancel()"></div>
 		<div class="holder" ref="holder" :key="data.id">
 			<Icon v-if="data.icon" :name="data.icon" class="icon" />
+			<ClearButton aria-label="close" @click="cancel()" />
 
 			<div v-if="data.title || data.titleLabel" class="head">
 				<span class="title">{{ data.title ?? t(data.titleLabel!) }}</span>
 			</div>
 
-			<div class="content">
-				<div class="header" v-if="data.header || data.headerLabel">
-					{{ data.header ?? t(data.headerLabel!) }}
-				</div>
+			<div class="header" v-if="data.header || data.headerLabel">
+				{{ data.header ?? t(data.headerLabel!) }}
+			</div>
 
+			<div class="content">
 				<component
 					v-if="data.mode == 'template'"
 					:is="PROMPT_TEMPLATES[data.template]"
@@ -47,6 +48,7 @@ import { useI18n } from "vue-i18n";
 import ParamItem from "../params/ParamItem.vue";
 import TTButton from "../TTButton.vue";
 import { PROMPT_TEMPLATES, type PromptTemplateExpose } from "./prompt_templates";
+import ClearButton from "../ClearButton.vue";
 
 const { t } = useI18n();
 const storeMain = useStoreMain();
@@ -156,11 +158,12 @@ function close(result?: unknown): void {
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
+	}
 
-		.header {
-			text-align: center;
-			white-space: pre-line;
-		}
+	.header {
+		line-height: 1.1em;
+		text-align: center;
+		white-space: pre-line;
 	}
 
 	.ctas {
@@ -171,3 +174,4 @@ function close(result?: unknown): void {
 	}
 }
 </style>
+

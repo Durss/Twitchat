@@ -237,7 +237,7 @@
 			"unmonitor": "Unmonitor user messages",
 			"restrict": "Restrict user chatting",
 			"unrestrict": "Unrestrict user from chatting",
-			"quickQuiz": "Create a single question quiz"
+			"quickquiz": "Create a single question ephemeral quiz"
 		}
 	}
 }
