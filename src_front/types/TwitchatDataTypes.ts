@@ -2564,6 +2564,85 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Declares all the available prompt templates along with the payload
+	 * they expect and the result they return.
+	 * This is what makes StoreProxy.main.promptTemplate() properly typed.
+	 */
+	export interface PromptTemplates {
+		quiz: { payload: { title?: string }; result: QuizParams };
+	}
+	export type PromptTemplateKey = keyof PromptTemplates;
+
+	/**
+	 * Data shared by all the PromptModal flavors
+	 */
+	export interface PromptModalDataBase {
+		/**
+		 * Unique ID of the prompt within the queue
+		 */
+		id: string;
+		/**
+		 * Raw title
+		 */
+		title?: string;
+		/**
+		 * Title (i18n key) so the text can update if changing current language
+		 */
+		titleLabel?: string;
+		/**
+		 * Raw header displayed under the title
+		 */
+		header?: string;
+		/**
+		 * Header (i18n key) so the text can update if changing current language
+		 */
+		headerLabel?: string;
+		/**
+		 * Icon name to display on top (see files on "src_front/assets/icons")
+		 */
+		icon?: string;
+		/**
+		 * i18n key of the submit button's label. Defaults to "global.submit"
+		 */
+		submitLabelKey?: string;
+		/**
+		 * Auto cancels the prompt after the given duration.
+		 * Should always be set when opening a prompt from a trigger so an
+		 * ignored modal doesn't stall the trigger's queue forever.
+		 */
+		timeout_s?: number;
+		/**
+		 * Internal. Set by StoreProxy.main.prompt*() to resolve their promise
+		 */
+		resolve: (result: unknown) => void;
+	}
+
+	/**
+	 * Prompt rendering a generic list of ParamItem
+	 */
+	export interface PromptModalDataInputs extends PromptModalDataBase {
+		mode: "inputs";
+		inputs: ParameterData<unknown>[];
+	}
+
+	/**
+	 * Prompt rendering a specific form component
+	 * @see src_front/components/modals/prompt_templates
+	 */
+	export interface PromptModalDataTemplate<
+		K extends PromptTemplateKey = PromptTemplateKey,
+	> extends PromptModalDataBase {
+		mode: "template";
+		template: K;
+		payload?: PromptTemplates[K]["payload"];
+	}
+
+	/**
+	 * Data used to build a PromptModal instance
+	 */
+	export type PromptModalData = PromptModalDataInputs | PromptModalDataTemplate;
+
+	/**
 	 * Represents an emote
 	 */
 	export interface Emote {

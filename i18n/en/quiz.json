@@ -99,6 +99,11 @@
 				"description": "Quiz progress will be lost\nThis cannot be undone."
 			},
 			"questionIndex": "Question {INDEX}/{TOTAL}"
+		},
+		"quick": {
+			"title": "Quick quiz",
+			"submit_bt": "Start",
+			"badge": "Quick quiz"
 		}
 	}
 }

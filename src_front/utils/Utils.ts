@@ -37,9 +37,13 @@ export default class Utils {
 	public static getUUID(): string {
 		let uuid = "";
 		try {
-			if (crypto.randomUUID) {
-				uuid = crypto.randomUUID();
-			}
+			//UUID v7
+			const t = Date.now().toString(16).padStart(12, "0");
+			const r = crypto.getRandomValues(new Uint8Array(10));
+			r[0] = (r[0]! & 0x0f) | 0x70;
+			r[2] = (r[2]! & 0x3f) | 0x80;
+			const h = Array.from(r, (b) => b.toString(16).padStart(2, "0")).join("");
+			return `${t.slice(0, 8)}-${t.slice(8)}-${h.slice(0, 4)}-${h.slice(4, 8)}-${h.slice(8)}`;
 		} catch (_error) {}
 		if (!uuid) {
 			const chars = "0123456789abcdef";
@@ -55,6 +59,20 @@ export default class Utils {
 			}
 		}
 		return uuid;
+	}
+
+	/**
+	 * Returns a UUID V7 timestamp or 0 if not a UUID V7
+	 */
+	public static getUUIDTimestamp(uuid: string): number {
+		try {
+			// Check if it's a UUID v7
+			if (uuid[14] != "7") return 0;
+			// Extract timestamp
+			const timestamp = parseInt(uuid.replace(/-/g, "").slice(0, 12), 16);
+			return timestamp || 0;
+		} catch (_error) {}
+		return 0;
 	}
 
 	/**
@@ -1838,6 +1856,56 @@ export default class Utils {
 		{ mode: "classic" }
 	>["answerList"][number] {
 		return mode === "classic";
+	}
+
+	/**
+	 * Converts a quiz question to another mode.
+	 */
+	public static convertQuizQuestionMode(
+		question: TwitchatDataTypes.QuizParams["questionList"][number],
+		newMode: "classic" | "majority" | "freeAnswer",
+	): TwitchatDataTypes.QuizParams["questionList"][number] | null {
+		if (question.mode === newMode) return null;
+
+		const hasAnswerList = question.mode === "classic" || question.mode === "majority";
+
+		if (newMode === "classic") {
+			return {
+				id: question.id,
+				mode: "classic",
+				question: question.question,
+				duration_s: question.duration_s,
+				answerList: hasAnswerList
+					? question.answerList.map((a) => ({ id: a.id, title: a.title, correct: false }))
+					: [
+							{ id: Utils.getUUID(), title: "", correct: true },
+							{ id: Utils.getUUID(), title: "", correct: false },
+						],
+			};
+		}
+
+		if (newMode === "majority") {
+			return {
+				id: question.id,
+				mode: "majority",
+				question: question.question,
+				duration_s: question.duration_s,
+				answerList: hasAnswerList
+					? question.answerList.map((a) => ({ id: a.id, title: a.title }))
+					: [
+							{ id: Utils.getUUID(), title: "" },
+							{ id: Utils.getUUID(), title: "" },
+						],
+			};
+		}
+
+		return {
+			id: question.id,
+			mode: "freeAnswer",
+			question: question.question,
+			duration_s: question.duration_s,
+			answer: "",
+		};
 	}
 
 	/**

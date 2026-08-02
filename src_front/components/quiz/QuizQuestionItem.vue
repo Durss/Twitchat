@@ -281,6 +281,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	delete: [questionId: string];
+	change: [questionId: string];
 	changeMode: [
 		question: TwitchatDataTypes.QuizParams["questionList"][number],
 		newMode: "classic" | "majority" | "freeAnswer",
@@ -316,7 +317,7 @@ onBeforeMount(() => {
 });
 
 function save(): void {
-	storeQuiz.saveData(props.quiz.id);
+	emit("change", props.quiz.id);
 	testAnswer();
 }
 
@@ -767,7 +768,7 @@ watch(
 				flex-direction: row;
 				.answerDragHandle {
 					position: absolute;
-					left: 50%;
+					left: 0;
 					top: 0;
 					bottom: 0;
 					width: 1.25em;
@@ -782,7 +783,7 @@ watch(
 					background-color: var(--background-color-fader);
 					visibility: hidden;
 					padding: 0.25em;
-					transform: translate(-50%, -100%);
+					transform: translate(var(--border-radius), -100%);
 					transition: height 0.15s;
 					pointer-events: none;
 				}

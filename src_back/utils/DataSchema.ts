@@ -3122,6 +3122,12 @@ const UserDataSchema = {
 			type: "object",
 			additionalProperties: false,
 			properties: {
+				ephemeralQuiz: {
+					anyOf: [
+						{ type: "null" },
+						{ $ref: "defs.json#/properties/quizConfigs/properties/quizList/items" },
+					],
+				},
 				quizList: {
 					type: "array",
 					minItems: 0,
@@ -3131,6 +3137,7 @@ const UserDataSchema = {
 						additionalProperties: false,
 						properties: {
 							id: { type: "string", maxLength: 50 },
+							ephemeral: { type: "boolean" },
 							title: { type: "string", maxLength: 100 },
 							durationPerQuestion_s: { type: "integer", minimum: 0, maximum: 65535 },
 							loosePointsOnFail: { type: "boolean" },

@@ -27,6 +27,7 @@
 				:autoOpen="autoOpenQuestionID === question.id"
 				@delete="deleteQuestion"
 				@changeMode="changeQuestionMode"
+				@change="(id) => $store.quiz.saveData(id)"
 			/>
 		</VueDraggable>
 
@@ -288,50 +289,11 @@ function changeQuestionMode(
 	question: TwitchatDataTypes.QuizParams["questionList"][number],
 	newMode: "classic" | "majority" | "freeAnswer",
 ): void {
-	if (question.mode === newMode) return;
 	const index = props.quiz.questionList.findIndex((q) => q.id === question.id);
 	if (index === -1) return;
 
-	const hasAnswerList = question.mode === "classic" || question.mode === "majority";
-	let newQuestion: TwitchatDataTypes.QuizParams["questionList"][number];
-
-	if (newMode === "classic") {
-		const answerList = hasAnswerList
-			? question.answerList.map((a) => ({ id: a.id, title: a.title, correct: false }))
-			: [
-					{ id: Utils.getUUID(), title: "", correct: true },
-					{ id: Utils.getUUID(), title: "", correct: false },
-				];
-		newQuestion = {
-			id: question.id,
-			mode: "classic",
-			question: question.question,
-			duration_s: question.duration_s,
-			answerList,
-		};
-	} else if (newMode === "majority") {
-		const answerList = hasAnswerList
-			? question.answerList.map((a) => ({ id: a.id, title: a.title }))
-			: [
-					{ id: Utils.getUUID(), title: "" },
-					{ id: Utils.getUUID(), title: "" },
-				];
-		newQuestion = {
-			id: question.id,
-			mode: "majority",
-			question: question.question,
-			duration_s: question.duration_s,
-			answerList,
-		};
-	} else {
-		newQuestion = {
-			id: question.id,
-			mode: "freeAnswer",
-			question: question.question,
-			duration_s: question.duration_s,
-			answer: "",
-		};
-	}
+	const newQuestion = Utils.convertQuizQuestionMode(question, newMode);
+	if (!newQuestion) return;
 
 	props.quiz.questionList.splice(index, 1, newQuestion);
 	save();

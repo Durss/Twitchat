@@ -79,8 +79,13 @@ export default class QuizController extends AbstractController {
 		const found = fs.existsSync(userFilePath);
 		if (found) {
 			const data = JSON.parse(fs.readFileSync(userFilePath, { encoding: "utf8" })) as {
-				quizConfigs?: { quizList?: QuizParams[] };
+				quizConfigs?: { quizList?: QuizParams[]; ephemeralQuiz?: QuizParams | null };
 			};
+			// The ephemeral quiz steps over any other quiz for as long as it's defined
+			const ephemeral = data.quizConfigs?.ephemeralQuiz;
+			if (ephemeral?.enabled && (!quizId || ephemeral.id === quizId)) {
+				return this.setCache(channelId, ephemeral, false);
+			}
 			// Get requested quiz (must be enabled) or first enabled one if no quizId provided
 			const quiz = data.quizConfigs?.quizList?.find(
 				(q) => q.enabled && (!quizId || q.id === quizId),

@@ -99,6 +99,11 @@
 				"description": "La progression du quiz sera perdue\nCette action est irréversible."
 			},
 			"questionIndex": "Question {INDEX}/{TOTAL}"
+		},
+		"quick": {
+			"title": "Quiz rapide",
+			"submit_bt": "Démarrer",
+			"badge": "Quiz rapide"
 		}
 	}
 }

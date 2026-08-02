@@ -15,6 +15,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
 import TTSUtils from "@/utils/TTSUtils";
+import { toast } from "@/utils/toast/toast";
 /**
  * Created : 26/09/2022
  */
@@ -1007,6 +1008,22 @@ export default class MessengerProxy {
 				channel_id: messageData.channel_id,
 			};
 			void TriggerActionHandler.instance.execute(trigger);
+			return true;
+		} else if (cmd == "/quickquiz") {
+			void StoreProxy.main
+				.promptTemplate("quiz", {
+					icon: "quiz",
+					titleLabel: "quiz.quick.title",
+					submitLabelKey: "quiz.quick.submit_bt",
+				})
+				.then((quiz) => {
+					//Prompt was cancelled
+					if (!quiz) return;
+					StoreProxy.quiz.startEphemeralQuiz(quiz);
+				})
+				.catch(() => {
+					toast(StoreProxy.i18n.t("error.quick_quiz_failed"));
+				});
 			return true;
 		} else if ((isAdmin && cmd == "/fakewhisper") || cmd == "/fakewhispers") {
 			const count = parseInt(params[0]!) || 1;

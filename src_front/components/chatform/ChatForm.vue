@@ -516,6 +516,7 @@
 						class="quiz"
 						icon="quiz"
 						v-if="
+							storeQuiz.ephemeralQuiz ||
 							storeQuiz.quizList.filter((v) => v.enabled && v.questionList.length > 0)
 								.length > 0
 						"

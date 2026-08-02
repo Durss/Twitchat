@@ -236,7 +236,8 @@
 			"monitor": "Surveiller les messages d'un utilisateurice",
 			"unmonitor": "Arrêter de surveiller les messages d'un utilisateurice",
 			"restrict": "Restreindre la discussion d'un utilisateurice",
-			"unrestrict": "Autoriser à nouveau la discussion d'un utilisateurice"
+			"unrestrict": "Autoriser à nouveau la discussion d'un utilisateurice",
+			"quickQuiz": "Créer un quiz à question unique"
 		}
 	}
 }

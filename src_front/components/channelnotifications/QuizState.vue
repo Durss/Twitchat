@@ -3,7 +3,9 @@
 		<div class="head" v-stickyTopShadow>
 			<div class="subHolder">
 				<h1 class="title" v-stickyTopShadow>
-					<Icon name="quiz" />{{ currentQuiz.title || $t("quiz.form.title") }}
+					<Icon name="quiz" />{{
+						currentQuiz.title || $t(isEphemeral ? "quiz.quick.badge" : "quiz.form.title")
+					}}
 				</h1>
 				<div class="subtitle" v-if="currentQuestion">
 					<span>{{
@@ -80,10 +82,7 @@
 					<TTButton
 						icon="disable"
 						light
-						@click="
-							currentQuiz.enabled = false;
-							store.saveData(currentQuiz.id);
-						"
+						@click="closeQuiz()"
 						v-if="isLastQuestion && currentQuiz.currentQuestionRevealed"
 						>{{ $t("quiz.state.disable_bt") }}</TTButton
 					>
@@ -166,9 +165,13 @@ const progressPercent = ref(0);
 const fakeVotes = ref(false);
 const loadingLeaderboard = ref(false);
 
-const activeQuizList = computed(() => store.quizList.filter((v) => v.enabled));
-const currentQuizId = ref(activeQuizList.value[0]?.id);
-const currentQuiz = computed(() => store.quizList.filter((v) => v.id == currentQuizId.value)[0]);
+//The ephemeral quiz steps over any running quiz until it's closed
+const activeQuizList = computed(() =>
+	store.ephemeralQuiz ? [store.ephemeralQuiz] : store.quizList.filter((v) => v.enabled),
+);
+const currentQuizId = computed(() => activeQuizList.value[0]?.id);
+const currentQuiz = computed(() => activeQuizList.value[0]);
+const isEphemeral = computed(() => currentQuiz.value === store.ephemeralQuiz);
 const currentQuestionIndex = computed(
 	() =>
 		currentQuiz.value?.questionList.findIndex(
@@ -237,6 +240,17 @@ async function fakeVote(): Promise<void> {
 			fakeUserId,
 		);
 	}
+}
+
+function closeQuiz(): void {
+	if (!currentQuiz.value) return;
+	//Closing the ephemeral quiz resumes the quiz it was stepping over, if any
+	if (isEphemeral.value) {
+		store.closeEphemeralQuiz();
+		return;
+	}
+	currentQuiz.value.enabled = false;
+	void store.saveData(currentQuiz.value.id);
 }
 
 async function openLeaderboard(): Promise<void> {

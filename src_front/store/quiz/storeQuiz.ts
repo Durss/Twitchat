@@ -158,9 +158,32 @@ function computeAnswerScore(params: AnswerScoreParams): number {
 	return score;
 }
 
+/**
+ * Returns the quiz currently driving the overlays, the extension and the chat
+ * answers.
+ * The ephemeral quiz always steps over the enabled quiz of the list. That quiz
+ * keeps its own state untouched meanwhile, so it resumes on its own as soon as
+ * the ephemeral one is closed.
+ */
+function getActiveQuiz(state: IQuizState): TwitchatDataTypes.QuizParams | undefined {
+	return state.ephemeralQuiz ?? state.quizList.find((q) => q.enabled);
+}
+
+/**
+ * Resolves a quiz by its ID, ephemeral quiz included.
+ * Only the live resolution is stepped over by the ephemeral quiz
+ * (@see getActiveQuiz), editing a quiz of the list remains possible while an
+ * ephemeral quiz is running.
+ */
+function getQuizById(state: IQuizState, quizId: string): TwitchatDataTypes.QuizParams | undefined {
+	if (state.ephemeralQuiz?.id === quizId) return state.ephemeralQuiz;
+	return state.quizList.find((q) => q.id === quizId);
+}
+
 export const storeQuiz = defineStore("quiz", {
 	state: (): IQuizState => ({
 		quizList: [],
+		ephemeralQuiz: null,
 		currentFreeAnswerStats: {
 			right: 0,
 			wrong: 0,
@@ -175,6 +198,16 @@ export const storeQuiz = defineStore("quiz", {
 			if (json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.quizList = data.quizList ?? [];
+				this.ephemeralQuiz = data.ephemeralQuiz ?? null;
+				if (this.ephemeralQuiz) {
+					//Drop ephemeral quizes after 24h
+					if (
+						Utils.getUUIDTimestamp(this.ephemeralQuiz.id) + 24 * 60 * 60_000 <
+						Date.now()
+					) {
+						this.closeEphemeralQuiz();
+					}
+				}
 			} else {
 				this.quizList = [];
 			}
@@ -185,24 +218,34 @@ export const storeQuiz = defineStore("quiz", {
 				quiz.shuffleAnswers ??= true;
 			});
 
+			// Restore the fast access refs so chat answers keep being accepted
+			// after a reload while a question is running
+			const activeQuiz = getActiveQuiz(this);
+			if (activeQuiz) {
+				currentQuiz = activeQuiz;
+				currentQuestion =
+					activeQuiz.questionList.find((q) => q.id === activeQuiz.currentQuestionId) ??
+					null;
+			}
+
 			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (_eevent) => {
 				this.broadcastQuizState(true);
 			});
 
 			PublicAPI.instance.addEventListener("SET_QUIZ_NEXT_QUESTION", (_eevent) => {
-				const quiz = this.quizList.find((q) => q.enabled);
+				const quiz = getActiveQuiz(this);
 				if (!quiz) return;
 				this.startNextQuestion(quiz.id);
 			});
 
 			PublicAPI.instance.addEventListener("SET_QUIZ_REVEAL", (_eevent) => {
-				const quiz = this.quizList.find((q) => q.enabled);
+				const quiz = getActiveQuiz(this);
 				if (!quiz) return;
 				this.revealAnswer(quiz.id);
 			});
 
 			PublicAPI.instance.addEventListener("SET_QUIZ_TOGGLE_LEADERBOARD", (_eevent) => {
-				const quiz = this.quizList.find((q) => q.enabled);
+				const quiz = getActiveQuiz(this);
 				if (!quiz) return;
 				void this.showLeaderBoard(quiz.id);
 			});
@@ -234,8 +277,21 @@ export const storeQuiz = defineStore("quiz", {
 			broadcastToOverlayOnly?: boolean,
 			directBroadcast?: boolean,
 		): Promise<void> {
-			const quiz = quizId ? this.quizList.find((q) => q.id === quizId) : undefined;
+			const quiz = quizId ? getQuizById(this, quizId) : undefined;
 			if (!quiz) return;
+
+			// The ephemeral quiz isn't part of the list so none of the "only one
+			// enabled quiz at a time" arbitration applies to it. It steps over the
+			// running quiz without ever disabling it, so that one resumes untouched
+			// once the ephemeral quiz is closed.
+			if (quiz === this.ephemeralQuiz) {
+				DataStore.set(DataStore.QUIZ_CONFIGS, {
+					quizList: this.quizList,
+					ephemeralQuiz: this.ephemeralQuiz,
+				} satisfies IStoreData);
+				this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
+				return;
+			}
 
 			// Are we saving a specifc quiz that's enabled?
 			if (quiz.enabled) {
@@ -285,6 +341,7 @@ export const storeQuiz = defineStore("quiz", {
 			if (!quiz.enabled) this.resetQuizState(quiz.id, false, false);
 			const data: IStoreData = {
 				quizList: this.quizList,
+				ephemeralQuiz: this.ephemeralQuiz,
 			};
 			DataStore.set(DataStore.QUIZ_CONFIGS, data);
 			this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
@@ -358,7 +415,22 @@ export const storeQuiz = defineStore("quiz", {
 			opaqueUserId?: string,
 			serverVotedElapsed_ms?: number,
 		): Promise<void> {
-			const quiz = this.quizList.filter((q) => q.id === quizId)[0];
+			// The ephemeral quiz steps over any other quiz: answers aimed at the
+			// quiz it shadows are refused until it gets closed.
+			if (this.ephemeralQuiz && this.ephemeralQuiz.id !== quizId) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: an ephemeral quiz is currently stepping over this quiz",
+					accepted: false,
+					reason: "shadowed_by_ephemeral_quiz",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText, ephemeralQuizId: this.ephemeralQuiz.id },
+				});
+				return;
+			}
+			const quiz = getQuizById(this, quizId);
 			if (!quiz || !quiz.enabled) {
 				Logger.instance.log("quiz", {
 					info: "Answer refused: quiz not found or not enabled",
@@ -599,7 +671,7 @@ export const storeQuiz = defineStore("quiz", {
 		},
 
 		startNextQuestion(quizId: string): void {
-			const quiz = this.quizList.find((v) => v.id === quizId);
+			const quiz = getQuizById(this, quizId);
 			if (!quiz) {
 				Logger.instance.log("quiz", {
 					info: "startNextQuestion ignored: quiz not found",
@@ -653,7 +725,7 @@ export const storeQuiz = defineStore("quiz", {
 
 		resetQuizState(quizId: string, confirm: boolean = true, save: boolean = true): void {
 			const reset = () => {
-				const quiz = this.quizList.find((v) => v.id === quizId);
+				const quiz = getQuizById(this, quizId);
 				if (!quiz) return;
 				quiz.currentQuestionId = "";
 				delete quiz.currentQuestionRevealed;
@@ -688,7 +760,7 @@ export const storeQuiz = defineStore("quiz", {
 		},
 
 		revealAnswer(quizId: string): void {
-			const quiz = this.quizList.find((v) => v.id === quizId);
+			const quiz = getQuizById(this, quizId);
 			if (!quiz) {
 				Logger.instance.log("quiz", {
 					info: "revealAnswer ignored: quiz not found",
@@ -754,7 +826,7 @@ export const storeQuiz = defineStore("quiz", {
 								date: Date.now(),
 								quizResult: {
 									quizId: quiz.id,
-									quizName: quiz.title,
+									quizName: quiz.title || quiz.questionList[0]!.question,
 									leaderboard,
 									winner,
 								},
@@ -768,7 +840,7 @@ export const storeQuiz = defineStore("quiz", {
 		},
 
 		async showLeaderBoard(quizId: string): Promise<void> {
-			const quiz = this.quizList.find((v) => v.id === quizId);
+			const quiz = getQuizById(this, quizId);
 			if (!quiz) return;
 			const leaderboard: TwitchatDataTypes.QuizLeaderboard = {};
 			const promises: Promise<TwitchatDataTypes.TwitchatUser | void>[] = [];
@@ -804,7 +876,7 @@ export const storeQuiz = defineStore("quiz", {
 		},
 
 		broadcastQuizState(overlayOnly?: boolean, directBroadcast: boolean = false): void {
-			const quiz = this.quizList.find((v) => v.enabled);
+			const quiz = getActiveQuiz(this);
 
 			const i18n = {
 				mode_classic: StoreProxy.i18n.t("quiz.form.mode_classic.title"),
@@ -825,6 +897,78 @@ export const storeQuiz = defineStore("quiz", {
 					directBroadcast ? 0 : 1500,
 				);
 			}
+		},
+
+		startEphemeralQuiz(quiz: TwitchatDataTypes.QuizParams): void {
+			const question = quiz.questionList[0];
+			if (!question) return;
+
+			// Start it right away. The streamer already validated the form, asking
+			// them to hit "start" on the panel afterwards would defeat the purpose
+			quiz.enabled = true;
+			quiz.leaderboard = {};
+			quiz.quizStarted_at = new Date().toISOString();
+			quiz.questionStarted_at = quiz.quizStarted_at;
+			quiz.currentQuestionId = question.id;
+			delete quiz.currentQuestionRevealed;
+			delete quiz.forceCountdownStop;
+			delete quiz.currentQuestionStats;
+			delete quiz.currentQuestionVotes;
+			delete quiz.currentQuestionScores;
+
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
+			this.ephemeralQuiz = quiz;
+			currentQuiz = quiz;
+			currentQuestion = question;
+
+			const shadowed = this.quizList.find((q) => q.enabled);
+			Logger.instance.log("quiz", {
+				info:
+					"Ephemeral quiz started (mode: " +
+					question.mode +
+					(shadowed ? ", stepping over quiz " + shadowed.id : "") +
+					")",
+				quizId: quiz.id,
+				questionId: question.id,
+				data: {
+					mode: question.mode,
+					question: question.question,
+					startedAt: quiz.questionStarted_at,
+					shadowedQuizId: shadowed?.id,
+				},
+			});
+			void this.saveData(quiz.id, false, true);
+		},
+
+		closeEphemeralQuiz(): void {
+			const quiz = this.ephemeralQuiz;
+			if (!quiz) return;
+			this.ephemeralQuiz = null;
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
+
+			// Resume the quiz that was running before, if any. Its state was left
+			// untouched while shadowed so it picks up right where it stopped.
+			const resumed = this.quizList.find((q) => q.enabled);
+			currentQuiz = resumed ?? null;
+			currentQuestion =
+				resumed?.questionList.find((q) => q.id === resumed.currentQuestionId) ?? null;
+
+			Logger.instance.log("quiz", {
+				info: resumed
+					? "Ephemeral quiz closed, resuming quiz " + resumed.id
+					: "Ephemeral quiz closed",
+				quizId: quiz.id,
+				data: { resumedQuizId: resumed?.id, resumedQuestionId: resumed?.currentQuestionId },
+			});
+
+			// Can't go through saveData() as the quiz it would resolve is gone
+			DataStore.set(DataStore.QUIZ_CONFIGS, {
+				quizList: this.quizList,
+				ephemeralQuiz: null,
+			} satisfies IStoreData);
+			this.broadcastQuizState(false, true);
 		},
 
 		validateFreeAnswer(
@@ -877,7 +1021,7 @@ export const storeQuiz = defineStore("quiz", {
 		},
 
 		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {
-			const quiz = this.quizList.find((v) => v.id === quizId);
+			const quiz = getQuizById(this, quizId);
 			if (!quiz) return {};
 			const question = quiz.questionList.find((q) => q.id === questionId);
 			if (!question || !quiz.currentQuestionVotes) return {};
@@ -1052,7 +1196,7 @@ export const storeQuiz = defineStore("quiz", {
 			quizId: string,
 			questionId: string,
 		): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]> {
-			const quiz = this.quizList.find((v) => v.id === quizId);
+			const quiz = getQuizById(this, quizId);
 			const question = quiz?.questionList.find((q) => q.id === questionId);
 			if (question?.mode === "freeAnswer") return {};
 			if (!quiz || !question) return {};
@@ -1101,4 +1245,6 @@ if (import.meta.hot) {
 
 interface IStoreData {
 	quizList: TwitchatDataTypes.QuizParams[];
+	ephemeralQuiz: TwitchatDataTypes.QuizParams | null;
 }
+

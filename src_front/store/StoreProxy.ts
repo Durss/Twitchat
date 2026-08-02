@@ -266,6 +266,11 @@ export interface IMainState {
 	 * and loop
 	 */
 	suspendedTriggerStacks: TriggerCallStack[];
+	/**
+	 * When set opens up a prompt modal.
+	 * Copntains a queue of prompts.
+	 */
+	promptParams: TwitchatDataTypes.PromptModalData[];
 }
 
 export interface IMainGetters {
@@ -314,6 +319,36 @@ export interface IMainActions {
 	 * Close confirm window
 	 */
 	closeConfirm(): void;
+	/**
+	 * Opens a prompt modal rendering the given inputs.
+	 * Resolves with the (mutated) inputs when submitted, or "undefined" if
+	 * the user cancelled it or if it timed out.
+	 * @param params
+	 */
+	promptInputs(
+		params: Omit<TwitchatDataTypes.PromptModalDataInputs, "id" | "mode" | "resolve">,
+	): Promise<TwitchatDataTypes.ParameterData<unknown>[] | undefined>;
+	/**
+	 * Opens a prompt modal rendering the given template.
+	 * Resolves with the template's result when submitted, or "undefined" if
+	 * the user cancelled it or if it timed out.
+	 * @param template
+	 * @param params
+	 */
+	promptTemplate<K extends TwitchatDataTypes.PromptTemplateKey>(
+		template: K,
+		params?: Omit<
+			TwitchatDataTypes.PromptModalDataTemplate<K>,
+			"id" | "mode" | "template" | "resolve"
+		>,
+	): Promise<TwitchatDataTypes.PromptTemplates[K]["result"] | undefined>;
+	/**
+	 * Closes the given prompt and resolves its promise with the given result.
+	 * Omitting the result cancels the prompt.
+	 * @param id
+	 * @param result
+	 */
+	closePrompt(id: string, result?: unknown): void;
 	/**
 	 * Open a tooltip
 	 * @param text
@@ -4217,6 +4252,10 @@ export interface IQuizState {
 	 */
 	quizList: TwitchatDataTypes.QuizParams[];
 	/**
+	 * An ephemeral quiz
+	 */
+	ephemeralQuiz: TwitchatDataTypes.QuizParams | null;
+	/**
 	 * Stats for the current free answer question.
 	 */
 	currentFreeAnswerStats: {
@@ -4292,6 +4331,18 @@ export interface IQuizActions {
 	 * Broadcasts currently enabled quiz state to overlays
 	 */
 	broadcastQuizState(overlayOnly?: boolean, directBroadcast?: boolean): void;
+	/**
+	 * Starts an ephemeral quiz and immediately runs its first question.
+	 * It steps over any running quiz.
+	 * If a normal quiz was already running it's restored after ephemeral quiz
+	 * is closed
+	 */
+	startEphemeralQuiz(quiz: TwitchatDataTypes.QuizParams): void;
+	/**
+	 * Closes the current ephemeral quiz and resumes the quiz it was
+	 * stepping over, if any
+	 */
+	closeEphemeralQuiz(): void;
 	/**
 	 * Computes and applies scores for all votes on a given question.
 	 * Called from revealAnswer() once voting is closed.

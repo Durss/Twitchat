@@ -337,6 +337,8 @@
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
 
+		<PromptModal v-if="storeMain.promptParams.length > 0" />
+
 		<Accessibility />
 
 		<div
@@ -439,6 +441,7 @@ import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { asset } from "@/composables/useAsset";
 import PinnedChatForm from "@/components/chatform/PinnedChatForm.vue";
+import PromptModal from "@/components/modals/PromptModal.vue";
 
 const { t } = useI18n();
 const { getAsset } = asset();
@@ -670,19 +673,11 @@ watch(
 
 //Reset emotes cache if changing BTTV/FFZ/7TV states
 watch(
-	() => storeParams.appearance.bttvEmotes.value,
-	() => {
-		storeChat.emoteSelectorCache = [];
-	},
-);
-watch(
-	() => storeParams.appearance.ffzEmotes.value,
-	() => {
-		storeChat.emoteSelectorCache = [];
-	},
-);
-watch(
-	() => storeParams.appearance.sevenTVEmotes.value,
+	[
+		() => storeParams.appearance.bttvEmotes.value,
+		() => storeParams.appearance.ffzEmotes.value,
+		() => storeParams.appearance.sevenTVEmotes.value,
+	],
 	() => {
 		storeChat.emoteSelectorCache = [];
 	},
@@ -732,6 +727,7 @@ onBeforeMount(() => {
 	PublicAPI.instance.addEventListener("SET_STOP_POLL", publicApiEventHandler);
 	PublicAPI.instance.addEventListener("SET_STOP_PREDICTION", publicApiEventHandler);
 	PublicAPI.instance.addEventListener("SET_SEND_MESSAGE", publicApiEventHandler);
+	PublicAPI.instance.addEventListener("SET_MERGE_TOGGLE", publicApiEventHandler);
 	// Attempts to request a screen wake lock.
 	navigator.wakeLock.request("screen").catch((error) => {
 		// const error = err as {name:string, message:string}
@@ -789,6 +785,7 @@ onBeforeUnmount(() => {
 	PublicAPI.instance.removeEventListener("SET_STOP_POLL", publicApiEventHandler);
 	PublicAPI.instance.removeEventListener("SET_STOP_PREDICTION", publicApiEventHandler);
 	PublicAPI.instance.removeEventListener("SET_SEND_MESSAGE", publicApiEventHandler);
+	PublicAPI.instance.removeEventListener("SET_MERGE_TOGGLE", publicApiEventHandler);
 });
 
 function closeDonorCard(): void {
@@ -828,6 +825,7 @@ async function onPublicApiEvent(
 		| "SET_STOP_POLL"
 		| "SET_STOP_PREDICTION"
 		| "SET_SEND_MESSAGE"
+		| "SET_MERGE_TOGGLE"
 	>,
 ): Promise<void> {
 	let notif: TwitchatDataTypes.NotificationTypes = "";
@@ -919,6 +917,13 @@ async function onPublicApiEvent(
 			if (e.data.message && e.data.message.trim().length > 0) {
 				MessengerProxy.instance.sendMessage(e.data.message);
 			}
+			break;
+		}
+
+		case "SET_MERGE_TOGGLE": {
+			storeParams.features.mergeConsecutive.value =
+				!storeParams.features.mergeConsecutive.value;
+			storeParams.updateParams();
 			break;
 		}
 	}

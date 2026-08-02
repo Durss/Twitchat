@@ -93,7 +93,7 @@ const component = computed(() => {
 			break;
 		}
 		case "quiz": {
-			if (storeQuiz.quizList.filter((v) => v.enabled).length > 0) {
+			if (storeQuiz.ephemeralQuiz || storeQuiz.quizList.filter((v) => v.enabled).length > 0) {
 				return QuizState;
 			}
 			break;

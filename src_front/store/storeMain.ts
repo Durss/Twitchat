@@ -34,6 +34,27 @@ import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
 
+/**
+ * Timeout IDs of the pending prompts having a "timeout_s" defined.
+ * Kept out of the store's state as these are pure implementation details.
+ */
+const promptTimeouts: Record<string, number> = {};
+
+/**
+ * Pushes a prompt on the queue and schedules its auto cancelation if requested
+ */
+function queuePrompt(
+	queue: TwitchatDataTypes.PromptModalData[],
+	data: TwitchatDataTypes.PromptModalData,
+): void {
+	queue.push(data);
+	if (data.timeout_s) {
+		promptTimeouts[data.id] = window.setTimeout(() => {
+			StoreProxy.main.closePrompt(data.id);
+		}, data.timeout_s * 1000);
+	}
+}
+
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
 		latestUpdateIndex: 21,
@@ -60,6 +81,7 @@ export const storeMain = defineStore("main", {
 		outdatedDataVersion: false,
 		offlineMode: false,
 		suspendedTriggerStacks: [],
+		promptParams: [],
 	}),
 
 	getters: {
@@ -416,15 +438,6 @@ export const storeMain = defineStore("main", {
 					json.break_durations = { 1: 10, 100: 20, 1000: 30, 5000: 40, 10000: 50 };
 				}
 				PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_CONFIGS", json);
-			});
-
-			/**
-			 * Called when asking to toggle message merging
-			 */
-			PublicAPI.instance.addEventListener("SET_MERGE_TOGGLE", () => {
-				StoreProxy.params.features.mergeConsecutive.value =
-					!StoreProxy.params.features.mergeConsecutive.value;
-				StoreProxy.params.updateParams();
 			});
 
 			/**
@@ -896,6 +909,49 @@ export const storeMain = defineStore("main", {
 
 		closeConfirm(): void {
 			this.confirmData = null;
+		},
+
+		promptInputs(
+			params: Omit<TwitchatDataTypes.PromptModalDataInputs, "id" | "mode" | "resolve">,
+		): Promise<TwitchatDataTypes.ParameterData<unknown>[] | undefined> {
+			return new Promise((resolve) => {
+				queuePrompt(this.promptParams, {
+					...params,
+					id: Utils.getUUID(),
+					mode: "inputs",
+					resolve: resolve as (result: unknown) => void,
+				});
+			});
+		},
+
+		promptTemplate<K extends TwitchatDataTypes.PromptTemplateKey>(
+			template: K,
+			params?: Omit<
+				TwitchatDataTypes.PromptModalDataTemplate<K>,
+				"id" | "mode" | "template" | "resolve"
+			>,
+		): Promise<TwitchatDataTypes.PromptTemplates[K]["result"] | undefined> {
+			return new Promise((resolve) => {
+				queuePrompt(this.promptParams, {
+					...params,
+					id: Utils.getUUID(),
+					mode: "template",
+					template,
+					resolve: resolve as (result: unknown) => void,
+				} as TwitchatDataTypes.PromptModalData);
+			});
+		},
+
+		closePrompt(id: string, result?: unknown): void {
+			const index = this.promptParams.findIndex((v) => v.id === id);
+			if (index === -1) return;
+			const entry = this.promptParams.splice(index, 1)[0]!;
+			const timeout = promptTimeouts[id];
+			if (timeout) {
+				clearTimeout(timeout);
+				delete promptTimeouts[id];
+			}
+			entry.resolve(result);
 		},
 
 		openTooltip(payload: string) {

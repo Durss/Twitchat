@@ -640,6 +640,12 @@ export const storeChat = defineStore("chat", {
 				twitch_scopes: [TwitchScopes.CHAT_WARNING],
 			},
 			{
+				id: "quickquiz",
+				cmd: "/quickquiz",
+				detailsKey: "params.commands.quickquiz",
+				needBroadcaster: true,
+			},
+			{
 				id: "betaadd",
 				cmd: "/betaAdd {user}",
 				detailsKey: "params.commands.betaadd",
