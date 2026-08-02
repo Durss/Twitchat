@@ -6,7 +6,7 @@
 		@dragleave="onDragLeave"
 		@drop.prevent
 	>
-		<div class="header" ref="headerRef" @click="toggle()">
+		<div class="header" ref="headerRef" :class="{ clickable: !noToggle }" @click="toggle()">
 			<div class="leftActions" v-if="!isEmptySlot(slots.left_actions)">
 				<slot name="left_actions" />
 			</div>
@@ -80,7 +80,7 @@
 			</button>
 
 			<button
-				v-if="!noArrow"
+				v-if="!noArrow && !noToggle"
 				type="button"
 				class="arrow right"
 				:class="{ open: isOpen && !isClosing }"
@@ -150,6 +150,7 @@ const props = withDefaults(
 		disabled?: boolean;
 		noBackground?: boolean;
 		noArrow?: boolean;
+		noToggle?: boolean;
 		noTitleColor?: boolean;
 		editableTitle?: boolean;
 		titleMaxLength?: number;
@@ -178,9 +179,9 @@ const titleRef = useTemplateRef("titleRef");
 const titleMeasureRef = useTemplateRef("titleMeasureRef");
 const titleEditRef = useTemplateRef<InstanceType<typeof ContentEditable>>("titleEditRef");
 
-const isOpen = ref(props.open);
+const isOpen = ref(props.noToggle || props.open);
 const isClosing = ref(false);
-const contentVisible = ref(props.open);
+const contentVisible = ref(props.noToggle || props.open);
 const localTitle = ref(props.title || props.titleDefault || "");
 const isEditingTitle = ref(false);
 const actionsCollapsed = ref(false);
@@ -233,6 +234,7 @@ const rootClasses = computed(() => [
 		noBackground: props.noBackground,
 		noTitleColor: props.noTitleColor,
 		disabled: props.disabled,
+		noToggle: props.noToggle,
 		premiumLocked: props.premiumLock && !storeAuth.isPremium,
 	},
 ]);
@@ -243,6 +245,7 @@ const rootStyles = computed<CSSProperties>(() => {
 });
 
 async function toggle(forcedState?: boolean): Promise<void> {
+	if (props.noToggle) return;
 	const targetState = forcedState ?? !isOpen.value;
 	if (targetState === isOpen.value) return;
 
@@ -391,6 +394,18 @@ watch(
 	(newVal) => toggle(newVal),
 );
 
+watch(
+	() => props.noToggle,
+	(newVal) => {
+		if (!newVal) return;
+		// Force the block open as it can't be opened manually anymore
+		gsap.killTweensOf(contentRef.value);
+		isClosing.value = false;
+		isOpen.value = true;
+		contentVisible.value = true;
+	},
+);
+
 watch(isOpen, (newVal) => emit("update:open", newVal));
 
 watch(localTitle, (newVal) => {
@@ -452,7 +467,6 @@ onUnmounted(() => {
 		gap: 0.5em;
 		padding: 0;
 		padding-left: 0.5em;
-		cursor: pointer;
 		overflow: hidden;
 		border-radius: var(--border-radius) var(--border-radius) 0 0;
 		border-bottom: 2px solid var(--color-dark-fader);
@@ -460,7 +474,11 @@ onUnmounted(() => {
 		color: var(--color-text);
 		transition: background-color 0.25s;
 
-		&:hover {
+		&.clickable {
+			cursor: pointer;
+		}
+
+		&.clickable:hover {
 			background-color: var(--toggle-block-header-background-hover);
 		}
 	}
@@ -694,7 +712,7 @@ onUnmounted(() => {
 		.header {
 			color: var(--color-light);
 			background-color: var(--color-alert);
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-alert-light);
 			}
 		}
@@ -708,7 +726,7 @@ onUnmounted(() => {
 		.header {
 			color: var(--color-light);
 			background-color: var(--color-primary);
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-primary-light);
 			}
 		}
@@ -722,7 +740,7 @@ onUnmounted(() => {
 		.header {
 			color: var(--color-light);
 			background-color: var(--color-secondary);
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-secondary-light);
 			}
 		}
@@ -736,7 +754,7 @@ onUnmounted(() => {
 		.header {
 			color: var(--color-light);
 			background-color: var(--color-premium);
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-premium-light);
 			}
 		}
@@ -759,7 +777,7 @@ onUnmounted(() => {
 		.header {
 			color: var(--color-dark);
 			background-color: var(--color-light);
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-light-dark);
 			}
 		}
@@ -795,7 +813,7 @@ onUnmounted(() => {
 			color: var(--color-secondary);
 			padding-left: 0.5em;
 
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-dark-fadest);
 			}
 		}
@@ -819,14 +837,14 @@ onUnmounted(() => {
 		&.primary .header {
 			color: var(--color-primary);
 			background-color: transparent;
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-dark-fadest);
 			}
 		}
 		&.premium .header {
 			color: var(--color-premium);
 			background-color: transparent;
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-dark-fadest);
 			}
 		}
@@ -834,7 +852,7 @@ onUnmounted(() => {
 		&.alert .header {
 			color: var(--color-alert);
 			background-color: transparent;
-			&:hover {
+			&.clickable:hover {
 				background-color: var(--color-dark-fadest);
 			}
 		}

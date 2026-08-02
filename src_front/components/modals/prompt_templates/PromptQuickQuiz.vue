@@ -3,7 +3,7 @@
 		<QuizQuestionItem
 			:question="quiz.questionList[0]!"
 			:quiz="quiz"
-			:auto-open="true"
+			:noToggle="true"
 			@changeMode="changeQuestionMode"
 		/>
 	</div>

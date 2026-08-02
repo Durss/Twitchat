@@ -3,10 +3,11 @@
 		:class="{ holder: true, hasTitle: !!question.question }"
 		:title="question.question"
 		:titleDefault="t('quiz.form.question_placeholder')"
+		:noToggle="props.noToggle"
 		:open="autoOpen"
 	>
 		<template #left_actions>
-			<Icon class="dragHandle" name="dragZone" />
+			<Icon v-if="props.noToggle !== true" class="dragHandle" name="dragZone" />
 			<TTButton
 				class="modeSelector"
 				:icon="`quiz_${question.mode}`"
@@ -128,7 +129,7 @@
 				>
 			</div>
 		</template>
-		<template #right_actions>
+		<template v-if="props.noToggle !== true" #right_actions>
 			<TTButton
 				@click.stop
 				:copy="question.id"
@@ -277,6 +278,7 @@ const props = defineProps<{
 	question: TwitchatDataTypes.QuizParams["questionList"][number];
 	quiz: TwitchatDataTypes.QuizParams;
 	autoOpen?: boolean;
+	noToggle?: boolean;
 }>();
 
 const emit = defineEmits<{
