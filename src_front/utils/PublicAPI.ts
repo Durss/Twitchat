@@ -124,7 +124,8 @@ export default class PublicAPI extends EventDispatcher {
 			];
 		const pinnedTwitchMessage =
 			StoreProxy.chat.pinnedTwitchMessage[StoreProxy.auth.twitch.user.id];
-		const currentQuiz = StoreProxy.quiz.quizList.find((v) => v.enabled);
+		const currentQuiz =
+			StoreProxy.quiz.ephemeralQuiz ?? StoreProxy.quiz.quizList.find((v) => v.enabled);
 		const currentQuizQuestion = currentQuiz?.questionList.find(
 			(v) => v.id == currentQuiz.currentQuestionId,
 		);
