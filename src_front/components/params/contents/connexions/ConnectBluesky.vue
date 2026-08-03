@@ -92,7 +92,7 @@ const param_handle = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	value: "",
 	labelKey: "bluesky.param_handle",
-	placeholder: "you@bsky.social",
+	placeholder: "you.bsky.social",
 	icon: "user",
 	longText: false,
 });
