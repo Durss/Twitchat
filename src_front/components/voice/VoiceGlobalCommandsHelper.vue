@@ -27,23 +27,23 @@ const storeVoice = useStoreVoice();
 const actions = ref<{ label: string; action: VoiceAction }[]>([]);
 
 onMounted(() => {
-	// const actions = storeVoice.voiceActions;
 	type VAKeys = keyof typeof VoiceAction;
 	const keys = Object.keys(VoiceAction);
 
 	//Search for global labels
 	for (let i = 0; i < keys.length; i++) {
 		const a = keys[i];
-		const isGlobal =
-			Object.prototype.hasOwnProperty.call(VoiceAction, a + "_IS_GLOBAL") === true;
+		const isGlobal = VoiceAction[(a + "_IS_GLOBAL") as VAKeys] === true;
 		if (!isGlobal) continue; //Ignore non global commands
 
-		const id: string = VoiceAction[a as VAKeys] as string;
+		//Actions are stored by their VoiceAction key, not by the event they're bound to
+		const id: string = a as string;
+		const event = VoiceAction.keyToEvent(id);
 		const action = (storeVoice.voiceActions as VoiceAction[]).find((v) => v.id == id);
 		if (action) {
 			if (
 				props.confirmMode === false ||
-				(props.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))
+				(props.confirmMode && (event == VoiceAction.SUBMIT || event == VoiceAction.CANCEL))
 			) {
 				actions.value.push({
 					action,
@@ -59,6 +59,7 @@ onMounted(() => {
 .voiceglobalcommandshelper {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
 	.icon {
 		height: 2em;
 		margin: 0 0 0.5em 0;

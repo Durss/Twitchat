@@ -153,6 +153,25 @@ onBeforeMount(() => {
 		openStates[a.id] = false;
 	}
 
+	//Watchers are created only after the initial data load so it doesn't save
+	//an incomplete list. Global commands are loaded by the VoiceGlobalCommands
+	//child that's mounted after this, saving before that would wipe them out.
+	watch(
+		() => actions.value,
+		() => {
+			saveActions();
+		},
+		{ deep: true },
+	);
+
+	watch(
+		() => globalCommands.value,
+		() => {
+			saveActions();
+		},
+		{ deep: true },
+	);
+
 	PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE_STATE", triggerHandler);
 	PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL", triggerHandler);
 	PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", triggerHandler);
@@ -259,7 +278,8 @@ function getIconFromID(id: string | undefined): string {
 function onTrigger(
 	e: TwitchatEvent<keyof TwitchatEventMap, TwitchatEventMap[keyof TwitchatEventMap]>,
 ): void {
-	const el = actionRefs[e.type];
+	const id = Object.keys(actionRefs).find((key) => VoiceAction.keyToEvent(key) == e.type);
+	const el = id ? actionRefs[id] : undefined;
 	if (el && el.$el != null) {
 		const div = (el.$el as HTMLDivElement).getElementsByClassName("header")[0]!;
 		gsap.fromTo(
@@ -281,22 +301,6 @@ function saveActions(): void {
 	list = list.concat(globalCommands.value);
 	storeVoice.setVoiceActions(list);
 }
-
-watch(
-	() => actions.value,
-	() => {
-		saveActions();
-	},
-	{ deep: true },
-);
-
-watch(
-	() => globalCommands.value,
-	() => {
-		saveActions();
-	},
-	{ deep: true },
-);
 </script>
 
 <style scoped lang="less">

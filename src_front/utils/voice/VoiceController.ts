@@ -247,11 +247,23 @@ export default class VoiceController {
 		);
 	}
 
-	private triggerAction(action: keyof TwitchatEventMap, data?: JsonObject): void {
+	/**
+	 * Broadcasts the public API event bound to the given action.
+	 * The action is expected to be a VoiceAction key (ex: "CREATE_POLL") as
+	 * that's what's stored on the user's actions, but an event ID is also
+	 * accepted for the actions triggered internally.
+	 * @param action
+	 * @param data
+	 */
+	private triggerAction(action: string, data?: JsonObject): void {
 		if (!action) return;
 
+		const event = VoiceAction.keyToEvent(action);
+
+		//Switch on the action key and not on the event as multiple actions can
+		//be bound to the same event (ex: pause/unpause, scroll up/down)
 		switch (action) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:
+			case "CHAT_FEED_SCROLL_UP":
 				PublicAPI.instance.broadcast(
 					"SET_CHAT_FEED_SCROLL",
 					{ scrollBy: -500, colIndex: 0, mode: "pixels" },
@@ -259,7 +271,7 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:
+			case "CHAT_FEED_SCROLL_DOWN":
 				PublicAPI.instance.broadcast(
 					"SET_CHAT_FEED_SCROLL",
 					{ scrollBy: 500, colIndex: 0, mode: "pixels" },
@@ -267,7 +279,7 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.CHAT_FEED_READ:
+			case "CHAT_FEED_READ":
 				PublicAPI.instance.broadcast(
 					"SET_CHAT_FEED_READ",
 					{ count: 10, colIndex: 0 },
@@ -275,7 +287,7 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.GREET_FEED_READ:
+			case "GREET_FEED_READ":
 				PublicAPI.instance.broadcast(
 					"SET_GREET_FEED_READ",
 					{ messageCount: 10 },
@@ -283,7 +295,7 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.START_EMERGENCY:
+			case "START_EMERGENCY":
 				PublicAPI.instance.broadcast(
 					"SET_EMERGENCY_MODE",
 					{ enabled: true, promptConfirmation: true },
@@ -291,10 +303,10 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.STOP_EMERGENCY:
+			case "STOP_EMERGENCY":
 				PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", { enabled: false }, true, true);
 				return;
-			case VoiceAction.CHAT_FEED_PAUSE:
+			case "CHAT_FEED_PAUSE":
 				PublicAPI.instance.broadcast(
 					"SET_CHAT_FEED_PAUSE_STATE",
 					{ colIndex: 0 },
@@ -302,7 +314,7 @@ export default class VoiceController {
 					true,
 				);
 				return;
-			case VoiceAction.CHAT_FEED_UNPAUSE:
+			case "CHAT_FEED_UNPAUSE":
 				PublicAPI.instance.broadcast(
 					"SET_CHAT_FEED_PAUSE_STATE",
 					{ colIndex: 0 },
@@ -311,11 +323,11 @@ export default class VoiceController {
 				);
 				return;
 		}
-		if (action != VoiceAction.TEXT_UPDATE) {
+		if (event != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone++;
 		}
 		// @ts-ignore
-		PublicAPI.instance.broadcast(action, data, true, true);
+		PublicAPI.instance.broadcast(event, data, true, true);
 	}
 
 	private onFinalText(text: string) {
@@ -360,7 +372,11 @@ export default class VoiceController {
 						v?.toLowerCase() ==
 							(this.hashmapGlobalActions[typedKey].sentences || "___").toLowerCase()
 					) {
-						actionsList.push({ id: this.hashmapGlobalActions[typedKey].id });
+						//Actions are stored by their VoiceAction key, convert it to the
+						//event so listeners can handle the batch items
+						actionsList.push({
+							id: VoiceAction.keyToEvent(this.hashmapGlobalActions[typedKey].id),
+						});
 						matchAction = true;
 						break;
 					}

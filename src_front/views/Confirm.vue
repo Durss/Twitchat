@@ -4,7 +4,10 @@
 		<div class="holder" ref="holder">
 			<div class="title" v-html="htmlSafe(confirmData.title)"></div>
 
-			<VoiceGlobalCommandsHelper v-if="voiceController" :confirmMode="true" />
+			<VoiceGlobalCommandsHelper
+				v-if="VoiceController.instance.started.value"
+				:confirmMode="true"
+			/>
 
 			<div
 				class="description"
@@ -82,13 +85,7 @@ watch(
 				opacity: 0,
 				ease: "back.out",
 			});
-			if (VoiceController.instance.started.value) {
-				voiceController.value = new FormVoiceControllHelper(
-					rootEl.value!,
-					close,
-					submitForm,
-				);
-			}
+			voiceController.value = new FormVoiceControllHelper(rootEl.value!, close, submitForm);
 		} else {
 			if (voiceController.value) voiceController.value.dispose();
 			gsap.killTweensOf([holder.value!, dimmer.value!]);

@@ -1,5 +1,7 @@
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 
+export type VoiceActionKey = keyof typeof VoiceAction;
+
 /**
  * Created : 10/05/2022
  */
@@ -99,8 +101,25 @@ export default class VoiceAction {
 		"SET_CENSOR_DELETED_MESSAGES_TOGGLE";
 	public static CENSOR_DELETED_MESSAGES_TOGGLE_ICON: string = "show";
 
+	/**
+	 * Voice actions are stored (and labeled) by their static key (ex: "CREATE_POLL"),
+	 * NOT by the public API event they're bound to (ex: "ON_OPEN_POLL_CREATION_FORM").
+	 * This converts such a key to its event so it can be broadcasted.
+	 * Values that aren't a known key are returned untouched as they're expected
+	 * to already be an event.
+	 * @param key
+	 */
+	public static keyToEvent(key: string): keyof TwitchatEventMap {
+		const event = VoiceAction[key as VoiceActionKey];
+		if (typeof event == "string") return event as keyof TwitchatEventMap;
+		return key as keyof TwitchatEventMap;
+	}
+
 	constructor(
-		public id?: keyof TwitchatEventMap,
+		/**
+		 * Static key of the action (ex: "CREATE_POLL"). @see keyToEvent()
+		 */
+		public id?: string,
 		public sentences?: string,
 	) {}
 }

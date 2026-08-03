@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import { storeVoice as useStoreVoice } from "@/store/voice/storeVoice";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import VoiceAction from "@/utils/voice/VoiceAction";
@@ -48,13 +47,13 @@ const openLocal = ref(false);
 onMounted(() => {
 	type VAKeys = keyof typeof VoiceAction;
 	const actions = Object.keys(VoiceAction);
-
 	//Search for global labels
 	for (let i = 0; i < actions.length; i++) {
 		const a = actions[i];
 		const isGlobal = VoiceAction[(a + "_IS_GLOBAL") as VAKeys] === true;
 		if (!isGlobal) continue;
 
+		//Actions are stored by their VoiceAction key, not by the event they're bound to
 		const id: string = a as string;
 		let text = "";
 		const action = (storeVoice.voiceActions as VoiceAction[]).find((v) => v.id == id);
@@ -77,7 +76,7 @@ function updateCommands(isInit: boolean = false): void {
 	for (let i = 0; i < items.value.length; i++) {
 		const item = items.value[i]!;
 		data.push({
-			id: itemIDs.value[i] as keyof TwitchatEventMap,
+			id: itemIDs.value[i],
 			sentences: item.value,
 		});
 
