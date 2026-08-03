@@ -1329,6 +1329,40 @@ const UserDataSchema = {
 									},
 								},
 
+								promptData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										title: { type: "string", maxLength: 100 },
+										description: { type: "string", maxLength: 500 },
+										timeout_s: { type: "number" },
+										stopOnCancel: { type: "boolean" },
+										params: {
+											type: "array",
+											minItems: 0,
+											maxItems: 30,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													id: { type: "string", maxLength: 40 },
+													label: { type: "string", maxLength: 100 },
+													placeholder: { type: "string", maxLength: 30 },
+													type: { type: "string", maxLength: 20 },
+													min: { type: "number" },
+													max: { type: "number" },
+													listValues: {
+														type: "array",
+														minItems: 0,
+														maxItems: 100,
+														items: { type: "string", maxLength: 100 },
+													},
+												},
+											},
+										},
+									},
+								},
+
 								blueskyData: {
 									type: "object",
 									additionalProperties: false,

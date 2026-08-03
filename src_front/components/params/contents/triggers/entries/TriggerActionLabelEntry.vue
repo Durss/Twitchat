@@ -117,17 +117,5 @@ function openLabels(): void {
 
 <style scoped lang="less">
 .triggeractionlabelentry {
-	.info {
-		font-size: 0.9em;
-		line-height: 1.3em;
-		.icon {
-			height: 1em;
-			margin-right: 0.5em;
-			vertical-align: middle;
-		}
-		a {
-			cursor: pointer;
-		}
-	}
 }
 </style>

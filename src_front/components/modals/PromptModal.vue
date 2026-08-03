@@ -154,6 +154,11 @@ function close(result?: unknown): void {
 		margin: auto;
 	}
 
+	.holder {
+		max-width: min(calc(100vw - 1em), 600px);
+		width: max-content;
+	}
+
 	.content {
 		gap: 0.5em;
 		display: flex;
@@ -174,4 +179,3 @@ function close(result?: unknown): void {
 	}
 }
 </style>
-

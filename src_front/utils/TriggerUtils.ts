@@ -340,7 +340,8 @@ export default class TriggerUtils {
 				a.type != "obs" &&
 				a.type != "groq" &&
 				a.type != "bluesky" &&
-				a.type != "json_extract"
+				a.type != "json_extract" &&
+				a.type != "prompt"
 			)
 				continue;
 
@@ -442,6 +443,20 @@ export default class TriggerUtils {
 							descReplacedValues: { NAME: "{" + ph.placeholder.toUpperCase() + "}" },
 						});
 					}
+				}
+			} else if (a.type == "prompt") {
+				for (const param of a.promptData?.params || []) {
+					if (!param.placeholder || param.placeholder.length === 0) continue;
+					placeholdersList.push({
+						tag: param.placeholder.toUpperCase(),
+						pointer: "",
+						isUserID: false,
+						numberParsable: param.type == "number" || param.type == "duration",
+						descKey: "triggers.prompt_placeholder",
+						descReplacedValues: {
+							NAME: "{" + param.placeholder.toUpperCase() + "}",
+						},
+					});
 				}
 			} else if (a.type == "raffle") {
 				if (a.raffleData.triggerWaitForWinner) {

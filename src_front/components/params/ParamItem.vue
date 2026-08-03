@@ -774,7 +774,7 @@ let childrenExpanded = false;
 // against props.modelValue because callers commonly do `v-model="x.value"`
 // while also passing `:paramData="x"`, so modelValue and paramData.value are
 // the same reactive reference and would always look equal.
-let lastValue: unknown = undefined;
+let lastValue: string = "";
 
 const placeholderModelValue = computed<string>(() => {
 	const value = props.paramData.value;
@@ -1081,9 +1081,10 @@ async function onEdit(): Promise<void> {
 		props.paramData.value !== ""
 	) {
 		const prevValue = lastValue;
+		let newValue = props.paramData.value?.toString();
 		emit("update:modelValue", props.paramData.value);
-		if (prevValue != props.paramData.value) {
-			lastValue = props.paramData.value;
+		if (prevValue != newValue) {
+			lastValue = newValue;
 			emit(
 				"change",
 				prevValue as string | boolean | number | string[] | null,
@@ -1211,7 +1212,9 @@ function insertPlaceholder(tag: string): void {
 
 function onPlaceholderModelValue(value: string): void {
 	if (!Array.isArray(props.paramData.value)) {
-		props.paramData.value = value;
+		if (props.paramData.type != "editablelist") {
+			props.paramData.value = value;
+		}
 		onEdit();
 	}
 }
@@ -1308,7 +1311,7 @@ onBeforeMount(() => {
 	if (props.modelValue !== null && props.modelValue !== undefined) {
 		props.paramData.value = props.modelValue;
 	}
-	lastValue = props.modelValue ?? props.paramData.value;
+	lastValue = props.modelValue?.toString() ?? props.paramData.value?.toString();
 
 	//If it's a boolean and modelValue is undefined, force it to false
 	if (props.paramData.type == "boolean" && props.modelValue == undefined) {
@@ -1465,7 +1468,7 @@ watch(
 		// lastValue with the new value before onEdit can detect the change.
 		if (value !== null && value !== undefined && value !== props.paramData.value) {
 			props.paramData.value = value;
-			lastValue = value;
+			lastValue = value.toString();
 		}
 	},
 );
@@ -1593,7 +1596,6 @@ watch(
 	}
 
 	&.error {
-		cursor: not-allowed;
 		background-color: var(--color-alert-fader) !important;
 		.errorMessage {
 			font-size: 0.9em;
@@ -1995,6 +1997,17 @@ watch(
 				& > label {
 					margin-top: 0.25em;
 				}
+			}
+		}
+	}
+
+	&.type-editablelist {
+		.content {
+			.placeholderselector.popoutMode {
+				height: 2em;
+				top: auto;
+				bottom: 0;
+				transform: unset;
 			}
 		}
 	}

@@ -117,7 +117,8 @@ export type TriggerActionTypes =
 	| TriggerActionSFXRData
 	| TriggerActionJSONExtractData
 	| TriggerActionBlueskyData
-	| TriggerActionMeldStudioData;
+	| TriggerActionMeldStudioData
+	| TriggerActionPromptData;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
@@ -1774,6 +1775,87 @@ export interface TriggerActionJSONExtractData extends TriggerActionData {
 		 * Extract placeholders with JSONPath
 		 */
 		outputPlaceholderList?: IHttpPlaceholder[];
+	};
+}
+
+/**
+ * Available data types for a prompt action's parameter
+ */
+export const TriggerActionPromptParamTypes = [
+	"string",
+	"boolean",
+	"number",
+	"list",
+	"duration",
+] as const;
+export type TriggerActionPromptParamType = (typeof TriggerActionPromptParamTypes)[number];
+
+/**
+ * Maximum number of parameters a prompt action can request
+ */
+export const TRIGGER_ACTION_PROMPT_MAX_PARAMS = 30;
+
+/**
+ * Describes a single field of a prompt action
+ */
+export interface TriggerActionPromptParamData {
+	id: string;
+	/**
+	 * Label displayed next to the field
+	 */
+	label: string;
+	/**
+	 * Placeholder the entered value is stored to
+	 */
+	placeholder: string;
+	/**
+	 * Type of field to display
+	 */
+	type: TriggerActionPromptParamType;
+	/**
+	 * Optional minimum value. Only used by the "number" type
+	 */
+	min?: number;
+	/**
+	 * Optional maximum value. Only used by the "number" type
+	 */
+	max?: number;
+	/**
+	 * Selectable items. Only used by the "list" type
+	 */
+	listValues?: string[];
+}
+
+/**
+ * Opens a modal asking the user to fill a list of fields.
+ * Trigger execution is paused until the user submits or cancels it.
+ */
+export interface TriggerActionPromptData extends TriggerActionData {
+	type: "prompt";
+	promptData: {
+		/**
+		 * Title of the modal
+		 */
+		title: string;
+		/**
+		 * Text displayed under the title
+		 */
+		description: string;
+		/**
+		 * Automatically cancels the prompt after the given duration in seconds.
+		 * 0 or undefined means the prompt waits indefinitely.
+		 */
+		timeout_s?: number;
+		/**
+		 * If true, the remaining actions of the trigger are skipped when the
+		 * prompt is canceled or times out.
+		 * If false, execution continues with empty values.
+		 */
+		stopOnCancel: boolean;
+		/**
+		 * Fields to ask the user for
+		 */
+		params: TriggerActionPromptParamData[];
 	};
 }
 

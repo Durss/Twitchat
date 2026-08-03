@@ -3270,65 +3270,67 @@ export default class TriggerActionHandler {
 					await Utils.promisedTimeout(delay * 1000);
 				} else //Handle OBS action
 				if (step.type == "obs") {
-					let sourceName = step.sourceName;
-					if (
-						sourceName ==
-						StoreProxy.i18n.t("triggers.actions.obs.param_source_currentScene")
-					) {
-						sourceName = await OBSWebSocket.instance.getCurrentScene();
-					}
-
-					logStep.messages.push({
-						date: Date.now(),
-						value: "Execute OBS action " + step.obsAction,
-					});
-					if (step.obsAction == "sources" || !step.obsAction) {
-						//Wait for potential OBS action in progress for the exact same source
-						//to complete its execution
-						const sourceBusy = this.obsSourceNameToQueue[sourceName] != undefined;
-						if (sourceBusy) {
-							logStep.messages.push({
-								date: Date.now(),
-								value:
-									'OBS source "' + sourceName + '" is busy, wait for its release',
-							});
-						}
-						const prom = this.obsSourceNameToQueue[sourceName] ?? Promise.resolve();
-						let resolverOBS!: () => void;
-						this.obsSourceNameToQueue[sourceName] = new Promise<void>(
-							(resolve, _reject) => {
-								resolverOBS = resolve;
-							},
-						);
-						await prom;
-						if (sourceBusy) {
-							logStep.messages.push({
-								date: Date.now(),
-								value:
-									'OBS source "' +
-									sourceName +
-									'" has been released, continue process',
-							});
+					if (!OBSWebSocket.instance.connected.value) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action.",
+						});
+						log.error = true;
+						logStep.error = true;
+					} else {
+						let sourceName = step.sourceName;
+						if (
+							sourceName ==
+							StoreProxy.i18n.t("triggers.actions.obs.param_source_currentScene")
+						) {
+							sourceName = await OBSWebSocket.instance.getCurrentScene();
 						}
 
 						logStep.messages.push({
 							date: Date.now(),
-							value:
-								'Execute OBS action "' +
-								step.action +
-								'" on source "' +
-								sourceName +
-								'"',
+							value: "Execute OBS action " + step.obsAction,
 						});
+						if (step.obsAction == "sources" || !step.obsAction) {
+							//Wait for potential OBS action in progress for the exact same source
+							//to complete its execution
+							const sourceBusy = this.obsSourceNameToQueue[sourceName] != undefined;
+							if (sourceBusy) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'OBS source "' +
+										sourceName +
+										'" is busy, wait for its release',
+								});
+							}
+							const prom = this.obsSourceNameToQueue[sourceName] ?? Promise.resolve();
+							let resolverOBS!: () => void;
+							this.obsSourceNameToQueue[sourceName] = new Promise<void>(
+								(resolve, _reject) => {
+									resolverOBS = resolve;
+								},
+							);
+							await prom;
+							if (sourceBusy) {
+								logStep.messages.push({
+									date: Date.now(),
+									value:
+										'OBS source "' +
+										sourceName +
+										'" has been released, continue process',
+								});
+							}
 
-						if (!OBSWebSocket.instance.connected.value) {
 							logStep.messages.push({
 								date: Date.now(),
-								value: "❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action.",
+								value:
+									'Execute OBS action "' +
+									step.action +
+									'" on source "' +
+									sourceName +
+									'"',
 							});
-							log.error = true;
-							logStep.error = true;
-						} else {
+
 							if (step.text) {
 								try {
 									const text = await this.parsePlaceholders(
@@ -3828,7 +3830,9 @@ export default class TriggerActionHandler {
 																});
 																frames.push({
 																	requestType: "Sleep",
-																	requestData: { sleepFrames: 1 },
+																	requestData: {
+																		sleepFrames: 1,
+																	},
 																});
 															}
 														}
@@ -3909,228 +3913,229 @@ export default class TriggerActionHandler {
 								date: Date.now(),
 								value: 'OBS action executed on source "' + sourceName + '"',
 							});
-						}
 
-						resolverOBS();
-						delete this.obsSourceNameToQueue[sourceName];
-					} else if (step.obsAction == "startstream") {
-						void OBSWebSocket.instance.startStreaming();
-					} else if (step.obsAction == "stopstream") {
-						void OBSWebSocket.instance.stopStreaming();
-					} else if (step.obsAction == "startrecord") {
-						await OBSWebSocket.instance.socket.call("StartRecord");
-					} else if (step.obsAction == "pauserecord") {
-						await OBSWebSocket.instance.socket.call("PauseRecord");
-					} else if (step.obsAction == "resumerecord") {
-						await OBSWebSocket.instance.socket.call("ResumeRecord");
-					} else if (step.obsAction == "stoprecord") {
-						await OBSWebSocket.instance.socket.call("StopRecord");
-					} else if (step.obsAction == "startvirtualcam") {
-						await OBSWebSocket.instance.socket.call("StartVirtualCam");
-					} else if (step.obsAction == "stopvirtualcam") {
-						await OBSWebSocket.instance.socket.call("StopVirtualCam");
-					} else if (step.obsAction == "createchapter") {
-						const chapterName = await this.parsePlaceholders(
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							step.recordChapterName || "",
-							subEvent,
-						);
-						await OBSWebSocket.instance.socket.call("CreateRecordChapter", {
-							chapterName,
-						});
-					} else if (step.obsAction == "emitevent") {
-						const params = await this.parsePlaceholders(
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							step.browserEventParams || "",
-							subEvent,
-						);
-						const event: {
-							requestType: string;
-							vendorName: string;
-							requestData: { event_name: string; event_data: { data: string } };
-						} = {
-							requestType: "emit_event",
-							vendorName: "obs-browser",
-							requestData: {
-								event_name: step.browserEventName || "",
-								event_data: { data: params },
-							},
-						};
-						void OBSWebSocket.instance.socket.call("CallVendorRequest", event);
-					} else if (step.obsAction == "hotKey" && step.hotKeyAction) {
-						await OBSWebSocket.instance.socket.call("TriggerHotkeyByName", {
-							hotkeyName: step.hotKeyAction,
-						});
-					} else if (step.obsAction == "screenshot") {
-						if (!sourceName) {
-							logStep.messages.push({
-								date: Date.now(),
-								value: "❌ Cannot save screenshot, source name is missing.",
+							resolverOBS();
+							delete this.obsSourceNameToQueue[sourceName];
+						} else if (step.obsAction == "startstream") {
+							void OBSWebSocket.instance.startStreaming();
+						} else if (step.obsAction == "stopstream") {
+							void OBSWebSocket.instance.stopStreaming();
+						} else if (step.obsAction == "startrecord") {
+							await OBSWebSocket.instance.socket.call("StartRecord");
+						} else if (step.obsAction == "pauserecord") {
+							await OBSWebSocket.instance.socket.call("PauseRecord");
+						} else if (step.obsAction == "resumerecord") {
+							await OBSWebSocket.instance.socket.call("ResumeRecord");
+						} else if (step.obsAction == "stoprecord") {
+							await OBSWebSocket.instance.socket.call("StopRecord");
+						} else if (step.obsAction == "startvirtualcam") {
+							await OBSWebSocket.instance.socket.call("StartVirtualCam");
+						} else if (step.obsAction == "stopvirtualcam") {
+							await OBSWebSocket.instance.socket.call("StopVirtualCam");
+						} else if (step.obsAction == "createchapter") {
+							const chapterName = await this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								step.recordChapterName || "",
+								subEvent,
+							);
+							await OBSWebSocket.instance.socket.call("CreateRecordChapter", {
+								chapterName,
 							});
-							log.error = true;
-							logStep.error = true;
-						} else {
-							const size: { imageWidth?: number; imageHeight?: number } = {};
-							if (step.screenshotImgCustomSize) {
-								if (step.screenshotImgWidth)
-									size.imageWidth = step.screenshotImgWidth;
-								if (step.screenshotImgHeight)
-									size.imageHeight = step.screenshotImgHeight;
-							}
+						} else if (step.obsAction == "emitevent") {
+							const params = await this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								step.browserEventParams || "",
+								subEvent,
+							);
+							const event: {
+								requestType: string;
+								vendorName: string;
+								requestData: { event_name: string; event_data: { data: string } };
+							} = {
+								requestType: "emit_event",
+								vendorName: "obs-browser",
+								requestData: {
+									event_name: step.browserEventName || "",
+									event_data: { data: params },
+								},
+							};
+							void OBSWebSocket.instance.socket.call("CallVendorRequest", event);
+						} else if (step.obsAction == "hotKey" && step.hotKeyAction) {
+							await OBSWebSocket.instance.socket.call("TriggerHotkeyByName", {
+								hotkeyName: step.hotKeyAction,
+							});
+						} else if (step.obsAction == "screenshot") {
+							if (!sourceName) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: "❌ Cannot save screenshot, source name is missing.",
+								});
+								log.error = true;
+								logStep.error = true;
+							} else {
+								const size: { imageWidth?: number; imageHeight?: number } = {};
+								if (step.screenshotImgCustomSize) {
+									if (step.screenshotImgWidth)
+										size.imageWidth = step.screenshotImgWidth;
+									if (step.screenshotImgHeight)
+										size.imageHeight = step.screenshotImgHeight;
+								}
 
-							if (step.screenshotImgMode == "save") {
-								const path = await this.parsePlaceholders(
-									dynamicPlaceholders,
-									actionPlaceholders,
-									trigger,
-									message,
-									step.screenshotImgSavePath || "",
-									subEvent,
-									true,
-								);
-								if (!path) {
-									logStep.messages.push({
-										date: Date.now(),
-										value: "❌ Cannot save screenshot, File Path information is missing.",
-									});
-									log.error = true;
-									logStep.error = true;
-								} else {
-									await OBSWebSocket.instance.socket.call(
-										"SaveSourceScreenshot",
+								if (step.screenshotImgMode == "save") {
+									const path = await this.parsePlaceholders(
+										dynamicPlaceholders,
+										actionPlaceholders,
+										trigger,
+										message,
+										step.screenshotImgSavePath || "",
+										subEvent,
+										true,
+									);
+									if (!path) {
+										logStep.messages.push({
+											date: Date.now(),
+											value: "❌ Cannot save screenshot, File Path information is missing.",
+										});
+										log.error = true;
+										logStep.error = true;
+									} else {
+										await OBSWebSocket.instance.socket.call(
+											"SaveSourceScreenshot",
+											{
+												sourceName: sourceName,
+												imageFilePath: path,
+												imageFormat: step.screenshotImgFormat || "jpeg",
+												...size,
+											},
+										);
+									}
+								} else if (step.screenshotImgMode == "get") {
+									const res = await OBSWebSocket.instance.socket.call(
+										"GetSourceScreenshot",
 										{
 											sourceName: sourceName,
-											imageFilePath: path,
 											imageFormat: step.screenshotImgFormat || "jpeg",
 											...size,
 										},
 									);
+									if (step.screenshotImgSavePlaceholder) {
+										dynamicPlaceholders[step.screenshotImgSavePlaceholder] =
+											res.imageData;
+										logStep.messages.push({
+											date: Date.now(),
+											value:
+												'Saved screenshot image to placeholder "' +
+												step.screenshotImgSavePlaceholder +
+												'"',
+										});
+									}
 								}
-							} else if (step.screenshotImgMode == "get") {
-								const res = await OBSWebSocket.instance.socket.call(
-									"GetSourceScreenshot",
-									{
-										sourceName: sourceName,
-										imageFormat: step.screenshotImgFormat || "jpeg",
-										...size,
-									},
-								);
-								if (step.screenshotImgSavePlaceholder) {
-									dynamicPlaceholders[step.screenshotImgSavePlaceholder] =
-										res.imageData;
+							}
+						} else if (step.obsAction == "audioTracks") {
+							if (!sourceName) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: "❌ Cannot update audio tracks, source name is missing.",
+								});
+								log.error = true;
+								logStep.error = true;
+							} else {
+								const states = step.audioTracks || [];
+								const inputAudioTracks: { [key: string]: boolean } = {};
+								//"toggle" needs the current state to flip the bits
+								let currentTracks: { [key: string]: boolean } = {};
+								if (states.some((s) => s === "toggle")) {
+									const res = await OBSWebSocket.instance.socket.call(
+										"GetInputAudioTracks",
+										{ inputName: sourceName },
+									);
+									currentTracks = (res.inputAudioTracks || {}) as {
+										[key: string]: boolean;
+									};
+								}
+								states.forEach((state, index) => {
+									//OBS track keys are 1-indexed ("1" … "6")
+									const trackKey = (index + 1).toString();
+									if (state === "enable") {
+										inputAudioTracks[trackKey] = true;
+									} else if (state === "disable") {
+										inputAudioTracks[trackKey] = false;
+									} else if (state === "toggle") {
+										inputAudioTracks[trackKey] = !currentTracks[trackKey];
+									}
+								});
+								if (Object.keys(inputAudioTracks).length > 0) {
 									logStep.messages.push({
 										date: Date.now(),
 										value:
-											'Saved screenshot image to placeholder "' +
-											step.screenshotImgSavePlaceholder +
-											'"',
+											'Update audio tracks of "' +
+											sourceName +
+											'": ' +
+											JSON.stringify(inputAudioTracks),
+									});
+									await OBSWebSocket.instance.socket.call("SetInputAudioTracks", {
+										inputName: sourceName,
+										inputAudioTracks,
+									});
+								} else {
+									logStep.messages.push({
+										date: Date.now(),
+										value: "No audio track change requested.",
 									});
 								}
 							}
-						}
-					} else if (step.obsAction == "audioTracks") {
-						if (!sourceName) {
+						} else if (step.obsAction == "getPersistedData") {
 							logStep.messages.push({
 								date: Date.now(),
-								value: "❌ Cannot update audio tracks, source name is missing.",
+								value:
+									'Get persisted data "' + step.persistedDataKey + '" from OBS',
 							});
-							log.error = true;
-							logStep.error = true;
-						} else {
-							const states = step.audioTracks || [];
-							const inputAudioTracks: { [key: string]: boolean } = {};
-							//"toggle" needs the current state to flip the bits
-							let currentTracks: { [key: string]: boolean } = {};
-							if (states.some((s) => s === "toggle")) {
-								const res = await OBSWebSocket.instance.socket.call(
-									"GetInputAudioTracks",
-									{ inputName: sourceName },
-								);
-								currentTracks = (res.inputAudioTracks || {}) as {
-									[key: string]: boolean;
-								};
-							}
-							states.forEach((state, index) => {
-								//OBS track keys are 1-indexed ("1" … "6")
-								const trackKey = (index + 1).toString();
-								if (state === "enable") {
-									inputAudioTracks[trackKey] = true;
-								} else if (state === "disable") {
-									inputAudioTracks[trackKey] = false;
-								} else if (state === "toggle") {
-									inputAudioTracks[trackKey] = !currentTracks[trackKey];
-								}
+							const key = await this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								step.persistedDataKey || "",
+								subEvent,
+							);
+							const value = await OBSWebSocket.instance.getPersistedValue(key);
+							dynamicPlaceholders[step.persistedDataPlaceholder || ""] =
+								// oxlint-disable-next-line typescript/no-base-to-string
+								value?.toString() || "";
+						} else if (step.obsAction == "setPersistedData") {
+							logStep.messages.push({
+								date: Date.now(),
+								value:
+									'Set persisted data "' +
+									step.persistedDataKey +
+									'" to "' +
+									step.persistedDataValue +
+									'" in OBS',
 							});
-							if (Object.keys(inputAudioTracks).length > 0) {
-								logStep.messages.push({
-									date: Date.now(),
-									value:
-										'Update audio tracks of "' +
-										sourceName +
-										'": ' +
-										JSON.stringify(inputAudioTracks),
-								});
-								await OBSWebSocket.instance.socket.call("SetInputAudioTracks", {
-									inputName: sourceName,
-									inputAudioTracks,
-								});
-							} else {
-								logStep.messages.push({
-									date: Date.now(),
-									value: "No audio track change requested.",
-								});
-							}
+							const key = await this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								step.persistedDataKey || "",
+								subEvent,
+							);
+							const value = await this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								step.persistedDataValue || "",
+								subEvent,
+							);
+							await OBSWebSocket.instance.setPersistedValue(key, value);
 						}
-					} else if (step.obsAction == "getPersistedData") {
-						logStep.messages.push({
-							date: Date.now(),
-							value: 'Get persisted data "' + step.persistedDataKey + '" from OBS',
-						});
-						const key = await this.parsePlaceholders(
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							step.persistedDataKey || "",
-							subEvent,
-						);
-						const value = await OBSWebSocket.instance.getPersistedValue(key);
-						dynamicPlaceholders[step.persistedDataPlaceholder || ""] =
-							// oxlint-disable-next-line typescript/no-base-to-string
-							value?.toString() || "";
-					} else if (step.obsAction == "setPersistedData") {
-						logStep.messages.push({
-							date: Date.now(),
-							value:
-								'Set persisted data "' +
-								step.persistedDataKey +
-								'" to "' +
-								step.persistedDataValue +
-								'" in OBS',
-						});
-						const key = await this.parsePlaceholders(
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							step.persistedDataKey || "",
-							subEvent,
-						);
-						const value = await this.parsePlaceholders(
-							dynamicPlaceholders,
-							actionPlaceholders,
-							trigger,
-							message,
-							step.persistedDataValue || "",
-							subEvent,
-						);
-						await OBSWebSocket.instance.setPersistedValue(key, value);
 					}
 				} else //Handle Chat action
 				if (step.type == "chat") {
@@ -8078,6 +8083,146 @@ export default class TriggerActionHandler {
 					logStep.messages.push({ date: Date.now(), value: "Stop trigger execution" });
 					logStep.messages.push({ date: Date.now(), value: "✔ Step execution complete" });
 					break;
+				} else if (step.type == "prompt") {
+					const promptData = step.promptData;
+					const params = promptData?.params || [];
+					if (params.length === 0) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "❌ Prompt has no parameter defined",
+						});
+						log.error = true;
+						logStep.error = true;
+					} else {
+						const parse = (src: string) =>
+							this.parsePlaceholders(
+								dynamicPlaceholders,
+								actionPlaceholders,
+								trigger,
+								message,
+								src,
+								subEvent,
+							);
+
+						//Build the modal's fields from the action's params
+						const inputs: TwitchatDataTypes.ParameterData<unknown>[] = [];
+						for (const param of params) {
+							const label = await parse(param.label);
+							switch (param.type) {
+								case "boolean": {
+									inputs.push({ type: "boolean", value: false, label });
+									break;
+								}
+								case "number": {
+									inputs.push({
+										type: "number",
+										value: param.min ?? 0,
+										min: param.min,
+										max: param.max,
+										label,
+									});
+									break;
+								}
+								case "duration": {
+									inputs.push({ type: "duration", value: 0, label });
+									break;
+								}
+								case "list": {
+									const items: string[] = [];
+									for (const item of param.listValues || []) {
+										items.push(await parse(item));
+									}
+									inputs.push({
+										type: "list",
+										value: items[0] ?? "",
+										listValues: items.map((v) => ({ value: v, label: v })),
+										label,
+									});
+									break;
+								}
+								default: {
+									inputs.push({
+										type: "string",
+										value: "",
+										maxLength: 500,
+										label,
+									});
+								}
+							}
+						}
+
+						logStep.messages.push({
+							date: Date.now(),
+							value: "⌛ Waiting for the user to fill " + inputs.length + " field(s)",
+						});
+
+						const result = await StoreProxy.main.promptInputs({
+							title: await parse(promptData.title),
+							header: await parse(promptData.description),
+							icon: "edit",
+							timeout_s: promptData.timeout_s,
+							inputs,
+						});
+
+						if (!result) {
+							logStep.messages.push({
+								date: Date.now(),
+								value: "❌ Prompt has been cancelled or timed out",
+							});
+							if (promptData.stopOnCancel !== false) {
+								logStep.messages.push({
+									date: Date.now(),
+									value: "Stop trigger execution",
+								});
+								logStep.messages.push({
+									date: Date.now(),
+									value: "✔ Step execution complete",
+								});
+								break;
+							}
+							logStep.messages.push({
+								date: Date.now(),
+								value: "Fill placeholders with empty values and keep going",
+							});
+						}
+
+						for (let i = 0; i < params.length; i++) {
+							const param = params[i]!;
+							const tag = param.placeholder.toUpperCase().trim();
+							if (tag.length === 0) continue;
+							let value: string | number = "";
+							if (!result) {
+								//Prompt has been cancelled, fallback to empty values
+								value =
+									param.type == "number" || param.type == "duration"
+										? 0
+										: param.type == "boolean"
+											? "false"
+											: "";
+							} else {
+								const input = result[i];
+								switch (param.type) {
+									case "boolean":
+										value = input?.value === true ? "true" : "false";
+										break;
+									case "number":
+									case "duration":
+										value = parseFloat(input?.value as string) || 0;
+										break;
+									default: {
+										//"string" and "list" types both hold a string
+										const raw = input?.value;
+										value = typeof raw === "string" ? raw : "";
+									}
+								}
+							}
+							dynamicPlaceholders[tag] = value;
+							logStep.messages.push({
+								date: Date.now(),
+								value: 'Store "' + value + '" to placeholder {' + tag + "}",
+							});
+						}
+					}
 				} else if (step.type == "chat_poll") {
 					logStep.messages.push({ date: Date.now(), value: "Start chat poll" });
 					const clone = JSON.parse(

@@ -628,6 +628,17 @@
 
 					<TTButton
 						class="button"
+						@click="selectActionType('prompt')"
+						v-newflag="{
+							date: Config.instance.NEW_FLAGS_DATE_V17,
+							id: 'params_triggerAction_prompt',
+						}"
+						icon="edit"
+						>{{ $t("triggers.actions.common.action_prompt") }}</TTButton
+					>
+
+					<TTButton
+						class="button"
 						@click="selectActionType('clickable_area')"
 						v-newflag="{
 							date: Config.instance.NEW_FLAGS_DATE_V17,
@@ -831,6 +842,11 @@
 				:action="action"
 				:triggerData="triggerData"
 			/>
+			<TriggerActionPromptEntry
+				v-else-if="action.type == 'prompt'"
+				:action="action"
+				:triggerData="triggerData"
+			/>
 			<TriggerActionBlueskyEntry
 				v-else-if="action.type == 'bluesky'"
 				:action="action"
@@ -967,6 +983,7 @@ import TriggerActionMixitupEntry from "./entries/TriggerActionMixitupEntry.vue";
 import TriggerActionMusicEntry from "./entries/TriggerActionMusicEntry.vue";
 import TriggerActionOBSEntry from "./entries/TriggerActionOBSEntry.vue";
 import TriggerActionPlayAbilityEntry from "./entries/TriggerActionPlayAbilityEntry.vue";
+import TriggerActionPromptEntry from "./entries/TriggerActionPromptEntry.vue";
 import TriggerActionRandomEntry from "./entries/TriggerActionRandomEntry.vue";
 import TriggerActionRewardEntry from "./entries/TriggerActionRewardEntry.vue";
 import TriggerActionSFXREntry from "./entries/TriggerActionSFXREntry.vue";
@@ -1177,6 +1194,7 @@ const icons = computed(() => {
 	else if (props.action.type == "animated_text") icons.push("animate");
 	else if (props.action.type == "custom_train") icons.push("train");
 	else if (props.action.type == "sfxr") icons.push("unmute");
+	else if (props.action.type == "prompt") icons.push("edit");
 	return icons;
 });
 
