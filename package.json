@@ -113,8 +113,8 @@
 	"overrides": {
 		"google-auth-library": "$google-auth-library",
 		"undici": "^6.27.0",
-		"vite": "npm:@voidzero-dev/vite-plus-core@^0.2.1",
-		"vitest": "npm:@voidzero-dev/vite-plus-test@^0.2.1"
+		"vite": "npm:@voidzero-dev/vite-plus-core@^0.2.7",
+		"vitest": "npm:@voidzero-dev/vite-plus-test@^0.2.7"
 	},
 	"packageManager": "npm@11.12.0"
 }
