@@ -1,8 +1,8 @@
 <template>
 	<ToggleBlock
-		:class="{ holder: true, hasTitle: !!question.question }"
-		:title="question.question"
-		:titleDefault="t('quiz.form.question_placeholder')"
+		:class="{ holder: true, hasTitle: !!question.question, noToggle: props.noToggle }"
+		:title="props.noToggle ? undefined : question.question"
+		:titleDefault="props.noToggle ? undefined : t('quiz.form.question_placeholder')"
 		:noToggle="props.noToggle"
 		:open="autoOpen"
 	>
@@ -585,6 +585,12 @@ watch(
 			overflow: hidden !important;
 			text-overflow: ellipsis;
 			font-weight: normal;
+		}
+	}
+	&.noToggle {
+		& > :deep(.header) {
+			padding-left: 0;
+			justify-content: center;
 		}
 	}
 }

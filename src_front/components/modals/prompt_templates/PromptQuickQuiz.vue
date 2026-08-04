@@ -79,4 +79,3 @@ defineExpose({ isValid, getResult });
 	position: relative;
 }
 </style>
-

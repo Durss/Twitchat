@@ -53,9 +53,9 @@
 				<h3 v-if="subtitle" class="subtitle">{{ subtitle }}</h3>
 			</div>
 
-			<div class="titleSection" v-else></div>
+			<div class="titleSection" v-else-if="!isEmptySlot(slots.right_actions)"></div>
 
-			<div ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">
+			<div v-if="title" ref="titleMeasureRef" class="titleMeasure" aria-hidden="true">
 				{{ title || titleDefault }}
 			</div>
 
