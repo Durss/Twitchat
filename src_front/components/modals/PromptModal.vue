@@ -1,7 +1,17 @@
 <template>
-	<div class="promptmodal modal" v-if="data">
-		<div class="dimmer" ref="dimmer" @click="cancel()"></div>
+	<div class="promptmodal modal noBlur" v-if="data">
+		<div class="dimmer" ref="dimmer"></div>
 		<div class="holder" ref="holder" :key="data.id">
+			<ProgressBar
+				v-if="timeoutDuration > 0"
+				:class="{ paused: timeoutPaused }"
+				:percent="timeoutPercent"
+				:duration="timeoutDuration"
+				noLabel
+				light
+				thick
+			/>
+
 			<Icon v-if="data.icon" :name="data.icon" class="icon" />
 			<ClearButton aria-label="close" @click="cancel()" />
 
@@ -26,6 +36,7 @@
 					v-else
 					v-for="(param, index) in data.inputs"
 					:paramData="param"
+					v-model="param.value"
 					:key="param.id ?? 'param_' + index"
 				/>
 			</div>
@@ -46,6 +57,7 @@ import { gsap } from "gsap/gsap-core";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../params/ParamItem.vue";
+import ProgressBar from "../ProgressBar.vue";
 import TTButton from "../TTButton.vue";
 import { PROMPT_TEMPLATES, type PromptTemplateExpose } from "./prompt_templates";
 import ClearButton from "../ClearButton.vue";
@@ -56,9 +68,21 @@ const dimmer = useTemplateRef("dimmer");
 const holder = useTemplateRef("holder");
 const templateEl = useTemplateRef<PromptTemplateExpose<unknown>>("templateEl");
 const closing = ref(false);
+const timeoutPercent = ref(0);
+const timeoutPaused = ref(false);
 const keyDownHandler = (e: KeyboardEvent) => onKeyDown(e);
+const activityHandler = () => onUserActivity();
+
+let timeoutElapsed = 0;
+let timeoutPrevFrame = 0;
+let latestActivityDate = 0;
+let timeoutInterval = -1;
+const activityPauseDuration = 2000;
+const activityEvents = ["keydown", "mousedown", "mousemove", "wheel", "touchstart"];
 
 const data = computed(() => storeMain.promptParams[0]);
+
+const timeoutDuration = computed(() => (data.value?.timeout_s ?? 0) * 1000);
 
 const canSubmit = computed(() => {
 	if (!data.value || closing.value) return false;
@@ -69,11 +93,19 @@ const canSubmit = computed(() => {
 
 onMounted(() => {
 	document.addEventListener("keydown", keyDownHandler, { capture: true });
+	activityEvents.forEach((event) =>
+		document.addEventListener(event, activityHandler, { capture: true, passive: true }),
+	);
 	open();
+	startTimeout();
 });
 
 onBeforeUnmount(() => {
 	document.removeEventListener("keydown", keyDownHandler, { capture: true });
+	activityEvents.forEach((event) =>
+		document.removeEventListener(event, activityHandler, { capture: true }),
+	);
+	stopTimeout();
 });
 
 //Replay the open animation when the next prompt of the queue shows up
@@ -83,6 +115,7 @@ watch(
 		if (!id) return;
 		await nextTick();
 		open();
+		startTimeout();
 	},
 );
 
@@ -93,6 +126,47 @@ async function open(): Promise<void> {
 	gsap.set(holder.value, { marginTop: 0, opacity: 1 });
 	gsap.to(dimmer.value, { duration: 0.25, opacity: 1 });
 	gsap.from(holder.value, { duration: 0.25, marginTop: 100, opacity: 0, ease: "back.out" });
+}
+
+/**
+ * Starts the auto cancelation countdown.
+ * Using an interval instead of a requestAnimationFrame so it
+ * keeps running when the tab is in the background.
+ */
+function startTimeout(): void {
+	stopTimeout();
+	timeoutElapsed = 0;
+	timeoutPercent.value = 0;
+	timeoutPaused.value = false;
+	latestActivityDate = 0;
+	timeoutPrevFrame = Date.now();
+	if (timeoutDuration.value <= 0) return;
+	timeoutInterval = window.setInterval(() => renderTimeout(), 1000 / 30);
+}
+
+function stopTimeout(): void {
+	clearInterval(timeoutInterval);
+	timeoutInterval = -1;
+}
+
+function onUserActivity(): void {
+	latestActivityDate = Date.now();
+}
+
+/**
+ * Update timeout's progress.
+ * Pauses progress on user activity
+ */
+function renderTimeout(): void {
+	const now = Date.now();
+	const frameDuration = now - timeoutPrevFrame;
+	timeoutPrevFrame = now;
+	timeoutPaused.value = now - latestActivityDate < activityPauseDuration;
+	if (timeoutPaused.value) return;
+
+	timeoutElapsed = Math.min(timeoutDuration.value, timeoutElapsed + frameDuration);
+	timeoutPercent.value = timeoutElapsed / timeoutDuration.value;
+	if (timeoutElapsed >= timeoutDuration.value) close();
 }
 
 function onKeyDown(e: KeyboardEvent): void {
@@ -128,6 +202,7 @@ function close(result?: unknown): void {
 	const d = data.value;
 	if (!d || closing.value) return;
 	closing.value = true;
+	stopTimeout();
 
 	gsap.killTweensOf([holder.value!, dimmer.value!]);
 	//Only fade the dimmer out if no other prompt is waiting behind
@@ -155,8 +230,21 @@ function close(result?: unknown): void {
 	}
 
 	.holder {
-		max-width: min(calc(100vw - 1em), 600px);
+		overflow: hidden;
+		max-width: ~"min(calc(100vw - 1em), 600px)";
 		width: max-content;
+
+		& > .progressbar {
+			position: absolute;
+			top: 0;
+			left: 0;
+			transform: scaleY(1);
+			transition: transform 0.15s;
+			transform-origin: top;
+			&.paused {
+				transform: scaleY(0);
+			}
+		}
 	}
 
 	.content {

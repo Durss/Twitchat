@@ -34,27 +34,6 @@ import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
 
-/**
- * Timeout IDs of the pending prompts having a "timeout_s" defined.
- * Kept out of the store's state as these are pure implementation details.
- */
-const promptTimeouts: Record<string, number> = {};
-
-/**
- * Pushes a prompt on the queue and schedules its auto cancelation if requested
- */
-function queuePrompt(
-	queue: TwitchatDataTypes.PromptModalData[],
-	data: TwitchatDataTypes.PromptModalData,
-): void {
-	queue.push(data);
-	if (data.timeout_s) {
-		promptTimeouts[data.id] = window.setTimeout(() => {
-			StoreProxy.main.closePrompt(data.id);
-		}, data.timeout_s * 1000);
-	}
-}
-
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
 		latestUpdateIndex: 21,
@@ -915,7 +894,7 @@ export const storeMain = defineStore("main", {
 			params: Omit<TwitchatDataTypes.PromptModalDataInputs, "id" | "mode" | "resolve">,
 		): Promise<TwitchatDataTypes.ParameterData<unknown>[] | undefined> {
 			return new Promise((resolve) => {
-				queuePrompt(this.promptParams, {
+				this.promptParams.push({
 					...params,
 					id: Utils.getUUID(),
 					mode: "inputs",
@@ -932,7 +911,7 @@ export const storeMain = defineStore("main", {
 			>,
 		): Promise<TwitchatDataTypes.PromptTemplates[K]["result"] | undefined> {
 			return new Promise((resolve) => {
-				queuePrompt(this.promptParams, {
+				this.promptParams.push({
 					...params,
 					id: Utils.getUUID(),
 					mode: "template",
@@ -946,11 +925,6 @@ export const storeMain = defineStore("main", {
 			const index = this.promptParams.findIndex((v) => v.id === id);
 			if (index === -1) return;
 			const entry = this.promptParams.splice(index, 1)[0]!;
-			const timeout = promptTimeouts[id];
-			if (timeout) {
-				clearTimeout(timeout);
-				delete promptTimeouts[id];
-			}
 			entry.resolve(result);
 		},
 

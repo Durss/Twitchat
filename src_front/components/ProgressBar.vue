@@ -5,7 +5,7 @@
 			class="timer"
 			ref="timer"
 			:style="timerStyles"
-			v-if="percent < 1 && duration != undefined"
+			v-if="props.percent < 1 && props.duration != undefined && !props.noLabel"
 		>
 			{{ timeLeft }}
 		</div>
@@ -24,6 +24,9 @@ const props = withDefaults(
 		secondary?: boolean;
 		premium?: boolean;
 		alert?: boolean;
+		light?: boolean;
+		noLabel?: boolean;
+		thick?: boolean;
 	}>(),
 	{
 		percent: 0,
@@ -31,6 +34,9 @@ const props = withDefaults(
 		secondary: false,
 		premium: false,
 		alert: false,
+		light: false,
+		noLabel: false,
+		thick: false,
 	},
 );
 
@@ -47,6 +53,8 @@ const classes = computed(() => {
 	if (props.secondary !== false) list.push("secondary");
 	if (props.premium !== false) list.push("premium");
 	if (props.alert !== false) list.push("alert");
+	if (props.light !== false) list.push("light");
+	if (props.thick !== false) list.push("thick");
 	return list;
 });
 
@@ -116,6 +124,17 @@ const timerStyles = computed<CSSProperties>(() => {
 		background-size: 200% 100%;
 	}
 
+	&.thick {
+		height: 4px;
+		.fill {
+			box-shadow: @shadow;
+			height: 4px;
+		}
+		.timer {
+			top: 2px;
+		}
+	}
+
 	&.secondary {
 		@c: var(--color-secondary);
 		.fill {
@@ -134,6 +153,19 @@ const timerStyles = computed<CSSProperties>(() => {
 			background-color: @c;
 		}
 		.timer {
+			background-color: @c;
+			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
+			background-size: 200% 100%;
+		}
+	}
+
+	&.light {
+		@c: var(--color-text);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			color: var(--color-text-inverse);
 			background-color: @c;
 			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 			background-size: 200% 100%;

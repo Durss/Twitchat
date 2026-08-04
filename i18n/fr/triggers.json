@@ -511,11 +511,11 @@
 				"source_placeholder": "Placeholder source contenant les données JSON"
 			},
 			"prompt": {
-				"info": "Cette action ouvrira une fenêtre pour vous demander de remplir les champs définis ci-dessous. L'exécution du trigger est mise en pause jusqu'à ce que vous les validiez.",
+				"info": "Cette action ouvrira une fenêtre pour vous demander de remplir les valeurs définies ci-dessous. L'exécution du trigger est mise en pause jusqu'à ce que vous les validiez.",
 				"param_title": "Titre de la fenêtre",
 				"param_description": "Description",
 				"param_timeout": "Abandonner la demande après un délai sans réponse",
-				"param_timeout_tt": "Si désactivé, le trigger attend indéfiniment que vous validiez ou annuliez le formulaire",
+				"param_timeout_tt": "Le décompte est mis en pause tant que vous utilisez Twitchat.\nSi désactivé, le trigger attend indéfiniment que vous validiez ou annuliez le formulaire",
 				"param_timeout_value": "Abandonner après {VALUE}",
 				"param_stop_on_cancel": "Arrêter l'exécution du trigger si la fenêtre est fermée",
 				"param_stop_on_cancel_tt": "Si désactivé, les actions suivantes sont exécutées avec des placeholders vides",

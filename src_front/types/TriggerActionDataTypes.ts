@@ -1842,7 +1842,8 @@ export interface TriggerActionPromptData extends TriggerActionData {
 		 */
 		description: string;
 		/**
-		 * Automatically cancels the prompt after the given duration in seconds.
+		 * Automatically cancels the prompt after the given duration in seconds
+		 * of inactivity.
 		 * 0 or undefined means the prompt waits indefinitely.
 		 */
 		timeout_s?: number;

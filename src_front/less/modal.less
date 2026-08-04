@@ -7,14 +7,20 @@
 	z-index: 5;
 
 	& > .dimmer {
-		backdrop-filter: blur(5px);
-		background-color: rgba(0, 0, 0, 0.5);
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 		opacity: 1;
+		background-color: var(--grayout);
+	}
+
+	&:not(.noBlur) {
+		& > .dimmer {
+			backdrop-filter: blur(5px);
+			background-color: rgba(0, 0, 0, 0.5);
+		}
 	}
 
 	& > .holder {

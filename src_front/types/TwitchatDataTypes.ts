@@ -2607,7 +2607,7 @@ export namespace TwitchatDataTypes {
 		 */
 		submitLabelKey?: string;
 		/**
-		 * Auto cancels the prompt after the given duration.
+		 * Auto cancels the prompt after the given inactivity duration.
 		 * Should always be set when opening a prompt from a trigger so an
 		 * ignored modal doesn't stall the trigger's queue forever.
 		 */
