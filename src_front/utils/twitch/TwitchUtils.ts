@@ -1306,9 +1306,14 @@ export default class TwitchUtils {
 	 * Check if user follows currently authenticated user
 	 *
 	 * @param userId channelId to get followings list
+	 * @returns the follower entry, "null" if the user isn't following (or if the
+	 * 			request failed) and "false" if the state cannot be checked at all
+	 * 			because of a missing scope
 	 */
-	public static async getFollowerState(userId: string): Promise<TwitchDataTypes.Follower | null> {
-		if (!this.hasScopes([TwitchScopes.LIST_FOLLOWERS])) return null;
+	public static async getFollowerState(
+		userId: string,
+	): Promise<TwitchDataTypes.Follower | null | false> {
+		if (!this.hasScopes([TwitchScopes.LIST_FOLLOWERS])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
 		url.searchParams.append("broadcaster_id", this.uid);
@@ -1317,7 +1322,7 @@ export default class TwitchUtils {
 		if (res.status == 200) {
 			const json: { data: TwitchDataTypes.Follower[]; pagination?: { cursor?: string } } =
 				await res.json();
-			return json.data[0]!;
+			return json.data[0] ?? null;
 		}
 		return null;
 	}

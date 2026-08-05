@@ -881,9 +881,10 @@ export const storeUsers = defineStore("users", {
 					}
 					//Format first message sent
 					const followDate = bannedUser.channelInfo[channelId]!.following_date_ms;
-					const followDateStr = followDate
-						? Utils.formatDate(new Date(followDate), true)
-						: t("discord.log_pattern.not_following");
+					const followDateStr =
+						followDate > 0
+							? Utils.formatDate(new Date(followDate), true)
+							: t("discord.log_pattern.not_following");
 					const createDateStr = bannedUser.created_at_ms
 						? Utils.formatDate(new Date(bannedUser.created_at_ms!))
 						: "-";
@@ -1103,11 +1104,15 @@ export const storeUsers = defineStore("users", {
 				try {
 					// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
 					const res = await TwitchUtils.getFollowerState(user.id);
+					//Follower state cannot be checked (missing scope), keep it "unknown"
+					//instead of flagging the user as a non-follower
+					if (res === false) return false;
 					if (res != null) {
 						chanInfo.is_following = true;
 						chanInfo.following_date_ms = new Date(res.followed_at).getTime();
 					} else {
 						chanInfo.is_following = false;
+						chanInfo.following_date_ms = -1;
 					}
 					return true;
 				} catch (_error) {
@@ -1153,7 +1158,10 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagAsFollower(user: TwitchatDataTypes.TwitchatUser, channelId: string): void {
-			user.channelInfo[channelId]!.is_following = true;
+			const chanInfo = user.channelInfo[channelId]!;
+			chanInfo.is_following = true;
+			//Keep the follow date in sync with the "is_following" flag
+			if (chanInfo.following_date_ms <= 0) chanInfo.following_date_ms = Date.now();
 			this.myFollowers[user.platform][user.id] = Date.now();
 		},
 

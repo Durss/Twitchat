@@ -9431,36 +9431,37 @@ export default class TriggerActionHandler {
 							placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE ||
 							placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS
 						) {
-							let user = root as TwitchatDataTypes.TwitchatUser;
-							let chanInfos = user.channelInfo[
-								message.channel_id
-							] as TwitchatDataTypes.UserChannelInfo;
-							//Follow date not loaded yet for this user, asynchronously load it
-							if (chanInfos.following_date_ms == 0 && message.platform == "twitch") {
-								let res = await TwitchUtils.getFollowerState(user.id);
-								if (res) {
-									chanInfos.following_date_ms = new Date(
-										res.followed_at,
-									).getTime();
-								} else {
-									chanInfos.following_date_ms = -1;
+							const user = root as TwitchatDataTypes.TwitchatUser | undefined;
+							const chanInfos = user?.channelInfo?.[message.channel_id];
+							//0 = not loaded yet, -1 = not following
+							let followDate = chanInfos?.following_date_ms ?? 0;
+							//Follow date not loaded yet for this user, asynchronously load it.
+							//Only done for our own channel as Twitch doesn't allow requesting
+							//follow state of remote channels.
+							if (
+								chanInfos &&
+								followDate == 0 &&
+								message.platform == "twitch" &&
+								!user!.anonymous &&
+								message.channel_id == StoreProxy.auth.twitch.user?.id
+							) {
+								const res = await TwitchUtils.getFollowerState(user!.id);
+								//"false" means the state couldn't be checked, don't cache it
+								if (res !== false) {
+									followDate = res ? new Date(res.followed_at).getTime() : -1;
+									chanInfos.following_date_ms = followDate;
+									chanInfos.is_following = followDate > 0;
 								}
 							}
 
+							const isFollowing = followDate > 0;
 							if (placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE) {
-								value =
-									chanInfos.following_date_ms == 0
-										? ""
-										: Utils.formatDate(
-												new Date(chanInfos.following_date_ms),
-												true,
-											);
+								value = isFollowing
+									? Utils.formatDate(new Date(followDate), true)
+									: "";
 							}
 							if (placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS) {
-								value =
-									chanInfos.following_date_ms == 0
-										? "0"
-										: chanInfos.following_date_ms.toString();
+								value = isFollowing ? followDate.toString() : "0";
 							}
 						} else {
 							if (typeof root === "number") root = root.toString();
