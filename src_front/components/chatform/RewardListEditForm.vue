@@ -204,7 +204,7 @@ onBeforeMount(() => {
 		localValue.value.is_max_per_stream_enabled === true ||
 		localValue.value.is_max_per_user_per_stream_enabled === true;
 
-	if (props.placeholderList) {
+	if (props.placeholderList.length > 0) {
 		param_title.value.placeholderList = props.placeholderList;
 		param_description.value.placeholderList = props.placeholderList;
 		param_cost.value.placeholderList = props.placeholderList.filter((v) => v.numberParsable);
