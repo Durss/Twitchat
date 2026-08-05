@@ -14,6 +14,7 @@
 			@input="limitPlaceholderSize()"
 			@blur="$emit('blur')"
 		/>
+		<span class="suffix" v-if="suffix">{{ suffix }}</span>
 		<span>}</span>
 	</div>
 </template>
@@ -26,12 +27,14 @@ const props = withDefaults(
 	defineProps<{
 		modelValue: string;
 		prefix?: string;
+		suffix?: string;
 		maxLength?: number;
 		placeholder?: string;
 	}>(),
 	{
 		modelValue: "",
 		prefix: "",
+		suffix: "",
 		maxLength: 30,
 		placeholder: "...",
 	},
@@ -106,7 +109,7 @@ onMounted(() => {
 	justify-content: center;
 	text-transform: uppercase;
 	.inputHolder {
-		margin: 0 0.25em;
+		margin: 0 3px;
 		.input {
 			margin: 0;
 		}
@@ -119,7 +122,8 @@ onMounted(() => {
 			}
 		}
 	}
-	.prefix {
+	.prefix,
+	.suffix {
 		opacity: 0.7;
 	}
 	& > *:first-child,

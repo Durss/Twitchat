@@ -407,7 +407,6 @@ const allowedOnRemoteChans = computed((): boolean => {
 	const allowList: TriggerTypesValue[] = [
 		TriggerTypes.CHAT_COMMAND,
 		TriggerTypes.ANY_MESSAGE,
-		TriggerTypes.REWARD_REDEEM,
 		TriggerTypes.FIRST_TODAY,
 		TriggerTypes.FIRST_ALL_TIME,
 		TriggerTypes.FOLLOW,

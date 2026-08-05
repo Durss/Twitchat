@@ -433,6 +433,16 @@ const UserDataSchema = {
 							},
 						},
 					},
+					chatCommandCapture: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							mode: { type: "string", maxLength: 10 },
+							pattern: { type: "string", maxLength: 500 },
+							regex: { type: "string", maxLength: 3000 },
+							regexEdited: { type: "boolean" },
+						},
+					},
 					scheduleParams: {
 						type: "object",
 						additionalProperties: false,

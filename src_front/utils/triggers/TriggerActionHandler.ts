@@ -24,6 +24,7 @@ import {
 import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import ApiHelper from "../ApiHelper";
 import Config from "../Config";
+import ChatCommandCaptureUtils from "./ChatCommandCaptureUtils";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
 import { default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
@@ -3040,11 +3041,15 @@ export default class TriggerActionHandler {
 		//conditions are matched
 		if (canExecute) {
 			//Handle optional chat command custom params
+			const capture = trigger.chatCommandCapture;
+			const hasCapture =
+				capture != undefined &&
+				((capture.mode == "regex" && capture.regex.trim().length > 0) ||
+					(capture.mode == "pattern" && capture.pattern.trim().length > 0));
 			if (
 				(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE ||
 					message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) &&
-				trigger.chatCommandParams &&
-				trigger.chatCommandParams.length > 0
+				hasCapture
 			) {
 				let res = message.message.trim();
 
@@ -3054,25 +3059,21 @@ export default class TriggerActionHandler {
 					subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 
-				res = res.replace(/\s+/gi, " "); //replace consecutive white spaces
-				const params = res.split(" ");
-
-				//Add all params in the dynamic placeholders
-				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
-					const param = trigger.chatCommandParams[i];
-					if (param && !dynamicPlaceholders[param.tag.toUpperCase()]) {
-						dynamicPlaceholders[param.tag.toUpperCase()] = params[i] || "";
-						log.entries.push({
-							date: Date.now(),
-							type: "message",
-							value:
-								'Add dynamic placeholder "{' +
-								param.tag.toUpperCase() +
-								'}" => "' +
-								params[i] +
-								'"',
-						});
-					}
+				//Extract placeholders from the pattern or regex capture definition
+				const captureResult = ChatCommandCaptureUtils.match(capture, res);
+				for (const tag in captureResult.values) {
+					if (dynamicPlaceholders[tag]) continue;
+					dynamicPlaceholders[tag] = captureResult.values[tag] || "";
+					log.entries.push({
+						date: Date.now(),
+						type: "message",
+						value:
+							'Add dynamic placeholder "{' +
+							tag +
+							'}" => "' +
+							captureResult.values[tag] +
+							'"',
+					});
 				}
 			}
 		}

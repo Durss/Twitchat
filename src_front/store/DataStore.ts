@@ -4,6 +4,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import TriggerUtils from "@/utils/TriggerUtils";
+import ChatCommandCaptureUtils from "@/utils/triggers/ChatCommandCaptureUtils";
 import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
@@ -207,7 +208,7 @@ export default class DataStore extends DataStoreCommon {
 	 */
 	static override async migrateData(data: any): Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 69;
+		const latestVersion = 70;
 
 		if (v < 44) {
 			const res: { [key: string]: unknown } = {};
@@ -331,6 +332,10 @@ export default class DataStore extends DataStoreCommon {
 		}
 		if (v == 68) {
 			this.fixCustomHypeTrainRecord(data);
+			v = 69;
+		}
+		if (v == 69) {
+			this.migrateChatCommandParamsCapture(data);
 			v = latestVersion;
 		}
 
@@ -1131,6 +1136,33 @@ export default class DataStore extends DataStoreCommon {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Migrates old chat command params of triggers (1 word extracted per param)
+	 * to the new "capture" format based on a pattern/regex definition.
+	 * The old params list is kept in place as it's still consumed by the
+	 * placeholders/conditions systems and remains a fallback for older clients.
+	 * @param data
+	 */
+	private static migrateChatCommandParamsCapture(data: any): void {
+		const triggers: TriggerActionDataTypes.TriggerData[] = data[DataStore.TRIGGERS];
+		if (!triggers || !Array.isArray(triggers)) return;
+
+		for (const trigger of triggers) {
+			if (trigger.chatCommandCapture) continue;
+			if (!trigger.chatCommandParams || trigger.chatCommandParams.length == 0) continue;
+			//Rebuild the legacy behavior as a pattern: one word per param
+			const pattern = trigger.chatCommandParams
+				.map((p) => "{" + p.tag.toUpperCase() + "}")
+				.join(" ");
+			trigger.chatCommandCapture = {
+				mode: "pattern",
+				pattern,
+				regex: ChatCommandCaptureUtils.compilePattern(pattern).strict,
+				regexEdited: false,
+			};
 		}
 	}
 

@@ -490,7 +490,7 @@ onUnmounted(() => {
 		align-self: stretch;
 		color: inherit;
 		.icon {
-			height: 1em;
+			width: 0.5em;
 			transition: transform 0.25s;
 		}
 		&.open .icon {
@@ -790,7 +790,7 @@ onUnmounted(() => {
 	&.medium > .header {
 		// font-size: 0.8em;
 		gap: 0.5em;
-		.icon {
+		& > .icon {
 			width: 1em;
 		}
 		h2 {

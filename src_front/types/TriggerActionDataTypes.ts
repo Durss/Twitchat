@@ -176,8 +176,16 @@ export interface TriggerData {
 	chatCommandAliases?: string[];
 	/**
 	 * Optional chat command params
+	 * Kept in sync with "chatCommandCapture" definition
 	 */
 	chatCommandParams?: TriggerChatCommandParam[];
+	/**
+	 * Optional chat command params extraction definition.
+	 * Defines how to extract parts of the message to custom placeholders,
+	 * either from a simple pattern (ex: "{DURATION} {MESSAGE...}") or a
+	 * regex with named capture groups.
+	 */
+	chatCommandCapture?: TriggerChatCommandCaptureData;
 	/**
 	 * OBS source name for OBS source related events
 	 */
@@ -285,6 +293,30 @@ export interface TriggerScheduleData {
 export interface TriggerChatCommandParam {
 	type: "TEXT" | "USER";
 	tag: string;
+}
+
+export interface TriggerChatCommandCaptureData {
+	/**
+	 * Extraction mode currently in use
+	 */
+	mode: "pattern" | "regex";
+	/**
+	 * Simple mode pattern.
+	 * "{TAG}" captures one word, "{TAG...}" captures everything until the end
+	 * of the message (or the next pattern element), anything else is matched
+	 * as-is. ex: "{DURATION} {MESSAGE...}"
+	 */
+	pattern: string;
+	/**
+	 * Regex mode expression. Every named capture group becomes a placeholder.
+	 * ex: "(?<DURATION>[0-9]+)\s+(?<MESSAGE>.+)"
+	 */
+	regex: string;
+	/**
+	 * true once the user manually edited the regex.
+	 * As long as it's false the regex is auto-generated from the pattern.
+	 */
+	regexEdited: boolean;
 }
 
 export interface TriggerConditionGroup {
