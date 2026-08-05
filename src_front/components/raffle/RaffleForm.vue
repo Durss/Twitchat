@@ -663,7 +663,15 @@ import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import VoiceController from "@/utils/voice/VoiceController";
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
+import {
+	computed,
+	onBeforeMount,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
 import TTButton from "../TTButton.vue";
@@ -1284,7 +1292,7 @@ onMounted(async () => {
 	pickingEntry.value = false;
 });
 
-onMounted(() => {
+onBeforeMount(() => {
 	winnerPlaceholders.value = [
 		{
 			tag: "USER",
