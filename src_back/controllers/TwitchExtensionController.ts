@@ -44,34 +44,42 @@ export default class TwitchExtensionController extends AbstractController {
 		this._quizController = quizController;
 		this._userController = userController;
 		this.server.decorateRequest("twitchExtensionUser", null);
+
+		// DIsable rate limiting on these endpoints as they're all called from my own EBS server
+		// in the name of everyone. Rate limiting would block everything
+		const ebsRoute = {
+			config: { rateLimit: { allowList: (request: FastifyRequest) => isFromEBS(request) } },
+			preHandler: this.authHook.bind(this),
+		};
+
 		this.server.get(
 			"/api/twitch/extension/streamerstate",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.getStreamerState(request, response),
 		);
 		this.server.post(
 			"/api/twitch/extension/click",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.postClickEvent(request, response),
 		);
 		this.server.post(
 			"/api/twitch/extension/keys",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.postKeysEvent(request, response),
 		);
 		this.server.post(
 			"/api/twitch/extension/bingo/count",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.postBingoCount(request, response),
 		);
 		this.server.post(
 			"/api/twitch/extension/bingo/states",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.postBingoStates(request, response),
 		);
 		this.server.post(
 			"/api/twitch/extension/quiz/answer",
-			{ preHandler: this.authHook.bind(this) },
+			ebsRoute,
 			async (request, response) => await this.postQuizAnswer(request, response),
 		);
 		this.server.get(
@@ -128,18 +136,14 @@ export default class TwitchExtensionController extends AbstractController {
 	 * @returns
 	 */
 	private async authHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-		const headerToken = request.headers.authorization!;
-		const headerHash = request.headers["x-twitchat-verify"];
-		const hash = createHash("sha512")
-			.update(Config.credentials.twitchat_extension_api_secret + ":" + headerToken)
-			.digest("hex");
-
-		if (!Utils.safeStringEquals(headerHash, hash)) {
+		if (!isFromEBS(request)) {
 			reply.status(401).send({ success: false, error: "Invalid request signature" });
 			return;
 		}
 
-		request.twitchExtensionUser = Utils.verifyTwitchExtensionJWT(headerToken);
+		request.twitchExtensionUser = Utils.verifyTwitchExtensionJWT(
+			request.headers.authorization!,
+		);
 	}
 
 	/**
@@ -491,6 +495,15 @@ export default class TwitchExtensionController extends AbstractController {
 			response.send(JSON.stringify({ success: false, message: "Something went wrong :(" }));
 		}
 	}
+}
+
+/**
+ * Check if request actually comes from EBS server
+ */
+function isFromEBS(request: FastifyRequest): boolean {
+	const headerToken = request.headers.authorization;
+	if (!headerToken) return false;
+	return Utils.safeStringEquals(request.headers["x-twitchat-verify"], getHash(headerToken));
 }
 
 function getHash(uid: string): string {
