@@ -284,7 +284,6 @@ export const storeAuth = defineStore("auth", {
 				//Loads state of current or incoming ads
 				void TwitchUtils.getAdSchedule();
 				void TwitchUtils.loadGlobalBadges();
-				void Database.instance.loadEmojiShortcodes();
 				void sUsers.loadMyFollowings();
 				void sUsers.loadMyFollowers();
 				void sUsers.loadMyVIPs();

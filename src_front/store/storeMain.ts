@@ -856,6 +856,7 @@ export const storeMain = defineStore("main", {
 				try {
 					await StoreProxy.chat.preloadMessageHistory();
 					await StoreProxy.groq.preloadMessageHistory();
+					await Database.instance.loadEmojiShortcodes();
 				} catch (error) {
 					console.error("An error occured when preloading chat history");
 					console.error(error);
