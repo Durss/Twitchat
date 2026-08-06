@@ -2090,6 +2090,52 @@ export interface TriggerImportData {
 	data: SettingsExportData | string;
 }
 
+/**
+ * Params of TriggerActionHandler.parsePlaceholders()
+ */
+export interface IParsePlaceholdersOptions {
+	/**
+	 * User defined placeholders populated by previous actions of the trigger
+	 */
+	dynamicPlaceholders: { [key: string]: string | number };
+	/**
+	 * Placeholders specific to the action being executed
+	 */
+	actionPlaceholders: ITriggerPlaceholder<any>[];
+	trigger: TriggerData;
+	message: TwitchatDataTypes.ChatMessageTypes;
+	/**
+	 * Text to replace the placeholders on
+	 */
+	src: string;
+	/**
+	 * Chat/slash command that triggered the execution.
+	 * Stripped from the placeholder values when defined.
+	 */
+	subEvent?: string | null;
+	/**
+	 * Make the values safe for use within a file path
+	 * @default false
+	 */
+	sanitizeFolderPath?: boolean;
+	/**
+	 * Keep HTML tags of the values. Tags are stripped when false.
+	 * @default true
+	 */
+	keepHTML?: boolean;
+	/**
+	 * Escape double quotes of the values so they can safely
+	 * be injected within a JSON payload
+	 * @default false
+	 */
+	escapeDoubleQuotes?: boolean;
+	/**
+	 * User to read the per-user counters and values from.
+	 * Extracted from the trigger's message if omitted.
+	 */
+	userIdForValueCounterGetters?: string;
+}
+
 export const ANY_OBS_SCENE = "any_obs_scene";
 export const ANY_MELDSTUDIO_SCENE = "any_meldstudio_scene";
 export const ANY_COUNTER = "any_counter";

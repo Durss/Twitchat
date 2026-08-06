@@ -3252,14 +3252,14 @@ export default class TriggerActionHandler {
 							date: Date.now(),
 							value: "Delay value is the placeholder " + step.delay + ", parse it.",
 						});
-						const text = await this.parsePlaceholders(
+						const text = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.delay,
+							src: step.delay,
 							subEvent,
-						);
+						});
 						delay = parseFloat(text) || 0;
 					} else {
 						delay = step.delay;
@@ -3334,14 +3334,14 @@ export default class TriggerActionHandler {
 
 							if (step.text) {
 								try {
-									const text = await this.parsePlaceholders(
+									const text = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.text as string,
+										src: step.text,
 										subEvent,
-									);
+									});
 									logStep.messages.push({
 										date: Date.now(),
 										value: 'Update text to "' + text + '"',
@@ -3356,14 +3356,14 @@ export default class TriggerActionHandler {
 							}
 							if (step.url) {
 								try {
-									const url = await this.parsePlaceholders(
+									const url = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.url as string,
+										src: step.url,
 										subEvent,
-									);
+									});
 									logStep.messages.push({
 										date: Date.now(),
 										value: 'Update browser source URL to "' + url + '"',
@@ -3378,14 +3378,14 @@ export default class TriggerActionHandler {
 							}
 							if (step.browserSourceCss) {
 								try {
-									const css = await this.parsePlaceholders(
+									const css = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.browserSourceCss as string,
+										src: step.browserSourceCss,
 										subEvent,
-									);
+									});
 									logStep.messages.push({
 										date: Date.now(),
 										value: "Update browser source CSS",
@@ -3400,15 +3400,15 @@ export default class TriggerActionHandler {
 							}
 							if (step.mediaPath) {
 								try {
-									const url = await this.parsePlaceholders(
+									const url = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.mediaPath as string,
+										src: step.mediaPath,
 										subEvent,
-										true,
-									);
+										sanitizeFolderPath: true,
+									});
 									logStep.messages.push({
 										date: Date.now(),
 										value: 'Update Media source url to "' + url + '"',
@@ -3441,14 +3441,14 @@ export default class TriggerActionHandler {
 										);
 									} else {
 										const colorStr = (
-											await this.parsePlaceholders(
+											await this.parsePlaceholders({
 												dynamicPlaceholders,
 												actionPlaceholders,
 												trigger,
 												message,
-												"{" + step.colorSource_color + "}",
+												src: "{" + step.colorSource_color + "}",
 												subEvent,
-											)
+											})
 										).replace(/[^0-9a-f]/gi, "");
 										let colorNum =
 											parseInt(colorStr.padStart(8, "ff"), 16) >>> 0;
@@ -3609,12 +3609,14 @@ export default class TriggerActionHandler {
 														//Move source
 														if (step.pos_x) {
 															let text = await this.parsePlaceholders(
-																dynamicPlaceholders,
-																actionPlaceholders,
-																trigger,
-																message,
-																step.pos_x,
-																subEvent,
+																{
+																	dynamicPlaceholders,
+																	actionPlaceholders,
+																	trigger,
+																	message,
+																	src: step.pos_x,
+																	subEvent,
+																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
 															result.positionX =
@@ -3622,12 +3624,14 @@ export default class TriggerActionHandler {
 														}
 														if (step.pos_y) {
 															let text = await this.parsePlaceholders(
-																dynamicPlaceholders,
-																actionPlaceholders,
-																trigger,
-																message,
-																step.pos_y,
-																subEvent,
+																{
+																	dynamicPlaceholders,
+																	actionPlaceholders,
+																	trigger,
+																	message,
+																	src: step.pos_y,
+																	subEvent,
+																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
 															result.positionY =
@@ -3637,12 +3641,14 @@ export default class TriggerActionHandler {
 														//Resize source
 														if (step.width) {
 															let text = await this.parsePlaceholders(
-																dynamicPlaceholders,
-																actionPlaceholders,
-																trigger,
-																message,
-																step.width,
-																subEvent,
+																{
+																	dynamicPlaceholders,
+																	actionPlaceholders,
+																	trigger,
+																	message,
+																	src: step.width,
+																	subEvent,
+																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
 															result.width =
@@ -3655,12 +3661,14 @@ export default class TriggerActionHandler {
 														}
 														if (step.height) {
 															let text = await this.parsePlaceholders(
-																dynamicPlaceholders,
-																actionPlaceholders,
-																trigger,
-																message,
-																step.height,
-																subEvent,
+																{
+																	dynamicPlaceholders,
+																	actionPlaceholders,
+																	trigger,
+																	message,
+																	src: step.height,
+																	subEvent,
+																},
 															);
 															text = text.replace(/\d,\d/gi, ".");
 															result.height =
@@ -3673,14 +3681,14 @@ export default class TriggerActionHandler {
 														}
 													} else if (action == "rotate" && step.angle) {
 														//Rotate source
-														let text = await this.parsePlaceholders(
+														let text = await this.parsePlaceholders({
 															dynamicPlaceholders,
 															actionPlaceholders,
 															trigger,
 															message,
-															step.angle,
+															src: step.angle,
 															subEvent,
-														);
+														});
 														text = text.replace(/\d,\d/gi, ".");
 														result.rotation = Utils.evalMath(text) || 0;
 													}
@@ -3934,26 +3942,26 @@ export default class TriggerActionHandler {
 						} else if (step.obsAction == "stopvirtualcam") {
 							await OBSWebSocket.instance.socket.call("StopVirtualCam");
 						} else if (step.obsAction == "createchapter") {
-							const chapterName = await this.parsePlaceholders(
+							const chapterName = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.recordChapterName || "",
+								src: step.recordChapterName || "",
 								subEvent,
-							);
+							});
 							await OBSWebSocket.instance.socket.call("CreateRecordChapter", {
 								chapterName,
 							});
 						} else if (step.obsAction == "emitevent") {
-							const params = await this.parsePlaceholders(
+							const params = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.browserEventParams || "",
+								src: step.browserEventParams || "",
 								subEvent,
-							);
+							});
 							const event: {
 								requestType: string;
 								vendorName: string;
@@ -3989,15 +3997,15 @@ export default class TriggerActionHandler {
 								}
 
 								if (step.screenshotImgMode == "save") {
-									const path = await this.parsePlaceholders(
+									const path = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.screenshotImgSavePath || "",
+										src: step.screenshotImgSavePath || "",
 										subEvent,
-										true,
-									);
+										sanitizeFolderPath: true,
+									});
 									if (!path) {
 										logStep.messages.push({
 											date: Date.now(),
@@ -4097,14 +4105,14 @@ export default class TriggerActionHandler {
 								value:
 									'Get persisted data "' + step.persistedDataKey + '" from OBS',
 							});
-							const key = await this.parsePlaceholders(
+							const key = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.persistedDataKey || "",
+								src: step.persistedDataKey || "",
 								subEvent,
-							);
+							});
 							const value = await OBSWebSocket.instance.getPersistedValue(key);
 							dynamicPlaceholders[step.persistedDataPlaceholder || ""] =
 								// oxlint-disable-next-line typescript/no-base-to-string
@@ -4119,36 +4127,36 @@ export default class TriggerActionHandler {
 									step.persistedDataValue +
 									'" in OBS',
 							});
-							const key = await this.parsePlaceholders(
+							const key = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.persistedDataKey || "",
+								src: step.persistedDataKey || "",
 								subEvent,
-							);
-							const value = await this.parsePlaceholders(
+							});
+							const value = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.persistedDataValue || "",
+								src: step.persistedDataValue || "",
 								subEvent,
-							);
+							});
 							await OBSWebSocket.instance.setPersistedValue(key, value);
 						}
 					}
 				} else //Handle Chat action
 				if (step.type == "chat") {
 					// console.log("CHAT ACTION");
-					const text = await this.parsePlaceholders(
+					const text = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.text as string,
+						src: step.text as string,
 						subEvent,
-					);
+					});
 					const platforms: TwitchatDataTypes.ChatPlatform[] = [];
 					if (message.platform != "twitchat") platforms.push(message.platform);
 					// console.log(platforms, text);
@@ -4186,16 +4194,15 @@ export default class TriggerActionHandler {
 				} else //Handle highlight action
 				if (step.type == "highlight") {
 					if (step.show) {
-						let text = await this.parsePlaceholders(
+						let text = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.text as string,
+							src: step.text,
 							subEvent,
-							false,
-							false,
-						);
+							keepHTML: false,
+						});
 						const chunks = TwitchUtils.parseMessageToChunks(
 							text,
 							undefined,
@@ -4370,14 +4377,14 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle TTS action
 				if (step.type == "tts" && message) {
-					const text = await this.parsePlaceholders(
+					const text = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.text,
+						src: step.text,
 						subEvent,
-					);
+					});
 					logStep.messages.push({
 						date: Date.now(),
 						value: 'TTS read message "' + text + '"',
@@ -4390,26 +4397,26 @@ export default class TriggerActionHandler {
 							const answers: string[] = [];
 							for (const a of step.pollData.answers) {
 								answers.push(
-									await this.parsePlaceholders(
+									await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										a,
+										src: a,
 										subEvent,
-									),
+									}),
 								);
 							}
 							await TwitchUtils.createPoll(
 								StoreProxy.auth.twitch.user.id,
-								await this.parsePlaceholders(
+								await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									step.pollData.title,
+									src: step.pollData.title,
 									subEvent,
-								),
+								}),
 								answers,
 								step.pollData.voteDuration,
 								step.pollData.pointsPerVote,
@@ -4435,26 +4442,26 @@ export default class TriggerActionHandler {
 							const answers: string[] = [];
 							for (const a of step.predictionData.answers) {
 								answers.push(
-									await this.parsePlaceholders(
+									await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										a,
+										src: a,
 										subEvent,
-									),
+									}),
 								);
 							}
 							await TwitchUtils.createPrediction(
 								StoreProxy.auth.twitch.user.id,
-								await this.parsePlaceholders(
+								await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									step.predictionData.title,
+									src: step.predictionData.title,
 									subEvent,
-								),
+								}),
 								answers,
 								step.predictionData.voteDuration,
 							);
@@ -4480,13 +4487,13 @@ export default class TriggerActionHandler {
 					let winnerResolver: Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if (data.customEntries) {
 						//Parse placeholders on custom entries
-						data.customEntries = await this.parsePlaceholders(
+						data.customEntries = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							data.customEntries,
-						);
+							src: data.customEntries,
+						});
 					}
 					if (step.raffleData.triggerWaitForWinner === true) {
 						winnerResolver = new Promise<TwitchatDataTypes.RaffleEntry>((resolve) => {
@@ -4535,14 +4542,14 @@ export default class TriggerActionHandler {
 						JSON.stringify(step.bingoData),
 					);
 					if (data.customValue) {
-						data.customValue = await this.parsePlaceholders(
+						data.customValue = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							data.customValue,
+							src: data.customValue,
 							subEvent,
-						);
+						});
 					}
 					StoreProxy.bingo.startBingo(data);
 				} else //Handle bingo grid action
@@ -4589,24 +4596,24 @@ export default class TriggerActionHandler {
 									let px = step.bingoGrid.x;
 									let py = step.bingoGrid.y;
 									if (typeof px == "string") {
-										px = await this.parsePlaceholders(
+										px = await this.parsePlaceholders({
 											dynamicPlaceholders,
 											actionPlaceholders,
 											trigger,
 											message,
-											px.toString(),
+											src: px.toString(),
 											subEvent,
-										);
+										});
 									}
 									if (typeof py == "string") {
-										py = await this.parsePlaceholders(
+										py = await this.parsePlaceholders({
 											dynamicPlaceholders,
 											actionPlaceholders,
 											trigger,
 											message,
-											py.toString(),
+											src: py.toString(),
 											subEvent,
-										);
+										});
 									}
 									px = parseInt(px.toString()) - 1;
 									py = parseInt(py.toString()) - 1;
@@ -4626,14 +4633,14 @@ export default class TriggerActionHandler {
 								if (cell) {
 									if (step.bingoGrid.action == "rename") {
 										const prevLabel = cell.label;
-										cell.label = await this.parsePlaceholders(
+										cell.label = await this.parsePlaceholders({
 											dynamicPlaceholders,
 											actionPlaceholders,
 											trigger,
 											message,
-											step.bingoGrid.label,
+											src: step.bingoGrid.label,
 											subEvent,
-										);
+										});
 										void StoreProxy.bingoGrid.saveData(grid.id, cell.id);
 										logStep.messages.push({
 											date: Date.now(),
@@ -4673,14 +4680,14 @@ export default class TriggerActionHandler {
 							}
 							case "add_cell": {
 								let label = step.bingoGrid.label.trim().substring(0, 60) || "";
-								label = await this.parsePlaceholders(
+								label = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									label,
+									src: label,
 									subEvent,
-								);
+								});
 								if (label) {
 									logStep.messages.push({
 										date: Date.now(),
@@ -4765,14 +4772,14 @@ export default class TriggerActionHandler {
 								VoicemodWebSocket.instance.playSound(undefined, step.soundID);
 							} else if (step.placeholder) {
 								//Select a voice by its name
-								const voiceName = await this.parsePlaceholders(
+								const voiceName = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									"{" + step.placeholder + "}",
+									src: "{" + step.placeholder + "}",
 									subEvent,
-								);
+								});
 								logStep.messages.push({
 									date: Date.now(),
 									value: '[VOICEMOD] play sound with name "' + voiceName + '"',
@@ -4828,14 +4835,14 @@ export default class TriggerActionHandler {
 								);
 							} else if (step.placeholder) {
 								//Select a voice by its name
-								const voiceName = await this.parsePlaceholders(
+								const voiceName = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									"{" + step.placeholder + "}",
+									src: "{" + step.placeholder + "}",
 									subEvent,
-								);
+								});
 								logStep.messages.push({
 									date: Date.now(),
 									value: '[VOICEMOD] Enable filter with name "' + voiceName + '"',
@@ -5027,17 +5034,16 @@ export default class TriggerActionHandler {
 					let body: { [key: string]: string } = {};
 					let customBody: string = "";
 					if (step.customBody) {
-						customBody = await this.parsePlaceholders(
+						customBody = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.customBody,
+							src: step.customBody,
 							subEvent,
-							false,
-							false,
-							true,
-						);
+							keepHTML: false,
+							escapeDoubleQuotes: true,
+						});
 						if (step.sendAsBody) {
 							try {
 								body = JSON.parse(customBody);
@@ -5065,24 +5071,24 @@ export default class TriggerActionHandler {
 							//Add protocol if missing
 							if (!/https?:\/\//gi.test(urlSrc) && !/.*:\/\/.*/gi.test(urlSrc))
 								urlSrc = "https://" + urlSrc;
-							urlSrc = await this.parsePlaceholders(
+							urlSrc = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								urlSrc,
+								src: urlSrc,
 								subEvent,
-							);
+							});
 							const url = new URL(urlSrc);
 							for (const tag of step.queryParams) {
-								const text = await this.parsePlaceholders(
+								const text = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									"{" + tag + "}",
+									src: "{" + tag + "}",
 									subEvent,
-								);
+								});
 								if (
 									(step.method == "POST" || step.method == "PATCH") &&
 									step.sendAsBody == true
@@ -5104,14 +5110,14 @@ export default class TriggerActionHandler {
 								for (let i = 0; i < (step.headers || []).length; i++) {
 									const h = step.headers![i];
 									if (!h) continue;
-									const value = await this.parsePlaceholders(
+									const value = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										h.value,
+										src: h.value,
 										subEvent,
-									);
+									});
 									headers[h.key] = value;
 								}
 							}
@@ -5143,6 +5149,16 @@ export default class TriggerActionHandler {
 										": " +
 										(await res.text()),
 								});
+
+								if (step.outputPlaceholder) {
+									logStep.messages.push({
+										date: Date.now(),
+										value:
+											"Store error to placeholder: " + step.outputPlaceholder,
+									});
+									dynamicPlaceholders[step.outputPlaceholder] =
+										"⚠️HTTP ERROR " + res.status + "⚠️";
+								}
 							}
 						} catch (error) {
 							console.error(error);
@@ -5169,14 +5185,14 @@ export default class TriggerActionHandler {
 					} else {
 						try {
 							// Get the JSON content from the source placeholder
-							const jsonContent = await this.parsePlaceholders(
+							const jsonContent = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								"{" + step.jsonExtractData.sourcePlaceholder + "}",
+								src: "{" + step.jsonExtractData.sourcePlaceholder + "}",
 								subEvent,
-							);
+							});
 							logStep.messages.push({
 								date: Date.now(),
 								value:
@@ -5267,17 +5283,16 @@ export default class TriggerActionHandler {
 					let jsonSrc = step.payload || "{}";
 					let json: { [key: string]: number | string | boolean } = {};
 					try {
-						jsonSrc = await this.parsePlaceholders(
+						jsonSrc = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							jsonSrc,
+							src: jsonSrc,
 							subEvent,
-							false,
-							false,
-							true,
-						);
+							keepHTML: false,
+							escapeDoubleQuotes: true,
+						});
 						json = JSON.parse(jsonSrc);
 					} catch (error) {
 						json = {
@@ -5299,16 +5314,15 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}
 					for (const tag of step.params) {
-						const value = await this.parsePlaceholders(
+						const value = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							"{" + tag + "}",
+							src: "{" + tag + "}",
 							subEvent,
-							false,
-							false,
-						);
+							keepHTML: false,
+						});
 						json[tag.toLowerCase()] = value;
 					}
 					try {
@@ -5333,14 +5347,14 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle counter update trigger action
 				if (step.type == "count") {
-					let text = await this.parsePlaceholders(
+					let text = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.addValue as string,
+						src: step.addValue,
 						subEvent,
-					);
+					});
 					text = text.replace(/\d,\d/gi, ".");
 					logStep.messages.push({
 						date: Date.now(),
@@ -5734,18 +5748,15 @@ export default class TriggerActionHandler {
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
 									if (!user) continue;
-									const text = await this.parsePlaceholders(
+									const text = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.newValue as string,
+										src: step.newValue,
 										subEvent,
-										false,
-										true,
-										false,
-										user.id,
-									);
+										userIdForValueCounterGetters: user.id,
+									});
 									if (
 										!v.perUser ||
 										(user &&
@@ -5815,14 +5826,14 @@ export default class TriggerActionHandler {
 									step.newValue.includes("{VALUE_");
 								let text = "";
 								if (!hasUserSpecificPlaceholders) {
-									text = await this.parsePlaceholders(
+									text = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.newValue as string,
+										src: step.newValue,
 										subEvent,
-									);
+									});
 								}
 								for (const uid in v.users) {
 									if (action == "delete") {
@@ -5833,18 +5844,15 @@ export default class TriggerActionHandler {
 											// This allows to have different values for each user
 											// This is potentially process intensive if there is a lot of users
 											// but this is the only way to achieve this
-											text = await this.parsePlaceholders(
+											text = await this.parsePlaceholders({
 												dynamicPlaceholders,
 												actionPlaceholders,
 												trigger,
 												message,
-												step.newValue as string,
+												src: step.newValue,
 												subEvent,
-												false,
-												true,
-												false,
-												uid,
-											);
+												userIdForValueCounterGetters: uid,
+											});
 										}
 										StoreProxy.values.updateValue(
 											v.id,
@@ -5874,14 +5882,14 @@ export default class TriggerActionHandler {
 									step.newValue.includes("{VALUE_");
 								let text = "";
 								if (!hasUserSpecificPlaceholders) {
-									text = await this.parsePlaceholders(
+									text = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.newValue as string,
+										src: step.newValue,
 										subEvent,
-									);
+									});
 								}
 								const list = StoreProxy.users.users;
 								for (let i = 0; i < list.length; i++) {
@@ -5907,18 +5915,15 @@ export default class TriggerActionHandler {
 												// This allows to have different values for each user
 												// This is potentially process intensive if there is a lot of users
 												// but this is the only way to achieve this
-												text = await this.parsePlaceholders(
+												text = await this.parsePlaceholders({
 													dynamicPlaceholders,
 													actionPlaceholders,
 													trigger,
 													message,
-													step.newValue as string,
+													src: step.newValue,
 													subEvent,
-													false,
-													true,
-													false,
-													user.id,
-												);
+													userIdForValueCounterGetters: user.id,
+												});
 											}
 											StoreProxy.values.updateValue(
 												v.id,
@@ -5936,18 +5941,15 @@ export default class TriggerActionHandler {
 								const user = v.perUser
 									? this.extractUserFromTrigger(trigger, message)
 									: undefined;
-								const text = await this.parsePlaceholders(
+								const text = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									step.newValue as string,
+									src: step.newValue,
 									subEvent,
-									false,
-									true,
-									false,
-									user?.id,
-								);
+									userIdForValueCounterGetters: user?.id,
+								});
 								if (
 									!v.perUser ||
 									(user && !user.temporary && !user.errored && !user.anonymous)
@@ -6013,14 +6015,14 @@ export default class TriggerActionHandler {
 								'" can only be controlled if it uses the "TRIGGER" placeholder or the "HTML" mode.',
 						});
 					} else {
-						const content = await this.parsePlaceholders(
+						const content = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.labelData.content || "",
+							src: step.labelData.content || "",
 							subEvent,
-						);
+						});
 						await StoreProxy.labels.setLabelContent(label.id, content);
 						logStep.messages.push({
 							date: Date.now(),
@@ -6039,14 +6041,14 @@ export default class TriggerActionHandler {
 						let min = step.min;
 						let max = step.max;
 						if (typeof min == "string") {
-							const parsedMin = await this.parsePlaceholders(
+							const parsedMin = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								min,
+								src: min,
 								subEvent,
-							);
+							});
 							console.log("min", min, parsedMin);
 							min = parseFloat(parsedMin.replace(/,/g, "."));
 							logStep.messages.push({
@@ -6055,14 +6057,14 @@ export default class TriggerActionHandler {
 							});
 						}
 						if (typeof max == "string") {
-							const parsedMax = await this.parsePlaceholders(
+							const parsedMax = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								max,
+								src: max,
 								subEvent,
-							);
+							});
 							console.log("max", max, parsedMax);
 							max = parseFloat(parsedMax.replace(/,/g, "."));
 							logStep.messages.push({
@@ -6090,14 +6092,14 @@ export default class TriggerActionHandler {
 						//Pick an item from a custom list
 					} else if (step.mode == "list" && step.placeholder) {
 						const value = Utils.pickRand(step.list, step.removePickedEntry)!;
-						const parsedValue = await this.parsePlaceholders(
+						const parsedValue = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							value,
+							src: value,
 							subEvent,
-						);
+						});
 						dynamicPlaceholders[step.placeholder] = parsedValue;
 						logStep.messages.push({
 							date: Date.now(),
@@ -6347,27 +6349,27 @@ export default class TriggerActionHandler {
 						if (step.branded === true) branded = true;
 						if (step.branded === false) branded = false;
 						if (step.title) {
-							title = await this.parsePlaceholders(
+							title = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.title,
+								src: step.title,
 								subEvent,
-							);
+							});
 						}
 						if (step.tags) {
 							tags = [];
 							for (const tag of step.tags) {
 								tags.push(
-									await this.parsePlaceholders(
+									await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										tag,
+										src: tag,
 										subEvent,
-									),
+									}),
 								);
 							}
 						}
@@ -6465,14 +6467,14 @@ export default class TriggerActionHandler {
 											'" volume to ' +
 											step.faderValue,
 									});
-									const value = await this.parsePlaceholders(
+									const value = await this.parsePlaceholders({
 										dynamicPlaceholders,
 										actionPlaceholders,
 										trigger,
 										message,
-										step.faderValue!,
+										src: step.faderValue!,
 										subEvent,
-									);
+									});
 									void GoXLRSocket.instance.setFaderValue(
 										step.faderId,
 										parseInt(value) || 0,
@@ -6523,14 +6525,14 @@ export default class TriggerActionHandler {
 						) {
 							const maxDuration = (step.maxDuration || 0) * 1000;
 							//Convert placeholders if any
-							const m = await this.parsePlaceholders(
+							const m = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.track,
+								src: step.track,
 								subEvent,
-							);
+							});
 							let searchTerms = "";
 							let playlistTarget: TwitchatDataTypes.MessageMusicAddedToQueueData["playlistTarget"] =
 								undefined;
@@ -6567,14 +6569,14 @@ export default class TriggerActionHandler {
 									if (playlistMode) {
 										let m: string = step.playlist;
 										if (message.type == "message") {
-											m = await this.parsePlaceholders(
+											m = await this.parsePlaceholders({
 												dynamicPlaceholders,
 												actionPlaceholders,
 												trigger,
 												message,
-												m,
+												src: m,
 												subEvent,
-											);
+											});
 										}
 										let id: string | null = null;
 										if (/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
@@ -6625,14 +6627,14 @@ export default class TriggerActionHandler {
 												step.playlistAddAt != undefined
 											) {
 												if (typeof step.playlistAddAt === "string") {
-													const res = await this.parsePlaceholders(
+													const res = await this.parsePlaceholders({
 														dynamicPlaceholders,
 														actionPlaceholders,
 														trigger,
 														message,
-														step.playlistAddAt,
+														src: step.playlistAddAt,
 														subEvent,
-													);
+													});
 													if (parseInt(res).toString() == res) {
 														playlistTargetPos = parseInt(res);
 													}
@@ -6871,14 +6873,14 @@ export default class TriggerActionHandler {
 									const confirmPH = TriggerEventPlaceholders(
 										TriggerTypes.TRACK_ADDED_TO_QUEUE,
 									);
-									const chatMessage = await this.parsePlaceholders(
+									const chatMessage = await this.parsePlaceholders({
 										dynamicPlaceholders,
-										confirmPH,
+										actionPlaceholders: confirmPH,
 										trigger,
-										trackAddedMesssageData,
-										step.confirmMessage,
+										message: trackAddedMesssageData,
+										src: step.confirmMessage,
 										subEvent,
-									);
+									});
 									if (!(await MessengerProxy.instance.sendMessage(chatMessage))) {
 										logStep.messages.push({
 											date: Date.now(),
@@ -6894,14 +6896,14 @@ export default class TriggerActionHandler {
 									const confirmPH = TriggerEventPlaceholders(
 										TriggerTypes.TRACK_ADDED_TO_QUEUE,
 									);
-									let chatMessage = await this.parsePlaceholders(
+									let chatMessage = await this.parsePlaceholders({
 										dynamicPlaceholders,
-										confirmPH,
+										actionPlaceholders: confirmPH,
 										trigger,
-										trackAddedMesssageData,
-										step.failMessage,
+										message: trackAddedMesssageData,
+										src: step.failMessage,
 										subEvent,
-									);
+									});
 									chatMessage = chatMessage.replace(
 										/\{FAIL_REASON\}/gi,
 										failReason,
@@ -6946,14 +6948,14 @@ export default class TriggerActionHandler {
 						} else if (step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m: string = step.playlist;
 							if (message.type == "message") {
-								m = await this.parsePlaceholders(
+								m = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									m,
+									src: m,
 									subEvent,
-								);
+								});
 							}
 							if (SpotifyHelper.instance.connected.value) {
 								let id: string | null = null;
@@ -7070,14 +7072,14 @@ export default class TriggerActionHandler {
 				} else //Handle custom badges
 				if (step.type == "customUsername") {
 					let users: { id: string; platform: TwitchatDataTypes.ChatPlatform }[] = [];
-					const newUsername: string = await this.parsePlaceholders(
+					const newUsername: string = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.customUsername,
+						src: step.customUsername,
 						subEvent,
-					);
+					});
 					//if requested to update badges of the user executing the trigger
 					if (
 						step.customUsernameUserSource ==
@@ -7186,58 +7188,58 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle custom chat messages
 				if (step.type == "customChat") {
-					const username = await this.parsePlaceholders(
+					const username = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.customMessage.user?.name || "",
+						src: step.customMessage.user?.name || "",
 						subEvent,
-					);
-					const text = await this.parsePlaceholders(
+					});
+					const text = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						step.customMessage?.message || "",
+						src: step.customMessage?.message || "",
 						subEvent,
-					);
+					});
 					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
 					const actions = (JSON.parse(JSON.stringify(step.customMessage?.actions)) ||
 						[]) as NonNullable<typeof step.customMessage.actions>;
 					for (let i = 0; i < actions.length; i++) {
 						const a = actions[i]!;
 						if (a.label) {
-							a.label = await this.parsePlaceholders(
+							a.label = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								a.label,
+								src: a.label,
 								subEvent,
-							);
+							});
 						}
 						switch (a.actionType) {
 							case "message": {
-								a.message = await this.parsePlaceholders(
+								a.message = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									a.message || "",
+									src: a.message || "",
 									subEvent,
-								);
+								});
 								break;
 							}
 							case "url": {
-								a.url = await this.parsePlaceholders(
+								a.url = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									a.url || "",
+									src: a.url || "",
 									subEvent,
-								);
+								});
 								break;
 							}
 						}
@@ -7286,14 +7288,14 @@ export default class TriggerActionHandler {
 						shift = message.shift;
 					} else {
 						const parsedX = Utils.evalMath(
-							await this.parsePlaceholders(
+							await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.heatClickData.x,
+								src: step.heatClickData.x,
 								subEvent,
-							),
+							}),
 						);
 						if (parsedX != null) x = parsedX.toString();
 						else {
@@ -7308,14 +7310,14 @@ export default class TriggerActionHandler {
 							logStep.error = true;
 						}
 						const parsedY = Utils.evalMath(
-							await this.parsePlaceholders(
+							await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								step.heatClickData.y,
+								src: step.heatClickData.y,
 								subEvent,
-							),
+							}),
 						);
 						if (parsedY != null) y = parsedY.toString();
 						else {
@@ -7406,34 +7408,34 @@ export default class TriggerActionHandler {
 					if (step.rewardAction.rewardEdit) {
 						rewardData = JSON.parse(JSON.stringify(step.rewardAction.rewardEdit));
 						if (rewardData!.title) {
-							rewardData!.title = await this.parsePlaceholders(
+							rewardData!.title = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								rewardData!.title,
+								src: rewardData!.title,
 								subEvent,
-							);
+							});
 						}
 						if (rewardData!.prompt) {
-							rewardData!.prompt = await this.parsePlaceholders(
+							rewardData!.prompt = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								rewardData!.prompt,
+								src: rewardData!.prompt,
 								subEvent,
-							);
+							});
 						}
 						if (rewardData!.cost) {
-							const cost = await this.parsePlaceholders(
+							const cost = await this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
-								rewardData!.cost.toString(),
+								src: rewardData!.cost.toString(),
 								subEvent,
-							);
+							});
 							const num = Utils.evalMath(cost);
 							if (num != null) {
 								rewardData!.cost = num;
@@ -7650,16 +7652,15 @@ export default class TriggerActionHandler {
 						value: 'Execute discord action "' + step.discordAction.action + '"',
 					});
 					const messageText = (
-						await this.parsePlaceholders(
+						await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.discordAction.message,
+							src: step.discordAction.message,
 							subEvent,
-							false,
-							false,
-						)
+							keepHTML: false,
+						})
 					).trim();
 					logStep.messages.push({
 						date: Date.now(),
@@ -7811,22 +7812,22 @@ export default class TriggerActionHandler {
 						if (step.streamerbotData.params) {
 							for (let i = 0; i < step.streamerbotData.params.length; i++) {
 								const param = step.streamerbotData.params[i]!;
-								let key = await this.parsePlaceholders(
+								let key = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									param.key || "",
+									src: param.key || "",
 									subEvent,
-								);
-								let value = await this.parsePlaceholders(
+								});
+								let value = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									param.value || "",
+									src: param.value || "",
 									subEvent,
-								);
+								});
 								args[key] = value;
 							}
 						}
@@ -7884,14 +7885,14 @@ export default class TriggerActionHandler {
 						if (step.mixitupData.params) {
 							for (let i = 0; i < step.mixitupData.params.length; i++) {
 								const param = step.mixitupData.params[i]!;
-								let value = await this.parsePlaceholders(
+								let value = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									param.value || "",
+									src: param.value || "",
 									subEvent,
-								);
+								});
 								args[i.toString()] = value.replace(/\|/g, "│"); //Replace pipes by an alternative equivalent. This is to avoid issues with Mix It Up using it as a parameter delimiter
 							}
 						}
@@ -7955,22 +7956,22 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					} else {
 						logStep.messages.push({ date: Date.now(), value: "✔ Call Groq API" });
-						let preprompt = await this.parsePlaceholders(
+						let preprompt = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.groqData.preprompt,
+							src: step.groqData.preprompt,
 							subEvent,
-						);
-						let prompt = await this.parsePlaceholders(
+						});
+						let prompt = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.groqData.prompt,
+							src: step.groqData.prompt,
 							subEvent,
-						);
+						});
 						const text = await StoreProxy.groq.executeQuery(
 							preprompt,
 							prompt,
@@ -8015,14 +8016,14 @@ export default class TriggerActionHandler {
 							case "set":
 							case "add":
 							case "remove": {
-								let text = await this.parsePlaceholders(
+								let text = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									step.timerData.duration || "0",
+									src: step.timerData.duration || "0",
 									subEvent,
-								);
+								});
 								let value = 0;
 								const parsed = Utils.evalMath(text);
 								if (parsed != null) {
@@ -8096,14 +8097,14 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					} else {
 						const parse = (src: string) =>
-							this.parsePlaceholders(
+							this.parsePlaceholders({
 								dynamicPlaceholders,
 								actionPlaceholders,
 								trigger,
 								message,
 								src,
 								subEvent,
-							);
+							});
 
 						//Build the modal's fields from the action's params
 						const inputs: TwitchatDataTypes.ParameterData<unknown>[] = [];
@@ -8229,24 +8230,24 @@ export default class TriggerActionHandler {
 					const clone = JSON.parse(
 						JSON.stringify(step.chatPollData),
 					) as typeof step.chatPollData;
-					clone.title = await this.parsePlaceholders(
+					clone.title = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
 						trigger,
 						message,
-						clone.title,
+						src: clone.title,
 						subEvent,
-					);
+					});
 					for (let i = 0; i < clone.choices.length; i++) {
 						const entry = clone.choices[i]!;
-						entry.label = await this.parsePlaceholders(
+						entry.label = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							entry.label,
+							src: entry.label,
 							subEvent,
-						);
+						});
 					}
 					clone.started_at = Date.now();
 					StoreProxy.chatPoll.setCurrentPoll(clone);
@@ -8266,16 +8267,15 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					} else if (step.animatedTextData.action == "show") {
 						const autohide = step.animatedTextData.autoHide === true;
-						const text = await this.parsePlaceholders(
+						const text = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.animatedTextData.text,
+							src: step.animatedTextData.text,
 							subEvent,
-							false,
-							false,
-						);
+							keepHTML: false,
+						});
 						logStep.messages.push({
 							date: Date.now(),
 							value: "Show animated text: " + text,
@@ -8336,14 +8336,14 @@ export default class TriggerActionHandler {
 						log.error = true;
 						logStep.error = true;
 					} else {
-						const amount = await this.parsePlaceholders(
+						const amount = await this.parsePlaceholders({
 							dynamicPlaceholders,
 							actionPlaceholders,
 							trigger,
 							message,
-							step.customTrainData.value.toString() || "0",
+							src: step.customTrainData.value.toString() || "0",
 							subEvent,
-						);
+						});
 						const amountNum = Utils.evalMath(amount);
 						if (amountNum == null) {
 							logStep.messages.push({
@@ -8452,14 +8452,14 @@ export default class TriggerActionHandler {
 						});
 						switch (step.blueskyData.action) {
 							case "post": {
-								let postedMessage = await this.parsePlaceholders(
+								let postedMessage = await this.parsePlaceholders({
 									dynamicPlaceholders,
 									actionPlaceholders,
 									trigger,
 									message,
-									(step.blueskyData.postMessage ?? "").trim(),
+									src: (step.blueskyData.postMessage ?? "").trim(),
 									subEvent,
-								);
+								});
 								if (postedMessage.length < 2) {
 									logStep.messages.push({
 										date: Date.now(),
@@ -8736,17 +8736,20 @@ export default class TriggerActionHandler {
 	 * Replaces placeholders by their values on the message
 	 */
 	public async parsePlaceholders(
-		dynamicPlaceholders: { [key: string]: string | number },
-		actionPlaceholders: ITriggerPlaceholder<any>[],
-		trigger: TriggerData,
-		message: TwitchatDataTypes.ChatMessageTypes,
-		src: string,
-		subEvent?: string | null,
-		sanitizeFolderPath: boolean = false,
-		removeHTMLtags: boolean = true,
-		escapeDoubleQuotes: boolean = false,
-		userIdForValueCounterGetters?: string,
+		options: TriggerActionDataTypes.IParsePlaceholdersOptions,
 	): Promise<string> {
+		const {
+			dynamicPlaceholders,
+			actionPlaceholders,
+			trigger,
+			message,
+			src,
+			subEvent,
+			sanitizeFolderPath = false,
+			keepHTML = true,
+			escapeDoubleQuotes = false,
+		} = options;
+		let { userIdForValueCounterGetters } = options;
 		let res = src.toString();
 		if (!res) return "";
 		//If there are no placeholder, ignore
@@ -9493,7 +9496,7 @@ export default class TriggerActionHandler {
 
 				if (escapeDoubleQuotes) value = value.replace(/"/g, '\\"');
 
-				if (removeHTMLtags !== true) value = Utils.stripHTMLTags(value);
+				if (keepHTML !== true) value = Utils.stripHTMLTags(value);
 
 				res = res.replace(new RegExp("\\{" + placeholder.tag + "\\}", "gi"), value ?? "");
 			}
@@ -9547,13 +9550,13 @@ export default class TriggerActionHandler {
 		message: TwitchatDataTypes.ChatMessageTypes,
 		log: Omit<LogTriggerStep, "date">,
 	): Promise<TwitchatDataTypes.TwitchatUser[]> {
-		const displayName = await this.parsePlaceholders(
+		const displayName = await this.parsePlaceholders({
 			dynamicPlaceholders,
 			actionPlaceholders,
 			trigger,
 			message,
-			"{" + placeholder.toUpperCase() + "}",
-		);
+			src: "{" + placeholder.toUpperCase() + "}",
+		});
 
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
@@ -9762,22 +9765,22 @@ export default class TriggerActionHandler {
 				//This is a fail-safe
 				if (c.operator == undefined || c.value == undefined || c.placeholder == undefined)
 					continue;
-				const value = await this.parsePlaceholders(
+				const value = await this.parsePlaceholders({
 					dynamicPlaceholders,
-					[],
+					actionPlaceholders: [],
 					trigger,
 					message,
-					"{" + c.placeholder + "}",
+					src: "{" + c.placeholder + "}",
 					subEvent,
-				);
-				const expectation = await this.parsePlaceholders(
+				});
+				const expectation = await this.parsePlaceholders({
 					dynamicPlaceholders,
-					[],
+					actionPlaceholders: [],
 					trigger,
 					message,
-					c.value.toString(),
+					src: c.value.toString(),
 					subEvent,
-				);
+				});
 				let valueNum: number = Utils.evalMath(value) ?? NaN;
 				let expectationNum: number = Utils.evalMath(expectation) ?? NaN;
 				const v1 = c.caseSensitive === true ? value : value.toLowerCase();

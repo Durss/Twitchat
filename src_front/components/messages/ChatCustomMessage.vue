@@ -156,13 +156,13 @@ async function onClickButton(
 			break;
 		}
 		case "message": {
-			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
+			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "", false);
 			MessengerProxy.instance.sendMessage(message);
 			break;
 		}
 		case "discord": {
 			loading.value = true;
-			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
+			const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "", false);
 			try {
 				const res = await ApiHelper.call(
 					"discord/answer",

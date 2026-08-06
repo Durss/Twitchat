@@ -40,7 +40,7 @@ export default class TriggerUtils {
 	 */
 	public static async parseGlobalPlaceholders(
 		src: string,
-		stripHTMLTags: boolean = true,
+		keepHTML: boolean = true,
 		message?: TwitchatDataTypes.ChatMessageTypes,
 	): Promise<string> {
 		let placeholders: ITriggerPlaceholder<any>[] = [];
@@ -75,17 +75,15 @@ export default class TriggerUtils {
 				user: StoreProxy.auth.twitch.user,
 			};
 		}
-		return await TriggerActionHandler.instance.parsePlaceholders(
-			{},
-			placeholders,
+		return await TriggerActionHandler.instance.parsePlaceholders({
+			dynamicPlaceholders: {},
+			actionPlaceholders: placeholders,
 			trigger,
 			message,
 			src,
-			null,
-			false,
-			false,
-			stripHTMLTags,
-		);
+			subEvent: null,
+			keepHTML,
+		});
 	}
 
 	/**
