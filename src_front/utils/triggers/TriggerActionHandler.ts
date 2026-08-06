@@ -16,7 +16,6 @@ import {
 	TriggerMusicTypes,
 	TriggerTypes,
 	TriggerTypesDefinitionList,
-	type ITriggerPlaceholder,
 	type TriggerData,
 	type TriggerTypesKey,
 	type TriggerTypesValue,
@@ -35,6 +34,11 @@ import TriggerUtils from "../TriggerUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
+import {
+	applyModifiers,
+	replacePlaceholder,
+	unescapeLiteralPlaceholders,
+} from "../PlaceholderModifiers";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
@@ -8769,10 +8773,13 @@ export default class TriggerActionHandler {
 		//in subsequent actions.
 		//Here we use that value
 		for (const key in dynamicPlaceholders) {
-			const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			let replacement = (dynamicPlaceholders[key] || "").toString();
-			if (sanitizeFolderPath) replacement = Utils.makeFileSafe(replacement);
-			res = res.replace(new RegExp("\\{" + keySafe + "\\}", "gi"), replacement);
+			const rawValue = (dynamicPlaceholders[key] || "").toString();
+			res = replacePlaceholder(res, key, (modifiers) => {
+				let replacement = applyModifiers(rawValue, modifiers);
+				//Sanitized after the modifiers so they can't reintroduce unsafe chars
+				if (sanitizeFolderPath) replacement = Utils.makeFileSafe(replacement);
+				return replacement;
+			});
 		}
 
 		try {
@@ -8787,7 +8794,7 @@ export default class TriggerActionHandler {
 				placeholders = placeholders.concat(actionPlaceholders);
 			// console.log(placeholders);
 			//No placeholders for this event type, just send back the source text
-			if (placeholders.length == 0) return res;
+			if (placeholders.length == 0) return unescapeLiteralPlaceholders(res);
 
 			const srcU = src.toUpperCase();
 			const streamInfos = StoreProxy.stream.currentStreamInfo[channelId];
@@ -8795,7 +8802,9 @@ export default class TriggerActionHandler {
 				let value = "";
 				let cleanSubevent = true;
 				placeholder.tag = placeholder.tag.toUpperCase();
-				if (srcU.indexOf("{" + placeholder.tag + "}") == -1) continue;
+				//Cheap pre-filter. The closing brace isn't tested as the tag may
+				//be followed by modifiers, ex: {USER.uppercase}
+				if (srcU.indexOf("{" + placeholder.tag) == -1) continue;
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
@@ -9494,18 +9503,27 @@ export default class TriggerActionHandler {
 
 				if (typeof value != "string") value = JSON.stringify(value);
 
-				if (escapeDoubleQuotes) value = value.replace(/"/g, '\\"');
+				//Modifiers are applied before the sanitizing/escaping below so
+				//they can't reintroduce chars that were just escaped
+				const rawValue = value ?? "";
+				res = replacePlaceholder(res, placeholder.tag, (modifiers) => {
+					let parsed = applyModifiers(rawValue, modifiers);
 
-				if (keepHTML !== true) value = Utils.stripHTMLTags(value);
+					if (sanitizeFolderPath) parsed = Utils.makeFileSafe(parsed);
 
-				res = res.replace(new RegExp("\\{" + placeholder.tag + "\\}", "gi"), value ?? "");
+					if (escapeDoubleQuotes) parsed = parsed.replace(/"/g, '\\"');
+
+					if (keepHTML !== true) parsed = Utils.stripHTMLTags(parsed);
+
+					return parsed;
+				});
 			}
 
 			// console.log("RESULT = ",res);
-			return res;
+			return unescapeLiteralPlaceholders(res);
 		} catch (error) {
 			console.error(error);
-			return res;
+			return unescapeLiteralPlaceholders(res);
 		}
 	}
 

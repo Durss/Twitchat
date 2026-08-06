@@ -84,6 +84,7 @@ import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
 import Config from "./utils/Config";
 import { storeStreamfog } from "./store/streamfog/storeStreamfog";
 import { storeAPI } from "./store/api/storeAPI";
+import { setPlaceholderModifiersI18n } from "./utils/PlaceholderModifiers";
 import Utils from "./utils/Utils";
 import { vAutofocus } from "./directives/autofocus";
 import { vClick2Select } from "./directives/click2Select";
@@ -224,6 +225,12 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.default.router = router;
 	StoreProxy.default.i18n = i18n.global;
+	//Let the placeholder modifiers localize their output
+	setPlaceholderModifiersI18n({
+		getLocale: () => i18n.global.locale.value,
+		getLabel: (key) => (i18n.global.te(key) ? i18n.global.t(key) : undefined),
+	});
+	// oxlint-disable-next-line typescript/unbound-method
 	StoreProxy.default.asset = Utils.asset;
 	StoreProxy.default.main = storeMain();
 	StoreProxy.default.auth = storeAuth();

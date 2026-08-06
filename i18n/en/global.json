@@ -1,5 +1,11 @@
 {
 	"global": {
+		"ordinal": {
+			"one": "#st",
+			"two": "#nd",
+			"few": "#rd",
+			"other": "#th"
+		},
 		"lang": "en-US",
 		"lang_label": "English",
 		"lang_flag": "us",

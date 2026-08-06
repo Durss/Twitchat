@@ -31,6 +31,8 @@
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
 		"analyse": "esbuild src_front/main.ts --bundle --analyze",
 		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs",
+		"genmodifiers": "node ./scripts/generatePlaceholderModifiersDoc.mjs",
+		"test": "vp test run",
 		"migration:stats": "node scripts/trackMigration.mjs --update-readme"
 	},
 	"dependencies": {
