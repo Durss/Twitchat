@@ -3631,14 +3631,18 @@ export default class TwitchUtils {
 	/**
 	 * Gets a badge title from its raw info
 	 */
-	public static getBadgeTitle(setId: string, versionID: string): string {
+	public static getBadgeTitle(
+		setId: string,
+		versionId: string,
+		badge?: TwitchDataTypes.Badge,
+	): string {
 		let title = "";
 		const i18n = StoreProxy.i18n;
 		//If it's the subscriber badge, create the title form its ID.
 		//ID is in the form "XYYY" where X=tier and YYY the number of months
 		if (setId === "subscriber") {
 			let months =
-				versionID.length == 4 ? parseInt(versionID.substring(1)) : parseInt(versionID); //Remove "tier" info
+				versionId.length == 4 ? parseInt(versionId.substring(1)) : parseInt(versionId); //Remove "tier" info
 			const years = Math.floor(months / 12);
 			//Create title from the number of months
 			if (years > 0) {
@@ -3660,16 +3664,19 @@ export default class TwitchUtils {
 		} else //If it's the prediction badge, use the ID as the title.
 		//ID is like "blue-6". We replace the dashes by spaces
 		if (setId === "predictions") {
-			title = i18n.t("global.badges.prediction", { VALUE: versionID.replace("-", " ") });
+			title = i18n.t("global.badges.prediction", { VALUE: versionId.replace("-", " ") });
 		} else //If it's the sub-gift badge, use the ID as the number of gifts
 		if (setId === "sub-gifter") {
-			title = i18n.t("global.badges.subgift", { COUNT: versionID });
+			title = i18n.t("global.badges.subgift", { COUNT: versionId });
 		} else //If it's the bits badge, use the ID as the number of bits
 		if (setId === "bits") {
-			title = i18n.t("global.badges.bits", { COUNT: versionID });
+			title = i18n.t("global.badges.bits", { COUNT: versionId });
 		} else //If it's the moments badge, use the ID as the number of moments
 		if (setId === "moments") {
-			title = i18n.t("global.badges.moments", { COUNT: versionID });
+			title = i18n.t("global.badges.moments", { COUNT: versionId });
+		} else // If it's a channel drop badge
+		if (setId.startsWith("campaign-") && badge?.title) {
+			title = badge?.title;
 		} else {
 			//Use the set ID as the title after.
 			//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
@@ -3692,26 +3699,18 @@ export default class TwitchUtils {
 		userBadges: Badges | undefined,
 	): TwitchatDataTypes.TwitchatUserBadge[] {
 		const result: TwitchatDataTypes.TwitchatUserBadge[] = [];
-		const setID_done: { [key: string]: boolean } = {};
+		//Channel badges override global ones. The "subscriber" badge can be on both caches
+		const cachedBadges = { ...this.badgesCache["global"], ...this.badgesCache[channelId] };
 		for (const setID in userBadges) {
-			const version = userBadges[setID] as string;
-			const caches = [this.badgesCache[channelId], this.badgesCache["global"]];
-			for (let i = 0; i < caches.length; i++) {
-				const cache = caches[i];
-				if (!cache) continue;
-				if (setID_done[setID] === true) continue; //Badge already added. "subscriber" badge can be both on channel and global caches
-				if (!cache[setID]) continue;
-				if (!cache[setID][version]) continue;
-				setID_done[setID] = true;
-				const badge = JSON.parse(
-					JSON.stringify(cache[setID][version]),
-				) as TwitchatDataTypes.TwitchatUserBadge;
-				if (badgeInfos && badgeInfos[setID]) {
-					badge.title = this.getBadgeTitle(setID, badgeInfos[setID] as string);
-				}
-				badge.version = version;
-				result.push(badge);
+			const version = userBadges[setID]!;
+			const badgeRef = cachedBadges[setID]?.[version];
+			if (!badgeRef) continue;
+			const badge = JSON.parse(JSON.stringify(badgeRef)) as typeof badgeRef;
+			if (badgeInfos && badgeInfos[setID]) {
+				badge.title = this.getBadgeTitle(setID, badgeInfos[setID]);
 			}
+			badge.version = version;
+			result.push(badge);
 		}
 		return result;
 	}
@@ -4329,7 +4328,7 @@ export default class TwitchUtils {
 		for (const s of list) {
 			if (!hashmap[s.set_id]) hashmap[s.set_id] = {};
 			for (const v of s.versions) {
-				const title = this.getBadgeTitle(s.set_id, v.id);
+				const title = this.getBadgeTitle(s.set_id, v.id, v);
 				hashmap[s.set_id]![v.id] = {
 					icon: {
 						sd: v.image_url_1x,

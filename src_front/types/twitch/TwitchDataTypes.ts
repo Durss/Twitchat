@@ -93,6 +93,8 @@ export namespace TwitchDataTypes {
 
 	export interface Badge {
 		id: string;
+		title: string;
+		description: string;
 		image_url_1x: string;
 		image_url_2x: string;
 		image_url_4x: string;
