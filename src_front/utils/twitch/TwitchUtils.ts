@@ -3255,6 +3255,10 @@ export default class TwitchUtils {
 	): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.CHAT_WRITE_EVENTSUB])) return false;
 
+		// Avoid potentially leaking private stuff by misstyping a /command
+		// Twitch now strip the command and sends the message to tchat
+		if (message.startsWith("/")) return false;
+
 		while (message.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
 			const body: { [key: string]: string | number | boolean } = {
