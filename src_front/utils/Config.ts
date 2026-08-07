@@ -76,7 +76,7 @@ export default class Config {
 	/**
 	 * Date for features additions
 	 */
-	public NEW_FLAGS_DATE_V17 = new Date("07 01 2026 01:00:00").getTime();
+	public NEW_FLAGS_DATE_V17 = new Date("11 01 2026 01:00:00").getTime();
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */

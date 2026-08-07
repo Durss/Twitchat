@@ -80,6 +80,7 @@
 		"offlineMode": "You enabled offline mode for this window.\nAnything you change will be lost after closing this window.",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
+		"placeholder_selector_modifiers": "Do more with Placeholder Modifiers",
 		"placeholder_selector_categories": {
 			"_trigger_": "Triggers",
 			"misc": "Miscellaneous",
