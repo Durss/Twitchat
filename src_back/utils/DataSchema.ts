@@ -16,9 +16,10 @@ const UserDataSchema = {
 				subs: { type: "boolean" },
 				follower: { type: "boolean" },
 				follower_duration_ms: {
-					type: "integer",
+					type: "number",
 					minimum: 0,
-					maximum: 100 * 365 * 24 * 60 * 60 * 1000,
+					maximum: Number.MAX_SAFE_INTEGER,
+					nullable: true,
 				},
 				all: { type: "boolean" },
 				usersAllowed: {
@@ -83,7 +84,7 @@ const UserDataSchema = {
 				enabled: { type: "boolean" },
 				allowAnon: { type: "boolean" },
 				message: { type: "string", maxLength: 500 },
-				cooldown: { type: "integer", minimum: 0, maximum: 3600 },
+				cooldown: { type: "number", minimum: 0, maximum: 3600 },
 			},
 		},
 		triggerTreeEntry: {
@@ -471,8 +472,12 @@ const UserDataSchema = {
 						type: "object",
 						additionalProperties: false,
 						properties: {
-							global: { type: "integer", minimum: 0, maximum: 60 * 60 * 12 },
-							user: { type: "integer", minimum: 0, maximum: 60 * 60 * 12 },
+							global: {
+								type: "number",
+								minimum: 0,
+								maximum: Number.MAX_SAFE_INTEGER,
+							},
+							user: { type: "number", minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
 							alert: { type: "boolean" },
 						},
 					},
@@ -2300,6 +2305,7 @@ const UserDataSchema = {
 							sortByTotalAmounts: { type: "boolean" },
 							uniqueUsers: { type: "boolean" },
 							filterRewards: { type: "boolean" },
+							filterPowerUps: { type: "boolean" },
 							showRewardUsers: { type: "boolean" },
 							showPinnedCheers: { type: "boolean" },
 							showNormalCheers: { type: "boolean" },
@@ -2329,6 +2335,12 @@ const UserDataSchema = {
 								type: "array",
 								minItems: 0,
 								maxItems: 300,
+								items: { type: "string", maxLength: 40 },
+							},
+							powerUpIds: {
+								type: "array",
+								minItems: 0,
+								maxItems: 100,
 								items: { type: "string", maxLength: 40 },
 							},
 							patreonTiers: {
@@ -3056,7 +3068,7 @@ const UserDataSchema = {
 								minimum: 0,
 								maximum: Number.MAX_SAFE_INTEGER,
 							},
-							currency: { type: "string", maxLength: 10 },
+							currency: { type: "string", maxLength: 50 },
 							approachEventCount: { type: "number", minimum: 2, maximum: 5 },
 							triggerEventCount: { type: "number", minimum: 2, maximum: 11 },
 							cooldownDuration_s: {
