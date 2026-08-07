@@ -35,7 +35,7 @@ import { storeAPI as useStoreApi } from "@/store/api/storeAPI";
 import StoreProxy from "@/store/StoreProxy";
 import { ref } from "vue";
 import { useTippy } from "vue-tippy";
-import { toast } from "./toast";
+import { type ToastContentProps } from "vue3-toastify";
 
 const storeAPI = useStoreApi();
 const deleting = ref(false);
@@ -43,9 +43,11 @@ const revokeBtn = ref<InstanceType<typeof TTButton>>();
 const t = (key: string) => StoreProxy.i18n.t(key);
 
 useTippy(revokeBtn, { content: t("global.toasters.remote_api_action.revoke_key") });
-const { contentProps: props } = defineProps<{
-	contentProps: { action: keyof TwitchatEventMap; data: unknown };
-}>();
+const { contentProps: props } = defineProps<
+	ToastContentProps & {
+		contentProps: { action: keyof TwitchatEventMap; data: unknown };
+	}
+>();
 
 async function revokeApiKey() {
 	deleting.value = true;

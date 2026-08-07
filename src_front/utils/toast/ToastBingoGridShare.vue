@@ -22,11 +22,13 @@ import TTButton from "@/components/TTButton.vue";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
 import StoreProxy from "@/store/StoreProxy";
 import { computed, ref } from "vue";
+import type { ToastContentProps } from "vue3-toastify";
 
-const props = defineProps<{
-	contentProps: { token: string; ownerName: string; gridTitle: string };
-	closeToast?: () => void;
-}>();
+const props = defineProps<
+	ToastContentProps & {
+		contentProps: { token: string; ownerName: string; gridTitle: string };
+	}
+>();
 
 const storeBingoGrid = useStoreBingoGrid();
 const accepting = ref(false);
