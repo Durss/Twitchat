@@ -738,3 +738,18 @@ body.light {
 	bottom: calc(var(--chat-form-height) + 0.5em) !important;
 	padding: 0 !important;
 }
+
+.Toastify__toast-body {
+	max-width: 100%;
+
+	& > div:nth-child(2) {
+		max-width: 100%;
+		overflow: auto;
+	}
+}
+
+.Toastify__close-button {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+}

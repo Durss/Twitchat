@@ -27,10 +27,41 @@ let currentlyLive = false;
 let lastNotifAt: string = "";
 // convoId → sentAt of last dispatched message; absent = first poll
 const lastSeenDmTimes = new Map<string, string>();
+// Date of the last token refresh that actually got stored
+let lastRefreshDate = 0;
+// Reason given by the lib when it deleted the session, empty otherwise
+let lastDeleteCause = "";
+
+/**
+ * Builds the error message if auth failed
+ */
+function describeSessionError(value: unknown): string {
+	const chunks: string[] = [];
+	let current: unknown = value;
+	for (let i = 0; i < 4 && current instanceof Error; i++) {
+		const error = current as Error & {
+			error?: unknown;
+			errorDescription?: unknown;
+			cause?: unknown;
+		};
+		chunks.push(error.name + ": " + error.message);
+		if (typeof error.error === "string") chunks.push(error.error);
+		if (typeof error.errorDescription === "string") chunks.push(error.errorDescription);
+		current = error.cause;
+	}
+	if (chunks.length === 0) chunks.push(typeof value === "string" ? value : "unknown error");
+	if (lastRefreshDate > 0) {
+		chunks.push(
+			"last refresh " + Math.round((Date.now() - lastRefreshDate) / 60000) + "min ago",
+		);
+	}
+	return chunks.join(" | ");
+}
 
 export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
 		connected: false,
+		connectionError: null,
 		autoLive: false,
 		dmsAlerts: false,
 		mentionsAlerts: false,
@@ -62,6 +93,25 @@ export const storeBluesky = defineStore("bluesky", {
 				oauthClient = await BrowserOAuthClient.load({
 					clientId: document.location.origin + "/oauth/client-metadata.json",
 					handleResolver: this.handleResolver,
+					// Called anytime the lib deletes ocal session
+					onSessionDeleted: (_sub, cause) => {
+						lastDeleteCause = describeSessionError(cause);
+						console.warn("Bluesky session deleted", cause);
+						// Session died while running, nothing else notices it
+						if (this.connected) {
+							this.stopPolling();
+							this.connected = false;
+							this.connectionError = lastDeleteCause;
+							this.profile = null;
+							StoreProxy.auth.bluesky = null;
+							session = null;
+							agent = null;
+						}
+					},
+					// Called anytime session is created/refreshed
+					onSessionUpdated: () => {
+						lastRefreshDate = Date.now();
+					},
 				});
 			} catch (error) {
 				console.log(error);
@@ -71,6 +121,8 @@ export const storeBluesky = defineStore("bluesky", {
 
 		async startOAuthProcess(handle: string, readDMs: boolean = false) {
 			this.connected = false;
+			this.connectionError = null;
+			lastDeleteCause = "";
 			const client = await this.initClient();
 			if (!client) return false;
 			handle = handle.replace(/^@/, "");
@@ -98,11 +150,25 @@ export const storeBluesky = defineStore("bluesky", {
 
 		async authenticate(restore: boolean = false): Promise<void> {
 			if (this.connected) return;
+			lastDeleteCause = "";
 			try {
 				const client = await this.initClient();
-				if (!client) return;
+				if (!client) {
+					throw new Error(
+						"OAuth client init failed (handleResolver=" + this.handleResolver + ")",
+					);
+				}
 				if (restore) {
-					session = await client.restore(this.sub);
+					// Attempt to restore sessions 3 times before giving up
+					for (let i = 0; i < 3; i++) {
+						try {
+							session = await client.restore(this.sub);
+							break;
+						} catch (error) {
+							if (i == 2 || lastDeleteCause) throw error;
+							await Utils.promisedTimeout(3000);
+						}
+					}
 				} else {
 					const result = await client.init();
 					session = result?.session ?? null;
@@ -110,6 +176,7 @@ export const storeBluesky = defineStore("bluesky", {
 				if (session) {
 					this.sub = session.sub;
 					this.connected = true;
+					this.connectionError = null;
 
 					const { Agent } = await import("@atproto/api");
 					agent = new Agent(session);
@@ -129,18 +196,42 @@ export const storeBluesky = defineStore("bluesky", {
 				}
 			} catch (error) {
 				console.warn("Bluesky auth failed", error);
+				if (restore) {
+					this.connectionError = lastDeleteCause || describeSessionError(error);
+				}
 			}
 			document.location.hash = "";
 		},
 
-		async disconnect() {
+		resetConnection(): void {
+			lastDeleteCause = "";
 			this.stopPolling();
 			this.connected = false;
+			this.sub = "";
+			this.profile = null;
+			StoreProxy.auth.bluesky = null;
+			session = null;
+			agent = null;
+			this.saveConfigs();
+		},
+
+		async disconnect() {
+			lastDeleteCause = "";
+			this.stopPolling();
+			//Set before signOut() so the onSessionDeleted hook knows this one is
+			//expected and doesn't flag it as an error
+			this.connected = false;
+			this.connectionError = null;
 			this.profile = null;
 			StoreProxy.auth.bluesky = null;
 			this.saveConfigs();
-			if (session) {
-				await session?.signOut();
+			try {
+				if (session) {
+					await session?.signOut();
+				}
+			} finally {
+				session = null;
+				agent = null;
 			}
 		},
 

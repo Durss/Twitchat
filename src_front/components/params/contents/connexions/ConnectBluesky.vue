@@ -42,6 +42,18 @@
 				<div class="card-item alert error" v-if="error" @click="error = false">
 					{{ t("bluesky.error") }}
 				</div>
+
+				<i18n-t
+					scope="global"
+					tag="div"
+					keypath="bluesky.session_lost"
+					class="card-item alert sessionLost"
+					v-if="storeBluesky.connectionError"
+				>
+					<template #REASON>
+						<pre class="card-item dark">{{ storeBluesky.connectionError }}</pre>
+					</template>
+				</i18n-t>
 			</form>
 		</div>
 
@@ -78,7 +90,7 @@ import Icon from "@/components/Icon.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import ProfileInfoCard from "../ProfileInfoCard.vue";
@@ -126,6 +138,11 @@ const param_dmsAlerts = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	icon: "whispers",
 	value: storeBluesky.dmsAlerts,
 	labelKey: "bluesky.param_dmsAlerts",
+});
+
+onMounted(() => {
+	// The session died, reset state so bluesky entry stops showing as errored
+	if (storeBluesky.connectionError) storeBluesky.resetConnection();
 });
 
 const canSubmit = computed(() => {
@@ -178,6 +195,14 @@ async function authenticate() {
 			.error {
 				margin: auto;
 				cursor: pointer;
+			}
+		}
+
+		.sessionLost {
+			white-space: pre-line;
+			line-height: 1.2em;
+			pre {
+				margin-top: 0.5em;
 			}
 		}
 	}

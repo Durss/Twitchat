@@ -31,8 +31,7 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
-import type { AppBskyFeedDefs } from "@atproto/api";
-import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+import { AppBskyActorDefs, type AppBskyFeedDefs } from "@atproto/api";
 import type { BrowserOAuthClient } from "@atproto/oauth-client-browser";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type Groq from "groq-sdk";
@@ -4465,12 +4464,13 @@ export interface IAPIActions {
 
 export interface IBlueskyState {
 	connected: boolean;
+	connectionError: string | null;
 	autoLive: boolean;
 	dmsAlerts: boolean;
 	mentionsAlerts: boolean;
 	sub: string;
 	profile: Pick<
-		ProfileViewDetailed,
+		AppBskyActorDefs.ProfileViewDetailed,
 		| "avatar"
 		| "displayName"
 		| "banner"
@@ -4551,6 +4551,11 @@ export interface IBlueskyActions {
 	 * Polls Bluesky DMs
 	 */
 	pollDMs(): Promise<void>;
+	/**
+	 * Clears everything left over by a broken session so the user gets back
+	 * to a clean "not connected" state
+	 */
+	resetConnection(): void;
 	/**
 	 * Saves state to storage
 	 */
