@@ -31,16 +31,48 @@
 			<Splitter class="splitter">{{ t("tts.messages.title") }}</Splitter>
 
 			<section>
-				<ParamItem :paramData="param_readMessages" v-model="param_readMessages.value" />
-				<ParamItem :paramData="param_readWhispers" v-model="param_readWhispers.value" />
-				<ParamItem :paramData="param_readFollow" v-model="param_readFollow.value" />
-				<ParamItem :paramData="param_readSubs" v-model="param_readSubs.value" />
-				<ParamItem :paramData="param_readSubgifts" v-model="param_readSubgifts.value" />
-				<ParamItem :paramData="param_readBits" v-model="param_readBits.value" />
-				<ParamItem :paramData="param_readRaids" v-model="param_readRaids.value" />
-				<ParamItem :paramData="param_readRewards" v-model="param_readRewards.value" />
-				<ParamItem :paramData="param_readPolls" v-model="param_readPolls.value" />
-				<ParamItem :paramData="param_readChatPolls" v-model="param_readChatPolls.value" />
+				<ParamItem
+					:paramData="param_readMessages"
+					v-model="param_readMessages.value"
+					chatPreview
+				/>
+				<ParamItem
+					:paramData="param_readWhispers"
+					v-model="param_readWhispers.value"
+					chatPreview
+				/>
+				<ParamItem
+					:paramData="param_readFollow"
+					v-model="param_readFollow.value"
+					chatPreview
+				/>
+				<ParamItem :paramData="param_readSubs" v-model="param_readSubs.value" chatPreview />
+				<ParamItem
+					:paramData="param_readSubgifts"
+					v-model="param_readSubgifts.value"
+					chatPreview
+				/>
+				<ParamItem :paramData="param_readBits" v-model="param_readBits.value" chatPreview />
+				<ParamItem
+					:paramData="param_readRaids"
+					v-model="param_readRaids.value"
+					chatPreview
+				/>
+				<ParamItem
+					:paramData="param_readRewards"
+					v-model="param_readRewards.value"
+					chatPreview
+				/>
+				<ParamItem
+					:paramData="param_readPolls"
+					v-model="param_readPolls.value"
+					chatPreview
+				/>
+				<ParamItem
+					:paramData="param_readChatPolls"
+					v-model="param_readChatPolls.value"
+					chatPreview
+				/>
 				<ParamItem
 					:paramData="param_readPredictions"
 					v-model="param_readPredictions.value"

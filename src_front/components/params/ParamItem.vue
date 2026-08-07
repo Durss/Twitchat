@@ -636,6 +636,7 @@
 			ref="paramChild"
 			:key="'child_' + index + c.id"
 			:paramData="c"
+			:chatPreview="props.chatPreview"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:alert="alert || errorLocal"
@@ -1241,7 +1242,7 @@ function onPlaceholderModelValue(value: string): void {
  * Called when the focus enters this item. Reveals the chat preview.
  */
 function onChatPreviewFocusIn(): void {
-	if (props.chatPreview === false) return;
+	if (props.chatPreview === false || props.paramData.type != "string") return;
 	showChatPreview.value = true;
 }
 
@@ -1263,7 +1264,7 @@ function onChatPreviewMouseUp(): void {
  * Placeholders are replaced by their example values when they define one.
  */
 async function updateChatPreview(): Promise<void> {
-	if (props.chatPreview === false) return;
+	if (props.chatPreview === false || props.paramData.type != "string") return;
 
 	//Reset it first so <ChatMessage> fully rerenders with the new content
 	chatPreviewMessage.value = null;

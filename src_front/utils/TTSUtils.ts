@@ -1,5 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { replacePlaceholders } from "./PlaceholderModifiers";
 import PublicAPI from "./PublicAPI";
 import Utils from "./Utils";
 
@@ -315,132 +316,224 @@ export default class TTSUtils {
 		});
 
 		TTSUtils.placeholderMessages = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
-		TTSUtils.placeholderNotices = [{ tag: "MESSAGE", descKey: "tts.placeholders.message" }];
+		TTSUtils.placeholderNotices = [
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
+		];
 
-		TTSUtils.placeholderFollows = [{ tag: "USER", descKey: "tts.placeholders.user" }];
+		TTSUtils.placeholderFollows = [
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+		];
 
 		TTSUtils.placeholderSubs = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "TIER", descKey: "tts.placeholders.sub_tier" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "TIER", descKey: "tts.placeholders.sub_tier", example: "prime" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderSubgifts = [
-			{ tag: "USER", descKey: "tts.placeholders.sub_gifter" },
-			{ tag: "TIER", descKey: "tts.placeholders.sub_tier" },
-			{ tag: "COUNT", descKey: "tts.placeholders.subgift_count" },
-			{ tag: "RECIPIENTS", descKey: "tts.placeholders.subgift_recipients" },
+			{ tag: "USER", descKey: "tts.placeholders.sub_gifter", example: "Durss" },
+			{ tag: "TIER", descKey: "tts.placeholders.sub_tier", example: "1" },
+			{ tag: "COUNT", descKey: "tts.placeholders.subgift_count", example: "10" },
+			{
+				tag: "RECIPIENTS",
+				descKey: "tts.placeholders.subgift_recipients",
+				example: "Durssbot, LuckyViewer, sup3rH4ck3r",
+			},
 		];
 
 		TTSUtils.placeholderRaids = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "VIEWERS", descKey: "tts.placeholders.viewers_count" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "VIEWERS", descKey: "tts.placeholders.viewers_count", example: "10" },
 		];
 
 		TTSUtils.placeholderRewards = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "REWARD_NAME", descKey: "tts.placeholders.reward_name" },
-			{ tag: "REWARD_DESC", descKey: "tts.placeholders.reward_description" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "REWARD_NAME",
+				descKey: "tts.placeholders.reward_name",
+				example: "Highlight my message",
+			},
+			{
+				tag: "REWARD_DESC",
+				descKey: "tts.placeholders.reward_description",
+				example: "Highlight your message on chat",
+			},
 		];
 
 		TTSUtils.placeholderBits = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "BITS", descKey: "tts.placeholders.bits_amount" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "BITS", descKey: "tts.placeholders.bits_amount", example: "1000" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderPolls = [
-			{ tag: "TITLE", descKey: "tts.placeholders.poll_title" },
-			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice" },
+			{
+				tag: "TITLE",
+				descKey: "tts.placeholders.poll_title",
+				example: "Do you like twitchat?",
+			},
+			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice", example: "yes a lot" },
 		];
 
 		TTSUtils.placeholderChatPolls = [
-			{ tag: "TITLE", descKey: "tts.placeholders.poll_title" },
-			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice" },
+			{
+				tag: "TITLE",
+				descKey: "tts.placeholders.poll_title",
+				example: "Do you like twitchat?",
+			},
+			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice", example: "yes a lot" },
 		];
 
 		TTSUtils.placeholderPredictions = [
-			{ tag: "TITLE", descKey: "tts.placeholders.prediction_title" },
-			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice" },
+			{ tag: "TITLE", descKey: "tts.placeholders.prediction_title", example: "Will i win?" },
+			{ tag: "WINNER", descKey: "tts.placeholders.winning_choice", example: "yes" },
 		];
 
-		TTSUtils.placeholderRaffles = [{ tag: "WINNER", descKey: "tts.placeholders.winning_user" }];
+		TTSUtils.placeholderRaffles = [
+			{ tag: "WINNER", descKey: "tts.placeholders.winning_user", example: "Durss" },
+		];
 
-		TTSUtils.placeholderBingo = [{ tag: "WINNER", descKey: "tts.placeholders.winning_user" }];
+		TTSUtils.placeholderBingo = [
+			{ tag: "WINNER", descKey: "tts.placeholders.winning_user", example: "Durss" },
+		];
 
 		TTSUtils.placeholder1stTimeChatters = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholder1stMessageToday = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderAutomod = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderBans = TTSUtils.placeholderUnbans = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
 		];
 
 		TTSUtils.placeholderTimeouts = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "DURATION", descKey: "tts.placeholders.timeout" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "DURATION", descKey: "tts.placeholders.timeout", example: "300" },
 		];
 
-		TTSUtils.placeholderMonitored = [{ tag: "USER", descKey: "tts.placeholders.user" }];
+		TTSUtils.placeholderMonitored = [
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+		];
 
-		TTSUtils.placeholderRestricted = [{ tag: "USER", descKey: "tts.placeholders.user" }];
+		TTSUtils.placeholderRestricted = [
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+		];
 
 		TTSUtils.placeholderKofiTip = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount", example: "150" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderKofiMerch = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.merch_amount" },
-			{ tag: "PRODUCT", descKey: "tts.placeholders.merch_product" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.merch_amount", example: "150" },
+			{
+				tag: "PRODUCT",
+				descKey: "tts.placeholders.merch_product",
+				example: "Spongebob underwears",
+			},
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderKofiSub = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
-			{ tag: "TIER", descKey: "tts.placeholders.kofi_tier" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.merch_amount" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
+			{ tag: "TIER", descKey: "tts.placeholders.kofi_tier", example: "Awesome supporter" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.merch_amount", example: "20" },
 		];
 
 		TTSUtils.placeholderStreamlabsTip = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount", example: "150" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderStreamlabsMerch = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "PRODUCT", descKey: "tts.placeholders.merch_product" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{
+				tag: "PRODUCT",
+				descKey: "tts.placeholders.merch_product",
+				example: "Spongebob underwear",
+			},
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		TTSUtils.placeholderStreamlabsPatreon = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount", example: "150" },
 		];
 
 		TTSUtils.placeholderStreamelementsTip = [
-			{ tag: "USER", descKey: "tts.placeholders.user" },
-			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount" },
-			{ tag: "MESSAGE", descKey: "tts.placeholders.message" },
+			{ tag: "USER", descKey: "tts.placeholders.user", example: "Durss" },
+			{ tag: "AMOUNT", descKey: "tts.placeholders.donation_amount", example: "150" },
+			{
+				tag: "MESSAGE",
+				descKey: "tts.placeholders.message",
+				example: "I love twitchat very much!",
+			},
 		];
 
 		this.loadVoiceList();
@@ -550,9 +643,10 @@ export default class TTSUtils {
 				else if (is_1stTimeChatter) pattern = paramsTTS.read1stTimeChattersPattern;
 				else if (is_firstToday) pattern = paramsTTS.read1stMessageTodayPattern;
 
-				let txt = pattern.replace(/\{USER\}/gi, message.user.displayNameOriginal);
-				txt = txt.replace(/\{MESSAGE\}/gi, mess);
-				return txt;
+				return replacePlaceholders(pattern, {
+					USER: message.user.displayNameOriginal,
+					MESSAGE: mess,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
@@ -576,12 +670,10 @@ export default class TTSUtils {
 					mess = mess.substring(0, paramsTTS.maxLength);
 				}
 				if (mess.trim().length == 0) return ""; //Avoids reading empty message
-				let txt = paramsTTS.readWhispersPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				txt = txt.replace(/\{MESSAGE\}/gi, mess);
-				return txt;
+				return replacePlaceholders(paramsTTS.readWhispersPattern, {
+					USER: message.user.displayNameOriginal,
+					MESSAGE: mess,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
@@ -592,19 +684,16 @@ export default class TTSUtils {
 
 				const mess: string = Utils.stripHTMLTags(message.message);
 				if (mess.trim().length == 0) return ""; //Avoids reading empty message
-				const txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
-				return txt;
+				return replacePlaceholders(paramsTTS.readNoticesPattern, { MESSAGE: mess });
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				//Stop if didn't ask to read this kind of message
 				if (!paramsTTS.readFollow && force !== true) return "";
 
-				const txt = paramsTTS.readFollowPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				return txt;
+				return replacePlaceholders(paramsTTS.readFollowPattern, {
+					USER: message.user.displayNameOriginal,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
@@ -612,13 +701,11 @@ export default class TTSUtils {
 					//Stop if didn't ask to read this kind of message
 					if (!paramsTTS.readSubs && force !== true) return "";
 
-					let txt = paramsTTS.readSubsPattern.replace(
-						/\{USER\}/gi,
-						message.user.displayNameOriginal,
-					);
-					txt = txt.replace(/\{MESSAGE\}/gi, message.message ?? "");
-					txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
-					return txt;
+					return replacePlaceholders(paramsTTS.readSubsPattern, {
+						USER: message.user.displayNameOriginal,
+						MESSAGE: message.message ?? "",
+						TIER: message.tier.toString(),
+					});
 				} else {
 					//Stop if didn't ask to read this kind of message
 					if (!paramsTTS.readSubgifts && force !== true) return "";
@@ -638,20 +725,17 @@ export default class TTSUtils {
 
 							clearInterval(checkCompleteInterval);
 
-							let txt = paramsTTS.readSubgiftsPattern.replace(
-								/\{USER\}/gi,
-								message.user.displayNameOriginal,
+							resolve(
+								replacePlaceholders(paramsTTS.readSubgiftsPattern, {
+									USER: message.user.displayNameOriginal,
+									RECIPIENTS: recipients
+										.map((v) => v.displayName)
+										.join(", ")
+										.replace(/,\s([^,]*)$/, " and$1"),
+									TIER: message.tier.toString(),
+									COUNT: recipients.length,
+								}),
 							);
-							txt = txt.replace(
-								/\{RECIPIENTS\}/gi,
-								recipients
-									.map((v) => v.displayName)
-									.join(", ")
-									.replace(/,\s([^,]*)$/, " and$1"),
-							);
-							txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
-							txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
-							resolve(txt);
 						};
 
 						const checkCompleteInterval = window.setInterval(
@@ -676,38 +760,32 @@ export default class TTSUtils {
 					mess = Utils.stripHTMLTags(message.message_html);
 				}
 				// if(mess.trim().length == 0) return "";//Avoids reading empty message
-				let txt = paramsTTS.readBitsPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				txt = txt.replace(/\{BITS\}/gi, bits.toString());
-				txt = txt.replace(/\{MESSAGE\}/gi, mess);
-				return txt;
+				return replacePlaceholders(paramsTTS.readBitsPattern, {
+					USER: message.user.displayNameOriginal,
+					BITS: bits,
+					MESSAGE: mess,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
 				//Stop if didn't ask to read this kind of message
 				if (!paramsTTS.readRaids && force !== true) return "";
 
-				let txt = paramsTTS.readRaidsPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				txt = txt.replace(/\{VIEWERS\}/gi, message.viewers.toString());
-				return txt;
+				return replacePlaceholders(paramsTTS.readRaidsPattern, {
+					USER: message.user.displayNameOriginal,
+					VIEWERS: message.viewers,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				//Stop if didn't ask to read this kind of message
 				if (!paramsTTS.readRewards && force !== true) return "";
 
-				let txt = paramsTTS.readRewardsPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				txt = txt.replace(/\{REWARD_NAME\}/gi, message.reward.title);
-				txt = txt.replace(/\{REWARD_DESC\}/gi, message.reward.description);
-				return txt;
+				return replacePlaceholders(paramsTTS.readRewardsPattern, {
+					USER: message.user.displayNameOriginal,
+					REWARD_NAME: message.reward.title,
+					REWARD_DESC: message.reward.description,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
@@ -722,9 +800,10 @@ export default class TTSUtils {
 						winner = v.label;
 					}
 				});
-				let txt = paramsTTS.readPollsPattern.replace(/\{TITLE\}/gi, message.title);
-				txt = txt.replace(/\{WINNER\}/gi, winner);
-				return txt;
+				return replacePlaceholders(paramsTTS.readPollsPattern, {
+					TITLE: message.title,
+					WINNER: winner,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
@@ -739,9 +818,10 @@ export default class TTSUtils {
 						winner = v.label;
 					}
 				});
-				let txt = paramsTTS.readChatPollsPattern.replace(/\{TITLE\}/gi, message.poll.title);
-				txt = txt.replace(/\{WINNER\}/gi, winner);
-				return txt;
+				return replacePlaceholders(paramsTTS.readChatPollsPattern, {
+					TITLE: message.poll.title,
+					WINNER: winner,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
@@ -755,20 +835,19 @@ export default class TTSUtils {
 					}
 				});
 
-				let txt = paramsTTS.readPredictionsPattern.replace(/\{TITLE\}/gi, message.title);
-				txt = txt.replace(/\{WINNER\}/gi, winner);
-				return txt;
+				return replacePlaceholders(paramsTTS.readPredictionsPattern, {
+					TITLE: message.title,
+					WINNER: winner,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 				//Stop if didn't ask to read this kind of message
 				if (!paramsTTS.readBingos && force !== true) return "";
 
-				const txt = paramsTTS.readBingosPattern.replace(
-					/\{WINNER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				return txt;
+				return replacePlaceholders(paramsTTS.readBingosPattern, {
+					WINNER: message.user.displayNameOriginal,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
@@ -777,42 +856,32 @@ export default class TTSUtils {
 				if (!message.raffleData.winners) return "";
 				if (message.raffleData.winners.length === 0) return "";
 
-				const txt = paramsTTS.readRafflePattern.replace(
-					/\{WINNER\}/gi,
-					message.raffleData.winners[0]!.label,
-				);
-				return txt;
+				return replacePlaceholders(paramsTTS.readRafflePattern, {
+					WINNER: message.raffleData.winners[0]!.label,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BAN: {
 				//Stop if didn't ask to read this kind of message
 				if (!message.duration_s && !paramsTTS.readBans && force !== true) return "";
 				if (message.duration_s && !paramsTTS.readTimeouts && force !== true) return "";
-				let txt = "";
-
 				if (message.duration_s) {
-					txt = paramsTTS.readTimeoutsPattern.replace(
-						/\{USER\}/gi,
-						message.user.displayNameOriginal,
-					);
-					txt = txt.replace(/\{DURATION\}/gi, message.duration_s.toString());
-				} else {
-					txt = paramsTTS.readBansPattern.replace(
-						/\{USER\}/gi,
-						message.user.displayNameOriginal,
-					);
+					return replacePlaceholders(paramsTTS.readTimeoutsPattern, {
+						USER: message.user.displayNameOriginal,
+						DURATION: message.duration_s,
+					});
 				}
-				return txt;
+				return replacePlaceholders(paramsTTS.readBansPattern, {
+					USER: message.user.displayNameOriginal,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
 				//Stop if didn't ask to read this kind of message
 				if (!paramsTTS.readUnbans && force !== true) return "";
-				let txt = paramsTTS.readUnbansPattern.replace(
-					/\{USER\}/gi,
-					message.user.displayNameOriginal,
-				);
-				return txt;
+				return replacePlaceholders(paramsTTS.readUnbansPattern, {
+					USER: message.user.displayNameOriginal,
+				});
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
@@ -820,34 +889,28 @@ export default class TTSUtils {
 					case "donation": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readStreamlabsTip && force !== true) return "";
-						let txt = paramsTTS.readStreamlabsTipPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						return txt;
+						return replacePlaceholders(paramsTTS.readStreamlabsTipPattern, {
+							USER: message.userName,
+							AMOUNT: message.amountFormatted,
+							MESSAGE: message.message,
+						});
 					}
 					case "merch": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readStreamlabsMerch && force !== true) return "";
-						let txt = paramsTTS.readStreamlabsMerchPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{PRODUCT\}/gi, message.product);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						return txt;
+						return replacePlaceholders(paramsTTS.readStreamlabsMerchPattern, {
+							USER: message.userName,
+							PRODUCT: message.product,
+							MESSAGE: message.message,
+						});
 					}
 					case "patreon_pledge": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readStreamlabsPatreon && force !== true) return "";
-						let txt = paramsTTS.readStreamlabsPatreonPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						return txt;
+						return replacePlaceholders(paramsTTS.readStreamlabsPatreonPattern, {
+							USER: message.userName,
+							AMOUNT: message.amountFormatted,
+						});
 					}
 				}
 			}
@@ -857,13 +920,11 @@ export default class TTSUtils {
 					case "donation": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readStreamelementsTip && force !== true) return "";
-						let txt = paramsTTS.readStreamelementsTipPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						return txt;
+						return replacePlaceholders(paramsTTS.readStreamelementsTipPattern, {
+							USER: message.userName,
+							AMOUNT: message.amountFormatted,
+							MESSAGE: message.message,
+						});
 					}
 				}
 			}
@@ -873,40 +934,31 @@ export default class TTSUtils {
 					case "donation": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readKofiTip && force !== true) return "";
-						let txt = paramsTTS.readKofiTipPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						return txt;
+						return replacePlaceholders(paramsTTS.readKofiTipPattern, {
+							USER: message.userName,
+							AMOUNT: message.amountFormatted,
+							MESSAGE: message.message,
+						});
 					}
 					case "merch": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readKofiMerch && force !== true) return "";
-						let txt = paramsTTS.readKofiMerchPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						txt = txt.replace(
-							/\{PRODUCT\}/gi,
-							message.products.map((v) => v.name).join(","),
-						);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						return txt;
+						return replacePlaceholders(paramsTTS.readKofiMerchPattern, {
+							USER: message.userName,
+							AMOUNT: message.amountFormatted,
+							PRODUCT: message.products.map((v) => v.name).join(","),
+							MESSAGE: message.message,
+						});
 					}
 					case "subscription": {
 						//Stop if didn't ask to read this kind of message
 						if (!paramsTTS.readKofiSub && force !== true) return "";
-						let txt = paramsTTS.readKofiSubPattern.replace(
-							/\{USER\}/gi,
-							message.userName,
-						);
-						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-						txt = txt.replace(/\{TIER\}/gi, message.tier || "");
-						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
-						return txt;
+						return replacePlaceholders(paramsTTS.readKofiSubPattern, {
+							USER: message.userName,
+							MESSAGE: message.message,
+							TIER: message.tier || "",
+							AMOUNT: message.amountFormatted,
+						});
 					}
 				}
 			}
