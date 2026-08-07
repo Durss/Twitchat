@@ -5,6 +5,7 @@
 		:data-type="paramData.type"
 		@mouseenter="emit('mouseenter', $event, paramData)"
 		@mouseleave="emit('mouseleave', $event, paramData)"
+		@focusin="onChatPreviewFocusIn()"
 		@click="clickItem($event)"
 	>
 		<div class="content">
@@ -620,6 +621,15 @@
 			@insert="insertPlaceholder"
 		/>
 
+		<div class="chatPreview" v-if="chatPreviewMessage && showChatPreview">
+			<ChatMessage
+				class="message"
+				lightMode
+				contextMenuOff
+				:messageData="chatPreviewMessage"
+			/>
+		</div>
+
 		<ParamItem
 			v-for="(c, index) in children"
 			class="child"
@@ -664,8 +674,9 @@
 </template>
 
 <script setup lang="ts">
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import {
 	ref,
@@ -697,6 +708,7 @@ import { asset } from "@/composables/useAsset";
 import type { VueSelectInstance } from "vue-select";
 import { useEmptySlot } from "@/composables/useEmptySlot";
 import Icon from "../Icon.vue";
+import ChatMessage from "../messages/ChatMessage.vue";
 
 defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
 
@@ -721,6 +733,7 @@ const props = withDefaults(
 		forceChildDisplay?: boolean;
 		readonly?: boolean;
 		loading?: boolean;
+		chatPreview?: boolean;
 	}>(),
 	{
 		errorMessage: "",
@@ -767,8 +780,13 @@ const premiumOnlyLocal = ref(false);
 const autofocusLocal = ref(false);
 const askForSystemFontAccess = ref(false);
 const isMissingScope = ref(false);
+// Chat preview (`chatPreview` prop). Like PostOnChatParam, it's only rendered
+// while the focus is within this item so it doesn't clutter params lists.
+const chatPreviewMessage = ref<TwitchatDataTypes.MessageChatData | null>(null);
+const showChatPreview = ref(false);
 
 let isLocalUpdate = false;
+let chatPreviewFocusHandler: ((e: MouseEvent) => void) | null = null;
 let childrenExpanded = false;
 // Tracks the last value we've reconciled with the parent. We can't compare
 // against props.modelValue because callers commonly do `v-model="x.value"`
@@ -1219,6 +1237,81 @@ function onPlaceholderModelValue(value: string): void {
 	}
 }
 
+/**
+ * Called when the focus enters this item. Reveals the chat preview.
+ */
+function onChatPreviewFocusIn(): void {
+	if (props.chatPreview === false) return;
+	showChatPreview.value = true;
+}
+
+/**
+ * Hides the chat preview when clicking outside of this item.
+ * Uses "mouseup" rather than a blur so interacting with the placeholder
+ * selector (rendered in a tooltip appended to the body) keeps it open.
+ */
+function onChatPreviewMouseUp(): void {
+	let target = document.activeElement as HTMLElement | null;
+	while (target && target != rootElRef.value && target != document.body) {
+		target = target.parentElement;
+	}
+	showChatPreview.value = target == rootElRef.value;
+}
+
+/**
+ * Builds the fake chat message rendered as a preview of the field's content.
+ * Placeholders are replaced by their example values when they define one.
+ */
+async function updateChatPreview(): Promise<void> {
+	if (props.chatPreview === false) return;
+
+	//Reset it first so <ChatMessage> fully rerenders with the new content
+	chatPreviewMessage.value = null;
+	await nextTick();
+
+	const me = storeAuth.twitch.user;
+	let rawMessage = (props.paramData.value ?? "").toString().normalize("NFC");
+
+	if (props.paramData.placeholderList) {
+		for (const p of props.paramData.placeholderList) {
+			if (p.private === true) continue;
+			if (p.example != undefined) {
+				rawMessage = replacePlaceholders(rawMessage, { [p.tag]: p.example });
+			}
+		}
+	}
+
+	let announcementColor: "primary" | "purple" | "blue" | "green" | "orange" | undefined =
+		undefined;
+	if (rawMessage.indexOf("/announce") == 0) {
+		announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as
+			| "primary"
+			| "purple"
+			| "blue"
+			| "green"
+			| "orange";
+		rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
+	}
+
+	const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
+	const message_html = TwitchUtils.messageChunksToHTML(chunks);
+	chatPreviewMessage.value = {
+		id: Utils.getUUID(),
+		date: Date.now(),
+		channel_id: me.id,
+		platform: "twitch",
+		type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		answers: [],
+		user: me,
+		twitch_announcementColor: announcementColor,
+		is_short: false,
+		message: rawMessage,
+		message_chunks: chunks,
+		message_html,
+		message_size: TwitchUtils.computeMessageSize(chunks),
+	};
+}
+
 function setErrorState(state: boolean) {
 	if (props.paramData.twitch_scopes && !TwitchUtils.hasScopes(props.paramData.twitch_scopes)) {
 		errorLocal.value = true;
@@ -1441,11 +1534,21 @@ onMounted(() => {
 		});
 		resizeObserver.observe(inputRef.value);
 	}
+
+	if (props.chatPreview !== false) {
+		chatPreviewFocusHandler = () => onChatPreviewMouseUp();
+		document.addEventListener("mouseup", chatPreviewFocusHandler);
+		updateChatPreview();
+	}
 });
 
 onBeforeUnmount(() => {
 	resizeObserver?.disconnect();
 	resizeObserver = null;
+	if (chatPreviewFocusHandler) {
+		document.removeEventListener("mouseup", chatPreviewFocusHandler);
+		chatPreviewFocusHandler = null;
+	}
 });
 
 watch(
@@ -1477,8 +1580,15 @@ watch(
 	() => props.paramData.value,
 	() => {
 		onEdit();
+		updateChatPreview();
 		nextTick(autoResize);
 	},
+	{ deep: true },
+);
+
+watch(
+	() => props.paramData.placeholderList,
+	() => updateChatPreview(),
 	{ deep: true },
 );
 
@@ -1927,6 +2037,19 @@ watch(
 	&.hasIcon {
 		& > .placeholders {
 			margin-left: 1.5em;
+		}
+	}
+
+	.chatPreview {
+		margin-top: 0.5em;
+		padding: 0.25em 0.5em;
+		border-radius: 0.5em;
+		box-sizing: border-box;
+		background-color: var(--background-color-primary);
+		overflow: hidden;
+		.message {
+			position: relative;
+			font-size: 1em;
 		}
 	}
 
