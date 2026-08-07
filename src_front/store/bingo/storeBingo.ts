@@ -1,6 +1,7 @@
 import type { StoreActions } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore } from "pinia";
@@ -55,7 +56,7 @@ export const storeBingo = defineStore("bingo", {
 				} else if (data.guessNumber) {
 					goal = StoreProxy.i18n.t("bingo.goal_number", { MIN: data.min, MAX: data.max });
 				}
-				message = message.replace(/\{GOAL\}/gi, goal as string);
+				message = replacePlaceholders(message, { GOAL: goal });
 				MessengerProxy.instance.sendMessage(message);
 			}
 			PublicAPI.instance.broadcastGlobalStates();
@@ -96,8 +97,9 @@ export const storeBingo = defineStore("bingo", {
 				bingo.winners = [message.user];
 				if (sChat.botMessages.bingo.enabled) {
 					//Post on chat if requested
-					let txt = sChat.botMessages.bingo.message;
-					txt = txt.replace(/\{USER\}/gi, message.user.displayNameOriginal);
+					const txt = replacePlaceholders(sChat.botMessages.bingo.message, {
+						USER: message.user.displayNameOriginal,
+					});
 					MessengerProxy.instance.sendMessage(txt, [message.user.platform]);
 				}
 

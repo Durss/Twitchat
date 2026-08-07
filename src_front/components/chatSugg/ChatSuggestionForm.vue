@@ -8,61 +8,52 @@
 			<div class="description">{{ $t("suggestion.info") }}</div>
 		</div>
 
-		<div class="content">
-			<form @submit.prevent="submitChatSuggestion()">
-				<div class="card-item">
-					<ParamItem
-						noBackground
-						:paramData="command"
-						autofocus
-						@change="changeValue()"
-					/>
-					<div class="example">
-						<span>{{ $t("global.example") }}</span
-						>:
-						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
-							<template #CMD>{{ example }}</template>
-							<template #SUGG>{{ $t("suggestion.example_sugg") }}</template>
-						</i18n-t>
-					</div>
+		<form class="content" @submit.prevent="submitChatSuggestion()">
+			<div class="card-item">
+				<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
+				<div class="example">
+					<span>{{ $t("global.example") }}</span
+					>:
+					<i18n-t scope="global" tag="mark" keypath="suggestion.example">
+						<template #CMD>{{ example }}</template>
+						<template #SUGG>{{ $t("suggestion.example_sugg") }}</template>
+					</i18n-t>
 				</div>
+			</div>
 
-				<ParamItem :paramData="maxLength" @change="changeValue()" />
+			<ParamItem :paramData="maxLength" @change="changeValue()" />
 
-				<ParamItem :paramData="duration" @change="changeValue()" />
+			<ParamItem :paramData="duration" @change="changeValue()" />
 
-				<ParamItem
-					:paramData="multiAnswers"
-					v-model="multiAnswers.value"
-					@change="changeValue()"
-				/>
+			<ParamItem
+				:paramData="multiAnswers"
+				v-model="multiAnswers.value"
+				@change="changeValue()"
+			/>
 
-				<PostOnChatParam
-					botMessageKey="chatSuggStart"
-					v-if="triggerMode === false"
-					:placeholderEnabled="false"
-					icon="announcement"
-					titleKey="suggestion.announce_start"
-					:placeholders="startPlaceholders"
-				/>
+			<PostOnChatParam
+				botMessageKey="chatSuggStart"
+				v-if="triggerMode === false"
+				:placeholderEnabled="false"
+				icon="announcement"
+				titleKey="suggestion.announce_start"
+				:placeholders="startPlaceholders"
+			/>
 
-				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
+			<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
-				<Button v-if="triggerMode === false" type="submit">{{
-					$t("global.submit")
-				}}</Button>
-			</form>
+			<Button v-if="triggerMode === false" type="submit">{{ $t("global.submit") }}</Button>
+		</form>
 
-			<!-- Removed because down -->
-			<!--
+		<!-- Removed because down -->
+		<!--
 				<i18n-t v-if="triggerMode === false" scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
 				<template #LINK>
 					<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 				</template>
 			</i18n-t> -->
-		</div>
 	</div>
 </template>
 

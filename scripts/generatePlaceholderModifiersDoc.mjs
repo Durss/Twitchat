@@ -53,7 +53,7 @@ function main() {
 	}
 
 	const header = existing.substring(0, markerIndex + INJECT_MARKER.length);
-	fs.writeFileSync(OUTPUT_FILE, header + "\n\n" + markdown, "utf-8");
+	fs.writeFileSync(OUTPUT_FILE, toCRLF(header + "\n\n" + markdown), "utf-8");
 	console.log("Written to " + path.basename(OUTPUT_FILE));
 }
 
@@ -223,6 +223,14 @@ function firstSentence(text) {
 
 function anchor(name) {
 	return name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+/**
+ * The repo is CRLF (see .editorconfig). Without this every regeneration
+ * rewrites all the line endings and shows up as a full file diff.
+ */
+function toCRLF(text) {
+	return text.replace(/\r\n/g, "\n").replace(/\n/g, "\r\n");
 }
 
 main();

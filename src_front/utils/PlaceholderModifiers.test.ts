@@ -10,6 +10,7 @@ import {
 	applyModifiers,
 	getModifierNames,
 	replacePlaceholder,
+	replacePlaceholders,
 	setPlaceholderModifiersI18n,
 	unescapeLiteralPlaceholders,
 } from "./PlaceholderModifiers";
@@ -66,6 +67,41 @@ describe("modifiers", () => {
 	});
 	it("ignores an unknown modifier rather than dropping the value", () => {
 		expect(parse("{USER.nope}", "USER", "Du")).toBe("Du");
+	});
+});
+
+describe("replacePlaceholders", () => {
+	it("replaces several tags in one call", () => {
+		expect(
+			replacePlaceholders("{USER} raided with {VIEWERS}!", { USER: "Durss", VIEWERS: 42 }),
+		).toBe("Durss raided with 42!");
+	});
+	it("applies the modifiers of each tag", () => {
+		expect(
+			replacePlaceholders("{USER.uppercase} / {VIEWERS.separator}", {
+				USER: "durss",
+				VIEWERS: 1234567,
+			}),
+		).toBe("DURSS / 1,234,567");
+	});
+	it("accepts numbers", () => {
+		expect(replacePlaceholders("{N.add(1)}", { N: 41 })).toBe("42");
+	});
+	it("turns a null or undefined value into an empty text", () => {
+		expect(replacePlaceholders("[{A}][{B}]", { A: null, B: undefined })).toBe("[][]");
+	});
+	//A tag absent from the values is left in place, which is what lets the
+	//callers replace a tag only under some condition
+	it("leaves a tag that was not given alone", () => {
+		expect(replacePlaceholders("{USER} {CMD}", { USER: "Durss" })).toBe("Durss {CMD}");
+	});
+	it("handles the literal escape", () => {
+		expect(replacePlaceholders("{{USER}} is {USER}", { USER: "Durss" })).toBe(
+			"{USER} is Durss",
+		);
+	});
+	it("returns an empty source untouched", () => {
+		expect(replacePlaceholders("", { USER: "Durss" })).toBe("");
 	});
 });
 

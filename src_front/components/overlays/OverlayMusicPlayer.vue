@@ -86,6 +86,7 @@ import { watch } from "vue";
 import { toNative, Component, Prop } from "vue-facing-decorator";
 import { Vue3Marquee } from "vue3-marquee";
 import AbstractOverlay from "./AbstractOverlay";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import DOMPurify from "isomorphic-dompurify";
 
 @Component({
@@ -166,12 +167,12 @@ class OverlayMusicPlayer extends AbstractOverlay {
 				this.skin = e.data.skin;
 				this.isPlaying = true;
 				let customTrackInfo = this.params?.customInfoTemplate || "";
-				customTrackInfo = customTrackInfo.replace(
-					/\{ARTIST\}/gi,
-					this.artist || "no music",
-				);
-				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
-				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover || "");
+				if (customTrackInfo)
+					customTrackInfo = replacePlaceholders(customTrackInfo, {
+						ARTIST: this.artist || "no music",
+						TITLE: this.title || "no music",
+						COVER: this.cover || "",
+					});
 				this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
 
 				const newProgress = e.data.trackPlaybackPos! / e.data.trackDuration!;
@@ -250,9 +251,12 @@ class OverlayMusicPlayer extends AbstractOverlay {
 			}
 			this.isPlaying = true;
 			let customTrackInfo = this.params.customInfoTemplate;
-			customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
-			customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
-			customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
+			if (customTrackInfo)
+				customTrackInfo = replacePlaceholders(customTrackInfo, {
+					ARTIST: this.artist || "no music",
+					TITLE: this.title || "no music",
+					COVER: this.cover,
+				});
 			this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
 
 			const newProgress = 600 / this.staticTrackData.duration;

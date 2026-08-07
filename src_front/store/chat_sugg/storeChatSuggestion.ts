@@ -1,6 +1,7 @@
 import type { StoreActions } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type {
@@ -21,9 +22,10 @@ export const storeChatSuggestion = defineStore("chatSuggestion", {
 			if (payload) {
 				const sChat = StoreProxy.chat;
 				if (sChat.botMessages.chatSuggStart.enabled === true) {
-					let message = sChat.botMessages.chatSuggStart.message;
-					message = message.replace(/\{CMD\}/gi, payload.command);
-					message = message.replace(/\{LENGTH\}/gi, payload.maxLength.toString());
+					const message = replacePlaceholders(sChat.botMessages.chatSuggStart.message, {
+						CMD: payload.command,
+						LENGTH: payload.maxLength,
+					});
 					MessengerProxy.instance.sendMessage(message);
 				}
 			}

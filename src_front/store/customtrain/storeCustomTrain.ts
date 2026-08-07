@@ -3,6 +3,7 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import PublicAPI from "@/utils/PublicAPI";
 import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import DataStore from "../DataStore";
@@ -230,12 +231,10 @@ export const storeCustomTrain = defineStore("customTrain", {
 						void StoreProxy.chat.addMessage(notification);
 
 						if (train.postSuccessOnChat && train.postSuccessChatMessage) {
-							const message = train.postSuccessChatMessage
-								.replace(/\{LEVEL\}/gi, level.index.toString())
-								.replace(
-									/\{AMOUNT\}/gi,
-									Utils.formatCurrency(state.amount, train.currency),
-								);
+							const message = replacePlaceholders(train.postSuccessChatMessage, {
+								LEVEL: level.index,
+								AMOUNT: Utils.formatCurrency(state.amount, train.currency),
+							});
 							MessengerProxy.instance.sendMessage(message);
 						}
 
@@ -348,9 +347,10 @@ export const storeCustomTrain = defineStore("customTrain", {
 					void StoreProxy.chat.addMessage(message);
 
 					if (train.postLevelUpOnChat && train.postLevelUpChatMessage) {
-						const message = train.postLevelUpChatMessage
-							.replace(/\{LEVEL\}/gi, newLevel.index.toString())
-							.replace(/\{AMOUNT\}/gi, amountLeftFormatted);
+						const message = replacePlaceholders(train.postLevelUpChatMessage, {
+							LEVEL: newLevel.index,
+							AMOUNT: amountLeftFormatted,
+						});
 						MessengerProxy.instance.sendMessage(message);
 					}
 					// }

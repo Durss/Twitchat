@@ -18,6 +18,17 @@
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
 		<template #content>
+			<div class="modifiers">
+				<a
+					v-newflag="{
+						date: Config.instance.NEW_FLAGS_DATE_V17,
+						id: 'placeholder.modifiers1',
+					}"
+					href="https://github.com/Durss/Twitchat/tree/refs/heads/beta/PLACEHOLDER_MODIFIERS.md"
+					target="_blank"
+					><Icon name="newtab" />{{ t("global.placeholder_selector_modifiers") }}</a
+				>
+			</div>
 			<SearchForm
 				class="searchForm"
 				v-if="
@@ -180,6 +191,8 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import SearchForm from "./contents/SearchForm.vue";
+import Icon from "../Icon.vue";
+import Config from "@/utils/Config.js";
 
 const { t } = useI18n();
 const emit = defineEmits<{ insert: [string]; "update:modelValue": [string] }>();
@@ -385,5 +398,31 @@ async function insert(h: TwitchatDataTypes.PlaceholderEntry): Promise<void> {
 
 .searchForm {
 	margin-bottom: 0.5em;
+}
+
+.modifiers {
+	display: block;
+	text-align: center;
+	font-style: italic;
+	margin-top: -0.25em;
+	margin-bottom: 0.5em;
+	position: relative;
+	a {
+		font-size: 0.9em;
+		color: var(--color-light-dark);
+		&:hover {
+			color: var(--color-light);
+		}
+	}
+	:deep(.newFlag) {
+		border: none;
+		&::before {
+			transform: translate(-20%, -20%);
+		}
+	}
+	.icon {
+		vertical-align: middle;
+		margin-right: 0.25em;
+	}
 }
 </style>

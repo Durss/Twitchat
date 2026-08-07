@@ -3,6 +3,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -80,19 +81,23 @@ export const storeRaffle = defineStore("raffle", {
 					const messageParams =
 						payload.messages?.raffleStart || StoreProxy.chat.botMessages.raffleStart;
 					if (messageParams.enabled) {
-						let message = messageParams.message;
+						//Tags left out of this object are kept as is, as they were
+						//before when their "if" didn't pass
+						const values: { [tag: string]: string } = {};
 						if (payload.command) {
-							message = message.replace(/\{CMD\}/gi, payload.command);
+							values["CMD"] = payload.command;
 						}
 						if (payload.reward_id) {
 							const reward = StoreProxy.rewards.rewardList.find(
 								(v) => v.id == payload.reward_id,
 							);
 							if (reward) {
-								message = message.replace(/\{REWARD\}/gi, reward.title);
-								message = message.replace(/\{CMD\}/gi, reward.title);
+								values["REWARD"] = reward.title;
+								//The command takes precedence over the reward on {CMD}
+								if (values["CMD"] === undefined) values["CMD"] = reward.title;
 							}
 						}
+						const message = replacePlaceholders(messageParams.message, values);
 						MessengerProxy.instance.sendMessage(message);
 					}
 					break;
@@ -159,10 +164,9 @@ export const storeRaffle = defineStore("raffle", {
 									" (" + payload.tip_tiltify_minAmount + "🪙" + minSuffix + ")";
 							platforms.push(label);
 						}
-						let message = messageParams.message.replace(
-							/\{PLATFORMS\}/gi,
-							platforms.join(", "),
-						);
+						const message = replacePlaceholders(messageParams.message, {
+							PLATFORMS: platforms.join(", "),
+						});
 						MessengerProxy.instance.sendMessage(message);
 					}
 					break;
@@ -289,16 +293,18 @@ export const storeRaffle = defineStore("raffle", {
 			const messageParams = raffleEntry.messages?.raffleWinner || map[raffleEntry.mode];
 			if (messageParams.enabled) {
 				window.setTimeout(() => {
-					let message = messageParams.message;
+					//Tags left out of this object are kept as is, exactly as they
+					//were before when their "if" did not pass
+					const values: { [tag: string]: string } = {};
 					if (
 						raffleEntry.mode == "chat" ||
 						raffleEntry.mode == "sub" ||
 						raffleEntry.mode == "tips" ||
 						raffleEntry.mode == "patreon"
 					) {
-						message = message.replace(/\{USER\}/gi, winner.label);
+						values["USER"] = winner.label;
 					} else {
-						message = message.replace(/\{ENTRY\}/gi, winner.label);
+						values["ENTRY"] = winner.label;
 					}
 					if (winner.tip) {
 						let platform = "";
@@ -324,9 +330,10 @@ export const storeRaffle = defineStore("raffle", {
 							default:
 								platform = "Unknown platform";
 						}
-						message = message.replace(/\{AMOUNT\}/gi, winner.tip.amount);
-						message = message.replace(/\{PLATFORM\}/gi, platform);
+						values["AMOUNT"] = winner.tip.amount;
+						values["PLATFORM"] = platform;
 					}
+					const message = replacePlaceholders(messageParams.message, values);
 					MessengerProxy.instance.sendMessage(message);
 				}, chatMessageDelay || 0);
 			}

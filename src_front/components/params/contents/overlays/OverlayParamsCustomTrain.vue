@@ -482,6 +482,7 @@
 								@change="onChange(entry)"
 								:childLevel="1"
 								noBackground
+								chatPreview
 							/>
 						</ParamItem>
 					</div>
@@ -573,6 +574,7 @@
 								@change="onChange(entry)"
 								:childLevel="1"
 								noBackground
+								chatPreview
 							/>
 						</ParamItem>
 					</div>
@@ -850,8 +852,12 @@ function initParams(): void {
 		};
 
 		param_postLevelUpMessage.value[id].placeholderList = [
-			{ tag: "LEVEL", descKey: "triggers.placeholders.custom_train_level" },
-			{ tag: "AMOUNT", descKey: "triggers.placeholders.custom_train_amountLeft" },
+			{ tag: "LEVEL", descKey: "triggers.placeholders.custom_train_level", example: "5" },
+			{
+				tag: "AMOUNT",
+				descKey: "triggers.placeholders.custom_train_amountLeft",
+				example: "1312",
+			},
 		];
 		param_postSuccessMessage.value[id].placeholderList =
 			param_postLevelUpMessage.value[id].placeholderList.concat();

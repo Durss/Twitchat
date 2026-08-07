@@ -1651,10 +1651,6 @@ function openValues(): void {
 		}
 
 		.form {
-			.small {
-				font-size: 0.8em;
-			}
-
 			.winner {
 				font-weight: bold;
 				gap: 0;

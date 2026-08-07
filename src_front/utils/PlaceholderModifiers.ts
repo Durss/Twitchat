@@ -122,6 +122,31 @@ export function unescapeLiteralPlaceholders(src: string): string {
 }
 
 /**
+ * Replaces a whole set of placeholders in one go.
+ *
+ * Convenience wrapper for the numerous places replacing a handful of
+ * fixed tags by hand with text.replace(/\{TAG\}/gi, value). Going
+ * through here gives them the modifiers, the {{TAG}} escape and the
+ * case insensitive matching for free.
+ *
+ * Values are replaced in the order of the given object. As with a
+ * chain of replace() calls, a value holding a placeholder of its own
+ * can be picked up by the tags processed after it.
+ */
+export function replacePlaceholders(
+	src: string,
+	values: { [tag: string]: string | number | null | undefined },
+): string {
+	if (!src) return src;
+	let res = src;
+	for (const tag in values) {
+		const value = (values[tag] ?? "").toString();
+		res = replacePlaceholder(res, tag, (modifiers) => applyModifiers(value, modifiers));
+	}
+	return unescapeLiteralPlaceholders(res);
+}
+
+/**
  * Name of every available modifier. Mostly useful to build the UI.
  */
 export function getModifierNames(): string[] {
@@ -614,7 +639,13 @@ const MODIFIERS: { [name: string]: PlaceholderModifier } = {
 	 * Removes every link of the value.
 	 * @example {MESSAGE.nourl} => check this
 	 */
-	nourl: (v) => v.replace(/https?:\/\/\S+/gi, "").trim(),
+	nourl: (v) =>
+		v
+			.replace(
+				/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi,
+				"",
+			)
+			.trim(),
 	/**
 	 * Converts the value to a URL friendly text.
 	 * Accents are removed and anything that isn't a letter or a
@@ -650,13 +681,6 @@ const MODIFIERS: { [name: string]: PlaceholderModifier } = {
 		const chars = toGraphemes(v);
 		return chars.slice(0, keep).join("") + char.repeat(Math.max(0, chars.length - keep));
 	},
-	/**
-	 * Prefixes the value with a "@" so it becomes a mention.
-	 * Values already starting with a "@" aren't doubled, and empty
-	 * values are left alone.
-	 * @example {USER.mention} => @Durss
-	 */
-	mention: (v) => (v.trim() ? "@" + v.trim().replace(/^@/, "") : v),
 	//#endregion
 
 	//#region Numbers

@@ -4,6 +4,7 @@ import { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes"
 import { LoremIpsum } from "lorem-ipsum";
 import Config from "../Config";
 import Logger from "../Logger";
+import { replacePlaceholders } from "../PlaceholderModifiers";
 import Utils from "../Utils";
 import { TwitchChannelModerateV2Scopes, TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
@@ -1956,11 +1957,12 @@ export default class EventSub {
 			StoreProxy.users.pendingShoutouts[channel_id] = list;
 
 			if (StoreProxy.params.features.chatShoutout.value === true) {
-				let message = StoreProxy.chat.botMessages.shoutout.message;
-				message = message.replace(/\{USER\}/gi, user.displayNameOriginal);
-				message = message.replace(/\{URL\}/gi, "twitch.tv/" + user.login);
-				message = message.replace(/\{TITLE\}/gi, title);
-				message = message.replace(/\{CATEGORY\}/gi, category);
+				const message = replacePlaceholders(StoreProxy.chat.botMessages.shoutout.message, {
+					USER: user.displayNameOriginal,
+					URL: "twitch.tv/" + user.login,
+					TITLE: title,
+					CATEGORY: category,
+				});
 				await MessengerProxy.instance.sendMessage(message);
 			}
 		}

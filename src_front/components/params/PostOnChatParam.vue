@@ -27,8 +27,13 @@
 				@change="saveParams()"
 			/>
 
-			<div class="preview" ref="preview" v-if="adPreview && showMessage">
-				<ChatMessage class="message" lightMode contextMenuOff :messageData="adPreview" />
+			<div class="preview" ref="preview" v-if="messagePreview && showMessage">
+				<ChatMessage
+					class="message"
+					lightMode
+					contextMenuOff
+					:messageData="messagePreview"
+				/>
 			</div>
 
 			<slot></slot>
@@ -47,6 +52,7 @@ import { useI18n } from "vue-i18n";
 import ChatMessage from "../messages/ChatMessage.vue";
 import ParamItem from "./ParamItem.vue";
 import PlaceholderSelector from "./PlaceholderSelector.vue";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers.js";
 
 const { t } = useI18n();
 const storeChat = useStoreChat();
@@ -84,7 +90,7 @@ const emit = defineEmits<{
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const paramItem = useTemplateRef("paramItem");
 
-const adPreview = ref<TwitchatDataTypes.MessageChatData | null>(null);
+const messagePreview = ref<TwitchatDataTypes.MessageChatData | null>(null);
 const error = ref<string>("");
 const showMessage = ref<boolean>(false);
 const enabledParam = ref<TwitchatDataTypes.ParameterData<boolean, unknown, string>>({
@@ -185,7 +191,7 @@ async function saveParams(saveToStore = true): Promise<void> {
 }
 
 async function updatePreview(): Promise<void> {
-	adPreview.value = null;
+	messagePreview.value = null;
 	await nextTick();
 
 	const me = storeAuth.twitch.user;
@@ -195,7 +201,7 @@ async function updatePreview(): Promise<void> {
 		for (const p of props.placeholders) {
 			if (p.private === true) continue;
 			if (p.example != undefined) {
-				rawMessage = rawMessage.replace(new RegExp("{" + p.tag + "}", "gi"), p.example);
+				rawMessage = replacePlaceholders(rawMessage, { [p.tag]: p.example });
 			}
 		}
 	}
@@ -214,7 +220,7 @@ async function updatePreview(): Promise<void> {
 
 	const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
 	const message_html = TwitchUtils.messageChunksToHTML(chunks);
-	adPreview.value = {
+	messagePreview.value = {
 		id: Utils.getUUID(),
 		date: Date.now(),
 		channel_id: me.id,
@@ -231,14 +237,7 @@ async function updatePreview(): Promise<void> {
 	};
 }
 
-watch(
-	() => textParam.value.value,
-	() => saveParams(),
-);
-watch(
-	() => enabledParam.value.value,
-	() => saveParams(),
-);
+watch([() => textParam.value.value, () => enabledParam.value.value], () => saveParams());
 watch(
 	() => props.placeholders,
 	() => updatePreview(),
