@@ -194,7 +194,10 @@ export default class DataStoreCommon {
 				items[key] = JSON.parse(items[key] as string);
 				// Backup to session storage to help debugging
 				if (this.store == localStorage) {
-					sessionStorage.setItem(key, items[key]!);
+					sessionStorage.setItem(
+						key,
+						typeof items[key] == "string" ? items[key] : JSON.stringify(items[key]),
+					);
 				}
 			} catch (_error) {
 				//parsing failed, that's because it's a simple string, just keep it
