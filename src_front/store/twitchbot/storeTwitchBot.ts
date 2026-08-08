@@ -70,12 +70,12 @@ export const storeTwitchBot = defineStore("switchbot", {
 				}
 				this.userInfos = userRes as TwitchDataTypes.Token;
 
-				//Schedule next refresh 10min before expiry. Retry in 1min if the last
+				//Schedule next refresh 10min before expiry. Retry in 5s if the last
 				//refresh failed.
 				refreshDelay = refreshFailed
-					? 60000
+					? 5000
 					: this.authToken.expires_at - Date.now() - 10 * 60000;
-				refreshDelay = Math.max(60000, Math.min(refreshDelay, 3 * 60 * 60 * 1000));
+				refreshDelay = Math.max(5000, Math.min(refreshDelay, 3 * 60 * 60 * 1000));
 				refreshTokenTimeout = window.setTimeout(() => {
 					void this.connect();
 				}, refreshDelay);
@@ -100,7 +100,7 @@ export const storeTwitchBot = defineStore("switchbot", {
 				const { json } = await ApiHelper.call("auth/CSRFToken", "GET");
 				csrf = json.token;
 			} catch (_e) {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.csrf_failed"));
+				toast(StoreProxy.i18n.t("error.csrf_failed"));
 			}
 			const url = TwitchUtils.getOAuthURL(
 				csrf,
