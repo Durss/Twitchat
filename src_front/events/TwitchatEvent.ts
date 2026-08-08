@@ -7,6 +7,7 @@ import type { OBSSourceItem } from "@/utils/OBSWebsocket";
 import { Event } from "./EventDispatcher";
 import type { AutocompletableString } from "@/typeUtils";
 import type { HeatArea } from "@/types/HeatDataTypes";
+import type { OrdinalLabels } from "@/utils/PlaceholderModifiers";
 
 /**
  * Created : 14/04/2022
@@ -1418,6 +1419,13 @@ export type TwitchatEventMap = {
 		 * False if label mode is "placeholder" but related placeholder doesn't exist
 		 */
 		isValid?: boolean;
+		/**
+		 * i18n configs needed to render ordinals (1st, 2nd, 3rd,..)
+		 */
+		i18n: {
+			locale: string;
+			ordinals: OrdinalLabels;
+		};
 	};
 
 	/**

@@ -1,3 +1,5 @@
+import { asset } from "@/composables/useAsset";
+
 /**
  * Contains parameters about a label displayed on the
  * "Labels" overlay.
@@ -78,6 +80,7 @@ export interface LabelItemPlaceholder {
 	type: (typeof LabelItemPlaceholderList)[number]["type"];
 	descriptionKey: string;
 	descriptionKeyName?: string;
+	example: string;
 }
 
 type PlaceholderType =
@@ -112,6 +115,8 @@ type PlaceholderCategory =
 	| "music"
 	| "tiktok";
 
+const EXAMPLE_IMAGE = asset().getAsset("img/musicExampleCover.jpg");
+
 export const LabelItemPlaceholderList = [
 	{
 		tag: "TRIGGER",
@@ -119,6 +124,7 @@ export const LabelItemPlaceholderList = [
 		category: "_trigger_",
 		descriptionKey: "overlay.labels.placeholders.TRIGGER",
 		backup: true,
+		example: "Hello world!",
 	} as const,
 	{
 		tag: "DATE",
@@ -126,6 +132,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.DATE",
 		backup: true,
+		example: "08/08/2026",
 	} as const,
 	{
 		tag: "TIME",
@@ -133,6 +140,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.TIME",
 		backup: true,
+		example: "18:26:20",
 	} as const,
 	{
 		tag: "DATE_TIME",
@@ -140,6 +148,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.DATE_TIME",
 		backup: true,
+		example: "08/08/2026 18:26:20",
 	} as const,
 	{
 		tag: "DAY",
@@ -147,6 +156,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.DAY",
 		backup: true,
+		example: "8",
 	} as const,
 	{
 		tag: "MONTH",
@@ -154,6 +164,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.MONTH",
 		backup: true,
+		example: "9",
 	} as const,
 	{
 		tag: "YEAR",
@@ -161,6 +172,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.YEAR",
 		backup: true,
+		example: "2026",
 	} as const,
 	{
 		tag: "HOURS",
@@ -168,6 +180,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.HOURS",
 		backup: true,
+		example: "18",
 	} as const,
 	{
 		tag: "MINUTES",
@@ -175,6 +188,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.MINUTES",
 		backup: true,
+		example: "26",
 	} as const,
 	{
 		tag: "SECONDS",
@@ -182,6 +196,7 @@ export const LabelItemPlaceholderList = [
 		category: "date",
 		descriptionKey: "overlay.labels.placeholders.SECONDS",
 		backup: true,
+		example: "20",
 	} as const,
 
 	{
@@ -190,6 +205,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.VIEWER_COUNT_TWITCH",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "FOLLOWER_COUNT",
@@ -197,6 +213,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_COUNT",
 		backup: true,
+		example: "12345",
 	} as const,
 	{
 		tag: "SUB_COUNT",
@@ -204,6 +221,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_COUNT",
 		backup: true,
+		example: "422",
 	} as const,
 	{
 		tag: "SUB_POINTS",
@@ -211,6 +229,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_POINTS",
 		backup: true,
+		example: "654",
 	} as const,
 
 	{
@@ -219,6 +238,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.STREAM_DURATION",
 		backup: true,
+		example: "02:34:56",
 	} as const,
 	{
 		tag: "STREAM_TITLE",
@@ -226,6 +246,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.STREAM_TITLE",
 		backup: true,
+		example: "Coding Twitchat live!",
 	} as const,
 	{
 		tag: "STREAM_CATEGORY_NAME",
@@ -233,6 +254,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.STREAM_CATEGORY_NAME",
 		backup: true,
+		example: "Software and Game Development",
 	} as const,
 	{
 		tag: "STREAM_CATEGORY_COVER",
@@ -240,6 +262,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.STREAM_CATEGORY_COVER",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -248,6 +271,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUB_ID",
@@ -255,6 +279,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUB_AVATAR",
@@ -262,6 +287,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUB_TIER",
@@ -269,6 +295,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_TIER",
 		backup: true,
+		example: "3",
 	} as const,
 	{
 		tag: "SUB_MONTHS_TOTAL",
@@ -276,6 +303,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_MONTHS_TOTAL",
 		backup: true,
+		example: "24",
 	} as const,
 	{
 		tag: "SUB_MONTHS_STREAK",
@@ -283,6 +311,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_MONTHS_STREAK",
 		backup: true,
+		example: "12",
 	} as const,
 	{
 		tag: "SUB_MONTHS_PREPAID",
@@ -290,6 +319,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUB_MONTHS_PREPAID",
 		backup: true,
+		example: "6",
 	} as const,
 
 	{
@@ -298,6 +328,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUBGIFT_ID",
@@ -305,6 +336,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUBGIFT_AVATAR",
@@ -312,6 +344,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUBGIFT_TIER",
@@ -319,6 +352,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_TIER",
 		backup: true,
+		example: "3",
 	} as const,
 	{
 		tag: "SUBGIFT_COUNT",
@@ -326,6 +360,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_COUNT",
 		backup: true,
+		example: "5",
 	} as const,
 
 	{
@@ -334,6 +369,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.VIEWER_COUNT_YOUTUBE",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "SUB_YOUTUBE_NAME",
@@ -341,6 +377,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUB_YOUTUBE_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUB_YOUTUBE_ID",
@@ -348,6 +385,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUB_YOUTUBE_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUB_YOUTUBE_AVATAR",
@@ -355,6 +393,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUB_YOUTUBE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUB_YOUTUBE_TIER",
@@ -362,6 +401,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUB_YOUTUBE_TIER",
 		backup: true,
+		example: "Member",
 	} as const,
 
 	{
@@ -370,6 +410,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_YOUTUBE_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUBGIFT_YOUTUBE_ID",
@@ -377,6 +418,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_YOUTUBE_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUBGIFT_YOUTUBE_AVATAR",
@@ -384,6 +426,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_YOUTUBE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUBGIFT_YOUTUBE_TIER",
@@ -391,6 +434,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_YOUTUBE_TIER",
 		backup: true,
+		example: "Member",
 	} as const,
 	{
 		tag: "SUBGIFT_YOUTUBE_COUNT",
@@ -398,6 +442,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_YOUTUBE_COUNT",
 		backup: true,
+		example: "5",
 	} as const,
 
 	{
@@ -406,6 +451,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_YOUTUBE_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "FOLLOWER_YOUTUBE_AVATAR",
@@ -413,6 +459,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_YOUTUBE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -421,6 +468,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.VIEWER_COUNT",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "SUB_GENERIC_NAME",
@@ -428,6 +476,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUB_GENERIC_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUB_GENERIC_ID",
@@ -435,6 +484,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUB_GENERIC_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUB_GENERIC_AVATAR",
@@ -442,6 +492,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUB_GENERIC_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUB_GENERIC_TIER",
@@ -449,6 +500,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUB_GENERIC_TIER",
 		backup: true,
+		example: "3",
 	} as const,
 
 	{
@@ -457,6 +509,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_GENERIC_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUBGIFT_GENERIC_ID",
@@ -464,6 +517,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_GENERIC_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUBGIFT_GENERIC_AVATAR",
@@ -471,6 +525,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_GENERIC_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUBGIFT_GENERIC_TIER",
@@ -478,6 +533,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_GENERIC_TIER",
 		backup: true,
+		example: "3",
 	} as const,
 	{
 		tag: "SUBGIFT_GENERIC_COUNT",
@@ -485,6 +541,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.SUBGIFT_GENERIC_COUNT",
 		backup: true,
+		example: "5",
 	} as const,
 
 	{
@@ -493,6 +550,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_CHAT_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUPER_CHAT_ID",
@@ -500,6 +558,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_CHAT_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUPER_CHAT_AVATAR",
@@ -507,6 +566,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_CHAT_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUPER_CHAT_AMOUNT",
@@ -514,6 +574,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_CHAT_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 
 	{
@@ -522,6 +583,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_STICKER_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "SUPER_STICKER_ID",
@@ -529,6 +591,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_STICKER_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "SUPER_STICKER_AVATAR",
@@ -536,6 +599,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_STICKER_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "SUPER_STICKER_AMOUNT",
@@ -543,6 +607,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_STICKER_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 	{
 		tag: "SUPER_STICKER_IMAGE",
@@ -550,6 +615,7 @@ export const LabelItemPlaceholderList = [
 		category: "youtube",
 		descriptionKey: "overlay.labels.placeholders.SUPER_STICKER_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -558,6 +624,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.CHEER_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "CHEER_ID",
@@ -565,6 +632,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.CHEER_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "CHEER_AVATAR",
@@ -572,6 +640,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.CHEER_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "CHEER_AMOUNT",
@@ -579,6 +648,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.CHEER_AMOUNT",
 		backup: true,
+		example: "500",
 	} as const,
 
 	{
@@ -587,6 +657,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "FOLLOWER_ID",
@@ -594,6 +665,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "FOLLOWER_AVATAR",
@@ -601,6 +673,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -609,6 +682,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_GENERIC_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "FOLLOWER_GENERIC_ID",
@@ -616,6 +690,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_GENERIC_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "FOLLOWER_GENERIC_AVATAR",
@@ -623,6 +698,7 @@ export const LabelItemPlaceholderList = [
 		category: "generic",
 		descriptionKey: "overlay.labels.placeholders.FOLLOWER_GENERIC_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -631,6 +707,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.REWARD_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "REWARD_ID",
@@ -638,6 +715,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.REWARD_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "REWARD_AVATAR",
@@ -645,6 +723,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.REWARD_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "REWARD_ICON",
@@ -652,6 +731,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.REWARD_ICON",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "REWARD_TITLE",
@@ -659,6 +739,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.REWARD_TITLE",
 		backup: true,
+		example: "Highlight my message",
 	} as const,
 
 	{
@@ -667,6 +748,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.RAID_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "RAID_ID",
@@ -674,6 +756,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.RAID_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "RAID_AVATAR",
@@ -681,6 +764,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.RAID_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "RAID_COUNT",
@@ -688,6 +772,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.RAID_COUNT",
 		backup: true,
+		example: "42",
 	} as const,
 
 	{
@@ -696,6 +781,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.WATCH_STREAK_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "WATCH_STREAK_ID",
@@ -703,6 +789,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.WATCH_STREAK_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "WATCH_STREAK_AVATAR",
@@ -710,6 +797,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.WATCH_STREAK_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "WATCH_STREAK_COUNT",
@@ -717,6 +805,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.WATCH_STREAK_COUNT",
 		backup: true,
+		example: "10",
 	} as const,
 
 	{
@@ -725,6 +814,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.MODIVERSARY_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "MODIVERSARY_ID",
@@ -732,6 +822,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.MODIVERSARY_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "MODIVERSARY_AVATAR",
@@ -739,6 +830,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.MODIVERSARY_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "MODIVERSARY_COUNT",
@@ -746,6 +838,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.MODIVERSARY_COUNT",
 		backup: true,
+		example: "3",
 	} as const,
 
 	{
@@ -754,6 +847,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_GIANTIFIED_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "POWER_UP_GIANTIFIED_NAME",
@@ -761,6 +855,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_GIANTIFIED_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "POWER_UP_GIANTIFIED_AVATAR",
@@ -768,6 +863,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_GIANTIFIED_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "POWER_UP_GIANTIFIED_CODE",
@@ -775,6 +871,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_GIANTIFIED_CODE",
 		backup: true,
+		example: "Kappa",
 	} as const,
 	{
 		tag: "POWER_UP_GIANTIFIED_IMAGE",
@@ -782,6 +879,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_GIANTIFIED_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -790,6 +888,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CELEBRATION_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "POWER_UP_CELEBRATION_NAME",
@@ -797,6 +896,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CELEBRATION_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "POWER_UP_CELEBRATION_AVATAR",
@@ -804,6 +904,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CELEBRATION_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "POWER_UP_CELEBRATION_CODE",
@@ -811,6 +912,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CELEBRATION_CODE",
 		backup: true,
+		example: "Kappa",
 	} as const,
 	{
 		tag: "POWER_UP_CELEBRATION_IMAGE",
@@ -818,6 +920,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CELEBRATION_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -826,6 +929,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_MESSAGE_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "POWER_UP_MESSAGE_NAME",
@@ -833,6 +937,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_MESSAGE_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "POWER_UP_MESSAGE_AVATAR",
@@ -840,6 +945,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_MESSAGE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -848,6 +954,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_ID",
 		backup: true,
+		example: "29961813",
 	} as const,
 	{
 		tag: "POWER_UP_CUSTOM_NAME",
@@ -855,6 +962,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "POWER_UP_CUSTOM_AVATAR",
@@ -862,6 +970,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "POWER_UP_CUSTOM_TITLE",
@@ -869,6 +978,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_TITLE",
 		backup: true,
+		example: "Hydrate!",
 	} as const,
 	{
 		tag: "POWER_UP_CUSTOM_COST",
@@ -876,6 +986,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch",
 		descriptionKey: "overlay.labels.placeholders.POWER_UP_CUSTOM_COST",
 		backup: true,
+		example: "500",
 	} as const,
 
 	{
@@ -884,6 +995,7 @@ export const LabelItemPlaceholderList = [
 		category: "kofi",
 		descriptionKey: "overlay.labels.placeholders.KOFI_TIP_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "KOFI_TIP_AMOUNT",
@@ -891,6 +1003,7 @@ export const LabelItemPlaceholderList = [
 		category: "kofi",
 		descriptionKey: "overlay.labels.placeholders.KOFI_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 	{
 		tag: "KOFI_MERCH_USER",
@@ -898,6 +1011,7 @@ export const LabelItemPlaceholderList = [
 		category: "kofi",
 		descriptionKey: "overlay.labels.placeholders.KOFI_MERCH_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "KOFI_MERCH_NAME",
@@ -905,6 +1019,7 @@ export const LabelItemPlaceholderList = [
 		category: "kofi",
 		descriptionKey: "overlay.labels.placeholders.KOFI_MERCH_NAME",
 		backup: true,
+		example: "Twitchat mug",
 	} as const,
 	{
 		tag: "KOFI_MERCH_AMOUNT",
@@ -912,6 +1027,7 @@ export const LabelItemPlaceholderList = [
 		category: "kofi",
 		descriptionKey: "overlay.labels.placeholders.KOFI_MERCH_AMOUNT",
 		backup: true,
+		example: "$19.99",
 	} as const,
 
 	{
@@ -920,6 +1036,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_TIP_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "STREAMLABS_TIP_AMOUNT",
@@ -927,6 +1044,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 	{
 		tag: "STREAMLABS_MERCH_USER",
@@ -934,6 +1052,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_MERCH_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "STREAMLABS_MERCH_NAME",
@@ -941,6 +1060,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_MERCH_NAME",
 		backup: true,
+		example: "Twitchat mug",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_NAME",
@@ -948,6 +1068,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_NAME",
 		backup: true,
+		example: "Save the ferrets",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_IMAGE",
@@ -955,6 +1076,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_RAISED",
@@ -962,6 +1084,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_RAISED",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_RAISED_PERSONNAL",
@@ -969,6 +1092,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_RAISED_PERSONNAL",
 		backup: true,
+		example: "420",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_GOAL",
@@ -976,6 +1100,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_GOAL",
 		backup: true,
+		example: "10000",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_LAST_TIP_USER",
@@ -983,6 +1108,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "STREAMLABS_CHARITY_LAST_TIP_AMOUNT",
@@ -990,6 +1116,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamlabs_charity",
 		descriptionKey: "overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 
 	{
@@ -998,6 +1125,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiltify",
 		descriptionKey: "overlay.labels.placeholders.TILTIFY_LAST_TIP_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TILTIFY_LAST_TIP_AMOUNT",
@@ -1005,6 +1133,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiltify",
 		descriptionKey: "overlay.labels.placeholders.TILTIFY_LAST_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 
 	{
@@ -1013,6 +1142,7 @@ export const LabelItemPlaceholderList = [
 		category: "patreon",
 		descriptionKey: "overlay.labels.placeholders.PATREON_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "PATREON_AMOUNT",
@@ -1020,6 +1150,7 @@ export const LabelItemPlaceholderList = [
 		category: "patreon",
 		descriptionKey: "overlay.labels.placeholders.PATREON_AMOUNT",
 		backup: true,
+		example: "$5.00",
 	} as const,
 	{
 		tag: "PATREON_TITLE",
@@ -1027,6 +1158,7 @@ export const LabelItemPlaceholderList = [
 		category: "patreon",
 		descriptionKey: "overlay.labels.placeholders.PATREON_TITLE",
 		backup: true,
+		example: "Premium tier",
 	} as const,
 	{
 		tag: "PATREON_AVATAR",
@@ -1034,6 +1166,7 @@ export const LabelItemPlaceholderList = [
 		category: "patreon",
 		descriptionKey: "overlay.labels.placeholders.PATREON_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "PATREON_MEMBER_COUNT",
@@ -1041,6 +1174,7 @@ export const LabelItemPlaceholderList = [
 		category: "patreon",
 		descriptionKey: "overlay.labels.placeholders.PATREON_MEMBER_COUNT",
 		backup: true,
+		example: "123",
 	} as const,
 
 	{
@@ -1049,6 +1183,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamelements",
 		descriptionKey: "overlay.labels.placeholders.STREAMELEMENTS_TIP_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "STREAMELEMENTS_TIP_AMOUNT",
@@ -1056,6 +1191,7 @@ export const LabelItemPlaceholderList = [
 		category: "streamelements",
 		descriptionKey: "overlay.labels.placeholders.STREAMELEMENTS_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 
 	{
@@ -1064,6 +1200,7 @@ export const LabelItemPlaceholderList = [
 		category: "tipeee",
 		descriptionKey: "overlay.labels.placeholders.TIPEEE_TIP_NAME",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIPEEE_TIP_AMOUNT",
@@ -1071,6 +1208,7 @@ export const LabelItemPlaceholderList = [
 		category: "tipeee",
 		descriptionKey: "overlay.labels.placeholders.TIPEEE_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 
 	{
@@ -1079,6 +1217,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_NAME",
 		backup: true,
+		example: "Save the ferrets",
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_IMAGE",
@@ -1086,6 +1225,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_RAISED",
@@ -1093,6 +1233,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_RAISED",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_GOAL",
@@ -1100,6 +1241,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_GOAL",
 		backup: true,
+		example: "10000",
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_LAST_TIP_USER",
@@ -1107,6 +1249,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_LAST_TIP_AMOUNT",
@@ -1114,6 +1257,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AMOUNT",
 		backup: true,
+		example: "$13.37",
 	} as const,
 	{
 		tag: "TWITCH_CHARITY_LAST_TIP_AVATAR",
@@ -1121,6 +1265,7 @@ export const LabelItemPlaceholderList = [
 		category: "twitch_charity",
 		descriptionKey: "overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1129,6 +1274,7 @@ export const LabelItemPlaceholderList = [
 		category: "voicemod",
 		descriptionKey: "overlay.labels.placeholders.VOICEMOD_EFFECT_TITLE",
 		backup: true,
+		example: "Robot",
 	} as const,
 	{
 		tag: "VOICEMOD_EFFECT_ICON",
@@ -1136,6 +1282,7 @@ export const LabelItemPlaceholderList = [
 		category: "voicemod",
 		descriptionKey: "overlay.labels.placeholders.VOICEMOD_EFFECT_ICON",
 		backup: false,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1144,6 +1291,7 @@ export const LabelItemPlaceholderList = [
 		category: "music",
 		descriptionKey: "overlay.labels.placeholders.MUSIC_TITLE",
 		backup: true,
+		example: "Mitchiri Neko March",
 	} as const,
 	{
 		tag: "MUSIC_ARTIST",
@@ -1151,6 +1299,7 @@ export const LabelItemPlaceholderList = [
 		category: "music",
 		descriptionKey: "overlay.labels.placeholders.MUSIC_ARTIST",
 		backup: true,
+		example: "Mitchiri Neko",
 	} as const,
 	{
 		tag: "MUSIC_ALBUM",
@@ -1158,6 +1307,7 @@ export const LabelItemPlaceholderList = [
 		category: "music",
 		descriptionKey: "overlay.labels.placeholders.MUSIC_ALBUM",
 		backup: true,
+		example: "Mitchiri Neko",
 	} as const,
 	{
 		tag: "MUSIC_COVER",
@@ -1165,6 +1315,7 @@ export const LabelItemPlaceholderList = [
 		category: "music",
 		descriptionKey: "overlay.labels.placeholders.MUSIC_COVER",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1173,6 +1324,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.VIEWER_COUNT_TIKTOK",
 		backup: true,
+		example: "1337",
 	} as const,
 	{
 		tag: "TIKTOK_LIKE_TOTAL",
@@ -1180,6 +1332,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_LIKE_TOTAL",
 		backup: true,
+		example: "12345",
 	} as const,
 	{
 		tag: "TIKTOK_LIKE_USER",
@@ -1187,6 +1340,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_LIKE_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIKTOK_LIKE_AVATAR",
@@ -1194,6 +1348,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_LIKE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "TIKTOK_LIKE_COUNT",
@@ -1201,6 +1356,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_LIKE_COUNT",
 		backup: true,
+		example: "42",
 	} as const,
 
 	{
@@ -1209,6 +1365,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_FOLLOWER_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIKTOK_FOLLOWER_AVATAR",
@@ -1216,6 +1373,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_FOLLOWER_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1224,6 +1382,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_SUB_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIKTOK_SUB_AVATAR",
@@ -1231,6 +1390,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_SUB_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1239,6 +1399,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_SHARE_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIKTOK_SHARE_AVATAR",
@@ -1246,6 +1407,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_SHARE_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 
 	{
@@ -1254,6 +1416,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_USER",
 		backup: true,
+		example: "Durss",
 	} as const,
 	{
 		tag: "TIKTOK_GIFT_AVATAR",
@@ -1261,6 +1424,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_AVATAR",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "TIKTOK_GIFT_IMAGE",
@@ -1268,6 +1432,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_IMAGE",
 		backup: true,
+		example: EXAMPLE_IMAGE,
 	} as const,
 	{
 		tag: "TIKTOK_GIFT_COUNT",
@@ -1275,6 +1440,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_COUNT",
 		backup: true,
+		example: "5",
 	} as const,
 	{
 		tag: "TIKTOK_GIFT_DIAMONDS",
@@ -1282,6 +1448,7 @@ export const LabelItemPlaceholderList = [
 		category: "tiktok",
 		descriptionKey: "overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS",
 		backup: true,
+		example: "500",
 	} as const,
 ] as const satisfies {
 	tag: string;
@@ -1289,6 +1456,7 @@ export const LabelItemPlaceholderList = [
 	category: PlaceholderCategory;
 	descriptionKey: string;
 	backup: boolean;
+	example: string;
 }[];
 
 export type LabelItemPlaceholderTag = (typeof LabelItemPlaceholderList)[number]["tag"];

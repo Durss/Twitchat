@@ -13,6 +13,7 @@ import DataStore from "../DataStore";
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 import * as Sentry from "@sentry/vue";
+import { ORDINAL_CATEGORIES, type OrdinalLabels } from "@/utils/PlaceholderModifiers";
 
 let ready = false;
 let readyResolver: () => void;
@@ -45,6 +46,7 @@ export const storeLabels = defineStore("labels", {
 						//@ts-ignore super dirty way of bypassing type checking on this I know...
 						tag: "VALUE_" + v.placeholderKey,
 						type: "string",
+						example: v.value || "hello world",
 					},
 				};
 			});
@@ -60,6 +62,7 @@ export const storeLabels = defineStore("labels", {
 						//@ts-ignore super dirty way of bypassing type checking on this I know...
 						tag: "COUNTER_" + v.placeholderKey,
 						type: "string",
+						example: v.value.toString() || "1234",
 					},
 				};
 			});
@@ -307,6 +310,7 @@ export const storeLabels = defineStore("labels", {
 						type: ph.placeholder.type,
 						value: ph.value,
 					};
+					// Set default values if missing
 					if (list[key].value === undefined) {
 						if (
 							ph.placeholder.type == "date" ||
@@ -335,18 +339,31 @@ export const storeLabels = defineStore("labels", {
 			const data = this.labelList.find((v) => v.id == labelId) || null;
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
+			const ordinals: OrdinalLabels = {};
+			for (const category of ORDINAL_CATEGORIES) {
+				const key = "global.ordinal." + category;
+				if (StoreProxy.i18n.te(key)) ordinals[category] = StoreProxy.i18n.t(key);
+			}
 			if (data && data.enabled === true) {
 				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {
 					id: labelId,
 					data,
 					exists: true,
 					isValid: !!validTag || data.mode == "html",
+					i18n: {
+						locale: StoreProxy.i18n.locale.value,
+						ordinals,
+					},
 				});
 			} else {
 				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {
 					id: labelId,
 					data: null,
 					exists: false,
+					i18n: {
+						locale: StoreProxy.i18n.locale.value,
+						ordinals,
+					},
 				});
 			}
 		},

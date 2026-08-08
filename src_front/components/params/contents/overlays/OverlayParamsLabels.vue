@@ -83,7 +83,11 @@
 						:paramData="param_customText[label.id]!"
 						v-model="label.html"
 						@change="save(label)"
-					></ParamItem>
+					>
+						<div v-if="label.html" class="card-item parameter-child dark">
+							{{ replacePlaceholders(label.html, placeholdersMap) }}
+						</div>
+					</ParamItem>
 					<ParamItem
 						v-if="label.mode == 'html'"
 						:paramData="param_customCSS[label.id]!"
@@ -206,6 +210,7 @@ import ParamItem from "../../ParamItem.vue";
 import PremiumLimitMessage from "../../PremiumLimitMessage.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 import Icon from "@/components/Icon.vue";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers.js";
 
 const { t } = useI18n();
 const storeAuth = useStoreAuth();
@@ -224,6 +229,7 @@ const param_backgroundEnabled = ref<{ [key: string]: TwitchatDataTypes.Parameter
 const param_backgroundColor = ref<{ [key: string]: TwitchatDataTypes.ParameterData<string> }>({});
 const param_scrollable = ref<{ [key: string]: TwitchatDataTypes.ParameterData<boolean> }>({});
 
+const placeholdersMap: Record<string, string> = {};
 const placeholders: TwitchatDataTypes.PlaceholderEntry[] = [];
 
 const maxLabelsReached = computed<boolean>(() => {
@@ -242,8 +248,9 @@ onBeforeMount(() => {
 			descReplacedValues: { NAME: p.placeholder.descriptionKeyName || "" },
 			tag: p.placeholder.tag,
 			category: p.category,
-			example: "",
+			example: p.placeholder.example,
 		});
+		placeholdersMap[p.placeholder.tag] = p.placeholder.example;
 	}
 	placeholders.sort((a, b) => {
 		if (a.category != b.category && a.category && b.category)

@@ -10,6 +10,13 @@ import OBSWebSocket from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import type { LabelItemData, LabelItemPlaceholder } from "./types/ILabelOverlayData";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
+import {
+	applyModifiers,
+	configureI18n,
+	replacePlaceholder,
+	unescapeLiteralPlaceholders,
+	type IPlaceholderModifier,
+} from "./utils/PlaceholderModifiers";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./utils/StreamdeckSocket";
 import Utils from "./utils/Utils";
 
@@ -28,9 +35,13 @@ let parameters: LabelItemData | null = null;
 let placeholders: {
 	[tag: string]: { value: string | number; type: LabelItemPlaceholder["type"] };
 } = {};
-let timerPlaceholder: { tag: string; params: (typeof placeholders)[string] }[] = [];
-let timerOffsets: { [key: string]: { dateOffset: number; type: LabelItemPlaceholder["type"] } } =
-	{};
+let timerOffsets: {
+	[key: string]: {
+		dateOffset: number;
+		type: LabelItemPlaceholder["type"];
+		modifiers: IPlaceholderModifier[];
+	};
+} = {};
 let mustRefreshRegularly = false;
 let styleNode = document.createElement("style");
 document.head.appendChild(styleNode);
@@ -187,37 +198,47 @@ function requestInitialInfo(): void {
 }
 
 /**
+ * Values recomputed every second
+ */
+const LIVE_VALUE_TYPES: LabelItemPlaceholder["type"][] = [
+	"duration",
+	"date",
+	"time",
+	"datetime",
+	"day",
+	"month",
+	"year",
+	"hours",
+	"minutes",
+	"seconds",
+];
+function isLiveValue(type: LabelItemPlaceholder["type"]): boolean {
+	return LIVE_VALUE_TYPES.indexOf(type) > -1;
+}
+
+/**
  * Replaces placeholders by their values
  * @param src
  */
 function parsePlaceholders(src: string): string {
 	for (const tag in placeholders) {
 		const placeholder = placeholders[tag]!;
-		const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-		let replacement = placeholder.value?.toString() ?? "";
-		if (
-			placeholder.type == "duration" ||
-			placeholder.type == "day" ||
-			placeholder.type == "month" ||
-			placeholder.type == "year" ||
-			placeholder.type == "hours" ||
-			placeholder.type == "minutes" ||
-			placeholder.type == "seconds" ||
-			placeholder.type == "date" ||
-			placeholder.type == "time" ||
-			placeholder.type == "datetime"
-		) {
-			if (!replacement) replacement = "0";
-			const id = (++timerIdInc).toString();
-			timerOffsets[id] = {
-				dateOffset: (placeholder.value as number) || Date.now(),
-				type: placeholder.type,
-			};
-			replacement = '<span data-timerid="' + id + '">' + renderTimerValue(id) + "</span>";
-		}
-		src = src.replace(new RegExp("\\{" + tagSafe + "\\}", "gi"), replacement);
+		src = replacePlaceholder(src, tag, (modifiers) => {
+			//Live values get a placeholder node refreshed every second,
+			//their modifiers are applied on each render instead of now
+			if (isLiveValue(placeholder.type)) {
+				const id = (++timerIdInc).toString();
+				timerOffsets[id] = {
+					dateOffset: (placeholder.value as number) || Date.now(),
+					type: placeholder.type,
+					modifiers,
+				};
+				return '<span data-timerid="' + id + '">' + renderTimerValue(id) + "</span>";
+			}
+			return applyModifiers(placeholder.value?.toString() ?? "", modifiers);
+		});
 	}
-	return src;
+	return unescapeLiteralPlaceholders(src);
 }
 
 /**
@@ -238,22 +259,7 @@ function onMessage(message: IEnvelope): void {
 	} else if (message.type == "ON_LABEL_OVERLAY_PLACEHOLDERS") {
 		const data = message.data;
 		for (const key in data) {
-			const tag = data[key]!;
-			placeholders[key] = tag;
-			if (
-				tag.type == "duration" ||
-				tag.type == "date" ||
-				tag.type == "time" ||
-				tag.type == "hours" ||
-				tag.type == "minutes" ||
-				tag.type == "seconds" ||
-				tag.type == "day" ||
-				tag.type == "month" ||
-				tag.type == "year" ||
-				tag.type == "datetime"
-			) {
-				timerPlaceholder.push({ tag: key, params: tag });
-			}
+			placeholders[key] = data[key]!;
 		}
 
 		renderValue();
@@ -262,6 +268,9 @@ function onMessage(message: IEnvelope): void {
 		if (json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
 			labelDisabled = parameters?.enabled !== true;
+			if (json.i18n) {
+				configureI18n(json.i18n.locale, json.i18n.ordinals);
+			}
 
 			document.getElementById("error")!.style.display = "none";
 
@@ -337,14 +346,12 @@ function renderValue(): void {
 	let value = parameters.mode == "placeholder" ? parameters.placeholder : parameters.html;
 	let html = "";
 	timerOffsets = {};
-	mustRefreshRegularly = false;
 	if (parameters.mode == "placeholder") {
 		if (parameters.placeholder == "TRIGGER") {
 			//Trigger-controlled labels store their content on the label itself
 			//(per-label) rather than on the shared global "TRIGGER" placeholder,
 			//so multiple labels bound to "TRIGGER" can be updated independently.
 			html = parsePlaceholders(parameters.triggerContent || "");
-			mustRefreshRegularly = Object.keys(timerOffsets).length > 0;
 		} else {
 			const phRef = placeholders[parameters.placeholder]!;
 			if (phRef.type == "image") {
@@ -357,19 +364,13 @@ function renderValue(): void {
 			} else {
 				html = parsePlaceholders("{" + value + "}" || "");
 			}
-			mustRefreshRegularly =
-				timerPlaceholder.findIndex((v) => v.tag.toLowerCase() === value.toLowerCase()) > -1;
 		}
 	} else if (parameters.mode == "html") {
 		html = parsePlaceholders(value);
-		for (let i = 0; i < timerPlaceholder.length; i++) {
-			const ph = timerPlaceholder[i]!;
-			mustRefreshRegularly =
-				timerPlaceholder.findIndex((v) => v.tag.toLowerCase() === ph.tag.toLowerCase()) >
-				-1;
-			if (mustRefreshRegularly) break;
-		}
 	}
+
+	// Check if label needs to be re rendered regularly
+	mustRefreshRegularly = Object.keys(timerOffsets).length > 0;
 
 	if (parameters.scrollContent && parameters.mode != "html") {
 		html = '<div style="overflow:hidden"><scroll>' + html + "</scroll></div>";
@@ -400,7 +401,7 @@ function renderTimerValue(timerId: string): string {
 	if (timer.type == "day") result = now.getDate().toString();
 	if (timer.type == "month") result = (now.getMonth() + 1).toString();
 	if (timer.type == "year") result = now.getFullYear().toString();
-	return result;
+	return applyModifiers(result, timer.modifiers);
 }
 
 /**
