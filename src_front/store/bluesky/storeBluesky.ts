@@ -235,7 +235,9 @@ export const storeBluesky = defineStore("bluesky", {
 				console.warn("Bluesky auth failed", error);
 				if (restore) {
 					this.connectionError = lastDeleteCause || describeSessionError(error);
-					toast("Bluesky connection failed: " + this.connectionError);
+					toast("Bluesky connection failed: " + this.connectionError, {
+						autoClose: false,
+					});
 				}
 			}
 			document.location.hash = "";
