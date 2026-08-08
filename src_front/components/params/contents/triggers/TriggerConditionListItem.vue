@@ -107,6 +107,7 @@
 import TTButton from "@/components/TTButton.vue";
 import {
 	COUNTER_VALUE_PLACEHOLDER_PREFIX,
+	placeholderCacheVersion,
 	TriggerConditionOperatorList,
 	TriggerEventPlaceholders,
 	type TriggerCondition,
@@ -207,11 +208,11 @@ const showCaseSensitiveToggle = computed((): boolean => {
  * Placeholders the condition can pick from. Either the ones given by the
  * parent, or the ones related to the trigger's event type.
  */
-const activePlaceholders = computed((): ITriggerPlaceholder<any>[] => {
+function getActivePlaceholders(): ITriggerPlaceholder<any>[] {
 	return props.placeholderList.length > 0
 		? props.placeholderList
 		: TriggerEventPlaceholders(props.triggerData.type);
-});
+}
 
 onBeforeMount(() => {
 	if (props.condition.placeholder)
@@ -221,14 +222,9 @@ onBeforeMount(() => {
 	buildSourceList();
 });
 
-//Watch for changes on the chat command params and on the placeholders' fixed
-//values (they're mutated at runtime by setTriggerEventPlaceholderValues()) to
-//rebuild the source list.
+//Watch for changes on the chat command params and on the placeholder cache
 watch(
-	[
-		() => props.triggerData.chatCommandParams,
-		() => activePlaceholders.value.map((v) => v.values),
-	],
+	[() => props.triggerData.chatCommandParams, placeholderCacheVersion],
 	() => {
 		buildSourceList();
 	},
@@ -255,7 +251,7 @@ function buildSourceList(): void {
 		}
 
 		//Add trigger's placeholders
-		placeholders = activePlaceholders.value.concat();
+		placeholders = getActivePlaceholders().concat();
 		placeholderListLocal = placeholderListLocal.concat(
 			placeholders.map((v) => {
 				let name = "";
@@ -297,7 +293,7 @@ function buildSourceList(): void {
 			}),
 		);
 	} else {
-		placeholders = activePlaceholders.value;
+		placeholders = getActivePlaceholders();
 		placeholderListLocal = placeholders.map((v) => {
 			return {
 				label: t(v.descKey, v.descReplacedValues ?? {}),
@@ -308,13 +304,11 @@ function buildSourceList(): void {
 		});
 	}
 
-	// if(storeAuth.isAdmin && storeMain.devmode) {
-	// 	//Add custom placeholder for devs
-	// 	placeholderListLocal.push({
-	// 		label: "Custom",
-	// 		value:CUSTOM,
-	// 	});
-	// }
+	//Add custom placeholder for devs
+	// placeholderListLocal.push({
+	// 	label: "Custom",
+	// 	value: CUSTOM,
+	// });
 
 	//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 	//random one in case it's been deleted or I fuck up something in the futur
