@@ -8,10 +8,11 @@ import { readFileSync } from "node:fs";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	applyModifiers,
+	configureI18n,
 	getModifierNames,
+	type OrdinalLabels,
 	replacePlaceholder,
 	replacePlaceholders,
-	setPlaceholderModifiersI18n,
 	unescapeLiteralPlaceholders,
 } from "./PlaceholderModifiers";
 
@@ -23,10 +24,10 @@ function parse(src: string, tag: string, value: string): string {
 	return replacePlaceholder(src, tag, (modifiers) => applyModifiers(value, modifiers));
 }
 
-//The i18n provider is module wide, make sure a test never inherits
+//The i18n configuration is module wide, make sure a test never inherits
 //the one set up by a previous test
-beforeEach(() => setPlaceholderModifiersI18n(null));
-afterAll(() => setPlaceholderModifiersI18n(null));
+beforeEach(() => configureI18n());
+afterAll(() => configureI18n());
 
 describe("placeholder parsing", () => {
 	it("replaces a tag", () => {
@@ -402,19 +403,16 @@ describe("ordinals without i18n fall back to english", () => {
 });
 
 describe("ordinals follow the app language", () => {
-	const ORDINALS: { [locale: string]: { [category: string]: string } } = {
+	const ORDINALS: { [locale: string]: OrdinalLabels } = {
 		en: { one: "#st", two: "#nd", few: "#rd", other: "#th" },
 		fr: { one: "#er", other: "#e" },
 	};
-	let locale = "fr";
+	//Replays what main.ts does on boot and on every language change
+	function setLocale(locale: string): void {
+		configureI18n(locale, ORDINALS[locale]);
+	}
 
-	beforeEach(() => {
-		locale = "fr";
-		setPlaceholderModifiersI18n({
-			getLocale: () => locale,
-			getLabel: (key) => ORDINALS[locale]?.[key.split(".").pop() ?? ""],
-		});
-	});
+	beforeEach(() => setLocale("fr"));
 
 	it("uses the french patterns", () => {
 		expect(parse("{N.ordinal}", "N", "1")).toBe("1er");
@@ -422,48 +420,52 @@ describe("ordinals follow the app language", () => {
 		expect(parse("{N.ordinal}", "N", "21")).toBe("21e");
 	});
 	it("takes a language change into account", () => {
-		locale = "en";
+		setLocale("en");
 		expect(parse("{N.ordinal}", "N", "3")).toBe("3rd");
 	});
 	it("falls back to english on an unknown language", () => {
-		locale = "zz-ZZ";
+		setLocale("zz-ZZ");
 		expect(parse("{N.ordinal}", "N", "1")).toBe("1st");
 	});
 	it("does not throw on a malformed language", () => {
-		locale = "not_a_locale!";
+		setLocale("not_a_locale!");
 		expect(parse("{N.ordinal}", "N", "2")).toBe("2nd");
 	});
+	//The language still drives the plural category, only the patterns fall back
+	it("falls back to the english patterns when none are given", () => {
+		configureI18n("fr");
+		expect(parse("{N.ordinal}", "N", "1")).toBe("1st");
+	});
+	it('falls back to the "other" pattern for a missing category', () => {
+		configureI18n("en", { other: "#th" });
+		expect(parse("{N.ordinal}", "N", "1")).toBe("1th");
+	});
 	it("still shows the number when a pattern has no # token", () => {
-		setPlaceholderModifiersI18n({ getLocale: () => "en", getLabel: () => undefined });
+		configureI18n("en", { two: "nd", other: "th" });
 		expect(parse("{N.ordinal}", "N", "2")).toBe("2nd");
 	});
 });
 
 describe("numbers and dates follow the app language, not the system one", () => {
-	let locale = "en";
-
-	beforeEach(() => {
-		locale = "en";
-		setPlaceholderModifiersI18n({ getLocale: () => locale, getLabel: () => undefined });
-	});
+	beforeEach(() => configureI18n("en"));
 
 	it("groups digits the english way", () => {
 		expect(parse("{N.separator}", "N", "1234567")).toBe("1,234,567");
 	});
 	it("groups digits the french way", () => {
-		locale = "fr";
+		configureI18n("fr");
 		const res = parse("{N.separator}", "N", "1234567");
 		expect(res).toMatch(/^1\s234\s567$/u);
 		expect(res).not.toBe("1,234,567");
 	});
 	it("shortens large numbers per language", () => {
 		expect(parse("{N.compact}", "N", "1234567")).toBe("1.2M");
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{N.compact}", "N", "1234567")).toMatch(/^1,2\s*M/u);
 	});
 	it("formats money per language", () => {
 		expect(parse("{N.currency(EUR)}", "N", "12.5")).toBe("€12.50");
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{N.currency(EUR)}", "N", "12.5")).toMatch(/^12,50\s*€$/u);
 	});
 	it("gives the raw number for an unknown currency", () => {
@@ -472,25 +474,25 @@ describe("numbers and dates follow the app language, not the system one", () => 
 	it("orders the date parts per language", () => {
 		const timestamp = String(Date.UTC(2026, 7, 6, 12, 0, 0));
 		expect(parse("{N.date}", "N", timestamp)).toMatch(/^8\/6\/2026$/);
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{N.date}", "N", timestamp)).toMatch(/^06\/08\/2026$/);
 	});
 	it("translates the relative time", () => {
 		const twoHoursAgo = String(Date.now() - 2 * 3600000);
 		expect(parse("{N.ago}", "N", twoHoursAgo)).toMatch(/hours ago/);
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{N.ago}", "N", twoHoursAgo)).toMatch(/il y a/);
 	});
 	it("sorts using the language collation", () => {
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{L.sort}", "L", "zebre, éclair, avion")).toBe("avion, éclair, zebre");
 	});
 	//The formatters are cached, the cache must be keyed by locale
 	it("does not let the formatter cache hide a language change", () => {
 		const english = parse("{N.separator}", "N", "1234567");
-		locale = "fr";
+		configureI18n("fr");
 		expect(parse("{N.separator}", "N", "1234567")).not.toBe(english);
-		locale = "en";
+		configureI18n("en");
 		expect(parse("{N.separator}", "N", "1234567")).toBe(english);
 	});
 });

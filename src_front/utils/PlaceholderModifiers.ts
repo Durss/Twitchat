@@ -154,30 +154,38 @@ export function getModifierNames(): string[] {
 }
 
 /**
- * Localization of the modifiers producing words rather than raw values.
- * Injected instead of imported so this file stays dependency free and
- * still works from the label overlay, which has no i18n at all.
+ * Ordinal patterns keyed by the plural category Intl gives for a number.
+ * "#" is where the number goes, so languages placing the marker before
+ * the number are supported too.
  */
-export interface IPlaceholderModifiersI18n {
-	/**
-	 * Current locale, ex: "en" or "fr"
-	 */
-	getLocale: () => string;
-	/**
-	 * Translates a label key. Must return undefined when the key is missing
-	 * so the built-in english fallbacks can kick in.
-	 */
-	getLabel: (key: string) => string | undefined;
-}
-
-let i18nProvider: IPlaceholderModifiersI18n | null = null;
+export type OrdinalLabels = Partial<Record<Intl.LDMLPluralRule, string>>;
 
 /**
- * Plugs the app's i18n into the modifiers.
- * When omitted, everything falls back to english.
+ * Every plural category an ordinal pattern can be given for.
+ * Exported so callers don't have to hard code them when pulling the
+ * labels out of their own i18n.
  */
-export function setPlaceholderModifiersI18n(provider: IPlaceholderModifiersI18n | null): void {
-	i18nProvider = provider;
+export const ORDINAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"] as const;
+
+let configuredLocale: string | undefined;
+let ordinalLabels: OrdinalLabels = {};
+
+/**
+ * Localizes the modifiers producing words rather than raw values.
+ * Labels are given instead of imported so this file stays dependency
+ * free and still works from the label overlay, which has no i18n at all.
+ *
+ * Values are kept until the next call, so call this again whenever the
+ * language or the labels change. Calling it without argument goes back
+ * to the system locale and to the english patterns.
+ *
+ * @param locale Language everything must be formatted with, ex: "en" or "fr".
+ * @param ordinals Ordinal pattern of each plural category. A missing
+ * category falls back to "other", then to the english patterns.
+ */
+export function configureI18n(locale?: string, ordinals?: OrdinalLabels): void {
+	configuredLocale = locale || undefined;
+	ordinalLabels = ordinals ?? {};
 }
 
 /*******************
@@ -309,12 +317,12 @@ function cachedIntl<T>(key: string, factory: () => T): T {
  * This is the language selected within Twitchat, NOT the one of the
  * browser or the OS, so a french user on an english system gets
  * french dates and numbers.
- * Returns undefined when i18n isn't plugged in, which only happens on
+ * Returns undefined when i18n isn't configured, which only happens on
  * the label overlay, where falling back to the system locale is the
  * only sensible option.
  */
 function currentLocale(): string | undefined {
-	return i18nProvider?.getLocale() || undefined;
+	return configuredLocale;
 }
 
 /**
@@ -363,12 +371,10 @@ function toNumber(value: string): number | null {
 }
 
 /**
- * Ordinal patterns used when no i18n provider is plugged in, or when the
- * locale doesn't define a pattern for one of the plural categories.
- * "#" is where the number goes, so languages placing the marker before
- * the number are supported too.
+ * Ordinal patterns used when i18n isn't configured, or when the locale
+ * doesn't define a pattern for one of the plural categories.
  */
-const DEFAULT_ORDINAL_PATTERNS: { [category: string]: string } = {
+const DEFAULT_ORDINAL_PATTERNS: OrdinalLabels = {
 	one: "#st",
 	two: "#nd",
 	few: "#rd",
@@ -383,8 +389,8 @@ const DEFAULT_ORDINAL_PATTERNS: { [category: string]: string } = {
  * ("one", "two", "few"...), the matching pattern is then translated.
  */
 function getOrdinalLabel(value: number): string {
-	const locale = i18nProvider?.getLocale() || "en";
-	let category: string;
+	const locale = configuredLocale || "en";
+	let category: Intl.LDMLPluralRule;
 	try {
 		category = cachedIntl(
 			"ordinal:" + locale,
@@ -398,8 +404,8 @@ function getOrdinalLabel(value: number): string {
 		).select(value);
 	}
 	return (
-		i18nProvider?.getLabel("global.ordinal." + category) ??
-		i18nProvider?.getLabel("global.ordinal.other") ??
+		ordinalLabels[category] ??
+		ordinalLabels["other"] ??
 		DEFAULT_ORDINAL_PATTERNS[category] ??
 		DEFAULT_ORDINAL_PATTERNS["other"]!
 	);

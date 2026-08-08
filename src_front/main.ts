@@ -54,7 +54,7 @@ import { gsap } from "gsap/gsap-core";
 import { createPinia } from "pinia";
 import "tippy.js/animations/scale.css";
 import "tippy.js/dist/tippy.css";
-import { createApp } from "vue";
+import { createApp, watchEffect } from "vue";
 import CountryFlag from "vue-country-flag-next";
 import { createI18n } from "vue-i18n";
 import type { NavigationGuardNext, RouteLocation } from "vue-router";
@@ -84,7 +84,11 @@ import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
 import Config from "./utils/Config";
 import { storeStreamfog } from "./store/streamfog/storeStreamfog";
 import { storeAPI } from "./store/api/storeAPI";
-import { setPlaceholderModifiersI18n } from "./utils/PlaceholderModifiers";
+import {
+	configureI18n,
+	ORDINAL_CATEGORIES,
+	type OrdinalLabels,
+} from "./utils/PlaceholderModifiers";
 import Utils from "./utils/Utils";
 import { vAutofocus } from "./directives/autofocus";
 import { vClick2Select } from "./directives/click2Select";
@@ -225,10 +229,16 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.default.router = router;
 	StoreProxy.default.i18n = i18n.global;
-	//Let the placeholder modifiers localize their output
-	setPlaceholderModifiersI18n({
-		getLocale: () => i18n.global.locale.value,
-		getLabel: (key) => (i18n.global.te(key) ? i18n.global.t(key) : undefined),
+	//Let the placeholder modifiers localize their output.
+	//Done within a watchEffect so a language change or a labels reload
+	//is pushed to them without having to think about it.
+	watchEffect(() => {
+		const ordinals: OrdinalLabels = {};
+		for (const category of ORDINAL_CATEGORIES) {
+			const key = "global.ordinal." + category;
+			if (i18n.global.te(key)) ordinals[category] = i18n.global.t(key);
+		}
+		configureI18n(i18n.global.locale.value, ordinals);
 	});
 	// oxlint-disable-next-line typescript/unbound-method
 	StoreProxy.default.asset = Utils.asset;
