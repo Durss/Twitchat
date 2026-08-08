@@ -621,6 +621,8 @@
 			@insert="insertPlaceholder"
 		/>
 
+		<slot name="bellow_placeholders"></slot>
+
 		<div class="chatPreview" v-if="chatPreviewMessage && showChatPreview">
 			<ChatMessage
 				class="message"
