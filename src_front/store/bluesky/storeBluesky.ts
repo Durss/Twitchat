@@ -15,6 +15,7 @@ import type {
 	RichText,
 	$Typed,
 } from "@atproto/api";
+import { toast } from "@/utils/toast/toast";
 
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
@@ -102,6 +103,7 @@ export const storeBluesky = defineStore("bluesky", {
 					onSessionDeleted: (_sub, cause) => {
 						lastDeleteCause = describeSessionError(cause);
 						console.warn("Bluesky session deleted", cause);
+						toast("Bluesky session lost: " + cause);
 						// Session died while running, nothing else notices it
 						if (this.connected) {
 							this.stopPolling();
@@ -233,6 +235,7 @@ export const storeBluesky = defineStore("bluesky", {
 				console.warn("Bluesky auth failed", error);
 				if (restore) {
 					this.connectionError = lastDeleteCause || describeSessionError(error);
+					toast("Bluesky connection failed: " + this.connectionError);
 				}
 			}
 			document.location.hash = "";
