@@ -752,6 +752,8 @@ import Config from "@/utils/Config";
 import Logger from "@/utils/Logger";
 import PublicAPI from "@/utils/PublicAPI";
 import TTSUtils from "@/utils/TTSUtils";
+import { toast } from "@/utils/toast/toast";
+import ToastMessageCopy from "@/utils/toast/ToastMessageCopy.vue";
 import Utils from "@/utils/Utils";
 import HeatSocket from "@/utils/twitch/HeatSocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
@@ -1474,7 +1476,24 @@ async function sendMessage(event?: KeyboardEvent): Promise<void> {
 		};
 		storeChat.addMessage(msg);
 	} else if (cmd == "/__sessionstorage__") {
-		await ApiHelper.call("user/data/encrypt", "POST", JSON.stringify(sessionStorage));
+		const result = await ApiHelper.call(
+			"user/data/encrypt",
+			"POST",
+			JSON.stringify(sessionStorage),
+		);
+		if (result.json.data) {
+			toast(ToastMessageCopy, {
+				autoClose: false,
+				closeOnClick: false,
+				type: "success",
+				contentProps: {
+					icon: "lock",
+					title: "Session storage encrypted",
+					message: "Copy the encrypted data and send it to the dev.",
+					copy: result.json.data,
+				},
+			});
+		}
 		message.value = "";
 	} else if (isAdmin && cmd == "/__decrypt__") {
 		await ApiHelper.call("user/data/decrypt", "POST", params[0]);

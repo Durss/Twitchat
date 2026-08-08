@@ -275,6 +275,9 @@
 				"title": "Action d'API Twitchat exécutée.",
 				"details": "Détails",
 				"revoke_key": "Révoquer la clé d'API"
+			},
+			"message_copy": {
+				"copy": "Copier"
 			}
 		},
 		"404": {
