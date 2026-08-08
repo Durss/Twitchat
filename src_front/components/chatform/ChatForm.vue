@@ -901,7 +901,7 @@ let updateTrackedUserListHandler!: (e: GlobalEvent) => void;
 let creditsOverlayPresenceHandler!: () => void;
 
 const maxLength = computed((): number => {
-	if (message.value.indexOf("/raw") === 0) {
+	if (message.value.startsWith("/raw") || message.value.startsWith("/__decrypt__")) {
 		return 500000;
 	} else {
 		return 500;
@@ -1473,6 +1473,12 @@ async function sendMessage(event?: KeyboardEvent): Promise<void> {
 			],
 		};
 		storeChat.addMessage(msg);
+	} else if (cmd == "/__sessionstorage__") {
+		await ApiHelper.call("user/data/encrypt", "POST", JSON.stringify(sessionStorage));
+		message.value = "";
+	} else if (isAdmin && cmd == "/__decrypt__") {
+		await ApiHelper.call("user/data/decrypt", "POST", params[0]);
+		message.value = "";
 	} else if (cmd == "/__import__") {
 		loading.value = true;
 		try {

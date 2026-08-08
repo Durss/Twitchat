@@ -558,6 +558,24 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"user/data/encrypt": {
+		POST: {
+			parameters: string;
+			response: {
+				success: boolean;
+				data: string;
+			};
+		};
+	};
+	"user/data/decrypt": {
+		POST: {
+			parameters: string;
+			response: {
+				success: boolean;
+				data: string;
+			};
+		};
+	};
 	"patreon/user/authenticate": {
 		POST: {
 			parameters: {

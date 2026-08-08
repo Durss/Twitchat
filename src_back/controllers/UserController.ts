@@ -188,6 +188,15 @@ export default class UserController extends AbstractController {
 			async (request, response) => await this.postSettingsPresets(request, response),
 		);
 
+		this.server.post(
+			"/api/user/data/encrypt",
+			async (request, response) => await this.encryptData(request, response),
+		);
+		this.server.post(
+			"/api/user/data/decrypt",
+			async (request, response) => await this.decryptData(request, response),
+		);
+
 		super.preloadData();
 		return this;
 	}
@@ -923,6 +932,30 @@ export default class UserController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, fileName: fileName + "_" + user.user_id }));
+	}
+
+	/**
+	 * Encrypts given body and return it
+	 */
+	private async encryptData(request: FastifyRequest, response: FastifyReply) {
+		const user = await this.twitchUserGuard(request, response);
+		if (!user) return;
+		const data = request.body as string;
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: Utils.encrypt(data) }));
+	}
+
+	/**
+	 * Decrypts given body and return it
+	 */
+	private async decryptData(request: FastifyRequest, response: FastifyReply) {
+		const user = await this.twitchUserGuard(request, response);
+		if (!user) return;
+		const data = request.body as string;
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: Utils.decrypt(data) }));
 	}
 
 	/**
