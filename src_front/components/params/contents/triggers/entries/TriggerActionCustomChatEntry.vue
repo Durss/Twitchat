@@ -163,6 +163,7 @@ import { computed, onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
 import SimpleTriggerList from "../SimpleTriggerList.vue";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers.js";
 
 const props = defineProps<{
 	action: TriggerActionCustomMessageData;
@@ -227,9 +228,11 @@ let actionTypes: TwitchatDataTypes.ParameterDataListValue<
 	NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["actionType"]
 >[] = [];
 
+let placeholderMap: { [key: string]: string } = {};
+
 const messageData = computed<TwitchatDataTypes.MessageCustomData>(() => {
 	const chunks = TwitchUtils.parseMessageToChunks(
-		props.action.customMessage.message || "",
+		replacePlaceholders(props.action.customMessage.message || "", placeholderMap),
 		undefined,
 		true,
 	);
@@ -277,6 +280,10 @@ function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
 	for (let i = 0; i < actionParams.value.length; i++) {
 		actionParams.value[i]!.message.placeholderList = list;
 	}
+
+	list.forEach((v) => {
+		placeholderMap[v.tag] = v.example;
+	});
 }
 
 const { placeholderList } = useTriggerActionPlaceholders(
@@ -440,7 +447,6 @@ function addAction(
 			labelKey: "triggers.actions.customChat.param_action_message",
 		},
 	};
-	console.log(placeholderList.value);
 	actionParams.value.push(params);
 }
 

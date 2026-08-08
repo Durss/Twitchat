@@ -367,7 +367,7 @@ param_runningStyle.value.listValues = param_approachingStyle.value.listValues = 
 ];
 
 param_approachingLabel.value.placeholderList = param_runningLabel.value.placeholderList = [
-	{ tag: "TIMER", descKey: "overlay.adBreak.param_label_placeholder_timer" },
+	{ tag: "TIMER", descKey: "overlay.adBreak.param_label_placeholder_timer", example: "30" },
 ];
 
 const storeData = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);

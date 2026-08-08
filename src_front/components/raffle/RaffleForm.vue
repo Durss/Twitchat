@@ -1202,7 +1202,7 @@ const startPlaceholders = computed((): TwitchatDataTypes.PlaceholderEntry[] => {
 		{
 			tag: "CMD",
 			descKey: "raffle.configs.message_cmd_placeholder",
-			example: localData.value.command,
+			example: localData.value.command || "",
 		},
 		{
 			tag: "REWARD",

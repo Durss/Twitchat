@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { asset } from "@/composables/useAsset";
 import DataStore from "@/store/DataStore";
 import { storeMusic as useStoreMusic } from "@/store/music/storeMusic";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -80,6 +81,7 @@ import ParamItem from "../../ParamItem.vue";
 import OverlayInstaller from "./OverlayInstaller.vue";
 
 const { t } = useI18n();
+const { getAsset } = asset();
 const storeMusic = useStoreMusic();
 
 const param_noScroll = ref<TwitchatDataTypes.ParameterData<boolean>>({
@@ -136,9 +138,21 @@ const param_customTemplateToggle = ref<TwitchatDataTypes.ParameterData<boolean, 
 
 onBeforeMount(() => {
 	param_customTemplate.value.placeholderList = [
-		{ tag: "TITLE", descKey: "overlay.music_common.custom_template_placeholders.title" },
-		{ tag: "ARTIST", descKey: "overlay.music_common.custom_template_placeholders.artist" },
-		{ tag: "COVER", descKey: "overlay.music_common.custom_template_placeholders.cover" },
+		{
+			tag: "TITLE",
+			descKey: "overlay.music_common.custom_template_placeholders.title",
+			example: "Mitchiri Neko March",
+		},
+		{
+			tag: "ARTIST",
+			descKey: "overlay.music_common.custom_template_placeholders.artist",
+			example: "Mitchiri Neko",
+		},
+		{
+			tag: "COVER",
+			descKey: "overlay.music_common.custom_template_placeholders.cover",
+			example: getAsset("img/musicExampleCover.jpg"),
+		},
 	];
 
 	const params = storeMusic.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;

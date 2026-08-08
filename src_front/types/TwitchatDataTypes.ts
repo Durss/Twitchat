@@ -1679,7 +1679,7 @@ export namespace TwitchatDataTypes {
 		tag: string;
 		descKey: string;
 		descReplacedValues?: { [key: string]: string };
-		example?: string;
+		example: string;
 		globalTag?: boolean;
 		category?:
 			| "stream"

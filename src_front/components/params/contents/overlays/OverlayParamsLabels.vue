@@ -242,6 +242,7 @@ onBeforeMount(() => {
 			descReplacedValues: { NAME: p.placeholder.descriptionKeyName || "" },
 			tag: p.placeholder.tag,
 			category: p.category,
+			example: "",
 		});
 	}
 	placeholders.sort((a, b) => {

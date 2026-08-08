@@ -2445,6 +2445,7 @@ export function TriggerActionPlaceholders(
 				pointer: "__track_fail__",
 				numberParsable: false,
 				isUserID: false,
+				example: "Track not found",
 			},
 		],
 		// "reward":[
@@ -2529,6 +2530,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: USER_ROLE_VIP,
@@ -2591,6 +2593,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.displayNameOriginal",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_LOGIN,
@@ -2598,6 +2601,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.login",
 					numberParsable: false,
 					isUserID: false,
+					example: "durss",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_DISPLAY_NAME,
@@ -2605,6 +2609,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.displayName",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_ID,
@@ -2612,6 +2617,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.id",
 					numberParsable: false,
 					isUserID: true,
+					example: "29961813",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_FOLLOWAGE,
@@ -2619,6 +2625,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: false,
 					isUserID: false,
+					example: "12/03/2021 18h42",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_FOLLOWAGE_MS,
@@ -2626,6 +2633,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: true,
 					isUserID: false,
+					example: "1615570920000",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_AVATAR,
@@ -2633,6 +2641,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.avatarPath",
 					numberParsable: false,
 					isUserID: false,
+					example: StoreProxy.asset("img/musicExampleCover.jpg"),
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_COLOR,
@@ -2640,6 +2649,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.color",
 					numberParsable: false,
 					isUserID: false,
+					example: "#9146ff",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: USER_BADGES,
@@ -2647,6 +2657,8 @@ export function TriggerEventPlaceholders(
 					pointer: "__user_badges__",
 					numberParsable: false,
 					isUserID: false,
+					example:
+						'[{"id":"subscriber","title":"Subscriber"},{"id":"vip","title":"VIP"}]',
 				},
 				...commonUserTags,
 				{
@@ -2655,6 +2667,7 @@ export function TriggerEventPlaceholders(
 					pointer: "message",
 					numberParsable: true,
 					isUserID: false,
+					example: "Hello world!",
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: "MESSAGE_JSON",
@@ -2663,6 +2676,7 @@ export function TriggerEventPlaceholders(
 					keepHTML: true,
 					numberParsable: false,
 					isUserID: false,
+					example: '[{"type":"text","value":"Hello world!"}]',
 				} as ITriggerPlaceholder<SafeMessage>,
 				{
 					tag: "MESSAGE_HTML",
@@ -2671,6 +2685,7 @@ export function TriggerEventPlaceholders(
 					keepHTML: true,
 					numberParsable: false,
 					isUserID: false,
+					example: "Hello world!",
 				} as ITriggerPlaceholder<SafeMessage>,
 			];
 
@@ -2681,6 +2696,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2690,6 +2706,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2699,6 +2716,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2708,6 +2726,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2717,6 +2736,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2727,6 +2747,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2737,6 +2758,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & { message: SafeMessage }
 		>,
@@ -2750,6 +2772,7 @@ export function TriggerEventPlaceholders(
 			pointer: "twitch_animationId",
 			numberParsable: false,
 			isUserID: false,
+			example: "rainbow-eclipse",
 		} as ITriggerPlaceholder<SafeMessage>,
 	];
 
@@ -2761,6 +2784,7 @@ export function TriggerEventPlaceholders(
 			pointer: "directlyAnswersTo.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 		{
 			tag: "PARENT_" + USER_DISPLAY_NAME,
@@ -2768,6 +2792,7 @@ export function TriggerEventPlaceholders(
 			pointer: "directlyAnswersTo.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 		{
 			tag: "PARENT_" + USER_ID,
@@ -2775,6 +2800,7 @@ export function TriggerEventPlaceholders(
 			pointer: "directlyAnswersTo.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 		{
 			tag: "PARENT_MESSAGE",
@@ -2782,6 +2808,7 @@ export function TriggerEventPlaceholders(
 			pointer: "directlyAnswersTo.message",
 			numberParsable: false,
 			isUserID: false,
+			example: "Hi everyone!",
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 		{
 			tag: "PARENT_MESSAGE_JSON",
@@ -2790,6 +2817,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hi everyone!"}]',
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 		{
 			tag: "PARENT_MESSAGE_HTML",
@@ -2798,6 +2826,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hi everyone!",
 		} as ITriggerPlaceholder<SafeMessage & { directlyAnswersTo: SafeMessage }>,
 	];
 
@@ -2809,6 +2838,7 @@ export function TriggerEventPlaceholders(
 			pointer: "emoteID",
 			numberParsable: false,
 			isUserID: false,
+			example: "Kappa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchGigantifiedEmoteData>,
 		{
 			tag: "EMOTE_URL",
@@ -2816,6 +2846,7 @@ export function TriggerEventPlaceholders(
 			pointer: "emoteURL",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://static-cdn.jtvnw.net/emoticons/v2/25/default/light/3.0",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchGigantifiedEmoteData>,
 		{
 			tag: "BITS",
@@ -2823,6 +2854,7 @@ export function TriggerEventPlaceholders(
 			pointer: "cost",
 			numberParsable: true,
 			isUserID: false,
+			example: "100",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchGigantifiedEmoteData>,
 	];
 
@@ -2833,6 +2865,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_LOGIN,
@@ -2840,6 +2873,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -2847,6 +2881,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_ID,
@@ -2854,6 +2889,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -2861,6 +2897,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -2868,6 +2905,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_AVATAR,
@@ -2875,6 +2913,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_COLOR,
@@ -2882,6 +2921,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.color",
 			numberParsable: false,
 			isUserID: false,
+			example: "#9146ff",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: USER_BADGES,
@@ -2889,6 +2929,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"id":"subscriber","title":"Subscriber"},{"id":"vip","title":"VIP"}]',
 		},
 		...commonUserTags,
 		{
@@ -2897,6 +2938,7 @@ export function TriggerEventPlaceholders(
 			pointer: "emoteID",
 			numberParsable: false,
 			isUserID: false,
+			example: "Kappa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: "EMOTE_URL",
@@ -2904,6 +2946,7 @@ export function TriggerEventPlaceholders(
 			pointer: "emoteURL",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://static-cdn.jtvnw.net/emoticons/v2/25/default/light/3.0",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 		{
 			tag: "BITS",
@@ -2911,6 +2954,7 @@ export function TriggerEventPlaceholders(
 			pointer: "cost",
 			numberParsable: true,
 			isUserID: false,
+			example: "100",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
 	];
 
@@ -2921,6 +2965,7 @@ export function TriggerEventPlaceholders(
 			pointer: "cost",
 			numberParsable: true,
 			isUserID: false,
+			example: "100",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
 		{
 			tag: "POWER_UP_ID",
@@ -2928,6 +2973,7 @@ export function TriggerEventPlaceholders(
 			pointer: "powerUpId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
 		{
 			tag: "POWER_UP_TITLE",
@@ -2935,6 +2981,7 @@ export function TriggerEventPlaceholders(
 			pointer: "powerUpTitle",
 			numberParsable: false,
 			isUserID: false,
+			example: "Gigantify an Emote",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCustomPowerUpData>,
 		...map[TriggerTypes.ANY_MESSAGE]!,
 	];
@@ -2947,6 +2994,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.twitch_announcementColor",
 			numberParsable: false,
 			isUserID: false,
+			example: "purple",
 			values: [
 				{ label: "primary", value: "primary" },
 				{ label: "purple", value: "purple" },
@@ -2968,6 +3016,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__command__",
 			numberParsable: true,
 			isUserID: false,
+			example: "!so",
 		},
 	];
 
@@ -2978,6 +3027,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -2987,6 +3037,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -2996,6 +3047,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3005,6 +3057,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3014,6 +3067,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3023,6 +3077,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3032,6 +3087,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3042,6 +3098,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3051,6 +3108,7 @@ export function TriggerEventPlaceholders(
 			pointer: "moderator.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3060,6 +3118,7 @@ export function TriggerEventPlaceholders(
 			pointer: "moderator.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessagePinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3072,6 +3131,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3081,6 +3141,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3090,6 +3151,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3099,6 +3161,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3108,6 +3171,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3117,6 +3181,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3126,6 +3191,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3136,6 +3202,7 @@ export function TriggerEventPlaceholders(
 			pointer: "chatMessage.message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & { chatMessage: SafeMessage }
 		>,
@@ -3148,6 +3215,7 @@ export function TriggerEventPlaceholders(
 			pointer: "title",
 			numberParsable: false,
 			isUserID: false,
+			example: "What should I play next?",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 	];
 
@@ -3158,6 +3226,7 @@ export function TriggerEventPlaceholders(
 			pointer: "title",
 			numberParsable: false,
 			isUserID: false,
+			example: "What should I play next?",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 		{
 			tag: "WIN",
@@ -3165,6 +3234,7 @@ export function TriggerEventPlaceholders(
 			pointer: "winner.label",
 			numberParsable: true,
 			isUserID: false,
+			example: "Minecraft",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 	];
 	map[TriggerTypes.CHAT_POLL_RESULT] = [
@@ -3174,6 +3244,7 @@ export function TriggerEventPlaceholders(
 			pointer: "poll.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "What should I play next?",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
 		{
 			tag: "WIN",
@@ -3181,6 +3252,7 @@ export function TriggerEventPlaceholders(
 			pointer: "poll.winner.label",
 			numberParsable: true,
 			isUserID: false,
+			example: "Minecraft",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
 	];
 
@@ -3191,6 +3263,7 @@ export function TriggerEventPlaceholders(
 			pointer: "title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Will I win this game?",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 	];
 
@@ -3201,6 +3274,7 @@ export function TriggerEventPlaceholders(
 			pointer: "title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Will I win this game?",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 		{
 			tag: "WIN",
@@ -3208,6 +3282,7 @@ export function TriggerEventPlaceholders(
 			pointer: "winner.label",
 			numberParsable: true,
 			isUserID: false,
+			example: "Yes",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 		{
 			tag: "TOTAL_POINTS",
@@ -3215,6 +3290,7 @@ export function TriggerEventPlaceholders(
 			pointer: "totalPoints",
 			numberParsable: true,
 			isUserID: false,
+			example: "12500",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 		{
 			tag: "TOTAL_USERS",
@@ -3222,6 +3298,7 @@ export function TriggerEventPlaceholders(
 			pointer: "totalUsers",
 			numberParsable: true,
 			isUserID: false,
+			example: "42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 		{
 			tag: "WINNING_USERS",
@@ -3229,6 +3306,7 @@ export function TriggerEventPlaceholders(
 			pointer: "winner.voters",
 			numberParsable: true,
 			isUserID: false,
+			example: "27",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 	];
 
@@ -3239,6 +3317,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
 			tag: "WINNER_ID",
@@ -3246,6 +3325,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
 			tag: "WINNER_PLATFORM",
@@ -3261,6 +3341,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoData.numberValue",
 			numberParsable: true,
 			isUserID: false,
+			example: "42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
 			tag: "WIN_VALUE_EMOTE",
@@ -3268,6 +3349,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoData.emoteValue",
 			numberParsable: false,
 			isUserID: false,
+			example: "Kappa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
 			tag: "WIN_VALUE_TEXT",
@@ -3275,6 +3357,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoData.customValue",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 		{
 			tag: "WIN_VALUE_GENERIC",
@@ -3282,6 +3365,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoData.genericValue",
 			numberParsable: false,
 			isUserID: false,
+			example: "42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 	];
 
@@ -3292,6 +3376,7 @@ export function TriggerEventPlaceholders(
 			pointer: "quizResult.quizName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitch culture quiz",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
 		{
 			tag: "QUIZ_ID",
@@ -3299,6 +3384,7 @@ export function TriggerEventPlaceholders(
 			pointer: "quizResult.quizId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
 		{
 			tag: "WINNER",
@@ -3306,6 +3392,7 @@ export function TriggerEventPlaceholders(
 			pointer: "quizResult.winner.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
 		{
 			tag: "WINNER_ID",
@@ -3313,6 +3400,7 @@ export function TriggerEventPlaceholders(
 			pointer: "quizResult.winner.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageQuizCompleteData>,
 		{
 			tag: "WINNER_PLATFORM",
@@ -3331,6 +3419,7 @@ export function TriggerEventPlaceholders(
 			pointer: "entry.label",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
 		{
 			tag: USER_LOGIN,
@@ -3338,6 +3427,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
 		{
 			tag: USER_ID,
@@ -3345,6 +3435,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleJoinData>,
 		{
 			tag: "USER_PLATFORM",
@@ -3411,6 +3502,7 @@ export function TriggerEventPlaceholders(
 			pointer: "winner.label",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleData>,
 		{
 			tag: "WINNER_ID",
@@ -3418,6 +3510,7 @@ export function TriggerEventPlaceholders(
 			pointer: "winner.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaffleData>,
 		{
 			tag: "WINNER_PLATFORM",
@@ -3436,6 +3529,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_LOGIN,
@@ -3443,6 +3537,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3450,6 +3545,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_ID,
@@ -3457,6 +3553,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3464,6 +3561,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3471,6 +3569,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_AVATAR,
@@ -3478,6 +3577,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		...commonUserTags,
 		{
@@ -3486,6 +3586,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier",
 			numberParsable: true,
 			isUserID: false,
+			example: "1",
 			values: [
 				{ label: "prime", value: "prime" },
 				{ label: "1", value: 1 },
@@ -3499,6 +3600,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "MONTHS_TOTAL",
@@ -3506,6 +3608,7 @@ export function TriggerEventPlaceholders(
 			pointer: "totalSubDuration",
 			numberParsable: true,
 			isUserID: false,
+			example: "24",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "MONTHS_PREPAID",
@@ -3513,6 +3616,7 @@ export function TriggerEventPlaceholders(
 			pointer: "months",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "MONTHS_STREAK",
@@ -3520,6 +3624,7 @@ export function TriggerEventPlaceholders(
 			pointer: "streakMonths",
 			numberParsable: true,
 			isUserID: false,
+			example: "6",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "IS_RESUB",
@@ -3527,6 +3632,7 @@ export function TriggerEventPlaceholders(
 			pointer: "is_resub",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -3538,6 +3644,7 @@ export function TriggerEventPlaceholders(
 			pointer: "is_primeUpgrade",
 			numberParsable: true,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -3549,6 +3656,7 @@ export function TriggerEventPlaceholders(
 			pointer: "is_giftUpgrade",
 			numberParsable: true,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -3560,6 +3668,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_upgradeSender.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "GIFT_UPGRADE_SENDER_NAME",
@@ -3567,6 +3676,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_upgradeSender.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 	];
 
@@ -3577,6 +3687,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_LOGIN,
@@ -3584,6 +3695,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3591,6 +3703,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_ID,
@@ -3598,6 +3711,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3605,6 +3719,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3612,6 +3727,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: USER_AVATAR,
@@ -3619,6 +3735,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		...commonUserTags,
 		{
@@ -3627,6 +3744,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_recipients.0.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "RECIPIENTS_ID",
@@ -3634,6 +3752,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_recipients.0.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "SUB_TIER",
@@ -3641,6 +3760,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier",
 			numberParsable: true,
 			isUserID: false,
+			example: "1",
 			values: [
 				{ label: "1", value: 1 },
 				{ label: "2", value: 2 },
@@ -3653,6 +3773,7 @@ export function TriggerEventPlaceholders(
 			pointer: "months",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{
 			tag: "GIFT_COUNT",
@@ -3660,6 +3781,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_count",
 			numberParsable: true,
 			isUserID: false,
+			example: "5",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 	];
 
@@ -3670,6 +3792,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_LOGIN,
@@ -3677,6 +3800,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3684,6 +3808,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_ID,
@@ -3691,6 +3816,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3698,6 +3824,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3705,6 +3832,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: USER_AVATAR,
@@ -3712,6 +3840,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		...commonUserTags,
 		{
@@ -3720,6 +3849,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bits",
 			numberParsable: true,
 			isUserID: false,
+			example: "100",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: "MESSAGE",
@@ -3727,6 +3857,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: "PINNED",
@@ -3734,6 +3865,7 @@ export function TriggerEventPlaceholders(
 			pointer: "pinned",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -3745,6 +3877,7 @@ export function TriggerEventPlaceholders(
 			pointer: "pinLevel",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 		{
 			tag: "PIN_DURATION",
@@ -3752,6 +3885,7 @@ export function TriggerEventPlaceholders(
 			pointer: "pinDuration_ms",
 			numberParsable: true,
 			isUserID: false,
+			example: "300000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCheerData>,
 	];
 
@@ -3762,6 +3896,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_LOGIN,
@@ -3769,6 +3904,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3776,6 +3912,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_ID,
@@ -3783,6 +3920,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3790,6 +3928,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3797,6 +3936,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 		{
 			tag: USER_AVATAR,
@@ -3804,6 +3944,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageFollowingData>,
 	];
 
@@ -3814,6 +3955,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_LOGIN,
@@ -3821,6 +3963,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3828,6 +3971,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_ID,
@@ -3835,6 +3979,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3842,6 +3987,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3849,6 +3995,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_AVATAR,
@@ -3856,6 +4003,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		...commonUserTags,
 		{
@@ -3864,6 +4012,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: "CATEGORY",
@@ -3871,6 +4020,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.category",
 			numberParsable: false,
 			isUserID: false,
+			example: "Software and Game Development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: "VIEWERS",
@@ -3878,6 +4028,7 @@ export function TriggerEventPlaceholders(
 			pointer: "viewers",
 			numberParsable: true,
 			isUserID: false,
+			example: "42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: "DURATION",
@@ -3885,6 +4036,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.duration",
 			numberParsable: true,
 			isUserID: false,
+			example: "9310000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: "DURATION_TXT",
@@ -3892,6 +4044,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.duration_str",
 			numberParsable: true,
 			isUserID: false,
+			example: "02:35:10",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: "WAS_LIVE",
@@ -3899,6 +4052,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.wasLive",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -3913,6 +4067,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_LOGIN,
@@ -3920,6 +4075,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -3927,6 +4083,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_ID,
@@ -3934,6 +4091,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3941,6 +4099,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3948,6 +4107,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{
 			tag: USER_AVATAR,
@@ -3955,6 +4115,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 	];
 
@@ -3965,6 +4126,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_LOGIN,
@@ -3972,6 +4134,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_ID,
@@ -3979,6 +4142,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -3986,6 +4150,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -3993,6 +4158,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_AVATAR,
@@ -4000,6 +4166,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		...commonUserTags,
 		{
@@ -4008,6 +4175,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: "CATEGORY",
@@ -4015,6 +4183,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.category",
 			numberParsable: false,
 			isUserID: false,
+			example: "Software and Game Development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 	];
 	map[TriggerTypes.SHOUTOUT_OUT] = [
@@ -4024,6 +4193,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_LOGIN,
@@ -4031,6 +4201,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_ID,
@@ -4038,6 +4209,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4045,6 +4217,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4052,6 +4225,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: USER_AVATAR,
@@ -4059,6 +4233,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		...commonUserTags,
 		{
@@ -4067,6 +4242,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 		{
 			tag: "USER_STREAM_CATEGORY",
@@ -4074,6 +4250,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stream.category",
 			numberParsable: false,
 			isUserID: false,
+			example: "Software and Game Development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageShoutoutData>,
 	];
 
@@ -4084,6 +4261,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_LOGIN,
@@ -4091,6 +4269,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4098,6 +4277,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_ID,
@@ -4105,6 +4285,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4112,6 +4293,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4119,6 +4301,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: USER_AVATAR,
@@ -4126,6 +4309,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<SafeReward>,
 		...commonUserTags,
 		{
@@ -4134,6 +4318,7 @@ export function TriggerEventPlaceholders(
 			pointer: "reward.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Choose the next game",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: "DESCRIPTION",
@@ -4141,6 +4326,7 @@ export function TriggerEventPlaceholders(
 			pointer: "reward.description",
 			numberParsable: false,
 			isUserID: false,
+			example: "Pick the game I will play next",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: "COST",
@@ -4148,6 +4334,7 @@ export function TriggerEventPlaceholders(
 			pointer: "reward.cost",
 			numberParsable: true,
 			isUserID: false,
+			example: "1000",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: "MESSAGE",
@@ -4155,6 +4342,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<SafeReward>,
 		{
 			tag: "REWARD_ID",
@@ -4162,6 +4350,7 @@ export function TriggerEventPlaceholders(
 			pointer: "reward.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 		} as ITriggerPlaceholder<SafeReward>,
 	];
 
@@ -4172,6 +4361,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_LOGIN,
@@ -4179,6 +4369,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4186,6 +4377,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_ID,
@@ -4193,6 +4385,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4200,6 +4393,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4207,6 +4401,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_AVATAR,
@@ -4214,6 +4409,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: "SEARCH_QUERY",
@@ -4272,6 +4468,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_LOGIN,
@@ -4279,6 +4476,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4286,6 +4484,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_ID,
@@ -4293,6 +4492,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4300,6 +4500,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4307,6 +4508,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 		{
 			tag: USER_AVATAR,
@@ -4314,6 +4516,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userOrigin.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicStartData>,
 	];
 
@@ -4324,6 +4527,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_LOGIN,
@@ -4331,6 +4535,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4338,6 +4543,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_ID,
@@ -4345,6 +4551,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4352,6 +4559,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4359,6 +4567,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: USER_AVATAR,
@@ -4366,6 +4575,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{
 			tag: "SEARCH_QUERY",
@@ -4411,6 +4621,7 @@ export function TriggerEventPlaceholders(
 			pointer: "title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
 		{
 			tag: "CATEGORY",
@@ -4418,6 +4629,7 @@ export function TriggerEventPlaceholders(
 			pointer: "category",
 			numberParsable: false,
 			isUserID: false,
+			example: "Software and Game Development",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
 		{
 			tag: "TAGS",
@@ -4425,6 +4637,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tags",
 			numberParsable: false,
 			isUserID: false,
+			example: "Programming, Français, Twitchat",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
 		{
 			tag: "TITLE_CHANGED",
@@ -4432,6 +4645,7 @@ export function TriggerEventPlaceholders(
 			pointer: "titleChanged",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -4443,6 +4657,7 @@ export function TriggerEventPlaceholders(
 			pointer: "categoryChanged",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -4454,6 +4669,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tagsChanged",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -4468,6 +4684,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_NAME,
@@ -4475,6 +4692,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_LOGIN,
@@ -4482,6 +4700,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4489,6 +4708,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_ID,
@@ -4496,6 +4716,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4503,6 +4724,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4510,6 +4732,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 		{
 			tag: "MESSAGE",
@@ -4517,6 +4740,7 @@ export function TriggerEventPlaceholders(
 			pointer: "info.message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatHighlightData>,
 	];
 
@@ -4527,6 +4751,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4536,6 +4761,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4545,6 +4771,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4554,6 +4781,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4563,6 +4791,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4572,6 +4801,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4581,6 +4811,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message.message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageChatAlertData, "message"> & { message: SafeMessage }
 		>,
@@ -4596,6 +4827,7 @@ export function TriggerEventPlaceholders(
 					pointer: "level",
 					numberParsable: true,
 					isUserID: false,
+					example: "3",
 				} as ITriggerPlaceholder<SafeHypeTrain>,
 				{
 					tag: "PERCENT",
@@ -4603,6 +4835,7 @@ export function TriggerEventPlaceholders(
 					pointer: "percent",
 					numberParsable: true,
 					isUserID: false,
+					example: "75",
 				} as ITriggerPlaceholder<SafeHypeTrain>,
 				{
 					tag: "TRAIN_TYPE",
@@ -4610,6 +4843,7 @@ export function TriggerEventPlaceholders(
 					pointer: "train.type",
 					numberParsable: false,
 					isUserID: false,
+					example: "regular",
 					values: [
 						{ label: "regular", value: "regular" },
 						{ label: "golden_kappa", value: "golden_kappa" },
@@ -4625,6 +4859,7 @@ export function TriggerEventPlaceholders(
 			pointer: "voiceID",
 			numberParsable: false,
 			isUserID: false,
+			example: "nofx",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
 		{
 			tag: "VOICE_NAME",
@@ -4632,6 +4867,7 @@ export function TriggerEventPlaceholders(
 			pointer: "voiceName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Robot",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
 	];
 
@@ -4642,6 +4878,7 @@ export function TriggerEventPlaceholders(
 			pointer: "soundID",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
 		{
 			tag: "SOUND_NAME",
@@ -4649,6 +4886,7 @@ export function TriggerEventPlaceholders(
 			pointer: "soundName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Air horn",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
 	];
 
@@ -4659,6 +4897,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_LOGIN,
@@ -4666,6 +4905,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4673,6 +4913,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_ID,
@@ -4680,6 +4921,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4687,6 +4929,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4694,6 +4937,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: USER_AVATAR,
@@ -4701,6 +4945,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{
 			tag: "DURATION",
@@ -4708,6 +4953,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_s",
 			numberParsable: true,
 			isUserID: false,
+			example: "600",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 	];
 
@@ -4718,6 +4964,7 @@ export function TriggerEventPlaceholders(
 			pointer: "timer_id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 	map[TriggerTypes.TIMER_STOP] = [
@@ -4727,6 +4974,7 @@ export function TriggerEventPlaceholders(
 			pointer: "timer_id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 		{
 			tag: "DURATION",
@@ -4734,6 +4982,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_str",
 			numberParsable: false,
 			isUserID: false,
+			example: "05:30",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 		{
 			tag: "DURATION_MS",
@@ -4741,6 +4990,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_ms",
 			numberParsable: true,
 			isUserID: false,
+			example: "330000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 
@@ -4751,6 +5001,7 @@ export function TriggerEventPlaceholders(
 			pointer: "countdown_id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 		{
 			tag: "DURATION",
@@ -4758,6 +5009,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_str",
 			numberParsable: false,
 			isUserID: false,
+			example: "05:00",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 		{
 			tag: "DURATION_MS",
@@ -4765,6 +5017,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_ms",
 			numberParsable: true,
 			isUserID: false,
+			example: "300000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	];
 	map[TriggerTypes.COUNTDOWN_STOP] = [
@@ -4775,6 +5028,7 @@ export function TriggerEventPlaceholders(
 			pointer: "finalDuration_str",
 			numberParsable: false,
 			isUserID: false,
+			example: "04:12",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 		{
 			tag: "REAL_DURATION_MS",
@@ -4782,6 +5036,7 @@ export function TriggerEventPlaceholders(
 			pointer: "finalDuration_ms",
 			numberParsable: true,
 			isUserID: false,
+			example: "252000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	];
 
@@ -4798,6 +5053,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.displayNameOriginal",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
 					tag: USER_LOGIN,
@@ -4805,6 +5061,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.login",
 					numberParsable: false,
 					isUserID: false,
+					example: "durss",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
 					tag: USER_DISPLAY_NAME,
@@ -4812,6 +5069,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.displayName",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
 					tag: USER_ID,
@@ -4819,6 +5077,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.id",
 					numberParsable: false,
 					isUserID: true,
+					example: "29961813",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
 					tag: USER_FOLLOWAGE,
@@ -4826,6 +5085,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: false,
 					isUserID: false,
+					example: "12/03/2021 18h42",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 				{
 					tag: USER_FOLLOWAGE_MS,
@@ -4833,6 +5093,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: true,
 					isUserID: false,
+					example: "1615570920000",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageModerationAction>,
 			];
 
@@ -4843,6 +5104,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: USER_LOGIN,
@@ -4850,6 +5112,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4857,6 +5120,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: USER_ID,
@@ -4864,6 +5128,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4871,6 +5136,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4878,6 +5144,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 		{
 			tag: "REASON",
@@ -4885,6 +5152,7 @@ export function TriggerEventPlaceholders(
 			pointer: "abstractedReason",
 			numberParsable: false,
 			isUserID: false,
+			example: "Please stay respectful",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnUserData>,
 	];
 
@@ -4895,6 +5163,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
 			tag: USER_LOGIN,
@@ -4902,6 +5171,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -4909,6 +5179,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
 			tag: USER_ID,
@@ -4916,6 +5187,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -4923,6 +5195,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -4930,6 +5203,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWarnAcknowledgementData>,
 	];
 
@@ -4944,6 +5218,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user.displayNameOriginal",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -4954,6 +5229,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user.login",
 					numberParsable: false,
 					isUserID: false,
+					example: "durss",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -4964,6 +5240,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user.displayName",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -4974,6 +5251,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user.id",
 					numberParsable: false,
 					isUserID: true,
+					example: "29961813",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -4984,6 +5262,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user",
 					numberParsable: false,
 					isUserID: false,
+					example: "12/03/2021 18h42",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -4994,6 +5273,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user",
 					numberParsable: true,
 					isUserID: false,
+					example: "1615570920000",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -5004,6 +5284,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.user.avatarPath",
 					numberParsable: false,
 					isUserID: false,
+					example: StoreProxy.asset("img/musicExampleCover.jpg"),
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -5015,6 +5296,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.title",
 					numberParsable: false,
 					isUserID: false,
+					example: "Twitchat development",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -5025,6 +5307,7 @@ export function TriggerEventPlaceholders(
 					pointer: "info.category",
 					numberParsable: false,
 					isUserID: false,
+					example: "Software and Game Development",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -5035,6 +5318,8 @@ export function TriggerEventPlaceholders(
 					pointer: "info.previewUrl",
 					numberParsable: false,
 					isUserID: false,
+					example:
+						"https://static-cdn.jtvnw.net/previews-ttv/live_user_durss-1920x1080.jpg",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageStreamOnlineData
 					| TwitchatDataTypes.MessageStreamOfflineData
@@ -5048,6 +5333,7 @@ export function TriggerEventPlaceholders(
 			pointer: "challenge.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Charity marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: "DESCRIPTION",
@@ -5055,6 +5341,7 @@ export function TriggerEventPlaceholders(
 			pointer: "challenge.description",
 			numberParsable: false,
 			isUserID: false,
+			example: "Help us reach the goal!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: "GOAL",
@@ -5062,6 +5349,7 @@ export function TriggerEventPlaceholders(
 			pointer: "challenge.goal",
 			numberParsable: true,
 			isUserID: false,
+			example: "1000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 	];
 
@@ -5075,6 +5363,7 @@ export function TriggerEventPlaceholders(
 			pointer: "challenge.progress",
 			numberParsable: true,
 			isUserID: false,
+			example: "750",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_NAME,
@@ -5082,6 +5371,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_LOGIN,
@@ -5089,6 +5379,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -5096,6 +5387,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_ID,
@@ -5103,6 +5395,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -5110,6 +5403,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -5117,6 +5411,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: "CONTRIBUTION",
@@ -5124,6 +5419,7 @@ export function TriggerEventPlaceholders(
 			pointer: "contribution",
 			numberParsable: true,
 			isUserID: false,
+			example: "50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 		{
 			tag: "CONTRIBUTION_TOTAL",
@@ -5131,6 +5427,7 @@ export function TriggerEventPlaceholders(
 			pointer: "total_contribution",
 			numberParsable: true,
 			isUserID: false,
+			example: "150",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCommunityChallengeContributionData>,
 	);
 
@@ -5147,6 +5444,7 @@ export function TriggerEventPlaceholders(
 					pointer: "counter.id",
 					numberParsable: false,
 					isUserID: false,
+					example: "a1b2c3d4",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: "NAME",
@@ -5154,6 +5452,7 @@ export function TriggerEventPlaceholders(
 					pointer: "counter.name",
 					numberParsable: false,
 					isUserID: false,
+					example: "Deaths",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: "VALUE",
@@ -5161,6 +5460,7 @@ export function TriggerEventPlaceholders(
 					pointer: "value",
 					numberParsable: true,
 					isUserID: false,
+					example: "123",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: "UPDATE",
@@ -5168,6 +5468,7 @@ export function TriggerEventPlaceholders(
 					pointer: "added",
 					numberParsable: true,
 					isUserID: false,
+					example: "-5",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: "UPDATE_ABS",
@@ -5175,6 +5476,7 @@ export function TriggerEventPlaceholders(
 					pointer: "added_abs",
 					numberParsable: true,
 					isUserID: false,
+					example: "5",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: USER_NAME,
@@ -5182,6 +5484,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.displayNameOriginal",
 					numberParsable: false,
 					isUserID: false,
+					example: "Durss",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: USER_LOGIN,
@@ -5189,6 +5492,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.login",
 					numberParsable: false,
 					isUserID: false,
+					example: "durss",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: USER_ID,
@@ -5196,6 +5500,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user.id",
 					numberParsable: false,
 					isUserID: true,
+					example: "29961813",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: USER_FOLLOWAGE,
@@ -5203,6 +5508,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: false,
 					isUserID: false,
+					example: "12/03/2021 18h42",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 				{
 					tag: USER_FOLLOWAGE_MS,
@@ -5210,6 +5516,7 @@ export function TriggerEventPlaceholders(
 					pointer: "user",
 					numberParsable: true,
 					isUserID: false,
+					example: "1615570920000",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 			];
 
@@ -5220,6 +5527,7 @@ export function TriggerEventPlaceholders(
 			pointer: "value.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{
 			tag: "VALUE_NAME",
@@ -5227,6 +5535,7 @@ export function TriggerEventPlaceholders(
 			pointer: "value.name",
 			numberParsable: false,
 			isUserID: false,
+			example: "Current game",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{
 			tag: "NEW_VALUE",
@@ -5234,6 +5543,7 @@ export function TriggerEventPlaceholders(
 			pointer: "newValue",
 			numberParsable: true,
 			isUserID: false,
+			example: "Dolor sit amet",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{
 			tag: "OLD_VALUE",
@@ -5241,6 +5551,7 @@ export function TriggerEventPlaceholders(
 			pointer: "oldValue",
 			numberParsable: true,
 			isUserID: false,
+			example: "Lorem ipsum",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 	];
 
@@ -5251,6 +5562,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: USER_LOGIN,
@@ -5258,6 +5570,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -5265,6 +5578,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: USER_ID,
@@ -5272,6 +5586,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -5279,6 +5594,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -5286,6 +5602,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: "MESSAGE",
@@ -5293,6 +5610,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<SafeMessage>,
 		{
 			tag: "COMMAND",
@@ -5300,6 +5618,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__command__",
 			numberParsable: true,
 			isUserID: false,
+			example: "!so",
 		},
 	];
 
@@ -5310,6 +5629,7 @@ export function TriggerEventPlaceholders(
 			pointer: "streak",
 			numberParsable: true,
 			isUserID: false,
+			example: "7",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: "POINTS_EARNED",
@@ -5317,6 +5637,7 @@ export function TriggerEventPlaceholders(
 			pointer: "channelPointsEarned",
 			numberParsable: true,
 			isUserID: false,
+			example: "350",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: "MESSAGE",
@@ -5324,6 +5645,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<
 			Omit<TwitchatDataTypes.MessageWatchStreakData, "chatMessage"> & {
 				chatMessage: SafeMessage;
@@ -5335,6 +5657,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: USER_LOGIN,
@@ -5342,6 +5665,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -5349,6 +5673,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: USER_ID,
@@ -5356,6 +5681,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -5363,6 +5689,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -5370,6 +5697,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWatchStreakData>,
 		...commonUserTags,
 	];
@@ -5381,6 +5709,7 @@ export function TriggerEventPlaceholders(
 			pointer: "sceneName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Gameplay",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageOBSSceneChangedData>,
 		{
 			tag: "PREVIOUS_SCENE_NAME",
@@ -5388,6 +5717,7 @@ export function TriggerEventPlaceholders(
 			pointer: "previousSceneName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Starting soon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageOBSSceneChangedData>,
 	];
 
@@ -5398,6 +5728,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioLayerVisibilityChange.visible",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
 		{
 			tag: "LAYER_NAME",
@@ -5405,6 +5736,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioLayerVisibilityChange.layerName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Webcam",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
 		{
 			tag: "LAYER_ID",
@@ -5412,6 +5744,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioLayerVisibilityChange.layerId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioLayerVisibilityChangeData>,
 	];
 
@@ -5422,6 +5755,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioFilterVisibilityChange.enabled",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
 		{
 			tag: "EFFECT_NAME",
@@ -5429,6 +5763,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioFilterVisibilityChange.effectName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Chroma key",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
 		{
 			tag: "EFFECT_ID",
@@ -5436,6 +5771,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioFilterVisibilityChange.effectId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioEffectVisibilityChangeData>,
 	];
 
@@ -5446,6 +5782,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioTrackMuteChange.muted",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
 		{
 			tag: "TRACK_NAME",
@@ -5453,6 +5790,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioTrackMuteChange.trackName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Microphone",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
 		{
 			tag: "TRACK_ID",
@@ -5460,6 +5798,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioTrackMuteChange.trackId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioTrackMuteChangeData>,
 	];
 
@@ -5470,6 +5809,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioSceneChange.prev_sceneName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Starting soon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
 		{
 			tag: "PREV_SCENE_ID",
@@ -5477,6 +5817,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioSceneChange.prev_sceneId",
 			numberParsable: false,
 			isUserID: false,
+			example: "e5f6a7b8",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
 		{
 			tag: "NEW_SCENE_NAME",
@@ -5484,6 +5825,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioSceneChange.sceneName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Gameplay",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
 		{
 			tag: "NEW_SCENE_ID",
@@ -5491,6 +5833,7 @@ export function TriggerEventPlaceholders(
 			pointer: "meldstudioSceneChange.sceneId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageMeldStudioSceneChangeData>,
 	];
 
@@ -5501,6 +5844,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{
 			tag: USER_ID,
@@ -5508,6 +5852,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -5515,6 +5860,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -5522,6 +5868,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		...commonUserTags,
 		{
@@ -5530,6 +5877,7 @@ export function TriggerEventPlaceholders(
 			pointer: "anonymous",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5541,6 +5889,7 @@ export function TriggerEventPlaceholders(
 			pointer: "coords.x",
 			numberParsable: true,
 			isUserID: false,
+			example: "42.5",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{
 			tag: "COORD_Y",
@@ -5548,6 +5897,7 @@ export function TriggerEventPlaceholders(
 			pointer: "coords.y",
 			numberParsable: true,
 			isUserID: false,
+			example: "67.3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{
 			tag: "KEY_ALT",
@@ -5555,6 +5905,7 @@ export function TriggerEventPlaceholders(
 			pointer: "alt",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5566,6 +5917,7 @@ export function TriggerEventPlaceholders(
 			pointer: "shift",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5577,6 +5929,7 @@ export function TriggerEventPlaceholders(
 			pointer: "ctrl",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5591,6 +5944,7 @@ export function TriggerEventPlaceholders(
 			pointer: "text",
 			numberParsable: false,
 			isUserID: false,
+			example: "hello",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		{
 			tag: "KEYS",
@@ -5598,6 +5952,7 @@ export function TriggerEventPlaceholders(
 			pointer: "keys",
 			numberParsable: false,
 			isUserID: false,
+			example: '["h","e","l","l","o"]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		{
 			tag: USER_NAME,
@@ -5605,6 +5960,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		{
 			tag: USER_ID,
@@ -5612,6 +5968,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -5619,6 +5976,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -5626,6 +5984,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCompanionKeysData>,
 		...commonUserTags,
 		{
@@ -5634,6 +5993,7 @@ export function TriggerEventPlaceholders(
 			pointer: "anonymous",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5648,6 +6008,7 @@ export function TriggerEventPlaceholders(
 			pointer: "clipUrl",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://clips.twitch.tv/AmazinglyKindOtterKappa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageClipCreate>,
 	];
 
@@ -5658,6 +6019,7 @@ export function TriggerEventPlaceholders(
 			pointer: "fxIndex",
 			numberParsable: true,
 			isUserID: false,
+			example: "1",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRFXEnableChangeData>,
 		{
 			tag: "FX_ENABLED",
@@ -5665,6 +6027,7 @@ export function TriggerEventPlaceholders(
 			pointer: "enabled",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5679,6 +6042,7 @@ export function TriggerEventPlaceholders(
 			pointer: "users.0.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813, 152242149",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData
 		>,
@@ -5688,6 +6052,7 @@ export function TriggerEventPlaceholders(
 			pointer: "users.0.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss, twitch",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData
 		>,
@@ -5700,6 +6065,7 @@ export function TriggerEventPlaceholders(
 			pointer: "button",
 			numberParsable: false,
 			isUserID: false,
+			example: "EffectMegaphone",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRButtonData>,
 	];
 
@@ -5710,6 +6076,7 @@ export function TriggerEventPlaceholders(
 			pointer: "faderIndex",
 			numberParsable: true,
 			isUserID: false,
+			example: "1",
 			values: [
 				{ label: "Fader 1", value: 1 },
 				{ label: "Fader 2", value: 2 },
@@ -5726,6 +6093,7 @@ export function TriggerEventPlaceholders(
 			pointer: "duration_s",
 			numberParsable: true,
 			isUserID: false,
+			example: "180",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
 		>,
@@ -5735,6 +6103,7 @@ export function TriggerEventPlaceholders(
 			pointer: "startedBy.displayNameOriginal",
 			numberParsable: true,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
 		>,
@@ -5744,6 +6113,7 @@ export function TriggerEventPlaceholders(
 			pointer: "startedBy.login",
 			numberParsable: true,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
 		>,
@@ -5753,6 +6123,7 @@ export function TriggerEventPlaceholders(
 			pointer: "startedBy.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
 		>,
@@ -5762,6 +6133,7 @@ export function TriggerEventPlaceholders(
 			pointer: "startedBy.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<
 			TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData
 		>,
@@ -5777,6 +6149,7 @@ export function TriggerEventPlaceholders(
 					pointer: "qnaSession.command",
 					numberParsable: true,
 					isUserID: false,
+					example: "!question",
 				} as ITriggerPlaceholder<
 					| TwitchatDataTypes.MessageQnaStartData
 					| TwitchatDataTypes.MessageQnaStopData
@@ -5791,6 +6164,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "AMOUNT",
@@ -5798,6 +6172,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -5805,6 +6180,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "CURRENCY",
@@ -5812,6 +6188,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "MESSAGE",
@@ -5819,6 +6196,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -5827,6 +6205,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -5835,6 +6214,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 	];
 	map[TriggerTypes.STREAMLABS_MERCH] = [
@@ -5844,6 +6224,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{
 			tag: "PRODUCT",
@@ -5851,6 +6232,7 @@ export function TriggerEventPlaceholders(
 			pointer: "product",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat mug",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{
 			tag: "MESSAGE",
@@ -5858,6 +6240,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -5866,6 +6249,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -5874,6 +6258,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 	];
 	map[TriggerTypes.STREAMLABS_PATREON_PLEDGE] = [
@@ -5883,6 +6268,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{
 			tag: "AMOUNT",
@@ -5890,6 +6276,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -5897,6 +6284,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{
 			tag: "CURRENCY",
@@ -5904,6 +6292,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 	];
 
@@ -5914,6 +6303,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "AMOUNT",
@@ -5921,6 +6311,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "CURRENCY",
@@ -5928,6 +6319,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "MESSAGE",
@@ -5935,6 +6327,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -5943,6 +6336,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -5951,6 +6345,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{
 			tag: "IS_PUBLIC",
@@ -5958,6 +6353,7 @@ export function TriggerEventPlaceholders(
 			pointer: "isPublic",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -5971,6 +6367,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "PRODUCT_IDS",
@@ -5978,6 +6375,7 @@ export function TriggerEventPlaceholders(
 			pointer: "products.0.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4, e5f6a7b8",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "PRODUCT_NAMES",
@@ -5985,6 +6383,7 @@ export function TriggerEventPlaceholders(
 			pointer: "products.0.name",
 			numberParsable: false,
 			isUserID: false,
+			example: "Twitchat mug, Twitchat sticker",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "AMOUNT",
@@ -5992,6 +6391,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: false,
 			isUserID: false,
+			example: "25.00",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "CURRENCY",
@@ -5999,6 +6399,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -6006,6 +6407,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$25.00",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "MESSAGE",
@@ -6013,6 +6415,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6021,6 +6424,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6029,6 +6433,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{
 			tag: "IS_PUBLIC",
@@ -6036,6 +6441,7 @@ export function TriggerEventPlaceholders(
 			pointer: "isPublic",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -6049,6 +6455,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "AMOUNT",
@@ -6056,6 +6463,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "4.99",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "CURRENCY",
@@ -6063,6 +6471,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "TIER",
@@ -6070,6 +6479,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier",
 			numberParsable: true,
 			isUserID: false,
+			example: "Gold",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -6081,6 +6491,7 @@ export function TriggerEventPlaceholders(
 			pointer: "firstTimeSub",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "MESSAGE",
@@ -6088,6 +6499,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6096,6 +6508,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6104,6 +6517,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "IS_PUBLIC",
@@ -6111,6 +6525,7 @@ export function TriggerEventPlaceholders(
 			pointer: "isPublic",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -6124,6 +6539,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "AMOUNT",
@@ -6131,6 +6547,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "4.99",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "CURRENCY",
@@ -6138,6 +6555,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{
 			tag: "IS_PUBLIC",
@@ -6145,6 +6563,7 @@ export function TriggerEventPlaceholders(
 			pointer: "isPublic",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -6159,6 +6578,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{
 			tag: "AMOUNT",
@@ -6166,6 +6586,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{
 			tag: "CURRENCY",
@@ -6173,6 +6594,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{
 			tag: "MESSAGE",
@@ -6180,6 +6602,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6188,6 +6611,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6196,6 +6620,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 	];
 
@@ -6206,6 +6631,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{
 			tag: "AMOUNT",
@@ -6213,6 +6639,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{
 			tag: "CURRENCY",
@@ -6220,6 +6647,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{
 			tag: "MESSAGE",
@@ -6227,6 +6655,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6235,6 +6664,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6243,6 +6673,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 	];
 
@@ -6254,6 +6685,7 @@ export function TriggerEventPlaceholders(
 			pointer: "recurringCount",
 			numberParsable: true,
 			isUserID: false,
+			example: "6",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 	];
 
@@ -6264,6 +6696,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_LOGIN,
@@ -6271,6 +6704,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6278,6 +6712,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_ID,
@@ -6285,6 +6720,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -6292,6 +6728,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -6299,6 +6736,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: USER_AVATAR,
@@ -6306,6 +6744,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		...commonUserTags,
 		{
@@ -6314,6 +6753,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridId",
 			numberParsable: true,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: "GRID_NAME",
@@ -6321,6 +6761,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridName",
 			numberParsable: true,
 			isUserID: false,
+			example: "Stream bingo",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 		{
 			tag: "BINGO_COUNT",
@@ -6328,6 +6769,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoCount",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridViewerData>,
 	];
 
@@ -6338,6 +6780,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_LOGIN,
@@ -6345,6 +6788,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6352,6 +6796,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_ID,
@@ -6359,6 +6804,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_FOLLOWAGE,
@@ -6366,6 +6812,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: false,
 			isUserID: false,
+			example: "12/03/2021 18h42",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_FOLLOWAGE_MS,
@@ -6373,6 +6820,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user",
 			numberParsable: true,
 			isUserID: false,
+			example: "1615570920000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: USER_AVATAR,
@@ -6380,6 +6828,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "GRID_ID",
@@ -6387,6 +6836,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridId",
 			numberParsable: true,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "GRID_NAME",
@@ -6394,6 +6844,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridName",
 			numberParsable: true,
 			isUserID: false,
+			example: "Stream bingo",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "CELL_X",
@@ -6401,6 +6852,7 @@ export function TriggerEventPlaceholders(
 			pointer: "coords.x",
 			numberParsable: true,
 			isUserID: false,
+			example: "2",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "CELL_Y",
@@ -6408,6 +6860,7 @@ export function TriggerEventPlaceholders(
 			pointer: "coords.y",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "COL_INDEX",
@@ -6415,6 +6868,7 @@ export function TriggerEventPlaceholders(
 			pointer: "colIndex",
 			numberParsable: true,
 			isUserID: false,
+			example: "1",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "ROW_INDEX",
@@ -6422,6 +6876,7 @@ export function TriggerEventPlaceholders(
 			pointer: "rowIndex",
 			numberParsable: true,
 			isUserID: false,
+			example: "2",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "DIAG_INDEX",
@@ -6429,6 +6884,7 @@ export function TriggerEventPlaceholders(
 			pointer: "diagonal",
 			numberParsable: true,
 			isUserID: false,
+			example: "0",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
 
@@ -6440,6 +6896,7 @@ export function TriggerEventPlaceholders(
 			pointer: "cellLabel",
 			numberParsable: true,
 			isUserID: false,
+			example: "Durss says hello",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
 
@@ -6450,6 +6907,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridId",
 			numberParsable: true,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{
 			tag: "GRID_NAME",
@@ -6457,6 +6915,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bingoGridName",
 			numberParsable: true,
 			isUserID: false,
+			example: "Stream bingo",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
 
@@ -6467,6 +6926,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: USER_LOGIN,
@@ -6474,6 +6934,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6481,6 +6942,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: USER_ID,
@@ -6488,6 +6950,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: USER_AVATAR,
@@ -6495,6 +6958,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -6502,6 +6966,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "AMOUNT",
@@ -6509,6 +6974,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: "CURRENCY",
@@ -6516,6 +6982,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: "MESSAGE",
@@ -6523,6 +6990,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6531,6 +6999,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6539,6 +7008,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{
 			tag: "TIER",
@@ -6546,6 +7016,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 	];
 
@@ -6556,6 +7027,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: USER_LOGIN,
@@ -6563,6 +7035,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6570,6 +7043,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: USER_ID,
@@ -6577,6 +7051,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: USER_AVATAR,
@@ -6584,6 +7059,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -6591,6 +7067,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "AMOUNT",
@@ -6598,6 +7075,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: "CURRENCY",
@@ -6605,6 +7083,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: "TIER",
@@ -6612,6 +7091,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier",
 			numberParsable: true,
 			isUserID: false,
+			example: "2",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: "STICKER_ID",
@@ -6619,6 +7099,7 @@ export function TriggerEventPlaceholders(
 			pointer: "sticker_id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 		{
 			tag: "STICKER_URL",
@@ -6626,6 +7107,7 @@ export function TriggerEventPlaceholders(
 			pointer: "sticker_url",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://lh3.googleusercontent.com/sticker-example=s160-rwa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperStickerData>,
 	];
 
@@ -6636,6 +7118,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: USER_LOGIN,
@@ -6643,6 +7126,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6650,6 +7134,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: USER_ID,
@@ -6657,6 +7142,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: USER_AVATAR,
@@ -6664,6 +7150,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -6671,6 +7158,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "AMOUNT",
@@ -6678,6 +7166,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "500",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: "GIFT_NAME",
@@ -6685,6 +7174,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_name",
 			numberParsable: false,
 			isUserID: false,
+			example: "Diamond",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 		{
 			tag: "GIFT_URL",
@@ -6692,6 +7182,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_url",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://lh3.googleusercontent.com/gift-example=s160-rwa",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeJewelsGiftData>,
 	];
 
@@ -6702,6 +7193,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: USER_LOGIN,
@@ -6709,6 +7201,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6716,6 +7209,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: USER_ID,
@@ -6723,6 +7217,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: USER_AVATAR,
@@ -6730,6 +7225,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -6737,6 +7233,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "MESSAGE",
@@ -6744,6 +7241,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: true,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: "MESSAGE_JSON",
@@ -6752,6 +7250,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: '[{"type":"text","value":"Hello world!"}]',
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: "MESSAGE_HTML",
@@ -6760,6 +7259,7 @@ export function TriggerEventPlaceholders(
 			keepHTML: true,
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: "LEVEL",
@@ -6767,6 +7267,7 @@ export function TriggerEventPlaceholders(
 			pointer: "levelName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Member",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{
 			tag: "MONTHS",
@@ -6774,6 +7275,7 @@ export function TriggerEventPlaceholders(
 			pointer: "months",
 			numberParsable: false,
 			isUserID: false,
+			example: "6",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 	];
 
@@ -6784,6 +7286,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: USER_LOGIN,
@@ -6791,6 +7294,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -6798,6 +7302,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: USER_ID,
@@ -6805,6 +7310,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: USER_AVATAR,
@@ -6812,6 +7318,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -6819,6 +7326,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "LEVEL",
@@ -6826,6 +7334,7 @@ export function TriggerEventPlaceholders(
 			pointer: "levelName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Member",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: "RECIPIENTS",
@@ -6833,6 +7342,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_recipients.0.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 		{
 			tag: "RECIPIENTS_ID",
@@ -6840,6 +7350,7 @@ export function TriggerEventPlaceholders(
 			pointer: "gift_recipients.0.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 	];
 
@@ -6850,6 +7361,7 @@ export function TriggerEventPlaceholders(
 			pointer: "topic",
 			numberParsable: true,
 			isUserID: false,
+			example: "my_topic",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
 		{
 			tag: "MESSAGE",
@@ -6857,6 +7369,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: false,
 			isUserID: false,
+			example: '{"topic":"my_topic","data":"Hello world!"}',
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
 	];
 
@@ -6867,6 +7380,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "MESSAGE",
@@ -6874,6 +7388,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "CURRENCY",
@@ -6881,6 +7396,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "AMOUNT_NUMERIC",
@@ -6888,6 +7404,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -6895,6 +7412,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "RAISED_TOTAL_NUMERIC",
@@ -6902,6 +7420,7 @@ export function TriggerEventPlaceholders(
 			pointer: "totalRaised",
 			numberParsable: true,
 			isUserID: false,
+			example: "750.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "RAISED_TOTAL_FORMATTED",
@@ -6909,6 +7428,7 @@ export function TriggerEventPlaceholders(
 			pointer: "totalRaisedFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$750.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "GOAL_NUMERIC",
@@ -6916,6 +7436,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goal",
 			numberParsable: true,
 			isUserID: false,
+			example: "1000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "GOAL_FORMATTED",
@@ -6923,6 +7444,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goalFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$1,000.00",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "CAMPAIGN_ID",
@@ -6930,6 +7452,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "CAMPAIGN_NAME",
@@ -6937,6 +7460,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Charity marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 		{
 			tag: "CAMPAIGN_PAGE",
@@ -6944,6 +7468,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.url",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://streamlabscharity.com/teams/@durss/charity-marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 	];
 
@@ -6954,6 +7479,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: USER_LOGIN,
@@ -6961,6 +7487,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "CURRENCY",
@@ -6968,6 +7495,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "AMOUNT_NUMERIC",
@@ -6975,6 +7503,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -6982,6 +7511,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "RAISED_TOTAL_NUMERIC",
@@ -6989,6 +7519,7 @@ export function TriggerEventPlaceholders(
 			pointer: "raised",
 			numberParsable: true,
 			isUserID: false,
+			example: "750.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "RAISED_TOTAL_FORMATTED",
@@ -6996,6 +7527,7 @@ export function TriggerEventPlaceholders(
 			pointer: "raisedFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$750.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "GOAL_NUMERIC",
@@ -7003,6 +7535,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goal",
 			numberParsable: true,
 			isUserID: false,
+			example: "1000",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "GOAL_FORMATTED",
@@ -7010,6 +7543,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goalFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$1,000.00",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "CAMPAIGN_ID",
@@ -7017,6 +7551,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "CAMPAIGN_NAME",
@@ -7024,6 +7559,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Charity marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 		{
 			tag: "CAMPAIGN_PAGE",
@@ -7031,6 +7567,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.url",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://streamlabscharity.com/teams/@durss/charity-marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
 	];
 
@@ -7041,6 +7578,7 @@ export function TriggerEventPlaceholders(
 			pointer: "userName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "MESSAGE",
@@ -7048,6 +7586,7 @@ export function TriggerEventPlaceholders(
 			pointer: "message",
 			numberParsable: false,
 			isUserID: false,
+			example: "Hello world!",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "CURRENCY",
@@ -7055,6 +7594,7 @@ export function TriggerEventPlaceholders(
 			pointer: "currency",
 			numberParsable: false,
 			isUserID: false,
+			example: "$",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "AMOUNT_NUMERIC",
@@ -7062,6 +7602,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "AMOUNT_FORMATTED",
@@ -7069,6 +7610,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$10.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "CAMPAIGN_ID",
@@ -7076,6 +7618,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "CAMPAIGN_NAME",
@@ -7083,6 +7626,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Charity marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{
 			tag: "CAMPAIGN_PAGE",
@@ -7090,6 +7634,7 @@ export function TriggerEventPlaceholders(
 			pointer: "campaign.url",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://streamlabscharity.com/teams/@durss/charity-marathon",
 		} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 	];
 
@@ -7100,6 +7645,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.username",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 		{
 			tag: USER_AVATAR,
@@ -7107,6 +7653,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatar",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 		{
 			tag: "USER_URL",
@@ -7114,6 +7661,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatar",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 		{
 			tag: "AMOUNT",
@@ -7121,6 +7669,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier.amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "4.99",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 		{
 			tag: "TIER_TITLE",
@@ -7128,6 +7677,7 @@ export function TriggerEventPlaceholders(
 			pointer: "tier.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Gold tier",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 	];
 
@@ -7138,6 +7688,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: USER_LOGIN,
@@ -7145,6 +7696,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7152,6 +7704,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: USER_ID,
@@ -7159,6 +7712,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: USER_AVATAR,
@@ -7166,6 +7720,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7173,6 +7728,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "GIFT_COUNT",
@@ -7180,6 +7736,7 @@ export function TriggerEventPlaceholders(
 			pointer: "count",
 			numberParsable: true,
 			isUserID: false,
+			example: "5",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: "GIFT_ID",
@@ -7187,6 +7744,7 @@ export function TriggerEventPlaceholders(
 			pointer: "giftId",
 			numberParsable: false,
 			isUserID: false,
+			example: "5655",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: "GIFT_NAME",
@@ -7194,6 +7752,7 @@ export function TriggerEventPlaceholders(
 			pointer: "giftName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Rose",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: "GIFT_IMAGE",
@@ -7201,6 +7760,7 @@ export function TriggerEventPlaceholders(
 			pointer: "image",
 			numberParsable: false,
 			isUserID: false,
+			example: "https://p19-webcast.tiktokcdn.com/img/maliva/webcast-va/gift_rose.png",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{
 			tag: "DIAMONDS",
@@ -7208,6 +7768,7 @@ export function TriggerEventPlaceholders(
 			pointer: "diamonds",
 			numberParsable: true,
 			isUserID: false,
+			example: "250",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 	];
 
@@ -7218,6 +7779,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
 			tag: USER_LOGIN,
@@ -7225,6 +7787,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7232,6 +7795,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
 			tag: USER_ID,
@@ -7239,6 +7803,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
 			tag: USER_AVATAR,
@@ -7246,6 +7811,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7253,6 +7819,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "MONTH",
@@ -7260,6 +7827,7 @@ export function TriggerEventPlaceholders(
 			pointer: "months",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
 	];
 
@@ -7270,6 +7838,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: USER_LOGIN,
@@ -7277,6 +7846,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7284,6 +7854,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: USER_ID,
@@ -7291,6 +7862,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: USER_AVATAR,
@@ -7298,6 +7870,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7305,6 +7878,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "LIKE_COUNT",
@@ -7312,6 +7886,7 @@ export function TriggerEventPlaceholders(
 			pointer: "count",
 			numberParsable: true,
 			isUserID: false,
+			example: "15",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 		{
 			tag: "STREAM_LIKE_COUNT",
@@ -7319,6 +7894,7 @@ export function TriggerEventPlaceholders(
 			pointer: "count",
 			numberParsable: true,
 			isUserID: false,
+			example: "1250",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
 	];
 
@@ -7329,6 +7905,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_LOGIN,
@@ -7336,6 +7913,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7343,6 +7921,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_ID,
@@ -7350,6 +7929,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_AVATAR,
@@ -7357,6 +7937,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7364,6 +7945,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 	];
 
@@ -7374,6 +7956,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_LOGIN,
@@ -7381,6 +7964,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7388,6 +7972,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_ID,
@@ -7395,6 +7980,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_AVATAR,
@@ -7402,6 +7988,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7409,6 +7996,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 	];
 
@@ -7419,6 +8007,7 @@ export function TriggerEventPlaceholders(
 			pointer: "inputCode",
 			numberParsable: false,
 			isUserID: false,
+			example: "KeyA",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
 		{
 			tag: "INPUT_TYPE",
@@ -7426,6 +8015,7 @@ export function TriggerEventPlaceholders(
 			pointer: "inputType",
 			numberParsable: false,
 			isUserID: false,
+			example: "keyboard",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
 		{
 			tag: "INPUT_VALUE",
@@ -7433,6 +8023,7 @@ export function TriggerEventPlaceholders(
 			pointer: "inputValue",
 			numberParsable: true,
 			isUserID: false,
+			example: "true",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
 	];
 
@@ -7443,6 +8034,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stepConfig.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "e5f6a7b8",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "STEP_INDEX",
@@ -7450,6 +8042,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stepIndex",
 			numberParsable: true,
 			isUserID: false,
+			example: "2",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "STEP_TITLE",
@@ -7457,6 +8050,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stepConfig.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "New microphone",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "STEP_SECRET",
@@ -7464,6 +8058,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stepConfig.secret",
 			numberParsable: false,
 			isUserID: false,
+			example: "false",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "STEP_AMOUNT",
@@ -7471,6 +8066,7 @@ export function TriggerEventPlaceholders(
 			pointer: "stepConfig.amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "100",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "GOALS_ID",
@@ -7478,6 +8074,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goalConfig.id",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{
 			tag: "GOALS_TITLE",
@@ -7485,6 +8082,7 @@ export function TriggerEventPlaceholders(
 			pointer: "goalConfig.title",
 			numberParsable: false,
 			isUserID: false,
+			example: "Sub goal",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 	];
 
@@ -7495,6 +8093,7 @@ export function TriggerEventPlaceholders(
 			pointer: "trainId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_NAME",
@@ -7502,6 +8101,7 @@ export function TriggerEventPlaceholders(
 			pointer: "trainName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Hype train",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_LEVEL",
@@ -7509,6 +8109,7 @@ export function TriggerEventPlaceholders(
 			pointer: "level",
 			numberParsable: true,
 			isUserID: false,
+			example: "3",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_PERCENT",
@@ -7516,6 +8117,7 @@ export function TriggerEventPlaceholders(
 			pointer: "percent",
 			numberParsable: true,
 			isUserID: false,
+			example: "75",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_AMOUNT",
@@ -7523,6 +8125,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amount",
 			numberParsable: true,
 			isUserID: false,
+			example: "750",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_AMOUNT_FORMATTED",
@@ -7530,6 +8133,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$7.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_RECORD",
@@ -7537,6 +8141,7 @@ export function TriggerEventPlaceholders(
 			pointer: "isRecord",
 			numberParsable: false,
 			isUserID: false,
+			example: "true",
 			values: [
 				{ labelKey: "global.yes", value: true },
 				{ labelKey: "global.no", value: false },
@@ -7552,6 +8157,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountLeft",
 			numberParsable: true,
 			isUserID: false,
+			example: "250",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 		{
 			tag: "TRAIN_AMOUNT_LEFT_FORMATTED",
@@ -7559,6 +8165,7 @@ export function TriggerEventPlaceholders(
 			pointer: "amountLeftFormatted",
 			numberParsable: false,
 			isUserID: false,
+			example: "$2.50",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 	];
 
@@ -7572,6 +8179,7 @@ export function TriggerEventPlaceholders(
 					pointer: "trainId",
 					numberParsable: false,
 					isUserID: false,
+					example: "a1b2c3d4",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 				{
 					tag: "TRAIN_NAME",
@@ -7579,6 +8187,7 @@ export function TriggerEventPlaceholders(
 					pointer: "trainName",
 					numberParsable: false,
 					isUserID: false,
+					example: "Hype train",
 				} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 			];
 
@@ -7589,6 +8198,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayNameOriginal",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: USER_LOGIN,
@@ -7596,6 +8206,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.login",
 			numberParsable: false,
 			isUserID: false,
+			example: "durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: USER_DISPLAY_NAME,
@@ -7603,6 +8214,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.displayName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Durss",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: USER_ID,
@@ -7610,6 +8222,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.id",
 			numberParsable: false,
 			isUserID: true,
+			example: "29961813",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: USER_AVATAR,
@@ -7617,6 +8230,7 @@ export function TriggerEventPlaceholders(
 			pointer: "user.avatarPath",
 			numberParsable: false,
 			isUserID: false,
+			example: StoreProxy.asset("img/musicExampleCover.jpg"),
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: USER_CUSTOM_BADGES,
@@ -7624,6 +8238,7 @@ export function TriggerEventPlaceholders(
 			pointer: "__user_custom_badges__",
 			numberParsable: false,
 			isUserID: false,
+			example: "badge_1, badge_2",
 		},
 		{
 			tag: "ACTION_ID",
@@ -7631,6 +8246,7 @@ export function TriggerEventPlaceholders(
 			pointer: "actionId",
 			numberParsable: false,
 			isUserID: false,
+			example: "a1b2c3d4",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: "ACTION_NAME",
@@ -7638,6 +8254,7 @@ export function TriggerEventPlaceholders(
 			pointer: "actionName",
 			numberParsable: false,
 			isUserID: false,
+			example: "Confetti",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 		{
 			tag: "ACTION_BITS",
@@ -7645,6 +8262,7 @@ export function TriggerEventPlaceholders(
 			pointer: "bits",
 			numberParsable: true,
 			isUserID: false,
+			example: "500",
 		} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 	];
 
@@ -7700,6 +8318,7 @@ export function TriggerEventPlaceholders(
 					pointer: "__timer__.paused",
 					numberParsable: false,
 					isUserID: false,
+					example: "false",
 					globalTag: true,
 					storage: t.id,
 					values: [
@@ -7717,7 +8336,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: false,
 						isUserID: false,
 						globalTag: true,
-						example: "60000",
+						example: "05:30",
 						storage: t.id,
 					});
 					timersPlaceholders.push({
@@ -7729,7 +8348,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: true,
 						isUserID: false,
 						globalTag: true,
-						example: "60",
+						example: "330000",
 						storage: t.id,
 					});
 				}
@@ -7743,7 +8362,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: false,
 						isUserID: false,
 						globalTag: true,
-						example: "60000",
+						example: "05:00",
 						storage: t.id,
 					});
 					timersPlaceholders.push({
@@ -7755,7 +8374,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: true,
 						isUserID: false,
 						globalTag: true,
-						example: "60",
+						example: "300000",
 						storage: t.id,
 					});
 					timersPlaceholders.push({
@@ -7767,7 +8386,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: false,
 						isUserID: false,
 						globalTag: true,
-						example: "60000",
+						example: "04:12",
 						storage: t.id,
 					});
 					timersPlaceholders.push({
@@ -7779,7 +8398,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: true,
 						isUserID: false,
 						globalTag: true,
-						example: "60",
+						example: "252000",
 						storage: t.id,
 					});
 				}
@@ -8311,8 +8930,7 @@ export function TriggerEventPlaceholders(
 						numberParsable: false,
 						isUserID: false,
 						globalTag: true,
-						example:
-							"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6",
+						example: StoreProxy.asset("img/musicExampleCover.jpg"),
 					} as ITriggerPlaceholder<
 						TwitchatDataTypes.MusicTrackDataKeys,
 						string,
@@ -10349,3 +10967,4 @@ export const TriggerSubTypeLabel = (triggerData: TriggerData): string | undefine
 	}
 	return "...";
 };
+

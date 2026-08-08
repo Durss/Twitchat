@@ -311,6 +311,7 @@ export default class TriggerUtils {
 				placeholdersList.push({
 					tag: v.tag,
 					pointer: "",
+					example: v.tag.toLowerCase(),
 					isUserID: false,
 					numberParsable: true,
 					descKey: "triggers.condition.placeholder_cmd_param",
@@ -358,6 +359,7 @@ export default class TriggerUtils {
 					placeholdersList.push({
 						tag: a.placeholder.toUpperCase(),
 						pointer: "",
+						example: a.placeholder.toLowerCase(),
 						isUserID: false,
 						numberParsable: true,
 						descKey: "triggers.random_placeholder",
@@ -389,6 +391,7 @@ export default class TriggerUtils {
 						placeholdersList.push({
 							tag: ph.toUpperCase(),
 							pointer: "",
+							example: ph.toLowerCase(),
 							isUserID: ph === a.valueCounterPlaceholders!.userId,
 							numberParsable: ph === a.valueCounterPlaceholders!.value,
 							descKey: "triggers.random_placeholder",
@@ -405,6 +408,7 @@ export default class TriggerUtils {
 					placeholdersList.push({
 						tag: a.groqData.outputPlaceholder.toUpperCase(),
 						pointer: "",
+						example: a.groqData.outputPlaceholder.toLowerCase(),
 						isUserID: false,
 						numberParsable: true,
 						descKey: "triggers.http_placeholder",
@@ -419,6 +423,7 @@ export default class TriggerUtils {
 					placeholdersList.push({
 						tag: a.outputPlaceholder.toUpperCase(),
 						pointer: "",
+						example: a.outputPlaceholder.toLowerCase(),
 						isUserID: false,
 						numberParsable: true,
 						descKey: "triggers.http_placeholder",
@@ -435,6 +440,7 @@ export default class TriggerUtils {
 						placeholdersList.push({
 							tag: ph.placeholder.toUpperCase(),
 							pointer: "",
+							example: ph.placeholder.toLowerCase(),
 							isUserID: false,
 							numberParsable: true,
 							descKey: "triggers.json_placeholder",
@@ -448,6 +454,7 @@ export default class TriggerUtils {
 					placeholdersList.push({
 						tag: param.placeholder.toUpperCase(),
 						pointer: "",
+						example: param.placeholder.toLowerCase(),
 						isUserID: false,
 						numberParsable: param.type == "number" || param.type == "duration",
 						descKey: "triggers.prompt_placeholder",
