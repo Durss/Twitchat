@@ -203,6 +203,16 @@ const showCaseSensitiveToggle = computed((): boolean => {
 	return csOperators.includes(param_operator.value.value);
 });
 
+/**
+ * Placeholders the condition can pick from. Either the ones given by the
+ * parent, or the ones related to the trigger's event type.
+ */
+const activePlaceholders = computed((): ITriggerPlaceholder<any>[] => {
+	return props.placeholderList.length > 0
+		? props.placeholderList
+		: TriggerEventPlaceholders(props.triggerData.type);
+});
+
 onBeforeMount(() => {
 	if (props.condition.placeholder)
 		props.condition.placeholder = props.condition.placeholder.toUpperCase();
@@ -211,9 +221,14 @@ onBeforeMount(() => {
 	buildSourceList();
 });
 
-//Watch for changes on the chat command params to rebuild source list
+//Watch for changes on the chat command params and on the placeholders' fixed
+//values (they're mutated at runtime by setTriggerEventPlaceholderValues()) to
+//rebuild the source list.
 watch(
-	() => props.triggerData.chatCommandParams,
+	[
+		() => props.triggerData.chatCommandParams,
+		() => activePlaceholders.value.map((v) => v.values),
+	],
 	() => {
 		buildSourceList();
 	},
@@ -240,8 +255,7 @@ function buildSourceList(): void {
 		}
 
 		//Add trigger's placeholders
-		placeholders = TriggerEventPlaceholders(props.triggerData.type).concat();
-		let debouncedRebuild = -1;
+		placeholders = activePlaceholders.value.concat();
 		placeholderListLocal = placeholderListLocal.concat(
 			placeholders.map((v) => {
 				let name = "";
@@ -274,16 +288,6 @@ function buildSourceList(): void {
 					);
 					if (timer) name = timer.title;
 				}
-				watch(
-					() => v.values,
-					() => {
-						clearTimeout(debouncedRebuild);
-						debouncedRebuild = window.setTimeout(() => {
-							buildSourceList();
-						}, 20);
-					},
-					{ deep: true },
-				);
 				return {
 					label: t(v.descKey, { NAME: name ? '"' + name + '"' : "" }),
 					value: v.tag.toUpperCase(),
@@ -293,7 +297,7 @@ function buildSourceList(): void {
 			}),
 		);
 	} else {
-		placeholders = props.placeholderList;
+		placeholders = activePlaceholders.value;
 		placeholderListLocal = placeholders.map((v) => {
 			return {
 				label: t(v.descKey, v.descReplacedValues ?? {}),
