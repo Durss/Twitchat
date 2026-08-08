@@ -31,6 +31,11 @@ const lastSeenDmTimes = new Map<string, string>();
 let lastRefreshDate = 0;
 // Reason given by the lib when it deleted the session, empty otherwise
 let lastDeleteCause = "";
+// Window name/features of the OAuth popup. We open the popup ourselves and hand
+// its name over to the lib so it reuses that window instead of opening its own,
+// which is the only way to keep a reference on it (see startOAuthProcess())
+const OAUTH_POPUP_NAME = "twitchat_bluesky_auth";
+const OAUTH_POPUP_FEATURES = "width=600,height=700,menubar=no,toolbar=no";
 
 /**
  * Builds the error message if auth failed
@@ -123,29 +128,59 @@ export const storeBluesky = defineStore("bluesky", {
 			this.connected = false;
 			this.connectionError = null;
 			lastDeleteCause = "";
+
+			//Open the popup right away, before any async work, so the browser doesn't
+			//block it.
+			const popup = window.open("about:blank", OAUTH_POPUP_NAME, OAUTH_POPUP_FEATURES);
+
 			const client = await this.initClient();
-			if (!client) return false;
+			if (!client) {
+				popup?.close();
+				return false;
+			}
 			handle = handle.replace(/^@/, "");
 			const scope = readDMs
 				? "atproto transition:generic transition:chat.bsky"
 				: "atproto transition:generic";
+
+			//Popup blocked by the browser, fallback to a full page redirect
+			if (!popup) {
+				try {
+					const url = await client.authorize(handle, { scope });
+					window.open(url, "_self", "noopener");
+					return true;
+				} catch (error) {
+					console.warn("Bluesky authorization failed", error);
+					return false;
+				}
+			}
+
+			// Detect popup close to abort auth
+			const aborter = new AbortController();
+			const closeWatcher = setInterval(() => {
+				if (popup.closed) aborter.abort();
+			}, 500);
+
 			try {
-				const session = await client.signInPopup(handle, {
+				await client.signInPopup(handle, {
 					scope,
+					signal: aborter.signal,
+					popupName: OAUTH_POPUP_NAME,
+					popupFeatures: OAUTH_POPUP_FEATURES,
 					redirect_uri: `https://${document.location.host}/popupBlueskyAuthResult.html`,
 				});
-				if (session) {
-					//Finalize popup auth
-					void this.authenticate();
-				} else {
-					//Fallback to redirect
-					const url = await client.authorize(handle);
-					window.open(url, "_self", "noopener");
-				}
-			} catch (_error) {
+				//Finalize popup auth
+				void this.authenticate();
+				return true;
+			} catch (error) {
+				console.warn("Bluesky popup auth failed", error);
 				return false;
+			} finally {
+				clearInterval(closeWatcher);
+				//Nothing closes it if the flow failed before the popup got navigated
+				//anywhere. It's a no-op if the lib already closed it.
+				popup.close();
 			}
-			return true;
 		},
 
 		async authenticate(restore: boolean = false): Promise<void> {

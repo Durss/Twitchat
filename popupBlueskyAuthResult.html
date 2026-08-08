@@ -46,39 +46,28 @@
 		<img src="/twitchat.svg" />
 		<div class="result">Connecting to Bluesky...</div>
 		<script type="module">
-			let oauthClient;
-			const params = new URLSearchParams(document.location.hash);
+			const params = new URLSearchParams(document.location.hash.slice(1));
 			const iss = params.get("iss");
 
-			async function initClient() {
-				if (oauthClient) return oauthClient;
-				const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
-				oauthClient = await BrowserOAuthClient.load({
-					clientId: document.location.origin + "/oauth/client-metadata.json",
-					handleResolver: iss,
-				});
-				return oauthClient;
-			}
-
 			async function authenticate() {
-				const client = await initClient();
+				const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
+				const client = await BrowserOAuthClient.load({
+					clientId: document.location.origin + "/oauth/client-metadata.json",
+					handleResolver: iss || "https://bsky.social",
+				});
 				await client.init();
 			}
-			authenticate();
-			// Notify the opener window that the auth is complete
-			if (iss) {
-				let url = "";
-				if (!url) url = document.location.search;
-				const params = new URLSearchParams(url);
-				window.opener.authCallback(
-					params.get("code"),
-					decodeURIComponent(params.get("state")),
-				);
-			} else {
-				console.error("No opener window found.");
-				document.body.innerText =
-					"No opener window found. Please close this tab and return to the main application.";
-			}
+
+			authenticate().catch((error) => {
+				// The lib throws this once the opener window got the result. It closes
+				// this window right after, nothing to report
+				if (error && error.code === "LOGIN_CONTINUED_IN_PARENT_WINDOW") return;
+				console.error(error);
+				// Leaving the popup open with no feedback would keep the opener waiting.
+				// Closing it is what tells the opener to abort the auth process.
+				document.querySelector(".result").innerText =
+					"Authentication failed, close this window and try again.";
+			});
 		</script>
 	</body>
 </html>
