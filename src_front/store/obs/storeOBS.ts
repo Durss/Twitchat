@@ -82,6 +82,7 @@ export const storeOBS = defineStore("obs", {
 			}
 
 			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", async () => {
+				rebuildPlaceholdersCache();
 				const m: TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
 					type: "obs_ws_connect_state_change",
 					state: "disconnected",
@@ -94,6 +95,7 @@ export const storeOBS = defineStore("obs", {
 			});
 
 			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", async () => {
+				rebuildPlaceholdersCache();
 				const m: TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
 					type: "obs_ws_connect_state_change",
 					state: "connected",
@@ -202,7 +204,6 @@ export const storeOBS = defineStore("obs", {
 
 						StoreProxy.common.updateCurrentObsScene(e.sceneName);
 						void TriggerActionHandler.instance.execute(m);
-						rebuildPlaceholdersCache();
 					}, 30);
 				},
 			);
