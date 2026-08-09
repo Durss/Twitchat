@@ -9,6 +9,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	applyModifiers,
 	configureI18n,
+	extractPlaceholderTags,
 	getModifierNames,
 	type OrdinalLabels,
 	replacePlaceholder,
@@ -17,11 +18,20 @@ import {
 } from "./PlaceholderModifiers";
 
 /**
+ * Every modifier a test actually ran, filled by parse().
+ * Checked by the "modifier coverage" suite at the bottom of this file.
+ */
+const executedModifiers = new Set<string>();
+
+/**
  * Replays what TriggerActionHandler does: replaces the {TAG...} occurrences
  * by a value, running the modifiers of each occurrence on it.
  */
 function parse(src: string, tag: string, value: string): string {
-	return replacePlaceholder(src, tag, (modifiers) => applyModifiers(value, modifiers));
+	return replacePlaceholder(src, tag, (modifiers) => {
+		for (const modifier of modifiers) executedModifiers.add(modifier.name);
+		return applyModifiers(value, modifiers);
+	});
 }
 
 //The i18n configuration is module wide, make sure a test never inherits
@@ -192,6 +202,65 @@ describe("literal placeholder escape", () => {
 	});
 });
 
+describe("tag extraction", () => {
+	it("lists the tags of a text", () => {
+		expect([...extractPlaceholderTags("hi {USER}, {MESSAGE}!")]).toEqual(["USER", "MESSAGE"]);
+	});
+	it("uppercases them", () => {
+		expect([...extractPlaceholderTags("{user}")]).toEqual(["USER"]);
+	});
+	it("stops on the modifiers separator", () => {
+		expect([...extractPlaceholderTags("{USER.uppercase.truncate(10)}")]).toEqual(["USER"]);
+	});
+	it("deduplicates", () => {
+		expect([...extractPlaceholderTags("{USER} {user} {USER.upper}")]).toEqual(["USER"]);
+	});
+	it("returns nothing on a text without placeholder", () => {
+		expect(extractPlaceholderTags("hello").size).toBe(0);
+	});
+	it("does not choke on an unterminated brace", () => {
+		expect([...extractPlaceholderTags("{USER")]).toEqual(["USER"]);
+	});
+	it("returns all candidates", () => {
+		expect([
+			...extractPlaceholderTags(
+				"fake tag {{fake}}. Actual tag {STATE.bool('sucess {USER1}', 'fail {USER2} :(')}",
+			),
+		]).toEqual(["FAKE", "STATE", "USER1", "USER2"]);
+	});
+	it("yields the escaped tag too, replacePlaceholder does the filtering", () => {
+		expect([...extractPlaceholderTags("{{USER}}")]).toEqual(["USER"]);
+	});
+
+	/**
+	 * The trigger parser only resolves the placeholders this returns, so
+	 * anything replacePlaceholder() would replace has to be in there.
+	 */
+	it("is a superset of what replacePlaceholder replaces", () => {
+		const tag = "USER";
+		const sources = [
+			"{USER}",
+			"{user}",
+			"{USER.uppercase}",
+			'{USER.default("a, b")}',
+			"a {USER} b",
+			"{USER}{USER}",
+			"{USER_ID} {USER}",
+			"{{USER}} {USER}",
+			'{"json":1} {USER}',
+			"{ {USER}",
+			"{}{USER}",
+			"{.}{USER}",
+			"{OTHER}{USER}",
+		];
+		for (const src of sources) {
+			//Only sources actually holding a replaceable tag are relevant
+			if (parse(src, tag, "X") === src) continue;
+			expect(extractPlaceholderTags(src), src).toContain(tag);
+		}
+	});
+});
+
 describe("malformed placeholders are left as plain text", () => {
 	it("unterminated quote", () => {
 		expect(parse('{U.default("oops}', "U", "D")).toBe('{U.default("oops}');
@@ -211,6 +280,24 @@ describe("malformed placeholders are left as plain text", () => {
 });
 
 describe("text modifiers", () => {
+	it("uppercase", () => {
+		expect(parse("{U.uppercase}", "U", "durss")).toBe("DURSS");
+	});
+	it("lowercase", () => {
+		expect(parse("{U.lowercase}", "U", "DURSS")).toBe("durss");
+	});
+	it("titlecase", () => {
+		expect(parse("{T.titlecase}", "T", "hello world")).toBe("Hello World");
+	});
+	it("titlecase keeps the rest of each word untouched", () => {
+		expect(parse("{T.titlecase}", "T", "hello wORLD")).toBe("Hello WORLD");
+	});
+	it("trim", () => {
+		expect(parse("{M.trim}", "M", "  hello  ")).toBe("hello");
+	});
+	it("nospace removes every space, not just the surrounding ones", () => {
+		expect(parse("{U.nospace}", "U", " John \t Doe ")).toBe("JohnDoe");
+	});
 	it("truncate", () => {
 		expect(parse("{M.truncate(5)}", "M", "abcdefghij")).toBe("abcde…");
 	});
@@ -223,17 +310,67 @@ describe("text modifiers", () => {
 	it("capitalize keeps the rest of the value untouched", () => {
 		expect(parse("{U.capitalize}", "U", "mcDonald")).toBe("McDonald");
 	});
+	it("repeat", () => {
+		expect(parse("{E.repeat(3)}", "E", "Kappa")).toBe("KappaKappaKappa");
+	});
+	it("repeat defaults to a single copy", () => {
+		expect(parse("{E.repeat}", "E", "Kappa")).toBe("Kappa");
+	});
+	//A trigger sending 100k chars to an overlay or a chat message is
+	//nothing but a mistake
+	it("repeat is capped", () => {
+		expect(parse("{E.repeat(9999)}", "E", "a")).toBe("a".repeat(100));
+	});
+	it("padstart", () => {
+		expect(parse("{S.padstart(5, 0)}", "S", "42")).toBe("00042");
+	});
+	it("padstart pads with spaces by default", () => {
+		expect(parse("{S.padstart(4)}", "S", "42")).toBe("  42");
+	});
+	it("padstart leaves a longer value alone", () => {
+		expect(parse("{S.padstart(2)}", "S", "12345")).toBe("12345");
+	});
+	it("padend", () => {
+		expect(parse("{U.padend(10, .)}", "U", "Durss")).toBe("Durss.....");
+	});
+	it("replace", () => {
+		expect(parse("{M.replace(hello, hi)}", "M", "hello world")).toBe("hi world");
+	});
+	it("replace searches a plain text, not a regular expression", () => {
+		expect(parse("{M.replace(a.c, x)}", "M", "abc a.c")).toBe("abc x");
+	});
+	it("replace drops the searched text when given no replacement", () => {
+		expect(parse("{M.replace(hello)}", "M", "hello world")).toBe(" world");
+	});
+	it("remove", () => {
+		expect(parse("{M.remove(spoiler)}", "M", "spoiler alert")).toBe(" alert");
+	});
 	it("mask", () => {
 		expect(parse("{U.mask(3)}", "U", "Durss")).toBe("Dur**");
 	});
-	it("mention does not double an existing @", () => {
-		expect(parse("{U.mention}", "U", "@Durss")).toBe("@Durss");
+	it("mask with a custom character", () => {
+		expect(parse("{U.mask(2, ?)}", "U", "Durss")).toBe("Du???");
+	});
+	it("mask hides everything by default", () => {
+		expect(parse("{U.mask}", "U", "Durss")).toBe("*****");
+	});
+	it("mock alternates the case", () => {
+		expect(parse("{M.mock}", "M", "hello")).toBe("hElLo");
 	});
 	it("slug", () => {
 		expect(parse("{T.slug}", "T", "Ma Super Émission !")).toBe("ma-super-emission");
 	});
 	it("initials", () => {
 		expect(parse("{U.initials}", "U", "john doe")).toBe("JD");
+	});
+	it("striphtml", () => {
+		expect(parse("{M.striphtml}", "M", "<b>hello</b>")).toBe("hello");
+	});
+	it("nourl", () => {
+		expect(parse("{M.nourl}", "M", "check this https://twitchat.fr/ !")).toBe("check this  !");
+	});
+	it("nourl removes a link written without its protocol", () => {
+		expect(parse("{M.nourl}", "M", "check this twitchat.fr/home")).toBe("check this");
 	});
 });
 
@@ -277,8 +414,29 @@ describe("number modifiers", () => {
 	it("leaves a non numeric value untouched", () => {
 		expect(parse("{C.add(10)}", "C", "abc")).toBe("abc");
 	});
+	it("sub", () => {
+		expect(parse("{C.sub(10)}", "C", "15")).toBe("5");
+	});
+	it("mul", () => {
+		expect(parse("{C.mul(2)}", "C", "15")).toBe("30");
+	});
+	it("div", () => {
+		expect(parse("{C.div(2)}", "C", "15")).toBe("7.5");
+	});
 	it("round", () => {
 		expect(parse("{C.round(2)}", "C", "3.14159")).toBe("3.14");
+	});
+	it("round drops the decimals by default", () => {
+		expect(parse("{C.round}", "C", "3.6")).toBe("4");
+	});
+	it("floor", () => {
+		expect(parse("{C.floor}", "C", "3.7")).toBe("3");
+	});
+	it("ceil", () => {
+		expect(parse("{C.ceil}", "C", "3.2")).toBe("4");
+	});
+	it("abs", () => {
+		expect(parse("{C.abs}", "C", "-42")).toBe("42");
 	});
 	it("dividing by zero gives zero rather than an error", () => {
 		expect(parse("{C.div(0)}", "C", "5")).toBe("0");
@@ -322,6 +480,14 @@ describe("list modifiers", () => {
 	it("unique", () => {
 		expect(parse("{B.unique}", "B", "a, b, a")).toBe("a, b");
 	});
+	it("shuffle keeps every entry", () => {
+		expect(parse("{B.shuffle}", "B", "b, a, d, c").split(", ").sort()).toEqual([
+			"a",
+			"b",
+			"c",
+			"d",
+		]);
+	});
 	it("split on a custom separator", () => {
 		expect(parse('{M.split(" ", 2)}', "M", "hello world")).toBe("world");
 	});
@@ -360,6 +526,12 @@ describe("logic modifiers", () => {
 describe("encoding modifiers", () => {
 	it("urlencode", () => {
 		expect(parse("{M.urlencode}", "M", "hello world")).toBe("hello%20world");
+	});
+	it("urldecode", () => {
+		expect(parse("{P.urldecode}", "P", "hello%20world")).toBe("hello world");
+	});
+	it("leaves an invalid url encoded value untouched", () => {
+		expect(parse("{P.urldecode}", "P", "100% sure")).toBe("100% sure");
 	});
 	it("jsonescape", () => {
 		expect(parse("{M.jsonescape}", "M", 'he said "hi"')).toBe('he said \\"hi\\"');
@@ -471,11 +643,24 @@ describe("numbers and dates follow the app language, not the system one", () => 
 	it("gives the raw number for an unknown currency", () => {
 		expect(parse("{N.currency(NOPE)}", "N", "12.5")).toBe("12.5");
 	});
+	const timestamp = String(Date.UTC(2026, 7, 6, 12, 0, 0));
+
 	it("orders the date parts per language", () => {
-		const timestamp = String(Date.UTC(2026, 7, 6, 12, 0, 0));
 		expect(parse("{N.date}", "N", timestamp)).toMatch(/^8\/6\/2026$/);
 		configureI18n("fr");
 		expect(parse("{N.date}", "N", timestamp)).toMatch(/^06\/08\/2026$/);
+	});
+	it("writes the time of the day per language", () => {
+		expect(parse("{N.time}", "N", timestamp)).toMatch(/^\d{1,2}:\d{2}:00\s(AM|PM)$/i);
+		configureI18n("fr");
+		expect(parse("{N.time}", "N", timestamp)).toMatch(/^\d{2}:\d{2}:00$/);
+	});
+	it("datetime shows both the date and the time", () => {
+		expect(parse("{N.datetime}", "N", timestamp)).toMatch(
+			/^8\/6\/2026,\s\d{1,2}:\d{2}:00\s(AM|PM)$/i,
+		);
+		configureI18n("fr");
+		expect(parse("{N.datetime}", "N", timestamp)).toMatch(/^06\/08\/2026\s\d{2}:\d{2}:00$/);
 	});
 	it("translates the relative time", () => {
 		const twoHoursAgo = String(Date.now() - 2 * 3600000);
@@ -496,3 +681,13 @@ describe("numbers and dates follow the app language, not the system one", () => 
 		expect(parse("{N.separator}", "N", "1234567")).toBe(english);
 	});
 });
+
+//Catches adding a modifier without testing it. Relies on what the tests
+//above actually ran, so it must stay the last suite of the file and it
+//only means something when the whole file runs
+describe("modifier coverage", () => {
+	it("runs every modifier at least once", () => {
+		expect(getModifierNames().filter((name) => !executedModifiers.has(name))).toEqual([]);
+	});
+});
+
