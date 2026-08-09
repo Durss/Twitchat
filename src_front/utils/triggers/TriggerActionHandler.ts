@@ -20,7 +20,6 @@ import {
 	TriggerTypesDefinitionList,
 	type ITriggerPlaceholder,
 	type TriggerData,
-	type TriggerTypesKey,
 	type TriggerTypesValue,
 } from "../../types/TriggerActionDataTypes";
 import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
@@ -2615,20 +2614,19 @@ export default class TriggerActionHandler {
 	 * @param triggers
 	 */
 	private cleanupTriggers(triggers: TriggerData[]): void {
+		//A type is valid if it's both declared on TriggerTypes and exposed by the
+		//definition list. Both are static, build the lookup once instead of
+		//scanning them for every trigger
+		const declaredTypes = new Set<string>(Object.values(TriggerTypes));
+		const validTypes = new Set<string>();
+		for (const definition of TriggerTypesDefinitionList()) {
+			if (declaredTypes.has(definition.value)) validTypes.add(definition.value);
+		}
+
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
 			if (!t) continue;
-			let found = false;
-			for (const key in TriggerTypes) {
-				if (
-					t.type === TriggerTypes[key as TriggerTypesKey] &&
-					TriggerTypesDefinitionList().findIndex((v) => v.value == t.type) > -1
-				) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
+			if (!validTypes.has(t.type)) {
 				triggers.splice(i, 1);
 				i--;
 			}
