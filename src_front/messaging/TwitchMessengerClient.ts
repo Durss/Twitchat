@@ -609,10 +609,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/pin": {
 					pinMessage = true;
+					text = text.replace(/^\/pin ?/, "");
 					break;
 				}
 				case "/unpin": {
-					pinMessage = true;
 					const message =
 						StoreProxy.chat.pinnedTwitchMessage[StoreProxy.auth.twitch.user.id];
 					if (!message) return true;
