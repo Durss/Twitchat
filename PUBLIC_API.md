@@ -26,10 +26,16 @@ Twitchat offers a websocket API through [OBS-Websocket](https://github.com/obspr
 
 # Prerequisites
 
-This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5 to be installed and running!\
+You have 2 ways to use this API.
+
+**Limited one:** \
+Use the Remote HTTP API _(in Twitchat, see under settings => connections => Twitchat API)_, this only allows to execute the listed [actions](#actions-you-can-perform)
+
+**Complete one:** \
+Via [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5.\
 After installing OBS-Websocket, start OBS, you may want set a password on `Tools -> obs-websocket Settings`.\
-Once done, go on Twitchat, open the parameters and on the OBS panel specify the credentials to connect with OBS.\
-OBS will act as a bridge to transmit Twitchat messages to any connected client.
+Once done, go on Twitchat => settings => connections => OBS.\
+Read [Connect example](#connect-example) bellow to know how to interact with the API.
 
 <br>
 
@@ -107,7 +113,11 @@ connect(ip, port pass).then(()=> {
 
 # Events you can receive
 
-Events fired by Twitchat that you can listen to.
+Events fired by Twitchat that you can listen to.\
+| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ❌ |
 
 - [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
 - [ON_AD_BREAK_OVERLAY_DATA](#on_ad_break_overlay_data)
@@ -5364,6 +5374,10 @@ Advertise for wheel overlay presence
 # Actions you can perform
 
 Actions you can request Twitchat to perform.
+| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ✅ |
 
 - [SET_ANIMATED_TEXT_CONTENT](#set_animated_text_content)
 - [SET_AUTOMOD_ACCEPT](#set_automod_accept)
@@ -8004,6 +8018,10 @@ type SET_WHEEL_OVERLAY_START = {
 # Requesting data
 
 Data you can request from Twitchat.
+| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ❌ |
 
 - [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
 - [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)
