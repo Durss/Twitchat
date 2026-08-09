@@ -9280,6 +9280,44 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 }
 
 /**
+ * "tag => placeholder" lookups.
+ *
+ * Keyed by the list instance itself so a rebuilt placeholder cache
+ * transparently gets a new lookup and the old one is garbage collected,
+ * no invalidation needed.
+ */
+const placeholdersByTagCache = new WeakMap<
+	ITriggerPlaceholder<any>[],
+	Map<string, ITriggerPlaceholder<any>>
+>();
+
+/**
+ * Gets a "tag => placeholder" lookup for a placeholder list.
+ *
+ * Parsing a text goes through this instead of walking the whole list, which
+ * holds 100+ entries per trigger type while a text usually uses one or two
+ * of them.
+ *
+ * Tags are uppercased, on the returned lookup and on the list itself.
+ */
+export function TriggerEventPlaceholdersByTag(
+	placeholders: ITriggerPlaceholder<any>[],
+): Map<string, ITriggerPlaceholder<any>> {
+	let byTag = placeholdersByTagCache.get(placeholders);
+	if (byTag) return byTag;
+	byTag = new Map();
+	for (const placeholder of placeholders) {
+		const tag = placeholder.tag.toUpperCase();
+		placeholder.tag = tag;
+		//A tag can be declared twice, ex: a counter using the tag of a static
+		//placeholder. Only the first one can ever be resolved, keep it
+		if (!byTag.has(tag)) byTag.set(tag, placeholder);
+	}
+	placeholdersByTagCache.set(placeholders, byTag);
+	return byTag;
+}
+
+/**
  * All trigger types details sorted by categories
  * Their order is reflected on the frontend
  */

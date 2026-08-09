@@ -9,11 +9,12 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	applyModifiers,
 	configureI18n,
-	extractPlaceholderTags,
+	findPlaceholders,
 	getModifierNames,
 	type OrdinalLabels,
 	replacePlaceholder,
 	replacePlaceholders,
+	splicePlaceholders,
 	unescapeLiteralPlaceholders,
 } from "./PlaceholderModifiers";
 
@@ -202,62 +203,198 @@ describe("literal placeholder escape", () => {
 	});
 });
 
-describe("tag extraction", () => {
-	it("lists the tags of a text", () => {
-		expect([...extractPlaceholderTags("hi {USER}, {MESSAGE}!")]).toEqual(["USER", "MESSAGE"]);
+/**
+ * Replays what TriggerActionHandler does: locates the placeholders of a text
+ * then splices the resolved values in, in a single pass.
+ */
+function parseAll(src: string, values: { [tag: string]: string }): string {
+	const known = new Set(Object.keys(values).map((t) => t.toUpperCase()));
+	const occurrences = findPlaceholders(src, (tag) => known.has(tag));
+	return unescapeLiteralPlaceholders(
+		splicePlaceholders(src, occurrences, (tag) => values[tag]),
+	);
+}
+
+const anyTag = () => true;
+
+describe("finding the placeholders of a text", () => {
+	it("lists them in the order they are written", () => {
+		expect(findPlaceholders("hi {USER}, {MESSAGE}!", anyTag).map((o) => o.tag)).toEqual([
+			"USER",
+			"MESSAGE",
+		]);
 	});
-	it("uppercases them", () => {
-		expect([...extractPlaceholderTags("{user}")]).toEqual(["USER"]);
+	it("uppercases the tags", () => {
+		expect(findPlaceholders("{user}", anyTag).map((o) => o.tag)).toEqual(["USER"]);
 	});
-	it("stops on the modifiers separator", () => {
-		expect([...extractPlaceholderTags("{USER.uppercase.truncate(10)}")]).toEqual(["USER"]);
+	it("reports every occurrence of a same tag", () => {
+		expect(findPlaceholders("{USER} {user}", anyTag).map((o) => o.tag)).toEqual([
+			"USER",
+			"USER",
+		]);
 	});
-	it("deduplicates", () => {
-		expect([...extractPlaceholderTags("{USER} {user} {USER.upper}")]).toEqual(["USER"]);
+	it("parses the modifiers of each occurrence", () => {
+		const found = findPlaceholders("{USER.uppercase}{USER}", anyTag);
+		expect(found.map((o) => o.modifiers.map((m) => m.name))).toEqual([["uppercase"], []]);
 	});
-	it("returns nothing on a text without placeholder", () => {
-		expect(extractPlaceholderTags("hello").size).toBe(0);
+	it("reports the span of the occurrence", () => {
+		const [found] = findPlaceholders("ab {USER} cd", anyTag);
+		expect([found?.start, found?.end]).toEqual([3, 9]);
+	});
+	it("skips the tags the caller does not know", () => {
+		expect(findPlaceholders("{USER} {NOPE}", (tag) => tag == "USER").map((o) => o.tag)).toEqual(
+			["USER"],
+		);
+	});
+	it("skips a tag with no fixed charset support, ex: a slugified counter", () => {
+		expect(findPlaceholders("{COUNTER_MY-COUNT}", anyTag).map((o) => o.tag)).toEqual([
+			"COUNTER_MY-COUNT",
+		]);
+	});
+	it("skips the escaped placeholders", () => {
+		expect(findPlaceholders("{{USER}}", anyTag)).toEqual([]);
+	});
+	it("skips malformed placeholders", () => {
+		expect(findPlaceholders("{U.default(x}", anyTag)).toEqual([]);
+	});
+	//Tags have no fixed charset so anything up to the "." or the "}" is handed
+	//to isKnownTag(). That's what keeps a json payload from being touched
+	it("leaves json alone, none of its braces holds a known tag", () => {
+		const known = (tag: string) => tag == "USER";
+		expect(findPlaceholders('{"a":{"b":1}} {USER}', known).map((o) => o.tag)).toEqual(["USER"]);
+	});
+	it("reports a placeholder nested in another one's arguments on that argument", () => {
+		const [found] = findPlaceholders('{STATE.bool("win {USER1}", "lose {USER2}")}', anyTag);
+		//Not reported on their own, they belong to the argument they're written on
+		expect([found?.tag]).toEqual(["STATE"]);
+		expect(
+			found?.modifiers[0]?.argPlaceholders?.map((arg) => arg.map((o) => o.tag)),
+		).toEqual([["USER1"], ["USER2"]]);
+	});
+	it("hands the nested tags to isKnownTag so the caller can resolve them", () => {
+		const seen: string[] = [];
+		findPlaceholders('{STATE.bool("{USER}", "")}', (tag) => {
+			seen.push(tag);
+			return true;
+		});
+		expect(seen).toEqual(["STATE", "USER"]);
+	});
+	it("leaves an argument holding no placeholder untouched", () => {
+		const [found] = findPlaceholders('{STATE.bool("yes", "no")}', anyTag);
+		expect(found?.modifiers[0]?.argPlaceholders).toBeUndefined();
 	});
 	it("does not choke on an unterminated brace", () => {
-		expect([...extractPlaceholderTags("{USER")]).toEqual(["USER"]);
+		expect(findPlaceholders("{USER", anyTag)).toEqual([]);
 	});
-	it("returns all candidates", () => {
-		expect([
-			...extractPlaceholderTags(
-				"fake tag {{fake}}. Actual tag {STATE.bool('sucess {USER1}', 'fail {USER2} :(')}",
-			),
-		]).toEqual(["FAKE", "STATE", "USER1", "USER2"]);
-	});
-	it("yields the escaped tag too, replacePlaceholder does the filtering", () => {
-		expect([...extractPlaceholderTags("{{USER}}")]).toEqual(["USER"]);
-	});
+});
 
-	/**
-	 * The trigger parser only resolves the placeholders this returns, so
-	 * anything replacePlaceholder() would replace has to be in there.
-	 */
-	it("is a superset of what replacePlaceholder replaces", () => {
-		const tag = "USER";
-		const sources = [
+describe("placeholders nested in modifier arguments", () => {
+	it("resolves them, both arms of a bool", () => {
+		const values = { LIVE: "true", USER: "Durss" };
+		expect(
+			parseAll(`{LIVE.bool("{USER} is live", "{USER} is not live")}`, values),
+		).toBe("Durss is live");
+		expect(
+			parseAll(`{LIVE.bool("{USER} is live", "{USER} is not live")}`, {
+				...values,
+				LIVE: "false",
+			}),
+		).toBe("Durss is not live");
+	});
+	it("applies the modifiers of the nested placeholder", () => {
+		expect(parseAll(`{LIVE.bool("{USER.uppercase}", "")}`, { LIVE: "true", USER: "durss" })).toBe(
+			"DURSS",
+		);
+	});
+	it("supports a chain of any length on a nested placeholder", () => {
+		expect(
+			parseAll(`{LIVE.bool("{USER.trim.uppercase.truncate(4)}", "")}`, {
+				LIVE: "true",
+				USER: "  durss ",
+			}),
+		).toBe("DURS…");
+	});
+	it("works with default()", () => {
+		expect(parseAll(`{MESSAGE.default("{USER} said nothing")}`, { MESSAGE: "", USER: "Durss" })).toBe(
+			"Durss said nothing",
+		);
+	});
+	it("leaves an unknown nested tag written as is", () => {
+		expect(parseAll(`{LIVE.bool("{NOPE} hi", "")}`, { LIVE: "true" })).toBe("{NOPE} hi");
+	});
+	it("honors the {{TAG}} escape within an argument", () => {
+		expect(parseAll(`{LIVE.bool("{{USER}}", "")}`, { LIVE: "true", USER: "Durss" })).toBe(
 			"{USER}",
-			"{user}",
+		);
+	});
+	//MAX_NESTING is 2: reaching a 3rd level needs escaped quotes within an
+	//already quoted argument, and stays literal text
+	it("stops at 2 levels", () => {
+		expect(
+			parseAll(`{LIVE.bool("{A.default(\\"{USER}\\")}", "")}`, {
+				LIVE: "true",
+				A: "",
+				USER: "Durss",
+			}),
+		).toBe("{USER}");
+	});
+	//The whole point: nesting is a property of the source text, which the
+	//streamer wrote. It must not give viewer text a way back in
+	it("does not let a resolved value inject a nested placeholder", () => {
+		expect(
+			parseAll("{MESSAGE}", {
+				MESSAGE: `{LIVE.bool("{USER} is live", "")}`,
+				LIVE: "true",
+				USER: "Durss",
+			}),
+		).toBe(`{LIVE.bool("{USER} is live", "")}`);
+	});
+	it("does not let a value land in an argument and get parsed", () => {
+		expect(
+			parseAll(`{LIVE.bool("{MESSAGE}", "")}`, {
+				LIVE: "true",
+				MESSAGE: "{USER}",
+				USER: "Durss",
+			}),
+		).toBe("{USER}");
+	});
+});
+
+describe("a resolved value is never parsed again", () => {
+	it("does not replace a tag a viewer wrote on their message", () => {
+		expect(parseAll("{MESSAGE}", { MESSAGE: "hey {USER}", USER: "Durss" })).toBe("hey {USER}");
+	});
+	it("whatever the order the tags are written in", () => {
+		expect(parseAll("{USER}: {MESSAGE}", { USER: "Durss", MESSAGE: "hey {USER}" })).toBe(
+			"Durss: hey {USER}",
+		);
+		expect(parseAll("{MESSAGE} -- {USER}", { USER: "Durss", MESSAGE: "hey {USER}" })).toBe(
+			"hey {USER} -- Durss",
+		);
+	});
+	//The regex based escaping this replaced could not cover it: parseArguments()
+	//accepts braces within a quoted argument, no "[^{}]" pattern can span that
+	it("closes the quoted argument bypass", () => {
+		expect(parseAll("{MESSAGE}", { MESSAGE: '{USER.default("{x}")}', USER: "Durss" })).toBe(
+			'{USER.default("{x}")}',
+		);
+	});
+	it("does not let a value inject a tag holding modifiers", () => {
+		expect(parseAll("{MESSAGE}", { MESSAGE: "{USER.uppercase}", USER: "Durss" })).toBe(
 			"{USER.uppercase}",
-			'{USER.default("a, b")}',
-			"a {USER} b",
-			"{USER}{USER}",
-			"{USER_ID} {USER}",
-			"{{USER}} {USER}",
-			'{"json":1} {USER}',
-			"{ {USER}",
-			"{}{USER}",
-			"{.}{USER}",
-			"{OTHER}{USER}",
-		];
-		for (const src of sources) {
-			//Only sources actually holding a replaceable tag are relevant
-			if (parse(src, tag, "X") === src) continue;
-			expect(extractPlaceholderTags(src), src).toContain(tag);
-		}
+		);
+	});
+	//Those come from HTTP responses, AI output or chat command captures
+	it("does not let a dynamic value inject into another one", () => {
+		expect(parseAll("{A} {B}", { A: "{B}", B: "pwned" })).toBe("{B} pwned");
+	});
+	it("still resolves the tags written by the streamer on the trigger", () => {
+		expect(parseAll("{USER} said {MESSAGE}", { USER: "Durss", MESSAGE: "hi" })).toBe(
+			"Durss said hi",
+		);
+	});
+	it("keeps honoring the {{TAG}} escape of the trigger's own text", () => {
+		expect(parseAll("{{USER}} is {USER}", { USER: "Durss" })).toBe("{USER} is Durss");
 	});
 });
 

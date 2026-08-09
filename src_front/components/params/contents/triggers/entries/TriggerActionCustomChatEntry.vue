@@ -231,11 +231,8 @@ let actionTypes: TwitchatDataTypes.ParameterDataListValue<
 let placeholderMap: { [key: string]: string } = {};
 
 const messageData = computed<TwitchatDataTypes.MessageCustomData>(() => {
-	const chunks = TwitchUtils.parseMessageToChunks(
-		replacePlaceholders(props.action.customMessage.message || "", placeholderMap),
-		undefined,
-		true,
-	);
+	const message = replacePlaceholders(props.action.customMessage.message || "", placeholderMap);
+	const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 	const actions = (JSON.parse(JSON.stringify(props.action.customMessage.actions)) ||
 		[]) as NonNullable<typeof props.action.customMessage.actions>;
 	for (const a of actions) {
@@ -264,7 +261,7 @@ const messageData = computed<TwitchatDataTypes.MessageCustomData>(() => {
 		user: props.action.customMessage.user,
 		icon: props.action.customMessage.icon,
 		actions,
-		message: props.action.customMessage.message,
+		message,
 		message_chunks: chunks,
 		message_html: TwitchUtils.messageChunksToHTML(chunks),
 		channel_id: storeAuth.twitch.user.id,

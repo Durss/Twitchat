@@ -22,6 +22,11 @@
 export interface IPlaceholderModifier {
 	name: string;
 	args: string[];
+	/**
+	 * Placeholders written within each argument, indexed like args.
+	 * Only set by findPlaceholders(), and only when an argument holds one.
+	 */
+	argPlaceholders?: IPlaceholderOccurrence[][];
 }
 
 interface IPlaceholderMatch {
@@ -45,6 +50,17 @@ const QUOTES: { [open: string]: string } = {
 };
 
 const MODIFIER_NAME_CHARS = /[A-Za-z0-9_]/;
+
+/**
+ * How deep placeholders can be nested into modifier arguments.
+ *
+ * 2 means the ones written on a text and the ones written within their
+ * modifier arguments, ex: {LIVE.bool("{USER} is live", "{USER} is not")}.
+ * Going deeper requires escaping the quotes of an already quoted argument,
+ * ex: {A.bool("{B.default(\"{C}\")}", "")}, where {C} stays literal text.
+ * Modifier chains are not concerned, they can be any length at any level.
+ */
+const MAX_NESTING = 2;
 
 /*******************
  * PUBLIC METHODS  *
@@ -108,6 +124,173 @@ export function applyModifiers(value: string, modifiers: IPlaceholderModifier[])
 		}
 	}
 	return res;
+}
+
+export interface IPlaceholderOccurrence {
+	/** Index of the opening brace */
+	start: number;
+	/** Index just after the closing brace */
+	end: number;
+	/** Uppercased tag */
+	tag: string;
+	modifiers: IPlaceholderModifier[];
+}
+
+/**
+ * Lists every placeholder occurrence of a text, in the order they're written.
+ *
+ * Lets a caller resolve a text in a single pass instead of calling
+ * replacePlaceholder() once per tag it knows about. That's both much cheaper
+ * when hundreds of tags exist, and the only way to guarantee a replaced value
+ * is never parsed again: a viewer writing "hey {USER}" on chat must see it
+ * rendered as is, not replaced by the user name.
+ *
+ * Tags have no fixed charset, counter tags can hold "-" for instance, so they
+ * are read from the source and handed to isKnownTag() rather than being
+ * matched against a pattern. Anything unknown or malformed is skipped, and so
+ * are the "{{TAG}}" escapes, left for unescapeLiteralPlaceholders().
+ *
+ * A placeholder written within the arguments of another one, ex:
+ * {LIVE.bool("{USER} is live", "{USER} is not")}, is reported on that
+ * argument rather than on its own, see MAX_NESTING.
+ */
+export function findPlaceholders(
+	src: string,
+	isKnownTag: (tag: string) => boolean,
+	depth: number = 1,
+): IPlaceholderOccurrence[] {
+	const found: IPlaceholderOccurrence[] = [];
+	let i = 0;
+	while (i < src.length) {
+		const open = src.indexOf("{", i);
+		if (open === -1) break;
+		//The tag stops on the modifiers separator or on the closing brace
+		let p = open + 1;
+		while (p < src.length) {
+			const c = src[p]!;
+			if (c === "." || c === "}" || c === "{") break;
+			p++;
+		}
+		let match: IPlaceholderMatch | null = null;
+		if (p > open + 1) {
+			const tag = src.slice(open + 1, p).toUpperCase();
+			if (isKnownTag(tag)) {
+				match = matchModifiers(src, p);
+				if (match) {
+					//{{TAG}} => escaped, leave it for unescapeLiteralPlaceholders()
+					if (src[open - 1] === "{" && src[match.end] === "}") {
+						i = match.end + 1;
+						continue;
+					}
+					if (depth < MAX_NESTING) {
+						for (const modifier of match.modifiers) {
+							findArgumentPlaceholders(modifier, isKnownTag, depth + 1);
+						}
+					}
+					found.push({
+						start: open,
+						end: match.end,
+						tag,
+						modifiers: match.modifiers,
+					});
+					i = match.end;
+				}
+			}
+		}
+		if (!match) i = open + 1;
+	}
+	return found;
+}
+
+/**
+ * Looks for the placeholders written within the arguments of a modifier and
+ * stores them on it
+ */
+function findArgumentPlaceholders(
+	modifier: IPlaceholderModifier,
+	isKnownTag: (tag: string) => boolean,
+	depth: number,
+): void {
+	let found: IPlaceholderOccurrence[][] | undefined;
+	for (let i = 0; i < modifier.args.length; i++) {
+		const arg = modifier.args[i]!;
+		if (arg.indexOf("{") === -1) continue;
+		const nested = findPlaceholders(arg, isKnownTag, depth);
+		if (nested.length === 0) continue;
+		if (!found) found = modifier.args.map(() => []);
+		found[i] = nested;
+	}
+	if (found) modifier.argPlaceholders = found;
+}
+
+/**
+ * Rebuilds a text from the placeholder occurrences found on it.
+ *
+ * getValue() returns the raw value of a tag, or undefined to leave that
+ * placeholder written as is. Modifiers are applied here, including the
+ * placeholders written within their arguments.
+ *
+ * transform() post processes each replacement, ex: to strip its HTML. It only
+ * runs on the values written on the text, not on the ones written within a
+ * modifier argument: those end up inside the modifier's own output, which is
+ * transformed as a whole.
+ */
+export function splicePlaceholders(
+	src: string,
+	occurrences: IPlaceholderOccurrence[],
+	getValue: (tag: string) => string | undefined,
+	transform?: (value: string) => string,
+): string {
+	const chunks: string[] = [];
+	let last = 0;
+	for (const occurrence of occurrences) {
+		let value = resolveOccurrence(occurrence, getValue);
+		if (value == undefined) continue;
+		if (transform) value = transform(value);
+		chunks.push(src.slice(last, occurrence.start), value);
+		last = occurrence.end;
+	}
+	//Nothing was replaced, don't build a new string for nothing
+	if (chunks.length === 0) return src;
+	chunks.push(src.slice(last));
+	return chunks.join("");
+}
+
+/**
+ * Value of a single occurrence, modifiers applied
+ */
+function resolveOccurrence(
+	occurrence: IPlaceholderOccurrence,
+	getValue: (tag: string) => string | undefined,
+): string | undefined {
+	const rawValue = getValue(occurrence.tag);
+	if (rawValue == undefined) return undefined;
+	return applyModifiers(rawValue, resolveArguments(occurrence.modifiers, getValue));
+}
+
+/**
+ * Replaces the placeholders written within the arguments of the given
+ * modifiers. Returns the modifiers untouched when they hold none, which is
+ * the usual case.
+ */
+function resolveArguments(
+	modifiers: IPlaceholderModifier[],
+	getValue: (tag: string) => string | undefined,
+): IPlaceholderModifier[] {
+	let result: IPlaceholderModifier[] | undefined;
+	for (let i = 0; i < modifiers.length; i++) {
+		const modifier = modifiers[i]!;
+		const nestedArgs = modifier.argPlaceholders;
+		if (!nestedArgs) continue;
+		const args = modifier.args.map((arg, index) => {
+			const nested = nestedArgs[index];
+			if (!nested || nested.length === 0) return arg;
+			return splicePlaceholders(arg, nested, getValue);
+		});
+		if (!result) result = modifiers.slice();
+		result[i] = { name: modifier.name, args };
+	}
+	return result ?? modifiers;
 }
 
 /**
@@ -215,7 +398,14 @@ function matchesTagAt(src: string, at: number, tagU: string): boolean {
  */
 function matchPlaceholder(src: string, open: number, tagU: string): IPlaceholderMatch | null {
 	if (!matchesTagAt(src, open + 1, tagU)) return null;
-	let p = open + 1 + tagU.length;
+	return matchModifiers(src, open + 1 + tagU.length);
+}
+
+/**
+ * Matches the ".modifier(...)" chain and the closing brace of a placeholder
+ * whose tag ends at the given index
+ */
+function matchModifiers(src: string, p: number): IPlaceholderMatch | null {
 	if (src[p] === "}") return { end: p + 1, modifiers: [] };
 	if (src[p] !== ".") return null;
 

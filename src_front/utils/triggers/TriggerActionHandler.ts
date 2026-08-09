@@ -13,9 +13,11 @@ import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import {
 	TriggerActionPlaceholders,
 	TriggerEventPlaceholders,
+	TriggerEventPlaceholdersByTag,
 	TriggerMusicTypes,
 	TriggerTypes,
 	TriggerTypesDefinitionList,
+	type ITriggerPlaceholder,
 	type TriggerData,
 	type TriggerTypesKey,
 	type TriggerTypesValue,
@@ -35,9 +37,10 @@ import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
 import {
-	applyModifiers,
-	replacePlaceholder,
+	findPlaceholders,
+	splicePlaceholders,
 	unescapeLiteralPlaceholders,
+	type IPlaceholderOccurrence,
 } from "../PlaceholderModifiers";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
@@ -97,6 +100,7 @@ export default class TriggerActionHandler {
 		testMode = false,
 		forcedTriggerId?: string,
 	): Promise<void> {
+		console.log("EXECUTE", message);
 		const hasMultipleOccurences =
 			message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 			message.occurrenceCount != undefined;
@@ -8738,6 +8742,21 @@ export default class TriggerActionHandler {
 
 	/**
 	 * Replaces placeholders by their values on the message
+	 * Result is built by individually replacing {TAG} entries with their
+	 * values. It never re-evaluate the whole string to avoid {TAG} injections
+	 * from user values.
+	 * Suppose you have this string:
+	 *  {USER} sent {MESSAGE}
+	 * We don't want a first pass that may first resolve {MESSAGE} and a
+	 * second that resolves {USER} otherwise if a viewer sent this on chat:
+	 *  "Hello {USER}"
+	 * Then it would also parse the placeholder on their message which we
+	 * don't want.
+	 *
+	 * The new system now replaces placeholders individually while allowing
+	 * to use placeholders on modifiers, ex:
+	 *  {ROLE_IS_SUBSCRIBER.bool("{USER} is a subscriber", "{USER} is not a subscriber")}
+	 * The inner {USER} tag will resolve.
 	 */
 	public async parsePlaceholders(
 		options: TriggerActionDataTypes.IParsePlaceholdersOptions,
@@ -8754,7 +8773,7 @@ export default class TriggerActionHandler {
 			escapeDoubleQuotes = false,
 		} = options;
 		let { userIdForValueCounterGetters } = options;
-		let res = src.toString();
+		const res = src.toString();
 		if (!res) return "";
 		//If there are no placeholder, ignore
 		if (res.indexOf("{") == -1 || res.indexOf("}") == -1) return res;
@@ -8767,20 +8786,22 @@ export default class TriggerActionHandler {
 		const channelId = me.id;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
-		//Replace dynamic placeholders. These are user defined placeholders.
-		//Ex: to read a counter value, user must define a placeholder name that
-		//will be populated with the counter's value so this value can be used
-		//in subsequent actions.
-		//Here we use that value
+		// Dynamic placeholders are user defined placeholders populated by the
+		// previous actions of the trigger.
+		// Ex: to read a counter value, user must define a placeholder name that
+		// will be populated with the counter's value so this value can be used
+		// in subsequent actions.
+		// They have priority over the ones the trigger type declares.
+		const dynamicValues = new Map<string, string>();
 		for (const key in dynamicPlaceholders) {
-			const rawValue = (dynamicPlaceholders[key] || "").toString();
-			res = replacePlaceholder(res, key, (modifiers) => {
-				let replacement = applyModifiers(rawValue, modifiers);
-				//Sanitized after the modifiers so they can't reintroduce unsafe chars
-				if (sanitizeFolderPath) replacement = Utils.makeFileSafe(replacement);
-				return replacement;
-			});
+			const tag = key.toUpperCase();
+			if (!dynamicValues.has(tag))
+				dynamicValues.set(tag, (dynamicPlaceholders[key] || "").toString());
 		}
+
+		//Dynamic values are already resolved, they shadow the declared ones
+		const resolved = new Map<string, string>(dynamicValues);
+		let occurrences: IPlaceholderOccurrence[] = [];
 
 		try {
 			// console.log("===== PARSE TEXT =====");
@@ -8789,22 +8810,38 @@ export default class TriggerActionHandler {
 			// console.log(src);
 			// console.log(subEvent);
 
-			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? []; //Clone it to avoid modifying original
-			if (actionPlaceholders.length > 0)
-				placeholders = placeholders.concat(actionPlaceholders);
-			// console.log(placeholders);
-			//No placeholders for this event type, just send back the source text
-			if (placeholders.length == 0) return unescapeLiteralPlaceholders(res);
+			const eventPlaceholders = TriggerEventPlaceholders(trigger.type);
+			//No placeholders at all, just send back the source text
+			if (
+				eventPlaceholders.length == 0 &&
+				actionPlaceholders.length == 0 &&
+				dynamicValues.size == 0
+			) {
+				return unescapeLiteralPlaceholders(res);
+			}
 
-			const srcU = src.toUpperCase();
+			// Find all placeholders and their position on the message
+			const eventByTag = TriggerEventPlaceholdersByTag(eventPlaceholders);
+			const tagToPlaceholder = new Map<string, ITriggerPlaceholder<any>>();
+			occurrences = findPlaceholders(res, (tag) => {
+				if (dynamicValues.has(tag) || tagToPlaceholder.has(tag)) return true;
+				const placeholder =
+					eventByTag.get(tag) ??
+					actionPlaceholders.find((v) => v.tag.toUpperCase() == tag);
+				if (!placeholder) return false;
+				tagToPlaceholder.set(tag, placeholder);
+				return true;
+			});
+
+			//Nothing the trigger knows about is used on that text
+			if (occurrences.length == 0) return unescapeLiteralPlaceholders(res);
+
+			//Resolve every tag once, however many times it's written
 			const streamInfos = StoreProxy.stream.currentStreamInfo[channelId];
-			for (const placeholder of placeholders) {
+			for (const [tag, placeholder] of tagToPlaceholder) {
+				if (resolved.has(tag)) continue;
 				let value = "";
 				let cleanSubevent = true;
-				placeholder.tag = placeholder.tag.toUpperCase();
-				//Cheap pre-filter. The closing brace isn't tested as the tag may
-				//be followed by modifiers, ex: {USER.uppercase}
-				if (srcU.indexOf("{" + placeholder.tag) == -1) continue;
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
@@ -9503,28 +9540,37 @@ export default class TriggerActionHandler {
 
 				if (typeof value != "string") value = JSON.stringify(value);
 
-				//Modifiers are applied before the sanitizing/escaping below so
-				//they can't reintroduce chars that were just escaped
-				const rawValue = value ?? "";
-				res = replacePlaceholder(res, placeholder.tag, (modifiers) => {
-					let parsed = applyModifiers(rawValue, modifiers);
-
-					if (sanitizeFolderPath) parsed = Utils.makeFileSafe(parsed);
-
-					if (escapeDoubleQuotes) parsed = parsed.replace(/"/g, '\\"');
-
-					if (keepHTML !== true) parsed = Utils.stripHTMLTags(parsed);
-
-					return parsed;
-				});
+				resolved.set(tag, value ?? "");
 			}
-
-			// console.log("RESULT = ",res);
-			return unescapeLiteralPlaceholders(res);
 		} catch (error) {
+			//Keep going, whatever got resolved before the error is still spliced in
 			console.error(error);
-			return unescapeLiteralPlaceholders(res);
 		}
+		console.log(res, occurrences);
+
+		//Splice the values in. Walking the occurrences found on the source
+		//rather than replacing tag by tag over the result is what keeps a
+		//value from being parsed as a placeholder itself.
+		//A tag whose resolution failed is left as written.
+		const parsed = splicePlaceholders(
+			res,
+			occurrences,
+			(tag) => resolved.get(tag),
+			//Modifiers are applied before the sanitizing/escaping here so
+			//they can't reintroduce chars that were just escaped
+			(value) => {
+				if (sanitizeFolderPath) value = Utils.makeFileSafe(value);
+
+				if (escapeDoubleQuotes) value = value.replace(/"/g, '\\"');
+
+				if (keepHTML !== true) value = Utils.stripHTMLTags(value);
+
+				return value;
+			},
+		);
+
+		// console.log("RESULT = ",parsed);
+		return unescapeLiteralPlaceholders(parsed);
 	}
 
 	/**
