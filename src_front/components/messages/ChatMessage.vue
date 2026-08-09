@@ -446,18 +446,11 @@ const localMessageChunks = ref<TwitchatDataTypes.ParseMessageChunk[]>([]);
 const requestClipDLPermission = ref(false);
 let staticClasses: string[] = [];
 
-const {
-	canModerateMessage,
-	canModerateUser_local,
-	copyJSON,
-	applyStyles,
-	onContextMenu,
-	openUserCard,
-	getProfilePage,
-} = useChatMessage(props, emit, rootEl, {
-	copyJSON: copyJSONOverride,
-	applyStyles: applyStylesOverride,
-});
+const { canModerateMessage, copyJSON, applyStyles, onContextMenu, openUserCard, getProfilePage } =
+	useChatMessage(props, emit, rootEl, {
+		copyJSON: copyJSONOverride,
+		applyStyles: applyStylesOverride,
+	});
 
 // Override pattern: declare variables first so override functions can close over them,
 // then assign after composable call.
@@ -562,7 +555,6 @@ const showModTools = computed(() => {
 	return (
 		!props.lightMode &&
 		canModerateMessage.value &&
-		canModerateUser_local.value &&
 		storeParams.features.showModTools.value === true
 	);
 });

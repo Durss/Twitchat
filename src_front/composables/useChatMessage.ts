@@ -276,7 +276,6 @@ export function useChatMessage(
 
 	return {
 		canModerateMessage,
-		canModerateUser_local,
 		canModerateUser,
 		copyJSON,
 		applyStyles,
