@@ -8766,8 +8766,9 @@ export default class TriggerActionHandler {
 		if (!res) return "";
 		//If there are no placeholder, ignore
 		if (res.indexOf("{") == -1 || res.indexOf("}") == -1) return res;
-		let subEvent_regSafe = "";
-		if (subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+		let subEvent_reg = subEvent
+			? new RegExp(subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i")
+			: null;
 
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
@@ -9517,11 +9518,11 @@ export default class TriggerActionHandler {
 				if (
 					cleanSubevent &&
 					typeof value == "string" &&
-					subEvent_regSafe &&
+					subEvent_reg &&
 					(trigger.type == TriggerActionDataTypes.TriggerTypes.CHAT_COMMAND ||
 						trigger.type == TriggerActionDataTypes.TriggerTypes.SLASH_COMMAND)
 				) {
-					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
+					value = value.replace(subEvent_reg, "").trim();
 				}
 
 				if (typeof value == "string" && sanitizeFolderPath)
