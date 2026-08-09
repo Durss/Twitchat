@@ -9318,6 +9318,34 @@ export function TriggerEventPlaceholdersByTag(
 }
 
 /**
+ * "list => user ID placeholder" lookups.
+ *
+ * Keyed by the list instance like placeholdersByTagCache, see its comment.
+ * "null" is stored when a list declares none so the miss is cached too,
+ * that's the case walking the whole list otherwise.
+ */
+const userIdPlaceholderCache = new WeakMap<
+	ITriggerPlaceholder<any>[],
+	ITriggerPlaceholder<any> | null
+>();
+
+/**
+ * Gets the placeholder holding the user of a placeholder list, if any.
+ *
+ * That's the one a trigger resolves to know which user it's executing for.
+ */
+export function TriggerEventUserIdPlaceholder(
+	placeholders: ITriggerPlaceholder<any>[],
+): ITriggerPlaceholder<any> | undefined {
+	let placeholder = userIdPlaceholderCache.get(placeholders);
+	if (placeholder === undefined) {
+		placeholder = placeholders.find((v) => v.isUserID === true) ?? null;
+		userIdPlaceholderCache.set(placeholders, placeholder);
+	}
+	return placeholder ?? undefined;
+}
+
+/**
  * All trigger types details sorted by categories
  * Their order is reflected on the frontend
  */

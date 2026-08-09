@@ -928,6 +928,7 @@ import { storeStreamerbot as useStoreStreamerbot } from "@/store/streamerbot/sto
 import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import {
 	TriggerEventPlaceholders,
+	TriggerEventUserIdPlaceholder,
 	TriggerTypes,
 	type TriggerActionAnimatedTextData,
 	type TriggerActionBingoGridData,
@@ -1088,7 +1089,9 @@ const classes = computed(() => {
 });
 
 const hasUserInfo = computed(
-	() => TriggerEventPlaceholders(props.triggerData.type).findIndex((v) => v.isUserID) > -1,
+	() =>
+		TriggerEventUserIdPlaceholder(TriggerEventPlaceholders(props.triggerData.type)) !=
+		undefined,
 );
 
 const title = computed(() => {

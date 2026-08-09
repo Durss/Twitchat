@@ -14,6 +14,7 @@ import {
 	TriggerActionPlaceholders,
 	TriggerEventPlaceholders,
 	TriggerEventPlaceholdersByTag,
+	TriggerEventUserIdPlaceholder,
 	TriggerMusicTypes,
 	TriggerTypes,
 	TriggerTypesDefinitionList,
@@ -9608,7 +9609,7 @@ export default class TriggerActionHandler {
 	): TwitchatDataTypes.TwitchatUser | undefined {
 		let user: TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		const helpers = TriggerEventPlaceholders(trigger.type);
-		const userIdHelper = helpers.find((v) => v.isUserID === true);
+		const userIdHelper = TriggerEventUserIdPlaceholder(helpers);
 		if (userIdHelper) {
 			const chunks: string[] = userIdHelper.pointer.split(".");
 			let root = message as unknown;
