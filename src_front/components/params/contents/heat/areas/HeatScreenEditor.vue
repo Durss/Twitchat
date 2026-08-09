@@ -95,7 +95,9 @@
 						v-model="permissions"
 						:hasVipFilter="false"
 						:hasUserNameFilter="false"
+						:hasFollowerFilter="false"
 						:hasFollowerDurationFilter="false"
+						@change="emit('update')"
 					></PermissionsForm>
 				</ToggleBlock>
 			</div>
@@ -131,7 +133,6 @@ const storeExtension = useStoreExtension();
 
 const props = defineProps<{ screen: HeatScreen; obsPreview?: boolean }>();
 const emit = defineEmits<{ update: [] }>();
-const roles = ref<TwitchatDataTypes.PermissionsData>(Utils.getDefaultPermissions());
 
 const editorRef = useTemplateRef("editor");
 const backgroundRef = useTemplateRef("background");
@@ -222,7 +223,6 @@ function ensureEnabledParam(area: HeatArea) {
 const permissions = computed({
 	get: () => currentArea.value?.permissions || Utils.getDefaultPermissions(),
 	set: (value: TwitchatDataTypes.PermissionsData) => {
-		console.log("SET");
 		currentArea.value!.permissions = value;
 	},
 });
@@ -400,7 +400,14 @@ function onRightClickPoint(area: HeatArea, pointIndex: number): void {
 	currentPointIndex.value = -1;
 }
 
-function resetCurrentArea(): void {
+async function resetCurrentArea(): Promise<void> {
+	const focused = document.activeElement as HTMLElement | null;
+	// First, force blur of any input to make sure it commits its changes
+	if (focused && focused != document.body && rootRef.value?.contains(focused)) {
+		focused.blur();
+		await Utils.promisedTimeout(0);
+		if (disposed.value) return;
+	}
 	currentArea.value = null;
 	currentPointIndex.value = -1;
 	isBuilding.value = false;

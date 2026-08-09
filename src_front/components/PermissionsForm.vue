@@ -6,7 +6,7 @@
 			:paramData="param_broadcaster"
 			class="row"
 			v-model="props.modelValue.broadcaster"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasModFilter"
@@ -14,7 +14,7 @@
 			:paramData="param_mods"
 			class="row"
 			v-model="props.modelValue.mods"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasVipFilter"
@@ -22,7 +22,7 @@
 			:paramData="param_vips"
 			class="row"
 			v-model="props.modelValue.vips"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasSubFilter"
@@ -30,7 +30,7 @@
 			:paramData="param_subs"
 			class="row"
 			v-model="props.modelValue.subs"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasFollowerFilter"
@@ -38,7 +38,7 @@
 			:paramData="param_followers"
 			class="row"
 			v-model="props.modelValue.follower"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		>
 			<ParamItem
 				v-if="props.hasFollowerDurationFilter"
@@ -47,7 +47,7 @@
 				class="row"
 				:childLevel="1"
 				v-model="props.modelValue.follower_duration_ms"
-				@change="$emit('update:modelValue', props.modelValue)"
+				@change="emitChange()"
 			>
 			</ParamItem>
 		</ParamItem>
@@ -57,7 +57,7 @@
 			:paramData="param_all"
 			class="row"
 			v-model="props.modelValue.all"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasUserNameFilter"
@@ -65,7 +65,7 @@
 			:paramData="param_allowed"
 			class="row allow"
 			v-model="props.modelValue.usersAllowed"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 		<ParamItem
 			v-if="props.hasUserNameFilter"
@@ -73,7 +73,7 @@
 			:paramData="param_refused"
 			class="row refuse"
 			v-model="props.modelValue.usersRefused"
-			@change="$emit('update:modelValue', props.modelValue)"
+			@change="emitChange()"
 		/>
 
 		<div v-if="noSelection" class="card-item alert">{{ $t("global.permissions.nobody") }}</div>
@@ -111,6 +111,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
+	change: [value: TwitchatDataTypes.PermissionsData];
 	"update:modelValue": [value: TwitchatDataTypes.PermissionsData];
 }>();
 
@@ -191,30 +192,6 @@ const noSelection = computed(() => {
 onBeforeMount(() => {
 	if (props.modelValue.follower === undefined) props.modelValue.follower = false;
 	param_followers_ms.value = (props.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
-
-	watch(
-		() => param_followers_ms.value,
-		() => {
-			props.modelValue.follower_duration_ms = param_followers_ms.value * 24 * 60 * 60 * 1000;
-			emit("update:modelValue", props.modelValue);
-		},
-	);
-
-	//As this data has been added afterwards, it's missing from the existing data.
-	//I force it to "true" if not defined as I think it makes the more sense.
-	param_followers.value = props.modelValue.follower !== false;
-
-	watch(
-		() => param_all.value,
-		() => {
-			// if(param_all.value === true) {
-			// 	props.modelValue.mods = true;
-			// 	props.modelValue.vips = true;
-			// 	props.modelValue.subs = true;
-			// 	props.modelValue.follower = true;
-			// }
-		},
-	);
 });
 
 onMounted(() => {
@@ -234,9 +211,26 @@ onMounted(() => {
 		});
 	}
 	if (hasChanged) {
-		emit("update:modelValue", props.modelValue);
+		emitChange();
 	}
 });
+
+watch(
+	() => param_followers_ms.value,
+	() => {
+		props.modelValue.follower_duration_ms = param_followers_ms.value * 24 * 60 * 60 * 1000;
+		emitChange();
+	},
+);
+
+function emitChange() {
+	emit("update:modelValue", props.modelValue);
+	emit("change", props.modelValue);
+}
+
+//As this data has been added afterwards, it's missing from the existing data.
+//I force it to "true" if not defined as I think it makes the more sense.
+param_followers.value = props.modelValue.follower !== false;
 </script>
 
 <style scoped lang="less">

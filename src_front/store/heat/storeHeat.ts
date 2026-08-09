@@ -296,7 +296,15 @@ export const storeHeat = defineStore("heat", {
 						"|" +
 						(v.title || "") +
 						"|" +
-						points
+						points +
+						"|" +
+						v.permissions?.all +
+						"|" +
+						v.permissions?.broadcaster +
+						"|" +
+						v.permissions?.mods +
+						"|" +
+						v.permissions?.subs
 					);
 				})
 				.sort((a, b) => a.localeCompare(b))
