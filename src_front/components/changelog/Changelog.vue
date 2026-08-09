@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" ref="rootEl">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<template v-if="showReadAlert">
@@ -15,7 +15,7 @@
 						big
 						alert
 						@click="close(true)"
-						>{{ $t("changelog.forceRead.fuBt") }}</TTButton
+						>{{ t("changelog.forceRead.fuBt") }}</TTButton
 					>
 				</Teleport>
 			</template>
@@ -38,17 +38,17 @@
 							height="255"
 						/>
 					</div>
-					<h2>{{ $t("changelog.forceRead.title") }}</h2>
+					<h2>{{ t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">
-						{{ $t("changelog.forceRead.readAtSpeedOfLight") }}
+						{{ t("changelog.forceRead.readAtSpeedOfLight") }}
 					</p>
-					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
+					<p class="description">{{ t("changelog.forceRead.description") }}</p>
 					<TTButton primary big @click="cancelClose()">{{
-						$t("changelog.forceRead.sorryBt")
+						t("changelog.forceRead.sorryBt")
 					}}</TTButton>
-					<!-- <TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton> -->
+					<!-- <TTButton class="noCareBt" big alert @click="close(true)">{{ t("changelog.forceRead.fuBt") }}</TTButton> -->
 					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()"
-						>{{ $t("changelog.forceRead.reminderBt") }}
+						>{{ t("changelog.forceRead.reminderBt") }}
 					</TTButton>
 				</div>
 
@@ -78,12 +78,13 @@
 								<Icon
 									name="firstTime"
 									class="icon"
+									:forceFill="false"
 									:theme="currentItem.i === 'premium' ? 'light' : undefined"
 								/>
-								<span class="title">{{ $t("changelog.title") }}</span>
+								<span class="title">{{ t("changelog.title") }}</span>
 								<div class="version">
 									{{
-										$t("changelog.version", {
+										t("changelog.version", {
 											VERSION: appVersion
 												.split(".")
 												.filter((v) => v != "0")
@@ -110,7 +111,12 @@
 						</div>
 						<div v-else-if="buildIndex >= index" class="inner">
 							<div class="emoji" v-if="item.i == 'donate'">🥺</div>
-							<Icon v-else-if="item.i" :name="item.i" class="icon" />
+							<Icon
+								v-else-if="item.i"
+								:name="item.i"
+								class="icon"
+								:forceFill="item.i != 'youtube_jewels'"
+							/>
 
 							<p class="title" v-html="item.l"></p>
 
@@ -122,19 +128,18 @@
 								target="_blank"
 								href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
 								icon="streamsocket"
-								>{{ $t("changelog.streamsocket_plugin") }}</TTButton
+								>{{ t("changelog.streamsocket_plugin") }}</TTButton
 							>
 
 							<TTButton
 								v-if="item.a"
-								icon="test"
+								:icon="item.a.i ?? 'test'"
 								:light="item.p === true"
 								:premium="item.p === true"
 								@click="
-									$store.params.openParamsPage(
-										item.a.param as TwitchatDataTypes.ParameterPagesStringType,
-										item.a.subparam,
-									)
+									if (item.a.modal) storeParams.openModal(item.a.modal);
+									else if (item.a.param)
+										storeParams.openParamsPage(item.a.param, item.a.subparam);
 								"
 							>
 								{{ item.a.l }}</TTButton
@@ -155,16 +160,20 @@
 								></video>
 							</div>
 
-							<div v-if="item.i == 'heat'" class="card-item moreInfo">
+							<!-- <div v-if="item.i == 'twitchat_companion'" class="card-item moreInfo">
 								<Icon name="info" />
-								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
+								<i18n-t
+									scope="global"
+									keypath="changelog.companion_details"
+									tag="span"
+								>
 									<template #LINK>
-										<a :href="$config.HEAT_EXTENSION_URL" target="_blank">{{
-											$t("changelog.heat_details_link")
+										<a :href="$config.TWITCHAT_EXTENSION_URL" target="_blank">{{
+											t("changelog.companion_details_link")
 										}}</a>
 									</template>
 								</i18n-t>
-							</div>
+							</div> -->
 
 							<TTButton
 								type="link"
@@ -172,35 +181,38 @@
 								v-if="item.i == 'elgato'"
 								big
 								target="_blank"
-								href="https://marketplace.elgato.com/product/twitchat-820f1bb5-465d-408b-aabf-2d46a05a10d9"
+								href="https://apps.elgato.com/plugins/fr.twitchat"
 								icon="elgato"
-								>{{ $t("changelog.streamdeck_plugin") }}</TTButton
+								>{{ t("changelog.streamdeck_plugin") }}</TTButton
 							>
 
-							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
-							<!-- <Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" /> -->
+							<MessageItem
+								class="card-item dark messageExample"
+								v-if="item.i == 'youtube_jewels' && jewelMessage"
+								:messageData="jewelMessage"
+							/>
 
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton
 									secondary
 									icon="coin"
-									@click="$store.params.openParamsPage(contentDonate)"
+									@click="storeParams.openParamsPage(contentDonate)"
 									v-if="item.i == 'donate'"
-									>{{ $t("params.categories.donate") }}</TTButton
+									>{{ t("params.categories.donate") }}</TTButton
 								>
 								<TTButton
 									premium
 									icon="premium"
-									@click="$store.params.openParamsPage(contentPremium)"
+									@click="storeParams.openParamsPage(contentPremium)"
 									v-if="!isPremium"
-									>{{ $t("premium.become_premiumBt") }}</TTButton
+									>{{ t("premium.become_premiumBt") }}</TTButton
 								>
 								<TTButton
 									primary
 									icon="sub"
 									@click="showPremiumFeatures = true"
 									v-if="!showPremiumFeatures && !isPremium"
-									>{{ $t("premium.features_title") }}
+									>{{ t("premium.features_title") }}
 								</TTButton>
 								<SponsorTable
 									class="premiumTable"
@@ -212,7 +224,7 @@
 							<template v-if="item.y">
 								<a :href="item.y" target="_blank" class="youtubeBt">
 									<Icon name="youtube" theme="light" />
-									<span>{{ $t("overlay.youtube_demo_tt") }}</span>
+									<span>{{ t("overlay.youtube_demo_tt") }}</span>
 									<Icon name="newtab" theme="light" />
 								</a>
 							</template>
@@ -234,32 +246,28 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import { gsap } from "gsap/gsap-core";
-import {
-	computed,
-	markRaw,
-	nextTick,
-	onBeforeMount,
-	onBeforeUnmount,
-	onMounted,
-	ref,
-	useTemplateRef,
-} from "vue";
+import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { Carousel, Navigation, Pagination, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 import ClearButton from "../ClearButton.vue";
 import TTButton from "../TTButton.vue";
 import SponsorTable from "../premium/SponsorTable.vue";
+import ChatMessage from "../messages/ChatMessage.vue";
+import { storeDebug as useSstoreDebug } from "@/store/debug/storeDebug.js";
+import MessageItem from "../messages/MessageItem.vue";
+import Icon from "../Icon.vue";
 
 const emit = defineEmits<{
 	close: [];
 }>();
 
-const { tm } = useI18n();
+const { t, tm } = useI18n();
 const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeMain = useStoreMain();
 const storeChat = useStoreChat();
+const storeDebug = useSstoreDebug();
 
 const rootEl = useTemplateRef<HTMLDivElement>("rootEl");
 const dimmerRef = useTemplateRef<HTMLDivElement>("dimmer");
@@ -275,7 +283,27 @@ const showPremiumFeatures = ref<boolean>(false);
 const readAtSpeedOfLight = ref<boolean>(false);
 const currentSlide = ref<number>(0);
 const buildIndex = ref<number>(0);
-const items = ref<(TwitchatDataTypes.ChangelogEntry & { html: string })[]>([]);
+
+const jewelMessage = ref<TwitchatDataTypes.ChatMessageTypes | null>(null);
+
+/**
+ * Build the slides from the locale messages.
+ * Computed so labels update when switching language
+ */
+const items = computed<(TwitchatDataTypes.ChangelogEntry & { html: string })[]>(() => {
+	const list = (tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[]).map((v) => ({
+		...v,
+		html: parseCommonPlaceholders(v.d || ""),
+	}));
+	if (list.length > 1) {
+		list.unshift({
+			l: "",
+			i: "toc",
+			html: "",
+		});
+	}
+	return list;
+});
 
 let openedAt = 0;
 let closing = false;
@@ -309,24 +337,6 @@ const contentDonate = computed((): TwitchatDataTypes.ParameterPagesStringType =>
 });
 const contentPremium = computed((): TwitchatDataTypes.ParameterPagesStringType => {
 	return TwitchatDataTypes.ParameterPages.PREMIUM;
-});
-
-onBeforeMount(() => {
-	let list = (tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[]).map((v) => ({
-		...v,
-		html: "",
-	}));
-	list.forEach((v) => {
-		v.html = parseCommonPlaceholders(v.d || "");
-	});
-	if (list.length > 1) {
-		list.unshift({
-			l: "",
-			i: "toc",
-			html: "",
-		});
-	}
-	items.value = list;
 });
 
 onMounted(() => {
@@ -372,6 +382,15 @@ onMounted(() => {
 			showCode.value = true;
 		}
 	}, 250);
+
+	storeDebug.simulateMessage(
+		"youtube_jewels_gift",
+		(message) => {
+			jewelMessage.value = message;
+			return true;
+		},
+		false,
+	);
 });
 
 onBeforeUnmount(() => {
@@ -635,6 +654,8 @@ function skinPagination(): void {
 					font-size: 1em;
 					line-height: 1.5em;
 					white-space: pre-line;
+
+					max-width: 100%;
 				}
 
 				.messagePreview {
@@ -737,7 +758,7 @@ function skinPagination(): void {
 						li {
 							text-align: left;
 							tab-size: 20px;
-							white-space: pre;
+							white-space: pre-line;
 						}
 					}
 				}
@@ -928,6 +949,10 @@ function skinPagination(): void {
 				background-color: lighten(#1c40ff, 10%) !important;
 			}
 		}
+	}
+
+	.messageExample {
+		max-width: 300px;
 	}
 }
 

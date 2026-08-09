@@ -14,7 +14,7 @@
 		"scope_grantBt": "Grant permission",
 		"installer": {
 			"loading": "Loading Twitch extension status...",
-			"install": "Install \"{NAME}\" extension on your\nchannel to let your viewers play.",
+			"install": "Install \"{NAME}\" extension on your channel.",
 			"installBt": "Install extension",
 			"enable": "\"{NAME}\" extension is\ninstalled but not enabled on your channel!",
 			"enableBt": "Enable extension",

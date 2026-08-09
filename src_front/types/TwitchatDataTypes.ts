@@ -45,7 +45,7 @@ export namespace TwitchatDataTypes {
 		| "timer"
 		| "updates"
 		| "triggersLogs"
-		| "loginn"
+		| "login"
 		| "tracked"
 		| "whispers"
 		| "twitchatAnnouncement"
@@ -2751,13 +2751,21 @@ export namespace TwitchatDataTypes {
 			 */
 			l: string;
 			/**
+			 * Button icon
+			 */
+			i?: string;
+			/**
 			 * Parameter page to go to
 			 */
-			param?: TwitchatDataTypes.ParameterPagesStringType; //Parameter page to go to
+			param?: TwitchatDataTypes.ParameterPagesStringType;
 			/**
 			 * Parameter sub section to go to
 			 */
 			subparam?: TwitchatDataTypes.ParamDeepSectionsStringType;
+			/**
+			 * Modal type to open
+			 */
+			modal?: TwitchatDataTypes.ModalTypes;
 		};
 	}
 

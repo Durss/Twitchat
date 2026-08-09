@@ -14,7 +14,7 @@
 		"scope_grantBt": "Accorder l'autorisation",
 		"installer": {
 			"loading": "Chargement du statut de l'extension...",
-			"install": "Installez l'extension \"{NAME}\" sur votre\nchaîne pour permettre à vos spectateurices de jouer.",
+			"install": "Installez l'extension \"{NAME}\" sur votre chaîne",
 			"installBt": "Installer l'extension",
 			"enable": "L'extension \"{NAME}\" est\ninstallée mais n'a pas été activée !",
 			"enableBt": "Activer l'extension",

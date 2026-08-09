@@ -37,9 +37,11 @@ const props = withDefaults(
 	defineProps<{
 		name: string;
 		theme?: string;
+		forceFill?: boolean;
 	}>(),
 	{
 		theme: "",
+		forceFill: true,
 	},
 );
 
@@ -56,6 +58,7 @@ const classes = computed(() => {
 	if (props.theme == "alert") res.push("alert");
 	if (props.theme == "premium") res.push("premium");
 	if (props.theme == "twitch") res.push("twitch");
+	if (props.forceFill === true) res.push("forceFill");
 	return res;
 });
 
@@ -130,8 +133,12 @@ onBeforeUnmount(() => {
 		max-height: 100%;
 		object-fit: cover;
 		display: block;
-		* {
-			fill: currentColor !important;
+	}
+	&.forceFill {
+		:deep(svg) {
+			* {
+				fill: currentColor !important;
+			}
 		}
 	}
 	&.light {
