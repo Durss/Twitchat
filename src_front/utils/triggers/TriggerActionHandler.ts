@@ -49,6 +49,43 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 
 /**
+ * Condition operators reading nothing but the value they're given.
+ * Parsing their expectation would cost a full placeholder pass for a
+ * string no branch ever reads.
+ */
+const OPERATORS_WITHOUT_EXPECTATION = new Set<TriggerActionDataTypes.TriggerConditionOperator>([
+	"empty",
+	"not_empty",
+	"is_boolean",
+	"is_not_boolean",
+	"is_number",
+	"is_not_number",
+	"is_float",
+	"is_not_float",
+]);
+
+/**
+ * Condition operators reading their operands as numbers.
+ * The others compare strings, and evalMath() throws internally on anything
+ * that isn't an expression, which isn't free on a path running for every
+ * condition of every trigger.
+ */
+const OPERATORS_WITH_NUMERIC_VALUE = new Set<TriggerActionDataTypes.TriggerConditionOperator>([
+	"<",
+	"<=",
+	">",
+	">=",
+	"is_number",
+	"is_not_number",
+	"is_float",
+	"is_not_float",
+	"modulo",
+]);
+const OPERATORS_WITH_NUMERIC_EXPECTATION = new Set<
+	TriggerActionDataTypes.TriggerConditionOperator
+>(["<", "<=", ">", ">=", "longer_than", "shorter_than", "modulo"]);
+
+/**
  * Created : 22/04/2022
  */
 export default class TriggerActionHandler {
@@ -9801,6 +9838,25 @@ export default class TriggerActionHandler {
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
+			//Once an AND holds a false, or an OR holds a true, no remaining
+			//condition can change the result. Evaluating them would parse their
+			//placeholders for nothing, and that can cost API calls (follower
+			//state, sub state, ...) on top of the CPU time.
+			if (index > 0 && ((operator == "AND" && !res) || (operator == "OR" && res))) {
+				const logMessage =
+					"Result is already settled to " +
+					res +
+					', skipping the remaining "' +
+					operator +
+					'" conditions';
+				if (logStep) {
+					logStep.messages.push({ date: Date.now(), value: logMessage });
+				} else {
+					log.entries.push({ date: Date.now(), type: "message", value: logMessage });
+				}
+				break;
+			}
+
 			let localRes = false;
 			if (c.type == "group") {
 				localRes = await this.checkConditions(
@@ -9826,16 +9882,22 @@ export default class TriggerActionHandler {
 					src: "{" + c.placeholder + "}",
 					subEvent,
 				});
-				const expectation = await this.parsePlaceholders({
-					dynamicPlaceholders,
-					actionPlaceholders: [],
-					trigger,
-					message,
-					src: c.value.toString(),
-					subEvent,
-				});
-				let valueNum: number = Utils.evalMath(value) ?? NaN;
-				let expectationNum: number = Utils.evalMath(expectation) ?? NaN;
+				const expectation = OPERATORS_WITHOUT_EXPECTATION.has(c.operator)
+					? ""
+					: await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders: [],
+							trigger,
+							message,
+							src: c.value.toString(),
+							subEvent,
+						});
+				const valueNum: number = OPERATORS_WITH_NUMERIC_VALUE.has(c.operator)
+					? (Utils.evalMath(value) ?? NaN)
+					: NaN;
+				const expectationNum: number = OPERATORS_WITH_NUMERIC_EXPECTATION.has(c.operator)
+					? (Utils.evalMath(expectation) ?? NaN)
+					: NaN;
 				const v1 = c.caseSensitive === true ? value : value.toLowerCase();
 				const v2 = c.caseSensitive === true ? expectation : expectation.toLowerCase();
 
