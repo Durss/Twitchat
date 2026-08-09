@@ -3286,6 +3286,9 @@ export default class TwitchUtils {
 			});
 			if (res.status == 200 || res.status == 204) {
 				message = message.substring(499);
+				if (pin) {
+					void this.getPinnedMessage(channelID);
+				}
 				continue;
 			}
 

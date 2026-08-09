@@ -30,28 +30,30 @@
 				</div>
 			</div>
 
-			<ParamItem
-				:paramData="entry.param_indefinite"
-				v-model="entry.param_indefinite.value"
-				noBackground
-			/>
-			<ParamItem
-				v-if="!entry.param_indefinite.value"
-				:paramData="entry.param_duration"
-				v-model="entry.param_duration.value"
-				noBackground
-			/>
+			<template v-if="entry.canModerate">
+				<ParamItem
+					:paramData="entry.param_indefinite"
+					v-model="entry.param_indefinite.value"
+					noBackground
+				/>
+				<ParamItem
+					v-if="!entry.param_indefinite.value"
+					:paramData="entry.param_duration"
+					v-model="entry.param_duration.value"
+					noBackground
+				/>
 
-			<div class="ctas">
-				<TTButton
-					icon="unpin"
-					highlight
-					alert
-					:loading="entry.loadingUnpin"
-					@click="unpin(entry.channelId)"
-					>{{ t("chat.pinned_message.unpin_bt") }}</TTButton
-				>
-			</div>
+				<div class="ctas">
+					<TTButton
+						icon="unpin"
+						highlight
+						alert
+						:loading="entry.loadingUnpin"
+						@click="unpin(entry.channelId)"
+						>{{ t("chat.pinned_message.unpin_bt") }}</TTButton
+					>
+				</div>
+			</template>
 		</div>
 	</div>
 </template>
@@ -59,6 +61,7 @@
 <script setup lang="ts">
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -81,6 +84,7 @@ interface FormState {
 const { t } = useI18n();
 const storeChat = useStoreChat();
 const storeAuth = useStoreAuth();
+const storeStream = useStoreStream();
 const storeUsers = useStoreUsers();
 
 const emits = defineEmits<{ close: [] }>();
@@ -91,6 +95,7 @@ const formStates = reactive<Record<string, FormState>>({});
 const pendingSaves = new Map<string, number>();
 const clickHandler = (e: MouseEvent) => onClick(e);
 let tickInterval = -1;
+let disposed = false;
 
 const ownChannelId = computed(() => storeAuth.twitch.user.id);
 
@@ -118,6 +123,9 @@ const pinnedEntries = computed(() => {
 			param_duration: state.param_duration,
 			param_indefinite: state.param_indefinite,
 			loadingUnpin: state.loadingUnpin,
+			canModerate:
+				storeAuth.twitchModeratedChannels.find((c) => c.broadcaster_id == channelId) ||
+				channelId == ownChannelId.value,
 		};
 	});
 });
@@ -126,10 +134,12 @@ onMounted(() => {
 	document.addEventListener("mousedown", clickHandler);
 	tickInterval = window.setInterval(() => (now.value = Date.now()), 1000);
 	syncAllStates();
+	void refreshPinnedStates();
 	open();
 });
 
 onBeforeUnmount(() => {
+	disposed = true;
 	document.removeEventListener("mousedown", clickHandler);
 	clearInterval(tickInterval);
 	flushPendingSaves();
@@ -146,6 +156,35 @@ watch(
 );
 
 /**
+ * Requests Twitch for the current pin state of every connected channel.
+ * Pinned messages are mostly updated via eventsub but we may have missed
+ * events (reconnection, channel connected before the scope was granted, ...)
+ * so we force a refresh when opening the form.
+ */
+async function refreshPinnedStates(): Promise<void> {
+	const channelIds = new Set<string>();
+	if (ownChannelId.value) channelIds.add(ownChannelId.value);
+	for (const chan of storeStream.connectedTwitchChans) channelIds.add(chan.user.id);
+	// Also refresh channels we have a pin for but aren't connected to anymore
+	// so their stale pin doesn't stick around forever
+	for (const channelId of Object.keys(storeChat.pinnedTwitchMessage)) channelIds.add(channelId);
+	await Promise.all(
+		[...channelIds].map(async (channelId) => {
+			try {
+				await TwitchUtils.getPinnedMessage(channelId);
+			} catch (_error) {
+				// ignore
+			}
+		}),
+	);
+	if (disposed) return;
+	syncAllStates();
+	if (Object.keys(storeChat.pinnedTwitchMessage).length === 0) {
+		close();
+	}
+}
+
+/**
  * Ensures form state exists for every channel currently in the pinned map
  */
 function syncAllStates(): void {
@@ -155,7 +194,8 @@ function syncAllStates(): void {
 		if (!formStates[channelId]) {
 			formStates[channelId] = makeFormState(channelId);
 		}
-		seedFormState(channelId);
+		// Don't override a value the user is currently editing
+		if (!pendingSaves.has(channelId)) seedFormState(channelId);
 	}
 	// Drop states for channels no longer pinned
 	for (const channelId of Object.keys(formStates)) {
