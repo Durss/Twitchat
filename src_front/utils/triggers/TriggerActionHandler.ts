@@ -100,7 +100,6 @@ export default class TriggerActionHandler {
 		testMode = false,
 		forcedTriggerId?: string,
 	): Promise<void> {
-		console.log("EXECUTE", message);
 		const hasMultipleOccurences =
 			message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 			message.occurrenceCount != undefined;
@@ -179,18 +178,6 @@ export default class TriggerActionHandler {
 						undefined,
 						forcedTriggerId,
 					);
-					//In case a command is declared with spaces included, attempt to execute it
-					const cmdall = message.message.trim().toLowerCase();
-					if (cmdall != cmd) {
-						await this.executeTriggersByType(
-							TriggerTypes.CHAT_COMMAND,
-							message,
-							testMode,
-							cmdall,
-							undefined,
-							forcedTriggerId,
-						);
-					}
 				}
 
 				if (message.answersTo) {
@@ -2604,7 +2591,6 @@ export default class TriggerActionHandler {
 				}
 			}
 			if (!found) {
-				console.log("delete trigger", triggers[i]);
 				triggers.splice(i, 1);
 				i--;
 			}
@@ -2634,13 +2620,16 @@ export default class TriggerActionHandler {
 		if (subEvent == "*" && testMode && forcedTriggerId) return false;
 		if (forcedTriggerId) {
 			const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == forcedTriggerId);
-			if (trigger) {
+			//Don't let the forced trigger answer for a type it isn't, otherwise a
+			//single message dispatching to several types executes it once per type
+			if (trigger && trigger.type == triggerType) {
 				if (await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
 					return true;
 				}
 			}
 			return false;
 		}
+
 		let key = triggerType as string;
 		let executed = false;
 		if (subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
@@ -9546,7 +9535,6 @@ export default class TriggerActionHandler {
 			//Keep going, whatever got resolved before the error is still spliced in
 			console.error(error);
 		}
-		console.log(res, occurrences);
 
 		//Splice the values in. Walking the occurrences found on the source
 		//rather than replacing tag by tag over the result is what keeps a
