@@ -45,7 +45,7 @@ export default class Logger {
 		//Limit histories sizes
 		for (const key in this.logs) {
 			type keyType = keyof typeof this.logs;
-			if (this.logs[key as keyType].length > 500) this.logs[key as keyType].splice(1);
+			if (this.logs[key as keyType].length > 500) this.logs[key as keyType].splice(1, 1);
 		}
 		// Return the reactive version stored in the array, not the original plain object
 		return arr[arr.length - 1] as LogData[T] & { date: number };

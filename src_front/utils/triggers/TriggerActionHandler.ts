@@ -81,9 +81,9 @@ const OPERATORS_WITH_NUMERIC_VALUE = new Set<TriggerActionDataTypes.TriggerCondi
 	"is_not_float",
 	"modulo",
 ]);
-const OPERATORS_WITH_NUMERIC_EXPECTATION = new Set<
-	TriggerActionDataTypes.TriggerConditionOperator
->(["<", "<=", ">", ">=", "longer_than", "shorter_than", "modulo"]);
+const OPERATORS_WITH_NUMERIC_EXPECTATION = new Set<TriggerActionDataTypes.TriggerConditionOperator>(
+	["<", "<=", ">", ">=", "longer_than", "shorter_than", "modulo"],
+);
 
 /**
  * Created : 22/04/2022
@@ -2598,13 +2598,20 @@ export default class TriggerActionHandler {
 			}
 
 			for (let i = 0; i < keys.length; i++) {
-				let key = keys[i];
-				if (!key) continue;
+				let key = keys[i]!;
 				keys[i] = key = key.toLowerCase();
 				if (!this.triggerType2Triggers[key]) {
 					this.triggerType2Triggers[key] = [];
 				}
 				this.triggerType2Triggers[key]!.push(t);
+			}
+
+			// Sort triggers by priority level
+			for (let i = 0; i < keys.length; i++) {
+				let key = keys[i]!;
+				this.triggerType2Triggers[key]!.sort(
+					(a, b) => (b.queuePriority || 0) - (a.queuePriority || 0),
+				);
 			}
 		}
 	}
@@ -2674,7 +2681,6 @@ export default class TriggerActionHandler {
 		const isPremium = StoreProxy.auth.isPremium;
 		const triggers = this.triggerType2Triggers[key];
 		if (!triggers || triggers.length == 0) return false;
-		triggers.sort((a, b) => (b.queuePriority || 0) - (a.queuePriority || 0));
 
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
