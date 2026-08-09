@@ -127,12 +127,10 @@
 										: 'timers.panel.hint_countdown'
 								"
 							>
-								<template v-if="entry.type == 'countdown'" #CMD
-									><mark>/countdown...</mark></template
-								>
-								<template v-if="entry.type == 'timer'" #CMD
-									><mark>/timer...</mark></template
-								>
+								<template #CMD>
+									<mark v-if="entry.type == 'countdown'">/countdown...</mark>
+									<mark v-if="entry.type == 'timer'">/timer...</mark>
+								</template>
 							</i18n-t>
 						</div>
 
