@@ -28,10 +28,24 @@
 			</div>
 		</ToggleBlock>
 
-		<div v-if="dependencyLoopInfos.length > 0" class="card-item alert dependencyLoop">
+		<div v-if="dependencyLoopInfos.length > 0" class="card-item alert triggerChain">
 			<div class="title">{{ t("triggers.actions.trigger.loop") }}</div>
 			<div class="head">{{ t("triggers.actions.trigger.loop_delails") }}</div>
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem">
+				<div class="loopInfo">
+					<img v-if="d.iconURL" :src="d.iconURL" :alt="d.label" />
+					<img v-if="d.icon" :src="getAsset('icons/' + d.icon + '.svg')" :alt="d.icon" />
+					<span class="label">{{ d.label }}</span>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="queueDeadlockInfos.length > 0" class="card-item alert triggerChain">
+			<div class="title">{{ t("triggers.actions.trigger.queue_lock") }}</div>
+			<div class="head">
+				{{ t("triggers.actions.trigger.queue_lock_details", { QUEUE: queueDeadlockName }) }}
+			</div>
+			<div v-for="(d, index) in queueDeadlockInfos" :key="index" class="loopItem">
 				<div class="loopInfo">
 					<img v-if="d.iconURL" :src="d.iconURL" :alt="d.label" />
 					<img v-if="d.icon" :src="getAsset('icons/' + d.icon + '.svg')" :alt="d.icon" />
@@ -49,7 +63,7 @@ import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTrigger
 import type { TriggerActionTriggerData, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import TriggerUtils from "@/utils/TriggerUtils";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ToggleBlock from "../../../../ToggleBlock.vue";
 import SimpleTriggerList from "../SimpleTriggerList.vue";
@@ -72,6 +86,56 @@ const dependencyLoopInfos = ref<
 		iconBgColor?: string | undefined;
 	}[]
 >([]);
+
+/**
+ * Search recusrsively for a trigger child executing on the same queue.
+ */
+const queueDeadlockChain = computed<TriggerData[]>(() => {
+	if (!props.action.triggerId) return [];
+
+	const triggers = storeTriggers.triggerList;
+	//Queues locked by the current execution path
+	const lockedQueues = new Set<string>();
+	//Triggers of the current execution path, avoids infinite recursion on dependency loops
+	const parents = new Set<string>([props.triggerData.id]);
+	if (props.triggerData.queue) lockedQueues.add(props.triggerData.queue);
+
+	function search(triggerId: string): TriggerData[] {
+		const trigger = triggers.find((v) => v.id == triggerId);
+		//Trigger not found or already on the execution path (dependency loop, reported separately)
+		if (!trigger || parents.has(trigger.id)) return [];
+		//This trigger would wait for a queue one of its parents is holding => deadlock
+		if (trigger.queue && lockedQueues.has(trigger.queue)) return [trigger];
+
+		if (trigger.queue) lockedQueues.add(trigger.queue);
+		parents.add(trigger.id);
+
+		let chain: TriggerData[] = [];
+		for (const a of trigger.actions || []) {
+			if (a.type != "trigger" || !a.triggerId) continue;
+			const subChain = search(a.triggerId);
+			if (subChain.length > 0) {
+				chain = [trigger, ...subChain];
+				break;
+			}
+		}
+
+		parents.delete(trigger.id);
+		if (trigger.queue) lockedQueues.delete(trigger.queue);
+		return chain;
+	}
+
+	const result = search(props.action.triggerId);
+	return result.length > 0 ? [props.triggerData, ...result] : [];
+});
+
+const queueDeadlockInfos = computed(() =>
+	queueDeadlockChain.value.map((v) => TriggerUtils.getTriggerDisplayInfo(v)),
+);
+
+const queueDeadlockName = computed(
+	() => queueDeadlockChain.value[queueDeadlockChain.value.length - 1]?.queue || "",
+);
 
 function onSelectTrigger(id: string): void {
 	const trigger = storeTriggers.triggerList.find((v) => v.id == id);
@@ -190,7 +254,7 @@ onMounted(() => {
 		}
 	}
 
-	.dependencyLoop {
+	.triggerChain {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
