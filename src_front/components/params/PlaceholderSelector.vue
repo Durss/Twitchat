@@ -423,6 +423,7 @@ async function insert(h: TwitchatDataTypes.PlaceholderEntry): Promise<void> {
 	.icon {
 		vertical-align: middle;
 		margin-right: 0.25em;
+		height: 1em;
 	}
 }
 </style>
