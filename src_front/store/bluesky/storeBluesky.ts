@@ -30,13 +30,29 @@ let lastNotifAt: string = "";
 const lastSeenDmTimes = new Map<string, string>();
 // Date of the last token refresh that actually got stored
 let lastRefreshDate = 0;
+// Date the current session was first authenticated, to measure its total age
+// against the server side session lifetime cap
+let sessionStartDate = 0;
 // Reason given by the lib when it deleted the session, empty otherwise
 let lastDeleteCause = "";
+// Max number of diagnostic entries kept. Entries carry their own age/expiry
+// context (see describeSession()) so a shallow history is still conclusive.
+// Must stay <= the "maxItems" declared on blueskyConfigs.logs in DataSchema.ts
+const MAX_LOGS = 100;
+// Identifies the current tab so interleaved entries reveal concurrent Twitchat
+// instances, the most likely cause of refresh token races
+const TAB_ID = Math.random().toString(36).slice(2, 7);
+// localStorage key the lib itself uses to remember the currently signed in
+// account. Comparing it with our own "sub" exposes desyncs between Twitchat's
+// config and the lib's IndexedDB session store
+const LIB_SUB_KEY = "@@atproto/oauth-client-browser(sub)";
 // Window name/features of the OAuth popup. We open the popup ourselves and hand
 // its name over to the lib so it reuses that window instead of opening its own,
 // which is the only way to keep a reference on it (see startOAuthProcess())
 const OAUTH_POPUP_NAME = "twitchat_bluesky_auth";
 const OAUTH_POPUP_FEATURES = "width=600,height=700,menubar=no,toolbar=no";
+
+type IBlueskyLogEntry = IBlueskyState["logs"][0];
 
 /**
  * Builds the error message if auth failed
@@ -64,10 +80,67 @@ function describeSessionError(value: unknown): string {
 	return chunks.join(" | ");
 }
 
+/**
+ * Formats a duration as a compact human readable value for the logs
+ */
+function describeDuration(ms: number): string {
+	if (ms < 60_000) return Math.round(ms / 1000) + "s";
+	if (ms < 3_600_000) return Math.round(ms / 60_000) + "min";
+	if (ms < 86_400_000) return (ms / 3_600_000).toFixed(1) + "h";
+	return (ms / 86_400_000).toFixed(1) + "d";
+}
+
+/**
+ * Summarizes a session's token set for the logs.
+ *
+ * Every value here answers a specific failure mode:
+ * - "refresh" missing means the session is doomed at "exp" whatever happens
+ * - "exp" under 60min is the server clamping the access token to the end of the
+ *   session lifetime, ie. we're in the last hour of the session cap
+ * - "age" vs the session cap and "sinceRefresh" vs the refresh idle window tell
+ *   which of the two server side limits was hit
+ */
+function describeSession(value: unknown): string {
+	const tokenSet = (value as { tokenSet?: Record<string, unknown> } | null)?.tokenSet;
+	const chunks: string[] = [];
+	if (tokenSet) {
+		chunks.push("refresh=" + (tokenSet.refresh_token ? "yes" : "NONE"));
+		if (typeof tokenSet.expires_at === "string") {
+			const remaining = new Date(tokenSet.expires_at).getTime() - Date.now();
+			chunks.push("exp=in " + describeDuration(remaining));
+		} else {
+			chunks.push("exp=none");
+		}
+		if (typeof tokenSet.scope === "string") chunks.push("scope=" + tokenSet.scope);
+	}
+	if (sessionStartDate > 0) chunks.push("age=" + describeDuration(Date.now() - sessionStartDate));
+	if (lastRefreshDate > 0) {
+		chunks.push("sinceRefresh=" + describeDuration(Date.now() - lastRefreshDate));
+	}
+	return chunks.join(" ");
+}
+
+/**
+ * Describes the current browsing context. A backgrounded tab is throttled,
+ * which is what makes the OAuth popup's 500ms acknowledgment window (and the
+ * revocation that follows when it's missed) reachable.
+ */
+function describeContext(): string {
+	return (
+		"visibility=" +
+		document.visibilityState +
+		" focus=" +
+		document.hasFocus() +
+		" libSub=" +
+		(localStorage.getItem(LIB_SUB_KEY) ? "set" : "none")
+	);
+}
+
 export const storeBluesky = defineStore("bluesky", {
 	state: (): IBlueskyState => ({
 		connected: false,
 		connectionError: null,
+		logs: [],
 		autoLive: false,
 		dmsAlerts: false,
 		mentionsAlerts: false,
@@ -77,32 +150,121 @@ export const storeBluesky = defineStore("bluesky", {
 	}),
 	getters: {} satisfies StoreGetters<IBlueskyGetters, IBlueskyState>,
 	actions: {
+		log(step: string, info?: string): void {
+			const entry: IBlueskyLogEntry = { date: Date.now(), step, tab: TAB_ID };
+			if (info) entry.info = info.length > 500 ? info.slice(0, 500) : info;
+
+			//Re-read what's stored before appending. Twitchat can run in several tabs
+			//at once (main window, OBS dock...) and they all share the same
+			//localStorage key, so building on the in-memory array only would make the
+			//last tab to write erase the others' entries. That interleaving is
+			//precisely what we're trying to observe, hence the merge.
+			let stored: IBlueskyLogEntry[] = [];
+			try {
+				const json = DataStore.get(DataStore.BLUESKY_CONFIGS);
+				const data = json && (JSON.parse(json) as IStoreData);
+				if (data && Array.isArray(data.logs)) stored = data.logs;
+			} catch (error) {
+				//Corrupted storage shouldn't take the logger (nor its caller) down
+				console.warn("Bluesky log read failed", error);
+			}
+
+			this.logs = [...stored, entry].slice(-MAX_LOGS);
+			console.log("[bluesky] " + step, info ?? "");
+			this.saveConfigs();
+		},
+
 		async populateData() {
 			const json = DataStore.get(DataStore.BLUESKY_CONFIGS);
 			const data = json && (JSON.parse(json) as IStoreData);
-			if (data) {
-				this.handleResolver = data.handleResolver || this.handleResolver;
-				this.sub = data.sub;
-				this.autoLive = data.autoLive === true;
-				this.dmsAlerts = data.dmsAlerts === true;
-				this.mentionsAlerts = data.mentionsAlerts === true;
-				if (data.connected && data.sub) {
-					await this.authenticate(true);
-				}
+			if (!data) {
+				this.log("populateData", "no stored config " + describeContext());
+				return;
+			}
+			this.handleResolver = data.handleResolver || this.handleResolver;
+			this.sub = data.sub;
+			this.autoLive = data.autoLive === true;
+			this.dmsAlerts = data.dmsAlerts === true;
+			this.mentionsAlerts = data.mentionsAlerts === true;
+			if (Array.isArray(data.logs)) this.logs = data.logs.slice(-MAX_LOGS);
+
+			//Logged on every start, connected or not: a "sub" that disagrees with the
+			//lib's own record means our config and the lib's IndexedDB session store
+			//went out of sync, which silently orphans a live session
+			this.log(
+				"populateData",
+				"connected=" +
+					(data.connected === true) +
+					" sub=" +
+					(data.sub || "none") +
+					" autoLive=" +
+					this.autoLive +
+					" mentions=" +
+					this.mentionsAlerts +
+					" dms=" +
+					this.dmsAlerts +
+					" " +
+					describeContext(),
+			);
+
+			if (data.connected && data.sub) {
+				await this.authenticate(true);
+			} else if (localStorage.getItem(LIB_SUB_KEY)) {
+				//Not restoring although the lib still holds a session for this origin
+				this.log(
+					"populateData:orphanSession",
+					"lib holds a session we won't restore, it stays alive server side",
+				);
 			}
 		},
 
 		async initClient() {
 			if (oauthClient) return oauthClient;
+			this.log("initClient:start", "resolver=" + this.handleResolver);
+
+			//Data eviction wipes the lib's IndexedDB session store without any notice,
+			//which only surfaces later as "session deleted by another process"
+			void navigator.storage
+				?.persisted?.()
+				.then((persisted) => this.log("initClient:storage", "persisted=" + persisted))
+				.catch(() => {
+					/*not supported, nothing to report*/
+				});
+
 			const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
 			try {
 				oauthClient = await BrowserOAuthClient.load({
 					clientId: document.location.origin + "/oauth/client-metadata.json",
 					handleResolver: this.handleResolver,
 					// Called anytime the lib deletes ocal session
-					onSessionDeleted: (_sub, cause) => {
+					onSessionDeleted: (sub, cause) => {
 						lastDeleteCause = describeSessionError(cause);
 						console.warn("Bluesky session deleted", cause);
+						//"was successfully revoked" means signOut()/revoke() was called
+						//explicitly, as opposed to a token that couldn't be refreshed.
+						//Tagging it makes the two impossible to confuse afterwards.
+						const deliberate = lastDeleteCause.includes("successfully revoked");
+						this.log(
+							"session:deleted",
+							"sub=" +
+								sub +
+								" deliberate=" +
+								deliberate +
+								" wasConnected=" +
+								this.connected +
+								" age=" +
+								(sessionStartDate > 0
+									? describeDuration(Date.now() - sessionStartDate)
+									: "unknown") +
+								" sinceRefresh=" +
+								(lastRefreshDate > 0
+									? describeDuration(Date.now() - lastRefreshDate)
+									: "never") +
+								" " +
+								describeContext() +
+								" cause=" +
+								lastDeleteCause,
+						);
 						toast("Bluesky session lost: " + cause);
 						// Session died while running, nothing else notices it
 						if (this.connected) {
@@ -116,12 +278,20 @@ export const storeBluesky = defineStore("bluesky", {
 						}
 					},
 					// Called anytime session is created/refreshed
-					onSessionUpdated: () => {
+					onSessionUpdated: (sub, updated) => {
+						//The delay between two of these bounds the refresh idle window,
+						//and the token summary shows how close the session cap is
+						this.log(
+							"session:updated",
+							"sub=" + sub + " " + describeSession(updated) + " " + describeContext(),
+						);
 						lastRefreshDate = Date.now();
 					},
 				});
+				this.log("initClient:done");
 			} catch (error) {
 				console.log(error);
+				this.log("initClient:failed", describeSessionError(error));
 			}
 			return oauthClient;
 		},
@@ -130,6 +300,10 @@ export const storeBluesky = defineStore("bluesky", {
 			this.connected = false;
 			this.connectionError = null;
 			lastDeleteCause = "";
+			this.log(
+				"oauth:start",
+				"handle=" + handle + " readDMs=" + readDMs + " " + describeContext(),
+			);
 
 			//Open the popup right away, before any async work, so the browser doesn't
 			//block it.
@@ -138,6 +312,7 @@ export const storeBluesky = defineStore("bluesky", {
 			const client = await this.initClient();
 			if (!client) {
 				popup?.close();
+				this.log("oauth:abort", "oauth client init failed");
 				return false;
 			}
 			handle = handle.replace(/^@/, "");
@@ -147,23 +322,33 @@ export const storeBluesky = defineStore("bluesky", {
 
 			//Popup blocked by the browser, fallback to a full page redirect
 			if (!popup) {
+				this.log("oauth:popupBlocked", "falling back to full page redirect");
 				try {
 					const url = await client.authorize(handle, { scope });
 					window.open(url, "_self", "noopener");
 					return true;
 				} catch (error) {
 					console.warn("Bluesky authorization failed", error);
+					this.log("oauth:redirectFailed", describeSessionError(error));
 					return false;
 				}
 			}
 
 			// Detect popup close to abort auth
 			const aborter = new AbortController();
+			//The lib closes the popup itself once it got the result, so this watcher
+			//also fires on the success path. If it wins the race it aborts a completed
+			//sign in, and the lib then revokes the session it just created.
+			let abortLogged = false;
 			const closeWatcher = setInterval(() => {
-				if (popup.closed) aborter.abort();
+				if (!popup.closed || abortLogged) return;
+				abortLogged = true;
+				this.log("oauth:popupClosed", "aborting sign in, " + describeContext());
+				aborter.abort();
 			}, 500);
 
 			try {
+				const start = Date.now();
 				await client.signInPopup(handle, {
 					scope,
 					signal: aborter.signal,
@@ -171,11 +356,27 @@ export const storeBluesky = defineStore("bluesky", {
 					popupFeatures: OAUTH_POPUP_FEATURES,
 					redirect_uri: `https://${document.location.host}/popupBlueskyAuthResult.html`,
 				});
+				this.log(
+					"oauth:popupSuccess",
+					"took=" + describeDuration(Date.now() - start) + " " + describeContext(),
+				);
 				//Finalize popup auth
 				void this.authenticate();
 				return true;
 			} catch (error) {
 				console.warn("Bluesky popup auth failed", error);
+				//Failing here right after the user approved means the session was
+				//created server side then thrown away (aborted signal, or the popup's
+				//500ms acknowledgment window elapsed)
+				this.log(
+					"oauth:popupFailed",
+					"aborted=" +
+						aborter.signal.aborted +
+						" " +
+						describeContext() +
+						" error=" +
+						describeSessionError(error),
+				);
 				return false;
 			} finally {
 				clearInterval(closeWatcher);
@@ -186,8 +387,20 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async authenticate(restore: boolean = false): Promise<void> {
-			if (this.connected) return;
+			if (this.connected) {
+				this.log("auth:skipped", "already connected");
+				return;
+			}
 			lastDeleteCause = "";
+			this.log(
+				"auth:start",
+				"mode=" +
+					(restore ? "restore" : "callback") +
+					" sub=" +
+					(this.sub || "none") +
+					" " +
+					describeContext(),
+			);
 			try {
 				const client = await this.initClient();
 				if (!client) {
@@ -200,8 +413,23 @@ export const storeBluesky = defineStore("bluesky", {
 					for (let i = 0; i < 3; i++) {
 						try {
 							session = await client.restore(this.sub);
+							this.log("auth:restored", "attempt=" + (i + 1));
 							break;
 						} catch (error) {
+							//Logging each attempt separates a transient network failure
+							//(recovers on retry) from a session the server rejected
+							//(lastDeleteCause set, gives up immediately)
+							this.log(
+								"auth:restoreFailed",
+								"attempt=" +
+									(i + 1) +
+									" giveUp=" +
+									(i == 2 || !!lastDeleteCause) +
+									" deleteCause=" +
+									(lastDeleteCause || "none") +
+									" error=" +
+									describeSessionError(error),
+							);
 							if (i == 2 || lastDeleteCause) throw error;
 							await Utils.promisedTimeout(3000);
 						}
@@ -209,11 +437,15 @@ export const storeBluesky = defineStore("bluesky", {
 				} else {
 					const result = await client.init();
 					session = result?.session ?? null;
+					//init() resolves with nothing when there were no callback params in
+					//the URL and no session to restore: a silent no-op, not an error
+					if (!session) this.log("auth:noSession", "client.init() returned no session");
 				}
 				if (session) {
 					this.sub = session.sub;
 					this.connected = true;
 					this.connectionError = null;
+					if (sessionStartDate === 0) sessionStartDate = Date.now();
 
 					const { Agent } = await import("@atproto/api");
 					agent = new Agent(session);
@@ -228,11 +460,29 @@ export const storeBluesky = defineStore("bluesky", {
 					);
 					user.avatarPath = userProfile.data.avatar;
 					StoreProxy.auth.bluesky = { user };
+					this.log(
+						"auth:success",
+						"did=" +
+							userProfile.data.did +
+							" handle=" +
+							userProfile.data.handle +
+							" mode=" +
+							(restore ? "restore" : "callback"),
+					);
 					this.saveConfigs();
 					this.startPolling();
 				}
 			} catch (error) {
 				console.warn("Bluesky auth failed", error);
+				this.log(
+					"auth:failed",
+					"mode=" +
+						(restore ? "restore" : "callback") +
+						" deleteCause=" +
+						(lastDeleteCause || "none") +
+						" error=" +
+						describeSessionError(error),
+				);
 				if (restore) {
 					this.connectionError = lastDeleteCause || describeSessionError(error);
 					toast("Bluesky connection failed: " + this.connectionError, {
@@ -244,7 +494,19 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		resetConnection(): void {
+			//Clears our own config but never revokes: any session still held by the
+			//lib is orphaned here, staying alive server side with no way back to it
+			this.log(
+				"resetConnection",
+				"sub=" +
+					(this.sub || "none") +
+					" previousError=" +
+					(this.connectionError || "none") +
+					" " +
+					describeContext(),
+			);
 			lastDeleteCause = "";
+			sessionStartDate = 0;
 			this.stopPolling();
 			this.connected = false;
 			this.sub = "";
@@ -256,7 +518,20 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		async disconnect() {
+			//User initiated. The session:deleted entry that follows carries a
+			//"successfully revoked" cause, exactly like an unwanted revocation would,
+			//so this entry is what tells the two apart after the fact.
+			this.log(
+				"disconnect",
+				"sub=" +
+					(this.sub || "none") +
+					" age=" +
+					(sessionStartDate > 0
+						? describeDuration(Date.now() - sessionStartDate)
+						: "unknown"),
+			);
 			lastDeleteCause = "";
+			sessionStartDate = 0;
 			this.stopPolling();
 			//Set before signOut() so the onSessionDeleted hook knows this one is
 			//expected and doesn't flag it as an error
@@ -360,42 +635,64 @@ export const storeBluesky = defineStore("bluesky", {
 		): Promise<void> {
 			if (!agent) return;
 			if (live === currentlyLive && foreRefresh !== true) return;
-			if (live) {
-				await agent.com.atproto.repo.putRecord({
-					repo: agent.did!,
-					collection: "app.bsky.actor.status",
-					rkey: "self",
-					record: {
-						$type: "app.bsky.actor.status",
-						status: "app.bsky.actor.status#live",
-						embed: {
-							$type: "app.bsky.embed.external",
-							external: {
-								uri: url,
-								title,
-								description: title,
+			try {
+				if (live) {
+					await agent.com.atproto.repo.putRecord({
+						repo: agent.did!,
+						collection: "app.bsky.actor.status",
+						rkey: "self",
+						record: {
+							$type: "app.bsky.actor.status",
+							status: "app.bsky.actor.status#live",
+							embed: {
+								$type: "app.bsky.embed.external",
+								external: {
+									uri: url,
+									title,
+									description: title,
+								},
 							},
+							// Only keep it for 12min so if twitchat is closed before it has a chance
+							// to set this back to off, it automatically does after 15min max.
+							// applyAutoLive() is called every 10min to refresh this
+							durationMinutes: 30,
+							createdAt: new Date().toISOString(),
 						},
-						// Only keep it for 12min so if twitchat is closed before it has a chance
-						// to set this back to off, it automatically does after 15min max.
-						// applyAutoLive() is called every 10min to refresh this
-						durationMinutes: 30,
-						createdAt: new Date().toISOString(),
-					},
-				});
-				currentlyLive = true;
-			} else {
-				await agent.com.atproto.repo.deleteRecord({
-					repo: agent.did!,
-					collection: "app.bsky.actor.status",
-					rkey: "self",
-				});
-				currentlyLive = false;
+					});
+					currentlyLive = true;
+				} else {
+					await agent.com.atproto.repo.deleteRecord({
+						repo: agent.did!,
+						collection: "app.bsky.actor.status",
+						rkey: "self",
+					});
+					currentlyLive = false;
+				}
+			} catch (error) {
+				//Was an unhandled rejection before. This runs on the longest interval,
+				//so when notifications and DMs are both off it's the only request left
+				//keeping the token refreshed: worth knowing when it breaks.
+				this.log(
+					"autoLive:failed",
+					"live=" + live + " error=" + describeSessionError(error),
+				);
 			}
 		},
 
 		startPolling(): void {
 			if (!agent) return;
+			//Every API call is an opportunity for the lib to refresh an expiring
+			//token, so what's enabled here dictates how often that happens. With all
+			//of them off, autoLive's 28min tick is the only thing keeping it warm.
+			this.log(
+				"polling:start",
+				"mentions=" +
+					this.mentionsAlerts +
+					" dms=" +
+					this.dmsAlerts +
+					" autoLive=" +
+					this.autoLive,
+			);
 			this.stopPolling();
 			void this.pollDMs();
 			void this.pollNotifications();
@@ -406,6 +703,9 @@ export const storeBluesky = defineStore("bluesky", {
 		},
 
 		stopPolling(): void {
+			if (dmPollInterval || notifPollInterval || autoliveCheckInterval) {
+				this.log("polling:stop");
+			}
 			if (dmPollInterval) clearInterval(dmPollInterval);
 			if (notifPollInterval) clearInterval(notifPollInterval);
 			if (autoliveCheckInterval) clearInterval(autoliveCheckInterval);
@@ -498,6 +798,9 @@ export const storeBluesky = defineStore("bluesky", {
 				await agent.updateSeenNotifications();
 			} catch (e) {
 				console.warn("Bluesky notification poll failed", e);
+				//A failing poll is often the first visible sign the token went bad,
+				//minutes before the lib gives up on the session altogether
+				this.log("poll:notifFailed", describeSessionError(e));
 			}
 		},
 
@@ -611,6 +914,7 @@ export const storeBluesky = defineStore("bluesky", {
 				}
 			} catch (e) {
 				console.warn("Bluesky DM poll failed", e);
+				this.log("poll:dmFailed", describeSessionError(e));
 			}
 		},
 
@@ -622,6 +926,7 @@ export const storeBluesky = defineStore("bluesky", {
 				mentionsAlerts: this.mentionsAlerts,
 				connected: this.connected,
 				handleResolver: this.handleResolver,
+				logs: this.logs,
 			};
 			DataStore.set(DataStore.BLUESKY_CONFIGS, data);
 		},
@@ -812,4 +1117,5 @@ interface IStoreData {
 	mentionsAlerts: boolean;
 	connected: boolean;
 	handleResolver: string;
+	logs: IBlueskyLogEntry[];
 }

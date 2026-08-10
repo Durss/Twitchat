@@ -3405,6 +3405,23 @@ const UserDataSchema = {
 				mentionsAlerts: { type: "boolean" },
 				sub: { type: "string", maxLength: 100 },
 				handleResolver: { type: "string", maxLength: 100 },
+				//Rolling diagnostic log of the connection lifecycle, used to
+				//investigate users losing their Bluesky session
+				logs: {
+					type: "array",
+					minItems: 0,
+					maxItems: 100,
+					items: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							date: { type: "integer", minimum: 0 },
+							step: { type: "string", maxLength: 50 },
+							tab: { type: "string", maxLength: 10 },
+							info: { type: "string", maxLength: 500 },
+						},
+					},
+				},
 			},
 		},
 
