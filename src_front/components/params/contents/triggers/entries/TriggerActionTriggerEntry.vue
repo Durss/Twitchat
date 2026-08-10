@@ -1,12 +1,5 @@
 <template>
 	<div class="triggeractiontriggerentry triggerActionForm">
-		<!-- <i18n-t scope="global" class="info" tag="p" keypath="triggers.actions.trigger.beta">
-			<template #LINK>
-				<a :href="discordURL" target="_blank">{{ $t("triggers.actions.trigger.beta_link") }}</a>
-			</template>
-			<template #BR><br></template>
-		</i18n-t> -->
-
 		<div class="field col" v-if="!action.triggerId">
 			<div class="title" v-if="rewards.length > 0 && !action.triggerId">
 				{{ t("triggers.actions.trigger.select") }}

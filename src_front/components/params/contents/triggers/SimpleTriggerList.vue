@@ -1,7 +1,8 @@
 <template>
 	<div class="simpletriggerlist" v-if="entryList.length > 0 && filteredItemId == ''">
+		<SearchForm autoFocus :debounceDelay="0" v-model="search" />
 		<div
-			v-for="item in entryList"
+			v-for="item in entryListFiltered"
 			:class="classes(false)"
 			:key="item.id"
 			@click="emit('select', item.id)"
@@ -44,7 +45,9 @@
 <script setup lang="ts">
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import TriggerUtils from "@/utils/TriggerUtils";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, unref } from "vue";
+import SearchForm from "../SearchForm.vue";
+import Utils from "@/utils/Utils.js";
 
 type Entry = {
 	id: string;
@@ -73,6 +76,7 @@ const emit = defineEmits<{
 const storeTriggers = useStoreTriggers();
 
 const entryList = ref<Entry[]>([]);
+const search = ref("");
 
 function classes(selected: boolean): string[] {
 	const res: string[] = ["item"];
@@ -80,6 +84,11 @@ function classes(selected: boolean): string[] {
 	if (props.primary !== false) res.push("primary");
 	return res;
 }
+
+const entryListFiltered = computed(() => {
+	if (entryList.value.length < 2 || search.value.trim() === "") return entryList.value;
+	return entryList.value.filter((v) => Utils.search(v.label, search.value)).map((v) => unref(v));
+});
 
 onMounted(() => {
 	entryList.value = [];
