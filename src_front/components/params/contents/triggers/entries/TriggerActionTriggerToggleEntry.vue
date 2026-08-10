@@ -15,6 +15,7 @@
 					:filteredItemId="action.triggerId"
 					@click="action.triggerId = ''"
 					primary
+					allowFolders
 				/>
 				<button class="openTriggerBt" @click="openTrigger()"><Icon name="newtab" /></button>
 			</div>
