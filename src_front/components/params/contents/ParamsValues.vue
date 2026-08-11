@@ -187,17 +187,6 @@
 								"
 							>
 								<div
-									class="sort"
-									v-if="
-										entry.idToUsers[entry.value.id]!.filter(
-											(v) => v.hide !== true,
-										).length > 1
-									"
-								>
-									<button disabled>{{ t("values.form.username") }}</button>
-									<button disabled>{{ t("values.form.userValue") }}</button>
-								</div>
-								<div
 									class="card-item alert error"
 									v-if="entry.idToYoutubeConnect[entry.value.id]"
 								>
@@ -358,7 +347,7 @@ const param_placeholder = ref<TwitchatDataTypes.ParameterData<string>>({
 	labelKey: "values.form.placholder",
 	icon: "broadcast",
 	tooltipKey: "values.form.placholder_tt",
-	allowedCharsRegex: "A-z0-9_",
+	placeholderPrefix: "VALUE_",
 });
 
 const maxReached = computed<boolean>(() => {
@@ -915,7 +904,17 @@ interface UserEntry {
 				flex-wrap: wrap;
 				justify-content: space-evenly;
 			}
-
+			:deep(.type-placeholder) {
+				.holder {
+					max-width: calc(100% - 1.5em);
+					flex-direction: column;
+					align-items: flex-start;
+					.inputHolder {
+						overflow: hidden;
+						max-width: 100%;
+					}
+				}
+			}
 			.errorDetails {
 				text-align: center;
 				margin-top: -0.25em;
@@ -978,30 +977,6 @@ interface UserEntry {
 				.noResult {
 					text-align: center;
 					font-style: italic;
-				}
-
-				.sort {
-					gap: 1px;
-					display: flex;
-					flex-direction: row;
-					button {
-						color: var(--color-light);
-						border-radius: 0.5em;
-						background-color: var(--color-primary);
-						box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
-						cursor: default;
-					}
-					button:nth-child(1) {
-						flex-grow: 1;
-						border-top-right-radius: 0;
-						border-bottom-right-radius: 0;
-					}
-					button:nth-child(2) {
-						flex-basis: 130px;
-						text-align: center;
-						border-top-left-radius: 0;
-						border-bottom-left-radius: 0;
-					}
 				}
 
 				.scrollableList {

@@ -582,6 +582,7 @@
 						v-else
 						v-model="paramData.value"
 						:maxLength="paramData.maxLength"
+						:prefix="paramData.placeholderPrefix"
 						:disabled="readonly"
 						@update:modelValue="onEdit()"
 					/>

@@ -807,6 +807,10 @@ export namespace TwitchatDataTypes {
 		 */
 		placeholderList?: PlaceholderEntry[];
 		/**
+		 * Placeholder prefix for "placeholder" data type
+		 */
+		placeholderPrefix?: string;
+		/**
 		 * Parent parameter ID.
 		 * Only used for global parameters. @see ParamsList
 		 */

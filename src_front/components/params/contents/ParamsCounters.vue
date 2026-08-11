@@ -447,7 +447,7 @@ const param_placeholder = ref<TwitchatDataTypes.ParameterData<string>>({
 	labelKey: "counters.form.placholder",
 	icon: "broadcast",
 	tooltipKey: "counters.form.placholder_tt",
-	allowedCharsRegex: "A-z0-9_",
+	placeholderPrefix: "COUNTER_VALUE_",
 });
 
 const maxReached = computed<boolean>(() => {
@@ -469,10 +469,6 @@ const canEnableMore = computed<boolean>(() => {
 
 function openTriggers(): void {
 	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
-}
-
-function getUserFromID(id: string): TwitchatDataTypes.TwitchatUser {
-	return storeUsers.getUserFrom("twitch", storeAuth.twitch.user.id, id);
 }
 
 function openOverlays(): void {
@@ -1094,6 +1090,17 @@ defineExpose<IParameterContent>({ onNavigateBack });
 				flex-direction: row;
 				flex-wrap: wrap;
 				justify-content: space-evenly;
+			}
+			:deep(.type-placeholder) {
+				.holder {
+					max-width: calc(100% - 1.5em);
+					flex-direction: column;
+					align-items: flex-start;
+					.inputHolder {
+						overflow: hidden;
+						max-width: 100%;
+					}
+				}
 			}
 		}
 	}
