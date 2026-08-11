@@ -401,6 +401,16 @@
 				"param_source_splitter_inputs": "Inputs",
 				"param_filter": "Filtre",
 				"param_filter_none": "- aucun -",
+				"param_filterSettings_title": "Réglages du filtre",
+				"param_filterSettings_add": "Réglage à ajouter",
+				"param_filterSettings_customKey": "- réglage personnalisé -",
+				"param_filterSettings_key": "Nom du réglage",
+				"param_filterSettings_value": "Nouvelle valeur",
+				"param_filterSettings_type": "Type de valeur",
+				"param_filterSettings_type_string": "Texte",
+				"param_filterSettings_type_number": "Nombre",
+				"param_filterSettings_type_boolean": "Oui/Non",
+				"param_filterSettings_type_json": "JSON",
 				"param_text": "Texte à écrire dans la source",
 				"param_url": "URL de la source",
 				"param_css": "CSS Personnalisé",
@@ -439,6 +449,7 @@
 				"param_action_show_filter": "Activer le filtre",
 				"param_action_hide_filter": "Desactiver le filtre",
 				"param_action_toggle_filter": "Inverser l'état du filtre",
+				"param_action_unchanged_filter": "Ne pas changer la visibilité",
 				"param_action_scene_switch": "Rendre cette scène active",
 				"param_action_mute": "Couper l'audio",
 				"param_action_unmute": "Réactiver l'audio",
@@ -453,15 +464,15 @@
 				"param_persistedValue_conf": "Valeur à stocker"
 			},
 			"trigger": {
-				"beta": "Fonctionnalité expérimentale ?{BR} Si vous rencontrez un problème {LINK}",
-				"beta_link": "faites-le moi savoir sur Discord",
 				"warning_title": "Information importante",
 				"warning": "Les tags spéciaux risquent de ne pas être disponibles dans le trigger sélectionné.",
 				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis une <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponibles car le trigger ne sera pas exécuté par un message de tchat.",
 				"select": "Sélectionnez le trigger à exécuter",
 				"selected": "Trigger à exécuter",
 				"loop": "Boucle de dépendance détectée",
-				"loop_delails": "Ceci risque de rendre Twitchat instable."
+				"loop_delails": "Ceci risque de rendre Twitchat instable.",
+				"queue_lock": "Blocage de file d'exécution détecté",
+				"queue_lock_details": "Le dernier trigger ci-dessous s'exécute dans la file \"{QUEUE}\", qui est verrouillée par le trigger actuel. Ces 2 triggers s'attendront mutuellement, bloquant la file d'exécution indéfiniment."
 			},
 			"triggerToggle": {
 				"select": "Sélectionnez le trigger ou dossier duquel changer l'état",

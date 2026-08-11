@@ -401,6 +401,16 @@
 				"param_source_splitter_inputs": "Inputs",
 				"param_filter": "Source filter",
 				"param_filter_none": "- none -",
+				"param_filterSettings_title": "Filter settings",
+				"param_filterSettings_add": "Setting to add",
+				"param_filterSettings_customKey": "Custom setting",
+				"param_filterSettings_key": "Setting name",
+				"param_filterSettings_value": "New value",
+				"param_filterSettings_type": "Value type",
+				"param_filterSettings_type_string": "Text",
+				"param_filterSettings_type_number": "Number",
+				"param_filterSettings_type_boolean": "Yes/No",
+				"param_filterSettings_type_json": "JSON",
 				"param_text": "Text to write on source",
 				"param_url": "Browser URL",
 				"param_css": "Custom CSS",
@@ -439,6 +449,7 @@
 				"param_action_show_filter": "Enable filter",
 				"param_action_hide_filter": "Disable filter",
 				"param_action_toggle_filter": "Toggle filter state",
+				"param_action_unchanged_filter": "Leave visibility unchanged",
 				"param_action_scene_switch": "Switch to scene",
 				"param_action_mute": "Mute source",
 				"param_action_unmute": "Unmute source",
@@ -453,15 +464,15 @@
 				"param_persistedValue_conf": "Value to store"
 			},
 			"trigger": {
-				"beta": "This is a beta feature!{BR} If you experience any unexpected behavior with it please {LINK}",
-				"beta_link": "let me know on Discord",
 				"warning_title": "Important warning",
 				"warning": "Placeholders may not be available on the selected trigger.",
 				"warning_example": ": If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {'{'}USER{'}'} and {'{'}MESSAGE{'}'} placeholders won't be available as it won't be executed from an actual chat message.",
 				"select": "Select which trigger to execute",
 				"selected": "Trigger to execute",
 				"loop": "Dependency loop detected",
-				"loop_delails": "This may make twitchat unstable."
+				"loop_delails": "This may make twitchat unstable.",
+				"queue_lock": "Execution queue deadlock detected",
+				"queue_lock_details": "The last trigger below runs in the \"{QUEUE}\" execution queue, which is locked by current trigger. Current trigger and this one will wait for each other indefinitely, locking the queue forever."
 			},
 			"triggerToggle": {
 				"select": "Select the trigger or folder you want to control",

@@ -1,4 +1,4 @@
-import type { JsonObject } from "type-fest";
+import type { JsonObject, JsonValue } from "type-fest";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
@@ -3525,30 +3525,128 @@ export default class TriggerActionHandler {
 							}
 
 							if (step.filterName) {
-								try {
-									logStep.messages.push({
-										date: Date.now(),
-										value:
-											'Set filter "' +
-											step.filterName +
-											'" visibility to "' +
-											(step.action == "show" ? "visible" : "hidden") +
-											'"',
-									});
-									if (step.action == "toggle_visibility") {
-										await OBSWebSocket.instance.toggleFilterState(
-											sourceName,
-											step.filterName,
-										);
-									} else {
-										await OBSWebSocket.instance.setFilterState(
-											sourceName,
-											step.filterName,
-											step.action === "show",
-										);
+								// Update the filter's settings before its visibility it doesnt'
+								// seem to flicker on show
+								if (step.filterSettings && step.filterSettings.length > 0) {
+									try {
+										const settings: JsonObject = {};
+										for (const entry of step.filterSettings) {
+											const key = entry.key.trim();
+											if (!key) continue;
+											const rawValue = await this.parsePlaceholders({
+												dynamicPlaceholders,
+												actionPlaceholders,
+												trigger,
+												message,
+												src: entry.value,
+												subEvent,
+											});
+											if (entry.type == "boolean") {
+												settings[key] = /^(true|1|yes)$/i.test(
+													rawValue.trim(),
+												);
+											} else if (entry.type == "number") {
+												const trimmed = rawValue.trim();
+												let num: number | null = Number(trimmed);
+												if (trimmed === "" || !isFinite(num)) {
+													num = Utils.evalMath(trimmed);
+												}
+												if (num == null) {
+													logStep.messages.push({
+														date: Date.now(),
+														value:
+															'Invalid number "' +
+															rawValue +
+															'" for filter setting "' +
+															key +
+															'", setting ignored',
+													});
+													log.error = true;
+													logStep.error = true;
+													continue;
+												}
+												settings[key] = num;
+											} else if (entry.type == "json") {
+												try {
+													settings[key] = JSON.parse(
+														rawValue,
+													) as JsonValue;
+												} catch (_error) {
+													logStep.messages.push({
+														date: Date.now(),
+														value:
+															'Invalid JSON "' +
+															rawValue +
+															'" for filter setting "' +
+															key +
+															'", setting ignored',
+													});
+													log.error = true;
+													logStep.error = true;
+												}
+											} else {
+												settings[key] = rawValue;
+											}
+										}
+										if (Object.keys(settings).length > 0) {
+											logStep.messages.push({
+												date: Date.now(),
+												value:
+													'Update filter "' +
+													step.filterName +
+													'" settings to ' +
+													JSON.stringify(settings),
+											});
+											await OBSWebSocket.instance.setFilterSettings(
+												sourceName,
+												step.filterName,
+												settings,
+											);
+										}
+									} catch (error) {
+										logStep.messages.push({
+											date: Date.now(),
+											value:
+												'Failed updating filter "' +
+												step.filterName +
+												'" settings',
+										});
+										log.error = true;
+										logStep.error = true;
+										console.error(error);
 									}
-								} catch (error) {
-									console.error(error);
+								}
+
+								if (step.action != "unchanged") {
+									try {
+										logStep.messages.push({
+											date: Date.now(),
+											value:
+												'Set filter "' +
+												step.filterName +
+												'" visibility to "' +
+												(step.action == "toggle_visibility"
+													? "toggled"
+													: step.action == "show"
+														? "visible"
+														: "hidden") +
+												'"',
+										});
+										if (step.action == "toggle_visibility") {
+											await OBSWebSocket.instance.toggleFilterState(
+												sourceName,
+												step.filterName,
+											);
+										} else {
+											await OBSWebSocket.instance.setFilterState(
+												sourceName,
+												step.filterName,
+												step.action === "show",
+											);
+										}
+									} catch (error) {
+										console.error(error);
+									}
 								}
 							} else {
 								let action = step.action;

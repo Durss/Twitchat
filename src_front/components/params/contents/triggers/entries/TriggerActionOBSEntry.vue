@@ -53,6 +53,36 @@
 				v-model="action.action"
 				v-if="selectedSourceName"
 			/>
+
+			<template v-if="action.filterName">
+				<Splitter>{{ t("triggers.actions.obs.param_filterSettings_title") }}</Splitter>
+
+				<div class="filterSettings">
+					<TriggerActionOBSFilterSetting
+						v-for="(setting, index) in action.filterSettings || []"
+						:key="setting.id"
+						:setting="setting"
+						:placeholderList="placeholderList"
+						@delete="deleteFilterSetting(index)"
+					/>
+
+					<div
+						class="addForm"
+						v-if="
+							(action.filterSettings || []).length <
+							TRIGGER_ACTION_OBS_FILTER_SETTINGS_MAX
+						"
+					>
+						<ParamItem
+							:paramData="param_addFilterSetting_conf"
+							v-model="param_addFilterSetting_conf.value"
+							noBackground
+							@change="addFilterSetting"
+						/>
+					</div>
+				</div>
+			</template>
+
 			<ParamItem :paramData="param_text_conf" v-model="action.text" v-if="isTextSource" />
 			<ParamItem :paramData="param_url_conf" v-model="action.url" v-if="isBrowserSource" />
 			<ParamItem
@@ -310,24 +340,30 @@
 
 <script setup lang="ts">
 import ParamItem from "@/components/params/ParamItem.vue";
+import Splitter from "@/components/Splitter.vue";
 import SwitchButton from "@/components/SwitchButton.vue";
 import TTButton from "@/components/TTButton.vue";
 import { useHighlight } from "@/composables/useHighlight";
 import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import {
+	TRIGGER_ACTION_OBS_FILTER_SETTINGS_MAX,
 	type ITriggerPlaceholder,
 	type TriggerActionObsAudioTrackState,
 	type TriggerActionObsData,
 	type TriggerActionObsDataAction,
+	type TriggerActionObsFilterSettingType,
 	type TriggerActionObsSourceDataAction,
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from "@/utils/OBSWebsocket";
 import { default as OBSWebSocket, type OBSInputItem } from "@/utils/OBSWebsocket";
+import Utils from "@/utils/Utils";
+import type { JsonObject } from "type-fest";
 import { computed, nextTick, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import TriggerActionOBSFilterSetting from "./common/TriggerActionOBSFilterSetting.vue";
 
 const { t, tm } = useI18n();
 const storeParams = useStoreParams();
@@ -627,6 +663,31 @@ const param_audioTracks_conf = ref<
 const selectedSourceName = ref<string>("");
 const filters = ref<OBSFilter[]>([]);
 
+/**
+ * Value of the "custom setting dropdown entry allowing to define a setting
+ * name manually
+ */
+const CUSTOM_FILTER_SETTING_KEY = "__custom__";
+
+interface FilterSettingCatalogEntry {
+	key: string;
+	type: TriggerActionObsFilterSettingType;
+	//Current OBS value, stringified. Used to prefill a new row
+	currentValue: string;
+}
+const filterSettingsCatalog = ref<FilterSettingCatalogEntry[]>([]);
+const filterKindDefaultsCache = new Map<string, JsonObject>();
+// USed to abort a filter listing query if a new filter go selected
+let filterSettingsLoadToken = 0;
+
+const param_addFilterSetting_conf = ref<TwitchatDataTypes.ParameterData<string, string>>({
+	type: "list",
+	value: "",
+	listValues: [],
+	icon: "params",
+	labelKey: "triggers.actions.obs.param_filterSettings_add",
+});
+
 // Placeholder composable
 function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
 	param_text_conf.value.placeholderList =
@@ -650,7 +711,11 @@ function onPlaceholderUpdate(list: ITriggerPlaceholder<any>[]): void {
 			list.filter((v) => v.numberParsable === true);
 }
 
-useTriggerActionPlaceholders(props.action, props.triggerData, onPlaceholderUpdate);
+const { placeholderList } = useTriggerActionPlaceholders(
+	props.action,
+	props.triggerData,
+	onPlaceholderUpdate,
+);
 
 // Computed
 const obsConnected = computed<boolean>(() => {
@@ -966,6 +1031,7 @@ async function onSourceChanged(
  * Updates the input's label or cleanup filter's name if any
  */
 function updateFilter(cleanData: boolean = true): void {
+	const previousFilterName = props.action.filterName;
 	if (
 		param_source_conf.value.children &&
 		param_source_conf.value.children?.length > 0 &&
@@ -977,7 +1043,109 @@ function updateFilter(cleanData: boolean = true): void {
 		param_sourceAction_conf.value.labelKey = "triggers.actions.obs.param_sourceAction";
 		delete props.action.filterName;
 	}
+	//Settings are specific to a filter, drop them when switching to another one
+	if (props.action.filterName !== previousFilterName) delete props.action.filterSettings;
 	if (cleanData) updateActionsList();
+	void loadFilterSettingsCatalog();
+}
+
+/**
+ * Load current filter settings
+ * Loads the default ones and merge current ones loaded in onSourceChanged()
+ */
+async function loadFilterSettingsCatalog(): Promise<void> {
+	const token = ++filterSettingsLoadToken;
+	filterSettingsCatalog.value = [];
+	const filterName = props.action.filterName;
+	//Filter may not exist on OBS anymore (deleted/renamed), in which case no
+	//suggestion is made but existing rows remain editable
+	const filter = filterName ? filters.value.find((v) => v.filterName == filterName) : undefined;
+
+	if (filter) {
+		try {
+			let defaults = filterKindDefaultsCache.get(filter.filterKind);
+			if (!defaults) {
+				defaults = await OBSWebSocket.instance.getFilterDefaultSettings(filter.filterKind);
+				filterKindDefaultsCache.set(filter.filterKind, defaults);
+			}
+			//Another filter has been selected while we were waiting for the response
+			if (token != filterSettingsLoadToken) return;
+
+			const merged: JsonObject = { ...defaults, ...filter.filterSettings };
+			filterSettingsCatalog.value = Object.keys(merged)
+				.sort((a, b) => a.localeCompare(b))
+				.map((key) => {
+					const value = merged[key];
+					let type: TriggerActionObsFilterSettingType = "string";
+					if (typeof value === "boolean") type = "boolean";
+					else if (typeof value === "number") type = "number";
+					else if (value !== null && typeof value === "object") type = "json";
+					return {
+						key,
+						type,
+						currentValue: type == "json" ? JSON.stringify(value) : String(value ?? ""),
+					};
+				});
+		} catch (_error) {
+			//OBS refused the request (unknown filterKind,...), only allow custom keys
+			filterSettingsCatalog.value = [];
+		}
+	}
+	buildAddFilterSettingList();
+}
+
+/**
+ * Builds the values of the "add a setting" dropdown
+ */
+function buildAddFilterSettingList(): void {
+	const used = (props.action.filterSettings || []).map((v) => v.key);
+	const values: TwitchatDataTypes.ParameterDataListValue<string>[] = [
+		{ labelKey: "global.select_placeholder", value: "" },
+	];
+	filterSettingsCatalog.value
+		.filter((v) => used.indexOf(v.key) == -1)
+		.forEach((v) => values.push({ label: v.key, value: v.key }));
+	values.push({
+		labelKey: "triggers.actions.obs.param_filterSettings_customKey",
+		value: CUSTOM_FILTER_SETTING_KEY,
+	});
+	param_addFilterSetting_conf.value.listValues = values;
+	if (!values.find((v) => v.value == param_addFilterSetting_conf.value.value)) {
+		param_addFilterSetting_conf.value.value = "";
+	}
+}
+
+/**
+ * Adds a filter setting to update
+ */
+function addFilterSetting(): void {
+	const key = param_addFilterSetting_conf.value.value;
+	if (!key) return;
+	if (!props.action.filterSettings) props.action.filterSettings = [];
+	if (props.action.filterSettings.length >= TRIGGER_ACTION_OBS_FILTER_SETTINGS_MAX) return;
+
+	const entry =
+		key == CUSTOM_FILTER_SETTING_KEY
+			? undefined
+			: filterSettingsCatalog.value.find((v) => v.key == key);
+	props.action.filterSettings.push({
+		id: Utils.getUUID(),
+		key: entry ? entry.key : "",
+		type: entry ? entry.type : "string",
+		//Prefill with the filter's current value so the user only tweaks it
+		value: entry ? entry.currentValue : "",
+	});
+	param_addFilterSetting_conf.value.value = "";
+	buildAddFilterSettingList();
+}
+
+/**
+ * Removes a filter setting
+ */
+function deleteFilterSetting(index: number): void {
+	props.action.filterSettings?.splice(index, 1);
+	if (props.action.filterSettings?.length === 0) delete props.action.filterSettings;
+	buildAddFilterSettingList();
 }
 
 /**
@@ -1044,6 +1212,17 @@ function updateActionsList(): void {
 			labelKey: "triggers.actions.obs.param_action_toggle_filter",
 			value: "toggle_visibility",
 		});
+		//Allows to only update the filter's settings without touching its visibility
+		values.push({
+			labelKey: "triggers.actions.obs.param_action_unchanged_filter",
+			value: "unchanged",
+		});
+	}
+
+	//"unchanged" only exists for filters. Fallback to "show" if a filter gets
+	//deselected while it was picked, otherwise the action would silently do nothing
+	if (props.action.action == "unchanged" && !values.find((v) => v.value == "unchanged")) {
+		props.action.action = "show";
 	}
 
 	param_sourceAction_conf.value.listValues = values;
@@ -1124,6 +1303,14 @@ async function cleanupData(): Promise<void> {
 
 	if (props.action.obsAction != "audioTracks") {
 		delete props.action.audioTracks;
+	}
+
+	if (
+		props.action.obsAction != "sources" ||
+		!props.action.filterName ||
+		(props.action.filterSettings || []).length === 0
+	) {
+		delete props.action.filterSettings;
 	}
 }
 
@@ -1339,6 +1526,12 @@ onMounted(async () => {
 		() => param_filter_conf.value.value,
 		() => updateFilter(),
 	);
+	//Keeps the settings already added out of the "add a setting" dropdown
+	watch(
+		() => props.action.filterSettings,
+		() => buildAddFilterSettingList(),
+		{ deep: true },
+	);
 	watch(
 		() => selectedSourceName.value,
 		() => {
@@ -1377,6 +1570,23 @@ interface SourceItem extends TwitchatDataTypes.ParameterDataListValue<string> {
 		top: 0.25em;
 		right: 0.25em;
 		font-weight: 0.7em;
+	}
+
+	.filterSettings {
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+
+		.addForm {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+
+			.paramitem {
+				flex-grow: 1;
+			}
+		}
 	}
 
 	.typescript {

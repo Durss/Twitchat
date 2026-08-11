@@ -825,6 +825,37 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets the default settings of a filter kind.
+	 */
+	public async getFilterDefaultSettings(filterKind: string): Promise<JsonObject> {
+		if (!this.connected.value) return {};
+
+		const res = await this.obs.call("GetSourceFilterDefaultSettings", { filterKind });
+		return res.defaultFilterSettings;
+	}
+
+	/**
+	 * Update a filter's settings.
+	 * Only the given settings are updated, all the others are left untouched.
+	 */
+	public async setFilterSettings(
+		sourceName: string,
+		filterName: string,
+		settings: JsonObject,
+	): Promise<void> {
+		if (!this.connected.value) return;
+
+		await this.obs.call("SetSourceFilterSettings", {
+			sourceName,
+			filterName,
+			filterSettings: settings,
+			//Merge with the filter's current settings
+			overlay: true,
+		});
+		await Utils.promisedTimeout(50);
+	}
+
+	/**
 	 * Set a sources's visibility on the current scene
 	 *
 	 * @param sourceName
@@ -1757,7 +1788,7 @@ export interface OBSFilter {
 	filterIndex: number;
 	filterKind: string;
 	filterName: string;
-	filterSettings: unknown;
+	filterSettings: JsonObject;
 }
 
 export interface BrowserSourceSettings {

@@ -1146,6 +1146,7 @@ const icons = computed(() => {
 		prev: "prev",
 		stop: "stop",
 		toggle_visibility: "show",
+		unchanged: "params",
 	};
 
 	if (props.action.type == "obs") {

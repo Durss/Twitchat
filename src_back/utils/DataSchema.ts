@@ -605,6 +605,22 @@ const UserDataSchema = {
 										enum: ["unchanged", "enable", "disable", "toggle"],
 									},
 								},
+								//Keep "maxItems" in sync with TRIGGER_ACTION_OBS_FILTER_SETTINGS_MAX
+								filterSettings: {
+									type: "array",
+									minItems: 0,
+									maxItems: 40,
+									items: {
+										type: "object",
+										additionalProperties: false,
+										properties: {
+											id: { type: "string", maxLength: 40 },
+											key: { type: "string", maxLength: 100 },
+											value: { type: "string", maxLength: 1000 },
+											type: { type: "string", maxLength: 20 },
+										},
+									},
+								},
 								headers: {
 									type: "array",
 									minItems: 0,

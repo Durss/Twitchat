@@ -608,7 +608,53 @@ export type TriggerActionObsSourceDataAction =
 	| "move"
 	| "rotate"
 	| "resize"
-	| "toggle_visibility";
+	| "toggle_visibility"
+	| "unchanged";
+
+/**
+ * Available value types for an OBS filter setting.
+ * Values are always stored as strings so placeholders can be used on
+ * them. This defines what they're converted to before being sent to OBS.
+ */
+export const TriggerActionObsFilterSettingTypes = [
+	"string",
+	"number",
+	"boolean",
+	"json",
+] as const;
+export type TriggerActionObsFilterSettingType =
+	(typeof TriggerActionObsFilterSettingTypes)[number];
+
+/**
+ * Maximum number of filter settings a single OBS action can update.
+ * Keep in sync with the "maxItems" of the "filterSettings" entry of DataSchema.ts
+ */
+export const TRIGGER_ACTION_OBS_FILTER_SETTINGS_MAX = 40;
+
+/**
+ * Describes a single setting override applied to an OBS filter.
+ * Only the listed settings are sent to OBS, all the others are left untouched.
+ */
+export interface TriggerActionObsFilterSettingData {
+	id: string;
+	/**
+	 * Name of the setting as OBS knows it (ex: "opacity", "brightness").
+	 * OBS exposes no metadata about its filters over websocket, the name
+	 * can also be typed manually for filters advertising nothing (shaders)
+	 */
+	key: string;
+	/**
+	 * New value of the setting.
+	 * Always stored as a string so placeholders can be used on it.
+	 * Converted to "type" at execution.
+	 */
+	value: string;
+	/**
+	 * Type the "value" must be converted to before being sent to OBS
+	 */
+	type: TriggerActionObsFilterSettingType;
+}
+
 export interface TriggerActionObsData extends TriggerActionData {
 	type: "obs";
 	/**
@@ -780,6 +826,12 @@ export interface TriggerActionObsData extends TriggerActionData {
 	 * Only tracks not set to "unchanged" are sent to OBS.
 	 */
 	audioTracks?: TriggerActionObsAudioTrackState[];
+	/**
+	 * Settings to apply to the filter defined by "filterName".
+	 * Only the listed settings are sent to OBS, all the others are
+	 * left as they are.
+	 */
+	filterSettings?: TriggerActionObsFilterSettingData[];
 }
 
 export interface TriggerActionChatData extends TriggerActionData {
