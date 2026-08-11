@@ -35,6 +35,10 @@ let lastRefreshDate = 0;
 let sessionStartDate = 0;
 // Reason given by the lib when it deleted the session, empty otherwise
 let lastDeleteCause = "";
+// True while disconnect() is revoking the session. The lib fires
+// onSessionDeleted() from within signOut(), and its cause is worded exactly like
+// an unwanted revocation, so this is what tells the hook not to alert the user
+let signingOut = false;
 // Max number of diagnostic entries kept. Entries carry their own age/expiry
 // context (see describeSession()) so a shallow history is still conclusive.
 // Must stay <= the "maxItems" declared on blueskyConfigs.logs in DataSchema.ts
@@ -243,7 +247,8 @@ export const storeBluesky = defineStore("bluesky", {
 						//"was successfully revoked" means signOut()/revoke() was called
 						//explicitly, as opposed to a token that couldn't be refreshed.
 						//Tagging it makes the two impossible to confuse afterwards.
-						const deliberate = lastDeleteCause.includes("successfully revoked");
+						const deliberate =
+							signingOut || lastDeleteCause.includes("successfully revoked");
 						this.log(
 							"session:deleted",
 							"sub=" +
@@ -252,6 +257,8 @@ export const storeBluesky = defineStore("bluesky", {
 								deliberate +
 								" wasConnected=" +
 								this.connected +
+								" sameSub=" +
+								(sub === this.sub) +
 								" age=" +
 								(sessionStartDate > 0
 									? describeDuration(Date.now() - sessionStartDate)
@@ -265,9 +272,21 @@ export const storeBluesky = defineStore("bluesky", {
 								" cause=" +
 								lastDeleteCause,
 						);
-						toast("Bluesky session lost: " + cause);
-						// Session died while running, nothing else notices it
-						if (this.connected) {
+						// Session died while running, nothing else notices it.
+						//
+						// This hook is a repeatable notification, not a one-shot event: the
+						// lib calls it once per pending token request that finds nothing in
+						// its store (see SessionGetter), and mirrors it to every other tab
+						// through a BroadcastChannel. startPolling() alone fires three
+						// requests at once, so one lost session lands here several times.
+						// Reacting to the connected->disconnected transition only is what
+						// keeps it to a single alert. While already disconnected there's
+						// nothing to tear down, and authenticate() owns the user feedback.
+						if (this.connected && sub === this.sub) {
+							//A revocation we asked for is the expected outcome of
+							//disconnecting, not a failure. Still reached with connected=true
+							//when the disconnect happened in another tab.
+							if (!deliberate) toast("Bluesky session lost: " + cause);
 							this.stopPolling();
 							this.connected = false;
 							this.connectionError = lastDeleteCause;
@@ -517,13 +536,15 @@ export const storeBluesky = defineStore("bluesky", {
 			this.saveConfigs();
 		},
 
-		async disconnect() {
+		async disconnect(manual?: boolean) {
 			//User initiated. The session:deleted entry that follows carries a
 			//"successfully revoked" cause, exactly like an unwanted revocation would,
 			//so this entry is what tells the two apart after the fact.
 			this.log(
 				"disconnect",
-				"sub=" +
+				"manual=" +
+					manual +
+					" sub=" +
 					(this.sub || "none") +
 					" age=" +
 					(sessionStartDate > 0
@@ -540,11 +561,13 @@ export const storeBluesky = defineStore("bluesky", {
 			this.profile = null;
 			StoreProxy.auth.bluesky = null;
 			this.saveConfigs();
+			signingOut = true;
 			try {
 				if (session) {
 					await session?.signOut();
 				}
 			} finally {
+				signingOut = false;
 				session = null;
 				agent = null;
 			}

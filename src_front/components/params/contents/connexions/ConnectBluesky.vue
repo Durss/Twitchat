@@ -63,7 +63,7 @@
 				:avatar="storeBluesky.profile?.avatar"
 				:name="storeBluesky.profile?.displayName ?? storeBluesky.profile?.handle"
 				:details="storeBluesky.profile ? '@' + storeBluesky.profile.handle : undefined"
-				@logout="storeBluesky.disconnect()"
+				@logout="storeBluesky.disconnect(true)"
 			/>
 
 			<ParamItem

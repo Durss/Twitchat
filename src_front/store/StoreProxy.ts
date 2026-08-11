@@ -4523,7 +4523,7 @@ export interface IBlueskyActions {
 	/**
 	 * Disconnects the user
 	 */
-	disconnect(): Promise<void>;
+	disconnect(manual?: boolean): Promise<void>;
 	/**
 	 * Sets auto live based on current stream state
 	 */
