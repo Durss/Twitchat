@@ -838,7 +838,7 @@ const MODIFIERS: { [name: string]: PlaceholderModifier } = {
 	nourl: (v) =>
 		v
 			.replace(
-				/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi,
+				/((?:(?:http|ftp|https):\/\/)?(?:[\w-]+\.)+(?:[a-z]{2,})(?![\w-])(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/gi,
 				"",
 			)
 			.trim(),

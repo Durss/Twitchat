@@ -179,7 +179,7 @@ export default class Utils {
 		const replace =
 			replaceBy.length > 0 ? replaceBy : "<a href='$1' target='" + target + "'>$1</a>";
 		let res = text.replace(
-			/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi,
+			/(?:(?:http|ftp|https):\/\/)?((?:[\w-]+\.)+(?:xn--[a-z0-9-]{2,}|[a-z]{2,})(?![\w-])(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/gi,
 			replace,
 		);
 		if (replaceBy.length === 0) {

@@ -3944,14 +3944,14 @@ export default class TwitchUtils {
 				if (chunk.type == "text") {
 					result.splice(i, 1); //Remove source chunk
 					const res = (chunk.value || "").split(
-						/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi,
+						/((?:(?:http|ftp|https):\/\/)?(?:[\w-]+\.)+(?:[a-z]{2,})(?![\w-])(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/gi,
 					);
 					let subIndex = 0;
 					res.forEach((v) => {
 						if (v == "") return;
 						//Add sub chunks to original resulting chunks
 						let islink =
-							/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(
+							/((?:(?:http|ftp|https):\/\/)?(?:[\w-]+\.)+(?:[a-z]{2,})(?![\w-])(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/gi.test(
 								v,
 							);
 						//Avoid floating numbers to be parsed as links
