@@ -1,6 +1,6 @@
 import type { Directive } from "vue";
 
-const observerMap = new WeakMap<HTMLElement, IntersectionObserver>();
+const observerMap = new WeakMap<HTMLElement, ResizeObserver>();
 
 function applyFocus(el: HTMLElement): void {
 	//Disabling scroll avoids breaking layout when opening
@@ -28,9 +28,14 @@ export const vAutofocus: Directive<HTMLDivElement, boolean | undefined> = {
 
 			//Watch for visibility changes (e.g. a parent toggling display:none)
 			//and re-apply focus when the element becomes visible again.
-			const observer = new IntersectionObserver((entries) => {
+			let wasHidden = false;
+			const observer = new ResizeObserver((entries) => {
 				for (const entry of entries) {
-					if (entry.isIntersecting) {
+					const hidden = entry.contentRect.width === 0 && entry.contentRect.height === 0;
+					if (hidden) {
+						wasHidden = true;
+					} else if (wasHidden) {
+						wasHidden = false;
 						applyFocus(el);
 					}
 				}
