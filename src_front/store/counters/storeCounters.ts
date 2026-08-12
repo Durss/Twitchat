@@ -4,6 +4,7 @@ import {
 	type TriggerActionCountDataAction,
 } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { indexUserLogin, indexUserLogins } from "@/utils/CounterValueUserIndex";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -30,6 +31,7 @@ export const storeCounters = defineStore("counters", {
 					JSON.parse(countersParams),
 					this.counterList as unknown as JsonObject,
 				);
+				this.counterList.forEach((c) => indexUserLogins(c.users));
 			}
 
 			PublicAPI.instance.addEventListener("SET_COUNTER_ADD", (e) => {
@@ -286,6 +288,7 @@ export const storeCounters = defineStore("counters", {
 					platform: c.users![uid]?.platform || user?.platform || "twitch",
 					value: parseFloat(counterValue.toString()), //Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 				};
+				indexUserLogin(c.users![uid]!.login, uid);
 			} else {
 				c.value = parseFloat(counterValue.toString()); //Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 			}

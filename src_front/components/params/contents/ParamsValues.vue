@@ -293,6 +293,7 @@ import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import { indexUserLogins } from "@/utils/CounterValueUserIndex";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
@@ -768,7 +769,10 @@ async function loadUsers(valueItem: ValueEntry): Promise<void> {
 	}
 	valueItem.idToLoading[valueItem.value.id] = false;
 
-	if (loginUpdated) storeValues.saveValues();
+	if (loginUpdated) {
+		indexUserLogins(valueItem.value.users);
+		storeValues.saveValues();
+	}
 }
 
 /**

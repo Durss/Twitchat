@@ -61,75 +61,75 @@ If you want to actually return something that looks a placeholder without it bei
 
 ## Available modifiers
 
-| Modifier | Category | What it does |
-|---|---|---|
-| [`uppercase`](#uppercase) | Text | Converts the value to upper case. |
-| [`lowercase`](#lowercase) | Text | Converts the value to lower case. |
-| [`capitalize`](#capitalize) | Text | Upper cases the first character. |
-| [`titlecase`](#titlecase) | Text | Upper cases the first character of every word. |
-| [`trim`](#trim) | Text | Removes the spaces before and after the value. |
-| [`nospace`](#nospace) | Text | Removes every space of the value, not just the surrounding ones. |
-| [`reverse`](#reverse) | Text | Reverses the value. |
-| [`length`](#length) | Text | Number of characters of the value. |
-| [`repeat`](#repeat) | Text | Repeats the value. |
-| [`truncate`](#truncate) | Text | Shortens the value when it's too long and appends an ellipsis. |
-| [`left`](#left) | Text | Keeps only the first characters of the value. |
-| [`right`](#right) | Text | Keeps only the last characters of the value. |
-| [`padstart`](#padstart) | Text | Pads the start of the value until it reaches the requested size. |
-| [`padend`](#padend) | Text | Pads the end of the value until it reaches the requested size. |
-| [`replace`](#replace) | Text | Replaces every occurrence of a text by another one. |
-| [`remove`](#remove) | Text | Removes every occurrence of a text. |
-| [`initials`](#initials) | Text | Keeps the first letter of every word, upper cased. |
-| [`deaccent`](#deaccent) | Text | Removes the accents of the value. |
-| [`stripemoji`](#stripemoji) | Text | Removes every emoji of the value. |
-| [`striphtml`](#striphtml) | Text | Removes the HTML tags of the value. |
-| [`nourl`](#nourl) | Text | Removes every link of the value. |
-| [`slug`](#slug) | Text | Converts the value to a URL friendly text. |
-| [`mock`](#mock) | Text | Alternates the case of every character, sPoNgEbOb style. |
-| [`mask`](#mask) | Text | Hides the end of the value behind a repeated character. |
-| [`round`](#round) | Numbers | Rounds the number to the closest value. |
-| [`floor`](#floor) | Numbers | Rounds the number down. |
-| [`ceil`](#ceil) | Numbers | Rounds the number up. |
-| [`abs`](#abs) | Numbers | Removes the sign of the number. |
-| [`add`](#add) | Numbers | Adds a number to the value. |
-| [`sub`](#sub) | Numbers | Subtracts a number from the value. |
-| [`mul`](#mul) | Numbers | Multiplies the value by a number. |
-| [`div`](#div) | Numbers | Divides the value by a number. |
-| [`min`](#min) | Numbers | Returns the smallest of the value and the given limit, which effectively caps the value to that limit. |
-| [`max`](#max) | Numbers | Returns the largest of the value and the given limit, which effectively raises the value up to that limit. |
-| [`clamp`](#clamp) | Numbers | Keeps the value between two limits. |
-| [`decimals`](#decimals) | Numbers | Forces a fixed number of decimals, adding trailing zeros if needed. |
-| [`sign`](#sign) | Numbers | Always shows the sign of the number, including the "+" of positives. |
-| [`separator`](#separator) | Numbers | Groups the digits of large numbers the way the current language does. |
-| [`compact`](#compact) | Numbers | Shortens large numbers. |
-| [`currency`](#currency) | Numbers | Formats the number as an amount of money, the way the current language does. |
-| [`ordinal`](#ordinal) | Numbers | Turns the number into a rank, translated to the current language. |
-| [`percent`](#percent) | Numbers | Converts the value to a percentage of a total. |
-| [`duration`](#duration) | Date & duration | Converts a number of milliseconds to a readable duration. |
-| [`date`](#date) | Date & duration | Converts a timestamp to a date, written the way the current language does. |
-| [`time`](#time) | Date & duration | Converts a timestamp to a time of the day, written the way the current language does. |
-| [`datetime`](#datetime) | Date & duration | Converts a timestamp to a date and a time, written the way the current language does. |
-| [`ago`](#ago) | Date & duration | Converts a timestamp to how long ago it was, translated to the current language. |
-| [`first`](#first) | Lists | First entry of a coma separated value. |
-| [`last`](#last) | Lists | Last entry of a coma separated value. |
-| [`nth`](#nth) | Lists | One specific entry of a coma separated value. |
-| [`count`](#count) | Lists | How many entries a coma separated value holds. |
-| [`join`](#join) | Lists | Rewrites a coma separated value with another separator. |
-| [`sort`](#sort) | Lists | Sorts the entries of a coma separated value alphabetically. |
-| [`unique`](#unique) | Lists | Removes the duplicated entries of a coma separated value. |
-| [`shuffle`](#shuffle) | Lists | Randomizes the order of the entries of a coma separated value. |
-| [`split`](#split) | Lists | Cuts the value on a separator and keeps one of the chunks. |
-| [`default`](#default) | Logic | Replaces the value by a fallback when it's empty. |
-| [`bool`](#bool) | Logic | Converts a true/false value to your own words. |
-| [`plural`](#plural) | Logic | Picks the singular or the plural word matching the number. |
-| [`equals`](#equals) | Logic | Compares the value to a text and picks one of two outcomes. |
-| [`urlencode`](#urlencode) | Encoding | Makes the value safe to put inside a URL. |
-| [`urldecode`](#urldecode) | Encoding | Reverts an URL encoded value. |
-| [`jsonescape`](#jsonescape) | Encoding | Makes the value safe to put inside a JSON text. |
-| [`htmlescape`](#htmlescape) | Encoding | Makes the value safe to put inside HTML. |
-| [`base64`](#base64) | Encoding | Encodes the value to base 64. |
-| [`base64decode`](#base64decode) | Encoding | Decodes a base 64 value. |
-
+| Modifier                        | Category          | What it does                                                                                               |
+| ------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| [`uppercase`](#uppercase)       | Text              | Converts the value to upper case.                                                                          |
+| [`lowercase`](#lowercase)       | Text              | Converts the value to lower case.                                                                          |
+| [`capitalize`](#capitalize)     | Text              | Upper cases the first character.                                                                           |
+| [`titlecase`](#titlecase)       | Text              | Upper cases the first character of every word.                                                             |
+| [`trim`](#trim)                 | Text              | Removes the spaces before and after the value.                                                             |
+| [`nospace`](#nospace)           | Text              | Removes every space of the value, not just the surrounding ones.                                           |
+| [`reverse`](#reverse)           | Text              | Reverses the value.                                                                                        |
+| [`length`](#length)             | Text              | Number of characters of the value.                                                                         |
+| [`repeat`](#repeat)             | Text              | Repeats the value.                                                                                         |
+| [`truncate`](#truncate)         | Text              | Shortens the value when it's too long and appends an ellipsis.                                             |
+| [`left`](#left)                 | Text              | Keeps only the first characters of the value.                                                              |
+| [`right`](#right)               | Text              | Keeps only the last characters of the value.                                                               |
+| [`padstart`](#padstart)         | Text              | Pads the start of the value until it reaches the requested size.                                           |
+| [`padend`](#padend)             | Text              | Pads the end of the value until it reaches the requested size.                                             |
+| [`replace`](#replace)           | Text              | Replaces every occurrence of a text by another one.                                                        |
+| [`remove`](#remove)             | Text              | Removes every occurrence of a text.                                                                        |
+| [`initials`](#initials)         | Text              | Keeps the first letter of every word, upper cased.                                                         |
+| [`deaccent`](#deaccent)         | Text              | Removes the accents of the value.                                                                          |
+| [`stripemoji`](#stripemoji)     | Text              | Removes every emoji of the value.                                                                          |
+| [`striphtml`](#striphtml)       | Text              | Removes the HTML tags of the value.                                                                        |
+| [`nourl`](#nourl)               | Text              | Removes every link of the value.                                                                           |
+| [`slug`](#slug)                 | Text              | Converts the value to a URL friendly text.                                                                 |
+| [`mock`](#mock)                 | Text              | Alternates the case of every character, sPoNgEbOb style.                                                   |
+| [`mask`](#mask)                 | Text              | Hides the end of the value behind a repeated character.                                                    |
+| [`round`](#round)               | Numbers           | Rounds the number to the closest value.                                                                    |
+| [`floor`](#floor)               | Numbers           | Rounds the number down.                                                                                    |
+| [`ceil`](#ceil)                 | Numbers           | Rounds the number up.                                                                                      |
+| [`abs`](#abs)                   | Numbers           | Removes the sign of the number.                                                                            |
+| [`add`](#add)                   | Numbers           | Adds a number to the value.                                                                                |
+| [`sub`](#sub)                   | Numbers           | Subtracts a number from the value.                                                                         |
+| [`mul`](#mul)                   | Numbers           | Multiplies the value by a number.                                                                          |
+| [`div`](#div)                   | Numbers           | Divides the value by a number.                                                                             |
+| [`min`](#min)                   | Numbers           | Returns the smallest of the value and the given limit, which effectively caps the value to that limit.     |
+| [`max`](#max)                   | Numbers           | Returns the largest of the value and the given limit, which effectively raises the value up to that limit. |
+| [`clamp`](#clamp)               | Numbers           | Keeps the value between two limits.                                                                        |
+| [`decimals`](#decimals)         | Numbers           | Forces a fixed number of decimals, adding trailing zeros if needed.                                        |
+| [`sign`](#sign)                 | Numbers           | Always shows the sign of the number, including the "+" of positives.                                       |
+| [`separator`](#separator)       | Numbers           | Groups the digits of large numbers the way the current language does.                                      |
+| [`compact`](#compact)           | Numbers           | Shortens large numbers.                                                                                    |
+| [`currency`](#currency)         | Numbers           | Formats the number as an amount of money, the way the current language does.                               |
+| [`ordinal`](#ordinal)           | Numbers           | Turns the number into a rank, translated to the current language.                                          |
+| [`percent`](#percent)           | Numbers           | Converts the value to a percentage of a total.                                                             |
+| [`duration`](#duration)         | Date & duration   | Converts a number of milliseconds to a readable duration.                                                  |
+| [`date`](#date)                 | Date & duration   | Converts a timestamp to a date, written the way the current language does.                                 |
+| [`time`](#time)                 | Date & duration   | Converts a timestamp to a time of the day, written the way the current language does.                      |
+| [`datetime`](#datetime)         | Date & duration   | Converts a timestamp to a date and a time, written the way the current language does.                      |
+| [`ago`](#ago)                   | Date & duration   | Converts a timestamp to how long ago it was, translated to the current language.                           |
+| [`first`](#first)               | Lists             | First entry of a coma separated value.                                                                     |
+| [`last`](#last)                 | Lists             | Last entry of a coma separated value.                                                                      |
+| [`nth`](#nth)                   | Lists             | One specific entry of a coma separated value.                                                              |
+| [`count`](#count)               | Lists             | How many entries a coma separated value holds.                                                             |
+| [`join`](#join)                 | Lists             | Rewrites a coma separated value with another separator.                                                    |
+| [`sort`](#sort)                 | Lists             | Sorts the entries of a coma separated value alphabetically.                                                |
+| [`unique`](#unique)             | Lists             | Removes the duplicated entries of a coma separated value.                                                  |
+| [`shuffle`](#shuffle)           | Lists             | Randomizes the order of the entries of a coma separated value.                                             |
+| [`split`](#split)               | Lists             | Cuts the value on a separator and keeps one of the chunks.                                                 |
+| [`default`](#default)           | Logic             | Replaces the value by a fallback when it's empty.                                                          |
+| [`bool`](#bool)                 | Logic             | Converts a true/false value to your own words.                                                             |
+| [`plural`](#plural)             | Logic             | Picks the singular or the plural word matching the number.                                                 |
+| [`equals`](#equals)             | Logic             | Compares the value to a text and picks one of two outcomes.                                                |
+| [`urlencode`](#urlencode)       | Encoding          | Makes the value safe to put inside a URL.                                                                  |
+| [`urldecode`](#urldecode)       | Encoding          | Reverts an URL encoded value.                                                                              |
+| [`jsonescape`](#jsonescape)     | Encoding          | Makes the value safe to put inside a JSON text.                                                            |
+| [`htmlescape`](#htmlescape)     | Encoding          | Makes the value safe to put inside HTML.                                                                   |
+| [`base64`](#base64)             | Encoding          | Encodes the value to base 64.                                                                              |
+| [`base64decode`](#base64decode) | Encoding          | Decodes a base 64 value.                                                                                   |
+| [`user`](#user)                 | Values / Counters | Get the value of a speciifc user                                                                           |
 
 ## Text
 
@@ -205,9 +205,9 @@ Number of characters of the value. An emoji counts as one character.
 
 Repeats the value.
 
-| Argument | Description |
-|---|---|
-| `count` | How many times to repeat it. Defaults to 1, capped at 100. |
+| Argument | Description                                                |
+| -------- | ---------------------------------------------------------- |
+| `count`  | How many times to repeat it. Defaults to 1, capped at 100. |
 
 ```
 {EMOTE.repeat(3)} => KappaKappaKappa
@@ -217,9 +217,9 @@ Repeats the value.
 
 Shortens the value when it's too long and appends an ellipsis. Shorter values are returned untouched, without the ellipsis.
 
-| Argument | Description |
-|---|---|
-| `size` | Maximum number of characters. Defaults to 50. |
+| Argument   | Description                                        |
+| ---------- | -------------------------------------------------- |
+| `size`     | Maximum number of characters. Defaults to 50.      |
 | `ellipsis` | Appended when the value gets cut. Defaults to "…". |
 
 ```
@@ -231,9 +231,9 @@ Shortens the value when it's too long and appends an ellipsis. Shorter values ar
 
 Keeps only the first characters of the value.
 
-| Argument | Description |
-|---|---|
-| `count` | How many characters to keep. Defaults to 0. |
+| Argument | Description                                 |
+| -------- | ------------------------------------------- |
+| `count`  | How many characters to keep. Defaults to 0. |
 
 ```
 {USER.left(3)} => Dur
@@ -243,9 +243,9 @@ Keeps only the first characters of the value.
 
 Keeps only the last characters of the value.
 
-| Argument | Description |
-|---|---|
-| `count` | How many characters to keep. Defaults to 0. |
+| Argument | Description                                 |
+| -------- | ------------------------------------------- |
+| `count`  | How many characters to keep. Defaults to 0. |
 
 ```
 {USER.right(3)} => rss
@@ -255,10 +255,10 @@ Keeps only the last characters of the value.
 
 Pads the start of the value until it reaches the requested size. Handy to align values on an overlay.
 
-| Argument | Description |
-|---|---|
-| `size` | Size to reach. Defaults to 0. |
-| `char` | Character to pad with. Defaults to a space. |
+| Argument | Description                                 |
+| -------- | ------------------------------------------- |
+| `size`   | Size to reach. Defaults to 0.               |
+| `char`   | Character to pad with. Defaults to a space. |
 
 ```
 {SCORE.padstart(5, 0)} => 00042
@@ -268,10 +268,10 @@ Pads the start of the value until it reaches the requested size. Handy to align 
 
 Pads the end of the value until it reaches the requested size.
 
-| Argument | Description |
-|---|---|
-| `size` | Size to reach. Defaults to 0. |
-| `char` | Character to pad with. Defaults to a space. |
+| Argument | Description                                 |
+| -------- | ------------------------------------------- |
+| `size`   | Size to reach. Defaults to 0.               |
+| `char`   | Character to pad with. Defaults to a space. |
 
 ```
 {USER.padend(10, .)} => Durss.....
@@ -281,10 +281,10 @@ Pads the end of the value until it reaches the requested size.
 
 Replaces every occurrence of a text by another one. This is a plain text search, not a regular expression.
 
-| Argument | Description |
-|---|---|
-| `search` | Text to search for. The value is untouched when empty. |
-| `replacement` | Text to replace it with. Defaults to an empty text. |
+| Argument      | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| `search`      | Text to search for. The value is untouched when empty. |
+| `replacement` | Text to replace it with. Defaults to an empty text.    |
 
 ```
 {MESSAGE.replace(hello, hi)} => hi world
@@ -294,8 +294,8 @@ Replaces every occurrence of a text by another one. This is a plain text search,
 
 Removes every occurrence of a text.
 
-| Argument | Description |
-|---|---|
+| Argument | Description                                        |
+| -------- | -------------------------------------------------- |
 | `search` | Text to remove. The value is untouched when empty. |
 
 ```
@@ -362,10 +362,10 @@ Alternates the case of every character, sPoNgEbOb style.
 
 Hides the end of the value behind a repeated character.
 
-| Argument | Description |
-|---|---|
-| `keep` | How many characters to leave visible. Defaults to 0, which hides everything. |
-| `char` | Character to hide behind. Defaults to "*". |
+| Argument | Description                                                                  |
+| -------- | ---------------------------------------------------------------------------- |
+| `keep`   | How many characters to leave visible. Defaults to 0, which hides everything. |
+| `char`   | Character to hide behind. Defaults to "\*".                                  |
 
 ```
 {USER.mask(3)} => Dur**
@@ -378,8 +378,8 @@ Hides the end of the value behind a repeated character.
 
 Rounds the number to the closest value.
 
-| Argument | Description |
-|---|---|
+| Argument   | Description                               |
+| ---------- | ----------------------------------------- |
 | `decimals` | How many decimals to keep. Defaults to 0. |
 
 ```
@@ -415,8 +415,8 @@ Removes the sign of the number.
 
 Adds a number to the value.
 
-| Argument | Description |
-|---|---|
+| Argument | Description                   |
+| -------- | ----------------------------- |
 | `amount` | Number to add. Defaults to 0. |
 
 ```
@@ -427,8 +427,8 @@ Adds a number to the value.
 
 Subtracts a number from the value.
 
-| Argument | Description |
-|---|---|
+| Argument | Description                        |
+| -------- | ---------------------------------- |
 | `amount` | Number to subtract. Defaults to 0. |
 
 ```
@@ -439,8 +439,8 @@ Subtracts a number from the value.
 
 Multiplies the value by a number.
 
-| Argument | Description |
-|---|---|
+| Argument | Description                           |
+| -------- | ------------------------------------- |
 | `amount` | Number to multiply by. Defaults to 1. |
 
 ```
@@ -451,8 +451,8 @@ Multiplies the value by a number.
 
 Divides the value by a number. Dividing by 0 gives 0 rather than an error.
 
-| Argument | Description |
-|---|---|
+| Argument | Description                         |
+| -------- | ----------------------------------- |
 | `amount` | Number to divide by. Defaults to 1. |
 
 ```
@@ -463,9 +463,9 @@ Divides the value by a number. Dividing by 0 gives 0 rather than an error.
 
 Returns the smallest of the value and the given limit, which effectively caps the value to that limit.
 
-| Argument | Description |
-|---|---|
-| `limit` | Highest value that can come out. |
+| Argument | Description                      |
+| -------- | -------------------------------- |
+| `limit`  | Highest value that can come out. |
 
 ```
 {VIEWERS.min(100)} => 100 when there are 250 viewers
@@ -475,9 +475,9 @@ Returns the smallest of the value and the given limit, which effectively caps th
 
 Returns the largest of the value and the given limit, which effectively raises the value up to that limit.
 
-| Argument | Description |
-|---|---|
-| `limit` | Lowest value that can come out. |
+| Argument | Description                     |
+| -------- | ------------------------------- |
+| `limit`  | Lowest value that can come out. |
 
 ```
 {VIEWERS.max(10)} => 10 when there are 3 viewers
@@ -487,10 +487,10 @@ Returns the largest of the value and the given limit, which effectively raises t
 
 Keeps the value between two limits.
 
-| Argument | Description |
-|---|---|
-| `min` | Lowest value that can come out. |
-| `max` | Highest value that can come out. |
+| Argument | Description                      |
+| -------- | -------------------------------- |
+| `min`    | Lowest value that can come out.  |
+| `max`    | Highest value that can come out. |
 
 ```
 {VIEWERS.clamp(1, 100)} => 100 when there are 250 viewers
@@ -500,9 +500,9 @@ Keeps the value between two limits.
 
 Forces a fixed number of decimals, adding trailing zeros if needed.
 
-| Argument | Description |
-|---|---|
-| `count` | How many decimals to show. Defaults to 0, capped at 20. |
+| Argument | Description                                             |
+| -------- | ------------------------------------------------------- |
+| `count`  | How many decimals to show. Defaults to 0, capped at 20. |
 
 ```
 {AMOUNT.decimals(2)} => 5.00
@@ -536,9 +536,9 @@ Shortens large numbers. Great for follower or viewer counts.
 
 Formats the number as an amount of money, the way the current language does. An unknown currency code gives the raw number back.
 
-| Argument | Description |
-|---|---|
-| `code` | Currency code, ex: EUR, USD, GBP. Defaults to USD. |
+| Argument | Description                                        |
+| -------- | -------------------------------------------------- |
+| `code`   | Currency code, ex: EUR, USD, GBP. Defaults to USD. |
 
 ```
 {AMOUNT.currency(EUR)} => €12.50
@@ -556,9 +556,9 @@ Turns the number into a rank, translated to the current language.
 
 Converts the value to a percentage of a total. The "%" sign isn't added so the result can be chained with another modifier such as round.
 
-| Argument | Description |
-|---|---|
-| `total` | Value representing 100%. Defaults to 100. |
+| Argument | Description                               |
+| -------- | ----------------------------------------- |
+| `total`  | Value representing 100%. Defaults to 100. |
 
 ```
 {COUNTER_DONE.percent(50).round} => 40
@@ -628,9 +628,9 @@ Last entry of a coma separated value.
 
 One specific entry of a coma separated value.
 
-| Argument | Description |
-|---|---|
-| `index` | Position of the entry, starting at 1. Defaults to 1. |
+| Argument | Description                                          |
+| -------- | ---------------------------------------------------- |
+| `index`  | Position of the entry, starting at 1. Defaults to 1. |
 
 ```
 {RAFFLE_WINNERS.nth(2)} => Bob
@@ -648,8 +648,8 @@ How many entries a coma separated value holds.
 
 Rewrites a coma separated value with another separator.
 
-| Argument | Description |
-|---|---|
+| Argument    | Description                                        |
+| ----------- | -------------------------------------------------- |
 | `separator` | Text placed between the entries. Defaults to ", ". |
 
 ```
@@ -684,10 +684,10 @@ Randomizes the order of the entries of a coma separated value.
 
 Cuts the value on a separator and keeps one of the chunks. Unlike the other list modifiers this one works with any separator.
 
-| Argument | Description |
-|---|---|
-| `separator` | Text to cut the value on. Defaults to ",". |
-| `index` | Position of the chunk to keep, starting at 1. Defaults to 1. |
+| Argument    | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| `separator` | Text to cut the value on. Defaults to ",".                   |
+| `index`     | Position of the chunk to keep, starting at 1. Defaults to 1. |
 
 ```
 {MESSAGE.split(" ", 2)} => world
@@ -699,8 +699,8 @@ Cuts the value on a separator and keeps one of the chunks. Unlike the other list
 
 Replaces the value by a fallback when it's empty. Saves having to add a condition to the trigger.
 
-| Argument | Description |
-|---|---|
+| Argument   | Description                                                   |
+| ---------- | ------------------------------------------------------------- |
 | `fallback` | Text used when the value is empty. Defaults to an empty text. |
 
 ```
@@ -711,9 +711,9 @@ Replaces the value by a fallback when it's empty. Saves having to add a conditio
 
 Converts a true/false value to your own words. "true", "1", "yes" and "on" all count as true, anything else is false.
 
-| Argument | Description |
-|---|---|
-| `ifTrue` | Text used when the value is true. |
+| Argument  | Description                        |
+| --------- | ---------------------------------- |
+| `ifTrue`  | Text used when the value is true.  |
 | `ifFalse` | Text used when the value is false. |
 
 ```
@@ -724,11 +724,11 @@ Converts a true/false value to your own words. "true", "1", "yes" and "on" all c
 
 Picks the singular or the plural word matching the number. The value itself is replaced by the word, so write the number next to it. A value that isn't a number counts as 0.
 
-| Argument | Description |
-|---|---|
-| `singular` | Word used when the value is 1 or -1. |
-| `plural` | Word used otherwise. |
-| `zero` | Optional word used when the value is exactly 0. |
+| Argument   | Description                                     |
+| ---------- | ----------------------------------------------- |
+| `singular` | Word used when the value is 1 or -1.            |
+| `plural`   | Word used otherwise.                            |
+| `zero`     | Optional word used when the value is exactly 0. |
 
 ```
 {VIEWERS} {VIEWERS.plural(viewer, viewers)} => 5 viewers
@@ -739,10 +739,10 @@ Picks the singular or the plural word matching the number. The value itself is r
 
 Compares the value to a text and picks one of two outcomes. The comparison ignores the case and the surrounding spaces.
 
-| Argument | Description |
-|---|---|
-| `compareTo` | Text to compare the value to. |
-| `ifEqual` | Text used when both match. |
+| Argument      | Description                                        |
+| ------------- | -------------------------------------------------- |
+| `compareTo`   | Text to compare the value to.                      |
+| `ifEqual`     | Text used when both match.                         |
 | `ifDifferent` | Text used otherwise. Defaults to the value itself. |
 
 ```
@@ -797,4 +797,25 @@ Decodes a base 64 value. Invalid values are left untouched.
 
 ```
 {PAYLOAD.base64decode} => hello
+```
+
+### user
+
+Gets the value of a per-user Counter of Value for a specific user.
+
+```
+{VALUE_MY-VALUE.user("Durss")} => durss's value
+{COUNTER_VALUE_MY-COUNTER.user("Durss")} => durss's counter
+```
+
+You can also use placeholders:
+
+```
+{VALUE_MY-VALUE.user("{CUSTOM_USER}")} => custom user's value
+```
+
+A user ID can be given in place of the name
+
+```
+{VALUE_MY-VALUE.user("29961813")} => durss's value
 ```

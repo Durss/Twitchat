@@ -42,6 +42,7 @@ import {
 	unescapeLiteralPlaceholders,
 	type IPlaceholderOccurrence,
 } from "../PlaceholderModifiers";
+import { registerOptionalPlaceholderModifiers } from "../OptionalPlaceholderModifiers";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
@@ -2483,6 +2484,7 @@ export default class TriggerActionHandler {
 	 * PRIVATE METHODS *
 	 *******************/
 	private initialize(): void {
+		registerOptionalPlaceholderModifiers();
 		void this.checkLiveFollowings(false);
 		this.buildHashmap(StoreProxy.triggers.triggerList);
 	}

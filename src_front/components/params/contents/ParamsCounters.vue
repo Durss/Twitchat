@@ -345,6 +345,7 @@ import { storeCounters as useStoreCounters } from "@/store/counters/storeCounter
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import Config from "@/utils/Config";
+import { indexUserLogins } from "@/utils/CounterValueUserIndex";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -853,7 +854,10 @@ async function loadUsers(counterItem: CounterEntry): Promise<void> {
 	}
 	counterItem.idToLoading[counterItem.counter.id] = false;
 
-	if (loginUpdated) storeCounters.saveCounters();
+	if (loginUpdated) {
+		indexUserLogins(counterItem.counter.users);
+		storeCounters.saveCounters();
+	}
 }
 
 /**

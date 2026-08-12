@@ -12,6 +12,7 @@ import {
 	findPlaceholders,
 	getModifierNames,
 	type OrdinalLabels,
+	registerModifier,
 	replacePlaceholder,
 	replacePlaceholders,
 	splicePlaceholders,
@@ -23,6 +24,15 @@ import {
  * Checked by the "modifier coverage" suite at the bottom of this file.
  */
 const executedModifiers = new Set<string>();
+
+/**
+ * Modifiers this module declares itself, captured before any test registers
+ * one of its own. The documentation and coverage suites police that built in
+ * catalogue only: modifiers registered by the app (see
+ * StorePlaceholderModifiers) live outside this file, and outside the
+ * documentation generated from it.
+ */
+const builtinModifiers = getModifierNames();
 
 /**
  * Replays what TriggerActionHandler does: replaces the {TAG...} occurrences
@@ -127,11 +137,10 @@ describe("documentation", () => {
 	const allDocumented = new Set([...documented, ...aliases]);
 
 	it("documents every modifier", () => {
-		expect(getModifierNames().filter((name) => !allDocumented.has(name))).toEqual([]);
+		expect(builtinModifiers.filter((name) => !allDocumented.has(name))).toEqual([]);
 	});
 	it("documents no modifier that no longer exists", () => {
-		const runtime = getModifierNames();
-		expect([...allDocumented].filter((name) => !runtime.includes(name))).toEqual([]);
+		expect([...allDocumented].filter((name) => !builtinModifiers.includes(name))).toEqual([]);
 	});
 });
 
@@ -822,9 +831,45 @@ describe("numbers and dates follow the app language, not the system one", () => 
 //Catches adding a modifier without testing it. Relies on what the tests
 //above actually ran, so it must stay the last suite of the file and it
 //only means something when the whole file runs
+describe("modifiers registered by the app", () => {
+	it("runs a modifier registered from the outside", () => {
+		registerModifier("shout", (v) => v + "!");
+		expect(parseAll("{USER.shout}", { USER: "Durss" })).toBe("Durss!");
+	});
+	it("tells the handler which tag it is written on", () => {
+		let seen: string | undefined;
+		registerModifier("spy", (v, _args, context) => {
+			seen = context?.tag;
+			return v;
+		});
+		parseAll("{USER.spy}", { USER: "Durss" });
+		expect(seen).toBe("USER");
+	});
+	it("gives each occurrence the tag it belongs to", () => {
+		const seen: string[] = [];
+		registerModifier("collect", (v, _args, context) => {
+			seen.push(context?.tag ?? "");
+			return v;
+		});
+		parseAll("{USER.collect} {MESSAGE.collect}", { USER: "D", MESSAGE: "hi" });
+		expect(seen).toEqual(["USER", "MESSAGE"]);
+	});
+	//This is what lets {COUNTER_VALUE_X.user("{USER}")} read the entry of
+	//whoever the trigger is executing for
+	it("resolves the placeholders of an argument before handing it over", () => {
+		let seen: string | undefined;
+		registerModifier("peek", (v, args) => {
+			seen = args[0];
+			return v;
+		});
+		parseAll('{COUNTER.peek("{USER}")}', { COUNTER: "12", USER: "durss" });
+		expect(seen).toBe("durss");
+	});
+});
+
 describe("modifier coverage", () => {
 	it("runs every modifier at least once", () => {
-		expect(getModifierNames().filter((name) => !executedModifiers.has(name))).toEqual([]);
+		expect(builtinModifiers.filter((name) => !executedModifiers.has(name))).toEqual([]);
 	});
 });
 

@@ -2,6 +2,7 @@ import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import { indexUserLogin, indexUserLogins } from "@/utils/CounterValueUserIndex";
 import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
@@ -26,6 +27,7 @@ export const storeValues = defineStore("values", {
 					JSON.parse(valuesParams),
 					this.valueList as unknown as JsonObject,
 				);
+				this.valueList.forEach((v) => indexUserLogins(v.users));
 			}
 		},
 
@@ -114,8 +116,9 @@ export const storeValues = defineStore("values", {
 							entry.users![uid] = {
 								value: value,
 								platform: user?.platform || entry.users![uid]?.platform || "twitch",
-								login: user?.login || entry.users![uid]?.platform,
+								login: user?.login || "??",
 							};
+							indexUserLogin(entry.users![uid]!.login, uid);
 						}
 					} else {
 						prevValue = entry.value;

@@ -29,6 +29,13 @@ export interface IPlaceholderModifier {
 	argPlaceholders?: IPlaceholderOccurrence[][];
 }
 
+/**
+ * What a modifier is being applied to
+ */
+export interface IModifierContext {
+	tag: string;
+}
+
 interface IPlaceholderMatch {
 	/** Index just after the closing brace */
 	end: number;
@@ -112,13 +119,17 @@ export function replacePlaceholder(
  * Applies a modifier chain to a value.
  * Unknown modifiers are ignored so a typo doesn't wipe out the value.
  */
-export function applyModifiers(value: string, modifiers: IPlaceholderModifier[]): string {
+export function applyModifiers(
+	value: string,
+	modifiers: IPlaceholderModifier[],
+	context?: IModifierContext,
+): string {
 	let res = value;
 	for (const modifier of modifiers) {
 		const handler = MODIFIERS[modifier.name];
 		if (!handler) continue;
 		try {
-			res = handler(res, modifier.args);
+			res = handler(res, modifier.args, context);
 		} catch (_error) {
 			/* keep the previous value on failure */
 		}
@@ -265,7 +276,9 @@ function resolveOccurrence(
 ): string | undefined {
 	const rawValue = getValue(occurrence.tag);
 	if (rawValue == undefined) return undefined;
-	return applyModifiers(rawValue, resolveArguments(occurrence.modifiers, getValue));
+	return applyModifiers(rawValue, resolveArguments(occurrence.modifiers, getValue), {
+		tag: occurrence.tag,
+	});
 }
 
 /**
@@ -330,10 +343,20 @@ export function replacePlaceholders(
 }
 
 /**
- * Name of every available modifier. Mostly useful to build the UI.
+ * Name of every available modifier.
  */
 export function getModifierNames(): string[] {
 	return Object.keys(MODIFIERS);
+}
+
+/**
+ * Adds a modifier from the outside.
+ *
+ * Must be used for modifiers request store data so this file remains
+ * dependency-free
+ */
+export function registerModifier(name: string, handler: PlaceholderModifier): void {
+	MODIFIERS[name.toLowerCase()] = handler;
 }
 
 /**
@@ -683,7 +706,11 @@ function fromBase64(value: string): string {
  * MODIFIERS       *
  *******************/
 
-export type PlaceholderModifier = (value: string, args: string[]) => string;
+export type PlaceholderModifier = (
+	value: string,
+	args: string[],
+	context?: IModifierContext,
+) => string;
 
 const MODIFIERS: { [name: string]: PlaceholderModifier } = {
 	//#region Text
