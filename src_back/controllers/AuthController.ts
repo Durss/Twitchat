@@ -51,6 +51,10 @@ export default class AuthController extends AbstractController {
 			async (request, response) => await this.validateCSRFToken(request, response),
 		);
 		this.server.post(
+			"/api/auth/validate",
+			async (request, response) => await this.validateTwitchToken(request, response),
+		);
+		this.server.post(
 			"/api/auth/validateDataShare",
 			async (request, response) => await this.validateDataShare(request, response),
 		);
@@ -248,6 +252,50 @@ export default class AuthController extends AbstractController {
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
+		response.send(JSON.stringify(json));
+	}
+
+	/**
+	 * Validates a twitch access token and returns its info
+	 *
+	 * @param {*} request
+	 * @param {*} response
+	 */
+	private async validateTwitchToken(
+		request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<void> {
+		const params: any = request.body;
+		const token = params.token;
+
+		if (!token || token === "undefined") {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(JSON.stringify({ status: 401, message: "missing access token" }));
+			return;
+		}
+
+		let json;
+		let status;
+		try {
+			const res = await fetch("https://id.twitch.tv/oauth2/validate", {
+				method: "GET",
+				headers: { Authorization: "Bearer " + token },
+			});
+			status = res.status;
+			json = await res.json();
+		} catch (error) {
+			Logger.error("Token validation failed");
+			Logger.error(error);
+
+			response.header("Content-Type", "application/json");
+			response.status(500);
+			response.send(JSON.stringify({ message: "error", success: false }));
+			return;
+		}
+
+		response.header("Content-Type", "application/json");
+		response.status(status);
 		response.send(JSON.stringify(json));
 	}
 

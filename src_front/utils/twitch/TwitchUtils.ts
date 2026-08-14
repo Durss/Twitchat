@@ -15,6 +15,7 @@ import type { AutocompletableString } from "@/typeUtils";
 import DOMPurify from "isomorphic-dompurify";
 import { ref } from "vue";
 import { PREFIX_SPACER, SUFFIX_SPACER } from "@/store/stream/storeStream";
+import ApiHelper from "../ApiHelper";
 
 /**
  * Created : 19/01/2021
@@ -148,15 +149,8 @@ export default class TwitchUtils {
 	public static async validateToken(
 		accessToken: string,
 	): Promise<TwitchDataTypes.Token | TwitchDataTypes.Error> {
-		const headers = {
-			Authorization: "Bearer " + accessToken,
-		};
-		const options = {
-			method: "GET",
-			headers: headers,
-		};
-		const result = await fetch("https://id.twitch.tv/oauth2/validate", options);
-		return await result.json();
+		const result = await ApiHelper.call("auth/validate", "POST", { token: accessToken }, false);
+		return result.json;
 	}
 
 	/**

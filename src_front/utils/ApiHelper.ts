@@ -186,6 +186,14 @@ type ApiEndpoints = {
 			};
 		};
 	};
+	"auth/validate": {
+		POST: {
+			parameters: {
+				token: string;
+			};
+			response: TwitchDataTypes.Token | TwitchDataTypes.Error;
+		};
+	};
 	"auth/validateDataShare": {
 		POST: {
 			parameters: {
