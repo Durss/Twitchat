@@ -3251,7 +3251,7 @@ export default class TwitchUtils {
 
 		// Avoid potentially leaking private stuff by misstyping a /command
 		// Twitch now strip the command and sends the message to tchat
-		if (message.startsWith("/")) return false;
+		if (message.startsWith("/") && !message.startsWith("/me")) return false;
 
 		while (message.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
