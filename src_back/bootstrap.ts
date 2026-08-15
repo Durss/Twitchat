@@ -47,11 +47,16 @@ I18n.instance.initialize();
 
 // Trusted proxies for resolving the real client IP from X-Forwarded-For.
 // Dynamically loading Cloudflare IPs
-const ipv4Query = await fetch("https://www.cloudflare.com/ips-v4/");
-const ipv6Query = await fetch("https://www.cloudflare.com/ips-v6/");
-const ipv4 = await ipv4Query.text();
-const ipv6 = await ipv6Query.text();
-const cloudflareIpList = [...ipv4.split("\n"), ...ipv6.split("\n")];
+let cloudflareIpList: string[] = [];
+try {
+	const ipv4Query = await fetch("https://www.cloudflare.com/ips-v4/");
+	const ipv6Query = await fetch("https://www.cloudflare.com/ips-v6/");
+	const ipv4 = await ipv4Query.text();
+	const ipv6 = await ipv6Query.text();
+	cloudflareIpList = [...ipv4.split("\n"), ...ipv6.split("\n")];
+} catch (_error) {
+	/* ignore */
+}
 const TRUSTED_PROXIES: string[] = [
 	"127.0.0.1",
 	"::1",
