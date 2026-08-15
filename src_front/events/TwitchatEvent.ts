@@ -1933,6 +1933,11 @@ export type TwitchatEventMap = {
 			theme?: "default" | "primary" | "secondary" | "alert";
 		}[];
 	};
+	/**
+	 * Just here for retro compatibility
+	 * @private
+	 */
+	CUSTOM_CHAT_MESSAGE: TwitchatEventMap["SET_SEND_CUSTOM_CHAT_MESSAGE"];
 
 	/**
 	 * Request quiz overlay presence

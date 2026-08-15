@@ -33,6 +33,7 @@ import type { JsonObject } from "type-fest";
 import DataStore from "./DataStore";
 import Database from "./Database";
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from "./StoreProxy";
+import type TwitchatEvent from "@/events/TwitchatEvent";
 
 export const storeMain = defineStore("main", {
 	state: (): IMainState => ({
@@ -526,10 +527,11 @@ export const storeMain = defineStore("main", {
 				);
 			});
 
-			/**
-			 * Called when pushing custom messages on Twitchat
-			 */
-			PublicAPI.instance.addEventListener("SET_SEND_CUSTOM_CHAT_MESSAGE", (e) => {
+			function sendCustomChatMessage(
+				e:
+					| TwitchatEvent<"SET_SEND_CUSTOM_CHAT_MESSAGE">
+					| TwitchatEvent<"CUSTOM_CHAT_MESSAGE">,
+			) {
 				const data = e.data!;
 				const chunksMessage = TwitchUtils.parseMessageToChunks(
 					data.message || "",
@@ -561,7 +563,17 @@ export const storeMain = defineStore("main", {
 				if (data.canClose === false) message.canClose = false;
 				if (data.todayFirst === true) message.todayFirst = true;
 				void StoreProxy.chat.addMessage(message);
-			});
+			}
+
+			/**
+			 * Called when pushing custom messages on Twitchat
+			 */
+			PublicAPI.instance.addEventListener("SET_SEND_CUSTOM_CHAT_MESSAGE", (e) =>
+				sendCustomChatMessage(e),
+			);
+			PublicAPI.instance.addEventListener("CUSTOM_CHAT_MESSAGE", (e) =>
+				sendCustomChatMessage(e),
+			);
 
 			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
