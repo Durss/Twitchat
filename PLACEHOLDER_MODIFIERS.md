@@ -130,7 +130,7 @@ If you want to actually return something that looks a placeholder without it bei
 | [`base64`](#base64)             | Encoding          | Encodes the value to base 64.                                                                              |
 | [`base64decode`](#base64decode) | Encoding          | Decodes a base 64 value.                                                                                   |
 | [`user`](#user)                 | Values / Counters | Get the Value/Counter's value of a speciifc user                                                           |
-| [`has`](#user)                  | Values / Counters | Get if the user exists on a per-user Counter/Value                                                         |
+| [`has`](#has)                   | Values / Counters | Get if the user exists on a per-user Counter/Value                                                         |
 
 ## Text
 
@@ -821,23 +821,23 @@ A user ID can be given in place of the name
 {VALUE_MY-VALUE.user("29961813")} => durss's value
 ```
 
-### user
+### has
 
 Gets if a specific user exists on a per-user Counter or Value
 
 ```
-{VALUE_MY-VALUE.has("Durss")} => true/false
-{COUNTER_VALUE_MY-COUNTER.user("Durss")} => true/false
+{VALUE_MY-VALUE.has("Durss")} => durss exists?
+{COUNTER_VALUE_MY-COUNTER.has("Durss")} => durss exists?
 ```
 
 You can also use placeholders:
 
 ```
-{VALUE_MY-VALUE.user("{CUSTOM_USER}")} => custom user's value
+{VALUE_MY-VALUE.has("{CUSTOM_USER}")} => custom user exists?
 ```
 
 A user ID can be given in place of the name
 
 ```
-{VALUE_MY-VALUE.user("29961813")} => durss's value
+{VALUE_MY-VALUE.has("29961813")} => durss exists?
 ```
