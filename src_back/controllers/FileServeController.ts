@@ -126,7 +126,6 @@ export default class FileServeController extends AbstractController {
 				streamersonglist_client_id: Config.credentials.streamersonglist_client_id,
 				streamersonglist_scopes: Config.credentials.streamersonglist_scopes,
 
-				twitchExtension_version: Config.credentials.twitchExtension_version,
 				twitchExtension_client_id: Config.credentials.twitchExtension_client_id,
 			};
 
