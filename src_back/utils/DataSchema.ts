@@ -65,6 +65,7 @@ const UserDataSchema = {
 				id: { type: "string", maxLength: 50 },
 				type: { const: "condition" },
 				placeholder: { type: "string", maxLength: 100 },
+				customPlaceholder: { type: "string", maxLength: 300 },
 				operator: { type: "string", maxLength: 20 },
 				operatorVal: { type: "string", maxLength: 500 },
 				caseSensitive: { type: "boolean" },

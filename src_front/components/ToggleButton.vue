@@ -20,7 +20,7 @@
 		</div>
 		<Icon name="cross" class="cross" />
 		<input
-			:id="inputId"
+			:id="inputId ? inputId : undefined"
 			type="checkbox"
 			v-model="localValue"
 			class="input"

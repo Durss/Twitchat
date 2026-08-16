@@ -1,104 +1,139 @@
 <template>
-	<div class="triggerconditionlistitem">
-		<Icon name="dragZone" class="dragIcon" />
-
-		<ParamItem
-			class="value"
-			v-if="forceCustomPlaceholder"
-			noBackground
-			:paramData="param_placeholder"
-			v-model="condition.placeholder"
-		/>
-		<ParamItem
-			class="placeholder"
-			v-else
-			noBackground
-			:paramData="param_placeholder_list"
-			@change="onSelectPlaceholder()"
-			v-model="condition.placeholder"
-			:key="'ph_' + condition.id"
-		/>
-
-		<ParamItem
-			class="operator"
-			noBackground
-			:paramData="param_operator"
-			v-model="condition.operator as string"
-			:key="'op_' + condition.id"
-		/>
-
-		<div v-if="condition.operator == 'modulo'" class="operatorValHolder">
-			<ParamItem
-				class="operator"
-				noBackground
-				:paramData="param_operatorVal"
-				v-model="condition.operatorVal"
-				:key="'opv_' + condition.id"
-			/>
-			<p>=</p>
-		</div>
-
-		<div
-			class="valueHolder"
-			:class="{
-				isCustomValue: forceCustomValue,
-				showCaseSensitiveToggle: showCaseSensitiveToggle,
-			}"
-			v-if="needsValue"
-		>
+	<div class="triggerconditionlistitem" :class="{ editing: editing }" ref="rootEl">
+		<template v-if="!editing">
+			<Icon name="dragZone" class="dragIcon" />
 			<TTButton
-				class="clearCustomBt"
-				v-if="forceCustomValue"
-				@click="forceCustomValue = false"
-				icon="cross"
+				class="groupBt"
+				icon="folder"
+				small
 				secondary
-				small
-			></TTButton>
-			<TTButton
-				v-if="showCaseSensitiveToggle"
-				class="casebt"
-				@click="condition.caseSensitive = !condition.caseSensitive"
-				:icon="condition.caseSensitive === true ? 'case_sensitive' : 'case_insensitive'"
-				:secondary="condition.caseSensitive === true"
-				v-tooltip="
-					$t(
-						'triggers.condition.' +
-							(condition.caseSensitive === true
-								? 'param_caseSensitive'
-								: 'param_caseInsensitive'),
-					)
-				"
-				noBounce
-			/>
-			<ParamItem
-				class="value"
-				v-if="needsValue && forceCustomValue !== true && param_value_list.listValues"
-				noBackground
-				:paramData="param_value_list"
-				v-model="condition.value"
-				:key="'vl_' + condition.id"
-				@change="onSelectFixedValue()"
-			/>
-			<ParamItem
-				class="value"
-				v-else-if="needsValue"
-				noBackground
-				:paramData="param_value"
-				v-model="condition.value"
-				:key="'v_' + condition.id"
-				placeholdersAsPopout
-			/>
-		</div>
-
-		<div class="ctas">
-			<TTButton
-				small
-				icon="group"
 				@click="addItem()"
-				v-tooltip="$t('triggers.condition.group_tt')"
+				v-tooltip="t('triggers.condition.group_tt')"
 				v-if="parentCondition.conditions.length > 1"
 			/>
-			<TTButton alert small icon="cross" @click="deleteItem()" />
+
+			<div class="summary" @click="startEdition()">
+				<template v-if="isConfigured">
+					<span class="placeholder">{{ placeholderLabel }}</span>
+
+					<span class="operator">{{ operatorLabel }}</span>
+
+					<template v-if="condition.operator == 'modulo'">
+						<span class="operatorVal">{{ condition.operatorVal }}</span>
+						<span class="operator">=</span>
+					</template>
+
+					<Icon
+						class="caseIcon"
+						name="case_sensitive"
+						v-if="showCaseSensitiveToggle && condition.caseSensitive === true"
+						v-tooltip="t('triggers.condition.param_caseSensitive')"
+					/>
+
+					<span class="value" v-if="needsValue">{{ valueLabel }}</span>
+				</template>
+
+				<span class="unconfigured" v-else>{{ t("triggers.condition.unconfigured") }}</span>
+			</div>
+
+			<TTButton class="deleteBt" alert small icon="cross" @click="deleteItem()" />
+		</template>
+
+		<div class="form" v-else>
+			<div class="field">
+				<label>{{ t("triggers.condition.label_placeholder") }}</label>
+
+				<div class="placeholderHolder" v-if="forceCustomPlaceholder">
+					<TTButton
+						class="clearCustomBt"
+						@click="clearCustomPlaceholder()"
+						icon="cross"
+						secondary
+						small
+					></TTButton>
+					<ParamItem
+						class="value"
+						noBackground
+						:paramData="param_placeholder"
+						v-model="condition.customPlaceholder"
+						:key="'cph_' + condition.id"
+						placeholdersAsPopout
+					/>
+				</div>
+				<ParamItem
+					class="placeholder"
+					v-else
+					noBackground
+					:paramData="param_placeholder_list"
+					@change="onSelectPlaceholder()"
+					v-model="condition.placeholder"
+					:key="'ph_' + condition.id"
+				/>
+			</div>
+
+			<div class="field">
+				<label>{{ t("triggers.condition.label_operator") }}</label>
+
+				<div class="operatorHolder">
+					<ParamItem
+						class="operator"
+						noBackground
+						:paramData="param_operator"
+						v-model="condition.operator as string"
+						:key="'op_' + condition.id"
+					/>
+
+					<template v-if="condition.operator == 'modulo'">
+						<ParamItem
+							class="operatorVal"
+							noBackground
+							:paramData="param_operatorVal"
+							v-model="condition.operatorVal"
+							:key="'opv_' + condition.id"
+						/>
+						<p>=</p>
+					</template>
+				</div>
+			</div>
+
+			<div class="field" v-if="needsValue">
+				<div class="label">
+					<label class="text">{{ t("triggers.condition.label_value") }}</label>
+					<label v-if="showCaseSensitiveToggle" class="caseField"
+						>{{ t("triggers.condition.param_caseSensitive") }}
+						<ToggleButton v-model="condition.caseSensitive" small />
+					</label>
+				</div>
+
+				<div class="valueHolder" :class="{ isCustomValue: forceCustomValue }">
+					<TTButton
+						class="clearCustomBt"
+						v-if="forceCustomValue"
+						@click="forceCustomValue = false"
+						icon="cross"
+						secondary
+						small
+					></TTButton>
+					<ParamItem
+						class="value"
+						v-if="forceCustomValue !== true && param_value_list.listValues"
+						noBackground
+						:paramData="param_value_list"
+						v-model="condition.value"
+						:key="'vl_' + condition.id"
+						@change="onSelectFixedValue()"
+					/>
+					<ParamItem
+						class="value"
+						v-else
+						noBackground
+						:paramData="param_value"
+						v-model="condition.value"
+						:key="'v_' + condition.id"
+						placeholdersAsPopout
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -121,12 +156,22 @@ import {
 } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
-import { computed, nextTick, onBeforeMount, ref, watch } from "vue";
+import {
+	computed,
+	nextTick,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	useTemplateRef,
+	watch,
+} from "vue";
 import ParamItem from "../../ParamItem.vue";
 import { useI18n } from "vue-i18n";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import { storeTimer as useStoreTimer } from "@/store/timer/storeTimer";
+import { CUSTOM_CONDITION_PLACEHOLDER } from "@/utils/triggers/TriggerActionHandler.js";
+import ToggleButton from "@/components/ToggleButton.vue";
 
 const { t } = useI18n();
 const storeCounters = useStoreCounters();
@@ -145,12 +190,16 @@ const props = withDefaults(
 	},
 );
 
+const editedConditionId = defineModel<string>("editedConditionId", { default: "" });
+
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const forceCustomValue = ref<boolean>(false);
 const forceCustomPlaceholder = ref<boolean>(false);
 const param_placeholder = ref<TwitchatDataTypes.ParameterData<string, string>>({
 	type: "string",
 	value: "",
 	longText: false,
+	maxLength: 300,
 });
 const param_placeholder_list = ref<
 	TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>>
@@ -174,7 +223,11 @@ const param_value_list = ref<TwitchatDataTypes.ParameterData<string, unknown>>({
 });
 
 let firstRender = true;
-const CUSTOM = "@___CUSTOM_VALUE___@";
+
+/**
+ * Is the condition currently opened in edition mode?
+ */
+const editing = computed((): boolean => editedConditionId.value === props.condition.id);
 
 const needsValue = computed((): boolean => {
 	const noValueOperators: TriggerCondition["operator"][] = [
@@ -187,7 +240,7 @@ const needsValue = computed((): boolean => {
 		"is_float",
 		"is_not_float",
 	];
-	return !noValueOperators.includes(param_operator.value.value);
+	return !noValueOperators.includes(props.condition.operator);
 });
 
 const showCaseSensitiveToggle = computed((): boolean => {
@@ -201,8 +254,62 @@ const showCaseSensitiveToggle = computed((): boolean => {
 		"not_starts_with",
 		"not_ends_with",
 	];
-	return csOperators.includes(param_operator.value.value);
+	return csOperators.includes(props.condition.operator);
 });
+
+/**
+ * Currently selected placeholder selected for the condition
+ */
+const selectedPlaceholder = computed(
+	(): ConditionListValues<string, ITriggerPlaceholder<string>> | undefined => {
+		if (forceCustomPlaceholder.value) return undefined;
+		const list = param_placeholder_list.value.listValues as
+			| ConditionListValues<string, ITriggerPlaceholder<string>>[]
+			| undefined;
+		return list?.find((v) => v.value === props.condition.placeholder);
+	},
+);
+
+/**
+ * Is the condition complete enough to be rendered as text?
+ */
+const isConfigured = computed((): boolean => {
+	return forceCustomPlaceholder.value
+		? (props.condition.customPlaceholder || "") != ""
+		: props.condition.placeholder != "";
+});
+
+const placeholderLabel = computed((): string => {
+	if (forceCustomPlaceholder.value) return props.condition.customPlaceholder || "";
+	return getEntryLabel(selectedPlaceholder.value) || props.condition.placeholder;
+});
+
+const operatorLabel = computed((): string => {
+	return t("triggers.condition.operators." + props.condition.operator);
+});
+
+const valueLabel = computed((): string => {
+	const value = (props.condition.value ?? "").toString();
+	if (!forceCustomValue.value && param_value_list.value.listValues) {
+		const item = param_value_list.value.listValues.find(
+			(v) => (v.value as any)?.toString().toLowerCase() === value.toLowerCase(),
+		);
+		if (item) return getEntryLabel(item) || value;
+	}
+	return value;
+});
+
+/**
+ * Get the readable label of a list entry
+ */
+function getEntryLabel(
+	entry?: TwitchatDataTypes.ParameterDataListValue<unknown, unknown>,
+): string | undefined {
+	if (!entry) return undefined;
+	if (entry.label != undefined) return entry.label;
+	if (entry.labelKey) return t(entry.labelKey);
+	return undefined;
+}
 
 /**
  * Placeholders the condition can pick from. Either the ones given by the
@@ -219,7 +326,17 @@ onBeforeMount(() => {
 		props.condition.placeholder = props.condition.placeholder.toUpperCase();
 	if (props.condition.caseSensitive == undefined) props.condition.caseSensitive = false;
 
+	forceCustomPlaceholder.value = props.condition.placeholder == CUSTOM_CONDITION_PLACEHOLDER;
+
+	// Start edition if not conf is yet defined
+	if (!props.condition.placeholder) nextTick().then(() => startEdition());
+
 	buildSourceList();
+});
+
+onBeforeUnmount(() => {
+	stopEdition();
+	toggleEditionListeners(false);
 });
 
 //Watch for changes on the chat command params and on the placeholder cache
@@ -230,6 +347,56 @@ watch(
 	},
 	{ deep: true },
 );
+
+watch([() => props.condition.placeholder, forceCustomPlaceholder], () => updateOperators());
+
+watch(editing, (value) => toggleEditionListeners(value));
+
+/**
+ * Open edition form.
+ */
+function startEdition(): void {
+	editedConditionId.value = props.condition.id;
+}
+
+/**
+ * Close edition form
+ */
+function stopEdition(): void {
+	if (editing.value) editedConditionId.value = "";
+}
+
+function toggleEditionListeners(enabled: boolean): void {
+	document.removeEventListener("click", onClickOutside);
+	document.removeEventListener("keydown", onKeyDown, true);
+	if (!enabled) return;
+	document.addEventListener("click", onClickOutside);
+	document.addEventListener("keydown", onKeyDown, true);
+}
+
+/**
+ * Leave edition mode when clicking anywhere else
+ */
+function onClickOutside(event: MouseEvent): void {
+	const target = event.target as HTMLElement;
+	if (!target.isConnected) return;
+	let parent: HTMLElement | null = target;
+	while (parent) {
+		// Avoid closing form if clicking on a v-tooltip
+		// For example a popout placeholder selector
+		if (parent.classList.contains("tippy-content")) return;
+		if (parent.classList.contains("vs__dropdown-menu")) return;
+		parent = parent.parentElement;
+	}
+	if (!rootEl.value?.contains(target)) stopEdition();
+}
+
+function onKeyDown(event: KeyboardEvent): void {
+	if (event.key != "Escape") return;
+	stopEdition();
+	event.preventDefault();
+	event.stopPropagation();
+}
 
 /**
  * Create the source list used as the first operator of the condition
@@ -305,10 +472,10 @@ function buildSourceList(): void {
 	}
 
 	//Add custom placeholder for devs
-	// placeholderListLocal.push({
-	// 	label: "Custom",
-	// 	value: CUSTOM,
-	// });
+	placeholderListLocal.push({
+		labelKey: "triggers.condition.custom_value",
+		value: CUSTOM_CONDITION_PLACEHOLDER,
+	});
 
 	//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 	//random one in case it's been deleted or I fuck up something in the futur
@@ -323,6 +490,7 @@ function buildSourceList(): void {
 	}
 
 	param_placeholder_list.value.listValues = placeholderListLocal;
+	param_placeholder.value.placeholderList = placeholders.concat();
 	param_value.value.placeholderList = placeholders.concat();
 	//Wait for list to render and update its internal "selectedListValue" value.
 	//Might be something fixable within the ParamItem component to avoid that
@@ -338,9 +506,11 @@ function buildSourceList(): void {
  * isn't defined as number parsable.
  */
 function updateOperators(inputOrigin: boolean = false): void {
-	if ((inputOrigin && firstRender) || !param_placeholder_list.value.selectedListValue) return;
+	if (inputOrigin && firstRender) return;
 
-	const placeholderRef = param_placeholder_list.value.selectedListValue.storage;
+	if (!forceCustomPlaceholder.value && !selectedPlaceholder.value) return;
+
+	const placeholderRef = selectedPlaceholder.value?.storage;
 	const cmdParamRef = props.triggerData.chatCommandParams?.find(
 		(v) => v.tag.toLowerCase() == props.condition.placeholder.toLowerCase(),
 	);
@@ -351,6 +521,8 @@ function updateOperators(inputOrigin: boolean = false): void {
 			value: v,
 		};
 	}).filter((v) => {
+		// Allow all operators for custom placeholder
+		if (forceCustomPlaceholder.value) return true;
 		//Remove arithmetical operators if placeholder isn't parsable as number
 		if ((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
 			return ![">", "<", ">=", "<="].includes(v.value);
@@ -359,22 +531,12 @@ function updateOperators(inputOrigin: boolean = false): void {
 	});
 
 	//If selected placeholder has fixed values
-	if (
-		param_placeholder_list.value.selectedListValue &&
-		(
-			param_placeholder_list.value.selectedListValue as ConditionListValues<
-				string,
-				ITriggerPlaceholder<string>
-			>
-		).fixedValues
-	) {
-		const list = (
-			param_placeholder_list.value.selectedListValue as ConditionListValues<
-				string,
-				ITriggerPlaceholder<string>
-			>
-		).fixedValues!.concat();
-		list.push({ value: CUSTOM, labelKey: "triggers.condition.custom_value" });
+	if (selectedPlaceholder.value?.fixedValues) {
+		const list = selectedPlaceholder.value.fixedValues.concat();
+		list.push({
+			value: CUSTOM_CONDITION_PLACEHOLDER,
+			labelKey: "triggers.condition.custom_value",
+		});
 		param_value_list.value.listValues = list;
 		param_value_list.value.type = "imagelist";
 
@@ -433,22 +595,35 @@ function deleteItem(): void {
  * custom field.
  */
 function onSelectFixedValue(): void {
-	if (param_value_list.value.value == CUSTOM) {
+	if (param_value_list.value.value == CUSTOM_CONDITION_PLACEHOLDER) {
 		forceCustomValue.value = true;
 		props.condition.value = "";
 	}
 }
 
 function onSelectPlaceholder(): void {
-	if (param_placeholder_list.value.value == CUSTOM) {
-		forceCustomPlaceholder.value = true;
-		props.condition.placeholder = "";
+	const isCustom = param_placeholder_list.value.value == CUSTOM_CONDITION_PLACEHOLDER;
+	if (isCustom !== forceCustomPlaceholder.value) {
+		param_placeholder.value.value = "";
+		delete props.condition.customPlaceholder;
 	}
+	forceCustomPlaceholder.value = isCustom;
 
 	updateOperators(true);
 }
 
-export interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListValue<T, U> {
+/**
+ * Discards the custom placeholder to get back to the placeholders list
+ */
+function clearCustomPlaceholder(): void {
+	forceCustomPlaceholder.value = false;
+	param_placeholder.value.value = "";
+	delete props.condition.customPlaceholder;
+	props.condition.placeholder = "";
+	nextTick().then(() => updateOperators());
+}
+
+interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListValue<T, U> {
 	fixedValues?: TwitchatDataTypes.ParameterDataListValue<unknown>[];
 }
 </script>
@@ -457,7 +632,7 @@ export interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDa
 .triggerconditionlistitem {
 	display: flex;
 	flex-direction: row;
-	gap: 2px;
+	// gap: 2px;
 	&:hover,
 	&:active,
 	&:focus-within {
@@ -481,65 +656,179 @@ export interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDa
 			cursor: grabbing;
 		}
 	}
-	.operator {
-		flex-basis: 80px;
-		flex-shrink: 0;
+
+	.groupBt {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
 	}
 
-	.operatorValHolder {
+	.deleteBt {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	//Text rendering of the condition
+	.summary {
+		flex-grow: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: row;
+		flex-wrap: wrap;
+		// justify-content: space-between;
 		align-items: center;
-		gap: 2px;
+		gap: 0.25em 0.4em;
+		padding: 0.35em 0.5em;
+		background-color: var(--background-color-fadest);
+		cursor: pointer;
+		line-height: 1.2em;
+		transition: background-color 0.2s;
+		&:hover {
+			background-color: var(--background-color-fader);
+		}
+
+		.placeholder {
+			font-weight: bold;
+			// overflow-wrap: anywhere;
+			// text-overflow: ellipsis;
+			// overflow: hidden;
+			// white-space: nowrap;
+		}
+
+		.operator {
+			flex-shrink: 0;
+			// color: var(--color-text-fade);
+			font-style: italic;
+			padding: 0 0.4em;
+			border-radius: var(--border-radius);
+			background-color: var(--color-primary);
+		}
+
+		.operatorVal,
+		.value {
+			padding: 0 0.4em;
+			border-radius: var(--border-radius);
+			background-color: var(--background-color-fader);
+			// overflow-wrap: anywhere;
+			// text-overflow: ellipsis;
+			// overflow: hidden;
+			// white-space: nowrap;
+			// flex-basis: 50%;
+			&:empty::after {
+				content: "*";
+				opacity: 0.5;
+			}
+		}
+
+		.caseIcon {
+			width: 0.75em;
+			flex-shrink: 0;
+		}
+
+		.unconfigured {
+			font-style: italic;
+			color: var(--color-text-fade);
+		}
 	}
 
-	.valueHolder {
-		min-width: 50%;
+	//Edition form
+	&.editing {
+		padding: 0.5em;
+		border-radius: var(--border-radius);
+		background-color: var(--background-color-fadest);
+	}
+
+	.form {
+		flex-grow: 1;
+		min-width: 0;
 		display: flex;
-		flex-direction: row;
-		.value {
-			width: 100%;
-			:deep(.popoutMode) {
-				height: 100%;
+		flex-direction: column;
+		gap: 0.5em;
+
+		.field {
+			display: flex;
+			flex-direction: column;
+			gap: 0.15em;
+
+			& > .label {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 0.5em;
+				font-size: 0.8em;
+				text-transform: uppercase;
+				color: var(--color-text-fade);
+
+				.text {
+					flex: 1;
+				}
+
+				.caseField {
+					display: flex;
+					flex-direction: row;
+					gap: 0.5em;
+					text-transform: none;
+					cursor: pointer;
+				}
 			}
-			:deep(.content) {
-				height: 100%;
-				.holder,
-				.inputHolder {
+
+			:deep(.listField) {
+				flex-basis: 100%;
+			}
+
+			& > .placeholder,
+			& > .operator {
+				width: 100%;
+			}
+		}
+
+		.operatorHolder {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 0.25em;
+			.operator {
+				flex-grow: 1;
+				min-width: 0;
+			}
+			.operatorVal {
+				flex-basis: 6em;
+				flex-shrink: 0;
+			}
+		}
+
+		.placeholderHolder,
+		.valueHolder {
+			display: flex;
+			flex-direction: row;
+			min-width: 0;
+			.clearCustomBt {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			.value {
+				width: 100%;
+				:deep(.popoutMode) {
 					height: 100%;
-					input {
+				}
+				:deep(.content) {
+					height: 100%;
+					.holder,
+					.inputHolder {
 						height: 100%;
+						input {
+							height: 100%;
+						}
 					}
 				}
 			}
 		}
-		.clearCustomBt {
-			height: 100%;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-		.casebt {
-			z-index: 1;
-			width: 1.5em;
-			margin-right: -1.5em;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-			border-right: 1px solid var(--color-text-fade);
-		}
-		&.showCaseSensitiveToggle {
-			:deep(input) {
-				padding-left: 1.6em;
-			}
-			:deep(.vs__selected-options) {
-				padding-left: 1em;
-			}
-		}
-		&.isCustomValue {
+
+		.placeholderHolder,
+		.valueHolder.isCustomValue {
 			.value {
 				:deep(.content) {
 					.inputHolder,
 					input {
-						height: 100%;
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;
 					}

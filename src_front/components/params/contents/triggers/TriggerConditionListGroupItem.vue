@@ -31,6 +31,7 @@
 							:triggerData="triggerData"
 							:parentCondition="c"
 							:condition="[element]"
+							v-model:editedConditionId="editedConditionId"
 						/>
 					</div>
 				</VueDraggable>
@@ -38,6 +39,7 @@
 				<TTButton
 					class="addBt"
 					small
+					light
 					icon="add"
 					@click="addItem(c)"
 					v-tooltip="$t('triggers.condition.add_tt')"
@@ -53,6 +55,7 @@
 				:placeholderList="placeholderList"
 				:parentCondition="parentCondition"
 				:condition="c"
+				v-model:editedConditionId="editedConditionId"
 			/>
 		</template>
 	</div>
@@ -78,6 +81,8 @@ const props = defineProps<{
 	parentCondition: TriggerConditionGroup;
 	placeholderList: ITriggerPlaceholder<string>[];
 }>();
+
+const editedConditionId = defineModel<string>("editedConditionId", { default: "" });
 
 defineEmits<{
 	delete: [];
@@ -128,11 +133,12 @@ function toggleOperator(item: TriggerConditionGroup): void {
 		overflow: visible;
 		flex-grow: 1;
 		position: relative;
-		padding-left: 0.5em;
+		padding-left: 1em;
 		border-left: 1px solid var(--color-text);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
 		min-height: 2em;
+		background: var(--background-color-opaque);
 
 		.draggable {
 			display: flex;
@@ -146,7 +152,10 @@ function toggleOperator(item: TriggerConditionGroup): void {
 			display: none;
 		}
 
-		&:hover {
+		// Only show add button of the deepest hovered group
+		&:hover:not(:has(.group:hover)) {
+			@c: var(--color-secondary-fadest);
+			background: @c; // linear-gradient(90deg, @c 0%, transparent 100%);
 			& > .addBt {
 				display: flex;
 			}

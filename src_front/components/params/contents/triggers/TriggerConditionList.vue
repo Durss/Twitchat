@@ -25,6 +25,7 @@
 			:parentCondition="conditions"
 			:condition="[conditions]"
 			:placeholderList="placeholderList"
+			v-model:editedConditionId="editedConditionId"
 		/>
 	</div>
 </template>
@@ -54,6 +55,7 @@ const emit = defineEmits<{
 
 const placeholderList = ref<ITriggerPlaceholder<unknown>[]>([]);
 const expanded = ref(false);
+const editedConditionId = ref<string>("");
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 
 onBeforeMount(() => {
@@ -135,6 +137,8 @@ function expand(): void {
 function handleClickOutside(event: MouseEvent): void {
 	if (!expanded.value) return;
 	const target = event.target as HTMLElement;
+	//Element removed from DOM, stop there
+	if (!target.isConnected) return;
 	let parent = target.parentElement;
 	while (parent) {
 		//Don't close conditions if clicking on a tooltip's content
@@ -143,9 +147,16 @@ function handleClickOutside(event: MouseEvent): void {
 		if (parent.classList.contains("vs__dropdown-menu")) return;
 		parent = parent.parentElement;
 	}
-	if (!rootEl.value?.contains(target)) {
-		expanded.value = false;
+	if (rootEl.value?.contains(target)) return;
+
+	// If a condition is being edited, quit its editing.
+	// Next clickoutside will close the whole conditions holder
+	if (editedConditionId.value != "") {
+		editedConditionId.value = "";
+		return;
 	}
+
+	expanded.value = false;
 }
 
 /**

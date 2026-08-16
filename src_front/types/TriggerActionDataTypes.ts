@@ -330,6 +330,7 @@ export interface TriggerCondition {
 	id: string;
 	type: "condition";
 	placeholder: string;
+	customPlaceholder?: string;
 	operator: TriggerConditionOperator;
 	operatorVal?: string;
 	value: string;
@@ -616,14 +617,8 @@ export type TriggerActionObsSourceDataAction =
  * Values are always stored as strings so placeholders can be used on
  * them. This defines what they're converted to before being sent to OBS.
  */
-export const TriggerActionObsFilterSettingTypes = [
-	"string",
-	"number",
-	"boolean",
-	"json",
-] as const;
-export type TriggerActionObsFilterSettingType =
-	(typeof TriggerActionObsFilterSettingTypes)[number];
+export const TriggerActionObsFilterSettingTypes = ["string", "number", "boolean", "json"] as const;
+export type TriggerActionObsFilterSettingType = (typeof TriggerActionObsFilterSettingTypes)[number];
 
 /**
  * Maximum number of filter settings a single OBS action can update.
@@ -11090,4 +11085,3 @@ export const TriggerSubTypeLabel = (triggerData: TriggerData): string | undefine
 	}
 	return "...";
 };
-
