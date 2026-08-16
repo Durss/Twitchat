@@ -109,6 +109,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	window.clearInterval(checkinterval);
+	window.clearTimeout(loaderDelay);
 });
 
 watch(

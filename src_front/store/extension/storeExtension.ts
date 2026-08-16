@@ -8,6 +8,9 @@ import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 
 let lastEBSCall_ts = 0;
+let pendingEBSQuery: Promise<void> | null = null;
+let pendingEBSUpdate: Promise<boolean> | null = null;
+let queuedEBSUpdate = false;
 
 /**
  * Defines version AFTER which a feature is available.
@@ -124,57 +127,82 @@ export const storeExtension = defineStore("Extension", {
 			}
 
 			if (isInit && this.companionEnabled) {
-				await this.getEBSConfigs();
-
 				// This makes sure EBS config contain the server-declared "env" prop
 				// letting clients know which env the streamer is running on.
-				// This makes sure EBS server knows to which env reroute viewer
-				// queries to.
-				void this.updateEBSConfigs();
+				void this.ensureEBSConfigured();
 			}
 		},
 
-		async getEBSConfigs(): Promise<void> {
-			await ApiHelper.call("twitch/extension/config", "GET")
+		async getEBSConfigs(force: boolean = false): Promise<void> {
+			if (pendingEBSQuery && !force) return pendingEBSQuery;
+
+			const request = ApiHelper.call("twitch/extension/config", "GET", undefined, false)
 				.then((res) => {
-					if (res.json.config) {
-						this.ebsConfigs.captureClicks = res.json.config.captureClicks === true;
-						this.ebsConfigs.captureKeys = res.json.config.captureKeys === true;
-						this.ebsConfigured = !!res.json.config.env;
-					} else {
-						this.ebsConfigs.captureClicks = false;
-						this.ebsConfigs.captureKeys = false;
-						this.ebsConfigured = !!false;
-					}
+					if (res.status !== 200) return;
+					this.ebsConfigs.captureClicks = res.json.config?.captureClicks === true;
+					this.ebsConfigs.captureKeys = res.json.config?.captureKeys === true;
+					this.ebsConfigured = res.json.envMatch === true;
 				})
-				.catch((_) => {});
+				.catch((_) => {})
+				.finally(() => {
+					if (pendingEBSQuery === request) pendingEBSQuery = null;
+				});
+
+			if (!force) pendingEBSQuery = request;
+			return request;
+		},
+
+		async ensureEBSConfigured(): Promise<void> {
+			await this.getEBSConfigs();
+			if (!this.companionEnabled) return;
+			if (this.ebsConfigured) return;
+			await this.updateEBSConfigs();
 		},
 
 		async updateEBSConfigs(): Promise<boolean> {
-			this.ebsConfigUpdating = true;
-			const elapsed = Date.now() - lastEBSCall_ts;
-			const toWait = 3000 - elapsed;
-			if (toWait > 0) {
-				// EBS edition has a 20 times per minute rate limit which corresponds
-				// to "every 3s max". Here we add a fake timeout to make sure we
-				// don't call this endpoint more often
-				await Utils.promisedTimeout(toWait);
+			// A write is already running. Flag a single trailing run so the latest
+			// state still gets pushed.
+			if (pendingEBSUpdate) {
+				queuedEBSUpdate = true;
+				return pendingEBSUpdate;
 			}
-			const res = await ApiHelper.call("twitch/extension/config", "POST", {
-				config: {
-					captureClicks: this.ebsConfigs.captureClicks,
-					captureKeys: this.ebsConfigs.captureKeys,
-				},
+
+			this.ebsConfigUpdating = true;
+
+			const request = (async () => {
+				let success = false;
+				do {
+					queuedEBSUpdate = false;
+					// EBS edition has a 20 times per minute rate limit which corresponds
+					// to "every 3s max". Here we add a fake timeout to make sure we
+					// don't call this endpoint more often
+					const toWait = lastEBSCall_ts + 3000 - Date.now();
+					lastEBSCall_ts = Math.max(Date.now(), lastEBSCall_ts + 3000);
+					if (toWait > 0) await Utils.promisedTimeout(toWait);
+
+					const res = await ApiHelper.call("twitch/extension/config", "POST", {
+						config: {
+							captureClicks: this.ebsConfigs.captureClicks,
+							captureKeys: this.ebsConfigs.captureKeys,
+						},
+					});
+					await this.getEBSConfigs(true);
+					lastEBSCall_ts = Math.max(lastEBSCall_ts, Date.now());
+					success = res.status === 200 && res.json.success === true;
+				} while (queuedEBSUpdate);
+				return success;
+			})().finally(() => {
+				pendingEBSUpdate = null;
+				this.ebsConfigUpdating = false;
 			});
-			await this.getEBSConfigs();
-			lastEBSCall_ts = Date.now();
-			this.ebsConfigUpdating = false;
-			return res.status === 200 && res.json.success === true;
+
+			pendingEBSUpdate = request;
+			return request;
 		},
 
 		async clearEBSConfigs(): Promise<boolean> {
 			const res = await ApiHelper.call("twitch/extension/config", "DELETE", {});
-			await this.getEBSConfigs();
+			await this.getEBSConfigs(true);
 			return res.status === 200 && res.json.success === true;
 		},
 

@@ -1472,6 +1472,7 @@ type ApiEndpoints = {
 			response: {
 				success: boolean;
 				config?: IExtensionState["ebsConfigs"];
+				envMatch?: boolean;
 				error?: string;
 			};
 		};

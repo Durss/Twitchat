@@ -384,19 +384,20 @@ export default class TwitchExtensionController extends AbstractController {
 					},
 				},
 			);
-			let config = "";
+			let config: EBSConfiguration | undefined;
 			let success = false;
 			if (res.status === 200) {
-				const json = (await res.json()) as { success: boolean; content: string };
+				const json = (await res.json()) as { success: boolean; content: EBSConfiguration };
 				config = json.content;
 				success = json.success;
 			} else {
 				console.log("Failed to get EBS config, Twitchat API response:", res.status);
 				console.log(await res.text());
 			}
+			const envMatch = config?.env === Config.credentials.twitchat_baseURL;
 			response.header("Content-Type", "application/json");
 			response.status(res.status);
-			response.send(JSON.stringify({ success, config }));
+			response.send(JSON.stringify({ success, config, envMatch }));
 		} catch (_error) {
 			response.header("Content-Type", "application/json");
 			response.status(500);
