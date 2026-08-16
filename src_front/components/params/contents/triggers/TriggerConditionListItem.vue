@@ -41,7 +41,7 @@
 
 		<div class="form" v-else>
 			<div class="field">
-				<label>{{ t("triggers.condition.label_placeholder") }}</label>
+				<label class="label">{{ t("triggers.condition.label_placeholder") }}</label>
 
 				<div class="placeholderHolder" v-if="forceCustomPlaceholder">
 					<TTButton
@@ -72,7 +72,7 @@
 			</div>
 
 			<div class="field">
-				<label>{{ t("triggers.condition.label_operator") }}</label>
+				<label class="label">{{ t("triggers.condition.label_operator") }}</label>
 
 				<div class="operatorHolder">
 					<ParamItem
@@ -370,8 +370,12 @@ function toggleEditionListeners(enabled: boolean): void {
 	document.removeEventListener("click", onClickOutside);
 	document.removeEventListener("keydown", onKeyDown, true);
 	if (!enabled) return;
-	document.addEventListener("click", onClickOutside);
-	document.addEventListener("keydown", onKeyDown, true);
+	// Need to wait a frame before listening for click outside.
+	// Otherwise, the form would close right after clicking "add condition" button
+	Utils.promisedTimeout(0).then(() => {
+		document.addEventListener("click", onClickOutside);
+		document.addEventListener("keydown", onKeyDown, true);
+	});
 }
 
 /**
@@ -667,6 +671,13 @@ interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListV
 		border-bottom-left-radius: 0;
 	}
 
+	&:not(:has(.groupBt)) {
+		.summary {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+	}
+
 	//Text rendering of the condition
 	.summary {
 		flex-grow: 1;
@@ -688,17 +699,13 @@ interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListV
 
 		.placeholder {
 			font-weight: bold;
-			// overflow-wrap: anywhere;
-			// text-overflow: ellipsis;
-			// overflow: hidden;
-			// white-space: nowrap;
 		}
 
 		.operator {
 			flex-shrink: 0;
-			// color: var(--color-text-fade);
 			font-style: italic;
 			padding: 0 0.4em;
+			padding-left: 0.25em;
 			border-radius: var(--border-radius);
 			background-color: var(--color-primary);
 		}
@@ -708,11 +715,6 @@ interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListV
 			padding: 0 0.4em;
 			border-radius: var(--border-radius);
 			background-color: var(--background-color-fader);
-			// overflow-wrap: anywhere;
-			// text-overflow: ellipsis;
-			// overflow: hidden;
-			// white-space: nowrap;
-			// flex-basis: 50%;
 			&:empty::after {
 				content: "*";
 				opacity: 0.5;
@@ -735,6 +737,7 @@ interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListV
 		padding: 0.5em;
 		border-radius: var(--border-radius);
 		background-color: var(--background-color-fadest);
+		outline: 1px solid var(--color-secondary);
 	}
 
 	.form {
@@ -833,24 +836,6 @@ interface ConditionListValues<T, U> extends TwitchatDataTypes.ParameterDataListV
 						border-bottom-left-radius: 0;
 					}
 				}
-			}
-		}
-	}
-
-	.ctas {
-		flex-shrink: 0;
-		display: flex;
-		flex-direction: row;
-		gap: 0;
-		.button {
-			border-radius: 0;
-			&:first-child {
-				border-top-left-radius: var(--border-radius);
-				border-bottom-left-radius: var(--border-radius);
-			}
-			&:last-child {
-				border-top-right-radius: var(--border-radius);
-				border-bottom-right-radius: var(--border-radius);
 			}
 		}
 	}
