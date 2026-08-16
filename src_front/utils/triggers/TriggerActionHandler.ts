@@ -4625,6 +4625,16 @@ export default class TriggerActionHandler {
 					const data: TwitchatDataTypes.RaffleData = JSON.parse(
 						JSON.stringify(step.raffleData),
 					);
+					// Parse placeholders on command
+					if (data.command) {
+						data.command = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: data.command,
+						});
+					}
 					let winnerResolver: Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if (data.customEntries) {
 						//Parse placeholders on custom entries
