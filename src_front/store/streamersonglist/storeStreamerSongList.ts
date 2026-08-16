@@ -19,17 +19,17 @@ import StoreProxy from "../StoreProxy";
  * Production OAuth2 authorize endpoint for StreamerSongList (SSL).
  * The token exchange / refresh happen server-side (confidential client).
  */
-const SSL_AUTHORIZE_URL = "https://id.staging.streamersonglist.com/oauth2/auth";
+const SSL_AUTHORIZE_URL = "https://id.streamersonglist.com/oauth2/auth";
 
 /**
  * SSL REST API base URL
  */
-const SSL_API_BASE = "https://api.staging.streamersonglist.com";
+const SSL_API_BASE = "https://api.streamersonglist.com";
 
 /**
  * Websocket URL
  */
-const SSL_EVENTS_URL = "wss://events.staging.streamersonglist.com/connection/websocket";
+const SSL_EVENTS_URL = "wss://events.streamersonglist.com/connection/websocket";
 
 let centrifuge: Centrifuge | null = null;
 let subscription: Subscription | null = null;
