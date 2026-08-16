@@ -17,12 +17,10 @@ import AbstractController from "./AbstractController.js";
 export default class StreamerSongListController extends AbstractController {
 	/**
 	 * OAuth2 / OIDC endpoints (id.streamersonglist.com/oauth2).
-	 * Overridable via credentials for staging, defaults to production.
 	 */
 	private authPath: string = "";
 	/**
 	 * REST API base (api.streamersonglist.com).
-	 * Overridable via credentials for staging, defaults to production.
 	 */
 	private apiPath: string = "";
 
@@ -38,7 +36,7 @@ export default class StreamerSongListController extends AbstractController {
 	 * PUBLIC METHODS *
 	 ******************/
 	public async initialize(): Promise<void> {
-		this.apiPath = "https://id.staging.streamersonglist.com/";
+		this.apiPath = "https://id.streamersonglist.com/";
 		this.authPath = this.apiPath + "/oauth2";
 
 		this.server.get(
@@ -57,24 +55,6 @@ export default class StreamerSongListController extends AbstractController {
 			"/api/streamersonglist/token/refresh",
 			async (request, response) => await this.postRefreshToken(request, response),
 		);
-		this.server.get("/api/streamersonglist/test", async (request, response) => {
-			const res = await fetch("https://api.staging.streamersonglist.com/queue", {
-				headers: {
-					Authorization:
-						"Bearer ory_at_eBSUj0hviP-A2HXJU8332fPhBdmvJQqdlvtJfVMzsJY.kWF4ynCuJqIRB6K438hxfNNxz207ftp6Ioo_LFb7nWA",
-				},
-			});
-			console.log(res);
-			response
-				.header("Content-Type", "application/json")
-				.status(500)
-				.send(
-					JSON.stringify({
-						success: true,
-						res,
-					}),
-				);
-		});
 	}
 
 	/*******************
@@ -102,7 +82,6 @@ export default class StreamerSongListController extends AbstractController {
 
 		const token = await this.requestToken(body);
 		if (token && token.access_token) {
-			console.log(">>>>>>> ", token);
 			response
 				.header("Content-Type", "application/json")
 				.status(200)
@@ -280,8 +259,6 @@ export default class StreamerSongListController extends AbstractController {
 		let text = "";
 		try {
 			const url = this.authPath + "/token";
-			console.log("CALL", url);
-			console.log(params);
 			const res = await fetch(url, {
 				method: "POST",
 				headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -333,4 +310,3 @@ interface SSLUserInfo {
 	picture?: string;
 	[key: string]: unknown;
 }
-
