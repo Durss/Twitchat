@@ -2843,7 +2843,9 @@ export interface IExtensionState {
 	 */
 	ebsConfigUpdating: boolean;
 	/**
-	 * Tells if EBS has been configured for this account
+	 * Tells if EBS has been configured for this account AND that its config
+	 * targets the env we're running on. False if the EBS points to another
+	 * instance, ie a streamer that moved from prod to beta.
 	 */
 	ebsConfigured: boolean;
 }
@@ -2878,9 +2880,17 @@ export interface IExtensionActions {
 	 */
 	updateInternalStates(isInit?: boolean): Promise<void>;
 	/**
-	 * Gets current EBS extension config
+	 * Gets current EBS extension config.
+	 * Concurrent calls are deduped on the in-flight request unless "force"
+	 * is set, which is only needed right after a write.
 	 */
-	getEBSConfigs(): Promise<void>;
+	getEBSConfigs(force?: boolean): Promise<void>;
+	/**
+	 * Reads the EBS config and pushes it back only if the EBS isn't already
+	 * pointing to the env we're running on.
+	 * Safe to call from several places at once.
+	 */
+	ensureEBSConfigured(): Promise<void>;
 	/**
 	 * Updates EBS extension config
 	 */

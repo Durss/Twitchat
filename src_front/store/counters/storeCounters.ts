@@ -143,18 +143,17 @@ export const storeCounters = defineStore("counters", {
 						//If there are no user, broadcast right away
 						PublicAPI.instance.broadcast("ON_COUNTER_UPDATE", { counter });
 					} else {
-						///...otherwise load users details
+						//...otherwise load users details
 						users.forEach((v) => {
 							StoreProxy.users.getUserFrom(
-								"twitch",
+								v.value?.platform || "twitch",
 								chanId,
 								v.uid,
-								undefined,
-								undefined,
+								v.value?.login,
+								v.value?.login,
 								async (res) => {
-									loadedUsers++;
 									if (!res.errored) {
-										if (!res.avatarPath) {
+										if (!res.avatarPath && res.platform == "twitch") {
 											//Avatar is missing, get it from twitch
 											const data = await TwitchUtils.getUserInfo([res.id]);
 											if (data?.length > 0) {
@@ -163,13 +162,15 @@ export const storeCounters = defineStore("counters", {
 										}
 										//Add user to leaderboard
 										counter!.leaderboard!.push({
+											id: res.id,
 											avatar: res.avatarPath!,
 											login: res.displayNameOriginal,
 											points: v.value!.value,
+											platform: res.platform,
 										});
 									}
 									//All users ready, broadcast change
-									if (loadedUsers == users.length) {
+									if (++loadedUsers == users.length) {
 										//Sort them by score DESC
 										counter!.leaderboard!.sort((a, b) => {
 											if (a.points > b.points) return -1;

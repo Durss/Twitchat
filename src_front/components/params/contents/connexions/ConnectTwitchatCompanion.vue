@@ -6,7 +6,7 @@
 			<p>{{ $t("twitchat_companion.header") }}</p>
 		</div>
 
-		<ExtensionInstaller no-error-state @extensionReady="storeExtension.updateEBSConfigs()" />
+		<ExtensionInstaller no-error-state @extensionReady="storeExtension.ensureEBSConfigured()" />
 
 		<template v-if="storeExtension.companionEnabled">
 			<TTButton
@@ -17,13 +17,13 @@
 				@click="clearEBSConf()"
 				>Clear EBS conf</TTButton
 			>
-			<TTButton class="center" primary icon="quiz" @click="openQuiz()">{{
+			<TTButton class="center" icon="quiz" @click="openQuiz()">{{
 				t("twitchat_companion.start_quiz")
 			}}</TTButton>
-			<TTButton class="center" primary icon="bingo_grid" @click="openBingo()">{{
+			<TTButton class="center" icon="bingo_grid" @click="openBingo()">{{
 				t("twitchat_companion.start_bingo")
 			}}</TTButton>
-			<TTButton class="center" primary icon="click" @click="openAreasOverlay">{{
+			<TTButton class="center" icon="click" @click="openAreasOverlay">{{
 				t("heat.interactive_areas_bt")
 			}}</TTButton>
 
@@ -70,7 +70,7 @@ import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth.js";
 import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import HeatOverlayClick from "../heat/HeatOverlayClick.vue";
@@ -95,16 +95,8 @@ const param_captureKeys = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	labelKey: "twitchat_companion.enable_keys",
 });
 
-storeExtension.getEBSConfigs();
-
 // Ensure EBS is configured
-if (storeExtension.companionEnabled && !storeExtension.ebsConfigured) {
-	storeExtension.updateEBSConfigs();
-}
-
-const subContent = computed(() => {
-	return storeParams.currentPageSubContent;
-});
+void storeExtension.ensureEBSConfigured();
 
 function openQuiz() {
 	storeParams.openParamsPage(

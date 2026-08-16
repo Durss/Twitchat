@@ -341,7 +341,7 @@ function toggleRenderMode(gridId: string): void {
 	right: 0;
 	margin-left: auto;
 	transform-origin: bottom right;
-	color: var(--color-light);
+	color: var(--color-text);
 	align-items: center;
 
 	.entry {

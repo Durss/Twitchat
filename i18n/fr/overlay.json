@@ -56,6 +56,7 @@
 		"counters": {
 			"search_terms": ["compteurs", "compte", "classement", ""],
 			"title": "Compteurs",
+			"alignment": "Alignement du contenu",
 			"head": "Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
 			"head_empty": "Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
 			"createBt": "Créer un compteur",

@@ -238,6 +238,14 @@ export namespace TwitchatDataTypes {
 		 */
 		leaderboard?: {
 			/**
+			 * User ID
+			 */
+			id: string;
+			/**
+			 * Platform the user belongs to
+			 */
+			platform: ChatPlatform;
+			/**
 			 * User name
 			 */
 			login: string;
@@ -256,6 +264,10 @@ export namespace TwitchatDataTypes {
 		 * premium and have more than the maximum counters allowed
 		 */
 		enabled?: boolean;
+		/**
+		 * Alignment of overlay's content
+		 */
+		overlayAlignment?: HorizontalScreenPosition;
 	}
 
 	export interface ValueData {
@@ -1921,6 +1933,15 @@ export namespace TwitchatDataTypes {
 	 * ...
 	 */
 	export type ScreenPosition = "tl" | "t" | "tr" | "l" | "m" | "r" | "bl" | "b" | "br";
+
+	/**
+	 * Horizontal-only subset of ScreenPosition
+	 * l = left
+	 * m = middle
+	 * r = right
+	 * The Extract<> guarantees these values always remain part of ScreenPosition
+	 */
+	export type HorizontalScreenPosition = Extract<ScreenPosition, "l" | "m" | "r">;
 
 	/**
 	 * Contains info about an highlighted chat message.

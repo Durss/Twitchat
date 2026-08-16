@@ -10,7 +10,7 @@
 			<Icon name="newtab" theme="light" />
 		</a>
 
-		<template v-if="counters.length == 0">
+		<template v-if="storeCounters.counterList.length == 0">
 			<div class="header">{{ t("overlay.counters.head_empty") }}</div>
 			<TTButton class="center" icon="add" @click="createCounter()">{{
 				t("overlay.counters.createBt")
@@ -25,19 +25,6 @@
 
 		<template v-else>
 			<div class="header">{{ t("overlay.counters.head") }}</div>
-
-			<div class="counterList">
-				<div class="card-item counter" v-for="c in counters" :key="c.id">
-					<div class="title">{{ c.name }}</div>
-					<OverlayInstaller
-						type="counter"
-						:id="c.id"
-						:sourceSuffix="c.name"
-						:queryParams="{ cid: c.id }"
-						:sourceTransform="getOverlayTransform(c)"
-					/>
-				</div>
-			</div>
 
 			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ t("overlay.counters.css") }}</div>
@@ -97,6 +84,30 @@
 					</li>
 				</ul>
 			</ToggleBlock>
+
+			<div class="counterList">
+				<div class="card-item counter" v-for="c in storeCounters.counterList" :key="c.id">
+					<div class="title">{{ c.name }}</div>
+					<OverlayInstaller
+						type="counter"
+						:id="c.id"
+						:sourceSuffix="c.name"
+						:queryParams="{ cid: c.id }"
+						:sourceTransform="getOverlayTransform(c)"
+					/>
+					<div class="placement">
+						<div>{{ t("overlay.counters.alignment") }}</div>
+						<PlacementSelector
+							horizontalOnly
+							v-model="c.overlayAlignment!"
+							@change="
+								storeCounters.saveCounters();
+								storeCounters.broadcastCounterValue(c.id);
+							"
+						/>
+					</div>
+				</div>
+			</div>
 		</template>
 	</div>
 </template>
@@ -104,12 +115,13 @@
 <script setup lang="ts">
 import Icon from "@/components/Icon.vue";
 import OverlayCounter from "@/components/overlays/OverlayCounter.vue";
+import PlacementSelector from "@/components/PlacementSelector.vue";
 import { storeCounters as useStoreCounters } from "@/store/counters/storeCounters";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SourceTransform } from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ToggleBlock from "../../../ToggleBlock.vue";
 import TTButton from "../../../TTButton.vue";
@@ -141,7 +153,9 @@ const progressExample = ref<TwitchatDataTypes.CounterData>({
 	max: 75,
 });
 
-const counters = computed<TwitchatDataTypes.CounterData[]>(() => storeCounters.counterList);
+storeCounters.counterList.forEach((c) => {
+	if (!c.overlayAlignment) c.overlayAlignment = "l";
+});
 
 function getOverlayTransform(counter: TwitchatDataTypes.CounterData): Partial<SourceTransform> {
 	if (counter.perUser == true) {
@@ -162,19 +176,25 @@ function createCounter(): void {
 		gap: 0.5em;
 		display: flex;
 		flex-direction: column;
-		max-height: 400px;
-		overflow-y: auto;
 		.counter {
 			flex-shrink: 0;
-			gap: 1em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: row;
-			justify-content: space-between;
 			align-items: center;
 			flex-wrap: wrap;
 			.title {
 				font-weight: bold;
 				flex-basis: 200px;
+			}
+
+			.placement {
+				margin: auto;
+				gap: 1em;
+				display: inline-flex;
+				flex-direction: row;
+				justify-content: space-around;
+				align-items: center;
 			}
 		}
 	}

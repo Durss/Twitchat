@@ -86,6 +86,8 @@ const OPERATORS_WITH_NUMERIC_EXPECTATION = new Set<TriggerActionDataTypes.Trigge
 	["<", "<=", ">", ">=", "longer_than", "shorter_than", "modulo"],
 );
 
+export const CUSTOM_CONDITION_PLACEHOLDER = "@___CUSTOM_VALUE___@";
+
 /**
  * Created : 22/04/2022
  */
@@ -4623,6 +4625,16 @@ export default class TriggerActionHandler {
 					const data: TwitchatDataTypes.RaffleData = JSON.parse(
 						JSON.stringify(step.raffleData),
 					);
+					// Parse placeholders on command
+					if (data.command) {
+						data.command = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: data.command,
+						});
+					}
 					let winnerResolver: Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if (data.customEntries) {
 						//Parse placeholders on custom entries
@@ -9984,7 +9996,10 @@ export default class TriggerActionHandler {
 					actionPlaceholders: [],
 					trigger,
 					message,
-					src: "{" + c.placeholder + "}",
+					src:
+						c.placeholder == CUSTOM_CONDITION_PLACEHOLDER && c.customPlaceholder
+							? c.customPlaceholder
+							: "{" + c.placeholder + "}",
 					subEvent,
 				});
 				const expectation = OPERATORS_WITHOUT_EXPECTATION.has(c.operator)

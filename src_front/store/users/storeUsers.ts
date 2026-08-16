@@ -244,7 +244,7 @@ export const storeUsers = defineStore("users", {
 				if (!login || !id || !displayName) {
 					if (!login && displayName) login = displayName.toLowerCase();
 					const userData: TwitchatDataTypes.TwitchatUser = {
-						platform: platform,
+						platform,
 						id: id ?? Utils.getUUID(),
 						login: login ?? "",
 						displayName: displayName ?? login ?? "",
@@ -344,155 +344,161 @@ export const storeUsers = defineStore("users", {
 			}
 
 			const needCreationDate = user.created_at_ms == undefined; // && StoreProxy.params.appearance.recentAccountUserBadge.value === true;
-			if (platform == "twitch" && (user.temporary || needCreationDate)) {
-				//Wait half a second to let time to external code to populate the
-				//object with more details like in TwitchMessengerClient that calls
-				//this method, then populates the is_partner and is_affiliate and
-				//other fields from IRC tags which avoids the need to get the users
-				//details via an API call.
-				const to = window.setTimeout(
-					(batchType: "id" | "login") => {
-						const batch: BatchItem[] =
-							batchType == "login"
-								? twitchUserBatchLoginToLoad.splice(0)
-								: twitchUserBatchIdToLoad.splice(0);
+			if (platform == "twitch") {
+				if (user.temporary || needCreationDate) {
+					//Wait half a second to let time to external code to populate the
+					//object with more details like in TwitchMessengerClient that calls
+					//this method, then populates the is_partner and is_affiliate and
+					//other fields from IRC tags which avoids the need to get the users
+					//details via an API call.
+					const to = window.setTimeout(
+						(batchType: "id" | "login") => {
+							const batch: BatchItem[] =
+								batchType == "login"
+									? twitchUserBatchLoginToLoad.splice(0)
+									: twitchUserBatchIdToLoad.splice(0);
 
-						//Remove items that might have been fullfilled externally
-						for (let i = 0; i < batch.length; i++) {
-							const item = batch[i]!;
-							if (!item.user.temporary && !needCreationDate) {
-								if (item.cb) item.cb(item.user);
-								batch.splice(i, 1);
-								i--;
-							}
-						}
-
-						const logins: string[] | undefined =
-							batchType == "login" ? batch.map((v) => v.user.login) : undefined;
-						const ids: string[] | undefined =
-							batchType == "login" ? undefined : batch.map((v) => v.user.id);
-
-						if (
-							(ids?.length == 0 || ids == undefined) &&
-							(logins?.length == 0 || logins == undefined)
-						)
-							return;
-
-						// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
-
-						void TwitchUtils.getUserInfo(ids, logins).then(async (res) => {
-							// console.log("Batch loaded", batchType);
-							// console.log(res);
-							// console.log(JSON.parse(JSON.stringify(batch)));
-
-							do {
-								const batchItem = batch.shift();
-								if (!batchItem) continue;
-								const userLocal = batchItem.user;
-								delete userLocal.temporary;
-								// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
-								type UserKeys = keyof TwitchatDataTypes.TwitchatUser;
-								const key: UserKeys = batchType;
-								const apiUser = res.find(
-									(v) => v[key].toLowerCase() == userLocal[key].toLowerCase(),
-								);
-								if (!apiUser) {
-									// console.log("User not found.... ", userLocal.login, userLocal.id);
-									//User not sent back by twitch API.
-									//Most probably because login is wrong or user is banned
-									let fallbackLogin =
-										userLocal.login || userLocal.displayNameOriginal;
-									if (fallbackLogin == this.tmpDisplayName)
-										fallbackLogin = "#" + userLocal.id;
-									userLocal.displayName =
-										// userLocal.login = "❌("+fallbackLogin+")";
-										userLocal.login = fallbackLogin;
-									userLocal.errored = true;
-									// console.log("Twitch did not return user data for:", userLocal);
-									// console.log("Requested these IDs/Logins:", ids, logins);
-									// console.log("Received:", res);
-								} else {
-									//User sent back by API
-									//Update user info with the API data
-									// console.log("User found", apiUser.login, apiUser.id);
-									userLocal.id = apiUser.id;
-									userLocal.login = apiUser.login;
-									userLocal.displayName = userLocal.displayNameOriginal =
-										apiUser.display_name;
-									userLocal.is_partner = apiUser.broadcaster_type == "partner";
-									userLocal.is_affiliate =
-										userLocal.is_partner ||
-										apiUser.broadcaster_type == "affiliate";
-									userLocal.created_at_ms = new Date(
-										apiUser.created_at,
-									).getTime();
-									if (!userLocal.avatarPath)
-										userLocal.avatarPath = apiUser.profile_image_url;
-									if (userLocal.id) hashmaps!.idToUser[userLocal.id] = userLocal;
-									if (userLocal.login)
-										hashmaps!.loginToUser[userLocal.login] = userLocal;
-									if (userLocal.displayNameOriginal)
-										hashmaps!.displayNameToUser[userLocal.displayNameOriginal] =
-											userLocal;
-
-									//Load pronouns if requested
-									if (getPronouns && userLocal.id && userLocal.login)
-										void this.loadUserPronouns(userLocal);
-
-									//Set moderator state for all connected channels
-									for (const chan in this.myMods[platform]) {
-										if (!userLocal.channelInfo[chan]) continue;
-
-										const cache = this.myMods[platform]!;
-										userLocal.channelInfo[chan].is_moderator =
-											cache?.[userLocal.id] === true;
-									}
-									//Check follower state
-									if (
-										batchItem.channelId &&
-										userLocal.id &&
-										userLocal.channelInfo[batchItem.channelId]!.is_following ==
-											null
-									) {
-										void this.checkFollowerState(
-											userLocal,
-											batchItem.channelId,
-										);
-									}
+							//Remove items that might have been fullfilled externally
+							for (let i = 0; i < batch.length; i++) {
+								const item = batch[i]!;
+								if (!item.user.temporary && !needCreationDate) {
+									if (item.cb) item.cb(item.user);
+									batch.splice(i, 1);
+									i--;
 								}
-								if (batchItem.cb) batchItem.cb(userLocal);
-							} while (batch.length > 0);
-						});
-					},
-					500,
-					id ? "id" : "login",
-				);
+							}
 
-				//Batch requests by types.
-				//All items loaded by their IDs on one batch, by logins on another batch.
-				if (id) {
-					twitchUserBatchIdToLoad.push({
-						user,
-						channelId,
-						cb: user.temporary == true ? loadCallback : undefined,
-					});
-					if (twitchUserBatchIdToLoad.length < 100) {
-						if (twitchUserBatchIdTimeout > -1) clearTimeout(twitchUserBatchIdTimeout);
-						twitchUserBatchIdTimeout = to;
-					}
-				} else if (login) {
-					twitchUserBatchLoginToLoad.push({
-						user,
-						channelId,
-						cb: user.temporary == true ? loadCallback : undefined,
-					});
-					if (twitchUserBatchLoginToLoad.length < 100) {
-						if (twitchUserBatchLoginTimeout > -1)
-							clearTimeout(twitchUserBatchLoginTimeout);
-						twitchUserBatchLoginTimeout = to;
+							const logins: string[] | undefined =
+								batchType == "login" ? batch.map((v) => v.user.login) : undefined;
+							const ids: string[] | undefined =
+								batchType == "login" ? undefined : batch.map((v) => v.user.id);
+
+							if (
+								(ids?.length == 0 || ids == undefined) &&
+								(logins?.length == 0 || logins == undefined)
+							)
+								return;
+
+							// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
+
+							void TwitchUtils.getUserInfo(ids, logins).then(async (res) => {
+								// console.log("Batch loaded", batchType);
+								// console.log(res);
+								// console.log(JSON.parse(JSON.stringify(batch)));
+
+								do {
+									const batchItem = batch.shift();
+									if (!batchItem) continue;
+									const userLocal = batchItem.user;
+									delete userLocal.temporary;
+									// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
+									type UserKeys = keyof TwitchatDataTypes.TwitchatUser;
+									const key: UserKeys = batchType;
+									const apiUser = res.find(
+										(v) => v[key].toLowerCase() == userLocal[key].toLowerCase(),
+									);
+									if (!apiUser) {
+										// console.log("User not found.... ", userLocal.login, userLocal.id);
+										//User not sent back by twitch API.
+										//Most probably because login is wrong or user is banned
+										let fallbackLogin =
+											userLocal.login || userLocal.displayNameOriginal;
+										if (fallbackLogin == this.tmpDisplayName)
+											fallbackLogin = "#" + userLocal.id;
+										userLocal.displayName =
+											// userLocal.login = "❌("+fallbackLogin+")";
+											userLocal.login = fallbackLogin;
+										userLocal.errored = true;
+										// console.log("Twitch did not return user data for:", userLocal);
+										// console.log("Requested these IDs/Logins:", ids, logins);
+										// console.log("Received:", res);
+									} else {
+										//User sent back by API
+										//Update user info with the API data
+										// console.log("User found", apiUser.login, apiUser.id);
+										userLocal.id = apiUser.id;
+										userLocal.login = apiUser.login;
+										userLocal.displayName = userLocal.displayNameOriginal =
+											apiUser.display_name;
+										userLocal.is_partner =
+											apiUser.broadcaster_type == "partner";
+										userLocal.is_affiliate =
+											userLocal.is_partner ||
+											apiUser.broadcaster_type == "affiliate";
+										userLocal.created_at_ms = new Date(
+											apiUser.created_at,
+										).getTime();
+										if (!userLocal.avatarPath)
+											userLocal.avatarPath = apiUser.profile_image_url;
+										if (userLocal.id)
+											hashmaps!.idToUser[userLocal.id] = userLocal;
+										if (userLocal.login)
+											hashmaps!.loginToUser[userLocal.login] = userLocal;
+										if (userLocal.displayNameOriginal)
+											hashmaps!.displayNameToUser[
+												userLocal.displayNameOriginal
+											] = userLocal;
+
+										//Load pronouns if requested
+										if (getPronouns && userLocal.id && userLocal.login)
+											void this.loadUserPronouns(userLocal);
+
+										//Set moderator state for all connected channels
+										for (const chan in this.myMods[platform]) {
+											if (!userLocal.channelInfo[chan]) continue;
+
+											const cache = this.myMods[platform]!;
+											userLocal.channelInfo[chan].is_moderator =
+												cache?.[userLocal.id] === true;
+										}
+										//Check follower state
+										if (
+											batchItem.channelId &&
+											userLocal.id &&
+											userLocal.channelInfo[batchItem.channelId]!
+												.is_following == null
+										) {
+											void this.checkFollowerState(
+												userLocal,
+												batchItem.channelId,
+											);
+										}
+									}
+									if (batchItem.cb) batchItem.cb(userLocal);
+								} while (batch.length > 0);
+							});
+						},
+						500,
+						id ? "id" : "login",
+					);
+
+					//Batch requests by types.
+					//All items loaded by their IDs on one batch, by logins on another batch.
+					if (id) {
+						twitchUserBatchIdToLoad.push({
+							user,
+							channelId,
+							cb: user.temporary == true ? loadCallback : undefined,
+						});
+						if (twitchUserBatchIdToLoad.length < 100) {
+							if (twitchUserBatchIdTimeout > -1)
+								clearTimeout(twitchUserBatchIdTimeout);
+							twitchUserBatchIdTimeout = to;
+						}
+					} else if (login) {
+						twitchUserBatchLoginToLoad.push({
+							user,
+							channelId,
+							cb: user.temporary == true ? loadCallback : undefined,
+						});
+						if (twitchUserBatchLoginToLoad.length < 100) {
+							if (twitchUserBatchLoginTimeout > -1)
+								clearTimeout(twitchUserBatchLoginTimeout);
+							twitchUserBatchLoginTimeout = to;
+						}
 					}
 				}
-			} else if (platform != "twitch" && user.temporary) {
+			} else if (user.temporary) {
 				user.temporary = false; //Avoid blocking promise execution on caller
 			}
 

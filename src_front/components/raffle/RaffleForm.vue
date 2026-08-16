@@ -605,6 +605,33 @@
 					</template>
 				</i18n-t>
 
+				<ParamItem
+					:paramData="param_values"
+					v-model="param_values.value"
+					@change="onValueChange()"
+				/>
+
+				<ParamItem
+					:paramData="param_values_remove"
+					v-model="localData.removeWinningEntry"
+				/>
+
+				<ParamItem
+					class="splitterField"
+					v-if="param_values.selectedListValue?.value.perUser !== true"
+					:paramData="param_values_splitter"
+					v-model="localData.value_splitter"
+				/>
+
+				<PostOnChatParam
+					:botMessageKey="triggerMode ? undefined : 'raffleValuesWinner'"
+					:placeholders="winnerValuesPlaceholders"
+					v-model:text="localData.messages!.raffleWinner!.message"
+					v-model:enabled="localData.messages!.raffleWinner!.enabled"
+					icon="announcement"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+
 				<TTButton
 					type="submit"
 					v-if="triggerMode === false"
@@ -654,6 +681,7 @@ import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import {
 	TriggerEventPlaceholders,
+	type ITriggerPlaceholder,
 	type TriggerActionRaffleData,
 	type TriggerData,
 } from "@/types/TriggerActionDataTypes";
@@ -681,6 +709,7 @@ import ParamItem from "../params/ParamItem.vue";
 import PostOnChatParam from "../params/PostOnChatParam.vue";
 import FormVoiceControllHelper from "../voice/FormVoiceControllHelper";
 import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders.js";
 
 const props = withDefaults(
 	defineProps<{
@@ -704,6 +733,12 @@ const storeParams = useStoreParams();
 const storePatreon = useStorePatreon();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const { close, open } = useSidePanel(rootEl, () => emit("close"), false);
+if (props.triggerData && props.action) {
+	useTriggerActionPlaceholders(props.action, props.triggerData, (list) => {
+		param_commandValue.value.placeholderList = list;
+		param_customEntries.value.placeholderList = list;
+	});
+}
 
 const pickingEntry = ref(false);
 const winner = ref<string | null>(null);
@@ -1397,10 +1432,6 @@ onBeforeMount(() => {
 				}
 			}
 		}
-
-		param_customEntries.value.placeholderList = TriggerEventPlaceholders(
-			props.triggerData.type,
-		);
 	} else {
 		param_showCountdownOverlay.value.value =
 			DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";

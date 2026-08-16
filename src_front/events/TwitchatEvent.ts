@@ -471,6 +471,23 @@ export type TwitchatEventMap = {
 		show?: boolean;
 	};
 	/**
+	 * Enable or disable a specific bingo grid
+	 */
+	SET_BINGO_GRID_STATE: {
+		/**
+		 * Grid ID to change state of
+		 */
+		id: string;
+		/**
+		 * Force grid state:
+		 * - true: enable it
+		 * - false: disable it
+		 *
+		 * Omit this field to toggle current state
+		 */
+		forcedState?: boolean;
+	};
+	/**
 	 * Triggered when a viewer completes a bingo
 	 */
 	ON_BINGO_GRID_VIEWER_EVENT: {
@@ -1933,6 +1950,11 @@ export type TwitchatEventMap = {
 			theme?: "default" | "primary" | "secondary" | "alert";
 		}[];
 	};
+	/**
+	 * Just here for retro compatibility
+	 * @private
+	 */
+	CUSTOM_CHAT_MESSAGE: TwitchatEventMap["SET_SEND_CUSTOM_CHAT_MESSAGE"];
 
 	/**
 	 * Request quiz overlay presence

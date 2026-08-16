@@ -24,8 +24,8 @@ type CounterOrValueData = TwitchatDataTypes.CounterData | TwitchatDataTypes.Valu
  * Register optional modifiers
  */
 export function registerOptionalPlaceholderModifiers(): void {
-	// Register ".user()" modifier for the Counters and Values
 	registerModifier("user", counterValueUserModifier);
+	registerModifier("has", counterValueHasModifier);
 }
 
 /**
@@ -60,6 +60,38 @@ function counterValueUserModifier(
 		if (id) userEntry = users[id];
 	}
 	return userEntry ? userEntry.value.toString() : "";
+}
+
+/**
+ * Get if given user is part of a per-user counter or value
+ */
+function counterValueHasModifier(
+	_value: string,
+	args: string[],
+	context?: IModifierContext,
+): "true" | "false" | "NOT_PREMIUM" {
+	const entry = getEntryFromTag(context?.tag);
+	if (!entry) return "false";
+
+	// Do not parse if item is disabled and user isn't premium
+	if (StoreProxy.auth.isPremium !== true && entry.enabled === false) return "NOT_PREMIUM";
+
+	// For non-per-user entries just return false
+	if (entry.perUser !== true) return "false";
+
+	const user = (args[0] || "").trim().replace(/^@/, "");
+	// No user requested?
+	if (!user) return "false";
+	const users = entry.users;
+	// Entry has no user list yet?
+	if (!users) return "false";
+
+	let userEntry = users[user];
+	if (!userEntry) {
+		const id = getUserIdFromLogin(user);
+		if (id) userEntry = users[id];
+	}
+	return userEntry ? "true" : "false";
 }
 
 /**
