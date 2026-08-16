@@ -4,11 +4,12 @@
 			class="item"
 			:class="placement == 'tl' ? 'selected' : ''"
 			:disabled="sidesOnly !== false ? 'true' : 'false'"
+			v-if="!props.horizontalOnly"
 		>
 			<input type="radio" v-model="placement" value="tl" id="mazePos_tl" />
 			<label for="mazePos_tl">┌</label>
 		</div>
-		<div class="item" :class="placement == 't' ? 'selected' : ''">
+		<div class="item" :class="placement == 't' ? 'selected' : ''" v-if="!props.horizontalOnly">
 			<input type="radio" v-model="placement" value="t" id="mazePos_t" />
 			<label for="mazePos_t">┬</label>
 		</div>
@@ -16,13 +17,15 @@
 			class="item"
 			:class="placement == 'tr' ? 'selected' : ''"
 			:disabled="sidesOnly !== false ? 'true' : 'false'"
+			v-if="!props.horizontalOnly"
 		>
 			<input type="radio" v-model="placement" value="tr" id="mazePos_tr" />
 			<label for="mazePos_tr">┐</label>
 		</div>
 		<div class="item" :class="placement == 'l' ? 'selected' : ''">
 			<input type="radio" v-model="placement" value="l" id="mazePos_l" />
-			<label for="mazePos_l">├</label>
+			<label for="mazePos_l" v-if="!props.horizontalOnly">├</label>
+			<label for="mazePos_l" v-else><Icon name="layout_colLeft" /></label>
 		</div>
 		<div
 			class="item"
@@ -30,21 +33,24 @@
 			:disabled="sidesOnly !== false"
 		>
 			<input type="radio" v-model="placement" value="m" id="mazePos_m" />
-			<label for="mazePos_m">┼</label>
+			<label for="mazePos_m" v-if="!props.horizontalOnly">┼</label>
+			<label for="mazePos_m" v-else><Icon name="layout_col" /></label>
 		</div>
 		<div class="item" :class="placement == 'r' ? 'selected' : ''">
 			<input type="radio" v-model="placement" value="r" id="mazePos_r" />
-			<label for="mazePos_r">┤</label>
+			<label for="mazePos_r" v-if="!props.horizontalOnly">┤</label>
+			<label for="mazePos_r" v-else><Icon name="layout_colRight" /></label>
 		</div>
 		<div
 			class="item"
 			:class="placement == 'bl' ? 'selected' : ''"
 			:disabled="sidesOnly !== false ? 'true' : 'false'"
+			v-if="!props.horizontalOnly"
 		>
 			<input type="radio" v-model="placement" value="bl" id="mazePos_bl" />
 			<label for="mazePos_bl">└</label>
 		</div>
-		<div class="item" :class="placement == 'b' ? 'selected' : ''">
+		<div class="item" :class="placement == 'b' ? 'selected' : ''" v-if="!props.horizontalOnly">
 			<input type="radio" v-model="placement" value="b" id="mazePos_b" />
 			<label for="mazePos_b">┴</label>
 		</div>
@@ -52,6 +58,7 @@
 			class="item"
 			:class="placement == 'br' ? 'selected' : ''"
 			:disabled="sidesOnly !== false ? 'true' : 'false'"
+			v-if="!props.horizontalOnly"
 		>
 			<input type="radio" v-model="placement" value="br" id="mazePos_br" />
 			<label for="mazePos_br">┘</label>
@@ -62,14 +69,17 @@
 <script lang="ts" setup>
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { onBeforeMount, ref, watch } from "vue";
+import Icon from "./Icon.vue";
 
 const props = withDefaults(
 	defineProps<{
-		modelValue: TwitchatDataTypes.ScreenPosition;
+		modelValue: TwitchatDataTypes.ScreenPosition | TwitchatDataTypes.HorizontalScreenPosition;
 		sidesOnly?: boolean;
+		horizontalOnly?: boolean;
 	}>(),
 	{
 		sidesOnly: false,
+		horizontalOnly: false,
 	},
 );
 
@@ -112,7 +122,6 @@ watch(
 	justify-content: center;
 	@btSize: 25px;
 	width: @btSize * 3;
-	margin-top: 0.5em;
 	.item {
 		width: @btSize;
 		height: @btSize;
@@ -136,6 +145,11 @@ watch(
 		label {
 			margin: 0;
 			padding: 0;
+			.icon {
+				vertical-align: middle;
+				height: 1em;
+				padding: 0.1em;
+			}
 		}
 		input {
 			margin: 0;

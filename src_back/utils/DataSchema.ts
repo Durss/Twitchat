@@ -2077,6 +2077,7 @@ const UserDataSchema = {
 					id: { type: "string", maxLength: 40 },
 					name: { type: "string", maxLength: 50 },
 					placeholderKey: { type: "string", maxLength: 50 },
+					overlayAlignment: { type: "string", maxLength: 2 },
 					enabled: { type: "boolean" },
 					value: {
 						type: "number",

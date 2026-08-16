@@ -224,6 +224,9 @@ async function testOverlay(): Promise<void> {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		p {
+			margin-bottom: 0.5em;
+		}
 	}
 
 	.cssPositionning {

@@ -1,16 +1,24 @@
 <template>
-	<div class="overlaycounter" v-if="counter">
+	<div
+		class="overlaycounter"
+		:class="{ ['align-' + counter.overlayAlignment]: true, perUser: counter.perUser === true }"
+		v-if="counter"
+	>
 		<div class="userlist" id="holder" v-if="counter.perUser === true">
 			<TransitionGroup name="list">
 				<div
 					class="user"
 					ref="user"
 					v-for="u in counter.leaderboard!"
-					:key="u.login"
+					:key="u.id"
 					:id="'user' + u.login"
 				>
 					<div class="points">{{ u.points }}</div>
-					<img class="avatar" v-if="u.avatar" :src="u.avatar" />
+					<div class="avatar">
+						<img class="image" v-if="u.avatar" :src="u.avatar" />
+						<Icon class="image" v-else name="user" />
+						<Icon class="platform" :name="u.platform" />
+					</div>
 					<div class="login">{{ u.login }}</div>
 				</div>
 			</TransitionGroup>
@@ -48,9 +56,12 @@ import { gsap } from "gsap/gsap-core";
 import { watch, type CSSProperties } from "vue";
 import { toNative, Component, Prop } from "vue-facing-decorator";
 import AbstractOverlay from "./AbstractOverlay";
+import Icon from "../Icon.vue";
 
 @Component({
-	components: {},
+	components: {
+		Icon,
+	},
 })
 class OverlayCounter extends AbstractOverlay {
 	@Prop({ type: Boolean, default: false })
@@ -315,26 +326,51 @@ export default toNative(OverlayCounter);
 
 	.userlist {
 		width: fit-content;
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+		padding-top: 0.5em;
 		.user {
 			gap: 0.5em;
-			margin: 0.5em;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			box-shadow: 0 0 0.5em rgba(0, 0, 0, 1);
 			background-color: var(--color-light);
 			border-radius: 1rem;
-			gap: 0.5em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
 			overflow: hidden;
 			width: fit-content;
 			outline: 0px solid var(--color-secondary);
+			.platform {
+				height: 1em;
+			}
 			.avatar {
 				width: 2.5em;
 				height: 2.5em;
-				border-radius: 50%;
+				position: relative;
+				.image {
+					width: 2.5em;
+					height: 2.5em;
+					border-radius: 50%;
+					&.icon {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						padding: 0.4em;
+						background-color: rgba(0, 0, 0, 0.25);
+					}
+				}
+				.platform {
+					position: absolute;
+					bottom: -0.3em;
+					right: -0.3em;
+					width: 1.2em;
+					height: 1.2em;
+					max-height: 1.2em;
+					background-color: var(--color-light);
+					border-radius: 50%;
+					padding: 0.15em;
+				}
 			}
 			.login {
 				font-size: 1.5em;
@@ -356,6 +392,33 @@ export default toNative(OverlayCounter);
 				color: var(--color-light);
 				font-size: 1.5em;
 			}
+		}
+	}
+
+	&.align-m {
+		.userlist {
+			align-items: center;
+			margin: auto;
+		}
+		&:not(.perUser) {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			width: 100vw;
+		}
+	}
+
+	&.align-r {
+		.userlist {
+			margin-left: auto;
+			margin-right: 0;
+			align-items: flex-end;
+		}
+		&:not(.perUser) {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+			width: 100vw;
 		}
 	}
 

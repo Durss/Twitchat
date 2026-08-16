@@ -294,6 +294,9 @@ function onChangeParam(): void {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		p {
+			margin-bottom: 0.5em;
+		}
 	}
 }
 </style>

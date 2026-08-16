@@ -56,6 +56,7 @@
 		"counters": {
 			"search_terms": ["counters", "counters", "count", "leaderboard"],
 			"title": "Counters",
+			"alignment": "Content alignment",
 			"head": "Add any of your counters to your stream by setting their URL on a browser source",
 			"head_empty": "Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
 			"createBt": "Create a counter",
