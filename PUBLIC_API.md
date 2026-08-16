@@ -113,7 +113,7 @@ connect(ip, port pass).then(()=> {
 
 # Events you can receive
 
-Events fired by Twitchat that you can listen to.\
+Events fired by Twitchat that you can listen to.
 | Compatibility | |
 |---------------|-----|
 | OBS-websocket | ✅ |
@@ -1502,6 +1502,22 @@ type ON_COUNTER_UPDATE = {
 		 */
 		leaderboard?: {
 			/**
+			 * User ID
+			 */
+			id: string;
+			/**
+			 * Platform the user belongs to
+			 */
+			platform:
+				| "twitchat"
+				| "twitch"
+				| "instagram"
+				| "youtube"
+				| "tiktok"
+				| "facebook"
+				| "kick"
+				| "bluesky";
+			/**
 			 * User name
 			 */
 			login: string;
@@ -1520,6 +1536,10 @@ type ON_COUNTER_UPDATE = {
 		 * premium and have more than the maximum counters allowed
 		 */
 		enabled?: boolean;
+		/**
+		 * Alignment of overlay's content
+		 */
+		overlayAlignment?: undefined | "l" | "m" | "r";
 	};
 };
 ```
@@ -3169,6 +3189,20 @@ type ON_LABEL_OVERLAY_CONFIGS = {
 	 * False if label mode is "placeholder" but related placeholder doesn't exist
 	 */
 	isValid?: boolean;
+	/**
+	 * i18n configs needed to render ordinals (1st, 2nd, 3rd,..)
+	 */
+	i18n: {
+		locale: string;
+		ordinals: {
+			zero?: string;
+			one?: string;
+			two?: string;
+			few?: string;
+			many?: string;
+			other?: string;
+		};
+	};
 };
 ```
 
@@ -5374,15 +5408,17 @@ Advertise for wheel overlay presence
 # Actions you can perform
 
 Actions you can request Twitchat to perform.
-| Compatibility | |
-|---------------|-----|
-| OBS-websocket | ✅ |
-| HTTP API | ✅ |
+
+| Compatibility |     |
+| ------------- | --- |
+| OBS-websocket | ✅  |
+| HTTP API      | ✅  |
 
 - [SET_ANIMATED_TEXT_CONTENT](#set_animated_text_content)
 - [SET_AUTOMOD_ACCEPT](#set_automod_accept)
 - [SET_AUTOMOD_REJECT](#set_automod_reject)
 - [SET_BINGO_GRID_OVERLAY_PRESENCE](#set_bingo_grid_overlay_presence)
+- [SET_BINGO_GRID_STATE](#set_bingo_grid_state)
 - [SET_BINGO_GRID_VISIBILITY](#set_bingo_grid_visibility)
 - [SET_BINGO_TOGGLE](#set_bingo_toggle)
 - [SET_CENSOR_DELETED_MESSAGES_TOGGLE](#set_censor_deleted_messages_toggle)
@@ -5495,6 +5531,32 @@ Advertise bingo grid overlay presence
 
 ```typescript
 type SET_BINGO_GRID_OVERLAY_PRESENCE = void;
+```
+
+</details>
+
+#### SET_BINGO_GRID_STATE
+
+Enable or disable a specific bingo grid
+
+<details>
+<summary>JSON parameters</summary>
+
+```typescript
+type SET_BINGO_GRID_STATE = {
+	/**
+	 * Grid ID to change state of
+	 */
+	id: string;
+	/**
+	 * Force grid state:
+	 * - true: enable it
+	 * - false: disable it
+	 *
+	 * Omit this field to toggle current state
+	 */
+	forcedState?: boolean;
+};
 ```
 
 </details>
@@ -8018,10 +8080,11 @@ type SET_WHEEL_OVERLAY_START = {
 # Requesting data
 
 Data you can request from Twitchat.
-| Compatibility | |
-|---------------|-----|
-| OBS-websocket | ✅ |
-| HTTP API | ❌ |
+
+| Compatibility |     |
+| ------------- | --- |
+| OBS-websocket | ✅  |
+| HTTP API      | ❌  |
 
 - [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
 - [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)

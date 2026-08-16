@@ -383,7 +383,10 @@ function generateMarkdown(events) {
 
 	// Generate documentation for each section
 	if (onEvents.length > 0) {
-		markdown += `# Events you can receive\nEvents fired by Twitchat that you can listen to.\n\n`;
+		markdown += `# Events you can receive\nEvents fired by Twitchat that you can listen to.\n| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ❌ |\n\n`;
 		markdown += generateSectionTableOfContents(onEvents);
 		markdown += `\n\n`;
 		for (const event of onEvents) {
@@ -393,7 +396,11 @@ function generateMarkdown(events) {
 	}
 
 	if (setEvents.length > 0) {
-		markdown += `# Actions you can perform\nActions you can request Twitchat to perform.\n\n`;
+		markdown += `# Actions you can perform\nActions you can request Twitchat to perform.\n
+| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ✅ |\n\n`;
 		markdown += generateSectionTableOfContents(setEvents);
 		markdown += `\n\n`;
 		for (const event of setEvents) {
@@ -403,7 +410,11 @@ function generateMarkdown(events) {
 	}
 
 	if (getEvents.length > 0) {
-		markdown += `# Requesting data\nData you can request from Twitchat.\n\n`;
+		markdown += `# Requesting data\nData you can request from Twitchat.\n
+| Compatibility | |
+|---------------|-----|
+| OBS-websocket | ✅ |
+| HTTP API | ❌ |\n\n`;
 		markdown += generateSectionTableOfContents(getEvents);
 		markdown += `\n\n`;
 		for (const event of getEvents) {
