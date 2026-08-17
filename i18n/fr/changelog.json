@@ -55,7 +55,8 @@
 			{
 				"i": "elgato",
 				"l": "Nouveau plugin Stream Deck",
-				"d": "Le plugin Stream Deck a été entièrement réécrit.\n\nOBS-websocket n'est plus requis pour connecter Twitchat.",
+				"d": "Le plugin Stream Deck a été entièrement réécrit.\nOBS-websocket n'est plus requis pour l'utiliser.",
+				"g": "update_images/streamdeck.png",
 				"a": {
 					"l": "Connecter",
 					"i": "elgato",
@@ -67,22 +68,12 @@
 				"i": "bluesky",
 				"l": "Bluesky",
 				"d": "Connectez votre compte Bluesky pour :<ul><li>Poster un message depuis les Triggers</li><li>Changer votre statut de live</li><li>Être notifié·e de vos nouveaux folowers</li><li>Recevoir vos DMs et mentions directement dans Twitchat</li></ul>",
+				"g": "update_images/bluesky.png",
 				"a": {
 					"l": "Connecter",
 					"i": "bluesky",
 					"param": "connexions",
 					"subparam": "bluesky"
-				}
-			},
-			{
-				"i": "twitchat_api",
-				"p": true,
-				"l": "API HTTP",
-				"d": "Exécutez des actions Twitchat depuis n'importe quelle application externe via de simples requêtes HTTP.\n\nTout ce qu'il est possible de faire est listé sur la toute nouvelle <a href=\"https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md\" target=\"_blank\">documentation de l'API</a>.",
-				"a": {
-					"l": "Essayer",
-					"param": "connexions",
-					"subparam": "twitchat_api"
 				}
 			},
 			{
@@ -101,18 +92,30 @@
 			},
 			{
 				"i": "placeholder",
-				"l": "Triggers: Modificateurs",
+				"l": "Triggers - Modificateurs",
 				"d": "Les placeholders peuvent être modifiés :<ul><li><strong>{USER.uppercase}</strong> => DURSS</li><li><strong>{AMOUNT.currency(EUR)}</strong> => 12,50 €</li><li><strong>{USER_FOLLOWAGE_MS.duration}</strong> => 1j 4h 12m 30s</li></ul>Près de 70 modificateurs sont disponibles pour formater du texte, des nombres, des dates, des durées ou des listes.\n\nIls fonctionnent dans les Triggers ainsi que sur l'overlay Labels.\n\nVoir la <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">liste complète</a>."
 			},
 			{
 				"i": "chatCommand",
-				"l": "Triggers: Paramètres de commande",
-				"d": "Les <strong>\"Paramètres de commande optionnels\"</strong> permettent désormais d'extraire des informations de manière beaucoup plus fine.\n\nSoit en définissant un format de message, soit depuis un expression régulière."
+				"l": "Triggers - Paramètres de commande",
+				"d": "Les <strong>\"Paramètres de commande optionnels\"</strong> permettent désormais d'extraire des informations de manière beaucoup plus fine.\n\nSoit en définissant un format de message, soit depuis une expression régulière.",
+				"g": "update_images/comand-params.webp"
 			},
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Les triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\n16 nouveaux événements :<ul><li>Quiz terminé</li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li></ul>"
+				"d": "Les triggers peuvent désormais avoir une <strong>icône personnalisée</strong> pour les repérer d'un coup d'œil dans votre liste.\n\nRetrouvez vos triggers grâce à un nouveau champ de recherche.\n\nNouvelle interface pour les conditions.\n\n16 nouveaux événements :<ul><li>Quiz terminé</li><li>Power up custom acheté</li><li>Joyaux YouTube reçus</li><li>Quelqu'un rejoint un tirage au sort</li><li>Meld Studio : démarrage/arrêt du stream, changement de scène, visibilité d'un calque, activation d'un effet et mute d'une piste</li></ul>7 nouvelles actions :<ul><li>Activer/désactiver une zone cliquable</li><li>Modifier un label</li>{_LI}<li>Demander une saisie</li><li>Publier sur Bluesky</li><li>Contrôler Meld Studio</li><li>Modifier les paramètres de filtres OBS</li><li>Modifier les pistes audio d'une source OBS</li></ul>"
+			},
+			{
+				"i": "twitchat_api",
+				"p": true,
+				"l": "API HTTP",
+				"d": "Exécutez des actions Twitchat depuis n'importe quelle application externe via de simples requêtes HTTP.\n\nTout ce qu'il est possible de faire est listé sur la toute nouvelle <a href=\"https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md\" target=\"_blank\">documentation de l'API</a>.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "twitchat_api"
+				}
 			},
 			{
 				"l": "Mais aussi",

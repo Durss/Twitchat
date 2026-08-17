@@ -199,6 +199,15 @@
 			<TTButton small @click="simulateEvent($event, 'following', 'tiktok')" icon="tiktok"
 				>TikTok Follow</TTButton
 			>
+			<TTButton small @click="simulateEvent($event, 'following', 'bluesky')" icon="bluesky"
+				>Bluesky Follow</TTButton
+			>
+			<TTButton small @click="simulateEvent($event, 'message', 'bluesky')" icon="bluesky"
+				>Bluesky mention</TTButton
+			>
+			<TTButton small @click="simulateEvent($event, 'whisper', 'bluesky')" icon="bluesky"
+				>Bluesky DM</TTButton
+			>
 			<TTButton small @click="simulateEvent($event, 'following')" icon="follow"
 				>Follow</TTButton
 			>
@@ -459,6 +468,7 @@ type Subaction =
 	| "unban_request_solve"
 	| "youtube"
 	| "tiktok"
+	| "bluesky"
 	| "skin1"
 	| "skin2"
 	| "skin3"
@@ -818,6 +828,11 @@ async function simulateEvent(
 
 				case "tiktok": {
 					message.platform = "tiktok";
+					break;
+				}
+				case "bluesky": {
+					message.platform = "bluesky";
+					break;
 				}
 			}
 			if (type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {

@@ -502,6 +502,10 @@ function reminder(): void {
  * @param e
  */
 function onKeyUp(e: KeyboardEvent): void {
+	//Changelog stays opened behind modals and parameters. Ignore keyboard
+	//nav if anything is opened on top of it
+	if (storeParams.currentModal != "" || storeParams.currentPage != "") return;
+
 	if (e.key == "ArrowLeft") {
 		currentSlide.value--;
 	}

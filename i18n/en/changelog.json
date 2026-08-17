@@ -55,7 +55,8 @@
 			{
 				"i": "elgato",
 				"l": "New Stream Deck plugin",
-				"d": "The Stream Deck plugin has been rewritten from scratch.\n\nOBS-websocket is no longer required to connect it with Twitchat.",
+				"d": "The Stream Deck plugin has been rewritten from scratch.\nOBS-websocket is no longer required to use it.",
+				"g": "update_images/streamdeck.png",
 				"a": {
 					"l": "Connect",
 					"i": "elgato",
@@ -67,22 +68,12 @@
 				"i": "bluesky",
 				"l": "Bluesky",
 				"d": "Connect your Bluesky account to:<ul><li>Post a message from the Triggers</li><li>Update your live status</li><li>Get notified about new followers</li><li>Receive your DMs and mentions right in Twitchat</li></ul>",
+				"g": "update_images/bluesky.png",
 				"a": {
 					"l": "Connect",
 					"i": "bluesky",
 					"param": "connexions",
 					"subparam": "bluesky"
-				}
-			},
-			{
-				"i": "twitchat_api",
-				"p": true,
-				"l": "HTTP API",
-				"d": "Execute Twitchat actions from any external application with simple HTTP requests.\n\nEverything you can do with it is listed on the brand new <a href=\"https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md\" target=\"_blank\">API documentation</a>.",
-				"a": {
-					"l": "Try",
-					"param": "connexions",
-					"subparam": "twitchat_api"
 				}
 			},
 			{
@@ -101,18 +92,30 @@
 			},
 			{
 				"i": "placeholder",
-				"l": "Triggers: Modifiers",
+				"l": "Triggers - Modifiers",
 				"d": "Placeholders can now be transformed:<ul><li><strong>{USER.uppercase}</strong> => DURSS</li><li><strong>{AMOUNT.currency(EUR)}</strong> => €12.50</li><li><strong>{USER_FOLLOWAGE_MS.duration}</strong> => 1d 4h 12m 30s</li></ul>Almost 70 modifiers are available to format text, numbers, dates, durations or lists.\n\nThey work on the Triggers as well as on the Labels overlay.\n\nSee the <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">full list</a>."
 			},
 			{
 				"i": "chatCommand",
-				"l": "Triggers: Command parameters",
-				"d": "The <strong>\"Optional command parameters\"</strong> can now extract information in a much more precise way.\n\nEither by defining a message format, or from a regular expression."
+				"l": "Triggers - Command parameters",
+				"d": "The <strong>\"Optional command parameters\"</strong> can now extract information in a much more precise way.\n\nEither by defining a message format, or from a regular expression.",
+				"g": "update_images/comand-params.webp"
 			},
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Triggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\n16 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for user input</li><li>Post on Bluesky</li><li>Control Meld Studio</li></ul>"
+				"d": "Triggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n16 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for stream input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
+			},
+			{
+				"i": "twitchat_api",
+				"p": true,
+				"l": "HTTP API",
+				"d": "Execute Twitchat actions from any external application with simple HTTP requests.\n\nEverything you can do with it is listed on the brand new <a href=\"https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md\" target=\"_blank\">API documentation</a>.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "twitchat_api"
+				}
 			},
 			{
 				"l": "And more",
