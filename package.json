@@ -29,7 +29,6 @@
 		"format": "vp check --fix",
 		"check-circular-dependencies": "dpdm --transform ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
-		"analyse": "esbuild src_front/main.ts --bundle --analyze",
 		"genapi": "node ./scripts/generatePublicApiDocumentation.mjs",
 		"genmodifiers": "node ./scripts/generatePlaceholderModifiersDoc.mjs",
 		"test": "vp test run",
