@@ -95,4 +95,3 @@ onBeforeMount(() => {
 	}
 }
 </style>
-

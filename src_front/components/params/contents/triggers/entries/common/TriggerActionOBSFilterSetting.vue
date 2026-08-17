@@ -121,7 +121,11 @@ watch(
 watch(
 	() => props.setting.type,
 	(type) => {
-		if (type == "boolean" && props.setting.value !== "true" && props.setting.value !== "false") {
+		if (
+			type == "boolean" &&
+			props.setting.value !== "true" &&
+			props.setting.value !== "false"
+		) {
 			props.setting.value = "false";
 		}
 	},

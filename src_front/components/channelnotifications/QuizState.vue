@@ -4,7 +4,8 @@
 			<div class="subHolder">
 				<h1 class="title" v-stickyTopShadow>
 					<Icon name="quiz" />{{
-						currentQuiz.title || $t(isEphemeral ? "quiz.quick.badge" : "quiz.form.title")
+						currentQuiz.title ||
+						$t(isEphemeral ? "quiz.quick.badge" : "quiz.form.title")
 					}}
 				</h1>
 				<div class="subtitle" v-if="currentQuestion">

@@ -35,4 +35,3 @@ export function indexUserLogins(
 export function getUserIdFromLogin(login: string): string | undefined {
 	return loginToId[login.toLowerCase()];
 }
-

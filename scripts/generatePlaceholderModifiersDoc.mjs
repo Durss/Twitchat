@@ -234,4 +234,3 @@ function toCRLF(text) {
 }
 
 main();
-

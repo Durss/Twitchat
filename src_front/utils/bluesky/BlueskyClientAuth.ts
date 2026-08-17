@@ -71,6 +71,7 @@ export function clientAuthFetch(
 		const body = await request.text();
 		const params = new URLSearchParams(body);
 		if (params.get("client_id") !== clientId || params.has("client_assertion")) {
+			// oxlint-disable-next-line unicorn/no-invalid-fetch-options
 			return fetch(new Request(request, { body }));
 		}
 
@@ -84,6 +85,7 @@ export function clientAuthFetch(
 		params.set("client_assertion", assertion);
 		//The DPoP proof already set on the request covers the method and URL
 		//only, so replacing the body doesn't invalidate it
+		// oxlint-disable-next-line unicorn/no-invalid-fetch-options
 		return fetch(new Request(request, { body: params.toString() }));
 	};
 }

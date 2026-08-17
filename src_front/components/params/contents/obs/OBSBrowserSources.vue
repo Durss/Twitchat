@@ -8,13 +8,19 @@
 			>{{ t("obs.browser_sources_refresh_all") }}</Button
 		>
 
-		<SearchForm v-model="search" :debounce-delay="0" :auto-focus="false" v-if="sources.length > 0" />
+		<SearchForm
+			v-model="search"
+			:debounce-delay="0"
+			:auto-focus="false"
+			v-if="sources.length > 0"
+		/>
 
 		<div
 			class="card-item row"
 			v-for="entry in filteredSources"
 			ref="row"
-			:key="entry.source.inputName">
+			:key="entry.source.inputName"
+		>
 			<div class="infos">
 				<p class="name">{{ entry.source.inputName }}</p>
 				<p class="url" v-if="entry.localFile">{{ entry.url }}</p>

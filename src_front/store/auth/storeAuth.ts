@@ -1,20 +1,19 @@
-import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
-import Database from "@/store/Database";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
+import SSEHelper from "@/utils/SSEHelper";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import EventSub from "@/utils/twitch/EventSub";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import * as Sentry from "@sentry/vue";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
-import * as Sentry from "@sentry/vue";
-import SSEHelper from "@/utils/SSEHelper";
 
 let refreshTokenTO: number = -1;
 

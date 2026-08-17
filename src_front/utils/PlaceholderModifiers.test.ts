@@ -219,9 +219,7 @@ describe("literal placeholder escape", () => {
 function parseAll(src: string, values: { [tag: string]: string }): string {
 	const known = new Set(Object.keys(values).map((t) => t.toUpperCase()));
 	const occurrences = findPlaceholders(src, (tag) => known.has(tag));
-	return unescapeLiteralPlaceholders(
-		splicePlaceholders(src, occurrences, (tag) => values[tag]),
-	);
+	return unescapeLiteralPlaceholders(splicePlaceholders(src, occurrences, (tag) => values[tag]));
 }
 
 const anyTag = () => true;
@@ -276,9 +274,10 @@ describe("finding the placeholders of a text", () => {
 		const [found] = findPlaceholders('{STATE.bool("win {USER1}", "lose {USER2}")}', anyTag);
 		//Not reported on their own, they belong to the argument they're written on
 		expect([found?.tag]).toEqual(["STATE"]);
-		expect(
-			found?.modifiers[0]?.argPlaceholders?.map((arg) => arg.map((o) => o.tag)),
-		).toEqual([["USER1"], ["USER2"]]);
+		expect(found?.modifiers[0]?.argPlaceholders?.map((arg) => arg.map((o) => o.tag))).toEqual([
+			["USER1"],
+			["USER2"],
+		]);
 	});
 	it("hands the nested tags to isKnownTag so the caller can resolve them", () => {
 		const seen: string[] = [];
@@ -300,9 +299,9 @@ describe("finding the placeholders of a text", () => {
 describe("placeholders nested in modifier arguments", () => {
 	it("resolves them, both arms of a bool", () => {
 		const values = { LIVE: "true", USER: "Durss" };
-		expect(
-			parseAll(`{LIVE.bool("{USER} is live", "{USER} is not live")}`, values),
-		).toBe("Durss is live");
+		expect(parseAll(`{LIVE.bool("{USER} is live", "{USER} is not live")}`, values)).toBe(
+			"Durss is live",
+		);
 		expect(
 			parseAll(`{LIVE.bool("{USER} is live", "{USER} is not live")}`, {
 				...values,
@@ -311,9 +310,9 @@ describe("placeholders nested in modifier arguments", () => {
 		).toBe("Durss is not live");
 	});
 	it("applies the modifiers of the nested placeholder", () => {
-		expect(parseAll(`{LIVE.bool("{USER.uppercase}", "")}`, { LIVE: "true", USER: "durss" })).toBe(
-			"DURSS",
-		);
+		expect(
+			parseAll(`{LIVE.bool("{USER.uppercase}", "")}`, { LIVE: "true", USER: "durss" }),
+		).toBe("DURSS");
 	});
 	it("supports a chain of any length on a nested placeholder", () => {
 		expect(
@@ -324,9 +323,9 @@ describe("placeholders nested in modifier arguments", () => {
 		).toBe("DURS…");
 	});
 	it("works with default()", () => {
-		expect(parseAll(`{MESSAGE.default("{USER} said nothing")}`, { MESSAGE: "", USER: "Durss" })).toBe(
-			"Durss said nothing",
-		);
+		expect(
+			parseAll(`{MESSAGE.default("{USER} said nothing")}`, { MESSAGE: "", USER: "Durss" }),
+		).toBe("Durss said nothing");
 	});
 	it("leaves an unknown nested tag written as is", () => {
 		expect(parseAll(`{LIVE.bool("{NOPE} hi", "")}`, { LIVE: "true" })).toBe("{NOPE} hi");
@@ -872,4 +871,3 @@ describe("modifier coverage", () => {
 		expect(builtinModifiers.filter((name) => !executedModifiers.has(name))).toEqual([]);
 	});
 });
-

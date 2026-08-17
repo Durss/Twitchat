@@ -118,4 +118,3 @@ function getEntryFromTag(tag?: string): CounterOrValueData | undefined {
 
 	return undefined;
 }
-

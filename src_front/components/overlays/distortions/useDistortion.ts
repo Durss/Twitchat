@@ -490,4 +490,3 @@ export function useDistortion(
 
 	return { initialize };
 }
-

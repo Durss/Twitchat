@@ -51,7 +51,9 @@ export const vNewflag: ObjectDirective<HTMLElement, NewFlagValue> = {
 			el.classList.add("newFlag");
 
 			el.addEventListener("click", () => {
-				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]") as string[];
+				const flagsDone = JSON.parse(
+					DataStore.get(DataStore.NEW_FLAGS) || "[]",
+				) as string[];
 				if (!flagsDone.includes(id)) {
 					flagsDone.push(id);
 					DataStore.set(DataStore.NEW_FLAGS, flagsDone);
