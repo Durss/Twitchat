@@ -27,6 +27,7 @@ const props = withDefaults(
 		noHtml?: boolean;
 		noNl?: boolean;
 		modelValue?: string | number;
+		trimContent?: boolean;
 		numeric?: boolean;
 		float?: boolean;
 		min?: number;
@@ -37,6 +38,7 @@ const props = withDefaults(
 	{
 		modelValue: "",
 		noHtml: true,
+		trimContent: true,
 		contenteditable: true,
 		numeric: false,
 		float: false,
@@ -122,10 +124,11 @@ function updateContent(newcontent: string | number) {
 		if (isNaN(newcontent)) newcontent = 0;
 		newcontent = newcontent.toString();
 	}
+	if (props.trimContent) newcontent = newcontent.trim();
 	if (props.noHtml || props.numeric) {
-		elementRef$.value!.innerText = newcontent.trim();
+		elementRef$.value!.innerText = newcontent;
 	} else {
-		elementRef$.value!.innerHTML = newcontent.trim();
+		elementRef$.value!.innerHTML = newcontent;
 	}
 }
 

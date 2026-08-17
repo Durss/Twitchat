@@ -61,6 +61,7 @@
 					<ContentEditable
 						tag="span"
 						v-model="prefix"
+						:trimContent="false"
 						:maxLength="50"
 						:placeholder="t('stream.prefix')"
 					/>
@@ -68,6 +69,7 @@
 					<ContentEditable
 						tag="span"
 						v-model="suffix"
+						:trimContent="false"
 						:maxLength="50"
 						:placeholder="t('stream.suffix')"
 					/>
@@ -147,7 +149,6 @@ const storeStream = useStoreStream();
 const storeCommon = useStoreCommon();
 const { confirm } = useConfirm();
 const { close } = useSidePanel(rootEl, emit);
-
 const prefix = computed({
 	get: () => storeStream.streamInfoPrefixSuffix.prefix,
 	set: (value: string) => storeStream.saveStreamInfoPrefixSuffix(value, suffix.value),

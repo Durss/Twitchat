@@ -1193,7 +1193,6 @@ export const storeStream = defineStore("stream", {
 			if (parameters?.slots.some((v) => v.slotType == "powerups")) {
 				const powerUps = await TwitchUtils.getCustomPowerUps();
 				powerUps.forEach((p) => {
-					console.log(p);
 					customPowerUpIcons[p.id] =
 						p.image?.url_2x ||
 						p.image?.url_1x ||
@@ -1649,9 +1648,6 @@ export const storeStream = defineStore("stream", {
 					tier: maxId || "",
 					lifetimeAmount: v.attributes.lifetime_support_cents / 100,
 				};
-				if (entry.login.trim() == "Noa") {
-					console.log(v.relationships.pledge_history.data);
-				}
 				return entry;
 			});
 
