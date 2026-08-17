@@ -16,6 +16,7 @@ import type {
 	$Typed,
 } from "@atproto/api";
 import { toast } from "@/utils/toast/toast";
+import { clientAuthFetch, toLocalClientMetadata } from "@/utils/bluesky/BlueskyClientAuth";
 
 let oauthClient: BrowserOAuthClient | null = null;
 let session: OAuthSession | null = null;
@@ -235,10 +236,21 @@ export const storeBluesky = defineStore("bluesky", {
 					/*not supported, nothing to report*/
 				});
 
-			const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
+			const { BrowserOAuthClient, OAuthClient } =
+				await import("@atproto/oauth-client-browser");
+			const clientId = (document.location.origin +
+				"/oauth/client-metadata.json") as `https://${string}/${string}`;
 			try {
-				oauthClient = await BrowserOAuthClient.load({
-					clientId: document.location.origin + "/oauth/client-metadata.json",
+				oauthClient = new BrowserOAuthClient({
+					//Metadata is loaded here rather than through
+					//BrowserOAuthClient.load() so the lib gets a copy it accepts,
+					//see toLocalClientMetadata()
+					clientMetadata: toLocalClientMetadata(
+						await OAuthClient.fetchMetadata({ clientId }),
+					),
+					//Authenticates Twitchat on the token/PAR/revocation endpoints,
+					//which is what gets us 2 year sessions instead of 2 weeks
+					fetch: clientAuthFetch(clientId, (step, info) => this.log(step, info)),
 					handleResolver: this.handleResolver,
 					// Called anytime the lib deletes ocal session
 					onSessionDeleted: (sub, cause) => {
@@ -530,6 +542,7 @@ export const storeBluesky = defineStore("bluesky", {
 			this.connected = false;
 			this.sub = "";
 			this.profile = null;
+			this.connectionError = null;
 			StoreProxy.auth.bluesky = null;
 			session = null;
 			agent = null;

@@ -50,9 +50,23 @@
 			const iss = params.get("iss");
 
 			async function authenticate() {
-				const { BrowserOAuthClient } = await import("@atproto/oauth-client-browser");
-				const client = await BrowserOAuthClient.load({
-					clientId: document.location.origin + "/oauth/client-metadata.json",
+				const { BrowserOAuthClient, OAuthClient } =
+					await import("@atproto/oauth-client-browser");
+				const { clientAuthFetch, toLocalClientMetadata } =
+					await import("@/utils/bluesky/BlueskyClientAuth");
+				const clientId = document.location.origin + "/oauth/client-metadata.json";
+				// The code for token exchange happens here, in the popup, not in the
+				// opener. So this page needs the same client authentication as the app,
+				// otherwise the session it creates is a 2 week "public" one (and the
+				// authorization server rejects it outright). This page is only ever
+				// reached over HTTPS, it's declared as a redirect URI as such.
+				const client = new BrowserOAuthClient({
+					clientMetadata: toLocalClientMetadata(
+						await OAuthClient.fetchMetadata({ clientId }),
+					),
+					fetch: clientAuthFetch(clientId, (step, info) =>
+						console.log("[bluesky] " + step, info ?? ""),
+					),
 					handleResolver: iss || "https://bsky.social",
 				});
 				await client.init();

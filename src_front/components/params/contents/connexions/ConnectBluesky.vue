@@ -95,6 +95,7 @@ import { useI18n } from "vue-i18n";
 import ParamItem from "../../ParamItem.vue";
 import ProfileInfoCard from "../ProfileInfoCard.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
+import { useConnectionStates } from "@/composables/useConnectionStates.js";
 
 const { t } = useI18n();
 const error = ref(false);
@@ -140,9 +141,13 @@ const param_dmsAlerts = ref<TwitchatDataTypes.ParameterData<boolean>>({
 	labelKey: "bluesky.param_dmsAlerts",
 });
 
+const { blueskyDisabled } = useConnectionStates();
+
 onMounted(() => {
 	// The session died, reset state so bluesky entry stops showing as errored
-	if (storeBluesky.connectionError) storeBluesky.resetConnection();
+	if ((!blueskyDisabled.value && !storeBluesky.connected) || storeBluesky.connectionError) {
+		storeBluesky.resetConnection();
+	}
 });
 
 const canSubmit = computed(() => {

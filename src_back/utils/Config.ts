@@ -221,6 +221,20 @@ export default class Config {
 		});
 	}
 
+	/**
+	 * Private key authenticating Twitchat as a "confidential" AT Protocol OAuth
+	 * client. Generated on first use.
+	 *
+	 * MUST be backed up: losing it invalidates every user's Bluesky session.
+	 */
+	public static get BLUESKY_CLIENT_KEY_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.CREDENTIALS_ROOT, "/blueskyClientKey.json"),
+			beta: path.join(this.CREDENTIALS_ROOT, "/blueskyClientKey.json"),
+			prod: path.join(this.CREDENTIALS_ROOT, "/blueskyClientKey.json"),
+		});
+	}
+
 	public static get BINGO_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/bingo"),

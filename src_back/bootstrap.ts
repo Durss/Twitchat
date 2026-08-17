@@ -8,6 +8,7 @@ import AdminController from "./controllers/AdminController.js";
 import ApiController from "./controllers/ApiController.js";
 import AuthController from "./controllers/AuthController.js";
 import BingoGridController from "./controllers/BingoGridController.js";
+import BlueskyController from "./controllers/BlueskyController.js";
 import DiscordController from "./controllers/DiscordController.js";
 import DonorController from "./controllers/DonorController.js";
 import FileServeController from "./controllers/FileServeController.js";
@@ -100,6 +101,7 @@ void userController.initialize().then(() => {
 	userController.setTwitchExtensionController(extensionController);
 });
 void new FileServeController(server).initialize();
+void new BlueskyController(server).initialize();
 void new AuthController(server).initialize();
 void new DonorController(server).initialize();
 void new SpotifyController(server).initialize();

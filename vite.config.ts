@@ -42,6 +42,11 @@ export default defineConfig({
 				changeOrigin: false,
 				secure: false,
 			},
+			"/oauth/jwks.json": {
+				target: "http://localhost:3018",
+				changeOrigin: false,
+				secure: false,
+			},
 		},
 	},
 
