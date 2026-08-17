@@ -190,7 +190,7 @@ function logout(): void {
 
 function latestUpdates(): void {
 	storeParams.closeParameters();
-	storeParams.openModal("updates");
+	storeParams.openChangelog();
 	// this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 }
 

@@ -329,7 +329,7 @@ export const storeMain = defineStore("main", {
 			if (isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
 				//Force last updates if any not read
 				// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
-				StoreProxy.params.openModal("updates");
+				StoreProxy.params.openChangelog();
 			}
 
 			const sParams = StoreProxy.params;

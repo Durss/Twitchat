@@ -322,7 +322,7 @@
 			@click="closeDonorCard()"
 		/>
 
-		<Changelog v-if="storeParams.currentModal == 'updates'" @close="storeParams.closeModal()" />
+		<Changelog v-if="storeParams.showChangelog" @close="storeParams.closeChangelog()" />
 
 		<Gngngn v-if="storeParams.currentModal == 'gngngn'" @close="storeParams.closeModal()" />
 

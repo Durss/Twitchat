@@ -43,7 +43,6 @@ export namespace TwitchatDataTypes {
 		| "TTuserList"
 		| "pins"
 		| "timer"
-		| "updates"
 		| "triggersLogs"
 		| "login"
 		| "tracked"

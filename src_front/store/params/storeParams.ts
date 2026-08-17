@@ -20,6 +20,7 @@ export const storeParams = defineStore("params", {
 		currentParamSearch: "",
 		currentPageSubContent: "",
 		currentModal: "",
+		showChangelog: false,
 		donationReminderEnabled: false,
 		updatesReminderEnabled: false,
 		greetThemAutoDelete: 600,
@@ -1112,6 +1113,14 @@ export const storeParams = defineStore("params", {
 
 		closeModal(): void {
 			this.currentModal = "";
+		},
+
+		openChangelog(): void {
+			this.showChangelog = true;
+		},
+
+		closeChangelog(): void {
+			this.showChangelog = false;
 		},
 
 		setGoXLRChatColScrollParams(

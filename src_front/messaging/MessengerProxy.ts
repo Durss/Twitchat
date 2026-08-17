@@ -495,7 +495,7 @@ export default class MessengerProxy {
 			return true;
 		} else if (cmd == "/updates") {
 			// StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
-			StoreProxy.params.openModal("updates");
+			StoreProxy.params.openChangelog();
 			return true;
 		} else if (cmd == "/tip") {
 			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);

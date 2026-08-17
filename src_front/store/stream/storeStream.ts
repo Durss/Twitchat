@@ -303,7 +303,7 @@ export const storeStream = defineStore("stream", {
 				//Send donation reminder if requested
 				if (StoreProxy.params.updatesReminderEnabled) {
 					StoreProxy.params.donationReminderEnabled = false;
-					StoreProxy.params.openModal("updates");
+					StoreProxy.params.openChangelog();
 				}
 				//Cut OBS stream if requested
 				if (StoreProxy.params.features.stopStreamOnRaid.value === true) {

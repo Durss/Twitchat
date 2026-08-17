@@ -170,7 +170,7 @@
 					</i18n-t>
 				</div>
 				<div class="ctas">
-					<TTButton @click="openModal('updates')" icon="firstTime" primary light
+					<TTButton @click="openChangelog()" icon="firstTime" primary light
 						>/updates</TTButton
 					>
 				</div>
@@ -319,6 +319,9 @@ class ChatAd extends Vue {
 
 	public openModal(modal: TwitchatDataTypes.ModalTypes): void {
 		StoreProxy.params.openModal(modal);
+	}
+	public openChangelog(): void {
+		StoreProxy.params.openChangelog();
 	}
 	public openParamItem(paramPath: string): void {
 		this.$store.params.searchParamByPath(paramPath);

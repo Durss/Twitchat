@@ -1273,6 +1273,12 @@ export interface IParamsState {
 	 */
 	currentModal: TwitchatDataTypes.ModalTypes;
 	/**
+	 * Defines if the changelog is opened.
+	 * It's handled apart from the "currentModal" system so opening
+	 * any other modal doesn't discard it.
+	 */
+	showChangelog: boolean;
+	/**
 	 * Defines if a donate reminder should be posted when user ends
 	 * their stream (after raid and/or strem cut)
 	 */
@@ -1387,6 +1393,16 @@ export interface IParamsActions {
 	 * Closes currently opened modal
 	 */
 	closeModal(): void;
+	/**
+	 * Open the changelog.
+	 * Lives outside of the "openModal()" system so it isn't discarded
+	 * when opening any other modal.
+	 */
+	openChangelog(): void;
+	/**
+	 * Closes the changelog
+	 */
+	closeChangelog(): void;
 	/**
 	 * Set if Twitchat should automatically connect to GoXLR on startup
 	 * @param enabled
