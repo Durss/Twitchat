@@ -133,10 +133,10 @@
 			"exporter": "Export params"
 		},
 		"botMessages": {
-			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",
+			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",
 			"raffleJoin": "VoteYea {USER} tu as rejoint le tirage au sort.",
 			"raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
-			"raffleTipsStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage en faisant un don sur {PLATFORMS} ?",
+			"raffleTipsStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage en faisant un don sur {PLATFORMS} !",
 			"raffleTipsJoin": "VoteYea {USER} a rejoint le tirage au sort en donnant {AMOUNT} sur {PLATFORM}.",
 			"raffleTipsWinner": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort en donnant {AMOUNT} sur {PLATFORM} 🎉🎉🎉",
 			"raffleSubsWinner": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
