@@ -385,12 +385,14 @@ watch(
 watch(
 	() => storeTiktok.connected,
 	() => rebuildChannelIdsHashmap(),
-	{ deep: true },
 );
 watch(
-	() => YoutubeHelper.instance.connected,
+	() => storeAuth.youtube?.user.id,
 	() => rebuildChannelIdsHashmap(),
-	{ deep: true },
+);
+watch(
+	() => storeAuth.bluesky?.user.id,
+	() => rebuildChannelIdsHashmap(),
 );
 watch(
 	() => props.config,
