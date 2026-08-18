@@ -1498,16 +1498,16 @@ export default class TwitchUtils {
 						channel_login: string;
 						pronoun_id: string;
 						alt_pronoun_id: string | null;
-				  }[]
+				  }
 				| { error: string };
 
 			if ("error" in data) {
 				throw data;
-			} else if (data.length > 0) {
+			} else if (data) {
 				return {
-					id: data[0]!.channel_id,
-					login: data[0]!.channel_login,
-					pronoun_id: data[0]!.pronoun_id,
+					id: data.channel_id,
+					login: data.channel_login,
+					pronoun_id: data.pronoun_id,
 				};
 			}
 
