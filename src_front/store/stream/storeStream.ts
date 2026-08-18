@@ -287,8 +287,8 @@ export const storeStream = defineStore("stream", {
 				});
 				//Sort from older to most recent
 				this.raidHistory.sort((a, b) => a.date - b.date);
-				//Limit history to 200 entries
-				if (this.raidHistory.length > 200) {
+				//Limit history size
+				if (this.raidHistory.length > 2000) {
 					this.raidHistory.shift();
 				}
 				DataStore.set(DataStore.RAID_HISTORY, this.raidHistory);
