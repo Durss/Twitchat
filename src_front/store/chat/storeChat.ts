@@ -1864,13 +1864,13 @@ export const storeChat = defineStore("chat", {
 							if (/@\w/gi.test(message.message) && !message.answersTo) {
 								// console.log("Mention found");
 								const ts = Date.now();
-								const messages = messageList;
 								const timeframe = 5 * 60 * 1000; //Check if a massage answers another within this timeframe
 								const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
 								for (let i = 0; i < matches.length; i++) {
 									const match = matches[i]!.replace("@", "").toLowerCase();
 									// console.log("Search for message from ", match);
-									for (const m of messages) {
+									for (let j = messageList.length - 1; j >= 0; j--) {
+										const m = messageList[j]!;
 										//Not a user message, ignore it
 										if (m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE)
 											continue;
