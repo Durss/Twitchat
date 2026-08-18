@@ -1490,14 +1490,25 @@ export default class TwitchUtils {
 		if (platform != "twitch") return null; //No platform support anything else but twitch so far
 
 		const getPronounAlejo = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
-			const url = new URL("https://pronouns.alejo.io/api/users/" + username);
+			const url = new URL("https://api.pronouns.alejo.io/v1/users/" + username);
 			const res = await fetch(url);
-			const data = await res.json();
+			const data = (await res.json()) as
+				| {
+						channel_id: string;
+						channel_login: string;
+						pronoun_id: string;
+						alt_pronoun_id: string | null;
+				  }[]
+				| { error: string };
 
-			if (data.error) {
+			if ("error" in data) {
 				throw data;
 			} else if (data.length > 0) {
-				return data[0];
+				return {
+					id: data[0]!.channel_id,
+					login: data[0]!.channel_login,
+					pronoun_id: data[0]!.pronoun_id,
+				};
 			}
 
 			return null;
@@ -1508,14 +1519,20 @@ export default class TwitchUtils {
 			url.searchParams.set("platform", platform);
 			url.searchParams.set("ids", uid);
 			const res = await fetch(url);
-			const data = await res.json();
+			const data = (await res.json()) as Record<
+				string,
+				{
+					decoration: unknown;
+					sets: Record<"en" & AutocompletableString, string[]>;
+				}
+			>;
 
 			if (Object.keys(data).length === 0) return null;
 
 			return {
 				id: uid,
 				login: username,
-				pronoun_id: data[uid].sets.en.join("/"),
+				pronoun_id: data[uid]!.sets.en.join("/"),
 			};
 		};
 
