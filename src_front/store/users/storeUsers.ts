@@ -22,7 +22,8 @@ import StoreProxy from "../StoreProxy";
 interface BatchItem {
 	channelId?: string;
 	user: TwitchatDataTypes.TwitchatUser;
-	cb?: (user: TwitchatDataTypes.TwitchatUser) => void;
+	getPronouns?: boolean;
+	cbs: ((user: TwitchatDataTypes.TwitchatUser) => void)[];
 }
 
 //Don't store this as a state prop.
@@ -41,6 +42,16 @@ const userMaps: Partial<{
 	};
 }> = {};
 
+// max user count to keep in cache
+const USER_CACHE_MAX_SIZE = 10000;
+// drop cached user after this duration with no access
+const USER_CACHE_MAX_IDLE_DURATION = 10 * 60 * 60_000;
+// minimum delay between 2 cache cleanups
+const USER_CACHE_CLEANUP_INTERVAL = 5 * 60_000;
+// last date a user has been accessed at
+const userToLastActivity = new WeakMap<TwitchatDataTypes.TwitchatUser, number>();
+let lastUserCacheCleanupDate = 0;
+
 /**
  * Gets a user from their ID via the hashmaps for fast accesses.
  */
@@ -51,14 +62,160 @@ function getUserById(
 	return userMaps[platform]?.idToUser[uid];
 }
 
-const twitchUserBatchLoginToLoad: BatchItem[] = [];
-const twitchUserBatchIdToLoad: {
-	channelId?: string;
-	user: TwitchatDataTypes.TwitchatUser;
-	cb?: (user: TwitchatDataTypes.TwitchatUser) => void;
-}[] = [];
+/**
+ * Gets if a user can safely be dropped from the cache.
+ * Users holding a state that wouldn't be rebuilt identically when creating
+ * them back are kept.
+ */
+function canDropCachedUser(user: TwitchatDataTypes.TwitchatUser): boolean {
+	if (user.temporary) return false;
+	if (user.is_tracked) return false;
+	for (const chanId in user.channelInfo) {
+		const chanInfo = user.channelInfo[chanId]!;
+		if (chanInfo.is_banned) return false;
+		// keep roles for other chans as we can't restore them
+		if (chanInfo.is_broadcaster || chanInfo.is_moderator || chanInfo.is_vip) return false;
+	}
+	return true;
+}
+
+/**
+ * cleanup cache regularly to avoid indefinite growth
+ */
+function cleanupUserCache(): void {
+	lastUserCacheCleanupDate = Date.now();
+	const expirationDate = lastUserCacheCleanupDate - USER_CACHE_MAX_IDLE_DURATION;
+
+	let index = 0;
+	for (const user of userList) {
+		const isIdle = (userToLastActivity.get(user) || 0) <= expirationDate;
+		if (isIdle && canDropCachedUser(user)) continue;
+		userList[index++] = user;
+	}
+	if (index === userList.length) return;
+	userList.length = index;
+
+	//Rebuild the hashmaps
+	for (const key in userMaps) {
+		const maps = userMaps[key as TwitchatDataTypes.ChatPlatform]!;
+		maps.idToUser = {};
+		maps.loginToUser = {};
+		maps.displayNameToUser = {};
+	}
+	for (const user of userList) {
+		const maps = userMaps[user.platform];
+		if (!maps) continue;
+		if (user.id) maps.idToUser[user.id] = user;
+		if (user.login) maps.loginToUser[user.login] = user;
+		if (user.displayNameOriginal) maps.displayNameToUser[user.displayNameOriginal] = user;
+	}
+}
+
+const twitchUserBatchLoginToLoad = new Map<TwitchatDataTypes.TwitchatUser, BatchItem>();
+const twitchUserBatchIdToLoad = new Map<TwitchatDataTypes.TwitchatUser, BatchItem>();
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
+//Amount of users after which a batch stops being postponed
+const TWITCH_USER_BATCH_SIZE = 100;
+
+/**
+ * Loads a batch of twitch users.
+ * Users are grouped by type, one for users requested via their ID
+ * one for the ones requested via their login.
+ */
+async function loadUserBatch(batchType: "id" | "login"): Promise<void> {
+	const pendingBatch =
+		batchType == "login" ? twitchUserBatchLoginToLoad : twitchUserBatchIdToLoad;
+	if (batchType == "login") twitchUserBatchLoginTimeout = -1;
+	else twitchUserBatchIdTimeout = -1;
+
+	const sUsers = StoreProxy.users;
+	const pendingItems = Array.from(pendingBatch.values());
+	pendingBatch.clear();
+
+	const batch: BatchItem[] = [];
+	for (const item of pendingItems) {
+		//Ignore entries completed by something else in the meantime
+		if (!item.user.temporary && item.user.created_at_ms != undefined) {
+			for (const cb of item.cbs) cb(item.user);
+		} else {
+			batch.push(item);
+		}
+	}
+	if (batch.length == 0) return;
+
+	const logins = batchType == "login" ? batch.map((v) => v.user.login) : undefined;
+	const ids = batchType == "id" ? batch.map((v) => v.user.id) : undefined;
+
+	// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
+	const res = await TwitchUtils.getUserInfo(ids, logins);
+
+	// create hashmap for faster access of the results
+	const keyToApiUser = new Map<string, (typeof res)[number]>();
+	for (const apiUser of res) {
+		keyToApiUser.set(apiUser[batchType].toLowerCase(), apiUser);
+	}
+
+	const hashmaps = userMaps["twitch"];
+	const myChanId = StoreProxy.auth.twitch.user?.id;
+	for (const batchItem of batch) {
+		const userLocal = batchItem.user;
+		delete userLocal.temporary;
+		const apiUser = keyToApiUser.get(userLocal[batchType].toLowerCase());
+		if (!apiUser) {
+			//User not sent back by twitch API.
+			//Most probably because login is wrong or user is banned
+			let fallbackLogin = userLocal.login || userLocal.displayNameOriginal;
+			if (fallbackLogin == sUsers.tmpDisplayName) fallbackLogin = "#" + userLocal.id;
+			userLocal.displayName =
+				// userLocal.login = "❌("+fallbackLogin+")";
+				userLocal.login = fallbackLogin;
+			userLocal.errored = true;
+		} else {
+			//User sent back by Twitch API
+			//Update user info with the API data
+			userLocal.id = apiUser.id;
+			userLocal.login = apiUser.login;
+			userLocal.displayName = userLocal.displayNameOriginal = apiUser.display_name;
+			userLocal.is_partner = apiUser.broadcaster_type == "partner";
+			userLocal.is_affiliate =
+				userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
+			userLocal.created_at_ms = new Date(apiUser.created_at).getTime();
+			if (!userLocal.avatarPath) userLocal.avatarPath = apiUser.profile_image_url;
+			if (hashmaps) {
+				if (userLocal.id) hashmaps.idToUser[userLocal.id] = userLocal;
+				if (userLocal.login) hashmaps.loginToUser[userLocal.login] = userLocal;
+				if (userLocal.displayNameOriginal)
+					hashmaps.displayNameToUser[userLocal.displayNameOriginal] = userLocal;
+			}
+
+			//Load pronouns if requested
+			if (batchItem.getPronouns && userLocal.id && userLocal.login)
+				void sUsers.loadUserPronouns(userLocal);
+
+			//Now that the user's actual ID is known, refresh their moderator state.
+			//"myMods" only holds our own channel's moderators, the other channels'
+			//states are set from the IRC tags by TwitchMessengerClient
+			const chanInfo = myChanId ? userLocal.channelInfo[myChanId] : undefined;
+			if (
+				chanInfo &&
+				(sUsers.myMods["twitch"][userLocal.id] === true || myChanId == userLocal.id)
+			) {
+				chanInfo.is_moderator = true;
+			}
+
+			//Check follower state
+			if (
+				batchItem.channelId &&
+				userLocal.id &&
+				userLocal.channelInfo[batchItem.channelId]!.is_following == null
+			) {
+				void sUsers.checkFollowerState(userLocal, batchItem.channelId);
+			}
+		}
+		for (const cb of batchItem.cbs) cb(userLocal);
+	}
+}
 
 export const storeUsers = defineStore("users", {
 	state: (): IUsersState => ({
@@ -301,6 +458,8 @@ export const storeUsers = defineStore("users", {
 			//we're here.
 			user = user!;
 
+			userToLastActivity.set(user, Date.now());
+
 			if (channelId) {
 				//Init channel data for this user if not already existing
 				if (!user.channelInfo[channelId]) {
@@ -363,150 +522,41 @@ export const storeUsers = defineStore("users", {
 					//this method, then populates the is_partner and is_affiliate and
 					//other fields from IRC tags which avoids the need to get the users
 					//details via an API call.
-					const to = window.setTimeout(
-						(batchType: "id" | "login") => {
-							const batch: BatchItem[] =
-								batchType == "login"
-									? twitchUserBatchLoginToLoad.splice(0)
-									: twitchUserBatchIdToLoad.splice(0);
-
-							//Remove items that might have been fullfilled externally
-							for (let i = 0; i < batch.length; i++) {
-								const item = batch[i]!;
-								if (!item.user.temporary && !needCreationDate) {
-									if (item.cb) item.cb(item.user);
-									batch.splice(i, 1);
-									i--;
-								}
-							}
-
-							const logins: string[] | undefined =
-								batchType == "login" ? batch.map((v) => v.user.login) : undefined;
-							const ids: string[] | undefined =
-								batchType == "login" ? undefined : batch.map((v) => v.user.id);
-
-							if (
-								(ids?.length == 0 || ids == undefined) &&
-								(logins?.length == 0 || logins == undefined)
-							)
-								return;
-
-							// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
-
-							void TwitchUtils.getUserInfo(ids, logins).then(async (res) => {
-								// console.log("Batch loaded", batchType);
-								// console.log(res);
-								// console.log(JSON.parse(JSON.stringify(batch)));
-
-								do {
-									const batchItem = batch.shift();
-									if (!batchItem) continue;
-									const userLocal = batchItem.user;
-									delete userLocal.temporary;
-									// console.log("Search user", batchType=="id"? userLocal.id : userLocal.login);
-									type UserKeys = keyof TwitchatDataTypes.TwitchatUser;
-									const key: UserKeys = batchType;
-									const apiUser = res.find(
-										(v) => v[key].toLowerCase() == userLocal[key].toLowerCase(),
-									);
-									if (!apiUser) {
-										// console.log("User not found.... ", userLocal.login, userLocal.id);
-										//User not sent back by twitch API.
-										//Most probably because login is wrong or user is banned
-										let fallbackLogin =
-											userLocal.login || userLocal.displayNameOriginal;
-										if (fallbackLogin == this.tmpDisplayName)
-											fallbackLogin = "#" + userLocal.id;
-										userLocal.displayName =
-											// userLocal.login = "❌("+fallbackLogin+")";
-											userLocal.login = fallbackLogin;
-										userLocal.errored = true;
-										// console.log("Twitch did not return user data for:", userLocal);
-										// console.log("Requested these IDs/Logins:", ids, logins);
-										// console.log("Received:", res);
-									} else {
-										//User sent back by API
-										//Update user info with the API data
-										// console.log("User found", apiUser.login, apiUser.id);
-										userLocal.id = apiUser.id;
-										userLocal.login = apiUser.login;
-										userLocal.displayName = userLocal.displayNameOriginal =
-											apiUser.display_name;
-										userLocal.is_partner =
-											apiUser.broadcaster_type == "partner";
-										userLocal.is_affiliate =
-											userLocal.is_partner ||
-											apiUser.broadcaster_type == "affiliate";
-										userLocal.created_at_ms = new Date(
-											apiUser.created_at,
-										).getTime();
-										if (!userLocal.avatarPath)
-											userLocal.avatarPath = apiUser.profile_image_url;
-										if (userLocal.id)
-											hashmaps!.idToUser[userLocal.id] = userLocal;
-										if (userLocal.login)
-											hashmaps!.loginToUser[userLocal.login] = userLocal;
-										if (userLocal.displayNameOriginal)
-											hashmaps!.displayNameToUser[
-												userLocal.displayNameOriginal
-											] = userLocal;
-
-										//Load pronouns if requested
-										if (getPronouns && userLocal.id && userLocal.login)
-											void this.loadUserPronouns(userLocal);
-
-										//Set moderator state for all connected channels
-										for (const chan in this.myMods[platform]) {
-											if (!userLocal.channelInfo[chan]) continue;
-
-											const cache = this.myMods[platform]!;
-											userLocal.channelInfo[chan].is_moderator =
-												cache?.[userLocal.id] === true;
-										}
-										//Check follower state
-										if (
-											batchItem.channelId &&
-											userLocal.id &&
-											userLocal.channelInfo[batchItem.channelId]!
-												.is_following == null
-										) {
-											void this.checkFollowerState(
-												userLocal,
-												batchItem.channelId,
-											);
-										}
-									}
-									if (batchItem.cb) batchItem.cb(userLocal);
-								} while (batch.length > 0);
-							});
-						},
-						500,
-						id ? "id" : "login",
-					);
-
 					//Batch requests by types.
 					//All items loaded by their IDs on one batch, by logins on another batch.
-					if (id) {
-						twitchUserBatchIdToLoad.push({
-							user,
-							channelId,
-							cb: user.temporary == true ? loadCallback : undefined,
-						});
-						if (twitchUserBatchIdToLoad.length < 100) {
-							if (twitchUserBatchIdTimeout > -1)
-								clearTimeout(twitchUserBatchIdTimeout);
-							twitchUserBatchIdTimeout = to;
+					if (id || login) {
+						const batchType: "id" | "login" = id ? "id" : "login";
+						const pendingBatch =
+							batchType == "id"
+								? twitchUserBatchIdToLoad
+								: twitchUserBatchLoginToLoad;
+						const cb = user.temporary == true ? loadCallback : undefined;
+						// do not queue the same user twice but keep their callbacks to
+						// avpoid leaving any pending
+						const pendingItem = pendingBatch.get(user);
+						if (pendingItem) {
+							if (cb) pendingItem.cbs.push(cb);
+							if (getPronouns) pendingItem.getPronouns = true;
+						} else {
+							pendingBatch.set(user, {
+								user,
+								channelId,
+								getPronouns,
+								cbs: cb ? [cb] : [],
+							});
 						}
-					} else if (login) {
-						twitchUserBatchLoginToLoad.push({
-							user,
-							channelId,
-							cb: user.temporary == true ? loadCallback : undefined,
-						});
-						if (twitchUserBatchLoginToLoad.length < 100) {
-							if (twitchUserBatchLoginTimeout > -1)
-								clearTimeout(twitchUserBatchLoginTimeout);
-							twitchUserBatchLoginTimeout = to;
+
+						// debounce batch loading to group as many users together as possible
+						// if batch is full (100 users) execute it
+						const currentTimeout =
+							batchType == "id"
+								? twitchUserBatchIdTimeout
+								: twitchUserBatchLoginTimeout;
+						if (pendingBatch.size < TWITCH_USER_BATCH_SIZE || currentTimeout == -1) {
+							if (currentTimeout > -1) clearTimeout(currentTimeout);
+							const to = window.setTimeout(() => void loadUserBatch(batchType), 500);
+							if (batchType == "id") twitchUserBatchIdTimeout = to;
+							else twitchUserBatchLoginTimeout = to;
 						}
 					}
 				}
@@ -540,7 +590,15 @@ export const storeUsers = defineStore("users", {
 			if (user.displayNameOriginal)
 				hashmaps.displayNameToUser[user.displayNameOriginal] = user;
 
-			if (!userExisted) userList.push(user);
+			if (!userExisted) {
+				userList.push(user);
+				if (
+					userList.length > USER_CACHE_MAX_SIZE &&
+					Date.now() - lastUserCacheCleanupDate > USER_CACHE_CLEANUP_INTERVAL
+				) {
+					cleanupUserCache();
+				}
+			}
 
 			if (user.temporary != true) {
 				if (loadCallback) loadCallback(user);
@@ -567,9 +625,11 @@ export const storeUsers = defineStore("users", {
 			//Get list of all blocked users and build a hashmap out of it
 			try {
 				const blockedUsers = await TwitchUtils.getBlockedUsers();
+				const hashmap: { [key: string]: boolean } = { ...this.blockedUsers["twitch"] };
 				for (let i = 0; i < blockedUsers.length; i++) {
-					this.blockedUsers["twitch"][blockedUsers[i]!.user_id] = true;
+					hashmap[blockedUsers[i]!.user_id] = true;
 				}
+				this.blockedUsers["twitch"] = hashmap;
 			} catch (_error) {
 				/*ignore*/
 			}
@@ -1163,9 +1223,10 @@ export const storeUsers = defineStore("users", {
 		 */
 		async loadMyModerators(): Promise<void> {
 			const users = await TwitchUtils.getModerators();
-			this.myMods.twitch = {};
+			const hashmap: { [key: string]: boolean } = {};
+			users.forEach((v) => (hashmap[v.user_id] = true));
+			this.myMods.twitch = hashmap;
 			users.forEach((v) => {
-				this.myMods.twitch[v.user_id] = true;
 				const user = StoreProxy.users.getUserFrom(
 					"twitch",
 					StoreProxy.auth.twitch.user.id,
@@ -1182,9 +1243,10 @@ export const storeUsers = defineStore("users", {
 		 */
 		async loadMyVIPs(): Promise<void> {
 			const users = await TwitchUtils.getVIPs();
-			this.myVIPs.twitch = {};
+			const hashmap: { [key: string]: boolean } = {};
+			users.forEach((v) => (hashmap[v.user_id] = true));
+			this.myVIPs.twitch = hashmap;
 			users.forEach((v) => {
-				this.myVIPs.twitch[v.user_id] = true;
 				const user = StoreProxy.users.getUserFrom(
 					"twitch",
 					StoreProxy.auth.twitch.user.id,
@@ -1248,9 +1310,9 @@ export const storeUsers = defineStore("users", {
 			StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
 			if (!countOnly) {
 				const subList = await TwitchUtils.getSubsList(false);
-				subList.forEach((v) => {
-					this.mySubscribers.twitch[v.user_id] = true;
-				});
+				const hashmap: { [key: string]: boolean } = {};
+				subList.forEach((v) => (hashmap[v.user_id] = true));
+				this.mySubscribers.twitch = hashmap;
 			}
 		},
 
