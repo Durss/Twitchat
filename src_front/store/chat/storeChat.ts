@@ -3348,7 +3348,7 @@ export const storeChat = defineStore("chat", {
 				const m = messageList[i]!;
 				//If we reached messages older than 2h, stop there, there's no much point in
 				//spending process for that old messages
-				if (Date.now() - m.date > 2 * 60000) break;
+				if (Date.now() - m.date > 2 * 60 * 60_000) break;
 
 				if (!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessages;
