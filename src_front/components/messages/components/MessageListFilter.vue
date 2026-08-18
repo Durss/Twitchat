@@ -200,172 +200,182 @@
 										: undefined
 								"
 							>
-								<template
-									#child
-									v-if="
-										filter.storage?.type == whisperType &&
-										config.filters.whisper === true
-									"
-								>
-									<ToggleBlock
-										class="whispersPermissions"
-										:title="$t('chat.filters.whispers_permissions')"
-										small
-										:open="false"
+								<template #child>
+									<template
+										v-if="
+											filter.storage?.type == whisperType &&
+											config.filters.whisper === true
+										"
 									>
-										<PermissionsForm
-											v-model="config.whispersPermissions"
-											@update:modelValue="saveData()"
-											:hasFollowerFilter="false"
-										/>
-									</ToggleBlock>
-								</template>
-								<template
-									#child
-									v-if="
-										filter.storage?.type == messageType &&
-										config.filters.message === true
-									"
-								>
-									<div class="subFilters">
-										<div class="item">
-											<div class="preview"></div>
-
-											<ParamItem
-												v-if="
-													config.filters.message === true &&
-													(!searchTerms ||
-														t(param_hideUsers.labelKey || '')
-															.toLowerCase()
-															.includes(
-																searchTerms.toLowerCase().trim(),
-															))
-												"
-												key="subfilter_blockUsers"
-												:paramData="param_hideUsers"
-												@change="saveData()"
-												v-model="config.userBlockList"
-											/>
-										</div>
-
-										<div
-											class="item"
-											v-for="messageFilter in filteredMessageFilters"
-											:key="'subfilter_' + messageFilter.storage!.type"
+										<ToggleBlock
+											class="whispersPermissions"
+											:title="$t('chat.filters.whispers_permissions')"
+											small
+											:open="false"
 										>
-											<Icon
-												name="show"
-												class="preview"
-												v-if="messageFilter.storage!.hasPreview"
-												@mouseleave="mouseLeaveItem()"
-												@mouseenter="
-													previewSubMessage(messageFilter.storage!)
-												"
+											<PermissionsForm
+												v-model="config.whispersPermissions"
+												@update:modelValue="saveData()"
+												:hasFollowerFilter="false"
 											/>
-											<div v-else class="preview"></div>
+										</ToggleBlock>
+									</template>
+									<template
+										v-if="
+											filter.storage?.type == messageType &&
+											config.filters.message === true
+										"
+									>
+										<div class="subFilters">
+											<div class="item">
+												<div class="preview"></div>
 
-											<ParamItem
-												autoFade
-												v-if="config.filters.message === true"
-												:key="'subfilter_' + messageFilter.storage"
-												:paramData="messageFilter"
-												@change="saveData()"
-												v-model="
-													config.messageFilters[
-														messageFilter.storage!.type
-													]
-												"
-											/>
+												<ParamItem
+													v-if="
+														config.filters.message === true &&
+														(!searchTerms ||
+															t(param_hideUsers.labelKey || '')
+																.toLowerCase()
+																.includes(
+																	searchTerms
+																		.toLowerCase()
+																		.trim(),
+																))
+													"
+													key="subfilter_blockUsers"
+													:paramData="param_hideUsers"
+													@change="saveData()"
+													v-model="config.userBlockList"
+												/>
+											</div>
+
+											<div
+												class="item"
+												v-for="messageFilter in filteredMessageFilters"
+												:key="'subfilter_' + messageFilter.storage!.type"
+											>
+												<Icon
+													name="show"
+													class="preview"
+													v-if="messageFilter.storage!.hasPreview"
+													@mouseleave="mouseLeaveItem()"
+													@mouseenter="
+														previewSubMessage(messageFilter.storage!)
+													"
+												/>
+												<div v-else class="preview"></div>
+
+												<ParamItem
+													autoFade
+													v-if="config.filters.message === true"
+													:key="'subfilter_' + messageFilter.storage"
+													:paramData="messageFilter"
+													@change="saveData()"
+													v-model="
+														config.messageFilters[
+															messageFilter.storage!.type
+														]
+													"
+												/>
+											</div>
+
+											<template v-if="storeUsers.customBadgeList.length > 0">
+												<div
+													class="item"
+													v-if="
+														storeUsers.customBadgeList.length > 0 &&
+														(!searchTerms ||
+															t(param_showBadges.labelKey || '')
+																.toLowerCase()
+																.includes(
+																	searchTerms
+																		.toLowerCase()
+																		.trim(),
+																))
+													"
+												>
+													<div class="preview"></div>
+													<ParamItem
+														key="subfilter_blockUsers"
+														v-model="config.mandatoryBadges_flag"
+														:paramData="param_showBadges"
+														@change="saveData()"
+													>
+														<div class="badgeList">
+															<button
+																v-for="badge in storeUsers.customBadgeList"
+																@click="
+																	onToggleBadge(badge.id, true)
+																"
+																:class="
+																	(
+																		config.mandatoryBadges || []
+																	).includes(badge.id)
+																		? 'selected'
+																		: ''
+																"
+																:key="badge.id + '_show'"
+																:title="badge.name"
+																v-tooltip="badge.name"
+															>
+																<img
+																	:src="badge.img"
+																	:alt="badge.name"
+																/>
+															</button>
+														</div>
+													</ParamItem>
+												</div>
+
+												<div
+													class="item"
+													v-if="
+														storeUsers.customBadgeList.length > 0 &&
+														(!searchTerms ||
+															t(param_hideBadges.labelKey || '')
+																.toLowerCase()
+																.includes(
+																	searchTerms
+																		.toLowerCase()
+																		.trim(),
+																))
+													"
+												>
+													<div class="preview"></div>
+													<ParamItem
+														key="subfilter_blockUsers"
+														v-model="config.forbiddenBadges_flag"
+														:paramData="param_hideBadges"
+														@change="saveData()"
+													>
+														<div class="badgeList">
+															<button
+																v-for="badge in storeUsers.customBadgeList"
+																@click="
+																	onToggleBadge(badge.id, false)
+																"
+																:class="
+																	(
+																		config.forbiddenBadges || []
+																	).includes(badge.id)
+																		? 'selected'
+																		: ''
+																"
+																:key="badge.id + '_show'"
+																:title="badge.name"
+																v-tooltip="badge.name"
+															>
+																<img
+																	:src="badge.img"
+																	:alt="badge.name"
+																/>
+															</button>
+														</div>
+													</ParamItem>
+												</div>
+											</template>
 										</div>
-
-										<template v-if="storeUsers.customBadgeList.length > 0">
-											<div
-												class="item"
-												v-if="
-													storeUsers.customBadgeList.length > 0 &&
-													(!searchTerms ||
-														t(param_showBadges.labelKey || '')
-															.toLowerCase()
-															.includes(
-																searchTerms.toLowerCase().trim(),
-															))
-												"
-											>
-												<div class="preview"></div>
-												<ParamItem
-													key="subfilter_blockUsers"
-													v-model="config.mandatoryBadges_flag"
-													:paramData="param_showBadges"
-													@change="saveData()"
-												>
-													<div class="badgeList">
-														<button
-															v-for="badge in storeUsers.customBadgeList"
-															@click="onToggleBadge(badge.id, true)"
-															:class="
-																(
-																	config.mandatoryBadges || []
-																).includes(badge.id)
-																	? 'selected'
-																	: ''
-															"
-															:key="badge.id + '_show'"
-															:title="badge.name"
-															v-tooltip="badge.name"
-														>
-															<img
-																:src="badge.img"
-																:alt="badge.name"
-															/>
-														</button>
-													</div>
-												</ParamItem>
-											</div>
-
-											<div
-												class="item"
-												v-if="
-													storeUsers.customBadgeList.length > 0 &&
-													(!searchTerms ||
-														t(param_hideBadges.labelKey || '')
-															.toLowerCase()
-															.includes(
-																searchTerms.toLowerCase().trim(),
-															))
-												"
-											>
-												<div class="preview"></div>
-												<ParamItem
-													key="subfilter_blockUsers"
-													v-model="config.forbiddenBadges_flag"
-													:paramData="param_hideBadges"
-													@change="saveData()"
-												>
-													<div class="badgeList">
-														<button
-															v-for="badge in storeUsers.customBadgeList"
-															@click="onToggleBadge(badge.id, false)"
-															:class="
-																(
-																	config.forbiddenBadges || []
-																).includes(badge.id)
-																	? 'selected'
-																	: ''
-															"
-															:key="badge.id + '_show'"
-															:title="badge.name"
-															v-tooltip="badge.name"
-														>
-															<img
-																:src="badge.img"
-																:alt="badge.name"
-															/>
-														</button>
-													</div>
-												</ParamItem>
-											</div>
-										</template>
-									</div>
+									</template>
 								</template>
 							</ParamItem>
 						</div>
