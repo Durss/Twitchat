@@ -8,6 +8,8 @@ import { reactive } from "vue";
  * Created : 30/11/2023
  */
 export default class Logger {
+	private static MAX_ENTRIES: number = 500;
+
 	private static _instance: Logger;
 
 	private logs: LogsHistory = reactive({
@@ -42,10 +44,9 @@ export default class Logger {
 		fullData.date = Date.now();
 		const arr = this.logs[type];
 		arr.push(fullData as any); //Dirty typing... I gave up...
-		//Limit histories sizes
-		for (const key in this.logs) {
-			type keyType = keyof typeof this.logs;
-			if (this.logs[key as keyType].length > 500) this.logs[key as keyType].splice(1, 1);
+		//Limit history size
+		if (arr.length > Logger.MAX_ENTRIES) {
+			arr.splice(0, arr.length - Logger.MAX_ENTRIES);
 		}
 		// Return the reactive version stored in the array, not the original plain object
 		return arr[arr.length - 1] as LogData[T] & { date: number };

@@ -42,6 +42,7 @@ let currentHateRaidAlert!: TwitchatDataTypes.MessageHateRaidData;
 let parsedMessageIds = new Set<string>();
 let timeoutPinnedCheck = -1;
 let timeoutAutoUnpinCheck = -1;
+const SUBGIFT_MERGE_TIMEFRAME_MS = 10000;
 
 export const storeChat = defineStore("chat", {
 	state: (): IChatState => ({
@@ -2369,6 +2370,17 @@ export const storeChat = defineStore("chat", {
 						});
 						//If it's a subgift, merge it with potential previous ones
 						if (message.is_gift && message.gift_recipients) {
+							// cleanup old subgift history entries
+							for (let i = subgiftHistory.length - 1; i >= 0; i--) {
+								const entry = subgiftHistory[i]!;
+								if (
+									Math.abs(message.date - entry.date) >=
+									SUBGIFT_MERGE_TIMEFRAME_MS
+								) {
+									subgiftHistory.splice(i, 1);
+								}
+							}
+
 							// Attempt to merge subgift messages
 							for (let i = subgiftHistory.length - 1; i >= 0; i--) {
 								const subgiftHistoryEntry = subgiftHistory[i]!;
@@ -2448,7 +2460,10 @@ export const storeChat = defineStore("chat", {
 									continue;
 								}
 								// Skip if the messages are too old (more than 10 seconds apart)
-								if (Math.abs(message.date - subgiftHistoryEntry.date) >= 10000) {
+								if (
+									Math.abs(message.date - subgiftHistoryEntry.date) >=
+									SUBGIFT_MERGE_TIMEFRAME_MS
+								) {
 									Logger.instance.log("subgifts", {
 										id: message.id,
 										merged: false,

@@ -22,6 +22,9 @@ let broadcastCount: number = 0;
 let broadcastDebounce: number = -1;
 let saveDebounce: number = -1;
 let lastSaveDate: number = Date.now();
+const nonBackupablePlaceholders = new Set<string>(
+	LabelItemPlaceholderList.filter((v) => "backup" in v && v.backup === false).map((v) => v.tag),
+);
 
 export const storeLabels = defineStore("labels", {
 	state: (): ILabelsState => ({
@@ -174,34 +177,31 @@ export const storeLabels = defineStore("labels", {
 		},
 
 		saveData(labelId?: string): void {
-			//Saves currently cached values
-			const cachedValues: IStoreData["cachedValues"] = {};
-			for (const tag in this.placeholders) {
-				const typedKey = tag as keyof typeof this.placeholders;
-				const placeholder = this.placeholders[typedKey];
-				if (
-					placeholder &&
-					LabelItemPlaceholderList.find((v) => v.tag == typedKey)?.backup !== false
-				) {
-					cachedValues[typedKey] = placeholder.value;
+			const buildAndSave = () => {
+				lastSaveDate = Date.now();
+				//Saves currently cached values
+				const cachedValues: IStoreData["cachedValues"] = {};
+				for (const tag in this.placeholders) {
+					const typedKey = tag as keyof typeof this.placeholders;
+					const placeholder = this.placeholders[typedKey];
+					if (placeholder && !nonBackupablePlaceholders.has(tag)) {
+						cachedValues[typedKey] = placeholder.value;
+					}
 				}
-			}
 
-			const data: IStoreData = {
-				labelList: this.labelList,
-				cachedValues,
+				const data: IStoreData = {
+					labelList: this.labelList,
+					cachedValues,
+				};
+				DataStore.set(DataStore.OVERLAY_LABELS, data);
 			};
 
 			let elapsedSinceLastSave = Date.now() - lastSaveDate;
 			clearTimeout(saveDebounce);
-			saveDebounce = window.setTimeout(() => {
-				lastSaveDate = Date.now();
-				DataStore.set(DataStore.OVERLAY_LABELS, data);
-			}, 30000);
+			saveDebounce = window.setTimeout(buildAndSave, 30000);
 			//Make sure labels are saved at least every 5 minutes
 			if (elapsedSinceLastSave > 5 * 60 * 1000) {
-				lastSaveDate = Date.now();
-				DataStore.set(DataStore.OVERLAY_LABELS, data);
+				buildAndSave();
 			}
 			if (labelId) this.broadcastLabelParams(labelId);
 		},
