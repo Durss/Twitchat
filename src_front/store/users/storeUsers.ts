@@ -41,6 +41,16 @@ const userMaps: Partial<{
 	};
 }> = {};
 
+/**
+ * Gets a user from their ID via the hashmaps for fast accesses.
+ */
+function getUserById(
+	platform: TwitchatDataTypes.ChatPlatform,
+	uid: string,
+): TwitchatDataTypes.TwitchatUser | undefined {
+	return userMaps[platform]?.idToUser[uid];
+}
+
 const twitchUserBatchLoginToLoad: BatchItem[] = [];
 const twitchUserBatchIdToLoad: {
 	channelId?: string;
@@ -267,22 +277,24 @@ export const storeUsers = defineStore("users", {
 				// user = reactive(user!);
 			}
 
-			//Override "displayName" property by a getter that returns either the
-			//"displayNameOriginal" value or the "customUsername" if any is defined
-			//This is to avoid updating "displayName" accessors everywhere on the app.
-			Object.defineProperty(user, "displayName", {
-				set: function (name) {
-					(this as TwitchatDataTypes.TwitchatUser).displayNameOriginal = name;
-				},
-				get: function () {
-					const ref = this as TwitchatDataTypes.TwitchatUser;
-					return (
-						StoreProxy.users.customUsernames[ref.id]?.name ||
-						ref.displayNameOriginal ||
-						ref.login
-					);
-				},
-			});
+			if (!userExisted) {
+				//Override "displayName" property by a getter that returns either the
+				//"displayNameOriginal" value or the "customUsername" if any is defined
+				//This is to avoid updating "displayName" accessors everywhere on the app.
+				Object.defineProperty(user, "displayName", {
+					set: function (name) {
+						(this as TwitchatDataTypes.TwitchatUser).displayNameOriginal = name;
+					},
+					get: function () {
+						const ref = this as TwitchatDataTypes.TwitchatUser;
+						return (
+							StoreProxy.users.customUsernames[ref.id]?.name ||
+							ref.displayNameOriginal ||
+							ref.login
+						);
+					},
+				});
+			}
 
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
@@ -564,53 +576,30 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagMod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					u.channelInfo[channelId]!.is_moderator = true;
-					break;
-				}
-			}
+			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
+			if (chanInfo) chanInfo.is_moderator = true;
 		},
 
 		flagUnmod(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					u.channelInfo[channelId]!.is_moderator = false;
-					break;
-				}
-			}
+			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
+			if (chanInfo) chanInfo.is_moderator = false;
 		},
 
 		flagVip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					u.channelInfo[channelId]!.is_vip = true;
-					break;
-				}
-			}
+			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
+			if (chanInfo) chanInfo.is_vip = true;
 		},
 
 		flagUnvip(platform: TwitchatDataTypes.ChatPlatform, channelId: string, uid: string): void {
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					u.channelInfo[channelId]!.is_vip = false;
-					break;
-				}
-			}
+			const chanInfo = getUserById(platform, uid)?.channelInfo[channelId];
+			if (chanInfo) chanInfo.is_vip = false;
 		},
 
 		flagBlocked(platform: TwitchatDataTypes.ChatPlatform, uid: string): void {
-			let user!: TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = true;
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform) {
-					user = u;
-					user.is_blocked = true;
-					break;
-				}
-			}
-
+			const user = getUserById(platform, uid);
 			if (!user) return;
+			user.is_blocked = true;
 
 			const m: TwitchatDataTypes.MessageNoticeData = {
 				date: Date.now(),
@@ -629,17 +618,10 @@ export const storeUsers = defineStore("users", {
 		},
 
 		flagUnblocked(platform: TwitchatDataTypes.ChatPlatform, uid: string): void {
-			let user!: TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = false;
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform) {
-					user = u;
-					user.is_blocked = false;
-					break;
-				}
-			}
-
+			const user = getUserById(platform, uid);
 			if (!user) return;
+			user.is_blocked = false;
 
 			const m: TwitchatDataTypes.MessageNoticeData = {
 				date: Date.now(),
@@ -662,14 +644,10 @@ export const storeUsers = defineStore("users", {
 			duration_s?: number,
 			moderator?: TwitchatDataTypes.TwitchatUser,
 		): Promise<void> {
-			let bannedUser: TwitchatDataTypes.TwitchatUser | null = null;
 			//Search user
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					bannedUser = u;
-					break;
-				}
-			}
+			const cachedUser = getUserById(platform, uid);
+			let bannedUser: TwitchatDataTypes.TwitchatUser | null =
+				cachedUser && cachedUser.channelInfo[channelId] ? cachedUser : null;
 			if (!bannedUser) {
 				bannedUser = await new Promise((resolve) => {
 					StoreProxy.users.getUserFrom(
@@ -751,17 +729,11 @@ export const storeUsers = defineStore("users", {
 					if (platform == "twitch") {
 						//If requested to re grant mod role after a moderator timeout completes, do it
 						if (StoreProxy.params.features.autoRemod.value == true) {
-							for (const u of userList) {
-								if (
-									u.id === uid &&
-									platform == u.platform &&
-									platform == "twitch" &&
-									u.channelInfo[channelId]!.autoRemod === true
-								) {
-									u.channelInfo[channelId]!.autoRemod = false;
-									void TwitchUtils.addRemoveModerator(false, channelId, u);
-									break;
-								}
+							const user = getUserById(platform, uid);
+							const chanInfo = user?.channelInfo[channelId];
+							if (user && chanInfo?.autoRemod === true) {
+								chanInfo.autoRemod = false;
+								void TwitchUtils.addRemoveModerator(false, channelId, user);
 							}
 						}
 
@@ -1026,13 +998,9 @@ export const storeUsers = defineStore("users", {
 			moderator?: TwitchatDataTypes.TwitchatUser,
 			silentUnban: boolean = false,
 		): Promise<void> {
-			let unbannedUser: TwitchatDataTypes.TwitchatUser | undefined;
-			for (const u of userList) {
-				if (u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					unbannedUser = u;
-					break;
-				}
-			}
+			const cachedUser = getUserById(platform, uid);
+			let unbannedUser: TwitchatDataTypes.TwitchatUser | undefined =
+				cachedUser && cachedUser.channelInfo[channelId] ? cachedUser : undefined;
 			if (!unbannedUser) {
 				unbannedUser = await new Promise((resolve) => {
 					StoreProxy.users.getUserFrom(
