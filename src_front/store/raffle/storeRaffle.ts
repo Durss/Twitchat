@@ -567,7 +567,7 @@ export const storeRaffle = defineStore("raffle", {
 							joinMessage = messageParams.message;
 							joinMessage = joinMessage.replace(
 								/\{USER\}/gi,
-								confirmSpool.splice(0, userCount - 1).join(", @"),
+								"@" + confirmSpool.splice(0, userCount - 1).join(", @"),
 							);
 							MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 						} else if (joinMessage) {
