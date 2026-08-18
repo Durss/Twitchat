@@ -491,9 +491,18 @@
 						</div>
 
 						<div class="list" ref="messagelist">
-							<div class="subholder" v-for="m in messageHistory" :key="m.id">
-								<MessageItem class="message" disableConversation :messageData="m" />
-							</div>
+							<template v-for="entry in messageHistoryDated" :key="entry.message.id">
+								<Splitter class="dateSplitter" v-if="entry.dateLabel">{{
+									entry.dateLabel
+								}}</Splitter>
+								<div class="subholder">
+									<MessageItem
+										class="message"
+										disableConversation
+										:messageData="entry.message"
+									/>
+								</div>
+							</template>
 						</div>
 					</div>
 				</div>
@@ -530,6 +539,7 @@ import type { Badges } from "tmi.js";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
+import Splitter from "../Splitter.vue";
 import TTButton from "../TTButton.vue";
 import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
 import MessageItem from "../messages/MessageItem.vue";
@@ -546,7 +556,7 @@ const emit = defineEmits<{
 	close: [];
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const storeAuth = useStoreAuth();
 const storeChat = useStoreChat();
 const storeCommon = useStoreCommon();
@@ -608,6 +618,28 @@ let panelClosed = true;
 const canWhisper = computed(
 	() => hasWhisperPerms.value && user.value!.id != storeAuth.twitch.user.id,
 );
+
+/**
+ * Returns the message list with a dateLabel prop for any message
+ * that's on a different date than the previous one
+ */
+const messageHistoryDated = computed(() => {
+	const res: { message: TwitchatDataTypes.ChatMessageTypes; dateLabel?: string }[] = [];
+	let prevDay = "";
+	for (const message of messageHistory.value) {
+		const date = new Date(message.date);
+		const day = date.toDateString();
+		res.push({
+			message,
+			dateLabel:
+				prevDay && prevDay != day
+					? date.toLocaleDateString(locale.value, { dateStyle: "long" })
+					: undefined,
+		});
+		prevDay = day;
+	}
+	return res;
+});
 
 /**
  * Returns the login instead of the display name if the display name contains
@@ -1634,6 +1666,10 @@ onBeforeUnmount(() => {
 					text-align: left;
 					.subholder {
 						margin-bottom: 3px;
+					}
+					.dateSplitter {
+						font-size: 0.8em;
+						margin: 1.5em 0;
 					}
 				}
 				.ctas {
