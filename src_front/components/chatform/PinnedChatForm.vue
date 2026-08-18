@@ -6,8 +6,12 @@
 	>
 		<div class="entry" v-for="entry in pinnedEntries" :key="entry.channelId">
 			<h2 class="channel" v-if="pinnedEntries.length > 1 || entry.channelId !== ownChannelId">
+				<span
+					><img v-if="entry.avatar" class="avatar" :src="entry.avatar" />{{
+						entry.broadcasterName
+					}}</span
+				>
 				<Icon name="pin" />
-				<span>{{ entry.broadcasterName }}</span>
 			</h2>
 
 			<div class="message">
@@ -116,6 +120,7 @@ const pinnedEntries = computed(() => {
 			channelId,
 			message,
 			broadcasterName: user?.displayName || user?.login || channelId,
+			avatar: user?.avatarPath,
 			parsedChunks: TwitchUtils.parseMessageToChunks(message.message.text, undefined, true),
 			indefinite,
 			remainingMs,
@@ -405,6 +410,12 @@ function onClick(e: MouseEvent): void {
 			.icon {
 				height: 1em;
 			}
+			.avatar {
+				height: 1.5em;
+				margin-right: 0.5em;
+				vertical-align: middle;
+				border-radius: 50%;
+			}
 		}
 
 		.message {
@@ -416,6 +427,7 @@ function onClick(e: MouseEvent): void {
 			background-color: var(--background-color-fader);
 			max-height: 8em;
 			overflow-y: auto;
+			font-size: 0.8em;
 
 			.login {
 				color: var(--color-secondary);
