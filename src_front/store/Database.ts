@@ -27,6 +27,10 @@ export default class Database {
 	private _ready: boolean = true;
 	private _quotaWarned: boolean = false;
 	private _versionUpgraded: boolean = false;
+	private _updateDebounceDelay: number = 500;
+	private _updateMaxDelay: number = 5000;
+	private _pendingUpdates: Map<string, PendingMessageUpdate> = new Map();
+	private _unloadHandlerSet: boolean = false;
 
 	constructor() {}
 
@@ -45,6 +49,12 @@ export default class Database {
 	 ******************/
 	public async connect(): Promise<void> {
 		if (this._db) return Promise.resolve();
+
+		// Force save on page unload
+		if (!this._unloadHandlerSet) {
+			this._unloadHandlerSet = true;
+			window.addEventListener("pagehide", () => this.flushMessageUpdates());
+		}
 
 		return new Promise((resolve, _reject) => {
 			this._dbConnection = window.indexedDB.open("Twitchat", this.DB_VERSION);
@@ -248,7 +258,9 @@ export default class Database {
 	}
 
 	/**
-	 * Updates a message on the DB
+	 * Updates a message on the DB.
+	 *
+	 * Writes are debounced per message ID and only keep latest update.
 	 * @param message
 	 */
 	public async updateMessage(message: TwitchatDataTypes.ChatMessageTypes): Promise<void> {
@@ -261,23 +273,43 @@ export default class Database {
 		if (isFromRemoteChan) return Promise.resolve();
 
 		return new Promise((resolve, _reject) => {
-			this._db
-				.transaction(Database.MESSAGES_TABLE, "readwrite")
-				.objectStore(Database.MESSAGES_TABLE)
-				.index("id")
-				.openCursor(IDBKeyRange.only(message.id))
-				.addEventListener("success", (event) => {
-					const pointer = (event.target as IDBRequest).result;
-					if (pointer) {
-						const { data } = this.removeCircularReferences(message);
-						pointer.update(data).addEventListener("success", () => {
-							resolve();
-						});
-					} else {
-						resolve();
-					}
-				});
+			const id = message.id;
+			const pending = this._pendingUpdates.get(id);
+			if (pending) {
+				pending.message = message;
+				pending.resolvers.push(resolve);
+				// Just a fail safe in case a message gets constantly update to at least
+				// write it a few seconds after the first write attempt
+				if (Date.now() - pending.firstRequestDate >= this._updateMaxDelay) {
+					this.flushMessageUpdate(id);
+					return;
+				}
+				clearTimeout(pending.timeout);
+				pending.timeout = window.setTimeout(
+					() => this.flushMessageUpdate(id),
+					this._updateDebounceDelay,
+				);
+				return;
+			}
+			this._pendingUpdates.set(id, {
+				message,
+				resolvers: [resolve],
+				firstRequestDate: Date.now(),
+				timeout: window.setTimeout(
+					() => this.flushMessageUpdate(id),
+					this._updateDebounceDelay,
+				),
+			});
 		});
+	}
+
+	/**
+	 * Force write of any pending updates
+	 */
+	public flushMessageUpdates(): void {
+		for (const id of this._pendingUpdates.keys()) {
+			this.flushMessageUpdate(id);
+		}
 	}
 
 	/**
@@ -292,6 +324,14 @@ export default class Database {
 			message.channel_id != sAuth.youtube?.user.id;
 		//Don't save messages from remote channels
 		if (isFromRemoteChan) return Promise.resolve();
+
+		// ignore any pending update about this message
+		const pending = this._pendingUpdates.get(message.id);
+		if (pending) {
+			this._pendingUpdates.delete(message.id);
+			clearTimeout(pending.timeout);
+			pending.resolvers.forEach((resolve) => resolve());
+		}
 
 		return new Promise((resolve, _reject) => {
 			this._db
@@ -665,6 +705,41 @@ export default class Database {
 	}
 
 	/**
+	 * Execute a pending save
+	 */
+	private flushMessageUpdate(messageId: string): void {
+		const pending = this._pendingUpdates.get(messageId);
+		if (!pending) return;
+		this._pendingUpdates.delete(messageId);
+		clearTimeout(pending.timeout);
+
+		const done = () => pending.resolvers.forEach((resolve) => resolve());
+
+		if (!this._db || !this._ready) {
+			done();
+			return;
+		}
+
+		this._db
+			.transaction(Database.MESSAGES_TABLE, "readwrite")
+			.objectStore(Database.MESSAGES_TABLE)
+			.index("id")
+			.openCursor(IDBKeyRange.only(messageId))
+			.addEventListener("success", (event) => {
+				const pointer = (event.target as IDBRequest).result;
+				if (pointer) {
+					const { data } = this.removeCircularReferences(pending.message);
+					pointer.update(data).addEventListener("success", () => {
+						done();
+					});
+				} else {
+					//Message no longer on the DB (deleted meanwhile), nothing to update
+					done();
+				}
+			});
+	}
+
+	/**
 	 * Remove some props known for being potential source of circular references
 	 * @param message
 	 */
@@ -674,6 +749,8 @@ export default class Database {
 		type KeysOfUnion<T> = T extends T ? keyof T : never;
 		type keys = KeysOfUnion<TwitchatDataTypes.ChatMessageTypes>;
 
+		message = toRaw(message);
+
 		let rootMessage =
 			message.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE ? message : undefined;
 
@@ -681,12 +758,20 @@ export default class Database {
 			// Find the first instance of message type that is "MESSAGE" in message object and its sub-properties
 			// This won't work properly if multiple props referrence message instances at the root level, only
 			// the first found will be considered the root message
+			const visited = new WeakSet<object>();
 			const findMessageType = (obj: any): T | undefined => {
 				if (obj && typeof obj === "object") {
+					// Don't walk the same object twice. Also protects against
+					// circular references which would blow the stack up here
+					if (visited.has(obj)) return undefined;
+					visited.add(obj);
 					// Check if current object has type property with MESSAGE value
 					if (obj.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						return obj;
 					}
+					// this skips user instances that cannot hold a messge instance.
+					// save quite a bunch of loops on messages referencing lots of users (e.g. subgifts)
+					if ("channelInfo" in obj) return undefined;
 					// Recursively check all properties
 					for (const key in obj) {
 						const result = findMessageType(obj[key]);
@@ -799,4 +884,12 @@ export default class Database {
 			};
 		}
 	}
+}
+
+interface PendingMessageUpdate {
+	message: TwitchatDataTypes.ChatMessageTypes;
+	resolvers: (() => void)[];
+	/** Date of the first update request of the current debounce window */
+	firstRequestDate: number;
+	timeout: number;
 }
