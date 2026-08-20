@@ -242,7 +242,7 @@
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
 				"action_vibrate": "Vibrer téléphone",
 				"action_sfxr": "Jouer un effet sonore",
-				"action_prompt": "Demander des paramètres",
+				"action_prompt": "Me demander des paramètres",
 				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder.",
 				"action_goxlr": "Contrôler la GoXLR",
 				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",

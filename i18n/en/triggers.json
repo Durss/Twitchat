@@ -243,7 +243,7 @@
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
 				"action_sfxr": "Play a sound effect",
-				"action_prompt": "Ask for user input",
+				"action_prompt": "Prompt me for input",
 				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions below to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
@@ -277,7 +277,7 @@
 				"param_reply": "Send as an answer to the original message",
 				"conflict": "A command with this name already exists",
 				"allowed_users": "Allowed users",
-				"advanced_params": "Advanced parameters",
+				"advanced_params": "Advanced settings",
 				"param_cmd": "Command",
 				"param_cmd_alias": "Aliases",
 				"param_cmd_alias_tt": "Optional alternative commands",
@@ -1561,7 +1561,7 @@
 			"CHAT_ALERT": {
 				"label": "Twitchat !alert command",
 				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
-				"description_info": "(Parameters => @:params.categories.features => @:params.alertMode )"
+				"description_info": "(Settings => @:params.categories.features => @:params.alertMode )"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",

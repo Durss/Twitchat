@@ -264,6 +264,19 @@ export const storeMain = defineStore("main", {
 				sVoice.voiceText.finalText = e.data!.text;
 			});
 
+			PublicAPI.instance.addEventListener("SET_PROMPT_PARAMS_ACCEPT", (_e) => {
+				if (this.promptParams.length == 0) return;
+				const prompt = this.promptParams[0]!;
+				if (prompt.mode != "inputs") return;
+				this.closePrompt(prompt.id, prompt.inputs);
+			});
+
+			PublicAPI.instance.addEventListener("SET_PROMPT_PARAMS_REJECT", (_e) => {
+				if (this.promptParams.length == 0) return;
+				const prompt = this.promptParams[0]!;
+				this.closePrompt(prompt.id);
+			});
+
 			callback(null);
 		},
 
@@ -913,6 +926,7 @@ export const storeMain = defineStore("main", {
 					mode: "inputs",
 					resolve: resolve as (result: unknown) => void,
 				});
+				PublicAPI.instance.broadcastGlobalStates();
 			});
 		},
 
@@ -931,6 +945,7 @@ export const storeMain = defineStore("main", {
 					template,
 					resolve: resolve as (result: unknown) => void,
 				} as TwitchatDataTypes.PromptModalData);
+				PublicAPI.instance.broadcastGlobalStates();
 			});
 		},
 
@@ -939,6 +954,7 @@ export const storeMain = defineStore("main", {
 			if (index === -1) return;
 			const entry = this.promptParams.splice(index, 1)[0]!;
 			entry.resolve(result);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		openTooltip(payload: string) {

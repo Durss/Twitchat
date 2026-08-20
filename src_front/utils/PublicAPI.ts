@@ -131,6 +131,10 @@ export default class PublicAPI extends EventDispatcher {
 		);
 		const currentQuizQuestionIndex =
 			currentQuiz?.questionList.findIndex((v) => v.id == currentQuiz.currentQuestionId) ?? -1;
+		const currentPrompt =
+			StoreProxy.main.promptParams[0]?.mode == "inputs"
+				? StoreProxy.main.promptParams[0]
+				: undefined;
 		const states: TwitchatEventMap["ON_GLOBAL_STATES"] = {
 			countdowns: StoreProxy.timers.timerList
 				.filter((v) => v.type == "countdown")
@@ -212,6 +216,7 @@ export default class PublicAPI extends EventDispatcher {
 						id: currentQuiz.id,
 						name: currentQuiz.title,
 						timerStartedAt: currentQuiz.questionStarted_at,
+						currentQuestionRevealed: currentQuiz.currentQuestionRevealed === true,
 						questionDuration_ms:
 							(currentQuizQuestion?.duration_s ??
 								currentQuiz.durationPerQuestion_s ??
@@ -238,6 +243,21 @@ export default class PublicAPI extends EventDispatcher {
 						id: pinnedTwitchMessage.message_id,
 						login: pinnedTwitchMessage.sender_user_login,
 						text: pinnedTwitchMessage.message.text,
+					}
+				: null,
+			currentPrompt: currentPrompt
+				? {
+						id: currentPrompt.id,
+						title:
+							currentPrompt.title ??
+							(currentPrompt.titleLabel
+								? StoreProxy.i18n.t(currentPrompt.titleLabel)
+								: ""),
+						header:
+							currentPrompt.header ??
+							(currentPrompt.headerLabel
+								? StoreProxy.i18n.t(currentPrompt.headerLabel)
+								: ""),
 					}
 				: null,
 			clickableAreas: StoreProxy.heat.screenList.map((s) => ({

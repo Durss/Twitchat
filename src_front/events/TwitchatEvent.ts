@@ -2264,6 +2264,10 @@ export type TwitchatEventMap = {
 			 */
 			timerStartedAt: string;
 			/**
+			 * Has current question been revealed
+			 */
+			currentQuestionRevealed: boolean;
+			/**
 			 * Current question duration
 			 */
 			questionDuration_ms: number;
@@ -2324,6 +2328,23 @@ export type TwitchatEventMap = {
 			id: string;
 		} | null;
 		/**
+		 * Details about the prompt window currently displayed if any
+		 */
+		currentPrompt: {
+			/**
+			 * Prompt's unique ID
+			 */
+			id: string;
+			/**
+			 * Prompt's title
+			 */
+			title: string;
+			/**
+			 * Prompt's description displayed under the title
+			 */
+			header: string;
+		} | null;
+		/**
 		 * Available clickable areas grouped by screens
 		 */
 		clickableAreas: {
@@ -2341,6 +2362,15 @@ export type TwitchatEventMap = {
 			areas: Pick<HeatArea, "id" | "enabled" | "points" | "title">[];
 		}[];
 	};
+
+	/**
+	 * Accept current prompt window
+	 */
+	SET_PROMPT_PARAMS_ACCEPT: void;
+	/**
+	 * Reject current prompt window
+	 */
+	SET_PROMPT_PARAMS_REJECT: void;
 
 	/**
 	 * @private
