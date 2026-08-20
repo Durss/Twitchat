@@ -8275,142 +8275,133 @@ export default class TriggerActionHandler {
 				} else if (step.type == "prompt") {
 					const promptData = step.promptData;
 					const params = promptData?.params || [];
-					if (params.length === 0) {
-						logStep.messages.push({
-							date: Date.now(),
-							value: "❌ Prompt has no parameter defined",
+					const parse = (src: string) =>
+						this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src,
+							subEvent,
 						});
-						log.error = true;
-						logStep.error = true;
-					} else {
-						const parse = (src: string) =>
-							this.parsePlaceholders({
-								dynamicPlaceholders,
-								actionPlaceholders,
-								trigger,
-								message,
-								src,
-								subEvent,
-							});
 
-						//Build the modal's fields from the action's params
-						const inputs: TwitchatDataTypes.ParameterData<unknown>[] = [];
-						for (const param of params) {
-							const label = await parse(param.label);
-							switch (param.type) {
-								case "boolean": {
-									inputs.push({ type: "boolean", value: false, label });
-									break;
-								}
-								case "number": {
-									inputs.push({
-										type: "number",
-										value: param.min ?? 0,
-										min: param.min,
-										max: param.max,
-										label,
-									});
-									break;
-								}
-								case "duration": {
-									inputs.push({ type: "duration", value: 0, label });
-									break;
-								}
-								case "list": {
-									const items: string[] = [];
-									for (const item of param.listValues || []) {
-										items.push(await parse(item));
-									}
-									inputs.push({
-										type: "list",
-										value: items[0] ?? "",
-										listValues: items.map((v) => ({ value: v, label: v })),
-										label,
-									});
-									break;
-								}
-								default: {
-									inputs.push({
-										type: "string",
-										value: "",
-										maxLength: 500,
-										label,
-									});
-								}
+					//Build the modal's fields from the action's params
+					const inputs: TwitchatDataTypes.ParameterData<unknown>[] = [];
+					for (const param of params) {
+						const label = await parse(param.label);
+						switch (param.type) {
+							case "boolean": {
+								inputs.push({ type: "boolean", value: false, label });
+								break;
 							}
-						}
-
-						logStep.messages.push({
-							date: Date.now(),
-							value: "⌛ Waiting for the user to fill " + inputs.length + " field(s)",
-						});
-
-						const result = await StoreProxy.main.promptInputs({
-							title: await parse(promptData.title),
-							header: await parse(promptData.description),
-							icon: "edit",
-							timeout_s: promptData.timeout_s,
-							inputs,
-						});
-
-						if (!result) {
-							logStep.messages.push({
-								date: Date.now(),
-								value: "❌ Prompt has been cancelled or timed out",
-							});
-							if (promptData.stopOnCancel !== false) {
-								logStep.messages.push({
-									date: Date.now(),
-									value: "Stop trigger execution",
-								});
-								logStep.messages.push({
-									date: Date.now(),
-									value: "✔ Step execution complete",
+							case "number": {
+								inputs.push({
+									type: "number",
+									value: param.min ?? 0,
+									min: param.min,
+									max: param.max,
+									label,
 								});
 								break;
 							}
+							case "duration": {
+								inputs.push({ type: "duration", value: 0, label });
+								break;
+							}
+							case "list": {
+								const items: string[] = [];
+								for (const item of param.listValues || []) {
+									items.push(await parse(item));
+								}
+								inputs.push({
+									type: "list",
+									value: items[0] ?? "",
+									listValues: items.map((v) => ({ value: v, label: v })),
+									label,
+								});
+								break;
+							}
+							default: {
+								inputs.push({
+									type: "string",
+									value: "",
+									maxLength: 500,
+									label,
+								});
+							}
+						}
+					}
+
+					logStep.messages.push({
+						date: Date.now(),
+						value: "⌛ Waiting for the user to fill " + inputs.length + " field(s)",
+					});
+
+					const result = await StoreProxy.main.promptInputs({
+						title: await parse(promptData.title),
+						header: await parse(promptData.description),
+						icon: "edit",
+						timeout_s: promptData.timeout_s,
+						inputs,
+					});
+
+					if (!result) {
+						logStep.messages.push({
+							date: Date.now(),
+							value: "❌ Prompt has been cancelled or timed out",
+						});
+						if (promptData.stopOnCancel !== false) {
 							logStep.messages.push({
 								date: Date.now(),
-								value: "Fill placeholders with empty values and keep going",
+								value: "Stop trigger execution",
 							});
+							logStep.messages.push({
+								date: Date.now(),
+								value: "✔ Step execution complete",
+							});
+							break;
 						}
+						logStep.messages.push({
+							date: Date.now(),
+							value: "Fill placeholders with empty values and keep going",
+						});
+					}
 
-						for (let i = 0; i < params.length; i++) {
-							const param = params[i]!;
-							const tag = param.placeholder.toUpperCase().trim();
-							if (tag.length === 0) continue;
-							let value: string | number = "";
-							if (!result) {
-								//Prompt has been cancelled, fallback to empty values
-								value =
-									param.type == "number" || param.type == "duration"
-										? 0
-										: param.type == "boolean"
-											? "false"
-											: "";
-							} else {
-								const input = result[i];
-								switch (param.type) {
-									case "boolean":
-										value = input?.value === true ? "true" : "false";
-										break;
-									case "number":
-									case "duration":
-										value = parseFloat(input?.value as string) || 0;
-										break;
-									default: {
-										//"string" and "list" types both hold a string
-										const raw = input?.value;
-										value = typeof raw === "string" ? raw : "";
-									}
+					for (let i = 0; i < params.length; i++) {
+						const param = params[i]!;
+						const tag = param.placeholder.toUpperCase().trim();
+						if (tag.length === 0) continue;
+						let value: string | number = "";
+						if (!result) {
+							//Prompt has been cancelled, fallback to empty values
+							value =
+								param.type == "number" || param.type == "duration"
+									? 0
+									: param.type == "boolean"
+										? "false"
+										: "";
+						} else {
+							const input = result[i];
+							switch (param.type) {
+								case "boolean":
+									value = input?.value === true ? "true" : "false";
+									break;
+								case "number":
+								case "duration":
+									value = parseFloat(input?.value as string) || 0;
+									break;
+								default: {
+									//"string" and "list" types both hold a string
+									const raw = input?.value;
+									value = typeof raw === "string" ? raw : "";
 								}
 							}
-							dynamicPlaceholders[tag] = value;
-							logStep.messages.push({
-								date: Date.now(),
-								value: 'Store "' + value + '" to placeholder {' + tag + "}",
-							});
 						}
+						dynamicPlaceholders[tag] = value;
+						logStep.messages.push({
+							date: Date.now(),
+							value: 'Store "' + value + '" to placeholder {' + tag + "}",
+						});
 					}
 				} else if (step.type == "chat_poll") {
 					logStep.messages.push({ date: Date.now(), value: "Start chat poll" });
