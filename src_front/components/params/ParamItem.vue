@@ -222,6 +222,19 @@
 				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 
 				<Icon class="loader" name="loader" v-if="loading" />
+
+				<TTButton
+					v-else-if="typeof paramData.value == 'string'"
+					@click="
+						paramData.value = 0;
+						clampValue();
+					"
+					icon="trash"
+					secondary
+					small
+					>{{ paramData.value }}</TTButton
+				>
+
 				<DurationForm
 					v-else-if="!paramData.noInput"
 					:id="'duration' + key"
@@ -589,15 +602,12 @@
 				</div>
 			</div>
 
-			<Icon
-				name="loader"
-				v-if="placeholdersAsPopout && paramData.placeholderList && loading"
-			/>
+			<Icon name="loader" v-if="placeholdersAsPopout && hasPlaceholders && loading" />
 			<PlaceholderSelector
 				class="placeholders"
-				v-else-if="placeholdersAsPopout && paramData.placeholderList"
+				v-else-if="placeholdersAsPopout && hasPlaceholders"
 				:modelValue="placeholderModelValue"
-				:placeholders="paramData.placeholderList"
+				:placeholders="paramData.placeholderList!"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
 				:popoutMode="placeholdersAsPopout"
@@ -610,9 +620,9 @@
 
 		<PlaceholderSelector
 			class="placeholders"
-			v-if="!placeholdersAsPopout && paramData.placeholderList"
+			v-if="!placeholdersAsPopout && hasPlaceholders"
 			:modelValue="placeholderModelValue"
-			:placeholders="paramData.placeholderList"
+			:placeholders="paramData.placeholderList!"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:popoutMode="placeholdersAsPopout"
@@ -913,6 +923,10 @@ const icon = computed((): string => {
 	return props.paramData.icon ?? defaultIcon ?? "";
 });
 
+const hasPlaceholders = computed((): boolean => {
+	return (props.paramData.placeholderList?.length || 0) > 0;
+});
+
 const classes = computed((): string[] => {
 	const res = ["paramitem"];
 	res.push("type-" + props.paramData.type);
@@ -934,6 +948,7 @@ const classes = computed((): string[] => {
 	if (props.paramData.type == "time") res.push("time");
 	if (props.paramData.type == "font") res.push("font");
 	if (showMaxLength.value) res.push("withMaxLength");
+	if (hasPlaceholders.value) res.push("hasPlaceholders");
 	if (props.placeholdersAsPopout !== false) res.push("popoutMode");
 	if (premiumOnlyLocal.value !== false && props.noBackground === false) res.push("premium");
 	res.push("level_" + props.childLevel);
@@ -955,7 +970,9 @@ const label = computed((): string => {
 		if (isNaN(count)) count = 0;
 		v = count.toString();
 	} else if (props.paramData.type == "time" || props.paramData.type == "duration") {
-		v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
+		const duration = parseFloat(v.toString());
+		//A non numeric value means it's defined by a placeholder, display it as is
+		v = isNaN(duration) ? v : Utils.formatDuration(duration * 1000);
 	}
 	if (props.paramData.labelKey) {
 		txt += t(props.paramData.labelKey, { VALUE: v }, count);
@@ -1223,7 +1240,14 @@ function clampValue(): void {
 function insertPlaceholder(tag: string): void {
 	if (props.paramData.type == "editablelist") {
 		(props.paramData.value as string[]).push(tag);
-	} else if (props.paramData.type == "number" || props.paramData.type == "integer") {
+	} else if (
+		props.paramData.type == "number" ||
+		props.paramData.type == "integer" ||
+		props.paramData.type == "duration"
+	) {
+		//These fields have no text input to insert the tag into.
+		//The placeholder replaces their value, the field is then
+		//replaced by a button displaying the placeholder
 		props.paramData.value = tag;
 	} else {
 		// console.log(textValue.value, tag)
@@ -2074,6 +2098,12 @@ watch(
 		.maxlength {
 			margin-right: 2.15em !important;
 			right: 0 !important;
+		}
+		&.hasPlaceholders {
+			//Keep the duration fields from going under the placeholder selector
+			.durationform {
+				padding-right: 1.5em;
+			}
 		}
 	}
 

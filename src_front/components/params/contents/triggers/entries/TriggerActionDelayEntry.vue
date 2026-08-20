@@ -6,28 +6,15 @@
 
 		<Icon name="timer" class="icon" theme="light" @click="action.enabled = !action.enabled" />
 
-		<DurationForm
-			style="color: #fff"
-			v-if="isNumericValue"
+		<ParamItem
 			class="field"
+			noBackground
+			placeholdersAsPopout
+			:paramData="param_delay"
 			v-model="action.delay"
-			allowMs
 		/>
 
-		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{
-			action.delay
-		}}</TTButton>
-
 		<div class="actions">
-			<PlaceholderSelector
-				class="placeholders"
-				v-if="placeholderList?.length > 0"
-				:placeholders="placeholderList"
-				:secondary="true"
-				:popoutMode="true"
-				@insert="insertTag"
-			/>
-
 			<TTButton
 				v-if="!action.conditionList"
 				transparent
@@ -42,12 +29,15 @@
 </template>
 
 <script lang="ts">
-import DurationForm from "@/components/DurationForm.vue";
 import TTButton from "@/components/TTButton.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
 import ParamItem from "@/components/params/ParamItem.vue";
-import PlaceholderSelector from "@/components/params/PlaceholderSelector.vue";
-import type { TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
+import type {
+	ITriggerPlaceholder,
+	TriggerActionTypes,
+	TriggerData,
+} from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { Component, Prop, toNative } from "vue-facing-decorator";
 import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
 
@@ -56,8 +46,6 @@ import AbstractTriggerActionEntry from "./AbstractTriggerActionEntry";
 		TTButton,
 		ParamItem,
 		ToggleButton,
-		DurationForm,
-		PlaceholderSelector,
 	},
 	emits: ["delete", "addCondition"],
 })
@@ -68,9 +56,11 @@ class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 	@Prop
 	declare triggerData: TriggerData;
 
-	public get isNumericValue(): boolean {
-		return typeof this.action.delay != "string";
-	}
+	public param_delay: TwitchatDataTypes.ParameterData<number | string> = {
+		type: "duration",
+		value: 0,
+		allowMs: true,
+	};
 
 	public beforeMount(): void {
 		super.beforeMount();
@@ -78,10 +68,10 @@ class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 	}
 
 	/**
-	 * Called when inserting a placeholder's tag
+	 * Called when the available placeholder list is updated
 	 */
-	public insertTag(tag: string): void {
-		this.action.delay = tag;
+	public onPlaceholderUpdate(list: ITriggerPlaceholder<unknown>[]): void {
+		this.param_delay.placeholderList = list;
 	}
 }
 export default toNative(TriggerActionDelayEntry);
@@ -89,5 +79,37 @@ export default toNative(TriggerActionDelayEntry);
 
 <style scoped lang="less">
 .triggeractiondelayentry {
+	.field {
+		//Make the duration field blend within the action's background
+		:deep(.durationform) {
+			color: var(--color-light);
+			background-color: transparent;
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 0;
+		}
+		:deep(.content) {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: row;
+			align-items: stretch;
+			&::before {
+				display: none;
+			}
+			.placeholderselector {
+				border-radius: 0;
+				position: relative;
+				transform: none;
+				top: auto;
+				right: auto;
+			}
+			.durationform {
+				padding-right: 0;
+			}
+			.duration > .button {
+				padding-right: 0.7em;
+			}
+		}
+	}
 }
 </style>
