@@ -2,7 +2,8 @@
 	<div
 		class="chatyoutubesuperchat chatMessage highlight"
 		:class="'tier_' + Math.min(7, messageData.tier)"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, messageData, rootEl!)"
 	>
 		<Icon name="youtube" alt="notice" class="icon" />
 
@@ -25,7 +26,7 @@
 				>{{ messageData.user.displayName }}</a
 			>
 
-			<div class="quote">
+			<div class="quote" v-if="messageData.message_chunks">
 				<ChatMessageChunksParser
 					:chunks="messageData.message_chunks"
 					:channel="messageData.channel_id"
@@ -41,46 +42,43 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
+import { onMounted, useTemplateRef } from "vue";
 import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 import MessageTranslation from "./MessageTranslation.vue";
 
-@Component({
-	components: {
-		MessageTranslation,
-		ChatMessageChunksParser,
-	},
-	emits: ["onRead"],
-})
-class ChatYoutubeSuperChat extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageYoutubeSuperChatData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageYoutubeSuperChatData;
+}>();
 
-	public mounted(): void {
-		const fill = this.$refs.fill as HTMLDivElement;
-		if (!fill) return;
+const emit = defineEmits<{ onRead: [] }>();
 
-		const duration_m = Math.min(
-			300,
-			[0, 0, 2, 5, 10, 30, 60, 120, 180, 240, 300][this.messageData.tier - 1]!,
-		);
+const rootEl = useTemplateRef("rootEl");
+const fill = useTemplateRef<HTMLDivElement>("fill");
+const { openUserCard, onContextMenu, getProfilePage } = useChatMessage(props, emit, rootEl);
 
-		const duration_s = duration_m * 60;
-		const remainingDuration = Math.max(
-			0,
-			duration_s - (Date.now() - this.messageData.date) / 1000,
-		);
-		fill.style.transition = "transform " + remainingDuration + "s linear";
-		fill.style.transform = "scaleX(100%)";
-		window.setTimeout(() => {
-			fill.style.transform = "scaleX(0)";
-		}, 100);
-	}
-}
-export default toNative(ChatYoutubeSuperChat);
+onMounted(() => {
+	if (!fill.value) return;
+
+	const duration_m = Math.min(
+		300,
+		[0, 0, 2, 5, 10, 30, 60, 120, 180, 240, 300][props.messageData.tier - 1]!,
+	);
+
+	const duration_s = duration_m * 60;
+	const remainingDuration = Math.max(
+		0,
+		duration_s - (Date.now() - props.messageData.date) / 1000,
+	);
+	fill.value.style.transition = "transform " + remainingDuration + "s linear";
+	fill.value.style.transform = "scaleX(100%)";
+	window.setTimeout(() => {
+		if (!fill.value) return;
+		fill.value.style.transform = "scaleX(0)";
+	}, 100);
+});
 </script>
 
 <style scoped lang="less">
@@ -102,7 +100,6 @@ export default toNative(ChatYoutubeSuperChat);
 		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
-		flex-grow: 1;
 		align-items: flex-start;
 	}
 
@@ -132,7 +129,7 @@ export default toNative(ChatYoutubeSuperChat);
 
 	.amount {
 		font-weight: bold;
-		font-size: 2em;
+		font-size: 1.25em;
 	}
 
 	&.tier_1 {
