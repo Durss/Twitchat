@@ -809,14 +809,19 @@ export const storeQuiz = defineStore("quiz", {
 					.sort((a, b) => b.score - a.score);
 				const firstUser = leaderboard[0];
 				if (firstUser) {
+					const anonWinnerName = firstUser.anon
+						? Utils.getNameFromOpaqueId(firstUser.uid || "")
+						: undefined;
 					StoreProxy.users.getUserFrom(
-						firstUser.platform || "twitch",
+						firstUser.anon ? "twitchat" : firstUser.platform || "twitch",
 						StoreProxy.auth.twitch.user.id,
 						firstUser.uid || "",
-						firstUser.name,
-						firstUser.platform != "twitch" ? firstUser.name : undefined,
+						anonWinnerName ?? firstUser.name,
+						anonWinnerName ??
+							(firstUser.platform != "twitch" ? firstUser.name : undefined),
 						//Wait for user data to be computed (potential API call)
 						(winner) => {
+							if (firstUser.anon) winner.anonymous = true;
 							if (firstUser.avatarPath) winner.avatarPath = firstUser.avatarPath;
 							const message: TwitchatDataTypes.MessageQuizCompleteData = {
 								channel_id: StoreProxy.auth.twitch.user.id,
@@ -848,6 +853,12 @@ export const storeQuiz = defineStore("quiz", {
 				const element = quiz.leaderboard[uid]!;
 				const promise = new Promise<TwitchatDataTypes.TwitchatUser | void>((resolve) => {
 					if (element.anon) {
+						leaderboard[uid] = {
+							...element,
+							platform: element.platform || "twitch",
+							name: element.name || "",
+							avatarPath: element.avatarPath || "",
+						};
 						resolve();
 						return;
 					}

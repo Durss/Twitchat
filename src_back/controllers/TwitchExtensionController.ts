@@ -210,7 +210,7 @@ export default class TwitchExtensionController extends AbstractController {
 	 */
 	private async postBingoCount(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const uid = getUserID(request);
-		const isAnon = request.twitchExtensionUser!.is_unlinked === true;
+		const isAnon = !request.twitchExtensionUser!.user_id;
 
 		const params = request.body as {
 			count: number;

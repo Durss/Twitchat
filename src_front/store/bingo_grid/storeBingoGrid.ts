@@ -254,8 +254,8 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				const chanInfo = user.channelInfo[channelId]!;
 				if (chanInfo.is_banned && !chanInfo.banEndDate) return;
 
-				//Force avatar loading if not available
-				if (!user.avatarPath) {
+				//Force avatar loading if not available and not anon.
+				if (!isAnon && !user.avatarPath) {
 					const [userDetails] = await TwitchUtils.getUserInfo([user.id]);
 					if (userDetails) user.avatarPath = userDetails.profile_image_url;
 				}
