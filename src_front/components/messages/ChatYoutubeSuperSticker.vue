@@ -2,17 +2,10 @@
 	<div
 		class="chatyoutubesupersticker chatMessage highlight"
 		:class="'tier_' + Math.min(7, messageData.tier)"
-		@contextmenu="onContextMenu($event, messageData, $el)"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, messageData, rootEl!)"
 	>
 		<Icon name="youtube" alt="notice" class="icon" />
-
-		<img
-			:src="messageData.user.avatarPath"
-			class="avatar"
-			alt="avatar"
-			v-if="messageData.user.avatarPath"
-			referrerpolicy="no-referrer"
-		/>
 
 		<div class="holder">
 			<a
@@ -22,7 +15,14 @@
 				@click.stop.prevent="
 					openUserCard(messageData.user, messageData.channel_id, messageData.platform)
 				"
-				>{{ messageData.user.displayName }}</a
+			>
+				<img
+					:src="messageData.user.avatarPath"
+					class="avatar"
+					alt="avatar"
+					v-if="messageData.user.avatarPath"
+					referrerpolicy="no-referrer"
+				/>{{ messageData.user.displayName }}</a
 			>
 			<div class="amount">{{ messageData.amountDisplay }}</div>
 		</div>
@@ -43,25 +43,19 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { toNative, Component, Prop } from "vue-facing-decorator";
-import AbstractChatMessage from "./AbstractChatMessage";
-import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
-import MessageTranslation from "./MessageTranslation.vue";
+import { useTemplateRef } from "vue";
 
-@Component({
-	components: {
-		MessageTranslation,
-		ChatMessageChunksParser,
-	},
-	emits: ["onRead"],
-})
-class ChatYoutubeSuperSticker extends AbstractChatMessage {
-	@Prop
-	declare messageData: TwitchatDataTypes.MessageYoutubeSuperStickerData;
-}
-export default toNative(ChatYoutubeSuperSticker);
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageYoutubeSuperStickerData;
+}>();
+
+const emit = defineEmits<{ onRead: [] }>();
+
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard, onContextMenu, getProfilePage } = useChatMessage(props, emit, rootEl);
 </script>
 
 <style scoped lang="less">
@@ -71,15 +65,17 @@ export default toNative(ChatYoutubeSuperSticker);
 		margin-left: 0;
 	}
 	.avatar {
-		height: 2em;
+		height: 1.25em;
+		flex-shrink: 0;
 		border-radius: 50%;
-		margin-right: 0.5em;
+		margin-right: 0.25em;
+		vertical-align: middle;
 	}
 	.sticker {
-		height: 3.5em;
+		height: 3em;
 	}
 	.holder {
-		gap: 0.5em;
+		gap: 0.25em;
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
@@ -92,7 +88,7 @@ export default toNative(ChatYoutubeSuperSticker);
 	}
 
 	.amount {
-		font-size: 1.5em;
+		font-size: 1.25em;
 	}
 
 	&.tier_1 {
