@@ -1649,6 +1649,14 @@ const UserDataSchema = {
 		sponsorPublicPrompt: { type: "boolean" },
 		cypherKey: { type: "string", maxLength: 500 },
 		raffle_showCountdownOverlay: { type: "boolean" },
+		raffleListModeGlobalConfigs: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				customEntries: { type: "string", maxLength: 10000 },
+				removeWinningEntry: { type: "boolean" },
+			},
+		},
 		donorLevel: { type: "integer", minimum: -1, maximum: 10 },
 		rightClickHintPrompt: {
 			anyOf: [{ type: "string", maxLength: 5 }, { type: "boolean" }],

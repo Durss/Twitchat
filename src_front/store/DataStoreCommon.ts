@@ -24,6 +24,7 @@ export default class DataStoreCommon {
 	public static TRIGGERS: string = "triggers";
 	public static BOT_MESSAGES: string = "botMessages";
 	public static RAFFLE_OVERLAY_COUNTDOWN: string = "raffle_showCountdownOverlay";
+	public static RAFFLE_LIST_MODE_GLOBAL_CONFIGS: string = "raffleListModeGlobalConfigs";
 	public static CYPHER_KEY: string = "cypherKey";
 	public static DEVMODE: string = "devmode";
 	public static SPOTIFY_APP_PARAMS: string = "spotifyAppParams";

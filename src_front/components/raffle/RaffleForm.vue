@@ -1435,6 +1435,22 @@ onBeforeMount(() => {
 	} else {
 		param_showCountdownOverlay.value.value =
 			DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
+
+		//Restore the global "list mode" entries
+		const listConfigs = DataStore.get(DataStore.RAFFLE_LIST_MODE_GLOBAL_CONFIGS);
+		if (listConfigs) {
+			try {
+				const json = JSON.parse(listConfigs) as Pick<
+					TwitchatDataTypes.RaffleData,
+					"customEntries" | "removeWinningEntry"
+				>;
+				localData.value.customEntries = param_customEntries.value.value =
+					json.customEntries || "";
+				localData.value.removeWinningEntry = json.removeWinningEntry === true;
+			} catch (_error) {
+				//Ignore
+			}
+		}
 	}
 
 	buildPatreonTierParams();
@@ -1474,6 +1490,17 @@ watch(
 watch(
 	() => localData.value.mode,
 	() => onValueChange(),
+);
+
+watch(
+	() => [localData.value.customEntries, localData.value.removeWinningEntry],
+	() => {
+		if (props.triggerMode) return;
+		void DataStore.set(DataStore.RAFFLE_LIST_MODE_GLOBAL_CONFIGS, {
+			customEntries: localData.value.customEntries,
+			removeWinningEntry: localData.value.removeWinningEntry === true,
+		});
+	},
 );
 
 watch(
@@ -1545,7 +1572,7 @@ async function submitForm(): Promise<void> {
 	if (autoStopPicking) pickingEntry.value = false;
 
 	if (!props.triggerMode && localData.value.mode == "manual") {
-		param_customEntries.value.value = payload.customEntries;
+		localData.value.customEntries = param_customEntries.value.value = payload.customEntries;
 	}
 }
 
