@@ -4635,6 +4635,42 @@ export default class TriggerActionHandler {
 							src: data.command,
 						});
 					}
+					// Parse placeholders on duration
+					if (data.duration_s_placeholder) {
+						const text = await this.parsePlaceholders({
+							dynamicPlaceholders,
+							actionPlaceholders,
+							trigger,
+							message,
+							src: data.duration_s_placeholder,
+						});
+						const parsed = Utils.evalMath(text);
+						if (parsed != null && parsed > 0) {
+							data.duration_s = parsed;
+							logStep.messages.push({
+								date: Date.now(),
+								value:
+									'Raffle duration placeholder "' +
+									data.duration_s_placeholder +
+									'" resolved to ' +
+									parsed +
+									"s",
+							});
+						} else {
+							logStep.messages.push({
+								date: Date.now(),
+								value:
+									'❌ Failed to calculate duration from "' +
+									data.duration_s_placeholder +
+									'". Fallback to ' +
+									data.duration_s +
+									"s",
+							});
+							log.error = true;
+							logStep.error = true;
+						}
+						delete data.duration_s_placeholder;
+					}
 					let winnerResolver: Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if (data.customEntries) {
 						//Parse placeholders on custom entries

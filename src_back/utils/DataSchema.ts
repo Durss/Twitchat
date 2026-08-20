@@ -121,6 +121,7 @@ const UserDataSchema = {
 				autoClose: { type: "boolean" },
 				triggerWaitForWinner: { type: "boolean" },
 				duration_s: { type: "integer", minimum: 0, maximum: 120 * 60000 },
+				duration_s_placeholder: { type: "string", maxLength: 100 },
 				maxEntries: { type: "integer", minimum: 0, maximum: 1000000 },
 				created_at: { type: "integer", minimum: 0, maximum: 9999999999999 },
 				entries: {

@@ -1409,6 +1409,10 @@ export namespace TwitchatDataTypes {
 		 */
 		duration_s: number;
 		/**
+		 * Placeholder from which extract the duration
+		 */
+		duration_s_placeholder?: string;
+		/**
 		 * Maximum number of entries allowed
 		 */
 		maxEntries: number;

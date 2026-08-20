@@ -66,7 +66,11 @@
 					/>
 				</ParamItem>
 
-				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
+				<ParamItem
+					:paramData="param_enterDuration"
+					v-model="durationValue"
+					placeholdersAsPopout
+				/>
 
 				<ToggleBlock
 					class="configs"
@@ -317,7 +321,11 @@
 					/>
 				</ParamItem>
 
-				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
+				<ParamItem
+					:paramData="param_enterDuration"
+					v-model="durationValue"
+					placeholdersAsPopout
+				/>
 
 				<ToggleBlock
 					class="configs"
@@ -737,6 +745,7 @@ if (props.triggerData && props.action) {
 	useTriggerActionPlaceholders(props.action, props.triggerData, (list) => {
 		param_commandValue.value.placeholderList = list;
 		param_customEntries.value.placeholderList = list;
+		param_enterDuration.value.placeholderList = list.filter((v) => v.numberParsable);
 	});
 }
 
@@ -1310,6 +1319,19 @@ const startTipsPlaceholders = computed((): TwitchatDataTypes.PlaceholderEntry[] 
 });
 
 const canListSubs = computed(() => TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS]));
+
+const durationValue = computed<number | string>({
+	get: () => localData.value.duration_s_placeholder ?? localData.value.duration_s,
+	set: (value) => {
+		if (typeof value == "string") {
+			localData.value.duration_s_placeholder = value;
+		} else if (localData.value.duration_s_placeholder) {
+			localData.value.duration_s_placeholder = undefined;
+		} else {
+			localData.value.duration_s = value;
+		}
+	},
+});
 
 onMounted(async () => {
 	if (!props.triggerMode) {
