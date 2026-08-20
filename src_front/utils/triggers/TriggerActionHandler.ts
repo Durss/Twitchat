@@ -8340,7 +8340,7 @@ export default class TriggerActionHandler {
 					const result = await StoreProxy.main.promptInputs({
 						title: await parse(promptData.title),
 						header: await parse(promptData.description),
-						icon: "edit",
+						icon: "prompt",
 						timeout_s: promptData.timeout_s,
 						inputs,
 					});

@@ -633,7 +633,7 @@
 							date: Config.instance.NEW_FLAGS_DATE_V17,
 							id: 'params_triggerAction_prompt',
 						}"
-						icon="edit"
+						icon="prompt"
 						>{{ $t("triggers.actions.common.action_prompt") }}</TTButton
 					>
 
@@ -1198,7 +1198,7 @@ const icons = computed(() => {
 	else if (props.action.type == "animated_text") icons.push("animate");
 	else if (props.action.type == "custom_train") icons.push("train");
 	else if (props.action.type == "sfxr") icons.push("unmute");
-	else if (props.action.type == "prompt") icons.push("edit");
+	else if (props.action.type == "prompt") icons.push("prompt");
 	return icons;
 });
 
@@ -1238,7 +1238,8 @@ const isError = computed(() => {
 });
 
 onBeforeMount(() => {
-	opened.value = !props.action.type;
+	const actionDate = Utils.getUUIDTimestamp(props.action.id);
+	opened.value = !props.action.type || Date.now() - actionDate < 1000;
 	if (props.action.enabled === undefined) {
 		props.action.enabled = true;
 	}
@@ -1424,7 +1425,9 @@ function selectActionType(type: TriggerActionStringTypes): void {
 			break;
 		}
 	}
+	props.action.id = Utils.getUUID();
 	props.action.type = type;
+	opened.value = true;
 }
 
 /**

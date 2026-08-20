@@ -147,8 +147,10 @@ onBeforeMount(() => {
 			params: [],
 		};
 	}
+
+	const actionDate = Utils.getUUIDTimestamp(props.action.id);
 	if (!props.action.promptData.params) props.action.promptData.params = [];
-	if (props.action.promptData.params.length === 0) addParam();
+	if (props.action.promptData.params.length === 0 && Date.now() - actionDate < 1000) addParam();
 
 	param_title.value.value = props.action.promptData.title;
 	param_description.value.value = props.action.promptData.description;
