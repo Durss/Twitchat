@@ -1037,12 +1037,21 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if (tags["msg-param-color"])
 			data.twitch_announcementColor = tags["msg-param-color"].toLowerCase();
 		if (tags["gifs"]) {
-			const chunks: string[] = tags["gifs"].split("|");
-			const url = chunks.find((v) => v.indexOf("url=") === 0)?.replace("url=", "");
-			if (url) {
+			const gifChunks: string[] = tags["gifs"].split("|");
+			const url = gifChunks[2];
+			if (url && /^https?:\/\//.test(url)) {
+				const range = (gifChunks[0] || "").split("-").map((v) => parseInt(v));
+				const begin = range[0];
+				const end = range[1];
+				const description =
+					begin != undefined && end != undefined && !isNaN(begin) && !isNaN(end)
+						? Array.from(data.message)
+								.slice(begin, end + 1)
+								.join("")
+						: data.message;
 				data.twitch_gif = {
 					url,
-					description: data.message.replace(/^\[|\]$/g, ""),
+					description: description.replace(/^\[|\]$/g, ""),
 				};
 				// clear message content as it's just the GIF description
 				data.message = "";
