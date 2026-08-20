@@ -36,13 +36,66 @@ let antiHateRaidCounter: {
 		messages: TwitchatDataTypes.MessageChatData[];
 		date: number;
 		ignore: boolean;
+		alert?: TwitchatDataTypes.MessageHateRaidData;
 	};
 } = {};
-let currentHateRaidAlert!: TwitchatDataTypes.MessageHateRaidData;
 let parsedMessageIds = new Set<string>();
 let timeoutPinnedCheck = -1;
 let timeoutAutoUnpinCheck = -1;
 const SUBGIFT_MERGE_TIMEFRAME_MS = 10000;
+const HISTORY_INSERT_CHUNK_SIZE = 5000;
+let greetHistorySaveDebounce = -1;
+let mentionRegexpKey = "";
+let mentionRegexp: RegExp | null = null;
+let adReferenceSource = "";
+let adReference = "";
+
+/**
+ * Search for a message's index by its ID.
+ * Starts from the most recent ones
+ */
+function findMessageIndex(messageID: string): number {
+	for (let i = messageList.length - 1; i >= 0; i--) {
+		if (messageList[i]!.id === messageID) return i;
+	}
+	return -1;
+}
+
+/**
+ * Debounce saving of greet them history
+ */
+function scheduleGreetHistorySave(): void {
+	clearTimeout(greetHistorySaveDebounce);
+	greetHistorySaveDebounce = window.setTimeout(() => {
+		void DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at, false);
+	}, 2000);
+}
+
+/**
+ * Broadcasts "ON_MESSAGE_DELETED" events by batches to avoid clogging the public API.
+ */
+function broadcastDeletedMessages(messages: TwitchatDataTypes.GreetableMessages[]): void {
+	const batchSize = 5;
+	for (let i = 0; i < messages.length; i += batchSize) {
+		const batch = messages.slice(i, i + batchSize);
+		window.setTimeout(
+			() => {
+				for (const m of batch) {
+					PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", {
+						channel: m.channel_id,
+						message: m.type == "message" ? m.message : "",
+						user: {
+							id: m.user.id,
+							login: m.user.login,
+							displayName: m.user.displayNameOriginal,
+						},
+					});
+				}
+			},
+			(i / batchSize) * 50,
+		);
+	}
+}
 
 export const storeChat = defineStore("chat", {
 	state: (): IChatState => ({
@@ -892,6 +945,11 @@ export const storeChat = defineStore("chat", {
 					let lastPuCustom = false;
 					let lastSub = false;
 					let lastSubgift = false;
+					//History is inserted in one go after the loop. Unshifting messages
+					//one by one moves the whole list for every single entry
+					const history = Array.from<TwitchatDataTypes.ChatMessageTypes>({
+						length: res.length,
+					});
 					//Parse all history
 					for (let i = res.length - 1; i >= 0; i--) {
 						const m = res[i]!;
@@ -1121,12 +1179,21 @@ export const storeChat = defineStore("chat", {
 							}
 						}
 						//Force reactivity so merging feature works on old messages
-						messageList.unshift(reactive(m));
+						history[i] = reactive(m);
+					}
+
+					//Insert history before the splitter, by chunks to avoid spreading
+					//too many params at once. Chunks are inserted back to front so
+					//the original order is preserved
+					for (let i = history.length; i > 0; i -= HISTORY_INSERT_CHUNK_SIZE) {
+						messageList.unshift(
+							...history.slice(Math.max(0, i - HISTORY_INSERT_CHUNK_SIZE), i),
+						);
 					}
 
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
 
-					function restoreReactiveUsersBatch(offset: number, batchIndex: number = 0) {
+					function restoreReactiveUsersBatch(offset: number) {
 						let i = offset;
 						let count = 0;
 						for (; i >= 0; i--) {
@@ -1160,8 +1227,8 @@ export const storeChat = defineStore("chat", {
 
 						if (i > 0) {
 							setTimeout(() => {
-								restoreReactiveUsersBatch(i - 1, batchIndex + 1);
-							}, batchIndex * 5000);
+								restoreReactiveUsersBatch(i - 1);
+							}, 250);
 						}
 					}
 					restoreReactiveUsersBatch(res.length - 1);
@@ -1433,16 +1500,19 @@ export const storeChat = defineStore("chat", {
 							});
 						} else {
 							//Check if it's an "ad" message
-							if (
-								!isFromRemoteChan &&
+							if (!isFromRemoteChan) {
 								//Remove eventual /command from the reference message
-								this.botMessages.twitchatAd.message
-									.trim()
-									.replace(/(\s)+/g, "$1")
-									.replace(/\/.*? /gi, "") ==
-									message.message.trim().replace(/(\s)+/g, "$1")
-							) {
-								message.is_ad = true;
+								const adSource = this.botMessages.twitchatAd.message;
+								if (adSource !== adReferenceSource) {
+									adReferenceSource = adSource;
+									adReference = adSource
+										.trim()
+										.replace(/(\s)+/g, "$1")
+										.replace(/\/.*? /gi, "");
+								}
+								if (adReference == message.message.trim().replace(/(\s)+/g, "$1")) {
+									message.is_ad = true;
+								}
 							}
 
 							if (message.twitch_hypeChat) {
@@ -1461,15 +1531,28 @@ export const storeChat = defineStore("chat", {
 
 						//Check if the message contains a mention
 						if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							let words = [
-								sAuth.twitch.user.login,
-								...((sParams.appearance.highlightMentions_custom
-									.value as string[]) || []),
-							];
-							message.hasMention = new RegExp(
-								words.map((word) => "\\b" + word + "\\b").join("|"),
-								"gim",
-							).test(message.message ?? "");
+							const customWords =
+								(sParams.appearance.highlightMentions_custom.value as string[]) ||
+								[];
+							const key =
+								sAuth.twitch.user.login + "\u0000" + customWords.join("\u0000");
+							// avoid compiling a new regex for every messages if not necessart
+							if (key !== mentionRegexpKey) {
+								mentionRegexpKey = key;
+								const words = [sAuth.twitch.user.login, ...customWords]
+									.map((word) => (word || "").trim())
+									.filter((word) => word.length > 0)
+									.map(
+										(word) =>
+											"\\b" +
+											word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+											"\\b",
+									);
+								mentionRegexp =
+									words.length > 0 ? new RegExp(words.join("|"), "im") : null;
+							}
+							message.hasMention =
+								mentionRegexp != null && mentionRegexp.test(message.message ?? "");
 						}
 
 						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
@@ -1530,7 +1613,7 @@ export const storeChat = defineStore("chat", {
 								if (!m.occurrenceCount) m.occurrenceCount = 0;
 								//Remove message
 								messageList.splice(i, 1);
-								await Database.instance.deleteMessage(m);
+								void Database.instance.deleteMessage(m);
 								EventBus.instance.dispatchEvent(
 									new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {
 										message: m,
@@ -1640,18 +1723,20 @@ export const storeChat = defineStore("chat", {
 											antiHateRaidCounter[key].ignore != true &&
 											antiHateRaidCounter[key].messages.length == 5
 										) {
-											currentHateRaidAlert = reactive({
-												id: Utils.getUUID(),
-												type: TwitchatDataTypes.TwitchatMessageType
-													.HATE_RAID,
-												channel_id: message.channel_id,
-												platform: message.platform,
-												date: Date.now(),
-												haters: antiHateRaidCounter[key].messages.map(
-													(v) => v.user,
-												),
-												terms: [],
-											});
+											const alert: TwitchatDataTypes.MessageHateRaidData =
+												reactive({
+													id: Utils.getUUID(),
+													type: TwitchatDataTypes.TwitchatMessageType
+														.HATE_RAID,
+													channel_id: message.channel_id,
+													platform: message.platform,
+													date: Date.now(),
+													haters: antiHateRaidCounter[key].messages.map(
+														(v) => v.user,
+													),
+													terms: [],
+												});
+											antiHateRaidCounter[key].alert = alert;
 
 											//Ban groups of words to make it a little more bullet proof
 											const chunks = message.message_chunks
@@ -1668,13 +1753,13 @@ export const storeChat = defineStore("chat", {
 													void TwitchUtils.addBanword(word).then(
 														(result) => {
 															if (result !== false) {
-																currentHateRaidAlert.terms.push({
+																alert.terms.push({
 																	id: result.id,
 																	text: result.text,
 																});
 																if (saveToDB) {
 																	void Database.instance.updateMessage(
-																		currentHateRaidAlert,
+																		alert,
 																	);
 																}
 															}
@@ -1709,7 +1794,7 @@ export const storeChat = defineStore("chat", {
 											window.setTimeout(() => {
 												delete antiHateRaidCounter[key];
 											}, 10000);
-											void this.addMessage(currentHateRaidAlert);
+											void this.addMessage(alert);
 										} else //If anti hate raid is active and new message is received (might happen
 										//as adding a banword to twitch takes a few hundred milliseconds)
 										if (
@@ -1717,10 +1802,11 @@ export const storeChat = defineStore("chat", {
 											antiHateRaidCounter[key].messages.length > 5
 										) {
 											//Add user to list
-											currentHateRaidAlert.haters.push(message.user);
-											void Database.instance.updateMessage(
-												currentHateRaidAlert,
-											);
+											const alert = antiHateRaidCounter[key].alert;
+											if (alert) {
+												alert.haters.push(message.user);
+												void Database.instance.updateMessage(alert);
+											}
 											//Delete messages if requested
 											if (
 												sParams.features.antiHateRaidDeleteMessage.value ==
@@ -2692,7 +2778,6 @@ export const storeChat = defineStore("chat", {
 									deletedMessages.push(m);
 									prevFollowbots.push(m);
 									messageList.splice(i, 1);
-									i--;
 								} else //Found an existing bulk message not older than 1min, keep it aside
 								if (
 									m.type ==
@@ -3061,14 +3146,16 @@ export const storeChat = defineStore("chat", {
 										console.log(error);
 									});
 								},
+								{ once: true },
 							);
 						}
 					}
 				}
 
-				//Limit history size
-				while (messageList.length >= this.realHistorySize) {
-					messageList.shift();
+				//Limit history size. Removing items by chunks instead of after every message
+				if (messageList.length >= this.realHistorySize) {
+					const chunkSize = Math.min(500, Math.ceil(this.realHistorySize / 10));
+					messageList.splice(0, messageList.length - this.realHistorySize + chunkSize);
 				}
 
 				const jumpscareID =
@@ -3263,8 +3350,8 @@ export const storeChat = defineStore("chat", {
 					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
 					message.twitch_automod
 				) {
-					const i = messageList.findIndex((v) => v.id === message.id);
-					messageList.splice(i, 1);
+					const i = findMessageIndex(message.id);
+					if (i > -1) messageList.splice(i, 1);
 					void Database.instance.deleteMessage(message);
 				}
 
@@ -3275,7 +3362,7 @@ export const storeChat = defineStore("chat", {
 				return;
 			}
 			message.deleted = true;
-			const i = messageList.findIndex((v) => v.id === message.id);
+			const i = findMessageIndex(message.id);
 
 			//If message doesn't exist, stop there
 			if (i == -1) return;
@@ -3344,6 +3431,7 @@ export const storeChat = defineStore("chat", {
 		},
 
 		delUserMessages(uid: string, channelId: string) {
+			const cleared: TwitchatDataTypes.GreetableMessages[] = [];
 			for (let i = messageList.length - 1; i >= 0; i--) {
 				const m = messageList[i]!;
 				//If we reached messages older than 2h, stop there, there's no much point in
@@ -3353,24 +3441,8 @@ export const storeChat = defineStore("chat", {
 				if (!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessages;
 				if (mTyped.user.id == uid && mTyped.channel_id == channelId && !mTyped.cleared) {
-					//Send public API events by batches of 5 to avoid clogging it
-					window.setTimeout(
-						() => {
-							const wsMessage = {
-								channel: mTyped.channel_id,
-								message: m.type == "message" ? m.message : "",
-								user: {
-									id: mTyped.user.id,
-									login: mTyped.user.login,
-									displayName: mTyped.user.displayNameOriginal,
-								},
-							};
-							PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", wsMessage);
-						},
-						Math.floor(i / 5) * 50,
-					);
-
 					mTyped.cleared = true;
+					cleared.push(mTyped);
 					StoreProxy.qna.onDeleteMessage(m.id);
 					void Database.instance.updateMessage(m);
 					TTSUtils.instance.cancelMessage(m);
@@ -3378,35 +3450,22 @@ export const storeChat = defineStore("chat", {
 					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
+			broadcastDeletedMessages(cleared);
 		},
 
 		delChannelMessages(channelId: string): void {
+			const cleared: TwitchatDataTypes.GreetableMessages[] = [];
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i]!;
 				if (!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessages;
 				if (mTyped.channel_id == channelId && !mTyped.cleared) {
-					//Send public API events by batches of 5 to avoid clogging it
-					window.setTimeout(
-						() => {
-							const wsMessage = {
-								channel: mTyped.channel_id,
-								message: m.type == "message" ? m.message : "",
-								user: {
-									id: mTyped.user.id,
-									login: mTyped.user.login,
-									displayName: mTyped.user.displayNameOriginal,
-								},
-							};
-							PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", wsMessage);
-						},
-						Math.floor(i / 5) * 50,
-					);
-
 					mTyped.cleared = true;
+					cleared.push(mTyped);
 					void Database.instance.updateMessage(m);
 				}
 			}
+			broadcastDeletedMessages(cleared);
 		},
 
 		setEmoteSelectorCache(
@@ -3532,7 +3591,8 @@ export const storeChat = defineStore("chat", {
 			flaggedChans: string[],
 			retryCount?: number,
 		): Promise<void> {
-			for (const message of messageList) {
+			for (let i = messageList.length - 1; i >= 0; i--) {
+				const message = messageList[i]!;
 				if (
 					message.id == messageId &&
 					message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -3597,7 +3657,7 @@ export const storeChat = defineStore("chat", {
 
 			message.todayFirst = true;
 			greetedUsersExpire_at[user.id] = Date.now() + 1000 * 60 * 60 * 8; //expire after 8 hours
-			DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at, false);
+			scheduleGreetHistorySave();
 		},
 
 		resetGreetingHistory(): void {
@@ -3614,15 +3674,15 @@ export const storeChat = defineStore("chat", {
 		},
 
 		cleanupDonationRelatedMessages(): void {
-			for (const m of messageList) {
-				if (m.type !== TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
-				if (
-					m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE ||
-					m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER ||
-					m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING
-				) {
-					this.deleteMessage(m);
-				}
+			const toDelete = messageList.filter(
+				(m) =>
+					m.type === TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD &&
+					(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE ||
+						m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER ||
+						m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING),
+			);
+			for (const m of toDelete) {
+				this.deleteMessage(m);
 			}
 		},
 
