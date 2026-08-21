@@ -264,6 +264,39 @@ export default class Utils {
 			return (list.length === 0 && !forcedClosedFF.includes(flag)) || list.includes(uid);
 		});
 	}
+
+	/**
+	 * Returns a seeded random generator.
+	 * Just call the given function to get a new pseudo random number
+	 * @param seed
+	 * @returns
+	 */
+	public static seededRandom(seed: number | string): () => number {
+		let s = typeof seed == "string" ? this.hashCode(seed) : seed;
+		return () => {
+			s |= 0;
+			s = (s + 0x9e3779b9) | 0;
+			let t = s ^ (s >>> 16);
+			t = Math.imul(t, 0x21f0aaad);
+			t = t ^ (t >>> 15);
+			t = Math.imul(t, 0x735a2d97);
+			return ((t = t ^ (t >>> 15)) >>> 0) / 4294967296;
+		};
+	}
+
+	/**
+	 * Hashes given string to number
+	 * @param str
+	 * @returns
+	 */
+	public static hashCode(str: string): number {
+		let h = 0x811c9dc5;
+		for (let i = 0; i < str.length; i++) {
+			h ^= str.charCodeAt(i);
+			h = Math.imul(h, 0x01000193);
+		}
+		return h >>> 0;
+	}
 }
 
 type Flag = (typeof Config.FEATURE_FLAGS)[number];

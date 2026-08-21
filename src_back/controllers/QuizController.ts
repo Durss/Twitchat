@@ -4,6 +4,7 @@ import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as fs from "fs";
 import TwitchExtensionController from "./TwitchExtensionController.js";
+import Utils from "../utils/Utils.js";
 
 /**
  * Created : 16/01/2026
@@ -174,7 +175,20 @@ export default class QuizController extends AbstractController {
 				if (q && q.id === quiz.currentQuestionId) return q;
 				return null;
 			});
-			const question = quiz.questionList[0];
+			const question = quiz.questionList.filter((v) => v !== null)[0];
+			if (question && question.mode == "classic") {
+				// Shuffle answers with seeded random if requested
+				const shouldShuffle = question.shuffleAnswers ?? quiz.shuffleAnswers ?? true;
+				if (shouldShuffle) {
+					let list = question.answerList.concat();
+					const seededRnd = Utils.seededRandom(question.id);
+					for (let i = list.length - 1; i > 0; i--) {
+						const j = Math.floor(seededRnd() * (i + 1));
+						[list[i]!, list[j]!] = [list[j]!, list[i]!];
+					}
+					question.answerList = list;
+				}
+			}
 			// Don't delete correct answer if question is currently revealed
 			if (question && !quiz.currentQuestionRevealed) {
 				if (question.mode === "classic") {

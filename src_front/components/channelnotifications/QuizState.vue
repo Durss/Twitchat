@@ -109,7 +109,7 @@
 							backgroundPositionX:
 								100 - liveStats[answer.id]!.relativePercent * 100 + '%',
 						}"
-						v-for="(answer, index) in currentQuestion.answerList"
+						v-for="(answer, index) in currentAnswerList"
 					>
 						<template v-if="$utils.isClassicQuizAnswer(currentQuestion.mode, answer)">
 							<icon class="validity" name="checkmark" v-if="answer.correct" />
@@ -182,6 +182,23 @@ const currentQuestionIndex = computed(
 const currentQuestion = computed(() =>
 	currentQuiz.value?.questionList.find((v) => v.id == currentQuiz.value?.currentQuestionId),
 );
+const currentAnswerList = computed(() => {
+	const question = currentQuestion.value;
+	if (currentQuiz.value && question?.mode == "classic") {
+		// Shuffle answers with seeded random if requested
+		const shouldShuffle = question.shuffleAnswers ?? currentQuiz.value.shuffleAnswers ?? true;
+		let list = question.answerList.concat();
+		if (shouldShuffle) {
+			const seededRnd = Utils.seededRandom(question.id);
+			for (let i = list.length - 1; i > 0; i--) {
+				const j = Math.floor(seededRnd() * (i + 1));
+				[list[i]!, list[j]!] = [list[j]!, list[i]!];
+			}
+		}
+		return list;
+	}
+	return [];
+});
 const questionDuration = computed(
 	() =>
 		(currentQuestion.value?.duration_s ?? currentQuiz.value?.durationPerQuestion_s ?? 30) *
