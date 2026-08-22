@@ -69,14 +69,22 @@
 					<TTButton
 						icon="checkmark"
 						light
-						@click="store.revealAnswer(currentQuiz.id)"
+						@click="
+							cooldown();
+							store.revealAnswer(currentQuiz.id);
+						"
+						:loading="coolingdown"
 						v-if="!currentQuiz.currentQuestionRevealed"
 						>{{ $t("quiz.state.showAnswer_bt") }}</TTButton
 					>
 					<TTButton
 						icon="next"
 						light
-						@click="store.startNextQuestion(currentQuiz.id)"
+						@click="
+							cooldown();
+							store.startNextQuestion(currentQuiz.id);
+						"
+						:loading="coolingdown"
 						v-if="!isLastQuestion && currentQuiz.currentQuestionRevealed"
 						>{{ $t("quiz.state.nextQuestion_bt") }}</TTButton
 					>
@@ -164,6 +172,7 @@ const store = storeQuiz();
 const auth = storeAuth();
 const progressPercent = ref(0);
 const fakeVotes = ref(false);
+const coolingdown = ref(false);
 const loadingLeaderboard = ref(false);
 
 //The ephemeral quiz steps over any running quiz until it's closed
@@ -267,14 +276,22 @@ function closeQuiz(): void {
 		store.closeEphemeralQuiz();
 		return;
 	}
-	currentQuiz.value.enabled = false;
-	void store.saveData(currentQuiz.value.id);
+	const quiz = currentQuiz.value;
+	quiz.enabled = false;
+	void store.saveData(quiz.id);
 }
 
 async function openLeaderboard(): Promise<void> {
 	loadingLeaderboard.value = true;
 	await store.showLeaderBoard(currentQuizId.value!);
 	loadingLeaderboard.value = false;
+}
+
+function cooldown() {
+	coolingdown.value = true;
+	setTimeout(() => {
+		coolingdown.value = false;
+	}, 1000);
 }
 
 let fakeVoteInterval: number;
