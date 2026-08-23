@@ -802,11 +802,8 @@ const showChatPreview = ref(false);
 let isLocalUpdate = false;
 let chatPreviewFocusHandler: ((e: MouseEvent) => void) | null = null;
 let childrenExpanded = false;
-// Tracks the last value we've reconciled with the parent. We can't compare
-// against props.modelValue because callers commonly do `v-model="x.value"`
-// while also passing `:paramData="x"`, so modelValue and paramData.value are
-// the same reactive reference and would always look equal.
-let lastValue: string = "";
+let lastValueSignature: unknown = undefined;
+let prevValue: any = undefined;
 
 const placeholderModelValue = computed<string>(() => {
 	const value = props.paramData.value;
@@ -1119,16 +1116,12 @@ async function onEdit(): Promise<void> {
 		(props.paramData.type != "number" && props.paramData.type != "integer") ||
 		props.paramData.value !== ""
 	) {
-		const prevValue = lastValue;
-		let newValue = props.paramData.value?.toString();
+		const signature = getValueSignature(props.paramData.value);
 		emit("update:modelValue", props.paramData.value);
-		if (prevValue != newValue) {
-			lastValue = newValue;
-			emit(
-				"change",
-				prevValue as string | boolean | number | string[] | null,
-				props.paramData.value,
-			);
+		if (lastValueSignature !== signature) {
+			lastValueSignature = signature;
+			emit("change", prevValue, props.paramData.value);
+			prevValue = props.paramData.value;
 			if (props.paramData.editCallback) {
 				props.paramData.editCallback(props.paramData);
 			}
@@ -1375,6 +1368,22 @@ function onHideItem(el: Element, done: () => void): void {
 	});
 }
 
+/**
+ * Get a string representation of the value.
+ * Used to detect if value actually changed
+ */
+function getValueSignature(value: unknown): unknown {
+	if (Array.isArray(value)) return value.toString();
+	if (value != null && typeof value == "object") {
+		try {
+			return JSON.stringify(value);
+		} catch (_error) {
+			return value; //Fallback to ref
+		}
+	}
+	return value?.toString();
+}
+
 function updateSelectedListValue(): void {
 	if (
 		(props.paramData.type == "list" || props.paramData.type == "imagelist") &&
@@ -1432,7 +1441,8 @@ onBeforeMount(() => {
 	if (props.modelValue !== null && props.modelValue !== undefined) {
 		props.paramData.value = props.modelValue;
 	}
-	lastValue = props.modelValue?.toString() ?? props.paramData.value?.toString();
+	lastValueSignature = getValueSignature(props.modelValue ?? props.paramData.value);
+	prevValue = props.modelValue ?? props.paramData.value;
 
 	//If it's a boolean and modelValue is undefined, force it to false
 	if (props.paramData.type == "boolean" && props.modelValue == undefined) {
@@ -1596,10 +1606,11 @@ watch(
 	(value: string | number | boolean | string[] | null | undefined) => {
 		// Skip when modelValue is the same reference as paramData.value (common
 		// `v-model="x.value"` + `:paramData="x"` pattern). Otherwise we'd overwrite
-		// lastValue with the new value before onEdit can detect the change.
+		// the signature with the new value before onEdit can detect the change.
 		if (value !== null && value !== undefined && value !== props.paramData.value) {
 			props.paramData.value = value;
-			lastValue = value.toString();
+			lastValueSignature = getValueSignature(value);
+			prevValue = value;
 		}
 	},
 );

@@ -41,7 +41,6 @@
 					:paramData="param_command"
 					v-model="param_command.value"
 					:autofocus="true"
-					@change="onValueChange()"
 				>
 					<ParamItem
 						class="child"
@@ -55,7 +54,6 @@
 				<ParamItem
 					:paramData="param_reward"
 					v-model="param_reward.value"
-					@change="onValueChange()"
 					v-if="param_rewardvalue.listValues!.length > 1"
 				>
 					<ParamItem
@@ -84,7 +82,6 @@
 					<ParamItem
 						:paramData="param_maxUsersToggle"
 						v-model="param_maxUsersToggle.value"
-						@change="onValueChange()"
 					>
 						<ParamItem
 							class="child"
@@ -96,7 +93,6 @@
 					<ParamItem
 						:paramData="param_ponderateVotes"
 						v-model="param_ponderateVotes.value"
-						@change="onValueChange()"
 					>
 						<ParamItem
 							class="child"
@@ -338,7 +334,6 @@
 					<ParamItem
 						:paramData="param_maxUsersToggle"
 						v-model="param_maxUsersToggle.value"
-						@change="onValueChange()"
 					>
 						<ParamItem
 							class="child"
@@ -613,11 +608,7 @@
 					</template>
 				</i18n-t>
 
-				<ParamItem
-					:paramData="param_values"
-					v-model="param_values.value"
-					@change="onValueChange()"
-				/>
+				<ParamItem :paramData="param_values" v-model="param_values.value" />
 
 				<ParamItem
 					:paramData="param_values_remove"
@@ -1415,12 +1406,14 @@ onBeforeMount(() => {
 		});
 	}
 
-	param_values.value.listValues = storeValues.valueList.map((v) => {
-		return <TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.ValueData>>{
-			value: v,
-			label: v.name,
-		};
-	});
+	param_values.value.listValues = storeValues.valueList
+		.filter((v) => v.enabled !== false)
+		.map((v) => {
+			return <TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.ValueData>>{
+				value: v,
+				label: v.name,
+			};
+		});
 
 	if (props.triggerMode !== false && props.triggerData && props.action) {
 		if (props.action.raffleData) {
@@ -1428,6 +1421,13 @@ onBeforeMount(() => {
 			param_command.value.value = props.action.raffleData.command != undefined;
 			param_maxUsersToggle.value.value = props.action.raffleData.maxEntries > 0;
 			param_reward.value.value = props.action.raffleData.reward_id != undefined;
+			param_ponderateVotes.value.value =
+				(props.action.raffleData.vipRatio || 0) > 0 ||
+				(props.action.raffleData.followRatio || 0) > 0 ||
+				(props.action.raffleData.subRatio || 0) > 0 ||
+				(props.action.raffleData.subT2Ratio || 0) > 0 ||
+				(props.action.raffleData.subT3Ratio || 0) > 0 ||
+				(props.action.raffleData.subgiftRatio || 0) > 0;
 			const preselectedValue = param_values.value.listValues!.find(
 				(v) => v.value.id === props.action!.raffleData.value_id,
 			)?.value;
@@ -1481,6 +1481,17 @@ onBeforeMount(() => {
 		() => localData.value,
 		() => onValueChange(),
 		{ deep: true },
+	);
+
+	watch(
+		() => [
+			param_command.value.value,
+			param_reward.value.value,
+			param_maxUsersToggle.value.value,
+			param_ponderateVotes.value.value,
+			param_values.value.value,
+		],
+		() => onValueChange(),
 	);
 });
 
@@ -1644,7 +1655,8 @@ function onValueChange(): void {
 		props.action.raffleData = localData.value;
 	}
 
-	localData.value.value_id = param_values.value.selectedListValue?.value.id;
+	localData.value.value_id =
+		param_values.value.value?.id ?? param_values.value.selectedListValue?.value.id;
 }
 
 /**
