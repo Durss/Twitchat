@@ -1197,7 +1197,7 @@ export const storeChat = defineStore("chat", {
 						let i = offset;
 						let count = 0;
 						for (; i >= 0; i--) {
-							const m = res[i]!;
+							const m = history[i]!;
 							const userProps = TwitchatDataTypes.GetUserFromMessage(m);
 							if (userProps) {
 								const { user, override } = userProps;

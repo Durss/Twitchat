@@ -6129,6 +6129,8 @@ export namespace TwitchatDataTypes {
 		message: ChatMessageTypes,
 	): { user: TwitchatUser; override: (user: TwitchatUser) => void } | null {
 		switch (message.type) {
+			case TwitchatMessageType.MESSAGE:
+			case TwitchatMessageType.WHISPER:
 			case TwitchatMessageType.FOLLOWING:
 			case TwitchatMessageType.SUBSCRIPTION:
 			case TwitchatMessageType.CHEER:
