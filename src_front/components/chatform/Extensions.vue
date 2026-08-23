@@ -38,7 +38,7 @@
 					class="extension"
 					:class="{ active: extension.enabled }"
 					v-for="extension in extensionList"
-					:key="extension.data.id"
+					:key="extension.data.id + extension.data.version"
 				>
 					<div class="extHeader">
 						<span class="statusDot" :class="{ on: extension.enabled }"></span>

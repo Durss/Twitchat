@@ -25,6 +25,7 @@ const FEATURE_VERSIONS = {
 	areasTitle: "0.0.1",
 	areasCooldown: "0.0.2",
 	areasPermissions: "0.0.3",
+	userNamePermissions: "0.0.4",
 } as const;
 
 export type EtensionFeature = keyof typeof FEATURE_VERSIONS;

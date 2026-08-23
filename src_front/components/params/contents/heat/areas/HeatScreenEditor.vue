@@ -94,7 +94,7 @@
 					<PermissionsForm
 						v-model="permissions"
 						:hasVipFilter="false"
-						:hasUserNameFilter="false"
+						:hasUserNameFilter="storeExtension.hasFeature('userNamePermissions')"
 						:hasFollowerFilter="false"
 						:hasFollowerDurationFilter="false"
 						@change="emit('update')"
