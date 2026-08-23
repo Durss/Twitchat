@@ -71,7 +71,7 @@
 
 		<div
 			class="card-item instructions"
-			v-if="(!obsConnected || showInput) && !!isEmptySlot(slots.default)"
+			v-if="(!obsConnected || showInput) && !isEmptySlot(slots.default)"
 		>
 			<slot />
 		</div>
