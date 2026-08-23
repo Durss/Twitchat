@@ -1423,6 +1423,12 @@ export default class OBSWebsocket extends EventDispatcher {
 			};
 			if (eventDataTyped.type == undefined) return;
 			if (eventDataTyped.origin != "twitchat") return;
+			// Keep these events local
+			if (
+				eventDataTyped.type == "ON_OBS_WEBSOCKET_CONNECTED" ||
+				eventDataTyped.type == "ON_OBS_WEBSOCKET_DISCONNECTED"
+			)
+				return;
 			this.dispatchEvent(new TwitchatEvent(eventDataTyped.type, eventDataTyped.data));
 		});
 
