@@ -261,11 +261,10 @@ watch(
 		margin: auto;
 		display: block;
 		position: absolute;
-		margin: auto;
 		left: 0;
 		right: 0;
 		width: 60%;
-		bottom: calc(50px / v-bind(scaleFactor));
+		bottom: 10%;
 	}
 
 	.content {
