@@ -28,6 +28,22 @@ export default defineConfig({
 	server: {
 		port: 8081,
 		allowedHosts: ["dev.twitchat.fr", "localhost"],
+		fs: {
+			deny: [
+				".env",
+				".env.*",
+				"*.{crt,pem}",
+				"**/.git/**",
+				"Dockerfile",
+				"docker-compose.yml",
+				"docker-entrypoint.sh",
+				"LICENCE",
+				"env.conf",
+				".dockerignore",
+				".gitignore",
+				".editorconfig",
+			],
+		},
 		proxy: {
 			"/api": {
 				target: "http://localhost:3018",
