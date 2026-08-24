@@ -25,6 +25,7 @@ let notifPollInterval: ReturnType<typeof setInterval> | null = null;
 let dmPollInterval: ReturnType<typeof setInterval> | null = null;
 let autoliveCheckInterval: ReturnType<typeof setInterval> | null = null;
 let currentlyLive = false;
+let previewRefreshInterval: ReturnType<typeof setInterval> | null = null;
 // Empty string = first poll (seed mode: record state without dispatching)
 let lastNotifAt: string = "";
 // convoId → sentAt of last dispatched message; absent = first poll
@@ -594,6 +595,7 @@ export const storeBluesky = defineStore("bluesky", {
 						true,
 						"https://twitch.tv/" + infos.user?.login,
 						infos.title,
+						infos.previewUrl,
 						foreRefresh,
 					);
 					return;
@@ -606,13 +608,16 @@ export const storeBluesky = defineStore("bluesky", {
 							true,
 							"https://twitch.tv/" + res[0]!.user_login,
 							res[0]!.title,
+							res[0]!.thumbnail_url
+								.replace("{width}", "1920")
+								.replace("{height}", "1080"),
 							foreRefresh,
 						);
 						return;
 					}
 				}
 			}
-			void this.setLiveStatus(false, undefined, undefined, foreRefresh);
+			void this.setLiveStatus(false, undefined, undefined, undefined, foreRefresh);
 		},
 
 		setAutoliveFeatureState(state: boolean) {
@@ -667,12 +672,21 @@ export const storeBluesky = defineStore("bluesky", {
 			live: boolean,
 			url?: string,
 			title?: string,
+			previewUrl?: string,
 			foreRefresh?: boolean,
 		): Promise<void> {
 			if (!agent) return;
 			if (live === currentlyLive && foreRefresh !== true) return;
 			try {
 				if (live) {
+					const external: AppBskyEmbedExternal.External = {
+						uri: url ?? "",
+						title: title ?? "",
+						description: title ?? "",
+					};
+					const thumb = previewUrl ? await uploadStreamPreview(previewUrl) : undefined;
+					if (thumb) external.thumb = thumb;
+
 					await agent.com.atproto.repo.putRecord({
 						repo: agent.did!,
 						collection: "app.bsky.actor.status",
@@ -682,20 +696,21 @@ export const storeBluesky = defineStore("bluesky", {
 							status: "app.bsky.actor.status#live",
 							embed: {
 								$type: "app.bsky.embed.external",
-								external: {
-									uri: url,
-									title,
-									description: title,
-								},
+								external,
 							},
-							// Only keep it for 12min so if twitchat is closed before it has a chance
-							// to set this back to off, it automatically does after 15min max.
-							// applyAutoLive() is called every 10min to refresh this
 							durationMinutes: 30,
 							createdAt: new Date().toISOString(),
 						},
 					});
 					currentlyLive = true;
+
+					// Refresh preview every 5m30 (twitch refreshes it every ~5min)
+					if (!previewRefreshInterval) {
+						previewRefreshInterval = setInterval(
+							() => void this.applyAutoLive(true),
+							5.5 * 60_000,
+						);
+					}
 				} else {
 					await agent.com.atproto.repo.deleteRecord({
 						repo: agent.did!,
@@ -703,6 +718,8 @@ export const storeBluesky = defineStore("bluesky", {
 						rkey: "self",
 					});
 					currentlyLive = false;
+					if (previewRefreshInterval) clearInterval(previewRefreshInterval);
+					previewRefreshInterval = null;
 				}
 			} catch (error) {
 				//Was an unhandled rejection before. This runs on the longest interval,
@@ -745,6 +762,8 @@ export const storeBluesky = defineStore("bluesky", {
 			if (dmPollInterval) clearInterval(dmPollInterval);
 			if (notifPollInterval) clearInterval(notifPollInterval);
 			if (autoliveCheckInterval) clearInterval(autoliveCheckInterval);
+			if (previewRefreshInterval) clearInterval(previewRefreshInterval);
+			previewRefreshInterval = null;
 			dmPollInterval = null;
 			notifPollInterval = null;
 			autoliveCheckInterval = null;
@@ -1072,6 +1091,22 @@ async function buildImageEmbed(url: string): Promise<$Typed<AppBskyEmbedImages.M
 		};
 	} catch (error) {
 		console.warn("Bluesky image embed generation failed", error);
+		return;
+	}
+}
+
+/**
+ * Convert stream preview URL to bluesky blob
+ */
+async function uploadStreamPreview(previewUrl: string) {
+	if (!agent) return;
+	try {
+		const url = previewUrl + (previewUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
+		const res = await fetch(url);
+		if (!res.ok) return;
+		return await uploadImageBlob(await res.blob());
+	} catch (error) {
+		console.warn("Bluesky stream preview upload failed", error);
 		return;
 	}
 }

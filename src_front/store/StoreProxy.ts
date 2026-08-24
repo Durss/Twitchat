@@ -4575,7 +4575,8 @@ export interface IBlueskyActions {
 		live: boolean,
 		url?: string,
 		title?: string,
-		foreRefresh?: boolean,
+		previewUrl?: string,
+		forceRefresh?: boolean,
 	): Promise<void>;
 	/**
 	 * Starts polling for notifications and DMs
