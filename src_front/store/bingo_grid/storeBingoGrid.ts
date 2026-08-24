@@ -209,22 +209,22 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 				if (!event.data) return;
 				const id = event.data.id;
 				const action = event.data.forcedState;
-				const trigger = this.gridList.find((v) => v.id == id);
-				if (trigger) {
+				const grid = this.gridList.find((v) => v.id == id);
+				if (grid) {
 					switch (action) {
 						case true:
-							trigger.enabled = true;
+							grid.enabled = true;
 							break;
 						case false:
-							trigger.enabled = false;
+							grid.enabled = false;
 							break;
 						default:
-							trigger.enabled = !trigger.enabled;
+							grid.enabled = !grid.enabled;
 							break;
 					}
+					PublicAPI.instance.broadcastGlobalStates();
+					void this.saveData(grid.id);
 				}
-				PublicAPI.instance.broadcastGlobalStates();
-				void this.saveData();
 			});
 
 			/**
