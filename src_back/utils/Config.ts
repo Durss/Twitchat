@@ -602,6 +602,8 @@ interface Credentials {
 	tiltify_api_path: string;
 
 	kofi_proxy: string;
+	kofi_proxy_cfId: string;
+	kofi_proxy_cfSecret: string;
 
 	donors_endpoint_url: string;
 }

@@ -244,6 +244,14 @@ export default class KofiController extends AbstractController {
 									forwardedHeaders[headerName] = value;
 								}
 							}
+							if (Config.credentials.kofi_proxy_cfId) {
+								forwardedHeaders["CF-Access-Client-Id"] =
+									Config.credentials.kofi_proxy_cfId;
+							}
+							if (Config.credentials.kofi_proxy_cfSecret) {
+								forwardedHeaders["CF-Access-Client-Secret"] =
+									Config.credentials.kofi_proxy_cfSecret;
+							}
 							let res = await fetch(url, {
 								method: request.method,
 								headers: forwardedHeaders,
