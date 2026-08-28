@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
+import { LRUCache } from "lru-cache";
 import AbstractController from "./AbstractController.js";
 import SSEController from "./SSEController.js";
 import Config from "../utils/Config.js";
@@ -20,8 +21,11 @@ export default class ApiController extends AbstractController {
 		"hex",
 	);
 	private static readonly MAX_TIMESTAMP_DRIFT_MS = 1 * 60 * 1000;
-	private static readonly RATE_LIMIT_MS = 1000;
-	private lastActionTimestamps: Map<string, number> = new Map();
+	private static readonly RATE_LIMIT_MS = 500;
+	private lastActionTimestamps = new LRUCache<string, number>({
+		max: 10000,
+		ttl: 60 * 1000, // only needs to outlive RATE_LIMIT_MS
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -37,6 +41,8 @@ export default class ApiController extends AbstractController {
 	public initialize(): void {
 		this.server.post(
 			"/api/remote/action",
+			// Reduce global rate limit to 10req/s so user get IP limited
+			{ config: { rateLimit: { max: 10, timeWindow: 1000 } } },
 			async (request, response) => await this.postRemoteAction(request, response),
 		);
 		this.server.post(
@@ -165,7 +171,6 @@ export default class ApiController extends AbstractController {
 		const timestamp = request.headers["x-twitchat-timestamp"] as string | undefined;
 		const signature = request.headers["x-twitchat-signature"] as string | undefined;
 
-		console.log(request.headers);
 		if (!uid || !timestamp || !signature) {
 			response
 				.header("Content-Type", "application/json")
@@ -180,7 +185,7 @@ export default class ApiController extends AbstractController {
 			return;
 		}
 
-		// Rate limit: 1 call per second per user
+		// Rate limit: 2 call per second per user
 		const now = Date.now();
 		const lastCall = this.lastActionTimestamps.get(uid) ?? 0;
 		if (now - lastCall < ApiController.RATE_LIMIT_MS) {
@@ -197,7 +202,6 @@ export default class ApiController extends AbstractController {
 				);
 			return;
 		}
-		this.lastActionTimestamps.set(uid, now);
 
 		// Validate timestamp to prevent replay attacks
 		const ts = parseInt(timestamp, 10);
@@ -282,6 +286,8 @@ export default class ApiController extends AbstractController {
 				);
 			return;
 		}
+
+		this.lastActionTimestamps.set(uid, now);
 
 		Logger.info(`[API] Executing remote action '${action}' from user ${uid}`);
 
