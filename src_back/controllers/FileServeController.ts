@@ -12,6 +12,7 @@ import AdminController from "./AdminController.js";
  */
 export default class FileServeController extends AbstractController {
 	private config_cache: string = "";
+	private DOWNLOAD_MAX_BYTES: number = 10 * 1024 * 1024;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -184,6 +185,8 @@ export default class FileServeController extends AbstractController {
 	 */
 	public async getDownload(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const image = (request.query as any).image;
+		const abort = new AbortController();
+		const timeout = setTimeout(() => abort.abort(), 10000);
 		try {
 			const url = new URL(image);
 			// Refuse any non-cloudfront URLs to reduce abuse possibilities
@@ -195,11 +198,39 @@ export default class FileServeController extends AbstractController {
 				response.send(JSON.stringify({ success: false, message: "Invalid source URL" }));
 				return;
 			}
-			const res = await fetch(url);
-			const buffer = Buffer.from(await res.arrayBuffer());
 
-			response.header("Content-Type", res.headers.get("Content-Type"));
-			response.header("Content-Length", res.headers.get("Content-Length"));
+			// don't follow redirects
+			const res = await fetch(url, { signal: abort.signal, redirect: "error" });
+
+			//Content-Length cannot be trusted but if it's already too big.. jsut give up!
+			const announcedSize = parseInt(res.headers.get("Content-Length") || "0");
+			const buffer =
+				announcedSize > this.DOWNLOAD_MAX_BYTES
+					? null
+					: await this.readCappedBody(res, this.DOWNLOAD_MAX_BYTES);
+
+			if (!buffer) {
+				response.header("Content-Type", "application/json");
+				response.status(413);
+				response.send(JSON.stringify({ success: false, message: "Image too large" }));
+				return;
+			}
+
+			//Never reflect the upstream Content-Type: anyone can host a cloudfront
+			//distribution, and "text/html" served from here would run on the
+			//twitchat.fr origin with access to the tokens in localStorage
+			const mimeType = Utils.getImageMimeType(buffer);
+			if (!mimeType) {
+				Logger.warn("Refused non-image download from " + url.href);
+				response.header("Content-Type", "application/json");
+				response.status(400);
+				response.send(JSON.stringify({ success: false, message: "Not an image" }));
+				return;
+			}
+
+			response.header("Content-Type", mimeType);
+			response.header("Content-Length", buffer.length);
+			response.header("X-Content-Type-Options", "nosniff");
 			response.send(buffer);
 		} catch (_error) {
 			response.header("Content-Type", "application/json");
@@ -207,6 +238,8 @@ export default class FileServeController extends AbstractController {
 			response.send(
 				JSON.stringify({ success: false, message: "an unknown error has occured" }),
 			);
+		} finally {
+			clearTimeout(timeout);
 		}
 
 		// const b64:string = (request.query as any).img.trim();
@@ -220,5 +253,30 @@ export default class FileServeController extends AbstractController {
 		// response.header('Content-Disposition','attachment; filename=test.png');
 		// response.header('Content-Type','image/png');
 		// response.send(s).type('image/png').code(200);
+	}
+
+	/**
+	 * Reads a response body, giving up as soon as it goes over "max" bytes.
+	 */
+	private async readCappedBody(
+		res: Awaited<ReturnType<typeof fetch>>,
+		max: number,
+	): Promise<Buffer | null> {
+		const reader = res.body?.getReader();
+		if (!reader) return Buffer.alloc(0);
+
+		const chunks: Buffer[] = [];
+		let total = 0;
+		for (;;) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			total += value.byteLength;
+			if (total > max) {
+				await reader.cancel();
+				return null;
+			}
+			chunks.push(Buffer.from(value));
+		}
+		return Buffer.concat(chunks);
 	}
 }

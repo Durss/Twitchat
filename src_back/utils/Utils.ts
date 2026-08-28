@@ -297,6 +297,38 @@ export default class Utils {
 		}
 		return h >>> 0;
 	}
+
+	/**
+	 * Detects an image type from its magic bytes on given buffer.
+	 */
+	public static getImageMimeType(buffer: Buffer): string | null {
+		if (buffer.length < 12) return null;
+
+		if (
+			buffer[0] === 0x89 &&
+			buffer.subarray(1, 4).toString("ascii") === "PNG" &&
+			buffer[4] === 0x0d &&
+			buffer[5] === 0x0a &&
+			buffer[6] === 0x1a &&
+			buffer[7] === 0x0a
+		) {
+			return "image/png";
+		}
+		if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+
+		const head6 = buffer.subarray(0, 6).toString("ascii");
+		if (head6 === "GIF87a" || head6 === "GIF89a") return "image/gif";
+
+		if (
+			buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+			buffer.subarray(8, 12).toString("ascii") === "WEBP"
+		) {
+			return "image/webp";
+		}
+		if (buffer.subarray(4, 12).toString("ascii") === "ftypavif") return "image/avif";
+
+		return null;
+	}
 }
 
 type Flag = (typeof Config.FEATURE_FLAGS)[number];
