@@ -159,7 +159,7 @@ export default class PaypalController extends AbstractController {
 				purchase_units: [
 					{
 						amount: {
-							currency_code: order.purchase_units[0]!.amount.currency_code,
+							currency_code: "EUR", //order.purchase_units[0]!.amount.currency_code,
 							value: order.purchase_units[0]!.amount.value,
 						},
 					},
