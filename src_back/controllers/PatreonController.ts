@@ -23,6 +23,7 @@ export default class PatreonController extends AbstractController {
 	private userAgent = "Twitchat.fr server service";
 	private uidToFirstPayment: { [uid: string]: boolean } = {};
 	private campaignCache: Record<string, Awaited<ReturnType<typeof this.getCampaignID>>> = {};
+	private pendingServerAuthStates: Map<string, number> = new Map();
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -40,12 +41,21 @@ export default class PatreonController extends AbstractController {
 	 * GETTER / SETTERS *
 	 ********************/
 	public get authURL(): string {
+		const state = crypto.randomBytes(32).toString("hex");
+		// cleanup expired pending auths
+		const now = Date.now();
+		for (const [key, expiry] of this.pendingServerAuthStates) {
+			if (expiry <= now) this.pendingServerAuthStates.delete(key);
+		}
+		// Pending auth valid for a day
+		this.pendingServerAuthStates.set(state, now + 24 * 60 * 60 * 1000);
+
 		const authUrl = new URL("https://www.patreon.com/oauth2/authorize");
 		authUrl.searchParams.append("response_type", "code");
 		authUrl.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
 		authUrl.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
 		authUrl.searchParams.append("scope", this.localScopes);
-		authUrl.searchParams.append("state", "");
+		authUrl.searchParams.append("state", state);
 		return authUrl.href;
 	}
 
@@ -555,11 +565,12 @@ export default class PatreonController extends AbstractController {
 		}
 
 		if (!token) {
-			Logger.warn("[PATREON][SERVICE] Please connect to patreon !", this.authURL);
+			const authURL = this.authURL;
+			Logger.warn("[PATREON][SERVICE] Please connect to patreon !", authURL);
 			this.sendAlert(
 				"Patreon auth is down",
-				"Patreon authentication is down server-side! " + this.authURL,
-				{ text: "Authenticate", url: this.authURL },
+				"Patreon authentication is down server-side! " + authURL,
+				{ text: "Authenticate", url: authURL },
 			);
 		}
 
@@ -583,6 +594,18 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	public async getServerAuth(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const state: string = (request.query as any).state;
+		const stateExpiry = state ? this.pendingServerAuthStates.get(state) : undefined;
+		if (state) this.pendingServerAuthStates.delete(state);
+
+		if (!stateExpiry || stateExpiry <= Date.now()) {
+			Logger.error("[PATREON][SERVICE] Server auth refused: invalid or expired state");
+			response.header("Content-Type", "text/html; charset=UTF-8");
+			response.status(401);
+			response.send("Patreon authentication failed. Invalid or expired request.");
+			return;
+		}
+
 		const code: string = (request.query as any).code;
 		const url = new URL("https://www.patreon.com/api/oauth2/token");
 		url.searchParams.append("grant_type", "authorization_code");
@@ -598,16 +621,12 @@ export default class PatreonController extends AbstractController {
 
 		if (result.status != 200) {
 			Logger.error("[PATREON][SERVICE] Server auth failed: " + result.status);
-			const reason = await result.text();
+			Logger.error(await result.text());
+			Logger.warn("Retry authentication (valid 24h):");
+			Logger.warn(this.authURL);
 			response.status(500);
 			response.header("Content-Type", "text/html; charset=UTF-8");
-			response.send(
-				'Patreon authentication failed. <a href="' +
-					this.authURL +
-					'">Try again</a><br>' +
-					reason,
-			);
-			response.send({ success: false, message: "Authentication failed" });
+			response.send("Patreon authentication failed. See server logs for details.");
 			this.patreonApiDown = true;
 			return;
 		}
@@ -633,11 +652,8 @@ export default class PatreonController extends AbstractController {
 			} else {
 				response.header("Content-Type", "text/html; charset=UTF-8");
 				response.status(500);
-				response.send(
-					'Patreon authentication failed. <a href="' + this.authURL + '">Try again</a>',
-				);
-				response.send({ success: false, message: "Authentication failed" });
-				Logger.success("[PATREON][SERVICE] Server auth failed");
+				response.send("Patreon authentication failed. See server logs for details.");
+				Logger.error("[PATREON][SERVICE] Server auth failed");
 			}
 		}
 	}
