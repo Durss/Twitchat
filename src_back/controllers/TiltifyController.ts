@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as crypto from "crypto";
+import { LRUCache } from "lru-cache";
 import Logger from "../utils/Logger.js";
 import * as fs from "fs";
 import SSEController, { SSECode } from "./SSEController.js";
@@ -15,7 +16,10 @@ import { AutocompletableString } from "@/utils/typeUtils.js";
 export default class TiltifyController extends AbstractController {
 	private credentialToken: AuthToken | null = null;
 	private fact2UidMap: FactIdToUsers = {};
-	private parsedEvents: { [id: string]: boolean } = {};
+	private parsedEvents = new LRUCache<string, boolean>({
+		max: 5000,
+		ttl: 1000 * 60 * 60 * 1,
+	});
 	private apiPath: string = "";
 
 	constructor(public server: FastifyInstance) {
@@ -82,17 +86,18 @@ export default class TiltifyController extends AbstractController {
 	private async postWebhook(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const body = request.body as WebhookDonationEvent | WebhookCampaignEvent;
 
-		//If that event has already been parsed, ignore it
-		if (this.parsedEvents[body.meta.id] === true) {
-			response.status(200);
-			response.send("OK");
+		//Signed, but still not necessarily well formed
+		const eventId = body?.meta?.id;
+		if (!eventId) {
+			Logger.warn("[TILTIFY] Webhook payload is missing meta.id");
+			response.status(400);
+			response.send("Bad Request");
 			return;
 		}
-
-		//Verify signature
 		const signature = request.headers["x-tiltify-signature"];
 		const timestamp = request.headers["x-tiltify-timestamp"];
-		const key = timestamp + "." + JSON.stringify(request.body);
+		const rawBody = request.rawBody as string;
+		const key = timestamp + "." + rawBody;
 		const hash = crypto
 			.createHmac("sha256", Config.credentials.tiltify_webhook_verify)
 			.update(key)
@@ -102,6 +107,13 @@ export default class TiltifyController extends AbstractController {
 			Logger.warn("[TILTIFY] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
+			return;
+		}
+
+		//If that event has already been parsed, ignore it
+		if (this.parsedEvents.get(eventId) === true) {
+			response.status(200);
+			response.send("OK");
 			return;
 		}
 
@@ -179,7 +191,7 @@ export default class TiltifyController extends AbstractController {
 			Logger.error("[TILTIFY] Webhook pasring error");
 			console.log(error);
 		}
-		this.parsedEvents[body.meta.id] = true;
+		this.parsedEvents.set(eventId, true);
 
 		response.status(200);
 		response.send("OK");
