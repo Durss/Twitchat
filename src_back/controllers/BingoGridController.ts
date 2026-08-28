@@ -307,6 +307,17 @@ export default class BingoGridController extends AbstractController {
 		login?: string,
 		isAnon?: boolean,
 	): Promise<boolean> {
+		if (
+			!streamerId ||
+			!/^[0-9]+$/.test(streamerId) ||
+			!gridId ||
+			!/^[a-zA-Z0-9_-]+$/.test(gridId) ||
+			!viewerId ||
+			!/^[a-zA-Z0-9_-]+$/.test(viewerId)
+		) {
+			return false;
+		}
+
 		// A viewer playing from a receiver's channel is part of the owner's single
 		// pool: resolve to the owner so the card is read and the count recorded
 		// against that pool.
