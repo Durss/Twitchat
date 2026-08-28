@@ -365,21 +365,18 @@ export default class PatreonController extends AbstractController {
 							);
 						}
 
-						// Count linked accounts
+						const uid = patreonAuth.twitchUser.user_id;
+						const alreadyLinked = twitch2Patreon[uid] === memberID;
+
+						// Count accounts linked to this patreon member, caller aside
 						for (const twitchId in twitch2Patreon) {
-							if (twitch2Patreon[twitchId] == memberID) {
+							if (twitch2Patreon[twitchId] == memberID && twitchId != uid) {
 								linkedCount++;
 							}
 						}
-						twitch2Patreon[patreonAuth.twitchUser.user_id] = memberID;
-						fs.writeFileSync(
-							Config.twitch2Patreon,
-							JSON.stringify(twitch2Patreon),
-							"utf-8",
-						);
 
 						//Check if user has already linked 2 accounts or more
-						if (linkedCount >= 2) {
+						if (!alreadyLinked && linkedCount >= 2) {
 							response.header("Content-Type", "application/json");
 							response.status(401);
 							response.send(
@@ -389,6 +386,16 @@ export default class PatreonController extends AbstractController {
 								}),
 							);
 							return;
+						}
+
+						if (!alreadyLinked) {
+							// Register the patreon user
+							twitch2Patreon[uid] = memberID;
+							fs.writeFileSync(
+								Config.twitch2Patreon,
+								JSON.stringify(twitch2Patreon),
+								"utf-8",
+							);
 						}
 					}
 
