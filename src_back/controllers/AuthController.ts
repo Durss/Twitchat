@@ -6,6 +6,7 @@ import Config from "../utils/Config.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import fetch from "node-fetch";
 import AbstractController from "./AbstractController.js";
+import { TwitchToken } from "@/utils/TwitchUtils.js";
 
 /**
  * Created : 13/03/2022
@@ -283,7 +284,13 @@ export default class AuthController extends AbstractController {
 				headers: { Authorization: "Bearer " + token },
 			});
 			status = res.status;
-			json = await res.json();
+			json = (await res.json()) as TwitchToken;
+
+			//Make sure it's a twitchat token
+			if (json.client_id !== Config.credentials.twitch_client_id) {
+				Logger.warn(`eject ${json.login}'s token issued by client ID ${json.client_id}`);
+				throw "invalid client ID";
+			}
 		} catch (error) {
 			Logger.error("Token validation failed");
 			Logger.error(error);

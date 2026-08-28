@@ -108,6 +108,13 @@ export default class TwitchUtils {
 
 		if (result.status == 200) {
 			const json = (await result.json()) as TwitchToken;
+
+			//Make sure it's a twitchat token
+			if (json.client_id !== Config.credentials.twitch_client_id) {
+				Logger.warn(`eject ${json.login}'s token issued by client ID ${json.client_id}`);
+				return null;
+			}
+
 			this._tokenToUserCache.set(token, json);
 			return json;
 		} else {
