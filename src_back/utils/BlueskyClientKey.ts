@@ -98,6 +98,12 @@ export default class BlueskyClientKey {
 		if (fs.existsSync(path)) {
 			try {
 				jwk = JSON.parse(fs.readFileSync(path, "utf8"));
+				//Update older file permissions
+				try {
+					fs.chmodSync(path, 0o600);
+				} catch (_error) {
+					//Not supported on this platform, nothing to do
+				}
 			} catch (error) {
 				//Refuse to silently generate a new key over a corrupted one: that
 				//would disconnect every user instead of failing loudly here
@@ -120,7 +126,8 @@ export default class BlueskyClientKey {
 				alg: "ES256",
 				use: "sig",
 			};
-			fs.writeFileSync(path, JSON.stringify(jwk), "utf8");
+			//Private signing key: owner read/write only, never world readable
+			fs.writeFileSync(path, JSON.stringify(jwk), { encoding: "utf8", mode: 0o600 });
 			Logger.info("Generated a new Bluesky OAuth client key => " + path);
 		}
 

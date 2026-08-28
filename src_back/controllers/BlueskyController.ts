@@ -234,13 +234,36 @@ export default class BlueskyController extends AbstractController {
 
 		let infos = this.asInfos_cache.get(url.origin);
 		if (!infos) {
+			// timeout query
+			const abort = new AbortController();
+			const timeout = setTimeout(() => abort.abort(), 10000);
 			try {
 				const res = await fetch(url.origin + "/.well-known/oauth-authorization-server", {
 					headers: { Accept: "application/json" },
+					signal: abort.signal,
+					redirect: "error",
 				});
 				if (!res.ok) return null;
 				const json = (await res.json()) as AuthServerMetadata;
 				if (typeof json.issuer !== "string") return null;
+
+				// Validate the issuer
+				let issuerOrigin: string;
+				try {
+					issuerOrigin = new URL(json.issuer).origin;
+				} catch (_error) {
+					return null;
+				}
+				if (issuerOrigin !== url.origin) {
+					Logger.warn(
+						"Bluesky authorization server " +
+							url.origin +
+							" advertises a foreign issuer: " +
+							json.issuer,
+					);
+					return null;
+				}
+
 				infos = {
 					issuer: json.issuer,
 					endpoints: [
@@ -254,6 +277,8 @@ export default class BlueskyController extends AbstractController {
 				Logger.error("Bluesky authorization server discovery failed => " + url.origin);
 				console.log(error);
 				return null;
+			} finally {
+				clearTimeout(timeout);
 			}
 		}
 
