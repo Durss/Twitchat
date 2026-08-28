@@ -317,6 +317,7 @@ export default class AuthController extends AbstractController {
 		const csrf = params.token;
 		if (this.pendingDataSharingAuth.has(csrf)) {
 			const token = await this.validateCSRFToken(request, response, false);
+			// `token.uidShare` contains the sharer UID extracted from the CSRF token in `validateCSRFToken`
 			if (token !== false && token.uidShare && token.uidShare != user.user_id) {
 				//Enable data sharing
 				const result = super.enableUserDataSharing(token.uidShare, user.user_id);

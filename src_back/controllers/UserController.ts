@@ -415,14 +415,14 @@ export default class UserController extends AbstractController {
 		if (userInfo == false) return;
 
 		const requestedUid: string = (request.query as any).uid ?? userInfo.user_id;
-		const sharedUid: string = super.getSharedUID(requestedUid);
+		// callerDataUid contains either our own UID or the UID of the account that
+		// shared their data with us.
+		const callerDataUid: string = super.getSharedUID(userInfo.user_id);
 
-		// Authorisation: caller may only read their own data, the data of someone
-		// who explicitly shares with them (getSharedUID rewrites in that case),
-		// or any data when they are an admin. Without this check, any authenticated
-		// user could pass ?uid=<victim> and read another account's stored data.
 		const isSelf = requestedUid === userInfo.user_id;
-		const isSharedToCaller = sharedUid !== requestedUid;
+		// Make sure data we want to access matches the requested one
+		const isSharedToCaller = callerDataUid === requestedUid;
+		// If we're admin, just accept
 		const isAdmin = Config.credentials.admin_ids.indexOf(userInfo.user_id) > -1;
 		if (!isSelf && !isSharedToCaller && !isAdmin) {
 			response.header("Content-Type", "application/json");
@@ -437,7 +437,7 @@ export default class UserController extends AbstractController {
 			return;
 		}
 
-		const uid: string = sharedUid;
+		const uid: string = isAdmin && !isSelf ? super.getSharedUID(requestedUid) : callerDataUid;
 
 		//Validate UID to prevent path traversal
 		if (!/^[0-9]+$/.test(uid)) {
