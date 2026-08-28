@@ -94,15 +94,23 @@ async function downloadInvoice(orderId: string) {
 	}
 }
 
-ApiHelper.call("paypal/invoice/list", "GET").then((response) => {
-	if (response.status == 200 && response.json.success) {
-		invoiceList.value = response.json.data.invoices.map((invoice) => ({
-			id: invoice.orderId,
-			date: invoice.date,
-			amount: invoice.amount,
-			currency: invoice.currency,
-		}));
-	}
+function loadInvoiceList() {
+	ApiHelper.call("paypal/invoice/list", "GET").then((response) => {
+		if (response.status == 200 && response.json.success) {
+			invoiceList.value = response.json.data.invoices.map((invoice) => ({
+				id: invoice.orderId,
+				date: invoice.date,
+				amount: invoice.amount,
+				currency: invoice.currency,
+			}));
+		}
+	});
+}
+
+loadInvoiceList();
+
+defineExpose({
+	refreshList: () => loadInvoiceList(),
 });
 </script>
 

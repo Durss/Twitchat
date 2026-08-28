@@ -47,7 +47,7 @@
 										icon="cross"
 										alert
 										noBounce
-										@click.capture.prevent="giftedUser = null"
+										@click.capture.prevent="giftedUser = undefined"
 									></TTButton>
 								</a>
 							</div>
@@ -56,7 +56,7 @@
 								v-model="giftedUser"
 								@close="
 									giftForm = false;
-									giftedUser = null;
+									giftedUser = undefined;
 								"
 							></SearchUserForm>
 						</template>
@@ -247,11 +247,11 @@
 
 		<div class="card-item success" v-else>
 			<div class="card-item primary">{{ $t("donate.success", { AMOUNT: amount }) }}</div>
-			<DonorBadge class="badge" :level="$store.auth.donorLevel > -1" />
+			<DonorBadge class="badge" :level="storeAuth.donorLevel" />
 			<div>{{ $t("donate.success_details") }}</div>
 			<ParamItem
 				:paramData="param_automaticMessage"
-				v-model="$store.chat.botMessages.twitchatAd.enabled"
+				v-model="storeChat.botMessages.twitchatAd.enabled"
 			/>
 		</div>
 
@@ -273,7 +273,7 @@
 
 		<Icon name="loader" class="loader" v-if="loading" />
 
-		<InvoiceList />
+		<InvoiceList ref="invoiceList" />
 
 		<SponsorTable />
 
@@ -296,425 +296,426 @@
 	</div>
 </template>
 
-<script lang="ts">
-import ToggleBlock from "@/components/ToggleBlock.vue";
+<script setup lang="ts">
 import SponsorTable from "@/components/premium/SponsorTable.vue";
+import SearchUserForm from "@/components/SearchUserForm.vue";
+import TTButton from "@/components/TTButton.vue";
 import DonorBadge from "@/components/user/DonorBadge.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
-import { watch } from "vue";
-import { toNative, Component, Vue } from "vue-facing-decorator";
+import { computed, onMounted, ref, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ParamItem from "../ParamItem.vue";
-import ParamsDonorList from "./ParamsDonorList.vue";
-import TTButton from "@/components/TTButton.vue";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import InvoiceList from "./InvoiceList.vue";
-import SearchUserForm from "@/components/SearchUserForm.vue";
+import ParamsDonorList from "./ParamsDonorList.vue";
 
-@Component({
-	components: {
-		TTButton,
-		ParamItem,
-		DonorBadge,
-		ToggleBlock,
-		SponsorTable,
-		SearchUserForm,
-		ParamsDonorList,
-		InvoiceList,
-	},
-	emits: [],
-})
-class ParamsDonate extends Vue {
-	public loading: boolean = true;
-	public premium: boolean = false;
-	public giftedUser: TwitchDataTypes.UserInfo | null = null;
-	public giftForm: boolean = false;
-	public paypalError: boolean = false;
-	public success: boolean = false;
-	public criticalError: boolean = false;
-	public error: string = "";
-	public amount: number = 20;
-	public currency: string = "EUR";
-	public param_automaticMessage: TwitchatDataTypes.ParameterData<boolean> = {
-		type: "boolean",
-		value: true,
-		labelKey: "donate.automatic_message",
-	};
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeChat = useStoreChat();
+const storeCommon = useStoreCommon();
+const storeParams = useStoreParams();
 
-	private buttons: PAYPAL_BUTTON[] = [];
+const loading = ref<boolean>(true);
+const premium = ref<boolean>(false);
+const giftedUser = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
+const giftForm = ref<boolean>(false);
+const paypalError = ref<boolean>(false);
+const success = ref<boolean>(false);
+const criticalError = ref<boolean>(false);
+const error = ref<string>("");
+const amount = ref<number>(20);
+const currency = ref<string>("EUR");
+const param_automaticMessage = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "donate.automatic_message",
+});
 
-	public get formClasses(): string[] {
-		const res = ["card-item", "amountHolder", "secondary"];
-		if (this.premium) res.push("premium");
-		return res;
-	}
+const eyeLRef = useTemplateRef("eyeL");
+const eyeRRef = useTemplateRef("eyeR");
+const eyeLBgRef = useTemplateRef("eyeLBg");
+const eyeRBgRef = useTemplateRef("eyeRBg");
+const browLRef = useTemplateRef("browL");
+const browRRef = useTemplateRef("browR");
+const mouthRef = useTemplateRef("mouth");
+const mouthBgRef = useTemplateRef("mouthBg");
+const teethRef = useTemplateRef("teeth");
+const tongueRef = useTemplateRef("tongue");
+const heartRef = useTemplateRef<SVGSVGElement[]>("heart");
+const cloudRef = useTemplateRef("cloud");
+const flaresRef = useTemplateRef("flares");
+const questionRef = useTemplateRef("question");
+const dirtyEyesRef = useTemplateRef("dirtyEyes");
+const easterEggRef = useTemplateRef("easterEgg");
+const premiumLabelRef = useTemplateRef("premiumLabel");
+const invoiceListRef = useTemplateRef("invoiceList");
 
-	public get taxedAmount(): string {
-		let taxes = 0.98;
-		//Paypal taxes
-		if (this.amount < 90) taxes = 0.967;
-		if (this.amount <= 20) taxes = 0.954;
-		if (this.amount <= 10) taxes = 0.936;
-		if (this.amount <= 5) taxes = 0.85;
-		if (this.amount <= 2) taxes = 0.6;
-		//France taxes
-		taxes *= 0.77;
-		return (this.amount * taxes).toFixed(1);
-	}
+const buttons: PAYPAL_BUTTON[] = [];
 
-	public async mounted(): Promise<void> {
-		this.loadPaypalLibrary();
+const formClasses = computed((): string[] => {
+	const res = ["card-item", "amountHolder", "secondary"];
+	if (premium.value) res.push("premium");
+	return res;
+});
 
-		if (
-			this.$store.params.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM
-		) {
-			this.amount = this.$config.LIFETIME_DONOR_VALUE;
-		} else if (
-			this.$store.params.currentPageSubContent ==
-			TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING
-		) {
-			this.amount = Math.ceil(
-				this.$config.LIFETIME_DONOR_VALUE * (1 - this.$store.auth.lifetimePremiumPercent),
-			);
-		}
+const taxedAmount = computed((): string => {
+	let taxes = 0.98;
+	//Paypal taxes
+	if (amount.value < 90) taxes = 0.967;
+	if (amount.value <= 20) taxes = 0.954;
+	if (amount.value <= 10) taxes = 0.936;
+	if (amount.value <= 5) taxes = 0.85;
+	if (amount.value <= 2) taxes = 0.6;
+	//France taxes
+	taxes *= 0.77;
+	return (amount.value * taxes).toFixed(1);
+});
 
-		watch(
-			() => this.currency,
-			() => {
-				this.loadPaypalLibrary();
-			},
+onMounted(() => {
+	loadPaypalLibrary();
+
+	if (storeParams.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM) {
+		amount.value = Config.instance.LIFETIME_DONOR_VALUE;
+	} else if (
+		storeParams.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM_REMAINING
+	) {
+		amount.value = Math.ceil(
+			Config.instance.LIFETIME_DONOR_VALUE * (1 - storeAuth.lifetimePremiumPercent),
 		);
-
-		watch(
-			() => this.amount,
-			() => this.updateEmoji(),
-		);
-		this.updateEmoji();
 	}
 
-	private async loadPaypalLibrary(): Promise<void> {
-		this.loading = true;
+	watch(
+		() => currency.value,
+		() => {
+			loadPaypalLibrary();
+		},
+	);
 
-		if (this.buttons) {
-			this.buttons.forEach((v) => v.close());
+	watch(
+		() => amount.value,
+		() => updateEmoji(),
+	);
+	updateEmoji();
+});
+
+async function loadPaypalLibrary(): Promise<void> {
+	loading.value = true;
+
+	buttons.forEach((v) => v.close());
+
+	//Embed paypal SDK
+	const url =
+		"https://www.paypal.com/sdk/js?client-id=" +
+		Config.instance.PAYPAL_CLIENT_ID +
+		"&commit=true&components=buttons&enable-funding=venmo&currency=" +
+		currency.value;
+	const scripts = document.getElementsByTagName("script");
+	let existingScript = false;
+	for (const script of scripts) {
+		if (script.src.indexOf("paypal.com/sdk") > -1) {
+			existingScript = true;
 		}
-
-		//Embed paypal SDK
-		const url =
-			"https://www.paypal.com/sdk/js?client-id=" +
-			Config.instance.PAYPAL_CLIENT_ID +
-			"&commit=true&components=buttons&enable-funding=venmo&currency=" +
-			this.currency;
-		const scripts = document.getElementsByTagName("script");
-		let existingScript = false;
-		for (const script of scripts) {
-			if (script.src.indexOf("paypal.com/sdk") > -1) {
-				existingScript = true;
-			}
-		}
-
-		if (!existingScript) {
-			const res = await new Promise<boolean>((resolve, reject) => {
-				const script = document.createElement("script");
-				script.src = url;
-				script.onload = () => {
-					resolve(true);
-				};
-				script.onerror = () => {
-					resolve(false);
-				};
-				document.head.appendChild(script);
-			});
-
-			if (res) {
-				this.buildPaypalForm();
-			} else {
-				this.paypalError = true;
-				this.$store.common.alert(this.$t("error.paypal.paypal_sdk_init_failed"));
-			}
-		} else {
-			this.buildPaypalForm();
-		}
-		this.loading = false;
-
-		//Debug to automatically increment amount
-		/*
-		this.amount = 1
-		window.setTimeout(async() => {
-			let i = 2;
-			for (; i <= 20; i++) {
-				this.amount = i;
-				await Utils.promisedTimeout(70);
-			}
-			i--;
-			for (; i <= 300; i+=10) {
-				this.amount = i;
-				await Utils.promisedTimeout(70);
-			}
-			for (; i <= 1000; i+=100) {
-				this.amount = i;
-				await Utils.promisedTimeout(70);
-			}
-			this.amount = 1000;
-		}, 2000);
-		//*/
 	}
 
-	private buildPaypalForm(): void {
-		const FUNDING_SOURCES = [paypal.FUNDING.PAYPAL, paypal.FUNDING.VENMO, paypal.FUNDING.CARD];
-		FUNDING_SOURCES.forEach((fundingSource: PAYPAL_FUNDING_VALUES) => {
-			const button = paypal.Buttons({
-				fundingSource,
-
-				style: {
-					layout: "horizontal",
-					shape: "pill",
-					color: fundingSource == paypal.FUNDING.CARD ? "white" : "white",
-					label: "pay",
-				},
-
-				/**
-				 * Called when user starts a payment session
-				 */
-				createOrder: async () => {
-					this.error = "";
-					this.loading = true;
-					this.criticalError = false;
-					try {
-						const res = await ApiHelper.call("paypal/create_order", "POST", {
-							intent: "capture",
-							amount: this.amount,
-							currency: this.currency,
-						});
-						this.loading = false;
-						if (res.json.success) {
-							return res.json.data.orderId;
-						} else {
-							this.error =
-								res.json.error! ||
-								this.$t("error.paypal.paypal_create_order_failure");
-						}
-					} catch (error) {
-						console.error(error);
-						this.error = this.$t("error.paypal.paypal_create_order_failure");
-					}
-					this.loading = false;
-					return "";
-				},
-
-				/**
-				 * Called when payment has been completed by the user
-				 * @param data
-				 * @param actions
-				 */
-				onApprove: async (data, actions) => {
-					// action.restart()
-					this.loading = true;
-					//Dafuq is that?
-					//Seems pretty useless but being tired right now, and this being
-					//quite a sensitive stuff, I prefer not to remove it yet.
-					//But it seems like i could drop this and simply send "data" on
-					//the endpoint.
-					const body: Partial<typeof PAYPAL_ORDER> = {};
-					type orderKeys = keyof typeof PAYPAL_ORDER;
-					for (const key in data) {
-						body[key as keyof typeof PAYPAL_ORDER] = data[key as orderKeys] as string;
-					}
-					try {
-						if (this.giftedUser) body.giftUserId = this.giftedUser.id;
-						const orderRes = await ApiHelper.call(
-							"paypal/complete_order",
-							"POST",
-							body,
-						);
-						if (orderRes.json.success === true) {
-							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
-							this.$store.auth.donorLevel = orderRes.json.data.donorLevel || 0;
-							//Hide all buttons
-							this.buttons.forEach((v) => v.close());
-							this.success = true;
-						} else {
-							if (orderRes.json.errorCode == "INSTRUMENT_DECLINED") {
-								//Try again as explained by paypal for such case.
-								return actions.restart();
-							} else {
-								this.error = orderRes.json.error || "";
-								this.criticalError = true;
-							}
-						}
-					} catch (error) {
-						console.error(error);
-						this.criticalError = true;
-					}
-					this.loading = false;
-				},
-			});
-			button.render("#paypal-form-container");
-			this.buttons.push(button);
+	if (!existingScript) {
+		const res = await new Promise<boolean>((resolve) => {
+			const script = document.createElement("script");
+			script.src = url;
+			script.onload = () => {
+				resolve(true);
+			};
+			script.onerror = () => {
+				resolve(false);
+			};
+			document.head.appendChild(script);
 		});
+
+		if (res) {
+			buildPaypalForm();
+		} else {
+			paypalError.value = true;
+			storeCommon.alert(t("error.paypal.paypal_sdk_init_failed"));
+		}
+	} else {
+		buildPaypalForm();
 	}
+	loading.value = false;
 
-	public updateEmoji(): void {
-		if (this.amount < 3) this.amount = 3;
-		if (this.amount > 999999) this.amount = 999999;
-		this.premium = this.amount >= this.$config.LIFETIME_DONOR_VALUE;
-		const currentAmountProgress = Math.floor(
-			this.$config.LIFETIME_DONOR_VALUE * this.$store.auth.lifetimePremiumPercent,
-		);
-		this.premium = this.amount + currentAmountProgress >= this.$config.LIFETIME_DONOR_VALUE;
-
-		const eyeL = this.$refs.eyeL as SVGPathElement;
-		const eyeR = this.$refs.eyeR as SVGPathElement;
-		const eyeLBg = this.$refs.eyeLBg as SVGPathElement;
-		const eyeRBg = this.$refs.eyeRBg as SVGPathElement;
-		const browL = this.$refs.browL as SVGPathElement;
-		const browR = this.$refs.browR as SVGPathElement;
-		const mouth = this.$refs.mouth as SVGPathElement;
-		const mouthBg = this.$refs.mouthBg as SVGPathElement;
-		const teeth = this.$refs.teeth as SVGPathElement;
-		const tongue = this.$refs.tongue as SVGPathElement;
-		const heart = this.$refs.heart as SVGPathElement[];
-		const cloud = this.$refs.cloud as SVGPathElement;
-		const flares = this.$refs.flares as SVGPathElement;
-		const question = this.$refs.question as SVGPathElement;
-		const dirtyEyes = this.$refs.dirtyEyes as SVGPathElement;
-		const easterEgg = this.$refs.easterEgg as SVGPathElement;
-
-		const amazePercent = this.amount / 50;
-		mouth.style.borderTopLeftRadius = Math.min(1, amazePercent) + "em";
-		mouth.style.borderTopRightRadius = Math.min(1, amazePercent) + "em";
-		mouth.style.height = Math.min(3, amazePercent + 0.1) + "em";
-		mouthBg.style.height = Math.min(3, amazePercent + 0.1) + "em";
-		tongue.style.height = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5)) + "em";
-		easterEgg.style.top = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5)) + "em";
-		if (Math.min(3, amazePercent + 0.1) < 2) {
-			const maskH = amazePercent - 0.6 + "em";
-			tongue.style.clipPath = "polygon(0% 0, 100% 0, 100% " + maskH + ", 0% " + maskH + ")";
-		} else {
-			tongue.style.clipPath = "unset";
+	//Debug to automatically increment amount
+	/*
+	amount.value = 1
+	window.setTimeout(async() => {
+		let i = 2;
+		for (; i <= 20; i++) {
+			amount.value = i;
+			await Utils.promisedTimeout(70);
 		}
-		teeth.style.height = Math.min(0.6, Math.max(0, amazePercent - 0.25)) + "em";
-
-		eyeLBg.style.transform = "scale(" + Math.min(2, amazePercent) + ")";
-		eyeRBg.style.transform = "scale(" + Math.min(2, amazePercent) + ")";
-
-		const max = -10;
-		const min = 18;
-		const translateY = Math.min(1, amazePercent) * (max - min) + min;
-		const rotate = Math.min(1, amazePercent) * 15 + "deg";
-		browL.style.transform =
-			"translateY(" +
-			translateY +
-			"px) rotate(-" +
-			rotate +
-			") scale(" +
-			Math.min(1.5, amazePercent * 0.15 + 1) +
-			")";
-		browR.style.transform =
-			"translateY(" +
-			translateY +
-			"px) rotate(" +
-			rotate +
-			") scale(" +
-			Math.min(1.5, amazePercent * 0.15 + 1) +
-			")";
-
-		let eyeSize = 1;
-		if (amazePercent > 1) {
-			eyeSize = Math.max(0.2, 1 - (amazePercent - 1));
+		i--;
+		for (; i <= 300; i+=10) {
+			amount.value = i;
+			await Utils.promisedTimeout(70);
 		}
-		eyeL.style.transform = "scale(" + eyeSize + ")";
-		eyeR.style.transform = "scale(" + eyeSize + ")";
-
-		if (this.amount >= 50) {
-			let heartScale = Math.min(0.9, (this.amount - 50) / 100) + 0.25;
-			let heartScale2 =
-				this.amount >= 100 ? Math.min(0.4, (this.amount - 100) / 100) + 0.4 : 0;
-			if (this.amount >= 200) {
-				heartScale = 0;
-				heartScale2 = 0;
-			}
-			heart[0]!.style.transform =
-				"translate(0.5em, .2em) scale(" + heartScale2 + ") rotate(40deg)";
-			heart[1]!.style.transform =
-				"translate(-0.5em, .2em) scale(" + heartScale2 + ") rotate(-40deg)";
-			heart[2]!.style.transform = "scale(" + heartScale + ")";
-		} else {
-			heart.forEach((v) => (v.style.transform = "scale(0)"));
+		for (; i <= 1000; i+=100) {
+			amount.value = i;
+			await Utils.promisedTimeout(70);
 		}
-
-		if (this.amount >= 200) {
-			const cloudScale = Math.min(1, (this.amount - 200) / 100) + 0.5;
-			cloud.style.transform = "scale(" + cloudScale + ")";
-			const flaresScale = Math.min(1, (this.amount - 200) / 200) + 0.5;
-			flares.style.transform = "scale(" + flaresScale + ")";
-		} else {
-			flares.style.transform = "scale(0)";
-			cloud.style.transform = "scale(0)";
-		}
-
-		if (this.amount == 42) {
-			question.style.transform = "scale(1)";
-		} else {
-			question.style.transform = "scale(0)";
-		}
-
-		if (this.amount == 69) {
-			dirtyEyes.style.transform = "scale(1)";
-		} else {
-			dirtyEyes.style.transform = "scale(0)";
-		}
-
-		if (this.amount == 420) {
-			eyeLBg.classList.add("red");
-			eyeRBg.classList.add("red");
-		} else {
-			eyeLBg.classList.remove("red");
-			eyeRBg.classList.remove("red");
-		}
-
-		if (this.amount == 666) {
-			eyeL.classList.add("evil");
-			eyeR.classList.add("evil");
-			eyeLBg.classList.add("evil");
-			eyeRBg.classList.add("evil");
-			flares.classList.add("evil");
-			cloud.classList.add("evil");
-			eyeL.style.transform = "scale(.75)";
-			eyeR.style.transform = "scale(.75)";
-			eyeLBg.style.transform = "scale(1.25)";
-			eyeRBg.style.transform = "scale(1.25)";
-			browL.style.transform = "translateY(-25px) rotate(45deg) scale(1.5)";
-			browR.style.transform = "translateY(-25px) rotate(-45deg) scale(1.5)";
-			mouth.style.borderTopLeftRadius = "1em";
-			mouth.style.borderTopRightRadius = "1em";
-			mouth.style.height = "1em";
-			teeth.style.height = "0";
-			tongue.style.height = "0";
-			mouthBg.style.height = "1em";
-		} else if (eyeL.classList.contains("evil")) {
-			eyeL.classList.remove("evil");
-			eyeR.classList.remove("evil");
-			eyeL.classList.remove("evil");
-			eyeR.classList.remove("evil");
-			eyeLBg.classList.remove("evil");
-			eyeRBg.classList.remove("evil");
-			flares.classList.remove("evil");
-			cloud.classList.remove("evil");
-		}
-		if (this.amount >= 1000) {
-			easterEgg.style.display = "block";
-		} else {
-			easterEgg.style.display = "none";
-		}
-
-		const premiumLabel = this.$refs.premiumLabel as HTMLDivElement;
-		premiumLabel.style.transform =
-			"translate(.0, .75em) scaleY(" + (this.premium ? 1 : 0) + ")";
-	}
+		amount.value = 1000;
+	}, 2000);
+	//*/
 }
-export default toNative(ParamsDonate);
+
+function buildPaypalForm(): void {
+	const FUNDING_SOURCES = [paypal.FUNDING.PAYPAL, paypal.FUNDING.VENMO, paypal.FUNDING.CARD];
+	FUNDING_SOURCES.forEach((fundingSource: PAYPAL_FUNDING_VALUES) => {
+		const button = paypal.Buttons({
+			fundingSource,
+
+			style: {
+				layout: "horizontal",
+				shape: "pill",
+				color: fundingSource == paypal.FUNDING.CARD ? "white" : "white",
+				label: "pay",
+			},
+
+			/**
+			 * Called when user starts a payment session
+			 */
+			createOrder: async () => {
+				error.value = "";
+				loading.value = true;
+				criticalError.value = false;
+				try {
+					const res = await ApiHelper.call("paypal/create_order", "POST", {
+						intent: "capture",
+						amount: amount.value,
+						currency: currency.value,
+					});
+					loading.value = false;
+					if (res.json.success) {
+						return res.json.data.orderId;
+					} else {
+						error.value =
+							res.json.error! || t("error.paypal.paypal_create_order_failure");
+					}
+				} catch (err) {
+					console.error(err);
+					error.value = t("error.paypal.paypal_create_order_failure");
+				}
+				loading.value = false;
+				return "";
+			},
+
+			/**
+			 * Called when payment has been completed by the user
+			 * @param data
+			 * @param actions
+			 */
+			onApprove: async (data, actions) => {
+				// action.restart()
+				loading.value = true;
+				//Dafuq is that?
+				//Seems pretty useless but being tired right now, and this being
+				//quite a sensitive stuff, I prefer not to remove it yet.
+				//But it seems like i could drop this and simply send "data" on
+				//the endpoint.
+				const body: Partial<typeof PAYPAL_ORDER> = {};
+				type orderKeys = keyof typeof PAYPAL_ORDER;
+				for (const key in data) {
+					body[key as keyof typeof PAYPAL_ORDER] = data[key as orderKeys] as string;
+				}
+				try {
+					if (giftedUser.value) body.giftUserId = giftedUser.value.id;
+					const orderRes = await ApiHelper.call("paypal/complete_order", "POST", body);
+					if (orderRes.json.success === true) {
+						await storeAuth.loadUserState(storeAuth.twitch.user.id);
+						storeAuth.donorLevel = orderRes.json.data.donorLevel || 0;
+						//Hide all buttons
+						buttons.forEach((v) => v.close());
+						success.value = true;
+						invoiceListRef.value?.refreshList();
+					} else {
+						if (orderRes.json.errorCode == "INSTRUMENT_DECLINED") {
+							//Try again as explained by paypal for such case.
+							return actions.restart();
+						} else {
+							error.value = orderRes.json.error || "";
+							criticalError.value = true;
+						}
+					}
+				} catch (err) {
+					console.error(err);
+					criticalError.value = true;
+				}
+				loading.value = false;
+			},
+		});
+		button.render("#paypal-form-container");
+		buttons.push(button);
+	});
+}
+
+function updateEmoji(): void {
+	if (amount.value < 3) amount.value = 3;
+	if (amount.value > 999999) amount.value = 999999;
+	premium.value = amount.value >= Config.instance.LIFETIME_DONOR_VALUE;
+	const currentAmountProgress = Math.floor(
+		Config.instance.LIFETIME_DONOR_VALUE * storeAuth.lifetimePremiumPercent,
+	);
+	premium.value = amount.value + currentAmountProgress >= Config.instance.LIFETIME_DONOR_VALUE;
+
+	const eyeL = eyeLRef.value!;
+	const eyeR = eyeRRef.value!;
+	const eyeLBg = eyeLBgRef.value!;
+	const eyeRBg = eyeRBgRef.value!;
+	const browL = browLRef.value!;
+	const browR = browRRef.value!;
+	const mouth = mouthRef.value!;
+	const mouthBg = mouthBgRef.value!;
+	const teeth = teethRef.value!;
+	const tongue = tongueRef.value!;
+	const heart = heartRef.value!;
+	const cloud = cloudRef.value!;
+	const flares = flaresRef.value!;
+	const question = questionRef.value!;
+	const dirtyEyes = dirtyEyesRef.value!;
+	const easterEgg = easterEggRef.value!;
+
+	const amazePercent = amount.value / 50;
+	mouth.style.borderTopLeftRadius = Math.min(1, amazePercent) + "em";
+	mouth.style.borderTopRightRadius = Math.min(1, amazePercent) + "em";
+	mouth.style.height = Math.min(3, amazePercent + 0.1) + "em";
+	mouthBg.style.height = Math.min(3, amazePercent + 0.1) + "em";
+	tongue.style.height = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5)) + "em";
+	easterEgg.style.top = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5)) + "em";
+	if (Math.min(3, amazePercent + 0.1) < 2) {
+		const maskH = amazePercent - 0.6 + "em";
+		tongue.style.clipPath = "polygon(0% 0, 100% 0, 100% " + maskH + ", 0% " + maskH + ")";
+	} else {
+		tongue.style.clipPath = "unset";
+	}
+	teeth.style.height = Math.min(0.6, Math.max(0, amazePercent - 0.25)) + "em";
+
+	eyeLBg.style.transform = "scale(" + Math.min(2, amazePercent) + ")";
+	eyeRBg.style.transform = "scale(" + Math.min(2, amazePercent) + ")";
+
+	const max = -10;
+	const min = 18;
+	const translateY = Math.min(1, amazePercent) * (max - min) + min;
+	const rotate = Math.min(1, amazePercent) * 15 + "deg";
+	browL.style.transform =
+		"translateY(" +
+		translateY +
+		"px) rotate(-" +
+		rotate +
+		") scale(" +
+		Math.min(1.5, amazePercent * 0.15 + 1) +
+		")";
+	browR.style.transform =
+		"translateY(" +
+		translateY +
+		"px) rotate(" +
+		rotate +
+		") scale(" +
+		Math.min(1.5, amazePercent * 0.15 + 1) +
+		")";
+
+	let eyeSize = 1;
+	if (amazePercent > 1) {
+		eyeSize = Math.max(0.2, 1 - (amazePercent - 1));
+	}
+	eyeL.style.transform = "scale(" + eyeSize + ")";
+	eyeR.style.transform = "scale(" + eyeSize + ")";
+
+	if (amount.value >= 50) {
+		let heartScale = Math.min(0.9, (amount.value - 50) / 100) + 0.25;
+		let heartScale2 = amount.value >= 100 ? Math.min(0.4, (amount.value - 100) / 100) + 0.4 : 0;
+		if (amount.value >= 200) {
+			heartScale = 0;
+			heartScale2 = 0;
+		}
+		heart[0]!.style.transform =
+			"translate(0.5em, .2em) scale(" + heartScale2 + ") rotate(40deg)";
+		heart[1]!.style.transform =
+			"translate(-0.5em, .2em) scale(" + heartScale2 + ") rotate(-40deg)";
+		heart[2]!.style.transform = "scale(" + heartScale + ")";
+	} else {
+		heart.forEach((v) => (v.style.transform = "scale(0)"));
+	}
+
+	if (amount.value >= 200) {
+		const cloudScale = Math.min(1, (amount.value - 200) / 100) + 0.5;
+		cloud.style.transform = "scale(" + cloudScale + ")";
+		const flaresScale = Math.min(1, (amount.value - 200) / 200) + 0.5;
+		flares.style.transform = "scale(" + flaresScale + ")";
+	} else {
+		flares.style.transform = "scale(0)";
+		cloud.style.transform = "scale(0)";
+	}
+
+	if (amount.value == 42) {
+		question.style.transform = "scale(1)";
+	} else {
+		question.style.transform = "scale(0)";
+	}
+
+	if (amount.value == 69) {
+		dirtyEyes.style.transform = "scale(1)";
+	} else {
+		dirtyEyes.style.transform = "scale(0)";
+	}
+
+	if (amount.value == 420) {
+		eyeLBg.classList.add("red");
+		eyeRBg.classList.add("red");
+	} else {
+		eyeLBg.classList.remove("red");
+		eyeRBg.classList.remove("red");
+	}
+
+	if (amount.value == 666) {
+		eyeL.classList.add("evil");
+		eyeR.classList.add("evil");
+		eyeLBg.classList.add("evil");
+		eyeRBg.classList.add("evil");
+		flares.classList.add("evil");
+		cloud.classList.add("evil");
+		eyeL.style.transform = "scale(.75)";
+		eyeR.style.transform = "scale(.75)";
+		eyeLBg.style.transform = "scale(1.25)";
+		eyeRBg.style.transform = "scale(1.25)";
+		browL.style.transform = "translateY(-25px) rotate(45deg) scale(1.5)";
+		browR.style.transform = "translateY(-25px) rotate(-45deg) scale(1.5)";
+		mouth.style.borderTopLeftRadius = "1em";
+		mouth.style.borderTopRightRadius = "1em";
+		mouth.style.height = "1em";
+		teeth.style.height = "0";
+		tongue.style.height = "0";
+		mouthBg.style.height = "1em";
+	} else if (eyeL.classList.contains("evil")) {
+		eyeL.classList.remove("evil");
+		eyeR.classList.remove("evil");
+		eyeL.classList.remove("evil");
+		eyeR.classList.remove("evil");
+		eyeLBg.classList.remove("evil");
+		eyeRBg.classList.remove("evil");
+		flares.classList.remove("evil");
+		cloud.classList.remove("evil");
+	}
+	if (amount.value >= 1000) {
+		easterEgg.style.display = "block";
+	} else {
+		easterEgg.style.display = "none";
+	}
+
+	const premiumLabel = premiumLabelRef.value!;
+	premiumLabel.style.transform = "translate(.0, .75em) scaleY(" + (premium.value ? 1 : 0) + ")";
+}
 </script>
 
 <style scoped lang="less">
@@ -1198,3 +1199,4 @@ export default toNative(ParamsDonate);
 	}
 }
 </style>
+
