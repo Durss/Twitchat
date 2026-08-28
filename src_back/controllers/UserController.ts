@@ -950,7 +950,7 @@ export default class UserController extends AbstractController {
 	 * Decrypts given body and return it
 	 */
 	private async decryptData(request: FastifyRequest, response: FastifyReply) {
-		const user = await this.twitchUserGuard(request, response);
+		const user = await this.adminGuard(request, response);
 		if (!user) return;
 		const data = request.body as string;
 		response.header("Content-Type", "application/json");
