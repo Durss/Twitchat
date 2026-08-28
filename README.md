@@ -147,8 +147,6 @@ Create a `data/credentials/credentials.json` file and set the following content 
 		"bits:read"
 	],
 
-	"spotify_client_id": "",
-	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private playlist-modify-public playlist-modify-private",
 	"spotify_redirect_uri": "http://localhost:8081/spotify/auth",
 
@@ -213,8 +211,6 @@ http://localhost:8081/oauth
 
 _(adapt with the proper port and domain if deploying online)_\
 Set the same value to the `redirect_uri` property of the `credentials.json` file.\
-
-You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
 By default the server listens on port 3018, you can change it on `credentials.json` and `src_front/utils/Config.ts`.
 

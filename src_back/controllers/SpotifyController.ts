@@ -39,10 +39,8 @@ export default class SpotifyController extends AbstractController {
 	 */
 	private async spotifyAuthenticate(request: FastifyRequest, response: FastifyReply) {
 		const params = request.query as any;
-		const clientId = params.clientId ? params.clientId : Config.credentials.spotify_client_id;
-		const clientSecret = params.clientSecret
-			? params.clientSecret
-			: Config.credentials.spotify_client_secret;
+		const clientId = params.clientId;
+		const clientSecret = params.clientSecret;
 
 		const options = {
 			method: "POST",
@@ -82,10 +80,8 @@ export default class SpotifyController extends AbstractController {
 	 */
 	private async spotifyRefreshToken(request: FastifyRequest, response: FastifyReply) {
 		const params = request.query as any;
-		const clientId = params.clientId ? params.clientId : Config.credentials.spotify_client_id;
-		const clientSecret = params.clientSecret
-			? params.clientSecret
-			: Config.credentials.spotify_client_secret;
+		const clientId = params.clientId;
+		const clientSecret = params.clientSecret;
 
 		const options = {
 			method: "POST",

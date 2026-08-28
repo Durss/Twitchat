@@ -545,8 +545,6 @@ interface Credentials {
 	twitchat_extension_api_path: string;
 	twitchat_extension_api_secret: string;
 
-	spotify_client_id: string;
-	spotify_client_secret: string;
 	spotify_scopes: string;
 	spotify_redirect_uri: string;
 
