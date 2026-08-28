@@ -3,6 +3,7 @@ import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as fs from "fs";
 import * as path from "path";
+import { LRUCache } from "lru-cache";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
 import AdminController from "./AdminController.js";
@@ -13,6 +14,12 @@ import AdminController from "./AdminController.js";
 export default class FileServeController extends AbstractController {
 	private config_cache: string = "";
 	private DOWNLOAD_MAX_BYTES: number = 10 * 1024 * 1024;
+	private LOG_MAX_CHARS: number = 100 * 1024;
+	private LOG_MAX_PER_WINDOW: number = 60;
+	private logQuota = new LRUCache<string, number>({
+		max: 10000,
+		ttl: 60 * 1000,
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -98,7 +105,7 @@ export default class FileServeController extends AbstractController {
 				twitch_scopes: Config.credentials.twitch_scopes,
 
 				spotify_scopes: Config.credentials.spotify_scopes,
-				spotify_client_id: Config.credentials.spotify_client_id,
+				spotify_redirect_uri: Config.credentials.spotify_redirect_uri,
 
 				patreon_client_id: Config.credentials.patreon_client_id,
 				patreon_scopes: Config.credentials.patreon_scopes,
@@ -147,7 +154,8 @@ export default class FileServeController extends AbstractController {
 	}
 
 	private async postLog(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		if (!(await super.twitchUserGuard(request, response))) return;
+		const user = await super.twitchUserGuard(request, response);
+		if (!user) return;
 
 		const body: any = request.body;
 		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0];
@@ -155,6 +163,34 @@ export default class FileServeController extends AbstractController {
 			(body.cat as string) || ""
 		).toLowerCase() as logsCategories;
 		const logData: string = JSON.stringify(body.log) || "";
+
+		if (logData.length > this.LOG_MAX_CHARS) {
+			response.header("Content-Type", "application/json");
+			response.status(413);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Log entry too large",
+					errorCode: "LOG_TOO_LARGE",
+				}),
+			);
+			return;
+		}
+
+		const written = (this.logQuota.get(user.user_id) ?? 0) + 1;
+		this.logQuota.set(user.user_id, written);
+		if (written > this.LOG_MAX_PER_WINDOW) {
+			response.header("Content-Type", "application/json");
+			response.status(429);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Too many log entries",
+					errorCode: "LOG_QUOTA_EXCEEDED",
+				}),
+			);
+			return;
+		}
 
 		if (!logData || !Utils.logToFile(logType, logData)) {
 			response.header("Content-Type", "application/json");
