@@ -878,8 +878,8 @@ export default class UserController extends AbstractController {
 			Config.FEATURE_FLAGS_PATH,
 			{},
 		);
-		const exportList = flagsMap["export_configs"] ?? [];
-		const exportAllowed = exportList.length === 0 || exportList.includes(user.user_id);
+		const flags = await Utils.getUserFeatureFlags(user.user_id, flagsMap);
+		const exportAllowed = flags.includes("export_configs");
 		if (!exportAllowed) {
 			response.header("Content-Type", "application/json");
 			response.status(403);
