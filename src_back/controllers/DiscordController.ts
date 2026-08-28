@@ -10,6 +10,7 @@ import {
 } from "discord.js";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import { LRUCache } from "lru-cache";
 import Config from "../utils/Config.js";
 import I18n from "../utils/I18n.js";
 import Logger from "../utils/Logger.js";
@@ -31,6 +32,10 @@ export default class DiscordController extends AbstractController {
 	private _commandSay?: SlashCommandDefinition;
 	private _commandAsk?: SlashCommandDefinition;
 	private _commandLink?: SlashCommandDefinition;
+	private _channelToGuild = new LRUCache<string, string>({
+		max: 5000,
+		ttl: 1000 * 60 * 60,
+	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -206,6 +211,8 @@ export default class DiscordController extends AbstractController {
 			return;
 		}
 
+		if (!(await this.channelGuard(response, params.channelId, guard.guild.guildID))) return;
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {
@@ -267,6 +274,8 @@ export default class DiscordController extends AbstractController {
 			autoArchiveDuration: 60,
 			content: params.message,
 		};
+
+		if (!(await this.channelGuard(response, params.channelId, guard.guild.guildID))) return;
 
 		//Send to discord
 		let messageSent = false;
@@ -413,6 +422,8 @@ export default class DiscordController extends AbstractController {
 			content: params.message,
 		};
 
+		if (!(await this.channelGuard(response, params.channelId, guard.guild.guildID))) return;
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {
@@ -557,6 +568,9 @@ export default class DiscordController extends AbstractController {
 			console.log(
 				`Posting message image to discord for ${user.login} in guild ${guild.guildName}`,
 			);
+
+			//logChanTarget comes from the user's own data, so it still needs checking
+			if (!(await this.channelGuard(response, guild.logChanTarget, guild.guildID))) return;
 
 			//Send to discord
 			await this._rest.post(Routes.channelMessages(guild.logChanTarget), {
@@ -714,6 +728,9 @@ export default class DiscordController extends AbstractController {
 
 		const params = request.body as any;
 		const data: ActionPayload = params.data;
+
+		if (!(await this.channelGuard(response, data?.channelId, auth.guild.guildID))) return;
+
 		const body: any = { content: params.message };
 		if (data && data.messageId) {
 			body.message_reference = {
@@ -1294,6 +1311,52 @@ export default class DiscordController extends AbstractController {
 				});
 			}
 		}
+	}
+
+	/**
+	 * Checks if given channel belongs to the given guild
+	 */
+	private async channelGuard(
+		response: FastifyReply,
+		channelId: string,
+		guildID: string,
+	): Promise<boolean> {
+		let ownerGuildID = channelId ? this._channelToGuild.get(channelId) : undefined;
+
+		if (!ownerGuildID && channelId) {
+			try {
+				const channel = (await this._rest.get(Routes.channel(channelId))) as {
+					guild_id?: string;
+				};
+				//Threads carry their parent's guild_id, DMs carry none
+				ownerGuildID = channel.guild_id;
+				if (ownerGuildID) this._channelToGuild.set(channelId, ownerGuildID);
+			} catch (_error) {
+				//Unknown channel, or bot has no access to it
+			}
+		}
+
+		if (ownerGuildID && ownerGuildID === guildID) return true;
+
+		Logger.warn(
+			"[DISCORD] Refused accessing channel " +
+				channelId +
+				" that does not belong to guild " +
+				guildID,
+		);
+		response
+			.header("Content-Type", "application/json")
+			.status(401)
+			.send(
+				JSON.stringify({
+					message: "Channel does not belong to your Discord server",
+					errorCode: "UNKNOWN_CHANNEL",
+					error: "Channel does not belong to your Discord server",
+					channelName: "",
+					success: false,
+				}),
+			);
+		return false;
 	}
 
 	/**
