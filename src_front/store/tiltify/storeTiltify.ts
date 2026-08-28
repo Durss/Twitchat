@@ -186,9 +186,10 @@ export const storeTiltify = defineStore("tiltify", {
 			const infos = await ApiHelper.call(
 				"tiltify/info",
 				"GET",
-				{ token: this.token!.access_token },
+				undefined,
 				false,
 				0,
+				{ "X-Tiltify-Token": this.token!.access_token },
 			);
 			this.campaignList = infos.json.campaigns;
 			this.user = infos.json.user;

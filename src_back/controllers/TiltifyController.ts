@@ -207,8 +207,7 @@ export default class TiltifyController extends AbstractController {
 		const twitchUser = await super.twitchUserGuard(request, response);
 		if (twitchUser == false) return;
 
-		const params = request.query as any;
-		const accessToken = params.token as string;
+		const accessToken = request.headers["x-tiltify-token"] as string;
 		if (!accessToken) {
 			response
 				.header("Content-Type", "application/json")
@@ -298,15 +297,23 @@ export default class TiltifyController extends AbstractController {
 			"content-type": "application/json",
 		};
 
-		const url = new URL(this.apiPath + "/oauth/token");
-		url.searchParams.set("grant_type", "authorization_code");
-		url.searchParams.set("client_id", Config.credentials.tiltify_client_id);
-		url.searchParams.set("client_secret", Config.credentials.tiltify_client_secret);
-		url.searchParams.set("redirect_uri", Config.credentials.tiltify_redirect_uri);
-		url.searchParams.set("code", (request.body as any).code);
+		//Credentials go in the body, not the query string: a URL carrying the
+		//client_secret ends up in proxy, CDN and server access logs.
+		//Same shape as postRefreshToken/generateCredentialToken below.
+		const body = {
+			grant_type: "authorization_code",
+			client_id: Config.credentials.tiltify_client_id,
+			client_secret: Config.credentials.tiltify_client_secret,
+			redirect_uri: Config.credentials.tiltify_redirect_uri,
+			code: (request.body as any).code,
+		};
 
 		try {
-			const slRes = await fetch(url, { method: "POST", headers });
+			const slRes = await fetch(this.apiPath + "/oauth/token", {
+				method: "POST",
+				headers,
+				body: JSON.stringify(body),
+			});
 			const token = (await slRes.json()) as AuthToken;
 
 			response
