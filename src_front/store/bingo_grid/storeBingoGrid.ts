@@ -475,6 +475,16 @@ export const storeBingoGrid = defineStore("bingoGrid", {
 						if (res.json.success && res.json.grid) {
 							applyRemoteSnapshot(grid, res.json.grid);
 							void this.saveData(grid.id);
+						} else if (res.json.errorCode == "SHARE_REVOKED") {
+							this.gridList = this.gridList.filter((g) => g.id != grid.id);
+							PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", { bingo: null });
+							void this.saveData();
+							toast(
+								StoreProxy.i18n.t("bingo_grid.share_streamer.revoked", {
+									OWNER: grid.remoteOwnerName,
+								}),
+								{ type: "warning", autoClose: 5000 },
+							);
 						}
 					} catch (_error) {
 						// ignore, will retry on next reconnect

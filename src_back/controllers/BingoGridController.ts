@@ -788,6 +788,24 @@ export default class BingoGridController extends AbstractController {
 			);
 			return null;
 		}
+
+		//Make sure link still exists, reject otherwise
+		const targets = this.sharePushTargets.get(
+			this.getShareKey(payload.ownerId, payload.gridId),
+		);
+		if (!targets || !targets.has(callerId)) {
+			response.header("Content-Type", "application/json");
+			response.status(403);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "This grid is not shared with you anymore",
+					errorCode: "SHARE_REVOKED",
+				}),
+			);
+			return null;
+		}
+
 		return payload;
 	}
 
