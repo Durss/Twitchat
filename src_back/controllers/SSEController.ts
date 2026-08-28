@@ -34,6 +34,7 @@ export default class SSEController extends AbstractController {
 	// Each entry self-expires when the JWT does (60s after mint).
 	private static usedSseJtis: Map<string, NodeJS.Timeout> = new Map();
 	private static readonly SSE_TOKEN_TTL_SECONDS = 60;
+	private static readonly MAX_SSE_CONNECTIONS_PER_USER = 20;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -176,23 +177,16 @@ export default class SSEController extends AbstractController {
 	 * @returns
 	 */
 	private async postRegisterSSE(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		response.sse({
-			id: "connecting",
-			data: JSON.stringify({ success: true, code: SSECode.CONNECTING }),
-		});
 		const queryParams = request.query as { token: string; mainApp?: string };
 
+		//Authenticate BEFORE opening the stream
 		let payload: SSERegisterToken | null = null;
 		try {
 			payload = jwt.verify(queryParams.token, Utils.derivedSecret("sse_register"), {
 				algorithms: ["HS256"],
 			}) as SSERegisterToken;
 		} catch {
-			response.sse({
-				id: "error",
-				data: JSON.stringify({ success: true, code: SSECode.AUTHENTICATION_FAILED }),
-			});
-			return;
+			return this.rejectConnection(response);
 		}
 
 		if (
@@ -201,12 +195,13 @@ export default class SSEController extends AbstractController {
 			!payload.jti ||
 			SSEController.usedSseJtis.has(payload.jti)
 		) {
-			response.sse({
-				id: "error",
-				data: JSON.stringify({ success: true, code: SSECode.AUTHENTICATION_FAILED }),
-			});
-			return;
+			return this.rejectConnection(response);
 		}
+
+		response.sse({
+			id: "connecting",
+			data: JSON.stringify({ success: true, code: SSECode.CONNECTING }),
+		});
 
 		// Burn the JTI so the same token can't be reused. Auto-cleanup once the
 		// JWT would have expired anyway.
@@ -218,11 +213,26 @@ export default class SSEController extends AbstractController {
 
 		const uid = payload.uid;
 		if (!SSEController.uidToResponse[uid]) SSEController.uidToResponse[uid] = [];
+
+		// limit the number of per-user connections. Drop oldest if creating a new one
+		const connections = SSEController.uidToResponse[uid]!;
+		if (connections.length >= SSEController.MAX_SSE_CONNECTIONS_PER_USER) {
+			Logger.info(
+				`User ${payload.uid} has ${connections.length} active SSE connexions. Killing oldest one...`,
+			);
+		}
+		while (connections.length >= SSEController.MAX_SSE_CONNECTIONS_PER_USER) {
+			const oldest = connections.shift();
+			if (!oldest) break;
+			clearTimeout(oldest.pingTimeout);
+			this.endStream(oldest.connection);
+		}
+
 		const params: (typeof SSEController.uidToResponse)["string"][number] = {
 			connection: response,
 			isMainApp: !!queryParams.mainApp,
 		};
-		SSEController.uidToResponse[uid]!.push(params);
+		connections.push(params);
 		SSEController.schedulePing(params);
 
 		request.socket.on("close", () => this.closeConnection(uid, response));
@@ -235,6 +245,29 @@ export default class SSEController extends AbstractController {
 			id: "connect",
 			data: JSON.stringify({ success: true, code: SSECode.CONNECTED }),
 		});
+	}
+
+	/**
+	 * Refuses an SSE handshake.
+	 * Sending AUTHENTICATION_FAILED stops client auto reconnect
+	 */
+	private rejectConnection(response: FastifyReply): void {
+		response.sse({
+			id: "error",
+			data: JSON.stringify({ success: true, code: SSECode.AUTHENTICATION_FAILED }),
+		});
+		this.endStream(response);
+	}
+
+	/**
+	 * Ends an SSE stream, releasing the underlying socket.
+	 */
+	private endStream(response: FastifyReply): void {
+		try {
+			response.sseContext?.source.end();
+		} catch (_error) {
+			//Already closed
+		}
 	}
 
 	private closeConnection(uid: string, response: FastifyReply): void {
