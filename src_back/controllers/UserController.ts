@@ -1,10 +1,10 @@
-import JsonPatch from "fast-json-patch";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import { LRUCache } from "lru-cache";
 import * as path from "path";
 import Config from "../utils/Config.js";
 import { schemaValidator } from "../utils/DataSchema.js";
+import DiffUtils from "../utils/DiffUtils.js";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
@@ -641,17 +641,13 @@ export default class UserController extends AbstractController {
 			// Because we enabled "removeAdditional" option, no error will be thrown
 			// if a field is not in the schema. Instead it will simply remove it.
 			// V9+ of the lib is supposed to allow us to retrieve the removed props,
-			// but it doesn't yet. As a workaround we use JSONPatch that compares
-			// the JSON before and after validation.
-			// This is not the most efficient way to do this, but I found no better
-			// way to log these errors for now
+			// but it doesn't yet. As a workaround we diff the data before and after
+			// validation.
 			const cleanData = JSON.stringify(data);
 			const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
 			// Only diff if raw json do not match
 			const diff =
-				cleanData !== rawData
-					? JsonPatch.compare(JSON.parse(rawData), data as any, false)
-					: [];
+				cleanData !== rawData ? DiffUtils.getDroppedProps(JSON.parse(rawData), data) : [];
 			if (diff.length > 0) {
 				Logger.error(
 					"Invalid format, some data have been removed from " +
