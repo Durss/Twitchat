@@ -74,12 +74,12 @@ export default class AuthController extends AbstractController {
 	private async twitchAuth(request: FastifyRequest, response: FastifyReply) {
 		const params = URL.parse(request.url, true).query as { code?: string };
 
-		let url = "https://id.twitch.tv/oauth2/token";
-		url += "?client_id=" + Config.credentials.twitch_client_id;
-		url += "&client_secret=" + Config.credentials.twitch_client_secret;
-		url += "&code=" + params.code;
-		url += "&grant_type=authorization_code";
-		url += "&redirect_uri=" + Config.credentials.twitch_redirect_uri;
+		const url = new globalThis.URL("https://id.twitch.tv/oauth2/token");
+		url.searchParams.set("client_id", Config.credentials.twitch_client_id);
+		url.searchParams.set("client_secret", Config.credentials.twitch_client_secret);
+		url.searchParams.set("code", params.code || "");
+		url.searchParams.set("grant_type", "authorization_code");
+		url.searchParams.set("redirect_uri", Config.credentials.twitch_redirect_uri);
 
 		let json;
 		try {
@@ -230,11 +230,11 @@ export default class AuthController extends AbstractController {
 			return;
 		}
 
-		let url = "https://id.twitch.tv/oauth2/token";
-		url += "?client_id=" + Config.credentials.twitch_client_id;
-		url += "&client_secret=" + Config.credentials.twitch_client_secret;
-		url += "&refresh_token=" + params.token;
-		url += "&grant_type=refresh_token";
+		const url = new globalThis.URL("https://id.twitch.tv/oauth2/token");
+		url.searchParams.set("client_id", Config.credentials.twitch_client_id);
+		url.searchParams.set("client_secret", Config.credentials.twitch_client_secret);
+		url.searchParams.set("refresh_token", params.token);
+		url.searchParams.set("grant_type", "refresh_token");
 
 		let json: { access_token?: string };
 		try {
