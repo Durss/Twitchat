@@ -36,6 +36,8 @@ export default class DiscordController extends AbstractController {
 		max: 5000,
 		ttl: 1000 * 60 * 60,
 	});
+	private _saveDebounce: NodeJS.Timeout | null = null;
+	private _savePromise: Promise<void> = Promise.resolve();
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -140,12 +142,40 @@ export default class DiscordController extends AbstractController {
 		guild.logChanTarget = data.logChanTarget;
 		guild.reactionsEnabled = data.reactionsEnabled;
 		DiscordController._twitchId2GuildId[guild.guildID] = guild;
-		fs.writeFileSync(
-			Config.discord2Twitch,
-			JSON.stringify(DiscordController._guildId2TwitchId),
-			"utf-8",
-		);
 		this.buildTwitchHashmap();
+		this.saveDatabaseDebounced();
+	}
+
+	/**
+	 * Persists the guilds database.
+	 * Writes are chained so two saves can't interleave on the file.
+	 */
+	private saveDatabase(): Promise<void> {
+		if (this._saveDebounce) {
+			clearTimeout(this._saveDebounce);
+			this._saveDebounce = null;
+		}
+		//Serialize now so a later mutation can't sneak into this write
+		const json = JSON.stringify(DiscordController._guildId2TwitchId);
+		this._savePromise = this._savePromise
+			.catch(() => {})
+			.then(() => Utils.writeFileAtomic(Config.discord2Twitch, json))
+			.catch((error) => {
+				Logger.error("[DISCORD] Couldn't save guilds database");
+				console.log(error);
+			});
+		return this._savePromise;
+	}
+
+	/**
+	 * Same as saveDatabase() but coalesces bursts of calls
+	 */
+	private saveDatabaseDebounced(): void {
+		if (this._saveDebounce) clearTimeout(this._saveDebounce);
+		this._saveDebounce = setTimeout(() => {
+			this._saveDebounce = null;
+			void this.saveDatabase();
+		}, 5000);
 	}
 
 	/*******************
@@ -479,12 +509,8 @@ export default class DiscordController extends AbstractController {
 		for (const guild in DiscordController._guildId2TwitchId) {
 			if (DiscordController._guildId2TwitchId[guild]!.twitchUID == user.user_id) {
 				delete DiscordController._guildId2TwitchId[guild];
-				fs.writeFileSync(
-					Config.discord2Twitch,
-					JSON.stringify(DiscordController._guildId2TwitchId),
-					"utf-8",
-				);
 				this.buildTwitchHashmap();
+				await this.saveDatabase();
 				break;
 			}
 		}
@@ -675,12 +701,8 @@ export default class DiscordController extends AbstractController {
 				await this._rest.post(Routes.channelMessages(token.guildChannelID), {
 					body: { content: message },
 				});
-				fs.writeFileSync(
-					Config.discord2Twitch,
-					JSON.stringify(DiscordController._guildId2TwitchId),
-					"utf-8",
-				);
 				this.buildTwitchHashmap();
+				await this.saveDatabase();
 			} catch (error: any) {
 				const errorObj: { status: number } = error;
 				status = errorObj.status;

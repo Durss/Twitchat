@@ -9,6 +9,9 @@ import AbstractController from "./AbstractController.js";
  * Created : 16/10/2022
  */
 export default class DonorController extends AbstractController {
+	private anonStatesCache: Record<string, boolean> | null = null;
+	private publicDonorsJSONCache: string | null = null;
+
 	constructor(public server: FastifyInstance) {
 		super();
 	}
@@ -43,13 +46,31 @@ export default class DonorController extends AbstractController {
 			fs.writeFileSync(Config.donorsList, "{}");
 		}
 		fs.watchFile(Config.donorsList, (_curr, _prev) => {
-			this.updatePublicDonorsList();
+			void this.updatePublicDonorsList();
 		});
 	}
 
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+
+	/**
+	 * Get the anon donor states
+	 */
+	private async getAnonStates(): Promise<Record<string, boolean>> {
+		if (!this.anonStatesCache) {
+			try {
+				this.anonStatesCache = JSON.parse(
+					await Utils.readFileAsync(Config.donorsAnonStates, "utf8"),
+				) as Record<string, boolean>;
+			} catch (error) {
+				//No file yet simply means nobody asked to be listed publicly
+				if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+				this.anonStatesCache = {};
+			}
+		}
+		return this.anonStatesCache;
+	}
 
 	/**
 	 * Gets the public list of donors
@@ -59,23 +80,35 @@ export default class DonorController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
-		let json = [];
-		if (fs.existsSync(Config.donorsPublicList)) {
+		if (this.publicDonorsJSONCache == null) {
 			try {
-				json = JSON.parse(fs.readFileSync(Config.donorsPublicList, "utf8"));
-			} catch (_error) {
-				response.header("Content-Type", "application/json");
-				response.status(404);
-				response.send(
-					JSON.stringify({ success: false, message: "Unable to load donors data file" }),
-				);
-				return;
+				const raw = await Utils.readFileAsync(Config.donorsPublicList, "utf8");
+				// Make sure it's not corrupt
+				JSON.parse(raw);
+				this.publicDonorsJSONCache = raw;
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+					this.publicDonorsJSONCache = "[]";
+				} else {
+					response.header("Content-Type", "application/json");
+					response.status(404);
+					response.send(
+						JSON.stringify({
+							success: false,
+							message: "Unable to load donors data file",
+						}),
+					);
+					return;
+				}
 			}
 		}
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, data: { list: json } }));
+		response.send('{"success":true,"data":{"list":' + this.publicDonorsJSONCache + "}}");
+		response.send(
+			JSON.stringify({ success: true, data: { list: this.publicDonorsJSONCache } }),
+		);
 	}
 
 	/**
@@ -89,7 +122,7 @@ export default class DonorController extends AbstractController {
 		//Get current state
 		let json: Record<string, boolean> = {};
 		try {
-			json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
+			json = await this.getAnonStates();
 		} catch (_error) {
 			response.header("Content-Type", "application/json");
 			response.status(404);
@@ -117,32 +150,32 @@ export default class DonorController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
-		if (fs.existsSync(Config.donorsAnonStates)) {
-			let json: Record<string, boolean> = {};
-			try {
-				json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
-			} catch (_error) {
-				response.header("Content-Type", "application/json");
-				response.status(404);
-				response.send(
-					JSON.stringify({
-						success: false,
-						message: "Unable to load anon donors state data file",
-					}),
-				);
-				return;
-			}
-
-			if (body.public === true) {
-				json[userInfo.user_id] = true;
-			} else {
-				delete json[userInfo.user_id];
-			}
-
-			fs.writeFileSync(Config.donorsAnonStates, JSON.stringify(json), "utf8");
-
-			this.updatePublicDonorsList();
+		let json: Record<string, boolean> = {};
+		try {
+			//Work on a copy so a failed write can't leave memory ahead of disk
+			json = { ...(await this.getAnonStates()) };
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(
+				JSON.stringify({
+					success: false,
+					message: "Unable to load anon donors state data file",
+				}),
+			);
+			return;
 		}
+
+		if (body.public === true) {
+			json[userInfo.user_id] = true;
+		} else {
+			delete json[userInfo.user_id];
+		}
+
+		await Utils.writeFileAtomic(Config.donorsAnonStates, JSON.stringify(json));
+		this.anonStatesCache = json;
+
+		await this.updatePublicDonorsList();
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -188,11 +221,11 @@ export default class DonorController extends AbstractController {
 			return;
 		}
 
-		fs.writeFileSync(Config.donorsList, JSON.stringify(body), "utf-8");
+		await Utils.writeFileAtomic(Config.donorsList, JSON.stringify(body));
 
 		//Rebuild the public list right away. The fs.watchFile() above would
 		//eventually pick the change up, but only after its poll interval.
-		this.updatePublicDonorsList();
+		await this.updatePublicDonorsList();
 
 		Logger.success(
 			"Donors list updated from remote service (" + Object.keys(body).length + " donors)",
@@ -206,10 +239,10 @@ export default class DonorController extends AbstractController {
 	/**
 	 * Updates the donors list
 	 */
-	private updatePublicDonorsList() {
+	private async updatePublicDonorsList() {
 		try {
-			const donors = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
-			const anonStates = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
+			const donors = JSON.parse(await Utils.readFileAsync(Config.donorsList, "utf8"));
+			const anonStates = await this.getAnonStates();
 			let res: { uid: string; v: number }[] = [];
 			for (let uid in donors) {
 				const v = donors[uid];
@@ -227,7 +260,9 @@ export default class DonorController extends AbstractController {
 				e.v = Config.donorsLevels.findIndex((v) => v > e.v) - 1;
 			});
 
-			fs.writeFileSync(Config.donorsPublicList, JSON.stringify(res), "utf-8");
+			const json = JSON.stringify(res);
+			await Utils.writeFileAtomic(Config.donorsPublicList, json);
+			this.publicDonorsJSONCache = json;
 		} catch (error) {
 			console.log(error);
 			return false;

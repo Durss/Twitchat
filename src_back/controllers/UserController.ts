@@ -503,7 +503,7 @@ export default class UserController extends AbstractController {
 
 		if (!fileExists || forceBackup) {
 			const body: any = request.body;
-			await fs.promises.writeFile(userFilePath, JSON.stringify(body), "utf8");
+			await Utils.writeFileAtomic(userFilePath, JSON.stringify(body));
 		}
 		response.header("Content-Type", "application/json");
 		response.status(200);
@@ -663,7 +663,7 @@ export default class UserController extends AbstractController {
 				// Fire and forget
 				await fs.promises.unlink(cleanupFilePath).catch(() => {});
 			}
-			await fs.promises.writeFile(userFilePath, JSON.stringify(data), "utf8");
+			await Utils.writeFileAtomic(userFilePath, JSON.stringify(data));
 
 			if (data.discordParams) {
 				this.discordController.updateParams(uid, data.discordParams);
@@ -783,7 +783,11 @@ export default class UserController extends AbstractController {
 
 		const files = await fs.promises.readdir(Config.USER_DATA_PATH);
 		const list = files.filter(
-			(v) => v.indexOf("_cleanup") == -1 && v != ".git" && v.indexOf("_errors") == -1,
+			(v) =>
+				v.indexOf("_cleanup") == -1 &&
+				v != ".git" &&
+				v.indexOf("_errors") == -1 &&
+				!v.endsWith(".tmp"),
 		);
 
 		// Get file stats in parallel (batched to avoid overwhelming the system)
@@ -954,7 +958,7 @@ export default class UserController extends AbstractController {
 			.replace(/[^a-z0-9_-]/gi, "_")
 			// Limit topo 20 chars long
 			.substring(0, 20);
-		await fs.promises.writeFile(path.join(folder, fileName + ".json"), content, "utf8");
+		await Utils.writeFileAtomic(path.join(folder, fileName + ".json"), content);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);

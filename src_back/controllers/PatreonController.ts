@@ -24,6 +24,11 @@ export default class PatreonController extends AbstractController {
 	private uidToFirstPayment: { [uid: string]: boolean } = {};
 	private campaignCache: Record<string, Awaited<ReturnType<typeof this.getCampaignID>>> = {};
 	private pendingServerAuthStates: Map<string, number> = new Map();
+	//All users encrypted patreon tokens, indexed by twitch user ID. This file
+	//is only written by this controller, keep it in memory instead of reading
+	//and rewriting it whole on every authenticated request
+	private userTokens: Record<string, string> = {};
+	private userTokensLoad: Promise<Record<string, string>> | null = null;
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -191,15 +196,10 @@ export default class PatreonController extends AbstractController {
 						token.error,
 					);
 				} else {
-					let json: Record<string, string> = {};
-					if (fs.existsSync(Config.twitch2PatreonToken)) {
-						json = JSON.parse(
-							fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}",
-						);
-					}
+					const tokens = await this.getUserTokens();
 					token.expires_at = Date.now() + token.expires_in * 1000;
-					json[twitchUser.user_id] = Utils.encrypt(JSON.stringify(token));
-					fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(json), "utf-8");
+					tokens[twitchUser.user_id] = Utils.encrypt(JSON.stringify(token));
+					await this.saveUserTokens();
 
 					response.header("Content-Type", "application/json");
 					response.status(200);
@@ -239,12 +239,9 @@ export default class PatreonController extends AbstractController {
 		if (!patreonAuth) return;
 
 		//Delete auth token
-		let jsonAuth: Record<string, string> = {};
-		if (fs.existsSync(Config.twitch2PatreonToken)) {
-			jsonAuth = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
-		}
-		delete jsonAuth[patreonAuth.twitchUser.user_id];
-		fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(jsonAuth), "utf-8");
+		const tokens = await this.getUserTokens();
+		delete tokens[patreonAuth.twitchUser.user_id];
+		await this.saveUserTokens();
 
 		//Search if a webhook exists
 		const webhookRes = await this.getUserWebhook(request, response, patreonAuth);
@@ -837,6 +834,40 @@ export default class PatreonController extends AbstractController {
 	 ******************/
 
 	/**
+	 * Get every user's patreon token, loaded from disk on first call
+	 */
+	private getUserTokens(): Promise<Record<string, string>> {
+		if (!this.userTokensLoad) this.userTokensLoad = this.loadUserTokens();
+		return this.userTokensLoad;
+	}
+
+	/**
+	 * Actual token file load, @see getUserTokens
+	 */
+	private async loadUserTokens(): Promise<Record<string, string>> {
+		try {
+			this.userTokens = JSON.parse(
+				(await Utils.readFileAsync(Config.twitch2PatreonToken, "utf-8")) || "{}",
+			) as Record<string, string>;
+		} catch (error) {
+			//No token file yet is the normal state of a fresh install
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				Logger.error("[PATREON][USER] Couldn't load user tokens, starting empty");
+				console.log(error);
+			}
+			this.userTokens = {};
+		}
+		return this.userTokens;
+	}
+
+	/**
+	 * Persists all users patreon tokens
+	 */
+	private async saveUserTokens(): Promise<void> {
+		await Utils.writeFileAtomic(Config.twitch2PatreonToken, JSON.stringify(this.userTokens));
+	}
+
+	/**
 	 * Abstract all patreon API requests to handle rate limiting.
 	 * When rate limited query is automatically retried.
 	 * It stops retrying after MAX_RATE_LIMIT_RETRIES failed attempts
@@ -1161,12 +1192,9 @@ export default class PatreonController extends AbstractController {
 		const twitchUser = await this.twitchUserGuard(request, response);
 		if (!twitchUser) return false;
 
-		let json: Record<string, string> = {};
+		const json = await this.getUserTokens();
 		let errorMessage = "";
 		let errorCode = "";
-		if (fs.existsSync(Config.twitch2PatreonToken)) {
-			json = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
-		}
 
 		if (!json[twitchUser.user_id]) {
 			errorCode = "NOT_CONNECTED";
@@ -1444,10 +1472,7 @@ export default class PatreonController extends AbstractController {
 		const json = (await result.json()) as PatreonToken & { error?: string };
 
 		let success = true;
-		let jsonTokens: Record<string, string> = {};
-		if (fs.existsSync(Config.twitch2PatreonToken)) {
-			jsonTokens = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
-		}
+		const jsonTokens = await this.getUserTokens();
 
 		if (json.error) {
 			success = false;
@@ -1464,7 +1489,7 @@ export default class PatreonController extends AbstractController {
 			jsonTokens[twitchUserId] = Utils.encrypt(JSON.stringify(json));
 		}
 
-		fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(jsonTokens), "utf-8");
+		await this.saveUserTokens();
 
 		return success ? json : false;
 	}
@@ -1474,15 +1499,16 @@ export default class PatreonController extends AbstractController {
 	 */
 	private async rebuildUserWebhooks(): Promise<void> {
 		const secretsFile = Config.patreonUid2WebhookSecret;
-		const tokensFile = Config.twitch2PatreonToken;
-		const tokens = JSON.parse(
-			fs.existsSync(tokensFile) ? fs.readFileSync(tokensFile, "utf8") : "{}",
-		);
+		const tokens = await this.getUserTokens();
 
-		for (const twitchId in tokens) {
+		for (const twitchId of Object.keys(tokens)) {
+			const encryptedToken = tokens[twitchId];
+			//Dropped by a previous iteration refreshing a rejected token
+			if (!encryptedToken) continue;
+
 			let oldToken: PatreonToken;
 			try {
-				oldToken = JSON.parse(Utils.decrypt(tokens[twitchId])) as PatreonToken;
+				oldToken = JSON.parse(Utils.decrypt(encryptedToken)) as PatreonToken;
 			} catch (_error) {
 				//Token can't be decrypted (wrong cipher key or corrupted entry).
 				//Skip this user instead of aborting the whole rebuild.

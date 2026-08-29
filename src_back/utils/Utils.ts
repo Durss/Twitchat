@@ -3,6 +3,7 @@ import * as fs from "fs";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import Config from "./Config.js";
+import Logger from "./Logger.js";
 
 /**
  * Created : 20/07/2023
@@ -240,6 +241,41 @@ export default class Utils {
 				}
 			});
 		});
+	}
+
+	/**
+	 * Write a file atomically: write a temp file then rename it over the target.
+	 * A crash mid-write, or a reader loading the file at the same time, can
+	 * then never see half written JSON.
+	 * @param path
+	 * @param content
+	 */
+	public static async writeFileAtomic(path: string, content: string): Promise<void> {
+		const tmp = path + "." + process.pid + "-" + crypto.randomBytes(4).toString("hex") + ".tmp";
+		try {
+			await fs.promises.writeFile(tmp, content, "utf-8");
+			// Workkaround issue where windows refuses to rename.
+			// try 5 times just in case then give up and just write in place
+			for (let attempt = 0; ; attempt++) {
+				try {
+					await fs.promises.rename(tmp, path);
+					return;
+				} catch (error) {
+					const code = (error as NodeJS.ErrnoException).code;
+					if (code !== "EPERM" && code !== "EBUSY" && code !== "EACCES") throw error;
+					if (attempt >= 5) {
+						Logger.warn(
+							`[FS] Atomic rename kept failing for ${path}, writing in place`,
+						);
+						await fs.promises.writeFile(path, content, "utf-8");
+						return;
+					}
+					await Utils.promisedTimeout(20 * (attempt + 1));
+				}
+			}
+		} finally {
+			await fs.promises.rm(tmp, { force: true }).catch(() => {});
+		}
 	}
 
 	/**
