@@ -54,7 +54,8 @@ export default class RemoteModController extends AbstractController {
 	 *******************/
 
 	/**
-	 * Request streamer any available shared mod params
+	 * Request the streamer for shared mod features access
+	 * Used to get if a Q&A session is shared with mods
 	 * @param request
 	 * @param response
 	 */
@@ -67,7 +68,7 @@ export default class RemoteModController extends AbstractController {
 			request.headers.authorization!,
 		);
 		for (const channel of channels) {
-			if ((await this.getUserPremiumState(channel.broadcaster_id)) == "no") return;
+			if ((await this.getUserPremiumState(channel.broadcaster_id)) == "no") continue;
 			SSEController.sendToUser(channel.broadcaster_id, SSECode.SHARED_MOD_INFO_REQUEST);
 		}
 
