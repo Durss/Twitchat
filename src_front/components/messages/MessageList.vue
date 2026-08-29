@@ -162,6 +162,7 @@
 					:key="m.id"
 					:messageData="m"
 					disableConversation
+					disableAnswerParent
 				/>
 			</div>
 			<div class="ctas">
@@ -2543,6 +2544,9 @@ function showSelectionError(): void {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
+			.message {
+				margin-bottom: 3px;
+			}
 			.message:nth-child(odd) {
 				background-color: rgba(255, 255, 255, 0.025);
 			}

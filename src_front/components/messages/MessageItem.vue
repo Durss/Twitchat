@@ -47,6 +47,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 			:disableConversation="disableConversation"
+			:disableAnswerParent="disableAnswerParent"
 		/>
 		<div v-else class="message card-item secondary">
 			No compontent found for type: <strong>{{ messageData.type }}</strong>
@@ -141,6 +142,7 @@ const props = withDefaults(
 		lightMode?: boolean;
 		childrenList?: TwitchatDataTypes.ChatMessageTypes[];
 		disableConversation?: boolean;
+		disableAnswerParent?: boolean;
 	}>(),
 	{
 		childrenList: () => [],

@@ -9,6 +9,7 @@
 			class="answersTo"
 			:class="{ expand: expandAnswer }"
 			v-if="
+				props.disableAnswerParent !== true &&
 				messageData.type == 'message' &&
 				messageData.directlyAnswersTo &&
 				$store.params.appearance.hideAnswersTo.value === false
@@ -392,6 +393,7 @@ import ChatMessageChunksParser from "./components/ChatMessageChunksParser.vue";
 import ChatMessageInfoBadges from "./components/ChatMessageInfoBadges.vue";
 import ChatModTools from "./components/ChatModTools.vue";
 import DOMPurify from "isomorphic-dompurify";
+import Icon from "../Icon.vue";
 
 const props = withDefaults(
 	defineProps<{
@@ -400,6 +402,7 @@ const props = withDefaults(
 		lightMode?: boolean;
 		contextMenuOff?: boolean;
 		disableConversation?: boolean;
+		disableAnswerParent?: boolean;
 		highlightedWords?: string[];
 		colIndex?: number;
 	}>(),
@@ -407,6 +410,7 @@ const props = withDefaults(
 		lightMode: false,
 		contextMenuOff: false,
 		disableConversation: false,
+		disableAnswerParent: false,
 		highlightedWords: () => [],
 		colIndex: 0,
 	},
