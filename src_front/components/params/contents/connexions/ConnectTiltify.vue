@@ -29,7 +29,7 @@
 				<ProfileInfoCard
 					:avatar="storeTiltify.user?.avatar.src"
 					:name="storeTiltify.user?.username"
-					:url="storeTiltify.user?.url"
+					:url="'https://tiltify.com' + storeTiltify.user?.url"
 					@logout="disconnect()"
 				/>
 			</section>
@@ -39,91 +39,101 @@
 				v-if="storeTiltify.campaignList.length == 0"
 			>
 				<Icon name="alert" />
-				<span>{{ t("tiltify.no_campaign") }}</span>
-				<TTButton
-					type="link"
-					href="https://tiltify.com/start"
-					target="_blank"
-					icon="newtab"
-					light
-					secondary
-					>{{ t("global.start") }}</TTButton
-				>
-			</section>
-			<section class="card-item infos" v-else>
-				<strong>{{ t("tiltify.campaign_list", storeTiltify.campaignList.length) }}</strong>
-				<div class="campaignList">
-					<div
-						v-for="campaign in storeTiltify.campaignList"
-						:key="campaign.id"
-						class="campaign"
-						:class="{ retired: getRetiredDate(campaign) }"
+				<div class="content">
+					<span>{{ t("tiltify.no_campaign") }}</span>
+					<TTButton
+						type="link"
+						href="https://tiltify.com/start"
+						target="_blank"
+						icon="newtab"
+						light
+						secondary
+						>{{ t("tiltify.start_bt") }}</TTButton
 					>
-						<img
-							v-if="campaign.avatar?.src"
-							class="avatar"
-							:src="campaign.avatar.src"
-							:alt="campaign.avatar.alt || campaign.name"
-						/>
-						<Icon v-else name="tiltify" class="avatar" />
+				</div>
+			</section>
+			<template v-else>
+				<section>
+					<TTButton primary @click="openOverlay()" icon="overlay">{{
+						t("tiltify.create_donation_goals")
+					}}</TTButton>
+				</section>
 
-						<div class="details">
-							<div class="title">
-								<a class="name" :href="campaign.donate_url" target="_blank"
-									><Icon name="newtab" />{{ campaign.name }}</a
-								>
-								<Tag
-									v-if="getRetiredDate(campaign)"
-									v-tooltip="
-										t('tiltify.retired_tt', {
-											DATE: getRetiredDate(campaign),
-										})
-									"
-									>{{ t("tiltify.retired") }}</Tag
-								>
+				<section class="card-item infos">
+					<strong>{{
+						t("tiltify.campaign_list", storeTiltify.campaignList.length)
+					}}</strong>
+					<div class="campaignList">
+						<div
+							v-for="campaign in storeTiltify.campaignList"
+							:key="campaign.id"
+							class="campaign"
+							:class="{ retired: getRetiredDate(campaign) }"
+						>
+							<img
+								v-if="campaign.avatar?.src"
+								class="avatar"
+								:src="campaign.avatar.src"
+								:alt="campaign.avatar.alt || campaign.name"
+							/>
+							<Icon v-else name="tiltify" class="avatar" />
+
+							<div class="details">
+								<div class="title">
+									<a class="name" :href="campaign.donate_url" target="_blank"
+										><Icon name="newtab" />{{ campaign.name }}</a
+									>
+									<Tag
+										v-if="getRetiredDate(campaign)"
+										v-tooltip="
+											t('tiltify.retired_tt', {
+												DATE: getRetiredDate(campaign),
+											})
+										"
+										>{{ t("tiltify.retired") }}</Tag
+									>
+								</div>
+
+								<template v-if="getGoal(campaign) > 0">
+									<div class="progress">
+										<div
+											class="fill"
+											:style="{
+												width: getPercent(campaign) + '%',
+											}"
+										></div>
+									</div>
+									<div class="amounts">
+										<strong>{{
+											formatAmount(
+												getRaised(campaign),
+												campaign.currency_code ||
+													campaign.amount_raised.currency,
+											)
+										}}</strong>
+										<span>{{
+											formatAmount(
+												getGoal(campaign),
+												campaign.currency_code ||
+													campaign.amount_raised.currency,
+											)
+										}}</span>
+									</div>
+								</template>
 							</div>
 
-							<template v-if="getGoal(campaign) > 0">
-								<div class="progress">
-									<div
-										class="fill"
-										:style="{
-											width: getPercent(campaign) + '%',
-										}"
-									></div>
-								</div>
-								<div class="amounts">
-									<strong>{{
-										formatAmount(
-											getRaised(campaign),
-											campaign.currency_code ||
-												campaign.amount_raised.currency,
-										)
-									}}</strong>
-									<span>{{
-										formatAmount(
-											getGoal(campaign),
-											campaign.currency_code ||
-												campaign.amount_raised.currency,
-										)
-									}}</span>
-								</div>
-							</template>
+							<TTButton
+								class="copyBt"
+								small
+								transparent
+								icon="id"
+								v-tooltip="t('tiltify.copy_id_tt')"
+								:copy="campaign.id"
+							/>
 						</div>
-
-						<TTButton
-							class="copyBt"
-							small
-							transparent
-							icon="id"
-							v-tooltip="t('tiltify.copy_id_tt')"
-							:copy="campaign.id"
-						/>
 					</div>
-				</div>
-				<span class="spaceAbove">{{ t("tiltify.create_donation_goals") }}</span>
-				<TTButton @click="openOverlay()" icon="add">{{ t("global.create") }}</TTButton>
-			</section>
+				</section>
+			</template>
 		</template>
 
 		<section class="examples">
@@ -337,6 +347,7 @@ function loadAuthURL(): void {
 						flex-direction: row;
 						align-items: center;
 						flex-wrap: wrap;
+						padding-right: 1.5em;
 						.tag {
 							flex-shrink: 0;
 						}
@@ -384,9 +395,6 @@ function loadAuthURL(): void {
 				}
 			}
 		}
-		.spaceAbove {
-			margin-top: 0.5em;
-		}
 	}
 
 	.error {
@@ -402,6 +410,13 @@ function loadAuthURL(): void {
 		align-items: center;
 		.icon {
 			height: 1.5em;
+			flex-shrink: 0;
+		}
+		.content {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 		}
 	}
 
