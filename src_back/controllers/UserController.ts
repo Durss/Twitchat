@@ -547,8 +547,6 @@ export default class UserController extends AbstractController {
 
 		//Test data format
 		try {
-			const dataClone = JSON.parse(JSON.stringify(data));
-
 			// Initialize local data version for this user
 			if (!this._lastUserDataVersion.has(userInfo.user_id)) {
 				let version = 0;
@@ -562,7 +560,7 @@ export default class UserController extends AbstractController {
 				Logger.info(
 					"[DATA] Init local cache:",
 					userInfo.login,
-					dataClone.saveVersion,
+					data.saveVersion,
 					this._lastUserDataVersion.get(userInfo.user_id)?.toString() ?? "???",
 				);
 			}
@@ -574,20 +572,20 @@ export default class UserController extends AbstractController {
 				Logger.info(
 					"[DATA] Force data upload:",
 					userInfo.login,
-					dataClone.saveVersion,
+					data.saveVersion,
 					cachedVersion.toString(),
 				);
-				data.saveVersion = dataClone.saveVersion = cachedVersion + 1;
-				Logger.info("                 :", dataClone.saveVersion, cachedVersion.toString());
+				data.saveVersion = cachedVersion + 1;
+				Logger.info("                 :", data.saveVersion, cachedVersion.toString());
 			}
 
 			// Data outdated?
-			if (dataClone.saveVersion <= cachedVersion) {
+			if (data.saveVersion <= cachedVersion) {
 				Logger.warn(
 					"[DATA]",
 					userInfo.login +
 						" has outdated data version. Got " +
-						dataClone.saveVersion +
+						data.saveVersion +
 						" but expected > " +
 						cachedVersion +
 						". Has " +
@@ -604,7 +602,7 @@ export default class UserController extends AbstractController {
 							success: false,
 							error:
 								"outdated data version. Got " +
-								dataClone.saveVersion +
+								data.saveVersion +
 								" but expected > " +
 								cachedVersion,
 							errorCode: "OUTDATED_DATA_VERSION",
@@ -614,7 +612,10 @@ export default class UserController extends AbstractController {
 				}
 			}
 
-			this._lastUserDataVersion.set(userInfo.user_id, dataClone.saveVersion);
+			this._lastUserDataVersion.set(userInfo.user_id, data.saveVersion);
+
+			// Serialize before validation
+			const rawData = JSON.stringify(data);
 
 			const success = schemaValidator(data);
 			const errorsFilePath = Config.USER_DATA_PATH + uid + "_errors.json";
@@ -628,12 +629,12 @@ export default class UserController extends AbstractController {
 						")",
 				);
 				// Save schema errors if any (fire and forget)
-				await fs.promises
+				void fs.promises
 					.writeFile(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
 					.catch(() => {});
 			} else {
 				// Remove old error file if exists (fire and forget)
-				await fs.promises.unlink(errorsFilePath).catch(() => {});
+				void fs.promises.unlink(errorsFilePath).catch(() => {});
 			}
 
 			// schemaValidator() is supposed to tell if the format is valid or not.
@@ -644,9 +645,14 @@ export default class UserController extends AbstractController {
 			// the JSON before and after validation.
 			// This is not the most efficient way to do this, but I found no better
 			// way to log these errors for now
-			const diff = JsonPatch.compare(dataClone, data as any, false);
+			const cleanData = JSON.stringify(data);
 			const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
-			if (diff?.length > 0) {
+			// Only diff if raw json do not match
+			const diff =
+				cleanData !== rawData
+					? JsonPatch.compare(JSON.parse(rawData), data as any, false)
+					: [];
+			if (diff.length > 0) {
 				Logger.error(
 					"Invalid format, some data have been removed from " +
 						userInfo.login +
@@ -656,14 +662,14 @@ export default class UserController extends AbstractController {
 				);
 				console.log(diff);
 				// Fire and forget
-				await fs.promises
+				void fs.promises
 					.writeFile(cleanupFilePath, JSON.stringify(diff), "utf-8")
 					.catch(() => {});
 			} else {
 				// Fire and forget
-				await fs.promises.unlink(cleanupFilePath).catch(() => {});
+				void fs.promises.unlink(cleanupFilePath).catch(() => {});
 			}
-			await Utils.writeFileAtomic(userFilePath, JSON.stringify(data));
+			await Utils.writeFileAtomic(userFilePath, cleanData);
 
 			if (data.discordParams) {
 				this.discordController.updateParams(uid, data.discordParams);
