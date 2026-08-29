@@ -29,6 +29,10 @@ export default class TwitchUtils {
 		max: 10_000,
 		ttl: 60 * 60 * 1000,
 	});
+	/**
+	 * Max pages to request
+	 */
+	private static readonly MAX_PAGINATED_PAGES = 100;
 
 	constructor() {}
 
@@ -207,33 +211,9 @@ export default class TwitchUtils {
 		url.searchParams.append("user_id", userId);
 		url.searchParams.append("first", "100");
 
-		let list: ModeratedUser[] = [];
-		let cursor: string | null = null;
-		do {
-			if (cursor) url.searchParams.set("after", cursor);
-			const res = await fetch(url, {
-				method: "GET",
-				headers: {
-					"Client-ID": Config.credentials.twitch_client_id,
-					Authorization: token,
-					"Content-Type": "application/json",
-				},
-			});
-			if (res.status == 200) {
-				const json = (await res.json()) as {
-					data: ModeratedUser[];
-					pagination?: { cursor?: string };
-				};
-				list = list.concat(json.data);
-				cursor = null;
-				if (json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-			} else if (res.status == 500) break;
-		} while (cursor != null);
-
-		this._moderatedChansCache.set(token, list);
-		return list;
+		const { items, complete } = await this.fetchPaginated<ModeratedUser>(url, token);
+		if (complete) this._moderatedChansCache.set(token, items);
+		return items;
 	}
 
 	/**
@@ -245,9 +225,30 @@ export default class TwitchUtils {
 		const url = new URL("https://api.twitch.tv/helix/moderation/moderators");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("first", "100");
-		let list: ModeratorUser[] = [];
+		const { items, complete } = await this.fetchPaginated<ModeratorUser>(url, token);
+		//Only cache a complete list. Caching a partial one would hide part of the
+		//moderators for the whole TTL.
+		if (complete) this._moderatorsCache.set(token, items);
+		return items;
+	}
+
+	/*******************
+	 * PRIVATE METHODS *
+	 *******************/
+	/**
+	 * Fetches every page of a paginated helix endpoint.
+	 * Returns what could be collected along with whether the list is complete,
+	 * so the caller knows whether the result is safe to cache.
+	 * @param url endpoint, "first" is expected to be set by the caller
+	 * @param token user token
+	 */
+	private static async fetchPaginated<T>(
+		url: URL,
+		token: string,
+	): Promise<{ items: T[]; complete: boolean }> {
+		const items: T[] = [];
 		let cursor: string | null = null;
-		do {
+		for (let page = 0; page < this.MAX_PAGINATED_PAGES; page++) {
 			if (cursor) url.searchParams.set("after", cursor);
 			const res = await fetch(url, {
 				method: "GET",
@@ -257,25 +258,30 @@ export default class TwitchUtils {
 					"Content-Type": "application/json",
 				},
 			});
-			if (res.status == 200) {
-				const json = (await res.json()) as {
-					data: ModeratorUser[];
-					pagination?: { cursor?: string };
-				};
-				list = list.concat(json.data);
-				cursor = null;
-				if (json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-			} else if (res.status == 500) break;
-		} while (cursor != null);
-		this._moderatorsCache.set(token, list);
-		return list;
-	}
 
-	/*******************
-	 * PRIVATE METHODS *
-	 *******************/
+			if (res.status != 200) {
+				await res.text().catch(() => {});
+				Logger.warn(`[TWITCH] ${url.pathname} returned status ${res.status}`);
+				return { items, complete: false };
+			}
+
+			const json = (await res.json()) as {
+				data?: T[];
+				pagination?: { cursor?: string };
+			};
+			if (json.data) items.push(...json.data);
+
+			//An empty cursor means the last page has been reached
+			cursor = json.pagination?.cursor || null;
+			if (!cursor) return { items, complete: true };
+		}
+
+		//Safety net, a cursor that never resolves must not loop forever
+		Logger.warn(
+			`[TWITCH] ${url.pathname} pagination stopped after ${this.MAX_PAGINATED_PAGES} pages`,
+		);
+		return { items, complete: false };
+	}
 }
 
 export interface TwitchToken {
