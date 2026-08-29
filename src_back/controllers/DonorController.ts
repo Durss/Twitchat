@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
@@ -26,6 +27,19 @@ export default class DonorController extends AbstractController {
 	public async initialize(): Promise<void> {
 		this.server.get(
 			"/api/user/donor/all",
+			{
+				// only allow to call this 10 times a day
+				config: {
+					rateLimit: {
+						max: 10,
+						timeWindow: "1 day",
+						ban: -1, // Don't ban, just return 429
+						keyGenerator: async (request: FastifyRequest) =>
+							(await TwitchUtils.getUserFromToken(request.headers.authorization))
+								?.user_id ?? request.ip,
+					},
+				},
+			},
 			async (request, response) => await this.getAllDonors(request, response),
 		);
 		this.server.get(

@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
-import { LRUCache } from "lru-cache";
 import AbstractController from "./AbstractController.js";
 import SSEController from "./SSEController.js";
 import Config from "../utils/Config.js";
@@ -20,12 +19,11 @@ export default class ApiController extends AbstractController {
 		"302e020100300506032b657004220420",
 		"hex",
 	);
-	private static readonly MAX_TIMESTAMP_DRIFT_MS = 1 * 60 * 1000;
-	private static readonly RATE_LIMIT_MS = 500;
-	private lastActionTimestamps = new LRUCache<string, number>({
-		max: 10000,
-		ttl: 60 * 1000, // only needs to outlive RATE_LIMIT_MS
-	});
+	private static readonly MAX_TIMESTAMP_DRIFT_MS = 5 * 60 * 1000;
+	/**
+	 * Custom per user rate limiter
+	 */
+	private actionRateLimit!: ReturnType<FastifyInstance["createRateLimit"]>;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -39,6 +37,13 @@ export default class ApiController extends AbstractController {
 	 * PUBLIC METHODS *
 	 ******************/
 	public initialize(): void {
+		this.actionRateLimit = this.server.createRateLimit({
+			max: 1,
+			timeWindow: 500,
+			keyGenerator: (request) =>
+				(request.headers["x-twitchat-userid"] as string) || request.ip,
+		});
+
 		this.server.post(
 			"/api/remote/action",
 			// Reduce global rate limit to 10req/s so user get IP limited
@@ -185,24 +190,6 @@ export default class ApiController extends AbstractController {
 			return;
 		}
 
-		// Rate limit: 2 call per second per user
-		const now = Date.now();
-		const lastCall = this.lastActionTimestamps.get(uid) ?? 0;
-		if (now - lastCall < ApiController.RATE_LIMIT_MS) {
-			response
-				.header("Content-Type", "application/json")
-				.header("Retry-After", "1")
-				.status(429)
-				.send(
-					JSON.stringify({
-						success: false,
-						errorCode: "RATE_LIMITED",
-						error: "Too many requests. Max 1 call per second.",
-					}),
-				);
-			return;
-		}
-
 		// Validate timestamp to prevent replay attacks
 		const ts = parseInt(timestamp, 10);
 		if (isNaN(ts) || Math.abs(Date.now() - ts) > ApiController.MAX_TIMESTAMP_DRIFT_MS) {
@@ -287,7 +274,23 @@ export default class ApiController extends AbstractController {
 			return;
 		}
 
-		this.lastActionTimestamps.set(uid, now);
+		// Rate limit: 1 call per 500ms per user. Checked only once the signature
+		// is verified so a forged user ID can't eat someone else's quota.
+		const limit = await this.actionRateLimit(request);
+		if (!limit.isAllowed && limit.isExceeded) {
+			response
+				.header("Content-Type", "application/json")
+				.header("Retry-After", "1")
+				.status(429)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "RATE_LIMITED",
+						error: "Too many requests. Max 1 call per 500ms.",
+					}),
+				);
+			return;
+		}
 
 		Logger.info(`[API] Executing remote action '${action}' from user ${uid}`);
 

@@ -3,8 +3,8 @@ import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as fs from "fs";
 import * as path from "path";
-import { LRUCache } from "lru-cache";
 import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AdminController from "./AdminController.js";
 
@@ -15,11 +15,6 @@ export default class FileServeController extends AbstractController {
 	private config_cache: string = "";
 	private DOWNLOAD_MAX_BYTES: number = 10 * 1024 * 1024;
 	private LOG_MAX_CHARS: number = 100 * 1024;
-	private LOG_MAX_PER_WINDOW: number = 60;
-	private logQuota = new LRUCache<string, number>({
-		max: 10000,
-		ttl: 60 * 1000,
-	});
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -61,8 +56,23 @@ export default class FileServeController extends AbstractController {
 		);
 
 		//Updates labels
-		this.server.post("/api/log", async (request: FastifyRequest, response: FastifyReply) =>
-			this.postLog(request, response),
+		this.server.post(
+			"/api/log",
+			{
+				// only allow 60 log entries a minute per user
+				config: {
+					rateLimit: {
+						max: 60,
+						timeWindow: "1 minute",
+						ban: -1, // Don't ban, just return 429
+						keyGenerator: async (request: FastifyRequest) =>
+							(await TwitchUtils.getUserFromToken(request.headers.authorization))
+								?.user_id ?? request.ip,
+					},
+				},
+			},
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.postLog(request, response),
 		);
 	}
 
@@ -167,8 +177,7 @@ export default class FileServeController extends AbstractController {
 	}
 
 	private async postLog(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		const user = await super.twitchUserGuard(request, response);
-		if (!user) return;
+		if (!(await super.twitchUserGuard(request, response))) return;
 
 		const body: any = request.body;
 		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0];
@@ -185,21 +194,6 @@ export default class FileServeController extends AbstractController {
 					success: false,
 					error: "Log entry too large",
 					errorCode: "LOG_TOO_LARGE",
-				}),
-			);
-			return;
-		}
-
-		const written = (this.logQuota.get(user.user_id) ?? 0) + 1;
-		this.logQuota.set(user.user_id, written);
-		if (written > this.LOG_MAX_PER_WINDOW) {
-			response.header("Content-Type", "application/json");
-			response.status(429);
-			response.send(
-				JSON.stringify({
-					success: false,
-					error: "Too many log entries",
-					errorCode: "LOG_QUOTA_EXCEEDED",
 				}),
 			);
 			return;
