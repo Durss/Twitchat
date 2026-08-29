@@ -26,13 +26,12 @@
 
 		<template v-else>
 			<section>
-				<TTButton alert icon="offline" @click="disconnect()">
-					<div class="userInfo" v-if="storeTiltify.user">
-						<span>{{ t("global.disconnect") }} </span>
-						<img :src="storeTiltify.user.avatar.src" alt="avatar" />
-						<h2>{{ storeTiltify.user.username }}</h2>
-					</div>
-				</TTButton>
+				<ProfileInfoCard
+					:avatar="storeTiltify.user?.avatar.src"
+					:name="storeTiltify.user?.username"
+					:url="storeTiltify.user?.url"
+					@logout="disconnect()"
+				/>
 			</section>
 
 			<section
@@ -51,29 +50,80 @@
 					>{{ t("global.start") }}</TTButton
 				>
 			</section>
-			<template v-else>
-				<section class="card-item infos">
-					<strong>{{
-						t("tiltify.campaign_list", storeTiltify.campaignList.length)
-					}}</strong>
-					<div class="campaignList">
-						<div v-for="campaign in storeTiltify.campaignList" class="campaign">
-							<a :href="campaign.donate_url" target="_blank"
-								><Icon name="newtab" />{{ campaign.name }}</a
-							>
-							<TTButton
-								clear
-								icon="copy"
-								v-tooltip="t('tiltify.copy_id_tt')"
-								@click="copyId(campaign.id)"
-								>#ID</TTButton
-							>
+			<section class="card-item infos" v-else>
+				<strong>{{ t("tiltify.campaign_list", storeTiltify.campaignList.length) }}</strong>
+				<div class="campaignList">
+					<div
+						v-for="campaign in storeTiltify.campaignList"
+						:key="campaign.id"
+						class="campaign"
+						:class="{ retired: getRetiredDate(campaign) }"
+					>
+						<img
+							v-if="campaign.avatar?.src"
+							class="avatar"
+							:src="campaign.avatar.src"
+							:alt="campaign.avatar.alt || campaign.name"
+						/>
+						<Icon v-else name="tiltify" class="avatar" />
+
+						<div class="details">
+							<div class="title">
+								<a class="name" :href="campaign.donate_url" target="_blank"
+									><Icon name="newtab" />{{ campaign.name }}</a
+								>
+								<Tag
+									v-if="getRetiredDate(campaign)"
+									v-tooltip="
+										t('tiltify.retired_tt', {
+											DATE: getRetiredDate(campaign),
+										})
+									"
+									>{{ t("tiltify.retired") }}</Tag
+								>
+							</div>
+
+							<template v-if="getGoal(campaign) > 0">
+								<div class="progress">
+									<div
+										class="fill"
+										:style="{
+											width: getPercent(campaign) + '%',
+										}"
+									></div>
+								</div>
+								<div class="amounts">
+									<strong>{{
+										formatAmount(
+											getRaised(campaign),
+											campaign.currency_code ||
+												campaign.amount_raised.currency,
+										)
+									}}</strong>
+									<span>{{
+										formatAmount(
+											getGoal(campaign),
+											campaign.currency_code ||
+												campaign.amount_raised.currency,
+										)
+									}}</span>
+								</div>
+							</template>
 						</div>
+
+						<TTButton
+							class="copyBt"
+							small
+							transparent
+							icon="id"
+							v-tooltip="t('tiltify.copy_id_tt')"
+							:copy="campaign.id"
+						/>
 					</div>
-					<span class="spaceAbove">{{ t("tiltify.create_donation_goals") }}</span>
-					<TTButton @click="openOverlay()" icon="add">{{ t("global.create") }}</TTButton>
-				</section>
-			</template>
+				</div>
+				<span class="spaceAbove">{{ t("tiltify.create_donation_goals") }}</span>
+				<TTButton @click="openOverlay()" icon="add">{{ t("global.create") }}</TTButton>
+			</section>
 		</template>
 
 		<section class="examples">
@@ -88,14 +138,19 @@
 
 <script setup lang="ts">
 import MessageItem from "@/components/messages/MessageItem.vue";
+import Tag from "@/components/Tag.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { storeTiltify as useStoreTiltify } from "@/store/tiltify/storeTiltify";
+import {
+	storeTiltify as useStoreTiltify,
+	type TiltifyCampaign,
+} from "@/store/tiltify/storeTiltify";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
 import { onBeforeMount, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ProfileInfoCard from "../ProfileInfoCard.vue";
 
 const { t } = useI18n();
 const storeDebug = useStoreDebug();
@@ -154,10 +209,51 @@ function openOverlay(): void {
 }
 
 /**
- * Copies ID to clipboard
+ * Get the formatted date at which the given campaign has been retired.
+ * Returns an empty string if the campaign is still running.
  */
-function copyId(id: string): void {
-	Utils.copyToClipboard(id);
+function getRetiredDate(campaign: TiltifyCampaign): string {
+	if (!campaign.retired_at) return "";
+	const date = new Date(campaign.retired_at);
+	if (isNaN(date.getTime())) return "";
+	return Utils.formatDate(date, false, false, false);
+}
+
+/**
+ * Get the amount raised so far on the given campaign
+ */
+function getRaised(campaign: TiltifyCampaign): number {
+	return parseFloat(campaign.total_amount_raised?.value) || 0;
+}
+
+/**
+ * Get the fundraising goal of the given campaign
+ */
+function getGoal(campaign: TiltifyCampaign): number {
+	return parseFloat(campaign.goal?.value) || 0;
+}
+
+/**
+ * Get the completion percent of the given campaign's goal
+ */
+function getPercent(campaign: TiltifyCampaign): number {
+	const goal = getGoal(campaign);
+	if (goal <= 0) return 0;
+	return Math.max(0, Math.min(100, (getRaised(campaign) / goal) * 100));
+}
+
+/**
+ * Formats an amount to the given currency
+ */
+function formatAmount(amount: number, currency: string): string {
+	try {
+		return new Intl.NumberFormat(undefined, {
+			style: "currency",
+			currency,
+		}).format(amount);
+	} catch (e) {
+		return amount + " " + (currency || "");
+	}
 }
 
 /**
@@ -174,18 +270,6 @@ function loadAuthURL(): void {
 
 <style scoped lang="less">
 .connecttiltify {
-	.userInfo {
-		gap: 0.5em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		align-self: center;
-		img {
-			border-radius: 50%;
-			height: 2em;
-		}
-	}
-
 	.infos {
 		gap: 0.5em;
 		display: flex;
@@ -198,18 +282,105 @@ function loadAuthURL(): void {
 		}
 		.campaignList {
 			align-self: stretch;
-			gap: 0.25em;
+			gap: 0.5em;
 			display: flex;
 			flex-direction: column;
 			.campaign {
+				gap: 0.5em;
 				display: flex;
 				flex-direction: row;
-				justify-content: space-between;
 				align-items: center;
-				padding-left: 0.5em;
+				padding: 0.5em;
 				border-radius: var(--border-radius);
+				background-color: var(--background-color-fader);
+				transition: background-color 0.2s;
+				position: relative;
 				&:hover {
 					background-color: var(--background-color-fadest);
+				}
+
+				&.retired {
+					opacity: 0.6;
+					transition:
+						background-color 0.2s,
+						opacity 0.2s;
+					.avatar {
+						filter: saturate(0%);
+					}
+					.progress .fill {
+						background-color: var(--color-text-fade);
+					}
+					&:hover {
+						opacity: 1;
+					}
+				}
+
+				.avatar {
+					width: 2.5em;
+					height: 2.5em;
+					margin: 0;
+					flex-shrink: 0;
+					object-fit: cover;
+					border-radius: var(--border-radius);
+				}
+
+				.details {
+					gap: 0.25em;
+					min-width: 0;
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+
+					.title {
+						gap: 0.5em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						flex-wrap: wrap;
+						.tag {
+							flex-shrink: 0;
+						}
+					}
+
+					.name {
+						font-weight: bold;
+						line-height: 1.2em;
+						overflow-wrap: anywhere;
+					}
+
+					.progress {
+						height: 4px;
+						overflow: hidden;
+						border-radius: 4px;
+						background-color: var(--color-text-fadest);
+						.fill {
+							height: 100%;
+							border-radius: 4px;
+							background-color: var(--color-primary-light);
+							transition: width 0.2s;
+						}
+					}
+
+					.amounts {
+						gap: 0.5em;
+						display: flex;
+						flex-direction: row;
+						justify-content: space-between;
+						font-size: 0.8em;
+						span {
+							font-style: italic;
+							color: var(--color-text-fade);
+						}
+					}
+				}
+
+				.copyBt {
+					flex-shrink: 0;
+					width: 2em;
+					height: 2em;
+					position: absolute;
+					top: 0;
+					right: 0;
 				}
 			}
 		}

@@ -278,7 +278,7 @@ export interface TiltifyCampaign {
 	team_id: string;
 	amount_raised: Totalamountraised;
 	published_at: string;
-	retired_at?: unknown;
+	retired_at?: string | null;
 	supportable: string;
 	goal: Totalamountraised;
 	livestream?: unknown;

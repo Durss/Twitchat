@@ -5,6 +5,8 @@
 		"create_donation_goals": "Create interactive donation goals with the dedicated overlay",
 		"campaign_list": "Your Tiltify campaign | Your Tiltify campaigns",
 		"no_campaign": "Your Tiltify profile is not associated with any fundraising campaign",
-		"copy_id_tt": "Copy campaign ID"
+		"copy_id_tt": "Copy campaign ID",
+		"retired": "Retired",
+		"retired_tt": "Campaign retired on {DATE}"
 	}
 }
