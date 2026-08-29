@@ -120,6 +120,7 @@ export default class InvoiceUtils {
 	): Promise<NodeJS.ReadableStream | null> {
 		const res = await this.callApi(
 			"/invoices/" + encodeURIComponent(twitchUID) + "/" + encodeURIComponent(orderId),
+			{ timeout: 60000 },
 		);
 		if (res.status === 404) return null;
 		if (!res.ok) {
@@ -134,6 +135,7 @@ export default class InvoiceUtils {
 			method?: string;
 			body?: string;
 			headers?: Record<string, string>;
+			timeout?: number;
 		},
 	): ReturnType<typeof fetch> {
 		const base = Config.credentials.invoice_api_url.replace(/\/$/, "");
@@ -144,6 +146,7 @@ export default class InvoiceUtils {
 				...init?.headers,
 				"X-API-Key": Config.credentials.invoice_api_key,
 			},
+			signal: AbortSignal.timeout(init?.timeout ?? 20000),
 		});
 	}
 }
