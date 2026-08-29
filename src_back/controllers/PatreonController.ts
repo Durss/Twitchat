@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import { TwitchToken } from "../utils/TwitchUtils.js";
@@ -32,6 +32,10 @@ export default class PatreonController extends AbstractController {
 	//This tier is an exception for the "MIN_AMOUT".
 	//This tier is lower than the min amount but has a limited number of slots
 	private MIN_AMOUNT_TIER_ID_EXCEPTION: string = "10133573";
+	//Maximum number of times a rate limited (429) request is retried
+	private MAX_RATE_LIMIT_RETRIES: number = 3;
+	//Maximum delay (in ms) we accept to wait before retrying a rate limited request
+	private MAX_RATE_LIMIT_DELAY: number = 60 * 1000;
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -253,23 +257,15 @@ export default class PatreonController extends AbstractController {
 				Authorization: "Bearer " + patreonAuth.token.access_token,
 				"User-Agent": this.userAgent,
 			};
-			const result = await fetch(
-				"https://www.patreon.com/api/oauth2/v2/webhooks/" + webhook.webhookID,
-				{ method: "DELETE", headers },
+			const result = await this.fetchPatreon(
+				"disconnectUser for user " + patreonAuth.twitchUser.login,
+				() =>
+					fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + webhook.webhookID, {
+						method: "DELETE",
+						headers,
+					}),
 			);
-			if (result.status == 429) {
-				Logger.warn(
-					"[PATREON][USER] Rate limited disconnectUser for user " +
-						patreonAuth.twitchUser.login +
-						", retrying in a few seconds",
-				);
-				const json = (await result.json()) as { errors: { retry_after_seconds: number }[] };
-				let delay =
-					(json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0]!
-						.retry_after_seconds * 1000;
-				await Utils.promisedTimeout(delay);
-				return this.disconnectUser(request, response);
-			} else if (result.status != 204) {
+			if (result.status != 204) {
 				Logger.error(
 					"[PATREON][USER] Webhook deletion failed for user " +
 						patreonAuth.twitchUser.login,
@@ -315,19 +311,15 @@ export default class PatreonController extends AbstractController {
 			},
 		};
 
-		const result = await fetch(url, options);
+		const result = await this.fetchPatreon(
+			"getUserIsMember for user " + patreonAuth.twitchUser.login,
+			() => fetch(url, options),
+		);
 		if (result.status == 429) {
-			Logger.warn(
-				"[PATREON][USER] Rate limited getUserIsMember for user " +
-					patreonAuth.twitchUser.login +
-					", retrying in a few seconds",
-			);
-			const json = (await result.json()) as { errors: { retry_after_seconds: number }[] };
-			let delay =
-				(json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0]!
-					.retry_after_seconds * 1000;
-			await Utils.promisedTimeout(delay);
-			return this.getUserIsMember(request, response);
+			//Still rate limited after all retries, ask the user to try again later
+			response.header("Content-Type", "application/json");
+			response.status(429);
+			response.send(JSON.stringify({ success: false, errorCode: "RATE_LIMITED" }));
 		} else {
 			const json = (await result.json()) as { error?: string } | MemberResult;
 
@@ -844,6 +836,54 @@ export default class PatreonController extends AbstractController {
 	 ******************/
 
 	/**
+	 * Abstract all patreon API requests to handle rate limiting.
+	 * When rate limited query is automatically retried.
+	 * It stops retrying after MAX_RATE_LIMIT_RETRIES failed attempts
+	 * @returns the last response received
+	 */
+	private async fetchPatreon(
+		context: string,
+		doFetch: () => Promise<Awaited<ReturnType<typeof fetch>>>,
+	): Promise<Awaited<ReturnType<typeof fetch>>> {
+		let result = await doFetch();
+		for (let attempt = 1; result.status == 429; attempt++) {
+			if (attempt > this.MAX_RATE_LIMIT_RETRIES) {
+				Logger.error(`[PATREON] Rate limited ${context}. Giving up.`);
+				break;
+			}
+
+			const body = await result.text().catch(() => "");
+			result = new Response(body, {
+				status: result.status,
+				statusText: result.statusText,
+				headers: result.headers,
+			});
+
+			// Get duration to wait before next attempt from response headers
+			let delay = 0;
+			try {
+				const json = JSON.parse(body) as { errors?: { retry_after_seconds?: number }[] };
+				const retryAfter = (json.errors || [])[0]?.retry_after_seconds;
+				if (typeof retryAfter == "number") delay = retryAfter * 1000;
+			} catch {
+				//Body isn't JSON, keep the fallback delay
+			}
+			if (!Number.isFinite(delay) || delay <= 0) delay = (Math.random() * 3 + 1) * 1000;
+			if (delay > this.MAX_RATE_LIMIT_DELAY) {
+				Logger.error(`[PATREON] Rate limited ${context}. Delay too long, giving up.`);
+				break;
+			}
+
+			Logger.error(
+				`[PATREON] Rate limited ${context}. Retry in ${Math.round(delay / 1000)}, attempt ${attempt}.`,
+			);
+			await Utils.promisedTimeout(delay);
+			result = await doFetch();
+		}
+		return result;
+	}
+
+	/**
 	 * Refreshes the patrons list.
 	 * @param campaignId
 	 * @param verbose
@@ -1041,24 +1081,13 @@ export default class PatreonController extends AbstractController {
 			},
 		};
 
-		const result = await fetch(url, options);
+		const result = await this.fetchPatreon(
+			"loadCampaignMembers for campaign " + campaignId,
+			() => fetch(url, options),
+		);
 		if (result.status != 200) {
-			if (result.status == 429) {
-				Logger.warn(
-					"[PATREON] Rate limited loadCampaignMembers for campaign " +
-						campaignId +
-						", retrying in a few seconds",
-				);
-				const json = (await result.json()) as { errors: { retry_after_seconds: number }[] };
-				let delay =
-					(json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0]!
-						.retry_after_seconds * 1000;
-				await Utils.promisedTimeout(delay);
-				return this.loadCampaignMembers(accessToken, campaignId, offset, memberList);
-			} else {
-				Logger.warn("[PATREON] Failed loadCampaignMembers for campaign " + campaignId + "");
-				console.log(await result.text());
-			}
+			Logger.warn("[PATREON] Failed loadCampaignMembers for campaign " + campaignId + "");
+			console.log(await result.text());
 			return {
 				success: false,
 				error: ["Status " + result.status.toString()],
@@ -1222,24 +1251,18 @@ export default class PatreonController extends AbstractController {
 					},
 				}),
 			};
-			const resultWebhook = await fetch(
-				"https://www.patreon.com/api/oauth2/v2/webhooks",
-				options,
+			const resultWebhook = await this.fetchPatreon(
+				"createUserWebhook for user " + patreonAuth.twitchUser.login,
+				() => fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options),
 			);
 			if (resultWebhook.status == 429) {
-				Logger.warn(
-					"[PATREON][USER] Rate limited createUserWebhook for user " +
-						patreonAuth.twitchUser.login +
-						", retrying in a few seconds",
-				);
-				const json = (await resultWebhook.json()) as {
-					errors: { retry_after_seconds: number }[];
-				};
-				let delay =
-					(json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0]!
-						.retry_after_seconds * 1000;
-				await Utils.promisedTimeout(delay);
-				return this.createUserWebhook(request, response, patreonAuth);
+				//Still rate limited after all retries
+				if (resolveQuery) {
+					response.header("Content-Type", "application/json");
+					response.status(429);
+					response.send({ success: false, errorCode: "RATE_LIMITED" });
+				}
+				return false;
 			} else {
 				const jsonWebhook = (await resultWebhook.json()) as {
 					data: WebhookEntry;
@@ -1341,24 +1364,22 @@ export default class PatreonController extends AbstractController {
 			Authorization: "Bearer " + patreonAuth.token.access_token,
 			"User-Agent": this.userAgent,
 		};
-		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", {
-			method: "GET",
-			headers,
-		});
+		const resultWebhook = await this.fetchPatreon(
+			"getUserWebhook for user " + patreonAuth.twitchUser.login,
+			() =>
+				fetch("https://www.patreon.com/api/oauth2/v2/webhooks", {
+					method: "GET",
+					headers,
+				}),
+		);
 		if (resultWebhook.status == 429) {
-			Logger.warn(
-				"[PATREON][USER] Rate limited getUserWebhook for user " +
-					patreonAuth.twitchUser.login +
-					", retrying in a few seconds",
-			);
-			const json = (await resultWebhook.json()) as {
-				errors: { retry_after_seconds: number }[];
-			};
-			let delay =
-				(json.errors || [{ retry_after_seconds: Math.random() * 3 + 1 }])[0]!
-					.retry_after_seconds * 1000;
-			await Utils.promisedTimeout(delay);
-			return this.getUserWebhook(request, response, patreonAuth);
+			//Still rate limited after all retries
+			if (resolveQuery) {
+				response.header("Content-Type", "application/json");
+				response.status(429);
+				response.send({ success: false, errorCode: "RATE_LIMITED" });
+			}
+			return false;
 		} else {
 			const json = (await resultWebhook.json()) as { data?: WebhookEntry[] };
 			(json.data || []).forEach((entry) => {
