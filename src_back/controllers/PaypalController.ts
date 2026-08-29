@@ -5,7 +5,7 @@ import Config from "../utils/Config.js";
 import InvoiceUtils from "../utils/InvoiceUtils.js";
 import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
-import TwitchUtils, { TwitchUserInfos } from "../utils/TwitchUtils.js";
+import TwitchUtils, { TwitchToken, TwitchUserInfos } from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 
 interface InvoiceDownloadToken extends JwtPayload {
@@ -15,11 +15,17 @@ interface InvoiceDownloadToken extends JwtPayload {
 }
 
 const INVOICE_TOKEN_TTL_MS = 60 * 1000;
+// Validates order IDs format
+const ORDER_ID_REGEX = /^[A-Z0-9]{6,32}$/i;
 
 /**
  * Created : 17/08/2023
  */
 export default class PaypalController extends AbstractController {
+	//Cached paypal credential token
+	private token: { value: string; expiresAt: number } | null = null;
+	private tokenPromise: Promise<string> | null = null;
+
 	constructor(public server: FastifyInstance) {
 		super();
 	}
@@ -64,7 +70,6 @@ export default class PaypalController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if (userInfo == false) return;
 
-		const token = await this.getToken();
 		const body: any = request.body;
 
 		let amount = body.amount || 20;
@@ -88,6 +93,7 @@ export default class PaypalController extends AbstractController {
 		const data = JSON.stringify(order_data_json);
 
 		try {
+			const token = await this.getToken();
 			const json = await fetch(Config.PAYPAL_ENDPOINT + "/v2/checkout/orders", {
 				method: "POST",
 				headers: {
@@ -145,14 +151,28 @@ export default class PaypalController extends AbstractController {
 		const twitchUser = await super.twitchUserGuard(request, response);
 		if (twitchUser == false) return;
 
-		const token = await this.getToken();
 		const body: any = request.body;
 		const giftedUserId = body.giftUserId;
+		const orderID: string = body.orderID || "";
 		let giftedUser: TwitchUserInfos | null = null;
 		let errorMessage = "";
 
+		if (!ORDER_ID_REGEX.test(orderID)) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid order ID",
+					errorCode: "INVALID_ORDER_ID",
+				}),
+			);
+			return;
+		}
+
 		try {
-			const order = await this.getOrderDetails(token, body.orderID);
+			const token = await this.getToken();
+			const order = await this.getOrderDetails(token, orderID);
 
 			const order_data_json = {
 				intent: order.intent,
@@ -169,7 +189,7 @@ export default class PaypalController extends AbstractController {
 			const url =
 				Config.PAYPAL_ENDPOINT +
 				"/v2/checkout/orders/" +
-				body.orderID +
+				orderID +
 				"/" +
 				order.intent.toLowerCase();
 			const orderResult = await fetch(url, {
@@ -233,59 +253,8 @@ export default class PaypalController extends AbstractController {
 					}
 				}
 
-				if (Config.credentials.invoice_api_url) {
-					//Generate PDF invoice. Failure is non-fatal: the payment already went through.
-					try {
-						const amount = parseFloat(
-							orderResult.purchase_units[0]!.payments.captures[0]!.amount.value,
-						);
-						const description =
-							amount >= Config.lifetimeDonorThreshold
-								? "Access to premium features on Twitchat"
-								: "Donation to Twitchat";
-						await InvoiceUtils.generatePaypalInvoice({
-							orderId: orderResult.id,
-							date: new Date(),
-							twitchLogin: twitchUser.login,
-							twitchUID: twitchUser.user_id,
-							payerName:
-								[
-									orderResult.payer?.name?.given_name,
-									orderResult.payer?.name?.surname,
-								]
-									.filter((v) => !!v)
-									.join(" ") || twitchUser.login,
-							payerEmail: orderResult.payer.email_address,
-							payerId: orderResult.payer.payer_id,
-							giftedTwitchLogin: giftedUser?.login,
-							amount,
-							currency:
-								orderResult.purchase_units[0]!.payments.captures[0]!.amount
-									.currency_code,
-							fees: 0,
-							quantity: 1,
-							unitPrice: amount,
-							paymentMethod: "PayPal",
-							description: giftedUser?.login
-								? description + " (gifted to " + giftedUser?.login + ")"
-								: description,
-							payerAddressLine1:
-								orderResult.purchase_units[0]!.shipping.address.address_line_1,
-							payerAddressLine2:
-								orderResult.purchase_units[0]!.shipping.address.address_line_2,
-							payerPostCode:
-								orderResult.purchase_units[0]!.shipping.address.postal_code,
-							payerCountryCode:
-								orderResult.purchase_units[0]!.shipping.address.country_code,
-							payerCity: orderResult.purchase_units[0]!.shipping.address.admin_area_2,
-							payerState:
-								orderResult.purchase_units[0]!.shipping.address.admin_area_1,
-						});
-					} catch (error) {
-						Logger.error("Failed generating PDF invoice for order " + orderResult.id);
-						console.log(error);
-					}
-				}
+				//Generate PDF invoice. Failure is non-fatal: the payment already went through.
+				void this.generateInvoice(orderResult, twitchUser, giftedUser);
 
 				//Add donor to donor list via remote service
 				const resRemote = await fetch(
@@ -370,6 +339,62 @@ export default class PaypalController extends AbstractController {
 	}
 
 	/**
+	 * Generate the PDF invoice of a completed order.
+	 * Failure is non-fatal: the payment already went through.
+	 * @param orderResult
+	 * @param twitchUser
+	 * @param giftedUser
+	 */
+	private async generateInvoice(
+		orderResult: PaypalOrderComplete,
+		twitchUser: TwitchToken,
+		giftedUser: TwitchUserInfos | null,
+	): Promise<void> {
+		//Nothing in here may throw: this runs detached from the request
+		try {
+			if (!Config.credentials.invoice_api_url) return;
+			const amount = parseFloat(
+				orderResult.purchase_units[0]!.payments.captures[0]!.amount.value,
+			);
+			const description =
+				amount >= Config.lifetimeDonorThreshold
+					? "Access to premium features on Twitchat"
+					: "Donation to Twitchat";
+			await InvoiceUtils.generatePaypalInvoice({
+				orderId: orderResult.id,
+				date: new Date(),
+				twitchLogin: twitchUser.login,
+				twitchUID: twitchUser.user_id,
+				payerName:
+					[orderResult.payer?.name?.given_name, orderResult.payer?.name?.surname]
+						.filter((v) => !!v)
+						.join(" ") || twitchUser.login,
+				payerEmail: orderResult.payer.email_address,
+				payerId: orderResult.payer.payer_id,
+				giftedTwitchLogin: giftedUser?.login,
+				amount,
+				currency: orderResult.purchase_units[0]!.payments.captures[0]!.amount.currency_code,
+				fees: 0,
+				quantity: 1,
+				unitPrice: amount,
+				paymentMethod: "PayPal",
+				description: giftedUser?.login
+					? description + " (gifted to " + giftedUser?.login + ")"
+					: description,
+				payerAddressLine1: orderResult.purchase_units[0]!.shipping.address.address_line_1,
+				payerAddressLine2: orderResult.purchase_units[0]!.shipping.address.address_line_2,
+				payerPostCode: orderResult.purchase_units[0]!.shipping.address.postal_code,
+				payerCountryCode: orderResult.purchase_units[0]!.shipping.address.country_code,
+				payerCity: orderResult.purchase_units[0]!.shipping.address.admin_area_2,
+				payerState: orderResult.purchase_units[0]!.shipping.address.admin_area_1,
+			});
+		} catch (error) {
+			Logger.error("Failed generating PDF invoice for order " + orderResult.id);
+			console.log(error);
+		}
+	}
+
+	/**
 	 * Get an order details from its ID
 	 * @param orderID
 	 */
@@ -390,23 +415,44 @@ export default class PaypalController extends AbstractController {
 	}
 
 	/**
-	 * Get a Paypal credential token
+	 * Get a Paypal credential token.
+	 * Tokens are valid for hours, keep it in memory instead of requesting
+	 * a new one for every order
 	 */
-	private getToken(): Promise<string> {
+	private async getToken(): Promise<string> {
+		// Reuse token if still valid
+		if (this.token && this.token.expiresAt > Date.now()) return this.token.value;
+		// Wait for current token gen if any
+		if (!this.tokenPromise) {
+			// Generate new token
+			this.tokenPromise = this.requestToken();
+			void this.tokenPromise.catch(() => {}).then(() => (this.tokenPromise = null));
+		}
+		return this.tokenPromise;
+	}
+
+	/**
+	 * Request a new Paypal credential token
+	 */
+	private async requestToken(): Promise<string> {
 		const auth = `${Config.credentials.paypal_client_id}:${Config.credentials.paypal_client_secret}`;
 		const data = "grant_type=client_credentials";
-		return fetch(Config.PAYPAL_ENDPOINT + "/v1/oauth2/token", {
+		const res = await fetch(Config.PAYPAL_ENDPOINT + "/v1/oauth2/token", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded",
 				Authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
 			},
 			body: data,
-		})
-			.then((res) => res.json() as unknown as { access_token: string })
-			.then((json) => {
-				return json.access_token;
-			});
+		});
+		const json = (await res.json()) as { access_token?: string; expires_in?: number };
+		if (!res.ok || !json.access_token) {
+			this.token = null;
+			throw new Error("Paypal token request failed with status " + res.status);
+		}
+		const ttl = (json.expires_in || 300) * 1000 - 60000;
+		this.token = { value: json.access_token, expiresAt: Date.now() + Math.max(0, ttl) };
+		return json.access_token;
 	}
 
 	/**
@@ -465,7 +511,7 @@ export default class PaypalController extends AbstractController {
 		if (twitchUser == false) return;
 
 		const orderId = (request.query as { orderId?: string }).orderId;
-		if (!orderId || !/^[A-Z0-9]{6,32}$/i.test(orderId)) {
+		if (!orderId || !ORDER_ID_REGEX.test(orderId)) {
 			response
 				.header("Content-Type", "application/json")
 				.status(400)
@@ -505,7 +551,7 @@ export default class PaypalController extends AbstractController {
 		const token = query.token;
 
 		//Reject anything that isn't a plain PayPal order ID to prevent path traversal
-		if (!orderId || !/^[A-Z0-9]{6,32}$/i.test(orderId)) {
+		if (!orderId || !ORDER_ID_REGEX.test(orderId)) {
 			response.status(400).send({ success: false, error: "Invalid order ID" });
 			return;
 		}
