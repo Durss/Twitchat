@@ -16,6 +16,10 @@ import { AutocompletableString } from "@/utils/typeUtils.js";
 export default class TiltifyController extends AbstractController {
 	private credentialToken: AuthToken | null = null;
 	private fact2UidMap: FactIdToUsers = {};
+	/**
+	 * Max number of campaign webhook subscriptions sent to Tiltify at once
+	 */
+	private readonly CAMPAIGN_SUBSCRIBE_CONCURRENCY = 10;
 	private parsedEvents = new LRUCache<string, boolean>({
 		max: 5000,
 		ttl: 1000 * 60 * 60 * 1,
@@ -250,8 +254,15 @@ export default class TiltifyController extends AbstractController {
 		}
 
 		let mapUpdated = false;
-		campaignsJSON.forEach(async (c) => {
-			await this.subscribeToCampaign(c.id);
+		// Subscribe to all campaigns of the user by sequential batches
+		await Utils.mapLimit(campaignsJSON, this.CAMPAIGN_SUBSCRIBE_CONCURRENCY, async (c) => {
+			try {
+				await this.subscribeToCampaign(c.id);
+			} catch (error) {
+				Logger.error("[TILTIFY] Failed subscribing to campaign " + c.id);
+				console.log(error);
+				//Do not return. It's still worth keeping trakc of the association
+			}
 			//Register campaign
 			if (!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = { type: "campaign", users: [] };
 			if (!this.fact2UidMap[c.id]!.users.includes(twitchUser.user_id)) {
@@ -377,9 +388,17 @@ export default class TiltifyController extends AbstractController {
 			}
 
 			let mapUpdated = false;
-			campaignsJSON.forEach(async (c) => {
-				await this.unsubscribeFromCampaign(c.id);
-				//Register campaign
+			// unsub all users' campaigns
+			await Utils.mapLimit(campaignsJSON, this.CAMPAIGN_SUBSCRIBE_CONCURRENCY, async (c) => {
+				try {
+					await this.unsubscribeFromCampaign(c.id);
+				} catch (error) {
+					Logger.error(
+						"[TILTIFY][DISCONNECT] Failed unsubscribing from campaign " + c.id,
+					);
+					console.log(error);
+				}
+				//Unregister campaign
 				if (!this.fact2UidMap[c.id])
 					this.fact2UidMap[c.id] = { type: "campaign", users: [] };
 				const factIndex = this.fact2UidMap[c.id]!.users.findIndex(
