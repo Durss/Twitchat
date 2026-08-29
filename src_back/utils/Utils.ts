@@ -85,14 +85,27 @@ export default class Utils {
 		}
 
 		const logPath = Config.LOGS_PATH(logType);
-		if (!fs.existsSync(logPath)) {
+		const entry = "\r\n" + JSON.stringify({ date: new Date().toString(), body: logData });
+		const entrySize = Buffer.byteLength(entry);
+
+		let size = 0;
+		if (fs.existsSync(logPath)) {
+			size = fs.statSync(logPath).size;
+		} else {
 			fs.writeFileSync(logPath, "", "utf-8");
 		}
 
-		fs.appendFileSync(
-			logPath,
-			"\r\n" + JSON.stringify({ date: new Date().toString(), body: logData }),
-		);
+		const MAX_FILE_SIZE = 20 * 1024 * 1024;
+		if (size + entrySize > MAX_FILE_SIZE) {
+			//Drop the oldest entries to make room for the new one.
+			//Cut on an entry separator so no half entry is left behind.
+			const keepMax = MAX_FILE_SIZE - entrySize;
+			const content = fs.readFileSync(logPath);
+			const cutIndex = keepMax > 0 ? content.indexOf("\r\n", content.length - keepMax) : -1;
+			fs.writeFileSync(logPath, cutIndex > -1 ? content.subarray(cutIndex) : Buffer.alloc(0));
+		}
+
+		fs.appendFileSync(logPath, entry);
 		return true;
 	}
 
