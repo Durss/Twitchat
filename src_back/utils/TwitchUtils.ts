@@ -9,23 +9,35 @@ import Logger from "./Logger.js";
 export default class TwitchUtils {
 	private static _credentialToken: string | null;
 	private static _token_invalidation_date: number;
-	/** token → validated user info – 10 min TTL */
+	/**
+	 * How long a token state is cached
+	 */
+	private static readonly TOKEN_CACHE_TTL = 60 * 1000;
+	/**
+	 * Gets a user from a cached token
+	 */
 	private static _tokenToUserCache = new LRUCache<string, TwitchToken>({
 		max: 1_000,
-		ttl: 10 * 60 * 1000,
+		ttl: TwitchUtils.TOKEN_CACHE_TTL,
 	});
-	/** token → moderator list – 1 h TTL */
+	/**
+	 * Gets a user's moderator from their token
+	 */
 	private static _moderatorsCache = new LRUCache<string, ModeratorUser[]>({
 		max: 1_000,
 		ttl: 60 * 60 * 1000,
 	});
-	/** token → moderated-channels list – 1 h TTL */
+	/**
+	 * Get moderated chans of a user from their token
+	 */
 	private static _moderatedChansCache = new LRUCache<string, ModeratedUser[]>({
 		max: 1_000,
 		ttl: 60 * 60 * 1000,
 	});
-	/** uid or login → user profile – 1 h TTL */
-	private static _uidToUser = new LRUCache<string, TwitchUserInfos>({
+	/**
+	 * Get user data from theur login or id
+	 */
+	private static _uidOrLoginToUser = new LRUCache<string, TwitchUserInfos>({
 		max: 10_000,
 		ttl: 60 * 60 * 1000,
 	});
@@ -92,10 +104,17 @@ export default class TwitchUtils {
 	/**
 	 * Validates a token and returns the user data
 	 */
-	public static async getUserFromToken(token?: string): Promise<TwitchToken | null> {
+	public static async getUserFromToken(
+		token?: string,
+		skipCache: boolean = false,
+	): Promise<TwitchToken | null> {
 		if (!token) return null;
-		const cached = this._tokenToUserCache.get(token);
-		if (cached) return cached;
+		if (skipCache) {
+			this._tokenToUserCache.delete(token);
+		} else {
+			const cached = this._tokenToUserCache.get(token);
+			if (cached) return cached;
+		}
 
 		//Check access token validity
 		const options = {
@@ -119,9 +138,15 @@ export default class TwitchUtils {
 				return null;
 			}
 
-			this._tokenToUserCache.set(token, json);
+			// Makes sure cache expires after token expires
+			const remaining = (json.expires_in || 0) * 1000 - 60000;
+			const ttl =
+				remaining > 0 ? Math.min(this.TOKEN_CACHE_TTL, remaining) : this.TOKEN_CACHE_TTL;
+			this._tokenToUserCache.set(token, json, { ttl });
 			return json;
 		} else {
+			//Token dead, drop cache
+			this._tokenToUserCache.delete(token);
 			return null;
 		}
 	}
@@ -140,7 +165,7 @@ export default class TwitchUtils {
 	): Promise<TwitchUserInfos[] | false> {
 		const keys = logins ?? ids ?? [];
 		const allCached = keys
-			.map((k) => this._uidToUser.get(k))
+			.map((k) => this._uidOrLoginToUser.get(k))
 			.filter((v): v is TwitchUserInfos => !!v);
 		if (allCached.length === keys.length && keys.length > 0) {
 			return allCached;
@@ -190,8 +215,8 @@ export default class TwitchUtils {
 		if (result.status == 200) {
 			const results = ((await result.json()) as { data: TwitchUserInfos[] }).data;
 			results.forEach((user) => {
-				this._uidToUser.set(user.id, user);
-				this._uidToUser.set(user.login, user);
+				this._uidOrLoginToUser.set(user.id, user);
+				this._uidOrLoginToUser.set(user.login, user);
 			});
 			return results;
 		}

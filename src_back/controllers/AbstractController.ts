@@ -94,11 +94,14 @@ export default class AbstractController {
 	 * Returns true if it passes the user is authenticated
 	 * @param request
 	 * @param response
+	 * @param blockRequest
+	 * @param skipCache re-validate the token against Twitch instead of its cached state
 	 */
 	protected async twitchUserGuard(
 		request: FastifyRequest,
 		response: FastifyReply,
 		blockRequest: boolean = true,
+		skipCache: boolean = false,
 	): Promise<false | TwitchToken> {
 		//Missing auth token
 		if (!request.headers.authorization) {
@@ -117,7 +120,10 @@ export default class AbstractController {
 			return false;
 		}
 
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(
+			request.headers.authorization,
+			skipCache,
+		);
 		if (!userInfo) {
 			if (blockRequest) {
 				response
@@ -146,7 +152,9 @@ export default class AbstractController {
 		request: FastifyRequest,
 		response: FastifyReply,
 	): Promise<false | TwitchToken> {
-		const userInfo = await this.twitchUserGuard(request, response);
+		//Admin endpoints must never run on a cached validation, a token revoked
+		//a few seconds ago has to be rejected right away
+		const userInfo = await this.twitchUserGuard(request, response, true, true);
 		if (userInfo === false) return false;
 
 		//Only allow admins
