@@ -680,11 +680,6 @@ export default class PatreonController extends AbstractController {
 			Logger.warn("[PATREON][SERVICE] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
-			this.patreonApiDown = true;
-			this.sendAlert(
-				"patreon signature",
-				"Patreon Webhook failed, invalid signature " + signature,
-			);
 			return;
 		}
 
