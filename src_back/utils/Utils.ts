@@ -243,6 +243,41 @@ export default class Utils {
 	}
 
 	/**
+	 * Same as "Promise.all(items.map(task))" but with a bounded number of
+	 * tasks running at the same time.
+	 * Use it whenever the size of the list depends on user data (viewer count,
+	 * file count, ...) to avoid opening thousands of concurrent file handles
+	 * or HTTP requests.
+	 * @param items
+	 * @param limit max number of concurrent tasks
+	 * @param task
+	 * @returns results in the same order as "items"
+	 */
+	public static async mapLimit<T, R>(
+		items: readonly T[],
+		limit: number,
+		task: (item: T, index: number) => Promise<R>,
+	): Promise<R[]> {
+		const results = new Array<R>(items.length);
+		let cursor = 0;
+		const workerCount = Math.min(Math.max(1, limit), items.length);
+		const workers: Promise<void>[] = [];
+		for (let i = 0; i < workerCount; i++) {
+			workers.push(
+				(async () => {
+					while (true) {
+						const index = cursor++;
+						if (index >= items.length) return;
+						results[index] = await task(items[index]!, index);
+					}
+				})(),
+			);
+		}
+		await Promise.all(workers);
+		return results;
+	}
+
+	/**
 	 * Gets enabled feature flags for given user
 	 * @param uid
 	 * @param flagsMap

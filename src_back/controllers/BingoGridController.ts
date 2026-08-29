@@ -36,7 +36,22 @@ export default class BingoGridController extends AbstractController {
 	/**
 	 * Tracks viewer grids that need to be flushed to disk
 	 */
-	private dirtyViewerGrids = new Set<string>();
+	private dirtyViewerGrids = new Map<string, IViewerGridCacheData>();
+
+	/**
+	 * Max number of viewer grids read/write at the same time.
+	 */
+	private static readonly VIEWER_GRID_IO_CONCURRENCY = 25;
+
+	/**
+	 * Above this number of pending dirty grids they're all flushed right away
+	 */
+	private static readonly MAX_PENDING_VIEWER_GRIDS = 2000;
+
+	/**
+	 * In-flight size triggered flush, if any
+	 */
+	private eagerFlush: Promise<void> | undefined;
 
 	/**
 	 * Prevents cache stampede by tracking in-flight refresh operations
@@ -112,6 +127,14 @@ export default class BingoGridController extends AbstractController {
 
 	private getViewerGridCacheKey(channelId: string, bingoId: string, viewerId: string): string {
 		return `${channelId}/${bingoId}/${viewerId}`;
+	}
+
+	/**
+	 * Is logged out user?
+	 * Different from annonymous ones.
+	 */
+	private isAnonymousViewerId(viewerId: string): boolean {
+		return viewerId.startsWith("A");
 	}
 
 	/**
@@ -980,7 +1003,18 @@ export default class BingoGridController extends AbstractController {
 	): void {
 		const cacheKey = this.getViewerGridCacheKey(streamerId, bingoId, viewerId);
 		this.viewerGridCache.set(cacheKey, data);
-		this.dirtyViewerGrids.add(cacheKey);
+		// no grid for logged out users
+		if (this.isAnonymousViewerId(viewerId)) return;
+		this.dirtyViewerGrids.set(cacheKey, data);
+		if (this.dirtyViewerGrids.size >= BingoGridController.MAX_PENDING_VIEWER_GRIDS) {
+			// Force flush of dirty grid
+			if (this.eagerFlush) return;
+			this.eagerFlush = this.flushDirtyGrids()
+				.catch((err) => Logger.error("Failed eager grid flush:", String(err)))
+				.finally(() => {
+					this.eagerFlush = undefined;
+				});
+		}
 	}
 
 	/**
@@ -990,11 +1024,10 @@ export default class BingoGridController extends AbstractController {
 		const toFlush = [...this.dirtyViewerGrids];
 		this.dirtyViewerGrids.clear();
 
-		await Promise.allSettled(
-			toFlush.map(async (key) => {
-				const data = this.viewerGridCache.get(key);
-				if (!data) return;
-
+		await Utils.mapLimit(
+			toFlush,
+			BingoGridController.VIEWER_GRID_IO_CONCURRENCY,
+			async ([key, data]) => {
 				const chunks = key.split("/");
 				const streamerId = chunks[0]!;
 				const bingoId = chunks[1]!;
@@ -1007,10 +1040,10 @@ export default class BingoGridController extends AbstractController {
 					await fs.promises.writeFile(file, JSON.stringify(data), "utf-8");
 				} catch (error) {
 					Logger.error(`Failed to flush viewer grid ${key}:`, String(error));
-					// Re-add to dirty set for retry
-					this.dirtyViewerGrids.add(key);
+					// Re-queue for retry, unless a newer write already replaced it
+					if (!this.dirtyViewerGrids.has(key)) this.dirtyViewerGrids.set(key, data);
 				}
-			}),
+			},
 		);
 	}
 
@@ -1440,12 +1473,20 @@ export default class BingoGridController extends AbstractController {
 				const dirtyPrefix = `${user.user_id}/${gridId}/`;
 				const viewersToNotify = new Set<string>();
 
-				for (const dirtyKey of this.dirtyViewerGrids) {
+				for (const dirtyKey of this.dirtyViewerGrids.keys()) {
 					if (dirtyKey.startsWith(dirtyPrefix)) {
 						const viewerId = dirtyKey.substring(dirtyPrefix.length);
 						this.viewerGridCache.delete(dirtyKey);
 						this.dirtyViewerGrids.delete(dirtyKey);
 						viewersToNotify.add(viewerId);
+					}
+				}
+
+				// Anonymous viewers cards only live in the LRU, drop them as well
+				for (const key of this.viewerGridCache.keys().toArray()) {
+					if (key.startsWith(dirtyPrefix)) {
+						viewersToNotify.add(key.substring(dirtyPrefix.length));
+						this.viewerGridCache.delete(key);
 					}
 				}
 
@@ -1492,12 +1533,20 @@ export default class BingoGridController extends AbstractController {
 
 			// Also clear viewers that are in memory but not yet flushed to disk
 			const dirtyPrefix = `${user.user_id}/${gridId}/`;
-			for (const dirtyKey of this.dirtyViewerGrids) {
+			for (const dirtyKey of this.dirtyViewerGrids.keys()) {
 				if (dirtyKey.startsWith(dirtyPrefix)) {
 					const viewerId = dirtyKey.substring(dirtyPrefix.length);
 					this.viewerGridCache.delete(dirtyKey);
 					this.dirtyViewerGrids.delete(dirtyKey);
 					viewersToNotify.add(viewerId);
+				}
+			}
+
+			// Anonymous viewers cards only live in the LRU, drop them as well
+			for (const key of this.viewerGridCache.keys().toArray()) {
+				if (key.startsWith(dirtyPrefix)) {
+					viewersToNotify.add(key.substring(dirtyPrefix.length));
+					this.viewerGridCache.delete(key);
 				}
 			}
 
@@ -1512,9 +1561,12 @@ export default class BingoGridController extends AbstractController {
 				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, { force: true });
 			});
 		} else {
-			// Process files concurrently
-			await Promise.all(
-				files.map(async (file) => {
+			// Process files concurrently, bounded so a big channel does not open
+			// one file handle per viewer at once
+			await Utils.mapLimit(
+				files,
+				BingoGridController.VIEWER_GRID_IO_CONCURRENCY,
+				async (file) => {
 					const chunks = file.split(".");
 					const viewerId = chunks[0]!;
 					const grid: typeof gridRef = JSON.parse(JSON.stringify(gridRef)); // Clone to avoid all users from having same grid ref
@@ -1594,7 +1646,7 @@ export default class BingoGridController extends AbstractController {
 						grid: viewerCachedGrid.data,
 						force: forceNewGridGen_local,
 					});
-				}),
+				},
 			);
 		}
 
@@ -1840,19 +1892,24 @@ export default class BingoGridController extends AbstractController {
 		// Extract all viewers that have LRU cached grids which may not yet
 		// be saved on disk and merge them with IDs found on disk.
 		const memPrefix = `${streamerId}/${gridId}/`;
-		for (const key of this.dirtyViewerGrids) {
+		for (const key of this.dirtyViewerGrids.keys()) {
+			if (key.startsWith(memPrefix)) viewerIds.add(key.substring(memPrefix.length));
+		}
+		for (const key of this.viewerGridCache.keys()) {
 			if (key.startsWith(memPrefix)) viewerIds.add(key.substring(memPrefix.length));
 		}
 
-		await Promise.all(
-			[...viewerIds].map(async (viewerId) => {
+		await Utils.mapLimit(
+			[...viewerIds],
+			BingoGridController.VIEWER_GRID_IO_CONCURRENCY,
+			async (viewerId) => {
 				// getViewerGrid checks the memory cache first, then disk.
 				const viewerCache = await this.getViewerGrid(streamerId, gridId, viewerId);
 				if (!viewerCache) return; // Nothing to update
 				viewerCache.date = Date.now();
 				this.applyStates(viewerCache.data, states);
 				this.saveViewerGrid(streamerId, gridId, viewerId, viewerCache);
-			}),
+			},
 		);
 
 		try {
