@@ -671,6 +671,7 @@
 
 <script setup lang="ts">
 import { useSidePanel } from "@/composables/useSidePanel";
+import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders.js";
 import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
@@ -678,12 +679,7 @@ import { storePatreon as useStorePatreon, type IPatreonMember } from "@/store/pa
 import { storeRaffle as useStoreRaffle } from "@/store/raffle/storeRaffle";
 import { storeRewards as useStoreRewards } from "@/store/rewards/storeRewards";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
-import {
-	TriggerEventPlaceholders,
-	type ITriggerPlaceholder,
-	type TriggerActionRaffleData,
-	type TriggerData,
-} from "@/types/TriggerActionDataTypes";
+import { type TriggerActionRaffleData, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
@@ -708,7 +704,6 @@ import ParamItem from "../params/ParamItem.vue";
 import PostOnChatParam from "../params/PostOnChatParam.vue";
 import FormVoiceControllHelper from "../voice/FormVoiceControllHelper";
 import VoiceGlobalCommandsHelper from "../voice/VoiceGlobalCommandsHelper.vue";
-import { useTriggerActionPlaceholders } from "@/composables/useTriggerActionPlaceholders.js";
 
 const props = withDefaults(
 	defineProps<{
@@ -1476,28 +1471,28 @@ onBeforeMount(() => {
 	}
 
 	buildPatreonTierParams();
-
-	watch(
-		() => localData.value,
-		() => onValueChange(),
-		{ deep: true },
-	);
-
-	watch(
-		() => [
-			param_command.value.value,
-			param_reward.value.value,
-			param_maxUsersToggle.value.value,
-			param_ponderateVotes.value.value,
-			param_values.value.value,
-		],
-		() => onValueChange(),
-	);
 });
 
 onBeforeUnmount(() => {
 	if (voiceController.value) voiceController.value.dispose();
 });
+
+watch(
+	() => localData.value,
+	() => onValueChange(),
+	{ deep: true },
+);
+
+watch(
+	() => [
+		param_command.value.value,
+		param_reward.value.value,
+		param_maxUsersToggle.value.value,
+		param_ponderateVotes.value.value,
+		param_values.value.value,
+	],
+	() => onValueChange(),
+);
 
 watch(
 	() => VoiceController.instance.started.value,
@@ -1596,6 +1591,7 @@ async function submitForm(): Promise<void> {
 	}
 
 	pickingEntry.value = true;
+
 	await storeRaffle.startRaffle(payload);
 	if (localData.value.mode == "chat" || localData.value.mode == "tips") {
 		void close();

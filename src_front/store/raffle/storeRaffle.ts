@@ -945,18 +945,20 @@ export const storeRaffle = defineStore("raffle", {
 			if (data.removeWinningEntry === true) {
 				if (data.mode == "values") {
 					const val = StoreProxy.values.valueList.find((v) => v.id == data.value_id);
-					if (!val) return;
-					if (val.perUser) {
-						delete val.users![winner.user!.id];
-					} else {
-						const fallbackSplitter =
-							val.value.split(/\r|\n/).length > 1 ? "\r|\n" : ",";
-						const splitterRaplacement = fallbackSplitter == "," ? "," : "\n";
-						const splitter = data.value_splitter || new RegExp(fallbackSplitter); //Fallback to line break or coma if new value_splitter option is empty
-						val.value = val.value
-							.split(splitter)
-							.filter((v) => v != winner.label)
-							.join(data.value_splitter || splitterRaplacement);
+					if (val) {
+						if (val.perUser) {
+							StoreProxy.values.deleteValueEntry(val.id, undefined, winner.user!.id);
+						} else {
+							const fallbackSplitter =
+								val.value.split(/\r|\n/).length > 1 ? "\r|\n" : ",";
+							const splitterRaplacement = fallbackSplitter == "," ? "," : "\n";
+							const splitter = data.value_splitter || new RegExp(fallbackSplitter); //Fallback to line break or coma if new value_splitter option is empty
+							const newValue = val.value
+								.split(splitter)
+								.filter((v) => v != winner.label)
+								.join(data.value_splitter || splitterRaplacement);
+							StoreProxy.values.updateValue(val.id, newValue);
+						}
 					}
 				} else if (data.mode == "manual") {
 					//Too complicated to do for triggers as it involves handling placeholders case.
