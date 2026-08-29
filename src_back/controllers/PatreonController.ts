@@ -197,6 +197,7 @@ export default class PatreonController extends AbstractController {
 							fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}",
 						);
 					}
+					token.expires_at = Date.now() + token.expires_in * 1000;
 					json[twitchUser.user_id] = Utils.encrypt(JSON.stringify(token));
 					fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(json), "utf-8");
 
@@ -633,7 +634,7 @@ export default class PatreonController extends AbstractController {
 			response.send({ success: false, message: json.error });
 		} else {
 			const token: PatreonToken = json;
-			json.expires_at = Date.now() + token.expires_in;
+			json.expires_at = Date.now() + token.expires_in * 1000;
 			//Save token
 			fs.writeFileSync(Config.patreonToken, JSON.stringify(json), "utf-8");
 			if (await this.authenticateLocal()) {
@@ -1174,7 +1175,7 @@ export default class PatreonController extends AbstractController {
 			try {
 				const token = JSON.parse(Utils.decrypt(json[twitchUser.user_id]!)) as PatreonToken;
 				//Refresh token if necessary (give it 1 minute of margin)
-				if (token.expires_at > Date.now() - 60000) {
+				if (!token.expires_at || token.expires_at < Date.now() + 60000) {
 					const newToken = await this.refreshUserToken(token, twitchUser.user_id);
 					if (newToken) {
 						return { twitchUser, token: newToken };
@@ -1430,10 +1431,16 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("refresh_token", token.refresh_token);
 		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
-		const result = await fetch(url, {
-			method: "POST",
-			headers: { "User-Agent": this.userAgent },
-		});
+		const result = await this.fetchPatreon("refreshUserToken for user " + twitchUserId, () =>
+			fetch(url, { method: "POST", headers: { "User-Agent": this.userAgent } }),
+		);
+		// do not invalidate token on endpoint failures other than explicite rejections
+		if (result.status != 200 && result.status != 400 && result.status != 401) {
+			Logger.warn(
+				`[PATREON][USER] refresh token failed for ${twitchUserId} with status ${result.status}`,
+			);
+			return false;
+		}
 		const json = (await result.json()) as PatreonToken & { error?: string };
 
 		let success = true;
@@ -1452,6 +1459,8 @@ export default class PatreonController extends AbstractController {
 			console.log(json);
 			delete jsonTokens[twitchUserId];
 		} else {
+			//Save the expiration date so the token can be refreshed when needed
+			json.expires_at = Date.now() + json.expires_in * 1000;
 			jsonTokens[twitchUserId] = Utils.encrypt(JSON.stringify(json));
 		}
 
@@ -1667,10 +1676,12 @@ export default class PatreonController extends AbstractController {
 interface PatreonToken {
 	access_token: string;
 	refresh_token: string;
+	// in seconds
 	expires_in: number;
 	scope: string;
 	token_type: string;
-	expires_at: number;
+	// Custom prop. Computed from "expires_in"
+	expires_at?: number;
 }
 
 export interface PatreonMember {
