@@ -77,7 +77,7 @@ export default class TwitchUtils {
 				token_type: string;
 			};
 			this._credentialToken = json.access_token;
-			this._token_invalidation_date = Date.now() + (json.expires_in - 60000);
+			this._token_invalidation_date = Date.now() + (json.expires_in * 1000 - 60000);
 			return json.access_token;
 		} else {
 			try {
