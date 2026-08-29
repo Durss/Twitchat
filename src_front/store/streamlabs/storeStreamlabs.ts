@@ -56,8 +56,10 @@ export const storeStreamlabs = defineStore("streamlabs", {
 					const result = await ApiHelper.call(
 						"streamlabs/socketToken",
 						"GET",
-						{ accessToken: this.accessToken },
+						undefined,
 						false,
+						undefined,
+						{ "X-Streamlabs-Token": this.accessToken },
 					);
 					if (result.json.success) {
 						this.socketToken = result.json.socketToken || "";

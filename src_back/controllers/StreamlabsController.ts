@@ -39,11 +39,25 @@ export default class StreamlabsController extends AbstractController {
 		const guard = await super.twitchUserGuard(request, response);
 		if (guard === false) return;
 
-		const params = request.query as any;
+		const accessToken = request.headers["x-streamlabs-token"] as string;
+		if (!accessToken) {
+			response
+				.header("Content-Type", "application/json")
+				.status(401)
+				.send(
+					JSON.stringify({
+						success: false,
+						errorCode: "UNAUTHORIZED",
+						error: "Invalid or missing access token",
+					}),
+				);
+			return;
+		}
+
 		const headers = {
 			accept: "application/json",
 			"Content-Type": "application/json",
-			Authorization: "Bearer " + params.accessToken,
+			Authorization: "Bearer " + accessToken,
 		};
 		try {
 			const socketRes = await fetch("https://streamlabs.com/api/v2.0/socket/token", {

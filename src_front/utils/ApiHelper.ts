@@ -913,9 +913,8 @@ type ApiEndpoints = {
 	};
 	"streamlabs/socketToken": {
 		GET: {
-			parameters: {
-				accessToken: string;
-			};
+			//Token travels in the X-Streamlabs-Token header, not the query string
+			parameters: void;
 			response: {
 				success: boolean;
 				socketToken?: string;
@@ -1346,9 +1345,8 @@ type ApiEndpoints = {
 	};
 	"tiltify/info": {
 		GET: {
-			parameters: {
-				token: string;
-			};
+			//Token travels in the X-Tiltify-Token header, not the query string
+			parameters: void;
 			response: {
 				success: boolean;
 				user: TiltifyUser;
