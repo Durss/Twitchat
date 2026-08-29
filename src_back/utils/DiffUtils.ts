@@ -2,16 +2,37 @@
  * Created : 29/08/2026
  */
 
+export type DroppedValueType =
+	| "string"
+	| "number"
+	| "boolean"
+	| "null"
+	| "array"
+	| "object"
+	| "unknown";
+
 export interface DroppedEntry {
 	path: string;
-	value: unknown;
+	type: DroppedValueType;
+	/** Own keys of a dropped object, capped at MAX_KEYS */
+	keys?: string[];
+	/** Number of own keys omitted from the list above */
+	truncatedKeys?: number;
+	/** Item count of a dropped array, or char count of a dropped string */
+	length?: number;
 }
 
 /**
  * Helpers to diff 2 JSON
  * Used to detect props dropped by AJV's "removeAdditional" cleanup
+ *
+ * Dropped values are described, never stored. Schema drift mostly strips
+ * stale auth blobs, storing values would write live tokens to disk.
  */
 export default class DiffUtils {
+	/** Caps the keys listed for a dropped object so the log stays bounded */
+	private static readonly MAX_KEYS = 50;
+
 	/**
 	 * Returns the props that got dropped between the original and the sanitized
 	 * @param original data as received, before validation
@@ -46,7 +67,7 @@ export default class DiffUtils {
 				const value = original[i];
 				if (i >= sanitizedLength) {
 					stack.push(i);
-					result.push({ path: this.toPointer(stack), value });
+					result.push(this.describe(this.toPointer(stack), value));
 					stack.pop();
 					continue;
 				}
@@ -67,7 +88,7 @@ export default class DiffUtils {
 			if (sanitizedObject[key] === undefined) {
 				if (value === undefined) continue;
 				stack.push(key);
-				result.push({ path: this.toPointer(stack), value });
+				result.push(this.describe(this.toPointer(stack), value));
 				stack.pop();
 				continue;
 			}
@@ -76,6 +97,36 @@ export default class DiffUtils {
 				this.walk(value, sanitizedObject[key], stack, result);
 				stack.pop();
 			}
+		}
+	}
+
+	/**
+	 * Summarizes a dropped value. Enough to tell what went missing, without
+	 * writing the value itself down
+	 */
+	private static describe(path: string, value: unknown): DroppedEntry {
+		if (value === null) return { path, type: "null" };
+		if (Array.isArray(value)) return { path, type: "array", length: value.length };
+		switch (typeof value) {
+			case "object": {
+				const keys = Object.keys(value as object);
+				if (keys.length <= this.MAX_KEYS) return { path, type: "object", keys };
+				return {
+					path,
+					type: "object",
+					keys: keys.slice(0, this.MAX_KEYS),
+					truncatedKeys: keys.length - this.MAX_KEYS,
+				};
+			}
+			case "string":
+				return { path, type: "string", length: value.length };
+			case "number":
+				return { path, type: "number" };
+			case "boolean":
+				return { path, type: "boolean" };
+			default:
+				// Unreachable for JSON.parse'd trees, kept for hand built input
+				return { path, type: "unknown" };
 		}
 	}
 
