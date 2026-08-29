@@ -346,6 +346,7 @@ export default class GoogleController extends AbstractController {
 					errorCode: "INVALID_REDIRECT_URI",
 				}),
 			);
+			return;
 		}
 
 		// Generate a url that asks permissions for the Drive activity scope
@@ -442,6 +443,16 @@ export default class GoogleController extends AbstractController {
 	}
 
 	/**
+	 * Builds the cache key of a translation.
+	 * The language pair is part of it: keyed on the text alone, the same source
+	 * text requested for another target language returned the previously cached
+	 * language.
+	 */
+	private getTranslationCacheKey(text: string, langSource: string, langTarget: string): string {
+		return langSource + "/" + langTarget + "/" + text;
+	}
+
+	/**
 	 * Request for a text translation
 	 * @param request
 	 * @param response
@@ -457,24 +468,31 @@ export default class GoogleController extends AbstractController {
 
 		const userInfo = (await TwitchUtils.getUserFromToken(request.headers.authorization || ""))!;
 
-		if (this._translationCache.has(params.text)) {
-			const translation = this._translationCache.get(params.text)!;
+		const cacheKey = this.getTranslationCacheKey(
+			params.text,
+			params.langSource,
+			params.langTarget,
+		);
+		if (this._translationCache.has(cacheKey)) {
+			const translation = this._translationCache.get(cacheKey)!;
 			Logger.info("Load translation from cache:", translation);
 			response.header("Content-Type", "application/json");
 			response.status(200);
 			response.send(JSON.stringify({ success: true, data: { translation } }));
+			return;
 		}
 
 		let userTranslations = this._userTotranslations.get(userInfo.user_id);
 		if (!userTranslations) {
 			userTranslations = { count: 0, date: dateTs };
 			this._userTotranslations.set(userInfo.user_id, userTranslations);
+		} else if (userTranslations.date != dateTs) {
+			userTranslations.date = dateTs;
+			userTranslations.count = 0;
+			this._userTotranslations.set(userInfo.user_id, userTranslations);
 		}
 
-		if (
-			userTranslations.date == dateTs &&
-			userTranslations.count >= Config.maxTranslationsPerDay
-		) {
+		if (userTranslations.count >= Config.maxTranslationsPerDay) {
 			Logger.warn(
 				"Maximum daily translations reached for " +
 					userInfo.login +
@@ -544,22 +562,22 @@ export default class GoogleController extends AbstractController {
 					response.header("Content-Type", "application/json");
 					response.status(204);
 					response.send(JSON.stringify({ success: true, data: { translation: "" } }));
-					this._translationCache.set(params.text, translation);
+					this._translationCache.set(cacheKey, "");
 				} else {
 					Logger.success("Translate success:", translation);
 					response.header("Content-Type", "application/json");
 					response.status(200);
 					response.send(JSON.stringify({ success: true, data: { translation } }));
+					this._translationCache.set(cacheKey, translation);
 				}
 			} else {
 				Logger.error("Translate failed");
 				response.header("Content-Type", "application/json");
 				response.status(204);
 				response.send(JSON.stringify({ success: true, data: { translation: "" } }));
-				this._translationCache.set(params.text, "");
+				this._translationCache.set(cacheKey, "");
 			}
 		} catch (error) {
-			this._translationCache.set(params.text, "");
 			Logger.error("Translate failed for language " + params.langSource);
 			console.log(error);
 			response.header("Content-Type", "application/json");
