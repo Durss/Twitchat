@@ -70,31 +70,44 @@ export default class FileServeController extends AbstractController {
 	 * PRIVATE METHODS *
 	 *******************/
 
-	private getScript(_request: FastifyRequest, response: FastifyReply): void {
+	/**
+	 * Get most recent srcript.
+	 * Use as last resort option to get the script if index was cached
+	 * with an old script without caching that old script. In this case
+	 * it hits a 404 and call this non-cached endpoint.
+	 */
+	private async getScript(
+		_request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<FastifyReply> {
 		Logger.info("Serving script for cache bypass");
 		const assets = path.join(Config.PUBLIC_ROOT, "assets");
-		const files = fs.readdirSync(assets).filter((v) => /main-.*\.js$/gi.test(v));
 
-		let mostRecent = 0;
-		let indexPath = "";
-		files.forEach((v) => {
-			const file = path.join(Config.PUBLIC_ROOT, "assets", path.sep + v);
-			const stats = fs.statSync(file);
-			const d = new Date(stats.ctime).getTime();
-			if (d > mostRecent) {
-				indexPath = file;
-				mostRecent = Math.max(mostRecent, d);
-			}
-		});
-
-		if (indexPath) {
-			const txt = fs.readFileSync(indexPath, { encoding: "utf8" });
-			response.header("Content-Type", "application/javascript");
-			response.status(200);
-			response.send(txt);
-		} else {
-			response.status(404);
+		let files: string[];
+		try {
+			files = (await fs.promises.readdir(assets)).filter((v) => /main-.*\.js$/gi.test(v));
+		} catch (error) {
+			Logger.error("Failed listing the assets folder");
+			console.log(error);
+			return response.status(404).send();
 		}
+
+		//Keep the most recently built bundle
+		const dated = await Promise.all(
+			files.map(async (v) => {
+				const file = path.join(assets, v);
+				return { file, date: (await fs.promises.stat(file)).ctime.getTime() };
+			}),
+		);
+		let newest: { file: string; date: number } | undefined;
+		for (const entry of dated) {
+			if (!newest || entry.date > newest.date) newest = entry;
+		}
+
+		if (!newest) return response.status(404).send();
+
+		response.header("Content-Type", "application/javascript");
+		return response.status(200).send(fs.createReadStream(newest.file));
 	}
 
 	private getConfigs(_request: FastifyRequest, response: FastifyReply): void {
