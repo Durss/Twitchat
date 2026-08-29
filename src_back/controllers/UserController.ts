@@ -793,19 +793,18 @@ export default class UserController extends AbstractController {
 		);
 
 		// Get file stats in parallel (batched to avoid overwhelming the system)
-		const users = await Promise.all(
-			list.map(async (v) => {
-				try {
-					const stats = await fs.promises.stat(Config.USER_DATA_PATH + v);
-					return {
-						id: v.replace(".json", ""),
-						date: stats.mtime.getTime(),
-					};
-				} catch {
-					return null;
-				}
-			}),
-		).then((results) => results.filter((u): u is { id: string; date: number } => u !== null));
+		const entries = await Utils.mapLimit(list, 30, async (v) => {
+			try {
+				const stats = await fs.promises.stat(Config.USER_DATA_PATH + v);
+				return {
+					id: v.replace(".json", ""),
+					date: stats.mtime.getTime(),
+				};
+			} catch {
+				return null;
+			}
+		});
+		const users = entries.filter((u): u is { id: string; date: number } => u !== null);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
