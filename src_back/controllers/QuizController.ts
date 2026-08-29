@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { LRUCache } from "lru-cache";
 import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
-import * as fs from "fs";
+import Logger from "../utils/Logger.js";
 import TwitchExtensionController from "./TwitchExtensionController.js";
 import Utils from "../utils/Utils.js";
 
@@ -27,6 +27,11 @@ export default class QuizController extends AbstractController {
 		ttl: 1000 * 60 * 60, // 1h TTL
 		// ttl: 1000 * 10, // 5 minutes TTL
 	});
+
+	/**
+	 * Avoid concurrent loads when all viewers request the quiz
+	 */
+	private pendingLoads = new Map<string, Promise<QuizParams | undefined>>();
 
 	private extensionController!: TwitchExtensionController;
 
@@ -64,7 +69,10 @@ export default class QuizController extends AbstractController {
 	 * @param quizId Optional quiz ID to filter by
 	 * @returns Quiz cache data or null if not found
 	 */
-	public getStreamerQuiz(channelId: string, quizId?: string): QuizParams | undefined {
+	public async getStreamerQuiz(
+		channelId: string,
+		quizId?: string,
+	): Promise<QuizParams | undefined> {
 		//Validate UID and quizId (if provided) to prevent path traversal
 		if (!channelId || !/^[0-9]+$/.test(channelId)) return undefined;
 		if (quizId && !/^[a-zA-Z0-9_-]+$/.test(quizId)) return undefined;
@@ -75,11 +83,33 @@ export default class QuizController extends AbstractController {
 		// would be served again.
 		if (this.cachedQuizzes.has(channelId)) return this.cachedQuizzes.get(channelId)?.quiz;
 
-		// No cache found, load user data from disk and generate cache
+		// No cache, read the user file. Share the read with any concurrent
+		// request for the same quiz instead of parsing that file once per viewer
+		const loadKey = channelId + "/" + (quizId || "");
+		let pending = this.pendingLoads.get(loadKey);
+		if (!pending) {
+			pending = this.loadStreamerQuiz(channelId, quizId);
+			this.pendingLoads.set(loadKey, pending);
+			void pending.catch(() => {}).then(() => this.pendingLoads.delete(loadKey));
+		}
+		return pending;
+	}
+
+	/**
+	 * Load a streamer's quiz from their user file and cache it.
+	 * @see getStreamerQuiz
+	 * @param channelId Streamer UID, already validated
+	 * @param quizId Optional quiz ID to filter by, already validated
+	 */
+	private async loadStreamerQuiz(
+		channelId: string,
+		quizId?: string,
+	): Promise<QuizParams | undefined> {
 		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
-		const found = fs.existsSync(userFilePath);
-		if (found) {
-			const data = JSON.parse(fs.readFileSync(userFilePath, { encoding: "utf8" })) as {
+		try {
+			const data = JSON.parse(
+				await Utils.readFileAsync(userFilePath, { encoding: "utf8" }),
+			) as {
 				quizConfigs?: { quizList?: QuizParams[]; ephemeralQuiz?: QuizParams | null };
 			};
 			// The ephemeral quiz steps over any other quiz for as long as it's defined
@@ -92,9 +122,14 @@ export default class QuizController extends AbstractController {
 				(q) => q.enabled && (!quizId || q.id === quizId),
 			);
 			return this.setCache(channelId, quiz, false);
+		} catch (error) {
+			//No user file yet is the common case, only log actual failures
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				Logger.warn("[QUIZ] Couldn't load quiz of user " + channelId);
+				console.log(error);
+			}
+			return this.setCache(channelId, undefined, false);
 		}
-
-		return this.setCache(channelId, undefined, false);
 	}
 
 	/*******************
@@ -109,7 +144,7 @@ export default class QuizController extends AbstractController {
 		const uid: string = user.user_id;
 		const quizId: string = (request.query as any).quizid;
 
-		const quiz = this.getStreamerQuiz(uid, quizId);
+		const quiz = await this.getStreamerQuiz(uid, quizId);
 		if (!quiz) {
 			response.header("Content-Type", "application/json");
 			response.status(404);
@@ -141,8 +176,15 @@ export default class QuizController extends AbstractController {
 		const quiz: QuizParams | undefined = (request.body as any).quiz;
 		const uid: string = user.user_id;
 
-		// Validate UID and quizId
-		if (!uid || !/^[0-9]+$/.test(uid)) {
+		// Validate UID and quizId and make sure quiz data have a valid shape
+		if (
+			!uid ||
+			!/^[0-9]+$/.test(uid) ||
+			(quiz != undefined &&
+				(typeof quiz !== "object" ||
+					typeof quiz.id !== "string" ||
+					!Array.isArray(quiz.questionList)))
+		) {
 			response.header("Content-Type", "application/json");
 			response.status(400);
 			response.send(
@@ -189,6 +231,10 @@ export default class QuizController extends AbstractController {
 					question.answerList = list;
 				}
 			}
+			// Don't expose viewers votes to everyone
+			delete quiz.currentQuestionVotes;
+			if (!quiz.currentQuestionRevealed) delete quiz.currentQuestionScores;
+
 			// Don't delete correct answer if question is currently revealed
 			if (question && !quiz.currentQuestionRevealed) {
 				if (question.mode === "classic") {

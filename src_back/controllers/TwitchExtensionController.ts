@@ -313,7 +313,7 @@ export default class TwitchExtensionController extends AbstractController {
 			// it to time-based scoring keeps the points consistent with what the viewer saw
 			// (and removes the streamer's local clock skew + relay latency). Only trust it
 			// for the current question; otherwise let the streamer score on its own clock.
-			const quiz = this._quizController.getStreamerQuiz(
+			const quiz = await this._quizController.getStreamerQuiz(
 				request.twitchExtensionUser!.channel_id,
 			);
 			let serverVotedElapsed_ms: number | undefined;
@@ -358,7 +358,7 @@ export default class TwitchExtensionController extends AbstractController {
 		const channelId = request.twitchExtensionUser!.channel_id;
 		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
-		const quiz = this._quizController.getStreamerQuiz(channelId);
+		const quiz = await this._quizController.getStreamerQuiz(channelId);
 		const clickableAreas = await this._userController.getActiveHeatScreenAreas(channelId);
 
 		response.header("Content-Type", "application/json");
