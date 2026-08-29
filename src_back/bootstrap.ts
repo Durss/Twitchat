@@ -48,15 +48,29 @@ I18n.instance.initialize();
 
 // Trusted proxies for resolving the real client IP from X-Forwarded-For.
 // Dynamically loading Cloudflare IPs
+const loadCloudflareIps = async (url: string): Promise<string> => {
+	const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+	if (!res.ok) throw new Error(url + " returned status " + res.status);
+	return await res.text();
+};
+
 let cloudflareIpList: string[] = [];
 try {
-	const ipv4Query = await fetch("https://www.cloudflare.com/ips-v4/");
-	const ipv6Query = await fetch("https://www.cloudflare.com/ips-v6/");
-	const ipv4 = await ipv4Query.text();
-	const ipv6 = await ipv6Query.text();
-	cloudflareIpList = [...ipv4.split("\n"), ...ipv6.split("\n")];
-} catch (_error) {
-	/* ignore */
+	const [ipv4, ipv6] = await Promise.all([
+		loadCloudflareIps("https://www.cloudflare.com/ips-v4/"),
+		loadCloudflareIps("https://www.cloudflare.com/ips-v6/"),
+	]);
+	cloudflareIpList = [...ipv4.split("\n"), ...ipv6.split("\n")]
+		.map((v) => v.trim())
+		.filter((v) => v.length > 0);
+} catch (error) {
+	Logger.error(
+		"Failed loading Cloudflare IP ranges. Requests coming through Cloudflare will share a single rate limit bucket and ban decisions will hit whole edges.",
+	);
+	console.log(error);
+}
+if (cloudflareIpList.length > 0) {
+	Logger.info("Loaded " + cloudflareIpList.length + " Cloudflare IP ranges");
 }
 const TRUSTED_PROXIES: string[] = [
 	"127.0.0.1",
