@@ -591,9 +591,10 @@ export default class TiltifyController extends AbstractController {
 	 * Enables the webhook
 	 */
 	private async enableWebhook(): Promise<void> {
+		if (!this.credentialToken) return;
 		const headers = {
 			"content-type": "application/json",
-			Authorization: "Bearer " + this.credentialToken!.access_token,
+			Authorization: "Bearer " + this.credentialToken.access_token,
 		};
 
 		const webhookId = Config.credentials.tiltify_webhook_id;

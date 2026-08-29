@@ -491,7 +491,7 @@ export default class PatreonController extends AbstractController {
 	 */
 	public logout(): void {
 		clearTimeout(this.tokenRefresh);
-		fs.rmSync(Config.patreonToken);
+		fs.rmSync(Config.patreonToken, { force: true });
 		void this.authenticateLocal(); //This will log the URI to call to authenticate the user
 	}
 
@@ -844,13 +844,34 @@ export default class PatreonController extends AbstractController {
 	 ******************/
 
 	/**
-	 * Refreshes the patrons list
-	 * @param request
-	 * @param response
+	 * Refreshes the patrons list.
+	 * @param campaignId
+	 * @param verbose
+	 * @returns whether the list could be refreshed
 	 */
-	public async refreshPatrons(campaignId: string, verbose: boolean = true): Promise<void> {
+	public async refreshPatrons(campaignId: string, verbose: boolean = true): Promise<boolean> {
+		try {
+			return await this.executePatronsRefresh(campaignId, verbose);
+		} catch (error) {
+			Logger.error("[PATREON][SERVICE] Unexpected error while refreshing member list");
+			console.log(error);
+			return false;
+		}
+	}
+
+	/**
+	 * Actual member list refresh, @see refreshPatrons
+	 * @param campaignId
+	 * @param verbose
+	 * @returns whether the list could be refreshed
+	 */
+	private async executePatronsRefresh(campaignId: string, verbose: boolean): Promise<boolean> {
+		if (!fs.existsSync(Config.patreonToken)) {
+			if (verbose) Logger.warn("[PATREON][SERVICE] No token, skipping member list refresh");
+			return false;
+		}
 		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
-		const { members, success, error } = await this.loadCampaignMembers(
+		const { members, success, error, status } = await this.loadCampaignMembers(
 			token.access_token,
 			campaignId,
 		);
@@ -859,8 +880,15 @@ export default class PatreonController extends AbstractController {
 				Logger.error("[PATREON][SERVICE] Refreshing member list failed");
 				if (error) console.log(error);
 			}
-			this.logout();
-			throw "Error";
+			if (status === 401 || status === 403) {
+				Logger.error(
+					"[PATREON][SERVICE] Token rejected by Patreon (status " +
+						status +
+						"), logging out",
+				);
+				this.logout();
+			}
+			return false;
 		}
 
 		if (members) {
@@ -900,6 +928,7 @@ export default class PatreonController extends AbstractController {
 			//Members list changed, any cached premium state may be outdated
 			super.clearPremiumCache();
 		}
+		return true;
 	}
 
 	/**
@@ -982,7 +1011,12 @@ export default class PatreonController extends AbstractController {
 		campaignId: string,
 		offset?: string,
 		memberList: any[] = [],
-	): Promise<{ success: boolean; error?: string[]; members?: PatreonMemberships["data"][0][] }> {
+	): Promise<{
+		success: boolean;
+		error?: string[];
+		status?: number;
+		members?: PatreonMemberships["data"][0][];
+	}> {
 		const url = new URL(
 			"https://www.patreon.com/api/oauth2/v2/campaigns/" + campaignId + "/members",
 		);
@@ -1025,7 +1059,11 @@ export default class PatreonController extends AbstractController {
 				Logger.warn("[PATREON] Failed loadCampaignMembers for campaign " + campaignId + "");
 				console.log(await result.text());
 			}
-			return { success: false, error: ["Status " + result.status.toString()] };
+			return {
+				success: false,
+				error: ["Status " + result.status.toString()],
+				status: result.status,
+			};
 		} else {
 			const json = (await result.json()) as PatreonMemberships;
 			if (json.errors) {

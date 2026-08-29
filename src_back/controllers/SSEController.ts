@@ -94,9 +94,6 @@ export default class SSEController extends AbstractController {
 		// catches PM2 stop/restart events
 		process.on("SIGTERM", exitHandler.bind(null, { exit: true }));
 
-		// catches uncaught exceptions
-		process.on("uncaughtException", exitHandler.bind(null, { exit: true }));
-
 		// PM2 on windows sends a message before shutdown
 		process.on("message", function (msg) {
 			if (msg == "shutdown") {
