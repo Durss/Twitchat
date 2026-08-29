@@ -116,6 +116,15 @@ export default class UserController extends AbstractController {
 		ttl: 1000 * 60 * 60, // 1 hour
 	});
 
+	/**
+	 * Failed gift code attempts per user, to throttle brute forcing
+	 */
+	private static readonly GIFT_CODE_MAX_ATTEMPTS = 5;
+	private _giftCodeAttempts = new LRUCache<string, number>({
+		max: 1000,
+		ttl: 2000 * 60 * 60, // 1 hour
+	});
+
 	private extensionController!: TwitchExtensionController;
 
 	constructor(
@@ -698,8 +707,27 @@ export default class UserController extends AbstractController {
 			premiumState == "lifetime" || premiumState == "early_gift" || premiumState == "gift";
 		// If user isn't lifetime premium already, check if code is valid
 		if (!alreadyLifetimePremium) {
+			//Throttle guesses. The global 100req/s IP limiter is no obstacle to
+			//brute forcing a short code, so cap failed attempts per account.
+			const attempts = this._giftCodeAttempts.get(userInfo.user_id) ?? 0;
+			if (attempts >= UserController.GIFT_CODE_MAX_ATTEMPTS) {
+				response.header("Content-Type", "application/json");
+				response.status(429);
+				response.send(
+					JSON.stringify({
+						success: false,
+						error: "Too many attempts, try again later",
+						errorCode: "TOO_MANY_ATTEMPTS",
+					}),
+				);
+				return;
+			}
+
 			const body: any = request.body as { code: string };
 			codeValid = Config.USE_PREMIUM_CREDITS(body.code);
+			if (codeValid !== true) {
+				this._giftCodeAttempts.set(userInfo.user_id, attempts + 1);
+			}
 			if (codeValid) {
 				super.giftPremium(userInfo.user_id);
 				try {
@@ -715,8 +743,7 @@ export default class UserController extends AbstractController {
 			}
 		}
 
-		const result =
-			codeValid === true ? "success" : codeValid === false ? "empty_credits" : "invalid_code";
+		const result = codeValid === true ? "success" : "invalid_code";
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(
