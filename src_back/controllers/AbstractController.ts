@@ -26,13 +26,14 @@ export default class AbstractController {
 	 */
 	protected static _dataSharing: { [uid: string]: string } = {};
 
+	private static readonly PREMIUM_TTL = 2 * 60 * 1000;
+	private static readonly NO_PREMIUM_TTL = 60 * 1000;
 	/**
 	 * Twitch user ID to premium state.
-	 * An entry exists only if user is part of premium members
 	 */
-	private premiumState_cache = new LRUCache<string, PremiumType>({
-		max: 1_000,
-		ttl: 2 * 60 * 1000,
+	private static premiumState_cache = new LRUCache<string, PremiumType>({
+		max: 10_000,
+		ttl: AbstractController.PREMIUM_TTL,
 	});
 
 	constructor() {}
@@ -53,9 +54,9 @@ export default class AbstractController {
 	 */
 	protected clearPremiumCache(uid?: string): void {
 		if (uid) {
-			this.premiumState_cache.delete(uid);
+			AbstractController.premiumState_cache.delete(uid);
 		} else {
-			this.premiumState_cache.clear();
+			AbstractController.premiumState_cache.clear();
 		}
 	}
 
@@ -198,7 +199,7 @@ export default class AbstractController {
 	 * @param uid
 	 */
 	protected async getUserPremiumState(uid: string): Promise<PremiumType> {
-		const cached = this.premiumState_cache.get(uid);
+		const cached = AbstractController.premiumState_cache.get(uid);
 		if (cached != undefined) return cached;
 		let premiumType: PremiumType = "no";
 
@@ -223,20 +224,29 @@ export default class AbstractController {
 			//Get patreon member ID from twitch user ID
 			const jsonMap = JSON.parse(await Utils.readFileAsync(Config.twitch2Patreon, "utf-8"));
 			const memberID = jsonMap[uid];
-			//Get if user is part of the active patreon members
-			const members = JSON.parse(
-				await Utils.readFileAsync(Config.patreonMembers, "utf-8"),
-			) as PatreonMember[];
-			if (members.findIndex((v) => v.id === memberID) > -1) {
-				premiumType = "temporary";
+			//No patreon account linked, no need to load the members list
+			if (memberID) {
+				//Get if user is part of the active patreon members
+				const members = JSON.parse(
+					await Utils.readFileAsync(Config.patreonMembers, "utf-8"),
+				) as PatreonMember[];
+				if (members.findIndex((v) => v.id === memberID) > -1) {
+					premiumType = "temporary";
+				}
 			}
 		}
 
 		//Check if user donated for more than the lifetime premium amount
-		if (premiumType == "no" && fs.existsSync(Config.donorsList)) {
+		if (
+			premiumType == "no" &&
+			(await fs.promises
+				.access(Config.donorsList)
+				.then(() => true)
+				.catch(() => false))
+		) {
 			let donorAmount = -1;
 			const json: { [key: string]: number } = JSON.parse(
-				fs.readFileSync(Config.donorsList, "utf8"),
+				await Utils.readFileAsync(Config.donorsList, "utf8"),
 			);
 			const isDonor = json.hasOwnProperty(uid);
 			if (isDonor) {
@@ -247,11 +257,13 @@ export default class AbstractController {
 			}
 		}
 
-		if (premiumType != "no") {
-			//Remember the user is premium for a few minutes to avoid
-			//processing premium check too often
-			this.premiumState_cache.set(uid, premiumType);
-		}
+		// Remember premium state of the user
+		AbstractController.premiumState_cache.set(uid, premiumType, {
+			ttl:
+				premiumType == "no"
+					? AbstractController.NO_PREMIUM_TTL
+					: AbstractController.PREMIUM_TTL,
+		});
 
 		return premiumType;
 	}
@@ -367,7 +379,7 @@ export default class AbstractController {
 			fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
 		}
 		AbstractController._giftedPremium[uid] = true;
-		this.premiumState_cache.delete(uid);
+		AbstractController.premiumState_cache.delete(uid);
 
 		Logger.info("🎁🎁🎁Gifted premium to user " + uid + "🎁🎁🎁");
 		return true;
@@ -391,7 +403,7 @@ export default class AbstractController {
 			fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
 		}
 		AbstractController._giftedPremium[uid] = false;
-		this.premiumState_cache.delete(uid);
+		AbstractController.premiumState_cache.delete(uid);
 
 		Logger.info("🎁❌❌Gifted premium removed from user " + uid + "❌❌🎁");
 		return true;

@@ -406,6 +406,8 @@ export default class PatreonController extends AbstractController {
 								JSON.stringify(twitch2Patreon),
 								"utf-8",
 							);
+							//User just became premium, drop any cached state
+							super.clearPremiumCache(uid);
 						}
 					}
 
@@ -895,6 +897,8 @@ export default class PatreonController extends AbstractController {
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(members), "utf-8");
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_filtered2.json"), JSON.stringify(filteredMembers), "utf-8");
 			fs.writeFileSync(Config.patreonMembers, JSON.stringify(filteredMembers), "utf-8");
+			//Members list changed, any cached premium state may be outdated
+			super.clearPremiumCache();
 		}
 	}
 
