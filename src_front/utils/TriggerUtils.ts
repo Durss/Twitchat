@@ -5,8 +5,8 @@ import {
 	ANY_OBS_SCENE,
 	ANY_VALUE,
 	TriggerEventPlaceholders,
+	TriggerTypeDefinitionFromType,
 	TriggerTypes,
-	TriggerTypesDefinitionList,
 	type ITriggerPlaceholder,
 	type TriggerActionData,
 	type TriggerData,
@@ -87,11 +87,33 @@ export default class TriggerUtils {
 	}
 
 	/**
+	 * Builds publicly broadcast trigger list data.
+	 */
+	public static getTriggerListPublicData(): {
+		id: string;
+		name: string;
+		enabled: boolean;
+		iconEmoji?: string;
+		iconUrl?: string;
+	}[] {
+		return StoreProxy.triggers.triggerList.map((v) => {
+			const infos = TriggerUtils.getTriggerDisplayInfo(v);
+			return {
+				id: v.id,
+				name: infos.label,
+				enabled: v.enabled,
+				iconEmoji: infos.iconEmoji,
+				iconUrl: infos.iconURL,
+			};
+		});
+	}
+
+	/**
 	 * Gets info about a trigger
 	 * @param trigger
 	 */
 	public static getTriggerDisplayInfo(trigger: TriggerData) {
-		const ref = TriggerTypesDefinitionList().find((v) => v.value == trigger.type);
+		const ref = TriggerTypeDefinitionFromType(trigger.type);
 		const result: {
 			label: string;
 			labelKey?: string;

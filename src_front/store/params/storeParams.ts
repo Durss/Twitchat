@@ -13,6 +13,7 @@ import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IParamsActions, IParamsGetters, IParamsState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+export const PIN_CHAT_TRIGGER_PREFIX_ID = "trigger:" as const;
 
 export const storeParams = defineStore("params", {
 	state: (): IParamsState => ({
@@ -1168,6 +1169,13 @@ export const storeParams = defineStore("params", {
 
 		saveChatMenuPins(): void {
 			DataStore.set(DataStore.PINNED_CHAT_MENU_ITEM, this.pinnedMenuItems);
+		},
+
+		unpinTriggerMenuItems(id: string): void {
+			const pinId = `${PIN_CHAT_TRIGGER_PREFIX_ID}${id}` as const;
+			while (this.pinnedMenuItems.indexOf(pinId) > -1) {
+				this.toggleChatMenuPin(pinId);
+			}
 		},
 	} satisfies StoreActions<"params", IParamsState, IParamsGetters, IParamsActions>,
 });

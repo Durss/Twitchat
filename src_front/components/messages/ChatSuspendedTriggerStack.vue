@@ -33,7 +33,7 @@ import { toNative, Component, Prop } from "vue-facing-decorator";
 import AbstractChatMessage from "./AbstractChatMessage";
 import TTButton from "@/components/TTButton.vue";
 import StoreProxy from "@/store/StoreProxy";
-import { TriggerSubTypeLabel, TriggerTypesDefinitionList } from "@/types/TriggerActionDataTypes";
+import { TriggerSubTypeLabel, TriggerTypeDefinitionFromType } from "@/types/TriggerActionDataTypes";
 import ClearButton from "../ClearButton.vue";
 
 @Component({
@@ -49,7 +49,7 @@ class ChatSuspendedTriggerStack extends AbstractChatMessage {
 
 	public getLabelFromTriggerId(triggerId: string): string {
 		const trigger = StoreProxy.triggers.triggerList.find((v) => v.id == triggerId)!;
-		const event = TriggerTypesDefinitionList().find((v) => v.value === trigger.type)!;
+		const event = TriggerTypeDefinitionFromType(trigger.type)!;
 		return StoreProxy.i18n.t(event?.descriptionKey || event?.labelKey, {
 			SUB_ITEM_NAME: TriggerSubTypeLabel(trigger),
 		});

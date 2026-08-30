@@ -107,7 +107,7 @@
 import ToggleButton from "@/components/ToggleButton.vue";
 import {
 	TriggerSubTypeLabel,
-	TriggerTypesDefinitionList,
+	TriggerTypeDefinitionFromType,
 	type TriggerTypeDefinition,
 } from "@/types/TriggerActionDataTypes";
 import type { TriggerListEntry } from "./TriggerList.vue";
@@ -146,16 +146,13 @@ defineEmits<{
 	duplicate: [entry: TriggerListEntry];
 }>();
 
-const over = ref<boolean>(false);
-const selected = ref<boolean>(false);
-const tooltipText = ref<string>("");
-const triggerTypeDef = ref<TriggerTypeDefinition | undefined>(undefined);
+const over = ref(false);
+const selected = ref(false);
+const tooltipText = ref("");
+const triggerTypeDef = ref(TriggerTypeDefinitionFromType(props.entryData.trigger.type));
 
-triggerTypeDef.value = TriggerTypesDefinitionList().find(
-	(v) => v.value === props.entryData.trigger.type,
-);
 const info = TriggerUtils.getTriggerDisplayInfo(props.entryData.trigger);
-const event = TriggerTypesDefinitionList().find((v) => v.value === props.entryData.trigger.type);
+const event = triggerTypeDef.value;
 if (triggerTypeDef.value?.disabled === true && triggerTypeDef.value.disabledReasonLabelKey)
 	tooltipText.value = t(triggerTypeDef.value.disabledReasonLabelKey, {
 		SUB_ITEM_NAME: TriggerSubTypeLabel(props.entryData.trigger),

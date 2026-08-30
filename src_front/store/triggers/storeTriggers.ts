@@ -81,12 +81,15 @@ export const storeTriggers = defineStore("triggers", {
 			}
 
 			// Delete or schedule deletion for triggers with autoDelete_at
+			const expiredTriggerIds: string[] = [];
 			this.triggerList.forEach((t) => {
 				// Check if trigger should be automatically deleted at some point
 				if (t.autoDelete_at && t.autoDelete_at > 0) {
 					if (t.autoDelete_at < Date.now() + 10000) {
-						//Trigger is expired (with 10s margin), delete it
-						this.deleteTrigger(t.id);
+						//Trigger is expired (with 10s margin), flag it for deletion.
+						//Deletions are batched, deleteTrigger() rewrites and broadcasts
+						//the whole trigger list on every call
+						expiredTriggerIds.push(t.id);
 					} else if (t.autoDelete_at > Date.now()) {
 						// Schedule trigger for deletion at given date
 						SetTimeoutWorker.instance.create(() => {
@@ -95,6 +98,13 @@ export const storeTriggers = defineStore("triggers", {
 					}
 				}
 			});
+
+			if (expiredTriggerIds.length > 0) {
+				const expired = new Set(expiredTriggerIds);
+				this.triggerList = this.triggerList.filter((v) => !expired.has(v.id));
+				expiredTriggerIds.forEach((id) => StoreProxy.params.unpinTriggerMenuItems(id));
+				this.saveTriggers();
+			}
 
 			//Init trigger websocket
 			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
@@ -258,12 +268,7 @@ export const storeTriggers = defineStore("triggers", {
 			this.saveTriggers();
 
 			// Unpin from pinned menu items if necessary
-			for (let i = 0; i < StoreProxy.params.pinnedMenuItems.length; i++) {
-				if (StoreProxy.params.pinnedMenuItems[i] == `trigger:${id}`) {
-					StoreProxy.params.toggleChatMenuPin(`trigger:${id}`);
-					i--;
-				}
-			}
+			StoreProxy.params.unpinTriggerMenuItems(id);
 		},
 
 		duplicateTrigger(id: string, parentId?: string) {
@@ -532,18 +537,17 @@ export const storeTriggers = defineStore("triggers", {
 		},
 
 		broadcastTriggerList(): void {
-			const triggers = this.triggerList.map((v) => {
-				const infos = TriggerUtils.getTriggerDisplayInfo(v);
-				return {
+			const triggers = TriggerUtils.getTriggerListPublicData();
+			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", {
+				triggerList: triggers.map((v) => ({
 					id: v.id,
-					name: infos.label,
+					name: v.name,
 					disabled: v.enabled === false,
-					iconEmoji: infos.iconEmoji,
-					iconUrl: infos.iconURL,
-				};
+					iconEmoji: v.iconEmoji,
+					iconUrl: v.iconUrl,
+				})),
 			});
-			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", { triggerList: triggers });
-			PublicAPI.instance.broadcastGlobalStates();
+			PublicAPI.instance.broadcastGlobalStates(triggers);
 		},
 	} satisfies StoreActions<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>,
 });

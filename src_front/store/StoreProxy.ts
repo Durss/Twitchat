@@ -1438,6 +1438,10 @@ export interface IParamsActions {
 	 * Saves current pins
 	 */
 	saveChatMenuPins(): void;
+	/**
+	 * Removes any pinned chat menu item pointing to the given trigger
+	 */
+	unpinTriggerMenuItems(id: string): void;
 }
 
 export interface IPollState {

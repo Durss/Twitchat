@@ -5,6 +5,7 @@ import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
+import type { PIN_CHAT_TRIGGER_PREFIX_ID } from "@/store/params/storeParams";
 
 export namespace TwitchatDataTypes {
 	export type FeatureFlag =
@@ -4871,7 +4872,7 @@ export namespace TwitchatDataTypes {
 		| "chatters"
 		| "rewards"
 		| "quiz"
-		| `trigger:${string}`;
+		| `${typeof PIN_CHAT_TRIGGER_PREFIX_ID}${string}`;
 	export const PinnableMenuItems: {
 		id: PinId;
 		isModal: boolean;

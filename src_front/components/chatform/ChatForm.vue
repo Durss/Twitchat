@@ -800,7 +800,10 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { useI18n } from "vue-i18n";
 import { useConfirm } from "@/composables/useConfirm";
 import { asset } from "@/composables/useAsset";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import {
+	PIN_CHAT_TRIGGER_PREFIX_ID,
+	storeParams as useStoreParams,
+} from "@/store/params/storeParams";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeStream as useStoreStream } from "@/store/stream/storeStream";
@@ -1091,8 +1094,8 @@ const pinnedMenuItems = computed(() => {
 		if (!menuItem) continue;
 		if (!getMenuItemEnabled(menuItem)) continue;
 		const resultItem: (typeof result)[0] = { item: menuItem, tooltip: "", icon: menuItem.icon };
-		if (menuItem.id.indexOf("trigger:") === 0) {
-			const triggerId = menuItem.id.replace("trigger:", "");
+		if (menuItem.id.indexOf(PIN_CHAT_TRIGGER_PREFIX_ID) === 0) {
+			const triggerId = menuItem.id.replace(PIN_CHAT_TRIGGER_PREFIX_ID, "");
 			const trigger = storeTriggers.triggerList.find((trigger) => trigger.id == triggerId);
 			if (trigger) {
 				resultItem.trigger = trigger;
@@ -1820,9 +1823,9 @@ function onClickMenuItem(entry: (typeof pinnedMenuItems.value)[number]): void {
 				})
 				.catch(() => {});
 		}
-	} else if (item.id.indexOf("trigger:") === 0) {
+	} else if (item.id.indexOf(PIN_CHAT_TRIGGER_PREFIX_ID) === 0) {
 		const trigger = storeTriggers.triggerList.find(
-			(trigger) => trigger.id == item.id.replace("trigger:", ""),
+			(trigger) => trigger.id == item.id.replace(PIN_CHAT_TRIGGER_PREFIX_ID, ""),
 		);
 		if (trigger) {
 			const me = StoreProxy.auth.twitch.user;
@@ -1873,9 +1876,9 @@ function onUpdateTrackedUserList(): void {
 function getPinnedMenuItemFromId(
 	id: (typeof TwitchatDataTypes.PinnableMenuItems)[number]["id"],
 ): (typeof TwitchatDataTypes.PinnableMenuItems)[number] | null {
-	if (id.indexOf("trigger:") === 0) {
+	if (id.indexOf(PIN_CHAT_TRIGGER_PREFIX_ID) === 0) {
 		const trigger = storeTriggers.triggerList.find(
-			(trigger) => trigger.id == id.replace("trigger:", ""),
+			(trigger) => trigger.id == id.replace(PIN_CHAT_TRIGGER_PREFIX_ID, ""),
 		);
 		if (!trigger) {
 			// Trigger not found, remove from pinned items

@@ -26,7 +26,10 @@
 
 <script setup lang="ts">
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
-import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import {
+	PIN_CHAT_TRIGGER_PREFIX_ID,
+	storeParams as useStoreParams,
+} from "@/store/params/storeParams";
 import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTriggers";
 import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -56,7 +59,9 @@ const hasChannelPoints = computed(() => {
 
 const pinList = computed(() => {
 	const pins: {
-		id: (typeof TwitchatDataTypes.PinnableMenuItems)[0]["id"] | `trigger:${string}`;
+		id:
+			| (typeof TwitchatDataTypes.PinnableMenuItems)[0]["id"]
+			| `${typeof PIN_CHAT_TRIGGER_PREFIX_ID}${string}`;
 		icon: string;
 		labelKey: string;
 		label?: string;
@@ -82,11 +87,13 @@ const pinList = computed(() => {
 		.forEach((trigger) => {
 			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
 			triggerPins.push({
-				id: `trigger:${trigger.id}`,
+				id: `${PIN_CHAT_TRIGGER_PREFIX_ID}${trigger.id}`,
 				icon: "broadcast",
 				label: triggerInfo.label,
 				labelKey: triggerInfo.labelKey || "",
-				pinned: storeParams.pinnedMenuItems.includes(`trigger:${trigger.id}`),
+				pinned: storeParams.pinnedMenuItems.includes(
+					`${PIN_CHAT_TRIGGER_PREFIX_ID}${trigger.id}`,
+				),
 				trigger,
 			});
 		});

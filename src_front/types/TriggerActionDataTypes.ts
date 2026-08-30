@@ -10907,6 +10907,24 @@ export function TriggerTypesDefinitionList(): TriggerTypeDefinition[] {
 	return eventsCache;
 }
 
+let eventsByTypeCache: Map<string, TriggerTypeDefinition> | undefined;
+/**
+ * Gets a trigger definition by its type.
+ * Data source is cached
+ */
+export function TriggerTypeDefinitionFromType(
+	type: string | undefined,
+): TriggerTypeDefinition | undefined {
+	if (!type) return undefined;
+	if (!eventsByTypeCache) {
+		eventsByTypeCache = new Map();
+		for (const definition of TriggerTypesDefinitionList()) {
+			eventsByTypeCache.set(definition.value, definition);
+		}
+	}
+	return eventsByTypeCache.get(type);
+}
+
 export const TriggerMusicTypes = {
 	NO_ACTION: "0",
 	ADD_TRACK_TO_QUEUE: "1",

@@ -116,7 +116,9 @@ export default class PublicAPI extends EventDispatcher {
 		}
 	}
 
-	public broadcastGlobalStates(): void {
+	public broadcastGlobalStates(
+		triggerList?: TwitchatEventMap["ON_GLOBAL_STATES"]["triggerList"],
+	): void {
 		if (this._isMainApp == false) return;
 		const lastAutomod =
 			StoreProxy.chat.pendingAutomodMessages[
@@ -165,16 +167,7 @@ export default class PublicAPI extends EventDispatcher {
 					enabled: v.enabled || false,
 					perUser: v.perUser,
 				})),
-			triggerList: StoreProxy.triggers.triggerList.map((v) => {
-				const infos = TriggerUtils.getTriggerDisplayInfo(v);
-				return {
-					id: v.id,
-					name: infos.label,
-					enabled: v.enabled,
-					iconEmoji: infos.iconEmoji,
-					iconUrl: infos.iconURL,
-				};
-			}),
+			triggerList: triggerList ?? TriggerUtils.getTriggerListPublicData(),
 			qnaSessionList: StoreProxy.qna.activeSessions.map((v) => ({
 				id: v.id,
 				command: v.command,

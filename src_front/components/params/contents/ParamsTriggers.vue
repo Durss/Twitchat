@@ -187,6 +187,7 @@ import { storeTriggers as useStoreTriggers } from "@/store/triggers/storeTrigger
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { storeValues as useStoreValues } from "@/store/values/storeValues";
 import {
+	TriggerTypeDefinitionFromType,
 	TriggerTypes,
 	TriggerTypesDefinitionList,
 	type TriggerData,
@@ -531,7 +532,7 @@ function createTriggerWithinFolder(folderId: string): void {
  * Simulates a trigger's execution
  */
 function testTrigger(trigger: TriggerData): void {
-	const triggerEvent = TriggerTypesDefinitionList().find((v) => v.value == trigger.type);
+	const triggerEvent = TriggerTypeDefinitionFromType(trigger.type);
 
 	if (triggerEvent?.testMessageType) {
 		//Special case for schedules
