@@ -32,11 +32,16 @@
 					<a :href="profilePage" target="_blank">
 						<div class="avatar">
 							<div class="imageHolder" :class="{ live: !!currentStream }">
+								<div class="defaultAvatar">
+									<Icon name="user" />
+								</div>
+
 								<img
-									v-if="user!.avatarPath"
+									v-if="user!.avatarPath && !avatarError"
 									alt="avatar"
 									:src="user!.avatarPath"
 									referrerpolicy="no-referrer"
+									@error="avatarError = true"
 								/>
 							</div>
 
@@ -520,9 +525,10 @@
 </template>
 
 <script setup lang="ts">
-import StoreProxy from "@/store/StoreProxy";
 import DataStore from "@/store/DataStore";
+import StoreProxy from "@/store/StoreProxy";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
 import { storeGroq as useStoreGroq } from "@/store/groq/storeGroq";
@@ -531,6 +537,7 @@ import { storeTTS as useStoreTTS } from "@/store/tts/storeTTS";
 import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -539,18 +546,16 @@ import type { Badges } from "tmi.js";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import ClearButton from "../ClearButton.vue";
+import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
+import Icon from "../Icon.vue";
 import Splitter from "../Splitter.vue";
 import TTButton from "../TTButton.vue";
-import GroqSummaryFilterForm from "../GroqSummaryFilterForm.vue";
 import MessageItem from "../messages/MessageItem.vue";
 import ChatModTools from "../messages/components/ChatModTools.vue";
 import CustomBadgeSelector from "./CustomBadgeSelector.vue";
 import CustomBadgesManager from "./CustomBadgesManager.vue";
 import CustomUserBadges from "./CustomUserBadges.vue";
 import CustomUserNameManager from "./CustomUserNameManager.vue";
-import { storeBluesky as useStoreBluesky } from "@/store/bluesky/storeBluesky";
-import Config from "@/utils/Config";
-import ApiHelper from "@/utils/ApiHelper";
 
 const emit = defineEmits<{
 	close: [];
@@ -564,7 +569,6 @@ const storeGroq = useStoreGroq();
 const storeStream = useStoreStream();
 const storeTTS = useStoreTTS();
 const storeUsers = useStoreUsers();
-const storeBluesky = useStoreBluesky();
 
 const rootEl = useTemplateRef("rootEl");
 const customUsernameRef = useTemplateRef("customUsername");
@@ -573,6 +577,7 @@ const messagelistRef = useTemplateRef("messagelist");
 
 const error = ref(false);
 const loading = ref(true);
+const avatarError = ref(false);
 const edittingLogin = ref(true);
 const showGroqForm = ref(false);
 const manageBadges = ref(false);
@@ -794,6 +799,7 @@ async function loadUserInfo(): Promise<void> {
 	manageUserNames.value = false;
 	subState.value = null;
 	subStateLoaded.value = false;
+	avatarError.value = false;
 	currentStream.value = null;
 	banReason.value = "";
 	customLogin.value = "";
@@ -1430,6 +1436,7 @@ onBeforeUnmount(() => {
 			.avatar {
 				position: relative;
 				.imageHolder {
+					position: relative;
 					width: 5em;
 					height: 5em;
 					border-radius: 50%;
@@ -1440,7 +1447,7 @@ onBeforeUnmount(() => {
 						width 0.25s,
 						height 0.25s,
 						border-radius 0.25s;
-					&:hover {
+					&:has(img):hover {
 						width: 10em;
 						height: 10em;
 						border-radius: 5px;
@@ -1448,6 +1455,26 @@ onBeforeUnmount(() => {
 					img {
 						width: 100%;
 						height: 100%;
+						z-index: 1;
+					}
+					.defaultAvatar {
+						position: absolute;
+						outline: 1px solid var(--color-text);
+						outline-offset: -1px;
+						border-radius: 50%;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						z-index: -1;
+						color: var(--color-text);
+						.icon {
+							position: absolute;
+							width: 70%;
+							top: 50%;
+							left: 50%;
+							transform: translate(-50%, -50%);
+						}
 					}
 				}
 				.mini {
