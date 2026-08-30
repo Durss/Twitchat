@@ -38,9 +38,10 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	public connected = ref(false);
 
-	private _initResolver!: (value: void | PromiseLike<void>) => void;
-	private _connecting!: boolean;
-	private _socket!: WebSocket;
+	private _initResolver: ((value: void | PromiseLike<void>) => void) | null = null;
+	private _initRejecter: ((reason?: unknown) => void) | null = null;
+	private _connecting: boolean = false;
+	private _socket?: WebSocket;
 	private _voicesList: VoicemodTypes.Voice[] = [];
 	private _soundsboards: VoicemodTypes.Soundboard[] = [];
 	private _currentVoiceEffect!: VoicemodTypes.Voice | null;
@@ -91,54 +92,18 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-	public connect(
-		ip: string = "127.0.0.1",
-		port: number = 59129,
-		isRetry: boolean = false,
-	): Promise<void> {
+	public connect(ip: string = "127.0.0.1", port: number = 59129): Promise<void> {
 		if (this.connected.value) return Promise.resolve();
 		if (this._connecting) return this._connectPromise;
+		// Close any existing connection
+		this.closeSocket();
 		this._connecting = true;
-		if (!isRetry) {
-			this._connectAttempts = 0;
-		}
-		this._connectPromise = new Promise((resolve, reject) => {
+		this._connectAttempts = 0;
+		this._connectPromise = new Promise<void>((resolve, reject) => {
 			this._initResolver = resolve;
-			this._socket = new WebSocket(`ws://${ip}:${port}/v1/`);
-
-			this._socket.onopen = () => {
-				// console.log('🎤 Voicemod connection succeed');
-				this._connecting = false;
-				this._autoReconnect = true;
-				this.register();
-			};
-
-			this._socket.onmessage = (event: any) => this.onSocketMessage(event);
-
-			this._socket.onclose = (_e) => {
-				// if(this.connected.value) {
-				// 	console.log('🎤 Voicemod connection lost');
-				// }
-				this._connecting = false;
-				this.connected.value = false;
-				// Attempt to connect 300 times which roughly corresponds to 10min
-				if (this._autoReconnect || ++this._connectAttempts < 300) {
-					try {
-						window.setTimeout(() => {
-							void this.connect(ip, port, true);
-						}, 1000);
-					} catch (error) {
-						console.log(error);
-						reject("[VoicemodWebSocket] Reconnection failed");
-					}
-				}
-			};
-
-			this._socket.onerror = (_e) => {
-				this._connecting = false;
-				reject("[VoicemodWebSocket] Socket error");
-			};
+			this._initRejecter = reject;
 		});
+		this.openSocket(ip, port);
 		return this._connectPromise;
 	}
 
@@ -153,11 +118,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		this._voiceIdImageToPromise = {};
 		this._autoReconnect = false;
 		this._connectAttempts = Number.MAX_SAFE_INTEGER;
-		clearTimeout(this._reconnectTimeout);
-		if (this.connected.value) {
-			this._socket.close();
-		}
-		this.connected.value = false;
+		this.closeSocket();
+		this.rejectConnect("[VoicemodWebSocket] Disconnected");
 	}
 
 	/**
@@ -343,6 +305,78 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 *******************/
 
 	/**
+	 * Open connection with Voicemod.
+	 */
+	private openSocket(ip: string, port: number): void {
+		clearTimeout(this._reconnectTimeout);
+		this._reconnectTimeout = -1;
+		const socket = new WebSocket(`ws://${ip}:${port}/v1/`);
+		this._socket = socket;
+
+		socket.onopen = () => {
+			// console.log('🎤 Voicemod connection succeed');
+			if (this._socket !== socket) return;
+			this._autoReconnect = true;
+			this.register();
+		};
+
+		socket.onmessage = (event: any) => {
+			if (this._socket !== socket) return;
+			void this.onSocketMessage(event);
+		};
+
+		socket.onclose = (_e) => {
+			// if(this.connected.value) {
+			// 	console.log('🎤 Voicemod connection lost');
+			// }
+			if (this._socket !== socket) return;
+			this._socket = undefined;
+			this.connected.value = false;
+			// Attempt to connect 300 times which roughly corresponds to 5min
+			if (this._autoReconnect || ++this._connectAttempts < 300) {
+				this._reconnectTimeout = window.setTimeout(() => this.openSocket(ip, port), 1000);
+			}
+			this.rejectConnect("[VoicemodWebSocket] Connection closed");
+		};
+
+		socket.onerror = (_e) => {
+			if (this._socket !== socket) return;
+			this.rejectConnect("[VoicemodWebSocket] Socket error");
+		};
+	}
+
+	/**
+	 * Close current connection
+	 */
+	private closeSocket(): void {
+		clearTimeout(this._reconnectTimeout);
+		this._reconnectTimeout = -1;
+		const socket = this._socket;
+		//Drop the reference first so remaining events of that socket are ignored
+		this._socket = undefined;
+		if (socket) {
+			socket.onopen = socket.onmessage = socket.onclose = socket.onerror = null;
+			if (
+				socket.readyState === WebSocket.CONNECTING ||
+				socket.readyState === WebSocket.OPEN
+			) {
+				socket.close();
+			}
+		}
+		this.connected.value = false;
+	}
+
+	/**
+	 * Reject pending connection
+	 */
+	private rejectConnect(reason: string): void {
+		const reject = this._initRejecter;
+		this._initResolver = this._initRejecter = null;
+		this._connecting = false;
+		if (reject) reject(new Error(reason));
+	}
+
+	/**
 	 * Sends a data to Voicemod
 	 */
 	private send(actionType: string, payload?: any): void {
@@ -355,7 +389,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			json.payload = payload;
 		}
 
-		if (this._socket.readyState == WebSocket.OPEN) {
+		if (this._socket?.readyState == WebSocket.OPEN) {
 			this._socket.send(JSON.stringify(json));
 		}
 	}
@@ -476,8 +510,11 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 */
 	private checkInitComplete(): void {
 		if (this._voicesList.length > 0 && this._soundsboards.length > 0) {
-			this._initResolver();
 			this.connected.value = true;
+			const resolve = this._initResolver;
+			this._initResolver = this._initRejecter = null;
+			this._connecting = false;
+			if (resolve) resolve();
 		}
 	}
 
