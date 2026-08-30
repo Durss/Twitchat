@@ -87,28 +87,6 @@ export default class TriggerUtils {
 	}
 
 	/**
-	 * Builds publicly broadcast trigger list data.
-	 */
-	public static getTriggerListPublicData(): {
-		id: string;
-		name: string;
-		enabled: boolean;
-		iconEmoji?: string;
-		iconUrl?: string;
-	}[] {
-		return StoreProxy.triggers.triggerList.map((v) => {
-			const infos = TriggerUtils.getTriggerDisplayInfo(v);
-			return {
-				id: v.id,
-				name: infos.label,
-				enabled: v.enabled,
-				iconEmoji: infos.iconEmoji,
-				iconUrl: infos.iconURL,
-			};
-		});
-	}
-
-	/**
 	 * Gets info about a trigger
 	 * @param trigger
 	 */

@@ -226,6 +226,19 @@ export const storeTriggers = defineStore("triggers", {
 			}
 			return res;
 		},
+
+		triggerListPublicData(): ITriggersGetters["triggerListPublicData"] {
+			return this.triggerList.map((v) => {
+				const infos = TriggerUtils.getTriggerDisplayInfo(v);
+				return {
+					id: v.id,
+					name: infos.label,
+					enabled: v.enabled,
+					iconEmoji: infos.iconEmoji,
+					iconUrl: infos.iconURL,
+				};
+			});
+		},
 	} satisfies StoreGetters<ITriggersGetters, ITriggersState>,
 
 	actions: {
@@ -584,9 +597,8 @@ export const storeTriggers = defineStore("triggers", {
 		},
 
 		broadcastTriggerList(): void {
-			const triggers = TriggerUtils.getTriggerListPublicData();
 			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", {
-				triggerList: triggers.map((v) => ({
+				triggerList: this.triggerListPublicData.map((v) => ({
 					id: v.id,
 					name: v.name,
 					disabled: v.enabled === false,
@@ -594,7 +606,7 @@ export const storeTriggers = defineStore("triggers", {
 					iconUrl: v.iconUrl,
 				})),
 			});
-			PublicAPI.instance.broadcastGlobalStates(triggers);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 	} satisfies StoreActions<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>,
 });

@@ -1893,6 +1893,23 @@ export interface ITriggersGetters {
 	 * Get all available trigger queues
 	 */
 	queues: string[];
+	/**
+	 * Trigger list data broadcast to overlays and remote apps.
+	 *
+	 * Cached. Building it walks every trigger through
+	 * TriggerUtils.getTriggerDisplayInfo() which is far from free.
+	 * As it's a getter it's only rebuilt when something it actually
+	 * reads changes (trigger, reward, counter name, locale,...).
+	 *
+	 * The returned array is shared between all the callers, do not mutate it.
+	 */
+	triggerListPublicData: {
+		id: string;
+		name: string;
+		enabled: boolean;
+		iconEmoji?: string;
+		iconUrl?: string;
+	}[];
 }
 
 export interface ITriggersActions {

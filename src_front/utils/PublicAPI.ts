@@ -6,7 +6,6 @@ import OBSWebsocket from "./OBSWebsocket";
 import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 import Utils from "./Utils";
 import VoiceController from "./voice/VoiceController";
-import TriggerUtils from "./TriggerUtils";
 
 /**
  * Created : 14/04/2022
@@ -116,9 +115,7 @@ export default class PublicAPI extends EventDispatcher {
 		}
 	}
 
-	public broadcastGlobalStates(
-		triggerList?: TwitchatEventMap["ON_GLOBAL_STATES"]["triggerList"],
-	): void {
+	public broadcastGlobalStates(): void {
 		if (this._isMainApp == false) return;
 		const lastAutomod =
 			StoreProxy.chat.pendingAutomodMessages[
@@ -167,7 +164,7 @@ export default class PublicAPI extends EventDispatcher {
 					enabled: v.enabled || false,
 					perUser: v.perUser,
 				})),
-			triggerList: triggerList ?? TriggerUtils.getTriggerListPublicData(),
+			triggerList: StoreProxy.triggers.triggerListPublicData,
 			qnaSessionList: StoreProxy.qna.activeSessions.map((v) => ({
 				id: v.id,
 				command: v.command,
