@@ -113,6 +113,7 @@ function addTriggerToTreeFolder(
 
 /**
  * Schedules/unschedules "schedule" triggers whose enabled state changed.
+ * Also unschedule deleted ones
  */
 function refreshScheduledTriggers(triggers: TriggerData[]): void {
 	const knownIds = new Set<string>();
@@ -128,6 +129,8 @@ function refreshScheduledTriggers(triggers: TriggerData[]): void {
 			SchedulerHelper.instance.unscheduleTrigger(trigger);
 		}
 	}
+
+	SchedulerHelper.instance.unscheduleMissingTriggers(knownIds);
 
 	for (const id of Object.keys(enabledStateCache)) {
 		if (!knownIds.has(id)) delete enabledStateCache[id];

@@ -79,6 +79,19 @@ export default class SchedulerHelper {
 	}
 
 	/**
+	 * @param triggerIds IDs of the triggers that still exist
+	 */
+	public unscheduleMissingTriggers(triggerIds: Set<string>): void {
+		for (let i = 0; i < this._pendingSchedules.length; i++) {
+			const trigger = this._pendingSchedules[i]!.trigger;
+			if (trigger.type != TriggerTypes.SCHEDULE) continue;
+			if (triggerIds.has(trigger.id)) continue;
+			this._pendingSchedules.splice(i, 1);
+			i--;
+		}
+	}
+
+	/**
 	 * Schedules a trigger and reset its scheduling if already scheduled
 	 * @param key
 	 * @param trigger
