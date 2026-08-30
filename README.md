@@ -242,13 +242,13 @@ New components must use the standard syntax/API.
 
 |                                    | Count   | %     |
 | ---------------------------------- | ------- | ----- |
-| Composition API (`<script setup>`) | **297** | 69.4% |
-| Class-style (vue-facing-decorator) | **131** | 30.6% |
+| Composition API (`<script setup>`) | **298** | 69.6% |
+| Class-style (vue-facing-decorator) | **130** | 30.4% |
 | **Total**                          | **428** |       |
 
-> Migration progress `[⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀⣀⣀⣀]` _(69.4%)_
+> Migration progress `[⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀⣀⣀⣀]` _(69.6%)_
 
-_Last updated: 2026-08-28_
+_Last updated: 2026-08-30_
 
 <!-- MIGRATION-STATS-END -->
 

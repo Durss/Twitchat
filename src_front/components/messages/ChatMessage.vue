@@ -364,13 +364,13 @@
 
 <script setup lang="ts">
 import { useChatMessage } from "@/composables/useChatMessage";
+import { useClipHighlight } from "@/composables/useClipHighlight";
 import { storeAccessibility as useStoreAccessibility } from "@/store/accessibility/storeAccessibility";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -430,7 +430,7 @@ const storeAuth = useStoreAuth();
 const storeParams = useStoreParams();
 const storeChat = useStoreChat();
 const storeAccessibility = useStoreAccessibility();
-const { t, tm } = useI18n();
+const { t } = useI18n();
 
 const channelInfo = ref<TwitchatDataTypes.UserChannelInfo | null>(null);
 const recipient = ref<TwitchatDataTypes.TwitchatUser | null>(null);
@@ -439,8 +439,6 @@ const automodReasons = ref("");
 const hypeChat = ref<TwitchatDataTypes.HypeChatData | null>(null);
 const badges = ref<TwitchatDataTypes.TwitchatUserBadge[]>([]);
 const clipInfo = ref<TwitchDataTypes.ClipInfo | null>(null);
-const clipHighlightLoading = ref(false);
-const highlightOverlayAvailable = ref(false);
 const infoBadges = ref<TwitchatDataTypes.MessageBadgeData[]>([]);
 const isAd = ref(false);
 const isAnnouncement = ref(false);
@@ -449,6 +447,11 @@ const userBannedOnChannels = ref("");
 const localMessageChunks = ref<TwitchatDataTypes.ParseMessageChunk[]>([]);
 const requestClipDLPermission = ref(false);
 let staticClasses: string[] = [];
+
+const { clipHighlightLoading, checkOverlayPresence, clipHighlight } = useClipHighlight(
+	props,
+	clipInfo,
+);
 
 const { canModerateMessage, copyJSON, applyStyles, onContextMenu, openUserCard, getProfilePage } =
 	useChatMessage(props, emit, rootEl, {
@@ -781,8 +784,7 @@ onBeforeMount(() => {
 
 	if (clipId != "") {
 		clipHighlightLoading.value = true;
-		Utils.getHighlightOverPresence().then((res) => {
-			highlightOverlayAvailable.value = res;
+		void checkOverlayPresence().finally(() => {
 			clipHighlightLoading.value = false;
 		});
 		//Do it asynchronously to avoid blocking rendering
@@ -876,42 +878,6 @@ async function modMessage(accept: boolean): Promise<void> {
  */
 function openClip(): void {
 	window.open(clipInfo.value?.url, "_blank");
-}
-
-/**
- * Send a clip to the overlay
- */
-async function clipHighlight(): Promise<void> {
-	Utils.getHighlightOverPresence().then((res) => {
-		highlightOverlayAvailable.value = res;
-	});
-	if (!highlightOverlayAvailable.value) {
-		storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "chathighlight");
-		return;
-	}
-
-	clipHighlightLoading.value = true;
-	const clipHighlightData: TwitchatDataTypes.ChatHighlightInfo = {
-		date: props.messageData.date,
-		message_id: props.messageData.id,
-		clip: {
-			url: clipInfo.value!.embed_url,
-			// mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
-			duration: clipInfo.value!.duration,
-		},
-		params: storeChat.chatHighlightOverlayParams,
-		dateLabel: tm("global.date_ago"),
-	};
-	if (TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
-		const clipSrcPath = await TwitchUtils.getClipsSrcPath([clipInfo.value!.id]);
-		if (clipSrcPath.length > 0) {
-			clipHighlightData.clip!.mp4 = clipSrcPath[0]!.landscape_download_url;
-		}
-	}
-	PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", clipHighlightData);
-	storeChat.highlightedMessageId = props.messageData.id;
-	await Utils.promisedTimeout(1000);
-	clipHighlightLoading.value = false;
 }
 
 /**

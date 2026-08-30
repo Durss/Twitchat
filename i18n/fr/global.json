@@ -185,7 +185,7 @@
 			"clip_creating": "Patientez pendant la création du clip",
 			"clip_created": "Le clip a été créé.",
 			"clip_created_publishBt": "Ouvrir le clip",
-			"clip_created_highlightBt": "Mettre en avant le clip",
+			"clip_created_highlightBt": "Mettre clip en avant",
 			"ban_reason": "Manually banned from Twitchat"
 		},
 		"dev_mode": {
@@ -294,3 +294,4 @@
 		}
 	}
 }
+
