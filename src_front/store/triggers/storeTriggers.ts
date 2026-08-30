@@ -135,10 +135,9 @@ function refreshScheduledTriggers(triggers: TriggerData[]): void {
 }
 
 /**
- * Builds a signature of the discord commands to later detect if any changed
- * and publish it to discord
+ * Normalizes discord commands, removing theoretical duplicates and sorting them
  */
-function discordCommandsSignature(commands: DiscordCommand[]): string {
+function normalizeDiscordCommands(commands: DiscordCommand[]): DiscordCommand[] {
 	const done = new Set<string>();
 	const unique: DiscordCommand[] = [];
 	for (const command of commands) {
@@ -148,7 +147,7 @@ function discordCommandsSignature(commands: DiscordCommand[]): string {
 		unique.push(command);
 	}
 	unique.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-	return JSON.stringify(unique);
+	return unique;
 }
 
 /**
@@ -170,7 +169,7 @@ function scheduleDiscordCommandsUpdate(): void {
 		if (!StoreProxy.discord.discordLinked) return;
 
 		// Build discord commands query params
-		const commands: DiscordCommand[] = [];
+		const rawCommands: DiscordCommand[] = [];
 		for (const trigger of StoreProxy.triggers.triggerList) {
 			if (
 				trigger.type == TriggerTypes.SLASH_COMMAND &&
@@ -184,15 +183,17 @@ function scheduleDiscordCommandsUpdate(): void {
 						params.push({ name: p.tag });
 					});
 				}
-				commands.push({
+				rawCommands.push({
 					name: trigger.chatCommand.replace(/[^a-z0-9]/gi, ""),
 					params,
 				});
 			}
 		}
 
+		const commands = normalizeDiscordCommands(rawCommands);
+
 		// Check if discord commands changed
-		const signature = discordCommandsSignature(commands);
+		const signature = JSON.stringify(commands);
 		if (signature === discordCmdsSignature) return;
 
 		//Update discord commands
@@ -558,6 +559,7 @@ export const storeTriggers = defineStore("triggers", {
 			this.triggerTree = data;
 			this.computeTriggerTreeEnabledStates();
 			refreshScheduledTriggers(this.triggerList);
+			scheduleDiscordCommandsUpdate();
 			DataStore.set(DataStore.TRIGGERS_TREE, this.triggerTree);
 		},
 
