@@ -31,6 +31,55 @@ let wasDiscordCmds = false;
 let enabledStateCache: { [triggerId: string]: boolean } = {};
 
 /**
+ * Renames a placeholder on all given triggers.
+ *
+ * @param triggers			triggers to update
+ * @param prefix			placeholder prefix (COUNTER_VALUE_, VALUE_,...)
+ * @param oldPlaceholder	placeholder name to replace
+ * @param newPlaceholder	placeholder name to replace it with
+ * @returns true if at least one trigger has been updated
+ */
+function renamePlaceholder(
+	triggers: TriggerData[],
+	prefix: string,
+	oldPlaceholder: string,
+	newPlaceholder: string,
+): boolean {
+	if (!oldPlaceholder || !newPlaceholder) return false;
+
+	//Make the searched placeholder regex safe
+	const safeOldPlaceholder = (prefix + oldPlaceholder).replace(
+		/[-[\]{}()*+?.,\\^$|#\s]/g,
+		"\\$&",
+	);
+	// Rename placeholder while keeping modifiers
+	const search = new RegExp("\\{" + safeOldPlaceholder + "(?=[.}])", "gi");
+	const replacement = "{" + (prefix + newPlaceholder).toUpperCase();
+
+	const renameOnNode = (node: Record<string, unknown>): boolean => {
+		let updated = false;
+		for (const key in node) {
+			const value = node[key];
+			if (typeof value == "string") {
+				const renamed = value.replace(search, replacement);
+				if (renamed === value) continue;
+				node[key] = renamed;
+				updated = true;
+			} else if (value && typeof value == "object") {
+				if (renameOnNode(value as Record<string, unknown>)) updated = true;
+			}
+		}
+		return updated;
+	};
+
+	let updated = false;
+	for (const trigger of triggers) {
+		if (renameOnNode(trigger as unknown as Record<string, unknown>)) updated = true;
+	}
+	return updated;
+}
+
+/**
  * Adds a trigger entry to the given folder of the trigger tree.
  * Searches recursively at any depth.
  *
@@ -451,69 +500,25 @@ export const storeTriggers = defineStore("triggers", {
 		renameCounterPlaceholder(oldPlaceholder: string, newPlaceholder: string): void {
 			//Search for any trigger linked to the renamed counter and any
 			//trigger action updating that counter and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
-				let json = JSON.stringify(t);
-
-				//Is the old placeholder somewhere on the trigger data ?
-				if (
-					json
-						.toLowerCase()
-						.indexOf(
-							(COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase(),
-						) == -1
-				)
-					continue;
-
-				//Add placeholders prefix
-				let newPlaceholderLoc =
-					COUNTER_VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
-				let oldPlaceholderLoc =
-					COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
-				//Make it regex safe
-				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-
-				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(
-					new RegExp("\\{" + oldPlaceholderLoc + "\\}", "g"),
-					"{" + newPlaceholderLoc.toUpperCase() + "}",
-				);
-				this.triggerList[i] = JSON.parse(json);
-			}
-			this.saveTriggers();
+			const updated = renamePlaceholder(
+				this.triggerList,
+				COUNTER_VALUE_PLACEHOLDER_PREFIX,
+				oldPlaceholder,
+				newPlaceholder,
+			);
+			if (updated) this.saveTriggers();
 		},
 
 		renameValuePlaceholder(oldPlaceholder: string, newPlaceholder: string): void {
 			//Search for any trigger linked to the renamed value and any
 			//trigger action updating that value and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
-				let json = JSON.stringify(t);
-
-				//Is the old placeholder somewhere on the trigger data ?
-				if (
-					json
-						.toLowerCase()
-						.indexOf((VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1
-				)
-					continue;
-
-				//Add placeholders prefix
-				let newPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
-				let oldPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
-				//Make it regex safe
-				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-
-				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(
-					new RegExp("\\{" + oldPlaceholderLoc + "\\}", "g"),
-					"{" + newPlaceholderLoc.toUpperCase() + "}",
-				);
-				this.triggerList[i] = JSON.parse(json);
-			}
-			this.saveTriggers();
+			const updated = renamePlaceholder(
+				this.triggerList,
+				VALUE_PLACEHOLDER_PREFIX,
+				oldPlaceholder,
+				newPlaceholder,
+			);
+			if (updated) this.saveTriggers();
 		},
 
 		updateTriggerTree(data: TriggerTreeItemData[]): void {
