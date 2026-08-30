@@ -30,6 +30,57 @@ let discordCmdUpdateDebounce: number = -1;
 let wasDiscordCmds = false;
 let enabledStateCache: { [triggerId: string]: boolean } = {};
 
+/**
+ * Adds a trigger entry to the given folder of the trigger tree.
+ * Searches recursively at any depth.
+ *
+ * @returns true if the folder has been found
+ */
+function addTriggerToTreeFolder(
+	treeItem: TriggerTreeItemData[],
+	folderId: string,
+	triggerId: string,
+): boolean {
+	for (const elem of treeItem) {
+		if (elem.type != "folder") continue;
+		if (elem.id === folderId) {
+			if (!elem.children) elem.children = [];
+			elem.children.push({
+				id: Utils.getUUID(),
+				type: "trigger",
+				triggerId,
+			});
+			return true;
+		}
+		if (elem.children && addTriggerToTreeFolder(elem.children, folderId, triggerId))
+			return true;
+	}
+	return false;
+}
+
+/**
+ * Schedules/unschedules "schedule" triggers whose enabled state changed.
+ */
+function refreshScheduledTriggers(triggers: TriggerData[]): void {
+	const knownIds = new Set<string>();
+	for (const trigger of triggers) {
+		knownIds.add(trigger.id);
+		if (trigger.type != TriggerTypes.SCHEDULE) continue;
+		const enabled = TriggerUtils.isTriggerEnabled(trigger);
+		if (enabledStateCache[trigger.id] == enabled) continue;
+		enabledStateCache[trigger.id] = enabled;
+		if (enabled) {
+			SchedulerHelper.instance.scheduleTrigger(trigger);
+		} else {
+			SchedulerHelper.instance.unscheduleTrigger(trigger);
+		}
+	}
+
+	for (const id of Object.keys(enabledStateCache)) {
+		if (!knownIds.has(id)) delete enabledStateCache[id];
+	}
+}
+
 export const storeTriggers = defineStore("triggers", {
 	state: (): ITriggersState => ({
 		triggerList: [],
@@ -240,25 +291,7 @@ export const storeTriggers = defineStore("triggers", {
 
 			//Add trigger to requested folder if necessary
 			if (parentId) {
-				const addToTreeItem = (items: TriggerTreeItemData[]) => {
-					for (const elem of items) {
-						if (elem.id === parentId) {
-							if (!elem.children) elem.children = [];
-							elem.children.push({
-								id: Utils.getUUID(),
-								type: "trigger",
-								triggerId: data.id,
-							});
-						} else if (elem.children) {
-							elem.children.forEach((v) => {
-								if (v.type == "folder") {
-									addToTreeItem(v.children!);
-								}
-							});
-						}
-					}
-				};
-				addToTreeItem(this.triggerTree);
+				addTriggerToTreeFolder(this.triggerTree, parentId, data.id);
 			}
 			this.saveTriggers();
 		},
@@ -283,25 +316,7 @@ export const storeTriggers = defineStore("triggers", {
 
 				//Add trigger to requested folder if necessary
 				if (parentId) {
-					const addToTreeItem = (items: TriggerTreeItemData[]) => {
-						for (const elem of items) {
-							if (elem.id === parentId) {
-								if (!elem.children) elem.children = [];
-								elem.children.push({
-									id: Utils.getUUID(),
-									type: "trigger",
-									triggerId: clone.id,
-								});
-							} else if (elem.children) {
-								elem.children.forEach((v) => {
-									if (v.type == "folder") {
-										addToTreeItem(v.children!);
-									}
-								});
-							}
-						}
-					};
-					addToTreeItem(this.triggerTree);
+					addTriggerToTreeFolder(this.triggerTree, parentId, clone.id);
 				}
 				this.triggerList.push(clone);
 				this.saveTriggers();
@@ -353,18 +368,10 @@ export const storeTriggers = defineStore("triggers", {
 			const list = JSON.parse(JSON.stringify(this.triggerList));
 			list.forEach((data: TriggerData) => {
 				data.actions = cleanEmptyActions(data.actions);
-				if (
-					data.type == TriggerTypes.SCHEDULE &&
-					enabledStateCache[data.id] != data.enabled
-				) {
-					enabledStateCache[data.id] = data.enabled;
-					if (TriggerUtils.isTriggerEnabled(data)) {
-						SchedulerHelper.instance.scheduleTrigger(data);
-					} else {
-						SchedulerHelper.instance.unscheduleTrigger(data);
-					}
-				}
 			});
+
+			this.computeTriggerTreeEnabledStates();
+			refreshScheduledTriggers(this.triggerList);
 
 			//Create discord commands if requested by some slash commands
 			//and discord is linked
@@ -401,7 +408,6 @@ export const storeTriggers = defineStore("triggers", {
 
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);
-			this.computeTriggerTreeEnabledStates();
 			this.broadcastTriggerList();
 		},
 
@@ -513,6 +519,7 @@ export const storeTriggers = defineStore("triggers", {
 		updateTriggerTree(data: TriggerTreeItemData[]): void {
 			this.triggerTree = data;
 			this.computeTriggerTreeEnabledStates();
+			refreshScheduledTriggers(this.triggerList);
 			DataStore.set(DataStore.TRIGGERS_TREE, this.triggerTree);
 		},
 

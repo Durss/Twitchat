@@ -48,6 +48,7 @@ export default class SchedulerHelper {
 		//Schedule all schedule triggers
 		for (const t of triggers) {
 			if (t.type == TriggerTypes.SCHEDULE) {
+				if (StoreProxy.triggers.triggerIdToFolderEnabled[t.id] === false) continue;
 				this.scheduleTrigger(t);
 			}
 		}
