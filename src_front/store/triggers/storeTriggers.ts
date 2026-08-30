@@ -302,19 +302,10 @@ export const storeTriggers = defineStore("triggers", {
 				const id = e.data.id;
 				const action = e.data.forcedState;
 				const trigger = this.triggerList.find((v) => v.id == id);
-				if (trigger) {
-					switch (action) {
-						case true:
-							trigger.enabled = true;
-							break;
-						case false:
-							trigger.enabled = false;
-							break;
-						default:
-							trigger.enabled = !trigger.enabled;
-							break;
-					}
-				}
+				if (!trigger) return;
+				const enabled = typeof action == "boolean" ? action : !trigger.enabled;
+				if (trigger.enabled === enabled) return;
+				trigger.enabled = enabled;
 				this.saveTriggers();
 			});
 			PublicAPI.instance.addEventListener("GET_TRIGGER_LIST", () =>
