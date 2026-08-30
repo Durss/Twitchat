@@ -26,8 +26,12 @@ import type { JsonObject } from "type-fest";
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
 
+type DiscordCommand = { name: string; params: { name: string }[] };
+
 let discordCmdUpdateDebounce: number = -1;
-let wasDiscordCmds = false;
+// Used to check if discord commands need to be updated
+let discordCmdsSignature: string = "[]";
+let wasDiscordLinked: boolean | null = null;
 let enabledStateCache: { [triggerId: string]: boolean } = {};
 
 /**
@@ -128,6 +132,73 @@ function refreshScheduledTriggers(triggers: TriggerData[]): void {
 	for (const id of Object.keys(enabledStateCache)) {
 		if (!knownIds.has(id)) delete enabledStateCache[id];
 	}
+}
+
+/**
+ * Builds a signature of the discord commands to later detect if any changed
+ * and publish it to discord
+ */
+function discordCommandsSignature(commands: DiscordCommand[]): string {
+	const done = new Set<string>();
+	const unique: DiscordCommand[] = [];
+	for (const command of commands) {
+		const name = command.name.toLowerCase();
+		if (done.has(name)) continue;
+		done.add(name);
+		unique.push(command);
+	}
+	unique.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+	return JSON.stringify(unique);
+}
+
+/**
+ * Schedule update of discord commands.
+ * Will only update if necessary
+ */
+function scheduleDiscordCommandsUpdate(): void {
+	clearTimeout(discordCmdUpdateDebounce);
+	discordCmdUpdateDebounce = -1;
+
+	const linked = StoreProxy.discord.discordLinked;
+	if (wasDiscordLinked !== null && wasDiscordLinked !== linked) discordCmdsSignature = "";
+	wasDiscordLinked = linked;
+	if (!linked) return;
+
+	discordCmdUpdateDebounce = window.setTimeout(async () => {
+		discordCmdUpdateDebounce = -1;
+		// Make sure discord is still linked
+		if (!StoreProxy.discord.discordLinked) return;
+
+		// Build discord commands query params
+		const commands: DiscordCommand[] = [];
+		for (const trigger of StoreProxy.triggers.triggerList) {
+			if (
+				trigger.type == TriggerTypes.SLASH_COMMAND &&
+				trigger.chatCommand &&
+				trigger.addToDiscord === true &&
+				TriggerUtils.isTriggerEnabled(trigger)
+			) {
+				const params: DiscordCommand["params"] = [];
+				if (trigger.chatCommandParams) {
+					trigger.chatCommandParams.forEach((p) => {
+						params.push({ name: p.tag });
+					});
+				}
+				commands.push({
+					name: trigger.chatCommand.replace(/[^a-z0-9]/gi, ""),
+					params,
+				});
+			}
+		}
+
+		// Check if discord commands changed
+		const signature = discordCommandsSignature(commands);
+		if (signature === discordCmdsSignature) return;
+
+		//Update discord commands
+		const res = await ApiHelper.call("discord/commands", "POST", { commands }, false);
+		if (res.json.success === true) discordCmdsSignature = signature;
+	}, 6000);
 }
 
 export const storeTriggers = defineStore("triggers", {
@@ -415,36 +486,7 @@ export const storeTriggers = defineStore("triggers", {
 
 			//Create discord commands if requested by some slash commands
 			//and discord is linked
-			if (StoreProxy.discord.discordLinked) {
-				clearTimeout(discordCmdUpdateDebounce);
-				discordCmdUpdateDebounce = window.setTimeout(() => {
-					const commands: { name: string; params: { name: string }[] }[] = [];
-					list.forEach((data: TriggerData) => {
-						if (
-							data.type == TriggerTypes.SLASH_COMMAND &&
-							data.chatCommand &&
-							data.addToDiscord === true &&
-							TriggerUtils.isTriggerEnabled(data)
-						) {
-							const params: (typeof commands)[number]["params"] = [];
-							if (data.chatCommandParams) {
-								data.chatCommandParams.forEach((p) => {
-									params.push({ name: p.tag });
-								});
-							}
-							commands.push({
-								name: data.chatCommand.replace(/[^a-z0-9]/gi, ""),
-								params,
-							});
-						}
-					});
-					if (commands.length > 0 || wasDiscordCmds) {
-						//Update discord commands
-						void ApiHelper.call("discord/commands", "POST", { commands }, false);
-					}
-					wasDiscordCmds = commands.length > 0;
-				}, 6000);
-			}
+			scheduleDiscordCommandsUpdate();
 
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);
