@@ -287,7 +287,7 @@ export default class BingoGridController extends AbstractController {
 
 					//Generate user's grid
 				} else {
-					data = JSON.parse(JSON.stringify(grid)) as typeof grid;
+					data = structuredClone(grid);
 					//Don't shuffle broadcaster so their public grid is the same
 					//as the overlay one
 					if (storageUid != uid) {
@@ -506,7 +506,7 @@ export default class BingoGridController extends AbstractController {
 		const grid = grids && grids.data.find((g) => g.id == gridId);
 		if (!grids || !grid) return null;
 
-		const card = JSON.parse(JSON.stringify(grid)) as IGrid;
+		const card = structuredClone(grid);
 		try {
 			this.shuffleGridEntries(card);
 		} catch (_error) {
@@ -1265,7 +1265,7 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
-		let originalGrid = JSON.parse(JSON.stringify(gridCache)) as typeof gridCache;
+		let originalGrid = structuredClone(gridCache);
 		let data: IViewerGridCacheData["data"] | null = null;
 		let multiplayerMode = false;
 
@@ -1569,7 +1569,7 @@ export default class BingoGridController extends AbstractController {
 				async (file) => {
 					const chunks = file.split(".");
 					const viewerId = chunks[0]!;
-					const grid: typeof gridRef = JSON.parse(JSON.stringify(gridRef)); // Clone to avoid all users from having same grid ref
+					const grid = structuredClone(gridRef); // Clone to avoid all users from having same grid ref
 
 					let viewerCachedGrid = await this.getViewerGrid(user.user_id, gridId, viewerId);
 					if (!viewerCachedGrid) {

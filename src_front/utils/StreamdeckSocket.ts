@@ -177,7 +177,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 		this._socket.send(
 			JSON.stringify({
 				type,
-				data: data ? JSON.parse(JSON.stringify(data)) : undefined,
+				data,
 				id: eventId,
 			}),
 		);
