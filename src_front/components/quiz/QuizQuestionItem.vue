@@ -255,7 +255,12 @@ import ParamItem from "@/components/params/ParamItem.vue";
 import ToggleBlock from "@/components/ToggleBlock.vue";
 import TTButton from "@/components/TTButton.vue";
 import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
-import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
+import {
+	QUIZ_ANSWER_MAXLENGTH,
+	QUIZ_FREE_ANSWER_MAXLENGTH,
+	QUIZ_QUESTION_MAXLENGTH,
+	storeQuiz as useStoreQuiz,
+} from "@/store/quiz/storeQuiz";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "@/utils/Utils";
@@ -298,7 +303,7 @@ const storeExtension = useStoreExtension();
 const param_question = ref<TwitchatDataTypes.ParameterData<string>>({
 	type: "string",
 	value: "",
-	maxLength: 300,
+	maxLength: QUIZ_QUESTION_MAXLENGTH,
 	placeholderKey: "quiz.form.question_placeholder",
 });
 const param_answer = ref<Record<string, TwitchatDataTypes.ParameterData<string>>>({});
@@ -524,7 +529,7 @@ function initParams(): void {
 			param_answer.value[props.question.id] = {
 				type: "string",
 				value: "",
-				maxLength: 50,
+				maxLength: QUIZ_FREE_ANSWER_MAXLENGTH,
 				placeholderKey: "quiz.form.answer_placeholder",
 			};
 		}
@@ -534,7 +539,7 @@ function initParams(): void {
 				param_answer.value[answer.id] = {
 					type: "string",
 					value: "",
-					maxLength: 130,
+					maxLength: QUIZ_ANSWER_MAXLENGTH,
 					placeholderKey: "quiz.form.answer_placeholder",
 				};
 			}

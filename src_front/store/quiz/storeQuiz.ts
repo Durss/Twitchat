@@ -22,6 +22,9 @@ const VOTE_GRACE_PERIOD_MS = 2000;
 const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const CLASSIC_ANSWER_SLOTS = 6;
 const MAJORITY_ANSWER_SLOTS = 4;
+export const QUIZ_QUESTION_MAXLENGTH = 300;
+export const QUIZ_ANSWER_MAXLENGTH = 130;
+export const QUIZ_FREE_ANSWER_MAXLENGTH = 50;
 
 /**
  * Parses CSV content into rows of cells. Supports double-quoted cells with
@@ -1090,6 +1093,8 @@ export const storeQuiz = defineStore("quiz", {
 				const n = parseInt((raw || "").trim());
 				return isNaN(n) || n <= 0 ? undefined : n;
 			};
+			const truncate = (value: string, maxLength: number): string =>
+				value.length > maxLength ? value.slice(0, maxLength) : value;
 			const parseTolerance = (raw: string | undefined): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
 				const trimmed = (raw || "").trim();
 				if (!trimmed) return undefined;
@@ -1101,7 +1106,7 @@ export const storeQuiz = defineStore("quiz", {
 			let added = 0;
 			for (const row of rows) {
 				const mode = (row[0] || "").trim();
-				const questionText = (row[1] || "").trim();
+				const questionText = truncate((row[1] || "").trim(), QUIZ_QUESTION_MAXLENGTH);
 				if (!questionText) continue;
 
 				if (mode === "classic") {
@@ -1111,7 +1116,10 @@ export const storeQuiz = defineStore("quiz", {
 						const raw = (row[i + 2] || "").trim();
 						if (!raw) continue;
 						const correct = raw.startsWith("*");
-						const title = (correct ? raw.slice(1) : raw).trim();
+						const title = truncate(
+							(correct ? raw.slice(1) : raw).trim(),
+							QUIZ_ANSWER_MAXLENGTH,
+						);
 						if (!title) continue;
 						answerList.push({ id: Utils.getUUID(), title, correct });
 					}
@@ -1128,7 +1136,7 @@ export const storeQuiz = defineStore("quiz", {
 					const duration = parseDuration(row[MAJORITY_ANSWER_SLOTS + 2]);
 					const answerList: { id: string; title: string }[] = [];
 					for (let i = 0; i < MAJORITY_ANSWER_SLOTS; i++) {
-						const title = (row[i + 2] || "").trim();
+						const title = truncate((row[i + 2] || "").trim(), QUIZ_ANSWER_MAXLENGTH);
 						if (!title) continue;
 						answerList.push({ id: Utils.getUUID(), title });
 					}
@@ -1142,7 +1150,7 @@ export const storeQuiz = defineStore("quiz", {
 					});
 					added++;
 				} else if (mode === "freeAnswer") {
-					const answer = (row[2] || "").trim();
+					const answer = truncate((row[2] || "").trim(), QUIZ_FREE_ANSWER_MAXLENGTH);
 					if (!answer) continue;
 					quiz.questionList.push({
 						id: Utils.getUUID(),
