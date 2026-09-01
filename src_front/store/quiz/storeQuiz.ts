@@ -1093,8 +1093,10 @@ export const storeQuiz = defineStore("quiz", {
 				const n = parseInt((raw || "").trim());
 				return isNaN(n) || n <= 0 ? undefined : n;
 			};
-			const truncate = (value: string, maxLength: number): string =>
-				value.length > maxLength ? value.slice(0, maxLength) : value;
+			const cleanup = (value: string, maxLength: number): string => {
+				const res = Utils.unescapeCSVCell(value);
+				return res.length > maxLength ? res.slice(0, maxLength) : res;
+			};
 			const parseTolerance = (raw: string | undefined): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
 				const trimmed = (raw || "").trim();
 				if (!trimmed) return undefined;
@@ -1106,7 +1108,7 @@ export const storeQuiz = defineStore("quiz", {
 			let added = 0;
 			for (const row of rows) {
 				const mode = (row[0] || "").trim();
-				const questionText = truncate((row[1] || "").trim(), QUIZ_QUESTION_MAXLENGTH);
+				const questionText = cleanup((row[1] || "").trim(), QUIZ_QUESTION_MAXLENGTH);
 				if (!questionText) continue;
 
 				if (mode === "classic") {
@@ -1116,7 +1118,7 @@ export const storeQuiz = defineStore("quiz", {
 						const raw = (row[i + 2] || "").trim();
 						if (!raw) continue;
 						const correct = raw.startsWith("*");
-						const title = truncate(
+						const title = cleanup(
 							(correct ? raw.slice(1) : raw).trim(),
 							QUIZ_ANSWER_MAXLENGTH,
 						);
@@ -1136,7 +1138,7 @@ export const storeQuiz = defineStore("quiz", {
 					const duration = parseDuration(row[MAJORITY_ANSWER_SLOTS + 2]);
 					const answerList: { id: string; title: string }[] = [];
 					for (let i = 0; i < MAJORITY_ANSWER_SLOTS; i++) {
-						const title = truncate((row[i + 2] || "").trim(), QUIZ_ANSWER_MAXLENGTH);
+						const title = cleanup((row[i + 2] || "").trim(), QUIZ_ANSWER_MAXLENGTH);
 						if (!title) continue;
 						answerList.push({ id: Utils.getUUID(), title });
 					}
@@ -1150,7 +1152,7 @@ export const storeQuiz = defineStore("quiz", {
 					});
 					added++;
 				} else if (mode === "freeAnswer") {
-					const answer = truncate((row[2] || "").trim(), QUIZ_FREE_ANSWER_MAXLENGTH);
+					const answer = cleanup((row[2] || "").trim(), QUIZ_FREE_ANSWER_MAXLENGTH);
 					if (!answer) continue;
 					quiz.questionList.push({
 						id: Utils.getUUID(),
@@ -1173,12 +1175,8 @@ export const storeQuiz = defineStore("quiz", {
 			const quiz = this.quizList.find((v) => v.id === quizId);
 			if (!quiz) return;
 
-			const escape = (v: string | number | undefined | null): string => {
-				if (v === undefined || v === null || v === "") return "";
-				const s = String(v);
-				if (/[;"\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-				return s;
-			};
+			const escape = (v: string | number | undefined | null): string =>
+				Utils.escapeCSVCell(v, ";");
 
 			const rows: string[] = [];
 			for (const q of quiz.questionList) {
@@ -1266,3 +1264,4 @@ interface IStoreData {
 	quizList: TwitchatDataTypes.QuizParams[];
 	ephemeralQuiz: TwitchatDataTypes.QuizParams | null;
 }
+

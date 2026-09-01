@@ -327,9 +327,9 @@ class EmergencyFollowsListModal extends Vue {
 		const len = this.followers.length;
 		for (let i = 0; i < len; i++) {
 			const follower = this.followers[i]!;
-			csv += follower.date;
-			csv += "," + follower.user.id;
-			csv += "," + follower.user.login;
+			csv += Utils.escapeCSVCell(follower.date);
+			csv += "," + Utils.escapeCSVCell(follower.user.id);
+			csv += "," + Utils.escapeCSVCell(follower.user.login);
 			csv +=
 				"," +
 				(follower.user.channelInfo[follower.channel_id]!.is_following === true ? 0 : 1);

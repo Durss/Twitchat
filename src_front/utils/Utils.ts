@@ -90,6 +90,29 @@ export default class Utils {
 	}
 
 	/**
+	 * Escapes a value so it can safely be written as a CSV cell.
+	 */
+	public static escapeCSVCell(
+		value: string | number | undefined | null,
+		separator: string = ",",
+	): string {
+		if (value === undefined || value === null || value === "") return "";
+		let res = String(value);
+		const isNumber = typeof value === "number" || /^-?\d+(\.\d+)?$/.test(res);
+		if (!isNumber && /^[=+\-@\t\r]/.test(res)) res = "'" + res;
+		if (res.includes(separator) || /["\r\n]/.test(res))
+			return '"' + res.replace(/"/g, '""') + '"';
+		return res;
+	}
+
+	/**
+	 * Unescapes a CSV cell value
+	 */
+	public static unescapeCSVCell(value: string): string {
+		return /^'[=+\-@\t\r]/.test(value) ? value.slice(1) : value;
+	}
+
+	/**
 	 * Picks random entry
 	 *
 	 * @param a
@@ -1981,6 +2004,12 @@ export default class Utils {
 		return fullName;
 	}
 
+	/**
+	 * Deeply clones a vue object.
+	 * Equivalent to `JSON.parse(JSON.stringify(vueObject))` but with much better perfs.
+	 * Only difference with JSON cloning is NaN and Infinity that are kept instead of
+	 * set to null. Which is actually better.
+	 */
 	public static deepVueRefClone<T>(value: T): T {
 		const v = toRaw(value) as any;
 		if (v === null || typeof v !== "object") return v;

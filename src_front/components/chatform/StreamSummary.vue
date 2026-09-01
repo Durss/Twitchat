@@ -703,8 +703,8 @@ function exportCSV(globalData: boolean = false): void {
 		csv =
 			"userID, userLogin, messCount, charCount, emoteCount, subPrime, subT1, subT2, subT3, subgift, bits, rewards, channelPointCount, raidCount, raidViewerCount, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
 		for (const user of userList.value) {
-			csv += user.user.id + ", ";
-			csv += user.user.login + ", ";
+			csv += Utils.escapeCSVCell(user.user.id) + ", ";
+			csv += Utils.escapeCSVCell(user.user.login) + ", ";
 			csv += user.messCount + ", ";
 			csv += user.charCount + ", ";
 			csv += user.emoteCount + ", ";
