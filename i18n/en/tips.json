@@ -57,8 +57,17 @@
 		"highlight": {
 			"title": "Highlight chat message",
 			"info": "You can highlight a chat message or a clip on your stream thanks to the dedicated Twitchat overlay.",
-			"config_overlayBt": "Configure overlay",
-			"configure_triggerBt": "Create triggers"
+			"config_overlayBt": "Configure overlay"
+		},
+		"quiz": {
+			"title": "Quiz",
+			"info": "You can create quizzes your viewers can play from the <strong>Twitchat Companion</strong> extension or the chat.",
+			"createBt": "Create a quiz"
+		},
+		"bluesky": {
+			"title": "Bluesky",
+			"info": "Connect your Bluesky account to automatically appear as live, and get notified about now followers, new DMs or new mentions.",
+			"connectBt": "Connect Bluesky"
 		}
 	}
 }

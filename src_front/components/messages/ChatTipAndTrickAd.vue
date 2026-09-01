@@ -4,9 +4,12 @@
 			<Icon name="obs" alt="elgato" class="icon" theme="light" />
 			<h1>{{ t("tips.alerts.title") }}</h1>
 			<div>{{ t("tips.alerts.info_1") }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentTriggers)">{{
-				t("tips.tryBt")
-			}}</TTButton>
+			<TTButton
+				primary
+				light
+				@click.stop="openParamPage(TwitchatDataTypes.ParameterPages.TRIGGERS)"
+				>{{ t("tips.tryBt") }}</TTButton
+			>
 		</div>
 
 		<div v-if="tipIndex === 1" class="entry">
@@ -17,7 +20,12 @@
 			<TTButton
 				primary
 				light
-				@click.stop="openParamPage(contentConnexions, subcontentStreamdeck)"
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.OVERLAYS,
+						TwitchatDataTypes.ParamDeepSections.STREAMDECK,
+					)
+				"
 				>{{ t("tips.tryBt") }}</TTButton
 			>
 		</div>
@@ -55,9 +63,17 @@
 			<h1>{{ t("tips.obs.title") }}</h1>
 			<div>{{ t("tips.obs.info_1") }}</div>
 			<div>{{ t("tips.obs.info_2") }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentObs)">{{
-				t("tips.tryBt")
-			}}</TTButton>
+			<TTButton
+				primary
+				light
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.CONNECTIONS,
+						TwitchatDataTypes.ParamDeepSections.OBS,
+					)
+				"
+				>{{ t("tips.tryBt") }}</TTButton
+			>
 		</div>
 
 		<div v-if="tipIndex === 6" class="entry">
@@ -84,7 +100,12 @@
 			<TTButton
 				primary
 				light
-				@click.stop="openParamPage(contentConnexions, subcontentSpotify)"
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.CONNECTIONS,
+						TwitchatDataTypes.ParamDeepSections.SPOTIFY,
+					)
+				"
 				>{{ t("tips.tryBt") }}</TTButton
 			>
 		</div>
@@ -94,9 +115,12 @@
 			<h1>{{ t("tips.overlays.title") }}</h1>
 			<div v-html="t('tips.overlays.info_1')"></div>
 			<div v-html="t('tips.overlays.info_2')"></div>
-			<TTButton primary light @click.stop="openParamPage(contentOverlays)">{{
-				t("tips.tryBt")
-			}}</TTButton>
+			<TTButton
+				primary
+				light
+				@click.stop="openParamPage(TwitchatDataTypes.ParameterPages.OVERLAYS)"
+				>{{ t("tips.tryBt") }}</TTButton
+			>
 		</div>
 
 		<div v-if="tipIndex === 9" class="entry">
@@ -131,43 +155,71 @@
 			<TTButton
 				primary
 				light
-				@click.stop="openParamPage(contentOverlays, contentChatHighlight)"
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.OVERLAYS,
+						TwitchatDataTypes.ParamDeepSections.HIGHLIGHT,
+					)
+				"
 				icon="overlay"
 				>{{ t("tips.highlight.config_overlayBt") }}</TTButton
 			>
-			<div class="or">{{ t("global.or") }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentTriggers)" icon="broadcast">{{
-				t("tips.highlight.configure_triggerBt")
-			}}</TTButton>
+		</div>
+
+		<div v-if="tipIndex === 12" class="entry">
+			<Icon name="quiz" alt="quiz" class="icon" theme="light" />
+			<h1>{{ t("tips.quiz.title") }}</h1>
+			<div v-html="t('tips.quiz.info')" />
+
+			<TTButton
+				primary
+				light
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.OVERLAYS,
+						TwitchatDataTypes.ParamDeepSections.QUIZ,
+					)
+				"
+				icon="overlay"
+				>{{ t("tips.quiz.createBt") }}</TTButton
+			>
+		</div>
+
+		<div v-if="tipIndex === 13" class="entry">
+			<Icon name="bluesky" alt="bluesky" class="icon" theme="light" />
+			<h1>{{ t("tips.bluesky.title") }}</h1>
+			<div v-html="t('tips.bluesky.info')" />
+
+			<TTButton
+				primary
+				light
+				@click.stop="
+					openParamPage(
+						TwitchatDataTypes.ParameterPages.CONNECTIONS,
+						TwitchatDataTypes.ParamDeepSections.BLUESKY,
+					)
+				"
+				icon="overlay"
+				>{{ t("tips.bluesky.connectBt") }}</TTButton
+			>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
-import { onBeforeMount, ref } from "vue";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import TTButton from "../TTButton.vue";
 import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
 
 const { t } = useI18n();
 const storeParams = useStoreParams();
 
-const tipIndex = ref(0);
-const maxIndex = 11;
-
-const contentOverlays = TwitchatDataTypes.ParameterPages.OVERLAYS;
-const contentChatHighlight = TwitchatDataTypes.ParamDeepSections.HIGHLIGHT;
-const contentConnexions = TwitchatDataTypes.ParameterPages.CONNECTIONS;
-const contentTriggers = TwitchatDataTypes.ParameterPages.TRIGGERS;
-const subcontentObs = TwitchatDataTypes.ParamDeepSections.OBS;
-const subcontentSpotify = TwitchatDataTypes.ParamDeepSections.SPOTIFY;
-const subcontentStreamdeck = TwitchatDataTypes.ParamDeepSections.STREAMDECK;
-
-onBeforeMount(() => {
-	tipIndex.value = Math.floor(Math.random() * (maxIndex + 1));
-});
+const maxIndex = 13;
+const tipIndex = ref(Math.floor(Math.random() * (maxIndex + 1)));
+tipIndex.value = maxIndex;
 
 function openModal(modal: TwitchatDataTypes.ModalTypes): void {
 	storeParams.openModal(modal);
@@ -226,3 +278,4 @@ function onRightClick(e: MouseEvent): void {
 	}
 }
 </style>
+
