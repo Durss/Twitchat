@@ -1660,7 +1660,8 @@ export default class TwitchUtils {
 			const suffixParam = StoreProxy.stream.streamInfoPrefixSuffix.suffix;
 			const prefix = prefixParam && prefixParam.length > 0 ? prefixParam + PREFIX_SPACER : "";
 			const suffix = suffixParam && suffixParam.length > 0 ? SUFFIX_SPACER + suffixParam : "";
-			body.title = prefix + title + suffix;
+			const maxLength = 140 - prefix.length - suffix.length;
+			body.title = prefix + title.substring(0, maxLength) + suffix;
 		}
 		if (categoryID) body.game_id = categoryID;
 		if (branded != undefined) body.is_branded_content = branded;
