@@ -8558,6 +8558,16 @@ export function TriggerEventPlaceholders(key: TriggerTypesValue): ITriggerPlaceh
 			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
 			entry.push({
 				category: "stream",
+				tag: "MY_STREAM_TAGS",
+				descKey: "triggers.placeholders.my_stream_tags",
+				pointer: "__my_stream__.tags",
+				numberParsable: false,
+				isUserID: false,
+				globalTag: true,
+				example: "tag1,tag2,tag3,tag4,tag5,tag6,tag7,tag8,tag9,tag10",
+			} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);
+			entry.push({
+				category: "stream",
 				tag: "VIEWER_COUNT",
 				descKey: "triggers.placeholders.viewer_count",
 				pointer: "__my_stream__.viewers",

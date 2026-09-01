@@ -1029,6 +1029,7 @@
 			"cheer_pinDuration": "Pin duration in milliseconds",
 			"my_stream_title": "My stream title",
 			"my_stream_category": "My stream category",
+			"my_stream_tags": "My stream tags",
 			"my_stream_duration": "My stream duration",
 			"my_stream_duration_ms": "My stream duration in milliseconds",
 			"my_stream_live": "Is my stream live?",
