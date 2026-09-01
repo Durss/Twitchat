@@ -71,6 +71,8 @@ export default class SSEController extends AbstractController {
 
 				console.log("Sending SERVER_UPDATE to", uid);
 				SSEController.sendToUser(uid, "SERVER_UPDATE", { delay: 5000 + i * 50 });
+				//Stagger users so they don't all reconnect on the same tick
+				i++;
 			});
 			Logger.info("Sent SERVER_UPDATE to", keys.length.toString(), "users");
 
