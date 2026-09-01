@@ -240,6 +240,7 @@
 import DataStore from "@/store/DataStore";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeChat as useStoreChat } from "@/store/chat/storeChat";
+import { storeDebug as useSstoreDebug } from "@/store/debug/storeDebug.js";
 import { storeParams as useStoreParams } from "@/store/params/storeParams";
 import { storeMain as useStoreMain } from "@/store/storeMain";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -251,12 +252,10 @@ import { useI18n } from "vue-i18n";
 import { Carousel, Navigation, Pagination, Slide } from "vue3-carousel";
 import "vue3-carousel/dist/carousel.css";
 import ClearButton from "../ClearButton.vue";
-import TTButton from "../TTButton.vue";
-import SponsorTable from "../premium/SponsorTable.vue";
-import ChatMessage from "../messages/ChatMessage.vue";
-import { storeDebug as useSstoreDebug } from "@/store/debug/storeDebug.js";
-import MessageItem from "../messages/MessageItem.vue";
 import Icon from "../Icon.vue";
+import TTButton from "../TTButton.vue";
+import MessageItem from "../messages/MessageItem.vue";
+import SponsorTable from "../premium/SponsorTable.vue";
 
 const emit = defineEmits<{
 	close: [];
@@ -573,6 +572,7 @@ function skinPagination(): void {
 			left: 0;
 			right: auto;
 			position: absolute;
+			z-index: 2;
 		}
 
 		.head {
