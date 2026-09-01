@@ -358,12 +358,19 @@ export default class TwitchExtensionController extends AbstractController {
 		const channelId = request.twitchExtensionUser!.channel_id;
 		const viewerId = getUserID(request);
 		const bingos = await this._bingoController.getViewerGridList(channelId, viewerId);
-		const quiz = await this._quizController.getStreamerQuiz(channelId);
-		const clickableAreas = await this._userController.getActiveHeatScreenAreas(channelId);
+		const quizJSON = (await this._quizController.getCachedQuiz(channelId))?.json;
+		const areasJSON = (await this._userController.getCachedHeatScreenAreas(channelId)).json;
+
+		// Manually build JSON to avoid potentially big JSON strongification
+		// on every query
+		const state: string[] = [];
+		if (bingos !== undefined) state.push('"bingos":' + JSON.stringify(bingos));
+		if (quizJSON !== undefined) state.push('"quiz":' + quizJSON);
+		state.push('"clickableAreas":' + areasJSON);
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, state: { bingos, quiz, clickableAreas } }));
+		response.send('{"success":true,"state":{' + state.join(",") + "}}");
 	}
 
 	/**

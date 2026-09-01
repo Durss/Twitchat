@@ -12,7 +12,7 @@ import Utils from "../utils/Utils.js";
 export default class QuizController extends AbstractController {
 	/**
 	 * LRU cache for streamer quizzes with automatic eviction
-	 * Key format: "[uid]/[quizId]"
+	 * Key format: "[uid]"
 	 *
 	 * The value is wrapped so a cached entry with `quiz: undefined` can mean
 	 * "this streamer has no active quiz" and be authoritative: it stops
@@ -22,7 +22,7 @@ export default class QuizController extends AbstractController {
 	 * has been persisted with `enabled: false`. A wrapper is required because
 	 * lru-cache treats a raw `set(key, undefined)` as a delete.
 	 */
-	private cachedQuizzes = new LRUCache<string, { quiz?: QuizParams }>({
+	private cachedQuizzes = new LRUCache<string, CachedQuiz>({
 		max: 10000,
 		ttl: 1000 * 60 * 60, // 1h TTL
 		// ttl: 1000 * 10, // 5 minutes TTL
@@ -31,7 +31,7 @@ export default class QuizController extends AbstractController {
 	/**
 	 * Avoid concurrent loads when all viewers request the quiz
 	 */
-	private pendingLoads = new Map<string, Promise<QuizParams | undefined>>();
+	private pendingLoads = new Map<string, Promise<CachedQuiz>>();
 
 	private extensionController!: TwitchExtensionController;
 
@@ -73,6 +73,16 @@ export default class QuizController extends AbstractController {
 		channelId: string,
 		quizId?: string,
 	): Promise<QuizParams | undefined> {
+		return (await this.getCachedQuiz(channelId, quizId))?.quiz;
+	}
+
+	/**
+	 * Gets a cached quiz entry
+	 */
+	public async getCachedQuiz(
+		channelId: string,
+		quizId?: string,
+	): Promise<CachedQuiz | undefined> {
 		//Validate UID and quizId (if provided) to prevent path traversal
 		if (!channelId || !/^[0-9]+$/.test(channelId)) return undefined;
 		if (quizId && !/^[a-zA-Z0-9_-]+$/.test(quizId)) return undefined;
@@ -81,7 +91,8 @@ export default class QuizController extends AbstractController {
 		// holds no quiz ("no active quiz"), and must NOT trigger a disk read:
 		// otherwise a just-disabled quiz whose `enabled:false` isn't persisted yet
 		// would be served again.
-		if (this.cachedQuizzes.has(channelId)) return this.cachedQuizzes.get(channelId)?.quiz;
+		const cached = this.cachedQuizzes.get(channelId);
+		if (cached) return cached;
 
 		// No cache, read the user file. Share the read with any concurrent
 		// request for the same quiz instead of parsing that file once per viewer
@@ -95,16 +106,17 @@ export default class QuizController extends AbstractController {
 		return pending;
 	}
 
+	/*******************
+	 * PRIVATE METHODS *
+	 *******************/
+
 	/**
 	 * Load a streamer's quiz from their user file and cache it.
 	 * @see getStreamerQuiz
 	 * @param channelId Streamer UID, already validated
 	 * @param quizId Optional quiz ID to filter by, already validated
 	 */
-	private async loadStreamerQuiz(
-		channelId: string,
-		quizId?: string,
-	): Promise<QuizParams | undefined> {
+	private async loadStreamerQuiz(channelId: string, quizId?: string): Promise<CachedQuiz> {
 		const userFilePath = Config.USER_DATA_PATH + channelId + ".json";
 		try {
 			const data = JSON.parse(
@@ -132,9 +144,6 @@ export default class QuizController extends AbstractController {
 		}
 	}
 
-	/*******************
-	 * PRIVATE METHODS *
-	 *******************/
 	/**
 	 * Get a quiz definition
 	 */
@@ -144,8 +153,8 @@ export default class QuizController extends AbstractController {
 		const uid: string = user.user_id;
 		const quizId: string = (request.query as any).quizid;
 
-		const quiz = await this.getStreamerQuiz(uid, quizId);
-		if (!quiz) {
+		const quizJSON = (await this.getCachedQuiz(uid, quizId))?.json;
+		if (!quizJSON) {
 			response.header("Content-Type", "application/json");
 			response.status(404);
 			response.send(
@@ -160,7 +169,7 @@ export default class QuizController extends AbstractController {
 
 		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({ success: true, data: quiz }));
+		response.send('{"success":true,"data":' + quizJSON + "}");
 
 		return;
 	}
@@ -207,11 +216,7 @@ export default class QuizController extends AbstractController {
 	/**
 	 * Updates quiz cache and broadcast it to extension viewers
 	 */
-	private setCache(
-		uid: string,
-		quiz?: QuizParams,
-		broadcast: boolean = true,
-	): QuizParams | undefined {
+	private setCache(uid: string, quiz?: QuizParams, broadcast: boolean = true): CachedQuiz {
 		if (quiz) {
 			quiz.questionList = quiz.questionList.map((q) => {
 				if (q && q.id === quiz.currentQuestionId) return q;
@@ -259,15 +264,24 @@ export default class QuizController extends AbstractController {
 					: prev?.questionStarted_at_server;
 			}
 		}
-		this.cachedQuizzes.set(uid, { quiz });
+		const entry: CachedQuiz = { quiz, json: quiz ? JSON.stringify(quiz) : undefined };
+		this.cachedQuizzes.set(uid, entry);
 
 		if (broadcast) {
 			void this.extensionController.notifyStateUpdate(uid);
 		}
 
-		return quiz;
+		return entry;
 	}
 }
+
+/**
+ * Cached quiz read to server to viewers.
+ */
+type CachedQuiz = {
+	quiz?: QuizParams;
+	json?: string;
+};
 
 export type QuizParams = {
 	/**

@@ -13,6 +13,14 @@ import { PatreonMember } from "./PatreonController.js";
 import SSEController from "./SSEController.js";
 import TwitchExtensionController from "./TwitchExtensionController.js";
 
+/**
+ * Cached heat screen areas ready to serve to clients
+ */
+type CachedHeatAreas = {
+	areas: HeatExtensionArea[];
+	json: string;
+};
+
 interface HeatExtensionArea {
 	id: string;
 	/**
@@ -111,7 +119,7 @@ export default class UserController extends AbstractController {
 	 * Cache of active heat screen areas per user (Twitch extension exposure).
 	 * Invalidated explicitly via DELETE /api/user/heat_areas/cache.
 	 */
-	private _heatAreasCache = new LRUCache<string, HeatExtensionArea[]>({
+	private _heatAreasCache = new LRUCache<string, CachedHeatAreas>({
 		max: 10000,
 		ttl: 1000 * 60 * 60, // 1 hour
 	});
@@ -215,15 +223,14 @@ export default class UserController extends AbstractController {
 	 * Only areas of "active" heat screens whose `showAreaOnExtension` flag is true are returned.
 	 * Returns an empty array if the user is not premium.
 	 */
-	public async getActiveHeatScreenAreas(uid: string): Promise<HeatExtensionArea[]> {
-		if (!/^[0-9]+$/.test(uid)) return [];
+	public async getCachedHeatScreenAreas(uid: string): Promise<CachedHeatAreas> {
+		if (!/^[0-9]+$/.test(uid)) return { areas: [], json: "[]" };
 
 		const cached = this._heatAreasCache.get(uid);
 		if (cached) return cached;
 
 		if ((await super.getUserPremiumState(uid)) === "no") {
-			this._heatAreasCache.set(uid, []);
-			return [];
+			return this.setHeatAreasCache(uid, []);
 		}
 
 		const userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
@@ -260,13 +267,21 @@ export default class UserController extends AbstractController {
 			areas = [];
 		}
 
-		this._heatAreasCache.set(uid, areas);
-		return areas;
+		return this.setHeatAreasCache(uid, areas);
 	}
 
 	/*******************
 	 * PRIVATE METHODS *
 	 *******************/
+
+	/**
+	 * Serialiazes given areas to cache.
+	 */
+	private setHeatAreasCache(uid: string, areas: HeatExtensionArea[]): CachedHeatAreas {
+		const entry: CachedHeatAreas = { areas, json: JSON.stringify(areas) };
+		this._heatAreasCache.set(uid, entry);
+		return entry;
+	}
 
 	/**
 	 * Invalidate the active heat screen areas cache for the calling user.
@@ -278,7 +293,7 @@ export default class UserController extends AbstractController {
 		this._heatAreasCache.delete(userInfo.user_id);
 
 		// Rebuild cache before notifying everyone
-		await this.getActiveHeatScreenAreas(userInfo.user_id);
+		await this.getCachedHeatScreenAreas(userInfo.user_id);
 
 		await this.extensionController.notifyStateUpdate(userInfo.user_id);
 
