@@ -68,7 +68,7 @@
 			/>
 		</div>
 
-		<div v-if="automodReasons" class="automod">
+		<div v-if="automodReasons != null" class="automod">
 			<Icon name="automod" theme="light" />
 			<div class="header">
 				<strong>{{ t("chat.message.automod") }}</strong> {{ automodReasons }}
@@ -435,7 +435,7 @@ const { t } = useI18n();
 const channelInfo = ref<TwitchatDataTypes.UserChannelInfo | null>(null);
 const recipient = ref<TwitchatDataTypes.TwitchatUser | null>(null);
 const expandAnswer = ref(false);
-const automodReasons = ref("");
+const automodReasons = ref<string | null>(null);
 const hypeChat = ref<TwitchatDataTypes.HypeChatData | null>(null);
 const badges = ref<TwitchatDataTypes.TwitchatUserBadge[]>([]);
 const clipInfo = ref<TwitchDataTypes.ClipInfo | null>(null);
@@ -538,7 +538,7 @@ const classes = computed<string[]>(() => {
 
 	if (censorDeletedMessages) res.push("censor");
 	if (hypeChat.value) res.push("hypeChat");
-	if (automodReasons.value) res.push("automod");
+	if (automodReasons.value != null) res.push("automod");
 	if (props.messageData.user.is_blocked) res.push("blockedUser");
 	if (props.disableConversation !== false) res.push("disableConversation");
 	if (!props.lightMode && message.cyphered) res.push("cyphered");

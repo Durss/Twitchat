@@ -4,6 +4,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { evaluate as MathEval } from "mathjs";
 import type { JsonObject } from "type-fest";
 import PublicAPI from "./PublicAPI";
+import { toRaw } from "vue";
 
 /**
  * Created by Durss
@@ -1978,5 +1979,26 @@ export default class Utils {
 			fullName = fullName.substring(0, fullName.length - 1);
 		}
 		return fullName;
+	}
+
+	public static deepVueRefClone<T>(value: T): T {
+		const v = toRaw(value) as any;
+		if (v === null || typeof v !== "object") return v;
+		if (v instanceof Date) return new Date(v.getTime()) as T;
+		if (Array.isArray(v)) {
+			const n = v.length;
+			const out = Array.from({ length: n });
+			for (let i = 0; i < n; i++) out[i] = this.deepVueRefClone(v[i]);
+			return out as T;
+		}
+		const out: Record<string, unknown> = {};
+		const keys = Object.keys(v);
+		for (let i = 0; i < keys.length; i++) {
+			const k = keys[i]!;
+			const val = v[k];
+			if (val === undefined || typeof val === "function") continue;
+			out[k] = this.deepVueRefClone(val);
+		}
+		return out as T;
 	}
 }
