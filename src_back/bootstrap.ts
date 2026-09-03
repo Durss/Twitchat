@@ -32,6 +32,25 @@ import Config from "./utils/Config.js";
 import I18n from "./utils/I18n.js";
 import Logger from "./utils/Logger.js";
 
+//Global safety net. Node exits the process on the first unhandled rejection, which
+//drops every SSE connection and every in-flight request. A third party going down
+//must never be able to take the server with it, so log and keep serving.
+process.on("unhandledRejection", (reason) => {
+	Logger.error("Unhandled promise rejection");
+	console.log(reason);
+});
+
+/**
+ * Logs a controller that failed to initialize without aborting the boot.
+ * The related feature is degraded, everything else keeps working.
+ */
+const bootError =
+	(name: string) =>
+	(error: unknown): void => {
+		Logger.error("Failed initializing " + name);
+		console.log(error);
+	};
+
 fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
 fs.mkdirSync(Config.USER_DATA_BACKUP_PATH, { recursive: true });
 fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
@@ -111,27 +130,30 @@ await server.register(fastifyRawBody, {
 const discord = new DiscordController(server).initialize();
 await new MiddlewareController(server).initialize();
 const userController = new UserController(server, discord);
-void userController.initialize().then(() => {
-	userController.setTwitchExtensionController(extensionController);
-});
-void new FileServeController(server).initialize();
-void new BlueskyController(server).initialize();
-void new AuthController(server).initialize();
-void new DonorController(server).initialize();
-void new SpotifyController(server).initialize();
-void new AdminController(server).initialize();
-void new UluleController(server).initialize();
-void new PatreonController(server).initialize();
-void new PaypalController(server).initialize();
-void new GoogleController(server).initialize();
+userController
+	.initialize()
+	.then(() => {
+		userController.setTwitchExtensionController(extensionController);
+	})
+	.catch(bootError("UserController"));
+new FileServeController(server).initialize().catch(bootError("FileServeController"));
+new BlueskyController(server).initialize().catch(bootError("BlueskyController"));
+new AuthController(server).initialize().catch(bootError("AuthController"));
+new DonorController(server).initialize().catch(bootError("DonorController"));
+new SpotifyController(server).initialize().catch(bootError("SpotifyController"));
+new AdminController(server).initialize().catch(bootError("AdminController"));
+new UluleController(server).initialize().catch(bootError("UluleController"));
+new PatreonController(server).initialize().catch(bootError("PatreonController"));
+new PaypalController(server).initialize().catch(bootError("PaypalController"));
+new GoogleController(server).initialize().catch(bootError("GoogleController"));
 new SSEController(server).initialize();
 new ApiController(server).initialize();
-void new StreamlabsController(server).initialize();
-void new StreamelementsController(server).initialize();
+new StreamlabsController(server).initialize().catch(bootError("StreamlabsController"));
+new StreamelementsController(server).initialize().catch(bootError("StreamelementsController"));
 new KofiController(server).initialize();
-void new TipeeeController(server).initialize();
+new TipeeeController(server).initialize().catch(bootError("TipeeeController"));
 new RemoteModController(server).initialize();
-void new TiltifyController(server).initialize();
+new TiltifyController(server).initialize().catch(bootError("TiltifyController"));
 const bingoController = new BingoGridController(server).initialize();
 const quizController = new QuizController(server).initialize();
 const extensionController = new TwitchExtensionController(server).initialize(

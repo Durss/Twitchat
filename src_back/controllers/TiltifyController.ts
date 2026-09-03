@@ -66,8 +66,13 @@ export default class TiltifyController extends AbstractController {
 			Config.credentials.tiltify_client_secret &&
 			this.apiPath
 		) {
-			await this.generateCredentialToken();
-			await this.enableWebhook();
+			try {
+				await this.generateCredentialToken();
+				await this.enableWebhook();
+			} catch (error) {
+				Logger.error("[TILTIFY] Initialization failed, webhooks are disabled");
+				console.log(error);
+			}
 
 			if (fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
 				this.fact2UidMap = JSON.parse(
@@ -582,28 +587,39 @@ export default class TiltifyController extends AbstractController {
 			scope: "webhooks:write",
 		};
 
-		const res = await fetch(this.apiPath + "/oauth/token", {
-			method: "POST",
-			headers,
-			body: JSON.stringify(body),
-		});
-		if (res.status == 200) {
-			const json = (await res.json()) as AuthToken;
-			this.credentialToken = json;
-			setTimeout(
-				() => {
-					void this.generateCredentialToken();
-				},
-				(json.expires_in - 60) * 1000,
-			);
-		} else {
-			const text = await res.text();
+		try {
+			const res = await fetch(this.apiPath + "/oauth/token", {
+				method: "POST",
+				headers,
+				body: JSON.stringify(body),
+			});
+			if (res.status == 200) {
+				const json = (await res.json()) as AuthToken;
+				this.credentialToken = json;
+				this.scheduleCredentialToken((json.expires_in - 60) * 1000);
+			} else {
+				const text = await res.text();
+				Logger.error("[TILTIFY] Failed generating credential token!");
+				console.log(text);
+				this.scheduleCredentialToken(5000);
+			}
+		} catch (error) {
 			Logger.error("[TILTIFY] Failed generating credential token!");
-			console.log(text);
-			setTimeout(() => {
-				void this.generateCredentialToken();
-			}, 5000);
+			console.log(error);
+			this.scheduleCredentialToken(5000);
 		}
+	}
+
+	/**
+	 * Schedules a crential token create
+	 */
+	private scheduleCredentialToken(delay: number): void {
+		setTimeout(() => {
+			this.generateCredentialToken().catch((error) => {
+				Logger.error("[TILTIFY] Failed refreshing credential token");
+				console.log(error);
+			});
+		}, delay);
 	}
 
 	/**

@@ -184,7 +184,7 @@ export default class Utils {
 	): void {
 		if (!Config.credentials.dashboard_url || !Config.credentials.dashboard_token) return;
 
-		void fetch(Config.credentials.dashboard_url, {
+		fetch(Config.credentials.dashboard_url, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -198,6 +198,11 @@ export default class Utils {
 				buttonText: action?.text,
 				buttonUrl: action?.url,
 			}),
+		}).catch((error) => {
+			//Notifications are best effort. An unreachable dashboard must not
+			//bring down the caller nor the process.
+			Logger.error("Failed sending dashboard notification");
+			console.log(error);
 		});
 	}
 

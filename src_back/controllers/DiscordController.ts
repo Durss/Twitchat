@@ -102,7 +102,10 @@ export default class DiscordController extends AbstractController {
 
 		if (Config.credentials.discord_bot_token && Config.credentials.discord_client_id) {
 			this.initDatabase();
-			void this.createCommands();
+			this.createCommands().catch((error) => {
+				Logger.error("[DISCORD] Failed creating commands");
+				console.log(error);
+			});
 			this.buildTwitchHashmap();
 		}
 
@@ -336,11 +339,18 @@ export default class DiscordController extends AbstractController {
 			if (merge) mergeHistory.push(merge);
 
 			//Limit to 10 messages
-			mergeHistory.slice(0, 10).forEach(async (entry) => {
-				(await this._rest.post(Routes.channelMessages(thread.id), {
-					body: { content: entry },
-				})) as { id: string };
-			});
+			for (const entry of mergeHistory.slice(0, 10)) {
+				try {
+					await this._rest.post(Routes.channelMessages(thread.id), {
+						body: { content: entry },
+					});
+				} catch (error) {
+					//The thread itself was created. Only its history transcript is
+					//incomplete, that's not worth failing the request over.
+					Logger.warn("[DISCORD] Failed posting history message to thread " + thread.id);
+					console.log(error);
+				}
+			}
 
 			response
 				.header("Content-Type", "application/json")

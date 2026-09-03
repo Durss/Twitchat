@@ -506,11 +506,26 @@ export default class PatreonController extends AbstractController {
 				Config.credentials.patreon_client_secret_server,
 			);
 
-			const result = await fetch(url, {
-				method: "POST",
-				headers: { "User-Agent": this.userAgent },
-			});
-			const json = (await result.json()) as { error?: string } & PatreonToken;
+			let json: ({ error?: string } & PatreonToken) | null = null;
+			try {
+				const result = await fetch(url, {
+					method: "POST",
+					headers: { "User-Agent": this.userAgent },
+				});
+				json = (await result.json()) as { error?: string } & PatreonToken;
+			} catch (error) {
+				Logger.error("[PATREON][SERVICE] authentication request failed");
+				console.log(error);
+				this.patreonApiDown = true;
+				clearTimeout(this.tokenRefresh);
+				this.tokenRefresh = setTimeout(() => {
+					this.authenticateLocal().catch((e) => {
+						Logger.error("[PATREON][SERVICE] authentication retry failed");
+						console.log(e);
+					});
+				}, 60000);
+				return false;
+			}
 
 			if (json.error) {
 				Logger.error("[PATREON][SERVICE] authentication failed [invalid refresh token]");
@@ -1415,9 +1430,14 @@ export default class PatreonController extends AbstractController {
 				if (entry.attributes.uri == webhookURL) {
 					if (webhookExists) {
 						//If exist flag is already raised, delete the webhook as it's most probably a duplicate
-						void fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id, {
+						fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id, {
 							method: "DELETE",
 							headers,
+						}).catch((error) => {
+							Logger.error(
+								"[PATREON][SERVICE] Failed deleting duplicate webhook " + entry.id,
+							);
+							console.log(error);
 						});
 					} else {
 						webhookExists = true;
@@ -1550,13 +1570,15 @@ export default class PatreonController extends AbstractController {
 					if (entry.attributes.uri == webhookURL) {
 						if (webhookExists) {
 							//If exist flag is already raised, delete the webhook as it's most probably a duplicate
-							void fetch(
-								"https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id,
-								{
-									method: "DELETE",
-									headers,
-								},
-							);
+							fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id, {
+								method: "DELETE",
+								headers,
+							}).catch((error) => {
+								Logger.error(
+									"[PATREON][USER] Failed deleting duplicate webhook " + entry.id,
+								);
+								console.log(error);
+							});
 						} else {
 							webhookExists = true;
 							Logger.info("[PATREON][USER] Webhook found for user " + twitchId);
@@ -1575,9 +1597,14 @@ export default class PatreonController extends AbstractController {
 						}
 					} else if (entry.attributes.uri.indexOf("ngrok") > -1) {
 						//Delete any invalid ngrok webhooks
-						void fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id, {
+						fetch("https://www.patreon.com/api/oauth2/v2/webhooks/" + entry.id, {
 							method: "DELETE",
 							headers,
+						}).catch((error) => {
+							Logger.error(
+								"[PATREON][USER] Failed deleting ngrok webhook " + entry.id,
+							);
+							console.log(error);
 						});
 					}
 				});
