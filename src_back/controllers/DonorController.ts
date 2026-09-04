@@ -120,9 +120,6 @@ export default class DonorController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send('{"success":true,"data":{"list":' + this.publicDonorsJSONCache + "}}");
-		response.send(
-			JSON.stringify({ success: true, data: { list: this.publicDonorsJSONCache } }),
-		);
 	}
 
 	/**
