@@ -212,8 +212,14 @@ export default class KofiController extends AbstractController {
 
 			//Check if user defined webhooks and proxy the event to them
 			const userFilePath = Config.USER_DATA_PATH + user.twitch + ".json";
-			if (fs.existsSync(userFilePath)) {
-				const data = JSON.parse(fs.readFileSync(userFilePath, { encoding: "utf8" }));
+			let userFileContent: string | null = null;
+			try {
+				userFileContent = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			} catch (_error) {
+				//User has no data file yet, there's nothing to forward the event to
+			}
+			if (userFileContent) {
+				const data = JSON.parse(userFileContent);
 				if (data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
 					for (let i = 0; i < data.kofiConfigs.webhooks.length; i++) {
 						const webhook = data.kofiConfigs.webhooks[i] as {
