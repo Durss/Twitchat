@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
+import * as path from "path";
 import Config from "./Config.js";
 import Logger from "./Logger.js";
 
@@ -89,20 +90,23 @@ export default class Utils {
 		const entrySize = Buffer.byteLength(entry);
 
 		let size = 0;
-		if (fs.existsSync(logPath)) {
+		try {
 			size = fs.statSync(logPath).size;
-		} else {
-			fs.writeFileSync(logPath, "", "utf-8");
+		} catch (_error) {
+			//File doesn't exist yet, appendFileSync will create it
 		}
 
-		const MAX_FILE_SIZE = 20 * 1024 * 1024;
-		if (size + entrySize > MAX_FILE_SIZE) {
-			//Drop the oldest entries to make room for the new one.
-			//Cut on an entry separator so no half entry is left behind.
-			const keepMax = MAX_FILE_SIZE - entrySize;
-			const content = fs.readFileSync(logPath);
-			const cutIndex = keepMax > 0 ? content.indexOf("\r\n", content.length - keepMax) : -1;
-			fs.writeFileSync(logPath, cutIndex > -1 ? content.subarray(cutIndex) : Buffer.alloc(0));
+		if (size > 0 && size + entrySize > 20 * 1024 * 1024) {
+			// Backup to old file and reset the new one
+			const parsed = path.parse(logPath);
+			const rotatedPath = path.join(parsed.dir, parsed.name + "_old" + parsed.ext);
+			try {
+				fs.renameSync(logPath, rotatedPath);
+			} catch (error) {
+				Logger.error("Failed rotating log file " + logPath);
+				console.log(error);
+				return false;
+			}
 		}
 
 		fs.appendFileSync(logPath, entry);
