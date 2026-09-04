@@ -17,7 +17,7 @@ export default class TwitchUtils {
 	 * Gets a user from a cached token
 	 */
 	private static _tokenToUserCache = new LRUCache<string, TwitchToken>({
-		max: 1_000,
+		max: 20_000,
 		ttl: TwitchUtils.TOKEN_CACHE_TTL,
 	});
 	/**
