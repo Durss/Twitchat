@@ -1446,19 +1446,16 @@ export default class BingoGridController extends AbstractController {
 		if (!gridRef.enabled) {
 			// Disabling a grid kills every link associated with it.
 			this.revokeShares(user.user_id, gridId);
-		} else {
-			// Each linked receiver has their own randomized card stored as a viewer
-			// of the owner's pool, so the regular viewer loop below already pushes
-			// their relabeled/reshuffled card. We only need to refresh their
-			// extension viewers so those re-fetch from the resolved owner data.
-			const shareTargets = this.sharePushTargets.get(this.getShareKey(user.user_id, gridId));
-			if (shareTargets) {
-				for (const receiverId of shareTargets) {
-					try {
-						void this.extensionController.notifyStateUpdate(receiverId);
-					} catch (_error) {
-						// ignore
-					}
+		}
+
+		// Notify users the grid was shared with
+		const shareTargets = this.sharePushTargets.get(this.getShareKey(user.user_id, gridId));
+		if (shareTargets) {
+			for (const receiverId of shareTargets) {
+				try {
+					void this.extensionController.notifyStateUpdate(receiverId);
+				} catch (_error) {
+					// ignore
 				}
 			}
 		}
@@ -1471,29 +1468,27 @@ export default class BingoGridController extends AbstractController {
 			// that need to be cleared (happens when shuffling twice quickly)
 			if (forceNewGridGen || !gridRef.enabled) {
 				const dirtyPrefix = `${user.user_id}/${gridId}/`;
-				const viewersToNotify = new Set<string>();
 
 				for (const dirtyKey of this.dirtyViewerGrids.keys()) {
 					if (dirtyKey.startsWith(dirtyPrefix)) {
-						const viewerId = dirtyKey.substring(dirtyPrefix.length);
 						this.viewerGridCache.delete(dirtyKey);
 						this.dirtyViewerGrids.delete(dirtyKey);
-						viewersToNotify.add(viewerId);
 					}
 				}
 
 				// Anonymous viewers cards only live in the LRU, drop them as well
 				for (const key of this.viewerGridCache.keys().toArray()) {
 					if (key.startsWith(dirtyPrefix)) {
-						viewersToNotify.add(key.substring(dirtyPrefix.length));
 						this.viewerGridCache.delete(key);
 					}
 				}
 
-				// Notify viewers that were only in memory
-				viewersToNotify.forEach((viewerId) => {
-					SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, { force: true });
-				});
+				// Notify users the grid was shared with
+				for (const receiverId of shareTargets || []) {
+					SSEController.sendToUser(receiverId, SSETopic.BINGO_GRID_UPDATE, {
+						force: true,
+					});
+				}
 			}
 
 			try {
@@ -1517,8 +1512,6 @@ export default class BingoGridController extends AbstractController {
 
 		if (!gridRef.enabled || forceNewGridGen) {
 			// Grid disabled or asking to fully rebuild them
-			// Collect all viewer IDs to notify (from disk files AND dirty memory cache)
-			const viewersToNotify = new Set<string>();
 
 			// Clear memory caches for viewers with files on disk
 			for (const file of files) {
@@ -1527,7 +1520,6 @@ export default class BingoGridController extends AbstractController {
 					const cacheKey = this.getViewerGridCacheKey(user.user_id, gridId, viewerId);
 					this.viewerGridCache.delete(cacheKey);
 					this.dirtyViewerGrids.delete(cacheKey);
-					viewersToNotify.add(viewerId);
 				}
 			}
 
@@ -1535,17 +1527,14 @@ export default class BingoGridController extends AbstractController {
 			const dirtyPrefix = `${user.user_id}/${gridId}/`;
 			for (const dirtyKey of this.dirtyViewerGrids.keys()) {
 				if (dirtyKey.startsWith(dirtyPrefix)) {
-					const viewerId = dirtyKey.substring(dirtyPrefix.length);
 					this.viewerGridCache.delete(dirtyKey);
 					this.dirtyViewerGrids.delete(dirtyKey);
-					viewersToNotify.add(viewerId);
 				}
 			}
 
 			// Anonymous viewers cards only live in the LRU, drop them as well
 			for (const key of this.viewerGridCache.keys().toArray()) {
 				if (key.startsWith(dirtyPrefix)) {
-					viewersToNotify.add(key.substring(dirtyPrefix.length));
 					this.viewerGridCache.delete(key);
 				}
 			}
@@ -1556,10 +1545,10 @@ export default class BingoGridController extends AbstractController {
 				/* ignore */
 			}
 
-			// Notify all affected viewers
-			viewersToNotify.forEach((viewerId) => {
-				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, { force: true });
-			});
+			// Notify users the grid was shared with
+			for (const receiverId of shareTargets || []) {
+				SSEController.sendToUser(receiverId, SSETopic.BINGO_GRID_UPDATE, { force: true });
+			}
 		} else {
 			// Process files concurrently, bounded so a big channel does not open
 			// one file handle per viewer at once
@@ -1642,10 +1631,13 @@ export default class BingoGridController extends AbstractController {
 					viewerCachedGrid.data.enabled = grid.enabled;
 					this.saveViewerGrid(user.user_id, gridId, viewerId, viewerCachedGrid);
 
-					SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {
-						grid: viewerCachedGrid.data,
-						force: forceNewGridGen_local,
-					});
+					// Notify users the grid was shared with
+					if (shareTargets?.has(viewerId)) {
+						SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {
+							grid: viewerCachedGrid.data,
+							force: forceNewGridGen_local,
+						});
+					}
 				},
 			);
 		}
