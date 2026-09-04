@@ -652,34 +652,7 @@ export default class UserController extends AbstractController {
 				void fs.promises.unlink(errorsFilePath).catch(() => {});
 			}
 
-			// schemaValidator() is supposed to tell if the format is valid or not.
-			// Because we enabled "removeAdditional" option, no error will be thrown
-			// if a field is not in the schema. Instead it will simply remove it.
-			// V9+ of the lib is supposed to allow us to retrieve the removed props,
-			// but it doesn't yet. As a workaround we diff the data before and after
-			// validation.
 			const cleanData = JSON.stringify(data);
-			const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
-			// Only diff if raw json do not match
-			const diff =
-				cleanData !== rawData ? DiffUtils.getDroppedProps(JSON.parse(rawData), data) : [];
-			if (diff.length > 0) {
-				Logger.error(
-					"Invalid format, some data have been removed from " +
-						userInfo.login +
-						"'s data (v" +
-						version +
-						")",
-				);
-				console.log(diff);
-				// Fire and forget
-				void fs.promises
-					.writeFile(cleanupFilePath, JSON.stringify(diff), "utf-8")
-					.catch(() => {});
-			} else {
-				// Fire and forget
-				void fs.promises.unlink(cleanupFilePath).catch(() => {});
-			}
 			await Utils.writeFileAtomic(userFilePath, cleanData);
 
 			if (data.discordParams) {
@@ -694,6 +667,44 @@ export default class UserController extends AbstractController {
 					version: this._lastUserDataVersion.get(userInfo.user_id),
 				}),
 			);
+
+			// schemaValidator() is supposed to tell if the format is valid or not.
+			// Because we enabled "removeAdditional" option, no error will be thrown
+			// if a field is not in the schema. Instead it will simply remove it.
+			// V9+ of the lib is supposed to allow us to retrieve the removed props,
+			// but it doesn't yet. As a workaround we diff the data before and after
+			// validation.
+			setImmediate(() => {
+				try {
+					const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
+					// Only diff if raw json do not match
+					const diff =
+						cleanData !== rawData
+							? DiffUtils.getDroppedProps(JSON.parse(rawData), data)
+							: [];
+					if (diff.length > 0) {
+						Logger.error(
+							"Invalid format, some data have been removed from " +
+								userInfo.login +
+								"'s data (v" +
+								version +
+								")",
+						);
+						console.log(diff);
+						// Fire and forget
+						void fs.promises
+							.writeFile(cleanupFilePath, JSON.stringify(diff), "utf-8")
+							.catch(() => {});
+					} else {
+						// Fire and forget
+						void fs.promises.unlink(cleanupFilePath).catch(() => {});
+					}
+				} catch (error) {
+					// Never let a diagnostic take the process down, the save is done
+					Logger.error("Failed diffing dropped props for " + userInfo.login);
+					console.log(error);
+				}
+			});
 		} catch (error) {
 			Logger.error("User data save failed for " + userInfo.login);
 			console.log(error);
