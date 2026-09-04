@@ -1,6 +1,6 @@
 <template>
-<div class="cssHead">{{ $t("overlay.css_colors") }}</div>
-<pre>#holder {
+	<div class="cssHead">{{ $t("overlay.css_colors") }}</div>
+	<pre>#holder {
   <span class="comment">/* Pink */</span>
   --color1: #387aff;
   <span class="comment">/* Pink faded */</span>
@@ -19,3 +19,4 @@
   background-color: #ffffff;
 }</pre>
 </template>
+<script setup lang="ts"></script>

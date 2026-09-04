@@ -1,85 +1,99 @@
 <template>
 	<div class="bingostate gameStateWindow">
-		<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
-
-		<div class="card-item goal" v-if="bingoData.guessNumber">
-			<strong class="guess">{{bingoData.numberValue}}</strong>
+		<div class="head" v-stickyTopShadow>
+			<h1 class="title"><Icon name="bingo" />{{ t("bingo.state.title") }}</h1>
+			<slot />
 		</div>
 
-		<div class="card-item goal" v-else-if="bingoData.guessEmote">
-			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
-			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
-		</div>
+		<div class="body">
+			<div class="card-item goal" v-if="bingoData.guessNumber">
+				<strong class="guess">{{ bingoData.numberValue }}</strong>
+			</div>
 
-		<div class="card-item goal" v-if="bingoData.guessCustom">
-			<span class="guess">{{bingoData.customValue}}</span>
-		</div>
+			<div class="card-item goal" v-else-if="bingoData.guessEmote">
+				<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd" />
+				<span class="code">{{ bingoData.emoteValue?.twitch?.code }}</span>
+			</div>
 
-		<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
-			<p><Icon name="sub" />{{ $t("bingo.state.winner") }}</p>
-			<div class="entries">
-				<TTButton v-for="w in bingoData.winners" :key="w.id"
-				small light
-				type="link"
-				target="_blank"
-				:href="'https://twitch.tv/'+w.login"
-				@click.prevent="openUserCard(w)">{{ w.displayName }}</TTButton>
+			<div class="card-item goal" v-if="bingoData.guessCustom">
+				<span class="guess">{{ bingoData.customValue }}</span>
+			</div>
+
+			<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
+				<p><Icon name="sub" />{{ t("bingo.state.winner") }}</p>
+				<div class="entries">
+					<TTButton
+						v-for="w in bingoData.winners"
+						:key="w.id"
+						small
+						light
+						secondary
+						type="link"
+						target="_blank"
+						:href="'https://twitch.tv/' + w.login"
+						@click.prevent="openUserCard(w)"
+						>{{ w.displayName }}</TTButton
+					>
+				</div>
+			</div>
+
+			<div class="actions">
+				<TTButton @click="closeBingo()" alert>{{ t("bingo.state.closeBt") }}</TTButton>
 			</div>
 		</div>
-
-		<TTButton @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</TTButton>
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import Icon from '../Icon.vue';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onMounted, ref } from "vue";
+import TTButton from "../TTButton.vue";
+import Icon from "../Icon.vue";
+import { storeBingo as useStoreBingo } from "@/store/bingo/storeBingo";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeUsers as useStoreUsers } from "@/store/users/storeUsers";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		Icon,
-		TTButton,
-	},
-	emits:["close"]
-})
-class BingoState extends Vue {
+const emit = defineEmits<{ close: [] }>();
 
-	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
+const { t } = useI18n();
+const storeBingo = useStoreBingo();
+const storeAuth = useStoreAuth();
+const storeUsers = useStoreUsers();
 
-	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store.bingo.data!; }
+const winnerPlaceholders = ref<TwitchatDataTypes.PlaceholderEntry[]>([]);
 
-	public mounted():void {
-		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.username_placeholder", example:this.$store.auth.twitch.user.displayName}]
-	}
+const bingoData = computed<TwitchatDataTypes.BingoConfig>(() => storeBingo.data!);
 
-	public closeBingo():void {
-		this.$store.bingo.stopBingo();
-		this.$emit("close");
-	}
+onMounted(() => {
+	winnerPlaceholders.value = [
+		{
+			tag: "USER",
+			descKey: "bingo.username_placeholder",
+			example: storeAuth.twitch.user.displayName,
+		},
+	];
+});
 
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
-		if(!user) return;
-		this.$store.users.openUserCard(user);
-	}
-
+function closeBingo(): void {
+	storeBingo.stopBingo();
+	emit("close");
 }
-export default toNative(BingoState);
+
+function openUserCard(user: TwitchatDataTypes.TwitchatUser | null): void {
+	if (!user) return;
+	storeUsers.openUserCard(user);
+}
 </script>
 
 <style scoped lang="less">
-.bingostate{
-
+.bingostate {
 	.goal {
-		.emboss();
-		// padding: .5em;
-		// border-radius: var(--border-radius);
-		// background-color: var(--color-secondary);
+		background-color: rgba(0, 0, 0, 0.25);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: .5em;
+		gap: 0.5em;
 		.guess {
 			font-size: 1.25em;
 			text-align: center;
@@ -91,7 +105,7 @@ export default toNative(BingoState);
 		}
 		.code {
 			font-style: italic;
-			font-size: .8em;
+			font-size: 0.8em;
 		}
 	}
 
@@ -101,12 +115,17 @@ export default toNative(BingoState);
 		font-weight: bold;
 		.icon {
 			height: 1em;
-			margin-right: .25em;
+			margin-right: 0.25em;
 		}
 		.entries {
-			margin-top: .5em;
+			margin-top: 0.5em;
+			gap: 0.25em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
 		}
 	}
-
 }
 </style>

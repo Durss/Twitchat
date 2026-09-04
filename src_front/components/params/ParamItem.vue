@@ -1,121 +1,243 @@
 <template>
-	<div :class="classes"
-	:data-type="paramData.type"
-	@mouseenter="$emit('mouseenter', $event, paramData)"
-	@mouseleave="$emit('mouseleave', $event, paramData)"
-	@click="clickItem($event)">
+	<div
+		ref="rootEl"
+		:class="classes"
+		:data-type="paramData.type"
+		@mouseenter="emit('mouseenter', $event, paramData)"
+		@mouseleave="emit('mouseleave', $event, paramData)"
+		@focusin="onChatPreviewFocusIn()"
+		@click="clickItem($event)"
+	>
 		<div class="content">
 			<Icon :theme="paramData.iconTheme" :name="icon" v-if="icon" class="paramIcon" />
-			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
+			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon" />
 
 			<div v-if="paramData.type == 'custom'" class="holder custom">
-
-			<label :for="'custom'+key"
-				v-if="label"
-				v-html="label"
-				v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
-				<div><slot name="custom" :id="'custom'+key"></slot></div>
-			</div>
-
-			<div v-if="paramData.type == 'boolean'" class="holder toggle"
-			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
-			>
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
-				/>
-
-				<label :for="'toggle'+key"
+				<label
+					:for="'custom' + key"
 					v-if="label"
 					v-html="label"
-					v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
+					v-tooltip="{ content: tooltip, followCursor: 'horizontal' }"
+				></label>
+				<div><slot name="custom" :id="'custom' + key"></slot></div>
+			</div>
 
-				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
+			<div
+				v-if="paramData.type == 'boolean'"
+				class="holder toggle"
+				:aria-label="label + ': ' + (paramData.value ? 'anabled' : 'disabled')"
+			>
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
+				/>
+
+				<label
+					:for="'toggle' + key"
+					v-if="label"
+					v-html="label"
+					v-tooltip="{ content: tooltip, followCursor: 'horizontal' }"
+				></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+
+				<ToggleButton
+					v-else-if="!paramData.noInput"
+					class="toggleButton"
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
-					:inputId="'toggle'+key"
-					:disabled="disabled !== false || paramData.disabled === true" />
+					:inputId="'toggle' + key"
+					:disabled="disabled !== false || paramData.disabled === true || readonly"
+					@change="onInput"
+				/>
 				<slot name="composite" />
 			</div>
 
-			<div v-if="paramData.type == 'number' || paramData.type == 'integer'" class="holder number">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+			<div
+				v-if="paramData.type == 'number' || paramData.type == 'integer'"
+				class="holder number"
+			>
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="paramData.type+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<label
+					:for="paramData.type + key"
+					v-if="label"
+					v-html="label"
+					v-tooltip="tooltip"
+				></label>
 
-				<TTButton v-if="typeof paramData.value == 'string'" @click="paramData.value = 0; clampValue();" icon="trash" secondary>{{ paramData.value }}</TTButton>
+				<Icon class="loader" name="loader" v-if="loading" />
 
-				<input v-else-if="!paramData.noInput" ref="input"
+				<TTButton
+					v-else-if="typeof paramData.value == 'string'"
+					@click="
+						paramData.value = 0;
+						clampValue();
+					"
+					icon="trash"
+					secondary
+					>{{ paramData.value }}</TTButton
+				>
+
+				<input
+					v-else-if="!paramData.noInput"
+					ref="input"
 					:tabindex="tabindex"
 					type="number"
 					v-model.number="paramData.value"
 					v-autofocus="autofocus"
-					:id="paramData.type+key"
+					:id="paramData.type + key"
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-					@focus="$emit('focus')"
-					@blur="clampValue(); $emit('blur')"
-					@input="$emit('input')">
+					:readonly="readonly"
+					@focus="emit('focus')"
+					@blur="
+						clampValue();
+						emit('blur');
+					"
+					@input="onInput"
+				/>
 				<slot name="composite" />
 			</div>
 
-			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
-			:class="{holder:true, text:true, time:paramData.type == 'time'}">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+			<div
+				v-if="
+					paramData.type == 'string' ||
+					paramData.type == 'password' ||
+					paramData.type == 'date' ||
+					paramData.type == 'datetime' ||
+					paramData.type == 'time'
+				"
+				:class="{ holder: true, text: true, time: paramData.type == 'time' }"
+			>
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<div class="inputHolder" :class="{privateField:paramData.isPrivate}">
-					<Icon v-if="paramData.isPrivate" name="spoiler" class="privateIcon" v-tooltip="$t('global.private_field')" />
-					<textarea ref="input" v-if="longText && !paramData.noInput"
+				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<div class="inputHolder" :class="{ privateField: paramData.isPrivate }">
+					<Icon
+						v-if="paramData.isPrivate"
+						name="spoiler"
+						class="privateIcon"
+						v-tooltip="t('global.private_field')"
+					/>
+
+					<Icon class="loader" name="loader" v-if="loading" />
+					<textarea
+						ref="input"
+						v-else-if="useTextarea && !paramData.noInput"
+						:class="{ autoGrow: autoGrow, multiline: autoMultiline }"
 						:tabindex="tabindex"
 						v-model="textValue"
-						rows="3"
-						:id="'text'+key"
+						:rows="autoGrow ? 1 : 3"
+						:id="'text' + key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
 						v-autofocus="autofocusLocal"
-						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-						@focus="$emit('focus')"
-						@blur="$emit('blur')"
-						@input="$emit('input')"></textarea>
+						:maxlength="paramData.maxLength ? paramData.maxLength : 524288"
+						:disabled="
+							premiumLocked || disabled !== false || paramData.disabled === true
+						"
+						:readonly="readonly"
+						@focus="emit('focus')"
+						@blur="emit('blur')"
+						@input="onInput"
+					></textarea>
 
-					<input ref="input" v-else-if="!paramData.noInput"
+					<input
+						ref="input"
+						v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocusLocal"
 						:name="paramData.fieldName"
-						:id="'text'+key"
-						:type="paramData.type == 'datetime'? 'datetime-local' : paramData.type"
-						:step="paramData.type == 'time'? 1 : undefined"
+						:id="'text' + key"
+						:type="paramData.type == 'datetime' ? 'datetime-local' : paramData.type"
+						:step="paramData.type == 'time' ? 1 : undefined"
 						:placeholder="placeholder"
-						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-						:autocomplete="paramData.type == 'password'? 'off' : 'new-password'"
-						@focus="$emit('focus')"
-						@blur="clampValue(); $emit('blur')"
-						@input="$emit('input')">
+						:maxlength="paramData.maxLength ? paramData.maxLength : 524288"
+						:disabled="
+							premiumLocked || disabled !== false || paramData.disabled === true
+						"
+						:readonly="readonly"
+						:autocomplete="paramData.type == 'password' ? 'off' : 'new-password'"
+						@focus="emit('focus')"
+						@blur="
+							clampValue();
+							emit('blur');
+						"
+						@input="onInput"
+					/>
 
-					<div class="maxlength" v-if="showMaxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
+					<div class="maxlength" v-if="showMaxLength">
+						{{ (paramData.value as string).length }}/{{ paramData.maxLength }}
+					</div>
 				</div>
 				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'duration'" class="holder text duration">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<DurationForm ref="input" v-if="!paramData.noInput"
-					:id="'duration'+key"
+				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+
+				<TTButton
+					v-else-if="typeof paramData.value == 'string'"
+					@click="
+						paramData.value = 0;
+						clampValue();
+					"
+					icon="trash"
+					secondary
+					small
+					>{{ paramData.value }}</TTButton
+				>
+
+				<DurationForm
+					v-else-if="!paramData.noInput"
+					:id="'duration' + key"
 					v-model="paramData.value"
 					:allowMs="paramData.allowMs"
 					:autofocus="autofocus"
@@ -124,63 +246,127 @@
 					:max="paramData.max"
 					:min="paramData.min"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-					@change="$emit('input')" />
+					:readonly="readonly"
+					@change="onInput"
+				/>
 				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'color'" class="holder color">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
-					<input ref="input" v-if="!paramData.noInput"
+				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<Icon class="loader" name="loader" v-if="loading" />
+				<div
+					v-else
+					class="inputHolder input-field"
+					:style="{ backgroundColor: paramData.value as string }"
+				>
+					<input
+						ref="input"
+						v-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocus"
-						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+						:disabled="
+							premiumLocked ||
+							disabled !== false ||
+							paramData.disabled === true ||
+							readonly
+						"
 						:name="paramData.fieldName"
-						:id="'text'+key"
-						type="color">
+						:id="'text' + key"
+						type="color"
+						@input="onInput"
+					/>
 				</div>
 				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
 				<label v-html="label" v-tooltip="tooltip"></label>
-				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
-				:secondary="secondary"
-				:premium="premiumOnlyLocal"
-				:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-				:alert="alert || errorLocal" />
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<Slider
+					v-else
+					:min="paramData.min"
+					:max="paramData.max"
+					:step="paramData.step"
+					v-model="paramData.value"
+					:secondary="secondary"
+					:premium="premiumOnlyLocal"
+					:disabled="
+						premiumLocked ||
+						disabled !== false ||
+						paramData.disabled === true ||
+						readonly
+					"
+					:alert="alert || errorLocal"
+					@update:modelValue="onEdit()"
+				/>
 				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'list' && paramData.multiple !== true" class="holder list">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
-				<select v-if="!paramData.noInput" ref="input"
-					:id="'list'+key"
+				<label :for="'list' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<select
+					v-else-if="!paramData.noInput"
+					:id="'list' + key"
 					v-model="paramData.value"
-					v-autofocus="autofocus">
+					v-autofocus="autofocus"
+					:disabled="readonly"
+					@change="onEdit"
+				>
 					<template v-for="a in paramData.listValues" :key="a.value">
-						<component :is="a.group? 'optgroup' : 'option'"
-						:disabled="a.disabled === true"
-						:value="a.group? null : a.value"
-						:label="a.label != undefined? a.label : $t(a.labelKey!)">
-							<option v-for="b in a.group!"
-							:value="b.value"
-							:disabled="b.disabled === true">
+						<component
+							:is="a.group ? 'optgroup' : 'option'"
+							:disabled="a.disabled === true"
+							:value="a.group ? null : a.value"
+							:label="a.label != undefined ? a.label : t(a.labelKey!)"
+						>
+							<option
+								v-for="b in a.group!"
+								:value="b.value"
+								:disabled="b.disabled === true"
+							>
 								<CountryFlag v-if="a.flag" :country="a.flag" size="small" />
-								{{b.label != undefined? b.label : $t(b.labelKey!)}}
+								{{ b.label != undefined ? b.label : t(b.labelKey!) }}
 							</option>
 						</component>
 					</template>
@@ -189,96 +375,157 @@
 			</div>
 
 			<div v-if="paramData.type == 'list' && paramData.multiple === true" class="holder list">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
-				<vue-select class="listField"
+				<label :for="'editablelist' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<vue-select
+					v-else
+					class="listField"
 					label="label"
 					ref="vueSelect"
-					:id="'editablelist'+key"
+					:id="'editablelist' + key"
 					:placeholder="placeholder"
 					v-model="paramData.value"
-					:calculate-position="$placeDropdown"
+					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
+					@update:modelValue="onEdit()"
 					appendToBody
+					:disabled="readonly"
 					:options="paramData.listValues"
 					:submitSearchOnBlur="true"
 					:multiple="true"
-					:selectable="() => (paramData.value as unknown[] || []).length < (paramData.max || 999)"
-					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
+					:selectable="
+						() => ((paramData.value as unknown[]) || []).length < (paramData.max || 999)
+					"
+					:reduce="(v: TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
 				>
 					<template #no-options="{ search, searching, loading }">
-						<div>{{ $t("global.empty_list1") }}</div>
-						<div>{{ $t("global.empty_list2") }}</div>
+						<div>{{ t("global.empty_list1") }}</div>
+						<div>{{ t("global.empty_list2") }}</div>
 					</template>
 
-					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+					<template
+						v-slot:option="option: TwitchatDataTypes.ParameterDataListValue<unknown>"
+					>
 						<CountryFlag v-if="option.flag" :country="option.flag" size="small" />
-						<span class="text">{{option.label}}</span>
+						<span class="text">{{ option.label }}</span>
 					</template>
 
-					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+					<template
+						#selected-option="option: TwitchatDataTypes.ParameterDataListValue<unknown>"
+					>
 						<CountryFlag v-if="option.flag" :country="option.flag" size="small" />
-						<span class="text">{{option.label}}</span>
+						<span class="text">{{ option.label }}</span>
 					</template>
 				</vue-select>
 				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'imagelist'" class="holder list">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'imagelist'+key" v-html="label" v-tooltip="tooltip"></label>
-				<vue-select class="listField"
+				<label :for="'imagelist' + key" v-html="label" v-tooltip="tooltip"></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<vue-select
+					v-else
+					class="listField"
 					label="label"
 					ref="vueSelect"
-					:id="'imagelist'+key"
+					:id="'imagelist' + key"
 					:placeholder="placeholder"
 					v-model="paramData.value"
-					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
-					:calculate-position="$placeDropdown"
+					:reduce="(v: TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
+					:calculate-position="placeDropdown"
 					@option:selected="onEdit()"
+					@update:modelValue="onEdit()"
 					appendToBody
+					:disabled="readonly"
 					:submitSearchOnBlur="true"
 					:options="paramData.listValues"
 				>
-					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+					<template
+						v-slot:option="option: TwitchatDataTypes.ParameterDataListValue<unknown>"
+					>
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
-						<img class="image" v-else-if="option.image" :src="option.image">
-						<div class="image" v-else>{{option.label != undefined? option.label : $t(option.labelKey!)}}</div>
+						<img class="image" v-else-if="option.image" :src="option.image" />
+						<div class="image" v-else>
+							{{ option.label != undefined ? option.label : t(option.labelKey!) }}
+						</div>
 					</template>
 
-					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+					<template
+						#selected-option="option: TwitchatDataTypes.ParameterDataListValue<unknown>"
+					>
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
-						<img class="image" v-else-if="option.image" :src="option.image">
-						<div class="image" v-else>{{option.label != undefined? option.label : $t(option.labelKey!)}}</div>
+						<img class="image" v-else-if="option.image" :src="option.image" />
+						<div class="image" v-else>
+							{{ option.label != undefined ? option.label : t(option.labelKey!) }}
+						</div>
 					</template>
 				</vue-select>
 				<slot name="composite" />
 			</div>
 
-			<div v-if="paramData.type == 'editablelist' || paramData.type == 'font'" class="holder list editable">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+			<div
+				v-if="paramData.type == 'editablelist' || paramData.type == 'font'"
+				class="holder list editable"
+			>
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
+				<label :for="'editablelist' + key" v-html="label" v-tooltip="tooltip"></label>
 
 				<div class="listField">
-					<vue-select class="listField"
+					<Icon class="loader" name="loader" v-if="loading" />
+					<vue-select
+						v-else
+						class="listField"
 						label="label"
 						ref="vueSelect"
-						:id="'editablelist'+key"
+						:id="'editablelist' + key"
 						:placeholder="placeholder"
 						v-model="paramData.value"
-						:calculate-position="$placeDropdown"
+						:calculate-position="placeDropdown"
+						@update:modelValue="onEdit()"
 						appendToBody
+						:disabled="readonly"
 						taggable
-						v-if="(paramData.type == 'font' && paramData.options) || paramData.type != 'font'"
+						v-if="
+							(paramData.type == 'font' && paramData.options) ||
+							paramData.type != 'font'
+						"
 						:submitSearchOnBlur="true"
 						:multiple="paramData.options === undefined"
 						:noDrop="paramData.options === undefined"
@@ -286,8 +533,8 @@
 						:options="paramData.options"
 					>
 						<template #no-options="{ search, searching, loading }">
-							<div>{{ $t("global.empty_list1") }}</div>
-							<div>{{ $t("global.empty_list2") }}</div>
+							<div>{{ t("global.empty_list1") }}</div>
+							<div>{{ t("global.empty_list2") }}</div>
 						</template>
 					</vue-select>
 				</div>
@@ -295,697 +542,1123 @@
 			</div>
 
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
-					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				<Icon
+					theme="secondary"
+					class="helpIcon"
+					name="help"
+					v-if="paramData.example"
+					v-tooltip="{
+						content:
+							'<img src=' + getAsset('img/param_examples/' + paramData.example) + '>',
+						maxWidth: 'none',
+					}"
 				/>
 
-				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
-				<input v-if="!paramData.noInput" type="text"
+				<label
+					:for="'browse' + key"
+					v-if="label"
+					v-tooltip="tooltip"
+					v-html="label"
+				></label>
+
+				<Icon class="loader" name="loader" v-if="loading" />
+				<input
+					v-else-if="!paramData.noInput"
+					type="text"
 					class="filePath"
 					v-model="paramData.value"
 					:name="paramData.fieldName"
-					:id="'browse'+key"
+					:id="'browse' + key"
 					:placeholder="placeholder"
-					:disabled="premiumLocked || disabled !== false || paramData.disabled === true">
-				<TTButton v-model:file="paramData.value"
+					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					:readonly="readonly"
+					@input="onInput"
+				/>
+				<TTButton
+					v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
 					:premium="premium"
 					:alert="alert || errorLocal"
-					:accept="paramData.accept?paramData.accept:'*'"
+					:accept="paramData.accept ? paramData.accept : '*'"
+					:disabled="readonly"
 					icon="upload"
 				/>
 			</div>
 
 			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
-				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<label :for="'text' + key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field">
-					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
+					<Icon class="loader" name="loader" v-if="loading" />
+					<PlaceholderField
+						v-else
+						v-model="paramData.value"
+						:maxLength="paramData.maxLength"
+						:prefix="paramData.placeholderPrefix"
+						:disabled="readonly"
+						@update:modelValue="onEdit()"
+					/>
 				</div>
 			</div>
-	
-			<PlaceholderSelector class="placeholders" v-if="placeholdersAsPopout && paramData.placeholderList"
-				v-model="paramData.value"
-				:placeholders="paramData.placeholderList"
+
+			<Icon name="loader" v-if="placeholdersAsPopout && hasPlaceholders && loading" />
+			<PlaceholderSelector
+				class="placeholders"
+				v-else-if="placeholdersAsPopout && hasPlaceholders"
+				:modelValue="placeholderModelValue"
+				:placeholders="paramData.placeholderList!"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
 				:popoutMode="placeholdersAsPopout"
 				:alert="alert || errorLocal"
 				:target="placeholderTarget"
+				@update:modelValue="onPlaceholderModelValue($event)"
 				@insert="insertPlaceholder"
 			/>
 		</div>
 
-		<PlaceholderSelector class="placeholders" v-if="!placeholdersAsPopout && paramData.placeholderList"
-			v-model="paramData.value"
-			:placeholders="paramData.placeholderList"
+		<PlaceholderSelector
+			class="placeholders"
+			v-if="!placeholdersAsPopout && hasPlaceholders"
+			:modelValue="placeholderModelValue"
+			:placeholders="paramData.placeholderList!"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
 			:target="placeholderTarget"
+			@update:modelValue="onPlaceholderModelValue($event)"
 			@insert="insertPlaceholder"
 		/>
 
-		<ParamItem v-for="(c, index) in children"
+		<slot name="bellow_placeholders"></slot>
+
+		<div class="chatPreview" v-if="chatPreviewMessage && showChatPreview">
+			<ChatMessage
+				class="message"
+				lightMode
+				contextMenuOff
+				:messageData="chatPreviewMessage"
+			/>
+		</div>
+
+		<ParamItem
+			v-for="(c, index) in children"
 			class="child"
-			ref="param_child"
-			:key="'child_'+index+c.id"
+			ref="paramChild"
+			:key="'child_' + index + c.id"
 			:paramData="c"
+			:chatPreview="props.chatPreview"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:alert="alert || errorLocal"
 			noBackground
 			noPremiumLock
-			v-model="c.value"
+			v-model="c.value as string | number | boolean | string[] | null | undefined"
 			:autoFade="autoFade"
-			:childLevel="childLevel+1"
-			@change="$emit('change')" />
+			:childLevel="childLevel + 1"
+			@change="(prevVal, newVal) => emit('change', prevVal, newVal)"
+		/>
 
-		<transition
-		@enter="onShowItem"
-		@leave="onHideItem">
-			<div class="child" ref="param_child_slot" v-if="showChildren">
+		<transition @enter="onShowItem" @leave="onHideItem">
+			<div class="child" ref="paramChild_slot" v-if="showChildren">
 				<slot></slot>
 				<slot name="child"></slot>
 			</div>
 		</transition>
 
-		<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
+		<TTButton
+			class="moreFontsBt"
+			icon="lock_fit"
+			v-if="askForSystemFontAccess"
+			@click="grantSystemFontRead()"
+			>{{ t("overlay.credits.grant_fonts_access") }}</TTButton
+		>
 
-		<div class="card-item alert errorMessage" v-if="(error || paramData.error) && (errorMessage || paramData.errorMessage)">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
+		<div
+			class="card-item alert errorMessage"
+			v-if="(error || paramData.error) && (errorMessage || paramData.errorMessage)"
+		>
+			{{ errorMessage.length > 0 ? errorMessage : paramData.errorMessage }}
+		</div>
 
 		<PremiumLockLayer v-if="premiumLocked" />
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
-import { gsap } from 'gsap/gsap-core';
-import CountryFlag from 'vue-country-flag-next';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import DurationForm from '../DurationForm.vue';
-import PremiumLockLayer from '../PremiumLockLayer.vue';
-import Slider from '../Slider.vue';
-import TTButton from '../TTButton.vue';
-import ToggleButton from '../ToggleButton.vue';
-import PlaceholderSelector from './PlaceholderSelector.vue';
-import Config from '@/utils/Config';
-import PlaceholderField from '../PlaceholderField.vue';
+<script setup lang="ts">
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
+import { replacePlaceholders } from "@/utils/PlaceholderModifiers";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import {
+	ref,
+	computed,
+	watch,
+	onMounted,
+	nextTick,
+	useSlots,
+	type ComponentPublicInstance,
+	useTemplateRef,
+	onBeforeMount,
+	onBeforeUnmount,
+} from "vue";
+import { useI18n } from "vue-i18n";
+import { gsap } from "gsap/gsap-core";
+import CountryFlag from "vue-country-flag-next";
+import DurationForm from "../DurationForm.vue";
+import PremiumLockLayer from "../PremiumLockLayer.vue";
+import Slider from "../Slider.vue";
+import TTButton from "../TTButton.vue";
+import ToggleButton from "../ToggleButton.vue";
+import PlaceholderSelector from "./PlaceholderSelector.vue";
+import Config from "@/utils/Config";
+import PlaceholderField from "../PlaceholderField.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { usePlaceDropdown } from "@/composables/usePlaceDropDown";
+import { asset } from "@/composables/useAsset";
+import type { VueSelectInstance } from "vue-select";
+import { useEmptySlot } from "@/composables/useEmptySlot";
+import Icon from "../Icon.vue";
+import ChatMessage from "../messages/ChatMessage.vue";
 
-@Component({
-	name:"ParamItem",//This is needed so recursion works properly
-	components:{
-		TTButton,
-		Slider,
-		CountryFlag,
-		DurationForm,
-		ToggleButton,
-		PremiumLockLayer,
-		PlaceholderField,
-		PlaceholderSelector,
+defineOptions({ name: "ParamItem" }); //This is needed so recursion works properly
+
+const props = withDefaults(
+	defineProps<{
+		paramData: TwitchatDataTypes.ParameterData<any, any, any, any, any>;
+		error?: boolean;
+		errorMessage?: string;
+		disabled?: boolean;
+		autofocus?: boolean;
+		childLevel?: number;
+		modelValue?: any;
+		secondary?: boolean;
+		alert?: boolean;
+		premium?: boolean;
+		noPremiumLock?: boolean;
+		noBackground?: boolean;
+		autoFade?: boolean;
+		inverseChildrenCondition?: boolean;
+		tabindex?: number;
+		placeholdersAsPopout?: boolean;
+		forceChildDisplay?: boolean;
+		readonly?: boolean;
+		loading?: boolean;
+		chatPreview?: boolean;
+	}>(),
+	{
+		errorMessage: "",
+		childLevel: 0,
+		tabindex: 0,
+		modelValue: null,
 	},
-	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input", "focus", "blur"]
-})
-export class ParamItem extends Vue {
+);
 
-	@Prop
-	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
+const emit = defineEmits<{
+	change: [prevValue: string | boolean | number | string[] | null, newValue: unknown];
+	"update:modelValue": [value: unknown];
+	mouseenter: [
+		event: MouseEvent,
+		paramData: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>,
+	];
+	mouseleave: [
+		event: MouseEvent,
+		paramData: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>,
+	];
+	input: [];
+	focus: [];
+	blur: [];
+}>();
 
-	@Prop({type:Boolean, default:false})
-	public error!:boolean;
+const { t } = useI18n();
+const slots = useSlots();
+const storeAuth = useStoreAuth();
+const storeParams = useStoreParams();
+const { place: placeDropdown } = usePlaceDropdown();
+const { getAsset } = asset();
 
-	@Prop({type:String, default:""})
-	public errorMessage!:string;
+const { isEmptySlot } = useEmptySlot();
+const rootElRef = useTemplateRef("rootEl");
+const inputRef = useTemplateRef("input");
+const vueSelectRef = useTemplateRef<VueSelectInstance>("vueSelect");
+const paramChildrenRef = useTemplateRef<ComponentPublicInstance[]>("paramChild");
 
-	@Prop({type:Boolean, default:false})
-	public disabled!:boolean;
+const key = Math.random().toString();
+const children = ref<TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[]>([]);
+const placeholderTarget = ref<HTMLTextAreaElement | HTMLInputElement | null>(null);
+const errorLocal = ref(false);
+const premiumOnlyLocal = ref(false);
+const autofocusLocal = ref(false);
+const askForSystemFontAccess = ref(false);
+const isMissingScope = ref(false);
+// Chat preview (`chatPreview` prop). Like PostOnChatParam, it's only rendered
+// while the focus is within this item so it doesn't clutter params lists.
+const chatPreviewMessage = ref<TwitchatDataTypes.MessageChatData | null>(null);
+const showChatPreview = ref(false);
 
-	@Prop({type:Boolean, default:false})
-	public autofocus!:boolean;
+let isLocalUpdate = false;
+let chatPreviewFocusHandler: ((e: MouseEvent) => void) | null = null;
+let childrenExpanded = false;
+let lastValueSignature: unknown = undefined;
+let prevValue: any = undefined;
 
-	@Prop({type:Number, default:0})
-	public childLevel!:number;
+const placeholderModelValue = computed<string>(() => {
+	const value = props.paramData.value;
+	if (Array.isArray(value) || value == null) return "";
+	return typeof value === "string" ? value : String(value);
+});
 
-	@Prop({type:[String, Number, Boolean, Object, Array], default: null})
-	public modelValue!:string|boolean|number|string[];
-
-	@Prop({type:Boolean, default: false})
-	public secondary!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public alert!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public premium!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noPremiumLock!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public noBackground!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public autoFade!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public inverseChildrenCondition!:boolean;
-
-	@Prop({type:Number, default: 0})
-	public tabindex!:number;
-
-	@Prop({type:Boolean, default: false})
-	public placeholdersAsPopout!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public forceChildDisplay!:boolean;
-
-	public key:string = Math.random().toString();
-	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
-	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
-	public errorLocal:boolean = false;
-	public premiumOnlyLocal:boolean = false;
-	public autofocusLocal:boolean = false;
-	public askForSystemFontAccess:boolean = false;
-	public isMissingScope:boolean = false;
-
-	private isLocalUpdate:boolean = false;
-	private childrenExpanded:boolean = false;
-
-	public get longText():boolean { return this.paramData?.longText === true || (this.textValue?.length > 40 && this.paramData.longText !== false && this.paramData.type != "password"); }
-
-	public get showChildren():boolean {
-		if(this.forceChildDisplay !== false) return true;
-		let state = (this.paramData.type == 'boolean' && this.paramData.value === true)
-				|| (this.paramData.type == 'string' && this.paramData.value != "")
-				|| !!this.paramData.value;
-		if(this.inverseChildrenCondition) state = !state;
-
-		return (this.$slots.default != undefined || this.$slots.child != undefined) && state;
-	}
-
-	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store.auth.isPremium && this.noPremiumLock === false; }
-
-	public get icon():string {
-		let defaultIcon = "";
-		if(this.paramData.type == "placeholder") defaultIcon = "placeholder";
-		return this.paramData.icon ?? defaultIcon ?? "";
-	 }
-
-	public get classes():string[] {
-		const res = ["paramitem"];
-		if(this.noBackground === false) {
-			res.push("card-item");
-		}else{
-			res.push("no-bg");
-		}
-		if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
-		if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
-		if(this.errorLocal !== false) res.push("error");
-		else if(this.isMissingScope) res.push("error");
-		if(this.longText) res.push("longText");
-		if(this.label == '') res.push("noLabel");
-		if(this.autoFade !== false) res.push("autoFade");
-		if(this.childLevel > 0) res.push("child");
-		if(this.icon) res.push("hasIcon");
-		if(this.paramData.maxLength) res.push("maxLength");
-		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
-		if(this.premiumLocked) res.push("cantUse");
-		if(this.paramData.type == "time") res.push("time");
-		if(this.paramData.type == "font") res.push("font");
-		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
-		if(this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
-		res.push("level_"+this.childLevel);
-		return res;
-	}
-
-	public get label():string {
-		if(!this.paramData) return "";
-		let txt = this.paramData.label ?? "";
-
-		let count = 0;
-		let v = this.paramData.value as number | string;
-		if(this.paramData.type == "number" || this.paramData.type == "integer" || this.paramData.type == "slider") {
-			count = parseFloat(this.paramData.value as string) ?? 0;
-			if(isNaN(count)) count = 0;
-			v = count.toString();
-		}else
-		if(this.paramData.type == "time" || this.paramData.type == "duration") {
-			v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
-		}
-		if(this.paramData.labelKey) {
-			txt += this.$t(this.paramData.labelKey, {VALUE:v}, count);
-		}else{
-			txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
-		}
-		if(!txt) return "";
-		//Puts anything that's between parenthesis inside <span> elements
-		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
-	}
-
-	public get placeholder():string {
-		if(!this.paramData) return "";
-		let txt = this.paramData.placeholder ?? "";
-		if(this.paramData.placeholderKey) {
-			txt = this.$t(this.paramData.placeholderKey);
-		}
-		return txt;
-	}
-
-	public get tooltip():string {
-		if(this.paramData.tooltip) return this.paramData.tooltip;
-		if(this.paramData.tooltipKey) return this.$t(this.paramData.tooltipKey)
-		return ""
-	}
-
-	public get showMaxLength():boolean {
-		return !!this.paramData.maxLength
-		&& ((this.paramData.value as string).length/this.paramData.maxLength > .8 || this.paramData.maxLength < 50);
-	}
-
-	public get textValue():string {
-		if(this.paramData.type == "time") {
+const textValue = computed({
+	get(): string {
+		if (props.paramData.type == "time") {
 			//Convert number value in milliseconds to "hh:mm:ss" string
-			const value = ((this.paramData.value as number) || 0);
+			const value = (props.paramData.value as number) || 0;
 			const h_ms = 3600;
 			const m_ms = 60;
 			const h = Math.floor(value / h_ms);
 			const m = Math.floor((value - h * h_ms) / m_ms);
-			const s = Math.floor((value - h * h_ms - m * m_ms));
-			return Utils.toDigits(h)+":"+Utils.toDigits(m)+":"+Utils.toDigits(s);
-		}else{
-			return this.paramData.value as string;
+			const s = Math.floor(value - h * h_ms - m * m_ms);
+			return Utils.toDigits(h) + ":" + Utils.toDigits(m) + ":" + Utils.toDigits(s);
+		} else {
+			return props.paramData.value as string;
 		}
-	}
-
-	public set textValue(value:string) {
-		if(this.paramData.allowedCharsRegex) {
+	},
+	set(value: string) {
+		if (props.paramData.allowedCharsRegex) {
 			const prevValue = value;
 			//Only keep allowed chars if a list is defined
-			value = value.replace(new RegExp("[^"+this.paramData.allowedCharsRegex+"]", "gi"), "");
-			if(value != prevValue) {
+			value = value.replace(
+				new RegExp("[^" + props.paramData.allowedCharsRegex + "]", "gi"),
+				"",
+			);
+			if (value != prevValue) {
 				//set to a new value so a change is detected by vue when modifying it aftewards
-				this.paramData.value = "_____this_is_a_fake_value_you_SHOULD_R3aLLY_N0T_use_hehehehehe_____";
+				props.paramData.value =
+					"_____this_is_a_fake_value_you_SHOULD_R3aLLY_N0T_use_hehehehehe_____";
 			}
 		}
-		if(this.paramData.type == "time") {
+		if (props.paramData.type == "time") {
 			//Convert string input value "hh:mm:ss" to a number value in milliseconds
-			if(!/[0-9]{2}:[0-9]{2}:[0-9]{2}/gi.test(value)) {
+			if (!/[0-9]{2}:[0-9]{2}:[0-9]{2}/gi.test(value)) {
 				//This line forces the component to rerun the "textValue" getter which parses the duration back
 				//to string even if the number hasn't changed. For exemple if field is set to "00:00:00" and user
 				//pressed the DEL key on any of the 3 components, the parsed number value will remain "0" which
 				//wouldn't trigger the "textValue" getter again and field would be like "00:--:00" instead
 				//if "00:00:00". Forcing change of the field here to an invalid value will make sure that
 				//setting the value back to the proper value will trigger appropriate watchers
-				this.paramData.value = "";
+				props.paramData.value = "";
 				value = "00:00:00";
 			}
-			const [h,m,s] = value.split(":").map(v=>parseInt(v));
-			this.paramData.value = (h! * 3600 + m! * 60 + s!) || 0;
-		}else{
-			this.paramData.value = value;
-
-			const input = this.$refs.input as HTMLInputElement;
-			let selectStart = input.selectionStart || value.length;
-			let selectEnd = input.selectionEnd;
-
-			this.$nextTick().then(()=> {
-				const newInput = this.$refs.input as HTMLInputElement;
-				if(newInput == input) return;
-				//In case there was a switch between a <input> and a <textarea>, set the carret
-				//to the same place it was before the switch
-				newInput.selectionStart = selectStart;
-				newInput.selectionEnd = selectEnd;
-			})
+			const [h, m, s] = value.split(":").map((v) => parseInt(v));
+			props.paramData.value = h! * 3600 + m! * 60 + s! || 0;
+		} else {
+			props.paramData.value = value;
 		}
+	},
+});
+
+// `autoMultiline` drives ONLY the multi-line column CSS layout (label on top,
+// full-width field). Unlike the previous implementation it never swaps the DOM
+// element, so the browser's native undo history and caret survive as the field
+// grows. See `autoResize()`.
+const autoMultiline = ref(false);
+let autoMultilineThreshold = Infinity;
+// Height (px) auto-growth is capped at before overflowing/scrolling. Kept in JS
+// (rather than CSS max-height) so a manual resize can grow past it. See autoResize().
+const AUTO_GROW_MAX_HEIGHT = 200;
+// Once the user drags the resize handle in multi-line mode we stop auto-fitting the
+// height and let their chosen size stick. `autoGrowHeight` is the last height we set
+// programmatically, used by the ResizeObserver to tell our own changes from a drag.
+let userResizedMultiline = false;
+let autoGrowHeight = -1;
+let resizeObserver: ResizeObserver | null = null;
+
+// A free-text string is rendered as a single, always-mounted <textarea> (rather
+// than an <input> that later gets swapped for a <textarea>, which used to wipe
+// the undo history and caret). `autoGrow` is the subset of those whose height
+// follows their content instead of a fixed row count.
+const useTextarea = computed((): boolean => {
+	return props.paramData.type == "string" && props.paramData.longText !== false;
+});
+
+const autoGrow = computed((): boolean => {
+	return (
+		props.paramData.type == "string" &&
+		props.paramData.longText !== true &&
+		props.paramData.longText !== false
+	);
+});
+
+// Whether the multi-line column layout is active.
+const multiline = computed((): boolean => {
+	return useTextarea.value && (props.paramData.longText === true || autoMultiline.value);
+});
+
+const showChildren = computed((): boolean => {
+	if (props.forceChildDisplay !== false) return true;
+	let state =
+		(props.paramData.type == "boolean" && props.paramData.value === true) ||
+		(props.paramData.type == "string" && props.paramData.value != "") ||
+		!!props.paramData.value;
+	if (props.inverseChildrenCondition) state = !state;
+
+	return (!isEmptySlot(slots.default) || !isEmptySlot(slots.child)) && state;
+});
+
+const premiumLocked = computed((): boolean => {
+	return (
+		premiumOnlyLocal.value !== false && !storeAuth.isPremium && props.noPremiumLock === false
+	);
+});
+
+const icon = computed((): string => {
+	let defaultIcon = "";
+	if (props.paramData.type == "placeholder") defaultIcon = "placeholder";
+	return props.paramData.icon ?? defaultIcon ?? "";
+});
+
+const hasPlaceholders = computed((): boolean => {
+	return (props.paramData.placeholderList?.length || 0) > 0;
+});
+
+const classes = computed((): string[] => {
+	const res = ["paramitem"];
+	res.push("type-" + props.paramData.type);
+	if (props.noBackground === false) {
+		res.push("card-item");
 	}
+	if (props.paramData.type == "boolean" && props.paramData.value !== true) res.push("unselected");
+	if (props.paramData.type == "string" && props.paramData.value !== "") res.push("unselected");
+	if (errorLocal.value !== false) res.push("error");
+	else if (isMissingScope.value) res.push("error");
+	if (multiline.value) res.push("longText");
+	if (label.value == "") res.push("noLabel");
+	if (props.autoFade !== false) res.push("autoFade");
+	if (props.childLevel > 0) res.push("child");
+	if (icon.value) res.push("hasIcon");
+	if (props.paramData.maxLength) res.push("maxLength");
+	if (props.paramData.disabled || props.disabled == true) res.push("disabled");
+	if (premiumLocked.value) res.push("cantUse");
+	if (props.paramData.type == "time") res.push("time");
+	if (props.paramData.type == "font") res.push("font");
+	if (showMaxLength.value) res.push("withMaxLength");
+	if (hasPlaceholders.value) res.push("hasPlaceholders");
+	if (props.placeholdersAsPopout !== false) res.push("popoutMode");
+	if (premiumOnlyLocal.value !== false && props.noBackground === false) res.push("premium");
+	res.push("level_" + props.childLevel);
+	return res;
+});
 
-	public beforeUpdate(): void {
-		// console.log("rerender");
+const label = computed((): string => {
+	if (!props.paramData) return "";
+	let txt = props.paramData.label ?? "";
+
+	let count = 0;
+	let v = props.paramData.value as number | string;
+	if (
+		props.paramData.type == "number" ||
+		props.paramData.type == "integer" ||
+		props.paramData.type == "slider"
+	) {
+		count = parseFloat(props.paramData.value as string) ?? 0;
+		if (isNaN(count)) count = 0;
+		v = count.toString();
+	} else if (props.paramData.type == "time" || props.paramData.type == "duration") {
+		const duration = parseFloat(v.toString());
+		//A non numeric value means it's defined by a placeholder, display it as is
+		v = isNaN(duration) ? v : Utils.formatDuration(duration * 1000);
 	}
-
-	public beforeMount(): void {
-		this.autofocusLocal = this.autofocus;
-		this.premiumOnlyLocal = this.premium !== false || this.paramData.premiumOnly === true;
-		this.setErrorState(this.error || this.paramData.error === true);
-
-		if(this.modelValue !== null
-		&& this.modelValue !== undefined) {
-			this.paramData.value = this.modelValue;
-		}
-
-		//If it's a boolean and modelValue is undefined, force it to false
-		if(this.paramData.type == "boolean" && this.modelValue == undefined) {
-			console.warn("PROBABLY AN ISSUE TO FIX WITH A PARAM ITEM:", this.modelValue, this.paramData.labelKey, this.paramData);
-			this.paramData.value = false;
-			this.$emit("update:modelValue", false);
-		}
-
-		//Makes sure value is non-empty and within min/max.
-		//For a while some users emptied the field because i didn't block that
-		//this kinda fixes these old bad behaviors.
-		//also if min/max values are changed this will make sure the value
-		//respects the new limits.
-		if(this.paramData.type == "number" || this.paramData.type == "integer") {
-			if(typeof this.paramData.value == 'number') {
-				this.clampValue();
-			}
-		}
-
-		if(this.paramData.type == "font") {
-			this.paramData.value = this.modelValue;
-			if ("queryLocalFonts" in window) {
-				this.askForSystemFontAccess = false;
-				try {
-					navigator.permissions.query(
-						//@ts-ignore
-						{ name: "local-fonts" }
-					).then(granted => {
-						if(granted.state == "prompt") {
-							// Ask for font access if not running in OBS as they doesn't support Font API
-							this.askForSystemFontAccess = !Config.instance.OBS_DOCK_CONTEXT;
-						}else
-						if(granted.state == "granted") {
-							this.grantSystemFontRead();
-						}
-						if(granted.state != "granted") {
-							this.getLocalFonts();
-						}
-					}).catch(error => {
-						console.log("FONT FAILLURE");
-						console.log(error);
-
-					});
-				}catch(error) {
-					console.log("FONT FAILLURE2");
-					console.log(error);
-				}
-
-			}else{
-				this.getLocalFonts();
-			}
-		}
-
-		watch(()=>this.$store.auth.twitch.scopes, ()=>{
-			this.isMissingScope = this.paramData.twitch_scopes !== undefined
-				&& this.paramData.twitch_scopes.length > 0
-				&& !TwitchUtils.hasScopes(this.paramData.twitch_scopes);
-			this.setErrorState(this.error || this.isMissingScope);
-		}, {immediate:true});
+	if (props.paramData.labelKey) {
+		txt += t(props.paramData.labelKey, { VALUE: v }, count);
+	} else {
+		txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
 	}
+	if (!txt) return "";
+	//Puts anything that's between parenthesis inside <span> elements
+	return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='smallText'>$1</span>");
+});
 
-	public mounted():void {
-		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
-			if(value !== null
-			&& value !== undefined) {
-				this.paramData.value = value;
-			}
-		});
-
-		watch(() => this.paramData.value, () => this.onEdit(), {deep:true});
-
-		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
-
-		watch(() => this.paramData.listValues, ()=> this.updateSelectedListValue());
-
-		watch(() => this.paramData.children, () => this.buildChildren() );
-
-		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
-
-		if(this.paramData.type == "number") {
-			watch(() => this.paramData.max, () => this.clampValue() );
-			watch(() => this.paramData.min, () => this.clampValue() );
-		}
-
-		this.buildChildren();
-
-		if(this.paramData.listValues && this.paramData.listValues.length > 0 && this.paramData.multiple !== true) {
-			//Check if the value is on the listValues.
-			//If not, fallback to the first value.
-			let found;
-			for (const entry of this.paramData.listValues) {
-				if(entry.group) {
-					const v = entry.group.find(v=>v.value === this.paramData.value);
-					if(v) {
-						found = v;
-						break
-					}
-				}else if(entry.value === this.paramData.value) {
-					found = entry;
-					break;
-				}
-			}
-			if(!found) {
-				this.paramData.value = this.paramData.listValues[0]!.value;
-			}
-			this.updateSelectedListValue();
-		}
-
-		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
-			if(this.paramData.type == "string") {
-				this.placeholderTarget = this.$el.querySelector("textarea,input");
-			// }else{
-				// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
-			}
-		}
-
-		//Set this to true so we keep focus on the text field when it switches
-		//between <input> and <textarea> depending on the text length
-		//This won't affect first rendering, only subsequent ones
-		this.autofocusLocal = true;
-
-		//Force a model value update.
-		//This is necessary for default values to be applied to the
-		//v-model value on first render.
-		if(this.modelValue != null && this.modelValue != this.paramData.value) this.onEdit();
+const placeholder = computed((): string => {
+	if (!props.paramData) return "";
+	let txt = props.paramData.placeholder ?? "";
+	if (props.paramData.placeholderKey) {
+		txt = t(props.paramData.placeholderKey);
 	}
+	return txt;
+});
 
-	/**
-	 * Called when item is clicked.
-	 * If parameter requires a specific scope that's not granted, the
-	 * clicke event is blocked and user is asked to grant permission.
-	 * @param event
-	 */
-	public clickItem(event:MouseEvent):void {
-		if(this.paramData.twitch_scopes) {
-			if(TwitchUtils.hasScopes(this.paramData.twitch_scopes)) return;
-			this.paramData.value = false;
-			this.setErrorState(false);
-			event.stopPropagation();
-			this.$store.auth.requestTwitchScopes(this.paramData.twitch_scopes);
-		}
-	}
+const tooltip = computed((): string => {
+	if (props.paramData.tooltip) return props.paramData.tooltip;
+	if (props.paramData.tooltipKey) return t(props.paramData.tooltipKey);
+	return "";
+});
 
-	/**
-	 * Called when value changes
-	 */
-	public onEdit():void {
-		if(this.premiumLocked) return;
+const showMaxLength = computed((): boolean => {
+	return (
+		!!props.paramData.value &&
+		!!props.paramData.maxLength &&
+		((props.paramData.value as string).length / props.paramData.maxLength > 0.8 ||
+			props.paramData.maxLength < 50)
+	);
+});
 
-		this.updateSelectedListValue();
-
-		if(this.isLocalUpdate) return;
-
-		this.isLocalUpdate = true;
-		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
-			//Limite items sizes
-			const maxLength = this.paramData.maxLength || 300;
-			const list = (this.paramData.value as string[]);
-			list.forEach((v,i)=> list[i] = v.substring(0, maxLength));
-
-			//Limit number of items of the editablelist
-			const maxItem = this.paramData.max ?? 999;
-			if(list.length > maxItem) {
-				this.paramData.value.splice(0, Math.max(0, list.length-maxItem));
-			}
-		}
-
-		if(this.paramData.type == "editablelist") {
-			const list = this.$refs.vueSelect as any;
-			if(this.paramData.options && list.pushedTags) {
-				//If there's a list of options, cleanup any custom options added that
-				//is not the currently selected one
-				for (let i = 0; i < list.pushedTags.length; i++) {
-					const opt = list.pushedTags[i];
-					if(opt == this.paramData.value as string) continue;
-					if(this.paramData.options.includes(opt)) continue;
-					list.pushedTags.splice(i, 1);
-				}
-			}
-
-			if(list.dropdownOpen) {
-				list.closeSearchOptions();
-			}
-		}else
-
-		if(this.paramData.type == "imagelist") {
-			if(this.paramData.value === null) this.paramData.value = "";
-		}
-
-		if((this.paramData.type != "number" && this.paramData.type != "integer") || this.paramData.value !== "") {
-			const prevValue = this.modelValue;
-			this.$emit("update:modelValue", this.paramData.value);
-			this.$emit("change", prevValue, this.paramData.value);
-			if(this.paramData.editCallback) {
-				this.paramData.editCallback(this.paramData);
-			}
-		}
-
-		this.buildChildren();
-
-		this.$nextTick().then(()=>{
-			this.isLocalUpdate = false;
-		});
-	}
-
-	/**
-	 * Create children
-	 */
-	private async buildChildren():Promise<void> {
-		if(this.paramData.value === false){
-			//Collapse children
-			this.childrenExpanded = false;
-			if(this.children.length > 0) {
-				//Hide transition
-				const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
-				if(childrenItems) {
-					let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
-					gsap.killTweensOf(divs);
-					gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025,
-						onComplete:()=> {
-							this.children = [];
-						}});
-				}
-			}
-			return;
-		}
-
-		const list = this.$store.params.$state;
-		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
-		for (const key in list) {
-			const typedKey = key as keyof typeof list;
-			if(typedKey != "appearance" && typedKey !="features") continue
-			const params = list[typedKey];
-			for (const key2 in params) {
-				const typedKey = key2 as TwitchatDataTypes.ParameterSubCategory;
-				const param = params[typedKey as keyof typeof params] as TwitchatDataTypes.ParameterData<unknown>;
-				if(param && param.parent != undefined && param.parent == this.paramData.id) {
-					children.push(param);
-				}
-			}
-		}
-
-		if(this.paramData.children) {
-			children = children.concat(this.paramData.children);
-		}
-
-		if(this.children == children) return;
-
-		this.children = children;
-		await this.$nextTick();
-
-		if(children.length > 0 && !this.childrenExpanded && this.$refs.param_child){
-			//Show transitions
-			const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
-			let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
-			gsap.killTweensOf(divs);
-			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025, clearProps:"all"});
-		}
-		this.childrenExpanded = true;
-	}
-
-	public clampValue():void {
-		if(this.paramData.value === ""
-		&& (this.paramData.type == "number" || this.paramData.type == "integer")) {
-			this.paramData.value = 0;
-		}
-
-		if(this.paramData.type == "integer") {
-			this.paramData.value = Math.round(this.paramData.value as number);
-		}
-
-		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
-		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
-
-		// this.onEdit();
-	}
-
-	public insertPlaceholder(tag:string):void {
-		if(this.paramData.type == "editablelist") {
-			(this.paramData.value as string[]).push(tag);
-		}else if(this.paramData.type == "number" || this.paramData.type == "integer") {
-			this.paramData.value = tag;
-		}else {
-			// console.log(this.textValue, tag)
-			// this.textValue += tag;
-		}
-		this.onEdit();
-	}
-
-	private setErrorState(state:boolean) {
-		if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) {
-			this.errorLocal = true;
-		}else{
-			this.errorLocal = state;
-		}
-	}
-
-	public async onShowItem(el:Element, done:()=>void):Promise<void> {
-		gsap.from(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
-			done();
-		}});
-	}
-
-	public onHideItem(el:Element, done:()=>void):void {
-		gsap.to(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
-			done();
-		}});
-	}
-
-	private updateSelectedListValue():void {
-		if((this.paramData.type == "list" || this.paramData.type == "imagelist") && this.paramData.listValues) {
-			this.paramData.selectedListValue = this.paramData.listValues.find(v=>v.value == this.paramData.value);
-		}
-	}
-
-	/**
-	 * Get local fonts
-	 */
-	public async getLocalFonts():Promise<void>{
-		Utils.listAvailableFonts().then(result => {
-			this.paramData.options = result.fonts.concat();
-			if(this.paramData.options.indexOf(this.paramData.value as string) == -1) {
-				this.paramData.options.push(this.paramData.value as string);
-			}
-			this.paramData.options = this.paramData.options.sort();
-		});
-	}
-
-	/**
-	 * Grant access to system fonts
-	 */
-	public async grantSystemFontRead():Promise<void>{
-		Utils.listAvailableFonts(true).then(result => {
-			this.paramData.options = result.fonts.sort();
-			this.askForSystemFontAccess = result?.systemGranted !== true;
-			if(!this.paramData.value) {
-				this.paramData.value = "Inter";
-			}
-		});
+/**
+ * Called when item is clicked.
+ * If parameter requires a specific scope that's not granted, the
+ * clicke event is blocked and user is asked to grant permission.
+ * @param event
+ */
+function clickItem(event: MouseEvent): void {
+	if (props.paramData.twitch_scopes) {
+		if (TwitchUtils.hasScopes(props.paramData.twitch_scopes)) return;
+		props.paramData.value = false;
+		setErrorState(false);
+		event.stopPropagation();
+		storeAuth.requestTwitchScopes(props.paramData.twitch_scopes);
 	}
 }
-export default toNative(ParamItem);
+
+/**
+ * Grows the auto-mode <textarea> to fit its content and toggles the multi-line
+ * column layout. Because the element is never swapped (unlike the old
+ * <input> → <textarea> promotion) the native undo stack and caret are kept.
+ */
+function autoResize(): void {
+	const el = inputRef.value;
+	if (!autoGrow.value || !(el instanceof HTMLTextAreaElement)) return;
+
+	const value = ((props.paramData.value as string) ?? "").toString();
+
+	if (!autoMultiline.value) {
+		// Single-line mode: the field is capped to one row by CSS. Promote to the
+		// multi-line layout as soon as the content no longer fits on that row.
+		if (value.includes("\n") || el.scrollHeight > el.clientHeight + 1) {
+			autoMultiline.value = true;
+			autoMultilineThreshold = value.length;
+			nextTick(autoResize);
+		}
+	} else {
+		// Multi-line mode: match the field height to its content, capped so the
+		// field doesn't grow without bound (it scrolls past the cap instead). Once
+		// the user has dragged the resize handle we leave their height alone.
+		if (!userResizedMultiline) {
+			el.style.height = "auto";
+			el.style.height = Math.min(el.scrollHeight, AUTO_GROW_MAX_HEIGHT) + "px";
+			autoGrowHeight = el.offsetHeight;
+		}
+		// ...and only demote back to a single line once the value is materially
+		// shorter, so we don't ping-pong right at the wrapping boundary.
+		if (!value.includes("\n") && value.length < autoMultilineThreshold - 3) {
+			autoMultiline.value = false;
+			autoMultilineThreshold = Infinity;
+			userResizedMultiline = false;
+			autoGrowHeight = -1;
+			el.style.height = "";
+		}
+	}
+}
+
+/**
+ * Called when value changes
+ */
+function onInput(): void {
+	autoResize();
+	emit("input");
+	onEdit();
+}
+
+async function onEdit(): Promise<void> {
+	if (premiumLocked.value) return;
+
+	updateSelectedListValue();
+	await nextTick();
+
+	if (isLocalUpdate) return;
+
+	isLocalUpdate = true;
+	if (Array.isArray(props.paramData.value) && props.paramData.type == "editablelist") {
+		//Limite items sizes
+		const maxLength = props.paramData.maxLength || 300;
+		const list = props.paramData.value as string[];
+		list.forEach((v, i) => (list[i] = v.substring(0, maxLength)));
+
+		//Limit number of items of the editablelist
+		const maxItem = props.paramData.max ?? 999;
+		if (list.length > maxItem) {
+			props.paramData.value.splice(0, Math.max(0, list.length - maxItem));
+		}
+	}
+
+	if (props.paramData.type == "editablelist") {
+		const list = vueSelectRef.value;
+		if (props.paramData.options && list && list.pushedTags) {
+			//If there's a list of options, cleanup any custom options added that
+			//is not the currently selected one
+			for (let i = 0; i < list.pushedTags.length; i++) {
+				const opt = list.pushedTags[i];
+				if (opt == (props.paramData.value as string)) continue;
+				if (opt && props.paramData.options.includes(opt as string)) continue;
+				list.pushedTags.splice(i, 1);
+			}
+		}
+
+		if (list?.dropdownOpen) {
+			list.closeSearchOptions();
+		}
+	} else if (props.paramData.type == "imagelist") {
+		if (props.paramData.value === null) props.paramData.value = "";
+	}
+
+	if (
+		(props.paramData.type != "number" && props.paramData.type != "integer") ||
+		props.paramData.value !== ""
+	) {
+		const signature = getValueSignature(props.paramData.value);
+		emit("update:modelValue", props.paramData.value);
+		if (lastValueSignature !== signature) {
+			lastValueSignature = signature;
+			emit("change", prevValue, props.paramData.value);
+			prevValue = props.paramData.value;
+			if (props.paramData.editCallback) {
+				props.paramData.editCallback(props.paramData);
+			}
+		}
+	}
+
+	buildChildren();
+
+	await nextTick();
+	isLocalUpdate = false;
+}
+
+/**
+ * Create children
+ */
+async function buildChildren(): Promise<void> {
+	if (props.paramData.value === false) {
+		//Collapse children
+		childrenExpanded = false;
+		if (children.value.length > 0) {
+			//Hide transition
+			const childrenItems = paramChildrenRef.value;
+			if (childrenItems) {
+				let divs: HTMLDivElement[] = childrenItems.map((v) => v.$el as HTMLDivElement);
+				gsap.killTweensOf(divs);
+				gsap.to(divs, {
+					overflow: "hidden",
+					height: 0,
+					paddingTop: 0,
+					marginTop: 0,
+					paddingBottom: 0,
+					marginBottom: 0,
+					duration: 0.25,
+					stagger: 0.025,
+					onComplete: () => {
+						children.value = [];
+					},
+				});
+			}
+		}
+		return;
+	}
+
+	const list = storeParams.$state;
+	let childList: TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
+	for (const key in list) {
+		const typedKey = key as keyof typeof list;
+		if (typedKey != "appearance" && typedKey != "features") continue;
+		const params = list[typedKey];
+		for (const key2 in params) {
+			const typedKey = key2 as TwitchatDataTypes.ParameterSubCategory;
+			const param = params[
+				typedKey as keyof typeof params
+			] as TwitchatDataTypes.ParameterData<unknown>;
+			if (param && param.parent != undefined && param.parent == props.paramData.id) {
+				childList.push(param);
+			}
+		}
+	}
+
+	if (props.paramData.children) {
+		childList = childList.concat(props.paramData.children);
+	}
+
+	if (children.value == childList) return;
+
+	children.value = childList;
+	await nextTick();
+
+	if (childList.length > 0 && !childrenExpanded && paramChildrenRef.value) {
+		//Show transitions
+		let divs = paramChildrenRef.value.map((v) => v.$el as HTMLDivElement);
+		gsap.killTweensOf(divs);
+		gsap.from(divs, {
+			overflow: "hidden",
+			height: 0,
+			paddingTop: 0,
+			marginTop: 0,
+			paddingBottom: 0,
+			marginBottom: 0,
+			duration: 0.25,
+			stagger: 0.025,
+			clearProps: "all",
+		});
+	}
+	childrenExpanded = true;
+}
+
+function clampValue(): void {
+	if (
+		props.paramData.value === "" &&
+		(props.paramData.type == "number" || props.paramData.type == "integer")
+	) {
+		props.paramData.value = 0;
+	}
+
+	if (props.paramData.type == "integer") {
+		props.paramData.value = Math.round(props.paramData.value as number);
+	}
+
+	if (props.paramData.max != undefined && (props.paramData.value as number) > props.paramData.max)
+		props.paramData.value = props.paramData.max;
+	if (props.paramData.min != undefined && (props.paramData.value as number) < props.paramData.min)
+		props.paramData.value = props.paramData.min;
+
+	// clampValue();
+}
+
+function insertPlaceholder(tag: string): void {
+	if (props.paramData.type == "editablelist") {
+		(props.paramData.value as string[]).push(tag);
+	} else if (
+		props.paramData.type == "number" ||
+		props.paramData.type == "integer" ||
+		props.paramData.type == "duration"
+	) {
+		//These fields have no text input to insert the tag into.
+		//The placeholder replaces their value, the field is then
+		//replaced by a button displaying the placeholder
+		props.paramData.value = tag;
+	} else {
+		// console.log(textValue.value, tag)
+		// textValue.value += tag;
+	}
+	onEdit();
+}
+
+function onPlaceholderModelValue(value: string): void {
+	if (!Array.isArray(props.paramData.value)) {
+		if (props.paramData.type != "editablelist") {
+			props.paramData.value = value;
+		}
+		onEdit();
+	}
+}
+
+/**
+ * Called when the focus enters this item. Reveals the chat preview.
+ */
+function onChatPreviewFocusIn(): void {
+	if (props.chatPreview === false || props.paramData.type != "string") return;
+	showChatPreview.value = true;
+}
+
+/**
+ * Hides the chat preview when clicking outside of this item.
+ * Uses "mouseup" rather than a blur so interacting with the placeholder
+ * selector (rendered in a tooltip appended to the body) keeps it open.
+ */
+function onChatPreviewMouseUp(): void {
+	let target = document.activeElement as HTMLElement | null;
+	while (target && target != rootElRef.value && target != document.body) {
+		target = target.parentElement;
+	}
+	showChatPreview.value = target == rootElRef.value;
+}
+
+/**
+ * Builds the fake chat message rendered as a preview of the field's content.
+ * Placeholders are replaced by their example values when they define one.
+ */
+async function updateChatPreview(): Promise<void> {
+	if (props.chatPreview === false || props.paramData.type != "string") return;
+
+	//Reset it first so <ChatMessage> fully rerenders with the new content
+	chatPreviewMessage.value = null;
+	await nextTick();
+
+	const me = storeAuth.twitch.user;
+	let rawMessage = (props.paramData.value ?? "").toString().normalize("NFC");
+
+	if (props.paramData.placeholderList) {
+		for (const p of props.paramData.placeholderList) {
+			if (p.private === true) continue;
+			if (p.example != undefined) {
+				rawMessage = replacePlaceholders(rawMessage, { [p.tag]: p.example });
+			}
+		}
+	}
+
+	let announcementColor: "primary" | "purple" | "blue" | "green" | "orange" | undefined =
+		undefined;
+	if (rawMessage.indexOf("/announce") == 0) {
+		announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as
+			| "primary"
+			| "purple"
+			| "blue"
+			| "green"
+			| "orange";
+		rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
+	}
+
+	const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
+	const message_html = TwitchUtils.messageChunksToHTML(chunks);
+	chatPreviewMessage.value = {
+		id: Utils.getUUID(),
+		date: Date.now(),
+		channel_id: me.id,
+		platform: "twitch",
+		type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+		answers: [],
+		user: me,
+		twitch_announcementColor: announcementColor,
+		is_short: false,
+		message: rawMessage,
+		message_chunks: chunks,
+		message_html,
+		message_size: TwitchUtils.computeMessageSize(chunks),
+	};
+}
+
+function setErrorState(state: boolean) {
+	if (props.paramData.twitch_scopes && !TwitchUtils.hasScopes(props.paramData.twitch_scopes)) {
+		errorLocal.value = true;
+	} else {
+		errorLocal.value = state;
+	}
+}
+
+function onShowItem(el: Element, done: () => void): void {
+	gsap.from(el, {
+		overflow: "hidden",
+		height: 0,
+		duration: 0.2,
+		marginTop: 0,
+		ease: "sine.out",
+		clearProps: "all",
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+function onHideItem(el: Element, done: () => void): void {
+	gsap.to(el, {
+		overflow: "hidden",
+		height: 0,
+		duration: 0.2,
+		marginTop: 0,
+		ease: "sine.out",
+		onComplete: () => {
+			done();
+		},
+	});
+}
+
+/**
+ * Get a string representation of the value.
+ * Used to detect if value actually changed
+ */
+function getValueSignature(value: unknown): unknown {
+	if (Array.isArray(value)) return value.toString();
+	if (value != null && typeof value == "object") {
+		try {
+			return JSON.stringify(value);
+		} catch (_error) {
+			return value; //Fallback to ref
+		}
+	}
+	return value?.toString();
+}
+
+function updateSelectedListValue(): void {
+	if (
+		(props.paramData.type == "list" || props.paramData.type == "imagelist") &&
+		props.paramData.listValues
+	) {
+		let found;
+		for (const entry of props.paramData.listValues) {
+			if (entry.group) {
+				const v = entry.group.find((v) => v.value == props.paramData.value);
+				if (v) {
+					found = v;
+					break;
+				}
+			} else if (entry.value == props.paramData.value) {
+				found = entry;
+				break;
+			}
+		}
+		props.paramData.selectedListValue = found;
+	}
+}
+
+/**
+ * Get local fonts
+ */
+async function getLocalFonts(): Promise<void> {
+	Utils.listAvailableFonts().then((result) => {
+		props.paramData.options = result.fonts.concat();
+		if (props.paramData.options.indexOf(props.paramData.value as string) == -1) {
+			props.paramData.options.push(props.paramData.value as string);
+		}
+		props.paramData.options = props.paramData.options.sort();
+	});
+}
+
+/**
+ * Grant access to system fonts
+ */
+async function grantSystemFontRead(): Promise<void> {
+	Utils.listAvailableFonts(true).then((result) => {
+		props.paramData.options = result.fonts.sort();
+		askForSystemFontAccess.value = result?.systemGranted !== true;
+		if (!props.paramData.value) {
+			props.paramData.value = "Inter";
+		}
+	});
+}
+
+// beforeMount logic
+onBeforeMount(() => {
+	autofocusLocal.value = props.autofocus;
+	premiumOnlyLocal.value = props.premium !== false || props.paramData.premiumOnly === true;
+	setErrorState(props.error || props.paramData.error === true);
+
+	if (props.modelValue !== null && props.modelValue !== undefined) {
+		props.paramData.value = props.modelValue;
+	}
+	lastValueSignature = getValueSignature(props.modelValue ?? props.paramData.value);
+	prevValue = props.modelValue ?? props.paramData.value;
+
+	//If it's a boolean and modelValue is undefined, force it to false
+	if (props.paramData.type == "boolean" && props.modelValue == undefined) {
+		console.warn(
+			"PROBABLY AN ISSUE TO FIX WITH A PARAM ITEM:",
+			props.modelValue,
+			props.paramData.labelKey,
+			props.paramData,
+		);
+		props.paramData.value = false;
+		emit("update:modelValue", false);
+	}
+
+	//Makes sure value is non-empty and within min/max.
+	//For a while some users emptied the field because i didn't block that
+	//this kinda fixes these old bad behaviors.
+	//also if min/max values are changed this will make sure the value
+	//respects the new limits.
+	if (props.paramData.type == "number" || props.paramData.type == "integer") {
+		if (typeof props.paramData.value == "number") {
+			clampValue();
+		}
+	}
+
+	if (props.paramData.type == "font") {
+		props.paramData.value = props.modelValue;
+		if ("queryLocalFonts" in window) {
+			askForSystemFontAccess.value = false;
+			try {
+				navigator.permissions
+					.query(
+						//@ts-ignore
+						{ name: "local-fonts" },
+					)
+					.then((granted) => {
+						if (granted.state == "prompt") {
+							// Ask for font access if not running in OBS as they doesn't support Font API
+							askForSystemFontAccess.value = !Config.instance.OBS_DOCK_CONTEXT;
+						} else if (granted.state == "granted") {
+							grantSystemFontRead();
+						}
+						if (granted.state != "granted") {
+							getLocalFonts();
+						}
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+			} catch (error) {
+				console.log(error);
+			}
+		} else {
+			getLocalFonts();
+		}
+	}
+});
+
+onMounted(() => {
+	if (props.paramData.type == "number" || props.paramData.type == "integer") {
+		watch(
+			() => props.paramData.max,
+			() => clampValue(),
+		);
+		watch(
+			() => props.paramData.min,
+			() => clampValue(),
+		);
+	}
+
+	buildChildren();
+
+	if (
+		props.paramData.listValues &&
+		props.paramData.listValues.length > 0 &&
+		props.paramData.multiple !== true
+	) {
+		//Check if the value is on the listValues.
+		//If not, fallback to the first value.
+		let found;
+		for (const entry of props.paramData.listValues) {
+			if (entry.group) {
+				const v = entry.group.find((v) => v.value === props.paramData.value);
+				if (v) {
+					found = v;
+					break;
+				}
+			} else if (entry.value === props.paramData.value) {
+				found = entry;
+				break;
+			}
+		}
+		if (!found) {
+			props.paramData.value = props.paramData.listValues[0]!.value;
+		}
+		updateSelectedListValue();
+	}
+
+	if (props.paramData.placeholderList && props.paramData.placeholderList.length > 0) {
+		if (props.paramData.type == "string") {
+			placeholderTarget.value = rootElRef.value!.querySelector("textarea,input");
+			// }else{
+			// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+props.paramData.type+"\"");
+		}
+	}
+
+	//Set this to true so the text field keeps focus across re-renders.
+	//This won't affect first rendering, only subsequent ones
+	autofocusLocal.value = true;
+
+	//Force a model value update.
+	//This is necessary for default values to be applied to the
+	//v-model value on first render.
+	if (props.modelValue != null && props.modelValue != props.paramData.value) onEdit();
+	nextTick(autoResize);
+
+	// Auto-grow fields become manually resizable once they've expanded to
+	// multi-line. Watch for a height that we didn't set ourselves (i.e. the user
+	// dragged the resize handle) and, from then on, stop auto-fitting the height.
+	if (autoGrow.value && inputRef.value instanceof HTMLTextAreaElement) {
+		resizeObserver = new ResizeObserver(() => {
+			const el = inputRef.value;
+			if (!(el instanceof HTMLTextAreaElement)) return;
+			if (!autoMultiline.value || userResizedMultiline || autoGrowHeight < 0) return;
+			if (Math.abs(el.offsetHeight - autoGrowHeight) > 1) {
+				userResizedMultiline = true;
+			}
+		});
+		resizeObserver.observe(inputRef.value);
+	}
+
+	if (props.chatPreview !== false) {
+		chatPreviewFocusHandler = () => onChatPreviewMouseUp();
+		document.addEventListener("mouseup", chatPreviewFocusHandler);
+		updateChatPreview();
+	}
+});
+
+onBeforeUnmount(() => {
+	resizeObserver?.disconnect();
+	resizeObserver = null;
+	if (chatPreviewFocusHandler) {
+		document.removeEventListener("mouseup", chatPreviewFocusHandler);
+		chatPreviewFocusHandler = null;
+	}
+});
+
+watch(
+	() => storeAuth.twitch.scopes,
+	() => {
+		isMissingScope.value =
+			props.paramData.twitch_scopes !== undefined &&
+			props.paramData.twitch_scopes.length > 0 &&
+			!TwitchUtils.hasScopes(props.paramData.twitch_scopes);
+		setErrorState(props.error || isMissingScope.value);
+	},
+	{ immediate: true },
+);
+
+watch(
+	() => props.modelValue,
+	(value: string | number | boolean | string[] | null | undefined) => {
+		// Skip when modelValue is the same reference as paramData.value (common
+		// `v-model="x.value"` + `:paramData="x"` pattern). Otherwise we'd overwrite
+		// the signature with the new value before onEdit can detect the change.
+		if (value !== null && value !== undefined && value !== props.paramData.value) {
+			props.paramData.value = value;
+			lastValueSignature = getValueSignature(value);
+			prevValue = value;
+		}
+	},
+);
+
+watch(
+	() => props.paramData.value,
+	() => {
+		onEdit();
+		updateChatPreview();
+		nextTick(autoResize);
+	},
+	{ deep: true },
+);
+
+watch(
+	() => props.paramData.placeholderList,
+	() => updateChatPreview(),
+	{ deep: true },
+);
+
+watch(
+	() => props.paramData.error,
+	() => setErrorState(props.paramData.error === true),
+);
+
+watch(
+	() => props.paramData.listValues,
+	() => updateSelectedListValue(),
+);
+
+watch(
+	() => props.paramData.children,
+	() => buildChildren(),
+);
+
+watch(
+	() => props.error,
+	() => setErrorState(props.error === true),
+);
 </script>
 
 <style scoped lang="less">
-.paramitem{
+.paramitem {
 	overflow: unset;
 	position: relative;
-	transition: padding .25s, opacity .2s;
+	transition:
+		padding 0.25s,
+		opacity 0.2s;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -994,10 +1667,10 @@ export default toNative(ParamItem);
 		white-space: pre-line;
 	}
 
-	&:not(.disabled)>.content:hover::before {
+	&:not(.disabled) > .content:hover::before {
 		opacity: 1;
 	}
-	&:not(.disabled)>.content::before {
+	&:not(.disabled) > .content::before {
 		content: "";
 		opacity: 0;
 		top: 0;
@@ -1009,6 +1682,13 @@ export default toNative(ParamItem);
 		pointer-events: none;
 		background-color: var(--background-color-fadest);
 		background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
+	}
+	&.disabled {
+		overflow: hidden;
+		border-radius: var(--border-radius);
+		& > * {
+			pointer-events: none;
+		}
 	}
 
 	&.longText {
@@ -1037,7 +1717,9 @@ export default toNative(ParamItem);
 		label {
 			display: none;
 		}
-		input, select, textarea {
+		input,
+		select,
+		textarea {
 			width: 100%;
 			flex-basis: unset !important;
 		}
@@ -1050,20 +1732,23 @@ export default toNative(ParamItem);
 		@c2: transparent;
 		background-color: @c1;
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-		.toggleButton, input, textarea, label {
+		.toggleButton,
+		input,
+		textarea,
+		label {
 			pointer-events: none;
 		}
-		label, .icon {
-			opacity: .75;
+		label,
+		.icon {
+			opacity: 0.75;
 		}
 	}
 
 	&.error {
-		cursor: not-allowed;
 		background-color: var(--color-alert-fader) !important;
 		.errorMessage {
-			font-size: .9em;
-			margin-top: .5em;
+			font-size: 0.9em;
+			margin-top: 0.5em;
 			text-align: center;
 		}
 		label {
@@ -1073,11 +1758,11 @@ export default toNative(ParamItem);
 
 	&.unselected.autoFade {
 		.content {
-			opacity: .5;
+			opacity: 0.5;
 		}
 	}
 
-	&.maxLength {
+	&.withMaxLength.maxLength {
 		.content {
 			.text {
 				input {
@@ -1091,7 +1776,7 @@ export default toNative(ParamItem);
 		display: flex;
 		flex-direction: row;
 		align-items: baseline;
-		transition: background-color .1s;
+		transition: background-color 0.1s;
 		position: relative;
 
 		textarea {
@@ -1103,7 +1788,7 @@ export default toNative(ParamItem);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			row-gap: .25em;
+			row-gap: 0.25em;
 			&:has(input) {
 				flex-wrap: wrap;
 			}
@@ -1113,21 +1798,33 @@ export default toNative(ParamItem);
 			width: 1em;
 			height: 1em;
 			align-self: flex-start;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			flex-shrink: 0;
 		}
 
-
 		.helpIcon {
 			width: 20px;
-			margin-right: .25em;
+			margin-right: 0.25em;
 		}
 
 		.toggleButton {
 			align-self: flex-start;
 		}
 
-		.toggle, .number, .text, .list, .browse, .color, .placeholder {
+		.loader {
+			align-self: center;
+			height: 1.25em;
+			width: 1.25em;
+			margin: unset;
+		}
+
+		.toggle,
+		.number,
+		.text,
+		.list,
+		.browse,
+		.color,
+		.placeholder {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
@@ -1137,24 +1834,25 @@ export default toNative(ParamItem);
 				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
-				line-height: 1.25em;
+				line-height: 1.1em;
 				cursor: pointer;
 			}
-			&.number, &.text {
+			&.number,
+			&.text {
 				.inputHolder {
 					position: relative;
 					flex-grow: 1;
 					overflow: hidden;
 					border-radius: var(--border-radius);
 					.maxlength {
-						font-size: .7em;
+						font-size: 0.7em;
 						position: absolute;
 						right: 0;
 						bottom: 0;
 						transform: unset;
 						pointer-events: none;
 						background-color: var(--grayout);
-						padding: .25em;
+						padding: 0.25em;
 						border-radius: 4px;
 					}
 					input {
@@ -1167,13 +1865,13 @@ export default toNative(ParamItem);
 							padding-left: 1.75em;
 						}
 						.privateIcon {
-							width:1.5em;
+							width: 1.5em;
 							height: 100%;
 							background-color: var(--color-text);
-							color:var(--grayout);
+							color: var(--grayout);
 							position: absolute;
 							left: 0;
-							padding: .25em;
+							padding: 0.25em;
 						}
 					}
 				}
@@ -1184,7 +1882,7 @@ export default toNative(ParamItem);
 				}
 
 				label {
-					margin-top: .4em;
+					margin-top: 0.25em;
 				}
 			}
 
@@ -1195,12 +1893,12 @@ export default toNative(ParamItem);
 			}
 		}
 
-		.toggle{
+		.toggle {
 			flex-grow: 1;
 		}
 
-		:deep(.small) {
-			font-size: .75em;
+		:deep(.smallText) {
+			font-size: 0.75em;
 			font-style: italic;
 		}
 		.slider {
@@ -1214,7 +1912,11 @@ export default toNative(ParamItem);
 				width: 100%;
 				height: 1em;
 				background: transparent;
-				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fadest) 50%);
+				background: linear-gradient(
+					90deg,
+					var(--color-dark-light) 50%,
+					var(--color-dark-fadest) 50%
+				);
 				&::-webkit-slider-thumb {
 					.emboss();
 					appearance: none;
@@ -1227,7 +1929,7 @@ export default toNative(ParamItem);
 				&::-moz-range-thumb {
 					width: 1em;
 					height: 1em;
-					background: #04AA6D;
+					background: #04aa6d;
 					cursor: pointer;
 				}
 			}
@@ -1260,8 +1962,8 @@ export default toNative(ParamItem);
 
 		.browse {
 			.filePath {
-				width:auto;
-				max-width:unset;
+				width: auto;
+				max-width: unset;
 				text-align: left;
 			}
 			.browseBt {
@@ -1270,27 +1972,25 @@ export default toNative(ParamItem);
 			}
 		}
 
-		input, select, textarea, .listField {
-			transition: background-color .25s;
+		input,
+		select,
+		textarea,
+		.listField {
+			transition: background-color 0.25s;
 			flex-basis: 300px;
 			text-overflow: ellipsis;
 			width: 100%;
 		}
 
-		&:has(.list, .number, .time) .paramIcon {
-			margin-top: .4em;
-		}
-
 		img.paramIcon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
 
 		.list {
-
 			label {
-				margin-top: .4em;
+				margin-top: 0.25em;
 				flex-basis: unset;
 			}
 
@@ -1317,9 +2017,21 @@ export default toNative(ParamItem);
 
 		textarea {
 			resize: vertical;
-			min-height: 2em;
-		}
 
+			// Auto-mode field: height is driven by autoResize() so we disable the
+			// manual resize handle and cap the growth (in JS), scrolling past the cap.
+			&.autoGrow {
+				resize: none;
+				overflow-y: auto;
+
+				// Once it has grown to multi-line, allow manual vertical resizing.
+				// The cap is enforced in JS while auto-growing, so drop it here to
+				// let a manual resize grow the field freely.
+				&.multiline {
+					resize: vertical;
+				}
+			}
+		}
 	}
 
 	&.time {
@@ -1332,16 +2044,17 @@ export default toNative(ParamItem);
 				}
 			}
 			label {
-				margin-top: .4em;
+				margin-top: 0.25em;
 			}
 		}
 	}
 
-	&.child, :deep(.parameter-child) {
+	&.child,
+	:deep(.parameter-child) {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;
-		@padding:1.5em;
+		@padding: 1.5em;
 		width: calc(100% - @padding);
 		position: relative;
 		.holder {
@@ -1349,7 +2062,7 @@ export default toNative(ParamItem);
 			&::before {
 				position: absolute;
 				left: -1em;
-				top: .1em;
+				top: 0.1em;
 				font-size: 1em;
 				content: "⤷";
 				display: block;
@@ -1361,14 +2074,27 @@ export default toNative(ParamItem);
 	}
 
 	&.hasIcon {
-		&>.placeholders {
-			margin-left:1.5em;
+		& > .placeholders {
+			margin-left: 1.5em;
+		}
+	}
+
+	.chatPreview {
+		margin-top: 0.5em;
+		padding: 0.25em 0.5em;
+		border-radius: 0.5em;
+		box-sizing: border-box;
+		background-color: var(--background-color-primary);
+		overflow: hidden;
+		.message {
+			position: relative;
+			font-size: 1em;
 		}
 	}
 
 	&.popoutMode {
 		position: relative;
-		.placeholders{
+		.placeholders {
 			position: absolute;
 			right: 0;
 			// top: 2px;
@@ -1376,27 +2102,28 @@ export default toNative(ParamItem);
 			transform: translateY(-50%);
 			height: calc(100% - 4px);
 		}
-		&:not(.no-bg) {
-			.placeholders {
-				height: calc(100% - 1em);
-			}
-		}
-		input, .button {
+		input,
+		.button {
 			padding-right: 1.5em;
 		}
 		.maxlength {
 			margin-right: 2.15em !important;
 			right: 0 !important;
 		}
+		&.hasPlaceholders {
+			//Keep the duration fields from going under the placeholder selector
+			.durationform {
+				padding-right: 1.5em;
+			}
+		}
 	}
-
 
 	&.premium {
 		color: var(--color-text);
 		background-color: var(--color-premium-fadest);
 		&.cantUse {
 			.content {
-				opacity: .5;
+				opacity: 0.5;
 				* {
 					pointer-events: none;
 				}
@@ -1409,14 +2136,46 @@ export default toNative(ParamItem);
 	}
 	.moreFontsBt {
 		display: flex;
-		margin: .5em auto 0 auto;
+		margin: 0.5em auto 0 auto;
 	}
 
 	&.font {
-		.holder.list.editable  {
+		.holder.list.editable {
 			flex-direction: row;
 			.listField {
 				flex-basis: 300px;
+			}
+		}
+	}
+
+	&.type-list,
+	&.type-editablelist,
+	&.type-imagelist,
+	&.type-number,
+	&.type-string:not(.longText) {
+		.content {
+			& > .icon {
+				margin-top: 0.25em;
+			}
+		}
+	}
+	&.type-string:not(.longText) {
+		& > .content {
+			& > .holder {
+				& > label {
+					margin-top: 0.25em;
+				}
+			}
+		}
+	}
+
+	&.type-editablelist {
+		.content {
+			.placeholderselector.popoutMode {
+				height: 2em;
+				top: auto;
+				bottom: 0;
+				transform: unset;
 			}
 		}
 	}

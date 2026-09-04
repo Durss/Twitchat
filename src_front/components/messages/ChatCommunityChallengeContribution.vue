@@ -1,14 +1,19 @@
 <template>
-	<div class="chatcommunitychallengecontribution chatMessage highlight"
-	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
-		<Icon name="channelPoints" alt="reward" class="icon"/>
+	<div
+		class="chatcommunitychallengecontribution chatMessage highlight"
+		ref="rootEl"
+		@contextmenu="onContextMenu($event, messageData, $el)"
+	>
+		<Icon name="channelPoints" alt="reward" class="icon" />
 
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.community_challenge" class="label">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+					<a
+						class="userlink"
+						@click.stop="openUserCard(messageData.user, messageData.channel_id)"
+						>{{ messageData.user.displayName }}</a
+					>
 				</template>
 				<template #TITLE>
 					<strong>{{ messageData.challenge.title }}</strong>
@@ -20,14 +25,14 @@
 					<strong>{{ messageData.total_contribution }}</strong>
 				</template>
 			</i18n-t>
-	
+
 			<div class="numbers">
 				<div class="card-item percent">{{ percent }}%</div>
-		
+
 				<div class="card-item progress">
 					<div class="values">
-						<div>{{messageData.challenge.progress}}</div>
-						<div>{{messageData.challenge.goal}}</div>
+						<div>{{ messageData.challenge.progress }}</div>
+						<div>{{ messageData.challenge.goal }}</div>
 					</div>
 					<p>pts</p>
 				</div>
@@ -36,33 +41,32 @@
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
+<script setup lang="ts">
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop } from "vue-facing-decorator";
+import AbstractChatMessage from "./AbstractChatMessage";
+import { computed, useTemplateRef } from "vue";
+import { useChatMessage } from "@/composables/useChatMessage";
 
-@Component({
-	components:{},
-	emits:["onRead"],
-})
-class ChatCommunityChallengeContribution extends AbstractChatMessage {
-
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageCommunityChallengeContributionData;
-
-	public get percent():number {
-		return Math.floor(this.messageData.challenge.progress / this.messageData.challenge.goal * 100);
-	}
-}
-export default toNative(ChatCommunityChallengeContribution);
+const rootEl = useTemplateRef("rootEl");
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageCommunityChallengeContributionData;
+}>();
+const emit = defineEmits<{ onRead: [] }>();
+const { openUserCard, onContextMenu } = useChatMessage(props, emit, rootEl);
+const percent = computed(() => {
+	return Math.floor(
+		(props.messageData.challenge.progress / props.messageData.challenge.goal) * 100,
+	);
+});
 </script>
 
 <style scoped lang="less">
-.chatcommunitychallengecontribution{
+.chatcommunitychallengecontribution {
 	.holder {
 		display: flex;
 		flex-wrap: wrap;
-		gap: .5em;
+		gap: 0.5em;
 		align-items: center;
 		.label {
 			flex-basis: 200px;
@@ -70,12 +74,12 @@ export default toNative(ChatCommunityChallengeContribution);
 		}
 	}
 
-	.icon, .chatMessageTime {
+	.icon {
 		align-self: center;
 	}
 
 	.numbers {
-		gap:.5em;
+		gap: 0.5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -85,14 +89,14 @@ export default toNative(ChatCommunityChallengeContribution);
 			font-size: 2em;
 			font-weight: bold;
 		}
-		
+
 		.progress {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			.values {
 				text-align: right;
-				margin-right: .25em;
+				margin-right: 0.25em;
 				div:first-child {
 					border-bottom: 1px solid var(--color-light);
 				}

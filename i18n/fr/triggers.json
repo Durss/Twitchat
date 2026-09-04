@@ -10,8 +10,13 @@
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez une entrée audio OBS",
 		"header_select_obs_filter": "Choisissez un filtre OBS",
+		"header_select_meld_layer": "Choisissez un layer Meld Studio",
+		"header_select_meld_effect": "Choisissez un effet Meld Studio",
+		"header_select_meld_track": "Choisissez une piste audio Meld Studio",
+		"header_select_meld_scene": "Choisissez une scène Meld Studio",
 		"usage": "Les Triggers permettent d'exécuter des actions en réponse à des évènements. Vous pouvez créer des choses simples comme des commandes de tchat et d'autres plus complexes comme un système de song request si vous avez lié Spotify à Twitchat.",
 		"trigger_name": "Nom personnalisé",
+		"trigger_icon": "Icône personnalisée",
 		"enableForRemoteChans": "Activer sur les autres chaînes",
 		"enableForRemoteChans_tt": "Cette option permet de rendre le trigger actif sur d'autres chaînes que la vôtre",
 		"add_triggerBt": "Ajouter un trigger",
@@ -30,13 +35,14 @@
 		"resyncPowerUpsBt_tt": "Si vous avez modifié vos Power Ups, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
-		"delete_actions_confirm": "Supprimer toutes les action ?",
+		"delete_actions_confirm": "Supprimer les actions ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e ou n'avez pas autorisé Twitchat à contrôler ceci",
 		"triggers_list": "Vos triggers {COUNT}",
 		"triggers_list_raw": "Liste",
 		"triggers_list_cat": "Catégories",
 		"create_folder": "Créer un dossier",
+		"search_in_actions": "Rechercher dans les actions",
 		"create_counterBt": "Créez des compteurs",
 		"trigger_queue": "File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
@@ -51,11 +57,13 @@
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"http_placeholder": "Placeholder HTTP {NAME}",
 		"json_placeholder": "Placeholder JSON {NAME}",
+		"prompt_placeholder": "Placeholder de formulaire {NAME}",
 		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"screenshot_placeholder": "Screenshot OBS",
 		"persistentData_placeholder": "Placeholder de données persistantes {NAME}",
 		"nonpremium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs.",
+		"premium_trigger": "Vous devez être membre premium pour utiliser ce trigger",
 		"add_action": "Ajouter une action",
 		"delete_folder_confirm": {
 			"title": "Supprimer le dossier ?",
@@ -74,6 +82,11 @@
 		"obs": {
 			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lier twitchat à OBS",
+			"anyScene": "N'importe quelle scène"
+		},
+		"meldstudio": {
+			"require": "Ces événéments nécessitent de {URL}",
+			"require_url": "lier twitchat à Meld Studio",
 			"anyScene": "N'importe quelle scène"
 		},
 		"count": {
@@ -113,6 +126,10 @@
 			"placeholder_cmd_param": "Paramètre de commande {NAME}",
 			"param_caseSensitive": "Sensible à la casse",
 			"param_caseInsensitive": "Non sensible à la casse",
+			"label_placeholder": "Placeholder",
+			"label_operator": "Opérateur",
+			"label_value": "Valeur",
+			"unconfigured": "Cliquez pour configurer cette condition",
 			"operators": {
 				">": ">",
 				"<": "<",
@@ -150,9 +167,29 @@
 			"param_cmd_params": "Paramètres de commande optionnels",
 			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le biais de placeholders.",
 			"param_cmd_params_placeholder": "paramètre",
-			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
-			"param_cmd_params_example_result": "Résultat :",
+			"param_cmd_params_example": "Tester des commandes :",
 			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne",
+			"param_cmd_params_mode_simple": "Simple",
+			"param_cmd_params_mode_regex": "Regex",
+			"param_cmd_params_pattern_placeholder": "format du message...",
+			"param_cmd_params_addBt": "Insérer",
+			"param_cmd_params_greedy_word": "1 mot",
+			"param_cmd_params_greedy_rest": "tout le reste",
+			"param_cmd_params_greedy_word_tt": "Le placeholder capturera un seul mot",
+			"param_cmd_params_greedy_rest_tt": "Le placeholder capturera tout jusqu'à la fin du message (ou jusqu'à l'élément suivant du format)",
+			"param_cmd_params_regex_tt": "Expression régulière exécutée sur le message (sans la commande).\nChaque groupe nommé <pre>\"(?&lt;NOM&gt;...)\"</pre> devient un placeholder.",
+			"param_cmd_params_regex_presets": "Exemples...",
+			"param_cmd_params_preset_number_text": "Nombre + message",
+			"param_cmd_params_preset_word_text": "Mot + message",
+			"param_cmd_params_preset_user_text": "Pseudo + message",
+			"param_cmd_params_preset_quotes": "Texte entre guillemets",
+			"param_cmd_params_preset_chars": "10 premiers caractères",
+			"param_cmd_params_error_duplicate_tag": "Un même placeholder est défini plusieurs fois",
+			"param_cmd_params_error_adjacent_greedy": "Deux placeholders \"tout le reste\" ne peuvent pas se suivre",
+			"param_cmd_params_error_invalid_regex": "Expression régulière invalide",
+			"param_cmd_params_error_regex_too_long": "Expression régulière trop longue",
+			"param_cmd_params_error_no_tag": "Définissez au moins un placeholder via un groupe nommé.\nExemple: {EXAMPLE}",
+			"param_cmd_params_error_no_tag_example": "(?<NOM>.+)",
 			"format_error": "La commande doit commencer par un \" / \"",
 			"grant_discord_rights": "Accorder les droits à vos membres Discord"
 		},
@@ -179,10 +216,14 @@
 				"action_triggerToggle": "Activer/Désactiver un trigger",
 				"action_obs": "Contrôler OBS",
 				"action_obs_tt": "Vous devez connecter OBS dans la section <strong>Connexions</strong>",
+				"action_meldstudio": "Contrôler Meld Studio",
+				"action_meldstudio_tt": "Vous devez connecter Meld Studio dans la section <strong>Connexions</strong>",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité de <strong>text to speech</strong> dans les paramètres",
 				"action_music": "Contrôler Spotify",
 				"action_music_tt": "Vous devez connecter Spotify dans les <strong>Connexions</strong>",
+				"action_bluesky": "Bluesky",
+				"action_bluesky_tt": "Vous devez connecter Bluesky dans les <strong>Connexions</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter Voicemod dans les paramètres",
 				"action_discord": "Discord",
@@ -195,11 +236,13 @@
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_value": "Modifier une valeur",
+				"action_label": "Éditer un label",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
 				"action_vibrate": "Vibrer téléphone",
 				"action_sfxr": "Jouer un effet sonore",
+				"action_prompt": "Me demander des paramètres",
 				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder.",
 				"action_goxlr": "Contrôler la GoXLR",
 				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",
@@ -207,6 +250,7 @@
 				"action_customUsername": "Pseudo personnalisé",
 				"action_heat_click": "Cliquer une distorsion",
 				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour utiliser cette action",
+				"action_clickable_area": "Activer/Désactiver une zone cliquable",
 				"action_lumia": "Contrôler Lumia Stream",
 				"action_lumia_tt": "Vous devez connecter Lumia Stream",
 				"action_bingoGrid": "Grille de bingo",
@@ -241,7 +285,7 @@
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
 				"commands_list": "Commandes de tchat",
-				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande",
+				"use_slash_cmd": "Utilisez le trigger \"@:triggers.events.SLASH_COMMAND.label{''}\" pour ce type de commande",
 				"reset_cooldown_tt": "Réinitialiser\nles cooldowns\nen cours"
 			},
 			"delete_message": {
@@ -325,6 +369,12 @@
 				"param_obs_action_createchapter": "Ajouter un chapitre à l'enregistrement en cours",
 				"param_obs_action_hotkey": "Déclencher une action de raccourci clavier",
 				"param_obs_action_screenshot": "Faire un screenshot de source",
+				"param_obs_action_audiotracks": "Régler les pistes audio",
+				"param_audioTrack": "Piste {INDEX}",
+				"param_audioTrack_unchanged": "Ne pas changer",
+				"param_audioTrack_enable": "Activer",
+				"param_audioTrack_disable": "Désactiver",
+				"param_audioTrack_toggle": "Inverser",
 				"param_obs_action_getPersistedData": "Récupérer une donnée persistante",
 				"param_obs_action_setPersistedData": "Définir une donnée persistante",
 				"param_record_chapter_name": "Nom du chapitre",
@@ -350,11 +400,21 @@
 				"param_browserEvent_param": "Paramètre de l'évènement",
 				"param_source": "Élément OBS",
 				"param_source_currentScene": "Scène courante",
-				"param_source_splitter_scenes": "━━━━━━ Scènes ━━━━━━",
-				"param_source_splitter_sources": "━━━━━━ Sources ━━━━━━",
-				"param_source_splitter_inputs": "━━━━━━ Inputs ━━━━━━",
+				"param_source_splitter_scenes": "Scènes",
+				"param_source_splitter_sources": "Sources",
+				"param_source_splitter_inputs": "Inputs",
 				"param_filter": "Filtre",
 				"param_filter_none": "- aucun -",
+				"param_filterSettings_title": "Réglages du filtre",
+				"param_filterSettings_add": "Réglage à ajouter",
+				"param_filterSettings_customKey": "- réglage personnalisé -",
+				"param_filterSettings_key": "Nom du réglage",
+				"param_filterSettings_value": "Nouvelle valeur",
+				"param_filterSettings_type": "Type de valeur",
+				"param_filterSettings_type_string": "Texte",
+				"param_filterSettings_type_number": "Nombre",
+				"param_filterSettings_type_boolean": "Oui/Non",
+				"param_filterSettings_type_json": "JSON",
 				"param_text": "Texte à écrire dans la source",
 				"param_url": "URL de la source",
 				"param_css": "CSS Personnalisé",
@@ -393,6 +453,7 @@
 				"param_action_show_filter": "Activer le filtre",
 				"param_action_hide_filter": "Desactiver le filtre",
 				"param_action_toggle_filter": "Inverser l'état du filtre",
+				"param_action_unchanged_filter": "Ne pas changer la visibilité",
 				"param_action_scene_switch": "Rendre cette scène active",
 				"param_action_mute": "Couper l'audio",
 				"param_action_unmute": "Réactiver l'audio",
@@ -407,23 +468,33 @@
 				"param_persistedValue_conf": "Valeur à stocker"
 			},
 			"trigger": {
-				"beta": "Fonctionnalité expérimentale ?{BR} Si vous rencontrez un problème {LINK}",
-				"beta_link": "faites-le moi savoir sur Discord",
 				"warning_title": "Information importante",
-				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
+				"warning": "Les tags spéciaux risquent de ne pas être disponibles dans le trigger sélectionné.",
 				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis une <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponibles car le trigger ne sera pas exécuté par un message de tchat.",
 				"select": "Sélectionnez le trigger à exécuter",
 				"selected": "Trigger à exécuter",
 				"loop": "Boucle de dépendance détectée",
-				"loop_delails": "Ceci risque de rendre Twitchat instable."
+				"loop_delails": "Ceci risque de rendre Twitchat instable.",
+				"queue_lock": "Blocage de file d'exécution détecté",
+				"queue_lock_details": "Le dernier trigger ci-dessous s'exécute dans la file \"{QUEUE}\", qui est verrouillée par le trigger actuel. Ces 2 triggers s'attendront mutuellement, bloquant la file d'exécution indéfiniment."
 			},
 			"triggerToggle": {
-				"select": "Sélectionnez le trigger duquel changer l'état",
+				"select": "Sélectionnez le trigger ou dossier duquel changer l'état",
 				"selected": "Trigger à modifier",
 				"action": "Action à exécuter",
 				"action_enable": "Activer le trigger",
 				"action_disable": "Désactiver le trigger",
 				"action_toggle": "Inverser l'état du trigger"
+			},
+			"clickable_area": {
+				"select": "Sélectionnez les zones cliquables à contrôler",
+				"no_area": "Vous n'avez encore aucune zone cliquable",
+				"create_areaBt": "Créer des zones cliquables",
+				"action": "Action à exécuter",
+				"action_enable": "Activer les zones",
+				"action_disable": "Désactiver les zones",
+				"action_toggle": "Inverser l'état des zones",
+				"max_area_reached": "Vous ne pouvez pas sélectionner plus de {MAX} zones"
 			},
 			"tts": {
 				"header": "Veuillez activer la fonctionnalité {LINK}",
@@ -475,6 +546,35 @@
 			"json_extract": {
 				"source_placeholder": "Placeholder source contenant les données JSON"
 			},
+			"prompt": {
+				"info": "Cette action ouvrira une fenêtre pour vous demander de remplir les valeurs définies ci-dessous. L'exécution du trigger est mise en pause jusqu'à ce que vous les validiez.",
+				"param_title": "Titre de la fenêtre",
+				"param_description": "Description",
+				"param_timeout": "Abandonner la demande après un délai sans réponse",
+				"param_timeout_tt": "Le décompte est mis en pause tant que vous utilisez Twitchat.\nSi désactivé, le trigger attend indéfiniment que vous validiez ou annuliez le formulaire",
+				"param_timeout_value": "Abandonner après {VALUE}",
+				"param_stop_on_cancel": "Arrêter l'exécution du trigger si la fenêtre est fermée",
+				"param_stop_on_cancel_tt": "Si désactivé, les actions suivantes sont exécutées avec des placeholders vides",
+				"params": "Champs à saisir",
+				"add_param_bt": "Ajouter un champ",
+				"param_label": "Libellé",
+				"param_label_placeholder": "Libellé affiché à côté du champ...",
+				"param_placeholder": "Enregistrer la valeur dans le placeholder",
+				"param_placeholder_empty": "Définissez un placeholder pour pouvoir utiliser cette valeur",
+				"param_placeholder_duplicate": "Ce placeholder est déjà utilisé par un autre champ",
+				"param_type": "Type de donnée",
+				"param_min": "Définir une valeur minimum",
+				"param_min_value": "Minimum",
+				"param_max": "Définir une valeur maximum",
+				"param_max_value": "Maximum",
+				"param_list_values": "Éléments sélectionnables",
+				"param_list_values_placeholder": "Saisissez un élément puis appuyez sur entrée...",
+				"type_string": "Texte",
+				"type_boolean": "Interrupteur",
+				"type_number": "Nombre",
+				"type_list": "Liste",
+				"type_duration": "Durée"
+			},
 			"count": {
 				"value_label": "Valeur",
 				"select_label": "Compteurs à mettre à jour",
@@ -508,6 +608,13 @@
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
+			"label": {
+				"info": "Met à jour le contenu d'un Label. Seuls les labels liés à la valeur \"@:overlay.labels.placeholders.TRIGGER{''}\" ou en mode HTML peuvent être contrôlés. Gérez vos labels dans la section {LABELS}.",
+				"info_labels": "Overlays",
+				"no_label": "Vous n'avez aucun label contrôlable pour le moment. Créez d'abord un label utilisant le placeholder « TRIGGER » ou passez-le en mode HTML.",
+				"select_label": "Label à contrôler",
+				"content_label": "Contenu à définir (supporte le HTML et les placeholders)"
+			},
 			"random": {
 				"min_label": "Valeur min (inclus)",
 				"max_label": "Valeur max (inclus)",
@@ -525,10 +632,10 @@
 				"value": "Valeur",
 				"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
 				"value_id": "Valeur dans laquelle tirer une entrée",
-				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \" @:values.form.value_user \" activée.",
+				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \"@:values.form.value_user{''}\" activée.",
 				"counter": "Compteur",
 				"counter_id": "Compteur dans lequel tirer une entrée",
-				"counter_no_values": "Il n'est possible de tirer une entrée aléatoire d'un Compteur que pour les Compteurs par utilisateur.\nCréez un Compteur avec l'option \" @:counters.form.value_user \" activée.",
+				"counter_no_values": "Il n'est possible de tirer une entrée aléatoire d'un Compteur que pour les Compteurs par utilisateur.\nCréez un Compteur avec l'option \"@:counters.form.value_user{''}\" activée.",
 				"placeholder_label": "Nom du placeholder",
 				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
 				"placeholder_user_id": "ID de la personne",
@@ -773,6 +880,51 @@
 				"param_playOnOverlay_info": "Ajoutez l'overlay suivant à OBS.\nToutes les actions d'effet sonore utilisent le même overlay, ne l'ajoutez pas plus d'une fois !",
 				"param_custom": "Exportez une configuration depuis <a href='https://tsfxr.jdmnk.dev' target='_blank'>ce site</a> ou <a href='https://sfxr.me' target='_blank'>celui-ci</a>",
 				"param_custom_error": "Données invalides"
+			},
+			"bluesky": {
+				"param_action": "Action",
+				"param_post": "Message à poster sur Bluesky",
+				"param_getPostPlaceholderMessage": "Placeholder dans lequel enregistrer le message",
+				"param_getPostPlaceholderURL": "Placeholder dans lequel enregistrer l'URL du post",
+				"placeholder_message": "Message du post Bluesky",
+				"placeholder_url": "URL du post Bluesky",
+				"actions": {
+					"post": "Poster un message",
+					"get_latest_post": "Récupérer le dernier post"
+				}
+			},
+			"meldstudio": {
+				"param_action": "Action",
+				"param_scene": "Scène",
+				"param_layer": "Layer",
+				"param_effect": "Effet",
+				"param_track": "Piste audio",
+				"param_subAction_visibility": "Visibilité",
+				"param_subAction_audio": "Audio",
+				"param_subAction_clip": "Action de clip",
+				"param_subAction_show": "Afficher",
+				"param_subAction_hide": "Masquer",
+				"param_subAction_mute": "Mute",
+				"param_subAction_unmute": "Unmute",
+				"param_subAction_toggle": "Inverser",
+				"param_subAction_record": "Enregistrer un clip",
+				"param_subAction_replay": "Afficher le replay du clip",
+				"param_subAction_stopReplay": "Masquer le replay du clip",
+				"connect": "Veuillez {LINK}",
+				"connect_link": "connecter Meld Studio",
+				"actions": {
+					"unset": "@:global.select_placeholder",
+					"layer_visibility": "Contrôler un Layer",
+					"toggle_effect": "Contrôler un Effet",
+					"track_mute": "Contrôler une Piste audio",
+					"screenshot": "Faire une capture d'écran",
+					"show_scene": "Changer de scène",
+					"clip": "Clip",
+					"start_record": "Lancer l'enregistrement",
+					"stop_record": "Arrêter l'enregistrement",
+					"start_stream": "Lancer le stream",
+					"stop_stream": "Arrêter le stream"
+				}
 			}
 		},
 		"categories": {
@@ -787,6 +939,7 @@
 			"music": "Spotify",
 			"timer": "Évènements temporels",
 			"obs": "OBS",
+			"meldStudio": "Meld Studio",
 			"misc": "Autres",
 			"count_and_values": "Compteurs & Valeurs",
 			"goxlr": "GoXLR",
@@ -804,6 +957,7 @@
 			"trigger_name": "Nom du trigger actuel",
 			"trigger_id": "ID du trigger actuel",
 			"user": "Pseudo",
+			"user_login": "Login",
 			"user_customName": "Pseudo personnalisé",
 			"user_id": "ID utilisateur",
 			"parent_user": "Message parent - Pseudo",
@@ -840,7 +994,17 @@
 			"prediction_users_win": "Nombre de votant pour l'entrée gagnante",
 			"followage": "Date de follow",
 			"followage_ms": "Date de follow en millisecondes",
-			"winner": "Pseudo de la personne",
+			"winner": "Pseudo de la personne gagnante",
+			"user_platform": "Plateforme de l'utilisateur·rice",
+			"raffle_type": "Type de tirage au sort (chat, sub, tips, ...)",
+			"raffle_entry_count": "Nombre total de participations au tirage au sort",
+			"raffle_join_count": "Nombre de participations de cette personne",
+			"raffle_tip_amount": "Montant du don (tirages en mode dons)",
+			"raffle_tip_platform": "Plateforme du don (tirages en mode dons)",
+			"winner_id": "ID de la personne gagnante",
+			"winner_platform": "Plateforme de la personne gagnante",
+			"quiz_name": "Nom du quiz",
+			"quiz_id": "ID du quiz",
 			"bingo_number": "Nombre à deviner",
 			"bingo_emote": "Emote à deviner",
 			"bingo_custom": "Texte personnalisé à deviner",
@@ -867,6 +1031,7 @@
 			"cheer_pinDuration": "Durée d'épinglage en millisecondes",
 			"my_stream_title": "Titre de mon stream",
 			"my_stream_category": "Catégorie de mon stream",
+			"my_stream_tags": "Tags de mon stream",
 			"my_stream_duration": "Durée de mon stream formatée",
 			"my_stream_duration_ms": "Durée de mon stream en millisecondes",
 			"my_stream_live": "Suis-je en live ?",
@@ -953,6 +1118,9 @@
 			"heat_key_alt": "Touche ALT enfoncée ?",
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
+			"companion_keys_text": "Texte imprimable saisi par le viewer",
+			"companion_keys_list": "Toutes les touches saisies par le viewer (tableau JSON)",
+			"companion_keys_anonymous": "Le·a viewer est anonyme ?",
 			"clip_url": "URL du clip",
 			"timer_id": "{NAME} ID du minuteur",
 			"timer_paused": "{NAME} Chronomètre mis en pause ?",
@@ -1074,11 +1242,14 @@
 			"supersticker_tier": "Super sticker tier (1 => 6)",
 			"supersticker_id": "ID du sticker",
 			"supersticker_url": "URL du sticker",
+			"jewels_amount": "Nombre de Jewels",
+			"jewels_gift_name": "Nom du cadeau",
+			"jewels_gift_url": "URL de l'image du cadeau",
 			"youtube_sub_tier": "Nom de l'abonnement",
 			"youtube_sub_months": "Durées d'abonnement en mois",
 			"ws_topic": "Topic du message",
 			"ws_message": "Données reçues",
-			"platform": "Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
+			"platform": "Plateforme ayant déclenché le trigger",
 			"tiktok_gift_count": "Nombre de cadeaux",
 			"tiktok_gift_id": "ID du cadeau",
 			"tiktok_gift_name": "Nom du cadeau",
@@ -1114,7 +1285,20 @@
 			"custom_train_record": "Est-ce un record du train ?",
 			"streamsocket_action_id": "ID de l'action",
 			"streamsocket_action_name": "Nom de l'action",
-			"streamsocket_action_bits": "Prix de l'action en bits"
+			"streamsocket_action_bits": "Prix de l'action en bits",
+			"meldstudio_layer_visible": "Layer visible?",
+			"meldstudio_layer_name": "Nom du layer",
+			"meldstudio_layer_id": "ID du layer",
+			"meldstudio_effect_enabled": "Effet activé ?",
+			"meldstudio_effect_name": "Nom de l'effet",
+			"meldstudio_effect_id": "ID de l'effet",
+			"meldstudio_track_muted": "Piste audio mute ?",
+			"meldstudio_track_name": "Nom de la piste audio",
+			"meldstudio_track_id": "ID de la piste audio",
+			"meldstudio_prev_scene_name": "Nom de la scène précédente",
+			"meldstudio_prev_scene_id": "ID de la scène précédente",
+			"meldstudio_scene_name": "Nom de la scène courante",
+			"meldstudio_scene_id": "ID de la scène courante"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1204,6 +1388,10 @@
 			"CHAT_POLL_RESULT": {
 				"label": "Résultat de sondage de tchat",
 				"description": "Actions à exécuter lorsqu'un sondage de tchat termine"
+			},
+			"RAFFLE_JOIN": {
+				"label": "Participation à un tirage au sort",
+				"description": "Actions à exécuter lorsque quelqu'un rejoint un tirage au sort en cours"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Résultat de tirage au sort",
@@ -1326,6 +1514,7 @@
 			},
 			"SCHEDULE": {
 				"label": "Actions planifiées",
+				"search_terms": ["répéter", "régulier", "planifier"],
 				"description": "Actions à exécuter régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {
@@ -1371,7 +1560,7 @@
 				"description": "Actions à exécuter lorsqu'un message est mis en avant est refermé"
 			},
 			"CHAT_ALERT": {
-				"label": "Alerte",
+				"label": "Commande Twitchat !alert",
 				"description": "Actions à exécuter lorsque la fenêtre d'alerte est déclenchée {INFO}",
 				"description_info": "(Paramètres => @:params.categories.features => @:params.alertMode )"
 			},
@@ -1385,95 +1574,122 @@
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la scène OBS {SUB_ITEM_NAME} devient active",
 				"description_any": "Actions à exécuter lorsque n'importe quelle scène OBS devient active"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source OBS {SUB_ITEM_NAME} est affichée"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source masquée",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source OBS {SUB_ITEM_NAME} est masquée"
 			},
 			"OBS_INPUT_MUTE": {
 				"label": "Source audio désactivée",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source audio OBS {SUB_ITEM_NAME} est désactivée"
 			},
 			"OBS_INPUT_UNMUTE": {
 				"label": "Source audio activée",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source audio OBS {SUB_ITEM_NAME} est activée"
 			},
 			"OBS_PLAYBACK_STARTED": {
 				"label": "Début de lecture d'un media",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture"
 			},
 			"OBS_PLAYBACK_ENDED": {
 				"label": "Fin de lecture d'un media",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} termine la lecture"
 			},
 			"OBS_PLAYBACK_PAUSED": {
 				"label": "Média mis en pause",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} est mise en pause"
 			},
 			"OBS_PLAYBACK_RESTARTED": {
 				"label": "Reprise de lecture d'un média",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} reprend la lecture"
 			},
 			"OBS_PLAYBACK_NEXT": {
 				"label": "Lecture du média suivant",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture de l'élément suivant"
 			},
 			"OBS_PLAYBACK_PREVIOUS": {
 				"label": "Lecture du média précédent",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture de l'élément précédent"
 			},
 			"OBS_FILTER_ON": {
 				"label": "Filtre activé",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque le filtre OBS {SUB_ITEM_NAME} est activé"
 			},
 			"OBS_FILTER_OFF": {
 				"label": "Filtre désactivé",
+				"search_terms": ["obs"],
 				"description": "Actions à exécuter lorsque le filtre OBS {SUB_ITEM_NAME} est désactivé"
 			},
 			"OBS_START_STREAM": {
 				"label": "Lancement du stream",
+				"search_terms": ["obs"],
 				"description": "Actions à executer lorsque vous démarrez le stream"
 			},
 			"OBS_STOP_STREAM": {
 				"label": "Arrêt du stream",
+				"search_terms": ["obs"],
 				"description": "Actions à executer lorsque vous arrêtez le stream"
 			},
 			"OBS_RECORDING_START": {
 				"label": "Lancement d'enregistrement",
+				"search_terms": ["obs"],
 				"description": "Actions à executer lorsque vous lancez un enregistrement"
 			},
 			"OBS_RECORDING_STOP": {
 				"label": "Arrêt d'enregistrement",
+				"search_terms": ["obs"],
 				"description": "Actions à executer lorsque vous arrêtez un enregistrement en cours"
+			},
+			"OBS_CONNECTED": {
+				"label": "OBS connecté",
+				"search_terms": ["obs"],
+				"description": "Actions à exécuter lorsque Twitchat se connecte à OBS websocket"
+			},
+			"OBS_DISCONNECTED": {
+				"label": "OBS déconnecté",
+				"search_terms": ["obs"],
+				"description": "Actions à exécuter lorsque Twitchat se déconnecte d'OBS websocket"
 			},
 			"TWITCHAT_STARTED": {
 				"label": "Twitchat prêt",
 				"description": "Actions à executer lorsque le chargement de Twitchat est terminé"
 			},
 			"STREAM_ONLINE": {
-				"label": "Début de stream",
+				"label": "Début du stream Twitch",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"STREAM_OFFLINE": {
-				"label": "Arrêt du stream",
+				"label": "Arrêt du stream Twitch",
 				"description": "Actions à exécuter lorsque le stream est arrêté {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
-				"label": "Début de stream d'une personne que vous suivez",
+				"label": "Début de stream d'une personne que vous suivez sur Twitch",
 				"description": "Actions à exécuter lorsqu'une personne que vous suivez débute un stream {INFO}",
 				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
 				"disabled_reason": "Vous devez autoriser Twitchat à lister les personnes que vous suivez"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
-				"label": "Arrêt du stream d'une personne que vous suivez",
+				"label": "Arrêt du stream d'une personne que vous suivez sur Twitch",
 				"description": "Actions à exécuter lorsqu'une personne que vous suivez arrête son stream {INFO}",
 				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
 				"disabled_reason": "Vous devez autoriser Twitchat à lister les personnes que vous suivez"
@@ -1531,9 +1747,14 @@
 				"description": "Actions à exécuter lorsque quelqu'un paye pour un Hype Chat"
 			},
 			"HEAT_CLICK": {
-				"label": "Interaction Heat",
+				"label": "Click sur le stream",
 				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
-				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
+				"description_info": "(Requiert d'installer l'extension \"Twitchat Companion\" (ou \"Heat\"). Consultez la section \"Connexions\"=>\"Twitchat Companion\" pour l'installer)"
+			},
+			"TWITCHAT_COMPANION_KEYS": {
+				"label": "Touches saisies sur le stream",
+				"description": "Actions à exécuter lorsqu'un·e viewer saisit des touches sur le stream {INFO}",
+				"description_info": "(Requiert d'installer l'extension \"Twitchat Companion\". Consultez la section \"Connexions\"=>\"Twitchat Companion\" pour l'installer)"
 			},
 			"CLIP_CREATED": {
 				"label": "Clip créé depuis Twitchat",
@@ -1632,19 +1853,23 @@
 				"description": "Actions à exécuter lorsqu'un don est reçu pour la cagnotte Streamlabs Charity"
 			},
 			"KOFI_DONATION": {
-				"label": "Don reçu sur on Ko-fi",
+				"label": "Don reçu sur Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions à exécuter lorsque vous recevez un don sur Ko-fi"
 			},
 			"KOFI_MERCH": {
 				"label": "Article acheté sur Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions à exécuter lorsque quelqu'un achète un article sur Ko-fi"
 			},
 			"KOFI_SUBSCRIPTION": {
 				"label": "Nouvel abonné sur Ko-fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions à exécuter lorsqu'une personne s'abonne mensuellement à votre Ko-fi"
 			},
 			"KOFI_COMMISSION": {
 				"label": "Commande reçue sur Ko-Fi",
+				"search_terms": ["kofi", "ko fi"],
 				"description": "Actions à exécuter lorsqu'une personne effectue une commande (commission) sur Ko-fi"
 			},
 			"STREAMELEMENTS_DONATION": {
@@ -1714,6 +1939,10 @@
 			"YOUTUBE_SUPER_STICKER": {
 				"label": "Super sticker reçu sur YouTube",
 				"description": "Actions à exécuter lorsqu'une personne envoie un super sticker sur YouTube"
+			},
+			"YOUTUBE_JEWELS": {
+				"label": "Jewels reçus sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne envoie des Jewels sur YouTube"
 			},
 			"YOUTUBE_SUBSCRIPTION": {
 				"label": "Abonnement reçu sur YouTube",
@@ -1838,20 +2067,48 @@
 			},
 			"TWITCH_COMBO": {
 				"label": "Twitch Combo",
-				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
-			},
-			"OBS_CONNECTED": {
-				"label": "OBS connecté",
-				"description": "Actions à exécuter lorsque Twitchat se connecte à OBS websocket"
-			},
-			"OBS_DISCONNECTED": {
-				"label": "OBS déconnecté",
-				"description": "Actions à exécuter lorsque Twitchat se déconnecte d'OBS websocket"
+				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch",
+				"disabled_reason": "Twitch a supprimé cette fonctionnalité"
 			},
 			"MANY_REPLIES": {
 				"label": "Un message a reçu de nombreuses réponses",
 				"description": "Actions à exécuter lorsqu'un message reçoit de nombreuses réponses",
 				"disabled_reason": "Vous devez d'abord activer cette fonctionnalité dans la section @:params.categories.features"
+			},
+			"QUIZ_COMPLETE": {
+				"label": "Quiz terminé",
+				"description": "Actions à exécuter lorsqu'un quiz est terminé"
+			},
+			"MELDSTUDIO_START_STREAM": {
+				"label": "Lancement du stream",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à executer lorsque vous démarrez le stream"
+			},
+			"MELDSTUDIO_STOP_STREAM": {
+				"label": "Arrêt du stream",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à executer lorsque vous arrêtez le stream"
+			},
+			"MELDSTUDIO_SCENE_CHANGE": {
+				"label": "Changement de scène",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsque la scène Meld Studio \"{SUB_ITEM_NAME}\" devient active",
+				"description_any": "Actions à exécuter lorsque n'importe quelle scène Meld Studio devient active"
+			},
+			"MELDSTUDIO_LAYER_VISIBILITY_CHANGE": {
+				"label": "Changement de visibilité d'un Layer",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsque la visibilité du layer Meld Studio \"{SUB_ITEM_NAME}\" change"
+			},
+			"MELDSTUDIO_EFFECT_VISIBILITY_CHANGE": {
+				"label": "Effet activé/désactivé",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsque l'effet Meld Studio \"{SUB_ITEM_NAME}\" est activé ou désactivé"
+			},
+			"MELDSTUDIO_TRACK_MUTE_CHANGE": {
+				"label": "Piste audio mise en sourdine/réactivée",
+				"search_terms": ["meld", "studio"],
+				"description": "Actions à exécuter lorsqu'une piste audio Meld Studio \"{SUB_ITEM_NAME}\" est mise en sourdine ou réactivée"
 			}
 		},
 		"musicEvents": {

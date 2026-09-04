@@ -1,10 +1,9 @@
-import { Event } from './EventDispatcher';
+import { Event } from "./EventDispatcher";
 
 /**
-* Created : 31/10/2022 
-*/
+ * Created : 31/10/2022
+ */
 export default class GlobalEvent extends Event {
-
 	public static ADD_MESSAGE = "ADD_MESSAGE";
 	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	public static TRACK_USER = "TRACK_USER";
@@ -12,24 +11,23 @@ export default class GlobalEvent extends Event {
 	public static PIN_MESSAGE = "PIN_MESSAGE";
 	public static UNPIN_MESSAGE = "UNPIN_MESSAGE";
 	public static RELOAD_MESSAGES = "RELOAD_MESSAGES";
-	
-	constructor(eventType:string, public data?:any) {
+
+	constructor(
+		eventType: string,
+		public data?: any,
+	) {
 		super(eventType);
 	}
-	
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	
-	
-	
+	 * GETTER / SETTERS *
+	 ********************/
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	
-	
-	
+	 * PUBLIC METHODS *
+	 ******************/
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 }

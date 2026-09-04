@@ -1,163 +1,284 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
-* Created : 16/10/2022 
-*/
+ * Created : 16/10/2022
+ */
 export default class DonorController extends AbstractController {
-	
-	constructor(public server:FastifyInstance) {
+	private anonStatesCache: Record<string, boolean> | null = null;
+	private publicDonorsJSONCache: string | null = null;
+
+	constructor(public server: FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
-	* GETTER / SETTERS *
-	********************/
-	
-	
-	
+	 * GETTER / SETTERS *
+	 ********************/
+
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public async initialize():Promise<void> {
-		this.server.get('/api/user/donor/all', async (request, response) => await this.getAllDonors(request, response));
-		this.server.get('/api/user/donor/anon', async (request, response) => await this.getAnonState(request, response));
-		this.server.post('/api/user/donor/anon', async (request, response) => await this.setAnonState(request, response));
+	 * PUBLIC METHODS *
+	 ******************/
+	public async initialize(): Promise<void> {
+		this.server.get(
+			"/api/user/donor/all",
+			{
+				// only allow to call this 10 times a day
+				config: {
+					rateLimit: {
+						max: 10,
+						timeWindow: "1 day",
+						ban: -1, // Don't ban, just return 429
+						keyGenerator: async (request: FastifyRequest) =>
+							(await TwitchUtils.getUserFromToken(request.headers.authorization))
+								?.user_id ?? request.ip,
+					},
+				},
+			},
+			async (request, response) => await this.getAllDonors(request, response),
+		);
+		this.server.get(
+			"/api/user/donor/anon",
+			async (request, response) => await this.getAnonState(request, response),
+		);
+		this.server.post(
+			"/api/user/donor/anon",
+			async (request, response) => await this.setAnonState(request, response),
+		);
+		this.server.post(
+			"/api/user/donor/all",
+			async (request, response) => await this.setAllDonors(request, response),
+		);
 
 		//Update donors data when donor list source is updated
-		if(!fs.existsSync(Config.donorsList)) {
+		if (!fs.existsSync(Config.donorsList)) {
 			fs.writeFileSync(Config.donorsList, "{}");
 		}
-		fs.watchFile(Config.donorsList, (curr, prev)=> {
-			this.updatePublicDonorsList();
+		fs.watchFile(Config.donorsList, (_curr, _prev) => {
+			void this.updatePublicDonorsList();
 		});
 	}
-	
-	
-	
+
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
+
+	/**
+	 * Get the anon donor states
+	 */
+	private async getAnonStates(): Promise<Record<string, boolean>> {
+		if (!this.anonStatesCache) {
+			try {
+				this.anonStatesCache = JSON.parse(
+					await Utils.readFileAsync(Config.donorsAnonStates, "utf8"),
+				) as Record<string, boolean>;
+			} catch (error) {
+				//No file yet simply means nobody asked to be listed publicly
+				if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+				this.anonStatesCache = {};
+			}
+		}
+		return this.anonStatesCache;
+	}
 
 	/**
 	 * Gets the public list of donors
 	 */
-	private async getAllDonors(request:FastifyRequest, response:FastifyReply) {
+	private async getAllDonors(request: FastifyRequest, response: FastifyReply) {
 		// Added this test as someone keeps polling the service anonymously
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
-		let json = [];
-		if(fs.existsSync(Config.donorsPublicList)) {
+		if (this.publicDonorsJSONCache == null) {
 			try {
-				json = JSON.parse(fs.readFileSync(Config.donorsPublicList, "utf8"));
-			}catch(error){
-				response.header('Content-Type', 'application/json');
-				response.status(404);
-				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
-				return;
+				const raw = await Utils.readFileAsync(Config.donorsPublicList, "utf8");
+				// Make sure it's not corrupt
+				JSON.parse(raw);
+				this.publicDonorsJSONCache = raw;
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+					this.publicDonorsJSONCache = "[]";
+				} else {
+					response.header("Content-Type", "application/json");
+					response.status(404);
+					response.send(
+						JSON.stringify({
+							success: false,
+							message: "Unable to load donors data file",
+						}),
+					);
+					return;
+				}
 			}
 		}
 
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:{list:json}}));
+		response.send('{"success":true,"data":{"list":' + this.publicDonorsJSONCache + "}}");
 	}
 
 	/**
 	 * Gets the anon donor state of the current user
 	 */
-	private async getAnonState(request:FastifyRequest, response:FastifyReply) {
+	private async getAnonState(request: FastifyRequest, response: FastifyReply) {
 		//Get uer info
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
-	
+		if (userInfo == false) return;
+
 		//Get current state
-		let json:Record<string, boolean> = {};
+		let json: Record<string, boolean> = {};
 		try {
-			json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
-		}catch(error){
-			response.header('Content-Type', 'application/json');
+			json = await this.getAnonStates();
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
 			response.status(404);
-			response.send(JSON.stringify({success:false, message:"Unable to load anon donors state data file"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					message: "Unable to load anon donors state data file",
+				}),
+			);
 			return;
 		}
 
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, data:{public:json[ userInfo.user_id ]}}));
+		response.send(JSON.stringify({ success: true, data: { public: json[userInfo.user_id] } }));
 		return;
 	}
 
 	/**
 	 * Sets the anon donor state of the current user
 	 */
-	private async setAnonState(request:FastifyRequest, response:FastifyReply) {
-		const body:any = request.body;
+	private async setAnonState(request: FastifyRequest, response: FastifyReply) {
+		const body: any = request.body;
 		//Get uer info
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
-	
-		if(fs.existsSync( Config.donorsAnonStates )) {
-			let json:Record<string, boolean> = {};
-			try {
-				json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
-			}catch(error){
-				response.header('Content-Type', 'application/json');
-				response.status(404);
-				response.send(JSON.stringify({success:false, message:"Unable to load anon donors state data file"}));
-				return;
-			}
-	
-			if(body.public === true) {
-				json[userInfo.user_id] = true;
-			}else{
-				delete json[userInfo.user_id];
-			}
-	
-			fs.writeFileSync(Config.donorsAnonStates, JSON.stringify(json), "utf8");
-			
-			this.updatePublicDonorsList();
+		if (userInfo == false) return;
+
+		let json: Record<string, boolean> = {};
+		try {
+			//Work on a copy so a failed write can't leave memory ahead of disk
+			json = { ...(await this.getAnonStates()) };
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(
+				JSON.stringify({
+					success: false,
+					message: "Unable to load anon donors state data file",
+				}),
+			);
+			return;
 		}
 
-		response.header('Content-Type', 'application/json');
+		if (body.public === true) {
+			json[userInfo.user_id] = true;
+		} else {
+			delete json[userInfo.user_id];
+		}
+
+		await Utils.writeFileAtomic(Config.donorsAnonStates, JSON.stringify(json));
+		this.anonStatesCache = json;
+
+		await this.updatePublicDonorsList();
+
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true}));
+		response.send(JSON.stringify({ success: true }));
 	}
 
+	/**
+	 * Overwrites the full donors list.
+	 * Called by remote donor service
+	 */
+	private async setAllDonors(request: FastifyRequest, response: FastifyReply) {
+		const secret = Config.credentials.donors_remote_api_secret;
+		if (!secret || !Utils.safeStringEquals(request.headers.authorization, secret)) {
+			response.header("Content-Type", "application/json");
+			response.status(401);
+			response.send(
+				JSON.stringify({
+					success: false,
+					errorCode: "UNAUTHORIZED",
+					message: "You're not allowed to call this endpoint",
+				}),
+			);
+			return;
+		}
+
+		//Validate the payload: a flat map of "twitch user ID" => "donated amount".
+		const body: any = request.body;
+		if (
+			body == null ||
+			typeof body !== "object" ||
+			Array.isArray(body) ||
+			Object.values(body).some((v) => typeof v !== "number")
+		) {
+			response.header("Content-Type", "application/json");
+			response.status(400);
+			response.send(
+				JSON.stringify({
+					success: false,
+					errorCode: "INVALID_BODY",
+					message: "Body must be a map of Twitch user IDs to donation amounts",
+				}),
+			);
+			return;
+		}
+
+		await Utils.writeFileAtomic(Config.donorsList, JSON.stringify(body));
+
+		//Rebuild the public list right away. The fs.watchFile() above would
+		//eventually pick the change up, but only after its poll interval.
+		await this.updatePublicDonorsList();
+
+		Logger.success(
+			"Donors list updated from remote service (" + Object.keys(body).length + " donors)",
+		);
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
 
 	/**
 	 * Updates the donors list
 	 */
-	private updatePublicDonorsList() {
+	private async updatePublicDonorsList() {
 		try {
-			const donors = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
-			const anonStates = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
-			let res:{uid:string, v:number}[] = [];
+			const donors = JSON.parse(await Utils.readFileAsync(Config.donorsList, "utf8"));
+			const anonStates = await this.getAnonStates();
+			let res: { uid: string; v: number }[] = [];
 			for (let uid in donors) {
 				const v = donors[uid];
-				if(anonStates[uid] !== true) uid = "-1";
-				res.push( {uid, v} );
+				if (anonStates[uid] !== true) uid = "-1";
+				res.push({ uid, v });
 			}
-			res = res.filter(v=> v.v > .001)//I set 0,001 for people that's been offered donor badge. Ignore them
+			res = res.filter((v) => v.v > 0.001); //I set 0,001 for people that's been offered donor badge. Ignore them
 			//Sort by donation
-			res.sort((a,b)=> {
-				if(a.v < b.v) return 1;
-				if(a.v > b.v) return -1;
-				return 0
+			res.sort((a, b) => {
+				if (a.v < b.v) return 1;
+				if (a.v > b.v) return -1;
+				return 0;
 			});
-			res.forEach(e => {
-				e.v = Config.donorsLevels.findIndex(v=> v > e.v) - 1;
-			})
-	
-			fs.writeFileSync(Config.donorsPublicList, JSON.stringify(res), "utf-8");
-	
-		}catch(error){
+			res.forEach((e) => {
+				e.v = Config.donorsLevels.findIndex((v) => v > e.v) - 1;
+			});
+
+			const json = JSON.stringify(res);
+			await Utils.writeFileAtomic(Config.donorsPublicList, json);
+			this.publicDonorsJSONCache = json;
+		} catch (error) {
 			console.log(error);
 			return false;
 		}
+		super.clearPremiumCache();
 		return true;
 	}
 }

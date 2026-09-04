@@ -1,5 +1,6 @@
 <template>
-	<PollRenderer v-if="poll && parameters"
+	<PollRenderer
+		v-if="poll && parameters"
 		:open="show"
 		:showTimer="parameters.showTimer"
 		:showLabels="parameters.showLabels"
@@ -7,87 +8,104 @@
 		:showVoters="parameters.showVotes"
 		:showVotes="false"
 		:showWinner="showWinner"
-		:title="parameters.showTitle? poll.title : ''"
+		:title="parameters.showTitle ? poll.title : ''"
 		:duration="poll.duration_s * 1000"
 		:startedAt="poll.started_at"
 		:resultDuration_s="parameters.resultDuration_s"
 		:placement="parameters.placement"
-		:mode="listMode? 'list' : 'line'"
+		:mode="listMode ? 'list' : 'line'"
 		:entries="poll.choices"
-		/>
+	/>
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import { Component, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import AbstractOverlay from './AbstractOverlay';
-import PollRenderer from './poll/PollRenderer.vue';
+import TwitchatEvent from "@/events/TwitchatEvent";
+import type { PollOverlayParamStoreData } from "@/store/poll/storePoll";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { Component, toNative } from "vue-facing-decorator";
+import Icon from "../Icon.vue";
+import AbstractOverlay from "./AbstractOverlay";
+import PollRenderer from "./poll/PollRenderer.vue";
 @Component({
-	components:{
+	components: {
 		Icon,
 		PollRenderer,
 	},
-	emits:[],
+	emits: [],
 })
 class OverlayPoll extends AbstractOverlay {
-
-	public show:boolean = false;
-	public showWinner:boolean = false;
-	public poll:TwitchatDataTypes.MessagePollData | null = null;
-	public parameters:PollOverlayParamStoreData = {
-		showTitle:true,
-		listMode:true,
-		listModeOnlyMore2:true,
-		showLabels:false,
-		showPercent:false,
-		showVotes:false,
-		showTimer:true,
-		showOnlyResult:false,
-		resultDuration_s:5,
-		placement:"bl",
+	public show: boolean = false;
+	public showWinner: boolean = false;
+	public poll: TwitchatDataTypes.MessagePollData | null = null;
+	public parameters: PollOverlayParamStoreData = {
+		showTitle: true,
+		listMode: true,
+		listModeOnlyMore2: true,
+		showLabels: false,
+		showPercent: false,
+		showVotes: false,
+		showTimer: true,
+		showOnlyResult: false,
+		resultDuration_s: 5,
+		placement: "bl",
 	};
 
-	private parametersReceived:boolean = false;
-	private pendingData:TwitchatEvent|null = null;
-	private updatePollHandler!:(e:TwitchatEvent)=>void;
-	private updateParametersHandler!:(e:TwitchatEvent)=>void;
-	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
+	private parametersReceived: boolean = false;
+	private pendingData: TwitchatEvent<"ON_POLL_PROGRESS"> | null = null;
+	private updatePollHandler!: (e: TwitchatEvent<"ON_POLL_PROGRESS">) => void;
+	private updateParametersHandler!: (e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">) => void;
+	private requestPresenceHandler!: () => void;
 
-	public get listMode():boolean {
-		return this.parameters.listMode
-		&& (!this.parameters.listModeOnlyMore2 || (this.parameters.listModeOnlyMore2 && this.poll!.choices.length > 2))
+	public get listMode(): boolean {
+		return (
+			this.parameters.listMode &&
+			(!this.parameters.listModeOnlyMore2 ||
+				(this.parameters.listModeOnlyMore2 && this.poll!.choices.length > 2))
+		);
 	}
 
-	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
+	public async mounted(): Promise<void> {
+		PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
 
-		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
-		this.updatePollHandler = (e:TwitchatEvent)=>this.onUpdatePoll(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE); }
+		this.updateParametersHandler = (e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">) =>
+			this.onUpdateParams(e);
+		this.updatePollHandler = (e: TwitchatEvent<"ON_POLL_PROGRESS">) => this.onUpdatePoll(e);
+		this.requestPresenceHandler = () => {
+			PublicAPI.instance.broadcast("ON_POLLS_OVERLAY_PRESENCE");
+		};
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
+		PublicAPI.instance.addEventListener(
+			"ON_POLL_OVERLAY_CONFIGS",
+			this.updateParametersHandler,
+		);
+		PublicAPI.instance.addEventListener(
+			"GET_POLLS_OVERLAY_PRESENCE",
+			this.requestPresenceHandler,
+		);
 	}
 
-	public beforeUnmount():void {
+	public beforeUnmount(): void {
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_POLL_PROGRESS", this.updatePollHandler);
+		PublicAPI.instance.removeEventListener(
+			"ON_POLL_OVERLAY_CONFIGS",
+			this.updateParametersHandler,
+		);
+		PublicAPI.instance.removeEventListener(
+			"GET_POLLS_OVERLAY_PRESENCE",
+			this.requestPresenceHandler,
+		);
 	}
 
-	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
+	public requestInfo(): void {
+		PublicAPI.instance.broadcast("GET_POLLS_OVERLAY_CONFIGS");
 	}
 
-	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
-		if(!this.parametersReceived) {
+	public async onUpdatePoll(e: TwitchatEvent<"ON_POLL_PROGRESS">): Promise<void> {
+		if (!this.parametersReceived) {
 			// overlay's parameters not received yet, put data aside
 			// onUpdatePoll() will be called by onUpdateParams() afterwards
 			this.pendingData = e;
@@ -95,34 +113,32 @@ class OverlayPoll extends AbstractOverlay {
 			return;
 		}
 
-		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.MessagePollData}).poll;
-		if(!poll) {
+		const poll = e.data?.poll;
+		if (!poll) {
 			// No poll given when a poll was displayed, request close
-			if(this.poll) {
+			if (this.poll) {
 				this.showWinner = this.parameters.resultDuration_s > 0;
 				this.show = true;
 				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
 				this.show = false;
 			}
-		}else{
-			this.show		= this.parameters.showOnlyResult !== true;
-			this.showWinner	= false;
-			this.poll		= poll;
+		} else {
+			this.show = this.parameters.showOnlyResult !== true;
+			this.showWinner = false;
+			this.poll = poll;
 		}
 	}
 
-	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
-		this.parameters = ((e.data as unknown) as {parameters:PollOverlayParamStoreData}).parameters;
+	public async onUpdateParams(e: TwitchatEvent<"ON_POLL_OVERLAY_CONFIGS">): Promise<void> {
+		this.parameters = e.data.parameters;
 		this.parametersReceived = true;
-		if(this.pendingData) {
+		if (this.pendingData) {
 			this.onUpdatePoll(this.pendingData);
 			this.pendingData = null;
-		}else{
+		} else {
 			this.show = this.parameters.showOnlyResult !== true;
 		}
 	}
-
 }
 export default toNative(OverlayPoll);
-
 </script>

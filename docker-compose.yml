@@ -1,0 +1,21 @@
+services:
+    twitchat:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: ghcr.io/durss/twitchat:${TWITCHAT_TAG:-latest}
+        healthcheck:
+            # Runs inside the container, which always listens on 3018 (fixed internal port).
+            test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3018/api"]
+            interval: 30s
+            timeout: 5s
+            start_period: 10s
+            retries: 3
+        ports:
+            # Container always listens on 3018 (PORT env baked into the image).
+            # Only the host side varies per environment via HOST_PORT (.env),
+            # so prod and beta can run on the same host without colliding.
+            - "${HOST_PORT:-3018}:3018"
+        restart: unless-stopped
+        volumes:
+            - ./data:/opt/twitchat/data

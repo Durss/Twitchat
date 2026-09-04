@@ -4,154 +4,217 @@ import Config from "../utils/Config.js";
 import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AdminController from "./AdminController.js";
 
 /**
-* Created : 22/02/2023
-*/
+ * Created : 22/02/2023
+ */
 export default class FileServeController extends AbstractController {
-	private config_cache:string = "";
+	private config_cache: string = "";
+	private DOWNLOAD_MAX_BYTES: number = 10 * 1024 * 1024;
+	private LOG_MAX_CHARS: number = 100 * 1024;
 
-	constructor(public server:FastifyInstance) {
+	constructor(public server: FastifyInstance) {
 		super();
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
-
-
+	 * GETTER / SETTERS *
+	 ********************/
 
 	/******************
-	* PUBLIC METHODS *
-	******************/
-	public async initialize():Promise<void> {
-
+	 * PUBLIC METHODS *
+	 ******************/
+	public async initialize(): Promise<void> {
 		//Defautl API route
-		this.server.get('/api', async (request:FastifyRequest, response:FastifyReply) => { return { success: true }; });
+		this.server.get("/api", async (_request: FastifyRequest, _response: FastifyReply) => {
+			return { success: true };
+		});
 
 		//Get latest script.js file for cache bypass
-		this.server.get('/api/script', async (request:FastifyRequest, response:FastifyReply) => this.getScript(request, response) );
+		this.server.get("/api/script", async (request: FastifyRequest, response: FastifyReply) =>
+			this.getScript(request, response),
+		);
 
 		//Get latest app configs
-		this.server.get('/api/configs', async (request:FastifyRequest, response:FastifyReply) => this.getConfigs(request, response) );
+		this.server.get("/api/configs", async (request: FastifyRequest, response: FastifyReply) =>
+			this.getConfigs(request, response),
+		);
 
 		//Starts download of the given file
-		this.server.get('/api/download', async (request:FastifyRequest, response:FastifyReply) => this.getDownload(request, response) );
+		this.server.get("/api/download", async (request: FastifyRequest, response: FastifyReply) =>
+			this.getDownload(request, response),
+		);
 
 		//Get latest announcements
-		this.server.get('/api/announcements', async (request:FastifyRequest, response:FastifyReply) => this.getAnnouncements(request, response) );
+		this.server.get(
+			"/api/announcements",
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.getAnnouncements(request, response),
+		);
 
 		//Updates labels
-		this.server.post('/api/log', async (request:FastifyRequest, response:FastifyReply) => this.postLog(request, response) );
+		this.server.post(
+			"/api/log",
+			{
+				// only allow 60 log entries a minute per user
+				config: {
+					rateLimit: {
+						max: 60,
+						timeWindow: "1 minute",
+						ban: -1, // Don't ban, just return 429
+						keyGenerator: async (request: FastifyRequest) =>
+							(await TwitchUtils.getUserFromToken(request.headers.authorization))
+								?.user_id ?? request.ip,
+					},
+				},
+			},
+			async (request: FastifyRequest, response: FastifyReply) =>
+				this.postLog(request, response),
+		);
 	}
-
-
 
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
 
-	private getScript(request:FastifyRequest, response:FastifyReply):void {
-		Logger.info("Serving script for cache bypass")
+	/**
+	 * Get most recent srcript.
+	 * Use as last resort option to get the script if index was cached
+	 * with an old script without caching that old script. In this case
+	 * it hits a 404 and call this non-cached endpoint.
+	 */
+	private async getScript(
+		_request: FastifyRequest,
+		response: FastifyReply,
+	): Promise<FastifyReply> {
+		Logger.info("Serving script for cache bypass");
 		const assets = path.join(Config.PUBLIC_ROOT, "assets");
-		const files = fs.readdirSync(assets).filter(v => /main-.*\.js$/gi.test(v));
 
-		let mostRecent = 0;
-		let indexPath = "";
-		files.forEach(v=> {
-			const file = path.join(Config.PUBLIC_ROOT, "assets", path.sep+files[0]);
-			const stats = fs.statSync(file);
-			const d = new Date(stats.ctime).getTime();
-			if(d > mostRecent) {
-				indexPath = file;
-				mostRecent = Math.max(mostRecent, d);
-			}
-		})
-
-		if(indexPath) {
-			const txt = fs.readFileSync(indexPath, {encoding:"utf8"});
-			response.header('Content-Type', 'application/javascript');
-			response.status(200);
-			response.send(txt);
-		}else{
-			response.status(404);
+		let files: string[];
+		try {
+			files = (await fs.promises.readdir(assets)).filter((v) => /main-.*\.js$/gi.test(v));
+		} catch (error) {
+			Logger.error("Failed listing the assets folder");
+			console.log(error);
+			return response.status(404).send();
 		}
+
+		//Keep the most recently built bundle
+		const dated = await Promise.all(
+			files.map(async (v) => {
+				const file = path.join(assets, v);
+				return { file, date: (await fs.promises.stat(file)).ctime.getTime() };
+			}),
+		);
+		let newest: { file: string; date: number } | undefined;
+		for (const entry of dated) {
+			if (!newest || entry.date > newest.date) newest = entry;
+		}
+
+		if (!newest) return response.status(404).send();
+
+		response.header("Content-Type", "application/javascript");
+		return response.status(200).send(fs.createReadStream(newest.file));
 	}
 
-	private getConfigs(request:FastifyRequest, response:FastifyReply):void {
+	private getConfigs(_request: FastifyRequest, response: FastifyReply): void {
 		let config = this.config_cache;
-		if(!config) {
+		if (!config) {
 			const json = {
-				twitch_client_id:Config.credentials.twitch_client_id,
-				twitch_scopes:Config.credentials.twitch_scopes,
+				twitch_client_id: Config.credentials.twitch_client_id,
+				twitch_scopes: Config.credentials.twitch_scopes,
 
-				spotify_scopes:Config.credentials.spotify_scopes,
-				spotify_client_id:Config.credentials.spotify_client_id,
+				spotify_scopes: Config.credentials.spotify_scopes,
+				spotify_redirect_uri: Config.credentials.spotify_redirect_uri,
 
-				patreon_client_id:Config.credentials.patreon_client_id,
-				patreon_scopes:Config.credentials.patreon_scopes,
+				patreon_client_id: Config.credentials.patreon_client_id,
+				patreon_scopes: Config.credentials.patreon_scopes,
 
-				paypal_client_id:Config.credentials.paypal_client_id,
+				paypal_client_id: Config.credentials.paypal_client_id,
 
-				contact_mail:Config.credentials.contact_mail,
+				contact_mail: Config.credentials.contact_mail,
 
-				youtube_client_id:"",
-				youtube_scopes:[] as string[],
+				youtube_client_id: "",
+				youtube_scopes: [] as string[],
 
-				discord_client_id:Config.credentials.discord_client_id,
+				discord_client_id: Config.credentials.discord_client_id,
 
-				streamlabs_client_id:Config.credentials.streamlabs_client_id,
-				streamlabs_redirect_uri:Config.credentials.streamlabs_redirect_uri,
+				streamlabs_client_id: Config.credentials.streamlabs_client_id,
+				streamlabs_redirect_uri: Config.credentials.streamlabs_redirect_uri,
 
-				streamelements_client_id:Config.credentials.streamelements_client_id,
-				streamelements_redirect_uri:Config.credentials.streamelements_redirect_uri,
+				streamelements_client_id: Config.credentials.streamelements_client_id,
+				streamelements_redirect_uri: Config.credentials.streamelements_redirect_uri,
 
-				tipeee_client_id:Config.credentials.tipeee_client_id,
-				tipeee_redirect_uri:Config.credentials.tipeee_redirect_uri,
+				tipeee_client_id: Config.credentials.tipeee_client_id,
+				tipeee_redirect_uri: Config.credentials.tipeee_redirect_uri,
 
-				tiltify_client_id:Config.credentials.tiltify_client_id,
-				tiltify_scopes:Config.credentials.tiltify_scopes,
+				tiltify_client_id: Config.credentials.tiltify_client_id,
+				tiltify_scopes: Config.credentials.tiltify_scopes,
+
+				twitchExtension_client_id: Config.credentials.twitchExtension_client_id,
 			};
 
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;
-			if(youtubeCredentials) {
+			if (youtubeCredentials) {
 				json.youtube_client_id = youtubeCredentials.client_id;
 				json.youtube_scopes = Config.credentials.youtube_scopes;
 			}
 
 			this.config_cache = config = JSON.stringify(json);
 		}
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(config);
 	}
 
-	private getAnnouncements(request:FastifyRequest, response:FastifyReply):void {
-		response.header('Content-Type', 'application/json');
+	private getAnnouncements(_request: FastifyRequest, response: FastifyReply): void {
+		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(AdminController.announcements_cache);
 	}
 
-	private postLog(request:FastifyRequest, response:FastifyReply):void {
-		if(!super.twitchUserGuard(request, response)) return;
+	private async postLog(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if (!(await super.twitchUserGuard(request, response))) return;
 
-		const body:any = request.body;
+		const body: any = request.body;
 		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0];
-		const logType:logsCategories = (body.cat as string || "").toLowerCase() as logsCategories;
-		const logData:string = JSON.stringify(body.log) || "";
+		const logType: logsCategories = (
+			(body.cat as string) || ""
+		).toLowerCase() as logsCategories;
+		const logData: string = JSON.stringify(body.log) || "";
 
-		if(!logData || !Utils.logToFile(logType, logData)) {
-			response.header('Content-Type', 'application/json');
-			response.status(404);
-			response.send(JSON.stringify({success:false, error:"invalid category", errorCode:"INVALID_CATEGORY"}));
+		if (logData.length > this.LOG_MAX_CHARS) {
+			response.header("Content-Type", "application/json");
+			response.status(413);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Log entry too large",
+					errorCode: "LOG_TOO_LARGE",
+				}),
+			);
 			return;
 		}
 
-		response.header('Content-Type', 'application/json');
+		if (!logData || !Utils.logToFile(logType, logData)) {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "invalid category",
+					errorCode: "INVALID_CATEGORY",
+				}),
+			);
+			return;
+		}
+
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send({success:true});
+		response.send({ success: true });
 	}
 
 	/**
@@ -163,26 +226,63 @@ export default class FileServeController extends AbstractController {
 	 * @param response
 	 * @returns
 	 */
-	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	public async getDownload(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		const image = (request.query as any).image;
+		const abort = new AbortController();
+		const timeout = setTimeout(() => abort.abort(), 10000);
 		try {
 			const url = new URL(image);
-			if(!/.*cloudfront.net$/.test(url.hostname)) {
-				response.header('Content-Type', 'application/json');
-				response.status(500);
-				response.send(JSON.stringify({success:false, message:"Invalid source URL"}));
+			// Refuse any non-cloudfront URLs to reduce abuse possibilities
+			const isCloudfront =
+				url.hostname === "cloudfront.net" || url.hostname.endsWith(".cloudfront.net");
+			if (url.protocol !== "https:" || !isCloudfront) {
+				response.header("Content-Type", "application/json");
+				response.status(400);
+				response.send(JSON.stringify({ success: false, message: "Invalid source URL" }));
 				return;
 			}
-			const res = await fetch(url);
-			const buffer = Buffer.from(await res.arrayBuffer());
 
-			response.header('Content-Type', res.headers.get('Content-Type'));
-			response.header('Content-Length', res.headers.get('Content-Length'));
+			// don't follow redirects
+			const res = await fetch(url, { signal: abort.signal, redirect: "error" });
+
+			//Content-Length cannot be trusted but if it's already too big.. jsut give up!
+			const announcedSize = parseInt(res.headers.get("Content-Length") || "0");
+			const buffer =
+				announcedSize > this.DOWNLOAD_MAX_BYTES
+					? null
+					: await this.readCappedBody(res, this.DOWNLOAD_MAX_BYTES);
+
+			if (!buffer) {
+				response.header("Content-Type", "application/json");
+				response.status(413);
+				response.send(JSON.stringify({ success: false, message: "Image too large" }));
+				return;
+			}
+
+			//Never reflect the upstream Content-Type: anyone can host a cloudfront
+			//distribution, and "text/html" served from here would run on the
+			//twitchat.fr origin with access to the tokens in localStorage
+			const mimeType = Utils.getImageMimeType(buffer);
+			if (!mimeType) {
+				Logger.warn("Refused non-image download from " + url.href);
+				response.header("Content-Type", "application/json");
+				response.status(400);
+				response.send(JSON.stringify({ success: false, message: "Not an image" }));
+				return;
+			}
+
+			response.header("Content-Type", mimeType);
+			response.header("Content-Length", buffer.length);
+			response.header("X-Content-Type-Options", "nosniff");
 			response.send(buffer);
-		}catch(error) {
-			response.header('Content-Type', 'application/json');
+		} catch (_error) {
+			response.header("Content-Type", "application/json");
 			response.status(500);
-			response.send(JSON.stringify({success:false, message:"an unknown error has occured"}));
+			response.send(
+				JSON.stringify({ success: false, message: "an unknown error has occured" }),
+			);
+		} finally {
+			clearTimeout(timeout);
 		}
 
 		// const b64:string = (request.query as any).img.trim();
@@ -196,5 +296,30 @@ export default class FileServeController extends AbstractController {
 		// response.header('Content-Disposition','attachment; filename=test.png');
 		// response.header('Content-Type','image/png');
 		// response.send(s).type('image/png').code(200);
+	}
+
+	/**
+	 * Reads a response body, giving up as soon as it goes over "max" bytes.
+	 */
+	private async readCappedBody(
+		res: Awaited<ReturnType<typeof fetch>>,
+		max: number,
+	): Promise<Buffer | null> {
+		const reader = res.body?.getReader();
+		if (!reader) return Buffer.alloc(0);
+
+		const chunks: Buffer[] = [];
+		let total = 0;
+		for (;;) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			total += value.byteLength;
+			if (total > max) {
+				await reader.cancel();
+				return null;
+			}
+			chunks.push(Buffer.from(value));
+		}
+		return Buffer.concat(chunks);
 	}
 }

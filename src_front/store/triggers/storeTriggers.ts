@@ -1,98 +1,312 @@
-import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type SettingsExportData, type SocketParams } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiHelper from '@/utils/ApiHelper';
-import SchedulerHelper from '@/utils/SchedulerHelper';
-import TriggerUtils from '@/utils/TriggerUtils';
-import Utils from '@/utils/Utils';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import SSEEvent from "@/events/SSEEvent";
+import DataStore from "@/store/DataStore";
+import {
+	COUNTER_VALUE_PLACEHOLDER_PREFIX,
+	TriggerTypes,
+	VALUE_PLACEHOLDER_PREFIX,
+	type SocketParams,
+	type TriggerActionTypes,
+	type TriggerData,
+	type TriggerTreeItemData,
+} from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import ApiHelper from "@/utils/ApiHelper";
+import PublicAPI from "@/utils/PublicAPI";
+import SSEHelper from "@/utils/SSEHelper";
+import SchedulerHelper from "@/utils/SchedulerHelper";
+import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
+import TriggerUtils from "@/utils/TriggerUtils";
+import Utils from "@/utils/Utils";
+import WebsocketTrigger from "@/utils/WebsocketTrigger";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from 'vue';
-import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
-import StoreProxy from '../StoreProxy';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import type { ITriggersActions, ITriggersGetters, ITriggersState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
 
-let discordCmdUpdateDebounce:number = -1;
-let wasDiscordCmds = false;
-let enabledStateCache:{[triggerId:string]:boolean} = {};
+type DiscordCommand = { name: string; params: { name: string }[] };
 
-export const storeTriggers = defineStore('triggers', {
-	state: () => ({
+let discordCmdUpdateDebounce: number = -1;
+// Used to check if discord commands need to be updated
+let discordCmdsSignature: string = "[]";
+let wasDiscordLinked: boolean | null = null;
+let enabledStateCache: { [triggerId: string]: boolean } = {};
+
+/**
+ * Renames a placeholder on all given triggers.
+ *
+ * @param triggers			triggers to update
+ * @param prefix			placeholder prefix (COUNTER_VALUE_, VALUE_,...)
+ * @param oldPlaceholder	placeholder name to replace
+ * @param newPlaceholder	placeholder name to replace it with
+ * @returns true if at least one trigger has been updated
+ */
+function renamePlaceholder(
+	triggers: TriggerData[],
+	prefix: string,
+	oldPlaceholder: string,
+	newPlaceholder: string,
+): boolean {
+	if (!oldPlaceholder || !newPlaceholder) return false;
+
+	//Make the searched placeholder regex safe
+	const safeOldPlaceholder = (prefix + oldPlaceholder).replace(
+		/[-[\]{}()*+?.,\\^$|#\s]/g,
+		"\\$&",
+	);
+	// Rename placeholder while keeping modifiers
+	const search = new RegExp("\\{" + safeOldPlaceholder + "(?=[.}])", "gi");
+	const replacement = "{" + (prefix + newPlaceholder).toUpperCase();
+
+	const renameOnNode = (node: Record<string, unknown>): boolean => {
+		let updated = false;
+		for (const key in node) {
+			const value = node[key];
+			if (typeof value == "string") {
+				const renamed = value.replace(search, replacement);
+				if (renamed === value) continue;
+				node[key] = renamed;
+				updated = true;
+			} else if (value && typeof value == "object") {
+				if (renameOnNode(value as Record<string, unknown>)) updated = true;
+			}
+		}
+		return updated;
+	};
+
+	let updated = false;
+	for (const trigger of triggers) {
+		if (renameOnNode(trigger as unknown as Record<string, unknown>)) updated = true;
+	}
+	return updated;
+}
+
+/**
+ * Adds a trigger entry to the given folder of the trigger tree.
+ * Searches recursively at any depth.
+ *
+ * @returns true if the folder has been found
+ */
+function addTriggerToTreeFolder(
+	treeItem: TriggerTreeItemData[],
+	folderId: string,
+	triggerId: string,
+): boolean {
+	for (const elem of treeItem) {
+		if (elem.type != "folder") continue;
+		if (elem.id === folderId) {
+			if (!elem.children) elem.children = [];
+			elem.children.push({
+				id: Utils.getUUID(),
+				type: "trigger",
+				triggerId,
+			});
+			return true;
+		}
+		if (elem.children && addTriggerToTreeFolder(elem.children, folderId, triggerId))
+			return true;
+	}
+	return false;
+}
+
+/**
+ * Schedules/unschedules "schedule" triggers whose enabled state changed.
+ * Also unschedule deleted ones
+ */
+function refreshScheduledTriggers(triggers: TriggerData[]): void {
+	const knownIds = new Set<string>();
+	for (const trigger of triggers) {
+		knownIds.add(trigger.id);
+		if (trigger.type != TriggerTypes.SCHEDULE) continue;
+		const enabled = TriggerUtils.isTriggerEnabled(trigger);
+		if (enabledStateCache[trigger.id] == enabled) continue;
+		enabledStateCache[trigger.id] = enabled;
+		if (enabled) {
+			SchedulerHelper.instance.scheduleTrigger(trigger);
+		} else {
+			SchedulerHelper.instance.unscheduleTrigger(trigger);
+		}
+	}
+
+	SchedulerHelper.instance.unscheduleMissingTriggers(knownIds);
+
+	for (const id of Object.keys(enabledStateCache)) {
+		if (!knownIds.has(id)) delete enabledStateCache[id];
+	}
+}
+
+/**
+ * Normalizes discord commands, removing theoretical duplicates and sorting them
+ */
+function normalizeDiscordCommands(commands: DiscordCommand[]): DiscordCommand[] {
+	const done = new Set<string>();
+	const unique: DiscordCommand[] = [];
+	for (const command of commands) {
+		const name = command.name.toLowerCase();
+		if (done.has(name)) continue;
+		done.add(name);
+		unique.push(command);
+	}
+	unique.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+	return unique;
+}
+
+/**
+ * Schedule update of discord commands.
+ * Will only update if necessary
+ */
+function scheduleDiscordCommandsUpdate(): void {
+	clearTimeout(discordCmdUpdateDebounce);
+	discordCmdUpdateDebounce = -1;
+
+	const linked = StoreProxy.discord.discordLinked;
+	if (wasDiscordLinked !== null && wasDiscordLinked !== linked) discordCmdsSignature = "";
+	wasDiscordLinked = linked;
+	if (!linked) return;
+
+	discordCmdUpdateDebounce = window.setTimeout(async () => {
+		discordCmdUpdateDebounce = -1;
+		// Make sure discord is still linked
+		if (!StoreProxy.discord.discordLinked) return;
+
+		// Build discord commands query params
+		const rawCommands: DiscordCommand[] = [];
+		for (const trigger of StoreProxy.triggers.triggerList) {
+			if (
+				trigger.type == TriggerTypes.SLASH_COMMAND &&
+				trigger.chatCommand &&
+				trigger.addToDiscord === true &&
+				TriggerUtils.isTriggerEnabled(trigger)
+			) {
+				const params: DiscordCommand["params"] = [];
+				if (trigger.chatCommandParams) {
+					trigger.chatCommandParams.forEach((p) => {
+						params.push({ name: p.tag });
+					});
+				}
+				rawCommands.push({
+					name: trigger.chatCommand.replace(/[^a-z0-9]/gi, ""),
+					params,
+				});
+			}
+		}
+
+		const commands = normalizeDiscordCommands(rawCommands);
+
+		// Check if discord commands changed
+		const signature = JSON.stringify(commands);
+		if (signature === discordCmdsSignature) return;
+
+		//Update discord commands
+		const res = await ApiHelper.call("discord/commands", "POST", { commands }, false);
+		if (res.json.success === true) discordCmdsSignature = signature;
+	}, 6000);
+}
+
+export const storeTriggers = defineStore("triggers", {
+	state: (): ITriggersState => ({
 		triggerList: [],
 		clipboard: [],
 		triggerTree: [],
 		currentEditTriggerData: null,
 		triggerIdToFolderEnabled: {},
-		selectedTriggerIDs: [],
-		exportingSelectedTriggers: false,
-	} as ITriggersState),
-
-
+	}),
 
 	getters: {
-
-		queues():string[] {
-			const done:{[key:string]:boolean} = {};
+		queues(): string[] {
+			const done: { [key: string]: boolean } = {};
 			const res = [];
-			for (const key in this.triggerList) {
-				const queue = this.triggerList[key]!.queue;
-				if(queue && !done[queue] && typeof queue == "string") {
+			for (let i = 0; i < this.triggerList.length; i++) {
+				const trigger = this.triggerList[i];
+				if (!trigger) continue;
+				const queue = trigger.queue;
+				if (queue && !done[queue] && typeof queue == "string") {
 					done[queue] = true;
-					res.push(queue)
+					res.push(queue);
 				}
 			}
 			return res;
 		},
 
-	},
-
-
+		triggerListPublicData(): ITriggersGetters["triggerListPublicData"] {
+			return this.triggerList.map((v) => {
+				const infos = TriggerUtils.getTriggerDisplayInfo(v);
+				return {
+					id: v.id,
+					name: infos.label,
+					enabled: v.enabled,
+					iconEmoji: infos.iconEmoji,
+					iconUrl: infos.iconURL,
+				};
+			});
+		},
+	} satisfies StoreGetters<ITriggersGetters, ITriggersState>,
 
 	actions: {
 		populateData() {
 			//Init triggers
 			const triggers = DataStore.get(DataStore.TRIGGERS);
-			if(triggers && triggers != "undefined") {//Dunno how some users ended up having "undefined" as JSON T_T...
-				Utils.mergeRemoteObject(JSON.parse(triggers), (this.triggerList as unknown) as JsonObject);
+			if (triggers && triggers != "undefined") {
+				//Dunno how some users ended up having "undefined" as JSON T_T...
+				Utils.mergeRemoteObject(
+					JSON.parse(triggers),
+					this.triggerList as unknown as JsonObject,
+				);
 				// sTriggers.triggerList = JSON.parse(triggers);
 				TriggerActionHandler.instance.populate(this.triggerList);
 			}
 
 			//Init triggers tree structure
 			const triggerTree = DataStore.get(DataStore.TRIGGERS_TREE);
-			if(triggerTree) {
-				Utils.mergeRemoteObject(JSON.parse(triggerTree), (this.triggerTree as unknown) as JsonObject);
+			if (triggerTree) {
+				Utils.mergeRemoteObject(
+					JSON.parse(triggerTree),
+					this.triggerTree as unknown as JsonObject,
+				);
 				this.computeTriggerTreeEnabledStates();
 			}
 
 			// Delete or schedule deletion for triggers with autoDelete_at
-			this.triggerList.forEach(t=>{
+			const expiredTriggerIds: string[] = [];
+			this.triggerList.forEach((t) => {
 				// Check if trigger should be automatically deleted at some point
-				if(t.autoDelete_at && t.autoDelete_at > 0) {
-					if(t.autoDelete_at < Date.now() + 10000) {
-						//Trigger is expired (with 10s margin), delete it
-						this.deleteTrigger(t.id);
-	
-					}else if(t.autoDelete_at > Date.now()) {
+				if (t.autoDelete_at && t.autoDelete_at > 0) {
+					if (t.autoDelete_at < Date.now() + 10000) {
+						//Trigger is expired (with 10s margin), flag it for deletion.
+						//Deletions are batched, deleteTrigger() rewrites and broadcasts
+						//the whole trigger list on every call
+						expiredTriggerIds.push(t.id);
+					} else if (t.autoDelete_at > Date.now()) {
 						// Schedule trigger for deletion at given date
-						SetTimeoutWorker.instance.create(()=>{
+						SetTimeoutWorker.instance.create(() => {
 							this.deleteTrigger(t.id);
 						}, t.autoDelete_at - Date.now());
 					}
 				}
 			});
 
+			if (expiredTriggerIds.length > 0) {
+				const expired = new Set(expiredTriggerIds);
+				this.triggerList = this.triggerList.filter((v) => !expired.has(v.id));
+				expiredTriggerIds.forEach((id) => StoreProxy.params.unpinTriggerMenuItems(id));
+				this.saveTriggers();
+			}
+
 			//Init trigger websocket
 			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
-			if(triggerSocketParams) {
-				const params = JSON.parse(triggerSocketParams) as SocketParams;
+			if (triggerSocketParams) {
+				const params = JSON.parse(triggerSocketParams) as SocketParams & {
+					connectionEnabled?: boolean;
+				};
 
-				WebsocketTrigger.instance.connect(params.ip, params.port, params.secured).then(()=>{}).catch(()=> {});
+				if (params.connectionEnabled) {
+					WebsocketTrigger.instance
+						.connect(params.ip, params.port, params.secured)
+						.then(() => {})
+						.catch(() => {});
+				}
 			}
 
 			/**
@@ -101,45 +315,93 @@ export const storeTriggers = defineStore('triggers', {
 			SSEHelper.instance.addEventListener(SSEEvent.TRIGGER_SLASH_COMMAND, (event) => {
 				const data = event.data!;
 				//Search for the matching trigger
-				const trigger = StoreProxy.triggers.triggerList.find(v=>{
-					return v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand == "/"+data.command;
+				const trigger = StoreProxy.triggers.triggerList.find((v) => {
+					return (
+						v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand == "/" + data.command
+					);
 				});
-				if(!trigger) return;
-				let text:string[] = [];
+				if (!trigger) return;
+				let text: string[] = [];
 				//Set params in the expected order
-				if(trigger.chatCommandParams) {
-					trigger.chatCommandParams.forEach(cmdParam => {
-						const param = (data.params||[]).find(v=>(v.name||"").toLowerCase() == cmdParam.tag.toLowerCase())
+				if (trigger.chatCommandParams) {
+					trigger.chatCommandParams.forEach((cmdParam) => {
+						const param = (data.params || []).find(
+							(v) => (v.name || "").toLowerCase() == cmdParam.tag.toLowerCase(),
+						);
 						// if(param?.value) text.push(param.value);
-						if(param?.value) text.push("{"+param.name+"}");
-					})
+						if (param?.value) text.push("{" + param.name + "}");
+					});
 				}
 				//Send message to be executed by the triggers
 				// MessengerProxy.instance.sendMessage(message.join(" "));
 
-				const placeholders:{[key: string]: string | number} = {};
-				const message:TwitchatDataTypes.MessageChatData =  {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					channel_id:StoreProxy.auth.twitch.user.id,
-					answers:[],
-					is_short:false,
-					message:text.join(" "),
-					message_chunks:[],
-					message_html:"",
-					message_size:0,
-					platform:"twitchat",
-					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-					user:StoreProxy.auth.twitch.user,
+				const placeholders: { [key: string]: string | number } = {};
+				const message: TwitchatDataTypes.MessageChatData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					channel_id: StoreProxy.auth.twitch.user.id,
+					answers: [],
+					is_short: false,
+					message: text.join(" "),
+					message_chunks: [],
+					message_html: "",
+					message_size: 0,
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					user: StoreProxy.auth.twitch.user,
 				};
-				data.params.forEach(p => {
-					placeholders[p.name.toUpperCase()] = TwitchUtils.messageChunksToHTML(TwitchUtils.parseMessageToChunks(p.value, undefined, true, "twitch"));
-				})
-				TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
+				data.params.forEach((p) => {
+					placeholders[p.name.toUpperCase()] = TwitchUtils.messageChunksToHTML(
+						TwitchUtils.parseMessageToChunks(p.value, undefined, true, "twitch"),
+					);
+				});
+				void TriggerActionHandler.instance.executeTrigger(
+					trigger,
+					message,
+					false,
+					undefined,
+					undefined,
+					placeholders,
+				);
 			});
+
+			PublicAPI.instance.addEventListener("SET_EXECUTE_TRIGGER", (e) => {
+				const trigger = this.triggerList.find((v) => v.id == e.data.id);
+				if (trigger) {
+					const me = StoreProxy.auth.twitch.user;
+					const fakeMessage: TwitchatDataTypes.MessageChatData = {
+						platform: "twitch",
+						type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						channel_id: me.id,
+						date: Date.now(),
+						id: Utils.getUUID(),
+						message: "",
+						message_chunks: [],
+						message_html: "",
+						message_size: 0,
+						user: me,
+						is_short: false,
+						answers: [],
+					};
+					void TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+				}
+			});
+			PublicAPI.instance.addEventListener("SET_TRIGGER_STATE", (e) => {
+				const id = e.data.id;
+				const action = e.data.forcedState;
+				const trigger = this.triggerList.find((v) => v.id == id);
+				if (!trigger) return;
+				const enabled = typeof action == "boolean" ? action : !trigger.enabled;
+				if (trigger.enabled === enabled) return;
+				trigger.enabled = enabled;
+				this.saveTriggers();
+			});
+			PublicAPI.instance.addEventListener("GET_TRIGGER_LIST", () =>
+				this.broadcastTriggerList(),
+			);
 		},
 
-		openTriggerEdition(data:TriggerData) {
+		openTriggerEdition(data: TriggerData) {
 			this.currentEditTriggerData = data;
 			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 		},
@@ -148,51 +410,32 @@ export const storeTriggers = defineStore('triggers', {
 			this.currentEditTriggerData = null;
 		},
 
-		addTrigger(data:TriggerData, parentId?:string) {
+		addTrigger(data: TriggerData, parentId?: string) {
 			//If it is a schedule trigger add it to the scheduler
-			if(data.type === TriggerTypes.SCHEDULE) {
+			if (data.type === TriggerTypes.SCHEDULE) {
 				SchedulerHelper.instance.scheduleTrigger(data);
 			}
 			this.triggerList.push(data);
 
 			//Add trigger to requested folder if necessary
-			if(parentId) {
-				const addToTreeItem = (items:TriggerTreeItemData[])=>{
-					for (const elem of items) {
-						if(elem.id === parentId) {
-							if(!elem.children) elem.children = [];
-							elem.children.push({id:Utils.getUUID(), type:"trigger", triggerId:data.id});
-						}else if(elem.children) {
-							elem.children.forEach(v=> {
-								if(v.type == "folder") {
-									addToTreeItem(v.children!);
-								}
-							});
-						}
-					}
-				};
-				addToTreeItem(this.triggerTree);
+			if (parentId) {
+				addTriggerToTreeFolder(this.triggerTree, parentId, data.id);
 			}
 			this.saveTriggers();
 		},
 
-		deleteTrigger(id:string) {
-			this.triggerList = this.triggerList.filter(v=> v.id != id);
+		deleteTrigger(id: string) {
+			this.triggerList = this.triggerList.filter((v) => v.id != id);
 			this.saveTriggers();
 
 			// Unpin from pinned menu items if necessary
-			for(let i = 0; i < StoreProxy.params.pinnedMenuItems.length; i++) {
-				if(StoreProxy.params.pinnedMenuItems[i] == `trigger:${id}`) {
-					StoreProxy.params.toggleChatMenuPin(`trigger:${id}`);
-					i--;
-				}
-			}
+			StoreProxy.params.unpinTriggerMenuItems(id);
 		},
 
-		duplicateTrigger(id:string, parentId?:string) {
-			const trigger = this.triggerList.find(v=> v.id === id);
-			if(trigger) {
-				const clone:TriggerData = JSON.parse(JSON.stringify(trigger));
+		duplicateTrigger(id: string, parentId?: string) {
+			const trigger = this.triggerList.find((v) => v.id === id);
+			if (trigger) {
+				const clone: TriggerData = JSON.parse(JSON.stringify(trigger));
 				clone.id = Utils.getUUID();
 				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
 				name += " (CLONE)";
@@ -200,33 +443,19 @@ export const storeTriggers = defineStore('triggers', {
 				clone.created_at = Date.now();
 
 				//Add trigger to requested folder if necessary
-				if(parentId) {
-					const addToTreeItem = (items:TriggerTreeItemData[])=>{
-						for (const elem of items) {
-							if(elem.id === parentId) {
-								if(!elem.children) elem.children = [];
-								elem.children.push({id:Utils.getUUID(), type:"trigger", triggerId:clone.id});
-							}else if(elem.children) {
-								elem.children.forEach(v=> {
-									if(v.type == "folder") {
-										addToTreeItem(v.children!);
-									}
-								});
-							}
-						}
-					};
-					addToTreeItem(this.triggerTree);
+				if (parentId) {
+					addTriggerToTreeFolder(this.triggerTree, parentId, clone.id);
 				}
 				this.triggerList.push(clone);
 				this.saveTriggers();
 			}
 		},
 
-		saveTriggers():void {
+		saveTriggers(): void {
 			//remove incomplete entries
-			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
-				return actions.filter(v=> {
-					if(v.type == null) return false;
+			function cleanEmptyActions(actions: TriggerActionTypes[]): TriggerActionTypes[] {
+				return actions.filter((v) => {
+					if (v.type == null) return false;
 					return true;
 				});
 				// .filter(v=> {
@@ -262,182 +491,129 @@ export const storeTriggers = defineStore('triggers', {
 				// 	console.warn("Trigger action type not whitelisted on store : "+v.type);
 				// 	return false;
 				// })
-
 			}
 
 			const list = JSON.parse(JSON.stringify(this.triggerList));
-			list.forEach((data:TriggerData)=> {
+			list.forEach((data: TriggerData) => {
 				data.actions = cleanEmptyActions(data.actions);
-				if(data.type == TriggerTypes.SCHEDULE && enabledStateCache[data.id] != data.enabled) {
-					enabledStateCache[data.id] = data.enabled;
-					if(TriggerUtils.isTriggerEnabled(data)) {
-						SchedulerHelper.instance.scheduleTrigger(data);
-					}else{
-						SchedulerHelper.instance.unscheduleTrigger(data);
-					}
-				}
-			})
+			});
+
+			this.computeTriggerTreeEnabledStates();
+			refreshScheduledTriggers(this.triggerList);
 
 			//Create discord commands if requested by some slash commands
 			//and discord is linked
-			if(StoreProxy.discord.discordLinked) {
-				clearTimeout(discordCmdUpdateDebounce);
-				discordCmdUpdateDebounce = window.setTimeout(() => {
-					const commands:{name:string, params:{name:string}[]}[] = [];
-					list.forEach((data:TriggerData)=> {
-						if(data.type == TriggerTypes.SLASH_COMMAND
-						&& data.chatCommand
-						&& data.addToDiscord === true
-						&& TriggerUtils.isTriggerEnabled(data)) {
-							const params: typeof commands[number]["params"] = [];
-							if(data.chatCommandParams) {
-								data.chatCommandParams.forEach(p => {
-									params.push({name:p.tag});
-								});
-							}
-							commands.push({
-								name:data.chatCommand.replace(/[^a-z0-9]/gi, ""),
-								params
-							});
-						}
-					})
-					if(commands.length > 0 || wasDiscordCmds) {
-						//Update discord commands
-						ApiHelper.call("discord/commands", "POST", {commands}, false).then(res=>{
-							//
-						});
-					}
-					wasDiscordCmds = commands.length > 0;
-				}, 6000);
-			}
+			scheduleDiscordCommandsUpdate();
 
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);
-			this.computeTriggerTreeEnabledStates();
+			this.broadcastTriggerList();
 		},
 
-		renameOBSSource(oldName:string, newName:string):void {
+		renameOBSSource(oldName: string, newName: string): void {
 			//Search for any trigger linked to the renamed source or any
 			//trigger action controling that source and rename it
 			for (const t of this.triggerList) {
-				if(t.obsSource === oldName) t.obsSource = newName;
-				if(t.obsInput === oldName) t.obsInput = newName;
+				if (t.obsSource === oldName) t.obsSource = newName;
+				if (t.obsInput === oldName) t.obsInput = newName;
 				for (const a of t.actions) {
-					if(a.type == "obs") {
-						if(a.sourceName == oldName) a.sourceName = newName;
+					if (a.type == "obs") {
+						if (a.sourceName == oldName) a.sourceName = newName;
 					}
 				}
 			}
 			this.saveTriggers();
 		},
 
-		renameOBSScene(oldName:string, newName:string):void {
+		renameOBSScene(oldName: string, newName: string): void {
 			//Search for any trigger linked to the renamed scene and any
 			//trigger action controling that scene and rename it
 			for (const t of this.triggerList) {
-				if(t.obsScene === oldName) t.obsInput = newName;
+				if (t.obsScene === oldName) t.obsInput = newName;
 			}
 			this.saveTriggers();
 		},
 
-		renameOBSFilter(sourceName:string, oldName:string, newName:string):void {
+		renameOBSFilter(sourceName: string, oldName: string, newName: string): void {
 			//Search for any trigger action controling that filter and rename it
 			for (const t of this.triggerList) {
-				if(t.obsFilter === oldName) t.obsFilter = newName;
+				if (t.obsFilter === oldName) t.obsFilter = newName;
 				for (const a of t.actions) {
-					if(a.type == "obs" && a.sourceName == sourceName) {
-						if(a.filterName == oldName) a.filterName = newName;
+					if (a.type == "obs" && a.sourceName == sourceName) {
+						if (a.filterName == oldName) a.filterName = newName;
 					}
 				}
 			}
 			this.saveTriggers();
 		},
 
-		renameCounterPlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
+		renameCounterPlaceholder(oldPlaceholder: string, newPlaceholder: string): void {
 			//Search for any trigger linked to the renamed counter and any
 			//trigger action updating that counter and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
-				let json = JSON.stringify(t);
-
-				//Is the old placeholder somewhere on the trigger data ?
-				if(json.toLowerCase().indexOf((COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
-
-				//Add placeholders prefix
-				let newPlaceholderLoc = COUNTER_VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
-				let oldPlaceholderLoc = COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
-				//Make it regex safe
-				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-
-				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
-				this.triggerList[i] = JSON.parse(json);
-			}
-			this.saveTriggers();
+			const updated = renamePlaceholder(
+				this.triggerList,
+				COUNTER_VALUE_PLACEHOLDER_PREFIX,
+				oldPlaceholder,
+				newPlaceholder,
+			);
+			if (updated) this.saveTriggers();
 		},
 
-		renameValuePlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
+		renameValuePlaceholder(oldPlaceholder: string, newPlaceholder: string): void {
 			//Search for any trigger linked to the renamed value and any
 			//trigger action updating that value and rename it
-			for (let i = 0; i < this.triggerList.length; i++) {
-				const t = this.triggerList[i];
-				let json = JSON.stringify(t);
-
-				//Is the old placeholder somewhere on the trigger data ?
-				if(json.toLowerCase().indexOf((VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
-
-				//Add placeholders prefix
-				let newPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
-				let oldPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
-				//Make it regex safe
-				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-
-				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
-				this.triggerList[i] = JSON.parse(json);
-			}
-			this.saveTriggers();
+			const updated = renamePlaceholder(
+				this.triggerList,
+				VALUE_PLACEHOLDER_PREFIX,
+				oldPlaceholder,
+				newPlaceholder,
+			);
+			if (updated) this.saveTriggers();
 		},
 
-		updateTriggerTree(data:TriggerTreeItemData[]):void {
+		updateTriggerTree(data: TriggerTreeItemData[]): void {
 			this.triggerTree = data;
 			this.computeTriggerTreeEnabledStates();
+			refreshScheduledTriggers(this.triggerList);
+			scheduleDiscordCommandsUpdate();
 			DataStore.set(DataStore.TRIGGERS_TREE, this.triggerTree);
 		},
 
-		computeTriggerTreeEnabledStates():void {
+		computeTriggerTreeEnabledStates(): void {
 			this.triggerIdToFolderEnabled = {};
 			/**
 			 * Defines if a a trigger is enabled depending on its parent folder/s
 			 * @param root
 			 * @param enabled
 			 */
-			const parseItem = (root:TriggerTreeItemData[], enabled:boolean = true) => {
-				root.forEach(v=> {
-					if(v.type == "trigger") {
+			const parseItem = (root: TriggerTreeItemData[], enabled: boolean = true) => {
+				root.forEach((v) => {
+					if (v.type == "trigger") {
 						this.triggerIdToFolderEnabled[v.triggerId!] = enabled;
-					}else
-					if(v.type == "folder") {
+					} else if (v.type == "folder") {
 						parseItem(v.children || [], enabled && v.enabled !== false);
 					}
-				})
-			}
+				});
+			};
 
 			parseItem(this.triggerTree);
 		},
 
-	} as ITriggersActions
-	& ThisType<ITriggersActions
-		& UnwrapRef<ITriggersState>
-		& _StoreWithState<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>
-		& _StoreWithGetters<ITriggersGetters>
-		& PiniaCustomProperties
-	>,
-})
+		broadcastTriggerList(): void {
+			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", {
+				triggerList: this.triggerListPublicData.map((v) => ({
+					id: v.id,
+					name: v.name,
+					disabled: v.enabled === false,
+					iconEmoji: v.iconEmoji,
+					iconUrl: v.iconUrl,
+				})),
+			});
+			PublicAPI.instance.broadcastGlobalStates();
+		},
+	} satisfies StoreActions<"triggers", ITriggersState, ITriggersGetters, ITriggersActions>,
+});
 
-
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeTriggers, import.meta.hot))
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTriggers, import.meta.hot));
 }

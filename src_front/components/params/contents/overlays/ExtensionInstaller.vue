@@ -1,0 +1,235 @@
+<template>
+	<div
+		class="extensioninstaller card-item"
+		:class="{
+			primary: variant == 'primary',
+			secondary: variant == 'secondary',
+			alert: variant == 'alert',
+		}"
+		v-if="loading || !grantedPermission || !installed || !enabled"
+	>
+		<icon class="logo" name="extension" />
+		<div v-if="loading" class="content loader">
+			<span class="head">
+				{{ $t("extensions.installer.loading") }}
+				<icon class="spinner" name="loader" />
+			</span>
+		</div>
+		<div class="content" v-else-if="!grantedPermission">
+			<span class="head">{{ $t("extensions.scope_grant") }}</span>
+			<TTButton
+				:alert="variant == 'alert'"
+				:secondary="variant == 'secondary'"
+				:light="variant != ''"
+				icon="lock_fit"
+				@click="grantPermission"
+				>{{ $t("extensions.scope_grantBt") }}</TTButton
+			>
+		</div>
+		<div class="content" v-else-if="!installed">
+			<span class="head">{{
+				$t("extensions.installer.install", { NAME: props.extensionName })
+			}}</span>
+			<TTButton
+				:alert="variant == 'alert'"
+				:secondary="variant == 'secondary'"
+				:light="variant != ''"
+				icon="newtab"
+				type="link"
+				:href="
+					extensionID
+						? `https://dashboard.twitch.tv/extensions/${extensionID}`
+						: $config.TWITCHAT_EXTENSION_URL
+				"
+				target="_blank"
+				>{{ $t("extensions.installer.installBt") }}</TTButton
+			>
+		</div>
+		<div class="content" v-else-if="!enabled">
+			<span class="head">{{
+				$t("extensions.installer.enable", { NAME: props.extensionName })
+			}}</span>
+			<TTButton secondary light icon="twitch" @click="enableExtension" :loading="enabling">{{
+				$t("extensions.installer.enableBt")
+			}}</TTButton>
+			<div class="card-item alert error" v-if="enableError">
+				<icon name="alert" />{{ $t("extensions.installer.enableError") }}
+			</div>
+		</div>
+		<!-- <div class="content complete" v-else>
+			<span> <icon name="checkmark" />{{ $t("extensions.installer.ready", {NAME:props.extensionName}) }} </span>
+		</div> -->
+	</div>
+</template>
+
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeExtension as useStoreExtension } from "@/store/extension/storeExtension";
+import Config from "@/utils/Config";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+const loading = ref(false);
+const enabling = ref(false);
+const enableError = ref(false);
+
+const storeExtension = useStoreExtension();
+const storeAuth = useStoreAuth();
+const emit = defineEmits<{
+	extensionReady: [];
+}>();
+
+const props = withDefaults(
+	defineProps<{ extensionID?: string; extensionName?: string; noErrorState?: boolean }>(),
+	{
+		extensionID: Config.instance.TWITCHAT_EXTENSION_ID,
+		extensionName: "Twitchat Companion",
+	},
+);
+
+const model = defineModel<boolean>("extensionReady", { default: false });
+
+let checkinterval = -1;
+let loaderDelay = -1;
+
+onMounted(() => {
+	//Only show loader if it takes more than 1s to load states
+	loaderDelay = window.setTimeout(() => {
+		loading.value = true;
+	}, 1000);
+
+	checkExtensionStatus();
+
+	checkinterval = window.setInterval(() => {
+		if (enabled.value || loading.value) return;
+		checkExtensionStatus();
+	}, 3000);
+});
+
+onBeforeUnmount(() => {
+	window.clearInterval(checkinterval);
+	window.clearTimeout(loaderDelay);
+});
+
+watch(
+	() => storeExtension.enabledExtensions,
+	(val) => {
+		model.value = val.findIndex((v) => v.id == props.extensionID) > -1;
+	},
+	{ immediate: true },
+);
+
+const variant = computed(() => {
+	if (!grantedPermission.value) return "secondary";
+	if (installed.value && enabled.value && !loading.value) return "primary";
+	if (installed.value && !enabled.value && !loading.value) return "secondary";
+	if (
+		!loading.value &&
+		props.noErrorState !== true &&
+		(!installed.value || !grantedPermission.value)
+	)
+		return "alert";
+	return "";
+});
+
+const grantedPermission = computed(() => {
+	//Read the reactive store scopes list directly so this computed re-evaluates
+	//whenever the granted permissions change.
+	return (storeAuth.twitch.scopes || []).includes(TwitchScopes.EXTENSIONS);
+});
+
+const installed = computed(() => {
+	return storeExtension.availableExtensions.find((v) => v.id == props.extensionID);
+});
+
+const enabled = computed(() => {
+	return storeExtension.enabledExtensions.find((v) => v.id == props.extensionID);
+});
+
+function grantPermission(): void {
+	storeAuth.newScopesToRequest = [TwitchScopes.EXTENSIONS];
+}
+
+async function enableExtension(): Promise<void> {
+	enabling.value = true;
+	enableError.value = false;
+	const extension = storeExtension.availableExtensions.find((v) => v.id == props.extensionID);
+	if (!extension || !extension.type.includes("overlay")) {
+		throw new Error('This component only supports "overlay" extension types.');
+	}
+	const success = await storeExtension.setExtensionState(true, "1", "overlay", extension);
+	if (!success) {
+		enableError.value = true;
+	}
+	enabling.value = false;
+}
+
+async function checkExtensionStatus(): Promise<void> {
+	await storeExtension.updateInternalStates();
+	clearTimeout(loaderDelay);
+	loading.value = false;
+}
+
+const ready = computed(() => !!installed.value && !!enabled.value);
+
+watch(
+	ready,
+	(isReady) => {
+		if (isReady) emit("extensionReady");
+	},
+	{ immediate: true },
+);
+</script>
+
+<style scoped lang="less">
+.extensioninstaller {
+	gap: 0.5em;
+	display: flex;
+	flex-direction: row;
+	line-height: 1.25em;
+	margin-left: auto;
+	margin-right: auto;
+	flex-shrink: 0;
+
+	.logo {
+		width: 2em;
+		height: auto;
+		flex-shrink: 0;
+	}
+
+	.content {
+		flex: 1;
+		gap: 0.5em;
+		display: flex;
+		flex-direction: column;
+
+		.icon {
+			height: 1em;
+			margin-right: 0.5em;
+			vertical-align: middle;
+		}
+
+		&.loader {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.head {
+			text-wrap: balance;
+			text-align: center;
+			white-space: pre-line;
+		}
+	}
+
+	.error {
+		align-self: center;
+	}
+
+	.button {
+		align-self: center;
+	}
+}
+</style>

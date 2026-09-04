@@ -1,155 +1,154 @@
 <template>
 	<div :class="classes">
 		<div class="formHolder">
-			<label :for="key">{{title}}</label>
+			<label :for="key">{{ props.title }}</label>
 			<div class="inputHolder">
 				<Icon name="loader" class="loader" v-if="loading" />
-				<input :id="key" type="text"
-					@keyup="onSearchChange()" @focus="onFocus()"
+				<input
+					:id="key"
+					type="text"
+					@keyup="onSearchChange()"
+					@focus="onFocus()"
 					v-model="search"
-					:disabled="!canSelect"
-					:placeholder="$t('global.search_placeholder')"
-				>
+					:placeholder="t('global.search_placeholder')"
+				/>
 			</div>
 		</div>
 
 		<div class="items autocomplete" v-if="items?.length > 0">
-			<span v-for="(item, index) in items" :key="'autocomplete_'+index" @click.capture="selectItem(item, index)">
+			<span
+				v-for="(item, index) in items"
+				:key="'autocomplete_' + index"
+				@click.capture="selectItem(item, index)"
+			>
 				<slot :item="item" :index="index" />
 			</span>
 		</div>
 
-		<div class="items selected" v-if="modelValue?.length > 0">
-			<span v-for="(item, index) in modelValue" :key="'selected_'+index" @click.capture="removeItem(index)">
+		<div class="items selected" v-if="props.modelValue?.length > 0">
+			<span
+				v-for="(item, index) in props.modelValue"
+				:key="'selected_' + index"
+				@click.capture="removeItem(index)"
+			>
 				<slot :item="item" :index="index" />
 			</span>
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+<script setup lang="ts" generic="T = unknown">
+import { ref, computed, watch, type Ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{},
-	emits:["search", "update:modelValue"]
-})
-class AutoCompleteForm extends Vue {
+const props = withDefaults(
+	defineProps<{
+		title?: string;
+		idKey?: string;
+		delay?: number;
+		maxItems?: number;
+		modelValue?: T[];
+		maxAutocompleteItems?: number;
+	}>(),
+	{
+		title: "",
+		idKey: "",
+		delay: 250,
+		maxItems: 10,
+		modelValue: () => [],
+		maxAutocompleteItems: 20,
+	},
+);
 
-	@Prop({
-			type:String,
-			default:"",
-		})
-	public title!:string;
-	@Prop({
-			type:String,
-			default:"",
-		})
-	public idKey!:string;
-	@Prop({
-			type:Number,
-			default:250,
-		})
-	public delay!:number;
-	@Prop({
-			type:Number,
-			default:10,
-		})
-	public maxItems!:number;
-	@Prop({
-			type:[Object],
-			default:"",
-		})
-	public modelValue!:unknown[];
-	@Prop({
-			type:Number,
-			default:20,
-		})
-	public maxAutocompleteItems!:number;
+const emit = defineEmits<{
+	search: [search: string, callback: (data: T[]) => void];
+	"update:modelValue": [list: T[]];
+}>();
 
-	public loading:boolean = false;
-	public key:string = Math.random().toString();
-	public search:string = "";
-	public searchTimeout:number = -1;
-	public items:unknown[] = [];
-	
-	private prevItems:unknown[] = [];
+defineSlots<{
+	default(props: { item: T; index: number }): unknown;
+}>();
 
-	public get classes():string[] {
-		const res = ["autocompleteform"];
-		if(this.loading) res.push("loading");
-		return res;
-	}
+const { t } = useI18n();
 
-	public get canSelect():boolean {
-		return this.modelValue.length < this.maxItems;
-	}
+const loading = ref(false);
+const key = ref(Math.random().toString());
+const search = ref("");
+const searchTimeout = ref(-1);
+const items = ref<T[]>([]) as Ref<T[]>;
 
-	public async mounted():Promise<void> {
-		watch(()=>this.modelValue, ()=> {
-			if(this.modelValue.length == this.maxItems) {
-				this.search = "";
-			}
-		})
-	}
+let prevItems: T[] = [];
 
-	public onSearchChange():void {
-		this.loading = true;
-		clearTimeout(this.searchTimeout);
+const classes = computed(() => {
+	const res = ["autocompleteform"];
+	if (loading.value) res.push("loading");
+	return res;
+});
 
-		if(this.search.length < 2) {
-			this.searchResult([]);
-			return;
+watch(
+	() => props.modelValue,
+	() => {
+		if (props.modelValue.length == props.maxItems) {
+			search.value = "";
 		}
+	},
+);
 
-		this.searchTimeout = window.setTimeout(()=> {
-			this.$emit("search", this.search, this.searchResult);
-		}, this.delay);
+function onSearchChange(): void {
+	loading.value = true;
+	clearTimeout(searchTimeout.value);
+
+	if (search.value.length < 2) {
+		searchResult([]);
+		return;
 	}
 
-	public onFocus():void {
-		if(this.prevItems.length > 0) {
-			this.items = this.prevItems;
-		}
-	}
-
-	public selectItem(item:unknown, index:number):void {
-		let list = this.modelValue.slice();
-		if(list.length == this.maxItems) list = list.splice(0, this.maxItems-1);
-		list.push(item);
-		this.$emit("update:modelValue", list);
-		this.items = [];
-		this.prevItems.splice(index, 1);
-	}
-
-	public removeItem(index:number):void {
-		const list = this.modelValue.slice();
-		list.splice(index, 1)
-		this.$emit("update:modelValue", list);
-	}
-
-	private searchResult(data:unknown[]):void {
-		if(this.idKey) {
-			data = data.filter(item => {
-				return this.modelValue.findIndex((v:unknown) => {
-					//@ts-ignore
-					return v[this.idKey] == item[this.idKey]
-				}) == -1;
-			});
-		}
-		data = data.slice(0, this.maxAutocompleteItems);
-		this.items = data;
-		this.prevItems = data;
-		this.loading = false;
-	}
-
+	searchTimeout.value = window.setTimeout(() => {
+		emit("search", search.value, searchResult);
+	}, props.delay);
 }
-export default toNative(AutoCompleteForm);
+
+function onFocus(): void {
+	if (prevItems.length > 0) {
+		items.value = prevItems;
+	}
+}
+
+function selectItem(item: T, index: number): void {
+	let list = props.modelValue.slice();
+	if (list.length == props.maxItems) list = list.splice(0, props.maxItems - 1);
+	list.push(item);
+	emit("update:modelValue", list);
+	items.value = [];
+	prevItems.splice(index, 1);
+}
+
+function removeItem(index: number): void {
+	const list = props.modelValue.slice();
+	list.splice(index, 1);
+	emit("update:modelValue", list);
+}
+
+function searchResult(data: T[]): void {
+	if (props.idKey) {
+		data = data.filter((item) => {
+			return (
+				props.modelValue.findIndex((v: T) => {
+					//@ts-ignore
+					return v[props.idKey] == item[props.idKey];
+				}) == -1
+			);
+		});
+	}
+	data = data.slice(0, props.maxAutocompleteItems);
+	items.value = data;
+	prevItems = data;
+	loading.value = false;
+}
 </script>
 
 <style scoped lang="less">
-.autocompleteform{
+.autocompleteform {
 	.formHolder {
 		display: flex;
 		flex-direction: row;
@@ -170,7 +169,7 @@ export default toNative(AutoCompleteForm);
 				top: 50%;
 				transform: translateY(-50%);
 			}
-			
+
 			input {
 				width: 100%;
 			}
@@ -188,12 +187,12 @@ export default toNative(AutoCompleteForm);
 	}
 
 	.items {
-		padding: .5em;
+		padding: 0.5em;
 		max-height: 112px;
 		overflow: auto;
-		border-radius: .5em;
+		border-radius: 0.5em;
 		&:not(.selected) {
-			background-color: rgba(0, 0, 0, .3);
+			background-color: rgba(0, 0, 0, 0.3);
 		}
 		&.selected {
 			padding-left: 0;

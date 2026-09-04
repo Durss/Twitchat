@@ -1,64 +1,63 @@
 <template>
-	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-
-		<Icon :name="messageData.type=='pinned'? 'pin' : 'unpin'" alt="notice" class="icon" />
+	<div :class="classes" ref="rootEl">
+		<Icon :name="messageData.type == 'pinned' ? 'pin' : 'unpin'" alt="notice" class="icon" />
 
 		<div class="holder">
 			<i18n-t scope="global" tag="div" :keypath="labelKey">
 				<template #MODERATOR>
-					<a class="userlink"
-					v-if="messageData.moderator"
-					@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator!.displayName}}</a>
+					<a
+						class="userlink"
+						v-if="messageData.moderator"
+						@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)"
+						>{{ messageData.moderator!.displayName }}</a
+					>
 				</template>
 			</i18n-t>
-	
+
 			<ChatMessage class="quote" :messageData="messageData.chatMessage" lightMode />
 		</div>
 	</div>
 </template>
 
-<script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import ChatMessage from './ChatMessage.vue';
+<script setup lang="ts">
+import { useChatMessage } from "@/composables/useChatMessage";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, useTemplateRef } from "vue";
+import ChatMessage from "./ChatMessage.vue";
 
-@Component({
-	components:{
-		ChatMessage,
-	},
-	emits:["onRead"]
-})
-class ChatPinNotice extends AbstractChatMessage {
-	
-	@Prop
-	declare messageData:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessagePinData | TwitchatDataTypes.MessageUnpinData;
+}>();
 
-	public get classes():string[] {
-		const res = ["chatpinnotice", "chatMessage", "highlight"];
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED) {
-			res.push("unpinned");
-		}
-		return res;
+const emit = defineEmits<{
+	onRead: [];
+}>();
+
+const rootEl = useTemplateRef("rootEl");
+const { openUserCard } = useChatMessage(props, emit, rootEl);
+
+const classes = computed(() => {
+	const res = ["chatpinnotice", "chatMessage", "highlight"];
+	if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED) {
+		res.push("unpinned");
 	}
+	return res;
+});
 
-	public get labelKey():string {
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.PINNED) {
-			return "chat.pin.pinned";
-		}else{
-			if(this.messageData.moderator) {
-				return "chat.pin.unpinned_by"
-			}
+const labelKey = computed(() => {
+	if (props.messageData.type == TwitchatDataTypes.TwitchatMessageType.PINNED) {
+		return "chat.pin.pinned";
+	} else {
+		if (props.messageData.moderator) {
+			return "chat.pin.unpinned_by";
 		}
-		return "chat.pin.unpinned";
 	}
-}
-export default toNative(ChatPinNotice);
+	return "chat.pin.unpinned";
+});
 </script>
 
 <style scoped lang="less">
-.chatpinnotice{
+.chatpinnotice {
 	.holder {
 		flex-grow: 1;
 		display: flex;
@@ -71,7 +70,7 @@ export default toNative(ChatPinNotice);
 	&.unpinned {
 		.holder {
 			.quote {
-				opacity: .75;
+				opacity: 0.75;
 				text-decoration: line-through;
 				&:hover {
 					text-decoration: none;

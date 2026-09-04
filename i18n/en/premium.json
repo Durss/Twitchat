@@ -1,28 +1,23 @@
 {
-	"premium":{
-		"header":"Support Twitchat monthly and unlock premium features",
-		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered to you 💝",
-		"early_donor2":"But feel free to support me on {LINK} or via a {DONATE} 😊",
-		"early_donor2_link":"Patreon",
-		"early_donor2_donate":"tip",
-		"premium_donor1":"You have lifetime Twitchat subscription",
-		"gifted":"You have been offered Premium membership",
-		"become_premiumBt":"Become premium",
-		"restricted_access":"This feature requires premium membership",
-		"features_title":"Premium features",
-		"premium_only_tt":"Premium only",
-		"no_ad_info":"(only applies to streamers with +{FOLLOWERS} followers)",
-		"progress":"Your past donations get you closer to lifetime premium",
-		"code_empty":"This code to get a lifetime premium subscription has already been used by someone else, sorry 😟.\nMaybe next time!",
-		"code_wrong":"Invalid code",
-		"code_success":"Congratulations!\nTo thank you for being one of the few to read my updates in detail, you now are a lifetime premium Twitchat user 🥳",
-		"supportTable":{
-			"headers":[
-				"Feature",
-				"  FREE  ",
-				"Donate",
-				"Premium"
-			],
+	"premium": {
+		"header": "Support Twitchat monthly and unlock premium features",
+		"early_donor1": "As a thank you for supporting me from the early days of Twitchat, premium features are offered to you 💝",
+		"early_donor2": "But feel free to support me\non {LINK} or with a {DONATE} 😊",
+		"early_donor2_link": "Patreon",
+		"early_donor2_donate": "tip",
+		"premium_donor1": "You have lifetime Twitchat subscription",
+		"gifted": "You have been offered Premium membership",
+		"become_premiumBt": "Become premium",
+		"restricted_access": "This feature requires premium membership",
+		"features_title": "Premium features",
+		"premium_only_tt": "Premium only",
+		"no_ad_info": "(only applies to streamers with +{FOLLOWERS} followers)",
+		"progress": "Your past donations get you closer to lifetime premium",
+		"code_empty": "This code to get a lifetime premium subscription has already been used by someone else, sorry 😟.\nMaybe next time!",
+		"code_wrong": "Invalid code",
+		"code_success": "Congratulations!\nTo thank you for being one of the few to read my updates in detail, you now are a lifetime premium Twitchat user 🥳",
+		"supportTable": {
+			"headers": ["Feature", "  FREE  ", "Donate", "Premium"],
 			"features": [
 				["Disable automatic chat message", "-", 1, 1],
 				["GoXLR support", "-", "-", 1],
@@ -36,20 +31,66 @@
 				["YouTube connection", "-", "-", 1],
 				["TikTok connection", 1, 1, 1],
 				["Automatic translations", "-", "-", 1],
-				["Custom user names", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
-				["Create custom badges", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
-				["Give custom badges to users", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
+				[
+					"Custom user names",
+					"MAX_CUSTOM_USERNAMES",
+					"MAX_CUSTOM_USERNAMES",
+					"MAX_CUSTOM_USERNAMES_PREMIUM"
+				],
+				[
+					"Create custom badges",
+					"MAX_CUSTOM_BADGES",
+					"MAX_CUSTOM_BADGES",
+					"MAX_CUSTOM_BADGES_PREMIUM"
+				],
+				[
+					"Give custom badges to users",
+					"MAX_CUSTOM_BADGES_ATTRIBUTION",
+					"MAX_CUSTOM_BADGES_ATTRIBUTION",
+					"MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"
+				],
 				["Values (AKA global vars)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
 				["Timers", "MAX_TIMERS", "MAX_TIMERS", "MAX_TIMERS_PREMIUM"],
-				["Custom Heat zone groups", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				[
+					"Custom Heat zone groups",
+					"MAX_CUSTOM_HEAT_SCREENS",
+					"MAX_CUSTOM_HEAT_SCREENS",
+					"MAX_CUSTOM_HEAT_SCREENS_PREMIUM"
+				],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Counters", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
-				["OVERLAY: Bingo grids", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS_PREMIUM"],
-				["OVERLAY: Donation goals", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS_PREMIUM"],
-				["OVERLAY: Interactive distortion", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
+				["Quiz", "MAX_QUIZ", "MAX_QUIZ", "MAX_QUIZ_PREMIUM"],
+				[
+					"OVERLAY: Bingo grids",
+					"MAX_BINGO_GRIDS",
+					"MAX_BINGO_GRIDS",
+					"MAX_BINGO_GRIDS_PREMIUM"
+				],
+				[
+					"OVERLAY: Donation goals",
+					"MAX_DONATION_GOALS",
+					"MAX_DONATION_GOALS",
+					"MAX_DONATION_GOALS_PREMIUM"
+				],
+				[
+					"OVERLAY: Interactive distortion",
+					"MAX_DISTORTION_OVERLAYS",
+					"MAX_DISTORTION_OVERLAYS",
+					"MAX_DISTORTION_OVERLAYS_PREMIUM"
+				],
 				["OVERLAY: Labels", "MAX_LABELS", "MAX_LABELS", "MAX_LABELS_PREMIUM"],
-				["OVERLAY: Animated texts", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT_PREMIUM"],
-				["OVERLAY: Custom trains", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN_PREMIUM"],
+				[
+					"OVERLAY: Animated texts",
+					"MAX_ANIMATED_TEXT",
+					"MAX_ANIMATED_TEXT",
+					"MAX_ANIMATED_TEXT_PREMIUM"
+				],
+				[
+					"OVERLAY: Custom trains",
+					"MAX_CUSTOM_TRAIN",
+					"MAX_CUSTOM_TRAIN",
+					"MAX_CUSTOM_TRAIN_PREMIUM"
+				],
 				["OVERLAY: Ending credits", "~", "~", 1],
 				["Bingo grids for viewers", "-", "-", 1],
 				["StreamSocket extension", 1, 1, 1],
@@ -100,19 +141,19 @@
 		},
 
 		"cleanup": {
-			"title":"Non-Premium limits",
-			"description":"You are not a Premium member and have more than some maximum allowed items. Disable/Delete some entries or become premium to keep them all.",
-			"custom_usernames":"Custom usernames",
-			"custom_username_remove":"Remove custom username",
-			"custom_badges":"Custom badges",
-			"custom_badges_attribution":"Custom badges attributions",
-			"custom_badges_attribution_remove":"Remove custom<br>badges",
+			"title": "Non-Premium limits",
+			"description": "You are not a Premium member and have more than some maximum allowed items.\nDisable some entries or become premium to keep them all.",
+			"custom_usernames": "Custom usernames",
+			"custom_username_remove": "Remove custom username",
+			"custom_badges": "Custom badges",
+			"custom_badges_attribution": "Custom badges attributions",
+			"custom_badges_attribution_remove": "Remove custom<br>badges",
 			"delete_badges_title": "Confirm",
 			"delete_badges_description": "Do you want to remove this user's custom badges?",
 			"distortion": "OBS distortions",
 			"delete_distortion_title": "Confirm",
 			"delete_distortion_description": "Do you want to remove this distortion?",
-			"distortion_remove":"Delete la distortion",
+			"distortion_remove": "Delete la distortion",
 			"delete_name_title": "Confirm",
 			"delete_name_description": "Do you want to remove this user's custom name?",
 			"bingo_grids": "Bingo grids",
@@ -120,6 +161,7 @@
 			"timers": "Timers",
 			"animated_text": "Animated texts",
 			"custom_train": "Custom hype trains",
+			"quiz": "Quizzes",
 			"disable_more_items": "Disable or delete items in required sections",
 			"completeBt": "Complete"
 		}

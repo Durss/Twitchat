@@ -1,21 +1,22 @@
 <template>
 	<div class="overlayparamsmusic overlayParamsSection">
-		
-		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
+		<a
+			href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
+			target="_blank"
+			class="youtubeTutorialBt"
+		>
 			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<span>{{ t("overlay.youtube_demo_tt") }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
 
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
-			</div>
-			
-			<OverlayInstaller type="music" :sourceTransform="{width:400, height:100}" />
+		<section class="overlayInstallCard">
+			<h1><Icon name="obs" />{{ t("bingo_grid.form.install_title") }}</h1>
 
-			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
-				<div class="cssHead">{{ $t("overlay.music_common.css") }}</div>
+			<OverlayInstaller type="music" :sourceTransform="{ width: 400, height: 100 }" />
+
+			<ToggleBlock class="shrink" small :title="t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ t("overlay.music_common.css") }}</div>
 				<ul class="cssStructure">
 					<li>#music_holder { ... }</li>
 					<li>#music_cover { ... }</li>
@@ -28,101 +29,166 @@
 				</ul>
 			</ToggleBlock>
 		</section>
-		
-		<section class="card-item">
-			<div class="header">
-				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
-			</div>
-			<ParamItem :paramData="param_noScroll" v-model="$store.music.musicPlayerParams.noScroll" />
-			<ParamItem :paramData="param_openFromLeft" v-model="$store.music.musicPlayerParams.openFromLeft" />
-			<ParamItem :paramData="param_autoHide" v-model="$store.music.musicPlayerParams.autoHide" />
-			<ParamItem :paramData="param_showCover" v-model="$store.music.musicPlayerParams.showCover" />
-			<ParamItem :paramData="param_showArtist" v-model="$store.music.musicPlayerParams.showArtist" />
-			<ParamItem :paramData="param_showTitle" v-model="$store.music.musicPlayerParams.showTitle" />
-			<ParamItem :paramData="param_showProgress" v-model="$store.music.musicPlayerParams.showProgressbar" />
-			<ParamItem :paramData="param_customTemplateToggle" v-model="param_customTemplateToggle.value" />
+
+		<section>
+			<ParamItem
+				:paramData="param_noScroll"
+				v-model="storeMusic.musicPlayerParams.noScroll"
+			/>
+			<ParamItem
+				:paramData="param_openFromLeft"
+				v-model="storeMusic.musicPlayerParams.openFromLeft"
+			/>
+			<ParamItem
+				:paramData="param_autoHide"
+				v-model="storeMusic.musicPlayerParams.autoHide"
+			/>
+			<ParamItem
+				:paramData="param_showCover"
+				v-model="storeMusic.musicPlayerParams.showCover"
+			/>
+			<ParamItem
+				:paramData="param_showArtist"
+				v-model="storeMusic.musicPlayerParams.showArtist"
+			/>
+			<ParamItem
+				:paramData="param_showTitle"
+				v-model="storeMusic.musicPlayerParams.showTitle"
+			/>
+			<ParamItem
+				:paramData="param_showProgress"
+				v-model="storeMusic.musicPlayerParams.showProgressbar"
+			/>
+			<ParamItem
+				:paramData="param_customTemplateToggle"
+				v-model="param_customTemplateToggle.value"
+			/>
 		</section>
 	</div>
 </template>
 
-<script lang="ts">
-import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ToggleBlock from '../../../ToggleBlock.vue';
-import ParamItem from '../../ParamItem.vue';
-import OverlayInstaller from './OverlayInstaller.vue';
+<script setup lang="ts">
+import Icon from "@/components/Icon.vue";
+import ToggleBlock from "@/components/ToggleBlock.vue";
+import { asset } from "@/composables/useAsset";
+import DataStore from "@/store/DataStore";
+import { storeMusic as useStoreMusic } from "@/store/music/storeMusic";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import SpotifyHelper from "@/utils/music/SpotifyHelper";
+import { onBeforeMount, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import ParamItem from "../../ParamItem.vue";
+import OverlayInstaller from "./OverlayInstaller.vue";
 
-@Component({
-	components:{
-		ParamItem,
-		ToggleBlock,
-		OverlayInstaller,
-	}
-})
-class OverlayParamsMusic extends Vue {
+const { t } = useI18n();
+const { getAsset } = asset();
+const storeMusic = useStoreMusic();
 
-	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, labelKey:"overlay.music_common.no_scroll"};
-	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.open_from_left"};
-	public param_autoHideErase:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.auto_hide_erase"};
-	public param_showCover:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true, labelKey:"overlay.music_common.show_cover"};
-	public param_showArtist:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.show_artist"};
-	public param_showTitle:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true, labelKey:"overlay.music_common.show_title"};
-	public param_showProgress:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.show_progress"};
-	public param_customTemplate:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"", longText:true, labelKey:"overlay.music_common.custom_template"};
-	public param_autoHide:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.auto_hide"};
-	public param_customTemplateToggle:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {type:"boolean", value:true, labelKey:"overlay.music_common.custom_template_toggle"};
+const param_noScroll = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "overlay.music_common.no_scroll",
+});
+const param_openFromLeft = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "overlay.music_common.open_from_left",
+});
+const param_autoHideErase = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.auto_hide_erase",
+});
+const param_showCover = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.show_cover",
+});
+const param_showArtist = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.show_artist",
+});
+const param_showTitle = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.show_title",
+});
+const param_showProgress = ref<TwitchatDataTypes.ParameterData<boolean>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.show_progress",
+});
+const param_customTemplate = ref<TwitchatDataTypes.ParameterData<string>>({
+	type: "string",
+	value: "",
+	longText: true,
+	labelKey: "overlay.music_common.custom_template",
+});
+const param_autoHide = ref<TwitchatDataTypes.ParameterData<boolean, unknown, boolean>>({
+	type: "boolean",
+	value: false,
+	labelKey: "overlay.music_common.auto_hide",
+});
+const param_customTemplateToggle = ref<TwitchatDataTypes.ParameterData<boolean, unknown, string>>({
+	type: "boolean",
+	value: true,
+	labelKey: "overlay.music_common.custom_template_toggle",
+});
 
-	public beforeMount():void {
-		this.param_customTemplate.placeholderList= [
-			{tag:"TITLE", descKey:"overlay.music_common.custom_template_placeholders.title"},
-			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"},
-			{tag:"COVER", descKey:"overlay.music_common.custom_template_placeholders.cover"},
-		];
+onBeforeMount(() => {
+	param_customTemplate.value.placeholderList = [
+		{
+			tag: "TITLE",
+			descKey: "overlay.music_common.custom_template_placeholders.title",
+			example: "Mitchiri Neko March",
+		},
+		{
+			tag: "ARTIST",
+			descKey: "overlay.music_common.custom_template_placeholders.artist",
+			example: "Mitchiri Neko",
+		},
+		{
+			tag: "COVER",
+			descKey: "overlay.music_common.custom_template_placeholders.cover",
+			example: getAsset("img/musicExampleCover.jpg"),
+		},
+	];
 
-		const params = this.$store.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
-		this.param_autoHide.children				= [this.param_autoHideErase];
-		this.param_autoHideErase.value				= params.erase;
-		this.param_customTemplateToggle.children	= [this.param_customTemplate];
-		this.param_customTemplateToggle.value		= params.customInfoTemplate?.length > 0;
-		this.param_customTemplate.value				= params.customInfoTemplate;
+	const params = storeMusic.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+	param_autoHide.value.children = [param_autoHideErase.value];
+	param_autoHideErase.value.value = params.erase;
+	param_customTemplateToggle.value.children = [param_customTemplate.value];
+	param_customTemplateToggle.value.value = params.customInfoTemplate?.length > 0;
+	param_customTemplate.value.value = params.customInfoTemplate;
+});
 
-		watch(()=> this.param_autoHideErase.value, ()=>{
-			this.saveData();
-		})
+function saveData(): void {
+	let template = param_customTemplate.value.value;
+	if (!param_customTemplateToggle.value.value) template = "";
+	storeMusic.musicPlayerParams.customInfoTemplate = template;
+	storeMusic.musicPlayerParams.erase = param_autoHideErase.value.value;
 
-		watch(() => this.$store.music.musicPlayerParams, () => {
-			this.saveData();
-		},  {deep:true});
-
-		watch(() => this.param_customTemplateToggle.value, () => {
-			this.saveData();
-		});
-
-		watch(() => this.param_customTemplate.value, () => {
-			this.saveData();
-		});
-	}
-
-	private saveData():void {
-		let template = this.param_customTemplate.value;
-		if(!this.param_customTemplateToggle.value) template = "";
-		this.$store.music.musicPlayerParams.customInfoTemplate = template;
-		this.$store.music.musicPlayerParams.erase = this.param_autoHideErase.value;
-
-		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store.music.musicPlayerParams);
-		//This forces overlay refresh
-		SpotifyHelper.instance.getCurrentTrack();
-	}
-
+	DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, storeMusic.musicPlayerParams);
+	//This forces overlay refresh
+	SpotifyHelper.instance.getCurrentTrack();
 }
-export default toNative(OverlayParamsMusic);
+
+watch(
+	[
+		() => param_autoHideErase.value.value,
+		() => storeMusic.musicPlayerParams,
+		() => param_customTemplateToggle.value.value,
+		() => param_customTemplate.value.value,
+	],
+	() => {
+		saveData();
+	},
+	{ deep: true },
+);
 </script>
 
 <style scoped lang="less">
-.overlayparamsmusic{
-
+.overlayparamsmusic {
 }
 </style>

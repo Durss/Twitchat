@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="robots" content="noindex" />
+		<title>Bluesky authorization</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 20px;
+				font-family: Inter, Arial, sans-serif;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+				width: 100vw;
+				padding: 0;
+				font-size: 2em;
+			}
+
+			img {
+				height: 1.5em;
+				margin: 1em auto 0 auto;
+			}
+
+			.result {
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				body {
+					background-color: #18181b;
+					color: white;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<img src="/twitchat.svg" />
+		<div class="result">Connecting to Bluesky...</div>
+		<script type="module">
+			const params = new URLSearchParams(document.location.hash.slice(1));
+			const iss = params.get("iss");
+
+			async function authenticate() {
+				const { BrowserOAuthClient, OAuthClient } =
+					await import("@atproto/oauth-client-browser");
+				const { clientAuthFetch, toLocalClientMetadata } =
+					await import("@/utils/bluesky/BlueskyClientAuth");
+				const clientId = document.location.origin + "/oauth/client-metadata.json";
+				// The code for token exchange happens here, in the popup, not in the
+				// opener. So this page needs the same client authentication as the app,
+				// otherwise the session it creates is a 2 week "public" one (and the
+				// authorization server rejects it outright). This page is only ever
+				// reached over HTTPS, it's declared as a redirect URI as such.
+				const client = new BrowserOAuthClient({
+					clientMetadata: toLocalClientMetadata(
+						await OAuthClient.fetchMetadata({ clientId }),
+					),
+					fetch: clientAuthFetch(clientId, (step, info) =>
+						console.log("[bluesky] " + step, info ?? ""),
+					),
+					handleResolver: iss || "https://bsky.social",
+				});
+				await client.init();
+			}
+
+			authenticate().catch((error) => {
+				// The lib throws this once the opener window got the result. It closes
+				// this window right after, nothing to report
+				if (error && error.code === "LOGIN_CONTINUED_IN_PARENT_WINDOW") return;
+				console.error(error);
+				// Leaving the popup open with no feedback would keep the opener waiting.
+				// Closing it is what tells the opener to abort the auth process.
+				document.querySelector(".result").innerText =
+					"Authentication failed, close this window and try again.";
+			});
+		</script>
+	</body>
+</html>

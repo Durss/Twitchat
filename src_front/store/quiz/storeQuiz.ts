@@ -1,0 +1,1267 @@
+import DataStore from "@/store/DataStore";
+import type { StoreActions, StoreGetters } from "@/types/pinia-helpers";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
+import Logger from "@/utils/Logger";
+import PublicAPI from "@/utils/PublicAPI";
+import SSEHelper from "@/utils/SSEHelper";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
+import StoreProxy from "../StoreProxy";
+
+// Local fast access to current question to avoid searching for it
+// everytime we receive a chat message.
+let currentQuiz: TwitchatDataTypes.QuizParams | null = null;
+let currentQuestion: TwitchatDataTypes.QuizParams["questionList"][number] | null = null;
+let broadcastDebounceTO = -1;
+const POINTS_PER_QUESTION = 100;
+// Extra time during which votes are still accepted after the question's
+// duration has elapsed, to compensate for slow connections
+const VOTE_GRACE_PERIOD_MS = 2000;
+const letterIndexes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const CLASSIC_ANSWER_SLOTS = 6;
+const MAJORITY_ANSWER_SLOTS = 4;
+export const QUIZ_QUESTION_MAXLENGTH = 300;
+export const QUIZ_ANSWER_MAXLENGTH = 130;
+export const QUIZ_FREE_ANSWER_MAXLENGTH = 50;
+
+/**
+ * Parses CSV content into rows of cells. Supports double-quoted cells with
+ * escaped quotes (""), and embedded separators / newlines inside quoted cells.
+ */
+function parseCSVRows(content: string, sep: string): string[][] {
+	const rows: string[][] = [];
+	let row: string[] = [];
+	let cell = "";
+	let inQuotes = false;
+	const pushRow = () => {
+		if (row.length > 1 || (row.length === 1 && row[0] !== "")) rows.push(row);
+		row = [];
+	};
+	for (let i = 0; i < content.length; i++) {
+		const c = content[i]!;
+		if (inQuotes) {
+			if (c === '"') {
+				if (content[i + 1] === '"') {
+					cell += '"';
+					i++;
+				} else {
+					inQuotes = false;
+				}
+			} else {
+				cell += c;
+			}
+		} else if (c === '"' && cell === "") {
+			inQuotes = true;
+		} else if (c === sep) {
+			row.push(cell);
+			cell = "";
+		} else if (c === "\n" || c === "\r") {
+			if (c === "\r" && content[i + 1] === "\n") i++;
+			row.push(cell);
+			cell = "";
+			pushRow();
+		} else {
+			cell += c;
+		}
+	}
+	if (cell !== "" || row.length > 0) {
+		row.push(cell);
+		pushRow();
+	}
+	return rows;
+}
+
+interface AnswerScoreParams {
+	quiz: TwitchatDataTypes.QuizParams;
+	question: TwitchatDataTypes.QuizParams["questionList"][number];
+	/** Answer ID (for classic/majority modes) */
+	answerId?: string;
+	/** Raw text answer (for freeAnswer mode) */
+	answerText?: string;
+	/** Date (ISO 8601 string) when the user voted */
+	votedAt: string;
+	/**
+	 * For majority mode, the set of winning answer IDs.
+	 * Must be provided when scoring majority questions (i.e. at reveal time).
+	 */
+	majorityWinnerIds?: Set<string>;
+}
+
+function validateFreeAnswer(
+	answer: string,
+	quiz: TwitchatDataTypes.QuizParams,
+	question: TwitchatDataTypes.QuizParams["questionList"][number],
+): boolean {
+	if (question.mode !== "freeAnswer") return false;
+	const expectedAnswer = question.answer.toLowerCase();
+	answer = answer.toLowerCase();
+	const tolerancePercent =
+		Math.max(0, Math.min(5, question.toleranceLevel ?? quiz.toleranceLevel ?? 0)) / 5;
+	// Max tolerance level accepts half of the answer to differ
+	const levenshteinTolerance = Math.ceil((tolerancePercent * expectedAnswer.length) / 1.5);
+	let isCorrect: boolean;
+	if (levenshteinTolerance > 0) {
+		isCorrect = Utils.levenshtein(answer ?? "", expectedAnswer) <= levenshteinTolerance;
+	} else {
+		isCorrect = answer === expectedAnswer;
+	}
+	if (!isCorrect) {
+		isCorrect = answer.includes(expectedAnswer);
+	}
+	return isCorrect;
+}
+
+/**
+ * Computes the final score for a single answer.
+ * Handles all question modes (classic, freeAnswer, majority),
+ * applies time-based speed multiplier and loosePointsOnFail guard.
+ */
+function computeAnswerScore(params: AnswerScoreParams): number {
+	const { quiz, question, answerId, answerText, votedAt, majorityWinnerIds } = params;
+	let rawScore = 0;
+
+	if (question.mode === "freeAnswer") {
+		rawScore = validateFreeAnswer(answerText ?? "", quiz, question)
+			? POINTS_PER_QUESTION
+			: -POINTS_PER_QUESTION;
+	} else if (question.mode === "classic" && answerId) {
+		const answer = question.answerList.find((a) => a.id === answerId);
+		if (answer) {
+			rawScore = answer.correct ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+		}
+	} else if (question.mode === "majority" && answerId && majorityWinnerIds) {
+		rawScore = majorityWinnerIds.has(answerId) ? POINTS_PER_QUESTION : -POINTS_PER_QUESTION;
+	}
+
+	// Apply time-based speed multiplier.
+	// The grace period is included in the scoring window so votes received
+	// during it still get a (small) non-zero score
+	let score = rawScore;
+	if (quiz.timeBasedScoring) {
+		const questionDuration =
+			(question.duration_s ?? quiz.durationPerQuestion_s) * 1000 + VOTE_GRACE_PERIOD_MS;
+		const speedMult =
+			Math.min(
+				questionDuration,
+				Math.max(
+					0,
+					new Date(votedAt).getTime() - new Date(quiz.questionStarted_at).getTime(),
+				),
+			) / questionDuration;
+		score = Math.round(score * (1 - speedMult));
+	}
+
+	// Avoid losing points if the quiz isn't configured for it
+	if (score <= 0 && !quiz.loosePointsOnFail) {
+		score = 0;
+	}
+
+	return score;
+}
+
+/**
+ * Returns the quiz currently driving the overlays, the extension and the chat
+ * answers.
+ * The ephemeral quiz always steps over the enabled quiz of the list. That quiz
+ * keeps its own state untouched meanwhile, so it resumes on its own as soon as
+ * the ephemeral one is closed.
+ */
+function getActiveQuiz(state: IQuizState): TwitchatDataTypes.QuizParams | undefined {
+	return state.ephemeralQuiz ?? state.quizList.find((q) => q.enabled);
+}
+
+/**
+ * Resolves a quiz by its ID, ephemeral quiz included.
+ * Only the live resolution is stepped over by the ephemeral quiz
+ * (@see getActiveQuiz), editing a quiz of the list remains possible while an
+ * ephemeral quiz is running.
+ */
+function getQuizById(state: IQuizState, quizId: string): TwitchatDataTypes.QuizParams | undefined {
+	if (state.ephemeralQuiz?.id === quizId) return state.ephemeralQuiz;
+	return state.quizList.find((q) => q.id === quizId);
+}
+
+export const storeQuiz = defineStore("quiz", {
+	state: (): IQuizState => ({
+		quizList: [],
+		ephemeralQuiz: null,
+		currentFreeAnswerStats: {
+			right: 0,
+			wrong: 0,
+		},
+	}),
+
+	getters: {} satisfies StoreGetters<IQuizGetters, IQuizState>,
+
+	actions: {
+		async populateData(): Promise<void> {
+			const json = DataStore.get(DataStore.QUIZ_CONFIGS);
+			if (json) {
+				const data = JSON.parse(json) as IStoreData;
+				this.quizList = data.quizList ?? [];
+				this.ephemeralQuiz = data.ephemeralQuiz ?? null;
+				if (this.ephemeralQuiz) {
+					//Drop ephemeral quizes after 24h
+					if (
+						Utils.getUUIDTimestamp(this.ephemeralQuiz.id) + 24 * 60 * 60_000 <
+						Date.now()
+					) {
+						this.closeEphemeralQuiz();
+					}
+				}
+			} else {
+				this.quizList = [];
+			}
+
+			// Default answer shuffling to enabled for quizzes saved before
+			// the option existed, so it keeps its historical behavior.
+			this.quizList.forEach((quiz) => {
+				quiz.shuffleAnswers ??= true;
+			});
+
+			// Restore the fast access refs so chat answers keep being accepted
+			// after a reload while a question is running
+			const activeQuiz = getActiveQuiz(this);
+			if (activeQuiz) {
+				currentQuiz = activeQuiz;
+				currentQuestion =
+					activeQuiz.questionList.find((q) => q.id === activeQuiz.currentQuestionId) ??
+					null;
+			}
+
+			PublicAPI.instance.addEventListener("GET_QUIZ_CONFIGS", (_eevent) => {
+				this.broadcastQuizState(true);
+			});
+
+			PublicAPI.instance.addEventListener("SET_QUIZ_NEXT_QUESTION", (_eevent) => {
+				const quiz = getActiveQuiz(this);
+				if (!quiz) return;
+				this.startNextQuestion(quiz.id);
+			});
+
+			PublicAPI.instance.addEventListener("SET_QUIZ_REVEAL", (_eevent) => {
+				const quiz = getActiveQuiz(this);
+				if (!quiz) return;
+				this.revealAnswer(quiz.id);
+			});
+
+			PublicAPI.instance.addEventListener("SET_QUIZ_TOGGLE_LEADERBOARD", (_eevent) => {
+				const quiz = getActiveQuiz(this);
+				if (!quiz) return;
+				void this.showLeaderBoard(quiz.id);
+			});
+
+			SSEHelper.instance.addEventListener("TWITCHEXT_QUIZ_ANSWER", async (event) => {
+				const eventData = event.data;
+				if (!eventData) return;
+
+				void this.handleAnswer(
+					"twitch",
+					eventData.delay_ms,
+					eventData.quizId,
+					eventData.questionId,
+					eventData.answerId,
+					eventData.answerText,
+					eventData.userId,
+					eventData.opaqueUserId,
+					eventData.serverVotedElapsed_ms,
+				);
+			});
+
+			SSEHelper.instance.addEventListener("ON_CONNECT", async (_event) => {
+				this.broadcastQuizState(false, true);
+			});
+		},
+
+		async saveData(
+			quizId?: string,
+			broadcastToOverlayOnly?: boolean,
+			directBroadcast?: boolean,
+		): Promise<void> {
+			const quiz = quizId ? getQuizById(this, quizId) : undefined;
+			if (!quiz) return;
+
+			// The ephemeral quiz isn't part of the list so none of the "only one
+			// enabled quiz at a time" arbitration applies to it. It steps over the
+			// running quiz without ever disabling it, so that one resumes untouched
+			// once the ephemeral quiz is closed.
+			if (quiz === this.ephemeralQuiz) {
+				DataStore.set(DataStore.QUIZ_CONFIGS, {
+					quizList: this.quizList,
+					ephemeralQuiz: this.ephemeralQuiz,
+				} satisfies IStoreData);
+				this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
+				return;
+			}
+
+			// Are we saving a specifc quiz that's enabled?
+			if (quiz.enabled) {
+				const otherActiveQuiz = this.quizList.filter(
+					(q) =>
+						q.enabled && q.id !== quizId && Object.keys(q.leaderboard || {}).length > 0,
+				)[0];
+				// Are we about to lose live quiz progress?
+				if (otherActiveQuiz) {
+					const t = StoreProxy.i18n.t;
+					try {
+						await StoreProxy.main.confirm(
+							t("quiz.form.lost_progress_warning.title"),
+							t("quiz.form.lost_progress_warning.description_other", {
+								NAME: otherActiveQuiz?.title,
+							}),
+						);
+					} catch (_error) {
+						// User cancelled, disable the quiz
+						quiz.enabled = false;
+						return;
+					}
+					this.resetQuizState(otherActiveQuiz.id, false);
+				}
+
+				// Disable all other quizzes
+				this.quizList.forEach((q) => {
+					if (q.id !== quizId) {
+						q.enabled = false;
+					}
+				});
+				// Force back to true to solve an UI race condition
+				quiz.enabled = true;
+			} else if (!quiz.enabled && Object.keys(quiz.leaderboard || {}).length > 0) {
+				const t = StoreProxy.i18n.t;
+				try {
+					await StoreProxy.main.confirm(
+						t("quiz.form.lost_progress_warning.title"),
+						t("quiz.form.lost_progress_warning.description_self"),
+					);
+				} catch (_error) {
+					// User cancelled, enable it back
+					quiz.enabled = true;
+					return;
+				}
+			}
+			if (!quiz.enabled) this.resetQuizState(quiz.id, false, false);
+			const data: IStoreData = {
+				quizList: this.quizList,
+				ephemeralQuiz: this.ephemeralQuiz,
+			};
+			DataStore.set(DataStore.QUIZ_CONFIGS, data);
+			this.broadcastQuizState(broadcastToOverlayOnly, directBroadcast);
+		},
+
+		addQuiz(): TwitchatDataTypes.QuizParams {
+			let data: TwitchatDataTypes.QuizParams = {
+				id: Utils.getUUID(),
+				enabled: false,
+				title: "",
+				questionList: [],
+				durationPerQuestion_s: 20,
+				loosePointsOnFail: true,
+				timeBasedScoring: true,
+				maxAnswers: 0,
+				shuffleAnswers: true,
+				currentQuestionId: "",
+				quizStarted_at: "",
+				questionStarted_at: "",
+				leaderboard: {},
+				currentQuestionScores: {},
+				currentQuestionVotes: {},
+			};
+			this.quizList.push(data);
+			void this.saveData(data.id);
+			return data;
+		},
+
+		removeQuiz(id: string): void {
+			const t = StoreProxy.i18n.t;
+			StoreProxy.main
+				.confirm(
+					t("quiz.form.delete_confirm.title"),
+					t("quiz.form.delete_confirm.description"),
+				)
+				.then(() => {
+					this.quizList = this.quizList.filter((g) => g.id !== id);
+					void this.saveData();
+				})
+				.catch(() => {});
+		},
+
+		duplicateQuiz(id: string): TwitchatDataTypes.QuizParams | undefined {
+			const source = this.quizList.find((g) => g.id === id);
+			if (!source) return;
+			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
+			clone.id = Utils.getUUID();
+			clone.questionList.forEach((q) => {
+				q.id = Utils.getUUID();
+				if (q.mode !== "freeAnswer") {
+					q.answerList.forEach((a) => {
+						a.id = Utils.getUUID();
+					});
+				}
+			});
+			clone.enabled = false;
+			this.quizList.push(clone);
+			this.resetQuizState(clone.id, false);
+			void this.saveData(clone.id);
+			return clone;
+		},
+
+		async handleAnswer(
+			platform: TwitchatDataTypes.ChatPlatform,
+			delay_ms: number,
+			quizId: string,
+			questionId: string,
+			answerId?: string,
+			answerText?: string,
+			userId?: string,
+			opaqueUserId?: string,
+			serverVotedElapsed_ms?: number,
+		): Promise<void> {
+			// The ephemeral quiz steps over any other quiz: answers aimed at the
+			// quiz it shadows are refused until it gets closed.
+			if (this.ephemeralQuiz && this.ephemeralQuiz.id !== quizId) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: an ephemeral quiz is currently stepping over this quiz",
+					accepted: false,
+					reason: "shadowed_by_ephemeral_quiz",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText, ephemeralQuizId: this.ephemeralQuiz.id },
+				});
+				return;
+			}
+			const quiz = getQuizById(this, quizId);
+			if (!quiz || !quiz.enabled) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: quiz not found or not enabled",
+					accepted: false,
+					reason: !quiz ? "quiz_not_found" : "quiz_disabled",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
+			const question = quiz.questionList.filter((q) => q.id === questionId)[0];
+			if (!question) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: question not found in quiz",
+					accepted: false,
+					reason: "question_not_found",
+					quizId,
+					questionId,
+					uid: userId || opaqueUserId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
+			const uid = userId || opaqueUserId;
+			if (!uid) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: no user id provided (neither userId nor opaqueUserId)",
+					accepted: false,
+					reason: "no_user_id",
+					quizId,
+					questionId,
+					platform,
+					data: { answerId, answerText },
+				});
+				return;
+			}
+
+			// Initialize leaderboard entry for user if not present
+			if (!quiz.leaderboard[uid]) {
+				Logger.instance.log("quiz", {
+					info: "New participant joined the quiz leaderboard",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { anon: !!opaqueUserId && !userId },
+				});
+				quiz.leaderboard[uid] = {
+					anon: !!opaqueUserId && !userId,
+					score: 0,
+					platform,
+				};
+				// If user doesn't come from Twitch, store username and avatar as they probably cannot
+				// be retrieved from any API but are needed for leaderboard.
+				if (platform != "twitch") {
+					StoreProxy.users.getUserFrom(
+						platform,
+						StoreProxy.auth.twitch.user.id,
+						uid,
+						undefined,
+						undefined,
+						(user) => {
+							quiz.leaderboard[uid]!.name = user?.displayNameOriginal ?? "";
+							quiz.leaderboard[uid]!.avatarPath = user?.avatarPath ?? "";
+						},
+					);
+				}
+			}
+
+			const totalTime = (question.duration_s || quiz.durationPerQuestion_s) * 1000;
+			// Prefer the server-measured elapsed (same clock the viewer's countdown ran on)
+			// so gating and time-based scoring match what the viewer actually saw. Fall back
+			// to the streamer's local clock for answers that didn't transit the extension
+			// (e.g. chat votes) or when the server couldn't resolve it.
+			const elapsed = Math.max(
+				0,
+				serverVotedElapsed_ms ?? Date.now() - new Date(quiz.questionStarted_at).getTime(),
+			);
+
+			// Check if question is still accepting answers based on duration.
+			// A grace period is granted past the question's end to compensate
+			// for slow connections.
+			if (elapsed > totalTime + VOTE_GRACE_PERIOD_MS) {
+				Logger.instance.log("quiz", {
+					info:
+						"Answer refused: too late (elapsed " +
+						Math.round(elapsed) +
+						"ms > " +
+						(totalTime + VOTE_GRACE_PERIOD_MS) +
+						"ms allowed)",
+					accepted: false,
+					reason: "too_late",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: {
+						elapsed,
+						totalTime,
+						gracePeriod_ms: VOTE_GRACE_PERIOD_MS,
+						elapsedSource: serverVotedElapsed_ms != undefined ? "server" : "local",
+					},
+				});
+				return;
+			}
+
+			// Encode the elapsed back onto the streamer's start so downstream scoring
+			// (immediate freeAnswer + reveal-time recompute, which both read voted_at and
+			// subtract questionStarted_at) derives the speed multiplier from the elapsed we
+			// chose, regardless of which clock measured it.
+			const votedAt = new Date(
+				new Date(quiz.questionStarted_at).getTime() + elapsed,
+			).toISOString();
+
+			if (!quiz.leaderboard) {
+				quiz.leaderboard = {};
+			}
+			if (!quiz.currentQuestionScores) {
+				quiz.currentQuestionScores = {};
+			}
+			if (!quiz.currentQuestionVotes) {
+				quiz.currentQuestionVotes = {};
+			}
+
+			// Check if user already voted for this question
+			if (quiz.currentQuestionVotes[uid]) {
+				Logger.instance.log("quiz", {
+					info: "Answer refused: user already voted for this question",
+					accepted: false,
+					reason: "already_voted",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { previousAnswer: quiz.currentQuestionVotes[uid]?.answer },
+				});
+				return;
+			}
+
+			// Enforce the "first X users" limit. Only the first X users to answer
+			// the question are accepted, any further answer is ignored.
+			// Question's value overrides the quiz's, 0 (or undefined) = unlimited.
+			const maxAnswers = question.maxAnswers ?? quiz.maxAnswers ?? 0;
+			const answersCount = Object.keys(quiz.currentQuestionVotes).length;
+			if (maxAnswers > 0 && answersCount >= maxAnswers) {
+				Logger.instance.log("quiz", {
+					info:
+						"Answer refused: max answers limit reached (" +
+						answersCount +
+						"/" +
+						maxAnswers +
+						")",
+					accepted: false,
+					reason: "max_answers_reached",
+					quizId,
+					questionId,
+					uid,
+					platform,
+					data: { maxAnswers, answersCount },
+				});
+				return;
+			}
+
+			// Record vote
+			quiz.currentQuestionVotes[uid] = {
+				answer: answerId ?? answerText ?? "",
+				voted_at: votedAt,
+			};
+
+			// For freeAnswer, correctness is known immediately so we expose it in the
+			// log. For classic/majority, final scoring happens at reveal time.
+			let freeAnswerCorrect: boolean | undefined;
+			if (question.mode === "freeAnswer") {
+				freeAnswerCorrect = validateFreeAnswer(answerText ?? "", quiz, question);
+				const score = computeAnswerScore({
+					quiz,
+					question,
+					answerId: undefined,
+					answerText: answerText,
+					votedAt,
+					majorityWinnerIds: undefined,
+				});
+				if (score > 0) {
+					this.currentFreeAnswerStats.right++;
+				} else {
+					this.currentFreeAnswerStats.wrong++;
+				}
+			}
+
+			Logger.instance.log("quiz", {
+				info:
+					"Answer accepted (" +
+					question.mode +
+					(freeAnswerCorrect != undefined
+						? ", " + (freeAnswerCorrect ? "correct" : "wrong")
+						: "") +
+					")",
+				accepted: true,
+				quizId,
+				questionId,
+				uid,
+				platform,
+				data: {
+					mode: question.mode,
+					answer: answerId ?? answerText ?? "",
+					votedAt,
+					elapsed,
+					answerIndex: answersCount + 1,
+					freeAnswerCorrect,
+				},
+			});
+
+			// If the limited answers count has been reached, force the countdown to
+			// stop so no more users can answer.
+			if (maxAnswers > 0 && answersCount + 1 >= maxAnswers) {
+				quiz.forceCountdownStop = true;
+				Logger.instance.log("quiz", {
+					info:
+						"Max answers limit reached (" +
+						(answersCount + 1) +
+						"/" +
+						maxAnswers +
+						"), forcing countdown to stop",
+					quizId,
+					questionId,
+					data: { maxAnswers },
+				});
+				void ApiHelper.call("quiz/broadcast", "PUT", {
+					quiz,
+				});
+			}
+
+			void this.saveData(quizId, true);
+		},
+
+		startNextQuestion(quizId: string): void {
+			const quiz = getQuizById(this, quizId);
+			if (!quiz) {
+				Logger.instance.log("quiz", {
+					info: "startNextQuestion ignored: quiz not found",
+					reason: "quiz_not_found",
+					quizId,
+				});
+				return;
+			}
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
+			delete quiz.currentQuestionRevealed;
+			delete quiz.forceCountdownStop;
+			delete quiz.currentQuestionStats;
+			delete quiz.currentQuestionVotes;
+			delete quiz.currentQuestionScores;
+			quiz.questionStarted_at = new Date().toISOString();
+			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
+			if (index < quiz.questionList.length - 1) {
+				currentQuestion = quiz.questionList[index + 1] || null;
+				if (currentQuestion) quiz.currentQuestionId = currentQuestion.id;
+				currentQuiz = quiz;
+				Logger.instance.log("quiz", {
+					info:
+						"Started question " +
+						(index + 2) +
+						"/" +
+						quiz.questionList.length +
+						" (mode: " +
+						currentQuestion?.mode +
+						")",
+					quizId,
+					questionId: currentQuestion?.id,
+					data: {
+						questionIndex: index + 1,
+						total: quiz.questionList.length,
+						mode: currentQuestion?.mode,
+						question: currentQuestion?.question,
+						startedAt: quiz.questionStarted_at,
+					},
+				});
+			} else {
+				Logger.instance.log("quiz", {
+					info: "startNextQuestion called but already on the last question; no next question started",
+					quizId,
+					questionId: quiz.currentQuestionId,
+					data: { questionIndex: index, total: quiz.questionList.length },
+				});
+			}
+			void this.saveData(quizId, false, true);
+		},
+
+		resetQuizState(quizId: string, confirm: boolean = true, save: boolean = true): void {
+			const reset = () => {
+				const quiz = getQuizById(this, quizId);
+				if (!quiz) return;
+				quiz.currentQuestionId = "";
+				delete quiz.currentQuestionRevealed;
+				delete quiz.forceCountdownStop;
+				delete quiz.currentQuestionStats;
+				delete quiz.currentQuestionVotes;
+				delete quiz.currentQuestionScores;
+				currentQuiz = null;
+				currentQuestion = null;
+				quiz.leaderboard = {};
+				quiz.quizStarted_at = "";
+				quiz.questionStarted_at = "";
+				Logger.instance.log("quiz", {
+					info: "Quiz state reset (leaderboard, scores and votes cleared)",
+					quizId,
+				});
+				if (save) void this.saveData(quizId, false, true);
+			};
+			if (confirm) {
+				StoreProxy.main
+					.confirm(
+						StoreProxy.i18n.t("quiz.state.reset_confirm.title"),
+						StoreProxy.i18n.t("quiz.state.reset_confirm.description"),
+					)
+					.then(() => {
+						reset();
+					})
+					.catch(() => {});
+			} else {
+				reset();
+			}
+		},
+
+		revealAnswer(quizId: string): void {
+			const quiz = getQuizById(this, quizId);
+			if (!quiz) {
+				Logger.instance.log("quiz", {
+					info: "revealAnswer ignored: quiz not found",
+					reason: "quiz_not_found",
+					quizId,
+				});
+				return;
+			}
+			quiz.currentQuestionRevealed = true;
+			quiz.currentQuestionStats = this.computeQuestionStats(quizId, quiz.currentQuestionId);
+			quiz.currentQuestionScores = this.computeQuestionScores(quizId, quiz.currentQuestionId);
+			const revealQuestion = quiz.questionList.find((q) => q.id === quiz.currentQuestionId);
+			Logger.instance.log("quiz", {
+				info:
+					"Revealed answer (mode: " +
+					(revealQuestion?.mode ?? "?") +
+					", " +
+					Object.keys(quiz.currentQuestionVotes || {}).length +
+					" vote(s))",
+				quizId,
+				questionId: quiz.currentQuestionId,
+				data: {
+					mode: revealQuestion?.mode,
+					voteCount: Object.keys(quiz.currentQuestionVotes || {}).length,
+					scores: quiz.currentQuestionScores,
+				},
+			});
+			// Force the countdown to stop on overlays/extension. We keep questionStarted_at
+			// untouched so time-based scoring stays valid (scores computed just above).
+			quiz.forceCountdownStop = true;
+			const index = quiz.questionList.findIndex((q) => q.id === quiz.currentQuestionId);
+
+			// If this is the last question, compute the final leaderboard and send a message to chat with the winner
+			if (index === quiz.questionList.length - 1) {
+				Logger.instance.log("quiz", {
+					info: "Last question revealed: quiz complete, computing final leaderboard",
+					quizId,
+					questionId: quiz.currentQuestionId,
+					data: { participants: Object.keys(quiz.leaderboard || {}).length },
+				});
+				const leaderboard = Object.entries(quiz.leaderboard || {})
+					.map(([uid, data]) => ({
+						uid,
+						...data,
+					}))
+					.sort((a, b) => b.score - a.score);
+				const firstUser = leaderboard[0];
+				if (firstUser) {
+					const anonWinnerName = firstUser.anon
+						? Utils.getNameFromOpaqueId(firstUser.uid || "")
+						: undefined;
+					StoreProxy.users.getUserFrom(
+						firstUser.anon ? "twitchat" : firstUser.platform || "twitch",
+						StoreProxy.auth.twitch.user.id,
+						firstUser.uid || "",
+						anonWinnerName ?? firstUser.name,
+						anonWinnerName ??
+							(firstUser.platform != "twitch" ? firstUser.name : undefined),
+						//Wait for user data to be computed (potential API call)
+						(winner) => {
+							if (firstUser.anon) winner.anonymous = true;
+							if (firstUser.avatarPath) winner.avatarPath = firstUser.avatarPath;
+							const message: TwitchatDataTypes.MessageQuizCompleteData = {
+								channel_id: StoreProxy.auth.twitch.user.id,
+								platform: "twitch",
+								type: "quiz_complete",
+								id: Utils.getUUID(),
+								date: Date.now(),
+								quizResult: {
+									quizId: quiz.id,
+									quizName: quiz.title || quiz.questionList[0]!.question,
+									leaderboard,
+									winner,
+								},
+							};
+							void StoreProxy.chat.addMessage(message);
+						},
+					);
+				}
+			}
+			void this.saveData(quizId, false, true);
+		},
+
+		async showLeaderBoard(quizId: string): Promise<void> {
+			const quiz = getQuizById(this, quizId);
+			if (!quiz) return;
+			const leaderboard: TwitchatDataTypes.QuizLeaderboard = {};
+			const promises: Promise<TwitchatDataTypes.TwitchatUser | void>[] = [];
+			for (const uid in quiz.leaderboard) {
+				const element = quiz.leaderboard[uid]!;
+				const promise = new Promise<TwitchatDataTypes.TwitchatUser | void>((resolve) => {
+					if (element.anon) {
+						leaderboard[uid] = {
+							...element,
+							platform: element.platform || "twitch",
+							name: element.name || "",
+							avatarPath: element.avatarPath || "",
+						};
+						resolve();
+						return;
+					}
+					const platform = element.platform || "twitch";
+					StoreProxy.users.getUserFrom(
+						platform,
+						StoreProxy.auth.twitch.user.id,
+						uid,
+						element.name,
+						undefined,
+						(user) => {
+							resolve(user);
+							leaderboard[uid] = {
+								...element,
+								platform,
+								name: user.displayNameOriginal,
+								avatarPath: user.avatarPath || "",
+							};
+						},
+					);
+				});
+				promises.push(promise);
+			}
+			await Promise.all(promises);
+			PublicAPI.instance.broadcast("ON_QUIZ_LEADERBOARD", leaderboard);
+		},
+
+		broadcastQuizState(overlayOnly?: boolean, directBroadcast: boolean = false): void {
+			const quiz = getActiveQuiz(this);
+
+			const i18n = {
+				mode_classic: StoreProxy.i18n.t("quiz.form.mode_classic.title"),
+				mode_majority: StoreProxy.i18n.t("quiz.form.mode_majority.title"),
+				mode_freeAnswer: StoreProxy.i18n.t("quiz.form.mode_freeAnswer.title"),
+			};
+			PublicAPI.instance.broadcast("ON_QUIZ_STATE", { quiz, i18n });
+			PublicAPI.instance.broadcastGlobalStates();
+			if (!overlayOnly) {
+				// Debounce server broadcast
+				window.clearTimeout(broadcastDebounceTO);
+				broadcastDebounceTO = window.setTimeout(
+					() => {
+						void ApiHelper.call("quiz/broadcast", "PUT", {
+							quiz,
+						});
+					},
+					directBroadcast ? 0 : 1500,
+				);
+			}
+		},
+
+		startEphemeralQuiz(quiz: TwitchatDataTypes.QuizParams): void {
+			const question = quiz.questionList[0];
+			if (!question) return;
+
+			// Start it right away. The streamer already validated the form, asking
+			// them to hit "start" on the panel afterwards would defeat the purpose
+			quiz.enabled = true;
+			quiz.leaderboard = {};
+			quiz.quizStarted_at = new Date().toISOString();
+			quiz.questionStarted_at = quiz.quizStarted_at;
+			quiz.currentQuestionId = question.id;
+			delete quiz.currentQuestionRevealed;
+			delete quiz.forceCountdownStop;
+			delete quiz.currentQuestionStats;
+			delete quiz.currentQuestionVotes;
+			delete quiz.currentQuestionScores;
+
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
+			this.ephemeralQuiz = quiz;
+			currentQuiz = quiz;
+			currentQuestion = question;
+
+			const shadowed = this.quizList.find((q) => q.enabled);
+			Logger.instance.log("quiz", {
+				info:
+					"Ephemeral quiz started (mode: " +
+					question.mode +
+					(shadowed ? ", stepping over quiz " + shadowed.id : "") +
+					")",
+				quizId: quiz.id,
+				questionId: question.id,
+				data: {
+					mode: question.mode,
+					question: question.question,
+					startedAt: quiz.questionStarted_at,
+					shadowedQuizId: shadowed?.id,
+				},
+			});
+			void this.saveData(quiz.id, false, true);
+		},
+
+		closeEphemeralQuiz(): void {
+			const quiz = this.ephemeralQuiz;
+			if (!quiz) return;
+			this.ephemeralQuiz = null;
+			this.currentFreeAnswerStats.right = 0;
+			this.currentFreeAnswerStats.wrong = 0;
+
+			// Resume the quiz that was running before, if any. Its state was left
+			// untouched while shadowed so it picks up right where it stopped.
+			const resumed = this.quizList.find((q) => q.enabled);
+			currentQuiz = resumed ?? null;
+			currentQuestion =
+				resumed?.questionList.find((q) => q.id === resumed.currentQuestionId) ?? null;
+
+			Logger.instance.log("quiz", {
+				info: resumed
+					? "Ephemeral quiz closed, resuming quiz " + resumed.id
+					: "Ephemeral quiz closed",
+				quizId: quiz.id,
+				data: { resumedQuizId: resumed?.id, resumedQuestionId: resumed?.currentQuestionId },
+			});
+
+			// Can't go through saveData() as the quiz it would resolve is gone
+			DataStore.set(DataStore.QUIZ_CONFIGS, {
+				quizList: this.quizList,
+				ephemeralQuiz: null,
+			} satisfies IStoreData);
+			this.broadcastQuizState(false, true);
+		},
+
+		validateFreeAnswer(
+			answer: string,
+			quiz: TwitchatDataTypes.QuizParams,
+			question: TwitchatDataTypes.QuizParams["questionList"][number],
+		): boolean {
+			return validateFreeAnswer(answer, quiz, question);
+		},
+
+		async handleChatAnswer(message: TwitchatDataTypes.TranslatableMessage): Promise<void> {
+			if (!currentQuestion || !currentQuiz) return;
+			const answer = (message.message ?? "").trim();
+			let answerId: string | undefined = undefined;
+			let hasAnswered = false;
+			if (currentQuestion.mode !== "freeAnswer") {
+				if (answer.length == 1) {
+					// Search if answer matches an answer index, either letter (A, B, C...) or number (1, 2, 3...)
+					let index = letterIndexes.indexOf(answer.toUpperCase());
+					if (index === -1) index = parseInt(answer) - 1;
+					if (index >= 0 && index < currentQuestion.answerList.length) {
+						answerId = currentQuestion.answerList[index]!.id;
+						hasAnswered = true;
+					}
+				}
+				// Search if answer matches an actual text answer
+				if (!answerId) {
+					currentQuestion.answerList.forEach((a) => {
+						if (a.title.trim().toLowerCase() === answer.toLowerCase()) {
+							answerId = a.id;
+							hasAnswered = true;
+						}
+					});
+				}
+			} else {
+				hasAnswered = true;
+			}
+			if (hasAnswered) {
+				// Handle the answer
+				void this.handleAnswer(
+					message.platform,
+					0,
+					currentQuiz.id,
+					currentQuestion.id,
+					answerId,
+					answerId ? undefined : answer,
+					message.user.id,
+				);
+			}
+		},
+
+		computeQuestionScores(quizId: string, questionId: string): { [uid: string]: number } {
+			const quiz = getQuizById(this, quizId);
+			if (!quiz) return {};
+			const question = quiz.questionList.find((q) => q.id === questionId);
+			if (!question || !quiz.currentQuestionVotes) return {};
+
+			const votes = quiz.currentQuestionVotes;
+			if (!votes || Object.keys(votes).length === 0) return {};
+
+			const summary: { [uid: string]: number } = {};
+
+			// For majority mode, determine the winning answer(s)
+			let majorityWinnerIds: Set<string> | undefined;
+			if (question.mode === "majority") {
+				const voteCounts: { [answerId: string]: number } = {};
+				for (const uid in votes) {
+					const vote = votes[uid]!;
+					voteCounts[vote.answer] = (voteCounts[vote.answer] || 0) + 1;
+				}
+				const maxVoteCount = Math.max(...Object.values(voteCounts));
+				majorityWinnerIds = new Set(
+					Object.keys(voteCounts).filter((id) => voteCounts[id] === maxVoteCount),
+				);
+			}
+
+			for (const uid in votes) {
+				const vote = votes[uid]!;
+				const userData = quiz.leaderboard[uid];
+				if (!userData) continue;
+				const score = computeAnswerScore({
+					quiz,
+					question,
+					answerId: question.mode !== "freeAnswer" ? vote.answer : undefined,
+					answerText: question.mode === "freeAnswer" ? vote.answer : undefined,
+					votedAt: vote.voted_at ?? new Date().toISOString(),
+					majorityWinnerIds,
+				});
+				summary[uid] = score;
+				userData.score += score;
+			}
+			return summary;
+		},
+
+		async importCSV(quizId: string, file: File): Promise<boolean> {
+			if (file.type !== "text/csv" || !file.name.endsWith(".csv")) return false;
+			const quiz = this.quizList.find((v) => v.id === quizId);
+			if (!quiz) return false;
+
+			let content = await file.text();
+			if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
+
+			const rows = parseCSVRows(content, ";");
+			const knownModes = new Set(["classic", "majority", "freeAnswer"]);
+			if (!rows.some((r) => knownModes.has((r[0] || "").trim()))) return false;
+
+			const parseDuration = (raw: string | undefined): number | undefined => {
+				const n = parseInt((raw || "").trim());
+				return isNaN(n) || n <= 0 ? undefined : n;
+			};
+			const cleanup = (value: string, maxLength: number): string => {
+				const res = Utils.unescapeCSVCell(value);
+				return res.length > maxLength ? res.slice(0, maxLength) : res;
+			};
+			const parseTolerance = (raw: string | undefined): 0 | 1 | 2 | 3 | 4 | 5 | undefined => {
+				const trimmed = (raw || "").trim();
+				if (!trimmed) return undefined;
+				const n = parseInt(trimmed);
+				if (isNaN(n) || n < 0 || n > 5) return undefined;
+				return n as 0 | 1 | 2 | 3 | 4 | 5;
+			};
+
+			let added = 0;
+			for (const row of rows) {
+				const mode = (row[0] || "").trim();
+				const questionText = cleanup((row[1] || "").trim(), QUIZ_QUESTION_MAXLENGTH);
+				if (!questionText) continue;
+
+				if (mode === "classic") {
+					const duration = parseDuration(row[CLASSIC_ANSWER_SLOTS + 2]);
+					const answerList: { id: string; title: string; correct?: boolean }[] = [];
+					for (let i = 0; i < CLASSIC_ANSWER_SLOTS; i++) {
+						const raw = (row[i + 2] || "").trim();
+						if (!raw) continue;
+						const correct = raw.startsWith("*");
+						const title = cleanup(
+							(correct ? raw.slice(1) : raw).trim(),
+							QUIZ_ANSWER_MAXLENGTH,
+						);
+						if (!title) continue;
+						answerList.push({ id: Utils.getUUID(), title, correct });
+					}
+					if (answerList.length < 2) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "classic",
+						question: questionText,
+						duration_s: duration,
+						answerList,
+					});
+					added++;
+				} else if (mode === "majority") {
+					const duration = parseDuration(row[MAJORITY_ANSWER_SLOTS + 2]);
+					const answerList: { id: string; title: string }[] = [];
+					for (let i = 0; i < MAJORITY_ANSWER_SLOTS; i++) {
+						const title = cleanup((row[i + 2] || "").trim(), QUIZ_ANSWER_MAXLENGTH);
+						if (!title) continue;
+						answerList.push({ id: Utils.getUUID(), title });
+					}
+					if (answerList.length < 2) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "majority",
+						question: questionText,
+						duration_s: duration,
+						answerList,
+					});
+					added++;
+				} else if (mode === "freeAnswer") {
+					const answer = cleanup((row[2] || "").trim(), QUIZ_FREE_ANSWER_MAXLENGTH);
+					if (!answer) continue;
+					quiz.questionList.push({
+						id: Utils.getUUID(),
+						mode: "freeAnswer",
+						question: questionText,
+						duration_s: parseDuration(row[3]),
+						answer,
+						toleranceLevel: parseTolerance(row[4]),
+					});
+					added++;
+				}
+			}
+
+			if (added === 0) return false;
+			void this.saveData(quizId);
+			return true;
+		},
+
+		exportCSV(quizId: string): void {
+			const quiz = this.quizList.find((v) => v.id === quizId);
+			if (!quiz) return;
+
+			const escape = (v: string | number | undefined | null): string =>
+				Utils.escapeCSVCell(v, ";");
+
+			const rows: string[] = [];
+			for (const q of quiz.questionList) {
+				const cols: string[] = [q.mode, escape(q.question)];
+				if (q.mode === "freeAnswer") {
+					cols.push(escape(q.answer));
+					cols.push(escape(q.duration_s));
+					cols.push(escape(q.toleranceLevel));
+				} else {
+					const slots =
+						q.mode === "classic" ? CLASSIC_ANSWER_SLOTS : MAJORITY_ANSWER_SLOTS;
+					const isClassic = q.mode === "classic";
+					for (let i = 0; i < slots; i++) {
+						const a = q.answerList[i];
+						if (!a) {
+							cols.push("");
+							continue;
+						}
+						const prefix = isClassic && (a as { correct?: boolean }).correct ? "*" : "";
+						cols.push(escape(prefix + (a.title || "")));
+					}
+					cols.push(escape(q.duration_s));
+				}
+				rows.push(cols.join(";"));
+			}
+
+			const csv = "﻿" + rows.join("\r\n");
+			const safeName =
+				(quiz.title || "quiz").replace(/[^a-z0-9\-_]+/gi, "_").slice(0, 60) || "quiz";
+			Utils.downloadFile(safeName + ".csv", csv, undefined, "text/csv");
+		},
+
+		computeQuestionStats(
+			quizId: string,
+			questionId: string,
+		): NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]> {
+			const quiz = getQuizById(this, quizId);
+			const question = quiz?.questionList.find((q) => q.id === questionId);
+			if (question?.mode === "freeAnswer") return {};
+			if (!quiz || !question) return {};
+			const votes = quiz.currentQuestionVotes;
+			if (!votes || Object.keys(votes).length === 0)
+				return question.answerList.reduce(
+					(acc, a) => {
+						acc[a.id] = { globalPercent: 0, relativePercent: 0, voteCount: 0 };
+						return acc;
+					},
+					{} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>,
+				);
+
+			const maxVotes = question.answerList.reduce((max, a) => {
+				const count = Object.values(votes).filter((v) => v.answer == a.id).length;
+				return count > max ? count : max;
+			}, 0);
+			return question.answerList.reduce(
+				(acc, a) => {
+					acc[a.id] = {
+						globalPercent:
+							Math.round(
+								(Object.values(votes).filter((v) => v.answer == a.id).length /
+									Object.keys(votes).length) *
+									1000,
+							) / 1000,
+						relativePercent:
+							Math.round(
+								(Object.values(votes).filter((v) => v.answer == a.id).length /
+									maxVotes) *
+									1000,
+							) / 1000,
+						voteCount: Object.values(votes).filter((v) => v.answer == a.id).length,
+					};
+					return acc;
+				},
+				{} as NonNullable<TwitchatDataTypes.QuizParams["currentQuestionStats"]>,
+			);
+		},
+	} satisfies StoreActions<"quiz", IQuizState, IQuizGetters, IQuizActions>,
+});
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeQuiz, import.meta.hot));
+}
+
+interface IStoreData {
+	quizList: TwitchatDataTypes.QuizParams[];
+	ephemeralQuiz: TwitchatDataTypes.QuizParams | null;
+}
+
