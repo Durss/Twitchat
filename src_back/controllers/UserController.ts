@@ -103,19 +103,6 @@ export default class UserController extends AbstractController {
 	});
 
 	/**
-	 * Cache for frequently read config files
-	 */
-	private _configFileCache = new LRUCache<string, { data: any; mtime: number }>({
-		max: 20,
-		ttl: 1000 * 30, // 30 seconds TTL - files don't change often
-	});
-
-	/**
-	 * Tracks in-flight file reads to prevent cache stampede
-	 */
-	private _pendingFileReads = new Map<string, Promise<any>>();
-
-	/**
 	 * Cache of active heat screen areas per user (Twitch extension exposure).
 	 * Invalidated explicitly via DELETE /api/user/heat_areas/cache.
 	 */
@@ -1014,50 +1001,5 @@ export default class UserController extends AbstractController {
 		response.header("Content-Type", "application/json");
 		response.status(200);
 		response.send(JSON.stringify({ success: true, data: Utils.decrypt(data) }));
-	}
-
-	/**
-	 * Reads a JSON config file with caching
-	 * Uses file mtime to invalidate cache when file changes
-	 */
-	private async readCachedJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
-		// Check if we have a pending read for this file (cache stampede prevention)
-		const pending = this._pendingFileReads.get(filePath);
-		if (pending) return pending as Promise<T>;
-
-		// Check cache
-		const cached = this._configFileCache.get(filePath);
-		if (cached) {
-			// Verify file hasn't changed (async stat is fast)
-			try {
-				const stats = await fs.promises.stat(filePath);
-				if (stats.mtimeMs === cached.mtime) {
-					return cached.data as T;
-				}
-			} catch {
-				// File doesn't exist or error, return default
-				return defaultValue;
-			}
-		}
-
-		// Read file
-		const readPromise = (async () => {
-			try {
-				const [content, stats] = await Promise.all([
-					Utils.readFileAsync(filePath, "utf-8"),
-					fs.promises.stat(filePath),
-				]);
-				const data = JSON.parse(content) as T;
-				this._configFileCache.set(filePath, { data, mtime: stats.mtimeMs });
-				return data;
-			} catch {
-				return defaultValue;
-			} finally {
-				this._pendingFileReads.delete(filePath);
-			}
-		})();
-
-		this._pendingFileReads.set(filePath, readPromise);
-		return readPromise;
 	}
 }

@@ -36,6 +36,20 @@ export default class AbstractController {
 		ttl: AbstractController.PREMIUM_TTL,
 	});
 
+	/**
+	 * Cache for frequently read config files.
+	 * Shared by every controller, those files are global config.
+	 */
+	private static _configFileCache = new LRUCache<string, { data: any; mtime: number }>({
+		max: 20,
+		ttl: 1000 * 30, // 30 seconds TTL - files don't change often
+	});
+
+	/**
+	 * Tracks in-flight file reads to prevent cache stampede
+	 */
+	private static _pendingFileReads = new Map<string, Promise<any>>();
+
 	constructor() {}
 
 	/********************
@@ -222,22 +236,20 @@ export default class AbstractController {
 		}
 
 		//Check if user is part of active patreon members
-		if (
-			premiumType == "no" &&
-			(await fs.promises
-				.access(Config.twitch2Patreon)
-				.then(() => true)
-				.catch(() => false))
-		) {
+		if (premiumType == "no") {
 			//Get patreon member ID from twitch user ID
-			const jsonMap = JSON.parse(await Utils.readFileAsync(Config.twitch2Patreon, "utf-8"));
+			const jsonMap = await this.readCachedJsonFile<{ [uid: string]: string }>(
+				Config.twitch2Patreon,
+				{},
+			);
 			const memberID = jsonMap[uid];
 			//No patreon account linked, no need to load the members list
 			if (memberID) {
 				//Get if user is part of the active patreon members
-				const members = JSON.parse(
-					await Utils.readFileAsync(Config.patreonMembers, "utf-8"),
-				) as PatreonMember[];
+				const members = await this.readCachedJsonFile<PatreonMember[]>(
+					Config.patreonMembers,
+					[],
+				);
 				if (members.findIndex((v) => v.id === memberID) > -1) {
 					premiumType = "temporary";
 				}
@@ -245,21 +257,12 @@ export default class AbstractController {
 		}
 
 		//Check if user donated for more than the lifetime premium amount
-		if (
-			premiumType == "no" &&
-			(await fs.promises
-				.access(Config.donorsList)
-				.then(() => true)
-				.catch(() => false))
-		) {
-			let donorAmount = -1;
-			const json: { [key: string]: number } = JSON.parse(
-				await Utils.readFileAsync(Config.donorsList, "utf8"),
+		if (premiumType == "no") {
+			const json = await this.readCachedJsonFile<{ [uid: string]: number }>(
+				Config.donorsList,
+				{},
 			);
-			const isDonor = json.hasOwnProperty(uid);
-			if (isDonor) {
-				donorAmount = json[uid]!;
-			}
+			const donorAmount = json.hasOwnProperty(uid) ? json[uid]! : -1;
 			if (donorAmount >= Config.lifetimeDonorThreshold) {
 				premiumType = "lifetime";
 			}
@@ -274,6 +277,52 @@ export default class AbstractController {
 		});
 
 		return premiumType;
+	}
+
+	/**
+	 * Reads a JSON config file with caching.
+	 * Uses the file mtime to invalidate the cache when the file changes, and
+	 * shares in-flight reads so a burst of requests can't stampede the same file.
+	 */
+	protected async readCachedJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
+		// Check if we have a pending read for this file (cache stampede prevention)
+		const pending = AbstractController._pendingFileReads.get(filePath);
+		if (pending) return pending as Promise<T>;
+
+		// Check cache
+		const cached = AbstractController._configFileCache.get(filePath);
+		if (cached) {
+			// Verify file hasn't changed (async stat is fast)
+			try {
+				const stats = await fs.promises.stat(filePath);
+				if (stats.mtimeMs === cached.mtime) {
+					return cached.data as T;
+				}
+			} catch {
+				// File doesn't exist or error, return default
+				return defaultValue;
+			}
+		}
+
+		// Read file
+		const readPromise = (async () => {
+			try {
+				const [content, stats] = await Promise.all([
+					Utils.readFileAsync(filePath, "utf-8"),
+					fs.promises.stat(filePath),
+				]);
+				const data = JSON.parse(content) as T;
+				AbstractController._configFileCache.set(filePath, { data, mtime: stats.mtimeMs });
+				return data;
+			} catch {
+				return defaultValue;
+			} finally {
+				AbstractController._pendingFileReads.delete(filePath);
+			}
+		})();
+
+		AbstractController._pendingFileReads.set(filePath, readPromise);
+		return readPromise;
 	}
 
 	/**
