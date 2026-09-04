@@ -82,6 +82,7 @@ export default class PatreonController extends AbstractController {
 		);
 		this.server.post(
 			"/api/patreon/webhook",
+			{ config: { rawBody: true } },
 			async (request, response) => await this.postWebhookTrigger(request, response),
 		);
 
@@ -95,6 +96,7 @@ export default class PatreonController extends AbstractController {
 		);
 		this.server.post(
 			"/api/patreon/user/webhook/:uid",
+			{ config: { rawBody: true } },
 			async (request, response) => await this.postUserWebhookTrigger(request, response),
 		);
 		this.server.post(

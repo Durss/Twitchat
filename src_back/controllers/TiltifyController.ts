@@ -56,6 +56,7 @@ export default class TiltifyController extends AbstractController {
 		);
 		this.server.post(
 			"/api/tiltify/webhook",
+			{ config: { rawBody: true } },
 			async (request, response) => await this.postWebhook(request, response),
 		);
 

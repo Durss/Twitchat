@@ -77,6 +77,7 @@ export default class DiscordController extends AbstractController {
 		);
 		this.server.post(
 			"/api/discord/interaction",
+			{ config: { rawBody: true } },
 			async (request, response) => await this.postInteraction(request, response),
 		);
 		this.server.post(

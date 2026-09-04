@@ -123,6 +123,7 @@ await server.register(fastifyMultipart, {
 });
 
 await server.register(fastifyRawBody, {
+	global: false,
 	runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 });
 
