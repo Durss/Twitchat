@@ -1116,28 +1116,40 @@ export default class BingoGridController extends AbstractController {
 		setInterval(
 			async () => {
 				const now = Date.now();
-				async function parseFolder(root: string): Promise<void> {
+				const folders: string[] = [Config.BINGO_ROOT];
+				while (folders.length > 0) {
+					const root = folders.shift()!;
+					let entries: fs.Dirent[];
 					try {
-						const files = await fs.promises.readdir(root);
-						await Promise.all(
-							files.map(async (file) => {
-								const path = root + "/" + file;
-								const stats = await fs.promises.lstat(path);
-								if (stats.isDirectory()) {
-									await parseFolder(path);
-								} else {
-									// Keep bingo data for 15 days max
-									if (now - stats.mtime.getTime() > ageMax) {
-										await fs.promises.unlink(path);
-									}
-								}
-							}),
-						);
+						entries = await fs.promises.readdir(root, { withFileTypes: true });
 					} catch (_error) {
 						// Folder might not exist, that's fine
+						continue;
 					}
+
+					const files: string[] = [];
+					for (const entry of entries) {
+						const path = root + "/" + entry.name;
+						if (entry.isDirectory()) folders.push(path);
+						else files.push(path);
+					}
+
+					await Utils.mapLimit(
+						files,
+						BingoGridController.VIEWER_GRID_IO_CONCURRENCY,
+						async (path) => {
+							try {
+								const stats = await fs.promises.lstat(path);
+								// Keep bingo data for 15 days max
+								if (now - stats.mtime.getTime() > ageMax) {
+									await fs.promises.unlink(path);
+								}
+							} catch (_error) {
+								// File locked or lost, next run will catch it back
+							}
+						},
+					);
 				}
-				await parseFolder(Config.BINGO_ROOT);
 			},
 			24 * 60 * 60 * 1000,
 		);
