@@ -130,6 +130,7 @@
 		"streamFog_connect_failed": "Impossible de se connecter à Streamfog.",
 		"local_network_access_denied": "Vous avez refusé d'accorder l'accès à votre réseau local à Twitchat.\nVérifiez les paramètres de votre navigateur pour l'autoriser.",
 		"failed_updating_ebs": "Une erreur est survenue lors de la configuration",
-		"quick_quiz_failed": "Une erreur est survenue lors de la création du quiz"
+		"quick_quiz_failed": "Une erreur est survenue lors de la création du quiz",
+		"banword_not_found": "\"{WORDS}\" ne fait pas partie de vos termes bloqués"
 	}
 }

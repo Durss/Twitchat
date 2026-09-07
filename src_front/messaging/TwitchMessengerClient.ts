@@ -409,6 +409,39 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if (user) return await TwitchUtils.unblockUser(user);
 					return false;
 				}
+				case "/banword": {
+					if (!TwitchUtils.requestScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+					const words = chunks.join(" ");
+					if (words.length == 0) return false;
+					return (await TwitchUtils.addBanword(words, channelId)) != false;
+				}
+				case "/unbanword": {
+					if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
+					const words = chunks.join(" ");
+					if (words.length == 0) return false;
+					const banwordList = await TwitchUtils.getBanword(channelId);
+					const word = banwordList.find(
+						(v) => v.text.trim().toLowerCase() == words.trim().toLowerCase(),
+					);
+					if (!word) {
+						const message = StoreProxy.i18n.t("error.banword_not_found", {
+							WORDS: words,
+						});
+
+						const event = new MessengerClientEvent("NOTICE", {
+							platform: "twitch",
+							type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
+							id: Utils.getUUID(),
+							channel_id: channelId,
+							date: Date.now(),
+							message,
+							noticeId: "error",
+						});
+						this.dispatchEvent(event);
+						return true;
+					}
+					return (await TwitchUtils.removeBanword(word.id, channelId)) != false;
+				}
 				case "/timeout": {
 					if (!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0]!, channelId);

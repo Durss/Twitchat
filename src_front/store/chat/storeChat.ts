@@ -494,6 +494,22 @@ export const storeChat = defineStore("chat", {
 				twitch_scopes: [TwitchScopes.MANAGE_SUSPICIOUS_USERS],
 			},
 			{
+				id: "banword",
+				cmd: "/banword {word}",
+				detailsKey: "params.commands.banword",
+				twitchCmd: true,
+				needModerator: true,
+				twitch_scopes: [TwitchScopes.BLOCKED_TERMS],
+			},
+			{
+				id: "unbanword",
+				cmd: "/unbanword {word}",
+				detailsKey: "params.commands.unbanword",
+				twitchCmd: true,
+				needModerator: true,
+				twitch_scopes: [TwitchScopes.BLOCKED_TERMS],
+			},
+			{
 				id: "emoteonly",
 				cmd: "/emoteonly",
 				detailsKey: "params.commands.emoteonly",

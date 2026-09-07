@@ -130,6 +130,7 @@
 		"streamFog_connect_failed": "Could not connect with Streamfog.",
 		"local_network_access_denied": "You refused to grant Twitchat access to your local network.\nCheck your browser settings to allow local network access.",
 		"failed_updating_ebs": "Something went wrong when updating configuration",
-		"quick_quiz_failed": "Something went wrong when creating quiz"
+		"quick_quiz_failed": "Something went wrong when creating quiz",
+		"banword_not_found": "\"{WORDS}\" is not part of your banned terms"
 	}
 }

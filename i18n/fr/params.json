@@ -237,7 +237,9 @@
 			"unmonitor": "Arrêter de surveiller les messages d'un utilisateurice",
 			"restrict": "Restreindre la discussion d'un utilisateurice",
 			"unrestrict": "Autoriser à nouveau la discussion d'un utilisateurice",
-			"quickquiz": "Créer un quiz éphémère à question unique"
+			"quickquiz": "Créer un quiz éphémère à question unique",
+			"banword": "Bannir de(s) mot(s) temporairement",
+			"unbanword": "Débannir de(s) mot(s)"
 		}
 	}
 }
