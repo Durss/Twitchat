@@ -66,6 +66,7 @@
 					:href="'https://twitch.tv/' + s.user_login"
 					v-for="s in streams"
 					:key="s.id"
+					:data-uid="s.user_id"
 					class="card-item stream"
 					ref="streamCard"
 					@click.prevent="raid(s.user_login)"
@@ -179,6 +180,9 @@ const showRaidHistory = ref<boolean>(false);
 const canRaid = ref<boolean>(false);
 
 let disposed = false;
+let observer: IntersectionObserver | null = null;
+const loadedSettings = new Set<string>();
+const pendingLoads = new Map<Element, ReturnType<typeof setTimeout>>();
 
 const lastRaidedUserID = computed<string>(() => {
 	if (storeStream.raidHistory.length == 0) return "";
@@ -243,7 +247,15 @@ function buildContent(): void {
 
 onBeforeUnmount(() => {
 	disposed = true;
+	disposeObserver();
 });
+
+function disposeObserver(): void {
+	observer?.disconnect();
+	observer = null;
+	pendingLoads.forEach((timeout) => clearTimeout(timeout));
+	pendingLoads.clear();
+}
 
 function computeDuration(start: string): string {
 	const s = new Date(start);
@@ -270,23 +282,63 @@ async function updateList(): Promise<void> {
 			gsap.from(cards[i]!, { duration: 0.25, opacity: 0, y: -20, delay: i * 0.02 });
 		}
 
-		for (let i = 0; i < res.length; i++) {
-			if (disposed) break;
-			TwitchUtils.getRoomSettings(res[i]!.user_id).then((settings) => {
-				if (settings) {
-					roomSettings.value[res[i]!.user_id] = settings;
-				}
-			});
-			// const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);
-			// if(roomSettings) {
-			// 	this.roomSettings[res[i].user_id] = roomSettings;
-			// }
-			//Delay loading of entries after the 50th to load them by batch of 10 every second
-			if (i > 50 && i % 10 == 0) {
-				await Utils.promisedTimeout(1000);
-			}
+		observeCards();
+	});
+}
+
+function loadRoomSettings(uid: string): void {
+	if (disposed || loadedSettings.has(uid)) return;
+	loadedSettings.add(uid);
+	TwitchUtils.getRoomSettings(uid).then((settings) => {
+		if (settings) {
+			roomSettings.value[uid] = settings;
 		}
 	});
+}
+
+/**
+ * Detects when a card is visible for at least 200ms and load their channel
+ * settings if not loaded yet
+ */
+function observeCards(): void {
+	disposeObserver();
+	if (disposed) return;
+
+	observer = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				const target = entry.target;
+				const uid = (target as HTMLElement).dataset["uid"];
+				if (!uid) continue;
+
+				if (!entry.isIntersecting) {
+					const timeout = pendingLoads.get(target);
+					if (timeout) {
+						clearTimeout(timeout);
+						pendingLoads.delete(target);
+					}
+					continue;
+				}
+
+				if (pendingLoads.has(target)) continue;
+				pendingLoads.set(
+					target,
+					setTimeout(() => {
+						pendingLoads.delete(target);
+						observer?.unobserve(target);
+						loadRoomSettings(uid);
+					}, 200),
+				);
+			}
+		},
+		{ threshold: 0.25 },
+	);
+
+	for (const card of streamCard.value || []) {
+		const uid = card.dataset["uid"];
+		if (!uid || loadedSettings.has(uid)) continue;
+		observer.observe(card);
+	}
 }
 
 function raid(login: string): void {
