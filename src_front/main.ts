@@ -46,7 +46,6 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ContextMenu from "@imengyu/vue3-context-menu";
 import "@imengyu/vue3-context-menu/lib/vue3-context-menu.css";
 import { createPopper } from "@popperjs/core";
-import { dedupeIntegration } from "@sentry/integrations";
 import * as Sentry from "@sentry/vue";
 import CSSPlugin from "gsap/CSSPlugin";
 import { CustomEase, ScrollToPlugin } from "gsap/all";
@@ -61,7 +60,15 @@ import type { NavigationGuardNext, RouteLocation } from "vue-router";
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import VueTippy, { setDefaultProps } from "vue-tippy";
+import Vue3Toasity, { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+import { vAutofocus } from "./directives/autofocus";
+import { vClick2Select } from "./directives/click2Select";
+import { vNewflag } from "./directives/newflag";
+import { stickyTopShadow } from "./directives/stickyTopShadow";
 import { storeAnimatedText } from "./store/animated_text/storeAnimatedText";
+import { storeAPI } from "./store/api/storeAPI";
+import { storeBluesky } from "./store/bluesky/storeBluesky";
 import { storeChatPoll } from "./store/chat_poll/storeChatPoll";
 import { storeCommon } from "./store/common/storeCommon";
 import { storeCustomTrain } from "./store/customtrain/storeCustomTrain";
@@ -71,33 +78,25 @@ import { storeEndingCredits } from "./store/ending_credits/storeEndingCredits";
 import { storeExporter } from "./store/exporter/storeExporter";
 import { storeGroq } from "./store/groq/storeGroq";
 import { storeLabels } from "./store/labels/storeLabels";
+import { storeMeldStudio } from "./store/meldstudio/storeMeldStudio";
 import { storeMixitup } from "./store/mixitup/storeMixitup";
 import { storePlayability } from "./store/playability/storePlayability";
 import { storeQuiz } from "./store/quiz/storeQuiz";
 import { storeSammi } from "./store/sammi/storeSammi";
 import { storeStreamerbot } from "./store/streamerbot/storeStreamerbot";
+import { storeStreamfog } from "./store/streamfog/storeStreamfog";
 import { storeStreamSocket } from "./store/streamsocket/storeStreamSocket";
 import { storeTiktok } from "./store/tiktok/storeTiktok";
 import { storeTiltify } from "./store/tiltify/storeTiltify";
 import { storeTwitchCharity } from "./store/twitch_charity/storeTwitchCharity";
 import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
 import Config from "./utils/Config";
-import { storeStreamfog } from "./store/streamfog/storeStreamfog";
-import { storeAPI } from "./store/api/storeAPI";
 import {
 	configureI18n,
 	ORDINAL_CATEGORIES,
 	type OrdinalLabels,
 } from "./utils/PlaceholderModifiers";
 import Utils from "./utils/Utils";
-import { vAutofocus } from "./directives/autofocus";
-import { vClick2Select } from "./directives/click2Select";
-import { vNewflag } from "./directives/newflag";
-import { stickyTopShadow } from "./directives/stickyTopShadow";
-import Vue3Toasity, { toast } from "vue3-toastify";
-import "vue3-toastify/dist/index.css";
-import { storeBluesky } from "./store/bluesky/storeBluesky";
-import { storeMeldStudio } from "./store/meldstudio/storeMeldStudio";
 
 window.setInitMessage("Booting app...");
 
@@ -110,6 +109,7 @@ setDefaultProps({
 });
 
 const pinia = createPinia();
+pinia.use(Sentry.createSentryPiniaPlugin({ attachPiniaState: false }));
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin);
 DataStore.init();
 
@@ -352,8 +352,6 @@ function buildApp() {
 			debug: false,
 			release: "twitchat@" + import.meta.env.PACKAGE_VERSION,
 			dsn: "https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224",
-			integrations: [dedupeIntegration()],
-			//@ts-ignore
 			environment:
 				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[
 					document.location.hostname
@@ -420,3 +418,4 @@ function buildApp() {
 		true,
 	);
 }
+
