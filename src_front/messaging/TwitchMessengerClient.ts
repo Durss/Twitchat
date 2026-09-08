@@ -298,12 +298,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//a frame before sending the message
 		await Utils.promisedTimeout(0);
 
-		//Workaround to a weird behavior of TMI.js.
-		//If the message starts by a "\" it's properly sent on all
-		//connected clients, but never sent back to the sender.
-		//Removing all of them to avoid that...
-		text = text.replace(/^\\+/gi, "");
-
 		let pinMessage = false;
 		if (text.charAt(0) == "/") {
 			const chunks = text.split(/\s/gi).filter((v) => v != "");

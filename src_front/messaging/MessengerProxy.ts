@@ -67,7 +67,11 @@ export default class MessengerProxy {
 		const hasPlatform = targetPlatforms && targetPlatforms.length > 0;
 		if (!channelId) channelId = StoreProxy.auth.twitch.user.id;
 
-		if (await this.handleTwitchatCommands(message, targetPlatforms, channelId)) return true;
+		if (
+			message.charAt(0) == "/" &&
+			(await this.handleTwitchatCommands(message, targetPlatforms, channelId))
+		)
+			return true;
 
 		// console.log("Send message:", message);
 		// console.log("          to:", channelId);

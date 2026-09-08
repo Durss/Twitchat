@@ -4289,7 +4289,6 @@ export default class TriggerActionHandler {
 					}
 				} else //Handle Chat action
 				if (step.type == "chat") {
-					// console.log("CHAT ACTION");
 					const text = await this.parsePlaceholders({
 						dynamicPlaceholders,
 						actionPlaceholders,
@@ -4297,10 +4296,10 @@ export default class TriggerActionHandler {
 						message,
 						src: step.text as string,
 						subEvent,
+						xssProtection: true,
 					});
 					const platforms: TwitchatDataTypes.ChatPlatform[] = [];
 					if (message.platform != "twitchat") platforms.push(message.platform);
-					// console.log(platforms, text);
 					const replyTo =
 						step.sendAsReply === true &&
 						message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -7067,6 +7066,7 @@ export default class TriggerActionHandler {
 										message: trackAddedMesssageData,
 										src: step.confirmMessage,
 										subEvent,
+										xssProtection: true,
 									});
 									if (!(await MessengerProxy.instance.sendMessage(chatMessage))) {
 										logStep.messages.push({
@@ -7090,6 +7090,7 @@ export default class TriggerActionHandler {
 										message: trackAddedMesssageData,
 										src: step.failMessage,
 										subEvent,
+										xssProtection: true,
 									});
 									chatMessage = chatMessage.replace(
 										/\{FAIL_REASON\}/gi,
@@ -7415,6 +7416,7 @@ export default class TriggerActionHandler {
 									message,
 									src: a.message || "",
 									subEvent,
+									xssProtection: true,
 								});
 								break;
 							}
@@ -8941,6 +8943,7 @@ export default class TriggerActionHandler {
 			sanitizeFolderPath = false,
 			keepHTML = true,
 			escapeDoubleQuotes = false,
+			xssProtection = false,
 		} = options;
 		let { userIdForValueCounterGetters } = options;
 		const res = src.toString();
@@ -9722,7 +9725,7 @@ export default class TriggerActionHandler {
 		//rather than replacing tag by tag over the result is what keeps a
 		//value from being parsed as a placeholder itself.
 		//A tag whose resolution failed is left as written.
-		const parsed = splicePlaceholders(
+		let parsed = splicePlaceholders(
 			res,
 			occurrences,
 			(tag) => resolved.get(tag),
@@ -9738,6 +9741,16 @@ export default class TriggerActionHandler {
 				return value;
 			},
 		);
+
+		if (xssProtection === true) {
+			let firstCharSrc = parsed.charAt(0);
+			if (
+				(firstCharSrc === "/" || firstCharSrc === "!") &&
+				options.src.charAt(0) != firstCharSrc
+			) {
+				parsed = " " + parsed;
+			}
+		}
 
 		// console.log("RESULT = ",parsed);
 		return unescapeLiteralPlaceholders(parsed);

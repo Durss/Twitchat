@@ -2181,6 +2181,17 @@ export interface IParsePlaceholdersOptions {
 	 * Extracted from the trigger's message if omitted.
 	 */
 	userIdForValueCounterGetters?: string;
+	/**
+	 * When set to true resulting message is prefixed with a space
+	 * to avoid /commands and !commands from being executed.
+	 * Supposing a "!test" trigger uses "send chat message" action with a message
+	 * starting with the `{MESSAGE}` placeholder, a user could send the message
+	 * `!test /ban test`, this would allow them to ban anyone as the resulting
+	 * message would be `/ban test`.
+	 * Setting this flag to true will prefix the result with a space so no command
+	 * gets executed.
+	 */
+	xssProtection?: boolean;
 }
 
 export const ANY_OBS_SCENE = "any_obs_scene";
