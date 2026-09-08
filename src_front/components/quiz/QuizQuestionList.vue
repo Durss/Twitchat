@@ -169,17 +169,14 @@ import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeQuiz as useStoreQuiz } from "@/store/quiz/storeQuiz";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import { toast } from "@/utils/toast/toast";
 import Utils from "@/utils/Utils";
 import { computed, ref, watch } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import { useI18n } from "vue-i18n";
-import QuizQuestionItem from "./QuizQuestionItem.vue";
-import { toast } from "@/utils/toast/toast";
-import CountryFlag from "vue-country-flag-next";
-import Icon from "../Icon.vue";
 import ClearButton from "../ClearButton.vue";
-import Splitter from "../Splitter.vue";
 import ToggleBlock from "../ToggleBlock.vue";
+import QuizQuestionItem from "./QuizQuestionItem.vue";
 
 const props = defineProps<{
 	quiz: TwitchatDataTypes.QuizParams;

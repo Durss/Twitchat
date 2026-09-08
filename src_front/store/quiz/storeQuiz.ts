@@ -9,6 +9,7 @@ import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import type { IQuizActions, IQuizGetters, IQuizState } from "../StoreProxy";
 import StoreProxy from "../StoreProxy";
+import Config from "@/utils/Config";
 
 // Local fast access to current question to avoid searching for it
 // everytime we receive a chat message.
@@ -1105,6 +1106,10 @@ export const storeQuiz = defineStore("quiz", {
 				return n as 0 | 1 | 2 | 3 | 4 | 5;
 			};
 
+			const maxQuestions = StoreProxy.auth.isPremium
+				? Config.instance.MAX_QUESTIONS_PER_QUIZ_PREMIUM
+				: Config.instance.MAX_QUESTIONS_PER_QUIZ;
+
 			let added = 0;
 			for (const row of rows) {
 				const mode = (row[0] || "").trim();
@@ -1164,6 +1169,7 @@ export const storeQuiz = defineStore("quiz", {
 					});
 					added++;
 				}
+				if (quiz.questionList.length >= maxQuestions) break;
 			}
 
 			if (added === 0) return false;

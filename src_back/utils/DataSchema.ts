@@ -3307,7 +3307,7 @@ const UserDataSchema = {
 							questionList: {
 								type: "array",
 								minItems: 0,
-								maxItems: 100,
+								maxItems: 200,
 								items: {
 									type: "object",
 									discriminator: { propertyName: "mode" },
