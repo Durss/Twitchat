@@ -91,6 +91,7 @@ import { storeTiltify } from "./store/tiltify/storeTiltify";
 import { storeTwitchCharity } from "./store/twitch_charity/storeTwitchCharity";
 import { storeTwitchBot } from "./store/twitchbot/storeTwitchBot";
 import Config from "./utils/Config";
+import PerfWatchdog from "./utils/PerfWatchdog";
 import {
 	configureI18n,
 	ORDINAL_CATEGORIES,
@@ -352,11 +353,21 @@ function buildApp() {
 			debug: false,
 			release: "twitchat@" + import.meta.env.PACKAGE_VERSION,
 			dsn: "https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224",
+			integrations: [
+				Sentry.webVitalsIntegration(),
+				Sentry.reportingObserverIntegration(),
+				Sentry.replayIntegration({
+					maskAllText: true,
+					blockAllMedia: false,
+				}),
+			],
 			environment:
 				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[
 					document.location.hostname
 				] || document.location.hostname,
 			tracesSampleRate: 1.0,
+			replaysSessionSampleRate: 0,
+			replaysOnErrorSampleRate: 0,
 			ignoreErrors: [
 				"[-]", //Custom tag to ignore errors coming from specific parts of the app
 				"reading 'innerText'", //When emptying a content-editable field
@@ -368,6 +379,8 @@ function buildApp() {
 			],
 		});
 	}
+
+	if (Config.instance.BETA_MODE) PerfWatchdog.instance.start();
 
 	window.setInitMessage("Mounting interface");
 	app.mount("#app");
