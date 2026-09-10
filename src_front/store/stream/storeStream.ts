@@ -90,6 +90,8 @@ export const storeStream = defineStore("stream", {
 							undefined,
 							undefined,
 							(user) => {
+								//Pinned but manually disconnected: keep it pinned without connecting
+								if (chan.disconnected) return;
 								void this.connectToExtraChan(user);
 							},
 							undefined,
@@ -1717,6 +1719,15 @@ export const storeStream = defineStore("stream", {
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			void EventSub.instance.connectToChannel(user);
 			void TwitchUtils.getPinnedMessage(user.id);
+
+			//If pinned, restore autoconnect on next loading
+			const pinned = this.autoconnectChans.find(
+				(v) => v.id == user.id && v.platform == user.platform,
+			);
+			if (pinned?.disconnected) {
+				delete pinned.disconnected;
+				DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
+			}
 		},
 
 		async disconnectFromExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {
@@ -1724,6 +1735,15 @@ export const storeStream = defineStore("stream", {
 			this.connectedTwitchChans.splice(index, 1);
 			void TwitchMessengerClient.instance.disconnectFromChannel(user.login);
 			void EventSub.instance.disconnectRemoteChan(user);
+
+			//If pinned, keep it pinned but don't autoconnect it on next loading
+			const pinned = this.autoconnectChans.find(
+				(v) => v.id == user.id && v.platform == user.platform,
+			);
+			if (pinned && !pinned.disconnected) {
+				pinned.disconnected = true;
+				DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
+			}
 		},
 
 		setExtraChanAutoconnectState(user: TwitchatDataTypes.TwitchatUser, pinned: boolean): void {
@@ -1731,7 +1751,17 @@ export const storeStream = defineStore("stream", {
 				(v) => v.id == user.id && v.platform == user.platform,
 			);
 			if (index > -1 && !pinned) this.autoconnectChans.splice(index, 1);
-			else if (pinned) this.autoconnectChans.push({ id: user.id, platform: user.platform });
+			else if (pinned && index == -1) {
+				const entry: (typeof this.autoconnectChans)[number] = {
+					id: user.id,
+					platform: user.platform,
+				};
+				//Pinning a channel we're not connected to: don't autoconnect it
+				if (!this.connectedTwitchChans.some((v) => v.user.id == user.id)) {
+					entry.disconnected = true;
+				}
+				this.autoconnectChans.push(entry);
+			}
 			DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
 		},
 

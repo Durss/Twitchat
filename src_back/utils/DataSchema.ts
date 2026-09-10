@@ -2679,6 +2679,7 @@ const UserDataSchema = {
 				properties: {
 					id: { type: "string", maxLength: 40 },
 					platform: { type: "string", maxLength: 40 },
+					disconnected: { type: "boolean" },
 				},
 			},
 		},

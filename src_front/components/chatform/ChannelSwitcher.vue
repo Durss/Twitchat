@@ -42,38 +42,12 @@
 				<p class="infos"><Icon name="info" />{{ t("chat.form.extra_chan_info") }}</p>
 			</template>
 
-			<template v-else-if="userParams"> </template>
-
 			<template v-else>
-				<button
+				<div
+					class="channelEntry"
 					v-for="entry in channels"
-					:class="currentChannelId == entry.user.id ? 'entry selected' : 'entry'"
-					@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)"
+					:class="{ disconnected: !entry.connected }"
 				>
-					<img
-						class="avatar"
-						v-if="entry.user.avatarPath"
-						:src="entry.user.avatarPath.replace(/300x300/gi, '50x50')"
-						:style="{ color: entry.color }"
-						alt="avatar"
-						referrerpolicy="no-referrer"
-					/>
-					<div class="avatar" :style="{ color: entry.color }" v-else></div>
-
-					<Icon :name="entry.platform" class="platformIcon" />
-
-					<span class="pseudo">{{ entry.user.displayName }}</span>
-
-					<TTButton
-						v-if="entry.isRemoteChan"
-						class="actionBt"
-						icon="offline"
-						transparent
-						medium
-						v-tooltip="t('global.disconnect')"
-						@click.capture.stop="disconnect(entry.user)"
-					/>
-
 					<TTButton
 						v-if="
 							entry.isRemoteChan &&
@@ -86,28 +60,59 @@
 						class="actionBt"
 						transparent
 						medium
-						:icon="
-							storeStream.autoconnectChans.find(
+						:icon="'pin'"
+						:class="{
+							off: !storeStream.autoconnectChans.find(
 								(v) => v.id == entry.user.id && v.platform == entry.user.platform,
-							)
-								? 'pin'
-								: 'unpin'
-						"
+							),
+						}"
 						@click.capture.stop="togglePinState(entry)"
 					/>
+					<button
+						@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)"
+						class="channelInfo"
+						:class="{ active: currentChannelId == entry.user.id }"
+						:disabled="!entry.connected"
+					>
+						<img
+							class="avatar"
+							v-if="entry.user.avatarPath"
+							:src="entry.user.avatarPath.replace(/300x300/gi, '50x50')"
+							:style="{ color: entry.color }"
+							alt="avatar"
+							referrerpolicy="no-referrer"
+						/>
+						<div class="avatar" :style="{ color: entry.color }" v-else></div>
 
-					<!-- <TTButton v-if="entry.isRemoteChan"
+						<Icon :name="entry.platform" class="platformIcon" />
+
+						<span class="pseudo">{{ entry.user.displayName }}</span>
+					</button>
+
+					<TTButton
+						v-if="entry.isRemoteChan && entry.connected"
 						class="actionBt"
-						icon="params"
+						icon="offline"
 						transparent
 						medium
-						v-tooltip="$t('chat.form.extra_chan_params_tt')"
-						@click.capture.stop="openParams(entry.user)" /> -->
-				</button>
+						v-tooltip="t('global.disconnect')"
+						@click.capture.stop="disconnect(entry.user)"
+					/>
+					<TTButton
+						v-else-if="entry.isRemoteChan"
+						class="actionBt"
+						icon="online"
+						transparent
+						medium
+						:disabled="!canConnectChans"
+						v-tooltip="t('global.connect')"
+						@click.capture.stop="connect(entry.user)"
+					/>
+				</div>
 				<TTButton
 					class="addChanBt"
 					icon="add"
-					v-if="storeStream.connectedTwitchChans.length < 6"
+					v-if="canConnectChans"
 					@click="showForm = true"
 					transparent
 					medium
@@ -145,6 +150,10 @@ interface ChannelEntry {
 	user: TwitchatDataTypes.TwitchatUser;
 	color: string;
 	isRemoteChan: boolean;
+	/**
+	 * false for a pinned channel that isn't currently connected
+	 */
+	connected: boolean;
 }
 
 const props = withDefaults(
@@ -177,24 +186,29 @@ const showForm = ref<boolean>(false);
 const youtubeUrl = ref<string>("");
 const currentChannelId = ref<string>("");
 const user = ref<TwitchDataTypes.UserInfo | undefined>(undefined);
-const userParams = ref<TwitchatDataTypes.TwitchatUser | null>(null);
 const liveFollingList = ref<TwitchDataTypes.UserInfo[]>([]);
 
 const popin = useTemplateRef<HTMLDivElement>("popin");
 
 let clickHandler!: (e: MouseEvent) => void;
+const pinnedUsers = ref<{ [key: string]: TwitchatDataTypes.TwitchatUser }>({});
 
 const canPinChans = computed<boolean>(() => {
 	return storeStream.autoconnectChans.length < 6;
 });
 
+const canConnectChans = computed<boolean>(() => {
+	return storeStream.connectedTwitchChans.length < 6;
+});
+
 const channels = computed<ChannelEntry[]>(() => {
-	let chans: ChannelEntry[] = reactive([]);
+	let chans: ChannelEntry[] = [];
 
 	chans.push({
 		platform: "twitch",
 		user: storeAuth.twitch.user,
 		isRemoteChan: false,
+		connected: true,
 		color: "transparent",
 	});
 	if (storeAuth.youtube?.user) {
@@ -202,6 +216,7 @@ const channels = computed<ChannelEntry[]>(() => {
 			platform: "youtube",
 			user: storeAuth.youtube.user,
 			isRemoteChan: false,
+			connected: true,
 			color: "transparent",
 		});
 	}
@@ -211,13 +226,38 @@ const channels = computed<ChannelEntry[]>(() => {
 			platform: "twitch",
 			user: entry.user,
 			isRemoteChan: true,
+			connected: true,
 			color: entry.color,
+		});
+	});
+
+	//Keep listing pinned channels that aren't connected (disabled state)
+	storeStream.autoconnectChans.forEach((chan) => {
+		if (chans.find((v) => v.user.id == chan.id && v.platform == chan.platform)) return;
+		const user = pinnedUsers.value[chan.platform + ":" + chan.id];
+		if (!user) return;
+		chans.push({
+			platform: chan.platform,
+			user,
+			isRemoteChan: true,
+			connected: false,
+			color: "transparent",
 		});
 	});
 
 	return chans;
 });
 
+/**
+ * Only the channels we can actually write to
+ */
+const connectedChannels = computed<ChannelEntry[]>(() => {
+	return channels.value.filter((v) => v.connected);
+});
+
+/**
+ * Currently selected channel
+ */
 const currentChannel = computed<ChannelEntry | undefined>(() => {
 	return channels.value.find((v) => v.user.id == currentChannelId.value);
 });
@@ -270,16 +310,25 @@ function onSelectChannel(
  */
 function cycleChannel(event: MouseEvent): void {
 	event.preventDefault();
-	let index = channels.value.findIndex((v) => v.user.id == currentChannelId.value);
-	index = ++index % channels.value.length;
-	const channel = channels.value[index];
+	const list = connectedChannels.value;
+	let index = list.findIndex((v) => v.user.id == currentChannelId.value);
+	index = ++index % list.length;
+	const channel = list[index];
 	if (channel) {
 		onSelectChannel(channel.user.id, channel.user.login, channel.platform);
 	}
 }
 
 /**
- * Disconnect from given twitch channel
+ * Connect to given twitch channel
+ */
+function connect(target: TwitchatDataTypes.TwitchatUser): void {
+	if (!canConnectChans.value) return;
+	void storeStream.connectToExtraChan(target);
+}
+
+/**
+ * Disconnect from given twitch channel.
  */
 function disconnect(target: TwitchatDataTypes.TwitchatUser): void {
 	if (storeStream.currentChatChannel.id === target.id) {
@@ -290,7 +339,9 @@ function disconnect(target: TwitchatDataTypes.TwitchatUser): void {
 			storeStream.currentChatChannel.platform = channel.platform;
 		}
 	}
-	storeStream.disconnectFromExtraChan(target);
+	//Remember the user so the entry can still be rendered once disconnected
+	pinnedUsers.value[target.platform + ":" + target.id] = target;
+	void storeStream.disconnectFromExtraChan(target);
 }
 
 /**
@@ -302,13 +353,6 @@ function togglePinState(entry: ChannelEntry): void {
 			(v) => v.id == entry.user.id && v.platform == entry.user.platform,
 		) == -1;
 	storeStream.setExtraChanAutoconnectState(entry.user, pinned);
-}
-
-/**
- * Open params form for a user
- */
-function openParams(target: TwitchatDataTypes.TwitchatUser): void {
-	userParams.value = target;
 }
 
 /**
@@ -374,18 +418,11 @@ function onClickDOM(e: MouseEvent): void {
 }
 
 onBeforeMount(() => {
-	if (channels.value.findIndex((v) => v.user.id === props.modelValue) == -1) {
-		currentChannelId.value = channels.value[0]!.user.id;
+	if (connectedChannels.value.findIndex((v) => v.user.id === props.modelValue) == -1) {
+		currentChannelId.value = connectedChannels.value[0]!.user.id;
 	} else {
 		currentChannelId.value = props.modelValue;
 	}
-
-	watch(
-		() => props.modelValue,
-		() => {
-			currentChannelId.value = props.modelValue;
-		},
-	);
 
 	loadLiveFollowing();
 	clickHandler = (e: MouseEvent) => onClickDOM(e);
@@ -395,47 +432,104 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
 	document.removeEventListener("click", clickHandler, true);
 });
+
+watch(
+	() => props.modelValue,
+	() => {
+		currentChannelId.value = props.modelValue;
+	},
+);
+
+// make sure a pinned channel user is available
+watch(
+	() => storeStream.autoconnectChans.map((v) => v.platform + ":" + v.id),
+	(keys) => {
+		keys.forEach((key) => {
+			if (pinnedUsers.value[key]) return;
+			const [platform, id] = key.split(":") as [TwitchatDataTypes.ChatPlatform, string];
+			storeUsers.getUserFrom(
+				platform,
+				id,
+				id,
+				undefined,
+				undefined,
+				(user) => {
+					pinnedUsers.value[key] = user;
+				},
+				undefined,
+				undefined,
+				undefined,
+				false,
+			);
+		});
+	},
+	{ immediate: true },
+);
 </script>
 
 <style scoped lang="less">
 .channelswitcher {
 	position: relative;
-	.entry {
-		gap: 0.5em;
+	.channelEntry {
+		gap: 0.25em;
 		display: flex;
 		flex-direction: row;
-		align-items: center;
-		cursor: pointer;
-		padding: 2px;
-		padding-right: 5px;
-		border-radius: var(--border-radius);
-		color: var(--color-text);
-		text-align: left;
-		.avatar {
-			width: 1.5em;
-			height: 1.5em;
-			border-radius: 50%;
-			border: 2px solid currentColor;
-		}
+		.channelInfo {
+			gap: 0.5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			cursor: pointer;
+			padding: 2px;
+			padding-right: 5px;
+			border-radius: var(--border-radius);
+			color: var(--color-text);
+			text-align: left;
+			flex: 1;
+			.avatar {
+				width: 1.5em;
+				height: 1.5em;
+				border-radius: 50%;
+				border: 2px solid currentColor;
+			}
 
-		.platformIcon {
-			height: 1em;
-			max-width: 1em;
-			flex-shrink: 0;
-		}
-		.pseudo {
-			text-wrap: nowrap;
-			flex-grow: 1;
+			.platformIcon {
+				height: 1em;
+				max-width: 1em;
+				flex-shrink: 0;
+			}
+			.pseudo {
+				text-wrap: nowrap;
+				flex-grow: 1;
+			}
+			&:hover {
+				background-color: var(--background-color-fader);
+			}
+			&.selected {
+				background-color: var(--color-primary-fader);
+			}
+			&:first-child {
+				margin: 0 1.5em;
+			}
 		}
 		.actionBt {
 			flex-shrink: 0;
-			margin-right: -5px;
+			width: 1.5em;
+
+			&.off {
+				opacity: 0.5;
+			}
 		}
-		&:hover {
-			background-color: var(--background-color-fader);
-		}
-		&.selected {
-			background-color: var(--color-primary-fader);
+
+		&.disconnected {
+			.channelInfo {
+				opacity: 0.5;
+				cursor: default;
+				filter: grayscale(1);
+				&:hover {
+					background-color: transparent;
+				}
+			}
 		}
 	}
 

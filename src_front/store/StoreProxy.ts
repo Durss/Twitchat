@@ -1638,9 +1638,14 @@ export interface IStreamState {
 	 */
 	currentVODUrl: string;
 	/**
-	 * Channels to autoconnect to on twitchat loading
+	 * Pinned channels to auto connect to when loading twitchat
+	 * unless specifically set as 'disconnected'
 	 */
-	autoconnectChans: { id: string; platform: TwitchatDataTypes.ChatPlatform }[];
+	autoconnectChans: {
+		id: string;
+		platform: TwitchatDataTypes.ChatPlatform;
+		disconnected?: boolean;
+	}[];
 }
 
 export interface IStreamGetters {}
