@@ -6022,7 +6022,6 @@ export namespace TwitchatDataTypes {
 		cheer: true,
 		reward: true,
 		message: true,
-		following: true,
 		subscription: true,
 		user_modiversary: true,
 		user_watch_streak: true,
@@ -6625,7 +6624,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a "new follower" message
 	 */
-	export interface MessageFollowingData extends GreetableMessage {
+	export interface MessageFollowingData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type: "following";
 		/**
