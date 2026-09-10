@@ -40,6 +40,7 @@ export default class EventSub {
 	private connectURL: string = "";
 	private chanSubscriptions: { [chanId: string]: { topic: string; uid: string; id: string }[] } =
 		{};
+	private connectedChannels: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
@@ -126,6 +127,12 @@ export default class EventSub {
 					if (disconnectPrevious) {
 						console.log("[EVENTSUB] Create subscriptions");
 						void this.connectToChannel(StoreProxy.auth.twitch.user);
+						//Remote channels lose their subscriptions along with the
+						//previous session and nothing else restores them
+						Object.values(this.connectedChannels).forEach((chan) => {
+							if (chan.id === StoreProxy.auth.twitch.user.id) return;
+							void this.connectToChannel(chan);
+						});
 					}
 				}
 
@@ -294,7 +301,7 @@ export default class EventSub {
 	}
 
 	/**
-	 * Connect to a channel chan.
+	 * Connect to a channel.
 	 * Will connect to appropriate topics depending on wether we're a mod
 	 * on the given channel or not (make sure user.channelInfo[uid] is properly populated)
 	 * @param user
@@ -306,6 +313,7 @@ export default class EventSub {
 		const isBroadcaster = me.id == user.id;
 		const isMod = me.channelInfo[channelId]?.is_moderator === true || isBroadcaster;
 		this.chanSubscriptions[channelId] = [];
+		this.connectedChannels[channelId] = user;
 
 		if (isBroadcaster) {
 			void this.createSubscription(
@@ -683,6 +691,7 @@ export default class EventSub {
 	 * @param channel
 	 */
 	public async disconnectRemoteChan(channel: TwitchatDataTypes.TwitchatUser): Promise<void> {
+		delete this.connectedChannels[channel.id];
 		if (!this.chanSubscriptions[channel.id]) return;
 		this.chanSubscriptions[channel.id]!.forEach((entry) => {
 			void TwitchUtils.eventsubDeleteSubscriptions(entry.id);
