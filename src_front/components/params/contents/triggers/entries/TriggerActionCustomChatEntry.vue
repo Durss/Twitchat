@@ -305,9 +305,7 @@ onBeforeMount(() => {
 	}
 
 	const iconFiles = import.meta.glob("@/assets/icons/*.svg");
-	const keys = Object.keys(iconFiles)
-		.map((v) => v.replace(/.*\/(.*?).svg/, "$1"))
-		.splice(0, 10);
+	const keys = Object.keys(iconFiles).map((v) => v.replace(/.*\/(.*?).svg/, "$1"));
 	keys.unshift("");
 	iconList = keys.map((v) => {
 		return { value: v, icon: v, label: v };

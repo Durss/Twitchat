@@ -31,7 +31,7 @@
 
 				<ButtonNotification
 					class="clearBt clearButton"
-					icon="date"
+					icon="date_clear"
 					v-tooltip="t('greet.resetBt')"
 					@click.stop="resetHistory()"
 				/>
