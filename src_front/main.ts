@@ -366,8 +366,8 @@ function buildApp() {
 					document.location.hostname
 				] || document.location.hostname,
 			tracesSampleRate: 1.0,
-			replaysSessionSampleRate: 0,
-			replaysOnErrorSampleRate: 0,
+			replaysSessionSampleRate: Config.instance.BETA_MODE ? 1 : 0.01,
+			replaysOnErrorSampleRate: Config.instance.BETA_MODE ? 1 : 0.01,
 			ignoreErrors: [
 				"[-]", //Custom tag to ignore errors coming from specific parts of the app
 				"reading 'innerText'", //When emptying a content-editable field
