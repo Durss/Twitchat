@@ -26,7 +26,8 @@ export default class EventSub {
 
 	private static _instance: EventSub;
 	private socket!: WebSocket;
-	private oldSocket!: WebSocket;
+	private oldSocket?: WebSocket;
+	private clearHandoverTimeout: number = -1;
 	private reconnectTimeout!: number;
 	private reconnectFailCount: number = 0;
 	private connectedAt: number = 0;
@@ -43,6 +44,7 @@ export default class EventSub {
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 		window.addEventListener("beforeunload", () => {
+			this.clearHandover();
 			if (this.socket) this.cleanupSocket(this.socket);
 		});
 	}
@@ -99,6 +101,7 @@ export default class EventSub {
 			console.log("[EVENTSUB] Failed to open socket", error);
 			this.connecting = false;
 			this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
+			this.clearHandover();
 			this.scheduleReconnectAfterClose();
 			return;
 		}
@@ -118,9 +121,8 @@ export default class EventSub {
 					this.connectedAt = Date.now();
 					this.connecting = false;
 					this.sessionID = payload.session.id;
-					if (this.oldSocket) {
-						this.cleanupSocket(this.oldSocket);
-					}
+					//Handover completed, the previous socket can go
+					this.clearHandover();
 					if (disconnectPrevious) {
 						console.log("[EVENTSUB] Create subscriptions");
 						void this.connectToChannel(StoreProxy.auth.twitch.user);
@@ -702,6 +704,32 @@ export default class EventSub {
 		this.oldSocket = this.socket;
 		this.connectURL = url;
 		void this.connect(false);
+
+		const newSocket = this.socket;
+
+		clearTimeout(this.clearHandoverTimeout);
+		this.clearHandoverTimeout = window.setTimeout(() => {
+			if (!this.oldSocket) return;
+			console.log("[EVENTSUB] Handover grace period expired, dropping previous socket");
+			this.clearHandover();
+
+			// If socket never got the new "session_welcome" and never closed either, reocnnect
+			if (this.connecting && this.socket === newSocket) {
+				this.connecting = false;
+				this.scheduleReconnectAfterClose();
+			}
+		}, 40_000);
+	}
+
+	/**
+	 * Releases the socket kept alive during a "session_reconnect" handover
+	 */
+	private clearHandover(): void {
+		clearTimeout(this.clearHandoverTimeout);
+		if (this.oldSocket && this.oldSocket !== this.socket) {
+			this.cleanupSocket(this.oldSocket);
+		}
+		this.oldSocket = undefined;
 	}
 
 	/**
@@ -781,13 +809,25 @@ export default class EventSub {
 			//Don't wait out a rate limit for a session that already got replaced
 			() => this.sessionID === sessionID,
 		).then((res) => {
-			if (res !== false) {
-				this.chanSubscriptions[channelId]!.push({ id: res, uid, topic });
-			} else {
+			if (res === false) {
 				console.warn(
 					`[EVENTSUB] No subscription for "${topic}" on channel ${channelId}, its events won't be received`,
 				);
+				return;
 			}
+
+			// The socket may have reconnected while the request was in flight
+			if (this.sessionID !== sessionID) return;
+
+			const current = this.chanSubscriptions[channelId];
+
+			// unsubscribe if channel got disconnected while the request was in flight
+			if (!current || current.findIndex((v) => v.topic === topic && v.uid === uid) > -1) {
+				void TwitchUtils.eventsubDeleteSubscriptions(res);
+				return;
+			}
+
+			current.push({ id: res, uid, topic });
 		});
 	}
 
