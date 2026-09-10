@@ -28,6 +28,9 @@ export default class EventSub {
 	private socket!: WebSocket;
 	private oldSocket!: WebSocket;
 	private reconnectTimeout!: number;
+	private reconnectFailCount: number = 0;
+	private connectedAt: number = 0;
+	private connecting: boolean = false;
 	private keepalive_timeout_seconds!: number;
 	private lastRecentFollowers: TwitchatDataTypes.MessageFollowingData[] = [];
 	private debounceAutomodTermsUpdate: number = -1;
@@ -61,6 +64,9 @@ export default class EventSub {
 	 * Connect to Eventsub
 	 */
 	public async connect(disconnectPrevious: boolean = true): Promise<void> {
+		if (this.connecting) return;
+		this.connecting = true;
+
 		clearTimeout(this.reconnectTimeout);
 
 		if (disconnectPrevious && this.socket) {
@@ -86,17 +92,31 @@ export default class EventSub {
 		}
 		//*/
 
-		this.socket = new WebSocket(this.connectURL);
+		let socket: WebSocket;
+		try {
+			socket = new WebSocket(this.connectURL);
+		} catch (error) {
+			console.log("[EVENTSUB] Failed to open socket", error);
+			this.connecting = false;
+			this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
+			this.scheduleReconnectAfterClose();
+			return;
+		}
+		this.socket = socket;
 
-		this.socket.onopen = async () => {};
+		socket.onopen = async () => {};
 
-		this.socket.onmessage = (event: unknown) => {
+		socket.onmessage = (event: unknown) => {
 			const e = event as { data: string };
 			const message = JSON.parse(e.data) as TwitchEventSubDataTypes.EventSubMessage;
 			switch (message.metadata.message_type) {
 				case "session_welcome": {
 					let payload = message.payload as TwitchEventSubDataTypes.WelcomePayload;
 					this.keepalive_timeout_seconds = payload.session.keepalive_timeout_seconds;
+					//Used to decide whether the reconnect backoff can be reset.
+					//See scheduleReconnectAfterClose()
+					this.connectedAt = Date.now();
+					this.connecting = false;
 					if (this.oldSocket) {
 						this.cleanupSocket(this.oldSocket);
 					}
@@ -152,7 +172,11 @@ export default class EventSub {
 			}
 		};
 
-		this.socket.onclose = (event) => {
+		socket.onclose = (event) => {
+			if (this.socket !== socket) return;
+
+			this.connecting = false;
+
 			console.log("[EVENTSUB] : OnClose");
 			//Twitch asked us to reconnect socket at a new URL, which we did
 			//but disconnection of the old socket (current one) wasn't done.
@@ -165,13 +189,10 @@ export default class EventSub {
 			this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 
 			// console.log("EVENTSUB : Closed");
-			clearTimeout(this.reconnectTimeout);
-			this.reconnectTimeout = window.setTimeout(() => {
-				void this.connect();
-			}, 1000);
+			this.scheduleReconnectAfterClose();
 		};
 
-		this.socket.onerror = (error) => {
+		socket.onerror = (error) => {
 			console.log("[EVENTSUB] : OnError", error);
 		};
 	}
@@ -676,6 +697,8 @@ export default class EventSub {
 	 * @param url
 	 */
 	private reconnect(url: string): void {
+		if (this.connecting) return;
+
 		this.oldSocket = this.socket;
 		this.connectURL = url;
 		void this.connect(false);
@@ -708,6 +731,25 @@ export default class EventSub {
 			},
 			(this.keepalive_timeout_seconds + 5) * 1000,
 		);
+	}
+
+	/**
+	 * Schedules reconnect with a backoff delay
+	 */
+	private scheduleReconnectAfterClose(): void {
+		const uptime = this.connectedAt > 0 ? Date.now() - this.connectedAt : 0;
+		if (uptime > 30_000) this.reconnectFailCount = 0;
+		this.connectedAt = 0;
+
+		this.reconnectFailCount++;
+		//1s, 2s, 4s, 8s, 16s then 30s max
+		const delay = Math.min(1000 * Math.pow(2, this.reconnectFailCount - 1), 30_000);
+
+		console.log("[EVENTSUB] Reconnect in " + Math.round(delay) + "ms");
+		clearTimeout(this.reconnectTimeout);
+		this.reconnectTimeout = window.setTimeout(() => {
+			void this.connect();
+		}, delay);
 	}
 
 	/**
