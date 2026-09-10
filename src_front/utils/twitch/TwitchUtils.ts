@@ -2581,6 +2581,8 @@ export default class TwitchUtils {
 		topic: string,
 		version: "1" | "2" | "3" | "beta",
 		additionalCondition?: { [key: string]: any },
+		isStillRelevant?: () => boolean,
+		attempt: number = 0,
 	): Promise<false | string> {
 		const body = {
 			type: topic,
@@ -2616,6 +2618,41 @@ export default class TwitchUtils {
 			const json: { data: TwitchDataTypes.EventsubSubscription[] } = await res.json();
 			return json.data[0]!.id;
 		}
+
+		if (res.status == 429) {
+			const remaining = parseInt(res.headers.get("ratelimit-remaining") || "1");
+			// Determines if we got a 429 because we made too many requests.
+			// If "false" it's because we subscribed to the same eventType/condition too much
+			const quotaExhausted = remaining === 0;
+			if (quotaExhausted && attempt < 2 && (!isStillRelevant || isStillRelevant())) {
+				await this.onRateLimit(res.headers);
+				//The websocket session may have died while waiting
+				if (!isStillRelevant || isStillRelevant()) {
+					return await this.eventsubSubscribe(
+						broadcasterId,
+						userId,
+						session_id,
+						topic,
+						version,
+						additionalCondition,
+						isStillRelevant,
+						attempt + 1,
+					);
+				}
+				return false;
+			}
+		}
+
+		let details = "";
+		try {
+			details = await res.text();
+		} catch (_error) {
+			/*ignore*/
+		}
+		console.warn(
+			`[TWITCH] Eventsub subscription to "${topic}" failed (HTTP ${res.status})`,
+			details,
+		);
 		return false;
 	}
 

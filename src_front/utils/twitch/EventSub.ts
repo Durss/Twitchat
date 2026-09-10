@@ -117,11 +117,11 @@ export default class EventSub {
 					//See scheduleReconnectAfterClose()
 					this.connectedAt = Date.now();
 					this.connecting = false;
+					this.sessionID = payload.session.id;
 					if (this.oldSocket) {
 						this.cleanupSocket(this.oldSocket);
 					}
 					if (disconnectPrevious) {
-						this.sessionID = payload.session.id;
 						console.log("[EVENTSUB] Create subscriptions");
 						void this.connectToChannel(StoreProxy.auth.twitch.user);
 					}
@@ -770,16 +770,23 @@ export default class EventSub {
 			//Already subscribed to this topic, stop there
 			return;
 		}
+		const sessionID = this.sessionID;
 		void TwitchUtils.eventsubSubscribe(
 			channelId,
 			uid,
-			this.sessionID,
+			sessionID,
 			topic,
 			version,
 			condition,
+			//Don't wait out a rate limit for a session that already got replaced
+			() => this.sessionID === sessionID,
 		).then((res) => {
 			if (res !== false) {
 				this.chanSubscriptions[channelId]!.push({ id: res, uid, topic });
+			} else {
+				console.warn(
+					`[EVENTSUB] No subscription for "${topic}" on channel ${channelId}, its events won't be received`,
+				);
 			}
 		});
 	}
