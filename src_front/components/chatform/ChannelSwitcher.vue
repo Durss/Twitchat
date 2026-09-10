@@ -92,7 +92,7 @@
 					<TTButton
 						v-if="entry.isRemoteChan && entry.connected"
 						class="actionBt"
-						icon="offline"
+						icon="online"
 						transparent
 						medium
 						v-tooltip="t('global.disconnect')"
@@ -101,7 +101,7 @@
 					<TTButton
 						v-else-if="entry.isRemoteChan"
 						class="actionBt"
-						icon="online"
+						icon="offline"
 						transparent
 						medium
 						:disabled="!canConnectChans"
