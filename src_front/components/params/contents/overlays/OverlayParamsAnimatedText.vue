@@ -29,6 +29,13 @@
 			>
 				<template #right_actions>
 					<TTButton
+						class="actionBt"
+						@click.stop
+						:copy="entry.id"
+						icon="id"
+						v-tooltip="t('global.copy_id')"
+					/>
+					<TTButton
 						@click.stop="storeAnimatedText.deleteAnimatedText(entry.id)"
 						icon="trash"
 						alert

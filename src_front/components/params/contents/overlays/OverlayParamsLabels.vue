@@ -57,6 +57,13 @@
 						v-tooltip="t('global.duplicate')"
 						v-if="!maxLabelsReached"
 					/>
+					<TTButton
+						class="actionBt"
+						@click.stop
+						:copy="label.id"
+						icon="id"
+						v-tooltip="t('global.copy_id')"
+					/>
 					<TTButton @click.stop="storeLabels.removeLabel(label.id)" icon="trash" alert />
 				</template>
 

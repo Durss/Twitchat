@@ -72,7 +72,6 @@
 						:copy="entry.id"
 						icon="id"
 						v-tooltip="t('global.copy_id')"
-						small
 					/>
 					<TTButton
 						@click.stop="storeCustomTrain.deleteCustomTrain(entry.id)"
