@@ -4072,6 +4072,41 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Fkags message as a shared one if source channel differs from the receiving one.
+	 *
+	 * Returns false if the message should be ignored
+	 */
+	public static flagSharedChatMessage(
+		data: TwitchatDataTypes.AbstractTwitchatMessage,
+		sourceChannelId: string | undefined,
+		localChannelId: string | undefined,
+	): boolean {
+		if (TwitchUtils.isSharedChatDuplicate(sourceChannelId, localChannelId)) return false;
+
+		//Not a shared chat message, nothing to flag
+		if (!sourceChannelId || sourceChannelId == localChannelId) return true;
+
+		data.twitchSharedChatSourceId = sourceChannelId;
+		data.twitchSharedChat = true;
+		return true;
+	}
+
+	/**
+	 * Checks if message comes from a channel we're already manually connected to.
+	 * If it returns true the message should be ignored as it will come through
+	 * its dedicated IRC channel.
+	 */
+	public static isSharedChatDuplicate(
+		sourceChannelId: string | undefined,
+		localChannelId: string | undefined,
+	): boolean {
+		//Not a shared chat event, keep it
+		if (!sourceChannelId || sourceChannelId == localChannelId) return false;
+
+		return StoreProxy.stream.connectedTwitchChans.some((v) => v.user.id === sourceChannelId);
+	}
+
+	/**
 	 * Replaces emotes by <img> tags and URL to <a> tags on the message
 	 */
 	public static messageChunksToHTML(

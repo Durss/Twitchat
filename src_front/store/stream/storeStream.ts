@@ -30,6 +30,13 @@ const commercialTimeouts: { [key: string]: number[] } = {};
 // cooldown alert won't be sent again unless a hype train happened in between
 // Set to true by default to avoid sending a cooldown alert on first launch
 let ignoreHypeTrainCooldown = true;
+//Colors used for channels we're not connected to (ex: shared chat sessions).
+//Channels we're connected to get their color from "connectedTwitchChans"
+const remoteChanColors = ["#d08a64", "#85c56e", "#8180d3", "#d578c2", "#7bd0cf", "#dcc87d"];
+let remoteChanColorPointer = 0;
+const remoteChanToColor: { [chanId: string]: string } = {};
+const remoteIdToUser: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
+const remoteIdToPromise: { [chanId: string]: Promise<TwitchatDataTypes.TwitchatUser> } = {};
 
 export const storeStream = defineStore("stream", {
 	state: (): IStreamState => ({
@@ -1701,6 +1708,67 @@ export const storeStream = defineStore("stream", {
 			}
 
 			return result;
+		},
+
+		async resolveChannelSource(
+			channelId: string,
+			loadRemoteChan: boolean = false,
+		): Promise<TwitchatDataTypes.AbstractTwitchatMessage["channelSource"] | undefined> {
+			//Channel we're connected to, use the color it's been assigned on connection
+			const infos = this.connectedTwitchChans.find((v) => v.user.id == channelId);
+			if (infos) {
+				return {
+					color: infos.color,
+					name: infos.user.displayNameOriginal,
+					pic: infos.user.avatarPath?.replace(/300x300/gi, "50x50"),
+				};
+			}
+
+			//Channel we're not connected to. Only load it if requested, otherwise
+			//we'd request user data for any channel ID we don't know about
+			if (!loadRemoteChan) return undefined;
+
+			//Initialize remote data if not ready
+			if (!remoteIdToUser[channelId]) {
+				//Create promise if not existing
+				if (!remoteIdToPromise[channelId]) {
+					remoteIdToPromise[channelId] = new Promise<TwitchatDataTypes.TwitchatUser>(
+						(resolve) => {
+							StoreProxy.users.getUserFrom(
+								"twitch",
+								channelId,
+								channelId,
+								undefined,
+								undefined,
+								(user) => {
+									resolve(user);
+								},
+								undefined,
+								undefined,
+								undefined,
+								false,
+							);
+						},
+					);
+				}
+
+				//Wait for promise to resolve. This will be the case for the first message but
+				//also for any other message received while the user's data is being resolved
+				//to make sure no message is displayed before the channel info get loaded.
+				const user = await remoteIdToPromise[channelId]!;
+
+				remoteIdToUser[channelId] = user;
+				remoteChanToColor[channelId] =
+					remoteChanColors[remoteChanColorPointer % remoteChanColors.length]!;
+				remoteChanColorPointer++;
+			}
+
+			const user = remoteIdToUser[channelId]!;
+			return {
+				color: remoteChanToColor[channelId]!,
+				name: user.displayNameOriginal || user.login,
+				pic: user.avatarPath?.replace(/300x300/gi, "50x50"),
+			};
 		},
 
 		async connectToExtraChan(user: TwitchatDataTypes.TwitchatUser): Promise<void> {

@@ -5960,6 +5960,12 @@ export namespace TwitchatDataTypes {
 		 */
 		twitchSharedChat?: boolean;
 		/**
+		 * ID of the channel the message originates from when coming from a
+		 * shared chat session.
+		 * Only set if different from the channel the message has been received on.
+		 */
+		twitchSharedChatSourceId?: string;
+		/**
 		 * true if message has been deleted
 		 */
 		deleted?: boolean;

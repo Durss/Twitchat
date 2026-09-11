@@ -1768,6 +1768,14 @@ export interface IStreamActions {
 		simulate?: boolean,
 	): Promise<TwitchatDataTypes.StreamSummaryData>;
 	/**
+	 * Get info (name, avatar and color) about given channel
+	 * To be used as `channelSource` value on remote chan messages
+	 */
+	resolveChannelSource(
+		channelId: string,
+		loadRemoteChan?: boolean,
+	): Promise<TwitchatDataTypes.AbstractTwitchatMessage["channelSource"] | undefined>;
+	/**
 	 * Connects to an extra channel
 	 * @param login
 	 */

@@ -15,6 +15,15 @@ import * as Sentry from "@sentry/vue";
 import Logger from "@/utils/Logger";
 import Database from "@/store/Database";
 
+type AnyUserstate =
+	| tmi.ChatUserstate
+	| tmi.SubUserstate
+	| tmi.SubGiftUpgradeUserstate
+	| tmi.SubGiftUserstate
+	| tmi.AnonSubGiftUserstate
+	| tmi.AnonSubGiftUpgradeUserstate
+	| tmi.PrimeUpgradeUserstate;
+
 /**
  * Created : 25/09/2022
  */
@@ -28,18 +37,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChannelCount: number = 0;
 	private _channelIdToLogin: { [key: string]: string } = {};
 	private _channelLoginToId: { [key: string]: string } = {};
-	private _remoteChanColorPointer: number = 0;
-	private _remoteChanColors: string[] = [
-		"#d08a64",
-		"#85c56e",
-		"#8180d3",
-		"#d578c2",
-		"#7bd0cf",
-		"#dcc87d",
-	];
-	private _remoteChanToColor: { [chanId: string]: string } = {};
-	private _remoteIdToUser: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
-	private _remoteIdToPromise: { [chanId: string]: Promise<TwitchatDataTypes.TwitchatUser> } = {};
 
 	constructor() {
 		super();
@@ -736,17 +733,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param tags
 	 * @returns
 	 */
-	private getUserFromTags(
-		tags:
-			| tmi.ChatUserstate
-			| tmi.SubUserstate
-			| tmi.SubGiftUpgradeUserstate
-			| tmi.SubGiftUserstate
-			| tmi.AnonSubGiftUserstate
-			| tmi.AnonSubGiftUpgradeUserstate
-			| tmi.PrimeUpgradeUserstate,
-		channelId: string,
-	): TwitchatDataTypes.TwitchatUser {
+	private getUserFromTags(tags: AnyUserstate, channelId: string): TwitchatDataTypes.TwitchatUser {
 		const login = tags.login ?? tags.username ?? tags["display-name"];
 		const isMod = tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip = tags.badges?.vip != undefined;
@@ -829,14 +816,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(
 		channel: string,
-		tags:
-			| tmi.ChatUserstate
-			| tmi.SubUserstate
-			| tmi.SubGiftUpgradeUserstate
-			| tmi.SubGiftUserstate
-			| tmi.AnonSubGiftUserstate
-			| tmi.AnonSubGiftUpgradeUserstate
-			| tmi.PrimeUpgradeUserstate,
+		tags: AnyUserstate,
 		methods?: tmi.SubMethods,
 		message?: string,
 	): TwitchatDataTypes.MessageSubscriptionData {
@@ -877,12 +857,27 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return res;
 	}
 
-	private async onMessage(
+	/**
+	 * Dispatches a sub related event unless it comes from a shared chat session
+	 * of a channel we're already connected to
+	 */
+	private dispatchSubEvent(
+		data: TwitchatDataTypes.MessageSubscriptionData,
+		tags: AnyUserstate,
+	): void {
+		//Ignore event if it comes from a shared chat session we're already connected to
+		if (!TwitchUtils.flagSharedChatMessage(data, tags["source-room-id"], tags["room-id"]))
+			return;
+
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+	}
+
+	private onMessage(
 		channel: string,
 		tags: tmi.ChatUserstate,
 		message: string,
 		_self: boolean,
-	): Promise<void> {
+	): void {
 		//Ignore anything that's not a message or a /me
 		if (
 			tags["message-type"] != "chat" &&
@@ -940,20 +935,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromTags(tags, channel_id);
-		const isSharedChatMessage =
-			tags["source-room-id"] && tags["source-room-id"] != tags["room-id"];
-
-		//Message comming from a shared chat session
-		//If Twitchat is already connected to the given channel, ignore the message
-		//as it will be received via the dedicated IRC connection
-		if (
-			isSharedChatMessage &&
-			StoreProxy.stream.connectedTwitchChans.findIndex(
-				(v) => v.user.id === tags["source-room-id"],
-			) > -1
-		) {
-			return;
-		}
 
 		const data: TwitchatDataTypes.MessageChatData = {
 			id: tags.id!,
@@ -972,51 +953,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			twitch_source: "irc",
 		};
 
-		if (isSharedChatMessage) {
-			const chanId = tags["source-room-id"];
-			//Initialize remote data if not ready
-			if (!this._remoteIdToUser[chanId]) {
-				//Create promise if not existing
-				if (!this._remoteIdToPromise[chanId]) {
-					this._remoteIdToPromise[chanId] = new Promise<TwitchatDataTypes.TwitchatUser>(
-						(resolve) => {
-							StoreProxy.users.getUserFrom(
-								"twitch",
-								chanId,
-								chanId,
-								undefined,
-								undefined,
-								(user) => {
-									resolve(user);
-								},
-								undefined,
-								undefined,
-								undefined,
-								false,
-							);
-						},
-					);
-				}
-
-				//Wait for promise to resolve. This will be the case for the first message but
-				//also for any other message received while the user's data is being resolved
-				//to make sure no message is displayed before the channel info get loaded.
-				const user = await this._remoteIdToPromise[chanId];
-
-				this._remoteIdToUser[chanId] = user;
-				this._remoteChanToColor[chanId] =
-					this._remoteChanColors[this._remoteChanColorPointer]!;
-				this._remoteChanColorPointer++;
-			}
-
-			//Define remote channel info
-			data.channelSource = {
-				color: this._remoteChanToColor[chanId]!,
-				pic: this._remoteIdToUser[chanId].avatarPath,
-				name: this._remoteIdToUser[chanId].login,
-			};
-			data.twitchSharedChat = true;
-		}
+		//Ignore message if it comes from a shared chat session we're already connected to
+		if (!TwitchUtils.flagSharedChatMessage(data, tags["source-room-id"], tags["room-id"]))
+			return;
 
 		data.message_chunks = TwitchUtils.parseMessageToChunks(
 			message,
@@ -1111,6 +1050,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message_chunks: data.message_chunks,
 				message_html: data.message_html,
 				message_size: data.message_size,
+				twitchSharedChat: data.twitchSharedChat,
+				twitchSharedChatSourceId: data.twitchSharedChatSourceId,
 			};
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}
@@ -1212,7 +1153,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	): Promise<void> {
 		const channel_id = this.getChannelID(channel);
 		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
-		setTimeout(() => {
+		const missingCheerTimeout = window.setTimeout(() => {
 			if (StoreProxy.chat.messages.findIndex((v) => v.id == tags.id) === -1) {
 				let data: TwitchatDataTypes.MessageCustomData = {
 					channel_id: this.getChannelID(channel),
@@ -1229,25 +1170,33 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}, 5000);
 		await TwitchUtils.parseCheermotes(chunks, channel_id);
 
-		this.dispatchEvent(
-			new MessengerClientEvent("CHEER", {
-				platform: "twitch",
-				type: TwitchatDataTypes.TwitchatMessageType.CHEER,
-				id: tags.id ?? Utils.getUUID(),
-				channel_id,
-				date: parseInt((tags["tmi-sent-ts"] as string) ?? Date.now().toString()),
-				user: this.getUserFromTags(tags, channel_id),
-				bits: this.getNumValueFromTag(tags.bits || "0", 0),
-				message,
-				message_chunks: chunks,
-				message_html: TwitchUtils.messageChunksToHTML(chunks),
-				message_size: TwitchUtils.computeMessageSize(chunks),
-				raw_data: tags,
-				pinned: false,
-				pinLevel: 0,
-				pinDuration_ms: 0,
-			}),
-		);
+		const data: TwitchatDataTypes.MessageCheerData = {
+			platform: "twitch",
+			type: TwitchatDataTypes.TwitchatMessageType.CHEER,
+			id: tags.id ?? Utils.getUUID(),
+			channel_id,
+			date: parseInt((tags["tmi-sent-ts"] as string) ?? Date.now().toString()),
+			user: this.getUserFromTags(tags, channel_id),
+			bits: this.getNumValueFromTag(tags.bits || "0", 0),
+			message,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
+			raw_data: tags,
+			pinned: false,
+			pinLevel: 0,
+			pinDuration_ms: 0,
+		};
+
+		//Ignore message if it comes from a shared chat session we're already connected to.
+		//Also cancel the watchdog, the cheer is expected to be missing from the history as
+		//it will be received via that channel's own connection, under a different ID
+		if (!TwitchUtils.flagSharedChatMessage(data, tags["source-room-id"], tags["room-id"])) {
+			clearTimeout(missingCheerTimeout);
+			return;
+		}
+
+		this.dispatchEvent(new MessengerClientEvent("CHEER", data));
 	}
 
 	private resub(
@@ -1255,12 +1204,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		username: string,
 		months: number,
 		message: string,
-		tags: tmi.SubUserstate,
+		tags: AnyUserstate,
 		methods: tmi.SubMethods,
 	): void {
 		const data = this.getCommonSubObject(channel, tags, methods, message);
 		data.is_resub = true;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
 	private subscription(
@@ -1268,21 +1217,21 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		username: string,
 		methods: tmi.SubMethods,
 		message: string,
-		tags: tmi.SubUserstate,
+		tags: AnyUserstate,
 	): void {
 		const data = this.getCommonSubObject(channel, tags, methods, message);
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
 	private subscriptionPrimeUpgrade(
 		channel: string,
 		username: string,
 		methods: tmi.SubMethods,
-		tags: tmi.PrimeUpgradeUserstate,
+		tags: AnyUserstate,
 	): void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_primeUpgrade = true;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
 	private subgift(
@@ -1291,7 +1240,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		streakMonths: number,
 		recipient: string,
 		methods: tmi.SubMethods,
-		tags: tmi.SubGiftUserstate,
+		tags: AnyUserstate,
 	): void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
@@ -1314,7 +1263,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
 	private anonsubgift(
@@ -1322,7 +1271,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		streakMonths: number,
 		recipient: string,
 		methods: tmi.SubMethods,
-		tags: tmi.AnonSubGiftUserstate,
+		tags: AnyUserstate,
 	): void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
@@ -1345,29 +1294,76 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
 	private giftpaidupgrade(
 		channel: string,
 		username: string,
 		sender: string,
-		tags: tmi.SubGiftUpgradeUserstate,
+		tags: AnyUserstate,
 	): void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
 		data.gift_upgradeSender = this.getUserStateFromLogin(sender, data.channel_id).user;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
 	}
 
-	private anongiftpaidupgrade(
-		channel: string,
-		username: string,
-		tags: tmi.AnonSubGiftUpgradeUserstate,
-	): void {
+	private anongiftpaidupgrade(channel: string, username: string, tags: AnyUserstate): void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+		this.dispatchSubEvent(data, tags);
+	}
+
+	/**
+	 * Called when receivied a share chat USERNOTICE.
+	 * Twitch sends "sharedchatnotice" as "msg-id" for these with a "source-msg-id"
+	 * containing the actual type of notice.
+	 * "source-msg-id" => "msg-id" is done before calling this function so we can
+	 * rely on "msg-id"
+	 * This function makes sure we receive sub events from shared chat sessions.
+	 */
+	private onSharedChatNotice(channel: string, tags: tmi.ChatUserstate, message: string): void {
+		//Mimics TMI's own USERNOTICE parsing
+		const username = (tags["display-name"] || tags.login) as string;
+		const plan = (tags["msg-param-sub-plan"] as tmi.SubMethod) ?? "";
+		const methods: tmi.SubMethods = {
+			prime: plan.includes("Prime"),
+			plan,
+			planName: (tags["msg-param-sub-plan-name"] as string) || undefined,
+		};
+		const streakMonths = this.getNumValueFromTag(tags["msg-param-streak-months"], 0);
+		const recipient = (tags["msg-param-recipient-display-name"] ||
+			tags["msg-param-recipient-user-name"]) as string;
+
+		switch (tags["msg-id"]) {
+			case "sub":
+				this.subscription(channel, username, methods, message, tags);
+				break;
+			case "resub":
+				this.resub(channel, username, streakMonths, message, tags, methods);
+				break;
+			case "subgift":
+				this.subgift(channel, username, streakMonths, recipient, methods, tags);
+				break;
+			case "anonsubgift":
+				this.anonsubgift(channel, streakMonths, recipient, methods, tags);
+				break;
+			case "primepaidupgrade":
+				this.subscriptionPrimeUpgrade(channel, username, methods, tags);
+				break;
+			case "giftpaidupgrade":
+				this.giftpaidupgrade(
+					channel,
+					username,
+					(tags["msg-param-sender-name"] || tags["msg-param-sender-login"]) as string,
+					tags,
+				);
+				break;
+			case "anongiftpaidupgrade":
+				this.anongiftpaidupgrade(channel, username, tags);
+				break;
+		}
 	}
 
 	private async raided(_channel: string, _username: string, _viewers: number): Promise<void> {
@@ -1496,11 +1492,32 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const category = tags["msg-param-category"] as string;
 		switch (parsed.command) {
 			case "USERNOTICE": {
+				//Ignore notices coming from a shared chat session we're already connected to,
+				//they'll be received via that channel's own connection
+				if (
+					TwitchUtils.isSharedChatDuplicate(
+						tags["source-room-id"],
+						tags["room-id"] as string,
+					)
+				)
+					break;
+
+				// Twitch sends "sharedchatnotice" for all USERNOTICE coming from another
+				// chan during a shared chat session.
+				if (tags["msg-id"] === "sharedchatnotice" && tags["source-msg-id"]) {
+					tags["msg-id"] = tags["source-msg-id"];
+					//TMI stamps this tag from the "msg-id" before dispatching, so it still
+					//holds "sharedchatnotice" at this point
+					tags["message-type"] = tags["msg-id"];
+					const params = parsed.params as string[];
+					this.onSharedChatNotice(params[0]!, tags, params[1] || "");
+				}
+
 				//Handle announcement messages
 				if (tags["msg-id"] === "announcement") {
 					const params = parsed.params as string[];
 					tags.username = tags.login;
-					void this.onMessage(params[0]!, tags, params[1]!, false);
+					this.onMessage(params[0]!, tags, params[1]!, false);
 				} else //Handle viewer milestone (AKA consecutive watched streams)
 				if (category === "watch-streak" || category === "watch-fk") {
 					const channelId = tags["room-id"] as string;
@@ -1530,6 +1547,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_html,
 						message_size,
 					};
+					TwitchUtils.flagSharedChatMessage(
+						eventData,
+						tags["source-room-id"],
+						tags["room-id"] as string,
+					);
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 
 					// Do not send watch streak on chat if no message is provided
@@ -1554,6 +1576,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 									(message?.length || 1) <
 									0.6 || message?.length < 4,
 						};
+						TwitchUtils.flagSharedChatMessage(
+							messageData,
+							tags["source-room-id"],
+							tags["room-id"] as string,
+						);
 						this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 					}
 				}
@@ -1586,6 +1613,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_html,
 						message_size,
 					};
+					TwitchUtils.flagSharedChatMessage(
+						eventData,
+						tags["source-room-id"],
+						tags["room-id"] as string,
+					);
 					this.dispatchEvent(new MessengerClientEvent("MODIVERSARY", eventData));
 
 					//Add as standard message
@@ -1607,6 +1639,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 								(message?.length || 1) <
 								0.6 || message?.length < 4,
 					};
+					TwitchUtils.flagSharedChatMessage(
+						messageData,
+						tags["source-room-id"],
+						tags["room-id"] as string,
+					);
 					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 				}
 

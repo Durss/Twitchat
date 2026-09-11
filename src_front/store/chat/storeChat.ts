@@ -1388,20 +1388,21 @@ export const storeChat = defineStore("chat", {
 			try {
 				message = reactive(message);
 
-				if (
-					!message.channelSource &&
-					message.channel_id != sAuth.twitch.user.id &&
-					message.channel_id != sAuth.youtube?.user.id
-				) {
-					const infos = sStream.connectedTwitchChans.find(
-						(v) => v.user.id == message.channel_id,
-					);
-					if (infos) {
-						message.channelSource = {
-							color: infos.color,
-							name: infos.user.displayNameOriginal,
-							pic: infos.user.avatarPath?.replace(/300x300/gi, "50x50"),
-						};
+				//Flag the channel the message originates from if it's not our own.
+				//Either another channel we're connected to, or a channel we're not
+				//connected to when the message comes from a shared chat session.
+				if (!message.channelSource) {
+					const sharedChatChanId = message.twitchSharedChatSourceId;
+					const sourceChanId = sharedChatChanId || message.channel_id;
+					if (
+						sourceChanId != sAuth.twitch.user.id &&
+						sourceChanId != sAuth.youtube?.user.id
+					) {
+						const source = await sStream.resolveChannelSource(
+							sourceChanId,
+							sharedChatChanId != undefined,
+						);
+						if (source) message.channelSource = source;
 					}
 				}
 

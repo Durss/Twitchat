@@ -3070,6 +3070,17 @@ export default class EventSub {
 					pinDuration_ms: 0,
 					pinLevel: 0,
 				};
+
+				//Ignore message if it comes from a shared chat session we're already connected to
+				if (
+					!TwitchUtils.flagSharedChatMessage(
+						message,
+						event.source_broadcaster_user_id,
+						event.broadcaster_user_id,
+					)
+				)
+					return;
+
 				void StoreProxy.chat.addMessage(message);
 			} else {
 				const messageChunks: TwitchatDataTypes.ParseMessageChunk[] =
@@ -3102,6 +3113,16 @@ export default class EventSub {
 							0.6 || event.message.text.length < 4,
 					twitch_source: "eventsub",
 				};
+
+				//Ignore message if it comes from a shared chat session we're already connected to
+				if (
+					!TwitchUtils.flagSharedChatMessage(
+						message,
+						event.source_broadcaster_user_id,
+						event.broadcaster_user_id,
+					)
+				)
+					return;
 
 				//Check if it's a /me message
 				// oxlint-disable-next-line no-control-regex
