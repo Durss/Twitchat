@@ -315,12 +315,14 @@ export default class PublicAPI extends EventDispatcher {
 				resolve();
 			}
 
-			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", (_event) =>
-				this.broadcast("ON_OBS_WEBSOCKET_CONNECTED", undefined, false),
-			);
-			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (_event) =>
-				this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false),
-			);
+			if (isMainApp) {
+				OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", (_event) =>
+					this.broadcast("ON_OBS_WEBSOCKET_CONNECTED", undefined, false),
+				);
+				OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (_event) =>
+					this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false),
+				);
+			}
 			OBSWebsocket.instance.socket.on("CustomEvent", (eventData: JsonObject) => {
 				const eventDataTyped = eventData as unknown as IEnvelope;
 				this.onMessage(eventDataTyped, true);
