@@ -16,6 +16,8 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 
 let refreshTokenTO: number = -1;
+let refreshTokenFailCount: number = 0;
+let refreshTokenPromise: Promise<TwitchDataTypes.AuthTokenResult | false> | null = null;
 
 export const storeAuth = defineStore("auth", {
 	state: (): IAuthState => ({
@@ -50,55 +52,74 @@ export const storeAuth = defineStore("auth", {
 
 	actions: {
 		async twitch_tokenRefresh(callback?: (success: boolean) => void) {
-			let twitchAuthResult: TwitchDataTypes.AuthTokenResult = JSON.parse(
-				DataStore.get(DataStore.TWITCH_AUTH_TOKEN),
-			);
-			//Refresh token if it's going to expire within the next 5 minutes
-			if (twitchAuthResult && twitchAuthResult.refresh_token) {
-				try {
-					const res = await ApiHelper.call("auth/twitch/refreshtoken", "GET", {
-						token: twitchAuthResult.refresh_token,
-					});
-					if (res.status != 200) throw "invalid refresh result";
-					twitchAuthResult = res.json;
-				} catch (_error) {
-					if (callback) callback(false);
+			if (!refreshTokenPromise) {
+				refreshTokenPromise = (async (): Promise<
+					TwitchDataTypes.AuthTokenResult | false
+				> => {
+					let twitchAuthResult: TwitchDataTypes.AuthTokenResult = JSON.parse(
+						DataStore.get(DataStore.TWITCH_AUTH_TOKEN),
+					);
+					//Refresh token if it's going to expire within the next 5 minutes
+					if (twitchAuthResult && twitchAuthResult.refresh_token) {
+						try {
+							const res = await ApiHelper.call("auth/twitch/refreshtoken", "GET", {
+								token: twitchAuthResult.refresh_token,
+							});
+							if (res.status != 200) throw "invalid refresh result";
+							twitchAuthResult = res.json;
+						} catch (_error) {
+							refreshTokenFailCount++;
+							const retryDelay = Math.min(
+								5000 * Math.pow(2, refreshTokenFailCount - 1),
+								60000,
+							);
+							clearTimeout(refreshTokenTO);
+							refreshTokenTO = window.setTimeout(() => {
+								void this.twitch_tokenRefresh();
+							}, retryDelay);
+							return false;
+						}
+						refreshTokenFailCount = 0;
+						this.twitch.access_token = twitchAuthResult.access_token;
+						this.twitch.expires_in = twitchAuthResult.expires_in;
+						twitchAuthResult.expires_at =
+							Date.now() + twitchAuthResult.expires_in * 1000;
+						this.twitch.scopes = twitchAuthResult.scope || [];
+						ApiHelper.accessToken = this.twitch.access_token;
+						ApiHelper.refreshTokenCallback = () => this.twitch_tokenRefresh();
+						TwitchUtils.updateAuthInfo(
+							this.twitch.access_token,
+							this.twitch.scopes,
+							(scopes: TwitchScopesString[]) => this.requestTwitchScopes(scopes),
+							() => this.twitch_tokenRefresh(),
+						);
+
+						//Store auth data in cookies for later use
+						DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+
+						const expire = this.twitch.expires_in;
+						let delay = Math.max(0, expire * 1000 - 60000 * 5); //Refresh 5min before it actually expires
+						delay = Math.min(delay, 1000 * 60 * 60 * 3); //Refresh at least every 3h
+						if (isNaN(delay)) {
+							//fail safe.
+							//Refresh in 1 minute if something failed when refreshing
+							delay = 60 * 1000;
+						}
+
+						clearTimeout(refreshTokenTO);
+						refreshTokenTO = window.setTimeout(() => {
+							void this.twitch_tokenRefresh();
+						}, delay);
+						return twitchAuthResult;
+					}
 					return false;
-				}
-				this.twitch.access_token = twitchAuthResult.access_token;
-				this.twitch.expires_in = twitchAuthResult.expires_in;
-				twitchAuthResult.expires_at = Date.now() + twitchAuthResult.expires_in * 1000;
-				this.twitch.scopes = twitchAuthResult.scope || [];
-				ApiHelper.accessToken = this.twitch.access_token;
-				ApiHelper.refreshTokenCallback = () => this.twitch_tokenRefresh();
-				TwitchUtils.updateAuthInfo(
-					this.twitch.access_token,
-					this.twitch.scopes,
-					(scopes: TwitchScopesString[]) => this.requestTwitchScopes(scopes),
-					() => this.twitch_tokenRefresh(),
-				);
-
-				//Store auth data in cookies for later use
-				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
-
-				const expire = this.twitch.expires_in;
-				let delay = Math.max(0, expire * 1000 - 60000 * 5); //Refresh 5min before it actually expires
-				delay = Math.min(delay, 1000 * 60 * 60 * 3); //Refresh at least every 3h
-				if (isNaN(delay)) {
-					//fail safe.
-					//Refresh in 1 minute if something failed when refreshing
-					delay = 60 * 1000;
-				}
-
-				clearTimeout(refreshTokenTO);
-				refreshTokenTO = window.setTimeout(() => {
-					void this.twitch_tokenRefresh();
-				}, delay);
-				if (callback) callback(true);
-				return twitchAuthResult;
+				})().finally(() => {
+					refreshTokenPromise = null;
+				});
 			}
-			if (callback) callback(false);
-			return false;
+			const result = await refreshTokenPromise;
+			if (callback) callback(result !== false);
+			return result;
 		},
 
 		async twitch_autenticate(

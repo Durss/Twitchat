@@ -5,6 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
+import Logger from "@/utils/Logger";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
@@ -27,6 +28,7 @@ export default class MessengerProxy {
 	private joinSpoolTimeout: number = -1;
 	private leaveSpoolTimeout: number = -1;
 	private spamInterval: number = -1;
+	private refreshingToken: boolean = false;
 
 	constructor() {}
 
@@ -285,9 +287,24 @@ export default class MessengerProxy {
 	 * Called when requesting to refresh auth token
 	 */
 	private async onRefreshToken(_e: MessengerClientEvent): Promise<void> {
-		const res = await StoreProxy.auth.twitch_tokenRefresh();
-		if (res !== false) {
-			void TwitchMessengerClient.instance.refreshToken(res.access_token);
+		if (this.refreshingToken) return;
+		this.refreshingToken = true;
+		try {
+			// attempt multiple times. In case machine was asleep we may need
+			// to wait a little before internet is back
+			for (let i = 0; i < 10; i++) {
+				const res = await StoreProxy.auth.twitch_tokenRefresh();
+				if (res !== false) {
+					await TwitchMessengerClient.instance.refreshToken();
+					return;
+				}
+				await Utils.promisedTimeout(Math.min(5000 * Math.pow(2, i), 60000));
+			}
+			Logger.instance.log("irc", {
+				info: "Gave up refreshing token after a chat authentication failure",
+			});
+		} finally {
+			this.refreshingToken = false;
 		}
 	}
 

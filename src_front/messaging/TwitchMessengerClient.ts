@@ -32,6 +32,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _client!: tmi.Client;
 	private _connectTimeout: number = -1;
 	private _refreshingToken: boolean = false;
+	private _refreshingTokenTO: number = -1;
+	private _watchdogTO: number = -1;
+	private _reconnecting: boolean = false;
 	private _connectedChans: { [key: string]: boolean } = {};
 	private _channelList: string[] = [];
 	private _connectedChannelCount: number = 0;
@@ -69,7 +72,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		// 	return;
 		// }
 
-		this._channelList.push(channel);
+		if (this._channelList.indexOf(channel) === -1) {
+			this._channelList.push(channel);
+		}
 
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
@@ -194,7 +199,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 				if (this._client) {
 					Logger.instance.log("irc", { info: "Join channel " + channel.login });
-					void this._client.join(channel.login);
+					this._client.join(channel.login).catch((error) => {
+						Logger.instance.log("irc", {
+							info: "Failed joining channel " + channel.login,
+							data: error,
+						});
+					});
 				}
 			});
 
@@ -207,7 +217,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 			options.identity = {
 				username: StoreProxy.auth.twitch.user.login,
-				password: "oauth:" + StoreProxy.auth.twitch.access_token,
+				password: () => "oauth:" + StoreProxy.auth.twitch.access_token,
 			};
 
 			if (!this._client) {
@@ -215,6 +225,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._client = new tmi.Client(options);
 				void this._client.connect();
 				void this.initialize();
+			} else if (this._client.readyState() !== "OPEN") {
+				await this.reconnect();
 			}
 		}, 1000);
 	}
@@ -250,21 +262,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Refresh IRC token
 	 * Disconnects from all chans and connects back to it
-	 * @param token
 	 */
-	public async refreshToken(token: string): Promise<void> {
+	public async refreshToken(): Promise<void> {
 		if (!this._client) return;
 		Logger.instance.log("irc", { info: "Refreshing token" });
+		// avoid showing reconnect message on chat when refreshing token
 		this._refreshingToken = true;
 		this._connectedChannelCount = 0;
-		const params = this._client.getOptions();
-		if (!params.identity) {
-			params.identity = {
-				username: StoreProxy.auth.twitch.user.login,
-				password: "oauth:" + StoreProxy.auth.twitch.access_token,
-			};
-		}
-		params.identity.password = token;
+		clearTimeout(this._refreshingTokenTO);
+		this._refreshingTokenTO = window.setTimeout(() => {
+			this._refreshingToken = false;
+		}, 30000);
 		await this.reconnect();
 	}
 
@@ -691,6 +699,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("messagedeleted", this.onDeleteMessage.bind(this));
 		this._client.on("raw_message", this.raw_message.bind(this));
 
+		// Workaround a potential TMI issue not detecting if socket died when computer/page
+		// is asleep.
+		const schedule = () => {
+			if (document.hidden || !navigator.onLine) return;
+			clearTimeout(this._watchdogTO);
+			//Leave TMI a chance to notice and recover by itself first
+			this._watchdogTO = window.setTimeout(() => void this.checkConnection(), 5000);
+		};
+		document.addEventListener("visibilitychange", schedule);
+		window.addEventListener("online", schedule);
+
 		const hashmap: { [key: string]: boolean } = {};
 		try {
 			//Load bots list
@@ -719,13 +738,68 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * Called after updating the token or the channels list
 	 */
 	private async reconnect(): Promise<void> {
+		if (this._reconnecting) return;
+		this._reconnecting = true;
 		Logger.instance.log("irc", { info: "Force IRC reconnect" });
+
+		if (!this._client) return;
+		const params = this._client.getOptions();
+		if (params.connection) params.connection.reconnect = true;
+		//Forces TMI to allow reconnect
+		(this._client as unknown as { reconnect: boolean }).reconnect = true;
+
 		try {
-			await this._client.disconnect();
+			await Promise.race([this._client.disconnect(), Utils.promisedTimeout(2000)]);
 		} catch (_error) {
 			//Ignore error, that's most probably because client is actually already disconnected
 		}
-		await this._client.connect();
+		// Force TMI internal socket close just in case
+		const tmiInternals = this._client as unknown as { ws: WebSocket | null };
+		if (tmiInternals.ws) {
+			tmiInternals.ws.onopen = null;
+			tmiInternals.ws.onmessage = null;
+			tmiInternals.ws.onerror = null;
+			tmiInternals.ws.onclose = null;
+			try {
+				tmiInternals.ws.close();
+			} catch (_error) {
+				/* ignore */
+			}
+			tmiInternals.ws = null;
+		}
+		try {
+			await this._client.connect();
+		} catch (error) {
+			Logger.instance.log("irc", { info: "Reconnection failed", data: error });
+		} finally {
+			this._reconnecting = false;
+		}
+	}
+
+	/**
+	 * Check if TMI socket died and reconnects if it did
+	 */
+	private async checkConnection(): Promise<void> {
+		if (!this._client) return;
+		if (document.hidden || !navigator.onLine) return;
+
+		const state = this._client.readyState();
+
+		if (state === "OPEN") {
+			// Forces TMI to ping. If no pong is received TMI will cut the connection
+			void this._client.ping().catch(() => {
+				/* ignore */
+			});
+			return;
+		}
+
+		if (state === "CONNECTING") return;
+		if ((this._client as unknown as { reconnecting: boolean }).reconnecting === true) return;
+
+		Logger.instance.log("irc", {
+			info: 'Connection found "' + state + '" on wake up, reconnecting',
+		});
+		await this.reconnect();
 	}
 
 	/**
@@ -1068,6 +1142,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if (this._refreshingToken && self) {
 			//Don't show join info during a reconnect
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
+			if (!this._refreshingToken) clearTimeout(this._refreshingTokenTO);
 			return;
 		}
 
@@ -1695,7 +1770,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message = StoreProxy.i18n.t("error.delete_message");
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}
-					if (msgid!.indexOf("authentication failed") > -1) {
+					const authFailure = [
+						"login unsuccessful",
+						"login authentication failed",
+						"error logging in",
+						"improperly formatted auth",
+						"invalid nick",
+					].some((v) => msgid!.toLowerCase().indexOf(v) > -1);
+					if (authFailure) {
 						message = StoreProxy.i18n.t("error.irc_reconect");
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
