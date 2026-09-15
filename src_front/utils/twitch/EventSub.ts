@@ -38,8 +38,9 @@ export default class EventSub {
 	private debouncedAutomodTerms: TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
 	private sessionID: string = "";
 	private connectURL: string = "";
-	private chanSubscriptions: { [chanId: string]: { topic: string; uid: string; id: string }[] } =
-		{};
+	private chanSubscriptions: {
+		[chanId: string]: { topic: string; uid: string; key: string; id: string }[];
+	} = {};
 	private connectedChannels: { [chanId: string]: TwitchatDataTypes.TwitchatUser } = {};
 
 	constructor() {
@@ -799,12 +800,13 @@ export default class EventSub {
 		version: "beta" | "1" | "2" | "3",
 		condition?: { [key: string]: any },
 	): Promise<void> {
+		const key = this.getSubscriptionKey(topic, uid, condition);
 		if (
 			this.chanSubscriptions[channelId] &&
-			this.chanSubscriptions[channelId].findIndex((v) => v.topic === topic && v.uid === uid) >
-				-1
+			this.chanSubscriptions[channelId].findIndex((v) => v.key === key) > -1
 		) {
 			//Already subscribed to this topic, stop there
+			console.warn(`[EVENTSUB] Already subscribed to "${topic}" on channel ${channelId}.`);
 			return;
 		}
 		const sessionID = this.sessionID;
@@ -831,13 +833,32 @@ export default class EventSub {
 			const current = this.chanSubscriptions[channelId];
 
 			// unsubscribe if channel got disconnected while the request was in flight
-			if (!current || current.findIndex((v) => v.topic === topic && v.uid === uid) > -1) {
+			// or if the same subscription got created meanwhile
+			if (!current || current.findIndex((v) => v.key === key) > -1) {
 				void TwitchUtils.eventsubDeleteSubscriptions(res);
 				return;
 			}
 
-			current.push({ id: res, uid, topic });
+			current.push({ id: res, uid, topic, key });
 		});
+	}
+
+	/**
+	 * create a key representing a subscription to better diff
+	 * on existing subscriptions
+	 */
+	private getSubscriptionKey(
+		topic: string,
+		uid: string,
+		condition?: { [key: string]: any },
+	): string {
+		const conditionStr = condition
+			? Object.keys(condition)
+					.sort()
+					.map((k) => `${k}=${String(condition[k])}`)
+					.join("&")
+			: "";
+		return `${topic}|${uid}|${conditionStr}`;
 	}
 
 	/**
