@@ -831,11 +831,17 @@ export const storeUsers = defineStore("users", {
 
 					//Get history of the user to be logged to discord
 					let history = [];
+					const now = Date.now();
 					const t = StoreProxy.i18n.t;
 					const messages = StoreProxy.chat.messages;
 					let message = "";
-					for (let i = messages.length - 1; i > Math.max(0, messages.length - 500); i--) {
+					for (
+						let i = messages.length - 1;
+						i > Math.max(0, messages.length - 5000);
+						i--
+					) {
 						const m = messages[i]!;
+						if (now - m.date > 2 * 60 * 60_000) break;
 						let labelCode = "";
 						let params: { [key: string]: string } = {
 							DATE: Utils.formatDate(new Date(m.date)),
@@ -849,11 +855,11 @@ export const storeUsers = defineStore("users", {
 							labelCode = m.deleted ? "message_deleted" : "message";
 							if (
 								m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE &&
-								m.answersTo
+								m.directlyAnswersTo
 							) {
 								labelCode = m.deleted ? "message_answer_deleted" : "message_answer";
-								params.USER = m.answersTo.user.login;
-								params.MESSAGE_ANSWERED = m.answersTo.message;
+								params.USER = m.directlyAnswersTo.user.login;
+								params.MESSAGE_ANSWERED = m.directlyAnswersTo.message;
 							}
 						}
 						if (

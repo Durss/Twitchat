@@ -33,18 +33,18 @@
 			"created_at": "Date de création",
 			"followed_at": "Follower depuis",
 			"not_following": "ne follow pas",
-			"follow": "*[{DATE}]*\n:heart: A suivit votre chaîne",
-			"sub": "*[{DATE}]*\n:star: A pris un abonnement de `niveau {TIER}`",
-			"sub_message": "*[{DATE}]*\n:star: A pris un abonnement de `niveau {TIER}` avec pour message\n> {MESSAGE}",
-			"subgift": "*[{DATE}]*\n:gift: A offert {COUNT} abonnements de `niveau {TIER}` à {RECIPIENTS}",
-			"redeem": "*[{DATE}]*\n:tickets: A acheté la récompense de points de chaîne `{REWARD}`",
-			"redeem_message": "*[{DATE}]*\n:tickets: A acheté la récompense de points de chaîne avec pour message :\n> {MESSAGE}",
-			"message": "*[{DATE}]*\n:envelope: A envoyé le message :\n> {MESSAGE}",
-			"message_answer": "*[{DATE}]*\n:envelope: A envoyé le message:\n> {MESSAGE}\n:envelope_with_arrow: En réponse à {USER} qui a dit:\n> {MESSAGE_ANSWERED}",
-			"message_deleted": "*[{DATE}]*\n:wastebasket: :envelope: A envoyé le message supprimé :\n> {MESSAGE}",
-			"message_answer_deleted": "*[{DATE}]*\n:wastebasket: :envelope: A envoyé le message supprimé :\n> {MESSAGE}\n:envelope_with_arrow: En réponse à {USER} qui a dit:\n> {MESSAGE_ANSWERED}",
-			"cheer": "*[{DATE}]*\n:gem: A envoyé `{BITS}` bits",
-			"cheer_message": "*[{DATE}]*\n:gem: A envoyé `{BITS}` bits avec ce message :\n> {MESSAGE}"
+			"follow": ":heart: *[{DATE}]*\nA suivit votre chaîne",
+			"sub": "*:star: [{DATE}]*\nA pris un abonnement de `niveau {TIER}`",
+			"sub_message": "*:star: [{DATE}]*\nA pris un abonnement de `niveau {TIER}` avec pour message\n> {MESSAGE}",
+			"subgift": ":gift: *[{DATE}]*\nA offert {COUNT} abonnements de `niveau {TIER}` à {RECIPIENTS}",
+			"redeem": ":tickets: *[{DATE}]*\nA acheté la récompense de points de chaîne `{REWARD}`",
+			"redeem_message": ":tickets: *[{DATE}]*\nA acheté la récompense de points de chaîne avec pour message :\n> {MESSAGE}",
+			"message": ":envelope: *[{DATE}]*\n> {MESSAGE}",
+			"message_answer": ":envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
+			"message_deleted": ":wastebasket: :envelope: *[{DATE}]*\n> {MESSAGE}",
+			"message_answer_deleted": ":wastebasket: :envelope_with_arrow: *[{DATE}]*\n**⮣** `{USER}: {MESSAGE_ANSWERED}`\n> {MESSAGE}",
+			"cheer": ":gem: *[{DATE}]*\nA envoyé `{BITS}` bits",
+			"cheer_message": ":gem: *[{DATE}]*\nA envoyé `{BITS}` bits avec ce message :\n> {MESSAGE}"
 		}
 	}
 }
