@@ -1,265 +1,544 @@
-import JsonPatch from 'fast-json-patch';
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import * as path from 'path';
-import Config from '../utils/Config.js';
-import { schemaValidator } from '../utils/DataSchema.js';
-import Logger from '../utils/Logger.js';
-import Utils from '../utils/Utils.js';
+import { LRUCache } from "lru-cache";
+import * as path from "path";
+import Config from "../utils/Config.js";
+import { schemaValidator } from "../utils/DataSchema.js";
+import DiffUtils from "../utils/DiffUtils.js";
+import Logger from "../utils/Logger.js";
+import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
-import DiscordController from './DiscordController.js';
-import { PatreonMember } from './PatreonController.js';
-import SSEController from './SSEController.js';
+import DiscordController from "./DiscordController.js";
+import { PatreonMember } from "./PatreonController.js";
+import SSEController from "./SSEController.js";
+import TwitchExtensionController from "./TwitchExtensionController.js";
 
 /**
-* Created : 13/03/2022
-*/
+ * Cached heat screen areas ready to serve to clients
+ */
+type CachedHeatAreas = {
+	areas: HeatExtensionArea[];
+	json: string;
+};
+
+interface HeatExtensionArea {
+	id: string;
+	/**
+	 * Is area enabled?
+	 */
+	enabled?: boolean;
+	/**
+	 * Area title, shown on twitchat companion
+	 */
+	title?: string;
+	/**
+	 * Show this area on the extension?
+	 * (only for twitchat companion)
+	 */
+	showAreaOnExtension?: boolean;
+	/**
+	 * Cooldown in seconds
+	 * Areas will be disabled
+	 */
+	cooldown_s?: number;
+	/**
+	 * Users allowed to click this area.
+	 * Area will be shown on extension only if they have the permissions
+	 */
+	permissions?: {
+		/**
+		 * Allow followers ?
+		 */
+		follower: boolean;
+		/**
+		 * Allow moderators ?
+		 */
+		mods: boolean;
+		/**
+		 * Allow VIPS ?
+		 */
+		vips: boolean;
+		/**
+		 * Allow subscribers ?
+		 */
+		subs: boolean;
+		/**
+		 * Allow everyone
+		 */
+		all: boolean;
+	};
+	/**
+	 * Areas points
+	 */
+	points: {
+		/**
+		 * X position in percent
+		 */
+		x: number;
+		/**
+		 * Y position in percent
+		 */
+		y: number;
+	}[];
+}
+
+interface HeatScreenData {
+	id: string;
+	enabled: boolean;
+	active?: boolean;
+	activeOBSScene: string;
+	areas: HeatExtensionArea[];
+}
+
+/**
+ * Created : 13/03/2022
+ */
 export default class UserController extends AbstractController {
+	/**
+	 * LRU cache for user data versions (prevents unbounded growth)
+	 */
+	private _lastUserDataVersion = new LRUCache<string, number>({
+		max: 10000,
+		ttl: 1000 * 60 * 60 * 24, // 24 hours
+	});
 
-	private _lastUserDataVersion:{[uid:string]:number} = {};
+	/**
+	 * Cache of active heat screen areas per user (Twitch extension exposure).
+	 * Invalidated explicitly via DELETE /api/user/heat_areas/cache.
+	 */
+	private _heatAreasCache = new LRUCache<string, CachedHeatAreas>({
+		max: 10000,
+		ttl: 1000 * 60 * 60, // 1 hour
+	});
 
-	constructor(public server:FastifyInstance, private discordController:DiscordController) {
+	/**
+	 * Failed gift code attempts per user, to throttle brute forcing
+	 */
+	private static readonly GIFT_CODE_MAX_ATTEMPTS = 5;
+	private _giftCodeAttempts = new LRUCache<string, number>({
+		max: 1000,
+		ttl: 2000 * 60 * 60, // 1 hour
+	});
+
+	private extensionController!: TwitchExtensionController;
+
+	constructor(
+		public server: FastifyInstance,
+		private discordController: DiscordController,
+	) {
 		super();
 	}
 
 	/********************
-	* GETTER / SETTERS *
-	********************/
+	 * GETTER / SETTERS *
+	 ********************/
 
-
-
-	/******************
-	* PUBLIC METHODS *
-	******************/
-	public async initialize():Promise<void> {
-		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
-		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
-		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
-		this.server.get('/api/user/data/backup', async (request, response) => await this.getUserData(request, response, true));
-		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
-		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
-		this.server.post('/api/user/gift_premium', async (request, response) => await this.postGiftPremium(request, response));
-		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
-		this.server.delete('/api/auth/dataShare', async (request, response) => await this.deleteDataShare(request, response));
-
-		this.server.get('/api/user/settingsPreset', async (request, response) => await this.getSettingsPresets(request, response));
-		this.server.post('/api/user/settingsPreset', async (request, response) => await this.postSettingsPresets(request, response));
-
-		super.preloadData();
+	public setTwitchExtensionController(controller: TwitchExtensionController): void {
+		this.extensionController = controller;
 	}
 
+	/******************
+	 * PUBLIC METHODS *
+	 ******************/
+	public async initialize(): Promise<UserController> {
+		this.server.get(
+			"/api/user",
+			async (request, response) => await this.getUserState(request, response),
+		);
+		this.server.get(
+			"/api/user/all",
+			async (request, response) => await this.getAllUsers(request, response),
+		);
+		this.server.get(
+			"/api/user/data",
+			async (request, response) => await this.getUserData(request, response),
+		);
+		this.server.get(
+			"/api/user/data/backup",
+			async (request, response) => await this.getUserData(request, response, true),
+		);
+		this.server.post(
+			"/api/user/data",
+			async (request, response) => await this.postUserData(request, response),
+		);
+		this.server.post(
+			"/api/user/data/backup",
+			async (request, response) => await this.postUserDataBackup(request, response),
+		);
+		this.server.post(
+			"/api/user/gift_premium",
+			async (request, response) => await this.postGiftPremium(request, response),
+		);
+		this.server.delete(
+			"/api/user/data",
+			async (request, response) => await this.deleteUserData(request, response),
+		);
+		this.server.delete(
+			"/api/auth/dataShare",
+			async (request, response) => await this.deleteDataShare(request, response),
+		);
 
+		this.server.delete(
+			"/api/user/heat_areas/cache",
+			async (request, response) => await this.deleteHeatAreasCache(request, response),
+		);
+
+		this.server.get(
+			"/api/user/settingsPreset",
+			async (request, response) => await this.getSettingsPresets(request, response),
+		);
+		this.server.post(
+			"/api/user/settingsPreset",
+			async (request, response) => await this.postSettingsPresets(request, response),
+		);
+
+		this.server.post(
+			"/api/user/data/encrypt",
+			async (request, response) => await this.encryptData(request, response),
+		);
+		this.server.post(
+			"/api/user/data/decrypt",
+			async (request, response) => await this.decryptData(request, response),
+		);
+
+		super.preloadData();
+		return this;
+	}
+
+	/**
+	 * Get the heat screen areas a user wants exposed through the Twitch extension.
+	 * Only areas of "active" heat screens whose `showAreaOnExtension` flag is true are returned.
+	 * Returns an empty array if the user is not premium.
+	 */
+	public async getCachedHeatScreenAreas(uid: string): Promise<CachedHeatAreas> {
+		if (!/^[0-9]+$/.test(uid)) return { areas: [], json: "[]" };
+
+		const cached = this._heatAreasCache.get(uid);
+		if (cached) return cached;
+
+		if ((await super.getUserPremiumState(uid)) === "no") {
+			return this.setHeatAreasCache(uid, []);
+		}
+
+		const userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
+		let areas: HeatExtensionArea[] = [];
+		try {
+			const raw = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			const data = JSON.parse(raw) as { heatScreens?: HeatScreenData[] };
+			const screens = data.heatScreens ?? [];
+			areas = screens
+				.filter((screen) => screen.active === true)
+				.flatMap((screen) =>
+					(screen.areas ?? [])
+						.filter(
+							(area) => area.showAreaOnExtension === true && area.enabled !== false,
+						)
+						.map((v) => {
+							return {
+								id: v.id,
+								title: v.title,
+								cooldown_s: v.cooldown_s,
+								permissions: v.permissions,
+								points: v.points
+									// Cap numbers precisions
+									.map((p) => ({
+										x: parseFloat(p.x.toFixed(6)),
+										y: parseFloat(p.y.toFixed(6)),
+									}))
+									// Make sure only valid points are returned
+									.filter((p) => !isNaN(p.x) && !isNaN(p.y)),
+							};
+						}),
+				);
+		} catch {
+			areas = [];
+		}
+
+		return this.setHeatAreasCache(uid, areas);
+	}
 
 	/*******************
-	* PRIVATE METHODS *
-	*******************/
+	 * PRIVATE METHODS *
+	 *******************/
+
+	/**
+	 * Serialiazes given areas to cache.
+	 */
+	private setHeatAreasCache(uid: string, areas: HeatExtensionArea[]): CachedHeatAreas {
+		const entry: CachedHeatAreas = { areas, json: JSON.stringify(areas) };
+		this._heatAreasCache.set(uid, entry);
+		return entry;
+	}
+
+	/**
+	 * Invalidate the active heat screen areas cache for the calling user.
+	 */
+	private async deleteHeatAreasCache(request: FastifyRequest, response: FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if (userInfo == false) return;
+
+		this._heatAreasCache.delete(userInfo.user_id);
+
+		// Rebuild cache before notifying everyone
+		await this.getCachedHeatScreenAreas(userInfo.user_id);
+
+		await this.extensionController.notifyStateUpdate(userInfo.user_id);
+
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true }));
+	}
 
 	/**
 	 * Get a user's donor/admin state
 	 */
-	private async getUserState(request:FastifyRequest, response:FastifyReply) {
+	private async getUserState(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
 		const uid = userInfo.user_id;
-		type PremiumStates = "earlyDonor"|"patreon"|"lifetime"|"gifted"|"";
-		let premiumType:PremiumStates = "";
-		let donorLevel:number = -1
-		let amount:number = -1;
-		let lifetimePercent:number = 0;
-		if(fs.existsSync( Config.donorsList )) {
-			let json:{[key:string]:number} = {};
-			try {
-				json = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
-			}catch(error){
-				response.header('Content-Type', 'application/json');
-				response.status(404);
-				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
-				return;
-			}
-			if(json.hasOwnProperty(uid)) {
-				amount = json[uid];
-				donorLevel = Config.donorsLevels.findIndex(v=> v >= amount) - 1;
-				lifetimePercent = amount / Config.lifetimeDonorThreshold;
-			}
+		type PremiumStates = "earlyDonor" | "patreon" | "lifetime" | "gifted" | "";
+		let premiumType: PremiumStates = "";
+		let donorLevel: number = -1;
+		let amount: number = -1;
+		let lifetimePercent: number = 0;
+
+		// Load donors list with caching
+		const donorsJson = await this.readCachedJsonFile<{ [key: string]: number }>(
+			Config.donorsList,
+			{},
+		);
+		if (donorsJson.hasOwnProperty(uid)) {
+			amount = donorsJson[uid]!;
+			donorLevel = Config.donorsLevels.findIndex((v) => v >= amount) - 1;
+			lifetimePercent = amount / Config.lifetimeDonorThreshold;
 		}
 
-		//Update user's storage file to get a little idea on how many people use twitchat
-		const userFilePath = Config.USER_DATA_PATH + uid+".json";
-		if(!fs.existsSync(userFilePath)) {
-			fs.writeFileSync(userFilePath, JSON.stringify({}), "utf8");
-		}else{
-			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
+		// Update user's storage file to get a little idea on how many people use twitchat
+		const userFilePath = Config.USER_DATA_PATH + uid + ".json";
+		try {
+			await fs.promises.access(userFilePath);
+			// File exists, update mtime (fire and forget)
+			await fs.promises.utimes(userFilePath, new Date(), new Date()).catch(() => {
+				/* ignore */
+			});
+		} catch {
+			// File doesn't exist, create it
+			await fs.promises.writeFile(userFilePath, JSON.stringify({}), "utf8");
 		}
 
-		//Is got gifted premium?
-		if(premiumType == "" && AbstractController._giftedPremium[uid] === true) {
+		// Is got gifted premium?
+		if (premiumType == "" && AbstractController._giftedPremium[uid] === true) {
 			premiumType = "gifted";
 		}
 
-		//Is user an early donor of twitchat?
-		if(premiumType == "" && AbstractController._earlyDonors[uid] === true) {
+		// Is user an early donor of twitchat?
+		if (premiumType == "" && AbstractController._earlyDonors[uid] === true) {
 			premiumType = "earlyDonor";
 		}
 
-		//Has user donated enough to be lifetime premium?
-		if(premiumType == "" && amount >= Config.lifetimeDonorThreshold) {
+		// Has user donated enough to be lifetime premium?
+		if (premiumType == "" && amount >= Config.lifetimeDonorThreshold) {
 			premiumType = "lifetime";
 		}
 
-		//Check if user has a patreon webhook secret. If so, condisder they're connected
-		const filePath = Config.patreonUid2WebhookSecret;
+		// Check if user has a patreon webhook secret (with caching)
 		let patreonLinked = false;
-		if(filePath && fs.existsSync(filePath)) {
-			const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}") as {[key:string]:{twitchId:string, secret:string}};
-			for (const key in json) {
-				if(json[key].twitchId === uid) {
-					patreonLinked = true;
-					break;
-				}
+		const patreonWebhookSecrets = await this.readCachedJsonFile<{
+			[key: string]: { twitchId: string; secret: string };
+		}>(Config.patreonUid2WebhookSecret, {});
+		for (const key in patreonWebhookSecrets) {
+			if (patreonWebhookSecrets[key]!.twitchId === uid) {
+				patreonLinked = true;
+				break;
 			}
 		}
 
-		//Is user part of Patreon donors?
-		if(premiumType == "") {
-			if(fs.existsSync(Config.twitch2Patreon)) {
-				const jsonP2T = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
-				const patreonID = jsonP2T[uid];
-				if(patreonID && fs.existsSync(Config.patreonMembers)) {
-					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];
-					if(jsonPMembers.findIndex(v=>v.id === patreonID) > -1) {
-						premiumType = "patreon";
-					}
-				}
+		// Is user part of Patreon donors? (with caching)
+		if (premiumType == "") {
+			const [jsonP2T, jsonPMembers] = await Promise.all([
+				this.readCachedJsonFile<{ [key: string]: string }>(Config.twitch2Patreon, {}),
+				this.readCachedJsonFile<PatreonMember[]>(Config.patreonMembers, []),
+			]);
+			const patreonID = jsonP2T[uid];
+			if (patreonID && jsonPMembers.findIndex((v) => v.id === patreonID) > -1) {
+				premiumType = "patreon";
 			}
 		}
-				
-		//Get user's feature flags
-		type Flag = keyof NonNullable<typeof Config.credentials.feature_flags>;
-		let features: Flag[] = [];
-		if(Config.credentials.feature_flags) {
-			Object.keys(Config.credentials.feature_flags).forEach(flag => {
-				const typedFlag = flag as Flag;
-				if (Config.credentials.feature_flags![typedFlag].includes(uid)) {
-					features.push(typedFlag);
-				}
-			})
-		}
 
-		const data:{dataSharing:string[],
-					donorLevel:number,
-					isAdmin?:true,
-					premiumType:PremiumStates,
-					lifetimePercent:number
-					patreonLinked?:true,
-					discordLinked?:true
-					features?:Flag[]
-				} = {
-				donorLevel,
-				lifetimePercent,
-				premiumType,
-				dataSharing: super.getDataSharingList(uid)
-			};
-		if(Config.credentials.admin_ids.includes(uid)) {
+		// Get users's feature flags
+		type Flag = (typeof Config.FEATURE_FLAGS)[number];
+		const flagsMap = await this.readCachedJsonFile<{ [key in Flag]?: string[] }>(
+			Config.FEATURE_FLAGS_PATH,
+			{},
+		);
+		const features = await Utils.getUserFeatureFlags(uid, flagsMap);
+
+		const has_api_key = fs.existsSync(path.join(Config.API_KEYS_PATH, uid + ".pem"));
+
+		const data: {
+			dataSharing: string[];
+			donorLevel: number;
+			isAdmin?: true;
+			premiumType: PremiumStates;
+			lifetimePercent: number;
+			patreonLinked?: true;
+			discordLinked?: true;
+			features?: Flag[];
+			has_api_key: boolean;
+		} = {
+			donorLevel,
+			lifetimePercent,
+			premiumType,
+			dataSharing: super.getDataSharingList(uid),
+			has_api_key,
+		};
+		if (Config.credentials.admin_ids.includes(uid)) {
 			data.isAdmin = true;
 		}
 
-		if(DiscordController.isDiscordLinked(uid) === true) {
+		if (DiscordController.isDiscordLinked(uid) === true) {
 			data.discordLinked = true;
 		}
 
-		if(Config.FORCE_NON_PREMIUM && Config.LOCAL_TESTING) {
+		if (Config.FORCE_NON_PREMIUM && Config.LOCAL_TESTING) {
 			data.premiumType = "";
 		}
 
-		if(patreonLinked) {
+		if (patreonLinked) {
 			data.patreonLinked = true;
 		}
 
-		if(features.length > 0) {
+		if (features.length > 0) {
 			data.features = features;
 		}
 
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, data}));
+		response.send(JSON.stringify({ success: true, data }));
 	}
 
 	/**
 	 * Get/set a user's data
 	 */
-	private async getUserData(request:FastifyRequest, response:FastifyReply, backup = false) {
+	private async getUserData(request: FastifyRequest, response: FastifyReply, backup = false) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
-		const uid:string = super.getSharedUID((request.query as any).uid ?? userInfo.user_id);
-		
+		const requestedUid: string = (request.query as any).uid ?? userInfo.user_id;
+		// callerDataUid contains either our own UID or the UID of the account that
+		// shared their data with us.
+		const callerDataUid: string = super.getSharedUID(userInfo.user_id);
+
+		const isSelf = requestedUid === userInfo.user_id;
+		// Make sure data we want to access matches the requested one
+		const isSharedToCaller = callerDataUid === requestedUid;
+		// If we're admin, just accept
+		const isAdmin = Config.credentials.admin_ids.indexOf(userInfo.user_id) > -1;
+		if (!isSelf && !isSharedToCaller && !isAdmin) {
+			response.header("Content-Type", "application/json");
+			response.status(403);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "You're not allowed to access this user's data",
+					errorCode: "FORBIDDEN",
+				}),
+			);
+			return;
+		}
+
+		const uid: string = isAdmin && !isSelf ? super.getSharedUID(requestedUid) : callerDataUid;
+
 		//Validate UID to prevent path traversal
-		if(!/^[0-9]+$/.test(uid)) {
-			response.header('Content-Type', 'application/json');
+		if (!/^[0-9]+$/.test(uid)) {
+			response.header("Content-Type", "application/json");
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid user ID",
+					errorCode: "INVALID_UID",
+				}),
+			);
 			return;
 		}
 
 		//Get users' data
 		let userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
-		if(backup == true) {
+		if (backup == true) {
 			userFilePath = path.join(Config.USER_DATA_BACKUP_PATH, `${uid}.json`);
 		}
-		if(!fs.existsSync(userFilePath)) {
-			response.header('Content-Type', 'application/json');
-			response.status(404);
-			response.send(JSON.stringify({success:false}));
-		}else{
-			const data = fs.readFileSync(userFilePath, {encoding:"utf8"});
-			response.header('Content-Type', 'application/json');
+
+		try {
+			const data = await Utils.readFileAsync(userFilePath, { encoding: "utf8" });
+			response.header("Content-Type", "application/json");
 			response.status(200);
-			response.send(JSON.stringify({success:true, data:JSON.parse(data)}));
+			response.send(JSON.stringify({ success: true, data: JSON.parse(data) }));
+		} catch {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(JSON.stringify({ success: false }));
 		}
 	}
 
 	/**
 	 * Saves an emergency backup after a massive fail of mine...
 	 */
-	private async postUserDataBackup(request:FastifyRequest, response:FastifyReply) {
+	private async postUserDataBackup(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
 		if (request.headers["force"]) Logger.info("FORCE BACKUP", userInfo.login);
 
 		//Get users' data
-		const userFilePath = Config.USER_DATA_BACKUP_PATH + userInfo.user_id+".json";
-		if(!fs.existsSync(userFilePath) || request.headers["force"] == "true") {
-			const body:any = request.body;
-			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+		const userFilePath = Config.USER_DATA_BACKUP_PATH + userInfo.user_id + ".json";
+		const forceBackup = request.headers["force"] == "true";
+
+		let fileExists = false;
+		try {
+			await fs.promises.access(userFilePath);
+			fileExists = true;
+		} catch {
+			/* file doesn't exist */
 		}
-		response.header('Content-Type', 'application/json');
+
+		if (!fileExists || forceBackup) {
+			const body: any = request.body;
+			await Utils.writeFileAtomic(userFilePath, JSON.stringify(body));
+		}
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true}));
+		response.send(JSON.stringify({ success: true }));
 	}
 
 	/**
 	 * Get/set a user's data
 	 */
-	private async postUserData(request:FastifyRequest, response:FastifyReply) {
+	private async postUserData(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
-		const body:any = (request.body as any);
-		const data:any = body.data;
+		if (userInfo == false) return;
+		const body: any = request.body as any;
+		const data: any = body.data;
 		const forcedUpload = body.forced === true;
 
 		//Get users' data
 		const uid = super.getSharedUID(userInfo.user_id);
-		
+
 		//Validate UID to prevent path traversal
-		if(!/^[0-9]+$/.test(uid)) {
-			response.header('Content-Type', 'application/json');
+		if (!/^[0-9]+$/.test(uid)) {
+			response.header("Content-Type", "application/json");
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid user ID",
+					errorCode: "INVALID_UID",
+				}),
+			);
 			return;
 		}
-		const userFilePath = Config.USER_DATA_PATH + uid+".json";
+		const userFilePath = Config.USER_DATA_PATH + uid + ".json";
 		const version = request.headers["app-version"];
 
 		//avoid saving private data to server
@@ -270,156 +549,279 @@ export default class UserController extends AbstractController {
 
 		//Test data format
 		try {
-			const dataClone = JSON.parse(JSON.stringify(data));
-
-			//Initialize local data version for this user
-			if(!this._lastUserDataVersion.hasOwnProperty(userInfo.user_id) && fs.existsSync(userFilePath)) {
+			// Initialize local data version for this user
+			if (!this._lastUserDataVersion.has(userInfo.user_id)) {
 				let version = 0;
 				try {
-					const refJson = fs.readFileSync(userFilePath, "utf-8");
+					const refJson = await Utils.readFileAsync(userFilePath, "utf-8");
 					version = JSON.parse(refJson).saveVersion;
-				}catch(error){}
-				this._lastUserDataVersion[userInfo.user_id] = version || 0;
-				Logger.info("[DATA] Init local cache:",userInfo.login, dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
+				} catch {
+					/* file doesn't exist or parse error */
+				}
+				this._lastUserDataVersion.set(userInfo.user_id, version || 0);
+				Logger.info(
+					"[DATA] Init local cache:",
+					userInfo.login,
+					data.saveVersion,
+					this._lastUserDataVersion.get(userInfo.user_id)?.toString() ?? "???",
+				);
 			}
 
-			//If forcing data upload, make its version above the minimum expected one
-			if(forcedUpload && this._lastUserDataVersion[userInfo.user_id] != undefined) {
-				Logger.info("[DATA] Force data upload:",userInfo.login, dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
-				data.saveVersion = dataClone.saveVersion = this._lastUserDataVersion[userInfo.user_id] + 1;
-				Logger.info("                 :", dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
+			const cachedVersion = this._lastUserDataVersion.get(userInfo.user_id) ?? 0;
 
+			// If forcing data upload, make its version above the minimum expected one
+			if (forcedUpload && cachedVersion != undefined) {
+				Logger.info(
+					"[DATA] Force data upload:",
+					userInfo.login,
+					data.saveVersion,
+					cachedVersion.toString(),
+				);
+				data.saveVersion = cachedVersion + 1;
+				Logger.info("                 :", data.saveVersion, cachedVersion.toString());
 			}
 
-			//Data outdated?
-			if(dataClone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
-				Logger.warn("[DATA]",userInfo.login+" has outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id]+". Has "+SSEController.countUserConnexions(userInfo.user_id)+" active connexions")
-				if(SSEController.countUserConnexions(userInfo.user_id) > 1) {
-					//Stop saving if there are more than 1 active connections until I figure out why
-					//someone got warned with only 1 active connection
-					response.header('Content-Type', 'application/json');
+			// Data outdated?
+			if (data.saveVersion <= cachedVersion) {
+				Logger.warn(
+					"[DATA]",
+					userInfo.login +
+						" has outdated data version. Got " +
+						data.saveVersion +
+						" but expected > " +
+						cachedVersion +
+						". Has " +
+						SSEController.countUserConnexions(userInfo.user_id) +
+						" active connexions",
+				);
+				if (SSEController.countUserConnexions(userInfo.user_id) > 1) {
+					// Stop saving if there are more than 1 active connections until I figure out why
+					// someone got warned with only 1 active connection
+					response.header("Content-Type", "application/json");
 					response.status(409);
-					response.send(JSON.stringify({success:false, error:"outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id], errorCode:"OUTDATED_DATA_VERSION"}));
+					response.send(
+						JSON.stringify({
+							success: false,
+							error:
+								"outdated data version. Got " +
+								data.saveVersion +
+								" but expected > " +
+								cachedVersion,
+							errorCode: "OUTDATED_DATA_VERSION",
+						}),
+					);
 					return;
 				}
 			}
 
-			this._lastUserDataVersion[userInfo.user_id] = dataClone.saveVersion;
+			this._lastUserDataVersion.set(userInfo.user_id, data.saveVersion);
+
+			// Serialize before validation
+			const rawData = JSON.stringify(data);
 
 			const success = schemaValidator(data);
-			const errorsFilePath = Config.USER_DATA_PATH + uid+"_errors.json";
-			if(!success) {
-				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login+"'s data (v"+version+")");
-				//Save schema errors if any
-				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
-			}else if(fs.existsSync(errorsFilePath)) {
-				fs.unlinkSync(errorsFilePath);
+			const errorsFilePath = Config.USER_DATA_PATH + uid + "_errors.json";
+			if (!success) {
+				Logger.error(
+					schemaValidator.errors?.length +
+						" validation error(s) for user " +
+						userInfo.login +
+						"'s data (v" +
+						version +
+						")",
+				);
+				// Save schema errors if any (fire and forget)
+				void fs.promises
+					.writeFile(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
+					.catch(() => {});
+			} else {
+				// Remove old error file if exists (fire and forget)
+				void fs.promises.unlink(errorsFilePath).catch(() => {});
 			}
 
-			//schemaValidator() is supposed to tell if the format is valid or not.
-			//Because we enabled "removeAdditional" option, no error will be thrown
-			//if a field is not in the schema. Instead it will simply remove it.
-			//V9+ of the lib is supposed to allow us to retrieve the removed props,
-			//but it doesn't yet. As a workaround we use JSONPatch that compares
-			//the JSON before and after validation.
-			//This is not the most efficient way to do this, but I found no better
-			//way to log these errors for now
-			const diff = JsonPatch.compare(dataClone, data as any, false);
-			const cleanupFilePath = Config.USER_DATA_PATH + uid+"_cleanup.json";
-			if(diff?.length > 0) {
-				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data (v"+version+")");
-				console.log(diff);
-				fs.writeFileSync(cleanupFilePath, JSON.stringify(diff), "utf-8");
-			}else if(fs.existsSync(cleanupFilePath)) {
-				fs.unlinkSync(cleanupFilePath);
-			}
-			fs.writeFileSync(userFilePath, JSON.stringify(data), "utf8");
+			const cleanData = JSON.stringify(data);
+			await Utils.writeFileAtomic(userFilePath, cleanData);
 
-			if(data.discordParams) {
+			if (data.discordParams) {
 				this.discordController.updateParams(uid, data.discordParams);
 			}
 
-			response.header('Content-Type', 'application/json');
+			response.header("Content-Type", "application/json");
 			response.status(200);
-			response.send(JSON.stringify({success:true, version:this._lastUserDataVersion[userInfo.user_id]}));
-		}catch(error){
-			Logger.error("User data save failed for "+userInfo.login);
+			response.send(
+				JSON.stringify({
+					success: true,
+					version: this._lastUserDataVersion.get(userInfo.user_id),
+				}),
+			);
+
+			// schemaValidator() is supposed to tell if the format is valid or not.
+			// Because we enabled "removeAdditional" option, no error will be thrown
+			// if a field is not in the schema. Instead it will simply remove it.
+			// V9+ of the lib is supposed to allow us to retrieve the removed props,
+			// but it doesn't yet. As a workaround we diff the data before and after
+			// validation.
+			setImmediate(() => {
+				try {
+					const cleanupFilePath = Config.USER_DATA_PATH + uid + "_cleanup.json";
+					// Only diff if raw json do not match
+					const diff =
+						cleanData !== rawData
+							? DiffUtils.getDroppedProps(JSON.parse(rawData), data)
+							: [];
+					if (diff.length > 0) {
+						Logger.error(
+							"Invalid format, some data have been removed from " +
+								userInfo.login +
+								"'s data (v" +
+								version +
+								")",
+						);
+						console.log(diff);
+						// Fire and forget
+						void fs.promises
+							.writeFile(cleanupFilePath, JSON.stringify(diff), "utf-8")
+							.catch(() => {});
+					} else {
+						// Fire and forget
+						void fs.promises.unlink(cleanupFilePath).catch(() => {});
+					}
+				} catch (error) {
+					// Never let a diagnostic take the process down, the save is done
+					Logger.error("Failed diffing dropped props for " + userInfo.login);
+					console.log(error);
+				}
+			});
+		} catch (error) {
+			Logger.error("User data save failed for " + userInfo.login);
 			console.log(error);
 			const message = schemaValidator.errors;
 			Logger.log(message);
-			response.header('Content-Type', 'application/json');
+			response.header("Content-Type", "application/json");
 			response.status(500);
-			response.send(JSON.stringify({success:false, error:message, errorCode:"INVALID_DATA_FORMAT"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: message,
+					errorCode: "INVALID_DATA_FORMAT",
+				}),
+			);
 		}
 	}
 
 	/**
 	 * Allows users to get premium gift from code
 	 */
-	private async postGiftPremium(request:FastifyRequest, response:FastifyReply) {
+	private async postGiftPremium(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
-		let codeValid:boolean|null = false;
-		let premiumState = super.getUserPremiumState(userInfo.user_id);
-		let alreadyLifetimePremium = premiumState == "lifetime" || premiumState == "early_gift" || premiumState == "gift";
+		let codeValid: boolean | null = false;
+		let premiumState = await super.getUserPremiumState(userInfo.user_id);
+		let alreadyLifetimePremium =
+			premiumState == "lifetime" || premiumState == "early_gift" || premiumState == "gift";
 		// If user isn't lifetime premium already, check if code is valid
-		if(!alreadyLifetimePremium) {
-			const body:any = (request.body as {code:string});
+		if (!alreadyLifetimePremium) {
+			//Throttle guesses. The global 100req/s IP limiter is no obstacle to
+			//brute forcing a short code, so cap failed attempts per account.
+			const attempts = this._giftCodeAttempts.get(userInfo.user_id) ?? 0;
+			if (attempts >= UserController.GIFT_CODE_MAX_ATTEMPTS) {
+				response.header("Content-Type", "application/json");
+				response.status(429);
+				response.send(
+					JSON.stringify({
+						success: false,
+						error: "Too many attempts, try again later",
+						errorCode: "TOO_MANY_ATTEMPTS",
+					}),
+				);
+				return;
+			}
+
+			const body: any = request.body as { code: string };
 			codeValid = Config.USE_PREMIUM_CREDITS(body.code);
-			if(codeValid) {
+			if (codeValid !== true) {
+				this._giftCodeAttempts.set(userInfo.user_id, attempts + 1);
+			}
+			if (codeValid) {
 				super.giftPremium(userInfo.user_id);
 				try {
-					Utils.sendSMSAlert("[TWITCHAT] "+userInfo.login+" got premium membership with code "+body.code);
-					Utils.sendDashboardNotification("Gift code redeemed", userInfo.login+" got premium membership with code "+body.code, undefined, "success");	
-				}catch(_){
-					Logger.error("Unable to send SMS alert for premium code usage.");
+					Utils.sendDashboardNotification(
+						"Gift code redeemed",
+						userInfo.login + " got premium membership with code " + body.code,
+						undefined,
+						"success",
+					);
+				} catch (_) {
+					Logger.error("Unable to send alert for premium code usage.");
 				}
 			}
 		}
 
-		const result = codeValid === true? "success" : codeValid === false? "empty_credits" : "invalid_code";
-		response.header('Content-Type', 'application/json');
+		const result = codeValid === true ? "success" : "invalid_code";
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, result, alreadyPremium: alreadyLifetimePremium}));
+		response.send(
+			JSON.stringify({ success: true, result, alreadyPremium: alreadyLifetimePremium }),
+		);
 	}
 
 	/**
 	 * Delete a user's data
 	 */
-	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
+	private async deleteUserData(request: FastifyRequest, response: FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
-		if(userInfo == false) return;
+		if (userInfo == false) return;
 
-		//Delete user's data
-		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
-		fs.rmSync(userFilePath);
-		Logger.info("❌ User "+userInfo.login+" requested to delete their personal data.");
+		// Delete user's data
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id + ".json";
+		try {
+			await fs.promises.rm(userFilePath);
+			Logger.info("❌ User " + userInfo.login + " requested to delete their personal data.");
+		} catch (error) {
+			Logger.error("Failed to delete user data for " + userInfo.login, error + "");
+		}
 
-		response.header('Content-Type', 'application/json');
+		// Also clear from version cache
+		this._lastUserDataVersion.delete(userInfo.user_id);
+
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true}));
+		response.send(JSON.stringify({ success: true }));
 	}
 
 	/**
 	 * Get users list
 	 */
-	private async getAllUsers(request:FastifyRequest, response:FastifyReply) {
-		if(!await this.adminGuard(request, response)) return;
+	private async getAllUsers(request: FastifyRequest, response: FastifyReply) {
+		if (!(await this.adminGuard(request, response))) return;
 
-		const files = fs.readdirSync(Config.USER_DATA_PATH);
-		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v != ".git" && v.indexOf("_errors") == -1);
-		const users:{id:string, date:number}[] = []
-		list.forEach(v => {
-			users.push({
-				id: v.replace(".json", ""),
-				date:fs.statSync(Config.USER_DATA_PATH + v).mtime.getTime()
-			})
-		} );
+		const files = await fs.promises.readdir(Config.USER_DATA_PATH);
+		const list = files.filter(
+			(v) =>
+				v.indexOf("_cleanup") == -1 &&
+				v != ".git" &&
+				v.indexOf("_errors") == -1 &&
+				!v.endsWith(".tmp"),
+		);
 
-		response.header('Content-Type', 'application/json');
+		// Get file stats in parallel (batched to avoid overwhelming the system)
+		const entries = await Utils.mapLimit(list, 30, async (v) => {
+			try {
+				const stats = await fs.promises.stat(Config.USER_DATA_PATH + v);
+				return {
+					id: v.replace(".json", ""),
+					date: stats.mtime.getTime(),
+				};
+			} catch {
+				return null;
+			}
+		});
+		const users = entries.filter((u): u is { id: string; date: number } => u !== null);
+
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, users}));
+		response.send(JSON.stringify({ success: true, users }));
 	}
 
 	/**
@@ -428,105 +830,176 @@ export default class UserController extends AbstractController {
 	 * @param {*} request
 	 * @param {*} response
 	 */
-	private async deleteDataShare(request:FastifyRequest, response:FastifyReply) {
+	private async deleteDataShare(request: FastifyRequest, response: FastifyReply) {
 		const user = await super.twitchUserGuard(request, response);
-		if(!user) return;
+		if (!user) return;
 
-		const params:any = request.query;
+		const params: any = request.query;
 		const uid = params.uid;
 		super.disableUserDataSharing(uid, user.user_id);
 		super.disableUserDataSharing(user.user_id, uid);
 
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, users:this.getDataSharingList(user.user_id)}));
+		response.send(
+			JSON.stringify({ success: true, users: this.getDataSharingList(user.user_id) }),
+		);
 	}
 
 	/**
 	 * Get a settings presets
 	 */
-	private async getSettingsPresets(request:FastifyRequest, response:FastifyReply) {
-		if(!await this.twitchUserGuard(request, response)) return;
+	private async getSettingsPresets(request: FastifyRequest, response: FastifyReply) {
+		if (!(await this.twitchUserGuard(request, response))) return;
 
-		const params = request.query as {name:string};
-		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0) {
-			response.header('Content-Type', 'application/json');
+		const params = request.query as { name: string };
+		if (!params.name || typeof params.name !== "string" || params.name.trim().length === 0) {
+			response.header("Content-Type", "application/json");
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid name or data", errorCode:"INVALID_NAME_OR_DATA"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid name or data",
+					errorCode: "INVALID_NAME_OR_DATA",
+				}),
+			);
 			return;
 		}
-		
-		const folder = Config.SETTINGS_PRESETS_FOLDER;
-		if(!fs.existsSync(folder)) {
-			fs.mkdirSync(folder, { recursive: true });
-		}
 
-		const normalizedName = params.name.toLowerCase()
+		const folder = Config.SETTINGS_PRESETS_FOLDER;
+		await fs.promises.mkdir(folder, { recursive: true });
+
+		const normalizedName = params.name
+			.toLowerCase()
 			// Avoid navigating to parent/child folder. This is also filtered by next regex
 			// but better being extra safe here in case next regex is updated at some point
-			.replace(/[\/\\\.]/g, "")
+			.replace(/[/\\.]/g, "")
 			// Only keep alpha numeric, dash and underscore chars
-			.replace(/[^a-z0-9_\-]/gi, "_");
-		const parts = normalizedName.split('_');
+			.replace(/[^a-z0-9_-]/gi, "_");
+		const parts = normalizedName.split("_");
 		const userId = parts.pop() || "";
-		const presetName = parts.join('_');
-		
-		//Validate userId to prevent path traversal
-		if(!/^[0-9]+$/.test(userId)) {
-			response.header('Content-Type', 'application/json');
+		const presetName = parts.join("_");
+
+		// Validate userId to prevent path traversal
+		if (!/^[0-9]+$/.test(userId)) {
+			response.header("Content-Type", "application/json");
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid preset name format", errorCode:"INVALID_NAME_FORMAT"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid preset name format",
+					errorCode: "INVALID_NAME_FORMAT",
+				}),
+			);
 			return;
 		}
-		
-		const filePath = path.join(folder, userId, presetName+".json")
-		const json = fs.readFileSync(filePath, "utf8");
 
-		response.header('Content-Type', 'application/json');
-		response.status(200);
-		response.send(JSON.stringify({success:true, data:JSON.parse(json)}));
+		const filePath = path.join(folder, userId, presetName + ".json");
+		try {
+			const json = await Utils.readFileAsync(filePath, "utf8");
+			response.header("Content-Type", "application/json");
+			response.status(200);
+			response.send(JSON.stringify({ success: true, data: JSON.parse(json) }));
+		} catch {
+			response.header("Content-Type", "application/json");
+			response.status(404);
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Preset not found",
+					errorCode: "NOT_FOUND",
+				}),
+			);
+		}
 	}
 
 	/**
 	 * Creates settings presets
 	 */
-	private async postSettingsPresets(request:FastifyRequest, response:FastifyReply) {
+	private async postSettingsPresets(request: FastifyRequest, response: FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
-		if(!user) return;
-		if(Config.credentials.feature_flags?.export_configs?.includes(user.user_id) !== true) {
-			response.header('Content-Type', 'application/json');
+		if (!user) return;
+		const flagsMap = await this.readCachedJsonFile<{ [key: string]: string[] }>(
+			Config.FEATURE_FLAGS_PATH,
+			{},
+		);
+		const flags = await Utils.getUserFeatureFlags(user.user_id, flagsMap);
+		const exportAllowed = flags.includes("export_configs");
+		if (!exportAllowed) {
+			response.header("Content-Type", "application/json");
 			response.status(403);
-			response.send(JSON.stringify({success:false, error:"User is not allowed to export settings", errorCode:"USER_NOT_ALLOWED"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "User is not allowed to export settings",
+					errorCode: "USER_NOT_ALLOWED",
+				}),
+			);
 			return;
 		}
 
-		const params:any = request.body;
-		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0
-		|| (!params.encrypted && !params.data)) {
-			response.header('Content-Type', 'application/json');
+		const params: any = request.body;
+		if (
+			!params.name ||
+			typeof params.name !== "string" ||
+			params.name.trim().length === 0 ||
+			(!params.encrypted && !params.data)
+		) {
+			response.header("Content-Type", "application/json");
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"Invalid name or data", errorCode:"INVALID_NAME_OR_DATA"}));
+			response.send(
+				JSON.stringify({
+					success: false,
+					error: "Invalid name or data",
+					errorCode: "INVALID_NAME_OR_DATA",
+				}),
+			);
 			return;
 		}
-		
-		const folder = path.join(Config.SETTINGS_PRESETS_FOLDER, user.user_id);
-		if(!fs.existsSync(folder)) {
-			fs.mkdirSync(folder, { recursive: true });
-		}
 
-		const content = params.data? JSON.stringify({authorId:user.user_id, data:params.data}) : JSON.stringify({authorId:user.user_id, data:params.encrypted});
-		const fileName = params.name.toLowerCase()
+		const folder = path.join(Config.SETTINGS_PRESETS_FOLDER, user.user_id);
+		await fs.promises.mkdir(folder, { recursive: true });
+
+		const content = params.data
+			? JSON.stringify({ authorId: user.user_id, data: params.data })
+			: JSON.stringify({ authorId: user.user_id, data: params.encrypted });
+		const fileName = params.name
+			.toLowerCase()
 			// Avoid navigating to parent/child folder. This is also filtered by next regex
 			// but better being extra safe here in case next regex is updated at some point
-			.replace(/[\/\\\.]/g, "")
+			.replace(/[/\\.]/g, "")
 			// Only keep alpha numeric, dash and underscore chars
-			.replace(/[^a-z0-9_\-]/gi, "_")
+			.replace(/[^a-z0-9_-]/gi, "_")
 			// Limit topo 20 chars long
 			.substring(0, 20);
-		fs.writeFileSync(path.join(folder, fileName+".json"), content, "utf8");
+		await Utils.writeFileAtomic(path.join(folder, fileName + ".json"), content);
 
-		response.header('Content-Type', 'application/json');
+		response.header("Content-Type", "application/json");
 		response.status(200);
-		response.send(JSON.stringify({success:true, fileName:fileName+"_"+user.user_id}));
+		response.send(JSON.stringify({ success: true, fileName: fileName + "_" + user.user_id }));
+	}
+
+	/**
+	 * Encrypts given body and return it
+	 */
+	private async encryptData(request: FastifyRequest, response: FastifyReply) {
+		const user = await this.twitchUserGuard(request, response);
+		if (!user) return;
+		const data = request.body as string;
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: Utils.encrypt(data) }));
+	}
+
+	/**
+	 * Decrypts given body and return it
+	 */
+	private async decryptData(request: FastifyRequest, response: FastifyReply) {
+		const user = await this.adminGuard(request, response);
+		if (!user) return;
+		const data = request.body as string;
+		response.header("Content-Type", "application/json");
+		response.status(200);
+		response.send(JSON.stringify({ success: true, data: Utils.decrypt(data) }));
 	}
 }

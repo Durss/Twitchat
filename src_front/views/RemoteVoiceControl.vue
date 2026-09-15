@@ -3,14 +3,15 @@
 		<div class="card-item primary block head">
 			<Icon name="voice" alt="voice icon" class="icon" />
 			<p>{{ $t("voice.remote.title") }}</p>
-			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong></p>
 		</div>
 
-		<ToggleBlock class="block conf"
-		:open="!connected"
-		icon="info"
-		:title="$t('obs.credentials_form_title')">
-			<OBSConnectForm  class="connectForm" />
+		<ToggleBlock
+			class="block conf"
+			:open="!connected"
+			icon="info"
+			:title="$t('obs.credentials_form_title')"
+		>
+			<OBSConnectForm class="connectForm" />
 		</ToggleBlock>
 
 		<div class="block card-item tuto">
@@ -21,61 +22,46 @@
 	</div>
 </template>
 
-<script lang="ts">
-import DataStore from '@/store/DataStore';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ToggleBlock from '../components/ToggleBlock.vue';
-import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
-import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
+<script setup lang="ts">
+import DataStore from "@/store/DataStore";
+import OBSWebsocket from "@/utils/OBSWebsocket";
+import { computed, onMounted, ref } from "vue";
+import ToggleBlock from "../components/ToggleBlock.vue";
+import OBSConnectForm from "../components/params/contents/obs/OBSConnectForm.vue";
+import VoiceControlForm from "../components/voice/VoiceControlForm.vue";
 
-@Component({
-	components:{
-		ToggleBlock,
-		OBSConnectForm,
-		VoiceControlForm,
-	}
-})
-class RemoteVoiceControl extends Vue {
+const showStorageModal = ref(false);
 
-	public loading:boolean = false;
-	public connectError:boolean = false;
-	public connectSuccess:boolean = false;
-	public showStorageModal:boolean = false;
+const connected = computed(() => OBSWebsocket.instance.connected.value);
 
-	public get connected():boolean { return OBSWebsocket.instance.connected.value; }
-
-	public mounted():void {
-		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
-	}
-
-}
-export default toNative(RemoteVoiceControl);
+onMounted(() => {
+	showStorageModal.value = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
+});
 </script>
 
 <style scoped lang="less">
-.voicecontrol{
+.voicecontrol {
 	.block {
 		max-width: 600px;
 		margin: auto;
 		padding: 0;
-		margin: .5em auto;
+		margin: 0.5em auto;
 		color: var(--color-text);
 
 		&:not(.conf) {
 			padding: 1em;
 		}
-		
+
 		&.head {
 			text-align: center;
 			.icon {
 				height: 5em;
 				margin-bottom: 1em;
 			}
-			
+
 			.install {
 				margin-top: 1em;
-				font-size: .8em;
+				font-size: 0.8em;
 			}
 		}
 
@@ -88,6 +74,5 @@ export default toNative(RemoteVoiceControl);
 		max-width: 500px;
 		margin: auto;
 	}
-
 }
 </style>

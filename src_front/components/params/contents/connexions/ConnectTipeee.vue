@@ -1,30 +1,45 @@
 <template>
 	<div class="connecttipeee parameterContent">
 		<Icon name="tipeee" class="icon" />
-		
+
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="tipeee.header">
 				<template #LINK>
-					<a href="https://www.tipeeestream.com/" target="_blank"><Icon name="newtab" />Tipeee Stream</a>
+					<a href="https://www.tipeeestream.com/" target="_blank"
+						><Icon name="newtab" />Tipeee Stream</a
+					>
 				</template>
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
-			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
+		<section v-if="!storeAuth.isPremium">
+			<TTButton icon="premium" @click="openPremium()" premium big>{{
+				t("premium.become_premiumBt")
+			}}</TTButton>
 		</section>
 
-		<section v-else-if="!$store.tipeee.connected">
-			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.tipeee_connect_failed") }}</div>
+		<section v-else-if="!storeTipeee.connected">
+			<TTButton
+				type="link"
+				:href="oAuthURL"
+				target="_self"
+				:loading="loading"
+				icon="newtab"
+				>{{ t("global.connect") }}</TTButton
+			>
+			<div class="card-item alert error" v-if="error" @click="error = false">
+				{{ t("error.tipeee_connect_failed") }}
+			</div>
 		</section>
 
 		<section v-else>
-			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton alert @click="disconnect()" icon="offline">{{
+				t("global.disconnect")
+			}}</TTButton>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers"/>{{$t("tipeee.examples")}}</h2>
+			<h2><Icon name="whispers" />{{ t("tipeee.examples") }}</h2>
 			<Icon name="loader" v-if="!fakeDonation || !fakeSub || !fakeResub" />
 			<template v-else>
 				<MessageItem :messageData="fakeDonation" />
@@ -35,91 +50,101 @@
 	</div>
 </template>
 
-<script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import MessageItem from '@/components/messages/MessageItem.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
+<script setup lang="ts">
+import TTButton from "@/components/TTButton.vue";
+import MessageItem from "@/components/messages/MessageItem.vue";
+import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
+import { storeDebug as useStoreDebug } from "@/store/debug/storeDebug";
+import { storeParams as useStoreParams } from "@/store/params/storeParams";
+import { storeTipeee as useStoreTipeee } from "@/store/tipeee/storeTipeee";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { onBeforeMount, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
-@Component({
-	components:{
-		TTButton,
-		MessageItem,
-	},
-	emits:[],
-})
-class ConnectTipeee extends Vue {
+const { t } = useI18n();
+const storeAuth = useStoreAuth();
+const storeDebug = useStoreDebug();
+const storeParams = useStoreParams();
+const storeTipeee = useStoreTipeee();
 
-	public error = false;
-	public loading = false;
-	public oAuthURL = "";
-	public fakeDonation:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
-	public fakeSub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
-	public fakeResub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
+const error = ref(false);
+const loading = ref(false);
+const oAuthURL = ref("");
+const fakeDonation = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
+const fakeSub = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
+const fakeResub = ref<TwitchatDataTypes.MessageTipeeeDonationData | undefined>(undefined);
 
-	public beforeMount():void {
-		if(!this.$store.tipeee.connected) {
-			if(this.$store.tipeee.authResult.code) {
-				//Complete oauth process
-				this.loading = true
-				this.$store.tipeee.completeOAuthProcess()
-				.then(success => {
-					this.error = !success;
-					this.loading = false;
-					this.loadAuthURL();
-				})
-			}else{
-				//Preload oAuth URL
-				this.loadAuthURL();
-			}
+onBeforeMount(() => {
+	if (!storeTipeee.connected) {
+		if (storeTipeee.authResult.code) {
+			//Complete oauth process
+			loading.value = true;
+			storeTipeee.completeOAuthProcess().then((success) => {
+				error.value = !success;
+				loading.value = false;
+				loadAuthURL();
+			});
+		} else {
+			//Preload oAuth URL
+			loadAuthURL();
 		}
+	}
 
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
-			this.fakeDonation = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
+			fakeDonation.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
 			mess.recurring = true;
-			this.fakeSub = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
+			fakeSub.value = mess;
+		},
+		false,
+	);
+	storeDebug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(
+		TwitchatDataTypes.TwitchatMessageType.TIPEEE,
+		(mess) => {
 			mess.recurring = true;
-			mess.recurringCount = Math.round(Math.random() *10)
-			this.fakeResub = mess;
-		}, false);
-	}
+			mess.recurringCount = Math.round(Math.random() * 10);
+			fakeResub.value = mess;
+		},
+		false,
+	);
+});
 
-	/**
-	 * Opens the premium param page
-	 */
-	public openPremium():void{
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-	}
-
-	/**
-	 * Disconnects from tipeee
-	 */
-	public disconnect():void{
-		this.$store.tipeee.disconnect();
-		this.loadAuthURL();
-	}
-
-	/**
-	 * initiliaze the auth url
-	 */
-	private loadAuthURL():void{
-		this.loading = true;
-		this.$store.tipeee.getOAuthURL().then(res => {
-			this.oAuthURL = res;
-			this.loading = false;
-		});
-	}
-
+/**
+ * Opens the premium param page
+ */
+function openPremium(): void {
+	storeParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 }
-export default toNative(ConnectTipeee);
+
+/**
+ * Disconnects from tipeee
+ */
+function disconnect(): void {
+	storeTipeee.disconnect();
+	loadAuthURL();
+}
+
+/**
+ * initiliaze the auth url
+ */
+function loadAuthURL(): void {
+	loading.value = true;
+	storeTipeee.getOAuthURL().then((res) => {
+		oAuthURL.value = res;
+		loading.value = false;
+	});
+}
 </script>
 
 <style scoped lang="less">
-.connecttipeee{
+.connecttipeee {
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;
@@ -131,10 +156,10 @@ export default toNative(ConnectTipeee);
 		margin-top: 2em;
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: 0.5em;
 			vertical-align: middle;
 		}
-		.chatMessage  {
+		.chatMessage {
 			font-size: 1em;
 		}
 	}

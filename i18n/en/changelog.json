@@ -2,15 +2,128 @@
 	"changelog": {
 		"version": "Version {VERSION}",
 		"title": "Latest updates",
-		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
-		"heat_details_link": "Heat",
+		"companion_details": "{LINK} is a Twitch extension allowing your viewers to play bingos, take part in quizzes or click on your stream.",
+		"companion_details_link": "Twitchat Companion",
 		"streamdeck_plugin": "Get Stream Deck plugin",
 		"streamsocket_plugin": "Install StreamSocket extension",
 		"highlights": [
 			{
-				"i": "pin",
-				"l": "/pin is here 🥳",
-				"d": "It's finally possible to pin chat messages from Twitchat!\n\nSimply right click a message and click \"Pin Message\", or use /pin command."
+				"i": "twitchat_companion",
+				"l": "Twitchat Companion",
+				"d": "A brand new Twitch extension made for Twitchat.\n\nYour viewers can now play Bingos, take part in Quizzes, click on your stream and even type on it, directly from Twitch, on desktop <strong>and mobile</strong>.",
+				"g": "update_images/companion.png",
+				"a": {
+					"l": "Try",
+					"i": "extension",
+					"param": "connexions",
+					"subparam": "twitchat_companion"
+				}
+			},
+			{
+				"i": "quiz",
+				"l": "Quizzes",
+				"d": "Create quizzes your viewers can play from the Twitchat Companion extension or from the chat.<ul><li>3 question types</li><li>All the options you could dream of</li><li>Import/export your questions as CSV</li><li>Live leaderboard</li></ul>A <strong>/quickquiz</strong> command can also create an ephemeral single question quiz.",
+				"g": "update_images/quiz.png",
+				"a": {
+					"l": "Try",
+					"param": "overlays",
+					"subparam": "quiz"
+				}
+			},
+			{
+				"i": "click",
+				"l": "Clickable areas",
+				"d": "Create clickable areas and make them show up on the extension.\n\nAdd cooldowns or permissions to them.",
+				"g": "update_images/areas.png",
+				"a": {
+					"l": "Try",
+					"param": "overlays",
+					"subparam": "clickableareas"
+				}
+			},
+			{
+				"i": "meldStudio",
+				"l": "Meld Studio",
+				"d": "Twitchat now connects with <a href=\"https://meldstudio.co\" target=\"_blank\">Meld Studio</a>.\n\nControl it and react to what happens in it from the Triggers.",
+				"a": {
+					"l": "Connect",
+					"i": "meldStudio",
+					"param": "connexions",
+					"subparam": "meldStudio"
+				}
+			},
+			{
+				"i": "elgato",
+				"l": "New Stream Deck plugin",
+				"d": "The Stream Deck plugin has been rewritten from scratch.\nOBS-websocket is no longer required to use it.",
+				"g": "update_images/streamdeck.png",
+				"a": {
+					"l": "Connect",
+					"i": "elgato",
+					"param": "connexions",
+					"subparam": "streamdeck"
+				}
+			},
+			{
+				"i": "bluesky",
+				"l": "Bluesky",
+				"d": "Connect your Bluesky account to:<ul><li>Post a message from the Triggers</li><li>Update your live status</li><li>Get notified about new followers</li><li>Receive your DMs and mentions right in Twitchat</li></ul>",
+				"g": "update_images/bluesky.png",
+				"a": {
+					"l": "Connect",
+					"i": "bluesky",
+					"param": "connexions",
+					"subparam": "bluesky"
+				}
+			},
+			{
+				"i": "youtube_jewels",
+				"l": "YouTube Jewels",
+				"d": "You'll now be notified when you receive jewels on YouTube.\n\nA dedicated trigger event is also available."
+			},
+			{
+				"i": "edit",
+				"l": "Stream prefix & suffix",
+				"d": "Define a prefix and/or a suffix that will automatically be added to your stream title anytime you update it from Twitchat.\n\n",
+				"a": {
+					"l": "Try",
+					"modal": "streamInfo"
+				}
+			},
+			{
+				"i": "placeholder",
+				"l": "Triggers - Modifiers",
+				"d": "Placeholders can now be transformed:<ul><li><strong>{USER.uppercase}</strong> => DURSS</li><li><strong>{AMOUNT.currency(EUR)}</strong> => €12.50</li><li><strong>{USER_FOLLOWAGE_MS.duration}</strong> => 1d 4h 12m 30s</li></ul>Almost 70 modifiers are available to format text, numbers, dates, durations or lists.\n\nThey work on the Triggers as well as on the Labels overlay.\n\nSee the <a href=\"https://github.com/Durss/Twitchat/blob/refs/heads/beta/PLACEHOLDER_MODIFIERS.md\" target=\"_blank\">full list</a>."
+			},
+			{
+				"i": "chatCommand",
+				"l": "Triggers - Command parameters",
+				"d": "The <strong>\"Optional command parameters\"</strong> can now extract information in a much more precise way.\n\nEither by defining a message format, or from a regular expression.",
+				"g": "update_images/comand-params.webp"
+			},
+			{
+				"i": "broadcast",
+				"l": "Triggers",
+				"d": "Triggers can now have a <strong>custom icon</strong> to spot them at a glance in your list.\n\nFind your Triggers thanks to a new search field.\n\nNew conditions interface.\n\n16 new events:<ul><li>Quiz complete</li><li>Custom Power Up redeemed</li><li>Jewels received on YouTube</li><li>User joins a raffle</li><li>Meld Studio: start/stop streaming, scene change, layer visibility, effect enabled and track mute</li></ul>7 new actions:<ul><li>Toggle clickable area</li><li>Edit a label</li>{_LI}<li>Ask for stream input</li><li>Post on Bluesky</li><li>Control Meld Studio</li><li>Change OBS filters settings</li><li>Change OBS sources audio tracks</li></ul>"
+			},
+			{
+				"i": "twitchat_api",
+				"p": true,
+				"l": "HTTP API",
+				"d": "Execute Twitchat actions from any external application with simple HTTP requests.\n\nEverything you can do with it is listed on the brand new <a href=\"https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md\" target=\"_blank\">API documentation</a>.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "twitchat_api"
+				}
+			},
+			{
+				"l": "And more",
+				"d": "Many other things have been added or modified.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#new_en\" target=\"_blank\">Read complete changelog here</a>"
+			},
+			{
+				"i": "donate",
+				"d": "Although I recently accepted a job offer, Twitchat has been my main activity for almost 3 years without any other source of income.\n\nIf you can afford it, a one-time donation on PayPal or a monthly support on Patreon would be super appreciated ❤️"
 			}
 		],
 		"forceRead": {

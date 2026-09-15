@@ -1,18 +1,25 @@
 <template>
-	<div class="chatpollresult chatMessage highlight pollResult">
-		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		<Icon name="chatPoll" alt="icon" class="icon"/>
+	<div class="chatpollresult chatMessage highlight pollResult" ref="rootEl">
+		<Icon name="chatPoll" alt="icon" class="icon" />
 		<div class="content">
-			<div class="title">{{messageData.poll.title}}</div>
+			<div class="title">{{ props.messageData.poll.title }}</div>
 
 			<div class="choices">
-				<div v-for="o in messageData.poll.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
+				<div
+					v-for="o in props.messageData.poll.choices"
+					:key="o.id"
+					class="choice"
+					:class="getChoiceClasses(o)"
+				>
 					<div class="infos">
 						<Icon class="check" name="checkmark" />
-						<span class="label">{{o.label}}</span>
-						<div class="users">
-							<Icon class="icon" name="user" />
-							{{o.votes}}
+						<span class="label">{{ o.label }}</span>
+						<div class="details">
+							<div class="percent">{{ getChoicePercent(o) }}%</div>
+							<div class="users">
+								<Icon class="icon" name="user" />
+								{{ o.votes }}
+							</div>
 						</div>
 					</div>
 					<div class="bar" :style="getChoiceStyles(o)"></div>
@@ -22,63 +29,68 @@
 	</div>
 </template>
 
-<script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-
-@Component({
-	components:{},
-	emits:["onRead"]
-})
+<script setup lang="ts">
 /**
  * Yeah stupid naming... but "ChatPollResult" is used for twitch polls because
  * all chat message items start with "Chat".
  */
-class ChatChatPollResult extends AbstractChatMessage {
+import { useChatMessage } from "@/composables/useChatMessage";
+import { storeCommon as useStoreCommon } from "@/store/common/storeCommon";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { computed, onBeforeMount, ref, useTemplateRef } from "vue";
 
-	@Prop
-	declare messageData:TwitchatDataTypes.MessageChatPollData;
+const props = defineProps<{
+	messageData: TwitchatDataTypes.MessageChatPollData;
+	lightMode?: boolean;
+	contextMenuOff?: boolean;
+}>();
 
-	public maxVotesValue:number = 0;
+const emit = defineEmits<{
+	onRead: [message: TwitchatDataTypes.ChatMessageTypes, e: MouseEvent];
+}>();
 
-	public get iconColor():string{
-			return this.$store.common.theme == "dark" ? "#9147ff" : "#772ce8";
-	}
+const rootEl = useTemplateRef<HTMLElement>("rootEl");
+useChatMessage(props, emit, rootEl);
+const storeCommon = useStoreCommon();
 
-	public getChoiceClasses(o:TwitchatDataTypes.MessageChatPollData["poll"]["choices"][number]):string[] {
-		const res = ["outcome"];
-		if(o.votes == this.maxVotesValue) res.push("winner");
-		return res;
-	}
+const maxVotesValue = ref(0);
 
-	public getChoiceStyles(o:TwitchatDataTypes.MessageChatPollData["poll"]["choices"][number]):{[key:string]:string} {
-		let totalVotes = 0;
-		if(this.messageData.poll.choices) {
-			for (let i = 0; i < this.messageData.poll.choices.length; i++) {
-				totalVotes += this.messageData.poll.choices[i]!.votes;
-			}
-		}
-		const percent = o.votes/Math.max(1,totalVotes);
-		return {
-			backgroundSize: `${percent * 100}% 100%`,
-		};
-	}
+const iconColor = computed<string>(() => (storeCommon.theme == "dark" ? "#9147ff" : "#772ce8"));
 
-	public beforeMount(): void {
-		let max = 0;
-		for (const e of this.messageData.poll.choices) {
-			if(e.votes >= max) max = e.votes;
-		}
-		this.maxVotesValue = max;
-	}
+function getChoiceClasses(o: TwitchatDataTypes.MessagePollDataChoice): string[] {
+	const res = ["outcome"];
+	if (o.votes == maxVotesValue.value) res.push("winner");
+	return res;
 }
-export default toNative(ChatChatPollResult);
+
+function getChoicePercent(o: TwitchatDataTypes.MessagePollDataChoice): number {
+	let totalVotes = 0;
+	if (props.messageData.poll.choices) {
+		for (let i = 0; i < props.messageData.poll.choices.length; i++) {
+			totalVotes += props.messageData.poll.choices[i]!.votes;
+		}
+	}
+	return Math.round((o.votes / Math.max(1, totalVotes)) * 100);
+}
+
+function getChoiceStyles(o: TwitchatDataTypes.MessagePollDataChoice): { [key: string]: string } {
+	return {
+		backgroundSize: `${getChoicePercent(o)}% 100%`,
+	};
+}
+
+onBeforeMount(() => {
+	let max = 0;
+	for (const e of props.messageData.poll.choices) {
+		if (e.votes >= max) max = e.votes;
+	}
+	maxVotesValue.value = max;
+});
 </script>
 
 <style scoped lang="less">
-.chatpollresult{
-	&>.icon {
+.chatpollresult {
+	& > .icon {
 		color: v-bind(iconColor);
 	}
 }

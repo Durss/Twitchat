@@ -6,56 +6,54 @@
 </template>
 
 <script lang="ts">
-import ParamItem from '@/components/params/ParamItem.vue';
-import type { TriggerActionVibrateData, TriggerData } from '@/types/TriggerActionDataTypes';
-import { VIBRATION_PATTERNS } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import ParamItem from "@/components/params/ParamItem.vue";
+import type { TriggerActionVibrateData, TriggerData } from "@/types/TriggerActionDataTypes";
+import { VIBRATION_PATTERNS } from "@/types/TriggerActionDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { toNative, Component, Prop, Vue } from "vue-facing-decorator";
 
 @Component({
-	components:{
+	components: {
 		ParamItem,
 	},
-	emits:[],
+	emits: [],
 })
 class TriggerActionVibratePhoneEntry extends Vue {
-
 	@Prop
-	public action!:TriggerActionVibrateData;
+	public action!: TriggerActionVibrateData;
 	@Prop
-	public triggerData!:TriggerData;
+	public triggerData!: TriggerData;
 
-	public param_url:TwitchatDataTypes.ParameterData<string> =
-			{
-				type:"list",
-				icon:"vibrate",
-				value:"6",
-				placeholderKey:"global.select_placeholder",
-				labelKey:"triggers.actions.vibrate.pattern",
-				listValues:[]
-			};
+	public param_url: TwitchatDataTypes.ParameterData<string> = {
+		type: "list",
+		icon: "vibrate",
+		value: "6",
+		placeholderKey: "global.select_placeholder",
+		labelKey: "triggers.actions.vibrate.pattern",
+		listValues: [],
+	};
 
-	public beforeMount():void {
-		this.param_url.listValues = VIBRATION_PATTERNS.map(v => {
-			return {value:v.id, label:v.label}
-		})
-		if(!this.action.pattern) this.action.pattern = this.param_url.value;
+	public beforeMount(): void {
+		this.param_url.listValues = VIBRATION_PATTERNS.map((v) => {
+			return { value: v.id, label: v.label };
+		});
+		if (!this.action.pattern) this.action.pattern = this.param_url.value;
 		else this.param_url.value = this.action.pattern;
 	}
 
 	/**
 	 * Execute pattern on change
 	 */
-	public onChange():void {
-		window.navigator.vibrate(VIBRATION_PATTERNS.find(v=>v.id == this.action.pattern)?.pattern || []);
+	public onChange(): void {
+		window.navigator.vibrate(
+			VIBRATION_PATTERNS.find((v) => v.id == this.action.pattern)?.pattern || [],
+		);
 	}
-		
 }
 export default toNative(TriggerActionVibratePhoneEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractionvibratephoneentryentry{
-	
+.triggeractionvibratephoneentryentry {
 }
 </style>

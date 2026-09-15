@@ -6,24 +6,12 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Alert from './views/AlertView.vue';
-
-@Component({
-	components:{
-		Alert,
-	},
-	emits:[],
-})
-class AppPublic extends Vue {
-
-}
-export default toNative(AppPublic);
+<script setup lang="ts">
+import Alert from "./views/AlertView.vue";
 </script>
 
 <style scoped lang="less">
-.apppublic{
+.apppublic {
 	// min-width: 100vw;
 	// min-height: 100vh;
 	color: var(--color-text);

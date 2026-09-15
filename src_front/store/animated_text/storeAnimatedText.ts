@@ -1,45 +1,38 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import StoreProxy, { type IAnimatedTextActions, type IAnimatedTextGetters, type IAnimatedTextState } from '../StoreProxy';
+import type { StoreActions } from "@/types/pinia-helpers";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import DataStore from "../DataStore";
+import StoreProxy, {
+	type IAnimatedTextActions,
+	type IAnimatedTextGetters,
+	type IAnimatedTextState,
+} from "../StoreProxy";
 
-const queryIdToResolver = new Map<string, ()=>void>();
+const queryIdToResolver = new Map<string, () => void>();
 
-export const storeAnimatedText = defineStore('animatedtext', {
-	state: () => ({
-		animatedTextList: [] as TwitchatDataTypes.AnimatedTextData[],
-		selectedAnimatedTextIDs: [],
-	} as IAnimatedTextState),
-
-
-
-	getters: {
-	} as IAnimatedTextGetters
-	& ThisType<UnwrapRef<IAnimatedTextState> & _StoreWithGetters<IAnimatedTextGetters> & PiniaCustomProperties>
-	& _GettersTree<IAnimatedTextState>,
-
-
+export const storeAnimatedText = defineStore("animatedtext", {
+	state: (): IAnimatedTextState => ({
+		animatedTextList: [],
+	}),
 
 	actions: {
-		async populateData():Promise<void> {
+		async populateData(): Promise<void> {
 			const json = DataStore.get(DataStore.ANIMATED_TEXT_CONFIGS);
-			if(json) {
+			if (json) {
 				const data = JSON.parse(json) as IStoreData;
-				this.animatedTextList = data.animatedTextList
+				this.animatedTextList = data.animatedTextList;
 			}
 
 			/**
 			 * Called when animated text overlay requests for a animated text configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_ANIMATED_TEXT_CONFIGS, (event:TwitchatEvent<{ id?:string }>)=> {
-				if(event.data?.id) {
+			PublicAPI.instance.addEventListener("GET_ANIMATED_TEXT_CONFIGS", (event) => {
+				if (event.data?.id) {
 					this.broadcastStates(event.data.id);
-				}else{
+				} else {
 					//Broadcast all states
 					for (const entry of this.animatedTextList) {
 						this.broadcastStates(entry.id);
@@ -50,94 +43,125 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay completes hide animation
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
-				if(event.data?.queryId) {
+			PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_HIDE_COMPLETE", (event) => {
+				if (event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
-					if(resolver) resolver();
+					if (resolver) resolver();
 				}
 			});
 
 			/**
 			 * Called when animated text overlay completes show animation
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
-				if(event.data?.queryId) {
+			PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_SHOW_COMPLETE", (event) => {
+				if (event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
-					if(resolver) resolver();
+					if (resolver) resolver();
+				}
+			});
+
+			/**
+			 * Called when animated text overlay completes show animation
+			 */
+			PublicAPI.instance.addEventListener("SET_ANIMATED_TEXT_CONTENT_FROM_SD", (event) => {
+				console.log("SET_ANIMATED_TEXT_CONTENT_FROM_SD", event.data);
+				if (event.data?.queryId) {
+					console.log("Transmit to overlays");
+					PublicAPI.instance.broadcast("SET_ANIMATED_TEXT_CONTENT", event.data);
 				}
 			});
 		},
 
-		broadcastStates(id?:string) {
+		broadcastStates(id?: string) {
 			for (const entry of this.animatedTextList) {
-				if(id && entry.id !== id || !entry.enabled) continue;
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CONFIGS, entry);
+				if ((id && entry.id !== id) || !entry.enabled) continue;
+				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CONFIGS", entry);
 			}
 		},
 
 		createAnimatedText() {
-			if(!StoreProxy.auth.isPremium && this.animatedTextList.length >= Config.instance.MAX_TIMERS) return;
-			const data:TwitchatDataTypes.AnimatedTextData = {
-				id:Utils.getUUID(),
-				title:"",
-				enabled:true,
-				animDurationScale:1,
-				animStrength:1,
-				animStyle:"wave",
-				colorBase:"#008667",
-				colorHighlights:"#e04e00",
-				textFont:"Inter",
-				textSize:30,
-			}
+			if (
+				!StoreProxy.auth.isPremium &&
+				this.animatedTextList.length >= Config.instance.MAX_TIMERS
+			)
+				return;
+			const data: TwitchatDataTypes.AnimatedTextData = {
+				id: Utils.getUUID(),
+				title: "",
+				enabled: true,
+				animDurationScale: 1,
+				animStrength: 1,
+				animStyle: "wave",
+				colorBase: "#008667",
+				colorHighlights: "#e04e00",
+				textFont: "Inter",
+				textSize: 30,
+			};
 			this.animatedTextList.push(data);
 			this.saveData();
 		},
 
-		deleteAnimatedText(id:string) {
-			const index = this.animatedTextList.findIndex(t=> t.id === id);
-			if(index == -1) return;
-			StoreProxy.main.confirm(StoreProxy.i18n.t("overlay.animatedText.delete_confirm.title"), StoreProxy.i18n.t("overlay.animatedText.delete_confirm.message"))
-			.then(()=> {
-				this.animatedTextList.splice(index, 1);
-				this.saveData();
-			}).catch(_=> {});
+		deleteAnimatedText(id: string) {
+			const index = this.animatedTextList.findIndex((t) => t.id === id);
+			if (index == -1) return;
+			StoreProxy.main
+				.confirm(
+					StoreProxy.i18n.t("overlay.animatedText.delete_confirm.title"),
+					StoreProxy.i18n.t("overlay.animatedText.delete_confirm.message"),
+				)
+				.then(() => {
+					this.animatedTextList.splice(index, 1);
+					this.saveData();
+				})
+				.catch((_) => {});
 		},
 
 		saveData() {
-			const data:IStoreData = {
-				animatedTextList:this.animatedTextList
+			const data: IStoreData = {
+				animatedTextList: this.animatedTextList,
 			};
 			DataStore.set(DataStore.ANIMATED_TEXT_CONFIGS, data);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
-		async animateText(overlayId:string, text:string, autoHide:boolean = false, bypassAll:boolean = false):Promise<void> {
-			return new Promise<void>((resolve, reject)=> {
-				const queryId:string = Utils.getUUID();
+		async animateText(
+			overlayId: string,
+			text: string,
+			autoHide: boolean = false,
+			bypassAll: boolean = false,
+		): Promise<void> {
+			return new Promise<void>((resolve, _reject) => {
+				const queryId: string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SET, {overlayId, queryId, text, autoHide, bypassAll});
+				PublicAPI.instance.broadcast("SET_ANIMATED_TEXT_CONTENT", {
+					id: overlayId,
+					queryId,
+					text,
+					autoHide,
+					bypassAll,
+				});
 			});
 		},
 
-		async hideText(overlayId:string):Promise<void> {
-			return new Promise<void>((resolve, reject)=> {
-				const queryId:string = Utils.getUUID();
+		async hideText(overlayId: string): Promise<void> {
+			return new Promise<void>((resolve, _reject) => {
+				const queryId: string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CLOSE, {overlayId, queryId});
-		});
+				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CLOSE", { id: overlayId, queryId });
+			});
 		},
-	} as IAnimatedTextActions
-	& ThisType<IAnimatedTextActions
-		& UnwrapRef<IAnimatedTextState>
-		& _StoreWithState<"animatedtext", IAnimatedTextState, IAnimatedTextGetters, IAnimatedTextActions>
-		& _StoreWithGetters<IAnimatedTextGetters>
-		& PiniaCustomProperties
+	} satisfies StoreActions<
+		"animatedtext",
+		IAnimatedTextState,
+		IAnimatedTextGetters,
+		IAnimatedTextActions
 	>,
-})
+});
 
-if(import.meta.hot) {
-	import.meta.hot.accept(acceptHMRUpdate(storeAnimatedText, import.meta.hot))
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeAnimatedText, import.meta.hot));
 }
 
 interface IStoreData {
-	animatedTextList:TwitchatDataTypes.AnimatedTextData[];
+	animatedTextList: TwitchatDataTypes.AnimatedTextData[];
 }
