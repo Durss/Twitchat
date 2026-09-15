@@ -432,7 +432,6 @@ import { asset } from "@/composables/useAsset";
 import { useSidePanel } from "@/composables/useSidePanel";
 import { storeAuth as useStoreAuth } from "@/store/auth/storeAuth";
 import { storeBingoGrid as useStoreBingoGrid } from "@/store/bingo_grid/storeBingoGrid";
-import { storeStream as useStoreStream } from "@/store/stream/storeStream";
 import { type TriggerActionBingoGridData, type TriggerData } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -481,7 +480,6 @@ const { t } = useI18n();
 const { getAsset } = asset();
 const storeAuth = useStoreAuth();
 const storeBingoGrid = useStoreBingoGrid();
-const storeStream = useStoreStream();
 const rootEl = useTemplateRef<HTMLElement>("rootEl");
 const { close } = useSidePanel(rootEl, () => emit("close"), props.embedMode === false);
 
