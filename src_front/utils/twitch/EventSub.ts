@@ -468,12 +468,32 @@ export default class EventSub {
 			//*/
 
 			//Not using those as IRC does it better
-			// if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
-			// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
-			// }
+			if (TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
+				void this.createSubscription(
+					channelId,
+					myUID,
+					TwitchEventSubDataTypes.SubscriptionTypes.SUB,
+					"1",
+				);
+				void this.createSubscription(
+					channelId,
+					myUID,
+					TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT,
+					"1",
+				);
+				void this.createSubscription(
+					channelId,
+					myUID,
+					TwitchEventSubDataTypes.SubscriptionTypes.RESUB,
+					"1",
+				);
+				void this.createSubscription(
+					channelId,
+					myUID,
+					TwitchEventSubDataTypes.SubscriptionTypes.SUB_END,
+					"1",
+				);
+			}
 
 			//Not using this as IRC does it better
 			// if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
@@ -1481,10 +1501,16 @@ export default class EventSub {
 			| TwitchEventSubDataTypes.SubgiftEvent,
 	): void {
 		const sub = event as TwitchEventSubDataTypes.SubEvent;
-		const renew = event as TwitchEventSubDataTypes.SubRenewEvent;
+		// const renew = event as TwitchEventSubDataTypes.SubRenewEvent;
 
-		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT BECAUSE IRC DOES IT BETTER
+		if (Config.instance.BETA_MODE) {
+			void ApiHelper.call("log", "POST", {
+				cat: "eventsub",
+				log: { topic, tt_v: import.meta.env.PACKAGE_VERSION, data: sub },
+			});
+		}
 
+		/*
 		const channel_id = event.broadcaster_user_id;
 		const tier_n = parseInt(event.tier);
 		const message: TwitchatDataTypes.MessageSubscriptionData = {
@@ -1529,6 +1555,7 @@ export default class EventSub {
 			message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
 		}
 		void StoreProxy.chat.addMessage(message);
+		*/
 	}
 
 	/**
