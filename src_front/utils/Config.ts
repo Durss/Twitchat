@@ -51,6 +51,11 @@ export default class Config {
 		document.location.hostname,
 	);
 	/**
+	 * Sentry's project DSN.
+	 */
+	public SENTRY_DSN =
+		"https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224";
+	/**
 	 * Heat extension URL
 	 */
 	public HEAT_EXTENSION_URL =
@@ -318,6 +323,17 @@ export default class Config {
 			document.location.host.indexOf("beta") > -1 ||
 			document.location.host.indexOf("alpha") > -1 ||
 			document.location.host.indexOf("localhost") > -1
+		);
+	}
+
+	/**
+	 * Environment the current instance runs on, used by Sentry
+	 */
+	public get SENTRY_ENVIRONMENT(): string {
+		return (
+			{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[
+				document.location.hostname
+			] || document.location.hostname
 		);
 	}
 

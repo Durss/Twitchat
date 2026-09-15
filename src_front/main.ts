@@ -352,7 +352,7 @@ function buildApp() {
 			app,
 			debug: false,
 			release: "twitchat@" + import.meta.env.PACKAGE_VERSION,
-			dsn: "https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224",
+			dsn: Config.instance.SENTRY_DSN,
 			integrations: [
 				Sentry.webVitalsIntegration(),
 				Sentry.reportingObserverIntegration(),
@@ -361,10 +361,8 @@ function buildApp() {
 					blockAllMedia: false,
 				}),
 			],
-			environment:
-				{ "beta.twitchat.fr": "beta", "alpha.twitchat.fr": "alpha", "twitchat.fr": "prod" }[
-					document.location.hostname
-				] || document.location.hostname,
+			environment: Config.instance.SENTRY_ENVIRONMENT,
+			initialScope: { tags: { app: "main" } },
 			tracesSampleRate: 1.0,
 			replaysSessionSampleRate: 0,
 			replaysOnErrorSampleRate: 0,
