@@ -4003,8 +4003,6 @@ export default class TwitchUtils {
 							/((?:(?:http|ftp|https):\/\/)?(?:[\w-]+\.)+(?:[a-z]{2,})(?![\w-])(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?)/gi.test(
 								v,
 							);
-						//Avoid floating numbers to be parsed as links
-						if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 						const node: TwitchatDataTypes.ParseMessageChunk = {
 							type: islink ? "url" : "text",
 							value: v,
