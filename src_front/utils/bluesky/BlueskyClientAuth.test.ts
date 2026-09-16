@@ -23,12 +23,8 @@ let assertionResponse: { status: number; body: unknown } = {
 	body: { success: true, assertion: ASSERTION },
 };
 
-const logs: string[] = [];
-const log = (step: string, info?: string) => void logs.push(step + " " + (info ?? ""));
-
 beforeEach(() => {
 	calls = [];
-	logs.length = 0;
 	assertionResponse = {
 		status: 200,
 		body: { success: true, assertion: ASSERTION },
@@ -88,10 +84,7 @@ describe("toLocalClientMetadata", () => {
 
 describe("clientAuthFetch", () => {
 	it("adds the assertion to an authorization server request", async () => {
-		await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(
+		await clientAuthFetch(CLIENT_ID)(
 			authServerRequest({
 				grant_type: "refresh_token",
 				refresh_token: "ref-123",
@@ -121,10 +114,9 @@ describe("clientAuthFetch", () => {
 
 	it("authenticates the PAR and revocation endpoints too", async () => {
 		const endpoint = "https://bsky.social/oauth/revoke";
-		await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(authServerRequest({ token: "tok", client_id: CLIENT_ID }, endpoint));
+		await clientAuthFetch(CLIENT_ID)(
+			authServerRequest({ token: "tok", client_id: CLIENT_ID }, endpoint),
+		);
 
 		expect(await calls[0]!.clone().json()).toEqual({ endpoint });
 		expect(new URLSearchParams(await calls[1]!.text()).get("client_assertion")).toBe(ASSERTION);
@@ -132,10 +124,7 @@ describe("clientAuthFetch", () => {
 
 	it("leaves the API calls alone", async () => {
 		//An XRPC call: same host, but JSON and no client_id
-		await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(
+		await clientAuthFetch(CLIENT_ID)(
 			new Request("https://bsky.social/xrpc/com.atproto.repo.putRecord", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -143,10 +132,7 @@ describe("clientAuthFetch", () => {
 			}),
 		);
 		//A blob upload
-		await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(
+		await clientAuthFetch(CLIENT_ID)(
 			new Request("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", {
 				method: "POST",
 				headers: { "Content-Type": "image/jpeg" },
@@ -154,7 +140,7 @@ describe("clientAuthFetch", () => {
 			}),
 		);
 		//Identity resolution
-		await clientAuthFetch(CLIENT_ID, log)("https://bsky.social/.well-known/did.json");
+		await clientAuthFetch(CLIENT_ID)("https://bsky.social/.well-known/did.json");
 
 		//No assertion was requested for any of them
 		expect(calls.map((c) => c.url)).toEqual([
@@ -166,10 +152,9 @@ describe("clientAuthFetch", () => {
 	});
 
 	it("leaves a form POST that isn't ours alone", async () => {
-		await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(authServerRequest({ client_id: "https://someone.else/client-metadata.json" }));
+		await clientAuthFetch(CLIENT_ID)(
+			authServerRequest({ client_id: "https://someone.else/client-metadata.json" }),
+		);
 
 		expect(calls).toHaveLength(1);
 		expect(new URLSearchParams(await calls[0]!.text()).has("client_assertion")).toBe(false);
@@ -182,15 +167,13 @@ describe("clientAuthFetch", () => {
 		};
 
 		await expect(
-			clientAuthFetch(
-				CLIENT_ID,
-				log,
-			)(authServerRequest({ grant_type: "refresh_token", client_id: CLIENT_ID })),
+			clientAuthFetch(CLIENT_ID)(
+				authServerRequest({ grant_type: "refresh_token", client_id: CLIENT_ID }),
+			),
 		).rejects.toThrow(/client assertion/);
 
 		//Only the assertion request went out, nothing reached Bluesky
 		expect(calls).toHaveLength(1);
-		expect(logs.some((l) => l.startsWith("auth:assertionFailed"))).toBe(true);
 	});
 
 	it("never throws a TypeError, which the lib reads as a dead session", async () => {
@@ -198,12 +181,9 @@ describe("clientAuthFetch", () => {
 			throw new TypeError("Failed to fetch");
 		});
 
-		const error = await clientAuthFetch(
-			CLIENT_ID,
-			log,
-		)(authServerRequest({ grant_type: "refresh_token", client_id: CLIENT_ID })).catch(
-			(e: unknown) => e,
-		);
+		const error = await clientAuthFetch(CLIENT_ID)(
+			authServerRequest({ grant_type: "refresh_token", client_id: CLIENT_ID }),
+		).catch((e: unknown) => e);
 
 		expect(error).toBeInstanceOf(Error);
 		expect(error).not.toBeInstanceOf(TypeError);

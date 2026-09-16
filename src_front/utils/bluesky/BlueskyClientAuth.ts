@@ -52,7 +52,6 @@ export function toLocalClientMetadata(
  */
 export function clientAuthFetch(
 	clientId: string,
-	log: (step: string, info?: string) => void,
 ): (input: string | URL | Request, init?: RequestInit) => Promise<Response> {
 	return async (input, init) => {
 		const method = (
@@ -79,7 +78,7 @@ export function clientAuthFetch(
 		//server would reject it with a much less obvious error. Throwing a
 		//plain Error (never a TypeError, which the lib treats as a dead
 		//session) leaves the session alone, to be retried on the next call.
-		const assertion = await requestAssertion(request.url, log);
+		const assertion = await requestAssertion(request.url);
 
 		params.set("client_assertion_type", CLIENT_ASSERTION_TYPE);
 		params.set("client_assertion", assertion);
@@ -94,10 +93,7 @@ export function clientAuthFetch(
  * Asks the backend to sign an assertion for the given authorization server
  * endpoint.
  */
-async function requestAssertion(
-	endpoint: string,
-	log: (step: string, info?: string) => void,
-): Promise<string> {
+async function requestAssertion(endpoint: string): Promise<string> {
 	let status = 0;
 	let json: { success?: boolean; assertion?: string; error?: string } = {};
 	try {
@@ -110,13 +106,10 @@ async function requestAssertion(
 		json = await res.json();
 	} catch (error) {
 		//Network failures land here as a TypeError, which must not escape
-		log("auth:assertionFailed", "network error " + (error as Error)?.message);
+		console.warn("Bluesky client assertion request failed", error);
 	}
 
 	if (status !== 200 || !json.assertion) {
-		//Worth its own log entry: this is the only failure mode that comes from
-		//Twitchat rather than from Bluesky
-		log("auth:assertionFailed", "status=" + status + " error=" + (json.error || "none"));
 		//Deliberately a plain Error: the lib reads a TypeError as a dead session
 		//and deletes it, where this one only fails the request at hand
 		throw new Error("Twitchat couldn't sign the Bluesky client assertion (" + status + ")");

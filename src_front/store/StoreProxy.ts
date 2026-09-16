@@ -4525,16 +4525,6 @@ export interface IAPIActions {
 export interface IBlueskyState {
 	connected: boolean;
 	connectionError: string | null;
-	logs: {
-		/** Date of the entry */
-		date: number;
-		/** Step identifier (ex: "auth:success") */
-		step: string;
-		/** Id of the tab that emitted it, to spot concurrent Twitchat instances */
-		tab: string;
-		/** Optional details */
-		info?: string;
-	}[];
 	autoLive: boolean;
 	dmsAlerts: boolean;
 	mentionsAlerts: boolean;
@@ -4559,12 +4549,6 @@ export interface IBlueskyGetters {}
 
 export interface IBlueskyActions {
 	/**
-	 * Appends an entry to the diagnostic log and persists it.
-	 * Merges with what's already stored so concurrent tabs don't
-	 * overwrite each other's entries.
-	 */
-	log(step: string, info?: string): void;
-	/**
 	 * Populates store from DataStorage
 	 */
 	populateData(): Promise<void>;
@@ -4583,7 +4567,7 @@ export interface IBlueskyActions {
 	/**
 	 * Disconnects the user
 	 */
-	disconnect(manual?: boolean): Promise<void>;
+	disconnect(): Promise<void>;
 	/**
 	 * Sets auto live based on current stream state
 	 */

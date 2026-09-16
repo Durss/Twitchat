@@ -43,17 +43,9 @@
 					{{ t("bluesky.error") }}
 				</div>
 
-				<i18n-t
-					scope="global"
-					tag="div"
-					keypath="bluesky.session_lost"
-					class="card-item alert sessionLost"
-					v-if="storeBluesky.connectionError"
-				>
-					<template #REASON>
-						<pre class="card-item dark">{{ storeBluesky.connectionError }}</pre>
-					</template>
-				</i18n-t>
+				<div class="card-item alert sessionLost" v-if="storeBluesky.connectionError">
+					{{ storeBluesky.connectionError }}
+				</div>
 			</form>
 		</div>
 
@@ -63,7 +55,7 @@
 				:avatar="storeBluesky.profile?.avatar"
 				:name="storeBluesky.profile?.displayName ?? storeBluesky.profile?.handle"
 				:details="storeBluesky.profile ? '@' + storeBluesky.profile.handle : undefined"
-				@logout="storeBluesky.disconnect(true)"
+				@logout="storeBluesky.disconnect()"
 			/>
 
 			<ParamItem
@@ -206,9 +198,6 @@ async function authenticate() {
 		.sessionLost {
 			white-space: pre-line;
 			line-height: 1.2em;
-			pre {
-				margin-top: 0.5em;
-			}
 		}
 	}
 }

@@ -64,9 +64,7 @@
 					clientMetadata: toLocalClientMetadata(
 						await OAuthClient.fetchMetadata({ clientId }),
 					),
-					fetch: clientAuthFetch(clientId, (step, info) =>
-						console.log("[bluesky] " + step, info ?? ""),
-					),
+					fetch: clientAuthFetch(clientId),
 					handleResolver: iss || "https://bsky.social",
 				});
 				await client.init();

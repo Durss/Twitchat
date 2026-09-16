@@ -128,6 +128,7 @@ export default class DataStoreCommon {
 	public static STREAMFOG_CONFIGS: string = "streamFogConfigs";
 	public static QUIZ_CONFIGS: string = "quizConfigs";
 	public static BLUESKY_CONFIGS: string = "blueskyConfigs";
+	public static BLUESKY_LINK: string = "blueskyLink";
 	public static MELD_STUDIO_CONFIGS: string = "meldStudioConfigs";
 	public static JUMPSCARE_REWARDS: string = "jumpscareRewards";
 
@@ -171,6 +172,7 @@ export default class DataStoreCommon {
 		this.TWITCH_BOT,
 		this.EMERGENCY_FOLLOWERS,
 		this.STREAM_SOCKET_SECRET,
+		this.BLUESKY_LINK,
 	];
 
 	/********************

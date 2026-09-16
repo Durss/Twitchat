@@ -8,6 +8,7 @@
 		"param_dmsAlerts": "Recevoir les messages privés",
 		"param_mentionAlerts": "Recevoir les messages me mentionnant",
 		"error": "Authentication failed",
-		"session_lost": "Votre session Bluesky a été perdue, veuillez vous reconnecter.\n{REASON}"
+		"session_lost": "Votre session Bluesky a été perdue, veuillez vous reconnecter.",
+		"session_restore_failed": "Impossible de restaurer votre session Bluesky, Twitchat réessaiera plus tard."
 	}
 }
